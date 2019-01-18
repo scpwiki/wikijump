@@ -1,0 +1,121 @@
+<database>
+
+	<table name="forum_group">
+		<column name="group_id" type="serial" primaryKey="true"/>
+		<column name="name" type="varchar(80)"/>
+		<column name="description" type="text"/>	
+		<column name="sort_index" type="int" default="0"/>
+		<column name="site_id" type="int"/>	
+		<column name="visible" type="boolean" default="true"/>
+	</table>
+	
+	<table name="forum_category">
+		<column name="category_id" type="serial" primaryKey="true"/>
+		<column name="group_id" type="int"/>
+		<column name="name" type="varchar(80)"/>
+		<column name="description" type="text"/>		
+		<column name="number_posts" type="int" default="0"/>
+		<column name="number_threads" type="int" default="0"/>
+		<column name="last_post_id" type="int"/>
+		
+		<column name="permissions_default" type="boolean" default="true"/> <!-- true if no specific permissions -->
+		<column name="permissions" type="varchar(200)"/> <!-- string-encoded permissions -->	
+	<!--	<column name="structure_default" type="boolean" default="true"/> --> <!-- true if no specific structure -->
+		
+		<column name="max_nest_level" type="int"/> <!-- maximum nest level -->	
+		<!--<column name="per_page_discussion_default" type="boolean" default="false"/>
+		<column name="per_page_discussion" type="boolean" default="false"/>
+		-->
+		<column name="sort_index" type="int" default="0"/>
+		<column name="site_id" type="int"/>	
+		
+		<!-- extra data if is a "per page" discussion -->
+		<column name="per_page_discussion" type="boolean" default="false"/>
+		
+	</table>
+	
+	<table name="forum_thread">
+		<column name="thread_id" type="serial" primaryKey="true"/>
+		
+		<column name="user_id" type="int" />
+		<column name="user_string" type="varchar(80)"/>
+		
+		<column name="category_id" type="int" />
+		<column name="title" type="varchar(256)"/>
+		<column name="description" type="varchar(1000)"/>
+
+		<column name="number_posts" type="int" default="1"/>
+		
+		<column name="date_started" type="timestamp"/>
+		<column name="site_id" type="int"/>	
+		
+		<column name="last_post_id" type="int"/>
+		
+		<!-- extra data if is a "per page" discussion -->
+		<column name="page_id" type="int" />
+		
+		<column name="sticky" type="boolean" default="false"/>
+		<column name="blocked" type="boolean" default="false"/>
+		
+	</table>
+	
+	<table name="forum_post">
+		<column name="post_id" type="serial" primaryKey="true"/>
+		<column name="thread_id" type="int"/>
+		<column name="parent_id" type="int"/>
+		
+		<column name="user_id" type="int" />
+		<column name="user_string" type="varchar(80)"/>
+		
+		<column name="title" type="varchar(256)"/>
+		<column name="text" type="text"/>
+		
+		<column name="date_posted" type="timestamp"/>
+		<column name="site_id" type="int"/>	
+		
+		
+		
+		<column name="revision_number"  type="int" default="0"/> <!-- current revision number-->
+		<column name="revision_id"  type="int"/> <!-- id of the current revision -->
+		
+		<column name="date_last_edited" type="timestamp"/>
+		<column name="edited_user_id" type="int"/> <!-- last edited by -->
+		<column name="edited_user_string" type="varchar(80)"/> <!-- user info if user_id IS NULL -->
+		
+	</table>
+	
+	<table name="forum_post_revision">
+		<column name="revision_id" type="serial" primaryKey="true"/>
+		<column name="post_id" type="int"/>
+		 
+		<column name="user_id" type="int"/> <!-- user that created this revision -->
+		<column name="user_string" type="varchar(80)"/>
+		<column name="text" type="text"/>
+		<column name="title" type="varchar(256)"/>
+		<column name="date" type="timestamp"/>
+		
+		
+	</table>
+	
+	<table name="forum_settings">
+		<column name="site_id" type="int" primaryKey="true"/>
+		<!--<column name="enabled" type="boolean" default="false"/>-->
+		<!--<column name="can_post" type="varchar(40)" default="member"/>--> <!-- anonymous|registered|member -->
+		<column name="permissions" type="varchar(200)"/> <!-- string-encoded permissions -->	
+		<column name="per_page_discussion" type="boolean" default="false"/>
+		<column name="max_nest_level" type="int" default="0"/>
+	</table>
+	
+	<table name="front_forum_feed">
+		<column name="feed_id" type="serial" primaryKey="true"/>
+		<column name="page_id" type="int" />
+		<column name="title" type="varchar(256)"/>
+		<column name="label" type="varchar(90)"/>
+		<column name="description" type="varchar(256)"/>
+		<column name="categories" type="varchar(100)" />
+		<column name="parmhash" type="varchar(100)" />
+		
+		<column name="site_id" type="int"/>	
+	</table>
+
+</database>

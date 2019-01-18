@@ -1,0 +1,34 @@
+
+
+.search-box{}
+
+.search-box .query-area{
+	width: auto;
+	margin: 0 auto;
+	text-align: center;
+}
+
+.search-user-results{
+	margin: 1em 0;
+}
+
+.search-user-results .item{
+	margin: 0.5em 0;
+}
+
+.search-user-results .item .title{
+	font-size: 120%;
+}
+
+.search-user-results .item .preview{
+	font-size: 100%;
+}
+
+.search-user-results .item .url{
+	color: #484;
+}
+
+.search-box .pager {
+	margin: 1em 0;
+	text-align: center;
+}

@@ -1,0 +1,65 @@
+<database>
+
+	<table name="petition_campaign">
+		<column name="campaign_id" type="serial" primaryKey="true"/>
+		<column name="site_id" type="int"/>
+		
+		<column name="name" type="varchar(256)"/>
+		<column name="identifier" type="varchar(256)"/>
+		
+		<column name="active" type="boolean" default="true"/>
+		
+		<column name="number_signatures" type="int" default="0"/>
+		<column name="deleted"  type="boolean" default="false"/>
+		
+		<!-- fields to collect -->
+		<column name="collect_address" type="boolean" default="true"/>
+		<column name="collect_city" type="boolean" default="true"/>
+		<column name="collect_state" type="boolean" default="true"/>
+		<column name="collect_zip" type="boolean" default="true"/>
+		<column name="collect_country" type="boolean" default="true"/>
+		<column name="collect_comments" type="boolean" default="true"/>
+		
+		<!-- fields to show on public listings -->
+		<column name="show_city" type="boolean" default="true"/>
+		<column name="show_state" type="boolean" default="true"/>
+		<column name="show_zip" type="boolean" default="false"/>
+		<column name="show_country" type="boolean" default="true"/>
+		<column name="show_comments" type="boolean" default="false"/>
+		
+		<column name="thank_you_page" type="varchar(256)"/>
+		
+	</table>
+	
+	<table name="petition_signature">
+		<column name="signature_id" type="serial" primaryKey="true"/>
+		<column name="campaign_id" type="int"/>
+		
+		<!-- data fields -->
+		<column name="first_name" type="varchar(256)"/>
+		<column name="last_name" type="varchar(256)"/>
+		
+		<column name="address1" type="varchar(256)"/>
+		<column name="address2" type="varchar(256)"/>
+		<column name="zip" type="varchar(256)"/>
+		<column name="city" type="varchar(256)"/>
+		<column name="state" type="varchar(256)"/>
+		<column name="country" type="varchar(256)"/>
+		<column name="country_code" type="varchar(8)"/>
+		
+		<column name="comments" type="text"/>
+		
+		<column name="email" type="varchar(256)"/>
+		
+		
+		
+		
+		<column name="confirmed" type="boolean" default="false" />
+		<column name="confirmation_hash" type="varchar(256)" />
+		<column name="confirmation_url" type="varchar(256)" /> <!-- relative url required for confirmation -->
+		
+		<column name="date" type="timestamp"/>
+		
+	</table>
+
+</database>

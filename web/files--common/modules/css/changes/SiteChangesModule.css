@@ -1,0 +1,99 @@
+
+.changes-list{}
+
+.changes-list .pager{
+	margin: 1em 0;
+	text-align: center;
+}
+
+.changes-list-item{
+	overflow: hidden;
+	padding: 2px;
+}
+
+.changes-list-item:hover{
+	background-color: #F2F2F2;
+}
+
+.changes-list-item table{
+	width: 98%;
+	
+}
+
+.changes-list-item .title{
+
+}
+
+.changes-list-item .mod-date{
+	text-align: right;
+	width: 13em;
+
+}
+.changes-list-item .revision-no{
+	text-align: center;
+	width: 7em;
+}
+.changes-list-item .flags{
+	text-align: left;
+	width: 3em;
+}
+.changes-list-item .mod-by{
+	width: 15em;
+	text-align: left;
+}
+
+.changes-list-item .comments{
+	font-size: 95%;
+	color: #666;
+	margin: 2px 0;
+}
+
+/*
+.changes-list{}
+
+.changes-list .pager{
+	margin: 1em 0;
+	text-align: center;
+}
+
+.changes-list-item{
+	overflow: hidden;
+	padding: 2px;
+}
+.changes-list-item .title{
+
+}
+.changes-list-item:hover{
+	background-color: #F2F2F2;
+}
+
+.changes-list-item .mod-date{
+	float: right;
+	text-align: right;
+	width: 17em;
+
+}
+
+.changes-list-item .revision-no{
+	float: right;	
+	text-align: center;
+	width: 10em;
+}
+
+.changes-list-item .flags{
+	float: right;	
+	text-align: left;
+	width: 4em;
+}
+
+.changes-list-item .mod-by{
+	float: right;
+	width: 15em;
+	text-align: left;
+}
+.changes-list-item .comments{
+	font-size: 95%;
+	color: #666;
+	margin: 2px 0;
+}
+*/

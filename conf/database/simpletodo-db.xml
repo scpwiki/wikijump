@@ -1,0 +1,9 @@
+<database>
+	<table name="simpletodo_list">
+		<column name="list_id" type="serial" primaryKey="true"/>
+		<column name="site_id" type="int"/>
+		<column name="label" type="varchar(256)"/>
+		<column name="title" type="varchar(256)"/>
+		<column name="data" type="text"/> 
+	</table>
+</database>

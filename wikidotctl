@@ -1,0 +1,27 @@
+#!/bin/bash
+
+if [ "$1" = "start" ]; then
+
+	if [ -f tmp/lighttpd/saved.pid ]; then
+		echo Old PID file found. Already started?
+	fi
+
+	lighttpd -f conf/lighttpd/single_wiki.conf && (
+		echo Wikidot started
+		cp tmp/lighttpd/lighttpd.pid tmp/lighttpd/saved.pid
+	)
+
+elif [ "$1" = "stop" ]; then
+
+	pid="`cat tmp/lighttpd/saved.pid 2>/dev/null`"
+	rm -f tmp/lighttpd/saved.pid
+
+	if [ "$pid" = "" ]; then
+		echo "No pidfile (tmp/lighttpd/saved.pid). Already stopped?"
+	else
+		kill "$pid"
+		while ps -p "$pid" 1>/dev/null; do sleep 0.5; done
+		echo Wikidot stopped
+	fi
+fi
+

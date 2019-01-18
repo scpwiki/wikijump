@@ -1,0 +1,57 @@
+.hl-default {
+    color: #000;
+}
+.hl-code {
+    color: #000;
+}
+.hl-brackets {
+    color: #000;
+}
+.hl-comment {
+    color: #494;
+}
+.hl-quotes {
+    color: #009;
+}
+.hl-string {
+    color: #009;
+}
+.hl-identifier {
+    color: #000;
+}
+.hl-builtin {
+    color: Teal;
+}
+.hl-reserved {
+    color: #55D;
+}
+.hl-inlinedoc {
+    color: Blue;
+}
+.hl-var {
+    color: #494;
+}
+.hl-url {
+    color: Blue;
+}
+.hl-special {
+    color: Navy;
+	font-weight: bold;
+}
+.hl-number {
+    color: Maroon;
+}
+.hl-inlinetags {
+    color: #949;
+	font-weight: bold;
+}
+.hl-main { 
+   /* background-color: White;*/
+}
+.hl-gutter {
+    background-color: #999999;
+    color: White
+}
+.hl-table {
+  
+}

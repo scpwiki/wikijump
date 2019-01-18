@@ -1,0 +1,10 @@
+INSERT INTO license VALUES (1, 'Creative Commons Attribution-ShareAlike 3.0 License (recommended)', '%%UNLESS%% <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 License</a>', 1);;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+INSERT INTO license VALUES (2, 'Creative Commons Attribution 3.0 License', '%%UNLESS%% <a rel="license" href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0 License</a>', 2);;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+INSERT INTO license VALUES (3, 'Creative Commons Attribution-NoDerivs 3.0 License', '%%UNLESS%% <a rel="license" href="http://creativecommons.org/licenses/by-nd/3.0/">Creative Commons Attribution-NoDerivs 3.0 License</a>', 3);;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+INSERT INTO license VALUES (4, 'Creative Commons Attribution-NonCommercial 3.0 License', '%%UNLESS%% <a rel="license" href="http://creativecommons.org/licenses/by-nc/3.0/">Creative Commons Attribution-NonCommercial 3.0 License</a>', 4);;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+INSERT INTO license VALUES (5, 'Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License', '%%UNLESS%% <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/">Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License</a>', 5);;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+INSERT INTO license VALUES (6, 'Creative Commons Attribution-NonCommercial-NoDerivs 3.0 License', '%%UNLESS%% <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/3.0/">Creative Commons Attribution-NonCommercial-NoDerivs 3.0 License</a>', 6);;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+INSERT INTO license VALUES (7, 'GNU Free Documentation License 1.2', '%%UNLESS%%  
+<a href="http://www.gnu.org/copyleft/fdl.html" title="http://www.gnu.org/copyleft/fdl.html" rel="license">GNU 
+Free Documentation License</a>.', 100);;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+INSERT INTO license VALUES (8, 'Standard copyright (not recommended)', NULL, 1000);;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

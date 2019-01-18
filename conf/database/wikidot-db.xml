@@ -1,0 +1,716 @@
+<database>
+
+	<table name="site">
+		<column name="site_id" type="serial" primaryKey="true"/>
+		<column name="name" type="varchar(100)"/>
+		<column name="subtitle" type="varchar(60)"/>
+		<column name="unix_name" type="varchar(50)"/>
+		<column name="description" type="text"/>
+		<column name="language" type="varchar(10)" default="en"/>
+		<column name="date_created" type="timestamp"/>
+		<column name="custom_domain" type="varchar(60)"/>
+		
+		<column name="default_page" type="varchar(80)" default="start"/>
+		
+		<column name="visible" type="boolean" default="true"/>
+		<column name="private" type="boolean" default="false"/>
+		
+		<column name="deleted" type="boolean" default="false"/>
+	</table>
+	
+	<table name="site_tag">
+		<column name="tag_id" type="serial" primaryKey="true"/>
+		<column name="site_id" type="int"/>
+		<column name="tag" type="varchar(64)"/>
+	</table>
+
+	<table name="category">
+		<column name="category_id" type="serial" primaryKey="true"/>
+		<column name="site_id" type="int"/>
+		<column name="name" type="varchar(80)"/>
+		<column name="theme_default" type="boolean" default="true"/> <!-- true if no specific theme -->
+		<column name="theme_id" type="int"/> 
+		<column name="theme_external_url" type="varchar(512)"/>
+		<column name="permissions_default" type="boolean" default="true"/> <!-- true if no specific permissions -->
+		<column name="permissions" type="varchar(200)"/> <!-- string-encoded permissions -->	
+		<column name="license_default" type="boolean" default="true"/> <!-- true if no specific permissions -->
+		<column name="license_id" type="int"/> <!-- string-encoded permissions -->	
+		<column name="license_other" type="varchar(300)"/>
+		<column name="nav_default" type="boolean" default="true"/> <!-- individual nav elements? -->
+		<column name="top_bar_page_name" type="varchar(128)"/> <!-- top-bar screen element. null if none. -->
+		<column name="side_bar_page_name" type="varchar(128)"/> <!-- side-bar screen element. null if none. -->
+		<column name="template_id" type="int"/> <!-- page_id of the template -->
+		
+		<column name="per_page_discussion" type="boolean"/>
+		<column name="per_page_discussion_default" type="boolean" default="true"/>
+		
+		<column name="rating" type="varchar(10)"/> <!-- enables or disables rating -->
+		
+		<column name="category_template_id" type="int"/>
+		
+		<column name="autonumerate" type="boolean" default="false" notNull="true"/>
+		<column name="page_title_template" type="varchar(256)"/>
+		
+		<column name="enable_pingback_out" type="boolean" default="false"/>
+		<column name="enable_pingback_in" type="boolean" default="false"/>
+		
+	</table>
+	
+
+	<table name="page">
+		<column name="page_id" type="serial" primaryKey="true"/>
+		<column name="site_id" type="int"/>
+		<column name="category_id" type="int"/>
+		<column name="parent_page_id" type="int"/>
+		<column name="revision_id"  type="int"/> <!-- id of the current revision -->
+		<column name="source_id" type="int"/> <!-- id of the current source -->
+		<column name="metadata_id" type="int"/> <!-- id of the current metadata -->
+		<column name="revision_number"  type="int" default="0"/> <!-- current revision number-->
+		
+		
+		<column name="title" type="varchar(256)"/>
+		<column name="unix_name" type="varchar(256)"/>
+		
+		<column name="date_created" type="timestamp"/>
+		<!--
+		this is already in metadata. no need to duplicate.
+		<column name="created_user_id" type="int"/>
+		<column name="created_user_string" type="varchar(80)"/>
+		-->
+		<column name="date_last_edited" type="timestamp"/>
+		<column name="last_edit_user_id" type="int"/> <!-- last edited by -->
+		<column name="last_edit_user_string" type="varchar(80)"/> <!-- user info if user_id IS NULL -->
+		
+		<column name="thread_id" type="int"/> <!-- used for page discussion -->
+		
+		<column name="owner_user_id" type="int"/>
+		
+		<column name="blocked" type="boolean" default="false"/>
+		
+		<column name="rate" type="int" default="0"/>
+		
+		<foreignReference localKey="site_id" foreignTable="site" 
+			foreignKey="site_id" />
+	</table>
+	
+	<table name="page_revision">
+		<column name="revision_id" type="serial" primaryKey="true"/>
+		<column name="page_id" type="int" />
+		<column name="site_id" type="int" />
+		<column name="source_id" type="int"/>
+		<column name="metadata_id" type="int"/>
+		<column name="flags" type="varchar(100)"/> <!-- change flags: text, title, renamed-->
+		
+		<column name="flag_text" type="boolean" default="false"/>
+		<column name="flag_title" type="boolean" default="false"/>
+		<column name="flag_file" type="boolean" default="false"/>
+		<column name="flag_rename" type="boolean" default="false"/>
+		<column name="flag_meta" type="boolean" default="false"/> <!-- parent change, owner change etc. -->
+		<column name="flag_new" type="boolean" default="false"/>
+		
+		<column name="flag_new_site"  type="boolean" default="false"/>
+		
+		<!-- number of source changes (stored as diff) since last full source change -->
+		<column name="since_full_source"  type="int" default="0"/> 
+		<!-- true if the source contains a diff to the previous source and not
+			the complete text -->
+		<column name="diff_source" type="boolean" default="false"/>
+		
+		<column name="revision_number"  type="int" default="0"/> <!-- number of the revision for the specific page -->
+		
+		<column name="date_last_edited" type="timestamp"/>
+		<column name="user_id" type="int"/> <!-- last edited by -->
+		<column name="user_string" type="varchar(80)"/> <!-- user info if user_id IS NULL -->
+		
+		<column name="comments" type="text"/>
+	</table>
+	
+	<table name="page_source">
+		<column name="source_id" type="serial" primaryKey="true"/>
+		<column name="text" type="text"/>
+	</table>
+	
+	<table name="page_compiled">
+		<column name="page_id" type="int" primaryKey="true"/>
+		<column name="text" type="text"/>
+		
+		<column name="date_compiled" type="timestamp"/>
+	</table>
+	
+	<table name="page_metadata">
+		<column name="metadata_id" type="serial" primaryKey="true"/>
+		<column name="parent_page_id" type="int"/>
+		<column name="title" type="varchar(256)"/>
+		<column name="unix_name" type="varchar(80)"/>
+		<column name="owner_user_id" type="int"/>
+	</table>
+	
+	<table name="comment">
+		<column name="comment_id" type="serial" primaryKey="true"/>
+		<column name="page_id" type="int"/>
+		<column name="parent_id" type="int"/>
+		
+		<column name="user_id" type="int" />
+		<column name="user_string" type="varchar(80)"/>
+		
+		<column name="title" type="varchar(256)"/>
+		<column name="text" type="text"/>
+		
+		<column name="date_posted" type="timestamp"/>
+		<column name="site_id" type="int"/>	
+		<column name="revision_number"  type="int" default="0"/> <!-- current revision number-->
+		<column name="revision_id"  type="int"/> <!-- id of the current revision -->
+		
+		<column name="date_last_edited" type="timestamp"/>
+		<column name="edited_user_id" type="int"/> <!-- last edited by -->
+		<column name="edited_user_string" type="varchar(80)"/> <!-- user info if user_id IS NULL -->
+	</table>
+	
+	<table name="comment_revision">
+		<column name="revision_id" type="serial" primaryKey="true"/>
+		<column name="comment_id" type="int"/>
+		 
+		<column name="user_id" type="int"/> <!-- user that created this revision -->
+		<column name="user_string" type="varchar(80)"/>
+		<column name="text" type="text"/>
+		<column name="title" type="varchar(256)"/>
+		<column name="date" type="timestamp"/>
+		
+		
+	</table>
+	<!-- FTS -->
+	<!-- put many fields to avoid joining -->
+	<table name="fts_entry">
+		<column name="fts_id" type="serial" primaryKey="true"/>
+		<column name="page_id" type="int"/>
+
+		<column name="title" type="varchar(256)"/>
+		<column name="unix_name" type="varchar(100)"/>
+		
+		<column name="thread_id" type="int"/>
+		
+		
+		<column name="site_id" type="int"/>
+		
+		<column name="text" type="text"/>
+		<column name="vector" type="tsvector"/>
+	</table>
+	
+	<!-- attached files -->
+	<table name="file">
+		<column name="file_id" type="serial" primaryKey="true"/>
+		<column name="page_id" type="int"/>
+		<column name="site_id" type="int"/>
+		<column name="filename" type="varchar(100)"/>
+		<column name="mimetype" type="varchar(100)"/>
+		<column name="description" type="varchar(200)"/>
+		<column name="description_short" type="varchar(200)"/>
+		<column name="comment" type="varchar(400)"/>
+		<column name="size" type="int"/> <!-- in bytes -->
+		<column name="date_added"  type="timestamp"/>
+		<column name="user_id" type="int"/>
+		<column name="user_string" type="varchar(80)"/>
+		
+		<column name="has_resized" type="boolean" default="false"/>
+		
+	</table>
+	
+	<!-- used to store files history for the given page -->
+	<table name="files_event">
+		<column name="file_event_id" type="serial" primaryKey="true"/>
+		<column name="filename" type="varchar(100)"/>
+		<column name="date"  type="timestamp"/>
+		<column name="user_id" type="int"/>
+		<column name="user_string" type="varchar(80)"/>
+		<column name="user_id" type="int"/>
+		<column name="action" type="varchar(80)"/> <!-- type of action: add, delete, replace, move -->
+		<column name="action_extra" type="varchar(80)"/> <!-- extra description -->
+	</table>
+	
+	<!-- cookies for granting access to uploaded files -->
+	<table name="ucookie">
+		<column name="ucookie_id" type="varchar(100)" primaryKey="true"/>
+		<column name="site_id" type="int"/>
+		<column name="session_id" type="varchar(60)"/>
+		<column name="date_granted"  type="timestamp"/>
+		<foreignReference localKey="site_id" foreignTable="site" foreignKey="site_id" />
+		<foreignReference localKey="session_id" foreignTable="ozone_session" foreignKey="session_id" />
+	</table>
+	
+	
+	<!-- 
+	link table, updated each time page is saved
+	-->
+	<table name="page_link">
+		<column name="link_id" type="serial" primaryKey="true"/>
+		<column name="site_id" type="int"/>
+		<column name="from_page_id" type="int"/>
+		<column name="to_page_id" type="int" /> <!-- null if page not exists -->
+		<column name="to_page_name" type="varchar(128)" /> 
+	</table>
+	
+	<table name="page_inclusion">
+		<column name="inclusion_id" type="serial" primaryKey="true"/>
+		<column name="site_id" type="int"/>
+		<column name="including_page_id" type="int"/>
+		<column name="included_page_id" type="int" /> <!-- null if page not exists -->
+		<column name="included_page_name" type="varchar(128)" /> 
+	</table>
+	
+	<table name="page_external_link">
+		<column name="link_id" type="serial" primaryKey="true"/>
+		<column name="site_id" type="int"/>
+		<column name="page_id" type="int"/>
+		<column name="to_url" type="varchar(2048)" /> <!-- null if page not exists -->
+		<column name="pinged" type="boolean" default="false"/>
+		<!-- status of the ping action -->
+		<column name="ping_status" type="varchar(256)"/>
+		<column name="date" type="timestamp"/>
+	</table>
+	
+	
+	<!-- members, admins etc. -->
+<!--	<table name="site_member">
+		
+	</table>
+-->
+
+	<table name="member">
+		<column name="member_id" type="serial" primaryKey="true"/>
+		<column name="site_id" type="int"/>
+		<column name="user_id" type="int"/>
+		<column name="date_joined" type="timestamp"/>
+		<!--<column name="invited_by_user_id" type="int" />-->
+		<column name="allow_newsletter" type="boolean" default="true"/>
+	</table>
+	
+	<table name="admin">
+		<column name="admin_id" type="serial" primaryKey="true"/>
+		<column name="site_id" type="int"/>
+		<column name="user_id" type="int"/>
+		<column name="founder" type="boolean" default="false"/>	
+	</table>
+	
+	<table name="moderator">
+		<column name="moderator_id" type="serial" primaryKey="true"/>
+		<column name="site_id" type="int"/>
+		<column name="user_id" type="int"/>
+		<column name="permissions" type="char(10)"/>
+	</table>
+	
+	<table name="member_application">
+		<column name="application_id" type="serial" primaryKey="true"/>
+		<column name="site_id" type="int"/>
+		<column name="user_id" type="int"/>
+		
+		<column name="status" type="varchar(20)" default="pending"/>
+		
+		<column name="date" type="timestamp"/>
+		<column name="comment" type="text"/>
+		<column name="reply" type="text"/>
+	</table>
+	
+	<table name="member_invitation">
+		<column name="invitation_id" type="serial" primaryKey="true"/>
+		<column name="site_id" type="int"/>
+		<column name="user_id" type="int"/>
+		<column name="by_user_id" type="int"/>
+		<column name="date" type="timestamp"/>
+		<column name="body" type="text"/>
+		
+	</table>
+	
+	
+	
+	<table name="page_edit_lock">
+		<column name="lock_id" type="serial" primaryKey="true"/>  <!-- why would we need this? -->
+		<column name="page_id" type="int"/>
+		<column name="mode" type="varchar(10)" default="page"/> <!-- mode=(page)|(append)|(section) -->
+		
+		<column name="section_id" type="int"/> <!-- if mode=section -->
+		<column name="range_start" type="int"/>
+		<column name="range_end" type="int"/>
+		
+		<column name="page_unix_name" type="varchar(100)" /> <!-- should be used when creating new pages which do not have a page_id -->
+		<column name="site_id" type="int"/>
+		
+		<column name="user_id" type="int" /> <!-- null if anonymous -->
+		<column name="user_string" type="varchar(80)"/> <!-- user info if user_id IS NULL -->
+		<column name="session_id" type="varchar(60)" />
+		
+		<column name="date_started" type="timestamp"/>
+		<column name="date_last_accessed" type="timestamp"/>
+		
+		<column name="secret" type="varchar(100)"/>
+		
+	</table>
+
+	<table name="theme">
+		<column name="theme_id" type="serial" primaryKey="true"/>
+		<column name="name" type="varchar(100)"/>
+		<column name="unix_name" type="varchar(100)"/>
+		
+		<column name="abstract" type="boolean" default="false"/>	
+		<column name="extends_theme_id" type="int"/>
+		<column name="variant_of_theme_id" type="int"/>
+		
+		<column name="custom" type="boolean" default="false"/>	
+		<column name="site_id" type="int"/>
+		
+		<column name="use_side_bar" type="boolean" default="true"/>	
+		<column name="use_top_bar" type="boolean" default="true"/>	
+		
+		<column name="sort_index" type="int" default="0"/>
+		
+		<column name="sync_page_name" type="varchar(100)"/>
+		
+		<!--used mainly for custom themes to indicate changes -->
+		<column name="revision_number" type="int" default="0"/> 
+		
+	</table>
+	
+	<table name="theme_preview">
+		<column name="theme_id" type="int" primaryKey="true"/>
+		<column name="body" type="text"/>
+	</table>
+
+	<table name="license">
+		<column name="license_id" type="serial" primaryKey="true"/>
+		<column name="name" type="varchar(100)" unique="true"/>
+		<column name="description" type="text"/>
+		<column name="sort" type="int" default="0" />
+	</table>
+
+	<table name="site_settings">
+		<column name="site_id" type="int" primaryKey="true"/>
+		
+		<column name="allow_membership_by_apply" type="boolean" default="true"/>
+		<column name="allow_membership_by_password" type="boolean" default="false"/>
+		<column name="membership_password" type="varchar(80)"/>
+			
+		<column name="private_landing_page" type="varchar(80)" default="system:join"/>
+		<column name="hide_navigation_unauthorized" type="boolean" default="true"/>
+		<column name="max_private_members" type="int" default="50" />
+		<column name="max_private_viewers" type="int" default="20" />
+		
+		<column name="ssl_mode" type="varchar(20)" />
+		
+		<column name="file_storage_size" type="int" default="314572800"/> <!-- 100 MB -->
+		<column name="max_upload_file_size" type="int" default="10485760"/> 
+		
+		<column name="openid_enabled" type="boolean" default="false"/>
+		
+		<column name="allow_members_invite" type="boolean" default="false"/>
+		
+		<column name="enable_all_pingback_out" type="boolean" default="true"/>
+		
+	</table>
+	
+	<table name="site_super_settings">
+		<column name="site_id" type="int" primaryKey="true"/>
+		<column name="can_custom_domain" type="boolean" default="false"/>
+	</table>
+
+	<table name="notification">
+		<column name="notification_id" type="serial" primaryKey="true"/>
+		<column name="user_id" type="int" />
+		<column name="body" type="text"/>
+		<column name="type" type="varchar(50)"/>
+		<column name="viewed" type="boolean" default="false"/>
+		<column name="date" type="timestamp"/>
+		<column name="extra" type="bytea"/>
+		<!--<column name="flag_email" type="boolean" default="false"/>
+		<column name="flag_invitation" type="boolean" default="false"/>-->
+		
+		<column name="notify_online" type="boolean" default="true"/>
+		<column name="notify_feed" type="boolean" default="false"/>
+		<column name="notify_email" type="boolean" default="true"/>
+	</table>
+	
+	
+	<!-- private messages -->
+	
+	<table name="private_message">
+		<column name="message_id" type="serial" primaryKey="true"/>
+		<column name="from_user_id" type="int"/>
+		<column name="to_user_id" type="int"/>
+		<column name="subject" type="varchar(256)"/>
+		<column name="body" type="text"/> <!-- this will be html - already compiled -->
+		<column name="date" type="timestamp"/>
+		<column name="flag" type="int" default="0"/> <!-- 0 for inbox, 1 for sent, 2 for drafts -->
+		<column name="flag_new" type="boolean" default="true"/>
+		
+	</table>
+	
+	<table name="profile">
+		<column name="user_id" type="int" primaryKey="true"/>
+		<column name="real_name" type="varchar(70)" />
+		<column name="gender" type="char(1)" />
+		<column name="birthday_day" type="int"/>
+		<column name="birthday_month" type="int"/>
+		<column name="birthday_year" type="int"/>
+		<column name="about" type="text"/>
+		<column name="location" type="varchar(70)" />
+		<column name="website" type="varchar(100)" />
+		<column name="im_aim" type="varchar(100)"/>
+		<column name="im_gadu_gadu" type="varchar(100)"/>
+		<column name="im_google_talk" type="varchar(100)"/>
+		<column name="im_icq" type="varchar(100)"/>
+		<column name="im_jabber" type="varchar(100)"/>
+		<column name="im_msn" type="varchar(100)"/>
+		<column name="im_yahoo" type="varchar(100)"/>
+
+		<column name="change_screen_name_count" type="int" default="0"/>
+		
+		
+	</table>
+	
+	<table name="user_settings">
+		<column name="user_id" type="int" primaryKey="true"/>
+		<column name="receive_invitations" type="boolean" default="true"/>
+		<column name="receive_pm" type="char(5)" default="a"/>
+		
+		<column name="receive_newsletter" type="boolean" default="true"/>
+		<column name="receive_digest" type="boolean" default="true"/>
+		
+		<!-- how to notify -->
+		<column name="notify_online" type="varchar(512)" default="*"/>
+		<column name="notify_feed" type="varchar(512)"  default="*"/>
+		<column name="notify_email" type="varchar(512)" />
+		<column name="allow_site_newsletters_default" type="boolean" default="true" />
+		
+		<column name="max_sites_admin" type="int" default="3"/>
+	</table>
+	
+	<table name="user_karma">
+		<column name="user_id" type="int" primaryKey="true"/>
+		<column name="points" type="int" default="0"/>
+		<column name="level" type="int" default="0"/>
+	</table>
+	
+	<!-- 
+		Used for global blocks.
+	-->
+	<table name="global_ip_block">
+		<column name="block_id" type="serial" primaryKey="true"/>
+		<column name="address" type="inet"/> <!-- can hold both hosts and networks -->
+		<column name="flag_proxy" type="boolean" default="false"/> <!-- used to block proxies -->
+		<column name="reason" type="text"/>
+		<!-- total block - also registered, members, registration etc. 
+			 if not - only anonymous action is blocked.
+		-->
+		<column name="flag_total" type="boolean" default="false"/> 
+		<column name="date_blocked" type="timestamp"/>
+	</table>
+	
+	<table name="ip_block">
+		<column name="block_id" type="serial" primaryKey="true"/>
+		<column name="site_id" type="int"/>
+		<column name="ip" type="inet"/> <!-- can hold both hosts and networks -->
+		<column name="flag_proxy" type="boolean" default="false"/> <!-- used to block proxies -->
+		<column name="reason" type="text"/>
+		<column name="date_blocked" type="timestamp"/>
+	</table>
+
+	<table name="global_user_block">
+		<column name="block_id" type="serial" primaryKey="true"/>
+		<column name="site_id" type="int"/>
+		<column name="user_id" type="int"/>
+		<column name="reason" type="text"/>
+		<column name="date_blocked" type="timestamp"/>
+	</table>
+
+	<table name="user_block">
+		<column name="block_id" type="serial" primaryKey="true"/>
+		<column name="site_id" type="int"/>
+		<column name="user_id" type="int"/>
+		<column name="reason" type="text"/>
+		<column name="date_blocked" type="timestamp"/>
+		
+	</table>
+	
+	<table name="private_user_block">
+		<column name="block_id" type="serial" primaryKey="true"/>
+		<column name="user_id" type="int"/>
+		<column name="blocked_user_id" type="int"/>	
+	</table>
+	
+	<!-- watched -->
+	
+	<table name="watched_page">
+		<column name="watched_id" type="serial" primaryKey="true"/>
+		<column name="user_id" type="int"/>
+		<column name="page_id" type="int" />
+	</table>
+	
+	<table name="watched_forum_thread">
+		<column name="watched_id" type="serial" primaryKey="true"/>
+		<column name="user_id" type="int"/>
+		<column name="thread_id" type="int" />
+	</table>
+	
+	<!-- abuse flags -->
+	
+	<table name="page_abuse_flag">
+		<column name="flag_id" type="serial" primaryKey="true"/>
+		<column name="user_id" type="int"/>
+		
+		<column name="site_id" type="int"/>
+		<column name="path" type="varchar(100)"/>
+	
+		<column name="site_valid" type="boolean" default="true"/>
+		<column name="global_valid" type="boolean" default="true"/>
+	</table>
+	
+	<table name="user_abuse_flag">
+		<column name="flag_id" type="serial" primaryKey="true"/>
+		<column name="user_id" type="int"/>
+		
+		<column name="target_user_id" type="int"/>
+		
+		<column name="site_id" type="int"/>
+	
+		<column name="site_valid" type="boolean" default="true"/>
+		<column name="global_valid" type="boolean" default="true"/>
+	</table>
+	
+	<table name="anonymous_abuse_flag">
+		<column name="flag_id" type="serial" primaryKey="true"/>
+		<column name="user_id" type="int"/>
+		
+		<column name="address" type="inet"/>
+		<column name="proxy" type="boolean" default="false"/>
+		
+		<column name="site_id" type="int"/>
+	
+		<column name="site_valid" type="boolean" default="true"/>
+		<column name="global_valid" type="boolean" default="true"/>
+	</table>
+	
+	<table name="admin_notification">
+		<column name="notification_id" type="serial" primaryKey="true"/>
+		<column name="site_id" type="int"/>
+		
+		<column name="body" type="text"/>
+		<column name="type" type="varchar(50)"/>
+		<column name="viewed" type="boolean" default="false"/>
+		<column name="date" type="timestamp"/>
+		<column name="extra" type="bytea"/>
+		
+		<column name="notify_online" type="boolean" default="false"/>
+		<column name="notify_feed" type="boolean" default="false"/>
+		<column name="notify_email" type="boolean" default="false"/>
+	</table>
+	
+	<table name="log_event">
+		<column name="event_id" type="bigserial" primaryKey="true"/>
+		<column name="date" type="timestamp"/>
+		<column name="user_id" type="int"/>
+		<column name="ip" type="inet"/>
+		<column name="proxy" type="inet"/>
+		
+		<column name="type" type="varchar(256)"/>
+		
+		<!-- extra data - optional depending on the event type -->
+		
+		<column name="site_id" type="int"/>
+		<column name="page_id" type="int"/>
+		<column name="revision_id" type="int"/>
+		<column name="thread_id" type="int"/>
+		<column name="post_id" type="int"/>
+		
+		<column name="user_agent" type="varchar(512)"/>
+		
+		<column name="text" type="text"/>
+		
+	</table>
+	
+	<table name="contact">
+		<column name="contact_id" type="serial" primaryKey="true"/>
+		<column name="user_id" type="int"/>
+		<column name="target_user_id" type="int"/>
+	</table>
+	
+	<table name="page_tag">
+		<column name="tag_id" type="bigserial" primaryKey="true"/>
+		<column name="site_id" type="int"/>
+		<column name="page_id" type="int"/>
+		<column name="tag" type="varchar(64)"/>
+	</table>
+	
+	<table name="page_rate_vote">
+		<column name="rate_id" type="serial" primaryKey="true"/>
+		<column name="user_id" type="int"/>
+		<column name="page_id" type="int"/>
+		<column name="rate" type="int" default="1"/>
+		<column name="date" type="timestamp"/>
+	</table>
+	
+	
+	<table name="email_invitation">
+		<column name="invitation_id" type="serial" primaryKey="true"/>
+		<column name="hash" type="varchar(200)"/>
+		<column name="email" type="varchar(128)"/>
+		<column name="name" type="varchar(100)"/>
+		<column name="user_id" type="int"/> <!-- sender -->
+		<column name="site_id" type="int"/>
+		<column name="become_member" type="boolean" default="true"/>
+		<column name="to_contacts" type="boolean"/>
+		<column name="message" type="text"/>
+		<column name="attempts" type="int" default="1"/>
+		<column name="accepted" type="boolean" default="false"/>
+		<column name="delivered" type="boolean" default="true"/>
+		<column name="date" type="timestamp" />
+	</table>
+	
+	<!-- describes who invited/accepted whom -->
+	<table name="membership_link">
+		<column name="link_id" type="serial" primaryKey="true"/>
+		<column name="site_id" type="int"/>
+		<column name="by_user_id" type="int"/>
+		<column name="user_id" type="int"/>
+		<column name="date" type="timestamp"/>
+		<column name="type" type="varchar(20)"/> <!-- email_invitation|internal_invitation|application_accepted -->
+		
+	</table>
+	
+	<table name="site_backup">
+		<column name="backup_id" type="serial" primaryKey="true"/>
+		<column name="site_id" type="int"/>
+		<column name="status" type="varchar(50)"/>
+		<column name="backup_source" type="boolean" default="true"/>
+		<column name="backup_files" type="boolean" default="true"/>
+		<column name="date" type="timestamp" />
+		<column name="rand" type="varchar(100)" />
+	</table>
+	
+	<!-- domain redirects -->
+	<table name="domain_redirect">
+		<column name="redirect_id" type="serial" primaryKey="true"/>
+		<column name="site_id" type="int"/>
+		<column name="url"  type="varchar(80)"/>
+	</table>
+	
+	<table name="site_viewer">
+		<column name="viewer_id" type="serial" primaryKey="true"/>
+		<column name="site_id" type="int"/>
+		<column name="user_id" type="int"/>
+	</table>
+	
+	<table name="openid_entry">
+		<column name="openid_id" type="serial" primaryKey="true"/>
+		<column name="site_id" type="int"/>
+		<column name="page_id" type="int"/>
+		<column name="type" type="varchar(10)"/> <!-- delegate | internal -->
+		<column name="user_id" type="int"/> <!-- if handled by wikidot -->
+		<column name="url" type="varchar(100)"/> <!-- if delegate -->
+		<column name="server_url" type="varchar(100)"/> <!-- if delegate -->
+		
+	</table>
+	
+	<table name="api_key">
+		<column name="key" type="varchar(64)" primaryKey="true"/>
+		<column name="user_id" type="int"/>
+	</table>
+	
+</database>

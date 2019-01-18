@@ -1,0 +1,9 @@
+
+var.wikidot_domain   = "%{WIKIDOT:URL_DOMAIN}"        # your wikidot domain
+var.wikidot_domain_r = "%{WIKIDOT:URL_DOMAIN_PREG}"   # regexp for your wikidot domain
+var.wikidot_host     = "%{WIKIDOT:URL_HOST}"          # your wikidot host (main wiki)
+var.wikidot_host_r   = "%{WIKIDOT:URL_HOST_PREG}"     # regexp for your wikidot host
+
+var.wikidot_root     = "%{WIKIDOT:WIKIDOT_ROOT}"
+var.wikidot_port     = %{WIKIDOT:HTTP_PORT}
+

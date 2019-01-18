@@ -1,0 +1,241 @@
+
+/* LAYOUT */
+
+#container {
+	margin: 0 0;
+}
+
+#header{
+	/*background: none;*/
+	height: 9em;
+	border-bottom: 3px solid #707080;
+	background-image: url(../../flannel/images/flannel-bg-1.png);
+	background-repeat: repeat-x;
+	background-position: 0 2.1em; 
+}
+
+
+#header h1{
+	margin: 0 auto 0 10px;
+	padding-top: 0.9em;
+	text-align: center;
+	width: 650px;
+	font-size: 3em;
+	border: none;
+	font-family: Verdana,"Trebuchet MS";
+}
+#header h1 a{
+	color: #020280;
+}
+#header h1 a:hover{
+	background: none;
+}
+
+#header h2{
+	margin: 0 auto 0 10px;
+	text-align: center;
+	width: 650px;
+	font-size: 1.5em;
+	color: #666;
+}
+
+#header-extra-div-1{
+	position: absolute;
+	top:0; left:0; right:0;
+	width: 100%;
+	height: 2em;
+	background-color: #707080;
+	background-image: url(../images/flannel-ocean-bg-2.png);
+}
+#header #login-status, #login-status a {
+	color: #EEE;
+	font-weight:bold;
+}
+
+#account-options a,#account-options, a#account-topbutton{
+	color: #333;
+	font-weight: normal;
+}
+
+#login-status{
+	top: 3px;
+}
+
+#login-status img{
+	display:none;
+}
+#login-status a:hover{
+	background-color: #A0A0B2;
+}
+#account-options a:hover{
+	background-color: #EEE;
+}	
+
+#top-bar{
+	right: 10em;
+}
+
+
+#content-wrap{
+	margin: 1em 2em;
+}
+
+#side-bar{
+	background-color: #F0F0F5;
+	border-top: 1px solid #797980;
+	border-bottom: 1px solid #797980;
+
+}
+
+#side-bar h1, #side-bar h2,#side-bar h3{
+	/*border-top: 1px dotted #777;*/
+	border-bottom: 1px dotted #777;
+}  
+
+#side-bar h1{
+	font-size: 170%;
+}
+#side-bar h2{
+	font-size: 150%;
+}
+#side-bar h3{
+	font-size: 120%;
+}
+
+#side-bar a:hover{
+	background-color: #FFF;
+}
+
+#side-bar ul{
+	display: block;
+	padding: 0;
+	list-style: none;
+}
+#side-bar ul li{
+	display:block;
+}
+#side-bar ul li a{
+	display:block;
+}
+
+/* bottom elements */
+#page-info{
+	color: #555;
+}
+
+
+/* footer */ 
+/*
+#footer{
+	background-color: #DDD;
+}
+
+#footer .options a{
+	color: #844;
+}
+*/
+
+#footer{
+	background-color: #707080;
+	color: #EEE;
+	background-image: url(../images/flannel-ocean-bg-2.png);
+}
+
+#footer a{
+	color: #EEF;
+}
+#footer a:hover{
+	background-color: #669;
+}
+
+
+/* ELEMENTS */
+
+body{
+	color: #222;
+}
+
+h1, h2, h3, h4, h5, h6, #page-title{
+	/*font-family: "Palatino","Palatino Linotype", serif;*/
+	font-family: Georgia, "Times New Roman", times, serif;
+}
+
+#page-title{
+	color: #040450;
+	font-size: 220%;
+}
+
+h1,h2,h3{
+	color: #444;
+}
+
+h1{
+	border-bottom: 1px dotted #AAA;
+}
+
+a{
+	color: #030390;
+}
+a.newpage{
+	color: #888;
+}
+
+
+/*
+a.newpage{
+	background-color: #BB8888;
+	padding: 0 2px;
+	color: #FFF;
+}
+a.newpage:hover{
+	background-color: #090930;
+}
+*/
+/* INTERFACE ETC. */
+
+.page-options-bottom a{
+	color: #224;
+	background-color: #EEE;
+	text-decoration: none;
+}
+.page-options-bottom a:hover{
+	background-color: #DDD;
+}
+
+a.action-area-close{
+	color: #224;
+	background-color: #EEE;
+	text-decoration: none;
+}
+
+div.buttons input, input.button, button, file, a.button, .owindow .button-bar a{
+	background-color: #F4F4F4;
+	border: 1px solid #AAA;
+	color: #020250;
+}
+div.buttons input:hover, input.button:hover, button:hover,  a.button:hover, .owindow .button-bar a:hover{
+	background-color: #DDD;
+	color: #020250;
+}
+
+.owindow .title{
+	background-color: #E3E3EA;
+}
+
+/* FORUM COLORS */
+
+.forum-group div.head{
+	background-color: #727280;
+	color: #FFF;
+}
+
+.thread-container .post .options a{
+	color: #727290;
+}
+
+.thread-container .post  .long  .changes a {
+	color: #727290;
+}
+.thread-container .post  .short  .options{
+	color: #727290;
+}	

@@ -1,0 +1,30 @@
+Source: wikidot
+Section: web
+Priority: extra
+Maintainer: Piotr Gabryjeluk <piotr@wikidot.com>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.0
+Homepage: http://www.wikidot.org/
+
+Package: wikidot
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, postgresql-8.3, php5-cgi, php5-cli, php5-pgsql, lighttpd, imagemagick, tetex-bin, tetex-extra, gs-gpl, php5-tidy, php-pear, file
+Description: Wikidot is a full blown wiki farm in PHP.
+ Wikidot allows you to run a single wiki just like
+ MediaWiki or even your own wiki farm -- means create new
+ sites in a matter of a few clicks once you set up the farm.
+ . 
+ Wikidot features rich syntax, easy to use embedding from
+ other services (YouTube, Flickr and more), RSS feeds
+ (both export and import). This (more or less) software
+ is used to run the Wikidot service (www.wikidot.com).
+ .
+ This is experimental and limited package. It will install
+ the default single-wiki mode Wikidot with default
+ settings. You can then convert the installation to
+ wiki_farm by editing /usr/lib/wikidot/conf/wikidot.ini
+ file.
+ .
+ See /usr/lib/wikidot/conf/full-example-of-wikidot.ini for
+ detailed description of all settings of configuration
+ file.

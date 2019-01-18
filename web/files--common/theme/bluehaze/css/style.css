@@ -1,0 +1,211 @@
+/***************************************************************
+ * TITLE: Common Stylesheet for Blue Haze                      * 
+ * URI  : http://www.oswd.org/design/xxx/bluehaze/bluehaze.css *
+ * MODIF: 2003-01-05 1608 +0800                                *
+ ***************************************************************/
+
+
+
+
+
+/* ###### Body Text ###### */
+
+body {
+  background-color: white;
+  color: black;
+  font-family: verdana, tahoma, helvetica, arial, sans-serif;
+  font-size: 95%;
+  margin: 0;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+}
+
+h1, h2, h3 {
+  font-family: "trebuchet ms", tahoma, sans-serif;
+}
+
+h1 {
+  font-weight: bold;
+  font-size: 150%;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  padding-bottom: 0.5ex;
+}
+
+
+
+q {
+  font-family: tahoma, verdana, helvetica, arial, sans-serif;
+  font-weight: bold;
+  border-style: dotted;
+  border-width: 2px;
+  margin: 0 1em 1ex 1em;
+  padding: 0.5ex 0.5ex 0.5ex 1ex;
+  width: 9em;
+  float: left;
+}
+
+acronym {
+  border-bottom-style: dotted;
+  border-bottom-width: 1px;
+  cursor: help;
+}
+
+code {
+  font-family: "lucida console", monospace;
+  font-size: 90%;
+}
+
+dt {
+  font-weight: bold;
+}
+
+dd {
+  padding-bottom: 1.5em;
+}
+
+#main-content {
+  text-align: justify;
+  line-height: 1.5em;
+  margin: 10mm 5mm 0 14em;
+  padding: 0 1em 1ex 1em;
+}
+
+
+
+#main-content a {
+  text-decoration: none;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+}
+
+#main-content a:hover {
+  border-bottom: none;
+}
+
+
+.smallCaps {
+  font-variant: small-caps;
+}
+
+
+/* ###### Header ###### */
+
+#header {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  height: 7.5em;
+  margin-bottom: 5mm;
+  padding: 0 2.5mm 0 5mm;
+  background-repeat: no-repeat;
+}
+
+#header h1 {
+  font-size: 250%;
+  font-weight: bold;
+  line-height: 2em;
+	border: none;
+
+}
+#header h2 {
+	padding-top: 0;
+}
+#header h1 a{
+	color: #4080ff;
+}
+
+#top-bar a{
+	font-weight: bold;
+}
+
+#top-bar ul{
+	margin-right: 10em;
+}
+
+
+/* ###### Side Box ###### */
+
+#side-bar {
+  border-style: solid none solid none;
+  border-width: 2px 0 2px 0;
+  width: 12em;
+  margin-top: 5mm;
+}
+
+#side-bar div {
+  border-bottom-style: dashed;
+  border-bottom-width: 1px;
+  padding: 0.5ex 0.5em 0.5ex 0.75em;
+}
+
+#side-bar ul a, #side-bar ul a:hover {
+  color: black;
+  text-decoration: none;
+  line-height: 1.25em;
+  display: block;
+  padding: 1ex 0.5em 1ex 0.75em;
+}
+
+#side-bar ul {
+  list-style-type: none;
+  list-style-position: outside;
+ /* margin: 0 0 1em 0;
+  padding: 0;*/
+}
+#side-bar ul{
+	display: block;
+	padding: 0;
+	list-style: none;
+}
+
+
+/* ###### Footer ###### */
+
+#footer {
+  padding-top: 0.75ex;
+  padding-bottom: 0.75ex;
+  clear: left;
+}
+
+#footer div {
+  font-size: 85%;
+  line-height: 1.25em;
+  text-align: right;
+  padding-right: 3mm;
+}
+
+#footer a:hover {
+  text-decoration: none;
+}
+
+
+/* ###### General Color Scheme ###### */
+
+h1, h2, h3, q, #header div, #header div *, #footer *, .headerTitle, .sideBox div, .topOfPage
+{ /* Text Color: */  color: #4080ff; }
+
+h1, q,  #header, .sideBox, .sideBox div
+{ /* Border Color: */  border-color: #0080ff; }
+
+#header, #side-bar div, #side-bar a:hover
+{ /* Background Color (darker): */  background-color: #e8f0ff; }
+
+q, #side-bar ul a, #side-bar span
+{ /* Background Color (lighter): */  background-color: #fafcff; }
+
+
+/* ###### Special Colors ###### */
+
+acronym {
+  color: blue;
+  border-bottom-color: blue;
+}
+
+#main-content a {
+  color: #4080ff;
+  border-bottom-color: #4080ff;
+}
+
+#footer {
+  background-color: #f2f6ff;
+}

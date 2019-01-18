@@ -1,0 +1,19 @@
+Side bar
+
+* [[[start | Welcome page]]]
+* [[[system: Recent changes]]]
+* [[[system: List all pages]]]
+* [[[system:page-tags|Page Tags]]]
+* [[[What is a Wiki?]]]
+* [[[How to edit pages?]]]
+
+++ Administration
+
+* [[[admin:users | Users management]]]
+* [[[admin:manage | Manage the site]]]
+
+++ Page tags
+[[module TagCloud minFontSize="80%" maxFontSize="200%"  maxColor="8,8,64" minColor="100,100,128" target="system:page-tags" limit="30"]]
+++ Add a new page
+[[module NewPage size="15" button="new page"]]
+= [[size 80%]][[[nav:side | edit this panel]]][[/size]]
