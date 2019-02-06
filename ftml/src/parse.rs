@@ -1,6 +1,19 @@
+/*
+ * parse.rs
+ *
+ * wikidot-html - Library to convert Wikidot syntax into HTML
+ * Copyright (c) 2019 Ammon Smith for Project Foundation
+ *
+ * wikidot-html is available free of charge under the terms of the MIT
+ * License. You are free to redistribute and/or modify it under those
+ * terms. It is distributed in the hopes that it will be useful, but
+ * WITHOUT ANY WARRANTY. See the LICENSE file for more details.
+ *
+ */
+
 use regex::{Regex, RegexBuilder};
 
-fn build_regex(pattern: &str, flags: &str) -> Regex {
+pub fn build_regex(pattern: &str, flags: &str) -> Regex {
     let mut regex = RegexBuilder::new(pattern);
 
     for ch in flags.chars() {
@@ -14,15 +27,10 @@ fn build_regex(pattern: &str, flags: &str) -> Regex {
         }
     }
 
-    regex.build().unwrap()
+    regex.build().expect("Parsing regular expression failed")
 }
 
 lazy_static! {
-    pub static ref ANCHOR: Regex = build_regex(
-        r"(\[\[# )([-_A-Za-z0-9.%]+?)(\]\])",
-        "i",
-    );
-
     pub static ref BIBLIOGRAPHY_CITE: Regex = build_regex(
         r"\(\(bibcite\s([a-z0-9]+)\)\)",
         "i",
@@ -32,19 +40,9 @@ lazy_static! {
         r"^\[\[bibliography(\s+[^\]]+)?\]\](.*?)\[\[\/bibliography\]\][ ]*$",
         "sm",
     );
-
-    pub static ref BLOCKQUOTE: Regex = build_regex(
-        r"\n((\>).*\n)(?!(\>))",
-        "Us",
-    );
 }
 
 lazy_static! {
-    pub static ref BOLD: Regex = build_regex(
-        r"/'''(()|[^'].*)'''",
-        "U",
-    );
-
     pub static ref BREAK: Regex = build_regex(
         r" _\n",
         "",
@@ -76,19 +74,9 @@ lazy_static! {
         r"(\n)?\[\[collapsible(\s.*?)?\]\](.*?)\[\[\/collapsible\]\] *",
         "msi",
     );
-
-    pub static ref COLOR_TEXT: Regex = build_regex(
-        r"##(.+?)\|(.+?)##",
-        "",
-    );
 }
 
 lazy_static! {
-    pub static ref COMMENT: Regex = build_regex(
-        r"(\n)?\[!\-\-(.*?)\-\-\]",
-        "si",
-    );
-
     pub static ref CSS: Regex = build_regex(
         r"^\[\[css\]\]((?:(?R)|.)*?)\[\[/css\]\](\s|$)",
         "msi",
@@ -106,11 +94,6 @@ lazy_static! {
 }
 
 lazy_static! {
-    pub static ref DIV: Regex = build_regex(
-        r"(\n)?\[\[div(\s.*?)?\]\] *\n((?:(?R)|.)*?)\[\[\/div\]\] *",
-        "msi",
-    );
-
     pub static ref DIV_ALIGN: Regex = build_regex(
         r"^\[\[(=|<|>|==)\]\]\n((?:(?R)|.)*?)\[\[\/\\1\]\]$",
         "msi",

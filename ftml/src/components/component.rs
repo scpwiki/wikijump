@@ -1,5 +1,5 @@
 /*
- * lib.rs
+ * components/component.rs
  *
  * wikidot-html - Library to convert Wikidot syntax into HTML
  * Copyright (c) 2019 Ammon Smith for Project Foundation
@@ -11,9 +11,9 @@
  *
  */
 
-#[macro_use]
-extern crate lazy_static;
-extern crate regex;
+use std::fmt;
 
-mod components;
-mod parse;
+pub trait Component {
+    fn start(&self, f: &mut fmt::Formatter, classes: &str) -> fmt::Result;
+    fn end(&self, _f: &mut fmt::Formatter) -> fmt::Result { Ok(()) }
+}

@@ -1,5 +1,5 @@
 /*
- * lib.rs
+ * components/mod.rs
  *
  * wikidot-html - Library to convert Wikidot syntax into HTML
  * Copyright (c) 2019 Ammon Smith for Project Foundation
@@ -11,9 +11,12 @@
  *
  */
 
-#[macro_use]
-extern crate lazy_static;
-extern crate regex;
+mod anchor;
+mod component;
 
-mod components;
-mod parse;
+mod prelude {
+    pub use crate::parse::build_regex;
+    pub use regex::Regex;
+    pub use std::fmt;
+    pub use super::component::Component;
+}

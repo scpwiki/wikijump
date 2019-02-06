@@ -1,5 +1,5 @@
 /*
- * lib.rs
+ * (FILENAME)
  *
  * wikidot-html - Library to convert Wikidot syntax into HTML
  * Copyright (c) 2019 Ammon Smith for Project Foundation
@@ -11,9 +11,3 @@
  *
  */
 
-#[macro_use]
-extern crate lazy_static;
-extern crate regex;
-
-mod components;
-mod parse;
