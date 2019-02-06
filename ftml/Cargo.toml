@@ -1,0 +1,9 @@
+[package]
+name = "wikidot-html"
+version = "0.0.1"
+authors = ["Ammon Smith <ammon.i.smith@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+lazy_static = "1"
+regex = "1"
