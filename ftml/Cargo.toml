@@ -1,9 +1,18 @@
 [package]
-name = "wikidot-html"
+name = "wikidot-to-html"
 version = "0.0.1"
 authors = ["Ammon Smith <ammon.i.smith@gmail.com>"]
 edition = "2018"
 
+[lib]
+name = "wikidot_html"
+path = "src/lib.rs"
+
+[[bin]]
+name = "wikidot2html"
+path = "src/main.rs"
+
 [dependencies]
+clap = "2" # bin-only
 lazy_static = "1"
 regex = "1"
