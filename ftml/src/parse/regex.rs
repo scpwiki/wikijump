@@ -1,5 +1,5 @@
 /*
- * parse.rs
+ * parse/regex.rs
  *
  * wikidot-html - Library to convert Wikidot syntax into HTML
  * Copyright (c) 2019 Ammon Smith for Project Foundation
