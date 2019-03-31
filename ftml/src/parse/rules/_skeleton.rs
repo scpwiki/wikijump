@@ -1,5 +1,5 @@
 /*
- * parse/mod.rs
+ * parse/rules/_TODO.rs
  *
  * wikidot-html - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -18,18 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-pub mod regex;
-pub mod rules;
+//! Processing rule for _TODO_
+//! Add documentation!
 
-use rules::RULES;
-use super::prelude::*;
+use crate::{Result, SyntaxTree};
 
-// TODO
-pub fn parse<I: Into<String>>(text: I) -> Result<SyntaxTree> {
-    let mut text = text.into();
-    for rule in &RULES[..] {
-        rule.apply(&mut text)?;
-    }
-
-    Err(Error::StaticMsg("Not implemented yet"))
+pub fn rule_NAMEHERE(tree: &mut SyntaxTree) -> Result<()> {
+    println!("MOCK: rule.NAMEHERE");
+    Ok(())
 }

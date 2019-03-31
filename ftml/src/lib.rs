@@ -29,11 +29,13 @@ mod error;
 mod parse;
 mod render;
 mod tree;
+mod utils;
 
 pub use self::error::Error;
 pub use self::parse::parse;
 pub use self::render::render;
 pub use self::tree::SyntaxTree;
+pub use self::utils::ReplaceAll;
 
 pub type StdResult<T, E> = std::result::Result<T, E>;
 pub type Result<T> = StdResult<T, Error>;
@@ -46,6 +48,6 @@ pub fn transform(text: &str) -> Result<String> {
 
 pub mod prelude {
     #![allow(unused_imports)]
-    pub use super::{Error, Result, StdResult, SyntaxTree};
+    pub use super::{Error, ReplaceAll, Result, StdResult, SyntaxTree};
     pub use super::{parse, render, transform};
 }

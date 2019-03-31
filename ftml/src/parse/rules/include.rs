@@ -1,5 +1,5 @@
 /*
- * parse/mod.rs
+ * parse/rules/include.rs
  *
  * wikidot-html - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -18,18 +18,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-pub mod regex;
-pub mod rules;
+//! Processing rule for includes. Takes any other pages and copies their
+//! contents into the current article for later styling and handling.
+//!
+//! Because we don't have a way of handling other pages currently, this is mocked.
 
-use rules::RULES;
-use super::prelude::*;
+use crate::Result;
 
-// TODO
-pub fn parse<I: Into<String>>(text: I) -> Result<SyntaxTree> {
-    let mut text = text.into();
-    for rule in &RULES[..] {
-        rule.apply(&mut text)?;
-    }
-
-    Err(Error::StaticMsg("Not implemented yet"))
+pub fn rule_include(text: &mut String) -> Result<()> {
+    println!("MOCK: rule.include");
+    Ok(())
 }
