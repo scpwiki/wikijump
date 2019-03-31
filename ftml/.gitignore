@@ -1,0 +1,8 @@
+# Artifacts
+target/
+
+# Misc
+*.bak
+*~
+*.rs.bak
+.*.sw?
