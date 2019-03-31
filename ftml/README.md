@@ -7,3 +7,5 @@ Available under the terms of the GNU Affero General Public License. See [LICENSE
 ```sh
 $ cargo build --release
 ```
+
+This will produce the binary `target/release/wikidot2html` and Rust library files.
