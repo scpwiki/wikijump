@@ -19,6 +19,7 @@
  */
 
 pub mod regex;
+pub mod rules;
 
 use super::prelude::*;
 

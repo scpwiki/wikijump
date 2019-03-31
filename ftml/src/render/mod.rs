@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+use crate::{Error, Result, SyntaxTree};
 
 // TODO
 pub fn render(tree: SyntaxTree) -> Result<String> {
