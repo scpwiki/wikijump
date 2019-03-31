@@ -53,5 +53,8 @@ fn main() -> Result<()> {
         contents
     };
 
+    let html = transform(&text)?;
+    println!("{}", &html);
+
     Ok(())
 }
