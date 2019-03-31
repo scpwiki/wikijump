@@ -15,5 +15,4 @@
 extern crate lazy_static;
 extern crate regex;
 
-mod components;
 mod parse;
