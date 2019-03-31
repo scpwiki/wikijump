@@ -1,5 +1,5 @@
 /*
- * parse/rules/object.rs
+ * parse/rules.rs
  *
  * wikidot-html - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -96,5 +96,89 @@ impl Rule {
     pub fn apply(self, tree: &mut SyntaxTree) -> Result<()> {
         println!("MOCK: rule.apply {:?}", &self);
         Ok(())
+    }
+}
+
+// Copied from Wikidot Text_Wiki source
+// For maximum backwards-compatibility, leave as-is
+pub const RULES: [Rule; 68] = [
+    Include,
+    Prefilter,
+    Delimeter,
+    Code,
+    Form,
+    Raw,
+    RawOld, // ?
+    ModulePre, // ?
+    Module,
+    Module654, // ?
+    IfTags,
+    Comment,
+    IFrame,
+    Date,
+    Math,
+    ConcatLines,
+    FreeLink,
+    EquationReference,
+    Footnote,
+    FootnoteItem,
+    FootnoteBlock,
+    BibItem,
+    Bibliography,
+    BibCite,
+    Html,
+    DivPrefilter,
+    Anchor,
+    User,
+    Blockquote,
+    Heading,
+    Toc,
+    Horiz,
+    Separator,
+    ClearFloat,
+    Break,
+    Span,
+    Size,
+    Div,
+    DivAlign,
+    Collapsible,
+    TabView,
+    Note,
+    Gallery,
+    List,
+    DefList,
+    Table,
+    TableAdv,
+    Image,
+    Embed,
+    Social,
+    File,
+    Center,
+    Newline,
+    Paragraph,
+    Url,
+    Email,
+    MathInline,
+    Interwiki,
+    Colortext,
+    Strong,
+    Emphasis,
+    Underline,
+    Strikethrough,
+    Teletype,
+    Superscript,
+    Subscript,
+    Typography,
+    Tighten,
+];
+
+#[test]
+fn test_variants() {
+    use crate::SyntaxTree;
+
+    let mut tree = SyntaxTree;
+
+    for rule in &RULES[..] {
+        rule.apply(&mut tree);
     }
 }
