@@ -75,5 +75,8 @@ fn test_whitespace() {
 
     let mut state = ParseState::new("Apple\n\n\n\nBanana\n\r\rCherry\n\nDurian\nPineapple".into());
     rule_prefilter(&mut state).unwrap();
-    assert_eq!(state.text(), "\nApple\n\nBanana\n\nCherry\n\nDurian\nPineapple\n");
+    assert_eq!(
+        state.text(),
+        "\nApple\n\nBanana\n\nCherry\n\nDurian\nPineapple\n"
+    );
 }

@@ -18,7 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 use crate::Token;
 use regex::Regex;
 use std::ops::RangeBounds;
@@ -76,25 +75,29 @@ impl ParseState {
 
     pub fn ireplace_all(&mut self, pattern: &str, replace_with: &str) {
         while let Some(idx) = self.text.find(pattern) {
-            self.text.replace_range(idx..idx+pattern.len(), replace_with);
+            self.text
+                .replace_range(idx..idx + pattern.len(), replace_with);
         }
     }
 
     pub fn ireplace_all_regex(&mut self, regex: &Regex, replace_with: &str) {
         while let Some(mtch) = regex.find(&self.text) {
-            self.text.replace_range(mtch.start()..mtch.end(), replace_with);
+            self.text
+                .replace_range(mtch.start()..mtch.end(), replace_with);
         }
     }
 
     pub fn ireplace_once(&mut self, pattern: &str, replace_with: &str) {
         if let Some(idx) = self.text.find(pattern) {
-            self.text.replace_range(idx..idx+pattern.len(), replace_with);
+            self.text
+                .replace_range(idx..idx + pattern.len(), replace_with);
         }
     }
 
     pub fn ireplace_once_regex(&mut self, regex: &Regex, replace_with: &str) {
         if let Some(mtch) = regex.find(&self.text) {
-            self.text.replace_range(mtch.start()..mtch.end(), replace_with);
+            self.text
+                .replace_range(mtch.start()..mtch.end(), replace_with);
         }
     }
 }

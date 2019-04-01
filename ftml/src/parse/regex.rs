@@ -25,11 +25,21 @@ pub fn build_regex(pattern: &str, flags: &str) -> Regex {
 
     for ch in flags.chars() {
         match ch {
-            'i' => { regex.case_insensitive(true); },
-            'm' => { regex.multi_line(true); },
-            's' => { regex.dot_matches_new_line(true); },
-            'U' => { regex.swap_greed(true); },
-            'x' => { regex.ignore_whitespace(true); },
+            'i' => {
+                regex.case_insensitive(true);
+            }
+            'm' => {
+                regex.multi_line(true);
+            }
+            's' => {
+                regex.dot_matches_new_line(true);
+            }
+            'U' => {
+                regex.swap_greed(true);
+            }
+            'x' => {
+                regex.ignore_whitespace(true);
+            }
             _ => panic!("Unknown regex flag: '{}'", ch),
         }
     }

@@ -24,7 +24,7 @@
 extern crate clap;
 extern crate wikidot_html;
 
-use clap::{Arg, App};
+use clap::{App, Arg};
 use std::fs::File;
 use std::io::{self, Read};
 use wikidot_html::prelude::*;
@@ -38,7 +38,7 @@ fn main() -> Result<()> {
         .arg(
             Arg::with_name("FILE")
                 .required(true)
-                .help("Input file for the program. Set to \"-\" for stdin.")
+                .help("Input file for the program. Set to \"-\" for stdin."),
         )
         .get_matches();
 

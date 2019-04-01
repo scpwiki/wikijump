@@ -190,7 +190,7 @@ pub const RULES: [Rule; 67] = [
     Code,
     Form,
     Raw,
-    RawOld, // ?
+    RawOld,    // ?
     ModulePre, // ?
     Module,
     Module654, // ?

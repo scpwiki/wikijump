@@ -61,7 +61,10 @@ fn test_code() {
     assert_eq!(state.text(), "[[code]]\nincomplete");
     assert_eq!(state.tokens().len(), 0);
 
-    let mut state = ParseState::new("Apple\n[[code]]\nBanana\n[[/code]]\nCherry\n[[code args=value]]\nDurian\n[[/code]]\n".into());
+    let mut state = ParseState::new(
+        "Apple\n[[code]]\nBanana\n[[/code]]\nCherry\n[[code args=value]]\nDurian\n[[/code]]\n"
+            .into(),
+    );
     rule_code(&mut state).unwrap();
     assert_eq!(state.text(), "Apple\n\0\nCherry\n\0\n");
     assert_eq!(state.tokens().len(), 2);
