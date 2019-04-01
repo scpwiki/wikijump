@@ -17,18 +17,14 @@ matrix:
 cache: cargo
 
 stages:
-  - compile
   - test
   - doc
 
 jobs:
   include:
-    - stage: compile
-      script:
-        - cargo build --verbose
-        - cargo build --verbose --release
     - stage: test
       script:
+        - cargo build --verbose
         - cargo test --verbose
     - stage: doc
       script:
