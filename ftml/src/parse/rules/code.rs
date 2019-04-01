@@ -51,5 +51,18 @@ pub fn rule_code(state: &mut ParseState) -> Result<()> {
 
 #[test]
 fn test_code() {
-    // FIXME
+    let mut state = ParseState::new("[[code]]\nif condition:\n    print('hi')\n[[/code]]\n".into());
+    rule_code(&mut state).unwrap();
+    assert_eq!(state.text(), "\0\n");
+    assert_eq!(state.tokens().len(), 1);
+
+    let mut state = ParseState::new("[[code]]\nincomplete".into());
+    rule_code(&mut state).unwrap();
+    assert_eq!(state.text(), "[[code]]\nincomplete");
+    assert_eq!(state.tokens().len(), 0);
+
+    let mut state = ParseState::new("Apple\n[[code]]\nBanana\n[[/code]]\nCherry\n[[code args=value]]\nDurian\n[[/code]]\n".into());
+    rule_code(&mut state).unwrap();
+    assert_eq!(state.text(), "Apple\n\0\nCherry\n\0\n");
+    assert_eq!(state.tokens().len(), 2);
 }

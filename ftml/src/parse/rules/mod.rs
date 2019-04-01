@@ -256,10 +256,13 @@ pub const RULES: [Rule; 67] = [
 
 #[test]
 fn test_variants() {
-    let mut text = String::new();
+    let mut state = ParseState::new(String::new());
     for rule in &RULES[..] {
-        rule.apply(&mut text);
+        rule.apply(&mut state);
     }
+
+    assert_eq!("\n\n", state.text());
+    assert_eq!(0, state.tokens().len());
 }
 
 #[test]

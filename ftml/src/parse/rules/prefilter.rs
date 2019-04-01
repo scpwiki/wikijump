@@ -69,14 +69,11 @@ pub fn rule_prefilter(state: &mut ParseState) -> Result<()> {
 
 #[test]
 fn test_whitespace() {
-    let mut s = String::new();
+    let mut state = ParseState::new("Apple\rBanana\r\nCherry\tDurian".into());
+    rule_prefilter(&mut state).unwrap();
+    assert_eq!(state.text(), "\nApple\nBanana\nCherry    Durian\n");
 
-    s.push_str("Apple\rBanana\r\nCherry\tDurian");
-    rule_prefilter(&mut s).unwrap();
-    assert_eq!(&s, "\nApple\nBanana\nCherry    Durian\n");
-    s.clear();
-
-    s.push_str("Apple\n\n\n\nBanana\n\r\rCherry\n\nDurian\nPineapple");
-    rule_prefilter(&mut s).unwrap();
-    assert_eq!(&s, "\nApple\n\nBanana\n\nCherry\n\nDurian\nPineapple\n");
+    let mut state = ParseState::new("Apple\n\n\n\nBanana\n\r\rCherry\n\nDurian\nPineapple".into());
+    rule_prefilter(&mut state).unwrap();
+    assert_eq!(state.text(), "\nApple\n\nBanana\n\nCherry\n\nDurian\nPineapple\n");
 }
