@@ -19,11 +19,13 @@
  */
 
 // Rule implementations
+mod code;
 mod include;
 mod prefilter;
 
 use crate::Result;
 use self::Rule::*;
+use self::code::rule_code;
 use self::include::rule_include;
 use self::prefilter::rule_prefilter;
 
@@ -33,7 +35,6 @@ type ApplyFn = fn(&mut String) -> Result<()>;
 pub enum Rule {
     Include,
     Prefilter,
-    Delimeter,
     Code,
     Form,
     Raw,
@@ -106,11 +107,10 @@ impl Rule {
         match self {
             Include => rule_include(text)?,
             Prefilter => rule_prefilter(text)?,
+            Code => rule_code(text)?,
             _ => println!("MOCK: unknown rule"),
             /*
              TODO
-            Delimeter,
-            Code,
             Form,
             Raw,
             RawOld,
@@ -184,10 +184,9 @@ impl Rule {
 
 // Copied from Wikidot Text_Wiki source
 // For maximum backwards-compatibility, leave as-is
-pub const RULES: [Rule; 68] = [
+pub const RULES: [Rule; 67] = [
     Include,
     Prefilter,
-    Delimeter,
     Code,
     Form,
     Raw,
@@ -267,5 +266,7 @@ fn test_variants() {
 fn test_fn_types() {
     let _: ApplyFn = rule_include;
     let _: ApplyFn = rule_prefilter;
+    let _: ApplyFn = rule_code;
+
     // TODO for all the other functions
 }

@@ -20,20 +20,34 @@
 
 use regex::Regex;
 
-pub trait ReplaceAll {
-    fn replace_all(&mut self, pattern: &str, replace_with: &str);
-    fn replace_all_regex(&mut self, regex: &Regex, replace_with: &str);
+pub trait InPlaceReplace {
+    fn ireplace_all(&mut self, pattern: &str, replace_with: &str);
+    fn ireplace_all_regex(&mut self, regex: &Regex, replace_with: &str);
+    fn ireplace_once(&mut self, pattern: &str, replace_with: &str);
+    fn ireplace_once_regex(&mut self, regex: &Regex, replace_with: &str);
 }
 
-impl ReplaceAll for String {
-    fn replace_all(&mut self, pattern: &str, replace_with: &str) {
+impl InPlaceReplace for String {
+    fn ireplace_all(&mut self, pattern: &str, replace_with: &str) {
         while let Some(idx) = self.find(pattern) {
             self.replace_range(idx..idx+pattern.len(), replace_with);
         }
     }
 
-    fn replace_all_regex(&mut self, regex: &Regex, replace_with: &str) {
+    fn ireplace_all_regex(&mut self, regex: &Regex, replace_with: &str) {
         while let Some(mtch) = regex.find(&self) {
+            self.replace_range(mtch.start()..mtch.end(), replace_with);
+        }
+    }
+
+    fn ireplace_once(&mut self, pattern: &str, replace_with: &str) {
+        if let Some(idx) = self.find(pattern) {
+            self.replace_range(idx..idx+pattern.len(), replace_with);
+        }
+    }
+
+    fn ireplace_once_regex(&mut self, regex: &Regex, replace_with: &str) {
+        if let Some(mtch) = regex.find(&self) {
             self.replace_range(mtch.start()..mtch.end(), replace_with);
         }
     }

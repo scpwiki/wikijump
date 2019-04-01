@@ -25,7 +25,7 @@
 //! * Adding newlines to the top and bottom of the text
 //! * Compressing 3+ newlines into 2 newlines
 
-use crate::{ReplaceAll, Result};
+use crate::{InPlaceReplace, Result};
 use regex::{Regex, RegexBuilder};
 
 lazy_static! {
@@ -46,23 +46,37 @@ lazy_static! {
 
 pub fn rule_prefilter(text: &mut String) -> Result<()> {
     // DOS line endings
-    text.replace_all("\r\n", "\n");
+    text.ireplace_all("\r\n", "\n");
 
     // Old Mac line endings
-    text.replace_all("\r", "\n");
+    text.ireplace_all("\r", "\n");
 
     // Trim excess whitespace
-    text.replace_all_regex(&*EXCESS_WHITESPACE, "");
+    text.ireplace_all_regex(&*EXCESS_WHITESPACE, "");
 
     // Convert tabs
-    text.replace_all("\t", "    ");
+    text.ireplace_all("\t", "    ");
 
     // Add newlines to the top and the bottom
     text.insert(0, '\n');
     text.push('\n');
 
     // Compress 3+ newlines into 2 newlines
-    text.replace_all_regex(&*MULTIPLE_NEWLINES, "\n\n");
+    text.ireplace_all_regex(&*MULTIPLE_NEWLINES, "\n\n");
 
     Ok(())
+}
+
+#[test]
+fn test_whitespace() {
+    let mut s = String::new();
+
+    s.push_str("Apple\rBanana\r\nCherry\tDurian");
+    rule_prefilter(&mut s).unwrap();
+    assert_eq!(&s, "\nApple\nBanana\nCherry    Durian\n");
+    s.clear();
+
+    s.push_str("Apple\n\n\n\nBanana\n\r\rCherry\n\nDurian\nPineapple");
+    rule_prefilter(&mut s).unwrap();
+    assert_eq!(&s, "\nApple\n\nBanana\n\nCherry\n\nDurian\nPineapple\n");
 }

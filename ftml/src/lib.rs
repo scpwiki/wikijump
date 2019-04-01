@@ -35,7 +35,7 @@ pub use self::error::Error;
 pub use self::parse::parse;
 pub use self::render::render;
 pub use self::tree::SyntaxTree;
-pub use self::utils::ReplaceAll;
+pub use self::utils::InPlaceReplace;
 
 pub type StdResult<T, E> = std::result::Result<T, E>;
 pub type Result<T> = StdResult<T, Error>;
@@ -48,6 +48,6 @@ pub fn transform(text: &str) -> Result<String> {
 
 pub mod prelude {
     #![allow(unused_imports)]
-    pub use super::{Error, ReplaceAll, Result, StdResult, SyntaxTree};
+    pub use super::{Error, InPlaceReplace, Result, StdResult, SyntaxTree};
     pub use super::{parse, render, transform};
 }

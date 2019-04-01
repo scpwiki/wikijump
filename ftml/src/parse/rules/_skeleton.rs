@@ -21,9 +21,9 @@
 //! Processing rule for _TODO_
 //! Add documentation!
 
-use crate::{Result, SyntaxTree};
+use crate::Result;
 
-pub fn rule_NAMEHERE(tree: &mut SyntaxTree) -> Result<()> {
+pub fn rule_NAMEHERE(text: &mut String) -> Result<()> {
     println!("MOCK: rule.NAMEHERE");
     Ok(())
 }
