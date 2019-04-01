@@ -29,8 +29,6 @@ use self::code::rule_code;
 use self::include::rule_include;
 use self::prefilter::rule_prefilter;
 
-type ApplyFn = fn(&mut ParseState) -> Result<()>;
-
 #[derive(Debug, Copy, Clone)]
 pub enum Rule {
     Include,
@@ -267,6 +265,8 @@ fn test_variants() {
 
 #[test]
 fn test_fn_types() {
+    type ApplyFn = fn(&mut ParseState) -> Result<()>;
+
     let _: ApplyFn = rule_include;
     let _: ApplyFn = rule_prefilter;
     let _: ApplyFn = rule_code;
