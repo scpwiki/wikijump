@@ -21,9 +21,14 @@
 //! Processing rule for _TODO_
 //! Add documentation!
 
-use crate::Result;
+use crate::{ParseState, Result};
 
-pub fn rule_NAMEHERE(text: &mut String) -> Result<()> {
+pub fn rule_NAMEHERE(state: &mut ParseState) -> Result<()> {
     println!("MOCK: rule.NAMEHERE");
     Ok(())
+}
+
+#[test]
+fn test_NAME() {
+    // Tests are always good
 }

@@ -25,7 +25,7 @@
 //! * Adding newlines to the top and bottom of the text
 //! * Compressing 3+ newlines into 2 newlines
 
-use crate::{InPlaceReplace, Result};
+use crate::{ParseState, Result};
 use regex::{Regex, RegexBuilder};
 
 lazy_static! {
@@ -44,25 +44,25 @@ lazy_static! {
     };
 }
 
-pub fn rule_prefilter(text: &mut String) -> Result<()> {
+pub fn rule_prefilter(state: &mut ParseState) -> Result<()> {
     // DOS line endings
-    text.ireplace_all("\r\n", "\n");
+    state.ireplace_all("\r\n", "\n");
 
     // Old Mac line endings
-    text.ireplace_all("\r", "\n");
+    state.ireplace_all("\r", "\n");
 
     // Trim excess whitespace
-    text.ireplace_all_regex(&*EXCESS_WHITESPACE, "");
+    state.ireplace_all_regex(&*EXCESS_WHITESPACE, "");
 
     // Convert tabs
-    text.ireplace_all("\t", "    ");
+    state.ireplace_all("\t", "    ");
 
     // Add newlines to the top and the bottom
-    text.insert(0, '\n');
-    text.push('\n');
+    state.insert(0, '\n');
+    state.push('\n');
 
     // Compress 3+ newlines into 2 newlines
-    text.ireplace_all_regex(&*MULTIPLE_NEWLINES, "\n\n");
+    state.ireplace_all_regex(&*MULTIPLE_NEWLINES, "\n\n");
 
     Ok(())
 }

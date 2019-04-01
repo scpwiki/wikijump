@@ -18,18 +18,23 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-pub mod regex;
-pub mod rules;
+mod regex;
+mod rules;
+mod state;
+mod token;
+
+pub use state::ParseState;
+pub use token::Token;
 
 use rules::RULES;
 use super::prelude::*;
 
 // TODO
-pub fn parse<I: Into<String>>(text: I) -> Result<SyntaxTree> {
-    let mut text = text.into();
+pub fn parse(text: String) -> Result<ParseState> {
+    let mut state = ParseState::new(text);
     for rule in &RULES[..] {
-        rule.apply(&mut text)?;
+        rule.apply(&mut state)?;
     }
 
-    Err(Error::StaticMsg("Not implemented yet"))
+    Ok(state)
 }

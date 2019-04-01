@@ -28,26 +28,22 @@ extern crate regex;
 mod error;
 mod parse;
 mod render;
-mod tree;
-mod utils;
 
 pub use self::error::Error;
-pub use self::parse::parse;
+pub use self::parse::{parse, ParseState, Token};
 pub use self::render::render;
-pub use self::tree::SyntaxTree;
-pub use self::utils::InPlaceReplace;
 
 pub type StdResult<T, E> = std::result::Result<T, E>;
 pub type Result<T> = StdResult<T, Error>;
 
-pub fn transform(text: &str) -> Result<String> {
-    let tree = parse(text)?;
-    let html = render(tree)?;
+pub fn transform<I: Into<String>>(text: I) -> Result<String> {
+    let state = parse(text.into())?;
+    let html = render(state)?;
     Ok(html)
 }
 
 pub mod prelude {
     #![allow(unused_imports)]
-    pub use super::{Error, InPlaceReplace, Result, StdResult, SyntaxTree};
+    pub use super::{Error, ParseState, Result, StdResult, Token};
     pub use super::{parse, render, transform};
 }

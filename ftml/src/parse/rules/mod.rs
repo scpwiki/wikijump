@@ -23,13 +23,13 @@ mod code;
 mod include;
 mod prefilter;
 
-use crate::Result;
+use crate::{ParseState, Result};
 use self::Rule::*;
 use self::code::rule_code;
 use self::include::rule_include;
 use self::prefilter::rule_prefilter;
 
-type ApplyFn = fn(&mut String) -> Result<()>;
+type ApplyFn = fn(&mut ParseState) -> Result<()>;
 
 #[derive(Debug, Copy, Clone)]
 pub enum Rule {
@@ -103,11 +103,11 @@ pub enum Rule {
 }
 
 impl Rule {
-    pub fn apply(self, text: &mut String) -> Result<()> {
+    pub fn apply(self, state: &mut ParseState) -> Result<()> {
         match self {
-            Include => rule_include(text)?,
-            Prefilter => rule_prefilter(text)?,
-            Code => rule_code(text)?,
+            Include => rule_include(state)?,
+            Prefilter => rule_prefilter(state)?,
+            Code => rule_code(state)?,
             _ => println!("MOCK: unknown rule"),
             /*
              TODO

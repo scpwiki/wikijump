@@ -1,5 +1,5 @@
 /*
- * tree.rs
+ * parse/token.rs
  *
  * wikidot-html - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -19,4 +19,9 @@
  */
 
 #[derive(Debug, Clone)]
-pub struct SyntaxTree;
+pub enum Token {
+    CodeBlock {
+        args: Option<String>,
+        contents: String,
+    },
+}

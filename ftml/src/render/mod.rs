@@ -18,10 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::{Error, Result, SyntaxTree};
+use crate::{Error, ParseState, Result};
 
 // TODO
-pub fn render(tree: SyntaxTree) -> Result<String> {
-    let _ = tree;
+pub fn render(state: ParseState) -> Result<String> {
+    let _ = state;
     Err(Error::StaticMsg("Not implemented yet"))
 }

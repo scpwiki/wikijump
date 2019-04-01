@@ -23,9 +23,9 @@
 //!
 //! Because we don't have a way of handling other pages currently, this is mocked.
 
-use crate::Result;
+use crate::{ParseState, Result};
 
-pub fn rule_include(text: &mut String) -> Result<()> {
+pub fn rule_include(state: &mut ParseState) -> Result<()> {
     println!("MOCK: rule.include");
     Ok(())
 }

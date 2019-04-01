@@ -22,7 +22,7 @@
 //! They are multi-line components using [[code]].
 //! Currently no syntax highlighting and arguments are ignored.
 
-use crate::{InPlaceReplace, Result};
+use crate::{ParseState, Result, Token};
 use regex::{Regex, RegexBuilder};
 
 lazy_static! {
@@ -36,13 +36,14 @@ lazy_static! {
     };
 }
 
-pub fn rule_code(text: &mut String) -> Result<()> {
-    while let Some(capture) = CODE_BLOCK.captures(text) {
-        let args = capture.name("args").map(|mtch| mtch.as_str());
-        println!("MOCK: rule.code.args {:?}", args);
-        // TODO replace with some kind of tree or something
-        let replace = format!("<div class=\"code-idk\">{}\n</div>\n{}", &capture["contents"], &capture["end"]);
-        text.ireplace_once_regex(&*CODE_BLOCK, &replace);
+pub fn rule_code(state: &mut ParseState) -> Result<()> {
+    while let Some(capture) = CODE_BLOCK.captures(state.text()) {
+        let args = capture.name("args").map(|mtch| mtch.as_str().to_string());
+        let contents = capture["contents"].to_string();
+        let token = Token::CodeBlock { args, contents };
+        let replace_with = format!("\0{}", &capture["end"]);
+        state.ireplace_once_regex(&*CODE_BLOCK, &replace_with);
+        state.push_token(token);
     }
 
     Ok(())
@@ -50,15 +51,5 @@ pub fn rule_code(text: &mut String) -> Result<()> {
 
 #[test]
 fn test_code() {
-    // TODO update when the tree does
-    let mut text = String::new();
-
-    text.push_str("[[code]]\nint main() {\n    return 0;\n}[[/code]]");
-    rule_code(&mut text).unwrap();
-    assert_eq!(&text, "<div class=\"code-idk\">\nint main() {\n    return 0;\n}\n</div>\n");
-    text.clear();
-
-    text.push_str("[[code]]\n[[footnote]]Literal footnote code.[[/footnote]]\n[[/code]]");
-    rule_code(&mut text).unwrap();
-    assert_eq!(&text, "<div class=\"code-idk\">\n[[footnote]]Literal footnote code.[[/footnote]]\n\n</div>\n");
+    // FIXME
 }
