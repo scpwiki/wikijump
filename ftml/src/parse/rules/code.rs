@@ -42,7 +42,7 @@ pub fn rule_code(state: &mut ParseState) -> Result<()> {
         let contents = capture["contents"].to_string();
         let token = Token::CodeBlock { args, contents };
         let replace_with = format!("\0{}", &capture["end"]);
-        state.ireplace_once_regex(&*CODE_BLOCK, &replace_with);
+        state.replace_once_regex(&*CODE_BLOCK, &replace_with);
         state.push_token(token);
     }
 

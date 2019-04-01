@@ -35,7 +35,7 @@ impl ParseState {
             tokens: Vec::new(),
         };
 
-        this.ireplace_all("\0", "");
+        this.replace_all("\0", "");
         this
     }
 
@@ -73,28 +73,28 @@ impl ParseState {
         self.text.replace_range(range, replace_with);
     }
 
-    pub fn ireplace_all(&mut self, pattern: &str, replace_with: &str) {
+    pub fn replace_all(&mut self, pattern: &str, replace_with: &str) {
         while let Some(idx) = self.text.find(pattern) {
             self.text
                 .replace_range(idx..idx + pattern.len(), replace_with);
         }
     }
 
-    pub fn ireplace_all_regex(&mut self, regex: &Regex, replace_with: &str) {
+    pub fn replace_all_regex(&mut self, regex: &Regex, replace_with: &str) {
         while let Some(mtch) = regex.find(&self.text) {
             self.text
                 .replace_range(mtch.start()..mtch.end(), replace_with);
         }
     }
 
-    pub fn ireplace_once(&mut self, pattern: &str, replace_with: &str) {
+    pub fn replace_once(&mut self, pattern: &str, replace_with: &str) {
         if let Some(idx) = self.text.find(pattern) {
             self.text
                 .replace_range(idx..idx + pattern.len(), replace_with);
         }
     }
 
-    pub fn ireplace_once_regex(&mut self, regex: &Regex, replace_with: &str) {
+    pub fn replace_once_regex(&mut self, regex: &Regex, replace_with: &str) {
         if let Some(mtch) = regex.find(&self.text) {
             self.text
                 .replace_range(mtch.start()..mtch.end(), replace_with);

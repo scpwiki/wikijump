@@ -46,23 +46,23 @@ lazy_static! {
 
 pub fn rule_prefilter(state: &mut ParseState) -> Result<()> {
     // DOS line endings
-    state.ireplace_all("\r\n", "\n");
+    state.replace_all("\r\n", "\n");
 
     // Old Mac line endings
-    state.ireplace_all("\r", "\n");
+    state.replace_all("\r", "\n");
 
     // Trim excess whitespace
-    state.ireplace_all_regex(&*EXCESS_WHITESPACE, "");
+    state.replace_all_regex(&*EXCESS_WHITESPACE, "");
 
     // Convert tabs
-    state.ireplace_all("\t", "    ");
+    state.replace_all("\t", "    ");
 
     // Add newlines to the top and the bottom
     state.insert(0, '\n');
     state.push('\n');
 
     // Compress 3+ newlines into 2 newlines
-    state.ireplace_all_regex(&*MULTIPLE_NEWLINES, "\n\n");
+    state.replace_all_regex(&*MULTIPLE_NEWLINES, "\n\n");
 
     Ok(())
 }
