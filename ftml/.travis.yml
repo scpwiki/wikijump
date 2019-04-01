@@ -1,0 +1,40 @@
+language: rust
+rust:
+  - stable
+  - beta
+  - nightly
+
+os:
+  - linux
+  - osx
+  - windows
+
+matrix:
+  allow_failures:
+    - rust: nightly
+  fast_finish: true
+
+cache: cargo
+
+stages:
+  - compile
+  - test
+  - doc
+
+jobs:
+  include:
+    - stage: compile
+      script:
+        - cargo build --verbose
+        - cargo build --verbose --release
+    - stage: test
+      script:
+        - cargo test --verbose
+    - stage: doc
+      script:
+        - cargo doc --verbose
+
+notifications:
+  email:
+    on_success: change
+    on_failure: always
