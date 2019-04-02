@@ -256,7 +256,7 @@ pub const RULES: [Rule; 67] = [
 fn test_variants() {
     let mut state = ParseState::new(String::new());
     for rule in &RULES[..] {
-        rule.apply(&mut state);
+        rule.apply(&mut state).unwrap();
     }
 
     assert_eq!("\n\n", state.text());
