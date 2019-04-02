@@ -53,8 +53,7 @@ pub fn rule_module(state: &mut ParseState) -> Result<()> {
             args,
             contents,
         };
-        state.replace_once_regex(&*MODULE, "\0");
-        state.push_token(token);
+        state.push_token(token, &*MODULE);
     }
 
     Ok(())

@@ -47,16 +47,14 @@ pub fn rule_raw(state: &mut ParseState) -> Result<()> {
     while let Some(capture) = RAW.captures(state.text()) {
         let contents = capture["contents"].to_string();
         let token = Token::Raw { contents };
-        state.replace_once_regex(&*RAW, "\0");
-        state.push_token(token);
+        state.push_token(token, &*RAW);
     }
 
     if SUPPORT_LEGACY_RAW {
         while let Some(capture) = RAW_OLD.captures(state.text()) {
             let contents = capture["contents"].to_string();
             let token = Token::Raw { contents };
-            state.replace_once_regex(&*RAW_OLD, "\0");
-            state.push_token(token);
+            state.push_token(token, &*RAW_OLD);
         }
     }
 

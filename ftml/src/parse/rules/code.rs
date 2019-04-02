@@ -40,10 +40,9 @@ pub fn rule_code(state: &mut ParseState) -> Result<()> {
     while let Some(capture) = CODE_BLOCK.captures(state.text()) {
         let args = capture.name("args").map(|mtch| mtch.as_str().to_string());
         let contents = capture["contents"].to_string();
-        let token = Token::CodeBlock { args, contents };
-        let replace_with = format!("\0{}", &capture["end"]);
-        state.replace_once_regex(&*CODE_BLOCK, &replace_with);
-        state.push_token(token);
+        let end = capture["end"].to_string();
+        let token = Token::CodeBlock { args, contents, end };
+        state.push_token(token, &*CODE_BLOCK);
     }
 
     Ok(())

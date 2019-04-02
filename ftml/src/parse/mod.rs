@@ -24,7 +24,7 @@ mod state;
 mod token;
 
 pub use state::ParseState;
-pub use token::{Token, TokenId};
+pub use token::Token;
 
 use rules::RULES;
 use super::prelude::*;

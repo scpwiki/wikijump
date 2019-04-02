@@ -18,14 +18,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::{Token, TokenId};
+use crate::Token;
 use regex::Regex;
+use std::fmt::Write;
+use std::mem;
 use std::ops::RangeBounds;
 
 #[derive(Debug, Clone)]
 pub struct ParseState {
     text: String,
     tokens: Vec<Token>,
+    buffer: String,
 }
 
 impl ParseState {
@@ -33,17 +36,29 @@ impl ParseState {
         let mut this = ParseState {
             text,
             tokens: Vec::new(),
+            buffer: String::new(),
         };
 
         this.replace_all("\0", "");
         this
     }
 
-    pub fn push_token(&mut self, token: Token) -> TokenId {
-        let len = self.tokens.len();
-        let id = TokenId::new(len);
+    pub fn push_token(&mut self, token: Token, regex: &Regex) {
+        // Add token to text
+        let id = self.tokens.len();
+        self.buffer.clear();
+        write!(&mut self.buffer, "\0{}\0", id).unwrap();
+
+        // Empty string doesn't allocate, do a swap to show bwchk that we aren't
+        // using 'buffer' mutably
+        let mut temp = String::new();
+        mem::swap(&mut self.buffer, &mut temp);
+        self.replace_once_regex(regex, &temp);
+        mem::swap(&mut self.buffer, &mut temp);
+        mem::drop(temp);
+
+        // Add token to list
         self.tokens.push(token);
-        id
     }
 
     #[inline]

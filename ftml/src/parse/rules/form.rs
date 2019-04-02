@@ -39,8 +39,7 @@ pub fn rule_form(state: &mut ParseState) -> Result<()> {
     while let Some(capture) = FORM.captures(state.text()) {
         let contents = capture["contents"].to_string();
         let token = Token::Form { contents };
-        state.replace_once_regex(&*FORM, "\0");
-        state.push_token(token);
+        state.push_token(token, &*FORM);
     }
 
     Ok(())
