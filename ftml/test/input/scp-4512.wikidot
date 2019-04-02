@@ -1,0 +1,292 @@
+[[module CSS]]
+@import url(/component:scp-pride/code/1);
+[[/module]]
+
+[[>]]
+[[module Rate]]
+[[/>]]
+[[include :scp.avn.sh:component:aers:info-stuff
+|lang=en[!-- EN/RU/KO/CN/FR/PL/ES/TH/JP/DE/IT/UA/PTBR --]
+|page=scp-4512
+|authorPage=http://www.scp-wiki.net/woedenaz
+|comments=**SCP-4512:** A Goddamn Filthy Teleporting Party Pool 
+ 
+**Authors:** [[*user Woedenaz]] [[*user Uncle Nicolini]] [[*user Rounderhouse]] [[*user DrAnnoyingDog]] 
+ 
+⇢ [http://www.scp-wiki.net/uncle-nicolini-author-page Uncle Nicolini's Author Page] ⇠
+ 
+⇢ [http://www.scp-wiki.net/rounderhouse-s-author-page Rounderhouse's Author Page (God help us all)] ⇠
+ 
+⇢ [http://www.scp-wiki.net/drannoyingdog DrAnnoyingDog's Author Page] ⇠
+ 
+**MANY THANKS TO:** [[*user Croquembouche]], [[*user Tufto]], [[*user Elogee FishTruck]] 
+ 
+[https://commons.m.wikimedia.org/wiki/File:Pool_12_2013-07-02.jpg Image credit] --  //Creative Commons Attribution-Share Alike 3.0 Unported, 2.5 Generic, 2.0 Generic and 1.0 Generic license//]]
+
+[[include :kaktuskontainer:component:nuscp-dev]]
+[[include :kaktuskontainer:component:nuscp-gp]]
+
+[[module css]]
+table.wiki-content-table {
+    width: 100%;
+}
+
+.center-header {
+    font-size: 150%;
+    display: block;
+    width: 100%;
+    height: 1em;
+    font-weight: 900;
+    text-align: center;
+    border-bottom: 1px dotted currentColor;
+    padding-bottom: 0.25em;
+}
+
+.item-table {
+	font-size: 1em;
+	width: 90%;
+	text-align: center;
+	border-collapse: collapse;
+	margin: 1.250em auto;
+}
+
+.table-header td {
+	font-size: 1.1em;
+	font-weight: 900;
+	background: #b9c9fe;
+	border-top: 0.250rem solid #aabcfe;
+	border-bottom: 0.0625rem solid #fff;
+	color: #039;
+	text-align: center;
+}
+
+.item-table td {
+	background: #e8edff;
+	border-bottom: 0.125rem solid #fff;
+	border-right: 0.0625rem solid #fff;
+	border-top: 0.125rem solid transparent;
+	border-left: 0.0625rem solid transparent;
+	color: #669;
+	padding: 0.5em;
+}
+
+.item-table  ul {
+	padding-inline-start: 1.5em;
+}
+
+.item-table td:nth-of-type(1), 
+.item-table td:nth-of-type(2) {
+	text-align: center;
+}
+
+div:nth-child(19) > div.collapsible-block-unfolded > div.collapsible-block-content > table:nth-child(2) > tbody > tr > td:nth-child(1) {
+	width: 60%;
+}
+
+div:nth-child(19) > div.collapsible-block-unfolded > div.collapsible-block-content > table:nth-child(2) > tbody > tr > td:nth-child(2) {
+	text-align: left;
+}
+
+#page-content > .collapsible-block {
+	display: block;
+	text-align: center;
+	padding: 0.75em;
+	background-color: lightgrey;
+	border-top: 0.125rem dashed slategrey;
+	border-bottom: 0.125rem dashed slategrey;
+}
+
+#page-content > .collapsible-block .collapsible-block-content {
+	text-align: left;
+}
+
+div:nth-child(19) > div.collapsible-block-unfolded > div.collapsible-block-content th {
+    text-align: center;
+}
+
+#page-content > div:nth-child(19) > div.collapsible-block-unfolded > div.collapsible-block-content > table:nth-child(3) > tbody > tr:nth-child(3) > td:nth-child(2) {
+	color: darkred;
+	background-color: rgba(193,31,32,0.25);
+	text-align: center;
+	width: 25%;
+}
+
+#page-content > div:nth-child(19) > div.collapsible-block-unfolded > div.collapsible-block-content > table:nth-child(1) > tbody > tr:nth-child(3) > td:nth-child(2),
+#page-content > div:nth-child(19) > div.collapsible-block-unfolded > div.collapsible-block-content > table:nth-child(2) > tbody > tr:nth-child(3) > td:nth-child(2),
+#page-content > div:nth-child(19) > div.collapsible-block-unfolded > div.collapsible-block-content > table:nth-child(4) > tbody > tr:nth-child(3) > td:nth-child(2) {
+	color: darkgreen;
+	background-color: rgba(90,137,32,0.25);
+	text-align: center;
+	width: 25%;
+}
+[[/module]]
+
+
+[[include :topia:component:classified-decoration
+|lv=4
+|item=4512
+|oc=Keter
+|lang=EN
+]]
+----
+[[div class="scp-image-block block-center" style="width:700px;"]]
+[[image https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Pool_12_2013-07-02.jpg/1024px-Pool_12_2013-07-02.jpg style="width:700px;" link=#]]
+[[div class="scp-image-caption" style="width:700px;"]]
+Photo of SCP-4512 as it appeared in St. Cloud, MN. Prior to SCP-4512's appearance, the space was approximately a third the size and occupied by a swing-set and the occupant's dog.[[footnote]]The dog reappeared unharmed following SCP-4512's demanifestation.[[/footnote]]
+[[/div]]
+[[/div]]
+-----
+
+**Special Containment Procedures:** Attempts at containing SCP-4512 have previously been unsuccessful. Current containment procedures include the following process:
+
+* Formation of Mobile Task Force Iota-9 "Pool Boys" to track all appearances of SCP-4512 and follow its demands.
+* Creation of HL-LVR aka Hukilau Lover, a world wide web crawler to find any forum posts, news articles, social media posts, etc. pertaining to the appearance of SCP-4512.
+
+**Description:** SCP-4512 is a 40 square meter sapient swimming pool capable of instantaneous translocation. SCP-4512 exclusively manifests in the rear exterior spaces of homes[[footnote]]SCP-4512 has not appeared behind any other structure other than single-family homes to date.[[/footnote]] in landlocked areas and appears to specifically target the U.S state of Minnesota. During an SCP-4512 manifestation event, the rear exterior space of the home will anomalously expand if necessary to accommodate SCP-4512, at which point SCP-4512 will appear fully depressed into the ground. In 100% of all SCP-4512 manifestations, it has appeared filled with garbage, refuse, plant life, and various objects of unknown origin, regardless of its state of cleanliness prior to its previous demanifestation. 
+
+Objects consistent across all SCP-4512 manifestations include imitation Hawaiian leis, plastic coconut shells, cocktail glasses, bathing suits, and sun lotion bottles.  
+
+Other objects of note found within SCP-4512 include:
+
+* 1 Apple II Computer 
+* 5 shirts with "Metal and Soul" written on the front in marker
+* 1 tattered Polish flag
+* 2 Motorolla cell phones
+* 4 bottles of Kirkland brand white wine (empty)
+* 1 bag of milk
+* 5 lunar rocks
+* 3 left boots dated to the 18th century
+* 16 grams of bonobo fur
+* 2 deceased swans
+* 1 copy of the novel "Fargo"
+* 2 dishwashers
+* 1 Foundation ID card
+* 29 saltwater crabs (deceased)
+
+
+Once SCP-4512 has fully manifested, it will begin vocalizing[[footnote]]SCP-4512's vocalizations are both deeply resonate and sound marginally similar to the accent of a native Hawaiian.[[/footnote]] to nearby individuals in an attempt to persuade them to approach. If an individual does approach, SCP-4512 will engage in conversation with them, attempting to strike a bargain. This bargain will usually involve SCP-4512 giving up one or more items found within its water in exchange for the individual cleaning out the entirety of SCP-4512's interior. 
+
+If the individual refuses the initial offer, SCP-4512 will offer sequentially more valuable objects while vocalizations increase in outrage about the perceived injustice against it. These vocalizations will grow louder with time to an indefinite maximum. The highest recorded volume from SCP-4512 surpassed the ability for current measuring tools to document. However, the intensity has been recorded to cause an earthquake measured 5 on the Richter scale.
+
+Once SCP-4512 has been cleaned to its satisfaction, a demanifestation event will occur. The space once occupying SCP-4512 will return to its previous dimensions with no lasting evidence of SCP-4512's occupation. 
+
+------
+
+[[span class="center-header"]]Addendum 4512-1: Containment Attempts[[/span]]
+
+||~ The following lists all proposed and attempted containment procedures as well as their outcomes. Additionally, the date of the proposal and number of recorded instances of SCP-4512 manifesting in a new location[[footnote]]Count is marginally accurate to within a ±200 margin of error[[/footnote]] are included. ||
+
+[[collapsible show="▼ Click to confirm credentials ▼" hide="▲ Hide Addendum ▲"]]
+
+||||||~ **Proposed Containment Procedure 3** ||
+|| **Date:** 2000/12/8 || **Known Manifestation Count:** 20 ||
+|| **Name:** Researcher Chevrolet || //**APPROVED**// ||
+||||= **Proposed Containment** ||
+||||< Containing SCP-4512 in a soundproof enclosure made of an experimental substance known to dampen 100% of sound waves. ||
+||||= **Containment Results** ||
+|||| Attempt lasted approximately nine days and fourteen hours when SCP-4512's vocalizations reached over 200 decibels before surpassing intensities allowing for proper measurement. The volume eventually caused the containment material to sublimate resulting in multiple injuries to researchers as well as one death due to air embolism in the lungs. ||
+
+||||~ **Proposed Containment Procedure 56** ||
+|| **Date:** 2003/10/10 || **Known Manifestation Count:** 153 ||
+|| **Name:** Dr. Edward Wolfe || //**APPROVED**// ||
+||||= **Proposed Containment** ||
+||||< The unorthodox procedure of filling SCP-4512 with refuse. Dr. Wolfe posits that this may cause the anomaly to become frustrated, containing itself and/or result in the possible threat of increased trash as motivation against further outbursts. The suggestion is approved by Dr. Lark and proceeds as planned. ||
+||||= **Containment Results** ||
+|||| Approximately two tons of trash are dumped into SCP-4512 before its vocalizations increased in intensity to the point of collapsing the nearby structure before SCP-4512 spontaneously disappeared. It was found two months later in Bloomington, MN fully cleaned by unknown means and appeared to recognize Foundation Individuals directly involved with this containment attempt. All personnel directly involved have been reassigned in order to avoid further incidents. ||
+
+||||~ **Proposed Containment Procedure 193** ||
+|| **Date:** 2008/01/03 || **Known Manifestation Count:** 505 ||
+|| **Name:** Director House || //**DENIED**//[[footnote]]**Note Accompanying Denial:** //Sir, I know we are desperate. However, I cannot approve this in good faith. Ignoring the absurdity of the suggestion, SCP-4512 is currently in St. Paul, Minnesota. I'm not even sure enough people live here to go to a nightclub.// --Dr. Lark[[/footnote]] ||
+||||= **Proposed Containment** ||
+||||< Create a night club around the pool in order to drown out its vocalizations. ||
+||||= **Containment Results** ||
+|||| N/A ||
+
+||||~ **Proposed Containment Procedure 642** ||
+|| **Date:** 2014/11/05 || **Known Manifestation Count:** 2,101 ||
+|| **Name:** Director House || //**APPROVED**//[[footnote]]**Note Accompanying Approval:** //I suppose it is worth an attempt. I trust your judgment, sir. After all this time I can only pray that it works.// --Dr. Lark[[/footnote]] ||
+||||= **Proposed Containment** ||
+||||< After the pool's appearance in a well-populated area of Las Vegas, NV, Director House suggests creating a twenty-four hour fully enclosed club aimed primarily at overwhelming SCP-4512's vocalizations with the added benefit of keeping it relatively clean.[[footnote]]However, not clean enough for a spontaneous disappearance event to occur.[[/footnote]] ||
+||||= **Containment Results** ||
+|||| //The Hawaiian Pool Masquerade// is built surrounding SCP-4512 and finds success relatively quickly due to the efforts of the research team and Dr. Lark.[[footnote]]Dr. Lark was the lead researcher in charge of focus testing for a large marketing firm prior to joining The Foundation[[/footnote]] The pool was kept maintained for one month, eight days, and three hours until an inebriated patron defecated within SCP-4512. The incident caused eight fatalities due to air embolism in the lungs and 29 injuries due to shattered eardrums and collapsed lungs. ||
+
+[[/collapsible]]
+
+------
+
+[[span class="center-header"]]Interview Log 4512-8[[/span]]
+
+||~ During a routine containment attempt, Researcher Kalama was prompted to engage SCP-4512 in conversation while MTF Iota-9 observed standard procedure. Selection of Kalama was due to their familiarity with the Hawaiian language, which SCP-4512 has been observed to use words and phrases in. ||
+
+[[collapsible show="▼ Click to confirm credentials ▼" hide="▲ Hide Interview Log ▲"]]
+> **Interviewed:** SCP-4512
+> 
+> **Interviewer:** Researcher Kalama
+> 
+> //Note: SCP-4512's water feature appears to flow with more velocity when it "speaks." This has not been observed to coincide with the volume of SCP-4512's vocalizations.//
+> 
+> = **<<Begin Log>>**
+> 
+> **SCP-4512:** Aloooooooooha, cousin! Did ya come to spend some time with little old me? Haha! I've got some time to kill while my friends here give me a scrub-down. 
+> 
+> 
+> **Kalama:** [IN HAWAIIAN] Hello there. Would you prefer to speak in our native tongue? I want to make sure you're comfortable.
+> 
+> **SCP-4512:** Uh... Haha, yeah, totally, cuz! It's good to see you too! But you know, I don't wanna be rude in front of the guys. Don't want them to be left out ya know? We're all one big happy ohana here.
+> 
+> **Kalama:** I am sorry, I was told you spoke the language.
+> 
+> **SCP-4512:** I totally do, I just, you know. The guys are right here an- hey, you by the filter, there's a chunk of gator tail in there. Could you get it out? And, uh, make sure you wear gloves. I was at one hell of a luau the other day, haha! Anyway, where were we? I think I was about to tell you about that awesome luau the other night.
+> 
+> **Kalama:** Are you at luaus while you're not being cleaned? 
+> 
+> **SCP-4512:** You know it, cousin! This bad boy is a big, mean, luau party machine!
+> 
+> **Kalama:** Oh, that's lovely. I haven't been to one in a long time, but I miss the food the most. What do you like having at them?
+> 
+> **SCP-4512:** Cheeseburgers, no doubt. Heaven on earth with an onion slice, baby!
+> 
+> **Kalama:** Cheeseburgers, hmm? I don't think I've seen them at any luaus I've been to. My favorite dish has always been kulolo. 
+> 
+> **SCP-4512:** Oh yeah, I think I've heard of that. It's uh.... that fish, right?
+> 
+> **Kalama:** It's a desse- [KALAMA IS INTERRUPTED BY SCP-4512]
+> 
+> **SCP-4512:** A dessert! Yeah! Haha, your silly old cuz can't remember. Too much partying, you know! Last one was extra lōlō! The guys have their work cut out for them, don't you? Haha!
+> 
+> //An unidentified member of MTF Iota-9 grunts in confirmation as they remove an object resembling a pre-Columbian fertility statue from SCP-4512 using a pool net.//
+> 
+> **Kalama:** Right, so, where are these parties? In Hawaii, I assume?
+> 
+> **SCP-4512:** Hawaii? What's that?
+> 
+> //[COMMAND INFORMS KALAMA NOT TO DESCRIBE HAWAII TO SCP-4512]//
+> 
+> **Kalama:** Oh, I'm sorry, I misspoke. So, where are these parties?
+> 
+> **SCP-4512:** Wherever there's a sunset, tequila, and hula babes, cuz. Tell a cousin about this 'Hawaii', though! 
+> 
+> //[COMMAND INSTRUCTS RESEARCHER KALAMA TO ABORT THE INTERVIEW]//
+> 
+> **Kalama:** Sorry, I think I misspoke. Anyways, where did you learn the words 'aloha' and 'luau'?
+> 
+> **SCP-4512:** It's just how I talk, cuz. Is that a problem?
+> 
+> **Kalama:** Not at all. Just curiosity.
+> 
+> **SCP-4512:** You little kologe, you. 
+> 
+> **Kalama:** It's pronounced 'ko-lo-he.'
+> 
+> **SCP-4512:** Don't be correcting me, cousin. I know what I said!
+> 
+> **Kalama:** ... Right. Anyway, I'll be going now. Thank you for speaking to me.
+> 
+> **SCP-4512:** Aloha, cousin! That's how we say goodbye!
+> 
+> **Kalama:** Yes, I know. Goodbye.
+> 
+> = **<<End Log>>**
+> 
+> **Closing Statement:** Information about Hawaii is currently barred from explicitly being told to SCP-4512 until its motives are more clearly understood. 
+[[/collapsible]]

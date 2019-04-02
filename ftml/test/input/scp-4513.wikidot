@@ -1,0 +1,126 @@
+[[include :kaktuskontainer:component:nuscp-dev]]
+[[>]]
+[[module Rate]]
+[[/>]]
+[[include :scp.avn.sh:component:aers:info-stuff
+|lang=en[!-- EN/RU/KO/CN/FR/PL/ES/TH/JP/DE/IT/UA/PTBR --]
+|page=scp-4549[!-- url of your page on the scp wiki --]
+|authorPage=http://www.scp-wiki.net/rounderhouse-s-author-page[!-- link to your author page --]
+|comments= Coming Soon - Rounderhouse
+]]
+[[module CSS]]
+:root{ 
+--cutColour: #fafafa;
+--barColour: #590505;
+}
+
+.info-container .collapsible-block-folded a{
+color: #FFF;}
+.info-container .collapsible-block-unfolded-link a{
+color: #FFF;}
+[[/module]]
+
+[[include :scp-sandbox-3:image-zoom name=bottle.jpg|caption=SCP-4513-B|width=300px|align=right]]
+
+**Item #:** SCP-4513
+
+**Object Class:** Safe
+
+**Special Containment Procedures:** SCP-4513 is contained in a standard object storage locker in Site-19.
+
+**Description:** SCP-4513 is a Brush Master brand large drum wood-chipper. 
+
+SCP-4513's anomalous quality occurs when any form of printed literary media is placed into its intake hopper. 
+
+After SCP-4513 consumes such a form of media, rather than the expected output of shredded paper, it will produce a watery substance superficially resembling milk. This substance (SCP-4513-B) changes the narrative structure of any literary media it is exposed to. These alterations result in a text that more closely resembles the media SCP-4513-B was formed from (in style and prose).
+
+**Testing Log:** Several tests were performed using SCP-4513-B. A filled IRS W-2 tax form, provided by Researcher Andrew Thompson, was used as a control for the different varieties of SCP-4513-B to be applied to.
+
+= **SCP-4513-B Source:** //Moby Dick; or, the Whale// by Herman Melville
+> The mahogany slab separating the captain from his sailor was littered with papers -- ink scrawls on parchment listing nills and tips and debts and payments, all resting on the broad white shoulders of one Captain Two-Form. Even as this cruel Pharoah of the Oppression scanned the page with his all seeing eyes, his flock trembled in awful fear at the utter power resting before him; the power to end a man's livelihood with a single stroke of a quill -- a weapon most desired, but entrusted to a small few under the watchful gaze of the Internal Revenue Service.
+> 
+> Jim Thompson's observation on the nature of his captor was cut short by the wax-sealed envelope thrust in his face by the thin, papery hands of Two-Form.
+> 
+> "Eyes up, lad! You 'dun good, landing a one-hundredth-and-eightieth lay aboard the good ship //the Foundation// in only a single year of service! Not a feat many a man could accomplish. Though -- this has the unfortunate consequence of heightening the amount of coin good Father Samuel will tear from your grasp the moment we make landfall. However: I have a weapon most sinister that can aid you against him."
+> 
+> Two-Form grinned, displaying a mouth filled with shockingly white teeth, like a quarry of enamel buried under a disgusting facade.
+> 
+> "Tell me, boy -- do you know what a deductible is?"
+@@ @@
+@@ @@
+= **SCP-4513-B Source:** //Julius Caesar// by William Shakespeare
+> [[=]]
+> //**ENTER:** A twenty-seven year old male.//
+> [[/=]]
+> [[>]]
+> Afternoon. Do say, what is thy name, boy? **:W-2 FORM**
+> [[/>]]
+> **THOMPSON:** They call me Jim Edward Thompson, m'lord.
+> [[>]]
+> Praytell, what is thy current level of income? **:W-2 FORM**
+> [[/>]]
+> **THOMPSON:** In the year of our lord two-thousand-and-eighteen, I amassed a collective of seventy-three-thousand American dollars and change, m'lord.
+> [[>]]
+> Thou is in a tax bracket high enough to pierce the heavens! **:W-2 FORM**
+> [[/>]]
+> [[=]]
+> //THOMPSON gasps in horror.//
+> [[/=]]
+> [[>]]
+> Rejoice! To wit: Thou hast a dependent, and yes: You can, indeed, claim thy offerings to yonder Good-Will as charitable donations. **:W-2 FORM**
+> [[/>]]
+> **THOMPSON:** Thou art a kind and charitable servant of the great Uncle Samuel! 
+> [[>]]
+> Thou art most kind. However: prithee, speak honestly, dost thou have a four-oh-one-kay?  **:W-2 FORM**
+> [[/>]]
+> **THOMPSON:** I believe not, m'lord.
+> [[>]]
+> Then I am sorry to be the pallbearer of bad news -- thou must journey far to the east and seek out the great kingdom of CHASE BANK and inquire within for the answers thou seeks. Godspeed. **:W-2 FORM**
+> [[/>]]
+@@ @@
+@@ @@
+= **SCP-4513-B Source:** //Helicopter Man Pounds Dinosaur Billionaire Ass// by Chuck Tingle
+> Jim Thompson fingered the wedding ring on his finger. The band had cost him a pretty penny, but it was far more beautiful than the marriage it had been for. Susan -- his wife -- was cold & distant. She just didn't satisfy him anymore. Nothing did.
+> 
+> "Jim?"
+> 
+> HR Officer Form's musky voice snapped him out of his reverie. Jim stammered out a response, caught off-guard. "Y-yes, Officer?"
+> 
+> "Call me Form. I'd like to ask you a few questions - make sure you're suited to the position, you know."
+> 
+> "I'm suited for any position, sir!"
+> 
+> The words had barely left Jim's mouth before he realized what he said. His face turned to crimson. Thankfully, either Form didn't notice, or he didn't mention it. 
+> 
+> //Stay focused, you idiot. Don't get distracted by his face, or his glasses, or his musc-//
+> 
+> "How're the wife and kids, Jim? You got married last year, right?"
+> 
+> //He remembered.//
+> 
+> "W-we're good. We're going through a rough spot, but we'll make it."
+> 
+> "Ah, sorry to hear that. This news should be a nice blow, though."
+> 
+> Form's face was the one turning red this time. They both let out polite chuckles, eager to change the topic at hand.
+> 
+> "Haha, we're both just tripping over ourselves today, aren't we?"
+> 
+> The air in the room was thick, stifling. Jim could feel the energy, the chemistry between them.
+> 
+> "Well, sir, I know I am."
+> 
+> Again, they both tittered and giggled for a moment, before both looking up at the same instant. Their eyes met, and something passed between them. Jim held the connection a moment longer, but Form broke it off. But Form wasn't fooling anyone, least of all himself. Both of them knew what had changed in that instant.
+> 
+> Form fumbled, sweat dripping from his brow, as he handed Jim a sealed envelope. 
+> 
+> "I-I'm sorry, Thompson. We can't fully deduct that unfortunate hospital bill from January."
+> 
+> Now was the moment. Jim had to make a choice. Do or die. Make what might be the biggest mistake of his life, or go through the rest of his existence wondering what could have been.
+> 
+> He looked up, Form's eyes, and purred out a single sentence.
+> 
+> "My copay isn't the only thing that's rising."
+> [[=]]
+> **[THIRTY-SEVEN PAGES OF ADDITIONAL DOCUMENTATION REMOVED]**
+> [[/=]]
