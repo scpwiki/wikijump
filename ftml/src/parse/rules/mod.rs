@@ -20,6 +20,7 @@
 
 // Rule implementations
 mod code;
+mod comment;
 mod form;
 mod if_tags;
 mod include;
@@ -30,6 +31,7 @@ mod raw;
 use crate::{ParseState, Result};
 use self::Rule::*;
 use self::code::rule_code;
+use self::comment::rule_comment;
 use self::form::rule_form;
 use self::if_tags::rule_iftags;
 use self::include::rule_include;
@@ -115,10 +117,10 @@ impl Rule {
             Raw => rule_raw(state)?,
             Module => rule_module(state)?,
             IfTags => rule_iftags(state)?,
+            Comment => rule_comment(state)?,
             _ => println!("MOCK: unknown rule"),
             /*
              TODO
-            Comment,
             IFrame,
             Date,
             Math,
@@ -273,6 +275,7 @@ fn test_fn_types() {
     let _: ApplyFn = rule_raw;
     let _: ApplyFn = rule_module;
     let _: ApplyFn = rule_iftags;
+    let _: ApplyFn = rule_comment;
 
     // TODO for all the other functions
 }
