@@ -54,7 +54,9 @@ fn test_conversions() {
     // Run through all of the test files
     for entry in fs::read_dir(&*TEST_DIRECTORY).expect("Unable to read test directory") {
         let entry = entry.expect("Unable to read entry in directory");
-        let ftype = entry.file_type().expect("Unable to get file type in directory");
+        let ftype = entry
+            .file_type()
+            .expect("Unable to get file type in directory");
         if !ftype.is_file() {
             continue;
         }
@@ -63,7 +65,11 @@ fn test_conversions() {
         output_file.clone_from(&input_file);
         output_file.set_extension("html");
 
-        println!("Converting \"{}\" -> \"{}\"...", input_file.display(), output_file.display());
+        println!(
+            "Converting \"{}\" -> \"{}\"...",
+            input_file.display(),
+            output_file.display()
+        );
         let mut input_text = String::new();
         read_file(&mut input_text, &input_file).expect("Unable to read input Wikidot");
         read_file(&mut expected_html, &output_file).expect("Unable to read expected output HTML");
