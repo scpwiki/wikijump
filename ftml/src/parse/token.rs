@@ -18,6 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use std::fmt::{self, Display};
+
 #[derive(Debug, Clone)]
 pub enum Token {
     CodeBlock {
@@ -35,4 +37,26 @@ pub enum Token {
     Raw {
         contents: String,
     },
+}
+
+#[must_use = "token ids should be inserted into the state string"]
+#[derive(Debug, PartialEq, Eq)]
+pub struct TokenId(usize);
+
+impl TokenId {
+    #[inline]
+    pub fn new(id: usize) -> Self {
+        TokenId(id)
+    }
+
+    #[inline]
+    pub fn get(&self) -> usize {
+        self.0
+    }
+}
+
+impl Display for TokenId {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "\0{}\0", self.0)
+    }
 }

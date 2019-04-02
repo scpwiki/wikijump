@@ -22,7 +22,7 @@ use std::error::Error as StdError;
 use std::{io, fmt::{self, Write}};
 use std::str::Utf8Error;
 
-#[must_use]
+#[must_use = "should handle errors"]
 #[derive(Debug)]
 pub enum Error {
     StaticMsg(&'static str),

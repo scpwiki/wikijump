@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::Token;
+use crate::{Token, TokenId};
 use regex::Regex;
 use std::ops::RangeBounds;
 
@@ -39,8 +39,11 @@ impl ParseState {
         this
     }
 
-    pub fn push_token(&mut self, token: Token) {
+    pub fn push_token(&mut self, token: Token) -> TokenId {
+        let len = self.tokens.len();
+        let id = TokenId::new(len);
         self.tokens.push(token);
+        id
     }
 
     #[inline]
