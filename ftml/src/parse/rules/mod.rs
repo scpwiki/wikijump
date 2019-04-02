@@ -22,6 +22,7 @@
 mod code;
 mod form;
 mod include;
+mod module;
 mod prefilter;
 mod raw;
 
@@ -31,6 +32,7 @@ use self::code::rule_code;
 use self::form::rule_form;
 use self::include::rule_include;
 use self::prefilter::rule_prefilter;
+use self::module::rule_module;
 use self::raw::rule_raw;
 
 #[derive(Debug, Copy, Clone)]
@@ -40,9 +42,7 @@ pub enum Rule {
     Code,
     Form,
     Raw,
-    ModulePre,
     Module,
-    Module654,
     IfTags,
     Comment,
     IFrame,
@@ -111,12 +111,10 @@ impl Rule {
             Code => rule_code(state)?,
             Form => rule_form(state)?,
             Raw => rule_raw(state)?,
+            Module => rule_module(state)?,
             _ => println!("MOCK: unknown rule"),
             /*
              TODO
-            ModulePre,
-            Module,
-            Module654,
             IfTags,
             Comment,
             IFrame,
@@ -184,15 +182,13 @@ impl Rule {
 
 // Copied from Wikidot Text_Wiki source
 // For maximum backwards-compatibility, leave as-is
-pub const RULES: [Rule; 66] = [
+pub const RULES: [Rule; 64] = [
     Include,
     Prefilter,
     Code,
     Form,
     Raw,
-    ModulePre, // ?
     Module,
-    Module654, // ?
     IfTags,
     Comment,
     IFrame,
@@ -273,6 +269,7 @@ fn test_fn_types() {
     let _: ApplyFn = rule_code;
     let _: ApplyFn = rule_form;
     let _: ApplyFn = rule_raw;
+    let _: ApplyFn = rule_module;
 
     // TODO for all the other functions
 }

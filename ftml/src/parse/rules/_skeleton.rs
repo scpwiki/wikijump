@@ -21,7 +21,7 @@
 //! Processing rule for _TODO_
 //! Add documentation!
 
-use crate::{ParseState, Result};
+use crate::{ParseState, Result, Token};
 
 pub fn rule_NAMEHERE(state: &mut ParseState) -> Result<()> {
     println!("MOCK: rule.NAMEHERE");

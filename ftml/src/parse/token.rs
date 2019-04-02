@@ -27,6 +27,11 @@ pub enum Token {
     Form {
         contents: String,
     },
+    Module {
+        name: String,
+        args: Option<String>,
+        contents: Option<String>,
+    },
     Raw {
         contents: String,
     },
