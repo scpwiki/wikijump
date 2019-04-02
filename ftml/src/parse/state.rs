@@ -49,6 +49,11 @@ impl ParseState {
     }
 
     #[inline]
+    pub fn token(&self, index: usize) -> Option<&Token> {
+        self.tokens.get(index)
+    }
+
+    #[inline]
     pub fn tokens(&self) -> &[Token] {
         self.tokens.as_slice()
     }

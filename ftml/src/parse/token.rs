@@ -27,4 +27,7 @@ pub enum Token {
     Form {
         contents: String,
     },
+    Raw {
+        contents: String,
+    },
 }
