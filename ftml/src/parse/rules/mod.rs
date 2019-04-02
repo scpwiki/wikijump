@@ -20,12 +20,14 @@
 
 // Rule implementations
 mod code;
+mod form;
 mod include;
 mod prefilter;
 
 use crate::{ParseState, Result};
 use self::Rule::*;
 use self::code::rule_code;
+use self::form::rule_form;
 use self::include::rule_include;
 use self::prefilter::rule_prefilter;
 
@@ -106,10 +108,10 @@ impl Rule {
             Include => rule_include(state)?,
             Prefilter => rule_prefilter(state)?,
             Code => rule_code(state)?,
+            Form => rule_form(state)?,
             _ => println!("MOCK: unknown rule"),
             /*
              TODO
-            Form,
             Raw,
             RawOld,
             ModulePre,

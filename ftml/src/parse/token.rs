@@ -24,4 +24,7 @@ pub enum Token {
         args: Option<String>,
         contents: String,
     },
+    Form {
+        contents: String,
+    },
 }
