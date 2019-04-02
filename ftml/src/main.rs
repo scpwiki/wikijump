@@ -81,6 +81,7 @@ fn main() {
             }
 
             return_code = 1;
+            continue;
         }
 
         let in_path = Path::new(in_path);
