@@ -54,6 +54,9 @@ mod error;
 mod parse;
 mod render;
 
+#[cfg(test)]
+mod test;
+
 pub use self::error::Error;
 pub use self::parse::{parse, ParseState, Token};
 pub use self::render::render;
@@ -61,8 +64,8 @@ pub use self::render::render;
 pub type StdResult<T, E> = std::result::Result<T, E>;
 pub type Result<T> = StdResult<T, Error>;
 
-pub fn transform<I: Into<String>>(text: I) -> Result<String> {
-    let state = parse(text.into())?;
+pub fn transform(text: String) -> Result<String> {
+    let state = parse(text)?;
     let html = render(state)?;
     Ok(html)
 }
