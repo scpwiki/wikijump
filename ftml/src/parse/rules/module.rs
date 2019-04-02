@@ -45,8 +45,14 @@ pub fn rule_module(state: &mut ParseState) -> Result<()> {
     while let Some(capture) = MODULE.captures(state.text()) {
         let name = capture["name"].to_string();
         let args = capture.name("args").map(|mtch| mtch.as_str().to_string());
-        let contents = capture.name("contents").map(|mtch| mtch.as_str().to_string());
-        let token = Token::Module { name, args, contents };
+        let contents = capture
+            .name("contents")
+            .map(|mtch| mtch.as_str().to_string());
+        let token = Token::Module {
+            name,
+            args,
+            contents,
+        };
         state.replace_once_regex(&*MODULE, "\0");
         state.push_token(token);
     }
@@ -65,25 +71,35 @@ fn test_module() {
     assert_eq!(state.text(), "\0\nbanana");
 
     match state.token(0) {
-        Some(Token::Module { name, args, contents }) => {
+        Some(Token::Module {
+            name,
+            args,
+            contents,
+        }) => {
             assert_eq!(name, "Rate");
             assert!(args.is_none());
             assert_eq!(contents.as_ref().unwrap(), "");
-        },
+        }
         Some(token) => panic!("Token not raw, was {:?}", token),
         None => panic!("Not enough tokens in state"),
     }
 
-    let mut state = ParseState::new("apple\n[[module ListPages category=\"fragment\"]]\n%%content%%\n[[/module]]".into());
+    let mut state = ParseState::new(
+        "apple\n[[module ListPages category=\"fragment\"]]\n%%content%%\n[[/module]]".into(),
+    );
     rule_module(&mut state).unwrap();
     assert_eq!(state.text(), "apple\n\0");
 
     match state.token(0) {
-        Some(Token::Module { name, args, contents }) => {
+        Some(Token::Module {
+            name,
+            args,
+            contents,
+        }) => {
             assert_eq!(name, "ListPages");
             assert_eq!(args.as_ref().unwrap(), " category=\"fragment\"");
             assert_eq!(contents.as_ref().unwrap(), "%%content%%\n");
-        },
+        }
         Some(token) => panic!("Token not raw, was {:?}", token),
         None => panic!("Not enough tokens in state"),
     }

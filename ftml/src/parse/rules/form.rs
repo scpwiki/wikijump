@@ -48,7 +48,8 @@ pub fn rule_form(state: &mut ParseState) -> Result<()> {
 
 #[test]
 fn test_form() {
-    let mut state = ParseState::new("apple\n[[form]]\nuseless feature tbh\n[[/form]]\nblueberry".into());
+    let mut state =
+        ParseState::new("apple\n[[form]]\nuseless feature tbh\n[[/form]]\nblueberry".into());
     rule_form(&mut state).unwrap();
     assert_eq!(state.text(), "apple\n\0\nblueberry");
     assert_eq!(state.tokens().len(), 1);

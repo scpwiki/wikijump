@@ -55,7 +55,11 @@ fn main() {
     let output_dir = matches.value_of_os("output-directory").unwrap();
     if let Err(err) = fs::create_dir_all(&output_dir) {
         let output_dir = Path::new(output_dir);
-        eprintln!("Error creating directories for \"{}\": {}", output_dir.display(), &err);
+        eprintln!(
+            "Error creating directories for \"{}\": {}",
+            output_dir.display(),
+            &err
+        );
         process::exit(1);
     }
 
@@ -76,11 +80,11 @@ fn main() {
                 path.push(stem);
                 path.set_extension("html");
                 path
-            },
+            }
             None => {
                 eprintln!("Path \"{}\" does not refer to a file", in_path.display());
                 process::exit(1);
-            },
+            }
         };
 
         if let Err(err) = process_file(in_path, &out_path) {
