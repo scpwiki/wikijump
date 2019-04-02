@@ -65,11 +65,7 @@ fn test_conversions() {
         output_file.clone_from(&input_file);
         output_file.set_extension("html");
 
-        println!(
-            "Converting \"{}\" -> \"{}\"...",
-            input_file.display(),
-            output_file.display()
-        );
+        println!("Converting {}...", input_file.file_name().unwrap().to_string_lossy());
         let mut input_text = String::new();
         read_file(&mut input_text, &input_file).expect("Unable to read input Wikidot");
         read_file(&mut expected_html, &output_file).expect("Unable to read expected output HTML");
