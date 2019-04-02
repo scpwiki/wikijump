@@ -71,7 +71,11 @@ fn main() {
         process::exit(1);
     }
 
-    let transform_fn = if matches.occurrences_of("parse-only") == 0 { transform } else { parse_only };
+    let transform_fn = if matches.occurrences_of("parse-only") == 0 {
+        transform
+    } else {
+        parse_only
+    };
 
     let mut return_code = 0;
     for in_path in matches.values_of_os("FILE").unwrap() {
