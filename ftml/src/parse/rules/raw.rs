@@ -65,7 +65,7 @@ pub fn rule_raw(state: &mut ParseState) -> Result<()> {
 fn test_raw() {
     let mut state = ParseState::new("@@ [[code]] @@ @@@@".into());
     rule_raw(&mut state).unwrap();
-    assert_eq!(state.text(), "\0 \0");
+    assert_eq!(state.text(), "\00\0 \01\0");
 
     match state.token(0) {
         Some(Token::Raw { contents }) => assert_eq!(contents, " [[code]] "),
@@ -83,7 +83,7 @@ fn test_raw() {
     rule_raw(&mut state).unwrap();
 
     if SUPPORT_LEGACY_RAW {
-        assert_eq!(state.text(), "\0");
+        assert_eq!(state.text(), "\00\0");
         assert_eq!(state.tokens().len(), 1);
     } else {
         assert_eq!(state.text(), "`` {{apple}} ``");

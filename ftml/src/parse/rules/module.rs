@@ -67,7 +67,7 @@ fn test_module() {
 
     let mut state = ParseState::new("[[module Rate]]\n[[/module]]\nbanana".into());
     rule_module(&mut state).unwrap();
-    assert_eq!(state.text(), "\0\nbanana");
+    assert_eq!(state.text(), "\00\0\nbanana");
 
     match state.token(0) {
         Some(Token::Module {
@@ -87,7 +87,7 @@ fn test_module() {
         "apple\n[[module ListPages category=\"fragment\"]]\n%%content%%\n[[/module]]".into(),
     );
     rule_module(&mut state).unwrap();
-    assert_eq!(state.text(), "apple\n\0");
+    assert_eq!(state.text(), "apple\n\00\0");
 
     match state.token(0) {
         Some(Token::Module {
