@@ -29,15 +29,13 @@ use regex::{Regex, RegexBuilder};
 
 lazy_static! {
     static ref RAW: Regex = {
-        RegexBuilder::new(r"(?<!@)@@(.*[^@]?)@@")
-            .swap_greed(true)
+        RegexBuilder::new(r"@@(?P<contents>.*?[^@]?)@@")
             .build()
             .unwrap()
     };
 
     static ref RAW_OLD: Regex = {
-        RegexBuilder::new(r"(?<!`)``([^']*[^`])``")
-            .swap_greed(true)
+        RegexBuilder::new(r"``(?P<contents>[^']*?[^`])``")
             .build()
             .unwrap()
     };
@@ -67,21 +65,27 @@ pub fn rule_raw(state: &mut ParseState) -> Result<()> {
 
 #[test]
 fn test_raw() {
-    let mut state = ParseState::new("@@ [[code]] @@".into());
+    let mut state = ParseState::new("@@ [[code]] @@ @@@@".into());
     rule_raw(&mut state).unwrap();
-    assert_eq!(state.text(), "\0");
+    assert_eq!(state.text(), "\0 \0");
 
     match state.token(0) {
         Some(Token::Raw { contents }) => assert_eq!(contents, " [[code]] "),
-        Some(token) => panic!("Token not raw, was, {:?}", token),
-        None => panic!("No tokens in state"),
+        Some(token) => panic!("Token not raw, was {:?}", token),
+        None => panic!("Not enough tokens in state"),
+    }
+
+    match state.token(1) {
+        Some(Token::Raw { contents }) => assert_eq!(contents, ""),
+        Some(token) => panic!("Token not raw, was {:?}", token),
+        None => panic!("Not enough tokens in state"),
     }
 
     let mut state = ParseState::new("`` {{apple}} ``".into());
     rule_raw(&mut state).unwrap();
 
     if SUPPORT_LEGACY_RAW {
-        assert_eq!(state.text(), " {{apple}} ");
+        assert_eq!(state.text(), "\0");
         assert_eq!(state.tokens().len(), 1);
     } else {
         assert_eq!(state.text(), "`` {{apple}} ``");

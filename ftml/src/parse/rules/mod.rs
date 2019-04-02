@@ -110,10 +110,10 @@ impl Rule {
             Prefilter => rule_prefilter(state)?,
             Code => rule_code(state)?,
             Form => rule_form(state)?,
+            Raw => rule_raw(state)?,
             _ => println!("MOCK: unknown rule"),
             /*
              TODO
-            Raw,
             ModulePre,
             Module,
             Module654,

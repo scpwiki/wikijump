@@ -27,7 +27,7 @@ use regex::{Regex, RegexBuilder};
 
 lazy_static! {
     static ref FORM: Regex = {
-        RegexBuilder::new(r"\[\[form\]\]\n(?P<contents>.*)\[\[\/form\]\]")
+        RegexBuilder::new(r"\[\[form\]\]\n(?P<contents>.*)\[\[/form\]\]")
             .case_insensitive(true)
             .dot_matches_new_line(true)
             .build()
