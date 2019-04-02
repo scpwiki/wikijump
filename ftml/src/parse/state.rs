@@ -59,6 +59,11 @@ impl ParseState {
     }
 
     #[inline]
+    pub fn into_components(self) -> (String, Vec<Token>) {
+        (self.text, self.tokens)
+    }
+
+    #[inline]
     pub fn insert(&mut self, idx: usize, ch: char) {
         self.text.insert(idx, ch);
     }

@@ -31,6 +31,8 @@ use std::path::{Path, PathBuf};
 use std::process;
 use wikidot_html::prelude::*;
 
+type TransformFn = fn(String) -> Result<String>;
+
 fn main() {
     let matches = App::new("Wikidot to HTML")
         .version(env!("CARGO_PKG_VERSION"))
@@ -43,6 +45,12 @@ fn main() {
                 .long("directory")
                 .default_value(".")
                 .help("Specify an output directory to place rendered files in. Defaults to the current directory."),
+        )
+        .arg(
+            Arg::with_name("parse-only")
+                .short("p")
+                .long("parse-only")
+                .help("Only parse the input text, returning the modified intermediary text. Does not display captured tokens."),
         )
         .arg(
             Arg::with_name("FILE")
@@ -63,10 +71,12 @@ fn main() {
         process::exit(1);
     }
 
+    let transform_fn = if matches.occurrences_of("parse-only") == 0 { transform } else { parse_only };
+
     let mut return_code = 0;
     for in_path in matches.values_of_os("FILE").unwrap() {
         if in_path == "-" {
-            if let Err(err) = process_stdin() {
+            if let Err(err) = process_stdin(transform_fn) {
                 eprintln!("Error transforming from stdin: {}", &err);
             }
 
@@ -87,7 +97,7 @@ fn main() {
             }
         };
 
-        if let Err(err) = process_file(in_path, &out_path) {
+        if let Err(err) = process_file(in_path, &out_path, transform_fn) {
             eprintln!("Error transforming \"{}\": {}", in_path.display(), &err);
             return_code = 1;
         }
@@ -96,7 +106,13 @@ fn main() {
     process::exit(return_code);
 }
 
-fn process_file(in_path: &Path, out_path: &Path) -> Result<()> {
+fn parse_only(text: String) -> Result<String> {
+    let state = parse(text)?;
+    let (text, _) = state.into_components();
+    Ok(text)
+}
+
+fn process_file(in_path: &Path, out_path: &Path, transform: TransformFn) -> Result<()> {
     let text = {
         let mut contents = String::new();
         let mut file = File::open(in_path)?;
@@ -110,7 +126,7 @@ fn process_file(in_path: &Path, out_path: &Path) -> Result<()> {
     Ok(())
 }
 
-fn process_stdin() -> Result<()> {
+fn process_stdin(transform: TransformFn) -> Result<()> {
     let text = {
         let mut contents = String::new();
         io::stdin().read_to_string(&mut contents)?;
