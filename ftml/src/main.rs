@@ -59,13 +59,14 @@ fn main() {
         process::exit(1);
     }
 
+    let mut return_code = 0;
     for in_path in matches.values_of_os("FILE").unwrap() {
         if in_path == "-" {
             if let Err(err) = process_stdin() {
                 eprintln!("Error transforming from stdin: {}", &err);
             }
 
-            process::exit(1);
+            return_code = 1;
         }
 
         let in_path = Path::new(in_path);
@@ -84,8 +85,11 @@ fn main() {
 
         if let Err(err) = process_file(in_path, &out_path) {
             eprintln!("Error transforming \"{}\": {}", in_path.display(), &err);
+            return_code = 1;
         }
     }
+
+    process::exit(return_code);
 }
 
 fn process_file(in_path: &Path, out_path: &Path) -> Result<()> {
