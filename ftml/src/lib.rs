@@ -21,6 +21,31 @@
 #![allow(unknown_lints, large_enum_variant, match_bool)]
 #![deny(missing_debug_implementations)]
 
+//! A library to convert Wikidot text source into HTML.
+//!
+//! Essentially a rewrite of Wikidot's Text_Wiki module, with
+//! the intention for better modular integration and standalone
+//! servicing.
+//!
+//! In the future we may even be able to improve the parsing to
+//! be better than repeated applications of regular expression
+//! substitutions.
+//!
+//! The main goal of this project is backwards-compatibility: if
+//! there is an article on the SCP Wiki which uses a piece of syntax,
+//! we intend to support it (or convince the author to change it).
+//! Thus, every parsing or rendering rule should have tests, and
+//! a dedicated battery of test articles and their HTML outputs
+//! are test for any new version.
+//!
+//! Additionally, as this library matures, features not found within
+//! Wikidot's Text_Wiki may be added. These will be clearly documented
+//! and a flag will be added to run in legacy mode. However, these
+//! new modules or capabilities will hopefully be useful going forward.
+//!
+//! This crate also provides an executable to convert files from
+//! the command-line. See that file for usage documentation.
+
 #[macro_use]
 extern crate lazy_static;
 extern crate regex;
