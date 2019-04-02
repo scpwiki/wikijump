@@ -25,7 +25,7 @@
 
 use crate::{ParseState, Result};
 
-pub fn rule_include(state: &mut ParseState) -> Result<()> {
+pub fn rule_include(_state: &mut ParseState) -> Result<()> {
     println!("MOCK: rule.include");
     Ok(())
 }

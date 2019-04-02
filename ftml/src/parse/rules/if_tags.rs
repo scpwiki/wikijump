@@ -24,7 +24,7 @@
 
 use crate::{ParseState, Result};
 
-pub fn rule_iftags(state: &mut ParseState) -> Result<()> {
+pub fn rule_iftags(_state: &mut ParseState) -> Result<()> {
     println!("MOCK: rule.iftags");
     Ok(())
 }
