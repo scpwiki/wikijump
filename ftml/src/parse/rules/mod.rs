@@ -23,6 +23,7 @@ mod code;
 mod comment;
 mod concat_lines;
 mod date;
+mod equation;
 mod form;
 mod if_tags;
 mod iframe;
@@ -40,6 +41,7 @@ use self::code::rule_code;
 use self::comment::rule_comment;
 use self::concat_lines::rule_concat_lines;
 use self::date::rule_date;
+use self::equation::rule_equation;
 use self::form::rule_form;
 use self::if_tags::rule_iftags;
 use self::iframe::rule_iframe;
@@ -66,7 +68,7 @@ pub enum Rule {
     Math,
     ConcatLines,
     Link,
-    EquationReference,
+    Equation,
     Footnote,
     FootnoteItem,
     FootnoteBlock,
@@ -135,10 +137,10 @@ impl Rule {
             Math => rule_math(state)?,
             ConcatLines => rule_concat_lines(state)?,
             Link => rule_link(state)?,
+            Equation => rule_equation(state)?,
             _ => println!("MOCK: unknown rule"),
             /*
              TODO
-            EquationReference,
             Footnote,
             FootnoteItem,
             FootnoteBlock,
@@ -212,7 +214,7 @@ pub const RULES: [Rule; 64] = [
     Math,
     ConcatLines,
     Link,
-    EquationReference,
+    Equation,
     Footnote,
     FootnoteItem,
     FootnoteBlock,

@@ -34,6 +34,9 @@ pub enum Token {
         timestamp: i64,
         args: Option<String>,
     },
+    Equation {
+        label: String,
+    },
     Form {
         contents: String,
     },
