@@ -19,9 +19,13 @@
  */
 
 //! Processing rules for footnotes and the footnote block.
+//! Also has the "nofootnoteblock", which is functionally equivalent
+//! to placing the footnote block into a hidden div. Extension feature.
 
 use crate::{ParseState, Result, Token};
 use regex::{Regex, RegexBuilder};
+
+const ENABLE_NO_FOOTNOTE_BLOCK: bool = true;
 
 lazy_static! {
     static ref FOOTNOTE: Regex = {
@@ -32,7 +36,11 @@ lazy_static! {
     };
 
     static ref FOOTNOTE_BLOCK: Regex = {
-        RegexBuilder::new(r"\[\[footnoteblock\]\]")
+        if ENABLE_NO_FOOTNOTE_BLOCK {
+            RegexBuilder::new(r"\[\[(?P<disabled>no)?footnoteblock\]\]")
+        } else {
+            RegexBuilder::new(r"\[\[footnoteblock\]\]")
+        }
             .build()
             .unwrap()
     };
@@ -45,8 +53,9 @@ pub fn rule_footnote(state: &mut ParseState) -> Result<()> {
         state.push_token(token, &*FOOTNOTE);
     }
 
-    while let Some(_) = FOOTNOTE_BLOCK.find(state.text()) {
-        let token = Token::FootnoteBlock;
+    while let Some(capture) = FOOTNOTE_BLOCK.captures(state.text()) {
+        let visible = capture.name("disabled").is_none();
+        let token = Token::FootnoteBlock { visible };
         state.push_token(token, &*FOOTNOTE_BLOCK);
     }
 
@@ -64,4 +73,11 @@ fn test_footnote() {
     rule_footnote(&mut state).unwrap();
     assert_eq!(state.text(), "\00\0 \01\0");
     assert_eq!(state.tokens().len(), 2);
+
+    if ENABLE_NO_FOOTNOTE_BLOCK {
+        let mut state = ParseState::new("[[nofootnoteblock]]\n".into());
+        rule_footnote(&mut state).unwrap();
+        assert_eq!(state.text(), "\00\0\n");
+        assert_eq!(state.tokens().len(), 1);
+    }
 }
