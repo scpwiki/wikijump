@@ -21,6 +21,7 @@
 // Rule implementations
 mod code;
 mod comment;
+mod concat_lines;
 mod date;
 mod form;
 mod if_tags;
@@ -36,6 +37,7 @@ use crate::{ParseState, Result};
 use self::Rule::*;
 use self::code::rule_code;
 use self::comment::rule_comment;
+use self::concat_lines::rule_concat_lines;
 use self::date::rule_date;
 use self::form::rule_form;
 use self::if_tags::rule_iftags;
@@ -129,10 +131,10 @@ impl Rule {
             IFrame => rule_iframe(state)?,
             Date => rule_date(state)?,
             Math => rule_math(state)?,
+            ConcatLines => rule_concat_lines(state)?,
             _ => println!("MOCK: unknown rule"),
             /*
              TODO
-            ConcatLines,
             FreeLink,
             EquationReference,
             Footnote,
@@ -288,6 +290,7 @@ fn test_fn_types() {
     let _: ApplyFn = rule_date;
     let _: ApplyFn = rule_math;
     let _: ApplyFn = rule_math_inline;
+    let _: ApplyFn = rule_concat_lines;
 
     // TODO for all the other functions
 }
