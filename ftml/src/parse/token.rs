@@ -30,6 +30,10 @@ pub enum Token {
         contents: String,
         end: String,
     },
+    Date {
+        timestamp: i64,
+        args: Option<String>,
+    },
     Form {
         contents: String,
     },

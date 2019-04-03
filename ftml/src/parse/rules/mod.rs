@@ -21,6 +21,7 @@
 // Rule implementations
 mod code;
 mod comment;
+mod date;
 mod form;
 mod if_tags;
 mod iframe;
@@ -33,6 +34,7 @@ use crate::{ParseState, Result};
 use self::Rule::*;
 use self::code::rule_code;
 use self::comment::rule_comment;
+use self::date::rule_date;
 use self::form::rule_form;
 use self::if_tags::rule_iftags;
 use self::iframe::rule_iframe;
@@ -121,10 +123,10 @@ impl Rule {
             IfTags => rule_iftags(state)?,
             Comment => rule_comment(state)?,
             IFrame => rule_iframe(state)?,
+            Date => rule_date(state)?,
             _ => println!("MOCK: unknown rule"),
             /*
              TODO
-            Date,
             Math,
             ConcatLines,
             FreeLink,
@@ -279,6 +281,7 @@ fn test_fn_types() {
     let _: ApplyFn = rule_iftags;
     let _: ApplyFn = rule_comment;
     let _: ApplyFn = rule_iframe;
+    let _: ApplyFn = rule_date;
 
     // TODO for all the other functions
 }
