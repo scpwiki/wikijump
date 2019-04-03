@@ -45,6 +45,11 @@ pub enum Token {
         page: String,
         args: Option<String>,
     },
+    Link {
+        page: String,
+        anchor: Option<String>,
+        text: Option<String>,
+    },
     Math {
         label: Option<String>,
         args: Option<String>,

@@ -27,6 +27,7 @@ mod form;
 mod if_tags;
 mod iframe;
 mod include;
+mod link;
 mod math;
 mod math_inline;
 mod module;
@@ -43,6 +44,7 @@ use self::form::rule_form;
 use self::if_tags::rule_iftags;
 use self::iframe::rule_iframe;
 use self::include::rule_include;
+use self::link::rule_link;
 use self::prefilter::rule_prefilter;
 use self::math::rule_math;
 use self::math_inline::rule_math_inline;
@@ -63,7 +65,7 @@ pub enum Rule {
     Date,
     Math,
     ConcatLines,
-    FreeLink,
+    Link,
     EquationReference,
     Footnote,
     FootnoteItem,
@@ -132,10 +134,10 @@ impl Rule {
             Date => rule_date(state)?,
             Math => rule_math(state)?,
             ConcatLines => rule_concat_lines(state)?,
+            Link => rule_link(state)?,
             _ => println!("MOCK: unknown rule"),
             /*
              TODO
-            FreeLink,
             EquationReference,
             Footnote,
             FootnoteItem,
@@ -209,7 +211,7 @@ pub const RULES: [Rule; 64] = [
     Date,
     Math,
     ConcatLines,
-    FreeLink,
+    Link,
     EquationReference,
     Footnote,
     FootnoteItem,
@@ -291,6 +293,7 @@ fn test_fn_types() {
     let _: ApplyFn = rule_math;
     let _: ApplyFn = rule_math_inline;
     let _: ApplyFn = rule_concat_lines;
+    let _: ApplyFn = rule_link;
 
     // TODO for all the other functions
 }
