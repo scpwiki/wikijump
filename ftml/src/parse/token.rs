@@ -25,6 +25,9 @@
 
 #[derive(Debug, Clone)]
 pub enum Token {
+    Anchor {
+        name: String,
+    },
     CodeBlock {
         args: Option<String>,
         contents: String,

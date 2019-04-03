@@ -19,6 +19,7 @@
  */
 
 // Rule implementations
+mod anchor;
 mod bibliography;
 mod code;
 mod comment;
@@ -41,6 +42,7 @@ mod raw;
 
 use crate::{ParseState, Result};
 use self::Rule::*;
+use self::anchor::rule_anchor;
 use self::bibliography::rule_bibliography;
 use self::code::rule_code;
 use self::comment::rule_comment;
@@ -146,10 +148,10 @@ impl Rule {
             Bibliography => rule_bibliography(state)?,
             Html => rule_html(state)?,
             DivPrefilter => rule_div_prefilter(state)?,
+            Anchor => rule_anchor(state)?,
             _ => println!("MOCK: rule not implemented yet"),
             /*
              TODO
-            Anchor,
             User,
             Blockquote,
             Heading,
@@ -295,6 +297,7 @@ fn test_fn_types() {
     let _: ApplyFn = rule_footnote;
     let _: ApplyFn = rule_bibliography;
     let _: ApplyFn = rule_div_prefilter;
+    let _: ApplyFn = rule_anchor;
 
     // TODO for all the other functions
 }
