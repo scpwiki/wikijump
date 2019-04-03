@@ -41,6 +41,10 @@ pub enum Token {
         url: String,
         args: Option<String>,
     },
+    Include {
+        page: String,
+        args: Option<String>,
+    },
     Module {
         name: String,
         args: Option<String>,

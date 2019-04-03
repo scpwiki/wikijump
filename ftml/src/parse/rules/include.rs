@@ -20,12 +20,41 @@
 
 //! Processing rule for includes. Takes any other pages and copies their
 //! contents into the current article for later styling and handling.
-//!
-//! Because we don't have a way of handling other pages currently, this is mocked.
 
-use crate::{ParseState, Result};
+use crate::{ParseState, Result, Token};
+use regex::{Regex, RegexBuilder};
 
-pub fn rule_include(_state: &mut ParseState) -> Result<()> {
-    println!("MOCK: rule.include");
+lazy_static! {
+    static ref INCLUDE: Regex = {
+        RegexBuilder::new(r"\[\[include\s(?P<page>[a-zA-Z0-9\s\-:]+?)(?P<args>\s+.*?)?\]\]$")
+            .multi_line(true)
+            .dot_matches_new_line(true)
+            .case_insensitive(true)
+            .build()
+            .unwrap()
+    };
+}
+
+pub fn rule_include(state: &mut ParseState) -> Result<()> {
+    while let Some(capture) = INCLUDE.captures(state.text()) {
+        let page = capture["page"].to_string();
+        let args = capture.name("args").map(|mtch| mtch.as_str().to_string());
+        let token = Token::Include { page, args };
+        state.push_token(token, &*INCLUDE);
+    }
+
     Ok(())
+}
+
+#[test]
+fn test_include() {
+    let mut state = ParseState::new("[[include component:special-embed-thing]]".into());
+    rule_include(&mut state).unwrap();
+    assert_eq!(state.text(), "\00\0");
+    assert_eq!(state.tokens().len(), 1);
+
+    let mut state = ParseState::new("[[include\ncomponent:image-block\nname=\"file.png\"\ncaption=\"object\"]]".into());
+    rule_include(&mut state).unwrap();
+    assert_eq!(state.text(), "\00\0");
+    assert_eq!(state.tokens().len(), 1);
 }

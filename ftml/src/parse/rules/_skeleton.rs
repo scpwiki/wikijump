@@ -24,6 +24,17 @@
 use crate::{ParseState, Result, Token};
 use regex::{Regex, RegexBuilder};
 
+lazy_static! {
+    static ref _TODO_: Regex = {
+        RegexBuilder::new(r"regex here!")
+            .multi_line(true)
+            .dot_matches_new_line(true)
+            .case_insensitive(true)
+            .build()
+            .unwrap()
+    };
+}
+
 pub fn rule_NAMEHERE(state: &mut ParseState) -> Result<()> {
     println!("MOCK: rule.NAMEHERE");
     Ok(())
