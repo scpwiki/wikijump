@@ -24,6 +24,7 @@ mod code;
 mod comment;
 mod concat_lines;
 mod date;
+mod div_prefilter;
 mod equation;
 mod form;
 mod footnote;
@@ -45,6 +46,7 @@ use self::code::rule_code;
 use self::comment::rule_comment;
 use self::concat_lines::rule_concat_lines;
 use self::date::rule_date;
+use self::div_prefilter::rule_div_prefilter;
 use self::equation::rule_equation;
 use self::form::rule_form;
 use self::footnote::rule_footnote;
@@ -143,10 +145,10 @@ impl Rule {
             Footnote => rule_footnote(state)?,
             Bibliography => rule_bibliography(state)?,
             Html => rule_html(state)?,
+            DivPrefilter => rule_div_prefilter(state)?,
             _ => println!("MOCK: rule not implemented yet"),
             /*
              TODO
-            DivPrefilter,
             Anchor,
             User,
             Blockquote,
@@ -292,6 +294,7 @@ fn test_fn_types() {
     let _: ApplyFn = rule_link;
     let _: ApplyFn = rule_footnote;
     let _: ApplyFn = rule_bibliography;
+    let _: ApplyFn = rule_div_prefilter;
 
     // TODO for all the other functions
 }
