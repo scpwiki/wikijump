@@ -25,6 +25,7 @@ mod concat_lines;
 mod date;
 mod equation;
 mod form;
+mod footnote;
 mod if_tags;
 mod iframe;
 mod include;
@@ -43,6 +44,7 @@ use self::concat_lines::rule_concat_lines;
 use self::date::rule_date;
 use self::equation::rule_equation;
 use self::form::rule_form;
+use self::footnote::rule_footnote;
 use self::if_tags::rule_iftags;
 use self::iframe::rule_iframe;
 use self::include::rule_include;
@@ -70,8 +72,6 @@ pub enum Rule {
     Link,
     Equation,
     Footnote,
-    FootnoteItem,
-    FootnoteBlock,
     BibItem,
     Bibliography,
     BibCite,
@@ -138,12 +138,10 @@ impl Rule {
             ConcatLines => rule_concat_lines(state)?,
             Link => rule_link(state)?,
             Equation => rule_equation(state)?,
-            _ => println!("MOCK: unknown rule"),
+            Footnote => rule_footnote(state)?,
+            _ => println!("MOCK: rule not implemented yet"),
             /*
              TODO
-            Footnote,
-            FootnoteItem,
-            FootnoteBlock,
             BibItem,
             Bibliography,
             BibCite,
@@ -200,7 +198,7 @@ impl Rule {
 
 // Copied from Wikidot Text_Wiki source
 // For maximum backwards-compatibility, leave as-is
-pub const RULES: [Rule; 64] = [
+pub const RULES: [Rule; 62] = [
     Include,
     Prefilter,
     Code,
@@ -216,8 +214,6 @@ pub const RULES: [Rule; 64] = [
     Link,
     Equation,
     Footnote,
-    FootnoteItem,
-    FootnoteBlock,
     BibItem,
     Bibliography,
     BibCite,
@@ -296,6 +292,7 @@ fn test_fn_types() {
     let _: ApplyFn = rule_math_inline;
     let _: ApplyFn = rule_concat_lines;
     let _: ApplyFn = rule_link;
+    let _: ApplyFn = rule_footnote;
 
     // TODO for all the other functions
 }

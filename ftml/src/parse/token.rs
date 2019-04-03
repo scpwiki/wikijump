@@ -40,6 +40,10 @@ pub enum Token {
     Form {
         contents: String,
     },
+    Footnote {
+        contents: String,
+    },
+    FootnoteBlock,
     Iframe {
         url: String,
         args: Option<String>,

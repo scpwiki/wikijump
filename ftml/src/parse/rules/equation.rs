@@ -26,7 +26,6 @@ use regex::{Regex, RegexBuilder};
 lazy_static! {
     static ref EQUATION_REF: Regex = {
         RegexBuilder::new(r"\[\[eref\s+(?P<label>.+?)\]\]")
-            .case_insensitive(true)
             .build()
             .unwrap()
     };
