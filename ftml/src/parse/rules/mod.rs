@@ -27,6 +27,7 @@ mod date;
 mod equation;
 mod form;
 mod footnote;
+mod html;
 mod if_tags;
 mod iframe;
 mod include;
@@ -47,6 +48,7 @@ use self::date::rule_date;
 use self::equation::rule_equation;
 use self::form::rule_form;
 use self::footnote::rule_footnote;
+use self::html::rule_html;
 use self::if_tags::rule_iftags;
 use self::iframe::rule_iframe;
 use self::include::rule_include;
@@ -140,10 +142,10 @@ impl Rule {
             Equation => rule_equation(state)?,
             Footnote => rule_footnote(state)?,
             Bibliography => rule_bibliography(state)?,
+            Html => rule_html(state)?,
             _ => println!("MOCK: rule not implemented yet"),
             /*
              TODO
-            Html,
             DivPrefilter,
             Anchor,
             User,

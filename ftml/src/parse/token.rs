@@ -46,6 +46,9 @@ pub enum Token {
     FootnoteBlock {
         visible: bool,
     },
+    Html {
+        contents: String,
+    },
     Iframe {
         url: String,
         args: Option<String>,
