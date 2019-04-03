@@ -19,6 +19,7 @@
  */
 
 // Rule implementations
+mod bibliography;
 mod code;
 mod comment;
 mod concat_lines;
@@ -38,6 +39,7 @@ mod raw;
 
 use crate::{ParseState, Result};
 use self::Rule::*;
+use self::bibliography::rule_bibliography;
 use self::code::rule_code;
 use self::comment::rule_comment;
 use self::concat_lines::rule_concat_lines;
@@ -72,16 +74,14 @@ pub enum Rule {
     Link,
     Equation,
     Footnote,
-    BibItem,
     Bibliography,
-    BibCite,
     Html,
     DivPrefilter,
     Anchor,
     User,
     Blockquote,
     Heading,
-    Toc,
+    TableOfContents,
     Horiz,
     Separator,
     ClearFloat,
@@ -139,19 +139,17 @@ impl Rule {
             Link => rule_link(state)?,
             Equation => rule_equation(state)?,
             Footnote => rule_footnote(state)?,
+            Bibliography => rule_bibliography(state)?,
             _ => println!("MOCK: rule not implemented yet"),
             /*
              TODO
-            BibItem,
-            Bibliography,
-            BibCite,
             Html,
             DivPrefilter,
             Anchor,
             User,
             Blockquote,
             Heading,
-            Toc,
+            TableOfContents,
             Horiz,
             Separator,
             ClearFloat,
@@ -198,7 +196,7 @@ impl Rule {
 
 // Copied from Wikidot Text_Wiki source
 // For maximum backwards-compatibility, leave as-is
-pub const RULES: [Rule; 62] = [
+pub const RULES: [Rule; 60] = [
     Include,
     Prefilter,
     Code,
@@ -214,16 +212,14 @@ pub const RULES: [Rule; 62] = [
     Link,
     Equation,
     Footnote,
-    BibItem,
     Bibliography,
-    BibCite,
     Html,
     DivPrefilter,
     Anchor,
     User,
     Blockquote,
     Heading,
-    Toc,
+    TableOfContents,
     Horiz,
     Separator,
     ClearFloat,
@@ -293,6 +289,7 @@ fn test_fn_types() {
     let _: ApplyFn = rule_concat_lines;
     let _: ApplyFn = rule_link;
     let _: ApplyFn = rule_footnote;
+    let _: ApplyFn = rule_bibliography;
 
     // TODO for all the other functions
 }
