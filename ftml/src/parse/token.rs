@@ -45,6 +45,12 @@ pub enum Token {
         page: String,
         args: Option<String>,
     },
+    Math {
+        label: Option<String>,
+        args: Option<String>,
+        contents: String,
+        end: String,
+    },
     Module {
         name: String,
         args: Option<String>,

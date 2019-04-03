@@ -26,6 +26,7 @@ mod form;
 mod if_tags;
 mod iframe;
 mod include;
+mod math;
 mod module;
 mod prefilter;
 mod raw;
@@ -40,6 +41,7 @@ use self::if_tags::rule_iftags;
 use self::iframe::rule_iframe;
 use self::include::rule_include;
 use self::prefilter::rule_prefilter;
+use self::math::rule_math;
 use self::module::rule_module;
 use self::raw::rule_raw;
 
@@ -124,10 +126,10 @@ impl Rule {
             Comment => rule_comment(state)?,
             IFrame => rule_iframe(state)?,
             Date => rule_date(state)?,
+            Math => rule_math(state)?,
             _ => println!("MOCK: unknown rule"),
             /*
              TODO
-            Math,
             ConcatLines,
             FreeLink,
             EquationReference,
@@ -282,6 +284,7 @@ fn test_fn_types() {
     let _: ApplyFn = rule_comment;
     let _: ApplyFn = rule_iframe;
     let _: ApplyFn = rule_date;
+    let _: ApplyFn = rule_math;
 
     // TODO for all the other functions
 }
