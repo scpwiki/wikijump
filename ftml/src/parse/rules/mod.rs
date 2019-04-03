@@ -23,6 +23,7 @@ mod code;
 mod comment;
 mod form;
 mod if_tags;
+mod iframe;
 mod include;
 mod module;
 mod prefilter;
@@ -34,6 +35,7 @@ use self::code::rule_code;
 use self::comment::rule_comment;
 use self::form::rule_form;
 use self::if_tags::rule_iftags;
+use self::iframe::rule_iframe;
 use self::include::rule_include;
 use self::prefilter::rule_prefilter;
 use self::module::rule_module;
@@ -118,10 +120,10 @@ impl Rule {
             Module => rule_module(state)?,
             IfTags => rule_iftags(state)?,
             Comment => rule_comment(state)?,
+            IFrame => rule_iframe(state)?,
             _ => println!("MOCK: unknown rule"),
             /*
              TODO
-            IFrame,
             Date,
             Math,
             ConcatLines,
@@ -276,6 +278,7 @@ fn test_fn_types() {
     let _: ApplyFn = rule_module;
     let _: ApplyFn = rule_iftags;
     let _: ApplyFn = rule_comment;
+    let _: ApplyFn = rule_iframe;
 
     // TODO for all the other functions
 }

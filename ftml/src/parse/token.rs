@@ -18,6 +18,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+//! Tokens are the Wikidot parser's way of storing complex tree information
+//! in what is basically a multiple-pass find-and-replace system. In this
+//! implementation, tokens are inserted as two null bytes surrounding an index,
+//! which denotes a token to be placed there during rendering.
+
 #[derive(Debug, Clone)]
 pub enum Token {
     CodeBlock {
@@ -27,6 +32,10 @@ pub enum Token {
     },
     Form {
         contents: String,
+    },
+    Iframe {
+        url: String,
+        args: Option<String>,
     },
     Module {
         name: String,

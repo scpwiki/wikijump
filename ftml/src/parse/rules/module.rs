@@ -76,7 +76,7 @@ fn test_module() {
             contents,
         }) => {
             assert_eq!(name, "Rate");
-            assert!(args.is_none());
+            assert_eq!(args.is_none(), true);
             assert_eq!(contents.as_ref().unwrap(), "");
         }
         Some(token) => panic!("Token not raw, was {:?}", token),

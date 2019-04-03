@@ -20,7 +20,7 @@
 
 //! Processing rule for code blocks.
 //! They are multi-line components using [[code]].
-//! Currently no syntax highlighting and arguments are ignored.
+//! Currently no syntax highlighting.
 
 use crate::{ParseState, Result, Token};
 use regex::{Regex, RegexBuilder};
