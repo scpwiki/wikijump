@@ -218,7 +218,7 @@ pub const RULES: [Rule; 60] = [
     Footnote,
     Bibliography,
     Html,
-    DivPrefilter,
+    DivPrefilter, // Seems useless, look into merging into div proper
     Anchor,
     User,
     Blockquote,
