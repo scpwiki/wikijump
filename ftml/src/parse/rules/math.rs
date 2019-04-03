@@ -26,7 +26,7 @@ use regex::{Regex, RegexBuilder};
 
 lazy_static! {
     static ref MATH: Regex = {
-        RegexBuilder::new(r"^\[\[math(?P<label>\s+\w+?)?(?P<args>[^\]]*)?\]\](?P<contents>.*?)\[\[/math\]\](?P<end>\s|$)")
+        RegexBuilder::new(r"^\[\[math(?P<label>\s+\w+?)?(?P<args>[^\]]*)?\]\](?P<expr>.*?)\[\[/math\]\](?P<end>\s|$)")
             .multi_line(true)
             .dot_matches_new_line(true)
             .case_insensitive(true)
@@ -39,9 +39,9 @@ pub fn rule_math(state: &mut ParseState) -> Result<()> {
     while let Some(capture) = MATH.captures(state.text()) {
         let label = capture.name("label").map(|mtch| mtch.as_str().to_string());
         let args = capture.name("args").map(|mtch| mtch.as_str().to_string());
-        let contents = capture["contents"].to_string();
+        let expr = capture["expr"].to_string();
         let end = capture["end"].to_string();
-        let token = Token::Math { label, args, contents, end };
+        let token = Token::Math { label, args, expr, end };
         state.push_token(token, &*MATH);
     }
 

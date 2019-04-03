@@ -48,8 +48,11 @@ pub enum Token {
     Math {
         label: Option<String>,
         args: Option<String>,
-        contents: String,
+        expr: String,
         end: String,
+    },
+    MathInline {
+        expr: String,
     },
     Module {
         name: String,

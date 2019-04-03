@@ -27,6 +27,7 @@ mod if_tags;
 mod iframe;
 mod include;
 mod math;
+mod math_inline;
 mod module;
 mod prefilter;
 mod raw;
@@ -42,6 +43,7 @@ use self::iframe::rule_iframe;
 use self::include::rule_include;
 use self::prefilter::rule_prefilter;
 use self::math::rule_math;
+use self::math_inline::rule_math_inline;
 use self::module::rule_module;
 use self::raw::rule_raw;
 
@@ -171,7 +173,7 @@ impl Rule {
             Paragraph,
             Url,
             Email,
-            MathInline,
+            MathInline => rule_math_inline(state)?,
             Interwiki,
             Colortext,
             Strong,
@@ -285,6 +287,7 @@ fn test_fn_types() {
     let _: ApplyFn = rule_iframe;
     let _: ApplyFn = rule_date;
     let _: ApplyFn = rule_math;
+    let _: ApplyFn = rule_math_inline;
 
     // TODO for all the other functions
 }
