@@ -19,7 +19,7 @@
  */
 
 //! Pre-filtering processing rule for divs.
-//! It collapses spaces between [[div]] tags. I'm not really sure why Wikidot added it.
+//! It collapses spaces between `[[div]]` tags. I'm not really sure why Wikidot added it.
 
 use crate::{ParseState, Result, Token};
 use regex::{Regex, RegexBuilder};

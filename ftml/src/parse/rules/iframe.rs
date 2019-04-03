@@ -19,7 +19,7 @@
  */
 
 //! Processing rule for iframes.
-//! These are multi-line components using [[iframe]] to embed other websites.
+//! These are multi-line components using `[[iframe]]` to embed other websites.
 
 use crate::{ParseState, Result, Token};
 use regex::{Regex, RegexBuilder};

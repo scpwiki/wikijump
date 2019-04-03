@@ -19,9 +19,9 @@
  */
 
 //! Processing rule for inline HTML.
-//! These are multi-line components using [[html]] to embed literal HTML.
+//! These are multi-line components using `[[html]]` to embed literal HTML.
 //! Contrary to what the source code suggests, Wikidot does _not_ support embedding
-//! HTML using <html> tags.
+//! HTML using `<html>` tags.
 
 use crate::{ParseState, Result, Token};
 use regex::{Regex, RegexBuilder};

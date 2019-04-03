@@ -39,6 +39,7 @@ mod math_inline;
 mod module;
 mod prefilter;
 mod raw;
+mod user;
 
 use crate::{ParseState, Result};
 use self::Rule::*;
@@ -62,6 +63,7 @@ use self::math::rule_math;
 use self::math_inline::rule_math_inline;
 use self::module::rule_module;
 use self::raw::rule_raw;
+use self::user::rule_user;
 
 #[derive(Debug, Copy, Clone)]
 pub enum Rule {
@@ -149,10 +151,10 @@ impl Rule {
             Html => rule_html(state)?,
             DivPrefilter => rule_div_prefilter(state)?,
             Anchor => rule_anchor(state)?,
+            User => rule_user(state)?,
             _ => println!("MOCK: rule not implemented yet"),
             /*
              TODO
-            User,
             Blockquote,
             Heading,
             TableOfContents,
@@ -298,6 +300,7 @@ fn test_fn_types() {
     let _: ApplyFn = rule_bibliography;
     let _: ApplyFn = rule_div_prefilter;
     let _: ApplyFn = rule_anchor;
+    let _: ApplyFn = rule_user;
 
     // TODO for all the other functions
 }

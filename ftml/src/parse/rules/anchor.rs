@@ -19,7 +19,7 @@
  */
 
 //! Processing rule for anchors within text.
-//! These blocks appear as [[# anchor_name]] and can be
+//! These blocks appear as `[[# anchor_name]]` and can be
 //! linked to as expected of HTML <a> tags.
 
 use crate::{ParseState, Result, Token};

@@ -82,4 +82,8 @@ pub enum Token {
     Raw {
         contents: String,
     },
+    User {
+        username: String,
+        show_picture: bool,
+    },
 }
