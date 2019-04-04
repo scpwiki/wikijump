@@ -64,10 +64,12 @@ fn test_module() {
     let mut state = ParseState::new("[[module]]\n[[/module]]".into());
     rule_module(&mut state).unwrap();
     assert_eq!(state.text(), "[[module]]\n[[/module]]");
+    assert_eq!(state.tokens().len(), 0);
 
     let mut state = ParseState::new("[[module Rate]]\n[[/module]]\nbanana".into());
     rule_module(&mut state).unwrap();
     assert_eq!(state.text(), "\00\0\nbanana");
+    assert_eq!(state.tokens().len(), 1);
 
     match state.token(0) {
         Some(Token::Module {
@@ -88,6 +90,7 @@ fn test_module() {
     );
     rule_module(&mut state).unwrap();
     assert_eq!(state.text(), "apple\n\00\0");
+    assert_eq!(state.tokens().len(), 1);
 
     match state.token(0) {
         Some(Token::Module {

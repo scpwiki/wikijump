@@ -28,9 +28,10 @@ mod concat_lines;
 mod date;
 mod div_prefilter;
 mod equation;
-mod form;
 mod footnote;
+mod form;
 mod heading;
+mod horizontal;
 mod html;
 mod if_tags;
 mod iframe;
@@ -55,18 +56,19 @@ use self::concat_lines::rule_concat_lines;
 use self::date::rule_date;
 use self::div_prefilter::rule_div_prefilter;
 use self::equation::rule_equation;
-use self::form::rule_form;
 use self::footnote::rule_footnote;
+use self::form::rule_form;
 use self::heading::rule_heading;
+use self::horizontal::rule_horizontal_line;
 use self::html::rule_html;
 use self::if_tags::rule_iftags;
 use self::iframe::rule_iframe;
 use self::include::rule_include;
 use self::link::rule_link;
-use self::prefilter::rule_prefilter;
 use self::math::rule_math;
 use self::math_inline::rule_math_inline;
 use self::module::rule_module;
+use self::prefilter::rule_prefilter;
 use self::raw::rule_raw;
 use self::table_of_contents::rule_table_of_contents;
 use self::user::rule_user;
@@ -96,7 +98,7 @@ pub enum Rule {
     BlockQuote,
     Heading,
     TableOfContents,
-    Horiz,
+    HorizontalLine,
     Separator,
     ClearFloat,
     Break,
@@ -161,10 +163,10 @@ impl Rule {
             BlockQuote => rule_blockquote(state)?,
             Heading => rule_heading(state)?,
             TableOfContents => rule_table_of_contents(state)?,
+            HorizontalLine => rule_horizontal_line(state)?,
             _ => println!("MOCK: rule not implemented yet"),
             /*
              TODO
-            Horiz,
             Separator,
             ClearFloat,
             Break,
@@ -234,7 +236,7 @@ pub const RULES: [Rule; 60] = [
     BlockQuote,
     Heading,
     TableOfContents,
-    Horiz,
+    HorizontalLine,
     Separator,
     ClearFloat,
     Break,
@@ -310,6 +312,7 @@ fn test_fn_types() {
     let _: ApplyFn = rule_blockquote;
     let _: ApplyFn = rule_heading;
     let _: ApplyFn = rule_table_of_contents;
+    let _: ApplyFn = rule_horizontal_line;
 
     // TODO for all the other functions
 }

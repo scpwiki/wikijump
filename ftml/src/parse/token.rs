@@ -58,6 +58,7 @@ pub enum Token {
         contents: String,
         level: u8,
     },
+    HorizontalLine,
     Html {
         contents: String,
     },
