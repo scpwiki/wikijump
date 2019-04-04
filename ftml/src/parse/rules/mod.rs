@@ -22,6 +22,7 @@
 mod anchor;
 mod bibliography;
 mod blockquote;
+mod clear_float;
 mod code;
 mod comment;
 mod concat_lines;
@@ -50,6 +51,7 @@ use self::Rule::*;
 use self::anchor::rule_anchor;
 use self::bibliography::rule_bibliography;
 use self::blockquote::rule_blockquote;
+use self::clear_float::rule_clear_float;
 use self::code::rule_code;
 use self::comment::rule_comment;
 use self::concat_lines::rule_concat_lines;
@@ -99,7 +101,6 @@ pub enum Rule {
     Heading,
     TableOfContents,
     HorizontalLine,
-    Separator,
     ClearFloat,
     Break,
     Span,
@@ -164,11 +165,10 @@ impl Rule {
             Heading => rule_heading(state)?,
             TableOfContents => rule_table_of_contents(state)?,
             HorizontalLine => rule_horizontal_line(state)?,
+            ClearFloat => rule_clear_float(state)?,
             _ => println!("MOCK: rule not implemented yet"),
             /*
              TODO
-            Separator,
-            ClearFloat,
             Break,
             Span,
             Size,
@@ -212,7 +212,7 @@ impl Rule {
 
 // Copied from Wikidot Text_Wiki source
 // For maximum backwards-compatibility, leave as-is
-pub const RULES: [Rule; 60] = [
+pub const RULES: [Rule; 59] = [
     Include,
     Prefilter,
     Code,
@@ -237,7 +237,6 @@ pub const RULES: [Rule; 60] = [
     Heading,
     TableOfContents,
     HorizontalLine,
-    Separator,
     ClearFloat,
     Break,
     Span,
@@ -313,6 +312,7 @@ fn test_fn_types() {
     let _: ApplyFn = rule_heading;
     let _: ApplyFn = rule_table_of_contents;
     let _: ApplyFn = rule_horizontal_line;
+    let _: ApplyFn = rule_clear_float;
 
     // TODO for all the other functions
 }

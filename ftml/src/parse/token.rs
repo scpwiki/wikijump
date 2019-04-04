@@ -23,7 +23,7 @@
 //! implementation, tokens are inserted as two null bytes surrounding an index,
 //! which denotes a token to be placed there during rendering.
 
-use super::BlockQuoteLine;
+use super::{BlockQuoteLine, Direction};
 
 #[derive(Debug, Clone)]
 pub enum Token {
@@ -32,6 +32,9 @@ pub enum Token {
     },
     BlockQuote {
         lines: Vec<BlockQuoteLine>,
+    },
+    ClearFloat {
+        direction: Option<Direction>,
     },
     CodeBlock {
         args: Option<String>,

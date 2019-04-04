@@ -35,6 +35,12 @@ pub struct BlockQuoteLine {
     pub depth: usize,
 }
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum Direction {
+    Left,
+    Right,
+}
+
 // TODO
 pub fn parse(text: String) -> Result<ParseState> {
     let mut state = ParseState::new(text);
