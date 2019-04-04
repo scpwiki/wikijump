@@ -30,6 +30,7 @@ mod div_prefilter;
 mod equation;
 mod form;
 mod footnote;
+mod heading;
 mod html;
 mod if_tags;
 mod iframe;
@@ -55,6 +56,7 @@ use self::div_prefilter::rule_div_prefilter;
 use self::equation::rule_equation;
 use self::form::rule_form;
 use self::footnote::rule_footnote;
+use self::heading::rule_heading;
 use self::html::rule_html;
 use self::if_tags::rule_iftags;
 use self::iframe::rule_iframe;
@@ -155,10 +157,10 @@ impl Rule {
             Anchor => rule_anchor(state)?,
             User => rule_user(state)?,
             BlockQuote => rule_blockquote(state)?,
+            Heading => rule_heading(state)?,
             _ => println!("MOCK: rule not implemented yet"),
             /*
              TODO
-            Heading,
             TableOfContents,
             Horiz,
             Separator,
@@ -303,6 +305,8 @@ fn test_fn_types() {
     let _: ApplyFn = rule_div_prefilter;
     let _: ApplyFn = rule_anchor;
     let _: ApplyFn = rule_user;
+    let _: ApplyFn = rule_blockquote;
+    let _: ApplyFn = rule_heading;
 
     // TODO for all the other functions
 }

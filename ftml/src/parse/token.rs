@@ -54,6 +54,10 @@ pub enum Token {
     FootnoteBlock {
         visible: bool,
     },
+    Heading {
+        contents: String,
+        level: u8,
+    },
     Html {
         contents: String,
     },
