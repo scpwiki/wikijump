@@ -41,6 +41,7 @@ mod math_inline;
 mod module;
 mod prefilter;
 mod raw;
+mod table_of_contents;
 mod user;
 
 use crate::{ParseState, Result};
@@ -67,6 +68,7 @@ use self::math::rule_math;
 use self::math_inline::rule_math_inline;
 use self::module::rule_module;
 use self::raw::rule_raw;
+use self::table_of_contents::rule_table_of_contents;
 use self::user::rule_user;
 
 #[derive(Debug, Copy, Clone)]
@@ -158,10 +160,10 @@ impl Rule {
             User => rule_user(state)?,
             BlockQuote => rule_blockquote(state)?,
             Heading => rule_heading(state)?,
+            TableOfContents => rule_table_of_contents(state)?,
             _ => println!("MOCK: rule not implemented yet"),
             /*
              TODO
-            TableOfContents,
             Horiz,
             Separator,
             ClearFloat,
@@ -307,6 +309,7 @@ fn test_fn_types() {
     let _: ApplyFn = rule_user;
     let _: ApplyFn = rule_blockquote;
     let _: ApplyFn = rule_heading;
+    let _: ApplyFn = rule_table_of_contents;
 
     // TODO for all the other functions
 }
