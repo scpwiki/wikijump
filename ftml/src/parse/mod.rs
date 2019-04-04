@@ -29,6 +29,12 @@ pub use token::Token;
 use rules::RULES;
 use super::prelude::*;
 
+#[derive(Debug, Clone)]
+pub struct BlockQuoteLine {
+    pub contents: String,
+    pub depth: usize,
+}
+
 // TODO
 pub fn parse(text: String) -> Result<ParseState> {
     let mut state = ParseState::new(text);

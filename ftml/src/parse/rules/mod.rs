@@ -21,6 +21,7 @@
 // Rule implementations
 mod anchor;
 mod bibliography;
+mod blockquote;
 mod code;
 mod comment;
 mod concat_lines;
@@ -45,6 +46,7 @@ use crate::{ParseState, Result};
 use self::Rule::*;
 use self::anchor::rule_anchor;
 use self::bibliography::rule_bibliography;
+use self::blockquote::rule_blockquote;
 use self::code::rule_code;
 use self::comment::rule_comment;
 use self::concat_lines::rule_concat_lines;
@@ -87,7 +89,7 @@ pub enum Rule {
     DivPrefilter,
     Anchor,
     User,
-    Blockquote,
+    BlockQuote,
     Heading,
     TableOfContents,
     Horiz,
@@ -152,10 +154,10 @@ impl Rule {
             DivPrefilter => rule_div_prefilter(state)?,
             Anchor => rule_anchor(state)?,
             User => rule_user(state)?,
+            BlockQuote => rule_blockquote(state)?,
             _ => println!("MOCK: rule not implemented yet"),
             /*
              TODO
-            Blockquote,
             Heading,
             TableOfContents,
             Horiz,
@@ -225,7 +227,7 @@ pub const RULES: [Rule; 60] = [
     DivPrefilter, // Seems useless, look into merging into div proper
     Anchor,
     User,
-    Blockquote,
+    BlockQuote,
     Heading,
     TableOfContents,
     Horiz,

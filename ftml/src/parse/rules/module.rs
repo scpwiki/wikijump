@@ -79,7 +79,7 @@ fn test_module() {
             assert_eq!(args.is_none(), true);
             assert_eq!(contents.as_ref().unwrap(), "");
         }
-        Some(token) => panic!("Token not raw, was {:?}", token),
+        Some(token) => panic!("Token not module, was {:?}", token),
         None => panic!("Not enough tokens in state"),
     }
 
@@ -99,7 +99,7 @@ fn test_module() {
             assert_eq!(args.as_ref().unwrap(), " category=\"fragment\"");
             assert_eq!(contents.as_ref().unwrap(), "%%content%%\n");
         }
-        Some(token) => panic!("Token not raw, was {:?}", token),
+        Some(token) => panic!("Token not module, was {:?}", token),
         None => panic!("Not enough tokens in state"),
     }
 }

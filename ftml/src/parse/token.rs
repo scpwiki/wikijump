@@ -23,10 +23,15 @@
 //! implementation, tokens are inserted as two null bytes surrounding an index,
 //! which denotes a token to be placed there during rendering.
 
+use super::BlockQuoteLine;
+
 #[derive(Debug, Clone)]
 pub enum Token {
     Anchor {
         name: String,
+    },
+    BlockQuote {
+        lines: Vec<BlockQuoteLine>,
     },
     CodeBlock {
         args: Option<String>,
