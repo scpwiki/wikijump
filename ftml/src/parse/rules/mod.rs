@@ -312,6 +312,7 @@ fn test_fn_types() {
     let _: ApplyFn = rule_table_of_contents;
     let _: ApplyFn = rule_horizontal_line;
     let _: ApplyFn = rule_clear_float;
+    let _: ApplyFn = rule_span;
 
     // TODO for all the other functions
 }
