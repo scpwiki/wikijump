@@ -92,6 +92,10 @@ pub enum Token {
         args: Option<String>,
         contents: Option<String>,
     },
+    Span {
+        args: Option<String>,
+        contents: String,
+    },
     Raw {
         contents: String,
     },

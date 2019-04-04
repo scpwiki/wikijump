@@ -27,7 +27,7 @@ use regex::{Regex, RegexBuilder};
 
 lazy_static! {
     static ref CODE_BLOCK: Regex = {
-        RegexBuilder::new(r"^\[\[code(?P<args>\s[^\]]*)?\]\](?P<contents>.*?)\[\[/code\]\](?P<end>\s|$)")
+        RegexBuilder::new(r"^\[\[code(?P<args>\s+[^\]]*)?\]\](?P<contents>.*?)\[\[/code\]\](?P<end>\s|$)")
             .multi_line(true)
             .dot_matches_new_line(true)
             .case_insensitive(true)

@@ -43,6 +43,7 @@ mod math_inline;
 mod module;
 mod prefilter;
 mod raw;
+mod span;
 mod table_of_contents;
 mod user;
 
@@ -72,6 +73,7 @@ use self::math_inline::rule_math_inline;
 use self::module::rule_module;
 use self::prefilter::rule_prefilter;
 use self::raw::rule_raw;
+use self::span::rule_span;
 use self::table_of_contents::rule_table_of_contents;
 use self::user::rule_user;
 
@@ -102,7 +104,6 @@ pub enum Rule {
     TableOfContents,
     HorizontalLine,
     ClearFloat,
-    Break,
     Span,
     Size,
     Div,
@@ -166,11 +167,10 @@ impl Rule {
             TableOfContents => rule_table_of_contents(state)?,
             HorizontalLine => rule_horizontal_line(state)?,
             ClearFloat => rule_clear_float(state)?,
+            Span => rule_span(state)?,
             _ => println!("MOCK: rule not implemented yet"),
             /*
              TODO
-            Break,
-            Span,
             Size,
             Div,
             DivAlign,
@@ -212,7 +212,7 @@ impl Rule {
 
 // Copied from Wikidot Text_Wiki source
 // For maximum backwards-compatibility, leave as-is
-pub const RULES: [Rule; 59] = [
+pub const RULES: [Rule; 58] = [
     Include,
     Prefilter,
     Code,
@@ -238,7 +238,6 @@ pub const RULES: [Rule; 59] = [
     TableOfContents,
     HorizontalLine,
     ClearFloat,
-    Break,
     Span,
     Size,
     Div,

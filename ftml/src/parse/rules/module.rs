@@ -32,7 +32,7 @@ use regex::{Regex, RegexBuilder};
 
 lazy_static! {
     static ref MODULE: Regex = {
-        RegexBuilder::new(r"^\[\[module\s(?P<name>[a-z0-9_\-/]+)(?P<args>\s+.*?)?\]\]\n(?:(?P<contents>.*?)\[\[/module\]\])?")
+        RegexBuilder::new(r"^\[\[module\s+(?P<name>[a-z0-9_\-/]+)(?P<args>\s+.*?)?\]\]\n(?:(?P<contents>.*?)\[\[/module\]\])?")
             .multi_line(true)
             .case_insensitive(true)
             .dot_matches_new_line(true)
