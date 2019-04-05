@@ -14,9 +14,7 @@ path = "src/main.rs"
 
 [dependencies]
 clap = "2" # bin-only
-lalrpop-util = "0.16.3"
 lazy_static = "1"
+pest = "2.1"
+pest_derive = "2.1"
 regex = "1"
-
-[build-dependencies]
-lalrpop = "0.16.3"

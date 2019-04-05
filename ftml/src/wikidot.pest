@@ -1,0 +1,85 @@
+//
+// wikidot.pest
+//
+// wikidot-html - Convert Wikidot code to HTML
+// Copyright (C) 2019 Ammon Smith for Project Foundation
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <http://www.gnu.org/licenses/>.
+//
+
+// Word definition
+word = {
+    raw |
+    legacy_raw |
+    italics |
+    strikethrough |
+    bold |
+    underline |
+    subscript |
+    superscript |
+    anchor |
+    date |
+    equation_ref |
+    file_ref |
+    image |
+    footnote |
+    span |
+    user |
+    ANY+
+}
+
+// Misc words
+raw = { "@@" ~ (!"@@" ~ ANY)* ~ "@@" }
+legacy_raw = { "``" ~ (!"``" ~ ANY)* ~ "``" }
+email = { extended_ident ~ "@" ~ extended_ident }
+
+// Formatting words
+italics = { "//" ~ word* ~ "//" }
+strikethrough = { "--" ~ word* ~ "--" }
+bold = { "**" ~ word* ~ "**" }
+underline = { "__" ~ word* ~ "__" }
+subscript = { ",," ~ word* ~ ",," }
+superscript = { "^^" ~ word* ~ "^^" }
+monospace = { "{{" ~ word* ~ "}}" }
+
+// Block words
+anchor = { "[[#" ~ extended_ident ~ "]]" }
+date = { "[[" ~ ^"date" ~ integer ~ (^"format" ~ "=" ~ string)? ~ "]]" }
+equation_ref = { "[[" ~ ^"eref" ~ ident ~ "]]" }
+file_ref = { "[[" ~ ^"file" ~ extended_ident ~ "]]" }
+footnote = { "[[" ~ ^"footnote" ~ "]]" ~ word* ~ "[[/" ~ ^"footnote" ~ "]]" }
+image = {
+    "[[" ~ ^"image" ~ extended_ident ~ (
+        ("link" | "alt" | "title" | "width" | "height" | "style" | "class" | "size") ~
+        "=" ~ string
+    )* ~ "]]"
+}
+span = {
+    "[[" ~ "span" ~ (("id" | "class" | "style") ~ "=" ~ string)* ~ "]]" ~
+    "[[/" ~ ^"span" ~ "]]"
+}
+user = { "[[" ~ "*"? ~ ^"user" ~ ident ~ "]]" }
+
+// Components
+alpha = @{ 'a'..'z' | 'A'..'Z' }
+digit = @{ '0'..'9' }
+hex_digit = @{ '0'..'9' | 'a'..'f' | 'A'..'F' }
+integer = @{ "-"? ~ digit+ }
+ident = @{ alpha ~ (alpha | digit)* }
+extended_ident = @{ (alpha | digit | "-" | "+" | "_" | "." | "%")+ }
+inner_str = @{ (!("\"" | "\\") ~ ANY)* ~ (escape ~ inner_str)? }
+inner_chr = @{ escape | ANY }
+string = @{ "\"" ~ inner_str ~ "\"" }
+escape    = @{ "\\" ~ ("\"" | "\\" | "r" | "n" | "t" | "0" | "'" | code | unicode) }
+comment = _{ "[!--" ~ (!"--]" ~ ANY)* ~ "--]" }

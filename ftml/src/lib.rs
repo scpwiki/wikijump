@@ -51,6 +51,7 @@
 
 #[macro_use]
 extern crate lazy_static;
+extern crate pest;
 extern crate regex;
 
 mod enums;

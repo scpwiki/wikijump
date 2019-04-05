@@ -37,6 +37,9 @@ pub enum Paragraph {
          style: String,
          */
     },
+    Center {
+        contents: Box<Word>,
+    },
     ClearFloat {
         direction: Option<Alignment>,
     },
@@ -68,6 +71,10 @@ pub enum Paragraph {
         required: Vec<String>,
         prohibited: Vec<String>,
         contents: Box<Paragraph>,
+    },
+    List {
+        style: ListStyle,
+        items: Vec<Word>,
     },
     Math {
         label: Option<String>,
@@ -103,9 +110,6 @@ pub enum Word {
         name: String,
     },
     Bold {
-        contents: Box<Word>,
-    },
-    Center {
         contents: Box<Word>,
     },
     Color {
@@ -146,10 +150,6 @@ pub enum Word {
         page: String,
         anchor: Option<String>,
         text: Option<String>,
-    },
-    List {
-        style: ListStyle,
-        items: Vec<Word>,
     },
     Math {
         expr: String,
