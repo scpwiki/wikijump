@@ -1,5 +1,5 @@
 /*
- * parse/mod.rs
+ * build.rs
  *
  * wikidot-html - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -18,14 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod filter;
-mod rules;
-mod tree;
+extern crate lalrpop;
 
-pub use self::tree::{Paragraph, SyntaxTree, Word};
-
-use crate::{Error, Result};
-
-pub fn parse(_text: &str) -> Result<SyntaxTree> {
-    Err(Error::StaticMsg("Not implemented yet"))
+fn main() {
+    lalrpop::process_root().unwrap();
 }
