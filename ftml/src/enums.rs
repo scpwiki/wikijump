@@ -1,5 +1,5 @@
 /*
- * parse/mod.rs
+ * enums.rs
  *
  * wikidot-html - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -18,13 +18,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod filter;
-mod tree;
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum Alignment {
+    Left,
+    Right,
+    Center,
+    Justify,
+}
 
-pub use self::tree::SyntaxTree;
+impl Alignment {
+    pub fn from_str(s: &str) -> Option<Self> {
+        match s {
+            "<" => Some(Alignment::Left),
+            ">" => Some(Alignment::Right),
+            "=" => Some(Alignment::Center),
+            "==" => Some(Alignment::Justify),
+            _ => None,
+        }
+    }
+}
 
-use crate::{Error, Result};
-
-pub fn parse(_text: &str) -> Result<SyntaxTree> {
-    Err(Error::StaticMsg("Not implemented yet"))
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum ListStyle {
+    Bullet,
+    Numbered,
 }

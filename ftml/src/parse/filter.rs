@@ -1,5 +1,5 @@
 /*
- * parse/mod.rs
+ * parse/filter.rs
  *
  * wikidot-html - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -18,13 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod filter;
-mod tree;
-
-pub use self::tree::SyntaxTree;
-
-use crate::{Error, Result};
-
-pub fn parse(_text: &str) -> Result<SyntaxTree> {
-    Err(Error::StaticMsg("Not implemented yet"))
-}
+// TODO, in this order probably?
+//
+// * Includes
+// * Prefilter stuff. copy
+// * Concat lines
+// * Convert quote blocks to [[quote]] ... [[/quote]]
+// * Typography: https://github.com/Nu-SCPTheme/wikidot/blob/master/lib/Text_Wiki/Text/Wiki/Parse/Default/Typography.php

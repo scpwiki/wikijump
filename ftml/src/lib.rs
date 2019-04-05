@@ -38,6 +38,9 @@
 //! a dedicated battery of test articles and their HTML outputs
 //! are test for any new version.
 //!
+//! That said, deprecated tags or weird Wikidot behavior will not be
+//! supported if there are no mainlist articles or pages using them.
+//!
 //! Additionally, as this library matures, features not found within
 //! Wikidot's Text_Wiki may be added. These will be clearly documented
 //! and a flag will be added to run in legacy mode. However, these
@@ -53,6 +56,7 @@ extern crate lazy_static;
 extern crate nom;
 extern crate regex;
 
+mod enums;
 mod error;
 mod parse;
 mod render;
