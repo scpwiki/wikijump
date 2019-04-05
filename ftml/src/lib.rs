@@ -50,9 +50,6 @@
 //! the command-line. See that file for usage documentation.
 
 #[macro_use]
-extern crate lalrpop_util;
-
-#[macro_use]
 extern crate lazy_static;
 extern crate regex;
 
