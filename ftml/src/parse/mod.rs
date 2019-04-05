@@ -18,8 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+//lalrpop_mod!(pub wikidot);
+
 mod filter;
-mod rules;
 mod tree;
 
 pub use self::tree::{Paragraph, SyntaxTree, Word};
