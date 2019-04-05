@@ -48,6 +48,9 @@
 
 #[macro_use]
 extern crate lazy_static;
+
+#[macro_use]
+extern crate nom;
 extern crate regex;
 
 mod error;
@@ -58,13 +61,13 @@ mod render;
 mod test;
 
 pub use self::error::Error;
-pub use self::parse::{parse, ParseState, Token};
+pub use self::parse::{parse, SyntaxTree};
 pub use self::render::render;
 
 pub type StdResult<T, E> = std::result::Result<T, E>;
 pub type Result<T> = StdResult<T, Error>;
 
-pub fn transform(text: String) -> Result<String> {
+pub fn transform(text: &str) -> Result<String> {
     let state = parse(text)?;
     let html = render(state)?;
     Ok(html)
@@ -72,6 +75,6 @@ pub fn transform(text: String) -> Result<String> {
 
 pub mod prelude {
     #![allow(unused_imports)]
-    pub use super::{Error, ParseState, Result, StdResult, Token};
+    pub use super::{Error, Result, StdResult, SyntaxTree};
     pub use super::{parse, render, transform};
 }

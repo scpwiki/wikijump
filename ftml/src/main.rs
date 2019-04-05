@@ -31,7 +31,7 @@ use std::path::{Path, PathBuf};
 use std::process;
 use wikidot_html::prelude::*;
 
-type TransformFn = fn(String) -> Result<String>;
+type TransformFn = fn(&str) -> Result<String>;
 
 fn main() {
     let matches = App::new("Wikidot to HTML")
@@ -111,10 +111,10 @@ fn main() {
     process::exit(return_code);
 }
 
-fn parse_only(text: String) -> Result<String> {
-    let state = parse(text)?;
-    let (text, _) = state.into_components();
-    Ok(text)
+fn parse_only(text: &str) -> Result<String> {
+    let tree = parse(text)?;
+    let result = format!("{:?}", &tree); // TODO
+    Ok(result)
 }
 
 fn process_file(in_path: &Path, out_path: &Path, transform: TransformFn) -> Result<()> {
@@ -125,7 +125,7 @@ fn process_file(in_path: &Path, out_path: &Path, transform: TransformFn) -> Resu
         contents
     };
 
-    let html = transform(text)?;
+    let html = transform(&text)?;
     let mut file = File::create(out_path)?;
     file.write_all(html.as_bytes())?;
     Ok(())
@@ -138,7 +138,7 @@ fn process_stdin(transform: TransformFn) -> Result<()> {
         contents
     };
 
-    let html = transform(text)?;
+    let html = transform(&text)?;
     println!("{}", &html);
     Ok(())
 }

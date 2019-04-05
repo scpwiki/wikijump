@@ -70,7 +70,7 @@ fn test_conversions() {
         read_file(&mut input_text, &input_file).expect("Unable to read input Wikidot");
         read_file(&mut expected_html, &output_file).expect("Unable to read expected output HTML");
 
-        let output_html = transform(input_text).expect("Unable to transform Wikidot to HTML");
+        let output_html = transform(&input_text).expect("Unable to transform Wikidot to HTML");
         assert_eq!(expected_html, output_html);
     }
 }

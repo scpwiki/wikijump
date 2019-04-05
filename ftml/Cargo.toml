@@ -2,7 +2,7 @@
 name = "wikidot-to-html"
 version = "0.0.1"
 authors = ["Ammon Smith <ammon.i.smith@gmail.com>"]
-edition = "2018"
+edition = "2018" # this refers to the Cargo.toml version
 
 [lib]
 name = "wikidot_html"
@@ -15,4 +15,5 @@ path = "src/main.rs"
 [dependencies]
 clap = "2" # bin-only
 lazy_static = "1"
+nom = "4"
 regex = "1"

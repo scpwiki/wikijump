@@ -1,5 +1,5 @@
 /*
- * render/mod.rs
+ * parse/mod.rs
  *
  * wikidot-html - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -18,10 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::{Error, Result, SyntaxTree};
+mod tree;
 
-// TODO
-pub fn render(tree: SyntaxTree) -> Result<String> {
-    let _ = tree;
+pub use self::tree::SyntaxTree;
+
+use crate::{Error, Result};
+
+pub fn parse(_text: &str) -> Result<SyntaxTree> {
     Err(Error::StaticMsg("Not implemented yet"))
 }
