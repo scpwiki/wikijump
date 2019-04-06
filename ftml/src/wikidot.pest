@@ -81,5 +81,5 @@ extended_ident = @{ (alpha | digit | "-" | "+" | "_" | "." | "%")+ }
 inner_str = @{ (!("\"" | "\\") ~ ANY)* ~ (escape ~ inner_str)? }
 inner_chr = @{ escape | ANY }
 string = @{ "\"" ~ inner_str ~ "\"" }
-escape    = @{ "\\" ~ ("\"" | "\\" | "r" | "n" | "t" | "0" | "'" | code | unicode) }
+escape    = @{ "\\" ~ ("\"" | "\\" | "r" | "n" | "t" | "0" | "'") }
 comment = _{ "[!--" ~ (!"--]" ~ ANY)* ~ "--]" }

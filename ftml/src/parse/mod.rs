@@ -25,6 +25,10 @@ pub use self::tree::{Paragraph, SyntaxTree, Word};
 
 use crate::{Error, Result};
 
+#[derive(Parser)]
+#[grammar = "wikidot.pest"]
+pub struct Parser;
+
 pub fn parse(_text: &str) -> Result<SyntaxTree> {
     Err(Error::StaticMsg("Not implemented yet"))
 }
