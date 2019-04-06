@@ -24,12 +24,12 @@
 use crate::enums::{Alignment, ListStyle};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct SyntaxTree {
-    paragraphs: Vec<Paragraph>,
+pub struct SyntaxTree<'a> {
+    paragraphs: Vec<Paragraph<'a>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Paragraph {
+pub enum Paragraph<'a> {
     Align {
         alignment: Alignment,
     },
@@ -41,167 +41,167 @@ pub enum Paragraph {
          */
     },
     Center {
-        contents: Box<Word>,
+        contents: Box<Word<'a>>,
     },
     ClearFloat {
         direction: Option<Alignment>,
     },
     CodeBlock {
-        language: Option<String>,
-        contents: Box<Paragraph>,
+        language: Option<&'a str>,
+        contents: Box<Paragraph<'a>>,
     },
     Div {
-        class: Option<String>,
-        style: Option<String>,
+        class: Option<&'a str>,
+        style: Option<&'a str>,
     },
     FootnoteBlock,
     Form {
-        contents: String, // actually YAML...
+        contents: &'a str, // actually YAML...
     },
     Gallery,
     Heading {
-        contents: Box<Word>,
+        contents: Box<Word<'a>>,
     },
     HorizontalLine,
     Html {
-        contents: String,
+        contents: &'a str,
     },
     Iframe {
-        url: String,
-        args: Option<String>,
+        url: &'a str,
+        args: Option<&'a str>,
     },
     IfTags {
-        required: Vec<String>,
-        prohibited: Vec<String>,
-        contents: Box<Paragraph>,
+        required: Vec<&'a str>,
+        prohibited: Vec<&'a str>,
+        contents: Box<Paragraph<'a>>,
     },
     List {
         style: ListStyle,
-        items: Vec<Word>,
+        items: Vec<Word<'a>>,
     },
     Math {
-        label: Option<String>,
-        id: Option<String>,
-        latex_env: Option<String>,
-        expr: String,
+        label: Option<&'a str>,
+        id: Option<&'a str>,
+        latex_env: Option<&'a str>,
+        expr: &'a str,
     },
     Module {
-        name: String,
-        contents: Option<Box<Paragraph>>,
+        name: &'a str,
+        contents: Option<Box<Paragraph<'a>>>,
     },
     Note {
-        contents: Box<Paragraph>,
+        contents: Box<Paragraph<'a>>,
     },
     Table {
-        rows: Vec<TableRow>,
+        rows: Vec<TableRow<'a>>,
     },
     TabView {
-        class: Option<String>,
-        tabs: Vec<Paragraph>,
+        class: Option<&'a str>,
+        tabs: Vec<Paragraph<'a>>,
     },
     TableOfContents {
         // TODO: http://community.wikidot.com/help:toc
     },
     Text {
-        contents: Word,
+        contents: Word<'a>,
     },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Word {
+pub enum Word<'a> {
     Anchor {
-        name: String,
+        name: &'a str,
     },
     Bold {
-        contents: Box<Word>,
+        contents: Box<Word<'a>>,
     },
     Color {
-        color: String,
+        color: &'a str,
     },
     Date {
         timestamp: i64,
-        format: Option<String>,
+        format: Option<&'a str>,
     },
     Email {
-        contents: String,
+        contents: &'a str,
     },
     EquationReference {
-        name: String,
+        name: &'a str,
     },
     File {
-        filename: String,
+        filename: &'a str,
     },
     Footnote {
-        contents: Box<Paragraph>,
+        contents: Box<Paragraph<'a>>,
     },
     Image {
         // See https://www.wikidot.com/doc-wiki-syntax:images
-        filename: String,
-        link: Option<(String, bool)>,
-        alt: Option<String>,
-        title: Option<String>,
-        width: Option<String>,
-        height: Option<String>,
-        style: Option<String>,
-        class: Option<String>,
-        size: Option<String>,
+        filename: &'a str,
+        link: Option<(&'a str, bool)>,
+        alt: Option<&'a str>,
+        title: Option<&'a str>,
+        width: Option<&'a str>,
+        height: Option<&'a str>,
+        style: Option<&'a str>,
+        class: Option<&'a str>,
+        size: Option<&'a str>,
     },
     Italics {
-        contents: Box<Word>,
+        contents: Box<Word<'a>>,
     },
     Link {
-        page: String,
-        anchor: Option<String>,
-        text: Option<String>,
+        page: &'a str,
+        anchor: Option<&'a str>,
+        text: Option<&'a str>,
     },
     Math {
-        expr: String,
+        expr: &'a str,
     },
     Monospace {
-        contents: Box<Word>,
+        contents: Box<Word<'a>>,
     },
     Raw {
-        contents: String,
+        contents: &'a str,
     },
     Size {
-        size: String,
-        contents: Box<Word>,
+        size: &'a str,
+        contents: Box<Word<'a>>,
     },
     Span {
-        id: Option<String>,
-        class: Option<String>,
-        style: Option<String>,
-        contents: Box<Word>,
+        id: Option<&'a str>,
+        class: Option<&'a str>,
+        style: Option<&'a str>,
+        contents: Box<Word<'a>>,
     },
     Strikethrough {
-        contents: Box<Word>,
+        contents: Box<Word<'a>>,
     },
     Subscript {
-        contents: Box<Word>,
+        contents: Box<Word<'a>>,
     },
     Superscript {
-        contents: Box<Word>,
+        contents: Box<Word<'a>>,
     },
     Text {
-        contents: String,
+        contents: &'a str,
     },
     Underline {
-        contents: Box<Word>,
+        contents: Box<Word<'a>>,
     },
     Url {
-        contents: String,
+        contents: &'a str,
     },
     User {
-        username: String,
+        username: &'a str,
         show_picture: bool,
     },
     Words {
-        words: Vec<Word>,
+        words: Vec<Word<'a>>,
     },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct TableRow {
-    columns: Vec<Word>,
+pub struct TableRow<'a> {
+    columns: Vec<Word<'a>>,
     title: bool,
 }
