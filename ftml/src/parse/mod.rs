@@ -25,12 +25,16 @@ pub use self::tree::{Paragraph, SyntaxTree, Word};
 
 use crate::{Error, Result};
 use pest::Parser;
+use pest::error::Error as PestError;
 
 #[derive(Debug, Clone, Parser)]
 #[grammar = "wikidot.pest"]
 pub struct WikidotParser;
 
-pub fn parse(_text: &str) -> Result<SyntaxTree> {
+pub type ParseError = PestError<Rule>;
+
+pub fn parse(text: &str) -> Result<SyntaxTree> {
+    let pairs = WikidotParser::parse(Rule::page, text)?;
     Err(Error::StaticMsg("Not implemented yet"))
 }
 

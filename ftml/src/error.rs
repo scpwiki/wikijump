@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::parse::ParseError;
 use std::error::Error as StdError;
 use std::{io, fmt::{self, Write}};
 use std::str::Utf8Error;
@@ -29,6 +30,7 @@ pub enum Error {
     Msg(String),
     Io(io::Error),
     Utf8(Utf8Error),
+    Parse(ParseError),
 }
 
 impl StdError for Error {
@@ -40,6 +42,7 @@ impl StdError for Error {
             Msg(ref s) => s,
             Io(ref e) => e.description(),
             Utf8(ref e) => e.description(),
+            Parse(ref e) => e.description(),
         }
     }
 
@@ -50,6 +53,7 @@ impl StdError for Error {
             StaticMsg(_) | Msg(_) => None,
             Io(ref e) => Some(e),
             Utf8(ref e) => Some(e),
+            Parse(ref e) => Some(e),
         }
     }
 }
@@ -94,5 +98,11 @@ impl From<io::Error> for Error {
 impl From<Utf8Error> for Error {
     fn from(error: Utf8Error) -> Self {
         Error::Utf8(error)
+    }
+}
+
+impl From<ParseError> for Error {
+    fn from(error: ParseError) -> Self {
+        Error::Parse(error)
     }
 }
