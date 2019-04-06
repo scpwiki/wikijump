@@ -18,28 +18,38 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 //
 
+// TODO Paragraph definition
+page = { SOI ~ paragraph* ~ EOI }
+
+paragraph = {
+    word
+}
+
 // Word definition
 word = {
+    text |
     raw |
     legacy_raw |
+    email |
     italics |
     strikethrough |
     bold |
     underline |
     subscript |
     superscript |
+    monospace |
     anchor |
     date |
     equation_ref |
     file_ref |
-    image |
     footnote |
+    image |
     span |
-    user |
-    ANY+
+    user
 }
 
 // Misc words
+text = { (!("@@" | "``" | "//" | "--" | "**" | "__" | ",," | "^^" | "{{" | "}}" | "[[" | "]]") ~ ANY)+ }
 raw = { "@@" ~ (!"@@" ~ ANY)* ~ "@@" }
 legacy_raw = { "``" ~ (!"``" ~ ANY)* ~ "``" }
 email = { extended_ident ~ "@" ~ extended_ident }
@@ -55,9 +65,9 @@ monospace = { "{{" ~ word* ~ "}}" }
 
 // Block words
 anchor = { "[[#" ~ extended_ident ~ "]]" }
-date = { "[[" ~ ^"date" ~ integer ~ (^"format" ~ "=" ~ string)? ~ "]]" }
-equation_ref = { "[[" ~ ^"eref" ~ ident ~ "]]" }
-file_ref = { "[[" ~ ^"file" ~ extended_ident ~ "]]" }
+date = { "[[" ~ ^"date" ~ space ~ integer ~ (^"format" ~ "=" ~ string)? ~ "]]" }
+equation_ref = { "[[" ~ ^"eref" ~ space ~ ident ~ "]]" }
+file_ref = { "[[" ~ ^"file" ~ space ~ extended_ident ~ "]]" }
 footnote = { "[[" ~ ^"footnote" ~ "]]" ~ word* ~ "[[/" ~ ^"footnote" ~ "]]" }
 image = {
     "[[" ~ ^"image" ~ extended_ident ~ (
@@ -66,20 +76,19 @@ image = {
     )* ~ "]]"
 }
 span = {
-    "[[" ~ "span" ~ (("id" | "class" | "style") ~ "=" ~ string)* ~ "]]" ~
+    "[[" ~ ^"span" ~ (space ~ (^"id" | ^"class" | ^"style") ~ "=" ~ string)* ~ "]]" ~
+    word* ~
     "[[/" ~ ^"span" ~ "]]"
 }
-user = { "[[" ~ "*"? ~ ^"user" ~ ident ~ "]]" }
+user = { "[[" ~ "*"? ~ ^"user" ~ space ~ ident ~ "]]" }
 
 // Components
-alpha = @{ 'a'..'z' | 'A'..'Z' }
-digit = @{ '0'..'9' }
-hex_digit = @{ '0'..'9' | 'a'..'f' | 'A'..'F' }
-integer = @{ "-"? ~ digit+ }
-ident = @{ alpha ~ (alpha | digit)* }
-extended_ident = @{ (alpha | digit | "-" | "+" | "_" | "." | "%")+ }
+space = @{ (" " | "\t")+ }
+integer = @{ "-"? ~ ASCII_DIGIT+ }
+ident = @{ ASCII_ALPHA ~ ASCII_ALPHANUMERIC* }
+extended_ident = @{ (ASCII_ALPHANUMERIC | "-" | "+" | "_" | "." | "%")+ }
 inner_str = @{ (!("\"" | "\\") ~ ANY)* ~ (escape ~ inner_str)? }
 inner_chr = @{ escape | ANY }
 string = @{ "\"" ~ inner_str ~ "\"" }
-escape    = @{ "\\" ~ ("\"" | "\\" | "r" | "n" | "t" | "0" | "'") }
-comment = _{ "[!--" ~ (!"--]" ~ ANY)* ~ "--]" }
+escape = @{ "\\" ~ ("\"" | "\\" | "r" | "n" | "t" | "0" | "'") }
+COMMENT = _{ "[!--" ~ (!"--]" ~ ANY)* ~ "--]" }

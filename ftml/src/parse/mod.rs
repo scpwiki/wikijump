@@ -24,11 +24,27 @@ mod tree;
 pub use self::tree::{Paragraph, SyntaxTree, Word};
 
 use crate::{Error, Result};
+use pest::Parser;
 
-#[derive(Parser)]
+#[derive(Debug, Clone, Parser)]
 #[grammar = "wikidot.pest"]
-pub struct Parser;
+pub struct WikidotParser;
 
 pub fn parse(_text: &str) -> Result<SyntaxTree> {
     Err(Error::StaticMsg("Not implemented yet"))
+}
+
+#[test]
+fn test_parser() {
+    const STRINGS: [&str; 4] = [
+        "@@ test raw str @@ @@ second raw @@",
+        "__**test** string {{ here }}__ ^^up!^^",
+        "**[[date 0]]**",
+        "[[span class=\"test\"]]//hello// world![[footnote]]actually country[[/footnote]][[/span]]",
+    ];
+
+    for string in &STRINGS[..] {
+        let parse_result = WikidotParser::parse(Rule::page, string);
+        println!("> \"{}\"\n{:#?}", string, &parse_result);
+    }
 }
