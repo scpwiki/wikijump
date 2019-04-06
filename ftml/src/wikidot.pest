@@ -50,9 +50,9 @@ word = {
 
 // Misc words
 text = { (!("@@" | "``" | "//" | "--" | "**" | "__" | ",," | "^^" | "{{" | "}}" | "[[" | "]]") ~ ANY)+ }
-raw = { "@@" ~ (!"@@" ~ ANY)* ~ "@@" }
-legacy_raw = { "``" ~ (!"``" ~ ANY)* ~ "``" }
-email = { extended_ident ~ "@" ~ extended_ident }
+raw = { ("@@" ~ (!"@@" ~ ANY)* ~ "@@") | "@@@@@@" }
+legacy_raw = { ("``" ~ (!"``" ~ ANY)* ~ "``") | "``````" }
+email = { ident ~ "@" ~ ident }
 
 // Formatting words
 italics = { "//" ~ word* ~ "//" }
@@ -64,29 +64,35 @@ superscript = { "^^" ~ word* ~ "^^" }
 monospace = { "{{" ~ word* ~ "}}" }
 
 // Block words
-anchor = { "[[#" ~ extended_ident ~ "]]" }
-date = { "[[" ~ ^"date" ~ space ~ integer ~ (^"format" ~ "=" ~ string)? ~ "]]" }
-equation_ref = { "[[" ~ ^"eref" ~ space ~ ident ~ "]]" }
-file_ref = { "[[" ~ ^"file" ~ space ~ extended_ident ~ "]]" }
-footnote = { "[[" ~ ^"footnote" ~ "]]" ~ word* ~ "[[/" ~ ^"footnote" ~ "]]" }
+anchor = { "[[#" ~ space? ~ ident ~ space? ~ "]]" }
+date = { "[[" ~ space? ~ ^"date" ~ space ~ integer ~ (^"format" ~ "=" ~ string)? ~ space? ~ "]]" }
+equation_ref = { "[[" ~ space? ~ ^"eref" ~ space ~ ident ~ space? ~ "]]" }
+file_ref = { "[[" ~ space? ~ ^"file" ~ space ~ ident ~ space? ~ "]]" }
+footnote = {
+    "[[" ~ space? ~ ^"footnote" ~ space? ~ "]]" ~
+    word* ~
+    "[[/" ~ space? ~ ^"footnote" ~ space? ~ "]]"
+}
 image = {
-    "[[" ~ ^"image" ~ extended_ident ~ (
-        ("link" | "alt" | "title" | "width" | "height" | "style" | "class" | "size") ~
-        "=" ~ string
-    )* ~ "]]"
+    "[[" ~ space? ~ ^"image" ~ space ~ ident ~ image_arg* ~ space? ~ "]]"
+}
+image_arg = {
+    space ~
+    ("link" | "alt" | "title" | "width" | "height" | "style" | "class" | "size") ~
+    space? ~ "=" ~ space? ~ string
 }
 span = {
-    "[[" ~ ^"span" ~ (space ~ (^"id" | ^"class" | ^"style") ~ "=" ~ string)* ~ "]]" ~
+    "[[" ~ space? ~ ^"span" ~ span_arg* ~ space? ~ "]]" ~
     word* ~
-    "[[/" ~ ^"span" ~ "]]"
+    "[[/" ~ ^"span" ~ space? ~ "]]"
 }
-user = { "[[" ~ "*"? ~ ^"user" ~ space ~ ident ~ "]]" }
+span_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ string }
+user = { "[[" ~ "*"? ~ space? ~ ^"user" ~ space ~ ident ~ space? ~ "]]" }
 
 // Components
 space = @{ (" " | "\t")+ }
 integer = @{ "-"? ~ ASCII_DIGIT+ }
-ident = @{ ASCII_ALPHA ~ ASCII_ALPHANUMERIC* }
-extended_ident = @{ (ASCII_ALPHANUMERIC | "-" | "+" | "_" | "." | "%")+ }
+ident = @{ (ASCII_ALPHANUMERIC | "-" | "+" | "_" | "." | "%")+ }
 inner_str = @{ (!("\"" | "\\") ~ ANY)* ~ (escape ~ inner_str)? }
 inner_chr = @{ escape | ANY }
 string = @{ "\"" ~ inner_str ~ "\"" }
