@@ -21,6 +21,9 @@
 mod filter;
 mod tree;
 
+#[cfg(test)]
+mod test;
+
 pub use self::tree::{Paragraph, SyntaxTree, Word};
 
 use crate::{Error, Result};
@@ -36,23 +39,4 @@ pub type ParseError = PestError<Rule>;
 pub fn parse(text: &str) -> Result<SyntaxTree> {
     let pairs = WikidotParser::parse(Rule::page, text)?;
     Err(Error::StaticMsg("Tree conversion not implemented yet"))
-}
-
-#[test]
-fn test_strings() {
-    const INPUT_STRINGS: [&str; 8] = [
-        "@@ apple @@ @@banana@@",
-        "[!-- [[ footnote invalid formatting in here-- [[ eref --] test",
-        "__**test** cherry {{ durian (?) }}__ ^^up!^^",
-        "** [[date 0]] **",
-        "__ [[  date 0  ]] [!-- comment here --]__",
-        "[[span class = \"test\"]]//hello// world![[footnote]]actually country[[/footnote]][[/span]]",
-        "--[[*user rounderhouse]] [[# test-anchor ]]-- [[ eref equation_id ]]",
-        "[[ image tree.png link = \"https://example.com\" alt=\"A tree.\" class=\"image-block\"  ]]",
-    ];
-
-    for string in &INPUT_STRINGS[..] {
-        println!("Parse test: {}", string);
-        let _ = WikidotParser::parse(Rule::page, string).unwrap();
-    }
 }
