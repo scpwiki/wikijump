@@ -55,6 +55,7 @@ legacy_raw = { ("``" ~ (!"``" ~ ANY)* ~ "``") | "``````" }
 email = { ident ~ "@" ~ ident }
 
 // Formatting words
+color = { "##" ~ (("#" ~ hex_digit+) | ident) ~ "|" ~ word* ~ "##" }
 italics = { "//" ~ word* ~ "//" }
 strikethrough = { "--" ~ word* ~ "--" }
 bold = { "**" ~ word* ~ "**" }
@@ -90,6 +91,7 @@ span_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ str
 user = { "[[" ~ "*"? ~ space? ~ ^"user" ~ space ~ ident ~ space? ~ "]]" }
 
 // Components
+hex_digit = @{ '0'..'9' | 'a'..'f' | 'A'..'F' }
 space = @{ (" " | "\t")+ }
 integer = @{ "-"? ~ ASCII_DIGIT+ }
 ident = @{ (ASCII_ALPHANUMERIC | "-" | "+" | "_" | "." | "%")+ }

@@ -22,10 +22,20 @@
 #![allow(dead_code)]
 
 use crate::enums::{Alignment, ListStyle};
+use pest::iterators::{Pair, Pairs};
+use super::Rule;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SyntaxTree<'a> {
     paragraphs: Vec<Paragraph<'a>>,
+}
+
+impl<'a> SyntaxTree<'a> {
+    pub fn from_paragraph_pairs(pairs: Pairs<'a, Rule>) -> Self {
+        let paragraphs = pairs.into_iter().map(|pair| Paragraph::from_pair(pair)).collect();
+
+        SyntaxTree { paragraphs }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -105,6 +115,18 @@ pub enum Paragraph<'a> {
     Text {
         contents: Word<'a>,
     },
+}
+
+impl<'a> Paragraph<'a> {
+    fn from_pair(pair: Pair<Rule>) -> Self {
+        debug_assert_eq!(pair.as_rule(), Rule::paragraph);
+        let inner = pair.into_inner().next().unwrap();
+
+        match inner.as_rule() {
+            Rule::word => Paragraph::Text { contents: Word::from_pair(pair.into_inner()) },
+            _ => panic!("Invalid paragraph case"),
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -198,6 +220,48 @@ pub enum Word<'a> {
     Words {
         words: Vec<Word<'a>>,
     },
+}
+
+impl<'a> Word<'a> {
+    fn from_pair(pair: Pair<Rule>) -> Self {
+        debug_assert_eq!(pair.as_rule(), Rule::word);
+        let inner = pair.into_inner().next().unwrap();
+
+        macro_rules! make_paragraph {
+            () => ( Box::new(Paragraph::from_pair(inner)) )
+        }
+
+        macro_rules! make_word {
+            () => ( Box::new(Word::from_pair(inner)) )
+        }
+
+        macro_rules! as_str {
+            () => ( inner.as_str() )
+        }
+
+        // TODO check word* inners
+        match inner.as_rule() {
+            Rule::text => Word::Text { contents: as_str!() },
+            Rule::raw | Rule::legacy_raw => Word::Raw { contents: as_str!() }, // TODO extract @@'s
+            Rule::email => Word::Email { contents: as_str!() },
+            Rule::italics => Word::Italics { contents: make_word!() },
+            Rule::strikethrough => Word::Strikethrough { contents: make_word!() },
+            Rule::bold => Word::Bold { contents: make_word!() },
+            Rule::underline => Word::Underline { contents: make_word!() },
+            Rule::subscript => Word::Subscript { contents: make_word!() },
+            Rule::superscript => Word::Superscript { contents: make_word!() },
+            Rule::monospace => Word::Monospace { contents: make_word!() },
+            Rule::anchor => Word::Anchor { name: as_str!() }, // TODO extract
+            Rule::date => Word::Date { timestamp: 0, format: None }, // TODO extract
+            Rule::equation_ref => Word::EquationReference { name: as_str!() }, // TODO extract
+            Rule::file_ref => Word::File { filename: as_str!() }, // TODO extract
+            Rule::footnote => Word::Footnote { contents: make_word!() },
+            Rule::image => unimplemented!(), // TODO lots of work
+            Rule::span => unimplemented!(), // TODO lots of work
+            Rule::user => Word::User { username: as_str!(), show_picture: false }, // TODO extract
+            _ => panic!("Invalid word case"),
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

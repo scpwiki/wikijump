@@ -36,7 +36,14 @@ pub struct WikidotParser;
 
 pub type ParseError = PestError<Rule>;
 
-pub fn parse(text: &str) -> Result<SyntaxTree> {
-    let pairs = WikidotParser::parse(Rule::page, text)?;
-    Err(Error::StaticMsg("Tree conversion not implemented yet"))
+pub fn parse<'a>(text: &'a str) -> Result<SyntaxTree<'a>> {
+    let page = {
+        // Should return exactly [ Rule::page ]
+        let mut page = WikidotParser::parse(Rule::page, text)?;
+        page.next().unwrap().into_inner()
+    };
+
+    println!("{:#?}", &page);
+    let tree = SyntaxTree::from_paragraph_pairs(page);
+    Ok(tree)
 }
