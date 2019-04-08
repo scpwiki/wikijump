@@ -19,6 +19,7 @@
  */
 
 mod filter;
+mod string;
 mod tree;
 
 #[cfg(test)]
