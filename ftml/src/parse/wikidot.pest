@@ -49,9 +49,9 @@ word = {
 }
 
 // Misc words
-text = { (!("@@" | "``" | "//" | "--" | "**" | "__" | ",," | "^^" | "{{" | "}}" | "[[" | "]]") ~ ANY)+ }
-raw = { ("@@" ~ (!"@@" ~ ANY)* ~ "@@") | "@@@@@@" }
-legacy_raw = { ("``" ~ (!"``" ~ ANY)* ~ "``") | "``````" }
+text = { (!token ~ ANY)+ | token ~ text }
+raw = { ("@@" ~ (!"@@" ~ ANY)+ ~ "@@") | "@@@@@@" }
+legacy_raw = { ("``" ~ (!"``" ~ ANY)+ ~ "``") | "``````" }
 email = { ident ~ "@" ~ ident }
 
 // Formatting words
@@ -91,6 +91,7 @@ span_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ str
 user = { "[[" ~ "*"? ~ space? ~ ^"user" ~ space ~ ident ~ space? ~ "]]" }
 
 // Components
+token = { "@@" | "``" | "//" | "--" | "**" | "__" | ",," | "^^" | "{{" | "}}" | "[[" | "]]" }
 hex_digit = @{ '0'..'9' | 'a'..'f' | 'A'..'F' }
 space = @{ (" " | "\t")+ }
 integer = @{ "-"? ~ ASCII_DIGIT+ }
