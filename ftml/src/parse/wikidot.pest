@@ -24,12 +24,14 @@ page = { SOI ~ line* ~ EOI }
 line = {
     (
         word+ |
-        horiz
+        footnote_block |
+        horizontal_line
     ) ~ ( "\n"| EOI )
 }
 
 // Misc lines
-horiz = { "-"{4,} }
+footnote_block = { "[[" ~ space? ~ ^"footnoteblock" ~ space? ~ "]]" }
+horizontal_line = { "-"{4,} }
 
 // Word definition
 word = {

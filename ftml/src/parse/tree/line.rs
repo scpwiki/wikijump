@@ -107,7 +107,8 @@ impl<'a> Line<'a> {
 
         let first_pair = pair.clone().into_inner().next().unwrap();
         match first_pair.as_rule() {
-            Rule::horiz => Line::HorizontalLine,
+            Rule::horizontal_line => Line::HorizontalLine,
+            Rule::footnote_block => Line::FootnoteBlock,
             Rule::word => {
                 let mut contents = Vec::new();
 
