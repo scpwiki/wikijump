@@ -25,12 +25,20 @@ newlines = { "\n"+ | EOI }
 line = {
     word+ |
     footnote_block |
-    horizontal_line
+    horizontal_line |
+    note
 }
 
 // Misc lines
 footnote_block = { "[[" ~ space? ~ ^"footnoteblock" ~ space? ~ "]]" }
 horizontal_line = { "-"{4,} }
+
+// Block lines
+note = {
+    "[[" ~ space? ~ ^"note" ~ space? ~ "]]" ~
+    line* ~
+    "[[/" ~ space? ~ ^"note" ~ space? ~ "]]"
+}
 
 // Word definition
 word = {

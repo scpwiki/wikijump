@@ -109,6 +109,15 @@ impl<'a> Line<'a> {
         match first_pair.as_rule() {
             Rule::horizontal_line => Line::HorizontalLine,
             Rule::footnote_block => Line::FootnoteBlock,
+            Rule::note => {
+                let mut contents = Vec::new();
+
+                for pair in pair.into_inner() {
+                    contents.push(Line::from_pair(pair));
+                }
+
+                Line::Note { contents }
+            },
             Rule::word => {
                 let mut contents = Vec::new();
 
