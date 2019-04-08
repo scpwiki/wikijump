@@ -18,15 +18,14 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 //
 
-page = { SOI ~ line* ~ EOI }
+page = { SOI ~ (line ~ newlines)* ~ EOI }
+newlines = { "\n"+ | EOI }
 
 // TODO finish line declaration
 line = {
-    (
-        word+ |
-        footnote_block |
-        horizontal_line
-    ) ~ ( "\n"| EOI )
+    word+ |
+    footnote_block |
+    horizontal_line
 }
 
 // Misc lines
