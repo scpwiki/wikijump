@@ -132,17 +132,25 @@ impl<'a> Line<'a> {
                             };
 
                             arguments.insert(key, value);
-                        },
+                        }
                         Rule::line => contents.push(Line::from_pair(pair)),
                         _ => panic!("Invalid rule for module: {:?}", pair.as_rule()),
                     }
                 }
 
-                let contents = if contents.is_empty() { None } else { Some(contents) };
+                let contents = if contents.is_empty() {
+                    None
+                } else {
+                    Some(contents)
+                };
                 debug_assert_ne!(name, "", "Module name never set");
 
-                Line::Module { name, arguments, contents }
-            },
+                Line::Module {
+                    name,
+                    arguments,
+                    contents,
+                }
+            }
             Rule::note => {
                 let mut contents = Vec::new();
 
@@ -151,7 +159,7 @@ impl<'a> Line<'a> {
                 }
 
                 Line::Note { contents }
-            },
+            }
             Rule::word => {
                 let mut contents = Vec::new();
 
