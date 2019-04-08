@@ -355,12 +355,7 @@ impl<'a> Word<'a> {
                 contents: make_paragraphs!(),
             },
             Rule::image => {
-                unimplemented!()
-                /*
-                let capture = IMAGE.captures(as_str!()).unwrap();
-
-                let filename = capture!(capture, "filename");
-                let arguments = capture!(capture, "arguments");
+                let mut filename = "";
 
                 let mut link = None;
                 let mut alt = None;
@@ -371,34 +366,40 @@ impl<'a> Word<'a> {
                 let mut class = None;
                 let mut size = None;
 
-                for capture in ARGUMENTS.captures_iter(arguments) {
-                    let argument = capture!(capture, "argument");
-                    let value = capture!(capture, "value");
+                for pair in pair.into_inner() {
+                    match pair.as_rule() {
+                        Rule::ident => filename = pair.as_str(),
+                        Rule::image_arg => {
+                            let capture = ARGUMENT_NAME.captures(pair.as_str()).unwrap();
+                            let name = capture!(capture, "name");
+                            let value_pair = pair.into_inner().next().unwrap();
 
-                    match argument {
-                        "link" => {
-                            if value.starts_with("*") {
-                                link = Some((&value[1..], true));
-                            } else {
-                                link = Some((value, false));
+                            debug_assert_eq!(value_pair.as_rule(), Rule::string);
+
+                            let value = value_pair.as_str();
+                            match name {
+                                "link" => {
+                                    if value.starts_with("*") {
+                                        link = Some((&value[1..], true));
+                                    } else {
+                                        link = Some((value, false));
+                                    }
+                                }
+                                "alt" => alt = Some(value),
+                                "title" => title = Some(value),
+                                "width" => width = Some(value),
+                                "height" => height = Some(value),
+                                "style" => style = Some(value),
+                                "class" => class = Some(value),
+                                "size" => size = Some(value),
+                                _ => panic!("Unknown argument for [[image]]: {}", name),
                             }
-                        }
-                        "alt" => alt = Some(value),
-                        "title" => title = Some(value),
-                        "width" => width = Some(value),
-                        "height" => height = Some(value),
-                        "style" => style = Some(value),
-                        "class" => class = Some(value),
-                        "size" => size = Some(value),
-                        _ => {
-                            // For now, ignore unknown arguments
-                            warn!(
-                                "Ignoring unknown argument in [[image]]: {} = {}",
-                                argument, value
-                            );
-                        }
+                        },
+                        _ => panic!("Invalid rule for image: {:?}", pair.as_rule()),
                     }
                 }
+
+                debug_assert_ne!(filename, "", "Filename wasn't produced by parser");
 
                 Word::Image {
                     filename,
@@ -411,7 +412,6 @@ impl<'a> Word<'a> {
                     class,
                     size,
                 }
-                */
             }
             Rule::span => {
                 let mut id = None;
