@@ -40,6 +40,12 @@ pub type ParseError = PestError<Rule>;
 pub fn parse<'a>(text: &'a str) -> Result<SyntaxTree<'a>> {
     let page = {
         // Should return exactly [ Rule::page ]
+        //
+        // The .next().unwrap().into_inner() pattern is used in cases
+        // where a Pairs object wraps a single Pair object. For instance
+        // here the Page rule only has one possibility, and the outer layer
+        // is not useful for parsing, so we discard it.
+
         let mut page = WikidotParser::parse(Rule::page, text)?;
         page.next().unwrap().into_inner()
     };
