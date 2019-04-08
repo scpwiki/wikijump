@@ -275,7 +275,7 @@ impl<'a> Word<'a> {
                                 "size" => size = Some(value),
                                 _ => panic!("Unknown argument for [[image]]: {}", name),
                             }
-                        },
+                        }
                         _ => panic!("Invalid rule for image: {:?}", pair.as_rule()),
                     }
                 }
@@ -316,7 +316,7 @@ impl<'a> Word<'a> {
                                 "style" => style = Some(value),
                                 _ => panic!("Unknown argument for [[span]]: {}", name),
                             }
-                        },
+                        }
                         Rule::word => contents.push(Word::from_pair(pair)),
                         _ => panic!("Invalid rule for span: {:?}", pair.as_rule()),
                     }
@@ -328,7 +328,7 @@ impl<'a> Word<'a> {
                     style,
                     contents,
                 }
-            },
+            }
             Rule::user => {
                 let capture = USER.captures(as_str!()).unwrap();
 

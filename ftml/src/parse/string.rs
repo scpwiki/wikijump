@@ -55,7 +55,7 @@ pub fn interp_str<'a>(text: &'a str) -> Option<Cow<'a, str>> {
 
         if let Some(replace) = replace {
             let start = span.start() - escaped - 1;
-            let range = start..start+2;
+            let range = start..start + 2;
             string.to_mut().replace_range(range, replace);
             escaped += 1;
         }
@@ -72,7 +72,10 @@ fn test_string_parse() {
 
     let string = interp_str(r#""\nA\tTHOUSAND\0WINDS\rCRY\nFOR \'\'\'VICTORS\'\'\'\n""#);
     assert_eq!(string.is_some(), true);
-    assert_eq!(string.unwrap().as_ref(), "\nA\tTHOUSAND\0WINDS\rCRY\nFOR '''VICTORS'''\n");
+    assert_eq!(
+        string.unwrap().as_ref(),
+        "\nA\tTHOUSAND\0WINDS\rCRY\nFOR '''VICTORS'''\n"
+    );
 
     let string = interp_str(r#""""#);
     assert_eq!(string.is_some(), true);

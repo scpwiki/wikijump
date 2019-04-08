@@ -160,7 +160,7 @@ impl<'a> Line<'a> {
                 }
 
                 Line::Text { contents }
-            },
+            }
 
             _ => unimplemented!(),
             //_ => panic!("Invalid rule for line: {:?}", pair.as_rule()),

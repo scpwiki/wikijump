@@ -113,7 +113,10 @@ fn main() {
 
 fn parse_only(text: &str) -> Result<String> {
     let tree = parse(text)?;
-    let result = format!("<html><body><pre><code>\n{:#?}\n</code></pre></body></html>\n", &tree);
+    let result = format!(
+        "<html><body><pre><code>\n{:#?}\n</code></pre></body></html>\n",
+        &tree
+    );
     Ok(result)
 }
 
