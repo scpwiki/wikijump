@@ -73,4 +73,8 @@ fn test_string_parse() {
     let string = parse(r#""\nA\tTHOUSAND\0WINDS\rCRY\nFOR \'\'\'VICTORS\'\'\'\n""#);
     assert_eq!(string.is_some(), true);
     assert_eq!(string.unwrap().as_ref(), "\nA\tTHOUSAND\0WINDS\rCRY\nFOR '''VICTORS'''\n");
+
+    let string = parse(r#""""#);
+    assert_eq!(string.is_some(), true);
+    assert_eq!(string.unwrap().as_ref(), "");
 }
