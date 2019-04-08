@@ -23,10 +23,10 @@ newlines = { "\n"+ | EOI }
 
 // TODO finish line declaration
 line = {
-    word+ |
     footnote_block |
     horizontal_line |
-    note
+    note |
+    word+
 }
 
 // Misc lines
