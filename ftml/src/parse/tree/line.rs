@@ -19,6 +19,8 @@
  */
 
 use crate::enums::{Alignment, ListStyle};
+use std::borrow::Cow;
+use std::collections::HashMap;
 use super::prelude::*;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -80,6 +82,7 @@ pub enum Line<'a> {
     },
     Module {
         name: &'a str,
+        arguments: HashMap<&'a str, Cow<'a, str>>,
         contents: Option<Vec<Line<'a>>>,
     },
     Note {
@@ -109,6 +112,37 @@ impl<'a> Line<'a> {
         match first_pair.as_rule() {
             Rule::horizontal_line => Line::HorizontalLine,
             Rule::footnote_block => Line::FootnoteBlock,
+            Rule::module => {
+                let mut name = "";
+                let mut arguments = HashMap::new();
+                let mut contents = Vec::new();
+
+                for pair in pair.into_inner() {
+                    match pair.as_rule() {
+                        Rule::ident => name = pair.as_str(),
+                        Rule::module_arg => {
+                            let key = {
+                                let pair = pair.clone().into_inner().nth(0).unwrap();
+                                pair.as_str()
+                            };
+
+                            let value = {
+                                let pair = pair.clone().into_inner().nth(1).unwrap();
+                                interp_str(pair.as_str()).expect("Invalid string value")
+                            };
+
+                            arguments.insert(key, value);
+                        },
+                        Rule::line => contents.push(Line::from_pair(pair)),
+                        _ => panic!("Invalid rule for module: {:?}", pair.as_rule()),
+                    }
+                }
+
+                let contents = if contents.is_empty() { None } else { Some(contents) };
+                debug_assert_ne!(name, "", "Module name never set");
+
+                Line::Module { name, arguments, contents }
+            },
             Rule::note => {
                 let mut contents = Vec::new();
 

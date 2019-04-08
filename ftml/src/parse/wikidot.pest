@@ -25,6 +25,7 @@ newlines = { "\n"+ | EOI }
 line = {
     footnote_block |
     horizontal_line |
+    module |
     note |
     word+
 }
@@ -34,6 +35,11 @@ footnote_block = { "[[" ~ space? ~ ^"footnoteblock" ~ space? ~ "]]" }
 horizontal_line = { "-"{4,} }
 
 // Block lines
+module = {
+    "[[" ~ space? ~ ^"module" ~ space ~ ident ~ module_arg* ~ space? ~ "]]" ~
+    (line* ~ "[[/" ~ space? ~ ^"module" ~ space? ~ "]]")?
+}
+module_arg = { space ~ ident ~ space? ~ "=" ~ space? ~ string }
 note = {
     "[[" ~ space? ~ ^"note" ~ space? ~ "]]" ~
     line* ~
