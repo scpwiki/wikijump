@@ -92,6 +92,8 @@ pub struct SyntaxTree<'a> {
 
 impl<'a> SyntaxTree<'a> {
     pub fn from_paragraph_pairs(pairs: Pairs<'a, Rule>) -> Self {
+        trace!("Converting pairs into a SyntaxTree...");
+
         let paragraphs = pairs.into_iter().map(|pair| Paragraph::from_pair(pair)).collect();
 
         SyntaxTree { paragraphs }
@@ -179,7 +181,9 @@ pub enum Paragraph<'a> {
 
 impl<'a> Paragraph<'a> {
     fn from_pair(pair: Pair<'a, Rule>) -> Self {
+        trace!("Converting pair into Paragraph...");
         debug_assert_eq!(pair.as_rule(), Rule::paragraph);
+
         let inner = pair.into_inner().next().unwrap();
 
         match inner.as_rule() {
@@ -281,7 +285,9 @@ pub enum Word<'a> {
 
 impl<'a> Word<'a> {
     fn from_pair(pair: Pair<'a, Rule>) -> Self {
+        trace!("Converting pair into Word...");
         debug_assert_eq!(pair.as_rule(), Rule::word);
+
         let inner = pair.into_inner().next().unwrap();
 
         macro_rules! as_str {
@@ -359,12 +365,7 @@ impl<'a> Word<'a> {
                         "size" => size = Some(value),
                         _ => {
                             // For now, ignore unknown arguments
-                            // TODO change to log call
-                            let _ = format!(
-                                "Unknown argument in [[image]]: {} = {}",
-                                argument,
-                                value,
-                            );
+                            warn!("Ignoring unknown argument in [[image]]: {} = {}", argument, value);
                         },
                     }
                 }

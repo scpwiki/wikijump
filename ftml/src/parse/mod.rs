@@ -43,7 +43,7 @@ pub fn parse<'a>(text: &'a str) -> Result<SyntaxTree<'a>> {
         page.next().unwrap().into_inner()
     };
 
-    println!("{:#?}", &page);
+    println!("{:#?}", &page); // TODO remove this
     let tree = SyntaxTree::from_paragraph_pairs(page);
     Ok(tree)
 }

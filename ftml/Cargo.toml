@@ -15,6 +15,7 @@ path = "src/main.rs"
 [dependencies]
 clap = "2" # bin-only
 lazy_static = "1"
+log = "0.4"
 pest = "2.1"
 pest_derive = "2.1"
 regex = "1"
