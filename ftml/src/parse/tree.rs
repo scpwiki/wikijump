@@ -34,11 +34,7 @@ lazy_static! {
             .unwrap()
     };
 
-    static ref ARGUMENTS: Regex = {
-        RegexBuilder::new(r#"\s*(?P<argument>\w+)\s*=\s*(?P<value>"(?:[^\\"]|\\[\\"rnt0'])*")"#)
-            .build()
-            .unwrap()
-    };
+    static ref ARGUMENT_NAME: Regex = Regex::new(r"(?P<name>\w+)=").unwrap();
 
     static ref DATE: Regex = {
         RegexBuilder::new(
@@ -58,13 +54,6 @@ lazy_static! {
 
     static ref FILENAME: Regex = {
         RegexBuilder::new(r"\[\[\s*file\s+(.+)\s*\]\]")
-            .case_insensitive(true)
-            .build()
-            .unwrap()
-    };
-
-    static ref IMAGE: Regex = {
-        RegexBuilder::new(r"\[\[\s*image\s+(?P<filename>[^ ]+)\s+(?P<arguments>.+)\s*\]\]")
             .case_insensitive(true)
             .build()
             .unwrap()
@@ -190,13 +179,13 @@ impl<'a> Paragraph<'a> {
         trace!("Converting pair into Paragraph...");
         debug_assert_eq!(pair.as_rule(), Rule::paragraph);
 
-        let inner = pair.into_inner().next().unwrap();
+        let pair = pair.into_inner().next().unwrap();
 
-        match inner.as_rule() {
+        match pair.as_rule() {
             Rule::word => Paragraph::Text {
-                contents: Word::from_pair(inner),
+                contents: Word::from_pair(pair),
             },
-            _ => panic!("Invalid paragraph case"),
+            _ => panic!("Invalid rule for paragraph: {:?}", pair.as_rule()),
         }
     }
 }
@@ -296,10 +285,10 @@ impl<'a> Word<'a> {
         trace!("Converting pair into Word...");
         debug_assert_eq!(pair.as_rule(), Rule::word);
 
-        let inner = pair.into_inner().next().unwrap();
+        let pair = pair.into_inner().next().unwrap();
 
         macro_rules! as_str {
-            () => ( inner.as_str() )
+            () => ( pair.as_str() )
         }
 
         macro_rules! extract {
@@ -307,14 +296,14 @@ impl<'a> Word<'a> {
         }
 
         macro_rules! make_paragraphs {
-            () => ( inner.into_inner().map(Paragraph::from_pair).collect() )
+            () => ( pair.into_inner().map(Paragraph::from_pair).collect() )
         }
 
         macro_rules! make_words {
-            () => ( inner.into_inner().map(Word::from_pair).collect() )
+            () => ( pair.into_inner().map(Word::from_pair).collect() )
         }
 
-        match inner.as_rule() {
+        match pair.as_rule() {
             Rule::text => Word::Text {
                 contents: as_str!(),
             },
@@ -366,6 +355,8 @@ impl<'a> Word<'a> {
                 contents: make_paragraphs!(),
             },
             Rule::image => {
+                unimplemented!()
+                /*
                 let capture = IMAGE.captures(as_str!()).unwrap();
 
                 let filename = capture!(capture, "filename");
@@ -420,8 +411,43 @@ impl<'a> Word<'a> {
                     class,
                     size,
                 }
+                */
             }
-            Rule::span => unimplemented!(),
+            Rule::span => {
+                let mut id = None;
+                let mut class = None;
+                let mut style = None;
+                let mut contents = Vec::new();
+
+                for pair in pair.into_inner() {
+                    match pair.as_rule() {
+                        Rule::span_arg => {
+                            let capture = ARGUMENT_NAME.captures(pair.as_str()).unwrap();
+                            let name = capture!(capture, "name");
+                            let value_pair = pair.into_inner().next().unwrap();
+
+                            debug_assert_eq!(value_pair.as_rule(), Rule::string);
+
+                            let value = value_pair.as_str();
+                            match name {
+                                "id" => id = Some(value),
+                                "class" => class = Some(value),
+                                "style" => style = Some(value),
+                                _ => panic!("Unknown argument for [[span]]: {}", name),
+                            }
+                        },
+                        Rule::word => contents.push(Word::from_pair(pair)),
+                        _ => panic!("Invalid rule for span: {:?}", pair.as_rule()),
+                    }
+                }
+
+                Word::Span {
+                    id,
+                    class,
+                    style,
+                    contents,
+                }
+            },
             Rule::user => {
                 let capture = USER.captures(as_str!()).unwrap();
 
@@ -430,7 +456,7 @@ impl<'a> Word<'a> {
                     show_picture: capture.name("show-picture").is_some(),
                 }
             }
-            _ => panic!("Invalid word case"),
+            _ => panic!("Invalid rule for word: {:?}", pair.as_rule()),
         }
     }
 }

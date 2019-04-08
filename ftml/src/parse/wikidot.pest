@@ -93,7 +93,7 @@ user = { "[[" ~ "*"? ~ space? ~ ^"user" ~ space ~ ident ~ space? ~ "]]" }
 // Components
 token = { "@@" | "``" | "//" | "--" | "**" | "__" | ",," | "^^" | "{{" | "}}" | "[[" | "]]" }
 hex_digit = @{ '0'..'9' | 'a'..'f' | 'A'..'F' }
-space = @{ (" " | "\t")+ }
+space = _{ (" " | "\t")+ }
 integer = @{ "-"? ~ ASCII_DIGIT+ }
 ident = @{ (ASCII_ALPHANUMERIC | "-" | "+" | "_" | "." | "%")+ }
 inner_str = @{ (!("\"" | "\\") ~ ANY)* ~ (escape ~ inner_str)? }
