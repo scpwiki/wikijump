@@ -41,7 +41,9 @@ lazy_static! {
     };
 
     static ref DATE: Regex = {
-        RegexBuilder::new(r#"\[\[\s*date\s+(?P<timestamp>-?[0-9]+)\s+(?:format\s*=\s*"(?P<format>.*)"\s*\]\]"#)
+        RegexBuilder::new(
+            r#"\[\[\s*date\s+(?P<timestamp>-?[0-9]+)\s+(?:format\s*=\s*"(?P<format>.*)"\s*\]\]"#
+        )
             .case_insensitive(true)
             .build()
             .unwrap()
@@ -94,7 +96,10 @@ impl<'a> SyntaxTree<'a> {
     pub fn from_paragraph_pairs(pairs: Pairs<'a, Rule>) -> Self {
         trace!("Converting pairs into a SyntaxTree...");
 
-        let paragraphs = pairs.into_iter().map(|pair| Paragraph::from_pair(pair)).collect();
+        let paragraphs = pairs
+            .into_iter()
+            .map(|pair| Paragraph::from_pair(pair))
+            .collect();
 
         SyntaxTree { paragraphs }
     }
@@ -187,7 +192,9 @@ impl<'a> Paragraph<'a> {
         let inner = pair.into_inner().next().unwrap();
 
         match inner.as_rule() {
-            Rule::word => Paragraph::Text { contents: Word::from_pair(inner) },
+            Rule::word => Paragraph::Text {
+                contents: Word::from_pair(inner),
+            },
             _ => panic!("Invalid paragraph case"),
         }
     }
@@ -307,17 +314,39 @@ impl<'a> Word<'a> {
         }
 
         match inner.as_rule() {
-            Rule::text => Word::Text { contents: as_str!() },
-            Rule::raw | Rule::legacy_raw => Word::Raw { contents: extract!(RAW) },
-            Rule::email => Word::Email { contents: as_str!() },
-            Rule::italics => Word::Italics { contents: make_words!() },
-            Rule::strikethrough => Word::Strikethrough { contents: make_words!() },
-            Rule::bold => Word::Bold { contents: make_words!() },
-            Rule::underline => Word::Underline { contents: make_words!() },
-            Rule::subscript => Word::Subscript { contents: make_words!() },
-            Rule::superscript => Word::Superscript { contents: make_words!() },
-            Rule::monospace => Word::Monospace { contents: make_words!() },
-            Rule::anchor => Word::Anchor { name: extract!(ANCHOR) },
+            Rule::text => Word::Text {
+                contents: as_str!(),
+            },
+            Rule::raw | Rule::legacy_raw => Word::Raw {
+                contents: extract!(RAW),
+            },
+            Rule::email => Word::Email {
+                contents: as_str!(),
+            },
+            Rule::italics => Word::Italics {
+                contents: make_words!(),
+            },
+            Rule::strikethrough => Word::Strikethrough {
+                contents: make_words!(),
+            },
+            Rule::bold => Word::Bold {
+                contents: make_words!(),
+            },
+            Rule::underline => Word::Underline {
+                contents: make_words!(),
+            },
+            Rule::subscript => Word::Subscript {
+                contents: make_words!(),
+            },
+            Rule::superscript => Word::Superscript {
+                contents: make_words!(),
+            },
+            Rule::monospace => Word::Monospace {
+                contents: make_words!(),
+            },
+            Rule::anchor => Word::Anchor {
+                name: extract!(ANCHOR),
+            },
             Rule::date => {
                 let capture = DATE.captures(as_str!()).unwrap();
 
@@ -325,10 +354,16 @@ impl<'a> Word<'a> {
                     timestamp: capture["timestamp"].parse().unwrap(),
                     format: capture.name("format").map(|mtch| mtch.as_str()),
                 }
+            }
+            Rule::equation_ref => Word::EquationReference {
+                name: extract!(EQUATION_REF),
             },
-            Rule::equation_ref => Word::EquationReference { name: extract!(EQUATION_REF) },
-            Rule::file_ref => Word::File { filename: extract!(FILENAME) },
-            Rule::footnote => Word::Footnote { contents: make_paragraphs!() },
+            Rule::file_ref => Word::File {
+                filename: extract!(FILENAME),
+            },
+            Rule::footnote => Word::Footnote {
+                contents: make_paragraphs!(),
+            },
             Rule::image => {
                 let capture = IMAGE.captures(as_str!()).unwrap();
 
@@ -355,7 +390,7 @@ impl<'a> Word<'a> {
                             } else {
                                 link = Some((value, false));
                             }
-                        },
+                        }
                         "alt" => alt = Some(value),
                         "title" => title = Some(value),
                         "width" => width = Some(value),
@@ -365,13 +400,26 @@ impl<'a> Word<'a> {
                         "size" => size = Some(value),
                         _ => {
                             // For now, ignore unknown arguments
-                            warn!("Ignoring unknown argument in [[image]]: {} = {}", argument, value);
-                        },
+                            warn!(
+                                "Ignoring unknown argument in [[image]]: {} = {}",
+                                argument, value
+                            );
+                        }
                     }
                 }
 
-                Word::Image { filename, link, alt, title, width, height, style, class, size }
-            },
+                Word::Image {
+                    filename,
+                    link,
+                    alt,
+                    title,
+                    width,
+                    height,
+                    style,
+                    class,
+                    size,
+                }
+            }
             Rule::span => unimplemented!(),
             Rule::user => {
                 let capture = USER.captures(as_str!()).unwrap();
@@ -380,7 +428,7 @@ impl<'a> Word<'a> {
                     username: capture!(capture, "username"),
                     show_picture: capture.name("show-picture").is_some(),
                 }
-            },
+            }
             _ => panic!("Invalid word case"),
         }
     }
