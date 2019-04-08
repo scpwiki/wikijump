@@ -23,6 +23,7 @@ newlines = { "\n"+ | EOI }
 
 // TODO finish line declaration
 line = {
+    clear_float |
     footnote_block |
     horizontal_line |
     module |
@@ -31,6 +32,7 @@ line = {
 }
 
 // Misc lines
+clear_float = { "~"{4,} ~ direction? }
 footnote_block = { "[[" ~ space? ~ ^"footnoteblock" ~ space? ~ "]]" }
 horizontal_line = { "-"{4,} }
 
@@ -112,7 +114,19 @@ span_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ str
 user = { "[[" ~ "*"? ~ space? ~ ^"user" ~ space ~ ident ~ space? ~ "]]" }
 
 // Components
-token = @{ "@@" | "``" | "//" | "--" | "**" | "__" | ",," | "^^" | "{{" | "}}" | "[[" | "]]" }
+token = @{
+    "@@" |
+    "``" |
+    "//" |
+    "--" |
+    "**" |
+    "__" |
+    ",," |
+    "^^" |
+    "{{" | "}}" |
+    "[[" | "]]" |
+    "-"{4,} | "~"{4,}
+}
 hex_digit = @{ '0'..'9' | 'a'..'f' | 'A'..'F' }
 space = _{ (" " | "\t")+ }
 integer = @{ "-"? ~ ASCII_DIGIT+ }
@@ -121,4 +135,5 @@ inner_str = @{ (!("\"" | "\\") ~ ANY)* ~ (escape ~ inner_str)? }
 inner_chr = @{ escape | ANY }
 string = @{ "\"" ~ inner_str ~ "\"" }
 escape = @{ "\\" ~ ("\"" | "\\" | "r" | "n" | "t" | "0" | "'") }
+direction = { "<" | ">" | "=" | "==" }
 COMMENT = _{ "[!--" ~ (!"--]" ~ ANY)* ~ "--]" }

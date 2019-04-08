@@ -110,6 +110,10 @@ impl<'a> Line<'a> {
 
         let first_pair = pair.clone().into_inner().next().unwrap();
         match first_pair.as_rule() {
+            Rule::clear_float => {
+                println!("{:?}", &pair);
+                panic!()
+            },
             Rule::horizontal_line => Line::HorizontalLine,
             Rule::footnote_block => Line::FootnoteBlock,
             Rule::module => {
