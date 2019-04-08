@@ -1,5 +1,5 @@
 /*
- * parse/tree.rs
+ * parse/tree/word.rs
  *
  * wikidot-html - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -18,13 +18,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// FIXME to prevent compile spam
-#![allow(dead_code)]
+use super::prelude::*;
 
-use crate::enums::{Alignment, ListStyle};
-use pest::iterators::{Pair, Pairs};
-use regex::{Regex, RegexBuilder};
-use super::Rule;
+macro_rules! capture {
+    ($capture:expr, $name:expr) => ( $capture.name($name).unwrap().as_str() )
+}
 
 lazy_static! {
     static ref ANCHOR: Regex = {
@@ -70,124 +68,6 @@ lazy_static! {
             .build()
             .unwrap()
     };
-}
-
-macro_rules! capture {
-    ($capture:expr, $name:expr) => ( $capture.name($name).unwrap().as_str() )
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct SyntaxTree<'a> {
-    paragraphs: Vec<Paragraph<'a>>,
-}
-
-impl<'a> SyntaxTree<'a> {
-    pub fn from_paragraph_pairs(pairs: Pairs<'a, Rule>) -> Self {
-        trace!("Converting pairs into a SyntaxTree...");
-
-        let paragraphs = pairs
-            .into_iter()
-            .filter(|pair| pair.as_rule() == Rule::paragraph)
-            .map(|pair| Paragraph::from_pair(pair))
-            .collect();
-
-        SyntaxTree { paragraphs }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Paragraph<'a> {
-    Align {
-        alignment: Alignment,
-    },
-    Button {
-        /*
-         https://www.wikidot.com/doc-wiki-syntax:buttons
-         btype: ButtonType,
-         style: String,
-         */
-    },
-    Center {
-        contents: Vec<Word<'a>>,
-    },
-    ClearFloat {
-        direction: Option<Alignment>,
-    },
-    CodeBlock {
-        language: Option<&'a str>,
-        contents: Vec<Paragraph<'a>>,
-    },
-    Div {
-        class: Option<&'a str>,
-        style: Option<&'a str>,
-    },
-    FootnoteBlock,
-    Form {
-        contents: &'a str, // actually YAML...
-    },
-    Gallery,
-    Heading {
-        contents: Vec<Word<'a>>,
-    },
-    HorizontalLine,
-    Html {
-        contents: &'a str,
-    },
-    Iframe {
-        url: &'a str,
-        args: Option<&'a str>,
-    },
-    IfTags {
-        required: Vec<&'a str>,
-        prohibited: Vec<&'a str>,
-        contents: Vec<Paragraph<'a>>,
-    },
-    List {
-        style: ListStyle,
-        items: Vec<Word<'a>>,
-    },
-    Math {
-        label: Option<&'a str>,
-        id: Option<&'a str>,
-        latex_env: Option<&'a str>,
-        expr: &'a str,
-    },
-    Module {
-        name: &'a str,
-        contents: Option<Vec<Paragraph<'a>>>,
-    },
-    Note {
-        contents: Vec<Paragraph<'a>>,
-    },
-    Table {
-        rows: Vec<TableRow<'a>>,
-    },
-    TabView {
-        class: Option<&'a str>,
-        tabs: Vec<Paragraph<'a>>,
-    },
-    TableOfContents {
-        // TODO: http://community.wikidot.com/help:toc
-    },
-    Text {
-        contents: Word<'a>,
-    },
-}
-
-impl<'a> Paragraph<'a> {
-    fn from_pair(pair: Pair<'a, Rule>) -> Self {
-        trace!("Converting pair into Paragraph...");
-        debug_assert_eq!(pair.as_rule(), Rule::paragraph);
-
-        let pair = pair.into_inner().next().unwrap();
-
-        match pair.as_rule() {
-            Rule::word => Paragraph::Text {
-                contents: Word::from_pair(pair),
-            },
-            _ => panic!("Invalid rule for paragraph: {:?}", pair.as_rule()),
-        }
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -281,7 +161,7 @@ pub enum Word<'a> {
 }
 
 impl<'a> Word<'a> {
-    fn from_pair(pair: Pair<'a, Rule>) -> Self {
+    pub fn from_pair(pair: Pair<'a, Rule>) -> Self {
         trace!("Converting pair into Word...");
         debug_assert_eq!(pair.as_rule(), Rule::word);
 
@@ -459,10 +339,4 @@ impl<'a> Word<'a> {
             _ => panic!("Invalid rule for word: {:?}", pair.as_rule()),
         }
     }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct TableRow<'a> {
-    columns: Vec<Word<'a>>,
-    title: bool,
 }
