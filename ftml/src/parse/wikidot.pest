@@ -22,8 +22,12 @@
 page = { SOI ~ paragraph* ~ EOI }
 
 paragraph = {
-    word+
+    word+ |
+    horiz
 }
+
+// Misc paragraphs
+horiz = { "-"{4,} }
 
 // Word definition
 word = {
