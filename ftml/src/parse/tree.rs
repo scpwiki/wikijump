@@ -98,6 +98,7 @@ impl<'a> SyntaxTree<'a> {
 
         let paragraphs = pairs
             .into_iter()
+            .filter(|pair| pair.as_rule() == Rule::paragraph)
             .map(|pair| Paragraph::from_pair(pair))
             .collect();
 
