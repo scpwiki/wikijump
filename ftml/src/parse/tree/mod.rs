@@ -21,38 +21,38 @@
 // FIXME to prevent compile spam
 #![allow(dead_code)]
 
+mod line;
 mod misc;
-mod paragraph;
 mod word;
 
 mod prelude {
     pub use pest::iterators::{Pair, Pairs};
     pub use regex::{Regex, RegexBuilder};
-    pub use super::{Paragraph, TableRow, Word};
+    pub use super::{Line, TableRow, Word};
     pub use super::super::Rule;
 }
 
+pub use self::line::Line;
 pub use self::misc::TableRow;
-pub use self::paragraph::Paragraph;
 pub use self::word::Word;
 
 use self::prelude::*;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SyntaxTree<'a> {
-    paragraphs: Vec<Paragraph<'a>>,
+    lines: Vec<Line<'a>>,
 }
 
 impl<'a> SyntaxTree<'a> {
-    pub fn from_paragraph_pairs(pairs: Pairs<'a, Rule>) -> Self {
+    pub fn from_line_pairs(pairs: Pairs<'a, Rule>) -> Self {
         trace!("Converting pairs into a SyntaxTree...");
 
-        let paragraphs = pairs
+        let lines = pairs
             .into_iter()
-            .filter(|pair| pair.as_rule() == Rule::paragraph)
-            .map(|pair| Paragraph::from_pair(pair))
+            .filter(|pair| pair.as_rule() == Rule::line)
+            .map(|pair| Line::from_pair(pair))
             .collect();
 
-        SyntaxTree { paragraphs }
+        SyntaxTree { lines }
     }
 }

@@ -25,7 +25,7 @@ mod tree;
 #[cfg(test)]
 mod test;
 
-pub use self::tree::{Paragraph, SyntaxTree, Word};
+pub use self::tree::{Line, SyntaxTree, Word};
 
 use crate::Result;
 use pest::Parser;
@@ -51,6 +51,6 @@ pub fn parse<'a>(text: &'a str) -> Result<SyntaxTree<'a>> {
     };
 
     println!("{:#?}", &page); // TODO remove this
-    let tree = SyntaxTree::from_paragraph_pairs(page);
+    let tree = SyntaxTree::from_line_pairs(page);
     Ok(tree)
 }

@@ -1,5 +1,5 @@
 /*
- * parse/tree/paragraph.rs
+ * parse/tree/line.rs
  *
  * wikidot-html - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -22,7 +22,7 @@ use crate::enums::{Alignment, ListStyle};
 use super::prelude::*;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Paragraph<'a> {
+pub enum Line<'a> {
     Align {
         alignment: Alignment,
     },
@@ -41,7 +41,7 @@ pub enum Paragraph<'a> {
     },
     CodeBlock {
         language: Option<&'a str>,
-        contents: Vec<Paragraph<'a>>,
+        contents: Vec<Line<'a>>,
     },
     Div {
         class: Option<&'a str>,
@@ -66,7 +66,7 @@ pub enum Paragraph<'a> {
     IfTags {
         required: Vec<&'a str>,
         prohibited: Vec<&'a str>,
-        contents: Vec<Paragraph<'a>>,
+        contents: Vec<Line<'a>>,
     },
     List {
         style: ListStyle,
@@ -80,17 +80,17 @@ pub enum Paragraph<'a> {
     },
     Module {
         name: &'a str,
-        contents: Option<Vec<Paragraph<'a>>>,
+        contents: Option<Vec<Line<'a>>>,
     },
     Note {
-        contents: Vec<Paragraph<'a>>,
+        contents: Vec<Line<'a>>,
     },
     Table {
         rows: Vec<TableRow<'a>>,
     },
     TabView {
         class: Option<&'a str>,
-        tabs: Vec<Paragraph<'a>>,
+        tabs: Vec<Line<'a>>,
     },
     TableOfContents {
         // TODO: http://community.wikidot.com/help:toc
@@ -100,14 +100,14 @@ pub enum Paragraph<'a> {
     },
 }
 
-impl<'a> Paragraph<'a> {
+impl<'a> Line<'a> {
     pub fn from_pair(pair: Pair<'a, Rule>) -> Self {
-        trace!("Converting pair into Paragraph...");
-        debug_assert_eq!(pair.as_rule(), Rule::paragraph);
+        trace!("Converting pair into Line...");
+        debug_assert_eq!(pair.as_rule(), Rule::line);
 
         let first_pair = pair.clone().into_inner().next().unwrap();
         match first_pair.as_rule() {
-            Rule::horiz => Paragraph::HorizontalLine,
+            Rule::horiz => Line::HorizontalLine,
             Rule::word => {
                 let mut contents = Vec::new();
 
@@ -115,11 +115,11 @@ impl<'a> Paragraph<'a> {
                     contents.push(Word::from_pair(pair));
                 }
 
-                Paragraph::Text { contents }
+                Line::Text { contents }
             },
 
             _ => unimplemented!(),
-            //_ => panic!("Invalid rule for paragraph: {:?}", pair.as_rule()),
+            //_ => panic!("Invalid rule for line: {:?}", pair.as_rule()),
         }
     }
 }

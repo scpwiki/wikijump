@@ -18,17 +18,17 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 //
 
-// TODO Paragraph definition
-page = { SOI ~ paragraph* ~ EOI }
+page = { SOI ~ line* ~ EOI }
 
-paragraph = {
+// TODO finish line declaration
+line = {
     (
         word+ |
         horiz
     ) ~ ( "\n"| EOI )
 }
 
-// Misc paragraphs
+// Misc lines
 horiz = { "-"{4,} }
 
 // Word definition

@@ -95,7 +95,7 @@ pub enum Word<'a> {
         filename: &'a str,
     },
     Footnote {
-        contents: Vec<Paragraph<'a>>,
+        contents: Vec<Line<'a>>,
     },
     Image {
         // See https://www.wikidot.com/doc-wiki-syntax:images
@@ -175,8 +175,8 @@ impl<'a> Word<'a> {
             ($regex:expr) => ( $regex.captures(as_str!()).unwrap().get(0).unwrap().as_str() )
         }
 
-        macro_rules! make_paragraphs {
-            () => ( pair.into_inner().map(Paragraph::from_pair).collect() )
+        macro_rules! make_lines {
+            () => ( pair.into_inner().map(Line::from_pair).collect() )
         }
 
         macro_rules! make_words {
@@ -232,7 +232,7 @@ impl<'a> Word<'a> {
                 filename: extract!(FILENAME),
             },
             Rule::footnote => Word::Footnote {
-                contents: make_paragraphs!(),
+                contents: make_lines!(),
             },
             Rule::image => {
                 let mut filename = "";
