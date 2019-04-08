@@ -95,7 +95,7 @@ span_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ str
 user = { "[[" ~ "*"? ~ space? ~ ^"user" ~ space ~ ident ~ space? ~ "]]" }
 
 // Components
-token = { "@@" | "``" | "//" | "--" | "**" | "__" | ",," | "^^" | "{{" | "}}" | "[[" | "]]" }
+token = @{ "@@" | "``" | "//" | "--" | "**" | "__" | ",," | "^^" | "{{" | "}}" | "[[" | "]]" }
 hex_digit = @{ '0'..'9' | 'a'..'f' | 'A'..'F' }
 space = _{ (" " | "\t")+ }
 integer = @{ "-"? ~ ASCII_DIGIT+ }
