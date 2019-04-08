@@ -96,7 +96,7 @@ pub enum Paragraph<'a> {
         // TODO: http://community.wikidot.com/help:toc
     },
     Text {
-        contents: Word<'a>,
+        contents: Vec<Word<'a>>,
     },
 }
 
@@ -105,13 +105,19 @@ impl<'a> Paragraph<'a> {
         trace!("Converting pair into Paragraph...");
         debug_assert_eq!(pair.as_rule(), Rule::paragraph);
 
-        let pair = pair.into_inner().next().unwrap();
+        let mut contents = Vec::new();
 
-        match pair.as_rule() {
-            Rule::word => Paragraph::Text {
-                contents: Word::from_pair(pair),
-            },
-            _ => panic!("Invalid rule for paragraph: {:?}", pair.as_rule()),
+        for pair in pair.into_inner() {
+            println!("---\n{:#?}", &pair); // XXX
+
+            match pair.as_rule() {
+                Rule::word => contents.push(Word::from_pair(pair)),
+
+                _ => unimplemented!(),
+                //_ => panic!("Invalid rule for paragraph: {:?}", pair.as_rule()),
+            }
         }
+
+        Paragraph::Text { contents }
     }
 }

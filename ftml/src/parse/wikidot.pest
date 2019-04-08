@@ -22,7 +22,7 @@
 page = { SOI ~ paragraph* ~ EOI }
 
 paragraph = {
-    word
+    word+
 }
 
 // Word definition
