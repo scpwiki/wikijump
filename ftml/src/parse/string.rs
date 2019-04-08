@@ -25,7 +25,7 @@ use std::borrow::Cow;
 #[grammar = "parse/string.pest"]
 pub struct StringParser;
 
-pub fn parse<'a>(text: &'a str) -> Option<Cow<'a, str>> {
+pub fn interp_str<'a>(text: &'a str) -> Option<Cow<'a, str>> {
     let pairs = match StringParser::parse(Rule::string, text) {
         Ok(mut pairs) => pairs.next().unwrap().into_inner(),
         Err(_) => return None,
@@ -66,15 +66,15 @@ pub fn parse<'a>(text: &'a str) -> Option<Cow<'a, str>> {
 
 #[test]
 fn test_string_parse() {
-    let string = parse(r#""hello,\nworld!\t""#);
+    let string = interp_str(r#""hello,\nworld!\t""#);
     assert_eq!(string.is_some(), true);
     assert_eq!(string.unwrap().as_ref(), "hello,\nworld!\t");
 
-    let string = parse(r#""\nA\tTHOUSAND\0WINDS\rCRY\nFOR \'\'\'VICTORS\'\'\'\n""#);
+    let string = interp_str(r#""\nA\tTHOUSAND\0WINDS\rCRY\nFOR \'\'\'VICTORS\'\'\'\n""#);
     assert_eq!(string.is_some(), true);
     assert_eq!(string.unwrap().as_ref(), "\nA\tTHOUSAND\0WINDS\rCRY\nFOR '''VICTORS'''\n");
 
-    let string = parse(r#""""#);
+    let string = interp_str(r#""""#);
     assert_eq!(string.is_some(), true);
     assert_eq!(string.unwrap().as_ref(), "");
 }

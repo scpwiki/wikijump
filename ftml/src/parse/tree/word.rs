@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use std::borrow::Cow;
 use super::prelude::*;
 
 macro_rules! capture {
@@ -102,7 +103,7 @@ pub enum Word<'a> {
         filename: &'a str,
         link: Option<(&'a str, bool)>,
         alt: Option<&'a str>,
-        title: Option<&'a str>,
+        title: Option<Cow<'a, str>>,
         width: Option<&'a str>,
         height: Option<&'a str>,
         style: Option<&'a str>,
@@ -266,7 +267,7 @@ impl<'a> Word<'a> {
                                     }
                                 }
                                 "alt" => alt = Some(value),
-                                "title" => title = Some(value),
+                                "title" => title = interp_str(value),
                                 "width" => width = Some(value),
                                 "height" => height = Some(value),
                                 "style" => style = Some(value),

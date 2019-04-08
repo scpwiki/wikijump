@@ -30,6 +30,7 @@ mod prelude {
     pub use regex::{Regex, RegexBuilder};
     pub use super::{Line, TableRow, Word};
     pub use super::super::Rule;
+    pub use super::super::string::interp_str;
 }
 
 pub use self::line::Line;
