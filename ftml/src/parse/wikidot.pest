@@ -49,8 +49,8 @@ word = {
 }
 
 // Misc words
-text = { (!token ~ ANY)+ | token ~ text }
-raw = { ("@@" ~ (!"@@" ~ ANY)+ ~ "@@") | "@@@@@@" }
+text = { (!token ~ ANY)+ }
+raw = { ("@@" ~ (!"@@" ~ ANY)* ~ "@@") | "@@@@@@" }
 legacy_raw = { ("``" ~ (!"``" ~ ANY)+ ~ "``") | "``````" }
 email = { ident ~ "@" ~ ident }
 

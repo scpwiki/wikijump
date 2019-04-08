@@ -23,7 +23,67 @@
 
 use crate::enums::{Alignment, ListStyle};
 use pest::iterators::{Pair, Pairs};
+use regex::{Regex, RegexBuilder};
 use super::Rule;
+
+lazy_static! {
+    static ref ANCHOR: Regex = {
+        RegexBuilder::new(r"\[\[#\s*([a-z0-9\-+_.%]+)\s*\]\]")
+            .case_insensitive(true)
+            .build()
+            .unwrap()
+    };
+
+    static ref ARGUMENTS: Regex = {
+        RegexBuilder::new(r#"\s*(?P<argument>\w+)\s*=\s*(?P<value>"(?:[^\\"]|\\[\\"rnt0'])*")"#)
+            .build()
+            .unwrap()
+    };
+
+    static ref DATE: Regex = {
+        RegexBuilder::new(r#"\[\[\s*date\s+(?P<timestamp>-?[0-9]+)\s+(?:format\s*=\s*"(?P<format>.*)"\s*\]\]"#)
+            .case_insensitive(true)
+            .build()
+            .unwrap()
+    };
+
+    static ref EQUATION_REF: Regex = {
+        RegexBuilder::new(r"\[\[\s*eref\s+([a-z0-9\-+)\s*\]\]")
+            .case_insensitive(true)
+            .build()
+            .unwrap()
+    };
+
+    static ref FILENAME: Regex = {
+        RegexBuilder::new(r"\[\[\s*file\s+(.+)\s*\]\]")
+            .case_insensitive(true)
+            .build()
+            .unwrap()
+    };
+
+    static ref IMAGE: Regex = {
+        RegexBuilder::new(r"\[\[\s*image\s+(?P<filename>[^ ]+)\s+(?P<arguments>.+)\s*\]\]")
+            .case_insensitive(true)
+            .build()
+            .unwrap()
+    };
+
+    static ref RAW: Regex = {
+        RegexBuilder::new(r"[@`]{2}(.+)[@`]{2}")
+            .build()
+            .unwrap()
+    };
+
+    static ref USER: Regex = {
+        RegexBuilder::new(r"\[\[(?P<show-picture>\*)?\s*(?P<username>[^ ]+)\s*\]\]")
+            .build()
+            .unwrap()
+    };
+}
+
+macro_rules! capture {
+    ($capture:expr, $name:expr) => ( $capture.name($name).unwrap().as_str() )
+}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SyntaxTree<'a> {
@@ -51,14 +111,14 @@ pub enum Paragraph<'a> {
          */
     },
     Center {
-        contents: Box<Word<'a>>,
+        contents: Vec<Word<'a>>,
     },
     ClearFloat {
         direction: Option<Alignment>,
     },
     CodeBlock {
         language: Option<&'a str>,
-        contents: Box<Paragraph<'a>>,
+        contents: Vec<Paragraph<'a>>,
     },
     Div {
         class: Option<&'a str>,
@@ -70,7 +130,7 @@ pub enum Paragraph<'a> {
     },
     Gallery,
     Heading {
-        contents: Box<Word<'a>>,
+        contents: Vec<Word<'a>>,
     },
     HorizontalLine,
     Html {
@@ -83,7 +143,7 @@ pub enum Paragraph<'a> {
     IfTags {
         required: Vec<&'a str>,
         prohibited: Vec<&'a str>,
-        contents: Box<Paragraph<'a>>,
+        contents: Vec<Paragraph<'a>>,
     },
     List {
         style: ListStyle,
@@ -97,10 +157,10 @@ pub enum Paragraph<'a> {
     },
     Module {
         name: &'a str,
-        contents: Option<Box<Paragraph<'a>>>,
+        contents: Option<Vec<Paragraph<'a>>>,
     },
     Note {
-        contents: Box<Paragraph<'a>>,
+        contents: Vec<Paragraph<'a>>,
     },
     Table {
         rows: Vec<TableRow<'a>>,
@@ -118,12 +178,12 @@ pub enum Paragraph<'a> {
 }
 
 impl<'a> Paragraph<'a> {
-    fn from_pair(pair: Pair<Rule>) -> Self {
+    fn from_pair(pair: Pair<'a, Rule>) -> Self {
         debug_assert_eq!(pair.as_rule(), Rule::paragraph);
         let inner = pair.into_inner().next().unwrap();
 
         match inner.as_rule() {
-            Rule::word => Paragraph::Text { contents: Word::from_pair(pair.into_inner()) },
+            Rule::word => Paragraph::Text { contents: Word::from_pair(inner) },
             _ => panic!("Invalid paragraph case"),
         }
     }
@@ -135,7 +195,7 @@ pub enum Word<'a> {
         name: &'a str,
     },
     Bold {
-        contents: Box<Word<'a>>,
+        contents: Vec<Word<'a>>,
     },
     Color {
         color: &'a str,
@@ -154,7 +214,7 @@ pub enum Word<'a> {
         filename: &'a str,
     },
     Footnote {
-        contents: Box<Paragraph<'a>>,
+        contents: Vec<Paragraph<'a>>,
     },
     Image {
         // See https://www.wikidot.com/doc-wiki-syntax:images
@@ -169,7 +229,7 @@ pub enum Word<'a> {
         size: Option<&'a str>,
     },
     Italics {
-        contents: Box<Word<'a>>,
+        contents: Vec<Word<'a>>,
     },
     Link {
         page: &'a str,
@@ -180,35 +240,35 @@ pub enum Word<'a> {
         expr: &'a str,
     },
     Monospace {
-        contents: Box<Word<'a>>,
+        contents: Vec<Word<'a>>,
     },
     Raw {
         contents: &'a str,
     },
     Size {
         size: &'a str,
-        contents: Box<Word<'a>>,
+        contents: Vec<Word<'a>>,
     },
     Span {
         id: Option<&'a str>,
         class: Option<&'a str>,
         style: Option<&'a str>,
-        contents: Box<Word<'a>>,
+        contents: Vec<Word<'a>>,
     },
     Strikethrough {
-        contents: Box<Word<'a>>,
+        contents: Vec<Word<'a>>,
     },
     Subscript {
-        contents: Box<Word<'a>>,
+        contents: Vec<Word<'a>>,
     },
     Superscript {
-        contents: Box<Word<'a>>,
+        contents: Vec<Word<'a>>,
     },
     Text {
         contents: &'a str,
     },
     Underline {
-        contents: Box<Word<'a>>,
+        contents: Vec<Word<'a>>,
     },
     Url {
         contents: &'a str,
@@ -217,48 +277,109 @@ pub enum Word<'a> {
         username: &'a str,
         show_picture: bool,
     },
-    Words {
-        words: Vec<Word<'a>>,
-    },
 }
 
 impl<'a> Word<'a> {
-    fn from_pair(pair: Pair<Rule>) -> Self {
+    fn from_pair(pair: Pair<'a, Rule>) -> Self {
         debug_assert_eq!(pair.as_rule(), Rule::word);
         let inner = pair.into_inner().next().unwrap();
-
-        macro_rules! make_paragraph {
-            () => ( Box::new(Paragraph::from_pair(inner)) )
-        }
-
-        macro_rules! make_word {
-            () => ( Box::new(Word::from_pair(inner)) )
-        }
 
         macro_rules! as_str {
             () => ( inner.as_str() )
         }
 
-        // TODO check word* inners
+        macro_rules! extract {
+            ($regex:expr) => ( $regex.captures(as_str!()).unwrap().get(0).unwrap().as_str() )
+        }
+
+        macro_rules! make_paragraphs {
+            () => ( inner.into_inner().map(Paragraph::from_pair).collect() )
+        }
+
+        macro_rules! make_words {
+            () => ( inner.into_inner().map(Word::from_pair).collect() )
+        }
+
         match inner.as_rule() {
             Rule::text => Word::Text { contents: as_str!() },
-            Rule::raw | Rule::legacy_raw => Word::Raw { contents: as_str!() }, // TODO extract @@'s
+            Rule::raw | Rule::legacy_raw => Word::Raw { contents: extract!(RAW) },
             Rule::email => Word::Email { contents: as_str!() },
-            Rule::italics => Word::Italics { contents: make_word!() },
-            Rule::strikethrough => Word::Strikethrough { contents: make_word!() },
-            Rule::bold => Word::Bold { contents: make_word!() },
-            Rule::underline => Word::Underline { contents: make_word!() },
-            Rule::subscript => Word::Subscript { contents: make_word!() },
-            Rule::superscript => Word::Superscript { contents: make_word!() },
-            Rule::monospace => Word::Monospace { contents: make_word!() },
-            Rule::anchor => Word::Anchor { name: as_str!() }, // TODO extract
-            Rule::date => Word::Date { timestamp: 0, format: None }, // TODO extract
-            Rule::equation_ref => Word::EquationReference { name: as_str!() }, // TODO extract
-            Rule::file_ref => Word::File { filename: as_str!() }, // TODO extract
-            Rule::footnote => Word::Footnote { contents: make_word!() },
-            Rule::image => unimplemented!(), // TODO lots of work
-            Rule::span => unimplemented!(), // TODO lots of work
-            Rule::user => Word::User { username: as_str!(), show_picture: false }, // TODO extract
+            Rule::italics => Word::Italics { contents: make_words!() },
+            Rule::strikethrough => Word::Strikethrough { contents: make_words!() },
+            Rule::bold => Word::Bold { contents: make_words!() },
+            Rule::underline => Word::Underline { contents: make_words!() },
+            Rule::subscript => Word::Subscript { contents: make_words!() },
+            Rule::superscript => Word::Superscript { contents: make_words!() },
+            Rule::monospace => Word::Monospace { contents: make_words!() },
+            Rule::anchor => Word::Anchor { name: extract!(ANCHOR) },
+            Rule::date => {
+                let capture = DATE.captures(as_str!()).unwrap();
+
+                Word::Date {
+                    timestamp: capture["timestamp"].parse().unwrap(),
+                    format: capture.name("format").map(|mtch| mtch.as_str()),
+                }
+            },
+            Rule::equation_ref => Word::EquationReference { name: extract!(EQUATION_REF) },
+            Rule::file_ref => Word::File { filename: extract!(FILENAME) },
+            Rule::footnote => Word::Footnote { contents: make_paragraphs!() },
+            Rule::image => {
+                let capture = IMAGE.captures(as_str!()).unwrap();
+
+                let filename = capture!(capture, "filename");
+                let arguments = capture!(capture, "arguments");
+
+                let mut link = None;
+                let mut alt = None;
+                let mut title = None;
+                let mut width = None;
+                let mut height = None;
+                let mut style = None;
+                let mut class = None;
+                let mut size = None;
+
+                for capture in ARGUMENTS.captures_iter(arguments) {
+                    let argument = capture!(capture, "argument");
+                    let value = capture!(capture, "value");
+
+                    match argument {
+                        "link" => {
+                            if value.starts_with("*") {
+                                link = Some((&value[1..], true));
+                            } else {
+                                link = Some((value, false));
+                            }
+                        },
+                        "alt" => alt = Some(value),
+                        "title" => title = Some(value),
+                        "width" => width = Some(value),
+                        "height" => height = Some(value),
+                        "style" => style = Some(value),
+                        "class" => class = Some(value),
+                        "size" => size = Some(value),
+                        _ => {
+                            // For now, ignore unknown arguments
+                            // TODO change to log call
+                            let _ = format!(
+                                "Unknown argument in [[image]]: {} = {}",
+                                argument,
+                                value,
+                            );
+                        },
+                    }
+                }
+
+                Word::Image { filename, link, alt, title, width, height, style, class, size }
+            },
+            Rule::span => unimplemented!(),
+            Rule::user => {
+                let capture = USER.captures(as_str!()).unwrap();
+
+                Word::User {
+                    username: capture!(capture, "username"),
+                    show_picture: capture.name("show-picture").is_some(),
+                }
+            },
             _ => panic!("Invalid word case"),
         }
     }

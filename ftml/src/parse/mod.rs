@@ -26,12 +26,12 @@ mod test;
 
 pub use self::tree::{Paragraph, SyntaxTree, Word};
 
-use crate::{Error, Result};
+use crate::Result;
 use pest::Parser;
 use pest::error::Error as PestError;
 
 #[derive(Debug, Clone, Parser)]
-#[grammar = "wikidot.pest"]
+#[grammar = "parse/wikidot.pest"]
 pub struct WikidotParser;
 
 pub type ParseError = PestError<Rule>;
