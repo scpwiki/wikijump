@@ -22,8 +22,10 @@
 page = { SOI ~ paragraph* ~ EOI }
 
 paragraph = {
-    word+ |
-    horiz
+    (
+        word+ |
+        horiz
+    ) ~ ( "\n"| EOI )
 }
 
 // Misc paragraphs
