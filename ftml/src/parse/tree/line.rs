@@ -23,6 +23,10 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use super::prelude::*;
 
+lazy_static! {
+    static ref CLEAR_FLOAT: Regex = Regex::new(r"~{4,}(?P<direction><|>|=|==)?").unwrap();
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Line<'a> {
     Align {
@@ -108,11 +112,24 @@ impl<'a> Line<'a> {
         trace!("Converting pair into Line...");
         debug_assert_eq!(pair.as_rule(), Rule::line);
 
+        macro_rules! as_str {
+            () => ( pair.as_str() )
+        }
+
+        macro_rules! extract {
+            ($regex:expr) => ( $regex.captures(as_str!()).unwrap().get(0).unwrap().as_str() )
+        }
+
         let first_pair = pair.clone().into_inner().next().unwrap();
         match first_pair.as_rule() {
             Rule::clear_float => {
-                println!("{:?}", &pair);
-                panic!()
+                let capture = CLEAR_FLOAT.captures(as_str!()).unwrap();
+                let direction = match capture.name("direction") {
+                    Some(mtch) => Alignment::from_str(mtch.as_str()),
+                    None => None,
+                };
+
+                Line::ClearFloat { direction }
             },
             Rule::horizontal_line => Line::HorizontalLine,
             Rule::footnote_block => Line::FootnoteBlock,
