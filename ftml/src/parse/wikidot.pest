@@ -27,6 +27,7 @@ line = {
     footnote_block |
     horizontal_line |
     center |
+    form |
     module |
     note |
     word+
@@ -41,6 +42,11 @@ horizontal_line = { "-"{4,} }
 center = { "=" ~ word+ }
 
 // Block lines
+form = {
+    "[[" ~ space? ~ ^"form" ~ space? ~ "]]\n" ~
+    (!"[[/" ~ ANY)* ~ space ~ "\n" ~
+    "[[/" ~ space? ~ ^"form" ~ space? ~ "]]"
+}
 module = {
     "[[" ~ space? ~ ^"module" ~ space ~ ident ~ module_arg* ~ space? ~ "]]" ~
     (line* ~ "[[/" ~ space? ~ ^"module" ~ space? ~ "]]")?

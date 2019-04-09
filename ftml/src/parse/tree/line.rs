@@ -25,6 +25,14 @@ use super::prelude::*;
 
 lazy_static! {
     static ref CLEAR_FLOAT: Regex = Regex::new(r"~{4,}(?P<direction><|>|=|==)?").unwrap();
+
+    static ref FORM: Regex = {
+        RegexBuilder::new(r"\[\[\s*form\s*\]\]\n(?P<contents>.*)\n\[\[/\s*form\s*\]\]")
+            .case_insensitive(true)
+            .dot_matches_new_line(true)
+            .build()
+            .unwrap()
+    };
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -142,6 +150,7 @@ impl<'a> Line<'a> {
                 Line::Center { contents }
             },
             Rule::footnote_block => Line::FootnoteBlock,
+            Rule::form => Line::Form { contents: extract!(FORM) },
             Rule::module => {
                 let mut name = "";
                 let mut arguments = HashMap::new();
