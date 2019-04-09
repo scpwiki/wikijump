@@ -140,7 +140,7 @@ impl<'a> Line<'a> {
                 };
 
                 Line::ClearFloat { direction }
-            },
+            }
             Rule::div => {
                 let mut id = None;
                 let mut class = None;
@@ -175,7 +175,7 @@ impl<'a> Line<'a> {
                     style,
                     contents,
                 }
-            },
+            }
             Rule::horizontal_line => Line::HorizontalLine,
             Rule::center => {
                 let mut contents = Vec::new();
@@ -185,9 +185,11 @@ impl<'a> Line<'a> {
                 }
 
                 Line::Center { contents }
-            },
+            }
             Rule::footnote_block => Line::FootnoteBlock,
-            Rule::form => Line::Form { contents: extract!(FORM) },
+            Rule::form => Line::Form {
+                contents: extract!(FORM),
+            },
             Rule::module => {
                 let mut name = "";
                 let mut arguments = HashMap::new();
