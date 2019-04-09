@@ -62,6 +62,7 @@ fn test_conversions() {
         }
 
         let input_file = entry.path();
+
         output_file.clone_from(&input_file);
         output_file.set_extension("html");
 
@@ -71,7 +72,7 @@ fn test_conversions() {
         );
         let mut input_text = String::new();
         read_file(&mut input_text, &input_file).expect("Unable to read input Wikidot");
-        read_file(&mut expected_html, &output_file).expect("Unable to read expected output HTML");
+        read_file(&mut expected_html, &output_file).expect("Unable to read output HTML");
 
         let output_html = transform(&input_text).expect("Unable to transform Wikidot to HTML");
         assert_eq!(expected_html, output_html);
