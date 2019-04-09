@@ -58,8 +58,10 @@ pub enum Line<'a> {
         contents: Vec<Line<'a>>,
     },
     Div {
+        id: Option<&'a str>,
         class: Option<&'a str>,
         style: Option<&'a str>,
+        contents: Vec<Line<'a>>,
     },
     FootnoteBlock,
     Form {
@@ -84,7 +86,7 @@ pub enum Line<'a> {
     },
     List {
         style: ListStyle,
-        items: Vec<Word<'a>>,
+        items: Vec<Vec<Word<'a>>>,
     },
     Math {
         label: Option<&'a str>,
@@ -138,6 +140,41 @@ impl<'a> Line<'a> {
                 };
 
                 Line::ClearFloat { direction }
+            },
+            Rule::div => {
+                let mut id = None;
+                let mut class = None;
+                let mut style = None;
+                let mut contents = Vec::new();
+
+                for pair in pair.into_inner() {
+                    match pair.as_rule() {
+                        Rule::div_arg => {
+                            let capture = ARGUMENT_NAME.captures(pair.as_str()).unwrap();
+                            let name = capture!(capture, "name");
+                            let value_pair = pair.into_inner().next().unwrap();
+
+                            debug_assert_eq!(value_pair.as_rule(), Rule::string);
+
+                            let value = value_pair.as_str();
+                            match name {
+                                "id" => id = Some(value),
+                                "class" => class = Some(value),
+                                "style" => style = Some(value),
+                                _ => panic!("Unknown argument for [[div]]: {}", name),
+                            }
+                        }
+                        Rule::line => contents.push(Line::from_pair(pair)),
+                        _ => panic!("Invalid rule for div: {:?}", pair.as_rule()),
+                    }
+                }
+
+                Line::Div {
+                    id,
+                    class,
+                    style,
+                    contents,
+                }
             },
             Rule::horizontal_line => Line::HorizontalLine,
             Rule::center => {

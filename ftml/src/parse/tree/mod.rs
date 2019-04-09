@@ -21,11 +21,19 @@
 // FIXME to prevent compile spam
 #![allow(dead_code)]
 
+macro_rules! capture {
+    ($capture:expr, $name:expr) => ( $capture.name($name).unwrap().as_str() )
+}
+
 mod line;
 mod misc;
 mod word;
 
 mod prelude {
+    lazy_static! {
+        pub static ref ARGUMENT_NAME: Regex = Regex::new(r"(?P<name>\w+)=").unwrap();
+    }
+
     pub use pest::iterators::{Pair, Pairs};
     pub use regex::{Regex, RegexBuilder};
     pub use super::{Line, TableRow, Word};

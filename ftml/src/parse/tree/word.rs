@@ -21,10 +21,6 @@
 use std::borrow::Cow;
 use super::prelude::*;
 
-macro_rules! capture {
-    ($capture:expr, $name:expr) => ( $capture.name($name).unwrap().as_str() )
-}
-
 lazy_static! {
     static ref ANCHOR: Regex = {
         RegexBuilder::new(r"\[\[#\s*([a-z0-9\-+_.%]+)\s*\]\]")
@@ -32,8 +28,6 @@ lazy_static! {
             .build()
             .unwrap()
     };
-
-    static ref ARGUMENT_NAME: Regex = Regex::new(r"(?P<name>\w+)=").unwrap();
 
     static ref DATE: Regex = {
         RegexBuilder::new(

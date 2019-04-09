@@ -100,6 +100,12 @@ monospace = { "{{" ~ word* ~ "}}" }
 // Block words
 anchor = { "[[#" ~ space? ~ ident ~ space? ~ "]]" }
 date = { "[[" ~ space? ~ ^"date" ~ space ~ integer ~ (^"format" ~ "=" ~ string)? ~ space? ~ "]]" }
+div = {
+    "[[" ~ space? ~ ^"div" ~ div_arg* ~ space? ~ "]]" ~
+    line* ~
+    "[[/" ~ space? ~ ^"div" ~ space? ~ "]]"
+}
+div_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ string }
 equation_ref = { "[[" ~ space? ~ ^"eref" ~ space ~ ident ~ space? ~ "]]" }
 file_ref = { "[[" ~ space? ~ ^"file" ~ space ~ ident ~ space? ~ "]]" }
 footnote = {
@@ -118,7 +124,7 @@ image_arg = {
 span = {
     "[[" ~ space? ~ ^"span" ~ span_arg* ~ space? ~ "]]" ~
     word* ~
-    "[[/" ~ ^"span" ~ space? ~ "]]"
+    "[[/" ~ space? ~ ^"span" ~ space? ~ "]]"
 }
 span_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ string }
 user = { "[[" ~ "*"? ~ space? ~ ^"user" ~ space ~ ident ~ space? ~ "]]" }
