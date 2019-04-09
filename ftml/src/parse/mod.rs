@@ -50,7 +50,6 @@ pub fn parse<'a>(text: &'a str) -> Result<SyntaxTree<'a>> {
         page.next().unwrap().into_inner()
     };
 
-    println!("{:#?}", &page); // TODO remove this
     let tree = SyntaxTree::from_line_pairs(page);
     Ok(tree)
 }

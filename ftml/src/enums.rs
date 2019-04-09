@@ -18,9 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// FIXME to prevent compile spam
-#![allow(dead_code)]
-
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum Alignment {
     Left,
