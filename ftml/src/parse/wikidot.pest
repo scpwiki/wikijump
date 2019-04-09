@@ -26,6 +26,7 @@ line = {
     clear_float |
     footnote_block |
     horizontal_line |
+    center |
     module |
     note |
     word+
@@ -35,6 +36,9 @@ line = {
 clear_float = { "~"{4,} ~ direction? }
 footnote_block = { "[[" ~ space? ~ ^"footnoteblock" ~ space? ~ "]]" }
 horizontal_line = { "-"{4,} }
+
+// Formatting lines
+center = { "=" ~ word+ }
 
 // Block lines
 module = {

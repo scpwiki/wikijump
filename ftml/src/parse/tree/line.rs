@@ -132,6 +132,15 @@ impl<'a> Line<'a> {
                 Line::ClearFloat { direction }
             },
             Rule::horizontal_line => Line::HorizontalLine,
+            Rule::center => {
+                let mut contents = Vec::new();
+
+                for pair in pair.into_inner() {
+                    contents.push(Word::from_pair(pair));
+                }
+
+                Line::Center { contents }
+            },
             Rule::footnote_block => Line::FootnoteBlock,
             Rule::module => {
                 let mut name = "";
