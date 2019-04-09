@@ -1,0 +1,45 @@
+SyntaxTree {
+    lines: [
+        Text {
+            contents: [
+                Text {
+                    contents: "A "
+                },
+                Underline {
+                    contents: [
+                        Italics {
+                            contents: [
+                                Text {
+                                    contents: "simple"
+                                }
+                            ]
+                        },
+                        Text {
+                            contents: " file"
+                        }
+                    ]
+                },
+                Text {
+                    contents: " that contains "
+                },
+                Bold {
+                    contents: [
+                        Superscript {
+                            contents: [
+                                Text {
+                                    contents: "test"
+                                }
+                            ]
+                        },
+                        Text {
+                            contents: " formatting"
+                        }
+                    ]
+                },
+                Text {
+                    contents: "!\n"
+                }
+            ]
+        }
+    ]
+}

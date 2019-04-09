@@ -1,0 +1,25 @@
+SyntaxTree {
+    lines: [
+        Text {
+            contents: [
+                Span {
+                    id: None,
+                    class: Some(
+                        "\"test\""
+                    ),
+                    style: Some(
+                        "\"display: block;\""
+                    ),
+                    contents: [
+                        Text {
+                            contents: "Test"
+                        }
+                    ]
+                },
+                Text {
+                    contents: "\n"
+                }
+            ]
+        }
+    ]
+}
