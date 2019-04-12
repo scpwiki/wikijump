@@ -89,7 +89,7 @@ div = {
 }
 div_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ string }
 equation_ref = { "[[" ~ space? ~ ^"eref" ~ space ~ ident ~ space? ~ "]]" }
-file_ref = { "[[" ~ space? ~ ^"file" ~ space ~ ident ~ space? ~ "]]" }
+file_ref = { "[[" ~ space? ~ ^"file" ~ space ~ file_ident ~ space? ~ "]]" }
 footnote = {
     "[[" ~ space? ~ ^"footnote" ~ space? ~ "]]" ~
     word* ~
@@ -115,7 +115,7 @@ note = {
     "[[/" ~ space? ~ ^"note" ~ space? ~ "]]"
 }
 image = {
-    "[[" ~ space? ~ ^"image" ~ space ~ ident ~ image_arg* ~ space? ~ "]]"
+    "[[" ~ space? ~ ^"image" ~ space ~ file_ident ~ image_arg* ~ space? ~ "]]"
 }
 image_arg = {
     space ~
@@ -128,7 +128,7 @@ span = {
     "[[/" ~ space? ~ ^"span" ~ space? ~ "]]"
 }
 span_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ string }
-user = { "[[" ~ "*"? ~ space? ~ ^"user" ~ space ~ ident ~ space? ~ "]]" }
+user = { "[[" ~ space? ~ "*"? ~ space? ~ ^"user" ~ space ~ ident ~ space? ~ "]]" }
 
 // Components
 token = @{
@@ -147,6 +147,7 @@ token = @{
 hex_digit = @{ '0'..'9' | 'a'..'f' | 'A'..'F' }
 space = _{ (" " | "\t")+ }
 integer = @{ "-"? ~ ASCII_DIGIT+ }
+file_ident = @{ (!(space | "]]") ~ ANY)+ }
 ident = @{ (ASCII_ALPHANUMERIC | "-" | "+" | "_" | "." | "%")+ }
 inner_str = @{ (!("\"" | "\\") ~ ANY)* ~ (escape ~ inner_str)? }
 string = @{ "\"" ~ inner_str ~ "\"" }
