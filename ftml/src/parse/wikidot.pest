@@ -43,6 +43,7 @@ word = {
     raw |
     legacy_raw |
     email |
+    color |
     italics |
     strikethrough |
     bold |
@@ -77,6 +78,7 @@ text = {
         "^^" |
         "{{" | "}}" |
         "[[" | "]]" |
+        "##" |
         "-"{4,} | "~"{4,} |
         "\n"
     ) ~ ANY)+
@@ -86,7 +88,7 @@ legacy_raw = { ("``" ~ (!("``" | "\n") ~ ANY)+ ~ "``") | "``````" }
 email = { ident ~ "@" ~ ident }
 
 // Formatting words
-color = { "##" ~ (("#" ~ hex_digit+) | ident) ~ "|" ~ word* ~ "##" }
+color = { "##" ~ space? ~ ("#"? ~ ident) ~ space? ~ "|" ~ word* ~ "##" }
 italics = { "//" ~ word* ~ "//" }
 strikethrough = { "--" ~ word+ ~ "--" }
 bold = { "**" ~ word* ~ "**" }

@@ -18,12 +18,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+//! Tests for the parser.
+//! This does not check any formatting, simply whether the grammar file
+//! is correctly interpreting strings. So creating an invalid color or
+//! inlined HTML is not an error here.
+
 use pest::Parser;
 use super::{Rule, WikidotParser};
 
 #[test]
 fn test_valid_strings() {
-    const INPUT_STRINGS: [&str; 29] = [
+    const INPUT_STRINGS: [&str; 31] = [
         "@@ apple @@ @@banana@@",
         "@@ [!-- literal comment @@ durian",
         "@@@@@@ at signs `````` tildes",
@@ -53,6 +58,8 @@ fn test_valid_strings() {
         "internal [[# anchor-name]] [[date 1000]] **apple** _",
         "apple [[span id=\"tag\" ]]banana[[/span]] __cherry__ [[span class=\"fruit-name\"]]pineapple [[span style=\"text-shadow: 2px 2px #f00;\"]]kiwi[[/span]] orange[[/span]] durian",
         "[[span id=\"a\"]] A [[ span id=\"b\"]] B [[span id=\"c\" ]] C [[ span id=\"d\" ]] D [[span  id =\"e\"]] E [[span  id  =  \"f\"]] F [[span id= \"g\"]] INNER [[/span]] [[/span]] [[/span]] [[/span]] [[/span]] [[/span]] [[/span]]",
+        "fruit list: ##red|apple## ##dc143c|cherry## ## #0ff | ocean ## ###6495ed|blueberry##",
+        "##black| alpha **beta** gamma^^2^^ __delta //epsilon//__ ## zeta",
     ];
 
     for string in &INPUT_STRINGS[..] {
@@ -65,11 +72,13 @@ fn test_valid_strings() {
 
 #[test]
 fn test_invalid_strings() {
-    const INPUT_STRINGS: [&str; 22] = [
+    const INPUT_STRINGS: [&str; 25] = [
         "@@ raw value",
         "`` legacy raw value",
         "@@ @@ @@",
         "`` `` ``",
+        "@@ raw \n multiline @@",
+        "`` raw \n multiline ``",
         "[!-- invalid comment",
         "apple `` raw @@ banana",
         "[!-- alpha --] [[ eref ",
@@ -88,6 +97,7 @@ fn test_invalid_strings() {
         "-- Incomplete strikethrough",
         "^^ Incomplete superscript",
         ",, Incomplete subscript",
+        "##NOT&A&COLOR|test##",
     ];
 
     for string in &INPUT_STRINGS[..] {
