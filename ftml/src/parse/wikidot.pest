@@ -98,13 +98,13 @@ footnote = {
 footnote_block = { "[[" ~ space? ~ ^"footnoteblock" ~ space? ~ "]]" }
 form = {
     "[[" ~ space? ~ ^"form" ~ space? ~ "]]\n" ~
-    (!("[[/" ~ space? ~ ^"form") ~ ANY)* ~ "\n" ~
+    (!("[[/" ~ space? ~ ^"form") ~ ANY)* ~
     "[[/" ~ space? ~ ^"form" ~ space? ~ "]]"
 }
 module = {
     "[[" ~ space? ~ ^"module" ~ space ~ ident ~ module_arg* ~ space? ~ "]]" ~
     (
-        "\n" ~ (!("[[/" ~ space? ~ ^"module") ~ ANY)* ~ "\n" ~
+        "\n" ~ (!("[[/" ~ space? ~ ^"module") ~ ANY)* ~
         "[[/" ~ space? ~ ^"module" ~ space? ~ "]]"
     )?
 }
