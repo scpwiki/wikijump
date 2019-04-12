@@ -28,7 +28,7 @@ use super::{Rule, WikidotParser};
 
 #[test]
 fn test_valid_strings() {
-    const INPUT_STRINGS: [&str; 37] = [
+    const INPUT_STRINGS: [&str; 40] = [
         "@@ apple @@ @@banana@@",
         "@@ [!-- literal comment @@ durian",
         "@@@@@@ at signs `````` tildes",
@@ -58,6 +58,9 @@ fn test_valid_strings() {
         "internal [[# anchor-name]] [[date 1000]] **apple** _",
         "apple [[span id=\"tag\" ]]banana[[/span]] __cherry__ [[span class=\"fruit-name\"]]pineapple [[span style=\"text-shadow: 2px 2px #f00;\"]]kiwi[[/span]] orange[[/span]] durian",
         "[[span id=\"a\"]] A [[ span id=\"b\"]] B [[span id=\"c\" ]] C [[ span id=\"d\" ]] D [[span  id =\"e\"]] E [[span  id  =  \"f\"]] F [[span id= \"g\"]] INNER [[/span]] [[/span]] [[/span]] [[/span]] [[/span]] [[/span]] [[/span]]",
+        "[[span class=\"item\"]][[/span]]",
+        "[[span]]apple\nbanana[[/span]]\n",
+        "[[span class=\"apple\" ]] banana \n [[ span class=\"cherry\"]] kiwi \n [[ span class =\"durian\" ]] pineapple \n [[ span class = \"orange\" ]] test [[/span]] \n [[/span]] [[/span ]] [[/ span]] ",
         "fruit list: ##red|apple## ##dc143c|cherry## ## #0ff | ocean ## ###6495ed|blueberry##",
         "##black| alpha **beta** gamma^^2^^ __delta //epsilon//__ ## zeta",
         "//several {{layers //of {{formatting}}//}}//",
@@ -81,7 +84,7 @@ fn test_valid_strings() {
 
 #[test]
 fn test_invalid_strings() {
-    const INPUT_STRINGS: [&str; 26] = [
+    const INPUT_STRINGS: [&str; 27] = [
         "@@ raw value",
         "`` legacy raw value",
         "@@ @@ @@",
@@ -108,6 +111,7 @@ fn test_invalid_strings() {
         ",, Incomplete subscript",
         "##NOT&A&COLOR|test##",
         "[[footnote]]",
+        "[[footnote]][[/footnote]]",
     ];
 
     for string in &INPUT_STRINGS[..] {
