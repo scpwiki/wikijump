@@ -18,11 +18,12 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 //
 
-page = { SOI ~ (line ~ newlines)* ~ EOI }
+page = { SOI ~ line* ~ EOI }
 newlines = { "\n"+ | EOI }
 
 // TODO finish line declaration
-line = {
+line = { line_inner ~ newlines }
+line_inner = {
     clear_float |
     horizontal_line |
     center |
@@ -64,15 +65,30 @@ word = {
 }
 
 // Misc words
-text = { (!token ~ ANY)+ }
-raw = { ("@@" ~ (!"@@" ~ ANY)+ ~ "@@") | "@@@@@@" }
-legacy_raw = { ("``" ~ (!"``" ~ ANY)+ ~ "``") | "``````" }
+text = {
+    (!(
+        "@@" |
+        "``" |
+        "//" |
+        "--" |
+        "**" |
+        "__" |
+        ",," |
+        "^^" |
+        "{{" | "}}" |
+        "[[" | "]]" |
+        "-"{4,} | "~"{4,} |
+        "\n"
+    ) ~ ANY)+
+}
+raw = { ("@@" ~ (!("@@" | "\n") ~ ANY)+ ~ "@@") | "@@@@@@" }
+legacy_raw = { ("``" ~ (!("``" | "\n") ~ ANY)+ ~ "``") | "``````" }
 email = { ident ~ "@" ~ ident }
 
 // Formatting words
 color = { "##" ~ (("#" ~ hex_digit+) | ident) ~ "|" ~ word* ~ "##" }
 italics = { "//" ~ word* ~ "//" }
-strikethrough = { "--" ~ word* ~ "--" }
+strikethrough = { "--" ~ word+ ~ "--" }
 bold = { "**" ~ word* ~ "**" }
 underline = { "__" ~ word* ~ "__" }
 subscript = { ",," ~ word* ~ ",," }
@@ -110,7 +126,7 @@ module = {
 }
 module_arg = { space ~ ident ~ space? ~ "=" ~ space? ~ string }
 note = {
-    "[[" ~ space? ~ ^"note" ~ space? ~ "]]" ~
+    "[[" ~ space? ~ ^"note" ~ space? ~ "]]\n" ~
     line* ~
     "[[/" ~ space? ~ ^"note" ~ space? ~ "]]"
 }
@@ -131,26 +147,13 @@ span_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ str
 user = { "[[" ~ space? ~ "*"? ~ space? ~ ^"user" ~ space ~ ident ~ space? ~ "]]" }
 
 // Components
-token = @{
-    "@@" |
-    "``" |
-    "//" |
-    "--" |
-    "**" |
-    "__" |
-    ",," |
-    "^^" |
-    "{{" | "}}" |
-    "[[" | "]]" |
-    "-"{4,} | "~"{4,}
-}
 hex_digit = @{ '0'..'9' | 'a'..'f' | 'A'..'F' }
 space = _{ (" " | "\t")+ }
 integer = @{ "-"? ~ ASCII_DIGIT+ }
 file_ident = @{ (!(space | "]]") ~ ANY)+ }
 ident = @{ (ASCII_ALPHANUMERIC | "-" | "+" | "_" | "." | "%")+ }
-inner_str = @{ (!("\"" | "\\") ~ ANY)* ~ (escape ~ inner_str)? }
-string = @{ "\"" ~ inner_str ~ "\"" }
+str_inner = @{ (!("\"" | "\\") ~ ANY)* ~ (escape ~ str_inner)? }
+string = @{ "\"" ~ str_inner ~ "\"" }
 escape = @{ "\\" ~ ("\"" | "\\" | "r" | "n" | "t" | "0" | "'") }
-direction = { "<" | ">" | "=" | "==" }
+direction = { "<" | ">" | "="{1,2} }
 COMMENT = _{ "[!--" ~ (!"--]" ~ ANY)* ~ "--]" }

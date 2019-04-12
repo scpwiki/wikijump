@@ -23,7 +23,7 @@ use super::{Rule, WikidotParser};
 
 #[test]
 fn test_valid_strings() {
-    const INPUT_STRINGS: [&str; 25] = [
+    const INPUT_STRINGS: [&str; 29] = [
         "@@ apple @@ @@banana@@",
         "@@ [!-- literal comment @@ durian",
         "@@@@@@ at signs `````` tildes",
@@ -34,7 +34,9 @@ fn test_valid_strings() {
         "__ [[  date 0  ]] [!-- comment here --]__",
         "[[span class = \"test\"]]//hello// world![[footnote]]actually country[[/footnote]][[/span]]",
         "--[[*user rounderhouse]] [[# test-anchor ]]-- [[ eref equation_id ]]",
+        "  [[ * user rounderhouse ]] [[ user aismallard ]] [[        user        rounderhouse        ]]  ",
         "[[ image tree.png link = \"https://example.com\" alt=\"A tree.\" class=\"image-block\"  ]]",
+        "[[image file.jpeg]] [[image :first]] [[image https://example.com/picture.png]]",
         "__**--^^,,{{super formatted}},,^^--**__",
         "//[[date -100]] number// [[footnote]]Content **cherry** [[*user aismallard]][[/footnote]] [[footnote]]Content **cherry** [[*user aismallard]][[/footnote]]",
         "apple\n[[module Rate]]\nbanana",
@@ -44,11 +46,13 @@ fn test_valid_strings() {
         "apple\n[[note]]\ninternal\n[[/note]]\nbanana",
         "^^**alpha** beta ,,gamma,,^^",
         "apple\n----\nbanana\n-------\ncherry\n---------------\nkiwi",
+        "apple\n~~~~\nbanana\n~~~~~~~\ncherry\n~~~~~~~~~~~~~~~\nkiwi",
+        "apple\n~~~~>\nbanana\n~~~~<\ncherry\n~~~~=\nkiwi\n~~~~==\npineapple",
         "= {{apple}} banana",
         "++ header\n+++ apple __banana__\n++++ @@ RAW @@\ndurian",
         "internal [[# anchor-name]] [[date 1000]] **apple** _",
         "apple [[span id=\"tag\" ]]banana[[/span]] __cherry__ [[span class=\"fruit-name\"]]pineapple [[span style=\"text-shadow: 2px 2px #f00;\"]]kiwi[[/span]] orange[[/span]] durian",
-        "[[span id=\"a\"]] [[ span id=\"b\"]] [[span id=\"c\" ]] [[ span id=\"d\" ]] [[span  id =\"e\"]] [[span  id  =  \"f\"]] [[span id= \"g\"]] INNER [[/span]] [[/span]] [[/span]] [[/span]] [[/span]] [[/span]] [[/span]]",
+        "[[span id=\"a\"]] A [[ span id=\"b\"]] B [[span id=\"c\" ]] C [[ span id=\"d\" ]] D [[span  id =\"e\"]] E [[span  id  =  \"f\"]] F [[span id= \"g\"]] INNER [[/span]] [[/span]] [[/span]] [[/span]] [[/span]] [[/span]] [[/span]]",
     ];
 
     for string in &INPUT_STRINGS[..] {
@@ -61,16 +65,29 @@ fn test_valid_strings() {
 
 #[test]
 fn test_invalid_strings() {
-    const INPUT_STRINGS: [&str; 9] = [
+    const INPUT_STRINGS: [&str; 22] = [
         "@@ raw value",
         "`` legacy raw value",
+        "@@ @@ @@",
+        "`` `` ``",
         "[!-- invalid comment",
         "apple `` raw @@ banana",
         "[!-- alpha --] [[ eref ",
         "__**test** cherry {{ durian ^^up^^ __",
+        " {{ ",
         "kiwi [[date 0]",
         "kiwi [[ date 0 ] ]",
         "[[span id=\"a\"]] [[span id=\"b\"]] incomplete span [[/span]]",
+        "[[module CustomMod bad_argument=\"value ]]",
+        "[[module CustomMod bad_argument=value ]]",
+        "[[module CustomMod]] [[/module]]",
+        "[[image filename_with_a_space in_it.jpeg]]",
+        "// Incomplete italics",
+        "** Incomplete bold",
+        "__ Incomplete underline",
+        "-- Incomplete strikethrough",
+        "^^ Incomplete superscript",
+        ",, Incomplete subscript",
     ];
 
     for string in &INPUT_STRINGS[..] {
