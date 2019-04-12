@@ -28,7 +28,7 @@ use super::{Rule, WikidotParser};
 
 #[test]
 fn test_valid_strings() {
-    const INPUT_STRINGS: [&str; 31] = [
+    const INPUT_STRINGS: [&str; 37] = [
         "@@ apple @@ @@banana@@",
         "@@ [!-- literal comment @@ durian",
         "@@@@@@ at signs `````` tildes",
@@ -60,6 +60,12 @@ fn test_valid_strings() {
         "[[span id=\"a\"]] A [[ span id=\"b\"]] B [[span id=\"c\" ]] C [[ span id=\"d\" ]] D [[span  id =\"e\"]] E [[span  id  =  \"f\"]] F [[span id= \"g\"]] INNER [[/span]] [[/span]] [[/span]] [[/span]] [[/span]] [[/span]] [[/span]]",
         "fruit list: ##red|apple## ##dc143c|cherry## ## #0ff | ocean ## ###6495ed|blueberry##",
         "##black| alpha **beta** gamma^^2^^ __delta //epsilon//__ ## zeta",
+        "//several {{layers //of {{formatting}}//}}//",
+        "@@``@@ @@//@@ @@--@@ @@**@@ @@__@@ @@,,@@ @@^^@@ @@}}@@ @@{{@@ @@]]@@ @@[[@@ @@##@@ @@----@@ @@~~~~@@",
+        "[[span id=\"email\"]] test.person@example.com [[/span]]",
+        "[[date 1554823000]]\n[[ date 1554823000 ]]\n[[ date 1554823000 format=\"%A %B %d, %Y\" ]]\n[[date 1554823000  format = \"%A %B %d, %Y\"]]\n[[  date  1554823000  format= \"%A %B %d, %Y\"]]",
+        "[[footnote]] Inner **contents** here [[date 0]] __please!__ [[/footnote]]",
+        "[[footnote]] Multi-line\nfootnote\ncontents\nhere [[/footnote]]",
     ];
 
     for string in &INPUT_STRINGS[..] {
@@ -75,7 +81,7 @@ fn test_valid_strings() {
 
 #[test]
 fn test_invalid_strings() {
-    const INPUT_STRINGS: [&str; 25] = [
+    const INPUT_STRINGS: [&str; 26] = [
         "@@ raw value",
         "`` legacy raw value",
         "@@ @@ @@",
@@ -101,6 +107,7 @@ fn test_invalid_strings() {
         "^^ Incomplete superscript",
         ",, Incomplete subscript",
         "##NOT&A&COLOR|test##",
+        "[[footnote]]",
     ];
 
     for string in &INPUT_STRINGS[..] {
