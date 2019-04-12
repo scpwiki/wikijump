@@ -29,6 +29,7 @@ line_inner = {
     center |
     word+
 }
+lines_maybe = { line* ~ line_inner }
 
 // Misc lines
 clear_float = { "~"{4,} ~ direction? }
@@ -110,7 +111,7 @@ equation_ref = { "[[" ~ space? ~ ^"eref" ~ space ~ ident ~ space? ~ "]]" }
 file_ref = { "[[" ~ space? ~ ^"file" ~ space ~ file_ident ~ space? ~ "]]" }
 footnote = {
     "[[" ~ space? ~ ^"footnote" ~ space? ~ "]]" ~
-    word* ~
+    lines_maybe ~
     "[[/" ~ space? ~ ^"footnote" ~ space? ~ "]]"
 }
 footnote_block = { "[[" ~ space? ~ ^"footnoteblock" ~ space? ~ "]]" }
@@ -142,7 +143,7 @@ image_arg = {
 }
 span = {
     "[[" ~ space? ~ ^"span" ~ span_arg* ~ space? ~ "]]" ~
-    word* ~
+    lines_maybe ~
     "[[/" ~ space? ~ ^"span" ~ space? ~ "]]"
 }
 span_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ string }
