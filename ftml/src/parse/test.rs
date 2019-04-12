@@ -22,8 +22,8 @@ use pest::Parser;
 use super::{Rule, WikidotParser};
 
 #[test]
-fn test_strings() {
-    const INPUT_STRINGS: [&str; 22] = [
+fn test_valid_strings() {
+    const INPUT_STRINGS: [&str; 25] = [
         "@@ apple @@ @@banana@@",
         "@@ [!-- literal comment @@ durian",
         "@@@@@@ at signs `````` tildes",
@@ -42,16 +42,41 @@ fn test_strings() {
         "[[form]]\nform data here\nmore stuff\n[[/form]]",
         "[[note]]\nnote internal information here\napple\ndurian\nbanana\n[[/note]]",
         "apple\n[[note]]\ninternal\n[[/note]]\nbanana",
-        "^^**alpha** beta ,,gama,,^^",
+        "^^**alpha** beta ,,gamma,,^^",
+        "apple\n----\nbanana\n-------\ncherry\n---------------\nkiwi",
         "= {{apple}} banana",
         "++ header\n+++ apple __banana__\n++++ @@ RAW @@\ndurian",
         "internal [[# anchor-name]] [[date 1000]] **apple** _",
+        "apple [[span id=\"tag\" ]]banana[[/span]] __cherry__ [[span class=\"fruit-name\"]]pineapple [[span style=\"text-shadow: 2px 2px #f00;\"]]kiwi[[/span]] orange[[/span]] durian",
+        "[[span id=\"a\"]] [[ span id=\"b\"]] [[span id=\"c\" ]] [[ span id=\"d\" ]] [[span  id =\"e\"]] [[span  id  =  \"f\"]] [[span id= \"g\"]] INNER [[/span]] [[/span]] [[/span]] [[/span]] [[/span]] [[/span]] [[/span]]",
     ];
 
     for string in &INPUT_STRINGS[..] {
         println!("Testing parser: {:?}", string);
         if let Err(err) = WikidotParser::parse(Rule::page, string) {
-            panic!("Failed to parse test string:\n{}\nProduced error: {}", string, err);
+            panic!("Failed to parse test string:\n{}\n-----\nProduced error: {}", string, err);
+        }
+    }
+}
+
+#[test]
+fn test_invalid_strings() {
+    const INPUT_STRINGS: [&str; 9] = [
+        "@@ raw value",
+        "`` legacy raw value",
+        "[!-- invalid comment",
+        "apple `` raw @@ banana",
+        "[!-- alpha --] [[ eref ",
+        "__**test** cherry {{ durian ^^up^^ __",
+        "kiwi [[date 0]",
+        "kiwi [[ date 0 ] ]",
+        "[[span id=\"a\"]] [[span id=\"b\"]] incomplete span [[/span]]",
+    ];
+
+    for string in &INPUT_STRINGS[..] {
+        println!("Testing parser: {:?}", string);
+        if let Ok(pairs) = WikidotParser::parse(Rule::page, string) {
+            panic!("Invalid test string parsed successfully:\n{}\n-----\nProduced pairs: {:#?}", string, pairs);
         }
     }
 }
