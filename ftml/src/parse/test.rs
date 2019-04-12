@@ -65,7 +65,10 @@ fn test_valid_strings() {
     for string in &INPUT_STRINGS[..] {
         println!("Testing parser: {:?}", string);
         if let Err(err) = WikidotParser::parse(Rule::page, string) {
-            panic!("Failed to parse test string:\n{}\n-----\nProduced error: {}", string, err);
+            panic!(
+                "Failed to parse test string:\n{}\n-----\nProduced error: {}",
+                string, err
+            );
         }
     }
 }
@@ -103,7 +106,10 @@ fn test_invalid_strings() {
     for string in &INPUT_STRINGS[..] {
         println!("Testing parser: {:?}", string);
         if let Ok(pairs) = WikidotParser::parse(Rule::page, string) {
-            panic!("Invalid test string parsed successfully:\n{}\n-----\nProduced pairs: {:#?}", string, pairs);
+            panic!(
+                "Invalid test string parsed successfully:\n{}\n-----\nProduced pairs: {:#?}",
+                string, pairs
+            );
         }
     }
 }
