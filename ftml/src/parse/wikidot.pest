@@ -24,39 +24,17 @@ newlines = { "\n"+ | EOI }
 // TODO finish line declaration
 line = {
     clear_float |
-    footnote_block |
     horizontal_line |
     center |
-    form |
-    module |
-    note |
     word+
 }
 
 // Misc lines
 clear_float = { "~"{4,} ~ direction? }
-footnote_block = { "[[" ~ space? ~ ^"footnoteblock" ~ space? ~ "]]" }
 horizontal_line = { "-"{4,} }
 
 // Formatting lines
 center = { "=" ~ word+ }
-
-// Block lines
-form = {
-    "[[" ~ space? ~ ^"form" ~ space? ~ "]]\n" ~
-    (!"[[/" ~ ANY)* ~ space ~ "\n" ~
-    "[[/" ~ space? ~ ^"form" ~ space? ~ "]]"
-}
-module = {
-    "[[" ~ space? ~ ^"module" ~ space ~ ident ~ module_arg* ~ space? ~ "]]" ~
-    (line* ~ "[[/" ~ space? ~ ^"module" ~ space? ~ "]]")?
-}
-module_arg = { space ~ ident ~ space? ~ "=" ~ space? ~ string }
-note = {
-    "[[" ~ space? ~ ^"note" ~ space? ~ "]]" ~
-    line* ~
-    "[[/" ~ space? ~ ^"note" ~ space? ~ "]]"
-}
 
 // Word definition
 word = {
@@ -76,6 +54,10 @@ word = {
     equation_ref |
     file_ref |
     footnote |
+    footnote_block |
+    form |
+    module |
+    note |
     image |
     span |
     user
@@ -83,7 +65,7 @@ word = {
 
 // Misc words
 text = { (!token ~ ANY)+ }
-raw = { ("@@" ~ (!"@@" ~ ANY)* ~ "@@") | "@@@@@@" }
+raw = { ("@@" ~ (!"@@" ~ ANY)+ ~ "@@") | "@@@@@@" }
 legacy_raw = { ("``" ~ (!"``" ~ ANY)+ ~ "``") | "``````" }
 email = { ident ~ "@" ~ ident }
 
@@ -112,6 +94,25 @@ footnote = {
     "[[" ~ space? ~ ^"footnote" ~ space? ~ "]]" ~
     word* ~
     "[[/" ~ space? ~ ^"footnote" ~ space? ~ "]]"
+}
+footnote_block = { "[[" ~ space? ~ ^"footnoteblock" ~ space? ~ "]]" }
+form = {
+    "[[" ~ space? ~ ^"form" ~ space? ~ "]]\n" ~
+    (!("[[/" ~ space? ~ ^"form") ~ ANY)* ~ "\n" ~
+    "[[/" ~ space? ~ ^"form" ~ space? ~ "]]"
+}
+module = {
+    "[[" ~ space? ~ ^"module" ~ space ~ ident ~ module_arg* ~ space? ~ "]]" ~
+    (
+        "\n" ~ (!("[[/" ~ space? ~ ^"module") ~ ANY)* ~ "\n" ~
+        "[[/" ~ space? ~ ^"module" ~ space? ~ "]]"
+    )?
+}
+module_arg = { space ~ ident ~ space? ~ "=" ~ space? ~ string }
+note = {
+    "[[" ~ space? ~ ^"note" ~ space? ~ "]]" ~
+    line* ~
+    "[[/" ~ space? ~ ^"note" ~ space? ~ "]]"
 }
 image = {
     "[[" ~ space? ~ ^"image" ~ space ~ ident ~ image_arg* ~ space? ~ "]]"
@@ -148,7 +149,6 @@ space = _{ (" " | "\t")+ }
 integer = @{ "-"? ~ ASCII_DIGIT+ }
 ident = @{ (ASCII_ALPHANUMERIC | "-" | "+" | "_" | "." | "%")+ }
 inner_str = @{ (!("\"" | "\\") ~ ANY)* ~ (escape ~ inner_str)? }
-inner_chr = @{ escape | ANY }
 string = @{ "\"" ~ inner_str ~ "\"" }
 escape = @{ "\\" ~ ("\"" | "\\" | "r" | "n" | "t" | "0" | "'") }
 direction = { "<" | ">" | "=" | "==" }
