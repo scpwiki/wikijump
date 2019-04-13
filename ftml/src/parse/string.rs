@@ -39,7 +39,6 @@ pub fn interp_str<'a>(text: &'a str) -> Option<Cow<'a, str>> {
     // Convert escapes, if any
     for pair in pairs {
         debug_assert_eq!(pair.as_rule(), Rule::char);
-        println!("---\n{:#?}\n> {}", pair, string.as_ref());
 
         let span = pair.as_span();
         let replace = match span.as_str() {
