@@ -26,7 +26,34 @@ lazy_static! {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Line<'a> {
+pub struct Line<'a> {
+    inner: LineInner<'a>,
+    newlines: usize,
+}
+
+impl<'a> Line<'a> {
+    pub fn from_pair(pair: Pair<'a, Rule>) -> Self {
+        trace!("Converting pair into Line...");
+        debug_assert_eq!(pair.as_rule(), Rule::line);
+
+        let mut pairs = pair.into_inner();
+        let inner = {
+            let pair = pairs.next().unwrap();
+            debug_assert_eq!(pair.as_rule(), Rule::line_inner);
+            LineInner::from_pair(pair)
+        };
+        let newlines = {
+            let pair = pairs.next().unwrap();
+            debug_assert_eq!(pair.as_rule(), Rule::newlines);
+            pair.as_str().len()
+        };
+
+        Line { inner, newlines }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum LineInner<'a> {
     Align {
         alignment: Alignment,
     },
@@ -95,14 +122,16 @@ pub enum Line<'a> {
     },
 }
 
-impl<'a> Line<'a> {
-    pub fn from_pair(pair: Pair<'a, Rule>) -> Self {
-        trace!("Converting pair into Line...");
-        debug_assert_eq!(pair.as_rule(), Rule::line);
+impl<'a> LineInner<'a> {
+    fn from_pair(pair: Pair<'a, Rule>) -> Self {
+        trace!("Converting pair into LineInner...");
+        debug_assert_eq!(pair.as_rule(), Rule::line_inner);
 
         macro_rules! as_str {
             () => ( pair.as_str() )
         }
+
+        println!("tree:\n{:#?}", &pair);
 
         let first_pair = pair.clone().into_inner().next().unwrap();
         match first_pair.as_rule() {
@@ -113,7 +142,7 @@ impl<'a> Line<'a> {
                     None => None,
                 };
 
-                Line::ClearFloat { direction }
+                LineInner::ClearFloat { direction }
             }
             Rule::div => {
                 let mut id = None;
@@ -143,14 +172,14 @@ impl<'a> Line<'a> {
                     }
                 }
 
-                Line::Div {
+                LineInner::Div {
                     id,
                     class,
                     style,
                     contents,
                 }
             }
-            Rule::horizontal_line => Line::HorizontalLine,
+            Rule::horizontal_line => LineInner::HorizontalLine,
             Rule::center => {
                 let mut contents = Vec::new();
 
@@ -158,7 +187,7 @@ impl<'a> Line<'a> {
                     contents.push(Word::from_pair(pair));
                 }
 
-                Line::Center { contents }
+                LineInner::Center { contents }
             }
             Rule::word => {
                 let mut contents = Vec::new();
@@ -167,10 +196,10 @@ impl<'a> Line<'a> {
                     contents.push(Word::from_pair(pair));
                 }
 
-                Line::Text { contents }
+                LineInner::Text { contents }
             }
 
-            _ => unimplemented!(),
+            _ => panic!("Line rule for {:?} unimplemented!", pair.as_rule()),
             //_ => panic!("Invalid rule for line: {:?}", pair.as_rule()),
         }
     }
