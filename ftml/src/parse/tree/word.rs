@@ -19,6 +19,7 @@
  */
 
 use std::borrow::Cow;
+use std::collections::HashMap;
 use super::prelude::*;
 
 lazy_static! {
@@ -48,6 +49,14 @@ lazy_static! {
     static ref FILENAME: Regex = {
         RegexBuilder::new(r"\[\[\s*file\s+(.+)\s*\]\]")
             .case_insensitive(true)
+            .build()
+            .unwrap()
+    };
+
+    static ref FORM: Regex = {
+        RegexBuilder::new(r"\[\[\s*form\s*\]\]\n(?P<contents>.*)\n\[\[/\s*form\s*\]\]")
+            .case_insensitive(true)
+            .dot_matches_new_line(true)
             .build()
             .unwrap()
     };
@@ -92,6 +101,10 @@ pub enum Word<'a> {
     Footnote {
         contents: Vec<Line<'a>>,
     },
+    FootnoteBlock,
+    Form {
+        contents: &'a str, // actually YAML...
+    },
     Image {
         // See https://www.wikidot.com/doc-wiki-syntax:images
         filename: &'a str,
@@ -115,8 +128,16 @@ pub enum Word<'a> {
     Math {
         expr: &'a str,
     },
+    Module {
+        name: &'a str,
+        arguments: HashMap<&'a str, Cow<'a, str>>,
+        contents: Option<Vec<Line<'a>>>,
+    },
     Monospace {
         contents: Vec<Word<'a>>,
+    },
+    Note {
+        contents: Vec<Line<'a>>,
     },
     Raw {
         contents: &'a str,
@@ -228,6 +249,59 @@ impl<'a> Word<'a> {
             },
             Rule::footnote => Word::Footnote {
                 contents: make_lines!(),
+            },
+            Rule::footnote_block => Word::FootnoteBlock,
+            Rule::form => Word::Form {
+                contents: extract!(FORM),
+            },
+            Rule::module => {
+                let mut name = "";
+                let mut arguments = HashMap::new();
+                let mut contents = Vec::new();
+
+                for pair in pair.into_inner() {
+                    match pair.as_rule() {
+                        Rule::ident => name = pair.as_str(),
+                        Rule::module_arg => {
+                            let key = {
+                                let pair = pair.clone().into_inner().nth(0).unwrap();
+                                pair.as_str()
+                            };
+
+                            let value = {
+                                let pair = pair.clone().into_inner().nth(1).unwrap();
+                                interp_str(pair.as_str()).expect("Invalid string value")
+                            };
+
+                            arguments.insert(key, value);
+                        }
+                        // TODO word-based or content-based modules
+                        Rule::line => contents.push(Line::from_pair(pair)),
+                        _ => panic!("Invalid rule for module: {:?}", pair.as_rule()),
+                    }
+                }
+
+                let contents = if contents.is_empty() {
+                    None
+                } else {
+                    Some(contents)
+                };
+                debug_assert_ne!(name, "", "Module name never set");
+
+                Word::Module {
+                    name,
+                    arguments,
+                    contents,
+                }
+            }
+            Rule::note => {
+                let mut contents = Vec::new();
+
+                for pair in pair.into_inner() {
+                    contents.push(Line::from_pair(pair));
+                }
+
+                Word::Note { contents }
             },
             Rule::image => {
                 let mut filename = "";

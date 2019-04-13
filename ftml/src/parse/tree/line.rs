@@ -19,20 +19,10 @@
  */
 
 use crate::enums::{Alignment, ListStyle};
-use std::borrow::Cow;
-use std::collections::HashMap;
 use super::prelude::*;
 
 lazy_static! {
     static ref CLEAR_FLOAT: Regex = Regex::new(r"~{4,}(?P<direction><|>|=|==)?").unwrap();
-
-    static ref FORM: Regex = {
-        RegexBuilder::new(r"\[\[\s*form\s*\]\]\n(?P<contents>.*)\n\[\[/\s*form\s*\]\]")
-            .case_insensitive(true)
-            .dot_matches_new_line(true)
-            .build()
-            .unwrap()
-    };
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -63,10 +53,6 @@ pub enum Line<'a> {
         style: Option<&'a str>,
         contents: Vec<Line<'a>>,
     },
-    FootnoteBlock,
-    Form {
-        contents: &'a str, // actually YAML...
-    },
     Gallery,
     Heading {
         contents: Vec<Word<'a>>,
@@ -94,14 +80,6 @@ pub enum Line<'a> {
         latex_env: Option<&'a str>,
         expr: &'a str,
     },
-    Module {
-        name: &'a str,
-        arguments: HashMap<&'a str, Cow<'a, str>>,
-        contents: Option<Vec<Line<'a>>>,
-    },
-    Note {
-        contents: Vec<Line<'a>>,
-    },
     Table {
         rows: Vec<TableRow<'a>>,
     },
@@ -124,10 +102,6 @@ impl<'a> Line<'a> {
 
         macro_rules! as_str {
             () => ( pair.as_str() )
-        }
-
-        macro_rules! extract {
-            ($regex:expr) => ( $regex.captures(as_str!()).unwrap().get(0).unwrap().as_str() )
         }
 
         let first_pair = pair.clone().into_inner().next().unwrap();
@@ -185,58 +159,6 @@ impl<'a> Line<'a> {
                 }
 
                 Line::Center { contents }
-            }
-            Rule::footnote_block => Line::FootnoteBlock,
-            Rule::form => Line::Form {
-                contents: extract!(FORM),
-            },
-            Rule::module => {
-                let mut name = "";
-                let mut arguments = HashMap::new();
-                let mut contents = Vec::new();
-
-                for pair in pair.into_inner() {
-                    match pair.as_rule() {
-                        Rule::ident => name = pair.as_str(),
-                        Rule::module_arg => {
-                            let key = {
-                                let pair = pair.clone().into_inner().nth(0).unwrap();
-                                pair.as_str()
-                            };
-
-                            let value = {
-                                let pair = pair.clone().into_inner().nth(1).unwrap();
-                                interp_str(pair.as_str()).expect("Invalid string value")
-                            };
-
-                            arguments.insert(key, value);
-                        }
-                        Rule::line => contents.push(Line::from_pair(pair)),
-                        _ => panic!("Invalid rule for module: {:?}", pair.as_rule()),
-                    }
-                }
-
-                let contents = if contents.is_empty() {
-                    None
-                } else {
-                    Some(contents)
-                };
-                debug_assert_ne!(name, "", "Module name never set");
-
-                Line::Module {
-                    name,
-                    arguments,
-                    contents,
-                }
-            }
-            Rule::note => {
-                let mut contents = Vec::new();
-
-                for pair in pair.into_inner() {
-                    contents.push(Line::from_pair(pair));
-                }
-
-                Line::Note { contents }
             }
             Rule::word => {
                 let mut contents = Vec::new();
