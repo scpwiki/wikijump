@@ -31,7 +31,50 @@ lazy_static! {
     };
 }
 
+macro_rules! file_name {
+    ($path:expr) => ( $path.file_name().unwrap().to_string_lossy() )
+}
+
 const SKIP_GEN_TESTS: bool = true;
+const SKIP_PARSER_TESTS: bool = true;
+
+fn read_file(buffer: &mut String, path: &Path) -> Result<()> {
+    buffer.clear();
+    let mut file = File::open(path)?;
+    file.read_to_string(buffer)?;
+    Ok(())
+}
+
+fn iterate_input_files<F: FnMut(&Path)>(mut f: F) {
+    for entry in fs::read_dir(&*TEST_DIRECTORY).expect("Unable to read test directory") {
+        let entry = entry.expect("Unable to read entry in directory");
+        let ftype = entry.file_type().expect("Unable to retrieve file type");
+        if !ftype.is_file() {
+            continue;
+        }
+
+        let input_file = entry.path();
+        f(&input_file);
+    }
+}
+
+#[test]
+fn test_parser() {
+    if SKIP_PARSER_TESTS {
+        println!("Parser tests skipped!");
+        return;
+    }
+
+    iterate_input_files(|input_file| {
+        println!("Parsing {}...", file_name!(input_file));
+        let mut input_text = String::new();
+        read_file(&mut input_text, &input_file).expect("Unable to read input Wikidot");
+
+        let output_tree = parse(&input_text).expect("Unable to parse Wikidot file");
+        println!("{:#?}", &output_tree);
+        //assert_eq!(expected_tree, output_tree);
+    });
+}
 
 #[test]
 fn test_conversions() {
@@ -44,37 +87,18 @@ fn test_conversions() {
     let mut output_file = PathBuf::new();
     let mut expected_html = String::new();
 
-    fn read_file(buffer: &mut String, path: &Path) -> Result<()> {
-        buffer.clear();
-        let mut file = File::open(path)?;
-        file.read_to_string(buffer)?;
-        Ok(())
-    }
-
     // Run through all of the test files
-    for entry in fs::read_dir(&*TEST_DIRECTORY).expect("Unable to read test directory") {
-        let entry = entry.expect("Unable to read entry in directory");
-        let ftype = entry
-            .file_type()
-            .expect("Unable to get file type in directory");
-        if !ftype.is_file() {
-            continue;
-        }
-
-        let input_file = entry.path();
-
-        output_file.clone_from(&input_file);
+    iterate_input_files(|input_file| {
+        assert!(input_file.is_absolute());
+        output_file.push(input_file);
         output_file.set_extension("html");
 
-        println!(
-            "Converting {}...",
-            input_file.file_name().unwrap().to_string_lossy()
-        );
+        println!("Converting {}...", file_name!(input_file));
         let mut input_text = String::new();
-        read_file(&mut input_text, &input_file).expect("Unable to read input Wikidot");
+        read_file(&mut input_text, input_file).expect("Unable to read input Wikidot");
         read_file(&mut expected_html, &output_file).expect("Unable to read output HTML");
 
         let output_html = transform(&input_text).expect("Unable to transform Wikidot to HTML");
         assert_eq!(expected_html, output_html);
-    }
+    });
 }
