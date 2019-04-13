@@ -117,7 +117,7 @@ pub enum LineInner<'a> {
     TableOfContents {
         // TODO: http://community.wikidot.com/help:toc
     },
-    Text {
+    Words {
         contents: Vec<Word<'a>>,
     },
 }
@@ -196,7 +196,7 @@ impl<'a> LineInner<'a> {
                     contents.push(Word::from_pair(pair));
                 }
 
-                LineInner::Text { contents }
+                LineInner::Words { contents }
             }
 
             _ => panic!("Line rule for {:?} unimplemented!", pair.as_rule()),

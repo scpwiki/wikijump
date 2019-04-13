@@ -35,7 +35,7 @@ macro_rules! file_name {
     ($path:expr) => ( $path.file_name().unwrap().to_string_lossy() )
 }
 
-const SKIP_PARSER_TESTS: bool = false;
+const SKIP_PARSER_TESTS: bool = true;
 const SKIP_GEN_TESTS: bool = true;
 
 fn read_file(buffer: &mut String, path: &Path) -> Result<()> {
