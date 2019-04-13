@@ -61,6 +61,14 @@ lazy_static! {
             .unwrap()
     };
 
+    static ref MODULE: Regex = {
+        RegexBuilder::new(r"\[\[\s*module[^\]]*\]\](?:\n(?P<contents>.*)\n\[\[\s*module\s*\]\]")
+            .case_insensitive(true)
+            .dot_matches_new_line(true)
+            .build()
+            .unwrap()
+    };
+
     static ref RAW: Regex = {
         RegexBuilder::new(r"[@`]{2}(.+)[@`]{2}")
             .build()
@@ -131,7 +139,7 @@ pub enum Word<'a> {
     Module {
         name: &'a str,
         arguments: HashMap<&'a str, Cow<'a, str>>,
-        contents: Option<Vec<Line<'a>>>,
+        contents: Option<&'a str>,
     },
     Monospace {
         contents: Vec<Word<'a>>,
@@ -257,7 +265,12 @@ impl<'a> Word<'a> {
             Rule::module => {
                 let mut name = "";
                 let mut arguments = HashMap::new();
-                let mut contents = Vec::new();
+
+                let contents = MODULE
+                    .captures(as_str!())
+                    .unwrap()
+                    .name("contents")
+                    .map(|capture| capture.as_str());
 
                 for pair in pair.into_inner() {
                     match pair.as_rule() {
@@ -275,17 +288,10 @@ impl<'a> Word<'a> {
 
                             arguments.insert(key, value);
                         }
-                        // TODO word-based or content-based modules
-                        Rule::line => contents.push(Line::from_pair(pair)),
                         _ => panic!("Invalid rule for module: {:?}", pair.as_rule()),
                     }
                 }
 
-                let contents = if contents.is_empty() {
-                    None
-                } else {
-                    Some(contents)
-                };
                 debug_assert_ne!(name, "", "Module name never set");
 
                 Word::Module {
