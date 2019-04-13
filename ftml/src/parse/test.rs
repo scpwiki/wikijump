@@ -28,7 +28,7 @@ use super::{Rule, WikidotParser};
 
 #[test]
 fn test_valid_strings() {
-    const INPUT_STRINGS: [&str; 40] = [
+    const INPUT_STRINGS: [&str; 45] = [
         "@@ apple @@ @@banana@@",
         "@@ [!-- literal comment @@ durian",
         "@@@@@@ at signs `````` tildes",
@@ -43,6 +43,11 @@ fn test_valid_strings() {
         "[[ image tree.png link = \"https://example.com\" alt=\"A tree.\" class=\"image-block\"  ]]",
         "[[image file.jpeg]] [[image :first]] [[image https://example.com/picture.png]]",
         "__**--^^,,{{super formatted}},,^^--**__",
+        "//// Empty italics",
+        "**** Empty bold",
+        "____ Empty underline",
+        "^^^^ Incomplete superscript",
+        ",,,, Incomplete subscript",
         "//[[date -100]] number// [[footnote]]Content **cherry** [[*user aismallard]][[/footnote]] [[footnote]]Content **cherry** [[*user aismallard]][[/footnote]]",
         "apple\n[[module Rate]]\nbanana",
         "apple\n[[module CSS]]\n@import url('https://example.com/style.css');\ndiv.container { display: none; }\n[[/module]]\nbanana",
@@ -84,7 +89,7 @@ fn test_valid_strings() {
 
 #[test]
 fn test_invalid_strings() {
-    const INPUT_STRINGS: [&str; 31] = [
+    const INPUT_STRINGS: [&str; 32] = [
         "@@ raw value",
         "`` legacy raw value",
         "@@ @@ @@",
@@ -113,6 +118,7 @@ fn test_invalid_strings() {
         "-- Incomplete strikethrough",
         "^^ Incomplete superscript",
         ",, Incomplete subscript",
+        "---- Incomplete strikethrough", // Conflicts with horiz separator
         "##NOT&A&COLOR|test##",
         "[[footnote]]",
         "[[footnote]][[/footnote]]",
