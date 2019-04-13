@@ -84,7 +84,7 @@ fn test_valid_strings() {
 
 #[test]
 fn test_invalid_strings() {
-    const INPUT_STRINGS: [&str; 27] = [
+    const INPUT_STRINGS: [&str; 31] = [
         "@@ raw value",
         "`` legacy raw value",
         "@@ @@ @@",
@@ -96,9 +96,13 @@ fn test_invalid_strings() {
         "[!-- alpha --] [[ eref ",
         "__**test** cherry {{ durian ^^up^^ __",
         " {{ ",
+        "[[ unknown block ]]",
+        "[[ ]]",
         "kiwi [[date 0]",
         "kiwi [[ date 0 ] ]",
         "[[span id=\"a\"]] [[span id=\"b\"]] incomplete span [[/span]]",
+        "[[ * user rounder house ]]",
+        "[[ user rounder house ]]",
         "[[module CustomMod bad_argument=\"value ]]",
         "[[module CustomMod bad_argument=value ]]",
         "[[module CustomMod]] [[/module]]",
