@@ -308,7 +308,7 @@ impl<'a> Word<'a> {
                 }
 
                 Word::Note { contents }
-            },
+            }
             Rule::image => {
                 let mut filename = "";
 
