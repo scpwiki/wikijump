@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::enums::Alignment;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use super::prelude::*;
@@ -116,6 +117,7 @@ pub enum Word<'a> {
     Image {
         // See https://www.wikidot.com/doc-wiki-syntax:images
         filename: &'a str,
+        direction: Option<Alignment>,
         link: Option<(&'a str, bool)>,
         alt: Option<&'a str>,
         title: Option<Cow<'a, str>>,
@@ -313,6 +315,7 @@ impl<'a> Word<'a> {
             Rule::image => {
                 let mut filename = "";
 
+                let mut direction = None;
                 let mut link = None;
                 let mut alt = None;
                 let mut title = None;
@@ -324,6 +327,7 @@ impl<'a> Word<'a> {
 
                 for pair in pair.into_inner() {
                     match pair.as_rule() {
+                        Rule::direction => direction = Alignment::from_str(pair.as_str()),
                         Rule::ident => filename = pair.as_str(),
                         Rule::image_arg => {
                             let capture = ARGUMENT_NAME.captures(pair.as_str()).unwrap();
@@ -359,6 +363,7 @@ impl<'a> Word<'a> {
 
                 Word::Image {
                     filename,
+                    direction,
                     link,
                     alt,
                     title,

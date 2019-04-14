@@ -159,7 +159,7 @@ note = {
 }
 
 image = {
-    "[[" ~ space? ~ ^"image" ~ space ~ file_ident ~ image_arg* ~ space? ~ "]]"
+    "[[" ~ direction? ~ space? ~ ^"image" ~ space ~ file_ident ~ image_arg* ~ space? ~ "]]"
 }
 image_arg = {
     space ~
