@@ -27,6 +27,7 @@ newlines = { "\n"+ | EOI }
 // Lines {{{
 
 line = { line_inner ~ newlines }
+lines_maybe = { line* ~ line_inner }
 
 line_inner = {
     align |
@@ -35,8 +36,6 @@ line_inner = {
     center |
     word+
 }
-
-lines_maybe = { line* ~ line_inner }
 
 // }}}
 
@@ -47,9 +46,10 @@ lines_maybe = { line* ~ line_inner }
 // block also matches it. If we don't, we run the risk of intercepting
 // another align block.
 align = {
-    "TODO" ~
-    "[[" ~ direction ~ "]]\n" ~
-    "[[/" ~ direction ~ "]]"
+    ("[[>]]\n" ~ line* ~ "[[/>]]") |
+    ("[[<]]\n" ~ line* ~ "[[/>]]") |
+    ("[[=]]\n" ~ line* ~ "[[/=]]") |
+    ("[[==]]\n" ~ line* ~ "[[/==]]")
 }
 
 center = { "=" ~ word+ }

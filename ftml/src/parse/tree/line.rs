@@ -22,6 +22,7 @@ use crate::enums::{Alignment, ListStyle};
 use super::prelude::*;
 
 lazy_static! {
+    static ref ALIGN: Regex = Regex::new(r"^\[\[(?P<direction><|>|=|==)\]\]").unwrap();
     static ref CLEAR_FLOAT: Regex = Regex::new(r"~{4,}(?P<direction><|>|=|==)?").unwrap();
 }
 
@@ -131,10 +132,19 @@ impl<'a> LineInner<'a> {
             () => ( pair.as_str() )
         }
 
+        macro_rules! extract {
+            ($regex:expr) => ( $regex.captures(as_str!()).unwrap().get(0).unwrap().as_str() )
+        }
+
         println!("tree:\n{:#?}", &pair);
 
         let first_pair = pair.clone().into_inner().next().unwrap();
         match first_pair.as_rule() {
+            Rule::align => {
+                let alignment = Alignment::from_str(extract!(ALIGN)).unwrap();
+
+                LineInner::Align { alignment }
+            },
             Rule::clear_float => {
                 let capture = CLEAR_FLOAT.captures(as_str!()).unwrap();
                 let direction = match capture.name("direction") {
