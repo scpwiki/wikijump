@@ -28,7 +28,7 @@ use super::{Rule, WikidotParser};
 
 #[test]
 fn test_valid_strings() {
-    const INPUT_STRINGS: [&str; 45] = [
+    const INPUT_STRINGS: [&str; 51] = [
         "@@ apple @@ @@banana@@",
         "@@ [!-- literal comment @@ durian",
         "@@@@@@ at signs `````` tildes",
@@ -74,6 +74,12 @@ fn test_valid_strings() {
         "[[date 1554823000]]\n[[ date 1554823000 ]]\n[[ date 1554823000 format=\"%A %B %d, %Y\" ]]\n[[date 1554823000  format = \"%A %B %d, %Y\"]]\n[[  date  1554823000  format= \"%A %B %d, %Y\"]]",
         "[[footnote]] Inner **contents** here [[date 0]] __please!__ [[/footnote]]",
         "[[footnote]] Multi-line\nfootnote\ncontents\nhere [[/footnote]]",
+        "[[<]]\nleft-aligned **text**\n[[/<]]",
+        "[[>]]\nright-aligned //text//\n[[/>]]",
+        "[[=]]\ncenter-aligned __text__\n[[/=]]",
+        "[[==]]\njustified {{text}}\n[[/==]]",
+        "[[>]]\n[[module Rate]]\n[[/>]]\n[[=]]\n++ UNAUTHORIZED ACCESS IS __BAD__\ndon't do it\n[[/=]]",
+        "[[==]]\n[[note]]\ninternal data here\n[[/note]]\nWas created on [[date 100000000]], thanks to [[*user rounderhouse]] for critique.\n##red|apple##\n[[/==]]",
     ];
 
     for string in &INPUT_STRINGS[..] {
