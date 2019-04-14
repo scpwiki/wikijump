@@ -18,27 +18,51 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 //
 
+// Pages {{{
 page = { SOI ~ line* ~ EOI }
 newlines = { "\n"+ | EOI }
+// }}}
 
-// TODO finish line declaration
+// TODO
+// Lines {{{
+
 line = { line_inner ~ newlines }
+
 line_inner = {
+    align |
     clear_float |
     horizontal_line |
     center |
     word+
 }
+
 lines_maybe = { line* ~ line_inner }
 
-// Misc lines
+// }}}
+
+// Misc lines {{{
+
 clear_float = { "~"{4,} ~ direction? }
 horizontal_line = { "-"{4,} }
 
-// Formatting lines
-center = { "=" ~ word+ }
+// }}}
 
-// Word definition
+// Formatting lines {{{
+
+// Unfortunately for "align" we cannot use the "direction" token,
+// as we would need to verify that the second direction in the closing
+// block also matches it. If we don't, we run the risk of intercepting
+// another align block.
+align = {
+    "TODO" ~
+    "[[" ~ direction ~ "]]\n" ~
+    "[[/" ~ direction ~ "]]"
+}
+
+center = { "=" ~ word+ }
+// }}}
+
+// Words {{{
 word = {
     text |
     raw |
@@ -65,8 +89,9 @@ word = {
     span |
     user
 }
+// }}}
 
-// Misc words
+// Misc words {{{
 text = {
     (!(
         "@@" |
@@ -84,11 +109,13 @@ text = {
         "\n"
     ) ~ ANY)+
 }
+
 raw = { ("@@" ~ (!("@@" | "\n") ~ ANY)+ ~ "@@") | "@@@@@@" }
 legacy_raw = { ("``" ~ (!("``" | "\n") ~ ANY)+ ~ "``") | "``````" }
 email = { ident ~ "@" ~ ident }
+// }}}
 
-// Formatting words
+// Formatting words {{{
 color = { "##" ~ space? ~ ("#"? ~ ident) ~ space? ~ "|" ~ word* ~ "##" }
 italics = { "//" ~ word* ~ "//" }
 strikethrough = { "--" ~ word+ ~ "--" }
@@ -97,32 +124,42 @@ underline = { "__" ~ word* ~ "__" }
 subscript = { ",," ~ word* ~ ",," }
 superscript = { "^^" ~ word* ~ "^^" }
 monospace = { "{{" ~ word* ~ "}}" }
+// }}}
 
-// Block words
+// Block words {{{
+
 anchor = { "[[#" ~ space? ~ ident ~ space? ~ "]]" }
+
 date = {
     "[[" ~ space? ~ ^"date" ~ space ~ integer ~ date_arg? ~ space? ~ "]]"
 }
+
 date_arg = @{ space ~ ^"format" ~ space? ~ "=" ~ space? ~ string }
+
 div = {
     "[[" ~ space? ~ ^"div" ~ div_arg* ~ space? ~ "]]" ~
     line* ~
     "[[/" ~ space? ~ ^"div" ~ space? ~ "]]"
 }
 div_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ string }
+
 equation_ref = { "[[" ~ space? ~ ^"eref" ~ space ~ ident ~ space? ~ "]]" }
 file_ref = { "[[" ~ space? ~ ^"file" ~ space ~ file_ident ~ space? ~ "]]" }
+
 footnote = {
     "[[" ~ space? ~ ^"footnote" ~ space? ~ "]]" ~
     lines_maybe ~
     "[[/" ~ space? ~ ^"footnote" ~ space? ~ "]]"
 }
+
 footnote_block = { "[[" ~ space? ~ ^"footnoteblock" ~ space? ~ "]]" }
+
 form = {
     "[[" ~ space? ~ ^"form" ~ space? ~ "]]\n" ~
     (!("[[/" ~ space? ~ ^"form") ~ ANY)* ~
     "[[/" ~ space? ~ ^"form" ~ space? ~ "]]"
 }
+
 module = {
     "[[" ~ space? ~ ^"module" ~ space ~ ident ~ module_arg* ~ space? ~ "]]" ~
     (
@@ -130,12 +167,15 @@ module = {
         "[[/" ~ space? ~ ^"module" ~ space? ~ "]]"
     )?
 }
+
 module_arg = { space ~ ident ~ space? ~ "=" ~ space? ~ string }
+
 note = {
     "[[" ~ space? ~ ^"note" ~ space? ~ "]]\n" ~
     line* ~
     "[[/" ~ space? ~ ^"note" ~ space? ~ "]]"
 }
+
 image = {
     "[[" ~ space? ~ ^"image" ~ space ~ file_ident ~ image_arg* ~ space? ~ "]]"
 }
@@ -143,6 +183,7 @@ image_arg = {
     space ~
     (^"link" | ^"alt" | ^"title" | ^"width" | ^"height" | ^"style" | ^"class" | ^"size") ~
     space? ~ "=" ~ space? ~ string
+
 }
 span = {
     "[[" ~ space? ~ ^"span" ~ span_arg* ~ space? ~ "]]" ~
@@ -150,9 +191,12 @@ span = {
     "[[/" ~ space? ~ ^"span" ~ space? ~ "]]"
 }
 span_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ string }
+
 user = { "[[" ~ space? ~ "*"? ~ space? ~ ^"user" ~ space ~ ident ~ space? ~ "]]" }
 
-// Components
+// }}}
+
+// Components {{{
 hex_digit = @{ '0'..'9' | 'a'..'f' | 'A'..'F' }
 space = _{ (" " | "\t")+ }
 integer = @{ "-"? ~ ASCII_DIGIT+ }
@@ -163,3 +207,6 @@ string = @{ "\"" ~ str_inner ~ "\"" }
 escape = @{ "\\" ~ ("\"" | "\\" | "r" | "n" | "t" | "0" | "'") }
 direction = { "<" | ">" | "="{1,2} }
 COMMENT = _{ "[!--" ~ (!"--]" ~ ANY)* ~ "--]" }
+// }}}
+
+// vim: set fdm=marker foldlevel=0:
