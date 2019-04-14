@@ -272,6 +272,7 @@ impl<'a> Word<'a> {
                     .name("contents")
                     .map(|capture| capture.as_str());
 
+                // Parse arguments
                 for pair in pair.into_inner() {
                     match pair.as_rule() {
                         Rule::ident => name = pair.as_str(),

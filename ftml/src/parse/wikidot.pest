@@ -39,7 +39,7 @@ line_inner = {
 
 // }}}
 
-// Formatting lines {{{
+// Block lines {{{
 
 // Unfortunately for "align" we cannot use the "direction" token,
 // as we would need to verify that the second direction in the closing
@@ -52,11 +52,18 @@ align = {
     ("[[==]]\n" ~ line* ~ "[[/==]]")
 }
 
-center = { "=" ~ word+ }
+code = {
+    "[[" ~ space? ~ ^"code" ~ code_arg ~ space? ~ "]]\n" ~
+    (!("[[/" ~ space? ~ ^"code") ~ ANY)* ~
+    "[[/" ~ space? ~ ^"code" ~ space? ~ "]]"
+}
+code_arg = { space ~ (^"type" | ^"lang" | ^"language") ~ space? ~ "=" ~ space? ~ string }
+
 // }}}
 
 // Misc lines {{{
 
+center = { "=" ~ word+ }
 clear_float = { "~"{4,} ~ direction? }
 horizontal_line = { "-"{4,} }
 
@@ -109,7 +116,6 @@ anchor = { "[[#" ~ space? ~ ident ~ space? ~ "]]" }
 date = {
     "[[" ~ space? ~ ^"date" ~ space ~ integer ~ date_arg? ~ space? ~ "]]"
 }
-
 date_arg = @{ space ~ ^"format" ~ space? ~ "=" ~ space? ~ string }
 
 div = {
@@ -143,7 +149,6 @@ module = {
         "[[/" ~ space? ~ ^"module" ~ space? ~ "]]"
     )?
 }
-
 module_arg = { space ~ ident ~ space? ~ "=" ~ space? ~ string }
 
 note = {

@@ -19,11 +19,20 @@
  */
 
 use crate::enums::{Alignment, ListStyle};
+use std::borrow::Cow;
 use super::prelude::*;
 
 lazy_static! {
     static ref ALIGN: Regex = Regex::new(r"^\[\[(?P<direction><|>|=|==)\]\]").unwrap();
     static ref CLEAR_FLOAT: Regex = Regex::new(r"~{4,}(?P<direction><|>|=|==)?").unwrap();
+
+    static ref CODE_BLOCK: Regex = {
+        RegexBuilder::new(r"\[\[\s*code[^\]]*\]\](?:\n(?P<contents>.*)\n\[\[\s*code\s*\]\]")
+            .case_insensitive(true)
+            .dot_matches_new_line(true)
+            .build()
+            .unwrap()
+    };
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -72,8 +81,8 @@ pub enum LineInner<'a> {
         direction: Option<Alignment>,
     },
     CodeBlock {
-        language: Option<&'a str>,
-        contents: Vec<Line<'a>>,
+        language: Option<Cow<'a, str>>,
+        contents: &'a str,
     },
     Div {
         id: Option<&'a str>,
@@ -144,6 +153,29 @@ impl<'a> LineInner<'a> {
                 let alignment = Alignment::from_str(extract!(ALIGN)).unwrap();
 
                 LineInner::Align { alignment }
+            },
+            Rule::code => {
+                let mut language = None;
+                let contents = extract!(CODE_BLOCK);
+
+                // Parse arguments
+                for pair in pair.into_inner() {
+                    debug_assert_eq!(pair.as_rule(), Rule::code_arg);
+
+                    let capture = ARGUMENT_NAME.captures(pair.as_str()).unwrap();
+                    let name = capture!(capture, "name");
+                    let value_pair = pair.into_inner().next().unwrap();
+
+                    debug_assert_eq!(value_pair.as_rule(), Rule::string);
+
+                    let value = value_pair.as_str();
+                    match name {
+                        "type" | "lang" | "language" => language = interp_str(value),
+                        _ => panic!("Unknown argument for [[code]]: {}", name),
+                    }
+                }
+
+                LineInner::CodeBlock { language, contents }
             },
             Rule::clear_float => {
                 let capture = CLEAR_FLOAT.captures(as_str!()).unwrap();
