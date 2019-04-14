@@ -1,1 +1,2 @@
-test/output/ binary
+test/*.html binary
+test/*.txt binary
