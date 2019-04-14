@@ -70,7 +70,7 @@ lazy_static! {
     };
 
     static ref RAW: Regex = {
-        RegexBuilder::new(r"[@`]{2}(.+)[@`]{2}")
+        RegexBuilder::new(r"[@`]{2}(.*)[@`]{2}")
             .build()
             .unwrap()
     };

@@ -28,10 +28,11 @@ use super::{Rule, WikidotParser};
 
 #[test]
 fn test_valid_strings() {
-    const INPUT_STRINGS: [&str; 55] = [
+    const INPUT_STRINGS: [&str; 56] = [
         "@@ apple @@ @@banana@@",
         "@@ [!-- literal comment @@ durian",
         "@@@@@@ at signs `````` tildes",
+        "@@@@ empty raw ```` another",
         "apple `` legacy raw @@ `` banana",
         "[!-- [[ footnote invalid formatting in here-- [[ eref --] test",
         "__**test** cherry {{ durian (?) }}__ ^^up!^^",
