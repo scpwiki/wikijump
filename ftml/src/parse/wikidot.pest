@@ -40,13 +40,6 @@ lines_maybe = { line* ~ line_inner }
 
 // }}}
 
-// Misc lines {{{
-
-clear_float = { "~"{4,} ~ direction? }
-horizontal_line = { "-"{4,} }
-
-// }}}
-
 // Formatting lines {{{
 
 // Unfortunately for "align" we cannot use the "direction" token,
@@ -60,6 +53,13 @@ align = {
 }
 
 center = { "=" ~ word+ }
+// }}}
+
+// Misc lines {{{
+
+clear_float = { "~"{4,} ~ direction? }
+horizontal_line = { "-"{4,} }
+
 // }}}
 
 // Words {{{
@@ -89,30 +89,6 @@ word = {
     span |
     user
 }
-// }}}
-
-// Misc words {{{
-text = {
-    (!(
-        "@@" |
-        "``" |
-        "//" |
-        "--" |
-        "**" |
-        "__" |
-        ",," |
-        "^^" |
-        "{{" | "}}" |
-        "[[" | "]]" |
-        "##" |
-        "-"{4,} | "~"{4,} |
-        "\n"
-    ) ~ ANY)+
-}
-
-raw = { ("@@" ~ (!("@@" | "\n") ~ ANY)+ ~ "@@") | "@@@@@@" }
-legacy_raw = { ("``" ~ (!("``" | "\n") ~ ANY)+ ~ "``") | "``````" }
-email = { ident ~ "@" ~ ident }
 // }}}
 
 // Formatting words {{{
@@ -194,6 +170,30 @@ span_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ str
 
 user = { "[[" ~ space? ~ "*"? ~ space? ~ ^"user" ~ space ~ ident ~ space? ~ "]]" }
 
+// }}}
+
+// Misc words {{{
+text = {
+    (!(
+        "@@" |
+        "``" |
+        "//" |
+        "--" |
+        "**" |
+        "__" |
+        ",," |
+        "^^" |
+        "{{" | "}}" |
+        "[[" | "]]" |
+        "##" |
+        "-"{4,} | "~"{4,} |
+        "\n"
+    ) ~ ANY)+
+}
+
+raw = { ("@@" ~ (!("@@" | "\n") ~ ANY)+ ~ "@@") | "@@@@@@" }
+legacy_raw = { ("``" ~ (!("``" | "\n") ~ ANY)+ ~ "``") | "``````" }
+email = { ident ~ "@" ~ ident }
 // }}}
 
 // Components {{{
