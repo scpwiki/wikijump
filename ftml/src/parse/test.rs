@@ -28,7 +28,7 @@ use super::{Rule, WikidotParser};
 
 #[test]
 fn test_valid_strings() {
-    const INPUT_STRINGS: [&str; 52] = [
+    const INPUT_STRINGS: [&str; 55] = [
         "@@ apple @@ @@banana@@",
         "@@ [!-- literal comment @@ durian",
         "@@@@@@ at signs `````` tildes",
@@ -81,10 +81,13 @@ fn test_valid_strings() {
         "[[>]]\n[[module Rate]]\n[[/>]]\n[[=]]\n++ UNAUTHORIZED ACCESS IS __BAD__\ndon't do it\n[[/=]]",
         "[[==]]\n[[note]]\ninternal data here\n[[/note]]\nWas created on [[date 100000000]], thanks to [[*user rounderhouse]] for critique.\n##red|apple##\n[[/==]]",
         "[[>]]\nRIGHT\n[[<]]\nLEFT\n[[/<]]\nBLOCK\n[[/>]]",
+        "[[code]]\nSome filenames:\n- Cargo.lock\n- Cargo.toml\n- LICENSE.md\n[[/code]]",
+        "[[code type=\"CSS\"]]\n@charset 'utf-8';\n\n:root{\n    --theme-base: 'black-highlighter';    --theme-id: 'black-highlighter';}\n[[/code]]",
+        "[[code lang= \"python\"]]\n[[/code]]\n$\n[[code language =\"RUST\"]]\nfn main() {\n    println!(\"Hello, world!\");\n}\n[[/code]]",
     ];
 
     for string in &INPUT_STRINGS[..] {
-        println!("Valid test string: {:?}", string);
+        println!("Testing valid string: {:?}", string);
         if let Err(err) = WikidotParser::parse(Rule::page, string) {
             panic!(
                 "Failed to parse test string:\n{}\n-----\nProduced error: {}",
@@ -96,7 +99,7 @@ fn test_valid_strings() {
 
 #[test]
 fn test_invalid_strings() {
-    const INPUT_STRINGS: [&str; 40] = [
+    const INPUT_STRINGS: [&str; 46] = [
         "@@ raw value",
         "`` legacy raw value",
         "@@ @@ @@",
@@ -108,6 +111,7 @@ fn test_invalid_strings() {
         "[!-- alpha --] [[ eref ",
         "__**test** cherry {{ durian ^^up^^ __",
         " {{ ",
+        " }} ",
         "[[ unknown block ]]",
         "[[ ]]",
         "kiwi [[date 0]",
@@ -125,7 +129,7 @@ fn test_invalid_strings() {
         "-- Incomplete strikethrough",
         "^^ Incomplete superscript",
         ",, Incomplete subscript",
-        "---- Incomplete strikethrough", // Conflicts with horiz separator
+        "---- Empty strikethrough", // Conflicts with horiz separator
         "##NOT&A&COLOR|test##",
         "[[footnote]]",
         "[[footnote]][[/footnote]]",
@@ -137,10 +141,15 @@ fn test_invalid_strings() {
         "[[<]]\nCHERRY\n[[/>]]",
         "[[=]]\nCHERRY\n[[/==]]",
         "[[==]]\nCHERRY\n[[/=]]",
+        "[[date 1000 invalid_arg=\"test\"]]",
+        "[[span invalid_arg=\"test\"]]apple[[/span]]",
+        "[[user rounderhouse invalid_arg=\"test\"]]",
+        "[[image director-sharp.jpeg invalid_arg=\"test\"]]",
+        "[[code invalid_arg=\"test\"]]\napple\n[[/code]]",
     ];
 
     for string in &INPUT_STRINGS[..] {
-        println!("Invalid test string: {:?}", string);
+        println!("Testing invalid string: {:?}", string);
         if let Ok(pairs) = WikidotParser::parse(Rule::page, string) {
             panic!(
                 "Invalid test string parsed successfully:\n{}\n-----\nProduced pairs: {:#?}",

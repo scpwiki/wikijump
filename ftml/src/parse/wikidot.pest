@@ -31,6 +31,7 @@ lines_maybe = { line* ~ line_inner }
 
 line_inner = {
     align |
+    code |
     clear_float |
     horizontal_line |
     center |
@@ -53,11 +54,11 @@ align = {
 }
 
 code = {
-    "[[" ~ space? ~ ^"code" ~ code_arg ~ space? ~ "]]\n" ~
+    "[[" ~ space? ~ ^"code" ~ code_arg? ~ space? ~ "]]\n" ~
     (!("[[/" ~ space? ~ ^"code") ~ ANY)* ~
     "[[/" ~ space? ~ ^"code" ~ space? ~ "]]"
 }
-code_arg = { space ~ (^"type" | ^"lang" | ^"language") ~ space? ~ "=" ~ space? ~ string }
+code_arg = { space ~ (^"type" | ^"language" | ^"lang") ~ space? ~ "=" ~ space? ~ string }
 
 // }}}
 
