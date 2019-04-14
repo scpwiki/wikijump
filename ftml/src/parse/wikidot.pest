@@ -100,7 +100,10 @@ monospace = { "{{" ~ word* ~ "}}" }
 
 // Block words
 anchor = { "[[#" ~ space? ~ ident ~ space? ~ "]]" }
-date = { "[[" ~ space? ~ ^"date" ~ space ~ integer ~ (space ~ ^"format" ~ space? ~ "=" ~ space? ~ string)? ~ space? ~ "]]" }
+date = {
+    "[[" ~ space? ~ ^"date" ~ space ~ integer ~ date_arg? ~ space? ~ "]]"
+}
+date_arg = @{ space ~ ^"format" ~ space? ~ "=" ~ space? ~ string }
 div = {
     "[[" ~ space? ~ ^"div" ~ div_arg* ~ space? ~ "]]" ~
     line* ~
