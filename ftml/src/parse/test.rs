@@ -28,7 +28,7 @@ use super::{Rule, WikidotParser};
 
 #[test]
 fn test_valid_strings() {
-    const INPUT_STRINGS: [&str; 51] = [
+    const INPUT_STRINGS: [&str; 52] = [
         "@@ apple @@ @@banana@@",
         "@@ [!-- literal comment @@ durian",
         "@@@@@@ at signs `````` tildes",
@@ -80,6 +80,7 @@ fn test_valid_strings() {
         "[[==]]\njustified {{text}}\n[[/==]]",
         "[[>]]\n[[module Rate]]\n[[/>]]\n[[=]]\n++ UNAUTHORIZED ACCESS IS __BAD__\ndon't do it\n[[/=]]",
         "[[==]]\n[[note]]\ninternal data here\n[[/note]]\nWas created on [[date 100000000]], thanks to [[*user rounderhouse]] for critique.\n##red|apple##\n[[/==]]",
+        "[[>]]\nRIGHT\n[[<]]\nLEFT\n[[/<]]\nBLOCK\n[[/>]]",
     ];
 
     for string in &INPUT_STRINGS[..] {
@@ -95,7 +96,7 @@ fn test_valid_strings() {
 
 #[test]
 fn test_invalid_strings() {
-    const INPUT_STRINGS: [&str; 32] = [
+    const INPUT_STRINGS: [&str; 40] = [
         "@@ raw value",
         "`` legacy raw value",
         "@@ @@ @@",
@@ -128,6 +129,14 @@ fn test_invalid_strings() {
         "##NOT&A&COLOR|test##",
         "[[footnote]]",
         "[[footnote]][[/footnote]]",
+        "[[>]]\nPINEAPPLE",
+        "[[<]]\nPINEAPPLE",
+        "[[=]]\nPINEAPPLE",
+        "[[==]]\nPINEAPPLE",
+        "[[>]]\nCHERRY\n[[/<]]",
+        "[[<]]\nCHERRY\n[[/>]]",
+        "[[=]]\nCHERRY\n[[/==]]",
+        "[[==]]\nCHERRY\n[[/=]]",
     ];
 
     for string in &INPUT_STRINGS[..] {
