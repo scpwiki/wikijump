@@ -159,7 +159,7 @@ impl<'a> LineInner<'a> {
             ($regex:expr) => (
                 $regex.captures(as_str!())
                     .expect("String doesn't match regular expression")
-                    .get(0)
+                    .get(1)
                     .expect("No captures in regular expression")
                     .as_str()
             )
