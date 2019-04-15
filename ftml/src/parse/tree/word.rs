@@ -155,7 +155,7 @@ pub enum Word<'a> {
     },
     Size {
         size: &'a str,
-        contents: Vec<Word<'a>>,
+        contents: Vec<Line<'a>>,
     },
     Span {
         id: Option<&'a str>,
@@ -389,6 +389,19 @@ impl<'a> Word<'a> {
                     class,
                     size,
                 }
+            }
+            Rule::size => {
+                let mut contents = Vec::new();
+
+                let mut pairs = pair.into_inner();
+                let size = pairs.next().unwrap().as_str();
+                let lines = pairs.next().unwrap();
+
+                for pair in lines.into_inner() {
+                    contents.push(Line::from_pair(pair));
+                }
+
+                Word::Size { size, contents }
             }
             Rule::span => {
                 let mut id = None;

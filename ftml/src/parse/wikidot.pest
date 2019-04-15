@@ -102,6 +102,7 @@ word = {
     module |
     note |
     image |
+    size |
     span |
     user
 }
@@ -171,6 +172,25 @@ image_arg = {
     space? ~ "=" ~ space? ~ string
 
 }
+
+size = {
+    "[[" ~ space? ~ ^"size" ~ space ~ size_arg ~ space? ~ "]]" ~
+    lines_maybe? ~
+    "[[/" ~ space? ~ ^"size" ~ space? ~ "]]"
+}
+size_arg = {
+    (ASCII_DIGIT | "."){1,5} ~ space? ~ (^"em" | ^"px" | "%") |
+    ^"xx-small" |
+    ^"x-small" |
+    ^"small" |
+    ^"medium" |
+    ^"large" |
+    ^"x-large" |
+    ^"xx-large" |
+    ^"smaller" |
+    ^"larger"
+}
+
 span = {
     "[[" ~ space? ~ ^"span" ~ span_arg* ~ space? ~ "]]" ~
     lines_maybe? ~
