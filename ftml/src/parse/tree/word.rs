@@ -203,7 +203,7 @@ impl<'a> Word<'a> {
         macro_rules! extract {
             ($regex:expr) => (
                 $regex.captures(as_str!())
-                    .expect("String doesn't match regular expression")
+                    .expect("Pair contents doesn't match regular expression")
                     .get(0)
                     .expect("No captures in regular expression")
                     .as_str()
