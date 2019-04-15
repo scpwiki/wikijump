@@ -28,7 +28,7 @@ use super::{Rule, WikidotParser};
 
 #[test]
 fn test_valid_strings() {
-    const INPUT_STRINGS: [&str; 59] = [
+    const INPUT_STRINGS: [&str; 62] = [
         "@@ apple @@ @@banana@@",
         "@@ [!-- literal comment @@ durian",
         "@@@@@@ at signs `````` tildes",
@@ -88,6 +88,9 @@ fn test_valid_strings() {
         "[[code]]\nSome filenames:\n- Cargo.lock\n- Cargo.toml\n- LICENSE.md\n[[/code]]",
         "[[code type=\"CSS\"]]\n@charset 'utf-8';\n\n:root{\n    --theme-base: 'black-highlighter';    --theme-id: 'black-highlighter';}\n[[/code]]",
         "[[code lang= \"python\"]]\n[[/code]]\n$\n[[code language =\"RUST\"]]\nfn main() {\n    println!(\"Hello, world!\");\n}\n[[/code]]",
+        "[[div class=\"raisa-notice\"]]\n++ RAISA NOTICE\nThis file is dank.\n[[/div]]",
+        "[[ div id=\"apple\" class =\"banana\" style= \"display: none;\" ]]\ndurian\n[[/ div ]]",
+        "[[div]]\n[[/div]]",
     ];
 
     for string in &INPUT_STRINGS[..] {
@@ -103,7 +106,7 @@ fn test_valid_strings() {
 
 #[test]
 fn test_invalid_strings() {
-    const INPUT_STRINGS: [&str; 48] = [
+    const INPUT_STRINGS: [&str; 50] = [
         "@@ raw value",
         "`` legacy raw value",
         "@@ @@ @@",
@@ -152,6 +155,8 @@ fn test_invalid_strings() {
         "[[user rounderhouse invalid_arg=\"test\"]]",
         "[[image director-sharp.jpeg invalid_arg=\"test\"]]",
         "[[code invalid_arg=\"test\"]]\napple\n[[/code]]",
+        "[[div invalid_arg=\"test\"]][[/div]]",
+        "an [[div]] inline div [[/div]]",
     ];
 
     for string in &INPUT_STRINGS[..] {

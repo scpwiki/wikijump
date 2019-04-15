@@ -33,6 +33,7 @@ line_inner = {
     align |
     code |
     clear_float |
+    div |
     horizontal_line |
     center |
     word+
@@ -59,6 +60,13 @@ code = {
     "[[/" ~ space? ~ ^"code" ~ space? ~ "]]"
 }
 code_arg = { space ~ (^"type" | ^"language" | ^"lang") ~ space? ~ "=" ~ space? ~ string }
+
+div = {
+    "[[" ~ space? ~ ^"div" ~ div_arg* ~ space? ~ "]]\n" ~
+    line* ~
+    "[[/" ~ space? ~ ^"div" ~ space? ~ "]]"
+}
+div_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ string }
 
 // }}}
 
@@ -118,13 +126,6 @@ date = {
     "[[" ~ space? ~ ^"date" ~ space ~ integer ~ date_arg? ~ space? ~ "]]"
 }
 date_arg = @{ space ~ ^"format" ~ space? ~ "=" ~ space? ~ string }
-
-div = {
-    "[[" ~ space? ~ ^"div" ~ div_arg* ~ space? ~ "]]" ~
-    line* ~
-    "[[/" ~ space? ~ ^"div" ~ space? ~ "]]"
-}
-div_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ string }
 
 equation_ref = { "[[" ~ space? ~ ^"eref" ~ space ~ ident ~ space? ~ "]]" }
 file_ref = { "[[" ~ space? ~ ^"file" ~ space ~ file_ident ~ space? ~ "]]" }
