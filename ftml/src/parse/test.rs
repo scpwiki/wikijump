@@ -28,7 +28,7 @@ use super::{parse, Rule, WikidotParser};
 
 const TEST_SYNTAX_TREE: bool = false;
 
-const VALID_INPUT_STRINGS: [&str; 67] = [
+const VALID_INPUT_STRINGS: [&str; 68] = [
     "@@ apple @@ @@banana@@",
     "@@ [!-- literal comment @@ durian",
     "@@@@@@ at signs `````` tildes",
@@ -93,7 +93,8 @@ const VALID_INPUT_STRINGS: [&str; 67] = [
     "[[ div id=\"apple\" class =\"banana\" style= \"display: none;\" ]]\ndurian\n[[/ div ]]",
     "[[div]]\n[[/div]]",
     "[[SPAN ID=\"apple\"]] [[FOOTNOTE]]cherry[[/FOOTNOTE]] [[/SPAN]] [[DATE 1000000 FORMAT=\"%A\"]]",
-    "[[IMAGE tree.png CLASS=\"image-block\"]] [[<IMAGE left-aligned.png]] [[>IMAGE right-aligned.png]]",
+    "[[ IMAGE tree.png LINK = \"https://example.com\" ALT=\"A tree.\" CLASS=\"image-block\"  ]]",
+    "[[IMAGE tree.png ]] [[<IMAGE left-aligned.png]] [[>IMAGE right-aligned.png]]",
     "[[f<IMAGE left-aligned.png]] [[f>IMAGE right-aligned.png]] [[=IMAGE centered.png]]",
     "[[NOTE]]\ncontents\n[[/NOTE]]\n[[CODE]]\ncontents\n[[/CODE]]\n[[DIV STYLE=\"display: none;\"]]\ncontents\n[[/DIV]]",
 ];
