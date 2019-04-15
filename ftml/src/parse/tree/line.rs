@@ -75,9 +75,8 @@ impl<'a> Line<'a> {
     }
 }
 
-// TODO make private
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum LineInner<'a> {
+enum LineInner<'a> {
     Align {
         alignment: Alignment,
     },

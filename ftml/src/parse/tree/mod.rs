@@ -42,12 +42,12 @@ mod prelude {
 
     pub use pest::iterators::{Pair, Pairs};
     pub use regex::{Regex, RegexBuilder};
-    pub use super::{Line, LineInner, TableRow, Word};
+    pub use super::{Line, TableRow, Word};
     pub use super::super::Rule;
     pub use super::super::string::interp_str;
 }
 
-pub use self::line::{Line, LineInner};
+pub use self::line::Line;
 pub use self::misc::TableRow;
 pub use self::word::Word;
 
