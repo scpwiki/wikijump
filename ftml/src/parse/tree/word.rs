@@ -41,7 +41,7 @@ lazy_static! {
     };
 
     static ref EQUATION_REF: Regex = {
-        RegexBuilder::new(r"\[\[\s*eref\s+([a-z0-9\-+)\s*\]\]")
+        RegexBuilder::new(r"\[\[\s*eref\s+([a-z0-9\-+_\.%]+)\s*\]\]")
             .case_insensitive(true)
             .build()
             .unwrap()
@@ -55,7 +55,7 @@ lazy_static! {
     };
 
     static ref FORM: Regex = {
-        RegexBuilder::new(r"\[\[\s*form\s*\]\]\n(?P<contents>.*)\n\[\[/\s*form\s*\]\]")
+        RegexBuilder::new(r"\[\[\s*form\s*\]\]\n(?P<contents>.*\n)\[\[/\s*form\s*\]\]")
             .case_insensitive(true)
             .dot_matches_new_line(true)
             .build()
@@ -63,7 +63,7 @@ lazy_static! {
     };
 
     static ref MODULE: Regex = {
-        RegexBuilder::new(r"\[\[\s*module[^\]]*\]\](?:\n(?P<contents>.*)\n\[\[\s*module\s*\]\]")
+        RegexBuilder::new(r"\[\[\s*module[^\]]*\]\]\n(?P<contents>.*\n)\[\[\s*module\s*\]\]")
             .case_insensitive(true)
             .dot_matches_new_line(true)
             .build()
