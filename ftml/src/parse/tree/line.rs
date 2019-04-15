@@ -266,3 +266,10 @@ impl<'a> LineInner<'a> {
         }
     }
 }
+
+#[test]
+fn test_regexes() {
+    let _ = &*ALIGN;
+    let _ = &*CLEAR_FLOAT;
+    let _ = &*CODE_BLOCK;
+}

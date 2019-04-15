@@ -458,3 +458,15 @@ impl<'a> Word<'a> {
         }
     }
 }
+
+#[test]
+fn test_regexes() {
+    let _ = &*ANCHOR;
+    let _ = &*DATE;
+    let _ = &*EQUATION_REF;
+    let _ = &*FILENAME;
+    let _ = &*FORM;
+    let _ = &*MODULE;
+    let _ = &*RAW;
+    let _ = &*USER;
+}
