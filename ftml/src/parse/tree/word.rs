@@ -77,7 +77,8 @@ lazy_static! {
     };
 
     static ref USER: Regex = {
-        RegexBuilder::new(r"\[\[(?P<picture>\*)?\s*(?P<username>[^ ]+)\s*\]\]")
+        RegexBuilder::new(r"\[\[\s*(?P<picture>\*)?\s*user\s+(?P<username>[^ ]+)\s*\]\]")
+            .case_insensitive(true)
             .build()
             .unwrap()
     };
