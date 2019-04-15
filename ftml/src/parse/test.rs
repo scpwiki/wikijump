@@ -28,7 +28,7 @@ use super::{parse, Rule, WikidotParser};
 
 const TEST_SYNTAX_TREE: bool = false;
 
-const VALID_INPUT_STRINGS: [&str; 66] = [
+const VALID_INPUT_STRINGS: [&str; 67] = [
     "@@ apple @@ @@banana@@",
     "@@ [!-- literal comment @@ durian",
     "@@@@@@ at signs `````` tildes",
@@ -56,6 +56,7 @@ const VALID_INPUT_STRINGS: [&str; 66] = [
     "apple\n[[module Rate]]\nbanana",
     "apple\n[[module CSS]]\n@import url('https://example.com/style.css');\ndiv.container { display: none; }\n[[/module]]\nbanana",
     "[[form]]\nform data here\nmore stuff\n[[/form]]",
+    "[[form]]\n[[/form]]",
     "[[note]]\nnote internal information here\napple\ndurian\nbanana\n[[/note]]",
     "apple\n[[note]]\ninternal\n[[/note]]\nbanana",
     "^^**alpha** beta ,,gamma,,^^",

@@ -55,7 +55,7 @@ lazy_static! {
     };
 
     static ref FORM: Regex = {
-        RegexBuilder::new(r"\[\[\s*form\s*\]\]\n(?P<contents>.*\n)\[\[/\s*form\s*\]\]")
+        RegexBuilder::new(r"\[\[\s*form\s*\]\]\n(?P<contents>(?:.*\n)?)\[\[/\s*form\s*\]\]")
             .case_insensitive(true)
             .dot_matches_new_line(true)
             .build()
