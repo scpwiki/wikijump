@@ -21,8 +21,14 @@
 // FIXME to prevent compile spam
 #![allow(dead_code)]
 
+// Convenience macro for static regular expressions meant for parsing.
+// Retrieves the capture group with the given name and returns as a string.
 macro_rules! capture {
-    ($capture:expr, $name:expr) => ( $capture.name($name).unwrap().as_str() )
+    ($capture:expr, $name:expr) => (
+        $capture.name($name)
+            .expect("String from parser didn't match regular expression")
+            .as_str()
+    )
 }
 
 mod line;

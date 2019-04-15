@@ -60,7 +60,7 @@ fn main() {
         )
         .get_matches();
 
-    let output_dir = matches.value_of_os("output-directory").unwrap();
+    let output_dir = matches.value_of_os("output-directory").expect("No argument 'output-directory'");
     if let Err(err) = fs::create_dir_all(&output_dir) {
         let output_dir = Path::new(output_dir);
         eprintln!(
@@ -78,7 +78,7 @@ fn main() {
     };
 
     let mut return_code = 0;
-    for in_path in matches.values_of_os("FILE").unwrap() {
+    for in_path in matches.values_of_os("FILE").expect("No argument(s) 'FILE'") {
         if in_path == "-" {
             if let Err(err) = process_stdin(transform_fn) {
                 eprintln!("Error transforming from stdin: {}", &err);

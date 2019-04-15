@@ -64,7 +64,7 @@ impl Into<String> for Error {
             string
         } else {
             let mut string = String::new();
-            write!(&mut string, "{}", &self).unwrap();
+            write!(&mut string, "{}", &self).expect("Formatted write to string failed");
             string
         }
     }

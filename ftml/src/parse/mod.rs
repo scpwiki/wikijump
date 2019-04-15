@@ -18,6 +18,38 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// This pattern is used in cases where a Pairs object wraps a
+// single Pair object. For instance the Page rule only has one
+// possibility, and the outer layer is not useful for parsing,
+// so we discard it.
+macro_rules! get_inner_pairs {
+    ($pairs:expr) => (
+        $pairs.next()
+            .expect("Item has no more pairs")
+            .into_inner()
+    )
+}
+
+// This pattern is used to convert the first Pair object within
+// a Pair. Thus, it retrieves its inner Pairs iterator and then
+// asserts the first item exists.
+macro_rules! get_first_pair {
+    ($pair:expr) => (
+        $pair.into_inner()
+            .next()
+            .expect("Inner pairs is empty")
+    )
+}
+
+macro_rules! get_nth_pair {
+    ($pair:expr, $index:expr) => (
+        $pair.clone()
+            .into_inner()
+            .nth($index)
+            .expect("Couldn't find nth inner pair")
+    )
+}
+
 mod filter;
 mod string;
 mod tree;
@@ -40,14 +72,8 @@ pub type ParseError = PestError<Rule>;
 pub fn parse<'a>(text: &'a str) -> Result<SyntaxTree<'a>> {
     let page = {
         // Should return exactly [ Rule::page ]
-        //
-        // The .next().unwrap().into_inner() pattern is used in cases
-        // where a Pairs object wraps a single Pair object. For instance
-        // here the Page rule only has one possibility, and the outer layer
-        // is not useful for parsing, so we discard it.
-
-        let mut page = WikidotParser::parse(Rule::page, text)?;
-        page.next().unwrap().into_inner()
+        let mut pairs = WikidotParser::parse(Rule::page, text)?;
+        get_inner_pairs!(pairs)
     };
 
     let tree = SyntaxTree::from_line_pairs(page);

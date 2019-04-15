@@ -32,7 +32,7 @@ lazy_static! {
 }
 
 macro_rules! file_name {
-    ($path:expr) => ( $path.file_name().unwrap().to_string_lossy() )
+    ($path:expr) => ( $path.file_name().expect("Unable to get file name").to_string_lossy() )
 }
 
 const SKIP_PARSER_TESTS: bool = true;

@@ -48,12 +48,12 @@ impl<'a> Line<'a> {
 
         let mut pairs = pair.into_inner();
         let inner = {
-            let pair = pairs.next().unwrap();
+            let pair = pairs.next().expect("Pairs iterator was empty");
             debug_assert_eq!(pair.as_rule(), Rule::line_inner);
             LineInner::from_pair(pair)
         };
         let newlines = {
-            let pair = pairs.next().unwrap();
+            let pair = pairs.next().expect("Pairs iterator only had one element");
             debug_assert_eq!(pair.as_rule(), Rule::newlines);
             pair.as_str().len()
         };
@@ -142,13 +142,19 @@ impl<'a> LineInner<'a> {
         }
 
         macro_rules! extract {
-            ($regex:expr) => ( $regex.captures(as_str!()).unwrap().get(0).unwrap().as_str() )
+            ($regex:expr) => (
+                $regex.captures(as_str!())
+                    .expect("String doesn't match regular expression")
+                    .get(0)
+                    .expect("No captures in regular expression")
+                    .as_str()
+            )
         }
 
-        let first_pair = pair.clone().into_inner().next().unwrap();
-        match first_pair.as_rule() {
+        match get_first_pair!(pair.clone()).as_rule() {
             Rule::align => {
-                let alignment = Alignment::from_str(extract!(ALIGN)).unwrap();
+                let alignment = Alignment::from_str(extract!(ALIGN))
+                    .expect("Parsed align block had invalid alignment");
 
                 LineInner::Align { alignment }
             }
@@ -160,9 +166,10 @@ impl<'a> LineInner<'a> {
                 for pair in pair.into_inner() {
                     debug_assert_eq!(pair.as_rule(), Rule::code_arg);
 
-                    let capture = ARGUMENT_NAME.captures(pair.as_str()).unwrap();
+                    let capture = ARGUMENT_NAME.captures(pair.as_str())
+                        .expect("Regular expression ARGUMENT_NAME didn't match");
                     let name = capture!(capture, "name");
-                    let value_pair = pair.into_inner().next().unwrap();
+                    let value_pair = get_first_pair!(pair);
 
                     debug_assert_eq!(value_pair.as_rule(), Rule::string);
 
@@ -176,7 +183,8 @@ impl<'a> LineInner<'a> {
                 LineInner::CodeBlock { language, contents }
             }
             Rule::clear_float => {
-                let capture = CLEAR_FLOAT.captures(as_str!()).unwrap();
+                let capture = CLEAR_FLOAT.captures(as_str!())
+                    .expect("Regular expression CLEAR_FLOAT didn't match");
                 let direction = match capture.name("direction") {
                     Some(mtch) => Alignment::from_str(mtch.as_str()),
                     None => None,
@@ -193,9 +201,10 @@ impl<'a> LineInner<'a> {
                 for pair in pair.into_inner() {
                     match pair.as_rule() {
                         Rule::div_arg => {
-                            let capture = ARGUMENT_NAME.captures(pair.as_str()).unwrap();
+                            let capture = ARGUMENT_NAME.captures(pair.as_str())
+                                .expect("Regular expression ARGUMENT_NAME didn't match");
                             let name = capture!(capture, "name");
-                            let value_pair = pair.into_inner().next().unwrap();
+                            let value_pair = get_first_pair!(pair);
 
                             debug_assert_eq!(value_pair.as_rule(), Rule::string);
 

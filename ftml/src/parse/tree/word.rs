@@ -192,14 +192,20 @@ impl<'a> Word<'a> {
         trace!("Converting pair into Word...");
         debug_assert_eq!(pair.as_rule(), Rule::word);
 
-        let pair = pair.into_inner().next().unwrap();
+        let pair = get_first_pair!(pair);
 
         macro_rules! as_str {
             () => ( pair.as_str() )
         }
 
         macro_rules! extract {
-            ($regex:expr) => ( $regex.captures(as_str!()).unwrap().get(0).unwrap().as_str() )
+            ($regex:expr) => (
+                $regex.captures(as_str!())
+                    .expect("String doesn't match regular expression")
+                    .get(0)
+                    .expect("No captures in regular expression")
+                    .as_str()
+            )
         }
 
         macro_rules! make_lines {
@@ -245,10 +251,10 @@ impl<'a> Word<'a> {
                 name: extract!(ANCHOR),
             },
             Rule::date => {
-                let capture = DATE.captures(as_str!()).unwrap();
+                let capture = DATE.captures(as_str!()).expect("Regular expression DATE didn't match");
 
                 Word::Date {
-                    timestamp: capture["timestamp"].parse().unwrap(),
+                    timestamp: capture["timestamp"].parse().expect("Unable to parse timestamp integer"),
                     format: capture.name("format").map(|mtch| mtch.as_str()),
                 }
             }
@@ -271,7 +277,7 @@ impl<'a> Word<'a> {
 
                 let contents = MODULE
                     .captures(as_str!())
-                    .unwrap()
+                    .expect("Regular expression MODULE didn't match")
                     .name("contents")
                     .map(|capture| capture.as_str());
 
@@ -280,13 +286,9 @@ impl<'a> Word<'a> {
                     match pair.as_rule() {
                         Rule::ident => name = pair.as_str(),
                         Rule::module_arg => {
-                            let key = {
-                                let pair = pair.clone().into_inner().nth(0).unwrap();
-                                pair.as_str()
-                            };
-
+                            let key = get_nth_pair!(pair, 0).as_str();
                             let value = {
-                                let pair = pair.clone().into_inner().nth(1).unwrap();
+                                let pair = get_nth_pair!(pair, 1);
                                 interp_str(pair.as_str()).expect("Invalid string value")
                             };
 
@@ -345,9 +347,11 @@ impl<'a> Word<'a> {
                         },
                         Rule::ident => filename = pair.as_str(),
                         Rule::image_arg => {
-                            let capture = ARGUMENT_NAME.captures(pair.as_str()).unwrap();
+                            let capture = ARGUMENT_NAME
+                                .captures(pair.as_str())
+                                .expect("Regular expression ARGUMENT_NAME didn't match");
                             let name = capture!(capture, "name");
-                            let value_pair = pair.into_inner().next().unwrap();
+                            let value_pair = get_first_pair!(pair);
 
                             debug_assert_eq!(value_pair.as_rule(), Rule::string);
 
@@ -412,9 +416,11 @@ impl<'a> Word<'a> {
                 for pair in pair.into_inner() {
                     match pair.as_rule() {
                         Rule::span_arg => {
-                            let capture = ARGUMENT_NAME.captures(pair.as_str()).unwrap();
+                            let capture = ARGUMENT_NAME
+                                .captures(pair.as_str())
+                                .expect("Regular expression ARGUMENT_NAME didn't match");
                             let name = capture!(capture, "name");
-                            let value_pair = pair.into_inner().next().unwrap();
+                            let value_pair = get_first_pair!(pair);
 
                             debug_assert_eq!(value_pair.as_rule(), Rule::string);
 
@@ -439,7 +445,7 @@ impl<'a> Word<'a> {
                 }
             }
             Rule::user => {
-                let capture = USER.captures(as_str!()).unwrap();
+                let capture = USER.captures(as_str!()).expect("Regular expression USER didn't match");
 
                 Word::User {
                     username: capture!(capture, "username"),

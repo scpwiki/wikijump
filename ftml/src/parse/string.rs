@@ -27,7 +27,7 @@ pub struct StringParser;
 
 pub fn interp_str<'a>(text: &'a str) -> Option<Cow<'a, str>> {
     let pairs = match StringParser::parse(Rule::string, text) {
-        Ok(mut pairs) => pairs.next().unwrap().into_inner(),
+        Ok(mut pairs) => get_inner_pairs!(pairs),
         Err(_) => return None,
     };
 
@@ -66,17 +66,14 @@ pub fn interp_str<'a>(text: &'a str) -> Option<Cow<'a, str>> {
 #[test]
 fn test_string_parse() {
     let string = interp_str(r#""hello,\nworld!\t""#);
-    assert_eq!(string.is_some(), true);
-    assert_eq!(string.unwrap().as_ref(), "hello,\nworld!\t");
+    assert_eq!(string.expect("Converted string was None").as_ref(), "hello,\nworld!\t");
 
     let string = interp_str(r#""\nA\tTHOUSAND\0WINDS\rCRY\nFOR \'\'\'VICTORS\'\'\'\n""#);
-    assert_eq!(string.is_some(), true);
     assert_eq!(
-        string.unwrap().as_ref(),
+        string.expect("Converted string was None").as_ref(),
         "\nA\tTHOUSAND\0WINDS\rCRY\nFOR '''VICTORS'''\n"
     );
 
     let string = interp_str(r#""""#);
-    assert_eq!(string.is_some(), true);
-    assert_eq!(string.unwrap().as_ref(), "");
+    assert_eq!(string.expect("Converted string was None").as_ref(), "");
 }
