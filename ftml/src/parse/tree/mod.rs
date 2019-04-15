@@ -37,7 +37,7 @@ mod word;
 
 mod prelude {
     lazy_static! {
-        pub static ref ARGUMENT_NAME: Regex = Regex::new(r"(?P<name>\w+)=").unwrap();
+        pub static ref ARGUMENT_NAME: Regex = Regex::new(r"\s*(?P<name>\w+)\s*=\s*").unwrap();
     }
 
     pub use pest::iterators::{Pair, Pairs};

@@ -161,7 +161,7 @@ pub enum Word<'a> {
         id: Option<&'a str>,
         class: Option<&'a str>,
         style: Option<&'a str>,
-        contents: Vec<Word<'a>>,
+        contents: Vec<Line<'a>>,
     },
     Strikethrough {
         contents: Vec<Word<'a>>,
@@ -209,11 +209,13 @@ impl<'a> Word<'a> {
         }
 
         macro_rules! make_lines {
-            () => ( pair.into_inner().map(Line::from_pair).collect() )
+            () => ( make_lines!(pair) );
+            ($pair:expr) => ( $pair.into_inner().map(Line::from_pair).collect() );
         }
 
         macro_rules! make_words {
-            () => ( pair.into_inner().map(Word::from_pair).collect() )
+            () => ( make_words!(pair) );
+            ($pair:expr) => ( $pair.into_inner().map(Word::from_pair).collect() );
         }
 
         match pair.as_rule() {
@@ -265,7 +267,7 @@ impl<'a> Word<'a> {
                 filename: extract!(FILENAME),
             },
             Rule::footnote => Word::Footnote {
-                contents: make_lines!(),
+                contents: make_lines!(get_first_pair!(pair)),
             },
             Rule::footnote_block => Word::FootnoteBlock,
             Rule::form => Word::Form {
@@ -432,7 +434,7 @@ impl<'a> Word<'a> {
                                 _ => panic!("Unknown argument for [[span]]: {}", name),
                             }
                         }
-                        Rule::word => contents.push(Word::from_pair(pair)),
+                        Rule::lines_maybe => contents = make_lines!(pair),
                         _ => panic!("Invalid rule for span: {:?}", pair.as_rule()),
                     }
                 }

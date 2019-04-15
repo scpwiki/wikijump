@@ -44,24 +44,38 @@ pub struct Line<'a> {
 impl<'a> Line<'a> {
     pub fn from_pair(pair: Pair<'a, Rule>) -> Self {
         trace!("Converting pair into Line...");
-        debug_assert_eq!(pair.as_rule(), Rule::line);
 
-        let mut pairs = pair.into_inner();
-        let inner = {
-            let pair = pairs.next().expect("Pairs iterator was empty");
-            debug_assert_eq!(pair.as_rule(), Rule::line_inner);
-            LineInner::from_pair(pair)
-        };
-        let newlines = {
-            let pair = pairs.next().expect("Pairs iterator only had one element");
-            debug_assert_eq!(pair.as_rule(), Rule::newlines);
-            pair.as_str().len()
-        };
+        let inner;
+        let newlines;
+
+        match pair.as_rule() {
+            Rule::line_inner => {
+                inner = LineInner::from_pair(pair);
+                newlines = 0;
+            },
+            Rule::line => {
+                let mut pairs = pair.into_inner();
+
+                inner = {
+                    let pair = pairs.next().expect("Pairs iterator was empty");
+                    debug_assert_eq!(pair.as_rule(), Rule::line_inner);
+                    LineInner::from_pair(pair)
+                };
+                newlines = {
+                    let pair = pairs.next().expect("Pairs iterator only had one element");
+                    debug_assert_eq!(pair.as_rule(), Rule::newlines);
+                    pair.as_str().len()
+                };
+            },
+            Rule::lines_maybe => panic!("The rule 'lines_maybe' returns multiple Line instances"),
+            _ => panic!("Invalid rule for line: {:?}", pair.as_rule()),
+        }
 
         Line { inner, newlines }
     }
 }
 
+// TODO make private
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LineInner<'a> {
     Align {
@@ -249,7 +263,7 @@ impl<'a> LineInner<'a> {
             }
 
             _ => panic!("Line rule for {:?} unimplemented!", pair.as_rule()),
-            //_ => panic!("Invalid rule for line: {:?}", pair.as_rule()),
+            //_ => panic!("Invalid rule for line_inner: {:?}", pair.as_rule()),
         }
     }
 }
