@@ -26,6 +26,8 @@
 use pest::Parser;
 use super::{parse, Rule, WikidotParser};
 
+const TEST_SYNTAX_TREE: bool = false;
+
 const VALID_INPUT_STRINGS: [&str; 62] = [
     "@@ apple @@ @@banana@@",
     "@@ [!-- literal comment @@ durian",
@@ -158,13 +160,15 @@ fn test_valid_strings() {
     }
 
     // Parse and make SyntaxTree
-    for string in &VALID_INPUT_STRINGS[..] {
-        println!("Converting valid string: {:?}", string);
-        if let Err(err) = parse(string) {
-            panic!(
-                "Failed to convert test string:\n{}\n-----\nProduced error: {}",
-                string, err
-            );
+    if TEST_SYNTAX_TREE {
+        for string in &VALID_INPUT_STRINGS[..] {
+            println!("Converting valid string: {:?}", string);
+            if let Err(err) = parse(string) {
+                panic!(
+                    "Failed to convert test string:\n{}\n-----\nProduced error: {}",
+                    string, err
+                );
+            }
         }
     }
 }
@@ -183,13 +187,15 @@ fn test_invalid_strings() {
     }
 
     // Parse and make SyntaxTree
-    for string in &INVALID_INPUT_STRINGS[..] {
-        println!("Converting invalid string: {:?}", string);
-        if let Ok(pairs) = parse(string) {
-            panic!(
-                "Invalid test string parsed successfully:\n{}\n-----\nProduced pairs: {:#?}",
-                string, pairs
-            );
+    if TEST_SYNTAX_TREE {
+        for string in &INVALID_INPUT_STRINGS[..] {
+            println!("Converting invalid string: {:?}", string);
+            if let Ok(pairs) = parse(string) {
+                panic!(
+                    "Invalid test string parsed successfully:\n{}\n-----\nProduced pairs: {:#?}",
+                    string, pairs
+                );
+            }
         }
     }
 }
