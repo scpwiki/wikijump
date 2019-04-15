@@ -28,7 +28,7 @@ use super::{Rule, WikidotParser};
 
 #[test]
 fn test_valid_strings() {
-    const INPUT_STRINGS: [&str; 56] = [
+    const INPUT_STRINGS: [&str; 59] = [
         "@@ apple @@ @@banana@@",
         "@@ [!-- literal comment @@ durian",
         "@@@@@@ at signs `````` tildes",
@@ -43,6 +43,9 @@ fn test_valid_strings() {
         "  [[ * user rounderhouse ]] [[ user aismallard ]] [[        user        rounderhouse        ]]  ",
         "[[ image tree.png link = \"https://example.com\" alt=\"A tree.\" class=\"image-block\"  ]]",
         "[[image file.jpeg]] [[image :first]] [[image https://example.com/picture.png]]",
+        "[[<image left-aligned.png]] [[>image right-aligned.png]] [[=image centered.png]]",
+        "[[ < image picture.png ]] [[ > image picture.png ]] [[ = image picture.png ]]",
+        "[[f<image float-left.png ]] [[f>image float-right.png]]",
         "__**--^^,,{{super formatted}},,^^--**__",
         "//// Empty italics",
         "**** Empty bold",
@@ -100,7 +103,7 @@ fn test_valid_strings() {
 
 #[test]
 fn test_invalid_strings() {
-    const INPUT_STRINGS: [&str; 46] = [
+    const INPUT_STRINGS: [&str; 48] = [
         "@@ raw value",
         "`` legacy raw value",
         "@@ @@ @@",
@@ -124,6 +127,8 @@ fn test_invalid_strings() {
         "[[module CustomMod bad_argument=value ]]",
         "[[module CustomMod]] [[/module]]",
         "[[image filename_with_a_space in_it.jpeg]]",
+        "[[==image filename.png]]",
+        "[[f=image filename.png]]",
         "// Incomplete italics",
         "** Incomplete bold",
         "__ Incomplete underline",

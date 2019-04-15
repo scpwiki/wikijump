@@ -117,6 +117,7 @@ pub enum Word<'a> {
     Image {
         // See https://www.wikidot.com/doc-wiki-syntax:images
         filename: &'a str,
+        float: bool,
         direction: Option<Alignment>,
         link: Option<(&'a str, bool)>,
         alt: Option<&'a str>,
@@ -315,6 +316,7 @@ impl<'a> Word<'a> {
             Rule::image => {
                 let mut filename = "";
 
+                let mut float = false;
                 let mut direction = None;
                 let mut link = None;
                 let mut alt = None;
@@ -327,7 +329,20 @@ impl<'a> Word<'a> {
 
                 for pair in pair.into_inner() {
                     match pair.as_rule() {
-                        Rule::direction => direction = Alignment::from_str(pair.as_str()),
+                        Rule::direction => match pair.as_str() {
+                            "f<" => {
+                                float = true;
+                                direction = Some(Alignment::Left);
+                            },
+                            "f>" => {
+                                float = true;
+                                direction = Some(Alignment::Right);
+                            },
+                            "<" => direction = Some(Alignment::Left),
+                            ">" => direction = Some(Alignment::Right),
+                            "=" => direction = Some(Alignment::Center),
+                            _ => panic!("Invalid image alignment: {}", pair.as_str()),
+                        },
                         Rule::ident => filename = pair.as_str(),
                         Rule::image_arg => {
                             let capture = ARGUMENT_NAME.captures(pair.as_str()).unwrap();
@@ -363,6 +378,7 @@ impl<'a> Word<'a> {
 
                 Word::Image {
                     filename,
+                    float,
                     direction,
                     link,
                     alt,
