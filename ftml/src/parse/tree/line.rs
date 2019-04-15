@@ -145,8 +145,6 @@ impl<'a> LineInner<'a> {
             ($regex:expr) => ( $regex.captures(as_str!()).unwrap().get(0).unwrap().as_str() )
         }
 
-        println!("tree:\n{:#?}", &pair);
-
         let first_pair = pair.clone().into_inner().next().unwrap();
         match first_pair.as_rule() {
             Rule::align => {
