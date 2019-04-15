@@ -151,7 +151,7 @@ impl<'a> LineInner<'a> {
                 let alignment = Alignment::from_str(extract!(ALIGN)).unwrap();
 
                 LineInner::Align { alignment }
-            },
+            }
             Rule::code => {
                 let mut language = None;
                 let contents = extract!(CODE_BLOCK);
@@ -174,7 +174,7 @@ impl<'a> LineInner<'a> {
                 }
 
                 LineInner::CodeBlock { language, contents }
-            },
+            }
             Rule::clear_float => {
                 let capture = CLEAR_FLOAT.captures(as_str!()).unwrap();
                 let direction = match capture.name("direction") {

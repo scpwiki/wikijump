@@ -333,11 +333,11 @@ impl<'a> Word<'a> {
                             "f<" => {
                                 float = true;
                                 direction = Some(Alignment::Left);
-                            },
+                            }
                             "f>" => {
                                 float = true;
                                 direction = Some(Alignment::Right);
-                            },
+                            }
                             "<" => direction = Some(Alignment::Left),
                             ">" => direction = Some(Alignment::Right),
                             "=" => direction = Some(Alignment::Center),
