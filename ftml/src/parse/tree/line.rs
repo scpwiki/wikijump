@@ -227,7 +227,7 @@ impl<'a> LineInner<'a> {
                             debug_assert_eq!(value_pair.as_rule(), Rule::string);
 
                             let value = value_pair.as_str();
-                            match name {
+                            match name.to_ascii_lowercase().as_str() {
                                 "id" => id = Some(value),
                                 "class" => class = Some(value),
                                 "style" => style = Some(value),
