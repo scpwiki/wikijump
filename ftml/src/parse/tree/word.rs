@@ -94,6 +94,7 @@ pub enum Word<'a> {
     },
     Color {
         color: &'a str,
+        contents: Vec<Word<'a>>,
     },
     Date {
         timestamp: i64,
@@ -228,6 +229,20 @@ impl<'a> Word<'a> {
             },
             Rule::email => Word::Email {
                 contents: as_str!(),
+            },
+            Rule::color => {
+                let mut color = "";
+                let mut contents = Vec::new();
+
+                for pair in pair.into_inner() {
+                    match pair.as_rule() {
+                        Rule::ident => color = pair.as_str(),
+                        Rule::word => contents.push(Word::from_pair(pair)),
+                        _ => panic!("Invalid rule for color: {:?}", pair.as_rule()),
+                    }
+                }
+
+                Word::Color { color, contents }
             },
             Rule::italics => Word::Italics {
                 contents: make_words!(),
