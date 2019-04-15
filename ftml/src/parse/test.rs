@@ -193,15 +193,13 @@ fn test_invalid_strings() {
     }
 
     // Parse and make SyntaxTree
-    if TEST_SYNTAX_TREE {
-        for string in &INVALID_INPUT_STRINGS[..] {
-            println!("Converting invalid string: {:?}", string);
-            if let Ok(pairs) = parse(string) {
-                panic!(
-                    "Invalid test string parsed successfully:\n{}\n-----\nProduced pairs: {:#?}",
-                    string, pairs
-                );
-            }
+    for string in &INVALID_INPUT_STRINGS[..] {
+        println!("Converting invalid string: {:?}", string);
+        if let Ok(pairs) = parse(string) {
+            panic!(
+                "Invalid test string parsed successfully:\n{}\n-----\nProduced pairs: {:#?}",
+                string, pairs
+            );
         }
     }
 }
