@@ -26,7 +26,7 @@
 use pest::Parser;
 use super::{parse, Rule, WikidotParser};
 
-const TEST_SYNTAX_TREE: bool = false;
+const TEST_SYNTAX_TREE: bool = true;
 
 const VALID_INPUT_STRINGS: [&str; 68] = [
     "@@ apple @@ @@banana@@",
