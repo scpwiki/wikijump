@@ -28,7 +28,7 @@ use super::{parse, Rule, WikidotParser};
 
 const TEST_SYNTAX_TREE: bool = false;
 
-const VALID_INPUT_STRINGS: [&str; 62] = [
+const VALID_INPUT_STRINGS: [&str; 66] = [
     "@@ apple @@ @@banana@@",
     "@@ [!-- literal comment @@ durian",
     "@@@@@@ at signs `````` tildes",
@@ -91,9 +91,13 @@ const VALID_INPUT_STRINGS: [&str; 62] = [
     "[[div class=\"raisa-notice\"]]\n++ RAISA NOTICE\nThis file is dank.\n[[/div]]",
     "[[ div id=\"apple\" class =\"banana\" style= \"display: none;\" ]]\ndurian\n[[/ div ]]",
     "[[div]]\n[[/div]]",
+    "[[SPAN ID=\"apple\"]] [[FOOTNOTE]]cherry[[/FOOTNOTE]] [[/SPAN]] [[DATE 1000000 FORMAT=\"%A\"]]",
+    "[[IMAGE tree.png CLASS=\"image-block\"]] [[<IMAGE left-aligned.png]] [[>IMAGE right-aligned.png]]",
+    "[[f<IMAGE left-aligned.png]] [[f>IMAGE right-aligned.png]] [[=IMAGE centered.png]]",
+    "[[NOTE]]\ncontents\n[[/NOTE]]\n[[CODE]]\ncontents\n[[/CODE]]\n[[DIV STYLE=\"display: none;\"]]\ncontents\n[[/DIV]]",
 ];
 
-const INVALID_INPUT_STRINGS: [&str; 50] = [
+const INVALID_INPUT_STRINGS: [&str; 52] = [
     "@@ raw value",
     "`` legacy raw value",
     "@@ @@ @@",
@@ -144,6 +148,8 @@ const INVALID_INPUT_STRINGS: [&str; 50] = [
     "[[code invalid_arg=\"test\"]]\napple\n[[/code]]",
     "[[div invalid_arg=\"test\"]][[/div]]",
     "an [[div]] inline div [[/div]]",
+    "[[F>image filename.png]]",
+    "[[F<image filename.png]]",
 ];
 
 #[test]
