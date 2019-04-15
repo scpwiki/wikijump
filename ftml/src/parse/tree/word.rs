@@ -77,7 +77,7 @@ lazy_static! {
     };
 
     static ref USER: Regex = {
-        RegexBuilder::new(r"\[\[(?P<show-picture>\*)?\s*(?P<username>[^ ]+)\s*\]\]")
+        RegexBuilder::new(r"\[\[(?P<picture>\*)?\s*(?P<username>[^ ]+)\s*\]\]")
             .build()
             .unwrap()
     };
@@ -451,7 +451,7 @@ impl<'a> Word<'a> {
 
                 Word::User {
                     username: capture!(capture, "username"),
-                    show_picture: capture.name("show-picture").is_some(),
+                    show_picture: capture.name("picture").is_some(),
                 }
             }
             _ => panic!("Invalid rule for word: {:?}", pair.as_rule()),
