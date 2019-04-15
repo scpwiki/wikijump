@@ -63,7 +63,7 @@ lazy_static! {
     };
 
     static ref MODULE: Regex = {
-        RegexBuilder::new(r"\[\[\s*module[^\]]*\]\]\n(?P<contents>.*\n)\[\[\s*module\s*\]\]")
+        RegexBuilder::new(r"\[\[\s*module\s+[^\]]*\]\](?:\n(?P<contents>.*\n)\[\[\s*module\s*\]\])?")
             .case_insensitive(true)
             .dot_matches_new_line(true)
             .build()
