@@ -26,8 +26,6 @@
 use pest::Parser;
 use super::{parse, Rule, WikidotParser};
 
-const TEST_SYNTAX_TREE: bool = true;
-
 const VALID_INPUT_STRINGS: [&str; 68] = [
     "@@ apple @@ @@banana@@",
     "@@ [!-- literal comment @@ durian",
@@ -168,15 +166,13 @@ fn test_valid_strings() {
     }
 
     // Parse and make SyntaxTree
-    if TEST_SYNTAX_TREE {
-        for string in &VALID_INPUT_STRINGS[..] {
-            println!("Converting valid string: {:?}", string);
-            if let Err(err) = parse(string) {
-                panic!(
-                    "Failed to convert test string:\n{}\n-----\nProduced error: {}",
-                    string, err
-                );
-            }
+    for string in &VALID_INPUT_STRINGS[..] {
+        println!("Converting valid string: {:?}", string);
+        if let Err(err) = parse(string) {
+            panic!(
+                "Failed to convert test string:\n{}\n-----\nProduced error: {}",
+                string, err
+            );
         }
     }
 }
