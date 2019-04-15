@@ -151,6 +151,8 @@ impl<'a> LineInner<'a> {
         trace!("Converting pair into LineInner...");
         debug_assert_eq!(pair.as_rule(), Rule::line_inner);
 
+        let pair = get_first_pair!(pair);
+
         macro_rules! as_str {
             () => ( pair.as_str() )
         }
@@ -165,7 +167,7 @@ impl<'a> LineInner<'a> {
             )
         }
 
-        match get_first_pair!(pair.clone()).as_rule() {
+        match pair.as_rule() {
             Rule::align => {
                 let alignment = Alignment::from_str(extract!(ALIGN))
                     .expect("Parsed align block had invalid alignment");
@@ -177,7 +179,7 @@ impl<'a> LineInner<'a> {
                 let contents = extract!(CODE_BLOCK);
 
                 // Parse arguments
-                let pairs = get_first_pair!(pair)
+                let pairs = pair
                     .into_inner()
                     .filter(|pair| pair.as_rule() == Rule::code_arg);
 
@@ -249,7 +251,7 @@ impl<'a> LineInner<'a> {
                 let centered = as_str!().starts_with("=");
                 let mut contents = Vec::new();
 
-                for pair in get_first_pair!(pair).into_inner() {
+                for pair in pair.into_inner() {
                     contents.push(Word::from_pair(pair));
                 }
 
