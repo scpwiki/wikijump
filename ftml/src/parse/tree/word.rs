@@ -33,7 +33,7 @@ lazy_static! {
 
     static ref DATE: Regex = {
         RegexBuilder::new(
-            r#"\[\[\s*date\s+(?P<timestamp>-?[0-9]+)\s+format\s*=\s*"(?P<format>.*)"\s*\]\]"#
+            r#"\[\[\s*date\s+(?P<timestamp>-?[0-9]+)(?:\s+format\s*=\s*"(?P<format>.*)")?\s*\]\]"#
         )
             .case_insensitive(true)
             .build()
