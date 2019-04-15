@@ -334,7 +334,7 @@ impl<'a> Word<'a> {
 
                 for pair in pair.into_inner() {
                     match pair.as_rule() {
-                        Rule::direction => match pair.as_str() {
+                        Rule::image_alignment => match pair.as_str().trim() {
                             "f<" => {
                                 float = true;
                                 direction = Some(Alignment::Left);
@@ -346,9 +346,10 @@ impl<'a> Word<'a> {
                             "<" => direction = Some(Alignment::Left),
                             ">" => direction = Some(Alignment::Right),
                             "=" => direction = Some(Alignment::Center),
+                            "" => direction = None,
                             _ => panic!("Invalid image alignment: {}", pair.as_str()),
                         },
-                        Rule::ident => filename = pair.as_str(),
+                        Rule::file_ident => filename = pair.as_str(),
                         Rule::image_arg => {
                             let capture = ARGUMENT_NAME
                                 .captures(pair.as_str())
