@@ -24,7 +24,7 @@
 //! inlined HTML is not an error here.
 
 use pest::Parser;
-use super::{Rule, WikidotParser};
+use super::{parse, Rule, WikidotParser};
 
 const VALID_INPUT_STRINGS: [&str; 62] = [
     "@@ apple @@ @@banana@@",
@@ -146,6 +146,7 @@ const INVALID_INPUT_STRINGS: [&str; 50] = [
 
 #[test]
 fn test_valid_strings() {
+    // Parse only
     for string in &VALID_INPUT_STRINGS[..] {
         println!("Testing valid string: {:?}", string);
         if let Err(err) = WikidotParser::parse(Rule::page, string) {
@@ -155,13 +156,36 @@ fn test_valid_strings() {
             );
         }
     }
+
+    // Parse and make SyntaxTree
+    for string in &VALID_INPUT_STRINGS[..] {
+        println!("Converting valid string: {:?}", string);
+        if let Err(err) = parse(string) {
+            panic!(
+                "Failed to convert test string:\n{}\n-----\nProduced error: {}",
+                string, err
+            );
+        }
+    }
 }
 
 #[test]
 fn test_invalid_strings() {
+    // Parse only
     for string in &INVALID_INPUT_STRINGS[..] {
         println!("Testing invalid string: {:?}", string);
         if let Ok(pairs) = WikidotParser::parse(Rule::page, string) {
+            panic!(
+                "Invalid test string parsed successfully:\n{}\n-----\nProduced pairs: {:#?}",
+                string, pairs
+            );
+        }
+    }
+
+    // Parse and make SyntaxTree
+    for string in &INVALID_INPUT_STRINGS[..] {
+        println!("Converting invalid string: {:?}", string);
+        if let Ok(pairs) = parse(string) {
             panic!(
                 "Invalid test string parsed successfully:\n{}\n-----\nProduced pairs: {:#?}",
                 string, pairs
