@@ -179,17 +179,6 @@ fn test_valid_strings() {
 
 #[test]
 fn test_invalid_strings() {
-    // Parse only
-    for string in &INVALID_INPUT_STRINGS[..] {
-        println!("Parsing invalid string: {:?}", string);
-        if let Ok(pairs) = WikidotParser::parse(Rule::page, string) {
-            panic!(
-                "Invalid test string parsed successfully:\n{}\n-----\nProduced pairs: {:#?}",
-                string, pairs
-            );
-        }
-    }
-
     // Parse and make SyntaxTree
     for string in &INVALID_INPUT_STRINGS[..] {
         println!("Converting invalid string: {:?}", string);
@@ -197,6 +186,17 @@ fn test_invalid_strings() {
             panic!(
                 "Invalid test string converted successfully:\n{}\n-----\nProduced tree: {:#?}",
                 string, tree
+            );
+        }
+    }
+
+    // Parse only
+    for string in &INVALID_INPUT_STRINGS[..] {
+        println!("Parsing invalid string: {:?}", string);
+        if let Ok(pairs) = WikidotParser::parse(Rule::page, string) {
+            panic!(
+                "Invalid test string parsed successfully:\n{}\n-----\nProduced pairs: {:#?}",
+                string, pairs
             );
         }
     }
