@@ -141,6 +141,7 @@ enum LineInner<'a> {
         // TODO: http://community.wikidot.com/help:toc
     },
     Words {
+        centered: bool,
         contents: Vec<Word<'a>>,
     },
 }
@@ -242,23 +243,15 @@ impl<'a> LineInner<'a> {
                 }
             }
             Rule::horizontal_line => LineInner::HorizontalLine,
-            Rule::center => {
+            Rule::words => {
+                let centered = as_str!().starts_with("=");
                 let mut contents = Vec::new();
 
-                for pair in pair.into_inner() {
+                for pair in get_first_pair!(pair).into_inner() {
                     contents.push(Word::from_pair(pair));
                 }
 
-                LineInner::Center { contents }
-            }
-            Rule::word => {
-                let mut contents = Vec::new();
-
-                for pair in pair.into_inner() {
-                    contents.push(Word::from_pair(pair));
-                }
-
-                LineInner::Words { contents }
+                LineInner::Words { centered, contents }
             }
 
             _ => panic!("Line rule for {:?} unimplemented!", pair.as_rule()),

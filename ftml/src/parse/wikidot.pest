@@ -35,8 +35,7 @@ line_inner = {
     clear_float |
     div |
     horizontal_line |
-    center |
-    word+
+    words
 }
 
 // }}}
@@ -72,7 +71,7 @@ div_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ stri
 
 // Misc lines {{{
 
-center = { "=" ~ word+ }
+words = { "="? ~ word+ }
 clear_float = { "~"{4,} ~ direction? }
 horizontal_line = { "-"{4,} }
 
