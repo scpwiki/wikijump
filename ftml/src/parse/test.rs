@@ -87,7 +87,7 @@ const VALID_INPUT_STRINGS: [&str; 67] = [
     "[[==]]\n[[note]]\ninternal data here\n[[/note]]\nWas created on [[date 100000000]], thanks to [[*user rounderhouse]] for critique.\n##red|apple##\n[[/==]]",
     "[[>]]\nRIGHT\n[[<]]\nLEFT\n[[/<]]\nBLOCK\n[[/>]]",
     "[[code]]\nSome filenames:\n- Cargo.lock\n- Cargo.toml\n- LICENSE.md\n[[/code]]",
-    "[[code type=\"CSS\"]]\n@charset 'utf-8';\n\n:root{\n    --theme-base: 'black-highlighter';    --theme-id: 'black-highlighter';}\n[[/code]]",
+    "[[code type=\"CSS\"]]\n@charset 'utf-8';\n\n:root{\n    --theme-base: 'black-highlighter';    --theme-id: 'black-highlighter';\n}\n[[/code]]",
     "[[code lang= \"python\"]]\n[[/code]]\n$\n[[code language =\"RUST\"]]\nfn main() {\n    println!(\"Hello, world!\");\n}\n[[/code]]",
     "[[div class=\"raisa-notice\"]]\n++ RAISA NOTICE\nThis file is dank.\n[[/div]]",
     "[[ div id=\"apple\" class =\"banana\" style= \"display: none;\" ]]\ndurian\n[[/ div ]]",

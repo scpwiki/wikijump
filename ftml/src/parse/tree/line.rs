@@ -177,9 +177,11 @@ impl<'a> LineInner<'a> {
                 let contents = extract!(CODE_BLOCK);
 
                 // Parse arguments
-                for pair in pair.into_inner() {
-                    debug_assert_eq!(pair.as_rule(), Rule::code_arg);
+                let pairs = get_first_pair!(pair)
+                    .into_inner()
+                    .filter(|pair| pair.as_rule() == Rule::code_arg);
 
+                for pair in pairs {
                     let capture = ARGUMENT_NAME.captures(pair.as_str())
                         .expect("Regular expression ARGUMENT_NAME didn't match");
                     let name = capture!(capture, "name");
