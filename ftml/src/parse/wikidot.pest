@@ -94,6 +94,7 @@ word = {
     footnote |
     footnote_block |
     form |
+    gallery |
     module |
     note |
     image |

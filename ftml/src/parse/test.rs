@@ -26,7 +26,7 @@
 use pest::Parser;
 use super::{parse, Rule, WikidotParser};
 
-const VALID_INPUT_STRINGS: [&str; 75] = [
+const VALID_INPUT_STRINGS: [&str; 77] = [
     "@@ apple @@ @@banana@@",
     "@@ [!-- literal comment @@ durian",
     "@@@@@@ at signs `````` tildes",
@@ -102,9 +102,11 @@ const VALID_INPUT_STRINGS: [&str; 75] = [
     "[[tablist]] [[tab --alpha-- ]] beta [[/tab]] [[tab GAMMA]] [[/tab]] [[ TAB __delta ]][[/tab]] \n [[/tablist]]",
     "[[tabview]]\n[[tab A]]\n[[tablist]]\n[[tab B]][[/tab]]\n[[/tablist]]\n[[/tab]]\n[[/tabview]]",
     "[[TABVIEW]][[/TABVIEW]][[TABS]][[/TABS]][[TABLIST]][[/TABLIST]]",
+    "apple [[gallery]] banana",
+    "[[GALLERY]] - The AWCY exhibit that yells at you",
 ];
 
-const INVALID_INPUT_STRINGS: [&str; 55] = [
+const INVALID_INPUT_STRINGS: [&str; 56] = [
     "@@ raw value",
     "`` legacy raw value",
     "@@ @@ @@",
@@ -160,6 +162,7 @@ const INVALID_INPUT_STRINGS: [&str; 55] = [
     "[[tablist]]",
     "[[tablist]] [[tab A]] [[/tablist]]",
     "[[tabview]] [[/tab]] [[/tabview]]",
+    "[[gallery]] contents [[/gallery]]",
 ];
 
 #[test]
