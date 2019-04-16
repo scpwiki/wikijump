@@ -25,7 +25,6 @@ newlines = { "\n"+ | EOI }
 
 // TODO
 // Lines {{{
-
 line = { line_inner ~ newlines }
 lines_maybe = { line* ~ line_inner }
 
@@ -37,7 +36,6 @@ line_inner = {
     horizontal_line |
     words
 }
-
 // }}}
 
 // Block lines {{{
@@ -70,11 +68,9 @@ div_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ stri
 // }}}
 
 // Misc lines {{{
-
 words = { "="? ~ word+ }
 clear_float = { "~"{4,} ~ direction? }
 horizontal_line = { "-"{4,} }
-
 // }}}
 
 // Words {{{
@@ -120,7 +116,6 @@ monospace = { "{{" ~ word* ~ "}}" }
 // }}}
 
 // Block words {{{
-
 anchor = { "[[#" ~ space? ~ ident ~ space? ~ "]]" }
 
 date = {
@@ -210,7 +205,6 @@ tab = {
 tab_name = { (!("]]" | "\n") ~ ANY)+ }
 
 user = { "[[" ~ space? ~ "*"? ~ space? ~ ^"user" ~ space ~ ident ~ space? ~ "]]" }
-
 // }}}
 
 // Misc words {{{
