@@ -67,7 +67,7 @@ impl<'a> Line<'a> {
                     pair.as_str().len()
                 };
             },
-            Rule::lines_maybe => panic!("The rule 'lines_maybe' returns multiple Line instances"),
+            Rule::lines_internal => panic!("The rule 'lines_internal' returns multiple Line instances"),
             _ => panic!("Invalid rule for line: {:?}", pair.as_rule()),
         }
 

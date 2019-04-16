@@ -454,7 +454,7 @@ impl<'a> Word<'a> {
                                 _ => panic!("Unknown argument for [[span]]: {}", name),
                             }
                         }
-                        Rule::lines_maybe => contents = make_lines!(pair),
+                        Rule::lines_internal => contents = make_lines!(pair),
                         _ => panic!("Invalid rule for span: {:?}", pair.as_rule()),
                     }
                 }

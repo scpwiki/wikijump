@@ -26,7 +26,7 @@ newlines = { "\n"+ | EOI }
 // TODO
 // Lines {{{
 line = { line_inner ~ newlines }
-lines_maybe = { line* ~ line_inner }
+lines_internal = { line* ~ line_inner }
 
 line_inner = {
     align |
@@ -128,7 +128,7 @@ file_ref = { "[[" ~ space? ~ ^"file" ~ space ~ file_ident ~ space? ~ "]]" }
 
 footnote = {
     "[[" ~ space? ~ ^"footnote" ~ space? ~ "]]" ~
-    lines_maybe ~
+    lines_internal ~
     "[[/" ~ space? ~ ^"footnote" ~ space? ~ "]]"
 }
 
@@ -169,7 +169,7 @@ image_arg = {
 
 size = {
     "[[" ~ space? ~ ^"size" ~ space ~ size_arg ~ space? ~ "]]" ~
-    lines_maybe? ~
+    lines_internal? ~
     "[[/" ~ space? ~ ^"size" ~ space? ~ "]]"
 }
 size_arg = {
@@ -187,19 +187,19 @@ size_arg = {
 
 span = {
     "[[" ~ space? ~ ^"span" ~ span_arg* ~ space? ~ "]]" ~
-    lines_maybe? ~
+    lines_internal? ~
     "[[/" ~ space? ~ ^"span" ~ space? ~ "]]"
 }
 span_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ string }
 
 tab_list = {
     "[[" ~ space? ~ (^"tablist" | ^"tabview" | ^"tabs") ~ space? ~ "]]" ~ space? ~
-    (tab ~ space?)* ~ space? ~
+    (tab ~ space?)* ~
     "[[/" ~ space? ~ (^"tablist" | ^"tabview" | ^"tabs") ~ space? ~ "]]"
 }
 tab = {
     "[[" ~ space? ~ ^"tab" ~ space ~ tab_name ~ space? ~ "]]" ~ space? ~
-    lines_maybe? ~ space? ~
+    (lines_internal | line+)? ~
     "[[/" ~ space? ~ ^"tab" ~ space? ~ "]]"
 }
 tab_name = { (!("]]" | "\n") ~ ANY)+ }
