@@ -469,15 +469,19 @@ impl<'a> Word<'a> {
             Rule::tab_list => {
                 let mut tabs = Vec::new();
 
-                println!("> {:#?}", &pair);
-
                 // Iterate over tabs
                 for pair in pair.into_inner() {
-                    let name = get_nth_pair!(pair, 0).as_str();
-                    let lines = {
-                        let pair = get_nth_pair!(pair, 1);
-                        make_lines!(pair)
-                    };
+                    let mut pairs = pair.into_inner();
+                    let name = pairs.next().expect("Tab pair was empty").as_str();
+
+                    let mut lines = Vec::new();
+                    for pair in pairs {
+                        match pair.as_rule() {
+                            Rule::line => lines.push(Line::from_pair(pair)),
+                            Rule::lines_internal => lines.extend(pair.into_inner().map(Line::from_pair)),
+                            _ => panic!("Invalid rule for tab: {:?}", pair.as_rule()),
+                        }
+                    }
 
                     tabs.push(Tab { name, lines });
                 }
