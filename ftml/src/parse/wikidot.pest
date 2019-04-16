@@ -156,7 +156,7 @@ note = {
 }
 
 image = {
-    "[[" ~ image_alignment? ~ space? ~ ^"image" ~ space ~ file_ident ~ image_arg* ~ space? ~ "]]"
+    "[[" ~ space? ~ image_alignment? ~ space? ~ ^"image" ~ space ~ file_ident ~ image_arg* ~ space? ~ "]]"
 }
 image_alignment = {
     space? ~ ("f"? ~ ("<" | ">") | "=")?

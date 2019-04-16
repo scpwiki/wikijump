@@ -26,7 +26,7 @@
 use pest::Parser;
 use super::{parse, Rule, WikidotParser};
 
-const VALID_INPUT_STRINGS: [&str; 74] = [
+const VALID_INPUT_STRINGS: [&str; 75] = [
     "@@ apple @@ @@banana@@",
     "@@ [!-- literal comment @@ durian",
     "@@@@@@ at signs `````` tildes",
@@ -94,6 +94,7 @@ const VALID_INPUT_STRINGS: [&str; 74] = [
     "[[ IMAGE tree.png LINK = \"https://example.com\" ALT=\"A tree.\" CLASS=\"image-block\"  ]]",
     "[[IMAGE tree.png ]] [[<IMAGE left-aligned.png]] [[>IMAGE right-aligned.png]]",
     "[[f<IMAGE left-aligned.png]] [[f>IMAGE right-aligned.png]] [[=IMAGE centered.png]]",
+    "[[ f<image left-aligned.png ]] [[ f>image right-aligned.png ]] [[ =image centered.png ]]",
     "[[NOTE]]\ncontents\n[[/NOTE]]\n[[CODE]]\ncontents\n[[/CODE]]\n[[DIV STYLE=\"display: none;\"]]\ncontents\n[[/DIV]]",
     "[[tabview]]\n[[tab Alpha]]\nIn the year 2012, a **great** calamity occurred...\n[[/tab]]\n[[tab Beta]]\n[[date 8000000]] lol what\n[[/tab]]\n[[/tabview]]",
     "[[tabview]][[/tabview]]",
