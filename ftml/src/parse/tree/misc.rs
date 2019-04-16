@@ -21,7 +21,13 @@
 use super::prelude::*;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Tab<'a> {
+    pub name: &'a str,
+    pub lines: Vec<Line<'a>>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TableRow<'a> {
-    columns: Vec<Word<'a>>,
-    title: bool,
+    pub title: bool,
+    pub columns: Vec<Word<'a>>,
 }

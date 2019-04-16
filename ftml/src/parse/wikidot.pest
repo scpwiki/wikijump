@@ -103,6 +103,7 @@ word = {
     image |
     size |
     span |
+    tab_list |
     user
 }
 // }}}
@@ -197,6 +198,18 @@ span = {
 }
 span_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ string }
 
+tab_list = {
+    "[[" ~ space? ~ (^"tablist" | ^"tabview" | ^"tabs") ~ space? ~ "]]" ~ space? ~
+    (tab ~ space?)* ~ space? ~
+    "[[/" ~ space? ~ (^"tablist" | ^"tabview" | ^"tabs") ~ space? ~ "]]"
+}
+tab = {
+    "[[" ~ space? ~ ^"tab" ~ space ~ tab_name ~ space? ~ "]]" ~ space? ~
+    lines_maybe? ~ space? ~
+    "[[/" ~ space? ~ ^"tab" ~ space? ~ "]]"
+}
+tab_name = { (!("]]" | "\n") ~ ANY)+ }
+
 user = { "[[" ~ space? ~ "*"? ~ space? ~ ^"user" ~ space ~ ident ~ space? ~ "]]" }
 
 // }}}
@@ -227,7 +240,7 @@ email = { ident ~ "@" ~ ident }
 
 // Components {{{
 hex_digit = @{ '0'..'9' | 'a'..'f' | 'A'..'F' }
-space = _{ (" " | "\t")+ }
+space = _{ (" " | "\r" | "\t" | "\n")+ }
 integer = @{ "-"? ~ ASCII_DIGIT+ }
 file_ident = @{ (!(space | "]]") ~ ANY)+ }
 ident = @{ (ASCII_ALPHANUMERIC | "-" | "+" | "_" | "." | "%")+ }

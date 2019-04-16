@@ -174,6 +174,9 @@ pub enum Word<'a> {
     Superscript {
         contents: Vec<Word<'a>>,
     },
+    TabList {
+        tabs: Vec<Tab<'a>>,
+    },
     Text {
         contents: &'a str,
     },
@@ -462,6 +465,24 @@ impl<'a> Word<'a> {
                     style,
                     contents,
                 }
+            }
+            Rule::tab_list => {
+                let mut tabs = Vec::new();
+
+                println!("> {:#?}", &pair);
+
+                // Iterate over tabs
+                for pair in pair.into_inner() {
+                    let name = get_nth_pair!(pair, 0).as_str();
+                    let lines = {
+                        let pair = get_nth_pair!(pair, 1);
+                        make_lines!(pair)
+                    };
+
+                    tabs.push(Tab { name, lines });
+                }
+
+                Word::TabList { tabs }
             }
             Rule::user => {
                 let capture = USER.captures(as_str!()).expect("Regular expression USER didn't match");

@@ -134,10 +134,6 @@ enum LineInner<'a> {
     Table {
         rows: Vec<TableRow<'a>>,
     },
-    TabView {
-        class: Option<&'a str>,
-        tabs: Vec<Line<'a>>,
-    },
     TableOfContents {
         // TODO: http://community.wikidot.com/help:toc
     },
