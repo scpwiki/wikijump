@@ -92,6 +92,13 @@ pub enum Word<'a> {
     Bold {
         contents: Vec<Word<'a>>,
     },
+    Button {
+        /*
+         https://www.wikidot.com/doc-wiki-syntax:buttons
+         btype: ButtonType,
+         style: String,
+         */
+    },
     Color {
         color: &'a str,
         contents: Vec<Word<'a>>,
@@ -116,6 +123,7 @@ pub enum Word<'a> {
     Form {
         contents: &'a str, // actually YAML...
     },
+    Gallery,
     Image {
         // See https://www.wikidot.com/doc-wiki-syntax:images
         filename: &'a str,

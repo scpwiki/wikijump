@@ -81,13 +81,6 @@ enum LineInner<'a> {
         alignment: Alignment,
         contents: Vec<Line<'a>>,
     },
-    Button {
-        /*
-         https://www.wikidot.com/doc-wiki-syntax:buttons
-         btype: ButtonType,
-         style: String,
-         */
-    },
     Center {
         contents: Vec<Word<'a>>,
     },
@@ -104,7 +97,6 @@ enum LineInner<'a> {
         style: Option<&'a str>,
         contents: Vec<Line<'a>>,
     },
-    Gallery,
     Heading {
         contents: Vec<Word<'a>>,
     },
@@ -136,6 +128,9 @@ enum LineInner<'a> {
     },
     TableOfContents {
         // TODO: http://community.wikidot.com/help:toc
+    },
+    QuoteBlock {
+        contents: Vec<Line<'a>>,
     },
     Words {
         centered: bool,
