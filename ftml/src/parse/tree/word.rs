@@ -300,6 +300,7 @@ impl<'a> Word<'a> {
             Rule::form => Word::Form {
                 contents: extract!(FORM),
             },
+            Rule::gallery => Word::Gallery,
             Rule::module => {
                 let mut name = "";
                 let mut arguments = HashMap::new();

@@ -140,6 +140,8 @@ form = {
     "[[/" ~ space? ~ ^"form" ~ space? ~ "]]"
 }
 
+gallery = { "[[" ~ space? ~ ^"gallery" ~ space? ~ "]]" }
+
 module = {
     "[[" ~ space? ~ ^"module" ~ space ~ ident ~ module_arg* ~ space? ~ "]]" ~
     (
