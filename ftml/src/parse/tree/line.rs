@@ -79,6 +79,7 @@ impl<'a> Line<'a> {
 enum LineInner<'a> {
     Align {
         alignment: Alignment,
+        contents: Vec<Line<'a>>,
     },
     Button {
         /*
@@ -167,12 +168,23 @@ impl<'a> LineInner<'a> {
             )
         }
 
+        macro_rules! make_lines {
+            () => ( make_lines!(pair) );
+            ($pair:expr) => ( $pair.into_inner().map(Line::from_pair).collect() );
+        }
+
+        macro_rules! make_words {
+            () => ( make_words!(pair) );
+            ($pair:expr) => ( $pair.into_inner().map(Word::from_pair).collect() );
+        }
+
         match pair.as_rule() {
             Rule::align => {
                 let alignment = Alignment::from_str(extract!(ALIGN))
                     .expect("Parsed align block had invalid alignment");
+                let contents = make_lines!();
 
-                LineInner::Align { alignment }
+                LineInner::Align { alignment, contents }
             }
             Rule::code => {
                 let mut language = None;
