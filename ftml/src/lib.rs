@@ -27,10 +27,6 @@
 //! the intention for better modular integration and standalone
 //! servicing.
 //!
-//! In the future we may even be able to improve the parsing to
-//! be better than repeated applications of regular expression
-//! substitutions.
-//!
 //! The main goal of this project is backwards-compatibility: if
 //! there is an article on the SCP Wiki which uses a piece of syntax,
 //! we intend to support it (or convince the author to change it).
@@ -40,11 +36,14 @@
 //!
 //! That said, deprecated tags or weird Wikidot behavior will not be
 //! supported if there are no mainlist articles or pages using them.
+//! Additionally, if Wikidot doesn't support something (such as nested
+//! collapsibles), we will aim to allow them through the use of parser
+//! rules.
 //!
 //! Additionally, as this library matures, features not found within
 //! Wikidot's Text_Wiki may be added. These will be clearly documented
-//! and a flag will be added to run in legacy mode. However, these
-//! new modules or capabilities will hopefully be useful going forward.
+//! and a flag will be added to run in compatibility mode. Hopefully
+//! they will be useful going forward.
 //!
 //! This crate also provides an executable to convert files from
 //! the command-line. See that file for usage documentation.
