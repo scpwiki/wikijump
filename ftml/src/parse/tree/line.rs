@@ -34,7 +34,7 @@ lazy_static! {
             .unwrap()
     };
 
-    static ref WORDS: Regex = Regex::new(r"^(?P<flag>\+{1,6}|=)?").unwrap();
+    static ref WORDS: Regex = Regex::new(r"^(?P<flag>\+{1,6}|=?)").unwrap();
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -254,37 +254,21 @@ impl<'a> LineInner<'a> {
             }
             Rule::horizontal_line => LineInner::HorizontalLine,
             Rule::words => {
-                enum WordKind {
-                    Heading(HeadingLevel),
-                    Centered,
-                    Regular,
-                }
-
-                let kind: WordKind;
-                let capture = WORDS.captures(as_str!())
-                    .expect("Regular expression WORDS didn't match");
-
-                match capture.name("flag").map(|mtch| mtch.as_str()) {
-                    Some("=") => kind = WordKind::Centered,
-                    None => kind = WordKind::Regular,
-                    Some(heading) => {
-                        let level = HeadingLevel::from_usize(heading.len())
-                            .expect("Regular expression returned incorrectly-sized heading");
-
-                        kind = WordKind::Heading(level);
-                    },
-                }
-
+                let flag = extract!(WORDS);
                 let mut contents = Vec::new();
-
                 for pair in pair.into_inner() {
                     contents.push(Word::from_pair(pair));
                 }
 
-                match kind {
-                    WordKind::Heading(level) => LineInner::Heading { contents, level },
-                    WordKind::Centered => LineInner::Words { contents, centered: true },
-                    WordKind::Regular => LineInner::Words { contents, centered: false },
+                match flag {
+                    "=" => LineInner::Words { contents, centered: true },
+                    "" => LineInner::Words { contents, centered: false },
+                    _ => {
+                        let level = HeadingLevel::from_usize(flag.len())
+                            .expect("Regular expression returned incorrectly-sized heading");
+
+                        LineInner::Heading { contents, level }
+                    },
                 }
             }
 
