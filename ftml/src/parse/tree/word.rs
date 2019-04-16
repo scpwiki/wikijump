@@ -481,7 +481,7 @@ impl<'a> Word<'a> {
                 // Iterate over tabs
                 for pair in pair.into_inner() {
                     let mut pairs = pair.into_inner();
-                    let name = pairs.next().expect("Tab pair was empty").as_str();
+                    let name = pairs.next().expect("Tab pairs iterator was empty").as_str();
 
                     let mut lines = Vec::new();
                     for pair in pairs {

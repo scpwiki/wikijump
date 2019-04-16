@@ -68,7 +68,7 @@ div_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ stri
 // }}}
 
 // Misc lines {{{
-words = { "="? ~ word+ }
+words = { ("+"{1,6} | "="?) ~ word+ }
 clear_float = { "~"{4,} ~ direction? }
 horizontal_line = { "-"{4,} }
 // }}}

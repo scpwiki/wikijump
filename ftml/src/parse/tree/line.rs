@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::enums::{Alignment, ListStyle};
+use crate::enums::{Alignment, HeadingLevel, ListStyle};
 use std::borrow::Cow;
 use super::prelude::*;
 
@@ -33,6 +33,8 @@ lazy_static! {
             .build()
             .unwrap()
     };
+
+    static ref WORDS: Regex = Regex::new(r"^(?P<flag>\+{1,6}|=)?").unwrap();
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -57,12 +59,12 @@ impl<'a> Line<'a> {
                 let mut pairs = pair.into_inner();
 
                 inner = {
-                    let pair = pairs.next().expect("Pairs iterator was empty");
+                    let pair = pairs.next().expect("Line pairs iterator was empty");
                     debug_assert_eq!(pair.as_rule(), Rule::line_inner);
                     LineInner::from_pair(pair)
                 };
                 newlines = {
-                    let pair = pairs.next().expect("Pairs iterator only had one element");
+                    let pair = pairs.next().expect("Line pairs iterator only had one element");
                     debug_assert_eq!(pair.as_rule(), Rule::newlines);
                     pair.as_str().len()
                 };
@@ -98,6 +100,7 @@ enum LineInner<'a> {
         contents: Vec<Line<'a>>,
     },
     Heading {
+        level: HeadingLevel,
         contents: Vec<Word<'a>>,
     },
     HorizontalLine,
@@ -251,14 +254,38 @@ impl<'a> LineInner<'a> {
             }
             Rule::horizontal_line => LineInner::HorizontalLine,
             Rule::words => {
-                let centered = as_str!().starts_with("=");
+                enum WordKind {
+                    Heading(HeadingLevel),
+                    Centered,
+                    Regular,
+                }
+
+                let kind: WordKind;
+                let capture = WORDS.captures(as_str!())
+                    .expect("Regular expression WORDS didn't match");
+
+                match capture.name("flag").map(|mtch| mtch.as_str()) {
+                    Some("=") => kind = WordKind::Centered,
+                    None => kind = WordKind::Regular,
+                    Some(heading) => {
+                        let level = HeadingLevel::from_usize(heading.len())
+                            .expect("Regular expression returned incorrectly-sized heading");
+
+                        kind = WordKind::Heading(level);
+                    },
+                }
+
                 let mut contents = Vec::new();
 
                 for pair in pair.into_inner() {
                     contents.push(Word::from_pair(pair));
                 }
 
-                LineInner::Words { centered, contents }
+                match kind {
+                    WordKind::Heading(level) => LineInner::Heading { contents, level },
+                    WordKind::Centered => LineInner::Words { contents, centered: true },
+                    WordKind::Regular => LineInner::Words { contents, centered: false },
+                }
             }
 
             _ => panic!("Line rule for {:?} unimplemented!", pair.as_rule()),

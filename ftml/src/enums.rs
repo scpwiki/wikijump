@@ -26,6 +26,7 @@ pub enum Alignment {
     Justify,
 }
 
+// Convert to TryFrom
 impl Alignment {
     pub fn from_str(s: &str) -> Option<Self> {
         match s {
@@ -34,6 +35,42 @@ impl Alignment {
             "=" => Some(Alignment::Center),
             "==" => Some(Alignment::Justify),
             _ => None,
+        }
+    }
+}
+
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum HeadingLevel {
+    One,
+    Two,
+    Three,
+    Four,
+    Five,
+    Six,
+}
+
+// Convert to Into / TryFrom
+impl HeadingLevel {
+    pub fn from_usize(n: usize) -> Option<Self> {
+        match n {
+            1 => Some(HeadingLevel::One),
+            2 => Some(HeadingLevel::Two),
+            3 => Some(HeadingLevel::Three),
+            4 => Some(HeadingLevel::Four),
+            5 => Some(HeadingLevel::Five),
+            6 => Some(HeadingLevel::Six),
+            _ => None,
+        }
+    }
+
+    pub fn to_usize(self) -> usize {
+        match self {
+            HeadingLevel::One => 1,
+            HeadingLevel::Two => 2,
+            HeadingLevel::Three => 3,
+            HeadingLevel::Four => 4,
+            HeadingLevel::Five => 5,
+            HeadingLevel::Six => 6,
         }
     }
 }
