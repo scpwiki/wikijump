@@ -26,7 +26,7 @@
 use pest::Parser;
 use super::{parse, Rule, WikidotParser};
 
-const VALID_INPUT_STRINGS: [&str; 68] = [
+const VALID_INPUT_STRINGS: [&str; 74] = [
     "@@ apple @@ @@banana@@",
     "@@ [!-- literal comment @@ durian",
     "@@@@@@ at signs `````` tildes",
@@ -95,9 +95,15 @@ const VALID_INPUT_STRINGS: [&str; 68] = [
     "[[IMAGE tree.png ]] [[<IMAGE left-aligned.png]] [[>IMAGE right-aligned.png]]",
     "[[f<IMAGE left-aligned.png]] [[f>IMAGE right-aligned.png]] [[=IMAGE centered.png]]",
     "[[NOTE]]\ncontents\n[[/NOTE]]\n[[CODE]]\ncontents\n[[/CODE]]\n[[DIV STYLE=\"display: none;\"]]\ncontents\n[[/DIV]]",
+    "[[tabview]]\n[[tab Alpha]]\nIn the year 2012, a **great** calamity occurred...\n[[/tab]]\n[[tab Beta]]\n[[date 8000000]] lol what\n[[/tab]]\n[[/tabview]]",
+    "[[tabview]][[/tabview]]",
+    "[[tabs]]\n[[tab Alpha]][[/tab]]\n[[tab Beta]]\n[[/tab]]\n[[tab Gamma Delta]]\ndurian\n[[/tab]]\n[[/tabs]]",
+    "[[tablist]] [[tab --alpha-- ]] beta [[/tab]] [[tab GAMMA]] [[/tab]] [[ TAB __delta ]][[/tab]] \n [[/tablist]]",
+    "[[tabview]]\n[[tab A]]\n[[tablist]]\n[[tab B]][[/tab]]\n[[/tablist]]\n[[/tab]]\n[[/tabview]]",
+    "[[TABVIEW]][[/TABVIEW]][[TABS]][[/TABS]][[TABLIST]][[/TABLIST]]",
 ];
 
-const INVALID_INPUT_STRINGS: [&str; 52] = [
+const INVALID_INPUT_STRINGS: [&str; 55] = [
     "@@ raw value",
     "`` legacy raw value",
     "@@ @@ @@",
@@ -150,6 +156,9 @@ const INVALID_INPUT_STRINGS: [&str; 52] = [
     "an [[div]] inline div [[/div]]",
     "[[F>image filename.png]]",
     "[[F<image filename.png]]",
+    "[[tablist]]",
+    "[[tablist]] [[tab A]] [[/tablist]]",
+    "[[tabview]] [[/tab]] [[/tabview]]",
 ];
 
 #[test]

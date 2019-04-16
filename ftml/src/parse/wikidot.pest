@@ -170,7 +170,6 @@ image_arg = {
     space ~
     (^"link" | ^"alt" | ^"title" | ^"width" | ^"height" | ^"style" | ^"class" | ^"size") ~
     space? ~ "=" ~ space? ~ string
-
 }
 
 size = {
