@@ -26,7 +26,7 @@
 use pest::Parser;
 use super::{parse, Rule, WikidotParser};
 
-const VALID_INPUT_STRINGS: [&str; 77] = [
+const VALID_INPUT_STRINGS: [&str; 80] = [
     "@@ apple @@ @@banana@@",
     "@@ [!-- literal comment @@ durian",
     "@@@@@@ at signs `````` tildes",
@@ -104,9 +104,12 @@ const VALID_INPUT_STRINGS: [&str; 77] = [
     "[[TABVIEW]][[/TABVIEW]][[TABS]][[/TABS]][[TABLIST]][[/TABLIST]]",
     "apple [[gallery]] banana",
     "[[GALLERY]] - The AWCY exhibit that yells at you",
+    "apple\n+ h1\n++ h2\n+++ h3\n++++ h4\n+++++ h5\n++++++ h6\nbanana",
+    "+++ stylized **heading** right //here//!",
+    "[[div class=\"test\"]]\n+++ NOTICE FROM RAISA OR SOMETHING\n[[/div]]",
 ];
 
-const INVALID_INPUT_STRINGS: [&str; 56] = [
+const INVALID_INPUT_STRINGS: [&str; 57] = [
     "@@ raw value",
     "`` legacy raw value",
     "@@ @@ @@",
@@ -163,6 +166,7 @@ const INVALID_INPUT_STRINGS: [&str; 56] = [
     "[[tablist]] [[tab A]] [[/tablist]]",
     "[[tabview]] [[/tab]] [[/tabview]]",
     "[[gallery]] contents [[/gallery]]",
+    "+++++++ h7 heading doesn't exist",
 ];
 
 #[test]
