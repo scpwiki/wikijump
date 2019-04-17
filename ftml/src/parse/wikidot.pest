@@ -181,7 +181,7 @@ size = {
     "[[/" ~ space? ~ ^"size" ~ space? ~ "]]"
 }
 size_arg = {
-    (ASCII_DIGIT | "."){1,5} ~ space? ~ (^"em" | ^"px" | "%") |
+    (ASCII_DIGIT | "."){1,5} ~ space? ~ (^"rem" | ^"em" | ^"px" | "%") |
     ^"xx-small" |
     ^"x-small" |
     ^"small" |

@@ -112,7 +112,7 @@ const VALID_INPUT_STRINGS: [&str; 83] = [
     "[[size 120%]]\napple\nbanana\n[[/size]] [[SIZE 1EM]]cherry[[/SIZE]]",
 ];
 
-const INVALID_INPUT_STRINGS: [&str; 57] = [
+const INVALID_INPUT_STRINGS: [&str; 56] = [
     "@@ raw value",
     "`` legacy raw value",
     "@@ @@ @@",
@@ -147,7 +147,6 @@ const INVALID_INPUT_STRINGS: [&str; 57] = [
     "---- Empty strikethrough", // Conflicts with horiz separator
     "##NOT&A&COLOR|test##",
     "[[footnote]]",
-    "[[footnote]][[/footnote]]",
     "[[>]]\nPINEAPPLE",
     "[[<]]\nPINEAPPLE",
     "[[=]]\nPINEAPPLE",
