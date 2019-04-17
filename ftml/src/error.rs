@@ -31,6 +31,7 @@ pub enum Error {
     Io(io::Error),
     Utf8(Utf8Error),
     Parse(ParseError),
+    Fmt(fmt::Error),
 }
 
 impl StdError for Error {
@@ -43,6 +44,7 @@ impl StdError for Error {
             Io(ref e) => e.description(),
             Utf8(ref e) => e.description(),
             Parse(ref e) => e.description(),
+            Fmt(ref e) => e.description(),
         }
     }
 
@@ -54,6 +56,7 @@ impl StdError for Error {
             Io(ref e) => Some(e),
             Utf8(ref e) => Some(e),
             Parse(ref e) => Some(e),
+            Fmt(ref e) => Some(e),
         }
     }
 }
@@ -104,5 +107,11 @@ impl From<Utf8Error> for Error {
 impl From<ParseError> for Error {
     fn from(error: ParseError) -> Self {
         Error::Parse(error)
+    }
+}
+
+impl From<fmt::Error> for Error {
+    fn from(error: fmt::Error) -> Self {
+        Error::Fmt(error)
     }
 }

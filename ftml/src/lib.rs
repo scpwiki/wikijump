@@ -49,6 +49,9 @@
 //! the command-line. See that file for usage documentation.
 
 #[macro_use]
+extern crate horrorshow;
+
+#[macro_use]
 extern crate lazy_static;
 
 #[macro_use]
