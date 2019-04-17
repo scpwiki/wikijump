@@ -221,11 +221,6 @@ impl<'a> Word<'a> {
             )
         }
 
-        macro_rules! make_lines {
-            () => ( make_lines!(pair) );
-            ($pair:expr) => ( $pair.into_inner().map(Line::from_pair).collect() );
-        }
-
         macro_rules! make_words {
             () => ( make_words!(pair) );
             ($pair:expr) => ( $pair.into_inner().map(Word::from_pair).collect() );
@@ -294,7 +289,7 @@ impl<'a> Word<'a> {
                 filename: extract!(FILENAME),
             },
             Rule::footnote => Word::Footnote {
-                contents: make_lines!(get_first_pair!(pair)),
+                contents: convert_internal_lines(get_first_pair!(pair)),
             },
             Rule::footnote_block => Word::FootnoteBlock,
             Rule::form => Word::Form {
@@ -426,15 +421,12 @@ impl<'a> Word<'a> {
                 }
             }
             Rule::size => {
-                let mut contents = Vec::new();
-
                 let mut pairs = pair.into_inner();
-                let size = pairs.next().unwrap().as_str();
-                let lines = pairs.next().unwrap();
-
-                for pair in lines.into_inner() {
-                    contents.push(Line::from_pair(pair));
-                }
+                let size = pairs.next().expect("Size pairs iterator was empty").as_str();
+                let contents = match pairs.next() {
+                    Some(pair) => convert_internal_lines(pair),
+                    None => vec![],
+                };
 
                 Word::Size { size, contents }
             }
@@ -463,7 +455,7 @@ impl<'a> Word<'a> {
                                 _ => panic!("Unknown argument for [[span]]: {}", name),
                             }
                         }
-                        Rule::lines_internal => contents = make_lines!(pair),
+                        Rule::lines_internal => contents = convert_internal_lines(pair),
                         _ => panic!("Invalid rule for span: {:?}", pair.as_rule()),
                     }
                 }
