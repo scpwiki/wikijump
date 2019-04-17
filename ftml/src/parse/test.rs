@@ -26,7 +26,7 @@
 use pest::Parser;
 use super::{parse, Rule, WikidotParser};
 
-const VALID_INPUT_STRINGS: [&str; 87] = [
+const VALID_INPUT_STRINGS: [&str; 90] = [
     "@@ apple @@ @@banana@@",
     "@@ [!-- literal comment @@ durian",
     "@@@@@@ at signs `````` tildes",
@@ -114,9 +114,12 @@ const VALID_INPUT_STRINGS: [&str; 87] = [
     "# alpha\n# __beta__\n# gamma\n#  delta\n#   epsilon\n",
     "* apple\n# banana\n* cherry\n# durian",
     "* one\n * two\n  * three\n  * three\n   * four\n",
+    "[[quote]]\nQuoted text here\n[[/quote]]",
+    "[[quote id=\"my-id\" style=\"line-height: 1.5em;\" class=\"raisa-notice\"]]\n[[/quote]]",
+    "[[QUOTE]]\nNested quotes are easier this way\n[[QUOTE]]\nvery deep\nindeed\n[[/QUOTE]]\n[[/QUOTE]]",
 ];
 
-const INVALID_INPUT_STRINGS: [&str; 56] = [
+const INVALID_INPUT_STRINGS: [&str; 57] = [
     "@@ raw value",
     "`` legacy raw value",
     "@@ @@ @@",
@@ -173,6 +176,7 @@ const INVALID_INPUT_STRINGS: [&str; 56] = [
     "[[tabview]] [[/tab]] [[/tabview]]",
     "[[gallery]] contents [[/gallery]]",
     "+++++++ h7 heading doesn't exist",
+    "[[quote]] inline [[/quote]]",
 ];
 
 #[test]
