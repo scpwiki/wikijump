@@ -20,6 +20,7 @@
 
 use crate::enums::{Alignment, HeadingLevel, ListStyle};
 use std::borrow::Cow;
+use std::convert::TryFrom;
 use super::prelude::*;
 
 lazy_static! {
@@ -195,7 +196,7 @@ impl<'a> LineInner<'a> {
 
         match pair.as_rule() {
             Rule::align => {
-                let alignment = Alignment::from_str(extract!(ALIGN))
+                let alignment = Alignment::try_from(extract!(ALIGN))
                     .expect("Parsed align block had invalid alignment");
                 let contents = make_lines!();
 
@@ -231,7 +232,9 @@ impl<'a> LineInner<'a> {
                 let capture = CLEAR_FLOAT.captures(as_str!())
                     .expect("Regular expression CLEAR_FLOAT didn't match");
                 let direction = match capture.name("direction") {
-                    Some(mtch) => Alignment::from_str(mtch.as_str()),
+                    Some(mtch) => Some(Alignment::try_from(mtch.as_str())
+                                            .ok()
+                                            .expect("Alignment conversion failed")),
                     None => None,
                 };
 
@@ -285,7 +288,7 @@ impl<'a> LineInner<'a> {
                     "=" => LineInner::Words { contents, centered: true },
                     "" => LineInner::Words { contents, centered: false },
                     _ => {
-                        let level = HeadingLevel::from_usize(flag.len())
+                        let level = HeadingLevel::try_from(flag.len())
                             .expect("Regular expression returned incorrectly-sized heading");
 
                         LineInner::Heading { contents, level }

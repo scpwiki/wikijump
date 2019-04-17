@@ -18,6 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::StdResult;
+use std::convert::TryFrom;
+
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum Alignment {
     Left,
@@ -26,15 +29,16 @@ pub enum Alignment {
     Justify,
 }
 
-// Convert to TryFrom
-impl Alignment {
-    pub fn from_str(s: &str) -> Option<Self> {
-        match s {
-            "<" => Some(Alignment::Left),
-            ">" => Some(Alignment::Right),
-            "=" => Some(Alignment::Center),
-            "==" => Some(Alignment::Justify),
-            _ => None,
+impl<'a> TryFrom<&'a str> for Alignment {
+    type Error = ();
+
+    fn try_from(value: &'a str) -> StdResult<Self, Self::Error> {
+        match value {
+            "<" => Ok(Alignment::Left),
+            ">" => Ok(Alignment::Right),
+            "=" => Ok(Alignment::Center),
+            "==" => Ok(Alignment::Justify),
+            _ => Err(()),
         }
     }
 }
@@ -49,21 +53,24 @@ pub enum HeadingLevel {
     Six,
 }
 
-// Convert to Into / TryFrom
-impl HeadingLevel {
-    pub fn from_usize(n: usize) -> Option<Self> {
-        match n {
-            1 => Some(HeadingLevel::One),
-            2 => Some(HeadingLevel::Two),
-            3 => Some(HeadingLevel::Three),
-            4 => Some(HeadingLevel::Four),
-            5 => Some(HeadingLevel::Five),
-            6 => Some(HeadingLevel::Six),
-            _ => None,
+impl TryFrom<usize> for HeadingLevel {
+    type Error = ();
+
+    fn try_from(value: usize) -> StdResult<Self, Self::Error> {
+        match value {
+            1 => Ok(HeadingLevel::One),
+            2 => Ok(HeadingLevel::Two),
+            3 => Ok(HeadingLevel::Three),
+            4 => Ok(HeadingLevel::Four),
+            5 => Ok(HeadingLevel::Five),
+            6 => Ok(HeadingLevel::Six),
+            _ => Err(()),
         }
     }
+}
 
-    pub fn to_usize(self) -> usize {
+impl Into<usize> for HeadingLevel {
+    fn into(self) -> usize {
         match self {
             HeadingLevel::One => 1,
             HeadingLevel::Two => 2,
