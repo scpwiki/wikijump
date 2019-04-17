@@ -25,5 +25,7 @@ pub use self::html::HtmlRender;
 use crate::{Result, SyntaxTree};
 
 pub trait Render {
-    fn render(tree: SyntaxTree) -> Result<String>;
+    type Output;
+
+    fn render(tree: &SyntaxTree) -> Result<Self::Output>;
 }

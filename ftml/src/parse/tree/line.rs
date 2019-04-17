@@ -101,10 +101,20 @@ impl<'a> Line<'a> {
 
         Line { inner, newlines }
     }
+
+    #[inline]
+    pub fn inner(&self) -> &LineInner {
+        &self.inner
+    }
+
+    #[inline]
+    pub fn newlines(&self) -> usize {
+        self.newlines
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-enum LineInner<'a> {
+pub enum LineInner<'a> {
     Align {
         alignment: Alignment,
         contents: Vec<Line<'a>>,

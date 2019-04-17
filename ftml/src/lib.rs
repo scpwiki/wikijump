@@ -74,10 +74,10 @@ pub use self::render::{HtmlRender, Render};
 pub type StdResult<T, E> = std::result::Result<T, E>;
 pub type Result<T> = StdResult<T, Error>;
 
-pub fn transform<R: Render>(text: &str) -> Result<String> {
-    let state = parse(text)?;
-    let html = R::render(state)?;
-    Ok(html)
+pub fn transform<R: Render>(text: &str) -> Result<R::Output> {
+    let tree = parse(text)?;
+    let output = R::render(&tree)?;
+    Ok(output)
 }
 
 pub mod prelude {
