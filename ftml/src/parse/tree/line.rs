@@ -308,7 +308,16 @@ impl<'a> LineInner<'a> {
 
                 let mut items = Vec::new();
                 for pair in pair.into_inner() {
-                    items.push(Line::from_pair(pair));
+                    debug_assert_eq!(pair.as_rule(), Rule::list_item);
+
+                    let mut contents = Vec::new();
+                    for pair in pair.into_inner() {
+                        contents.push(Word::from_pair(pair));
+                    }
+
+                    let inner = LineInner::Words { contents, centered: false };
+                    let line = Line { inner, newlines: 0 };
+                    items.push(line);
                 }
 
                 LineInner::List { style, depth, items }
