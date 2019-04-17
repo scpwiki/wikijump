@@ -38,12 +38,8 @@
 //! supported if there are no mainlist articles or pages using them.
 //! Additionally, if Wikidot doesn't support something (such as nested
 //! collapsibles), we will aim to allow them through the use of parser
-//! rules.
-//!
-//! Additionally, as this library matures, features not found within
-//! Wikidot's Text_Wiki may be added. These will be clearly documented
-//! and a flag will be added to run in compatibility mode. Hopefully
-//! they will be useful going forward.
+//! rules. Additionally, features not found within Wikidot's Text_Wiki
+//! will be added.
 //!
 //! This crate also provides an executable to convert files from
 //! the command-line. See that file for usage documentation.
