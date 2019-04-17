@@ -26,7 +26,7 @@
 use pest::Parser;
 use super::{parse, Rule, WikidotParser};
 
-const VALID_INPUT_STRINGS: [&str; 80] = [
+const VALID_INPUT_STRINGS: [&str; 83] = [
     "@@ apple @@ @@banana@@",
     "@@ [!-- literal comment @@ durian",
     "@@@@@@ at signs `````` tildes",
@@ -77,6 +77,7 @@ const VALID_INPUT_STRINGS: [&str; 80] = [
     "[[date 1554823000]]\n[[ date 1554823000 ]]\n[[ date 1554823000 format=\"%A %B %d, %Y\" ]]\n[[date 1554823000  format = \"%A %B %d, %Y\"]]\n[[  date  1554823000  format= \"%A %B %d, %Y\"]]",
     "[[footnote]] Inner **contents** here [[date 0]] __please!__ [[/footnote]]",
     "[[footnote]] Multi-line\nfootnote\ncontents\nhere [[/footnote]]",
+    "[[footnote]] \n APPLE \n BANANA \n CHERRY \n [[/footnote]]",
     "[[<]]\nleft-aligned **text**\n[[/<]]",
     "[[>]]\nright-aligned //text//\n[[/>]]",
     "[[=]]\ncenter-aligned __text__\n[[/=]]",
@@ -107,6 +108,8 @@ const VALID_INPUT_STRINGS: [&str; 80] = [
     "apple\n+ h1\n++ h2\n+++ h3\n++++ h4\n+++++ h5\n++++++ h6\nbanana",
     "+++ stylized **heading** right //here//!",
     "[[div class=\"test\"]]\n+++ NOTICE FROM RAISA OR SOMETHING\n[[/div]]",
+    "[[size 50%]] alpha [[/size]] - [[size x-large]] beta [[/size]] - [[ size 2rem ]]gamma[[/ size ]]",
+    "[[size 120%]]\napple\nbanana\n[[/size]] [[SIZE 1EM]]cherry[[/SIZE]]",
 ];
 
 const INVALID_INPUT_STRINGS: [&str; 57] = [
