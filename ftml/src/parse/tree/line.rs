@@ -198,21 +198,11 @@ impl<'a> LineInner<'a> {
             )
         }
 
-        macro_rules! make_lines {
-            () => ( make_lines!(pair) );
-            ($pair:expr) => ( $pair.into_inner().map(Line::from_pair).collect() );
-        }
-
-        macro_rules! make_words {
-            () => ( make_words!(pair) );
-            ($pair:expr) => ( $pair.into_inner().map(Word::from_pair).collect() );
-        }
-
         match pair.as_rule() {
             Rule::align => {
                 let alignment = Alignment::try_from(extract!(ALIGN))
                     .expect("Parsed align block had invalid alignment");
-                let contents = make_lines!();
+                let contents = pair.into_inner().map(Line::from_pair).collect();
 
                 LineInner::Align {
                     alignment,
