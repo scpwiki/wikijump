@@ -69,19 +69,19 @@ mod test;
 
 pub use self::error::Error;
 pub use self::parse::{parse, SyntaxTree};
-pub use self::render::render;
+pub use self::render::{HtmlRender, Render};
 
 pub type StdResult<T, E> = std::result::Result<T, E>;
 pub type Result<T> = StdResult<T, Error>;
 
-pub fn transform(text: &str) -> Result<String> {
+pub fn transform<R: Render>(text: &str) -> Result<String> {
     let state = parse(text)?;
-    let html = render(state)?;
+    let html = R::render(state)?;
     Ok(html)
 }
 
 pub mod prelude {
     #![allow(unused_imports)]
-    pub use super::{Error, Result, StdResult, SyntaxTree};
-    pub use super::{parse, render, transform};
+    pub use super::{Error, HtmlRender, Render, Result, StdResult, SyntaxTree};
+    pub use super::{parse, transform};
 }

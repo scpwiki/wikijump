@@ -20,8 +20,15 @@
 
 use crate::{Error, Result, SyntaxTree};
 
-// TODO
-pub fn render(tree: SyntaxTree) -> Result<String> {
-    let _ = tree;
-    Err(Error::StaticMsg("Not implemented yet"))
+pub trait Render {
+    fn render(tree: SyntaxTree) -> Result<String>;
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub struct HtmlRender;
+
+impl Render for HtmlRender {
+    fn render(_tree: SyntaxTree) -> Result<String> {
+        Err(Error::StaticMsg("Not implemented yet"))
+    }
 }

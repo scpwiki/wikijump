@@ -74,7 +74,7 @@ fn main() {
     }
 
     let transform_fn = if matches.occurrences_of("parse-only") == 0 {
-        transform
+        transform::<HtmlRender>
     } else {
         parse_only
     };
