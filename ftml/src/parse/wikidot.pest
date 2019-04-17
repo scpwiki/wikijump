@@ -20,11 +20,11 @@
 
 // Pages {{{
 page = { SOI ~ line* ~ EOI }
-newlines = { "\n"+ | EOI }
 // }}}
 
 // TODO
 // Lines {{{
+newlines = { "\n"+ | EOI }
 line = { line_inner ~ newlines }
 lines_internal = { space? ~ line* ~ line_inner? ~ newlines? }
 
@@ -70,8 +70,8 @@ div_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ stri
 // }}}
 
 // Misc lines {{{
-bullet_list = { ("* " ~ line)+ }
-numbered_list = { ("# " ~ line) + }
+bullet_list = { (" "* ~ "* " ~ line_inner)+ }
+numbered_list = { (" "* ~ "# " ~ line_inner)+ }
 words = {
     (
         "+"{1,6} ~ (" " | "\t") |

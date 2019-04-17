@@ -154,6 +154,7 @@ pub enum LineInner<'a> {
     },
     List {
         style: ListStyle,
+        depth: usize,
         items: Vec<Line<'a>>,
     },
     Math {
@@ -288,18 +289,29 @@ impl<'a> LineInner<'a> {
                 }
             }
             Rule::bullet_list | Rule::numbered_list => {
-                let mut items = Vec::new();
+                let depth = {
+                    let mut depth = 0;
+                    for ch in pair.as_str().chars() {
+                        match ch {
+                            ' ' => depth += 1,
+                            _ => break,
+                        }
+                    }
+                    depth
+                };
+
                 let style = match pair.as_rule() {
                     Rule::bullet_list => ListStyle::Bullet,
                     Rule::numbered_list => ListStyle::Numbered,
                     _ => unreachable!(),
                 };
 
+                let mut items = Vec::new();
                 for pair in pair.into_inner() {
                     items.push(Line::from_pair(pair));
                 }
 
-                LineInner::List { style, items }
+                LineInner::List { style, depth, items }
             }
             Rule::horizontal_line => LineInner::HorizontalLine,
             Rule::words => {

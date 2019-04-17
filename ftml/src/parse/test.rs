@@ -26,7 +26,7 @@
 use pest::Parser;
 use super::{parse, Rule, WikidotParser};
 
-const VALID_INPUT_STRINGS: [&str; 83] = [
+const VALID_INPUT_STRINGS: [&str; 87] = [
     "@@ apple @@ @@banana@@",
     "@@ [!-- literal comment @@ durian",
     "@@@@@@ at signs `````` tildes",
@@ -110,6 +110,10 @@ const VALID_INPUT_STRINGS: [&str; 83] = [
     "[[div class=\"test\"]]\n+++ NOTICE FROM RAISA OR SOMETHING\n[[/div]]",
     "[[size 50%]] alpha [[/size]] - [[size x-large]] beta [[/size]] - [[ size 2rem ]]gamma[[/ size ]]",
     "[[size 120%]]\napple\nbanana\n[[/size]] [[SIZE 1EM]]cherry[[/SIZE]]",
+    "* apple\n* __banana__\n*  cherry\n*   durian\n",
+    "# alpha\n# __beta__\n# gamma\n#  delta\n#   epsilon\n",
+    "* apple\n# banana\n* cherry\n# durian",
+    "* one\n * two\n  * three\n  * three\n   * four\n",
 ];
 
 const INVALID_INPUT_STRINGS: [&str; 56] = [
