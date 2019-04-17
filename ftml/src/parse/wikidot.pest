@@ -33,6 +33,8 @@ line_inner = {
     code |
     clear_float |
     div |
+    bullet_list |
+    numbered_list |
     horizontal_line |
     words
 }
@@ -68,6 +70,8 @@ div_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ stri
 // }}}
 
 // Misc lines {{{
+bullet_list = { ("* " ~ line)+ }
+numbered_list = { ("# " ~ line) + }
 words = {
     (
         "+"{1,6} ~ (" " | "\t") |
