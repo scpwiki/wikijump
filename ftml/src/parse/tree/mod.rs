@@ -42,24 +42,13 @@ mod prelude {
 
     pub use pest::iterators::{Pair, Pairs};
     pub use regex::{Regex, RegexBuilder};
+    pub use super::convert_internal_lines;
     pub use super::{Line, Tab, TableRow, Word};
     pub use super::super::Rule;
     pub use super::super::string::interp_str;
-
-    pub fn convert_internal_lines(pair: Pair<Rule>) -> Vec<Line> {
-        let mut lines = Vec::new();
-        for pair in pair.into_inner() {
-            match pair.as_rule() {
-                Rule::line => lines.push(Line::from_pair(pair)),
-                Rule::lines_partial => lines.extend(pair.into_inner().map(Line::from_pair)),
-                _ => panic!("Invalid rule for internal-lines: {:?}", pair.as_rule()),
-            }
-        }
-
-        lines
-    }
 }
 
+pub use self::line::convert_internal_lines;
 pub use self::line::Line;
 pub use self::misc::{Tab, TableRow};
 pub use self::word::Word;

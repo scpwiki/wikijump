@@ -37,6 +37,27 @@ lazy_static! {
     static ref WORDS: Regex = Regex::new(r"^(?P<flag>\+{1,6}|=?)").unwrap();
 }
 
+pub fn convert_internal_lines(pair: Pair<Rule>) -> Vec<Line> {
+    let mut lines = Vec::new();
+    let mut inner = None;
+    let mut newlines = 0;
+
+    for pair in pair.into_inner() {
+        match pair.as_rule() {
+            Rule::line => lines.push(Line::from_pair(pair)),
+            Rule::line_inner => inner = Some(LineInner::from_pair(pair)),
+            Rule::newlines => newlines = pair.as_str().len(),
+            _ => panic!("Invalid rule for internal-lines: {:?}", pair.as_rule()),
+        }
+    }
+
+    if let Some(inner) = inner {
+        lines.push(Line { inner, newlines });
+    }
+
+    lines
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Line<'a> {
     inner: LineInner<'a>,
