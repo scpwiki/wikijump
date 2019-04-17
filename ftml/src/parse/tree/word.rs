@@ -481,16 +481,14 @@ impl<'a> Word<'a> {
                 // Iterate over tabs
                 for pair in pair.into_inner() {
                     let mut pairs = pair.into_inner();
-                    let name = pairs.next().expect("Tab pairs iterator was empty").as_str();
-
-                    let mut lines = Vec::new();
-                    for pair in pairs {
-                        match pair.as_rule() {
-                            Rule::line => lines.push(Line::from_pair(pair)),
-                            Rule::lines_internal => lines.extend(pair.into_inner().map(Line::from_pair)),
-                            _ => panic!("Invalid rule for tab: {:?}", pair.as_rule()),
-                        }
-                    }
+                    let name = {
+                        let pair = pairs.next().expect("Tab pairs iterator was empty");
+                        pair.as_str()
+                    };
+                    let lines = match pairs.next() {
+                        Some(pair) => convert_internal_lines(pair),
+                        None => vec![],
+                    };
 
                     tabs.push(Tab { name, lines });
                 }

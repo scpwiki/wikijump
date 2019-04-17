@@ -45,6 +45,19 @@ mod prelude {
     pub use super::{Line, Tab, TableRow, Word};
     pub use super::super::Rule;
     pub use super::super::string::interp_str;
+
+    pub fn convert_internal_lines(pair: Pair<Rule>) -> Vec<Line> {
+        let mut lines = Vec::new();
+        for pair in pair.into_inner() {
+            match pair.as_rule() {
+                Rule::line => lines.push(Line::from_pair(pair)),
+                Rule::lines_partial => lines.extend(pair.into_inner().map(Line::from_pair)),
+                _ => panic!("Invalid rule for internal-lines: {:?}", pair.as_rule()),
+            }
+        }
+
+        lines
+    }
 }
 
 pub use self::line::Line;

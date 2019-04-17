@@ -26,7 +26,8 @@ newlines = { "\n"+ | EOI }
 // TODO
 // Lines {{{
 line = { line_inner ~ newlines }
-lines_internal = { line* ~ line_inner }
+lines_partial = { line* ~ line_inner }
+lines_internal = { lines_partial | line+ }
 
 line_inner = {
     align |
@@ -207,7 +208,7 @@ tab_list = {
 }
 tab = {
     "[[" ~ space? ~ ^"tab" ~ space ~ tab_name ~ space? ~ "]]" ~ space? ~
-    (lines_internal | line+)? ~
+    lines_internal? ~
     "[[/" ~ space? ~ ^"tab" ~ space? ~ "]]"
 }
 tab_name = { (!("]]" | "\n") ~ ANY)+ }
