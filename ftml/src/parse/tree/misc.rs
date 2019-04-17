@@ -23,7 +23,7 @@ use super::prelude::*;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Tab<'a> {
     pub name: &'a str,
-    pub lines: Vec<Line<'a>>,
+    pub contents: Vec<Line<'a>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

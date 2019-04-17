@@ -26,7 +26,7 @@ newlines = { "\n"+ | EOI }
 // TODO
 // Lines {{{
 line = { line_inner ~ newlines }
-lines_internal = { line* ~ line_inner ~ newlines? }
+lines_internal = { space? ~ line* ~ line_inner? ~ newlines? }
 
 line_inner = {
     align |
@@ -177,7 +177,7 @@ image_arg = {
 
 size = {
     "[[" ~ space? ~ ^"size" ~ space ~ size_arg ~ space? ~ "]]" ~
-    lines_internal? ~
+    lines_internal ~
     "[[/" ~ space? ~ ^"size" ~ space? ~ "]]"
 }
 size_arg = {
@@ -195,7 +195,7 @@ size_arg = {
 
 span = {
     "[[" ~ space? ~ ^"span" ~ span_arg* ~ space? ~ "]]" ~
-    lines_internal? ~
+    lines_internal ~
     "[[/" ~ space? ~ ^"span" ~ space? ~ "]]"
 }
 span_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ string }
@@ -207,7 +207,7 @@ tab_list = {
 }
 tab = {
     "[[" ~ space? ~ ^"tab" ~ space ~ tab_name ~ space? ~ "]]" ~ space? ~
-    lines_internal? ~
+    lines_internal ~
     "[[/" ~ space? ~ ^"tab" ~ space? ~ "]]"
 }
 tab_name = { (!("]]" | "\n") ~ ANY)+ }

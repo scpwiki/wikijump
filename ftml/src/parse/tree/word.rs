@@ -422,10 +422,13 @@ impl<'a> Word<'a> {
             }
             Rule::size => {
                 let mut pairs = pair.into_inner();
-                let size = pairs.next().expect("Size pairs iterator was empty").as_str();
-                let contents = match pairs.next() {
-                    Some(pair) => convert_internal_lines(pair),
-                    None => vec![],
+                let size = {
+                    let pair = pairs.next().expect("Size pairs iterator was empty");
+                    pair.as_str()
+                };
+                let contents = {
+                    let pair = pairs.next().expect("Size pairs iterator had only one element");
+                    convert_internal_lines(pair)
                 };
 
                 Word::Size { size, contents }
@@ -477,12 +480,12 @@ impl<'a> Word<'a> {
                         let pair = pairs.next().expect("Tab pairs iterator was empty");
                         pair.as_str()
                     };
-                    let lines = match pairs.next() {
-                        Some(pair) => convert_internal_lines(pair),
-                        None => vec![],
+                    let contents = {
+                        let pair = pairs.next().expect("Tab pairs iterator had only one element");
+                        convert_internal_lines(pair)
                     };
 
-                    tabs.push(Tab { name, lines });
+                    tabs.push(Tab { name, contents });
                 }
 
                 Word::TabList { tabs }
