@@ -249,7 +249,7 @@ impl<'a> Word<'a> {
                 }
 
                 Word::Color { color, contents }
-            },
+            }
             Rule::italics => Word::Italics {
                 contents: make_words!(),
             },
@@ -275,10 +275,13 @@ impl<'a> Word<'a> {
                 name: extract!(ANCHOR),
             },
             Rule::date => {
-                let capture = DATE.captures(as_str!()).expect("Regular expression DATE didn't match");
+                let capture = DATE.captures(as_str!())
+                    .expect("Regular expression DATE didn't match");
 
                 Word::Date {
-                    timestamp: capture["timestamp"].parse().expect("Unable to parse timestamp integer"),
+                    timestamp: capture["timestamp"]
+                        .parse()
+                        .expect("Unable to parse timestamp integer"),
                     format: capture.name("format").map(|mtch| mtch.as_str()),
                 }
             }
@@ -427,7 +430,9 @@ impl<'a> Word<'a> {
                     pair.as_str()
                 };
                 let contents = {
-                    let pair = pairs.next().expect("Size pairs iterator had only one element");
+                    let pair = pairs
+                        .next()
+                        .expect("Size pairs iterator had only one element");
                     convert_internal_lines(pair)
                 };
 
@@ -481,7 +486,9 @@ impl<'a> Word<'a> {
                         pair.as_str()
                     };
                     let contents = {
-                        let pair = pairs.next().expect("Tab pairs iterator had only one element");
+                        let pair = pairs
+                            .next()
+                            .expect("Tab pairs iterator had only one element");
                         convert_internal_lines(pair)
                     };
 
@@ -491,7 +498,8 @@ impl<'a> Word<'a> {
                 Word::TabList { tabs }
             }
             Rule::user => {
-                let capture = USER.captures(as_str!()).expect("Regular expression USER didn't match");
+                let capture = USER.captures(as_str!())
+                    .expect("Regular expression USER didn't match");
 
                 Word::User {
                     username: capture!(capture, "username"),

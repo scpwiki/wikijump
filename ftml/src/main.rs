@@ -60,7 +60,9 @@ fn main() {
         )
         .get_matches();
 
-    let output_dir = matches.value_of_os("output-directory").expect("No argument 'output-directory'");
+    let output_dir = matches
+        .value_of_os("output-directory")
+        .expect("No argument 'output-directory'");
     if let Err(err) = fs::create_dir_all(&output_dir) {
         let output_dir = Path::new(output_dir);
         eprintln!(

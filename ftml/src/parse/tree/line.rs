@@ -76,7 +76,7 @@ impl<'a> Line<'a> {
             Rule::line_inner => {
                 inner = LineInner::from_pair(pair);
                 newlines = 0;
-            },
+            }
             Rule::line => {
                 let mut pairs = pair.into_inner();
 
@@ -86,12 +86,16 @@ impl<'a> Line<'a> {
                     LineInner::from_pair(pair)
                 };
                 newlines = {
-                    let pair = pairs.next().expect("Line pairs iterator only had one element");
+                    let pair = pairs
+                        .next()
+                        .expect("Line pairs iterator only had one element");
                     debug_assert_eq!(pair.as_rule(), Rule::newlines);
                     pair.as_str().len()
                 };
-            },
-            Rule::lines_internal => panic!("The rule 'lines_internal' returns multiple Line instances"),
+            }
+            Rule::lines_internal => {
+                panic!("The rule 'lines_internal' returns multiple Line instances")
+            }
             _ => panic!("Invalid rule for line: {:?}", pair.as_rule()),
         }
 
@@ -200,19 +204,22 @@ impl<'a> LineInner<'a> {
                     .expect("Parsed align block had invalid alignment");
                 let contents = make_lines!();
 
-                LineInner::Align { alignment, contents }
+                LineInner::Align {
+                    alignment,
+                    contents,
+                }
             }
             Rule::code => {
                 let mut language = None;
                 let contents = extract!(CODE_BLOCK);
 
                 // Parse arguments
-                let pairs = pair
-                    .into_inner()
+                let pairs = pair.into_inner()
                     .filter(|pair| pair.as_rule() == Rule::code_arg);
 
                 for pair in pairs {
-                    let capture = ARGUMENT_NAME.captures(pair.as_str())
+                    let capture = ARGUMENT_NAME
+                        .captures(pair.as_str())
                         .expect("Regular expression ARGUMENT_NAME didn't match");
                     let name = capture!(capture, "name");
                     let value_pair = get_first_pair!(pair);
@@ -229,12 +236,15 @@ impl<'a> LineInner<'a> {
                 LineInner::CodeBlock { language, contents }
             }
             Rule::clear_float => {
-                let capture = CLEAR_FLOAT.captures(as_str!())
+                let capture = CLEAR_FLOAT
+                    .captures(as_str!())
                     .expect("Regular expression CLEAR_FLOAT didn't match");
                 let direction = match capture.name("direction") {
-                    Some(mtch) => Some(Alignment::try_from(mtch.as_str())
-                                            .ok()
-                                            .expect("Alignment conversion failed")),
+                    Some(mtch) => Some(
+                        Alignment::try_from(mtch.as_str())
+                            .ok()
+                            .expect("Alignment conversion failed"),
+                    ),
                     None => None,
                 };
 
@@ -249,7 +259,8 @@ impl<'a> LineInner<'a> {
                 for pair in pair.into_inner() {
                     match pair.as_rule() {
                         Rule::div_arg => {
-                            let capture = ARGUMENT_NAME.captures(pair.as_str())
+                            let capture = ARGUMENT_NAME
+                                .captures(pair.as_str())
                                 .expect("Regular expression ARGUMENT_NAME didn't match");
                             let name = capture!(capture, "name");
                             let value_pair = get_first_pair!(pair);
@@ -285,14 +296,20 @@ impl<'a> LineInner<'a> {
                 }
 
                 match flag {
-                    "=" => LineInner::Words { contents, centered: true },
-                    "" => LineInner::Words { contents, centered: false },
+                    "=" => LineInner::Words {
+                        contents,
+                        centered: true,
+                    },
+                    "" => LineInner::Words {
+                        contents,
+                        centered: false,
+                    },
                     _ => {
                         let level = HeadingLevel::try_from(flag.len())
                             .expect("Regular expression returned incorrectly-sized heading");
 
                         LineInner::Heading { contents, level }
-                    },
+                    }
                 }
             }
 

@@ -66,7 +66,10 @@ pub fn interp_str<'a>(text: &'a str) -> Option<Cow<'a, str>> {
 #[test]
 fn test_string_parse() {
     let string = interp_str(r#""hello,\nworld!\t""#);
-    assert_eq!(string.expect("Converted string was None").as_ref(), "hello,\nworld!\t");
+    assert_eq!(
+        string.expect("Converted string was None").as_ref(),
+        "hello,\nworld!\t"
+    );
 
     let string = interp_str(r#""\nA\tTHOUSAND\0WINDS\rCRY\nFOR \'\'\'VICTORS\'\'\'\n""#);
     assert_eq!(
