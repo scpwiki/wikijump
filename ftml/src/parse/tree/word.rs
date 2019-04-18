@@ -90,7 +90,7 @@ pub enum Word<'a> {
         name: &'a str,
     },
     Bold {
-        contents: Vec<Word<'a>>,
+        words: Vec<Word<'a>>,
     },
     Button {
         /*
@@ -101,7 +101,7 @@ pub enum Word<'a> {
     },
     Color {
         color: &'a str,
-        contents: Vec<Word<'a>>,
+        words: Vec<Word<'a>>,
     },
     Date {
         timestamp: i64,
@@ -117,7 +117,7 @@ pub enum Word<'a> {
         filename: &'a str,
     },
     Footnote {
-        contents: Vec<Line<'a>>,
+        lines: Vec<Line<'a>>,
     },
     FootnoteBlock,
     Form {
@@ -139,7 +139,7 @@ pub enum Word<'a> {
         size: Option<&'a str>,
     },
     Italics {
-        contents: Vec<Word<'a>>,
+        words: Vec<Word<'a>>,
     },
     Link {
         page: &'a str,
@@ -155,32 +155,32 @@ pub enum Word<'a> {
         contents: Option<&'a str>,
     },
     Monospace {
-        contents: Vec<Word<'a>>,
+        words: Vec<Word<'a>>,
     },
     Note {
-        contents: Vec<Line<'a>>,
+        lines: Vec<Line<'a>>,
     },
     Raw {
         contents: &'a str,
     },
     Size {
         size: &'a str,
-        contents: Vec<Line<'a>>,
+        lines: Vec<Line<'a>>,
     },
     Span {
         id: Option<&'a str>,
         class: Option<&'a str>,
         style: Option<&'a str>,
-        contents: Vec<Line<'a>>,
+        lines: Vec<Line<'a>>,
     },
     Strikethrough {
-        contents: Vec<Word<'a>>,
+        words: Vec<Word<'a>>,
     },
     Subscript {
-        contents: Vec<Word<'a>>,
+        words: Vec<Word<'a>>,
     },
     Superscript {
-        contents: Vec<Word<'a>>,
+        words: Vec<Word<'a>>,
     },
     TabList {
         tabs: Vec<Tab<'a>>,
@@ -189,7 +189,7 @@ pub enum Word<'a> {
         contents: &'a str,
     },
     Underline {
-        contents: Vec<Word<'a>>,
+        words: Vec<Word<'a>>,
     },
     Url {
         contents: &'a str,
@@ -238,38 +238,38 @@ impl<'a> Word<'a> {
             },
             Rule::color => {
                 let mut color = "";
-                let mut contents = Vec::new();
+                let mut words = Vec::new();
 
                 for pair in pair.into_inner() {
                     match pair.as_rule() {
                         Rule::ident => color = pair.as_str(),
-                        Rule::word => contents.push(Word::from_pair(pair)),
+                        Rule::word => words.push(Word::from_pair(pair)),
                         _ => panic!("Invalid rule for color: {:?}", pair.as_rule()),
                     }
                 }
 
-                Word::Color { color, contents }
+                Word::Color { color, words }
             }
             Rule::italics => Word::Italics {
-                contents: make_words!(),
+                words: make_words!(),
             },
             Rule::strikethrough => Word::Strikethrough {
-                contents: make_words!(),
+                words: make_words!(),
             },
             Rule::bold => Word::Bold {
-                contents: make_words!(),
+                words: make_words!(),
             },
             Rule::underline => Word::Underline {
-                contents: make_words!(),
+                words: make_words!(),
             },
             Rule::subscript => Word::Subscript {
-                contents: make_words!(),
+                words: make_words!(),
             },
             Rule::superscript => Word::Superscript {
-                contents: make_words!(),
+                words: make_words!(),
             },
             Rule::monospace => Word::Monospace {
-                contents: make_words!(),
+                words: make_words!(),
             },
             Rule::anchor => Word::Anchor {
                 name: extract!(ANCHOR),
@@ -292,7 +292,7 @@ impl<'a> Word<'a> {
                 filename: extract!(FILENAME),
             },
             Rule::footnote => Word::Footnote {
-                contents: convert_internal_lines(get_first_pair!(pair)),
+                lines: convert_internal_lines(get_first_pair!(pair)),
             },
             Rule::footnote_block => Word::FootnoteBlock,
             Rule::form => Word::Form {
@@ -335,13 +335,13 @@ impl<'a> Word<'a> {
                 }
             }
             Rule::note => {
-                let mut contents = Vec::new();
+                let mut lines = Vec::new();
 
                 for pair in pair.into_inner() {
-                    contents.push(Line::from_pair(pair));
+                    lines.push(Line::from_pair(pair));
                 }
 
-                Word::Note { contents }
+                Word::Note { lines }
             }
             Rule::image => {
                 let mut filename = "";
@@ -429,20 +429,21 @@ impl<'a> Word<'a> {
                     let pair = pairs.next().expect("Size pairs iterator was empty");
                     pair.as_str()
                 };
-                let contents = {
+                let lines = {
                     let pair = pairs
                         .next()
                         .expect("Size pairs iterator had only one element");
+
                     convert_internal_lines(pair)
                 };
 
-                Word::Size { size, contents }
+                Word::Size { size, lines }
             }
             Rule::span => {
                 let mut id = None;
                 let mut class = None;
                 let mut style = None;
-                let mut contents = Vec::new();
+                let mut lines = Vec::new();
 
                 for pair in pair.into_inner() {
                     match pair.as_rule() {
@@ -463,7 +464,7 @@ impl<'a> Word<'a> {
                                 _ => panic!("Unknown argument for [[span]]: {}", name),
                             }
                         }
-                        Rule::lines_internal => contents = convert_internal_lines(pair),
+                        Rule::lines_internal => lines = convert_internal_lines(pair),
                         _ => panic!("Invalid rule for span: {:?}", pair.as_rule()),
                     }
                 }
@@ -472,7 +473,7 @@ impl<'a> Word<'a> {
                     id,
                     class,
                     style,
-                    contents,
+                    lines,
                 }
             }
             Rule::tab_list => {

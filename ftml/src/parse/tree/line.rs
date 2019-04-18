@@ -117,10 +117,10 @@ impl<'a> Line<'a> {
 pub enum LineInner<'a> {
     Align {
         alignment: Alignment,
-        contents: Vec<Line<'a>>,
+        lines: Vec<Line<'a>>,
     },
     Center {
-        contents: Vec<Word<'a>>,
+        words: Vec<Word<'a>>,
     },
     ClearFloat {
         direction: Option<Alignment>,
@@ -133,11 +133,11 @@ pub enum LineInner<'a> {
         id: Option<&'a str>,
         class: Option<&'a str>,
         style: Option<&'a str>,
-        contents: Vec<Line<'a>>,
+        lines: Vec<Line<'a>>,
     },
     Heading {
         level: HeadingLevel,
-        contents: Vec<Word<'a>>,
+        words: Vec<Word<'a>>,
     },
     HorizontalLine,
     Html {
@@ -150,7 +150,7 @@ pub enum LineInner<'a> {
     IfTags {
         required: Vec<&'a str>,
         prohibited: Vec<&'a str>,
-        contents: Vec<Line<'a>>,
+        lines: Vec<Line<'a>>,
     },
     List {
         style: ListStyle,
@@ -170,11 +170,11 @@ pub enum LineInner<'a> {
         // TODO: http://community.wikidot.com/help:toc
     },
     QuoteBlock {
-        contents: Vec<Line<'a>>,
+        lines: Vec<&'a str>,
     },
     Words {
         centered: bool,
-        contents: Vec<Word<'a>>,
+        words: Vec<Word<'a>>,
     },
 }
 
@@ -203,11 +203,11 @@ impl<'a> LineInner<'a> {
             Rule::align => {
                 let alignment = Alignment::try_from(extract!(ALIGN))
                     .expect("Parsed align block had invalid alignment");
-                let contents = pair.into_inner().map(Line::from_pair).collect();
+                let lines = pair.into_inner().map(Line::from_pair).collect();
 
                 LineInner::Align {
                     alignment,
-                    contents,
+                    lines,
                 }
             }
             Rule::code => {
@@ -255,7 +255,7 @@ impl<'a> LineInner<'a> {
                 let mut id = None;
                 let mut class = None;
                 let mut style = None;
-                let mut contents = Vec::new();
+                let mut lines = Vec::new();
 
                 for pair in pair.into_inner() {
                     match pair.as_rule() {
@@ -276,7 +276,7 @@ impl<'a> LineInner<'a> {
                                 _ => panic!("Unknown argument for [[div]]: {}", name),
                             }
                         }
-                        Rule::line => contents.push(Line::from_pair(pair)),
+                        Rule::line => lines.push(Line::from_pair(pair)),
                         _ => panic!("Invalid rule for div: {:?}", pair.as_rule()),
                     }
                 }
@@ -285,7 +285,7 @@ impl<'a> LineInner<'a> {
                     id,
                     class,
                     style,
-                    contents,
+                    lines,
                 }
             }
             Rule::bullet_list | Rule::numbered_list => {
@@ -310,12 +310,12 @@ impl<'a> LineInner<'a> {
                 for pair in pair.into_inner() {
                     debug_assert_eq!(pair.as_rule(), Rule::list_item);
 
-                    let mut contents = Vec::new();
+                    let mut words = Vec::new();
                     for pair in pair.into_inner() {
-                        contents.push(Word::from_pair(pair));
+                        words.push(Word::from_pair(pair));
                     }
 
-                    let inner = LineInner::Words { contents, centered: false };
+                    let inner = LineInner::Words { words, centered: false };
                     let line = Line { inner, newlines: 0 };
                     items.push(line);
                 }
@@ -325,25 +325,25 @@ impl<'a> LineInner<'a> {
             Rule::horizontal_line => LineInner::HorizontalLine,
             Rule::words => {
                 let flag = extract!(WORDS);
-                let mut contents = Vec::new();
+                let mut words = Vec::new();
                 for pair in pair.into_inner() {
-                    contents.push(Word::from_pair(pair));
+                    words.push(Word::from_pair(pair));
                 }
 
                 match flag {
                     "=" => LineInner::Words {
-                        contents,
+                        words,
                         centered: true,
                     },
                     "" => LineInner::Words {
-                        contents,
+                        words,
                         centered: false,
                     },
                     _ => {
                         let level = HeadingLevel::try_from(flag.len())
                             .expect("Regular expression returned incorrectly-sized heading");
 
-                        LineInner::Heading { contents, level }
+                        LineInner::Heading { words, level }
                     }
                 }
             }
