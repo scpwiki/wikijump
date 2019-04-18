@@ -67,18 +67,6 @@ div = {
     "[[/" ~ space? ~ ^"div" ~ space? ~ "]]"
 }
 div_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ string }
-
-quote_block = { quote_block_wikidot | quote_block_new }
-quote_block_wikidot = {
-    "TODO"
-}
-quote_block_new = {
-    "[[" ~ space? ~ ^"quote" ~ quote_block_arg* ~ space? ~ "]]\n" ~
-    lines_internal ~
-    "[[/" ~ space? ~ ^"quote" ~ space? ~ "]]"
-}
-quote_block_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ string }
-
 // }}}
 
 // Misc lines {{{
@@ -93,6 +81,22 @@ words = {
 }
 clear_float = { "~"{4,} ~ direction? }
 horizontal_line = { "-"{4,} }
+// }}}
+
+// Quotes {{{
+quote_block = { quote_block_wikidot | quote_block_new }
+
+quote_block_wikidot = { (">"+ ~ " "? ~ quote_block_contents)+ }
+
+quote_block_contents = { word+ }
+
+quote_block_new = {
+    "[[" ~ space? ~ ^"quote" ~ quote_block_arg* ~ space? ~ "]]\n" ~
+    lines_internal ~
+    "[[/" ~ space? ~ ^"quote" ~ space? ~ "]]"
+}
+
+quote_block_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ string }
 // }}}
 
 // Words {{{
