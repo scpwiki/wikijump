@@ -117,6 +117,12 @@ const VALID_INPUT_STRINGS: [&str; 90] = [
     "[[quote]]\nQuoted text here\n[[/quote]]",
     "[[quote id=\"my-id\" style=\"line-height: 1.5em;\" class=\"raisa-notice\"]]\n[[/quote]]",
     "[[QUOTE]]\nNested quotes are easier this way\n[[QUOTE]]\nvery deep\nindeed\n[[/QUOTE]]\n[[/QUOTE]]",
+    "[[ quote class = \"quote-block level-1\" ]]\ncontents\n[[ quote class = \"quote-block level-2\" ]]\napple\n[[/ quote ]]\nbanana\n[[/ quote ]]",
+    "> hello world\n> my name is john\n> I like long walks on the beach\n> and writing scips\n",
+    ">this implementation doesn't require spaces after the '>' because we're not lame",
+    "> [[div class=\"test\"]]\n> cherry\n> pineapple\n> [[/div]]",
+    "the following document was found:\n> oh no many bad thing\n>> execute the order\n> it no good\n",
+    ">>>>> very deep quote block\n>>>>> again",
 ];
 
 const INVALID_INPUT_STRINGS: [&str; 57] = [

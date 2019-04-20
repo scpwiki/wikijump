@@ -85,9 +85,9 @@ horizontal_line = { "-"{4,} }
 // }}}
 
 // Quotes {{{
-quote_block_wikidot = { (">"+ ~ " "* ~ quote_block_contents)+ }
+quote_block_wikidot = { quote_block_line+ }
 
-quote_block_contents = { (!"\n" ~ ANY)* }
+quote_block_line = { ">"+ ~ " "* ~ (!"\n" ~ ANY)* ~ ("\n" | EOI) }
 
 quote_block_new = {
     "[[" ~ space? ~ ^"quote" ~ quote_block_arg* ~ space? ~ "]]\n" ~

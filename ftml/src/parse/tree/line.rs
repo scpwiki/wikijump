@@ -35,6 +35,8 @@ lazy_static! {
             .unwrap()
     };
 
+    static ref QUOTE_BLOCK_OLD: Regex = Regex::new(r"^(?P<depth>>+) *(?P<contents>[^\n]*)").unwrap();
+
     static ref WORDS: Regex = Regex::new(r"^(?P<flag>\+{1,6}|=?)").unwrap();
 }
 
@@ -176,7 +178,7 @@ pub enum LineInner<'a> {
         lines: Vec<Line<'a>>,
     },
     QuoteBlockOld {
-        lines: Vec<&'a str>,
+        lines: Vec<(usize, &'a str)>,
     },
     Words {
         centered: bool,
@@ -191,13 +193,9 @@ impl<'a> LineInner<'a> {
 
         let pair = get_first_pair!(pair);
 
-        macro_rules! as_str {
-            () => ( pair.as_str() )
-        }
-
         macro_rules! extract {
             ($regex:expr) => (
-                $regex.captures(as_str!())
+                $regex.captures(pair.as_str())
                     .expect("Pair contents doesn't match regular expression")
                     .get(1)
                     .expect("No captures in regular expression")
@@ -244,7 +242,7 @@ impl<'a> LineInner<'a> {
             }
             Rule::clear_float => {
                 let capture = CLEAR_FLOAT
-                    .captures(as_str!())
+                    .captures(pair.as_str())
                     .expect("Regular expression CLEAR_FLOAT didn't match");
                 let direction = match capture.name("direction") {
                     Some(mtch) => Some(
@@ -370,8 +368,16 @@ impl<'a> LineInner<'a> {
                 let mut lines = Vec::new();
 
                 for pair in pair.into_inner() {
-                    debug_assert_eq!(pair.as_rule(), Rule::quote_block_contents);
-                    lines.push(pair.as_str());
+                    debug_assert_eq!(pair.as_rule(), Rule::quote_block_line);
+                    let capture = QUOTE_BLOCK_OLD
+                        .captures(pair.as_str())
+                        .expect("Regular expression QUOTE_BLOCK_OLD didn't match");
+                    let depth = capture["depth"].len();
+                    let contents = capture
+                        .name("contents")
+                        .expect("No match group 'contents' found")
+                        .as_str();
+                    lines.push((depth, contents));
                 }
 
                 LineInner::QuoteBlockOld { lines }
@@ -412,4 +418,6 @@ fn test_regexes() {
     let _ = &*ALIGN;
     let _ = &*CLEAR_FLOAT;
     let _ = &*CODE_BLOCK;
+    let _ = &*QUOTE_BLOCK_OLD;
+    let _ = &*WORDS;
 }

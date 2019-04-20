@@ -207,18 +207,15 @@ impl<'a> Word<'a> {
 
         let pair = get_first_pair!(pair);
 
-        macro_rules! as_str {
-            () => ( pair.as_str() )
-        }
-
         macro_rules! extract {
-            ($regex:expr) => (
-                $regex.captures(as_str!())
+            ($regex:expr) => ( extract!($regex, pair) );
+            ($regex:expr, $pair:expr) => (
+                $regex.captures($pair.as_str())
                     .expect("Pair contents doesn't match regular expression")
                     .get(0)
                     .expect("No captures in regular expression")
                     .as_str()
-            )
+            );
         }
 
         macro_rules! make_words {
@@ -228,13 +225,13 @@ impl<'a> Word<'a> {
 
         match pair.as_rule() {
             Rule::text => Word::Text {
-                contents: as_str!(),
+                contents: pair.as_str(),
             },
             Rule::raw | Rule::legacy_raw => Word::Raw {
                 contents: extract!(RAW),
             },
             Rule::email => Word::Email {
-                contents: as_str!(),
+                contents: pair.as_str(),
             },
             Rule::color => {
                 let mut color = "";
@@ -275,7 +272,7 @@ impl<'a> Word<'a> {
                 name: extract!(ANCHOR),
             },
             Rule::date => {
-                let capture = DATE.captures(as_str!())
+                let capture = DATE.captures(pair.as_str())
                     .expect("Regular expression DATE didn't match");
 
                 Word::Date {
@@ -304,7 +301,7 @@ impl<'a> Word<'a> {
                 let mut arguments = HashMap::new();
 
                 let contents = MODULE
-                    .captures(as_str!())
+                    .captures(pair.as_str())
                     .expect("Regular expression MODULE didn't match")
                     .name("contents")
                     .map(|capture| capture.as_str());
@@ -499,7 +496,7 @@ impl<'a> Word<'a> {
                 Word::TabList { tabs }
             }
             Rule::user => {
-                let capture = USER.captures(as_str!())
+                let capture = USER.captures(pair.as_str())
                     .expect("Regular expression USER didn't match");
 
                 Word::User {
