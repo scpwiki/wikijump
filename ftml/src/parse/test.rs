@@ -26,7 +26,7 @@
 use pest::Parser;
 use super::{parse, Rule, WikidotParser};
 
-const VALID_INPUT_STRINGS: [&str; 90] = [
+const VALID_INPUT_STRINGS: [&str; 96] = [
     "@@ apple @@ @@banana@@",
     "@@ [!-- literal comment @@ durian",
     "@@@@@@ at signs `````` tildes",
@@ -125,7 +125,7 @@ const VALID_INPUT_STRINGS: [&str; 90] = [
     ">>>>> very deep quote block\n>>>>> again",
 ];
 
-const INVALID_INPUT_STRINGS: [&str; 57] = [
+const INVALID_INPUT_STRINGS: [&str; 59] = [
     "@@ raw value",
     "`` legacy raw value",
     "@@ @@ @@",
@@ -183,6 +183,8 @@ const INVALID_INPUT_STRINGS: [&str; 57] = [
     "[[gallery]] contents [[/gallery]]",
     "+++++++ h7 heading doesn't exist",
     "[[quote]] inline [[/quote]]",
+    "[[div]]\n[[quote]]\ncontents\n[[/div]]\n[[/quote]]", // Split and disjoint groups aren't supported
+    "[[div]]\n> contents\n> [[/div]]",
 ];
 
 #[test]
