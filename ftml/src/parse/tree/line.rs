@@ -51,11 +51,11 @@ pub fn convert_internal_lines(pair: Pair<Rule>) -> Result<Vec<Line>> {
             Rule::line => {
                 let line = Line::from_pair(pair)?;
                 lines.push(line);
-            },
+            }
             Rule::line_inner => {
                 let line_inner = LineInner::from_pair(pair)?;
                 inner = Some(line_inner);
-            },
+            }
             Rule::newlines => newlines = pair.as_str().len(),
             _ => panic!("Invalid rule for internal-lines: {:?}", pair.as_rule()),
         }
@@ -106,7 +106,12 @@ impl<'a> Line<'a> {
                 // This indicates a bug in the grammar
                 panic!("The rule 'lines_internal' returns multiple Line instances")
             }
-            _ => return Err(Error::Msg(format!("Invalid rule for line: {:?}", pair.as_rule()))),
+            _ => {
+                return Err(Error::Msg(format!(
+                    "Invalid rule for line: {:?}",
+                    pair.as_rule()
+                )))
+            }
         }
 
         Ok(Line { inner, newlines })
@@ -212,10 +217,7 @@ impl<'a> LineInner<'a> {
             Rule::align => {
                 let alignment = Alignment::try_from(extract!(ALIGN))
                     .expect("Parsed align block had invalid alignment");
-                let lines_res: Result<Vec<_>> = pair
-                    .into_inner()
-                    .map(Line::from_pair)
-                    .collect();
+                let lines_res: Result<Vec<_>> = pair.into_inner().map(Line::from_pair).collect();
                 let lines = lines_res?;
 
                 LineInner::Align { alignment, lines }
@@ -289,7 +291,7 @@ impl<'a> LineInner<'a> {
                         Rule::line => {
                             let line = Line::from_pair(pair)?;
                             lines.push(line);
-                        },
+                        }
                         _ => panic!("Invalid rule for div: {:?}", pair.as_rule()),
                     }
                 }
@@ -329,12 +331,19 @@ impl<'a> LineInner<'a> {
                         words.push(word);
                     }
 
-                    let inner = LineInner::Words { words, centered: false };
+                    let inner = LineInner::Words {
+                        words,
+                        centered: false,
+                    };
                     let line = Line { inner, newlines: 0 };
                     items.push(line);
                 }
 
-                LineInner::List { style, depth, items }
+                LineInner::List {
+                    style,
+                    depth,
+                    items,
+                }
             }
             Rule::horizontal_line => LineInner::HorizontalLine,
             Rule::quote_block_new => {
@@ -420,8 +429,13 @@ impl<'a> LineInner<'a> {
                 }
             }
 
-            _ => return Err(Error::Msg(format!("Line rule for {:?} unimplemented!", pair.as_rule()))),
-            //_ => return Err(Error::Msg(format!("Invalid rule for line_inner: {:?}", pair.as_rule()))),
+            _ => {
+                return Err(Error::Msg(format!(
+                    "Line rule for {:?} unimplemented!",
+                    pair.as_rule()
+                )))
+            }
+            //_ => Err(Error::Msg(format!("Invalid rule for line_inner: {:?}", pair.as_rule()))),
         };
 
         Ok(line_inner)
@@ -429,7 +443,8 @@ impl<'a> LineInner<'a> {
 }
 
 fn convert_wikidot_block_quote<'a, I>(mut raw_lines: I, cur_depth: usize) -> Result<LineInner<'a>>
-    where I: Iterator<Item = (usize, &'a str)>,
+where
+    I: Iterator<Item = (usize, &'a str)>,
 {
     // TODO
     unimplemented!()

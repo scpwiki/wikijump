@@ -251,7 +251,7 @@ impl<'a> Word<'a> {
                         Rule::word => {
                             let word = Word::from_pair(pair)?;
                             words.push(word);
-                        },
+                        }
                         _ => panic!("Invalid rule for color: {:?}", pair.as_rule()),
                     }
                 }
