@@ -21,7 +21,6 @@
 use crate::{Error, Result};
 use crate::enums::{Alignment, HeadingLevel, ListStyle};
 use std::borrow::Cow;
-use std::cmp::Ordering;
 use std::convert::TryFrom;
 use super::prelude::*;
 
@@ -347,7 +346,7 @@ impl<'a> LineInner<'a> {
                 }
             }
             Rule::horizontal_line => LineInner::HorizontalLine,
-            Rule::quote_block_new => {
+            Rule::quote_block => {
                 let mut id = None;
                 let mut class = None;
                 let mut style = None;
@@ -383,26 +382,6 @@ impl<'a> LineInner<'a> {
                     style,
                     lines,
                 }
-            }
-            Rule::quote_block_wikidot => {
-                let mut raw_lines = Vec::new();
-
-                for pair in pair.into_inner() {
-                    debug_assert_eq!(pair.as_rule(), Rule::quote_block_line);
-                    let capture = QUOTE_BLOCK_OLD
-                        .captures(pair.as_str())
-                        .expect("Regular expression QUOTE_BLOCK_OLD didn't match");
-                    let depth = capture["depth"].len();
-                    let contents = capture
-                        .name("contents")
-                        .expect("No match group 'contents' found")
-                        .as_str();
-
-                    raw_lines.push((depth, contents));
-                }
-
-                let mut iter = raw_lines.into_iter();
-                convert_wikidot_block_quote(&mut iter, 0)?
             }
             Rule::words => {
                 let flag = extract!(WORDS);
@@ -442,51 +421,6 @@ impl<'a> LineInner<'a> {
 
         Ok(line_inner)
     }
-}
-
-fn convert_wikidot_block_quote<'a, I>(raw_lines: &mut I, cur_depth: usize) -> Result<LineInner<'a>>
-where
-    I: Iterator<Item = (usize, &'a str)>,
-{
-    let mut lines = Vec::new();
-
-    loop {
-        match raw_lines.next() {
-            None => break,
-            Some((depth, raw_line)) => {
-                match depth.cmp(&cur_depth) {
-                    Ordering::Equal => {
-                        // Same quote block, keep adding lines
-
-                        let pairs = {
-                            use pest::Parser;
-
-                            WikidotParser::parse(Rule::line_inner, raw_line)?
-                        };
-
-                        for pair in pairs {
-                            debug_assert_eq!(pair.as_rule(), Rule::line_inner);
-                            let inner = LineInner::from_pair(pair)?;
-                            let line = Line { inner, newlines: 1 };
-                            lines.push(line);
-                        }
-                    }
-                    Ordering::Greater => {
-                        // A quote block in the quote block, gather up lines until it ends
-                        let inner = convert_wikidot_block_quote(raw_lines, depth)?;
-                        let line = Line { inner, newlines: 1 };
-                        lines.push(line);
-                    }
-                    Ordering::Less => {
-                        // This quote block has ended
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    Ok(LineInner::QuoteBlock { id: None, class: None, style: None, lines })
 }
 
 #[test]

@@ -36,8 +36,7 @@ line_inner = {
     bullet_list |
     numbered_list |
     horizontal_line |
-    quote_block_wikidot |
-    quote_block_new |
+    quote_block |
     words
 }
 // }}}
@@ -68,6 +67,14 @@ div = {
     "[[/" ~ space? ~ ^"div" ~ space? ~ "]]"
 }
 div_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ string }
+
+quote_block = {
+    "[[" ~ space? ~ (^"quote" | ^"blockquote") ~ quote_block_arg* ~ space? ~ "]]\n" ~
+    lines_internal ~
+    "[[/" ~ space? ~ (^"quote" | ^"blockquote") ~ space? ~ "]]"
+}
+
+quote_block_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ string }
 // }}}
 
 // Misc lines {{{
@@ -82,20 +89,6 @@ words = {
 }
 clear_float = { "~"{4,} ~ direction? }
 horizontal_line = { "-"{4,} }
-// }}}
-
-// Quotes {{{
-quote_block_wikidot = { quote_block_line+ }
-
-quote_block_line = { ">"+ ~ " "* ~ (!"\n" ~ ANY)* ~ ("\n" | EOI) }
-
-quote_block_new = {
-    "[[" ~ space? ~ ^"quote" ~ quote_block_arg* ~ space? ~ "]]\n" ~
-    lines_internal ~
-    "[[/" ~ space? ~ ^"quote" ~ space? ~ "]]"
-}
-
-quote_block_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ string }
 // }}}
 
 // Words {{{
