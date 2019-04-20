@@ -44,7 +44,7 @@ mod prelude {
     pub use regex::{Regex, RegexBuilder};
     pub use super::convert_internal_lines;
     pub use super::{Line, LineInner, Tab, TableRow, Word};
-    pub use super::super::Rule;
+    pub use super::super::{Rule, WikidotParser};
     pub use super::super::string::interp_str;
 }
 

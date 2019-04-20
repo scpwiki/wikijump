@@ -21,6 +21,7 @@
 use crate::{Error, Result};
 use crate::enums::{Alignment, HeadingLevel, ListStyle};
 use std::borrow::Cow;
+use std::cmp::Ordering;
 use std::convert::TryFrom;
 use super::prelude::*;
 
@@ -400,7 +401,8 @@ impl<'a> LineInner<'a> {
                     raw_lines.push((depth, contents));
                 }
 
-                convert_wikidot_block_quote(raw_lines.into_iter(), 0)?
+                let mut iter = raw_lines.into_iter();
+                convert_wikidot_block_quote(&mut iter, 0)?
             }
             Rule::words => {
                 let flag = extract!(WORDS);
@@ -442,12 +444,57 @@ impl<'a> LineInner<'a> {
     }
 }
 
-fn convert_wikidot_block_quote<'a, I>(mut raw_lines: I, cur_depth: usize) -> Result<LineInner<'a>>
+fn convert_wikidot_block_quote<'a, I>(raw_lines: &mut I, cur_depth: usize) -> Result<LineInner<'a>>
 where
     I: Iterator<Item = (usize, &'a str)>,
 {
-    // TODO
-    unimplemented!()
+    let mut lines = Vec::new();
+    let mut buffer = String::new();
+
+    loop {
+        match raw_lines.next() {
+            None => break,
+            Some((depth, raw_line)) => {
+                match depth.cmp(&cur_depth) {
+                    Ordering::Equal => {
+                        // Same quote block, keep adding lines
+                        buffer.push_str(raw_line);
+                        buffer.push('\n');
+                    }
+                    Ordering::Greater => {
+                        // A quote block in the quote block, gather up lines until it ends
+                        let inner = convert_wikidot_block_quote(raw_lines, depth)?;
+                        let line = Line { inner, newlines: 1 };
+                        lines.push(line);
+                    }
+                    Ordering::Less => {
+                        // This quote block has ended, return what we have
+                        // But first, add anything we've gathered in 'buffer'
+
+                        if !buffer.is_empty() {
+                            // Same as parse() but it doesn't go through SyntaxTree
+                            let page = {
+                                use pest::Parser;
+
+                                let mut pairs = WikidotParser::parse(Rule::page, &buffer)?;
+                                get_inner_pairs!(pairs)
+                            };
+
+                            for pair in page {
+                                debug_assert_eq!(pair.as_rule(), Rule::line);
+                                let line = Line::from_pair(pair)?;
+                                lines.push(line);
+                            }
+                        }
+
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    Ok(LineInner::QuoteBlock { id: None, class: None, style: None, lines })
 }
 
 #[test]
