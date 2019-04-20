@@ -26,7 +26,7 @@
 use pest::Parser;
 use super::{parse, Rule, WikidotParser};
 
-const VALID_INPUT_STRINGS: [&str; 96] = [
+const VALID_INPUT_STRINGS: [&str; 97] = [
     "@@ apple @@ @@banana@@",
     "@@ [!-- literal comment @@ durian",
     "@@@@@@ at signs `````` tildes",
@@ -120,6 +120,7 @@ const VALID_INPUT_STRINGS: [&str; 96] = [
     "[[ quote class = \"quote-block level-1\" ]]\ncontents\n[[ quote class = \"quote-block level-2\" ]]\napple\n[[/ quote ]]\nbanana\n[[/ quote ]]",
     "> hello world\n> my name is john\n> I like long walks on the beach\n> and writing scips\n",
     ">this implementation doesn't require spaces after the '>' because we're not lame",
+    "> [[span style = \"color: blue;\"]] blue text! [[/span]] lol\n> test",
     "> [[div class=\"test\"]]\n> cherry\n> pineapple\n> [[/div]]",
     "the following document was found:\n> oh no many bad thing\n>> execute the order\n> it no good\n",
     ">>>>> very deep quote block\n>>>>> again\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> even deeper",
