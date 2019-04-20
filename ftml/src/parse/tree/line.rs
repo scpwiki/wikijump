@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::{Error, Result};
 use crate::enums::{Alignment, HeadingLevel, ListStyle};
 use std::borrow::Cow;
 use std::convert::TryFrom;
@@ -40,15 +41,21 @@ lazy_static! {
     static ref WORDS: Regex = Regex::new(r"^(?P<flag>\+{1,6}|=?)").unwrap();
 }
 
-pub fn convert_internal_lines(pair: Pair<Rule>) -> Vec<Line> {
+pub fn convert_internal_lines(pair: Pair<Rule>) -> Result<Vec<Line>> {
     let mut lines = Vec::new();
     let mut inner = None;
     let mut newlines = 0;
 
     for pair in pair.into_inner() {
         match pair.as_rule() {
-            Rule::line => lines.push(Line::from_pair(pair)),
-            Rule::line_inner => inner = Some(LineInner::from_pair(pair)),
+            Rule::line => {
+                let line = Line::from_pair(pair)?;
+                lines.push(line);
+            },
+            Rule::line_inner => {
+                let line_inner = LineInner::from_pair(pair)?;
+                inner = Some(line_inner);
+            },
             Rule::newlines => newlines = pair.as_str().len(),
             _ => panic!("Invalid rule for internal-lines: {:?}", pair.as_rule()),
         }
@@ -58,7 +65,7 @@ pub fn convert_internal_lines(pair: Pair<Rule>) -> Vec<Line> {
         lines.push(Line { inner, newlines });
     }
 
-    lines
+    Ok(lines)
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -68,7 +75,7 @@ pub struct Line<'a> {
 }
 
 impl<'a> Line<'a> {
-    pub fn from_pair(pair: Pair<'a, Rule>) -> Self {
+    pub fn from_pair(pair: Pair<'a, Rule>) -> Result<Self> {
         trace!("Converting pair into Line...");
 
         let inner;
@@ -76,7 +83,7 @@ impl<'a> Line<'a> {
 
         match pair.as_rule() {
             Rule::line_inner => {
-                inner = LineInner::from_pair(pair);
+                inner = LineInner::from_pair(pair)?;
                 newlines = 0;
             }
             Rule::line => {
@@ -85,7 +92,7 @@ impl<'a> Line<'a> {
                 inner = {
                     let pair = pairs.next().expect("Line pairs iterator was empty");
                     debug_assert_eq!(pair.as_rule(), Rule::line_inner);
-                    LineInner::from_pair(pair)
+                    LineInner::from_pair(pair)?
                 };
                 newlines = {
                     let pair = pairs
@@ -96,12 +103,13 @@ impl<'a> Line<'a> {
                 };
             }
             Rule::lines_internal => {
+                // This indicates a bug in the grammar
                 panic!("The rule 'lines_internal' returns multiple Line instances")
             }
-            _ => panic!("Invalid rule for line: {:?}", pair.as_rule()),
+            _ => return Err(Error::Msg(format!("Invalid rule for line: {:?}", pair.as_rule()))),
         }
 
-        Line { inner, newlines }
+        Ok(Line { inner, newlines })
     }
 
     #[inline]
@@ -171,14 +179,11 @@ pub enum LineInner<'a> {
     TableOfContents {
         // TODO: http://community.wikidot.com/help:toc
     },
-    QuoteBlockNew {
+    QuoteBlock {
         id: Option<&'a str>,
         class: Option<&'a str>,
         style: Option<&'a str>,
         lines: Vec<Line<'a>>,
-    },
-    QuoteBlockOld {
-        lines: Vec<(usize, &'a str)>,
     },
     Words {
         centered: bool,
@@ -187,7 +192,7 @@ pub enum LineInner<'a> {
 }
 
 impl<'a> LineInner<'a> {
-    fn from_pair(pair: Pair<'a, Rule>) -> Self {
+    fn from_pair(pair: Pair<'a, Rule>) -> Result<Self> {
         trace!("Converting pair into LineInner...");
         debug_assert_eq!(pair.as_rule(), Rule::line_inner);
 
@@ -203,16 +208,17 @@ impl<'a> LineInner<'a> {
             )
         }
 
-        match pair.as_rule() {
+        let line_inner = match pair.as_rule() {
             Rule::align => {
                 let alignment = Alignment::try_from(extract!(ALIGN))
                     .expect("Parsed align block had invalid alignment");
-                let lines = pair.into_inner().map(Line::from_pair).collect();
+                let lines_res: Result<Vec<_>> = pair
+                    .into_inner()
+                    .map(Line::from_pair)
+                    .collect();
+                let lines = lines_res?;
 
-                LineInner::Align {
-                    alignment,
-                    lines,
-                }
+                LineInner::Align { alignment, lines }
             }
             Rule::code => {
                 let mut language = None;
@@ -280,7 +286,10 @@ impl<'a> LineInner<'a> {
                                 _ => panic!("Unknown argument for [[div]]: {}", name),
                             }
                         }
-                        Rule::line => lines.push(Line::from_pair(pair)),
+                        Rule::line => {
+                            let line = Line::from_pair(pair)?;
+                            lines.push(line);
+                        },
                         _ => panic!("Invalid rule for div: {:?}", pair.as_rule()),
                     }
                 }
@@ -316,7 +325,8 @@ impl<'a> LineInner<'a> {
 
                     let mut words = Vec::new();
                     for pair in pair.into_inner() {
-                        words.push(Word::from_pair(pair));
+                        let word = Word::from_pair(pair)?;
+                        words.push(word);
                     }
 
                     let inner = LineInner::Words { words, centered: false };
@@ -352,12 +362,12 @@ impl<'a> LineInner<'a> {
                                 _ => panic!("Unknown argument for [[quote]]: {}", name),
                             }
                         }
-                        Rule::lines_internal => lines = convert_internal_lines(pair),
+                        Rule::lines_internal => lines = convert_internal_lines(pair)?,
                         _ => panic!("Invalid rule for quote: {:?}", pair.as_rule()),
                     }
                 }
 
-                LineInner::QuoteBlockNew {
+                LineInner::QuoteBlock {
                     id,
                     class,
                     style,
@@ -365,7 +375,7 @@ impl<'a> LineInner<'a> {
                 }
             }
             Rule::quote_block_wikidot => {
-                let mut lines = Vec::new();
+                let mut raw_lines = Vec::new();
 
                 for pair in pair.into_inner() {
                     debug_assert_eq!(pair.as_rule(), Rule::quote_block_line);
@@ -377,16 +387,19 @@ impl<'a> LineInner<'a> {
                         .name("contents")
                         .expect("No match group 'contents' found")
                         .as_str();
-                    lines.push((depth, contents));
+
+                    raw_lines.push((depth, contents));
                 }
 
-                LineInner::QuoteBlockOld { lines }
+                convert_wikidot_block_quote(raw_lines.into_iter(), 0)?
             }
             Rule::words => {
                 let flag = extract!(WORDS);
+
                 let mut words = Vec::new();
                 for pair in pair.into_inner() {
-                    words.push(Word::from_pair(pair));
+                    let word = Word::from_pair(pair)?;
+                    words.push(word);
                 }
 
                 match flag {
@@ -407,10 +420,19 @@ impl<'a> LineInner<'a> {
                 }
             }
 
-            _ => panic!("Line rule for {:?} unimplemented!", pair.as_rule()),
-            //_ => panic!("Invalid rule for line_inner: {:?}", pair.as_rule()),
-        }
+            _ => return Err(Error::Msg(format!("Line rule for {:?} unimplemented!", pair.as_rule()))),
+            //_ => return Err(Error::Msg(format!("Invalid rule for line_inner: {:?}", pair.as_rule()))),
+        };
+
+        Ok(line_inner)
     }
+}
+
+fn convert_wikidot_block_quote<'a, I>(mut raw_lines: I, cur_depth: usize) -> Result<LineInner<'a>>
+    where I: Iterator<Item = (usize, &'a str)>,
+{
+    // TODO
+    unimplemented!()
 }
 
 #[test]

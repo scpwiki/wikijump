@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::Result;
 use crate::enums::Alignment;
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -201,7 +202,7 @@ pub enum Word<'a> {
 }
 
 impl<'a> Word<'a> {
-    pub fn from_pair(pair: Pair<'a, Rule>) -> Self {
+    pub fn from_pair(pair: Pair<'a, Rule>) -> Result<Self> {
         trace!("Converting pair into Word...");
         debug_assert_eq!(pair.as_rule(), Rule::word);
 
@@ -220,10 +221,17 @@ impl<'a> Word<'a> {
 
         macro_rules! make_words {
             () => ( make_words!(pair) );
-            ($pair:expr) => ( $pair.into_inner().map(Word::from_pair).collect() );
+            ($pair:expr) => {{
+                let word_res: Result<Vec<_>> = $pair
+                    .into_inner()
+                    .map(Word::from_pair)
+                    .collect();
+
+                word_res?
+            }};
         }
 
-        match pair.as_rule() {
+        let word = match pair.as_rule() {
             Rule::text => Word::Text {
                 contents: pair.as_str(),
             },
@@ -240,7 +248,10 @@ impl<'a> Word<'a> {
                 for pair in pair.into_inner() {
                     match pair.as_rule() {
                         Rule::ident => color = pair.as_str(),
-                        Rule::word => words.push(Word::from_pair(pair)),
+                        Rule::word => {
+                            let word = Word::from_pair(pair)?;
+                            words.push(word);
+                        },
                         _ => panic!("Invalid rule for color: {:?}", pair.as_rule()),
                     }
                 }
@@ -289,7 +300,7 @@ impl<'a> Word<'a> {
                 filename: extract!(FILENAME),
             },
             Rule::footnote => Word::Footnote {
-                lines: convert_internal_lines(get_first_pair!(pair)),
+                lines: convert_internal_lines(get_first_pair!(pair))?,
             },
             Rule::footnote_block => Word::FootnoteBlock,
             Rule::form => Word::Form {
@@ -335,7 +346,8 @@ impl<'a> Word<'a> {
                 let mut lines = Vec::new();
 
                 for pair in pair.into_inner() {
-                    lines.push(Line::from_pair(pair));
+                    let line = Line::from_pair(pair)?;
+                    lines.push(line);
                 }
 
                 Word::Note { lines }
@@ -431,7 +443,7 @@ impl<'a> Word<'a> {
                         .next()
                         .expect("Size pairs iterator had only one element");
 
-                    convert_internal_lines(pair)
+                    convert_internal_lines(pair)?
                 };
 
                 Word::Size { size, lines }
@@ -461,7 +473,7 @@ impl<'a> Word<'a> {
                                 _ => panic!("Unknown argument for [[span]]: {}", name),
                             }
                         }
-                        Rule::lines_internal => lines = convert_internal_lines(pair),
+                        Rule::lines_internal => lines = convert_internal_lines(pair)?,
                         _ => panic!("Invalid rule for span: {:?}", pair.as_rule()),
                     }
                 }
@@ -487,7 +499,8 @@ impl<'a> Word<'a> {
                         let pair = pairs
                             .next()
                             .expect("Tab pairs iterator had only one element");
-                        convert_internal_lines(pair)
+
+                        convert_internal_lines(pair)?
                     };
 
                     tabs.push(Tab { name, contents });
@@ -505,7 +518,9 @@ impl<'a> Word<'a> {
                 }
             }
             _ => panic!("Invalid rule for word: {:?}", pair.as_rule()),
-        }
+        };
+
+        Ok(word)
     }
 }
 

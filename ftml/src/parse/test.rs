@@ -122,7 +122,7 @@ const VALID_INPUT_STRINGS: [&str; 96] = [
     ">this implementation doesn't require spaces after the '>' because we're not lame",
     "> [[div class=\"test\"]]\n> cherry\n> pineapple\n> [[/div]]",
     "the following document was found:\n> oh no many bad thing\n>> execute the order\n> it no good\n",
-    ">>>>> very deep quote block\n>>>>> again",
+    ">>>>> very deep quote block\n>>>>> again\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> even deeper",
 ];
 
 const INVALID_INPUT_STRINGS: [&str; 59] = [

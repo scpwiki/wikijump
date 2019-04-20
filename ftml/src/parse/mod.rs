@@ -76,6 +76,6 @@ pub fn parse<'a>(text: &'a str) -> Result<SyntaxTree<'a>> {
         get_inner_pairs!(pairs)
     };
 
-    let tree = SyntaxTree::from_line_pairs(page);
+    let tree = SyntaxTree::from_line_pairs(page)?;
     Ok(tree)
 }
