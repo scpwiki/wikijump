@@ -36,7 +36,8 @@ line_inner = {
     bullet_list |
     numbered_list |
     horizontal_line |
-    quote_block |
+    quote_block_wikidot |
+    quote_block_new |
     words
 }
 // }}}
@@ -84,11 +85,9 @@ horizontal_line = { "-"{4,} }
 // }}}
 
 // Quotes {{{
-quote_block = { quote_block_wikidot | quote_block_new }
+quote_block_wikidot = { (">"+ ~ " "* ~ quote_block_contents)+ }
 
-quote_block_wikidot = { (">"+ ~ " "? ~ quote_block_contents)+ }
-
-quote_block_contents = { word+ }
+quote_block_contents = { (!"\n" ~ ANY)* }
 
 quote_block_new = {
     "[[" ~ space? ~ ^"quote" ~ quote_block_arg* ~ space? ~ "]]\n" ~

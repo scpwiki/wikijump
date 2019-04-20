@@ -169,7 +169,13 @@ pub enum LineInner<'a> {
     TableOfContents {
         // TODO: http://community.wikidot.com/help:toc
     },
-    QuoteBlock {
+    QuoteBlockNew {
+        id: Option<&'a str>,
+        class: Option<&'a str>,
+        style: Option<&'a str>,
+        lines: Vec<Line<'a>>,
+    },
+    QuoteBlockOld {
         lines: Vec<&'a str>,
     },
     Words {
@@ -323,6 +329,53 @@ impl<'a> LineInner<'a> {
                 LineInner::List { style, depth, items }
             }
             Rule::horizontal_line => LineInner::HorizontalLine,
+            Rule::quote_block_new => {
+                let mut id = None;
+                let mut class = None;
+                let mut style = None;
+                let mut lines = Vec::new();
+
+                for pair in pair.into_inner() {
+                    match pair.as_rule() {
+                        Rule::quote_block_arg => {
+                            let capture = ARGUMENT_NAME
+                                .captures(pair.as_str())
+                                .expect("Regular expression ARGUMENT_NAME didn't match");
+                            let name = capture!(capture, "name");
+                            let value_pair = get_first_pair!(pair);
+
+                            debug_assert_eq!(value_pair.as_rule(), Rule::string);
+
+                            let value = value_pair.as_str();
+                            match name.to_ascii_lowercase().as_str() {
+                                "id" => id = Some(value),
+                                "class" => class = Some(value),
+                                "style" => style = Some(value),
+                                _ => panic!("Unknown argument for [[quote]]: {}", name),
+                            }
+                        }
+                        Rule::lines_internal => lines = convert_internal_lines(pair),
+                        _ => panic!("Invalid rule for quote: {:?}", pair.as_rule()),
+                    }
+                }
+
+                LineInner::QuoteBlockNew {
+                    id,
+                    class,
+                    style,
+                    lines,
+                }
+            }
+            Rule::quote_block_wikidot => {
+                let mut lines = Vec::new();
+
+                for pair in pair.into_inner() {
+                    debug_assert_eq!(pair.as_rule(), Rule::quote_block_contents);
+                    lines.push(pair.as_str());
+                }
+
+                LineInner::QuoteBlockOld { lines }
+            }
             Rule::words => {
                 let flag = extract!(WORDS);
                 let mut words = Vec::new();
