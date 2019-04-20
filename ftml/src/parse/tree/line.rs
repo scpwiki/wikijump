@@ -449,7 +449,6 @@ where
     I: Iterator<Item = (usize, &'a str)>,
 {
     let mut lines = Vec::new();
-    let mut buffer = String::new();
 
     loop {
         match raw_lines.next() {
@@ -458,8 +457,19 @@ where
                 match depth.cmp(&cur_depth) {
                     Ordering::Equal => {
                         // Same quote block, keep adding lines
-                        buffer.push_str(raw_line);
-                        buffer.push('\n');
+
+                        let pairs = {
+                            use pest::Parser;
+
+                            WikidotParser::parse(Rule::line_inner, raw_line)?
+                        };
+
+                        for pair in pairs {
+                            debug_assert_eq!(pair.as_rule(), Rule::line_inner);
+                            let inner = LineInner::from_pair(pair)?;
+                            let line = Line { inner, newlines: 1 };
+                            lines.push(line);
+                        }
                     }
                     Ordering::Greater => {
                         // A quote block in the quote block, gather up lines until it ends
@@ -468,25 +478,7 @@ where
                         lines.push(line);
                     }
                     Ordering::Less => {
-                        // This quote block has ended, return what we have
-                        // But first, add anything we've gathered in 'buffer'
-
-                        if !buffer.is_empty() {
-                            // Same as parse() but it doesn't go through SyntaxTree
-                            let page = {
-                                use pest::Parser;
-
-                                let mut pairs = WikidotParser::parse(Rule::page, &buffer)?;
-                                get_inner_pairs!(pairs)
-                            };
-
-                            for pair in page {
-                                debug_assert_eq!(pair.as_rule(), Rule::line);
-                                let line = Line::from_pair(pair)?;
-                                lines.push(line);
-                            }
-                        }
-
+                        // This quote block has ended
                         break;
                     }
                 }
