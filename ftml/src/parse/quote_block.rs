@@ -32,7 +32,6 @@
 //! `[[quote]]` blocks, which we can handle easily.
 
 use regex::Regex;
-use std::borrow::Cow;
 
 lazy_static! {
     static ref BLOCK_QUOTE: Regex = Regex::new(r"(?:>+ *[^\n]*(?:\n|$))+").unwrap();
@@ -41,8 +40,7 @@ lazy_static! {
     };
 }
 
-pub fn substitute<'a>(text: &'a str) -> Cow<'a, str> {
-    let mut text = Cow::Borrowed(text);
+pub fn substitute(text: &mut String) {
     let mut buffer = String::new();
     let mut last_index = 0;
 
@@ -82,11 +80,9 @@ pub fn substitute<'a>(text: &'a str) -> Cow<'a, str> {
         // Do the substitution
         let range = mtch.start()..mtch.end();
         last_index = mtch.start() + buffer.len() - 1;
-        text.to_mut().replace_range(range, &buffer);
+        text.replace_range(range, &buffer);
         buffer.clear();
     }
-
-    text
 }
 
 #[test]
