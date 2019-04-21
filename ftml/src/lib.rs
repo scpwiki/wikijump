@@ -44,6 +44,8 @@
 //! This crate also provides an executable to convert files from
 //! the command-line. See that file for usage documentation.
 
+extern crate either;
+
 #[macro_use]
 extern crate lazy_static;
 

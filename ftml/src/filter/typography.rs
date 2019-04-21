@@ -25,10 +25,111 @@
 //! The transformations performed here are listed:
 //! * TODO
 
+use either::Either;
 use regex::Regex;
 
 lazy_static! {
+    // ‘ - LEFT SINGLE QUOTATION MARK
+    // ’ - RIGHT SINGLE QUOTATION MARK
+    static ref SINGLE_QUOTES: Replacer = Replacer {
+        regex: Regex::new(r"`(.*?)'").unwrap(),
+        replacement: Either::Left(("\u{2018}", "\u{2019}")),
+    };
+
+    // “ - LEFT DOUBLE QUOTATION MARK
+    // ” - RIGHT DOUBLE QUOTATION MARK
+    static ref DOUBLE_QUOTES: Replacer = Replacer {
+        regex: Regex::new(r"``(.*?)''").unwrap(),
+        replacement: Either::Left(("\u{201c}", "\u{201d}")),
+    };
+
+    // „ - DOUBLE LOW-9 QUOTATION MARK
+    // ” - RIGHT DOUBLE QUOTATION MARK
+    static ref LOW_DOUBLE_QUOTES: Replacer = Replacer {
+        regex: Regex::new(r",,(.*?)''").unwrap(),
+        replacement: Either::Left(("\u{201e}", "\u{201d}")),
+    };
+
+    // « - LEFT-POINTING DOUBLE ANGLE QUOTATION MARK
+    static ref LEFT_DOUBLE_ANGLE: Replacer = Replacer {
+        regex: Regex::new(r"<<").unwrap(),
+        replacement: Either::Right("\u{0ab}"),
+    };
+
+    // » - RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK
+    static ref RIGHT_DOUBLE_ANGLE: Replacer = Replacer {
+        regex: Regex::new(r">>").unwrap(),
+        replacement: Either::Right("\u{0bb}"),
+    };
+
+    // … - HORIZONTAL ELLIPSIS
+    static ref ELLIPSIS: Replacer = Replacer {
+        regex: Regex::new(r"(?:\.\.\.|\. \. \.)").unwrap(),
+        replacement: Either::Right("\u{2026}"),
+    };
+
+    // — - EM DASH
+    static ref EM_DASH: Replacer = Replacer {
+        regex: Regex::new(r"-{2,3}").unwrap(),
+        replacement: Either::Right("\u{2014}"),
+    };
+}
+
+#[derive(Debug)]
+pub struct Replacer {
+    regex: Regex,
+    replacement: Either<(&'static str, &'static str), &'static str>,
+}
+
+impl Replacer {
+    fn replace(&self, text: &mut String, buffer: &mut String) {
+        while let Some(capture) = self.regex.captures(text) {
+            let mtch = capture.get(0).expect("Regular expression lacks a full match");
+            let range = mtch.start()..mtch.end();
+
+            match self.replacement {
+                Either::Left((begin, end)) => {
+                    let mtch = capture.get(1).expect("Regular expression lacks a content group");
+
+                    buffer.clear();
+                    buffer.push_str(begin);
+                    buffer.push_str(mtch.as_str());
+                    buffer.push_str(end);
+
+                    text.replace_range(range, &buffer);
+                },
+                Either::Right(value) => text.replace_range(range, value),
+            }
+        }
+    }
 }
 
 pub fn substitute(text: &mut String) {
+    let mut buffer = String::new();
+
+    macro_rules! replace {
+        ($replacer:expr) => ( $replacer.replace(text, &mut buffer) )
+    }
+
+    // Quotes
+    replace!(DOUBLE_QUOTES);
+    replace!(LOW_DOUBLE_QUOTES);
+    replace!(SINGLE_QUOTES);
+
+    // French quotes
+    replace!(LEFT_DOUBLE_ANGLE);
+    replace!(RIGHT_DOUBLE_ANGLE);
+
+    // TODO
+}
+
+#[test]
+fn test_regexes() {
+    let _ = &*SINGLE_QUOTES;
+    let _ = &*DOUBLE_QUOTES;
+    let _ = &*LOW_DOUBLE_QUOTES;
+    let _ = &*LEFT_DOUBLE_ANGLE;
+    let _ = &*RIGHT_DOUBLE_ANGLE;
+    let _ = &*ELLIPSIS;
+    let _ = &*EM_DASH;
 }
