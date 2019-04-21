@@ -1,5 +1,5 @@
 /*
- * filter/mod.rs
+ * parse/typography.rs
  *
  * wikidot-html - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -18,24 +18,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO, in this order probably?
-//
-// * Includes
-// * Prefilter stuff. copy
-// * Concat lines
-// + Convert quote blocks to [[quote]] ... [[/quote]]
-// * Typography
+//! Perform Wikidot's typographical modifications.
+//! For full information, see the original source file:
+//! https://github.com/Nu-SCPTheme/wikidot/blob/master/lib/Text_Wiki/Text/Wiki/Parse/Default/Typography.php
+//!
+//! The transformations performed here are listed:
+//! * TODO
 
-mod quote_block;
-mod typography;
+use regex::Regex;
 
-/// Transform the text in preparation for parsing.
-///
-/// Performs the following modifications:
-/// * TODO
-/// * Converts quote blocks to nested [[quote]] tags.
-/// * Perform typography modifications
-pub fn prefilter(text: &mut String) {
-    quote_block::substitute(text);
-    typography::substitute(text);
+lazy_static! {
+}
+
+pub fn substitute(text: &mut String) {
 }
