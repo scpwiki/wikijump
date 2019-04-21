@@ -50,8 +50,6 @@ macro_rules! get_nth_pair {
     )
 }
 
-mod filter;
-mod quote_block;
 mod string;
 mod tree;
 

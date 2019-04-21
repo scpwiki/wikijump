@@ -1,5 +1,5 @@
 /*
- * parse/filter.rs
+ * filter/mod.rs
  *
  * wikidot-html - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -23,5 +23,16 @@
 // * Includes
 // * Prefilter stuff. copy
 // * Concat lines
-// * Convert quote blocks to [[quote]] ... [[/quote]]
+// + Convert quote blocks to [[quote]] ... [[/quote]]
 // * Typography: https://github.com/Nu-SCPTheme/wikidot/blob/master/lib/Text_Wiki/Text/Wiki/Parse/Default/Typography.php
+
+mod quote_block;
+
+/// Transform the text in preparation for parsing.
+///
+/// Performs the following modifications:
+/// * (TODO)
+/// * Converts quote blocks to nested [[quote]] tags.
+pub fn prefilter(text: &mut String) {
+    quote_block::substitute(text);
+}

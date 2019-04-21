@@ -33,6 +33,7 @@ macro_rules! capture {
 
 mod line;
 mod misc;
+mod object;
 mod word;
 
 mod prelude {
@@ -51,31 +52,5 @@ mod prelude {
 pub use self::line::convert_internal_lines;
 pub use self::line::{Line, LineInner};
 pub use self::misc::{Tab, TableRow};
+pub use self::object::SyntaxTree;
 pub use self::word::Word;
-
-use crate::Result;
-use self::prelude::*;
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct SyntaxTree<'a> {
-    lines: Vec<Line<'a>>,
-}
-
-impl<'a> SyntaxTree<'a> {
-    pub fn from_line_pairs(pairs: Pairs<'a, Rule>) -> Result<Self> {
-        trace!("Converting pairs into a SyntaxTree...");
-
-        let lines_res: Result<Vec<_>> = pairs
-            .into_iter()
-            .filter(|pair| pair.as_rule() == Rule::line)
-            .map(|pair| Line::from_pair(pair))
-            .collect();
-
-        lines_res.map(|lines| SyntaxTree { lines })
-    }
-
-    #[inline]
-    pub fn lines(&self) -> &[Line] {
-        self.lines.as_slice()
-    }
-}

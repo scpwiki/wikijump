@@ -31,7 +31,7 @@ use std::path::{Path, PathBuf};
 use std::process;
 use wikidot_html::prelude::*;
 
-type TransformFn = fn(&str) -> Result<String>;
+type TransformFn = fn(&mut String) -> Result<String>;
 
 fn main() {
     let matches = App::new("Wikidot to HTML")
@@ -47,10 +47,11 @@ fn main() {
                 .help("Specify an output directory to place rendered files in. Defaults to the current directory."),
         )
         .arg(
-            Arg::with_name("parse-only")
-                .short("p")
-                .long("parse-only")
-                .help("Only parse the input text, returning the modified intermediary text. Does not display captured tokens."),
+            Arg::with_name("mode")
+                .short("m")
+                .long("execution-mode")
+                .takes_value(true)
+                .help("Instead of running the entire transformation process, you can limit it to one of the following operations: 'filter', 'parse'."),
         )
         .arg(
             Arg::with_name("FILE")
@@ -73,10 +74,15 @@ fn main() {
         process::exit(1);
     }
 
-    let transform_fn = if matches.occurrences_of("parse-only") == 0 {
-        transform::<HtmlRender>
-    } else {
-        parse_only
+    let transform_fn: TransformFn = match matches.value_of("mode") {
+        None => transform::<HtmlRender>,
+        Some("filter") | Some("prefilter") => prefilter_only,
+        Some("parse") | Some("tree") => parse_only,
+        Some(mode) => {
+            eprintln!("Unknown execution mode: '{}'", mode);
+            eprintln!("Should be one of: 'filter', 'parse'");
+            process::exit(1);
+        },
     };
 
     let mut return_code = 0;
@@ -113,7 +119,13 @@ fn main() {
     process::exit(return_code);
 }
 
-fn parse_only(text: &str) -> Result<String> {
+fn prefilter_only(text: &mut String) -> Result<String> {
+    let mut text = text.clone();
+    prefilter(&mut text);
+    Ok(text)
+}
+
+fn parse_only(text: &mut String) -> Result<String> {
     let tree = parse(text)?;
     let result = format!(
         "<html><body><pre><code>\n{:#?}\n</code></pre></body></html>\n",
@@ -123,27 +135,21 @@ fn parse_only(text: &str) -> Result<String> {
 }
 
 fn process_file(in_path: &Path, out_path: &Path, transform: TransformFn) -> Result<()> {
-    let text = {
-        let mut contents = String::new();
-        let mut file = File::open(in_path)?;
-        file.read_to_string(&mut contents)?;
-        contents
-    };
+    let mut text = String::new();
+    let mut file = File::open(in_path)?;
+    file.read_to_string(&mut text)?;
 
-    let html = transform(&text)?;
+    let html = transform(&mut text)?;
     let mut file = File::create(out_path)?;
     file.write_all(html.as_bytes())?;
     Ok(())
 }
 
 fn process_stdin(transform: TransformFn) -> Result<()> {
-    let text = {
-        let mut contents = String::new();
-        io::stdin().read_to_string(&mut contents)?;
-        contents
-    };
+    let mut text = String::new();
+    io::stdin().read_to_string(&mut text)?;
 
-    let html = transform(&text)?;
+    let html = transform(&mut text)?;
     println!("{}", &html);
     Ok(())
 }

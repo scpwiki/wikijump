@@ -57,6 +57,7 @@ extern crate regex;
 
 mod enums;
 mod error;
+mod filter;
 mod parse;
 mod render;
 
@@ -64,13 +65,15 @@ mod render;
 mod test;
 
 pub use self::error::Error;
+pub use self::filter::prefilter;
 pub use self::parse::{parse, SyntaxTree};
 pub use self::render::{HtmlRender, Render};
 
 pub type StdResult<T, E> = std::result::Result<T, E>;
 pub type Result<T> = StdResult<T, Error>;
 
-pub fn transform<R: Render>(text: &str) -> Result<R::Output> {
+pub fn transform<R: Render>(text: &mut String) -> Result<R::Output> {
+    prefilter(text);
     let tree = parse(text)?;
     let output = R::render(&tree)?;
     Ok(output)
@@ -79,5 +82,5 @@ pub fn transform<R: Render>(text: &str) -> Result<R::Output> {
 pub mod prelude {
     #![allow(unused_imports)]
     pub use super::{Error, HtmlRender, Render, Result, StdResult, SyntaxTree};
-    pub use super::{parse, transform};
+    pub use super::{parse, prefilter, transform};
 }
