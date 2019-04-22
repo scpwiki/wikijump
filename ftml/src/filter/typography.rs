@@ -23,8 +23,14 @@
 //! https://github.com/Nu-SCPTheme/wikidot/blob/master/lib/Text_Wiki/Text/Wiki/Parse/Default/Typography.php
 //!
 //! The transformations performed here are listed:
-//! * TODO
+//! * `` .. '' to fancy double quotes
+//! * ` .. ' to fancy single quotes
+//! * ,, .. '' to fancy lowered double quotes
+//! * << and >> to fancy French angle quotation marks
+//! * ... to an ellipsis
+//! * -- or --- to em dashes
 
+use crate::Result;
 use either::Either;
 use regex::Regex;
 
@@ -107,7 +113,7 @@ impl Replacer {
     }
 }
 
-pub fn substitute(text: &mut String) {
+pub fn substitute(text: &mut String) -> Result<()> {
     let mut buffer = String::new();
 
     macro_rules! replace {
@@ -126,6 +132,8 @@ pub fn substitute(text: &mut String) {
     // Miscellaneous
     replace!(ELLIPSIS);
     replace!(EM_DASH);
+
+    Ok(())
 }
 
 #[test]

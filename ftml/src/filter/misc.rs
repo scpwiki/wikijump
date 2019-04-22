@@ -26,6 +26,7 @@
 //! * Convert tabs to four spaces
 //! * Compress groups of 3+ newlines into 2 newlines
 
+use crate::Result;
 use regex::{Regex, RegexBuilder};
 
 lazy_static! {
@@ -49,13 +50,15 @@ lazy_static! {
     };
 }
 
-pub fn substitute(text: &mut String) {
+pub fn substitute(text: &mut String) -> Result<()> {
     regex_replace(text, &*DOS_NEWLINES, "\n");
     regex_replace(text, &*MAC_NEWLINES, "\n");
     regex_replace(text, &*WHITESPACE, "");
     regex_replace(text, &*CONCAT_BACKSLASHES, "");
     regex_replace(text, &*TABS, "    ");
     regex_replace(text, &*COMPRESS_NEWLINES, "\n\n");
+
+    Ok(())
 }
 
 fn regex_replace(text: &mut String, regex: &Regex, replacement: &str) {

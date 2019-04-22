@@ -50,31 +50,13 @@ macro_rules! get_nth_pair {
 }
 
 mod blockquote;
+mod object;
 mod string;
 mod tree;
 
 #[cfg(test)]
 mod test;
 
+pub use self::blockquote::convert_blockquotes;
+pub use self::object::{parse, ParseError, Rule, WikidotParser};
 pub use self::tree::{Line, SyntaxTree, Word};
-
-use crate::Result;
-use pest::Parser;
-use pest::error::Error as PestError;
-
-#[derive(Debug, Clone, Parser)]
-#[grammar = "parse/wikidot.pest"]
-pub struct WikidotParser;
-
-pub type ParseError = PestError<Rule>;
-
-pub fn parse<'a>(text: &'a str) -> Result<SyntaxTree<'a>> {
-    let page = {
-        // Should return exactly [ Rule::page ]
-        let mut pairs = WikidotParser::parse(Rule::page, text)?;
-        get_inner_pairs!(pairs)
-    };
-
-    let tree = SyntaxTree::from_line_pairs(page)?;
-    Ok(tree)
-}

@@ -18,10 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod blockquote;
 mod include;
 mod misc;
 mod typography;
+
+mod blockquote {
+    pub use crate::parse::convert_blockquotes as substitute;
+}
 
 pub use self::include::Includer;
 pub use self::include::{NotFoundIncluder, NullIncluder};
@@ -41,16 +44,16 @@ use crate::Result;
 /// * Perform typography modifications
 pub fn prefilter(text: &mut String, includer: &Includer) -> Result<()> {
     include::substitute(text, includer)?;
-    misc::substitute(text);
-    blockquote::substitute(text);
-    typography::substitute(text);
+    misc::substitute(text)?;
+    blockquote::substitute(text)?;
+    typography::substitute(text)?;
 
     Ok(())
 }
 
 #[test]
 fn test_fn() {
-    type SubstituteFn = fn(&mut String);
+    type SubstituteFn = fn(&mut String) -> Result<()>;
 
     // include::substitute() does not match as it requires an Includer
     let _: SubstituteFn = misc::substitute;
