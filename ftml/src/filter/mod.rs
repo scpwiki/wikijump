@@ -18,13 +18,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod include;
 mod misc;
 mod quote_block;
 mod typography;
 
+pub use self::include::Includer;
+pub use self::include::{NotFoundIncluder, NullIncluder};
+
+use crate::Result;
+
 /// Transform the text in preparation for parsing.
 ///
 /// Performs the following modifications:
+/// * Insert [[include]] directives
 /// * Replacing DOS and legacy Mac newlines
 /// * Trimming whitespace lines
 /// * Concatenating lines that end with backslashes
@@ -32,16 +39,20 @@ mod typography;
 /// * Compress groups of 3+ newlines into 2 newlines
 /// * Converts quote blocks to nested [[quote]] tags.
 /// * Perform typography modifications
-pub fn prefilter(text: &mut String) {
+pub fn prefilter(text: &mut String, includer: &Includer) -> Result<()> {
+    include::substitute(text, includer)?;
     misc::substitute(text);
     quote_block::substitute(text);
     typography::substitute(text);
+
+    Ok(())
 }
 
 #[test]
 fn test_fn() {
     type SubstituteFn = fn(&mut String);
 
+    // include::substitute() does not match as it requires an Includer
     let _: SubstituteFn = misc::substitute;
     let _: SubstituteFn = quote_block::substitute;
     let _: SubstituteFn = typography::substitute;

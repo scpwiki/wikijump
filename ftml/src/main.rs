@@ -30,6 +30,7 @@ use std::io::{self, Read, Write};
 use std::path::{Path, PathBuf};
 use std::process;
 use wikidot_html::prelude::*;
+use wikidot_html::include::NullIncluder;
 
 type TransformFn = fn(&mut String) -> Result<String>;
 
@@ -75,7 +76,7 @@ fn main() {
     }
 
     let transform_fn: TransformFn = match matches.value_of("mode") {
-        None => transform::<HtmlRender>,
+        None => full_transform,
         Some("filter") | Some("prefilter") => prefilter_only,
         Some("parse") | Some("tree") => parse_only,
         Some(mode) => {
@@ -121,7 +122,7 @@ fn main() {
 
 fn prefilter_only(text: &mut String) -> Result<String> {
     let mut text = text.clone();
-    prefilter(&mut text);
+    prefilter(&mut text, &NullIncluder)?;
     Ok(text)
 }
 
@@ -132,6 +133,11 @@ fn parse_only(text: &mut String) -> Result<String> {
         &tree
     );
     Ok(result)
+}
+
+#[inline]
+fn full_transform(text: &mut String) -> Result<String> {
+    transform::<HtmlRender>(text, &NullIncluder)
 }
 
 fn process_file(in_path: &Path, out_path: &Path, transform: TransformFn) -> Result<()> {

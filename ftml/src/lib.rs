@@ -67,22 +67,26 @@ mod render;
 mod test;
 
 pub use self::error::Error;
-pub use self::filter::prefilter;
+pub use self::filter::{prefilter, Includer};
 pub use self::parse::{parse, SyntaxTree};
 pub use self::render::{HtmlRender, Render};
+
+pub mod prelude {
+    pub use super::{Error, HtmlRender, Render, Result, StdResult, SyntaxTree};
+    pub use super::{parse, prefilter, transform};
+}
+
+pub mod include {
+    pub use super::filter::Includer;
+    pub use super::filter::{NotFoundIncluder, NullIncluder};
+}
 
 pub type StdResult<T, E> = std::result::Result<T, E>;
 pub type Result<T> = StdResult<T, Error>;
 
-pub fn transform<R: Render>(text: &mut String) -> Result<R::Output> {
-    prefilter(text);
+pub fn transform<R: Render>(text: &mut String, includer: &Includer) -> Result<R::Output> {
+    prefilter(text, includer)?;
     let tree = parse(text)?;
     let output = R::render(&tree)?;
     Ok(output)
-}
-
-pub mod prelude {
-    #![allow(unused_imports)]
-    pub use super::{Error, HtmlRender, Render, Result, StdResult, SyntaxTree};
-    pub use super::{parse, prefilter, transform};
 }
