@@ -82,7 +82,7 @@ fn main() {
             eprintln!("Unknown execution mode: '{}'", mode);
             eprintln!("Should be one of: 'filter', 'parse'");
             process::exit(1);
-        },
+        }
     };
 
     let mut return_code = 0;

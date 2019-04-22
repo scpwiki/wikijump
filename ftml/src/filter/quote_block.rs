@@ -48,7 +48,8 @@ pub fn substitute(text: &mut String) {
         // Build up the replacement buffer
         let mut prev_depth = 0;
         for line in mtch.as_str().lines() {
-            let capture = BLOCK_QUOTE_LINE.captures(line)
+            let capture = BLOCK_QUOTE_LINE
+                .captures(line)
                 .expect("Regular expression BLOCK_QUOTE_LINE didn't match");
             let depth = capture["depth"].len();
             let contents = &capture["contents"];
@@ -110,7 +111,10 @@ fn test_substitute() {
     assert_eq!(&string, "[[quote]]\n[[quote]]\n[[quote]]\n[[quote]]\ndeep quote block\ncontents\n[[/quote]]\n[[/quote]]\n[[/quote]]\n[[/quote]]\n");
 
     substitute!(">no space test\n> it's weird wikidot requires it\n>  extra space");
-    assert_eq!(&string, "[[quote]]\nno space test\nit's weird wikidot requires it\nextra space\n[[/quote]]\n");
+    assert_eq!(
+        &string,
+        "[[quote]]\nno space test\nit's weird wikidot requires it\nextra space\n[[/quote]]\n"
+    );
 
     substitute!("> multiple quotes test\n\n> another block\n>> omega\n");
     assert_eq!(&string, "[[quote]]\nmultiple quotes test\n[[/quote]]\n\n[[quote]]\nanother block\n[[quote]]\nomega\n[[/quote]]\n[[/quote]]\n");
@@ -119,8 +123,14 @@ fn test_substitute() {
     assert_eq!(&string, "this string doesn't have any quotes in it");
 
     substitute!("> apple\n> > fake quote\n> >> even faker\n");
-    assert_eq!(&string, "[[quote]]\napple\n> fake quote\n>> even faker\n[[/quote]]\n");
+    assert_eq!(
+        &string,
+        "[[quote]]\napple\n> fake quote\n>> even faker\n[[/quote]]\n"
+    );
 
     substitute!("[[div]]\napple\n> banana\n[[/div]]\n> durian\n");
-    assert_eq!(&string, "[[div]]\napple\n[[quote]]\nbanana\n[[/quote]]\n[[/div]]\n[[quote]]\ndurian\n[[/quote]]\n");
+    assert_eq!(
+        &string,
+        "[[div]]\napple\n[[quote]]\nbanana\n[[/quote]]\n[[/div]]\n[[quote]]\ndurian\n[[/quote]]\n"
+    );
 }

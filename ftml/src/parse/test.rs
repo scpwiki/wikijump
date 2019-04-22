@@ -194,8 +194,7 @@ const INVALID_INPUT_STRINGS: [&str; 59] = [
     "[[div]]\n> contents\n> [[/div]]",
 ];
 
-const INVALID_FILTER_STRINGS: [&str; 0] = [
-];
+const INVALID_FILTER_STRINGS: [&str; 0] = [];
 
 #[test]
 fn test_valid_strings() {
@@ -242,7 +241,7 @@ fn test_valid_filter_strings() {
             panic!(
                 "Failed to convert filtered test string:\n{}\n-----\nProduced error: {}",
                 string, err
-                );
+            );
         }
 
         buffer.clear();

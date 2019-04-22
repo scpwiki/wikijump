@@ -83,12 +83,16 @@ pub struct Replacer {
 impl Replacer {
     fn replace(&self, text: &mut String, buffer: &mut String) {
         while let Some(capture) = self.regex.captures(text) {
-            let mtch = capture.get(0).expect("Regular expression lacks a full match");
+            let mtch = capture
+                .get(0)
+                .expect("Regular expression lacks a full match");
             let range = mtch.start()..mtch.end();
 
             match self.replacement {
                 Either::Left((begin, end)) => {
-                    let mtch = capture.get(1).expect("Regular expression lacks a content group");
+                    let mtch = capture
+                        .get(1)
+                        .expect("Regular expression lacks a content group");
 
                     buffer.clear();
                     buffer.push_str(begin);
@@ -96,7 +100,7 @@ impl Replacer {
                     buffer.push_str(end);
 
                     text.replace_range(range, &buffer);
-                },
+                }
                 Either::Right(value) => text.replace_range(range, value),
             }
         }
@@ -148,10 +152,16 @@ fn test_substitute() {
     }
 
     substitute!("John laughed. ``You'll never defeat me!''\n``That's where you're wrong...''");
-    assert_eq!(&string, "John laughed. “You'll never defeat me!”\n“That's where you're wrong…”");
+    assert_eq!(
+        &string,
+        "John laughed. “You'll never defeat me!”\n“That's where you're wrong…”"
+    );
 
     substitute!(",,あんたはばかです！''\n``Ehh?''\n,,ほんと！''\n[[footnoteblock]]");
-    assert_eq!(&string, "„あんたはばかです！”\n“Ehh?”\n„ほんと！”\n[[footnoteblock]]");
+    assert_eq!(
+        &string,
+        "„あんたはばかです！”\n“Ehh?”\n„ほんと！”\n[[footnoteblock]]"
+    );
 
     substitute!("<< [[[SCP-4338]]] | SCP-4339 | [[[SCP-4340]]] >>");
     assert_eq!(&string, "« [[[SCP-4338]]] | SCP-4339 | [[[SCP-4340]]] »");
