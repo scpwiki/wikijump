@@ -96,6 +96,9 @@ word = {
     raw |
     legacy_raw |
     email |
+    link_bare |
+    link_page |
+    link_url |
     color |
     italics |
     strikethrough |
@@ -105,6 +108,7 @@ word = {
     superscript |
     monospace |
     anchor |
+    anchor_tag |
     date |
     equation_ref |
     file_ref |
@@ -135,6 +139,13 @@ monospace = { "{{" ~ word* ~ "}}" }
 
 // Block words {{{
 anchor = { "[[#" ~ space? ~ ident ~ space? ~ "]]" }
+
+anchor_tag = {
+    "[[" ~ space? ~ ^"a" ~ anchor_arg* ~ space? ~ "]]" ~
+    word+ ~
+    "[[/" ~ space? ~ ^"a" ~ space? ~ "]]"
+}
+anchor_arg = { space ~ ident ~ space? ~ "=" ~ space? ~ string }
 
 date = {
     "[[" ~ space? ~ ^"date" ~ space ~ integer ~ date_arg? ~ space? ~ "]]"
@@ -227,6 +238,22 @@ tab_name = { (!("]]" | "\n") ~ ANY)+ }
 user = { "[[" ~ space? ~ "*"? ~ space? ~ ^"user" ~ space ~ ident ~ space? ~ "]]" }
 // }}}
 
+// Link words {{{
+link_bare = { "*"? ~ url }
+
+link_page = {
+    "[[[" ~ space? ~ "*"? ~ space? ~ page_link ~ space? ~
+    ("|" ~ space? ~ page_name ~ space? ~ "]]]")?
+}
+
+link_url = {
+    "[" ~ space? ~ "*"? ~ space? ~ page_link ~ space ~ page_name ~ space? ~ "]"
+}
+
+page_name = { (!("\n" | "]]]") ~ ANY)+ }
+page_link = { (!space ~ ANY) + }
+// }}}
+
 // Misc words {{{
 text = {
     (!(
@@ -261,6 +288,7 @@ str_inner = @{ (!("\"" | "\\") ~ ANY)* ~ (escape ~ str_inner)? }
 string = @{ "\"" ~ str_inner ~ "\"" }
 escape = @{ "\\" ~ ("\"" | "\\" | "r" | "n" | "t" | "0" | "'") }
 direction = { "<" | ">" | "="{1,2} }
+url = @{ "http" ~ "s"? ~ "://" ~ (!" " ~ ANY)+ }
 COMMENT = _{ "[!--" ~ (!"--]" ~ ANY)* ~ "--]" }
 // }}}
 

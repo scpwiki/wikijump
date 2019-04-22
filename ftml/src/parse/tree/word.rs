@@ -89,6 +89,7 @@ lazy_static! {
 pub enum Word<'a> {
     Anchor {
         name: &'a str,
+        arguments: HashMap<&'a str, Cow<'a, str>>,
     },
     Bold {
         words: Vec<Word<'a>>,
@@ -286,7 +287,12 @@ impl<'a> Word<'a> {
             },
             Rule::anchor => Word::Anchor {
                 name: extract!(ANCHOR),
+                arguments: HashMap::new(),
             },
+            Rule::anchor_tag => {
+                // TODO
+                unimplemented!()
+            }
             Rule::date => {
                 let capture = DATE.captures(pair.as_str())
                     .expect("Regular expression DATE didn't match");
@@ -436,6 +442,18 @@ impl<'a> Word<'a> {
                     class,
                     size,
                 }
+            }
+            Rule::link_bare => {
+                // TODO
+                unimplemented!()
+            }
+            Rule::link_page => {
+                // TODO
+                unimplemented!()
+            }
+            Rule::link_url => {
+                // TODO
+                unimplemented!()
             }
             Rule::size => {
                 let mut pairs = pair.into_inner();
