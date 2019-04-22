@@ -18,9 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod blockquote;
 mod include;
 mod misc;
-mod quote_block;
 mod typography;
 
 pub use self::include::Includer;
@@ -42,7 +42,7 @@ use crate::Result;
 pub fn prefilter(text: &mut String, includer: &Includer) -> Result<()> {
     include::substitute(text, includer)?;
     misc::substitute(text);
-    quote_block::substitute(text);
+    blockquote::substitute(text);
     typography::substitute(text);
 
     Ok(())
@@ -54,6 +54,6 @@ fn test_fn() {
 
     // include::substitute() does not match as it requires an Includer
     let _: SubstituteFn = misc::substitute;
-    let _: SubstituteFn = quote_block::substitute;
+    let _: SubstituteFn = blockquote::substitute;
     let _: SubstituteFn = typography::substitute;
 }

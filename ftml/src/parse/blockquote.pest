@@ -1,5 +1,5 @@
 //
-// parse/string.pest
+// parse/blockquote.pest
 //
 // wikidot-html - Convert Wikidot code to HTML
 // Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -18,5 +18,11 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 //
 
-char = { (!("\"" | "\\") ~ ANY) | "\\" ~ ("\"" | "\\" | "r" | "n" | "t" | "0" | "'") }
-string = { "\"" ~ char* ~ "\"" }
+page = { SOI ~ (quote_line | other_line)* ~ EOI }
+
+blockquote = { quote_line+ }
+quote_line = { (SOI | "\n") ~ quote_depth ~ " "* ~ line_contents ~ &("\n" | EOI) }
+quote_depth = { ">"+ }
+line_contents = { (!"\n" ~ ANY)* }
+
+other_line = { (SOI | "\n") ~ !">" ~ line_contents ~ &("\n" | EOI) }

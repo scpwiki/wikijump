@@ -1,5 +1,5 @@
 //
-// wikidot.pest
+// parse/wikidot.pest
 //
 // wikidot-html - Convert Wikidot code to HTML
 // Copyright (C) 2019 Ammon Smith for Project Foundation

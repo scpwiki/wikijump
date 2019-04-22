@@ -1,5 +1,5 @@
 /*
- * parse/quote_block.rs
+ * parse/blockquote.rs
  *
  * wikidot-html - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -90,47 +90,4 @@ pub fn substitute(text: &mut String) {
 fn test_regexes() {
     let _ = &*BLOCK_QUOTE;
     let _ = &*BLOCK_QUOTE_LINE;
-}
-
-#[test]
-fn test_substitute() {
-    let mut string = String::new();
-
-    macro_rules! substitute {
-        ($str:expr) => {{
-            string.clear();
-            string.push_str($str);
-            substitute(&mut string);
-        }}
-    }
-
-    substitute!("test\n> abc\n> def\n> ghi\n>> apple\n>> banana\n>>> durian\n>> fruit list\nend");
-    assert_eq!(&string, "test\n[[quote]]\nabc\ndef\nghi\n[[quote]]\napple\nbanana\n[[quote]]\ndurian\n[[/quote]]\nfruit list\n[[/quote]]\n[[/quote]]\nend");
-
-    substitute!(">>>> deep quote block\n>>>> contents");
-    assert_eq!(&string, "[[quote]]\n[[quote]]\n[[quote]]\n[[quote]]\ndeep quote block\ncontents\n[[/quote]]\n[[/quote]]\n[[/quote]]\n[[/quote]]\n");
-
-    substitute!(">no space test\n> it's weird wikidot requires it\n>  extra space");
-    assert_eq!(
-        &string,
-        "[[quote]]\nno space test\nit's weird wikidot requires it\nextra space\n[[/quote]]\n"
-    );
-
-    substitute!("> multiple quotes test\n\n> another block\n>> omega\n");
-    assert_eq!(&string, "[[quote]]\nmultiple quotes test\n[[/quote]]\n\n[[quote]]\nanother block\n[[quote]]\nomega\n[[/quote]]\n[[/quote]]\n");
-
-    substitute!("this string doesn't have any quotes in it");
-    assert_eq!(&string, "this string doesn't have any quotes in it");
-
-    substitute!("> apple\n> > fake quote\n> >> even faker\n");
-    assert_eq!(
-        &string,
-        "[[quote]]\napple\n> fake quote\n>> even faker\n[[/quote]]\n"
-    );
-
-    substitute!("[[div]]\napple\n> banana\n[[/div]]\n> durian\n");
-    assert_eq!(
-        &string,
-        "[[div]]\napple\n[[quote]]\nbanana\n[[/quote]]\n[[/div]]\n[[quote]]\ndurian\n[[/quote]]\n"
-    );
 }
