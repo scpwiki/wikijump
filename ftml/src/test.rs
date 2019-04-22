@@ -22,6 +22,7 @@ use std::fs::{self, File};
 use std::io::Read;
 use std::path::{Path, PathBuf};
 use super::prelude::*;
+use super::include::NullIncluder;
 
 lazy_static! {
     static ref TEST_DIRECTORY: PathBuf = {
@@ -99,7 +100,7 @@ fn test_conversions() {
         read_file(&mut expected_html, &output_file).expect("Unable to read output HTML");
 
         let output_html =
-            transform::<HtmlRender>(&mut input_text).expect("Unable to transform Wikidot to HTML");
+            transform::<HtmlRender>(&mut input_text, &NullIncluder).expect("Unable to transform Wikidot to HTML");
         assert_eq!(expected_html, output_html);
     });
 }
