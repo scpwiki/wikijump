@@ -121,8 +121,8 @@ const VALID_INPUT_STRINGS: [&str; 94] = [
     "[[quote id=\"my-id\" style=\"line-height: 1.5em;\" class=\"raisa-notice\"]]\n[[/quote]]",
     "[[QUOTE]]\nNested quotes are easier this way\n[[QUOTE]]\nvery deep\nindeed\n[[/QUOTE]]\n[[/QUOTE]]",
     "[[ quote class = \"quote-block level-1\" ]]\ncontents\n[[ quote class = \"quote-block level-2\" ]]\napple\n[[/ quote ]]\nbanana\n[[/ quote ]]",
-    "[[js]]\nfunction test() { return 1; }\n[[/js]]",
-    "apple\n[[javascript]]\nconsole.log('test');\n[[/javascript]]\nbanana",
+    "[[js]]\nfunction test() { return 1; }\n[[/js]]\n[[ JS ]]\n[[/ JS ]]",
+    "**apple**\n[[javascript]]\nconsole.log('test');\n[[/javascript]]\n**banana**",
 ];
 
 const VALID_FILTER_STRINGS: [&str; 10] = [

@@ -30,6 +30,7 @@ lines_internal = { space? ~ line* ~ line_inner? ~ ("\n" | EOI)? }
 line_inner = {
     align |
     code |
+    javascript |
     clear_float |
     div |
     bullet_list |
@@ -70,7 +71,7 @@ div_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ stri
 javascript = {
     "[[" ~ space? ~ (^"js" | ^"javascript") ~ space? ~ "]]\n" ~
     (!("[[/" ~ space? ~ (^"js" | ^"javascript")) ~ ANY)* ~
-    "[[/" ~ space? ~ (^"js" | ^"javascrit") ~ space? ~ "]]"
+    "[[/" ~ space? ~ (^"js" | ^"javascript") ~ space? ~ "]]"
 }
 
 quote_block = {
