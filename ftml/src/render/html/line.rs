@@ -22,9 +22,13 @@ use crate::enums::Alignment;
 use self::Line::*;
 use super::prelude::*;
 
-pub fn render_lines<'a, I: IntoIterator<Item = &'a Line<'a>>>(buffer: &mut String, lines: I) -> Result<()> {
+pub fn render_lines<'a, I, L> (buffer: &mut String, lines: I) -> Result<()>
+where
+    I: IntoIterator<Item = L>,
+    L: AsRef<Line<'a>>,
+{
     for line in lines {
-        render_line(buffer, line)?;
+        render_line(buffer, line.as_ref())?;
         write!(buffer, " <br>")?;
     }
 
@@ -47,7 +51,7 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
             let style = match direction {
                 Some(Alignment::Left) => "left",
                 Some(Alignment::Right) => "right",
-                Some(Alignment::Center) => "center", // ?
+                Some(direction) => panic!("Invalid case for ClearFloat: {:?}", direction),
                 None => "both",
             };
 
@@ -55,7 +59,7 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
             // TODO verify this ^^^
             unimplemented!()
         },
-        &CodeBlock { language, ref contents } => {
+        &CodeBlock { ref language, ref contents } => {
             // TODO add language highlighting
             let _ = language;
 
@@ -82,7 +86,7 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
             render_lines(buffer, lines)?;
             buffer.push_str("\n</div>");
         },
-        &Heading { level, words } => {
+        &Heading { level, ref words } => {
             write!(buffer, "<{}>", level)?;
             render_words(buffer, words)?;
             write!(buffer, "</{}>\n", level)?;
@@ -121,7 +125,7 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
                 };
 
                 buffer.push_str("<tr>\n");
-                for column in row.columns {
+                for column in &row.columns {
                     buffer.push_str(start_tag);
                     render_words(buffer, column);
                     buffer.push_str(end_tag);

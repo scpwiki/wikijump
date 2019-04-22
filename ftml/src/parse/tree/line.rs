@@ -367,6 +367,13 @@ impl<'a> Line<'a> {
     }
 }
 
+impl<'a> AsRef<Line<'a>> for Line<'a> {
+    #[inline]
+    fn as_ref(&self) -> &Line<'a> {
+        self
+    }
+}
+
 #[test]
 fn test_regexes() {
     let _ = &*ALIGN;

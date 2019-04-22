@@ -547,6 +547,13 @@ impl<'a> Word<'a> {
     }
 }
 
+impl<'a> AsRef<Word<'a>> for Word<'a> {
+    #[inline]
+    fn as_ref(&self) -> &Word<'a> {
+        self
+    }
+}
+
 #[test]
 fn test_regexes() {
     let _ = &*ANCHOR;

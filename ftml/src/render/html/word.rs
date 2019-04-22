@@ -21,9 +21,13 @@
 use self::Word::*;
 use super::prelude::*;
 
-pub fn render_words<'a, I: IntoIterator<Item = &'a Word<'a>>>(buffer: &mut String, words: I) -> Result<()> {
+pub fn render_words<'a, I, W> (buffer: &mut String, words: I) -> Result<()>
+where
+    I: IntoIterator<Item = W>,
+    W: AsRef<Word<'a>>,
+{
     for word in words {
-        render_word(buffer, word)?;
+        render_word(buffer, word.as_ref())?;
     }
 
     Ok(())
