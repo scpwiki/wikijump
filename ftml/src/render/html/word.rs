@@ -34,5 +34,19 @@ where
 }
 
 pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
-    unimplemented!()
+    match word {
+        &Anchor { name, ref arguments } => {
+            buffer.push_str("<a");
+
+            for (key, value) in arguments.iter() {
+                write_tag_arg(buffer, key, Some(value))?;
+            }
+
+            buffer.push_str("></a>\n");
+        },
+
+        _ => panic!("Word case not implemented yet!"),
+    }
+
+    Ok(())
 }
