@@ -93,14 +93,27 @@ fn test_substitute() {
     substitute!("newlines:\r\n* apple\r* banana\r\ncherry\n\r* durian");
     assert_eq!(&string, "newlines:\n* apple\n* banana\ncherry\n\n* durian");
 
-    substitute!("apple\nbanana\n\ncherry\n\n\npineapple\n\n\n\nstrawberry\n\n\n\n\nblueberry\n\n\n\n\n\n");
-    assert_eq!(&string, "apple\nbanana\n\ncherry\n\npineapple\n\nstrawberry\n\nblueberry\n");
+    substitute!(
+        "apple\nbanana\n\ncherry\n\n\npineapple\n\n\n\nstrawberry\n\n\n\n\nblueberry\n\n\n\n\n\n"
+    );
+    assert_eq!(
+        &string,
+        "apple\nbanana\n\ncherry\n\npineapple\n\nstrawberry\n\nblueberry\n"
+    );
 
-    substitute!("apple\rbanana\r\rcherry\r\r\rpineapple\r\r\r\rstrawberry\r\r\r\r\rblueberry\r\r\r\r\r\r");
-    assert_eq!(&string, "apple\nbanana\n\ncherry\n\npineapple\n\nstrawberry\n\nblueberry\n");
+    substitute!(
+        "apple\rbanana\r\rcherry\r\r\rpineapple\r\r\r\rstrawberry\r\r\r\r\rblueberry\r\r\r\r\r\r"
+    );
+    assert_eq!(
+        &string,
+        "apple\nbanana\n\ncherry\n\npineapple\n\nstrawberry\n\nblueberry\n"
+    );
 
     substitute!("concat:\napple banana \\\nCherry\\\nPineapple \\ grape\nblueberry\n");
-    assert_eq!(&string, "concat:\napple banana CherryPineapple \\ grape\nblueberry\n");
+    assert_eq!(
+        &string,
+        "concat:\napple banana CherryPineapple \\ grape\nblueberry\n"
+    );
 
     substitute!("<\n        \n      \n  \n      \n>");
     assert_eq!(&string, "<\n\n>");

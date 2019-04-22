@@ -46,24 +46,41 @@ pub fn substitute(text: &mut String, includer: &Includer) -> Result<()> {
     while let Some(capture) = INCLUDE.captures(text) {
         let mut args = HashMap::new();
 
-        let name = capture.name("resource").expect("Named capture group not found").as_str();
-        let raw_args = capture.name("args").expect("Named capture group not found").as_str();
+        let name = capture
+            .name("resource")
+            .expect("Named capture group not found")
+            .as_str();
+        let raw_args = capture
+            .name("args")
+            .expect("Named capture group not found")
+            .as_str();
 
         for raw_arg in raw_args.split("|") {
             match INCLUDE_ARG.captures(raw_arg) {
                 Some(capture) => {
-                    let key = capture.name("key").expect("Named capture group not found").as_str();
-                    let value = capture.name("value").expect("Named capture group not found").as_str();
+                    let key = capture
+                        .name("key")
+                        .expect("Named capture group not found")
+                        .as_str();
+                    let value = capture
+                        .name("value")
+                        .expect("Named capture group not found")
+                        .as_str();
 
                     args.insert(key, value);
-                },
-                None => return Err(
-                    Error::Msg(format!("Include arguments for '{}' are improperly formatted", name))
-                ),
+                }
+                None => {
+                    return Err(Error::Msg(format!(
+                        "Include arguments for '{}' are improperly formatted",
+                        name
+                    )))
+                }
             }
         }
 
-        let mtch = capture.get(0).expect("Regular expression lacks a full match");
+        let mtch = capture
+            .get(0)
+            .expect("Regular expression lacks a full match");
         let range = mtch.start()..mtch.end();
 
         let resource = includer.get_resource(name, args)?;
