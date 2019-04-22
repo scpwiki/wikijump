@@ -44,7 +44,6 @@ lazy_static! {
 pub fn convert_internal_lines(pair: Pair<Rule>) -> Result<Vec<Line>> {
     let mut lines = Vec::new();
     let mut inner = None;
-    let mut newlines = 0;
 
     for pair in pair.into_inner() {
         match pair.as_rule() {
@@ -56,13 +55,12 @@ pub fn convert_internal_lines(pair: Pair<Rule>) -> Result<Vec<Line>> {
                 let line_inner = LineInner::from_pair(pair)?;
                 inner = Some(line_inner);
             }
-            Rule::newlines => newlines = pair.as_str().len(),
             _ => panic!("Invalid rule for internal-lines: {:?}", pair.as_rule()),
         }
     }
 
     if let Some(inner) = inner {
-        lines.push(Line { inner, newlines });
+        lines.push(Line { inner });
     }
 
     Ok(lines)
@@ -71,7 +69,6 @@ pub fn convert_internal_lines(pair: Pair<Rule>) -> Result<Vec<Line>> {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Line<'a> {
     inner: LineInner<'a>,
-    newlines: usize,
 }
 
 impl<'a> Line<'a> {
@@ -79,12 +76,10 @@ impl<'a> Line<'a> {
         trace!("Converting pair into Line...");
 
         let inner;
-        let newlines;
 
         match pair.as_rule() {
             Rule::line_inner => {
                 inner = LineInner::from_pair(pair)?;
-                newlines = 0;
             }
             Rule::line => {
                 let mut pairs = pair.into_inner();
@@ -93,13 +88,6 @@ impl<'a> Line<'a> {
                     let pair = pairs.next().expect("Line pairs iterator was empty");
                     debug_assert_eq!(pair.as_rule(), Rule::line_inner);
                     LineInner::from_pair(pair)?
-                };
-                newlines = {
-                    let pair = pairs
-                        .next()
-                        .expect("Line pairs iterator only had one element");
-                    debug_assert_eq!(pair.as_rule(), Rule::newlines);
-                    pair.as_str().len()
                 };
             }
             Rule::lines_internal => {
@@ -114,17 +102,12 @@ impl<'a> Line<'a> {
             }
         }
 
-        Ok(Line { inner, newlines })
+        Ok(Line { inner })
     }
 
     #[inline]
     pub fn inner(&self) -> &LineInner {
         &self.inner
-    }
-
-    #[inline]
-    pub fn newlines(&self) -> usize {
-        self.newlines
     }
 }
 
@@ -335,7 +318,7 @@ impl<'a> LineInner<'a> {
                         words,
                         centered: false,
                     };
-                    let line = Line { inner, newlines: 0 };
+                    let line = Line { inner };
                     items.push(line);
                 }
 

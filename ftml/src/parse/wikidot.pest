@@ -24,9 +24,8 @@ page = { SOI ~ line* ~ EOI }
 
 // TODO
 // Lines {{{
-newlines = { "\n"+ | EOI }
-line = { line_inner ~ newlines }
-lines_internal = { space? ~ line* ~ line_inner? ~ newlines? }
+line = { line_inner ~ ("\n" | EOI) }
+lines_internal = { space? ~ line* ~ line_inner? ~ ("\n" | EOI)? }
 
 line_inner = {
     align |
