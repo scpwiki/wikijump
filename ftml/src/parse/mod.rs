@@ -56,7 +56,7 @@ mod tree;
 #[cfg(test)]
 mod test;
 
-pub use self::tree::{Line, LineInner, SyntaxTree, Word};
+pub use self::tree::{Line, SyntaxTree, Word};
 
 use crate::Result;
 use pest::Parser;

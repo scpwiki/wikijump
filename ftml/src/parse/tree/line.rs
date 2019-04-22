@@ -43,76 +43,22 @@ lazy_static! {
 
 pub fn convert_internal_lines(pair: Pair<Rule>) -> Result<Vec<Line>> {
     let mut lines = Vec::new();
-    let mut inner = None;
 
     for pair in pair.into_inner() {
         match pair.as_rule() {
-            Rule::line => {
+            Rule::line | Rule::line_inner => {
                 let line = Line::from_pair(pair)?;
                 lines.push(line);
             }
-            Rule::line_inner => {
-                let line_inner = LineInner::from_pair(pair)?;
-                inner = Some(line_inner);
-            }
             _ => panic!("Invalid rule for internal-lines: {:?}", pair.as_rule()),
         }
-    }
-
-    if let Some(inner) = inner {
-        lines.push(Line { inner });
     }
 
     Ok(lines)
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Line<'a> {
-    inner: LineInner<'a>,
-}
-
-impl<'a> Line<'a> {
-    pub fn from_pair(pair: Pair<'a, Rule>) -> Result<Self> {
-        trace!("Converting pair into Line...");
-
-        let inner;
-
-        match pair.as_rule() {
-            Rule::line_inner => {
-                inner = LineInner::from_pair(pair)?;
-            }
-            Rule::line => {
-                let mut pairs = pair.into_inner();
-
-                inner = {
-                    let pair = pairs.next().expect("Line pairs iterator was empty");
-                    debug_assert_eq!(pair.as_rule(), Rule::line_inner);
-                    LineInner::from_pair(pair)?
-                };
-            }
-            Rule::lines_internal => {
-                // This indicates a bug in the grammar
-                panic!("The rule 'lines_internal' returns multiple Line instances")
-            }
-            _ => {
-                return Err(Error::Msg(format!(
-                    "Invalid rule for line: {:?}",
-                    pair.as_rule()
-                )))
-            }
-        }
-
-        Ok(Line { inner })
-    }
-
-    #[inline]
-    pub fn inner(&self) -> &LineInner {
-        &self.inner
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum LineInner<'a> {
+pub enum Line<'a> {
     Align {
         alignment: Alignment,
         lines: Vec<Line<'a>>,
@@ -179,11 +125,27 @@ pub enum LineInner<'a> {
     },
 }
 
-impl<'a> LineInner<'a> {
-    fn from_pair(pair: Pair<'a, Rule>) -> Result<Self> {
-        trace!("Converting pair into LineInner...");
-        debug_assert_eq!(pair.as_rule(), Rule::line_inner);
+impl<'a> Line<'a> {
+    pub fn from_pair(pair: Pair<'a, Rule>) -> Result<Self> {
+        trace!("Converting pair into Line...");
 
+        // Handle outer wrapping
+        let pair = match pair.as_rule() {
+            Rule::line => get_first_pair!(pair),
+            Rule::line_inner => pair,
+            Rule::lines_internal => {
+                // This indicates a bug in the grammar
+                panic!("The rule 'lines_internal' returns multiple Line instances")
+            }
+            _ => {
+                return Err(Error::Msg(format!(
+                    "Invalid rule for line: {:?}",
+                    pair.as_rule()
+                )))
+            }
+        };
+
+        debug_assert_eq!(pair.as_rule(), Rule::line_inner);
         let pair = get_first_pair!(pair);
 
         macro_rules! extract {
@@ -203,7 +165,7 @@ impl<'a> LineInner<'a> {
                 let lines_res: Result<Vec<_>> = pair.into_inner().map(Line::from_pair).collect();
                 let lines = lines_res?;
 
-                LineInner::Align { alignment, lines }
+                Line::Align { alignment, lines }
             }
             Rule::code => {
                 let mut language = None;
@@ -229,7 +191,7 @@ impl<'a> LineInner<'a> {
                     }
                 }
 
-                LineInner::CodeBlock { language, contents }
+                Line::CodeBlock { language, contents }
             }
             Rule::clear_float => {
                 let capture = CLEAR_FLOAT
@@ -244,7 +206,7 @@ impl<'a> LineInner<'a> {
                     None => None,
                 };
 
-                LineInner::ClearFloat { direction }
+                Line::ClearFloat { direction }
             }
             Rule::div => {
                 let mut id = None;
@@ -279,7 +241,7 @@ impl<'a> LineInner<'a> {
                     }
                 }
 
-                LineInner::Div {
+                Line::Div {
                     id,
                     class,
                     style,
@@ -314,21 +276,20 @@ impl<'a> LineInner<'a> {
                         words.push(word);
                     }
 
-                    let inner = LineInner::Words {
+                    let line = Line::Words {
                         words,
                         centered: false,
                     };
-                    let line = Line { inner };
                     items.push(line);
                 }
 
-                LineInner::List {
+                Line::List {
                     style,
                     depth,
                     items,
                 }
             }
-            Rule::horizontal_line => LineInner::HorizontalLine,
+            Rule::horizontal_line => Line::HorizontalLine,
             Rule::quote_block => {
                 let mut id = None;
                 let mut class = None;
@@ -359,7 +320,7 @@ impl<'a> LineInner<'a> {
                     }
                 }
 
-                LineInner::QuoteBlock {
+                Line::QuoteBlock {
                     id,
                     class,
                     style,
@@ -376,11 +337,11 @@ impl<'a> LineInner<'a> {
                 }
 
                 match flag {
-                    "=" => LineInner::Words {
+                    "=" => Line::Words {
                         words,
                         centered: true,
                     },
-                    "" => LineInner::Words {
+                    "" => Line::Words {
                         words,
                         centered: false,
                     },
@@ -388,7 +349,7 @@ impl<'a> LineInner<'a> {
                         let level = HeadingLevel::try_from(flag.len())
                             .expect("Regular expression returned incorrectly-sized heading");
 
-                        LineInner::Heading { words, level }
+                        Line::Heading { words, level }
                     }
                 }
             }

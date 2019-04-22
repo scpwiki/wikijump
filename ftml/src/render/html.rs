@@ -21,7 +21,7 @@
 #![allow(unused_imports)]
 
 use crate::{Error, Result, SyntaxTree};
-use crate::parse::{Line, LineInner, Word};
+use crate::parse::{Line, Word};
 use std::fmt::{self, Display, Write};
 use super::Render;
 
