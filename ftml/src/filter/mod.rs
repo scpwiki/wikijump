@@ -18,13 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO, in this order probably?
-//
-// * Includes
-// * Concat lines
-// + Convert quote blocks to [[quote]] ... [[/quote]]
-// * Typography
-
 mod misc;
 mod quote_block;
 mod typography;
@@ -32,7 +25,11 @@ mod typography;
 /// Transform the text in preparation for parsing.
 ///
 /// Performs the following modifications:
-/// * TODO
+/// * Replacing DOS and legacy Mac newlines
+/// * Trimming whitespace lines
+/// * Concatenating lines that end with backslashes
+/// * Convert tabs to four spaces
+/// * Compress groups of 3+ newlines into 2 newlines
 /// * Converts quote blocks to nested [[quote]] tags.
 /// * Perform typography modifications
 pub fn prefilter(text: &mut String) {
