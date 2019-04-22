@@ -25,7 +25,7 @@ use std::collections::HashMap;
 
 lazy_static! {
     static ref INCLUDE: Regex = {
-        RegexBuilder::new(r"\[\[\s*include\s+(?P<resource>[^\]]+)(?P<args>.*?)\]\]")
+        RegexBuilder::new(r"\[\[\s*include\s+(?P<resource>[^ ]]+)(?P<args>.*?)\]\]")
             .multi_line(true)
             .dot_matches_new_line(true)
             .case_insensitive(true)
