@@ -120,8 +120,8 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
             buffer.push_str("<table>\n");
             for row in rows {
                 let (start_tag, end_tag) = match row.title {
-                    true => ("<th> ", " </th>\n"),
-                    false => ("<td> ", " </td>\n"),
+                    true => ("<th>", "</th>\n"),
+                    false => ("<td>", "</td>\n"),
                 };
 
                 buffer.push_str("<tr>\n");

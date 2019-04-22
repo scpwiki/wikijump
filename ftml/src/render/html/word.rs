@@ -44,6 +44,81 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
 
             buffer.push_str("></a>\n");
         },
+        &Bold { ref words } => {
+            buffer.push_str("<b>");
+            render_words(buffer, words)?;
+            buffer.push_str("</b>");
+        },
+        &Collapsible { show_top, show_bottom, ref lines } => {
+            unimplemented!()
+        },
+        &Color { color, ref words } => {
+            buffer.push_str("<span style=\"color: ");
+            escape_attr(buffer, color)?;
+            buffer.push_str("\">");
+            render_words(buffer, words)?;
+            buffer.push_str("</span>");
+        },
+        &Date { timestamp, format } => {
+            unimplemented!()
+        },
+        &Email { contents } => {
+            write!(buffer, "<a href=\"mailto:{}\">{}</a>", contents, contents)?;
+        },
+        &EquationReference { name } => {
+            unimplemented!()
+        },
+        &File { filename } => {
+            unimplemented!()
+        },
+        &Footnote { ref lines } => {
+            unimplemented!()
+        },
+        &FootnoteBlock => {
+            unimplemented!()
+        },
+        &Form { contents } => {
+            unimplemented!()
+        },
+        &Gallery => {
+            unimplemented!()
+        },
+        &Image { filename, float, direction, link, alt, ref title, width, height, style, class, size } => {
+            buffer.push_str("<img");
+
+            // TODO adjust for other sources
+            write_tag_arg(buffer, "src", Some(filename))?;
+
+            // TODO float
+
+            if let Some(alt) = alt {
+                write_tag_arg(buffer, "alt", Some(alt))?;
+            }
+
+            // TODO title
+
+            if let Some(width) = width {
+                write_tag_arg(buffer, "width", Some(width))?;
+            }
+
+            if let Some(height) = height {
+                write_tag_arg(buffer, "height", Some(height))?;
+            }
+
+            if let Some(style) = style {
+                write_tag_arg(buffer, "style", Some(style))?;
+            }
+
+            if let Some(class) = class {
+                write_tag_arg(buffer, "class", Some(class))?;
+            }
+
+            if let Some(size) = size {
+                write_tag_arg(buffer, "size", Some(size))?;
+            }
+
+            buffer.push_str("></img>");
+        },
 
         _ => panic!("Word case not implemented yet!"),
     }
