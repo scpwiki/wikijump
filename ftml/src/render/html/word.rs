@@ -39,7 +39,7 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
             buffer.push_str("<a");
 
             for (key, value) in arguments.iter() {
-                write_tag_arg(buffer, key, Some(value))?;
+                write_tag_arg(buffer, key, value)?;
             }
 
             buffer.push_str("></a>\n");
@@ -90,34 +90,34 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
             buffer.push_str("<img");
 
             // TODO adjust for other sources
-            write_tag_arg(buffer, "src", Some(filename))?;
+            write_tag_arg(buffer, "src", filename)?;
 
             // TODO float
 
             if let Some(alt) = alt {
-                write_tag_arg(buffer, "alt", Some(alt))?;
+                write_tag_arg(buffer, "alt", alt)?;
             }
 
             // TODO title
 
             if let Some(width) = width {
-                write_tag_arg(buffer, "width", Some(width))?;
+                write_tag_arg(buffer, "width", width)?;
             }
 
             if let Some(height) = height {
-                write_tag_arg(buffer, "height", Some(height))?;
+                write_tag_arg(buffer, "height", height)?;
             }
 
             if let Some(style) = style {
-                write_tag_arg(buffer, "style", Some(style))?;
+                write_tag_arg(buffer, "style", style)?;
             }
 
             if let Some(class) = class {
-                write_tag_arg(buffer, "class", Some(class))?;
+                write_tag_arg(buffer, "class", class)?;
             }
 
             if let Some(size) = size {
-                write_tag_arg(buffer, "size", Some(size))?;
+                write_tag_arg(buffer, "size", size)?;
             }
 
             buffer.push_str("></img>");
@@ -130,10 +130,10 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
         &Link { page, anchor, text } => {
             buffer.push_str("<a");
             // TODO adjust for other sources
-            write_tag_arg(buffer, "href", Some(page))?;
+            write_tag_arg(buffer, "href", page)?;
 
             if let Some(anchor) = anchor {
-                write_tag_arg(buffer, "name", Some(anchor))?;
+                write_tag_arg(buffer, "name", anchor)?;
             }
 
             buffer.push('>');
@@ -164,15 +164,15 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
             buffer.push_str("<span");
 
             if let Some(id) = id {
-                write_tag_arg(buffer, "id", Some(id))?;
+                write_tag_arg(buffer, "id", id)?;
             }
 
             if let Some(class) = class {
-                write_tag_arg(buffer, "class", Some(class))?;
+                write_tag_arg(buffer, "class", class)?;
             }
 
             if let Some(style) = style {
-                write_tag_arg(buffer, "style", Some(style))?;
+                write_tag_arg(buffer, "style", style)?;
             }
 
             buffer.push('>');

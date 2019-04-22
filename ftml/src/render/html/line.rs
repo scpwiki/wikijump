@@ -71,15 +71,15 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
             buffer.push_str("<div");
 
             if let Some(id) = id {
-                write_tag_arg(buffer, "id", Some(id))?;
+                write_tag_arg(buffer, "id", id)?;
             }
 
             if let Some(class) = class {
-                write_tag_arg(buffer, "class", Some(class))?;
+                write_tag_arg(buffer, "class", class)?;
             }
 
             if let Some(style) = style {
-                write_tag_arg(buffer, "style", Some(style))?;
+                write_tag_arg(buffer, "style", style)?;
             }
 
             buffer.push_str(">\n");
@@ -142,15 +142,15 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
             buffer.push_str("<blockquote");
 
             if let Some(id) = id {
-                write_tag_arg(buffer, "id", Some(id))?;
+                write_tag_arg(buffer, "id", id)?;
             }
 
             if let Some(class) = class {
-                write_tag_arg(buffer, "class", Some(class))?;
+                write_tag_arg(buffer, "class", class)?;
             }
 
             if let Some(style) = style {
-                write_tag_arg(buffer, "style", Some(style))?;
+                write_tag_arg(buffer, "style", style)?;
             }
 
             buffer.push_str(">\n");

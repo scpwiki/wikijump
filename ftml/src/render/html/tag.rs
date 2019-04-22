@@ -20,14 +20,11 @@
 
 use super::prelude::*;
 
-pub fn write_tag_arg(buffer: &mut String, arg_name: &str, value: Option<&str>) -> Result<()> {
+pub fn write_tag_arg(buffer: &mut String, arg_name: &str, value: &str) -> Result<()> {
     write!(buffer, " {}", arg_name)?;
-
-    if let Some(value) = value {
-        buffer.push_str("=\"");
-        escape_attr(buffer, value)?;
-        buffer.push('"');
-    }
+    buffer.push_str("=\"");
+    escape_attr(buffer, value)?;
+    buffer.push('"');
 
     Ok(())
 }
