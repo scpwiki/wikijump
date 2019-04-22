@@ -1,5 +1,5 @@
 /*
- * render/mod.rs
+ * render/tree.rs
  *
  * wikidot-html - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -18,16 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod html;
-mod tree;
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub struct TreeRender;
 
-pub use self::html::HtmlRender;
-pub use self::tree::TreeRender;
+impl Render for TreeRender {
+    type Output = String;
 
-use crate::{Result, SyntaxTree};
-
-pub trait Render {
-    type Output;
-
-    fn render(tree: &SyntaxTree) -> Result<Self::Output>;
+    fn render(tree: &SyntaxTree) -> Result<String> {
+        Ok(format!("{:#?}", tree))
+    }
 }
