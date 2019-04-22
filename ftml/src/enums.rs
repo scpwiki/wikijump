@@ -20,6 +20,7 @@
 
 use crate::StdResult;
 use std::convert::TryFrom;
+use std::fmt::{self, Display, Write};
 
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum Alignment {
@@ -27,17 +28,6 @@ pub enum Alignment {
     Right,
     Center,
     Justify,
-}
-
-impl Alignment {
-    pub fn style(self) -> &'static str {
-        match self {
-            Alignment::Left => "left",
-            Alignment::Right => "right",
-            Alignment::Center => "center",
-            Alignment::Justify => "justify",
-        }
-    }
 }
 
 impl<'a> TryFrom<&'a str> for Alignment {
@@ -51,6 +41,19 @@ impl<'a> TryFrom<&'a str> for Alignment {
             "==" => Ok(Alignment::Justify),
             _ => Err(()),
         }
+    }
+}
+
+impl Display for Alignment {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let style = match *self {
+            Alignment::Left => "left",
+            Alignment::Right => "right",
+            Alignment::Center => "center",
+            Alignment::Justify => "justify",
+        };
+
+        write!(f, "{}", style)
     }
 }
 
@@ -93,8 +96,28 @@ impl Into<usize> for HeadingLevel {
     }
 }
 
+impl Display for HeadingLevel {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let level = *self;
+        let value: usize = level.into();
+
+        write!(f, "h{}", value)
+    }
+}
+
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum ListStyle {
     Bullet,
     Numbered,
+}
+
+impl Display for ListStyle {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let tag = match *self {
+            ListStyle::Bullet => "ul",
+            ListStyle::Numbered => "ol",
+        };
+
+        write!(f, "{}", tag)
+    }
 }

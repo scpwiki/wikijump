@@ -1,5 +1,5 @@
 /*
- * parse/tree/misc.rs
+ * render/html/tag.rs
  *
  * wikidot-html - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -20,16 +20,14 @@
 
 use super::prelude::*;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Tab<'a> {
-    pub name: &'a str,
-    pub contents: Vec<Line<'a>>,
-}
+pub fn write_tag_arg(buffer: &mut String, arg_name: &str, value: Option<&str>) -> Result<()> {
+    write!(buffer, " {}", arg_name)?;
 
-pub type TableColumn<'a> = Vec<Word<'a>>;
+    if let Some(value) = value {
+        buffer.push_str("=\"");
+        escape_attr(buffer, value)?;
+        buffer.push('"');
+    }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct TableRow<'a> {
-    pub title: bool,
-    pub columns: Vec<TableColumn<'a>>,
+    Ok(())
 }

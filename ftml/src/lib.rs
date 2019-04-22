@@ -70,10 +70,10 @@ mod test;
 pub use self::error::Error;
 pub use self::filter::{prefilter, Includer};
 pub use self::parse::{parse, SyntaxTree};
-pub use self::render::{HtmlRender, Render};
+pub use self::render::{HtmlRender, Render, TreeRender};
 
 pub mod prelude {
-    pub use super::{Error, HtmlRender, Render, Result, StdResult, SyntaxTree};
+    pub use super::{Error, HtmlRender, Render, Result, StdResult, SyntaxTree, TreeRender};
     pub use super::{parse, prefilter, transform};
 }
 

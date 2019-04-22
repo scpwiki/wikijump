@@ -21,14 +21,14 @@
 use self::Word::*;
 use super::prelude::*;
 
-pub fn render_word(buffer: &mut String, word: &Word) -> fmt::Result {
-    unimplemented!()
-}
-
-pub fn render_words<'a, I: IntoIterator<Item = &'a Word<'a>>>(buffer: &mut String, words: I) -> fmt::Result {
+pub fn render_words<'a, I: IntoIterator<Item = &'a Word<'a>>>(buffer: &mut String, words: I) -> Result<()> {
     for word in words {
         render_word(buffer, word)?;
     }
 
     Ok(())
+}
+
+pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
+    unimplemented!()
 }

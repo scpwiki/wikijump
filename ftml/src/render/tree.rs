@@ -18,6 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::{Result, SyntaxTree};
+use super::Render;
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct TreeRender;
 

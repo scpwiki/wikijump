@@ -1,5 +1,5 @@
 /*
- * parse/tree/misc.rs
+ * render/html/buffer.rs
  *
  * wikidot-html - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -18,18 +18,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+//! An a buffer wrapper for `String` that implements `io::Write`.
+//! It performs an assertion if any written data is not valid UTF-8.
+//! This is to allow us to use the htmlescape module's writer functions.
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Tab<'a> {
-    pub name: &'a str,
-    pub contents: Vec<Line<'a>>,
-}
+use std::io::{self, Write};
+use std::str;
 
-pub type TableColumn<'a> = Vec<Word<'a>>;
+#[derive(Debug)]
+pub struct StringBuf<'a>(pub &'a mut String);
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct TableRow<'a> {
-    pub title: bool,
-    pub columns: Vec<TableColumn<'a>>,
+impl<'a> Write for StringBuf<'a> {
+    fn write(&mut self, bytes: &[u8]) -> io::Result<usize> {
+        let string = str::from_utf8(bytes).expect("String written by htmlescape wasn't UTF-8");
+        self.0.push_str(string);
+        Ok(bytes.len())
+    }
+
+    fn flush(&mut self) -> io::Result<()> {
+        Ok(())
+    }
 }
