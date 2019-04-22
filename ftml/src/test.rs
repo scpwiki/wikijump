@@ -99,7 +99,7 @@ fn test_conversions() {
         read_file(&mut expected_html, &output_file).expect("Unable to read output HTML");
 
         let output_html =
-            transform::<HtmlRender>(&input_text).expect("Unable to transform Wikidot to HTML");
+            transform::<HtmlRender>(&mut input_text).expect("Unable to transform Wikidot to HTML");
         assert_eq!(expected_html, output_html);
     });
 }

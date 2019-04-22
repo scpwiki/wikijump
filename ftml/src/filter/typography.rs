@@ -120,7 +120,9 @@ pub fn substitute(text: &mut String) {
     replace!(LEFT_DOUBLE_ANGLE);
     replace!(RIGHT_DOUBLE_ANGLE);
 
-    // TODO
+    // Miscellaneous
+    replace!(ELLIPSIS);
+    replace!(EM_DASH);
 }
 
 #[test]
@@ -132,4 +134,20 @@ fn test_regexes() {
     let _ = &*RIGHT_DOUBLE_ANGLE;
     let _ = &*ELLIPSIS;
     let _ = &*EM_DASH;
+}
+
+#[test]
+fn test_substitute() {
+    let mut string = String::new();
+
+    macro_rules! substitute {
+        ($str:expr) => {{
+            string.clear();
+            string.push_str($str);
+            substitute(&mut string);
+        }}
+    }
+
+    substitute!("John laughed. ``You'll never defeat me!''\n``That's where you're wrong.''");
+    println!("{}", &string);
 }
