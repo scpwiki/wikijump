@@ -70,8 +70,9 @@ fn test_parser() {
         println!("Parsing {}...", file_name!(input_file));
         let mut input_text = String::new();
         read_file(&mut input_text, &input_file).expect("Unable to read input Wikidot");
+        prefilter(&mut input_text, &NullIncluder).expect("Unable to prefilter Wikidot source");
 
-        let output_tree = parse(&input_text).expect("Unable to parse Wikidot file");
+        let output_tree = parse(&input_text).expect("Unable to parse Wikidot source");
         println!("{:#?}", &output_tree);
         //assert_eq!(expected_tree, output_tree);
     });
