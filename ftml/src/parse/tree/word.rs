@@ -198,9 +198,6 @@ pub enum Word<'a> {
     Underline {
         words: Vec<Word<'a>>,
     },
-    Url {
-        contents: &'a str,
-    },
     User {
         username: &'a str,
         show_picture: bool,

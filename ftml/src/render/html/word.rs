@@ -49,6 +49,9 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
             render_words(buffer, words)?;
             buffer.push_str("</b>");
         },
+        &Button { } => {
+            unimplemented!()
+        },
         &Collapsible { show_top, show_bottom, ref lines } => {
             unimplemented!()
         },
@@ -119,8 +122,90 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
 
             buffer.push_str("></img>");
         },
+        &Italics { ref words } => {
+            buffer.push_str("<i>");
+            render_words(buffer, words)?;
+            buffer.push_str("</i>");
+        },
+        &Link { page, anchor, text } => {
+            buffer.push_str("<a");
+            // TODO adjust for other sources
+            write_tag_arg(buffer, "href", Some(page))?;
 
-        _ => panic!("Word case not implemented yet!"),
+            if let Some(anchor) = anchor {
+                write_tag_arg(buffer, "name", Some(anchor))?;
+            }
+
+            buffer.push('>');
+            escape_html(buffer, text.unwrap_or(page))?;
+            buffer.push_str("</a>");
+        },
+        &Math { expr } => {
+            unimplemented!()
+        },
+        &Module { name, ref arguments, contents } => {
+            unimplemented!()
+        },
+        &Monospace { ref words } => {
+            buffer.push_str("<tt>");
+            render_words(buffer, words)?;
+            buffer.push_str("</tt>");
+        },
+        &Note { ref lines } => {
+            unimplemented!()
+        },
+        &Raw { contents } => escape_html(buffer, contents)?,
+        &Size { size, ref lines } => {
+            write!(buffer, "<span style=\"size: {};\">", size)?;
+            render_lines(buffer, lines)?;
+            buffer.push_str("</span>");
+        },
+        &Span { id, class, style, ref lines } => {
+            buffer.push_str("<span");
+
+            if let Some(id) = id {
+                write_tag_arg(buffer, "id", Some(id))?;
+            }
+
+            if let Some(class) = class {
+                write_tag_arg(buffer, "class", Some(class))?;
+            }
+
+            if let Some(style) = style {
+                write_tag_arg(buffer, "style", Some(style))?;
+            }
+
+            buffer.push('>');
+            render_lines(buffer, lines)?;
+            buffer.push_str("</span>");
+        },
+        &Strikethrough { ref words } => {
+            buffer.push_str("<strike>");
+            render_words(buffer, words)?;
+            buffer.push_str("</strike>");
+        },
+        &Subscript { ref words } => {
+            buffer.push_str("<sub>");
+            render_words(buffer, words)?;
+            buffer.push_str("</sub>");
+        },
+        &Superscript { ref words } => {
+            buffer.push_str("<sup>");
+            render_words(buffer, words)?;
+            buffer.push_str("</sup>");
+        },
+        &TabList { ref tabs } => {
+            unimplemented!()
+        },
+        &Text { contents } => escape_html(buffer, contents)?,
+        &Underline { ref words } => {
+            buffer.push_str("<u>");
+            render_words(buffer, words)?;
+            buffer.push_str("</u>");
+        },
+        &User { username, show_picture } => {
+            unimplemented!()
+        },
     }
 
     Ok(())
