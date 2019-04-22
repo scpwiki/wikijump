@@ -100,6 +100,9 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
             // Not sure what the approach on this should be
             unimplemented!()
         },
+        &Javascript { contents } => {
+            write!(buffer, "<script>\n{}\n</script>", contents)?;
+        },
         &List { style, depth, ref items } => {
             // TODO will need to collect nearby entries for depth
             let _ = depth;

@@ -67,6 +67,12 @@ div = {
 }
 div_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ string }
 
+javascript = {
+    "[[" ~ space? ~ (^"js" | ^"javascript") ~ space? ~ "]]\n" ~
+    (!("[[/" ~ space? ~ (^"js" | ^"javascript")) ~ ANY)* ~
+    "[[/" ~ space? ~ (^"js" | ^"javascrit") ~ space? ~ "]]"
+}
+
 quote_block = {
     "[[" ~ space? ~ (^"quote" | ^"blockquote") ~ quote_block_arg* ~ space? ~ "]]\n" ~
     lines_internal ~

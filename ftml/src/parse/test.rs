@@ -28,7 +28,7 @@ use crate::include::NullIncluder;
 use pest::Parser;
 use super::{parse, Rule, WikidotParser};
 
-const VALID_INPUT_STRINGS: [&str; 92] = [
+const VALID_INPUT_STRINGS: [&str; 94] = [
     "",
     "@@ apple @@ @@banana@@",
     "@@ [!-- literal comment @@ durian",
@@ -121,6 +121,8 @@ const VALID_INPUT_STRINGS: [&str; 92] = [
     "[[quote id=\"my-id\" style=\"line-height: 1.5em;\" class=\"raisa-notice\"]]\n[[/quote]]",
     "[[QUOTE]]\nNested quotes are easier this way\n[[QUOTE]]\nvery deep\nindeed\n[[/QUOTE]]\n[[/QUOTE]]",
     "[[ quote class = \"quote-block level-1\" ]]\ncontents\n[[ quote class = \"quote-block level-2\" ]]\napple\n[[/ quote ]]\nbanana\n[[/ quote ]]",
+    "[[js]]\nfunction test() { return 1; }\n[[/js]]",
+    "apple\n[[javascript]]\nconsole.log('test');\n[[/javascript]]\nbanana",
 ];
 
 const VALID_FILTER_STRINGS: [&str; 10] = [
@@ -136,7 +138,7 @@ const VALID_FILTER_STRINGS: [&str; 10] = [
     " omg... he actually did it ",
 ];
 
-const INVALID_INPUT_STRINGS: [&str; 59] = [
+const INVALID_INPUT_STRINGS: [&str; 61] = [
     "@@ raw value",
     "`` legacy raw value",
     "@@ @@ @@",
@@ -196,6 +198,8 @@ const INVALID_INPUT_STRINGS: [&str; 59] = [
     "[[quote]] inline [[/quote]]",
     "[[div]]\n[[quote]]\ncontents\n[[/div]]\n[[/quote]]", // Split and disjoint groups aren't supported
     "[[div]]\n> contents\n> [[/div]]",
+    "[[js]]",
+    "[[javascript]]",
 ];
 
 const INVALID_FILTER_STRINGS: [&str; 0] = [];

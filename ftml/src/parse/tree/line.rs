@@ -36,6 +36,14 @@ lazy_static! {
             .unwrap()
     };
 
+    static ref JAVASCRIPT_BLOCK: Regex = {
+        RegexBuilder::new(r"\[\[\s*(?:js|javascript)\s*\]\]\n(?P<contents>(?:.*\n)?)\[\[/\s*(?:js|javascript)\s*\]\]")
+            .case_insensitive(true)
+            .dot_matches_new_line(true)
+            .build()
+            .unwrap()
+    };
+
     static ref QUOTE_BLOCK_OLD: Regex = Regex::new(r"^(?P<depth>>+) *(?P<contents>[^\n]*)").unwrap();
 
     static ref WORDS: Regex = Regex::new(r"^(?P<flag>\+{1,6}|=?)").unwrap();
@@ -95,6 +103,9 @@ pub enum Line<'a> {
         required: Vec<&'a str>,
         prohibited: Vec<&'a str>,
         lines: Vec<Line<'a>>,
+    },
+    Javascript {
+        contents: &'a str,
     },
     List {
         style: ListStyle,
@@ -290,6 +301,7 @@ impl<'a> Line<'a> {
                 }
             }
             Rule::horizontal_line => Line::HorizontalLine,
+            Rule::javascript => Line::Javascript { contents: extract!(JAVASCRIPT_BLOCK) },
             Rule::quote_block => {
                 let mut id = None;
                 let mut class = None;
