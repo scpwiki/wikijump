@@ -122,7 +122,7 @@ const VALID_INPUT_STRINGS: [&str; 92] = [
     "[[ quote class = \"quote-block level-1\" ]]\ncontents\n[[ quote class = \"quote-block level-2\" ]]\napple\n[[/ quote ]]\nbanana\n[[/ quote ]]",
 ];
 
-const VALID_FILTER_STRINGS: [&str; 7] = [
+const VALID_FILTER_STRINGS: [&str; 10] = [
     "",
     "> hello world\n> my name is john\n> I like long walks on the beach\n> and writing scips\n",
     ">this implementation doesn't require spaces after the '>' because we're not lame",
@@ -130,6 +130,9 @@ const VALID_FILTER_STRINGS: [&str; 7] = [
     "> [[div class=\"test\"]]\n> cherry\n> pineapple\n> [[/div]]",
     "the following document was found:\n> oh no many bad thing\n>> execute the order\n> it no good\n",
     ">>>>> very deep quote block\n>>>>> again\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> even deeper",
+    ",,Verily, I say unto you: an apple!''\n``Indeed!'' quote he.\n",
+    "----\n---",
+    " omg... he actually did it ",
 ];
 
 const INVALID_INPUT_STRINGS: [&str; 59] = [
