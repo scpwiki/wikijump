@@ -44,7 +44,6 @@ lazy_static! {
     };
 
     // „ - DOUBLE LOW-9 QUOTATION MARK
-    // ” - RIGHT DOUBLE QUOTATION MARK
     static ref LOW_DOUBLE_QUOTES: Replacer = Replacer {
         regex: Regex::new(r",,(.*?)''").unwrap(),
         replacement: Either::Left(("\u{201e}", "\u{201d}")),
@@ -148,6 +147,18 @@ fn test_substitute() {
         }}
     }
 
-    substitute!("John laughed. ``You'll never defeat me!''\n``That's where you're wrong.''");
-    println!("{}", &string);
+    substitute!("John laughed. ``You'll never defeat me!''\n``That's where you're wrong...''");
+    assert_eq!(&string, "John laughed. “You'll never defeat me!”\n“That's where you're wrong…”");
+
+    substitute!(",,あんたはばかです！''\n``Ehh?''\n,,ほんと！''\n[[footnoteblock]]");
+    assert_eq!(&string, "„あんたはばかです！”\n“Ehh?”\n„ほんと！”\n[[footnoteblock]]");
+
+    substitute!("<< [[[SCP-4338]]] | SCP-4339 | [[[SCP-4340]]] >>");
+    assert_eq!(&string, "« [[[SCP-4338]]] | SCP-4339 | [[[SCP-4340]]] »");
+
+    substitute!("**ENTITY MAKES DRAMATIC MOTION** . . . ");
+    assert_eq!(&string, "**ENTITY MAKES DRAMATIC MOTION** … ");
+
+    substitute!("-- Wait a minute --- is that Jello?");
+    assert_eq!(&string, "— Wait a minute — is that Jello?");
 }
