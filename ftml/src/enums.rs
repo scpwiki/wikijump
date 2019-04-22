@@ -20,7 +20,7 @@
 
 use crate::StdResult;
 use std::convert::TryFrom;
-use std::fmt::{self, Display, Write};
+use std::fmt::{self, Display};
 
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum Alignment {

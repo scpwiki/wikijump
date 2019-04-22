@@ -55,7 +55,7 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
                 None => "both",
             };
 
-            write!(buffer, r#"<div style="clear: {};"></div>"#, style);
+            write!(buffer, r#"<div style="clear: {};"></div>"#, style)?;
             // TODO verify this ^^^
             unimplemented!()
         },
@@ -71,15 +71,15 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
             buffer.push_str("<div");
 
             if let Some(id) = id {
-                write_tag_arg(buffer, "id", Some(id));
+                write_tag_arg(buffer, "id", Some(id))?;
             }
 
             if let Some(class) = class {
-                write_tag_arg(buffer, "class", Some(class));
+                write_tag_arg(buffer, "class", Some(class))?;
             }
 
             if let Some(style) = style {
-                write_tag_arg(buffer, "style", Some(style));
+                write_tag_arg(buffer, "style", Some(style))?;
             }
 
             buffer.push_str(">\n");
@@ -127,7 +127,7 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
                 buffer.push_str("<tr>\n");
                 for column in &row.columns {
                     buffer.push_str(start_tag);
-                    render_words(buffer, column);
+                    render_words(buffer, column)?;
                     buffer.push_str(end_tag);
                 }
                 buffer.push_str("</tr>\n");
@@ -142,15 +142,15 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
             buffer.push_str("<blockquote");
 
             if let Some(id) = id {
-                write_tag_arg(buffer, "id", Some(id));
+                write_tag_arg(buffer, "id", Some(id))?;
             }
 
             if let Some(class) = class {
-                write_tag_arg(buffer, "class", Some(class));
+                write_tag_arg(buffer, "class", Some(class))?;
             }
 
             if let Some(style) = style {
-                write_tag_arg(buffer, "style", Some(style));
+                write_tag_arg(buffer, "style", Some(style))?;
             }
 
             buffer.push_str(">\n");
