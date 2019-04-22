@@ -100,6 +100,11 @@ pub enum Word<'a> {
          style: String,
          */
     },
+    Collapsible {
+        show_top: bool,
+        show_bottom: bool,
+        lines: Vec<Line<'a>>,
+    },
     Color {
         color: &'a str,
         words: Vec<Word<'a>>,
