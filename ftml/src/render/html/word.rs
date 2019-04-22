@@ -18,6 +18,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use self::Word::*;
 use super::prelude::*;
 
+pub fn render_word(buffer: &mut String, word: &Word) -> fmt::Result {
+    unimplemented!()
+}
 
+pub fn render_words<'a, I: IntoIterator<Item = &'a Word<'a>>>(buffer: &mut String, words: I) -> fmt::Result {
+    for word in words {
+        render_word(buffer, word)?;
+    }
+
+    Ok(())
+}

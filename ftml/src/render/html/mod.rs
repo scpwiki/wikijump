@@ -24,8 +24,10 @@ mod word;
 mod prelude {
     pub use crate::{Error, Result, SyntaxTree};
     pub use crate::parse::{Line, Word};
-    pub use horrorshow::prelude::*;
-    pub use std::fmt::Display;
+    pub use htmlescape::{encode_attribute_w as escape_attr, encode_minimal_w as escape_html};
+    pub use std::fmt::{self, Display, Write};
+    pub use super::line::{render_line, render_lines};
+    pub use super::word::{render_word, render_words};
     pub use super::super::Render;
 }
 

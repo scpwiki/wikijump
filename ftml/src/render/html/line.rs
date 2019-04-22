@@ -21,21 +21,30 @@
 use self::Line::*;
 use super::prelude::*;
 
-pub fn render<'a>(line: &'a Line<'a>) -> impl Display + 'a {
+pub fn render_line(buffer: &mut String, line: &Line) -> fmt::Result {
     match line {
-        &Align { alignment, ref lines } => lazy_format!(
-            "{}",
-            html! {
-                div(style = format_args!("text-align: {};", alignment.style())) {
-                    |templ| {
-                        for line in lines {
-                            templ.write_fmt(format_args!("{} <br>", render(line)));
-                        }
-                    }
-                }
-            }
-        ),
+        &Align { alignment, ref lines } => {
+            write!(buffer, r#"<div style="text-align: {};">\n"#, alignment.style())?;
+            render_lines(buffer, lines)?;
+            buffer.push_str("</div>");
+        },
+        &Center { ref words } => {
+            buffer.push_str(r#"<div style="text-align: center;">\n"#);
+            render_words(buffer, words)?;
+            buffer.push_str("</div>");
+        },
 
         _ => panic!("Render rule for {:?} not implemented yet", line),
     }
+
+    Ok(())
+}
+
+pub fn render_lines<'a, I: IntoIterator<Item = &'a Line<'a>>>(buffer: &mut String, lines: I) -> fmt::Result {
+    for line in lines {
+        render_line(buffer, line)?;
+        write!(buffer, " <br>")?;
+    }
+
+    Ok(())
 }
