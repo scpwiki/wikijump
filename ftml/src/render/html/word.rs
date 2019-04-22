@@ -1,5 +1,5 @@
 /*
- * render/html.rs
+ * render/html/word.rs
  *
  * wikidot-html - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -18,20 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#![allow(unused_imports)]
+use super::prelude::*;
 
-use crate::{Error, Result, SyntaxTree};
-use crate::parse::{Line, Word};
-use std::fmt::{self, Display, Write};
-use super::Render;
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub struct HtmlRender;
-
-impl Render for HtmlRender {
-    type Output = String;
-
-    fn render(_tree: &SyntaxTree) -> Result<String> {
-        Err(Error::StaticMsg("Not implemented yet"))
-    }
-}

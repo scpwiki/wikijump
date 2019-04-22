@@ -47,6 +47,12 @@
 extern crate either;
 
 #[macro_use]
+extern crate horrorshow;
+
+#[macro_use]
+extern crate lazy_format;
+
+#[macro_use]
 extern crate lazy_static;
 
 #[macro_use]
