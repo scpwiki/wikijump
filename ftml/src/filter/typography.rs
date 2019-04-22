@@ -155,7 +155,7 @@ fn test_substitute() {
         ($str:expr) => {{
             string.clear();
             string.push_str($str);
-            substitute(&mut string);
+            substitute(&mut string).unwrap();
         }}
     }
 

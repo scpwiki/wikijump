@@ -28,13 +28,20 @@ use std::mem;
 pub struct BlockQuoteParser;
 
 pub fn convert_blockquotes(text: &mut String) -> Result<()> {
+    #[derive(Debug)]
     struct QuoteLine<'a> {
         depth: usize,
         contents: &'a str,
     }
 
+    #[derive(Debug)]
     struct OtherLine<'a> {
         contents: &'a str,
+    }
+
+    // TODO figure out why empty strings cause an infinite loop
+    if text.is_empty() {
+        return Ok(());
     }
 
     let pairs = match BlockQuoteParser::parse(Rule::page, text) {
@@ -144,6 +151,9 @@ fn test_substitute() {
             convert_blockquotes(&mut string).expect("Parsing file failed");
         }}
     }
+
+    substitute!("");
+    assert_eq!(&string, "");
 
     substitute!("> alpha\nbeta\n> gamma\ndelta");
     assert_eq!(&string, "[[quote]]\nalpha\n[[/quote]]\nbeta\n[[quote]]\ngamma\n[[/quote]]\ndelta");
