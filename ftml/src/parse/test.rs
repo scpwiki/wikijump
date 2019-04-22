@@ -23,10 +23,12 @@
 //! is correctly interpreting strings. So creating an invalid color or
 //! inlined HTML is not an error here.
 
+use crate::prefilter;
 use pest::Parser;
 use super::{parse, Rule, WikidotParser};
 
-const VALID_INPUT_STRINGS: [&str; 97] = [
+const VALID_INPUT_STRINGS: [&str; 92] = [
+    "",
     "@@ apple @@ @@banana@@",
     "@@ [!-- literal comment @@ durian",
     "@@@@@@ at signs `````` tildes",
@@ -118,6 +120,10 @@ const VALID_INPUT_STRINGS: [&str; 97] = [
     "[[quote id=\"my-id\" style=\"line-height: 1.5em;\" class=\"raisa-notice\"]]\n[[/quote]]",
     "[[QUOTE]]\nNested quotes are easier this way\n[[QUOTE]]\nvery deep\nindeed\n[[/QUOTE]]\n[[/QUOTE]]",
     "[[ quote class = \"quote-block level-1\" ]]\ncontents\n[[ quote class = \"quote-block level-2\" ]]\napple\n[[/ quote ]]\nbanana\n[[/ quote ]]",
+];
+
+const VALID_FILTER_STRINGS: [&str; 7] = [
+    "",
     "> hello world\n> my name is john\n> I like long walks on the beach\n> and writing scips\n",
     ">this implementation doesn't require spaces after the '>' because we're not lame",
     "> [[span style = \"color: blue;\"]] blue text! [[/span]] lol\n> test",
@@ -188,6 +194,9 @@ const INVALID_INPUT_STRINGS: [&str; 59] = [
     "[[div]]\n> contents\n> [[/div]]",
 ];
 
+const INVALID_FILTER_STRINGS: [&str; 0] = [
+];
+
 #[test]
 fn test_valid_strings() {
     // Parse only
@@ -214,6 +223,33 @@ fn test_valid_strings() {
 }
 
 #[test]
+fn test_valid_filter_strings() {
+    let mut buffer = String::new();
+
+    for string in &VALID_FILTER_STRINGS[..] {
+        println!("Running prefilter test on valid string: {:?}", string);
+        buffer.push_str(string);
+        prefilter(&mut buffer);
+
+        if let Err(err) = WikidotParser::parse(Rule::page, &buffer) {
+            panic!(
+                "Failed to parse filtered test string:\n{}\n-----\nProduced error: {}",
+                string, err
+            );
+        }
+
+        if let Err(err) = parse(&buffer) {
+            panic!(
+                "Failed to convert filtered test string:\n{}\n-----\nProduced error: {}",
+                string, err
+                );
+        }
+
+        buffer.clear();
+    }
+}
+
+#[test]
 fn test_invalid_strings() {
     // Parse and make SyntaxTree
     for string in &INVALID_INPUT_STRINGS[..] {
@@ -235,5 +271,31 @@ fn test_invalid_strings() {
                 string, pairs
             );
         }
+    }
+}
+#[test]
+fn test_invalid_filter_strings() {
+    let mut buffer = String::new();
+
+    for string in &INVALID_FILTER_STRINGS[..] {
+        println!("Running prefilter test on invalid string: {:?}", string);
+        buffer.push_str(string);
+        prefilter(&mut buffer);
+
+        if let Ok(tree) = parse(&buffer) {
+            panic!(
+                "Invalid test string converted successfully:\n{}\n-----\nProduced tree: {:#?}",
+                string, tree
+            );
+        }
+
+        if let Ok(pairs) = WikidotParser::parse(Rule::page, &buffer) {
+            panic!(
+                "Invalid test string parsed successfully:\n{}\n-----\nProduced pairs: {:#?}",
+                string, pairs
+            );
+        }
+
+        buffer.clear();
     }
 }
