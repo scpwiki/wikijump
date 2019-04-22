@@ -35,6 +35,8 @@ where
     Ok(())
 }
 
+// TODO remove this
+#[allow(unused_variables)]
 pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
     match line {
         &Align { alignment, ref lines } => {

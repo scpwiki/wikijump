@@ -56,7 +56,10 @@ pub struct HtmlRender;
 impl Render for HtmlRender {
     type Output = String;
 
-    fn render(_tree: &SyntaxTree) -> Result<String> {
-        Err(Error::StaticMsg("Not implemented yet"))
+    fn render(tree: &SyntaxTree) -> Result<String> {
+        let mut buffer = String::new();
+        render_lines(&mut buffer, tree.lines())?;
+
+        Ok(buffer)
     }
 }

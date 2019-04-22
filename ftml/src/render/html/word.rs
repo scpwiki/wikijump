@@ -33,6 +33,8 @@ where
     Ok(())
 }
 
+// TODO remove this
+#[allow(unused_variables)]
 pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
     match word {
         &Anchor { name, ref arguments } => {

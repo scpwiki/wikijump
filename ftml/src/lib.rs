@@ -18,7 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#![allow(unknown_lints, large_enum_variant, match_bool)]
 #![deny(missing_debug_implementations)]
 
 //! A library to convert Wikidot text source into HTML.
