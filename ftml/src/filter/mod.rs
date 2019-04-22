@@ -21,11 +21,11 @@
 // TODO, in this order probably?
 //
 // * Includes
-// * Prefilter stuff. copy
 // * Concat lines
 // + Convert quote blocks to [[quote]] ... [[/quote]]
 // * Typography
 
+mod misc;
 mod quote_block;
 mod typography;
 
@@ -36,6 +36,16 @@ mod typography;
 /// * Converts quote blocks to nested [[quote]] tags.
 /// * Perform typography modifications
 pub fn prefilter(text: &mut String) {
+    misc::substitute(text);
     quote_block::substitute(text);
     typography::substitute(text);
+}
+
+#[test]
+fn test_fn() {
+    type SubstituteFn = fn(&mut String);
+
+    let _: SubstituteFn = misc::substitute;
+    let _: SubstituteFn = quote_block::substitute;
+    let _: SubstituteFn = typography::substitute;
 }
