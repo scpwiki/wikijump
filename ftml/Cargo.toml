@@ -18,6 +18,7 @@ either = "1.5"
 htmlescape = "0.3"
 lazy_static = "1"
 log = "0.4"
+notify = "4.0" # bin-only
 pest = "2.1"
 pest_derive = "2.1"
 regex = "1"

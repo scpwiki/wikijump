@@ -22,17 +22,39 @@
 #![deny(missing_debug_implementations)]
 
 extern crate clap;
+extern crate notify;
 extern crate wikidot_html;
 
 use clap::{App, Arg};
+use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
+use std::ffi::OsStr;
+use std::fmt::{self, Debug};
 use std::fs::{self, File};
 use std::io::{self, Read, Write};
 use std::path::{Path, PathBuf};
 use std::process;
+use std::sync::mpsc;
+use std::time::Duration;
 use wikidot_html::prelude::*;
 use wikidot_html::include::NullIncluder;
 
 type TransformFn = fn(&mut String) -> Result<String>;
+
+struct Context<'a> {
+    transform: TransformFn,
+    in_paths: Vec<&'a OsStr>,
+    output_dir: &'a Path,
+}
+
+impl<'a> Debug for Context<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("Context")
+            .field("transform", &(self.transform as *const TransformFn))
+            .field("in_paths", &"[ ... ]")
+            .field("output_dir", &self.output_dir)
+            .finish()
+    }
+}
 
 fn main() {
     let matches = App::new("Wikidot to HTML")
@@ -55,6 +77,12 @@ fn main() {
                 .help("Instead of running the entire transformation process, you can limit it to one of the following operations: 'filter', 'parse', 'transform' (default)."),
         )
         .arg(
+            Arg::with_name("watch")
+                .short("w")
+                .long("watch")
+                .help("Watch the input files, and whenever they are modified, rerun the transformation."),
+        )
+        .arg(
             Arg::with_name("FILE")
                 .multiple(true)
                 .required(true)
@@ -64,7 +92,9 @@ fn main() {
 
     let output_dir = matches
         .value_of_os("output-directory")
+        .map(Path::new)
         .expect("No argument 'output-directory'");
+
     if let Err(err) = fs::create_dir_all(&output_dir) {
         let output_dir = Path::new(output_dir);
         eprintln!(
@@ -75,7 +105,7 @@ fn main() {
         process::exit(1);
     }
 
-    let transform_fn: TransformFn = match matches.value_of("mode") {
+    let transform: TransformFn = match matches.value_of("mode") {
         Some("filter") | Some("prefilter") => prefilter_only,
         Some("parse") | Some("tree") => parse_only,
         Some("transform") | Some("convert") | None => full_transform,
@@ -86,40 +116,95 @@ fn main() {
         }
     };
 
-    let mut return_code = 0;
-    for in_path in matches.values_of_os("FILE").expect("No argument(s) 'FILE'") {
-        if in_path == "-" {
-            if let Err(err) = process_stdin(transform_fn) {
-                eprintln!("Error transforming from stdin: {}", &err);
-            }
+    let watch_mode = matches.occurrences_of("watch") > 0;
+    let in_paths = matches
+        .values_of_os("FILE")
+        .expect("No argument(s) for 'FILE'")
+        .collect();
 
-            return_code = 1;
-            continue;
+    let ctx = Context {
+        transform,
+        in_paths,
+        output_dir,
+    };
+
+    if watch_mode {
+        run_watch(&ctx);
+    } else {
+        run_once(&ctx);
+    }
+}
+
+// Runners
+fn run_watch(ctx: &Context) -> ! {
+    let (tx, rx) = mpsc::channel();
+
+    let mut watcher = watcher(tx, Duration::from_secs(1)).expect("Unable to create watcher");
+    for in_path in &ctx.in_paths {
+        if *in_path == OsStr::new("-") {
+            eprintln!("Cannot read from stdin in watch mode");
+            process::exit(1);
+        }
+
+        watcher.watch(in_path, RecursiveMode::NonRecursive).expect("Unable to watch file");
+    }
+
+    loop {
+        use self::DebouncedEvent::*;
+
+        match rx.recv() {
+            Err(err) => eprintln!("Error retreiving notify event: {:?}", err),
+            Ok(evt) => match evt {
+                Create(path) | NoticeWrite(path) | Write(path) | Rename(_, path) => {
+                    if let Err(err) = do_transform(ctx, &path) {
+                        eprintln!("Error transforming from file '{}': {}", path.display(), err);
+                    }
+                }
+                Error(err, _) => eprintln!("Error received from notify: {:?}", err),
+                _ => (),
+            }
+        }
+    }
+}
+
+fn run_once(ctx: &Context) -> ! {
+    let mut return_code = 0;
+
+    // Process each of the files
+    for in_path in &ctx.in_paths {
+        if *in_path == OsStr::new("-") {
+            if let Err(err) = process_stdin(ctx.transform) {
+                eprintln!("Error transforming from stdin: {}", err);
+                return_code = 1;
+                continue;
+            }
         }
 
         let in_path = Path::new(in_path);
-        let out_path = match in_path.file_stem() {
-            Some(stem) => {
-                let mut path = PathBuf::from(output_dir);
-                path.push(stem);
-                path.set_extension("html");
-                path
-            }
-            None => {
-                eprintln!("Path \"{}\" does not refer to a file", in_path.display());
-                process::exit(1);
-            }
-        };
-
-        if let Err(err) = process_file(in_path, &out_path, transform_fn) {
-            eprintln!("Error transforming \"{}\": {}", in_path.display(), &err);
-            return_code = 1;
+        if let Err(err) = do_transform(ctx, in_path) {
+            eprintln!("Error transforming from file '{}': {}", in_path.display(), err);
         }
     }
 
-    process::exit(return_code);
+    process::exit(return_code)
 }
 
+// Helper function for running transform and managing paths
+fn do_transform(ctx: &Context, in_path: &Path) -> Result<()> {
+    let out_path = match in_path.file_stem() {
+        Some(stem) => {
+            let mut path = PathBuf::from(ctx.output_dir);
+            path.push(stem);
+            path.set_extension("html");
+            path
+        }
+        None => return Err(Error::Msg(format!("Path \"{}\" does not refer to a file", in_path.display()))),
+    };
+
+    process_file(in_path, &out_path, ctx.transform)
+}
+
+// Transformation functions
 fn prefilter_only(text: &mut String) -> Result<String> {
     let mut text = text.clone();
     prefilter(&mut text, &NullIncluder)?;
@@ -143,6 +228,7 @@ fn full_transform(text: &mut String) -> Result<String> {
     Ok(result)
 }
 
+// File handling
 fn process_file(in_path: &Path, out_path: &Path, transform: TransformFn) -> Result<()> {
     let mut text = String::new();
     let mut file = File::open(in_path)?;
