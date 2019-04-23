@@ -81,13 +81,13 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
             filename,
             float,
             direction,
-            ref link,
-            ref alt,
-            ref title,
-            ref width,
-            ref height,
-            ref style,
-            ref class,
+            link,
+            alt,
+            title,
+            width,
+            height,
+            style,
+            class,
             size,
         } => {
             buffer.push_str("<img");
@@ -98,29 +98,29 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
             // TODO float
 
             if let Some(alt) = alt {
-                write_tag_arg(buffer, "alt", alt)?;
+                write!(buffer, " alt={}", alt)?;
             }
 
             // TODO title
 
             if let Some(width) = width {
-                write_tag_arg(buffer, "width", width)?;
+                write!(buffer, " width={}", width)?;
             }
 
             if let Some(height) = height {
-                write_tag_arg(buffer, "height", height)?;
+                write!(buffer, " height={}", height)?;
             }
 
             if let Some(style) = style {
-                write_tag_arg(buffer, "style", style)?;
+                write!(buffer, " style={}", style)?;
             }
 
             if let Some(class) = class {
-                write_tag_arg(buffer, "class", class)?;
+                write!(buffer, " class={}", class)?;
             }
 
             if let Some(size) = size {
-                write_tag_arg(buffer, "size", size)?;
+                write!(buffer, " size={}", size)?;
             }
 
             buffer.push_str("></img>");
@@ -162,23 +162,23 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
             buffer.push_str("</span>");
         }
         &Span {
-            ref id,
-            ref class,
-            ref style,
+            id,
+            class,
+            style,
             ref lines,
         } => {
             buffer.push_str("<span");
 
             if let Some(id) = id {
-                write_tag_arg(buffer, "id", id)?;
+                write!(buffer, " id={}", id)?;
             }
 
             if let Some(class) = class {
-                write_tag_arg(buffer, "class", class)?;
+                write!(buffer, " class={}", class)?;
             }
 
             if let Some(style) = style {
-                write_tag_arg(buffer, "style", style)?;
+                write!(buffer, " style={}", style)?;
             }
 
             buffer.push('>');

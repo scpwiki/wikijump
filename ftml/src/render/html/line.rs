@@ -83,23 +83,23 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
             buffer.push_str("</code>\n");
         }
         &Div {
-            ref id,
-            ref class,
-            ref style,
+            id,
+            class,
+            style,
             ref lines,
         } => {
             buffer.push_str("<div");
 
             if let Some(id) = id {
-                write_tag_arg(buffer, "id", id)?;
+                write!(buffer, " id={}", id)?;
             }
 
             if let Some(class) = class {
-                write_tag_arg(buffer, "class", class)?;
+                write!(buffer, " class={}", class)?;
             }
 
             if let Some(style) = style {
-                write_tag_arg(buffer, "style", style)?;
+                write!(buffer, " style={}", style)?;
             }
 
             buffer.push_str(">\n");
@@ -173,23 +173,23 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
             unimplemented!()
         }
         QuoteBlock {
-            ref id,
-            ref class,
-            ref style,
+            id,
+            class,
+            style,
             ref lines,
         } => {
             buffer.push_str("<blockquote");
 
             if let Some(id) = id {
-                write_tag_arg(buffer, "id", id)?;
+                write!(buffer, " id={}", id)?;
             }
 
             if let Some(class) = class {
-                write_tag_arg(buffer, "class", class)?;
+                write!(buffer, " class={}", class)?;
             }
 
             if let Some(style) = style {
-                write_tag_arg(buffer, "style", style)?;
+                write!(buffer, " style={}", style)?;
             }
 
             buffer.push_str(">\n");
