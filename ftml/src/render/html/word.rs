@@ -21,7 +21,7 @@
 use self::Word::*;
 use super::prelude::*;
 
-pub fn render_words<'a, I, W> (buffer: &mut String, words: I) -> Result<()>
+pub fn render_words<'a, I, W>(buffer: &mut String, words: I) -> Result<()>
 where
     I: IntoIterator<Item = W>,
     W: AsRef<Word<'a>>,
@@ -37,7 +37,10 @@ where
 #[allow(unused_variables)]
 pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
     match word {
-        &Anchor { name, ref arguments } => {
+        &Anchor {
+            name,
+            ref arguments,
+        } => {
             buffer.push_str("<a");
 
             for (key, value) in arguments.iter() {
@@ -45,50 +48,48 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
             }
 
             buffer.push_str("></a>\n");
-        },
+        }
         &Bold { ref words } => {
             buffer.push_str("<b>");
             render_words(buffer, words)?;
             buffer.push_str("</b>");
-        },
-        &Button { } => {
-            unimplemented!()
-        },
-        &Collapsible { show_top, show_bottom, ref lines } => {
-            unimplemented!()
-        },
+        }
+        &Button {} => unimplemented!(),
+        &Collapsible {
+            show_top,
+            show_bottom,
+            ref lines,
+        } => unimplemented!(),
         &Color { color, ref words } => {
             buffer.push_str("<span style=\"color: ");
             escape_attr(buffer, color)?;
             buffer.push_str("\">");
             render_words(buffer, words)?;
             buffer.push_str("</span>");
-        },
-        &Date { timestamp, format } => {
-            unimplemented!()
-        },
+        }
+        &Date { timestamp, format } => unimplemented!(),
         &Email { contents } => {
             write!(buffer, "<a href=\"mailto:{}\">{}</a>", contents, contents)?;
-        },
-        &EquationReference { name } => {
-            unimplemented!()
-        },
-        &File { filename } => {
-            unimplemented!()
-        },
-        &Footnote { ref lines } => {
-            unimplemented!()
-        },
-        &FootnoteBlock => {
-            unimplemented!()
-        },
-        &Form { contents } => {
-            unimplemented!()
-        },
-        &Gallery => {
-            unimplemented!()
-        },
-        &Image { filename, float, direction, ref link, ref alt, ref title, ref width, ref height, ref style, ref class, size } => {
+        }
+        &EquationReference { name } => unimplemented!(),
+        &File { filename } => unimplemented!(),
+        &Footnote { ref lines } => unimplemented!(),
+        &FootnoteBlock => unimplemented!(),
+        &Form { contents } => unimplemented!(),
+        &Gallery => unimplemented!(),
+        &Image {
+            filename,
+            float,
+            direction,
+            ref link,
+            ref alt,
+            ref title,
+            ref width,
+            ref height,
+            ref style,
+            ref class,
+            size,
+        } => {
             buffer.push_str("<img");
 
             // TODO adjust for other sources
@@ -123,12 +124,12 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
             }
 
             buffer.push_str("></img>");
-        },
+        }
         &Italics { ref words } => {
             buffer.push_str("<i>");
             render_words(buffer, words)?;
             buffer.push_str("</i>");
-        },
+        }
         &Link { page, anchor, text } => {
             buffer.push_str("<a");
             // TODO adjust for other sources
@@ -141,28 +142,31 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
             buffer.push('>');
             escape_html(buffer, text.unwrap_or(page))?;
             buffer.push_str("</a>");
-        },
-        &Math { expr } => {
-            unimplemented!()
-        },
-        &Module { name, ref arguments, contents } => {
-            unimplemented!()
-        },
+        }
+        &Math { expr } => unimplemented!(),
+        &Module {
+            name,
+            ref arguments,
+            contents,
+        } => unimplemented!(),
         &Monospace { ref words } => {
             buffer.push_str("<tt>");
             render_words(buffer, words)?;
             buffer.push_str("</tt>");
-        },
-        &Note { ref lines } => {
-            unimplemented!()
-        },
+        }
+        &Note { ref lines } => unimplemented!(),
         &Raw { contents } => escape_html(buffer, contents)?,
         &Size { size, ref lines } => {
             write!(buffer, "<span style=\"size: {};\">", size)?;
             render_lines(buffer, lines)?;
             buffer.push_str("</span>");
-        },
-        &Span { ref id, ref class, ref style, ref lines } => {
+        }
+        &Span {
+            ref id,
+            ref class,
+            ref style,
+            ref lines,
+        } => {
             buffer.push_str("<span");
 
             println!("{:?}, {:?}, {:?}, {:?}", id, class, style, lines);
@@ -182,34 +186,33 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
             buffer.push('>');
             render_lines(buffer, lines)?;
             buffer.push_str("</span>");
-        },
+        }
         &Strikethrough { ref words } => {
             buffer.push_str("<strike>");
             render_words(buffer, words)?;
             buffer.push_str("</strike>");
-        },
+        }
         &Subscript { ref words } => {
             buffer.push_str("<sub>");
             render_words(buffer, words)?;
             buffer.push_str("</sub>");
-        },
+        }
         &Superscript { ref words } => {
             buffer.push_str("<sup>");
             render_words(buffer, words)?;
             buffer.push_str("</sup>");
-        },
-        &TabList { ref tabs } => {
-            unimplemented!()
-        },
+        }
+        &TabList { ref tabs } => unimplemented!(),
         &Text { contents } => escape_html(buffer, contents)?,
         &Underline { ref words } => {
             buffer.push_str("<u>");
             render_words(buffer, words)?;
             buffer.push_str("</u>");
-        },
-        &User { username, show_picture } => {
-            unimplemented!()
-        },
+        }
+        &User {
+            username,
+            show_picture,
+        } => unimplemented!(),
     }
 
     Ok(())

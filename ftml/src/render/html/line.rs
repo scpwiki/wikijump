@@ -22,7 +22,7 @@ use crate::enums::Alignment;
 use self::Line::*;
 use super::prelude::*;
 
-pub fn render_lines<'a, I, L> (buffer: &mut String, lines: I) -> Result<()>
+pub fn render_lines<'a, I, L>(buffer: &mut String, lines: I) -> Result<()>
 where
     L: AsRef<Line<'a>>,
     I: IntoIterator<Item = L>,
@@ -46,16 +46,19 @@ where
 #[allow(unused_variables)]
 pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
     match line {
-        &Align { alignment, ref lines } => {
+        &Align {
+            alignment,
+            ref lines,
+        } => {
             write!(buffer, r#"<div style="text-align: {};">\n"#, alignment)?;
             render_lines(buffer, lines)?;
             buffer.push_str("</div>");
-        },
+        }
         &Center { ref words } => {
             buffer.push_str(r#"<div style="text-align: center;">\n"#);
             render_words(buffer, words)?;
             buffer.push_str("</div>");
-        },
+        }
         &ClearFloat { direction } => {
             let style = match direction {
                 Some(Alignment::Left) => "left",
@@ -67,16 +70,24 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
             write!(buffer, r#"<div style="clear: {};"></div>"#, style)?;
             // TODO verify this ^^^
             unimplemented!()
-        },
-        &CodeBlock { ref language, ref contents } => {
+        }
+        &CodeBlock {
+            ref language,
+            ref contents,
+        } => {
             // TODO add language highlighting
             let _ = language;
 
             buffer.push_str("<code>\n");
             escape_html(buffer, contents)?;
             buffer.push_str("</code>\n");
-        },
-        &Div { ref id, ref class, ref style, ref lines } => {
+        }
+        &Div {
+            ref id,
+            ref class,
+            ref style,
+            ref lines,
+        } => {
             buffer.push_str("<div");
 
             if let Some(id) = id {
@@ -94,25 +105,31 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
             buffer.push_str(">\n");
             render_lines(buffer, lines)?;
             buffer.push_str("\n</div>");
-        },
+        }
         &Heading { level, ref words } => {
             write!(buffer, "<{}>", level)?;
             render_words(buffer, words)?;
             write!(buffer, "</{}>\n", level)?;
-        },
+        }
         &HorizontalLine => buffer.push_str("<hr>\n"),
         &Html { contents } => buffer.push_str(contents),
-        &Iframe { url, args } => {
-            unimplemented!()
-        },
-        &IfTags { ref required, ref prohibited, ref lines } => {
+        &Iframe { url, args } => unimplemented!(),
+        &IfTags {
+            ref required,
+            ref prohibited,
+            ref lines,
+        } => {
             // Not sure what the approach on this should be
             unimplemented!()
-        },
+        }
         &Javascript { contents } => {
             write!(buffer, "<script>\n{}\n</script>", contents)?;
-        },
-        &List { style, depth, ref items } => {
+        }
+        &List {
+            style,
+            depth,
+            ref items,
+        } => {
             // TODO will need to collect nearby entries for depth
             let _ = depth;
 
@@ -123,11 +140,16 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
                 buffer.push_str(" </li>\n");
             }
             write!(buffer, "</{}>", style)?;
-        },
-        &Math { label, id, latex_env, expr } => {
+        }
+        &Math {
+            label,
+            id,
+            latex_env,
+            expr,
+        } => {
             // TODO do LaTeX rendering
             unimplemented!()
-        },
+        }
         &Table { ref rows } => {
             buffer.push_str("<table>\n");
             for row in rows {
@@ -145,12 +167,17 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
                 buffer.push_str("</tr>\n");
             }
             buffer.push_str("</table>\n");
-        },
-        &TableOfContents { } => {
+        }
+        &TableOfContents {} => {
             // TODO
             unimplemented!()
-        },
-        QuoteBlock { ref id, ref class, ref style, ref lines } => {
+        }
+        QuoteBlock {
+            ref id,
+            ref class,
+            ref style,
+            ref lines,
+        } => {
             buffer.push_str("<blockquote");
 
             if let Some(id) = id {
@@ -168,8 +195,11 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
             buffer.push_str(">\n");
             render_lines(buffer, lines)?;
             buffer.push_str("\n</blockquote>");
-        },
-        Words { centered, ref words } => {
+        }
+        Words {
+            centered,
+            ref words,
+        } => {
             if *centered {
                 buffer.push_str(r#"<div style="text-align: center;"> "#);
             }
@@ -179,7 +209,7 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
             if *centered {
                 buffer.push_str(" </div>");
             }
-        },
+        }
     }
 
     Ok(())

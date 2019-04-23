@@ -46,7 +46,12 @@ pub fn convert_blockquotes(text: &mut String) -> Result<()> {
 
     let pairs = match BlockQuoteParser::parse(Rule::page, text) {
         Ok(mut pairs) => get_inner_pairs!(pairs),
-        Err(err) => return Err(Error::Msg(format!("Blockquote transform parsing error: {:?}", err))),
+        Err(err) => {
+            return Err(Error::Msg(format!(
+                "Blockquote transform parsing error: {:?}",
+                err
+            )))
+        }
     };
 
     // Run parser and generate lines
@@ -67,7 +72,7 @@ pub fn convert_blockquotes(text: &mut String) -> Result<()> {
                 };
 
                 Either::Left(QuoteLine { depth, contents })
-            },
+            }
             Rule::other_line => {
                 let contents = {
                     let pair = get_first_pair!(pair);
@@ -76,7 +81,7 @@ pub fn convert_blockquotes(text: &mut String) -> Result<()> {
                 };
 
                 Either::Right(OtherLine { contents })
-            },
+            }
             Rule::EOI => break,
             _ => panic!("Invalid rule for blockquote-parser: {:?}", pair.as_rule()),
         };
@@ -118,7 +123,7 @@ pub fn convert_blockquotes(text: &mut String) -> Result<()> {
                 // Add contents
                 buffer.push_str(line.contents);
                 prev_depth = 0;
-            },
+            }
         }
 
         // Only add newlines in the middle
@@ -156,7 +161,10 @@ fn test_substitute() {
     assert_eq!(&string, "");
 
     substitute!("> alpha\nbeta\n> gamma\ndelta");
-    assert_eq!(&string, "[[quote]]\nalpha\n[[/quote]]\nbeta\n[[quote]]\ngamma\n[[/quote]]\ndelta");
+    assert_eq!(
+        &string,
+        "[[quote]]\nalpha\n[[/quote]]\nbeta\n[[quote]]\ngamma\n[[/quote]]\ndelta"
+    );
 
     substitute!("test\n> abc\n> def\n> ghi\n>> apple\n>> banana\n>>> durian\n>> fruit list\nend");
     assert_eq!(&string, "test\n[[quote]]\nabc\ndef\nghi\n[[quote]]\napple\nbanana\n[[quote]]\ndurian\n[[/quote]]\nfruit list\n[[/quote]]\n[[/quote]]\nend");
