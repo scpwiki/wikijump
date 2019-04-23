@@ -149,6 +149,24 @@ fn run_watch(ctx: &Context) -> ! {
         watcher.watch(in_path, RecursiveMode::NonRecursive).expect("Unable to watch file");
     }
 
+    let run_transform = |path: &Path, action: &str| {
+        match do_transform(ctx, path) {
+            Ok(_) => {
+                println!("{}, converting: '{}'", action, path.display());
+            }
+            Err(err) => {
+                eprintln!("Error transforming from file '{}': {}", path.display(), err);
+            }
+        }
+    };
+
+    // Initial run
+    for in_path in &ctx.in_paths {
+        let in_path = Path::new(in_path);
+        run_transform(&in_path, "Initial pass");
+    }
+
+    // Main event loop
     loop {
         use self::DebouncedEvent::*;
 
@@ -156,9 +174,7 @@ fn run_watch(ctx: &Context) -> ! {
             Err(err) => eprintln!("Error retreiving notify event: {:?}", err),
             Ok(evt) => match evt {
                 Create(path) | NoticeWrite(path) | Write(path) | Rename(_, path) => {
-                    if let Err(err) = do_transform(ctx, &path) {
-                        eprintln!("Error transforming from file '{}': {}", path.display(), err);
-                    }
+                    run_transform(&path, "File updated");
                 }
                 Error(err, _) => eprintln!("Error received from notify: {:?}", err),
                 _ => (),
