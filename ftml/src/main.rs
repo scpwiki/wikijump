@@ -50,9 +50,9 @@ fn main() {
         .arg(
             Arg::with_name("mode")
                 .short("m")
-                .long("execution-mode")
+                .long("mode")
                 .takes_value(true)
-                .help("Instead of running the entire transformation process, you can limit it to one of the following operations: 'filter', 'parse'."),
+                .help("Instead of running the entire transformation process, you can limit it to one of the following operations: 'filter', 'parse', 'transform' (default)."),
         )
         .arg(
             Arg::with_name("FILE")
@@ -76,12 +76,12 @@ fn main() {
     }
 
     let transform_fn: TransformFn = match matches.value_of("mode") {
-        None => full_transform,
         Some("filter") | Some("prefilter") => prefilter_only,
         Some("parse") | Some("tree") => parse_only,
+        Some("transform") | Some("convert") | None => full_transform,
         Some(mode) => {
             eprintln!("Unknown execution mode: '{}'", mode);
-            eprintln!("Should be one of: 'filter', 'parse'");
+            eprintln!("Should be one of: 'filter', 'parse', 'transform'");
             process::exit(1);
         }
     };
@@ -137,7 +137,10 @@ fn parse_only(text: &mut String) -> Result<String> {
 
 #[inline]
 fn full_transform(text: &mut String) -> Result<String> {
-    transform::<HtmlRender>(text, &NullIncluder)
+    let mut result = transform::<HtmlRender>(text, &NullIncluder)?;
+    result.insert_str(0, "<html><body>\n");
+    result.push_str("\n</body></html\n");
+    Ok(result)
 }
 
 fn process_file(in_path: &Path, out_path: &Path, transform: TransformFn) -> Result<()> {
