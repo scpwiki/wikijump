@@ -24,12 +24,19 @@ use super::prelude::*;
 
 pub fn render_lines<'a, I, L> (buffer: &mut String, lines: I) -> Result<()>
 where
-    I: IntoIterator<Item = L>,
     L: AsRef<Line<'a>>,
+    I: IntoIterator<Item = L>,
+    I::IntoIter: ExactSizeIterator,
 {
-    for line in lines {
+    let lines = lines.into_iter();
+    let len = lines.len();
+
+    for (i, line) in lines.enumerate() {
         render_line(buffer, line.as_ref())?;
-        write!(buffer, " <br>")?;
+
+        if i < len - 1 {
+            write!(buffer, " <br>")?;
+        }
     }
 
     Ok(())
