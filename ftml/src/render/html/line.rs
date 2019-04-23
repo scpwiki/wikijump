@@ -76,7 +76,7 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
             escape_html(buffer, contents)?;
             buffer.push_str("</code>\n");
         },
-        &Div { id, class, style, ref lines } => {
+        &Div { ref id, ref class, ref style, ref lines } => {
             buffer.push_str("<div");
 
             if let Some(id) = id {
@@ -150,7 +150,7 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
             // TODO
             unimplemented!()
         },
-        QuoteBlock { id, class, style, ref lines } => {
+        QuoteBlock { ref id, ref class, ref style, ref lines } => {
             buffer.push_str("<blockquote");
 
             if let Some(id) = id {

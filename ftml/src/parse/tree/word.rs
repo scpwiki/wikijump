@@ -137,12 +137,12 @@ pub enum Word<'a> {
         float: bool,
         direction: Option<Alignment>,
         link: Option<(&'a str, bool)>,
-        alt: Option<&'a str>,
+        alt: Option<Cow<'a, str>>,
         title: Option<Cow<'a, str>>,
-        width: Option<&'a str>,
-        height: Option<&'a str>,
-        style: Option<&'a str>,
-        class: Option<&'a str>,
+        width: Option<Cow<'a, str>>,
+        height: Option<Cow<'a, str>>,
+        style: Option<Cow<'a, str>>,
+        class: Option<Cow<'a, str>>,
         size: Option<&'a str>,
     },
     Italics {
@@ -175,9 +175,9 @@ pub enum Word<'a> {
         lines: Vec<Line<'a>>,
     },
     Span {
-        id: Option<&'a str>,
-        class: Option<&'a str>,
-        style: Option<&'a str>,
+        id: Option<Cow<'a, str>>,
+        class: Option<Cow<'a, str>>,
+        style: Option<Cow<'a, str>>,
         lines: Vec<Line<'a>>,
     },
     Strikethrough {
@@ -410,12 +410,12 @@ impl<'a> Word<'a> {
                                         link = Some((value, false));
                                     }
                                 }
-                                "alt" => alt = Some(value),
+                                "alt" => alt = interp_str(value),
                                 "title" => title = interp_str(value),
-                                "width" => width = Some(value),
-                                "height" => height = Some(value),
-                                "style" => style = Some(value),
-                                "class" => class = Some(value),
+                                "width" => width = interp_str(value),
+                                "height" => height = interp_str(value),
+                                "style" => style = interp_str(value),
+                                "class" => class = interp_str(value),
                                 "size" => size = Some(value),
                                 _ => panic!("Unknown argument for [[image]]: {}", name),
                             }
@@ -487,9 +487,9 @@ impl<'a> Word<'a> {
 
                             let value = value_pair.as_str();
                             match name.to_ascii_lowercase().as_str() {
-                                "id" => id = Some(value),
-                                "class" => class = Some(value),
-                                "style" => style = Some(value),
+                                "id" => id = interp_str(value),
+                                "class" => class = interp_str(value),
+                                "style" => style = interp_str(value),
                                 _ => panic!("Unknown argument for [[span]]: {}", name),
                             }
                         }

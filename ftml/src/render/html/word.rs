@@ -88,7 +88,7 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
         &Gallery => {
             unimplemented!()
         },
-        &Image { filename, float, direction, link, alt, ref title, width, height, style, class, size } => {
+        &Image { filename, float, direction, ref link, ref alt, ref title, ref width, ref height, ref style, ref class, size } => {
             buffer.push_str("<img");
 
             // TODO adjust for other sources
@@ -162,8 +162,10 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
             render_lines(buffer, lines)?;
             buffer.push_str("</span>");
         },
-        &Span { id, class, style, ref lines } => {
+        &Span { ref id, ref class, ref style, ref lines } => {
             buffer.push_str("<span");
+
+            println!("{:?}, {:?}, {:?}, {:?}", id, class, style, lines);
 
             if let Some(id) = id {
                 write_tag_arg(buffer, "id", id)?;

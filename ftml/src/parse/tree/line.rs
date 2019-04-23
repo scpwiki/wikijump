@@ -82,9 +82,9 @@ pub enum Line<'a> {
         contents: &'a str,
     },
     Div {
-        id: Option<&'a str>,
-        class: Option<&'a str>,
-        style: Option<&'a str>,
+        id: Option<Cow<'a, str>>,
+        class: Option<Cow<'a, str>>,
+        style: Option<Cow<'a, str>>,
         lines: Vec<Line<'a>>,
     },
     Heading {
@@ -125,9 +125,9 @@ pub enum Line<'a> {
         // TODO: http://community.wikidot.com/help:toc
     },
     QuoteBlock {
-        id: Option<&'a str>,
-        class: Option<&'a str>,
-        style: Option<&'a str>,
+        id: Option<Cow<'a, str>>,
+        class: Option<Cow<'a, str>>,
+        style: Option<Cow<'a, str>>,
         lines: Vec<Line<'a>>,
     },
     Words {
@@ -238,9 +238,9 @@ impl<'a> Line<'a> {
 
                             let value = value_pair.as_str();
                             match name.to_ascii_lowercase().as_str() {
-                                "id" => id = Some(value),
-                                "class" => class = Some(value),
-                                "style" => style = Some(value),
+                                "id" => id = interp_str(value),
+                                "class" => class = interp_str(value),
+                                "style" => style = interp_str(value),
                                 _ => panic!("Unknown argument for [[div]]: {}", name),
                             }
                         }
@@ -321,9 +321,9 @@ impl<'a> Line<'a> {
 
                             let value = value_pair.as_str();
                             match name.to_ascii_lowercase().as_str() {
-                                "id" => id = Some(value),
-                                "class" => class = Some(value),
-                                "style" => style = Some(value),
+                                "id" => id = interp_str(value),
+                                "class" => class = interp_str(value),
+                                "style" => style = interp_str(value),
                                 _ => panic!("Unknown argument for [[quote]]: {}", name),
                             }
                         }
