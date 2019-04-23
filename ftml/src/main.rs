@@ -240,7 +240,7 @@ fn parse_only(text: &mut String) -> Result<String> {
 fn full_transform(text: &mut String) -> Result<String> {
     let mut result = transform::<HtmlRender>(text, &NullIncluder)?;
     result.insert_str(0, "<html><body>\n");
-    result.push_str("\n</body></html\n");
+    result.push_str("\n</body></html>\n");
     Ok(result)
 }
 
