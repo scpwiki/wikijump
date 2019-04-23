@@ -169,8 +169,6 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
         } => {
             buffer.push_str("<span");
 
-            println!("{:?}, {:?}, {:?}, {:?}", id, class, style, lines);
-
             if let Some(id) = id {
                 write_tag_arg(buffer, "id", id)?;
             }
