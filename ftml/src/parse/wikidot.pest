@@ -148,9 +148,9 @@ monospace = { "{{" ~ word* ~ "}}" }
 anchor = { "[[#" ~ space? ~ ident ~ space? ~ "]]" }
 
 anchor_tag = {
-    "[[" ~ space? ~ ^"a" ~ anchor_arg* ~ space? ~ "]]" ~
+    "[[" ~ space? ~ ^"a" ~ "_"? ~ anchor_arg* ~ space? ~ "]]" ~
     word+ ~
-    "[[/" ~ space? ~ ^"a" ~ space? ~ "]]"
+    "[[/" ~ space? ~ ^"a" ~ "_"? ~ space? ~ "]]"
 }
 anchor_arg = { space ~ ident ~ space? ~ "=" ~ space? ~ string }
 

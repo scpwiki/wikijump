@@ -28,7 +28,7 @@ use crate::include::NullIncluder;
 use pest::Parser;
 use super::{parse, Rule, WikidotParser};
 
-const VALID_INPUT_STRINGS: [&str; 94] = [
+const VALID_INPUT_STRINGS: [&str; 100] = [
     "",
     "@@ apple @@ @@banana@@",
     "@@ [!-- literal comment @@ durian",
@@ -123,6 +123,12 @@ const VALID_INPUT_STRINGS: [&str; 94] = [
     "[[ quote class = \"quote-block level-1\" ]]\ncontents\n[[ quote class = \"quote-block level-2\" ]]\napple\n[[/ quote ]]\nbanana\n[[/ quote ]]",
     "[[js]]\nfunction test() { return 1; }\n[[/js]]\n[[ JS ]]\n[[/ JS ]]",
     "**apple**\n[[javascript]]\nconsole.log('test');\n[[/javascript]]\n**banana**",
+    "Email me at person@example.com! Check out my [[[example-author-page | amazing author page]]]!",
+    "[[[page-with-no-name]]] [[[https://example.com | Example]]] [[[*https://example.com | This one opens in a new tab!]]] yay",
+    "Plain link: https://example.com/ Named link: [https://example.com/ example site]",
+    "[# empty link] [/category:thing/page/idk bottom text] [*/category:thing/page more test]",
+    "[[a href=\"https://example.com/\" id=\"test\" style=\"color: blue\"]] **anchor link!** [[/a]]",
+    "[[a_ href=\"https://example.com/\" name=\"dumb-test\"]] not sure why these exist but whatever [[/a_]]",
 ];
 
 const VALID_FILTER_STRINGS: [&str; 10] = [
