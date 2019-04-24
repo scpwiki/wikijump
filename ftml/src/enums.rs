@@ -58,6 +58,27 @@ impl Display for Alignment {
 }
 
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum AnchorTarget {
+    NewTab,
+    Parent,
+    Top,
+    Same,
+}
+
+impl Display for AnchorTarget {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let style = match *self {
+            AnchorTarget::NewTab => "_blank",
+            AnchorTarget::Parent => "_parent",
+            AnchorTarget::Top => "_top",
+            AnchorTarget::Same => "_self",
+        };
+
+        write!(f, "{}", style)
+    }
+}
+
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum HeadingLevel {
     One,
     Two,

@@ -68,8 +68,10 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
             buffer.push_str("</span>");
         }
         &Date { timestamp, format } => unimplemented!(),
-        &Email { contents } => {
-            write!(buffer, "<a href=\"mailto:{}\">{}</a>", contents, contents)?;
+        &Email { address, text } => {
+            write!(buffer, "<a href=\"mailto:{}\">", address)?;
+            escape_html(buffer, text.unwrap_or(address))?;
+            buffer.push_str("</a>");
         }
         &EquationReference { name } => unimplemented!(),
         &File { filename } => unimplemented!(),
@@ -130,17 +132,21 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
             render_words(buffer, words)?;
             buffer.push_str("</i>");
         }
-        &Link { page, anchor, text } => {
+        &Link { link, text, anchor, target } => {
             buffer.push_str("<a");
             // TODO adjust for other sources
-            write_tag_arg(buffer, "href", page)?;
+            write_tag_arg(buffer, "href", link)?;
 
             if let Some(anchor) = anchor {
                 write_tag_arg(buffer, "name", anchor)?;
             }
 
+            if let Some(target) = target {
+                write!(buffer, " target=\"{}\"", target)?;
+            }
+
             buffer.push('>');
-            escape_html(buffer, text.unwrap_or(page))?;
+            escape_html(buffer, text.unwrap_or(link))?;
             buffer.push_str("</a>");
         }
         &Math { expr } => unimplemented!(),

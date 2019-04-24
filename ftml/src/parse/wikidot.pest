@@ -246,17 +246,18 @@ user = { "[[" ~ space? ~ "*"? ~ space? ~ ^"user" ~ space ~ ident ~ space? ~ "]]"
 // }}}
 
 // Link words {{{
-link_bare = { "*"? ~ url }
+link_bare = { link_newtab ~ url }
 
 link_page = {
-    "[[[" ~ space? ~ "*"? ~ space? ~ page_link ~ space? ~
+    "[[[" ~ space? ~ link_newtab ~ space? ~ page_link ~ space? ~
     ("|" ~ space? ~ page_name ~ space? ~ "]]]")?
 }
 
 link_url = {
-    "[" ~ space? ~ "*"? ~ space? ~ page_link ~ space ~ page_name ~ space? ~ "]"
+    "[" ~ space? ~ link_newtab ~ space? ~ (email | page_link) ~ space ~ page_name ~ space? ~ "]"
 }
 
+link_newtab = { "*"? }
 page_name = { (!("\n" | "]]]") ~ ANY)+ }
 page_link = { (!space ~ ANY) + }
 // }}}

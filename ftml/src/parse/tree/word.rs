@@ -19,7 +19,7 @@
  */
 
 use crate::Result;
-use crate::enums::Alignment;
+use crate::enums::{Alignment, AnchorTarget};
 use std::borrow::Cow;
 use std::collections::HashMap;
 use super::prelude::*;
@@ -115,7 +115,8 @@ pub enum Word<'a> {
         format: Option<&'a str>,
     },
     Email {
-        contents: &'a str,
+        address: &'a str,
+        text: Option<&'a str>,
     },
     EquationReference {
         name: &'a str,
@@ -149,9 +150,10 @@ pub enum Word<'a> {
         words: Vec<Word<'a>>,
     },
     Link {
-        page: &'a str,
-        anchor: Option<&'a str>,
+        link: &'a str,
+        target: Option<AnchorTarget>,
         text: Option<&'a str>,
+        anchor: Option<&'a str>,
     },
     Math {
         expr: &'a str,
@@ -242,7 +244,8 @@ impl<'a> Word<'a> {
                 contents: extract!(RAW),
             },
             Rule::email => Word::Email {
-                contents: pair.as_str(),
+                address: pair.as_str(),
+                text: None,
             },
             Rule::color => {
                 let mut color = "";
@@ -441,16 +444,54 @@ impl<'a> Word<'a> {
                 }
             }
             Rule::link_bare => {
-                // TODO
-                unimplemented!()
+                let mut pairs = pair.into_inner();
+
+                let target = get_link_target(
+                    pairs.next().expect("LinkBare pairs iterator was empty")
+                );
+
+                let link = pairs
+                    .next()
+                    .expect("LinkBare pairs iterator had only one element")
+                    .as_str();
+
+                Word::Link { link, target, text: None, anchor: None }
             }
             Rule::link_page => {
-                // TODO
-                unimplemented!()
+                let mut pairs = pair.into_inner();
+
+                let target = get_link_target(
+                    pairs.next().expect("LinkPage pairs iterator was empty")
+                );
+
+                let link = pairs
+                    .next()
+                    .expect("LinkPage pairs iterator had only one element")
+                    .as_str();
+
+                let text = pairs.next().map(|pair| pair.as_str());
+
+                Word::Link { link, target, text, anchor: None }
             }
             Rule::link_url => {
-                // TODO
-                unimplemented!()
+                let mut pairs = pair.into_inner();
+
+                let target = get_link_target(
+                    pairs.next().expect("LinkUrl pairs iterator was empty")
+                );
+
+                let link = pairs.next().expect("LinkUrl pairs iterator had only one element");
+                let text = pairs
+                    .next()
+                    .expect("LinkUrl pairs iterator had only two elements")
+                    .as_str();
+                let text = Some(text);
+
+                match link.as_rule() {
+                    Rule::email => Word::Email { address: link.as_str(), text },
+                    Rule::page_link => Word::Link { link: link.as_str(), target, text, anchor: None },
+                    _ => panic!("Invalid rule for link_url: {:?}", link.as_rule()),
+                }
             }
             Rule::size => {
                 let mut pairs = pair.into_inner();
@@ -548,6 +589,16 @@ impl<'a> AsRef<Word<'a>> for Word<'a> {
     #[inline]
     fn as_ref(&self) -> &Word<'a> {
         self
+    }
+}
+
+fn get_link_target(pair: Pair<Rule>) -> Option<AnchorTarget> {
+    debug_assert_eq!(pair.as_rule(), Rule::link_newtab);
+
+    match pair.as_str() {
+        "*" => Some(AnchorTarget::NewTab),
+        "" => None,
+        value => panic!("Invalid value for Rule::link_newtab: {:?}", value),
     }
 }
 
