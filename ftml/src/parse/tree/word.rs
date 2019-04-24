@@ -88,8 +88,11 @@ lazy_static! {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Word<'a> {
     Anchor {
-        name: &'a str,
-        arguments: HashMap<&'a str, Cow<'a, str>>,
+        name: Option<&'a str>,
+        id: Option<&'a str>,
+        class: Option<&'a str>,
+        style: Option<&'a str>,
+        words: Vec<Word<'a>>,
     },
     Bold {
         words: Vec<Word<'a>>,
@@ -286,12 +289,48 @@ impl<'a> Word<'a> {
                 words: make_words!(),
             },
             Rule::anchor => Word::Anchor {
-                name: extract!(ANCHOR),
-                arguments: HashMap::new(),
+                name: Some(extract!(ANCHOR)),
+                id: None,
+                class: None,
+                style: None,
+                words: Vec::new(),
             },
             Rule::anchor_tag => {
-                // TODO
-                unimplemented!()
+                let mut name = None;
+                let mut id = None;
+                let mut class = None;
+                let mut style = None;
+                let mut words = Vec::new();
+
+                for pair in pair.into_inner() {
+                    match pair.as_rule() {
+                        Rule::anchor_arg => {
+                            let capture = ARGUMENT_NAME
+                                .captures(pair.as_str())
+                                .expect("Regular expression ARGUMENT_NAME didn't match");
+                            let key = capture!(capture, "name");
+                            let value_pair = get_first_pair!(pair);
+
+                            debug_assert_eq!(value_pair.as_rule(), Rule::string);
+
+                            let value = value_pair.as_str();
+                            match key.to_ascii_lowercase().as_str() {
+                                "name" => name = Some(value),
+                                "id" => id = Some(value),
+                                "class" => class = Some(value),
+                                "style" => style = Some(value),
+                                _ => panic!("Unknown argument for [[a]]: {}", key),
+                            }
+                        }
+                        Rule::word => {
+                            let word = Word::from_pair(pair)?;
+                            words.push(word);
+                        }
+                        _ => panic!("Invalid rule for anchor: {:?}", pair.as_rule()),
+                    }
+                }
+
+                Word::Anchor { name, id, class, style, words }
             }
             Rule::date => {
                 let capture = DATE.captures(pair.as_str())
@@ -399,13 +438,13 @@ impl<'a> Word<'a> {
                             let capture = ARGUMENT_NAME
                                 .captures(pair.as_str())
                                 .expect("Regular expression ARGUMENT_NAME didn't match");
-                            let name = capture!(capture, "name");
+                            let key = capture!(capture, "name");
                             let value_pair = get_first_pair!(pair);
 
                             debug_assert_eq!(value_pair.as_rule(), Rule::string);
 
                             let value = value_pair.as_str();
-                            match name.to_ascii_lowercase().as_str() {
+                            match key.to_ascii_lowercase().as_str() {
                                 "link" => {
                                     if value.starts_with("*") {
                                         link = Some((&value[1..], true));
@@ -420,7 +459,7 @@ impl<'a> Word<'a> {
                                 "style" => style = Some(value),
                                 "class" => class = Some(value),
                                 "size" => size = Some(value),
-                                _ => panic!("Unknown argument for [[image]]: {}", name),
+                                _ => panic!("Unknown argument for [[image]]: {}", key),
                             }
                         }
                         _ => panic!("Invalid rule for image: {:?}", pair.as_rule()),
@@ -521,17 +560,17 @@ impl<'a> Word<'a> {
                             let capture = ARGUMENT_NAME
                                 .captures(pair.as_str())
                                 .expect("Regular expression ARGUMENT_NAME didn't match");
-                            let name = capture!(capture, "name");
+                            let key = capture!(capture, "name");
                             let value_pair = get_first_pair!(pair);
 
                             debug_assert_eq!(value_pair.as_rule(), Rule::string);
 
                             let value = value_pair.as_str();
-                            match name.to_ascii_lowercase().as_str() {
+                            match key.to_ascii_lowercase().as_str() {
                                 "id" => id = Some(value),
                                 "class" => class = Some(value),
                                 "style" => style = Some(value),
-                                _ => panic!("Unknown argument for [[span]]: {}", name),
+                                _ => panic!("Unknown argument for [[span]]: {}", key),
                             }
                         }
                         Rule::lines_internal => lines = convert_internal_lines(pair)?,

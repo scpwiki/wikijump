@@ -190,15 +190,15 @@ impl<'a> Line<'a> {
                     let capture = ARGUMENT_NAME
                         .captures(pair.as_str())
                         .expect("Regular expression ARGUMENT_NAME didn't match");
-                    let name = capture!(capture, "name");
+                    let key = capture!(capture, "name");
                     let value_pair = get_first_pair!(pair);
 
                     debug_assert_eq!(value_pair.as_rule(), Rule::string);
 
                     let value = value_pair.as_str();
-                    match name {
+                    match key {
                         "type" | "lang" | "language" => language = interp_str(value),
-                        _ => panic!("Unknown argument for [[code]]: {}", name),
+                        _ => panic!("Unknown argument for [[code]]: {}", key),
                     }
                 }
 
@@ -231,17 +231,17 @@ impl<'a> Line<'a> {
                             let capture = ARGUMENT_NAME
                                 .captures(pair.as_str())
                                 .expect("Regular expression ARGUMENT_NAME didn't match");
-                            let name = capture!(capture, "name");
+                            let key = capture!(capture, "name");
                             let value_pair = get_first_pair!(pair);
 
                             debug_assert_eq!(value_pair.as_rule(), Rule::string);
 
                             let value = value_pair.as_str();
-                            match name.to_ascii_lowercase().as_str() {
+                            match key.to_ascii_lowercase().as_str() {
                                 "id" => id = Some(value),
                                 "class" => class = Some(value),
                                 "style" => style = Some(value),
-                                _ => panic!("Unknown argument for [[div]]: {}", name),
+                                _ => panic!("Unknown argument for [[div]]: {}", key),
                             }
                         }
                         Rule::line => {
@@ -314,17 +314,17 @@ impl<'a> Line<'a> {
                             let capture = ARGUMENT_NAME
                                 .captures(pair.as_str())
                                 .expect("Regular expression ARGUMENT_NAME didn't match");
-                            let name = capture!(capture, "name");
+                            let key = capture!(capture, "name");
                             let value_pair = get_first_pair!(pair);
 
                             debug_assert_eq!(value_pair.as_rule(), Rule::string);
 
                             let value = value_pair.as_str();
-                            match name.to_ascii_lowercase().as_str() {
+                            match key.to_ascii_lowercase().as_str() {
                                 "id" => id = Some(value),
                                 "class" => class = Some(value),
                                 "style" => style = Some(value),
-                                _ => panic!("Unknown argument for [[quote]]: {}", name),
+                                _ => panic!("Unknown argument for [[quote]]: {}", key),
                             }
                         }
                         Rule::lines_internal => lines = convert_internal_lines(pair)?,

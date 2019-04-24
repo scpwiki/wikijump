@@ -39,15 +39,32 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
     match word {
         &Anchor {
             name,
-            ref arguments,
+            id,
+            class,
+            style,
+            ref words,
         } => {
             buffer.push_str("<a");
 
-            for (key, value) in arguments.iter() {
-                write_tag_arg(buffer, key, value)?;
+            if let Some(name) = name {
+                write!(buffer, " name=\"{}\"", name)?;
             }
 
-            buffer.push_str("></a>\n");
+            if let Some(id) = id {
+                write!(buffer, " id=\"{}\"", id)?;
+            }
+
+            if let Some(class) = class {
+                write!(buffer, " class=\"{}\"", class)?;
+            }
+
+            if let Some(style) = style {
+                write!(buffer, " style=\"{}\"", style)?;
+            }
+
+            buffer.push('>');
+            render_words(buffer, words)?;
+            buffer.push_str("</a>");
         }
         &Bold { ref words } => {
             buffer.push_str("<b>");

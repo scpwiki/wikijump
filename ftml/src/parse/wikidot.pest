@@ -147,13 +147,6 @@ monospace = { "{{" ~ word* ~ "}}" }
 // Block words {{{
 anchor = { "[[#" ~ space? ~ ident ~ space? ~ "]]" }
 
-anchor_tag = {
-    "[[" ~ space? ~ ^"a" ~ "_"? ~ anchor_arg* ~ space? ~ "]]" ~
-    word+ ~
-    "[[/" ~ space? ~ ^"a" ~ "_"? ~ space? ~ "]]"
-}
-anchor_arg = { space ~ ident ~ space? ~ "=" ~ space? ~ string }
-
 date = {
     "[[" ~ space? ~ ^"date" ~ space ~ integer ~ date_arg? ~ space? ~ "]]"
 }
@@ -246,6 +239,13 @@ user = { "[[" ~ space? ~ "*"? ~ space? ~ ^"user" ~ space ~ ident ~ space? ~ "]]"
 // }}}
 
 // Link words {{{
+anchor_tag = {
+    "[[" ~ space? ~ ^"a" ~ "_"? ~ anchor_arg* ~ space? ~ "]]" ~
+    word+ ~
+    "[[/" ~ space? ~ ^"a" ~ "_"? ~ space? ~ "]]"
+}
+anchor_arg = { space ~ (^"name" | ^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ string }
+
 link_bare = { link_newtab ~ url }
 
 link_page = {
