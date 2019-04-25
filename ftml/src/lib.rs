@@ -51,6 +51,7 @@ extern crate lazy_static;
 
 #[macro_use]
 extern crate log;
+extern crate percent_encoding;
 extern crate pest;
 
 #[macro_use]

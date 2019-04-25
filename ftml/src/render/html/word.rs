@@ -18,8 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use percent_encoding::{percent_encode, DEFAULT_ENCODE_SET};
 use self::Word::*;
 use super::prelude::*;
+
+macro_rules! percent_encode {
+    ($input:expr) => ( percent_encode($input.as_ref(), DEFAULT_ENCODE_SET) )
+}
 
 pub fn render_words<'a, I, W>(buffer: &mut String, words: I) -> Result<()>
 where
@@ -49,7 +54,7 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
             buffer.push_str("<a");
 
             if let Some(href) = href {
-                write_tag_arg(buffer, "href", href)?;
+                write!(buffer, " href=\"{}\"", percent_encode!(href))?;
             }
 
             if let Some(name) = name {
@@ -77,7 +82,7 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
             buffer.push_str("</a>");
         }
         &Link { href, target, text } => {
-            write!(buffer, "<a href=\"{}\"", href)?;
+            write!(buffer, "<a href=\"{}\"", percent_encode!(href))?;
 
             if let Some(target) = target {
                 write!(buffer, " target=\"{}\"", target)?;
