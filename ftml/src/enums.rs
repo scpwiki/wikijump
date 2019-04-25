@@ -65,6 +65,20 @@ pub enum AnchorTarget {
     Same,
 }
 
+impl<'a> TryFrom<&'a str> for AnchorTarget {
+    type Error = ();
+
+    fn try_from(value: &'a str) -> StdResult<Self, Self::Error> {
+        match value.to_ascii_lowercase().as_str() {
+            "blank" | "_blank" => Ok(AnchorTarget::NewTab),
+            "parent" | "_parent" => Ok(AnchorTarget::Parent),
+            "top" | "_top" => Ok(AnchorTarget::Top),
+            "self" | "_self" | "" => Ok(AnchorTarget::Same),
+            _ => Err(())
+        }
+    }
+}
+
 impl Display for AnchorTarget {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let style = match *self {

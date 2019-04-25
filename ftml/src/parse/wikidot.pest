@@ -244,7 +244,10 @@ anchor_tag = {
     word+ ~
     "[[/" ~ space? ~ ^"a" ~ "_"? ~ space? ~ "]]"
 }
-anchor_arg = { space ~ (^"name" | ^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ string }
+anchor_arg = {
+    space ~ (^"href" | ^"name" | ^"id" | ^"class" | ^"style" | ^"target") ~ space? ~
+    "=" ~ space? ~ string
+}
 
 link_bare = { link_newtab ~ url }
 

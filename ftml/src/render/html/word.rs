@@ -38,13 +38,19 @@ where
 pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
     match word {
         &Anchor {
+            href,
             name,
             id,
             class,
             style,
+            target,
             ref words,
         } => {
             buffer.push_str("<a");
+
+            if let Some(href) = href {
+                write_tag_arg(buffer, "href", href)?;
+            }
 
             if let Some(name) = name {
                 write!(buffer, " name=\"{}\"", name)?;
@@ -62,8 +68,23 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
                 write!(buffer, " style=\"{}\"", style)?;
             }
 
+            if let Some(target) = target {
+                write!(buffer, " target=\"{}\"", target)?;
+            }
+
             buffer.push('>');
             render_words(buffer, words)?;
+            buffer.push_str("</a>");
+        }
+        &Link { href, target, text } => {
+            write!(buffer, "<a href=\"{}\"", href)?;
+
+            if let Some(target) = target {
+                write!(buffer, " target=\"{}\"", target)?;
+            }
+
+            buffer.push('>');
+            escape_html(buffer, text.unwrap_or(href))?;
             buffer.push_str("</a>");
         }
         &Bold { ref words } => {
@@ -148,23 +169,6 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
             buffer.push_str("<i>");
             render_words(buffer, words)?;
             buffer.push_str("</i>");
-        }
-        &Link { link, text, anchor, target } => {
-            buffer.push_str("<a");
-            // TODO adjust for other sources
-            write_tag_arg(buffer, "href", link)?;
-
-            if let Some(anchor) = anchor {
-                write_tag_arg(buffer, "name", anchor)?;
-            }
-
-            if let Some(target) = target {
-                write!(buffer, " target=\"{}\"", target)?;
-            }
-
-            buffer.push('>');
-            escape_html(buffer, text.unwrap_or(link))?;
-            buffer.push_str("</a>");
         }
         &Math { expr } => unimplemented!(),
         &Module {

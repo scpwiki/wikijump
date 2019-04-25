@@ -22,6 +22,7 @@ use crate::Result;
 use crate::enums::{Alignment, AnchorTarget};
 use std::borrow::Cow;
 use std::collections::HashMap;
+use std::convert::TryFrom;
 use super::prelude::*;
 
 lazy_static! {
@@ -88,10 +89,12 @@ lazy_static! {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Word<'a> {
     Anchor {
+        href: Option<&'a str>,
         name: Option<&'a str>,
         id: Option<&'a str>,
         class: Option<&'a str>,
         style: Option<&'a str>,
+        target: Option<AnchorTarget>,
         words: Vec<Word<'a>>,
     },
     Bold {
@@ -153,10 +156,9 @@ pub enum Word<'a> {
         words: Vec<Word<'a>>,
     },
     Link {
-        link: &'a str,
+        href: &'a str,
         target: Option<AnchorTarget>,
         text: Option<&'a str>,
-        anchor: Option<&'a str>,
     },
     Math {
         expr: &'a str,
@@ -289,17 +291,21 @@ impl<'a> Word<'a> {
                 words: make_words!(),
             },
             Rule::anchor => Word::Anchor {
+                href: None,
                 name: Some(extract!(ANCHOR)),
                 id: None,
                 class: None,
                 style: None,
+                target: None,
                 words: Vec::new(),
             },
             Rule::anchor_tag => {
+                let mut href = None;
                 let mut name = None;
                 let mut id = None;
                 let mut class = None;
                 let mut style = None;
+                let mut target = None;
                 let mut words = Vec::new();
 
                 for pair in pair.into_inner() {
@@ -315,10 +321,12 @@ impl<'a> Word<'a> {
 
                             let value = value_pair.as_str();
                             match key.to_ascii_lowercase().as_str() {
+                                "href" => href = Some(value),
                                 "name" => name = Some(value),
                                 "id" => id = Some(value),
                                 "class" => class = Some(value),
                                 "style" => style = Some(value),
+                                "target" => target = AnchorTarget::try_from(value).ok(),
                                 _ => panic!("Unknown argument for [[a]]: {}", key),
                             }
                         }
@@ -330,7 +338,7 @@ impl<'a> Word<'a> {
                     }
                 }
 
-                Word::Anchor { name, id, class, style, words }
+                Word::Anchor { href, name, id, class, target, style, words }
             }
             Rule::date => {
                 let capture = DATE.captures(pair.as_str())
@@ -489,12 +497,13 @@ impl<'a> Word<'a> {
                     pairs.next().expect("LinkBare pairs iterator was empty")
                 );
 
-                let link = pairs
+                let href = pairs
                     .next()
                     .expect("LinkBare pairs iterator had only one element")
                     .as_str();
 
-                Word::Link { link, target, text: None, anchor: None }
+
+                Word::Link { href, target, text: None }
             }
             Rule::link_page => {
                 let mut pairs = pair.into_inner();
@@ -503,14 +512,14 @@ impl<'a> Word<'a> {
                     pairs.next().expect("LinkPage pairs iterator was empty")
                 );
 
-                let link = pairs
+                let href = pairs
                     .next()
                     .expect("LinkPage pairs iterator had only one element")
                     .as_str();
 
                 let text = pairs.next().map(|pair| pair.as_str());
 
-                Word::Link { link, target, text, anchor: None }
+                Word::Link { href, target, text }
             }
             Rule::link_url => {
                 let mut pairs = pair.into_inner();
@@ -519,17 +528,18 @@ impl<'a> Word<'a> {
                     pairs.next().expect("LinkUrl pairs iterator was empty")
                 );
 
-                let link = pairs.next().expect("LinkUrl pairs iterator had only one element");
+                let href = pairs.next().expect("LinkUrl pairs iterator had only one element");
+
                 let text = pairs
                     .next()
                     .expect("LinkUrl pairs iterator had only two elements")
                     .as_str();
                 let text = Some(text);
 
-                match link.as_rule() {
-                    Rule::email => Word::Email { address: link.as_str(), text },
-                    Rule::page_link => Word::Link { link: link.as_str(), target, text, anchor: None },
-                    _ => panic!("Invalid rule for link_url: {:?}", link.as_rule()),
+                match href.as_rule() {
+                    Rule::email => Word::Email { address: href.as_str(), text },
+                    Rule::page_link => Word::Link { href: href.as_str(), target, text },
+                    _ => panic!("Invalid rule for link_url: {:?}", href.as_rule()),
                 }
             }
             Rule::size => {
