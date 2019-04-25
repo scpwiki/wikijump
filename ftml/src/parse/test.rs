@@ -28,7 +28,7 @@ use crate::include::NullIncluder;
 use pest::Parser;
 use super::{parse, Rule, WikidotParser};
 
-const VALID_INPUT_STRINGS: [&str; 100] = [
+const VALID_INPUT_STRINGS: [&str; 103] = [
     "",
     "@@ apple @@ @@banana@@",
     "@@ [!-- literal comment @@ durian",
@@ -125,10 +125,13 @@ const VALID_INPUT_STRINGS: [&str; 100] = [
     "**apple**\n[[javascript]]\nconsole.log('test');\n[[/javascript]]\n**banana**",
     "Email me at person@example.com! Check out my [[[example-author-page | amazing author page]]]!",
     "[[[page-with-no-name]]] [[[https://example.com | Example]]] [[[*https://example.com | This one opens in a new tab!]]] yay",
-    "Plain link: https://example.com/ Named link: [https://example.com/ example site]",
-    "[# empty link] [/category:thing/page/idk bottom text] [*/category:thing/page more test]",
+    "Bare link: https://example.com/ Named link: [https://example.com/ example site]",
+    "New tab bare link: *https://example.com/page1.html New tab link: [*https://example.com/page2.html bidoof]",
+    "[# empty link] [/category:thing/page/idk bottom text] [*/category:thing/page gamers against weed]",
     "[[a href=\"https://example.com/\" id=\"test\" style=\"color: blue\"]] **anchor link!** [[/a]]",
     "[[a_ href=\"https://example.com/\" name=\"dumb-test\"]] not sure why these exist but whatever [[/a_]]",
+    "[[# anchor-name-1]] [[ a name = \"anchor-name-2\" ]] [[/a]] [[a name=\"anchor-name-3\"]][[/a]]",
+    "[[[ link \"TO\" a; <pagE> ]]] [[[ some page | ]]] [[[/ | root]]] [[[page#toc1]]]",
 ];
 
 const VALID_FILTER_STRINGS: [&str; 10] = [

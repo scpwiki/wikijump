@@ -241,7 +241,7 @@ user = { "[[" ~ space? ~ "*"? ~ space? ~ ^"user" ~ space ~ ident ~ space? ~ "]]"
 // Link words {{{
 anchor_tag = {
     "[[" ~ space? ~ ^"a" ~ "_"? ~ anchor_arg* ~ space? ~ "]]" ~
-    word+ ~
+    word* ~
     "[[/" ~ space? ~ ^"a" ~ "_"? ~ space? ~ "]]"
 }
 anchor_arg = {
