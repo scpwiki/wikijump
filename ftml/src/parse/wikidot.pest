@@ -152,7 +152,10 @@ date = {
 }
 date_arg = @{ space ~ ^"format" ~ space? ~ "=" ~ space? ~ string }
 
-equation_ref = { "[[" ~ space? ~ ^"eref" ~ space ~ ident ~ space? ~ "]]" }
+equation_ref = {
+    "[[" ~ space? ~ (^"eref" | ^"equationref") ~ space ~ ident ~ space? ~ "]]"
+}
+
 file_ref = { "[[" ~ space? ~ ^"file" ~ space ~ file_ident ~ space? ~ "]]" }
 
 footnote = {
