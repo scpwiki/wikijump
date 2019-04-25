@@ -38,12 +38,13 @@ use std::time::Duration;
 use wikidot_html::prelude::*;
 use wikidot_html::include::NullIncluder;
 
-type TransformFn = fn(&mut String) -> Result<String>;
+type TransformFn = fn(&mut String, bool) -> Result<String>;
 
 struct Context<'a> {
     transform: TransformFn,
     in_paths: Vec<&'a OsStr>,
     output_dir: &'a Path,
+    wrap: bool,
 }
 
 impl<'a> Debug for Context<'a> {
@@ -83,6 +84,12 @@ fn main() {
                 .help("Watch the input files, and whenever they are modified, rerun the transformation."),
         )
         .arg(
+            Arg::with_name("no-wrap")
+                .short("N")
+                .long("no-wrap")
+                .help("Don't wrap the output HTML with basic document tags. Output exactly as generated."),
+        )
+        .arg(
             Arg::with_name("FILE")
                 .multiple(true)
                 .required(true)
@@ -116,7 +123,9 @@ fn main() {
         }
     };
 
+    let no_wrap = matches.occurrences_of("no-wrap") > 0;
     let watch_mode = matches.occurrences_of("watch") > 0;
+
     let in_paths = matches
         .values_of_os("FILE")
         .expect("No argument(s) for 'FILE'")
@@ -126,6 +135,7 @@ fn main() {
         transform,
         in_paths,
         output_dir,
+        wrap: !no_wrap,
     };
 
     if watch_mode {
@@ -189,7 +199,7 @@ fn run_once(ctx: &Context) -> ! {
     // Process each of the files
     for in_path in &ctx.in_paths {
         if *in_path == OsStr::new("-") {
-            if let Err(err) = process_stdin(ctx.transform) {
+            if let Err(err) = process_stdin(ctx.transform, ctx.wrap) {
                 eprintln!("Error transforming from stdin: {}", err);
                 return_code = 1;
                 continue;
@@ -217,50 +227,59 @@ fn do_transform(ctx: &Context, in_path: &Path) -> Result<()> {
         None => return Err(Error::Msg(format!("Path \"{}\" does not refer to a file", in_path.display()))),
     };
 
-    process_file(in_path, &out_path, ctx.transform)
+    process_file(in_path, &out_path, ctx.transform, ctx.wrap)
 }
 
 // Transformation functions
-fn prefilter_only(text: &mut String) -> Result<String> {
+fn prefilter_only(text: &mut String, _wrap: bool) -> Result<String> {
     let mut text = text.clone();
     prefilter(&mut text, &NullIncluder)?;
     Ok(text)
 }
 
-fn parse_only(text: &mut String) -> Result<String> {
+fn parse_only(text: &mut String, wrap: bool) -> Result<String> {
     let tree = parse(text)?;
-    let result = format!(
-        "<html><body><pre><code>\n{:#?}\n</code></pre></body></html>\n",
-        &tree
-    );
+    let result = if wrap {
+        format!(
+            "<html><body><pre><code>\n{:#?}\n</code></pre></body></html>\n",
+            &tree
+        )
+    } else {
+        format!("{:#?}", &tree)
+    };
+
     Ok(result)
 }
 
 #[inline]
-fn full_transform(text: &mut String) -> Result<String> {
+fn full_transform(text: &mut String, wrap: bool) -> Result<String> {
     let mut result = transform::<HtmlRender>(text, &NullIncluder)?;
-    result.insert_str(0, "<html><body>\n");
-    result.push_str("\n</body></html>\n");
+
+    if wrap {
+        result.insert_str(0, "<html><body>\n");
+        result.push_str("\n</body></html>\n");
+    }
+
     Ok(result)
 }
 
 // File handling
-fn process_file(in_path: &Path, out_path: &Path, transform: TransformFn) -> Result<()> {
+fn process_file(in_path: &Path, out_path: &Path, transform: TransformFn, wrap: bool) -> Result<()> {
     let mut text = String::new();
     let mut file = File::open(in_path)?;
     file.read_to_string(&mut text)?;
 
-    let html = transform(&mut text)?;
+    let html = transform(&mut text, wrap)?;
     let mut file = File::create(out_path)?;
     file.write_all(html.as_bytes())?;
     Ok(())
 }
 
-fn process_stdin(transform: TransformFn) -> Result<()> {
+fn process_stdin(transform: TransformFn, wrap: bool) -> Result<()> {
     let mut text = String::new();
     io::stdin().read_to_string(&mut text)?;
 
-    let html = transform(&mut text)?;
+    let html = transform(&mut text, wrap)?;
     println!("{}", &html);
     Ok(())
 }
