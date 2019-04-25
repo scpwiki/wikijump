@@ -538,7 +538,7 @@ impl<'a> Word<'a> {
 
                 match href.as_rule() {
                     Rule::email => Word::Email { address: href.as_str(), text },
-                    Rule::page_link => Word::Link { href: href.as_str(), target, text },
+                    Rule::page_url => Word::Link { href: href.as_str(), target, text },
                     _ => panic!("Invalid rule for link_url: {:?}", href.as_rule()),
                 }
             }

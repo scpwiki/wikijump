@@ -253,7 +253,7 @@ link_bare = { link_newtab ~ url }
 
 link_page = {
     "[[[" ~ space? ~ link_newtab ~ space? ~ page_link ~ space? ~
-    ("|" ~ space? ~ page_name ~ space? ~ "]]]")?
+    "|"? ~ (space? ~ page_name)? ~ space? ~ "]]]"
 }
 
 link_url = {
@@ -262,7 +262,8 @@ link_url = {
 
 link_newtab = { "*"? }
 page_name = { (!("\n" | "]]]") ~ ANY)+ }
-page_link = { (!space ~ ANY) + }
+page_link = { (!("\n" | "|" | "]]]") ~ ANY)+ }
+page_url = { (!space ~ ANY) + }
 // }}}
 
 // Misc words {{{
