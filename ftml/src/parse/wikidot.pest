@@ -64,7 +64,7 @@ code = {
 code_arg = { space ~ (^"type" | ^"language" | ^"lang") ~ space? ~ "=" ~ space? ~ string }
 
 div = {
-    "[[" ~ space? ~ ^"div" ~ div_arg* ~ space? ~ "]]\n" ~
+    "[[" ~ space? ~ ^"div" ~ "_"? ~ div_arg* ~ space? ~ "]]\n" ~
     line* ~
     "[[/" ~ space? ~ ^"div" ~ space? ~ "]]"
 }
