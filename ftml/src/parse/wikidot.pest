@@ -61,7 +61,7 @@ code_arg = { space ~ (^"type" | ^"language" | ^"lang") ~ space? ~ "=" ~ space? ~
 div = {
     "[[" ~ space? ~ ^"div" ~ "_"? ~ div_arg* ~ space? ~ "]]\n" ~
     line* ~
-    "[[/" ~ space? ~ ^"div" ~ space? ~ "]]"
+    "[[/" ~ space? ~ ^"div" ~ "_"? ~ space? ~ "]]"
 }
 div_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ string }
 
@@ -261,7 +261,7 @@ link_url = {
 
 link_newtab = { "*"? }
 page_name = { (!("\n" | "]]]") ~ ANY)+ }
-page_link = { (!("\n" | "|" | "]]]") ~ ANY)+ }
+page_link = { (!(" " | "\n" | "|" | "]]]") ~ ANY)+ }
 page_url = { (!space ~ ANY) + }
 // }}}
 

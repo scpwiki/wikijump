@@ -28,7 +28,7 @@ use crate::include::NullIncluder;
 use pest::Parser;
 use super::{parse, Rule, WikidotParser};
 
-const VALID_INPUT_STRINGS: [&str; 104] = [
+const VALID_INPUT_STRINGS: [&str; 109] = [
     "",
     "@@ apple @@ @@banana@@",
     "@@ [!-- literal comment @@ durian",
@@ -128,11 +128,16 @@ const VALID_INPUT_STRINGS: [&str; 104] = [
     "[[[page-with-no-name]]] [[[https://example.com | Example]]] [[[*https://example.com | This one opens in a new tab!]]] yay",
     "Bare link: https://example.com/ Named link: [https://example.com/ example site]",
     "New tab bare link: *https://example.com/page1.html New tab link: [*https://example.com/page2.html bidoof]",
+    "Named link with spaces: [  http://some-http-site.com/use-https-folks a link  ] ",
+    "Weird link with spaces: [  /category:thing/page/idk name  ] ",
+    "Anchor with spaces: [[ a href = \"https://google.com\" id = \"test\" ]] contents [[/ a ]]",
+    "ANCHOR WITH SPACES: [[ A HREF = \"https://google.com\" ID = \"TEST\" ]] CONTENTS [[/ A ]]",
     "[# empty link] [/category:thing/page/idk bottom text] [*/category:thing/page gamers against weed]",
     "[[a href=\"https://example.com/\" id=\"test\" style=\"color: blue\"]] **anchor link!** [[/a]]",
     "[[a_ href=\"https://example.com/\" name=\"dumb-test\"]] not sure why these exist but whatever [[/a_]]",
     "[[# anchor-name-1]] [[ a name = \"anchor-name-2\" ]] [[/a]] [[a name=\"anchor-name-3\"]][[/a]]",
     "[[[ link \"TO\" a; <pagE> ]]] [[[ some page | ]]] [[[/ | root]]] [[[page#toc1]]]",
+    "GoI-something [https://en.wikipedia.org/wiki/Military%E2%80%93industrial_complex PENTAGRAM]",
 ];
 
 const VALID_FILTER_STRINGS: [&str; 11] = [
@@ -149,7 +154,7 @@ const VALID_FILTER_STRINGS: [&str; 11] = [
     " omg... he actually did it ",
 ];
 
-const INVALID_INPUT_STRINGS: [&str; 61] = [
+const INVALID_INPUT_STRINGS: [&str; 67] = [
     "@@ raw value",
     "`` legacy raw value",
     "@@ @@ @@",
@@ -211,6 +216,12 @@ const INVALID_INPUT_STRINGS: [&str; 61] = [
     "[[div]]\n> contents\n> [[/div]]",
     "[[js]]",
     "[[javascript]]",
+    "[[# false anchor]",
+    "[# false empty link]]",
+    "[https://examle.com/ unterminated link",
+    "[https://examle.com/ link with newline\n]",
+    "[[a herf=\"https://example.com/\"]]link[[/a]]",
+    "[[# anchor-name-with-|-bad-ident]]",
 ];
 
 const INVALID_FILTER_STRINGS: [&str; 0] = [];
