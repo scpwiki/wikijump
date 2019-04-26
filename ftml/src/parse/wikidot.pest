@@ -210,13 +210,13 @@ size_arg = {
     (ASCII_DIGIT | "."){1,5} ~ space? ~ (^"rem" | ^"em" | ^"px" | "%") |
     ^"xx-small" |
     ^"x-small" |
+    ^"smaller" |
+    ^"larger" |
     ^"small" |
     ^"medium" |
     ^"large" |
     ^"x-large" |
-    ^"xx-large" |
-    ^"smaller" |
-    ^"larger"
+    ^"xx-large"
 }
 
 span = {
