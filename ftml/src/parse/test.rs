@@ -28,7 +28,7 @@ use crate::include::NullIncluder;
 use pest::Parser;
 use super::{parse, Rule, WikidotParser};
 
-const VALID_INPUT_STRINGS: [&str; 103] = [
+const VALID_INPUT_STRINGS: [&str; 104] = [
     "",
     "@@ apple @@ @@banana@@",
     "@@ [!-- literal comment @@ durian",
@@ -54,6 +54,7 @@ const VALID_INPUT_STRINGS: [&str; 103] = [
     "^^^^ Empty superscript",
     ",,,, Empty subscript",
     "//[[date -100]] number// [[footnote]]Content **cherry** [[*user aismallard]][[/footnote]] [[footnote]]Content **cherry** [[*user aismallard]][[/footnote]]",
+    "[[>]]\n[[module Rate]]\n[[/>]]\n**Item #:** SCP-0000",
     "apple\n[[module Rate]]\nbanana",
     "apple\n[[module CSS]]\n@import url('https://example.com/style.css');\ndiv.container { display: none; }\n[[/module]]\nbanana",
     "[[form]]\nform data here\nmore stuff\n[[/form]]",
