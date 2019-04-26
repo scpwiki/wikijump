@@ -44,11 +44,6 @@ just_newlines = { "\n"+ }
 // }}}
 
 // Block lines {{{
-
-// Unfortunately for "align" we cannot use the "direction" token,
-// as we would need to verify that the second direction in the closing
-// block also matches it. If we don't, we run the risk of intercepting
-// another align block.
 align = {
     ("[[>]]\n" ~ line* ~ "[[/>]]") |
     ("[[<]]\n" ~ line* ~ "[[/<]]") |
