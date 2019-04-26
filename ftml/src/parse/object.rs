@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::Result;
+use crate::{backtrace, Result};
 use pest::Parser;
 use pest::error::Error as PestError;
 use super::SyntaxTree;
@@ -29,6 +29,11 @@ pub struct WikidotParser;
 pub type ParseError = PestError<Rule>;
 
 pub fn parse<'a>(text: &'a str) -> Result<SyntaxTree<'a>> {
+    // This function is a common path for almost all of
+    // the utility provided by this library.
+    // We'll initialize color-backtrace here.
+    backtrace::init();
+
     let page = {
         // Should return exactly [ Rule::page ]
         let mut pairs = WikidotParser::parse(Rule::page, text)?;

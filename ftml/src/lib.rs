@@ -43,6 +43,7 @@
 //! This crate also provides an executable to convert files from
 //! the command-line. See that file for usage documentation.
 
+extern crate color_backtrace;
 extern crate either;
 extern crate htmlescape;
 
@@ -71,6 +72,17 @@ pub use self::error::Error;
 pub use self::filter::{prefilter, Includer};
 pub use self::parse::{parse, SyntaxTree};
 pub use self::render::{HtmlRender, Render, TreeRender};
+
+mod backtrace {
+    use color_backtrace;
+    use std::sync::Once;
+
+    static BACKTRACE: Once = Once::new();
+
+    pub fn init() {
+        BACKTRACE.call_once(|| color_backtrace::install());
+    }
+}
 
 pub mod prelude {
     pub use super::{Error, HtmlRender, Render, Result, StdResult, SyntaxTree, TreeRender};
