@@ -99,9 +99,6 @@ word = {
     raw |
     legacy_raw |
     email |
-    link_bare |
-    link_page |
-    link_url |
     color |
     italics |
     strikethrough |
@@ -125,7 +122,10 @@ word = {
     size |
     span |
     tab_list |
-    user
+    user |
+    link_bare |
+    link_page |
+    link_url
 }
 // }}}
 
