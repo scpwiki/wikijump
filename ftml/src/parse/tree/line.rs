@@ -118,6 +118,9 @@ pub enum Line<'a> {
         latex_env: Option<&'a str>,
         expr: &'a str,
     },
+    Newlines {
+        count: usize,
+    },
     Table {
         rows: Vec<TableRow<'a>>,
     },
@@ -156,6 +159,14 @@ impl<'a> Line<'a> {
             }
         };
 
+        match pair.as_rule() {
+            Rule::line_inner => Self::from_rule_inner(pair),
+            Rule::just_newlines => Ok(Line::Newlines { count: pair.as_str().len() }),
+            _ => panic!("Invalid rule for line: {:?}", pair.as_rule()),
+        }
+    }
+
+    fn from_rule_inner(pair: Pair<'a, Rule>) -> Result<Self> {
         debug_assert_eq!(pair.as_rule(), Rule::line_inner);
         let pair = get_first_pair!(pair);
 

@@ -150,6 +150,13 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
             // TODO do LaTeX rendering
             unimplemented!()
         }
+        &Newlines { count } => {
+            for _ in 0..count {
+                buffer.push_str("<br>");
+            }
+
+            buffer.push('\n');
+        }
         &Table { ref rows } => {
             buffer.push_str("<table>\n");
             for row in rows {

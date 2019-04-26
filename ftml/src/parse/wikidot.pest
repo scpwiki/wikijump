@@ -24,7 +24,7 @@ page = { SOI ~ line* ~ EOI }
 
 // TODO
 // Lines {{{
-line = { line_inner ~ ("\n" | EOI) }
+line = { line_inner ~ ("\n" | EOI) | just_newlines }
 lines_internal = { space? ~ line* ~ line_inner? ~ ("\n" | EOI)? }
 
 line_inner = {
@@ -39,6 +39,8 @@ line_inner = {
     quote_block |
     words
 }
+
+just_newlines = { "\n"+ }
 // }}}
 
 // Block lines {{{
