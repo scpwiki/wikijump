@@ -286,7 +286,11 @@ text = {
 
 raw = { ("@@@@@@" | "@@" ~ (!("@@" | "\n") ~ ANY)* ~ "@@") }
 legacy_raw = { ("``````" | "``" ~ (!("``" | "\n") ~ ANY)* ~ "``") }
-email = { ident ~ "@" ~ ident }
+email = {
+    (ASCII_ALPHANUMERIC | "-" | "+" | "_" | ".")+ ~ "@" ~
+    (ASCII_ALPHANUMERIC | "-")+ ~ "." ~
+    (ASCII_ALPHANUMERIC | ".")+
+}
 // }}}
 
 // Components {{{
