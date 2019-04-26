@@ -64,7 +64,7 @@ const VALID_INPUT_STRINGS: [&str; 104] = [
     "^^**alpha** beta ,,gamma,,^^",
     "apple\n----\nbanana\n-------\ncherry\n---------------\nkiwi",
     "apple\n~~~~\nbanana\n~~~~~~~\ncherry\n~~~~~~~~~~~~~~~\nkiwi",
-    "apple\n~~~~>\nbanana\n~~~~<\ncherry\n~~~~=\nkiwi\n~~~~==\npineapple",
+    "apple\n~~~~>\nbanana\n~~~~<\ncherry\n~~~~=\nkiwi",
     "= {{apple}} banana",
     "++ header\n+++ apple __banana__\n++++ @@ RAW @@\ndurian",
     "internal [[# anchor-name]] [[date 1000]] **apple** _",

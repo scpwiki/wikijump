@@ -26,7 +26,7 @@ use super::prelude::*;
 
 lazy_static! {
     static ref ALIGN: Regex = Regex::new(r"^\[\[(?P<direction><|>|=|==)\]\]").unwrap();
-    static ref CLEAR_FLOAT: Regex = Regex::new(r"~{4,}(?P<direction><|>|=|==)?").unwrap();
+    static ref CLEAR_FLOAT: Regex = Regex::new(r"~{4,}(?P<direction><|>|=)?").unwrap();
 
     static ref CODE_BLOCK: Regex = {
         RegexBuilder::new(r"\[\[\s*code[^\]]*\]\]\n(?P<contents>(?:.*\n)?)\[\[/\s*code\s*\]\]")
