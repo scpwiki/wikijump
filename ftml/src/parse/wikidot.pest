@@ -82,7 +82,7 @@ quote_block_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space
 // Misc lines {{{
 bullet_list = { (" "* ~ "* " ~ list_item)+ }
 numbered_list = { (" "* ~ "# " ~ list_item)+ }
-list_item = { word+ ~ ("\n" | EOI) }
+list_item = { word+ }
 words = {
     (
         "+"{1,6} ~ (" " | "\t") |
