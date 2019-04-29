@@ -28,7 +28,7 @@ use crate::include::NullIncluder;
 use pest::Parser;
 use super::{parse, Rule, WikidotParser};
 
-const VALID_INPUT_STRINGS: [&str; 109] = [
+const VALID_INPUT_STRINGS: [&str; 112] = [
     "",
     "@@ apple @@ @@banana@@",
     "@@ [!-- literal comment @@ durian",
@@ -37,6 +37,8 @@ const VALID_INPUT_STRINGS: [&str; 109] = [
     "apple `` legacy raw @@ `` banana",
     "[!-- [[ footnote invalid formatting in here-- [[ eref --] test",
     "__**test** cherry {{ durian (?) }}__ ^^up!^^",
+    " [ left bracket",
+    "right bracket ] ",
     "** [[date 0]] **",
     "__ [[  date 0  ]] [!-- comment here --]__",
     "[[span class = \"test\"]]//hello// world![[footnote]]actually country[[/footnote]][[/span]]",
@@ -125,7 +127,8 @@ const VALID_INPUT_STRINGS: [&str; 109] = [
     "[[js]]\nfunction test() { return 1; }\n[[/js]]\n[[ JS ]]\n[[/ JS ]]",
     "**apple**\n[[javascript]]\nconsole.log('test');\n[[/javascript]]\n**banana**",
     "Email me at person@example.com! Check out my [[[example-author-page | amazing author page]]]!",
-    "[[[page-with-no-name]]] [[[https://example.com | Example]]] [[[*https://example.com | This one opens in a new tab!]]] yay",
+    "[[[page-with-no-name]]] [[[*new-tab-with-no-name]]] [[[ * How To Write an SCP ]]] ",
+    "[[[https://example.com | Example]]] [[[*https://example.com | This one opens in a new tab!]]] yay",
     "Bare link: https://example.com/ Named link: [https://example.com/ example site]",
     "New tab bare link: *https://example.com/page1.html New tab link: [*https://example.com/page2.html bidoof]",
     "Named link with spaces: [  http://some-http-site.com/use-https-folks a link  ] ",
