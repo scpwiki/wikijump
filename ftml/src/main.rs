@@ -253,14 +253,29 @@ fn parse_only(text: &mut String, wrap: bool) -> Result<String> {
 
 #[inline]
 fn full_transform(text: &mut String, wrap: bool) -> Result<String> {
-    let mut result = transform::<HtmlRender>(text, &NullIncluder)?;
+    let mut output = transform::<HtmlRender>(text, &NullIncluder)?;
 
     if wrap {
-        result.insert_str(0, "<html><body>\n");
-        result.push_str("\n</body></html>\n");
+        let mut buffer = String::new();
+        buffer.push_str("<html><head>\n");
+
+        if !output.styles.is_empty() {
+            buffer.push_str("<style>\n");
+
+            for style in &output.styles {
+                buffer.push_str(style);
+                buffer.push_str("\n</style>\n");
+            }
+        }
+
+        buffer.push_str("<body>\n");
+        buffer.push_str(&output.html);
+        buffer.push_str("\n</body></html>\n");
+
+        output.html = buffer;
     }
 
-    Ok(result)
+    Ok(output.html)
 }
 
 // File handling

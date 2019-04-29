@@ -20,7 +20,6 @@
 
 mod buffer;
 mod line;
-mod tag;
 mod word;
 
 mod prelude {
@@ -28,22 +27,31 @@ mod prelude {
     pub use crate::parse::{Line, Word};
     pub use std::fmt::{self, Display, Write};
     pub use super::line::{render_line, render_lines};
-    pub use super::tag::write_tag_arg;
     pub use super::word::{render_word, render_words};
     pub use super::super::Render;
+    pub use super::HtmlOutput;
 
     use htmlescape::{encode_attribute_w, encode_minimal_w};
     use super::buffer::StringBuf;
 
-    pub fn escape_attr(buffer: &mut String, attr: &str) -> Result<()> {
-        let mut writer = StringBuf(buffer);
+    pub fn escape_attr(output: &mut HtmlOutput, attr: &str) -> Result<()> {
+        let mut writer = StringBuf(&mut output.html);
         encode_attribute_w(attr, &mut writer)?;
         Ok(())
     }
 
-    pub fn escape_html(buffer: &mut String, html: &str) -> Result<()> {
-        let mut writer = StringBuf(buffer);
+    pub fn escape_html(output: &mut HtmlOutput, html: &str) -> Result<()> {
+        let mut writer = StringBuf(&mut output.html);
         encode_minimal_w(html, &mut writer)?;
+        Ok(())
+    }
+
+    pub fn write_tag_arg(output: &mut HtmlOutput, arg_name: &str, value: &str) -> Result<()> {
+        write!(output.html, " {}", arg_name)?;
+        output.push_str("=\"");
+        escape_attr(output, value)?;
+        output.push('"');
+
         Ok(())
     }
 }
@@ -54,12 +62,30 @@ use self::prelude::*;
 pub struct HtmlRender;
 
 impl Render for HtmlRender {
-    type Output = String;
+    type Output = HtmlOutput;
 
-    fn render(tree: &SyntaxTree) -> Result<String> {
-        let mut buffer = String::new();
-        render_lines(&mut buffer, tree.lines())?;
+    fn render(tree: &SyntaxTree) -> Result<HtmlOutput> {
+        let mut output = HtmlOutput::default();
+        render_lines(&mut output, tree.lines())?;
 
-        Ok(buffer)
+        Ok(output)
+    }
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct HtmlOutput {
+    pub html: String,
+    pub styles: Vec<String>,
+}
+
+impl HtmlOutput {
+    #[inline]
+    fn push(&mut self, ch: char) {
+        self.html.push(ch);
+    }
+
+    #[inline]
+    fn push_str(&mut self, s: &str) {
+        self.html.push_str(s);
     }
 }

@@ -26,13 +26,13 @@ macro_rules! percent_encode {
     ($input:expr) => ( percent_encode($input.as_ref(), DEFAULT_ENCODE_SET) )
 }
 
-pub fn render_words<'a, I, W>(buffer: &mut String, words: I) -> Result<()>
+pub fn render_words<'a, I, W>(output: &mut HtmlOutput, words: I) -> Result<()>
 where
     I: IntoIterator<Item = W>,
     W: AsRef<Word<'a>>,
 {
     for word in words {
-        render_word(buffer, word.as_ref())?;
+        render_word(output, word.as_ref())?;
     }
 
     Ok(())
@@ -40,7 +40,7 @@ where
 
 // TODO remove this
 #[allow(unused_variables)]
-pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
+pub fn render_word(output: &mut HtmlOutput, word: &Word) -> Result<()> {
     match word {
         &Anchor {
             href,
@@ -51,41 +51,41 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
             target,
             ref words,
         } => {
-            buffer.push_str("<a");
+            output.push_str("<a");
 
             if let Some(href) = href {
-                write!(buffer, " href=\"{}\"", percent_encode!(href))?;
+                write!(output.html, " href=\"{}\"", percent_encode!(href))?;
             }
 
             if let Some(name) = name {
-                write!(buffer, " name=\"{}\"", name)?;
+                write!(output.html, " name=\"{}\"", name)?;
             }
 
             if let Some(id) = id {
-                write!(buffer, " id=\"{}\"", id)?;
+                write!(output.html, " id=\"{}\"", id)?;
             }
 
             if let Some(class) = class {
-                write!(buffer, " class=\"{}\"", class)?;
+                write!(output.html, " class=\"{}\"", class)?;
             }
 
             if let Some(style) = style {
-                write!(buffer, " style=\"{}\"", style)?;
+                write!(output.html, " style=\"{}\"", style)?;
             }
 
             if let Some(target) = target {
-                write!(buffer, " target=\"{}\"", target)?;
+                write!(output.html, " target=\"{}\"", target)?;
             }
 
-            buffer.push('>');
-            render_words(buffer, words)?;
-            buffer.push_str("</a>");
+            output.push('>');
+            render_words(output, words)?;
+            output.push_str("</a>");
         }
         &Link { href, target, text } => {
-            write!(buffer, "<a href=\"{}\"", percent_encode!(href))?;
+            write!(output.html, "<a href=\"{}\"", percent_encode!(href))?;
 
             if let Some(target) = target {
-                write!(buffer, " target=\"{}\"", target)?;
+                write!(output.html, " target=\"{}\"", target)?;
             }
 
             // TODO fetch title of the page
@@ -95,14 +95,14 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
                 None => href,
             };
 
-            buffer.push('>');
-            escape_html(buffer, text)?;
-            buffer.push_str("</a>");
+            output.push('>');
+            escape_html(output, text)?;
+            output.push_str("</a>");
         }
         &Bold { ref words } => {
-            buffer.push_str("<b>");
-            render_words(buffer, words)?;
-            buffer.push_str("</b>");
+            output.push_str("<b>");
+            render_words(output, words)?;
+            output.push_str("</b>");
         }
         &Button {} => unimplemented!(),
         &Collapsible {
@@ -111,17 +111,17 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
             ref lines,
         } => unimplemented!(),
         &Color { color, ref words } => {
-            buffer.push_str("<span style=\"color: ");
-            escape_attr(buffer, color)?;
-            buffer.push_str("\">");
-            render_words(buffer, words)?;
-            buffer.push_str("</span>");
+            output.push_str("<span style=\"color: ");
+            escape_attr(output, color)?;
+            output.push_str("\">");
+            render_words(output, words)?;
+            output.push_str("</span>");
         }
         &Date { timestamp, format } => unimplemented!(),
         &Email { address, text } => {
-            write!(buffer, "<a href=\"mailto:{}\">", address)?;
-            escape_html(buffer, text.unwrap_or(address))?;
-            buffer.push_str("</a>");
+            write!(output.html, "<a href=\"mailto:{}\">", address)?;
+            escape_html(output, text.unwrap_or(address))?;
+            output.push_str("</a>");
         }
         &EquationReference { name } => unimplemented!(),
         &File { filename } => unimplemented!(),
@@ -142,45 +142,45 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
             class,
             size,
         } => {
-            buffer.push_str("<img");
+            output.push_str("<img");
 
             // TODO adjust for other sources
-            write_tag_arg(buffer, "src", filename)?;
+            write_tag_arg(output, "src", filename)?;
 
             // TODO float
 
             if let Some(alt) = alt {
-                write!(buffer, " alt={}", alt)?;
+                write!(output.html, " alt={}", alt)?;
             }
 
             // TODO title
 
             if let Some(width) = width {
-                write!(buffer, " width={}", width)?;
+                write!(output.html, " width={}", width)?;
             }
 
             if let Some(height) = height {
-                write!(buffer, " height={}", height)?;
+                write!(output.html, " height={}", height)?;
             }
 
             if let Some(style) = style {
-                write!(buffer, " style={}", style)?;
+                write!(output.html, " style={}", style)?;
             }
 
             if let Some(class) = class {
-                write!(buffer, " class={}", class)?;
+                write!(output.html, " class={}", class)?;
             }
 
             if let Some(size) = size {
-                write!(buffer, " size={}", size)?;
+                write!(output.html, " size={}", size)?;
             }
 
-            buffer.push_str("></img>");
+            output.push_str("></img>");
         }
         &Italics { ref words } => {
-            buffer.push_str("<i>");
-            render_words(buffer, words)?;
-            buffer.push_str("</i>");
+            output.push_str("<i>");
+            render_words(output, words)?;
+            output.push_str("</i>");
         }
         &Math { expr } => unimplemented!(),
         &Module {
@@ -189,16 +189,16 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
             contents,
         } => unimplemented!(),
         &Monospace { ref words } => {
-            buffer.push_str("<tt>");
-            render_words(buffer, words)?;
-            buffer.push_str("</tt>");
+            output.push_str("<tt>");
+            render_words(output, words)?;
+            output.push_str("</tt>");
         }
         &Note { ref lines } => unimplemented!(),
-        &Raw { contents } => escape_html(buffer, contents)?,
+        &Raw { contents } => escape_html(output, contents)?,
         &Size { size, ref lines } => {
-            write!(buffer, "<span style=\"size: {};\">", size)?;
-            render_lines(buffer, lines)?;
-            buffer.push_str("</span>");
+            write!(output.html, "<span style=\"size: {};\">", size)?;
+            render_lines(output, lines)?;
+            output.push_str("</span>");
         }
         &Span {
             id,
@@ -206,45 +206,45 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
             style,
             ref lines,
         } => {
-            buffer.push_str("<span");
+            output.push_str("<span");
 
             if let Some(id) = id {
-                write!(buffer, " id={}", id)?;
+                write!(output.html, " id={}", id)?;
             }
 
             if let Some(class) = class {
-                write!(buffer, " class={}", class)?;
+                write!(output.html, " class={}", class)?;
             }
 
             if let Some(style) = style {
-                write!(buffer, " style={}", style)?;
+                write!(output.html, " style={}", style)?;
             }
 
-            buffer.push('>');
-            render_lines(buffer, lines)?;
-            buffer.push_str("</span>");
+            output.push('>');
+            render_lines(output, lines)?;
+            output.push_str("</span>");
         }
         &Strikethrough { ref words } => {
-            buffer.push_str("<strike>");
-            render_words(buffer, words)?;
-            buffer.push_str("</strike>");
+            output.push_str("<strike>");
+            render_words(output, words)?;
+            output.push_str("</strike>");
         }
         &Subscript { ref words } => {
-            buffer.push_str("<sub>");
-            render_words(buffer, words)?;
-            buffer.push_str("</sub>");
+            output.push_str("<sub>");
+            render_words(output, words)?;
+            output.push_str("</sub>");
         }
         &Superscript { ref words } => {
-            buffer.push_str("<sup>");
-            render_words(buffer, words)?;
-            buffer.push_str("</sup>");
+            output.push_str("<sup>");
+            render_words(output, words)?;
+            output.push_str("</sup>");
         }
         &TabList { ref tabs } => unimplemented!(),
-        &Text { contents } => escape_html(buffer, contents)?,
+        &Text { contents } => escape_html(output, contents)?,
         &Underline { ref words } => {
-            buffer.push_str("<u>");
-            render_words(buffer, words)?;
-            buffer.push_str("</u>");
+            output.push_str("<u>");
+            render_words(output, words)?;
+            output.push_str("</u>");
         }
         &User {
             username,

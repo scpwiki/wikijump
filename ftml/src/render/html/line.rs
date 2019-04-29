@@ -22,7 +22,7 @@ use crate::enums::Alignment;
 use self::Line::*;
 use super::prelude::*;
 
-pub fn render_lines<'a, I, L>(buffer: &mut String, lines: I) -> Result<()>
+pub fn render_lines<'a, I, L>(output: &mut HtmlOutput, lines: I) -> Result<()>
 where
     L: AsRef<Line<'a>>,
     I: IntoIterator<Item = L>,
@@ -32,10 +32,10 @@ where
     let len = lines.len();
 
     for (i, line) in lines.enumerate() {
-        render_line(buffer, line.as_ref())?;
+        render_line(output, line.as_ref())?;
 
         if i < len - 1 {
-            write!(buffer, " <br>")?;
+            write!(output.html, " <br>")?;
         }
     }
 
@@ -44,20 +44,20 @@ where
 
 // TODO remove this
 #[allow(unused_variables)]
-pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
+pub fn render_line(output: &mut HtmlOutput, line: &Line) -> Result<()> {
     match line {
         &Align {
             alignment,
             ref lines,
         } => {
-            write!(buffer, r#"<div style="text-align: {};">\n"#, alignment)?;
-            render_lines(buffer, lines)?;
-            buffer.push_str("</div>");
+            write!(output.html, r#"<div style="text-align: {};">\n"#, alignment)?;
+            render_lines(output, lines)?;
+            output.push_str("</div>");
         }
         &Center { ref words } => {
-            buffer.push_str(r#"<div style="text-align: center;">\n"#);
-            render_words(buffer, words)?;
-            buffer.push_str("</div>");
+            output.push_str(r#"<div style="text-align: center;">\n"#);
+            render_words(output, words)?;
+            output.push_str("</div>");
         }
         &ClearFloat { direction } => {
             let style = match direction {
@@ -67,7 +67,7 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
                 None => "both",
             };
 
-            write!(buffer, r#"<div style="clear: {};"></div>"#, style)?;
+            write!(output.html, r#"<div style="clear: {};"></div>"#, style)?;
             // TODO verify this ^^^
             unimplemented!()
         }
@@ -78,9 +78,9 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
             // TODO add language highlighting
             let _ = language;
 
-            buffer.push_str("<code>\n");
-            escape_html(buffer, contents)?;
-            buffer.push_str("</code>\n");
+            output.push_str("<code>\n");
+            escape_html(output, contents)?;
+            output.push_str("</code>\n");
         }
         &Div {
             id,
@@ -88,31 +88,31 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
             style,
             ref lines,
         } => {
-            buffer.push_str("<div");
+            output.push_str("<div");
 
             if let Some(id) = id {
-                write!(buffer, " id={}", id)?;
+                write!(output.html, " id={}", id)?;
             }
 
             if let Some(class) = class {
-                write!(buffer, " class={}", class)?;
+                write!(output.html, " class={}", class)?;
             }
 
             if let Some(style) = style {
-                write!(buffer, " style={}", style)?;
+                write!(output.html, " style={}", style)?;
             }
 
-            buffer.push_str(">\n");
-            render_lines(buffer, lines)?;
-            buffer.push_str("\n</div>");
+            output.push_str(">\n");
+            render_lines(output, lines)?;
+            output.push_str("\n</div>");
         }
         &Heading { level, ref words } => {
-            write!(buffer, "<{}>", level)?;
-            render_words(buffer, words)?;
-            write!(buffer, "</{}>\n", level)?;
+            write!(output.html, "<{}>", level)?;
+            render_words(output, words)?;
+            write!(output.html, "</{}>\n", level)?;
         }
-        &HorizontalLine => buffer.push_str("<hr>\n"),
-        &Html { contents } => buffer.push_str(contents),
+        &HorizontalLine => output.push_str("<hr>\n"),
+        &Html { contents } => output.push_str(contents),
         &Iframe { url, args } => unimplemented!(),
         &IfTags {
             ref required,
@@ -123,7 +123,7 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
             unimplemented!()
         }
         &Javascript { contents } => {
-            write!(buffer, "<script>\n{}\n</script>", contents)?;
+            write!(output.html, "<script>\n{}\n</script>", contents)?;
         }
         &List {
             style,
@@ -133,13 +133,13 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
             // TODO will need to collect nearby entries for depth
             let _ = depth;
 
-            write!(buffer, "<{}>\n", style)?;
+            write!(output.html, "<{}>\n", style)?;
             for item in items {
-                buffer.push_str("<li> ");
-                render_line(buffer, item)?;
-                buffer.push_str(" </li>\n");
+                output.push_str("<li> ");
+                render_line(output, item)?;
+                output.push_str(" </li>\n");
             }
-            write!(buffer, "</{}>", style)?;
+            write!(output.html, "</{}>", style)?;
         }
         &Math {
             label,
@@ -152,28 +152,28 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
         }
         &Newlines { count } => {
             for _ in 0..count {
-                buffer.push_str("<br>");
+                output.push_str("<br>");
             }
 
-            buffer.push('\n');
+            output.push('\n');
         }
         &Table { ref rows } => {
-            buffer.push_str("<table>\n");
+            output.push_str("<table>\n");
             for row in rows {
                 let (start_tag, end_tag) = match row.title {
                     true => ("<th>", "</th>\n"),
                     false => ("<td>", "</td>\n"),
                 };
 
-                buffer.push_str("<tr>\n");
+                output.push_str("<tr>\n");
                 for column in &row.columns {
-                    buffer.push_str(start_tag);
-                    render_words(buffer, column)?;
-                    buffer.push_str(end_tag);
+                    output.push_str(start_tag);
+                    render_words(output, column)?;
+                    output.push_str(end_tag);
                 }
-                buffer.push_str("</tr>\n");
+                output.push_str("</tr>\n");
             }
-            buffer.push_str("</table>\n");
+            output.push_str("</table>\n");
         }
         &TableOfContents {} => {
             // TODO
@@ -185,36 +185,36 @@ pub fn render_line(buffer: &mut String, line: &Line) -> Result<()> {
             style,
             ref lines,
         } => {
-            buffer.push_str("<blockquote");
+            output.push_str("<blockquote");
 
             if let Some(id) = id {
-                write!(buffer, " id={}", id)?;
+                write!(output.html, " id={}", id)?;
             }
 
             if let Some(class) = class {
-                write!(buffer, " class={}", class)?;
+                write!(output.html, " class={}", class)?;
             }
 
             if let Some(style) = style {
-                write!(buffer, " style={}", style)?;
+                write!(output.html, " style={}", style)?;
             }
 
-            buffer.push_str(">\n");
-            render_lines(buffer, lines)?;
-            buffer.push_str("\n</blockquote>");
+            output.push_str(">\n");
+            render_lines(output, lines)?;
+            output.push_str("\n</blockquote>");
         }
         Words {
             centered,
             ref words,
         } => {
             if *centered {
-                buffer.push_str(r#"<div style="text-align: center;"> "#);
+                output.push_str(r#"<div style="text-align: center;"> "#);
             }
 
-            render_words(buffer, words)?;
+            render_words(output, words)?;
 
             if *centered {
-                buffer.push_str(" </div>");
+                output.push_str(" </div>");
             }
         }
     }
