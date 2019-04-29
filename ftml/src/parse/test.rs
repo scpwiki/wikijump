@@ -157,7 +157,7 @@ const VALID_FILTER_STRINGS: [&str; 11] = [
     " omg... he actually did it ",
 ];
 
-const INVALID_INPUT_STRINGS: [&str; 67] = [
+const INVALID_INPUT_STRINGS: [&str; 65] = [
     "@@ raw value",
     "`` legacy raw value",
     "@@ @@ @@",
@@ -221,8 +221,6 @@ const INVALID_INPUT_STRINGS: [&str; 67] = [
     "[[javascript]]",
     "[[# false anchor]",
     "[# false empty link]]",
-    "[https://example.com/ unterminated link",
-    "[https://example.com/ link with newline\n]",
     "[[a herf=\"https://example.com/\"]]link[[/a]]",
     "[[# anchor-name-with-|-bad-ident]]",
 ];
