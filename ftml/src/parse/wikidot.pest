@@ -52,31 +52,31 @@ align = {
 }
 
 code = {
-    "[[" ~ space? ~ ^"code" ~ code_arg? ~ space? ~ "]]\n" ~
+    "[[" ~ space? ~ ^"code" ~ code_arg? ~ space_any? ~ "]]\n" ~
     (!("[[/" ~ space? ~ ^"code") ~ ANY)* ~
-    "[[/" ~ space? ~ ^"code" ~ space? ~ "]]"
+    "[[/" ~ space? ~ ^"code" ~ space_any? ~ "]]"
 }
-code_arg = { space ~ (^"type" | ^"language" | ^"lang") ~ space? ~ "=" ~ space? ~ string }
+code_arg = { space_any ~ (^"type" | ^"language" | ^"lang") ~ space_any? ~ "=" ~ space_any? ~ string }
 
 div = {
-    "[[" ~ space? ~ ^"div" ~ "_"? ~ div_arg* ~ space? ~ "]]\n" ~
+    "[[" ~ space? ~ ^"div" ~ "_"? ~ div_arg* ~ space_any? ~ "]]\n" ~
     line* ~
-    "[[/" ~ space? ~ ^"div" ~ "_"? ~ space? ~ "]]"
+    "[[/" ~ space? ~ ^"div" ~ "_"? ~ space_any? ~ "]]"
 }
-div_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ string }
+div_arg = { space_any ~ (^"id" | ^"class" | ^"style") ~ space_any? ~ "=" ~ space_any? ~ string }
 
 javascript = {
-    "[[" ~ space? ~ (^"js" | ^"javascript") ~ space? ~ "]]\n" ~
+    "[[" ~ space? ~ (^"js" | ^"javascript") ~ space_any? ~ "]]\n" ~
     (!("[[/" ~ space? ~ (^"js" | ^"javascript")) ~ ANY)* ~
-    "[[/" ~ space? ~ (^"js" | ^"javascript") ~ space? ~ "]]"
+    "[[/" ~ space? ~ (^"js" | ^"javascript") ~ space_any? ~ "]]"
 }
 
 quote_block = {
-    "[[" ~ space? ~ (^"quote" | ^"blockquote") ~ quote_block_arg* ~ space? ~ "]]\n" ~
+    "[[" ~ space? ~ (^"quote" | ^"blockquote") ~ quote_block_arg* ~ space_any? ~ "]]\n" ~
     lines_internal ~
-    "[[/" ~ space? ~ (^"quote" | ^"blockquote") ~ space? ~ "]]"
+    "[[/" ~ space? ~ (^"quote" | ^"blockquote") ~ space_any? ~ "]]"
 }
-quote_block_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ string }
+quote_block_arg = { space_any ~ (^"id" | ^"class" | ^"style") ~ space_any? ~ "=" ~ space_any? ~ string }
 // }}}
 
 // Misc lines {{{
@@ -144,63 +144,65 @@ monospace = { "{{" ~ word* ~ "}}" }
 anchor = { "[[#" ~ space? ~ ident ~ space? ~ "]]" }
 
 date = {
-    "[[" ~ space? ~ ^"date" ~ space ~ integer ~ date_arg? ~ space? ~ "]]"
+    "[[" ~ space? ~ ^"date" ~ space_any ~ integer ~ date_arg? ~ space_any? ~ "]]"
 }
-date_arg = @{ space ~ ^"format" ~ space? ~ "=" ~ space? ~ string }
+date_arg = @{ space_any ~ ^"format" ~ space_any? ~ "=" ~ space_any? ~ string }
 
 equation_ref = {
-    "[[" ~ space? ~ (^"eref" | ^"equationref") ~ space ~ ident ~ space? ~ "]]"
+    "[[" ~ space? ~ (^"eref" | ^"equationref") ~ space_any ~ ident ~ space_any? ~ "]]"
 }
 
-file_ref = { "[[" ~ space? ~ ^"file" ~ space ~ file_ident ~ space? ~ "]]" }
+file_ref = { "[[" ~ space? ~ ^"file" ~ space_any ~ file_ident ~ space_any? ~ "]]" }
 
 footnote = {
-    "[[" ~ space? ~ ^"footnote" ~ space? ~ "]]" ~
+    "[[" ~ space? ~ ^"footnote" ~ space_any? ~ "]]" ~
     lines_internal ~
-    "[[/" ~ space? ~ ^"footnote" ~ space? ~ "]]"
+    "[[/" ~ space? ~ ^"footnote" ~ space_any? ~ "]]"
 }
 
-footnote_block = { "[[" ~ space? ~ ^"footnoteblock" ~ space? ~ "]]" }
+footnote_block = { "[[" ~ space? ~ ^"footnoteblock" ~ space_any? ~ "]]" }
 
 form = {
-    "[[" ~ space? ~ ^"form" ~ space? ~ "]]\n" ~
+    "[[" ~ space? ~ ^"form" ~ space_any? ~ "]]\n" ~
     (!("[[/" ~ space? ~ ^"form") ~ ANY)* ~
-    "[[/" ~ space? ~ ^"form" ~ space? ~ "]]"
+    "[[/" ~ space? ~ ^"form" ~ space_any? ~ "]]"
 }
 
-gallery = { "[[" ~ space? ~ ^"gallery" ~ space? ~ "]]" }
+gallery = { "[[" ~ space? ~ ^"gallery" ~ space_any? ~ "]]" }
 
 module = {
-    "[[" ~ space? ~ ^"module" ~ space ~ ident ~ module_arg* ~ space? ~ "]]" ~
+    "[[" ~ space? ~ ^"module" ~ space_any ~ ident ~ module_arg* ~ space_any? ~ "]]" ~
     (
         "\n" ~ (!("[[/" ~ space? ~ ^"module") ~ ANY)* ~
-        "[[/" ~ space? ~ ^"module" ~ space? ~ "]]"
+        "[[/" ~ space? ~ ^"module" ~ space_any? ~ "]]"
     )?
 }
-module_arg = { space ~ ident ~ space? ~ "=" ~ space? ~ string }
+module_arg = { space_any ~ ident ~ space_any? ~ "=" ~ space_any? ~ string }
 
 note = {
-    "[[" ~ space? ~ ^"note" ~ space? ~ "]]\n" ~
+    "[[" ~ space? ~ ^"note" ~ space_any? ~ "]]\n" ~
     line* ~
-    "[[/" ~ space? ~ ^"note" ~ space? ~ "]]"
+    "[[/" ~ space? ~ ^"note" ~ space_any? ~ "]]"
 }
 
 image = {
-    "[[" ~ space? ~ image_alignment? ~ space? ~ ^"image" ~ space ~ file_ident ~ image_arg* ~ space? ~ "]]"
+    "[[" ~ space? ~ image_alignment? ~ space? ~
+    ^"image" ~ space_any ~ file_ident ~
+    image_arg* ~ space_any? ~ "]]"
 }
 image_alignment = {
-    space? ~ ("f"? ~ ("<" | ">") | "=")?
+    space_any? ~ ("f"? ~ ("<" | ">") | "=")?
 }
 image_arg = {
-    space ~
+    space_any ~
     (^"link" | ^"alt" | ^"title" | ^"width" | ^"height" | ^"style" | ^"class" | ^"size") ~
-    space? ~ "=" ~ space? ~ string
+    space_any? ~ "=" ~ space_any? ~ string
 }
 
 size = {
-    "[[" ~ space? ~ ^"size" ~ space ~ size_arg ~ space? ~ "]]" ~
+    "[[" ~ space? ~ ^"size" ~ space_any ~ size_arg ~ space_any? ~ "]]" ~
     lines_internal ~
-    "[[/" ~ space? ~ ^"size" ~ space? ~ "]]"
+    "[[/" ~ space? ~ ^"size" ~ space_any? ~ "]]"
 }
 size_arg = {
     (ASCII_DIGIT | "."){1,5} ~ space? ~ (^"rem" | ^"em" | ^"px" | "%") |
@@ -216,21 +218,21 @@ size_arg = {
 }
 
 span = {
-    "[[" ~ space? ~ ^"span" ~ span_arg* ~ space? ~ "]]" ~
+    "[[" ~ space? ~ ^"span" ~ span_arg* ~ space_any? ~ "]]" ~
     lines_internal ~
-    "[[/" ~ space? ~ ^"span" ~ space? ~ "]]"
+    "[[/" ~ space? ~ ^"span" ~ space_any? ~ "]]"
 }
-span_arg = { space ~ (^"id" | ^"class" | ^"style") ~ space? ~ "=" ~ space? ~ string }
+span_arg = { space_any ~ (^"id" | ^"class" | ^"style") ~ space_any? ~ "=" ~ space_any? ~ string }
 
 tab_list = {
-    "[[" ~ space? ~ (^"tablist" | ^"tabview" | ^"tabs") ~ space? ~ "]]" ~ space? ~
-    (tab ~ space?)* ~
-    "[[/" ~ space? ~ (^"tablist" | ^"tabview" | ^"tabs") ~ space? ~ "]]"
+    "[[" ~ space? ~ (^"tablist" | ^"tabview" | ^"tabs") ~ space_any? ~ "]]" ~ space_any? ~
+    (tab ~ space_any?)* ~
+    "[[/" ~ space? ~ (^"tablist" | ^"tabview" | ^"tabs") ~ space_any? ~ "]]"
 }
 tab = {
-    "[[" ~ space? ~ ^"tab" ~ space ~ tab_name ~ space? ~ "]]" ~ space? ~
+    "[[" ~ space? ~ ^"tab" ~ space_any ~ tab_name ~ space_any? ~ "]]" ~ space_any? ~
     lines_internal ~
-    "[[/" ~ space? ~ ^"tab" ~ space? ~ "]]"
+    "[[/" ~ space? ~ ^"tab" ~ space_any? ~ "]]"
 }
 tab_name = { (!("]]" | "\n") ~ ANY)+ }
 
@@ -239,9 +241,9 @@ user = { "[[" ~ space? ~ "*"? ~ space? ~ ^"user" ~ space ~ ident ~ space? ~ "]]"
 
 // Link words {{{
 anchor_tag = {
-    "[[" ~ space? ~ ^"a" ~ "_"? ~ anchor_arg* ~ space? ~ "]]" ~
+    "[[" ~ space? ~ ^"a" ~ "_"? ~ anchor_arg* ~ space_any? ~ "]]" ~
     word* ~
-    "[[/" ~ space? ~ ^"a" ~ "_"? ~ space? ~ "]]"
+    "[[/" ~ space? ~ ^"a" ~ "_"? ~ space_any? ~ "]]"
 }
 anchor_arg = {
     space ~ (^"href" | ^"name" | ^"id" | ^"class" | ^"style" | ^"target") ~ space? ~
@@ -279,13 +281,13 @@ text = {
         "__" |
         ",," |
         "^^" |
-        ("[" ~ space? ~ link_newtab ~ space? ~ url) |
         "{{" | "}}" |
         "[[" | "]]" |
         "[[[" | "]]]" |
         "##" |
         "-"{4,} | "~"{4,} |
-        "\n"
+        "\n" |
+        link_url
     ) ~ ANY)+
 }
 
@@ -295,7 +297,8 @@ legacy_raw = { ("``````" | "``" ~ (!("``" | "\n") ~ ANY)* ~ "``") }
 
 // Components {{{
 hex_digit = @{ '0'..'9' | 'a'..'f' | 'A'..'F' }
-space = _{ (" " | "\r" | "\t" | "\n")+ }
+space = _{ (" " | "\r" | "\t")+ }
+space_any = _{ (" " | "\r" | "\t" | "\n")+ }
 integer = @{ "-"? ~ ASCII_DIGIT+ }
 file_ident = @{ (!(space | "]]") ~ ANY)+ }
 ident = @{ (ASCII_ALPHANUMERIC | "-" | "+" | "_" | "." | "%")+ }
