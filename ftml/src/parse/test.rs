@@ -221,8 +221,8 @@ const INVALID_INPUT_STRINGS: [&str; 67] = [
     "[[javascript]]",
     "[[# false anchor]",
     "[# false empty link]]",
-    "[https://examle.com/ unterminated link",
-    "[https://examle.com/ link with newline\n]",
+    "[https://example.com/ unterminated link",
+    "[https://example.com/ link with newline\n]",
     "[[a herf=\"https://example.com/\"]]link[[/a]]",
     "[[# anchor-name-with-|-bad-ident]]",
 ];

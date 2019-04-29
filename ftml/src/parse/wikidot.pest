@@ -251,18 +251,21 @@ anchor_arg = {
 link_bare = { link_newtab ~ url }
 
 link_page = {
-    "[[[" ~ space? ~ link_newtab ~ space? ~ page_link ~ space? ~
-    "|"? ~ (space? ~ page_name)? ~ space? ~ "]]]"
+    "[[[" ~ space? ~ link_newtab ~ space? ~ link_page_href ~
+    (space? ~ "|" ~ space? ~ link_page_name)? ~ space? ~ "]]]"
 }
+link_page_href = { (!("\n" | "|" | "]]]") ~ ANY)+ }
+link_page_name = { (!("\n" | "[" | "]]]") ~ ANY)+ }
 
 link_url = {
-    "[" ~ space? ~ link_newtab ~ space? ~ (email | page_link) ~ space ~ page_name ~ space? ~ "]"
+    "[" ~ !"[" ~ space? ~ link_newtab ~ space? ~
+     link_url_href ~ space ~
+     link_url_name ~ space? ~ "]"
 }
+link_url_href = { ^"mailto:"? ~ email | root_url | url }
+link_url_name = { (!("\n" | "[" | "]") ~ ANY)+ }
 
 link_newtab = { "*"? }
-page_name = { (!("\n" | "]]]") ~ ANY)+ }
-page_link = { (!(" " | "\n" | "|" | "]]]") ~ ANY)+ }
-page_url = { (!space ~ ANY) + }
 // }}}
 
 // Misc words {{{
@@ -276,8 +279,10 @@ text = {
         "__" |
         ",," |
         "^^" |
+        ("[" ~ space? ~ link_newtab ~ space? ~ url) |
         "{{" | "}}" |
         "[[" | "]]" |
+        "[[[" | "]]]" |
         "##" |
         "-"{4,} | "~"{4,} |
         "\n"
@@ -286,11 +291,6 @@ text = {
 
 raw = { ("@@@@@@" | "@@" ~ (!("@@" | "\n") ~ ANY)* ~ "@@") }
 legacy_raw = { ("``````" | "``" ~ (!("``" | "\n") ~ ANY)* ~ "``") }
-email = {
-    (ASCII_ALPHANUMERIC | "-" | "+" | "_" | ".")+ ~ "@" ~
-    (ASCII_ALPHANUMERIC | "-")+ ~ "." ~
-    (ASCII_ALPHANUMERIC | ".")+
-}
 // }}}
 
 // Components {{{
@@ -302,7 +302,13 @@ ident = @{ (ASCII_ALPHANUMERIC | "-" | "+" | "_" | "." | "%")+ }
 str_inner = @{ (!("\"" | "\\") ~ ANY)* ~ (escape ~ str_inner)? }
 string = @{ "\"" ~ str_inner ~ "\"" }
 escape = @{ "\\" ~ ("\"" | "\\" | "r" | "n" | "t" | "0" | "'") }
-url = @{ "http" ~ "s"? ~ "://" ~ (!" " ~ ANY)+ }
+root_url = @{ "/" ~ (!(" " | "\n" | "|" | "]") ~ ANY)+ }
+url = @{ (^"http" ~ ^"s"? | ^"ftp") ~ "://" ~ (!(" " | "\n" | "|" | "]") ~ ANY)+ }
+email = @{
+    (ASCII_ALPHANUMERIC | "-" | "+" | "_" | ".")+ ~ "@" ~
+    (ASCII_ALPHANUMERIC | "-")+ ~ "." ~
+    (ASCII_ALPHANUMERIC | ".")+
+}
 COMMENT = _{ "[!--" ~ (!"--]" ~ ANY)* ~ "--]" }
 // }}}
 
