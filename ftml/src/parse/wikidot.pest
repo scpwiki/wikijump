@@ -254,8 +254,9 @@ link_bare = { link_newtab ~ url }
 
 link_page = {
     "[[[" ~ space? ~ link_newtab ~ space? ~ link_page_href ~
-    (space? ~ "|" ~ space? ~ link_page_name)? ~ space? ~ "]]]"
+    (space? ~ link_separator ~ (space? ~ link_page_name)?)? ~ space? ~ "]]]"
 }
+link_separator = { "|" }
 link_page_href = { (!("\n" | "|" | "]]]") ~ ANY)+ }
 link_page_name = { (!("\n" | "[" | "]]]") ~ ANY)+ }
 

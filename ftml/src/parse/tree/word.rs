@@ -517,7 +517,12 @@ impl<'a> Word<'a> {
                     .expect("LinkPage pairs iterator had only one element")
                     .as_str();
 
-                let text = pairs.next().map(|pair| pair.as_str());
+                let use_page_title = pairs.next().is_some();
+                let text = if use_page_title {
+                    pairs.next().map(|pair| pair.as_str())
+                } else {
+                    Some("")
+                };
 
                 Word::Link { href, target, text }
             }

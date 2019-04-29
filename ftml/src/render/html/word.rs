@@ -88,8 +88,15 @@ pub fn render_word(buffer: &mut String, word: &Word) -> Result<()> {
                 write!(buffer, " target=\"{}\"", target)?;
             }
 
+            // TODO fetch title of the page
+            let text = match text {
+                Some("") => "<page title here>",
+                Some(text) => text,
+                None => href,
+            };
+
             buffer.push('>');
-            escape_html(buffer, text.unwrap_or(href))?;
+            escape_html(buffer, text)?;
             buffer.push_str("</a>");
         }
         &Bold { ref words } => {
