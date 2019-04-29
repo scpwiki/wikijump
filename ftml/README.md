@@ -16,7 +16,7 @@ This will produce the binary `target/release/wikidot2html` and Rust library file
 The executable can be run using the following:
 
 ```sh
-$ cargo run -- [arguments for program]
+$ cargo run -- [arguments]
 ```
 
 ### Testing
