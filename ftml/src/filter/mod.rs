@@ -51,6 +51,15 @@ pub fn prefilter(text: &mut String, includer: &Includer) -> Result<()> {
     Ok(())
 }
 
+/// Transform the output text following rendering.
+///
+/// Currently performs no action.
+/// Performs the following modifications:
+#[inline]
+pub fn postfilter(_text: &mut String) -> Result<()> {
+    Ok(())
+}
+
 #[test]
 fn test_fn() {
     type SubstituteFn = fn(&mut String) -> Result<()>;

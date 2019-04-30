@@ -314,7 +314,6 @@ email = @{
     (ASCII_ALPHANUMERIC | "-")+ ~ "." ~
     (ASCII_ALPHANUMERIC | ".")+
 }
-COMMENT = _{ "[!--" ~ (!"--]" ~ ANY)* ~ "--]" }
 // }}}
 
 // vim: set fdm=marker foldlevel=0:

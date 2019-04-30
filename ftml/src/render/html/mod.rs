@@ -56,6 +56,7 @@ mod prelude {
     }
 }
 
+use crate::postfilter;
 use self::prelude::*;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -67,6 +68,7 @@ impl Render for HtmlRender {
     fn render(tree: &SyntaxTree) -> Result<HtmlOutput> {
         let mut output = HtmlOutput::default();
         render_lines(&mut output, tree.lines())?;
+        postfilter(&mut output.html)?;
 
         Ok(output)
     }

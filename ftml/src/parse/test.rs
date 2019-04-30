@@ -28,19 +28,17 @@ use crate::include::NullIncluder;
 use pest::Parser;
 use super::{parse, Rule, WikidotParser};
 
-const VALID_INPUT_STRINGS: [&str; 112] = [
+const VALID_INPUT_STRINGS: [&str; 110] = [
     "",
     "@@ apple @@ @@banana@@",
     "@@ [!-- literal comment @@ durian",
     "@@@@@@ at signs `````` tildes",
     "@@@@ empty raw ```` another",
     "apple `` legacy raw @@ `` banana",
-    "[!-- [[ footnote invalid formatting in here-- [[ eref --] test",
     "__**test** cherry {{ durian (?) }}__ ^^up!^^",
     " [ left bracket",
     "right bracket ] ",
     "** [[date 0]] **",
-    "__ [[  date 0  ]] [!-- comment here --]__",
     "[[span class = \"test\"]]//hello// world![[footnote]]actually country[[/footnote]][[/span]]",
     "--[[*user rounderhouse]] [[# test-anchor ]]-- [[ eref equation_id ]]",
     "  [[ * user rounderhouse ]] [[ user aismallard ]] [[        user        rounderhouse        ]]  ",
@@ -143,8 +141,10 @@ const VALID_INPUT_STRINGS: [&str; 112] = [
     "GoI-something [https://en.wikipedia.org/wiki/Military%E2%80%93industrial_complex PENTAGRAM]",
 ];
 
-const VALID_FILTER_STRINGS: [&str; 11] = [
+const VALID_FILTER_STRINGS: [&str; 12] = [
     "",
+    "[!-- [[ footnote invalid formatting in here-- [[ eref --] test",
+    "__ [[  date 0  ]] [!-- comment here --]__",
     "something with nothing to filter",
     "> hello world\n> my name is john\n> I like long walks on the beach\n> and writing scips\n",
     ">this implementation doesn't require spaces after the '>' because we're not lame",
@@ -152,21 +152,18 @@ const VALID_FILTER_STRINGS: [&str; 11] = [
     "> [[div class=\"test\"]]\n> cherry\n> pineapple\n> [[/div]]",
     "the following document was found:\n> oh no many bad thing\n>> execute the order\n> it no good\n",
     ">>>>> very deep quote block\n>>>>> again\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> even deeper",
-    ",,Verily, I say unto you: an apple!''\n``Indeed!'' quoth he.\n",
     "----\n---",
     " omg... he actually did it ",
 ];
 
-const INVALID_INPUT_STRINGS: [&str; 65] = [
+const INVALID_INPUT_STRINGS: [&str; 63] = [
     "@@ raw value",
     "`` legacy raw value",
     "@@ @@ @@",
     "`` `` ``",
     "@@ raw \n multiline @@",
     "`` raw \n multiline ``",
-    "[!-- invalid comment",
     "apple `` raw @@ banana",
-    "[!-- alpha --] [[ eref ",
     "__**test** cherry {{ durian ^^up^^ __",
     " {{ ",
     " }} ",
@@ -225,7 +222,9 @@ const INVALID_INPUT_STRINGS: [&str; 65] = [
     "[[# anchor-name-with-|-bad-ident]]",
 ];
 
-const INVALID_FILTER_STRINGS: [&str; 0] = [];
+const INVALID_FILTER_STRINGS: [&str; 1] = [
+    "[!-- alpha --] [[ eref ",
+];
 
 #[test]
 fn test_valid_strings() {
