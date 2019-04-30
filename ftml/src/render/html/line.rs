@@ -146,6 +146,7 @@ pub fn render_line(output: &mut HtmlOutput, line: &Line) -> Result<()> {
             expr,
         } => {
             // TODO do LaTeX rendering
+            // use mathjax library
             unimplemented!()
         }
         &Newlines { count } => {
