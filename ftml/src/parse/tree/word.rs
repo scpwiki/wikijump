@@ -252,6 +252,10 @@ impl<'a> Word<'a> {
                 address: pair.as_str(),
                 text: None,
             },
+            Rule::em_dash => {
+                // \u{2014} is an em dash: '—'
+                Word::Text { contents: "\u{2014}" }
+            }
             Rule::color => {
                 let mut color = "";
                 let mut words = Vec::new();

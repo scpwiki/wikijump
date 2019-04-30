@@ -152,11 +152,11 @@ const VALID_FILTER_STRINGS: [&str; 12] = [
     "> [[div class=\"test\"]]\n> cherry\n> pineapple\n> [[/div]]",
     "the following document was found:\n> oh no many bad thing\n>> execute the order\n> it no good\n",
     ">>>>> very deep quote block\n>>>>> again\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> even deeper",
-    "----\n---",
+    "----\n---\n--",
     " omg... he actually did it ",
 ];
 
-const INVALID_INPUT_STRINGS: [&str; 63] = [
+const INVALID_INPUT_STRINGS: [&str; 62] = [
     "@@ raw value",
     "`` legacy raw value",
     "@@ @@ @@",
@@ -183,7 +183,6 @@ const INVALID_INPUT_STRINGS: [&str; 63] = [
     "// Incomplete italics",
     "** Incomplete bold",
     "__ Incomplete underline",
-    "-- Incomplete strikethrough",
     "^^ Incomplete superscript",
     ",, Incomplete subscript",
     "---- Empty strikethrough", // Conflicts with horiz separator
@@ -260,12 +259,23 @@ fn test_valid_filter_strings() {
         buffer.push_str(string);
         prefilter(&mut buffer, &NullIncluder).expect("Prefilter shouldn't be failing");
 
+        match WikidotParser::parse(Rule::page, &buffer) {
+            Ok(tree) => println!("> {:#?}", &tree),
+            Err(err) =>
+                panic!(
+                    "Failed to parse filtered test string:\n{}\n-----\nProduced error: {}",
+                    string, err
+                ),
+        }
+
+        /*
         if let Err(err) = WikidotParser::parse(Rule::page, &buffer) {
             panic!(
                 "Failed to parse filtered test string:\n{}\n-----\nProduced error: {}",
                 string, err
             );
         }
+        */
 
         if let Err(err) = parse(&buffer) {
             panic!(

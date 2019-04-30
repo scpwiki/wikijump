@@ -28,7 +28,6 @@
 //! * ,, .. '' to fancy lowered double quotes
 //! * << and >> to fancy French angle quotation marks
 //! * ... to an ellipsis
-//! * -- or --- to em dashes
 
 use crate::Result;
 use either::Either;
@@ -71,12 +70,6 @@ lazy_static! {
     static ref ELLIPSIS: Replacer = Replacer {
         regex: Regex::new(r"(?:\.\.\.|\. \. \.)").unwrap(),
         replacement: Either::Right("\u{2026}"),
-    };
-
-    // — - EM DASH
-    static ref EM_DASH: Replacer = Replacer {
-        regex: Regex::new(r"-{2,3}").unwrap(),
-        replacement: Either::Right("\u{2014}"),
     };
 }
 
@@ -131,7 +124,6 @@ pub fn substitute(text: &mut String) -> Result<()> {
 
     // Miscellaneous
     replace!(ELLIPSIS);
-    replace!(EM_DASH);
 
     Ok(())
 }
@@ -144,7 +136,6 @@ fn test_regexes() {
     let _ = &*LEFT_DOUBLE_ANGLE;
     let _ = &*RIGHT_DOUBLE_ANGLE;
     let _ = &*ELLIPSIS;
-    let _ = &*EM_DASH;
 }
 
 #[test]
@@ -176,7 +167,4 @@ fn test_substitute() {
 
     substitute!("**ENTITY MAKES DRAMATIC MOTION** . . . ");
     assert_eq!(&string, "**ENTITY MAKES DRAMATIC MOTION** … ");
-
-    substitute!("-- Wait a minute --- is that Jello?");
-    assert_eq!(&string, "— Wait a minute — is that Jello?");
 }

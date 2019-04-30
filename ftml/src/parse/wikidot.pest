@@ -99,6 +99,7 @@ word = {
     raw |
     legacy_raw |
     email |
+    em_dash |
     color |
     italics |
     strikethrough |
@@ -130,9 +131,10 @@ word = {
 // }}}
 
 // Formatting words {{{
+em_dash = { "---" | "--" }
 color = { "##" ~ space? ~ ("#"? ~ ident) ~ space? ~ "|" ~ word* ~ "##" }
 italics = { "//" ~ word* ~ "//" }
-strikethrough = { "--" ~ word+ ~ "--" }
+strikethrough = { "--" ~ !("-" | " ") ~ word+ ~ "--" }
 bold = { "**" ~ word* ~ "**" }
 underline = { "__" ~ word* ~ "__" }
 subscript = { ",," ~ word* ~ ",," }
