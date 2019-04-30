@@ -202,8 +202,8 @@ fn run_once(ctx: &Context) -> ! {
             if let Err(err) = process_stdin(ctx.transform, ctx.wrap) {
                 eprintln!("Error transforming from stdin: {}", err);
                 return_code = 1;
-                continue;
             }
+            continue;
         }
 
         let in_path = Path::new(in_path);
