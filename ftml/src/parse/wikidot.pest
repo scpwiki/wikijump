@@ -89,7 +89,7 @@ words = {
         (!"+" ~ "="?)
     ) ~ word+
 }
-clear_float = { "~"{4,} ~ ("<" | "=" | ">")? }
+clear_float = { "~"{4,} ~ ("<" | ">")? }
 horizontal_line = { "-"{4,} }
 // }}}
 

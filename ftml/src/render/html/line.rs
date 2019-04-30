@@ -67,9 +67,7 @@ pub fn render_line(output: &mut HtmlOutput, line: &Line) -> Result<()> {
                 None => "both",
             };
 
-            write!(output.html, r#"<div style="clear: {};"></div>"#, style)?;
-            // TODO verify this ^^^
-            unimplemented!()
+            write!(output.html, r#"<div style="clear: {}; height: 0;"></div>"#, style)?;
         }
         &CodeBlock {
             ref language,
