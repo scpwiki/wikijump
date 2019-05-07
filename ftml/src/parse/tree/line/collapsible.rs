@@ -83,7 +83,8 @@ fn parse_arg<'c, 'p>(ctx: &'c mut Context<'p>, key: &'_ str, value: &'p str) -> 
             ctx.hide_text = Some(value);
         },
         "hidelocation" => {
-            let (top, bottom) = match value.to_ascii_lowercase().as_ref() {
+            let value = interp_str(value)?.to_ascii_lowercase();
+            let (top, bottom) = match value.as_ref() {
                 "top" => (true, false),
                 "bottom" => (false, true),
                 "both" => (true, true),

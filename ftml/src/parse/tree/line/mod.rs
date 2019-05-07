@@ -29,8 +29,13 @@ macro_rules! extract {
 }
 
 mod align;
+mod clear_float;
 mod code;
 mod collapsible;
+mod div;
+mod list;
+mod quote;
+mod words;
 
 mod prelude {
     pub use crate::{Error, Result};
@@ -44,8 +49,6 @@ use crate::enums::{Alignment, HeadingLevel, ListStyle};
 use self::prelude::*;
 
 lazy_static! {
-    static ref CLEAR_FLOAT: Regex = Regex::new(r"~{4,}(?P<direction><|>|=)?").unwrap();
-
     static ref JAVASCRIPT_BLOCK: Regex = {
         RegexBuilder::new(r"\[\[\s*(?:js|javascript)\s*\]\]\n(?P<contents>(?:.*\n)?)\[\[/\s*(?:js|javascript)\s*\]\]")
             .case_insensitive(true)
@@ -53,10 +56,6 @@ lazy_static! {
             .build()
             .unwrap()
     };
-
-    static ref QUOTE_BLOCK_OLD: Regex = Regex::new(r"^(?P<depth>>+) *(?P<contents>[^\n]*)").unwrap();
-
-    static ref WORDS: Regex = Regex::new(r"^(?P<flag>\+{1,6}|=?)").unwrap();
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -180,167 +179,13 @@ impl<'a> Line<'a> {
             Rule::align => align::parse(pair)?,
             Rule::code => code::parse(pair)?,
             Rule::collapsible => collapsible::parse(pair)?,
-            Rule::clear_float => {
-                let capture = CLEAR_FLOAT
-                    .captures(pair.as_str())
-                    .expect("Regular expression CLEAR_FLOAT didn't match");
-                let direction = match capture.name("direction") {
-                    Some(mtch) => Some(
-                        Alignment::try_from(mtch.as_str())
-                            .ok()
-                            .expect("Alignment conversion failed"),
-                    ),
-                    None => None,
-                };
-
-                Line::ClearFloat { direction }
-            }
-            Rule::div => {
-                let mut id = None;
-                let mut class = None;
-                let mut style = None;
-                let mut lines = Vec::new();
-
-                for pair in pair.into_inner() {
-                    match pair.as_rule() {
-                        Rule::div_arg => {
-                            let capture = ARGUMENT_NAME
-                                .captures(pair.as_str())
-                                .expect("Regular expression ARGUMENT_NAME didn't match");
-                            let key = capture!(capture, "name");
-                            let value_pair = get_first_pair!(pair);
-
-                            debug_assert_eq!(value_pair.as_rule(), Rule::string);
-
-                            let value = value_pair.as_str();
-                            match key.to_ascii_lowercase().as_str() {
-                                "id" => id = Some(value),
-                                "class" => class = Some(value),
-                                "style" => style = Some(value),
-                                _ => panic!("Unknown argument for [[div]]: {}", key),
-                            }
-                        }
-                        Rule::line => {
-                            let line = Line::from_pair(pair)?;
-                            lines.push(line);
-                        }
-                        _ => panic!("Invalid rule for div: {:?}", pair.as_rule()),
-                    }
-                }
-
-                Line::Div {
-                    id,
-                    class,
-                    style,
-                    lines,
-                }
-            }
-            Rule::bullet_list | Rule::numbered_list => {
-                let depth = {
-                    let mut depth = 0;
-                    for ch in pair.as_str().chars() {
-                        match ch {
-                            ' ' => depth += 1,
-                            _ => break,
-                        }
-                    }
-                    depth
-                };
-
-                let style = match pair.as_rule() {
-                    Rule::bullet_list => ListStyle::Bullet,
-                    Rule::numbered_list => ListStyle::Numbered,
-                    _ => unreachable!(),
-                };
-
-                let mut items = Vec::new();
-                for pair in pair.into_inner() {
-                    debug_assert_eq!(pair.as_rule(), Rule::list_item);
-
-                    let mut words = Vec::new();
-                    for pair in pair.into_inner() {
-                        let word = Word::from_pair(pair)?;
-                        words.push(word);
-                    }
-
-                    let line = Line::Words {
-                        words,
-                        centered: false,
-                    };
-                    items.push(line);
-                }
-
-                Line::List {
-                    style,
-                    depth,
-                    items,
-                }
-            }
+            Rule::clear_float => clear_float::parse(pair),
+            Rule::div => div::parse(pair)?,
+            Rule::bullet_list | Rule::numbered_list => list::parse(pair)?,
             Rule::horizontal_line => Line::HorizontalLine,
             Rule::javascript => Line::Javascript { contents: extract!(JAVASCRIPT_BLOCK, pair) },
-            Rule::quote_block => {
-                let mut id = None;
-                let mut class = None;
-                let mut style = None;
-                let mut lines = Vec::new();
-
-                for pair in pair.into_inner() {
-                    match pair.as_rule() {
-                        Rule::quote_block_arg => {
-                            let capture = ARGUMENT_NAME
-                                .captures(pair.as_str())
-                                .expect("Regular expression ARGUMENT_NAME didn't match");
-                            let key = capture!(capture, "name");
-                            let value_pair = get_first_pair!(pair);
-
-                            debug_assert_eq!(value_pair.as_rule(), Rule::string);
-
-                            let value = value_pair.as_str();
-                            match key.to_ascii_lowercase().as_str() {
-                                "id" => id = Some(value),
-                                "class" => class = Some(value),
-                                "style" => style = Some(value),
-                                _ => panic!("Unknown argument for [[quote]]: {}", key),
-                            }
-                        }
-                        Rule::lines_internal => lines = convert_internal_lines(pair)?,
-                        _ => panic!("Invalid rule for quote: {:?}", pair.as_rule()),
-                    }
-                }
-
-                Line::QuoteBlock {
-                    id,
-                    class,
-                    style,
-                    lines,
-                }
-            }
-            Rule::words => {
-                let flag = extract!(WORDS, pair);
-
-                let mut words = Vec::new();
-                for pair in pair.into_inner() {
-                    let word = Word::from_pair(pair)?;
-                    words.push(word);
-                }
-
-                match flag {
-                    "=" => Line::Words {
-                        words,
-                        centered: true,
-                    },
-                    "" => Line::Words {
-                        words,
-                        centered: false,
-                    },
-                    _ => {
-                        let level = HeadingLevel::try_from(flag.len())
-                            .expect("Regular expression returned incorrectly-sized heading");
-
-                        Line::Heading { words, level }
-                    }
-                }
-            }
+            Rule::quote_block => quote::parse(pair)?,
+            Rule::words => words::parse(pair)?,
 
             _ => {
                 return Err(Error::Msg(format!(
@@ -376,11 +221,4 @@ pub fn convert_internal_lines(pair: Pair<Rule>) -> Result<Vec<Line>> {
     }
 
     Ok(lines)
-}
-
-#[test]
-fn test_regexes() {
-    let _ = &*CLEAR_FLOAT;
-    let _ = &*QUOTE_BLOCK_OLD;
-    let _ = &*WORDS;
 }
