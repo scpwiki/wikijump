@@ -218,7 +218,7 @@ impl<'a> Line<'a> {
 
                     let value = value_pair.as_str();
                     match key.to_ascii_lowercase().as_ref() {
-                        "type" | "lang" | "language" => language = interp_str(value),
+                        "type" | "lang" | "language" => language = interp_str(value).ok(),
                         _ => panic!("Unknown argument for [[code]]: {}", key),
                     }
                 }

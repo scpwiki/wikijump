@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::{Error, Result};
 use pest::Parser;
 use std::borrow::Cow;
 
@@ -25,10 +26,10 @@ use std::borrow::Cow;
 #[grammar = "parse/string.pest"]
 pub struct StringParser;
 
-pub fn interp_str<'a>(text: &'a str) -> Option<Cow<'a, str>> {
+pub fn interp_str<'a>(text: &'a str) -> Result<Cow<'a, str>> {
     let pairs = match StringParser::parse(Rule::string, text) {
         Ok(mut pairs) => get_inner_pairs!(pairs),
-        Err(_) => return None,
+        Err(err) => return Err(Error::Msg(format!("Error parsing string value: {:?}", err))),
     };
 
     // Trim off "s
@@ -60,7 +61,7 @@ pub fn interp_str<'a>(text: &'a str) -> Option<Cow<'a, str>> {
         }
     }
 
-    Some(string)
+    Ok(string)
 }
 
 #[test]
