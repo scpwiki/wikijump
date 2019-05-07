@@ -36,7 +36,7 @@ pub fn parse(pair: Pair<Rule>) -> Result<Word> {
     let mut ctx = Context::default();
     for pair in pair.into_inner() {
         match pair.as_rule() {
-            Rule::anchor_arg => parse_arg(pair, &mut ctx),
+            Rule::anchor_arg => parse_arg(&mut ctx, pair),
             Rule::word => {
                 let word = Word::from_pair(pair)?;
                 ctx.words.push(word);
@@ -57,7 +57,7 @@ pub fn parse(pair: Pair<Rule>) -> Result<Word> {
     })
 }
 
-fn parse_arg<'p, 'c>(pair: Pair<'p, Rule>, ctx: &'c mut Context<'p>) {
+fn parse_arg<'c, 'p>(ctx: &'c mut Context<'p>, pair: Pair<'p, Rule>) {
     let capture = ARGUMENT_NAME
         .captures(pair.as_str())
         .expect("Regular expression ARGUMENT_NAME didn't match");
