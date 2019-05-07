@@ -81,6 +81,16 @@ pub enum Line<'a> {
         language: Option<Cow<'a, str>>,
         contents: &'a str,
     },
+    Collapsible {
+        show_text: Option<Cow<'a, str>>,
+        hide_text: Option<Cow<'a, str>>,
+        id: Option<Cow<'a, str>>,
+        class: Option<Cow<'a, str>>,
+        style: Option<Cow<'a, str>>,
+        show_top: bool,
+        show_bottom: bool,
+        lines: Vec<Line<'a>>,
+    },
     Div {
         id: Option<&'a str>,
         class: Option<&'a str>,
@@ -207,13 +217,76 @@ impl<'a> Line<'a> {
                     debug_assert_eq!(value_pair.as_rule(), Rule::string);
 
                     let value = value_pair.as_str();
-                    match key {
+                    match key.to_ascii_lowercase().as_ref() {
                         "type" | "lang" | "language" => language = interp_str(value),
                         _ => panic!("Unknown argument for [[code]]: {}", key),
                     }
                 }
 
                 Line::CodeBlock { language, contents }
+            }
+            Rule::collapsible => {
+                let mut show_text = None;
+                let mut hide_text = None;
+                let mut id = None;
+                let mut class = None;
+                let mut style = None;
+                let mut show = None; // (top: bool, bottom: bool)
+                let mut lines = Vec::new();
+
+                // Parse arguments
+                for pair in pair.into_inner() {
+                    match pair.as_rule() {
+                        Rule::collapsible_arg => {
+                            let capture = ARGUMENT_NAME
+                                .captures(pair.as_str())
+                                .expect("Regular expression ARGUMENT_NAME didn't match");
+                            let key = capture!(capture, "name");
+                            let value_pair = get_first_pair!(pair);
+
+                            debug_assert_eq!(value_pair.as_rule(), Rule::string);
+
+                            let value = interp_str(value_pair.as_str())?;
+                            match key.to_ascii_lowercase().as_ref() {
+                                "show" => show_text = Some(value),
+                                "hide" => hide_text = Some(value),
+                                "hidelocation" | "hide-location" => {
+                                    let (top, bottom) = match value.to_ascii_lowercase().as_ref() {
+                                        "top" => (true, false),
+                                        "bottom" => (false, true),
+                                        "both" => (true, true),
+                                        "neither" | "none" | "hide" => (false, false),
+                                        _ => return Err(Error::Msg(format!("Invalid hideLocation value: '{}' (must be 'top', 'bottom', 'both', 'neither')", value))),
+                                    };
+
+                                    show = Some((top, bottom));
+                                }
+                                "id" => id = Some(value),
+                                "class" => class = Some(value),
+                                "style" => style = Some(value),
+                                _ => panic!("Unknown argument for [[collapsible]]: {}", key),
+                            }
+                        }
+                        Rule::line => {
+                            let line = Line::from_pair(pair)?;
+                            lines.push(line);
+                        }
+                        _ => panic!("Invalid rule for collapsible: {:?}", pair.as_rule()),
+                    }
+                }
+
+                let (show_top, show_bottom) = show.unwrap_or((true, false));
+
+                Line::Collapsible {
+                    show_text,
+                    hide_text,
+                    id,
+                    class,
+                    style,
+                    show_top,
+                    show_bottom,
+                    lines,
+                }
             }
             Rule::clear_float => {
                 let capture = CLEAR_FLOAT

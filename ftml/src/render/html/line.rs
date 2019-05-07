@@ -80,6 +80,18 @@ pub fn render_line(output: &mut HtmlOutput, line: &Line) -> Result<()> {
             escape_html(output, contents)?;
             output.push_str("</code>\n");
         }
+        &Collapsible {
+            ref show_text,
+            ref hide_text,
+            ref id,
+            ref class,
+            ref style,
+            show_top,
+            show_bottom,
+            ref lines,
+        } => {
+            unimplemented!()
+        }
         &Div {
             id,
             class,

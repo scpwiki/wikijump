@@ -104,12 +104,6 @@ pub fn render_word(output: &mut HtmlOutput, word: &Word) -> Result<()> {
             render_words(output, words)?;
             output.push_str("</b>");
         }
-        &Button {} => unimplemented!(),
-        &Collapsible {
-            show_top,
-            show_bottom,
-            ref lines,
-        } => unimplemented!(),
         &Color { color, ref words } => {
             output.push_str("<span style=\"color: ");
             escape_attr(output, color)?;

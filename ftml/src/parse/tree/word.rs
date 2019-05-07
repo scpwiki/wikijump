@@ -100,18 +100,6 @@ pub enum Word<'a> {
     Bold {
         words: Vec<Word<'a>>,
     },
-    Button {
-        /*
-         https://www.wikidot.com/doc-wiki-syntax:buttons
-         btype: ButtonType,
-         style: String,
-         */
-    },
-    Collapsible {
-        show_top: bool,
-        show_bottom: bool,
-        lines: Vec<Line<'a>>,
-    },
     Color {
         color: &'a str,
         words: Vec<Word<'a>>,
