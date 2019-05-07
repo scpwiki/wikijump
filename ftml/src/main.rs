@@ -68,27 +68,34 @@ fn main() {
                 .short("d")
                 .long("directory")
                 .default_value(".")
-                .help("Specify an output directory to place rendered files in. Defaults to the current directory."),
+                .help(concat!(
+                    "Specify an output directory to place rendered files in. ",
+                    "Defaults to the current directory.",
+                )),
         )
         .arg(
             Arg::with_name("mode")
                 .short("m")
                 .long("mode")
                 .takes_value(true)
-                .help("Instead of running the entire transformation process, you can limit it to one of the following operations: 'filter', 'parse', 'transform' (default)."),
+                .help(concat!(
+                    "Instead of running the entire transformation process, you can ",
+                    "limit it to one of the following operations: 'filter', 'parse', ",
+                    "'transform' (default).",
+                )),
         )
         .arg(
             Arg::with_name("watch")
                 .short("w")
                 .long("watch")
-                .help("Watch the input files, and whenever they are modified, rerun the transformation."),
+                .help(concat!(
+                    "Watch the input files, and whenever they are modified, ",
+                    "rerun the transformation.",
+                )),
         )
-        .arg(
-            Arg::with_name("no-wrap")
-                .short("N")
-                .long("no-wrap")
-                .help("Don't wrap the output HTML with basic document tags. Output exactly as generated."),
-        )
+        .arg(Arg::with_name("no-wrap").short("N").long("no-wrap").help(
+            "Don't wrap the output HTML with basic document tags. Output exactly as generated.",
+        ))
         .arg(
             Arg::with_name("FILE")
                 .multiple(true)
@@ -156,17 +163,17 @@ fn run_watch(ctx: &Context) -> ! {
             process::exit(1);
         }
 
-        watcher.watch(in_path, RecursiveMode::NonRecursive).expect("Unable to watch file");
+        watcher
+            .watch(in_path, RecursiveMode::NonRecursive)
+            .expect("Unable to watch file");
     }
 
-    let run_transform = |path: &Path, action: &str| {
-        match do_transform(ctx, path) {
-            Ok(_) => {
-                println!("{}, converting: '{}'", action, path.display());
-            }
-            Err(err) => {
-                eprintln!("Error transforming from file '{}': {}", path.display(), err);
-            }
+    let run_transform = |path: &Path, action: &str| match do_transform(ctx, path) {
+        Ok(_) => {
+            println!("{}, converting: '{}'", action, path.display());
+        }
+        Err(err) => {
+            eprintln!("Error transforming from file '{}': {}", path.display(), err);
         }
     };
 
@@ -188,7 +195,7 @@ fn run_watch(ctx: &Context) -> ! {
                 }
                 Error(err, _) => eprintln!("Error received from notify: {:?}", err),
                 _ => (),
-            }
+            },
         }
     }
 }
@@ -208,7 +215,11 @@ fn run_once(ctx: &Context) -> ! {
 
         let in_path = Path::new(in_path);
         if let Err(err) = do_transform(ctx, in_path) {
-            eprintln!("Error transforming from file '{}': {}", in_path.display(), err);
+            eprintln!(
+                "Error transforming from file '{}': {}",
+                in_path.display(),
+                err
+            );
         }
     }
 
@@ -224,7 +235,12 @@ fn do_transform(ctx: &Context, in_path: &Path) -> Result<()> {
             path.set_extension("html");
             path
         }
-        None => return Err(Error::Msg(format!("Path \"{}\" does not refer to a file", in_path.display()))),
+        None => {
+            return Err(Error::Msg(format!(
+                "Path \"{}\" does not refer to a file",
+                in_path.display()
+            )))
+        }
     };
 
     process_file(in_path, &out_path, ctx.transform, ctx.wrap)

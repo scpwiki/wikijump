@@ -242,7 +242,9 @@ impl<'a> Word<'a> {
             },
             Rule::em_dash => {
                 // \u{2014} is an em dash: '—'
-                Word::Text { contents: "\u{2014}" }
+                Word::Text {
+                    contents: "\u{2014}",
+                }
             }
             Rule::color => {
                 let mut color = "";
@@ -330,7 +332,15 @@ impl<'a> Word<'a> {
                     }
                 }
 
-                Word::Anchor { href, name, id, class, target, style, words }
+                Word::Anchor {
+                    href,
+                    name,
+                    id,
+                    class,
+                    target,
+                    style,
+                    words,
+                }
             }
             Rule::date => {
                 let capture = DATE.captures(pair.as_str())
@@ -485,24 +495,25 @@ impl<'a> Word<'a> {
             Rule::link_bare => {
                 let mut pairs = pair.into_inner();
 
-                let target = get_link_target(
-                    pairs.next().expect("LinkBare pairs iterator was empty")
-                );
+                let target =
+                    get_link_target(pairs.next().expect("LinkBare pairs iterator was empty"));
 
                 let href = pairs
                     .next()
                     .expect("LinkBare pairs iterator had only one element")
                     .as_str();
 
-
-                Word::Link { href, target, text: None }
+                Word::Link {
+                    href,
+                    target,
+                    text: None,
+                }
             }
             Rule::link_page => {
                 let mut pairs = pair.into_inner();
 
-                let target = get_link_target(
-                    pairs.next().expect("LinkPage pairs iterator was empty")
-                );
+                let target =
+                    get_link_target(pairs.next().expect("LinkPage pairs iterator was empty"));
 
                 let href = pairs
                     .next()
@@ -521,11 +532,12 @@ impl<'a> Word<'a> {
             Rule::link_url => {
                 let mut pairs = pair.into_inner();
 
-                let target = get_link_target(
-                    pairs.next().expect("LinkUrl pairs iterator was empty")
-                );
+                let target =
+                    get_link_target(pairs.next().expect("LinkUrl pairs iterator was empty"));
 
-                let href = pairs.next().expect("LinkUrl pairs iterator had only one element");
+                let href = pairs
+                    .next()
+                    .expect("LinkUrl pairs iterator had only one element");
 
                 let text = pairs
                     .next()
@@ -534,8 +546,15 @@ impl<'a> Word<'a> {
                 let text = Some(text);
 
                 match href.as_rule() {
-                    Rule::email => Word::Email { address: href.as_str(), text },
-                    Rule::link_url_href => Word::Link { href: href.as_str(), target, text },
+                    Rule::email => Word::Email {
+                        address: href.as_str(),
+                        text,
+                    },
+                    Rule::link_url_href => Word::Link {
+                        href: href.as_str(),
+                        target,
+                        text,
+                    },
                     _ => panic!("Invalid rule for link_url: {:?}", href.as_rule()),
                 }
             }

@@ -74,7 +74,7 @@ impl<'a> TryFrom<&'a str> for AnchorTarget {
             "parent" | "_parent" => Ok(AnchorTarget::Parent),
             "top" | "_top" => Ok(AnchorTarget::Top),
             "self" | "_self" | "" => Ok(AnchorTarget::Same),
-            _ => Err(())
+            _ => Err(()),
         }
     }
 }

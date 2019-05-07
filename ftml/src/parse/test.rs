@@ -221,9 +221,7 @@ const INVALID_INPUT_STRINGS: [&str; 62] = [
     "[[# anchor-name-with-|-bad-ident]]",
 ];
 
-const INVALID_FILTER_STRINGS: [&str; 1] = [
-    "[!-- alpha --] [[ eref ",
-];
+const INVALID_FILTER_STRINGS: [&str; 1] = ["[!-- alpha --] [[ eref "];
 
 #[test]
 fn test_valid_strings() {
@@ -261,11 +259,10 @@ fn test_valid_filter_strings() {
 
         match WikidotParser::parse(Rule::page, &buffer) {
             Ok(tree) => println!("> {:#?}", &tree),
-            Err(err) =>
-                panic!(
-                    "Failed to parse filtered test string:\n{}\n-----\nProduced error: {}",
-                    string, err
-                ),
+            Err(err) => panic!(
+                "Failed to parse filtered test string:\n{}\n-----\nProduced error: {}",
+                string, err
+            ),
         }
 
         /*

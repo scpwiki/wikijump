@@ -67,7 +67,11 @@ pub fn render_line(output: &mut HtmlOutput, line: &Line) -> Result<()> {
                 None => "both",
             };
 
-            write!(output.html, r#"<div style="clear: {}; height: 0;"></div>"#, style)?;
+            write!(
+                output.html,
+                r#"<div style="clear: {}; height: 0;"></div>"#,
+                style
+            )?;
         }
         &CodeBlock {
             ref language,
@@ -89,9 +93,7 @@ pub fn render_line(output: &mut HtmlOutput, line: &Line) -> Result<()> {
             show_top,
             show_bottom,
             ref lines,
-        } => {
-            unimplemented!()
-        }
+        } => unimplemented!(),
         &Div {
             id,
             class,

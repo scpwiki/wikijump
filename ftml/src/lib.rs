@@ -69,7 +69,7 @@ mod render;
 mod test;
 
 pub use self::error::Error;
-pub use self::filter::{prefilter, postfilter, Includer};
+pub use self::filter::{postfilter, prefilter, Includer};
 pub use self::parse::{parse, SyntaxTree};
 pub use self::render::{HtmlRender, Render, TreeRender};
 

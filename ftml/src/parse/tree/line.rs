@@ -171,7 +171,9 @@ impl<'a> Line<'a> {
 
         match pair.as_rule() {
             Rule::line_inner => Self::from_rule_inner(pair),
-            Rule::just_newlines => Ok(Line::Newlines { count: pair.as_str().len() }),
+            Rule::just_newlines => Ok(Line::Newlines {
+                count: pair.as_str().len(),
+            }),
             _ => panic!("Invalid rule for line: {:?}", pair.as_rule()),
         }
     }
