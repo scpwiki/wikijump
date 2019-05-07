@@ -40,7 +40,6 @@ macro_rules! make_words {
     }}
 }
 
-
 mod anchor;
 mod color;
 mod image;

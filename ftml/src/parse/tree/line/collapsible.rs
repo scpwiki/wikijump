@@ -57,7 +57,14 @@ pub fn parse(pair: Pair<Rule>) -> Result<Line> {
         }
     }
 
-    let Context { show_text, hide_text, id, class, style, show } = ctx;
+    let Context {
+        show_text,
+        hide_text,
+        id,
+        class,
+        style,
+        show,
+    } = ctx;
     let (show_top, show_bottom) = show.unwrap_or((true, false));
 
     Ok(Line::Collapsible {
@@ -77,11 +84,11 @@ fn parse_arg<'c, 'p>(ctx: &'c mut Context<'p>, key: &'_ str, value: &'p str) -> 
         "show" => {
             let value = interp_str(value)?;
             ctx.show_text = Some(value);
-        },
+        }
         "hide" => {
             let value = interp_str(value)?;
             ctx.hide_text = Some(value);
-        },
+        }
         "hidelocation" => {
             let value = interp_str(value)?.to_ascii_lowercase();
             let (top, bottom) = match value.as_ref() {
@@ -89,10 +96,12 @@ fn parse_arg<'c, 'p>(ctx: &'c mut Context<'p>, key: &'_ str, value: &'p str) -> 
                 "bottom" => (false, true),
                 "both" => (true, true),
                 "neither" | "none" | "hide" => (false, false),
-                _ => return Err(Error::Msg(format!(
+                _ => {
+                    return Err(Error::Msg(format!(
                     "Invalid hideLocation value: '{}' (must be 'top', 'bottom', 'both', 'neither')",
                     value,
-                ))),
+                )))
+                }
             };
 
             ctx.show = Some((top, bottom));

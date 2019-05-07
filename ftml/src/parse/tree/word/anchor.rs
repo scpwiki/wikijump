@@ -45,7 +45,15 @@ pub fn parse(pair: Pair<Rule>) -> Result<Word> {
         }
     }
 
-    let Context { href, name, id, class, style, target, words } = ctx;
+    let Context {
+        href,
+        name,
+        id,
+        class,
+        style,
+        target,
+        words,
+    } = ctx;
     Ok(Word::Anchor {
         href,
         name,

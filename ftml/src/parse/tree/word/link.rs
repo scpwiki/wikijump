@@ -23,8 +23,7 @@ use super::prelude::*;
 pub fn parse_bare(pair: Pair<Rule>) -> Word {
     let mut pairs = pair.into_inner();
 
-    let target =
-        get_link_target(pairs.next().expect("LinkBare pairs iterator was empty"));
+    let target = get_link_target(pairs.next().expect("LinkBare pairs iterator was empty"));
 
     let href = pairs
         .next()
@@ -41,8 +40,7 @@ pub fn parse_bare(pair: Pair<Rule>) -> Word {
 pub fn parse_page(pair: Pair<Rule>) -> Word {
     let mut pairs = pair.into_inner();
 
-    let target =
-        get_link_target(pairs.next().expect("LinkPage pairs iterator was empty"));
+    let target = get_link_target(pairs.next().expect("LinkPage pairs iterator was empty"));
 
     let href = pairs
         .next()
@@ -62,8 +60,7 @@ pub fn parse_page(pair: Pair<Rule>) -> Word {
 pub fn parse_url(pair: Pair<Rule>) -> Word {
     let mut pairs = pair.into_inner();
 
-    let target =
-        get_link_target(pairs.next().expect("LinkUrl pairs iterator was empty"));
+    let target = get_link_target(pairs.next().expect("LinkUrl pairs iterator was empty"));
 
     let href = pairs
         .next()
