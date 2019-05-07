@@ -258,7 +258,10 @@ impl<'a> Line<'a> {
                                         "bottom" => (false, true),
                                         "both" => (true, true),
                                         "neither" | "none" | "hide" => (false, false),
-                                        _ => return Err(Error::Msg(format!("Invalid hideLocation value: '{}' (must be 'top', 'bottom', 'both', 'neither')", value))),
+                                        _ => return Err(Error::Msg(format!(
+                                            "Invalid hideLocation value: '{}' (must be 'top', 'bottom', 'both', 'neither')",
+                                            value,
+                                        ))),
                                     };
 
                                     show = Some((top, bottom));

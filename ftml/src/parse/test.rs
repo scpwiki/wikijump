@@ -28,7 +28,7 @@ use crate::include::NullIncluder;
 use pest::Parser;
 use super::{parse, Rule, WikidotParser};
 
-const VALID_INPUT_STRINGS: [&str; 110] = [
+const VALID_INPUT_STRINGS: [&str; 115] = [
     "",
     "@@ apple @@ @@banana@@",
     "@@ [!-- literal comment @@ durian",
@@ -139,6 +139,11 @@ const VALID_INPUT_STRINGS: [&str; 110] = [
     "[[# anchor-name-1]] [[ a name = \"anchor-name-2\" ]] [[/a]] [[a name=\"anchor-name-3\"]][[/a]]",
     "[[[ link \"TO\" a; <pagE> ]]] [[[ some page | ]]] [[[/ | root]]] [[[page#toc1]]]",
     "GoI-something [https://en.wikipedia.org/wiki/Military%E2%80%93industrial_complex PENTAGRAM]",
+    "[[=]]\n[[collapsible]]\n[[/collapsible]]\n[[/=]]\n",
+    "[[collapsible show=\"▸ Access File\" hide=\"▾ Close File\"]]\ninterview info data here\nalpha\n[[/collapsible]]",
+    "[[ COLLapsiBLE ]]\n* **Threat Level:** ##green|Green##\n* **Threat Level:** ##yellow|Banana##\n[[/ collAPSIBLe ]]",
+    "{\n[[collapsible hideLocation = \"both\" HIDE = \"> hide <\"]]\napple banana cherry\npineapple durian\n[[/collapsible]]\n}",
+    "[[collapsible id=\"coll-id\" style=\"text-align: center;\" class=\"classified-box\" HIDELOCATION=\"bottom\"]]\nalpha __banana__\n**cherry**\n[[/collapsible]]",
 ];
 
 const VALID_FILTER_STRINGS: [&str; 12] = [
@@ -156,7 +161,7 @@ const VALID_FILTER_STRINGS: [&str; 12] = [
     " omg... he actually did it ",
 ];
 
-const INVALID_INPUT_STRINGS: [&str; 62] = [
+const INVALID_INPUT_STRINGS: [&str; 63] = [
     "@@ raw value",
     "`` legacy raw value",
     "@@ @@ @@",
@@ -219,6 +224,7 @@ const INVALID_INPUT_STRINGS: [&str; 62] = [
     "[# false empty link]]",
     "[[a herf=\"https://example.com/\"]]link[[/a]]",
     "[[# anchor-name-with-|-bad-ident]]",
+    "[[=]]\n[[collapsible]]\n[[/=]]\n[[/collapsible]]\n",
 ];
 
 const INVALID_FILTER_STRINGS: [&str; 1] = ["[!-- alpha --] [[ eref "];
