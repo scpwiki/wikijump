@@ -30,6 +30,7 @@ lines_internal = { space? ~ line* ~ line_inner? ~ ("\n" | EOI)? }
 line_inner = {
     align |
     code |
+    html |
     iframe |
     javascript |
     clear_float |
@@ -77,6 +78,12 @@ div = {
     "[[/" ~ space? ~ ^"div" ~ "_"? ~ space_any? ~ "]]"
 }
 div_arg = { space_any ~ (^"id" | ^"class" | ^"style") ~ space_any? ~ "=" ~ space_any? ~ string }
+
+html = {
+    "[[" ~ space? ~ ^"html" ~ "_"? ~ space_any? ~ "]]\n" ~
+    (!("[[/" ~ space? ~ ^"html") ~ ANY)* ~
+    "[[/" ~ space? ~ ^"html" ~ space_any? ~ "]]"
+}
 
 iframe = {
     "[[" ~ space? ~ ^"iframe" ~ "_"? ~ iframe_arg* ~ space_any? ~ "]]"

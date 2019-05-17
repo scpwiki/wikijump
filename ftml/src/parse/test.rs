@@ -28,7 +28,7 @@ use crate::include::NullIncluder;
 use pest::Parser;
 use super::{parse, Rule, WikidotParser};
 
-const VALID_INPUT_STRINGS: [&str; 118] = [
+const VALID_INPUT_STRINGS: [&str; 119] = [
     "",
     "@@ apple @@ @@banana@@",
     "@@ [!-- literal comment @@ durian",
@@ -144,6 +144,7 @@ const VALID_INPUT_STRINGS: [&str; 118] = [
     "[[ COLLapsiBLE ]]\n* **Threat Level:** ##green|Green##\n* **Threat Level:** ##yellow|Banana##\n[[/ collAPSIBLe ]]",
     "{\n[[collapsible hideLocation = \"both\" HIDE = \"> hide <\"]]\napple banana cherry\npineapple durian\n[[/collapsible]]\n}",
     "[[collapsible id=\"coll-id\" style=\"text-align: center;\" class=\"classified-box\" HIDELOCATION=\"bottom\"]]\nalpha __banana__\n**cherry**\n[[/collapsible]]",
+    "[[html]]\nsome <b>raw</b> html here! <br> all my own <span class=\"test\">stuff</span>\n[[/html]]",
     "\n[[iframe]]\n",
     "[[iframe name= \"test\" src =\"https://example.com\" ]]\n",
     "[[ IFRAME data-qa = \"test--iframe\" sandbox=\"allow-scripts\" ]]",
@@ -164,7 +165,7 @@ const VALID_FILTER_STRINGS: [&str; 12] = [
     " omg... he actually did it ",
 ];
 
-const INVALID_INPUT_STRINGS: [&str; 64] = [
+const INVALID_INPUT_STRINGS: [&str; 67] = [
     "@@ raw value",
     "`` legacy raw value",
     "@@ @@ @@",
@@ -228,7 +229,10 @@ const INVALID_INPUT_STRINGS: [&str; 64] = [
     "[[a herf=\"https://example.com/\"]]link[[/a]]",
     "[[# anchor-name-with-|-bad-ident]]",
     "[[=]]\n[[collapsible]]\n[[/=]]\n[[/collapsible]]\n",
+    "hello [[html]] world\n",
     "hello [[iframe]] world\n",
+    "[[html]]",
+    "[[iframe]]\ncontents\n[[/iframe]]\n",
 ];
 
 const INVALID_FILTER_STRINGS: [&str; 1] = ["[!-- alpha --] [[ eref "];

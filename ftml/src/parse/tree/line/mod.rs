@@ -51,6 +51,14 @@ use self::prelude::*;
 use std::collections::HashMap;
 
 lazy_static! {
+    static ref HTML_BLOCK: Regex = {
+        RegexBuilder::new(r"\[\[\s*html\s*\]\]\n(?P<contents>(?:.*\n)?)\[\[/\s*html\s*\]\]")
+            .case_insensitive(true)
+            .dot_matches_new_line(true)
+            .build()
+            .unwrap()
+    };
+
     static ref JAVASCRIPT_BLOCK: Regex = {
         RegexBuilder::new(r"\[\[\s*(?:js|javascript)\s*\]\]\n(?P<contents>(?:.*\n)?)\[\[/\s*(?:js|javascript)\s*\]\]")
             .case_insensitive(true)
@@ -184,6 +192,7 @@ impl<'a> Line<'a> {
             Rule::div => div::parse(pair)?,
             Rule::bullet_list | Rule::numbered_list => list::parse(pair)?,
             Rule::horizontal_line => Line::HorizontalLine,
+            Rule::html => Line::Html { contents: extract!(HTML_BLOCK, pair) },
             Rule::iframe => iframe::parse(pair),
             Rule::javascript => Line::Javascript { contents: extract!(JAVASCRIPT_BLOCK, pair) },
             Rule::quote_block => quote::parse(pair)?,
@@ -223,4 +232,10 @@ pub fn convert_internal_lines(pair: Pair<Rule>) -> Result<Vec<Line>> {
     }
 
     Ok(lines)
+}
+
+#[test]
+fn test_regexes() {
+    let _ = &*HTML_BLOCK;
+    let _ = &*JAVASCRIPT_BLOCK;
 }
