@@ -1,5 +1,5 @@
 /*
- * parse/tree/line/align.rs
+ * parse/tree/line/iframe.rs
  *
  * wikidot-html - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -18,24 +18,23 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::enums::Alignment;
+use std::collections::HashMap;
 use super::prelude::*;
 
-lazy_static! {
-    static ref ALIGN: Regex = Regex::new(r"^\[\[(?P<direction><|>|=|==)\]\]").unwrap();
-}
+pub fn parse(pair: Pair<Rule>) -> Line {
+    let mut arguments = HashMap::new();
 
-pub fn parse(pair: Pair<Rule>) -> Result<Line> {
-    let alignment = Alignment::try_from(extract!(ALIGN, pair))
-        .expect("Parsed align block had invalid alignment");
+    for pair in pair.into_inner() {
+        debug_assert_eq!(pair.as_rule(), Rule::iframe_arg);
 
-    let lines_res: Result<Vec<_>> = pair.into_inner().map(Line::from_pair).collect();
-    let lines = lines_res?;
+        let key = get_nth_pair!(pair, 0).as_str();
+        let value = {
+            let pair = get_nth_pair!(pair, 1);
+            interp_str(pair.as_str()).expect("Invalid string value")
+        };
 
-    Ok(Line::Align { alignment, lines })
-}
+        arguments.insert(key, value);
+    }
 
-#[test]
-fn test_regexes() {
-    let _ = &*ALIGN;
+    Line::Iframe { arguments }
 }

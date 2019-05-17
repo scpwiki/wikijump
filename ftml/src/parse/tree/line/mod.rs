@@ -33,6 +33,7 @@ mod clear_float;
 mod code;
 mod collapsible;
 mod div;
+mod iframe;
 mod list;
 mod quote;
 mod words;
@@ -47,6 +48,7 @@ mod prelude {
 
 use crate::enums::{Alignment, HeadingLevel, ListStyle};
 use self::prelude::*;
+use std::collections::HashMap;
 
 lazy_static! {
     static ref JAVASCRIPT_BLOCK: Regex = {
@@ -99,8 +101,7 @@ pub enum Line<'a> {
         contents: &'a str,
     },
     Iframe {
-        url: &'a str,
-        args: Option<&'a str>,
+        arguments: HashMap<&'a str, Cow<'a, str>>,
     },
     IfTags {
         required: Vec<&'a str>,
@@ -183,6 +184,7 @@ impl<'a> Line<'a> {
             Rule::div => div::parse(pair)?,
             Rule::bullet_list | Rule::numbered_list => list::parse(pair)?,
             Rule::horizontal_line => Line::HorizontalLine,
+            Rule::iframe => iframe::parse(pair),
             Rule::javascript => Line::Javascript { contents: extract!(JAVASCRIPT_BLOCK, pair) },
             Rule::quote_block => quote::parse(pair)?,
             Rule::words => words::parse(pair)?,

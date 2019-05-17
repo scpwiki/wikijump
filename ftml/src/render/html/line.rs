@@ -125,7 +125,7 @@ pub fn render_line(output: &mut HtmlOutput, line: &Line) -> Result<()> {
         }
         &HorizontalLine => output.push_str("<hr>\n"),
         &Html { contents } => output.push_str(contents),
-        &Iframe { url, args } => unimplemented!(),
+        &Iframe { ref arguments } => unimplemented!(),
         &IfTags {
             ref required,
             ref prohibited,
