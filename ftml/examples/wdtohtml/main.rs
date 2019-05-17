@@ -1,5 +1,5 @@
 /*
- * main.rs
+ * wdtohtml/main.rs
  *
  * wikidot-html - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -18,7 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#![allow(unknown_lints, large_enum_variant, match_bool)]
 #![deny(missing_debug_implementations)]
 
 extern crate clap;

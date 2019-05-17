@@ -6,21 +6,18 @@ edition = "2018" # this refers to the Cargo.toml version
 
 [lib]
 name = "wikidot_html"
-path = "src/lib.rs"
-
-[[bin]]
-name = "wikidot2html"
-path = "src/main.rs"
 
 [dependencies]
-clap = "2" # bin-only
 color-backtrace = "0.1"
 either = "1.5"
 htmlescape = "0.3"
 lazy_static = "1"
 log = "0.4"
-notify = "4.0" # bin-only
 percent-encoding = "1.0"
 pest = "2.1"
 pest_derive = "2.1"
 regex = "1"
+
+[dev-dependencies]
+clap = "2"
+notify = "4.0"

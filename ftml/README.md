@@ -10,13 +10,19 @@ This library targets the latest stable Rust. At time of writing, that is 1.34.2
 
 ```sh
 $ cargo build --release
+$ cargo build --release --example wdtohtml
+$ cargo build --release --example wdhtmlserv
 ```
 
-This will produce the binary `target/release/wikidot2html` and Rust library files.
-The executable can be run using the following:
+This will create the appropriate Rust library files and the two packaged binaries:
+
+* `wdtohtml` is a command-line tool to permit use of the library
+* `wdhtmlserv` is a server that listens on a Unix Domain Socket for library commands
+
+The programs can be executed using the following:
 
 ```sh
-$ cargo run -- [arguments]
+$ cargo run --example [wdtohtml|wdhtmlserv] -- [arguments]
 ```
 
 ### Testing
