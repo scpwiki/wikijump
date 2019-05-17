@@ -1,5 +1,5 @@
 /*
- * wdtohtml/main.rs
+ * wdtohtml/file.rs
  *
  * wikidot-html - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -18,26 +18,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#![deny(missing_debug_implementations)]
+use crate::transform::TransformFn;
+use std::fs::File;
+use std::io::{self, Read, Write};
+use std::path::Path;
+use wikidot_html::prelude::*;
 
-extern crate clap;
-extern crate notify;
-extern crate wikidot_html;
+pub fn process_file(in_path: &Path, out_path: &Path, transform: TransformFn, wrap: bool) -> Result<()> {
+    let mut text = String::new();
+    let mut file = File::open(in_path)?;
+    file.read_to_string(&mut text)?;
 
-mod context;
-mod file;
-mod runner;
-mod transform;
+    let html = transform(&mut text, wrap)?;
+    let mut file = File::create(out_path)?;
+    file.write_all(html.as_bytes())?;
+    Ok(())
+}
 
-use self::context::parse_args;
-use self::runner::{run_once, run_watch};
+pub fn process_stdin(transform: TransformFn, wrap: bool) -> Result<()> {
+    let mut text = String::new();
+    io::stdin().read_to_string(&mut text)?;
 
-fn main() {
-    let ctx = parse_args();
-
-    if ctx.watch {
-        run_watch(&ctx);
-    } else {
-        run_once(&ctx);
-    }
+    let html = transform(&mut text, wrap)?;
+    println!("{}", &html);
+    Ok(())
 }
