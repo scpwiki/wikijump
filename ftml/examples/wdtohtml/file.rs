@@ -24,7 +24,12 @@ use std::io::{self, Read, Write};
 use std::path::Path;
 use wikidot_html::prelude::*;
 
-pub fn process_file(in_path: &Path, out_path: &Path, transform: TransformFn, wrap: bool) -> Result<()> {
+pub fn process_file(
+    in_path: &Path,
+    out_path: &Path,
+    transform: TransformFn,
+    wrap: bool,
+) -> Result<()> {
     let mut text = String::new();
     let mut file = File::open(in_path)?;
     file.read_to_string(&mut text)?;

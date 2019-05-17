@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::{Response, Request};
+use crate::{Request, Response};
 use json;
 use std::os::unix::net::UnixDatagram;
 use std::path::Path;
@@ -39,7 +39,7 @@ impl Server {
             Err(err) => {
                 error!("Couldn't bind to '{}': {}", path.display(), err);
                 process::exit(1);
-            },
+            }
         };
 
         Server { socket }
@@ -61,7 +61,7 @@ impl Server {
                         Err(err) => {
                             warn!("Error deserializing request from JSON: {}", err);
                             continue;
-                        },
+                        }
                     };
 
                     let response = match self.process(request) {
@@ -69,7 +69,7 @@ impl Server {
                         Err(err) => {
                             warn!("Error processing request: {}", err);
                             continue;
-                        },
+                        }
                     };
 
                     let data = match json::to_vec(&response) {
@@ -77,16 +77,21 @@ impl Server {
                         Err(err) => {
                             error!("Error serializing response to JSON: {}", err);
                             continue;
-                        },
+                        }
                     };
 
-                    let path = addr.as_pathname().expect("Received datagram wasn't from a path");
+                    let path = addr.as_pathname()
+                        .expect("Received datagram wasn't from a path");
                     match self.socket.send_to(&data, path) {
                         Ok(bytes) if bytes == data.len() => (),
-                        Ok(bytes) => warn!("Socket send only sent {} of {} bytes of response", bytes, data.len()),
+                        Ok(bytes) => warn!(
+                            "Socket send only sent {} of {} bytes of response",
+                            bytes,
+                            data.len()
+                        ),
                         Err(err) => warn!("Error sending response over socket: {}", err),
                     }
-                },
+                }
                 Err(err) => error!("Error receiving request from socket: {}", err),
             }
         }

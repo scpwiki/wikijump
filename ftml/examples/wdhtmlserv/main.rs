@@ -37,5 +37,4 @@ mod server;
 use self::request::Request;
 use self::response::Response;
 
-fn main() {
-}
+fn main() {}
