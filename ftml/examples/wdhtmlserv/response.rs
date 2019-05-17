@@ -1,5 +1,5 @@
 /*
- * wdhtmlserv/main.rs
+ * wdhtmlserv/response.rs
  *
  * wikidot-html - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -18,24 +18,26 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#![deny(missing_debug_implementations)]
+use serde::Serialize;
 
-extern crate clap;
+#[derive(Serialize, Debug, Clone, PartialEq)]
+pub struct Response<T: Serialize> {
+    data: Option<T>,
+    error: Option<String>,
+}
 
-#[macro_use]
-extern crate log;
+impl<T: Serialize> Response<T> {
+    pub fn success(data: T) -> Self {
+        Response {
+            data: Some(data),
+            error: None,
+        }
+    }
 
-#[macro_use]
-extern crate serde;
-extern crate serde_json as json;
-extern crate wikidot_html;
-
-mod request;
-mod response;
-mod server;
-
-use self::request::Request;
-use self::response::Response;
-
-fn main() {
+    pub fn error<E: Into<String>>(error: E) -> Self {
+        Response {
+            data: None,
+            error: Some(error.into()),
+        }
+    }
 }

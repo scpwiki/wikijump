@@ -1,5 +1,5 @@
 /*
- * wdhtmlserv/main.rs
+ * wdhtmlserv/request.rs
  *
  * wikidot-html - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -18,24 +18,5 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#![deny(missing_debug_implementations)]
-
-extern crate clap;
-
-#[macro_use]
-extern crate log;
-
-#[macro_use]
-extern crate serde;
-extern crate serde_json as json;
-extern crate wikidot_html;
-
-mod request;
-mod response;
-mod server;
-
-use self::request::Request;
-use self::response::Response;
-
-fn main() {
-}
+#[derive(Deserialize, Debug, PartialEq)]
+pub enum Request {}
