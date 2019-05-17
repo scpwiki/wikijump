@@ -19,6 +19,7 @@ cache: cargo
 
 stages:
   - test
+  - bin
   - doc
 
 jobs:
@@ -27,6 +28,10 @@ jobs:
       script:
         - cargo build --verbose
         - cargo test --verbose -- --nocapture
+    - stage: bin
+      script:
+        - cargo build --verbose --example wdtohtml
+        - cargo build --verbose --example wdhtmlserv
     - stage: doc
       script:
         - cargo doc --verbose
