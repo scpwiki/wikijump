@@ -86,7 +86,7 @@ html = {
 }
 
 iframe = {
-    "[[" ~ space? ~ ^"iframe" ~ "_"? ~ iframe_arg* ~ space_any? ~ "]]"
+    "[[" ~ space? ~ ^"iframe" ~ "_"? ~ space_any ~ url ~ iframe_arg* ~ space_any? ~ "]]"
 }
 iframe_arg = { space_any ~ ident ~ space_any? ~ "=" ~ space_any? ~ string }
 

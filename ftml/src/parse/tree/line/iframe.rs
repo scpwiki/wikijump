@@ -23,8 +23,14 @@ use super::prelude::*;
 
 pub fn parse(pair: Pair<Rule>) -> Line {
     let mut arguments = HashMap::new();
+    let mut pairs = pair.into_inner();
 
-    for pair in pair.into_inner() {
+    let url = pairs
+        .next()
+        .expect("Iframe pairs iterator was empty")
+        .as_str();
+
+    for pair in pairs {
         debug_assert_eq!(pair.as_rule(), Rule::iframe_arg);
 
         let key = get_nth_pair!(pair, 0).as_str();
@@ -36,5 +42,5 @@ pub fn parse(pair: Pair<Rule>) -> Line {
         arguments.insert(key, value);
     }
 
-    Line::Iframe { arguments }
+    Line::Iframe { url, arguments }
 }

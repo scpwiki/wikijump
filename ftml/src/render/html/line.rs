@@ -125,8 +125,8 @@ pub fn render_line(output: &mut HtmlOutput, line: &Line) -> Result<()> {
         }
         &HorizontalLine => output.push_str("<hr>\n"),
         &Html { contents } => output.push_str(contents),
-        &Iframe { ref arguments } => {
-            output.push_str("<iframe");
+        &Iframe { url, ref arguments } => {
+            write!(output.html, "<iframe src=\"{}\"", url)?;
 
             for (key, value) in arguments {
                 write_tag_arg(output, key, value)?;

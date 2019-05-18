@@ -145,9 +145,9 @@ const VALID_INPUT_STRINGS: [&str; 119] = [
     "{\n[[collapsible hideLocation = \"both\" HIDE = \"> hide <\"]]\napple banana cherry\npineapple durian\n[[/collapsible]]\n}",
     "[[collapsible id=\"coll-id\" style=\"text-align: center;\" class=\"classified-box\" HIDELOCATION=\"bottom\"]]\nalpha __banana__\n**cherry**\n[[/collapsible]]",
     "[[html]]\nsome <b>raw</b> html here! <br> all my own <span class=\"test\">stuff</span>\n[[/html]]",
-    "\n[[iframe]]\n",
-    "[[iframe name= \"test\" src =\"https://example.com\" ]]\n",
-    "[[ IFRAME data-qa = \"test--iframe\" sandbox=\"allow-scripts\" ]]",
+    "\n[[iframe https://example.com/]]\n",
+    "[[iframe https://example.com/some/page name= \"test\" src =\"https://example.com\" ]]\n",
+    "[[ IFRAME https://scp-wiki.net/scp-001 data-qa = \"test--iframe\" sandbox=\"allow-scripts\" ]]",
 ];
 
 const VALID_FILTER_STRINGS: [&str; 12] = [
@@ -165,7 +165,7 @@ const VALID_FILTER_STRINGS: [&str; 12] = [
     " omg... he actually did it ",
 ];
 
-const INVALID_INPUT_STRINGS: [&str; 67] = [
+const INVALID_INPUT_STRINGS: [&str; 68] = [
     "@@ raw value",
     "`` legacy raw value",
     "@@ @@ @@",
@@ -230,9 +230,10 @@ const INVALID_INPUT_STRINGS: [&str; 67] = [
     "[[# anchor-name-with-|-bad-ident]]",
     "[[=]]\n[[collapsible]]\n[[/=]]\n[[/collapsible]]\n",
     "hello [[html]] world\n",
-    "hello [[iframe]] world\n",
+    "hello [[iframe https://example.com]] world\n",
     "[[html]]",
-    "[[iframe]]\ncontents\n[[/iframe]]\n",
+    "[[iframe]]",
+    "[[iframe https://example.com]]\ncontents\n[[/iframe]]\n",
 ];
 
 const INVALID_FILTER_STRINGS: [&str; 1] = ["[!-- alpha --] [[ eref "];
