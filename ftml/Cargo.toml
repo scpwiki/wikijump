@@ -20,6 +20,7 @@ pest_derive = "2.1"
 regex = "1"
 
 [dev-dependencies]
+cfg-if = "0.1"
 clap = "2"
 notify = "4.0"
 serde = { version = "1", features = ["derive"] }

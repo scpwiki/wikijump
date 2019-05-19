@@ -20,6 +20,8 @@
 
 #![deny(missing_debug_implementations)]
 
+#[macro_use]
+extern crate cfg_if;
 extern crate clap;
 extern crate ftml;
 
@@ -30,11 +32,22 @@ extern crate log;
 extern crate serde;
 extern crate serde_json as json;
 
-mod request;
-mod response;
-mod server;
+cfg_if! {
+    if #[cfg(unix)] {
+        mod request;
+        mod response;
+        mod server;
 
-use self::request::Request;
-use self::response::Response;
+        use self::request::Request;
+        use self::response::Response;
 
-fn main() {}
+        fn main() {}
+    } else {
+        use std::process;
+
+        fn main() {
+            eprintln!("This application uses Unix Domain Sockets and thus is not compatible with this platform");
+            process::exit(1);
+        }
+    }
+}
