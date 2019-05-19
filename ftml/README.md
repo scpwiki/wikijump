@@ -24,7 +24,7 @@ This will create the appropriate Rust library files and the two packaged binarie
 The programs can be executed using the following:
 
 ```sh
-$ cargo run --example [wdtohtml|wdhtmlserv] -- [arguments]
+$ cargo run --example [ftml|ftmld] -- [arguments]
 ```
 
 ### Testing
