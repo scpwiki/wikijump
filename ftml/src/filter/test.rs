@@ -19,14 +19,11 @@
  */
 
 use crate::Result;
-use super::{prefilter, postfilter, NullIncluder};
+use super::{postfilter, prefilter, NullIncluder};
 
-pub fn test_substitution<F>(
-    filter_name: &str,
-    mut substitute: F,
-    tests: &[(&str, &str)],
-)
-    where F: FnMut(&mut String) -> Result<()>,
+pub fn test_substitution<F>(filter_name: &str, mut substitute: F, tests: &[(&str, &str)])
+where
+    F: FnMut(&mut String) -> Result<()>,
 {
     let mut string = String::new();
 
@@ -42,25 +39,24 @@ pub fn test_substitution<F>(
         }
 
         assert_eq!(
-            &string,
-            expected,
+            &string, expected,
             "Output of {} substitution test didn't match:\n    actual: {:?}\n  expected: {:?}",
             filter_name, &string, expected,
         );
     }
 }
 
-const PREFILTER_TEST_CASES: [(&str, &str); 1] = [
-    ("", ""),
-];
+const PREFILTER_TEST_CASES: [(&str, &str); 1] = [("", "")];
 
-const POSTFILTER_TEST_CASES: [(&str, &str); 1] = [
-    ("", ""),
-];
+const POSTFILTER_TEST_CASES: [(&str, &str); 1] = [("", "")];
 
 #[test]
 fn test_prefilter() {
-    test_substitution("prefilter", |s| prefilter(s, &NullIncluder), &PREFILTER_TEST_CASES);
+    test_substitution(
+        "prefilter",
+        |s| prefilter(s, &NullIncluder),
+        &PREFILTER_TEST_CASES,
+    );
 }
 
 #[test]

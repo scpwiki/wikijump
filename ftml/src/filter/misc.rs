@@ -104,10 +104,7 @@ const TEST_CASES: [(&str, &str); 6] = [
         "concat:\napple banana \\\nCherry\\\nPineapple \\ grape\nblueberry\n",
         "concat:\napple banana CherryPineapple \\ grape\nblueberry\n",
     ),
-    (
-        "<\n        \n      \n  \n      \n>",
-        "<\n\n>",
-    ),
+    ("<\n        \n      \n  \n      \n>", "<\n\n>"),
 ];
 
 #[test]

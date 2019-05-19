@@ -20,7 +20,6 @@
 
 // TEMP
 #![allow(dead_code)]
-
 #![deny(missing_debug_implementations)]
 
 #[macro_use]
