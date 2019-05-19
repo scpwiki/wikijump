@@ -40,13 +40,44 @@ where
 
         assert_eq!(
             &string, expected,
-            "Output of {} substitution test didn't match:\n    actual: {:?}\n  expected: {:?}",
-            filter_name, &string, expected,
+            "\nOutput of {} substitution test didn't match",
+            filter_name,
         );
     }
 }
 
-const PREFILTER_TEST_CASES: [(&str, &str); 1] = [("", "")];
+const PREFILTER_TEST_CASES: [(&str, &str); 11] = [
+    ("", ""),
+    ("tab\ttest", "tab    test"),
+    ("fn main() {\n\tprintln!();\n\tlet _ = ();\n}", "fn main() {\n    println!();\n    let _ = ();\n}"),
+    ("newlines:\r\nA\rB\nC\nD\n\rE", "newlines:\nA\nB\nC\nD\n\nE"),
+    (
+        "compress:\nA\n\nB\n\n\nC\n\n\n\nD\n\n\n\n\nE\n\n\n\n\n\n",
+        "compress:\nA\n\nB\n\nC\n\nD\n\nE\n",
+    ),
+    (
+        "concat:\nApple Banana \\\nCherry\\\nPineapple \\ Grape\nBlueberry\n",
+        "concat:\nApple Banana CherryPineapple \\ Grape\nBlueberry\n",
+    ),
+    ("[\n  \n    \n       \n  \n      \n \n   \n]", "[\n\n]"),
+    (
+        "SCP-4455-Ω said, ``It was a dark and stormy night. I looked down on my arch-nemesis, the Streamliner.''",
+
+        "SCP-4455-Ω said, “It was a dark and stormy night. I looked down on my arch-nemesis, the Streamliner.”",
+    ),
+    (
+        ",,あんたはばかです！''\n``Ehh?''\n,,ほんと！''",
+        "„あんたはばかです！”\n“Ehh?”\n„ほんと！”",
+    ),
+    (
+        "<< [[[SCP-999]]] | SCP-1000 | [[[SCP-1001]]] >>",
+        "« [[[SCP-999]]] | SCP-1000 | [[[SCP-1001]]] »",
+    ),
+    (
+        " . . . <<I'm not sure about this,>>",
+        " … «I'm not sure about this,»",
+    ),
+];
 
 const POSTFILTER_TEST_CASES: [(&str, &str); 1] = [("", "")];
 
