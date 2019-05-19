@@ -128,6 +128,26 @@ pub fn substitute(text: &mut String) -> Result<()> {
     Ok(())
 }
 
+#[cfg(test)]
+const TEST_CASES: [(&str, &str); 4] = [
+    (
+        "John laughed. ``You'll never defeat me!''\n``That's where you're wrong...''",
+        "John laughed. “You'll never defeat me!”\n“That's where you're wrong…”",
+    ),
+    (
+        ",,あんたはばかです！''\n``Ehh?''\n,,ほんと！''\n[[footnoteblock]]",
+        "„あんたはばかです！”\n“Ehh?”\n„ほんと！”\n[[footnoteblock]]",
+    ),
+    (
+        "<< [[[SCP-4338]]] | SCP-4339 | [[[SCP-4340]]] >>",
+        "« [[[SCP-4338]]] | SCP-4339 | [[[SCP-4340]]] »",
+    ),
+    (
+        "**ENTITY MAKES DRAMATIC MOTION** . . . ",
+        "**ENTITY MAKES DRAMATIC MOTION** … ",
+    ),
+];
+
 #[test]
 fn test_regexes() {
     let _ = &*SINGLE_QUOTES;
@@ -140,31 +160,7 @@ fn test_regexes() {
 
 #[test]
 fn test_substitute() {
-    let mut string = String::new();
+    use super::test::test_substitution;
 
-    macro_rules! substitute {
-        ($str:expr) => {{
-            string.clear();
-            string.push_str($str);
-            substitute(&mut string).unwrap();
-        }}
-    }
-
-    substitute!("John laughed. ``You'll never defeat me!''\n``That's where you're wrong...''");
-    assert_eq!(
-        &string,
-        "John laughed. “You'll never defeat me!”\n“That's where you're wrong…”"
-    );
-
-    substitute!(",,あんたはばかです！''\n``Ehh?''\n,,ほんと！''\n[[footnoteblock]]");
-    assert_eq!(
-        &string,
-        "„あんたはばかです！”\n“Ehh?”\n„ほんと！”\n[[footnoteblock]]"
-    );
-
-    substitute!("<< [[[SCP-4338]]] | SCP-4339 | [[[SCP-4340]]] >>");
-    assert_eq!(&string, "« [[[SCP-4338]]] | SCP-4339 | [[[SCP-4340]]] »");
-
-    substitute!("**ENTITY MAKES DRAMATIC MOTION** . . . ");
-    assert_eq!(&string, "**ENTITY MAKES DRAMATIC MOTION** … ");
+    test_substitution("typography", substitute, &TEST_CASES);
 }

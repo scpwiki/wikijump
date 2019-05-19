@@ -34,6 +34,9 @@ pub use self::include::{NotFoundIncluder, NullIncluder};
 
 use crate::Result;
 
+#[cfg(test)]
+type SubstituteFn = fn(&mut String) -> Result<()>;
+
 /// Transform the text in preparation for parsing.
 ///
 /// Performs the following modifications:
@@ -65,8 +68,6 @@ pub fn postfilter(_text: &mut String) -> Result<()> {
 
 #[test]
 fn test_fn() {
-    type SubstituteFn = fn(&mut String) -> Result<()>;
-
     // include::substitute() does not match as it requires an Includer
     let _: SubstituteFn = misc::substitute;
     let _: SubstituteFn = blockquote::substitute;

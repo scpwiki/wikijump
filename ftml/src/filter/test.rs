@@ -18,7 +18,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::{prefilter, postfilter};
+use super::{prefilter, postfilter, SubstituteFn};
+
+pub fn test_substitution(filter_name: &str, substitute: SubstituteFn, tests: &[(&str, &str)]) {
+    let mut string = String::new();
+
+    for (input, expected) in tests {
+        string.clear();
+        string.push_str(input);
+
+        if let Err(err) = substitute(&mut string) {
+            panic!(
+                "Failed to perform {} substitution test string:\n{}\nExpected:\n{}\n-----\nProduced error: {}",
+                filter_name, input, expected, err
+            );
+        }
+
+        assert_eq!(
+            &string,
+            expected,
+            "Output of {} substitution test didn't match:\n    actual: {:?}\n  expected: {:?}",
+            filter_name, &string, expected,
+        );
+    }
+}
 
 #[test]
 fn test_prefilter() {

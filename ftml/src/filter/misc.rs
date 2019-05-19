@@ -82,6 +82,34 @@ fn regex_replace(text: &mut String, regex: &Regex, replacement: &str) {
     }
 }
 
+#[cfg(test)]
+const TEST_CASES: [(&str, &str); 6] = [
+    (
+        "\tapple\n\tbanana\tcherry\n",
+        "    apple\n    banana    cherry\n",
+    ),
+    (
+        "newlines:\r\n* apple\r* banana\r\ncherry\n\r* durian",
+        "newlines:\n* apple\n* banana\ncherry\n\n* durian",
+    ),
+    (
+        "apple\nbanana\n\ncherry\n\n\npineapple\n\n\n\nstrawberry\n\n\n\n\nblueberry\n\n\n\n\n\n",
+        "apple\nbanana\n\ncherry\n\npineapple\n\nstrawberry\n\nblueberry\n",
+    ),
+    (
+        "apple\rbanana\r\rcherry\r\r\rpineapple\r\r\r\rstrawberry\r\r\r\r\rblueberry\r\r\r\r\r\r",
+        "apple\nbanana\n\ncherry\n\npineapple\n\nstrawberry\n\nblueberry\n",
+    ),
+    (
+        "concat:\napple banana \\\nCherry\\\nPineapple \\ grape\nblueberry\n",
+        "concat:\napple banana CherryPineapple \\ grape\nblueberry\n",
+    ),
+    (
+        "<\n        \n      \n  \n      \n>",
+        "<\n\n>",
+    ),
+];
+
 #[test]
 fn test_regexes() {
     let _ = &*TABS;
@@ -94,44 +122,7 @@ fn test_regexes() {
 
 #[test]
 fn test_substitute() {
-    let mut string = String::new();
+    use super::test::test_substitution;
 
-    macro_rules! substitute {
-        ($str:expr) => {{
-            string.clear();
-            string.push_str($str);
-            substitute(&mut string).unwrap();
-        }}
-    }
-
-    substitute!("\tapple\n\tbanana\tcherry\n");
-    assert_eq!(&string, "    apple\n    banana    cherry\n");
-
-    substitute!("newlines:\r\n* apple\r* banana\r\ncherry\n\r* durian");
-    assert_eq!(&string, "newlines:\n* apple\n* banana\ncherry\n\n* durian");
-
-    substitute!(
-        "apple\nbanana\n\ncherry\n\n\npineapple\n\n\n\nstrawberry\n\n\n\n\nblueberry\n\n\n\n\n\n"
-    );
-    assert_eq!(
-        &string,
-        "apple\nbanana\n\ncherry\n\npineapple\n\nstrawberry\n\nblueberry\n"
-    );
-
-    substitute!(
-        "apple\rbanana\r\rcherry\r\r\rpineapple\r\r\r\rstrawberry\r\r\r\r\rblueberry\r\r\r\r\r\r"
-    );
-    assert_eq!(
-        &string,
-        "apple\nbanana\n\ncherry\n\npineapple\n\nstrawberry\n\nblueberry\n"
-    );
-
-    substitute!("concat:\napple banana \\\nCherry\\\nPineapple \\ grape\nblueberry\n");
-    assert_eq!(
-        &string,
-        "concat:\napple banana CherryPineapple \\ grape\nblueberry\n"
-    );
-
-    substitute!("<\n        \n      \n  \n      \n>");
-    assert_eq!(&string, "<\n\n>");
+    test_substitution("miscellaneous", substitute, &TEST_CASES);
 }
