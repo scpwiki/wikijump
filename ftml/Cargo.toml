@@ -1,11 +1,12 @@
 [package]
-name = "wikidot-to-html"
+name = "ftml"
+description = "Foundation Text Markup Language - a library to convert Wikidot code to HTML"
 version = "0.1.6"
 authors = ["Ammon Smith <ammon.i.smith@gmail.com>"]
 edition = "2018" # this refers to the Cargo.toml version
 
 [lib]
-name = "wikidot_html"
+name = "ftml"
 
 [dependencies]
 color-backtrace = "0.1"

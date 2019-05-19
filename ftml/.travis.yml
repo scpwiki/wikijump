@@ -30,8 +30,8 @@ jobs:
         - cargo test --verbose -- --nocapture
     - stage: bin
       script:
-        - cargo build --verbose --example wdtohtml
-        - cargo build --verbose --example wdhtmlserv
+        - cargo build --verbose --example ftml
+        - cargo build --verbose --example ftmld
     - stage: doc
       script:
         - cargo doc --verbose

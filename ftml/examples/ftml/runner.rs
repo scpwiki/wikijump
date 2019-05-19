@@ -1,7 +1,7 @@
 /*
- * wdtohtml/runner.rs
+ * ftml/runner.rs
  *
- * wikidot-html - Convert Wikidot code to HTML
+ * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,13 +20,13 @@
 
 use crate::context::Context;
 use crate::file::{process_file, process_stdin};
+use ftml::prelude::*;
 use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
 use std::ffi::OsStr;
 use std::path::Path;
 use std::process;
 use std::sync::mpsc;
 use std::time::Duration;
-use wikidot_html::prelude::*;
 
 pub fn run_watch(ctx: &Context) -> ! {
     let (tx, rx) = mpsc::channel();

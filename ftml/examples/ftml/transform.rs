@@ -1,7 +1,7 @@
 /*
- * wdtohtml/transform.rs
+ * ftml/transform.rs
  *
- * wikidot-html - Convert Wikidot code to HTML
+ * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,8 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use wikidot_html::prelude::*;
-use wikidot_html::include::NullIncluder;
+use ftml::prelude::*;
+use ftml::include::NullIncluder;
 
 pub type TransformFn = fn(&mut String, bool) -> Result<String>;
 

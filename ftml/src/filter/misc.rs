@@ -1,7 +1,7 @@
 /*
  * filter/misc.rs
  *
- * wikidot-html - Convert Wikidot code to HTML
+ * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
  *
  * This program is free software: you can redistribute it and/or modify

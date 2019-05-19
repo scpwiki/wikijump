@@ -1,7 +1,7 @@
 /*
- * wdtohtml/main.rs
+ * ftmld/main.rs
  *
- * wikidot-html - Convert Wikidot code to HTML
+ * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,23 +21,20 @@
 #![deny(missing_debug_implementations)]
 
 extern crate clap;
-extern crate notify;
-extern crate wikidot_html;
+extern crate ftml;
 
-mod context;
-mod file;
-mod runner;
-mod transform;
+#[macro_use]
+extern crate log;
 
-use self::context::parse_args;
-use self::runner::{run_once, run_watch};
+#[macro_use]
+extern crate serde;
+extern crate serde_json as json;
 
-fn main() {
-    let ctx = parse_args();
+mod request;
+mod response;
+mod server;
 
-    if ctx.watch {
-        run_watch(&ctx);
-    } else {
-        run_once(&ctx);
-    }
-}
+use self::request::Request;
+use self::response::Response;
+
+fn main() {}

@@ -1,7 +1,7 @@
 /*
- * wdtohtml/file.rs
+ * ftml/file.rs
  *
- * wikidot-html - Convert Wikidot code to HTML
+ * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,10 +19,10 @@
  */
 
 use crate::transform::TransformFn;
+use ftml::prelude::*;
 use std::fs::File;
 use std::io::{self, Read, Write};
 use std::path::Path;
-use wikidot_html::prelude::*;
 
 pub fn process_file(
     in_path: &Path,
