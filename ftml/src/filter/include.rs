@@ -25,7 +25,7 @@ use std::collections::HashMap;
 
 lazy_static! {
     static ref INCLUDE: Regex = {
-        RegexBuilder::new(r"\[\[\s*include\s+(?P<resource>[^ ]]+)(?P<args>.*?)\]\]")
+        RegexBuilder::new(r"\[\[\s*include\s+(?P<resource>[^ \]]+)(?P<args>.*?)\]\]")
             .multi_line(true)
             .dot_matches_new_line(true)
             .case_insensitive(true)
@@ -34,7 +34,7 @@ lazy_static! {
     };
 
     static ref INCLUDE_ARG: Regex = {
-        RegexBuilder::new(r"\s+(?P<key>\w+)\s*=\s*(?P<value>[^\|]+)\s*\|")
+        RegexBuilder::new(r"\s+(?P<key>\w+)\s*=\s*(?P<value>[^\|]+)\s*")
             .multi_line(true)
             .build()
             .unwrap()
@@ -55,25 +55,27 @@ pub fn substitute(text: &mut String, includer: &Includer) -> Result<()> {
             .expect("Named capture group not found")
             .as_str();
 
-        for raw_arg in raw_args.split("|") {
-            match INCLUDE_ARG.captures(raw_arg) {
-                Some(capture) => {
-                    let key = capture
-                        .name("key")
-                        .expect("Named capture group not found")
-                        .as_str();
-                    let value = capture
-                        .name("value")
-                        .expect("Named capture group not found")
-                        .as_str();
+        if !raw_args.trim().is_empty() {
+            for raw_arg in raw_args.split("|") {
+                match INCLUDE_ARG.captures(raw_arg) {
+                    Some(capture) => {
+                        let key = capture
+                            .name("key")
+                            .expect("Named capture group not found")
+                            .as_str();
+                        let value = capture
+                            .name("value")
+                            .expect("Named capture group not found")
+                            .as_str();
 
-                    args.insert(key, value);
-                }
-                None => {
-                    return Err(Error::Msg(format!(
-                        "Include arguments for '{}' are improperly formatted",
-                        name
-                    )))
+                        args.insert(key, value);
+                    }
+                    None => {
+                        return Err(Error::Msg(format!(
+                            "Include arguments for '{}' are improperly formatted",
+                            name
+                        )))
+                    }
                 }
             }
         }

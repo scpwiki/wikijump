@@ -46,10 +46,13 @@ where
     }
 }
 
-const PREFILTER_TEST_CASES: [(&str, &str); 11] = [
+const PREFILTER_TEST_CASES: [(&str, &str); 13] = [
     ("", ""),
     ("tab\ttest", "tab    test"),
-    ("fn main() {\n\tprintln!();\n\tlet _ = ();\n}", "fn main() {\n    println!();\n    let _ = ();\n}"),
+    (
+        "fn main() {\n\tprintln!();\n\tlet _ = ();\n}",
+        "fn main() {\n    println!();\n    let _ = ();\n}",
+    ),
     ("newlines:\r\nA\rB\nC\nD\n\rE", "newlines:\nA\nB\nC\nD\n\nE"),
     (
         "compress:\nA\n\nB\n\n\nC\n\n\n\nD\n\n\n\n\nE\n\n\n\n\n\n",
@@ -76,6 +79,14 @@ const PREFILTER_TEST_CASES: [(&str, &str); 11] = [
     (
         " . . . <<I'm not sure about this,>>",
         " … «I'm not sure about this,»",
+    ),
+    (
+        "[[include info:start]]\nApple\nBanana\n[[include info:end]]\n",
+        "Apple\nBanana\n",
+    ),
+    (
+        "Apple\n[[include component:image-block\n    name = somefile.png |\n    caption=The Thing|\n    width= 200px\n]]\nBanana",
+        "Apple\nBanana",
     ),
 ];
 
