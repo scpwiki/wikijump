@@ -19,7 +19,7 @@ $ cargo build --release --example ftmld
 This will create the appropriate Rust library files and the two packaged binaries:
 
 * `ftml` is a command-line tool to permit use of the library
-* `ftmld` is a server that listens on a Unix Domain Socket for library commands
+* `ftmld` is a server that listens on a Unix Domain Socket for library commands (incomplete)
 
 The programs can be executed using the following:
 
