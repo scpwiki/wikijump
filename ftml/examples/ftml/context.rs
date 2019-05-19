@@ -44,10 +44,10 @@ impl<'a> Debug for Context {
 }
 
 pub fn parse_args() -> Context {
-    let matches = App::new("Wikidot to HTML")
+    let matches = App::new("ftml")
         .version(env!("CARGO_PKG_VERSION"))
         .author("Ammon Smith")
-        .about("Utility to convert Wikidot code into HTML")
+        .about("Foundation Text Markup Language -- Wikidot to HTML converter")
         .max_term_width(110)
         .arg(
             Arg::with_name("output-directory")
