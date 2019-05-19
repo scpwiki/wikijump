@@ -52,7 +52,10 @@ use std::collections::HashMap;
 
 lazy_static! {
     static ref HTML_BLOCK: Regex = {
-        RegexBuilder::new(r"\[\[\s*html\s*\]\]\n(?P<contents>(?:.*\n)?)\[\[/\s*html\s*\]\]")
+        RegexBuilder::new(r"(?x)
+            \[\[\s*html\s*\]\]\n
+            (?P<contents>(?:.*\n)?)
+            \[\[/\s*html\s*\]\]")
             .case_insensitive(true)
             .dot_matches_new_line(true)
             .build()
@@ -60,7 +63,10 @@ lazy_static! {
     };
 
     static ref JAVASCRIPT_BLOCK: Regex = {
-        RegexBuilder::new(r"\[\[\s*(?:js|javascript)\s*\]\]\n(?P<contents>(?:.*\n)?)\[\[/\s*(?:js|javascript)\s*\]\]")
+        RegexBuilder::new(r"(?x)
+            \[\[\s*(?:js|javascript)\s*\]\]\n
+            (?P<contents>(?:.*\n)?)
+            \[\[/\s*(?:js|javascript)\s*\]\]")
             .case_insensitive(true)
             .dot_matches_new_line(true)
             .build()

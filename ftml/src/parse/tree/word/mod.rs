@@ -80,9 +80,15 @@ lazy_static! {
     };
 
     static ref DATE: Regex = {
-        RegexBuilder::new(
-            r#"\[\[\s*date\s+(?P<timestamp>-?[0-9]+)(?:\s+format\s*=\s*"(?P<format>.*)")?\s*\]\]"#
-        )
+        RegexBuilder::new(r#"(?x)
+            \[\[
+                \s*date\s+
+                (?P<timestamp>-?[0-9]+)
+                (?:\s+format\s*=\s*"
+                    (?P<format>.*)
+                ")?
+                \s*
+            \]\]"#)
             .case_insensitive(true)
             .build()
             .unwrap()
@@ -103,7 +109,10 @@ lazy_static! {
     };
 
     static ref FORM: Regex = {
-        RegexBuilder::new(r"\[\[\s*form\s*\]\]\n(?P<contents>(?:.*\n)?)\[\[/\s*form\s*\]\]")
+        RegexBuilder::new(r"(?x)
+            \[\[\s*form\s*\]\]\n
+                (?P<contents>(?:.*\n)?)
+            \[\[/\s*form\s*\]\]")
             .case_insensitive(true)
             .dot_matches_new_line(true)
             .build()

@@ -22,7 +22,10 @@ use super::prelude::*;
 
 lazy_static! {
     static ref CODE_BLOCK: Regex = {
-        RegexBuilder::new(r"\[\[\s*code[^\]]*\]\]\n(?P<contents>(?:.*\n)?)\[\[/\s*code\s*\]\]")
+        RegexBuilder::new(r"(?x)
+            \[\[\s*code[^\]]*\]\]\n
+            (?P<contents>(?:.*\n)?)
+            \[\[/\s*code\s*\]\]")
             .case_insensitive(true)
             .dot_matches_new_line(true)
             .build()
