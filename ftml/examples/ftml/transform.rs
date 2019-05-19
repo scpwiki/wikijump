@@ -31,7 +31,9 @@ pub fn prefilter_only(text: &mut String, _wrap: bool) -> Result<String> {
 }
 
 pub fn parse_only(text: &mut String, wrap: bool) -> Result<String> {
-    let tree = parse(text)?;
+    let mut text = text.clone();
+    prefilter(&mut text, &NullIncluder)?;
+    let tree = parse(&mut text)?;
     let result = if wrap {
         format!(
             "<html><body><pre><code>\n{:#?}\n</code></pre></body></html>\n",
