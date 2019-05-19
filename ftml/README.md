@@ -1,5 +1,5 @@
 ## ftml
-[![Build Status](https://travis-ci.org/Nu-SCPTheme/wikidot-to-html.svg?branch=master)](https://travis-ci.org/Nu-SCPTheme/ftml)
+[![Build Status](https://travis-ci.org/Nu-SCPTheme/ftml.svg?branch=master)](https://travis-ci.org/Nu-SCPTheme/ftml)
 
 **Foundation Text Markup Language** (formerly `wikidot-to-html`)
 
