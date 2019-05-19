@@ -26,6 +26,9 @@ mod blockquote {
     pub use crate::parse::convert_blockquotes as substitute;
 }
 
+#[cfg(test)]
+mod test;
+
 pub use self::include::Includer;
 pub use self::include::{NotFoundIncluder, NullIncluder};
 
@@ -40,7 +43,7 @@ use crate::Result;
 /// * Concatenating lines that end with backslashes
 /// * Convert tabs to four spaces
 /// * Compress groups of 3+ newlines into 2 newlines
-/// * Converts quote blocks to nested [[quote]] tags.
+/// * Converts quote blocks to nested [[quote]] tags
 /// * Perform typography modifications
 pub fn prefilter(text: &mut String, includer: &Includer) -> Result<()> {
     include::substitute(text, includer)?;
