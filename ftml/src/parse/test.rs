@@ -272,22 +272,12 @@ fn test_valid_filter_strings() {
         buffer.push_str(string);
         prefilter(&mut buffer, &NullIncluder).expect("Prefilter shouldn't be failing");
 
-        match WikidotParser::parse(Rule::page, &buffer) {
-            Ok(tree) => println!("> {:#?}", &tree),
-            Err(err) => panic!(
-                "Failed to parse filtered test string:\n{}\n-----\nProduced error: {}",
-                string, err
-            ),
-        }
-
-        /*
         if let Err(err) = WikidotParser::parse(Rule::page, &buffer) {
             panic!(
                 "Failed to parse filtered test string:\n{}\n-----\nProduced error: {}",
                 string, err
             );
         }
-        */
 
         if let Err(err) = parse(&buffer) {
             panic!(
