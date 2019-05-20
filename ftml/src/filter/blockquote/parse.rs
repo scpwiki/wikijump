@@ -25,7 +25,7 @@ use std::mem;
 
 lazy_static! {
     static ref QUOTE_LINE: Regex = {
-        Regex::new(r"(?P<depth>>+)(?: *)(?P<contents>.*)").unwrap()
+        Regex::new(r"^(?P<depth>>+)(?: *)(?P<contents>.*)$").unwrap()
     };
 }
 
@@ -112,6 +112,15 @@ pub fn substitute(text: &mut String) -> Result<()> {
     // Finally, add closing tags
     for _ in 0..prev_depth {
         buffer.push_str("[[/quote]]\n");
+    }
+
+    // Trim leading and trailing newlines
+    while buffer.starts_with('\n') {
+        buffer.remove(0);
+    }
+
+    while buffer.ends_with('\n') {
+        buffer.pop();
     }
 
     // Replace string
