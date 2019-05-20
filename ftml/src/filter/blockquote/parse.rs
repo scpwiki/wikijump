@@ -129,3 +129,8 @@ pub fn substitute(text: &mut String) -> Result<()> {
 
     Ok(())
 }
+
+#[test]
+fn test_regexes() {
+    let _ = &*QUOTE_LINE;
+}
