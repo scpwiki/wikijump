@@ -18,71 +18,48 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::{Error, Result};
+use crate::Result;
 use either::Either;
-use pest::Parser;
+use regex::Regex;
 use std::mem;
 
-#[derive(Debug, Clone, Parser)]
-#[grammar = "filter/blockquote.pest"]
-struct BlockQuoteParser;
+lazy_static! {
+    static ref QUOTE_LINE: Regex = {
+        Regex::new(r"(?P<depth>>+)(?: *)(?P<contents>.*)").unwrap()
+    };
+}
+
+#[derive(Debug)]
+struct QuoteLine<'a> {
+    depth: usize,
+    contents: &'a str,
+}
+
+#[derive(Debug)]
+struct OtherLine<'a> {
+    contents: &'a str,
+}
 
 pub fn substitute(text: &mut String) -> Result<()> {
-    #[derive(Debug)]
-    struct QuoteLine<'a> {
-        depth: usize,
-        contents: &'a str,
-    }
-
-    #[derive(Debug)]
-    struct OtherLine<'a> {
-        contents: &'a str,
-    }
-
-    if text.is_empty() {
-        return Ok(());
-    }
-
-    let pairs = match BlockQuoteParser::parse(Rule::page, text) {
-        Ok(mut pairs) => get_inner_pairs!(pairs),
-        Err(err) => {
-            return Err(Error::Msg(format!(
-                "Blockquote transform parsing error: {}",
-                err
-            )))
-        }
-    };
-
-    // Run parser and generate lines
     let mut lines = Vec::new();
-    for pair in pairs {
-        let line = match pair.as_rule() {
-            Rule::quote_line => {
-                let depth = {
-                    let pair = get_nth_pair!(pair, 0);
-                    debug_assert_eq!(pair.as_rule(), Rule::quote_depth);
-                    pair.as_str().len()
-                };
 
-                let contents = {
-                    let pair = get_nth_pair!(pair, 1);
-                    debug_assert_eq!(pair.as_rule(), Rule::line_contents);
-                    pair.as_str()
-                };
+    for raw_line in text.lines() {
+        let line = match QUOTE_LINE.captures(raw_line) {
+            Some(mtch) => {
+                let depth = mtch
+                    .name("depth")
+                    .expect("No group 'depth' found in capture")
+                    .as_str()
+                    .len();
+
+                let contents = mtch
+                    .name("contents")
+                    .expect("No group 'contents' found in capture")
+                    .as_str();
 
                 Either::Left(QuoteLine { depth, contents })
             }
-            Rule::other_line => {
-                let contents = {
-                    let pair = get_first_pair!(pair);
-                    debug_assert_eq!(pair.as_rule(), Rule::line_contents);
-                    pair.as_str()
-                };
-
-                Either::Right(OtherLine { contents })
-            }
-            Rule::EOI => break,
-            _ => panic!("Invalid rule for blockquote-parser: {:?}", pair.as_rule()),
+            None => Either::Right(OtherLine { contents: raw_line }),
         };
 
         lines.push(line);
