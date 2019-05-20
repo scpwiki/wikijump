@@ -32,15 +32,15 @@ const TEST_CASES: [(&str, &str); 9] = [
     ),
     (
         ">>>> deep quote block\n>>>> contents",
-        "[[quote]]\n[[quote]]\n[[quote]]\n[[quote]]\ndeep quote block\ncontents\n[[/quote]]\n[[/quote]]\n[[/quote]]\n[[/quote]]\n",
+        "[[quote]]\n[[quote]]\n[[quote]]\n[[quote]]\ndeep quote block\ncontents\n[[/quote]]\n[[/quote]]\n[[/quote]]\n[[/quote]]",
     ),
     (
         ">no space test\n> it's weird wikidot requires it\n>  extra space",
-        "[[quote]]\nno space test\nit's weird wikidot requires it\nextra space\n[[/quote]]\n",
+        "[[quote]]\nno space test\nit's weird wikidot requires it\nextra space\n[[/quote]]",
     ),
     (
         "> multiple quotes test\n\n> another block\n>> omega\n",
-        "[[quote]]\nmultiple quotes test\n[[/quote]]\n\n[[quote]]\nanother block\n[[quote]]\nomega\n[[/quote]]\n[[/quote]]\n",
+        "[[quote]]\nmultiple quotes test\n[[/quote]]\n\n[[quote]]\nanother block\n[[quote]]\nomega\n[[/quote]]\n[[/quote]]",
     ),
     (
         "this string doesn't have any quotes in it",
@@ -48,11 +48,11 @@ const TEST_CASES: [(&str, &str); 9] = [
     ),
     (
         "> apple\n> > fake quote\n> >> even faker\n",
-        "[[quote]]\napple\n> fake quote\n>> even faker\n[[/quote]]\n",
+        "[[quote]]\napple\n> fake quote\n>> even faker\n[[/quote]]",
     ),
     (
         "[[div]]\napple\n> banana\n[[/div]]\n> durian\n",
-        "[[div]]\napple\n[[quote]]\nbanana\n[[/quote]]\n[[/div]]\n[[quote]]\ndurian\n[[/quote]]\n",
+        "[[div]]\napple\n[[quote]]\nbanana\n[[/quote]]\n[[/div]]\n[[quote]]\ndurian\n[[/quote]]",
     ),
 ];
 

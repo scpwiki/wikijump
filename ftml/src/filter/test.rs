@@ -63,11 +63,11 @@ const PREFILTER_TEST_CASES: [(&str, &str); 13] = [
     ("newlines:\r\nA\rB\nC\nD\n\rE", "newlines:\nA\nB\nC\nD\n\nE"),
     (
         "compress:\nA\n\nB\n\n\nC\n\n\n\nD\n\n\n\n\nE\n\n\n\n\n\n",
-        "compress:\nA\n\nB\n\nC\n\nD\n\nE\n",
+        "compress:\nA\n\nB\n\nC\n\nD\n\nE",
     ),
     (
         "concat:\nApple Banana \\\nCherry\\\nPineapple \\ Grape\nBlueberry\n",
-        "concat:\nApple Banana CherryPineapple \\ Grape\nBlueberry\n",
+        "concat:\nApple Banana CherryPineapple \\ Grape\nBlueberry",
     ),
     ("[\n  \n    \n       \n  \n      \n \n   \n]", "[\n\n]"),
     (
@@ -89,11 +89,11 @@ const PREFILTER_TEST_CASES: [(&str, &str); 13] = [
     ),
     (
         "[[include info:start]]\nApple\nBanana\n[[include info:end]]\n",
-        "Apple\nBanana\n",
+        "Apple\nBanana",
     ),
     (
         "Apple\n[[include component:image-block\n    name = somefile.png |\n    caption=The Thing|\n    width= 200px\n]]\nBanana",
-        "Apple\nBanana",
+        "Apple\n\nBanana",
     ),
 ];
 
