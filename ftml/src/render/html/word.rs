@@ -185,7 +185,7 @@ pub fn render_word(output: &mut HtmlOutput, word: &Word) -> Result<()> {
             name,
             ref arguments,
             contents,
-        } => unimplemented!(),
+        } => unimplemented!(), // TODO switch to ctx vs output and add module listing
         &Monospace { ref words } => {
             output.push_str("<tt>");
             render_words(output, words)?;

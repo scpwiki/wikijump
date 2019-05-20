@@ -20,6 +20,7 @@
 
 mod buffer;
 mod line;
+mod module;
 mod word;
 
 mod prelude {
@@ -57,6 +58,7 @@ mod prelude {
 }
 
 use crate::postfilter;
+use self::module::ModuleList;
 use self::prelude::*;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
