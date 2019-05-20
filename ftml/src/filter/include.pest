@@ -18,6 +18,8 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 //
 
+page = { SOI ~ (include | (!include ~ ANY))* ~ EOI }
+
 include = {
     "[[" ~ space? ~ ^"include" ~ space_any ~
     resource ~ space_any? ~
