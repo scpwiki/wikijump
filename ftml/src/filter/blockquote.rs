@@ -25,7 +25,7 @@ use std::mem;
 
 #[derive(Debug, Clone, Parser)]
 #[grammar = "filter/blockquote.pest"]
-pub struct BlockQuoteParser;
+struct BlockQuoteParser;
 
 pub fn substitute(text: &mut String) -> Result<()> {
     #[derive(Debug)]

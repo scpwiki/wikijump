@@ -1,5 +1,5 @@
 /*
- * filter/include.rs
+ * filter/include/parse.rs
  *
  * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -23,10 +23,11 @@ use pest::Parser;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::ops::Range;
+use super::Includer;
 
 #[derive(Debug, Clone, Parser)]
 #[grammar = "filter/include.pest"]
-pub struct IncludeParser;
+struct IncludeParser;
 
 #[derive(Debug, Clone)]
 struct IncludeRef {
@@ -113,92 +114,4 @@ pub fn substitute(text: &mut String, includer: &Includer) -> Result<()> {
     // TODO
 
     Ok(())
-}
-
-// Trait definition
-pub trait Includer {
-    fn get_resource(&self, name: &str, args: &HashMap<&str, &str>) -> Result<Cow<'static, str>>;
-}
-
-// Implementations
-#[derive(Debug, Clone)]
-pub struct NullIncluder;
-
-impl Includer for NullIncluder {
-    fn get_resource(&self, _name: &str, _args: &HashMap<&str, &str>) -> Result<Cow<'static, str>> {
-        Ok(Cow::Borrowed(""))
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct TestIncluder;
-
-impl Includer for TestIncluder {
-    fn get_resource(&self, name: &str, args: &HashMap<&str, &str>) -> Result<Cow<'static, str>> {
-        Ok(Cow::Owned(format!(
-            "<INCLUDE '{}' #{}>",
-            name,
-            args.len(),
-        )))
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct NotFoundIncluder;
-
-impl Includer for NotFoundIncluder {
-    fn get_resource(&self, name: &str, _args: &HashMap<&str, &str>) -> Result<Cow<'static, str>> {
-        Ok(Cow::Owned(format!(
-            "[[div style=\"line-height: 141%; color: #b00; padding: 1em; margin: 1em; border: 1px solid #faa;\"]]\nIncluded page \"{}\" does not exist\n[[/div]]", name,
-        )))
-    }
-}
-
-#[cfg(test)]
-const TEST_CASES: [(&str, &str); 11] = [
-    ("", ""),
-    ("[[include component:thingy]]", "<INCLUDE 'component:thingy' #0>"),
-    (
-        "[[include component:image-block\n  name=test.png |\n  caption=SCP-XX\n]]",
-        "<INCLUDE 'component:image-block' #2>",
-    ),
-    (
-        "apple [[include some-page key=value | key2=value2]] banana",
-        "apple <INCLUDE 'some-page' #2> banana",
-    ),
-    (
-        "A\n[[include first-page\n  name=test |\n  caption=thing |\n]]\nB\n[[include second-page]]\nC",
-        "A\n<INCLUDE 'first-page' #2>\nB\n<INCLUDE 'second-page' #0>\nC",
-    ),
-    (
-        "A\n[[include B]]\nC\n[[include D]]\nE\n[[include F]]\nG\n[[include H]]\nI\n[[include J]]\nK",
-        "A\n<INCLUDE 'B' #0>\nC\n<INCLUDE 'D' #0>\nE\n<INCLUDE 'F' #0>\nG\n<INCLUDE 'H' #0>\nI\n<INCLUDE 'J' #0>\nK",
-    ),
-    (
-        "[[ INCLUDE component:thing \n\n | name = ARG yes amazing thing\n with newline | ]]",
-        "<INCLUDE 'component:thing' #1>",
-    ),
-    (
-        "A\n[[include no-sep arg = value]]\nB",
-        "A\n<INCLUDE 'no-sep' #1>\nB",
-    ),
-    (
-        "A\n[[include pre-sep | arg = value]]\nB",
-        "A\n<INCLUDE 'pre-sep' #1>\nB",
-    ),
-    (
-        "A\n[[include post-sep arg = value | ]]\nB",
-        "A\n<INCLUDE 'post-sep' #1>\nB",
-    ),
-    (
-        "A\n[[include both-sep | arg = value | ]]\nB",
-        "A\n<INCLUDE 'both-sep' #1>\nB",
-    ),
-];
-
-#[test]
-fn test_substitute() {
-    use super::test::test_substitution;
-
-    test_substitution("include", |s| substitute(s, &TestIncluder), &TEST_CASES);
 }
