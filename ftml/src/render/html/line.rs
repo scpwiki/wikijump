@@ -50,12 +50,12 @@ pub fn render_line(output: &mut HtmlOutput, line: &Line) -> Result<()> {
             alignment,
             ref lines,
         } => {
-            write!(output.html, r#"<div style="text-align: {};">\n"#, alignment)?;
+            write!(output.html, "<div style=\"text-align: {};\">\n", alignment)?;
             render_lines(output, lines)?;
             output.push_str("</div>");
         }
         &Center { ref words } => {
-            output.push_str(r#"<div style="text-align: center;">\n"#);
+            output.push_str("<div style=\"text-align: center;\">\n");
             render_words(output, words)?;
             output.push_str("</div>");
         }
