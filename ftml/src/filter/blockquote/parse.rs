@@ -1,5 +1,5 @@
 /*
- * filter/blockquote.rs
+ * filter/blockquote/parse.rs
  *
  * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -142,48 +142,4 @@ pub fn substitute(text: &mut String) -> Result<()> {
     mem::drop(buffer);
 
     Ok(())
-}
-
-#[cfg(test)]
-const TEST_CASES: [(&str, &str); 9] = [
-    ("", ""),
-    (
-        "> alpha\nbeta\n> gamma\ndelta",
-        "[[quote]]\nalpha\n[[/quote]]\nbeta\n[[quote]]\ngamma\n[[/quote]]\ndelta",
-    ),
-    (
-        "test\n> abc\n> def\n> ghi\n>> apple\n>> banana\n>>> durian\n>> fruit list\nend",
-        "test\n[[quote]]\nabc\ndef\nghi\n[[quote]]\napple\nbanana\n[[quote]]\ndurian\n[[/quote]]\nfruit list\n[[/quote]]\n[[/quote]]\nend",
-    ),
-    (
-        ">>>> deep quote block\n>>>> contents",
-        "[[quote]]\n[[quote]]\n[[quote]]\n[[quote]]\ndeep quote block\ncontents\n[[/quote]]\n[[/quote]]\n[[/quote]]\n[[/quote]]\n",
-    ),
-    (
-        ">no space test\n> it's weird wikidot requires it\n>  extra space",
-        "[[quote]]\nno space test\nit's weird wikidot requires it\nextra space\n[[/quote]]\n",
-    ),
-    (
-        "> multiple quotes test\n\n> another block\n>> omega\n",
-        "[[quote]]\nmultiple quotes test\n[[/quote]]\n\n[[quote]]\nanother block\n[[quote]]\nomega\n[[/quote]]\n[[/quote]]\n",
-    ),
-    (
-        "this string doesn't have any quotes in it",
-        "this string doesn't have any quotes in it",
-    ),
-    (
-        "> apple\n> > fake quote\n> >> even faker\n",
-        "[[quote]]\napple\n> fake quote\n>> even faker\n[[/quote]]\n",
-    ),
-    (
-        "[[div]]\napple\n> banana\n[[/div]]\n> durian\n",
-        "[[div]]\napple\n[[quote]]\nbanana\n[[/quote]]\n[[/div]]\n[[quote]]\ndurian\n[[/quote]]\n",
-    ),
-];
-
-#[test]
-fn test_substitute() {
-    use super::test::test_substitution;
-
-    test_substitution("blockquote", substitute, &TEST_CASES);
 }

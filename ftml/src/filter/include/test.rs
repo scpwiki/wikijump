@@ -18,7 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[cfg(test)]
+use super::{substitute, TestIncluder};
+
 const TEST_CASES: [(&str, &str); 11] = [
     ("", ""),
     ("[[include component:thingy]]", "<INCLUDE 'component:thingy' #0>"),
@@ -62,7 +63,7 @@ const TEST_CASES: [(&str, &str); 11] = [
 
 #[test]
 fn test_substitute() {
-    use super::test::test_substitution;
+    use super::test_substitution;
 
     test_substitution("include", |s| substitute(s, &TestIncluder), &TEST_CASES);
 }

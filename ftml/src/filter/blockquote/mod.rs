@@ -1,5 +1,5 @@
 /*
- * filter/include/mod.rs
+ * filter/blockquote/mod.rs
  *
  * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -18,10 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod object;
 mod parse;
 
-pub use self::object::*;
 pub use self::parse::substitute;
 
 #[cfg(test)]
