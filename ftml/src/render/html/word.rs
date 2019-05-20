@@ -136,7 +136,11 @@ pub fn render_word(output: &mut HtmlOutput, word: &Word) -> Result<()> {
             class,
             size,
         } => {
-            output.push_str("<img");
+            output.push_str("<div class=\"image-container\"");
+            if let Some(align) = direction {
+                write!(output.html, " style=\"text-align: {};\"", align)?;
+            }
+            output.push_str("><img");
 
             // TODO adjust for other sources
             write_tag_arg(output, "src", filename)?;
@@ -169,7 +173,7 @@ pub fn render_word(output: &mut HtmlOutput, word: &Word) -> Result<()> {
                 write!(output.html, " size={}", size)?;
             }
 
-            output.push_str("></img>");
+            output.push_str("></img></div>");
         }
         &Italics { ref words } => {
             output.push_str("<i>");
