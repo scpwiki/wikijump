@@ -22,7 +22,7 @@ macro_rules! extract {
     ($regex:expr, $pair:expr) => (
         $regex.captures($pair.as_str())
             .expect("Pair contents doesn't match regular expression")
-            .get(0)
+            .get(1)
             .expect("No captures in regular expression")
             .as_str()
     )
@@ -120,7 +120,7 @@ lazy_static! {
     };
 
     static ref RAW: Regex = {
-        RegexBuilder::new(r"[@`]{2}(.*)[@`]{2}")
+        RegexBuilder::new(r"^[@`]{2}(?P<contents>.*)[@`]{2}$")
             .build()
             .unwrap()
     };
