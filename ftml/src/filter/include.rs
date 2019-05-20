@@ -19,80 +19,39 @@
  */
 
 use crate::{Error, Result};
-use regex::{Regex, RegexBuilder};
+use pest::Parser;
 use std::borrow::Cow;
 use std::collections::HashMap;
 
-lazy_static! {
-    static ref INCLUDE: Regex = {
-        RegexBuilder::new(r"(?x)
-            \[\[
-                \s*include\s+
-                (?P<resource>[^ \]]+)
-                (?P<args>.*?)
-            \]\]")
-            .multi_line(true)
-            .dot_matches_new_line(true)
-            .case_insensitive(true)
-            .build()
-            .unwrap()
-    };
-
-    static ref INCLUDE_ARG: Regex = {
-        RegexBuilder::new(r"\s+(?P<key>\w+)\s*=\s*(?P<value>[^\|]+)\s*")
-            .multi_line(true)
-            .build()
-            .unwrap()
-    };
-}
+#[derive(Debug, Clone, Parser)]
+#[grammar = "filter/include.pest"]
+pub struct IncludeParser;
 
 // Helper function
 pub fn substitute(text: &mut String, includer: &Includer) -> Result<()> {
-    while let Some(capture) = INCLUDE.captures(text) {
-        let mut args = HashMap::new();
-
-        let name = capture
-            .name("resource")
-            .expect("Named capture group not found")
-            .as_str();
-        let raw_args = capture
-            .name("args")
-            .expect("Named capture group not found")
-            .as_str();
-
-        if !raw_args.trim().is_empty() {
-            for raw_arg in raw_args.split("|") {
-                match INCLUDE_ARG.captures(raw_arg) {
-                    Some(capture) => {
-                        let key = capture
-                            .name("key")
-                            .expect("Named capture group not found")
-                            .as_str();
-                        let value = capture
-                            .name("value")
-                            .expect("Named capture group not found")
-                            .as_str();
-
-                        args.insert(key, value);
-                    }
-                    None => {
-                        return Err(Error::Msg(format!(
-                            "Include arguments for '{}' are improperly formatted",
-                            name
-                        )))
-                    }
-                }
-            }
+    let pairs = match IncludeParser::parse(Rule::include, text) {
+        Ok(mut pairs) => get_inner_pairs!(pairs),
+        Err(err) => {
+            return Err(Error::Msg(format!(
+                "Include transform parsing error: {}",
+                err
+            )));
         }
+    };
 
-        let mtch = capture
-            .get(0)
-            .expect("Regular expression lacks a full match");
-        let range = mtch.start()..mtch.end();
+println!("> {:#?}", &pairs);
 
-        let resource = includer.get_resource(name, args)?;
-        text.replace_range(range, resource.as_ref());
-    }
+    // TODO
+
+    /*
+    let mtch = capture
+        .get(0)
+        .expect("Regular expression lacks a full match");
+    let range = mtch.start()..mtch.end();
+
+    let resource = includer.get_resource(name, args)?;
+    text.replace_range(range, resource.as_ref());
+    */
 
     Ok(())
 }
@@ -113,10 +72,31 @@ impl Includer for NullIncluder {
 }
 
 #[derive(Debug, Clone)]
+pub struct TextIncluder<'a>(pub &'a str);
+
+impl<'a> Includer for TextIncluder<'a> {
+    fn get_resource(&self, _name: &str, _args: HashMap<&str, &str>) -> Result<Cow<str>> {
+        Ok(Cow::Borrowed(self.0))
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct NotFoundIncluder;
 
 impl Includer for NotFoundIncluder {
     fn get_resource(&self, name: &str, _args: HashMap<&str, &str>) -> Result<Cow<str>> {
         Ok(Cow::Owned(format!("[[div style=\"line-height: 141%; color: #b00; padding: 1em; margin: 1em; border: 1px solid #faa;\"]]\nIncluded page \"{}\" does not exist\n[[/div]]", name)))
     }
+}
+
+#[cfg(test)]
+const TEST_CASES: [(&str, &str); 1] = [
+    ("", ""),
+];
+
+#[test]
+fn test_substitute() {
+    use super::test::test_substitution;
+
+    test_substitution("include", |s| substitute(s, &TextIncluder("<INCLUDE>")), &TEST_CASES);
 }

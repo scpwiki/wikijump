@@ -59,6 +59,9 @@ extern crate pest;
 extern crate pest_derive;
 extern crate regex;
 
+#[macro_use]
+mod macros;
+
 mod enums;
 mod error;
 mod filter;

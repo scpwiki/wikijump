@@ -1,5 +1,5 @@
 /*
- * parse/blockquote.rs
+ * filter/blockquote.rs
  *
  * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -24,10 +24,10 @@ use pest::Parser;
 use std::mem;
 
 #[derive(Debug, Clone, Parser)]
-#[grammar = "parse/blockquote.pest"]
+#[grammar = "filter/blockquote.pest"]
 pub struct BlockQuoteParser;
 
-pub fn convert_blockquotes(text: &mut String) -> Result<()> {
+pub fn substitute(text: &mut String) -> Result<()> {
     #[derive(Debug)]
     struct QuoteLine<'a> {
         depth: usize,
@@ -39,7 +39,6 @@ pub fn convert_blockquotes(text: &mut String) -> Result<()> {
         contents: &'a str,
     }
 
-    // TODO figure out why empty strings cause an infinite loop
     if text.is_empty() {
         return Ok(());
     }
@@ -48,7 +47,7 @@ pub fn convert_blockquotes(text: &mut String) -> Result<()> {
         Ok(mut pairs) => get_inner_pairs!(pairs),
         Err(err) => {
             return Err(Error::Msg(format!(
-                "Blockquote transform parsing error: {:?}",
+                "Blockquote transform parsing error: {}",
                 err
             )))
         }
@@ -145,54 +144,46 @@ pub fn convert_blockquotes(text: &mut String) -> Result<()> {
     Ok(())
 }
 
+#[cfg(test)]
+const TEST_CASES: [(&str, &str); 9] = [
+    ("", ""),
+    (
+        "> alpha\nbeta\n> gamma\ndelta",
+        "[[quote]]\nalpha\n[[/quote]]\nbeta\n[[quote]]\ngamma\n[[/quote]]\ndelta",
+    ),
+    (
+        "test\n> abc\n> def\n> ghi\n>> apple\n>> banana\n>>> durian\n>> fruit list\nend",
+        "test\n[[quote]]\nabc\ndef\nghi\n[[quote]]\napple\nbanana\n[[quote]]\ndurian\n[[/quote]]\nfruit list\n[[/quote]]\n[[/quote]]\nend",
+    ),
+    (
+        ">>>> deep quote block\n>>>> contents",
+        "[[quote]]\n[[quote]]\n[[quote]]\n[[quote]]\ndeep quote block\ncontents\n[[/quote]]\n[[/quote]]\n[[/quote]]\n[[/quote]]\n",
+    ),
+    (
+        ">no space test\n> it's weird wikidot requires it\n>  extra space",
+        "[[quote]]\nno space test\nit's weird wikidot requires it\nextra space\n[[/quote]]\n",
+    ),
+    (
+        "> multiple quotes test\n\n> another block\n>> omega\n",
+        "[[quote]]\nmultiple quotes test\n[[/quote]]\n\n[[quote]]\nanother block\n[[quote]]\nomega\n[[/quote]]\n[[/quote]]\n",
+    ),
+    (
+        "this string doesn't have any quotes in it",
+        "this string doesn't have any quotes in it",
+    ),
+    (
+        "> apple\n> > fake quote\n> >> even faker\n",
+        "[[quote]]\napple\n> fake quote\n>> even faker\n[[/quote]]\n",
+    ),
+    (
+        "[[div]]\napple\n> banana\n[[/div]]\n> durian\n",
+        "[[div]]\napple\n[[quote]]\nbanana\n[[/quote]]\n[[/div]]\n[[quote]]\ndurian\n[[/quote]]\n",
+    ),
+];
+
 #[test]
 fn test_substitute() {
-    let mut string = String::new();
+    use super::test::test_substitution;
 
-    macro_rules! substitute {
-        ($str:expr) => {{
-            string.clear();
-            string.push_str($str);
-            convert_blockquotes(&mut string).expect("Parsing file failed");
-        }}
-    }
-
-    substitute!("");
-    assert_eq!(&string, "");
-
-    substitute!("> alpha\nbeta\n> gamma\ndelta");
-    assert_eq!(
-        &string,
-        "[[quote]]\nalpha\n[[/quote]]\nbeta\n[[quote]]\ngamma\n[[/quote]]\ndelta"
-    );
-
-    substitute!("test\n> abc\n> def\n> ghi\n>> apple\n>> banana\n>>> durian\n>> fruit list\nend");
-    assert_eq!(&string, "test\n[[quote]]\nabc\ndef\nghi\n[[quote]]\napple\nbanana\n[[quote]]\ndurian\n[[/quote]]\nfruit list\n[[/quote]]\n[[/quote]]\nend");
-
-    substitute!(">>>> deep quote block\n>>>> contents");
-    assert_eq!(&string, "[[quote]]\n[[quote]]\n[[quote]]\n[[quote]]\ndeep quote block\ncontents\n[[/quote]]\n[[/quote]]\n[[/quote]]\n[[/quote]]\n");
-
-    substitute!(">no space test\n> it's weird wikidot requires it\n>  extra space");
-    assert_eq!(
-        &string,
-        "[[quote]]\nno space test\nit's weird wikidot requires it\nextra space\n[[/quote]]\n"
-    );
-
-    substitute!("> multiple quotes test\n\n> another block\n>> omega\n");
-    assert_eq!(&string, "[[quote]]\nmultiple quotes test\n[[/quote]]\n\n[[quote]]\nanother block\n[[quote]]\nomega\n[[/quote]]\n[[/quote]]\n");
-
-    substitute!("this string doesn't have any quotes in it");
-    assert_eq!(&string, "this string doesn't have any quotes in it");
-
-    substitute!("> apple\n> > fake quote\n> >> even faker\n");
-    assert_eq!(
-        &string,
-        "[[quote]]\napple\n> fake quote\n>> even faker\n[[/quote]]\n"
-    );
-
-    substitute!("[[div]]\napple\n> banana\n[[/div]]\n> durian\n");
-    assert_eq!(
-        &string,
-        "[[div]]\napple\n[[quote]]\nbanana\n[[/quote]]\n[[/div]]\n[[quote]]\ndurian\n[[/quote]]\n"
-    );
+    test_substitution("blockquote", substitute, &TEST_CASES);
 }

@@ -1,5 +1,5 @@
 //
-// parse/blockquote.pest
+// filter/include.pest
 //
 // ftml - Convert Wikidot code to HTML
 // Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -18,11 +18,25 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 //
 
-page = { SOI ~ (quote_line | other_line)* ~ EOI }
+include = {
+    "[[" ~ space? ~ ^"include" ~ space_any ~
+    resource ~ space_any? ~
+    "|"? ~ (
+        (argument ~ "|")* ~ argument?
+    ) ~ space_any? ~
+    "]]"
+}
 
-blockquote = { quote_line+ }
-quote_line = { (SOI | "\n") ~ quote_depth ~ " "* ~ line_contents ~ &("\n" | EOI) }
-quote_depth = { ">"+ }
-line_contents = { (!"\n" ~ ANY)* }
+resource = { (ASCII_ALPHANUMERIC | ":" | "." | "-" | "_")+ }
+argument = {
+    space_any? ~
+    key ~ space_any? ~
+    "=" ~ space_any? ~
+    value
+}
 
-other_line = { (SOI | "\n") ~ !">" ~ line_contents ~ &("\n" | EOI) }
+key = { (ASCII_ALPHANUMERIC | "-" | "_")+ }
+value = { (!("|" | "]]") ~ ANY)+ }
+
+space = _{ (" " | "\r" | "\t")+ }
+space_any = _{ (" " | "\r" | "\t" | "\n")+ }

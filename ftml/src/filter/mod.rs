@@ -18,13 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod blockquote;
 mod include;
 mod misc;
 mod typography;
-
-mod blockquote {
-    pub use crate::parse::convert_blockquotes as substitute;
-}
 
 #[cfg(test)]
 mod test;
