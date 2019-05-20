@@ -31,6 +31,13 @@ where
         string.clear();
         string.push_str(input);
 
+        println!(
+            "Testing {} substitution:\nInput:    {:?}\nExpected: {:?}\n",
+            filter_name,
+            input,
+            expected,
+        );
+
         if let Err(err) = substitute(&mut string) {
             panic!(
                 "Failed to perform {} substitution test string:\n{}\nExpected:\n{}\n-----\nProduced error: {}",
