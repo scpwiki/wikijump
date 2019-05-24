@@ -12,8 +12,6 @@ This library targets the latest stable Rust. At time of writing, that is 1.34.2
 
 ```sh
 $ cargo build --release
-$ cargo build --release --example ftml
-$ cargo build --release --example ftmld
 ```
 
 This will create the appropriate Rust library files and the two packaged binaries:
