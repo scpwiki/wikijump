@@ -21,7 +21,7 @@ div.scp-image-block.block-center {
 }
 [[/module]]
 
-[[include :scp.avn.sh:component:aers:info-stuff
+[[include component:info-ayers
     lang=EN |
     page=SCP-4322 |
     authorPage=http://www.scp-wiki.net/aismallard |
@@ -32,7 +32,7 @@ div.scp-image-block.block-center {
 **Thanks to:** 
 * wctaiwan 
 * [[*user KindlyTurtleClem]] 
-* [[*user woedenaz]] 
+* [[*user woedenaz]]@@ @@
 ]]
 
 [[include component:classified-bar-woed
@@ -55,7 +55,7 @@ SCP-4322
 
 **Special Containment Procedures:** SCP-4322 is to remain continuously active, with daily four-hour breaks in transmission. Interviews with affected D-class are to be carried out quarterly to maintain quality of service. Personnel are encouraged to submit media for potential inclusion in broadcasts.
 
-**Description:** SCP-4322 is a radio transceiver, anomalously modified to transmit psionic waves instead of electromagnetic radiation. It receives input via a standard Ψ-5 cable[[footnote]]Coaxial cable designed for the transfer of anomalous memetic information.[[/footnote]] and, until its modification by Foundation researchers, generated output using its metal casing as an antenna. The object was recovered from PoI-3984 in Szczecin, Poland, who had previously used the object to provide comfort for his mother.
+**Description:** SCP-4322 is a radio transceiver, anomalously modified to transmit psionic waves instead of electromagnetic radiation. It receives input via a standard Ψ-5 cable[[footnote]]Coaxial cable designed for the transfer of anomalous memetic information.[[/footnote]] and, until its modification by Foundation researchers, generated output using its metal casing as an antenna. The object was recovered from PoI-3984 in Szczecyn, Poland, who had previously used the object to provide comfort for his mother.
 
 The psychic energy produced by SCP-4322 matches the profile of Type-Δ anomalous radiation, which is characterized by its extremely low interference with matter and high propagation over great distances. As part of Project Somnium, Foundation researchers installed an antenna extension composed of a beryllium-copper-lead alloy. This increased the effective range of SCP-4322 from approximately 4 meters to 2.1 × 10^^7^^ meters, permitting its signals to be received anywhere on Earth.
 

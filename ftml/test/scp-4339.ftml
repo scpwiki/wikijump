@@ -1,17 +1,32 @@
-[[include info:start]]
-**SCP-4339:** The Attribute Pen
-**Author:** [[*user aismallard]] ([[[aismallard|Author Page]]])
-**Image:** Original creation by the author. CC-SA 3.0 license.
-[[include info:end]]
+[[include :kaktuskontainer:component:nuscp-dev]]
 
-[[include component:image-block
-    name=scp-4339.jpeg|
-    caption=SCP-4339
+[[>]]
+[[module Rate]]
+[[/>]]
+
+[[include component:info-ayers
+    lang=EN |
+    page=SCP-4339 |
+    authorPage=http://www.scp-wiki.net/aismallard |
+    comments= 
+**SCP-4339:** The Attribute Pen 
+ 
+Image is an original creation by the author. CC-SA 3.0 license. 
 ]]
 
-**Item #:** SCP-4339
+[[include component:classified-bar-woed
+    lv=4 |
+    item=4339 |
+    oc=Safe |
+    lang=EN
+]]
 
-**Object Class:** Safe
+----
+
+[[include component:image-block-responsive
+    name=scp-4339.jpeg |
+    caption=SCP-4339
+]]
 
 **Special Containment Procedures:** SCP-4339 is to be stored in a Class-9 maximum security small-item locker. Testing may not be conducted without the --approval of two Level-4 personnel-- unanimous consent of the O5 Council. (See Addendum 4339-2)
 

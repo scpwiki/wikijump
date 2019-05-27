@@ -1,19 +1,34 @@
-[[include info:start]]
-**SCP-3597:** Maladroit
-**Author:** [[*user aismallard]] ([[[aismallard|Author Page]]])
-**Thanks to:** wctaiwan, [[*user rounderhouse]], [[*user Ensophos]]
+[[include :kaktuskontainer:component:nuscp-dev]]
 
-[[[cliche-con-2019|Winner of Cliché-Con 2019]]], in __**Category 2:** Article features a cliché story element__.
-Selected clichés:
-* A highly skilled Mobile Task Force gets steamrolled.
-* D-Class = Disposable Class
+[[>]]
+[[module Rate]]
+[[/>]]
 
-See forum for spoilers.
-[[include info:end]]
+[[include component:info-ayers
+    lang=EN |
+    page=SCP-3597 |
+    authorPage=http://www.scp-wiki.net/aismallard |
+    comments= 
+**SCP-3597:** Maladroit 
+ 
+**Thanks to:** wctaiwan, [[*user rounderhouse]], [[*user Ensophos]] 
+ 
+[http://www.scp-wiki.net/cliche-con-2019 Winner of Cliché-Con 2019], in __**Category 2:** Article features a cliché story element__. 
+Selected clichés: 
+* A highly skilled Mobile Task Force gets steamrolled. 
+* D-Class = Disposable Class 
+ 
+See forum for spoilers. 
+]]
 
-**Item #:** SCP-3597
+[[include component:classified-bar-woed
+    lv=2 |
+    item=3597 |
+    oc=Euclid |
+    lang=EN
+]]
 
-**Object Class:** Euclid
+----
 
 **Special Containment Procedures:** SCP-3597 is to be kept in its containment chamber within Provisional Site-597. Any D-class personnel assigned to the project must also be permanently relocated inside this chamber.
 
@@ -25,22 +40,22 @@ Resident D-class may request supplies or additional personnel, provided no justi
 Foundation AICs flagged an unusual series of civilian and police deaths linked to ███ ████████ Preschool in New York, NY. [[[task-forces#pi-1|Mobile Task Force Pi-1 ("City Slickers")]]] was sent in to investigate.
 
 ||~ Date/Time ||~ Actions ||~ Results ||
-|| 2018/04/11 14:21 || MTF Pi-1 arrives at the location and establishes a perimeter. They then attempt to enter the building. || Members report intense migraines. Operation aborted. ||
-|| 2018/04/11 14:34 || MTF Pi-1 attempts to enter the building through the second story window. || Members report intense migraines and nosebleeds. Operation aborted. ||
-|| 2018/04/11 15:55 || MTF Pi-1 attempts to enter the building, equipped with gas masks. || Members report intense migraines and blood loss. Two members expire.[[footnote]]Both coroners who attempted autopsies suffered from internal hemorrhaging before being able to communicate cause of death. No further autopsies have been attempted.[[/footnote]] Operation aborted. ||
-|| 2018/04/11 16:23 || MTF Pi-1 attempts to enter the building while blindfolded. || Members successfully gain access. Three members report tinnitus, one member hospitalized. ||
-|| 2018/04/11 16:26 || MTF Pi-1 attempts to explore the building, still blindfolded. || Members report intense migraines, severe tinnitus, and blood loss. Two members expire, one self-terminates. Operation aborted. ||
+|| 2018/04/11 14:21 || MTF-Pi-1 arrives at the location and establishes a perimeter. They then attempt to enter the building. || Members report intense migraines. Operation aborted. ||
+|| 2018/04/11 14:34 || MTF-Pi-1 attempts to enter the building through the second story window. || Members report intense migraines and nosebleeds. Operation aborted. ||
+|| 2018/04/11 15:55 || MTF-Pi-1 attempts to enter the building, equipped with gas masks. || Members report intense migraines and blood loss. Two members expire.[[footnote]]Both coroners who attempted autopsies suffered from internal hemorrhaging before being able to communicate cause of death. No further autopsies have been attempted.[[/footnote]] Operation aborted. ||
+|| 2018/04/11 16:23 || MTF-Pi-1 attempts to enter the building while blindfolded. || Members successfully gain access. Three members report tinnitus, one member hospitalized. ||
+|| 2018/04/11 16:26 || MTF-Pi-1 attempts to explore the building, still blindfolded. || Members report intense migraines, severe tinnitus, and blood loss. Two members expire, one self-terminates. Operation aborted. ||
 
 As the existence of a visual cognitohazard was suspected, Mobile Task Force Pi-1 was recalled and [[[task-forces#eta-10|Mobile Task Force Eta-10 ("See No Evil")]]] was deployed. All windows and other openings were boarded up.
 
 ||~ Date/Time ||~ Actions ||~ Results ||
-|| 2018/04/11 18:12 || MTF Eta-10 is briefed on previous recovery attempts. || Task force devises several plans for locating the anomaly. Members report minor head pain. ||
-|| 2018/04/11 18:15 || MTF Eta-10 attempts to enter the building. Note that members are blind. || Members report intense migraines and blood loss. One member hospitalized. Operation aborted. ||
-|| 2018/04/11 18:28 || MTF Eta-10 consumes Class-A amnestics and attempts to enter the building. || Members successfully gain access. Four members report minor head pain. ||
-|| 2018/04/11 18:41 || MTF Eta-10 attempts to explore the building. || Unattended toddler discovered in play area.[[footnote]]Upon examination, child appeared to be in normal condition. However, medical staff complained of head pain.[[/footnote]] ||
-|| 2018/04/11 18:52 || MTF Eta-10 exits the building. After being equipped with external oxygen supplies and ear protection, they re-enter the building. || Members report minor head pain. ||
-|| 2018/04/11 19:04 || MTF Eta-10 attempts to explore the building. || Three members report head pain, two report nausea. ||
-|| 2018/04/11 19:13 || MTF Eta-10 arrives in the kitchen. || Three members expire, remaining members are in critical condition. Operation aborted. ||
+|| 2018/04/11 18:12 || MTF-Eta-10 is briefed on previous recovery attempts. || Task force devises several plans for locating the anomaly. Members report minor head pain. ||
+|| 2018/04/11 18:15 || MTF-Eta-10 attempts to enter the building. Note that members are blind. || Members report intense migraines and blood loss. One member hospitalized. Operation aborted. ||
+|| 2018/04/11 18:28 || MTF-Eta-10 consumes Class-A amnestics and attempts to enter the building. || Members successfully gain access. Four members report minor head pain. ||
+|| 2018/04/11 18:41 || MTF-Eta-10 attempts to explore the building. || Unattended toddler discovered in play area.[[footnote]]Upon examination, child appeared to be in normal condition. However, medical staff complained of head pain.[[/footnote]] ||
+|| 2018/04/11 18:52 || MTF-Eta-10 exits the building. After being equipped with external oxygen supplies and ear protection, they re-enter the building. || Members report minor head pain. ||
+|| 2018/04/11 19:04 || MTF-Eta-10 attempts to explore the building. || Three members report head pain, two report nausea. ||
+|| 2018/04/11 19:13 || MTF-Eta-10 arrives in the kitchen. || Three members expire, remaining members are in critical condition. Operation aborted. ||
 
 External staff attempted to question the recovered toddler. The child was unaware that the preschool had no other living people. When asked about the behavior of preschool caretakers, the child began crying and bleeding profusely. Some staff present experienced nausea and blood loss. Medical staff administered Class-A amnestics and hospitalized those affected.
 
