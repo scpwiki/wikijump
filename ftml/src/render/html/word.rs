@@ -111,7 +111,27 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             render_words(ctx, words)?;
             ctx.push_str("</span>");
         }
-        &Date { timestamp, format } => unimplemented!(),
+        &Date { timestamp, format } => {
+            use chrono::prelude::*;
+
+            // For now timestamp can only be seconds since the epoch.
+            // In the future we may want to extend this to also include ISO timestamps and such.
+
+            let date = NaiveDateTime::from_timestamp(timestamp, 0);
+            let format = format.unwrap_or("%e");
+            let (format, hover) = if format.ends_with("|agohover") {
+                let new_len = format.len() - "|agohover".len();
+
+                (&format[..new_len], true)
+            } else {
+                (format, false)
+            };
+
+            // TODO actually add the hover thing
+            let _ = hover;
+
+            write!(ctx.html, "{}", date.format(format))?;
+        }
         &Email { address, text } => {
             write!(ctx.html, "<a href=\"mailto:{}\">", address)?;
             escape_html(ctx, text.unwrap_or(address))?;

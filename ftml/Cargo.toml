@@ -9,6 +9,7 @@ edition = "2018" # this refers to the Cargo.toml version
 name = "ftml"
 
 [dependencies]
+chrono = "0.4"
 color-backtrace = "0.1"
 either = "1.5"
 htmlescape = "0.3"
