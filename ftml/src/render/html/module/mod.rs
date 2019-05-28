@@ -27,7 +27,7 @@ mod prelude {
     pub use std::collections::HashMap;
     pub use std::fmt::Write;
     pub use super::Module;
-    pub use super::super::HtmlOutput;
+    pub use super::super::HtmlContext;
 }
 
 use self::prelude::*;
@@ -37,7 +37,7 @@ use self::listpages::ListPagesModule;
 pub trait Module {
     fn render(
         &mut self,
-        output: &mut HtmlOutput,
+        context: &mut HtmlContext,
         arguments: &HashMap<&str, Cow<str>>,
         contents: Option<&str>,
     ) -> Result<()>;
@@ -60,11 +60,13 @@ impl ModuleList {
     pub fn render(
         &mut self,
         name: &str,
-        output: &mut HtmlOutput,
+        ctx: &mut HtmlContext,
         arguments: &HashMap<&str, Cow<str>>,
         contents: Option<&str>,
     ) -> Result<()> {
-        let module: &mut Module = if name.eq_ignore_ascii_case("rate") | name.eq_ignore_ascii_case("rating") {
+        let module: &mut Module = if name.eq_ignore_ascii_case("rate")
+            | name.eq_ignore_ascii_case("rating")
+        {
             &mut self.rating
         } else if name.eq_ignore_ascii_case("listpages") | name.eq_ignore_ascii_case("list_pages") {
             &mut self.listpages
@@ -72,6 +74,6 @@ impl ModuleList {
             return Err(Error::Msg(format!("No such module: '{}'", name)));
         };
 
-        module.render(output, arguments, contents)
+        module.render(ctx, arguments, contents)
     }
 }

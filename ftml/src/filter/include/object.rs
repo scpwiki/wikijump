@@ -44,11 +44,7 @@ pub struct TestIncluder;
 
 impl Includer for TestIncluder {
     fn get_resource(&self, name: &str, args: &HashMap<&str, &str>) -> Result<Cow<'static, str>> {
-        Ok(Cow::Owned(format!(
-            "<INCLUDE '{}' #{}>",
-            name,
-            args.len(),
-        )))
+        Ok(Cow::Owned(format!("<INCLUDE '{}' #{}>", name, args.len(),)))
     }
 }
 

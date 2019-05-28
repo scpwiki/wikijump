@@ -19,6 +19,7 @@
  */
 
 mod buffer;
+mod context;
 mod line;
 mod module;
 mod word;
@@ -30,28 +31,28 @@ mod prelude {
     pub use super::line::{render_line, render_lines};
     pub use super::word::{render_word, render_words};
     pub use super::super::Render;
-    pub use super::HtmlOutput;
+    pub use super::HtmlContext;
 
     use htmlescape::{encode_attribute_w, encode_minimal_w};
     use super::buffer::StringBuf;
 
-    pub fn escape_attr(output: &mut HtmlOutput, attr: &str) -> Result<()> {
-        let mut writer = StringBuf(&mut output.html);
+    pub fn escape_attr(ctx: &mut HtmlContext, attr: &str) -> Result<()> {
+        let mut writer = StringBuf(&mut ctx.html);
         encode_attribute_w(attr, &mut writer)?;
         Ok(())
     }
 
-    pub fn escape_html(output: &mut HtmlOutput, html: &str) -> Result<()> {
-        let mut writer = StringBuf(&mut output.html);
+    pub fn escape_html(ctx: &mut HtmlContext, html: &str) -> Result<()> {
+        let mut writer = StringBuf(&mut ctx.html);
         encode_minimal_w(html, &mut writer)?;
         Ok(())
     }
 
-    pub fn write_tag_arg(output: &mut HtmlOutput, arg_name: &str, value: &str) -> Result<()> {
-        write!(output.html, " {}", arg_name)?;
-        output.push_str("=\"");
-        escape_attr(output, value)?;
-        output.push('"');
+    pub fn write_tag_arg(ctx: &mut HtmlContext, arg_name: &str, value: &str) -> Result<()> {
+        write!(ctx.html, " {}", arg_name)?;
+        ctx.push_str("=\"");
+        escape_attr(ctx, value)?;
+        ctx.push('"');
 
         Ok(())
     }
@@ -61,6 +62,8 @@ use crate::postfilter;
 use self::module::ModuleList;
 use self::prelude::*;
 
+pub use self::context::{HtmlContext, HtmlOutput};
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct HtmlRender;
 
@@ -68,28 +71,10 @@ impl Render for HtmlRender {
     type Output = HtmlOutput;
 
     fn render(tree: &SyntaxTree) -> Result<HtmlOutput> {
-        let mut output = HtmlOutput::default();
-        render_lines(&mut output, tree.lines())?;
-        postfilter(&mut output.html)?;
+        let mut ctx = HtmlContext::default();
+        render_lines(&mut ctx, tree.lines())?;
+        postfilter(&mut ctx.html)?;
 
-        Ok(output)
-    }
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct HtmlOutput {
-    pub html: String,
-    pub styles: Vec<String>,
-}
-
-impl HtmlOutput {
-    #[inline]
-    fn push(&mut self, ch: char) {
-        self.html.push(ch);
-    }
-
-    #[inline]
-    fn push_str(&mut self, s: &str) {
-        self.html.push_str(s);
+        Ok(ctx.into())
     }
 }

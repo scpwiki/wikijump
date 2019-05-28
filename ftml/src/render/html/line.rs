@@ -22,7 +22,7 @@ use crate::enums::Alignment;
 use self::Line::*;
 use super::prelude::*;
 
-pub fn render_lines<'a, I, L>(output: &mut HtmlOutput, lines: I) -> Result<()>
+pub fn render_lines<'a, I, L>(ctx: &mut HtmlContext, lines: I) -> Result<()>
 where
     L: AsRef<Line<'a>>,
     I: IntoIterator<Item = L>,
@@ -32,10 +32,10 @@ where
     let len = lines.len();
 
     for (i, line) in lines.enumerate() {
-        render_line(output, line.as_ref())?;
+        render_line(ctx, line.as_ref())?;
 
         if i < len - 1 {
-            write!(output.html, " <br>")?;
+            write!(ctx.html, " <br>")?;
         }
     }
 
@@ -44,20 +44,20 @@ where
 
 // TODO remove this
 #[allow(unused_variables)]
-pub fn render_line(output: &mut HtmlOutput, line: &Line) -> Result<()> {
+pub fn render_line(ctx: &mut HtmlContext, line: &Line) -> Result<()> {
     match line {
         &Align {
             alignment,
             ref lines,
         } => {
-            write!(output.html, "<div style=\"text-align: {};\">\n", alignment)?;
-            render_lines(output, lines)?;
-            output.push_str("</div>");
+            write!(ctx.html, "<div style=\"text-align: {};\">\n", alignment)?;
+            render_lines(ctx, lines)?;
+            ctx.push_str("</div>");
         }
         &Center { ref words } => {
-            output.push_str("<div style=\"text-align: center;\">\n");
-            render_words(output, words)?;
-            output.push_str("</div>");
+            ctx.push_str("<div style=\"text-align: center;\">\n");
+            render_words(ctx, words)?;
+            ctx.push_str("</div>");
         }
         &ClearFloat { direction } => {
             let style = match direction {
@@ -68,7 +68,7 @@ pub fn render_line(output: &mut HtmlOutput, line: &Line) -> Result<()> {
             };
 
             write!(
-                output.html,
+                ctx.html,
                 r#"<div style="clear: {}; height: 0;"></div>"#,
                 style
             )?;
@@ -80,9 +80,9 @@ pub fn render_line(output: &mut HtmlOutput, line: &Line) -> Result<()> {
             // TODO add language highlighting
             let _ = language;
 
-            output.push_str("<code>\n");
-            escape_html(output, contents)?;
-            output.push_str("</code>\n");
+            ctx.push_str("<code>\n");
+            escape_html(ctx, contents)?;
+            ctx.push_str("</code>\n");
         }
         &Collapsible {
             ref show_text,
@@ -100,39 +100,39 @@ pub fn render_line(output: &mut HtmlOutput, line: &Line) -> Result<()> {
             style,
             ref lines,
         } => {
-            output.push_str("<div");
+            ctx.push_str("<div");
 
             if let Some(id) = id {
-                write!(output.html, " id={}", id)?;
+                write!(ctx.html, " id={}", id)?;
             }
 
             if let Some(class) = class {
-                write!(output.html, " class={}", class)?;
+                write!(ctx.html, " class={}", class)?;
             }
 
             if let Some(style) = style {
-                write!(output.html, " style={}", style)?;
+                write!(ctx.html, " style={}", style)?;
             }
 
-            output.push_str(">\n");
-            render_lines(output, lines)?;
-            output.push_str("\n</div>");
+            ctx.push_str(">\n");
+            render_lines(ctx, lines)?;
+            ctx.push_str("\n</div>");
         }
         &Heading { level, ref words } => {
-            write!(output.html, "<{}>", level)?;
-            render_words(output, words)?;
-            write!(output.html, "</{}>\n", level)?;
+            write!(ctx.html, "<{}>", level)?;
+            render_words(ctx, words)?;
+            write!(ctx.html, "</{}>\n", level)?;
         }
-        &HorizontalLine => output.push_str("<hr>\n"),
-        &Html { contents } => output.push_str(contents),
+        &HorizontalLine => ctx.push_str("<hr>\n"),
+        &Html { contents } => ctx.push_str(contents),
         &Iframe { url, ref arguments } => {
-            write!(output.html, "<iframe src=\"{}\"", url)?;
+            write!(ctx.html, "<iframe src=\"{}\"", url)?;
 
             for (key, value) in arguments {
-                write_tag_arg(output, key, value)?;
+                write_tag_arg(ctx, key, value)?;
             }
 
-            output.push_str("></iframe>");
+            ctx.push_str("></iframe>");
         }
         &IfTags {
             ref required,
@@ -143,7 +143,7 @@ pub fn render_line(output: &mut HtmlOutput, line: &Line) -> Result<()> {
             unimplemented!()
         }
         &Javascript { contents } => {
-            write!(output.html, "<script>\n{}\n</script>", contents)?;
+            write!(ctx.html, "<script>\n{}\n</script>", contents)?;
         }
         &List {
             style,
@@ -153,13 +153,13 @@ pub fn render_line(output: &mut HtmlOutput, line: &Line) -> Result<()> {
             // TODO will need to collect nearby entries for depth
             let _ = depth;
 
-            write!(output.html, "<{}>\n", style)?;
+            write!(ctx.html, "<{}>\n", style)?;
             for item in items {
-                output.push_str("<li> ");
-                render_line(output, item)?;
-                output.push_str(" </li>\n");
+                ctx.push_str("<li> ");
+                render_line(ctx, item)?;
+                ctx.push_str(" </li>\n");
             }
-            write!(output.html, "</{}>", style)?;
+            write!(ctx.html, "</{}>", style)?;
         }
         &Math {
             label,
@@ -173,28 +173,28 @@ pub fn render_line(output: &mut HtmlOutput, line: &Line) -> Result<()> {
         }
         &Newlines { count } => {
             for _ in 0..count {
-                output.push_str("<br>");
+                ctx.push_str("<br>");
             }
 
-            output.push('\n');
+            ctx.push('\n');
         }
         &Table { ref rows } => {
-            output.push_str("<table>\n");
+            ctx.push_str("<table>\n");
             for row in rows {
                 let (start_tag, end_tag) = match row.title {
                     true => ("<th>", "</th>\n"),
                     false => ("<td>", "</td>\n"),
                 };
 
-                output.push_str("<tr>\n");
+                ctx.push_str("<tr>\n");
                 for column in &row.columns {
-                    output.push_str(start_tag);
-                    render_words(output, column)?;
-                    output.push_str(end_tag);
+                    ctx.push_str(start_tag);
+                    render_words(ctx, column)?;
+                    ctx.push_str(end_tag);
                 }
-                output.push_str("</tr>\n");
+                ctx.push_str("</tr>\n");
             }
-            output.push_str("</table>\n");
+            ctx.push_str("</table>\n");
         }
         &TableOfContents {} => {
             // TODO
@@ -206,36 +206,36 @@ pub fn render_line(output: &mut HtmlOutput, line: &Line) -> Result<()> {
             style,
             ref lines,
         } => {
-            output.push_str("<blockquote");
+            ctx.push_str("<blockquote");
 
             if let Some(id) = id {
-                write!(output.html, " id={}", id)?;
+                write!(ctx.html, " id={}", id)?;
             }
 
             if let Some(class) = class {
-                write!(output.html, " class={}", class)?;
+                write!(ctx.html, " class={}", class)?;
             }
 
             if let Some(style) = style {
-                write!(output.html, " style={}", style)?;
+                write!(ctx.html, " style={}", style)?;
             }
 
-            output.push_str(">\n");
-            render_lines(output, lines)?;
-            output.push_str("\n</blockquote>");
+            ctx.push_str(">\n");
+            render_lines(ctx, lines)?;
+            ctx.push_str("\n</blockquote>");
         }
         Words {
             centered,
             ref words,
         } => {
             if *centered {
-                output.push_str(r#"<div style="text-align: center;"> "#);
+                ctx.push_str(r#"<div style="text-align: center;"> "#);
             }
 
-            render_words(output, words)?;
+            render_words(ctx, words)?;
 
             if *centered {
-                output.push_str(" </div>");
+                ctx.push_str(" </div>");
             }
         }
     }

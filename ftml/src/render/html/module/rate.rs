@@ -33,15 +33,15 @@ impl RateModule {
 impl Module for RateModule {
     fn render(
         &mut self,
-        output: &mut HtmlOutput,
+        ctx: &mut HtmlContext,
         arguments: &HashMap<&str, Cow<str>>,
         contents: Option<&str>,
     ) -> Result<()> {
         let rating = self.get_rating()?;
-        output.push_str("<div style=\"border: 2px; background: darkred; color: white;\">");
-        write!(output.html, "[<b>{:+}</b>]", rating)?;
-        output.push_str("<b>-</b> <b>0</b> <b>+</b>");
-        output.push_str("</div>");
+        ctx.push_str("<div style=\"border: 2px; background: darkred; color: white;\">");
+        write!(ctx.html, "[<b>{:+}</b>]", rating)?;
+        ctx.push_str("<b>-</b> <b>0</b> <b>+</b>");
+        ctx.push_str("</div>");
         Ok(())
     }
 }

@@ -33,9 +33,7 @@ where
 
         println!(
             "Testing {} substitution:\nInput:    {:?}\nExpected: {:?}\n",
-            filter_name,
-            input,
-            expected,
+            filter_name, input, expected,
         );
 
         if let Err(err) = substitute(&mut string) {

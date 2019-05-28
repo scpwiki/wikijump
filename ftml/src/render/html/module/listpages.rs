@@ -26,7 +26,7 @@ pub struct ListPagesModule;
 impl Module for ListPagesModule {
     fn render(
         &mut self,
-        _output: &mut HtmlOutput,
+        _ctx: &mut HtmlContext,
         _arguments: &HashMap<&str, Cow<str>>,
         _contents: Option<&str>,
     ) -> Result<()> {

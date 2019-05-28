@@ -26,13 +26,13 @@ macro_rules! percent_encode {
     ($input:expr) => ( percent_encode($input.as_ref(), DEFAULT_ENCODE_SET) )
 }
 
-pub fn render_words<'a, I, W>(output: &mut HtmlOutput, words: I) -> Result<()>
+pub fn render_words<'a, I, W>(ctx: &mut HtmlContext, words: I) -> Result<()>
 where
     I: IntoIterator<Item = W>,
     W: AsRef<Word<'a>>,
 {
     for word in words {
-        render_word(output, word.as_ref())?;
+        render_word(ctx, word.as_ref())?;
     }
 
     Ok(())
@@ -40,7 +40,7 @@ where
 
 // TODO remove this
 #[allow(unused_variables)]
-pub fn render_word(output: &mut HtmlOutput, word: &Word) -> Result<()> {
+pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
     match word {
         &Anchor {
             href,
@@ -51,41 +51,41 @@ pub fn render_word(output: &mut HtmlOutput, word: &Word) -> Result<()> {
             target,
             ref words,
         } => {
-            output.push_str("<a");
+            ctx.push_str("<a");
 
             if let Some(href) = href {
-                write!(output.html, " href=\"{}\"", percent_encode!(href))?;
+                write!(ctx.html, " href=\"{}\"", percent_encode!(href))?;
             }
 
             if let Some(name) = name {
-                write!(output.html, " name=\"{}\"", name)?;
+                write!(ctx.html, " name=\"{}\"", name)?;
             }
 
             if let Some(id) = id {
-                write!(output.html, " id=\"{}\"", id)?;
+                write!(ctx.html, " id=\"{}\"", id)?;
             }
 
             if let Some(class) = class {
-                write!(output.html, " class=\"{}\"", class)?;
+                write!(ctx.html, " class=\"{}\"", class)?;
             }
 
             if let Some(style) = style {
-                write!(output.html, " style=\"{}\"", style)?;
+                write!(ctx.html, " style=\"{}\"", style)?;
             }
 
             if let Some(target) = target {
-                write!(output.html, " target=\"{}\"", target)?;
+                write!(ctx.html, " target=\"{}\"", target)?;
             }
 
-            output.push('>');
-            render_words(output, words)?;
-            output.push_str("</a>");
+            ctx.push('>');
+            render_words(ctx, words)?;
+            ctx.push_str("</a>");
         }
         &Link { href, target, text } => {
-            write!(output.html, "<a href=\"{}\"", percent_encode!(href))?;
+            write!(ctx.html, "<a href=\"{}\"", percent_encode!(href))?;
 
             if let Some(target) = target {
-                write!(output.html, " target=\"{}\"", target)?;
+                write!(ctx.html, " target=\"{}\"", target)?;
             }
 
             // TODO fetch title of the page
@@ -95,27 +95,27 @@ pub fn render_word(output: &mut HtmlOutput, word: &Word) -> Result<()> {
                 None => href,
             };
 
-            output.push('>');
-            escape_html(output, text)?;
-            output.push_str("</a>");
+            ctx.push('>');
+            escape_html(ctx, text)?;
+            ctx.push_str("</a>");
         }
         &Bold { ref words } => {
-            output.push_str("<b>");
-            render_words(output, words)?;
-            output.push_str("</b>");
+            ctx.push_str("<b>");
+            render_words(ctx, words)?;
+            ctx.push_str("</b>");
         }
         &Color { color, ref words } => {
-            output.push_str("<span style=\"color: ");
-            escape_attr(output, color)?;
-            output.push_str("\">");
-            render_words(output, words)?;
-            output.push_str("</span>");
+            ctx.push_str("<span style=\"color: ");
+            escape_attr(ctx, color)?;
+            ctx.push_str("\">");
+            render_words(ctx, words)?;
+            ctx.push_str("</span>");
         }
         &Date { timestamp, format } => unimplemented!(),
         &Email { address, text } => {
-            write!(output.html, "<a href=\"mailto:{}\">", address)?;
-            escape_html(output, text.unwrap_or(address))?;
-            output.push_str("</a>");
+            write!(ctx.html, "<a href=\"mailto:{}\">", address)?;
+            escape_html(ctx, text.unwrap_or(address))?;
+            ctx.push_str("</a>");
         }
         &EquationReference { name } => unimplemented!(),
         &File { filename } => unimplemented!(),
@@ -136,67 +136,67 @@ pub fn render_word(output: &mut HtmlOutput, word: &Word) -> Result<()> {
             class,
             size,
         } => {
-            output.push_str("<div class=\"image-container\"");
+            ctx.push_str("<div class=\"image-container\"");
             if let Some(align) = direction {
-                write!(output.html, " style=\"text-align: {};\"", align)?;
+                write!(ctx.html, " style=\"text-align: {};\"", align)?;
             }
-            output.push_str("><img");
+            ctx.push_str("><img");
 
             // TODO adjust for other sources
-            write_tag_arg(output, "src", filename)?;
+            write_tag_arg(ctx, "src", filename)?;
 
             // TODO float
 
             if let Some(alt) = alt {
-                write!(output.html, " alt={}", alt)?;
+                write!(ctx.html, " alt={}", alt)?;
             }
 
             // TODO title
 
             if let Some(width) = width {
-                write!(output.html, " width={}", width)?;
+                write!(ctx.html, " width={}", width)?;
             }
 
             if let Some(height) = height {
-                write!(output.html, " height={}", height)?;
+                write!(ctx.html, " height={}", height)?;
             }
 
             if let Some(style) = style {
-                write!(output.html, " style={}", style)?;
+                write!(ctx.html, " style={}", style)?;
             }
 
             if let Some(class) = class {
-                write!(output.html, " class={}", class)?;
+                write!(ctx.html, " class={}", class)?;
             }
 
             if let Some(size) = size {
-                write!(output.html, " size={}", size)?;
+                write!(ctx.html, " size={}", size)?;
             }
 
-            output.push_str("></img></div>");
+            ctx.push_str("></img></div>");
         }
         &Italics { ref words } => {
-            output.push_str("<i>");
-            render_words(output, words)?;
-            output.push_str("</i>");
+            ctx.push_str("<i>");
+            render_words(ctx, words)?;
+            ctx.push_str("</i>");
         }
         &Math { expr } => unimplemented!(),
         &Module {
             name,
             ref arguments,
             contents,
-        } => unimplemented!(), // TODO switch to ctx vs output and add module listing
+        } => unimplemented!(), // TODO switch to ctx vs ctx and add module listing
         &Monospace { ref words } => {
-            output.push_str("<tt>");
-            render_words(output, words)?;
-            output.push_str("</tt>");
+            ctx.push_str("<tt>");
+            render_words(ctx, words)?;
+            ctx.push_str("</tt>");
         }
         &Note { ref lines } => unimplemented!(),
-        &Raw { contents } => escape_html(output, contents)?,
+        &Raw { contents } => escape_html(ctx, contents)?,
         &Size { size, ref lines } => {
-            write!(output.html, "<span style=\"size: {};\">", size)?;
-            render_lines(output, lines)?;
-            output.push_str("</span>");
+            write!(ctx.html, "<span style=\"size: {};\">", size)?;
+            render_lines(ctx, lines)?;
+            ctx.push_str("</span>");
         }
         &Span {
             id,
@@ -204,45 +204,45 @@ pub fn render_word(output: &mut HtmlOutput, word: &Word) -> Result<()> {
             style,
             ref lines,
         } => {
-            output.push_str("<span");
+            ctx.push_str("<span");
 
             if let Some(id) = id {
-                write!(output.html, " id={}", id)?;
+                write!(ctx.html, " id={}", id)?;
             }
 
             if let Some(class) = class {
-                write!(output.html, " class={}", class)?;
+                write!(ctx.html, " class={}", class)?;
             }
 
             if let Some(style) = style {
-                write!(output.html, " style={}", style)?;
+                write!(ctx.html, " style={}", style)?;
             }
 
-            output.push('>');
-            render_lines(output, lines)?;
-            output.push_str("</span>");
+            ctx.push('>');
+            render_lines(ctx, lines)?;
+            ctx.push_str("</span>");
         }
         &Strikethrough { ref words } => {
-            output.push_str("<strike>");
-            render_words(output, words)?;
-            output.push_str("</strike>");
+            ctx.push_str("<strike>");
+            render_words(ctx, words)?;
+            ctx.push_str("</strike>");
         }
         &Subscript { ref words } => {
-            output.push_str("<sub>");
-            render_words(output, words)?;
-            output.push_str("</sub>");
+            ctx.push_str("<sub>");
+            render_words(ctx, words)?;
+            ctx.push_str("</sub>");
         }
         &Superscript { ref words } => {
-            output.push_str("<sup>");
-            render_words(output, words)?;
-            output.push_str("</sup>");
+            ctx.push_str("<sup>");
+            render_words(ctx, words)?;
+            ctx.push_str("</sup>");
         }
         &TabList { ref tabs } => unimplemented!(),
-        &Text { contents } => escape_html(output, contents)?,
+        &Text { contents } => escape_html(ctx, contents)?,
         &Underline { ref words } => {
-            output.push_str("<u>");
-            render_words(output, words)?;
-            output.push_str("</u>");
+            ctx.push_str("<u>");
+            render_words(ctx, words)?;
+            ctx.push_str("</u>");
         }
         &User {
             username,

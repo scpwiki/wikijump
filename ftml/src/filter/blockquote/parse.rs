@@ -46,14 +46,12 @@ pub fn substitute(text: &mut String) -> Result<()> {
     for raw_line in text.lines() {
         let line = match QUOTE_LINE.captures(raw_line) {
             Some(mtch) => {
-                let depth = mtch
-                    .name("depth")
+                let depth = mtch.name("depth")
                     .expect("No group 'depth' found in capture")
                     .as_str()
                     .len();
 
-                let contents = mtch
-                    .name("contents")
+                let contents = mtch.name("contents")
                     .expect("No group 'contents' found in capture")
                     .as_str();
 
