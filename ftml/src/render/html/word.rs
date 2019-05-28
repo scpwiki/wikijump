@@ -140,8 +140,8 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
         }
         &EquationReference { name } => unimplemented!(),
         &File { filename } => unimplemented!(),
-        &Footnote { ref lines } => unimplemented!(),
-        &FootnoteBlock => unimplemented!(),
+        &Footnote { ref lines } => unimplemented!(), // make sure you set ctx.has_footnotes to true
+        &FootnoteBlock => unimplemented!(), // make sure you set ctx.has_footnote_block to true
         &Form { contents } => unimplemented!(),
         &Gallery => unimplemented!(),
         &Image {

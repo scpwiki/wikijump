@@ -20,6 +20,7 @@
 
 mod buffer;
 mod context;
+mod finish;
 mod line;
 mod module;
 mod word;
@@ -59,6 +60,7 @@ mod prelude {
 }
 
 use crate::postfilter;
+use self::finish::render_finish;
 use self::prelude::*;
 
 pub use self::context::{HtmlContext, HtmlOutput};
@@ -70,8 +72,9 @@ impl Render for HtmlRender {
     type Output = HtmlOutput;
 
     fn render(tree: &SyntaxTree) -> Result<HtmlOutput> {
-        let mut ctx = HtmlContext::default();
+        let mut ctx = HtmlContext::new();
         render_lines(&mut ctx, tree.lines())?;
+        render_finish(&mut ctx)?;
         postfilter(&mut ctx.html)?;
 
         Ok(ctx.into())

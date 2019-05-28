@@ -32,13 +32,24 @@ pub struct HtmlOutput {
     pub styles: Vec<String>,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct HtmlContext {
     pub html: String,
     pub styles: Vec<String>,
+    pub has_footnotes: bool,
+    pub has_footnote_block: bool,
 }
 
 impl HtmlContext {
+    pub fn new() -> Self {
+        HtmlContext {
+            html: String::new(),
+            styles: Vec::new(),
+            has_footnotes: false,
+            has_footnote_block: false,
+        }
+    }
+
     #[inline]
     pub fn push(&mut self, ch: char) {
         self.html.push(ch);
