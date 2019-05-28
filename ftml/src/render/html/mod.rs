@@ -59,7 +59,6 @@ mod prelude {
 }
 
 use crate::postfilter;
-use self::module::ModuleList;
 use self::prelude::*;
 
 pub use self::context::{HtmlContext, HtmlOutput};

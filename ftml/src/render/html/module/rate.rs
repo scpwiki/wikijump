@@ -24,7 +24,7 @@ use super::prelude::*;
 pub struct RateModule;
 
 impl RateModule {
-    fn get_rating(&self) -> Result<i32> {
+    fn get_rating(_ctx: &mut HtmlContext) -> Result<i32> {
         // TODO stub
         Ok(0)
     }
@@ -32,12 +32,21 @@ impl RateModule {
 
 impl Module for RateModule {
     fn render(
-        &mut self,
         ctx: &mut HtmlContext,
         arguments: &HashMap<&str, Cow<str>>,
         contents: Option<&str>,
     ) -> Result<()> {
-        let rating = self.get_rating()?;
+        if !arguments.is_empty() {
+            return Err(Error::StaticMsg(
+                "No arguments are expected for the rate module",
+            ));
+        }
+
+        if contents.is_some() {
+            return Err(Error::StaticMsg("The rate module should not have contents"));
+        }
+
+        let rating = RateModule::get_rating(ctx)?;
         ctx.push_str("<div style=\"border: 2px; background: darkred; color: white;\">");
         write!(ctx.html, "[<b>{:+}</b>]", rating)?;
         ctx.push_str("<b>-</b> <b>0</b> <b>+</b>");

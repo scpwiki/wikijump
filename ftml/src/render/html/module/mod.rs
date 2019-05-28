@@ -31,49 +31,30 @@ mod prelude {
 }
 
 use self::prelude::*;
-use self::rate::RateModule;
 use self::listpages::ListPagesModule;
+use self::rate::RateModule;
 
 pub trait Module {
     fn render(
-        &mut self,
-        context: &mut HtmlContext,
+        ctx: &mut HtmlContext,
         arguments: &HashMap<&str, Cow<str>>,
         contents: Option<&str>,
     ) -> Result<()>;
 }
 
-#[derive(Debug, Clone)]
-pub struct ModuleList {
-    rating: RateModule,
-    listpages: ListPagesModule,
-}
-
-impl ModuleList {
-    pub fn new() -> Result<Self> {
-        let rating = RateModule;
-        let listpages = ListPagesModule;
-
-        Ok(ModuleList { rating, listpages })
+pub fn render(
+    name: &str,
+    ctx: &mut HtmlContext,
+    arguments: &HashMap<&str, Cow<str>>,
+    contents: Option<&str>,
+) -> Result<()> {
+    if name.eq_ignore_ascii_case("rate") | name.eq_ignore_ascii_case("rating") {
+        RateModule::render(ctx, arguments, contents)?;
+    } else if name.eq_ignore_ascii_case("listpages") | name.eq_ignore_ascii_case("list_pages") {
+        ListPagesModule::render(ctx, arguments, contents)?;
+    } else {
+        return Err(Error::Msg(format!("No such module: '{}'", name)));
     }
 
-    pub fn render(
-        &mut self,
-        name: &str,
-        ctx: &mut HtmlContext,
-        arguments: &HashMap<&str, Cow<str>>,
-        contents: Option<&str>,
-    ) -> Result<()> {
-        let module: &mut Module = if name.eq_ignore_ascii_case("rate")
-            | name.eq_ignore_ascii_case("rating")
-        {
-            &mut self.rating
-        } else if name.eq_ignore_ascii_case("listpages") | name.eq_ignore_ascii_case("list_pages") {
-            &mut self.listpages
-        } else {
-            return Err(Error::Msg(format!("No such module: '{}'", name)));
-        };
-
-        module.render(ctx, arguments, contents)
-    }
+    Ok(())
 }

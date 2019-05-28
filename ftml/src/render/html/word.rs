@@ -20,6 +20,7 @@
 
 use percent_encoding::{percent_encode, DEFAULT_ENCODE_SET};
 use self::Word::*;
+use super::module;
 use super::prelude::*;
 
 macro_rules! percent_encode {
@@ -205,7 +206,7 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             name,
             ref arguments,
             contents,
-        } => unimplemented!(), // TODO switch to ctx vs ctx and add module listing
+        } => module::render(name, ctx, arguments, contents)?,
         &Monospace { ref words } => {
             ctx.push_str("<tt>");
             render_words(ctx, words)?;
