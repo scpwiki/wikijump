@@ -85,3 +85,22 @@ pub fn parse_url(pair: Pair<Rule>) -> Word {
         _ => panic!("Invalid rule for link_url: {:?}", href.as_rule()),
     }
 }
+
+pub fn parse_file(pair: Pair<Rule>) -> Word {
+    let mut pairs = pair.into_inner();
+
+    let target = get_link_target(pairs.next().expect("FileRef pairs iterator was empty"));
+
+    let filename = pairs
+        .next()
+        .expect("FileRef pairs iterator had only one element")
+        .as_str();
+
+    let text = pairs
+        .next()
+        .expect("FileRef pairs iterator had only two elements")
+        .as_str();
+    let text = Some(text);
+
+    Word::File { filename, text, target }
+}

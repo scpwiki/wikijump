@@ -179,7 +179,11 @@ equation_ref = {
     "[[" ~ space? ~ (^"eref" | ^"equationref") ~ space_any ~ ident ~ space_any? ~ "]]"
 }
 
-file_ref = { "[[" ~ space? ~ ^"file" ~ space_any ~ file_ident ~ space_any? ~ "]]" }
+file_ref = {
+    "[[" ~ space? ~ link_newtab ~ space? ~ ^"file" ~ space_any ~ file_ident ~
+    (space_any? ~ link_separator ~ (space_any? ~ file_name)?)? ~ space_any? ~ "]]"
+}
+file_name = { (!"]]" ~ ANY)+ }
 
 footnote = {
     "[[" ~ space? ~ ^"footnote" ~ space_any? ~ "]]" ~
@@ -280,8 +284,8 @@ anchor_arg = {
 link_bare = { link_newtab ~ url }
 
 link_page = {
-    "[[[" ~ space? ~ link_newtab ~ space? ~ link_page_href ~
-    (space? ~ link_separator ~ (space? ~ link_page_name)?)? ~ space? ~ "]]]"
+    "[[[" ~ space_any? ~ link_newtab ~ space_any? ~ link_page_href ~
+    (space_any? ~ link_separator ~ (space_any? ~ link_page_name)?)? ~ space_any? ~ "]]]"
 }
 link_separator = { "|" }
 link_page_href = { (!("\n" | "|" | "]]]") ~ ANY)+ }

@@ -164,6 +164,8 @@ pub enum Word<'a> {
     },
     File {
         filename: &'a str,
+        text: Option<&'a str>,
+        target: Option<AnchorTarget>,
     },
     Footnote {
         lines: Vec<Line<'a>>,
@@ -315,9 +317,7 @@ impl<'a> Word<'a> {
             Rule::equation_ref => Word::EquationReference {
                 name: extract!(EQUATION_REF, pair),
             },
-            Rule::file_ref => Word::File {
-                filename: extract!(FILENAME, pair),
-            },
+            Rule::file_ref => link::parse_file(pair),
             Rule::footnote => Word::Footnote {
                 lines: convert_internal_lines(get_first_pair!(pair))?,
             },
