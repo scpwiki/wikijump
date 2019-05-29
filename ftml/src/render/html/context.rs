@@ -26,6 +26,10 @@
 //! [`HtmlOutput`]: ./HtmlOutput.html
 //! [`HtmlContext`]: ./HtmlContext.html
 
+use crate::Result;
+use std::collections::HashSet;
+use std::mem;
+
 #[derive(Debug, Clone, Default)]
 pub struct HtmlOutput {
     pub html: String,
@@ -38,6 +42,7 @@ pub struct HtmlContext {
     pub styles: Vec<String>,
     pub has_footnotes: bool,
     pub has_footnote_block: bool,
+    tags: Option<HashSet<String>>,
 }
 
 impl HtmlContext {
@@ -47,9 +52,11 @@ impl HtmlContext {
             styles: Vec::new(),
             has_footnotes: false,
             has_footnote_block: false,
+            tags: None,
         }
     }
 
+    // Buffer management
     #[inline]
     pub fn push(&mut self, ch: char) {
         self.html.push(ch);
@@ -58,6 +65,26 @@ impl HtmlContext {
     #[inline]
     pub fn push_str(&mut self, s: &str) {
         self.html.push_str(s);
+    }
+
+    // External calls
+    pub fn get_rating(&mut self) -> Result<Option<i32>> {
+        // TODO fetch rating
+        Ok(None)
+    }
+
+    pub fn get_tags(&mut self) -> Result<&HashSet<String>> {
+        match self.tags {
+            Some(ref tags) => Ok(tags),
+            None => {
+                // TODO fetch tags
+                let tags = HashSet::new();
+
+                mem::replace(&mut self.tags, Some(tags));
+
+                Ok(self.tags.as_ref().unwrap())
+            }
+        }
     }
 }
 

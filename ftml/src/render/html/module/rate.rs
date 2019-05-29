@@ -23,13 +23,6 @@ use super::prelude::*;
 #[derive(Debug, Clone)]
 pub struct RateModule;
 
-impl RateModule {
-    fn get_rating(_ctx: &mut HtmlContext) -> Result<i32> {
-        // TODO stub
-        Ok(0)
-    }
-}
-
 impl Module for RateModule {
     fn render(
         ctx: &mut HtmlContext,
@@ -46,9 +39,9 @@ impl Module for RateModule {
             return Err(Error::StaticMsg("The rate module should not have contents"));
         }
 
-        let rating = RateModule::get_rating(ctx)?;
+        let rating = ctx.get_rating()?;
         ctx.push_str("<div style=\"border: 2px; background: darkred; color: white;\">");
-        write!(ctx.html, "[<b>{:+}</b>]", rating)?;
+        write!(ctx.html, "[<b>{:+}</b>]", rating.unwrap_or(0))?;
         ctx.push_str("<b>-</b> <b>0</b> <b>+</b>");
         ctx.push_str("</div>");
         Ok(())

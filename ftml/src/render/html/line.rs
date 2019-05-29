@@ -140,7 +140,26 @@ pub fn render_line(ctx: &mut HtmlContext, line: &Line) -> Result<()> {
             ref lines,
         } => {
             // Not sure what the approach on this should be
-            unimplemented!()
+            let tags = ctx.get_tags()?;
+            let should_display = move || {
+                for tag in required {
+                    if !tags.contains(*tag) {
+                        return false;
+                    }
+                }
+
+                for tag in prohibited {
+                    if tags.contains(*tag) {
+                        return false;
+                    }
+                }
+
+                true
+            };
+
+            if should_display() {
+                render_lines(ctx, lines)?;
+            }
         }
         &Javascript { contents } => {
             write!(ctx.html, "<script>\n{}\n</script>", contents)?;
