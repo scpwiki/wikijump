@@ -60,11 +60,13 @@ impl HtmlContext {
 
     // Field access
     #[inline]
+    #[allow(dead_code)]
     pub fn id(&self) -> u64 {
         self.id
     }
 
     #[inline]
+    #[allow(dead_code)]
     pub fn handle(&self) -> Arc<ArticleHandle> {
         Arc::clone(&self.handle)
     }
