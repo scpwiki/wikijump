@@ -96,11 +96,11 @@ pub fn parse_file(pair: Pair<Rule>) -> Word {
         .expect("FileRef pairs iterator had only one element")
         .as_str();
 
-    let text = pairs
-        .next()
-        .expect("FileRef pairs iterator had only two elements")
-        .as_str();
-    let text = Some(text);
+    let text = pairs.next().map(|p| p.as_str());
 
-    Word::File { filename, text, target }
+    Word::File {
+        filename,
+        text,
+        target,
+    }
 }

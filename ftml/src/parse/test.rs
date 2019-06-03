@@ -28,7 +28,7 @@ use crate::include::NullIncluder;
 use pest::Parser;
 use super::{parse, Rule, WikidotParser};
 
-const VALID_INPUT_STRINGS: [&str; 119] = [
+const VALID_INPUT_STRINGS: [&str; 122] = [
     "",
     "@@ apple @@ @@banana@@",
     "@@ [!-- literal comment @@ durian",
@@ -148,6 +148,9 @@ const VALID_INPUT_STRINGS: [&str; 119] = [
     "\n[[iframe https://example.com/]]\n",
     "[[iframe https://example.com/some/page name= \"test\" src =\"https://example.com\" ]]\n",
     "[[ IFRAME https://scp-wiki.net/scp-001 data-qa = \"test--iframe\" sandbox=\"allow-scripts\" ]]",
+    "[[file some_image.png]]",
+    "[[* FILE /dir/file ]]",
+    "[[ file  some_image.png | link text ]]",
 ];
 
 const VALID_FILTER_STRINGS: [&str; 12] = [

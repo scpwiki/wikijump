@@ -139,7 +139,11 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             ctx.push_str("</a>");
         }
         &EquationReference { name } => unimplemented!(),
-        &File { filename, text, target } => unimplemented!(),
+        &File {
+            filename,
+            text,
+            target,
+        } => unimplemented!(),
         &Footnote { ref lines } => unimplemented!(), // make sure you set ctx.has_footnotes to true
         &FootnoteBlock => unimplemented!(), // make sure you set ctx.has_footnote_block to true
         &Form { contents } => unimplemented!(),
