@@ -18,16 +18,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod handle;
 mod html;
+mod null;
 mod tree;
 
+pub use self::handle::ArticleHandle;
 pub use self::html::HtmlRender;
+pub use self::null::NullRender;
 pub use self::tree::TreeRender;
 
 use crate::{Result, SyntaxTree};
+use std::sync::Arc;
 
 pub trait Render {
     type Output;
 
-    fn render(tree: &SyntaxTree) -> Result<Self::Output>;
+    fn render(id: u64, handle: Arc<ArticleHandle>, tree: &SyntaxTree) -> Result<Self::Output>;
 }

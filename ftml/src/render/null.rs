@@ -1,5 +1,5 @@
 /*
- * render/tree.rs
+ * render/null.rs
  *
  * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -18,20 +18,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! A renderer which outputs a formatted view of the input AST.
-//! For debugging or some other trivial renderer need.
+//! A "renderer" which only returns a constant string.
+//! Matches Wikidot's `/norender/true` specification.
 
 use crate::{ArticleHandle, Result, SyntaxTree};
 use std::sync::Arc;
 use super::Render;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub struct TreeRender;
+pub struct NullRender;
 
-impl Render for TreeRender {
-    type Output = String;
+impl Render for NullRender {
+    type Output = &'static str;
 
-    fn render(_id: u64, _handle: Arc<ArticleHandle>, tree: &SyntaxTree) -> Result<String> {
-        Ok(format!("{:#?}", tree))
+    #[inline]
+    fn render(_id: u64, _handle: Arc<ArticleHandle>, _tree: &SyntaxTree) -> Result<&'static str> {
+        Ok("[[content]]")
     }
 }

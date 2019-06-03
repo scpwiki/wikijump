@@ -75,7 +75,9 @@ mod test;
 pub use self::error::Error;
 pub use self::filter::{postfilter, prefilter, Includer};
 pub use self::parse::{parse, SyntaxTree};
-pub use self::render::{HtmlRender, Render, TreeRender};
+pub use self::render::{ArticleHandle, HtmlRender, Render, TreeRender};
+
+use std::sync::Arc;
 
 mod backtrace {
     use color_backtrace;
@@ -101,9 +103,14 @@ pub mod include {
 pub type StdResult<T, E> = std::result::Result<T, E>;
 pub type Result<T> = StdResult<T, Error>;
 
-pub fn transform<R: Render>(text: &mut String, includer: &Includer) -> Result<R::Output> {
+pub fn transform<R: Render>(
+    id: u64,
+    handle: Arc<ArticleHandle>,
+    text: &mut String,
+    includer: &Includer,
+) -> Result<R::Output> {
     prefilter(text, includer)?;
     let tree = parse(text)?;
-    let output = R::render(&tree)?;
+    let output = R::render(id, handle, &tree)?;
     Ok(output)
 }

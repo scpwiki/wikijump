@@ -1,5 +1,5 @@
 /*
- * render/tree.rs
+ * render/handle.rs
  *
  * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -18,20 +18,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! A renderer which outputs a formatted view of the input AST.
-//! For debugging or some other trivial renderer need.
+//! Trait for interfacing with external state and retrieving article metadata.
+//!
+//! Used when creating a [`HtmlContext`].
+//!
+//! [`HtmlContext`]: ./HtmlContext.html
 
-use crate::{ArticleHandle, Result, SyntaxTree};
-use std::sync::Arc;
-use super::Render;
+use crate::Result;
+use std::collections::HashSet;
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub struct TreeRender;
+pub trait ArticleHandle {
+    /// Gets the article's title.
+    fn get_title(&self, id: u64) -> Result<String>;
 
-impl Render for TreeRender {
-    type Output = String;
+    /// Gets the article's rating, if it has one.
+    fn get_rating(&self, id: u64) -> Result<Option<i32>>;
 
-    fn render(_id: u64, _handle: Arc<ArticleHandle>, tree: &SyntaxTree) -> Result<String> {
-        Ok(format!("{:#?}", tree))
-    }
+    /// Gets the tags currently associated with the article.
+    fn get_tags(&self, id: u64) -> Result<HashSet<String>>;
 }

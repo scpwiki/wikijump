@@ -26,9 +26,10 @@
 //! [`HtmlOutput`]: ./HtmlOutput.html
 //! [`HtmlContext`]: ./HtmlContext.html
 
-use crate::Result;
+use crate::{ArticleHandle, Result};
 use std::collections::HashSet;
-use std::mem;
+use std::fmt::{self, Debug};
+use std::sync::Arc;
 
 #[derive(Debug, Clone, Default)]
 pub struct HtmlOutput {
@@ -36,23 +37,24 @@ pub struct HtmlOutput {
     pub styles: Vec<String>,
 }
 
-#[derive(Debug)]
 pub struct HtmlContext {
     pub html: String,
     pub styles: Vec<String>,
     pub has_footnotes: bool,
     pub has_footnote_block: bool,
-    tags: Option<HashSet<String>>,
+    id: u64,
+    handle: Arc<ArticleHandle>,
 }
 
 impl HtmlContext {
-    pub fn new() -> Self {
+    pub fn new(id: u64, handle: Arc<ArticleHandle>) -> Self {
         HtmlContext {
             html: String::new(),
             styles: Vec::new(),
             has_footnotes: false,
             has_footnote_block: false,
-            tags: None,
+            handle,
+            id,
         }
     }
 
@@ -68,28 +70,19 @@ impl HtmlContext {
     }
 
     // External calls
-    pub fn get_title(&mut self) -> Result<&str> {
-        // TODO fetch title
-        Ok("Article")
+    #[inline]
+    pub fn get_title(&self) -> Result<String> {
+        self.handle.get_title(self.id)
     }
 
-    pub fn get_rating(&mut self) -> Result<Option<i32>> {
-        // TODO fetch rating
-        Ok(None)
+    #[inline]
+    pub fn get_rating(&self) -> Result<Option<i32>> {
+        self.handle.get_rating(self.id)
     }
 
-    pub fn get_tags(&mut self) -> Result<&HashSet<String>> {
-        match self.tags {
-            Some(ref tags) => Ok(tags),
-            None => {
-                // TODO fetch tags
-                let tags = HashSet::new();
-
-                mem::replace(&mut self.tags, Some(tags));
-
-                Ok(self.tags.as_ref().unwrap())
-            }
-        }
+    #[inline]
+    pub fn get_tags(&mut self) -> Result<HashSet<String>> {
+        self.handle.get_tags(self.id)
     }
 }
 
@@ -99,5 +92,18 @@ impl Into<HtmlOutput> for HtmlContext {
             html: self.html,
             styles: self.styles,
         }
+    }
+}
+
+impl Debug for HtmlContext {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("HtmlContext")
+            .field("html", &self.html)
+            .field("styles", &self.styles)
+            .field("has_footnotes", &self.has_footnotes)
+            .field("has_footnote_block", &self.has_footnote_block)
+            .field("id", &self.id)
+            .field("handle", &"Arc<dyn ArticleHandle>")
+            .finish()
     }
 }
