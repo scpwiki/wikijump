@@ -19,8 +19,9 @@
  */
 
 use crate::Result;
+use std::borrow::Cow;
 use std::collections::HashSet;
-use super::ArticleHandle;
+use super::{ArticleHandle, User};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct NullHandle;
@@ -39,5 +40,16 @@ impl ArticleHandle for NullHandle {
     #[inline]
     fn get_tags(&self, _id: u64) -> Result<HashSet<String>> {
         Ok(HashSet::new())
+    }
+
+    #[inline]
+    fn get_user<'a>(&self, name: &'a str) -> Result<Option<User<'a>>> {
+        let user = User {
+            name: Cow::Borrowed(name),
+            id: 0,
+            avatar: str!("https://d2qhngyckgiutd.cloudfront.net/default_avatar"),
+        };
+
+        Ok(Some(user))
     }
 }

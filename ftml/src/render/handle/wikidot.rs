@@ -23,7 +23,7 @@
 
 use crate::Result;
 use std::collections::HashSet;
-use super::ArticleHandle;
+use super::{ArticleHandle, User};
 
 #[derive(Debug)]
 pub struct WikidotHandle;
@@ -38,6 +38,10 @@ impl ArticleHandle for WikidotHandle {
     }
 
     fn get_tags(&self, _id: u64) -> Result<HashSet<String>> {
+        unimplemented!()
+    }
+
+    fn get_user<'a>(&self, _name: &'a str) -> Result<Option<User<'a>>> {
         unimplemented!()
     }
 }

@@ -18,10 +18,35 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+//! Trait for interfacing with external state and retrieving article metadata.
+
 mod null;
-mod object;
 mod wikidot;
 
 pub use self::null::NullHandle;
-pub use self::object::ArticleHandle;
 pub use self::wikidot::WikidotHandle;
+
+use crate::Result;
+use std::borrow::Cow;
+use std::collections::HashSet;
+
+#[derive(Debug, Clone)]
+pub struct User<'a> {
+    pub name: Cow<'a, str>,
+    pub id: u64,
+    pub avatar: String,
+}
+
+pub trait ArticleHandle {
+    /// Gets the article's title.
+    fn get_title(&self, id: u64) -> Result<String>;
+
+    /// Gets the article's rating, if it has one.
+    fn get_rating(&self, id: u64) -> Result<Option<i32>>;
+
+    /// Gets the tags currently associated with the article.
+    fn get_tags(&self, id: u64) -> Result<HashSet<String>>;
+
+    /// Gets a user with the given name
+    fn get_user<'a>(&self, name: &'a str) -> Result<Option<User<'a>>>;
+}
