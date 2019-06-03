@@ -68,6 +68,11 @@ impl HtmlContext {
     }
 
     // External calls
+    pub fn get_title(&mut self) -> Result<&str> {
+        // TODO fetch title
+        Ok("Article")
+    }
+
     pub fn get_rating(&mut self) -> Result<Option<i32>> {
         // TODO fetch rating
         Ok(None)

@@ -91,7 +91,7 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
 
             // TODO fetch title of the page
             let text = match text {
-                Some("") => "<page title here>",
+                Some("") => ctx.get_title()?,
                 Some(text) => text,
                 None => href,
             };
