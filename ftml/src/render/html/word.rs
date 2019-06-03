@@ -234,7 +234,11 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             render_words(ctx, words)?;
             ctx.push_str("</tt>");
         }
-        &Note { ref lines } => unimplemented!(),
+        &Note { ref lines } => {
+            ctx.push_str("<div class=\"wiki-note\">");
+            render_lines(ctx, lines)?;
+            ctx.push_str("</div>");
+        }
         &Raw { contents } => escape_html(ctx, contents)?,
         &Size { size, ref lines } => {
             write!(ctx.html, "<span style=\"size: {};\">", size)?;
