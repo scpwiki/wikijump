@@ -31,7 +31,6 @@ jobs:
     - stage: bin
       script:
         - cargo build --verbose --example ftml
-        - if [ "$TRAVIS_OS_NAME" != "windows" ]; then cargo build --verbose --example ftmld; fi
     - stage: doc
       script:
         - cargo doc --verbose

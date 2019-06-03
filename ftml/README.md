@@ -14,15 +14,14 @@ This library targets the latest stable Rust. At time of writing, that is 1.34.2
 $ cargo build --release
 ```
 
-This will create the appropriate Rust library files and the two packaged binaries:
+This will create the appropriate Rust library files and the following binary:
 
 * `ftml` is a command-line tool to permit use of the library
-* `ftmld` is a server that listens on a Unix Domain Socket for library commands (incomplete)
 
 The programs can be executed using the following:
 
 ```sh
-$ cargo run --example [ftml|ftmld] -- [arguments]
+$ cargo run --example ftml -- [arguments]
 ```
 
 ### Testing
