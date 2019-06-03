@@ -18,8 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use ftml::NullHandle;
 use ftml::prelude::*;
 use ftml::include::NullIncluder;
+use std::sync::Arc;
 
 pub type TransformFn = fn(&mut String, bool) -> Result<String>;
 
@@ -47,7 +49,7 @@ pub fn parse_only(text: &mut String, wrap: bool) -> Result<String> {
 }
 
 pub fn full_transform(text: &mut String, wrap: bool) -> Result<String> {
-    let mut output = transform::<HtmlRender>(text, &NullIncluder)?;
+    let mut output = transform::<HtmlRender>(0, Arc::new(NullHandle), text, &NullIncluder)?;
 
     if wrap {
         let mut buffer = String::new();

@@ -23,7 +23,7 @@ mod html;
 mod null;
 mod tree;
 
-pub use self::handle::ArticleHandle;
+pub use self::handle::{ArticleHandle, NullHandle, WikidotHandle};
 pub use self::html::HtmlRender;
 pub use self::null::NullRender;
 pub use self::tree::TreeRender;

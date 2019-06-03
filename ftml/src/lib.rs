@@ -78,7 +78,7 @@ mod test;
 pub use self::error::Error;
 pub use self::filter::{postfilter, prefilter, Includer};
 pub use self::parse::{parse, SyntaxTree};
-pub use self::render::{ArticleHandle, HtmlRender, Render, TreeRender};
+pub use self::render::{ArticleHandle, HtmlRender, NullHandle, Render, TreeRender, WikidotHandle};
 
 use std::sync::Arc;
 
