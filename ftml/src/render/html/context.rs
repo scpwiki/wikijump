@@ -58,6 +58,17 @@ impl HtmlContext {
         }
     }
 
+    // Field access
+    #[inline]
+    pub fn id(&self) -> u64 {
+        self.id
+    }
+
+    #[inline]
+    pub fn handle(&self) -> Arc<ArticleHandle> {
+        Arc::clone(&self.handle)
+    }
+
     // Buffer management
     #[inline]
     pub fn push(&mut self, ch: char) {
