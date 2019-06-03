@@ -143,7 +143,22 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             filename,
             text,
             target,
-        } => unimplemented!(),
+        } => {
+            write!(ctx.html, "<a href=\"{}\"", percent_encode!(target))?;
+
+            if let Some(target) = target {
+                write!(ctx.html, " target=\"{}\"", target)?;
+            }
+
+            let text = match text {
+                Some("") | None => filename,
+                Some(text) => text,
+            };
+
+            ctx.push('>');
+            escape_html(ctx, text)?;
+            ctx.push_str("</a>");
+        }
         &Footnote { ref lines } => unimplemented!(), // make sure you set ctx.has_footnotes to true
         &FootnoteBlock => unimplemented!(), // make sure you set ctx.has_footnote_block to true
         &Form { contents } => unimplemented!(),
