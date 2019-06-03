@@ -91,7 +91,7 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
 
             // TODO fetch title of the page
             let text = match text {
-                Some("") => ctx.get_title()?,
+                Some("") => "", // FIXME ctx.get_title()?,
                 Some(text) => text,
                 None => href,
             };
@@ -144,7 +144,7 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             text,
             target,
         } => {
-            write!(ctx.html, "<a href=\"{}\"", percent_encode!(target))?;
+            write!(ctx.html, "<a href=\"{}\"", percent_encode!(filename))?;
 
             if let Some(target) = target {
                 write!(ctx.html, " target=\"{}\"", target)?;
