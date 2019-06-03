@@ -1,5 +1,5 @@
 /*
- * render/handle.rs
+ * render/handle/wikidot.rs
  *
  * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -18,22 +18,26 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Trait for interfacing with external state and retrieving article metadata.
-//!
-//! Used when creating a [`HtmlContext`].
-//!
-//! [`HtmlContext`]: ./HtmlContext.html
+// TODO
+#[allow(dead_code)]
 
 use crate::Result;
 use std::collections::HashSet;
+use super::ArticleHandle;
 
-pub trait ArticleHandle {
-    /// Gets the article's title.
-    fn get_title(&self, id: u64) -> Result<String>;
+#[derive(Debug)]
+pub struct WikidotHandle;
 
-    /// Gets the article's rating, if it has one.
-    fn get_rating(&self, id: u64) -> Result<Option<i32>>;
+impl ArticleHandle for WikidotHandle {
+    fn get_title(&self, _id: u64) -> Result<String> {
+        unimplemented!()
+    }
 
-    /// Gets the tags currently associated with the article.
-    fn get_tags(&self, id: u64) -> Result<HashSet<String>>;
+    fn get_rating(&self, _id: u64) -> Result<Option<i32>> {
+        unimplemented!()
+    }
+
+    fn get_tags(&self, _id: u64) -> Result<HashSet<String>> {
+        unimplemented!()
+    }
 }
