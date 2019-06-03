@@ -66,7 +66,6 @@ impl HtmlContext {
     }
 
     #[inline]
-    #[allow(dead_code)]
     pub fn handle(&self) -> Arc<ArticleHandle> {
         Arc::clone(&self.handle)
     }

@@ -94,7 +94,7 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
                 Some("") => {
                     title = ctx.get_title()?;
                     &title
-                },
+                }
                 Some(text) => text,
                 None => href,
             };
@@ -294,7 +294,25 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
         &User {
             username,
             show_picture,
-        } => unimplemented!(),
+        } => {
+            let user = ctx.handle().get_user(username)?;
+
+            match user {
+                Some(user) => {
+                    write!(
+                        ctx.html,
+                        "<a href=\"http://www.wikidot.com/user:info/{}\">",
+                        &user.name
+                    )?;
+                    write!(
+                        ctx.html,
+                        "<img class=\"small\" src=\"{}\" alt=\"{}\"></a>",
+                        &user.avatar, &user.name,
+                    )?;
+                }
+                None => write!(ctx.html, "invalid username: {}", username)?,
+            }
+        }
     }
 
     Ok(())
