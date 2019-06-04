@@ -18,30 +18,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Module for HTML context objects.
-//!
-//! [`HtmlOutput`] is used externally and is the final result of rendering.
-//! [`HtmlContext`] is used internally to store the internal state during rendering.
-//!
-//! [`HtmlOutput`]: ./HtmlOutput.html
-//! [`HtmlContext`]: ./HtmlContext.html
+//! Internal state object used during rendering.
 
 use crate::{ArticleHandle, Result};
 use std::collections::HashSet;
 use std::fmt::{self, Debug};
 use std::sync::Arc;
+use super::HtmlOutput;
 
-#[derive(Debug, Clone, Default)]
-pub struct HtmlOutput {
-    pub html: String,
-    pub styles: Vec<String>,
-}
-
+#[derive(Clone)]
 pub struct HtmlContext {
     pub html: String,
     pub styles: Vec<String>,
-    pub has_footnotes: bool,
-    pub has_footnote_block: bool,
+    footnotes: FootnoteContext,
     id: u64,
     handle: Arc<ArticleHandle>,
 }
@@ -51,8 +40,7 @@ impl HtmlContext {
         HtmlContext {
             html: String::new(),
             styles: Vec::new(),
-            has_footnotes: false,
-            has_footnote_block: false,
+            footnotes: FootnoteContext::default(),
             handle,
             id,
         }
@@ -68,6 +56,16 @@ impl HtmlContext {
     #[inline]
     pub fn handle(&self) -> Arc<ArticleHandle> {
         Arc::clone(&self.handle)
+    }
+
+    #[inline]
+    pub fn footnotes(&self) -> &FootnoteContext {
+        &self.footnotes
+    }
+
+    #[inline]
+    pub fn footnotes_mut(&mut self) -> &mut FootnoteContext {
+        &mut self.footnotes
     }
 
     // Buffer management
@@ -112,10 +110,39 @@ impl Debug for HtmlContext {
         f.debug_struct("HtmlContext")
             .field("html", &self.html)
             .field("styles", &self.styles)
-            .field("has_footnotes", &self.has_footnotes)
-            .field("has_footnote_block", &self.has_footnote_block)
+            .field("footnotes", &self.footnotes)
             .field("id", &self.id)
             .field("handle", &"Arc<dyn ArticleHandle>")
             .finish()
+    }
+}
+
+// Helper structs
+#[derive(Debug, Default, Clone, PartialEq)]
+pub struct FootnoteContext {
+    has_block: bool,
+    count: u32,
+}
+
+impl FootnoteContext {
+    #[inline]
+    pub fn has_block(&self) -> bool {
+        self.has_block
+    }
+
+    #[inline]
+    pub fn set_block(&mut self, value: bool) {
+        self.has_block = value;
+    }
+
+    #[inline]
+    pub fn increment(&mut self) -> u32 {
+        self.count += 1;
+        self.count
+    }
+
+    #[inline]
+    pub fn needs_render(&self) -> bool {
+        self.count > 0 && !self.has_block
     }
 }

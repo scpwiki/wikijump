@@ -59,7 +59,7 @@ mod prelude {
     }
 }
 
-pub use self::context::{HtmlContext, HtmlOutput};
+pub use self::context::HtmlContext;
 
 use crate::{postfilter, ArticleHandle};
 use self::finish::render_finish;
@@ -80,4 +80,10 @@ impl Render for HtmlRender {
 
         Ok(ctx.into())
     }
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct HtmlOutput {
+    pub html: String,
+    pub styles: Vec<String>,
 }

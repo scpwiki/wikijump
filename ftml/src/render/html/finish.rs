@@ -24,7 +24,7 @@ use super::prelude::*;
 /// of the document has been completed.
 pub fn render_finish(ctx: &mut HtmlContext) -> Result<()> {
     // If a footnote block hasn't been placed yet, add one.
-    if ctx.has_footnotes && !ctx.has_footnote_block {
+    if ctx.footnotes().needs_render() {
         render_word(ctx, &Word::FootnoteBlock)?;
     }
 
