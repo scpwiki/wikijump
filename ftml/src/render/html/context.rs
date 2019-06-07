@@ -79,6 +79,11 @@ impl HtmlContext {
     }
 
     #[inline]
+    pub fn insert_str(&mut self, idx: usize, s: &str) {
+        self.buffer().insert_str(idx, s);
+    }
+
+    #[inline]
     pub fn push(&mut self, ch: char) {
         self.buffer().push(ch);
     }
@@ -152,6 +157,11 @@ impl FootnoteContext {
     #[inline]
     pub fn set_block(&mut self, value: bool) {
         self.has_block = value;
+    }
+
+    #[inline]
+    pub fn has_footnotes(&self) -> bool {
+        self.count > 0
     }
 
     #[inline]
