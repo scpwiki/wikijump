@@ -30,6 +30,7 @@ use super::HtmlOutput;
 pub struct HtmlContext {
     pub html: String,
     pub styles: Vec<String>,
+    write_mode: WriteMode,
     footnotes: FootnoteContext,
     id: u64,
     handle: Arc<ArticleHandle>,
@@ -40,6 +41,7 @@ impl HtmlContext {
         HtmlContext {
             html: String::new(),
             styles: Vec::new(),
+            write_mode: WriteMode::Html,
             footnotes: FootnoteContext::default(),
             handle,
             id,
@@ -69,14 +71,30 @@ impl HtmlContext {
     }
 
     // Buffer management
+    fn buffer(&mut self) -> &mut String {
+        match self.write_mode {
+            WriteMode::Html => &mut self.html,
+            WriteMode::FootnoteBlock => self.footnotes.buffer_mut(),
+        }
+    }
+
     #[inline]
     pub fn push(&mut self, ch: char) {
-        self.html.push(ch);
+        self.buffer().push(ch);
     }
 
     #[inline]
     pub fn push_str(&mut self, s: &str) {
-        self.html.push_str(s);
+        self.buffer().push_str(s);
+    }
+
+    pub fn write_footnote_block<F>(&mut self, f: F) -> Result<()>
+        where F: FnOnce(&mut Self) -> Result<()>
+    {
+        self.write_mode = WriteMode::FootnoteBlock;
+        let result = f(self);
+        self.write_mode = WriteMode::Html;
+        result
     }
 
     // External calls
@@ -120,6 +138,7 @@ impl Debug for HtmlContext {
 // Helper structs
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct FootnoteContext {
+    buffer: String,
     has_block: bool,
     count: u32,
 }
@@ -136,7 +155,7 @@ impl FootnoteContext {
     }
 
     #[inline]
-    pub fn increment(&mut self) -> u32 {
+    pub fn incr(&mut self) -> u32 {
         self.count += 1;
         self.count
     }
@@ -145,4 +164,15 @@ impl FootnoteContext {
     pub fn needs_render(&self) -> bool {
         self.count > 0 && !self.has_block
     }
+
+    #[inline]
+    fn buffer_mut(&mut self) -> &mut String {
+        &mut self.buffer
+    }
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+enum WriteMode {
+    Html,
+    FootnoteBlock,
 }

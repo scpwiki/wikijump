@@ -162,7 +162,26 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             escape_html(ctx, text)?;
             ctx.push_str("</a>");
         }
-        &Footnote { ref lines } => unimplemented!(), // make sure you set ctx.has_footnotes to true
+        &Footnote { ref lines } => {
+            // TODO add javascript
+            let number = ctx.footnotes_mut().incr();
+            ctx.push_str("<sup class=\"footnoteref\">");
+            write!(ctx.html, stringify!(
+                "<a id=\"footnote-{0}\" class=\"footnoteref\" ",
+                "onclick=\"scrollToFootnote('footnote-{0}')\">",
+                "{0}",
+                "</a>",
+            ), number)?;
+            ctx.push_str("</sup>");
+
+            ctx.write_footnote_block(|ctx| {
+                ctx.push_str("<li>");
+                render_lines(ctx, lines)?;
+                ctx.push_str("</li>");
+
+                Ok(())
+            })?;
+        }
         &FootnoteBlock => unimplemented!(), // make sure you set ctx.has_footnote_block to true
         &Form { contents } => unimplemented!(),
         &Gallery => unimplemented!(),
