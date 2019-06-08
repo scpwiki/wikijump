@@ -29,7 +29,7 @@ use super::HtmlOutput;
 #[derive(Clone)]
 pub struct HtmlContext {
     pub html: String,
-    pub styles: Vec<String>,
+    styles: Vec<String>,
     write_mode: WriteMode,
     footnotes: FootnoteContext,
     id: u64,
@@ -76,6 +76,12 @@ impl HtmlContext {
             WriteMode::Html => &mut self.html,
             WriteMode::FootnoteBlock => self.footnotes.buffer_mut(),
         }
+    }
+
+    #[inline]
+    #[allow(dead_code)]
+    pub fn add_style<I: Into<String>>(&mut self, style: I) {
+        self.styles.push(style.into());
     }
 
     #[inline]

@@ -182,7 +182,10 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
                 Ok(())
             })?;
         }
-        &FootnoteBlock => unimplemented!(), // make sure you set ctx.has_footnote_block to true
+        &FootnoteBlock => {
+            ctx.footnotes_mut().set_block(true);
+            ctx.push_str("\0footnote-block\0");
+        }
         &Form { contents } => unimplemented!(),
         &Gallery => unimplemented!(),
         &Image {
