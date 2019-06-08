@@ -33,7 +33,7 @@ pub fn render_finish(ctx: &mut HtmlContext) -> Result<()> {
     }
 
     // Replace footnote block placeholders
-    // TODO
+    ctx.substitute_footnote_block();
 
     // If a footnote block hasn't been placed yet, add one.
     if ctx.footnotes().needs_render() {

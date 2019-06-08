@@ -70,11 +70,21 @@ impl HtmlContext {
         &mut self.footnotes
     }
 
+    // Operations
+    pub fn substitute_footnote_block(&mut self) {
+        assert_eq!(self.write_mode, WriteMode::Html);
+
+        let len = self.footnotes.contents().len();
+        while let Some(idx) = self.html.find("\0footnote-block\0") {
+            self.html.replace_range(idx..idx+len, self.footnotes.contents());
+        }
+    }
+
     // Buffer management
     fn buffer(&mut self) -> &mut String {
         match self.write_mode {
             WriteMode::Html => &mut self.html,
-            WriteMode::FootnoteBlock => self.footnotes.buffer_mut(),
+            WriteMode::FootnoteBlock => self.footnotes.buffer(),
         }
     }
 
@@ -155,11 +165,7 @@ pub struct FootnoteContext {
 }
 
 impl FootnoteContext {
-    #[inline]
-    pub fn has_block(&self) -> bool {
-        self.has_block
-    }
-
+    // Field access
     #[inline]
     pub fn set_block(&mut self, value: bool) {
         self.has_block = value;
@@ -182,7 +188,12 @@ impl FootnoteContext {
     }
 
     #[inline]
-    fn buffer_mut(&mut self) -> &mut String {
+    pub fn contents(&self) -> &str {
+        &self.buffer
+    }
+
+    #[inline]
+    fn buffer(&mut self) -> &mut String {
         &mut self.buffer
     }
 }
