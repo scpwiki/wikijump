@@ -41,7 +41,7 @@ impl Module for RateModule {
 
         let rating = ctx.get_rating()?;
         ctx.push_str("<div style=\"border: 2px; background: darkred; color: white;\">");
-        write!(ctx.html, "[<b>{:+}</b>]", rating.unwrap_or(0))?;
+        write!(ctx, "[<b>{:+}</b>]", rating.unwrap_or(0))?;
         ctx.push_str("<b>-</b> <b>0</b> <b>+</b>");
         ctx.push_str("</div>");
         Ok(())

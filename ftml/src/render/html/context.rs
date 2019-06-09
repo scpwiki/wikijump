@@ -22,13 +22,13 @@
 
 use crate::{ArticleHandle, Result};
 use std::collections::HashSet;
-use std::fmt::{self, Debug};
+use std::fmt::{self, Debug, Write};
 use std::sync::Arc;
 use super::HtmlOutput;
 
 #[derive(Clone)]
 pub struct HtmlContext {
-    pub html: String,
+    html: String,
     styles: Vec<String>,
     write_mode: WriteMode,
     footnotes: FootnoteContext,
@@ -81,7 +81,7 @@ impl HtmlContext {
     }
 
     // Buffer management
-    fn buffer(&mut self) -> &mut String {
+    pub fn buffer(&mut self) -> &mut String {
         match self.write_mode {
             WriteMode::Html => &mut self.html,
             WriteMode::FootnoteBlock => self.footnotes.buffer(),
@@ -153,6 +153,13 @@ impl Debug for HtmlContext {
             .field("id", &self.id)
             .field("handle", &"Arc<dyn ArticleHandle>")
             .finish()
+    }
+}
+
+impl Write for HtmlContext {
+    #[inline]
+    fn write_str(&mut self, s: &str) -> fmt::Result {
+        self.buffer().write_str(s)
     }
 }
 

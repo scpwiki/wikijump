@@ -35,7 +35,7 @@ where
         render_line(ctx, line.as_ref())?;
 
         if i < len - 1 {
-            write!(ctx.html, " <br>")?;
+            write!(ctx, " <br>")?;
         }
     }
 
@@ -50,7 +50,7 @@ pub fn render_line(ctx: &mut HtmlContext, line: &Line) -> Result<()> {
             alignment,
             ref lines,
         } => {
-            write!(ctx.html, "<div style=\"text-align: {};\">\n", alignment)?;
+            write!(ctx, "<div style=\"text-align: {};\">\n", alignment)?;
             render_lines(ctx, lines)?;
             ctx.push_str("</div>");
         }
@@ -68,7 +68,7 @@ pub fn render_line(ctx: &mut HtmlContext, line: &Line) -> Result<()> {
             };
 
             write!(
-                ctx.html,
+                ctx,
                 r#"<div style="clear: {}; height: 0;"></div>"#,
                 style
             )?;
@@ -103,15 +103,15 @@ pub fn render_line(ctx: &mut HtmlContext, line: &Line) -> Result<()> {
             ctx.push_str("<div");
 
             if let Some(id) = id {
-                write!(ctx.html, " id={}", id)?;
+                write!(ctx, " id={}", id)?;
             }
 
             if let Some(class) = class {
-                write!(ctx.html, " class={}", class)?;
+                write!(ctx, " class={}", class)?;
             }
 
             if let Some(style) = style {
-                write!(ctx.html, " style={}", style)?;
+                write!(ctx, " style={}", style)?;
             }
 
             ctx.push_str(">\n");
@@ -119,14 +119,14 @@ pub fn render_line(ctx: &mut HtmlContext, line: &Line) -> Result<()> {
             ctx.push_str("\n</div>");
         }
         &Heading { level, ref words } => {
-            write!(ctx.html, "<{}>", level)?;
+            write!(ctx, "<{}>", level)?;
             render_words(ctx, words)?;
-            write!(ctx.html, "</{}>\n", level)?;
+            write!(ctx, "</{}>\n", level)?;
         }
         &HorizontalLine => ctx.push_str("<hr>\n"),
         &Html { contents } => ctx.push_str(contents),
         &Iframe { url, ref arguments } => {
-            write!(ctx.html, "<iframe src=\"{}\"", url)?;
+            write!(ctx, "<iframe src=\"{}\"", url)?;
 
             for (key, value) in arguments {
                 write_tag_arg(ctx, key, value)?;
@@ -162,7 +162,7 @@ pub fn render_line(ctx: &mut HtmlContext, line: &Line) -> Result<()> {
             }
         }
         &Javascript { contents } => {
-            write!(ctx.html, "<script>\n{}\n</script>", contents)?;
+            write!(ctx, "<script>\n{}\n</script>", contents)?;
         }
         &List {
             style,
@@ -172,13 +172,13 @@ pub fn render_line(ctx: &mut HtmlContext, line: &Line) -> Result<()> {
             // TODO will need to collect nearby entries for depth
             let _ = depth;
 
-            write!(ctx.html, "<{}>\n", style)?;
+            write!(ctx, "<{}>\n", style)?;
             for item in items {
                 ctx.push_str("<li> ");
                 render_line(ctx, item)?;
                 ctx.push_str(" </li>\n");
             }
-            write!(ctx.html, "</{}>", style)?;
+            write!(ctx, "</{}>", style)?;
         }
         &Math {
             label,
@@ -228,15 +228,15 @@ pub fn render_line(ctx: &mut HtmlContext, line: &Line) -> Result<()> {
             ctx.push_str("<blockquote");
 
             if let Some(id) = id {
-                write!(ctx.html, " id={}", id)?;
+                write!(ctx, " id={}", id)?;
             }
 
             if let Some(class) = class {
-                write!(ctx.html, " class={}", class)?;
+                write!(ctx, " class={}", class)?;
             }
 
             if let Some(style) = style {
-                write!(ctx.html, " style={}", style)?;
+                write!(ctx, " style={}", style)?;
             }
 
             ctx.push_str(">\n");

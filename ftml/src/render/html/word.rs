@@ -55,27 +55,27 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             ctx.push_str("<a");
 
             if let Some(href) = href {
-                write!(ctx.html, " href=\"{}\"", percent_encode!(href))?;
+                write!(ctx, " href=\"{}\"", percent_encode!(href))?;
             }
 
             if let Some(name) = name {
-                write!(ctx.html, " name=\"{}\"", name)?;
+                write!(ctx, " name=\"{}\"", name)?;
             }
 
             if let Some(id) = id {
-                write!(ctx.html, " id=\"{}\"", id)?;
+                write!(ctx, " id=\"{}\"", id)?;
             }
 
             if let Some(class) = class {
-                write!(ctx.html, " class=\"{}\"", class)?;
+                write!(ctx, " class=\"{}\"", class)?;
             }
 
             if let Some(style) = style {
-                write!(ctx.html, " style=\"{}\"", style)?;
+                write!(ctx, " style=\"{}\"", style)?;
             }
 
             if let Some(target) = target {
-                write!(ctx.html, " target=\"{}\"", target)?;
+                write!(ctx, " target=\"{}\"", target)?;
             }
 
             ctx.push('>');
@@ -83,10 +83,10 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             ctx.push_str("</a>");
         }
         &Link { href, target, text } => {
-            write!(ctx.html, "<a href=\"{}\"", percent_encode!(href))?;
+            write!(ctx, "<a href=\"{}\"", percent_encode!(href))?;
 
             if let Some(target) = target {
-                write!(ctx.html, " target=\"{}\"", target)?;
+                write!(ctx, " target=\"{}\"", target)?;
             }
 
             let title;
@@ -134,10 +134,10 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             // TODO actually add the hover thing
             let _ = hover;
 
-            write!(ctx.html, "{}", date.format(format))?;
+            write!(ctx, "{}", date.format(format))?;
         }
         &Email { address, text } => {
-            write!(ctx.html, "<a href=\"mailto:{}\">", address)?;
+            write!(ctx, "<a href=\"mailto:{}\">", address)?;
             escape_html(ctx, text.unwrap_or(address))?;
             ctx.push_str("</a>");
         }
@@ -147,10 +147,10 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             text,
             target,
         } => {
-            write!(ctx.html, "<a href=\"{}\"", percent_encode!(filename))?;
+            write!(ctx, "<a href=\"{}\"", percent_encode!(filename))?;
 
             if let Some(target) = target {
-                write!(ctx.html, " target=\"{}\"", target)?;
+                write!(ctx, " target=\"{}\"", target)?;
             }
 
             let text = match text {
@@ -166,7 +166,7 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             // TODO add javascript
             let number = ctx.footnotes_mut().incr();
             ctx.push_str("<sup class=\"footnoteref\">");
-            write!(ctx.html, stringify!(
+            write!(ctx, stringify!(
                 "<a id=\"footnote-{0}\" class=\"footnoteref\" ",
                 "onclick=\"scrollToFootnote('footnote-{0}')\">",
                 "{0}",
@@ -203,7 +203,7 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
         } => {
             ctx.push_str("<div class=\"image-container\"");
             if let Some(align) = direction {
-                write!(ctx.html, " style=\"text-align: {};\"", align)?;
+                write!(ctx, " style=\"text-align: {};\"", align)?;
             }
             ctx.push_str("><img");
 
@@ -213,29 +213,29 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             // TODO float
 
             if let Some(alt) = alt {
-                write!(ctx.html, " alt={}", alt)?;
+                write!(ctx, " alt={}", alt)?;
             }
 
             // TODO title
 
             if let Some(width) = width {
-                write!(ctx.html, " width={}", width)?;
+                write!(ctx, " width={}", width)?;
             }
 
             if let Some(height) = height {
-                write!(ctx.html, " height={}", height)?;
+                write!(ctx, " height={}", height)?;
             }
 
             if let Some(style) = style {
-                write!(ctx.html, " style={}", style)?;
+                write!(ctx, " style={}", style)?;
             }
 
             if let Some(class) = class {
-                write!(ctx.html, " class={}", class)?;
+                write!(ctx, " class={}", class)?;
             }
 
             if let Some(size) = size {
-                write!(ctx.html, " size={}", size)?;
+                write!(ctx, " size={}", size)?;
             }
 
             ctx.push_str("></img></div>");
@@ -263,7 +263,7 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
         }
         &Raw { contents } => escape_html(ctx, contents)?,
         &Size { size, ref lines } => {
-            write!(ctx.html, "<span style=\"size: {};\">", size)?;
+            write!(ctx, "<span style=\"size: {};\">", size)?;
             render_lines(ctx, lines)?;
             ctx.push_str("</span>");
         }
@@ -276,15 +276,15 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             ctx.push_str("<span");
 
             if let Some(id) = id {
-                write!(ctx.html, " id={}", id)?;
+                write!(ctx, " id={}", id)?;
             }
 
             if let Some(class) = class {
-                write!(ctx.html, " class={}", class)?;
+                write!(ctx, " class={}", class)?;
             }
 
             if let Some(style) = style {
-                write!(ctx.html, " style={}", style)?;
+                write!(ctx, " style={}", style)?;
             }
 
             ctx.push('>');
@@ -322,17 +322,17 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             match user {
                 Some(user) => {
                     write!(
-                        ctx.html,
+                        ctx,
                         "<a href=\"http://www.wikidot.com/user:info/{}\">",
                         &user.name
                     )?;
                     write!(
-                        ctx.html,
+                        ctx,
                         "<img class=\"small\" src=\"{}\" alt=\"{}\"></a>",
                         &user.avatar, &user.name,
                     )?;
                 }
-                None => write!(ctx.html, "invalid username: {}", username)?,
+                None => write!(ctx, "invalid username: {}", username)?,
             }
         }
     }

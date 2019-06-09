@@ -38,19 +38,19 @@ mod prelude {
     use super::buffer::StringBuf;
 
     pub fn escape_attr(ctx: &mut HtmlContext, attr: &str) -> Result<()> {
-        let mut writer = StringBuf(&mut ctx.html);
+        let mut writer = StringBuf(ctx.buffer());
         encode_attribute_w(attr, &mut writer)?;
         Ok(())
     }
 
     pub fn escape_html(ctx: &mut HtmlContext, html: &str) -> Result<()> {
-        let mut writer = StringBuf(&mut ctx.html);
+        let mut writer = StringBuf(ctx.buffer());
         encode_minimal_w(html, &mut writer)?;
         Ok(())
     }
 
     pub fn write_tag_arg(ctx: &mut HtmlContext, arg_name: &str, value: &str) -> Result<()> {
-        write!(ctx.html, " {}", arg_name)?;
+        write!(ctx, " {}", arg_name)?;
         ctx.push_str("=\"");
         escape_attr(ctx, value)?;
         ctx.push('"');
@@ -76,7 +76,7 @@ impl Render for HtmlRender {
         let mut ctx = HtmlContext::new(id, handle);
         render_lines(&mut ctx, tree.lines())?;
         render_finish(&mut ctx)?;
-        postfilter(&mut ctx.html)?;
+        postfilter(ctx.buffer())?;
 
         Ok(ctx.into())
     }
