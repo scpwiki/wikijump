@@ -22,8 +22,7 @@
 page = { SOI ~ paragraph* ~ EOI }
 // }}}
 
-// TODO
-// Lines {{{
+// Paragraphs {{{
 paragraph = { paragraph_inner ~ ("\n" | EOI) | just_newlines }
 paragraphs_internal = { space? ~ paragraph* ~ paragraph_inner? ~ ("\n" | EOI)? }
 
