@@ -85,5 +85,5 @@ impl Render for HtmlRender {
 #[derive(Debug, Clone, Default)]
 pub struct HtmlOutput {
     pub html: String,
-    pub styles: Vec<String>,
+    pub style: String,
 }

@@ -52,19 +52,11 @@ pub fn full_transform(text: &mut String, wrap: bool) -> Result<String> {
     let mut output = transform::<HtmlRender>(0, Arc::new(NullHandle), text, &NullIncluder)?;
 
     if wrap {
-        let mut buffer = String::new();
-        buffer.push_str("<html><head>\n");
+        let mut buffer = format!(
+            "<html><head><style>{}</style></head><body>\n",
+            output.style(),
+        );
 
-        if !output.styles.is_empty() {
-            buffer.push_str("<style>\n");
-
-            for style in &output.styles {
-                buffer.push_str(style);
-                buffer.push_str("\n</style>\n");
-            }
-        }
-
-        buffer.push_str("</head><body>\n");
         buffer.push_str(&output.html);
         buffer.push_str("\n</body></html>\n");
 

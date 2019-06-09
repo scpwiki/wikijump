@@ -29,7 +29,7 @@ use super::HtmlOutput;
 #[derive(Clone)]
 pub struct HtmlContext {
     html: String,
-    styles: Vec<String>,
+    style: String,
     write_mode: WriteMode,
     footnotes: FootnoteContext,
     id: u64,
@@ -40,7 +40,7 @@ impl HtmlContext {
     pub fn new(id: u64, handle: Arc<ArticleHandle>) -> Self {
         HtmlContext {
             html: String::new(),
-            styles: Vec::new(),
+            style: String::new(),
             write_mode: WriteMode::Html,
             footnotes: FootnoteContext::new(),
             handle,
@@ -97,9 +97,12 @@ impl HtmlContext {
     }
 
     #[inline]
-    #[allow(dead_code)]
-    pub fn add_style<I: Into<String>>(&mut self, style: I) {
-        self.styles.push(style.into());
+    pub fn add_style(&mut self, style: &str) {
+        if !self.style.is_empty() {
+            self.style.push('\n');
+        }
+
+        self.style.push_str(style);
     }
 
     #[inline]
@@ -148,7 +151,7 @@ impl Into<HtmlOutput> for HtmlContext {
     fn into(self) -> HtmlOutput {
         HtmlOutput {
             html: self.html,
-            styles: self.styles,
+            style: self.style,
         }
     }
 }
@@ -157,7 +160,7 @@ impl Debug for HtmlContext {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("HtmlContext")
             .field("html", &self.html)
-            .field("styles", &self.styles)
+            .field("style", &self.style)
             .field("footnotes", &self.footnotes)
             .field("id", &self.id)
             .field("handle", &"Arc<dyn ArticleHandle>")

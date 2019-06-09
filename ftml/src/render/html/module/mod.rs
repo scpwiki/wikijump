@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod css;
 mod rate;
 mod listpages;
 
@@ -31,6 +32,7 @@ mod prelude {
 }
 
 use self::prelude::*;
+use self::css::CssModule;
 use self::listpages::ListPagesModule;
 use self::rate::RateModule;
 
@@ -48,7 +50,9 @@ pub fn render(
     arguments: &HashMap<&str, Cow<str>>,
     contents: Option<&str>,
 ) -> Result<()> {
-    if name.eq_ignore_ascii_case("rate") | name.eq_ignore_ascii_case("rating") {
+    if name.eq_ignore_ascii_case("css") | name.eq_ignore_ascii_case("style") {
+        CssModule::render(ctx, arguments, contents)?;
+    } else if name.eq_ignore_ascii_case("rate") | name.eq_ignore_ascii_case("rating") {
         RateModule::render(ctx, arguments, contents)?;
     } else if name.eq_ignore_ascii_case("listpages") | name.eq_ignore_ascii_case("list_pages") {
         ListPagesModule::render(ctx, arguments, contents)?;
