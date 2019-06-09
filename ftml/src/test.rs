@@ -63,7 +63,8 @@ fn update_test<P: AsRef<Path>>(output: &str, output_file: P) {
     let output = output.as_bytes();
     let output_file = output_file.as_ref();
     let mut file = File::create(output_file).expect("Unable to create output file");
-    file.write_all(output).expect("Unable to write to output file");
+    file.write_all(output)
+        .expect("Unable to write to output file");
 }
 
 fn read_file(buffer: &mut String, path: &Path) -> Result<()> {
@@ -128,15 +129,16 @@ fn test_parser() {
         let mut input_text = String::new();
         read_file(&mut input_text, &input_file).expect("Unable to read input Wikidot source");
         prefilter(&mut input_text, &NullIncluder).expect("Unable to prefilter Wikidot source");
+        read_file(&mut expected, &output_file).expect("Unable to read output tree");
 
         let output_tree = parse(&input_text).expect("Unable to parse Wikidot source");
         output.clear();
         write!(&mut output, "{:#?}", &output_tree).expect("Unable to write tree to string");
 
-        read_file(&mut expected, &output_file).expect("Unable to read output tree");
-
-        println!("{:#?}", &output_tree);
-        //assert_eq!(expected, output);
+        assert_eq!(
+            expected, output,
+            "Output parse tree does not match expected"
+        );
     });
 }
 
@@ -160,6 +162,10 @@ fn test_conversions() {
         let output =
             transform::<HtmlRender>(0, Arc::new(NullHandle), &mut input_text, &NullIncluder)
                 .expect("Unable to transform Wikidot to HTML");
-        assert_eq!(expected_html, output.html);
+
+        assert_eq!(
+            expected_html, output.html,
+            "Output HTML does not match expected"
+        );
     });
 }
