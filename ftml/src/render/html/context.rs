@@ -76,7 +76,8 @@ impl HtmlContext {
 
         let len = self.footnotes.contents().len();
         while let Some(idx) = self.html.find("\0footnote-block\0") {
-            self.html.replace_range(idx..idx+len, self.footnotes.contents());
+            self.html
+                .replace_range(idx..idx + len, self.footnotes.contents());
         }
     }
 
@@ -110,7 +111,8 @@ impl HtmlContext {
     }
 
     pub fn write_footnote_block<F>(&mut self, f: F) -> Result<()>
-        where F: FnOnce(&mut Self) -> Result<()>
+    where
+        F: FnOnce(&mut Self) -> Result<()>,
     {
         self.write_mode = WriteMode::FootnoteBlock;
         let result = f(self);

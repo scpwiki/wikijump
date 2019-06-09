@@ -67,11 +67,7 @@ pub fn render_line(ctx: &mut HtmlContext, line: &Line) -> Result<()> {
                 None => "both",
             };
 
-            write!(
-                ctx,
-                r#"<div style="clear: {}; height: 0;"></div>"#,
-                style
-            )?;
+            write!(ctx, r#"<div style="clear: {}; height: 0;"></div>"#, style)?;
         }
         &CodeBlock {
             ref language,

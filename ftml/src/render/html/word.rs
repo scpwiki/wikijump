@@ -166,12 +166,16 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             // TODO add javascript
             let number = ctx.footnotes_mut().incr();
             ctx.push_str("<sup class=\"footnoteref\">");
-            write!(ctx, stringify!(
-                "<a id=\"footnote-{0}\" class=\"footnoteref\" ",
-                "onclick=\"scrollToFootnote('footnote-{0}')\">",
-                "{0}",
-                "</a>",
-            ), number)?;
+            write!(
+                ctx,
+                stringify!(
+                    "<a id=\"footnote-{0}\" class=\"footnoteref\" ",
+                    "onclick=\"scrollToFootnote('footnote-{0}')\">",
+                    "{0}",
+                    "</a>",
+                ),
+                number
+            )?;
             ctx.push_str("</sup>");
 
             ctx.write_footnote_block(|ctx| {
