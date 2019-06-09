@@ -36,7 +36,7 @@ pub fn parse(pair: Pair<Rule>) -> Result<Word> {
                 .next()
                 .expect("Tab pairs iterator had only one element");
 
-            convert_internal_lines(pair)?
+            convert_internal_paragraphs(pair)?
         };
 
         tabs.push(Tab { name, contents });

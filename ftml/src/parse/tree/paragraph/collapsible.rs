@@ -1,5 +1,5 @@
 /*
- * parse/tree/line/collapsible.rs
+ * parse/tree/paragraph/collapsible.rs
  *
  * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -30,9 +30,9 @@ struct Context<'a> {
     show: Option<(bool, bool)>, // (top, bottom)
 }
 
-pub fn parse(pair: Pair<Rule>) -> Result<Line> {
+pub fn parse(pair: Pair<Rule>) -> Result<Paragraph> {
     let mut ctx = Context::default();
-    let mut lines = Vec::new();
+    let mut paragraphs = Vec::new();
 
     // Parse arguments
     for pair in pair.into_inner() {
@@ -49,9 +49,9 @@ pub fn parse(pair: Pair<Rule>) -> Result<Line> {
                 let key = key.to_ascii_lowercase();
                 parse_arg(&mut ctx, key.as_ref(), value.as_str())?;
             }
-            Rule::line => {
-                let line = Line::from_pair(pair)?;
-                lines.push(line);
+            Rule::paragraph => {
+                let paragraph = Paragraph::from_pair(pair)?;
+                paragraphs.push(paragraph);
             }
             _ => panic!("Invalid rule for collapsible: {:?}", pair.as_rule()),
         }
@@ -67,7 +67,7 @@ pub fn parse(pair: Pair<Rule>) -> Result<Line> {
     } = ctx;
     let (show_top, show_bottom) = show.unwrap_or((true, false));
 
-    Ok(Line::Collapsible {
+    Ok(Paragraph::Collapsible {
         show_text,
         hide_text,
         id,
@@ -75,7 +75,7 @@ pub fn parse(pair: Pair<Rule>) -> Result<Line> {
         style,
         show_top,
         show_bottom,
-        lines,
+        paragraphs,
     })
 }
 

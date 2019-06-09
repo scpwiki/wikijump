@@ -21,15 +21,15 @@
 mod buffer;
 mod context;
 mod finish;
-mod line;
 mod module;
+mod paragraph;
 mod word;
 
 mod prelude {
     pub use crate::{Error, Result, SyntaxTree};
-    pub use crate::parse::{Line, Word};
+    pub use crate::parse::{Paragraph, Word};
     pub use std::fmt::{self, Display, Write};
-    pub use super::line::{render_line, render_lines};
+    pub use super::paragraph::{render_paragraph, render_paragraphs};
     pub use super::word::{render_word, render_words};
     pub use super::super::Render;
     pub use super::HtmlContext;
@@ -74,7 +74,7 @@ impl Render for HtmlRender {
 
     fn render(id: u64, handle: Arc<ArticleHandle>, tree: &SyntaxTree) -> Result<HtmlOutput> {
         let mut ctx = HtmlContext::new(id, handle);
-        render_lines(&mut ctx, tree.lines())?;
+        render_paragraphs(&mut ctx, tree.paragraphs())?;
         render_finish(&mut ctx)?;
         postfilter(ctx.buffer())?;
 

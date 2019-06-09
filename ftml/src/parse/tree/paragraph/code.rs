@@ -1,5 +1,5 @@
 /*
- * parse/tree/line/code.rs
+ * parse/tree/paragraph/code.rs
  *
  * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -33,7 +33,7 @@ lazy_static! {
     };
 }
 
-pub fn parse(pair: Pair<Rule>) -> Result<Line> {
+pub fn parse(pair: Pair<Rule>) -> Result<Paragraph> {
     let mut language = None;
     let contents = extract!(CODE_BLOCK, pair);
 
@@ -57,7 +57,7 @@ pub fn parse(pair: Pair<Rule>) -> Result<Line> {
         }
     }
 
-    Ok(Line::CodeBlock { language, contents })
+    Ok(Paragraph::CodeBlock { language, contents })
 }
 
 #[test]

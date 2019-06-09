@@ -19,15 +19,15 @@
 //
 
 // Pages {{{
-page = { SOI ~ line* ~ EOI }
+page = { SOI ~ paragraph* ~ EOI }
 // }}}
 
 // TODO
 // Lines {{{
-line = { line_inner ~ ("\n" | EOI) | just_newlines }
-lines_internal = { space? ~ line* ~ line_inner? ~ ("\n" | EOI)? }
+paragraph = { paragraph_inner ~ ("\n" | EOI) | just_newlines }
+paragraphs_internal = { space? ~ paragraph* ~ paragraph_inner? ~ ("\n" | EOI)? }
 
-line_inner = {
+paragraph_inner = {
     align |
     code |
     html |
@@ -46,12 +46,12 @@ line_inner = {
 just_newlines = { "\n"+ }
 // }}}
 
-// Block lines {{{
+// Block paragraphs {{{
 align = {
-    ("[[>]]\n" ~ line* ~ "[[/>]]") |
-    ("[[<]]\n" ~ line* ~ "[[/<]]") |
-    ("[[=]]\n" ~ line* ~ "[[/=]]") |
-    ("[[==]]\n" ~ line* ~ "[[/==]]")
+    ("[[>]]\n" ~ paragraph* ~ "[[/>]]") |
+    ("[[<]]\n" ~ paragraph* ~ "[[/<]]") |
+    ("[[=]]\n" ~ paragraph* ~ "[[/=]]") |
+    ("[[==]]\n" ~ paragraph* ~ "[[/==]]")
 }
 
 code = {
@@ -63,7 +63,7 @@ code_arg = { space_any ~ (^"type" | ^"language" | ^"lang") ~ space_any? ~ "=" ~ 
 
 collapsible = {
     "[[" ~ space? ~ ^"collapsible" ~ collapsible_arg* ~ space_any? ~ "]]\n" ~
-    line* ~
+    paragraph* ~
     "[[/" ~ space? ~ ^"collapsible" ~ space_any? ~ "]]"
 }
 collapsible_arg = {
@@ -74,7 +74,7 @@ collapsible_arg = {
 
 div = {
     "[[" ~ space? ~ ^"div" ~ "_"? ~ div_arg* ~ space_any? ~ "]]\n" ~
-    line* ~
+    paragraph* ~
     "[[/" ~ space? ~ ^"div" ~ "_"? ~ space_any? ~ "]]"
 }
 div_arg = { space_any ~ (^"id" | ^"class" | ^"style") ~ space_any? ~ "=" ~ space_any? ~ string }
@@ -98,13 +98,13 @@ javascript = {
 
 quote_block = {
     "[[" ~ space? ~ (^"quote" | ^"blockquote") ~ quote_block_arg* ~ space_any? ~ "]]\n" ~
-    lines_internal ~
+    paragraphs_internal ~
     "[[/" ~ space? ~ (^"quote" | ^"blockquote") ~ space_any? ~ "]]"
 }
 quote_block_arg = { space_any ~ (^"id" | ^"class" | ^"style") ~ space_any? ~ "=" ~ space_any? ~ string }
 // }}}
 
-// Misc lines {{{
+// Misc paragraphs {{{
 bullet_list = { (" "* ~ "* " ~ list_item)+ }
 numbered_list = { (" "* ~ "# " ~ list_item)+ }
 list_item = { word+ }
@@ -194,7 +194,7 @@ file_name = { (!"]]" ~ ANY)+ }
 
 footnote = {
     "[[" ~ space? ~ ^"footnote" ~ space_any? ~ "]]" ~
-    lines_internal ~
+    paragraphs_internal ~
     "[[/" ~ space? ~ ^"footnote" ~ space_any? ~ "]]"
 }
 
@@ -219,7 +219,7 @@ module_arg = { space_any ~ ident ~ space_any? ~ "=" ~ space_any? ~ string }
 
 note = {
     "[[" ~ space? ~ ^"note" ~ space_any? ~ "]]\n" ~
-    line* ~
+    paragraph* ~
     "[[/" ~ space? ~ ^"note" ~ space_any? ~ "]]"
 }
 
@@ -239,7 +239,7 @@ image_arg = {
 
 size = {
     "[[" ~ space? ~ ^"size" ~ space_any ~ size_arg ~ space_any? ~ "]]" ~
-    lines_internal ~
+    paragraphs_internal ~
     "[[/" ~ space? ~ ^"size" ~ space_any? ~ "]]"
 }
 size_arg = {
@@ -257,7 +257,7 @@ size_arg = {
 
 span = {
     "[[" ~ space? ~ ^"span" ~ span_arg* ~ space_any? ~ "]]" ~
-    lines_internal ~
+    paragraphs_internal ~
     "[[/" ~ space? ~ ^"span" ~ space_any? ~ "]]"
 }
 span_arg = { space_any ~ (^"id" | ^"class" | ^"style") ~ space_any? ~ "=" ~ space_any? ~ string }
@@ -269,7 +269,7 @@ tab_list = {
 }
 tab = {
     "[[" ~ space? ~ ^"tab" ~ space_any ~ tab_name ~ space_any? ~ "]]" ~ space_any? ~
-    lines_internal ~
+    paragraphs_internal ~
     "[[/" ~ space? ~ ^"tab" ~ space_any? ~ "]]"
 }
 tab_name = { (!("]]" | "\n") ~ ANY)+ }

@@ -24,7 +24,7 @@ pub fn parse(pair: Pair<Rule>) -> Result<Word> {
     let mut id = None;
     let mut class = None;
     let mut style = None;
-    let mut lines = Vec::new();
+    let mut paragraphs = Vec::new();
 
     for pair in pair.into_inner() {
         match pair.as_rule() {
@@ -45,7 +45,7 @@ pub fn parse(pair: Pair<Rule>) -> Result<Word> {
                     _ => panic!("Unknown argument for [[span]]: {}", key),
                 }
             }
-            Rule::lines_internal => lines = convert_internal_lines(pair)?,
+            Rule::paragraphs_internal => paragraphs = convert_internal_paragraphs(pair)?,
             _ => panic!("Invalid rule for span: {:?}", pair.as_rule()),
         }
     }
@@ -54,6 +54,6 @@ pub fn parse(pair: Pair<Rule>) -> Result<Word> {
         id,
         class,
         style,
-        lines,
+        paragraphs,
     })
 }

@@ -25,4 +25,4 @@ mod tree;
 mod test;
 
 pub use self::object::{parse, ParseError, Rule, WikidotParser};
-pub use self::tree::{Line, SyntaxTree, Word};
+pub use self::tree::{Paragraph, SyntaxTree, Word};

@@ -1,5 +1,5 @@
 /*
- * parse/tree/line/mod.rs
+ * parse/tree/paragraph/mod.rs
  *
  * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -42,7 +42,7 @@ mod prelude {
     pub use crate::{Error, Result};
     pub use std::borrow::Cow;
     pub use std::convert::TryFrom;
-    pub use super::convert_internal_lines;
+    pub use super::convert_internal_paragraphs;
     pub use super::super::prelude::*;
 }
 
@@ -75,10 +75,10 @@ lazy_static! {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Line<'a> {
+pub enum Paragraph<'a> {
     Align {
         alignment: Alignment,
-        lines: Vec<Line<'a>>,
+        paragraphs: Vec<Paragraph<'a>>,
     },
     Center {
         words: Vec<Word<'a>>,
@@ -98,13 +98,13 @@ pub enum Line<'a> {
         style: Option<&'a str>,
         show_top: bool,
         show_bottom: bool,
-        lines: Vec<Line<'a>>,
+        paragraphs: Vec<Paragraph<'a>>,
     },
     Div {
         id: Option<&'a str>,
         class: Option<&'a str>,
         style: Option<&'a str>,
-        lines: Vec<Line<'a>>,
+        paragraphs: Vec<Paragraph<'a>>,
     },
     Heading {
         level: HeadingLevel,
@@ -121,7 +121,7 @@ pub enum Line<'a> {
     IfTags {
         required: Vec<&'a str>,
         prohibited: Vec<&'a str>,
-        lines: Vec<Line<'a>>,
+        paragraphs: Vec<Paragraph<'a>>,
     },
     Javascript {
         contents: &'a str,
@@ -129,7 +129,7 @@ pub enum Line<'a> {
     List {
         style: ListStyle,
         depth: usize,
-        items: Vec<Line<'a>>,
+        items: Vec<Paragraph<'a>>,
     },
     Math {
         label: Option<&'a str>,
@@ -150,7 +150,7 @@ pub enum Line<'a> {
         id: Option<&'a str>,
         class: Option<&'a str>,
         style: Option<&'a str>,
-        lines: Vec<Line<'a>>,
+        paragraphs: Vec<Paragraph<'a>>,
     },
     Words {
         centered: bool,
@@ -158,87 +158,87 @@ pub enum Line<'a> {
     },
 }
 
-impl<'a> Line<'a> {
+impl<'a> Paragraph<'a> {
     pub fn from_pair(pair: Pair<'a, Rule>) -> Result<Self> {
-        trace!("Converting pair into Line...");
+        trace!("Converting pair into Paragraph...");
 
         // Handle outer wrapping
         let pair = match pair.as_rule() {
-            Rule::line => get_first_pair!(pair),
-            Rule::line_inner => pair,
-            Rule::lines_internal => {
+            Rule::paragraph => get_first_pair!(pair),
+            Rule::paragraph_inner => pair,
+            Rule::paragraphs_internal => {
                 // This indicates a bug in the grammar
-                panic!("The rule 'lines_internal' returns multiple Line instances")
+                panic!("The rule 'paragraphs_internal' returns multiple Paragraph instances")
             }
             _ => {
                 return Err(Error::Msg(format!(
-                    "Invalid rule for line: {:?}",
+                    "Invalid rule for paragraph: {:?}",
                     pair.as_rule()
                 )))
             }
         };
 
         match pair.as_rule() {
-            Rule::line_inner => Self::from_rule_inner(pair),
-            Rule::just_newlines => Ok(Line::Newlines {
+            Rule::paragraph_inner => Self::from_rule_inner(pair),
+            Rule::just_newlines => Ok(Paragraph::Newlines {
                 count: pair.as_str().len(),
             }),
-            _ => panic!("Invalid rule for line: {:?}", pair.as_rule()),
+            _ => panic!("Invalid rule for paragraph: {:?}", pair.as_rule()),
         }
     }
 
     fn from_rule_inner(pair: Pair<'a, Rule>) -> Result<Self> {
-        debug_assert_eq!(pair.as_rule(), Rule::line_inner);
+        debug_assert_eq!(pair.as_rule(), Rule::paragraph_inner);
         let pair = get_first_pair!(pair);
 
-        let line_inner = match pair.as_rule() {
+        let paragraph_inner = match pair.as_rule() {
             Rule::align => align::parse(pair)?,
             Rule::code => code::parse(pair)?,
             Rule::collapsible => collapsible::parse(pair)?,
             Rule::clear_float => clear_float::parse(pair),
             Rule::div => div::parse(pair)?,
             Rule::bullet_list | Rule::numbered_list => list::parse(pair)?,
-            Rule::horizontal_line => Line::HorizontalLine,
-            Rule::html => Line::Html { contents: extract!(HTML_BLOCK, pair) },
+            Rule::horizontal_line => Paragraph::HorizontalLine,
+            Rule::html => Paragraph::Html { contents: extract!(HTML_BLOCK, pair) },
             Rule::iframe => iframe::parse(pair),
-            Rule::javascript => Line::Javascript { contents: extract!(JAVASCRIPT_BLOCK, pair) },
+            Rule::javascript => Paragraph::Javascript { contents: extract!(JAVASCRIPT_BLOCK, pair) },
             Rule::quote_block => quote::parse(pair)?,
             Rule::words => words::parse(pair)?,
 
             _ => {
                 return Err(Error::Msg(format!(
-                    "Line rule for {:?} unimplemented!",
+                    "Paragraph rule for {:?} unimplemented!",
                     pair.as_rule()
                 )))
             }
-            //_ => Err(Error::Msg(format!("Invalid rule for line_inner: {:?}", pair.as_rule()))),
+            //_ => Err(Error::Msg(format!("Invalid rule for paragraph_inner: {:?}", pair.as_rule()))),
         };
 
-        Ok(line_inner)
+        Ok(paragraph_inner)
     }
 }
 
-impl<'a> AsRef<Line<'a>> for Line<'a> {
+impl<'a> AsRef<Paragraph<'a>> for Paragraph<'a> {
     #[inline]
-    fn as_ref(&self) -> &Line<'a> {
+    fn as_ref(&self) -> &Paragraph<'a> {
         self
     }
 }
 
-pub fn convert_internal_lines(pair: Pair<Rule>) -> Result<Vec<Line>> {
-    let mut lines = Vec::new();
+pub fn convert_internal_paragraphs(pair: Pair<Rule>) -> Result<Vec<Paragraph>> {
+    let mut paragraphs = Vec::new();
 
     for pair in pair.into_inner() {
         match pair.as_rule() {
-            Rule::line | Rule::line_inner => {
-                let line = Line::from_pair(pair)?;
-                lines.push(line);
+            Rule::paragraph | Rule::paragraph_inner => {
+                let paragraph = Paragraph::from_pair(pair)?;
+                paragraphs.push(paragraph);
             }
-            _ => panic!("Invalid rule for internal-lines: {:?}", pair.as_rule()),
+            _ => panic!("Invalid rule for internal-paragraphs: {:?}", pair.as_rule()),
         }
     }
 
-    Ok(lines)
+    Ok(paragraphs)
 }
 
 #[test]

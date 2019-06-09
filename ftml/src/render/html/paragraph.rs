@@ -1,5 +1,5 @@
 /*
- * render/html/line.rs
+ * render/html/paragraph.rs
  *
  * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -19,17 +19,17 @@
  */
 
 use crate::enums::Alignment;
-use self::Line::*;
+use self::Paragraph::*;
 use super::prelude::*;
 
-pub fn render_lines<'a, I, L>(ctx: &mut HtmlContext, lines: I) -> Result<()>
+pub fn render_paragraphs<'a, I, L>(ctx: &mut HtmlContext, paragraphs: I) -> Result<()>
 where
-    L: AsRef<Line<'a>>,
+    L: AsRef<Paragraph<'a>>,
     I: IntoIterator<Item = L>,
     I::IntoIter: ExactSizeIterator,
 {
-    for line in lines.into_iter() {
-        render_line(ctx, line.as_ref())?;
+    for paragraph in paragraphs.into_iter() {
+        render_paragraph(ctx, paragraph.as_ref())?;
     }
 
     Ok(())
@@ -37,14 +37,14 @@ where
 
 // TODO remove this
 #[allow(unused_variables)]
-pub fn render_line(ctx: &mut HtmlContext, line: &Line) -> Result<()> {
-    match line {
+pub fn render_paragraph(ctx: &mut HtmlContext, paragraph: &Paragraph) -> Result<()> {
+    match paragraph {
         &Align {
             alignment,
-            ref lines,
+            ref paragraphs,
         } => {
             write!(ctx, "<div style=\"text-align: {};\">\n", alignment)?;
-            render_lines(ctx, lines)?;
+            render_paragraphs(ctx, paragraphs)?;
             ctx.push_str("</div>");
         }
         &Center { ref words } => {
@@ -81,13 +81,13 @@ pub fn render_line(ctx: &mut HtmlContext, line: &Line) -> Result<()> {
             ref style,
             show_top,
             show_bottom,
-            ref lines,
+            ref paragraphs,
         } => unimplemented!(),
         &Div {
             id,
             class,
             style,
-            ref lines,
+            ref paragraphs,
         } => {
             ctx.push_str("<div");
 
@@ -104,7 +104,7 @@ pub fn render_line(ctx: &mut HtmlContext, line: &Line) -> Result<()> {
             }
 
             ctx.push_str(">\n");
-            render_lines(ctx, lines)?;
+            render_paragraphs(ctx, paragraphs)?;
             ctx.push_str("\n</div>");
         }
         &Heading { level, ref words } => {
@@ -126,7 +126,7 @@ pub fn render_line(ctx: &mut HtmlContext, line: &Line) -> Result<()> {
         &IfTags {
             ref required,
             ref prohibited,
-            ref lines,
+            ref paragraphs,
         } => {
             // Not sure what the approach on this should be
             let tags = ctx.get_tags()?;
@@ -147,7 +147,7 @@ pub fn render_line(ctx: &mut HtmlContext, line: &Line) -> Result<()> {
             };
 
             if should_display() {
-                render_lines(ctx, lines)?;
+                render_paragraphs(ctx, paragraphs)?;
             }
         }
         &Javascript { contents } => {
@@ -164,7 +164,7 @@ pub fn render_line(ctx: &mut HtmlContext, line: &Line) -> Result<()> {
             write!(ctx, "<{}>\n", style)?;
             for item in items {
                 ctx.push_str("<li> ");
-                render_line(ctx, item)?;
+                render_paragraph(ctx, item)?;
                 ctx.push_str(" </li>\n");
             }
             write!(ctx, "</{}>", style)?;
@@ -212,7 +212,7 @@ pub fn render_line(ctx: &mut HtmlContext, line: &Line) -> Result<()> {
             id,
             class,
             style,
-            ref lines,
+            ref paragraphs,
         } => {
             ctx.push_str("<blockquote");
 
@@ -229,7 +229,7 @@ pub fn render_line(ctx: &mut HtmlContext, line: &Line) -> Result<()> {
             }
 
             ctx.push_str(">\n");
-            render_lines(ctx, lines)?;
+            render_paragraphs(ctx, paragraphs)?;
             ctx.push_str("\n</blockquote>");
         }
         Words {

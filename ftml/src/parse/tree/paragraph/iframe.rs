@@ -1,5 +1,5 @@
 /*
- * parse/tree/line/iframe.rs
+ * parse/tree/paragraph/iframe.rs
  *
  * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -21,7 +21,7 @@
 use std::collections::HashMap;
 use super::prelude::*;
 
-pub fn parse(pair: Pair<Rule>) -> Line {
+pub fn parse(pair: Pair<Rule>) -> Paragraph {
     let mut arguments = HashMap::new();
     let mut pairs = pair.into_inner();
 
@@ -42,5 +42,5 @@ pub fn parse(pair: Pair<Rule>) -> Line {
         arguments.insert(key, value);
     }
 
-    Line::Iframe { url, arguments }
+    Paragraph::Iframe { url, arguments }
 }

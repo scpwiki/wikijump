@@ -1,5 +1,5 @@
 /*
- * parse/tree/line/quote.rs
+ * parse/tree/paragraph/div.rs
  *
  * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -20,15 +20,15 @@
 
 use super::prelude::*;
 
-pub fn parse(pair: Pair<Rule>) -> Result<Line> {
+pub fn parse(pair: Pair<Rule>) -> Result<Paragraph> {
     let mut id = None;
     let mut class = None;
     let mut style = None;
-    let mut lines = Vec::new();
+    let mut paragraphs = Vec::new();
 
     for pair in pair.into_inner() {
         match pair.as_rule() {
-            Rule::quote_block_arg => {
+            Rule::div_arg => {
                 let capture = ARGUMENT_NAME
                     .captures(pair.as_str())
                     .expect("Regular expression ARGUMENT_NAME didn't match");
@@ -42,18 +42,21 @@ pub fn parse(pair: Pair<Rule>) -> Result<Line> {
                     "id" => id = Some(value),
                     "class" => class = Some(value),
                     "style" => style = Some(value),
-                    _ => panic!("Unknown argument for [[quote]]: {}", key),
+                    _ => panic!("Unknown argument for [[div]]: {}", key),
                 }
             }
-            Rule::lines_internal => lines = convert_internal_lines(pair)?,
-            _ => panic!("Invalid rule for quote: {:?}", pair.as_rule()),
+            Rule::paragraph => {
+                let paragraph = Paragraph::from_pair(pair)?;
+                paragraphs.push(paragraph);
+            }
+            _ => panic!("Invalid rule for div: {:?}", pair.as_rule()),
         }
     }
 
-    Ok(Line::QuoteBlock {
+    Ok(Paragraph::Div {
         id,
         class,
         style,
-        lines,
+        paragraphs,
     })
 }

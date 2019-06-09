@@ -23,24 +23,24 @@ use super::prelude::*;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SyntaxTree<'a> {
-    lines: Vec<Line<'a>>,
+    paragraphs: Vec<Paragraph<'a>>,
 }
 
 impl<'a> SyntaxTree<'a> {
     pub fn from_line_pairs(pairs: Pairs<'a, Rule>) -> Result<Self> {
         trace!("Converting pairs into a SyntaxTree...");
 
-        let lines_res: Result<Vec<_>> = pairs
+        let result: Result<Vec<_>> = pairs
             .into_iter()
-            .filter(|pair| pair.as_rule() == Rule::line)
-            .map(|pair| Line::from_pair(pair))
+            .filter(|pair| pair.as_rule() == Rule::paragraph)
+            .map(|pair| Paragraph::from_pair(pair))
             .collect();
 
-        lines_res.map(|lines| SyntaxTree { lines })
+        result.map(|paragraphs| SyntaxTree { paragraphs })
     }
 
     #[inline]
-    pub fn lines(&self) -> &[Line] {
-        self.lines.as_slice()
+    pub fn paragraphs(&self) -> &[Paragraph] {
+        self.paragraphs.as_slice()
     }
 }

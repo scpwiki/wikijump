@@ -23,7 +23,7 @@ use super::prelude::*;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Tab<'a> {
     pub name: &'a str,
-    pub contents: Vec<Line<'a>>,
+    pub contents: Vec<Paragraph<'a>>,
 }
 
 pub type TableColumn<'a> = Vec<Word<'a>>;

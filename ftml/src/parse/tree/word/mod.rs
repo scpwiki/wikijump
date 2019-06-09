@@ -181,7 +181,7 @@ pub enum Word<'a> {
         target: Option<AnchorTarget>,
     },
     Footnote {
-        lines: Vec<Line<'a>>,
+        paragraphs: Vec<Paragraph<'a>>,
     },
     FootnoteBlock,
     Form {
@@ -222,20 +222,20 @@ pub enum Word<'a> {
         words: Vec<Word<'a>>,
     },
     Note {
-        lines: Vec<Line<'a>>,
+        paragraphs: Vec<Paragraph<'a>>,
     },
     Raw {
         contents: &'a str,
     },
     Size {
         size: &'a str,
-        lines: Vec<Line<'a>>,
+        paragraphs: Vec<Paragraph<'a>>,
     },
     Span {
         id: Option<&'a str>,
         class: Option<&'a str>,
         style: Option<&'a str>,
-        lines: Vec<Line<'a>>,
+        paragraphs: Vec<Paragraph<'a>>,
     },
     Strikethrough {
         words: Vec<Word<'a>>,
@@ -335,7 +335,7 @@ impl<'a> Word<'a> {
             },
             Rule::file_ref => link::parse_file(pair),
             Rule::footnote => Word::Footnote {
-                lines: convert_internal_lines(get_first_pair!(pair))?,
+                paragraphs: convert_internal_paragraphs(get_first_pair!(pair))?,
             },
             Rule::footnote_block => Word::FootnoteBlock,
             Rule::form => Word::Form {
@@ -344,14 +344,14 @@ impl<'a> Word<'a> {
             Rule::gallery => Word::Gallery,
             Rule::module => module::parse(pair),
             Rule::note => {
-                let mut lines = Vec::new();
+                let mut paragraphs = Vec::new();
 
                 for pair in pair.into_inner() {
-                    let line = Line::from_pair(pair)?;
-                    lines.push(line);
+                    let paragraph = Paragraph::from_pair(pair)?;
+                    paragraphs.push(paragraph);
                 }
 
-                Word::Note { lines }
+                Word::Note { paragraphs }
             }
             Rule::image => image::parse(pair)?,
             Rule::link_bare => link::parse_bare(pair),
@@ -363,15 +363,15 @@ impl<'a> Word<'a> {
                     let pair = pairs.next().expect("Size pairs iterator was empty");
                     pair.as_str()
                 };
-                let lines = {
+                let paragraphs = {
                     let pair = pairs
                         .next()
                         .expect("Size pairs iterator had only one element");
 
-                    convert_internal_lines(pair)?
+                    convert_internal_paragraphs(pair)?
                 };
 
-                Word::Size { size, lines }
+                Word::Size { size, paragraphs }
             }
             Rule::span => span::parse(pair)?,
             Rule::tab_list => tab::parse(pair)?,

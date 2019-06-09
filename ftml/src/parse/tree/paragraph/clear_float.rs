@@ -1,5 +1,5 @@
 /*
- * parse/tree/line/align.rs
+ * parse/tree/paragraph/clear_float.rs
  *
  * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -22,20 +22,27 @@ use crate::enums::Alignment;
 use super::prelude::*;
 
 lazy_static! {
-    static ref ALIGN: Regex = Regex::new(r"^\[\[(?P<direction><|>|=|==)\]\]").unwrap();
+    static ref CLEAR_FLOAT: Regex = Regex::new(r"~{4,}(?P<direction><|>|=)?").unwrap();
 }
 
-pub fn parse(pair: Pair<Rule>) -> Result<Line> {
-    let alignment = Alignment::try_from(extract!(ALIGN, pair))
-        .expect("Parsed align block had invalid alignment");
+pub fn parse(pair: Pair<Rule>) -> Paragraph {
+    let capture = CLEAR_FLOAT
+        .captures(pair.as_str())
+        .expect("Regular expression CLEAR_FLOAT didn't match");
 
-    let lines_res: Result<Vec<_>> = pair.into_inner().map(Line::from_pair).collect();
-    let lines = lines_res?;
+    let direction = match capture.name("direction") {
+        Some(mtch) => Some(
+            Alignment::try_from(mtch.as_str())
+                .ok()
+                .expect("Alignment conversion failed"),
+        ),
+        None => None,
+    };
 
-    Ok(Line::Align { alignment, lines })
+    Paragraph::ClearFloat { direction }
 }
 
 #[test]
 fn test_regexes() {
-    let _ = &*ALIGN;
+    let _ = &*CLEAR_FLOAT;
 }

@@ -164,7 +164,7 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             escape_html(ctx, text)?;
             ctx.push_str("</a>");
         }
-        &Footnote { ref lines } => {
+        &Footnote { ref paragraphs } => {
             // TODO add javascript
             let number = ctx.footnotes_mut().incr();
             ctx.push_str("<sup class=\"footnoteref\">");
@@ -182,7 +182,7 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
 
             ctx.write_footnote_block(|ctx| {
                 ctx.push_str("<li>");
-                render_lines(ctx, lines)?;
+                render_paragraphs(ctx, paragraphs)?;
                 ctx.push_str("</li>");
 
                 Ok(())
@@ -262,22 +262,22 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             render_words(ctx, words)?;
             ctx.push_str("</tt>");
         }
-        &Note { ref lines } => {
+        &Note { ref paragraphs } => {
             ctx.push_str("<div class=\"wiki-note\">");
-            render_lines(ctx, lines)?;
+            render_paragraphs(ctx, paragraphs)?;
             ctx.push_str("</div>");
         }
         &Raw { contents } => escape_html(ctx, contents)?,
-        &Size { size, ref lines } => {
+        &Size { size, ref paragraphs } => {
             write!(ctx, "<span style=\"size: {};\">", size)?;
-            render_lines(ctx, lines)?;
+            render_paragraphs(ctx, paragraphs)?;
             ctx.push_str("</span>");
         }
         &Span {
             id,
             class,
             style,
-            ref lines,
+            ref paragraphs,
         } => {
             ctx.push_str("<span");
 
@@ -294,7 +294,7 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             }
 
             ctx.push('>');
-            render_lines(ctx, lines)?;
+            render_paragraphs(ctx, paragraphs)?;
             ctx.push_str("</span>");
         }
         &Strikethrough { ref words } => {

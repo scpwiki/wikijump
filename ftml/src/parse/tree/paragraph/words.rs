@@ -1,5 +1,5 @@
 /*
- * parse/tree/line/words.rs
+ * parse/tree/paragraph/words.rs
  *
  * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -25,21 +25,21 @@ lazy_static! {
     static ref WORDS: Regex = Regex::new(r"^(?P<flag>\+{1,6}|=?)").unwrap();
 }
 
-pub fn parse(pair: Pair<Rule>) -> Result<Line> {
+pub fn parse(pair: Pair<Rule>) -> Result<Paragraph> {
     let flag = extract!(WORDS, pair);
-
     let mut words = Vec::new();
+
     for pair in pair.into_inner() {
         let word = Word::from_pair(pair)?;
         words.push(word);
     }
 
     let line = match flag {
-        "=" => Line::Words {
+        "=" => Paragraph::Words {
             words,
             centered: true,
         },
-        "" => Line::Words {
+        "" => Paragraph::Words {
             words,
             centered: false,
         },
@@ -47,7 +47,7 @@ pub fn parse(pair: Pair<Rule>) -> Result<Line> {
             let level = HeadingLevel::try_from(flag.len())
                 .expect("Regular expression returned incorrectly-sized heading");
 
-            Line::Heading { words, level }
+            Paragraph::Heading { words, level }
         }
     };
 

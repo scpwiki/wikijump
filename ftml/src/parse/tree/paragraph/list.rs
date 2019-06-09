@@ -1,5 +1,5 @@
 /*
- * parse/tree/line/list.rs
+ * parse/tree/paragraph/list.rs
  *
  * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith for Project Foundation
@@ -21,7 +21,7 @@
 use crate::enums::ListStyle;
 use super::prelude::*;
 
-pub fn parse(pair: Pair<Rule>) -> Result<Line> {
+pub fn parse(pair: Pair<Rule>) -> Result<Paragraph> {
     let depth = {
         let mut depth = 0;
         for ch in pair.as_str().chars() {
@@ -49,14 +49,14 @@ pub fn parse(pair: Pair<Rule>) -> Result<Line> {
             words.push(word);
         }
 
-        let line = Line::Words {
+        let paragraph = Paragraph::Words {
             words,
             centered: false,
         };
-        items.push(line);
+        items.push(paragraph);
     }
 
-    Ok(Line::List {
+    Ok(Paragraph::List {
         style,
         depth,
         items,
