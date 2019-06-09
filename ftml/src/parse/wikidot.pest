@@ -135,6 +135,7 @@ word = {
     monospace |
     anchor |
     anchor_tag |
+    css |
     date |
     equation_ref |
     file_ref |
@@ -169,6 +170,12 @@ monospace = { "{{" ~ word* ~ "}}" }
 
 // Block words {{{
 anchor = { "[[#" ~ space? ~ ident ~ space? ~ "]]" }
+
+css = {
+    "[[" ~ space? ~ (^"css" | ^"style") ~ space_any? ~ "]]\n" ~
+    (!("[[/" ~ space? ~ (^"css" | ^"style")) ~ ANY)* ~
+    "[[/" ~ space? ~ (^"css" | ^"style") ~ space_any? ~ "]]"
+}
 
 date = {
     "[[" ~ space? ~ ^"date" ~ space_any ~ integer ~ date_arg? ~ space_any? ~ "]]"

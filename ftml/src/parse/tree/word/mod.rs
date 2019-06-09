@@ -78,6 +78,17 @@ lazy_static! {
             .unwrap()
     };
 
+    static ref CSS: Regex = {
+        RegexBuilder::new(r#"(?x)
+            \[\[\s*(?:css|style)\s*\]\]\n
+            (?P<style>.*)\n
+            \[\[/\s*(?:css|style)\s*\]\]"#)
+            .case_insensitive(true)
+            .dot_matches_new_line(true)
+            .build()
+            .unwrap()
+    };
+
     static ref DATE: Regex = {
         RegexBuilder::new(r#"(?x)
             \[\[
@@ -149,6 +160,9 @@ pub enum Word<'a> {
     Color {
         color: &'a str,
         words: Vec<Word<'a>>,
+    },
+    Css {
+        style: &'a str,
     },
     Date {
         timestamp: i64,
@@ -302,6 +316,9 @@ impl<'a> Word<'a> {
                 words: Vec::new(),
             },
             Rule::anchor_tag => anchor::parse(pair)?,
+            Rule::css => Word::Css {
+                style: extract!(CSS, pair),
+            },
             Rule::date => {
                 let capture = DATE.captures(pair.as_str())
                     .expect("Regular expression DATE didn't match");

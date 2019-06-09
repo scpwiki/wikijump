@@ -116,6 +116,7 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             render_words(ctx, words)?;
             ctx.push_str("</span>");
         }
+        &Css { style } => ctx.add_style(style),
         &Date { timestamp, format } => {
             use chrono::prelude::*;
 
