@@ -64,7 +64,7 @@ pub fn full_transform(text: &mut String, wrap: bool) -> Result<String> {
             }
         }
 
-        buffer.push_str("<body>\n");
+        buffer.push_str("</head><body>\n");
         buffer.push_str(&output.html);
         buffer.push_str("\n</body></html>\n");
 
