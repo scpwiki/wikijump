@@ -28,15 +28,8 @@ where
     I: IntoIterator<Item = L>,
     I::IntoIter: ExactSizeIterator,
 {
-    let lines = lines.into_iter();
-    let len = lines.len();
-
-    for (i, line) in lines.enumerate() {
+    for line in lines.into_iter() {
         render_line(ctx, line.as_ref())?;
-
-        if i < len - 1 {
-            write!(ctx, " <br>")?;
-        }
     }
 
     Ok(())
