@@ -236,15 +236,13 @@ pub fn render_line(ctx: &mut HtmlContext, line: &Line) -> Result<()> {
             centered,
             ref words,
         } => {
+            ctx.push_str("<p");
             if *centered {
-                ctx.push_str(r#"<div style="text-align: center;"> "#);
+                ctx.push_str(" style=\"text-align: center;\"");
             }
-
+            ctx.push('>');
             render_words(ctx, words)?;
-
-            if *centered {
-                ctx.push_str(" </div>");
-            }
+            ctx.push_str("</p>\n");
         }
     }
 

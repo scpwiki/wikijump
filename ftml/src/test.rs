@@ -101,7 +101,6 @@ fn iterate_input_files<F: FnMut(&Path)>(mut f: F) {
         }
 
         let input_file = entry.path();
-        let stem = input_file.file_stem().expect("Unable to get file stem");
         let ext = input_file
             .extension()
             .expect("Unable to get file extension");
@@ -109,6 +108,7 @@ fn iterate_input_files<F: FnMut(&Path)>(mut f: F) {
             continue;
         }
 
+        let stem = input_file.file_stem().expect("Unable to get file stem");
         if is_blacklisted(stem) {
             println!("Skipping blacklisted test {}", input_file.display());
             continue;
