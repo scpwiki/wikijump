@@ -24,28 +24,26 @@ use super::prelude::*;
 /// of the document has been completed.
 pub fn render_finish(ctx: &mut HtmlContext) -> Result<()> {
     // Finish footnote block text
-    if ctx.footnotes().has_footnotes() {
-        ctx.write_footnote_block(|ctx| {
-            ctx.insert_str(
-                0,
-                stringify!(
-                    "<div class=\"footnotes-footer\">",
-                    "<ul type=\"1\" class=\"footnotes-footer\">",
-                ),
-            );
-            ctx.push_str("</ul></div");
+    ctx.write_footnote_block(|ctx| {
+        ctx.insert_str(
+            0,
+            stringify!(
+                "<div class=\"footnotes-footer\">",
+                "<ul type=\"1\" class=\"footnotes-footer\">",
+            ),
+        );
+        ctx.push_str("</ul></div");
 
-            Ok(())
-        })?;
+        Ok(())
+    })?;
+
+    // If a footnote block hasn't been placed yet, add one.
+    if ctx.footnotes().needs_block() {
+        render_word(ctx, &Word::FootnoteBlock)?;
     }
 
     // Replace footnote block placeholders
     ctx.substitute_footnote_block();
-
-    // If a footnote block hasn't been placed yet, add one.
-    if ctx.footnotes().needs_render() {
-        render_word(ctx, &Word::FootnoteBlock)?;
-    }
 
     Ok(())
 }

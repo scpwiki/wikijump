@@ -42,7 +42,7 @@ impl HtmlContext {
             html: String::new(),
             styles: Vec::new(),
             write_mode: WriteMode::Html,
-            footnotes: FootnoteContext::default(),
+            footnotes: FootnoteContext::new(),
             handle,
             id,
         }
@@ -72,12 +72,19 @@ impl HtmlContext {
 
     // Operations
     pub fn substitute_footnote_block(&mut self) {
-        assert_eq!(self.write_mode, WriteMode::Html);
+        const TOKEN: &str = "\0footnote-block\0";
 
-        let len = self.footnotes.contents().len();
-        while let Some(idx) = self.html.find("\0footnote-block\0") {
-            self.html
-                .replace_range(idx..idx + len, self.footnotes.contents());
+        assert_eq!(self.write_mode, WriteMode::Html);
+        assert_eq!(self.footnotes().has_block(), true);
+
+        let block = if self.footnotes.has_footnotes() {
+            self.footnotes.contents()
+        } else {
+            ""
+        };
+
+        while let Some(idx) = self.html.find(TOKEN) {
+            self.html.replace_range(idx..idx + TOKEN.len(), block);
         }
     }
 
@@ -184,6 +191,11 @@ impl FootnoteContext {
 
     // Field access
     #[inline]
+    pub fn has_block(&self) -> bool {
+        self.has_block
+    }
+
+    #[inline]
     pub fn set_block(&mut self, value: bool) {
         self.has_block = value;
     }
@@ -200,7 +212,7 @@ impl FootnoteContext {
     }
 
     #[inline]
-    pub fn needs_render(&self) -> bool {
+    pub fn needs_block(&self) -> bool {
         self.count > 0 && !self.has_block
     }
 
