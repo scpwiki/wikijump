@@ -55,6 +55,17 @@ const TEST_BLACKLIST: [&str; 12] = [
     "scp-4560",
 ];
 
+// Should only be used to update test outputs
+#[allow(dead_code)]
+fn update_test<P: AsRef<Path>>(output: &str, output_file: P) {
+    use std::io::Write;
+
+    let output = output.as_bytes();
+    let output_file = output_file.as_ref();
+    let mut file = File::create(output_file).expect("Unable to create output file");
+    file.write_all(output).expect("Unable to write to output file");
+}
+
 fn read_file(buffer: &mut String, path: &Path) -> Result<()> {
     buffer.clear();
     let mut file = File::open(path)?;
