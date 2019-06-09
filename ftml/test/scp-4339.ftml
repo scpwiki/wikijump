@@ -1,4 +1,4 @@
-[[include :kaktuskontainer:component:nuscp-dev]]
+[[include component:black-highlighter-theme-dev]]
 
 [[>]]
 [[module Rate]]
@@ -11,7 +11,7 @@
     comments= 
 **SCP-4339:** The Attribute Pen 
  
-Image is an original creation by the author. CC-SA 3.0 license. 
+Image is an original creation by the author. CC-BY-SA 3.0 license. 
 ]]
 
 [[include component:classified-bar-woed
@@ -23,12 +23,12 @@ Image is an original creation by the author. CC-SA 3.0 license.
 
 ----
 
-[[include component:image-block-responsive
+[[include component:image-block
     name=scp-4339.jpeg |
     caption=SCP-4339
 ]]
 
-**Special Containment Procedures:** SCP-4339 is to be stored in a Class-9 maximum security small-item locker. Testing may not be conducted without the --approval of two Level-4 personnel-- unanimous consent of the O5 Council. (See Addendum 4339-2)
+**Special Containment Procedures:** SCP-4339 is to be stored in a maximum security small-item locker. Testing may not be conducted without the --approval of two Level-4 personnel-- unanimous consent of the O5 Council. (See Addendum 4339-2)
 
 **Description:** SCP-4339 is a ball-point pen with no visible manufacturer markings. It was discovered when Foundation agents were made aware of unusual police activity in the suburbs of Urbana, Illinois.
 
@@ -89,7 +89,7 @@ Experiments began 20██/05/10 09:13 and were overseen by Dr. Archibald.
 > **Addendum:** Due to the dangers inherent in the use of SCP-4339, O5-14 has cancelled all further testing.
 [[/collapsible]]
 
-**Addendum 4339-2:** Memorandum
+**Addendum 4339-2:** Ethics Committee Moratorium
 [[collapsible show="▸ Access File" hide="▾ Close File"]]
 > **Ethics Committee Memo**
 > 
@@ -104,7 +104,7 @@ Experiments began 20██/05/10 09:13 and were overseen by Dr. Archibald.
 > Effective immediately, all access to SCP-4339 is suspended and its file has been frozen. O5-14 is subject to mandatory recusal on all matters related to SCP-4339.
 [[/collapsible]]
 
-**Addendum 4339-3:** Action Report
+**Addendum 4339-3:** Overseer Debriefing
 [[collapsible show="▸ Access File" hide="▾ Close File"]]
 > **Task Force Action Report**
 > 
@@ -119,7 +119,7 @@ Experiments began 20██/05/10 09:13 and were overseen by Dr. Archibald.
 > * Reorganize the Overseer Council to remove its 14th seat.
 > 
 > **Resultant Actions:**
-> O5-14 was successfully detained and demoted. Dr. Archibald is currently a Level-0 E-Class personnel in Site-██ Detention Cell ███ awaiting sentencing.
+> O5-14 was successfully detained and demoted. Dr. Archibald is currently a Level-0 E-Class individual in Site-██ Detention Cell ███ awaiting sentencing.
 > 
 > **Justification:**
 > After a thorough investigation, complete with interviews with the Defendant and researchers involved in testing of SCP-4339, the Ethics Committee has decided that O5-14 violated the Foundation Code of Ethics egregiously enough to warrant removal from the Overseer Council. A full report is available to O5 members upon request.

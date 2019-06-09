@@ -1,4 +1,4 @@
-[[include :kaktuskontainer:component:nuscp-dev]]
+[[include component:black-highlighter-theme-dev]]
 
 [[>]]
 [[module Rate]]
@@ -36,8 +36,7 @@ Resident D-class may request supplies or additional personnel, provided no justi
 
 **Description:** [DATA EXPUNGED]
 
-**Recovery Log:**
-Foundation AICs flagged an unusual series of civilian and police deaths linked to ███ ████████ Preschool in New York, NY. [[[task-forces#pi-1|Mobile Task Force Pi-1 ("City Slickers")]]] was sent in to investigate.
+**Recovery Log:** Foundation AICs flagged an unusual series of civilian and police deaths linked to ███ ████████ Preschool in New York, NY. [[[task-forces#pi-1|Mobile Task Force Pi-1 ("City Slickers")]]] was sent in to investigate.
 
 ||~ Date/Time ||~ Actions ||~ Results ||
 || 2018/04/11 14:21 || MTF-Pi-1 arrives at the location and establishes a perimeter. They then attempt to enter the building. || Members report intense migraines. Operation aborted. ||

@@ -1,4 +1,4 @@
-[[include :kaktuskontainer:component:nuscp-dev]]
+[[include component:black-highlighter-theme-dev]]
 
 [[>]]
 [[module Rate]]
@@ -25,14 +25,14 @@ Thanks to wctaiwan, [[*user Alces_alces]], [[*user rounderhouse]], [[*user magna
 
 ----
 
-[[include component:image-block-responsive
+[[include component:image-block
     name=scp-1294-j.jpeg |
     caption=SCP-1294-J
 ]]
 
 **Special Containment Procedures:** SCP-1294-J is to be kept in an anomalous item locker when not being used for testing. Oak wood restraints painted cyan and reinforced with lead-telekill-iron-oxide alloy have been attached to the object to prevent spills.
 
-At least four Level-2 and two Level-3 security personnel are to guard the vault to prevent theft. One D-class (currently D-41562) is to prepare and consume Earl Grey tea from SCP-1294-J once daily under pain of termination and/or revocation of shower privileges. Despite SCP-1294-J posing no threat of containment breach if simply left alone in its safe, its object class has been upgraded to Euclid for dramatic effect.
+At least four Level-2 and two Level-3 security personnel are to guard the vault to prevent theft. One D-class (currently D-41562) is to prepare and consume Earl Grey tea from SCP-1294-J once daily under pain of termination and/or revocation of shower privileges. Despite SCP-1294-J posing no threat of containment breach if simply left alone, its object class has been upgraded to Euclid for dramatic effect.
 
 **Description:** SCP-1294-J --is-- appears to be (see Addendum 1294-J-2) a light green plastic watering can. The object is capable of dispensing an unlimited amount of water when poured from its spout, and consuming an unlimited amount of liquid when poured into its top opening. The object is impervious to damage, and all attempts to destroy it (see Document 1294-08, termination testing) have resulted in failure and short-circuited electronics. Personnel have reported that drinking from SCP-1294-J tastes "wet" and "water-like".
 
