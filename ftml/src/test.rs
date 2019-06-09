@@ -40,10 +40,12 @@ macro_rules! file_name {
     ($path:expr) => ( $path.file_name().expect("Unable to get file name").to_string_lossy() )
 }
 
-const TEST_BLACKLIST: [&str; 15] = [
+const TEST_BLACKLIST: [&str; 17] = [
     "scp-003",
     "scp-008",
     "scp-009",
+    "scp-029",
+    "scp-030",
     "scp-1294-j",
     "scp-3597",
     "scp-3999",

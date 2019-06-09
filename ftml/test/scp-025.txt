@@ -1,0 +1,608 @@
+SyntaxTree {
+    lines: [
+        Align {
+            alignment: Right,
+            lines: [
+                Words {
+                    centered: false,
+                    words: [
+                        Module {
+                            name: "Rate",
+                            arguments: {},
+                            contents: None,
+                        },
+                    ],
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                Bold {
+                    words: [
+                        Text {
+                            contents: "Item #:",
+                        },
+                    ],
+                },
+                Text {
+                    contents: " SCP-025",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                Bold {
+                    words: [
+                        Text {
+                            contents: "Object Class:",
+                        },
+                    ],
+                },
+                Text {
+                    contents: " Safe",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                Bold {
+                    words: [
+                        Text {
+                            contents: "Special Containment Procedures:",
+                        },
+                    ],
+                },
+                Text {
+                    contents: " SCP-025 is only to be opened during testing, as is the room in which SCP-025 is stored. Entry codes are to be given only to authorized research and security personnel. No other containment protocols required.",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                Bold {
+                    words: [
+                        Text {
+                            contents: "Description:",
+                        },
+                    ],
+                },
+                Text {
+                    contents: " SCP-025 is a wooden wardrobe measuring 0.97 m x 0.62 m x 1.95 m, full of clothing dating from a number of time periods. Articles contained within the chest, collectively named SCP-025-1, match with styles of decades from the 1920s to the present. The apparel from each time frame varies with regard to style; for example, a polyester striped shirt and pair of charcoal suit pants both correspond with general styles of the 1970s. The only unifying aspect of every article contained in SCP-025 is that each one is in poor condition; moths have eaten at much of the collection, and tears and runs are not uncommon.",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                Text {
+                    contents: "When any item from SCP-025 is put on, the wearer is observed either to die or suffer an injury within 24 hours. The cause of death or injury in these instances is invariably linked to the aforementioned flaws in the clothing, but only ever appears to be an unrelated incident. Wearing a glove with a fingertip cut off may result in the loss of the fingertip through a simple kitchen accident like chopping onions; similarly, a subject wearing a poncho with a sleeve missing will somehow cause the loss of the uncovered arm, be it an attack by a wild animal or a vehicular accident that necessitates the amputation of the limb. If placed in a sealed, unfurnished enclosure while wearing an item from the chest, the wearer will either seemingly spontaneously contract a flesh-eating disease that begins in the areas not covered by the clothing, or suffer the failure of an organ located beneath an imperfection in the article. Diseases arising from such incidents may or may not be contagious; no study has been successfully undertaken due to the speed at which the strains observed run their course. Recommended that, if possible, samples of the disease be taken to lab for possible weaponization.",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                Text {
+                    contents: "Following is an abridged testing log of SCP-025; more thorough testing will accompany the declassification of the document in its entirety.",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        HorizontalLine,
+        Newlines {
+            count: 1,
+        },
+        QuoteBlock {
+            id: None,
+            class: None,
+            style: None,
+            lines: [
+                Words {
+                    centered: false,
+                    words: [
+                        Bold {
+                            words: [
+                                Underline {
+                                    words: [
+                                        Text {
+                                            contents: "TEST LOG SCP-025, SECTION 1",
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    ],
+                },
+                Newlines {
+                    count: 2,
+                },
+                Words {
+                    centered: false,
+                    words: [
+                        Bold {
+                            words: [
+                                Text {
+                                    contents: "SUBJECT:",
+                                },
+                            ],
+                        },
+                        Text {
+                            contents: " D-778, a 42-year-old white male",
+                        },
+                    ],
+                },
+                Words {
+                    centered: false,
+                    words: [
+                        Bold {
+                            words: [
+                                Text {
+                                    contents: "ARTICLE:",
+                                },
+                            ],
+                        },
+                        Text {
+                            contents: " 1940s-era white tuxedo",
+                        },
+                    ],
+                },
+                Words {
+                    centered: false,
+                    words: [
+                        Bold {
+                            words: [
+                                Text {
+                                    contents: "IMPERFECTION(S):",
+                                },
+                            ],
+                        },
+                        Text {
+                            contents: " Torn seam in left shoulder",
+                        },
+                    ],
+                },
+                Words {
+                    centered: false,
+                    words: [
+                        Bold {
+                            words: [
+                                Text {
+                                    contents: "TEST RESULTS:",
+                                },
+                            ],
+                        },
+                        Text {
+                            contents: " Subject was allowed free roam of the halls, under Agent ███████\'s supervision. For approximately 45 minutes, nothing eventful occurred; however, at ██:██:██, security tapes and eyewitnesses indicate that D-778 appeared to make an attempt at attacking Agent ███████. He in turn overcame the subject with a knife, causing an inch-deep gash in D-778\'s left shoulder precisely at the point where the tuxedo\'s seam was ripped. Test halted; subject later terminated.",
+                        },
+                    ],
+                },
+                Newlines {
+                    count: 1,
+                },
+                Words {
+                    centered: false,
+                    words: [
+                        Bold {
+                            words: [
+                                Text {
+                                    contents: "SUBJECT:",
+                                },
+                            ],
+                        },
+                        Text {
+                            contents: " D-690, a 26-year-old white male",
+                        },
+                    ],
+                },
+                Words {
+                    centered: false,
+                    words: [
+                        Bold {
+                            words: [
+                                Text {
+                                    contents: "ARTICLE:",
+                                },
+                            ],
+                        },
+                        Text {
+                            contents: " 2004 Boston Red Sox baseball cap",
+                        },
+                    ],
+                },
+                Words {
+                    centered: false,
+                    words: [
+                        Bold {
+                            words: [
+                                Text {
+                                    contents: "IMPERFECTION(S):",
+                                },
+                            ],
+                        },
+                        Text {
+                            contents: " Missing size adjuster in back of cap; logo in front partially removed",
+                        },
+                    ],
+                },
+                Words {
+                    centered: false,
+                    words: [
+                        Bold {
+                            words: [
+                                Text {
+                                    contents: "TEST RESULTS:",
+                                },
+                            ],
+                        },
+                        Text {
+                            contents: " Placed in a sealed room with the subject was a table on which were a loaded Jericho \"Baby Eagle\" 9mm handgun, a grill lighter, and a hatchet. D-690 chose to wear the cap backward for the test; potential effects of this decision on the outcome of the test are unknown. Subject expressed reluctance to touch any of the objects on the table for several hours; food and water were provided as necessary. After four (4) hours of general inactivity, subject picked up the handgun and examined it; while holding it at roughly eye level, the weapon discharged into D-690\'s forehead, where the size adjustment band would have been. The round exited the subject near the part of the hat with the missing part of the logo.",
+                        },
+                    ],
+                },
+                Newlines {
+                    count: 1,
+                },
+                Words {
+                    centered: false,
+                    words: [
+                        Bold {
+                            words: [
+                                Text {
+                                    contents: "SUBJECTS:",
+                                },
+                            ],
+                        },
+                        Text {
+                            contents: " D-736, a 22-year-old white male; D-771, a 23-year-old white male",
+                        },
+                    ],
+                },
+                Words {
+                    centered: false,
+                    words: [
+                        Bold {
+                            words: [
+                                Text {
+                                    contents: "ARTICLE:",
+                                },
+                            ],
+                        },
+                        Text {
+                            contents: " Burgundy striped sweater vest, dating from 1973",
+                        },
+                    ],
+                },
+                Words {
+                    centered: false,
+                    words: [
+                        Bold {
+                            words: [
+                                Text {
+                                    contents: "IMPERFECTION(S):",
+                                },
+                            ],
+                        },
+                        Text {
+                            contents: " Article seemed to have been partially eaten by moths; several large holes in the front of the sweater",
+                        },
+                    ],
+                },
+                Words {
+                    centered: false,
+                    words: [
+                        Bold {
+                            words: [
+                                Text {
+                                    contents: "TEST RESULTS:",
+                                },
+                            ],
+                        },
+                        Text {
+                            contents: " D-736 was asked by researching staff to wear the sweater vest, which he did under duress. D-771 was given a loaded handgun out of sight of the other test participant and instructed to, on a given signal, fire all six (6) shots in the direction of D-736. After doing so, it was noted that every shot fired passed through one of the holes in the sweater vest, leaving the clothing intact and killing D-736. Firearm retrieved; surviving subject transported back to quarters.",
+                        },
+                    ],
+                },
+                Newlines {
+                    count: 1,
+                },
+                Words {
+                    centered: false,
+                    words: [
+                        Bold {
+                            words: [
+                                Text {
+                                    contents: "SUBJECT:",
+                                },
+                            ],
+                        },
+                        Text {
+                            contents: " D-771, a 23-year-old white male",
+                        },
+                    ],
+                },
+                Words {
+                    centered: false,
+                    words: [
+                        Bold {
+                            words: [
+                                Text {
+                                    contents: "ARTICLE:",
+                                },
+                            ],
+                        },
+                        Text {
+                            contents: " Sweater vest from above trial",
+                        },
+                    ],
+                },
+                Words {
+                    centered: false,
+                    words: [
+                        Bold {
+                            words: [
+                                Text {
+                                    contents: "IMPERFECTION(S):",
+                                },
+                            ],
+                        },
+                        Text {
+                            contents: " Same as mentioned",
+                        },
+                    ],
+                },
+                Words {
+                    centered: false,
+                    words: [
+                        Bold {
+                            words: [
+                                Text {
+                                    contents: "TEST RESULTS:",
+                                },
+                            ],
+                        },
+                        Text {
+                            contents: " D-771 was this time placed in an empty room, dimensions 15 m x 15 m x 15 m; only objects in the enclosure were lights overhead. Subject initially complained of boredom, then lay on his back and went to sleep. After 2 hours and 14 minutes, two (2) of the fluorescent light tubes in the ceiling suddenly dislodged and fell. Both landed squarely on holes in the sweater, shattering upon impact; one (1) of the tubes broke into jagged pieces that impaled D-771 in several areas, but only again through gaps already present in the sweater vest. Subject\'s vitals persisted for another six (6) minutes, then ceased. Further testing locations will be selected to minimize possible damage to the surrounding area.",
+                        },
+                    ],
+                },
+                Newlines {
+                    count: 1,
+                },
+                Words {
+                    centered: false,
+                    words: [
+                        Bold {
+                            words: [
+                                Text {
+                                    contents: "SUBJECT:",
+                                },
+                            ],
+                        },
+                        Text {
+                            contents: " Dr. ██████ [Unplanned experiment; an unidentified individual left an article from SCP-025 on Dr. ██████\'s desk that looked similar to an item of his own clothing. Any information about this incident and/or the perpetrator of same should be reported immediately to senior staff.]",
+                        },
+                    ],
+                },
+                Words {
+                    centered: false,
+                    words: [
+                        Bold {
+                            words: [
+                                Text {
+                                    contents: "ARTICLE:",
+                                },
+                            ],
+                        },
+                        Text {
+                            contents: " Lightweight scarf, dyed a number of colors",
+                        },
+                    ],
+                },
+                Words {
+                    centered: false,
+                    words: [
+                        Bold {
+                            words: [
+                                Text {
+                                    contents: "IMPERFECTION(S):",
+                                },
+                            ],
+                        },
+                        Text {
+                            contents: " Heavily pulled seam caused scarf to be considerably shorter and tighter in the middle.",
+                        },
+                    ],
+                },
+                Words {
+                    centered: false,
+                    words: [
+                        Bold {
+                            words: [
+                                Text {
+                                    contents: "TEST RESULTS:",
+                                },
+                            ],
+                        },
+                        Text {
+                            contents: " According to his itinerary, Dr. ██████, wearing the item from SCP-025, was en route to the enclosure of SCP-███ on ██/██/████ for routine testing. However, he diverged from his intended path and began in a direction towards an entirely separate wing of the facility. Subject then entered the enclosure of ",
+                        },
+                        Link {
+                            href: "SCP-173",
+                            target: None,
+                            text: Url,
+                        },
+                        Text {
+                            contents: " without gathering accompaniment or following safety procedures, and, upon hearing the door closing, blinked. Cause of death listed as strangulation resulting from a crushed windpipe.",
+                        },
+                    ],
+                },
+                Newlines {
+                    count: 1,
+                },
+                Words {
+                    centered: false,
+                    words: [
+                        Bold {
+                            words: [
+                                Text {
+                                    contents: "SUBJECT:",
+                                },
+                            ],
+                        },
+                        Text {
+                            contents: " D-802, a 30-year-old Hispanic female",
+                        },
+                    ],
+                },
+                Words {
+                    centered: false,
+                    words: [
+                        Bold {
+                            words: [
+                                Text {
+                                    contents: "ARTICLE:",
+                                },
+                            ],
+                        },
+                        Text {
+                            contents: " 1980s ",
+                        },
+                        Italics {
+                            words: [
+                                Text {
+                                    contents: "Flashdance",
+                                },
+                            ],
+                        },
+                        Text {
+                            contents: "-style white shirt",
+                        },
+                    ],
+                },
+                Words {
+                    centered: false,
+                    words: [
+                        Bold {
+                            words: [
+                                Text {
+                                    contents: "IMPERFECTION(S):",
+                                },
+                            ],
+                        },
+                        Text {
+                            contents: " Right shoulder removed, left sleeve completely cut off, entire bottom hem shredded",
+                        },
+                    ],
+                },
+                Words {
+                    centered: false,
+                    words: [
+                        Bold {
+                            words: [
+                                Text {
+                                    contents: "TEST RESULTS:",
+                                },
+                            ],
+                        },
+                        Text {
+                            contents: " [DATA EXPUNGED]. All present were presumed infected, then quarantined and [DATA EXPUNGED].",
+                        },
+                    ],
+                },
+                Words {
+                    centered: false,
+                    words: [
+                        Text {
+                            contents: "All further tests involving 1980s-era fashion have been postponed indefinitely due to the expenditures and safety hazards presented by the aforementioned experiment. Full cleanup estimated to take an additional ██ weeks.",
+                        },
+                    ],
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                Text {
+                    contents: "Further testing authorized; results now awaiting declassification.",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                FootnoteBlock,
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Div {
+            id: None,
+            class: Some(
+                "\"footer-wikiwalk-nav\"",
+            ),
+            style: None,
+            lines: [
+                Align {
+                    alignment: Center,
+                    lines: [
+                        Words {
+                            centered: false,
+                            words: [
+                                Text {
+                                    contents: "« ",
+                                },
+                                Link {
+                                    href: "SCP-024",
+                                    target: None,
+                                    text: Url,
+                                },
+                                Text {
+                                    contents: " | SCP-025 | ",
+                                },
+                                Link {
+                                    href: "SCP-026",
+                                    target: None,
+                                    text: Url,
+                                },
+                                Text {
+                                    contents: " »",
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        },
+    ],
+}
