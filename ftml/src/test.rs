@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use std::ffi::OsStr;
 use std::fs::{self, File};
 use std::io::Read;
 use std::path::{Path, PathBuf};
@@ -38,8 +39,20 @@ macro_rules! file_name {
     ($path:expr) => ( $path.file_name().expect("Unable to get file name").to_string_lossy() )
 }
 
-const SKIP_PARSER_TESTS: bool = true;
-const SKIP_GEN_TESTS: bool = true;
+const TEST_BLACKLIST: [&str; 12] = [
+    "scp-1294-j",
+    "scp-3597",
+    "scp-3999",
+    "scp-4322",
+    "scp-4339",
+    "scp-4355",
+    "scp-4455",
+    "scp-4510",
+    "scp-4511",
+    "scp-4512",
+    "scp-4513",
+    "scp-4560",
+];
 
 fn read_file(buffer: &mut String, path: &Path) -> Result<()> {
     buffer.clear();
@@ -48,26 +61,44 @@ fn read_file(buffer: &mut String, path: &Path) -> Result<()> {
     Ok(())
 }
 
+fn is_blacklisted(stem: &OsStr) -> bool {
+    for name in &TEST_BLACKLIST[..] {
+        if OsStr::new(name) == stem {
+            return true;
+        }
+    }
+
+    false
+}
+
 fn iterate_input_files<F: FnMut(&Path)>(mut f: F) {
     for entry in fs::read_dir(&*TEST_DIRECTORY).expect("Unable to read test directory") {
         let entry = entry.expect("Unable to read entry in directory");
         let ftype = entry.file_type().expect("Unable to retrieve file type");
         if !ftype.is_file() {
+            println!("Skipping non-file {}", entry.file_name().to_string_lossy());
             continue;
         }
 
         let input_file = entry.path();
+        let stem = input_file.file_stem().expect("Unable to get file stem");
+        let ext = input_file.extension().expect("Unable to get file extension");
+        if ext != "ftml" {
+            println!("Skipping non-ftml file {}", input_file.display());
+            continue;
+        }
+
+        if is_blacklisted(stem) {
+            println!("Skipping blacklisted test {}", input_file.display());
+            continue;
+        }
+
         f(&input_file);
     }
 }
 
 #[test]
 fn test_parser() {
-    if SKIP_PARSER_TESTS {
-        println!("Parser tests skipped!");
-        return;
-    }
-
     iterate_input_files(|input_file| {
         println!("Parsing {}...", file_name!(input_file));
         let mut input_text = String::new();
@@ -82,11 +113,6 @@ fn test_parser() {
 
 #[test]
 fn test_conversions() {
-    if SKIP_GEN_TESTS {
-        println!("Generation tests skipped!");
-        return;
-    }
-
     // Reuse these buffers for all the tests
     let mut output_file = PathBuf::new();
     let mut expected_html = String::new();
