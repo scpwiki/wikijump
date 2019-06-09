@@ -1,8 +1,8 @@
 SyntaxTree {
-    lines: [
+    paragraphs: [
         Align {
             alignment: Center,
-            lines: [
+            paragraphs: [
                 Heading {
                     level: Two,
                     words: [
@@ -19,7 +19,7 @@ SyntaxTree {
                     words: [
                         Size {
                             size: "200%",
-                            lines: [
+                            paragraphs: [
                                 Words {
                                     centered: false,
                                     words: [
@@ -52,10 +52,10 @@ SyntaxTree {
                 "\"content-panel standalone series\"",
             ),
             style: None,
-            lines: [
+            paragraphs: [
                 Align {
                     alignment: Justify,
-                    lines: [
+                    paragraphs: [
                         Words {
                             centered: false,
                             words: [
@@ -78,13 +78,13 @@ SyntaxTree {
         HorizontalLine,
         Align {
             alignment: Center,
-            lines: [
+            paragraphs: [
                 Heading {
                     level: One,
                     words: [
                         Size {
                             size: "200%",
-                            lines: [
+                            paragraphs: [
                                 Words {
                                     centered: false,
                                     words: [
@@ -2116,7 +2116,7 @@ SyntaxTree {
         },
         Align {
             alignment: Center,
-            lines: [
+            paragraphs: [
                 Words {
                     centered: false,
                     words: [
@@ -2183,13 +2183,13 @@ SyntaxTree {
                 "\"content-panel standalone series\"",
             ),
             style: None,
-            lines: [
+            paragraphs: [
                 Newlines {
                     count: 1,
                 },
                 Align {
                     alignment: Center,
-                    lines: [
+                    paragraphs: [
                         Words {
                             centered: false,
                             words: [

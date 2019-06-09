@@ -1,8 +1,8 @@
 SyntaxTree {
-    lines: [
+    paragraphs: [
         Align {
             alignment: Right,
-            lines: [
+            paragraphs: [
                 Words {
                     centered: false,
                     words: [
@@ -130,7 +130,7 @@ SyntaxTree {
                     contents: "What distinguishes SCP-016 from other strains of hemorrhagic fever such as Ebola and Marburg is its unusual response to high stress. Should the subject undergo a high-stress situation (such as a life-threatening crisis), the organism will change its survival tactic from rapid reproduction to the rewriting of the host\'s DNA and stimulation of rapid cell division. Major physiological changes occur within the first 24 hours, with complete bodily reconstruction occurring within two (2) weeks time. Most hosts do not survive the process due to the heavy demands made on the body.",
                 },
                 Footnote {
-                    lines: [
+                    paragraphs: [
                         Words {
                             centered: false,
                             words: [
@@ -295,10 +295,10 @@ SyntaxTree {
                 "\"footer-wikiwalk-nav\"",
             ),
             style: None,
-            lines: [
+            paragraphs: [
                 Align {
                     alignment: Center,
-                    lines: [
+                    paragraphs: [
                         Words {
                             centered: false,
                             words: [

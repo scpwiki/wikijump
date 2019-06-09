@@ -1,8 +1,8 @@
 SyntaxTree {
-    lines: [
+    paragraphs: [
         Align {
             alignment: Right,
-            lines: [
+            paragraphs: [
                 Words {
                     centered: false,
                     words: [
@@ -40,7 +40,7 @@ SyntaxTree {
                         "\"emphasis\"",
                     ),
                     style: None,
-                    lines: [
+                    paragraphs: [
                         Words {
                             centered: false,
                             words: [
@@ -99,7 +99,7 @@ SyntaxTree {
                     contents: " secret raids on Al-Quaeda.",
                 },
                 Footnote {
-                    lines: [
+                    paragraphs: [
                         Words {
                             centered: false,
                             words: [
@@ -123,12 +123,12 @@ SyntaxTree {
             style: Some(
                 "\"background-color: #ccc;\"",
             ),
-            lines: [
+            paragraphs: [
                 QuoteBlock {
                     id: None,
                     class: None,
                     style: None,
-                    lines: [
+                    paragraphs: [
                         Words {
                             centered: false,
                             words: [
@@ -194,7 +194,7 @@ SyntaxTree {
                                     contents: " Earth.",
                                 },
                                 Footnote {
-                                    lines: [
+                                    paragraphs: [
                                         Words {
                                             centered: false,
                                             words: [
@@ -218,7 +218,7 @@ SyntaxTree {
                 },
                 Align {
                     alignment: Justify,
-                    lines: [
+                    paragraphs: [
                         Words {
                             centered: false,
                             words: [
@@ -231,7 +231,7 @@ SyntaxTree {
                                     style: Some(
                                         "\"color: red;\"",
                                     ),
-                                    lines: [
+                                    paragraphs: [
                                         Words {
                                             centered: false,
                                             words: [
@@ -251,7 +251,7 @@ SyntaxTree {
                                         "\"feces\"",
                                     ),
                                     style: None,
-                                    lines: [
+                                    paragraphs: [
                                         Words {
                                             centered: false,
                                             words: [
@@ -271,7 +271,7 @@ SyntaxTree {
                                     ),
                                     class: None,
                                     style: None,
-                                    lines: [
+                                    paragraphs: [
                                         Words {
                                             centered: false,
                                             words: [
@@ -355,7 +355,7 @@ SyntaxTree {
                                     ),
                                     class: None,
                                     style: None,
-                                    lines: [
+                                    paragraphs: [
                                         Words {
                                             centered: false,
                                             words: [
@@ -380,7 +380,7 @@ SyntaxTree {
                                             style: Some(
                                                 "\" text-decoration: none; \"",
                                             ),
-                                            lines: [
+                                            paragraphs: [
                                                 Words {
                                                     centered: false,
                                                     words: [
@@ -398,7 +398,7 @@ SyntaxTree {
                                 },
                                 Size {
                                     size: "10%",
-                                    lines: [
+                                    paragraphs: [
                                         Words {
                                             centered: false,
                                             words: [
@@ -463,13 +463,13 @@ SyntaxTree {
                                     contents: " fucking dead.",
                                 },
                                 Footnote {
-                                    lines: [
+                                    paragraphs: [
                                         Words {
                                             centered: false,
                                             words: [
                                                 Size {
                                                     size: "large",
-                                                    lines: [
+                                                    paragraphs: [
                                                         Words {
                                                             centered: false,
                                                             words: [
@@ -493,7 +493,7 @@ SyntaxTree {
                                 },
                                 Size {
                                     size: "110%",
-                                    lines: [
+                                    paragraphs: [
                                         Words {
                                             centered: false,
                                             words: [
@@ -513,7 +513,7 @@ SyntaxTree {
                                 },
                                 Size {
                                     size: "120%",
-                                    lines: [
+                                    paragraphs: [
                                         Words {
                                             centered: false,
                                             words: [
@@ -543,7 +543,7 @@ SyntaxTree {
                                 },
                                 Size {
                                     size: "300%",
-                                    lines: [
+                                    paragraphs: [
                                         Words {
                                             centered: false,
                                             words: [
@@ -561,7 +561,7 @@ SyntaxTree {
                                     id: None,
                                     class: None,
                                     style: None,
-                                    lines: [],
+                                    paragraphs: [],
                                 },
                             ],
                         },
@@ -637,7 +637,7 @@ SyntaxTree {
                         "\"absolute-power\"",
                     ),
                     style: None,
-                    lines: [
+                    paragraphs: [
                         List {
                             style: Bullet,
                             depth: 0,
@@ -700,7 +700,7 @@ SyntaxTree {
         },
         Align {
             alignment: Left,
-            lines: [
+            paragraphs: [
                 List {
                     style: Numbered,
                     depth: 0,

@@ -1,8 +1,8 @@
 SyntaxTree {
-    lines: [
+    paragraphs: [
         Align {
             alignment: Right,
-            lines: [
+            paragraphs: [
                 Words {
                     centered: false,
                     words: [
@@ -167,7 +167,7 @@ SyntaxTree {
             id: None,
             class: None,
             style: None,
-            lines: [
+            paragraphs: [
                 Words {
                     centered: false,
                     words: [
@@ -439,10 +439,10 @@ SyntaxTree {
                 "\"footer-wikiwalk-nav\"",
             ),
             style: None,
-            lines: [
+            paragraphs: [
                 Align {
                     alignment: Center,
-                    lines: [
+                    paragraphs: [
                         Words {
                             centered: false,
                             words: [

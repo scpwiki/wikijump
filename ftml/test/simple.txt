@@ -1,5 +1,5 @@
 SyntaxTree {
-    lines: [
+    paragraphs: [
         Words {
             centered: false,
             words: [
