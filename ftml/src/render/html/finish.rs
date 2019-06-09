@@ -45,5 +45,8 @@ pub fn render_finish(ctx: &mut HtmlContext) -> Result<()> {
     // Replace footnote block placeholders
     ctx.substitute_footnote_block();
 
+    // Add final newline
+    ctx.push('\n');
+
     Ok(())
 }
