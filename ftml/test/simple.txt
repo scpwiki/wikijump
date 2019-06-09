@@ -1,45 +1,46 @@
 SyntaxTree {
     lines: [
-        Text {
-            contents: [
+        Words {
+            centered: false,
+            words: [
                 Text {
-                    contents: "A "
+                    contents: "A ",
                 },
                 Underline {
-                    contents: [
+                    words: [
                         Italics {
-                            contents: [
+                            words: [
                                 Text {
-                                    contents: "simple"
-                                }
-                            ]
+                                    contents: "simple",
+                                },
+                            ],
                         },
                         Text {
-                            contents: " file"
-                        }
-                    ]
+                            contents: " file",
+                        },
+                    ],
                 },
                 Text {
-                    contents: " that contains "
+                    contents: " that contains ",
                 },
                 Bold {
-                    contents: [
+                    words: [
                         Superscript {
-                            contents: [
+                            words: [
                                 Text {
-                                    contents: "test"
-                                }
-                            ]
+                                    contents: "test",
+                                },
+                            ],
                         },
                         Text {
-                            contents: " formatting"
-                        }
-                    ]
+                            contents: " formatting",
+                        },
+                    ],
                 },
                 Text {
-                    contents: "!\n"
-                }
-            ]
-        }
-    ]
+                    contents: "!",
+                },
+            ],
+        },
+    ],
 }

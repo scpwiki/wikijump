@@ -1,0 +1,775 @@
+SyntaxTree {
+    lines: [
+        Align {
+            alignment: Right,
+            lines: [
+                Words {
+                    centered: false,
+                    words: [
+                        Module {
+                            name: "Rate",
+                            arguments: {},
+                            contents: None,
+                        },
+                    ],
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                Text {
+                    contents: "What the ",
+                },
+                Bold {
+                    words: [
+                        Text {
+                            contents: "fuck",
+                        },
+                    ],
+                },
+                Text {
+                    contents: " did you just ",
+                },
+                Span {
+                    id: None,
+                    class: Some(
+                        "\"emphasis\"",
+                    ),
+                    style: None,
+                    lines: [
+                        Words {
+                            centered: false,
+                            words: [
+                                Text {
+                                    contents: "fucking",
+                                },
+                            ],
+                        },
+                    ],
+                },
+                Text {
+                    contents: " say about me, ",
+                },
+                Underline {
+                    words: [
+                        Text {
+                            contents: "you little bitch?",
+                        },
+                    ],
+                },
+                Text {
+                    contents: " I’ll have you know ",
+                },
+                Italics {
+                    words: [
+                        Text {
+                            contents: "I",
+                        },
+                    ],
+                },
+                Text {
+                    contents: " graduated top of my class in the ",
+                },
+                Underline {
+                    words: [
+                        Bold {
+                            words: [
+                                Text {
+                                    contents: "Navy Seals",
+                                },
+                            ],
+                        },
+                    ],
+                },
+                Text {
+                    contents: ", and I’ve been involved in ",
+                },
+                Italics {
+                    words: [
+                        Text {
+                            contents: "numerous",
+                        },
+                    ],
+                },
+                Text {
+                    contents: " secret raids on Al-Quaeda.",
+                },
+                Footnote {
+                    lines: [
+                        Words {
+                            centered: false,
+                            words: [
+                                Text {
+                                    contents: "And I have over 300 confirmed kills.",
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Div {
+            id: None,
+            class: Some(
+                "\"smackdown\"",
+            ),
+            style: Some(
+                "\"background-color: #ccc;\"",
+            ),
+            lines: [
+                QuoteBlock {
+                    id: None,
+                    class: None,
+                    style: None,
+                    lines: [
+                        Words {
+                            centered: false,
+                            words: [
+                                Text {
+                                    contents: "I am trained in ",
+                                },
+                                Color {
+                                    color: "black",
+                                    words: [
+                                        Text {
+                                            contents: "gorilla warfare",
+                                        },
+                                    ],
+                                },
+                                Text {
+                                    contents: " and I’m the top sniper in the ",
+                                },
+                                Bold {
+                                    words: [
+                                        Text {
+                                            contents: "entire",
+                                        },
+                                    ],
+                                },
+                                Text {
+                                    contents: " US armed forces. You are nothing to me but ",
+                                },
+                                Italics {
+                                    words: [
+                                        Text {
+                                            contents: "just another ",
+                                        },
+                                        Underline {
+                                            words: [
+                                                Text {
+                                                    contents: "target",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                Text {
+                                    contents: ". I will wipe you the fuck out with ",
+                                },
+                                Monospace {
+                                    words: [
+                                        Text {
+                                            contents: "precision the ",
+                                        },
+                                        Underline {
+                                            words: [
+                                                Text {
+                                                    contents: "likes",
+                                                },
+                                            ],
+                                        },
+                                        Text {
+                                            contents: " of which has never been seen before on this",
+                                        },
+                                    ],
+                                },
+                                Text {
+                                    contents: " Earth.",
+                                },
+                                Footnote {
+                                    lines: [
+                                        Words {
+                                            centered: false,
+                                            words: [
+                                                Text {
+                                                    contents: "Mark my fucking words.",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    ],
+                },
+                Newlines {
+                    count: 1,
+                },
+                HorizontalLine,
+                Newlines {
+                    count: 1,
+                },
+                Align {
+                    alignment: Justify,
+                    lines: [
+                        Words {
+                            centered: false,
+                            words: [
+                                Text {
+                                    contents: "You ",
+                                },
+                                Span {
+                                    id: None,
+                                    class: None,
+                                    style: Some(
+                                        "\"color: red;\"",
+                                    ),
+                                    lines: [
+                                        Words {
+                                            centered: false,
+                                            words: [
+                                                Text {
+                                                    contents: "think you can get away",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                Text {
+                                    contents: " with saying that ",
+                                },
+                                Span {
+                                    id: None,
+                                    class: Some(
+                                        "\"feces\"",
+                                    ),
+                                    style: None,
+                                    lines: [
+                                        Words {
+                                            centered: false,
+                                            words: [
+                                                Text {
+                                                    contents: "shit",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                Text {
+                                    contents: " to me over the Internet? ",
+                                },
+                                Span {
+                                    id: Some(
+                                        "\"warning\"",
+                                    ),
+                                    class: None,
+                                    style: None,
+                                    lines: [
+                                        Words {
+                                            centered: false,
+                                            words: [
+                                                Text {
+                                                    contents: "Think again, fucker.",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                Text {
+                                    contents: " As we speak I am ",
+                                },
+                                Italics {
+                                    words: [
+                                        Text {
+                                            contents: "contacting my ",
+                                        },
+                                        User {
+                                            username: "secret",
+                                            show_picture: true,
+                                        },
+                                        Text {
+                                            contents: " ",
+                                        },
+                                        Underline {
+                                            words: [
+                                                Text {
+                                                    contents: "network of spies",
+                                                },
+                                            ],
+                                        },
+                                        Text {
+                                            contents: " across the ",
+                                        },
+                                        Monospace {
+                                            words: [
+                                                Text {
+                                                    contents: "USA",
+                                                },
+                                            ],
+                                        },
+                                        Text {
+                                            contents: " and your ",
+                                        },
+                                        Monospace {
+                                            words: [
+                                                Text {
+                                                    contents: "IP is ",
+                                                },
+                                                Italics {
+                                                    words: [
+                                                        Text {
+                                                            contents: "being",
+                                                        },
+                                                    ],
+                                                },
+                                                Text {
+                                                    contents: " traced",
+                                                },
+                                            ],
+                                        },
+                                        Text {
+                                            contents: " right now so you better prepare for the storm, ",
+                                        },
+                                        Bold {
+                                            words: [
+                                                Text {
+                                                    contents: "maggot",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                Text {
+                                    contents: ". ",
+                                },
+                                Span {
+                                    id: Some(
+                                        "\"conspiracy-theory\"",
+                                    ),
+                                    class: None,
+                                    style: None,
+                                    lines: [
+                                        Words {
+                                            centered: false,
+                                            words: [
+                                                Text {
+                                                    contents: "The storm",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                Text {
+                                    contents: " that ",
+                                },
+                                Bold {
+                                    words: [
+                                        Text {
+                                            contents: "wipes ",
+                                        },
+                                        Span {
+                                            id: None,
+                                            class: None,
+                                            style: Some(
+                                                "\" text-decoration: none; \"",
+                                            ),
+                                            lines: [
+                                                Words {
+                                                    centered: false,
+                                                    words: [
+                                                        Text {
+                                                            contents: "out",
+                                                        },
+                                                    ],
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                Text {
+                                    contents: " the pathetic ",
+                                },
+                                Size {
+                                    size: "10%",
+                                    lines: [
+                                        Words {
+                                            centered: false,
+                                            words: [
+                                                Text {
+                                                    contents: "little",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                Text {
+                                    contents: " ",
+                                },
+                                Color {
+                                    color: "cff",
+                                    words: [
+                                        Text {
+                                            contents: "thing ",
+                                        },
+                                        Color {
+                                            color: "__blue__",
+                                            words: [
+                                                Text {
+                                                    contents: " you ",
+                                                },
+                                            ],
+                                        },
+                                        Text {
+                                            contents: " call",
+                                        },
+                                    ],
+                                },
+                                Text {
+                                    contents: " your ",
+                                },
+                                Color {
+                                    color: "000",
+                                    words: [
+                                        Text {
+                                            contents: "life",
+                                        },
+                                    ],
+                                },
+                                Text {
+                                    contents: ". ",
+                                },
+                                Superscript {
+                                    words: [
+                                        Text {
+                                            contents: "You’",
+                                        },
+                                    ],
+                                },
+                                Subscript {
+                                    words: [
+                                        Text {
+                                            contents: "re",
+                                        },
+                                    ],
+                                },
+                                Text {
+                                    contents: " fucking dead.",
+                                },
+                                Footnote {
+                                    lines: [
+                                        Words {
+                                            centered: false,
+                                            words: [
+                                                Size {
+                                                    size: "large",
+                                                    lines: [
+                                                        Words {
+                                                            centered: false,
+                                                            words: [
+                                                                Italics {
+                                                                    words: [
+                                                                        Text {
+                                                                            contents: "Kid.",
+                                                                        },
+                                                                    ],
+                                                                },
+                                                            ],
+                                                        },
+                                                    ],
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                Text {
+                                    contents: " I can be ",
+                                },
+                                Size {
+                                    size: "110%",
+                                    lines: [
+                                        Words {
+                                            centered: false,
+                                            words: [
+                                                Italics {
+                                                    words: [
+                                                        Text {
+                                                            contents: "anywhere",
+                                                        },
+                                                    ],
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                Text {
+                                    contents: ", ",
+                                },
+                                Size {
+                                    size: "120%",
+                                    lines: [
+                                        Words {
+                                            centered: false,
+                                            words: [
+                                                Italics {
+                                                    words: [
+                                                        Text {
+                                                            contents: "anytime",
+                                                        },
+                                                    ],
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                Text {
+                                    contents: ", and I can ",
+                                },
+                                Bold {
+                                    words: [
+                                        Text {
+                                            contents: "kill",
+                                        },
+                                    ],
+                                },
+                                Text {
+                                    contents: " you in over ",
+                                },
+                                Size {
+                                    size: "300%",
+                                    lines: [
+                                        Words {
+                                            centered: false,
+                                            words: [
+                                                Text {
+                                                    contents: "seven hundred ways",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                Text {
+                                    contents: ". ",
+                                },
+                                Span {
+                                    id: None,
+                                    class: None,
+                                    style: None,
+                                    lines: [],
+                                },
+                            ],
+                        },
+                        Heading {
+                            level: Two,
+                            words: [
+                                Text {
+                                    contents: "And ",
+                                },
+                                Italics {
+                                    words: [
+                                        Text {
+                                            contents: "that’s",
+                                        },
+                                    ],
+                                },
+                                Text {
+                                    contents: " just with my ",
+                                },
+                                Underline {
+                                    words: [
+                                        Text {
+                                            contents: "bare ",
+                                        },
+                                        Color {
+                                            color: "red",
+                                            words: [
+                                                Text {
+                                                    contents: "hands",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                Text {
+                                    contents: ".",
+                                },
+                            ],
+                        },
+                    ],
+                },
+                Newlines {
+                    count: 1,
+                },
+                Words {
+                    centered: false,
+                    words: [
+                        Image {
+                            filename: "me-kicking-your-ass.png",
+                            float: true,
+                            direction: Some(
+                                Right,
+                            ),
+                            link: None,
+                            alt: None,
+                            title: None,
+                            width: None,
+                            height: None,
+                            style: None,
+                            class: None,
+                            size: None,
+                        },
+                    ],
+                },
+                Newlines {
+                    count: 1,
+                },
+                Div {
+                    id: Some(
+                        "\"trained\"",
+                    ),
+                    class: Some(
+                        "\"absolute-power\"",
+                    ),
+                    style: None,
+                    lines: [
+                        List {
+                            style: Bullet,
+                            depth: 0,
+                            items: [
+                                Words {
+                                    centered: false,
+                                    words: [
+                                        Text {
+                                            contents: "Not only am I extensively trained in unarmed combat, but I have access to the entire arsenal of the ",
+                                        },
+                                        Color {
+                                            color: "navy",
+                                            words: [
+                                                Link {
+                                                    href: "https://en.wikipedia.org/wiki/Military%E2%80%93industrial_complex",
+                                                    target: None,
+                                                    text: Text(
+                                                        "United States Marine Corps",
+                                                    ),
+                                                },
+                                            ],
+                                        },
+                                        Text {
+                                            contents: " and I will use it to its full extent to wipe your miserable ass off the face of the continent, you little shit.",
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                        List {
+                            style: Bullet,
+                            depth: 0,
+                            items: [
+                                Words {
+                                    centered: false,
+                                    words: [
+                                        Text {
+                                            contents: "If only you could have known what unholy retribution your little “clever” comment was about to bring down upon you, maybe you would have held your ",
+                                        },
+                                        Link {
+                                            href: "body-parts ",
+                                            target: None,
+                                            text: Text(
+                                                "fucking tongue",
+                                            ),
+                                        },
+                                        Text {
+                                            contents: ".",
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Align {
+            alignment: Left,
+            lines: [
+                List {
+                    style: Numbered,
+                    depth: 0,
+                    items: [
+                        Words {
+                            centered: false,
+                            words: [
+                                Text {
+                                    contents: "But you ",
+                                },
+                                Italics {
+                                    words: [
+                                        Text {
+                                            contents: "couldn’t",
+                                        },
+                                    ],
+                                },
+                                Text {
+                                    contents: ", you ",
+                                },
+                                Italics {
+                                    words: [
+                                        Text {
+                                            contents: "didn’t",
+                                        },
+                                    ],
+                                },
+                                Text {
+                                    contents: ", and now you’re paying the price, you goddamn idiot. I will ",
+                                },
+                                Bold {
+                                    words: [
+                                        Text {
+                                            contents: "shit ",
+                                        },
+                                        Underline {
+                                            words: [
+                                                Text {
+                                                    contents: "fury",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                Text {
+                                    contents: " all over you and you will ",
+                                },
+                                Subscript {
+                                    words: [
+                                        Text {
+                                            contents: "drown in it",
+                                        },
+                                    ],
+                                },
+                                Text {
+                                    contents: ".",
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        CodeBlock {
+            language: None,
+            contents: "You’re fucking dead, kiddo.\n",
+        },
+    ],
+}
