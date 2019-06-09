@@ -166,7 +166,7 @@ impl Write for HtmlContext {
 }
 
 // Helper structs
-#[derive(Debug, Default, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct FootnoteContext {
     buffer: String,
     has_block: bool,
@@ -174,6 +174,14 @@ pub struct FootnoteContext {
 }
 
 impl FootnoteContext {
+    pub fn new() -> Self {
+        FootnoteContext {
+            buffer: str!("<div class=\"title\">Footnotes</div>"),
+            has_block: false,
+            count: 0,
+        }
+    }
+
     // Field access
     #[inline]
     pub fn set_block(&mut self, value: bool) {

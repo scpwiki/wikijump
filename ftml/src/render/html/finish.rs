@@ -26,8 +26,15 @@ pub fn render_finish(ctx: &mut HtmlContext) -> Result<()> {
     // Finish footnote block text
     if ctx.footnotes().has_footnotes() {
         ctx.write_footnote_block(|ctx| {
-            ctx.insert_str(0, "<ul type=\"1\" class=\"footnotes-footer\">");
-            ctx.push_str("</ul>");
+            ctx.insert_str(
+                0,
+                stringify!(
+                    "<div class=\"footnotes-footer\">",
+                    "<ul type=\"1\" class=\"footnotes-footer\">",
+                ),
+            );
+            ctx.push_str("</ul></div");
+
             Ok(())
         })?;
     }
