@@ -19,6 +19,7 @@
  */
 
 use std::ffi::OsStr;
+use std::fmt::Write;
 use std::fs::{self, File};
 use std::io::Read;
 use std::path::{Path, PathBuf};
@@ -82,7 +83,9 @@ fn iterate_input_files<F: FnMut(&Path)>(mut f: F) {
 
         let input_file = entry.path();
         let stem = input_file.file_stem().expect("Unable to get file stem");
-        let ext = input_file.extension().expect("Unable to get file extension");
+        let ext = input_file
+            .extension()
+            .expect("Unable to get file extension");
         if ext != "ftml" {
             println!("Skipping non-ftml file {}", input_file.display());
             continue;
@@ -99,15 +102,30 @@ fn iterate_input_files<F: FnMut(&Path)>(mut f: F) {
 
 #[test]
 fn test_parser() {
+    // Reuse these buffers for all the tests
+    let mut output_file = PathBuf::new();
+    let mut output = String::new();
+    let mut expected = String::new();
+
+    // Run through all of the test files
     iterate_input_files(|input_file| {
+        assert!(input_file.is_absolute());
+        output_file.push(input_file);
+        output_file.set_extension("txt");
+
         println!("Parsing {}...", file_name!(input_file));
         let mut input_text = String::new();
-        read_file(&mut input_text, &input_file).expect("Unable to read input Wikidot");
+        read_file(&mut input_text, &input_file).expect("Unable to read input Wikidot source");
         prefilter(&mut input_text, &NullIncluder).expect("Unable to prefilter Wikidot source");
 
         let output_tree = parse(&input_text).expect("Unable to parse Wikidot source");
+        output.clear();
+        write!(&mut output, "{:#?}", &output_tree).expect("Unable to write tree to string");
+
+        read_file(&mut expected, &output_file).expect("Unable to read output tree");
+
         println!("{:#?}", &output_tree);
-        //assert_eq!(expected_tree, output_tree);
+        //assert_eq!(expected, output);
     });
 }
 
@@ -125,7 +143,7 @@ fn test_conversions() {
 
         println!("Converting {}...", file_name!(input_file));
         let mut input_text = String::new();
-        read_file(&mut input_text, input_file).expect("Unable to read input Wikidot");
+        read_file(&mut input_text, input_file).expect("Unable to read input Wikidot source");
         read_file(&mut expected_html, &output_file).expect("Unable to read output HTML");
 
         let output =

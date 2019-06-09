@@ -75,7 +75,7 @@ impl HtmlContext {
         const TOKEN: &str = "\0footnote-block\0";
 
         assert_eq!(self.write_mode, WriteMode::Html);
-        assert_eq!(self.footnotes().has_block(), true);
+        assert_eq!(self.footnotes().needs_block(), false);
 
         let block = if self.footnotes.has_footnotes() {
             self.footnotes.contents()
@@ -190,11 +190,6 @@ impl FootnoteContext {
     }
 
     // Field access
-    #[inline]
-    pub fn has_block(&self) -> bool {
-        self.has_block
-    }
-
     #[inline]
     pub fn set_block(&mut self, value: bool) {
         self.has_block = value;
