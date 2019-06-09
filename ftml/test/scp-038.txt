@@ -1,0 +1,457 @@
+SyntaxTree {
+    lines: [
+        Align {
+            alignment: Right,
+            lines: [
+                Words {
+                    centered: false,
+                    words: [
+                        Module {
+                            name: "Rate",
+                            arguments: {},
+                            contents: None,
+                        },
+                    ],
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                Bold {
+                    words: [
+                        Text {
+                            contents: "Item #:",
+                        },
+                    ],
+                },
+                Text {
+                    contents: " SCP-038",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                Bold {
+                    words: [
+                        Text {
+                            contents: "Object Class:",
+                        },
+                    ],
+                },
+                Text {
+                    contents: " Safe",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                Bold {
+                    words: [
+                        Text {
+                            contents: "Special Containment Procedure:",
+                        },
+                    ],
+                },
+                Text {
+                    contents: " SCP-038 is to be watered twice per day via overhead mister. Should the mister break for any reason, attendants should water SCP-038 by hand until it has been fixed. Lighting is provided by computer-controlled lighting array. Attendants watering SCP-038 by hand and maintenance personnel fixing mister or lighting should wear hazmat suits to prevent accidental cloning.",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                Bold {
+                    words: [
+                        Text {
+                            contents: "Description:",
+                        },
+                    ],
+                },
+                Text {
+                    contents: " SCP-038 was found on an abandoned farm in █████████████, New York, in 19██. It was at first thought to be a common apple tree. However, upon closer inspection, it became apparent that SCP-038 was growing things other than apples and, in fact, other than fruit.",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                Text {
+                    contents: "SCP-038 has the ability to clone any object that touches its bark. Objects begin growing almost instantaneously and reach maturity within a matter of minutes. A weight limit of 90.9 kg (200 lb) per object has been previously recorded. Objects that SCP-038 has thus far cloned include: apples, oranges, watermelons, eggplants, candy bars, snack foods (See Addendum #1), televisions, toasters, laptops, keys (See Addendum #2), chairs, wine, DVDs, CDs (See Addendum #3), cats, dogs, and people.",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                Text {
+                    contents: "Human and animal cloning through SCP-038 is not recommended, as they appear to age quickly. The majority of these clones live, on average, two (2) weeks. After thorough examination of the deceased clones, it has been determined that they had begun to ferment before death.",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                Text {
+                    contents: "Object is currently held on Site-23 and there are currently no plans to move it.",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                Bold {
+                    words: [
+                        Text {
+                            contents: "Addendum #1:",
+                        },
+                    ],
+                },
+                Text {
+                    contents: " Dr. Klein has requested that personnel discontinue the cloning of items from the vending machines. (See Document #338-1)",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                Bold {
+                    words: [
+                        Text {
+                            contents: "Addendum #2:",
+                        },
+                    ],
+                },
+                Text {
+                    contents: " Dr. Klein has requested that personnel discontinue the cloning of personal items. (See Document #338-1)",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                Bold {
+                    words: [
+                        Text {
+                            contents: "Addendum #3:",
+                        },
+                    ],
+                },
+                Text {
+                    contents: " Dr. Klein has requested that personnel discontinue the cloning of movies and music. (See Document #338-1)",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                Bold {
+                    words: [
+                        Text {
+                            contents: "Addendum #4:",
+                        },
+                    ],
+                },
+                Text {
+                    contents: " Dr. Klein has requested that personnel discontinue the cloning of cans of Miller, Budweiser, and Foster\'s.  Dr. Klein has furthermore expressed customary disapproval of the quality of such cloned items. (See Document #338-1b)",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        HorizontalLine,
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                Bold {
+                    words: [
+                        Text {
+                            contents: "Document #338-1:",
+                        },
+                    ],
+                },
+                Text {
+                    contents: " \"I would like to remind all personnel that SCP-038 is not, I repeat, ",
+                },
+                Bold {
+                    words: [
+                        Text {
+                            contents: "not",
+                        },
+                    ],
+                },
+                Text {
+                    contents: " a toy. It should not be used for cloning car keys, movies, music, or items from the vending machines. If this behavior continues I will be forced to limit access to SCP-038.",
+                },
+            ],
+        },
+        Words {
+            centered: false,
+            words: [
+                Text {
+                    contents: "- Dr. Klein\"",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                Bold {
+                    words: [
+                        Text {
+                            contents: "Document #338-2:",
+                        },
+                    ],
+                },
+                Text {
+                    contents: " It has been noted that SCP-038 is able to clone ",
+                },
+                Link {
+                    href: "SCP-500",
+                    target: None,
+                    text: Url,
+                },
+                Text {
+                    contents: " ",
+                },
+                Text {
+                    contents: "—",
+                },
+                Text {
+                    contents: " however, such pills only work 30% of the time, with chance of successful healing dropping as time since cloned increases. In 60% of the cases where the infection is permanent, symptoms of infection remain, though further infection is neutralized.",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        HorizontalLine,
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                Bold {
+                    words: [
+                        Text {
+                            contents: "SCP-038 Partial Testing Log - select experiments only",
+                        },
+                    ],
+                },
+            ],
+        },
+        Words {
+            centered: false,
+            words: [
+                Subscript {
+                    words: [
+                        Bold {
+                            words: [
+                                Text {
+                                    contents: "For full test records and reports, contact affiliated researchers for authorization",
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                Bold {
+                    words: [
+                        Text {
+                            contents: "Date:",
+                        },
+                    ],
+                },
+                Text {
+                    contents: " 11/08/████",
+                },
+            ],
+        },
+        Words {
+            centered: false,
+            words: [
+                Bold {
+                    words: [
+                        Text {
+                            contents: "Intent:",
+                        },
+                    ],
+                },
+                Text {
+                    contents: " Confirmation of mass limit: investigation into consequences of exceeding limit.",
+                },
+            ],
+        },
+        Words {
+            centered: false,
+            words: [
+                Bold {
+                    words: [
+                        Text {
+                            contents: "Summary of test results:",
+                        },
+                    ],
+                },
+                Text {
+                    contents: " 400 pound steel ingot made contact with the outer bark of SCP-038. Chamber vacated as a precaution. Cloned ingot grew at typical speed, but growth halted abruptly short of completion. Examination of the end of the aborted facsimile revealed a rough texture superficially resembling miniature-scale tree bark. Item detached from SCP-038 as typical, and was subsequently found to weigh 90.91 kilograms, or almost precisely 200 pounds.",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                Bold {
+                    words: [
+                        Text {
+                            contents: "Date:",
+                        },
+                    ],
+                },
+                Text {
+                    contents: " 11/08/████",
+                },
+            ],
+        },
+        Words {
+            centered: false,
+            words: [
+                Bold {
+                    words: [
+                        Text {
+                            contents: "Intent:",
+                        },
+                    ],
+                },
+                Text {
+                    contents: " Investigation into duplication of non-biological animate matter.",
+                },
+            ],
+        },
+        Words {
+            centered: false,
+            words: [
+                Bold {
+                    words: [
+                        Text {
+                            contents: "Summary of test results:",
+                        },
+                    ],
+                },
+                Text {
+                    contents: " ",
+                },
+                Link {
+                    href: "SCP-173",
+                    target: None,
+                    text: Url,
+                },
+                Text {
+                    contents: ", deemed a suitable test subject because of its lack of verifiable life processes, introduced into containment chamber by Class-D personnel. Contact made with the outer bark of SCP-038, and SCP-173 returned immediately to containment. SCP-173 facsimile began development at typical speed, beginning at point of contact. As consistent with previous results, growth halted at the 200-pound threshold, in this case terminating development after replication of the head, right arm, and partial upper torso. Class-D test subject was ordered to break eye contact with clone. When test subject eventually blinked, no movement was observed in cloned material. Extinguishing and reestablishment of containment chamber light supply revealed no apparent reaction from cloned material. Experiment concluded. During storage of cloned portion of SCP-173, it was observed that the partial facsimile was in fact making violent gestures, at a dramatically slower rate. Movement was shown to continue regardless of state of observation.",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                FootnoteBlock,
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Div {
+            id: None,
+            class: Some(
+                "\"footer-wikiwalk-nav\"",
+            ),
+            style: None,
+            lines: [
+                Align {
+                    alignment: Center,
+                    lines: [
+                        Words {
+                            centered: false,
+                            words: [
+                                Text {
+                                    contents: "« ",
+                                },
+                                Link {
+                                    href: "SCP-037",
+                                    target: None,
+                                    text: Url,
+                                },
+                                Text {
+                                    contents: " | SCP-038 | ",
+                                },
+                                Link {
+                                    href: "SCP-039",
+                                    target: None,
+                                    text: Url,
+                                },
+                                Text {
+                                    contents: " »",
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        },
+    ],
+}

@@ -40,12 +40,14 @@ macro_rules! file_name {
     ($path:expr) => ( $path.file_name().expect("Unable to get file name").to_string_lossy() )
 }
 
-const TEST_BLACKLIST: [&str; 17] = [
+const TEST_BLACKLIST: [&str; 19] = [
     "scp-003",
     "scp-008",
     "scp-009",
     "scp-029",
     "scp-030",
+    "scp-032",
+    "scp-039",
     "scp-1294-j",
     "scp-3597",
     "scp-3999",
@@ -104,7 +106,6 @@ fn iterate_input_files<F: FnMut(&Path)>(mut f: F) {
             .extension()
             .expect("Unable to get file extension");
         if ext != "ftml" {
-            println!("Skipping non-ftml file {}", input_file.display());
             continue;
         }
 
