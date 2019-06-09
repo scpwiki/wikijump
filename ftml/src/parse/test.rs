@@ -28,7 +28,7 @@ use crate::include::NullIncluder;
 use pest::Parser;
 use super::{parse, Rule, WikidotParser};
 
-const VALID_INPUT_STRINGS: [&str; 122] = [
+const VALID_INPUT_STRINGS: [&str; 124] = [
     "",
     "@@ apple @@ @@banana@@",
     "@@ [!-- literal comment @@ durian",
@@ -151,6 +151,8 @@ const VALID_INPUT_STRINGS: [&str; 122] = [
     "[[file some_image.png]]",
     "[[* FILE /dir/file ]]",
     "[[ file  some_image.png | link text ]]",
+    "[[css]]\nsome-class {\n  display: none;\n}\n[[/css]]",
+    "[[ STYLE ]]\na:hover {\n  color: blue;\n}\n[[/ STYLE ]]",
 ];
 
 const VALID_FILTER_STRINGS: [&str; 12] = [
@@ -168,7 +170,7 @@ const VALID_FILTER_STRINGS: [&str; 12] = [
     " omg... he actually did it ",
 ];
 
-const INVALID_INPUT_STRINGS: [&str; 68] = [
+const INVALID_INPUT_STRINGS: [&str; 70] = [
     "@@ raw value",
     "`` legacy raw value",
     "@@ @@ @@",
@@ -237,6 +239,8 @@ const INVALID_INPUT_STRINGS: [&str; 68] = [
     "[[html]]",
     "[[iframe]]",
     "[[iframe https://example.com]]\ncontents\n[[/iframe]]\n",
+    "[[css]]",
+    "[[style]]",
 ];
 
 const INVALID_FILTER_STRINGS: [&str; 1] = ["[!-- alpha --] [[ eref "];

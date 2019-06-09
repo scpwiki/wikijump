@@ -54,7 +54,7 @@ pub fn full_transform(text: &mut String, wrap: bool) -> Result<String> {
     if wrap {
         let mut buffer = format!(
             "<html><head><style>{}</style></head><body>\n",
-            output.style(),
+            output.style,
         );
 
         buffer.push_str(&output.html);
