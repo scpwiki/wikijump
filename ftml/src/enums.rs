@@ -141,6 +141,13 @@ impl Display for HeadingLevel {
 }
 
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum LinkText<'a> {
+    Text(&'a str),
+    Url,
+    Article,
+}
+
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum ListStyle {
     Bullet,
     Numbered,

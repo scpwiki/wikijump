@@ -50,11 +50,10 @@ mod tab;
 
 mod prelude {
     pub use crate::Result;
+    pub use crate::enums::{AnchorTarget, LinkText};
     pub use std::borrow::Cow;
     pub use std::convert::TryFrom;
     pub use super::super::prelude::*;
-
-    use crate::enums::AnchorTarget;
 
     pub fn get_link_target(pair: Pair<Rule>) -> Option<AnchorTarget> {
         debug_assert_eq!(pair.as_rule(), Rule::link_newtab);
@@ -67,7 +66,7 @@ mod prelude {
     }
 }
 
-use crate::enums::{Alignment, AnchorTarget};
+use crate::enums::Alignment;
 use self::prelude::*;
 use std::collections::HashMap;
 
@@ -195,7 +194,7 @@ pub enum Word<'a> {
     Link {
         href: &'a str,
         target: Option<AnchorTarget>,
-        text: Option<&'a str>,
+        text: LinkText<'a>,
     },
     Math {
         expr: &'a str,

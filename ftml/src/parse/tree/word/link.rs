@@ -33,7 +33,7 @@ pub fn parse_bare(pair: Pair<Rule>) -> Word {
     Word::Link {
         href,
         target,
-        text: None,
+        text: LinkText::Url,
     }
 }
 
@@ -47,11 +47,14 @@ pub fn parse_page(pair: Pair<Rule>) -> Word {
         .expect("LinkPage pairs iterator had only one element")
         .as_str();
 
-    let use_page_title = pairs.next().is_some();
-    let text = if use_page_title {
-        pairs.next().map(|pair| pair.as_str())
+    let use_link_name = pairs.next().is_some();
+    let text = if use_link_name {
+        match pairs.next() {
+            Some(pair) => LinkText::Text(pair.as_str()),
+            None => LinkText::Article,
+        }
     } else {
-        Some("")
+        LinkText::Url
     };
 
     Word::Link { href, target, text }
@@ -70,17 +73,16 @@ pub fn parse_url(pair: Pair<Rule>) -> Word {
         .next()
         .expect("LinkUrl pairs iterator had only two elements")
         .as_str();
-    let text = Some(text);
 
     match href.as_rule() {
         Rule::email => Word::Email {
             address: href.as_str(),
-            text,
+            text: Some(text),
         },
         Rule::link_url_href => Word::Link {
-            href: href.as_str(),
             target,
-            text,
+            href: href.as_str(),
+            text: LinkText::Text(text),
         },
         _ => panic!("Invalid rule for link_url: {:?}", href.as_rule()),
     }

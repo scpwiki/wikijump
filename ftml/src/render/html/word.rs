@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::enums::LinkText;
 use percent_encoding::{percent_encode, DEFAULT_ENCODE_SET};
 use self::Word::*;
 use super::module;
@@ -91,12 +92,12 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
 
             let title;
             let text = match text {
-                Some("") => {
+                LinkText::Article => {
                     title = ctx.get_title()?;
                     &title
                 }
-                Some(text) => text,
-                None => href,
+                LinkText::Text(text) => text,
+                LinkText::Url => href,
             };
 
             ctx.push('>');
