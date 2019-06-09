@@ -1,0 +1,480 @@
+SyntaxTree {
+    lines: [
+        Align {
+            alignment: Right,
+            lines: [
+                Words {
+                    centered: false,
+                    words: [
+                        Module {
+                            name: "Rate",
+                            arguments: {},
+                            contents: None,
+                        },
+                    ],
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Align {
+            alignment: Center,
+            lines: [
+                QuoteBlock {
+                    id: None,
+                    class: None,
+                    style: None,
+                    lines: [
+                        Heading {
+                            level: One,
+                            words: [
+                                Text {
+                                    contents: "BY ORDER OF THE OVERSEER COUNCIL",
+                                },
+                            ],
+                        },
+                        Heading {
+                            level: Two,
+                            words: [
+                                Text {
+                                    contents: "THIS FILE IS SUBJECT TO LEVEL 4 CLASSIFICATION",
+                                },
+                            ],
+                        },
+                        Heading {
+                            level: One,
+                            words: [
+                                Text {
+                                    contents: "== LEVEL 4 CLEARANCE IS REQUIRED ==",
+                                },
+                            ],
+                        },
+                    ],
+                },
+                Newlines {
+                    count: 1,
+                },
+                Words {
+                    centered: false,
+                    words: [
+                        Raw {
+                            contents: "",
+                        },
+                    ],
+                },
+                Words {
+                    centered: false,
+                    words: [
+                        Raw {
+                            contents: "",
+                        },
+                    ],
+                },
+                Collapsible {
+                    show_text: Some(
+                        "- Please input security credentials -",
+                    ),
+                    hide_text: Some(
+                        "- Security clearance adequate. Accessing file…",
+                    ),
+                    id: None,
+                    class: None,
+                    style: None,
+                    show_top: true,
+                    show_bottom: false,
+                    lines: [
+                        Newlines {
+                            count: 1,
+                        },
+                        Align {
+                            alignment: Left,
+                            lines: [
+                                Words {
+                                    centered: false,
+                                    words: [
+                                        Bold {
+                                            words: [
+                                                Text {
+                                                    contents: "Item #:",
+                                                },
+                                            ],
+                                        },
+                                        Text {
+                                            contents: " SCP-008",
+                                        },
+                                    ],
+                                },
+                                Newlines {
+                                    count: 1,
+                                },
+                                Words {
+                                    centered: false,
+                                    words: [
+                                        Bold {
+                                            words: [
+                                                Text {
+                                                    contents: "Object Class:",
+                                                },
+                                            ],
+                                        },
+                                        Text {
+                                            contents: " Euclid",
+                                        },
+                                    ],
+                                },
+                                Newlines {
+                                    count: 1,
+                                },
+                                Words {
+                                    centered: false,
+                                    words: [
+                                        Bold {
+                                            words: [
+                                                Text {
+                                                    contents: "Special Containment Procedures:",
+                                                },
+                                            ],
+                                        },
+                                        Text {
+                                            contents: " SCP-008 samples have been deemed Class V extreme biological hazards, and all related protocols apply. Incineration and irradiation measures will be deployed in the event of political or military action which may result in the facility being dismantled; a power failure; or zero communications from operatives or outside channels during any given eight hour period.",
+                                        },
+                                    ],
+                                },
+                                Newlines {
+                                    count: 1,
+                                },
+                                Words {
+                                    centered: false,
+                                    words: [
+                                        Text {
+                                            contents: "The quarantine period for operatives leaving the facility is four months. If a breach has occurred, incineration and irradiation measures shall be deployed. It should be the policy of all G2 sites to not prepare an evacuation procedure.",
+                                        },
+                                    ],
+                                },
+                                Newlines {
+                                    count: 1,
+                                },
+                                Words {
+                                    centered: false,
+                                    words: [
+                                        Bold {
+                                            words: [
+                                                Text {
+                                                    contents: "Description:",
+                                                },
+                                            ],
+                                        },
+                                        Text {
+                                            contents: " SCP-008 is a complex prion, samples of which are stored in each of the known G2 sites. Research into SCP-008 is highly classified and primarily aimed at preventing research which may lead to the synthesis of SCP-008 in the distant future. Traits of the SCP-008 prion include:",
+                                        },
+                                    ],
+                                },
+                                Newlines {
+                                    count: 1,
+                                },
+                                List {
+                                    style: Bullet,
+                                    depth: 0,
+                                    items: [
+                                        Words {
+                                            centered: false,
+                                            words: [
+                                                Text {
+                                                    contents: "100% infectiousness.",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                List {
+                                    style: Bullet,
+                                    depth: 0,
+                                    items: [
+                                        Words {
+                                            centered: false,
+                                            words: [
+                                                Text {
+                                                    contents: "100% lethality.",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                List {
+                                    style: Bullet,
+                                    depth: 0,
+                                    items: [
+                                        Words {
+                                            centered: false,
+                                            words: [
+                                                Text {
+                                                    contents: "Transmission through exposed mucous membranes and all bodily fluids.",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                List {
+                                    style: Bullet,
+                                    depth: 0,
+                                    items: [
+                                        Words {
+                                            centered: false,
+                                            words: [
+                                                Text {
+                                                    contents: "Not airborne or waterborne.",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                Newlines {
+                                    count: 1,
+                                },
+                                Words {
+                                    centered: false,
+                                    words: [
+                                        Text {
+                                            contents: "Symptoms of infection with SCP-008 manifest no more than three hours after exposure, and include:",
+                                        },
+                                    ],
+                                },
+                                Newlines {
+                                    count: 1,
+                                },
+                                List {
+                                    style: Bullet,
+                                    depth: 0,
+                                    items: [
+                                        Words {
+                                            centered: false,
+                                            words: [
+                                                Text {
+                                                    contents: "Flu-like symptoms with high fever, plus severe dementia in later stages.",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                List {
+                                    style: Bullet,
+                                    depth: 0,
+                                    items: [
+                                        Words {
+                                            centered: false,
+                                            words: [
+                                                Text {
+                                                    contents: "Coma onset approximately 20 hours after first symptoms appear and 12 hours after noticeable dementia. Coma onset will be considered onset of death.",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                List {
+                                    style: Bullet,
+                                    depth: 0,
+                                    items: [
+                                        Words {
+                                            centered: false,
+                                            words: [
+                                                Text {
+                                                    contents: "A period of sporadic cellular necrosis occurs which comes to resemble gangrene. Surviving tissue assumes its original function and is highly resilient.",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                List {
+                                    style: Bullet,
+                                    depth: 0,
+                                    items: [
+                                        Words {
+                                            centered: false,
+                                            words: [
+                                                Text {
+                                                    contents: "Red blood cells greatly increase oxygen storage capacity, resulting in slower blood flow and increased muscle endurance and strength.",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                List {
+                                    style: Bullet,
+                                    depth: 0,
+                                    items: [
+                                        Words {
+                                            centered: false,
+                                            words: [
+                                                Text {
+                                                    contents: "Nervous and muscular systems are unaffected by total organ failure for several hours.",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                List {
+                                    style: Bullet,
+                                    depth: 0,
+                                    items: [
+                                        Words {
+                                            centered: false,
+                                            words: [
+                                                Text {
+                                                    contents: "Metabolism may decrease to extremely low levels, allowing subject to survive for over 10 years without nutrition.",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                List {
+                                    style: Bullet,
+                                    depth: 0,
+                                    items: [
+                                        Words {
+                                            centered: false,
+                                            words: [
+                                                Text {
+                                                    contents: "High blood viscosity results in negligible blood flow from gunshot, puncture, and slashing injuries.",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                List {
+                                    style: Bullet,
+                                    depth: 0,
+                                    items: [
+                                        Words {
+                                            centered: false,
+                                            words: [
+                                                Text {
+                                                    contents: "Conditioned behavior, motor controls, and instinctive behavioral mechanisms are damaged, and cognitive abilities are severely retarded and erratic. Animals experience excessive brain necrosis and are inactive.",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                List {
+                                    style: Bullet,
+                                    depth: 0,
+                                    items: [
+                                        Words {
+                                            centered: false,
+                                            words: [
+                                                Text {
+                                                    contents: "Subject can adapt to its damaged nervous systems but is limited to basic physical activities, including standing up, balancing on two legs, walking, biting, grabbing, and crawling. Subject will energetically move towards sights, sounds, and smells it associates with living humans. Subject will attempt to ingest living humans if physical contact is made.",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                List {
+                                    style: Bullet,
+                                    depth: 0,
+                                    items: [
+                                        Words {
+                                            centered: false,
+                                            words: [
+                                                Text {
+                                                    contents: "Neutralizing fully-infected subjects requires significant cranial trauma.",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                Newlines {
+                                    count: 1,
+                                },
+                                Words {
+                                    centered: false,
+                                    words: [
+                                        Text {
+                                            contents: "There is strong evidence to suggest SCP-008 itself did not form naturally on Earth, since variants of similar complexity would have displaced much of the ecosystem. In 1959, a short collaborative effort with the USSR to locate G2 sites and eliminate SCP-008 was negotiated following their discovery. The status of SCP-008 in Russian custody since collaboration ended is unknown.",
+                                        },
+                                    ],
+                                },
+                                Newlines {
+                                    count: 1,
+                                },
+                                Words {
+                                    centered: false,
+                                    words: [
+                                        Bold {
+                                            words: [
+                                                Text {
+                                                    contents: "Addendum 008-1",
+                                                },
+                                            ],
+                                        },
+                                        Text {
+                                            contents: ": ",
+                                        },
+                                        Link {
+                                            href: "SCP-500",
+                                            target: None,
+                                            text: Url,
+                                        },
+                                        Text {
+                                            contents: " has been found to be able to completely cure SCP-008 even in the advanced stages of the disease.",
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                FootnoteBlock,
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Div {
+            id: None,
+            class: Some(
+                "\"footer-wikiwalk-nav\"",
+            ),
+            style: None,
+            lines: [
+                Align {
+                    alignment: Center,
+                    lines: [
+                        Words {
+                            centered: false,
+                            words: [
+                                Text {
+                                    contents: "« ",
+                                },
+                                Link {
+                                    href: "SCP-007",
+                                    target: None,
+                                    text: Url,
+                                },
+                                Text {
+                                    contents: " | SCP-008 | ",
+                                },
+                                Link {
+                                    href: "SCP-009",
+                                    target: None,
+                                    text: Url,
+                                },
+                                Text {
+                                    contents: " »",
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        },
+    ],
+}
