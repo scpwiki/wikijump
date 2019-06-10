@@ -1,2 +1,3 @@
+test/ linguist-vendored
 test/*.html binary
 test/*.txt binary
