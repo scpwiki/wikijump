@@ -20,16 +20,18 @@
 
 //! Internal state object used during rendering.
 
+use super::HtmlOutput;
+use crate::enums::HtmlMeta;
 use crate::{ArticleHandle, Result};
 use std::collections::HashSet;
 use std::fmt::{self, Debug, Write};
 use std::sync::Arc;
-use super::HtmlOutput;
 
 #[derive(Clone)]
 pub struct HtmlContext {
     html: String,
     style: String,
+    meta: Vec<HtmlMeta>,
     write_mode: WriteMode,
     footnotes: FootnoteContext,
     id: u64,
@@ -41,6 +43,7 @@ impl HtmlContext {
         HtmlContext {
             html: String::new(),
             style: String::new(),
+            meta: Vec::new(),
             write_mode: WriteMode::Html,
             footnotes: FootnoteContext::new(),
             handle,
@@ -152,6 +155,7 @@ impl Into<HtmlOutput> for HtmlContext {
         HtmlOutput {
             html: self.html,
             style: self.style,
+            meta: self.meta,
         }
     }
 }

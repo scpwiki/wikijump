@@ -163,3 +163,9 @@ impl Display for ListStyle {
         write!(f, "{}", tag)
     }
 }
+
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+pub enum HtmlMeta {
+    Meta { name: String, content: String },
+    HttpEquiv { name: String, content: String },
+}

@@ -19,21 +19,21 @@
  */
 
 mod css;
-mod rate;
 mod listpages;
+mod rate;
 
 mod prelude {
+    pub use super::super::HtmlContext;
+    pub use super::Module;
     pub use crate::{Error, Result};
     pub use std::borrow::Cow;
     pub use std::collections::HashMap;
     pub use std::fmt::Write;
-    pub use super::Module;
-    pub use super::super::HtmlContext;
 }
 
-use self::prelude::*;
 use self::css::CssModule;
 use self::listpages::ListPagesModule;
+use self::prelude::*;
 use self::rate::RateModule;
 
 pub trait Module {

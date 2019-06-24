@@ -26,16 +26,17 @@ mod paragraph;
 mod word;
 
 mod prelude {
-    pub use crate::{Error, Result, SyntaxTree};
-    pub use crate::parse::{Paragraph, Word};
-    pub use std::fmt::{self, Display, Write};
+    pub use super::super::Render;
     pub use super::paragraph::{render_paragraph, render_paragraphs};
     pub use super::word::{render_word, render_words};
-    pub use super::super::Render;
     pub use super::HtmlContext;
+    pub use crate::enums::HtmlMeta;
+    pub use crate::parse::{Paragraph, Word};
+    pub use crate::{Error, Result, SyntaxTree};
+    pub use std::fmt::{self, Display, Write};
 
-    use htmlescape::{encode_attribute_w, encode_minimal_w};
     use super::buffer::StringBuf;
+    use htmlescape::{encode_attribute_w, encode_minimal_w};
 
     pub fn escape_attr(ctx: &mut HtmlContext, attr: &str) -> Result<()> {
         let mut writer = StringBuf(ctx.buffer());
@@ -61,9 +62,9 @@ mod prelude {
 
 pub use self::context::HtmlContext;
 
-use crate::{postfilter, ArticleHandle};
 use self::finish::render_finish;
 use self::prelude::*;
+use crate::{postfilter, ArticleHandle};
 use std::sync::Arc;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -86,4 +87,5 @@ impl Render for HtmlRender {
 pub struct HtmlOutput {
     pub html: String,
     pub style: String,
+    pub meta: Vec<HtmlMeta>,
 }

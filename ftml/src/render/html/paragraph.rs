@@ -18,9 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::enums::Alignment;
 use self::Paragraph::*;
 use super::prelude::*;
+use crate::enums::Alignment;
 
 pub fn render_paragraphs<'a, I, L>(ctx: &mut HtmlContext, paragraphs: I) -> Result<()>
 where

@@ -18,14 +18,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::enums::LinkText;
-use percent_encoding::{percent_encode, DEFAULT_ENCODE_SET};
 use self::Word::*;
 use super::module;
 use super::prelude::*;
+use crate::enums::LinkText;
+use percent_encoding::{percent_encode, DEFAULT_ENCODE_SET};
 
 macro_rules! percent_encode {
-    ($input:expr) => ( percent_encode($input.as_ref(), DEFAULT_ENCODE_SET) )
+    ($input:expr) => {
+        percent_encode($input.as_ref(), DEFAULT_ENCODE_SET)
+    };
 }
 
 pub fn render_words<'a, I, W>(ctx: &mut HtmlContext, words: I) -> Result<()>
@@ -268,7 +270,10 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             ctx.push_str("</div>");
         }
         &Raw { contents } => escape_html(ctx, contents)?,
-        &Size { size, ref paragraphs } => {
+        &Size {
+            size,
+            ref paragraphs,
+        } => {
             write!(ctx, "<span style=\"size: {};\">", size)?;
             render_paragraphs(ctx, paragraphs)?;
             ctx.push_str("</span>");
