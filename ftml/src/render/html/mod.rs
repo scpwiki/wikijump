@@ -21,6 +21,7 @@
 mod buffer;
 mod context;
 mod finish;
+mod meta;
 mod module;
 mod paragraph;
 mod word;
@@ -61,6 +62,7 @@ mod prelude {
 }
 
 pub use self::context::HtmlContext;
+pub use self::meta::HtmlMeta;
 
 use self::finish::render_finish;
 use self::prelude::*;
@@ -88,11 +90,4 @@ pub struct HtmlOutput {
     pub html: String,
     pub style: String,
     pub meta: Vec<HtmlMeta>,
-}
-
-#[derive(Debug, Clone)]
-pub struct HtmlMeta {
-    pub tag_type: HtmlMetaType,
-    pub name: String,
-    pub value: String,
 }

@@ -1,5 +1,5 @@
 /*
- * render/html/buffer.rs
+ * render/html/meta.rs
  *
  * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith
@@ -18,25 +18,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! An a buffer wrapper for `String` that implements `io::Write`.
-//! It performs an assertion that all written data is valid UTF-8.
-//! This is to allow us to use the htmlescape module's writer functions.
+use super::prelude::*;
 
-use std::io::{self, Write};
-use std::str;
+#[derive(Debug, Clone)]
+pub struct HtmlMeta {
+    pub tag_type: HtmlMetaType,
+    pub name: String,
+    pub value: String,
+}
 
-#[derive(Debug)]
-pub struct StringBuf<'a>(pub &'a mut String);
-
-impl<'a> Write for StringBuf<'a> {
-    fn write(&mut self, bytes: &[u8]) -> io::Result<usize> {
-        let string = str::from_utf8(bytes).expect("String written by htmlescape wasn't UTF-8");
-        self.0.push_str(string);
-        Ok(bytes.len())
-    }
-
-    #[inline]
-    fn flush(&mut self) -> io::Result<()> {
+impl HtmlMeta {
+    pub fn render(&self, ctx: &mut HtmlContext) -> Result<()> {
+        write!(ctx, "<meta {}=\"", self.tag_type.tag_name())?;
+        escape_attr(ctx, &self.name)?;
+        ctx.push_str("\" content=\"");
+        escape_attr(ctx, &self.value)?;
+        ctx.push_str("\" />");
         Ok(())
     }
 }
