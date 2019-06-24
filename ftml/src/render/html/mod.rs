@@ -29,8 +29,8 @@ mod prelude {
     pub use super::super::Render;
     pub use super::paragraph::{render_paragraph, render_paragraphs};
     pub use super::word::{render_word, render_words};
-    pub use super::HtmlContext;
-    pub use crate::enums::HtmlMeta;
+    pub use super::{HtmlContext, HtmlMeta};
+    pub use crate::enums::HtmlMetaType;
     pub use crate::parse::{Paragraph, Word};
     pub use crate::{Error, Result, SyntaxTree};
     pub use std::fmt::{self, Display, Write};
@@ -88,4 +88,11 @@ pub struct HtmlOutput {
     pub html: String,
     pub style: String,
     pub meta: Vec<HtmlMeta>,
+}
+
+#[derive(Debug, Clone)]
+pub struct HtmlMeta {
+    pub tag_type: HtmlMetaType,
+    pub name: String,
+    pub value: String,
 }

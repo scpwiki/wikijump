@@ -164,8 +164,21 @@ impl Display for ListStyle {
     }
 }
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
-pub enum HtmlMeta {
-    Meta { name: String, content: String },
-    HttpEquiv { name: String, content: String },
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum HtmlMetaType {
+    Name,
+    HttpEquiv,
+    Property,
+}
+
+impl HtmlMetaType {
+    pub fn tag_name(self) -> &'static str {
+        use self::HtmlMetaType::*;
+
+        match self {
+            Name => "name",
+            HttpEquiv => "http-equiv",
+            Property => "property",
+        }
+    }
 }

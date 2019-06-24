@@ -20,8 +20,7 @@
 
 //! Internal state object used during rendering.
 
-use super::HtmlOutput;
-use crate::enums::HtmlMeta;
+use super::{HtmlMeta, HtmlOutput};
 use crate::{ArticleHandle, Result};
 use std::collections::HashSet;
 use std::fmt::{self, Debug, Write};
