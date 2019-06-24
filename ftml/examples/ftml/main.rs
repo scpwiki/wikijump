@@ -24,6 +24,9 @@ extern crate clap;
 extern crate ftml;
 extern crate notify;
 
+#[macro_use]
+extern crate str_macro;
+
 mod context;
 mod file;
 mod runner;
