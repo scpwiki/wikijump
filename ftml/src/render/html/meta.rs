@@ -28,12 +28,12 @@ pub struct HtmlMeta {
 }
 
 impl HtmlMeta {
-    pub fn render(&self, ctx: &mut HtmlContext) -> Result<()> {
-        write!(ctx, "<meta {}=\"", self.tag_type.tag_name())?;
-        escape_attr(ctx, &self.name)?;
-        ctx.push_str("\" content=\"");
-        escape_attr(ctx, &self.value)?;
-        ctx.push_str("\" />");
+    pub fn render(&self, buffer: &mut String) -> Result<()> {
+        write!(buffer, "<meta {}=\"", self.tag_type.tag_name())?;
+        escape_attr_str(buffer, &self.name)?;
+        buffer.push_str("\" content=\"");
+        escape_attr_str(buffer, &self.value)?;
+        buffer.push_str("\" />");
         Ok(())
     }
 }

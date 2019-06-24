@@ -39,18 +39,29 @@ mod prelude {
     use super::buffer::StringBuf;
     use htmlescape::{encode_attribute_w, encode_minimal_w};
 
+    #[inline]
     pub fn escape_attr(ctx: &mut HtmlContext, attr: &str) -> Result<()> {
-        let mut writer = StringBuf(ctx.buffer());
+        escape_attr_str(ctx.buffer(), attr)
+    }
+
+    pub fn escape_attr_str(buffer: &mut String, attr: &str) -> Result<()> {
+        let mut writer = StringBuf(buffer);
         encode_attribute_w(attr, &mut writer)?;
         Ok(())
     }
 
+    #[inline]
     pub fn escape_html(ctx: &mut HtmlContext, html: &str) -> Result<()> {
-        let mut writer = StringBuf(ctx.buffer());
+        escape_html_str(ctx.buffer(), html)
+    }
+
+    pub fn escape_html_str(buffer: &mut String, html: &str) -> Result<()> {
+        let mut writer = StringBuf(buffer);
         encode_minimal_w(html, &mut writer)?;
         Ok(())
     }
 
+    // TODO maybe deprecate this?
     pub fn write_tag_arg(ctx: &mut HtmlContext, arg_name: &str, value: &str) -> Result<()> {
         write!(ctx, " {}", arg_name)?;
         ctx.push_str("=\"");
