@@ -11,7 +11,9 @@ os:
 
 matrix:
   allow_failures:
-    - rust: nightly
+    - rust:
+      - beta
+      - nightly
     - os: windows
   fast_finish: true
 
