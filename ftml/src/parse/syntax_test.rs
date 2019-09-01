@@ -1,5 +1,5 @@
 /*
- * parse/test.rs
+ * parse/syntax_test.rs
  *
  * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith
