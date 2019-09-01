@@ -69,6 +69,7 @@ mod macros;
 mod enums;
 mod error;
 mod filter;
+mod handle;
 mod parse;
 mod render;
 
@@ -77,6 +78,7 @@ mod test;
 
 pub use self::error::Error;
 pub use self::filter::{postfilter, prefilter, Includer};
+pub use self::handle::RemoteHandle;
 pub use self::parse::{parse, SyntaxTree};
 pub use self::render::{HtmlRender, PageInfo, Render, TreeRender};
 
@@ -94,7 +96,7 @@ mod backtrace {
 pub mod prelude {
     pub use super::{parse, prefilter, transform};
     pub use super::{
-        Error, HtmlRender, PageInfo, Render, Result, StdResult, SyntaxTree, TreeRender,
+        Error, HtmlRender, PageInfo, RemoteHandle, Render, Result, StdResult, SyntaxTree, TreeRender,
     };
 }
 

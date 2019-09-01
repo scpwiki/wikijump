@@ -21,9 +21,20 @@
 use super::finish::render_finish;
 use super::prelude::*;
 use crate::postfilter;
+use crate::RemoteHandle;
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub struct HtmlRender;
+#[derive(Debug)]
+pub struct HtmlRender {
+    handle: Box<dyn RemoteHandle>,
+}
+
+impl HtmlRender {
+    pub fn new<H: Into<Box<dyn RemoteHandle>>>(handle: H) -> Self {
+        let handle = handle.into();
+
+        HtmlRender { handle }
+    }
+}
 
 impl Render for HtmlRender {
     type Output = HtmlOutput;
