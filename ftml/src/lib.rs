@@ -77,7 +77,7 @@ mod render;
 #[cfg(test)]
 mod test;
 
-pub use self::error::Error;
+pub use self::error::{Error, RemoteError};
 pub use self::filter::{postfilter, prefilter, Includer};
 pub use self::handle::RemoteHandle;
 pub use self::parse::{parse, SyntaxTree};
@@ -108,4 +108,4 @@ pub mod include {
 
 pub type StdResult<T, E> = std::result::Result<T, E>;
 pub type Result<T> = StdResult<T, Error>;
-pub type RemoteResult<T> = StdResult<T, String>;
+pub type RemoteResult<T> = StdResult<T, RemoteError>;

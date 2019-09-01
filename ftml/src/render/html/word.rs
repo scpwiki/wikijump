@@ -324,8 +324,8 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             username,
             show_picture,
         } => {
-            // TODO get user info remotely
-            let user: Option<data::User> = None;
+            let handle = ctx.handle();
+            let user = handle.get_user_by_name(username)?;
 
             match user {
                 Some(user) => {

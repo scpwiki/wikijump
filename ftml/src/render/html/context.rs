@@ -70,6 +70,11 @@ impl<'i> HtmlContext<'i> {
     }
 
     #[inline]
+    pub fn handle(&self) -> Rc<dyn RemoteHandle> {
+        Rc::clone(&self.handle)
+    }
+
+    #[inline]
     pub fn footnotes(&self) -> &FootnoteContext {
         &self.footnotes
     }

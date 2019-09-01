@@ -21,6 +21,7 @@
 use crate::parse::ParseError;
 use std::error::Error as StdError;
 use std::str::Utf8Error;
+use std::ops::Deref;
 use std::{
     fmt::{self, Write},
     io,
@@ -34,6 +35,7 @@ pub enum Error {
     Io(io::Error),
     Utf8(Utf8Error),
     Parse(ParseError),
+    Remote(RemoteError),
     Fmt(fmt::Error),
 }
 
@@ -47,6 +49,7 @@ impl StdError for Error {
             Io(ref e) => e.description(),
             Utf8(ref e) => e.description(),
             Parse(ref e) => e.description(),
+            Remote(ref s) => s,
             Fmt(ref e) => e.description(),
         }
     }
@@ -59,6 +62,7 @@ impl StdError for Error {
             Io(ref e) => Some(e),
             Utf8(ref e) => Some(e),
             Parse(ref e) => Some(e),
+            Remote(_) => None,
             Fmt(ref e) => Some(e),
         }
     }
@@ -113,8 +117,42 @@ impl From<ParseError> for Error {
     }
 }
 
+impl From<RemoteError> for Error {
+    fn from(error: RemoteError) -> Self {
+        Error::Remote(error)
+    }
+}
+
 impl From<fmt::Error> for Error {
     fn from(error: fmt::Error) -> Self {
         Error::Fmt(error)
+    }
+}
+
+// Remote error wrapper
+#[must_use = "should handle errors"]
+#[derive(Debug)]
+pub struct RemoteError(String);
+
+impl RemoteError {
+    #[inline]
+    pub fn new(message: String) -> Self {
+        RemoteError(message)
+    }
+}
+
+impl AsRef<str> for RemoteError {
+    #[inline]
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
+}
+
+impl Deref for RemoteError {
+    type Target = str;
+
+    #[inline]
+    fn deref(&self) -> &str {
+        &self.0
     }
 }
