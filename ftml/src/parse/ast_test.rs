@@ -21,7 +21,7 @@
 //! Tests for the parser.
 //! This ensures that all input strings produce the expected output AST.
 
-use super::{parse, Paragraph, SyntaxTree, Word};
+use super::{parse, SyntaxTree};
 
 macro_rules! valid {
     ($input:expr, $expected:expr) => (

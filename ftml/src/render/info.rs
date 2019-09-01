@@ -29,7 +29,8 @@ pub struct PageInfo<'a> {
     /// The alternate title of this page.
     ///
     /// For SCPs this is its series listing title.
-    pub alt_title: &'a str,
+    /// If this is None then the main title is used instead.
+    pub alt_title: Option<&'a str>,
 
     /// The header of this page, if it's setting one.
     ///

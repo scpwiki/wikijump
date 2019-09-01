@@ -92,7 +92,7 @@ mod backtrace {
 }
 
 pub mod prelude {
-    pub use super::{Error, HtmlRender, Render, Result, StdResult, SyntaxTree, TreeRender};
+    pub use super::{Error, HtmlRender, PageInfo, Render, Result, StdResult, SyntaxTree, TreeRender};
     pub use super::{parse, prefilter, transform};
 }
 

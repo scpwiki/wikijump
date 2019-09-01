@@ -20,13 +20,11 @@
 
 use super::include::NullIncluder;
 use super::prelude::*;
-use super::render::NullHandle;
 use std::ffi::OsStr;
 use std::fmt::Write;
 use std::fs::{self, File};
 use std::io::Read;
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
 
 lazy_static! {
     static ref TEST_DIRECTORY: PathBuf = {
@@ -160,13 +158,22 @@ fn test_conversions() {
         output_file.push(input_file);
         output_file.set_extension("html");
 
+        let info = PageInfo {
+            title: "Test article",
+            alt_title: None,
+            header: None,
+            subheader: None,
+            rating: 0,
+            tags: &[],
+        };
+
         println!("Converting {}...", file_name!(input_file));
         let mut input_text = String::new();
         read_file(&mut input_text, input_file).expect("Unable to read input Wikidot source");
         read_file(&mut expected_html, &output_file).expect("Unable to read output HTML");
 
         let output =
-            transform::<HtmlRender>(0, Arc::new(NullHandle), &mut input_text, &NullIncluder)
+            transform::<HtmlRender>(&mut input_text, info, &NullIncluder)
                 .expect("Unable to transform Wikidot to HTML");
 
         assert_eq!(
