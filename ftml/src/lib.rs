@@ -95,7 +95,7 @@ mod backtrace {
 }
 
 pub mod prelude {
-    pub use super::{data, parse, prefilter, transform};
+    pub use super::{data, parse, prefilter};
     pub use super::{
         Error, HtmlRender, PageInfo, RemoteHandle, Render, Result, StdResult, SyntaxTree, TreeRender,
     };
@@ -108,15 +108,3 @@ pub mod include {
 
 pub type StdResult<T, E> = std::result::Result<T, E>;
 pub type Result<T> = StdResult<T, Error>;
-
-pub fn transform<R: Render>(
-    text: &mut String,
-    info: PageInfo,
-    renderer: &R,
-    includer: &dyn Includer,
-) -> Result<R::Output> {
-    prefilter(text, includer)?;
-    let tree = parse(text)?;
-    let output = renderer.render(&tree, info)?;
-    Ok(output)
-}

@@ -28,10 +28,23 @@ pub use self::info::PageInfo;
 pub use self::null::NullRender;
 pub use self::tree::TreeRender;
 
-use crate::{Result, SyntaxTree};
+use crate::{Includer, Result, SyntaxTree};
+use crate::{parse, prefilter};
 
 pub trait Render {
     type Output;
 
     fn render(&self, tree: &SyntaxTree, info: PageInfo) -> Result<Self::Output>;
+
+    fn transform(
+        &self,
+        text: &mut String,
+        info: PageInfo,
+        includer: &dyn Includer,
+    ) -> Result<Self::Output> {
+        prefilter(text, includer)?;
+        let tree = parse(text)?;
+        let output = self.render(&tree, info)?;
+        Ok(output)
+    }
 }
