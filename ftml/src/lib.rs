@@ -66,6 +66,7 @@ extern crate str_macro;
 #[macro_use]
 mod macros;
 
+pub mod data;
 mod enums;
 mod error;
 mod filter;
@@ -94,7 +95,7 @@ mod backtrace {
 }
 
 pub mod prelude {
-    pub use super::{parse, prefilter, transform};
+    pub use super::{data, parse, prefilter, transform};
     pub use super::{
         Error, HtmlRender, PageInfo, RemoteHandle, Render, Result, StdResult, SyntaxTree, TreeRender,
     };

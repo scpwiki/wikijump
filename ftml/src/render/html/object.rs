@@ -22,8 +22,8 @@ use super::finish::render_finish;
 use super::prelude::*;
 use crate::postfilter;
 use crate::RemoteHandle;
+use std::fmt::{self, Debug};
 
-#[derive(Debug)]
 pub struct HtmlRender {
     handle: Box<dyn RemoteHandle>,
 }
@@ -46,6 +46,13 @@ impl Render for HtmlRender {
         postfilter(ctx.buffer())?;
 
         Ok(ctx.into())
+    }
+}
+
+impl Debug for HtmlRender {
+    #[inline]
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "HtmlRender {{ .. }}")
     }
 }
 

@@ -28,7 +28,8 @@ mod paragraph;
 mod word;
 
 mod prelude {
-    pub use super::super::info::{PageInfo, UserInfo};
+    pub use crate::data;
+    pub use super::super::info::PageInfo;
     pub use super::super::Render;
     use super::buffer::StringBuf;
     pub use super::paragraph::{render_paragraph, render_paragraphs};

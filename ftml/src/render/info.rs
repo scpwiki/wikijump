@@ -50,11 +50,3 @@ pub struct PageInfo<'a> {
     /// The current set of tags this page has.
     pub tags: &'a [&'a str],
 }
-
-/// Information about a site user. Fetched from the backend.
-#[derive(Debug, Clone)]
-pub struct UserInfo {
-    pub name: String,
-    pub id: u64,
-    pub avatar: String,
-}
