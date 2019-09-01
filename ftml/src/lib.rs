@@ -97,7 +97,8 @@ mod backtrace {
 pub mod prelude {
     pub use super::{data, parse, prefilter};
     pub use super::{
-        Error, HtmlRender, PageInfo, RemoteHandle, Render, Result, StdResult, SyntaxTree, TreeRender,
+        Error, HtmlRender, PageInfo, RemoteHandle, Render, Result, StdResult, SyntaxTree,
+        TreeRender,
     };
 }
 

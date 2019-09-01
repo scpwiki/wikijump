@@ -1,5 +1,5 @@
 /*
- * render/mod.rs
+ * handle/test.rs
  *
  * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith
@@ -18,33 +18,37 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod html;
-mod info;
-mod null;
-mod tree;
+use super::prelude::*;
 
-pub use self::html::HtmlRender;
-pub use self::info::PageInfo;
-pub use self::null::NullRender;
-pub use self::tree::TreeRender;
+#[derive(Debug, Copy, Clone)]
+pub struct TestHandle;
 
-use crate::{parse, prefilter};
-use crate::{Includer, Result, SyntaxTree};
+impl RemoteHandle for TestHandle {
+    fn get_user_by_name(&self, name: &str) -> RemoteResult<Option<User>> {
+        let user = User {
+            name: Cow::Owned(str!(name)),
+            id: 10000,
+        };
 
-pub trait Render {
-    type Output;
+        Ok(Some(user))
+    }
 
-    fn render(&self, tree: &SyntaxTree, info: PageInfo) -> Result<Self::Output>;
+    fn get_user_by_id(&self, id: u64) -> RemoteResult<Option<User>> {
+        let user = User {
+            name: Cow::Borrowed("SomeUserHere"),
+            id,
+        };
 
-    fn transform(
+        Ok(Some(user))
+    }
+
+    fn get_page(
         &self,
-        text: &mut String,
-        info: PageInfo,
-        includer: &dyn Includer,
-    ) -> Result<Self::Output> {
-        prefilter(text, includer)?;
-        let tree = parse(text)?;
-        let output = self.render(&tree, info)?;
-        Ok(output)
+        name: &str,
+        args: &HashMap<&str, &str>,
+    ) -> RemoteResult<Option<Cow<'static, str>>> {
+        let page = format!("<PAGE '{}' [{:#?}]>", name, args);
+
+        Ok(Some(Cow::Owned(page)))
     }
 }

@@ -338,8 +338,8 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
                     if show_picture {
                         write!(
                             ctx,
-                            "<img class=\"small\" src=\"{}\" alt=\"{}\">",
-                            &user.avatar, &user.name,
+                            "<img class=\"small\" src=\"https://example.com/avatars/{}\" alt=\"{}\">",
+                            &user.id, &user.name,
                         )?;
                     }
 

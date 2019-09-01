@@ -25,5 +25,4 @@ use std::borrow::Cow;
 pub struct User<'a> {
     pub name: Cow<'a, str>,
     pub id: u64,
-    pub avatar: String,
 }

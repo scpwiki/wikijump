@@ -28,13 +28,13 @@ mod paragraph;
 mod word;
 
 mod prelude {
-    pub use crate::data;
     pub use super::super::info::PageInfo;
     pub use super::super::Render;
     use super::buffer::StringBuf;
     pub use super::paragraph::{render_paragraph, render_paragraphs};
     pub use super::word::{render_word, render_words};
     pub use super::{HtmlContext, HtmlMeta};
+    pub use crate::data;
     pub use crate::enums::HtmlMetaType;
     pub use crate::parse::{Paragraph, Word};
     pub use crate::{Error, Result, SyntaxTree};

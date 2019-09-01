@@ -18,10 +18,29 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::RemoteResult;
-use crate::data::User;
+mod null;
+mod test;
+
+mod prelude {
+    pub use super::RemoteHandle;
+    pub use crate::data::User;
+    pub use crate::{RemoteError, RemoteResult};
+    pub use std::borrow::Cow;
+    pub use std::collections::HashMap;
+}
+
+use self::prelude::*;
+
+pub use self::null::NullHandle;
+pub use self::test::TestHandle;
 
 pub trait RemoteHandle {
     fn get_user_by_name(&self, name: &str) -> RemoteResult<Option<User>>;
     fn get_user_by_id(&self, id: u64) -> RemoteResult<Option<User>>;
+
+    fn get_page(
+        &self,
+        name: &str,
+        args: &HashMap<&str, &str>,
+    ) -> RemoteResult<Option<Cow<'static, str>>>;
 }

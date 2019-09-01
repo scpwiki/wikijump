@@ -20,8 +20,8 @@
 
 use crate::parse::ParseError;
 use std::error::Error as StdError;
-use std::str::Utf8Error;
 use std::ops::Deref;
+use std::str::Utf8Error;
 use std::{
     fmt::{self, Write},
     io,
