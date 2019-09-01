@@ -22,6 +22,7 @@ before_script:
   - rustup component add rustfmt
 
 stages:
+  - format
   - test
   - bin
   - doc
