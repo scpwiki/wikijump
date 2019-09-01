@@ -92,12 +92,8 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
                 write!(ctx, " target=\"{}\"", target)?;
             }
 
-            let title;
             let text = match text {
-                LinkText::Article => {
-                    title = ctx.get_title()?;
-                    &title
-                }
+                LinkText::Article => &ctx.info().title,
                 LinkText::Text(text) => text,
                 LinkText::Url => href,
             };
@@ -328,7 +324,8 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             username,
             show_picture,
         } => {
-            let user = ctx.handle().get_user(username)?;
+            // TODO get user info remotely
+            let user: Option<UserInfo> = None;
 
             match user {
                 Some(user) => {
@@ -337,11 +334,16 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
                         "<a href=\"http://www.wikidot.com/user:info/{}\">",
                         &user.name
                     )?;
-                    write!(
-                        ctx,
-                        "<img class=\"small\" src=\"{}\" alt=\"{}\"></a>",
-                        &user.avatar, &user.name,
-                    )?;
+
+                    if show_picture {
+                        write!(
+                            ctx,
+                            "<img class=\"small\" src=\"{}\" alt=\"{}\">",
+                            &user.avatar, &user.name,
+                        )?;
+                    }
+
+                    write!(ctx, "{}</a>", &user.name)?;
                 }
                 None => write!(ctx, "invalid username: {}", username)?,
             }

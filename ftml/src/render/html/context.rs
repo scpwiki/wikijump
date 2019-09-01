@@ -21,45 +21,35 @@
 //! Internal state object used during rendering.
 
 use super::{HtmlMeta, HtmlOutput};
-use crate::{ArticleHandle, Result};
-use std::collections::HashSet;
-use std::fmt::{self, Debug, Write};
-use std::sync::Arc;
+use crate::{PageInfo, Result};
+use std::fmt::{self, Write};
 
-#[derive(Clone)]
-pub struct HtmlContext {
+#[derive(Debug, Clone)]
+pub struct HtmlContext<'i> {
     html: String,
     style: String,
     meta: Vec<HtmlMeta>,
     write_mode: WriteMode,
     footnotes: FootnoteContext,
-    id: u64,
-    handle: Arc<dyn ArticleHandle>,
+    info: PageInfo<'i>,
 }
 
-impl HtmlContext {
-    pub fn new(id: u64, handle: Arc<dyn ArticleHandle>) -> Self {
+impl<'i> HtmlContext<'i> {
+    pub fn new(info: PageInfo<'i>) -> Self {
         HtmlContext {
             html: String::new(),
             style: String::new(),
             meta: Vec::new(),
             write_mode: WriteMode::Html,
             footnotes: FootnoteContext::new(),
-            handle,
-            id,
+            info,
         }
     }
 
     // Field access
     #[inline]
-    #[allow(dead_code)]
-    pub fn id(&self) -> u64 {
-        self.id
-    }
-
-    #[inline]
-    pub fn handle(&self) -> Arc<dyn ArticleHandle> {
-        Arc::clone(&self.handle)
+    pub fn info(&self) -> &PageInfo<'i> {
+        &self.info
     }
 
     #[inline]
@@ -131,25 +121,9 @@ impl HtmlContext {
         self.write_mode = WriteMode::Html;
         result
     }
-
-    // External calls
-    #[inline]
-    pub fn get_title(&self) -> Result<String> {
-        self.handle.get_title(self.id)
-    }
-
-    #[inline]
-    pub fn get_rating(&self) -> Result<Option<i32>> {
-        self.handle.get_rating(self.id)
-    }
-
-    #[inline]
-    pub fn get_tags(&mut self) -> Result<HashSet<String>> {
-        self.handle.get_tags(self.id)
-    }
 }
 
-impl Into<HtmlOutput> for HtmlContext {
+impl<'a> Into<HtmlOutput> for HtmlContext<'a> {
     fn into(self) -> HtmlOutput {
         HtmlOutput {
             html: self.html,
@@ -159,19 +133,7 @@ impl Into<HtmlOutput> for HtmlContext {
     }
 }
 
-impl Debug for HtmlContext {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("HtmlContext")
-            .field("html", &self.html)
-            .field("style", &self.style)
-            .field("footnotes", &self.footnotes)
-            .field("id", &self.id)
-            .field("handle", &"Arc<dyn ArticleHandle>")
-            .finish()
-    }
-}
-
-impl Write for HtmlContext {
+impl<'a> Write for HtmlContext<'a> {
     #[inline]
     fn write_str(&mut self, s: &str) -> fmt::Result {
         self.buffer().write_str(s)

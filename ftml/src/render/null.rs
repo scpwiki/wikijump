@@ -22,17 +22,16 @@
 //! Matches Wikidot's `/norender/true` specification.
 
 use super::Render;
-use crate::{ArticleHandle, Result, SyntaxTree};
-use std::sync::Arc;
+use crate::{PageInfo, Result, SyntaxTree};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct NullRender;
 
-impl Render for NullRender {
+impl<'i> Render<'i> for NullRender {
     type Output = &'static str;
 
     #[inline]
-    fn render(_id: u64, _handle: Arc<dyn ArticleHandle>, _tree: &SyntaxTree) -> Result<&'static str> {
+    fn render(_tree: &SyntaxTree, _info: PageInfo<'i>) -> Result<&'static str> {
         Ok("[[content]]")
     }
 }

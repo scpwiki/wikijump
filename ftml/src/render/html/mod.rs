@@ -31,6 +31,7 @@ mod prelude {
     use super::buffer::StringBuf;
     pub use super::paragraph::{render_paragraph, render_paragraphs};
     pub use super::super::Render;
+    pub use super::super::info::{PageInfo, UserInfo};
     pub use super::word::{render_word, render_words};
     pub use crate::{Error, Result, SyntaxTree};
     pub use crate::enums::HtmlMetaType;
@@ -76,17 +77,16 @@ pub use self::meta::HtmlMeta;
 
 use self::finish::render_finish;
 use self::prelude::*;
-use crate::{postfilter, ArticleHandle};
-use std::sync::Arc;
+use crate::postfilter;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct HtmlRender;
 
-impl Render for HtmlRender {
+impl<'i> Render<'i> for HtmlRender {
     type Output = HtmlOutput;
 
-    fn render(id: u64, handle: Arc<dyn ArticleHandle>, tree: &SyntaxTree) -> Result<HtmlOutput> {
-        let mut ctx = HtmlContext::new(id, handle);
+    fn render(tree: &SyntaxTree, info: PageInfo<'i>) -> Result<HtmlOutput> {
+        let mut ctx = HtmlContext::new(info);
         render_paragraphs(&mut ctx, tree.paragraphs())?;
         render_finish(&mut ctx)?;
         postfilter(ctx.buffer())?;

@@ -22,16 +22,15 @@
 //! For debugging or some other trivial renderer need.
 
 use super::Render;
-use crate::{ArticleHandle, Result, SyntaxTree};
-use std::sync::Arc;
+use crate::{PageInfo, Result, SyntaxTree};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct TreeRender;
 
-impl Render for TreeRender {
+impl<'i> Render<'i> for TreeRender {
     type Output = String;
 
-    fn render(_id: u64, _handle: Arc<dyn ArticleHandle>, tree: &SyntaxTree) -> Result<String> {
+    fn render(tree: &SyntaxTree, _info: PageInfo<'i>) -> Result<String> {
         Ok(format!("{:#?}", tree))
     }
 }
