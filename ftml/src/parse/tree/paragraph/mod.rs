@@ -19,13 +19,14 @@
  */
 
 macro_rules! extract {
-    ($regex:expr, $pair:expr) => (
-        $regex.captures($pair.as_str())
+    ($regex:expr, $pair:expr) => {
+        $regex
+            .captures($pair.as_str())
             .expect("Pair contents doesn't match regular expression")
             .get(1)
             .expect("No captures in regular expression")
             .as_str()
-    )
+    };
 }
 
 mod align;
@@ -39,8 +40,8 @@ mod quote;
 mod words;
 
 mod prelude {
-    pub use super::convert_internal_paragraphs;
     pub use super::super::prelude::*;
+    pub use super::convert_internal_paragraphs;
     pub use crate::{Error, Result};
     pub use std::borrow::Cow;
     pub use std::convert::TryFrom;
@@ -52,25 +53,28 @@ use std::collections::HashMap;
 
 lazy_static! {
     static ref HTML_BLOCK: Regex = {
-        RegexBuilder::new(r"(?x)
+        RegexBuilder::new(
+            r"(?x)
             \[\[\s*html\s*\]\]\n
             (?P<contents>(?:.*\n)?)
-            \[\[/\s*html\s*\]\]")
-            .case_insensitive(true)
-            .dot_matches_new_line(true)
-            .build()
-            .unwrap()
+            \[\[/\s*html\s*\]\]",
+        )
+        .case_insensitive(true)
+        .dot_matches_new_line(true)
+        .build()
+        .unwrap()
     };
-
     static ref JAVASCRIPT_BLOCK: Regex = {
-        RegexBuilder::new(r"(?x)
+        RegexBuilder::new(
+            r"(?x)
             \[\[\s*(?:js|javascript)\s*\]\]\n
             (?P<contents>(?:.*\n)?)
-            \[\[/\s*(?:js|javascript)\s*\]\]")
-            .case_insensitive(true)
-            .dot_matches_new_line(true)
-            .build()
-            .unwrap()
+            \[\[/\s*(?:js|javascript)\s*\]\]",
+        )
+        .case_insensitive(true)
+        .dot_matches_new_line(true)
+        .build()
+        .unwrap()
     };
 }
 

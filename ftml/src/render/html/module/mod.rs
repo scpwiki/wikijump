@@ -23,8 +23,8 @@ mod listpages;
 mod rate;
 
 mod prelude {
-    pub use super::Module;
     pub use super::super::HtmlContext;
+    pub use super::Module;
     pub use crate::{Error, Result};
     pub use std::borrow::Cow;
     pub use std::collections::HashMap;

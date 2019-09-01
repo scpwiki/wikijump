@@ -24,21 +24,21 @@
 use super::{parse, SyntaxTree};
 
 macro_rules! valid {
-    ($input:expr, $expected:expr) => (
+    ($input:expr, $expected:expr) => {
         match parse($input) {
             Ok(ast) => assert_eq!(ast, $expected, "Outputed AST doesn't match expected"),
             Err(err) => panic!("Received error when parsing test input: {}", err),
         }
-    )
+    };
 }
 
 macro_rules! invalid {
-    ($input:expr) => (
+    ($input:expr) => {
         match parse($input) {
             Ok(ast) => panic!("Invalid test input parsed, produced AST: {:#?}", ast),
             Err(_) => (),
         }
-    )
+    };
 }
 
 #[test]

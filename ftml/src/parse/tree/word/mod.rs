@@ -19,25 +19,23 @@
  */
 
 macro_rules! extract {
-    ($regex:expr, $pair:expr) => (
-        $regex.captures($pair.as_str())
+    ($regex:expr, $pair:expr) => {
+        $regex
+            .captures($pair.as_str())
             .expect("Pair contents doesn't match regular expression")
             .get(1)
             .expect("No captures in regular expression")
             .as_str()
-    )
+    };
 }
 
 macro_rules! make_words {
     ($pair:expr) => {{
         // Turns a Vec<Result<_>> into Result<Vec<_>>
-        let word_res: Result<Vec<_>> = $pair
-            .into_inner()
-            .map(Word::from_pair)
-            .collect();
+        let word_res: Result<Vec<_>> = $pair.into_inner().map(Word::from_pair).collect();
 
         word_res?
-    }}
+    }};
 }
 
 mod anchor;
@@ -50,8 +48,8 @@ mod tab;
 
 mod prelude {
     pub use super::super::prelude::*;
-    pub use crate::{Error, Result};
     pub use crate::enums::{AnchorTarget, LinkText};
+    pub use crate::{Error, Result};
     pub use std::borrow::Cow;
     pub use std::convert::TryFrom;
 
@@ -77,20 +75,21 @@ lazy_static! {
             .build()
             .unwrap()
     };
-
     static ref CSS: Regex = {
-        RegexBuilder::new(r#"(?x)
+        RegexBuilder::new(
+            r#"(?x)
             \[\[\s*(?:css|style)\s*\]\]\n
             (?P<style>.*)\n
-            \[\[/\s*(?:css|style)\s*\]\]"#)
-            .case_insensitive(true)
-            .dot_matches_new_line(true)
-            .build()
-            .unwrap()
+            \[\[/\s*(?:css|style)\s*\]\]"#,
+        )
+        .case_insensitive(true)
+        .dot_matches_new_line(true)
+        .build()
+        .unwrap()
     };
-
     static ref DATE: Regex = {
-        RegexBuilder::new(r#"(?x)
+        RegexBuilder::new(
+            r#"(?x)
             \[\[
                 \s*date\s+
                 (?P<timestamp>-?[0-9]+)
@@ -98,43 +97,41 @@ lazy_static! {
                     (?P<format>.*)
                 ")?
                 \s*
-            \]\]"#)
-            .case_insensitive(true)
-            .build()
-            .unwrap()
+            \]\]"#,
+        )
+        .case_insensitive(true)
+        .build()
+        .unwrap()
     };
-
     static ref EQUATION_REF: Regex = {
         RegexBuilder::new(r"\[\[\s*eref\s+([a-z0-9\-+_\.%]+)\s*\]\]")
             .case_insensitive(true)
             .build()
             .unwrap()
     };
-
     static ref FILENAME: Regex = {
         RegexBuilder::new(r"\[\[\s*file\s+(.+)\s*\]\]")
             .case_insensitive(true)
             .build()
             .unwrap()
     };
-
     static ref FORM: Regex = {
-        RegexBuilder::new(r"(?x)
+        RegexBuilder::new(
+            r"(?x)
             \[\[\s*form\s*\]\]\n
                 (?P<contents>(?:.*\n)?)
-            \[\[/\s*form\s*\]\]")
-            .case_insensitive(true)
-            .dot_matches_new_line(true)
-            .build()
-            .unwrap()
+            \[\[/\s*form\s*\]\]",
+        )
+        .case_insensitive(true)
+        .dot_matches_new_line(true)
+        .build()
+        .unwrap()
     };
-
     static ref RAW: Regex = {
         RegexBuilder::new(r"^[@`]{2}(?P<contents>.*)[@`]{2}$")
             .build()
             .unwrap()
     };
-
     static ref USER: Regex = {
         RegexBuilder::new(r"\[\[\s*(?P<picture>\*)?\s*user\s+(?P<username>[^ ]+)\s*\]\]")
             .case_insensitive(true)
@@ -320,7 +317,8 @@ impl<'a> Word<'a> {
                 style: extract!(CSS, pair),
             },
             Rule::date => {
-                let capture = DATE.captures(pair.as_str())
+                let capture = DATE
+                    .captures(pair.as_str())
                     .expect("Regular expression DATE didn't match");
 
                 Word::Date {
@@ -376,7 +374,8 @@ impl<'a> Word<'a> {
             Rule::span => span::parse(pair)?,
             Rule::tab_list => tab::parse(pair)?,
             Rule::user => {
-                let capture = USER.captures(pair.as_str())
+                let capture = USER
+                    .captures(pair.as_str())
                     .expect("Regular expression USER didn't match");
 
                 Word::User {

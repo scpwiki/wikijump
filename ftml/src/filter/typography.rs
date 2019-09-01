@@ -110,7 +110,9 @@ pub fn substitute(text: &mut String) -> Result<()> {
     let mut buffer = String::new();
 
     macro_rules! replace {
-        ($replacer:expr) => ( $replacer.replace(text, &mut buffer) )
+        ($replacer:expr) => {
+            $replacer.replace(text, &mut buffer)
+        };
     }
 
     // Quotes

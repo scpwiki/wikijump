@@ -24,11 +24,12 @@
 // Convenience macro for static regular expressions meant for parsing.
 // Retrieves the capture group with the given name and returns as a string.
 macro_rules! capture {
-    ($capture:expr, $name:expr) => (
-        $capture.name($name)
+    ($capture:expr, $name:expr) => {
+        $capture
+            .name($name)
             .expect("String from parser didn't match regular expression")
             .as_str()
-    )
+    };
 }
 
 mod misc;
@@ -41,16 +42,16 @@ mod prelude {
         pub static ref ARGUMENT_NAME: Regex = Regex::new(r"\s*(?P<name>\w+)\s*=\s*").unwrap();
     }
 
-    pub use super::{Paragraph, Tab, TableRow, Word};
-    pub use super::convert_internal_paragraphs;
-    pub use super::super::{Rule, WikidotParser};
     pub use super::super::string::interp_str;
+    pub use super::super::{Rule, WikidotParser};
+    pub use super::convert_internal_paragraphs;
+    pub use super::{Paragraph, Tab, TableRow, Word};
     pub use pest::iterators::{Pair, Pairs};
     pub use regex::{Regex, RegexBuilder};
 }
 
 pub use self::misc::{Tab, TableRow};
 pub use self::object::SyntaxTree;
-pub use self::paragraph::Paragraph;
 pub use self::paragraph::convert_internal_paragraphs;
+pub use self::paragraph::Paragraph;
 pub use self::word::Word;

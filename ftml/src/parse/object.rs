@@ -19,8 +19,8 @@
 
 use super::SyntaxTree;
 use crate::{backtrace, Result};
-use pest::Parser;
 use pest::error::Error as PestError;
+use pest::Parser;
 
 #[derive(Debug, Clone, Parser)]
 #[grammar = "parse/wikidot.pest"]

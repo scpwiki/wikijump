@@ -92,13 +92,15 @@ mod backtrace {
 }
 
 pub mod prelude {
-    pub use super::{Error, HtmlRender, PageInfo, Render, Result, StdResult, SyntaxTree, TreeRender};
     pub use super::{parse, prefilter, transform};
+    pub use super::{
+        Error, HtmlRender, PageInfo, Render, Result, StdResult, SyntaxTree, TreeRender,
+    };
 }
 
 pub mod include {
-    pub use super::filter::{NotFoundIncluder, NullIncluder};
     pub use super::filter::Includer;
+    pub use super::filter::{NotFoundIncluder, NullIncluder};
 }
 
 pub type StdResult<T, E> = std::result::Result<T, E>;

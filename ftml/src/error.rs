@@ -19,9 +19,12 @@
  */
 
 use crate::parse::ParseError;
-use std::{io, fmt::{self, Write}};
 use std::error::Error as StdError;
 use std::str::Utf8Error;
+use std::{
+    fmt::{self, Write},
+    io,
+};
 
 #[must_use = "should handle errors"]
 #[derive(Debug)]

@@ -22,14 +22,16 @@ use super::prelude::*;
 
 lazy_static! {
     static ref CODE_BLOCK: Regex = {
-        RegexBuilder::new(r"(?x)
+        RegexBuilder::new(
+            r"(?x)
             \[\[\s*code[^\]]*\]\]\n
             (?P<contents>(?:.*\n)?)
-            \[\[/\s*code\s*\]\]")
-            .case_insensitive(true)
-            .dot_matches_new_line(true)
-            .build()
-            .unwrap()
+            \[\[/\s*code\s*\]\]",
+        )
+        .case_insensitive(true)
+        .dot_matches_new_line(true)
+        .build()
+        .unwrap()
     };
 }
 
@@ -38,7 +40,8 @@ pub fn parse(pair: Pair<Rule>) -> Result<Paragraph> {
     let contents = extract!(CODE_BLOCK, pair);
 
     // Parse arguments
-    let pairs = pair.into_inner()
+    let pairs = pair
+        .into_inner()
         .filter(|pair| pair.as_rule() == Rule::code_arg);
 
     for pair in pairs {

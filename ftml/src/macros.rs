@@ -23,29 +23,26 @@
 // possibility, and the outer layer is not useful for parsing,
 // so we discard it.
 macro_rules! get_inner_pairs {
-    ($pairs:expr) => (
-        $pairs.next()
-            .expect("Item has no more pairs")
-            .into_inner()
-    )
+    ($pairs:expr) => {
+        $pairs.next().expect("Item has no more pairs").into_inner()
+    };
 }
 
 // This pattern is used to convert the first Pair object within
 // a Pair. Thus, it retrieves its inner Pairs iterator and then
 // asserts the first item exists.
 macro_rules! get_first_pair {
-    ($pair:expr) => (
-        $pair.into_inner()
-            .next()
-            .expect("Inner pairs is empty")
-    )
+    ($pair:expr) => {
+        $pair.into_inner().next().expect("Inner pairs is empty")
+    };
 }
 
 macro_rules! get_nth_pair {
-    ($pair:expr, $index:expr) => (
-        $pair.clone()
+    ($pair:expr, $index:expr) => {
+        $pair
+            .clone()
             .into_inner()
             .nth($index)
             .expect("Couldn't find nth inner pair")
-    )
+    };
 }

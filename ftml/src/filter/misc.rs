@@ -40,21 +40,18 @@ lazy_static! {
     static ref DOS_NEWLINES: Regex = Regex::new(r"\r\n").unwrap();
     static ref MAC_NEWLINES: Regex = Regex::new(r"\r").unwrap();
     static ref CONCAT_BACKSLASHES: Regex = Regex::new(r"\\\n").unwrap();
-
     static ref COMMENT: Regex = {
         RegexBuilder::new(r"\[!--.*--\]")
             .dot_matches_new_line(true)
             .build()
             .unwrap()
     };
-
     static ref WHITESPACE: Regex = {
         RegexBuilder::new(r"^\s+$")
             .multi_line(true)
             .build()
             .unwrap()
     };
-
     static ref COMPRESS_NEWLINES: Regex = {
         RegexBuilder::new(r"(?:\n\s*){3,}")
             .multi_line(true)

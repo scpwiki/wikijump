@@ -18,8 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
 use super::super::misc::Tab;
+use super::prelude::*;
 
 pub fn parse(pair: Pair<Rule>) -> Result<Word> {
     let mut tabs = Vec::new();

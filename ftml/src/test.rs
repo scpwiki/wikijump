@@ -35,7 +35,12 @@ lazy_static! {
 }
 
 macro_rules! file_name {
-    ($path:expr) => ( $path.file_name().expect("Unable to get file name").to_string_lossy() )
+    ($path:expr) => {
+        $path
+            .file_name()
+            .expect("Unable to get file name")
+            .to_string_lossy()
+    };
 }
 
 const TEST_BLACKLIST: [&str; 19] = [

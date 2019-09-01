@@ -27,15 +27,15 @@ mod paragraph;
 mod word;
 
 mod prelude {
-    pub use super::{HtmlContext, HtmlMeta};
+    pub use super::super::info::{PageInfo, UserInfo};
+    pub use super::super::Render;
     use super::buffer::StringBuf;
     pub use super::paragraph::{render_paragraph, render_paragraphs};
-    pub use super::super::Render;
-    pub use super::super::info::{PageInfo, UserInfo};
     pub use super::word::{render_word, render_words};
-    pub use crate::{Error, Result, SyntaxTree};
+    pub use super::{HtmlContext, HtmlMeta};
     pub use crate::enums::HtmlMetaType;
     pub use crate::parse::{Paragraph, Word};
+    pub use crate::{Error, Result, SyntaxTree};
     use htmlescape::{encode_attribute_w, encode_minimal_w};
     pub use std::fmt::{self, Display, Write};
 
