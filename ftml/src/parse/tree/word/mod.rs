@@ -49,7 +49,7 @@ mod span;
 mod tab;
 
 mod prelude {
-    pub use crate::Result;
+    pub use crate::{Error, Result};
     pub use crate::enums::{AnchorTarget, LinkText};
     pub use std::borrow::Cow;
     pub use std::convert::TryFrom;
