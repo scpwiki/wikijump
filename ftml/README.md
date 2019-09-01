@@ -8,7 +8,7 @@ A Rust library and executable to convert Wikidot code into HTML. A reimplementat
 Available under the terms of the GNU Affero General Public License. See [LICENSE.md](LICENSE).
 
 ### Compilation
-This library targets the latest stable Rust. At time of writing, that is 1.35.0
+This library targets the latest stable Rust. At time of writing, that is 1.37.0
 
 ```sh
 $ cargo build --release
