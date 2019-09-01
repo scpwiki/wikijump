@@ -23,6 +23,7 @@ mod context;
 mod finish;
 mod meta;
 mod module;
+mod object;
 mod paragraph;
 mod word;
 
@@ -74,30 +75,4 @@ mod prelude {
 
 pub use self::context::HtmlContext;
 pub use self::meta::HtmlMeta;
-
-use self::finish::render_finish;
-use self::prelude::*;
-use crate::postfilter;
-
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub struct HtmlRender;
-
-impl Render for HtmlRender {
-    type Output = HtmlOutput;
-
-    fn render(tree: &SyntaxTree, info: PageInfo) -> Result<HtmlOutput> {
-        let mut ctx = HtmlContext::new(info);
-        render_paragraphs(&mut ctx, tree.paragraphs())?;
-        render_finish(&mut ctx)?;
-        postfilter(ctx.buffer())?;
-
-        Ok(ctx.into())
-    }
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct HtmlOutput {
-    pub html: String,
-    pub style: String,
-    pub meta: Vec<HtmlMeta>,
-}
+pub use self::object::{HtmlOutput, HtmlRender};
