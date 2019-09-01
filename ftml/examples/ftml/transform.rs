@@ -18,10 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use ftml::NullHandle;
 use ftml::include::NullIncluder;
 use ftml::prelude::*;
-use std::sync::Arc;
 
 pub type TransformFn = fn(&mut String, bool) -> Result<String>;
 
@@ -49,7 +47,16 @@ pub fn parse_only(text: &mut String, wrap: bool) -> Result<String> {
 }
 
 pub fn full_transform(text: &mut String, wrap: bool) -> Result<String> {
-    let mut output = transform::<HtmlRender>(0, Arc::new(NullHandle), text, &NullIncluder)?;
+    let info = PageInfo {
+        title: "SCP-XXXX",
+        alt_title: Some("The Monster"),
+        header: None,
+        subheader: None,
+        rating: 1000,
+        tags: &["scp", "keter", "intangible", "k-class-scenario", "ontokinetic"],
+    };
+
+    let mut output = transform::<HtmlRender>(text, info, &NullIncluder)?;
 
     if wrap {
         let mut buffer = str!("<html><head>");
