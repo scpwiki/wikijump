@@ -23,15 +23,14 @@ use super::prelude::*;
 use crate::postfilter;
 use crate::RemoteHandle;
 use std::fmt::{self, Debug};
+use std::rc::Rc;
 
 pub struct HtmlRender {
-    handle: Box<dyn RemoteHandle>,
+    handle: Rc<dyn RemoteHandle>,
 }
 
 impl HtmlRender {
-    pub fn new<H: Into<Box<dyn RemoteHandle>>>(handle: H) -> Self {
-        let handle = handle.into();
-
+    pub fn new(handle: Rc<dyn RemoteHandle>) -> Self {
         HtmlRender { handle }
     }
 }
@@ -39,8 +38,8 @@ impl HtmlRender {
 impl Render for HtmlRender {
     type Output = HtmlOutput;
 
-    fn render(tree: &SyntaxTree, info: PageInfo) -> Result<HtmlOutput> {
-        let mut ctx = HtmlContext::new(info);
+    fn render(&self, tree: &SyntaxTree, info: PageInfo) -> Result<HtmlOutput> {
+        let mut ctx = HtmlContext::new(info, Rc::clone(&self.handle));
         render_paragraphs(&mut ctx, tree.paragraphs())?;
         render_finish(&mut ctx)?;
         postfilter(ctx.buffer())?;

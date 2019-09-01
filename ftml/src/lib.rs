@@ -112,10 +112,11 @@ pub type Result<T> = StdResult<T, Error>;
 pub fn transform<R: Render>(
     text: &mut String,
     info: PageInfo,
+    renderer: &R,
     includer: &dyn Includer,
 ) -> Result<R::Output> {
     prefilter(text, includer)?;
     let tree = parse(text)?;
-    let output = R::render(&tree, info)?;
+    let output = renderer.render(&tree, info)?;
     Ok(output)
 }

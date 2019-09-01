@@ -31,7 +31,7 @@ impl Render for NullRender {
     type Output = &'static str;
 
     #[inline]
-    fn render(_tree: &SyntaxTree, _info: PageInfo) -> Result<&'static str> {
+    fn render(&self, _tree: &SyntaxTree, _info: PageInfo) -> Result<&'static str> {
         Ok("[[content]]")
     }
 }

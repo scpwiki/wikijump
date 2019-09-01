@@ -21,10 +21,11 @@
 //! Internal state object used during rendering.
 
 use super::{HtmlMeta, HtmlOutput};
-use crate::{PageInfo, Result};
-use std::fmt::{self, Write};
+use crate::{PageInfo, RemoteHandle, Result};
+use std::fmt::{self, Debug, Write};
+use std::rc::Rc;
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct HtmlContext<'i> {
     html: String,
     style: String,
@@ -32,10 +33,25 @@ pub struct HtmlContext<'i> {
     write_mode: WriteMode,
     footnotes: FootnoteContext,
     info: PageInfo<'i>,
+    handle: Rc<dyn RemoteHandle>,
+}
+
+impl<'i> Debug for HtmlContext<'i> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("HtmlContext")
+            .field("html", &self.html)
+            .field("style", &self.style)
+            .field("meta", &self.meta)
+            .field("write_mode", &self.write_mode)
+            .field("footnotes", &self.footnotes)
+            .field("info", &self.info)
+            .field("handle", &"Rc<RemoteHandle {{ ... }}>")
+            .finish()
+    }
 }
 
 impl<'i> HtmlContext<'i> {
-    pub fn new(info: PageInfo<'i>) -> Self {
+    pub fn new(info: PageInfo<'i>, handle: Rc<dyn RemoteHandle>) -> Self {
         HtmlContext {
             html: String::new(),
             style: String::new(),
@@ -43,6 +59,7 @@ impl<'i> HtmlContext<'i> {
             write_mode: WriteMode::Html,
             footnotes: FootnoteContext::new(),
             info,
+            handle,
         }
     }
 

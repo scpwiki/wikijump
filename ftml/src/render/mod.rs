@@ -33,5 +33,5 @@ use crate::{Result, SyntaxTree};
 pub trait Render {
     type Output;
 
-    fn render(tree: &SyntaxTree, info: PageInfo) -> Result<Self::Output>;
+    fn render(&self, tree: &SyntaxTree, info: PageInfo) -> Result<Self::Output>;
 }
