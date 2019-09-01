@@ -30,7 +30,14 @@ pub struct TreeRender;
 impl<'i> Render<'i> for TreeRender {
     type Output = String;
 
-    fn render(tree: &SyntaxTree, _info: PageInfo<'i>) -> Result<String> {
-        Ok(format!("{:#?}", tree))
+    fn render(tree: &SyntaxTree, info: PageInfo) -> Result<String> {
+        #[derive(Debug)]
+        struct Article<'r, 't, 'i> {
+            info: PageInfo<'i>,
+            tree: &'r SyntaxTree<'t>,
+        }
+
+        let data = Article { info, tree };
+        Ok(format!("{:#?}", data))
     }
 }
