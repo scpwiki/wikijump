@@ -20,6 +20,7 @@
 
 use ftml::include::NullIncluder;
 use ftml::prelude::*;
+use std::rc::Rc;
 
 pub type TransformFn = fn(&mut String, bool) -> Result<String>;
 
@@ -47,6 +48,9 @@ pub fn parse_only(text: &mut String, wrap: bool) -> Result<String> {
 }
 
 pub fn full_transform(text: &mut String, wrap: bool) -> Result<String> {
+    let handle = Rc::new(NullHandle);
+    let renderer = HtmlRender::new(handle);
+
     let info = PageInfo {
         title: "SCP-XXXX",
         alt_title: Some("The Monster"),
@@ -56,7 +60,7 @@ pub fn full_transform(text: &mut String, wrap: bool) -> Result<String> {
         tags: &["scp", "keter", "intangible", "k-class-scenario", "ontokinetic"],
     };
 
-    let mut output = transform::<HtmlRender>(text, info, &NullIncluder)?;
+    let mut output = renderer.transform(text, info, &NullIncluder)?;
 
     if wrap {
         let mut buffer = str!("<html><head>");
