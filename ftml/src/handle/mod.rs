@@ -1,5 +1,5 @@
 /*
- * handle.rs
+ * handle/mod.rs
  *
  * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith
@@ -18,9 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::StdResult;
+use crate::RemoteResult;
 use crate::data::User;
 
 pub trait RemoteHandle {
-    fn get_user_by_name(&self, name: &str) -> StdResult<User, String>;
+    fn get_user_by_name(&self, name: &str) -> RemoteResult<Option<User>>;
+    fn get_user_by_id(&self, id: u64) -> RemoteResult<Option<User>>;
 }

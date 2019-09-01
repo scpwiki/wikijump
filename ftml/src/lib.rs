@@ -108,3 +108,4 @@ pub mod include {
 
 pub type StdResult<T, E> = std::result::Result<T, E>;
 pub type Result<T> = StdResult<T, Error>;
+pub type RemoteResult<T> = StdResult<T, String>;
