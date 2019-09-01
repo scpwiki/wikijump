@@ -29,7 +29,7 @@ jobs:
   include:
     - stage: format
       script:
-        - cargo fmt --all -- --check
+        - rustfmt src/lib.rs --check
     - stage: test
       rust:
         - stable
