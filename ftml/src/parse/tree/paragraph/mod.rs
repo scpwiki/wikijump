@@ -199,19 +199,22 @@ impl<'a> Paragraph<'a> {
             Rule::div => div::parse(pair)?,
             Rule::bullet_list | Rule::numbered_list => list::parse(pair)?,
             Rule::horizontal_line => Paragraph::HorizontalLine,
-            Rule::html => Paragraph::Html { contents: extract!(HTML_BLOCK, pair) },
+            Rule::html => Paragraph::Html {
+                contents: extract!(HTML_BLOCK, pair),
+            },
             Rule::iframe => iframe::parse(pair),
-            Rule::javascript => Paragraph::Javascript { contents: extract!(JAVASCRIPT_BLOCK, pair) },
+            Rule::javascript => Paragraph::Javascript {
+                contents: extract!(JAVASCRIPT_BLOCK, pair),
+            },
             Rule::quote_block => quote::parse(pair)?,
             Rule::words => words::parse(pair)?,
 
             _ => {
                 return Err(Error::Msg(format!(
-                    "Paragraph rule for {:?} unimplemented!",
+                    "Invalid rule for paragraph: {:?}",
                     pair.as_rule()
                 )))
             }
-            //_ => Err(Error::Msg(format!("Invalid rule for paragraph_inner: {:?}", pair.as_rule()))),
         };
 
         Ok(paragraph_inner)

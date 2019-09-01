@@ -384,7 +384,12 @@ impl<'a> Word<'a> {
                     show_picture: capture.name("picture").is_some(),
                 }
             }
-            _ => panic!("Invalid rule for word: {:?}", pair.as_rule()),
+            _ => {
+                return Err(Error::Msg(format!(
+                    "Invalid rule for word: {:?}",
+                    pair.as_rule()
+                )))
+            }
         };
 
         Ok(word)
