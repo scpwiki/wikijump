@@ -11,9 +11,7 @@ os:
 
 matrix:
   allow_failures:
-    - rust:
-      - beta
-      - nightly
+    - rust: nightly
   fast_finish: true
 
 cache: cargo
@@ -33,6 +31,14 @@ jobs:
       script:
         - cargo fmt --all -- --check || true # rustfmt has a bug with dyn
     - stage: test
+      rust:
+        - stable
+        - beta
+        - nightly
+      os:
+        - linux
+        - osx
+        - windows
       script:
         - cargo build --verbose
         - cargo test --verbose -- --nocapture
