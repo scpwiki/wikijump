@@ -32,7 +32,10 @@ pub fn parse(pair: Pair<Rule>) -> Result<Paragraph> {
     let result: Result<Vec<_>> = pair.into_inner().map(Paragraph::from_pair).collect();
     let paragraphs = result?;
 
-    Ok(Paragraph::Align { alignment, paragraphs })
+    Ok(Paragraph::Align {
+        alignment,
+        paragraphs,
+    })
 }
 
 #[test]

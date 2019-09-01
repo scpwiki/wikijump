@@ -22,6 +22,8 @@
 //! This does not check any formatting, simply whether the grammar file
 //! is correctly interpreting strings. So creating an invalid color or
 //! inlined HTML is not an error here.
+//!
+//! This will be slowly converted and deprecated in favor of ast_test.
 
 use crate::prefilter;
 use crate::include::NullIncluder;

@@ -39,6 +39,12 @@ impl<'a> SyntaxTree<'a> {
         result.map(|paragraphs| SyntaxTree { paragraphs })
     }
 
+    pub fn from_paragraphs<I: Into<Vec<Paragraph<'a>>>>(paragraphs: I) -> Self {
+        let paragraphs = paragraphs.into();
+
+        SyntaxTree { paragraphs }
+    }
+
     #[inline]
     pub fn paragraphs(&self) -> &[Paragraph] {
         self.paragraphs.as_slice()

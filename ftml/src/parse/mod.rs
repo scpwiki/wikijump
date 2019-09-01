@@ -22,6 +22,9 @@ mod string;
 mod tree;
 
 #[cfg(test)]
+mod ast_test;
+
+#[cfg(test)]
 mod syntax_test;
 
 pub use self::object::{parse, ParseError, Rule, WikidotParser};
