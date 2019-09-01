@@ -34,11 +34,11 @@ pub struct HtmlContext {
     write_mode: WriteMode,
     footnotes: FootnoteContext,
     id: u64,
-    handle: Arc<ArticleHandle>,
+    handle: Arc<dyn ArticleHandle>,
 }
 
 impl HtmlContext {
-    pub fn new(id: u64, handle: Arc<ArticleHandle>) -> Self {
+    pub fn new(id: u64, handle: Arc<dyn ArticleHandle>) -> Self {
         HtmlContext {
             html: String::new(),
             style: String::new(),
@@ -58,7 +58,7 @@ impl HtmlContext {
     }
 
     #[inline]
-    pub fn handle(&self) -> Arc<ArticleHandle> {
+    pub fn handle(&self) -> Arc<dyn ArticleHandle> {
         Arc::clone(&self.handle)
     }
 

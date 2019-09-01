@@ -31,7 +31,7 @@ pub struct TreeRender;
 impl Render for TreeRender {
     type Output = String;
 
-    fn render(_id: u64, _handle: Arc<ArticleHandle>, tree: &SyntaxTree) -> Result<String> {
+    fn render(_id: u64, _handle: Arc<dyn ArticleHandle>, tree: &SyntaxTree) -> Result<String> {
         Ok(format!("{:#?}", tree))
     }
 }

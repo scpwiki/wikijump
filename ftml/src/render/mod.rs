@@ -34,5 +34,5 @@ use std::sync::Arc;
 pub trait Render {
     type Output;
 
-    fn render(id: u64, handle: Arc<ArticleHandle>, tree: &SyntaxTree) -> Result<Self::Output>;
+    fn render(id: u64, handle: Arc<dyn ArticleHandle>, tree: &SyntaxTree) -> Result<Self::Output>;
 }

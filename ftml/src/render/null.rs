@@ -32,7 +32,7 @@ impl Render for NullRender {
     type Output = &'static str;
 
     #[inline]
-    fn render(_id: u64, _handle: Arc<ArticleHandle>, _tree: &SyntaxTree) -> Result<&'static str> {
+    fn render(_id: u64, _handle: Arc<dyn ArticleHandle>, _tree: &SyntaxTree) -> Result<&'static str> {
         Ok("[[content]]")
     }
 }

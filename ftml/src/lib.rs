@@ -108,9 +108,9 @@ pub type Result<T> = StdResult<T, Error>;
 
 pub fn transform<R: Render>(
     id: u64,
-    handle: Arc<ArticleHandle>,
+    handle: Arc<dyn ArticleHandle>,
     text: &mut String,
-    includer: &Includer,
+    includer: &dyn Includer,
 ) -> Result<R::Output> {
     prefilter(text, includer)?;
     let tree = parse(text)?;

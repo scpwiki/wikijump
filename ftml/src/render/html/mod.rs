@@ -86,7 +86,7 @@ pub struct HtmlRender;
 impl Render for HtmlRender {
     type Output = HtmlOutput;
 
-    fn render(id: u64, handle: Arc<ArticleHandle>, tree: &SyntaxTree) -> Result<HtmlOutput> {
+    fn render(id: u64, handle: Arc<dyn ArticleHandle>, tree: &SyntaxTree) -> Result<HtmlOutput> {
         let mut ctx = HtmlContext::new(id, handle);
         render_paragraphs(&mut ctx, tree.paragraphs())?;
         render_finish(&mut ctx)?;

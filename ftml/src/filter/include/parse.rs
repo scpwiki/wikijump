@@ -36,7 +36,7 @@ struct IncludeRef {
 }
 
 // Helper function
-pub fn substitute(text: &mut String, includer: &Includer) -> Result<()> {
+pub fn substitute(text: &mut String, includer: &dyn Includer) -> Result<()> {
     let pairs = match IncludeParser::parse(Rule::page, text) {
         Ok(mut pairs) => get_inner_pairs!(pairs),
         Err(err) => {

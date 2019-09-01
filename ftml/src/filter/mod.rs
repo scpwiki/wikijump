@@ -42,7 +42,7 @@ use crate::Result;
 /// * Compress groups of 3+ newlines into 2 newlines
 /// * Converts quote blocks to nested [[quote]] tags
 /// * Perform typography modifications
-pub fn prefilter(text: &mut String, includer: &Includer) -> Result<()> {
+pub fn prefilter(text: &mut String, includer: &dyn Includer) -> Result<()> {
     include::substitute(text, includer)?;
     misc::substitute(text)?;
     blockquote::substitute(text)?;
