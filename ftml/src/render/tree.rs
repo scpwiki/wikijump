@@ -27,7 +27,7 @@ use crate::{PageInfo, Result, SyntaxTree};
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct TreeRender;
 
-impl<'i> Render<'i> for TreeRender {
+impl Render for TreeRender {
     type Output = String;
 
     fn render(tree: &SyntaxTree, info: PageInfo) -> Result<String> {

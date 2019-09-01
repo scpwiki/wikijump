@@ -27,11 +27,11 @@ use crate::{PageInfo, Result, SyntaxTree};
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct NullRender;
 
-impl<'i> Render<'i> for NullRender {
+impl Render for NullRender {
     type Output = &'static str;
 
     #[inline]
-    fn render(_tree: &SyntaxTree, _info: PageInfo<'i>) -> Result<&'static str> {
+    fn render(_tree: &SyntaxTree, _info: PageInfo) -> Result<&'static str> {
         Ok("[[content]]")
     }
 }

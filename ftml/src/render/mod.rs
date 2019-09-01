@@ -30,8 +30,8 @@ pub use self::tree::TreeRender;
 
 use crate::{Result, SyntaxTree};
 
-pub trait Render<'i> {
+pub trait Render {
     type Output;
 
-    fn render(tree: &SyntaxTree, info: PageInfo<'i>) -> Result<Self::Output>;
+    fn render(tree: &SyntaxTree, info: PageInfo) -> Result<Self::Output>;
 }

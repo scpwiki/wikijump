@@ -106,9 +106,9 @@ pub mod include {
 pub type StdResult<T, E> = std::result::Result<T, E>;
 pub type Result<T> = StdResult<T, Error>;
 
-pub fn transform<'i, R: Render<'i>>(
+pub fn transform<R: Render>(
     text: &mut String,
-    info: PageInfo<'i>,
+    info: PageInfo,
     includer: &dyn Includer,
 ) -> Result<R::Output> {
     prefilter(text, includer)?;

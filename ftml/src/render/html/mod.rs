@@ -82,10 +82,10 @@ use crate::postfilter;
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct HtmlRender;
 
-impl<'i> Render<'i> for HtmlRender {
+impl Render for HtmlRender {
     type Output = HtmlOutput;
 
-    fn render(tree: &SyntaxTree, info: PageInfo<'i>) -> Result<HtmlOutput> {
+    fn render(tree: &SyntaxTree, info: PageInfo) -> Result<HtmlOutput> {
         let mut ctx = HtmlContext::new(info);
         render_paragraphs(&mut ctx, tree.paragraphs())?;
         render_finish(&mut ctx)?;
