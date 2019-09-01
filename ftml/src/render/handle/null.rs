@@ -18,10 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::{ArticleHandle, User};
 use crate::Result;
 use std::borrow::Cow;
 use std::collections::HashSet;
-use super::{ArticleHandle, User};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct NullHandle;

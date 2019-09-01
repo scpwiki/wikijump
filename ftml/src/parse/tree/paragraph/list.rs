@@ -18,8 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::enums::ListStyle;
 use super::prelude::*;
+use crate::enums::ListStyle;
 
 pub fn parse(pair: Pair<Rule>) -> Result<Paragraph> {
     let depth = {

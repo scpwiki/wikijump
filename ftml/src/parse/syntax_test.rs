@@ -25,10 +25,10 @@
 //!
 //! This will be slowly converted and deprecated in favor of ast_test.
 
-use crate::prefilter;
-use crate::include::NullIncluder;
-use pest::Parser;
 use super::{parse, Rule, WikidotParser};
+use crate::include::NullIncluder;
+use crate::prefilter;
+use pest::Parser;
 
 const VALID_INPUT_STRINGS: [&str; 124] = [
     "",

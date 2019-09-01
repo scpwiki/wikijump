@@ -20,10 +20,10 @@
 
 use clap::{App, Arg};
 use crate::transform::{full_transform, parse_only, prefilter_only, TransformFn};
+use std::{fs, process};
 use std::ffi::OsString;
 use std::fmt::{self, Debug};
 use std::path::PathBuf;
-use std::{fs, process};
 
 pub struct Context {
     pub transform: TransformFn,

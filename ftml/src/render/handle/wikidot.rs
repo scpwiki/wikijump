@@ -19,11 +19,10 @@
  */
 
 // TODO
+use super::{ArticleHandle, User};
 #[allow(dead_code)]
-
 use crate::Result;
 use std::collections::HashSet;
-use super::{ArticleHandle, User};
 
 #[derive(Debug)]
 pub struct WikidotHandle;

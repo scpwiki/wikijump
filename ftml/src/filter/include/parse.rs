@@ -18,12 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::Includer;
 use crate::{Error, Result};
 use pest::Parser;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::ops::Range;
-use super::Includer;
 
 #[derive(Debug, Clone, Parser)]
 #[grammar = "filter/include.pest"]

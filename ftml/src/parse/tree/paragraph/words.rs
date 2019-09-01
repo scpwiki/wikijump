@@ -18,8 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::enums::HeadingLevel;
 use super::prelude::*;
+use crate::enums::HeadingLevel;
 
 lazy_static! {
     static ref WORDS: Regex = Regex::new(r"^(?P<flag>\+{1,6}|=?)").unwrap();

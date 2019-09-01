@@ -49,11 +49,11 @@ mod span;
 mod tab;
 
 mod prelude {
+    pub use super::super::prelude::*;
     pub use crate::{Error, Result};
     pub use crate::enums::{AnchorTarget, LinkText};
     pub use std::borrow::Cow;
     pub use std::convert::TryFrom;
-    pub use super::super::prelude::*;
 
     pub fn get_link_target(pair: Pair<Rule>) -> Option<AnchorTarget> {
         debug_assert_eq!(pair.as_rule(), Rule::link_newtab);
@@ -66,8 +66,8 @@ mod prelude {
     }
 }
 
-use crate::enums::Alignment;
 use self::prelude::*;
+use crate::enums::Alignment;
 use std::collections::HashMap;
 
 lazy_static! {

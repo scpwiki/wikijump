@@ -18,15 +18,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::include::NullIncluder;
+use super::prelude::*;
+use super::render::NullHandle;
 use std::ffi::OsStr;
 use std::fmt::Write;
 use std::fs::{self, File};
 use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
-use super::include::NullIncluder;
-use super::prelude::*;
-use super::render::NullHandle;
 
 lazy_static! {
     static ref TEST_DIRECTORY: PathBuf = {

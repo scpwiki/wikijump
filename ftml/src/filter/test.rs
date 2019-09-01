@@ -18,8 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::Result;
 use super::{postfilter, prefilter, NullIncluder};
+use crate::Result;
 
 pub fn test_substitution<F>(filter_name: &str, mut substitute: F, tests: &[(&str, &str)])
 where

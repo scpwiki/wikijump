@@ -18,8 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::Result;
 use super::prelude::*;
+use crate::Result;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SyntaxTree<'a> {

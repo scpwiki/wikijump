@@ -25,7 +25,6 @@ mod wikidot;
 
 pub use self::null::NullHandle;
 pub use self::wikidot::WikidotHandle;
-
 use crate::Result;
 use std::borrow::Cow;
 use std::collections::HashSet;

@@ -18,8 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::enums::AnchorTarget;
 use super::prelude::*;
+use crate::enums::AnchorTarget;
 
 #[derive(Debug, Default)]
 struct Context<'a> {

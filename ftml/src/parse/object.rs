@@ -17,10 +17,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::SyntaxTree;
 use crate::{backtrace, Result};
 use pest::Parser;
 use pest::error::Error as PestError;
-use super::SyntaxTree;
 
 #[derive(Debug, Clone, Parser)]
 #[grammar = "parse/wikidot.pest"]

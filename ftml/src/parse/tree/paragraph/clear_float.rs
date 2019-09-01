@@ -18,8 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::enums::Alignment;
 use super::prelude::*;
+use crate::enums::Alignment;
 
 lazy_static! {
     static ref CLEAR_FLOAT: Regex = Regex::new(r"~{4,}(?P<direction><|>|=)?").unwrap();

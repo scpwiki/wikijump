@@ -79,7 +79,6 @@ pub use self::error::Error;
 pub use self::filter::{postfilter, prefilter, Includer};
 pub use self::parse::{parse, SyntaxTree};
 pub use self::render::{ArticleHandle, HtmlRender, NullHandle, Render, TreeRender, WikidotHandle};
-
 use std::sync::Arc;
 
 mod backtrace {
@@ -99,8 +98,8 @@ pub mod prelude {
 }
 
 pub mod include {
-    pub use super::filter::Includer;
     pub use super::filter::{NotFoundIncluder, NullIncluder};
+    pub use super::filter::Includer;
 }
 
 pub type StdResult<T, E> = std::result::Result<T, E>;

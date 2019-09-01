@@ -26,9 +26,8 @@ mod typography;
 #[cfg(test)]
 mod test;
 
-pub use self::include::Includer;
 pub use self::include::{NotFoundIncluder, NullIncluder};
-
+pub use self::include::Includer;
 use crate::Result;
 
 /// Transform the text in preparation for parsing.

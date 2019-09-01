@@ -21,9 +21,9 @@
 //! A "renderer" which only returns a constant string.
 //! Matches Wikidot's `/norender/true` specification.
 
+use super::Render;
 use crate::{ArticleHandle, Result, SyntaxTree};
 use std::sync::Arc;
-use super::Render;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct NullRender;

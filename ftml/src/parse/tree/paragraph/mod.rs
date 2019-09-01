@@ -39,15 +39,15 @@ mod quote;
 mod words;
 
 mod prelude {
+    pub use super::convert_internal_paragraphs;
+    pub use super::super::prelude::*;
     pub use crate::{Error, Result};
     pub use std::borrow::Cow;
     pub use std::convert::TryFrom;
-    pub use super::convert_internal_paragraphs;
-    pub use super::super::prelude::*;
 }
 
-use crate::enums::{Alignment, HeadingLevel, ListStyle};
 use self::prelude::*;
+use crate::enums::{Alignment, HeadingLevel, ListStyle};
 use std::collections::HashMap;
 
 lazy_static! {

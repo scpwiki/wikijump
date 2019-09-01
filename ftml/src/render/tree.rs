@@ -21,9 +21,9 @@
 //! A renderer which outputs a formatted view of the input AST.
 //! For debugging or some other trivial renderer need.
 
+use super::Render;
 use crate::{ArticleHandle, Result, SyntaxTree};
 use std::sync::Arc;
-use super::Render;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct TreeRender;

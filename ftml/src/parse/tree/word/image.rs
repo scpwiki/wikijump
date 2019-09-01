@@ -18,8 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::enums::Alignment;
 use super::prelude::*;
+use crate::enums::Alignment;
 
 pub fn parse(pair: Pair<Rule>) -> Result<Word> {
     let mut filename = "";

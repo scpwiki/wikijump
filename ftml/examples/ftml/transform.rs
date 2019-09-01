@@ -19,8 +19,8 @@
  */
 
 use ftml::NullHandle;
-use ftml::prelude::*;
 use ftml::include::NullIncluder;
+use ftml::prelude::*;
 use std::sync::Arc;
 
 pub type TransformFn = fn(&mut String, bool) -> Result<String>;
