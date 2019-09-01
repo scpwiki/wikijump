@@ -19,6 +19,9 @@ matrix:
 
 cache: cargo
 
+before_script:
+  - rustup component add rustfmt
+
 stages:
   - test
   - bin
@@ -26,6 +29,9 @@ stages:
 
 jobs:
   include:
+    - stage: format
+      script:
+        - cargo fmt --all -- --check
     - stage: test
       script:
         - cargo build --verbose
