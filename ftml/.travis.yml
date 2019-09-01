@@ -14,7 +14,6 @@ matrix:
     - rust:
       - beta
       - nightly
-    - os: windows
   fast_finish: true
 
 cache: cargo
