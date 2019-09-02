@@ -80,7 +80,7 @@ fn update_test<P: AsRef<Path>>(output: &str, output_file: P) {
 #[cfg(windows)]
 fn dos_to_unix_newlines(output: &mut String) {
     while let Some(idx) = output.find("\r\n") {
-        output.replace_range(idx..idx+2, "\n");
+        output.replace_range(idx..idx + 2, "\n");
     }
 }
 

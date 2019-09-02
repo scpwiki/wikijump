@@ -66,7 +66,7 @@ pub fn render(
         for name in names.iter() {
             if module_name.eq_ignore_ascii_case(name) {
                 module(ctx, arguments, contents)?;
-                return Ok(())
+                return Ok(());
             }
         }
     }
