@@ -78,9 +78,9 @@ fn update_test<P: AsRef<Path>>(output: &str, output_file: P) {
 }
 
 #[cfg(windows)]
-fn dos_to_unix_newlines(output: &mut String) {
-    while let Some(idx) = output.find("\r\n") {
-        output.replace_range(idx..idx + 2, "\n");
+fn dos_to_unix_newlines(buffer: &mut String) {
+    while let Some(idx) = buffer.find("\r\n") {
+        buffer.replace_range(idx..idx + 2, "\n");
     }
 }
 
@@ -149,11 +149,11 @@ fn test_parser() {
         read_file(&mut input_text, &input_file).expect("Unable to read input Wikidot source");
         prefilter(&mut input_text, &TestHandle).expect("Unable to prefilter Wikidot source");
         read_file(&mut expected, &output_file).expect("Unable to read output tree");
+        dos_to_unix_newlines(&mut expected);
 
         let output_tree = parse(&input_text).expect("Unable to parse Wikidot source");
         output.clear();
         write!(&mut output, "{:#?}", &output_tree).expect("Unable to write tree to string");
-        dos_to_unix_newlines(&mut output);
 
         assert_eq!(
             expected, output,
