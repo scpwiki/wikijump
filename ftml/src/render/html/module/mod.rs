@@ -36,6 +36,18 @@ use self::listpages::ListPagesModule;
 use self::prelude::*;
 use self::rate::RateModule;
 
+pub type ModuleRenderFn = fn(
+    ctx: &mut HtmlContext,
+    arguments: &HashMap<&str, Cow<str>>,
+    contents: Option<&str>,
+) -> Result<()>;
+
+const MODULE_LIST: [(&[&str], ModuleRenderFn); 3] = [
+    (&["css", "style"], CssModule::render),
+    (&["rate", "rating"], RateModule::render),
+    (&["listpages", "list_pags"], ListPagesModule::render),
+];
+
 pub trait Module {
     fn render(
         ctx: &mut HtmlContext,
@@ -45,20 +57,19 @@ pub trait Module {
 }
 
 pub fn render(
-    name: &str,
+    module_name: &str,
     ctx: &mut HtmlContext,
     arguments: &HashMap<&str, Cow<str>>,
     contents: Option<&str>,
 ) -> Result<()> {
-    if name.eq_ignore_ascii_case("css") | name.eq_ignore_ascii_case("style") {
-        CssModule::render(ctx, arguments, contents)?;
-    } else if name.eq_ignore_ascii_case("rate") | name.eq_ignore_ascii_case("rating") {
-        RateModule::render(ctx, arguments, contents)?;
-    } else if name.eq_ignore_ascii_case("listpages") | name.eq_ignore_ascii_case("list_pages") {
-        ListPagesModule::render(ctx, arguments, contents)?;
-    } else {
-        return Err(Error::Msg(format!("No such module: '{}'", name)));
+    for (names, module) in &MODULE_LIST[..] {
+        for name in names.iter() {
+            if module_name.eq_ignore_ascii_case(name) {
+                module(ctx, arguments, contents)?;
+                return Ok(())
+            }
+        }
     }
 
-    Ok(())
+    Err(Error::Msg(format!("No such module: '{}'", module_name)))
 }
