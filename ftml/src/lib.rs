@@ -78,7 +78,7 @@ mod render;
 mod test;
 
 pub use self::error::{Error, RemoteError};
-pub use self::filter::{postfilter, prefilter, Includer};
+pub use self::filter::{postfilter, prefilter};
 pub use self::handle::RemoteHandle;
 pub use self::parse::{parse, SyntaxTree};
 pub use self::render::{HtmlRender, PageInfo, Render, TreeRender};
@@ -100,11 +100,6 @@ pub mod prelude {
         Error, HtmlRender, PageInfo, RemoteHandle, Render, Result, StdResult, SyntaxTree,
         TreeRender,
     };
-}
-
-pub mod include {
-    pub use super::filter::Includer;
-    pub use super::filter::{NotFoundIncluder, NullIncluder};
 }
 
 pub type StdResult<T, E> = std::result::Result<T, E>;

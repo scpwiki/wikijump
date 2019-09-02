@@ -29,7 +29,8 @@ pub use self::null::NullRender;
 pub use self::tree::TreeRender;
 
 use crate::{parse, prefilter};
-use crate::{Includer, Result, SyntaxTree};
+use crate::{RemoteHandle, Result, SyntaxTree};
+use std::rc::Rc;
 
 pub trait Render {
     type Output;
@@ -40,9 +41,9 @@ pub trait Render {
         &self,
         text: &mut String,
         info: PageInfo,
-        includer: &dyn Includer,
+        handle: &Rc<dyn RemoteHandle>,
     ) -> Result<Self::Output> {
-        prefilter(text, includer)?;
+        prefilter(text, handle)?;
         let tree = parse(text)?;
         let output = self.render(&tree, info)?;
         Ok(output)

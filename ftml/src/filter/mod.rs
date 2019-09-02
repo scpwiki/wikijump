@@ -26,9 +26,8 @@ mod typography;
 #[cfg(test)]
 mod test;
 
-pub use self::include::Includer;
-pub use self::include::{NotFoundIncluder, NullIncluder};
-use crate::Result;
+use crate::{RemoteHandle, Result};
+use std::rc::Rc;
 
 /// Transform the text in preparation for parsing.
 ///
@@ -41,8 +40,8 @@ use crate::Result;
 /// * Compress groups of 3+ newlines into 2 newlines
 /// * Converts quote blocks to nested [[quote]] tags
 /// * Perform typography modifications
-pub fn prefilter(text: &mut String, includer: &dyn Includer) -> Result<()> {
-    include::substitute(text, includer)?;
+pub fn prefilter(text: &mut String, handle: &Rc<dyn RemoteHandle>) -> Result<()> {
+    include::substitute(text, handle)?;
     misc::substitute(text)?;
     blockquote::substitute(text)?;
     typography::substitute(text)?;
