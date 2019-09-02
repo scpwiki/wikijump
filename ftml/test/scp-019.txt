@@ -21,6 +21,17 @@ SyntaxTree {
         Words {
             centered: false,
             words: [
+                Text {
+                    contents: "<PAGE \'component:image-block\' #2>",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
                 Bold {
                     words: [
                         Text {
@@ -95,6 +106,14 @@ SyntaxTree {
             words: [
                 Text {
                     contents: "Periodically, entities emerge from SCP-019. Collectively, these are known as SCP-019-2. The entities vary in many aspects, but tend to be small, vaguely humanoid (though they may have animaloid features), and extremely hostile. They often choose to attack with teeth or claws. Although fairly delicate (also, surprisingly, flammable), they are reasonably strong and pose a considerable threat in large numbers.",
+                },
+            ],
+        },
+        Words {
+            centered: false,
+            words: [
+                Text {
+                    contents: "<PAGE \'component:image-block\' #2>",
                 },
             ],
         },

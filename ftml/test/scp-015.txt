@@ -33,6 +33,14 @@ SyntaxTree {
                 },
             ],
         },
+        Words {
+            centered: false,
+            words: [
+                Text {
+                    contents: "<PAGE \'component:image-block\' #2>",
+                },
+            ],
+        },
         Newlines {
             count: 1,
         },

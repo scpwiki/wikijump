@@ -323,8 +323,13 @@ SyntaxTree {
                                 },
                             ],
                         },
-                        Newlines {
-                            count: 1,
+                        Words {
+                            centered: false,
+                            words: [
+                                Text {
+                                    contents: "<PAGE \':scpsandbox2:Clef\' #0>",
+                                },
+                            ],
                         },
                     ],
                 },

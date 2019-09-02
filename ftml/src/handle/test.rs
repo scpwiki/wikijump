@@ -47,7 +47,7 @@ impl RemoteHandle for TestHandle {
         name: &str,
         args: &HashMap<&str, &str>,
     ) -> RemoteResult<Option<Cow<'static, str>>> {
-        let page = format!("<PAGE '{}' [{:#?}]>", name, args);
+        let page = format!("<PAGE '{}' #{}>", name, args.len());
 
         Ok(Some(Cow::Owned(page)))
     }

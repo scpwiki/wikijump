@@ -21,6 +21,17 @@ SyntaxTree {
         Words {
             centered: false,
             words: [
+                Text {
+                    contents: "<PAGE \'component:image-block\' #2>",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
                 Bold {
                     words: [
                         Text {
@@ -137,7 +148,29 @@ SyntaxTree {
             centered: false,
             words: [
                 Text {
+                    contents: "<PAGE \'component:image-block\' #3>",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                Text {
                     contents: "There is considerable graffiti on the interior walls of the school. Most appears typical, including gang signs, names, and street art. However, the graffiti fades and reappears, changing location. Writing on chalkboards and bulletin boards changes in a similar fashion. Subjects typically found range from standard school subjects (mathematics, literature, biology), to more esoteric subjects, such as quantum entanglement, ████████, and eugenics. One researcher reported one board detailing information about SCP-████, but photographic evidence showed only a blank slate (See Note 026-B).  The phrase \"The children used to sing\" has appeared multiple times in various places throughout the building, but there is currently no explanation for its significance.",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                Text {
+                    contents: "<PAGE \'component:image-block\' #2>",
                 },
             ],
         },

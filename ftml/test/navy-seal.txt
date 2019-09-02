@@ -698,6 +698,17 @@ SyntaxTree {
         Newlines {
             count: 1,
         },
+        Words {
+            centered: false,
+            words: [
+                Text {
+                    contents: "<PAGE \'component:youre-fucked-man\' #0>",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
         Align {
             alignment: Left,
             paragraphs: [

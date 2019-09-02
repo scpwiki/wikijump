@@ -21,6 +21,17 @@ SyntaxTree {
         Words {
             centered: false,
             words: [
+                Text {
+                    contents: "<PAGE \'component:image-block\' #2>",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
                 Bold {
                     words: [
                         Text {
@@ -106,6 +117,17 @@ SyntaxTree {
             words: [
                 Text {
                     contents: "Once SCP-020 forms a colony, usually within a human residence, it will produce spores that affect the behavior of humans around it. Affected subjects will increase the heat and humidity within their homes to create an environment more suitable to the growth of SCP-020. Affected subjects also become more sociable in many cases, and often invite acquaintances to their homes to further spread the organism. As the spores and mold colonies are invisible to affected subjects, the mold may sometimes grow directly on living subjects.",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
+                Text {
+                    contents: "<PAGE \'component:image-block\' #2>",
                 },
             ],
         },

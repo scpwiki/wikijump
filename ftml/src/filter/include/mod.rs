@@ -114,7 +114,7 @@ pub fn substitute(text: &mut String, handle: &dyn RemoteHandle) -> Result<()> {
 
     includes.reverse();
     for include in includes {
-        let buffer;
+        let mut buffer;
         let IncludeRef {
             range,
             name,
@@ -123,12 +123,19 @@ pub fn substitute(text: &mut String, handle: &dyn RemoteHandle) -> Result<()> {
         let final_resource = match resource {
             Some(ref resource) => resource.as_ref(),
             None => {
+                use std::fmt::Write;
+
                 // TODO slug-ify name
-                buffer = format!(
-                    "<div class=\"error-block\"><p>Included page \"{}\" does not exist (<a href=\"/{}/edit/true\">create it now</a>)</p></div>",
+                buffer = str!();
+                buffer.push_str("[[div class=\"error-block\"]]\n");
+                write!(
+                    &mut buffer,
+                    "Included page \"{}\" does not exist ([[a href=\"/{}/edit/true\"]]create it now[[/a]])\n",
                     name,
                     name,
-                );
+                ).unwrap();
+                buffer.push_str("[[/div]]\n");
+
                 &buffer
             }
         };

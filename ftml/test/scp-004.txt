@@ -21,6 +21,17 @@ SyntaxTree {
         Words {
             centered: false,
             words: [
+                Text {
+                    contents: "<PAGE \'component:image-block\' #3>",
+                },
+            ],
+        },
+        Newlines {
+            count: 1,
+        },
+        Words {
+            centered: false,
+            words: [
                 Bold {
                     words: [
                         Text {
