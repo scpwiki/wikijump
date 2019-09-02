@@ -26,9 +26,13 @@ pub struct CssModule;
 impl Module for CssModule {
     fn render(
         ctx: &mut HtmlContext,
-        _arguments: &HashMap<&str, Cow<str>>,
+        arguments: &HashMap<&str, Cow<str>>,
         contents: Option<&str>,
     ) -> Result<()> {
+        if !arguments.is_empty() {
+            return Err(Error::StaticMsg("Arguments passed to CSS module"));
+        }
+
         match contents {
             Some(style) => ctx.add_style(style),
             None => return Err(Error::StaticMsg("No style contents in CSS module")),
