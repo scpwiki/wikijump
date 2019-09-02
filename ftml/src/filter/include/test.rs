@@ -18,7 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::{substitute, TestIncluder};
+use super::substitute;
+use crate::handle::TestHandle;
 
 const TEST_CASES: [(&str, &str); 11] = [
     ("", ""),
@@ -63,7 +64,7 @@ const TEST_CASES: [(&str, &str); 11] = [
 
 #[test]
 fn test_substitute() {
-    use super::test_substitution;
+    use super::super::test::test_substitution;
 
-    test_substitution("include", |s| substitute(s, &TestIncluder), &TEST_CASES);
+    test_substitution("include", |s| substitute(s, &TestHandle), &TEST_CASES);
 }

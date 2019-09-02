@@ -26,7 +26,7 @@
 //! This will be slowly converted and deprecated in favor of ast_test.
 
 use super::{parse, Rule, WikidotParser};
-use crate::include::NullIncluder;
+use crate::handle::TestHandle;
 use crate::prefilter;
 use pest::Parser;
 
@@ -279,7 +279,7 @@ fn test_valid_filter_strings() {
     for string in &VALID_FILTER_STRINGS[..] {
         println!("Running prefilter test on valid string: {:?}", string);
         buffer.push_str(string);
-        prefilter(&mut buffer, &NullIncluder).expect("Prefilter shouldn't be failing");
+        prefilter(&mut buffer, &TestHandle).expect("Prefilter shouldn't be failing");
 
         if let Err(err) = WikidotParser::parse(Rule::page, &buffer) {
             panic!(
@@ -330,7 +330,7 @@ fn test_invalid_filter_strings() {
     for string in &INVALID_FILTER_STRINGS[..] {
         println!("Running prefilter test on invalid string: {:?}", string);
         buffer.push_str(string);
-        prefilter(&mut buffer, &NullIncluder).expect("Prefilter shouldn't be failing");
+        prefilter(&mut buffer, &TestHandle).expect("Prefilter shouldn't be failing");
 
         if let Ok(tree) = parse(&buffer) {
             panic!(

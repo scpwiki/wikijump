@@ -30,7 +30,6 @@ pub use self::tree::TreeRender;
 
 use crate::{parse, prefilter};
 use crate::{RemoteHandle, Result, SyntaxTree};
-use std::rc::Rc;
 
 pub trait Render {
     type Output;
@@ -41,7 +40,7 @@ pub trait Render {
         &self,
         text: &mut String,
         info: PageInfo,
-        handle: &Rc<dyn RemoteHandle>,
+        handle: &dyn RemoteHandle,
     ) -> Result<Self::Output> {
         prefilter(text, handle)?;
         let tree = parse(text)?;

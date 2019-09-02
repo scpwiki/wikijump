@@ -70,7 +70,7 @@ pub mod data;
 mod enums;
 mod error;
 mod filter;
-mod handle;
+pub mod handle;
 mod parse;
 mod render;
 
@@ -95,10 +95,9 @@ mod backtrace {
 }
 
 pub mod prelude {
-    pub use super::{data, parse, prefilter};
+    pub use super::{data, handle, parse, prefilter};
     pub use super::{
-        Error, HtmlRender, PageInfo, RemoteHandle, Render, Result, StdResult, SyntaxTree,
-        TreeRender,
+        Error, HtmlRender, PageInfo, Render, Result, StdResult, SyntaxTree, TreeRender,
     };
 }
 

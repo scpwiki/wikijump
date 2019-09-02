@@ -23,20 +23,19 @@
 use super::{HtmlMeta, HtmlOutput};
 use crate::{PageInfo, RemoteHandle, Result};
 use std::fmt::{self, Debug, Write};
-use std::rc::Rc;
 
 #[derive(Clone)]
-pub struct HtmlContext<'i> {
+pub struct HtmlContext<'i, 'h> {
     html: String,
     style: String,
     meta: Vec<HtmlMeta>,
     write_mode: WriteMode,
     footnotes: FootnoteContext,
     info: PageInfo<'i>,
-    handle: Rc<dyn RemoteHandle>,
+    handle: &'h dyn RemoteHandle,
 }
 
-impl<'i> Debug for HtmlContext<'i> {
+impl<'i, 'h> Debug for HtmlContext<'i, 'h> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("HtmlContext")
             .field("html", &self.html)
@@ -45,13 +44,13 @@ impl<'i> Debug for HtmlContext<'i> {
             .field("write_mode", &self.write_mode)
             .field("footnotes", &self.footnotes)
             .field("info", &self.info)
-            .field("handle", &"Rc<RemoteHandle {{ ... }}>")
+            .field("handle", &"RemoteHandle {{ ... }}")
             .finish()
     }
 }
 
-impl<'i> HtmlContext<'i> {
-    pub fn new(info: PageInfo<'i>, handle: Rc<dyn RemoteHandle>) -> Self {
+impl<'i, 'h> HtmlContext<'i, 'h> {
+    pub fn new(info: PageInfo<'i>, handle: &'h dyn RemoteHandle) -> Self {
         HtmlContext {
             html: String::new(),
             style: String::new(),
@@ -70,8 +69,8 @@ impl<'i> HtmlContext<'i> {
     }
 
     #[inline]
-    pub fn handle(&self) -> Rc<dyn RemoteHandle> {
-        Rc::clone(&self.handle)
+    pub fn handle(&self) -> &'h dyn RemoteHandle {
+        self.handle
     }
 
     #[inline]
@@ -145,7 +144,7 @@ impl<'i> HtmlContext<'i> {
     }
 }
 
-impl<'a> Into<HtmlOutput> for HtmlContext<'a> {
+impl<'i, 'h> Into<HtmlOutput> for HtmlContext<'i, 'h> {
     fn into(self) -> HtmlOutput {
         HtmlOutput {
             html: self.html,
@@ -155,7 +154,7 @@ impl<'a> Into<HtmlOutput> for HtmlContext<'a> {
     }
 }
 
-impl<'a> Write for HtmlContext<'a> {
+impl<'i, 'h> Write for HtmlContext<'i, 'h> {
     #[inline]
     fn write_str(&mut self, s: &str) -> fmt::Result {
         self.buffer().write_str(s)

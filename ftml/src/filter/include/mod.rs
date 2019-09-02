@@ -26,7 +26,6 @@ use pest::Parser;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::ops::Range;
-use std::rc::Rc;
 
 #[derive(Debug, Clone, Parser)]
 #[grammar = "filter/include.pest"]
@@ -40,7 +39,7 @@ struct IncludeRef {
 }
 
 // Helper function
-pub fn substitute(text: &mut String, handle: &Rc<dyn RemoteHandle>) -> Result<()> {
+pub fn substitute(text: &mut String, handle: &dyn RemoteHandle) -> Result<()> {
     let pairs = match IncludeParser::parse(Rule::page, text) {
         Ok(mut pairs) => get_inner_pairs!(pairs),
         Err(err) => {
@@ -101,7 +100,11 @@ pub fn substitute(text: &mut String, handle: &Rc<dyn RemoteHandle>) -> Result<()
         let resource = handle.get_page(name, &args)?;
         let name = str!(name);
 
-        includes.push(IncludeRef { range, name, resource });
+        includes.push(IncludeRef {
+            range,
+            name,
+            resource,
+        });
     }
 
     // Go through in reverse order to not mess up indices
@@ -112,7 +115,11 @@ pub fn substitute(text: &mut String, handle: &Rc<dyn RemoteHandle>) -> Result<()
     includes.reverse();
     for include in includes {
         let buffer;
-        let IncludeRef { range, name, resource } = include;
+        let IncludeRef {
+            range,
+            name,
+            resource,
+        } = include;
         let final_resource = match resource {
             Some(ref resource) => resource.as_ref(),
             None => {
@@ -123,7 +130,7 @@ pub fn substitute(text: &mut String, handle: &Rc<dyn RemoteHandle>) -> Result<()
                     name,
                 );
                 &buffer
-            },
+            }
         };
 
         text.replace_range(range, final_resource);

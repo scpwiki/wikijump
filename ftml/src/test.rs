@@ -18,8 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::include::NullIncluder;
 use super::prelude::*;
+use crate::handle::TestHandle;
 use std::ffi::OsStr;
 use std::fmt::Write;
 use std::fs::{self, File};
@@ -137,7 +137,7 @@ fn test_parser() {
         println!("Parsing {}...", file_name!(input_file));
         let mut input_text = String::new();
         read_file(&mut input_text, &input_file).expect("Unable to read input Wikidot source");
-        prefilter(&mut input_text, &NullIncluder).expect("Unable to prefilter Wikidot source");
+        prefilter(&mut input_text, &TestHandle).expect("Unable to prefilter Wikidot source");
         read_file(&mut expected, &output_file).expect("Unable to read output tree");
 
         let output_tree = parse(&input_text).expect("Unable to parse Wikidot source");

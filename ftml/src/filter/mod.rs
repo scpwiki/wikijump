@@ -27,7 +27,6 @@ mod typography;
 mod test;
 
 use crate::{RemoteHandle, Result};
-use std::rc::Rc;
 
 /// Transform the text in preparation for parsing.
 ///
@@ -40,7 +39,7 @@ use std::rc::Rc;
 /// * Compress groups of 3+ newlines into 2 newlines
 /// * Converts quote blocks to nested [[quote]] tags
 /// * Perform typography modifications
-pub fn prefilter(text: &mut String, handle: &Rc<dyn RemoteHandle>) -> Result<()> {
+pub fn prefilter(text: &mut String, handle: &dyn RemoteHandle) -> Result<()> {
     include::substitute(text, handle)?;
     misc::substitute(text)?;
     blockquote::substitute(text)?;
