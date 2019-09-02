@@ -18,22 +18,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use ftml::include::NullIncluder;
 use ftml::prelude::*;
-use std::rc::Rc;
+use ftml::handle::NullHandle;
 
 pub type TransformFn = fn(&mut String, bool) -> Result<String>;
 
 #[inline]
 pub fn prefilter_only(text: &mut String, _wrap: bool) -> Result<String> {
     let mut text = text.clone();
-    prefilter(&mut text, &NullIncluder)?;
+    prefilter(&mut text, &NullHandle)?;
     Ok(text)
 }
 
 pub fn parse_only(text: &mut String, wrap: bool) -> Result<String> {
     let mut text = text.clone();
-    prefilter(&mut text, &NullIncluder)?;
+    prefilter(&mut text, &NullHandle)?;
     let tree = parse(&mut text)?;
     let result = if wrap {
         format!(
@@ -48,8 +47,8 @@ pub fn parse_only(text: &mut String, wrap: bool) -> Result<String> {
 }
 
 pub fn full_transform(text: &mut String, wrap: bool) -> Result<String> {
-    let handle = Rc::new(NullHandle);
-    let renderer = HtmlRender::new(handle);
+    let handle = NullHandle;
+    let renderer = HtmlRender::new(&handle);
 
     let info = PageInfo {
         title: "SCP-XXXX",
@@ -60,7 +59,7 @@ pub fn full_transform(text: &mut String, wrap: bool) -> Result<String> {
         tags: &["scp", "keter", "intangible", "k-class-scenario", "ontokinetic"],
     };
 
-    let mut output = renderer.transform(text, info, &NullIncluder)?;
+    let mut output = renderer.transform(text, info, &handle)?;
 
     if wrap {
         let mut buffer = str!("<html><head>");
