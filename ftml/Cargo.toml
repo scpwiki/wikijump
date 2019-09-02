@@ -9,6 +9,7 @@ edition = "2018" # this refers to the Cargo.toml version
 name = "ftml"
 
 [dependencies]
+cfg-if = "0.1"
 chrono = "0.4"
 color-backtrace = "0.1"
 either = "1.5"
@@ -22,7 +23,6 @@ regex = "1"
 str-macro = "0.1"
 
 [dev-dependencies]
-cfg-if = "0.1"
 clap = "2"
 notify = "4.0"
 serde = { version = "1", features = ["derive"] }

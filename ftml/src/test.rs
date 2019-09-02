@@ -77,6 +77,16 @@ fn update_test<P: AsRef<Path>>(output: &str, output_file: P) {
         .expect("Unable to write to output file");
 }
 
+#[cfg(windows)]
+fn dos_to_unix_newlines(output: &mut String) {
+    while let Some(idx) = output.find("\r\n") {
+        output.replace_range(idx..idx+2, "\n");
+    }
+}
+
+#[cfg(not(windows))]
+fn dos_to_unix_newlines(_: &mut String) {}
+
 fn read_file(buffer: &mut String, path: &Path) -> Result<()> {
     buffer.clear();
     let mut file = File::open(path)?;
@@ -143,6 +153,7 @@ fn test_parser() {
         let output_tree = parse(&input_text).expect("Unable to parse Wikidot source");
         output.clear();
         write!(&mut output, "{:#?}", &output_tree).expect("Unable to write tree to string");
+        dos_to_unix_newlines(&mut output);
 
         assert_eq!(
             expected, output,
