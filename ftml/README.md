@@ -14,9 +14,7 @@ This library targets the latest stable Rust. At time of writing, that is 1.37.0
 $ cargo build --release
 ```
 
-This will create the appropriate Rust library files and the following binary:
-
-* `ftml` is a command-line tool to permit use of the library
+This will create the appropriate Rust library files and the following `ftml` binary.
 
 The programs can be executed using the following:
 
