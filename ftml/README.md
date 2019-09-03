@@ -62,7 +62,7 @@ The library provides a trait `Render`, which has the following signature:
 trait Render {
     type Output;
 
-    fn render(&self, tree: &SyntaxTree, info: PageInfo) -> Result<Self::Output>;
+    fn render(&self, tree: &SyntaxTree, info: PageInfo) -> Result<Self::Output, Error>;
 }
 ```
 With a helper function `transform()` pre-implemented which calls all three of these steps for you.
