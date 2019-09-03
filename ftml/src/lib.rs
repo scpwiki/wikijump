@@ -78,7 +78,7 @@ mod render;
 mod test;
 
 pub use self::error::{Error, RemoteError};
-pub use self::filter::{postfilter, prefilter};
+pub use self::filter::prefilter;
 pub use self::handle::RemoteHandle;
 pub use self::parse::{parse, SyntaxTree};
 pub use self::render::{HtmlRender, PageInfo, Render, TreeRender};

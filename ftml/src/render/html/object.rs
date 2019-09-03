@@ -20,7 +20,6 @@
 
 use super::finish::render_finish;
 use super::prelude::*;
-use crate::postfilter;
 use crate::RemoteHandle;
 use std::fmt::{self, Debug};
 
@@ -41,7 +40,6 @@ impl<'h> Render for HtmlRender<'h> {
         let mut ctx = HtmlContext::new(info, self.handle);
         render_paragraphs(&mut ctx, tree.paragraphs())?;
         render_finish(&mut ctx)?;
-        postfilter(ctx.buffer())?;
 
         Ok(ctx.into())
     }

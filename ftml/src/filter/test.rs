@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::{postfilter, prefilter};
+use super::prefilter;
 use crate::handle::TestHandle;
 use crate::Result;
 
@@ -96,8 +96,6 @@ const PREFILTER_TEST_CASES: [(&str, &str); 13] = [
     ),
 ];
 
-const POSTFILTER_TEST_CASES: [(&str, &str); 1] = [("", "")];
-
 #[test]
 fn test_prefilter() {
     test_substitution(
@@ -105,9 +103,4 @@ fn test_prefilter() {
         |s| prefilter(s, &TestHandle),
         &PREFILTER_TEST_CASES,
     );
-}
-
-#[test]
-fn test_postfilter() {
-    test_substitution("postfilter", postfilter, &POSTFILTER_TEST_CASES);
 }
