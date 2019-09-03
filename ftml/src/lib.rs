@@ -22,23 +22,41 @@
 
 //! A library to convert Wikidot text source into HTML.
 //!
-//! Essentially a rewrite of Wikidot's Text_Wiki module, with
-//! the intention for better modular integration and standalone
-//! servicing.
+//! This library aims to be a replacement of Wikidot's Text_Wiki
+//! module, but with the goals of providing more modular integration
+//! and standalone servicing.
 //!
-//! The main goal of this project is backwards-compatibility: if
-//! there is an article on the SCP Wiki which uses a piece of syntax,
-//! we intend to support it (or convince the author to change it).
-//! Thus, every parsing or rendering rule should have tests, and
-//! a dedicated battery of test articles and their HTML outputs
-//! are test for any new version.
+//! While backwards compatibility with Wikidot code is one of the aims
+//! of this library, there are constructions which are valid in Wikidot
+//! but deliberately invalid in ftml. The total scope of all Wikidot code
+//! that is valid would almost require a parser nearly identical to the one
+//! attempting to be rewritten to cover every edge case, even if supporting
+//! such a case is not very useful or sensible.
 //!
-//! That said, deprecated tags or weird Wikidot behavior will not be
-//! supported if there are no mainlist articles or pages using them.
-//! Additionally, if Wikidot doesn't support something (such as nested
-//! collapsibles), we will aim to allow them through the use of parser
-//! rules. Additionally, features not found within Wikidot's Text_Wiki
-//! will be added.
+//! For instance, the following is valid code:
+//! ```text
+//! > [[div class="test"]
+//! > A man, a plan, a canal, Panama.
+//! [[/div]]
+//! ```
+//!
+//! However the actual extent of the blockquote intersects with the div, and
+//! it essentially is the HTML equivalent of
+//! ```text
+//! <div class="outer">
+//!   <p class="inner">
+//!   </div>
+//! </p>
+//! ```
+//!
+//! Which is obviously invalid syntax, and can cause issues.
+//!
+//! Instead the library's parser defines a grammar, which is designed to be
+//! compatible with all common Wikidot constructions, or has extensions for
+//! situations that are not directly supported. This largely-overlapping but
+//! slightly dissimilar specification ("ftml code") aims at being able to
+//! _effectively_ replace Wikidot code with minor human involvement to
+//! replace malformed original sources.
 //!
 //! This crate also provides an executable to convert files from
 //! the command-line. See that file for usage documentation.

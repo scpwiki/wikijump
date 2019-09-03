@@ -3,7 +3,7 @@
 
 **Foundation Text Markup Language** (formerly `wikidot-to-html`)
 
-A Rust library and executable to convert Wikidot code into HTML. A reimplementation of the aging [Text\_Wiki](https://github.com/gabrys/wikidot/tree/master/lib/Text_Wiki/Text) from Wikidot.
+A Rust library and executable to convert Wikidot code into HTML. This aims to be a replacement for the aging [Text\_Wiki](https://github.com/gabrys/wikidot/tree/master/lib/Text_Wiki/Text) from Wikidot. However, it is not a completely backwards-compatible library. Instead it aims to support a subset referred to here as being "well-formed". Additionally it has some extensions to make certain design patterns easier to accomplish. See the section below for more information.
 
 Available under the terms of the GNU Affero General Public License. See [LICENSE.md](LICENSE).
 
@@ -86,3 +86,28 @@ pub struct HtmlOutput {
 ```
 
 This is not a complete HTML document, but rather the body, styling, and `<meta>` tags which can be used by the consumer to produce the final output. This way it is easier to modify the output, or add additional metadata tags or load the correct CSS theme.
+
+### Well-formed Wikidot
+The library does not support all possible Wikidot code, as a fully-compatible parser would essentially be a clone of the hacks used in the original PHP source. `Text_Wiki` functions by searching+replacing various terms throughout the document until it creates the final output, and unsurprisingly can produce invalid HTML.
+
+For instance, the following is valid code:
+```
+> [[div class="test"]
+> A man, a plan, a canal, Panama.
+[[/div]]
+```
+
+However the actual extent of the blockquote intersects with the div, and it essentially is the HTML equivalent of
+```html
+<div class="outer">
+  <p class="inner">
+  </div>
+</p>
+```
+
+Which is obviously invalid syntax, and can cause issues.
+
+Instead the library's parser defines a grammar, which is designed to be compatible with all common Wikidot constructions, or has extensions for situations that are not directly supported. This largely-overlapping but slightly dissimilar specification ("ftml code") aims at being able to _effectively_ replace Wikidot code with minor human involvement to replace malformed original sources.
+
+### Extensions
+TODO
