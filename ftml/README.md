@@ -51,10 +51,10 @@ The primary bulk of this library's code exists here. The parser is built using [
 
 The signature for this call is:
 ```rust
-fn parse<'a>(text: &'a str) -> Result<SyntaxError<'a>, Error>;
+fn parse<'a>(text: &'a str) -> Result<SyntaxTree<'a>, Error>;
 ```
 
-Relevant sections of text are borrowed directly from the input string if relevant.
+Relevant sections of text are borrowed directly from the input string if needed.
 
 **Render**  
 The library provides a trait `Render`, which has the following signature:
