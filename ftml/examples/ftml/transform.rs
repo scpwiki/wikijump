@@ -56,7 +56,7 @@ pub fn full_transform(text: &mut String, wrap: bool) -> Result<String> {
         header: None,
         subheader: None,
         rating: 1000,
-        tags: &["scp", "keter", "intangible", "k-class-scenario", "ontokinetic"],
+        tags: vec!["scp", "keter", "intangible", "k-class-scenario", "ontokinetic"],
     };
 
     let mut output = renderer.transform(text, info, &handle)?;

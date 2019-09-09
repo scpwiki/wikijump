@@ -19,34 +19,44 @@
  */
 
 /// Metadata information on the article being rendered.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct PageInfo<'a> {
     /// The title of this page.
     ///
     /// For SCPs this is "SCP-XXXX".
+
+    #[serde(borrow)]
     pub title: &'a str,
 
     /// The alternate title of this page.
     ///
     /// For SCPs this is its series listing title.
     /// If this is None then the main title is used instead.
+
+    #[serde(borrow)]
     pub alt_title: Option<&'a str>,
 
     /// The header of this page, if it's setting one.
     ///
     /// For regular pages this is "SCP Foundation".
     /// Previously this value was overriden using custom CSS.
+
+    #[serde(borrow)]
     pub header: Option<&'a str>,
 
     /// The sub-header of this page, if it's setting one.
     ///
     /// For regular pages this is "Secure, Contain, Protect".
     /// Previously this value was overriden using custom CSS.
+
+    #[serde(borrow)]
     pub subheader: Option<&'a str>,
 
     /// The current rating the page has.
     pub rating: i32,
 
     /// The current set of tags this page has.
-    pub tags: &'a [&'a str],
+
+    #[serde(borrow)]
+    pub tags: Vec<&'a str>,
 }

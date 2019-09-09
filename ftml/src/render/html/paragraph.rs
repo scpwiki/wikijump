@@ -129,7 +129,7 @@ pub fn render_paragraph(ctx: &mut HtmlContext, paragraph: &Paragraph) -> Result<
             ref paragraphs,
         } => {
             // Not sure what the approach on this should be
-            let tags = ctx.info().tags;
+            let tags = &ctx.info().tags;
             let should_display = move || {
                 for tag in required {
                     if !tags.contains(tag) {
