@@ -104,6 +104,7 @@ pub use self::error::{Error, RemoteError};
 pub use self::filter::prefilter;
 pub use self::handle::RemoteHandle;
 pub use self::parse::{parse, Paragraph, SyntaxTree, Word};
+pub use self::render::html;
 pub use self::render::{HtmlRender, PageInfo, Render, TreeRender};
 
 pub mod prelude {
