@@ -156,3 +156,10 @@ impl Deref for RemoteError {
         &self.0
     }
 }
+
+impl Into<String> for RemoteError {
+    #[inline]
+    fn into(self) -> String {
+        self.0
+    }
+}
