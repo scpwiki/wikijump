@@ -12,6 +12,7 @@ os:
 matrix:
   allow_failures:
     - rust: nightly
+    - os: windows
   fast_finish: true
 
 cache: cargo
