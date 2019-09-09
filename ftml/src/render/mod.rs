@@ -24,7 +24,7 @@ mod null;
 mod tree;
 
 pub use self::html::HtmlRender;
-pub use self::info::PageInfo;
+pub use self::info::{PageInfo, PageInfoOwned};
 pub use self::null::NullRender;
 pub use self::tree::TreeRender;
 

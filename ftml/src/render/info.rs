@@ -19,44 +19,65 @@
  */
 
 /// Metadata information on the article being rendered.
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PageInfo<'a> {
     /// The title of this page.
     ///
     /// For SCPs this is "SCP-XXXX".
-
-    #[serde(borrow)]
     pub title: &'a str,
 
     /// The alternate title of this page.
     ///
     /// For SCPs this is its series listing title.
     /// If this is None then the main title is used instead.
-
-    #[serde(borrow)]
     pub alt_title: Option<&'a str>,
 
     /// The header of this page, if it's setting one.
     ///
     /// For regular pages this is "SCP Foundation".
     /// Previously this value was overriden using custom CSS.
-
-    #[serde(borrow)]
     pub header: Option<&'a str>,
 
     /// The sub-header of this page, if it's setting one.
     ///
     /// For regular pages this is "Secure, Contain, Protect".
     /// Previously this value was overriden using custom CSS.
-
-    #[serde(borrow)]
     pub subheader: Option<&'a str>,
 
     /// The current rating the page has.
     pub rating: i32,
 
     /// The current set of tags this page has.
-
-    #[serde(borrow)]
     pub tags: Vec<&'a str>,
+}
+
+/// An owned version of [`PageInfo`]. See there for field information.
+/// [`PageInfo`]: ./struct.PageInfo.html
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+pub struct PageInfoOwned {
+    pub title: String,
+    pub alt_title: Option<String>,
+    pub header: Option<String>,
+    pub subheader: Option<String>,
+    pub rating: i32,
+    pub tags: Vec<String>,
+}
+
+impl PageInfoOwned {
+    pub fn as_borrow(&self) -> PageInfo {
+        macro_rules! borrow {
+            ($field:expr) => (
+                $field.as_ref().map(|s| s.as_ref())
+            )
+        }
+
+        PageInfo {
+            title: &self.title,
+            alt_title: borrow!(self.alt_title),
+            header: borrow!(self.header),
+            subheader: borrow!(self.subheader),
+            rating: self.rating,
+            tags: self.tags.iter().map(|s| s.as_ref()).collect(),
+        }
+    }
 }

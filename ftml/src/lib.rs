@@ -105,7 +105,7 @@ pub use self::filter::prefilter;
 pub use self::handle::RemoteHandle;
 pub use self::parse::{parse, Paragraph, SyntaxTree, Word};
 pub use self::render::html;
-pub use self::render::{HtmlRender, PageInfo, Render, TreeRender};
+pub use self::render::{HtmlRender, PageInfo, PageInfoOwned, Render, TreeRender};
 
 pub mod prelude {
     pub use super::{data, handle, parse, prefilter};
