@@ -21,8 +21,9 @@
 use super::prelude::*;
 use crate::Result;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct SyntaxTree<'a> {
+    #[serde(borrow)]
     paragraphs: Vec<Paragraph<'a>>,
 }
 
