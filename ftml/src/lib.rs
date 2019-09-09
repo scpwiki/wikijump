@@ -62,7 +62,6 @@
 //! the command-line. See that file for usage documentation.
 
 extern crate chrono;
-extern crate color_backtrace;
 extern crate either;
 extern crate htmlescape;
 
@@ -100,17 +99,6 @@ pub use self::filter::prefilter;
 pub use self::handle::RemoteHandle;
 pub use self::parse::{parse, SyntaxTree};
 pub use self::render::{HtmlRender, PageInfo, Render, TreeRender};
-
-mod backtrace {
-    use color_backtrace;
-    use std::sync::Once;
-
-    static BACKTRACE: Once = Once::new();
-
-    pub fn init() {
-        BACKTRACE.call_once(|| color_backtrace::install());
-    }
-}
 
 pub mod prelude {
     pub use super::{data, handle, parse, prefilter};

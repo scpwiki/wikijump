@@ -11,7 +11,6 @@ name = "ftml"
 [dependencies]
 cfg-if = "0.1"
 chrono = "0.4"
-color-backtrace = "0.1"
 either = "1.5"
 htmlescape = "0.3"
 lazy_static = "1"
