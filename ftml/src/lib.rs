@@ -110,7 +110,8 @@ pub use self::render::{HtmlRender, PageInfo, PageInfoOwned, Render, TreeRender};
 pub mod prelude {
     pub use super::{data, handle, parse, prefilter};
     pub use super::{
-        Error, HtmlRender, PageInfo, Render, Result, StdResult, SyntaxTree, TreeRender,
+        Error, HtmlRender, PageInfo, PageInfoOwned, Render, Result, StdResult, SyntaxTree,
+        TreeRender,
     };
 }
 

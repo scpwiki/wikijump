@@ -66,9 +66,9 @@ pub struct PageInfoOwned {
 impl PageInfoOwned {
     pub fn as_borrow(&self) -> PageInfo {
         macro_rules! borrow {
-            ($field:expr) => (
+            ($field:expr) => {
                 $field.as_ref().map(|s| s.as_ref())
-            )
+            };
         }
 
         PageInfo {
