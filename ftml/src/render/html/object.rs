@@ -52,7 +52,7 @@ impl<'h> Debug for HtmlRender<'h> {
     }
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct HtmlOutput {
     pub html: String,
     pub style: String,

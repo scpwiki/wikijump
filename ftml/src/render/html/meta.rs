@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 
-#[derive(Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct HtmlMeta {
     pub tag_type: HtmlMetaType,
     pub name: String,

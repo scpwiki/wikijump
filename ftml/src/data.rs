@@ -21,7 +21,7 @@
 use std::borrow::Cow;
 
 /// Information about a site user.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct User<'a> {
     pub name: Cow<'a, str>,
     pub id: u64,
