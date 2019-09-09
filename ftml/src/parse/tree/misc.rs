@@ -20,7 +20,7 @@
 
 use super::prelude::*;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct Tab<'a> {
     pub name: &'a str,
     pub contents: Vec<Paragraph<'a>>,
@@ -28,8 +28,10 @@ pub struct Tab<'a> {
 
 pub type TableColumn<'a> = Vec<Word<'a>>;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct TableRow<'a> {
     pub title: bool,
+
+    #[serde(borrow)]
     pub columns: Vec<TableColumn<'a>>,
 }

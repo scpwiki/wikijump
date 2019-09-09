@@ -78,6 +78,12 @@ extern crate pest_derive;
 extern crate regex;
 
 #[macro_use]
+extern crate serde;
+
+#[macro_use]
+extern crate serde_repr;
+
+#[macro_use]
 extern crate str_macro;
 
 #[macro_use]

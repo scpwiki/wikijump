@@ -22,7 +22,8 @@ use crate::StdResult;
 use std::convert::TryFrom;
 use std::fmt::{self, Display};
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
 pub enum Alignment {
     Left,
     Right,
@@ -57,7 +58,8 @@ impl Display for Alignment {
     }
 }
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
 pub enum AnchorTarget {
     NewTab,
     Parent,
@@ -92,14 +94,15 @@ impl Display for AnchorTarget {
     }
 }
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Serialize_repr, Deserialize_repr, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[repr(u8)]
 pub enum HeadingLevel {
-    One,
-    Two,
-    Three,
-    Four,
-    Five,
-    Six,
+    One = 1,
+    Two = 2,
+    Three = 3,
+    Four = 4,
+    Five = 5,
+    Six = 6,
 }
 
 impl TryFrom<usize> for HeadingLevel {
@@ -117,9 +120,24 @@ impl TryFrom<usize> for HeadingLevel {
         }
     }
 }
+impl TryFrom<u8> for HeadingLevel {
+    type Error = ();
 
-impl Into<usize> for HeadingLevel {
-    fn into(self) -> usize {
+    fn try_from(value: u8) -> StdResult<Self, Self::Error> {
+        match value {
+            1 => Ok(HeadingLevel::One),
+            2 => Ok(HeadingLevel::Two),
+            3 => Ok(HeadingLevel::Three),
+            4 => Ok(HeadingLevel::Four),
+            5 => Ok(HeadingLevel::Five),
+            6 => Ok(HeadingLevel::Six),
+            _ => Err(()),
+        }
+    }
+}
+
+impl Into<u8> for HeadingLevel {
+    fn into(self) -> u8 {
         match self {
             HeadingLevel::One => 1,
             HeadingLevel::Two => 2,
@@ -134,20 +152,22 @@ impl Into<usize> for HeadingLevel {
 impl Display for HeadingLevel {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let level = *self;
-        let value: usize = level.into();
+        let value: u8 = level.into();
 
         write!(f, "h{}", value)
     }
 }
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
 pub enum LinkText<'a> {
     Text(&'a str),
     Url,
     Article,
 }
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
 pub enum ListStyle {
     Bullet,
     Numbered,
@@ -164,7 +184,8 @@ impl Display for ListStyle {
     }
 }
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
 pub enum HtmlMetaType {
     Name,
     HttpEquiv,

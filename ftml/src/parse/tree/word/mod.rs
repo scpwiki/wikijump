@@ -140,7 +140,7 @@ lazy_static! {
     };
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub enum Word<'a> {
     Anchor {
         href: Option<&'a str>,
