@@ -21,6 +21,7 @@
 mod css;
 mod listpages;
 mod rate;
+mod tempnew;
 
 mod prelude {
     pub use super::super::HtmlContext;
@@ -35,6 +36,7 @@ use self::css::CssModule;
 use self::listpages::ListPagesModule;
 use self::prelude::*;
 use self::rate::RateModule;
+use self::tempnew::TempNewModule;
 
 pub type ModuleRenderFn = fn(
     ctx: &mut HtmlContext,
@@ -42,10 +44,11 @@ pub type ModuleRenderFn = fn(
     contents: Option<&str>,
 ) -> Result<()>;
 
-const MODULE_LIST: [(&[&str], ModuleRenderFn); 3] = [
+const MODULE_LIST: [(&[&str], ModuleRenderFn); 4] = [
     (&["css", "style"], CssModule::render),
     (&["rate", "rating"], RateModule::render),
     (&["listpages", "list_pags"], ListPagesModule::render),
+    (&["tempnew"], TempNewModule::render),
 ];
 
 pub trait Module {
