@@ -40,7 +40,12 @@ impl Module for RateModule {
         }
 
         let rating = ctx.info().rating;
-        write!(ctx, "[<b>{:+}</b>]", rating)?;
+        ctx.push_str("<div class=\"rating-module\">");
+        write!(ctx, "[<b class=\"page-rating\">{:+}</b>]", rating)?;
+        ctx.push_str("<b><a onclick=\"scpvote(-1);\">-</b> ");
+        ctx.push_str("<b><a onclick=\"scpvote(0);\">0</b> ");
+        ctx.push_str("<b><a onclick=\"scpvote(1);\">+</b>");
+        ctx.push_str("</div>");
         Ok(())
     }
 }
