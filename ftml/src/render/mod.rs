@@ -22,10 +22,10 @@ pub mod html;
 mod null;
 mod tree;
 
-pub use crate::{PageInfo, PageInfoOwned};
 pub use self::html::HtmlRender;
 pub use self::null::NullRender;
 pub use self::tree::TreeRender;
+pub use crate::{PageInfo, PageInfoOwned};
 
 use crate::{parse, prefilter};
 use crate::{RemoteHandle, Result, SyntaxTree};

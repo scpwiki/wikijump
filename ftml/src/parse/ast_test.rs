@@ -21,7 +21,7 @@
 //! Tests for the parser.
 //! This ensures that all input strings produce the expected output AST.
 
-use super::{parse, SyntaxTree};
+use super::{parse, Paragraph, SyntaxTree, Word};
 
 macro_rules! valid {
     ($input:expr, $expected:expr) => {
@@ -44,6 +44,15 @@ macro_rules! invalid {
 #[test]
 fn test_valid() {
     valid!("", SyntaxTree::from_paragraphs(vec![]));
+    valid!(
+        "**bold**",
+        SyntaxTree::from_paragraphs(vec![Paragraph::Words {
+            centered: false,
+            words: vec![Word::Bold {
+                words: vec![Word::Text { contents: "bold" }]
+            }]
+        }])
+    );
 }
 
 #[test]
