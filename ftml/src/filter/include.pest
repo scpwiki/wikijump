@@ -21,6 +21,7 @@
 page = { SOI ~ (include | (!include ~ ANY))* ~ EOI }
 
 include = {
+    !("@@" ~ (!"@@")?) ~
     "[[" ~ space? ~ ^"include" ~ space_any ~
     resource ~ space_any? ~
     "|"? ~ (
