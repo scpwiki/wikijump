@@ -46,8 +46,7 @@ pub fn parse(pair: Pair<Rule>) -> Result<Paragraph> {
 
                 debug_assert_eq!(value.as_rule(), Rule::string);
 
-                let key = key.to_ascii_lowercase();
-                parse_arg(&mut ctx, key.as_ref(), value.as_str())?;
+                parse_arg(&mut ctx, key, value.as_str())?;
             }
             Rule::paragraph => {
                 let paragraph = Paragraph::from_pair(pair)?;
@@ -80,16 +79,45 @@ pub fn parse(pair: Pair<Rule>) -> Result<Paragraph> {
 }
 
 fn parse_arg<'c, 'p>(ctx: &'c mut Context<'p>, key: &'_ str, value: &'p str) -> Result<()> {
-    match key {
-        "show" => {
+    #[derive(Debug, Copy, Clone)]
+    enum Argument {
+        Show,
+        Hide,
+        HideLocation,
+        Id,
+        Class,
+        Style,
+    }
+
+    const COLLAPSIBLE_ARGUMENTS: [(&str, Argument); 6] = [
+        ("show", Argument::Show),
+        ("hide", Argument::Hide),
+        ("hidelocation", Argument::HideLocation),
+        ("id", Argument::Id),
+        ("class", Argument::Class),
+        ("style", Argument::Style),
+    ];
+
+    fn get_argument(key: &str) -> Argument {
+        for (name, argument) in &COLLAPSIBLE_ARGUMENTS {
+            if key.eq_ignore_ascii_case(name) {
+                return *argument;
+            }
+        }
+
+        panic!("Unknown argument for [[collapsible]]: {}", key);
+    }
+
+    match get_argument(key) {
+        Argument::Show => {
             let value = interp_str(value)?;
             ctx.show_text = Some(value);
         }
-        "hide" => {
+        Argument::Hide => {
             let value = interp_str(value)?;
             ctx.hide_text = Some(value);
         }
-        "hidelocation" => {
+        Argument::HideLocation => {
             let value = interp_str(value)?.to_ascii_lowercase();
             let (top, bottom) = match value.as_ref() {
                 "top" => (true, false),
@@ -106,10 +134,9 @@ fn parse_arg<'c, 'p>(ctx: &'c mut Context<'p>, key: &'_ str, value: &'p str) -> 
 
             ctx.show = Some((top, bottom));
         }
-        "id" => ctx.id = Some(value),
-        "class" => ctx.class = Some(value),
-        "style" => ctx.style = Some(value),
-        _ => panic!("Unknown argument for [[collapsible]]: {}", key),
+        Argument::Id => ctx.id = Some(value),
+        Argument::Class => ctx.class = Some(value),
+        Argument::Style => ctx.style = Some(value),
     }
 
     Ok(())
