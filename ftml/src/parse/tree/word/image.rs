@@ -37,21 +37,11 @@ pub fn parse(pair: Pair<Rule>) -> Result<Word> {
 
     for pair in pair.into_inner() {
         match pair.as_rule() {
-            Rule::image_alignment => match pair.as_str().trim() {
-                "f<" => {
-                    float = true;
-                    direction = Some(Alignment::Left);
-                }
-                "f>" => {
-                    float = true;
-                    direction = Some(Alignment::Right);
-                }
-                "<" => direction = Some(Alignment::Left),
-                ">" => direction = Some(Alignment::Right),
-                "=" => direction = Some(Alignment::Center),
-                "" => direction = None,
-                _ => panic!("Invalid image alignment: {}", pair.as_str()),
-            },
+            Rule::image_alignment => {
+                let alignment = parse_alignment(pair.as_str());
+                direction = alignment.0;
+                float = alignment.1;
+            }
             Rule::file_ident => filename = pair.as_str(),
             Rule::image_arg => {
                 let capture = ARGUMENT_NAME
@@ -99,6 +89,18 @@ pub fn parse(pair: Pair<Rule>) -> Result<Word> {
         class,
         size,
     })
+}
+
+fn parse_alignment(key: &str) -> (Option<Alignment>, bool) {
+    match key.trim() {
+        "f<" => (Some(Alignment::Left), true),
+        "f>" => (Some(Alignment::Right), true),
+        "<" => (Some(Alignment::Left), false),
+        ">" => (Some(Alignment::Right), false),
+        "=" => (Some(Alignment::Center), false),
+        "" => (None, false),
+        _ => panic!("Invalid image alignment: {}", key),
+    }
 }
 
 #[derive(Debug, Copy, Clone)]
