@@ -1,5 +1,5 @@
 /*
- * render/info.rs
+ * info.rs
  *
  * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith
