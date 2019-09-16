@@ -118,21 +118,9 @@ fn parse_arg<'c, 'p>(ctx: &'c mut Context<'p>, key: &'_ str, value: &'p str) -> 
             ctx.hide_text = Some(value);
         }
         Argument::HideLocation => {
-            let value = interp_str(value)?.to_ascii_lowercase();
-            let (top, bottom) = match value.as_ref() {
-                "top" => (true, false),
-                "bottom" => (false, true),
-                "both" => (true, true),
-                "neither" | "none" | "hide" => (false, false),
-                _ => {
-                    return Err(Error::Msg(format!(
-                    "Invalid hideLocation value: '{}' (must be 'top', 'bottom', 'both', 'neither')",
-                    value,
-                )))
-                }
-            };
-
-            ctx.show = Some((top, bottom));
+            let value = interp_str(value)?;
+            let locations = parse_hide_location(value.as_ref())?;
+            ctx.show = Some(locations);
         }
         Argument::Id => ctx.id = Some(value),
         Argument::Class => ctx.class = Some(value),
@@ -140,4 +128,26 @@ fn parse_arg<'c, 'p>(ctx: &'c mut Context<'p>, key: &'_ str, value: &'p str) -> 
     }
 
     Ok(())
+}
+
+fn parse_hide_location(value: &str) -> Result<(bool, bool)> {
+    const HIDE_LOCATION_ARGUMENTS: [(&str, (bool, bool)); 6] = [
+        ("top", (true, false)),
+        ("bottom", (false, true)),
+        ("both", (true, true)),
+        ("neither", (false, false)),
+        ("none", (false, false)),
+        ("hide", (false, false)),
+    ];
+
+    for (name, locations) in &HIDE_LOCATION_ARGUMENTS {
+        if name.eq_ignore_ascii_case(value) {
+            return Ok(*locations);
+        }
+    }
+
+    Err(Error::Msg(format!(
+        "Invalid hideLocation value: '{}' (must be 'top', 'bottom', 'both', 'neither')",
+        value
+    )))
 }
