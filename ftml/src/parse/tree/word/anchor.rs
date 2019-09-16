@@ -74,14 +74,43 @@ fn parse_arg<'c, 'p>(ctx: &'c mut Context<'p>, pair: Pair<'p, Rule>) {
 
     debug_assert_eq!(value_pair.as_rule(), Rule::string);
 
+    // Helper data to set the appropriate field based on key
+    #[derive(Debug, Copy, Clone)]
+    enum Field {
+        Href,
+        Name,
+        Id,
+        Class,
+        Style,
+        Target,
+    }
+
+    const ANCHOR_VALUES: [(&str, Field); 6] = [
+        ("href", Field::Href),
+        ("name", Field::Name),
+        ("id", Field::Id),
+        ("class", Field::Class),
+        ("style", Field::Style),
+        ("target", Field::Target),
+    ];
+
+    fn get_field(key: &str) -> Field {
+        for (name, field) in &ANCHOR_VALUES {
+            if key.eq_ignore_ascii_case(name) {
+                return *field;
+            }
+        }
+
+        panic!("Unknown argument for [[a]]: {}", key);
+    }
+
     let value = value_pair.as_str();
-    match key.to_ascii_lowercase().as_str() {
-        "href" => ctx.href = Some(value),
-        "name" => ctx.name = Some(value),
-        "id" => ctx.id = Some(value),
-        "class" => ctx.class = Some(value),
-        "style" => ctx.style = Some(value),
-        "target" => ctx.target = AnchorTarget::try_from(value).ok(),
-        _ => panic!("Unknown argument for [[a]]: {}", key),
+    match get_field(key) {
+        Field::Href => ctx.href = Some(value),
+        Field::Name => ctx.name = Some(value),
+        Field::Id => ctx.id = Some(value),
+        Field::Class => ctx.class = Some(value),
+        Field::Style => ctx.style = Some(value),
+        Field::Target => ctx.target = AnchorTarget::try_from(value).ok(),
     }
 }
