@@ -268,7 +268,7 @@ impl<'a> Word<'a> {
             Rule::text => Word::Text {
                 contents: pair.as_str(),
             },
-            Rule::raw | Rule::legacy_raw => Word::Raw {
+            Rule::raw => Word::Raw {
                 contents: extract!(RAW, pair),
             },
             Rule::email => Word::Email {

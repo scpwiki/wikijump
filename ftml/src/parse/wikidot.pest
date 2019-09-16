@@ -121,7 +121,6 @@ horizontal_line = { "-"{4,} }
 word = {
     text |
     raw |
-    legacy_raw |
     email |
     em_dash |
     color |
@@ -331,7 +330,6 @@ text = {
 }
 
 raw = { ("@@@@@@" | "@@" ~ (!("@@" | "\n") ~ ANY)* ~ "@@") }
-legacy_raw = { ("``````" | "``" ~ (!("``" | "\n") ~ ANY)* ~ "``") }
 // }}}
 
 // Components {{{

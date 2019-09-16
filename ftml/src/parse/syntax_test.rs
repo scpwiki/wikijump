@@ -30,13 +30,12 @@ use crate::handle::TestHandle;
 use crate::prefilter;
 use pest::Parser;
 
-const VALID_INPUT_STRINGS: [&str; 124] = [
+const VALID_INPUT_STRINGS: [&str; 123] = [
     "",
     "@@ apple @@ @@banana@@",
     "@@ [!-- literal comment @@ durian",
-    "@@@@@@ at signs `````` tildes",
-    "@@@@ empty raw ```` another",
-    "apple `` legacy raw @@ `` banana",
+    "@@@@@@ raw",
+    "@@@@ empty raw",
     "__**test** cherry {{ durian (?) }}__ ^^up!^^",
     " [ left bracket",
     "right bracket ] ",
