@@ -18,19 +18,23 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// This pattern is used in cases where a Pairs object wraps a
-// single Pair object. For instance the Page rule only has one
-// possibility, and the outer layer is not useful for parsing,
-// so we discard it.
+/// Unwrap the current pair object into its component pairs.
+///
+/// This pattern is used in cases where a Pairs object wraps a
+/// single Pair object. For instance the Page rule only has one
+/// possibility, and the outer layer is not useful for parsing,
+/// so we discard it.
 macro_rules! get_inner_pairs {
     ($pairs:expr) => {
         $pairs.next().expect("Item has no more pairs").into_inner()
     };
 }
 
-// This pattern is used to convert the first Pair object within
-// a Pair. Thus, it retrieves its inner Pairs iterator and then
-// asserts the first item exists.
+/// Retrieve the first pair object inside this pair.
+///
+/// This pattern is used to convert the first Pair object within
+/// a Pair. Thus, it retrieves its inner Pairs iterator and then
+/// asserts the first item exists.
 macro_rules! get_first_pair {
     ($pair:expr) => {
         $pair.into_inner().next().expect("Inner pairs is empty")
