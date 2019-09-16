@@ -71,13 +71,20 @@ impl<'a> TryFrom<&'a str> for AnchorTarget {
     type Error = ();
 
     fn try_from(value: &'a str) -> StdResult<Self, Self::Error> {
-        match value.to_ascii_lowercase().as_str() {
-            "blank" | "_blank" => Ok(AnchorTarget::NewTab),
-            "parent" | "_parent" => Ok(AnchorTarget::Parent),
-            "top" | "_top" => Ok(AnchorTarget::Top),
-            "self" | "_self" | "" => Ok(AnchorTarget::Same),
-            _ => Err(()),
+        const ANCHOR_TARGET_VALUES: [(&str, &str, AnchorTarget); 4] = [
+            ("blank", "_blank", AnchorTarget::NewTab),
+            ("parent", "_parent", AnchorTarget::Parent),
+            ("top", "_top", AnchorTarget::Top),
+            ("self", "_self", AnchorTarget::Same),
+        ];
+
+        for (value1, value2, target) in &ANCHOR_TARGET_VALUES {
+            if value.eq_ignore_ascii_case(value1) || value.eq_ignore_ascii_case(value2) {
+                return Ok(*target);
+            }
         }
+
+        Err(())
     }
 }
 
