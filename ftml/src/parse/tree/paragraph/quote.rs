@@ -38,11 +38,10 @@ pub fn parse(pair: Pair<Rule>) -> Result<Paragraph> {
                 debug_assert_eq!(value_pair.as_rule(), Rule::string);
 
                 let value = value_pair.as_str();
-                match key.to_ascii_lowercase().as_str() {
-                    "id" => id = Some(value),
-                    "class" => class = Some(value),
-                    "style" => style = Some(value),
-                    _ => panic!("Unknown argument for [[quote]]: {}", key),
+                match parse_argument(key) {
+                    QuoteArgument::Id => id = Some(value),
+                    QuoteArgument::Class => class = Some(value),
+                    QuoteArgument::Style => style = Some(value),
                 }
             }
             Rule::paragraphs_internal => paragraphs = convert_internal_paragraphs(pair)?,
@@ -56,4 +55,27 @@ pub fn parse(pair: Pair<Rule>) -> Result<Paragraph> {
         style,
         paragraphs,
     })
+}
+
+#[derive(Debug, Copy, Clone)]
+enum QuoteArgument {
+    Id,
+    Class,
+    Style,
+}
+
+fn parse_argument(key: &str) -> QuoteArgument {
+    const QUOTE_ARGUMENTS: [(&str, QuoteArgument); 3] = [
+        ("id", QuoteArgument::Id),
+        ("class", QuoteArgument::Class),
+        ("style", QuoteArgument::Style),
+    ];
+
+    for (name, argument) in &QUOTE_ARGUMENTS {
+        if name.eq_ignore_ascii_case(key) {
+            return *argument;
+        }
+    }
+
+    panic!("Unknown argument for [[quote]]: {}", key);
 }
