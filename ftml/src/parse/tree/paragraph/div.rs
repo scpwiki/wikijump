@@ -38,11 +38,10 @@ pub fn parse(pair: Pair<Rule>) -> Result<Paragraph> {
                 debug_assert_eq!(value_pair.as_rule(), Rule::string);
 
                 let value = value_pair.as_str();
-                match key.to_ascii_lowercase().as_str() {
-                    "id" => id = Some(value),
-                    "class" => class = Some(value),
-                    "style" => style = Some(value),
-                    _ => panic!("Unknown argument for [[div]]: {}", key),
+                match get_argument(key) {
+                    DivArgument::Id => id = Some(value),
+                    DivArgument::Class => class = Some(value),
+                    DivArgument::Style => style = Some(value),
                 }
             }
             Rule::paragraph => {
@@ -59,4 +58,27 @@ pub fn parse(pair: Pair<Rule>) -> Result<Paragraph> {
         style,
         paragraphs,
     })
+}
+
+#[derive(Debug, Copy, Clone)]
+enum DivArgument {
+    Id,
+    Class,
+    Style,
+}
+
+fn get_argument(key: &str) -> DivArgument {
+    const DIV_ARGUMENTS: [(&str, DivArgument); 3] = [
+        ("id", DivArgument::Id),
+        ("class", DivArgument::Class),
+        ("style", DivArgument::Style),
+    ];
+
+    for (name, argument) in &DIV_ARGUMENTS {
+        if name.eq_ignore_ascii_case(key) {
+            return *argument;
+        }
+    }
+
+    panic!("Unknown argument for [[div]]: {}", key);
 }
