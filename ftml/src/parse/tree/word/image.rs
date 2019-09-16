@@ -63,22 +63,21 @@ pub fn parse(pair: Pair<Rule>) -> Result<Word> {
                 debug_assert_eq!(value_pair.as_rule(), Rule::string);
 
                 let value = value_pair.as_str();
-                match key.to_ascii_lowercase().as_str() {
-                    "link" => {
+                match parse_image_arg(key) {
+                    ImageArgument::Link => {
                         if value.starts_with("*") {
                             link = Some((&value[1..], true));
                         } else {
                             link = Some((value, false));
                         }
                     }
-                    "alt" => alt = Some(value),
-                    "title" => title = Some(value),
-                    "width" => width = Some(value),
-                    "height" => height = Some(value),
-                    "style" => style = Some(value),
-                    "class" => class = Some(value),
-                    "size" => size = Some(value),
-                    _ => panic!("Unknown argument for [[image]]: {}", key),
+                    ImageArgument::Alt => alt = Some(value),
+                    ImageArgument::Title => title = Some(value),
+                    ImageArgument::Width => width = Some(value),
+                    ImageArgument::Height => height = Some(value),
+                    ImageArgument::Style => style = Some(value),
+                    ImageArgument::Class => class = Some(value),
+                    ImageArgument::Size => size = Some(value),
                 }
             }
             _ => panic!("Invalid rule for image: {:?}", pair.as_rule()),
@@ -100,4 +99,37 @@ pub fn parse(pair: Pair<Rule>) -> Result<Word> {
         class,
         size,
     })
+}
+
+#[derive(Debug, Copy, Clone)]
+enum ImageArgument {
+    Link,
+    Alt,
+    Title,
+    Width,
+    Height,
+    Style,
+    Class,
+    Size,
+}
+
+fn parse_image_arg(key: &str) -> ImageArgument {
+    const IMAGE_ARGUMENT_VALUES: [(&str, ImageArgument); 8] = [
+        ("link", ImageArgument::Link),
+        ("alt", ImageArgument::Alt),
+        ("title", ImageArgument::Title),
+        ("width", ImageArgument::Width),
+        ("height", ImageArgument::Height),
+        ("style", ImageArgument::Style),
+        ("class", ImageArgument::Class),
+        ("size", ImageArgument::Size),
+    ];
+
+    for (name, argument) in &IMAGE_ARGUMENT_VALUES {
+        if key.eq_ignore_ascii_case(name) {
+            return *argument;
+        }
+    }
+
+    panic!("Unknown argument for [[image]]: {}", key);
 }
