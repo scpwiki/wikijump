@@ -54,9 +54,30 @@ pub fn parse(pair: Pair<Rule>) -> Result<Paragraph> {
         debug_assert_eq!(value_pair.as_rule(), Rule::string);
 
         let value = value_pair.as_str();
-        match key.to_ascii_lowercase().as_ref() {
-            "type" | "lang" | "language" => language = interp_str(value).ok(),
-            _ => panic!("Unknown argument for [[code]]: {}", key),
+
+        #[derive(Debug, Copy, Clone)]
+        enum Argument {
+            Language,
+        }
+
+        fn get_argument(key: &str) -> Argument {
+            const CODE_ARGUMENTS: [(&str, Argument); 3] = [
+                ("type", Argument::Language),
+                ("lang", Argument::Language),
+                ("language", Argument::Language),
+            ];
+
+            for (name, argument) in &CODE_ARGUMENTS {
+                if name.eq_ignore_ascii_case(key) {
+                    return *argument;
+                }
+            }
+
+            panic!("Unknown argument for [[code]]: {}", key);
+        }
+
+        match get_argument(key) {
+            Argument::Language => language = interp_str(value).ok(),
         }
     }
 
