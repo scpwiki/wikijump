@@ -38,11 +38,10 @@ pub fn parse(pair: Pair<Rule>) -> Result<Word> {
                 debug_assert_eq!(value_pair.as_rule(), Rule::string);
 
                 let value = value_pair.as_str();
-                match key.to_ascii_lowercase().as_str() {
-                    "id" => id = Some(value),
-                    "class" => class = Some(value),
-                    "style" => style = Some(value),
-                    _ => panic!("Unknown argument for [[span]]: {}", key),
+                match parse_argument(key) {
+                    SpanArgument::Id => id = Some(value),
+                    SpanArgument::Class => class = Some(value),
+                    SpanArgument::Style => style = Some(value),
                 }
             }
             Rule::paragraphs_internal => paragraphs = convert_internal_paragraphs(pair)?,
@@ -56,4 +55,27 @@ pub fn parse(pair: Pair<Rule>) -> Result<Word> {
         style,
         paragraphs,
     })
+}
+
+#[derive(Debug, Copy, Clone)]
+enum SpanArgument {
+    Id,
+    Class,
+    Style,
+}
+
+fn parse_argument(key: &str) -> SpanArgument {
+    const SPAN_ARGUMENTS: [(&str, SpanArgument); 3] = [
+        ("id", SpanArgument::Id),
+        ("class", SpanArgument::Class),
+        ("style", SpanArgument::Style),
+    ];
+
+    for (name, argument) in &SPAN_ARGUMENTS {
+        if key.eq_ignore_ascii_case(name) {
+            return *argument;
+        }
+    }
+
+    panic!("Unknown argument for [[span]]: {}", key);
 }
