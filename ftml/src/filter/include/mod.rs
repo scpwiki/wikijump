@@ -25,7 +25,10 @@ use crate::{Error, RemoteHandle, Result};
 use pest::Parser;
 use std::borrow::Cow;
 use std::collections::HashMap;
+use std::fmt::Write;
 use std::ops::Range;
+
+const MAX_DEPTH: usize = 10;
 
 #[derive(Debug, Clone, Parser)]
 #[grammar = "filter/include.pest"]
@@ -38,8 +41,7 @@ struct IncludeRef {
     resource: Option<Cow<'static, str>>,
 }
 
-// Helper function
-pub fn substitute(text: &mut String, handle: &dyn RemoteHandle) -> Result<()> {
+fn substitute_n(text: &mut String, handle: &dyn RemoteHandle, depth: usize) -> Result<()> {
     let pairs = match IncludeParser::parse(Rule::page, text) {
         Ok(mut pairs) => get_inner_pairs!(pairs),
         Err(err) => {
@@ -96,7 +98,6 @@ pub fn substitute(text: &mut String, handle: &dyn RemoteHandle) -> Result<()> {
         }
 
         // Fetch included resource
-        // TODO limit recursion
         let resource = handle.get_page(name, &args)?;
         let name = str!(name);
 
@@ -107,10 +108,12 @@ pub fn substitute(text: &mut String, handle: &dyn RemoteHandle) -> Result<()> {
         });
     }
 
-    // Go through in reverse order to not mess up indices
+    // Go through in reverse order to not mess up indices.
     //
     // This is playing a bit fast and loose with references since
     // we don't actually have a borrow of the string slice.
+
+    let included = !includes.is_empty();
 
     includes.reverse();
     for include in includes {
@@ -120,30 +123,57 @@ pub fn substitute(text: &mut String, handle: &dyn RemoteHandle) -> Result<()> {
             name,
             resource,
         } = include;
-        let final_resource = match resource {
-            Some(ref resource) => resource.as_ref(),
-            None => {
-                use std::fmt::Write;
-
-                // TODO slug-ify name
-                buffer = str!();
-                buffer.push_str("[[div class=\"error-block\"]]\n");
-                write!(
-                    &mut buffer,
-                    "Included page \"{}\" does not exist ([[a href=\"/{}/edit/true\"]]create it now[[/a]])\n",
-                    name,
-                    name,
-                ).unwrap();
-                buffer.push_str("[[/div]]\n");
-
-                &buffer
+        let final_resource = if depth >= MAX_DEPTH {
+            buffer = String::new();
+            write_depth_error(&mut buffer);
+            &buffer
+        } else {
+            match resource {
+                Some(ref resource) => resource.as_ref(),
+                None => {
+                    // TODO slug-ify name
+                    buffer = String::new();
+                    write_include_error(&mut buffer, &name);
+                    &buffer
+                }
             }
         };
 
         text.replace_range(range, final_resource);
     }
 
+    if included {
+        substitute_n(text, handle, depth + 1)?;
+    }
+
     // TODO
 
     Ok(())
+}
+
+fn write_depth_error(buffer: &mut String) {
+    buffer.push_str("[[div class=\"error-block\"]]\n");
+    write!(
+        buffer,
+        "Too many nested includes. (Maximum depth is {})",
+        MAX_DEPTH
+    )
+    .unwrap();
+    buffer.push_str("[[/div]]\n");
+}
+
+fn write_include_error(buffer: &mut String, name: &str) {
+    buffer.push_str("[[div class=\"error-block\"]]\n");
+    write!(
+        buffer,
+        "Included page \"{}\" does not exist ([[a href=\"/{}/edit\"]]create it now[[/a]])\n",
+        name, name,
+    )
+    .unwrap();
+    buffer.push_str("[[/div]]\n");
+}
+
+#[inline]
+pub fn substitute(text: &mut String, handle: &dyn RemoteHandle) -> Result<()> {
+    substitute_n(text, handle, 0)
 }
