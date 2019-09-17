@@ -24,9 +24,9 @@ use super::prelude::*;
 struct Context<'a> {
     show_text: Option<Cow<'a, str>>,
     hide_text: Option<Cow<'a, str>>,
-    id: Option<&'a str>,
-    class: Option<&'a str>,
-    style: Option<&'a str>,
+    id: Option<Cow<'a, str>>,
+    class: Option<Cow<'a, str>>,
+    style: Option<Cow<'a, str>>,
     show: Option<(bool, bool)>, // (top, bottom)
 }
 
@@ -46,7 +46,8 @@ pub fn parse(pair: Pair<Rule>) -> Result<Paragraph> {
 
                 debug_assert_eq!(value.as_rule(), Rule::string);
 
-                parse_arg(&mut ctx, key, value.as_str())?;
+                let value = interp_str(value.as_str())?;
+                parse_arg(&mut ctx, key, value)?;
             }
             Rule::paragraph => {
                 let paragraph = Paragraph::from_pair(pair)?;
@@ -78,7 +79,7 @@ pub fn parse(pair: Pair<Rule>) -> Result<Paragraph> {
     })
 }
 
-fn parse_arg<'c, 'p>(ctx: &'c mut Context<'p>, key: &'_ str, value: &'p str) -> Result<()> {
+fn parse_arg<'c, 'p>(ctx: &'c mut Context<'p>, key: &'_ str, value: Cow<'p, str>) -> Result<()> {
     #[derive(Debug, Copy, Clone)]
     enum Argument {
         Show,
@@ -109,16 +110,9 @@ fn parse_arg<'c, 'p>(ctx: &'c mut Context<'p>, key: &'_ str, value: &'p str) -> 
     }
 
     match get_argument(key) {
-        Argument::Show => {
-            let value = interp_str(value)?;
-            ctx.show_text = Some(value);
-        }
-        Argument::Hide => {
-            let value = interp_str(value)?;
-            ctx.hide_text = Some(value);
-        }
+        Argument::Show => ctx.show_text = Some(value),
+        Argument::Hide => ctx.hide_text = Some(value),
         Argument::HideLocation => {
-            let value = interp_str(value)?;
             let locations = parse_hide_location(value.as_ref())?;
             ctx.show = Some(locations);
         }

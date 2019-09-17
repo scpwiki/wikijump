@@ -97,9 +97,9 @@ pub enum Paragraph<'a> {
     Collapsible {
         show_text: Option<Cow<'a, str>>,
         hide_text: Option<Cow<'a, str>>,
-        id: Option<&'a str>,
-        class: Option<&'a str>,
-        style: Option<&'a str>,
+        id: Option<Cow<'a, str>>,
+        class: Option<Cow<'a, str>>,
+        style: Option<Cow<'a, str>>,
         show_top: bool,
         show_bottom: bool,
         paragraphs: Vec<Paragraph<'a>>,
