@@ -78,14 +78,12 @@ SyntaxTree {
                 Text {
                     contents: " ",
                 },
-                Text {
-                    contents: "—",
-                },
-                Text {
-                    contents: "SCP-023 is to be contained in a standard 5 x 5 m Containment Unit.",
-                },
-                Text {
-                    contents: "—",
+                Strikethrough {
+                    words: [
+                        Text {
+                            contents: "SCP-023 is to be contained in a standard 5 x 5 m Containment Unit.",
+                        },
+                    ],
                 },
                 Text {
                     contents: " SCP-023 is to be contained in a walled-off intersection of two (2) corridors at Site ██, with at least three (3) meters of space in each direction, and false doors at three (3) of the four (4) ends, in addition to the real door. Security cameras will be placed and maintained above all four (4) doors.",
@@ -149,24 +147,22 @@ SyntaxTree {
                 Text {
                     contents: " SCP-023 is a large, sexless shaggy canine (1.5 meters at the shoulder) with black fur. ",
                 },
-                Text {
-                    contents: "—",
-                },
-                Text {
-                    contents: "It has bright orange-red ",
-                },
-                Link {
-                    href: "Mothers\' Love ",
-                    target: None,
-                    text: Text(
-                        "eyes",
-                    ),
-                },
-                Text {
-                    contents: " and prominent teeth",
-                },
-                Text {
-                    contents: "—",
+                Strikethrough {
+                    words: [
+                        Text {
+                            contents: "It has bright orange-red ",
+                        },
+                        Link {
+                            href: "Mothers\' Love ",
+                            target: None,
+                            text: Text(
+                                "eyes",
+                            ),
+                        },
+                        Text {
+                            contents: " and prominent teeth",
+                        },
+                    ],
                 },
                 Text {
                     contents: " (see ",

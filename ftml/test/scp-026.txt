@@ -112,14 +112,12 @@ SyntaxTree {
         Words {
             centered: false,
             words: [
-                Text {
-                    contents: "—",
-                },
-                Text {
-                    contents: "The building demonstrates spatial anomalies. Its internal space is much greater than the external surface of the building would allow.  Hallways display variable length, while stairways have differing numbers of steps going up or down. The number of rooms off the hallways changes each time they are counted. Attempts to reach the far ends of the hallways have met with failure thus far. Entrance through the fire escapes located at the ends of the hallways leads to doors approximately midway down the length of the halls.",
-                },
-                Text {
-                    contents: "—",
+                Strikethrough {
+                    words: [
+                        Text {
+                            contents: "The building demonstrates spatial anomalies. Its internal space is much greater than the external surface of the building would allow.  Hallways display variable length, while stairways have differing numbers of steps going up or down. The number of rooms off the hallways changes each time they are counted. Attempts to reach the far ends of the hallways have met with failure thus far. Entrance through the fire escapes located at the ends of the hallways leads to doors approximately midway down the length of the halls.",
+                        },
+                    ],
                 },
             ],
         },

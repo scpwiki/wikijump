@@ -206,26 +206,22 @@ SyntaxTree {
                         Text {
                             contents: "I feel like I ",
                         },
-                        Text {
-                            contents: "—",
-                        },
-                        Text {
-                            contents: "used to",
-                        },
-                        Text {
-                            contents: "—",
+                        Strikethrough {
+                            words: [
+                                Text {
+                                    contents: "used to",
+                                },
+                            ],
                         },
                         Text {
                             contents: " ",
                         },
-                        Text {
-                            contents: "—",
-                        },
-                        Text {
-                            contents: "should",
-                        },
-                        Text {
-                            contents: "—",
+                        Strikethrough {
+                            words: [
+                                Text {
+                                    contents: "should",
+                                },
+                            ],
                         },
                         Text {
                             contents: " know her but I can’t remember. I love her but I don’t know why. She’s so beautiful and sweet and clear but I don’t know any more.",

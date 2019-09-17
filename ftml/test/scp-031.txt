@@ -78,14 +78,12 @@ SyntaxTree {
                 Text {
                     contents: " SCP-031 is to be contained in a standard ",
                 },
-                Text {
-                    contents: "—",
-                },
-                Text {
-                    contents: "humanoid",
-                },
-                Text {
-                    contents: "—",
+                Strikethrough {
+                    words: [
+                        Text {
+                            contents: "humanoid",
+                        },
+                    ],
                 },
                 Text {
                     contents: " containment chamber, located in ",
