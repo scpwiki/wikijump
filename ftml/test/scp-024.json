@@ -1,0 +1,455 @@
+{
+  "paragraphs": [
+    {
+      "Align": {
+        "alignment": "right",
+        "paragraphs": [
+          {
+            "Words": {
+              "centered": false,
+              "words": [
+                {
+                  "Module": {
+                    "name": "Rate",
+                    "arguments": {},
+                    "contents": null
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "<PAGE 'component:image-block' #2>"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Bold": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "Item #:"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " SCP-024"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Bold": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "Object Class:"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " Euclid"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Bold": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "Special Containment Procedures:"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " Due to its nature, SCP-024 cannot be moved to a secure location so security measures must be placed on-site. To conceal its location, five (5) identical-looking replicas have been erected around SCP-024. A tight security perimeter must be maintained around SCP-024's compound at all times, with separate security teams guarding SCP-024 and its replicas. None of the security teams, except for team leaders, will be informed of the location of SCP-024. SCP-024 must be secured with magnetically sealed blast doors and reinforced, armored walls to prevent unauthorized entry."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "Under no circumstances can any security or research personnel enter SCP-024. Only D-Class personnel are allowed entry and strictly for research purposes only. All researchers are to observe and experiment with SCP-024 from the remote observation lab. Any personnel attempting to leave the remote observation lab or enter SCP-024 without prior approval from a Level 4 researcher must be immediately apprehended, with termination authorized."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "Should containment be breached, or SCP-024's true nature compromised, then the entire compound must be destroyed via specialized demolition charges planted throughout the compound."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Bold": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "Description:"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " SCP-024 is an abandoned sound stage that was once owned by █████████. However, SCP-024 itself had been abandoned since 19██, and it is unknown whether its special properties manifested before or after its abandonment. SCP-024 is located in the heart of █████████, ██████████, and was initially discovered when a group of teenage youths broke into the abandoned compound. The testimony of the lone \"winner\" when she turned herself in to the police was enough to have Foundation assets mobilize to contain SCP-024."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "Upon entering SCP-024, visitors are immediately greeted by an anonymous announcer, who communicates via intercom and is able to hear and comprehend the voices of people within SCP-024. The announcer will inform the \"contestants\" that they are about to take part in a game show in which the winners will win fabulous prizes, but will also warn that the game will be extremely hazardous, and that the losers will never leave SCP-024. It is at this point the announcer presents the choice of whether to stay or leave SCP-024. Contestants who accept will continue to participate in the game while those who decline are immediately expelled from SCP-024. Contestants that win the game or decline to participate may never enter SCP-024 again, as entry is denied by an impenetrable, invisible barrier."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "It is then that the contestants are led to the actual game. The style, composition, and appearance of the game always changes in every individual play-through, but the game is always centered around a long, elaborate obstacle course that the contestants must navigate through. The rules also vary. Some play-throughs may only allow a single winner, while others encourage the creation of teams to win the game. More often than not, the obstacles seen in these games range from incredibly benign to extremely hazardous and life-threatening. As the contestants attempt to negotiate the course, the announcer will continuously update their status and actively participate in the game, often giving advice, conversing with contestants, and adding new rules. As the game progresses, the obstacles become significantly more dangerous and difficult to overcome, and it is not surprising to have the entire pool of contestants succumb to the rigors of the obstacle course. If such an event happens, the announcer will express sadness at the lack of a winner and SCP-024 will shut down, resetting only when a new batch of contestants enter."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "Any attempts to \"break the rules\", such as assaulting other contestants and deliberately bypassing obstacles, are met by extreme violence. The announcer will call out the offending contestant, who will be quickly and forcefully ejected from the course by \"studio guardians\". These studio guardians will immediately materialize within SCP-024 when called upon by the announcer and disappear when not needed. The contestant will never be seen again."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "When a winner is declared, he/she will receive a random grand prize. Any contestants that have survived the course but failed to win are immediately declared losers by the announcer. The lights will switch off, and the winner will immediately appear outside of SCP-024 with his/her prize while the losers completely disappear."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "However, the most mysterious aspect of SCP-024 is that after every game, a VHS tape or DVD will appear in the mailbox outside of SCP-024's main entrance. This recording is a complete record of the entire game that was previously played, even though winners have claimed that they had never seen any cameras or recording devices inside SCP-024. Also, more strangely, a live studio audience can be seen in the background cheering on the contestants. Again, winners have claimed not to have seen a live studio audience while inside SCP-024."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Bold": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "Addendum 1:"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " So far, the list of prizes awarded to winners has included, but is not limited to: cash prizes, electronics, various consumer goods, cars, collectibles, full-paid vacations to various countries, [DATA EXPUNGED]. Close examination of these prizes have confirmed that they are completely genuine, and possess no unusual abilities or characteristics whatsoever. There appears to be no consistent pattern for what the prizes will be."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Bold": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "Addendum 2:"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " In an attempt to track where the \"losers\" are taken, GPS locator beacons were planted on subjects D-124 through D-135 when Group D245 was sent into SCP-024. When the losers were taken away, all signals from the beacons were lost. Whether this is because the beacons were destroyed, or because the losers were taken to an area that cannot be located via GPS is currently unknown."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Bold": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "Addendum 3:"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " The announcer living within SCP-024 appears to be sentient and aware of events that take place outside of the compound. During the test of Group D523, which consisted only of Dr. ████████, the announcer instead engaged in a conversation with Dr. ████████. Analysis of the conversations have shown that the majority of the subjects are centered around pop culture and information distributed through television, implying that SCP-024 somehow is able to access and interpret television signals. Cutting all power and signal lines, as well as removing any potential wireless receiving equipment on SCP-024, does not affect SCP-024 in any way. When it became clear that no other contestants would participate, the announcer kindly asked Dr. ████████ to leave SCP-024 and suggested he return with more contestants."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Bold": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "Addendum 4:"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " The studio guardians that the announcer uses to enforce the rules vary in appearance every game, just like the course. If they appear, the guardians will always be dressed in a manner that matches with the theme of the obstacle course. The only common attributes all guardians share are the possession of humanoid appearance, ability to suddenly appear and disappear, superhuman strength, and face concealing masks or headgear. However, winners have claimed that the guardians have no apparent shape or form inside SCP-024, instead appearing as huge, shadowy figures that engulf the offender."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          "FootnoteBlock"
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Div": {
+        "id": null,
+        "class": "\"footer-wikiwalk-nav\"",
+        "style": null,
+        "paragraphs": [
+          {
+            "Align": {
+              "alignment": "center",
+              "paragraphs": [
+                {
+                  "Words": {
+                    "centered": false,
+                    "words": [
+                      {
+                        "Text": {
+                          "contents": "« "
+                        }
+                      },
+                      {
+                        "Link": {
+                          "href": "SCP-023",
+                          "target": null,
+                          "text": "url"
+                        }
+                      },
+                      {
+                        "Text": {
+                          "contents": " | SCP-024 | "
+                        }
+                      },
+                      {
+                        "Link": {
+                          "href": "SCP-025",
+                          "target": null,
+                          "text": "url"
+                        }
+                      },
+                      {
+                        "Text": {
+                          "contents": " »"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

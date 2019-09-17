@@ -1,0 +1,755 @@
+{
+  "paragraphs": [
+    {
+      "Align": {
+        "alignment": "right",
+        "paragraphs": [
+          {
+            "Words": {
+              "centered": false,
+              "words": [
+                {
+                  "Module": {
+                    "name": "Rate",
+                    "arguments": {},
+                    "contents": null
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "<PAGE 'component:image-block' #2>"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Bold": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "Item #:"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " SCP-020"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Bold": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "Object Class:"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " Keter"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Bold": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "Special Containment Procedures:"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " Samples of SCP-020 are stored in a series of sealed cultivation chambers inside a sealed containment room at Biological Research Area-12 which is accessible only via airlock. Nutrients are administered via automated robotic systems, as the cultivation chamber must remain sealed at all times."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "Hermetically sealed video surveillance cameras are installed within the containment room, and must be checked daily for integrity. Any personnel entering the containment room must wear Biosafety Level 5 equipment including rebreathers and undergo full anti-fungal disinfection upon exiting."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Bold": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "Description:"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " SCP-020 is a fast-spreading fungal organism that is capable of affecting the senses and behavior of living creatures, including humans. Samples of SCP-020 exhibit an unknown effect that renders them effectively invisible to direct observation, even when under a microscope. SCP-020 is only visible to humans when viewed through photographic or video surveillance."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "Once SCP-020 forms a colony, usually within a human residence, it will produce spores that affect the behavior of humans around it. Affected subjects will increase the heat and humidity within their homes to create an environment more suitable to the growth of SCP-020. Affected subjects also become more sociable in many cases, and often invite acquaintances to their homes to further spread the organism. As the spores and mold colonies are invisible to affected subjects, the mold may sometimes grow directly on living subjects."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "<PAGE 'component:image-block' #2>"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "As the spores and colonies within a home approach critical concentration, the health of affected human subjects will rapidly deteriorate, resulting in death. Further spread of the mold may occur as the bodies of any deceased subjects are encountered by emergency responders and health care agents, as well as transportation of the bodies to local morgues."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "SCP-020 was first encountered in [REDACTED], where an undercover SCP agent noted dramatic personality changes in personnel working at the local hospital. Upon investigation by a containment team, it was discovered that almost ███ civilians had been infected, as well as a majority of the town. The civilian population was terminated, and the town incinerated under cover of a local flash forest fire."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "To date, over 12 outbreaks of SCP-020 have been reported. Investigations are currently underway to determine the source of these outbreaks and possible preventative measures."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Bold": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "Addendum 020-01:"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " Excerpts from the audio/video mission recorders of Mobile Task Force Eta-10 (\"See No Evil\") during the initial containment of SCP-020 on [REDACTED]."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "QuoteBlock": {
+        "id": null,
+        "class": null,
+        "style": null,
+        "paragraphs": [
+          {
+            "Words": {
+              "centered": false,
+              "words": [
+                {
+                  "Bold": {
+                    "words": [
+                      {
+                        "Text": {
+                          "contents": "T2-Lead:"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "Text": {
+                    "contents": " Team Two moving to the red house."
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Words": {
+              "centered": false,
+              "words": [
+                {
+                  "Bold": {
+                    "words": [
+                      {
+                        "Text": {
+                          "contents": "T2-COM:"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "Text": {
+                    "contents": " Copy, UAV One is picking up one heat signature."
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Newlines": {
+              "count": 1
+            }
+          },
+          {
+            "Words": {
+              "centered": false,
+              "words": [
+                {
+                  "Text": {
+                    "contents": "…"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Newlines": {
+              "count": 1
+            }
+          },
+          {
+            "Words": {
+              "centered": false,
+              "words": [
+                {
+                  "Bold": {
+                    "words": [
+                      {
+                        "Text": {
+                          "contents": "T2-Lead:"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "Text": {
+                    "contents": " Team Two in place, ready to br"
+                  }
+                },
+                {
+                  "Text": {
+                    "contents": "—"
+                  }
+                },
+                {
+                  "Text": {
+                    "contents": " [Expletive]!"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Words": {
+              "centered": false,
+              "words": [
+                {
+                  "Bold": {
+                    "words": [
+                      {
+                        "Text": {
+                          "contents": "T2-2:"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "Text": {
+                    "contents": " Door opening!"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Newlines": {
+              "count": 1
+            }
+          },
+          {
+            "Words": {
+              "centered": false,
+              "words": [
+                {
+                  "Italics": {
+                    "words": [
+                      {
+                        "Text": {
+                          "contents": "At this point, a civilian woman appeared in the doorway, holding a kitchen knife. Video surveillance showed that nearly two-thirds of her face was covered by mold growths."
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Newlines": {
+              "count": 1
+            }
+          },
+          {
+            "Words": {
+              "centered": false,
+              "words": [
+                {
+                  "Bold": {
+                    "words": [
+                      {
+                        "Text": {
+                          "contents": "Civilian Woman:"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "Text": {
+                    "contents": " Well… hello there, gentlemen… care to take a breather inside?"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Words": {
+              "centered": false,
+              "words": [
+                {
+                  "Bold": {
+                    "words": [
+                      {
+                        "Text": {
+                          "contents": "T2-Lead:"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "Text": {
+                    "contents": " On the ground! Drop the weapon!"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Words": {
+              "centered": false,
+              "words": [
+                {
+                  "Bold": {
+                    "words": [
+                      {
+                        "Text": {
+                          "contents": "Civilian Woman:"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "Text": {
+                    "contents": " Don't be silly! Come on in and… stay a while…"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Words": {
+              "centered": false,
+              "words": [
+                {
+                  "Bold": {
+                    "words": [
+                      {
+                        "Text": {
+                          "contents": "T2-Lead:"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "Text": {
+                    "contents": " Stop where you are! DROP THE WEAPON!"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Words": {
+              "centered": false,
+              "words": [
+                {
+                  "Bold": {
+                    "words": [
+                      {
+                        "Text": {
+                          "contents": "Civilian Woman:"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "Text": {
+                    "contents": " We… we just want to have some guests… please… come in…"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Words": {
+              "centered": false,
+              "words": [
+                {
+                  "Bold": {
+                    "words": [
+                      {
+                        "Text": {
+                          "contents": "T2-2:"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "Text": {
+                    "contents": " Drop the [Expletive] weapon!"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Newlines": {
+              "count": 1
+            }
+          },
+          {
+            "Words": {
+              "centered": false,
+              "words": [
+                {
+                  "Italics": {
+                    "words": [
+                      {
+                        "Text": {
+                          "contents": "It is assumed that at this point, the infected civilian noticed T2-4 carrying a primed incendiary weapon, and lunged forward at the team members with the knife."
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Newlines": {
+              "count": 1
+            }
+          },
+          {
+            "Words": {
+              "centered": false,
+              "words": [
+                {
+                  "Bold": {
+                    "words": [
+                      {
+                        "Text": {
+                          "contents": "Civilian Woman:"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "Text": {
+                    "contents": " [DATA EXPUNGED]"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Words": {
+              "centered": false,
+              "words": [
+                {
+                  "Bold": {
+                    "words": [
+                      {
+                        "Text": {
+                          "contents": "T2-Lead:"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "Text": {
+                    "contents": " Open fire, open fire!"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Newlines": {
+              "count": 1
+            }
+          },
+          {
+            "Words": {
+              "centered": false,
+              "words": [
+                {
+                  "Italics": {
+                    "words": [
+                      {
+                        "Text": {
+                          "contents": "Gunfire, screaming."
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          "FootnoteBlock"
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Div": {
+        "id": null,
+        "class": "\"footer-wikiwalk-nav\"",
+        "style": null,
+        "paragraphs": [
+          {
+            "Align": {
+              "alignment": "center",
+              "paragraphs": [
+                {
+                  "Words": {
+                    "centered": false,
+                    "words": [
+                      {
+                        "Text": {
+                          "contents": "« "
+                        }
+                      },
+                      {
+                        "Link": {
+                          "href": "SCP-019",
+                          "target": null,
+                          "text": "url"
+                        }
+                      },
+                      {
+                        "Text": {
+                          "contents": " | SCP-020 | "
+                        }
+                      },
+                      {
+                        "Link": {
+                          "href": "SCP-021",
+                          "target": null,
+                          "text": "url"
+                        }
+                      },
+                      {
+                        "Text": {
+                          "contents": " »"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

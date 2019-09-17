@@ -1,0 +1,814 @@
+{
+  "paragraphs": [
+    {
+      "Align": {
+        "alignment": "right",
+        "paragraphs": [
+          {
+            "Words": {
+              "centered": false,
+              "words": [
+                {
+                  "Module": {
+                    "name": "Rate",
+                    "arguments": {},
+                    "contents": null
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "Good afternoon, Doctor. Sit down. Your schedule has been cleared. Do not attempt to leave the room until you are told that this session is over. The door is already locked, but it is crucial you pay attention. Good."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "You are now part of the SCP Foundation's Ethics Committee. This is not a demotion."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "Sit down."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "Yes, you're terrified. You think you're being punished for some failure, some lapse of judgement, some horrible disaster that you were involved with. You think that your career with the Foundation is over. You might even have thought that 'transferred to the Ethics Committee' is a euphemism for 'killed'. This is not the case."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "You'll notice I said \"killed\" instead of \"terminated\". That's a deliberate choice. On the Ethics Committee, we don't use euphemisms."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "Because of the work that the SCP Foundation does, a lot of personnel think that the idea of the Foundation having an Ethics Committee is just a bad joke. Or they know that the Committee exists, but they've got the impression that we're an ineffectual laughingstock. A bunch of purposeless seat-fillers who wave a rubber stamp that says APPROVED, and never dare to voice an objection."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "Yes, I see you've heard the jokes. Here's one - 'how many members of the Ethics Committee does it take to change a lightbulb? None! The Ethics Committee can't change "
+            }
+          },
+          {
+            "Italics": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "anything"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": "!'"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "No, it's all right. You're meant to laugh."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "We make an effort to sustain the impression that we're useless, because we are the secret power within the SCP Foundation."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "Sit "
+            }
+          },
+          {
+            "Bold": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "down."
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "Yes, there are the O5s. They judge what is and isn't "
+            }
+          },
+          {
+            "Italics": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "safe"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": ", and that's a vital and important function. But we are the ones who advise the O5s on what is and is not "
+            }
+          },
+          {
+            "Italics": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "acceptable"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": "."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "You've done horrible, awful things while working for the Foundation "
+            }
+          },
+          {
+            "Text": {
+              "contents": "—"
+            }
+          },
+          {
+            "Text": {
+              "contents": " don't try to deny it, Doctor. We've "
+            }
+          },
+          {
+            "Italics": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "all"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " done horrible awful things while working for the Foundation. That is one of the unavoidable consequences of working with SCPs. And on occasion, you've wondered if we are the, quote unquote,  bad guys.  Well… we're not. And that is because of the Ethics Committee. This is your first lesson. Do you understand?"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "Remember this: "
+            }
+          },
+          {
+            "Italics": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "the Foundation is not evil."
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " We do not torture people \"just because\". We are against unnecessary cruelty. Which means somebody has to decide when cruelty "
+            }
+          },
+          {
+            "Italics": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "is"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " necessary. And that somebody is us."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "Stop trembling."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "It is important that you remember this. It is your second lesson. "
+            }
+          },
+          {
+            "Italics": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "The Foundation does not rule the world"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": ". The Foundation "
+            }
+          },
+          {
+            "Italics": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "serves"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " the world. Do you understand what that means? Regardless of what the general population might "
+            }
+          },
+          {
+            "Italics": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "think"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " it wants, what we do, what the Foundation does, is in the overall best interests of that general population.  Yes, I'm sure you "
+            }
+          },
+          {
+            "Italics": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "did"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " realize that already… but you haven't thought of the deeper implications. You've consoled yourself by thinking that all the torture and murder is for the greater good. This implies that there "
+            }
+          },
+          {
+            "Italics": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "is"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " a greater good… and a lesser good. It implies that there are multiple distinct goods, and that these can be quantified and compared. This is what we on the Ethics Committee "
+            }
+          },
+          {
+            "Italics": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "do"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": "."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "We are the ones who balance the moral costs of everything the Foundation does. And in order to balance those costs, we must "
+            }
+          },
+          {
+            "Italics": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "know"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " those costs. Do you realize what that means, Doctor? It means that "
+            }
+          },
+          {
+            "Italics": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "we know everything the Foundation does, has done, and will ever do"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": ". Everything that has ever been redacted or expunged, we know it. Every last detail."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "Yes, including what "
+            }
+          },
+          {
+            "Link": {
+              "href": "SCP-447",
+              "target": null,
+              "text": {
+                "text": "SCP-447-2"
+              }
+            }
+          },
+          {
+            "Text": {
+              "contents": " does when it comes in contact with dead bodies. Yes, we know exactly what "
+            }
+          },
+          {
+            "Link": {
+              "href": "SCP-231",
+              "target": null,
+              "text": {
+                "text": "Procedure 110-Montauk"
+              }
+            }
+          },
+          {
+            "Text": {
+              "contents": " is, too. We should. We're the ones who designed it."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "No, it's quite all right. It's a common reaction. Perhaps we shouldn't schedule these meetings directly after lunch, I suppose. Here, wipe your mouth."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "You will no longer be participating in active research. You may consider yourself a researcher at large, flitting from one project to another, from one "
+            }
+          },
+          {
+            "Italics": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "site"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " to another, at will. This is not a secret; you are welcome to tell all your friends that you have been transferred to the Ethics Committee… if you can deal with the jokes and the pity. You will observe what is done, and ask the participants — and yourself — "
+            }
+          },
+          {
+            "Italics": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "why"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " it is being done. If at any point you feel that something is excessive or unnecessary or "
+            }
+          },
+          {
+            "Italics": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "wrong"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": ", you inform us. We will summon the people involved, and ask them questions, in that meek ineffectual way that your coworkers have mocked."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "And then, word will filter down from the O5s, through the many levels of our bureaucracy. And those who are unethical will be given reprimands which will be noted on their permanent record. Or their pay will be cut, or they will be demoted, or they will be transferred to another project."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "Or they will be shot for crimes against humanity."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "This is your third lesson. Remember it."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Italics": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "The 'P' stands for 'Protect'"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": ". The Foundation protects humanity from SCPs, and we protect the Foundation from itself. We judge what is and is not acceptable for the Foundation to do. We balance evils so that "
+            }
+          },
+          {
+            "Italics": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "on the whole"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": ", and "
+            }
+          },
+          {
+            "Italics": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "in the long run"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": ", evil is minimized."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "No, you don't have a choice about being on the Committee."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "…Yes, the irony is lovely, isn't it."
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
