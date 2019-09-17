@@ -211,7 +211,15 @@ subscript = {
     )
 }
 
-superscript = { "^^" ~ word* ~ "^^" }
+superscript = {
+    "^^" ~ word* ~ "^^" |
+    (
+        "[[" ~ space? ~ (^"sup" | ^"superscript") ~ space? ~ "]]" ~
+        word* ~
+        "[[/" ~ space? ~ (^"sup" | ^"superscript") ~ space? ~ "]]"
+    )
+}
+
 monospace = { "{{" ~ word* ~ "}}" }
 // }}}
 
