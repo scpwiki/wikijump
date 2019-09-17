@@ -105,9 +105,9 @@ pub enum Paragraph<'a> {
         paragraphs: Vec<Paragraph<'a>>,
     },
     Div {
-        id: Option<&'a str>,
-        class: Option<&'a str>,
-        style: Option<&'a str>,
+        id: Option<Cow<'a, str>>,
+        class: Option<Cow<'a, str>>,
+        style: Option<Cow<'a, str>>,
         paragraphs: Vec<Paragraph<'a>>,
     },
     Heading {

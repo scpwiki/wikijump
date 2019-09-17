@@ -37,7 +37,7 @@ pub fn parse(pair: Pair<Rule>) -> Result<Paragraph> {
 
                 debug_assert_eq!(value_pair.as_rule(), Rule::string);
 
-                let value = value_pair.as_str();
+                let value = interp_str(value_pair.as_str())?;
                 match get_argument(key) {
                     DivArgument::Id => id = Some(value),
                     DivArgument::Class => class = Some(value),

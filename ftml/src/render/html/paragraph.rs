@@ -84,9 +84,9 @@ pub fn render_paragraph(ctx: &mut HtmlContext, paragraph: &Paragraph) -> Result<
             ref paragraphs,
         } => unimplemented!(),
         &Div {
-            id,
-            class,
-            style,
+            ref id,
+            ref class,
+            ref style,
             ref paragraphs,
         } => {
             ctx.push_str("<div");
