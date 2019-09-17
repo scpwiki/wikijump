@@ -53,6 +53,19 @@ fn test_valid() {
             }]
         }])
     );
+    valid!(
+        "@@ apple @@ @@banana@@",
+        SyntaxTree::from_paragraphs(vec![Paragraph::Words {
+            centered: false,
+            words: vec![
+                Word::Raw {
+                    contents: " apple "
+                },
+                Word::Text { contents: " " },
+                Word::Raw { contents: "banana" }
+            ],
+        }])
+    );
 }
 
 #[test]

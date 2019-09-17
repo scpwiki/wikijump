@@ -30,9 +30,7 @@ use crate::handle::TestHandle;
 use crate::prefilter;
 use pest::Parser;
 
-const VALID_INPUT_STRINGS: [&str; 134] = [
-    "",
-    "@@ apple @@ @@banana@@",
+const VALID_INPUT_STRINGS: [&str; 132] = [
     "@@ [!-- literal comment @@ durian",
     "@@@@@@ raw",
     "@@@@ empty raw",
