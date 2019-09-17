@@ -155,14 +155,14 @@ word = {
 // }}}
 
 // Dash words {{{
-em_dash = { ("---" | "--") ~ !word }
+em_dash = { "---" | "--" ~ (!word | space_any | EOI) }
 strikethrough = {
-    "--" ~
-    !("-" | " ") ~
-    word+ ~
-    !space_any ~
-    "--"
+    // This is awful but I haven't gotten it to both not produce
+    // an error and not return a lazy parse where everything
+    // is just surrounded by em dashes.
+    "--" ~ (!("--" | "\n") ~ ANY)+ ~ "--"
 }
+strikethrough_words = { SOI ~ word+ ~ EOI }
 // }}}
 
 // Formatting words {{{

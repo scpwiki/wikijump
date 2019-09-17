@@ -38,6 +38,9 @@ macro_rules! make_words {
     }};
 }
 
+// Em dash character: '—'
+const EM_DASH: &str = "\u{2014}";
+
 mod anchor;
 mod color;
 mod image;
@@ -132,6 +135,7 @@ lazy_static! {
             .build()
             .unwrap()
     };
+    static ref STRIKETHROUGH: Regex = Regex::new(r"--(?P<contents>.+)--").unwrap();
     static ref USER: Regex = {
         RegexBuilder::new(r"\[\[\s*(?P<picture>\*)?\s*user\s+(?P<username>[^ ]+)\s*\]\]")
             .case_insensitive(true)
@@ -275,19 +279,30 @@ impl<'a> Word<'a> {
                 address: pair.as_str(),
                 text: None,
             },
-            Rule::em_dash => {
-                // \u{2014} is an em dash: '—'
-                Word::Text {
-                    contents: "\u{2014}",
-                }
-            }
+            Rule::em_dash => Word::Text { contents: EM_DASH },
             Rule::color => color::parse(pair)?,
             Rule::italics => Word::Italics {
                 words: make_words!(pair),
             },
-            Rule::strikethrough => Word::Strikethrough {
-                words: make_words!(pair),
-            },
+            Rule::strikethrough => {
+                // This rule is essentially a ".+" and then parse out the words.
+
+                use pest::Parser;
+
+                let contents = extract!(STRIKETHROUGH, pair);
+                let mut pairs = WikidotParser::parse(Rule::strikethrough_words, contents)?;
+                pairs = get_inner_pairs!(pairs);
+
+                let mut words = Vec::new();
+                for pair in pairs {
+                    if pair.as_rule() == Rule::word {
+                        let word = Word::from_pair(pair)?;
+                        words.push(word);
+                    }
+                }
+
+                Word::Strikethrough { words }
+            }
             Rule::bold => Word::Bold {
                 words: make_words!(pair),
             },
