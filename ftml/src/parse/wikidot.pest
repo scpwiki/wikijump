@@ -167,7 +167,9 @@ strikethrough_words = { SOI ~ word+ ~ EOI }
 
 // Formatting words {{{
 color = {
-    "##" ~ space? ~ ("#"? ~ ident) ~ space? ~ "|" ~ word* ~ "##" |
+    (
+        "##" ~ space? ~ ("#"? ~ ident) ~ space? ~ "|" ~ word* ~ "##"
+    ) |
     (
         "[[" ~ space? ~ (^"color" | ^"colour") ~ space ~ ident ~ space? ~ "]]" ~
         word* ~
@@ -176,56 +178,56 @@ color = {
 }
 
 italics = {
-    "//" ~ word* ~ "//" |
+    ("//" ~ word* ~ "//") |
     (
-        "[[" ~ space? ~ (^"i" | ^"italics") ~ space? ~ "]]" ~
+        "[[" ~ space? ~ (^"italics" | ^"i") ~ space? ~ "]]" ~
         word* ~
-        "[[/" ~ space? ~ (^"i" | ^"italics") ~ space? ~ "]]"
+        "[[/" ~ space? ~ (^"italics" | ^"i") ~ space? ~ "]]"
     )
 }
 
 bold = {
-    "**" ~ word* ~ "**" |
+    ("**" ~ word* ~ "**") |
     (
-        "[[" ~ space? ~ (^"b" | ^"bold") ~ space? ~ "]]" ~
+        "[[" ~ space? ~ (^"bold" | ^"b") ~ space? ~ "]]" ~
         word* ~
-        "[[/" ~ space? ~ (^"b" | ^"bold") ~ space? ~ "]]"
+        "[[/" ~ space? ~ (^"bold" | ^"b") ~ space? ~ "]]"
     )
 }
 
 underline = {
-    "__" ~ word* ~ "__" |
+    ("__" ~ word* ~ "__") |
     (
-        "[[" ~ space? ~ (^"u" | ^"underline") ~ space? ~ "]]" ~
+        "[[" ~ space? ~ (^"underline" | ^"u") ~ space? ~ "]]" ~
         word* ~
-        "[[/" ~ space? ~ (^"u" | ^"underline") ~ space? ~ "]]"
+        "[[/" ~ space? ~ (^"underline" | ^"u") ~ space? ~ "]]"
     )
 }
 
 subscript = {
-    ",," ~ word* ~ ",," |
+    (",," ~ word* ~ ",,") |
     (
-        "[[" ~ space? ~ (^"sub" | ^"subscript") ~ space? ~ "]]" ~
+        "[[" ~ space? ~ (^"subscript" | ^"sub") ~ space? ~ "]]" ~
         word* ~
-        "[[/" ~ space? ~ (^"sub" | ^"subscript") ~ space? ~ "]]"
+        "[[/" ~ space? ~ (^"subscript" | ^"sub") ~ space? ~ "]]"
     )
 }
 
 superscript = {
-    "^^" ~ word* ~ "^^" |
+    ("^^" ~ word* ~ "^^") |
     (
-        "[[" ~ space? ~ (^"sup" | ^"superscript") ~ space? ~ "]]" ~
+        "[[" ~ space? ~ (^"superscript" | ^"sup") ~ space? ~ "]]" ~
         word* ~
-        "[[/" ~ space? ~ (^"sup" | ^"superscript") ~ space? ~ "]]"
+        "[[/" ~ space? ~ (^"superscript" | ^"sup") ~ space? ~ "]]"
     )
 }
 
 monospace = {
-    "{{" ~ word* ~ "}}" |
+    ("{{" ~ word* ~ "}}") |
     (
-        "[[" ~ space? ~ (^"mono" | ^"monospace") ~ space? ~ "]]" ~
+        "[[" ~ space? ~ (^"monospace" | ^"mono") ~ space? ~ "]]" ~
         word* ~
-        "[[/" ~ space? ~ (^"mono" | ^"monospace") ~ space? ~ "]]"
+        "[[/" ~ space? ~ (^"monospace" | ^"mono") ~ space? ~ "]]"
     )
 }
 // }}}

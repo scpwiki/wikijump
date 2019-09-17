@@ -30,7 +30,7 @@ use crate::handle::TestHandle;
 use crate::prefilter;
 use pest::Parser;
 
-const VALID_INPUT_STRINGS: [&str; 123] = [
+const VALID_INPUT_STRINGS: [&str; 134] = [
     "",
     "@@ apple @@ @@banana@@",
     "@@ [!-- literal comment @@ durian",
@@ -154,6 +154,17 @@ const VALID_INPUT_STRINGS: [&str; 123] = [
     "[[ file  some_image.png | link text ]]",
     "[[css]]\nsome-class {\n  display: none;\n}\n[[/css]]",
     "[[ STYLE ]]\na:hover {\n  color: blue;\n}\n[[/ STYLE ]]",
+    "[[b]]apple[[/b]] banana [[ B ]]_[[/b  ]]",
+    "[[bold]]cherry durian[[/bold]] [[ BOLD ]]_[[/ BolD  ]]",
+    "[[i]]pineapple[[/i]] banana [[ I ]]_[[/ I ]]",
+    "[[italics]] --durian-- [[/italics]] [[ ITALICS ]]_[[/ ItaLiCs  ]]",
+    "[[u]]AAA[[/u]] ~ [[underline]]BBB[[/underline]]",
+    "[[sub]] ##green|sub## [[/sub]] [[ SUB ]]_[[/ SUB  ]]",
+    "[[subscript]] ##blue|sub## [[/subscript]] [[ SUBSCRIPT ]]_[[/ SUBScripT  ]]",
+    "[[sup]] ##green|super## [[/sup]] [[ SUP ]]_[[/ SUP  ]]",
+    "[[superscript]] ##blue|super## [[/superscript]] [[ SUPERSCRIPT ]]_[[/ SUPErScripT  ]]",
+    "[[mono]] M O N O S P A C E [[/mono]] [[ MONO ]]_[[/ MONO ]]",
+    "[[monospace]] M O N O S P A C E [[/monospace]] [[ MOnoSPaCE ]]_[[/ MONOspaCe  ]]",
 ];
 
 const VALID_FILTER_STRINGS: [&str; 12] = [
