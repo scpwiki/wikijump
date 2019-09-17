@@ -134,7 +134,10 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             escape_html(ctx, text.unwrap_or(address))?;
             ctx.push_str("</a>");
         }
-        &EquationReference { name } => unimplemented!(),
+        &EquationReference { name } => {
+            // TODO
+            return Err(Error::StaticMsg("Rendering for equation references are not implemented yet"));
+        }
         &File {
             filename,
             text,
@@ -183,8 +186,14 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             ctx.footnotes_mut().set_block(true);
             ctx.push_str("\0footnote-block\0");
         }
-        &Form { contents } => unimplemented!(),
-        &Gallery => unimplemented!(),
+        &Form { contents } => {
+            // TODO
+            return Err(Error::StaticMsg("Rendering for forms is not implemented yet"));
+        }
+        &Gallery => {
+            // TODO
+            return Err(Error::StaticMsg("Rendering for galleries is not implemented yet"));
+        }
         &Image {
             filename,
             float,
@@ -242,7 +251,10 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             render_words(ctx, words)?;
             ctx.push_str("</i>");
         }
-        &Math { expr } => unimplemented!(),
+        &Math { expr } => {
+            // TODO
+            return Err(Error::StaticMsg("Rendering for inline mathematical expressions is not implemented yet"));
+        }
         &Module {
             name,
             ref arguments,
@@ -306,7 +318,10 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             render_words(ctx, words)?;
             ctx.push_str("</sup>");
         }
-        &TabList { ref tabs } => unimplemented!(),
+        &TabList { ref tabs } => {
+            // TODO
+            return Err(Error::StaticMsg("Rendering for tab lists is not implemented"));
+        }
         &Text { contents } => escape_html(ctx, contents)?,
         &Underline { ref words } => {
             ctx.push_str("<u>");

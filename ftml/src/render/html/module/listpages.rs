@@ -29,6 +29,7 @@ impl Module for ListPagesModule {
         _arguments: &HashMap<&str, Cow<str>>,
         _contents: Option<&str>,
     ) -> Result<()> {
-        unimplemented!()
+        // TODO
+        Err(Error::StaticMsg("Rendering for listpages is not implemented yet"))
     }
 }
