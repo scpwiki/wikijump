@@ -21,10 +21,10 @@
 use super::prelude::*;
 use crate::handle::TestHandle;
 use std::ffi::OsStr;
-use std::fmt::Write;
 use std::fs::{self, File};
-use std::io::Read;
+use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
+use std::str;
 
 lazy_static! {
     static ref TEST_DIRECTORY: PathBuf = {
@@ -67,10 +67,12 @@ const TEST_BLACKLIST: [&str; 19] = [
 
 // Should only be used to update test outputs
 #[allow(dead_code)]
-fn update_test<P: AsRef<Path>>(output: &str, output_file: P) {
-    use std::io::Write;
-
-    let output = output.as_bytes();
+fn update_test<B, P>(output: B, output_file: P)
+where
+    B: AsRef<[u8]>,
+    P: AsRef<Path>,
+{
+    let output = output.as_ref();
     let output_file = output_file.as_ref();
     let mut file = File::create(output_file).expect("Unable to create output file");
     file.write_all(output)
@@ -135,14 +137,14 @@ fn iterate_input_files<F: FnMut(&Path)>(mut f: F) {
 fn test_parser() {
     // Reuse these buffers for all the tests
     let mut output_file = PathBuf::new();
-    let mut output = String::new();
+    let mut output = Vec::new();
     let mut expected = String::new();
 
     // Run through all of the test files
     iterate_input_files(|input_file| {
         assert!(input_file.is_absolute());
         output_file.push(input_file);
-        output_file.set_extension("txt");
+        output_file.set_extension("json");
 
         println!("Parsing {}...", file_name!(input_file));
         let mut input_text = String::new();
@@ -153,7 +155,9 @@ fn test_parser() {
 
         let output_tree = parse(&input_text).expect("Unable to parse Wikidot source");
         output.clear();
-        write!(&mut output, "{:#?}", &output_tree).expect("Unable to write tree to string");
+        serde_json::to_writer_pretty(&mut output, &output_tree)
+            .expect("Unable to write AST to JSON");
+        let output = str::from_utf8(&output).expect("Output JSON is not valid UTF-8");
 
         assert_eq!(
             expected, output,

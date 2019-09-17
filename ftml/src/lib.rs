@@ -86,6 +86,9 @@ extern crate serde_repr;
 #[macro_use]
 extern crate str_macro;
 
+#[cfg(test)]
+extern crate serde_json;
+
 #[macro_use]
 mod macros;
 
