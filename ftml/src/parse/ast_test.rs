@@ -58,4 +58,16 @@ fn test_valid() {
 #[test]
 fn test_invalid() {
     invalid!("[[");
+    invalid!("]]");
+    invalid!("@@");
+    invalid!("**");
+    invalid!("__");
+    invalid!("//");
+    invalid!("{{");
+    invalid!("}}");
+    invalid!(",,");
+    invalid!("^^");
+    invalid!("##");
+    invalid!("[[[");
+    invalid!("]]]");
 }
