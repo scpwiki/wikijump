@@ -25,12 +25,14 @@ mod meta;
 mod module;
 mod object;
 mod paragraph;
+mod percent;
 mod word;
 
 mod prelude {
     pub use super::super::Render;
     use super::buffer::StringBuf;
     pub use super::paragraph::{render_paragraph, render_paragraphs};
+    pub use super::percent::percent_encode;
     pub use super::word::{render_word, render_words};
     pub use super::{HtmlContext, HtmlMeta};
     pub use crate::data;

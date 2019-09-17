@@ -22,13 +22,6 @@ use self::Word::*;
 use super::module;
 use super::prelude::*;
 use crate::enums::LinkText;
-use percent_encoding::{percent_encode, DEFAULT_ENCODE_SET};
-
-macro_rules! percent_encode {
-    ($input:expr) => {
-        percent_encode($input.as_ref(), DEFAULT_ENCODE_SET)
-    };
-}
 
 pub fn render_words<'a, I, W>(ctx: &mut HtmlContext, words: I) -> Result<()>
 where
@@ -58,7 +51,7 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             ctx.push_str("<a");
 
             if let Some(href) = href {
-                write!(ctx, " href=\"{}\"", percent_encode!(href))?;
+                write!(ctx, " href=\"{}\"", percent_encode(href))?;
             }
 
             if let Some(name) = name {
@@ -86,7 +79,7 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             ctx.push_str("</a>");
         }
         &Link { href, target, text } => {
-            write!(ctx, "<a href=\"{}\"", percent_encode!(href))?;
+            write!(ctx, "<a href=\"{}\"", percent_encode(href))?;
 
             if let Some(target) = target {
                 write!(ctx, " target=\"{}\"", target)?;
@@ -147,7 +140,7 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             text,
             target,
         } => {
-            write!(ctx, "<a href=\"{}\"", percent_encode!(filename))?;
+            write!(ctx, "<a href=\"{}\"", percent_encode(filename))?;
 
             if let Some(target) = target {
                 write!(ctx, " target=\"{}\"", target)?;
