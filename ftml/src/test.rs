@@ -123,7 +123,7 @@ fn iterate_input_files<F: FnMut(&Path)>(mut f: F) {
 
         let stem = input_file.file_stem().expect("Unable to get file stem");
         if is_blacklisted(stem) {
-            println!("Skipping blacklisted test {}", input_file.display());
+            println!("Skipping blacklisted test {}", Path::new(stem).display());
             continue;
         }
 
