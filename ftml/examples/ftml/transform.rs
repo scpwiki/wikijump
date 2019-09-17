@@ -18,12 +18,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use ftml::prelude::*;
 use ftml::handle::NullHandle;
+use ftml::prelude::*;
 
 pub type TransformFn = fn(&mut String, bool) -> Result<String>;
 
 #[inline]
+fn serde_ftml_error(error: serde_json::Error) -> ftml::Error {
+    Error::Msg(format!("{}", error))
+}
+
 pub fn prefilter_only(text: &mut String, _wrap: bool) -> Result<String> {
     let mut text = text.clone();
     prefilter(&mut text, &NullHandle)?;
@@ -34,7 +38,7 @@ pub fn parse_only(text: &mut String, _wrap: bool) -> Result<String> {
     let mut text = text.clone();
     prefilter(&mut text, &NullHandle)?;
     let tree = parse(&mut text)?;
-    serde_json::to_string_pretty(&tree).map_err(|err| Error::Msg(format!("{}", err)))
+    serde_json::to_string_pretty(&tree).map_err(serde_ftml_error)
 }
 
 pub fn full_transform(text: &mut String, wrap: bool) -> Result<String> {
@@ -47,7 +51,13 @@ pub fn full_transform(text: &mut String, wrap: bool) -> Result<String> {
         header: None,
         subheader: None,
         rating: 1000,
-        tags: vec!["scp", "keter", "intangible", "k-class-scenario", "ontokinetic"],
+        tags: vec![
+            "scp",
+            "keter",
+            "intangible",
+            "k-class-scenario",
+            "ontokinetic",
+        ],
     };
 
     let mut output = renderer.transform(text, info, &handle)?;
