@@ -23,7 +23,7 @@ use crate::Result;
 use pest::error::Error as PestError;
 use pest::Parser;
 
-#[derive(Serialize, Deserialize, Debug, Clone, Parser)]
+#[derive(Debug, Copy, Clone, Parser)]
 #[grammar = "parse/wikidot.pest"]
 pub struct WikidotParser;
 
