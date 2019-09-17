@@ -175,7 +175,15 @@ color = {
     )
 }
 
-italics = { "//" ~ word* ~ "//" }
+italics = {
+    "//" ~ word* ~ "//" |
+    (
+        "[[" ~ space? ~ (^"i" | ^"italics") ~ space? ~ "]]" ~
+        word* ~
+        "[[/" ~ space? ~ (^"i" | ^"italics") ~ space? ~ "]]"
+    )
+}
+
 bold = { "**" ~ word* ~ "**" }
 underline = { "__" ~ word* ~ "__" }
 subscript = { ",," ~ word* ~ ",," }
