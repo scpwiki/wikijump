@@ -151,9 +151,9 @@ pub enum Paragraph<'a> {
         // TODO: http://community.wikidot.com/help:toc
     },
     QuoteBlock {
-        id: Option<&'a str>,
-        class: Option<&'a str>,
-        style: Option<&'a str>,
+        id: Option<Cow<'a, str>>,
+        class: Option<Cow<'a, str>>,
+        style: Option<Cow<'a, str>>,
         paragraphs: Vec<Paragraph<'a>>,
     },
     Words {
