@@ -23,6 +23,7 @@
 extern crate clap;
 extern crate ftml;
 extern crate notify;
+extern crate serde_json;
 
 #[macro_use]
 extern crate str_macro;
