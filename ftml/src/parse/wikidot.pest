@@ -122,7 +122,6 @@ word = {
     text |
     raw |
     email |
-    em_dash |
     color |
     italics |
     strikethrough |
@@ -150,12 +149,13 @@ word = {
     user |
     link_bare |
     link_page |
-    link_url
+    link_url |
+    em_dash
 }
 // }}}
 
 // Dash words {{{
-em_dash = { "---" | "--" ~ (!word | space_any | EOI) }
+em_dash = { "---" | "--" }
 strikethrough = {
     // This is awful but I haven't gotten it to both not produce
     // an error and not return a lazy parse where everything
