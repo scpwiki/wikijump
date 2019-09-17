@@ -233,9 +233,9 @@ pub enum Word<'a> {
         paragraphs: Vec<Paragraph<'a>>,
     },
     Span {
-        id: Option<&'a str>,
-        class: Option<&'a str>,
-        style: Option<&'a str>,
+        id: Option<Cow<'a, str>>,
+        class: Option<Cow<'a, str>>,
+        style: Option<Cow<'a, str>>,
         paragraphs: Vec<Paragraph<'a>>,
     },
     Strikethrough {

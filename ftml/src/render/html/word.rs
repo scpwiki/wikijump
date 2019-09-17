@@ -268,9 +268,9 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             ctx.push_str("</span>");
         }
         &Span {
-            id,
-            class,
-            style,
+            ref id,
+            ref class,
+            ref style,
             ref paragraphs,
         } => {
             ctx.push_str("<span");
