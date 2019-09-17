@@ -182,14 +182,11 @@ const VALID_FILTER_STRINGS: [&str; 12] = [
     " omg... he actually did it ",
 ];
 
-const INVALID_INPUT_STRINGS: [&str; 70] = [
+const INVALID_INPUT_STRINGS: [&str; 67] = [
     "@@ raw value",
-    "`` legacy raw value",
     "@@ @@ @@",
-    "`` `` ``",
     "@@ raw \n multiline @@",
-    "`` raw \n multiline ``",
-    "apple `` raw @@ banana",
+    "apple @@ banana",
     "__**test** cherry {{ durian ^^up^^ __",
     " {{ ",
     " }} ",
