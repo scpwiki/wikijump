@@ -23,11 +23,11 @@ use crate::enums::AnchorTarget;
 
 #[derive(Debug, Default)]
 struct Context<'a> {
-    href: Option<&'a str>,
-    name: Option<&'a str>,
-    id: Option<&'a str>,
-    class: Option<&'a str>,
-    style: Option<&'a str>,
+    href: Option<Cow<'a, str>>,
+    name: Option<Cow<'a, str>>,
+    id: Option<Cow<'a, str>>,
+    class: Option<Cow<'a, str>>,
+    style: Option<Cow<'a, str>>,
     target: Option<AnchorTarget>,
     words: Vec<Word<'a>>,
 }
@@ -104,13 +104,13 @@ fn parse_arg<'c, 'p>(ctx: &'c mut Context<'p>, pair: Pair<'p, Rule>) {
         panic!("Unknown argument for [[a]]: {}", key);
     }
 
-    let value = value_pair.as_str();
+    let value = interp_str(value_pair.as_str()).expect("Invalid string value");
     match get_field(key) {
         Field::Href => ctx.href = Some(value),
         Field::Name => ctx.name = Some(value),
         Field::Id => ctx.id = Some(value),
         Field::Class => ctx.class = Some(value),
         Field::Style => ctx.style = Some(value),
-        Field::Target => ctx.target = AnchorTarget::try_from(value).ok(),
+        Field::Target => ctx.target = AnchorTarget::try_from(value.as_ref()).ok(),
     }
 }

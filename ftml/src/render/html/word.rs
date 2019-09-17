@@ -40,12 +40,12 @@ where
 pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
     match word {
         &Anchor {
-            href,
-            name,
-            id,
-            class,
-            style,
-            target,
+            ref href,
+            ref name,
+            ref id,
+            ref class,
+            ref style,
+            ref target,
             ref words,
         } => {
             ctx.push_str("<a");

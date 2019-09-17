@@ -147,11 +147,11 @@ lazy_static! {
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub enum Word<'a> {
     Anchor {
-        href: Option<&'a str>,
-        name: Option<&'a str>,
-        id: Option<&'a str>,
-        class: Option<&'a str>,
-        style: Option<&'a str>,
+        href: Option<Cow<'a, str>>,
+        name: Option<Cow<'a, str>>,
+        id: Option<Cow<'a, str>>,
+        class: Option<Cow<'a, str>>,
+        style: Option<Cow<'a, str>>,
         target: Option<AnchorTarget>,
         words: Vec<Word<'a>>,
     },
@@ -318,15 +318,20 @@ impl<'a> Word<'a> {
             Rule::monospace => Word::Monospace {
                 words: make_words!(pair),
             },
-            Rule::anchor => Word::Anchor {
-                href: None,
-                name: Some(extract!(ANCHOR, pair)),
-                id: None,
-                class: None,
-                style: None,
-                target: None,
-                words: Vec::new(),
-            },
+            Rule::anchor => {
+                // The [# LINK] anchor, which only has a name.
+                // Compare to the general-purpose [[a]] anchor
+                // in the rule below this one.
+                Word::Anchor {
+                    href: None,
+                    name: Some(Cow::Borrowed(extract!(ANCHOR, pair))),
+                    id: None,
+                    class: None,
+                    style: None,
+                    target: None,
+                    words: Vec::new(),
+                }
+            }
             Rule::anchor_tag => anchor::parse(pair)?,
             Rule::css => Word::Css {
                 style: extract!(CSS, pair),
