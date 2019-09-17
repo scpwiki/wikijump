@@ -71,7 +71,7 @@
     {
       "Div": {
         "id": null,
-        "class": "\"content-panel standalone series\"",
+        "class": "content-panel standalone series",
         "style": null,
         "paragraphs": [
           {
@@ -3252,7 +3252,7 @@
     {
       "Div": {
         "id": null,
-        "class": "\"content-panel standalone series\"",
+        "class": "content-panel standalone series",
         "style": null,
         "paragraphs": [
           {

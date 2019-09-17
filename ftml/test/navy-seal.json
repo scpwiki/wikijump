@@ -54,7 +54,7 @@
           {
             "Span": {
               "id": null,
-              "class": "\"emphasis\"",
+              "class": "emphasis",
               "style": null,
               "paragraphs": [
                 {
@@ -176,8 +176,8 @@
     {
       "Div": {
         "id": null,
-        "class": "\"smackdown\"",
-        "style": "\"background-color: #ccc;\"",
+        "class": "smackdown",
+        "style": "background-color: #ccc;",
         "paragraphs": [
           {
             "QuoteBlock": {
@@ -338,7 +338,7 @@
                         "Span": {
                           "id": null,
                           "class": null,
-                          "style": "\"color: red;\"",
+                          "style": "color: red;",
                           "paragraphs": [
                             {
                               "Words": {
@@ -363,7 +363,7 @@
                       {
                         "Span": {
                           "id": null,
-                          "class": "\"feces\"",
+                          "class": "feces",
                           "style": null,
                           "paragraphs": [
                             {
@@ -388,7 +388,7 @@
                       },
                       {
                         "Span": {
-                          "id": "\"warning\"",
+                          "id": "warning",
                           "class": null,
                           "style": null,
                           "paragraphs": [
@@ -516,7 +516,7 @@
                       },
                       {
                         "Span": {
-                          "id": "\"conspiracy-theory\"",
+                          "id": "conspiracy-theory",
                           "class": null,
                           "style": null,
                           "paragraphs": [
@@ -552,7 +552,7 @@
                               "Span": {
                                 "id": null,
                                 "class": null,
-                                "style": "\" text-decoration: none; \"",
+                                "style": " text-decoration: none; ",
                                 "paragraphs": [
                                   {
                                     "Words": {
@@ -926,8 +926,8 @@
           },
           {
             "Div": {
-              "id": "\"trained\"",
-              "class": "\"absolute-power\"",
+              "id": "trained",
+              "class": "absolute-power",
               "style": null,
               "paragraphs": [
                 {
