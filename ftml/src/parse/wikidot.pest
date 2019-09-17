@@ -202,7 +202,15 @@ underline = {
     )
 }
 
-subscript = { ",," ~ word* ~ ",," }
+subscript = {
+    ",," ~ word* ~ ",," |
+    (
+        "[[" ~ space? ~ (^"sub" | ^"subscript") ~ space? ~ "]]" ~
+        word* ~
+        "[[/" ~ space? ~ (^"sub" | ^"subscript") ~ space? ~ "]]"
+    )
+}
+
 superscript = { "^^" ~ word* ~ "^^" }
 monospace = { "{{" ~ word* ~ "}}" }
 // }}}
