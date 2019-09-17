@@ -184,7 +184,15 @@ italics = {
     )
 }
 
-bold = { "**" ~ word* ~ "**" }
+bold = {
+    "**" ~ word* ~ "**" |
+    (
+        "[[" ~ space? ~ (^"b" | ^"bold") ~ space? ~ "]]" ~
+        word* ~
+        "[[/" ~ space? ~ (^"b" | ^"bold") ~ space? ~ "]]"
+    )
+}
+
 underline = { "__" ~ word* ~ "__" }
 subscript = { ",," ~ word* ~ ",," }
 superscript = { "^^" ~ word* ~ "^^" }
