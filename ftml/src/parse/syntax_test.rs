@@ -252,7 +252,7 @@ const INVALID_INPUT_STRINGS: [&str; 67] = [
     "[[style]]",
 ];
 
-const INVALID_FILTER_STRINGS: [&str; 1] = ["[!-- alpha --] [[ eref "];
+const INVALID_FILTER_STRINGS: [&str; 0] = [];
 
 #[test]
 fn test_valid_strings() {

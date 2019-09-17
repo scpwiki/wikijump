@@ -70,4 +70,6 @@ fn test_invalid() {
     invalid!("##");
     invalid!("[[[");
     invalid!("]]]");
+
+    invalid!("[!-- alpha --] [[ eref ");
 }
