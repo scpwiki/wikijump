@@ -43,12 +43,7 @@ macro_rules! file_name {
     };
 }
 
-const TEST_BLACKLIST: [&str; 19] = [
-    "scp-003",
-    "scp-008",
-    "scp-009",
-    "scp-029",
-    "scp-030",
+const TEST_BLACKLIST: [&str; 14] = [
     "scp-032",
     "scp-039",
     "scp-1294-j",

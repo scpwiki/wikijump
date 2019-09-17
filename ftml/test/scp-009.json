@@ -1,0 +1,852 @@
+{
+  "paragraphs": [
+    {
+      "Align": {
+        "alignment": "right",
+        "paragraphs": [
+          {
+            "Words": {
+              "centered": false,
+              "words": [
+                {
+                  "Module": {
+                    "name": "Rate",
+                    "arguments": {},
+                    "contents": null
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "<PAGE 'component:image-block' #3>"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Bold": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "Item #:"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " SCP-009"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Bold": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "Object Class:"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " Euclid"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Bold": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "Special Containment Procedures:"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " Object is to be contained within a sealed storage tank of heat-resistant alloy with dimensions not less than 2m x 2m x 2m."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "Under no circumstances should SCP-009 be exposed to temperatures in excess of 0°C when not undergoing testing, and no water-based solutions shall be allowed within 30 meters of the object's containment area. Object's chamber is to be fitted with temperature sensors which must be monitored at all times, and is to be kept refrigerated by no fewer than three (3) redundant cooling units. Any malfunction of sensors, or of coolant systems, is to be reported and repaired immediately. If at any time the temperature in the containment area climbs above -5°C, the chamber is to be locked down and flooded with coolant until temperatures return to safe levels (-30°C to -25°C)."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "Containment area is to be kept in total vacuum during testing, and personnel interacting with SCP-009 must wear full environmental protection gear. Following testing, all equipment, personnel, and other materials must undergo dehydration procedures and be quarantined for no less than 12 hours. Any moisture found displaying properties of SCP-009 is to be quarantined and added to the containment area as soon as possible. Living organisms found to be contaminated by SCP-009 are to be terminated by chemical dessication and extracted molecules of SCP-009 added to containment."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Bold": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "Description:"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " SCP-009 is approximately ███  liters of a substance which superficially resembles distilled water (H"
+            }
+          },
+          {
+            "Subscript": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "2"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": "O), except with a distinct bright red hue. This red hue is discernible in all phases, and serves as the most expedient method of identifying contaminated matter before its anomalous properties manifest.  In contrast to mundane water, SCP-009 assumes a liquid phase at temperatures between -100°C and 0°C, and a solid state above those temperatures. At temperatures below -100°C, SCP-009 vaporizes into a gaseous phase similar to steam."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "Examinations of the atomic structure of SCP-009 have proved inconclusive. The substance appears to be identical to normal water molecules, with the exception of [REDACTED] in contrast to standard laws of enthalpy. Dr. █████, Site ██'s resident expert on Xenospatial Physics suggests that SCP-009 may originate in a universe with alternate physical laws."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "The most hazardous property of SCP-009, however, is its ability to contaminate normal H"
+            }
+          },
+          {
+            "Subscript": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "2"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": "O. When in contact with any aqueous solution, SCP-009 will, through unknown mechanisms, transfer its anomalous properties to other objects and creatures. Testing has shown it capable of assimilating ice, steam, tea, fruit juice, seawater, blood, and [DATA EXPUNGED]. The time it takes for this process to occur varies depending on temperature and the exact chemical composition of affected matter, and had been observed as taking between 3 minutes and ██ hours."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "Experiments on D-Class personnel have illustrated the process of conversion by the substance, which has been found to follow a consistent pattern:"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "1. Initial Exposure: Subject is exposed to SCP-009, and it begins assimilating any moisture present on the exposed surface. Creatures in this stage do not commonly notice any unusual symptoms except for a slight warming sensation."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "2. Surface Conversion: Frost begins to form on the exposed area as the heat produced by the subject and SCP-009 itself raises its temperature above 0°C.  This stage can take anywhere from one (1) minute to █ hours, during which time subjects begin to feel [REDACTED] crystals from the epidermis."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "3. Deep Tissue Conversion: Exponential increase in temperature of SCP-009 causes runaway reaction throughout subject's body, resulting in [REDACTED]. Actual blood loss is minimal due to ice crystals [REDACTED], allowing subjects to remain alive and conscious for up to ██ hours."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "4. [DATA EXPUNGED]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "Testing on D-Class personnel was discontinued as of 4/23/20██."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Bold": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "Addendum: Circumstances of Retrieval:"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " Subject was found in ████, Alaska, on 11/05/19██. The Foundation became involved after reports were obtained from the native ████ Tribe, who came across the mangled bodies of a team of seal hunters which had apparently been ship-wrecked ██ kilometers from the village."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "All victims were found encased in red ice. Cause of death recorded as internal bleeding, though closer examination found [REDACTED]. It is surmised that the low ambient temperatures in the area retarded the freezing process. This prolonged the time to total conversion by ██ hours, and allowed the victims to remain conscious until [DATA EXPUNGED]."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "Origin of SCP-009 is currently unknown. Investigation into similar events or materials in the area is ongoing. Evidence at the scene suggests [REDACTED], possibly involving SCP-███."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "See "
+            }
+          },
+          {
+            "Link": {
+              "href": "Exploration Log A009-1",
+              "target": null,
+              "text": "url"
+            }
+          },
+          {
+            "Text": {
+              "contents": " for details."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Bold": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "Addendum:"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " 11/09/19██"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "After initial report and retrieval of specimens, it was confirmed that the arachnoid entity found by MFT-B7 (see "
+            }
+          },
+          {
+            "Link": {
+              "href": "Exploration Log A009-1",
+              "target": null,
+              "text": {
+                "text": "attached file"
+              }
+            }
+          },
+          {
+            "Text": {
+              "contents": ") was indeed a previously unknown instance of "
+            }
+          },
+          {
+            "Link": {
+              "href": "SCP-3023",
+              "target": null,
+              "text": "url"
+            }
+          },
+          {
+            "Text": {
+              "contents": ". Investigation has revealed the instance originated in [REDACTED] as a result of [DATA EXPUNGED]."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Bold": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "Addendum:"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " 12/06/19██"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "After repeated inquiries, it should be noted that the portion of coastline upon which the initial victims were found was barren rock approximately █ meters from the seashore, and was sufficiently dry and cold to prevent significant contamination of the surrounding area. Had the site been closer to the water, there is little doubt an extinction-level event would have ensued."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "Consideration of upgrading SCP-009 to Keter class under review."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Bold": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "Addendum:"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " 12/16/20██"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "Super-cooling of SCP-009 for the purposes of experimentation is disallowed until further notice. Personnel are advised that liquid nitrogen is only to be used on the subject in controlled amounts, and only until temperatures have reached acceptable levels."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "Related note: Possible application of SCP-009 in cold fusion research pending evaluation."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Bold": {
+              "words": [
+                {
+                  "Text": {
+                    "contents": "Memo from O-5 Command:"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Text": {
+              "contents": " 1/09/20██"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "We've decided to keep this thing Euclid for now. We understand the concerns raised, but as long as you keep the power on and nobody goes near its containment area, there shouldn't be a problem. That's why we're keeping it in Site ██, after all."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Words": {
+        "centered": false,
+        "words": [
+          {
+            "Text": {
+              "contents": "As for the cold fusion research, we're putting a pin in that for now. Frankly, we don't have it in the budget for another SNAFU like Site ██. The salvage team still hasn't found Dr. █████'s [REDACTED]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Newlines": {
+        "count": 1
+      }
+    },
+    {
+      "Collapsible": {
+        "show_text": "+ Cross-Testing report 9507F23",
+        "hide_text": " Hide Report",
+        "id": null,
+        "class": null,
+        "style": null,
+        "show_top": true,
+        "show_bottom": false,
+        "paragraphs": [
+          {
+            "Words": {
+              "centered": false,
+              "words": [
+                {
+                  "Text": {
+                    "contents": "The following experiment record was recovered via a chance occurrence of "
+                  }
+                },
+                {
+                  "Link": {
+                    "href": "SCP-507",
+                    "target": null,
+                    "text": "url"
+                  }
+                },
+                {
+                  "Text": {
+                    "contents": " shifting into a universe in which the described test was carried out using "
+                  }
+                },
+                {
+                  "Link": {
+                    "href": "SCP-107",
+                    "target": null,
+                    "text": "url"
+                  }
+                },
+                {
+                  "Text": {
+                    "contents": ". The applicability of the reported findings to our own universe is pending review."
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "QuoteBlock": {
+              "id": null,
+              "class": null,
+              "style": null,
+              "paragraphs": [
+                {
+                  "Words": {
+                    "centered": false,
+                    "words": [
+                      {
+                        "Bold": {
+                          "words": [
+                            {
+                              "Text": {
+                                "contents": "Input:"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "Text": {
+                          "contents": " 10mL of SCP-009"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "Words": {
+                    "centered": false,
+                    "words": [
+                      {
+                        "Bold": {
+                          "words": [
+                            {
+                              "Text": {
+                                "contents": "Result:"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "Text": {
+                          "contents": " \"Red snow\" fell in test area for 27 minutes with moderate intensity. Grass growing in test area began runaway reaction which ended with entire area being \"frozen\" within minutes. Notably, anti-enthalpathic reaction of SCP-009 did not extend past the effective radius of "
+                        }
+                      },
+                      {
+                        "Link": {
+                          "href": "SCP-107",
+                          "target": null,
+                          "text": "url"
+                        }
+                      },
+                      {
+                        "Text": {
+                          "contents": ", for reasons still under investigation. Non-grass plants in area turned bright red in color, greatly expanded, and mutated to display cyan-colored \"tentacles\" similar to those of species Drosera capensis. Mucilage produced by these tentacles later found to be tiny beads of SCP-009. How the plant is able to survive with SCP-009 integrated into its cell structure is currently under investigation, with preliminary hypothesis being the plant is a reflection of flora from the substance's native universe."
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Div": {
+        "id": null,
+        "class": "footer-wikiwalk-nav",
+        "style": null,
+        "paragraphs": [
+          {
+            "Align": {
+              "alignment": "center",
+              "paragraphs": [
+                {
+                  "Words": {
+                    "centered": false,
+                    "words": [
+                      {
+                        "Text": {
+                          "contents": "« "
+                        }
+                      },
+                      {
+                        "Link": {
+                          "href": "SCP-008",
+                          "target": null,
+                          "text": "url"
+                        }
+                      },
+                      {
+                        "Text": {
+                          "contents": " | SCP-009 | "
+                        }
+                      },
+                      {
+                        "Link": {
+                          "href": "SCP-010",
+                          "target": null,
+                          "text": "url"
+                        }
+                      },
+                      {
+                        "Text": {
+                          "contents": " »"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
