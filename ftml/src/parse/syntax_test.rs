@@ -182,10 +182,6 @@ const VALID_FILTER_STRINGS: [&str; 12] = [
     " omg... he actually did it ",
 ];
 
-const INVALID_INPUT_STRINGS: [&str; 0] = [];
-
-const INVALID_FILTER_STRINGS: [&str; 0] = [];
-
 #[test]
 fn test_valid_strings() {
     // Parse only
@@ -231,57 +227,6 @@ fn test_valid_filter_strings() {
             panic!(
                 "Failed to convert filtered test string:\n{}\n-----\nProduced error: {}",
                 string, err
-            );
-        }
-
-        buffer.clear();
-    }
-}
-
-#[test]
-fn test_invalid_strings() {
-    // Parse and make SyntaxTree
-    for string in &INVALID_INPUT_STRINGS[..] {
-        println!("Converting invalid string: {:?}", string);
-        if let Ok(tree) = parse(string) {
-            panic!(
-                "Invalid test string converted successfully:\n{}\n-----\nProduced tree: {:#?}",
-                string, tree
-            );
-        }
-    }
-
-    // Parse only
-    for string in &INVALID_INPUT_STRINGS[..] {
-        println!("Parsing invalid string: {:?}", string);
-        if let Ok(pairs) = WikidotParser::parse(Rule::page, string) {
-            panic!(
-                "Invalid test string parsed successfully:\n{}\n-----\nProduced pairs: {:#?}",
-                string, pairs
-            );
-        }
-    }
-}
-#[test]
-fn test_invalid_filter_strings() {
-    let mut buffer = String::new();
-
-    for string in &INVALID_FILTER_STRINGS[..] {
-        println!("Running prefilter test on invalid string: {:?}", string);
-        buffer.push_str(string);
-        prefilter(&mut buffer, &TestHandle).expect("Prefilter shouldn't be failing");
-
-        if let Ok(tree) = parse(&buffer) {
-            panic!(
-                "Invalid test string converted successfully:\n{}\n-----\nProduced tree: {:#?}",
-                string, tree
-            );
-        }
-
-        if let Ok(pairs) = WikidotParser::parse(Rule::page, &buffer) {
-            panic!(
-                "Invalid test string parsed successfully:\n{}\n-----\nProduced pairs: {:#?}",
-                string, pairs
             );
         }
 
