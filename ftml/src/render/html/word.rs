@@ -190,13 +190,13 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
             float,
             direction,
             link,
-            alt,
-            title,
-            width,
-            height,
-            style,
-            class,
-            size,
+            ref alt,
+            ref title,
+            ref width,
+            ref height,
+            ref style,
+            ref class,
+            ref size,
         } => {
             ctx.push_str("<div class=\"image-container\"");
             if let Some(align) = direction {

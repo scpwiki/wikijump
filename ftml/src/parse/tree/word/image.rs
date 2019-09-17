@@ -61,13 +61,13 @@ pub fn parse(pair: Pair<Rule>) -> Result<Word> {
                             link = Some((value, false));
                         }
                     }
-                    ImageArgument::Alt => alt = Some(value),
-                    ImageArgument::Title => title = Some(value),
-                    ImageArgument::Width => width = Some(value),
-                    ImageArgument::Height => height = Some(value),
-                    ImageArgument::Style => style = Some(value),
-                    ImageArgument::Class => class = Some(value),
-                    ImageArgument::Size => size = Some(value),
+                    ImageArgument::Alt => alt = interp_str(value).ok(),
+                    ImageArgument::Title => title = interp_str(value).ok(),
+                    ImageArgument::Width => width = interp_str(value).ok(),
+                    ImageArgument::Height => height = interp_str(value).ok(),
+                    ImageArgument::Style => style = interp_str(value).ok(),
+                    ImageArgument::Class => class = interp_str(value).ok(),
+                    ImageArgument::Size => size = interp_str(value).ok(),
                 }
             }
             _ => panic!("Invalid rule for image: {:?}", pair.as_rule()),
