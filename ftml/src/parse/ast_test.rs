@@ -54,6 +54,85 @@ fn test_valid() {
         }])
     );
     valid!(
+        "//italics//",
+        SyntaxTree::from_paragraphs(vec![Paragraph::Words {
+            centered: false,
+            words: vec![Word::Italics {
+                words: vec![Word::Text {
+                    contents: "italics"
+                }]
+            }]
+        }])
+    );
+    valid!(
+        "__underline__",
+        SyntaxTree::from_paragraphs(vec![Paragraph::Words {
+            centered: false,
+            words: vec![Word::Underline {
+                words: vec![Word::Text {
+                    contents: "underline"
+                }]
+            }]
+        }])
+    );
+    valid!(
+        "--strikethrough--",
+        SyntaxTree::from_paragraphs(vec![Paragraph::Words {
+            centered: false,
+            words: vec![Word::Strikethrough {
+                words: vec![Word::Text {
+                    contents: "strikethrough"
+                }]
+            }]
+        }])
+    );
+    valid!(
+        "##rust|colored text here!##",
+        SyntaxTree::from_paragraphs(vec![Paragraph::Words {
+            centered: false,
+            words: vec![Word::Color {
+                color: "rust",
+                words: vec![Word::Text {
+                    contents: "colored text here!"
+                }],
+            }]
+        }])
+    );
+    valid!(
+        "^^superscript^^",
+        SyntaxTree::from_paragraphs(vec![Paragraph::Words {
+            centered: false,
+            words: vec![Word::Superscript {
+                words: vec![Word::Text {
+                    contents: "superscript"
+                }]
+            }]
+        }])
+    );
+    valid!(
+        ",,subscript,,",
+        SyntaxTree::from_paragraphs(vec![Paragraph::Words {
+            centered: false,
+            words: vec![Word::Subscript {
+                words: vec![Word::Text {
+                    contents: "subscript"
+                }]
+            }]
+        }])
+    );
+    valid!(
+        "{{monospace}}",
+        SyntaxTree::from_paragraphs(vec![Paragraph::Words {
+            centered: false,
+            words: vec![Word::Monospace {
+                words: vec![Word::Text {
+                    contents: "monospace"
+                }]
+            }]
+        }])
+    );
+
+    valid!(
         "@@ apple @@ @@banana@@",
         SyntaxTree::from_paragraphs(vec![Paragraph::Words {
             centered: false,
