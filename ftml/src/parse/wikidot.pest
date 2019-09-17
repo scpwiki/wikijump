@@ -250,7 +250,7 @@ size = {
     "[[/" ~ space? ~ ^"size" ~ space_any? ~ "]]"
 }
 size_arg = {
-    (ASCII_DIGIT | "."){1,5} ~ space? ~ (^"rem" | ^"em" | ^"px" | "%") |
+    (ASCII_DIGIT | "."){1,5} ~ space? ~ size_value |
     ^"xx-small" |
     ^"x-small" |
     ^"smaller" |
@@ -260,6 +260,11 @@ size_arg = {
     ^"large" |
     ^"x-large" |
     ^"xx-large"
+}
+size_value = {
+    ^"cm" | ^"mm" | ^"in" | ^"px" | ^"pt" | ^"pc" |
+    ^"em" | ^"ex" | ^"ch" | ^"rem" | ^"vw" | ^"vh" |
+    ^"vmin" | ^"vmax" | "%"
 }
 
 span = {
