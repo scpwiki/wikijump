@@ -136,7 +136,9 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
         }
         &EquationReference { name } => {
             // TODO
-            return Err(Error::StaticMsg("Rendering for equation references are not implemented yet"));
+            return Err(Error::StaticMsg(
+                "Rendering for equation references are not implemented yet",
+            ));
         }
         &File {
             filename,
@@ -188,11 +190,15 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
         }
         &Form { contents } => {
             // TODO
-            return Err(Error::StaticMsg("Rendering for forms is not implemented yet"));
+            return Err(Error::StaticMsg(
+                "Rendering for forms is not implemented yet",
+            ));
         }
         &Gallery => {
             // TODO
-            return Err(Error::StaticMsg("Rendering for galleries is not implemented yet"));
+            return Err(Error::StaticMsg(
+                "Rendering for galleries is not implemented yet",
+            ));
         }
         &Image {
             filename,
@@ -253,7 +259,9 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
         }
         &Math { expr } => {
             // TODO
-            return Err(Error::StaticMsg("Rendering for inline mathematical expressions is not implemented yet"));
+            return Err(Error::StaticMsg(
+                "Rendering for inline mathematical expressions is not implemented yet",
+            ));
         }
         &Module {
             name,
@@ -320,7 +328,9 @@ pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
         }
         &TabList { ref tabs } => {
             // TODO
-            return Err(Error::StaticMsg("Rendering for tab lists is not implemented"));
+            return Err(Error::StaticMsg(
+                "Rendering for tab lists is not implemented",
+            ));
         }
         &Text { contents } => escape_html(ctx, contents)?,
         &Underline { ref words } => {

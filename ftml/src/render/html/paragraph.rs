@@ -84,7 +84,9 @@ pub fn render_paragraph(ctx: &mut HtmlContext, paragraph: &Paragraph) -> Result<
             ref paragraphs,
         } => {
             // TODO
-            return Err(Error::StaticMsg("Rendering for collapsibles are not supported yet"));
+            return Err(Error::StaticMsg(
+                "Rendering for collapsibles are not supported yet",
+            ));
         }
         &Div {
             ref id,
@@ -180,7 +182,9 @@ pub fn render_paragraph(ctx: &mut HtmlContext, paragraph: &Paragraph) -> Result<
         } => {
             // TODO do LaTeX rendering
             // use mathjax library
-            return Err(Error::StaticMsg("Rendering for mathematical expressions is not implemented yet"));
+            return Err(Error::StaticMsg(
+                "Rendering for mathematical expressions is not implemented yet",
+            ));
         }
         &Newlines { count } => {
             for _ in 0..count {
@@ -209,7 +213,9 @@ pub fn render_paragraph(ctx: &mut HtmlContext, paragraph: &Paragraph) -> Result<
         }
         &TableOfContents {} => {
             // TODO
-            return Err(Error::StaticMsg("Rendering for the table of contents is not implemented yet"));
+            return Err(Error::StaticMsg(
+                "Rendering for the table of contents is not implemented yet",
+            ));
         }
         QuoteBlock {
             id,

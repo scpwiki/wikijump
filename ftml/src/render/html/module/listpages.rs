@@ -30,6 +30,8 @@ impl Module for ListPagesModule {
         _contents: Option<&str>,
     ) -> Result<()> {
         // TODO
-        Err(Error::StaticMsg("Rendering for listpages is not implemented yet"))
+        Err(Error::StaticMsg(
+            "Rendering for listpages is not implemented yet",
+        ))
     }
 }
