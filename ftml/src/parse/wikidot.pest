@@ -166,7 +166,15 @@ strikethrough_words = { SOI ~ word+ ~ EOI }
 // }}}
 
 // Formatting words {{{
-color = { "##" ~ space? ~ ("#"? ~ ident) ~ space? ~ "|" ~ word* ~ "##" }
+color = {
+    "##" ~ space? ~ ("#"? ~ ident) ~ space? ~ "|" ~ word* ~ "##" |
+    (
+        "[[" ~ space? ~ (^"color" | ^"colour") ~ space ~ ident ~ space? ~ "]]" ~
+        word* ~
+        "[[/" ~ space? ~ (^"color" | ^"colour") ~ space? ~ "]]"
+    )
+}
+
 italics = { "//" ~ word* ~ "//" }
 bold = { "**" ~ word* ~ "**" }
 underline = { "__" ~ word* ~ "__" }
