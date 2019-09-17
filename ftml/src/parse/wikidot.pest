@@ -193,7 +193,15 @@ bold = {
     )
 }
 
-underline = { "__" ~ word* ~ "__" }
+underline = {
+    "__" ~ word* ~ "__" |
+    (
+        "[[" ~ space? ~ (^"u" | ^"underline") ~ space? ~ "]]" ~
+        word* ~
+        "[[/" ~ space? ~ (^"u" | ^"underline") ~ space? ~ "]]"
+    )
+}
+
 subscript = { ",," ~ word* ~ ",," }
 superscript = { "^^" ~ word* ~ "^^" }
 monospace = { "{{" ~ word* ~ "}}" }
