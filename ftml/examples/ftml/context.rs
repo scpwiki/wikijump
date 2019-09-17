@@ -31,6 +31,7 @@ pub struct Context {
     pub output_dir: PathBuf,
     pub wrap: bool,
     pub watch: bool,
+    pub extension: &'static str,
 }
 
 impl<'a> Debug for Context {
@@ -104,10 +105,12 @@ pub fn parse_args() -> Context {
         process::exit(1);
     }
 
-    let transform: TransformFn = match matches.value_of("mode") {
-        Some("filter") | Some("prefilter") => prefilter_only,
-        Some("parse") | Some("tree") => parse_only,
-        Some("transform") | Some("convert") | None => full_transform,
+    type ModeOptions = (TransformFn, &'static str);
+
+    let (transform, extension): ModeOptions = match matches.value_of("mode") {
+        Some("filter") | Some("prefilter") => (prefilter_only, "ftml"),
+        Some("parse") | Some("tree") => (parse_only, "json"),
+        Some("transform") | Some("convert") | None => (full_transform, "html"),
         Some(mode) => {
             eprintln!("Unknown execution mode: '{}'", mode);
             eprintln!("Should be one of: 'filter', 'parse', 'transform'");
@@ -130,5 +133,6 @@ pub fn parse_args() -> Context {
         output_dir,
         wrap: !no_wrap,
         watch: watch_mode,
+        extension,
     }
 }

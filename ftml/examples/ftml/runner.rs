@@ -107,7 +107,7 @@ fn do_transform(ctx: &Context, in_path: &Path) -> Result<()> {
         Some(stem) => {
             let mut path = ctx.output_dir.clone();
             path.push(stem);
-            path.set_extension("html");
+            path.set_extension(ctx.extension);
             path
         }
         None => {
