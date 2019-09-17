@@ -154,11 +154,20 @@ word = {
 }
 // }}}
 
+// Dash words {{{
+em_dash = { ("---" | "--") ~ !word }
+strikethrough = {
+    "--" ~
+    !("-" | " ") ~
+    word+ ~
+    !space_any ~
+    "--"
+}
+// }}}
+
 // Formatting words {{{
-em_dash = { "---" | "--" }
 color = { "##" ~ space? ~ ("#"? ~ ident) ~ space? ~ "|" ~ word* ~ "##" }
 italics = { "//" ~ word* ~ "//" }
-strikethrough = { "--" ~ !("-" | " ") ~ word+ ~ "--" }
 bold = { "**" ~ word* ~ "**" }
 underline = { "__" ~ word* ~ "__" }
 subscript = { ",," ~ word* ~ ",," }
