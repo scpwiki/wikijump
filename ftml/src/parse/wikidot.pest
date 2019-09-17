@@ -220,7 +220,14 @@ superscript = {
     )
 }
 
-monospace = { "{{" ~ word* ~ "}}" }
+monospace = {
+    "{{" ~ word* ~ "}}" |
+    (
+        "[[" ~ space? ~ (^"mono" | ^"monospace") ~ space? ~ "]]" ~
+        word* ~
+        "[[/" ~ space? ~ (^"mono" | ^"monospace") ~ space? ~ "]]"
+    )
+}
 // }}}
 
 // Block words {{{
