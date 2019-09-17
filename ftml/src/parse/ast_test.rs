@@ -142,7 +142,43 @@ fn test_valid() {
                 },
                 Word::Text { contents: " " },
                 Word::Raw { contents: "banana" }
-            ],
+            ]
+        }])
+    );
+    valid!(
+        "@@ [!-- literal comment @@ durian",
+        SyntaxTree::from_paragraphs(vec![Paragraph::Words {
+            centered: false,
+            words: vec![
+                Word::Raw {
+                    contents: " [!-- literal comment "
+                },
+                Word::Text {
+                    contents: " durian"
+                }
+            ]
+        }])
+    );
+    valid!(
+        "@@@@@@ raw",
+        SyntaxTree::from_paragraphs(vec![Paragraph::Words {
+            centered: false,
+            words: vec![
+                Word::Raw { contents: "@@" },
+                Word::Text { contents: " raw" },
+            ]
+        }])
+    );
+    valid!(
+        "@@@@ empty raw",
+        SyntaxTree::from_paragraphs(vec![Paragraph::Words {
+            centered: false,
+            words: vec![
+                Word::Raw { contents: "" },
+                Word::Text {
+                    contents: " empty raw"
+                }
+            ]
         }])
     );
 }
