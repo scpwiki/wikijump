@@ -101,14 +101,13 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
         debug_assert!(self.in_tag);
         debug_assert!(!self.finished);
 
-        // TODO add html escaping
         self.ctx.push(' ');
-        self.ctx.push_str(key);
+        self.ctx.push_escaped(key);
         self.ctx.push('=');
 
         self.ctx.push('"');
         for part in value_parts {
-            self.ctx.push_str(part);
+            self.ctx.push_escaped(part);
         }
         self.ctx.push('"');
 
@@ -167,7 +166,7 @@ pub fn escape(buffer: &mut String, s: &str) {
             '>' => buffer.push_str("&gt;"),
             '<' => buffer.push_str("&lt;"),
             '&' => buffer.push_str("&amp;"),
-            '\'' => buffer.push_str("&apos;"),
+            '\'' => buffer.push_str("&#39;"),
             '\"' => buffer.push_str("&quot;"),
             _ => buffer.push(ch),
         }
@@ -193,7 +192,7 @@ fn test_escaping() {
     check!("x + 3 > 19, solve for x", "x + 3 &gt; 19, solve for x");
     check!(
         "<script>alert('test');</script>",
-        "&lt;script&gt;alert(&apos;test&apos;);&lt;/script&gt;"
+        "&lt;script&gt;alert(&#39;test&#39;);&lt;/script&gt;"
     );
-    check!("S & C Plastic's best", "S &amp; C Plastic&apos;s best");
+    check!("S & C Plastic's best", "S &amp; C Plastic&#39;s best");
 }
