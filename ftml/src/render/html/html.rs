@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::HtmlContext;
+use super::{ComponentRender, HtmlContext};
 use crate::Result;
 
 #[derive(Debug)]
@@ -56,8 +56,9 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
         self
     }
 
-    pub fn contents(&mut self, _: ()) -> Result<()> {
-        unimplemented!()
+    #[inline]
+    pub fn contents(&mut self, component: &dyn ComponentRender) -> Result<()> {
+        component.render(self.ctx)
     }
 
     pub fn single(self) {
