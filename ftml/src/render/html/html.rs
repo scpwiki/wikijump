@@ -173,3 +173,27 @@ pub fn write_escaped(buffer: &mut String, s: &str) {
         }
     }
 }
+
+#[test]
+fn test_escaping() {
+    let mut buffer = String::new();
+
+    macro_rules! check {
+        ($input:expr, $expected:expr) => {{
+            buffer.clear();
+            write_escaped(&mut buffer, $input);
+            assert_eq!(
+                &buffer, $expected,
+                "Written escaped HTML doesn't match expected"
+            );
+        }};
+    }
+
+    check!("Hello, world!", "Hello, world!");
+    check!("x + 3 > 19, solve for x", "x + 3 &gt; 19, solve for x");
+    check!(
+        "<script>alert('test');</script>",
+        "&lt;script&gt;alert(&apos;test&apos;);&lt;/script&gt;"
+    );
+    check!("S & C Plastic's best", "S &amp; C Plastic&apos;s best");
+}
