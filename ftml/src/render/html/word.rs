@@ -96,8 +96,6 @@ impl<'w> ComponentRender for Word<'w> {
                 ctx.push_str("</a>");
             }
             &Link { href, target, text } => {
-                //let mut html = ctx.html();
-                //html.a().attr("href", percent_encode_url(href));
                 write!(ctx, "<a href=\"{}\"", percent_encode_url(href))?;
 
                 if let Some(target) = target {
@@ -147,9 +145,12 @@ impl<'w> ComponentRender for Word<'w> {
                 write!(ctx, "{}", date.format(format))?;
             }
             &Email { address, text } => {
-                write!(ctx, "<a href=\"mailto:{}\">", address)?;
-                ctx.push_escaped(text.unwrap_or(address));
-                ctx.push_str("</a>");
+                // TODO add flag to disable email rendering
+                ctx.html()
+                    .a()
+                    .attr("href", &["mailto:", address])
+                    .inner(&text.unwrap_or(address))?
+                    .end();
             }
             &EquationReference { name } => {
                 // TODO
