@@ -278,9 +278,7 @@ impl<'w> ComponentRender for Word<'w> {
                 html.end();
             }
             &Italics { ref words } => {
-                ctx.push_str("<i>");
-                render_words(ctx, words)?;
-                ctx.push_str("</i>");
+                ctx.html().i().inner(&words)?.end();
             }
             &Math { expr } => {
                 // TODO
