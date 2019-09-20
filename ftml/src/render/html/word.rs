@@ -336,19 +336,13 @@ impl<'w> ComponentRender for Word<'w> {
                 ctx.push_str("</span>");
             }
             &Strikethrough { ref words } => {
-                ctx.push_str("<strike>");
-                render_words(ctx, words)?;
-                ctx.push_str("</strike>");
+                ctx.html().strike().inner(&words)?.end();
             }
             &Subscript { ref words } => {
-                ctx.push_str("<sub>");
-                render_words(ctx, words)?;
-                ctx.push_str("</sub>");
+                ctx.html().sub().inner(&words)?.end();
             }
             &Superscript { ref words } => {
-                ctx.push_str("<sup>");
-                render_words(ctx, words)?;
-                ctx.push_str("</sup>");
+                ctx.html().sup().inner(&words)?.end();
             }
             &TabList { ref tabs } => {
                 // TODO
@@ -358,9 +352,7 @@ impl<'w> ComponentRender for Word<'w> {
             }
             &Text { contents } => escape_html(ctx, contents)?,
             &Underline { ref words } => {
-                ctx.push_str("<u>");
-                render_words(ctx, words)?;
-                ctx.push_str("</u>");
+                ctx.html().u().inner(&words)?.end();
             }
             &User {
                 username,

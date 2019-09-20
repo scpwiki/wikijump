@@ -63,7 +63,11 @@ tag_method!(div);
 tag_method!(i);
 tag_method!(img);
 tag_method!(span);
+tag_method!(strike);
+tag_method!(sub);
+tag_method!(sup);
 tag_method!(tt);
+tag_method!(u);
 
 // Helper structs
 
