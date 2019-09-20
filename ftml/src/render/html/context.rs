@@ -20,7 +20,7 @@
 
 //! Internal state object used during rendering.
 
-use super::{HtmlMeta, HtmlOutput};
+use super::{HtmlBuilder, HtmlMeta, HtmlOutput};
 use crate::{PageInfo, RemoteHandle, Result};
 use std::fmt::{self, Debug, Write};
 
@@ -131,6 +131,11 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
     #[inline]
     pub fn push_str(&mut self, s: &str) {
         self.buffer().push_str(s);
+    }
+
+    #[inline]
+    pub fn html(&mut self) -> HtmlBuilder<'_, 'i, 'h> {
+        HtmlBuilder::new(self)
     }
 
     pub fn write_footnote_block<F>(&mut self, f: F) -> Result<()>
