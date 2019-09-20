@@ -22,19 +22,19 @@ use super::{ComponentRender, HtmlContext};
 use crate::Result;
 use std::fmt::Write;
 
+// Main struct
+
 #[derive(Debug)]
 pub struct HtmlBuilder<'c, 'i, 'h> {
     ctx: &'c mut HtmlContext<'i, 'h>,
 }
 
 impl<'c, 'i, 'h> HtmlBuilder<'c, 'i, 'h> {
-    // Helpers
     #[inline]
     pub fn new(ctx: &'c mut HtmlContext<'i, 'h>) -> Self {
         HtmlBuilder { ctx }
     }
 
-    // Tag methods
     #[inline]
     pub fn tag<'t>(self, tag: &'t str) -> HtmlBuilderTag<'c, 'i, 'h, 't> {
         debug_assert!(is_alphanumeric(tag));
@@ -42,12 +42,22 @@ impl<'c, 'i, 'h> HtmlBuilder<'c, 'i, 'h> {
         let HtmlBuilder { ctx } = self;
         HtmlBuilderTag::new(ctx, tag)
     }
-
-    #[inline]
-    pub fn b(self) -> HtmlBuilderTag<'c, 'i, 'h, 'static> {
-        self.tag("b")
-    }
 }
+
+macro_rules! tag_method {
+    ($tag:tt) => (
+        impl<'c, 'i, 'h> HtmlBuilder<'c, 'i, 'h> {
+            pub fn $tag(self) -> HtmlBuilderTag<'c, 'i, 'h, 'static> {
+                self.tag(stringify!($tag))
+            }
+        }
+    );
+}
+
+tag_method!(b);
+tag_method!(tt);
+
+// Helper structs
 
 #[derive(Debug)]
 pub struct HtmlBuilderTag<'c, 'i, 'h, 't> {

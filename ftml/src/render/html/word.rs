@@ -284,9 +284,7 @@ impl<'w> ComponentRender for Word<'w> {
                 contents,
             } => module::render(name, ctx, arguments, contents)?,
             &Monospace { ref words } => {
-                ctx.push_str("<tt>");
-                render_words(ctx, words)?;
-                ctx.push_str("</tt>");
+                ctx.html().tt().contents(&words)?.end();
             }
             &Note { ref paragraphs } => {
                 ctx.push_str("<div class=\"wiki-note\">");
