@@ -61,6 +61,7 @@ macro_rules! tag_method {
 tag_method!(b);
 tag_method!(div);
 tag_method!(i);
+tag_method!(img);
 tag_method!(span);
 tag_method!(tt);
 
@@ -107,13 +108,30 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
         Ok(self)
     }
 
-    #[inline]
-    pub fn contents(&mut self, component: &dyn ComponentRender) -> Result<&mut Self> {
-        debug_assert!(!self.finished);
+    fn content_start(&mut self) {
+        if !self.in_tag {
+            self.ctx.push('>');
+            self.in_tag = true;
+        }
+    }
 
-        self.in_tag = true;
+    #[inline]
+    pub fn inner(&mut self, component: &dyn ComponentRender) -> Result<&mut Self> {
+        debug_assert!(!self.finished);
+        self.content_start();
+
         component.render(self.ctx)?;
         Ok(self)
+    }
+
+    pub fn contents<F>(&mut self, mut f: F) -> Result<()>
+    where
+        F: FnMut(&mut HtmlContext) -> Result<()>,
+    {
+        debug_assert!(!self.finished);
+        self.content_start();
+
+        f(self.ctx)
     }
 
     pub fn end(&mut self) {

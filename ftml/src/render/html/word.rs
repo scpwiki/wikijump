@@ -113,7 +113,7 @@ impl<'w> ComponentRender for Word<'w> {
                 ctx.push_str("</a>");
             }
             &Bold { ref words } => {
-                ctx.html().b().contents(&words)?.end();
+                ctx.html().b().inner(&words)?.end();
             }
             &Color { color, ref words } => {
                 ctx.push_str("<span style=\"color: ");
@@ -228,44 +228,51 @@ impl<'w> ComponentRender for Word<'w> {
                 ref class,
                 ref size,
             } => {
-                ctx.push_str("<div class=\"image-container\"");
+                let mut html = ctx.html().div();
+                html.attr("class", &["image-container"])?;
+
                 if let Some(align) = direction {
-                    write!(ctx, " style=\"text-align: {};\"", align)?;
-                }
-                ctx.push_str("><img");
-
-                // TODO adjust for other sources
-                write_tag_arg(ctx, "src", filename)?;
-
-                // TODO float
-
-                if let Some(alt) = alt {
-                    write!(ctx, " alt={}", alt)?;
+                    html.attr("style", &["text-align: ", align.style()])?;
                 }
 
-                // TODO title
+                html.contents(|ctx| {
+                    // TODO adjust for other sources
+                    let mut html = ctx.html().img();
+                    html.attr("src", &[filename])?;
 
-                if let Some(width) = width {
-                    write!(ctx, " width={}", width)?;
-                }
+                    // TODO float
 
-                if let Some(height) = height {
-                    write!(ctx, " height={}", height)?;
-                }
+                    if let Some(alt) = alt {
+                        html.attr("alt", &[alt])?;
+                    }
 
-                if let Some(style) = style {
-                    write!(ctx, " style={}", style)?;
-                }
+                    // TODO title
 
-                if let Some(class) = class {
-                    write!(ctx, " class={}", class)?;
-                }
+                    if let Some(width) = width {
+                        html.attr("width", &[width])?;
+                    }
 
-                if let Some(size) = size {
-                    write!(ctx, " size={}", size)?;
-                }
+                    if let Some(height) = height {
+                        html.attr("height", &[height])?;
+                    }
 
-                ctx.push_str("></img></div>");
+                    if let Some(style) = style {
+                        html.attr("style", &[style])?;
+                    }
+
+                    if let Some(class) = class {
+                        html.attr("class", &[class])?;
+                    }
+
+                    if let Some(size) = size {
+                        html.attr("size", &[size])?;
+                    }
+
+                    html.end();
+                    Ok(())
+                })?;
+
+                html.end();
             }
             &Italics { ref words } => {
                 ctx.push_str("<i>");
@@ -284,13 +291,13 @@ impl<'w> ComponentRender for Word<'w> {
                 contents,
             } => module::render(name, ctx, arguments, contents)?,
             &Monospace { ref words } => {
-                ctx.html().tt().contents(&words)?.end();
+                ctx.html().tt().inner(&words)?.end();
             }
             &Note { ref paragraphs } => {
                 ctx.html()
                     .div()
                     .attr("class", &["wiki-note"])?
-                    .contents(&paragraphs)?
+                    .inner(&paragraphs)?
                     .end();
             }
             &Raw { contents } => ctx.html().text(contents),
@@ -301,7 +308,7 @@ impl<'w> ComponentRender for Word<'w> {
                 ctx.html()
                     .span()
                     .attr("style", &["size: ", size])?
-                    .contents(&paragraphs)?
+                    .inner(&paragraphs)?
                     .end();
             }
             &Span {
