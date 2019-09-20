@@ -35,7 +35,7 @@ mod prelude {
     pub use super::paragraph::{render_paragraph, render_paragraphs};
     pub use super::percent::percent_encode;
     pub use super::word::{render_word, render_words};
-    pub use super::{HtmlContext, HtmlMeta};
+    pub use super::{ComponentRender, HtmlContext, HtmlMeta};
     pub use crate::data;
     pub use crate::enums::HtmlMetaType;
     pub use crate::parse::{Paragraph, Word};
@@ -80,3 +80,8 @@ pub use self::context::HtmlContext;
 pub use self::html::HtmlBuilder;
 pub use self::meta::HtmlMeta;
 pub use self::object::{HtmlOutput, HtmlRender};
+use self::prelude::*;
+
+pub trait ComponentRender {
+    fn render(&self, ctx: &mut HtmlContext) -> Result<()>;
+}

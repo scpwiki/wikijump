@@ -18,8 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::Result;
 use super::HtmlContext;
+use crate::Result;
 
 #[derive(Debug)]
 pub struct HtmlBuilder<'c, 'i, 'h> {
@@ -34,7 +34,9 @@ impl<'c, 'i, 'h> HtmlBuilder<'c, 'i, 'h> {
 
     #[inline]
     pub fn tag<'t>(self, tag: &'t str) -> HtmlBuilderTag<'c, 'i, 'h, 't> {
-        debug_assert!(tag.chars().all(|c| c.is_ascii_alphabetic() || c.is_ascii_digit()));
+        debug_assert!(tag
+            .chars()
+            .all(|c| c.is_ascii_alphabetic() || c.is_ascii_digit()));
 
         let HtmlBuilder { ctx } = self;
         HtmlBuilderTag { ctx, tag }.start()
