@@ -111,7 +111,7 @@ impl<'w> ComponentRender for Word<'w> {
                 };
 
                 ctx.push('>');
-                escape_html(ctx, text)?;
+                ctx.push_escaped(text);
                 ctx.push_str("</a>");
             }
             &Bold { ref words } => {
@@ -148,7 +148,7 @@ impl<'w> ComponentRender for Word<'w> {
             }
             &Email { address, text } => {
                 write!(ctx, "<a href=\"mailto:{}\">", address)?;
-                escape_html(ctx, text.unwrap_or(address))?;
+                ctx.push_escaped(text.unwrap_or(address));
                 ctx.push_str("</a>");
             }
             &EquationReference { name } => {
@@ -174,7 +174,7 @@ impl<'w> ComponentRender for Word<'w> {
                 };
 
                 ctx.push('>');
-                escape_html(ctx, text)?;
+                ctx.push_escaped(text);
                 ctx.push_str("</a>");
             }
             &Footnote { ref paragraphs } => {
@@ -352,7 +352,7 @@ impl<'w> ComponentRender for Word<'w> {
                     "Rendering for tab lists is not implemented",
                 ));
             }
-            &Text { contents } => escape_html(ctx, contents)?,
+            &Text { contents } => ctx.push_escaped(contents),
             &Underline { ref words } => {
                 ctx.html().u().inner(&words)?.end();
             }

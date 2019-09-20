@@ -85,7 +85,7 @@ impl<'p> ComponentRender for Paragraph<'p> {
                 let _ = language;
 
                 ctx.push_str("<code>\n");
-                escape_html(ctx, contents)?;
+                ctx.push_escaped(contents);
                 ctx.push_str("</code>\n");
             }
             &Collapsible {
