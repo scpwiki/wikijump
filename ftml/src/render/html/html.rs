@@ -28,17 +28,24 @@ pub struct HtmlBuilder<'c, 'i, 'h> {
 }
 
 impl<'c, 'i, 'h> HtmlBuilder<'c, 'i, 'h> {
+    // Helpers
     #[inline]
     pub fn new(ctx: &'c mut HtmlContext<'i, 'h>) -> Self {
         HtmlBuilder { ctx }
     }
 
+    // Tag methods
     #[inline]
     pub fn tag<'t>(self, tag: &'t str) -> HtmlBuilderTag<'c, 'i, 'h, 't> {
         debug_assert!(is_alphanumeric(tag));
 
         let HtmlBuilder { ctx } = self;
         HtmlBuilderTag::new(ctx, tag)
+    }
+
+    #[inline]
+    pub fn b(self) -> HtmlBuilderTag<'c, 'i, 'h, 'static> {
+        self.tag("b")
     }
 }
 
@@ -47,6 +54,7 @@ pub struct HtmlBuilderTag<'c, 'i, 'h, 't> {
     ctx: &'c mut HtmlContext<'i, 'h>,
     tag: &'t str,
     in_tag: bool,
+    finished: bool,
 }
 
 impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
@@ -58,26 +66,34 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
             ctx,
             tag,
             in_tag: true,
+            finished: false,
         }
     }
 
     #[inline]
-    pub fn attr(&mut self, key: &str, value: &str) -> Result<()> {
+    pub fn attr(&mut self, key: &str, value: &str) -> Result<&mut Self> {
         debug_assert!(is_alphanumeric(key));
         debug_assert!(self.in_tag);
+        debug_assert!(!self.finished);
 
         // TODO add html escaping
         write!(self.ctx, " {}=\"{}\"", key, value)?;
-        Ok(())
+        Ok(self)
     }
 
     #[inline]
-    pub fn contents(&mut self, component: &dyn ComponentRender) -> Result<()> {
+    pub fn contents(&mut self, component: &dyn ComponentRender) -> Result<&mut Self> {
+        debug_assert!(!self.finished);
+
         self.in_tag = true;
-        component.render(self.ctx)
+        component.render(self.ctx)?;
+        Ok(self)
     }
 
-    pub fn end(self) {
+    pub fn end(&mut self) {
+        debug_assert!(!self.finished);
+        self.finished = true;
+
         if !self.in_tag {
             self.ctx.push_str("</");
             self.ctx.push_str(self.tag);

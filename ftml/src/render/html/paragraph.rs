@@ -32,6 +32,13 @@ impl<'a, 'p> ComponentRender for &'a [Paragraph<'p>] {
     }
 }
 
+impl<'a, 'p> ComponentRender for &'a Vec<Paragraph<'p>> {
+    #[inline]
+    fn render(&self, ctx: &mut HtmlContext) -> Result<()> {
+        self.as_slice().render(ctx)
+    }
+}
+
 // TODO remove this stub
 pub fn render_paragraphs(ctx: &mut HtmlContext, paragraphs: &[Paragraph]) -> Result<()> {
     paragraphs.render(ctx)

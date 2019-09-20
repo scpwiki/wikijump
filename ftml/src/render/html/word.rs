@@ -33,6 +33,13 @@ impl<'a, 'w> ComponentRender for &'a [Word<'w>] {
     }
 }
 
+impl<'a, 'w> ComponentRender for &'a Vec<Word<'w>> {
+    #[inline]
+    fn render(&self, ctx: &mut HtmlContext) -> Result<()> {
+        self.as_slice().render(ctx)
+    }
+}
+
 // TODO remove this stub
 pub fn render_words(ctx: &mut HtmlContext, words: &[Word]) -> Result<()> {
     words.render(ctx)
@@ -106,9 +113,7 @@ impl<'w> ComponentRender for Word<'w> {
                 ctx.push_str("</a>");
             }
             &Bold { ref words } => {
-                ctx.push_str("<b>");
-                render_words(ctx, words)?;
-                ctx.push_str("</b>");
+                ctx.html().b().contents(&words)?.end();
             }
             &Color { color, ref words } => {
                 ctx.push_str("<span style=\"color: ");
