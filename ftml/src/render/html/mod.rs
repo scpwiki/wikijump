@@ -40,38 +40,12 @@ mod prelude {
     pub use crate::enums::HtmlMetaType;
     pub use crate::parse::{Paragraph, Word};
     pub use crate::{Error, PageInfo, Result, SyntaxTree};
-    use htmlescape::{encode_attribute_w, encode_minimal_w};
+    use htmlescape::encode_attribute_w;
     pub use std::fmt::{self, Display, Write};
-
-    #[inline]
-    pub fn escape_attr(ctx: &mut HtmlContext, attr: &str) -> Result<()> {
-        escape_attr_str(ctx.buffer(), attr)
-    }
 
     pub fn escape_attr_str(buffer: &mut String, attr: &str) -> Result<()> {
         let mut writer = StringBuf(buffer);
         encode_attribute_w(attr, &mut writer)?;
-        Ok(())
-    }
-
-    #[inline]
-    pub fn escape_html(ctx: &mut HtmlContext, html: &str) -> Result<()> {
-        escape_html_str(ctx.buffer(), html)
-    }
-
-    pub fn escape_html_str(buffer: &mut String, html: &str) -> Result<()> {
-        let mut writer = StringBuf(buffer);
-        encode_minimal_w(html, &mut writer)?;
-        Ok(())
-    }
-
-    // TODO maybe deprecate this?
-    pub fn write_tag_arg(ctx: &mut HtmlContext, arg_name: &str, value: &str) -> Result<()> {
-        write!(ctx, " {}", arg_name)?;
-        ctx.push_str("=\"");
-        escape_attr(ctx, value)?;
-        ctx.push('"');
-
         Ok(())
     }
 }
