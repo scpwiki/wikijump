@@ -116,11 +116,11 @@ impl<'w> ComponentRender for Word<'w> {
                 ctx.html().b().inner(&words)?.end();
             }
             &Color { color, ref words } => {
-                ctx.push_str("<span style=\"color: ");
-                escape_attr(ctx, color)?;
-                ctx.push_str("\">");
-                render_words(ctx, words)?;
-                ctx.push_str("</span>");
+                ctx.html()
+                    .span()
+                    .attr("style", &["color: ", color])?
+                    .inner(&words)?
+                    .end();
             }
             &Css { style } => ctx.add_style(style),
             &Date { timestamp, format } => {
