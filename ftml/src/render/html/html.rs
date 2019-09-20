@@ -154,7 +154,22 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
     }
 }
 
+// Helpers
+
 fn is_alphanumeric(s: &str) -> bool {
     s.chars()
         .all(|c| c.is_ascii_alphabetic() || c.is_ascii_digit() || c == '-')
+}
+
+pub fn write_escaped(buffer: &mut String, s: &str) {
+    for ch in s.chars() {
+        match ch {
+            '>' => buffer.push_str("&gt;"),
+            '<' => buffer.push_str("&lt;"),
+            '&' => buffer.push_str("&amp;"),
+            '\'' => buffer.push_str("&apos;"),
+            '\"' => buffer.push_str("&quot;"),
+            _ => buffer.push(ch),
+        }
+    }
 }
