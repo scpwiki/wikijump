@@ -19,20 +19,46 @@
  */
 
 use percent_encoding::{utf8_percent_encode, AsciiSet, NON_ALPHANUMERIC};
-use std::fmt::{self, Display};
+use std::fmt::{self, Debug, Display};
 
-const ENCODE_SET: &AsciiSet = &NON_ALPHANUMERIC
+const URL_ENCODE_SET: &AsciiSet = &NON_ALPHANUMERIC
     .remove(b'/')
+    .remove(b'?')
     .remove(b':')
     .remove(b'-')
     .remove(b'_');
 
-#[derive(Debug, Copy, Clone)]
-pub struct PercentEncode<'a>(&'a str);
+const PARAM_ENCODE_SET: &AsciiSet = &NON_ALPHANUMERIC.remove(b'_').remove(b'-');
+
+#[derive(Copy, Clone)]
+pub struct PercentEncode<'a> {
+    input: &'a str,
+    encode_set: &'static AsciiSet,
+}
+
+impl<'a> Debug for PercentEncode<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use std::ptr;
+
+        f.debug_struct("PercentEncode")
+            .field("input", &self.input)
+            .field(
+                "encode_set",
+                if ptr::eq(&self.encode_set, &URL_ENCODE_SET) {
+                    &"URL_ENCODE_SET"
+                } else if ptr::eq(&self.encode_set, &PARAM_ENCODE_SET) {
+                    &"PARAM_ENCODE_SET"
+                } else {
+                    &"UNKNOWN"
+                },
+            )
+            .finish()
+    }
+}
 
 impl<'a> Display for PercentEncode<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        for part in utf8_percent_encode(self.0, ENCODE_SET) {
+        for part in utf8_percent_encode(self.input, self.encode_set) {
             write!(f, "{}", part)?;
         }
 
@@ -41,6 +67,17 @@ impl<'a> Display for PercentEncode<'a> {
 }
 
 #[inline]
-pub fn percent_encode(input: &str) -> PercentEncode {
-    PercentEncode(input)
+pub fn percent_encode_url(input: &str) -> PercentEncode {
+    PercentEncode {
+        input,
+        encode_set: URL_ENCODE_SET,
+    }
+}
+
+#[inline]
+pub fn percent_encode_param(input: &str) -> PercentEncode {
+    PercentEncode {
+        input,
+        encode_set: PARAM_ENCODE_SET,
+    }
 }

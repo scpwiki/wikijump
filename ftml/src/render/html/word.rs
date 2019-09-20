@@ -96,6 +96,8 @@ impl<'w> ComponentRender for Word<'w> {
                 ctx.push_str("</a>");
             }
             &Link { href, target, text } => {
+                //let mut html = ctx.html();
+                //html.a().attr("href", percent_encode(href))?;
                 write!(ctx, "<a href=\"{}\"", percent_encode(href))?;
 
                 if let Some(target) = target {

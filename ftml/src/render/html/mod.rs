@@ -33,7 +33,7 @@ mod prelude {
     pub use super::super::Render;
     use super::buffer::StringBuf;
     pub use super::paragraph::{render_paragraph, render_paragraphs};
-    pub use super::percent::percent_encode;
+    pub use super::percent::*;
     pub use super::word::{render_word, render_words};
     pub use super::{ComponentRender, HtmlContext, HtmlMeta};
     pub use crate::data;
