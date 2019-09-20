@@ -137,10 +137,10 @@ impl<'p> ComponentRender for Paragraph<'p> {
             &Iframe { url, ref arguments } => {
                 let mut html = ctx.html().iframe();
                 // TODO escape attributes
-                html.attr("src", &[url])?;
+                html.attr("src", &[url]);
 
                 for (key, value) in arguments {
-                    html.attr(key, &[value])?;
+                    html.attr(key, &[value]);
                 }
 
                 html.end();

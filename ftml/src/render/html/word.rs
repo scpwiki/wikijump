@@ -97,7 +97,7 @@ impl<'w> ComponentRender for Word<'w> {
             }
             &Link { href, target, text } => {
                 //let mut html = ctx.html();
-                //html.a().attr("href", percent_encode_url(href))?;
+                //html.a().attr("href", percent_encode_url(href));
                 write!(ctx, "<a href=\"{}\"", percent_encode_url(href))?;
 
                 if let Some(target) = target {
@@ -120,7 +120,7 @@ impl<'w> ComponentRender for Word<'w> {
             &Color { color, ref words } => {
                 ctx.html()
                     .span()
-                    .attr("style", &["color: ", color])?
+                    .attr("style", &["color: ", color])
                     .inner(&words)?
                     .end();
             }
@@ -231,43 +231,43 @@ impl<'w> ComponentRender for Word<'w> {
                 ref size,
             } => {
                 let mut html = ctx.html().div();
-                html.attr("class", &["image-container"])?;
+                html.attr("class", &["image-container"]);
 
                 if let Some(align) = direction {
-                    html.attr("style", &["text-align: ", align.style()])?;
+                    html.attr("style", &["text-align: ", align.style()]);
                 }
 
                 html.contents(|ctx| {
                     // TODO adjust for other sources
                     let mut html = ctx.html().img();
-                    html.attr("src", &[filename])?;
+                    html.attr("src", &[filename]);
 
                     // TODO float
 
                     if let Some(alt) = alt {
-                        html.attr("alt", &[alt])?;
+                        html.attr("alt", &[alt]);
                     }
 
                     // TODO title
 
                     if let Some(width) = width {
-                        html.attr("width", &[width])?;
+                        html.attr("width", &[width]);
                     }
 
                     if let Some(height) = height {
-                        html.attr("height", &[height])?;
+                        html.attr("height", &[height]);
                     }
 
                     if let Some(style) = style {
-                        html.attr("style", &[style])?;
+                        html.attr("style", &[style]);
                     }
 
                     if let Some(class) = class {
-                        html.attr("class", &[class])?;
+                        html.attr("class", &[class]);
                     }
 
                     if let Some(size) = size {
-                        html.attr("size", &[size])?;
+                        html.attr("size", &[size]);
                     }
 
                     html.end();
@@ -298,7 +298,7 @@ impl<'w> ComponentRender for Word<'w> {
             &Note { ref paragraphs } => {
                 ctx.html()
                     .div()
-                    .attr("class", &["wiki-note"])?
+                    .attr("class", &["wiki-note"])
                     .inner(&paragraphs)?
                     .end();
             }
@@ -309,7 +309,7 @@ impl<'w> ComponentRender for Word<'w> {
             } => {
                 ctx.html()
                     .span()
-                    .attr("style", &["size: ", size])?
+                    .attr("style", &["size: ", size])
                     .inner(&paragraphs)?
                     .end();
             }

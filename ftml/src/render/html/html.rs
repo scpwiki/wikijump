@@ -96,7 +96,7 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
     }
 
     #[inline]
-    pub fn attr(&mut self, key: &str, value_parts: &[&str]) -> Result<&mut Self> {
+    pub fn attr(&mut self, key: &str, value_parts: &[&str]) -> &mut Self {
         debug_assert!(is_alphanumeric(key));
         debug_assert!(self.in_tag);
         debug_assert!(!self.finished);
@@ -111,7 +111,7 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
         }
         self.ctx.push('"');
 
-        Ok(self)
+        self
     }
 
     fn content_start(&mut self) {
