@@ -291,7 +291,7 @@ impl<'w> ComponentRender for Word<'w> {
                 render_paragraphs(ctx, paragraphs)?;
                 ctx.push_str("</div>");
             }
-            &Raw { contents } => escape_html(ctx, contents)?,
+            &Raw { contents } => ctx.html().text(contents),
             &Size {
                 size,
                 ref paragraphs,

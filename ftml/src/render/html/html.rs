@@ -42,6 +42,11 @@ impl<'c, 'i, 'h> HtmlBuilder<'c, 'i, 'h> {
         let HtmlBuilder { ctx } = self;
         HtmlBuilderTag::new(ctx, tag)
     }
+
+    pub fn text(&mut self, text: &str) {
+        // TODO add html escaping
+        self.ctx.push_str(text);
+    }
 }
 
 macro_rules! tag_method {
