@@ -85,3 +85,10 @@ use self::prelude::*;
 pub trait ComponentRender {
     fn render(&self, ctx: &mut HtmlContext) -> Result<()>;
 }
+
+impl<'a> ComponentRender for &'a str {
+    fn render(&self, ctx: &mut HtmlContext) -> Result<()> {
+        ctx.push_str(self);
+        Ok(())
+    }
+}
