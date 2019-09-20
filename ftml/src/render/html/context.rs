@@ -134,13 +134,13 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
     }
 
     #[inline]
-    pub fn html(&mut self) -> HtmlBuilder<'_, 'i, 'h> {
-        HtmlBuilder::new(self)
+    pub fn push_escaped(&mut self, s: &str) {
+        html::escape(self.buffer(), s);
     }
 
     #[inline]
-    pub fn write_escaped(&mut self, s: &str) {
-        html::write_escaped(self.buffer(), s);
+    pub fn html(&mut self) -> HtmlBuilder<'_, 'i, 'h> {
+        HtmlBuilder::new(self)
     }
 
     pub fn write_footnote_block<F>(&mut self, f: F) -> Result<()>

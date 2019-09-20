@@ -161,7 +161,7 @@ fn is_alphanumeric(s: &str) -> bool {
         .all(|c| c.is_ascii_alphabetic() || c.is_ascii_digit() || c == '-')
 }
 
-pub fn write_escaped(buffer: &mut String, s: &str) {
+pub fn escape(buffer: &mut String, s: &str) {
     for ch in s.chars() {
         match ch {
             '>' => buffer.push_str("&gt;"),
@@ -181,7 +181,7 @@ fn test_escaping() {
     macro_rules! check {
         ($input:expr, $expected:expr) => {{
             buffer.clear();
-            write_escaped(&mut buffer, $input);
+            escape(&mut buffer, $input);
             assert_eq!(
                 &buffer, $expected,
                 "Written escaped HTML doesn't match expected"
