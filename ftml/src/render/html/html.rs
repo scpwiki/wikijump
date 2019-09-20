@@ -20,6 +20,7 @@
 
 use super::{ComponentRender, HtmlContext};
 use crate::Result;
+use std::fmt::Write;
 
 #[derive(Debug)]
 pub struct HtmlBuilder<'c, 'i, 'h> {
@@ -34,12 +35,10 @@ impl<'c, 'i, 'h> HtmlBuilder<'c, 'i, 'h> {
 
     #[inline]
     pub fn tag<'t>(self, tag: &'t str) -> HtmlBuilderTag<'c, 'i, 'h, 't> {
-        debug_assert!(tag
-            .chars()
-            .all(|c| c.is_ascii_alphabetic() || c.is_ascii_digit()));
+        debug_assert!(is_alphanumeric(tag));
 
         let HtmlBuilder { ctx } = self;
-        HtmlBuilderTag { ctx, tag }.start()
+        HtmlBuilderTag::new(ctx, tag)
     }
 }
 
@@ -47,21 +46,48 @@ impl<'c, 'i, 'h> HtmlBuilder<'c, 'i, 'h> {
 pub struct HtmlBuilderTag<'c, 'i, 'h, 't> {
     ctx: &'c mut HtmlContext<'i, 'h>,
     tag: &'t str,
+    in_tag: bool,
 }
 
 impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
-    fn start(self) -> Self {
-        self.ctx.push('<');
-        self.ctx.push_str(self.tag);
-        self
+    pub fn new(ctx: &'c mut HtmlContext<'i, 'h>, tag: &'t str) -> Self {
+        ctx.push('<');
+        ctx.push_str(tag);
+
+        HtmlBuilderTag {
+            ctx,
+            tag,
+            in_tag: true,
+        }
+    }
+
+    #[inline]
+    pub fn attr(&mut self, key: &str, value: &str) -> Result<()> {
+        debug_assert!(is_alphanumeric(key));
+        debug_assert!(self.in_tag);
+
+        // TODO add html escaping
+        write!(self.ctx, " {}=\"{}\"", key, value)?;
+        Ok(())
     }
 
     #[inline]
     pub fn contents(&mut self, component: &dyn ComponentRender) -> Result<()> {
+        self.in_tag = true;
         component.render(self.ctx)
     }
 
-    pub fn single(self) {
+    pub fn end(self) {
+        if !self.in_tag {
+            self.ctx.push_str("</");
+            self.ctx.push_str(self.tag);
+        }
+
         self.ctx.push('>');
     }
+}
+
+fn is_alphanumeric(s: &str) -> bool {
+    s.chars()
+        .all(|c| c.is_ascii_alphabetic() || c.is_ascii_digit() || c == '-')
 }
