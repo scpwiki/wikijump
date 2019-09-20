@@ -31,6 +31,17 @@ pub enum Alignment {
     Justify,
 }
 
+impl Alignment {
+    pub fn style(self) -> &'static str {
+        match self {
+            Alignment::Left => "left",
+            Alignment::Right => "right",
+            Alignment::Center => "center",
+            Alignment::Justify => "justify",
+        }
+    }
+}
+
 impl<'a> TryFrom<&'a str> for Alignment {
     type Error = ();
 
@@ -47,14 +58,7 @@ impl<'a> TryFrom<&'a str> for Alignment {
 
 impl Display for Alignment {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let style = match *self {
-            Alignment::Left => "left",
-            Alignment::Right => "right",
-            Alignment::Center => "center",
-            Alignment::Justify => "justify",
-        };
-
-        write!(f, "{}", style)
+        write!(f, "{}", self.style())
     }
 }
 
