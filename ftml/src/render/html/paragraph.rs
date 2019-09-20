@@ -135,13 +135,15 @@ impl<'p> ComponentRender for Paragraph<'p> {
             &HorizontalLine => ctx.push_str("<hr>\n"),
             &Html { contents } => ctx.push_str(contents),
             &Iframe { url, ref arguments } => {
-                write!(ctx, "<iframe src=\"{}\"", url)?;
+                let mut html = ctx.html().iframe();
+                // TODO escape attributes
+                html.attr("src", &[url])?;
 
                 for (key, value) in arguments {
-                    write_tag_arg(ctx, key, value)?;
+                    html.attr(key, &[value])?;
                 }
 
-                ctx.push_str("></iframe>");
+                html.end();
             }
             &IfTags {
                 ref required,
