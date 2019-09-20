@@ -296,9 +296,11 @@ impl<'w> ComponentRender for Word<'w> {
                 size,
                 ref paragraphs,
             } => {
-                write!(ctx, "<span style=\"size: {};\">", size)?;
-                render_paragraphs(ctx, paragraphs)?;
-                ctx.push_str("</span>");
+                ctx.html()
+                    .span()
+                    .attr("style", &["size: ", size])?
+                    .contents(&paragraphs)?
+                    .end();
             }
             &Span {
                 ref id,

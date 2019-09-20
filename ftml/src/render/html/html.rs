@@ -20,7 +20,6 @@
 
 use super::{ComponentRender, HtmlContext};
 use crate::Result;
-use std::fmt::Write;
 
 // Main struct
 
@@ -50,16 +49,19 @@ impl<'c, 'i, 'h> HtmlBuilder<'c, 'i, 'h> {
 }
 
 macro_rules! tag_method {
-    ($tag:tt) => (
+    ($tag:tt) => {
         impl<'c, 'i, 'h> HtmlBuilder<'c, 'i, 'h> {
             pub fn $tag(self) -> HtmlBuilderTag<'c, 'i, 'h, 'static> {
                 self.tag(stringify!($tag))
             }
         }
-    );
+    };
 }
 
 tag_method!(b);
+tag_method!(div);
+tag_method!(i);
+tag_method!(span);
 tag_method!(tt);
 
 // Helper structs
@@ -86,13 +88,22 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
     }
 
     #[inline]
-    pub fn attr(&mut self, key: &str, value: &str) -> Result<&mut Self> {
+    pub fn attr(&mut self, key: &str, value: &[&str]) -> Result<&mut Self> {
         debug_assert!(is_alphanumeric(key));
         debug_assert!(self.in_tag);
         debug_assert!(!self.finished);
 
         // TODO add html escaping
-        write!(self.ctx, " {}=\"{}\"", key, value)?;
+        self.ctx.push(' ');
+        self.ctx.push_str(key);
+        self.ctx.push('=');
+
+        self.ctx.push('"');
+        for part in value {
+            self.ctx.push_str(part);
+        }
+        self.ctx.push('"');
+
         Ok(self)
     }
 
