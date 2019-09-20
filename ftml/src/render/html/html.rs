@@ -21,6 +21,14 @@
 use super::{ComponentRender, HtmlContext};
 use crate::Result;
 
+macro_rules! tag_method {
+    ($tag:tt) => {
+        pub fn $tag(self) -> HtmlBuilderTag<'c, 'i, 'h, 'static> {
+            self.tag(stringify!($tag))
+        }
+    };
+}
+
 // Main struct
 
 #[derive(Debug)]
@@ -42,37 +50,27 @@ impl<'c, 'i, 'h> HtmlBuilder<'c, 'i, 'h> {
         HtmlBuilderTag::new(ctx, tag)
     }
 
+    tag_method!(a);
+    tag_method!(b);
+    tag_method!(div);
+    tag_method!(em);
+    tag_method!(i);
+    tag_method!(iframe);
+    tag_method!(img);
+    tag_method!(script);
+    tag_method!(span);
+    tag_method!(strike);
+    tag_method!(strong);
+    tag_method!(sub);
+    tag_method!(sup);
+    tag_method!(tt);
+    tag_method!(u);
+
     pub fn text(&mut self, text: &str) {
         // TODO add html escaping
         self.ctx.push_str(text);
     }
 }
-
-macro_rules! tag_method {
-    ($tag:tt) => {
-        impl<'c, 'i, 'h> HtmlBuilder<'c, 'i, 'h> {
-            pub fn $tag(self) -> HtmlBuilderTag<'c, 'i, 'h, 'static> {
-                self.tag(stringify!($tag))
-            }
-        }
-    };
-}
-
-tag_method!(a);
-tag_method!(b);
-tag_method!(div);
-tag_method!(em);
-tag_method!(i);
-tag_method!(iframe);
-tag_method!(img);
-tag_method!(script);
-tag_method!(span);
-tag_method!(strike);
-tag_method!(strong);
-tag_method!(sub);
-tag_method!(sup);
-tag_method!(tt);
-tag_method!(u);
 
 // Helper structs
 
