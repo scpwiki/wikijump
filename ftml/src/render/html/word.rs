@@ -68,7 +68,7 @@ impl<'w> ComponentRender for Word<'w> {
                 ctx.push_str("<a");
 
                 if let Some(href) = href {
-                    write!(ctx, " href=\"{}\"", percent_encode(href))?;
+                    write!(ctx, " href=\"{}\"", percent_encode_url(href))?;
                 }
 
                 if let Some(name) = name {
@@ -97,8 +97,8 @@ impl<'w> ComponentRender for Word<'w> {
             }
             &Link { href, target, text } => {
                 //let mut html = ctx.html();
-                //html.a().attr("href", percent_encode(href))?;
-                write!(ctx, "<a href=\"{}\"", percent_encode(href))?;
+                //html.a().attr("href", percent_encode_url(href))?;
+                write!(ctx, "<a href=\"{}\"", percent_encode_url(href))?;
 
                 if let Some(target) = target {
                     write!(ctx, " target=\"{}\"", target)?;
@@ -162,7 +162,7 @@ impl<'w> ComponentRender for Word<'w> {
                 text,
                 target,
             } => {
-                write!(ctx, "<a href=\"{}\"", percent_encode(filename))?;
+                write!(ctx, "<a href=\"{}\"", percent_encode_url(filename))?;
 
                 if let Some(target) = target {
                     write!(ctx, " target=\"{}\"", target)?;

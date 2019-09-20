@@ -28,8 +28,6 @@ const URL_ENCODE_SET: &AsciiSet = &NON_ALPHANUMERIC
     .remove(b'-')
     .remove(b'_');
 
-const PARAM_ENCODE_SET: &AsciiSet = &NON_ALPHANUMERIC.remove(b'_').remove(b'-');
-
 #[derive(Copy, Clone)]
 pub struct PercentEncode<'a> {
     input: &'a str,
@@ -46,8 +44,6 @@ impl<'a> Debug for PercentEncode<'a> {
                 "encode_set",
                 if ptr::eq(&self.encode_set, &URL_ENCODE_SET) {
                     &"URL_ENCODE_SET"
-                } else if ptr::eq(&self.encode_set, &PARAM_ENCODE_SET) {
-                    &"PARAM_ENCODE_SET"
                 } else {
                     &"UNKNOWN"
                 },
@@ -71,13 +67,5 @@ pub fn percent_encode_url(input: &str) -> PercentEncode {
     PercentEncode {
         input,
         encode_set: URL_ENCODE_SET,
-    }
-}
-
-#[inline]
-pub fn percent_encode_param(input: &str) -> PercentEncode {
-    PercentEncode {
-        input,
-        encode_set: PARAM_ENCODE_SET,
     }
 }
