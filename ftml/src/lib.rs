@@ -63,7 +63,6 @@
 
 extern crate chrono;
 extern crate either;
-extern crate htmlescape;
 
 #[macro_use]
 extern crate lazy_static;

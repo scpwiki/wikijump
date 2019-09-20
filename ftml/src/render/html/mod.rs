@@ -18,7 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod buffer;
 mod context;
 mod finish;
 mod html;
@@ -31,7 +30,6 @@ mod word;
 
 mod prelude {
     pub use super::super::Render;
-    use super::buffer::StringBuf;
     pub use super::paragraph::{render_paragraph, render_paragraphs};
     pub use super::percent::*;
     pub use super::word::{render_word, render_words};
@@ -40,14 +38,7 @@ mod prelude {
     pub use crate::enums::HtmlMetaType;
     pub use crate::parse::{Paragraph, Word};
     pub use crate::{Error, PageInfo, Result, SyntaxTree};
-    use htmlescape::encode_attribute_w;
     pub use std::fmt::{self, Display, Write};
-
-    pub fn escape_attr_str(buffer: &mut String, attr: &str) -> Result<()> {
-        let mut writer = StringBuf(buffer);
-        encode_attribute_w(attr, &mut writer)?;
-        Ok(())
-    }
 }
 
 pub use self::context::HtmlContext;
