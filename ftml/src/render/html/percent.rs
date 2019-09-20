@@ -21,7 +21,11 @@
 use percent_encoding::{utf8_percent_encode, AsciiSet, NON_ALPHANUMERIC};
 use std::fmt::{self, Display};
 
-const ENCODE_SET: &AsciiSet = &NON_ALPHANUMERIC.remove(b':').remove(b'-').remove(b'_');
+const ENCODE_SET: &AsciiSet = &NON_ALPHANUMERIC
+    .remove(b'/')
+    .remove(b':')
+    .remove(b'-')
+    .remove(b'_');
 
 #[derive(Debug, Copy, Clone)]
 pub struct PercentEncode<'a>(&'a str);
