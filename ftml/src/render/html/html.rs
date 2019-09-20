@@ -58,12 +58,17 @@ macro_rules! tag_method {
     };
 }
 
+tag_method!(a);
 tag_method!(b);
 tag_method!(div);
+tag_method!(em);
 tag_method!(i);
+tag_method!(iframe);
 tag_method!(img);
+tag_method!(script);
 tag_method!(span);
 tag_method!(strike);
+tag_method!(strong);
 tag_method!(sub);
 tag_method!(sup);
 tag_method!(tt);
