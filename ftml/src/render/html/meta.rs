@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use super::html;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct HtmlMeta {
@@ -30,9 +31,9 @@ pub struct HtmlMeta {
 impl HtmlMeta {
     pub fn render(&self, buffer: &mut String) -> Result<()> {
         write!(buffer, "<meta {}=\"", self.tag_type.tag_name())?;
-        escape_attr_str(buffer, &self.name)?;
+        html::escape(buffer, &self.name);
         buffer.push_str("\" content=\"");
-        escape_attr_str(buffer, &self.value)?;
+        html::escape(buffer, &self.value);
         buffer.push_str("\" />");
         Ok(())
     }
