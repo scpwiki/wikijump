@@ -287,9 +287,11 @@ impl<'w> ComponentRender for Word<'w> {
                 ctx.html().tt().contents(&words)?.end();
             }
             &Note { ref paragraphs } => {
-                ctx.push_str("<div class=\"wiki-note\">");
-                render_paragraphs(ctx, paragraphs)?;
-                ctx.push_str("</div>");
+                ctx.html()
+                    .div()
+                    .attr("class", &["wiki-note"])?
+                    .contents(&paragraphs)?
+                    .end();
             }
             &Raw { contents } => ctx.html().text(contents),
             &Size {
