@@ -220,10 +220,8 @@ impl<'p> ComponentRender for Paragraph<'p> {
             }
             &Newlines { count } => {
                 for _ in 0..count {
-                    ctx.push_str("<br>");
+                    ctx.html().br();
                 }
-
-                ctx.push('\n');
             }
             &Table { ref rows } => {
                 ctx.push_str("<table>\n");
