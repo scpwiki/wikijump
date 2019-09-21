@@ -338,23 +338,21 @@ impl<'w> ComponentRender for Word<'w> {
                 ref style,
                 ref paragraphs,
             } => {
-                ctx.push_str("<span");
+                let mut html = ctx.html().span();
 
                 if let Some(id) = id {
-                    write!(ctx, " id={}", id)?;
+                    html.attr("id", &[id]);
                 }
 
                 if let Some(class) = class {
-                    write!(ctx, " class={}", class)?;
+                    html.attr("class", &[class]);
                 }
 
                 if let Some(style) = style {
-                    write!(ctx, " style={}", style)?;
+                    html.attr("style", &[style]);
                 }
 
-                ctx.push('>');
-                render_paragraphs(ctx, paragraphs)?;
-                ctx.push_str("</span>");
+                html.inner(&paragraphs)?.end();
             }
             &Strikethrough { ref words } => {
                 ctx.html().strike().inner(&words)?.end();
