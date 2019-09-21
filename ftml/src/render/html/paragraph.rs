@@ -77,7 +77,10 @@ impl<'p> ComponentRender for Paragraph<'p> {
                     None => "both",
                 };
 
-                write!(ctx, r#"<div style="clear: {}; height: 0;"></div>"#, style)?;
+                ctx.html()
+                    .div()
+                    .attr("style", &["clear: ", style, "; height: 0;"])
+                    .inner(&"")?;
             }
             &CodeBlock {
                 ref language,
