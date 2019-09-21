@@ -21,6 +21,7 @@
 use self::Paragraph::*;
 use super::prelude::*;
 use crate::enums::Alignment;
+use std::mem;
 
 impl<'a, 'p> ComponentRender for &'a [Paragraph<'p>] {
     fn render(&self, ctx: &mut HtmlContext) -> Result<()> {
@@ -140,7 +141,7 @@ impl<'p> ComponentRender for Paragraph<'p> {
                 // Output HTML.
                 ctx.html().tag(header).inner(&words)?;
             }
-            &HorizontalLine => ctx.push_str("<hr>\n"),
+            &HorizontalLine => mem::drop(ctx.html().hr()),
             &Html { contents } => ctx.push_str(contents),
             &Iframe { url, ref arguments } => {
                 let mut html = ctx.html().iframe();
