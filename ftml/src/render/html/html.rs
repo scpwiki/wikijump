@@ -115,9 +115,9 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
     }
 
     fn content_start(&mut self) {
-        if !self.in_tag {
+        if self.in_tag {
             self.ctx.push('>');
-            self.in_tag = true;
+            self.in_tag = false;
         }
     }
 
