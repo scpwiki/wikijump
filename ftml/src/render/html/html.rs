@@ -51,7 +51,10 @@ impl<'c, 'i, 'h> HtmlBuilder<'c, 'i, 'h> {
     }
 
     tag_method!(a);
+    tag_method!(ins);
+    tag_method!(del);
     tag_method!(b);
+    tag_method!(code);
     tag_method!(div);
     tag_method!(em);
     tag_method!(i);

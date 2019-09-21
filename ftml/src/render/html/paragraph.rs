@@ -89,9 +89,7 @@ impl<'p> ComponentRender for Paragraph<'p> {
                 // TODO add language highlighting
                 let _ = language;
 
-                ctx.push_str("<code>\n");
-                ctx.push_escaped(contents);
-                ctx.push_str("</code>\n");
+                ctx.html().code().inner(contents)?;
             }
             &Collapsible {
                 ref show_text,
