@@ -21,7 +21,6 @@
 use self::Paragraph::*;
 use super::prelude::*;
 use crate::enums::Alignment;
-use std::mem;
 
 impl<'a, 'p> ComponentRender for &'a [Paragraph<'p>] {
     fn render(&self, ctx: &mut HtmlContext) -> Result<()> {
@@ -141,7 +140,9 @@ impl<'p> ComponentRender for Paragraph<'p> {
                 // Output HTML.
                 ctx.html().tag(header).inner(&words)?;
             }
-            &HorizontalLine => mem::drop(ctx.html().hr()),
+            &HorizontalLine => {
+                ctx.html().hr();
+            }
             &Html { contents } => ctx.push_str(contents),
             &Iframe { url, ref arguments } => {
                 let mut html = ctx.html().iframe();
@@ -182,7 +183,7 @@ impl<'p> ComponentRender for Paragraph<'p> {
                 }
             }
             &Javascript { contents } => {
-                write!(ctx, "<script>\n{}\n</script>", contents)?;
+                ctx.html().script().inner(&contents)?;
             }
             &List {
                 style,
