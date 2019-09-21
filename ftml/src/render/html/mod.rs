@@ -32,7 +32,7 @@ mod prelude {
     pub use super::super::Render;
     pub use super::paragraph::render_paragraphs;
     pub use super::percent::*;
-    pub use super::word::{render_word, render_words};
+    pub use super::word::render_word;
     pub use super::{ComponentRender, HtmlContext, HtmlMeta};
     pub use crate::data;
     pub use crate::enums::HtmlMetaType;

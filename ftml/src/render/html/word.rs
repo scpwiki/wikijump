@@ -41,11 +41,6 @@ impl<'a, 'w> ComponentRender for &'a Vec<Word<'w>> {
 }
 
 // TODO remove this stub
-pub fn render_words(ctx: &mut HtmlContext, words: &[Word]) -> Result<()> {
-    words.render(ctx)
-}
-
-// TODO remove this stub
 #[inline]
 pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
     word.render(ctx)
