@@ -44,11 +44,6 @@ pub fn render_paragraphs(ctx: &mut HtmlContext, paragraphs: &[Paragraph]) -> Res
     paragraphs.render(ctx)
 }
 
-// TODO remove this stub
-pub fn render_paragraph(ctx: &mut HtmlContext, paragraph: &Paragraph) -> Result<()> {
-    paragraph.render(ctx)
-}
-
 // TODO remove this lint
 #[allow(unused_variables)]
 impl<'p> ComponentRender for Paragraph<'p> {
