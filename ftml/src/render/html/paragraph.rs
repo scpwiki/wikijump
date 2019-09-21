@@ -143,7 +143,7 @@ impl<'p> ComponentRender for Paragraph<'p> {
                     html.attr(key, &[value]);
                 }
 
-                html.end();
+                html.inner(&"")?;
             }
             &IfTags {
                 ref required,

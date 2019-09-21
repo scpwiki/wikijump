@@ -97,7 +97,7 @@ impl<'w> ComponentRender for Word<'w> {
                     })?;
                 }
 
-                html.inner(&words)?.end();
+                html.inner(&words)?;
             }
             &Link { href, target, text } => {
                 let text = match text {
@@ -117,17 +117,16 @@ impl<'w> ComponentRender for Word<'w> {
                     html.attr("target", &[target.style()]);
                 }
 
-                html.inner(&text)?.end();
+                html.inner(&text)?;
             }
             &Bold { ref words } => {
-                ctx.html().b().inner(&words)?.end();
+                ctx.html().b().inner(&words)?;
             }
             &Color { color, ref words } => {
                 ctx.html()
                     .span()
                     .attr("style", &["color: ", color])
-                    .inner(&words)?
-                    .end();
+                    .inner(&words)?;
             }
             &Css { style } => ctx.add_style(style),
             &Date { timestamp, format } => {
@@ -156,8 +155,7 @@ impl<'w> ComponentRender for Word<'w> {
                 ctx.html()
                     .a()
                     .attr("href", &["mailto:", address])
-                    .inner(&text.unwrap_or(address))?
-                    .end();
+                    .inner(&text.unwrap_or(address))?;
             }
             &EquationReference { name } => {
                 // TODO
@@ -185,43 +183,41 @@ impl<'w> ComponentRender for Word<'w> {
                     html.attr("target", &[target.style()]);
                 }
 
-                html.inner(&text)?.end();
+                html.inner(&text)?;
             }
             &Footnote { ref paragraphs } => {
                 // TODO add javascript
                 let number = ctx.footnotes_mut().incr();
 
-                let mut html = ctx.html().sup();
-                html.attr("class", &["footnoteref"]);
-                html.contents(|ctx| {
-                    let mut html = ctx.html().a();
-
+                {
+                    let mut html = ctx.html().sup();
                     html.attr("class", &["footnoteref"]);
-
-                    html.attr_fmt("id", |ctx| {
-                        write!(ctx, "footnote-{}", number)?;
-                        Ok(())
-                    })?;
-
-                    html.attr_fmt("onclick", |ctx| {
-                        write!(ctx, "scrollToFootnote('footnote-{}')", number)?;
-                        Ok(())
-                    })?;
-
                     html.contents(|ctx| {
-                        write!(ctx, "{}", number)?;
+                        let mut html = ctx.html().a();
+
+                        html.attr("class", &["footnoteref"]);
+
+                        html.attr_fmt("id", |ctx| {
+                            write!(ctx, "footnote-{}", number)?;
+                            Ok(())
+                        })?;
+
+                        html.attr_fmt("onclick", |ctx| {
+                            write!(ctx, "scrollToFootnote('footnote-{}')", number)?;
+                            Ok(())
+                        })?;
+
+                        html.contents(|ctx| {
+                            write!(ctx, "{}", number)?;
+                            Ok(())
+                        })?;
+
                         Ok(())
                     })?;
-
-                    html.end();
-
-                    Ok(())
-                })?;
-
-                html.end();
+                }
 
                 ctx.write_footnote_block(|ctx| {
-                    ctx.html().li().inner(&paragraphs)?.end();
+                    ctx.html().li().inner(&paragraphs)?;
                     Ok(())
                 })?;
             }
@@ -295,14 +291,11 @@ impl<'w> ComponentRender for Word<'w> {
                         html.attr("size", &[size]);
                     }
 
-                    html.end();
                     Ok(())
                 })?;
-
-                html.end();
             }
             &Italics { ref words } => {
-                ctx.html().i().inner(&words)?.end();
+                ctx.html().i().inner(&words)?;
             }
             &Math { expr } => {
                 // TODO
@@ -316,14 +309,13 @@ impl<'w> ComponentRender for Word<'w> {
                 contents,
             } => module::render(name, ctx, arguments, contents)?,
             &Monospace { ref words } => {
-                ctx.html().tt().inner(&words)?.end();
+                ctx.html().tt().inner(&words)?;
             }
             &Note { ref paragraphs } => {
                 ctx.html()
                     .div()
                     .attr("class", &["wiki-note"])
-                    .inner(&paragraphs)?
-                    .end();
+                    .inner(&paragraphs)?;
             }
             &Raw { contents } => ctx.html().text(contents),
             &Size {
@@ -333,8 +325,7 @@ impl<'w> ComponentRender for Word<'w> {
                 ctx.html()
                     .span()
                     .attr("style", &["size: ", size])
-                    .inner(&paragraphs)?
-                    .end();
+                    .inner(&paragraphs)?;
             }
             &Span {
                 ref id,
@@ -356,16 +347,16 @@ impl<'w> ComponentRender for Word<'w> {
                     html.attr("style", &[style]);
                 }
 
-                html.inner(&paragraphs)?.end();
+                html.inner(&paragraphs)?;
             }
             &Strikethrough { ref words } => {
-                ctx.html().strike().inner(&words)?.end();
+                ctx.html().strike().inner(&words)?;
             }
             &Subscript { ref words } => {
-                ctx.html().sub().inner(&words)?.end();
+                ctx.html().sub().inner(&words)?;
             }
             &Superscript { ref words } => {
-                ctx.html().sup().inner(&words)?.end();
+                ctx.html().sup().inner(&words)?;
             }
             &TabList { ref tabs } => {
                 // TODO
@@ -375,7 +366,7 @@ impl<'w> ComponentRender for Word<'w> {
             }
             &Text { contents } => ctx.push_escaped(contents),
             &Underline { ref words } => {
-                ctx.html().u().inner(&words)?.end();
+                ctx.html().u().inner(&words)?;
             }
             &User {
                 username,
@@ -409,14 +400,11 @@ impl<'w> ComponentRender for Word<'w> {
                                     .attr_fmt("alt", |ctx| {
                                         write!(ctx, "{}", percent_encode_url(&user.name))?;
                                         Ok(())
-                                    })?
-                                    .end();
+                                    })?;
 
                                 Ok(())
                             })?;
                         }
-
-                        html.end();
                     }
                     None => write!(ctx, "invalid username: {}", username)?,
                 }

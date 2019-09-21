@@ -82,7 +82,6 @@ pub struct HtmlBuilderTag<'c, 'i, 'h, 't> {
     ctx: &'c mut HtmlContext<'i, 'h>,
     tag: &'t str,
     in_tag: bool,
-    finished: bool,
 }
 
 impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
@@ -94,14 +93,12 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
             ctx,
             tag,
             in_tag: true,
-            finished: false,
         }
     }
 
     fn attr_key(&mut self, key: &str) {
         debug_assert!(is_alphanumeric(key));
         debug_assert!(self.in_tag);
-        debug_assert!(!self.finished);
 
         self.ctx.push(' ');
         self.ctx.push_escaped(key);
@@ -160,7 +157,6 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
 
     #[inline]
     pub fn inner(&mut self, component: &dyn ComponentRender) -> Result<&mut Self> {
-        debug_assert!(!self.finished);
         self.content_start();
 
         component.render(self.ctx)?;
@@ -171,17 +167,15 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
     where
         F: FnMut(&mut HtmlContext) -> Result<()>,
     {
-        debug_assert!(!self.finished);
         self.content_start();
 
         f(self.ctx)?;
         Ok(self)
     }
+}
 
-    pub fn end(&mut self) {
-        debug_assert!(!self.finished);
-        self.finished = true;
-
+impl<'c, 'i, 'h, 't> Drop for HtmlBuilderTag<'c, 'i, 'h, 't> {
+    fn drop(&mut self) {
         if !self.in_tag {
             self.ctx.push_str("</");
             self.ctx.push_str(self.tag);
