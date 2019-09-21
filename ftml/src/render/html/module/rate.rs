@@ -40,12 +40,48 @@ impl Module for RateModule {
         }
 
         let rating = ctx.info().rating;
-        ctx.push_str("<div class=\"rating-module\">");
-        write!(ctx, "[<b class=\"page-rating\">{:+}</b>]", rating)?;
-        ctx.push_str("<b><a onclick=\"scpvote(-1);\">-</b> ");
-        ctx.push_str("<b><a onclick=\"scpvote(0);\">0</b> ");
-        ctx.push_str("<b><a onclick=\"scpvote(1);\">+</b>");
-        ctx.push_str("</div>");
+
+        ctx.html()
+            .div()
+            .attr("class", &["rating-module"])
+            .contents(|ctx| {
+                ctx.push('[');
+                ctx.html()
+                    .b()
+                    .attr("class", &["page-rating"])
+                    .contents(|ctx| {
+                        write!(ctx, "{:+}", rating)?;
+                        Ok(())
+                    })?;
+                ctx.push(']');
+
+                ctx.html().b().contents(|ctx| {
+                    ctx.html()
+                        .a()
+                        .attr("onclick", &["scpvote(-1);"])
+                        .inner(&"-")?;
+                    Ok(())
+                })?;
+
+                ctx.html().b().contents(|ctx| {
+                    ctx.html()
+                        .a()
+                        .attr("onclick", &["scpvote(0);"])
+                        .inner(&"0")?;
+                    Ok(())
+                })?;
+
+                ctx.html().b().contents(|ctx| {
+                    ctx.html()
+                        .a()
+                        .attr("onclick", &["scpvote(+1);"])
+                        .inner(&"+")?;
+                    Ok(())
+                })?;
+
+                Ok(())
+            })?;
+
         Ok(())
     }
 }
