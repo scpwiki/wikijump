@@ -1,5 +1,5 @@
 /*
- * render/html/module/editnew.rs
+ * render/html/module/tempnew.rs
  *
  * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith, not_a_seagull
