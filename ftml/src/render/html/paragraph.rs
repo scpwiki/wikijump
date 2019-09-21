@@ -246,23 +246,21 @@ impl<'p> ComponentRender for Paragraph<'p> {
                 style,
                 ref paragraphs,
             } => {
-                ctx.push_str("<blockquote");
+                let mut html = ctx.html().blockquote();
 
                 if let Some(id) = id {
-                    write!(ctx, " id={}", id)?;
+                    html.attr("id", &[id]);
                 }
 
                 if let Some(class) = class {
-                    write!(ctx, " class={}", class)?;
+                    html.attr("class", &[class]);
                 }
 
                 if let Some(style) = style {
-                    write!(ctx, " style={}", style)?;
+                    html.attr("style", &[style]);
                 }
 
-                ctx.push_str(">\n");
-                render_paragraphs(ctx, paragraphs)?;
-                ctx.push_str("\n</blockquote>");
+                html.inner(&paragraphs)?;
             }
             Words {
                 centered,

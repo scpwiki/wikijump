@@ -52,6 +52,7 @@ impl<'c, 'i, 'h> HtmlBuilder<'c, 'i, 'h> {
 
     tag_method!(a);
     tag_method!(b);
+    tag_method!(blockquote);
     tag_method!(br);
     tag_method!(code);
     tag_method!(del);
