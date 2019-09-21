@@ -190,28 +190,39 @@ impl<'w> ComponentRender for Word<'w> {
             &Footnote { ref paragraphs } => {
                 // TODO add javascript
                 let number = ctx.footnotes_mut().incr();
-                ctx.push_str("<sup class=\"footnoteref\">");
-                write!(
-                    ctx,
-                    stringify!(
-                        "<a id=\"footnote-{0}\" class=\"footnoteref\" ",
-                        "onclick=\"scrollToFootnote('footnote-{0}')\">",
-                        "{0}",
-                        "</a>",
-                    ),
-                    number
-                )?;
-                ctx.push_str("</sup>");
+
+                let mut html = ctx.html().sup();
+                html.attr("class", &["footnoteref"]);
+                html.contents(|ctx| {
+                    let mut html = ctx.html().a();
+
+                    html.attr("class", &["footnoteref"]);
+
+                    html.attr_fmt("id", |ctx| {
+                        write!(ctx, "footnote-{}", number)?;
+                        Ok(())
+                    })?;
+
+                    html.attr_fmt("onclick", |ctx| {
+                        write!(ctx, "scrollToFootnote('footnote-{}')", number)?;
+                        Ok(())
+                    })?;
+
+                    html.contents(|ctx| {
+                        write!(ctx, "{}", number)?;
+                        Ok(())
+                    })?;
+
+                    Ok(())
+                })?;
 
                 ctx.write_footnote_block(|ctx| {
-                    ctx.push_str("<li>");
-                    render_paragraphs(ctx, paragraphs)?;
-                    ctx.push_str("</li>");
-
+                    ctx.html().li().inner(&paragraphs)?.end();
                     Ok(())
                 })?;
             }
             &FootnoteBlock => {
+                // TODO
                 ctx.footnotes_mut().set_block(true);
                 ctx.push_str("\0footnote-block\0");
             }
