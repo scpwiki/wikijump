@@ -219,22 +219,20 @@ impl<'p> ComponentRender for Paragraph<'p> {
                 }
             }
             &Table { ref rows } => {
-                ctx.push_str("<table>\n");
-                for row in rows {
-                    let (start_tag, end_tag) = match row.title {
-                        true => ("<th>", "</th>\n"),
-                        false => ("<td>", "</td>\n"),
-                    };
+                ctx.html().table().contents(|ctx| {
+                    for row in rows {
+                        ctx.html().tr().contents(|ctx| {
+                            for column in &row.columns {
+                                let tag = if row.title { "th" } else { "td" };
+                                ctx.html().tag(tag).inner(&column)?;
+                            }
 
-                    ctx.push_str("<tr>\n");
-                    for column in &row.columns {
-                        ctx.push_str(start_tag);
-                        render_words(ctx, column)?;
-                        ctx.push_str(end_tag);
+                            Ok(())
+                        })?;
                     }
-                    ctx.push_str("</tr>\n");
-                }
-                ctx.push_str("</table>\n");
+
+                    Ok(())
+                })?;
             }
             &TableOfContents {} => {
                 // TODO

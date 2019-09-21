@@ -71,8 +71,6 @@ impl<'c, 'i, 'h> HtmlBuilder<'c, 'i, 'h> {
     tag_method!(sub);
     tag_method!(sup);
     tag_method!(table);
-    tag_method!(td);
-    tag_method!(th);
     tag_method!(tr);
     tag_method!(tt);
     tag_method!(u);
