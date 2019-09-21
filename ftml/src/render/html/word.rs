@@ -386,21 +386,37 @@ impl<'w> ComponentRender for Word<'w> {
 
                 match user {
                     Some(user) => {
-                        write!(
-                            ctx,
-                            "<a href=\"http://www.wikidot.com/user:info/{}\">",
-                            &user.name
-                        )?;
-
-                        if show_picture {
+                        // TODO format
+                        let mut html = ctx.html().a();
+                        html.attr_fmt("href", |ctx| {
                             write!(
                                 ctx,
-                                "<img class=\"small\" src=\"https://example.com/avatars/{}\" alt=\"{}\">",
-                                &user.id, &user.name,
+                                "http://www.wikidot.com/user:info/{}",
+                                percent_encode_url(&user.name)
                             )?;
+                            Ok(())
+                        })?;
+
+                        if show_picture {
+                            html.contents(|ctx| {
+                                ctx.html()
+                                    .img()
+                                    .attr("class", &["small"])
+                                    .attr_fmt("src", |ctx| {
+                                        write!(ctx, "https://example.com/avatars/{}", user.id)?;
+                                        Ok(())
+                                    })?
+                                    .attr_fmt("alt", |ctx| {
+                                        write!(ctx, "{}", percent_encode_url(&user.name))?;
+                                        Ok(())
+                                    })?
+                                    .end();
+
+                                Ok(())
+                            })?;
                         }
 
-                        write!(ctx, "{}</a>", &user.name)?;
+                        html.end();
                     }
                     None => write!(ctx, "invalid username: {}", username)?,
                 }
