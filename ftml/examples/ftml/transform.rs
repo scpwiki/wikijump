@@ -69,7 +69,7 @@ pub fn full_transform(text: &mut String, wrap: bool) -> Result<String> {
             meta.render(&mut buffer)?;
         }
 
-        buffer.push_str("</head><style>");
+        buffer.push_str("<style>");
         buffer.push_str(&output.style);
         buffer.push_str("</style></head><body>");
         buffer.push_str(&output.html);
