@@ -71,6 +71,17 @@ pub enum AnchorTarget {
     Same,
 }
 
+impl AnchorTarget {
+    pub fn style(self) -> &'static str {
+        match self {
+            AnchorTarget::NewTab => "_blank",
+            AnchorTarget::Parent => "_parent",
+            AnchorTarget::Top => "_top",
+            AnchorTarget::Same => "_self",
+        }
+    }
+}
+
 impl<'a> TryFrom<&'a str> for AnchorTarget {
     type Error = ();
 
@@ -94,14 +105,7 @@ impl<'a> TryFrom<&'a str> for AnchorTarget {
 
 impl Display for AnchorTarget {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let style = match *self {
-            AnchorTarget::NewTab => "_blank",
-            AnchorTarget::Parent => "_parent",
-            AnchorTarget::Top => "_top",
-            AnchorTarget::Same => "_self",
-        };
-
-        write!(f, "{}", style)
+        write!(f, "{}", self.style())
     }
 }
 
