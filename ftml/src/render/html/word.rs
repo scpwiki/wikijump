@@ -170,20 +170,22 @@ impl<'w> ComponentRender for Word<'w> {
                 text,
                 target,
             } => {
-                write!(ctx, "<a href=\"{}\"", percent_encode_url(filename))?;
-
-                if let Some(target) = target {
-                    write!(ctx, " target=\"{}\"", target)?;
-                }
-
                 let text = match text {
                     Some("") | None => filename,
                     Some(text) => text,
                 };
 
-                ctx.push('>');
-                ctx.push_escaped(text);
-                ctx.push_str("</a>");
+                let mut html = ctx.html().a();
+                html.attr_fmt("href", |ctx| {
+                    write!(ctx, "{}", percent_encode_url(filename))?;
+                    Ok(())
+                })?;
+
+                if let Some(target) = target {
+                    html.attr("target", &[target.style()]);
+                }
+
+                html.inner(&text)?.end();
             }
             &Footnote { ref paragraphs } => {
                 // TODO add javascript
