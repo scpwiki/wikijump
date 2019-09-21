@@ -188,17 +188,6 @@ pub enum ListStyle {
     Numbered,
 }
 
-impl Display for ListStyle {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let tag = match *self {
-            ListStyle::Bullet => "ul",
-            ListStyle::Numbered => "ol",
-        };
-
-        write!(f, "{}", tag)
-    }
-}
-
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum HtmlMetaType {

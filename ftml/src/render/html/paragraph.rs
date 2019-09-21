@@ -20,7 +20,7 @@
 
 use self::Paragraph::*;
 use super::prelude::*;
-use crate::enums::Alignment;
+use crate::enums::{Alignment, ListStyle};
 
 impl<'a, 'p> ComponentRender for &'a [Paragraph<'p>] {
     fn render(&self, ctx: &mut HtmlContext) -> Result<()> {
@@ -193,13 +193,18 @@ impl<'p> ComponentRender for Paragraph<'p> {
                 // TODO will need to collect nearby entries for depth
                 let _ = depth;
 
-                write!(ctx, "<{}>\n", style)?;
-                for item in items {
-                    ctx.push_str("<li> ");
-                    render_paragraph(ctx, item)?;
-                    ctx.push_str(" </li>\n");
-                }
-                write!(ctx, "</{}>", style)?;
+                let mut html = match style {
+                    ListStyle::Bullet => ctx.html().ul(),
+                    ListStyle::Numbered => ctx.html().ol(),
+                };
+
+                html.contents(|ctx| {
+                    for item in items {
+                        ctx.html().li().inner(item)?;
+                    }
+
+                    Ok(())
+                })?;
             }
             &Math {
                 label,
