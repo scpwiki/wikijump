@@ -178,7 +178,7 @@ impl<'p> ComponentRender for Paragraph<'p> {
                 };
 
                 if should_display() {
-                    render_paragraphs(ctx, paragraphs)?;
+                    paragraphs.render(ctx)?;
                 }
             }
             &Javascript { contents } => {
