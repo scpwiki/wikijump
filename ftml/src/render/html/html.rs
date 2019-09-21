@@ -91,8 +91,8 @@ pub struct HtmlBuilderTag<'c, 'i, 'h, 't> {
 
 impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
     pub fn new(ctx: &'c mut HtmlContext<'i, 'h>, tag: &'t str) -> Self {
-        ctx.push('<');
-        ctx.push_str(tag);
+        ctx.push_raw('<');
+        ctx.push_raw_str(tag);
 
         HtmlBuilderTag {
             ctx,
@@ -105,18 +105,18 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
         debug_assert!(is_alphanumeric(key));
         debug_assert!(self.in_tag);
 
-        self.ctx.push(' ');
+        self.ctx.push_raw(' ');
         self.ctx.push_escaped(key);
-        self.ctx.push('=');
+        self.ctx.push_raw('=');
     }
 
     pub fn attr(&mut self, key: &str, value_parts: &[&str]) -> &mut Self {
         self.attr_key(key);
-        self.ctx.push('"');
+        self.ctx.push_raw('"');
         for part in value_parts {
             self.ctx.push_escaped(part);
         }
-        self.ctx.push('"');
+        self.ctx.push_raw('"');
 
         self
     }
@@ -126,7 +126,7 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
         F: FnMut(&mut HtmlContext) -> Result<()>,
     {
         self.attr_key(key);
-        self.ctx.push('"');
+        self.ctx.push_raw('"');
 
         // Read the formatted text and escape it.
         // Assumes all escaped characters are ASCII (see html::escape).
@@ -150,14 +150,14 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
 
             index += ch.len_utf8();
         }
-        self.ctx.push('"');
+        self.ctx.push_raw('"');
 
         Ok(self)
     }
 
     fn content_start(&mut self) {
         if self.in_tag {
-            self.ctx.push('>');
+            self.ctx.push_raw('>');
             self.in_tag = false;
         }
     }
@@ -184,11 +184,11 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
 impl<'c, 'i, 'h, 't> Drop for HtmlBuilderTag<'c, 'i, 'h, 't> {
     fn drop(&mut self) {
         if !self.in_tag {
-            self.ctx.push_str("</");
-            self.ctx.push_str(self.tag);
+            self.ctx.push_raw_str("</");
+            self.ctx.push_raw_str(self.tag);
         }
 
-        self.ctx.push('>');
+        self.ctx.push_raw('>');
     }
 }
 

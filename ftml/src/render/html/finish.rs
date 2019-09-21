@@ -25,14 +25,14 @@ use super::prelude::*;
 pub fn render_finish(ctx: &mut HtmlContext) -> Result<()> {
     // Finish footnote block text
     ctx.write_footnote_block(|ctx| {
-        ctx.insert_str(
+        ctx.buffer().insert_str(
             0,
             stringify!(
                 "<div class=\"footnotes-footer\">",
                 "<ul type=\"1\" class=\"footnotes-footer\">",
             ),
         );
-        ctx.push_str("</ul></div");
+        ctx.push_raw_str("</ul></div");
 
         Ok(())
     })?;
@@ -46,7 +46,7 @@ pub fn render_finish(ctx: &mut HtmlContext) -> Result<()> {
     ctx.substitute_footnote_block();
 
     // Add final newline
-    ctx.push('\n');
+    ctx.push_raw('\n');
 
     Ok(())
 }

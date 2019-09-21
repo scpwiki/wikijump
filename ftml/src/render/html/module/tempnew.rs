@@ -29,7 +29,7 @@ impl Module for TempNewModule {
         _arguments: &HashMap<&str, Cow<str>>,
         _contents: Option<&str>,
     ) -> Result<()> {
-        ctx.push_str("<a onclick=\"toggle_404_param(); editpage();\">Create this page</a>");
+        ctx.push_raw_str("<a onclick=\"toggle_404_param(); editpage();\">Create this page</a>");
         Ok(())
     }
 }

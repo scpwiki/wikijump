@@ -45,7 +45,7 @@ impl Module for RateModule {
             .div()
             .attr("class", &["rating-module"])
             .contents(|ctx| {
-                ctx.push('[');
+                ctx.push_raw('[');
                 ctx.html()
                     .b()
                     .attr("class", &["page-rating"])
@@ -53,7 +53,7 @@ impl Module for RateModule {
                         write!(ctx, "{:+}", rating)?;
                         Ok(())
                     })?;
-                ctx.push(']');
+                ctx.push_raw(']');
 
                 ctx.html().b().contents(|ctx| {
                     ctx.html()

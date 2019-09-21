@@ -133,7 +133,7 @@ impl<'p> ComponentRender for Paragraph<'p> {
             &HorizontalLine => {
                 ctx.html().hr();
             }
-            &Html { contents } => ctx.push_str(contents),
+            &Html { contents } => ctx.push_raw_str(contents),
             &Iframe { url, ref arguments } => {
                 let mut html = ctx.html().iframe();
                 // TODO escape attributes

@@ -213,7 +213,7 @@ impl<'w> ComponentRender for Word<'w> {
             &FootnoteBlock => {
                 // TODO
                 ctx.footnotes_mut().set_block(true);
-                ctx.push_str("\0footnote-block\0");
+                ctx.push_raw_str("\0footnote-block\0");
             }
             &Form { contents } => {
                 // TODO

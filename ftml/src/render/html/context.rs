@@ -119,17 +119,12 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
     }
 
     #[inline]
-    pub fn insert_str(&mut self, idx: usize, s: &str) {
-        self.buffer().insert_str(idx, s);
-    }
-
-    #[inline]
-    pub fn push(&mut self, ch: char) {
+    pub fn push_raw(&mut self, ch: char) {
         self.buffer().push(ch);
     }
 
     #[inline]
-    pub fn push_str(&mut self, s: &str) {
+    pub fn push_raw_str(&mut self, s: &str) {
         self.buffer().push_str(s);
     }
 
