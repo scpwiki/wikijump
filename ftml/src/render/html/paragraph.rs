@@ -39,11 +39,6 @@ impl<'a, 'p> ComponentRender for &'a Vec<Paragraph<'p>> {
     }
 }
 
-// TODO remove this stub
-pub fn render_paragraphs(ctx: &mut HtmlContext, paragraphs: &[Paragraph]) -> Result<()> {
-    paragraphs.render(ctx)
-}
-
 // TODO remove this lint
 #[allow(unused_variables)]
 impl<'p> ComponentRender for Paragraph<'p> {

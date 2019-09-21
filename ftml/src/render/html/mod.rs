@@ -30,7 +30,6 @@ mod word;
 
 mod prelude {
     pub use super::super::Render;
-    pub use super::paragraph::render_paragraphs;
     pub use super::percent::percent_encode_url;
     pub use super::{ComponentRender, HtmlContext, HtmlMeta};
     pub use crate::data;

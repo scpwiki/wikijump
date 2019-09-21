@@ -38,7 +38,7 @@ impl<'h> Render for HtmlRender<'h> {
 
     fn render(&self, tree: &SyntaxTree, info: PageInfo) -> Result<HtmlOutput> {
         let mut ctx = HtmlContext::new(info, self.handle);
-        render_paragraphs(&mut ctx, tree.paragraphs())?;
+        tree.paragraphs().render(&mut ctx)?;
         render_finish(&mut ctx)?;
 
         Ok(ctx.into())
