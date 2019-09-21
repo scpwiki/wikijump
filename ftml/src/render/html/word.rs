@@ -65,35 +65,39 @@ impl<'w> ComponentRender for Word<'w> {
                 ref target,
                 ref words,
             } => {
-                ctx.push_str("<a");
+                let mut html = ctx.html().a();
 
                 if let Some(href) = href {
-                    write!(ctx, " href=\"{}\"", percent_encode_url(href))?;
+                    html.attr_fmt("href", |ctx| {
+                        write!(ctx, "{}", percent_encode_url(href))?;
+                        Ok(())
+                    })?;
                 }
 
                 if let Some(name) = name {
-                    write!(ctx, " name=\"{}\"", name)?;
+                    html.attr("name", &[name]);
                 }
 
                 if let Some(id) = id {
-                    write!(ctx, " id=\"{}\"", id)?;
+                    html.attr("id", &[id]);
                 }
 
                 if let Some(class) = class {
-                    write!(ctx, " class=\"{}\"", class)?;
+                    html.attr("class", &[class]);
                 }
 
                 if let Some(style) = style {
-                    write!(ctx, " style=\"{}\"", style)?;
+                    html.attr("style", &[style]);
                 }
 
                 if let Some(target) = target {
-                    write!(ctx, " target=\"{}\"", target)?;
+                    html.attr_fmt("target", |ctx| {
+                        write!(ctx, "{}", target)?;
+                        Ok(())
+                    })?;
                 }
 
-                ctx.push('>');
-                render_words(ctx, words)?;
-                ctx.push_str("</a>");
+                html.inner(&words)?.end();
             }
             &Link { href, target, text } => {
                 write!(ctx, "<a href=\"{}\"", percent_encode_url(href))?;
