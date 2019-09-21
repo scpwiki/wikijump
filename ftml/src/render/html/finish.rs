@@ -39,7 +39,7 @@ pub fn render_finish(ctx: &mut HtmlContext) -> Result<()> {
 
     // If a footnote block hasn't been placed yet, add one.
     if ctx.footnotes().needs_block() {
-        render_word(ctx, &Word::FootnoteBlock)?;
+        Word::FootnoteBlock.render(ctx)?;
     }
 
     // Replace footnote block placeholders

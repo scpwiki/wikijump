@@ -40,12 +40,6 @@ impl<'a, 'w> ComponentRender for &'a Vec<Word<'w>> {
     }
 }
 
-// TODO remove this stub
-#[inline]
-pub fn render_word(ctx: &mut HtmlContext, word: &Word) -> Result<()> {
-    word.render(ctx)
-}
-
 // TODO remove this lint
 #[allow(unused_variables)]
 impl<'w> ComponentRender for Word<'w> {
