@@ -266,13 +266,13 @@ impl<'p> ComponentRender for Paragraph<'p> {
                 centered,
                 ref words,
             } => {
-                ctx.push_str("<p");
+                let mut html = ctx.html().p();
+
                 if *centered {
-                    ctx.push_str(" style=\"text-align: center;\"");
+                    html.attr("style", &["text-align: center"]);
                 }
-                ctx.push('>');
-                render_words(ctx, words)?;
-                ctx.push_str("</p>\n");
+
+                html.inner(&words)?;
             }
         }
 
