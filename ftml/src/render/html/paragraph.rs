@@ -64,9 +64,10 @@ impl<'p> ComponentRender for Paragraph<'p> {
                     .inner(&paragraphs)?;
             }
             &Center { ref words } => {
-                ctx.push_str("<div style=\"text-align: center;\">\n");
-                render_words(ctx, words)?;
-                ctx.push_str("</div>");
+                ctx.html()
+                    .div()
+                    .attr("style", &["text-align: center"])
+                    .inner(&words)?;
             }
             &ClearFloat { direction } => {
                 let style = match direction {
