@@ -130,6 +130,7 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
 
         // Read the formatted text and escape it.
         // Assumes all escaped characters are ASCII (see html::escape).
+        // Also assumes all changes to buffer were appended only.
         let mut index = self.ctx.buffer().len();
         value_fn(self.ctx)?;
 
