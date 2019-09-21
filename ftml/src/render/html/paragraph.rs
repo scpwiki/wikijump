@@ -58,9 +58,10 @@ impl<'p> ComponentRender for Paragraph<'p> {
                 alignment,
                 ref paragraphs,
             } => {
-                write!(ctx, "<div style=\"text-align: {};\">\n", alignment)?;
-                render_paragraphs(ctx, paragraphs)?;
-                ctx.push_str("</div>");
+                ctx.html()
+                    .div()
+                    .attr("style", &["text-align: ", alignment.style()])
+                    .inner(&paragraphs)?;
             }
             &Center { ref words } => {
                 ctx.push_str("<div style=\"text-align: center;\">\n");
