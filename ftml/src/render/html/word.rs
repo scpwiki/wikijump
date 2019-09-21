@@ -100,21 +100,24 @@ impl<'w> ComponentRender for Word<'w> {
                 html.inner(&words)?.end();
             }
             &Link { href, target, text } => {
-                write!(ctx, "<a href=\"{}\"", percent_encode_url(href))?;
-
-                if let Some(target) = target {
-                    write!(ctx, " target=\"{}\"", target)?;
-                }
-
                 let text = match text {
                     LinkText::Article => &ctx.info().title,
                     LinkText::Text(text) => text,
                     LinkText::Url => href,
                 };
 
-                ctx.push('>');
-                ctx.push_escaped(text);
-                ctx.push_str("</a>");
+                let mut html = ctx.html().a();
+
+                html.attr_fmt("href", |ctx| {
+                    write!(ctx, "{}", percent_encode_url(href))?;
+                    Ok(())
+                })?;
+
+                if let Some(target) = target {
+                    html.attr("target", &[target.style()]);
+                }
+
+                html.inner(&text)?.end();
             }
             &Bold { ref words } => {
                 ctx.html().b().inner(&words)?.end();

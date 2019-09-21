@@ -53,7 +53,7 @@ pub trait ComponentRender {
 
 impl<'a> ComponentRender for &'a str {
     fn render(&self, ctx: &mut HtmlContext) -> Result<()> {
-        ctx.push_str(self);
+        ctx.push_escaped(self);
         Ok(())
     }
 }
