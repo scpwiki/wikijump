@@ -213,8 +213,12 @@ impl<'w> ComponentRender for Word<'w> {
                         Ok(())
                     })?;
 
+                    html.end();
+
                     Ok(())
                 })?;
+
+                html.end();
 
                 ctx.write_footnote_block(|ctx| {
                     ctx.html().li().inner(&paragraphs)?.end();

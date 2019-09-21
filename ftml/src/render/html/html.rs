@@ -167,14 +167,15 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
         Ok(self)
     }
 
-    pub fn contents<F>(&mut self, mut f: F) -> Result<()>
+    pub fn contents<F>(&mut self, mut f: F) -> Result<&mut Self>
     where
         F: FnMut(&mut HtmlContext) -> Result<()>,
     {
         debug_assert!(!self.finished);
         self.content_start();
 
-        f(self.ctx)
+        f(self.ctx)?;
+        Ok(self)
     }
 
     pub fn end(&mut self) {
