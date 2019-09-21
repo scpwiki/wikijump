@@ -129,9 +129,16 @@ impl<'p> ComponentRender for Paragraph<'p> {
                 html.inner(&paragraphs)?;
             }
             &Heading { level, ref words } => {
-                write!(ctx, "<{}>", level)?;
-                render_words(ctx, words)?;
-                write!(ctx, "</{}>\n", level)?;
+                use std::io::Write;
+                use std::str;
+
+                // Get a string like "h2" without heap allocation.
+                let mut buffer: [u8; 2] = [0; 2];
+                write!(&mut buffer[..], "h{}", level).expect("Unable to write to temporary buffer");
+                let header = str::from_utf8(&buffer[..]).unwrap();
+
+                // Output HTML.
+                ctx.html().tag(header).inner(&words)?;
             }
             &HorizontalLine => ctx.push_str("<hr>\n"),
             &Html { contents } => ctx.push_str(contents),
