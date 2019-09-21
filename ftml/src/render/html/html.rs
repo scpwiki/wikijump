@@ -149,6 +149,7 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
 
             index += ch.len_utf8();
         }
+        self.ctx.push('"');
 
         Ok(self)
     }
