@@ -66,9 +66,9 @@ impl<'c, 'i, 'h> HtmlBuilder<'c, 'i, 'h> {
     tag_method!(tt);
     tag_method!(u);
 
+    #[inline]
     pub fn text(&mut self, text: &str) {
-        // TODO add html escaping
-        self.ctx.push_str(text);
+        self.ctx.push_escaped(text);
     }
 }
 
