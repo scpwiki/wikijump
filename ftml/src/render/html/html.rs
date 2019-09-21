@@ -95,8 +95,7 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
         }
     }
 
-    #[inline]
-    pub fn attr(&mut self, key: &str, value_parts: &[&str]) -> &mut Self {
+    fn attr_key(&mut self, key: &str) {
         debug_assert!(is_alphanumeric(key));
         debug_assert!(self.in_tag);
         debug_assert!(!self.finished);
@@ -104,7 +103,10 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
         self.ctx.push(' ');
         self.ctx.push_escaped(key);
         self.ctx.push('=');
+    }
 
+    pub fn attr(&mut self, key: &str, value_parts: &[&str]) -> &mut Self {
+        self.attr_key(key);
         self.ctx.push('"');
         for part in value_parts {
             self.ctx.push_escaped(part);
@@ -112,6 +114,38 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
         self.ctx.push('"');
 
         self
+    }
+
+    pub fn attr_fmt<F>(&mut self, key: &str, mut value_fn: F) -> Result<&mut Self>
+    where
+        F: FnMut(&mut HtmlContext) -> Result<()>,
+    {
+        self.attr_key(key);
+        self.ctx.push('"');
+
+        // Read the formatted text and escape it.
+        // Assumes all escaped characters are ASCII (see html::escape).
+        let mut index = self.ctx.buffer().len();
+        value_fn(self.ctx)?;
+
+        let buffer = self.ctx.buffer();
+        while index < buffer.len() {
+            let ch = {
+                let remainder = &buffer[index..];
+                remainder
+                    .chars()
+                    .next()
+                    .expect("Character buffer exhausted")
+            };
+
+            if let Some(subst) = escape_char(ch) {
+                buffer.replace_range(index..index + 1, subst);
+            }
+
+            index += ch.len_utf8();
+        }
+
+        Ok(self)
     }
 
     fn content_start(&mut self) {
@@ -160,15 +194,22 @@ fn is_alphanumeric(s: &str) -> bool {
         .all(|c| c.is_ascii_alphabetic() || c.is_ascii_digit() || c == '-')
 }
 
+pub fn escape_char(c: char) -> Option<&'static str> {
+    match c {
+        '>' => Some("&gt;"),
+        '<' => Some("&lt;"),
+        '&' => Some("&amp;"),
+        '\'' => Some("&#39;"),
+        '\"' => Some("&quot;"),
+        _ => None,
+    }
+}
+
 pub fn escape(buffer: &mut String, s: &str) {
     for ch in s.chars() {
-        match ch {
-            '>' => buffer.push_str("&gt;"),
-            '<' => buffer.push_str("&lt;"),
-            '&' => buffer.push_str("&amp;"),
-            '\'' => buffer.push_str("&#39;"),
-            '\"' => buffer.push_str("&quot;"),
-            _ => buffer.push(ch),
+        match escape_char(ch) {
+            Some(s) => buffer.push_str(s),
+            None => buffer.push(ch),
         }
     }
 }
