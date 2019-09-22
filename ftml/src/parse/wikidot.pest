@@ -270,6 +270,7 @@ form = {
     "[[/" ~ space? ~ ^"form" ~ space_any? ~ "]]"
 }
 
+// TODO: add arguments -- https://www.wikidot.com/doc-wiki-syntax:images
 gallery = { "[[" ~ space? ~ ^"gallery" ~ space_any? ~ "]]" }
 
 module = {
