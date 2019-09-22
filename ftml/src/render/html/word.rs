@@ -22,6 +22,7 @@ use self::Word::*;
 use super::module;
 use super::prelude::*;
 use crate::enums::LinkText;
+use std::borrow::Cow;
 
 impl<'a, 'w> ComponentRender for &'a [Word<'w>] {
     fn render(&self, ctx: &mut HtmlContext) -> Result<()> {
@@ -247,39 +248,7 @@ impl<'w> ComponentRender for Word<'w> {
                     html.attr("style", &["text-align: ", align.style()]);
                 }
 
-                html.contents(|ctx| {
-                    // TODO adjust for other sources
-                    let mut html = ctx.html().img();
-                    html.attr("src", &[filename]);
-
-                    // TODO float
-
-                    if let Some(alt) = alt {
-                        html.attr("alt", &[alt]);
-                    }
-
-                    // TODO title
-
-                    if let Some(width) = width {
-                        html.attr("width", &[width]);
-                    }
-
-                    if let Some(height) = height {
-                        html.attr("height", &[height]);
-                    }
-
-                    if let Some(style) = style {
-                        html.attr("style", &[style]);
-                    }
-
-                    if let Some(class) = class {
-                        html.attr("class", &[class]);
-                    }
-
-                    // TODO size
-
-                    Ok(())
-                })?;
+                html.contents(|ctx| fmt_image(ctx, filename, alt, width, height, style, class))?;
             }
             &Italics { ref words } => {
                 ctx.html().i().inner(&words)?;
@@ -363,36 +332,7 @@ impl<'w> ComponentRender for Word<'w> {
                 let user = handle.get_user_by_name(username)?;
 
                 match user {
-                    Some(user) => {
-                        // TODO format
-                        let mut html = ctx.html().a();
-                        html.attr_fmt("href", |ctx| {
-                            write!(
-                                ctx,
-                                "http://www.wikidot.com/user:info/{}",
-                                percent_encode_url(&user.name)
-                            )?;
-                            Ok(())
-                        })?;
-
-                        if show_picture {
-                            html.contents(|ctx| {
-                                ctx.html()
-                                    .img()
-                                    .attr("class", &["small"])
-                                    .attr_fmt("src", |ctx| {
-                                        write!(ctx, "https://example.com/avatars/{}", user.id)?;
-                                        Ok(())
-                                    })?
-                                    .attr_fmt("alt", |ctx| {
-                                        write!(ctx, "{}", percent_encode_url(&user.name))?;
-                                        Ok(())
-                                    })?;
-
-                                Ok(())
-                            })?;
-                        }
-                    }
+                    Some(user) => fmt_user(ctx, &user, show_picture)?,
                     None => write!(ctx, "invalid username: {}", username)?,
                 }
             }
@@ -400,4 +340,84 @@ impl<'w> ComponentRender for Word<'w> {
 
         Ok(())
     }
+}
+
+fn fmt_image(
+    ctx: &mut HtmlContext,
+    filename: &str,
+    alt: &Option<Cow<str>>,
+    width: &Option<Cow<str>>,
+    height: &Option<Cow<str>>,
+    style: &Option<Cow<str>>,
+    class: &Option<Cow<str>>,
+) -> Result<()> {
+    // TODO adjust for other sources
+    let mut html = ctx.html().img();
+    html.attr("src", &[filename]);
+
+    // TODO float
+
+    if let Some(alt) = alt {
+        let alt = alt.as_ref();
+        html.attr("alt", &[alt]);
+    }
+
+    // TODO title
+
+    if let Some(width) = width {
+        let width = width.as_ref();
+        html.attr("width", &[width]);
+    }
+
+    if let Some(height) = height {
+        let height = height.as_ref();
+        html.attr("height", &[height]);
+    }
+
+    if let Some(style) = style {
+        let style = style.as_ref();
+        html.attr("style", &[style]);
+    }
+
+    if let Some(class) = class {
+        let class = class.as_ref();
+        html.attr("class", &[class]);
+    }
+
+    // TODO size
+
+    Ok(())
+}
+
+fn fmt_user(ctx: &mut HtmlContext, user: &data::User, show_picture: bool) -> Result<()> {
+    // TODO format
+    let mut html = ctx.html().a();
+    html.attr_fmt("href", |ctx| {
+        write!(
+            ctx,
+            "http://www.wikidot.com/user:info/{}",
+            percent_encode_url(&user.name)
+        )?;
+        Ok(())
+    })?;
+
+    if show_picture {
+        html.contents(|ctx| {
+            ctx.html()
+                .img()
+                .attr("class", &["small"])
+                .attr_fmt("src", |ctx| {
+                    write!(ctx, "https://example.com/avatars/{}", user.id)?;
+                    Ok(())
+                })?
+                .attr_fmt("alt", |ctx| {
+                    write!(ctx, "{}", percent_encode_url(&user.name))?;
+                    Ok(())
+                })?;
+
+            Ok(())
+        })?;
+    }
+
+    Ok(())
 }
