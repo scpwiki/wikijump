@@ -402,7 +402,7 @@ fn fmt_image(
 }
 
 fn fmt_user(ctx: &mut HtmlContext, user: &data::User, show_picture: bool) -> Result<()> {
-    // TODO format
+    // TODO change HTML formatting
     let mut html = ctx.html().a();
     html.attr_fmt("href", |ctx| {
         write!(
