@@ -351,40 +351,44 @@ fn fmt_image(
     style: &Option<Cow<str>>,
     class: &Option<Cow<str>>,
 ) -> Result<()> {
-    // TODO adjust for other sources
-    let mut html = ctx.html().img();
-    html.attr("src", &[filename]);
+    // TODO adjust source for CDNs and other links
+    ctx.html().a().attr("href", &[filename]).contents(|ctx| {
+        let mut html = ctx.html().img();
+        html.attr("src", &[filename]);
 
-    // TODO float
+        // TODO float
 
-    if let Some(alt) = alt {
-        let alt = alt.as_ref();
-        html.attr("alt", &[alt]);
-    }
+        if let Some(alt) = alt {
+            let alt = alt.as_ref();
+            html.attr("alt", &[alt]);
+        }
 
-    // TODO title
+        // TODO title
 
-    if let Some(width) = width {
-        let width = width.as_ref();
-        html.attr("width", &[width]);
-    }
+        if let Some(width) = width {
+            let width = width.as_ref();
+            html.attr("width", &[width]);
+        }
 
-    if let Some(height) = height {
-        let height = height.as_ref();
-        html.attr("height", &[height]);
-    }
+        if let Some(height) = height {
+            let height = height.as_ref();
+            html.attr("height", &[height]);
+        }
 
-    if let Some(style) = style {
-        let style = style.as_ref();
-        html.attr("style", &[style]);
-    }
+        if let Some(style) = style {
+            let style = style.as_ref();
+            html.attr("style", &[style]);
+        }
 
-    if let Some(class) = class {
-        let class = class.as_ref();
-        html.attr("class", &[class]);
-    }
+        if let Some(class) = class {
+            let class = class.as_ref();
+            html.attr("class", &[class]);
+        }
 
-    // TODO size
+        // TODO size
+
+        Ok(())
+    })?;
 
     Ok(())
 }
