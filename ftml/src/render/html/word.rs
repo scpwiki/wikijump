@@ -21,7 +21,7 @@
 use self::Word::*;
 use super::module;
 use super::prelude::*;
-use crate::enums::LinkText;
+use crate::enums::{Alignment, LinkText};
 use arrayvec::ArrayVec;
 use std::borrow::Cow;
 
@@ -243,15 +243,22 @@ impl<'w> ComponentRender for Word<'w> {
                 ref size,
             } => {
                 let mut html = ctx.html().div();
-                let mut classes = ArrayVec::<[&str; 3]>::new();
+                let mut classes = ArrayVec::<[&str; 2]>::new();
 
                 classes.push("image-container");
+
+                if let Some(align) = direction {
+                    match (align, float) {
+                        (Alignment::Left, true) => classes.push("floatleft"),
+                        (Alignment::Right, true) => classes.push("floatright"),
+                        (Alignment::Left, false) => classes.push("alignleft"),
+                        (Alignment::Right, false) => classes.push("alignright"),
+                        (Alignment::Center, _) => classes.push("aligncenter"),
+                        (Alignment::Justify, _) => panic!("Justify alignment in image"),
+                    }
+                }
+
                 html.attr("class", classes.as_slice());
-
-
-                let _ = float;
-                let _ = direction;
-
                 html.contents(|ctx| {
                     fmt_image(ctx, filename, alt, width, height, style, class, size)
                 })?;
