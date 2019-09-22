@@ -276,9 +276,7 @@ impl<'w> ComponentRender for Word<'w> {
                         html.attr("class", &[class]);
                     }
 
-                    if let Some(size) = size {
-                        html.attr("size", &[size]);
-                    }
+                    // TODO size
 
                     Ok(())
                 })?;
