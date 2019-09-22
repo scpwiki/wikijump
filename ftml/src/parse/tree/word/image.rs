@@ -38,9 +38,9 @@ pub fn parse(pair: Pair<Rule>) -> Result<Word> {
     for pair in pair.into_inner() {
         match pair.as_rule() {
             Rule::image_alignment => {
-                let alignment = parse_alignment(pair.as_str());
-                direction = alignment.0;
-                float = alignment.1;
+                let (direction2, float2) = parse_alignment(pair.as_str());
+                direction = direction2;
+                float = float2;
             }
             Rule::file_ident => filename = pair.as_str(),
             Rule::image_arg => {
