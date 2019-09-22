@@ -248,7 +248,9 @@ impl<'w> ComponentRender for Word<'w> {
                     html.attr("style", &["text-align: ", align.style()]);
                 }
 
-                html.contents(|ctx| fmt_image(ctx, filename, alt, width, height, style, class))?;
+                html.contents(|ctx| {
+                    fmt_image(ctx, filename, alt, width, height, style, class, size)
+                })?;
             }
             &Italics { ref words } => {
                 ctx.html().i().inner(&words)?;
@@ -350,6 +352,7 @@ fn fmt_image(
     height: &Option<Cow<str>>,
     style: &Option<Cow<str>>,
     class: &Option<Cow<str>>,
+    size: &Option<Cow<str>>,
 ) -> Result<()> {
     // TODO adjust source for CDNs and other links
     ctx.html().a().attr("href", &[filename]).contents(|ctx| {
@@ -385,7 +388,12 @@ fn fmt_image(
             html.attr("class", &[class]);
         }
 
-        // TODO size
+        if let Some(size) = size {
+            return Err(Error::Msg(format!(
+                "Size arguments in images are not supported (passed '{}')",
+                size
+            )));
+        }
 
         Ok(())
     })?;
