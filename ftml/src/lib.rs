@@ -61,6 +61,7 @@
 //! This crate also provides an executable to convert files from
 //! the command-line. See that file for usage documentation.
 
+extern crate arrayvec;
 extern crate chrono;
 extern crate either;
 

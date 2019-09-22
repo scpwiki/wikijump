@@ -22,6 +22,7 @@ use self::Word::*;
 use super::module;
 use super::prelude::*;
 use crate::enums::LinkText;
+use arrayvec::ArrayVec;
 use std::borrow::Cow;
 
 impl<'a, 'w> ComponentRender for &'a [Word<'w>] {
@@ -242,11 +243,14 @@ impl<'w> ComponentRender for Word<'w> {
                 ref size,
             } => {
                 let mut html = ctx.html().div();
-                html.attr("class", &["image-container"]);
+                let mut classes = ArrayVec::<[&str; 3]>::new();
 
-                if let Some(align) = direction {
-                    html.attr("style", &["text-align: ", align.style()]);
-                }
+                classes.push("image-container");
+                html.attr("class", classes.as_slice());
+
+
+                let _ = float;
+                let _ = direction;
 
                 html.contents(|ctx| {
                     fmt_image(ctx, filename, alt, width, height, style, class, size)
@@ -358,8 +362,6 @@ fn fmt_image(
     ctx.html().a().attr("href", &[filename]).contents(|ctx| {
         let mut html = ctx.html().img();
         html.attr("src", &[filename]);
-
-        // TODO float
 
         if let Some(alt) = alt {
             let alt = alt.as_ref();
