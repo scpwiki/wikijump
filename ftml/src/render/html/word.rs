@@ -25,6 +25,8 @@ use crate::enums::{Alignment, LinkText};
 use arrayvec::ArrayVec;
 use std::borrow::Cow;
 
+const MAILTO_EMAILS: bool = false;
+
 impl<'a, 'w> ComponentRender for &'a [Word<'w>] {
     fn render(&self, ctx: &mut HtmlContext) -> Result<()> {
         for word in *self {
@@ -142,11 +144,14 @@ impl<'w> ComponentRender for Word<'w> {
                 write!(ctx, "{}", date.format(format))?;
             }
             &Email { address, text } => {
-                // TODO add flag to disable email rendering
-                ctx.html()
-                    .a()
-                    .attr("href", &["mailto:", address])
-                    .inner(&text.unwrap_or(address))?;
+                if MAILTO_EMAILS {
+                    ctx.html()
+                        .a()
+                        .attr("href", &["mailto:", address])
+                        .inner(&text.unwrap_or(address))?;
+                } else {
+                    ctx.push_escaped(address);
+                }
             }
             &EquationReference { name } => {
                 // TODO
