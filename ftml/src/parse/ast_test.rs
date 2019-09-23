@@ -181,6 +181,36 @@ fn test_valid() {
             ]
         }])
     );
+    valid!(
+        "@<internal raw>@",
+        SyntaxTree::from_paragraphs(vec![Paragraph::Words {
+            centered: false,
+            words: vec![Word::Raw {
+                contents: "internal raw"
+            },]
+        }])
+    );
+    valid!(
+        "@<@@>@",
+        SyntaxTree::from_paragraphs(vec![Paragraph::Words {
+            centered: false,
+            words: vec![Word::Raw { contents: "@@" },]
+        }])
+    );
+    valid!(
+        "@@@<@@",
+        SyntaxTree::from_paragraphs(vec![Paragraph::Words {
+            centered: false,
+            words: vec![Word::Raw { contents: "@<" },]
+        }])
+    );
+    valid!(
+        "@@>@@@<@>@",
+        SyntaxTree::from_paragraphs(vec![Paragraph::Words {
+            centered: false,
+            words: vec![Word::Raw { contents: ">" }, Word::Raw { contents: "@" },]
+        }])
+    );
 }
 
 #[test]

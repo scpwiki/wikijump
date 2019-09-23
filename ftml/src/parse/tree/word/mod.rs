@@ -131,7 +131,7 @@ lazy_static! {
         .unwrap()
     };
     static ref RAW: Regex = {
-        RegexBuilder::new(r"^[@`]{2}(?P<contents>.*)[@`]{2}$")
+        RegexBuilder::new(r"^@[@<](?P<contents>.*)[>@]@$")
             .build()
             .unwrap()
     };
