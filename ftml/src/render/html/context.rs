@@ -20,6 +20,7 @@
 
 //! Internal state object used during rendering.
 
+use super::prelude::*;
 use super::{html, HtmlBuilder, HtmlMeta, HtmlOutput};
 use crate::{PageInfo, RemoteHandle, Result};
 use std::fmt::{self, Debug, Write};
@@ -50,16 +51,51 @@ impl<'i, 'h> Debug for HtmlContext<'i, 'h> {
 }
 
 impl<'i, 'h> HtmlContext<'i, 'h> {
+    #[inline]
     pub fn new(info: PageInfo<'i>, handle: &'h dyn RemoteHandle) -> Self {
         HtmlContext {
             html: String::new(),
             style: String::new(),
-            meta: Vec::new(),
+            meta: Self::initial_metadata(&info),
             write_mode: WriteMode::Html,
             footnotes: FootnoteContext::new(),
             info,
             handle,
         }
+    }
+
+    fn initial_metadata(info: &PageInfo<'i>) -> Vec<HtmlMeta> {
+        // TODO: add author(s) to PageInfo and metadata
+        vec![
+            HtmlMeta {
+                tag_type: HtmlMetaType::HttpEquiv,
+                name: str!("Content-Type"),
+                value: str!("text/html"),
+            },
+            HtmlMeta {
+                tag_type: HtmlMetaType::Name,
+                name: str!("generator"),
+                value: format!("ftml {}", env!("CARGO_PKG_VERSION")),
+            },
+            HtmlMeta {
+                tag_type: HtmlMetaType::Name,
+                name: str!("description"),
+                value: {
+                    let mut value = str!(info.title);
+
+                    if let Some(alt_title) = info.alt_title {
+                        write!(&mut value, " - {}", alt_title).unwrap();
+                    }
+
+                    value
+                },
+            },
+            HtmlMeta {
+                tag_type: HtmlMetaType::Name,
+                name: str!("keywords"),
+                value: info.tags.join(","),
+            },
+        ]
     }
 
     // Field access
