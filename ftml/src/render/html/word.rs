@@ -267,7 +267,9 @@ impl<'w> ComponentRender for Word<'w> {
 
                 html.attr("class", classes.as_slice());
                 html.contents(|ctx| {
-                    fmt_image(ctx, filename, link, alt, width, height, style, class, size)
+                    fmt_image(
+                        ctx, filename, link, alt, title, width, height, style, class, size,
+                    )
                 })?;
             }
             &Italics { ref words } => {
@@ -378,6 +380,7 @@ fn fmt_image(
     filename: &str,
     link: Option<(&str, bool)>,
     alt: &Option<Cow<str>>,
+    title: &Option<Cow<str>>,
     width: &Option<Cow<str>>,
     height: &Option<Cow<str>>,
     style: &Option<Cow<str>>,
@@ -403,7 +406,10 @@ fn fmt_image(
             html.attr("alt", &[alt]);
         }
 
-        // TODO title
+        if let Some(title) = title {
+            let title = title.as_ref();
+            html.attr("title", &[title]);
+        }
 
         if let Some(width) = width {
             let width = width.as_ref();
