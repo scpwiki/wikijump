@@ -21,9 +21,13 @@
 use self::Word::*;
 use super::module;
 use super::prelude::*;
-use crate::enums::{Alignment, LinkText};
+use crate::enums::{Alignment, LinkText, PageInfoField};
 use arrayvec::ArrayVec;
 use std::borrow::Cow;
+
+// TODO: change these to be tenant-specific
+const DEFAULT_HEADER: &str = "SCP Foundation";
+const DEFAULT_SUBHEADER: &str = "Secure, Contain, Protect";
 
 const MAILTO_EMAILS: bool = false;
 
@@ -290,6 +294,17 @@ impl<'w> ComponentRender for Word<'w> {
                     .div()
                     .attr("class", &["wiki-note"])
                     .inner(&paragraphs)?;
+            }
+            &PageInfo { field } => {
+                let info = ctx.info();
+                let text = match field {
+                    PageInfoField::Title => info.title,
+                    PageInfoField::AltTitle => info.alt_title.unwrap_or(info.title),
+                    PageInfoField::Header => info.header.unwrap_or(DEFAULT_HEADER),
+                    PageInfoField::SubHeader => info.subheader.unwrap_or(DEFAULT_SUBHEADER),
+                };
+
+                ctx.push_escaped(text);
             }
             &Raw { contents } => ctx.html().text(contents),
             &Size {

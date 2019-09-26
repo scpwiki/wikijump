@@ -207,3 +207,12 @@ impl HtmlMetaType {
         }
     }
 }
+
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
+pub enum PageInfoField {
+    Title,
+    AltTitle,
+    Header,
+    SubHeader,
+}
