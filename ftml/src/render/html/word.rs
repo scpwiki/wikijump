@@ -267,7 +267,7 @@ impl<'w> ComponentRender for Word<'w> {
 
                 html.attr("class", classes.as_slice());
                 html.contents(|ctx| {
-                    fmt_image(ctx, filename, alt, width, height, style, class, size)
+                    fmt_image(ctx, filename, link, alt, width, height, style, class, size)
                 })?;
             }
             &Italics { ref words } => {
@@ -376,6 +376,7 @@ impl<'w> ComponentRender for Word<'w> {
 fn fmt_image(
     ctx: &mut HtmlContext,
     filename: &str,
+    link: Option<(&str, bool)>,
     alt: &Option<Cow<str>>,
     width: &Option<Cow<str>>,
     height: &Option<Cow<str>>,
@@ -383,8 +384,17 @@ fn fmt_image(
     class: &Option<Cow<str>>,
     size: &Option<Cow<str>>,
 ) -> Result<()> {
-    // TODO adjust source for CDNs and other links
-    ctx.html().a().attr("href", &[filename]).contents(|ctx| {
+    let mut html = ctx.html().a();
+
+    if let Some((link, new_tab)) = link {
+        html.attr("href", &[link]);
+
+        if new_tab {
+            html.attr("target", &["_blank"]);
+        }
+    }
+
+    html.contents(|ctx| {
         let mut html = ctx.html().img();
         html.attr("src", &[filename]);
 
