@@ -267,9 +267,18 @@ impl<'w> ComponentRender for Word<'w> {
 
                 html.attr("class", classes.as_slice());
                 html.contents(|ctx| {
-                    fmt_image(
-                        ctx, filename, link, alt, title, width, height, style, class, size,
-                    )
+                    let attributes = ImageAttributes {
+                        filename,
+                        link,
+                        alt,
+                        title,
+                        width,
+                        height,
+                        style,
+                        class,
+                        size,
+                    };
+                    fmt_image(ctx, attributes)
                 })?;
             }
             &Italics { ref words } => {
@@ -375,17 +384,32 @@ impl<'w> ComponentRender for Word<'w> {
     }
 }
 
+#[derive(Debug)]
+struct ImageAttributes<'o, 's> {
+    filename: &'s str,
+    link: Option<(&'s str, bool)>,
+    alt: &'o Option<Cow<'s, str>>,
+    title: &'o Option<Cow<'s, str>>,
+    width: &'o Option<Cow<'s, str>>,
+    height: &'o Option<Cow<'s, str>>,
+    style: &'o Option<Cow<'s, str>>,
+    class: &'o Option<Cow<'s, str>>,
+    size: &'o Option<Cow<'s, str>>,
+}
+
 fn fmt_image(
     ctx: &mut HtmlContext,
-    filename: &str,
-    link: Option<(&str, bool)>,
-    alt: &Option<Cow<str>>,
-    title: &Option<Cow<str>>,
-    width: &Option<Cow<str>>,
-    height: &Option<Cow<str>>,
-    style: &Option<Cow<str>>,
-    class: &Option<Cow<str>>,
-    size: &Option<Cow<str>>,
+    ImageAttributes {
+        filename,
+        link,
+        alt,
+        title,
+        width,
+        height,
+        style,
+        class,
+        size,
+    }: ImageAttributes,
 ) -> Result<()> {
     let mut html = ctx.html().a();
 
