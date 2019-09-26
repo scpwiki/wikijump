@@ -140,6 +140,10 @@ word = {
     footnote_block |
     form |
     gallery |
+    title |
+    alt_title |
+    header |
+    subheader |
     module |
     note |
     image |
@@ -272,6 +276,14 @@ form = {
 
 // TODO: add arguments -- https://www.wikidot.com/doc-wiki-syntax:images
 gallery = { "[[" ~ space? ~ ^"gallery" ~ space_any? ~ "]]" }
+
+title = { "[[" ~ space? ~ ^"title" ~ space_any? ~ "]]" }
+
+alt_title = { "[[" ~ space? ~ (^"alttitle" | ^"atitle" | ^"ooutitle") ~ space_any? ~ "]]" }
+
+header = { "[[" ~ space? ~ ^"header" ~ space_any? ~ "]]" }
+
+subheader = { "[[" ~ space? ~ ^"subheader" ~ space_any? ~ "]]" }
 
 module = {
     "[[" ~ space? ~ ^"module" ~ space_any ~ ident ~ module_arg* ~ space_any? ~ "]]" ~
