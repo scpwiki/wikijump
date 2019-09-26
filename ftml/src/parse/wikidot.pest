@@ -279,7 +279,7 @@ gallery = { "[[" ~ space? ~ ^"gallery" ~ space_any? ~ "]]" }
 
 title = { "[[" ~ space? ~ ^"title" ~ space_any? ~ "]]" }
 
-alt_title = { "[[" ~ space? ~ (^"alttitle" | ^"atitle" | ^"ooutitle") ~ space_any? ~ "]]" }
+alt_title = { "[[" ~ space? ~ (^"alttitle" | ^"alt_title" | ^"atitle" | ^"ooutitle") ~ space_any? ~ "]]" }
 
 header = { "[[" ~ space? ~ ^"header" ~ space_any? ~ "]]" }
 
