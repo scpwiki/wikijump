@@ -51,7 +51,7 @@ mod tab;
 
 mod prelude {
     pub use super::super::prelude::*;
-    pub use crate::enums::{AnchorTarget, LinkText, PageInfoField};
+    pub use crate::enums::{AnchorTarget, InfoField, LinkText};
     pub use crate::{Error, Result};
     pub use std::borrow::Cow;
     pub use std::convert::TryFrom;
@@ -203,6 +203,9 @@ pub enum Word<'a> {
         class: Option<Cow<'a, str>>,
         size: Option<Cow<'a, str>>,
     },
+    Info {
+        field: InfoField,
+    },
     Italics {
         words: Vec<Word<'a>>,
     },
@@ -224,9 +227,6 @@ pub enum Word<'a> {
     },
     Note {
         paragraphs: Vec<Paragraph<'a>>,
-    },
-    PageInfo {
-        field: PageInfoField,
     },
     Raw {
         contents: &'a str,
@@ -363,17 +363,17 @@ impl<'a> Word<'a> {
                 contents: extract!(FORM, pair),
             },
             Rule::gallery => Word::Gallery,
-            Rule::title => Word::PageInfo {
-                field: PageInfoField::Title,
+            Rule::title => Word::Info {
+                field: InfoField::Title,
             },
-            Rule::alt_title => Word::PageInfo {
-                field: PageInfoField::AltTitle,
+            Rule::alt_title => Word::Info {
+                field: InfoField::AltTitle,
             },
-            Rule::header => Word::PageInfo {
-                field: PageInfoField::Header,
+            Rule::header => Word::Info {
+                field: InfoField::Header,
             },
-            Rule::subheader => Word::PageInfo {
-                field: PageInfoField::SubHeader,
+            Rule::subheader => Word::Info {
+                field: InfoField::SubHeader,
             },
             Rule::module => module::parse(pair),
             Rule::note => {

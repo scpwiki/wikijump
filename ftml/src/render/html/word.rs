@@ -21,7 +21,7 @@
 use self::Word::*;
 use super::module;
 use super::prelude::*;
-use crate::enums::{Alignment, LinkText, PageInfoField};
+use crate::enums::{Alignment, InfoField, LinkText};
 use arrayvec::ArrayVec;
 use std::borrow::Cow;
 
@@ -295,13 +295,13 @@ impl<'w> ComponentRender for Word<'w> {
                     .attr("class", &["wiki-note"])
                     .inner(&paragraphs)?;
             }
-            &PageInfo { field } => {
+            &Info { field } => {
                 let info = ctx.info();
                 let text = match field {
-                    PageInfoField::Title => info.title,
-                    PageInfoField::AltTitle => info.alt_title.unwrap_or(info.title),
-                    PageInfoField::Header => info.header.unwrap_or(DEFAULT_HEADER),
-                    PageInfoField::SubHeader => info.subheader.unwrap_or(DEFAULT_SUBHEADER),
+                    InfoField::Title => info.title,
+                    InfoField::AltTitle => info.alt_title.unwrap_or(info.title),
+                    InfoField::Header => info.header.unwrap_or(DEFAULT_HEADER),
+                    InfoField::SubHeader => info.subheader.unwrap_or(DEFAULT_SUBHEADER),
                 };
 
                 ctx.push_escaped(text);
