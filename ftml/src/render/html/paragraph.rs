@@ -39,8 +39,6 @@ impl<'a, 'p> ComponentRender for &'a Vec<Paragraph<'p>> {
     }
 }
 
-// TODO remove this lint
-#[allow(unused_variables)]
 impl<'p> ComponentRender for Paragraph<'p> {
     fn render(&self, ctx: &mut HtmlContext) -> Result<()> {
         match self {
@@ -82,14 +80,14 @@ impl<'p> ComponentRender for Paragraph<'p> {
                 ctx.html().code().inner(contents)?;
             }
             &Collapsible {
-                ref show_text,
-                ref hide_text,
-                ref id,
-                ref class,
-                ref style,
-                show_top,
-                show_bottom,
-                ref paragraphs,
+                show_text: _,
+                hide_text: _,
+                id: _,
+                class: _,
+                style: _,
+                show_top: _,
+                show_bottom: _,
+                paragraphs: _,
             } => {
                 // TODO
                 return Err(Error::StaticMsg(
@@ -197,10 +195,10 @@ impl<'p> ComponentRender for Paragraph<'p> {
                 })?;
             }
             &Math {
-                label,
-                id,
-                latex_env,
-                expr,
+                label: _,
+                id: _,
+                latex_env: _,
+                expr: _,
             } => {
                 // TODO do LaTeX rendering
                 // use mathjax library

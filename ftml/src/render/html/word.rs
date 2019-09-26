@@ -48,8 +48,6 @@ impl<'a, 'w> ComponentRender for &'a Vec<Word<'w>> {
     }
 }
 
-// TODO remove this lint
-#[allow(unused_variables)]
 impl<'w> ComponentRender for Word<'w> {
     fn render(&self, ctx: &mut HtmlContext) -> Result<()> {
         match self {
@@ -157,7 +155,7 @@ impl<'w> ComponentRender for Word<'w> {
                     ctx.push_escaped(address);
                 }
             }
-            &EquationReference { name } => {
+            &EquationReference { name: _ } => {
                 // TODO
                 return Err(Error::StaticMsg(
                     "Rendering for equation references are not implemented yet",
@@ -226,7 +224,7 @@ impl<'w> ComponentRender for Word<'w> {
                 ctx.footnotes_mut().set_block(true);
                 ctx.push_raw_str("\0footnote-block\0");
             }
-            &Form { contents } => {
+            &Form { contents: _ } => {
                 // TODO
                 return Err(Error::StaticMsg(
                     "Rendering for forms is not implemented yet",
@@ -275,7 +273,7 @@ impl<'w> ComponentRender for Word<'w> {
             &Italics { ref words } => {
                 ctx.html().i().inner(&words)?;
             }
-            &Math { expr } => {
+            &Math { expr: _ } => {
                 // TODO
                 return Err(Error::StaticMsg(
                     "Rendering for inline mathematical expressions is not implemented yet",
@@ -347,7 +345,7 @@ impl<'w> ComponentRender for Word<'w> {
             &Superscript { ref words } => {
                 ctx.html().sup().inner(&words)?;
             }
-            &TabList { ref tabs } => {
+            &TabList { tabs: _ } => {
                 // TODO
                 return Err(Error::StaticMsg(
                     "Rendering for tab lists is not implemented",
