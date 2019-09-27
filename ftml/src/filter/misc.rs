@@ -36,10 +36,6 @@ use crate::Result;
 use regex::{Regex, RegexBuilder};
 
 lazy_static! {
-    static ref TABS: Regex = Regex::new(r"\t").unwrap();
-    static ref DOS_NEWLINES: Regex = Regex::new(r"\r\n").unwrap();
-    static ref MAC_NEWLINES: Regex = Regex::new(r"\r").unwrap();
-    static ref CONCAT_BACKSLASHES: Regex = Regex::new(r"\\\n").unwrap();
     static ref COMMENT: Regex = {
         RegexBuilder::new(r"\[!--.*--\]")
             .dot_matches_new_line(true)
@@ -62,14 +58,21 @@ lazy_static! {
 
 pub fn substitute(text: &mut String) -> Result<()> {
     regex_replace(text, &*COMMENT, "");
-    regex_replace(text, &*DOS_NEWLINES, "\n");
-    regex_replace(text, &*MAC_NEWLINES, "\n");
+    str_replace(text, "\r\n", "\n");
+    str_replace(text, "\r", "\n");
     regex_replace(text, &*WHITESPACE, "");
-    regex_replace(text, &*CONCAT_BACKSLASHES, "");
-    regex_replace(text, &*TABS, "    ");
+    str_replace(text, "\\\n", "");
+    str_replace(text, "\t", "    ");
     regex_replace(text, &*COMPRESS_NEWLINES, "\n\n");
 
     Ok(())
+}
+
+fn str_replace(text: &mut String, pattern: &str, replacement: &str) {
+    while let Some(idx) = text.find(pattern) {
+        let range = idx..idx + pattern.len();
+        text.replace_range(range, replacement);
+    }
 }
 
 fn regex_replace(text: &mut String, regex: &Regex, replacement: &str) {
@@ -106,10 +109,6 @@ const TEST_CASES: [(&str, &str); 6] = [
 
 #[test]
 fn test_regexes() {
-    let _ = &*TABS;
-    let _ = &*DOS_NEWLINES;
-    let _ = &*MAC_NEWLINES;
-    let _ = &*CONCAT_BACKSLASHES;
     let _ = &*WHITESPACE;
     let _ = &*COMPRESS_NEWLINES;
 }
