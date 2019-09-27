@@ -30,68 +30,112 @@
 //! * ... to an ellipsis
 
 use crate::Result;
-use either::Either;
 use regex::Regex;
 
 lazy_static! {
     // ‘ - LEFT SINGLE QUOTATION MARK
     // ’ - RIGHT SINGLE QUOTATION MARK
-    static ref SINGLE_QUOTES: Replacer = Replacer {
+    static ref SINGLE_QUOTES: Replacer = Replacer::RegexSurround {
         regex: Regex::new(r"`(.*?)'").unwrap(),
-        replacement: Either::Left(("\u{2018}", "\u{2019}")),
+        begin: "\u{2018}",
+        end: "\u{2019}",
     };
 
     // “ - LEFT DOUBLE QUOTATION MARK
     // ” - RIGHT DOUBLE QUOTATION MARK
-    static ref DOUBLE_QUOTES: Replacer = Replacer {
+    static ref DOUBLE_QUOTES: Replacer = Replacer::RegexSurround {
         regex: Regex::new(r"``(.*?)''").unwrap(),
-        replacement: Either::Left(("\u{201c}", "\u{201d}")),
+        begin: "\u{201c}",
+        end: "\u{201d}",
     };
 
     // „ - DOUBLE LOW-9 QUOTATION MARK
-    static ref LOW_DOUBLE_QUOTES: Replacer = Replacer {
+    static ref LOW_DOUBLE_QUOTES: Replacer = Replacer::RegexSurround {
         regex: Regex::new(r",,(.*?)''").unwrap(),
-        replacement: Either::Left(("\u{201e}", "\u{201d}")),
+        begin: "\u{201e}",
+        end: "\u{201d}",
     };
 
     // « - LEFT-POINTING DOUBLE ANGLE QUOTATION MARK
-    static ref LEFT_DOUBLE_ANGLE: Replacer = Replacer {
-        regex: Regex::new(r"<<").unwrap(),
-        replacement: Either::Right("\u{0ab}"),
+    static ref LEFT_DOUBLE_ANGLE: Replacer = Replacer::StrReplace {
+        pattern: "<<",
+        replacement: "\u{0ab}",
     };
 
     // » - RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK
-    static ref RIGHT_DOUBLE_ANGLE: Replacer = Replacer {
-        regex: Regex::new(r">>").unwrap(),
-        replacement: Either::Right("\u{0bb}"),
+    static ref RIGHT_DOUBLE_ANGLE: Replacer = Replacer::StrReplace {
+        pattern: ">>",
+        replacement: "\u{0bb}",
     };
 
     // … - HORIZONTAL ELLIPSIS
-    static ref ELLIPSIS: Replacer = Replacer {
+    static ref ELLIPSIS: Replacer = Replacer::RegexReplace {
         regex: Regex::new(r"(?:\.\.\.|\. \. \.)").unwrap(),
-        replacement: Either::Right("\u{2026}"),
+        replacement: "\u{2026}",
     };
 }
 
 #[derive(Debug)]
-pub struct Replacer {
-    regex: Regex,
-    replacement: Either<(&'static str, &'static str), &'static str>,
+pub enum Replacer {
+    StrReplace {
+        pattern: &'static str,
+        replacement: &'static str,
+    },
+    RegexReplace {
+        regex: Regex,
+        replacement: &'static str,
+    },
+    RegexSurround {
+        regex: Regex,
+        begin: &'static str,
+        end: &'static str,
+    },
 }
 
 impl Replacer {
     fn replace(&self, text: &mut String, buffer: &mut String) {
-        while let Some(capture) = self.regex.captures(text) {
-            let mtch = capture
-                .get(0)
-                .expect("Regular expression lacks a full match");
-            let range = mtch.start()..mtch.end();
+        use self::Replacer::*;
 
-            match self.replacement {
-                Either::Left((begin, end)) => {
+        match *self {
+            StrReplace {
+                pattern,
+                replacement,
+            } => {
+                while let Some(idx) = text.find(pattern) {
+                    let range = idx..idx + pattern.len();
+                    text.replace_range(range, replacement);
+                }
+            }
+            RegexReplace {
+                ref regex,
+                replacement,
+            } => {
+                while let Some(capture) = regex.captures(text) {
+                    let mtch = capture
+                        .get(0)
+                        .expect("Regular expression lacks a full match");
+                    let range = mtch.start()..mtch.end();
+
+                    text.replace_range(range, replacement);
+                }
+            }
+            RegexSurround {
+                ref regex,
+                begin,
+                end,
+            } => {
+                while let Some(capture) = regex.captures(text) {
                     let mtch = capture
                         .get(1)
                         .expect("Regular expression lacks a content group");
+
+                    let range = {
+                        let mtch = capture
+                            .get(0)
+                            .expect("Regular expression lacks a full match");
+
+                        mtch.start()..mtch.end()
+                    };
 
                     buffer.clear();
                     buffer.push_str(begin);
@@ -100,7 +144,6 @@ impl Replacer {
 
                     text.replace_range(range, &buffer);
                 }
-                Either::Right(value) => text.replace_range(range, value),
             }
         }
     }
