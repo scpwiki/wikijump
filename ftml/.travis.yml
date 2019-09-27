@@ -22,6 +22,7 @@ before_script:
 
 stages:
   - format
+  - clippy
   - test
   - bin
   - doc
