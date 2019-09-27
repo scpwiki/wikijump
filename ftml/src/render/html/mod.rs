@@ -34,7 +34,7 @@ mod prelude {
     pub use super::{ComponentRender, HtmlContext, HtmlMeta};
     pub use crate::data;
     pub use crate::enums::HtmlMetaType;
-    pub use crate::parse::{Paragraph, Word};
+    pub use crate::parse::{ImageArguments, Paragraph, Word};
     pub use crate::{Error, PageInfo, Result, SyntaxTree};
     pub use std::fmt::{self, Display, Write};
 }

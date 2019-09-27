@@ -195,13 +195,7 @@ pub enum Word<'a> {
         float: bool,
         direction: Option<Alignment>,
         link: Option<(&'a str, bool)>,
-        alt: Option<Cow<'a, str>>,
-        title: Option<Cow<'a, str>>,
-        width: Option<Cow<'a, str>>,
-        height: Option<Cow<'a, str>>,
-        style: Option<Cow<'a, str>>,
-        class: Option<Cow<'a, str>>,
-        size: Option<Cow<'a, str>>,
+        arguments: Box<ImageArguments<'a>>,
     },
     Info {
         field: InfoField,
@@ -435,6 +429,17 @@ impl<'a> AsRef<Word<'a>> for Word<'a> {
     fn as_ref(&self) -> &Word<'a> {
         self
     }
+}
+
+#[derive(Serialize, Deserialize, Debug, Default, Clone, PartialEq, Eq)]
+pub struct ImageArguments<'a> {
+    pub alt: Option<Cow<'a, str>>,
+    pub title: Option<Cow<'a, str>>,
+    pub width: Option<Cow<'a, str>>,
+    pub height: Option<Cow<'a, str>>,
+    pub style: Option<Cow<'a, str>>,
+    pub class: Option<Cow<'a, str>>,
+    pub size: Option<Cow<'a, str>>,
 }
 
 #[test]

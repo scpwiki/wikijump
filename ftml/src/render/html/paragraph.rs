@@ -79,16 +79,7 @@ impl<'p> ComponentRender for Paragraph<'p> {
 
                 ctx.html().code().inner(contents)?;
             }
-            Collapsible {
-                show_text: _,
-                hide_text: _,
-                id: _,
-                class: _,
-                style: _,
-                show_top: _,
-                show_bottom: _,
-                paragraphs: _,
-            } => {
+            Collapsible { .. } => {
                 // TODO
                 return Err(Error::StaticMsg(
                     "Rendering for collapsibles are not supported yet",
@@ -194,12 +185,7 @@ impl<'p> ComponentRender for Paragraph<'p> {
                     Ok(())
                 })?;
             }
-            Math {
-                label: _,
-                id: _,
-                latex_env: _,
-                expr: _,
-            } => {
+            Math { .. } => {
                 // TODO do LaTeX rendering
                 // use mathjax library
                 return Err(Error::StaticMsg(

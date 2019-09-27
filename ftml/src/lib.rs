@@ -108,7 +108,7 @@ pub use self::error::{Error, RemoteError};
 pub use self::filter::prefilter;
 pub use self::handle::RemoteHandle;
 pub use self::info::{PageInfo, PageInfoOwned};
-pub use self::parse::{parse, Paragraph, SyntaxTree, Word};
+pub use self::parse::{parse, ImageArguments, Paragraph, SyntaxTree, Word};
 pub use self::render::html;
 pub use self::render::{HtmlRender, Render, TreeRender};
 

@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use super::ImageArguments;
 use crate::enums::Alignment;
 
 pub fn parse(pair: Pair<Rule>) -> Result<Word> {
@@ -27,13 +28,7 @@ pub fn parse(pair: Pair<Rule>) -> Result<Word> {
     let mut float = false;
     let mut direction = None;
     let mut link = None;
-    let mut alt = None;
-    let mut title = None;
-    let mut width = None;
-    let mut height = None;
-    let mut style = None;
-    let mut class = None;
-    let mut size = None;
+    let mut arguments = Box::new(ImageArguments::default());
 
     for pair in pair.into_inner() {
         match pair.as_rule() {
@@ -61,13 +56,13 @@ pub fn parse(pair: Pair<Rule>) -> Result<Word> {
                             link = Some((value, false));
                         }
                     }
-                    ImageArgument::Alt => alt = interp_str(value).ok(),
-                    ImageArgument::Title => title = interp_str(value).ok(),
-                    ImageArgument::Width => width = interp_str(value).ok(),
-                    ImageArgument::Height => height = interp_str(value).ok(),
-                    ImageArgument::Style => style = interp_str(value).ok(),
-                    ImageArgument::Class => class = interp_str(value).ok(),
-                    ImageArgument::Size => size = interp_str(value).ok(),
+                    ImageArgument::Alt => arguments.alt = interp_str(value).ok(),
+                    ImageArgument::Title => arguments.title = interp_str(value).ok(),
+                    ImageArgument::Width => arguments.width = interp_str(value).ok(),
+                    ImageArgument::Height => arguments.height = interp_str(value).ok(),
+                    ImageArgument::Style => arguments.style = interp_str(value).ok(),
+                    ImageArgument::Class => arguments.class = interp_str(value).ok(),
+                    ImageArgument::Size => arguments.size = interp_str(value).ok(),
                 }
             }
             _ => panic!("Invalid rule for image: {:?}", pair.as_rule()),
@@ -81,13 +76,7 @@ pub fn parse(pair: Pair<Rule>) -> Result<Word> {
         float,
         direction,
         link,
-        alt,
-        title,
-        width,
-        height,
-        style,
-        class,
-        size,
+        arguments,
     })
 }
 

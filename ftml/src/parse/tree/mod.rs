@@ -54,4 +54,4 @@ pub use self::misc::{Tab, TableRow};
 pub use self::object::SyntaxTree;
 pub use self::paragraph::convert_internal_paragraphs;
 pub use self::paragraph::Paragraph;
-pub use self::word::Word;
+pub use self::word::{ImageArguments, Word};

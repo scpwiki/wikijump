@@ -58,7 +58,7 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
             style: String::new(),
             meta: Self::initial_metadata(&info),
             write_mode: WriteMode::Html,
-            footnotes: FootnoteContext::new(),
+            footnotes: FootnoteContext::default(),
             info,
             handle,
         }
@@ -210,15 +210,17 @@ pub struct FootnoteContext {
     count: u32,
 }
 
-impl FootnoteContext {
-    pub fn new() -> Self {
+impl Default for FootnoteContext {
+    fn default() -> Self {
         FootnoteContext {
             buffer: str!("<div class=\"title\">Footnotes</div>"),
             has_block: false,
             count: 0,
         }
     }
+}
 
+impl FootnoteContext {
     // Field access
     #[inline]
     pub fn set_block(&mut self, value: bool) {

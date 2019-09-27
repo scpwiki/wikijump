@@ -28,4 +28,4 @@ mod ast_test;
 mod syntax_test;
 
 pub use self::object::{parse, ParseError, Rule, WikidotParser};
-pub use self::tree::{Paragraph, SyntaxTree, Word};
+pub use self::tree::{ImageArguments, Paragraph, SyntaxTree, Word};

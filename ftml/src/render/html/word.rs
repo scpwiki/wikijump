@@ -23,7 +23,6 @@ use super::module;
 use super::prelude::*;
 use crate::enums::{Alignment, InfoField, LinkText};
 use arrayvec::ArrayVec;
-use std::borrow::Cow;
 
 // TODO: change these to be tenant-specific
 const DEFAULT_HEADER: &str = "SCP Foundation";
@@ -155,7 +154,7 @@ impl<'w> ComponentRender for Word<'w> {
                     ctx.push_escaped(address);
                 }
             }
-            EquationReference { name: _ } => {
+            EquationReference { .. } => {
                 // TODO
                 return Err(Error::StaticMsg(
                     "Rendering for equation references are not implemented yet",
@@ -224,7 +223,7 @@ impl<'w> ComponentRender for Word<'w> {
                 ctx.footnotes_mut().set_block(true);
                 ctx.push_raw_str("\0footnote-block\0");
             }
-            Form { contents: _ } => {
+            Form { .. } => {
                 // TODO
                 return Err(Error::StaticMsg(
                     "Rendering for forms is not implemented yet",
@@ -241,13 +240,7 @@ impl<'w> ComponentRender for Word<'w> {
                 float,
                 direction,
                 link,
-                ref alt,
-                ref title,
-                ref width,
-                ref height,
-                ref style,
-                ref class,
-                ref size,
+                ref arguments,
             } => {
                 let mut html = ctx.html().div();
                 let mut classes = ArrayVec::<[&str; 2]>::new();
@@ -266,25 +259,12 @@ impl<'w> ComponentRender for Word<'w> {
                 }
 
                 html.attr("class", classes.as_slice());
-                html.contents(|ctx| {
-                    let attributes = ImageAttributes {
-                        filename,
-                        link,
-                        alt,
-                        title,
-                        width,
-                        height,
-                        style,
-                        class,
-                        size,
-                    };
-                    fmt_image(ctx, attributes)
-                })?;
+                html.contents(|ctx| fmt_image(ctx, filename, link, &**arguments))?;
             }
             Italics { ref words } => {
                 ctx.html().i().inner(&words)?;
             }
-            Math { expr: _ } => {
+            Math { .. } => {
                 // TODO
                 return Err(Error::StaticMsg(
                     "Rendering for inline mathematical expressions is not implemented yet",
@@ -356,7 +336,7 @@ impl<'w> ComponentRender for Word<'w> {
             Superscript { ref words } => {
                 ctx.html().sup().inner(&words)?;
             }
-            TabList { tabs: _ } => {
+            TabList { .. } => {
                 // TODO
                 return Err(Error::StaticMsg(
                     "Rendering for tab lists is not implemented",
@@ -384,24 +364,11 @@ impl<'w> ComponentRender for Word<'w> {
     }
 }
 
-#[derive(Debug)]
-struct ImageAttributes<'o, 's> {
-    filename: &'s str,
-    link: Option<(&'s str, bool)>,
-    alt: &'o Option<Cow<'s, str>>,
-    title: &'o Option<Cow<'s, str>>,
-    width: &'o Option<Cow<'s, str>>,
-    height: &'o Option<Cow<'s, str>>,
-    style: &'o Option<Cow<'s, str>>,
-    class: &'o Option<Cow<'s, str>>,
-    size: &'o Option<Cow<'s, str>>,
-}
-
 fn fmt_image(
     ctx: &mut HtmlContext,
-    ImageAttributes {
-        filename,
-        link,
+    filename: &str,
+    link: Option<(&str, bool)>,
+    ImageArguments {
         alt,
         title,
         width,
@@ -409,7 +376,7 @@ fn fmt_image(
         style,
         class,
         size,
-    }: ImageAttributes,
+    }: &ImageArguments,
 ) -> Result<()> {
     let mut html = ctx.html().a();
 
