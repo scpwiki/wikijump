@@ -21,7 +21,7 @@
 //! Internal state object used during rendering.
 
 use super::prelude::*;
-use super::{html, HtmlBuilder, HtmlMeta, HtmlOutput};
+use super::{builder as html, HtmlBuilder, HtmlMeta, HtmlOutput};
 use crate::{PageInfo, RemoteHandle, Result};
 use std::fmt::{self, Debug, Write};
 

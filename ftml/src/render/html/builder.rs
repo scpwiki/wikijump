@@ -1,5 +1,5 @@
 /*
- * render/html/html.rs
+ * render/html/builder.rs
  *
  * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith

@@ -18,9 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod builder;
 mod context;
 mod finish;
-mod html;
 mod meta;
 mod module;
 mod object;
@@ -39,8 +39,8 @@ mod prelude {
     pub use std::fmt::{self, Display, Write};
 }
 
+pub use self::builder::HtmlBuilder;
 pub use self::context::HtmlContext;
-pub use self::html::HtmlBuilder;
 pub use self::meta::HtmlMeta;
 pub use self::object::{HtmlOutput, HtmlRender};
 use self::prelude::*;

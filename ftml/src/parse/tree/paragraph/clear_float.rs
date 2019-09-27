@@ -31,10 +31,9 @@ pub fn parse(pair: Pair<Rule>) -> Paragraph {
         .expect("Regular expression CLEAR_FLOAT didn't match");
 
     let direction = match capture.name("direction") {
-        Some(mtch) => Some(
-            Alignment::try_from(mtch.as_str())
-                .expect("Alignment conversion failed"),
-        ),
+        Some(mtch) => {
+            Some(Alignment::try_from(mtch.as_str()).expect("Alignment conversion failed"))
+        }
         None => None,
     };
 

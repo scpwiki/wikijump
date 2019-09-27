@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::html;
+use super::builder as html;
 use super::prelude::*;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
