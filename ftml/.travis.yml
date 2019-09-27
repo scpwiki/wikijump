@@ -32,6 +32,10 @@ jobs:
       script:
         - rustfmt src/lib.rs --check
         - rustfmt examples/ftml/main.rs --check
+    - stage: clippy
+      script:
+        - rustup component add clippy --toolchain nightly-2019-09-25-x86_64-unknown-linux-gnu
+        - cargo +nightly-2019-09-25 clippy
     - stage: test
       rust:
         - stable
