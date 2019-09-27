@@ -907,13 +907,15 @@
                     "float": true,
                     "direction": "right",
                     "link": null,
-                    "alt": null,
-                    "title": null,
-                    "width": null,
-                    "height": null,
-                    "style": null,
-                    "class": null,
-                    "size": null
+                    "arguments": {
+                      "alt": null,
+                      "title": null,
+                      "width": null,
+                      "height": null,
+                      "style": null,
+                      "class": null,
+                      "size": null
+                    }
                   }
                 }
               ]

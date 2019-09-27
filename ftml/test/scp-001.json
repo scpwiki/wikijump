@@ -3142,13 +3142,15 @@
               "float": false,
               "direction": "center",
               "link": null,
-              "alt": null,
-              "title": null,
-              "width": null,
-              "height": null,
-              "style": "width: 500px; border: solid 1px #000000; padding: 1px",
-              "class": null,
-              "size": null
+              "arguments": {
+                "alt": null,
+                "title": null,
+                "width": null,
+                "height": null,
+                "style": "width: 500px; border: solid 1px #000000; padding: 1px",
+                "class": null,
+                "size": null
+              }
             }
           }
         ]
