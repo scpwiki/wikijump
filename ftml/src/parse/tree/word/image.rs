@@ -55,7 +55,7 @@ pub fn parse(pair: Pair<Rule>) -> Result<Word> {
                 let value = value_pair.as_str();
                 match parse_image_arg(key) {
                     ImageArgument::Link => {
-                        if value.starts_with("*") {
+                        if value.starts_with('*') {
                             link = Some((&value[1..], true));
                         } else {
                             link = Some((value, false));

@@ -164,9 +164,9 @@ fn write_depth_error(buffer: &mut String) {
 
 fn write_include_error(buffer: &mut String, name: &str) {
     buffer.push_str("[[div class=\"error-block\"]]\n");
-    write!(
+    writeln!(
         buffer,
-        "Included page \"{}\" does not exist ([[a href=\"/{}/edit\"]]create it now[[/a]])\n",
+        "Included page \"{}\" does not exist ([[a href=\"/{}/edit\"]]create it now[[/a]])",
         name, name,
     )
     .unwrap();

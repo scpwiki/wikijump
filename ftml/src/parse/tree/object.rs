@@ -32,9 +32,8 @@ impl<'a> SyntaxTree<'a> {
         trace!("Converting pairs into a SyntaxTree...");
 
         let result: Result<Vec<_>> = pairs
-            .into_iter()
             .filter(|pair| pair.as_rule() == Rule::paragraph)
-            .map(|pair| Paragraph::from_pair(pair))
+            .map(Paragraph::from_pair)
             .collect();
 
         result.map(|paragraphs| SyntaxTree { paragraphs })

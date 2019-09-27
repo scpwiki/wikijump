@@ -50,8 +50,8 @@ impl<'a, 'w> ComponentRender for &'a Vec<Word<'w>> {
 
 impl<'w> ComponentRender for Word<'w> {
     fn render(&self, ctx: &mut HtmlContext) -> Result<()> {
-        match self {
-            &Anchor {
+        match *self {
+            Anchor {
                 ref href,
                 ref name,
                 ref id,
@@ -94,7 +94,7 @@ impl<'w> ComponentRender for Word<'w> {
 
                 html.inner(&words)?;
             }
-            &Link { href, target, text } => {
+            Link { href, target, text } => {
                 let text = match text {
                     LinkText::Article => &ctx.info().title,
                     LinkText::Text(text) => text,
@@ -114,17 +114,17 @@ impl<'w> ComponentRender for Word<'w> {
 
                 html.inner(&text)?;
             }
-            &Bold { ref words } => {
+            Bold { ref words } => {
                 ctx.html().b().inner(&words)?;
             }
-            &Color { color, ref words } => {
+            Color { color, ref words } => {
                 ctx.html()
                     .span()
                     .attr("style", &["color: ", color])
                     .inner(&words)?;
             }
-            &Css { style } => ctx.add_style(style),
-            &Date { timestamp, format } => {
+            Css { style } => ctx.add_style(style),
+            Date { timestamp, format } => {
                 use chrono::prelude::*;
 
                 // For now timestamp can only be seconds since the epoch.
@@ -145,7 +145,7 @@ impl<'w> ComponentRender for Word<'w> {
 
                 write!(ctx, "{}", date.format(format))?;
             }
-            &Email { address, text } => {
+            Email { address, text } => {
                 if MAILTO_EMAILS {
                     ctx.html()
                         .a()
@@ -155,13 +155,13 @@ impl<'w> ComponentRender for Word<'w> {
                     ctx.push_escaped(address);
                 }
             }
-            &EquationReference { name: _ } => {
+            EquationReference { name: _ } => {
                 // TODO
                 return Err(Error::StaticMsg(
                     "Rendering for equation references are not implemented yet",
                 ));
             }
-            &File {
+            File {
                 filename,
                 text,
                 target,
@@ -183,7 +183,7 @@ impl<'w> ComponentRender for Word<'w> {
 
                 html.inner(&text)?;
             }
-            &Footnote { ref paragraphs } => {
+            Footnote { ref paragraphs } => {
                 // TODO add javascript
                 let number = ctx.footnotes_mut().incr();
 
@@ -219,24 +219,24 @@ impl<'w> ComponentRender for Word<'w> {
                     Ok(())
                 })?;
             }
-            &FootnoteBlock => {
+            FootnoteBlock => {
                 // TODO
                 ctx.footnotes_mut().set_block(true);
                 ctx.push_raw_str("\0footnote-block\0");
             }
-            &Form { contents: _ } => {
+            Form { contents: _ } => {
                 // TODO
                 return Err(Error::StaticMsg(
                     "Rendering for forms is not implemented yet",
                 ));
             }
-            &Gallery => {
+            Gallery => {
                 // TODO
                 return Err(Error::StaticMsg(
                     "Rendering for galleries is not implemented yet",
                 ));
             }
-            &Image {
+            Image {
                 filename,
                 float,
                 direction,
@@ -281,30 +281,30 @@ impl<'w> ComponentRender for Word<'w> {
                     fmt_image(ctx, attributes)
                 })?;
             }
-            &Italics { ref words } => {
+            Italics { ref words } => {
                 ctx.html().i().inner(&words)?;
             }
-            &Math { expr: _ } => {
+            Math { expr: _ } => {
                 // TODO
                 return Err(Error::StaticMsg(
                     "Rendering for inline mathematical expressions is not implemented yet",
                 ));
             }
-            &Module {
+            Module {
                 name,
                 ref arguments,
                 contents,
             } => module::render(name, ctx, arguments, contents)?,
-            &Monospace { ref words } => {
+            Monospace { ref words } => {
                 ctx.html().tt().inner(&words)?;
             }
-            &Note { ref paragraphs } => {
+            Note { ref paragraphs } => {
                 ctx.html()
                     .div()
                     .attr("class", &["wiki-note"])
                     .inner(&paragraphs)?;
             }
-            &Info { field } => {
+            Info { field } => {
                 let info = ctx.info();
                 let text = match field {
                     InfoField::Title => info.title,
@@ -315,8 +315,8 @@ impl<'w> ComponentRender for Word<'w> {
 
                 ctx.push_escaped(text);
             }
-            &Raw { contents } => ctx.html().text(contents),
-            &Size {
+            Raw { contents } => ctx.html().text(contents),
+            Size {
                 size,
                 ref paragraphs,
             } => {
@@ -325,7 +325,7 @@ impl<'w> ComponentRender for Word<'w> {
                     .attr("style", &["size: ", size])
                     .inner(&paragraphs)?;
             }
-            &Span {
+            Span {
                 ref id,
                 ref class,
                 ref style,
@@ -347,26 +347,26 @@ impl<'w> ComponentRender for Word<'w> {
 
                 html.inner(&paragraphs)?;
             }
-            &Strikethrough { ref words } => {
+            Strikethrough { ref words } => {
                 ctx.html().strike().inner(&words)?;
             }
-            &Subscript { ref words } => {
+            Subscript { ref words } => {
                 ctx.html().sub().inner(&words)?;
             }
-            &Superscript { ref words } => {
+            Superscript { ref words } => {
                 ctx.html().sup().inner(&words)?;
             }
-            &TabList { tabs: _ } => {
+            TabList { tabs: _ } => {
                 // TODO
                 return Err(Error::StaticMsg(
                     "Rendering for tab lists is not implemented",
                 ));
             }
-            &Text { contents } => ctx.push_escaped(contents),
-            &Underline { ref words } => {
+            Text { contents } => ctx.push_escaped(contents),
+            Underline { ref words } => {
                 ctx.html().u().inner(&words)?;
             }
-            &User {
+            User {
                 username,
                 show_picture,
             } => {

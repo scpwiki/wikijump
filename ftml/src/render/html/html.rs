@@ -145,7 +145,7 @@ impl<'c, 'i, 'h, 't> HtmlBuilderTag<'c, 'i, 'h, 't> {
             };
 
             if let Some(subst) = escape_char(ch) {
-                buffer.replace_range(index..index + 1, subst);
+                buffer.replace_range(index..=index, subst);
             }
 
             index += ch.len_utf8();

@@ -41,8 +41,8 @@ impl<'a, 'p> ComponentRender for &'a Vec<Paragraph<'p>> {
 
 impl<'p> ComponentRender for Paragraph<'p> {
     fn render(&self, ctx: &mut HtmlContext) -> Result<()> {
-        match self {
-            &Align {
+        match *self {
+            Align {
                 alignment,
                 ref paragraphs,
             } => {
@@ -51,13 +51,13 @@ impl<'p> ComponentRender for Paragraph<'p> {
                     .attr("style", &["text-align: ", alignment.style()])
                     .inner(&paragraphs)?;
             }
-            &Center { ref words } => {
+            Center { ref words } => {
                 ctx.html()
                     .div()
                     .attr("style", &["text-align: center"])
                     .inner(&words)?;
             }
-            &ClearFloat { direction } => {
+            ClearFloat { direction } => {
                 let style = match direction {
                     Some(Alignment::Left) => "left",
                     Some(Alignment::Right) => "right",
@@ -70,7 +70,7 @@ impl<'p> ComponentRender for Paragraph<'p> {
                     .attr("style", &["clear: ", style, "; height: 0;"])
                     .inner(&"")?;
             }
-            &CodeBlock {
+            CodeBlock {
                 ref language,
                 ref contents,
             } => {
@@ -79,7 +79,7 @@ impl<'p> ComponentRender for Paragraph<'p> {
 
                 ctx.html().code().inner(contents)?;
             }
-            &Collapsible {
+            Collapsible {
                 show_text: _,
                 hide_text: _,
                 id: _,
@@ -94,7 +94,7 @@ impl<'p> ComponentRender for Paragraph<'p> {
                     "Rendering for collapsibles are not supported yet",
                 ));
             }
-            &Div {
+            Div {
                 ref id,
                 ref class,
                 ref style,
@@ -116,7 +116,7 @@ impl<'p> ComponentRender for Paragraph<'p> {
 
                 html.inner(&paragraphs)?;
             }
-            &Heading { level, ref words } => {
+            Heading { level, ref words } => {
                 use std::io::Write;
                 use std::str;
 
@@ -128,11 +128,11 @@ impl<'p> ComponentRender for Paragraph<'p> {
                 // Output HTML.
                 ctx.html().tag(header).inner(&words)?;
             }
-            &HorizontalLine => {
+            HorizontalLine => {
                 ctx.html().hr();
             }
-            &Html { contents } => ctx.push_raw_str(contents),
-            &Iframe { url, ref arguments } => {
+            Html { contents } => ctx.push_raw_str(contents),
+            Iframe { url, ref arguments } => {
                 let mut html = ctx.html().iframe();
                 // TODO escape attributes
                 html.attr("src", &[url]);
@@ -143,7 +143,7 @@ impl<'p> ComponentRender for Paragraph<'p> {
 
                 html.inner(&"")?;
             }
-            &IfTags {
+            IfTags {
                 ref required,
                 ref prohibited,
                 ref paragraphs,
@@ -170,10 +170,10 @@ impl<'p> ComponentRender for Paragraph<'p> {
                     paragraphs.render(ctx)?;
                 }
             }
-            &Javascript { contents } => {
+            Javascript { contents } => {
                 ctx.html().script().inner(&contents)?;
             }
-            &List {
+            List {
                 style,
                 depth,
                 ref items,
@@ -194,7 +194,7 @@ impl<'p> ComponentRender for Paragraph<'p> {
                     Ok(())
                 })?;
             }
-            &Math {
+            Math {
                 label: _,
                 id: _,
                 latex_env: _,
@@ -206,12 +206,12 @@ impl<'p> ComponentRender for Paragraph<'p> {
                     "Rendering for mathematical expressions is not implemented yet",
                 ));
             }
-            &Newlines { count } => {
+            Newlines { count } => {
                 for _ in 0..count {
                     ctx.html().br();
                 }
             }
-            &Table { ref rows } => {
+            Table { ref rows } => {
                 ctx.html().table().contents(|ctx| {
                     for row in rows {
                         ctx.html().tr().contents(|ctx| {
@@ -227,16 +227,16 @@ impl<'p> ComponentRender for Paragraph<'p> {
                     Ok(())
                 })?;
             }
-            &TableOfContents {} => {
+            TableOfContents {} => {
                 // TODO
                 return Err(Error::StaticMsg(
                     "Rendering for the table of contents is not implemented yet",
                 ));
             }
             QuoteBlock {
-                id,
-                class,
-                style,
+                ref id,
+                ref class,
+                ref style,
                 ref paragraphs,
             } => {
                 let mut html = ctx.html().blockquote();
@@ -261,7 +261,7 @@ impl<'p> ComponentRender for Paragraph<'p> {
             } => {
                 let mut html = ctx.html().p();
 
-                if *centered {
+                if centered {
                     html.attr("style", &["text-align: center"]);
                 }
 
