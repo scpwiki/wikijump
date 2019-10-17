@@ -15,7 +15,7 @@ edition = "2018" # this refers to the Cargo.toml version
 name = "ftml"
 
 [dependencies]
-arrayvec = "0.4"
+arrayvec = "0.5"
 chrono = "0.4"
 either = "1.5"
 lazy_static = "1"
