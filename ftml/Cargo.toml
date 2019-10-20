@@ -27,6 +27,7 @@ regex = "1"
 serde = { version = "1", features = ["derive"] }
 serde_repr = "0.1"
 str-macro = "0.1"
+thiserror = "1"
 
 [dev-dependencies]
 clap = "2"

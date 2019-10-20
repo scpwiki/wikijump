@@ -23,49 +23,33 @@ use std::error::Error as StdError;
 use std::ops::Deref;
 use std::str::Utf8Error;
 use std::{
-    fmt::{self, Write},
+    fmt::{self, Display, Write},
     io,
 };
 
 #[must_use = "should handle errors"]
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum Error {
+    #[error("unknown error: {0}")]
     StaticMsg(&'static str),
+
+    #[error("unknown error: {0}")]
     Msg(String),
-    Io(io::Error),
-    Utf8(Utf8Error),
-    Parse(ParseError),
-    Remote(RemoteError),
-    Fmt(fmt::Error),
-}
 
-impl StdError for Error {
-    fn description(&self) -> &str {
-        use self::Error::*;
+    #[error("general I/O error: {0}")]
+    Io(#[from] io::Error),
 
-        match *self {
-            StaticMsg(s) => s,
-            Msg(ref s) => s,
-            Io(ref e) => e.description(),
-            Utf8(ref e) => e.description(),
-            Parse(ref e) => e.description(),
-            Remote(ref s) => s,
-            Fmt(ref e) => e.description(),
-        }
-    }
+    #[error("UTF-8 parsing error: {0}")]
+    Utf8(#[from] Utf8Error),
 
-    fn source(&self) -> Option<&(dyn StdError + 'static)> {
-        use self::Error::*;
+    #[error("parsing error: {0}")]
+    Parse(#[from] ParseError),
 
-        match *self {
-            StaticMsg(_) | Msg(_) => None,
-            Io(ref e) => Some(e),
-            Utf8(ref e) => Some(e),
-            Parse(ref e) => Some(e),
-            Remote(_) => None,
-            Fmt(ref e) => Some(e),
-        }
-    }
+    #[error("remote error in consumer code: {0}")]
+    Remote(#[from] RemoteError),
+
+    #[error("formatting error: {0}")]
+    Fmt(#[from] fmt::Error),
 }
 
 impl Into<String> for Error {
@@ -80,55 +64,6 @@ impl Into<String> for Error {
     }
 }
 
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", StdError::description(self))?;
-
-        if let Some(source) = StdError::source(self) {
-            write!(f, ": {}", source)?;
-        }
-
-        Ok(())
-    }
-}
-
-// Auto-conversion impls
-impl From<String> for Error {
-    fn from(error: String) -> Self {
-        Error::Msg(error)
-    }
-}
-
-impl From<io::Error> for Error {
-    fn from(error: io::Error) -> Self {
-        Error::Io(error)
-    }
-}
-
-impl From<Utf8Error> for Error {
-    fn from(error: Utf8Error) -> Self {
-        Error::Utf8(error)
-    }
-}
-
-impl From<ParseError> for Error {
-    fn from(error: ParseError) -> Self {
-        Error::Parse(error)
-    }
-}
-
-impl From<RemoteError> for Error {
-    fn from(error: RemoteError) -> Self {
-        Error::Remote(error)
-    }
-}
-
-impl From<fmt::Error> for Error {
-    fn from(error: fmt::Error) -> Self {
-        Error::Fmt(error)
-    }
-}
-
 // Remote error wrapper
 #[must_use = "should handle errors"]
 #[derive(Debug)]
@@ -138,6 +73,19 @@ impl RemoteError {
     #[inline]
     pub fn new(message: String) -> Self {
         RemoteError(message)
+    }
+}
+
+impl StdError for RemoteError {
+    #[inline]
+    fn source(&self) -> Option<&(dyn StdError + 'static)> {
+        None
+    }
+}
+
+impl Display for RemoteError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
 
