@@ -377,7 +377,7 @@ link_page = {
     (space_any? ~ link_separator ~ (space_any? ~ link_page_name)?)? ~ space_any? ~ "]]]"
 }
 link_separator = { "|" }
-link_page_href = { (!("\n" | "|" | "]]]") ~ ANY)+ }
+link_page_href = { (!("\n" | "[" | "|" | "]]]") ~ ANY)+ }
 link_page_name = { (!("\n" | "[" | "]]]") ~ ANY)+ }
 
 link_url = {
@@ -431,8 +431,8 @@ ident = @{ (ASCII_ALPHANUMERIC | "-" | "+" | "_" | "." | "%")+ }
 str_inner = @{ (!("\"" | "\\") ~ ANY)* ~ (escape ~ str_inner)? }
 string = @{ "\"" ~ str_inner ~ "\"" }
 escape = @{ "\\" ~ ("\"" | "\\" | "r" | "n" | "t" | "0" | "'") }
-root_url = @{ "/" ~ (!(" " | "\n" | "|" | "]") ~ ANY)+ }
-url = @{ (^"http" ~ ^"s"? | ^"ftp") ~ "://" ~ (!(" " | "\n" | "|" | "]") ~ ANY)+ }
+root_url = @{ "/" ~ (!(" " | "\n" | "|" | "[" | "]") ~ ANY)+ }
+url = @{ (^"http" ~ ^"s"? | ^"ftp") ~ "://" ~ (!(" " | "\n" | "|" | "[" | "]") ~ ANY)+ }
 email = @{
     (ASCII_ALPHANUMERIC | "-" | "+" | "_" | ".")+ ~ "@" ~
     (ASCII_ALPHANUMERIC | "-")+ ~ "." ~
