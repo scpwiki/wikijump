@@ -35,9 +35,9 @@ jobs:
         - rustfmt examples/ftml/main.rs --check
     - stage: clippy
       script:
-        - rustup toolchain install nightly-2019-09-25-x86_64-unknown-linux-gnu
-        - rustup component add clippy --toolchain nightly-2019-09-25-x86_64-unknown-linux-gnu
-        - cargo +nightly-2019-09-25 clippy
+        - rustup toolchain install nightly-2020-01-02-x86_64-unknown-linux-gnu
+        - rustup component add clippy --toolchain nightly-2020-01-02-x86_64-unknown-linux-gnu
+        - cargo +nightly-2020-01-02 clippy
     - stage: test
       rust:
         - stable
