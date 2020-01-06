@@ -28,6 +28,7 @@ use std::{
 };
 
 #[must_use = "should handle errors"]
+#[non_exhaustive]
 #[derive(Debug, Error)]
 pub enum Error {
     #[error("unknown error: {0}")]
