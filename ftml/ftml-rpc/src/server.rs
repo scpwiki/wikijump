@@ -21,6 +21,8 @@
 use crate::handle::FtmlHandle;
 use crate::rpc::*;
 use crate::Result;
+use ftml::html::HtmlOutput;
+use ftml::{HtmlRender, PageInfoOwned};
 use futures::future::{self, Ready};
 use serde_json::{Error as JsonError, Value};
 use std::net::SocketAddr;
@@ -118,6 +120,24 @@ impl Parse for Server {
             Ok(tree) => json!(tree),
             Err(error) => Err(error.to_string()),
         };
+
+        future::ready(result)
+    }
+}
+
+impl Render for Server {
+    type RenderFut = Ready<Result<HtmlOutput>>;
+
+    fn render(self, _: Context, page_info: PageInfoOwned, mut input: String) -> Self::RenderFut {
+        info!("Method: render");
+
+        use ftml::Render;
+
+        let html = HtmlRender::new(&*self.handle);
+        let info = page_info.as_borrow();
+        let result = html
+            .transform(&mut input, info, &*self.handle)
+            .map_err(|err| err.to_string());
 
         future::ready(result)
     }

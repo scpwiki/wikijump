@@ -20,6 +20,7 @@
 
 use crate::Result;
 use ftml::html::HtmlOutput;
+use ftml::PageInfoOwned;
 use serde_json::Value;
 
 // Misc
@@ -53,5 +54,5 @@ pub trait Parse {
 
 #[tarpc::service]
 pub trait Render {
-    async fn render(input: String) -> Result<HtmlOutput>;
+    async fn render(page_info: PageInfoOwned, input: String) -> Result<HtmlOutput>;
 }
