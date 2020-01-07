@@ -1,0 +1,17 @@
+# Sample configuration for ftml-rpc
+
+[app]
+
+# Logging level for the web server. If empty defaults to info.
+log-level = "debug"
+
+[network]
+
+# What hostname the server uses.
+hostname = "kant"
+
+# Whether to use IPv6 or not.
+use-ipv6 = true
+
+# What port to serve on.
+port = 3865
