@@ -31,7 +31,7 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 use std::time::SystemTime;
 use tarpc::context::Context;
-use tarpc::server::BaseChannel;
+use tarpc::server::{BaseChannel, Channel};
 use tokio_serde::formats::Json;
 
 const PROTOCOL_VERSION: &str = "0";
@@ -49,7 +49,6 @@ impl Server {
     }
 
     pub async fn run(&self, address: SocketAddr) -> io::Result<()> {
-        /*
         tarpc::serde_transport::tcp::listen(&address, Json::default)
             .await?
             // Log rejected requests
@@ -65,11 +64,15 @@ impl Server {
                     }
                 }
             })
+            // Create and fulfill channels for each request
             .map(BaseChannel::with_defaults)
-            .map(|chan| chan.respond_with(self.serve()).execute())
+            .map(|chan| {
+                let srv = self.clone();
+                let resp = srv.serve();
+                chan.respond_with(resp)
+            })
             .for_each(|_| async {})
             .await;
-        */
 
         Ok(())
     }
