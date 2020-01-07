@@ -19,7 +19,6 @@
  */
 
 use crate::handle::FtmlHandle;
-use crate::rpc::FtmlApi;
 use crate::Result;
 use ftml::html::HtmlOutput;
 use ftml::{HtmlRender, PageInfoOwned};
@@ -35,6 +34,19 @@ use tarpc::server::{BaseChannel, Channel};
 use tokio_serde::formats::Json;
 
 const PROTOCOL_VERSION: &str = "0";
+
+#[tarpc::service]
+pub trait FtmlApi {
+    // Misc
+    async fn protocol() -> &'static str;
+    async fn ping() -> &'static str;
+    async fn time() -> f64;
+
+    // Core
+    async fn prefilter(input: String) -> Result<String>;
+    async fn parse(input: String) -> Result<Value>;
+    async fn render(page_info: PageInfoOwned, input: String) -> Result<HtmlOutput>;
+}
 
 #[derive(Debug, Clone)]
 pub struct Server {

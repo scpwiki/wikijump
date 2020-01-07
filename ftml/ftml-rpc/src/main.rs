@@ -34,7 +34,6 @@ extern crate tokio_serde;
 
 mod config;
 mod handle;
-mod rpc;
 mod server;
 
 use self::config::Config;
