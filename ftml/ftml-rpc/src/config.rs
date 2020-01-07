@@ -49,10 +49,7 @@ struct Options {
 
 #[derive(Debug, Clone)]
 pub struct Config {
-    // Network
-    pub hostname: String,
-    pub http_address: SocketAddr,
-    // Server settings
+    pub address: SocketAddr,
     pub log_level: LevelFilter,
 }
 
@@ -78,7 +75,6 @@ struct App {
 #[serde(rename_all = "kebab-case")]
 #[derive(Deserialize, Debug)]
 struct Network {
-    hostname: String,
     use_ipv6: bool,
     port: Option<u16>,
 }
@@ -138,11 +134,7 @@ impl Into<Config> for ConfigFile {
     fn into(self) -> Config {
         let ConfigFile { app, network } = self;
 
-        let Network {
-            hostname,
-            use_ipv6,
-            port,
-        } = network;
+        let Network { use_ipv6, port } = network;
 
         let ip_address = if use_ipv6 {
             IpAddr::V6(Ipv6Addr::UNSPECIFIED)
@@ -150,12 +142,11 @@ impl Into<Config> for ConfigFile {
             IpAddr::V4(Ipv4Addr::UNSPECIFIED)
         };
 
-        let http_address = SocketAddr::new(ip_address, port.unwrap_or(DEFAULT_PORT));
+        let address = SocketAddr::new(ip_address, port.unwrap_or(DEFAULT_PORT));
         let log_level = app.log_level.as_ref().map(|s| s.as_ref());
 
         Config {
-            hostname,
-            http_address,
+            address,
             log_level: Self::parse_log_level(log_level),
         }
     }

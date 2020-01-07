@@ -7,9 +7,6 @@ log-level = "debug"
 
 [network]
 
-# What hostname the server uses.
-hostname = "kant"
-
 # Whether to use IPv6 or not.
 use-ipv6 = true
 

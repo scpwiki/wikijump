@@ -51,13 +51,17 @@ impl Server {
     pub async fn run(&self, address: SocketAddr) -> io::Result<()> {
         tarpc::serde_transport::tcp::listen(&address, Json::default)
             .await?
-            // Log rejected requests
-            .filter_map(|req| {
+            // Log requests
+            .filter_map(|conn| {
                 async move {
-                    match req {
-                        Ok(req) => Some(req),
+                    match conn {
+                        Ok(conn) => {
+                            debug!("Connection opened from {:?}", conn.peer_addr());
+
+                            Some(conn)
+                        }
                         Err(error) => {
-                            warn!("Error with request: {}", error);
+                            warn!("Error with acceptance: {}", error);
 
                             None
                         }

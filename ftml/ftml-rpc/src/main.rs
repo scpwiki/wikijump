@@ -48,18 +48,13 @@ pub type Result<T> = StdResult<T, String>;
 async fn main() -> io::Result<()> {
     color_backtrace::install();
 
-    let Config {
-        hostname,
-        http_address,
-        log_level,
-    } = Config::parse_args();
+    let Config { address, log_level } = Config::parse_args();
 
     pretty_env_logger::formatted_builder()
         .filter_level(log_level)
         .init();
 
-    info!("Initializing ftml RPC server");
+    info!("Initializing ftml RPC server on {}", address);
 
-    // TODO
-    unimplemented!()
+    Server::new().run(address).await
 }
