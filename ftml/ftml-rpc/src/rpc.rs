@@ -20,7 +20,7 @@
 
 use crate::Result;
 use ftml::html::HtmlOutput;
-use serde_json::{Error as JsonError, Value};
+use serde_json::Value;
 
 // Misc
 

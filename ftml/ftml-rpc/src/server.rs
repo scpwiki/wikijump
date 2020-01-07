@@ -22,6 +22,7 @@ use crate::handle::FtmlHandle;
 use crate::rpc::*;
 use crate::Result;
 use futures::future::{self, Ready};
+use serde_json::{Error as JsonError, Value};
 use std::net::SocketAddr;
 use std::sync::Arc;
 use std::time::SystemTime;
@@ -93,6 +94,28 @@ impl Prefilter for Server {
         let mut text = input;
         let result = match ftml::prefilter(&mut text, &*self.handle) {
             Ok(_) => Ok(text),
+            Err(error) => Err(error.to_string()),
+        };
+
+        future::ready(result)
+    }
+}
+
+impl Parse for Server {
+    type ParseFut = Ready<Result<Value>>;
+
+    fn parse(self, _: Context, input: String) -> Self::ParseFut {
+        info!("Method: parse");
+
+        macro_rules! json {
+            // Convert serializeable to StdResult<Value, String>
+            ($value:expr) => {
+                serde_json::to_value(&$value).map_err(|err| err.to_string())
+            };
+        }
+
+        let result = match ftml::parse(&input) {
+            Ok(tree) => json!(tree),
             Err(error) => Err(error.to_string()),
         };
 
