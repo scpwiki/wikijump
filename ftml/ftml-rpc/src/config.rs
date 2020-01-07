@@ -26,7 +26,6 @@ use std::path::{Path, PathBuf};
 use structopt::StructOpt;
 
 const DEFAULT_PORT: u16 = 3865;
-const DEFAULT_KEEP_ALIVE: usize = 20;
 const DEFAULT_LOG_LEVEL: LevelFilter = LevelFilter::Info;
 
 // Structopt argument parsing

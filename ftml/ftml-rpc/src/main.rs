@@ -29,8 +29,6 @@ extern crate pretty_env_logger;
 #[macro_use]
 extern crate serde;
 extern crate tarpc;
-
-#[macro_use]
 extern crate tokio;
 extern crate tokio_serde;
 
