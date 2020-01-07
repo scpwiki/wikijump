@@ -68,12 +68,15 @@ impl Server {
                 async move {
                     match conn {
                         Ok(conn) => {
-                            debug!("Connection opened from {:?}", conn.peer_addr());
+                            match conn.peer_addr() {
+                                Ok(addr) => info!("Accepted connection from {}", addr),
+                                Err(error) => warn!("Unable to get peer address: {}", error),
+                            }
 
                             Some(conn)
                         }
                         Err(error) => {
-                            warn!("Error with acceptance: {}", error);
+                            warn!("Error accepting connection: {}", error);
 
                             None
                         }
