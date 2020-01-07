@@ -18,21 +18,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::handle::FtmlHandle;
 use crate::rpc::*;
+use crate::Result;
 use futures::future::{self, Ready};
 use std::net::SocketAddr;
+use std::sync::Arc;
 use std::time::SystemTime;
 use tarpc::context::Context;
 
 const PROTOCOL_VERSION: &str = "0";
 
-#[derive(Debug, Copy, Clone)]
-pub struct Server(SocketAddr);
+#[derive(Debug, Clone)]
+pub struct Server {
+    handle: Arc<FtmlHandle>,
+}
 
 impl Server {
-    #[inline]
-    pub fn new(addr: SocketAddr) -> Self {
-        Server(addr)
+    pub fn new() -> Self {
+        let handle = Arc::new(FtmlHandle);
+
+        Server { handle }
     }
 }
 
@@ -43,7 +49,7 @@ impl Protocol for Server {
 
     #[inline]
     fn protocol(self, _: Context) -> Self::ProtocolFut {
-        info!("Method call: protocol");
+        info!("Method: protocol");
 
         future::ready(PROTOCOL_VERSION)
     }
@@ -54,7 +60,7 @@ impl Ping for Server {
 
     #[inline]
     fn ping(self, _: Context) -> Self::PingFut {
-        info!("Method call: ping");
+        info!("Method: ping");
 
         future::ready("pong!")
     }
@@ -64,7 +70,7 @@ impl Time for Server {
     type TimeFut = Ready<f64>;
 
     fn time(self, _: Context) -> Self::TimeFut {
-        info!("Method call: time");
+        info!("Method: time");
 
         let now = SystemTime::now();
         let unix_time = now
@@ -73,5 +79,23 @@ impl Time for Server {
             .as_secs_f64();
 
         future::ready(unix_time)
+    }
+}
+
+// Core
+
+impl Prefilter for Server {
+    type PrefilterFut = Ready<Result<String>>;
+
+    fn prefilter(self, _: Context, input: String) -> Self::PrefilterFut {
+        info!("Method: prefilter");
+
+        let mut text = input;
+        let result = match ftml::prefilter(&mut text, &*self.handle) {
+            Ok(_) => Ok(text),
+            Err(error) => Err(error.to_string()),
+        };
+
+        future::ready(result)
     }
 }
