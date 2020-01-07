@@ -20,6 +20,7 @@
 
 extern crate color_backtrace;
 extern crate ftml;
+extern crate futures;
 
 #[macro_use]
 extern crate log;
@@ -34,9 +35,15 @@ extern crate tokio;
 extern crate tokio_serde;
 
 mod config;
+mod rpc;
+mod server;
 
 use self::config::Config;
+use self::server::Server;
 use std::io;
+
+pub type StdResult<T, E> = std::result::Result<T, E>;
+pub type Result<T> = StdResult<T, String>;
 
 #[tokio::main]
 async fn main() -> io::Result<()> {
