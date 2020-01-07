@@ -23,36 +23,15 @@ use ftml::html::HtmlOutput;
 use ftml::PageInfoOwned;
 use serde_json::Value;
 
-// Misc
-
 #[tarpc::service]
-pub trait Protocol {
+pub trait FtmlApi {
+    // Misc
     async fn protocol() -> &'static str;
-}
-
-#[tarpc::service]
-pub trait Ping {
     async fn ping() -> &'static str;
-}
-
-#[tarpc::service]
-pub trait Time {
     async fn time() -> f64;
-}
 
-// Core
-
-#[tarpc::service]
-pub trait Prefilter {
+    // Core
     async fn prefilter(input: String) -> Result<String>;
-}
-
-#[tarpc::service]
-pub trait Parse {
     async fn parse(input: String) -> Result<Value>;
-}
-
-#[tarpc::service]
-pub trait Render {
     async fn render(page_info: PageInfoOwned, input: String) -> Result<HtmlOutput>;
 }

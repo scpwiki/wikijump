@@ -19,7 +19,7 @@
  */
 
 use crate::handle::FtmlHandle;
-use crate::rpc::*;
+use crate::rpc::FtmlApi;
 use crate::Result;
 use ftml::html::HtmlOutput;
 use ftml::{HtmlRender, PageInfoOwned};
@@ -49,6 +49,7 @@ impl Server {
     }
 
     pub async fn run(&self, address: SocketAddr) -> io::Result<()> {
+        /*
         tarpc::serde_transport::tcp::listen(&address, Json::default)
             .await?
             // Log rejected requests
@@ -68,14 +69,15 @@ impl Server {
             .map(|chan| chan.respond_with(self.serve()).execute())
             .for_each(|_| async {})
             .await;
+        */
 
         Ok(())
     }
 }
 
-// Misc
+impl FtmlApi for Server {
+    // Misc
 
-impl Protocol for Server {
     type ProtocolFut = Ready<&'static str>;
 
     #[inline]
@@ -84,9 +86,7 @@ impl Protocol for Server {
 
         future::ready(PROTOCOL_VERSION)
     }
-}
 
-impl Ping for Server {
     type PingFut = Ready<&'static str>;
 
     #[inline]
@@ -95,9 +95,7 @@ impl Ping for Server {
 
         future::ready("pong!")
     }
-}
 
-impl Time for Server {
     type TimeFut = Ready<f64>;
 
     fn time(self, _: Context) -> Self::TimeFut {
@@ -111,11 +109,9 @@ impl Time for Server {
 
         future::ready(unix_time)
     }
-}
 
-// Core
+    // Core
 
-impl Prefilter for Server {
     type PrefilterFut = Ready<Result<String>>;
 
     fn prefilter(self, _: Context, input: String) -> Self::PrefilterFut {
@@ -129,9 +125,7 @@ impl Prefilter for Server {
 
         future::ready(result)
     }
-}
 
-impl Parse for Server {
     type ParseFut = Ready<Result<Value>>;
 
     fn parse(self, _: Context, input: String) -> Self::ParseFut {
@@ -151,9 +145,7 @@ impl Parse for Server {
 
         future::ready(result)
     }
-}
 
-impl Render for Server {
     type RenderFut = Ready<Result<HtmlOutput>>;
 
     fn render(self, _: Context, page_info: PageInfoOwned, mut input: String) -> Self::RenderFut {
