@@ -24,10 +24,15 @@ use crate::Result;
 use ftml::html::HtmlOutput;
 use ftml::{HtmlRender, PageInfoOwned};
 use futures::future::{self, Ready};
+use futures::prelude::*;
 use serde_json::Value;
+use std::io;
+use std::net::SocketAddr;
 use std::sync::Arc;
 use std::time::SystemTime;
 use tarpc::context::Context;
+use tarpc::server::BaseChannel;
+use tokio_serde::formats::Json;
 
 const PROTOCOL_VERSION: &str = "0";
 
@@ -41,6 +46,30 @@ impl Server {
         let handle = Arc::new(FtmlHandle);
 
         Server { handle }
+    }
+
+    pub async fn run(&self, address: SocketAddr) -> io::Result<()> {
+        tarpc::serde_transport::tcp::listen(&address, Json::default)
+            .await?
+            // Log rejected requests
+            .filter_map(|req| {
+                async move {
+                    match req {
+                        Ok(req) => Some(req),
+                        Err(error) => {
+                            warn!("Error with request: {}", error);
+
+                            None
+                        }
+                    }
+                }
+            })
+            .map(BaseChannel::with_defaults)
+            .map(|chan| chan.respond_with(self.serve()).execute())
+            .for_each(|_| async {})
+            .await;
+
+        Ok(())
     }
 }
 
