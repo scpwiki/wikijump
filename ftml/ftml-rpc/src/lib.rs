@@ -25,9 +25,7 @@ extern crate futures;
 
 #[macro_use]
 extern crate log;
-
-#[macro_use]
-extern crate serde;
+extern crate serde_json;
 extern crate tarpc;
 extern crate tokio;
 extern crate tokio_serde;
