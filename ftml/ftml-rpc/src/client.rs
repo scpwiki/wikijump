@@ -60,4 +60,10 @@ impl Client {
         self.client.ping(context::current()).await?;
         Ok(())
     }
+
+    pub async fn time(&mut self) -> io::Result<f64> {
+        info!("Method: time");
+
+        self.client.time(context::current()).await
+    }
 }
