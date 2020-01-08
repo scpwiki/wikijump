@@ -27,7 +27,7 @@ Returns a static protocol version. Currently `"0"`.
 `ping() -> io::Result<()>`:  
 Determines if the server is reachable.
 
-`time() -> io::Result<()>`:  
+`time() -> io::Result<f64>`:  
 Returns the system time on the server. It may be in any timezone and is not monotonic.
 
 Followed by the three core ftml methods:
