@@ -66,4 +66,14 @@ impl Client {
 
         self.client.time(context::current()).await
     }
+
+    // Core
+    pub async fn prefilter<I: Into<String>>(&mut self, input: I) -> io::Result<Result<String>> {
+        info!("Method: prefilter");
+
+        self.client.prefilter(
+            context::current(),
+            input.into(),
+        ).await
+    }
 }
