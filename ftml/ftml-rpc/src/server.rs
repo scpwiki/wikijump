@@ -73,11 +73,10 @@ impl Server {
             // Create and fulfill channels for each request
             .map(BaseChannel::with_defaults)
             .map(|chan| {
-                let srv = self.clone();
-                let resp = srv.serve();
-                chan.respond_with(resp)
+                let resp = self.clone().serve();
+                chan.respond_with(resp).execute()
             })
-            .for_each(|_| async {})
+            .for_each(|fut| fut)
             .await;
 
         Ok(())
