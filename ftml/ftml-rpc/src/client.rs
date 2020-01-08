@@ -53,4 +53,11 @@ impl Client {
 
         Ok(version)
     }
+
+    pub async fn ping(&mut self) -> io::Result<()> {
+        info!("Method: ping");
+
+        self.client.ping(context::current()).await?;
+        Ok(())
+    }
 }
