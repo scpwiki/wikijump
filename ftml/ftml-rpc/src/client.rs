@@ -18,10 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::Result;
 use crate::api::{FtmlClient, PROTOCOL_VERSION};
-use ftml::PageInfoOwned;
+use crate::Result;
 use ftml::html::HtmlOutput;
+use ftml::PageInfoOwned;
 use serde_json::Value;
 use std::io;
 use std::net::SocketAddr;
@@ -51,7 +51,10 @@ impl Client {
         let version = self.client.protocol(context::current()).await?;
 
         if PROTOCOL_VERSION != version {
-            warn!("Protocol version mismatch! Client: {}, server: {}", PROTOCOL_VERSION, version);
+            warn!(
+                "Protocol version mismatch! Client: {}, server: {}",
+                PROTOCOL_VERSION, version,
+            );
         }
 
         Ok(version)
@@ -74,28 +77,26 @@ impl Client {
     pub async fn prefilter<I: Into<String>>(&mut self, input: I) -> io::Result<Result<String>> {
         info!("Method: prefilter");
 
-        self.client.prefilter(
-            context::current(),
-            input.into(),
-        ).await
+        self.client
+            .prefilter(context::current(), input.into())
+            .await
     }
 
     pub async fn parse<I: Into<String>>(&mut self, input: I) -> io::Result<Result<Value>> {
         info!("Method: parse");
 
-        self.client.parse(
-            context::current(),
-            input.into(),
-        ).await
+        self.client.parse(context::current(), input.into()).await
     }
 
-    pub async fn render<I: Into<String>>(&mut self, page_info: PageInfoOwned, input: I) -> io::Result<Result<HtmlOutput>> {
+    pub async fn render<I: Into<String>>(
+        &mut self,
+        page_info: PageInfoOwned,
+        input: I,
+    ) -> io::Result<Result<HtmlOutput>> {
         info!("Method: render");
 
-        self.client.render(
-            context::current(),
-            page_info,
-            input.into(),
-        ).await
+        self.client
+            .render(context::current(), page_info, input.into())
+            .await
     }
 }
