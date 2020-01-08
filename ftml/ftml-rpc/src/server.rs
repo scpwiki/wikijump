@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::api::{Ftml as FtmlApi, PROTOCOL_VERSION};
 use crate::handle::FtmlHandle;
 use crate::Result;
 use ftml::html::HtmlOutput;
@@ -30,23 +31,9 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 use std::time::SystemTime;
 use tarpc::context::Context;
+use tarpc::serde_transport::tcp;
 use tarpc::server::{BaseChannel, Channel};
 use tokio_serde::formats::Json;
-
-const PROTOCOL_VERSION: &str = "0";
-
-#[tarpc::service]
-pub trait FtmlApi {
-    // Misc
-    async fn protocol() -> &'static str;
-    async fn ping() -> &'static str;
-    async fn time() -> f64;
-
-    // Core
-    async fn prefilter(input: String) -> Result<String>;
-    async fn parse(input: String) -> Result<Value>;
-    async fn render(page_info: PageInfoOwned, input: String) -> Result<HtmlOutput>;
-}
 
 #[derive(Debug, Clone)]
 pub struct Server {
@@ -61,7 +48,7 @@ impl Server {
     }
 
     pub async fn run(&self, address: SocketAddr) -> io::Result<()> {
-        tarpc::serde_transport::tcp::listen(&address, Json::default)
+        tcp::listen(&address, Json::default)
             .await?
             // Log requests
             .filter_map(|conn| {
@@ -100,22 +87,22 @@ impl Server {
 impl FtmlApi for Server {
     // Misc
 
-    type ProtocolFut = Ready<&'static str>;
+    type ProtocolFut = Ready<String>;
 
     #[inline]
     fn protocol(self, _: Context) -> Self::ProtocolFut {
         info!("Method: protocol");
 
-        future::ready(PROTOCOL_VERSION)
+        future::ready(str!(PROTOCOL_VERSION))
     }
 
-    type PingFut = Ready<&'static str>;
+    type PingFut = Ready<String>;
 
     #[inline]
     fn ping(self, _: Context) -> Self::PingFut {
         info!("Method: ping");
 
-        future::ready("pong!")
+        future::ready(str!("pong!"))
     }
 
     type TimeFut = Ready<f64>;

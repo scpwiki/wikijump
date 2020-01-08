@@ -1,5 +1,5 @@
 /*
- * main.rs
+ * lib.rs
  *
  * ftml-rpc - RPC server to convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith
@@ -18,48 +18,26 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Server for ftml via RPC.
+//! Client for sending RPC calls to ftml.
 
-extern crate color_backtrace;
 extern crate ftml;
 extern crate futures;
 
 #[macro_use]
 extern crate log;
-extern crate pretty_env_logger;
 
 #[macro_use]
 extern crate serde;
-
-#[macro_use]
-extern crate str_macro;
 extern crate tarpc;
 extern crate tokio;
 extern crate tokio_serde;
 
 mod api;
-mod config;
+mod client;
 mod handle;
-mod server;
 
-use self::config::Config;
-use self::server::Server;
-use std::io;
+pub use self::api::PROTOCOL_VERSION;
+pub use self::client::Client;
 
 pub type StdResult<T, E> = std::result::Result<T, E>;
 pub type Result<T> = StdResult<T, String>;
-
-#[tokio::main]
-async fn main() -> io::Result<()> {
-    color_backtrace::install();
-
-    let Config { address, log_level } = Config::parse_args();
-
-    pretty_env_logger::formatted_builder()
-        .filter_level(log_level)
-        .init();
-
-    info!("Initializing ftml RPC server on {}", address);
-
-    Server::new().run(address).await
-}
