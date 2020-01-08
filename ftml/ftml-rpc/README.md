@@ -7,7 +7,7 @@ Currently it does not connect to a [DEEPWELL](https://github.com/Nu-SCPTheme/dee
 necessary external information (other pages, users, etc.), but will in the future.
 
 ### Compilation
-This crate targets the latest stable Rust. At time of writing, that is 1.39.0
+This crate targets the latest stable Rust. At time of writing, that is 1.40.0
 
 ```sh
 $ cargo build --release
