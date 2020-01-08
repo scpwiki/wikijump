@@ -19,16 +19,17 @@
  */
 
 use crate::Result;
-use crate::api::FtmlClient;
+use crate::api::{FtmlClient, PROTOCOL_VERSION};
 use std::io;
 use std::net::SocketAddr;
 use tarpc::rpc::client::Config as RpcConfig;
+use tarpc::rpc::context;
 use tarpc::serde_transport::tcp;
 use tokio_serde::formats::Json;
 
 #[derive(Debug)]
 pub struct Client {
-    inner: FtmlClient,
+    client: FtmlClient,
 }
 
 impl Client {
@@ -37,6 +38,19 @@ impl Client {
         let config = RpcConfig::default();
         let client = FtmlClient::new(config, transport).spawn()?;
 
-        Ok(Client { inner: client })
+        Ok(Client { client })
+    }
+
+    // Misc
+    pub async fn protocol(&mut self) -> io::Result<String> {
+        info!("Method: protocol");
+
+        let version = self.client.protocol(context::current()).await?;
+
+        if PROTOCOL_VERSION != version {
+            warn!("Protocol version mismatch! Client: {}, server: {}", PROTOCOL_VERSION, version);
+        }
+
+        Ok(version)
     }
 }
