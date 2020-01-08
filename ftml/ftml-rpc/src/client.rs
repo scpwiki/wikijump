@@ -20,6 +20,7 @@
 
 use crate::Result;
 use crate::api::{FtmlClient, PROTOCOL_VERSION};
+use serde_json::Value;
 use std::io;
 use std::net::SocketAddr;
 use tarpc::rpc::client::Config as RpcConfig;
@@ -72,6 +73,15 @@ impl Client {
         info!("Method: prefilter");
 
         self.client.prefilter(
+            context::current(),
+            input.into(),
+        ).await
+    }
+
+    pub async fn parse<I: Into<String>>(&mut self, input: I) -> io::Result<Result<Value>> {
+        info!("Method: parse");
+
+        self.client.parse(
             context::current(),
             input.into(),
         ).await
