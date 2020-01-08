@@ -20,6 +20,8 @@
 
 use crate::Result;
 use crate::api::{FtmlClient, PROTOCOL_VERSION};
+use ftml::PageInfoOwned;
+use ftml::html::HtmlOutput;
 use serde_json::Value;
 use std::io;
 use std::net::SocketAddr;
@@ -83,6 +85,16 @@ impl Client {
 
         self.client.parse(
             context::current(),
+            input.into(),
+        ).await
+    }
+
+    pub async fn render<I: Into<String>>(&mut self, page_info: PageInfoOwned, input: I) -> io::Result<Result<HtmlOutput>> {
+        info!("Method: render");
+
+        self.client.render(
+            context::current(),
+            page_info,
             input.into(),
         ).await
     }
