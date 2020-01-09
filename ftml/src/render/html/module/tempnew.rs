@@ -2,7 +2,7 @@
  * render/html/module/tempnew.rs
  *
  * ftml - Convert Wikidot code to HTML
- * Copyright (C) 2019 Ammon Smith, not_a_seagull
+ * Copyright (C) 2019-2020 Ammon Smith, not_a_seagull
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
