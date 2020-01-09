@@ -52,8 +52,9 @@ jobs:
       script:
         - cargo build --verbose --release
         - cargo test --verbose --release -- --nocapture
-        - cd ftml-rpc && cargo build --verbose --release
-        - cd ftml-rpc && cargo test --verbose --release -- --nocapture
+        - cd ftml-rpc
+        - cargo build --verbose --release
+        - cargo test --verbose --release -- --nocapture
     - stage: bin
       script:
         - cargo build --verbose --release --example ftml
