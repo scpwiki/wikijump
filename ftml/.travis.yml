@@ -50,13 +50,13 @@ jobs:
         - osx
         - windows
       script:
-        - cargo build --verbose
-        - cargo test --verbose -- --nocapture
-        - cd ftml-rpc && cargo build --verbose
-        - cd ftml-rpc && cargo test --verbose -- --nocapture
+        - cargo build --verbose --release
+        - cargo test --verbose --release -- --nocapture
+        - cd ftml-rpc && cargo build --verbose --release
+        - cd ftml-rpc && cargo test --verbose --release -- --nocapture
     - stage: bin
       script:
-        - cargo build --verbose --example ftml
+        - cargo build --verbose --release --example ftml
     - stage: doc
       script:
         - cargo doc --verbose
