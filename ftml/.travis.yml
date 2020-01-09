@@ -32,6 +32,8 @@ jobs:
     - stage: format
       script:
         - rustfmt src/lib.rs --check
+        - rustfmt ftml-rpc/src/lib.rs --check
+        - rustfmt ftml-rpc/src/main.rs --check
         - rustfmt examples/ftml/main.rs --check
     - stage: clippy
       script:
@@ -50,6 +52,8 @@ jobs:
       script:
         - cargo build --verbose
         - cargo test --verbose -- --nocapture
+        - cd ftml-rpc && cargo build --verbose
+        - cd ftml-rpc && cargo test --verbose -- --nocapture
     - stage: bin
       script:
         - cargo build --verbose --example ftml
