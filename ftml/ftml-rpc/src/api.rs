@@ -2,7 +2,7 @@
  * api.rs
  *
  * ftml-rpc - RPC server to convert Wikidot code to HTML
- * Copyright (C) 2019 Ammon Smith
+ * Copyright (C) 2019-2020 Ammon Smith
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
