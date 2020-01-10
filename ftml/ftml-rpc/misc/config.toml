@@ -2,7 +2,7 @@
 
 [app]
 
-# Logging level for the web server. If empty defaults to info.
+# Logging level for the RPC server. If empty defaults to info.
 log-level = "debug"
 
 [network]
