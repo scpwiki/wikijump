@@ -229,9 +229,9 @@ superscript = {
 monospace = {
     ("{{" ~ word* ~ "}}") |
     (
-        "[[" ~ space? ~ (^"monospace" | ^"mono") ~ space? ~ "]]" ~
+        "[[" ~ space? ~ (^"monospace" | ^"mono" | ^"tt") ~ space? ~ "]]" ~
         word* ~
-        "[[/" ~ space? ~ (^"monospace" | ^"mono") ~ space? ~ "]]"
+        "[[/" ~ space? ~ (^"monospace" | ^"mono" | ^"tt") ~ space? ~ "]]"
     )
 }
 // }}}
