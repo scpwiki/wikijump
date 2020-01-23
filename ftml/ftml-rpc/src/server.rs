@@ -35,6 +35,9 @@ use tarpc::serde_transport::tcp;
 use tarpc::server::{BaseChannel, Channel};
 use tokio_serde::formats::Json;
 
+// Prevent network socket exhaustion or related slowdown
+const MAX_PARALLEL_REQUESTS: usize = 16;
+
 #[derive(Debug, Clone)]
 pub struct Server {
     handle: Arc<FtmlHandle>,
@@ -76,7 +79,8 @@ impl Server {
                 let resp = self.clone().serve();
                 chan.respond_with(resp).execute()
             })
-            .for_each(|fut| fut)
+            .buffer_unordered(MAX_PARALLEL_REQUESTS)
+            .for_each(|_| async {})
             .await;
 
         Ok(())
