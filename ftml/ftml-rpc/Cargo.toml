@@ -14,7 +14,7 @@ edition = "2018" # this refers to the Cargo.toml version
 workspace = ".."
 
 [lib]
-name = "client"
+name = "ftml_rpc_client"
 path = "src/lib.rs"
 
 [[bin]]
