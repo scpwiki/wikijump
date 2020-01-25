@@ -18,7 +18,7 @@ name = "ftml_rpc_client"
 path = "src/lib.rs"
 
 [[bin]]
-name = "server"
+name = "ftml-server"
 path = "src/main.rs"
 
 [dependencies]
