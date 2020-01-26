@@ -9,15 +9,6 @@ os:
   - osx
   - windows
 
-matrix:
-  allow_failures:
-    - rust: nightly
-    - os: windows
-  fast_finish: true
-
-before_script:
-  - rustup component add rustfmt
-
 stages:
   - format
   - clippy
@@ -25,7 +16,14 @@ stages:
   - bin
   - doc
 
+before_script:
+  - rustup component add rustfmt
+
 jobs:
+  allow_failures:
+    - rust: nightly
+    - os: windows
+  fast_finish: true
   include:
     - stage: format
       script:
