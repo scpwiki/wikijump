@@ -19,6 +19,7 @@
  */
 
 #![deny(missing_debug_implementations)]
+#![forbid(unsafe_code)]
 
 //! A library to convert Wikidot text source into HTML.
 //!

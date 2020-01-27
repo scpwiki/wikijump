@@ -5,6 +5,8 @@
 
 A Rust library and executable to convert Wikidot code into HTML. This aims to be a replacement for the aging [Text\_Wiki](https://github.com/gabrys/wikidot/tree/master/lib/Text_Wiki/Text) from Wikidot. However, it is not a completely backwards-compatible library. Instead it aims to support a subset referred to here as being "well-formed". Additionally it has some extensions to make certain design patterns easier to accomplish. See the section below for more information.
 
+The lint `#![forbid(unsafe_code)]` is set, and therefore this crate has only safe code. However dependencies may have `unsafe` internals.
+
 Available under the terms of the GNU Affero General Public License. See [LICENSE.md](LICENSE).
 
 ### Compilation
