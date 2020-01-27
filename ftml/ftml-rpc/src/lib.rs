@@ -36,7 +36,7 @@ mod api;
 mod client;
 mod handle;
 
-pub use self::api::PROTOCOL_VERSION;
+pub use self::api::{Ftml as Api, PROTOCOL_VERSION};
 pub use self::client::Client;
 
 pub type StdResult<T, E> = std::result::Result<T, E>;
