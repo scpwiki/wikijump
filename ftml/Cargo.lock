@@ -298,7 +298,7 @@ dependencies = [
 
 [[package]]
 name = "ftml-rpc"
-version = "0.0.3"
+version = "0.0.4"
 dependencies = [
  "color-backtrace 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "ftml 0.2.19 (registry+https://github.com/rust-lang/crates.io-index)",
