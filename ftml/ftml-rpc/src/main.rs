@@ -20,6 +20,8 @@
 
 //! Server for ftml via RPC.
 
+#![forbid(unsafe_code)]
+
 extern crate color_backtrace;
 extern crate ftml;
 extern crate futures;

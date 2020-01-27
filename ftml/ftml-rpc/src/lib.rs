@@ -20,6 +20,8 @@
 
 //! Client for sending RPC calls to ftml.
 
+#![forbid(unsafe_code)]
+
 extern crate ftml;
 extern crate futures;
 
