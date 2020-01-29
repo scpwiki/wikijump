@@ -1,7 +1,7 @@
 /*
- * ftml/context.rs
+ * context.rs
  *
- * ftml - Convert Wikidot code to HTML
+ * ftml-bin - Convert Wikidot code to HTML
  * Copyright (C) 2019 Ammon Smith
  *
  * This program is free software: you can redistribute it and/or modify
