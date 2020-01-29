@@ -13,7 +13,6 @@ stages:
   - format
   - clippy
   - test
-  - bin
   - doc
 
 before_script:
@@ -28,15 +27,13 @@ jobs:
     - stage: format
       script:
         - rustfmt --edition=2018 src/lib.rs --check
-        - rustfmt --edition=2018 ftml-rpc/src/lib.rs --check
-        - rustfmt --edition=2018 ftml-rpc/src/main.rs --check
-        - rustfmt --edition=2018 examples/ftml/main.rs --check
+        - rustfmt --edition=2018 ftml-bin/src/main.rs --check
     - stage: clippy
       script:
         - rustup toolchain install nightly-2020-01-02-x86_64-unknown-linux-gnu
         - rustup component add clippy --toolchain nightly-2020-01-02-x86_64-unknown-linux-gnu
         - cargo +nightly-2020-01-02 clippy
-        - cd ftml-rpc
+        - cd ftml-bin
         - cargo +nightly-2020-01-02 clippy
     - stage: test
       rust:
@@ -50,12 +47,9 @@ jobs:
       script:
         - cargo build --verbose --release
         - cargo test --verbose --release -- --nocapture
-        - cd ftml-rpc
+        - cd ftml-bin
         - cargo build --verbose --release
         - cargo test --verbose --release -- --nocapture
-    - stage: bin
-      script:
-        - cargo build --verbose --release --example ftml
     - stage: doc
       script:
         - cargo doc --verbose
