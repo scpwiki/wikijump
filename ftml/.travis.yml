@@ -19,7 +19,6 @@ script:
   # Ensure code is rustfmt'd
   - .travis/banner.sh rustfmt
   - rustfmt --edition=2018 src/lib.rs --check
-  - rustfmt --edition=2018 src/main.rs --check
   # Check clippy lints
   - .travis/banner.sh clippy
   - .travis/clippy.sh check
