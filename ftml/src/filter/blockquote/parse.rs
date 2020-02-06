@@ -71,17 +71,23 @@ pub fn substitute(text: &mut String) -> Result<()> {
         match line {
             // Quote line
             Either::Left(line) => {
+                use std::cmp::Ordering::*;
+
                 // Add open or close tags as needed
-                if line.depth > prev_depth {
-                    let diff = line.depth - prev_depth;
-                    for _ in 0..diff {
-                        buffer.push_str("[[quote]]\n");
+                match line.depth.cmp(&prev_depth) {
+                    Greater => {
+                        let diff = line.depth - prev_depth;
+                        for _ in 0..diff {
+                            buffer.push_str("[[quote]]\n");
+                        }
                     }
-                } else if prev_depth > line.depth {
-                    let diff = prev_depth - line.depth;
-                    for _ in 0..diff {
-                        buffer.push_str("[[/quote]]\n");
+                    Less => {
+                        let diff = prev_depth - line.depth;
+                        for _ in 0..diff {
+                            buffer.push_str("[[/quote]]\n");
+                        }
                     }
+                    Equal => (),
                 }
 
                 // Add contents
