@@ -24,11 +24,11 @@ script:
   - .travis/clippy.sh check
   # Run build
   - .travis/banner.sh build
-  - cargo build --verbose --release
-  - cargo test --verbose --release -- --nocapture
+  - cargo build --release
+  - cargo test --release -- --nocapture
   # Build documentation
   - .travis/banner.sh docs
-  - cargo doc --verbose --no-deps
+  - cargo doc --no-deps
 
 jobs:
   allow_failures:
