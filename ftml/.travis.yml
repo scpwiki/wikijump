@@ -9,6 +9,9 @@ os:
   - osx
   - windows
 
+env:
+  - RUSTFLAGS='-D warnings'
+
 before_script:
   # Add rustfmt
   - rustup component add rustfmt
