@@ -19,7 +19,7 @@
  */
 
 /// Metadata information on the article being rendered.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct PageInfo<'a> {
     /// The title of this page.
     ///
@@ -45,7 +45,7 @@ pub struct PageInfo<'a> {
     pub subheader: Option<&'a str>,
 
     /// The current rating the page has.
-    pub rating: i32,
+    pub rating: f32,
 
     /// The current set of tags this page has.
     pub tags: Vec<&'a str>,
@@ -53,13 +53,13 @@ pub struct PageInfo<'a> {
 
 /// An owned version of [`PageInfo`]. See there for field information.
 /// [`PageInfo`]: ./struct.PageInfo.html
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct PageInfoOwned {
     pub title: String,
     pub alt_title: Option<String>,
     pub header: Option<String>,
     pub subheader: Option<String>,
-    pub rating: i32,
+    pub rating: f32,
     pub tags: Vec<String>,
 }
 
