@@ -62,7 +62,6 @@
 //! This crate also provides an executable to convert files from
 //! the command-line. See that file for usage documentation.
 
-extern crate arrayvec;
 extern crate chrono;
 extern crate either;
 
@@ -89,6 +88,9 @@ extern crate str_macro;
 
 #[macro_use]
 extern crate thiserror;
+
+#[macro_use]
+extern crate tinyvec;
 
 #[cfg(test)]
 extern crate serde_json;

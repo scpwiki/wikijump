@@ -22,7 +22,6 @@ use self::Word::*;
 use super::module;
 use super::prelude::*;
 use crate::enums::{Alignment, InfoField, LinkText};
-use arrayvec::ArrayVec;
 
 // TODO: change these to be tenant-specific
 const DEFAULT_HEADER: &str = "SCP Foundation";
@@ -243,7 +242,7 @@ impl<'w> ComponentRender for Word<'w> {
                 ref arguments,
             } => {
                 let mut html = ctx.html().div();
-                let mut classes = ArrayVec::<[&str; 2]>::new();
+                let mut classes = array_vec!([&str; 2]);
 
                 classes.push("image-container");
 

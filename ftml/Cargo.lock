@@ -19,12 +19,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "arrayvec"
-version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cff77d8686867eceff3105329d4698d96c2391c176d5d03adc90c7389162b5b8"
-
-[[package]]
 name = "atty"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -168,7 +162,6 @@ dependencies = [
 name = "ftml"
 version = "0.2.19"
 dependencies = [
- "arrayvec",
  "chrono",
  "either",
  "lazy_static",
@@ -182,6 +175,7 @@ dependencies = [
  "serde_repr",
  "str-macro",
  "thiserror",
+ "tinyvec",
 ]
 
 [[package]]
@@ -647,6 +641,12 @@ dependencies = [
  "redox_syscall",
  "winapi 0.3.8",
 ]
+
+[[package]]
+name = "tinyvec"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "53953d2d3a5ad81d9f844a32f14ebb121f50b650cd59d0ee2a07cf13c617efed"
 
 [[package]]
 name = "typenum"
