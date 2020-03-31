@@ -111,6 +111,7 @@
               "id": null,
               "class": null,
               "style": null,
+              "start_open": false,
               "show_top": true,
               "show_bottom": false,
               "paragraphs": [
