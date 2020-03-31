@@ -62,7 +62,7 @@ const TEST_BLACKLIST: [&str; 14] = [
 
 // Should only be used to update test outputs
 // Insert after 'prefilter' call
-#[allow(dead_code)]
+#[allow(unused_macros)]
 macro_rules! update_test {
     ($input_text:expr, $output_file:expr) => {{
         let output_tree = parse(&$input_text).expect("Unable to parse Wikidot source");
