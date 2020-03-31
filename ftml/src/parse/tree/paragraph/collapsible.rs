@@ -98,7 +98,7 @@ fn parse_arg<'c, 'p>(ctx: &'c mut Context<'p>, key: &'_ str, value: Cow<'p, str>
         ("show", Argument::Show),
         ("hide", Argument::Hide),
         ("hidelocation", Argument::HideLocation),
-        ("fold", Argument::Fold),
+        ("folded", Argument::Fold),
         ("id", Argument::Id),
         ("class", Argument::Class),
         ("style", Argument::Style),
