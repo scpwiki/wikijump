@@ -100,6 +100,7 @@ pub enum Paragraph<'a> {
         id: Option<Cow<'a, str>>,
         class: Option<Cow<'a, str>>,
         style: Option<Cow<'a, str>>,
+        start_open: bool,
         show_top: bool,
         show_bottom: bool,
         paragraphs: Vec<Paragraph<'a>>,

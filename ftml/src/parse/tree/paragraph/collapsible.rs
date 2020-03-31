@@ -22,6 +22,7 @@ use super::prelude::*;
 
 #[derive(Debug, Default)]
 struct Context<'a> {
+    start_open: bool,
     show_text: Option<Cow<'a, str>>,
     hide_text: Option<Cow<'a, str>>,
     id: Option<Cow<'a, str>>,
@@ -58,6 +59,7 @@ pub fn parse(pair: Pair<Rule>) -> Result<Paragraph> {
     }
 
     let Context {
+        start_open,
         show_text,
         hide_text,
         id,
@@ -73,6 +75,7 @@ pub fn parse(pair: Pair<Rule>) -> Result<Paragraph> {
         id,
         class,
         style,
+        start_open,
         show_top,
         show_bottom,
         paragraphs,
@@ -85,15 +88,17 @@ fn parse_arg<'c, 'p>(ctx: &'c mut Context<'p>, key: &'_ str, value: Cow<'p, str>
         Show,
         Hide,
         HideLocation,
+        Fold,
         Id,
         Class,
         Style,
     }
 
-    const COLLAPSIBLE_ARGUMENTS: [(&str, Argument); 6] = [
+    const COLLAPSIBLE_ARGUMENTS: [(&str, Argument); 7] = [
         ("show", Argument::Show),
         ("hide", Argument::Hide),
         ("hidelocation", Argument::HideLocation),
+        ("fold", Argument::Fold),
         ("id", Argument::Id),
         ("class", Argument::Class),
         ("style", Argument::Style),
@@ -116,6 +121,7 @@ fn parse_arg<'c, 'p>(ctx: &'c mut Context<'p>, key: &'_ str, value: Cow<'p, str>
             let locations = parse_hide_location(value.as_ref())?;
             ctx.show = Some(locations);
         }
+        Argument::Fold => ctx.start_open = parse_fold(value.as_ref())?,
         Argument::Id => ctx.id = Some(value),
         Argument::Class => ctx.class = Some(value),
         Argument::Style => ctx.style = Some(value),
@@ -134,14 +140,36 @@ fn parse_hide_location(value: &str) -> Result<(bool, bool)> {
         ("hide", (false, false)),
     ];
 
-    for (name, locations) in &HIDE_LOCATION_ARGUMENTS {
+    for &(name, locations) in &HIDE_LOCATION_ARGUMENTS {
         if name.eq_ignore_ascii_case(value) {
-            return Ok(*locations);
+            return Ok(locations);
         }
     }
 
     Err(Error::Msg(format!(
         "Invalid hideLocation value: '{}' (must be 'top', 'bottom', 'both', 'neither')",
-        value
+        value,
+    )))
+}
+
+fn parse_fold(value: &str) -> Result<bool> {
+    const FOLD_ARGUMENTS: [(&str, bool); 6] = [
+        ("yes", true),
+        ("true", true),
+        ("show", true),
+        ("no", false),
+        ("false", false),
+        ("hide", false),
+    ];
+
+    for &(name, fold) in &FOLD_ARGUMENTS {
+        if name.eq_ignore_ascii_case(value) {
+            return Ok(fold);
+        }
+    }
+
+    Err(Error::Msg(format!(
+        "Invalid fold value: '{}' (must be 'yes' or 'no')",
+        value,
     )))
 }

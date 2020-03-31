@@ -67,7 +67,7 @@ collapsible = {
 }
 collapsible_arg = {
     space_any ~ (
-        ^"hidelocation" | ^"show" | ^"hide" | ^"id" | ^"class" | ^"style"
+        ^"hidelocation" | ^"folded" | ^"show" | ^"hide" | ^"id" | ^"class" | ^"style"
     ) ~ space_any? ~ "=" ~ space_any? ~ string
 }
 
