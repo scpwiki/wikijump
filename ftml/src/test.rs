@@ -22,7 +22,7 @@ use super::prelude::*;
 use crate::handle::TestHandle;
 use std::ffi::OsStr;
 use std::fs::{self, File};
-use std::io::{Read, Write};
+use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::str;
 
@@ -61,17 +61,14 @@ const TEST_BLACKLIST: [&str; 14] = [
 ];
 
 // Should only be used to update test outputs
+// Insert after 'prefilter' call
 #[allow(dead_code)]
-fn update_test<B, P>(output: B, output_file: P)
-where
-    B: AsRef<[u8]>,
-    P: AsRef<Path>,
-{
-    let output = output.as_ref();
-    let output_file = output_file.as_ref();
-    let mut file = File::create(output_file).expect("Unable to create output file");
-    file.write_all(output)
-        .expect("Unable to write to output file");
+macro_rules! update_test {
+    ($input_text:expr, $output_file:expr) => {{
+        let output_tree = parse(&$input_text).expect("Unable to parse Wikidot source");
+        let mut file = File::create(&$output_file).expect("Unable to create output file");
+        serde_json::to_writer_pretty(&mut file, &output_tree).expect("Unable to write AST to JSON");
+    }};
 }
 
 #[cfg(windows)]
