@@ -204,7 +204,7 @@ impl<'a> Paragraph<'a> {
             Rule::div => div::parse(pair)?,
             Rule::bullet_list | Rule::numbered_list => list::parse(pair)?,
             Rule::horizontal_line => Paragraph::HorizontalLine,
-            Rule::hide => Paragraph::Div {
+            Rule::hide_paragraph => Paragraph::Div {
                 id: None,
                 class: None,
                 style: Some(Cow::Borrowed("display: none")),
