@@ -35,7 +35,6 @@ paragraph_inner = {
     clear_float |
     collapsible |
     div |
-    hide_paragraph |
     bullet_list |
     numbered_list |
     horizontal_line |
@@ -78,12 +77,6 @@ div = {
     "[[/" ~ space? ~ ^"div" ~ "_"? ~ space_any? ~ "]]"
 }
 div_arg = { space_any ~ (^"id" | ^"class" | ^"style") ~ space_any? ~ "=" ~ space_any? ~ string }
-
-hide_paragraph = {
-    "[[" ~ space? ~ ^"hide" ~ space_any? ~ "]]\n" ~
-    paragraph* ~
-    "[[/" ~ space? ~ ^"hide" ~ space_any? ~ "]]"
-}
 
 html = {
     "[[" ~ space? ~ ^"html" ~ "_"? ~ space_any? ~ "]]\n" ~
@@ -137,9 +130,9 @@ word = {
     subscript |
     superscript |
     monospace |
+    hide |
     anchor |
     anchor_tag |
-    hide_word |
     css |
     date |
     equation_ref |
@@ -282,9 +275,9 @@ form = {
     "[[/" ~ space? ~ ^"form" ~ space_any? ~ "]]"
 }
 
-hide_word = {
-    "[[" ~ space? ~ ^"hide" ~ space_any? ~ "]]" ~
-    word* ~
+hide = {
+    "[[" ~ space? ~ ^"hide" ~ space_any? ~ "]]" ~ space_any? ~
+    paragraphs_internal ~
     "[[/" ~ space? ~ ^"hide" ~ space_any? ~ "]]"
 }
 

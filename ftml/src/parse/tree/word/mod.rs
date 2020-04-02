@@ -315,6 +315,12 @@ impl<'a> Word<'a> {
             Rule::monospace => Word::Monospace {
                 words: make_words!(pair),
             },
+            Rule::hide => Word::Span {
+                id: None,
+                class: None,
+                style: Some(Cow::Borrowed("display: none")),
+                paragraphs: convert_internal_paragraphs(get_first_pair!(pair))?,
+            },
             Rule::anchor => {
                 // The [# LINK] anchor, which only has a name.
                 // Compare to the general-purpose [[a]] anchor
