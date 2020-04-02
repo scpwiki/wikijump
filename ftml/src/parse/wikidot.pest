@@ -131,6 +131,7 @@ word = {
     superscript |
     monospace |
     hide |
+    invisible |
     anchor |
     anchor_tag |
     css |
@@ -279,6 +280,12 @@ hide = {
     "[[" ~ space? ~ ^"hide" ~ space_any? ~ "]]" ~ space_any? ~
     paragraphs_internal ~
     "[[/" ~ space? ~ ^"hide" ~ space_any? ~ "]]"
+}
+
+invisible = {
+    "[[" ~ space? ~ ^"invisible" ~ space_any? ~ "]]" ~ space_any? ~
+    paragraphs_internal ~
+    "[[/" ~ space? ~ ^"invisible" ~ space_any? ~ "]]"
 }
 
 // TODO: add arguments -- https://www.wikidot.com/doc-wiki-syntax:images

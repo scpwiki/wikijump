@@ -321,6 +321,12 @@ impl<'a> Word<'a> {
                 style: Some(Cow::Borrowed("display: none")),
                 paragraphs: convert_internal_paragraphs(get_first_pair!(pair))?,
             },
+            Rule::invisible => Word::Span {
+                id: None,
+                class: None,
+                style: Some(Cow::Borrowed("color: transparent")),
+                paragraphs: convert_internal_paragraphs(get_first_pair!(pair))?,
+            },
             Rule::anchor => {
                 // The [# LINK] anchor, which only has a name.
                 // Compare to the general-purpose [[a]] anchor
