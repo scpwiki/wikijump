@@ -35,6 +35,7 @@ paragraph_inner = {
     clear_float |
     collapsible |
     div |
+    hide |
     bullet_list |
     numbered_list |
     horizontal_line |
@@ -77,6 +78,12 @@ div = {
     "[[/" ~ space? ~ ^"div" ~ "_"? ~ space_any? ~ "]]"
 }
 div_arg = { space_any ~ (^"id" | ^"class" | ^"style") ~ space_any? ~ "=" ~ space_any? ~ string }
+
+hide = {
+    "[[" ~ space? ~ ^"hide" ~ space_any? ~ "]]\n" ~
+    paragraph* ~
+    "[[/" ~ space? ~ ^"hide" ~ space_any? ~ "]]"
+}
 
 html = {
     "[[" ~ space? ~ ^"html" ~ "_"? ~ space_any? ~ "]]\n" ~
