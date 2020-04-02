@@ -204,6 +204,12 @@ impl<'a> Paragraph<'a> {
             Rule::div => div::parse(pair)?,
             Rule::bullet_list | Rule::numbered_list => list::parse(pair)?,
             Rule::horizontal_line => Paragraph::HorizontalLine,
+            Rule::hide => Paragraph::Div {
+                id: None,
+                class: None,
+                style: Some(Cow::Borrowed("display: none")),
+                paragraphs: convert_internal_paragraphs(pair)?,
+            },
             Rule::html => Paragraph::Html {
                 contents: extract!(HTML_BLOCK, pair),
             },

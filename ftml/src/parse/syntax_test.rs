@@ -30,7 +30,7 @@ use crate::handle::TestHandle;
 use crate::prefilter;
 use pest::Parser;
 
-const VALID_INPUT_STRINGS: [&str; 136] = [
+const VALID_INPUT_STRINGS: [&str; 137] = [
     "__**test** cherry {{ durian (?) }}__ ^^up!^^",
     " [ left bracket",
     "right bracket ] ",
@@ -142,6 +142,7 @@ const VALID_INPUT_STRINGS: [&str; 136] = [
     "[[collapsible id=\"coll-id\" style=\"text-align: center;\" class=\"classified-box\" HIDELOCATION=\"bottom\" folded=\"yes\"]]\nalpha __banana__\n**cherry**\n[[/collapsible]]",
     "[[collapsible FOLdeD = \"true\"]]\ninternal\n[[/COLLAPSIBLE]]",
     "[[collapsible folded=\"no\"]]\ncherry\n[[/collapsible]]",
+    "[[hide]]\nsome text that will be hidden!\nnothing here, boys!\n(paragraph edition)\n[[/hide]]",
     "[[html]]\nsome <b>raw</b> html here! <br> all my own <span class=\"test\">stuff</span>\n[[/html]]",
     "\n[[iframe https://example.com/]]\n",
     "[[iframe https://example.com/some/page name= \"test\" src =\"https://example.com\" ]]\n",
