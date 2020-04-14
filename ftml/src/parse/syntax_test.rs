@@ -30,7 +30,7 @@ use crate::handle::TestHandle;
 use crate::prefilter;
 use pest::Parser;
 
-const VALID_INPUT_STRINGS: [&str; 140] = [
+const VALID_INPUT_STRINGS: [&str; 139] = [
     "__**test** cherry {{ durian (?) }}__ ^^up!^^",
     " [ left bracket",
     "right bracket ] ",
@@ -170,7 +170,6 @@ const VALID_INPUT_STRINGS: [&str; 140] = [
     "**Item #:** [[title]]",
     "[[alt_title]] - by aismallard",
     "++ Property of [[header]]",
-    "--- [[subheader]] ---",
 ];
 
 const VALID_FILTER_STRINGS: [&str; 12] = [
