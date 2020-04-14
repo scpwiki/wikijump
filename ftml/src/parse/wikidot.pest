@@ -114,7 +114,14 @@ words = {
     ) ~ word+
 }
 clear_float = { "~"{4,} ~ ("<" | ">")? }
-horizontal_line = { "-"{4,} }
+
+// This was originally "-"{4,} to match Wikidot,
+// but people keep doing "---" and it gets rendered as "—-"
+// which is terrible and absolutely not what they intended.
+//
+// Since this is a paragraph_inner and is on its own line,
+// we're going to assume this is an hr.
+horizontal_line = { "-"{3,} }
 // }}}
 
 // Words {{{
