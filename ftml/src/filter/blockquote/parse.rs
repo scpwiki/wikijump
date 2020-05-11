@@ -24,8 +24,7 @@ use regex::Regex;
 use std::mem;
 
 lazy_static! {
-    static ref QUOTE_LINE: Regex =
-        { Regex::new(r"^(?P<depth>>+)(?: *)(?P<contents>.*)$").unwrap() };
+    static ref QUOTE_LINE: Regex = Regex::new(r"^(?P<depth>>+)(?: *)(?P<contents>.*)$").unwrap();
 }
 
 #[derive(Debug)]
