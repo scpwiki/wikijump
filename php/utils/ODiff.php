@@ -24,12 +24,6 @@
  */
 
 
-
-
-if(!extension_loaded('xdiff')){
-	@dl( 'xdiff.so' );
-}
-
 /**
  * A wrapper around xdiff.
  */
