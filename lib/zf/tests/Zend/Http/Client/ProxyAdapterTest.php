@@ -40,7 +40,7 @@ class Zend_Http_Client_ProxyAdapterTest extends Zend_Http_Client_SocketTest
 		if (defined('TESTS_ZEND_HTTP_CLIENT_HTTP_PROXY') &&
 		      TESTS_ZEND_HTTP_CLIENT_HTTP_PROXY) {
 
-		    list($host, $port) = split(':', TESTS_ZEND_HTTP_CLIENT_HTTP_PROXY, 2);
+		    list($host, $port) = explode(':', TESTS_ZEND_HTTP_CLIENT_HTTP_PROXY, 2);
 
 		    if (! $host)
 		        $this->markTestSkipped("No valid proxy host name or address specified.");

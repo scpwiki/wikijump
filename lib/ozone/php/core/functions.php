@@ -145,7 +145,7 @@ function mkdirfull($dir) {
 	/* and remove trailing slash too. */
 	$dir = preg_replace(';/{2,};', '/', $dir);
 	$dir = preg_replace(';/$;', '', $dir);
-    $splited = split('/', $dir);
+    $splited = explode('/', $dir);
     $n = count($splited);
     $dir0 = '';
     for ($i = 0; $i < $n; $i++) {

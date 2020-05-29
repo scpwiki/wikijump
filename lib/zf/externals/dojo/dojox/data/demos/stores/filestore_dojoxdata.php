@@ -138,7 +138,7 @@
 				}
 
 				if (file_exists($fullPath)) {
-					$arr = split("/", $path);
+					$arr = explode("/", $path);
 					$size = count($arr);
 
 					if ($size > 0) {
