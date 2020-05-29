@@ -23,12 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \AccountBaseModule;
-use Criteria;
-use DB\PageRevisionPeer;
-
 class AWChangesListModule extends AccountBaseModule {
 
 	public function build($runData){
@@ -62,7 +56,7 @@ class AWChangesListModule extends AccountBaseModule {
 		$c->addOrderDescending("page_revision.revision_id");
 		$c->setLimit($count, $offset);
 		
-		$revisions = PageRevisionPeer::instance()->select($c);
+		$revisions = DB_PageRevisionPeer::instance()->select($c);
 		
 		$counted = count($revisions);
 		$pagerData = array();

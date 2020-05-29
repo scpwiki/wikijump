@@ -23,12 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \AccountBaseModule;
-use Criteria;
-use DB\PrivateUserBlockPeer;
-
 class ASBlockedModule extends AccountBaseModule {
 	
 	public function build($runData){
@@ -39,7 +33,7 @@ class ASBlockedModule extends AccountBaseModule {
 		$c->add("user_id", $runData->getUserId());
 		$c->addOrderDescending("block_id");
 		
-		$blocks = PrivateUserBlockPeer::instance()->select($c);
+		$blocks = DB_PrivateUserBlockPeer::instance()->select($c);
 		if(count($blocks)>0){
 			$runData->contextAdd("blocks", $blocks);
 		}	

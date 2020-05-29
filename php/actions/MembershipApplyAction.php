@@ -23,28 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyAction;
-use \ProcessException;
-use \WDPermissionManager;
-use Database;
-use Criteria;
-use DB\MemberApplicationPeer;
-use DB\MemberPeer;
-use DB\MemberApplication;
-use ODate;
-use \AdminNotificationMaker;
-use DB\Member;
-use DB\MembershipLink;
-use DB\MemberInvitationPeer;
-use DB\EmailInvitationPeer;
-use DB\SitePeer;
-use DB\OzoneUserPeer;
-use DB\ContactPeer;
-use DB\Contact;
-use Exception;
-
 class MembershipApplyAction extends SmartyAction {
 	
 	public function perform($r){}
@@ -80,21 +58,21 @@ class MembershipApplyAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
 		$c->add("user_id", $userId);
-		$a = MemberApplicationPeer::instance()->selectOne($c);
+		$a = DB_MemberApplicationPeer::instance()->selectOne($c);
 		if($a != null){
 			// application already exists!!!
 			throw new ProcessException(_("You have already applied to this site"), "already_applied");
 		}
 		
 		// check if not a member already
-		$a = MemberPeer::instance()->selectOne($c);
+		$a = DB_MemberPeer::instance()->selectOne($c);
 		if($a != null){
 			throw new ProcessException( _("You already are a member of this site."), "already_member");
 			$db->commit();
 			return;	
 		}
 		
-		$application = new MemberApplication();
+		$application = new DB_MemberApplication();
 		$application->setSiteId($site->getSiteId());
 		$application->setUserId($userId);
 		$application->setDate(new ODate());
@@ -136,7 +114,7 @@ class MembershipApplyAction extends SmartyAction {
 		$c->add("site_id", $site->getSiteId());
 		$c->add("user_id", $userId);
 		
-		$a = MemberPeer::instance()->selectOne($c);
+		$a = DB_MemberPeer::instance()->selectOne($c);
 		if($a != null){
 			$runData->ajaxResponseAdd('status', 'already_member');
 			$runData->ajaxResponseAdd("message", _("You already are a member of this site."));
@@ -154,19 +132,19 @@ class MembershipApplyAction extends SmartyAction {
 				$maxMembers = $settings->getMaxPrivateMembers();
 				$c = new Criteria();
 				$c->add("site_id", $site->getSiteId());
-				$cmem = MemberPeer::instance()->selectCount($c);
+				$cmem = DB_MemberPeer::instance()->selectCount($c);
 				if($cmem >= $maxMembers){
 					throw new ProcessException(sprintf(_('Sorry, at the moment max %d member limit apply for private Wikis. The Site would have to be upgraded to allow more members.'), $maxMembers));	
 				}
 			}
 			
-			$mem = new Member();
+			$mem = new DB_Member();
 			$mem->setUserId($userId);
 			$mem->setSiteId($site->getSiteId());
 			$mem->setDateJoined(new ODate());
 			$mem->save();
 			
-			$ml = new MembershipLink();
+			$ml = new DB_MembershipLink();
 			$ml->setUserId($userId);
 			$ml->setSiteId($site->getSiteId());
 			$ml->setDate(new ODate());
@@ -180,8 +158,8 @@ class MembershipApplyAction extends SmartyAction {
 			$c->add("site_id", $site->getSiteId());
 			$c->add("user_id", $userId);
 			
-			MemberApplicationPeer::instance()->delete($c);
-			MemberInvitationPeer::instance()->delete($c);
+			DB_MemberApplicationPeer::instance()->delete($c);
+			DB_MemberInvitationPeer::instance()->delete($c);
 			
 			AdminNotificationMaker::instance()->newMemberByPassword($site, $user);
 			
@@ -206,14 +184,14 @@ class MembershipApplyAction extends SmartyAction {
 		$c->add("hash", $hash);
 		$c->add("accepted", false);
 		
-		$inv = EmailInvitationPeer::instance()->selectOne($c);
+		$inv = DB_EmailInvitationPeer::instance()->selectOne($c);
 		
 		$runData->contextAdd("user", $user);
 		
 		if(!$inv){
 			throw new ProcessException(_("Sorry, no invitation can be found."));
 		}
-		$site = SitePeer::instance()->selectByPrimaryKey($inv->getSiteId());
+		$site = DB_SitePeer::instance()->selectByPrimaryKey($inv->getSiteId());
 		
 		// check if not a member already
 		
@@ -221,7 +199,7 @@ class MembershipApplyAction extends SmartyAction {
 		$c->add("user_id", $user->getUserId());
 		$c->add("site_id", $site->getSiteId());
 		
-		$mem = MemberPeer::instance()->selectOne($c);
+		$mem = DB_MemberPeer::instance()->selectOne($c);
 		
 		if($mem){
 			throw new ProcessException(_("It seems you already are a member of this site! Congratulations anyway ;-)"));	
@@ -233,7 +211,7 @@ class MembershipApplyAction extends SmartyAction {
 			$maxMembers = $settings->getMaxPrivateMembers();
 			$c = new Criteria();
 			$c->add("site_id", $site->getSiteId());
-			$cmem = MemberPeer::instance()->selectCount($c);
+			$cmem = DB_MemberPeer::instance()->selectCount($c);
 			if($cmem >= $maxMembers){
 				throw new ProcessException(sprintf(_('Sorry, at the moment max %d member limit apply for private Wikis. The Site would have to be upgraded to allow more members.'), $maxMembers));	
 			}
@@ -244,14 +222,14 @@ class MembershipApplyAction extends SmartyAction {
 		$db = Database::connection();
 		$db->begin();
 		
-		$mem = new Member();
+		$mem = new DB_Member();
 		$mem->setDateJoined(new ODate());
 		$mem->setSiteId($site->getSiteId());
 		$mem->setUserId($user->getUserId());
 
 		$mem->save();
 		
-		$ml = new MembershipLink();
+		$ml = new DB_MembershipLink();
 		$ml->setUserId($user->getUserId());
 		$ml->setSiteId($site->getSiteId());
 		$ml->setDate(new ODate());
@@ -260,7 +238,7 @@ class MembershipApplyAction extends SmartyAction {
 		$ml->save();
 		
 		// add to contacts?
-		$sender = OzoneUserPeer::instance()->selectByPrimaryKey($inv->getUserId());
+		$sender = DB_OzoneUserPeer::instance()->selectByPrimaryKey($inv->getUserId());
 		if($inv->getToContacts() && $sender->getUserId()!=$user->getUserId()){
 			try{
 				
@@ -268,9 +246,9 @@ class MembershipApplyAction extends SmartyAction {
 				$c = new Criteria();
 				$c->add("user_id", $user->getUserId());
 				$c->add("target_user_id", $sender->getUserId());
-				$con0 = ContactPeer::instance()->selectOne($c);
+				$con0 = DB_ContactPeer::instance()->selectOne($c);
 				if(!$con0){
-					$con = new Contact();
+					$con = new DB_Contact();
 					$con->setUserId($user->getUserId());	
 					$con->setTargetUserId($sender->getUserId());
 					$con->save();
@@ -282,9 +260,9 @@ class MembershipApplyAction extends SmartyAction {
 				$c = new Criteria();
 				$c->add("user_id", $sender->getUserId());
 				$c->add("target_user_id", $user->getUserId());
-				$con0 = ContactPeer::instance()->selectOne($c);
+				$con0 = DB_ContactPeer::instance()->selectOne($c);
 				if(!$con0){
-					$con = new Contact();
+					$con = new DB_Contact();
 					$con->setUserId($sender->getUserId());	
 					$con->setTargetUserId($user->getUserId());
 					$con->save();

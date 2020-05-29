@@ -23,13 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \CacheableModule;
-use \ProcessException;
-use \MailFormUtils;
-use \DatabaseStorage;
-
 class MailFormModule extends CacheableModule{ //SmartyModule {
 	
 	public $timeOut = 600;

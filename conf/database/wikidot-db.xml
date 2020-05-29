@@ -261,7 +261,7 @@
 		<column name="link_id" type="serial" primaryKey="true"/>
 		<column name="site_id" type="int"/>
 		<column name="page_id" type="int"/>
-		<column name="to_url" type="varchar(2048)" /> <!-- null if page not exists -->
+		<column name="to_url" type="varchar(512)" /> <!-- null if page not exists -->
 		<column name="pinged" type="boolean" default="false"/>
 		<!-- status of the ping action -->
 		<column name="ping_status" type="varchar(256)"/>
@@ -706,11 +706,6 @@
 		<column name="url" type="varchar(100)"/> <!-- if delegate -->
 		<column name="server_url" type="varchar(100)"/> <!-- if delegate -->
 		
-	</table>
-	
-	<table name="api_key">
-		<column name="key" type="varchar(64)" primaryKey="true"/>
-		<column name="user_id" type="int"/>
 	</table>
 	
 </database>

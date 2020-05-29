@@ -23,17 +23,11 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use DB\PageRevisionPeer;
-use \ProcessException;
-
 class PageSourceModule extends SmartyModule{
 	public function build($runData){
 		$revisionId = $runData->getParameterList()->getParameterValue("revision_id");
 		
-		$revision = PageRevisionPeer::instance()->selectByPrimaryKey($revisionId);
+		$revision = DB_PageRevisionPeer::instance()->selectByPrimaryKey($revisionId);
 		if($revision == null){
 			throw new ProcessException(_("Revision error"), "revision_error");	
 		}

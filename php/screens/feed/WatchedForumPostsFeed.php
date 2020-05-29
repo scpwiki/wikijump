@@ -23,13 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \FeedScreen;
-use Criteria;
-use DB\ForumPostPeer;
-use \WDRenderUtils;
-
 class WatchedForumPostsFeed extends FeedScreen {
 	
 	protected $requiresAuthentication = true;
@@ -83,7 +76,7 @@ class WatchedForumPostsFeed extends FeedScreen {
 		$c->addOrderDescending("post_id");
 		$c->setLimit(30);
 		
-		$posts = ForumPostPeer::instance()->select($c);
+		$posts = DB_ForumPostPeer::instance()->select($c);
 		
 		$channel['title'] = _('Wikidot.com watched forum discussions for user').' "'.$user->getNickName().'"';
 		$channel['link'] = "http://" . GlobalProperties::$URL_HOST . "/account:you/start/watched-forum";

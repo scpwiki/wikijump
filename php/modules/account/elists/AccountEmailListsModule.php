@@ -23,13 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \AccountBaseModule;
-use Criteria;
-use DB\SitePeer;
-use DB_EmailListPeer;
-
 class AccountEmailListsModule extends AccountBaseModule {
 	
 	public function build($runData){
@@ -43,7 +36,7 @@ class AccountEmailListsModule extends AccountBaseModule {
 			$q = "SELECT site.* FROM site, member WHERE member.user_id = '{$user->getUserId()}' AND member.site_id = site.site_id " .
 					"ORDER BY site.name";
 			$c->setExplicitQuery($q);
-			$ss = SitePeer::instance()->select($c);
+			$ss = DB_SitePeer::instance()->select($c);
 			$sites = array();
 			foreach($ss as $s){
 				$sites[$s->getUnixName()] = array('site' => $s);
@@ -59,7 +52,7 @@ class AccountEmailListsModule extends AccountBaseModule {
 			// sorry  for the DIIIIRTY STYLE!!!
 			$sites = array();
 			foreach($lists as $l){
-				$s = SitePeer::instance()->selectByPrimaryKey($l->getSiteId());
+				$s = DB_SitePeer::instance()->selectByPrimaryKey($l->getSiteId());
 				if(!isset($sites[$s->getUnixName()])){
 					$sites[$s->getUnixName()] = array('site' => $s, 'lists' => array());
 				}

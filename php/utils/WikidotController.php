@@ -23,17 +23,9 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use WebFlowController;
-use Criteria;
-use DB\SitePeer;
-use DB\MemberPeer;
-use \FileMime;
-
 abstract class WikidotController extends WebFlowController {
 	
-	static protected $HTML_MIME_TYPES = ";^text/html|^application/xhtml+xml|^application/xml|^text/xml;";
+	static protected $HTML_MIME_TYPES = array("text/html", "application/xhtml+xml", "application/xml", "text/xml");
 	static protected $HTML_SERVE_AS = "text/plain";
 	
 	/**
@@ -64,7 +56,7 @@ abstract class WikidotController extends WebFlowController {
 				$c = new Criteria();
 				$c->add("unix_name", $siteUnixName);
 				$c->add("site.deleted", false);
-				$site = SitePeer::instance()->selectOne($c);
+				$site = DB_SitePeer::instance()->selectOne($c);
 				if($site) {
 					$memcache->set($mcKey, $site, 0, 3600);
 				}
@@ -81,7 +73,7 @@ abstract class WikidotController extends WebFlowController {
 				$c = new Criteria();
 				$c->add("custom_domain", $siteHost);
 				$c->add("site.deleted", false);
-				$site = SitePeer::instance()->selectOne($c);
+				$site = DB_SitePeer::instance()->selectOne($c);
 				if ($site) {
 					$memcache->set($mcKey, $site, 0, 3600);
 				}	
@@ -119,12 +111,10 @@ abstract class WikidotController extends WebFlowController {
 	
 	private function calculateEtag($path) {
 		if (file_exists($path)) {
-			$stat = stat($path);
-			if ($stat) {
-				return '"' . md5($stat['mtime']) . '"';
-			}
+			return '"' . md5_file($path) . '"';
+		} else {
+			return '"none"';
 		}
-		return '"none"';
 	}
 	
 	public function return304() {
@@ -177,7 +167,7 @@ abstract class WikidotController extends WebFlowController {
 		$c->add("site_id", $site->getSiteId());
 		$c->add("user_id", $user->getUserId());
 
-		if (MemberPeer::instance()->selectOne($c)) { // user is a member of the wiki
+		if (DB_MemberPeer::instance()->selectOne($c)) { // user is a member of the wiki
 			return true;
 		}
 
@@ -202,7 +192,7 @@ abstract class WikidotController extends WebFlowController {
 			$mime = "application/octet-stream";
 		}
 		
-		if ($restrictHtml && preg_match(self::$HTML_MIME_TYPES, $mime)) {
+		if ($restrictHtml && in_array($mime, self::$HTML_MIME_TYPES)) {
 			$mime = self::$HTML_SERVE_AS;
 		}
 

@@ -23,13 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \CacheableModule;
-use Criteria;
-use DB\ForumGroupPeer;
-use DB\ForumCategoryPeer;
-
 class ForumRecentPostsModule extends CacheableModule {
 	
 	protected $timeOut = 300;
@@ -45,7 +38,7 @@ class ForumRecentPostsModule extends CacheableModule {
 		$c->add("visible", true);
 		$c->addOrderAscending("sort_index");	
 			
-		$groups = ForumGroupPeer::instance()->select($c);
+		$groups = DB_ForumGroupPeer::instance()->select($c);
 		
 		$res = array();
 		
@@ -55,7 +48,7 @@ class ForumRecentPostsModule extends CacheableModule {
 			
 			$c->addOrderAscending("sort_index");
 			
-			$categories = ForumCategoryPeer::instance()->select($c);
+			$categories = DB_ForumCategoryPeer::instance()->select($c);
 			foreach($categories as $cat){
 				$res[] = array('group' => $g, 'category' => $cat);	
 			}			

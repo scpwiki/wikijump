@@ -23,15 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \CacheableModule2;
-use DB\CategoryPeer;
-use \ProcessException;
-use Criteria;
-use DB\PagePeer;
-use DB\ForumThreadPeer;
-
 class TopRatedPagesModule extends CacheableModule2 {
 	
 	protected $keyBase = 'top_rated_pages';
@@ -67,7 +58,7 @@ class TopRatedPagesModule extends CacheableModule2 {
 		
 		$categoryName = $pl->getParameterValue("category", "MODULE", "AMODULE");
 		if($categoryName !== null){
-			$category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
+			$category = DB_CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
 			if($category == null){
 				throw new ProcessException(_("The category can not be found."));	
 			}
@@ -111,13 +102,13 @@ class TopRatedPagesModule extends CacheableModule2 {
 			$c->setLimit($limit);
 		}
 		
-		$pages = PagePeer::instance()->select($c);
+		$pages = DB_PagePeer::instance()->select($c);
 		
 		if($showComments){
 			
 			foreach($pages as &$page){
 				if($page->getThreadId()){
-					$thread = ForumThreadPeer::instance()->selectByPrimaryKey($page->getThreadId());
+					$thread = DB_ForumThreadPeer::instance()->selectByPrimaryKey($page->getThreadId());
 					$noc = $thread->getNumberPosts();	
 				}else{
 					$noc = 0;

@@ -23,13 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use ODate;
-use Database;
-use DB\SitePeer;
-
 class MostActiveForumsModule extends SmartyModule {
 	
 	protected $timeOut=3600;
@@ -85,7 +78,7 @@ class MostActiveForumsModule extends SmartyModule {
 		$all = $res->fetchAll();
 		if($all){
 			foreach($all as &$a){
-				$a['site'] = SitePeer::instance()->selectByPrimaryKey($a['site_id']);
+				$a['site'] = DB_SitePeer::instance()->selectByPrimaryKey($a['site_id']);
 			}
 		}
 		$runData->contextAdd("res", $all);

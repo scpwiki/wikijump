@@ -23,12 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \FeedScreen;
-use Criteria;
-use DB\ForumThreadPeer;
-
 class ForumThreadsFeed extends FeedScreen {
 	
 	public function render($runData){
@@ -102,7 +96,7 @@ class ForumThreadsFeed extends FeedScreen {
 		$c->addJoin("forum_category.group_id", "forum_group.group_id");
 		$c->addOrderDescending("thread_id");
 		$c->setLimit(20);
-		$threads = ForumThreadPeer::instance()->select($c);
+		$threads = DB_ForumThreadPeer::instance()->select($c);
 		
 		foreach($threads as $thread){
 			$item = array();

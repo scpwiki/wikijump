@@ -23,17 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \AccountBaseModule;
-use DB\ProfilePeer;
-
 class APAboutModule extends AccountBaseModule {
 	
 	public function build($runData){
 		
 		$userId = $runData->getUserId();
-		$profile = ProfilePeer::instance()->selectByPrimaryKey($userId);
+		$profile = DB_ProfilePeer::instance()->selectByPrimaryKey($userId);
 		
 		$runData->contextAdd("profile", $profile);	
 	}

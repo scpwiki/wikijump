@@ -23,10 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-
 class NewWikiModule extends SmartyModule{
 
 	public function build($runData){

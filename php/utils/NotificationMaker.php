@@ -23,14 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \NotificationMaker as NotificationMaker;
-use DB\Notification;
-use \WDRenderUtils;
-use ODate;
-use DB\SitePeer;
-
 class NotificationMaker {
 	
 	private static $instance;
@@ -45,7 +37,7 @@ class NotificationMaker {
 	public function privateMessageNotification($message){
 		$fromUser = $message->getFromUser();
 		
-		$not = new Notification();
+		$not = new DB_Notification();
 		$not->setUserId($message->getToUserId());
 		$not->setType("new_private_message");
 		
@@ -78,8 +70,8 @@ class NotificationMaker {
 	}
 	
 	public function newMembershipInvitation($invitation){
-		$site = SitePeer::instance()->selectByPrimaryKey($invitation->getSiteId());
-		$not = new Notification();
+		$site = DB_SitePeer::instance()->selectByPrimaryKey($invitation->getSiteId());
+		$not = new DB_Notification();
 		$not->setUserId($invitation->getUserId());
 		$not->setType("new_membership_invitation");
 		
@@ -94,7 +86,7 @@ class NotificationMaker {
 	
 	public function removedFromMembers($site, $user){
 		// and create a notification too...
-		$not = new Notification();
+		$not = new DB_Notification();
 		$not->setUserId($user->getUserId());
 		$not->setType("removed_from_members");
 
@@ -110,7 +102,7 @@ class NotificationMaker {
 	
 	public function addedToModerators($site, $user){
 		// and create a notification too...
-		$not = new Notification();
+		$not = new DB_Notification();
 		$not->setUserId($user->getUserId());
 		$not->setType("added_to_moderators");
 
@@ -126,7 +118,7 @@ class NotificationMaker {
 	
 	public function removedFromModerators($site, $user){
 		// and create a notification too...
-		$not = new Notification();
+		$not = new DB_Notification();
 		$not->setUserId($user->getUserId());
 		$not->setType("removed_from_moderators");
 
@@ -141,7 +133,7 @@ class NotificationMaker {
 
 	public function addedToAdmins($site, $user){
 		// and create a notification too...
-		$not = new Notification();
+		$not = new DB_Notification();
 		$not->setUserId($user->getUserId());
 		$not->setType("added_to_administrators");
 
@@ -156,7 +148,7 @@ class NotificationMaker {
 	
 	public function removedFromAdmins($site, $user){
 		// and create a notification too...
-		$not = new Notification();
+		$not = new DB_Notification();
 		$not->setUserId($user->getUserId());
 		$not->setType("removed_from_administrators");
 
@@ -170,7 +162,7 @@ class NotificationMaker {
 	}
 	
 	public function membershipApplicationAccepted($site, $user){
-		$not = new Notification();
+		$not = new DB_Notification();
 		$not->setUserId($user->getUserId());
 		$not->setType("membership_application_accepted");	
 		
@@ -185,7 +177,7 @@ class NotificationMaker {
 		$not->save();		
 	}
 	public function membershipApplicationDeclined($site, $user){
-		$not = new Notification();
+		$not = new DB_Notification();
 		$not->setUserId($user->getUserId());
 		$not->setType("membership_application_declined");	
 		

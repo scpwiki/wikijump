@@ -23,15 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use DB\OzoneUserPeer;
-use \ProcessException;
-use Criteria;
-use DB\MemberPeer;
-use DB\MembershipLinkPeer;
-
 class WhoInvitedResultsModule extends SmartyModule {
 	
 	public function build($runData){
@@ -41,7 +32,7 @@ class WhoInvitedResultsModule extends SmartyModule {
 		$pl = $runData->getParameterList();
 		
 		$userId = $pl->getParameterValue("userId");
-		$user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+		$user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($userId);
 		
 		if(!$user){
 			throw new ProcessException(_("Invalid user."));	
@@ -49,13 +40,13 @@ class WhoInvitedResultsModule extends SmartyModule {
 		$c = new Criteria();
 		$c->add("user_id", $userId);
 		$c->add("site_id", $site->getSiteId());
-		$mem = MemberPeer::instance()->selectOne($c);
+		$mem = DB_MemberPeer::instance()->selectOne($c);
 		
 		if(!$mem){
 			throw new ProcessException(_("The user is not a Member of this Wiki."));	
 		}
 		
-		$link = MembershipLinkPeer::instance()->selectByUserId($site->getSiteId(), $userId);
+		$link = DB_MembershipLinkPeer::instance()->selectByUserId($site->getSiteId(), $userId);
 		if(!$link){
 			$runData->contextAdd("noData", true);	
 		}else{
@@ -67,8 +58,8 @@ class WhoInvitedResultsModule extends SmartyModule {
 					
 					// get "parent"
 					// get link for the user
-					$user = OzoneUserPeer::instance()->selectByPrimaryKey($link->getByUserId());
-					$link = MembershipLinkPeer::instance()->selectByUserId($site->getSiteId(), $user->getUserId());
+					$user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($link->getByUserId());
+					$link = DB_MembershipLinkPeer::instance()->selectByUserId($site->getSiteId(), $user->getUserId());
 					$chain[] = array('user' => $user, 'link' => $link);
 				}while($user && $link && $link->getByUserId());
 			}

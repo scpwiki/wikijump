@@ -23,12 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use Criteria;
-use DB\CategoryPeer;
-
 class WikiCategoriesModule extends SmartyModule {
 	
 	public function build($runData){
@@ -40,7 +34,7 @@ class WikiCategoriesModule extends SmartyModule {
 		$c->add("site_id", $siteId);
 		$c->addOrderAscending("replace(name, '_', '00000000')");
 		
-		$cats = CategoryPeer::instance()->select($c);
+		$cats = DB_CategoryPeer::instance()->select($c);
 		
 		$runData->contextAdd("categories", $cats);	
 	}

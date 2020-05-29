@@ -61,7 +61,7 @@
 			<tr>
 				<td colspan="2">
 					<p style="text-align: center;">
-						<a href="/local--backup/{$backup->getRand()}/backup.zip">download the ZIPped backup</a>
+						<a href="http://{$site->getDomain()}/local--backup/{$backup->getRand()}/backup.zip">download the ZIPped backup</a>
 						| <a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteBackupModule.listeners.deleteBackup(event)">delete backup</a>
 					</p>
 				</td>

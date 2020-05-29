@@ -23,25 +23,17 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use DB\FilePeer;
-use \ProcessException;
-use DB\PagePeer;
-use \WDPermissionManager;
-
 class FileRenameWinModule extends SmartyModule {
 	
 	public function build($runData){
 		$pl = $runData->getParameterList();
 		$fileId = $pl->getParameterValue("file_id");
 		
-		$file = FilePeer::instance()->selectByPrimaryKey($fileId);
+		$file = DB_FilePeer::instance()->selectByPrimaryKey($fileId);
 		if($file == null || $file->getSiteId() != $runData->getTemp("site")->getSiteId()){
 			throw new ProcessException(_("Error getting file information."), "no_file");
 		}
-		$page = PagePeer::instance()->selectByPrimaryKey($file->getPageId());
+		$page = DB_PagePeer::instance()->selectByPrimaryKey($file->getPageId());
 		if($page == null || $page->getSiteId() != $runData->getTemp("site")->getSiteId()){
 			throw new ProcessException(_("Error getting file information."), "no_page");
 		}

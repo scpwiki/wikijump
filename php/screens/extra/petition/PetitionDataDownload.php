@@ -23,16 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyScreen;
-use \WDPermissionManager;
-use Criteria;
-use DB\PetitionCampaignPeer;
-use \ProcessException;
-use DB\PetitionSignaturePeer;
-use Database;
-
 class PetitionDataDownload extends SmartyScreen {
 	
 	public function isAllowed($runData){
@@ -53,7 +43,7 @@ class PetitionDataDownload extends SmartyScreen {
 		$c->add("deleted", false);
 		$c->add("campaign_id", $campaignId);
 		
-		$camp = PetitionCampaignPeer::instance()->selectOne($c);
+		$camp = DB_PetitionCampaignPeer::instance()->selectOne($c);
 		
 		if(!$camp){
 			throw new ProcessException(_("The campaign can not be found."));	
@@ -97,7 +87,7 @@ class PetitionDataDownload extends SmartyScreen {
 		$c->add("campaign_id", $camp->getCampaignId());
 		$c->add("confirmed", true);
 		$c->addOrderAscending("signature_id");
-		$signatures = PetitionSignaturePeer::instance()->select($c);
+		$signatures = DB_PetitionSignaturePeer::instance()->select($c);
 		
 		$q = "SELECT * FROM petition_signature WHERE campaign_id={$camp->getCampaignId()} AND confirmed=TRUE ORDER BY signature_id";
 		$db = Database::connection();

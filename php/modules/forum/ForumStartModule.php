@@ -23,13 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use Criteria;
-use DB\ForumGroupPeer;
-use DB\ForumCategoryPeer;
-
 class ForumStartModule extends SmartyModule {
 	
 	protected $processPage = true;
@@ -94,13 +87,13 @@ class ForumStartModule extends SmartyModule {
 		}
 		$c->addOrderAscending("sort_index");
 		
-		$groups = ForumGroupPeer::instance()->select($c);
+		$groups = DB_ForumGroupPeer::instance()->select($c);
 		
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
 		$c->addOrderAscending("sort_index");
 		
-		$categories = ForumCategoryPeer::instance()->select($c);
+		$categories = DB_ForumCategoryPeer::instance()->select($c);
 		
 		// now mangle the categories and put into array
 		// - in order to avoid several queries

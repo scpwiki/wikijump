@@ -23,20 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyAction;
-use \WDPermissionManager;
-use DB\OzoneUserPeer;
-use Criteria;
-use DB\MemberPeer;
-use DB\UserBlockPeer;
-use Database;
-use DB\UserBlock;
-use ODate;
-use DB\IpBlockPeer;
-use DB\IpBlock;
-
 class ManageSiteBlockAction extends SmartyAction {
 	
 	public function isAllowed($runData){
@@ -51,7 +37,7 @@ class ManageSiteBlockAction extends SmartyAction {
 		$site = $runData->getTemp("site");
 		
 		$userId = $pl->getParameterValue("userId");
-		$user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+		$user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($userId);
 		if($user == null){
 			$runData->ajaxResponseAdd("status", "no_user");
 			$runData->ajaxResponseAdd("message", "No such user.");
@@ -61,7 +47,7 @@ class ManageSiteBlockAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
 		$c->add("user_id", $userId);
-		$mem = MemberPeer::instance()->selectOne($c);
+		$mem = DB_MemberPeer::instance()->selectOne($c);
 		if($mem){
 			$runData->ajaxResponseAdd("status", "user_member");
 			$runData->ajaxResponseAdd("message", _("The user you want to block is a member of this site. Please first remove him/her from the site members list."));
@@ -69,7 +55,7 @@ class ManageSiteBlockAction extends SmartyAction {
 		}
 		
 		// check if not already blocked
-		$bl = UserBlockPeer::instance()->selectOne($c);
+		$bl = DB_UserBlockPeer::instance()->selectOne($c);
 		if($bl){
 			$runData->ajaxResponseAdd("status", "already_blocked");
 			$runData->ajaxResponseAdd("message", _("This user is already blocked."));
@@ -83,7 +69,7 @@ class ManageSiteBlockAction extends SmartyAction {
 		
 		$reason = $pl->getParameterValue("reason", "AMODULE");
 		
-		$block = new UserBlock();
+		$block = new DB_UserBlock();
 		$block->setSiteId($site->getSiteId());
 		$block->setUserId($userId);
 		$block->setDateBlocked(new ODate());
@@ -101,7 +87,7 @@ class ManageSiteBlockAction extends SmartyAction {
 		$site = $runData->getTemp("site");
 		
 		$userId = $pl->getParameterValue("userId");
-		$user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+		$user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($userId);
 		if($user == null){
 			$runData->ajaxResponseAdd("status", "no_user");
 			$runData->ajaxResponseAdd("message", _("No such user."));
@@ -111,7 +97,7 @@ class ManageSiteBlockAction extends SmartyAction {
 		$c->add("site_id", $site->getSiteId());
 		$c->add("user_id", $userId);
 		
-		$block = UserBlockPeer::instance()->selectOne($c);
+		$block = DB_UserBlockPeer::instance()->selectOne($c);
 		if($block == null){
 			$runData->ajaxResponseAdd("status", "no_user");
 			$runData->ajaxResponseAdd("message", _("No such block."));
@@ -122,7 +108,7 @@ class ManageSiteBlockAction extends SmartyAction {
 		$db = Database::connection();
 		$db->begin();
 		
-		UserBlockPeer::instance()->delete($c);
+		DB_UserBlockPeer::instance()->delete($c);
 		
 		$db->commit();
 	}	
@@ -183,7 +169,7 @@ class ManageSiteBlockAction extends SmartyAction {
 			$c = new Criteria();
 			$c->add("site_id", $site->getSiteId());
 			$c->add("ip", $ip2);
-			$bl = IpBlockPeer::instance()->selectOne($c);
+			$bl = DB_IpBlockPeer::instance()->selectOne($c);
 			if($bl != null){
 				$errorIps[$ip] = _("IP already in the list.");
 				continue;	
@@ -215,7 +201,7 @@ class ManageSiteBlockAction extends SmartyAction {
 				
 				$now = new ODate();
 				
-				$block = new IpBlock();
+				$block = new DB_IpBlock();
 				$block->setSiteId($site->getSiteId());
 				$block->setIp($ip);
 				$block->setDateBlocked($now);
@@ -235,7 +221,7 @@ class ManageSiteBlockAction extends SmartyAction {
 		$site = $runData->getTemp("site");
 		
 		$blockId = $pl->getParameterValue("blockId");
-		$block = IpBlockPeer::instance()->selectByPrimaryKey($blockId);
+		$block = DB_IpBlockPeer::instance()->selectByPrimaryKey($blockId);
 		if($block == null){
 			$runData->ajaxResponseAdd("status", "no_block");
 			$runData->ajaxResponseAdd("message", _("No such IP block."));
@@ -249,7 +235,7 @@ class ManageSiteBlockAction extends SmartyAction {
 		$db = Database::connection();
 		$db->begin();
 		
-		IpBlockPeer::instance()->delete($c);
+		DB_IpBlockPeer::instance()->delete($c);
 		
 		$db->commit();
 	}	

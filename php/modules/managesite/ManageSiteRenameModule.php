@@ -23,13 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \ManageSiteBaseModule;
-use Criteria;
-use DB\AdminPeer;
-use DB\OzoneUserPeer;
-
 class ManageSiteRenameModule extends ManageSiteBaseModule {
 	
 	public function build($runData){
@@ -41,7 +34,7 @@ class ManageSiteRenameModule extends ManageSiteBaseModule {
 		$c->add("user_id", $user->getUserId());
 		$c->add("site_id", $site->getSiteId());
 		$c->add("founder", true);
-		$rel = AdminPeer::instance()->selectOne($c);
+		$rel = DB_AdminPeer::instance()->selectOne($c);
 		
 		if($rel){
 			$runData->contextAdd('allowed', true);
@@ -49,8 +42,8 @@ class ManageSiteRenameModule extends ManageSiteBaseModule {
 			$c = new Criteria();
 			$c->add("site_id", $site->getSiteId());
 			$c->add("founder", true);
-			$f = AdminPeer::instance()->selectOne($c);
-			$founder = OzoneUserPeer::instance()->selectByPrimaryKey($f->getUserId());
+			$f = DB_AdminPeer::instance()->selectOne($c);
+			$founder = DB_OzoneUserPeer::instance()->selectByPrimaryKey($f->getUserId());
 			$runData->contextAdd('founder', $founder);
 		}
 

@@ -55,7 +55,6 @@ class Text_Wiki {
         'Delimiter',
        // 'Moduledelimiter',
         'Code',
-        'Form',
         'Raw',
         'Rawold',
         'Modulepre',

@@ -23,13 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \ManageSiteBaseModule;
-use DB\CategoryPeer;
-use Criteria;
-use DB\PagePeer;
-
 class ManageSiteTemplatesModule extends ManageSiteBaseModule {
 	
 	public function build($runData){
@@ -38,7 +31,7 @@ class ManageSiteTemplatesModule extends ManageSiteBaseModule {
 		$runData->contextAdd("site", $site);
 		
 		// select templates
-		$templatesCategory = CategoryPeer::instance()->selectByName("template", $site->getSiteId());
+		$templatesCategory = DB_CategoryPeer::instance()->selectByName("template", $site->getSiteId());
 		
 		if($templatesCategory == null){
 			$runData->contextAdd("noTemplates", true);
@@ -48,14 +41,14 @@ class ManageSiteTemplatesModule extends ManageSiteBaseModule {
 		$c = new Criteria();
 		$c->add("category_id", $templatesCategory->getCategoryId());
 		$c->addOrderAscending("title");
-		$templates =  PagePeer::instance()->select($c);
+		$templates =  DB_PagePeer::instance()->select($c);
 		$runData->contextAdd("templates", $templates);
 		
 		// get all categories for the site
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
 		$c->addOrderAscending("replace(name, '_', '00000000')");
-		$categories = CategoryPeer::instance()->select($c);
+		$categories = DB_CategoryPeer::instance()->select($c);
 		
 		$runData->contextAdd("categories", $categories);
 		

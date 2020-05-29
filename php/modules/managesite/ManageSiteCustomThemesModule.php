@@ -23,12 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \ManageSiteBaseModule;
-use Criteria;
-use DB\ThemePeer;
-
 class ManageSiteCustomThemesModule extends ManageSiteBaseModule {
 	
 	public function build($runData){
@@ -42,7 +36,7 @@ class ManageSiteCustomThemesModule extends ManageSiteBaseModule {
 		$c->add("custom", true);
 		$c->add("abstract", false);
 		$c->addOrderAscending("name");
-		$themes = ThemePeer::instance()->select($c);
+		$themes = DB_ThemePeer::instance()->select($c);
 		$runData->contextAdd("themes", $themes);
 
 	}

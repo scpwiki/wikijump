@@ -23,23 +23,61 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use Database;
-use DB\Site;
-
 class SearchAllModule extends SmartyModule {
+
+	protected function normalizeWhiteSpace($query) {
+		return trim(preg_replace('/\s+/', ' ', $query));
+	}
+	
+	protected function parseQuery($query) {
+		// add some space
+		$q = " $query ";
+		
+		// check for site:X,Y,Z strings
+		$sites = null;
+		$m = array();
+		if (preg_match("/ site:([a-z0-9,-]+) /i", $q, $m)) {
+			$sites = explode(",", $m[1]);
+			$q = preg_replace("/ site:([a-z0-9,-]+) /i", "", $q);
+		}
+		
+		// we want "pure" query version now
+		// escaping \, !, (, ), :, ^, [, ], {, }, ~, *, ?
+		$q = preg_replace('/[&\|\?~,)("^!{}[]/', " ", $q);
+		$q = str_replace(']', " ", $q);
+		$q = preg_replace('/([a-z][a-z][a-z])\*/', '\1~', $q);
+		$q = str_replace('*', ' ', $q);
+		$q = str_replace("~", '*', $q);
+		$q = str_replace("tags:", "tags~", $q);
+		$q = str_replace("tag:", "tags~", $q);
+		$q = str_replace("title:", "title~", $q);
+		$q = str_replace("content:", "content~", $q);
+		$q = str_replace(":", " ", $q);
+		$q = str_replace("~", ":", $q);
+		
+		$q = $this->normalizeWhiteSpace($q);
+		
+		return array("sites" => $sites, "query" => $q);
+	}
+	
+	protected function simplifyForTs($query) {
+		$q = " $query ";
+		$q = preg_replace("/ site:[a-z0-9,-]+/i", " ", $q);
+		$q = $this->normalizeWhiteSpace($q);
+		$q = preg_replace("/[&\|:\?^~]/", ' ', $q);
+		$q = preg_replace("/((^)|([\s]+))\-/", '&!', $q);
+		$q = str_replace("-", " ", $q);
+		$q = trim($q);
+		$q = preg_replace('/ +/', '&', $q);
+		return $q;
+	}
 	
 	public function build($runData){
-
+		
+		// parse parameters
 		$pl = $runData->getParameterList();
 		$query = trim($pl->getParameterValue("q"));
 		$area = $pl->getParameterValue("a");
-		
-		if($area != 'p' && $area != 'f' && $area != 'pf'){
-			$area = null;
-		}
 		
 		if($query == ''){
 			return;	
@@ -50,108 +88,90 @@ class SearchAllModule extends SmartyModule {
 			return;	
 		}
 		
-		$site = $runData->getTemp("site");
-		
 		// pagination
-		
 		$pageNumber = $pl->getParameterValue("p");
 		if($pageNumber == null || !is_numeric($pageNumber) || $pageNumber <1){
 			$pageNumber = 1;	
 		}
 		$perPage = 10;
+		$limit = $perPage;
+		$offset = ($pageNumber - 1) * $perPage;
 		
-		$limit = $perPage*2+1;
-		$offset = ($pageNumber - 1)*$perPage;
+		// parse query
+		$query_array = $this->parseQuery($query);
+		$ts_query = "'" . db_escape_string($this->simplifyForTs($query_array['query'])) . "'";
 		
-		$qe = $query;
-		$qe = preg_replace("/[!:\?]/",' ', $qe);
-		$qe = preg_replace("/[&\|!]+/", ' ', $qe);
-		$qe = preg_replace("/((^)|([\s]+))\-/", '&!', $qe);
-		$qe = str_replace("-", " ", $qe);
-		$qe = trim($qe);
-		$qe = preg_replace('/ +/', '&', $qe);
-		// prepare fts query
+		// find
+		$lucene = new Wikidot_Search_Lucene();
+		$lucene_hits = $lucene->search($query_array['query'], $runData->getUser(), $area, $query_array['sites']);
+		$result_count = count($lucene_hits);
 		
-		// escaped query
-		$eq = "'".db_escape_string($qe)."'";
+		// limit
+		$lucene_hits = array_slice($lucene_hits, $offset, $limit);
 		
-		// search pages
+		// hedline options
 		$headlineOptions = "'MaxWords=200, MinWords=100'";
 		
+		// fetch items from database with highlight
 		$db = Database::connection();
-
     	$v = pg_version($db->getLink());
     	
-		if(!preg_match(';^8\.3;', $v['server'])){
+		if (!preg_match(';^8\.3;', $v['server'])) {
 		    $db->query("SELECT set_curcfg('default')");
 		} else {
 			$tsprefix = 'ts_'; // because in postgresql 8.3 functions are ts_rank and ts_header
 		}
 		
-		$q = "SELECT *, fts_entry.unix_name AS fts_unix_name, {$tsprefix}headline(text, q, 'MaxWords=50, MinWords=30') AS headline_text, {$tsprefix}headline(title, q, $headlineOptions) AS headline_title FROM fts_entry, site, to_tsquery($eq) AS q " .
-			"WHERE site.visible=TRUE AND site.private = FALSE AND site.deleted = FALSE";
-	
+		$res = array();
 		
-		if($area){
+		foreach ($lucene_hits as $fts_id) {
 			
-			switch($area){
-				case 'f':
-					$q .= " AND thread_id IS NOT NULL ";
-					break;
-				case 'p':
-					$q .= " AND page_id IS NOT NULL ";
-					break;
+			$q = "SELECT *, 
+					fts_entry.unix_name AS fts_unix_name, 
+					{$tsprefix}headline(text, q, 'MaxWords=50, MinWords=30') AS headline_text, 
+					{$tsprefix}headline(title, q, $headlineOptions) AS headline_title 
+				FROM fts_entry, site, to_tsquery($ts_query) AS q
+				WHERE fts_id = $fts_id AND fts_entry.site_id = site.site_id";
+			
+			file_put_contents("/tmp/debug-query", "$q\n");
+			
+			$r = $db->query($q);
+			$res_one = $r->fetchAll();
+			
+			if ($res_one && count($res_one)) {
+				$res[] = $res_one[0];
 			}
-				
 		}
-		$q .= " AND " .
-				"vector @@ q " .
-				"AND fts_entry.site_id=site.site_id " .
-				"ORDER BY {$tsprefix}rank(vector, q) DESC LIMIT $limit OFFSET $offset";
 		
-		$r = $db->query($q);
-		$res = $r->fetchAll();
-
-		if($res){
-			// fix urls
-			$counted = count($res); 
+		// pager data
+		$total_pages = ceil($result_count / $perPage);
+		$pagerData = array();
+		$pagerData['current_page'] = $pageNumber;
+		$pagerData['known_pages'] = min(array($pageNumber + 2, $total_pages));
+		$pagerData['total_pages'] = $total_pages;
 		
-			$pagerData = array();
-			$pagerData['current_page'] = $pageNumber;
-			if($counted >$perPage*2){
-				$knownPages=$pageNumber + 2;
-				$pagerData['known_pages'] = $knownPages;	
-			} elseif($counted>$perPage){
-				$knownPages=$pageNumber + 1;
-				$pagerData['total_pages'] = $knownPages; 
+		// construct URLs
+		for ($i = 0; $i < count($res); $i++) {
+			$o = $res[$i];
+			$res[$i]['site'] = new DB_Site($res[$i]);
+			if($o['page_id'] !== null){
+				$res[$i]['url'] = 'http://'.$res[$i]['site']->getDomain().'/'.$o['fts_unix_name'];	
 			}else{
-				$totalPages = $pageNumber;	
-				$pagerData['total_pages'] = $totalPages;
+				$res[$i]['url'] = 'http://'.$res[$i]['site']->getDomain().'/forum/t-'.$o['thread_id'].'/'.$o['unix_name'];	
 			}
-			
-			$res = array_slice($res, 0, $perPage);
-			for($i=0; $i<count($res); $i++){
-				$o = $res[$i];
-				$res[$i]['site'] = new Site($res[$i]);
-				if($o['page_id'] !== null){
-					$res[$i]['url'] = 'http://'.$res[$i]['site']->getDomain().'/'.$o['fts_unix_name'];	
-				}else{
-					$res[$i]['url'] = 'http://'.$res[$i]['site']->getDomain().'/forum/t-'.$o['thread_id'].'/'.$o['unix_name'];	
-				}
-			}
-			
 		}
 		
+		// feed the template
 		$runData->contextAdd("pagerData", $pagerData);
-
 		$runData->contextAdd("results", $res);
 		$runData->contextAdd("countResults", count($res));
+		$runData->contextAdd("totalResults", $result_count);
 		$runData->contextAdd("query", $query);
 		$runData->contextAdd("encodedQuery", urldecode($query));
 		$runData->contextAdd("queryEncoded", urlencode($query));
 		$runData->contextAdd("area", $area);
-		$runData->contextAdd("query_debug", $qe); 
-		$runData->contextAdd("domain", $site->getDomain());
+		//$runData->contextAdd("query_debug", $lucene_query); 
+		$runData->contextAdd("domain", $runData->getTemp("site")->getDomain());
 		
 	}
 	

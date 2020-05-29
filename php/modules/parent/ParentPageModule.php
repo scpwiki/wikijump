@@ -23,19 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use DB\PagePeer;
-use \ProcessException;
-use \WDPermissionManager;
-
 class ParentPageModule extends SmartyModule{
 	
 	public function build($runData){
 		$pageId = $runData->getParameterList()->getParameterValue("page_id");
 		
-		$page = PagePeer::instance()->selectByPrimaryKey($pageId);
+		$page = DB_PagePeer::instance()->selectByPrimaryKey($pageId);
 		if($page == null || $page->getSiteId() != $runData->getTemp("site")->getSiteId()){
 			throw new ProcessException(_("Error getting page information."), "no_page");
 		}
@@ -47,7 +40,7 @@ class ParentPageModule extends SmartyModule{
 		WDPermissionManager::instance()->hasPagePermission('edit', $user, $category, $page);
 			
 		if($page->getParentPageId() !== null){
-			$parentPage = PagePeer::instance()->selectByPrimaryKey($page->getParentPageId());
+			$parentPage = DB_PagePeer::instance()->selectByPrimaryKey($page->getParentPageId());
 			$runData->contextAdd("parentPageName", $parentPage->getUnixName());
 		}
 	}

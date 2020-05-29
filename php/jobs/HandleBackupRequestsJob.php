@@ -23,32 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SchedulerJob;
-use run;
-use Criteria;
-use add;
-use null;
-use addOrderDescending;
-use DB\SiteBackupPeer;
-use instance;
-use selectOne;
-use Database;
-use connection;
-use setStatus;
-use save;
-use begin;
-use \Backuper;
-use setConfig;
-use backup;
-use setDate;
-use ODate;
-use setRand;
-use getRand;
-use Exception;
-use commit;
-
 /**
  * Periodically creates downloadable site backups (on request).
  *
@@ -62,7 +36,7 @@ class HandleBackupRequestsJob implements SchedulerJob {
 		$c->add("status", null);
 		$c->addOrderDescending("backup_id");
 
-		$sb = SiteBackupPeer::instance()->selectOne($c); // select only one!
+		$sb = DB_SiteBackupPeer::instance()->selectOne($c); // select only one!
 		
 		if(!$sb){
 			return;

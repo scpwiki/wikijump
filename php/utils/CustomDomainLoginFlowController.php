@@ -23,12 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \WikidotController;
-use RunData;
-use Ozone;
-
 class CustomDomainLoginFlowController extends WikidotController {
 
 	static public $controllerUrl = "/domainauth.php";

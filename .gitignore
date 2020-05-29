@@ -1,5 +1,9 @@
-.idea/
 mapfile.php
 namespacer.phar
-files/public.pem
-files/modulus.pem
+.idea/.gitignore
+.idea/composerJson.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/sqldialects.xml
+.idea/vcs.xml
+.idea/wikidot.iml

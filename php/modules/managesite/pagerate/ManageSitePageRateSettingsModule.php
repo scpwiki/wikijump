@@ -23,12 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \ManageSiteBaseModule;
-use Criteria;
-use DB\CategoryPeer;
-
 class ManageSitePageRateSettingsModule extends ManageSiteBaseModule {
 	
 	public function build($runData){
@@ -40,7 +34,7 @@ class ManageSitePageRateSettingsModule extends ManageSiteBaseModule {
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
 		$c->addOrderAscending("replace(name, '_', '00000000')");
-		$categories = CategoryPeer::instance()->select($c);
+		$categories = DB_CategoryPeer::instance()->select($c);
 		
 		$runData->contextAdd("categories", $categories);
 		

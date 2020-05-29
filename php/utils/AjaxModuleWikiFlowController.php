@@ -23,24 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use WebFlowController;
-use OzoneLogger;
-use OzoneLoggerFileOutput;
-use RunData;
-use \ProcessException;
-use Criteria;
-use DB\SitePeer;
-use DB\MemberPeer;
-use DB\SiteViewerPeer;
-use \WDPermissionException;
-use Ozone;
-use Database;
-use Exception;
-use ModuleProcessor;
-use JSONService;
-
 class AjaxModuleWikiFlowController extends WebFlowController {
 
 	public function process() {
@@ -100,7 +82,7 @@ class AjaxModuleWikiFlowController extends WebFlowController {
 					$c = new Criteria();
 					$c->add("unix_name", $siteUnixName);
 					$c->add("site.deleted", false);
-					$site = SitePeer::instance()->selectOne($c);
+					$site = DB_SitePeer::instance()->selectOne($c);
 					$memcache->set($mcKey, $site, 0, 3600);	
 				}
 			} else {
@@ -111,7 +93,7 @@ class AjaxModuleWikiFlowController extends WebFlowController {
 					$c = new Criteria();
 					$c->add("custom_domain", $siteHost);
 					$c->add("site.deleted", false);
-					$site = SitePeer::instance()->selectOne($c);
+					$site = DB_SitePeer::instance()->selectOne($c);
 					$memcache->set($mcKey, $site, 0, 3600);	
 				}
 				GlobalProperties::$SESSION_COOKIE_DOMAIN = '.'.$siteHost;
@@ -202,13 +184,13 @@ class AjaxModuleWikiFlowController extends WebFlowController {
 						$c = new Criteria();
 						$c->add("site_id", $site->getSiteId());
 						$c->add("user_id", $user->getUserId());
-						$mem = MemberPeer::instance()->selectOne($c);
+						$mem = DB_MemberPeer::instance()->selectOne($c);
 						if(!$mem) { 
 							// check if a viewer
 							$c = new Criteria();
 							$c->add("site_id", $site->getSiteId());
 							$c->add("user_id", $user->getUserId());
-							$vi = SiteViewerPeer::instance()->selectOne($c);
+							$vi = DB_SiteViewerPeer::instance()->selectOne($c);
 							if(!$vi) { 
 								$user = null;
 							}

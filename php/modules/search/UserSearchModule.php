@@ -23,12 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use Criteria;
-use DB\OzoneUserPeer;
-
 class UserSearchModule extends SmartyModule {
 	
 	public function build($runData){
@@ -61,7 +55,7 @@ class UserSearchModule extends SmartyModule {
 			// email lookup mode
 			$c = new Criteria();
 			$c->add("ozone_user.name", $query);
-			$user = OzoneUserPeer::instance()->selectOne($c);
+			$user = DB_OzoneUserPeer::instance()->selectOne($c);
 			$runData->contextAdd("user", $user);
 			$runData->contextAdd("mode", "email");	
 			sleep(2);
@@ -87,7 +81,7 @@ class UserSearchModule extends SmartyModule {
 
 			$c->setLimit($limit, $offset);
 		
-			$res = OzoneUserPeer::instance()->select($c);		
+			$res = DB_OzoneUserPeer::instance()->select($c);		
 			
 			$counted = count($res); 
 		

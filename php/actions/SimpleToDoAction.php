@@ -23,17 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyAction;
-use \ProcessException;
-use DB\PagePeer;
-use \WDPermissionManager;
-use JSONService;
-use Criteria;
-use DB\SimpletodoListPeer;
-use DB\SimpletodoList;
-
 class SimpleToDoAction extends SmartyAction {
     
     public function perform($r){
@@ -49,7 +38,7 @@ class SimpleToDoAction extends SmartyAction {
         if (!is_numeric($pageId)){
             throw new ProcessException(_("Page does not exist."));
         }
-		$page = PagePeer::instance()->selectByPrimaryKey($pageId);
+		$page = DB_PagePeer::instance()->selectByPrimaryKey($pageId);
 
 		if(!$page) {
 			throw new ProcessException(_("Page does not exist."));
@@ -90,10 +79,10 @@ class SimpleToDoAction extends SmartyAction {
         $c = new Criteria();
         $c->add('label',$listData->label);
         $c->add('site_id', $site->getSiteId());
-        $list = SimpletodoListPeer::instance()->selectOne($c);
+        $list = DB_SimpletodoListPeer::instance()->selectOne($c);
         
         if (!$list){
-            $list = new SimpletodoList();
+            $list = new DB_SimpletodoList();
             $list->setSiteId($site->getSiteId());
             $list->setLabel($dataArray['label']);
         }

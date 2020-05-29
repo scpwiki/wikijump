@@ -23,13 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use DB\PagePeer;
-use \ProcessException;
-use Criteria;
-
 class ChildPagesModule extends SmartyModule {
 	
 	public function build($runData){
@@ -37,7 +30,7 @@ class ChildPagesModule extends SmartyModule {
 		if(!$page){
 			$pageName = $runData->getTemp("pageUnixName");
 			$site = $runData->getTemp("site");	
-			$page =  PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
+			$page =  DB_PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
 		}
 		
 		if(!$page){
@@ -48,7 +41,7 @@ class ChildPagesModule extends SmartyModule {
 		$c->add("parent_page_id", $page->getPageId());
 		$c->addOrderAscending("COALESCE(title, unix_name)");
 		
-		$pages = PagePeer::instance()->select($c);
+		$pages = DB_PagePeer::instance()->select($c);
 		if(count($pages)>0){
 			$runData->contextAdd("pages", $pages);
 		}	

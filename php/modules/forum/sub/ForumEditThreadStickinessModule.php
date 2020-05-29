@@ -23,14 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use Database;
-use DB\ForumThreadPeer;
-use \ProcessException;
-use \WDPermissionManager;
-
 class ForumEditThreadStickinessModule extends SmartyModule {
 	
 	public function build($runData){
@@ -42,7 +34,7 @@ class ForumEditThreadStickinessModule extends SmartyModule {
 		$db = Database::connection();
 		$db->begin();
 		
-		$thread = ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
+		$thread = DB_ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
 		if($thread == null || $thread->getSiteId() !== $site->getSiteId()){
 			throw new ProcessException(_("No thread found... Is it deleted?"), "no_thread");
 		}

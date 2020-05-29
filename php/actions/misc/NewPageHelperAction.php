@@ -23,13 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyAction;
-use \ProcessException;
-use \WDStringUtils;
-use DB\PagePeer;
-
 class NewPageHelperAction extends SmartyAction {
 	
 	public function perform($r){}
@@ -74,7 +67,7 @@ class NewPageHelperAction extends SmartyAction {
 			$unixName = WDStringUtils::toUnixName($categoryName.':'.$pageName);
 		}
 		
-		$page = PagePeer::instance()->selectByName($site->getSiteId(), $unixName);
+		$page = DB_PagePeer::instance()->selectByName($site->getSiteId(), $unixName);
 		if($page != null){
 			$runData->ajaxResponseAdd("status", "page_exists");
 			$runData->ajaxResponseAdd("message", "The page <em>".$unixName."</em> already exists." .
@@ -84,7 +77,7 @@ class NewPageHelperAction extends SmartyAction {
 
 		if($templateId){
 			
-			$templatePage = PagePeer::instance()->selectByPrimaryKey($templateId);
+			$templatePage = DB_PagePeer::instance()->selectByPrimaryKey($templateId);
 			if(!$templatePage || !preg_match("/^template:/", $templatePage->getUnixName())){
 				throw new ProcessException("Error selecting the template");	
 			}

@@ -23,11 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use Criteria;
-use DB\PageEditLockPeer;
-
 class PageLockAction {
 	
 	public function perform($runData){}
@@ -39,7 +34,7 @@ class PageLockAction {
 		$pageId =  $runData->getParameterList()->getParameterValue("page_id");
 		$c = new Criteria();
 		$c->add("page_id", $pageId);
-		PageEditLockPeer::instance()->delete($c);
+		DB_PageEditLockPeer::instance()->delete($c);
 	}
 	
 }

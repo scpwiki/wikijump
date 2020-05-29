@@ -23,16 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use \WDPermissionManager;
-use Exception;
-use \ProcessException;
-use Criteria;
-use DB\SimpletodoListPeer;
-use JSONService;
-
 class SimpleToDoModule extends SmartyModule {
     
     public static $_counter = 0 ;
@@ -79,7 +69,7 @@ class SimpleToDoModule extends SmartyModule {
         $c = new Criteria();
         $c->add('label',$label);
         $c->add('site_id', $site->getSiteId());
-        $list = SimpletodoListPeer::instance()->selectOne($c);
+        $list = DB_SimpletodoListPeer::instance()->selectOne($c);
         if ($list){
             $json = new JSONService();
             $listData = $json->decode($list->getData());

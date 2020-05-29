@@ -23,21 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyAction;
-use \WDPermissionException;
-use \FileMime;
-use DB\ProfilePeer;
-use \ProcessException;
-use Database;
-use \WDStringUtils;
-use Criteria;
-use DB\OzoneUserPeer;
-use DB\SitePeer;
-use DB\PagePeer;
-use \Outdater;
-
 class AccountProfileAction extends SmartyAction {
 
     public function isAllowed($runData) {
@@ -224,7 +209,7 @@ class AccountProfileAction extends SmartyAction {
     public function saveAboutEvent($runData) {
         $pl = $runData->getParameterList();
         $userId = $runData->getUserId();
-        $profile = ProfilePeer::instance()->selectByPrimaryKey($userId);
+        $profile = DB_ProfilePeer::instance()->selectByPrimaryKey($userId);
         
         // now manually get all files...
         $realName = $pl->getParameterValue("real_name");
@@ -324,7 +309,7 @@ class AccountProfileAction extends SmartyAction {
         // check if user does not exist
         $c = new Criteria();
         $c->add("unix_name", $unixified);
-        $u = OzoneUserPeer::instance()->selectOne($c);
+        $u = DB_OzoneUserPeer::instance()->selectOne($c);
         if ($u != null) {
             throw new ProcessException(_("A user with this screen name (or very similar) already exists."));
         }
@@ -332,7 +317,7 @@ class AccountProfileAction extends SmartyAction {
         // rename the profile page
         $c = new Criteria();
         $c->add("unix_name", "profiles");
-        $nsite = SitePeer::instance()->selectOne($c);
+        $nsite = DB_SitePeer::instance()->selectOne($c);
         
         $pageName = 'profile:' . $user->getUnixName();
         
@@ -340,7 +325,7 @@ class AccountProfileAction extends SmartyAction {
         $c->add('site_id', $nsite->getSiteId());
         $c->add('unix_name', $pageName);
         
-        $page = PagePeer::instance()->selectOne($c);
+        $page = DB_PagePeer::instance()->selectOne($c);
         if (!$page) {
             throw new ProcessException('Internal error');
         }

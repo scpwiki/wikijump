@@ -23,11 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use DB\PagePeer;
-
 class PageRateModule extends SmartyModule {
 	
 	public function build($runData){
@@ -35,7 +30,7 @@ class PageRateModule extends SmartyModule {
 		$pl = $runData->getParameterList();
 		$pageId = $pl->getParameterValue("pageId");
 		
-		$page = PagePeer::instance()->selectByPrimaryKey($pageId);	
+		$page = DB_PagePeer::instance()->selectByPrimaryKey($pageId);	
 		// todo: check if allowed
 		
 		$runData->contextAdd("pageId", $page->getPageId());

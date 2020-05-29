@@ -23,14 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use Criteria;
-use DB\EmailInvitationPeer;
-use DB\SitePeer;
-use DB\OzoneUserPeer;
-
 class MembershipEmailInvitationModule extends SmartyModule {
 	
 	public function build($runData){
@@ -44,7 +36,7 @@ class MembershipEmailInvitationModule extends SmartyModule {
 		$c->add("hash", $hash);
 		$c->add("accepted", false);
 		
-		$inv = EmailInvitationPeer::instance()->selectOne($c);
+		$inv = DB_EmailInvitationPeer::instance()->selectOne($c);
 		
 		$runData->contextAdd("user", $user);
 		
@@ -53,9 +45,9 @@ class MembershipEmailInvitationModule extends SmartyModule {
 			return;
 		}
 		
-		$site = SitePeer::instance()->selectByPrimaryKey($inv->getSiteId());
+		$site = DB_SitePeer::instance()->selectByPrimaryKey($inv->getSiteId());
 		
-		$sender = OzoneUserPeer::instance()->selectByPrimaryKey($inv->getUserId());
+		$sender = DB_OzoneUserPeer::instance()->selectByPrimaryKey($inv->getUserId());
 		$runData->contextAdd("sender", $sender);
 		$runData->contextAdd("site", $site);
 		$runData->contextAdd("invitation", $inv);

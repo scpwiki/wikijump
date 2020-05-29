@@ -23,20 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use DB\CategoryPeer;
-use \ProcessException;
-use Criteria;
-use DB\PageTagPeer;
-use ODate;
-use DB\PagePeer;
-use DB\PageRevisionPeer;
-use DB\OzoneUserPeer;
-use \WikiTransformation;
-use DB\ForumThreadPeer;
-
 class ListPagesModule extends SmartyModule {
     
     public $parameterhash;
@@ -195,7 +181,7 @@ class ListPagesModule extends SmartyModule {
             
             }
             foreach (preg_split('/[,;\s]+?/', $categoryName) as $cn) {
-                $category = CategoryPeer::instance()->selectByName($cn, $site->getSiteId());
+                $category = DB_CategoryPeer::instance()->selectByName($cn, $site->getSiteId());
                 if ($category) {
                     $categories[] = $category;
                     $categoryNames[] = $category->getName();
@@ -225,32 +211,6 @@ class ListPagesModule extends SmartyModule {
         }
         
         $c->add('unix_name', '(^|:)_', '!~');
-
-	/* Handle magic previousBy/nextBy keywords */
-	$previousBy = $this->_readParameter('previousBy', true);
-	$nextBy = $this->_readParameter('nextBy', true);
-
-	if ($previousBy || $nextBy) {
-		if ($refPage = $runData->getTemp('page')) {
-			
-			$refPageId = $refPage->getPageId();
-			$refPageTitle = $refPage->getTitle() . ' ... ' . $refPage->getUnixName();
-
-			if ($previousBy == 'page_id') {
-				$c->add('page_id', $refPageId, '<');
-			} elseif ($nextBy == 'page_id') {
-				$c->add('page_id', $refPageId, '>');
-			} elseif ($previousBy == 'title') {
-				$c->add("title || ' ... ' || unix_name", $refPageTitle, '<');
-			} elseif ($nextBy == 'title') {
-				$c->add("title || ' ... ' || unix_name", $refPageTitle, '>');
-			}
-			
-		} else {
-			$c->add('page_id', 0); // this should be simply never;
-		}
-	}
-
         
         /* Handle tags! */
         
@@ -276,7 +236,7 @@ class ListPagesModule extends SmartyModule {
                         $co = new Criteria();
             			$co->add("page_id", $pageId);
             			$co->addOrderAscending("tag");
-            			$tagso = PageTagPeer::instance()->select($co);
+            			$tagso = DB_PageTagPeer::instance()->select($co);
             			foreach($tagso as $to){
             				$tagsAny[] = $to->getTag();	
             			}
@@ -393,7 +353,7 @@ class ListPagesModule extends SmartyModule {
             $pageNo = 1;
         }
         
-        $co = PagePeer::instance()->selectCount($c);
+        $co = DB_PagePeer::instance()->selectCount($c);
         
         if($limit){
         	$co = min(array($co, $limit));
@@ -474,7 +434,7 @@ class ListPagesModule extends SmartyModule {
                 break;
         }
         
-        $pages = PagePeer::instance()->select($c);
+        $pages = DB_PagePeer::instance()->select($c);
         
         /* Process... */
         $format = $this->_readParameter("module_body");
@@ -513,7 +473,7 @@ class ListPagesModule extends SmartyModule {
             
             $c = new Criteria();
             $c->add('revision_id', $page->getRevisionId());
-            $lastRevision = PageRevisionPeer::instance()->selectOne($c);
+            $lastRevision = DB_PageRevisionPeer::instance()->selectOne($c);
             
             //$c = new Criteria();
             //$c->add('page_id', $page->getPageId());
@@ -533,7 +493,7 @@ class ListPagesModule extends SmartyModule {
             /* %%author%% */
             
             if($page->getOwnerUserId()){
-	            $user = OzoneUserPeer::instance()->selectByPrimaryKey($page->getOwnerUserId());
+	            $user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($page->getOwnerUserId());
 	            if ($user->getUserId() > 0) {
 	                $userString = '[[*user ' . $user->getNickName() . ']]';
 	            } else {
@@ -546,7 +506,7 @@ class ListPagesModule extends SmartyModule {
             $b = str_ireplace("%%user%%", $userString, $b);
             
             if($lastRevision->getUserId()){
-	            $user = OzoneUserPeer::instance()->selectByPrimaryKey($lastRevision->getUserId());
+	            $user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($lastRevision->getUserId());
 	            if ($user->getUserId() > 0) {
 	                $userString = '[[*user ' . $user->getNickName() . ']]';
 	            } else {
@@ -779,7 +739,7 @@ class ListPagesModule extends SmartyModule {
         $c = new Criteria();
         $c->add("page_id", $page->getPageId());
         $c->addOrderAscending("tag");
-        $tags = PageTagPeer::instance()->select($c);
+        $tags = DB_PageTagPeer::instance()->select($c);
         $t2 = array();
         foreach ($tags as $t) {
             $t2[] = $t->getTag();
@@ -816,7 +776,7 @@ class ListPagesModule extends SmartyModule {
     	$page = $this->_tmpPage;
     	$threadId = $page->getThreadId();
     	if($threadId) {
-    		$thread = ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
+    		$thread = DB_ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
     	}
     	if($thread) {
     		return $thread->getNumberPosts();

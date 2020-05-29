@@ -8,7 +8,7 @@
 		<br/>
 		<br/>
 	{else}			
-		{t}Email or nick name{/t}
+		{t}Email{/t}
 		<br/>
 		<input class="text" name="name" type="text" size="25" id="login-form-name"/>
 		<br/><br/>

@@ -23,13 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \AccountBaseModule;
-use DB\PrivateMessagePeer;
-use \ProcessException;
-use Criteria;
-
 class PMSentMessageModule extends AccountBaseModule {
 	
 	public function build($runData){
@@ -38,7 +31,7 @@ class PMSentMessageModule extends AccountBaseModule {
 		$pl = $runData->getParameterList();
 		$messageId = $pl->getParameterValue("message_id");
 		
-		$message = PrivateMessagePeer::instance()->selectByPrimaryKey($messageId);
+		$message = DB_PrivateMessagePeer::instance()->selectByPrimaryKey($messageId);
 		if($message->getFromUserId() != $userId){
 			throw new ProcessException(_("Error selecting message."), "no_message");
 		}
@@ -53,7 +46,7 @@ class PMSentMessageModule extends AccountBaseModule {
 		$c->add("flag", 1);
 		$c->addOrderAscending("message_id");
 		
-		$newerMessage = PrivateMessagePeer::instance()->selectOne($c);
+		$newerMessage = DB_PrivateMessagePeer::instance()->selectOne($c);
 		
 		$c = new Criteria();
 		$c->add("from_user_id", $userId);
@@ -61,7 +54,7 @@ class PMSentMessageModule extends AccountBaseModule {
 		$c->add("flag", 1);
 		$c->addOrderDescending("message_id");
 		
-		$olderMessage = PrivateMessagePeer::instance()->selectOne($c);
+		$olderMessage = DB_PrivateMessagePeer::instance()->selectOne($c);
 		
 		$runData->contextAdd("newerMessage", $newerMessage);
 		$runData->contextAdd("olderMessage", $olderMessage);

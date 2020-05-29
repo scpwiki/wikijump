@@ -23,13 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use \ProcessException;
-use DB\CategoryPeer;
-use Database;
-
 class PagesTagCloudModule extends SmartyModule{
 	
 	protected $_pl;
@@ -260,7 +253,7 @@ class PagesTagCloudModule extends SmartyModule{
 		$site = $runData->getTemp("site");
 		
 		if($categoryName){
-			$category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
+			$category = DB_CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
 			if($category == null){
 				throw new ProcessException(sprintf(_('Category "%s" can not be found.'), $categoryName));
 			}	

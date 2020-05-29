@@ -78,15 +78,13 @@ class PgConnection implements DatabaseConnection{
 
 	function connect() {
 		$connectionString = "host=".$this->server." port=".$this->port." dbname=".$this->database." user=".$this->user." password=".$this->password;
-		ob_start();
 		if(GlobalProperties::$DATABASE_USE_PERSISTENT_CONNECTIONS){
 			$this->link = pg_pconnect($connectionString);
 		} else {
 			$this->link = pg_connect($connectionString,PGSQL_CONNECT_FORCE_NEW);
 		}
-		$error = ob_get_clean();
 		if (!$this->link) {
-			throw new OzoneDatabaseException($error);
+			throw new OzoneDatabaseException("error: ".pg_result_error()."\n");
 		}
 		/* configure the connection */
 		@pg_query($this->link, 'SET search_path TO "$user", public, ts2');

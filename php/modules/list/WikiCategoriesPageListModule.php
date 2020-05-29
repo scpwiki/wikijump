@@ -23,12 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use Criteria;
-use DB\PagePeer;
-
 class WikiCategoriesPageListModule extends SmartyModule {
 	
 	public function build($runData){
@@ -40,7 +34,7 @@ class WikiCategoriesPageListModule extends SmartyModule {
 		$c->add("site_id", $site->getSiteId());
 		$c->add("category_id", $categoryId);
 		$c->addOrderAscending("COALESCE(title, unix_name)");
-		$pages = PagePeer::instance()->select($c);
+		$pages = DB_PagePeer::instance()->select($c);
 		
 		if(count($pages)>0){
 			$runData->contextAdd("pages", $pages);	

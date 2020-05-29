@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 /**
  * Wikidot - free wiki collaboration software
@@ -29,14 +28,12 @@
  * this file creates configuration files that is needed to run Wikidot
  */
 
-$files = array("/files/crontab", "/conf/lighttpd/wikidot_ini.conf", "/conf/secret");
+$files = array("/web/.htaccess", "/files/apache.vhost.wikidot.conf", "/files/crontab", "/files/lighttpd-wikidot.conf");
 
 chdir(dirname(__FILE__));
 require("../php/setup.php");
 
 chdir(WIKIDOT_ROOT);
-
-$random = random(64);
 
 foreach ($files as $file) {
 	$src = WIKIDOT_ROOT."$file.orig";
@@ -44,27 +41,40 @@ foreach ($files as $file) {
 	echo "Processing $file .";
 	$s = file_get_contents($src);
 	echo ".";
-	$s = sed($s, $random);
+	$s = sed($s);
 	echo ".";
 	file_put_contents($dst, $s);
 	echo ".\n";
 }
 
-function random($length) {
-	$r = "";
-	for ($i = 0; $i < $length; $i++) {
-		$r .= dechex(rand(0, 15));
-	}
-	return $r;
-}
+// generate RSA key
 
-function sed($s, $random) {
-	$s = preg_replace('/%{WIKIDOT:WIKIDOT_ROOT}/', addslashes(WIKIDOT_ROOT), $s);
-	$s = preg_replace('/%{WIKIDOT:URL_HOST}/', addslashes(GlobalProperties::$URL_HOST), $s);
-	$s = preg_replace('/%{WIKIDOT:URL_HOST_PREG}/', addslashes(GlobalProperties::$URL_HOST_PREG), $s);
-	$s = preg_replace('/%{WIKIDOT:URL_DOMAIN}/', addslashes(GlobalProperties::$URL_DOMAIN), $s);
-	$s = preg_replace('/%{WIKIDOT:URL_DOMAIN_PREG}/', addslashes(GlobalProperties::$URL_DOMAIN_PREG), $s);
-	$s = preg_replace('/%{WIKIDOT:HTTP_PORT}/', addslashes(GlobalProperties::$HTTP_PORT), $s);
-	$s = preg_replace('/%{WIKIDOT:RANDOM_STRING}/', $random, $s);
+echo "Generating RSA keys ..\n";
+exec('sh bin/generate_keys.sh');
+
+echo "Done!!!\n";
+
+echo <<<EOT
+
+Now please use the following files:
+
+files/apache.vhost.wikidot.conf - append to your Apache configuration,
+OR files/lighttpd-wikidot.conf - include to lighttpd configuration (sample Lighttpd configuration: files/lighttpd.conf)
+files/crontab - append to your Crontab configuration
+
+You might also get a Flickr API key from http://flickr.com and
+put it to files/flickr-api-key.txt
+
+
+EOT;
+
+
+function sed($s) {
+	$s = preg_replace('/%{WIKIDOT:WIKIDOT_ROOT}/', WIKIDOT_ROOT, $s);
+	$s = preg_replace('/%{WIKIDOT:URL_HOST}/', GlobalProperties::$URL_HOST, $s);
+	$s = preg_replace('/%{WIKIDOT:URL_HOST_PREG}/', GlobalProperties::$URL_HOST_PREG, $s);
+	$s = preg_replace('/%{WIKIDOT:URL_DOMAIN}/', GlobalProperties::$URL_DOMAIN, $s);
+	$s = preg_replace('/%{WIKIDOT:URL_DOMAIN_PREG}/', GlobalProperties::$URL_DOMAIN_PREG, $s);
+	$s = preg_replace('/%{WIKIDOT:SUPPORT_EMAIL}/', GlobalProperties::$SUPPORT_EMAIL, $s);
 	return $s;
 }

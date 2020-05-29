@@ -23,18 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyAction;
-use \WDPermissionException;
-use \ProcessException;
-use Database;
-use Criteria;
-use DB\WatchedForumThreadPeer;
-use DB\WatchedForumThread;
-use DB\WatchedPagePeer;
-use DB\WatchedPage;
-
 class WatchAction extends SmartyAction {
 	
 	public function isAllowed($runData){
@@ -69,7 +57,7 @@ class WatchAction extends SmartyAction {
 		$c->add("user_id", $user->getUserId());
 		$c->add("thread_id", $threadId);
 		
-		$t = WatchedForumThreadPeer::instance()->selectOne($c);
+		$t = DB_WatchedForumThreadPeer::instance()->selectOne($c);
 		
 		if($t){
 			throw new ProcessException(_("It seems you already watch this thread."), "already_watching");	
@@ -79,14 +67,14 @@ class WatchAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("user_id", $user->getUserId());
 		
-		$count = WatchedForumThreadPeer::instance()->selectCount($c);
+		$count = DB_WatchedForumThreadPeer::instance()->selectCount($c);
 		if($count>9){
 			throw new ProcessException(_("You can not watch more than 10 threads for now."), "max_reached");	
 		}
 		
 		// ok, create new watch.
 		
-		$watch = new WatchedForumThread();
+		$watch = new DB_WatchedForumThread();
 		$watch->setUserId($user->getUserId());
 		$watch->setThreadId($threadId);
 		
@@ -109,7 +97,7 @@ class WatchAction extends SmartyAction {
 		$c->add("thread_id", $threadId);
 		$c->add("user_id", $runData->getUserId());
 		
-		WatchedForumThreadPeer::instance()->delete($c);
+		DB_WatchedForumThreadPeer::instance()->delete($c);
 			
 	}
 	
@@ -135,7 +123,7 @@ class WatchAction extends SmartyAction {
 		$c->add("user_id", $user->getUserId());
 		$c->add("page_id", $pageId);
 		
-		$t = WatchedPagePeer::instance()->selectOne($c);
+		$t = DB_WatchedPagePeer::instance()->selectOne($c);
 		
 		if($t){
 			throw new ProcessException(_("It seems you already watch this page."), "already_watching");	
@@ -145,14 +133,14 @@ class WatchAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("user_id", $user->getUserId());
 		
-		$count = WatchedPagePeer::instance()->selectCount($c);
+		$count = DB_WatchedPagePeer::instance()->selectCount($c);
 		if($count>9){
 			throw new ProcessException(_("You can not watch more than 10 pages for now."), "max_reached");	
 		}
 		
 		// ok, create new watch.
 		
-		$watch = new WatchedPage();
+		$watch = new DB_WatchedPage();
 		$watch->setUserId($user->getUserId());
 		$watch->setPageId($pageId);
 		
@@ -175,7 +163,7 @@ class WatchAction extends SmartyAction {
 		$c->add("page_id", $pageId);
 		$c->add("user_id", $runData->getUserId());
 		
-		WatchedPagePeer::instance()->delete($c);
+		DB_WatchedPagePeer::instance()->delete($c);
 			
 	}
 	

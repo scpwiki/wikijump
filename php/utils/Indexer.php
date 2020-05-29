@@ -23,16 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \Indexer as Indexer;
-use DB\FtsEntryPeer;
-use DB\FtsEntry;
-use Criteria;
-use DB\PageTagPeer;
-use Database;
-use DB\ForumPostPeer;
-
 /** 
  * Full text search handler class.
  */
@@ -49,9 +39,9 @@ class Indexer {
 	
 	public function indexPage($page){
 		// look for an existing fts_entry
-		$ie = FtsEntryPeer::instance()->selectByPageId($page->getPageId());
+		$ie = DB_FtsEntryPeer::instance()->selectByPageId($page->getPageId());
 		if(!$ie){
-			$ie = new FtsEntry();
+			$ie = new DB_FtsEntry();
 			$ie->setPageId($page->getPageId());
 			$ie->setSiteId($page->getSiteId());	
 		} 	
@@ -73,7 +63,7 @@ class Indexer {
 		$c = new Criteria();
 		$c->add("page_id", $page->getPageId());
 		$c->addOrderAscending("tag");
-		$tags = PageTagPeer::instance()->select($c);
+		$tags = DB_PageTagPeer::instance()->select($c);
 		$tagstring = '';
 		foreach($tags as $tag){
 			$tagstring .= $tag->getTag().' ';	
@@ -84,20 +74,23 @@ class Indexer {
 		if(!preg_match(';^8\.3;', $v['server'])){
 		    $db->query("SELECT set_curcfg('default')");
 		}
-        $ie->setVector("(setweight( to_tsvector('$title'), 'A') || to_tsvector('".db_escape_string($text)."') || setweight( to_tsvector('$tagstring'), 'B'))", true);
+		$ie->setVector("(setweight( to_tsvector('$title'), 'A') || to_tsvector('".db_escape_string($text)."') || setweight( to_tsvector('$tagstring'), 'B'))", true);
 		$ie->save();
+		
+		$lucene = new Wikidot_Search_Lucene();
+		$lucene->queueFtsEntry($ie->getFtsId());
 	}
 	
 	public function deindexPage($page){
-		$ie = FtsEntryPeer::instance()->selectByPageId($page->getPageId());
-		FtsEntryPeer::instance()->deleteByPrimaryKey($ie->getFtsId());	
+		$ie = DB_FtsEntryPeer::instance()->selectByPageId($page->getPageId());
+		DB_FtsEntryPeer::instance()->deleteByPrimaryKey($ie->getFtsId());
 	}
 	
 	public function indexThread($thread){
 		// look for an existing fts_entry
-		$ie = FtsEntryPeer::instance()->selectByThreadId($thread->getThreadId());
+		$ie = DB_FtsEntryPeer::instance()->selectByThreadId($thread->getThreadId());
 		if(!$ie){
-			$ie = new FtsEntry();
+			$ie = new DB_FtsEntry();
 			$ie->setThreadId($thread->getThreadId());
 			$ie->setSiteId($thread->getSiteId());
 		}
@@ -108,7 +101,7 @@ class Indexer {
 		$c = new Criteria();
 		$c->add("thread_id", $thread->getThreadId());
 		$c->addOrderAscending("post_id");
-		$posts = ForumPostPeer::instance()->select($c);
+		$posts = DB_ForumPostPeer::instance()->select($c);
 		
 		$text = '';
 		foreach($posts as $post){
@@ -128,11 +121,17 @@ class Indexer {
 		$ie->setVector("setweight( to_tsvector('$title'), 'C') || setweight( to_tsvector('$description'), 'C') || to_tsvector('".db_escape_string($text)."')", true);
 		
 		$ie->save();
+		
+		$lucene = new Wikidot_Search_Lucene();
+		$lucene->queueFtsEntry($ie->getFtsId());
 	}
 	
 	public function deindexThread($thread){
-		$ie = FtsEntryPeer::instance()->selectByThreadId($thread->getThreadId());
-		FtsEntryPeer::instance()->deleteByPrimaryKey($ie->getFtsId());		
+		$ie = DB_FtsEntryPeer::instance()->selectByThreadId($thread->getThreadId());
+		DB_FtsEntryPeer::instance()->deleteByPrimaryKey($ie->getFtsId());	
+		
+		$lucene = new Wikidot_Search_Lucene();
+		$lucene->queueDeletePage($page->getPageId());
 	}
 	
 }

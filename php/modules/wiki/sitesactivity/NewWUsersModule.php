@@ -23,12 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use Criteria;
-use DB\OzoneUserPeer;
-
 class NewWUsersModule extends SmartyModule {
 	
 	public function render($runData){
@@ -54,7 +48,7 @@ class NewWUsersModule extends SmartyModule {
 		
 		$c->setLimit(5);
 		
-		$users = OzoneUserPeer::instance()->select($c);
+		$users = DB_OzoneUserPeer::instance()->select($c);
 		
 		$runData->contextAdd("users", $users);
 			

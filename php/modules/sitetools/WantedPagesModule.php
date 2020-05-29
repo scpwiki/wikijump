@@ -23,12 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use Database;
-use DB\Page;
-
 class WantedPagesModule extends SmartyModule {
 	
 	public function build($runData){
@@ -49,15 +43,14 @@ class WantedPagesModule extends SmartyModule {
 		
 		if($all){
 			foreach($all as $a){
-				$page = new Page($a);
+				$page = new DB_Page($a);
 				$wun = $a['wanted_unix_name'];
 				$res[$wun][] = $page;	
 			}	
 			
 			$runData->contextAdd("res", $res);
 		}
-		
-			
+
 	}
 	
 }

@@ -23,14 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \CacheableModule;
-use DB\CategoryPeer;
-use \ProcessException;
-use Criteria;
-use DB\PagePeer;
-
 class WikiPagesModule extends CacheableModule {
 	
 	protected $timeOut = 10;
@@ -48,7 +40,7 @@ class WikiPagesModule extends CacheableModule {
 		$limit = $pl->getParameterValue("limit", "MODULE", "AMODULE");
 		
 		if($categoryName !== null){
-			$category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
+			$category = DB_CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
 			if($category == null){
 				throw new ProcessException(_("The category can not be found."));	
 			}
@@ -86,7 +78,7 @@ class WikiPagesModule extends CacheableModule {
 			$c->setLimit($limit);	
 		}
 		
-		$pages = PagePeer::instance()->select($c);
+		$pages = DB_PagePeer::instance()->select($c);
 		
 		// by default cathegorize by first letter...
 		

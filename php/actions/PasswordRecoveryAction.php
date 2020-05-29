@@ -23,15 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyAction;
-use \ProcessException;
-use \CryptUtils;
-use Criteria;
-use DB\OzoneUserPeer;
-use OzoneEmail;
-
 class PasswordRecoveryAction extends SmartyAction {
 	
 	public function perform($r){}
@@ -58,7 +49,7 @@ class PasswordRecoveryAction extends SmartyAction {
 		// check for users with the email
 		$c = new Criteria();
 		$c->add("lower(email)", strtolower($email));
-		$user = OzoneUserPeer::instance()->selectOne($c);
+		$user = DB_OzoneUserPeer::instance()->selectOne($c);
 		
 		if($user == null){
 			throw new ProcessException(_("This email can not be found in our database."), "no_email");		
@@ -117,7 +108,7 @@ class PasswordRecoveryAction extends SmartyAction {
 		// ok. seems fine.
 		
 		$userId = $runData->sessionGet("prUserId");
-		$user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+		$user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($userId);
 		if($user == null){
 			throw ProcessException("No such user.", "no_user");	
 		}

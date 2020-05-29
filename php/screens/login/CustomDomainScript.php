@@ -23,11 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyScreen;
-use DB\SitePeer;
-
 class CustomDomainScript extends SmartyScreen {
 	
 	public function build($runData){
@@ -47,7 +42,7 @@ class CustomDomainScript extends SmartyScreen {
 		if ($user) {
 		
 			$site_id = (int) $runData->getParameterList()->getParameterValue("site_id");
-			$site = SitePeer::instance()->selectByPrimaryKey($site_id);
+			$site = DB_SitePeer::instance()->selectByPrimaryKey($site_id);
 			
 			if ($site && $site->getCustomDomain()) {
 				$skey = $runData->generateSessionDomainHash($site->getCustomDomain());

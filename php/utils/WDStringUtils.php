@@ -23,9 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-
 class WDStringUtils {
 	
 	public static $CONVERT_ARRAY = array( 

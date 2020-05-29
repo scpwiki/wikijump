@@ -23,14 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use DB\PagePeer;
-use \ProcessException;
-use \WikiTransformation;
-use DB\CategoryPeer;
-
 class PagePreviewModule extends SmartyModule {
 	
 	public function build($runData){
@@ -43,7 +35,7 @@ class PagePreviewModule extends SmartyModule {
 		$pageId = $pl->getParameterValue("pageId");
 		if($pageId){
 			$runData->setTemp("pageId", $pageId);	
-			$page = PagePeer::instance()->selectByPrimaryKey($pageId);
+			$page = DB_PagePeer::instance()->selectByPrimaryKey($pageId);
 			if($page == null || $page->getSiteId() != $site->getSiteId()){
 				throw new ProcessException(_("Error selecting the page."));	
 			}
@@ -71,11 +63,11 @@ class PagePreviewModule extends SmartyModule {
 			$categoryName = "_default";
 		}
 
-		$category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
+		$category = DB_CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
 		
 		/* Look for the template (if any). */
 		if(!preg_match(';(:|^)_;', $pageUnixName)) {
-		$templatePage = PagePeer::instance()->selectByName($site->getSiteId(), 
+		$templatePage = DB_PagePeer::instance()->selectByName($site->getSiteId(), 
 		    ($categoryName == '_default' ? '' : $categoryName.':') .'_template');
 		
 		if($templatePage) {

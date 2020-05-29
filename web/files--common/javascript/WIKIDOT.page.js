@@ -337,7 +337,7 @@ WIKIDOT.page.listeners = {
 	
 	printClick: function(e){
 		// open a new window...
-		var url = '/printer--friendly/'+window.location.pathname;
+		var url = '/printer--friendly'+window.location.pathname;
 		var newwindow = window.open(url, "_blank",'location=no,menubar=yes,titlebar=no,resizable=yes,scrollbars=yes,width=' + (screen.width*0.8) + ',height=' +
 			(screen.height*0.8) + ',top='+ (screen.height*0.1) +',left='+(screen.width*0.1));
 		return newwindow;	

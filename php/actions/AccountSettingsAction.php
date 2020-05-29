@@ -23,19 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyAction;
-use \WDPermissionException;
-use \CryptUtils;
-use \ProcessException;
-use Criteria;
-use DB\OzoneUserPeer;
-use OzoneEmail;
-use DB\UserSettingsPeer;
-use DB\PrivateUserBlockPeer;
-use DB\PrivateUserBlock;
-
 class AccountSettingsAction extends SmartyAction {
 	
 	public function isAllowed($runData){
@@ -102,7 +89,7 @@ class AccountSettingsAction extends SmartyAction {
 		// check for users with the email
 		$c = new Criteria();
 		$c->add("email", $email);
-		$user = OzoneUserPeer::instance()->selectOne($c);
+		$user = DB_OzoneUserPeer::instance()->selectOne($c);
 		
 		if($user !== null){
 			throw new ProcessException(_("An user with this email already exists. Emails must be unique."), "form_error");		
@@ -162,7 +149,7 @@ class AccountSettingsAction extends SmartyAction {
 		}else{
 			$receive = false;
 		}
-		$us = UserSettingsPeer::instance()->selectByPrimaryKey($runData->getUserId());
+		$us = DB_UserSettingsPeer::instance()->selectByPrimaryKey($runData->getUserId());
 		$us->setReceiveInvitations($receive);
 		$us->save();
 		if (GlobalProperties::$UI_SLEEP) { sleep(1); }
@@ -177,7 +164,7 @@ class AccountSettingsAction extends SmartyAction {
 			$from = "a";	
 		}
 
-		$us = UserSettingsPeer::instance()->selectByPrimaryKey($runData->getUserId());
+		$us = DB_UserSettingsPeer::instance()->selectByPrimaryKey($runData->getUserId());
 		$us->setReceivePm($from);
 		$us->save();
 		if (GlobalProperties::$UI_SLEEP) { sleep(1); }
@@ -191,7 +178,7 @@ class AccountSettingsAction extends SmartyAction {
 			throw new ProcessException(_("Invalid user."), "no_user");
 		}	
 		
-		$user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+		$user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($userId);
 		if($user == null){
 			throw new ProcessException(_("Invalid user."), "no_user");	
 		}		
@@ -200,7 +187,7 @@ class AccountSettingsAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("user_id", $runData->getUserId());
 		$c->add("blocked_user_id", $userId);
-		$b = PrivateUserBlockPeer::instance()->selectOne($c);
+		$b = DB_PrivateUserBlockPeer::instance()->selectOne($c);
 		if($b){
 			throw new ProcessException(_("You already block this user."));
 		}
@@ -208,7 +195,7 @@ class AccountSettingsAction extends SmartyAction {
 		// check max
 		$c = new Criteria();
 		$c->add("user_id", $runData->getUserId());
-		$blockCount = PrivateUserBlockPeer::instance()->selectCount($c);
+		$blockCount = DB_PrivateUserBlockPeer::instance()->selectCount($c);
 		
 		$maxBlocks = 30;
 		
@@ -220,7 +207,7 @@ class AccountSettingsAction extends SmartyAction {
 			throw new ProcessException(_("What is the point in blocking yourself? ;-)"), "not_self");		
 		}
 			
-		$block = new PrivateUserBlock();
+		$block = new DB_PrivateUserBlock();
 		$block->setUserId($runData->getUserId());
 		$block->setBlockedUserId($userId);
 		$block->save();
@@ -236,7 +223,7 @@ class AccountSettingsAction extends SmartyAction {
 		$c->add("user_id", $userId);
 		$c->add("blocked_user_id", $blockedUserId);
 		
-		PrivateUserBlockPeer::instance()->delete($c);
+		DB_PrivateUserBlockPeer::instance()->delete($c);
 
 	}
 	

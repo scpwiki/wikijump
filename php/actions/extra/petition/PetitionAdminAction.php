@@ -23,19 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyAction;
-use \WDPermissionManager;
-use \ProcessException;
-use Database;
-use Criteria;
-use DB\PetitionCampaignPeer;
-use DB\PetitionCampaign;
-use \WDStringUtils;
-use DB\PagePeer;
-use DB\PetitionSignaturePeer;
-
 class PetitionAdminAction extends SmartyAction {
 	
 	public function isAllowed($runData){
@@ -82,7 +69,7 @@ class PetitionAdminAction extends SmartyAction {
 		$c->add("site_id", $site->getSiteId());
 		$c->add("deleted", false);
 		$c->add("name", $name);
-		$camp0 = PetitionCampaignPeer::instance()->selectOne($c);
+		$camp0 = DB_PetitionCampaignPeer::instance()->selectOne($c);
 		if($camp0){
 			throw new ProcessException(_("A campaign with this name already exists."), "form_error");	
 		}
@@ -91,14 +78,14 @@ class PetitionAdminAction extends SmartyAction {
 		$c->add("site_id", $site->getSiteId());
 		$c->add("deleted", false);
 		$c->add("identifier", $id);
-		$camp0 = PetitionCampaignPeer::instance()->selectOne($c);
+		$camp0 = DB_PetitionCampaignPeer::instance()->selectOne($c);
 		if($camp0){
 			throw new ProcessException(_("A campaign with the same identifier already exists."), "form_error");	
 		}
 		
 		// ok, this seems to be all right!
 		
-		$camp = new PetitionCampaign();
+		$camp = new DB_PetitionCampaign();
 		$camp->setName($name);
 		$camp->setIdentifier($id);
 		$camp->setSiteId($site->getSiteId());
@@ -120,7 +107,7 @@ class PetitionAdminAction extends SmartyAction {
 		$c->add("deleted", false);
 		$c->add("campaign_id", $campaignId);
 		
-		$camp = PetitionCampaignPeer::instance()->selectOne($c);
+		$camp = DB_PetitionCampaignPeer::instance()->selectOne($c);
 		
 		if(!$camp){
 			throw new ProcessException(_("The campaign can not be found."));	
@@ -140,7 +127,7 @@ class PetitionAdminAction extends SmartyAction {
 		$c->add("deleted", false);
 		$c->add("campaign_id", $campaignId);
 		
-		$camp = PetitionCampaignPeer::instance()->selectOne($c);
+		$camp = DB_PetitionCampaignPeer::instance()->selectOne($c);
 		
 		if(!$camp){
 			throw new ProcessException(_("The campaign can not be found."));	
@@ -160,7 +147,7 @@ class PetitionAdminAction extends SmartyAction {
 		$c->add("deleted", false);
 		$c->add("campaign_id", $campaignId);
 		
-		$camp = PetitionCampaignPeer::instance()->selectOne($c);
+		$camp = DB_PetitionCampaignPeer::instance()->selectOne($c);
 		
 		if(!$camp){
 			throw new ProcessException(_("The campaign can not be found."));	
@@ -182,7 +169,7 @@ class PetitionAdminAction extends SmartyAction {
 		$c->add("deleted", false);
 		$c->add("campaign_id", $campaignId);
 		
-		$camp = PetitionCampaignPeer::instance()->selectOne($c);
+		$camp = DB_PetitionCampaignPeer::instance()->selectOne($c);
 		
 		if(!$camp){
 			throw new ProcessException(_("The campaign can not be found."));	
@@ -209,7 +196,7 @@ class PetitionAdminAction extends SmartyAction {
 		
 		// check if the landing page exists
 		if($thankYouPage){
-			$page = PagePeer::instance()->selectByName($site->getSiteId(), $thankYouPage);
+			$page = DB_PagePeer::instance()->selectByName($site->getSiteId(), $thankYouPage);
 			if(!$page){
 				throw new ProcessException('The "thank you" page does not exist'); 	
 			}
@@ -247,7 +234,7 @@ class PetitionAdminAction extends SmartyAction {
 		$c->add("deleted", false);
 		$c->add("campaign_id", $campaignId);
 		
-		$camp = PetitionCampaignPeer::instance()->selectOne($c);
+		$camp = DB_PetitionCampaignPeer::instance()->selectOne($c);
 		
 		if(!$camp){
 			throw new ProcessException(_("The campaign can not be found."));	
@@ -264,7 +251,7 @@ class PetitionAdminAction extends SmartyAction {
 		$c->add("campaign_id", $camp->getCampaignId());
 		$c->addCriteriaAnd($c1);
 		
-		PetitionSignaturePeer::instance()->delete($c);
+		DB_PetitionSignaturePeer::instance()->delete($c);
 		
 		$camp->updateNumberSignatures();
 		$camp->save();

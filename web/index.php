@@ -34,14 +34,6 @@ try {
     setcookie("wikidot_token7", md5(rand(0, 10000)), null, '/');
     $controller = new WikiFlowController();
     $out = $controller->process();
-} catch (OzoneDatabaseException $e) {
-	echo "<html><head><title>Database Error</title></head><body>";
-	echo "<h1>Database error</h1>";
-	echo "<p>Make sure PostgreSQL server is running and accepts connection for credentials stored in " . WIKIDOT_ROOT . "/conf/wikidot.ini</p>";
-	echo "<p>If you haven't configured Wikidot database yet, consult the INSTALL file.</p>";
-	echo "<hr/>";
-	echo "<p>Below is the original error:<br/>{$e->getMessage()}</p>";
-	echo "</body></html>";
 } catch (Exception $e) {
     echo "A nasty error has occurred. If the problem repeats, please fill (if possible) a bug report.";
     echo "<br/><br/>";

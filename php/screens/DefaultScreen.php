@@ -24,10 +24,6 @@
  */
 
 
-
-
-use SmartyScreen;
-
 class DefaultScreen extends SmartyScreen {
 	
 	public function build($runData){

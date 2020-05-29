@@ -23,15 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use WebFlowController;
-use RunData;
-use Ozone;
-use \ProcessException;
-use Criteria;
-use DB\OzoneSessionPeer;
-
 class LoginAuthController extends WebFlowController {
 
 	public static $secretSeed='GdzieDiabelNieMozeTamIE8Posle';
@@ -65,7 +56,7 @@ class LoginAuthController extends WebFlowController {
 		$c->add('session_id', $sessionId);
 		$c->add("md5(session_id || '".self::$secretSeed."')", $sessionHash);
 		
-		$session = OzoneSessionPeer::instance()->selectOne($c);
+		$session = DB_OzoneSessionPeer::instance()->selectOne($c);
 		
 		if(!$session) {
 			throw new ProcessException('No valid session found.');

@@ -23,17 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use WebFlowController;
-use OzoneLogger;
-use OzoneLoggerFileOutput;
-use RunData;
-use Criteria;
-use DB\SitePeer;
-use \ProcessException;
-use ModuleProcessor;
-
 class WDDefaultFlowController extends WebFlowController {
 
 	public function process() {
@@ -73,7 +62,7 @@ class WDDefaultFlowController extends WebFlowController {
 				$c = new Criteria();
 				$c->add("unix_name", $siteUnixName);
 				$c->add("site.deleted", false);
-				$site = SitePeer::instance()->selectOne($c);
+				$site = DB_SitePeer::instance()->selectOne($c);
 				$memcache->set($mcKey, $site, 0, 3600);	
 			}
 		} else {
@@ -84,7 +73,7 @@ class WDDefaultFlowController extends WebFlowController {
 				$c = new Criteria();
 				$c->add("custom_domain", $siteHost);
 				$c->add("site.deleted", false);
-				$site = SitePeer::instance()->selectOne($c);
+				$site = DB_SitePeer::instance()->selectOne($c);
 				$memcache->set($mcKey, $site, 0, 3600);	
 			}
 			GlobalProperties::$SESSION_COOKIE_DOMAIN = '.'.$siteHost;

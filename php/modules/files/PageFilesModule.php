@@ -23,13 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use \ProcessException;
-use DB\PagePeer;
-use \FileHelper;
-
 class PageFilesModule extends SmartyModule{
 	
 	public function build($runData){
@@ -39,7 +32,7 @@ class PageFilesModule extends SmartyModule{
 		if(!$pageId || !is_numeric($pageId)){
 			throw new ProcessException(_("The page can not be found or does not exist."), "no_page");	
 		}
-		$page = PagePeer::instance()->selectByPrimaryKey($pageId);
+		$page = DB_PagePeer::instance()->selectByPrimaryKey($pageId);
 		if(!$page || $page->getSiteId() !== $site->getSiteId()){
 			throw new ProcessException(_("The page can not be found or does not exist."), "no_page");	
 		}

@@ -23,10 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use Module;
-
 class LoginStatusModule extends Module{
 
 	public function render($runData){
@@ -34,34 +30,21 @@ class LoginStatusModule extends Module{
 		// Smarty if not required!
 		
 		$user = $runData->getUser();
-	
-		if (GlobalProperties::$WIKI_FARM) {
-			$url_prefix = 'http://'.$loginDomain.'.'.GlobalProperties::$URL_DOMAIN;
-		} else {
-			$url_prefix = '';
-		}
 		
 		if($user == null){
 			$site = $runData->getTemp('site');
-			
-			$originalUrl = $_SERVER['REQUEST_URI'];
-			if (GlobalProperties::$WIKI_FARM) {
-				$originalUrl = 'http://' . $_SERVER['HTTP_HOST'] . $originalUrl;
-			}
-			
+			$originalUrl = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 			if(preg_match(';\?origUrl=.*$;', $originalUrl)){
 				$o = array();
 				parse_str(preg_replace(';^.*?\?;', '', $_SERVER['REQUEST_URI']), $o);
 				$originalUrl = $o['origUrl'];
 			}
-			
 			$loginDomain = 'www';
 			if($site->getLanguage() != 'en'){
 				$loginDomain = $site->getLanguage();
 			}
-			
-			$out  = '<a href="' . $url_prefix . '/auth:newaccount?origUrl='.urlencode($originalUrl).'">'._('create account').'</a> '._('or') . ' ';
-			$out .= '<a href="' . $url_prefix . '/auth:login?origUrl='.urlencode($originalUrl).'">'._('login').'</a> ';
+			$out = '<a href="http://'.$loginDomain.'.'.GlobalProperties::$URL_DOMAIN . '/auth:newaccount?origUrl='.urlencode($originalUrl).'">'._('create account').'</a> '._('or') . ' ';
+			$out .= '<a href="http://'.$loginDomain.'.'.GlobalProperties::$URL_DOMAIN . '/auth:login?origUrl='.urlencode($originalUrl).'">'._('login').'</a> ';
 			
 			//$out = '<a href="javascript:;" onclick="WIKIDOT.page.listeners.createAccount(event)">'._('create account').'</a> '._('or').' <a href="javascript:;" onclick="WIKIDOT.page.listeners.loginClick(event)">'._('login').'</a>';
 		} else {
@@ -82,24 +65,24 @@ class LoginStatusModule extends Module{
 			setlocale(LC_ALL, $glang.'.UTF-8');
 		
 			$userId = $user->getUserId();
-			$linkInner = 'href="' . $url_prefix . '/user:info/'.$user->getUnixName().'" onclick="WIKIDOT.page.listeners.userInfo('.$user->getUserId().'); return false;" ';
+			$linkInner = 'href="http://' . GlobalProperties::$URL_HOST . '/user:info/'.$user->getUnixName().'" onclick="WIKIDOT.page.listeners.userInfo('.$user->getUserId().'); return false;" ';
 			
 			$out = '<span class="printuser"><a '.$linkInner.'><img class="small" src="/common--images/avatars/'.floor($userId/1000).'/'.$userId.'/a16.png" alt="avatar"';
 			/* karma: */
-			$out .= ' style="background-image:url(' . $url_prefix . '/userkarma.php?u=' .$userId  . ')"';
+			$out .= ' style="background-image:url(http://' . GlobalProperties::$URL_HOST . '/userkarma.php?u=' .$userId  . ')"';
 			/* end of karma */
 			$out .= '/></a>';
 			$out .= $user->getNickName().'</span>'.
-					' | <a href="' . $url_prefix .'/account:you">'._('my account').'</a>' .
+					' | <a href="http://'.GlobalProperties::$URL_HOST.'/account:you">'._('my account').'</a>' .
 					'<a  id="account-topbutton" href="javascript:;">&nabla;</a>';
 			$out .= '<div id="account-options">' .
 					'<ul>' .
-					'<li><a href="' . $url_prefix . '/account:you">'._('account summary').'</a></li>' .
-					'<li><a href="' . $url_prefix . '/account:you/start/messages">'._('private messages').'</a></li>' .
-					'<li><a href="' . $url_prefix . '/account:you/start/contacts">'._('my contacts').'</a></li>' .
-					'<li><a href="' . $url_prefix . '/account:you/start/notifications">'._('notifications').'</a></li>'.
-					'<li><a href="' . $url_prefix . '/account:you/start/watched-changes">'._('watched pages').'</a></li>'.
-					'<li><a href="' . $url_prefix . '/account:you/start/watched-forum">'._('watched discussions').'</a></li>'.
+					'<li><a href="http://'.GlobalProperties::$URL_HOST.'/account:you">'._('account summary').'</a></li>' .
+					'<li><a href="http://'.GlobalProperties::$URL_HOST.'/account:you/start/messages">'._('private messages').'</a></li>' .
+					'<li><a href="http://'.GlobalProperties::$URL_HOST.'/account:you/start/contacts">'._('my contacts').'</a></li>' .
+					'<li><a href="http://'.GlobalProperties::$URL_HOST.'/account:you/start/notifications">'._('notifications').'</a></li>'.
+					'<li><a href="http://'.GlobalProperties::$URL_HOST.'/account:you/start/watched-changes">'._('watched pages').'</a></li>'.
+					'<li><a href="http://'.GlobalProperties::$URL_HOST.'/account:you/start/watched-forum">'._('watched discussions').'</a></li>'.
 					'<li><a href="javascript:;" onclick="WIKIDOT.page.listeners.logoutClick(event)">'._('logout').'</a></li>' .
 					'</ul></div>';
 

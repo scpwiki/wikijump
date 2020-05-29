@@ -44,10 +44,5 @@ if(!defined('WIKIDOT_SETUP_COMPLETED')){
 	require_once (WIKIDOT_ROOT.DIRECTORY_SEPARATOR."lib/ozone/php/core/functions.php");
 	require_once (WIKIDOT_ROOT.DIRECTORY_SEPARATOR."lib/ozone/php/core/autoload.inc.php");
 	
-	if (! GlobalProperties::$WIKI_FARM) {
-		$_SERVER['HTTP_HOST'] = GlobalProperties::$URL_HOST;
-		GlobalProperties::$SESSION_COOKIE_DOMAIN = null;
-	}
-	
 	define('WIKIDOT_SETUP_COMPLETED', true);
 }

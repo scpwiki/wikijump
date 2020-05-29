@@ -23,24 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use Screen;
-use Criteria;
-use DB\MemberPeer;
-use DB\SiteViewerPeer;
-use \WDStringUtils;
-use DB\PagePeer;
-use DB\CategoryPeer;
-use DB\PageTagPeer;
-use DB\ForumThreadPeer;
-use DB\OpenidEntryPeer;
-use Ozone;
-use PathManager;
-use DB\NotificationPeer;
-use Database;
-use DB\PrivateMessagePeer;
-
 class WikiScreen extends Screen {
 	
 	private $vars = array();
@@ -65,13 +47,13 @@ class WikiScreen extends Screen {
 				$c = new Criteria();
 				$c->add("site_id", $site->getSiteId());
 				$c->add("user_id", $user->getUserId());
-				$mem = MemberPeer::instance()->selectOne($c);
+				$mem = DB_MemberPeer::instance()->selectOne($c);
 				if(!$mem) { 
 					// check if a viewer
 					$c = new Criteria();
 					$c->add("site_id", $site->getSiteId());
 					$c->add("user_id", $user->getUserId());
-					$vi = SiteViewerPeer::instance()->selectOne($c);
+					$vi = DB_SiteViewerPeer::instance()->selectOne($c);
 					if(!$vi) { 
 						$user = null;
 					}
@@ -129,7 +111,7 @@ class WikiScreen extends Screen {
 		$settings = $site->getSettings();
 		
 		// get wiki page from the database
-		$page = PagePeer::instance()->selectByName($site->getSiteId(), $wikiPage);
+		$page = DB_PagePeer::instance()->selectByName($site->getSiteId(), $wikiPage);
 		
 		if($page == null){
 			$runData->contextAdd("pageNotExists", true);
@@ -141,9 +123,9 @@ class WikiScreen extends Screen {
 			} else {
 				$categoryName = "_default";
 			}
-			$category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
+			$category = DB_CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
 			if($category == null){
-				$category = CategoryPeer::instance()->selectByName('_default', $site->getSiteId());
+				$category = DB_CategoryPeer::instance()->selectByName('_default', $site->getSiteId());
 			}	
 			$runData->setTemp("category", $category);
 		} else{
@@ -168,7 +150,7 @@ class WikiScreen extends Screen {
 			$c = new Criteria();
 			$c->add("page_id", $page->getPageId());
 			$c->addOrderAscending("tag");
-			$tags = PageTagPeer::instance()->select($c);
+			$tags = DB_PageTagPeer::instance()->select($c);
 			$t2 = array();
 			foreach($tags as $t){
 				$t2[] = $t->getTag();	
@@ -177,7 +159,7 @@ class WikiScreen extends Screen {
 			
 			// has discussion?
 			if($page->getThreadId()!== null){
-				$thread = ForumThreadPeer::instance()->selectByPrimaryKey($page->getThreadId());
+				$thread = DB_ForumThreadPeer::instance()->selectByPrimaryKey($page->getThreadId());
 				if($thread == null){
 					$page->setThreadId(null);
 					$page->save();
@@ -189,11 +171,11 @@ class WikiScreen extends Screen {
 			// look for parent pages (and prepare breadcrumbs)
 			if($page->getParentPageId()){
 				$breadcrumbs = array();
-				$ppage = PagePeer::instance()->selectByPrimaryKey($page->getParentPageId());
+				$ppage = DB_PagePeer::instance()->selectByPrimaryKey($page->getParentPageId());
 				array_unshift($breadcrumbs, $ppage);
 				$bcount = 0;
 				while($ppage->getParentPageId() && $bcount<=4){
-					$ppage = PagePeer::instance()->selectByPrimaryKey($ppage->getParentPageId());
+					$ppage = DB_PagePeer::instance()->selectByPrimaryKey($ppage->getParentPageId());
 					array_unshift($breadcrumbs, $ppage);
 					$bcount++;
 				}
@@ -250,7 +232,7 @@ class WikiScreen extends Screen {
 				$c->add("page_id", $page->getPageId());
 			}
 
-			$oentry = OpenidEntryPeer::instance()->selectOne($c);
+			$oentry = DB_OpenidEntryPeer::instance()->selectOne($c);
 			
 			if($oentry){
 			
@@ -323,7 +305,7 @@ class WikiScreen extends Screen {
 		$c->add("notify_online", true);
 		$c->addOrderDescending("notification_id");
 		
-		$nots = NotificationPeer::instance()->select($c);
+		$nots = DB_NotificationPeer::instance()->select($c);
 		
 		if(count($nots) == 0){
 			return;	
@@ -345,7 +327,7 @@ class WikiScreen extends Screen {
 				
 				// check if the message is read or still new
 				$extra = $not->getExtra();
-				$pm = PrivateMessagePeer::instance()->selectByPrimaryKey($extra['message_id']);
+				$pm = DB_PrivateMessagePeer::instance()->selectByPrimaryKey($extra['message_id']);
 				if($pm && $pm->getFlagNew()){
 					$body = $not->getBody();
 					$body = preg_replace('/<br\/>Preview.*$/sm', '', $body);

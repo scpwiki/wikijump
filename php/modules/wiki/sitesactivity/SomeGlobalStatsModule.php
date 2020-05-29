@@ -23,11 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use Database;
-
 class SomeGlobalStatsModule extends SmartyModule {
 	
 	protected $timeOut=3600;

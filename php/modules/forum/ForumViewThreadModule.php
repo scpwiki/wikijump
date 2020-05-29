@@ -23,14 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use \ProcessException;
-use Criteria;
-use DB\ForumThreadPeer;
-use DB\ForumPostPeer;
-
 class ForumViewThreadModule extends SmartyModule{
 	
 	protected $processPage = true;
@@ -107,7 +99,7 @@ class ForumViewThreadModule extends SmartyModule{
 		$c->add("thread_id", $threadId);
 		$c->add("site_id", $site->getSiteId());
 		
-		$thread = ForumThreadPeer::instance()->selectOne($c);
+		$thread = DB_ForumThreadPeer::instance()->selectOne($c);
 		
 		if($thread == null){
 			throw new ProcessException(_("No thread."), "no_thread");	
@@ -129,7 +121,7 @@ class ForumViewThreadModule extends SmartyModule{
 		$c->addJoin("user_id", "ozone_user.user_id");
 		$c->addOrderAscending("post_id");
 		
-		$posts = ForumPostPeer::instance()->select($c);
+		$posts = DB_ForumPostPeer::instance()->select($c);
 		
 		// make a mapping first.
 		$map = array();

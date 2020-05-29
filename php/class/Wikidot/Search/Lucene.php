@@ -23,24 +23,7 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-namespace Wikidot\Search;
-
-use Zend_Search_Lucene;
-use Zend_Search_Lucene_Analysis_Analyzer;
-use Zend_Search_Lucene_Analysis_Analyzer_Common_Utf8Num_CaseInsensitive;
-use DB\SitePeer;
-use Zend_Search_Lucene_Document;
-use Zend_Search_Lucene_Field;
-use DB\PagePeer;
-use Criteria;
-use DB\FtsEntryPeer;
-use DB\MemberPeer;
-use Wikidot\Search\Exception;
-
-
-
-
-class Lucene {
+class Wikidot_Search_Lucene {
 	
 	protected $AT_ONCE = 10;	// load N pages from DB at once when indexing
 	protected $CACHE_FOR = 150;	// cache the results for seconds
@@ -107,7 +90,7 @@ class Lucene {
 			$this->processedFtsEntries[] = $fts->getFtsId();
 			
 			if (! $site) {
-				$site = SitePeer::instance()->selectByPrimaryKey($fts->getSiteId());
+				$site = DB_SitePeer::instance()->selectByPrimaryKey($fts->getSiteId());
 			}
 			
 			if (! $site || $site->getDeleted() || ! $site->getVisible()) {
@@ -140,7 +123,7 @@ class Lucene {
 				$doc->addField(Zend_Search_Lucene_Field::text("page_id", $fts->getPageId()));
 				
 				// TAGS
-				if ($page = PagePeer::instance()->selectByPrimaryKey($fts->getPageId())) {
+				if ($page = DB_PagePeer::instance()->selectByPrimaryKey($fts->getPageId())) {
 					
 					$tags = $page->getTagsAsArray();
 					$tags_field = Zend_Search_Lucene_Field::text("tags", implode(" ", $tags));
@@ -189,7 +172,7 @@ class Lucene {
 				$c->add("site_id", $site->getSiteId());
 			}
 			
-			$pp = FtsEntryPeer::instance();
+			$pp = DB_FtsEntryPeer::instance();
 			$entries = null;
 			
 			do {
@@ -225,12 +208,12 @@ class Lucene {
 			
 			if ($type == "INDEX_FTS") {
 				
-				$fts = FtsEntryPeer::instance()->selectByPrimaryKey($id);
+				$fts = DB_FtsEntryPeer::instance()->selectByPrimaryKey($id);
 				$this->addFtsEntry($fts);
 				
 			} elseif ($type == "INDEX_SITE") {
 				
-				$this->indexSite(SitePeer::instance()->selectByPrimaryKey($id));
+				$this->indexSite(DB_SitePeer::instance()->selectByPrimaryKey($id));
 				
 			} elseif ($type == "DELETE_PAGE") {
 				
@@ -313,7 +296,7 @@ class Lucene {
 			$c->add("user_id", $user->getUserId());
 			$c->setLimit(100, 0);
 			
-			$memberships = MemberPeer::instance()->selectByCriteria($c);
+			$memberships = DB_MemberPeer::instance()->selectByCriteria($c);
 			if (count($memberships) < 100) {
 				foreach ($memberships as $m) {
 					$user_query .= " site_id:" . $m->getSiteId() . "^2";
@@ -334,7 +317,7 @@ class Lucene {
 					if (is_string($site)) { // maybe unix_name?
 						$c = new Criteria();
 						$c->add("unix_name", $site);
-						$site = SitePeer::instance()->selectOne($c); // make it an object
+						$site = DB_SitePeer::instance()->selectOne($c); // make it an object
 					}
 				}
 				if (is_a($site, "DB_Site")) { // object?
@@ -398,7 +381,7 @@ class Lucene {
 			if (count($results)) {
 				// something other than int in the first line means we had an exception in java program
 				if (! is_numeric($results[0])) {
-					throw new Exception(join("\n", $results));
+					throw new Wikidot_Search_Exception(join("\n", $results));
 				}
 			}
 		} else {

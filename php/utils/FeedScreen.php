@@ -23,11 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use Screen;
-use Ozone;
-
 class FeedScreen extends Screen {
 	
 	protected $requiresAuthentication = false;

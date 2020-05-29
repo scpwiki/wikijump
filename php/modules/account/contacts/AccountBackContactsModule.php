@@ -23,12 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \AccountBaseModule;
-use Criteria;
-use DB\ContactPeer;
-
 class AccountBackContactsModule extends AccountBaseModule{
 	
 	public function build($runData){
@@ -41,7 +35,7 @@ class AccountBackContactsModule extends AccountBaseModule{
 		$c->addJoin("user_id", "ozone_user.user_id");
 		$c->addOrderAscending("ozone_user.nick_name");
 		
-		$contacts = ContactPeer::instance()->select($c);
+		$contacts = DB_ContactPeer::instance()->select($c);
 
 		$runData->contextAdd("contacts", $contacts);
 			

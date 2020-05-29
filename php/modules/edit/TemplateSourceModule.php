@@ -23,16 +23,11 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use DB\PagePeer;
-
 class TemplateSourceModule extends SmartyModule{
 	
 	public function build($runData){
 		$pageId = $runData->getParameterList()->getParameterValue("page_id");
-		$page = PagePeer::instance()->selectByPrimaryKey($pageId);
+		$page = DB_PagePeer::instance()->selectByPrimaryKey($pageId);
 		$source = $page->getSource();
 //		/* Determine if it is a live template. */
 //		if(preg_match(';%%content({[0-9]+})?%%;', $source)) {

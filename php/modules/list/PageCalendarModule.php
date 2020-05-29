@@ -23,16 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use DB\CategoryPeer;
-use \ProcessException;
-use Criteria;
-use DB\PageTagPeer;
-use Database;
-use DB\PagePeer;
-
 class PageCalendarModule extends SmartyModule {
     
 	protected $_pl;
@@ -179,7 +169,7 @@ class PageCalendarModule extends SmartyModule {
             
             }
             foreach (preg_split('/[,;\s]+?/', $categoryName) as $cn) {
-                $category = CategoryPeer::instance()->selectByName($cn, $site->getSiteId());
+                $category = DB_CategoryPeer::instance()->selectByName($cn, $site->getSiteId());
                 if ($category) {
                     $categories[] = $category;
                     $categoryNames[] = $category->getName();
@@ -236,7 +226,7 @@ class PageCalendarModule extends SmartyModule {
                         $co = new Criteria();
             			$co->add("page_id", $pageId);
             			$co->addOrderAscending("tag");
-            			$tagso = PageTagPeer::instance()->select($co);
+            			$tagso = DB_PageTagPeer::instance()->select($co);
             			foreach($tagso as $to){
             				$tagsAny[] = $to->getTag();	
             			}
@@ -297,7 +287,7 @@ class PageCalendarModule extends SmartyModule {
         $c->setExplicitFields("EXTRACT(YEAR FROM date_created)::varchar || '.' || EXTRACT(MONTH FROM date_created)::varchar as datestring, count(*) as c");
 		//$c->addOrderDescending("regexp_replace(datestring, '\.[0-9]+$', '')::integer");
 		//$c->addOrderDescending("regexp_replace(datestring, '^[0-9]+\.', '')::integer");
-        $q = PagePeer::instance()->criteriaToQuery($c);
+        $q = DB_PagePeer::instance()->criteriaToQuery($c);
 
 		$r = $db->query($q);
         $r = $r->fetchAll();
@@ -324,7 +314,7 @@ class PageCalendarModule extends SmartyModule {
         
         //$c = clone($corig);
         $c->setExplicitFields("EXTRACT(YEAR FROM date_created)::varchar as datestring, count(*) as c");
-        $q = PagePeer::instance()->criteriaToQuery($c);
+        $q = DB_PagePeer::instance()->criteriaToQuery($c);
         
 		$r = $db->query($q);
         $r = $r->fetchAll();

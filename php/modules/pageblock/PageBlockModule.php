@@ -23,16 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use DB\PagePeer;
-use \ProcessException;
-use \WDPermissionException;
-use Criteria;
-use DB\ModeratorPeer;
-use DB\AdminPeer;
-
 class PageBlockModule extends SmartyModule {
 
 	public function build($runData){
@@ -43,7 +33,7 @@ class PageBlockModule extends SmartyModule {
 		$pageId = $pl->getParameterValue("page_id");
 		$user = $runData->getUser();
 
-		$page = PagePeer::instance()->selectByPrimaryKey($pageId);
+		$page = DB_PagePeer::instance()->selectByPrimaryKey($pageId);
 		if(!$pageId || $page == null || $page->getSiteId() != $runData->getTemp("site")->getSiteId()){
 			throw new ProcessException(_("Error getting page information."), "no_page");
 		}	
@@ -70,7 +60,7 @@ class PageBlockModule extends SmartyModule {
 		$c = new Criteria();
 		$c->add("site_id", $page->getSiteId());
 		$c->add("user_id", $user->getUserId());
-		$rel = ModeratorPeer::instance()->selectOne($c);
+		$rel = DB_ModeratorPeer::instance()->selectOne($c);
 		if($rel && strpos($rel->getPermissions(), 'p') !== false){
 			return true;
 		}
@@ -79,7 +69,7 @@ class PageBlockModule extends SmartyModule {
 		$c = new Criteria();
 		$c->add("site_id", $page->getSiteId());
 		$c->add("user_id", $user->getUserId());
-		$rel = AdminPeer::instance()->selectOne($c);
+		$rel = DB_AdminPeer::instance()->selectOne($c);
 		if($rel){
 			return true;
 		}

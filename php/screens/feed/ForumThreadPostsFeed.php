@@ -23,14 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \FeedScreen;
-use DB\ForumThreadPeer;
-use \ProcessException;
-use Criteria;
-use DB\ForumPostPeer;
-
 class ForumThreadPostsFeed extends FeedScreen {
 	
 	public function render($runData){
@@ -86,7 +78,7 @@ class ForumThreadPostsFeed extends FeedScreen {
 		$pl = $runData->getParameterList();
 		$threadId = $pl->getParameterValue("t");
 		
-		$thread = ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
+		$thread = DB_ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
 		if($thread == null){
 			throw new ProcessException(_("No such thread."), "no_thread");	
 		}
@@ -114,7 +106,7 @@ class ForumThreadPostsFeed extends FeedScreen {
 		$c->addJoin("user_id", "ozone_user.user_id");
 		$c->addOrderDescending("post_id");
 		$c->setLimit(20);
-		$posts = ForumPostPeer::instance()->select($c);
+		$posts = DB_ForumPostPeer::instance()->select($c);
 		
 		foreach($posts as $post){
 			$item = array();

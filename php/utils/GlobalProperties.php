@@ -23,18 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-
-
-use Exception;
-use \GlobalPropertiesException;
-use \GlobalProperties as GlobalProperties;
-
-use Exception;
-use \GlobalPropertiesException;
-use \GlobalProperties as GlobalProperties;
-
 class GlobalPropertiesException extends Exception {
 	
 }
@@ -50,8 +38,6 @@ class GlobalProperties {
 	public static $SERVICE_NAME;
 	public static $URL_DOMAIN;
 	public static $URL_HOST;
-	public static $WIKI_FARM;
-	public static $HTTP_PORT;
 	
 	// security settings
 	public static $USE_SSL;
@@ -60,7 +46,6 @@ class GlobalProperties {
 	public static $USE_UPLOAD_DOMAIN;
 	public static $URL_UPLOAD_DOMAIN;
 	public static $RESTRICT_HTML;
-	public static $SECRET_MANAGE_SUPERADMIN;
 	
 	// database settings
 	public static $DATABASE_SERVER;
@@ -72,7 +57,6 @@ class GlobalProperties {
 	// search settings
 	public static $SEARCH_LUCENE_INDEX;
 	public static $SEARCH_LUCENE_QUEUE;
-	public static $SEARCH_LUCENE_LOCK;
 	public static $SEARCH_HIGHLIGHT;
 	public static $SEARCH_USE_JAVA;
 	
@@ -110,7 +94,6 @@ class GlobalProperties {
 	public static $LOGGER_FILE;
 	
 	// other settings
-	public static $CACHE_FILES_FOR;
 	public static $URL_DOCS;
 	public static $IP_HOST;
 	public static $USE_CUSTOM_DOMAINS;
@@ -159,16 +142,6 @@ class GlobalProperties {
 		}
 		return $value;
 	}
-
-	protected static function fromFile($file) {
-		if ($fp = @fopen(WIKIDOT_ROOT . '/conf/' . $file, 'r')) {
-			$s = fread($fp, 4096);
-			fclose($fp);
-		} else {
-			$s = "";
-		}
-		return trim($s);
-	}
 	
 	/**
 	 * read wikidot.ini file
@@ -180,27 +153,17 @@ class GlobalProperties {
 		self::$iniConfig = parse_ini_file(WIKIDOT_ROOT . "/conf/wikidot.ini", true);
 		
 		// main settings
-		self::$WIKI_FARM				= self::fromIni("main",		"wiki_farm",	false);
-		self::$HTTP_PORT				= self::fromIni("main",		"port",			8080);
-
-		if (self::$WIKI_FARM) {
-			self::$SERVICE_NAME			= self::fromIni("main",		"service");		//no default
-			self::$URL_DOMAIN			= self::fromIni("main",		"domain",		"singlewiki.wikidot.dev");
-			self::$URL_HOST				= self::fromIni("main",		"main_wiki",	"www." . self::$URL_DOMAIN);
-		} else {
-			self::$SERVICE_NAME			= "";
-			self::$URL_DOMAIN			= self::fromIni("main",		"domain",		"singlewiki.wikidot.dev");
-			self::$URL_HOST				= self::fromIni("main",		"main_wiki",	"www." . self::$URL_DOMAIN);
-		}
+		self::$SERVICE_NAME				= self::fromIni("main",		"service");			// no default!
+		self::$URL_DOMAIN				= self::fromIni("main",		"domain");			// no default!
+		self::$URL_HOST					= self::fromIni("main",		"main_wiki",		"www." . self::$URL_DOMAIN);
 		
 		// security settings
-		self::$SECRET					= self::fromIni("security",	"secret",					self::fromFile('secret'));
+		self::$SECRET					= self::fromIni("security",	"secret");					// no default!
 		self::$USE_SSL					= self::fromIni("security",	"ssl",						false);
 		self::$SECRET_DOMAIN_LOGIN		= self::fromIni("security",	"secret_login",				self::$SECRET . "_custom_domain_login");
 		self::$USE_UPLOAD_DOMAIN		= self::fromIni("security",	"upload_separate_domain",	false);
 		self::$URL_UPLOAD_DOMAIN		= self::fromIni("security",	"upload_domain",			"wd.files." . self::$URL_DOMAIN);
 		self::$RESTRICT_HTML			= self::fromIni("security",	"upload_restrict_html",		true);
-		self::$SECRET_MANAGE_SUPERADMIN = self::fromIni("security", "secret_manage_superadmin",  md5(self::$SECRET . '_super_admin'));
 		
 		// database settings
 		self::$DATABASE_USER			= self::fromIni("db",		"user");			// no default!
@@ -212,16 +175,15 @@ class GlobalProperties {
 		// search settings
 		self::$SEARCH_LUCENE_INDEX		= self::fromIni("search",	"lucene_index",		WIKIDOT_ROOT . "/tmp/lucene_index");
 		self::$SEARCH_LUCENE_QUEUE		= self::fromIni("search",	"lucene_queue",		WIKIDOT_ROOT . "/tmp/lucene_queue");
-		self::$SEARCH_LUCENE_LOCK		= self::fromIni("search",	"lucene_lock",		WIKIDOT_ROOT . "/tmp/lucene_lock");
 		self::$SEARCH_HIGHLIGHT			= self::fromIni("search",	"highlight",		false);
 		self::$SEARCH_USE_JAVA			= self::fromIni("search",	"use_java",			false);
 		
 		// mail settings
 		self::$DEFAULT_SMTP_HOST		= self::fromIni("mail",		"host",				"127.0.0.1");
-		self::$DEFAULT_SMTP_SECURE		= self::fromIni("mail",		"ssl",				false) ? "ssl" : "";
-		self::$DEFAULT_SMTP_PORT		= self::fromIni("mail",		"port",				(self::$DEFAULT_SMTP_SECURE == "ssl") ? 465 : 25);
+		self::$DEFAULT_SMTP_PORT		= self::fromIni("mail",		"port",				25);
 		self::$DEFAULT_SMTP_USER		= self::fromIni("mail",		"user",				"admin");
 		self::$DEFAULT_SMTP_PASSWORD	= self::fromIni("mail",		"password",			"");
+		self::$DEFAULT_SMTP_SECURE		= self::fromIni("mail",		"ssl",				false) ? "ssl" : "";
 		self::$DEFAULT_SMTP_AUTH		= self::fromIni("mail",		"auth",				false);
 		self::$DEFAULT_SMTP_HOSTNAME	= self::fromIni("mail",		"hostname",			self::$DEFAULT_SMTP_HOST);
 		self::$DEFAULT_SMTP_FROM_EMAIL	= self::fromIni("mail",		"from_mail",		(strstr(self::$DEFAULT_SMTP_USER, "@")) ? self::$DEFAULT_SMTP_USER : self::$DEFAULT_SMTP_USER . "@" . self::$DEFAULT_SMTP_HOSTNAME);
@@ -250,7 +212,6 @@ class GlobalProperties {
 		self::$LOGGER_FILE				= self::fromIni("log",		"file",				"wikidot.log"); // TODO: use this setting
 		
 		// other settings
-		self::$CACHE_FILES_FOR			= self::fromIni("misc",		"cache_files_for",	0);
 		self::$URL_DOCS					= self::fromIni("misc",		"doc_url",			"http://www.wikidot.org/doc");
 		self::$IP_HOST					= self::fromIni("misc",		"ip",				"127.0.0.1");
 		self::$USE_CUSTOM_DOMAINS		= self::fromIni("misc",		"custom_domains",	false);

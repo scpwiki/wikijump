@@ -5,10 +5,6 @@
 
 <head>
  	<title>{$site->getName()}{if $wikiPage && $wikiPage->getTitle()}: {$wikiPage->getTitle()|escape}{/if}</title>
-    <script type="text/javascript" src="/common--javascript/jquery-1.3.2.min.js"></script>
-    <script type="text/javascript">
-        $j = jQuery.noConflict();
-    </script>
  	<script type="text/javascript" src="/common--javascript/json.js"></script>
  	
 	<script type="text/javascript" src="/common--javascript/combined.js"></script>
@@ -179,10 +175,8 @@
 			 		</a>
 			 		
 	 			</div>
-				{if $SERVICE_NAME!=""}
-	 				Part of <a href="http://{$URL_HOST}">{$SERVICE_NAME|escape}</a>
-	 				&#8212; 
-				{/if}
+	 			Part of <a href="http://{$URL_HOST}">{$SERVICE_NAME|escape}</a>
+	 			&#8212; 
  				Powered by <a href="http://www.wikidot.org/">Wikidot</a>
 	 		</div>
 	 		{if $licenseText!=""}

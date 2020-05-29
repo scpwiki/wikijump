@@ -23,12 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \ManageSiteBaseModule;
-use Criteria;
-use DB\SiteTagPeer;
-
 class ManageSiteGeneralModule extends ManageSiteBaseModule {
 	
 	public function build($runData){
@@ -38,7 +32,7 @@ class ManageSiteGeneralModule extends ManageSiteBaseModule {
 		// get tags
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
-		$dbTags = SiteTagPeer::instance()->select($c);
+		$dbTags = DB_SiteTagPeer::instance()->select($c);
 		$tags = '';
 		foreach($dbTags as $dbTag){
 			$tags .= htmlspecialchars($dbTag->getTag()).' ';

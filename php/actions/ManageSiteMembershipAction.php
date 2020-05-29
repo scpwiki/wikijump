@@ -23,35 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyAction;
-use \WDPermissionManager;
-use Database;
-use DB\Admin;
-use ODate;
-use DB\OzoneUserPeer;
-use \ProcessException;
-use Exception;
-use Criteria;
-use DB\MemberPeer;
-use DB\MemberInvitationPeer;
-use DB\UserSettingsPeer;
-use DB\MemberInvitation;
-use \NotificationMaker;
-use DB\AdminPeer;
-use DB\ModeratorPeer;
-use DB\UserBlockPeer;
-use DB\UserBlock;
-use DB\Moderator;
-use DB\MemberApplicationPeer;
-use DB\Member;
-use DB\MembershipLink;
-use JSONService;
-use DB\EmailInvitationPeer;
-use DB\EmailInvitation;
-use OzoneEmail;
-
 class ManageSiteMembershipAction extends SmartyAction {
 	
 	public function isAllowed($runData){
@@ -125,7 +96,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 		$userId = $pl->getParameterValue("user_id");
 			
 		// add administership
-		$a = new Admin();
+		$a = new DB_Admin();
 		$a->setUserId($userId);
 		$a->setSiteId($site->getSiteId());
 		$a->setDateJoined(new ODate());
@@ -141,7 +112,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 		$pl = $runData->getParameterList();
 		$userId = $pl->getParameterValue("user_id");
 		
-		$user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+		$user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($userId);
 		if($user == null){
 			throw new ProcessException("Error");
 		}	
@@ -156,18 +127,18 @@ class ManageSiteMembershipAction extends SmartyAction {
 		$c->add("user_id", $userId);
 		$c->add("site_id", $site->getSiteId());
 		
-		$mem = MemberPeer::instance()->select($c);
+		$mem = DB_MemberPeer::instance()->select($c);
 		if(count($mem) > 0){
 			throw new ProcessException(_("This user already is a member of this site."), "already_member");
 		}
-		$invs = MemberInvitationPeer::instance()->select($c);
+		$invs = DB_MemberInvitationPeer::instance()->select($c);
 		if(count($invs) > 0){
 			throw new ProcessException(_("This user has been already invited to this site."), "already_invited");
 		}
 		
 		// check if user WISHES to receive invitations
 		
-		$set = UserSettingsPeer::instance()->selectByPrimaryKey($user->getUserId());
+		$set = DB_UserSettingsPeer::instance()->selectByPrimaryKey($user->getUserId());
 		if(!$set->getReceiveInvitations()){
 			throw new ProcessException(_("This user does not wish to receive any invitations.", "wishes_not"));
 		}
@@ -176,7 +147,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 		$db->begin();
 		// ok, create invitation
 		$text = substr(trim($pl->getParameterValue("text")),0,300);
-		$inv = new MemberInvitation();
+		$inv = new DB_MemberInvitation();
 		$inv->setUserId($userId);
 		$inv->setByUserId($runData->getUserId());
 		$inv->setSiteId($site->getSiteId());
@@ -198,7 +169,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 		$userId = $runData->getParameterList()->getParameterValue("user_id");
 		$ban = $runData->getParameterList()->getParameterValue("ban");
 		
-		$user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+		$user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($userId);
 		
 		if($user == null){
 			throw new ProcessException("Error");
@@ -219,7 +190,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("user_id", $userId);
 		$c->add("site_id", $siteId);
-		$admin = AdminPeer::instance()->selectOne($c);
+		$admin = DB_AdminPeer::instance()->selectOne($c);
 		
 		if($admin && $admin->getFounder()){
 			throw new ProcessException(_("The founder of the site can not be removed."). "founder_nonremovable");	
@@ -228,7 +199,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 		if($admin){
 			$c2 = new Criteria();
 			$c2->add("site_id", $siteId);
-			$acount = AdminPeer::instance()->selectCount($c2);
+			$acount = DB_AdminPeer::instance()->selectCount($c2);
 			if($acount == 1){ // BUT this meand "yourself"
 				throw new ProcessException(_("You can not remove the last admin."), "last_admin)");
 			}
@@ -238,9 +209,9 @@ class ManageSiteMembershipAction extends SmartyAction {
 		$c->add("user_id", $userId);
 		$c->add("site_id", $siteId);
 		
-		MemberPeer::instance()->delete($c);
-		ModeratorPeer::instance()->delete($c);
-		AdminPeer::instance()->delete($c);
+		DB_MemberPeer::instance()->delete($c);
+		DB_ModeratorPeer::instance()->delete($c);
+		DB_AdminPeer::instance()->delete($c);
 		
 		NotificationMaker::instance()->removedFromMembers($site, $user);
 		
@@ -250,11 +221,11 @@ class ManageSiteMembershipAction extends SmartyAction {
 			$c = new Criteria();
 			$c->add("site_id", $site->getSiteId());
 			$c->add("user_id", $userId);
-			$bl = UserBlockPeer::instance()->selectOne($c);
+			$bl = DB_UserBlockPeer::instance()->selectOne($c);
 			if($bl){
 				throw new ProcessException(_("Error occured."));	
 			}	
-			$block = new UserBlock();
+			$block = new DB_UserBlock();
 			$block->setSiteId($site->getSiteId());
 			$block->setUserId($userId);
 			$block->setDateBlocked(new ODate());
@@ -275,7 +246,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 		$db = Database::connection();
 		$db->begin();
 		
-		$user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+		$user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($userId);
 		if($user == null){
 			$runData->ajaxResponseAdd("status", "no_user");
 			$runData->ajaxResponseAdd("message", _("The user does not exist? This should not happen."));
@@ -286,7 +257,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("user_id", $userId);
 		$c->add("site_id", $siteId);
-		$mem = MemberPeer::instance()->selectOne($c);
+		$mem = DB_MemberPeer::instance()->selectOne($c);
 		if($mem == null){
 			$runData->ajaxResponseAdd("status", "not_member");
 			$runData->ajaxResponseAdd("message", _("The user is not a member of this site (anymore)."));
@@ -295,7 +266,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 		}
 		
 		// check if not already a moderator
-		$mod = ModeratorPeer::instance()->selectOne($c);
+		$mod = DB_ModeratorPeer::instance()->selectOne($c);
 		if($mod != null){
 			$runData->ajaxResponseAdd("status", "already_moderator");
 			$runData->ajaxResponseAdd("message", _("The user is already a moderator of this site."));
@@ -304,7 +275,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 		}
 		
 		// check if not already an admin. The roles should not duplicate.
-		$mod = AdminPeer::instance()->selectOne($c);
+		$mod = DB_AdminPeer::instance()->selectOne($c);
 		if($mod != null){
 			$runData->ajaxResponseAdd("status", "already_admin");
 			$runData->ajaxResponseAdd("message", _("The user is already an administrator of this site."));
@@ -314,7 +285,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 		
 		// ok, add now!
 		
-		$mod = new Moderator();
+		$mod = new DB_Moderator();
 		$mod->setSiteId($siteId);
 		$mod->setUserId($userId);
 		$mod->save();
@@ -330,7 +301,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 	public function removeModeratorEvent($runData){
 		$userId = $runData->getParameterList()->getParameterValue("user_id");
 		
-		$user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+		$user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($userId);
 		
 		if($user == null){
 			throw new ProcessException("Error");
@@ -346,14 +317,14 @@ class ManageSiteMembershipAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("user_id", $userId);
 		$c->add("site_id", $siteId);
-		$mod = ModeratorPeer::instance()->selectOne($c);
+		$mod = DB_ModeratorPeer::instance()->selectOne($c);
 		if($mod == null){
 			$runData->ajaxResponseAdd("status", "not_already");
 			$runData->ajaxResponseAdd("message", _("This user is not a moderator already."));
 			$db->commit();
 			return;	
 		}
-		ModeratorPeer::instance()->delete($c);
+		DB_ModeratorPeer::instance()->delete($c);
 		
 		NotificationMaker::instance()->removedFromModerators($site, $user);
 
@@ -369,7 +340,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 		$db = Database::connection();
 		$db->begin();
 		
-		$user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+		$user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($userId);
 		if($user == null){
 			$runData->ajaxResponseAdd("status", "no_user");
 			$runData->ajaxResponseAdd("message", _("The user does not exist? This should not happen."));
@@ -380,7 +351,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("user_id", $userId);
 		$c->add("site_id", $siteId);
-		$mem = MemberPeer::instance()->selectOne($c);
+		$mem = DB_MemberPeer::instance()->selectOne($c);
 		if($mem == null){
 			$runData->ajaxResponseAdd("status", "not_member");
 			$runData->ajaxResponseAdd("message", _("The user is not a member of this site (anymore)."));
@@ -389,7 +360,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 		}
 		
 		// check if not already a moderator
-		$mod = ModeratorPeer::instance()->selectOne($c);
+		$mod = DB_ModeratorPeer::instance()->selectOne($c);
 		if($mod != null){
 			$runData->ajaxResponseAdd("status", "already_moderator");
 			$runData->ajaxResponseAdd("message",_("The user is already a moderator of this site."));
@@ -398,7 +369,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 		}
 		
 		// check if not already an admin. The roles should not duplicate.
-		$mod = AdminPeer::instance()->selectOne($c);
+		$mod = DB_AdminPeer::instance()->selectOne($c);
 		if($mod != null){
 			$runData->ajaxResponseAdd("status", "already_admin");
 			$runData->ajaxResponseAdd("message", _("The user is already an administrator of this site."));
@@ -410,7 +381,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 		
 		// ok, add now!
 		
-		$mod = new Admin();
+		$mod = new DB_Admin();
 		$mod->setSiteId($siteId);
 		$mod->setUserId($userId);
 		$mod->save();
@@ -426,7 +397,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 	
 	public function removeAdminEvent($runData){
 		$userId = $runData->getParameterList()->getParameterValue("user_id");
-		$user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+		$user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($userId);
 		
 		if($user == null){
 			throw new ProcessException("Error");
@@ -442,7 +413,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("user_id", $userId);
 		$c->add("site_id", $siteId);
-		$admin = AdminPeer::instance()->selectOne($c);
+		$admin = DB_AdminPeer::instance()->selectOne($c);
 		
 		if($admin && $admin->getFounder()){
 			throw new ProcessException(_("The original founder of the site can not be removed."), "founder_nonremovable");	
@@ -464,7 +435,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 		
 		$c2 = new Criteria();
 		$c2->add("site_id", $siteId);
-		$acount = AdminPeer::instance()->selectCount($c2);
+		$acount = DB_AdminPeer::instance()->selectCount($c2);
 		if($acount == 1){ // BUT this meand "yourself"
 			$runData->ajaxResponseAdd("status", "last_admin");
 			$runData->ajaxResponseAdd("message", _("You can not remove the last admin."));
@@ -472,7 +443,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 			return;
 		}
 		
-		AdminPeer::instance()->delete($c);
+		DB_AdminPeer::instance()->delete($c);
 		
 		// and create a notification too...
 		NotificationMaker::instance()-> removedFromAdmins($site, $user);
@@ -487,7 +458,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 		$site = $runData->getTemp("site");
 		$siteId = $site->getSiteId();
 		
-		$user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+		$user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($userId);
 		
 		if($user == null){
 			throw new ProcessException("Error");
@@ -507,20 +478,20 @@ class ManageSiteMembershipAction extends SmartyAction {
 		$db = Database::connection();
 		$db->begin();
 		
-		$application = MemberApplicationPeer::instance()->selectOne($c);
+		$application = DB_MemberApplicationPeer::instance()->selectOne($c);
 		if($application == null){
 			throw new ProcessException(_("This application does not exist (anymore)."), "no_application");
 		}
 		
 		if($type=="accept"){
 			// add to members
-			$mem = new Member();
+			$mem = new DB_Member();
 			$mem->setUserId($userId);
 			$mem->setSiteId($siteId);
 			$mem->setDateJoined(new ODate());
 			$mem->save();	
 			
-			$ml = new MembershipLink();
+			$ml = new DB_MembershipLink();
 			$ml->setUserId($userId);
 			$ml->setSiteId($site->getSiteId());
 			$ml->setDate(new ODate());
@@ -551,7 +522,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 		if($moderatorId == null || !is_numeric($moderatorId)){
 			throw new ProcessException(_("Moderator does not exist."));	
 		}
-		$mod = ModeratorPeer::instance()->selectByPrimaryKey($moderatorId);
+		$mod = DB_ModeratorPeer::instance()->selectByPrimaryKey($moderatorId);
 		
 		if($mod == null || $mod->getSiteId() != $runData->getTemp("site")->getSiteId()){
 			throw new ProcessException(_("Moderator does not exist."));	
@@ -604,7 +575,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 			$q = " SELECT * FROM member, ozone_user WHERE member.site_id='".$site->getSiteId()."' AND ozone_user.name='".db_escape_string($email)."' AND member.user_id = ozone_user.user_id LIMIT 1";
 			$c = new Criteria();
 			$c->setExplicitQuery($q);
-			$m = MemberPeer::instance()->selectOne($c);
+			$m = DB_MemberPeer::instance()->selectOne($c);
 			if($m){
 				throw new ProcessException(sprintf(_('User with the email address "%s" is already a member of this Site. Remove him from the list and send invitations again.'), htmlspecialchars($email)), 'aleady_member');		
 			}
@@ -613,7 +584,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 			$c = new Criteria();
 			$c->add("email", $email);
 			$c->add("site_id", $site->getSiteId());
-			$ii = EmailInvitationPeer::instance()->selectOne($c);
+			$ii = DB_EmailInvitationPeer::instance()->selectOne($c);
 			
 			if($ii){
 				throw new ProcessException(sprintf(_('User with the email address "%s" has been already invited to this Site. Remove him from the list and send invitations again. If you want to resend an invitation please rather look at the history of sent invitations.'), htmlspecialchars($email)), 'aleady_member');					
@@ -638,7 +609,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 			
 			$hash = substr(md5($name.$email).time(),0,20);
 			
-			$inv = new EmailInvitation();
+			$inv = new DB_EmailInvitation();
 			$inv->setHash($hash);
 			$inv->setEmail($email);
 			$inv->setName($name);
@@ -687,14 +658,14 @@ class ManageSiteMembershipAction extends SmartyAction {
 		$c->add("invitation_id", $invitationId);
 		$c->add("site_id", $site->getSiteId());
 		
-		$inv = EmailInvitationPeer::instance()->selectOne($c);
+		$inv = DB_EmailInvitationPeer::instance()->selectOne($c);
 		
 		if(!$inv){
 			throw new ProcessException(_("Invitation could not be found."), "no_invitation");	
 		}
 		
 		// delete now
-		EmailInvitationPeer::instance()->deleteByPrimaryKey($invitationId);
+		DB_EmailInvitationPeer::instance()->deleteByPrimaryKey($invitationId);
 	}
 	
 	public function resendEmailInvitationEvent($runData){
@@ -709,7 +680,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 		$c->add("invitation_id", $invitationId);
 		$c->add("site_id", $site->getSiteId());
 		
-		$inv = EmailInvitationPeer::instance()->selectOne($c);
+		$inv = DB_EmailInvitationPeer::instance()->selectOne($c);
 		
 		if(!$inv){
 			throw new ProcessException(_("Invitation could not be found."), "no_invitation");	

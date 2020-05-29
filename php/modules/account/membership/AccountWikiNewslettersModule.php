@@ -23,13 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \AccountBaseModule;
-use Criteria;
-use DB\MemberPeer;
-use DB\UserSettingsPeer;
-
 class AccountWikiNewslettersModule extends AccountBaseModule{
 	
 	public function build($runData){
@@ -42,13 +35,13 @@ class AccountWikiNewslettersModule extends AccountBaseModule{
 		$c->addJoin("site_id", "site.site_id");
 		$c->addOrderAscending("site.name");
 		
-		$mems = MemberPeer::instance()->select($c);
+		$mems = DB_MemberPeer::instance()->select($c);
 		if(count($mems)>0){
 			$runData->contextAdd("mems", $mems);	
 		}
 		
 		// get user settings
-		$us = UserSettingsPeer::instance()->selectByPrimaryKey($runData->getUserId());
+		$us = DB_UserSettingsPeer::instance()->selectByPrimaryKey($runData->getUserId());
 		$runData->contextAdd("defaultNewsletter", $us->getAllowSiteNewslettersDefault());
 	}
 	

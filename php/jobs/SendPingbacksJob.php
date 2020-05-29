@@ -23,35 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SchedulerJob;
-use run;
-use Database;
-use init;
-use _selectLink;
-use _ping;
-use ODate;
-use subtractSeconds;
-use db_escape_string;
-use getDate;
-use Criteria;
-use setExplicitQuery;
-use DB\PageExternalLinkPeer;
-use instance;
-use selectOne;
-use setPinged;
-use true;
-use setPingStatus;
-use save;
-use buildPageUrl;
-use \PingBack;
-use getToUrl;
-use ping;
-use \PingBackException;
-use getMessage;
-use Exception;
-
 /**
  * Sends pingbacks.
  */
@@ -80,7 +51,7 @@ class SendPingbacksJob implements SchedulerJob {
         	 " AND page.category_id = category.category_id AND category.site_id = site_settings.site_id AND page.site_id = site.site_id LIMIT 1";
         $c = new Criteria();
         $c->setExplicitQuery($q);
-        $link = PageExternalLinkPeer::instance()->selectOne($c);
+        $link = DB_PageExternalLinkPeer::instance()->selectOne($c);
         return $link;
     }
     

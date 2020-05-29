@@ -23,14 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \DatabaseStorage as DatabaseStorage;
-use DB\StorageItemPeer;
-use DB\StorageItem;
-use ODate;
-use Criteria;
-
 class DatabaseStorage {
 	
 	private static $instance;
@@ -46,11 +38,11 @@ class DatabaseStorage {
 	public function set($key, $value, $timeout){
 
 		// delete it if already in the database
-		StorageItemPeer::instance()->deleteByPrimaryKey($key);
+		DB_StorageItemPeer::instance()->deleteByPrimaryKey($key);
 		if(!$value){
 			return;	
 		}
-		$item = new StorageItem();
+		$item = new DB_StorageItem();
 		$item->setItemId($key);
 		$item->setData($value);
 		$item->setTimeout($timeout);
@@ -60,14 +52,14 @@ class DatabaseStorage {
 	}
 	
 	public function get($key){
-		$item = StorageItemPeer::instance()->selectByPrimaryKey($key);
+		$item = DB_StorageItemPeer::instance()->selectByPrimaryKey($key);
 		if($item){
 			$timestamp = $item->getDate()->getTimestamp() + $item->getTimeout();
 
 			if($timestamp < time()){
 				
 				// delete the item, it is outdated!	
-				StorageItemPeer::instance()->deleteByPrimaryKey($key);
+				DB_StorageItemPeer::instance()->deleteByPrimaryKey($key);
 			}else{
 				
 				return $item->getData();	
@@ -83,7 +75,7 @@ class DatabaseStorage {
 		$date = new ODate();
 		$c = new Criteria();
 		$c->add("date + (timeout || 'sec')::interval", new ODate(), '<');
-		StorageItemPeer::instance()->delete($c);
+		DB_StorageItemPeer::instance()->delete($c);
 	}
 	
 }

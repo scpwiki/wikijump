@@ -1,25 +1,29 @@
 <?php
-class
+/**
+ * Wikidot - free wiki collaboration software
+ * Copyright (c) 2008, Wikidot Inc.
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * For more information about licensing visit:
+ * http://www.wikidot.org/license
+ * 
+ * @category Wikidot
+ * @package Wikidot
+ * @version $Id$
+ * @copyright Copyright (c) 2008, Wikidot Inc.
+ * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
+ */
 
-use \WDPermissionManager as WDPermissionManager;
-use DB\OzoneUserPeer;
-use DB\SitePeer;
-use Criteria;
-use DB\AdminPeer;
-use DB\ModeratorPeer;
-use DB\MemberPeer;
-use \WDPermissionException;
-use Ozone;
-use DB\Page;
-use DB\PagePeer;
-use DB\UserSettingsPeer;
-use DB\ContactPeer;
-use Database;
-use DB\PrivateUserBlockPeer;
-use DB\IpBlockPeer;
-use DB\UserBlockPeer;
-
- WDPermissionManager {
+class WDPermissionManager {
 	
 	private static $instance;
 	
@@ -86,7 +90,7 @@ use DB\UserBlockPeer;
 	
 	private static $userClassesDesc = array(
 		'anonymous' => 'anonymous users',
-		'registered' => '<a href="http://www.wikidot.com">Wikidot.com</a> registered users',
+		'registered' => 'registered users',
 		'member' => 'members of this site',
 		'owner' => 'owner (creator) of this page'
 	);
@@ -97,8 +101,7 @@ use DB\UserBlockPeer;
 		}
 		return self::$instance;	
 	}
-	
-	
+
 	public function __construct(){
 		
 		self::$pageActionsDesc = array(
@@ -125,18 +128,17 @@ use DB\UserBlockPeer;
 			
 		self:: $userClassesDesc = array(
 			'anonymous' => _('anonymous users'),
-			'registered' => _('<a href="http://www.wikidot.com">Wikidot.com</a> registered users'),
+			'registered' => _('registered users'),
 			'member' => _('members of this site'),
 			'owner' => _('owner (creator) of this page'));
 	}
 	
 	public function hasPermission($action, $user, $site=null){
-		
-		
+
 		if($user){
 			if((is_string($user) && is_numeric($user)) || is_int($user)){
 				if($user >0){
-					$user = OzoneUserPeer::instance()->selectByPrimaryKey($user);
+					$user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($user);
 				} else {
 					$user = null;
 				}	
@@ -148,7 +150,7 @@ use DB\UserBlockPeer;
 		}
 		
 		if(($site && is_string($site) && is_numeric($site)) || is_int($site)){
-			$site = SitePeer::instance()->selectByPrimaryKey($site);	
+			$site = DB_SitePeer::instance()->selectByPrimaryKey($site);	
 		}
 		 
 		if($site && $site->getDeleted()){
@@ -170,42 +172,23 @@ use DB\UserBlockPeer;
 					$c = new Criteria();
 					$c->add("user_id", $user->getUserId());
 					$c->add("site_id", $site->getSiteId());
-					$rel = AdminPeer::instance()->selectOne($c);
+					$rel = DB_AdminPeer::instance()->selectOne($c);
 					if($rel == null){
 						$message = _("You have no permission to configure the site properties. Only site admins are allowed to do it.");
 					}
 				}
 				break;
-        
-        case 'moderate_site':
-				if(!$user){
-					$message = _("You have no permission to moderate the site. Only site moderatorss are allowed to do it.".
-					"But right now you are not even logged in...");
-				}else{
-					$c = new Criteria();
-					$c->add("user_id", $user->getUserId());
-					$c->add("site_id", $site->getSiteId());
-					$rel = ModeratorPeer::instance()->selectOne($c);
-					if($rel == null){
-						$message = _("You have no permission to moderate the site properties. Only site moderators are allowed to do it.");
-					}
-				}
-				break;
-
-		case 'account':
+			case 'account':
 				if(!$user){
 					$message = _("You can not access your account while not being logged in...");
 				}
 				break;
 			case 'become_member':
-			//	if($user->getSuperAdmin() || $user->getSuperModerator()){
-			//		return true;
-			//	}
 				
 				$c = new Criteria();;
 				$c->add("user_id", $user->getUserId());
 				
-				$mc = MemberPeer::instance()->selectCount($c);
+				$mc = DB_MemberPeer::instance()->selectCount($c);
 				
 				// count memberships
 					
@@ -219,8 +202,7 @@ use DB\UserBlockPeer;
 				}
 				break;
 		}
-		
-		
+
 		if($message){
 			// shit. no permission.
 			if($this->throwExceptions == true){
@@ -235,12 +217,11 @@ use DB\UserBlockPeer;
 		}
 		
 	}
-	
-	
+
 	public function hasPagePermission($action, $user, $category, $page=null, $site=null){
 		if($user){
 			if((is_string($user) && is_numeric($user)) || is_int($user)){
-				$user = OzoneUserPeer::instance()->selectByPrimaryKey($user);	
+				$user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($user);	
 			}
 		}
 		
@@ -254,7 +235,6 @@ use DB\UserBlockPeer;
 		if($this->checkIpBlocks){
 			$ips = Ozone::getRunData()->createIpString();			
 			$blocks = $this->checkIpBlocked($ips, $site);
-			//var_dump($blocks);
 			if(count($blocks)>0){
 				if($this->throwExceptions){
 					throw new WDPermissionException(_("Sorry, your IP address is blocked from participating in and modifying this site."));
@@ -265,13 +245,13 @@ use DB\UserBlockPeer;
 		}
 		
 		// check if page not blocked
-		if($page && $page instanceof Page && $page->getBlocked()){
+		if($page && $page instanceof DB_Page && $page->getBlocked()){
 			if($user){
 				// still nothing. check if moderator of "pages".
 				$c = new Criteria();
 				$c->add("site_id", $category->getSiteId());
 				$c->add("user_id", $user->getUserId());
-				$rel = ModeratorPeer::instance()->selectOne($c);
+				$rel = DB_ModeratorPeer::instance()->selectOne($c);
 				if($rel && strpos($rel->getPermissions(), 'p') !== false){
 					return true;
 				}
@@ -280,7 +260,7 @@ use DB\UserBlockPeer;
 				$c = new Criteria();
 				$c->add("site_id", $category->getSiteId());
 				$c->add("user_id", $user->getUserId());
-				$rel = AdminPeer::instance()->selectOne($c);
+				$rel = DB_AdminPeer::instance()->selectOne($c);
 				if($rel){
 					return true;
 				}
@@ -288,9 +268,7 @@ use DB\UserBlockPeer;
 			// if not - can not edit!
 			throw new WDPermissionException(_("This page is blocked and only Site Administrators and Moderators with enough privileges can modify it."));
 		}
-		
-		
-		
+
 		//action code
 		$ac = self::$pageActions[$action];
 		//permission string
@@ -302,33 +280,19 @@ use DB\UserBlockPeer;
 			// ok, anyone can.
 			// but check ip blocks.
 			if($this->checkUserBlocks && $user){
-				//if(!$user){
-				//	$ips = Ozone::getRunData()->createIpString();
-				//	
-				//	$blocks = $this->checkIpBlocked($ips, $site);
-				//	if(count($blocks)>0){
-				//		
-				//		if($this->throwExceptions){
-				//			throw new WDPermissionException(_("Sorry, your IP address is blocked from participating in and modifying this site."));
-				//		}else{
-				//			return false;
-				//		}
-				//	}
-				//}
-				//if($user){
-					$block = $this->checkUserBlocked($user, $site);
-					if($block){
-						if($this->throwExceptions){
-							$message = _("Sorry, you are blocked from participating in and modifying this site. ");
-							if($block->getReason() && $block->getReason()!=''){
-								$message .=	_("The given reason is:")." <p>".htmlspecialchars($block->getReason())."</p>";
-							}
-							throw new WDPermissionException($message);
-						}else{
-							return false;
-						}	
+				
+				$block = $this->checkUserBlocked($user, $site);
+				if($block){
+					if($this->throwExceptions){
+						$message = _("Sorry, you are blocked from participating in and modifying this site. ");
+						if($block->getReason() && $block->getReason()!=''){
+							$message .=	_("The given reason is:")." <p>".htmlspecialchars($block->getReason())."</p>";
+						}
+						throw new WDPermissionException($message);
+					}else{
+						return false;
 					}	
-				//}
+				}	
 			}
 			return true;		
 		}elseif(!$user){
@@ -353,7 +317,6 @@ use DB\UserBlockPeer;
 						}
 						throw new WDPermissionException($message);
 					//	throw new WDPermissionException("Sorry, you are blocked from participating in and modifying this site. " .
-					//			"The given reason is: \"".htmlspecialchars($block->getReason())."\"");
 					}else{
 						return false;
 					}	
@@ -370,23 +333,16 @@ use DB\UserBlockPeer;
 			$c = new Criteria();
 			$c->add("site_id", $category->getSiteId());
 			$c->add("user_id", $user->getUserId());
-			$rel = MemberPeer::instance()->selectOne($c);
+			$rel = DB_MemberPeer::instance()->selectOne($c);
 			if($rel){
 				return true;
 			}
 		}
 		
-		/*// still nothing. check if owner of the page
-		if($page && $page->getOwnerUserId() && $user->getUserId() == $page->getOwnerUserId()){
-			$uc = self::$userClasses['owner'];
-			if($this->permissionLookup($ac, $uc, $ps)){
-				return true;	
-			}
-		}*/
 		$uc = self::$userClasses['owner'];
 		if($page && $this->permissionLookup($ac, $uc, $ps)){
 			if($site && is_string($page)){
-				$page = PagePeer::instance()->selectByName($site->getSiteId(), $page);	
+				$page = DB_PagePeer::instance()->selectByName($site->getSiteId(), $page);	
 			}
 			if($page && $page->getOwnerUserId() && $user->getUserId() == $page->getOwnerUserId()){
 				// check blocked users
@@ -400,8 +356,6 @@ use DB\UserBlockPeer;
 								$message .=	_("The given reason is:")." <p>".htmlspecialchars($block->getReason())."</p>";
 							}
 							throw new WDPermissionException($message);
-							//throw new WDPermissionException("Sorry, you are blocked from participating in and modifying this site. " .
-							//		"The given reason is: \"".htmlspecialchars($block->getReason())."\"");
 						}else{
 							return false;
 						}	
@@ -415,7 +369,7 @@ use DB\UserBlockPeer;
 		$c = new Criteria();
 		$c->add("site_id", $category->getSiteId());
 		$c->add("user_id", $user->getUserId());
-		$rel = ModeratorPeer::instance()->selectOne($c);
+		$rel = DB_ModeratorPeer::instance()->selectOne($c);
 		if($rel && strpos($rel->getPermissions(), 'p') !== false){
 			return true;
 		}
@@ -424,7 +378,7 @@ use DB\UserBlockPeer;
 		$c = new Criteria();
 		$c->add("site_id", $category->getSiteId());
 		$c->add("user_id", $user->getUserId());
-		$rel = AdminPeer::instance()->selectOne($c);
+		$rel = DB_AdminPeer::instance()->selectOne($c);
 		if($rel){
 			return true;
 		}
@@ -438,7 +392,7 @@ use DB\UserBlockPeer;
 	public function hasForumPermission($action, $user, $category, $thread=null, $post=null){
 		if($user){
 			if((is_string($user) && is_numeric($user)) || is_int($user)){
-				$user = OzoneUserPeer::instance()->selectByPrimaryKey($user);	
+				$user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($user);	
 			}
 		}
 		
@@ -471,49 +425,31 @@ use DB\UserBlockPeer;
 		$ac = self::$forumActions[$action];
 		//permission string
 		$ps = $category->getPermissionString();
-		
-		//throw new WDPermissionException($ps);
-		
+
 		// first try anonymous and registered to save effort
 		$uc = self::$userClasses['anonymous'];
 		if($this->permissionLookup($ac, $uc, $ps)){
 			// ok, anyone can.
 			// but check ip blocks.
 			if($this->checkUserBlocks && $user){
-				//if(!$user){
-				//	$ips = Ozone::getRunData()->createIpString();
-				//	
-				//	$blocks = $this->checkIpBlocked($ips, $site);
-				//	if(count($blocks)>0){
-				//		
-				//		if($this->throwExceptions){
-				//			throw new WDPermissionException(_("Sorry, your IP address is blocked from participating in and modifying this site."));
-				//		}else{
-				//			return false;
-				//		}
-				//	}
-				//}
-				//if($user){
-					$block = $this->checkUserBlocked($user, $site);
-					if($block){
-						if($this->throwExceptions){
-							$message = _("Sorry, you are blocked from participating in and modifying this site. ");
-							if($block->getReason() && $block->getReason()!=''){
-								$message .=	_("The given reason is:")." <p>".htmlspecialchars($block->getReason())."</p>";
-							}
-							throw new WDPermissionException($message);
-							//throw new WDPermissionException("Sorry, you are blocked from participating in and modifying this site. " .
-							//		"The given reason is: \"".htmlspecialchars($block->getReason())."\"");
-						}else{
-							return false;
-						}	
+				
+				$block = $this->checkUserBlocked($user, $site);
+				if($block){
+					if($this->throwExceptions){
+						$message = _("Sorry, you are blocked from participating in and modifying this site. ");
+						if($block->getReason() && $block->getReason()!=''){
+							$message .=	_("The given reason is:")." <p>".htmlspecialchars($block->getReason())."</p>";
+						}
+						throw new WDPermissionException($message);
+						//throw new WDPermissionException("Sorry, you are blocked from participating in and modifying this site. " .
+					}else{
+						return false;
 					}	
-				//}
+				}	
 			}
 			return true;		
 		}elseif(!$user){
 			// anonymous can not and the user is only anonymous. game over.
-		//	throw new WDPermissionException($ps);
 			$m = $this->generateMessage($action, $uc, $ps, 'forum', array("o" => $authorString));
 			$this->handleFalse($m);
 			return false;
@@ -533,7 +469,6 @@ use DB\UserBlockPeer;
 						}
 						throw new WDPermissionException($message);
 						//throw new WDPermissionException("Sorry, you are blocked from participating in and modifying this site. " .
-						//		"The given reason is: \"".htmlspecialchars($block->getReason())."\"");
 					}else{
 						return false;
 					}	
@@ -549,19 +484,11 @@ use DB\UserBlockPeer;
 			$c = new Criteria();
 			$c->add("site_id", $category->getSiteId());
 			$c->add("user_id", $user->getUserId());
-			$rel = MemberPeer::instance()->selectOne($c);
+			$rel = DB_MemberPeer::instance()->selectOne($c);
 			if($rel){
 				return true;
 			}
 		}
-		
-		/*// still nothing. check if owner of the page
-		if($page && $page->getOwnerUserId() && $user->getUserId() == $page->getOwnerUserId()){
-			$uc = self::$userClasses['owner'];
-			if($this->permissionLookup($ac, $uc, $ps)){
-				return true;	
-			}
-		}*/
 		
 		$uc = self::$userClasses['owner'];
 		if(($post || $thread) && $this->permissionLookup($ac, $uc, $ps)){
@@ -579,7 +506,6 @@ use DB\UserBlockPeer;
 							}
 							throw new WDPermissionException($message);
 							//throw new WDPermissionException("Sorry, you are blocked from participating in and modifying this site. " .
-							//		"The given reason is: \"".htmlspecialchars($block->getReason())."\"");
 						}else{
 							return false;
 						}	
@@ -588,13 +514,12 @@ use DB\UserBlockPeer;
 				return true;
 			}	
 		}
-		
-		
+
 		// still nothing. check if moderator of "forum".
 		$c = new Criteria();
 		$c->add("site_id", $category->getSiteId());
 		$c->add("user_id", $user->getUserId());
-		$rel = ModeratorPeer::instance()->selectOne($c);
+		$rel = DB_ModeratorPeer::instance()->selectOne($c);
 		if($rel && strpos($rel->getPermissions(), 'f') !== false){
 			return true;
 		}
@@ -603,7 +528,7 @@ use DB\UserBlockPeer;
 		$c = new Criteria();
 		$c->add("site_id", $category->getSiteId());
 		$c->add("user_id", $user->getUserId());
-		$rel = AdminPeer::instance()->selectOne($c);
+		$rel = DB_AdminPeer::instance()->selectOne($c);
 		if($rel){
 			return true;
 		}
@@ -624,9 +549,8 @@ use DB\UserBlockPeer;
 		}
 		
 		// first check if if $user has pm enabled
-		$us = UserSettingsPeer::instance()->selectByPrimaryKey($toUser->getUserId());
+		$us = DB_UserSettingsPeer::instance()->selectByPrimaryKey($toUser->getUserId());
 		$p = $us->getReceivePm();
-		//echo "ad";
 		if($this->isUserSuperior($user, $toUser)){
 			return true;	
 		}
@@ -650,7 +574,7 @@ use DB\UserBlockPeer;
 			$c = new Criteria();
 			$c->add("user_id", $user->getUserId());
 			$c->add("target_user_id", $toUser->getUserId());
-			$con = ContactPeer::instance()->selectOne($c);
+			$con = DB_ContactPeer::instance()->selectOne($c);
 			if($con){
 				return true;
 			}
@@ -660,12 +584,11 @@ use DB\UserBlockPeer;
 		}
 		
 		if($p == 'f'){
-			//echo "fff";
 			// check if a friend
 			$c = new Criteria();
 			$c->add("user_id", $toUser->getUserId());
 			$c->add("target_user_id", $user->getUserId());
-			$con = ContactPeer::instance()->selectOne($c);
+			$con = DB_ContactPeer::instance()->selectOne($c);
 			if($con){
 				return true;
 			}
@@ -686,107 +609,23 @@ use DB\UserBlockPeer;
 	
 	public function canBecomeAdmin($user){
 		
-	    if($user->getSuperAdmin()){
+		if($user->getSuperAdmin()){
 			return true;
 		}
 		
 		// check how many sites does the user administer.
-		$us = $user->getSettings();
-		if($us->getMaxSitesAdmin()){
-			/* If null, then unlimited. */
-			$c = new Criteria();
-			$c->add("user_id", $user->getUserId());
-			$c->addJoin("site_id", "site.site_id");
-			$c->add('founder', false);
-			$c->add("site.deleted", false);
-			
-			$ac = AdminPeer::instance()->selectCount($c);
-			$us = $user->getSettings();
-			if($ac >= $us->getMaxSitesAdmin()){
-				throw new WDPermissionException(sprintf(_("Sorry, you can be a guest administrator of max %d Sites."),$us->getMaxSitesAdmin()));	
-			}
-		}
 		
-		
-		return true;
-	}
-	
-	public function canBecomeMaster($user){
-		if($user->getSuperAdmin()){
-			return true;
-		}
-		$us = $user->getSettings();
-		if($us->getMaxSitesMaster()){
-			$c = new Criteria();;
-			$c->add("user_id", $user->getUserId());
-			$c->addJoin("site_id", "site.site_id");
-			$c->add('founder', true);
-			$c->add("site.deleted", false);
-			
-			$ac = AdminPeer::instance()->selectCount($c);
-			$us = $user->getSettings();
-			if($ac >= $us->getMaxSitesMaster()){
-				throw new WDPermissionException(sprintf(_("Sorry, you can be a master administrator of max %d Sites."), $us->getMaxSitesMaster()));	
-			}
-		}
-		return true;
-	}
-	
-	public function getSitesAdminLeft($user) {
-		$us = $user->getSettings();
-		if(!$us->getMaxSitesAdmin() || $user->getSuperAdmin()){
-			return null; // unlimited
-		}
-		$c = new Criteria();
+		$c = new Criteria();;
 		$c->add("user_id", $user->getUserId());
 		$c->addJoin("site_id", "site.site_id");
-		$c->add('founder', false);
 		$c->add("site.deleted", false);
-		$ac = AdminPeer::instance()->selectCount($c);
 		
-		return max(array(0, $us->getMaxSitesAdmin() - $ac));
-		
-	}
-	
-	public function getSitesMasterLeft($user) {
+		$ac = DB_AdminPeer::instance()->selectCount($c);
 		$us = $user->getSettings();
-		if(!$us->getMaxSitesMaster() || $user->getSuperAdmin()){
-			return null; // unlimited
+		if($ac >= $us->getMaxSitesAdmin()){
+			throw new WDPermissionException(sprintf(_("Sorry, a single User can administer max %d Sites at the moment."),$us->getMaxSitesAdmin()));	
 		}
-		$c = new Criteria();
-		$c->add("user_id", $user->getUserId());
-		$c->addJoin("site_id", "site.site_id");
-		$c->add('founder', true);
-		$c->add("site.deleted", false);
-		$ac = AdminPeer::instance()->selectCount($c);
-		
-		return max(array(0, $us->getMaxSitesMaster() - $ac));
-		
-	}
-	
-	/**
-	 * Shecks if a site is public or user is a member of the site
-	 * 
-	 * @param $user DB_OzoneUser
-	 * @param $site DB_Site
-	 * @return boolean
-	 * @throws WDPermissionException
-	 */
-	public function canAccessSite($user, $site) {
-		// public or user is super
-		if (! $site->getPrivate() || $user->getSuperAdmin() || $user->getSuperModerator()) {
-			return true;
-		}
-		// check if user is a member of the site
-		$c = new Criteria();
-		$c->add("site_id", $site->getSiteId());
-		$c->add("user_id", $user->getUserId());
-
-		if (MemberPeer::instance()->selectOne($c)) { // user is a member of the wiki
-			return true;
-		}
-
-		throw new WDPermissionException("User not allowed to access site");
+		return true;
 	}
 	
 	private function permissionLookup($actionCode, $userCode, $permString){
@@ -814,7 +653,7 @@ use DB\UserBlockPeer;
 		if($mode == 'page'){
 			$actionString = self::$pageActionsDesc[$ac];
 			$actionCode =  self::$pageActions[$ac];
-		}elseif($mode='forum'){
+		}elseif($mode=='forum'){
 			$actionString = self::$forumActionsDesc[$ac];
 			$actionCode =  self::$forumActions[$ac];	
 		}
@@ -831,7 +670,6 @@ use DB\UserBlockPeer;
 			}
 		}
 		$allowedUsers[] = _('site administrators and perhaps selected moderators');
-		//$actionString = array_searchself::ac
 		$m = _('Sorry, you can not ').' '.$actionString.'. ' .
 				_('Only ').' '.implode(', ', $allowedUsers).' '._(' are allowed to.');
 		return $m;
@@ -885,7 +723,7 @@ use DB\UserBlockPeer;
 		$c = new Criteria();
 		$c->add("user_id", $user1->getUserId());
 		$c->add("blocked_user_id", $user2->getUserId());
-		$b = PrivateUserBlockPeer::instance()->selectOne($c);
+		$b = DB_PrivateUserBlockPeer::instance()->selectOne($c);
 		if($b !== null){
 			return true;
 		}else{
@@ -910,7 +748,7 @@ use DB\UserBlockPeer;
 		if($ips[1]) { $q.=	"OR ip <<= '".db_escape_string($ips[1])."'";}
 		$q .= ")";
 		$c->setExplicitQuery($q);	
-		$blocks = IpBlockPeer::instance()->select($c);
+		$blocks = DB_IpBlockPeer::instance()->select($c);
 		return $blocks;
 	}
 	
@@ -919,7 +757,7 @@ use DB\UserBlockPeer;
 		
 		$c->add("site_id", $site->getSiteId());
 		$c->add("user_id", $user->getUserId());
-		$block = UserBlockPeer::instance()->selectOne($c);
+		$block = DB_UserBlockPeer::instance()->selectOne($c);
 		return $block;
 	}
 	

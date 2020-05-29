@@ -23,12 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use Module;
-use DB\CategoryPeer;
-use \WDPermissionManager;
-
 class PageOptionsBottomModule extends Module {
 	
 	public function render($runData){
@@ -53,7 +47,7 @@ class PageOptionsBottomModule extends Module {
 			$categoryName = "_default";	
 		}
 		$site = $runData->getTemp("site");
-		$category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
+		$category = DB_CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
 		$user = $runData->getUser();
 		
 		$pm = new WDPermissionManager();

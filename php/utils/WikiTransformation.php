@@ -23,17 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use DB\OzoneUserPeer;
-use DB\ForumThreadPeer;
-use Criteria;
-use DB\PageTagPeer;
-use Text_Wiki;
-use Text_Antiwiki;
-use Ozone;
-use Database;
-
 require_once(WIKIDOT_ROOT."/lib/Text_Wiki/Text/Wiki.php");
 // just for text_wiki extend the include_path
 ini_set('include_path',ini_get('include_path').':'.WIKIDOT_ROOT.'/lib/Text_Wiki/');
@@ -106,8 +95,6 @@ class WikiTransformation {
 	    
 	    /* Handle ListPages module inside a template -- %%content%% need to be escaped. */
 	    $template = preg_replace_callback(";^\\[\\[module\\s+ListPages(.*?)\n\\[\\[/module\\]\\];ms", array($this, '_assemblyTemplateHandleListPages'), $template);
-	    $template = preg_replace_callback(";^\\[\\[module\\s+NextPage(.*?)\n\\[\\[/module\\]\\];ms", array($this, '_assemblyTemplateHandleListPages'), $template);
-	    $template = preg_replace_callback(";^\\[\\[module\\s+PreviousPage(.*?)\n\\[\\[/module\\]\\];ms", array($this, '_assemblyTemplateHandleListPages'), $template);
 	    $template = preg_replace_callback(";^\\[\\[module\\s+Feed(.*?)\n\\[\\[/module\\]\\];ms", array($this, '_assemblyTemplateHandleListPages'), $template);
 	    $template = preg_replace_callback(";^\\[\\[module\\s+FrontForum(.*?)\n\\[\\[/module\\]\\];ms", array($this, '_assemblyTemplateHandleListPages'), $template);
 	    
@@ -142,7 +129,7 @@ class WikiTransformation {
             
             
             if($page->getOwnerUserId()){
-	            $user = OzoneUserPeer::instance()->selectByPrimaryKey($page->getOwnerUserId());
+	            $user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($page->getOwnerUserId());
 	            if ($user->getUserId() > 0) {
 	                $userString = '[[*user ' . $user->getNickName() . ']]';
 	            } else {
@@ -228,7 +215,7 @@ class WikiTransformation {
     	$page = $this->_tmpPage;
     	$threadId = $page->getThreadId();
     	if($threadId) {
-    		$thread = ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
+    		$thread = DB_ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
     	}
     	if($thread) {
     		return $thread->getNumberPosts();
@@ -243,7 +230,7 @@ class WikiTransformation {
         $c = new Criteria();
         $c->add("page_id", $page->getPageId());
         $c->addOrderAscending("tag");
-        $tags = PageTagPeer::instance()->select($c);
+        $tags = DB_PageTagPeer::instance()->select($c);
         $t2 = array();
         foreach ($tags as $t) {
             $t2[] = $t->getTag();

@@ -23,19 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SchedulerJob;
-use run;
-use Criteria;
-use add;
-use false;
-use currentDateUTC;
-use subtractSeconds;
-use DB\OzoneSessionPeer;
-use instance;
-use delete;
-
 /**
  * Removes old (expired) sessions from the database.
  *
@@ -49,7 +36,7 @@ class RemoveOldSessionsJob implements SchedulerJob {
 		$date->subtractSeconds(3600);
 		$c->add("last_accessed", $date, "<");
 		
-		OzoneSessionPeer::instance()->delete($c);		
+		DB_OzoneSessionPeer::instance()->delete($c);		
 	}
 	
 }

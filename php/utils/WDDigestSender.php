@@ -23,16 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use Database;
-use Criteria;
-use DB\NotificationPeer;
-use OZONE;
-use DB\PrivateMessagePeer;
-use OzoneEmail;
-use \ProcessException;
-
 class WDDigestSender {
 	
 	public function handleUser($user){
@@ -45,7 +35,7 @@ class WDDigestSender {
 		$c->add("notify_email", true);
 		$c->addOrderAscending("notification_id");
 		
-		$nots = NotificationPeer::instance()->select($c);
+		$nots = DB_NotificationPeer::instance()->select($c);
 		
 		if(count($nots) == 0){
 			$db->commit();
@@ -88,7 +78,7 @@ class WDDigestSender {
 				
 				// check if the message is read or still new
 				$extra = $not->getExtra();
-				$pm = PrivateMessagePeer::instance()->selectByPrimaryKey($extra['message_id']);
+				$pm = DB_PrivateMessagePeer::instance()->selectByPrimaryKey($extra['message_id']);
 				if($pm && $pm->getFlagNew()){
 					$body = $not->getBody();
 					$body = preg_replace('/<br\/>Preview.*$/sm', '', $body);

@@ -23,13 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use Criteria;
-use DB\UserKarmaPeer;
-use DB\UserKarma;
-use DB\OzoneUserPeer;
-
 class KarmaCalculator {
     
     protected $_rules = array();
@@ -59,9 +52,9 @@ class KarmaCalculator {
         /* Get the karma object. */
         $c = new Criteria();
         $c->add('user_id', $user->getUserId());
-        $karma = UserKarmaPeer::instance()->selectOne($c);
+        $karma = DB_UserKarmaPeer::instance()->selectOne($c);
         if(!$karma){
-            $karma = new UserKarma();
+            $karma = new DB_UserKarma();
             $karma->setUserId($user->getUserId());
         }
         $karma->setPoints($p);
@@ -83,14 +76,14 @@ class KarmaCalculator {
         /* Calculate the distribution. */
         $db = Database::$connection;
         
-        $totalUsers = UserKarmaPeer::instance()->selectCount();
+        $totalUsers = DB_UserKarmaPeer::instance()->selectCount();
         /* Make karma=none for non-active users. */
         $q = "UPDATE user_karma SET level=0 WHERE points < $minPointsLevel1";
         $db->query($q);
         /* Calculate total users but excluding these with less that $minPointsLevel1 points. */
         $c = new Criteria();
         $c->add('points', $minPointsLevel1, '>=');
-        $totalUsers = UserKarmaPeer::instance()->selectCount($c);
+        $totalUsers = DB_UserKarmaPeer::instance()->selectCount($c);
         
         /* Number of users to fall into a given level. */
         $limits = array();
@@ -124,7 +117,7 @@ class KarmaCalculator {
             $c->add("user_id", 0, ">");
             $c->addOrderAscending("user_id");
             $c->setLimit($step, $offset);
-            $users = OzoneUserPeer::instance()->select($c);
+            $users = DB_OzoneUserPeer::instance()->select($c);
             if (count($users) == 0) {
                 break;
             }

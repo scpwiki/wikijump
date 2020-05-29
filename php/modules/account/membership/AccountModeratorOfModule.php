@@ -23,12 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \AccountBaseModule;
-use Criteria;
-use DB\ModeratorPeer;
-
 class AccountModeratorOfModule extends AccountBaseModule{
 	
 	public function build($runData){
@@ -41,7 +35,7 @@ class AccountModeratorOfModule extends AccountBaseModule{
 		$c->addJoin("site_id", "site.site_id");
 		$c->add("site.deleted", false);
 		
-		$mems = ModeratorPeer::instance()->select($c);
+		$mems = DB_ModeratorPeer::instance()->select($c);
 		if(count($mems)>0){
 			$runData->contextAdd("moderators", $mems);	
 		}

@@ -23,15 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use \ProcessException;
-use \CryptUtils;
-use Criteria;
-use DB\SitePeer;
-use DB\PagePeer;
-
 class AcceptTOSModule extends SmartyModule {
 	
 	public function isAllowed($runData){
@@ -56,9 +47,9 @@ class AcceptTOSModule extends SmartyModule {
 		
 		$c = new Criteria();
 		$c->add("unix_name", $siteName);
-		$site = SitePeer::instance()->selectOne($c);
+		$site = DB_SitePeer::instance()->selectOne($c);
 		
-		$page = PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
+		$page = DB_PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
 		// get content
 		$content = $page->getCompiled()->getText();
 		

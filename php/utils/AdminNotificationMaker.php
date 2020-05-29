@@ -23,13 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \AdminNotificationMaker as AdminNotificationMaker;
-use DB\SitePeer;
-use DB\AdminNotification;
-use ODate;
-
 class AdminNotificationMaker {
 	
 	private static $instance;
@@ -45,9 +38,9 @@ class AdminNotificationMaker {
 		$user = $application->getUser();
 		
 		$siteId = $application->getSiteId();
-		$site = SitePeer::instance()->selectByPrimaryKey($siteId);
+		$site = DB_SitePeer::instance()->selectByPrimaryKey($siteId);
 		
-		$not = new AdminNotification();
+		$not = new DB_AdminNotification();
 		$not->setSiteId($site->getSiteId());
 		
 		$not->setType("NEW_MEMBER_APPLICATION");
@@ -73,7 +66,7 @@ class AdminNotificationMaker {
 	
 	public function newMemberByPassword($site, $user){
 		
-		$not = new AdminNotification();
+		$not = new DB_AdminNotification();
 		$not->setSiteId($site->getSiteId());
 		
 		$not->setType("NEW_MEMBER_BY_PASSWORD");
@@ -90,9 +83,9 @@ class AdminNotificationMaker {
 	
 	public function acceptedEmailInvitation($inv, $user){
 		
-		$site = SitePeer::instance()->selectByPrimaryKey($inv->getSiteId());
+		$site = DB_SitePeer::instance()->selectByPrimaryKey($inv->getSiteId());
 		
-		$not = new AdminNotification();
+		$not = new DB_AdminNotification();
 		$not->setSiteId($site->getSiteId());
 		
 		$not->setType("NEW_MEMBER_BY_EMAIL_INVITATION");
@@ -109,7 +102,7 @@ class AdminNotificationMaker {
 	
 	public function memberResigned($site, $user){
 		
-		$not = new AdminNotification();
+		$not = new DB_AdminNotification();
 		$not->setSiteId($site->getSiteId());
 		
 		$not->setType("MEMBER_RESIGNED");
@@ -126,7 +119,7 @@ class AdminNotificationMaker {
 	
 	public function moderatorResigned($site, $user){
 		
-		$not = new AdminNotification();
+		$not = new DB_AdminNotification();
 		$not->setSiteId($site->getSiteId());
 		
 		$not->setType("MODERATOR_RESIGNED");
@@ -144,7 +137,7 @@ class AdminNotificationMaker {
 	
 	public function adminResigned($site, $user){
 		
-		$not = new AdminNotification();
+		$not = new DB_AdminNotification();
 		$not->setSiteId($site->getSiteId());
 		
 		$not->setType("ADMIN_RESIGNED");
@@ -161,7 +154,7 @@ class AdminNotificationMaker {
 	}
 	
 	public function memberInvitationAccepted($site, $user){
-		$not = new AdminNotification();
+		$not = new DB_AdminNotification();
 		$not->setSiteId($site->getSiteId());
 		
 		$not->setType("INVITATION_ACCEPTED");
@@ -176,7 +169,7 @@ class AdminNotificationMaker {
 		$not->save();	
 	}
 	public function memberInvitationDeclined($site, $user){
-		$not = new AdminNotification();
+		$not = new DB_AdminNotification();
 		$not->setSiteId($site->getSiteId());
 		
 		$not->setType("INVITATION_DECLINED");

@@ -23,14 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyAction;
-use \WDPermissionManager;
-use \ProcessException;
-use Database;
-use DB\OzoneUserPeer;
-
 class ManageSiteAbuseAction extends SmartyAction {
 	
 	public function isAllowed($runData){
@@ -65,7 +57,7 @@ class ManageSiteAbuseAction extends SmartyAction {
 		$pl = $runData->getParameterList();
 		
 		$targetUserId = $pl->getParameterValue("userId");
-		$targetUser = OzoneUserPeer::instance()->selectByPrimaryKey($targetUserId);
+		$targetUser = DB_OzoneUserPeer::instance()->selectByPrimaryKey($targetUserId);
 
 		if($targetUser == null){
 			throw new ProcessException(_("Error processing the request. No user found."), "no_user");	

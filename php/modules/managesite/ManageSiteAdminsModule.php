@@ -23,12 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \ManageSiteBaseModule;
-use Criteria;
-use DB\AdminPeer;
-
 class ManageSiteAdminsModule extends ManageSiteBaseModule {
 	
 	public function build($runData){
@@ -39,7 +33,7 @@ class ManageSiteAdminsModule extends ManageSiteBaseModule {
 		$c->addJoin("user_id", "ozone_user.user_id");
 		$c->addOrderAscending("ozone_user.nick_name");
 		
-		$mems = AdminPeer::instance()->select($c);
+		$mems = DB_AdminPeer::instance()->select($c);
 		if(count($mems)>0){
 			$runData->contextAdd("admins", $mems);	
 		}

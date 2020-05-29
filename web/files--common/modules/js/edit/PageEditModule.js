@@ -623,103 +623,8 @@ WIKIDOT.modules.PageEditModule.init = function(){
 		 WIKIDOT.modules.PageEditModule.vars.lockLastUpdated = (new Date().getTime());
 		WIKIDOT.modules.PageEditModule.utils.timerStart();
 
-        var form = $j("#edit-page-form").hasClass('edit-with-form');
-        if (! form) {
-            WIKIDOT.Editor.init("edit-page-textarea", "wd-editor-toolbar-panel");
-        } else {
-
-            // jquery block for forms
-            (function() {
-                var $ = $j;
-
-                var update_pagepath_value = function(select) {
-                    var el = select;
-                    while (! el.hasClass("field-pagepath-chooser")) {
-                        el = el.parent();
-                    }
-                    var link = new Array();
-                    var append = true;
-                    var new_page_title = $('.new_page_title', el);
-                    var new_page_parent = $('.new_page_parent', el);
-                    var category = $('.category', el).val();
-
-                    new_page_title.val('');
-                    new_page_parent.val('');
-
-                    $("select", el).each(function() {
-                        val = $(this).val();
-                        if (val == '') {
-                            append = false;
-                        } else if (append) {
-                            if (val == '+') {
-                                append = false;
-                                var title = $('input.text[type=text]', el).val();
-                                if (title) {
-                                    title = title.replace(']]', ' ');
-                                    new_page_title.val(title);
-                                    link.push('[[[' + category + ':' + title + ' | ' + title + ']]]');
-                                }
-                            } else {
-                                var title = $('option[selected]', this).text().replace(']]', ' ');
-                                new_page_parent.val(val);
-                                link.push('[[[' + val + ' | ' + title + ']]]');
-                            }
-                        }
-                    });
-                    $('.value', el).val(link.join(' / '));
-                };
-
-                var onchange = function() {
-                    var select = $(this);
-                    update_pagepath_value(select);
-
-                    var span = select.parent().children("span");
-                    var selected = select.val();
-                    if (selected == '+') {
-                        span.text('');
-                        var p = select.parent();
-                        p.append($('<input type="text" class="text" value="Enter new page name"/>').change(function() {
-                            update_pagepath_value($(this));
-                        }));
-                        p.append(' ');
-                        p.append($('<a href="javascript:;">[x]</a>').click(function() {
-                            select.show();
-                            $('option[selected]', select).removeAttr('selected');
-                            $('input', p).remove();
-                            $(this).remove();
-                            update_pagepath_value(select);
-                        }));
-                        select.hide();
-                        $('input', p).focus().select();
-                    } else if (selected == '') {
-                        span.text('');
-                    } else {
-                        span.text(" / Loading...");
-                        var q = selected.split(":")[0] + ':';
-                        $.getJSON('/quickmodule.php', {s: WIKIREQUEST.info.siteId, q: q, module: 'PageLookupQModule', 'parent': selected}, function(data, textStatus) {
-                            var pages = data.pages;
-                            var s = $('<select/>')
-                            s.append('<option value=""/>');
-                            if (pages) {
-                                for (var i = 0; i < pages.length; i++) {
-                                    var o = $('<option/>');
-                                    o.text(pages[i].title);
-                                    o.attr('value', pages[i].unix_name);
-                                    s.append(o);
-                                }
-                            }
-                            s.append('<option value="+" style="border-top: 1px #666 solid; font-weight: bold">Create new</option>');
-                            span.text(' / ');
-                            s.change(onchange);
-                            span.append(s);
-                            span.append('<span/>');
-                        });
-                    }
-                };
-                $j("#edit-page-form .field-pagepath-chooser select").change(onchange);
-            })();
-        }
- 
+		WIKIDOT.Editor.init("edit-page-textarea", "wd-editor-toolbar-panel");
+		
 		var limiter = new OZONE.forms.lengthLimiter("edit-page-comments", "comments-charleft", 200);
 		OZONE.dialog.cleanAll();
 	
@@ -746,11 +651,7 @@ WIKIDOT.modules.PageEditModule.init = function(){
 			}
 		);
 		ctrls.enable();
-        if (form) {
-            // focus first field?
-        } else {
-    		$("edit-page-textarea").focus();
-        }
+		$("edit-page-textarea").focus();
 			
 	}
 }

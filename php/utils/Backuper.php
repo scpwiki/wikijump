@@ -23,13 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use DB\SitePeer;
-use \ProcessException;
-use Criteria;
-use DB\PagePeer;
-
 class Backuper {
 	
 	private $siteId;
@@ -46,7 +39,7 @@ class Backuper {
 	
 	public function backup(){
 		
-		$site = SitePeer::instance()->selectByPrimaryKey($this->siteId);
+		$site = DB_SitePeer::instance()->selectByPrimaryKey($this->siteId);
 		if(!$site){
 			throw new ProcessException(_("Site can not be found"));	
 		}
@@ -63,7 +56,7 @@ class Backuper {
 			
 			$c = new Criteria();
 			$c->add("site_id", $site->getSiteId());
-			$pages = PagePeer::instance()->select($c);
+			$pages = DB_PagePeer::instance()->select($c);
 			
 			foreach($pages as $page){
 				$source = $page->getCurrentRevision()->getSourceText();

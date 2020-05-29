@@ -18,54 +18,54 @@
  * 
  * @category Wikidot
  * @package Wikidot
- * @version $Id: CodeblockExtractor.php,v 1.2 2008/08/05 21:00:26 quake Exp $
+ * @version $Id$
  * @copyright Copyright (c) 2008, Wikidot Inc.
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
-
-
-
-use DB\PagePeer;
-use \ProcessException;
-use Exception;
-use Wikidot\Form;
-use Wikidot\Template;
 
 class CodeblockExtractor {
 
 	protected $mimeType = null;
 	protected $contents = "";
-	protected $treatAsTemplate = false;
-	protected $templateVariables = array();
 	
 	protected $mimeMap = array(
 		"css"	=> "text/css",
 		"html"	=> "text/html",
 	);
 	
-	public function __construct($site, $pageName, $codeblockNo = 1, $templateVars = null){
+	public function __construct($site, $pageName, $codeblockNo = 1){
 		try {
 			$codeblockNo = (int) $codeblockNo;
 			if ($codeblockNo < 1) {
 				$codeblockNo = 1;
 			}
 			
-			$page = PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
+			/* Check the cache. */
 			
-			if($page == null){
-				throw new ProcessException("No such page");
+			$mkey = 'pagecodeblocks..' . $site->getSiteId() . '..' . $pageName;
+			$m = OZONE::$memcache;
+			$allMatches = $m->get($mkey);
+			if(!$allMatches) {
+				
+				$page = DB_PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
+				
+				if($page == null){
+					throw new ProcessException("No such page");
+				}
+				// page exists!!! wooo!!!
+				
+				$source = $page->getSource();
+				/* Get code block. */
+				
+				$regex = ';^\[\[code(\s[^\]]*)?\]\]((?:(?R)|.)*?)\[\[/code\]\](\s|$);msi';
+				
+				$allMatches = array();
+				preg_match_all($regex, $source, $allMatches);
+				
+				$m->set($mkey, $allMatches, 0, 3600);
 			}
-			// page exists!!! wooo!!!
 			
-			$source = $page->getSource();
-			/* Get code block. */
-			
-			$regex = ';^\[\[code(\s[^\]]*)?\]\]((?:(?R)|.)*?)\[\[/code\]\](\s|$);msi';
-			
-			$allMatches = array();
-			preg_match_all($regex, $source, $allMatches);
-			
-			if(count($allMatches[2]) < $codeblockNo) {
+			if(count($allMatches[2]) < $codeblockNo ) {
 				throw new ProcessException('No valid codeblock found.');
 			}
 			
@@ -82,13 +82,7 @@ class CodeblockExtractor {
 				}
 			}
 			
-			$code = trim($code) . "\n";
-			
-			if (is_array($templateVars)) {
-				$this->contents = $this->renderFromTemplate($code, $templateVars);
-			} else {
-				$this->contents = $code;
-			}
+			$this->contents = trim($code)."\n";
 			
 		} catch(Exception $e) {
 			$this->contents = $e->getMessage();
@@ -105,22 +99,5 @@ class CodeblockExtractor {
 		}
 		return "text/plain";
 	}
-	
-	public function renderFromTemplate($template, $extValues) {
-		$template = "\n$template\n";
-		$template_parts = explode("\n---\n", $template);
-		
-		// form definition is the YAML document before the first "---"
-		$form_def = array_shift($template_parts);
-		
-		// Wikidot (DTL) template is the rest
-		$template = trim(implode("\n---\n", $template_parts));
-		
-		$form = Form::fromYaml($form_def);
-		$context = $form->computeValues($extValues);
-		
-		// render the template
-		$w_template = new Template($template);
-		return $w_template->render($context);
-	}
+
 }

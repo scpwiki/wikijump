@@ -23,12 +23,5 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-namespace Wikidot\Search;
-
-use Exception as Exception;
-
-
-
-
-class Exception extends Exception {
+class Wikidot_Search_Exception extends Exception {
 }

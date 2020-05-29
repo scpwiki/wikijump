@@ -23,17 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use \ProcessException;
-use DB\ForumPostPeer;
-use \WDPermissionManager;
-use Criteria;
-use DB\ModeratorPeer;
-use DB\AdminPeer;
-use \WDPermissionException;
-
 class ForumEditPostFormModule extends SmartyModule {
 	
 	public function build($runData){
@@ -46,7 +35,7 @@ class ForumEditPostFormModule extends SmartyModule {
 			throw new ProcessException(_("No post specified."), "no_post");	
 		}
 		
-		$post = ForumPostPeer::instance()->selectByPrimaryKey($postId);
+		$post = DB_ForumPostPeer::instance()->selectByPrimaryKey($postId);
 		if($post == null || $post->getSiteId() != $site->getSiteId()){
 			throw new ProcessException(_("No post specified."), "no_post");	
 		}	
@@ -61,9 +50,9 @@ class ForumEditPostFormModule extends SmartyModule {
 			$c = new Criteria();
 			$c->add("site_id", $site->getSiteId());
 			$c->add("user_id", $user->getUserId());
-			$rel = ModeratorPeer::instance()->selectOne($c);
+			$rel = DB_ModeratorPeer::instance()->selectOne($c);
 			if(!$rel || strpos($rel->getPermissions(), 'f') == false){
-				$rel = AdminPeer::instance()->selectOne($c);
+				$rel = DB_AdminPeer::instance()->selectOne($c);
 				if(!$rel){
 					throw new WDPermissionException(_("Sorry, this thread is blocked. Nobody can add new posts nor edit existing ones."));
 				}

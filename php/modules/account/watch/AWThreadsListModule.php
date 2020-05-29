@@ -23,12 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \AccountBaseModule;
-use Criteria;
-use DB\ForumThreadPeer;
-
 class AWThreadsListModule extends AccountBaseModule {
 
 	public function build($runData){
@@ -56,7 +50,7 @@ class AWThreadsListModule extends AccountBaseModule {
 						"AND watched_forum_thread.thread_id=forum_thread.thread_id";
 		$c->setExplicitQuery($q);	
 				
-		$threads = ForumThreadPeer::instance()->select($c);
+		$threads = DB_ForumThreadPeer::instance()->select($c);
 		
 		$runData->contextAdd("threads", $threads);
 		

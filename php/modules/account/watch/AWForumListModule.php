@@ -23,12 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \AccountBaseModule;
-use Criteria;
-use DB\ForumPostPeer;
-
 class AWForumListModule extends AccountBaseModule {
 
 	public function build($runData){
@@ -60,7 +54,7 @@ class AWForumListModule extends AccountBaseModule {
 		$c->add("watched_forum_thread.user_id", $user->getUserId());
 		$c->addOrderDescending("post_id");
 		$c->setLimit($count, $offset);
-		$posts = ForumPostPeer::instance()->select($c);
+		$posts = DB_ForumPostPeer::instance()->select($c);
 		
 		$counted = count($posts);
 		$pagerData = array();

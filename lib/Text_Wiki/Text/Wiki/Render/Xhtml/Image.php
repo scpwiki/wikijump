@@ -56,25 +56,7 @@ class Text_Wiki_Render_Xhtml_Image extends Text_Wiki_Render {
         
         $postVars = $this->getConf("post_vars");
         
-        if (preg_match('/^:first/', $src)) {
-    		$page = DB_PagePeer::instance()->selectByName($GLOBALS['site']->getSiteId(), $this->wiki->vars['pageName']);
-    		if (! $page) {
-    			return "";
-    		}
-    		$c = new Criteria();
-    		$c->add("page_id", $page->getPageId());
-    		$c->add("mimetype", "^image", "~*");
-    		$c->add("has_resized", true);
-    		$c->addOrderAscending("filename");
-    		if ($file = DB_FilePeer::instance()->selectOne($c)) {
-    			$src = $file->getFileName();
-    			$options['src'] = $src;
-    		} else {
-    			return "";
-    		}
-        }
-        
-        // see if is a flickr image
+         // see if is a flickr image
         if (strpos($src, 'flickr:') !== false) {
         		//check if valid arguments, handle sizes etc. 
         		preg_match("/^flickr:([0-9]+)(?:_([a-z0-9]+))?/i", $src, $mat2);

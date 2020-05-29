@@ -23,15 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use \WDPermissionException;
-use \ProcessException;
-use DB\OzoneUserPeer;
-use Criteria;
-use DB\UserAbuseFlagPeer;
-
 class FlagUserModule extends SmartyModule {
 	
 	public function isAllowed($runData){
@@ -50,7 +41,7 @@ class FlagUserModule extends SmartyModule {
 			throw new ProcessException(_("Error processing the request."), "no_target_user");	
 		}
 		
-		$targetUser = OzoneUserPeer::instance()->selectByPrimaryKey($targetUserId);
+		$targetUser = DB_OzoneUserPeer::instance()->selectByPrimaryKey($targetUserId);
 		if($targetUser == null){
 			throw new ProcessException(_("Error processing the request."), "no_target_user");	
 		}
@@ -67,7 +58,7 @@ class FlagUserModule extends SmartyModule {
 		$c->add("user_id", $user->getUserId());
 		$c->add("target_user_id", $targetUser->getUserId());
 		
-		$flag = UserAbuseFlagPeer::instance()->selectOne($c);
+		$flag = DB_UserAbuseFlagPeer::instance()->selectOne($c);
 		
 		if($flag){
 			$runData->contextAdd("flagged", true);	

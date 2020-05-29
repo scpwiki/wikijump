@@ -23,14 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use \WDPermissionException;
-use \ProcessException;
-use Criteria;
-use DB\AnonymousAbuseFlagPeer;
-
 class FlagAnonymousModule extends SmartyModule {
 	
 	public function isAllowed($runData){
@@ -77,7 +69,7 @@ class FlagAnonymousModule extends SmartyModule {
 			$c->add("address", $ip);
 			$c->add("user_id", $user->getUserId());
 			
-			$flag = AnonymousAbuseFlagPeer::instance()->selectOne($c);
+			$flag = DB_AnonymousAbuseFlagPeer::instance()->selectOne($c);
 			if($flag){
 				$flagged = $flagged && true;	
 			}else{

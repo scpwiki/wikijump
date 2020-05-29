@@ -23,12 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \ManageSiteBaseModule;
-use Criteria;
-use DB\UserBlockPeer;
-
 class ManageSiteUserBlocksModule extends ManageSiteBaseModule {
 	
 	public function build($runData){
@@ -40,7 +34,7 @@ class ManageSiteUserBlocksModule extends ManageSiteBaseModule {
 		$c->add("site_id", $site->getSiteId());
 		$c->addOrderDescending("block_id");
 		
-		$blocks = UserBlockPeer::instance()->select($c);
+		$blocks = DB_UserBlockPeer::instance()->select($c);
 		if(count($blocks)>0){
 			$runData->contextAdd("blocks", $blocks);
 		}	

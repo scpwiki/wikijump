@@ -23,12 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \CacheableModule;
-use Criteria;
-use DB\SitePeer;
-
 class ListAllWikisModule extends CacheableModule{
 	
 	protected $timeOut=30;
@@ -55,7 +49,7 @@ class ListAllWikisModule extends CacheableModule{
 		
 		$c->setExplicitQuery($q);
 		
-		$sites = SitePeer::instance()->select($c);
+		$sites = DB_SitePeer::instance()->select($c);
 		
 		$runData->contextAdd("sites", $sites);
 		

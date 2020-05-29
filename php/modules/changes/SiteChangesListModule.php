@@ -23,13 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use JSONService;
-use Criteria;
-use DB\PageRevisionPeer;
-
 class SiteChangesListModule extends SmartyModule {
 	
 	public function render($runData){
@@ -123,7 +116,7 @@ class SiteChangesListModule extends SmartyModule {
 		$c->addJoin("user_id", "ozone_user.user_id");
 		$c->addOrderDescending("page_revision.revision_id");
 		$c->setLimit($count, $offset);
-		$revisions = PageRevisionPeer::instance()->select($c);
+		$revisions = DB_PageRevisionPeer::instance()->select($c);
 		
 		$counted = count($revisions);
 		$pagerData = array();

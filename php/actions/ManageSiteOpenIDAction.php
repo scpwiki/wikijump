@@ -23,19 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyAction;
-use \WDPermissionManager;
-use JSONService;
-use \Outdater;
-use Database;
-use Criteria;
-use DB\OpenidEntryPeer;
-use DB\PagePeer;
-use \ProcessException;
-use DB\OpenidEntry;
-
 class ManageSiteOpenIDAction extends SmartyAction {
 	
 	public function isAllowed($runData){
@@ -70,7 +57,7 @@ class ManageSiteOpenIDAction extends SmartyAction {
 		// get the already assigned openids
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
-		$oldOpenIDs = OpenidEntryPeer::instance()->select($c);
+		$oldOpenIDs = DB_OpenidEntryPeer::instance()->select($c);
 		
 		$rootProcessed = false;
 		
@@ -81,7 +68,7 @@ class ManageSiteOpenIDAction extends SmartyAction {
 			$page = null;
 			if($val['page']){
 				// not a root page
-				$page = PagePeer::instance()->selectByName($site->getSiteId(), $val['page']);
+				$page = DB_PagePeer::instance()->selectByName($site->getSiteId(), $val['page']);
 				if(!$page){
 					throw new ProcessException(sprintf(_("The page %s can not be found"), $vals['page']));	
 				}	
@@ -130,7 +117,7 @@ class ManageSiteOpenIDAction extends SmartyAction {
 			}
 
 			if(!$entry){
-				$entry = new OpenidEntry();
+				$entry = new DB_OpenidEntry();
 				$entry->setSiteId($site->getSiteId());
 				$entry->setPageId($pageId);
 			}
@@ -150,11 +137,11 @@ class ManageSiteOpenIDAction extends SmartyAction {
 		
 		// remove unused entries
 		foreach($oldOpenIDs2 as $oo){
-			OpenidEntryPeer::instance()->deleteByPrimaryKey($oo->getOpenidId());	
+			DB_OpenidEntryPeer::instance()->deleteByPrimaryKey($oo->getOpenidId());	
 			// outdate caches
 			$pageId =  $oo->getPageId();
 			if($pageId){
-				$page = PagePeer::instance()->selectByPrimaryKey($pageId);
+				$page = DB_PagePeer::instance()->selectByPrimaryKey($pageId);
 			}else{
 				$page = $site->getDefaultPage();
 			}

@@ -23,13 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \ManageSiteBaseModule;
-use Criteria;
-use DB\SiteTagPeer;
-use DB\MemberPeer;
-
 class ManageSiteWelcomeModule extends ManageSiteBaseModule {
 	
 	public function build($runData){
@@ -48,7 +41,7 @@ class ManageSiteWelcomeModule extends ManageSiteBaseModule {
 		
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
-		$t = SiteTagPeer::instance()->selectOne($c);
+		$t = DB_SiteTagPeer::instance()->selectOne($c);
 		
 		if(!$t){
 			$tips['tags'] = true;	
@@ -57,7 +50,7 @@ class ManageSiteWelcomeModule extends ManageSiteBaseModule {
 		// count members... ???
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
-		$co = MemberPeer::instance()->selectCount($c);
+		$co = DB_MemberPeer::instance()->selectCount($c);
 		
 		if($co<4){
 			$tips['invite'] = true;	

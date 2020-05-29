@@ -23,13 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \FeedScreen;
-use Criteria;
-use DB\PageRevisionPeer;
-use \WDRenderUtils;
-
 class SiteChangesFeed extends FeedScreen {
 
 	public function render($runData){
@@ -58,7 +51,7 @@ class SiteChangesFeed extends FeedScreen {
 		$c->addOrderDescending("page_revision.revision_id");
 		$c->setLimit(30);
 		
-		$revisions = PageRevisionPeer::instance()->select($c);
+		$revisions = DB_PageRevisionPeer::instance()->select($c);
 
 		$channel['title'] = _('Recent page changes from site').' "'.htmlspecialchars($site->getName()).'" (a Wikidot site)';
 		$channel['link'] = "http://".$site->getDomain();

@@ -23,14 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \CacheableModule;
-use DB\ForumCategoryPeer;
-use \ProcessException;
-use Criteria;
-use DB\ForumPostPeer;
-
 class ForumMiniRecentPostsModule extends CacheableModule {
 	
 	protected $timeOut = 300;
@@ -48,7 +40,7 @@ class ForumMiniRecentPostsModule extends CacheableModule {
 		
 		$categoryId = $pl->getParameterValue("categoryId", "MODULE", "AMODULE");
 		if($categoryId !== null){
-			$category = ForumCategoryPeer::instance()->selectByPrimaryKey($categoryId);
+			$category = DB_ForumCategoryPeer::instance()->selectByPrimaryKey($categoryId);
 			if($category == null || $category->getSiteId() != $site->getSiteId()){
 				throw new ProcessException(_("The category can not be found."));	
 			}
@@ -65,7 +57,7 @@ class ForumMiniRecentPostsModule extends CacheableModule {
 		$c->addOrderDescending("post_id");
 		$c->setLimit($limit);
 		
-		$posts = ForumPostPeer::instance()->select($c);
+		$posts = DB_ForumPostPeer::instance()->select($c);
 
 		$runData->contextAdd("posts", $posts);
 

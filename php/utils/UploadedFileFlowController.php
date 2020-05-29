@@ -23,13 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \WikidotController;
-use \CodeblockExtractor;
-use Ozone;
-use RunData;
-
 class UploadedFileFlowController extends WikidotController {
 
 	/**
@@ -165,31 +158,22 @@ class UploadedFileFlowController extends WikidotController {
 	 * @param string $fileName code/pagename/number
 	 * @param int $expires timeout in seconds
 	 */
-	protected function serveCode($site, $fileName, $expires = 0, $restrict_html = false) {
+	protected function serveCode($site, $fileName, $expires = 0) {
 		$m = array();
 
-		if (preg_match(";^code/([^/]+)/?(?:/([0-9]+))?(?:(/r/)(.*))?$;", $fileName, $m)) {
+		if (preg_match(";^code/([^/]+)(?:/([0-9]+))?$;", $fileName, $m)) {
 			$pageName = $m[1];
 			$number = 1;
 			if (isset($m[2])) {
 				$number = (int) $m[2];
 			}
-			if (isset($m[3])) {
-				$params = array();
-				if (isset($m[4])) {
-					parse_str($m[4], $params);
-				}
-			} else {
-				$params = null;
-			}
-			
-			$ext = new CodeblockExtractor($site, $pageName, $number, $params);
+				
+			$ext = new CodeblockExtractor($site, $pageName, $number);
 			
 			$mime = $ext->getMimeType();
-			if ($restrict_html && preg_match(self::$HTML_MIME_TYPES, $mime)) {
+			if (GlobalProperties::$RESTRICT_HTML && in_array($mime, self::$HTML_MIME_TYPES)) {
 				$mime = self::$HTML_SERVE_AS;
 			}
-		
 			$this->setContentTypeHeader($mime);
 			$this->setExpiresHeader($expires);
 			
@@ -230,12 +214,6 @@ class UploadedFileFlowController extends WikidotController {
 			$this->siteNotExists();
 			return;
 		}
-		
-		if ($site->getSettings()->getSslMode() == "ssl_only" && ! $_SERVER['HTTPS']) {
-			header("HTTP/1.1 301 Moved Permanently");
-			header("Location: https://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]");
-			return;
-		}
 
 		$file = urldecode($_SERVER['QUERY_STRING']);
 		$file = preg_replace("/\\?[0-9]+\$/", "", $file);
@@ -253,9 +231,9 @@ class UploadedFileFlowController extends WikidotController {
 			if ($this->publicArea($site, $file)) {
 					
 				if ($this->isCodeRequest($file)) {
-					$this->serveCode($site, $file, GlobalProperties::$CACHE_FILES_FOR, GlobalProperties::$RESTRICT_HTML);
+					$this->serveCode($site, $file, 3600);
 				} else {
-					$this->serveFileWithMime($path, GlobalProperties::$CACHE_FILES_FOR, GlobalProperties::$RESTRICT_HTML);
+					$this->serveFileWithMime($path, 3600, GlobalProperties::$RESTRICT_HTML);
 				}
 
 				return;

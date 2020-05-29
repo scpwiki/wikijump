@@ -23,12 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use Criteria;
-use DB\OzoneUserPeer;
-
 /**
  * This class searches for users given the query string and results in
  * an array of matches.
@@ -49,7 +43,7 @@ class UserSearchModule extends SmartyModule {
 		}
 		$c->setLimit(101);
 		
-		$users = OzoneUserPeer::instance()->select($c);
+		$users = DB_OzoneUserPeer::instance()->select($c);
 		
 		$runData->contextAdd("users", $users);
 		

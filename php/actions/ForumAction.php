@@ -23,33 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyAction;
-use \ProcessException;
-use \WikiTransformation;
-use Database;
-use Criteria;
-use DB\ForumCategoryPeer;
-use \WDPermissionManager;
-use DB\ForumThread;
-use ODate;
-use DB\ForumPostRevision;
-use DB\ForumPost;
-use \Outdater;
-use \Indexer;
-use \EventLogger;
-use DB\ForumThreadPeer;
-use DB\ModeratorPeer;
-use DB\AdminPeer;
-use \WDPermissionException;
-use DB\ForumPostPeer;
-use DB\PagePeer;
-use DB\ForumCategory;
-use DB\ForumGroupPeer;
-use DB\ForumGroup;
-use Exception;
-
 class ForumAction extends SmartyAction {
 	
 	public function perform($r){}
@@ -103,14 +76,14 @@ class ForumAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("category_id", $categoryId);
 		$c->setForUpdate(true);
-		$category = ForumCategoryPeer::instance()->selectOne($c);
+		$category = DB_ForumCategoryPeer::instance()->selectOne($c);
 		if($category == null || $category->getSiteId() !== $site->getSiteId()){
 			throw new ProcessException(_("Problem while selecting forum category."), "no_category");	
 		}
 		
 		WDPermissionManager::instance()->hasForumPermission('new_thread', $runData->getUser(), $category);
 
-		$thread = new ForumThread();
+		$thread = new DB_ForumThread();
 		$thread->setSiteId($site->getSiteId());
 		$thread->setCategoryId($categoryId);
 		$thread->setTitle($title);
@@ -128,10 +101,10 @@ class ForumAction extends SmartyAction {
 		
 		$thread->save();
 		
-		$postRevision = new ForumPostRevision();
+		$postRevision = new DB_ForumPostRevision();
 		$postRevision->obtainPK();
 		
-		$post = new ForumPost();
+		$post = new DB_ForumPost();
 		$post->obtainPK();
 		
 		$postRevision->setPostId($post->getPostId());
@@ -218,7 +191,7 @@ class ForumAction extends SmartyAction {
 		$c->add("thread_id", $threadId);
 		$c->add("site_id", $site->getSiteId());
 		$c->setForUpdate(true);
-		$thread = ForumThreadPeer::instance()->selectOne($c);
+		$thread = DB_ForumThreadPeer::instance()->selectOne($c);
 		
 		if($thread == null || $thread->getSiteId() != $site->getSiteId()){
 			throw new ProcessException(_("Thread not found."), "no_thread");
@@ -229,9 +202,9 @@ class ForumAction extends SmartyAction {
 			$c = new Criteria();
 			$c->add("site_id", $site->getSiteId());
 			$c->add("user_id", $user->getUserId());
-			$rel = ModeratorPeer::instance()->selectOne($c);
+			$rel = DB_ModeratorPeer::instance()->selectOne($c);
 			if(!$rel || strpos($rel->getPermissions(), 'f') == false){
-				$rel = AdminPeer::instance()->selectOne($c);
+				$rel = DB_AdminPeer::instance()->selectOne($c);
 				if(!$rel){
 					throw new WDPermissionException(_("Sorry, this thread is blocked. Nobody can add new posts nor edit existing ones."));
 				}
@@ -250,16 +223,16 @@ class ForumAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("category_id", $thread->getCategoryId());
 		$c->setForUpdate(true);
-		$category = ForumCategoryPeer::instance()->selectOne($c);
+		$category = DB_ForumCategoryPeer::instance()->selectOne($c);
 		if($category == null || $category->getSiteId() !== $site->getSiteId()){
 			throw new ProcessException(_("Problem while selecting forum category."), "no_category");	
 		}
 		WDPermissionManager::instance()->hasForumPermission('new_post', $runData->getUser(), $category);
 
-		$postRevision = new ForumPostRevision();
+		$postRevision = new DB_ForumPostRevision();
 		$postRevision->obtainPK();
 		
-		$post = new ForumPost();
+		$post = new DB_ForumPost();
 		$post->obtainPK();
 		
 		$postRevision->setPostId($post->getPostId());
@@ -356,7 +329,7 @@ class ForumAction extends SmartyAction {
 			throw new ProcessException(_("No such post."), "no_post");	
 		}
 		
-		$post = ForumPostPeer::instance()->selectByPrimaryKey($postId);
+		$post = DB_ForumPostPeer::instance()->selectByPrimaryKey($postId);
 		if($post == null || $post->getSiteId() != $site->getSiteId()){
 			throw new ProcessException(_("No such post."), "no_post");	
 		}
@@ -365,7 +338,7 @@ class ForumAction extends SmartyAction {
 		$c->add("thread_id", $post->getThreadId());
 		$c->add("site_id", $site->getSiteId());
 		$c->setForUpdate(true);
-		$thread = ForumThreadPeer::instance()->selectOne($c);
+		$thread = DB_ForumThreadPeer::instance()->selectOne($c);
 		
 		if($thread == null || $thread->getSiteId() != $site->getSiteId()){
 			throw new ProcessException("Thread not found.", "no_thread");
@@ -384,9 +357,9 @@ class ForumAction extends SmartyAction {
 			$c = new Criteria();
 			$c->add("site_id", $site->getSiteId());
 			$c->add("user_id", $user->getUserId());
-			$rel = ModeratorPeer::instance()->selectOne($c);
+			$rel = DB_ModeratorPeer::instance()->selectOne($c);
 			if(!$rel || strpos($rel->getPermissions(), 'f') == false){
-				$rel = AdminPeer::instance()->selectOne($c);
+				$rel = DB_AdminPeer::instance()->selectOne($c);
 				if(!$rel){
 					throw new WDPermissionException(_("Sorry, this thread is blocked. Nobody can  add new posts nor edit existing ones."));
 				}
@@ -399,7 +372,7 @@ class ForumAction extends SmartyAction {
 		$wt->setMode('post');
 		$body = $wt->processSource($source);
 		
-		$postRevision = new ForumPostRevision();
+		$postRevision = new DB_ForumPostRevision();
 		$postRevision->obtainPK();
 		$postRevision->setPostId($post->getPostId());
 		$postRevision->setText($source);
@@ -443,7 +416,7 @@ class ForumAction extends SmartyAction {
 		$pl = $runData->getParameterList();
 		$pageId = $pl->getParameterValue("page_id");
 		
-		$page = PagePeer::instance()->selectByPrimaryKey($pageId);
+		$page = DB_PagePeer::instance()->selectByPrimaryKey($pageId);
 		if($page == null || $page->getSiteId() != $site->getSiteId()){
 			throw new ProcessException(_("Page does not exist."), "no_page");
 		}
@@ -455,7 +428,7 @@ class ForumAction extends SmartyAction {
 		$c->add("page_id", $pageId);
 		$c->add("site_id", $site->getSiteId());
 		
-		$thread = ForumThreadPeer::instance()->selectOne($c);
+		$thread = DB_ForumThreadPeer::instance()->selectOne($c);
 		if($thread){
 			// thread exists! which means it could have been created meanwhile!
 			// simply return the thread it now.
@@ -470,11 +443,11 @@ class ForumAction extends SmartyAction {
 		$c->add("site_id", $site->getSiteId());
 		$c->add("per_page_discussion", true);
 		
-		$category = ForumCategoryPeer::instance()->selectOne($c);
+		$category = DB_ForumCategoryPeer::instance()->selectOne($c);
 		
 		if($category == null){
 			// create this category!
-			$category = new ForumCategory();
+			$category = new DB_ForumCategory();
 			$category->setName("Per page discussions");
 			$category->setDescription(_("This category groups discussions related to particular pages within this site."));
 			$category->setPerPageDiscussion(true);
@@ -484,9 +457,9 @@ class ForumAction extends SmartyAction {
 			$c = new Criteria();
 			$c->add("site_id", $site->getSiteId());
 			$c->add("name", "Hidden");
-			$group = ForumGroupPeer::instance()->selectOne($c);
+			$group = DB_ForumGroupPeer::instance()->selectOne($c);
 			if($group == null){
-				$group = new ForumGroup();
+				$group = new DB_ForumGroup();
 				$group->setName("Hidden");
 				$group->setDescription(_("Hidden group used for storing some discussion threads."));
 				$group->setSiteId($site->getSiteId());
@@ -498,7 +471,7 @@ class ForumAction extends SmartyAction {
 		}
 		
 		// now create thread...
-		$thread = new ForumThread();
+		$thread = new DB_ForumThread();
 		$thread->setCategoryId($category->getCategoryId());
 		$thread->setSiteId($site->getSiteId());
 		$thread->setPageId($pageId);
@@ -549,7 +522,7 @@ class ForumAction extends SmartyAction {
 		$db = Database::connection();
 		$db->begin();
 		
-		$thread = ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
+		$thread = DB_ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
 		if($thread == null || $thread->getSiteId() !== $site->getSiteId()){
 			throw new ProcessException(_("No thread found... Is it deleted?"), "no_thread");
 		}
@@ -559,9 +532,9 @@ class ForumAction extends SmartyAction {
 			$c = new Criteria();
 			$c->add("site_id", $site->getSiteId());
 			$c->add("user_id", $user->getUserId());
-			$rel = ModeratorPeer::instance()->selectOne($c);
+			$rel = DB_ModeratorPeer::instance()->selectOne($c);
 			if(!$rel || strpos($rel->getPermissions(), 'f') == false){
-				$rel = AdminPeer::instance()->selectOne($c);
+				$rel = DB_AdminPeer::instance()->selectOne($c);
 				if(!$rel){
 					throw new WDPermissionException(_("Sorry, this thread is blocked. Meta information can not be edited."));
 				}
@@ -609,7 +582,7 @@ class ForumAction extends SmartyAction {
 		$db = Database::connection();
 		$db->begin();
 		
-		$thread = ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
+		$thread = DB_ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
 		if($thread == null || $thread->getSiteId() !== $site->getSiteId()){
 			throw new ProcessException(_("No thread found... Is it deleted?"), "no_thread");
 		}
@@ -644,7 +617,7 @@ class ForumAction extends SmartyAction {
 		$db = Database::connection();
 		$db->begin();
 		
-		$thread = ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
+		$thread = DB_ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
 		if($thread == null || $thread->getSiteId() !== $site->getSiteId()){
 			throw new ProcessException(_("No thread found... Is it deleted?"), "no_thread");
 		}
@@ -677,7 +650,7 @@ class ForumAction extends SmartyAction {
 		$db = Database::connection();
 		$db->begin();
 		
-		$thread = ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
+		$thread = DB_ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
 		if($thread == null || $thread->getSiteId() !== $site->getSiteId()){
 			throw new ProcessException(_("No thread found... Is it deleted?"), "no_thread");
 		}
@@ -689,7 +662,7 @@ class ForumAction extends SmartyAction {
 		$oldCategory = $thread->getForumCategory();
 		
 		// get destination category
-		$category = ForumCategoryPeer::instance()->selectByPrimaryKey($categoryId);
+		$category = DB_ForumCategoryPeer::instance()->selectByPrimaryKey($categoryId);
 		if($category == null || $category->getSiteId() !== $site->getSiteId()){
 			throw new ProcessException(_("No destination category found... Is it deleted?"), "no_thread");
 		}
@@ -735,7 +708,7 @@ class ForumAction extends SmartyAction {
 		$db = Database::connection();
 		$db->begin();
 		
-		$post = ForumPostPeer::instance()->selectByPrimaryKey($postId);
+		$post = DB_ForumPostPeer::instance()->selectByPrimaryKey($postId);
 		if($post == null || $post->getSiteId() != $site->getSiteId()){
 			throw new ProcessException(_("No such post."), "no_post");	
 		}
@@ -753,7 +726,7 @@ class ForumAction extends SmartyAction {
 		$c->add("parent_id", $postId);
 		$toDelete = array();
 		
-		$chposts =  ForumPostPeer::instance()->select($c);
+		$chposts =  DB_ForumPostPeer::instance()->select($c);
 		
 		while($chposts && count($chposts) >0 ){
 			$toDelete = array_merge($toDelete, $chposts);
@@ -762,13 +735,13 @@ class ForumAction extends SmartyAction {
 			foreach($chposts as $f){
 				$c->addOr("parent_id", $f->getPostId());
 			}
-			$chposts =  ForumPostPeer::instance()->select($c);
+			$chposts =  DB_ForumPostPeer::instance()->select($c);
 			
 		}
 		
-		ForumPostPeer::instance()->deleteByPrimaryKey($post->getPostId());
+		DB_ForumPostPeer::instance()->deleteByPrimaryKey($post->getPostId());
 		foreach($toDelete as $f){
-			ForumPostPeer::instance()->deleteByPrimaryKey($f->getPostId());	
+			DB_ForumPostPeer::instance()->deleteByPrimaryKey($f->getPostId());	
 		}
 		
 		// now recalculate a few things...

@@ -23,20 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use \ProcessException;
-use Criteria;
-use DB\ForumCategoryPeer;
-use DB\SitePeer;
-use DB\ForumThreadPeer;
-use \WikiTransformation;
-use \WDRenderUtils;
-use \WDStringUtils;
-use DB\FrontForumFeedPeer;
-use DB\FrontForumFeed;
-
 class FrontForumModule extends SmartyModule {
 	
 	protected $processPage = true;
@@ -146,13 +132,13 @@ class FrontForumModule extends SmartyModule {
 				throw new ProcessException(_('Problem parsing attribute "category".'),"no_category");	
 			}
 
-			$category = ForumCategoryPeer::instance()->selectByPrimaryKey($categoryId);
+			$category = DB_ForumCategoryPeer::instance()->selectByPrimaryKey($categoryId);
 		
 			if($category == null){
 				throw new ProcessException(_('Requested forum category does not exist.'), "no_category");	
 			}
 		    if($category->getSiteId() !== $site->getSiteId()){
-				$fSite = SitePeer::instance()->selectByPrimaryKey($category->getSiteId());
+				$fSite = DB_SitePeer::instance()->selectByPrimaryKey($category->getSiteId());
 				if($fSite->getPrivate()){
 					throw new ProcessException(_('The requested category belongs to a private site.'), "no_category");
 				}
@@ -166,7 +152,7 @@ class FrontForumModule extends SmartyModule {
 		
 		$c->addOrderDescending("thread_id");
 		$c->setLimit($limit, $offset);
-		$threads = ForumThreadPeer::instance()->select($c);
+		$threads = DB_ForumThreadPeer::instance()->select($c);
 
 		$format = $pl->getParameterValue("module_body");
 		
@@ -234,10 +220,10 @@ class FrontForumModule extends SmartyModule {
 			$c->add("page_id", $page->getPageId());
 			$c->add("label", $flabel);
 			
-			$feed = FrontForumFeedPeer::instance()->selectOne($c);
+			$feed = DB_FrontForumFeedPeer::instance()->selectOne($c);
 			if($feed == null){
 				// create the feed	
-				$feed = new FrontForumFeed();
+				$feed = new DB_FrontForumFeed();
 				$feed->setLabel($flabel);
 				$feed->setTitle($ftitle);
 				$feed->setCategories($fcats);

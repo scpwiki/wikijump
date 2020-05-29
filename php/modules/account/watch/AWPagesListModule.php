@@ -23,12 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \AccountBaseModule;
-use Criteria;
-use DB\PagePeer;
-
 class AWPagesListModule extends AccountBaseModule {
 
 	public function build($runData){
@@ -47,7 +41,7 @@ class AWPagesListModule extends AccountBaseModule {
 						"AND watched_page.page_id=page.page_id";
 		$c->setExplicitQuery($q);	
 				
-		$pages = PagePeer::instance()->select($c);
+		$pages = DB_PagePeer::instance()->select($c);
 		
 		$runData->contextAdd("pages", $pages);
 		

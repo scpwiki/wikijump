@@ -23,14 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use \ProcessException;
-use DB\ThemePeer;
-use Criteria;
-use DB\Theme;
-
 class ThemePreviewerModule extends SmartyModule {
 	
 	protected $processPage = true;
@@ -58,7 +50,7 @@ class ThemePreviewerModule extends SmartyModule {
 				$theme = $page->getCategory()->getTheme();
 			}
 		}else{
-			$theme = ThemePeer::instance()->selectByPrimaryKey($themeId);
+			$theme = DB_ThemePeer::instance()->selectByPrimaryKey($themeId);
 		}
 		
 		//$this->themeId = $themeId;
@@ -81,7 +73,7 @@ class ThemePreviewerModule extends SmartyModule {
 			
 		$c = new Criteria();		
 		$c->setExplicitQuery($q);
-		$themes = ThemePeer::instance()->select($c);
+		$themes = DB_ThemePeer::instance()->select($c);
 		$runData->contextAdd("themes", $themes);
 		
 		$runData->contextAdd("currentTheme", $theme);
@@ -106,13 +98,13 @@ class ThemePreviewerModule extends SmartyModule {
 		if(!$url){
 			return null;
 		}
-		$t = new Theme();
+		$t = new DB_Theme();
 		$t->setExternalUrl($url);
 		/* Get base theme. */
 		$c = new Criteria();
 		$c->add('name', 'Base');
 		$c->add('custom', false);
-		$baseTheme = ThemePeer::instance()->selectOne($c);
+		$baseTheme = DB_ThemePeer::instance()->selectOne($c);
 		$t->setExtendsThemeId($baseTheme->getThemeId());
 		$t->setThemeId($baseTheme->getThemeId()); // needed sometime
 		return $t;

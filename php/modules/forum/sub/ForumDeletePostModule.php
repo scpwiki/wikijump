@@ -23,16 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyModule;
-use \ProcessException;
-use DB\ForumPostPeer;
-use \WDPermissionManager;
-use Exception;
-use \WDPermissionException;
-use Criteria;
-
 class ForumDeletePostModule extends SmartyModule {
 	
 	public function build($runData){
@@ -45,7 +35,7 @@ class ForumDeletePostModule extends SmartyModule {
 			throw new ProcessException(_("No post specified."), "no_post");	
 		}
 		
-		$post = ForumPostPeer::instance()->selectByPrimaryKey($postId);
+		$post = DB_ForumPostPeer::instance()->selectByPrimaryKey($postId);
 		if($post == null || $post->getSiteId() != $site->getSiteId()){
 			throw new ProcessException(_("No post specified."), "no_post");	
 		}	
@@ -62,7 +52,7 @@ class ForumDeletePostModule extends SmartyModule {
 		
 		$c = new Criteria();
 		$c->add("parent_id", $postId);
-		$chpc =  ForumPostPeer::instance()->selectCount($c);
+		$chpc =  DB_ForumPostPeer::instance()->selectCount($c);
 		
 		if($chpc>0){
 			$runData->contextAdd("hasChildren", true);	

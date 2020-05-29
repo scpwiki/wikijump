@@ -23,16 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use SmartyAction;
-use JSONService;
-use \DatabaseStorage;
-use \ProcessException;
-use OzoneEmail;
-use \WDStringUtils;
-use DB\PagePeer;
-
 class MailFormAction extends SmartyAction{
 	
 	public function perform($r){}
@@ -187,7 +177,7 @@ class MailFormAction extends SmartyAction{
 		$successPage = $data['successPage'];
 		if($successPage){
 			$successPage = WDStringUtils::toUnixName($successPage);
-			$page = PagePeer::instance()->selectByName($site->getSiteId(), $successPage);
+			$page = DB_PagePeer::instance()->selectByName($site->getSiteId(), $successPage);
 			if($page){
 				$runData->ajaxResponseAdd("successPage", $successPage);	
 			}	

@@ -23,13 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \ManageSiteBaseModule;
-use Criteria;
-use DB\CategoryPeer;
-use DB\LicensePeer;
-
 class ManageSiteLicenseModule extends ManageSiteBaseModule {
 	
 	public function build($runData){
@@ -41,7 +34,7 @@ class ManageSiteLicenseModule extends ManageSiteBaseModule {
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
 		$c->addOrderAscending("replace(name, '_', '00000000')");
-		$categories = CategoryPeer::instance()->select($c);
+		$categories = DB_CategoryPeer::instance()->select($c);
 		
 		$runData->contextAdd("categories", $categories);
 		
@@ -57,7 +50,7 @@ class ManageSiteLicenseModule extends ManageSiteBaseModule {
 		$c = new Criteria();
 		$c->addOrderAscending("sort");
 		$c->addOrderAscending("name");
-		$licenses = LicensePeer::instance()->select($c);
+		$licenses = DB_LicensePeer::instance()->select($c);
 		$runData->contextAdd("licenses", $licenses);
 
 	}

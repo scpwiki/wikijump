@@ -23,15 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \SmartyLocalizedModule;
-use DB\OzoneUserPeer;
-use \ProcessException;
-use JSONService;
-use Criteria;
-use DB\PageRevisionPeer;
-
 class UserChangesListModule extends SmartyLocalizedModule {
 	
 	public function build($runData){
@@ -50,7 +41,7 @@ class UserChangesListModule extends SmartyLocalizedModule {
 		
 		//if($userId 
 		
-		$user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+		$user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($userId);
 		
 		if($user == null){
 			throw new ProcessException(_("Error selecting user."), "no_user");	
@@ -101,7 +92,7 @@ class UserChangesListModule extends SmartyLocalizedModule {
 		$c->add("site.deleted", false);
 		$c->addOrderDescending("page_revision.revision_id");
 		$c->setLimit($count, $offset);
-		$revisions = PageRevisionPeer::instance()->select($c);
+		$revisions = DB_PageRevisionPeer::instance()->select($c);
 		
 		$counted = count($revisions);
 		$pagerData = array();

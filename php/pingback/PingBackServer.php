@@ -23,10 +23,7 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \PingBack;
-use Zend_XmlRpc_Server_Fault;
+require_once('Zend/XmlRpc/Server/Fault.php');
 
 /* TODO: static? */
 class PingBackServer {
@@ -44,10 +41,15 @@ class PingBackServer {
 		
 		Zend_XmlRpc_Server_Fault::attachFaultException("PingBackException");
 		
-		$ret = $pb->pong();
+		try {
+			$ret = $pb->pong();
 			
-		// do something
+			// do something
 			
+		} catch(PingBackException $e) {
+			throw new Zend_XmlRpc_Server_Fault($e);
+		}
+		
 		return "OK";
 	}
 }

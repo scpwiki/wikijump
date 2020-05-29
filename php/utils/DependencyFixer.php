@@ -23,13 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use ODate;
-use \ODiff;
-use DB\PageSource;
-use \WDStringUtils;
-
 /**
  * This class handles source changes looking for inslusions and links and
  * tries to change them upon destinatin (or included) page name change.
@@ -86,7 +79,7 @@ class DependencyFixer {
 				}	
 			}
 			
-			$pageSource = new PageSource();
+			$pageSource = new DB_PageSource();
 			if($fullSource){
 				$pageSource->setText($source);
 				$revision->setDiffSource(false);
