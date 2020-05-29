@@ -346,9 +346,9 @@
 		} else {
 			if ($rExp != null && is_string(possibleValue)) {
 				if ($ignoreCase) {
-					$matched = eregi($rExp, $possibleValue);
+					$matched = preg_match("/".$rExp."/i", $possibleValue);
 				} else {
-					$matched = ereg($rExp, $possibleValue);
+					$matched = preg_match("/".$rExp."/", $possibleValue);
 				}
 
 			} else {

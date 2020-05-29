@@ -220,14 +220,14 @@ class JobEntry {
 		}
 		
 		//if $string is just an integer...
-		if(eregi("^[0-9]+$",$string)){
+		if(preg_match("/^[0-9]+$/",$string)){
 			$result = array();
 			$result[]=(int)$string;
 			return $result;	
 		}
 
 		// if is a coma-separated list:
-		if(eregi("^[0-9]+(,[0-9]+)+$",$string)){
+		if(preg_match("/^[0-9]+(,[0-9]+)+$/",$string)){
 			$result = array();
 			$result=explode(",",$string);
 			for($i = 0; $i<count($result); $i++){
@@ -237,7 +237,7 @@ class JobEntry {
 		}
 		
 		// if of form "*/n"
-		if(eregi("^\*/[0-9]+$",$string)){
+		if(preg_match("/^\*/[0-9]+$/",$string)){
 			$result = array();
 			$repeat = (int)substr($string, 2);
 			for($i=0;$i<=$rangeMax; $i+=$repeat){
