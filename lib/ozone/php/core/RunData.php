@@ -115,7 +115,7 @@ class RunData {
 			}
 
 			foreach ($parameterArray as $key => $value) {
-				if (ereg('event_', $key)) {
+				if (preg_match('/event_/', $key)) {
 					$this->actionEvent = str_replace('event_', '', $key).'Event';
 					break;
 				}

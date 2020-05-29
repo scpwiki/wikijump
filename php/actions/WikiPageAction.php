@@ -433,7 +433,7 @@ class WikiPageAction extends SmartyAction {
 				$rangeEnd = $lock->getRangeEnd(); //$pl->getParameterValue("range_end");
 				$s2 = explode("\n", $oldSourceText);
 				// fix source last empty line
-				if (!ereg("\n$",$source)) $source.="\n";
+				if (!preg_match("/\n$/",$source)) $source.="\n";
 				array_splice($s2, $rangeStart, $rangeEnd-$rangeStart+1, explode("\n",$source));
 				$source = implode("\n", $s2);
 			}

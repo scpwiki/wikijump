@@ -34,7 +34,7 @@ class BaseFormValidator {
 	 * Checks if the field is an integer value.
 	 */
 	public function integerRule($fieldValue, $ruleValue=null){
-		if(ereg("^(\-)?[0-9]+$", $fieldValue)){
+		if(preg_match("/^(\-)?[0-9]+$/", $fieldValue)){
 			return true;
 		} else {
 			return false;

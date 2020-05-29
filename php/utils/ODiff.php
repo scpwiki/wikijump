@@ -53,14 +53,14 @@ class ODiff {
 	
 	public function diffString($stringFrom, $stringTo){
 		// fix "no new lineat the end" problem.	
-		if (!ereg("\n$",$stringFrom)) $stringFrom.="\n";
-		if (!ereg("\n$",$stringTo)) $stringTo.="\n";
+		if (!preg_match("/\n$/",$stringFrom)) $stringFrom.="\n";
+		if (!preg_match("/\n$/",$stringTo)) $stringTo.="\n";
 		return xdiff_string_diff($stringFrom, $stringTo);
 	}
 	
 	public function patchString($string, $patch, $reverse = false){
-		if (!ereg("\n$",$string)) $string.="\n";
-		if (!ereg("\n$",$patch)) $patch.="\n";
+		if (!preg_match("/\n$/",$string)) $string.="\n";
+		if (!preg_match("/\n$/",$patch)) $patch.="\n";
 		if($reverse == false){
 			return xdiff_string_patch($string, $patch);
 		}else{

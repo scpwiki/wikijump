@@ -37,7 +37,7 @@ class TemplateRegexpMatcher extends TemplateService{
 	}
 	
 	public function match($pattern){
-		return ereg($pattern, $this->runData->getScreenTemplate());	
+		return preg_match("/".$pattern."/", $this->runData->getScreenTemplate());
 	}	
 	
 }
