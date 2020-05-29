@@ -1,0 +1,52 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/library/Zend/Amf/Parse/Amf3
+http://framework.zend.com/svn/framework
+
+
+
+2008-12-12T22:30:22.363351Z
+13191
+wadearnold
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+Serializer.php
+file
+
+
+
+
+2009-01-04T17:41:48.000000Z
+fe99281bd2eed1feca81c8f6a94fa9e6
+2008-12-12T22:30:22.363351Z
+13191
+wadearnold
+
+Deserializer.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+0c7613704f88f0d1f53a78717c5c5f78
+2008-11-26T13:39:38.578250Z
+12875
+yoshida@zend.co.jp
+

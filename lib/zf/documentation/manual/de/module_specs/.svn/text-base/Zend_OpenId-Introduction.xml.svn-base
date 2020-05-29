@@ -1,0 +1,166 @@
+<sect1 id="zend.openid.introduction">
+    <title>Einführung</title>
+    <para>
+        <code>Zend_OpenId</code> ist eine Zend Framework Komponente die eine einfache API für das erstellen von
+        OpenID-verwendenden Sites und Identitäts Providern bietet.
+    </para>
+
+    <sect2 id="zend.openid.introduction.what">
+        <title>Was ist OpenID?</title>
+        <para>
+            OpenID ist ein Set von Protokollen für Benutzer-zentrierte digitale Identitäts Provider. Diese
+            Protokolle erlauben die Erstellung einer Identität online, indem ein Identitäts Provider verwendet
+            wird. Diese Identität kann überall verwendet werden wo OpenID unterstützt wird. Die Verwendung von
+            OpenID-verwendenden Sites gestattet es Web Benutzern, das Sie sich traditionelle Authentifizierungs
+            Tokens nicht merken müßen wie Benutzername und Passwort. Alle OpenID-verwendenden Sites akzeptieren
+            eine einzelne OpenID Identität. Diese Identität ist typischerweise eine URL. Das kann die URL der
+            persönlichen Seite eines Benutzers sein, ein Blog oder eine andere Ressource die zusätzliche Daten
+            zu Ihm liefert. Keine Notwendigkeit mehr für viele Passwörter und verschiedene Benutzernamen - nur
+            ein Identitifizierer für alle Internet Services. OpenID ist eine offene, dezentralisierte und
+            freie Benutzer zentrierte Lösung. Ein Benutzer kann auswählen welcher OpenID Anbieter verwendet werden
+            soll, oder sogar Ihren eigenen persönlichen Identitäts Server erstellen. Es wird keine zentrale
+            Authorität benötigt um OpenID-verwendende Sites zuzulassen oder zu registrieren oder irgendwelche
+            Identitäts Provider.
+        </para>
+
+        <para>
+            Für weitere Informationen über OpenId siehe die
+            <ulink url="http://www.openid.net/">offizielle OpenID Seite</ulink> und siehe in das
+            <ulink url="http://www.openidbook.com/">OpenID Buch von Rafeeq Rehman</ulink>.
+        </para>
+    </sect2>
+
+    <sect2 id="zend.openid.introduction.how">
+        <title>Wie funktioniert das ?</title>
+        <para>
+            Der Hauptzweck der <code>Zend_OpenId</code> Komponente ist es ein OpenID Authentifizierungs
+            Protokoll zu implementieren wie im folgenden Diagramm beschrieben:
+        </para>
+
+        <para>
+            <inlinegraphic align="center" fileref="figures/zend.openid.protocol.jpg" format="JPEG" scale="100" valign="middle" width="559" />
+        </para>
+
+        <orderedlist>
+            <listitem>
+                <para>
+                    Authentifizierung wird durch den End-Benutzer initiiert, welcher seinen OpenID Identifizierer
+                    zum OpenID Konsumenten, durch einen User-Agenten, übergibt.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Der OpenID Konsument führt eine Normalisierung des vom Benutzer gelieferten Identifizierers
+                    durch, und erkennt Ihn. Als Ergebnis erhält er das folgende: ein geforderter Identifizierer,
+                    eine OpenID Provider URL und eine OpenID Protokoll Version.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Der OpenID Client führt eine optionale Assoziierung mit dem Server durch wobei Diffie-Hellman
+                    Schlüssel verwendet werden. Als Ergebnis bekommen beide Parteien einen übliches "geteiltes
+                    Geheimnis" das für das unterschreiben und verifizieren der folgenden (nachfolgenden) Nachrichten
+                    verwendet wird.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Der OpenID Konsument leitet den Benutzer-Agenten zur URL des OpenID Providers mit einer OpenID
+                    Authentifizierungs Anfrage weiter.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Der OpenID Provider prüft ob der Benutzer-Agent bereits authentifiziert wurde und bietet dieses
+                    an wenn es notwendig ist.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Der Endbenutzer gibt das benötigte Passwort an.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Der OpenID Provider prüft ob es erlaubt ist die Identität des Benutzers zum gegebenen Konsumenten
+                    zu übergeben, und fragt den Benutzer wenn das notwendig ist.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Der Endbenutzer erlaubt oder verweigert das übergeben seiner Identität.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Der OpenID Provider leitet den Benutzer-Agenten zum OpenID Konsumenten zurück mit einer
+                    "Authentifizierung durchgeführt" oder "fehlgeschlagen" Anfrage.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Der OpenID Konsument verifiziert die vom Provider empfangenen Informationen durch die
+                    Verwendung des "geteilten Geheimnisses" das er bei Schritt 3 erhalten hat oder durch das
+                    senden einer direkten Anfrage zum OpenID Provider.
+                </para>
+            </listitem>
+        </orderedlist>
+    </sect2>
+
+    <sect2 id="zend.openid.introduction.structure">
+        <title>Zend_OpenId Struktur</title>
+        <para>
+            <code>Zend_OpenId</code> besteht aus zwei Unterpaketen. Das erste ist
+            <code>Zend_OpenId_Consumer</code> für die Entwicklung von OpenID-verwendenden Servern. Diese sind
+            komplett unabhängig voneinander und können separat verwendet werden.
+        </para>
+
+        <para>
+            Der einzige gemeinsame Teil dieser Unterpakete ist die OpenID Einfache Resistrierungs Erweiterung
+            die von der <code>Zend_OpenId_Extension_Sreg</code> Klasse implementiert wird und das Set von
+            Hilfs Funktionen die von der <code>Zend_OpenId</code> Klasse implementiert werden.
+        </para>
+
+        <note>
+            <para>
+                <code>Zend_OpenId</code> hat Vorteile davon wenn die
+                <ulink url="http://php.net/gmp">GMP Erweiterung</ulink> vorhanden ist. Es sollte
+                Angedacht werden die GMP Erweiterung für eine bessere Performance einzuschalten  wenn
+                <code>Zend_OpenId</code> verwendet wird.
+            </para>
+        </note>
+    </sect2>
+
+    <sect2 id="zend.openid.introduction.standards">
+        <title>Unterstützte Standards</title>
+        <para>
+            Die <code>Zend_OpenId</code> Komponente entspricht den folgenden Stanadards:
+        </para>
+
+        <itemizedlist>
+            <listitem>
+                <para>
+                    OpenID Authentifizierungs Protokoll Version 1.1
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    OpenID Authentifizierungs Protokoll Version 2.0 Entwurf 11
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    OpenID Einfache Registrierungs Erweiterung Version 1.0
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    OpenID Einfache Registrierungs Erweiterung Version 1.1 Entwurf 1
+                </para>
+            </listitem>
+        </itemizedlist>
+    </sect2>
+</sect1>
+<!--
+vim:se ts=4 sw=4 et:
+-->

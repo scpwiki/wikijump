@@ -1,0 +1,178 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.dojotoolkit</groupId>
+  <artifactId>dojo-project</artifactId>
+  <version>1.2-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>Dojo Toolkit</name>
+  <url>http://dojotoolkit.org</url>
+  <issueManagement>
+    <system>trac</system>
+    <url>http://trac.dojotoolkit.org/</url>
+  </issueManagement>
+  <mailingLists>
+    <mailingList>
+      <name>dojo-interest</name>
+      <subscribe>http://dojotoolkit.org/mailman/listinfo/dojo-interest</subscribe>
+      <unsubscribe>http://dojotoolkit.org/mailman/listinfo/dojo-interest</unsubscribe>
+      <archive>http://dojotoolkit.org/pipermail/dojo-interest/</archive>
+    </mailingList>
+    <mailingList>
+      <name>dojo-contributors</name>
+      <subscribe>http://dojotoolkit.org/mailman/listinfo/dojo-contributors</subscribe>
+      <unsubscribe>http://dojotoolkit.org/mailman/listinfo/dojo-contributors</unsubscribe>
+      <archive>http://dojotoolkit.org/pipermail/dojo-contributors/</archive>
+    </mailingList>
+    <mailingList>
+      <name>dojo-checkins</name>
+      <subscribe>http://dojotoolkit.org/mailman/listinfo/dojo-checkins</subscribe>
+      <unsubscribe>http://dojotoolkit.org/mailman/listinfo/dojo-checkins</unsubscribe>
+      <archive>http://dojotoolkit.org/pipermail/dojo-checkins/</archive>
+    </mailingList>
+  </mailingLists>
+  <developers>
+    <developer>
+      <id>gregw</id>
+      <name>Greg Wilkins</name>
+      <email>gregw@apache.org</email>
+      <url>http://www.mortbay.com/mortbay/people/gregw</url>
+      <organization>Mort Bay Consulting</organization>
+      <organizationUrl>http://www.mortbay.com</organizationUrl>
+    </developer>
+    <!-- obviously lots more to come here -->
+  </developers>
+  <licenses>
+    <license>
+      <name>Academic Free License v2.1</name>
+      <url>http://trac.dojotoolkit.org/browser/dojo/trunk/LICENSE</url>
+    </license>
+    <license>
+      <name>BSD License</name>
+      <url>http://trac.dojotoolkit.org/browser/dojo/trunk/LICENSE</url>
+    </license>
+  </licenses>
+  <organization>
+    <name>The Dojo Foundation</name>
+    <url>http://dojotoolkit.org/foundation</url>
+  </organization>
+
+  <repositories>
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>daily</updatePolicy>
+        <checksumPolicy>fail</checksumPolicy>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>dojo</id>
+      <name>Dojo Maven2 Repository</name>
+      <url>http://download.dojotoolkit.org/maven2</url>
+      <layout>default</layout>
+    </repository>
+    <repository>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+        <checksumPolicy>warn</checksumPolicy>
+      </snapshots>
+      <id>dojoSnapshots</id>
+      <name>Dojo Maven2 Snapshot Repository</name>
+      <url>http://download.dojotoolkit.org/maven2-snapshot</url>
+      <layout>default</layout>
+    </repository>
+  </repositories>
+	
+  <distributionManagement>
+    <repository>
+      <id>download.dojotoolkit.org</id>
+      <name>Dojo Maven2 Repository</name>
+      <url>scpexe://download.dojotoolkit.org/srv/www/vhosts/download.dojotoolkit.org/maven2</url>
+      <layout>default</layout>
+    </repository>
+    <snapshotRepository>
+      <id>download.dojotoolkit.org</id>
+      <name>Dojo Maven2 Snapshot Repository</name>
+      <url>scpexe://download.dojotoolkit.org/srv/www/vhosts/download.dojotoolkit.org/maven2-snapshot</url>
+      <layout>default</layout>
+    </snapshotRepository>
+    <!-- none yet 
+    <site>
+      <id></id>
+      <name></name>
+      <url></url>
+    </site>
+    -->
+  </distributionManagement>
+  <scm>
+    <connection>scm:svn:http://svn.dojotoolkit.org/src/view/anon/all/trunk</connection>
+    <developerConnection>scm:svn:https://svn.dojotoolkit.org/src/view/committer/all/trunk</developerConnection>
+    <url>http://trac.dojotoolkit.org/browser/</url>
+  </scm>
+  <build>
+    <defaultGoal>install</defaultGoal>
+    <pluginManagement>
+      <!-- fix plugin versions for repeatable releases -->
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-antrun-plugin</artifactId>
+          <version>1.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>2.0.2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>2.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>2.3</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>2.2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>2.2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>2.0-beta-7</version>
+        </plugin> 
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-war-plugin</artifactId>
+          <version>2.0.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>exec-maven-plugin</artifactId>
+          <version>1.0.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>maven-bundle-plugin</artifactId>
+          <version>1.4.0</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+  <modules>
+    <module>dojo</module>
+    <module>dojo-war</module>
+  </modules>
+</project>

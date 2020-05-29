@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/svn/framework/!svn/ver/10996/standard/trunk/demos/Zend/Wildfire/application/views/scripts/zend-log-writer-firebug
+END
+test-logging.phtml
+K 25
+svn:wc:ra_dav:version-url
+V 133
+/svn/framework/!svn/ver/10996/standard/trunk/demos/Zend/Wildfire/application/views/scripts/zend-log-writer-firebug/test-logging.phtml
+END
+test-error-controller.phtml
+K 25
+svn:wc:ra_dav:version-url
+V 142
+/svn/framework/!svn/ver/10996/standard/trunk/demos/Zend/Wildfire/application/views/scripts/zend-log-writer-firebug/test-error-controller.phtml
+END
+test-large-message.phtml
+K 25
+svn:wc:ra_dav:version-url
+V 139
+/svn/framework/!svn/ver/10996/standard/trunk/demos/Zend/Wildfire/application/views/scripts/zend-log-writer-firebug/test-large-message.phtml
+END

@@ -1,0 +1,77 @@
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/framework/!svn/ver/13290/standard/trunk/tests/Zend/Gdata/App
+END
+BaseTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/framework/!svn/ver/12403/standard/trunk/tests/Zend/Gdata/App/BaseTest.php
+END
+ContentTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/App/ContentTest.php
+END
+CategoryTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/App/CategoryTest.php
+END
+UtilTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/framework/!svn/ver/12403/standard/trunk/tests/Zend/Gdata/App/UtilTest.php
+END
+HttpExceptionTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/App/HttpExceptionTest.php
+END
+ControlTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/App/ControlTest.php
+END
+EntryTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/13290/standard/trunk/tests/Zend/Gdata/App/EntryTest.php
+END
+AuthorTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/App/AuthorTest.php
+END
+CaptchaRequiredExceptionTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/App/CaptchaRequiredExceptionTest.php
+END
+FeedTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/framework/!svn/ver/13290/standard/trunk/tests/Zend/Gdata/App/FeedTest.php
+END
+MockBase.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/framework/!svn/ver/13145/standard/trunk/tests/Zend/Gdata/App/MockBase.php
+END
+GeneratorTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/App/GeneratorTest.php
+END

@@ -1,0 +1,21 @@
+K 9
+svk:merge
+V 248
+33008bc5-088a-4725-8053-8b13bfceb19a:/framework/local:8282
+33008bc5-088a-4725-8053-8b13bfceb19a:/local/framework/standard/trunk:21266
+33008bc5-088a-4725-8053-8b13bfceb19a:/local/framework/trunk:16858
+44c647ce-9c0f-0410-b52a-842ac1e357ba:/trunk:8557
+K 13
+svn:externals
+V 59
+externals/dojo http://svn.dojotoolkit.org/src/branches/1.2
+
+K 10
+svn:ignore
+V 46
+.cache
+.settings
+.project
+.projectOptions
+
+END

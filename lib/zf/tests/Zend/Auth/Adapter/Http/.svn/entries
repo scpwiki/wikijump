@@ -1,0 +1,86 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Auth/Adapter/Http
+http://framework.zend.com/svn/framework
+
+
+
+2008-10-15T16:00:56.239481Z
+11973
+matthew
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+Resolver
+dir
+
+_files
+dir
+
+AllTests.php
+file
+
+
+
+
+2008-12-06T16:40:28.000000Z
+bd75227cf980291e5fb3a7313f764dec
+2008-10-15T16:00:56.239481Z
+11973
+matthew
+has-props
+
+AuthTest.php
+file
+
+
+
+
+2008-12-06T16:40:28.000000Z
+d6667c58faefc11cef101a19e4e5e414
+2008-02-22T02:41:08.362755Z
+8269
+gearhead
+has-props
+
+ProxyTest.php
+file
+
+
+
+
+2008-12-06T16:40:28.000000Z
+808103ae1b3c477f69123f889a1124c1
+2008-10-15T16:00:56.239481Z
+11973
+matthew
+has-props
+
+ObjectTest.php
+file
+
+
+
+
+2008-12-06T16:40:28.000000Z
+0e667ade8934a2862201576abd9efa11
+2008-05-07T23:42:02.595919Z
+9404
+doctorrock83
+has-props
+

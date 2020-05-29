@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/13213/standard/trunk/library/Zend/InfoCard/Cipher/Pki/Adapter
+END
+Abstract.php
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svn/framework/!svn/ver/13213/standard/trunk/library/Zend/InfoCard/Cipher/Pki/Adapter/Abstract.php
+END
+Rsa.php
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/framework/!svn/ver/13213/standard/trunk/library/Zend/InfoCard/Cipher/Pki/Adapter/Rsa.php
+END

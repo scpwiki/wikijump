@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/framework/!svn/ver/12583/standard/trunk/tests/Zend/Wildfire
+END
+AllTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Wildfire/AllTests.php
+END
+WildfireTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/12583/standard/trunk/tests/Zend/Wildfire/WildfireTest.php
+END

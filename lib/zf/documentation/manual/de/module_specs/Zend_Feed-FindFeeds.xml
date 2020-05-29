@@ -1,0 +1,24 @@
+<!-- EN-Revision: 11089 -->
+<sect1 id="zend.feed.findFeeds">
+    <title>Feeds von Websites abrufen</title>
+    <para>
+        Websites beinhalten oft <code>&lt;link&gt;</code> Tags, die auf Feeds mit für diese Seite
+        relevanten Informationen verweisen. <code>Zend_Feed</code> ermöglicht Dir, mit einem
+        einfachen Methodenaufruf alle von einer Webseite referenzierten Feeds abzurufen.
+    </para>
+    <programlisting role="php"><![CDATA[
+$feedArray = Zend_Feed::findFeeds('http://www.example.com/news.html');
+]]>
+    </programlisting>
+    <para>
+        Hier gibt die <code>findFeeds()</code> Methode ein Array mit <code>Zend_Feed_Abstract</code>
+        Objekten zurück, die durch die <code>&lt;link&gt;</code> Tags der news.html Webseite
+        referenziert worden sind. Abhängig vom Typ jedes Feeds kann jeder einzelne Eintrag in
+        <code>$feedArray</code> eine <code>Zend_Feed_Rss</code> oder <code>Zend_Feed_Atom</code>
+        Instanz enthalten. Bei Fehlern, wie z.B. ein HTTP 404 Response Code oder ein nicht
+        wohlgeformter Feed, wirft <code>Zend_Feed</code> eine <code>Zend_Feed_Exception</code>.
+    </para>
+</sect1>
+<!--
+vim:se ts=4 sw=4 et:
+-->

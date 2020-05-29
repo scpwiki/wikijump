@@ -1,5 +1,12 @@
 <?php
 
-class Wikidot_Facade_Forum extends Wikidot_Facade_Base {
+
+namespace Wikidot\Facade;
+
+use Wikidot\Facade\Base;
+
+
+
+class Forum extends Base {
 	
 }

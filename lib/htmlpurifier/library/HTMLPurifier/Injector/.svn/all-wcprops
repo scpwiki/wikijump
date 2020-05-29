@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/Injector
+END
+PurifierLinkify.php
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/Injector/PurifierLinkify.php
+END
+AutoParagraph.php
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/Injector/AutoParagraph.php
+END
+Linkify.php
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/Injector/Linkify.php
+END

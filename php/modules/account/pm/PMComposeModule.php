@@ -23,6 +23,13 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \AccountBaseModule;
+use DB\PrivateMessagePeer;
+use \ProcessException;
+use DB\OzoneUserPeer;
+
 class PMComposeModule extends AccountBaseModule {
 	
 	public function build($runData){
@@ -36,7 +43,7 @@ class PMComposeModule extends AccountBaseModule {
 		$toUserId = $pl->getParameterValue("toUserId");
 
 		if($replyMessageId){
-			$message = DB_PrivateMessagePeer::instance()->selectByPrimaryKey($replyMessageId);	
+			$message = PrivateMessagePeer::instance()->selectByPrimaryKey($replyMessageId);	
 			
 			if($message == null || $message->getToUserId() != $user->getUserId()){
 				throw new ProcessException(_("Error getting orginal message."), "no_reply_message");	
@@ -47,7 +54,7 @@ class PMComposeModule extends AccountBaseModule {
 			$subject = preg_replace("/^Re: /", '', $subject);
 			$runData->contextAdd("subject", "Re: ".$subject);
 		}elseif($continueMessageId){
-			$message = DB_PrivateMessagePeer::instance()->selectByPrimaryKey($continueMessageId);	
+			$message = PrivateMessagePeer::instance()->selectByPrimaryKey($continueMessageId);	
 			
 			if($message == null || $message->getFromUserId() != $user->getUserId()){
 				throw new ProcessException(_("Error getting orginal message."), "no_reply_message");	
@@ -61,7 +68,7 @@ class PMComposeModule extends AccountBaseModule {
 			
 		}elseif($toUserId !== null){
 
-			$toUser = DB_OzoneUserPeer::instance()->selectByPrimaryKey($toUserId);
+			$toUser = OzoneUserPeer::instance()->selectByPrimaryKey($toUserId);
 			$runData->ajaxResponseAdd("toUserId", $toUser->getUserId());
 			$runData->ajaxResponseAdd("toUserName", $toUser->getNickName());	
 		}

@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \AccountBaseModule;
+use Criteria;
+use DB\PrivateMessagePeer;
+
 class PMDraftsModule extends AccountBaseModule {
 	
 	public function build($runData){
@@ -40,7 +46,7 @@ class PMDraftsModule extends AccountBaseModule {
 		$c->add("flag", 2); // for inbox
 		
 		// also count them all!
-		$co = DB_PrivateMessagePeer::instance()->selectCount($c);
+		$co = PrivateMessagePeer::instance()->selectCount($c);
 		
 		$c->addOrderDescending("message_id");
 		
@@ -54,7 +60,7 @@ class PMDraftsModule extends AccountBaseModule {
 		$runData->contextAdd("totalPages", $totalPages);
 		$runData->contextAdd("currentPage", $pageNo);
 		
-		$messages = DB_PrivateMessagePeer::instance()->select($c);
+		$messages = PrivateMessagePeer::instance()->select($c);
 		
 		$runData->contextAdd("count", $co);
 		$runData->contextAdd("totalPages", $totalPages);

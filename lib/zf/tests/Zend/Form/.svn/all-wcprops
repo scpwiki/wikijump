@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/framework/!svn/ver/12938/standard/trunk/tests/Zend/Form
+END
+ElementTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/12328/standard/trunk/tests/Zend/Form/ElementTest.php
+END
+AllTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Form/AllTests.php
+END
+SubFormTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Form/SubFormTest.php
+END
+DisplayGroupTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Form/DisplayGroupTest.php
+END
+FormTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/framework/!svn/ver/12564/standard/trunk/tests/Zend/Form/FormTest.php
+END

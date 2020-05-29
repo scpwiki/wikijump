@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \CacheableModule;
+use Criteria;
+use DB\PagePeer;
+
 class OrphanedPagesStandaloneModule extends CacheableModule {
 	
 	protected $timeOut = 300;
@@ -44,7 +50,7 @@ class OrphanedPagesStandaloneModule extends CacheableModule {
 		$c = new Criteria();
 		$c->setExplicitQuery($q);
 		
-		$pages = DB_PagePeer::instance()->select($c);
+		$pages = PagePeer::instance()->select($c);
 		
 		$runData->contextAdd("pages", $pages);
 		

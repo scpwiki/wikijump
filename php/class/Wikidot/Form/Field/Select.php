@@ -1,6 +1,13 @@
 <?php
 
-class Wikidot_Form_Field_Select extends Wikidot_Form_Field_Base {
+
+namespace Wikidot\Form\Field;
+
+use Wikidot\Form\Field\Base;
+
+
+
+class Select extends Base {
     public function renderView() {
         return htmlspecialchars($this->field['options'][$this->field['value']]);
     }

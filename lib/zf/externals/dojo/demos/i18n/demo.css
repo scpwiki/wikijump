@@ -1,0 +1,23 @@
+@import "../../dojo/resources/dojo.css";
+@import "../../dijit/themes/tundra/tundra.css";
+@import "../../dijit//themes/tundra/tundra_rtl.css";
+@import "../../dijit/tests/css/dijitTests.css";
+@import "flags.css";
+
+html, body {
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	overflow: hidden;
+}
+td {
+	padding: 10px;
+}
+
+#preLoader {
+	position:absolute; top:0; left:0;
+	width:100%; height:100%; 
+	z-index:999; 
+	background:#fff url('../../dojox/image/resources/images/loading.gif') no-repeat center center;
+	margin:0; padding:0;
+}

@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \SmartyLocalizedModule;
+use Criteria;
+use DB\ModeratorPeer;
+
 class UserInfoModeratorOfModule extends SmartyLocalizedModule {
 	
 	public function build($runData){
@@ -36,7 +42,7 @@ class UserInfoModeratorOfModule extends SmartyLocalizedModule {
 		$c->add("site.deleted", false);
 		$c->addOrderAscending("site.name");
 		
-		$mems = DB_ModeratorPeer::instance()->select($c);
+		$mems = ModeratorPeer::instance()->select($c);
 		if(count($mems)>0){
 			$runData->contextAdd("memberships", $mems);	
 		}

@@ -1,6 +1,12 @@
 <?php
 
-class Wikidot_Form_Field_Base {
+
+namespace Wikidot\Form\Field;
+
+
+
+
+class Base {
     protected $field;
 
     public function __construct($field) {

@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/framework/!svn/ver/12809/standard/trunk/tests/Zend/Json/Server
+END
+ErrorTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Json/Server/ErrorTest.php
+END
+AllTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/12195/standard/trunk/tests/Zend/Json/Server/AllTests.php
+END
+ResponseTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Json/Server/ResponseTest.php
+END
+CacheTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/12809/standard/trunk/tests/Zend/Json/Server/CacheTest.php
+END
+SmdTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Json/Server/SmdTest.php
+END
+RequestTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Json/Server/RequestTest.php
+END

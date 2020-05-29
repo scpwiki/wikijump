@@ -23,6 +23,14 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use WebFlowController;
+use Criteria;
+use DB\SitePeer;
+use DB\MemberPeer;
+use \FileMime;
+
 abstract class WikidotController extends WebFlowController {
 	
 	static protected $HTML_MIME_TYPES = ";^text/html|^application/xhtml+xml|^application/xml|^text/xml;";
@@ -56,7 +64,7 @@ abstract class WikidotController extends WebFlowController {
 				$c = new Criteria();
 				$c->add("unix_name", $siteUnixName);
 				$c->add("site.deleted", false);
-				$site = DB_SitePeer::instance()->selectOne($c);
+				$site = SitePeer::instance()->selectOne($c);
 				if($site) {
 					$memcache->set($mcKey, $site, 0, 3600);
 				}
@@ -73,7 +81,7 @@ abstract class WikidotController extends WebFlowController {
 				$c = new Criteria();
 				$c->add("custom_domain", $siteHost);
 				$c->add("site.deleted", false);
-				$site = DB_SitePeer::instance()->selectOne($c);
+				$site = SitePeer::instance()->selectOne($c);
 				if ($site) {
 					$memcache->set($mcKey, $site, 0, 3600);
 				}	
@@ -169,7 +177,7 @@ abstract class WikidotController extends WebFlowController {
 		$c->add("site_id", $site->getSiteId());
 		$c->add("user_id", $user->getUserId());
 
-		if (DB_MemberPeer::instance()->selectOne($c)) { // user is a member of the wiki
+		if (MemberPeer::instance()->selectOne($c)) { // user is a member of the wiki
 			return true;
 		}
 

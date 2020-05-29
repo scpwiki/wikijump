@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/src/!svn/ver/15393/branches/1.2/dojox/collections/tests
+END
+BinaryTree.js
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/src/!svn/ver/15393/branches/1.2/dojox/collections/tests/BinaryTree.js
+END
+Queue.js
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/src/!svn/ver/15393/branches/1.2/dojox/collections/tests/Queue.js
+END
+Dictionary.js
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/src/!svn/ver/15393/branches/1.2/dojox/collections/tests/Dictionary.js
+END
+Stack.js
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/src/!svn/ver/15393/branches/1.2/dojox/collections/tests/Stack.js
+END
+_base.js
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/src/!svn/ver/15393/branches/1.2/dojox/collections/tests/_base.js
+END
+ArrayList.js
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/src/!svn/ver/15393/branches/1.2/dojox/collections/tests/ArrayList.js
+END
+Set.js
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/src/!svn/ver/15393/branches/1.2/dojox/collections/tests/Set.js
+END
+SortedList.js
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/src/!svn/ver/15393/branches/1.2/dojox/collections/tests/SortedList.js
+END
+collections.js
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/src/!svn/ver/15393/branches/1.2/dojox/collections/tests/collections.js
+END
+runTests.html
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/src/!svn/ver/15393/branches/1.2/dojox/collections/tests/runTests.html
+END

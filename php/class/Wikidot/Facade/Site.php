@@ -1,6 +1,17 @@
 <?php
 
-class Wikidot_Facade_Site extends Wikidot_Facade_Base {
+
+namespace Wikidot\Facade;
+
+use Wikidot\Facade\Base;
+use \WDPermissionManager;
+use Criteria;
+use DB\PagePeer;
+use DB\CategoryPeer;
+
+
+
+class Site extends Base {
 	/**
 	 * Get pages from a site
 	 * 
@@ -24,7 +35,7 @@ class Wikidot_Facade_Site extends Wikidot_Facade_Base {
 		}
 		
 		$ret = array();
-		foreach (DB_PagePeer::instance()->selectByCriteria($c) as $page) {
+		foreach (PagePeer::instance()->selectByCriteria($c) as $page) {
 			$ret[] = $this->repr($page, "meta");
 		}
 		return $ret;
@@ -48,7 +59,7 @@ class Wikidot_Facade_Site extends Wikidot_Facade_Base {
 		$c->add("site_id", $this->site->getSiteId());
 		
 		$ret = array();
-		foreach (DB_CategoryPeer::instance()->selectByCriteria($c) as $category) {
+		foreach (CategoryPeer::instance()->selectByCriteria($c) as $category) {
 			$ret[] = $this->repr($category);
 		}
 		return $ret;

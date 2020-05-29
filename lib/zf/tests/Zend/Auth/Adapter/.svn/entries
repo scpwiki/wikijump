@@ -1,0 +1,69 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Auth/Adapter
+http://framework.zend.com/svn/framework
+
+
+
+2008-11-28T17:53:44.407128Z
+12936
+dmitry
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+Digest
+dir
+
+Http
+dir
+
+Ldap
+dir
+
+AllTests.php
+file
+
+
+
+
+2008-12-06T16:40:28.000000Z
+007b3c0d02d3f28333dc3c69d87e67a6
+2008-02-25T19:35:08.306111Z
+8402
+darby
+has-props
+
+DigestTest.php
+file
+
+
+
+
+2008-12-06T16:40:28.000000Z
+aa84cda4d27e90790590692e10e32523
+2008-02-16T10:58:39.742447Z
+8064
+thomas
+has-props
+
+DbTable
+dir
+
+OpenId
+dir
+

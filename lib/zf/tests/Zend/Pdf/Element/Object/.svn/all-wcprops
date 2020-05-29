@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Pdf/Element/Object
+END
+AllTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Pdf/Element/Object/AllTests.php
+END
+StreamTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Pdf/Element/Object/StreamTest.php
+END

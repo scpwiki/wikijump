@@ -23,6 +23,11 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use DB\OzoneUserPeer;
+
 class LoginModule3 extends SmartyModule {
 	
 	public function build($runData){
@@ -42,7 +47,7 @@ class LoginModule3 extends SmartyModule {
 			
 			$userId = $_COOKIE['welcome'];
 			if($userId && is_numeric($userId) && $userId >0){
-				$user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+				$user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
 			}
 			if($user == null){
 				setcookie('welcome', 'dummy', time() - 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);

@@ -1,0 +1,47 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/demos/Zend/Mail
+http://framework.zend.com/svn/framework
+
+
+
+2008-11-21T22:24:53.140436Z
+12757
+wil
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+maildir
+dir
+
+mbox
+dir
+
+SimpleMailer.php
+file
+
+
+
+
+2008-12-06T16:40:44.000000Z
+84c690412a38157b06fa8ea3155979df
+2008-11-21T22:24:53.140436Z
+12757
+wil
+has-props
+

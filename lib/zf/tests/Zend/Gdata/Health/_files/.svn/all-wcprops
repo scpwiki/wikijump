@@ -1,0 +1,107 @@
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/framework/!svn/ver/13105/standard/trunk/tests/Zend/Gdata/Health/_files
+END
+TestDataHealthProfileEntrySample_condition0.xml
+K 25
+svn:wc:ra_dav:version-url
+V 123
+/svn/framework/!svn/ver/13105/standard/trunk/tests/Zend/Gdata/Health/_files/TestDataHealthProfileEntrySample_condition0.xml
+END
+TestDataHealthProfileEntrySample_condition1.xml
+K 25
+svn:wc:ra_dav:version-url
+V 123
+/svn/framework/!svn/ver/13105/standard/trunk/tests/Zend/Gdata/Health/_files/TestDataHealthProfileEntrySample_condition1.xml
+END
+TestDataHealthProfileEntrySample_just_ccr.xml
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/svn/framework/!svn/ver/13105/standard/trunk/tests/Zend/Gdata/Health/_files/TestDataHealthProfileEntrySample_just_ccr.xml
+END
+TestDataHealthProfileListEntrySample.xml
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/svn/framework/!svn/ver/13105/standard/trunk/tests/Zend/Gdata/Health/_files/TestDataHealthProfileListEntrySample.xml
+END
+TestDataHealthProfileEntrySample_condition_all.xml
+K 25
+svn:wc:ra_dav:version-url
+V 126
+/svn/framework/!svn/ver/13105/standard/trunk/tests/Zend/Gdata/Health/_files/TestDataHealthProfileEntrySample_condition_all.xml
+END
+TestDataHealthProfileEntrySample_allergy0.xml
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/svn/framework/!svn/ver/13105/standard/trunk/tests/Zend/Gdata/Health/_files/TestDataHealthProfileEntrySample_allergy0.xml
+END
+TestDataHealthProfileEntrySample_medications0.xml
+K 25
+svn:wc:ra_dav:version-url
+V 125
+/svn/framework/!svn/ver/13105/standard/trunk/tests/Zend/Gdata/Health/_files/TestDataHealthProfileEntrySample_medications0.xml
+END
+TestDataHealthProfileEntrySample.xml
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/svn/framework/!svn/ver/13105/standard/trunk/tests/Zend/Gdata/Health/_files/TestDataHealthProfileEntrySample.xml
+END
+TestDataHealthProfileEntrySample_allergy1.xml
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/svn/framework/!svn/ver/13105/standard/trunk/tests/Zend/Gdata/Health/_files/TestDataHealthProfileEntrySample_allergy1.xml
+END
+TestDataHealthProfileEntrySample_medications1.xml
+K 25
+svn:wc:ra_dav:version-url
+V 125
+/svn/framework/!svn/ver/13105/standard/trunk/tests/Zend/Gdata/Health/_files/TestDataHealthProfileEntrySample_medications1.xml
+END
+TestDataHealthProfileEntrySample_medications2.xml
+K 25
+svn:wc:ra_dav:version-url
+V 125
+/svn/framework/!svn/ver/13105/standard/trunk/tests/Zend/Gdata/Health/_files/TestDataHealthProfileEntrySample_medications2.xml
+END
+TestDataHealthProfileEntrySample_results0.xml
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/svn/framework/!svn/ver/13105/standard/trunk/tests/Zend/Gdata/Health/_files/TestDataHealthProfileEntrySample_results0.xml
+END
+TestDataHealthProfileEntrySample_medications3.xml
+K 25
+svn:wc:ra_dav:version-url
+V 125
+/svn/framework/!svn/ver/13105/standard/trunk/tests/Zend/Gdata/Health/_files/TestDataHealthProfileEntrySample_medications3.xml
+END
+TestDataHealthProfileFeedSample.xml
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/svn/framework/!svn/ver/13105/standard/trunk/tests/Zend/Gdata/Health/_files/TestDataHealthProfileFeedSample.xml
+END
+ccr_notice_sample.xml
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/framework/!svn/ver/13105/standard/trunk/tests/Zend/Gdata/Health/_files/ccr_notice_sample.xml
+END
+TestDataHealthProfileEntrySample_medications_all.xml
+K 25
+svn:wc:ra_dav:version-url
+V 128
+/svn/framework/!svn/ver/13105/standard/trunk/tests/Zend/Gdata/Health/_files/TestDataHealthProfileEntrySample_medications_all.xml
+END
+TestDataHealthProfileEntrySample_allergy_all.xml
+K 25
+svn:wc:ra_dav:version-url
+V 124
+/svn/framework/!svn/ver/13105/standard/trunk/tests/Zend/Gdata/Health/_files/TestDataHealthProfileEntrySample_allergy_all.xml
+END

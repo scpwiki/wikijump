@@ -1,0 +1,25 @@
+<!-- EN-Revision: 1723 -->
+<sect1 id="zend.mail.adding-recipients">
+    <title>Ajouter des destinataires</title>
+
+    <para>Des destinataires peuvent être ajouter de trois façons : <itemizedlist>
+            <listitem>
+                <para><code>addTo()</code>: Ajoute un destinataire à l'émail grâce à une entête "To"</para>
+            </listitem>
+
+            <listitem>
+                <para><code>addCc()</code>: Ajoute un destinataire à l'émail grâce à une entête "Cc"</para>
+            </listitem>
+
+            <listitem>
+                <para><code>addBcc()</code>: Ajoute un destinataire non-visible dans les entêtes de l'émail</para>
+            </listitem>
+        </itemizedlist></para>
+
+    <note>
+        <title>Paramètres additionnels</title>
+
+        <para><code>addTo()</code> et <code>addCc()</code> acceptent un second paramètre optionnel, qui est utilisé
+        comme un nom de destinataire humainement lisible.</para>
+    </note>
+</sect1>

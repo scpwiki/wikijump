@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/repos/!svn/ver/2/wikidot1/trunk/lib/ozone/files/dbtemplates
+END
+DB_ObjectBaseTemplate.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/repos/!svn/ver/2/wikidot1/trunk/lib/ozone/files/dbtemplates/DB_ObjectBaseTemplate.tpl
+END
+DB_ViewPeerBaseTemplate.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/repos/!svn/ver/2/wikidot1/trunk/lib/ozone/files/dbtemplates/DB_ViewPeerBaseTemplate.tpl
+END
+DB_ObjectPeerTemplate.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/repos/!svn/ver/2/wikidot1/trunk/lib/ozone/files/dbtemplates/DB_ObjectPeerTemplate.tpl
+END
+DB_ViewBaseTemplate.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/repos/!svn/ver/2/wikidot1/trunk/lib/ozone/files/dbtemplates/DB_ViewBaseTemplate.tpl
+END
+DB_ObjectTemplate.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/repos/!svn/ver/2/wikidot1/trunk/lib/ozone/files/dbtemplates/DB_ObjectTemplate.tpl
+END
+DB_ViewPeerTemplate.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/repos/!svn/ver/2/wikidot1/trunk/lib/ozone/files/dbtemplates/DB_ViewPeerTemplate.tpl
+END
+DB_ViewTemplate.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/repos/!svn/ver/2/wikidot1/trunk/lib/ozone/files/dbtemplates/DB_ViewTemplate.tpl
+END
+DB_ObjectPeerBaseTemplate.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/repos/!svn/ver/2/wikidot1/trunk/lib/ozone/files/dbtemplates/DB_ObjectPeerBaseTemplate.tpl
+END

@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/repos/!svn/ver/263/wikidot1/trunk/templates/modules/login
+END
+LoginModule3.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/repos/!svn/ver/108/wikidot1/trunk/templates/modules/login/LoginModule3.tpl
+END
+QuickLoginModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/login/QuickLoginModule.tpl
+END
+FileAuthScriptModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/repos/!svn/ver/221/wikidot1/trunk/templates/modules/login/FileAuthScriptModule.tpl
+END
+CustomDomainScriptModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/repos/!svn/ver/226/wikidot1/trunk/templates/modules/login/CustomDomainScriptModule.tpl
+END
+LoginModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/repos/!svn/ver/263/wikidot1/trunk/templates/modules/login/LoginModule.tpl
+END
+LoginModule2.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/repos/!svn/ver/108/wikidot1/trunk/templates/modules/login/LoginModule2.tpl
+END

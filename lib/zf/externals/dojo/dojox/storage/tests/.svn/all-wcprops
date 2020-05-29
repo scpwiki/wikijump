@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/src/!svn/ver/15444/branches/1.2/dojox/storage/tests
+END
+test_storage_xd.html
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/src/!svn/ver/15393/branches/1.2/dojox/storage/tests/test_storage_xd.html
+END
+test_storage.html
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/src/!svn/ver/15444/branches/1.2/dojox/storage/tests/test_storage.html
+END
+test_storage.js
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/src/!svn/ver/15393/branches/1.2/dojox/storage/tests/test_storage.js
+END

@@ -1,0 +1,130 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/dojox/charting
+http://svn.dojotoolkit.org/src
+
+
+
+2008-11-14T19:52:54.587887Z
+15700
+elazutkin
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+tests
+dir
+
+Chart2D.js
+file
+
+
+
+
+2008-12-06T16:41:14.000000Z
+7a79f18905465dcb7a23943847811b34
+2008-11-13T00:40:58.290570Z
+15666
+elazutkin
+has-props
+
+action2d
+dir
+
+widget
+dir
+
+Chart3D.js
+file
+
+
+
+
+2008-12-06T16:41:14.000000Z
+23472634c5c31cae44a1a6d422e58f8c
+2008-10-01T19:44:40.459247Z
+15375
+BryanForbes
+has-props
+
+plot2d
+dir
+
+Element.js
+file
+
+
+
+
+2008-12-06T16:41:14.000000Z
+3dc6df7dca82ab46f4bcdaee066caf70
+2008-05-03T00:30:16.404185Z
+13558
+elazutkin
+has-props
+
+plot3d
+dir
+
+themes
+dir
+
+Series.js
+file
+
+
+
+
+2008-12-06T16:41:14.000000Z
+554459ed7c9845a985ce6ce4f1aba929
+2007-11-13T03:35:59.814711Z
+11497
+elazutkin
+has-props
+
+scaler
+dir
+
+axis2d
+dir
+
+README
+file
+
+
+
+
+2008-12-06T16:41:14.000000Z
+dd7ced0b9fc609d7e358dc709d7cb220
+2007-10-31T22:10:30.959367Z
+11289
+elazutkin
+has-props
+
+Theme.js
+file
+
+
+
+
+2008-12-06T16:41:14.000000Z
+b911254837478202d22a56c0ae035892
+2008-10-01T14:13:15.468922Z
+15370
+ttrenka
+has-props
+

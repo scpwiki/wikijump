@@ -1,0 +1,89 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/library/Zend/OpenId
+http://framework.zend.com/svn/framework
+
+
+
+2008-12-01T13:25:31.195256Z
+12971
+dmitry
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+Provider.php
+file
+
+
+
+
+2008-12-06T16:40:34.000000Z
+dbfd6acc3cd8f8f403ada8de14c138bf
+2008-11-10T16:29:09.558344Z
+12507
+matthew
+has-props
+
+Consumer.php
+file
+
+
+
+
+2008-12-06T16:40:34.000000Z
+d72786eb57bdfce06c8e814298428370
+2008-12-01T13:25:31.195256Z
+12971
+dmitry
+has-props
+
+Extension.php
+file
+
+
+
+
+2008-12-06T16:40:34.000000Z
+ff7f008df6415f03c83c57acc0bfeb52
+2008-02-16T10:58:39.742447Z
+8064
+thomas
+has-props
+
+Exception.php
+file
+
+
+
+
+2008-12-06T16:40:34.000000Z
+0ae92339a2bf3dcc1306cfcabbe7b0f0
+2008-02-16T10:58:39.742447Z
+8064
+thomas
+has-props
+
+Provider
+dir
+
+Consumer
+dir
+
+Extension
+dir
+

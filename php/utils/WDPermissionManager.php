@@ -1,5 +1,25 @@
 <?php
-class WDPermissionManager {
+class
+
+use \WDPermissionManager as WDPermissionManager;
+use DB\OzoneUserPeer;
+use DB\SitePeer;
+use Criteria;
+use DB\AdminPeer;
+use DB\ModeratorPeer;
+use DB\MemberPeer;
+use \WDPermissionException;
+use Ozone;
+use DB\Page;
+use DB\PagePeer;
+use DB\UserSettingsPeer;
+use DB\ContactPeer;
+use Database;
+use DB\PrivateUserBlockPeer;
+use DB\IpBlockPeer;
+use DB\UserBlockPeer;
+
+ WDPermissionManager {
 	
 	private static $instance;
 	
@@ -116,7 +136,7 @@ class WDPermissionManager {
 		if($user){
 			if((is_string($user) && is_numeric($user)) || is_int($user)){
 				if($user >0){
-					$user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($user);
+					$user = OzoneUserPeer::instance()->selectByPrimaryKey($user);
 				} else {
 					$user = null;
 				}	
@@ -128,7 +148,7 @@ class WDPermissionManager {
 		}
 		
 		if(($site && is_string($site) && is_numeric($site)) || is_int($site)){
-			$site = DB_SitePeer::instance()->selectByPrimaryKey($site);	
+			$site = SitePeer::instance()->selectByPrimaryKey($site);	
 		}
 		 
 		if($site && $site->getDeleted()){
@@ -150,7 +170,7 @@ class WDPermissionManager {
 					$c = new Criteria();
 					$c->add("user_id", $user->getUserId());
 					$c->add("site_id", $site->getSiteId());
-					$rel = DB_AdminPeer::instance()->selectOne($c);
+					$rel = AdminPeer::instance()->selectOne($c);
 					if($rel == null){
 						$message = _("You have no permission to configure the site properties. Only site admins are allowed to do it.");
 					}
@@ -165,7 +185,7 @@ class WDPermissionManager {
 					$c = new Criteria();
 					$c->add("user_id", $user->getUserId());
 					$c->add("site_id", $site->getSiteId());
-					$rel = DB_ModeratorPeer::instance()->selectOne($c);
+					$rel = ModeratorPeer::instance()->selectOne($c);
 					if($rel == null){
 						$message = _("You have no permission to moderate the site properties. Only site moderators are allowed to do it.");
 					}
@@ -185,7 +205,7 @@ class WDPermissionManager {
 				$c = new Criteria();;
 				$c->add("user_id", $user->getUserId());
 				
-				$mc = DB_MemberPeer::instance()->selectCount($c);
+				$mc = MemberPeer::instance()->selectCount($c);
 				
 				// count memberships
 					
@@ -220,7 +240,7 @@ class WDPermissionManager {
 	public function hasPagePermission($action, $user, $category, $page=null, $site=null){
 		if($user){
 			if((is_string($user) && is_numeric($user)) || is_int($user)){
-				$user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($user);	
+				$user = OzoneUserPeer::instance()->selectByPrimaryKey($user);	
 			}
 		}
 		
@@ -245,13 +265,13 @@ class WDPermissionManager {
 		}
 		
 		// check if page not blocked
-		if($page && $page instanceof DB_Page && $page->getBlocked()){
+		if($page && $page instanceof Page && $page->getBlocked()){
 			if($user){
 				// still nothing. check if moderator of "pages".
 				$c = new Criteria();
 				$c->add("site_id", $category->getSiteId());
 				$c->add("user_id", $user->getUserId());
-				$rel = DB_ModeratorPeer::instance()->selectOne($c);
+				$rel = ModeratorPeer::instance()->selectOne($c);
 				if($rel && strpos($rel->getPermissions(), 'p') !== false){
 					return true;
 				}
@@ -260,7 +280,7 @@ class WDPermissionManager {
 				$c = new Criteria();
 				$c->add("site_id", $category->getSiteId());
 				$c->add("user_id", $user->getUserId());
-				$rel = DB_AdminPeer::instance()->selectOne($c);
+				$rel = AdminPeer::instance()->selectOne($c);
 				if($rel){
 					return true;
 				}
@@ -350,7 +370,7 @@ class WDPermissionManager {
 			$c = new Criteria();
 			$c->add("site_id", $category->getSiteId());
 			$c->add("user_id", $user->getUserId());
-			$rel = DB_MemberPeer::instance()->selectOne($c);
+			$rel = MemberPeer::instance()->selectOne($c);
 			if($rel){
 				return true;
 			}
@@ -366,7 +386,7 @@ class WDPermissionManager {
 		$uc = self::$userClasses['owner'];
 		if($page && $this->permissionLookup($ac, $uc, $ps)){
 			if($site && is_string($page)){
-				$page = DB_PagePeer::instance()->selectByName($site->getSiteId(), $page);	
+				$page = PagePeer::instance()->selectByName($site->getSiteId(), $page);	
 			}
 			if($page && $page->getOwnerUserId() && $user->getUserId() == $page->getOwnerUserId()){
 				// check blocked users
@@ -395,7 +415,7 @@ class WDPermissionManager {
 		$c = new Criteria();
 		$c->add("site_id", $category->getSiteId());
 		$c->add("user_id", $user->getUserId());
-		$rel = DB_ModeratorPeer::instance()->selectOne($c);
+		$rel = ModeratorPeer::instance()->selectOne($c);
 		if($rel && strpos($rel->getPermissions(), 'p') !== false){
 			return true;
 		}
@@ -404,7 +424,7 @@ class WDPermissionManager {
 		$c = new Criteria();
 		$c->add("site_id", $category->getSiteId());
 		$c->add("user_id", $user->getUserId());
-		$rel = DB_AdminPeer::instance()->selectOne($c);
+		$rel = AdminPeer::instance()->selectOne($c);
 		if($rel){
 			return true;
 		}
@@ -418,7 +438,7 @@ class WDPermissionManager {
 	public function hasForumPermission($action, $user, $category, $thread=null, $post=null){
 		if($user){
 			if((is_string($user) && is_numeric($user)) || is_int($user)){
-				$user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($user);	
+				$user = OzoneUserPeer::instance()->selectByPrimaryKey($user);	
 			}
 		}
 		
@@ -529,7 +549,7 @@ class WDPermissionManager {
 			$c = new Criteria();
 			$c->add("site_id", $category->getSiteId());
 			$c->add("user_id", $user->getUserId());
-			$rel = DB_MemberPeer::instance()->selectOne($c);
+			$rel = MemberPeer::instance()->selectOne($c);
 			if($rel){
 				return true;
 			}
@@ -574,7 +594,7 @@ class WDPermissionManager {
 		$c = new Criteria();
 		$c->add("site_id", $category->getSiteId());
 		$c->add("user_id", $user->getUserId());
-		$rel = DB_ModeratorPeer::instance()->selectOne($c);
+		$rel = ModeratorPeer::instance()->selectOne($c);
 		if($rel && strpos($rel->getPermissions(), 'f') !== false){
 			return true;
 		}
@@ -583,7 +603,7 @@ class WDPermissionManager {
 		$c = new Criteria();
 		$c->add("site_id", $category->getSiteId());
 		$c->add("user_id", $user->getUserId());
-		$rel = DB_AdminPeer::instance()->selectOne($c);
+		$rel = AdminPeer::instance()->selectOne($c);
 		if($rel){
 			return true;
 		}
@@ -604,7 +624,7 @@ class WDPermissionManager {
 		}
 		
 		// first check if if $user has pm enabled
-		$us = DB_UserSettingsPeer::instance()->selectByPrimaryKey($toUser->getUserId());
+		$us = UserSettingsPeer::instance()->selectByPrimaryKey($toUser->getUserId());
 		$p = $us->getReceivePm();
 		//echo "ad";
 		if($this->isUserSuperior($user, $toUser)){
@@ -630,7 +650,7 @@ class WDPermissionManager {
 			$c = new Criteria();
 			$c->add("user_id", $user->getUserId());
 			$c->add("target_user_id", $toUser->getUserId());
-			$con = DB_ContactPeer::instance()->selectOne($c);
+			$con = ContactPeer::instance()->selectOne($c);
 			if($con){
 				return true;
 			}
@@ -645,7 +665,7 @@ class WDPermissionManager {
 			$c = new Criteria();
 			$c->add("user_id", $toUser->getUserId());
 			$c->add("target_user_id", $user->getUserId());
-			$con = DB_ContactPeer::instance()->selectOne($c);
+			$con = ContactPeer::instance()->selectOne($c);
 			if($con){
 				return true;
 			}
@@ -680,7 +700,7 @@ class WDPermissionManager {
 			$c->add('founder', false);
 			$c->add("site.deleted", false);
 			
-			$ac = DB_AdminPeer::instance()->selectCount($c);
+			$ac = AdminPeer::instance()->selectCount($c);
 			$us = $user->getSettings();
 			if($ac >= $us->getMaxSitesAdmin()){
 				throw new WDPermissionException(sprintf(_("Sorry, you can be a guest administrator of max %d Sites."),$us->getMaxSitesAdmin()));	
@@ -703,7 +723,7 @@ class WDPermissionManager {
 			$c->add('founder', true);
 			$c->add("site.deleted", false);
 			
-			$ac = DB_AdminPeer::instance()->selectCount($c);
+			$ac = AdminPeer::instance()->selectCount($c);
 			$us = $user->getSettings();
 			if($ac >= $us->getMaxSitesMaster()){
 				throw new WDPermissionException(sprintf(_("Sorry, you can be a master administrator of max %d Sites."), $us->getMaxSitesMaster()));	
@@ -722,7 +742,7 @@ class WDPermissionManager {
 		$c->addJoin("site_id", "site.site_id");
 		$c->add('founder', false);
 		$c->add("site.deleted", false);
-		$ac = DB_AdminPeer::instance()->selectCount($c);
+		$ac = AdminPeer::instance()->selectCount($c);
 		
 		return max(array(0, $us->getMaxSitesAdmin() - $ac));
 		
@@ -738,7 +758,7 @@ class WDPermissionManager {
 		$c->addJoin("site_id", "site.site_id");
 		$c->add('founder', true);
 		$c->add("site.deleted", false);
-		$ac = DB_AdminPeer::instance()->selectCount($c);
+		$ac = AdminPeer::instance()->selectCount($c);
 		
 		return max(array(0, $us->getMaxSitesMaster() - $ac));
 		
@@ -762,7 +782,7 @@ class WDPermissionManager {
 		$c->add("site_id", $site->getSiteId());
 		$c->add("user_id", $user->getUserId());
 
-		if (DB_MemberPeer::instance()->selectOne($c)) { // user is a member of the wiki
+		if (MemberPeer::instance()->selectOne($c)) { // user is a member of the wiki
 			return true;
 		}
 
@@ -865,7 +885,7 @@ class WDPermissionManager {
 		$c = new Criteria();
 		$c->add("user_id", $user1->getUserId());
 		$c->add("blocked_user_id", $user2->getUserId());
-		$b = DB_PrivateUserBlockPeer::instance()->selectOne($c);
+		$b = PrivateUserBlockPeer::instance()->selectOne($c);
 		if($b !== null){
 			return true;
 		}else{
@@ -890,7 +910,7 @@ class WDPermissionManager {
 		if($ips[1]) { $q.=	"OR ip <<= '".db_escape_string($ips[1])."'";}
 		$q .= ")";
 		$c->setExplicitQuery($q);	
-		$blocks = DB_IpBlockPeer::instance()->select($c);
+		$blocks = IpBlockPeer::instance()->select($c);
 		return $blocks;
 	}
 	
@@ -899,7 +919,7 @@ class WDPermissionManager {
 		
 		$c->add("site_id", $site->getSiteId());
 		$c->add("user_id", $user->getUserId());
-		$block = DB_UserBlockPeer::instance()->selectOne($c);
+		$block = UserBlockPeer::instance()->selectOne($c);
 		return $block;
 	}
 	

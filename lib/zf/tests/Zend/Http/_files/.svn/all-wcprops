@@ -1,0 +1,95 @@
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Http/_files
+END
+response_lfonly
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Http/_files/response_lfonly
+END
+response_deflate
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Http/_files/response_deflate
+END
+response_500
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Http/_files/response_500
+END
+response_302
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Http/_files/response_302
+END
+response_with_single_cookie
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Http/_files/response_with_single_cookie
+END
+response_404
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Http/_files/response_404
+END
+response_403_nomessage
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Http/_files/response_403_nomessage
+END
+response_gzip
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Http/_files/response_gzip
+END
+response_multiline_header
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Http/_files/response_multiline_header
+END
+response_leadingws
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Http/_files/response_leadingws
+END
+body
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Http/_files/body
+END
+response_chunked
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Http/_files/response_chunked
+END
+response_crlf
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Http/_files/response_crlf
+END
+response_with_cookies
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Http/_files/response_with_cookies
+END
+response_unknown
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Http/_files/response_unknown
+END

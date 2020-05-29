@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Acl
+END
+Exception.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Acl/Exception.php
+END
+Role.php
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Acl/Role.php
+END
+Resource.php
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Acl/Resource.php
+END

@@ -1,0 +1,51 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+
+	<title>Dojo.schools()</title>
+	
+	<link rel="stylesheet" href="demo.css">
+
+	<script type="text/javascript" src="../../dojo/dojo.js" charset="utf-8"></script>
+	<script type="text/javascript" src="src.js" charset="utf-8"></script>
+
+</head>
+<body class="tundra">
+	<div class="classContainer">
+		<div class="classRoomOutline">
+			<div dojoType="demo.Teacher" id="teacher" class="classRoomTeacher"></div>
+			<div class="classRoomBoard">
+				<div layoutAlign="client" class="container" id="card"  dojoType="dojofun.widget.MathFlashCard" numberProblems="20" maxInt="10" timer="5" problemType="addition" style="display:none"></div>			
+			</div>
+			<div class="classRoomResult">
+				<table id="scoreTable" style="display:none"> 
+					<tr><td id="score"colspan="2">Your Score</td></tr>
+					<tr>
+						<td id="remaining" align="left">Questions Remaining: </td>
+						<td id="remainingTd"></td>
+					</tr>
+					<tr>
+						<td id="correct" align="left">Correct Answers:</td>
+						<td id="correctTd"></td>
+					</tr>
+					<tr>
+						<td id="incorrect" align="left">Incorrect Answers:</td>
+						<td id="incorrectTd"></td>
+					</tr>
+					<tr>
+						<td id="tooSlow" align="left">Too Slow:</td>
+						<td id="tooSlowTd"></td>
+					</tr>
+				</table>
+			</div>
+			<div class="classRoomStart" id="start">
+				<div class="classRoomStartContent" onClick="getStarted()" dojoAttachPoint="roomControl">Start</div>
+			</div>
+			<div class="classRoomStart" id="restart" style="display: none">
+				<div class="classRoomStartContent" onClick="restart()" dojoAttachPoint="roomControl" >Restart</div>
+			</div>
+		</div>
+	</div>	
+</body>
+</html>

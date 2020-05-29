@@ -1,6 +1,13 @@
 <?php
 
-class Wikidot_Form_Field_Text extends Wikidot_Form_Field_Base {
+
+namespace Wikidot\Form\Field;
+
+use Wikidot\Form\Field\Base;
+
+
+
+class Text extends Base {
     public function renderView() {
         return $this->hvalue();
     }

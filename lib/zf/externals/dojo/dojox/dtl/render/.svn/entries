@@ -1,0 +1,41 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/dojox/dtl/render
+http://svn.dojotoolkit.org/src
+
+
+
+2008-08-09T20:54:50.665676Z
+14783
+pottedmeat
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+html.js
+file
+
+
+
+
+2008-12-06T16:41:29.000000Z
+d51c7e657dea0a751cdcf482c7997890
+2008-08-09T20:54:50.665676Z
+14783
+pottedmeat
+has-props
+

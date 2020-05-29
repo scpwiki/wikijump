@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/extra/petition/admin
+END
+BrowsePetitionSignaturesModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/extra/petition/admin/BrowsePetitionSignaturesModule.tpl
+END
+PetitionAdminModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/extra/petition/admin/PetitionAdminModule.tpl
+END
+ViewPetitionCampaignModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/extra/petition/admin/ViewPetitionCampaignModule.tpl
+END

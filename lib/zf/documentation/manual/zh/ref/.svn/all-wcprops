@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/framework/!svn/ver/12783/standard/trunk/documentation/manual/zh/ref
+END
+installation.xml
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/11824/standard/trunk/documentation/manual/zh/ref/installation.xml
+END
+coding_standard.xml
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/framework/!svn/ver/9740/standard/trunk/documentation/manual/zh/ref/coding_standard.xml
+END
+requirements.xml
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/12783/standard/trunk/documentation/manual/zh/ref/requirements.xml
+END
+overview.xml
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/11822/standard/trunk/documentation/manual/zh/ref/overview.xml
+END
+copyrights.xml
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/9750/standard/trunk/documentation/manual/zh/ref/copyrights.xml
+END

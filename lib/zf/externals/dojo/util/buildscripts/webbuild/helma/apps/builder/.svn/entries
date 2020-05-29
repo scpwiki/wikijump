@@ -1,0 +1,46 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/util/buildscripts/webbuild/helma/apps/builder
+http://svn.dojotoolkit.org/src
+
+
+
+2008-02-04T01:12:29.756306Z
+12269
+jburke
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+Global
+dir
+
+Root
+dir
+
+app.properties
+file
+
+
+
+
+2008-12-06T16:42:22.000000Z
+0c7d9e34a9fb9bf2eba7cf41b37a593b
+2007-09-27T23:09:57.045939Z
+10641
+jburke
+

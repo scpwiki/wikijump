@@ -1,0 +1,146 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+            "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>The Dojo Toolkit - now with more bling</title>
+	<link rel="stylesheet" href="demo.css">
+</head>
+<body>
+
+	<div id="header">
+		<img id="logoImg" src="images/logo.png" alt="Dojo.moj.oe - Have a dose">
+	</div>
+
+	<div id="container">
+		<div id="box1">
+			<img class="clone boxUnderlay" src="images/shot3.png">
+			<h1 class="handle">wtfis dojo?!</h1>
+			<p><a href="http://dojotoolkit.org/">The Dojo Toolkit</a> is an<br> Open-Source javascript library
+			<br>used for rapid developent of<br> <b>robust</b>, <b>scalable</b>, <b>rich<br>
+			web</b> projects and applications
+			<br><br>
+			... with <b>Drag and Drop</b>,<br> <b>Animations</b>, <b>Ajax</b>, <b>Events</b><br>
+			and other goodies.<br><br>(<a href="http://dojotoolkit.org/about">all built in</a>)
+			</p>
+		</div>
+	
+		<div id="box2">
+			<img class="boxUnderlay" src="images/shot3.png">
+			<h1 class="handle">why dojo?</h1>
+			<p>The <em>reasons to love Dojo</em><br>
+			list gets longer every day:
+			</p>
+			<div id="whyDojoBox"><ul id="whyList">
+					<li>Smaller and faster than ever before.</li>
+					<li>No-conflict namspacing built in</li>
+					<li>Accessibility (a11y) tools</li>
+					<li>Internationalization (i18n) tools</li>
+					<li>the Dijit Widget System!</li>
+					<li>The pre-made, supported Dijits</li>
+					<li>Hundreds of extension points</li>
+					<li>CSS3 selector DOM Parsing</li>
+					<li>Automated build/release/compress cycle</li>
+					<li>(For your own code, too.)</li>
+					<li>Cutting edge JavaScript: DojoX</li>
+					<li>Unified SVG/VML/Canvas/Silverlight API</li>
+					<li>Offline browsing with dojox.offline</li>
+					<li>dojox.cometd!</li>
+					<li>A friendly, helpful community</li>
+					<li>Transparently developed codebase</li>
+					<li>and Completely Free to use</li>
+					<li>With liberal (dual AFL/BSD) licensing</li>
+					<li>No Download required to try!</li>
+					<li>The Possibilities are limitless.</li>
+				</ul>
+			</div>
+			<p>Find out <a href="http://showcase.dojotoolkit.org">who's using dojo</a><br>
+			<br><b>some examples:</b><br>
+			<a href="http://dojotoolkit.org/demos">demos</a> | <a href="http://archive.dojotoolkit.org/nightly/dojotoolkit/dijit/tests/">tests</a><br>
+			</p>
+		
+		</div>
+
+		<div id="box3">
+			<img class="boxUnderlay" src="images/shot3.png" />
+			<h1 class="handle">get dojo.</h1>
+			<p>
+				current version: <b>1.2.0</b><br>
+				released: <b>Oct 2, 2008</b>
+			</p>
+			<p id="downloadButton">
+				<span class="a11ytext">Live Download</span>
+			</p>
+			<p>
+				<a href="http://build.dojotoolkit.org/1.2.0/">X-domain Build Info</a><br>
+				<a href="http://dojotoolkit.org/downloads">Download Page</a><br>
+				<a href="http://download.dojotoolkit.org/">Archives</a>
+			</p>
+		</div>
+
+		<div id="box4">
+			<img class="boxUnderlay" src="images/shot3.png" />
+			<h1 class="handle">resources:</h1>
+			<p>
+				<a href="http://sitepen.com/labs/guides/?guide=DojoQuickStart">Getting Started</a> |
+				<a href="http://dojotoolkit.org/book/dojo-book-0-9-0">Dojo Book</a> |
+				<a href="http://dojotoolkit.org/forum">Forums</a>	
+				<br>
+				<a href="http://dojotoolkit.org/support/faq">FAQ</a> |
+				<a href="http://bugs.dojotoolkit.org">Bug Reports</a> |
+				<a href="http://api.dojotoolkit.org">API Pages</a> 
+				<br><br>
+				<b>need more help?</b><br><br>
+				join: #dojo on irc.freenode.net<br>
+				sign up for the <a href="http://turtle.dojotoolkit.org/mailman/listinfo/dojo-interest">mailing list</a>
+				<br><br>
+				<a href="http://dojotoolkit.org/community">Contribute</a> |	<a href="http://dojotoolkit.org/license">License</a><br><a href="http://dojotoolkit.org/foundation">the Foundation</a>
+
+			</p>
+		</div>
+	</div>
+
+	<div id="footer">
+		<p>
+		Layout idea, implementation idea, and general theme based on the beautiful
+		<a href="http://script.aculo.us">script.aculo.us</a> website <br>
+
+		This "immitation" (the most sincere form of flattery) is done with the permission of the well-humoured <a href="http://mir.aculo.us/">Thomas Fuchs</a>, and is only meant to be a demonstration<br>
+		of the capabilities of <a href="http://dojotoolkit.org">the Dojo Toolkit</a>, using the script.aculo.us site as a working model.
+		<br><br>
+		This page uses a built <code>dojo.js</code> from <a href="http://svn.dojotoolkit.org/src/">svn</a> as of revision [15385].
+		<br><br><br>
+		</p>
+	</div>
+
+	<div id="interact">
+		<p>
+		<label for="gravity">Gravity</label>
+		<input type="checkbox" id="gravity" checked="false" name="gravity">
+		</p>
+	</div>
+
+	<p id="downloadForm">
+		<b>Select a package:</b><br>
+		<input type="radio" name="release" id="release" checked="on"> <label for="release"> Built release</label>
+		<input type="radio" name="release" id="sourceR"> <label for="sourceR"> Source release</label><br>
+		<br>
+		<b>Select a Format:</b><br>
+		<input type="radio" name="ext" value="zip" id="zip" checked="on" /><label for="zip">.zip</label>	
+		<input type="radio" name="ext" value="tgz" id="tgz" /><label for="tgz">.tar.gz</label><br>
+		<br>
+			
+		<!-- downloading build, you can't re-build, and build-utils ships with source release, so skip this: -->
+		<span style="display:none">
+		<input type="checkbox" name="build" id="build" disabled="true" /> <label for="build"> Download build utils, too.</label><br>
+		</span>
+
+		<img src="images/downloadnow.gif" id="submitNode" alt="download now" />
+		<br>
+		<a href="#" id="closeNode">hide</a>
+	</p>
+
+	<script type="text/javascript" src="../../dojo/dojo.js" charset="utf-8"></script>
+	<script type="text/javascript" src="src.js" charset="utf-8"></script>
+
+</body>
+</html>

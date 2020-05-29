@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/src/!svn/ver/15393/branches/1.2/dojox/robot/tests
+END
+module.js
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/src/!svn/ver/15393/branches/1.2/dojox/robot/tests/module.js
+END
+test_recorder.html
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/src/!svn/ver/15393/branches/1.2/dojox/robot/tests/test_recorder.html
+END
+robotml.js
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/src/!svn/ver/15393/branches/1.2/dojox/robot/tests/robotml.js
+END
+runTests.html
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/src/!svn/ver/15393/branches/1.2/dojox/robot/tests/runTests.html
+END

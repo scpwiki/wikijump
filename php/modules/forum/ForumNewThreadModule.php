@@ -23,6 +23,14 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use \ProcessException;
+use Criteria;
+use DB\ForumCategoryPeer;
+use \WDPermissionManager;
+
 class ForumNewThreadModule extends SmartyModule {
 	
 	private $category;
@@ -45,7 +53,7 @@ class ForumNewThreadModule extends SmartyModule {
 		$c->add("category_id", $categoryId);
 		$c->add("site_id", $site->getSiteId());
 		
-		$category = DB_ForumCategoryPeer::instance()->selectOne($c);
+		$category = ForumCategoryPeer::instance()->selectOne($c);
 		
 		if($category == null){
 			throw new ProcessException(_("No forum category has been specified."));	

@@ -23,13 +23,21 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use DB\PagePeer;
+use \ProcessException;
+use \WDPermissionManager;
+use \FileHelper;
+
 class FileUploadModule extends SmartyModule{
 	
 	public function build($runData){
 		$site = $runData->getTemp("site");
 		$pl = $runData->getParameterList();
 		$pageId = $pl->getParameterValue("pageId");	
-		$page = DB_PagePeer::instance()->selectByPrimaryKey($pageId);
+		$page = PagePeer::instance()->selectByPrimaryKey($pageId);
 		if($page == null || $page->getSiteId() != $site->getSiteId()){
 			throw new ProcessException(_("Problem selecting destination page."), "no_page");
 		}

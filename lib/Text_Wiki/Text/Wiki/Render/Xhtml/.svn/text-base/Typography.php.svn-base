@@ -1,0 +1,49 @@
+<?php
+/**
+ *
+ * @category   Text
+ * @package    Text_Wiki
+ * @author     Michal Frackowiak
+ * @license    http://www.gnu.org/copyleft/lesser.html  LGPL License 2.1
+ * @version    $Id$
+ * @link       http://pear.php.net/package/Text_Wiki
+ */
+
+/**
+ * Typography.
+ *
+ * @category   Text
+ * @package    Text_Wiki
+ * @author     Michal Frackowiak
+ * @license    http://www.gnu.org/copyleft/lesser.html  LGPL License 2.1
+ * @version    Release: @package_version@
+ * @link       http://pear.php.net/package/Text_Wiki
+ */
+class Text_Wiki_Render_Xhtml_Typography extends Text_Wiki_Render {
+    
+    public $replacements = array("``" => '&#8220;', "''" => '&#8221;', 
+        ",," => '&#8222;', "`" => '&#8216;', "'" => '&#8217;', 
+        "<<" => '&#171;', ">>" => '&#187;', " " => '&#160;', 
+        "..." => '&#8230;', "---" => '&#8212;', "--" => '&#8212;')
+
+    ;
+    
+    public $conf = array();
+
+    /**
+     *
+     * Renders a token into text matching the requested format.
+     *
+     * @access public
+     *
+     * @param array $options The "options" portion of the token (second
+     * element).
+     *
+     * @return string The text rendered from the token options.
+     *
+     */
+    
+    function token($options) {
+        return ($this->replacements[$options['char']]);
+    }
+}

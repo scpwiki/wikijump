@@ -1,0 +1,2723 @@
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/framework/!svn/ver/10887/standard/trunk/library/Zend/Locale/Data
+END
+ro.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ro.xml
+END
+ga.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ga.xml
+END
+rw.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/rw.xml
+END
+ar_SD.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ar_SD.xml
+END
+ha_Latn_NE.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ha_Latn_NE.xml
+END
+en_SG.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/en_SG.xml
+END
+ar_OM.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ar_OM.xml
+END
+zu.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/zu.xml
+END
+ss_SZ.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ss_SZ.xml
+END
+fil_PH.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/fil_PH.xml
+END
+ka_GE.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ka_GE.xml
+END
+kl.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/kl.xml
+END
+fr_SN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/fr_SN.xml
+END
+es_PR.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/es_PR.xml
+END
+gu.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/gu.xml
+END
+zh_MO.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/zh_MO.xml
+END
+ha_SD.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ha_SD.xml
+END
+sv_SE.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sv_SE.xml
+END
+mt_MT.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/mt_MT.xml
+END
+vi_VN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/vi_VN.xml
+END
+da.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/da.xml
+END
+sr.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sr.xml
+END
+Translation.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Locale/Data/Translation.php
+END
+de.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/de.xml
+END
+sv.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sv.xml
+END
+kaj_NG.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/kaj_NG.xml
+END
+zh_Hant.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/zh_Hant.xml
+END
+en_PK.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/en_PK.xml
+END
+bg_BG.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/bg_BG.xml
+END
+ug_Arab.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ug_Arab.xml
+END
+da_DK.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/da_DK.xml
+END
+ta.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ta.xml
+END
+sw_TZ.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sw_TZ.xml
+END
+ar_LY.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ar_LY.xml
+END
+is_IS.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/is_IS.xml
+END
+te.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/te.xml
+END
+mn_Mong_CN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/mn_Mong_CN.xml
+END
+lo.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/lo.xml
+END
+ti.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ti.xml
+END
+xh.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/xh.xml
+END
+aa.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/aa.xml
+END
+bn_IN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/bn_IN.xml
+END
+el_GR.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/el_GR.xml
+END
+ar_IQ.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ar_IQ.xml
+END
+fur.xml
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/fur.xml
+END
+es_NI.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/es_NI.xml
+END
+am.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/am.xml
+END
+ku_Latn.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ku_Latn.xml
+END
+ar_YE.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ar_YE.xml
+END
+ig.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ig.xml
+END
+el.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/el.xml
+END
+en_UM.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/en_UM.xml
+END
+en_BE.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/en_BE.xml
+END
+et.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/et.xml
+END
+aa_ET.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/aa_ET.xml
+END
+ak_GH.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ak_GH.xml
+END
+mn.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/mn.xml
+END
+wal_ET.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/wal_ET.xml
+END
+is.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/is.xml
+END
+de_AT.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/de_AT.xml
+END
+mr.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/mr.xml
+END
+iw.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/iw.xml
+END
+kpe.xml
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/kpe.xml
+END
+af_ZA.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/af_ZA.xml
+END
+ku_TR.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ku_TR.xml
+END
+uz_Cyrl.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/uz_Cyrl.xml
+END
+yo.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/yo.xml
+END
+es_CO.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/es_CO.xml
+END
+ne_IN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ne_IN.xml
+END
+hy_AM.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/hy_AM.xml
+END
+te_IN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/te_IN.xml
+END
+rw_RW.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/rw_RW.xml
+END
+sr_YU.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sr_YU.xml
+END
+ne.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ne.xml
+END
+ha_Arab_SD.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ha_Arab_SD.xml
+END
+fo.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/fo.xml
+END
+ti_ET.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ti_ET.xml
+END
+en_NZ.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/en_NZ.xml
+END
+tn_ZA.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/tn_ZA.xml
+END
+ha_NG.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ha_NG.xml
+END
+uz_Latn.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/uz_Latn.xml
+END
+zh_Hans_HK.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/zh_Hans_HK.xml
+END
+lt_LT.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/lt_LT.xml
+END
+sr_Latn_YU.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sr_Latn_YU.xml
+END
+en_ZW.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/en_ZW.xml
+END
+ja_JP.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ja_JP.xml
+END
+root.xml
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/root.xml
+END
+ar_SA.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ar_SA.xml
+END
+wo_SN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/wo_SN.xml
+END
+lo_LA.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/lo_LA.xml
+END
+ny.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ny.xml
+END
+zh_Hant_MO.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/zh_Hant_MO.xml
+END
+syr_SY.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/syr_SY.xml
+END
+nso_ZA.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/nso_ZA.xml
+END
+sr_Cyrl_YU.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sr_Cyrl_YU.xml
+END
+ka.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ka.xml
+END
+zh_TW.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/zh_TW.xml
+END
+ne_NP.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ne_NP.xml
+END
+ar_KW.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ar_KW.xml
+END
+wo_Latn.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/wo_Latn.xml
+END
+ve_ZA.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ve_ZA.xml
+END
+cs.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/cs.xml
+END
+ha_GH.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ha_GH.xml
+END
+km.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/km.xml
+END
+gv.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/gv.xml
+END
+gez_ET.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/gez_ET.xml
+END
+ar_SY.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ar_SY.xml
+END
+sk.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sk.xml
+END
+syr.xml
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/syr.xml
+END
+ku.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ku.xml
+END
+ar_LB.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ar_LB.xml
+END
+so.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/so.xml
+END
+az_Latn_AZ.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/az_Latn_AZ.xml
+END
+ky.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ky.xml
+END
+el_POLYTON.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/el_POLYTON.xml
+END
+to_TO.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/to_TO.xml
+END
+ss.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ss.xml
+END
+haw_US.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/haw_US.xml
+END
+ha.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ha.xml
+END
+zu_ZA.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/zu_ZA.xml
+END
+km_KH.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/km_KH.xml
+END
+en_PH.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/en_PH.xml
+END
+es_AR.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/es_AR.xml
+END
+sw.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sw.xml
+END
+en_US_POSIX.xml
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/en_US_POSIX.xml
+END
+he.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/he.xml
+END
+az_Cyrl_AZ.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/az_Cyrl_AZ.xml
+END
+aa_DJ.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/aa_DJ.xml
+END
+ro_MD.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ro_MD.xml
+END
+de_DE.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/de_DE.xml
+END
+hi.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/hi.xml
+END
+nl_NL.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/nl_NL.xml
+END
+kk_Cyrl_KZ.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/kk_Cyrl_KZ.xml
+END
+ky_KG.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ky_KG.xml
+END
+so_ET.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/so_ET.xml
+END
+dv.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/dv.xml
+END
+hu.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/hu.xml
+END
+dz.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/dz.xml
+END
+ar_EG.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ar_EG.xml
+END
+en_IE.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/en_IE.xml
+END
+ar_MA.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ar_MA.xml
+END
+lt.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/lt.xml
+END
+st_ZA.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/st_ZA.xml
+END
+hy.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/hy.xml
+END
+tn.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/tn.xml
+END
+ps.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ps.xml
+END
+ee_TG.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ee_TG.xml
+END
+ig_NG.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ig_NG.xml
+END
+es_UY.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/es_UY.xml
+END
+kok.xml
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/kok.xml
+END
+tr.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/tr.xml
+END
+en_AS.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/en_AS.xml
+END
+en_MH.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/en_MH.xml
+END
+af.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/af.xml
+END
+fr_MC.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/fr_MC.xml
+END
+ee.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ee.xml
+END
+tr_TR.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/tr_TR.xml
+END
+id.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/id.xml
+END
+tt_RU.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/tt_RU.xml
+END
+en_MP.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/en_MP.xml
+END
+sh_CS.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sh_CS.xml
+END
+ha_Arab_NG.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ha_Arab_NG.xml
+END
+en_MT.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/en_MT.xml
+END
+ar.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ar.xml
+END
+mn_Cyrl.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/mn_Cyrl.xml
+END
+uz_AF.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/uz_AF.xml
+END
+mr_IN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/mr_IN.xml
+END
+af_NA.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/af_NA.xml
+END
+az_AZ.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/az_AZ.xml
+END
+bn_BD.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/bn_BD.xml
+END
+sr_ME.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sr_ME.xml
+END
+or_IN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/or_IN.xml
+END
+sid_ET.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sid_ET.xml
+END
+mk.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/mk.xml
+END
+eu.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/eu.xml
+END
+zh_Hans_CN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/zh_Hans_CN.xml
+END
+az.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/az.xml
+END
+mo.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/mo.xml
+END
+ur_IN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ur_IN.xml
+END
+it.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/it.xml
+END
+sr_Cyrl.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sr_Cyrl.xml
+END
+fr_BE.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/fr_BE.xml
+END
+hy_AM_REVISED.xml
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/hy_AM_REVISED.xml
+END
+ms.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ms.xml
+END
+ts_ZA.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ts_ZA.xml
+END
+fa_IR.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/fa_IR.xml
+END
+sr_Latn_ME.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sr_Latn_ME.xml
+END
+en_Shaw.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/en_Shaw.xml
+END
+es_CL.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/es_CL.xml
+END
+am_ET.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/am_ET.xml
+END
+pa_IN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/pa_IN.xml
+END
+be.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/be.xml
+END
+pa_Guru_IN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/pa_Guru_IN.xml
+END
+uz_Arab_AF.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/uz_Arab_AF.xml
+END
+ta_IN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ta_IN.xml
+END
+en_BZ.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/en_BZ.xml
+END
+sr_Cyrl_ME.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sr_Cyrl_ME.xml
+END
+kk_Cyrl.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/kk_Cyrl.xml
+END
+nb.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/nb.xml
+END
+tg_Cyrl_TJ.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/tg_Cyrl_TJ.xml
+END
+so_KE.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/so_KE.xml
+END
+en_VI.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/en_VI.xml
+END
+sr_Latn.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sr_Latn.xml
+END
+pa_Guru.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/pa_Guru.xml
+END
+zh_HK.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/zh_HK.xml
+END
+om_ET.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/om_ET.xml
+END
+zh_Hant_TW.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/zh_Hant_TW.xml
+END
+en_CA.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/en_CA.xml
+END
+th_TH.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/th_TH.xml
+END
+kam.xml
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/kam.xml
+END
+nn.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/nn.xml
+END
+my_MM.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/my_MM.xml
+END
+nr.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/nr.xml
+END
+fr_CH.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/fr_CH.xml
+END
+so_SO.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/so_SO.xml
+END
+ln_CG.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ln_CG.xml
+END
+st_LS.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/st_LS.xml
+END
+gv_GB.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/gv_GB.xml
+END
+se_FI.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/se_FI.xml
+END
+gez.xml
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/gez.xml
+END
+ru.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ru.xml
+END
+pt_PT.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/pt_PT.xml
+END
+sr_RS.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sr_RS.xml
+END
+fur_IT.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/fur_IT.xml
+END
+ny_MW.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ny_MW.xml
+END
+es_DO.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/es_DO.xml
+END
+mn_Mong.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/mn_Mong.xml
+END
+ha_Latn_NG.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ha_Latn_NG.xml
+END
+es_HN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/es_HN.xml
+END
+so_DJ.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/so_DJ.xml
+END
+se_NO.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/se_NO.xml
+END
+sr_Latn_RS.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sr_Latn_RS.xml
+END
+tg_TJ.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/tg_TJ.xml
+END
+ee_GH.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ee_GH.xml
+END
+kn.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/kn.xml
+END
+sh.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sh.xml
+END
+om.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/om.xml
+END
+sh_BA.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sh_BA.xml
+END
+kpe_LR.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/kpe_LR.xml
+END
+ha_Arab.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ha_Arab.xml
+END
+sl.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sl.xml
+END
+pa_Arab_PK.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/pa_Arab_PK.xml
+END
+kfo.xml
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/kfo.xml
+END
+sr_Cyrl_RS.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sr_Cyrl_RS.xml
+END
+ii_CN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ii_CN.xml
+END
+en_HK.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/en_HK.xml
+END
+ha_Latn_GH.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ha_Latn_GH.xml
+END
+wo.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/wo.xml
+END
+pa_Arab.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/pa_Arab.xml
+END
+st.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/st.xml
+END
+om_KE.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/om_KE.xml
+END
+hr_HR.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/hr_HR.xml
+END
+wo_Latn_SN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/wo_Latn_SN.xml
+END
+kcg.xml
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/kcg.xml
+END
+pt_BR.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/pt_BR.xml
+END
+fr_LU.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/fr_LU.xml
+END
+ar_AE.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ar_AE.xml
+END
+hr.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/hr.xml
+END
+en_TT.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/en_TT.xml
+END
+xh_ZA.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/xh_ZA.xml
+END
+tg.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/tg.xml
+END
+es_MX.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/es_MX.xml
+END
+pl.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/pl.xml
+END
+cop.xml
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/cop.xml
+END
+lv_LV.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/lv_LV.xml
+END
+to.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/to.xml
+END
+ar_QA.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ar_QA.xml
+END
+pt.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/pt.xml
+END
+ts.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ts.xml
+END
+kl_GL.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/kl_GL.xml
+END
+en_IN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/en_IN.xml
+END
+ia.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ia.xml
+END
+ak.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ak.xml
+END
+el_CY.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/el_CY.xml
+END
+kn_IN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/kn_IN.xml
+END
+ms_BN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ms_BN.xml
+END
+ii.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ii.xml
+END
+es_VE.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/es_VE.xml
+END
+si_LK.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/si_LK.xml
+END
+zh_CN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/zh_CN.xml
+END
+ku_Latn_TR.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ku_Latn_TR.xml
+END
+en.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/en.xml
+END
+az_Cyrl.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/az_Cyrl.xml
+END
+as.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/as.xml
+END
+ga_IE.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ga_IE.xml
+END
+aa_ER.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/aa_ER.xml
+END
+ml.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ml.xml
+END
+hu_HU.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/hu_HU.xml
+END
+en_US.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/en_US.xml
+END
+sl_SI.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sl_SI.xml
+END
+ar_BH.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ar_BH.xml
+END
+iu.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/iu.xml
+END
+zh_Hant_HK.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/zh_Hant_HK.xml
+END
+characters.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/characters.xml
+END
+he_IL.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/he_IL.xml
+END
+mt.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/mt.xml
+END
+ro_RO.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ro_RO.xml
+END
+cch_NG.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/cch_NG.xml
+END
+plurals.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/plurals.xml
+END
+zh_Hans_SG.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/zh_Hans_SG.xml
+END
+fa.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/fa.xml
+END
+ur.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ur.xml
+END
+az_Latn.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/az_Latn.xml
+END
+en_JM.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/en_JM.xml
+END
+en_BW.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/en_BW.xml
+END
+nb_NO.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/nb_NO.xml
+END
+ug_CN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ug_CN.xml
+END
+en_ZA.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/en_ZA.xml
+END
+fi.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/fi.xml
+END
+de_BE.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/de_BE.xml
+END
+uz.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/uz.xml
+END
+bn.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/bn.xml
+END
+eu_ES.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/eu_ES.xml
+END
+gu_IN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/gu_IN.xml
+END
+es_GT.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/es_GT.xml
+END
+dz_BT.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/dz_BT.xml
+END
+ti_ER.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ti_ER.xml
+END
+ku_Arab.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ku_Arab.xml
+END
+ko_KR.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ko_KR.xml
+END
+kaj.xml
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/kaj.xml
+END
+id_ID.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/id_ID.xml
+END
+kok_IN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/kok_IN.xml
+END
+ha_NE.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ha_NE.xml
+END
+fr_CA.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/fr_CA.xml
+END
+sk_SK.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sk_SK.xml
+END
+ve.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ve.xml
+END
+ru_UA.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ru_UA.xml
+END
+fi_FI.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/fi_FI.xml
+END
+no.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/no.xml
+END
+uz_UZ.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/uz_UZ.xml
+END
+byn_ER.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/byn_ER.xml
+END
+vi.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/vi.xml
+END
+ln_CD.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ln_CD.xml
+END
+sid.xml
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sid.xml
+END
+be_BY.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/be_BY.xml
+END
+et_EE.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/et_EE.xml
+END
+zh.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/zh.xml
+END
+ca.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ca.xml
+END
+wal.xml
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/wal.xml
+END
+es_PA.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/es_PA.xml
+END
+kcg_NG.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/kcg_NG.xml
+END
+gl_ES.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/gl_ES.xml
+END
+mn_CN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/mn_CN.xml
+END
+es_PE.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/es_PE.xml
+END
+en_GU.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/en_GU.xml
+END
+ml_IN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ml_IN.xml
+END
+nso.xml
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/nso.xml
+END
+gl.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/gl.xml
+END
+de_CH.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/de_CH.xml
+END
+sa.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sa.xml
+END
+kk.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/kk.xml
+END
+se.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/se.xml
+END
+it_IT.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/it_IT.xml
+END
+ko.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ko.xml
+END
+sr_CS.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sr_CS.xml
+END
+tig_ER.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/tig_ER.xml
+END
+gez_ER.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/gez_ER.xml
+END
+cy.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/cy.xml
+END
+si.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/si.xml
+END
+es_EC.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/es_EC.xml
+END
+es_PY.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/es_PY.xml
+END
+nl_BE.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/nl_BE.xml
+END
+or.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/or.xml
+END
+ug_Arab_CN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ug_Arab_CN.xml
+END
+kw.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/kw.xml
+END
+cy_GB.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/cy_GB.xml
+END
+sq.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sq.xml
+END
+uz_Arab.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/uz_Arab.xml
+END
+zh_Hans_MO.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/zh_Hans_MO.xml
+END
+sh_YU.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sh_YU.xml
+END
+sr_Latn_CS.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sr_Latn_CS.xml
+END
+ps_AF.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ps_AF.xml
+END
+as_IN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/as_IN.xml
+END
+kfo_CI.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/kfo_CI.xml
+END
+zh_Hans.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/zh_Hans.xml
+END
+ru_RU.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ru_RU.xml
+END
+cch.xml
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/cch.xml
+END
+mn_Cyrl_MN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/mn_Cyrl_MN.xml
+END
+mk_MK.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/mk_MK.xml
+END
+es_ES.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/es_ES.xml
+END
+ar_DZ.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ar_DZ.xml
+END
+pa.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/pa.xml
+END
+sr_Cyrl_CS.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sr_Cyrl_CS.xml
+END
+ar_TN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ar_TN.xml
+END
+tg_Cyrl.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/tg_Cyrl.xml
+END
+uk_UA.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/uk_UA.xml
+END
+bs_BA.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/bs_BA.xml
+END
+telephoneCodeData.xml
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/telephoneCodeData.xml
+END
+ln.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ln.xml
+END
+fil.xml
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/fil.xml
+END
+th.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/th.xml
+END
+de_LI.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/de_LI.xml
+END
+es_US.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/es_US.xml
+END
+haw.xml
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/haw.xml
+END
+tl.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/tl.xml
+END
+ur_PK.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ur_PK.xml
+END
+lv.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/lv.xml
+END
+tig.xml
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/tig.xml
+END
+ms_MY.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ms_MY.xml
+END
+it_CH.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/it_CH.xml
+END
+en_AU.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/en_AU.xml
+END
+es_BO.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/es_BO.xml
+END
+tt.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/tt.xml
+END
+fo_FO.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/fo_FO.xml
+END
+byn.xml
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/byn.xml
+END
+de_LU.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/de_LU.xml
+END
+pa_PK.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/pa_PK.xml
+END
+uz_Latn_UZ.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/uz_Latn_UZ.xml
+END
+fa_AF.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/fa_AF.xml
+END
+eo.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/eo.xml
+END
+supplementalData.xml
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/supplementalData.xml
+END
+mn_MN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/mn_MN.xml
+END
+uz_Cyrl_UZ.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/uz_Cyrl_UZ.xml
+END
+in.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/in.xml
+END
+gaa_GH.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/gaa_GH.xml
+END
+es.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/es.xml
+END
+ca_ES.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ca_ES.xml
+END
+zh_SG.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/zh_SG.xml
+END
+dv_MV.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/dv_MV.xml
+END
+ug.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ug.xml
+END
+yo_NG.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/yo_NG.xml
+END
+ss_ZA.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ss_ZA.xml
+END
+uk.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/uk.xml
+END
+en_NA.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/en_NA.xml
+END
+my.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/my.xml
+END
+hi_IN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/hi_IN.xml
+END
+sr_BA.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sr_BA.xml
+END
+kam_KE.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/kam_KE.xml
+END
+gaa.xml
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/gaa.xml
+END
+bg.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/bg.xml
+END
+kw_GB.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/kw_GB.xml
+END
+sa_IN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sa_IN.xml
+END
+ja.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ja.xml
+END
+ar_JO.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ar_JO.xml
+END
+es_CR.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/es_CR.xml
+END
+fr_FR.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/fr_FR.xml
+END
+sq_AL.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sq_AL.xml
+END
+cs_CZ.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/cs_CZ.xml
+END
+kpe_GN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/kpe_GN.xml
+END
+bs.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/bs.xml
+END
+sr_Latn_BA.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sr_Latn_BA.xml
+END
+ha_Latn.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/ha_Latn.xml
+END
+pl_PL.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/pl_PL.xml
+END
+sv_FI.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sv_FI.xml
+END
+fr.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/fr.xml
+END
+nn_NO.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/nn_NO.xml
+END
+sw_KE.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sw_KE.xml
+END
+kk_KZ.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/kk_KZ.xml
+END
+nl.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/nl.xml
+END
+nr_ZA.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/nr_ZA.xml
+END
+en_GB.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/en_GB.xml
+END
+es_SV.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/es_SV.xml
+END
+sr_Cyrl_BA.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10695/standard/trunk/library/Zend/Locale/Data/sr_Cyrl_BA.xml
+END

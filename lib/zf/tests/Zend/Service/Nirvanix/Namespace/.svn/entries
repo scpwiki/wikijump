@@ -1,0 +1,54 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Service/Nirvanix/Namespace
+http://framework.zend.com/svn/framework
+
+
+
+2008-10-18T14:29:41.078580Z
+12004
+mikaelkael
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+BaseTest.php
+file
+
+
+
+
+2008-12-06T16:40:21.000000Z
+64f15af4580bad59c1dd49abacbaf334
+2008-10-18T14:29:41.078580Z
+12004
+mikaelkael
+has-props
+
+ImfsTest.php
+file
+
+
+
+
+2008-12-06T16:40:21.000000Z
+7b61b50e1859773a98646dedf131674b
+2008-10-18T14:29:41.078580Z
+12004
+mikaelkael
+has-props
+

@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/framework/!svn/ver/13215/standard/trunk/library/Zend/Memory/Container
+END
+Interface.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Memory/Container/Interface.php
+END
+Locked.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/13215/standard/trunk/library/Zend/Memory/Container/Locked.php
+END
+Movable.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/13215/standard/trunk/library/Zend/Memory/Container/Movable.php
+END

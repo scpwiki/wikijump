@@ -1,0 +1,9 @@
+K 10
+svn:ignore
+V 49
+*.class
+test.txt
+test.bat
+.ant-targets-build.xml
+
+END

@@ -1,0 +1,111 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+		"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>ColorPalette Test</title>
+
+	<style type="text/css">
+		@import "../../dojo/resources/dojo.css";
+		@import "css/dijitTests.css";
+		@import "../../dijit/themes/tundra/tundra.css";
+	</style>
+
+	<script type="text/javascript" src="../../dojo/dojo.js"
+		djConfig="isDebug: true, parseOnLoad: true"></script>
+	<script type="text/javascript" src="_testCommon.js"></script>
+
+	<script language="JavaScript" type="text/javascript">
+		dojo.require("dojo.parser");
+		dojo.require("dijit._Widget");
+		dojo.declare("test.Widget", dijit._Widget, {
+			// summary: A widget that confirms it's down destruction after 3 clicks
+			preserve: true,
+			postCreate: function(){
+				this.clicked = 0;
+				var div = dojo.doc.createElement('span');
+				this.fooNode = this.domNode.appendChild(div);
+				this.connect(this.domNode,"onclick","_clicked");
+				dojo.style(this.domNode,"cursor","pointer");
+			},
+			_clicked: function(e){
+				this.fooNode.innerHTML = ++this.clicked + "";
+				if(this.clicked >= 3){
+					if(confirm("destroy now?")){
+						dojo.style(this.domNode,"cursor","default");
+						//this.domNode.innerHTML = "Not a widget anymore, just some DOM";
+						this.destroy(this.preserve);
+					}
+				}
+			}
+			
+		});
+		
+		function dumpRegistry(){
+			dojo.query("#reglist li").forEach(dojo._destroyElement);
+			dijit.registry.forEach(function(w){
+				var li = dojo.doc.createElement('li');
+				li.innerHTML = w.toString();
+				dojo.byId("reglist").appendChild(li);
+			});
+		}
+		
+		function runLoop(stop){
+			var count = dojo.query("span","looptest").length;
+			console.log('spans: ', count);
+			for(var i = 0; i<10; i++){
+				dijit.byId("loopWidget").destroy(true);
+				dojo.parser.parse("looptest");
+			}
+			acount = dojo.query("span","looptest").length;
+			console.log('after: ', acount);
+			if(acount - count !== 10){
+				alert("FAIL!");
+			}	
+		}
+		
+		var theTimer = null;
+		function startTimer(){
+			if(!theTimer){
+				theTimer = setInterval(runLoop,500);
+			}else{
+				clearInterval(theTimer);
+				theTimer = null;
+			}
+		}
+		
+	</script>
+</head>
+<body class="tundra">
+
+	<h1 class="testTitle">dijit._Widget.destroy():</h1>
+
+	<div style="float:right; padding:10px; width:250px; font-size:8pt;">
+		<ul id="reglist"></ul>
+	</div>
+
+	<button onClick="dumpRegistry()">Dump Registry</button>
+
+	<div dojoType="test.Widget">foo</div>
+	<div dojoType="test.Widget">foo</div>
+	<div dojoType="test.Widget">foo</div>
+	<div dojoType="test.Widget">foo</div>
+	<div dojoType="test.Widget">foo</div>
+	<div dojoType="test.Widget">foo</div>
+	<div dojoType="test.Widget">foo</div>
+	<div dojoType="test.Widget">foo</div>
+						
+	<hr>
+	
+	<div dojoType="test.Widget" preserve="false">Won't be preserved</div>
+
+	<div dojoType="test.Widget"><ul><li>some</li><li>embedded</li><li>dom</li></ul></div>
+
+	<button onClick="runLoop()">Create/Destroy Loop</button>
+	<div id="looptest">
+		<div id="loopWidget" dojoType="test.Widget">foo</div>
+	</div>
+
+	<button onClick="startTimer()">Run loop in timeout</button>
+
+</body>
+</html>

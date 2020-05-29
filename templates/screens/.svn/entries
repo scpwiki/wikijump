@@ -1,0 +1,88 @@
+8
+
+dir
+393
+http://svn.wikidot.org/repos/wikidot1/trunk/templates/screens
+http://svn.wikidot.org/repos
+
+
+
+2008-08-25T18:08:14.178440Z
+251
+michal_frackowiak
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+fb797968-1a05-43ef-ab23-0011a79c62e5
+
+files
+dir
+
+extra
+dir
+
+feed
+dir
+
+wiki
+dir
+
+NotificationDialog.tpl
+file
+
+
+
+
+2008-12-06T16:40:15.000000Z
+d07eeb49033021deba9b1f224da21070
+2008-01-30T17:40:54.924226Z
+2
+michal_frackowiak
+
+HelpPop.tpl
+file
+
+
+
+
+2008-12-06T16:40:15.000000Z
+b2e295ebd121ad7e9b1a6fec2bf94914
+2008-01-30T17:40:54.924226Z
+2
+michal_frackowiak
+
+login
+dir
+
+misc
+dir
+
+account
+dir
+
+DefaultError.tpl
+file
+
+
+
+
+2008-12-06T16:40:15.000000Z
+c0b0367cc37f1b9e4d13f29f1f1ce2bb
+2008-01-30T17:40:54.924226Z
+2
+michal_frackowiak
+
+managesite
+dir
+

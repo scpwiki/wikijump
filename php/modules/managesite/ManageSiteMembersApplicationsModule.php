@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \ManageSiteBaseModule;
+use Criteria;
+use DB\MemberApplicationPeer;
+
 class ManageSiteMembersApplicationsModule extends ManageSiteBaseModule {
 	
 	public function build($runData){
@@ -33,7 +39,7 @@ class ManageSiteMembersApplicationsModule extends ManageSiteBaseModule {
 		$c->add("status", "pending");
 		$c->addOrderDescending("application_id");
 		
-		$applications = DB_MemberApplicationPeer::instance()->select($c);
+		$applications = MemberApplicationPeer::instance()->select($c);
 		$runData->contextAdd("applications", $applications);	
 	}
 	

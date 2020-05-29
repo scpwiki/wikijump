@@ -1,0 +1,41 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Translate/Adapter/_files/testmo/de_AT/LC_TEST
+http://framework.zend.com/svn/framework
+
+
+
+2008-08-18T14:50:01.837846Z
+10915
+thomas
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+translation-de_DE.mo
+file
+
+
+
+
+2008-12-06T16:40:27.000000Z
+deeeb83b79a8156bc5f5d364ee36f88c
+2008-08-18T14:50:01.837846Z
+10915
+thomas
+has-props
+

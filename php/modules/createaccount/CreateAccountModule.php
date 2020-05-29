@@ -23,10 +23,15 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use DB\PagePeer;
+
 class CreateAccountModule extends SmartyModule {
 	public function build($runData){
 		$site = $runData->getTemp("site");
-		$page = DB_PagePeer::instance()->selectByName($site->getSiteId(), "system:create-account");
+		$page = PagePeer::instance()->selectByName($site->getSiteId(), "system:create-account");
 		if($page != null){
 			$runData->contextAdd("content", $page->getCompiled()->getText());	
 		}

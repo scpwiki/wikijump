@@ -1,0 +1,54 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Log/Formatter
+http://framework.zend.com/svn/framework
+
+
+
+2008-11-07T10:45:22.021234Z
+12363
+beberlei
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+SimpleTest.php
+file
+
+
+
+
+2008-12-06T16:40:20.000000Z
+7e31e41f9947b6364968fa29642f341e
+2008-08-06T16:01:05.103663Z
+10725
+cadorn
+has-props
+
+XmlTest.php
+file
+
+
+
+
+2008-12-06T16:40:20.000000Z
+50ded55ee407f6d5663c2096f5b77201
+2008-11-07T10:45:22.021234Z
+12363
+beberlei
+has-props
+

@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Service/Audioscrobbler
+END
+AlbumDataTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Service/Audioscrobbler/AlbumDataTest.php
+END
+AllTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Service/Audioscrobbler/AllTests.php
+END
+GroupTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Service/Audioscrobbler/GroupTest.php
+END
+TrackDataTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Service/Audioscrobbler/TrackDataTest.php
+END
+AudioscrobblerTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Service/Audioscrobbler/AudioscrobblerTest.php
+END
+ProfileTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Service/Audioscrobbler/ProfileTest.php
+END
+TagDataTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Service/Audioscrobbler/TagDataTest.php
+END
+ArtistTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Service/Audioscrobbler/ArtistTest.php
+END

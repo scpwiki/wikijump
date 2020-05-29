@@ -1,0 +1,9 @@
+[
+{ key: "continent:AF", type: "continent", name: "Africa", iso: "AF" },
+{ key: "continent:AS", type: "continent", name: "Asia", iso: "AS" },
+{ key: "continent:EU", type: "continent", name: "Europe", iso: "EU" },
+{ key: "continent:NA", type: "continent", name: "North America", iso: "NA" },
+{ key: "continent:SA", type: "continent", name: "South America", iso: "SA" },
+{ key: "continent:OC", type: "continent", name: "Oceania", iso: "OC" },
+{ key: "continent:AN", type: "continent", name: "Antarctica", iso: "AN" }
+]

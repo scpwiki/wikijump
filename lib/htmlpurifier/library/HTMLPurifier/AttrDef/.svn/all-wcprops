@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/AttrDef
+END
+Integer.php
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/AttrDef/Integer.php
+END
+URI.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/AttrDef/URI.php
+END
+Lang.php
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/AttrDef/Lang.php
+END
+Enum.php
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/AttrDef/Enum.php
+END
+Text.php
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/AttrDef/Text.php
+END
+CSS.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/AttrDef/CSS.php
+END

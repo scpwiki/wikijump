@@ -1,0 +1,197 @@
+@import "../../dojo/resources/dojo.css";
+@import "../../dijit/themes/soria/soria.css";
+@import "../../dojox/grid/resources/Grid.css";
+@import "../../dojox/grid/resources/soriaGrid.css";
+
+html, body, #main{	
+	width: 100%;	/* make the body expand to fill the visible window */
+	height: 100%;
+	overflow: hidden;	/* erase window level scrollbars */
+	padding: 0 0 0 0;
+	margin: 0 0 0 0;
+	font: 10pt Arial,Myriad,Tahoma,Verdana,sans-serif;
+}
+
+#banner, #footer {
+background-color: #ededff; 
+color: #333;
+padding:3px; 
+}
+#banner { text-align:right; } 
+
+/* list of messages
+TODO: If i add the rules below as a plain tr/td it seems to mess up accordion, tree, etc. ???
+*/
+#listPane tr:hover, #listPane td:hover, .dijitTreeContent:hover {
+	background-color: #ededed;
+	color: #333;
+	cursor: pointer;
+}
+#listPane tr, #listPane td { cursor: pointer; }
+
+table.demoTable {
+	border-collapse: collapse;	
+}
+
+th {
+	background-color: #4f8ce5; 
+	color: #666; 
+	font-weight:: bold !important;
+	margin:0;
+	padding:3px; 
+	background-image:url('../../dijit/themes/soria/images/titleBar.png');
+	background-position:0px -1px; 
+}
+
+.dijitRtl caption,
+.dijitRtl th {
+	text-align:right;
+}
+
+th .arrowNode { 
+	position:relative; 
+	float:left;
+	top:4px;
+	left:4px; 
+	width:16px;
+	height:16px;
+}
+
+.dijitRtl th .arrowNode{
+	float:right;	
+}
+
+th.arrowUp .arrowNode {
+	margin-right: 5px;
+	margin-top: -4px;
+	margin-bottom: 5px;
+	width: 15px;
+	height:15px;
+	background:transparent url("../../dijit/themes/soria/images/spriteRoundedIconsSmall.png") -45px top no-repeat;
+}
+
+th.arrowDown .arrowNode {
+	margin-right: 5px;
+	margin-top: -4px;
+	margin-bottom: 5px;
+	width: 15px;
+	height:15px;
+	background:transparent url("../../dijit/themes/soria/images/spriteRoundedIconsSmall.png") -15px top no-repeat;
+}
+
+.demoTable td { padding:3px; } 
+.demoTable {
+	border-spacing:0; 
+	padding:0; margin:0; 
+	width:98%;
+	
+}
+.oddRow {
+	background-color: #f2f5f9;
+}
+
+#message {
+	padding: 8px;
+}
+
+/* Stuff for new messages */
+
+.subject {
+	background: gray;
+	width: 100%;
+	padding-top: 5px;
+	padding-bottom: 10px;
+}
+
+.message {
+	border: black 2px;
+}
+.messageHeader {
+	font:12pt Arial,sans-serif;
+	font-weight:bold;
+	color:#333; 
+}
+body .dojoSplitPane {
+	background: #ededff;
+	overflow: auto;
+}
+
+/* Icons */
+
+.mailIconCancel,
+.mailIconOptions,
+.mailIconFolderDocuments,
+.mailIconFolderInbox,
+.mailIconFolderSent,
+.mailIconGetMail,
+.mailIconNewMessage,
+.mailIconMailbox,
+.mailIconOk,
+.mailIconTrashcanFull {
+	background-image: url('icons.png'); /* mail icons sprite image */
+	background-repeat: no-repeat; 
+	width: 16px;
+	height: 16px;
+	text-align: center;
+	padding-right:4px; 
+}
+
+.dj_ie6 .mailIconCancel,
+.dj_ie6 .mailIconOptions,
+.dj_ie6 .mailIconFolderDocuments,
+.dj_ie6 .mailIconFolderInbox,
+.dj_ie6 .mailIconFolderSent,
+.dj_ie6 .mailIconGetMail,
+.dj_ie6 .mailIconNewMessage,
+.dj_ie6 .mailIconMailbox,
+.dj_ie6 .mailIconOk,
+.dj_ie6 .mailIconTrashcanFull {
+	background-image: url('icons.gif');
+}
+
+
+.mailIconCancel { background-position: 0px; }
+.mailIconOptions { background-position: -22px; }
+.mailIconFolderDocuments { background-position: -44px; }
+.mailIconFolderInbox { background-position: -66px; }
+.mailIconFolderSent { background-position: -88px; }
+.mailIconGetMail { background-position: -110px; }
+.mailIconNewMessage { background-position: -132px; }
+.mailIconMailbox { background-position: -154px; }
+.mailIconOk { background-position: -176px; }
+.mailIconTrashcanFull { background-position: -198px; }
+
+/* page inline styles */
+
+#inbox .dijitSplitterH { height: 5px }
+#inbox .dijitSplitterV { width: 5px }
+
+#preLoader {
+	width:100%; height:100%; margin:0; padding:0;
+	position:absolute; top:0; left:0;
+	background:#fff url('../../dojox/image/resources/images/loading.gif') no-repeat center center;
+	z-index:999;
+}
+#preLoader p {
+	color:#ededed;
+	font:72pt Arial,san-serif;
+	font-weight:bold;
+	
+}
+
+/* buttons on Contact tab for filtering list of contacts to a given letter */
+.contactIndex, .contactIndexAll {
+	margin: 0.5em;
+	color: blue;
+	font-style: italic;
+	vertical-align: middle;
+	cursor: pointer;
+}
+.contactIndexAll {
+	/* for the word ALL that appears before and after the letters A-Z */
+	color: purple;
+}
+.contactIndexSelected {
+	/* the most recently selected letter gets this class too */
+	color: red;
+}

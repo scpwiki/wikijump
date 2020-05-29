@@ -1,0 +1,102 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/dojox/encoding/tests
+http://svn.dojotoolkit.org/src
+
+
+
+2008-10-01T19:44:40.459247Z
+15375
+BryanForbes
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+crypto
+dir
+
+ascii85.js
+file
+
+
+
+
+2008-12-06T16:41:14.000000Z
+85d655f26b841c4de82e91df4488896d
+2007-10-31T08:16:14.191195Z
+11263
+alex
+has-props
+
+compression
+dir
+
+encoding.js
+file
+
+
+
+
+2008-12-06T16:41:14.000000Z
+02949a468cbbc0d22cc1ad4b44a619de
+2007-12-10T20:33:28.012777Z
+11776
+ttrenka
+has-props
+
+digests
+dir
+
+easy64.js
+file
+
+
+
+
+2008-12-06T16:41:14.000000Z
+fefd4b8cca163aba6a88030de8dc297e
+2007-10-31T08:16:14.191195Z
+11263
+alex
+has-props
+
+runTests.html
+file
+
+
+
+
+2008-12-06T16:41:14.000000Z
+d21c402ed14fcc80f4aa530c53c6ef68
+2008-10-01T19:44:40.459247Z
+15375
+BryanForbes
+has-props
+
+bits.js
+file
+
+
+
+
+2008-12-06T16:41:14.000000Z
+03e9510a48c40bc8f561f86b7f4307a9
+2007-10-31T08:16:14.191195Z
+11263
+alex
+has-props
+

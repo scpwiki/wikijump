@@ -23,6 +23,13 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \ManageSiteBaseModule;
+use Criteria;
+use DB\ThemePeer;
+use \ProcessException;
+
 class ManageSiteEditCustomThemeModule extends ManageSiteBaseModule {
 	
 	public function build($runData){
@@ -40,12 +47,12 @@ class ManageSiteEditCustomThemeModule extends ManageSiteBaseModule {
 	
 		$c->addOrderAscending("sort_index");
 		$c->addOrderAscending("name");
-		$themes = DB_ThemePeer::instance()->select($c);
+		$themes = ThemePeer::instance()->select($c);
 		$runData->contextAdd("exthemes", $themes);
 		
 		$themeId = $pl->getParameterValue("themeId");
 		if($themeId && is_numeric($themeId)){
-			$theme = DB_ThemePeer::instance()->selectByPrimaryKey($themeId);
+			$theme = ThemePeer::instance()->selectByPrimaryKey($themeId);
 			if($theme== null || $theme->getSiteId() !== $site->getSiteId()){
 				throw new ProcessException(_("Error selecting theme."), "wrong_theme");	
 			}

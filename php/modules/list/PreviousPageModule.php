@@ -23,6 +23,10 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \NextPageModule;
+
 require_once(WIKIDOT_ROOT . '/php/modules/list/NextPageModule.php');
 
 class PreviousPageModule extends NextPageModule {

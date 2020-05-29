@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use DB\PageRevisionPeer;
+use Wikidot\Util\Diff;
+
 class PageEditDiffModule extends SmartyModule {
 	
 	public function build($runData){
@@ -31,7 +37,7 @@ class PageEditDiffModule extends SmartyModule {
 		$mode = $pl->getParameterValue("mode");
 		$revisionId = $pl->getParameterValue("revision_id");
 		
-		$revision = DB_PageRevisionPeer::instance()->selectByPrimaryKey($revisionId);
+		$revision = PageRevisionPeer::instance()->selectByPrimaryKey($revisionId);
 		$fromPageSource = $revision->getSourceText();
 		
 		if($mode == "section"){
@@ -48,7 +54,7 @@ class PageEditDiffModule extends SmartyModule {
 		$t1 = $fromPageSource;
 		$t2 = $toPageSource;
 
-		$inlineDiff = Wikidot_Util_Diff::generateInlineStringDiff($t1, $t2);
+		$inlineDiff = Diff::generateInlineStringDiff($t1, $t2);
 		$runData->contextAdd("diff", $inlineDiff	);
 
 	}

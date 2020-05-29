@@ -23,6 +23,13 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyAction;
+use \WDPermissionManager;
+use DB\OzoneUserPeer;
+use \WDStringUtils;
+
 class ManageSuperUserAction extends SmartyAction {
 	
 	public function isAllowed($runData){
@@ -44,7 +51,7 @@ class ManageSuperUserAction extends SmartyAction {
 		$nick_name = $pl->getParameterValue("nick_name");
 		$password = $pl->getParameterValue("password1");
 		
-		$u = DB_OzoneUserPeer::instance()->selectByPrimaryKey(1);
+		$u = OzoneUserPeer::instance()->selectByPrimaryKey(1);
 		$u->setName($nick_name);
 		$u->setEmail($nick_name);
 		$u->setNickName($nick_name);

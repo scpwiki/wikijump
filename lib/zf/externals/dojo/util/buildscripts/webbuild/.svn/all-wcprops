@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/webbuild
+END
+builder_ui.html
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/webbuild/builder_ui.html
+END
+webbuild.sh
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/webbuild/webbuild.sh
+END
+makeWebBuildModuleList.js
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/webbuild/makeWebBuildModuleList.js
+END
+webbuild.js
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/webbuild/webbuild.js
+END
+dojo.js.html
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/webbuild/dojo.js.html
+END
+index.html
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/webbuild/index.html
+END
+topIndex.html
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/webbuild/topIndex.html
+END

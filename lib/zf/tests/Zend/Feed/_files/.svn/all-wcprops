@@ -1,0 +1,155 @@
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Feed/_files
+END
+RssTestPlanetPHP.xml
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Feed/_files/RssTestPlanetPHP.xml
+END
+RssTestHarvardLaw.xml
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Feed/_files/RssTestHarvardLaw.xml
+END
+AtomTestSample1.xml
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Feed/_files/AtomTestSample1.xml
+END
+TestAtomFeed.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Feed/_files/TestAtomFeed.xml
+END
+AtomTestSample2.xml
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Feed/_files/AtomTestSample2.xml
+END
+RssTest091Sample1.xml
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Feed/_files/RssTest091Sample1.xml
+END
+AtomTestSample3.xml
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Feed/_files/AtomTestSample3.xml
+END
+RssTest092Sample1.xml
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Feed/_files/RssTest092Sample1.xml
+END
+AtomTestSample4.xml
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Feed/_files/AtomTestSample4.xml
+END
+AtomPublishingTest-created-entry.xml
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Feed/_files/AtomPublishingTest-created-entry.xml
+END
+TestFeedEntryRssContentEncoded.xml
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Feed/_files/TestFeedEntryRssContentEncoded.xml
+END
+AtomTestGoogle.xml
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Feed/_files/AtomTestGoogle.xml
+END
+AtomTestOReilly.xml
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Feed/_files/AtomTestOReilly.xml
+END
+AtomPublishingTest-expected-update.xml
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Feed/_files/AtomPublishingTest-expected-update.xml
+END
+TestAtomFeedNamespaced.xml
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Feed/_files/TestAtomFeedNamespaced.xml
+END
+AtomPublishingTest-before-update.xml
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Feed/_files/AtomPublishingTest-before-update.xml
+END
+RssTestCNN.xml
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Feed/_files/RssTestCNN.xml
+END
+AtomPublishingTest-updated-entry.xml
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Feed/_files/AtomPublishingTest-updated-entry.xml
+END
+TestAtomFeedEntryOnly.xml
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Feed/_files/TestAtomFeedEntryOnly.xml
+END
+RssTestSlashdot.xml
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Feed/_files/RssTestSlashdot.xml
+END
+RssTest100Sample1.xml
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Feed/_files/RssTest100Sample1.xml
+END
+RssTest100Sample2.xml
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Feed/_files/RssTest100Sample2.xml
+END
+AtomTestPlanetPHP.xml
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Feed/_files/AtomTestPlanetPHP.xml
+END
+RssTest200Sample1.xml
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Feed/_files/RssTest200Sample1.xml
+END
+AtomTestMozillazine.xml
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Feed/_files/AtomTestMozillazine.xml
+END

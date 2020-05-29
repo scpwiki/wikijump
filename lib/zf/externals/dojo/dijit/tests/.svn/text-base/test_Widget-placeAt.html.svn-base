@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+
+	<title>_Widget.placeAt tests</title>
+	
+	<!-- test decoration styles -->
+	<style type="text/css">
+		@import "../../dojo/resources/dojo.css";
+		@import "../../dijit/tests/css/dijitTests.css";
+	</style>
+	
+	<!-- required: a default dijit theme: -->
+	<link id="themeStyles" rel="stylesheet" href="../../dijit/themes/tundra/tundra.css">
+	
+	<!-- required: load the dojo base -->
+	<script type="text/javascript" src="../../dojo/dojo.js" djConfig="isDebug:true, parseOnLoad: true" ></script>
+	<!-- for theme-switching, only for dijit -->
+	<script type="text/javascript" src="../../dijit/tests/_testCommon.js"></script>
+	
+	<script type="text/javascript">
+		// load componenets need for this test
+		dojo.require("dijit.form.Button");
+		dojo.require("dijit.layout.TabContainer");
+		dojo.require("dijit.layout.ContentPane");
+		dojo.require("dijit.layout.BorderContainer");
+		// run all the tests onload
+		dojo.addOnLoad(function(){
+
+			// create a tabcontainer and two panes
+			var tc = new dijit.layout.TabContainer({ 
+				style: "height:200px; width:200px"
+			}, "tabContainerThinger").placeAt("container");	
+		
+			// add the child to the tabcontainer now:
+			var pane1 = new dijit.layout.ContentPane({ title:"empty" }).placeAt(tc);
+			// add this child (created second) as the first tab:
+			var pane2 = new dijit.layout.ContentPane({ title:"first" }).placeAt(tc, 0);
+
+			tc.startup();
+			pane2.setContent("button should appear BEFORE this text");
+			tc.selectChild(pane2);
+		
+			// create a button, and add it to pane2 created obove
+			var button = new dijit.form.Button({
+				label:"alert",
+				onClick: function(){
+					alert('woot');
+				}
+			}).placeAt(pane2.containerNode, "first");
+		
+			// and a button, this time we'll place it before the tabcontainer's dom
+			var otherButton = new dijit.form.Button({
+				label:"destroy tabContainer",
+				onClick:function(){
+					tc.destroyRecursive();
+				}
+			}).placeAt(tc.domNode, "before");
+		
+		
+		});
+	</script>
+</head>
+<body class="tundra">
+	<h1 class="testTitle">_Widget.placeAt tests</h1>
+	
+	<div id="container">
+		
+	</div>
+	
+	<h2>Node2</h2>
+	<p>This is where the tab starts. It should be above us in the id="container" div by now</p>
+	<div id="otherContainer">
+		<div id="tabContainerThinger"></div>
+	</div>
+
+	<h2>BorderContainer sample</h2>
+	<div id="bc1" dojoType="dijit.layout.BorderContainer" style="width:600px; height:400px">
+		<div dojoType="dijit.layout.ContentPane" region="center">
+			<button dojoType="dijit.form.Button">
+				Add Stuff
+				<script type="dojo/method" event="onClick">
+					this.attr("disabled", true);
+					var bc = dijit.byId("bc1");
+					
+					// add a left pane and add content
+					new dijit.layout.ContentPane({
+						region:"left",
+						style:"width:100px"
+					}).placeAt(bc).setContent("<p>wowzers</p>");
+					
+					// add a top pane, and add content
+					new dijit.layout.ContentPane({
+						region:"top",
+						style:"height:100px"
+					}).placeAt(bc).setContent("<div>some HTML text</div>");
+				</script>
+			</button>
+		</div>
+	</div>
+
+</body>
+</html>

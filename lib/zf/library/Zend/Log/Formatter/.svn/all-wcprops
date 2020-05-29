@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/framework/!svn/ver/13208/standard/trunk/library/Zend/Log/Formatter
+END
+Simple.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/13208/standard/trunk/library/Zend/Log/Formatter/Simple.php
+END
+Interface.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Log/Formatter/Interface.php
+END
+Xml.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/12363/standard/trunk/library/Zend/Log/Formatter/Xml.php
+END

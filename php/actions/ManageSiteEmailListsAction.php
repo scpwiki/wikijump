@@ -23,6 +23,19 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyAction;
+use \WDPermissionManager;
+use \ProcessException;
+use Database;
+use DB_EmailList;
+use Criteria;
+use DB_EmailListPeer;
+use Excepion;
+use ProcessExcepion;
+use DB_EmailListSubscriberPeer;
+
 class ManageSiteEmailListsAction extends SmartyAction {
 	
 	public function isAllowed($runData){

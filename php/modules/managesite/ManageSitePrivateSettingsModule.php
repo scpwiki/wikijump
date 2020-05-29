@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \ManageSiteBaseModule;
+use Criteria;
+use DB\OzoneUserPeer;
+
 class ManageSitePrivateSettingsModule extends ManageSiteBaseModule {
 	
 	protected $processPage = true;
@@ -40,7 +46,7 @@ class ManageSitePrivateSettingsModule extends ManageSiteBaseModule {
 				"AND ozone_user.user_id = site_viewer.user_id ORDER BY ozone_user.nick_name";
 		$c->setExplicitQuery($q);
 		
-		$viewers = DB_OzoneUserPeer::instance()->select($c);
+		$viewers = OzoneUserPeer::instance()->select($c);
 		
 		$runData->contextAdd("viewers", $viewers);
 		$runData->contextAdd("settings", $site->getSettings());

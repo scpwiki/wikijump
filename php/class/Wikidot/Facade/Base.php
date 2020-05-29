@@ -1,6 +1,25 @@
 <?php
 
-abstract class Wikidot_Facade_Base {
+
+namespace Wikidot\Facade;
+
+use Wikidot\Facade\Exception\WrongArguments;
+use DB\Page;
+use DB\Category;
+use DB\Site;
+use DB\File;
+use Wikidot\Facade\Exception\WrongReturnValue;
+use DB\OzoneUserPeer;
+use Criteria;
+use \WDStringUtils;
+use DB\OzoneUser;
+use DB\SitePeer;
+use DB\CategoryPeer;
+use DB\PagePeer;
+
+
+
+abstract class Base {
 	
 	/**
 	 * 
@@ -111,7 +130,7 @@ abstract class Wikidot_Facade_Base {
 	 */
 	protected function parseArgs($args, $requiredArgs = array()) {
 		if (! is_array($args)) {
-			throw new Wikidot_Facade_Exception_WrongArguments("Argument is not an array");
+			throw new WrongArguments("Argument is not an array");
 		}
 		
 		// simple types
@@ -149,7 +168,7 @@ abstract class Wikidot_Facade_Base {
 					$this->tags = $this->_parseTags($value, 64, 500);
 					break;
 				default:
-					throw new Wikidot_Facade_Exception_WrongArguments("Invalid argument array key: $key");
+					throw new WrongArguments("Invalid argument array key: $key");
 					break;
 			}
 		}
@@ -173,7 +192,7 @@ abstract class Wikidot_Facade_Base {
 		
 		foreach ($requiredArgs as $key) {
 			if (! $this->$key) {
-				throw new Wikidot_Facade_Exception_WrongArguments("Required argument array key not passed: $key");
+				throw new WrongArguments("Required argument array key not passed: $key");
 			}
 		}
 	}
@@ -189,27 +208,27 @@ abstract class Wikidot_Facade_Base {
 		}
 		
 		// page
-		if ($object instanceof DB_Page) {
+		if ($object instanceof Page) {
 			return $this->_reprPage($object, $hint);
 		}
 		
 		// category
-		if ($object instanceof DB_Category) {
+		if ($object instanceof Category) {
 			return $this->_reprCategory($object);
 		}
 		
 		// site
-		if ($object instanceof DB_Site) {
+		if ($object instanceof Site) {
 			return $this->_reprSite($object);
 		}
 		
 		// file
-		if ($object instanceof DB_File) {
+		if ($object instanceof File) {
 			return $this->_reprFile($object);
 		}
 		
 		// the result is of none supported types
-		throw new Wikidot_Facade_Exception_WrongReturnValue("Invalid type of returned value");
+		throw new WrongReturnValue("Invalid type of returned value");
 	}
 	
 	protected function _parseString($value, $key = "", $max_length = null, $trim = true) {
@@ -223,12 +242,12 @@ abstract class Wikidot_Facade_Base {
 			}
 			
 			if ($max_length && strlen8($value) > $max_length) {
-				throw new Wikidot_Facade_Exception_WrongArguments("Argument $key is too long (> $max_length)");
+				throw new WrongArguments("Argument $key is too long (> $max_length)");
 			} 
 			
 			return $value;
 		}
-		throw new Wikidot_Facade_Exception_WrongArguments("Argument $key must be a string");
+		throw new WrongArguments("Argument $key must be a string");
 	}
 	
 	protected function _parseTags($tags, $max_tag_length = null, $max_total_length = null) {
@@ -236,7 +255,7 @@ abstract class Wikidot_Facade_Base {
 			$tags = preg_split("/[ ,]+/", trim($tags));
 		}
 		if (! is_array($tags)) {
-			throw new Wikidot_Facade_Exception_WrongArguments("Invalid tags argument (it must be array or string)");
+			throw new WrongArguments("Invalid tags argument (it must be array or string)");
 		}
 		$tags = array_unique($tags);
 		$total_length = -1;
@@ -247,53 +266,53 @@ abstract class Wikidot_Facade_Base {
 			$tags_new[] = strtolower($tag);
 		}
 		if ($total_length > $max_total_length) {
-			throw new Wikidot_Facade_Exception_WrongArguments("Tags are too long (> $max_total_length)");
+			throw new WrongArguments("Tags are too long (> $max_total_length)");
 		}
 		return $tags_new;
 	}
 	
 	protected function _parseUser($user) {
 		if (is_int($user)) { // int = ID
-			$user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($user);
+			$user = OzoneUserPeer::instance()->selectByPrimaryKey($user);
 		}
 		
 		if (is_string($user)) {
 			$c = new Criteria();
 			$unix_name = WDStringUtils::toUnixName($user);
 			$c->add('unix_name', $unix_name);
-			$user = DB_OzoneUserPeer::instance()->selectOne($c);
+			$user = OzoneUserPeer::instance()->selectOne($c);
 		}
 		
-		if ($user instanceof DB_OzoneUser) {
+		if ($user instanceof OzoneUser) {
 			return $user;
 		}
-		throw new Wikidot_Facade_Exception_WrongArguments("User does not exist");
+		throw new WrongArguments("User does not exist");
 	}
 	
 	protected function _parseSite($site) {
 		if (is_int($site)) { // int = ID
 			
-			$site = DB_SitePeer::instance()->selectByPrimaryKey($site);
+			$site = SitePeer::instance()->selectByPrimaryKey($site);
 			
 		} elseif (is_string($site)) { // string = name
 			
 			$c = new Criteria();
 			$c->add("unix_name", WDStringUtils::toUnixName($site));
-			$site = DB_SitePeer::instance()->selectOne($c);
+			$site = SitePeer::instance()->selectOne($c);
 			
 		}
 		
-		if ($site instanceof DB_Site) {
+		if ($site instanceof Site) {
 			return $site;
 		}
 		
-		throw new Wikidot_Facade_Exception_WrongArguments("Site does not exist");
+		throw new WrongArguments("Site does not exist");
 	}
 	
 	protected function _parseCategory($site, $category) {
 		if (is_int($category)) { // int = ID
 			
-			$category = DB_SitePeer::instance()->selectByPrimaryKey($category);
+			$category = SitePeer::instance()->selectByPrimaryKey($category);
 			
 		} elseif (is_string($category)) {
 			
@@ -301,20 +320,20 @@ abstract class Wikidot_Facade_Base {
 				$c = new Criteria();
 				$c->add("name", WDStringUtils::toUnixName($category));
 				$c->add("site_id", $site->getSiteId());
-				$category = DB_CategoryPeer::instance()->selectOne($c);
+				$category = CategoryPeer::instance()->selectOne($c);
 			}
 		}
 		
-		if ($category instanceof DB_Category) {
+		if ($category instanceof Category) {
 			return $category;
 		}
-		throw new Wikidot_Facade_Exception_WrongArguments("Category does not exist");
+		throw new WrongArguments("Category does not exist");
 	}
 	
 	protected function _parsePage($site, $page) {
 		if (is_int($page)) { // int = ID
 			
-			$page = DB_PagePeer::instance()->selectByPrimaryKey($page);
+			$page = PagePeer::instance()->selectByPrimaryKey($page);
 			
 		} elseif (is_string($page)) {
 			
@@ -325,14 +344,14 @@ abstract class Wikidot_Facade_Base {
 				$c = new Criteria();
 				$c->add("unix_name", WDStringUtils::toUnixName($page));
 				$c->add("site_id", $site->getSiteId());
-				$page = DB_PagePeer::instance()->selectOne($c);
+				$page = PagePeer::instance()->selectOne($c);
 			}
 		}
 		
-		if ($page instanceof DB_Page) {
+		if ($page instanceof Page) {
 			return $page;
 		}
-		throw new Wikidot_Facade_Exception_WrongArguments("Page does not exist");
+		throw new WrongArguments("Page does not exist");
 	}
 	
 	/**
@@ -403,14 +422,14 @@ abstract class Wikidot_Facade_Base {
 			
 			$parent_page_name = null;
 			if ($parent_page_id = $page->getParentPageId()) {
-				if ($parent_page = DB_PagePeer::instance()->selectByPrimaryKey($parent_page_id)) {
+				if ($parent_page = PagePeer::instance()->selectByPrimaryKey($parent_page_id)) {
 					$parent_page_name = $parent_page->getUnixName();
 				}
 			}
 			
 			$user_created_name = null;
 			if ($user_created_id = $page->getOwnerUserId()) {
-				if ($user_created = DB_OzoneUserPeer::instance()->selectByPrimaryKey($user_created_id)) {
+				if ($user_created = OzoneUserPeer::instance()->selectByPrimaryKey($user_created_id)) {
 					$user_created_name = $user_created->getNickName();
 				}
 			}

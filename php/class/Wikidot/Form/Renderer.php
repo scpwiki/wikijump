@@ -1,6 +1,14 @@
 <?php
 
-class Wikidot_Form_Renderer extends Wikidot_Form {
+
+namespace Wikidot\Form;
+
+use Wikidot\Form;
+use Wikidot\Form\Field;
+
+
+
+class Renderer extends Form {
     public function __construct($form) {
         $fields = $form->fields;
         $this->presets = $form->presets;
@@ -8,7 +16,7 @@ class Wikidot_Form_Renderer extends Wikidot_Form {
     
         foreach ($fields as $name => $field) {
             $this->fields[$name] = $field;
-            $this->fields[$name]['editor'] = Wikidot_Form_Field::field($field);
+            $this->fields[$name]['editor'] = Field::field($field);
         }
     }
 }

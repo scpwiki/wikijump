@@ -1,0 +1,76 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/library/Zend/Acl
+http://framework.zend.com/svn/framework
+
+
+
+2008-03-16T14:30:18.856351Z
+8861
+thomas
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+Assert
+dir
+
+Role
+dir
+
+Exception.php
+file
+
+
+
+
+2008-12-06T16:40:41.000000Z
+c9d97bbc2e916e309f2b8dbf3c60bd36
+2008-03-16T14:30:18.856351Z
+8861
+thomas
+has-props
+
+Resource
+dir
+
+Role.php
+file
+
+
+
+
+2008-12-06T16:40:41.000000Z
+eeb3c8bcb2a2e18cdb01433ceb9b4382
+2008-03-16T14:30:18.856351Z
+8861
+thomas
+has-props
+
+Resource.php
+file
+
+
+
+
+2008-12-06T16:40:41.000000Z
+19dc6d0e3879c8a1019698cf2bc1d86a
+2008-03-16T14:30:18.856351Z
+8861
+thomas
+has-props
+

@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use DB\PagePeer;
+use DB\CategoryPeer;
+
 class PageRateWidgetModule extends SmartyModule {
 	
 	public function build($runData){
@@ -33,7 +39,7 @@ class PageRateWidgetModule extends SmartyModule {
 			$pl = $runData->getParameterList();
 			$pageId = $pl->getParameterValue("pageId");
 			if($pageId){
-				$page = DB_PagePeer::instance()->selectByPrimaryKey($pageId);
+				$page = PagePeer::instance()->selectByPrimaryKey($pageId);
 				$rate = $page->getRate();
 			}else{
 				$rate = 0;
@@ -43,11 +49,11 @@ class PageRateWidgetModule extends SmartyModule {
 		// get the category too
 		if(!$page){
 			$site = $runData->getTemp("site");
-			$category = DB_CategoryPeer::instance()->selectByName('_default', $site->getSiteId());	
+			$category = CategoryPeer::instance()->selectByName('_default', $site->getSiteId());	
 		}else{
 			$category = $runData->getTemp("category");
 			if(!$category){
-				$category = DB_CategoryPeer::instance()->selectByPrimaryKey($page->getCategoryId());
+				$category = CategoryPeer::instance()->selectByPrimaryKey($page->getCategoryId());
 			}
 		}
 		$type = $category->getRatingType();

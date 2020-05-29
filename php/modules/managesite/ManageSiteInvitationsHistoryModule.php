@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \ManageSiteBaseModule;
+use Criteria;
+use DB\EmailInvitationPeer;
+
 class ManageSiteInvitationsHistoryModule extends ManageSiteBaseModule {
 	
 	protected $processPage = true;
@@ -46,7 +52,7 @@ class ManageSiteInvitationsHistoryModule extends ManageSiteBaseModule {
 			$c->addOrderDescending("invitation_id");
 		}
 		
-		$invitations = DB_EmailInvitationPeer::instance()->select($c);
+		$invitations = EmailInvitationPeer::instance()->select($c);
 		
 		$runData->contextAdd("invitations", $invitations);
 		$runData->contextAdd("showAll", $showAll);

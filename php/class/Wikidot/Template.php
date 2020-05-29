@@ -1,9 +1,16 @@
 <?php
 
+
+namespace Wikidot;
+
+use H2o;
+
+
+
 require_once(WIKIDOT_ROOT . "/lib/h2o/h2o.php");
 require_once(WIKIDOT_ROOT . "/lib/h2o/h2o/parser.php");
 
-class Wikidot_Template {
+class Template {
 	/**
 	 * H2o instance
 	 * @var H2o

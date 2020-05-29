@@ -23,13 +23,19 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \ManageSiteBaseModule;
+use DB\ModeratorPeer;
+use \ProcessException;
+
 class ManageSiteModeratorPermissionsModule extends ManageSiteBaseModule {
 
 	public function build($runData){	
 		$pl = $runData->getParameterList();
 		$moderatorId = $pl->getParameterValue("moderatorId");
 		$site = $runData->getTemp("site");
-		$mod = DB_ModeratorPeer::instance()->selectByPrimaryKey($moderatorId);
+		$mod = ModeratorPeer::instance()->selectByPrimaryKey($moderatorId);
 		if($mod == null || $mod->getSiteId() != $site->getSiteId()){
 			throw new ProcessException("No such moderator.");	
 		}

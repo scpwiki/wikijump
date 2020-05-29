@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/framework/!svn/ver/12195/standard/trunk/tests/Zend/Server
+END
+ReflectionTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Server/ReflectionTest.php
+END
+AllTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/framework/!svn/ver/12163/standard/trunk/tests/Zend/Server/AllTests.php
+END
+DefinitionTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/12163/standard/trunk/tests/Zend/Server/DefinitionTest.php
+END

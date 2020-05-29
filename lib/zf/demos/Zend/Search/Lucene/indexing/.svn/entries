@@ -1,0 +1,44 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/demos/Zend/Search/Lucene/indexing
+http://framework.zend.com/svn/framework
+
+
+
+2008-03-23T15:00:16.602967Z
+9028
+thomas
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+CreateIndex.php
+file
+
+
+
+
+2008-12-06T16:40:44.000000Z
+72f8921e4b96adb600e5e18f58e11b5d
+2008-03-23T15:00:16.602967Z
+9028
+thomas
+has-props
+
+IndexSource
+dir
+

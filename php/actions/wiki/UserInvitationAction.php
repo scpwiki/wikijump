@@ -23,6 +23,19 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyAction;
+use \ProcessException;
+use Criteria;
+use DB\MemberPeer;
+use JSONService;
+use DB\EmailInvitationPeer;
+use Database;
+use DB\EmailInvitation;
+use ODate;
+use OzoneEmail;
+
 class UserInvitationAction extends SmartyAction {
 	
 	public function perform($runData){}
@@ -46,7 +59,7 @@ class UserInvitationAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("user_id", $user->getUserId());
 		$c->add("site_id", $site->getSiteId());
-		$mem = DB_MemberPeer::instance()->selectOne($c);
+		$mem = MemberPeer::instance()->selectOne($c);
 		if(!$mem){
 			throw new ProcessException(_("Only members of this Wiki are allowed to send invitations."));	
 		}
@@ -76,7 +89,7 @@ class UserInvitationAction extends SmartyAction {
 			$q = " SELECT * FROM member, ozone_user WHERE member.site_id='".$site->getSiteId()."' AND ozone_user.name='".db_escape_string($email)."' AND member.user_id = ozone_user.user_id LIMIT 1";
 			$c = new Criteria();
 			$c->setExplicitQuery($q);
-			$m = DB_MemberPeer::instance()->selectOne($c);
+			$m = MemberPeer::instance()->selectOne($c);
 			if($m){
 				throw new ProcessException(sprintf(_('User with the email address "%s" is already a member of this Site. Remove him from the list and send invitations again.'), htmlspecialchars($email)), 'aleady_member');		
 			}
@@ -85,7 +98,7 @@ class UserInvitationAction extends SmartyAction {
 			$c = new Criteria();
 			$c->add("email", $email);
 			$c->add("site_id", $site->getSiteId());
-			$ii = DB_EmailInvitationPeer::instance()->selectOne($c);
+			$ii = EmailInvitationPeer::instance()->selectOne($c);
 			
 			if($ii){
 				throw new ProcessException(sprintf(_('User with the email address "%s" has been already invited to this Site. Remove him from the list and send invitations again. If you want to resend an invitation please rather look at the history of sent invitations.'), htmlspecialchars($email)), 'aleady_member');					
@@ -110,7 +123,7 @@ class UserInvitationAction extends SmartyAction {
 			
 			$hash = substr(md5($name.$email).time(),0,20);
 			
-			$inv = new DB_EmailInvitation();
+			$inv = new EmailInvitation();
 			$inv->setHash($hash);
 			$inv->setEmail($email);
 			$inv->setName($name);
@@ -160,7 +173,7 @@ class UserInvitationAction extends SmartyAction {
 		$c->add("invitation_id", $invitationId);
 		$c->add("site_id", $site->getSiteId());
 		
-		$inv = DB_EmailInvitationPeer::instance()->selectOne($c);
+		$inv = EmailInvitationPeer::instance()->selectOne($c);
 		
 		if(!$inv){
 			throw new ProcessException(_("Invitation could not be found."), "no_invitation");	
@@ -170,7 +183,7 @@ class UserInvitationAction extends SmartyAction {
 		}
 		
 		// delete now
-		DB_EmailInvitationPeer::instance()->deleteByPrimaryKey($invitationId);
+		EmailInvitationPeer::instance()->deleteByPrimaryKey($invitationId);
 	}
 	
 	public function resendEmailInvitationEvent($runData){
@@ -185,7 +198,7 @@ class UserInvitationAction extends SmartyAction {
 		$c->add("invitation_id", $invitationId);
 		$c->add("site_id", $site->getSiteId());
 		
-		$inv = DB_EmailInvitationPeer::instance()->selectOne($c);
+		$inv = EmailInvitationPeer::instance()->selectOne($c);
 		
 		if(!$inv){
 			throw new ProcessException(_("Invitation could not be found."), "no_invitation");	

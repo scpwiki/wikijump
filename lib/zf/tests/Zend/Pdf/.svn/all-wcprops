@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/framework/!svn/ver/12986/standard/trunk/tests/Zend/Pdf
+END
+AllTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/framework/!svn/ver/12683/standard/trunk/tests/Zend/Pdf/AllTests.php
+END
+DrawingTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/framework/!svn/ver/12986/standard/trunk/tests/Zend/Pdf/DrawingTest.php
+END
+ProcessingTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/framework/!svn/ver/12986/standard/trunk/tests/Zend/Pdf/ProcessingTest.php
+END
+FactoryTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/framework/!svn/ver/12684/standard/trunk/tests/Zend/Pdf/FactoryTest.php
+END

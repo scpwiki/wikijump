@@ -1,0 +1,23 @@
+K 12
+bzr:file-ids
+V 0
+
+K 25
+bzr:revision-id:v3-trunk1
+V 62
+2732 bryan@reigndropsfall.net-20080806222343-ffw8err452lcctr3
+
+K 17
+bzr:revision-info
+V 131
+timestamp: 2008-08-06 17:23:43.282999992 -0500
+committer: Bryan Forbes <bryan@reigndropsfall.net>
+properties: 
+	branch-nick: dijit
+
+K 10
+svn:ignore
+V 9
+.project
+
+END

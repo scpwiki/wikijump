@@ -1,0 +1,154 @@
+<!-- EN-Revision: 11089 -->
+<sect1 id="zend.view.controllers">
+    <title>Controller Skripte</title>
+
+    <para>
+        Der Controller ist der Ort, wo du Zend_View instanziieren und konfigurieren kannst. Du
+        übergibst dann die Variablen an den View und teilst ihm mit, welches bestimmte Skript für
+        die Ausgabe benutzt werden soll.
+    </para>
+
+    <sect2 id="zend.view.controllers.assign">
+
+        <title>Variablen übergeben</title>
+
+        <para>
+            Dein Controller Skript sollte notwendige Variablen an den View übergeben, bevor es die
+            Kontrolle an das View Skript übergibt. Normalerweise kannst du eine Variable nach der
+            anderen übergeben und an den bezeichneten Eigenschaften der View Instanz zuordnen.
+        </para>
+
+        <programlisting role="php"><![CDATA[
+$view = new Zend_View();
+$view->a = "Hay";
+$view->b = "Bee";
+$view->c = "Sea";
+]]>
+        </programlisting>
+
+        <para>
+            Allerdings kann dies mühsam sein, wenn du bereits alle Werte gesammelt hast, um sie
+            einem Array oder einem Objekt zuzuordnen.
+        </para>
+
+        <para>
+            Mit der assign() Methode kannst Du auch ein Array oder ein Objekt auf einmal übergeben.
+            Das folgende Beispiel hat den selben Effekt wie die obigen einzelnen Übergaben.
+        </para>
+
+        <programlisting role="php"><![CDATA[
+$view = new Zend_View();
+
+// übergebe ein Array mit Schlüssel-Wert Paaren,
+// wo der Schlüssel der Variablenname und der
+// Wert die übergebene Variable ist
+$array = array(
+    'a' => "Hay",
+    'b' => "Bee",
+    'c' => "Sea",
+);
+$view->assign($array);
+
+// mache das selbe mit den öffentlichen Eigenschaften
+// eines Objektes; beachte wir wir das Objekt beim
+// Übergeben in ein Array umwandeln
+$obj = new StdClass;
+$obj->a = "Hay";
+$obj->b = "Bee";
+$obj->c = "Sea";
+$view->assign((array) $obj);
+]]>
+        </programlisting>
+
+        <para>
+            Alternativ kannst du die assign() Methode auch benutzen, um nacheinander einen
+            Variablennamen und den Wert der Variable zu übergeben.
+        </para>
+
+        <programlisting role="php"><![CDATA[
+$view = new Zend_View();
+$view->assign('a', "Hay");
+$view->assign('b', "Bee");
+$view->assign('c', "Sea");
+]]>
+        </programlisting>
+
+    </sect2>
+
+    <sect2 id="zend.view.controllers.render">
+
+        <title>Verarbeitung eines View Skripts</title>
+
+        <para>
+            Sobald du alle notwendigen Variablen übergeben hast, sollte der Controller dem
+            Zend_View mitteilen, ein bestimmtes View Skript zu verarbeiten. Dies funktioniert über
+            die render() Methode. Beachte, dass diese Methode die verarbeitete Ausgabe zurück- aber
+            nicht ausgibt, so dass du die Ausgabe selber zur passenden Zeit per echo() oder print()
+            ausgeben musst.
+        </para>
+
+        <programlisting role="php"><![CDATA[
+$view = new Zend_View();
+$view->a = "Hay";
+$view->b = "Bee";
+$view->c = "Sea";
+echo $view->render('someView.php');
+]]>
+        </programlisting>
+
+    </sect2>
+
+    <sect2 id="zend.view.controllers.script-paths">
+
+        <title>Pfade für View Skripte</title>
+
+        <para>
+            Standardmäßig erwartet Zend_View, dass deine View Skripte im selben Verzeichnis wie
+            das Conntroller Skript liegen. Wenn dein Controller Skript zum Beispiel im Pfad
+            "/path/to/app/controllers" liegt und es $view->render('someView.php') aufruft, wird
+            Zend_View nach der Datei "/path/to/app/controllers/someView.php" schauen.
+        </para>
+
+        <para>
+            Es ist durchaus wahrscheinlich, dass deine View Skripte woanders liegen. Verwende
+            die setScriptPath() Methode, um Zend_View mitzuteilen, wo es nach View Skripten
+            schauen soll.
+        </para>
+
+        <programlisting role="php"><![CDATA[
+$view = new Zend_View();
+$view->setScriptPath('/path/to/app/views');
+]]>
+        </programlisting>
+
+        <para>
+            Wenn du nun $view->render('someView.php') aufrufst, wird es nach der Datei
+            "/path/to/app/views/someView.php" schauen.
+        </para>
+
+        <para>
+            Durch Verwendung der addScriptPath() Methode können die Pfade "gestapelt" werden. Wenn
+            du Pfade zu diesem Stapelspeicher hinzufügst, wird Zend_View im zuletzt
+            hinzugefügten Pfad nach dem angeforderten View Skript schauen. Dies erlaubt dir,
+            Standard Views mit spezialisierten Views zu überschreiben, so dass Du  "Themen"
+            oder "Skins" für einige Views erstellen kannst, während du andere bestehen lässt.
+        </para>
+
+        <programlisting role="php"><![CDATA[
+$view = new Zend_View();
+$view->addScriptPath('/path/to/app/views');
+$view->addScriptPath('/path/to/custom/');
+
+// wenn du nun $view->render('booklist.php') aufrufst, wird
+// Zend_View zuerst nach der Datei "/path/to/custom/booklist.php",
+// dann nach "/path/to/app/views/booklist.php" und zuguterletzt
+// im aktuellen Pfad nach der Datei "booklist.php" schauen
+]]>
+        </programlisting>
+
+    </sect2>
+
+</sect1>
+<!--
+vim:se ts=4 sw=4 et:
+-->

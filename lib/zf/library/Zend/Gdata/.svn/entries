@@ -1,0 +1,336 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/library/Zend/Gdata
+http://framework.zend.com/svn/framework
+
+
+
+2008-12-30T02:07:09.757867Z
+13478
+tjohns
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+Exif.php
+file
+
+
+
+
+2008-12-06T16:40:36.000000Z
+127d7bad4f807c61a75ef77e9d4f03a8
+2008-12-04T22:23:55.806608Z
+13021
+jhartmann
+has-props
+
+Gbase
+dir
+
+Entry.php
+file
+
+
+
+
+2008-12-06T16:40:36.000000Z
+c23b84ad29833d0925131a052897ce81
+2008-12-04T22:23:55.806608Z
+13021
+jhartmann
+
+Feed.php
+file
+
+
+
+
+2008-12-06T16:40:36.000000Z
+3796515db031ea272a3ee155c8299932
+2008-12-04T22:23:55.806608Z
+13021
+jhartmann
+
+Exif
+dir
+
+Calendar.php
+file
+
+
+
+
+2008-12-06T16:40:36.000000Z
+7a91311f59c211bf7395b5cf0ea27085
+2008-12-04T22:23:55.806608Z
+13021
+jhartmann
+
+Gapps.php
+file
+
+
+
+
+2009-01-04T17:41:47.000000Z
+e35bdb1a21cd7de58d477e4cf85f2c10
+2008-12-30T02:07:09.757867Z
+13478
+tjohns
+
+Extension.php
+file
+
+
+
+
+2008-12-06T16:40:36.000000Z
+3b797e5fcf04c8d3f2af5dbab34b20ee
+2008-12-04T22:23:55.806608Z
+13021
+jhartmann
+
+Media.php
+file
+
+
+
+
+2008-12-06T16:40:36.000000Z
+c5f47e2468eb0d6aa7b5e79ebcaaf692
+2008-12-04T22:23:55.806608Z
+13021
+jhartmann
+has-props
+
+App.php
+file
+
+
+
+
+2009-01-04T17:41:47.000000Z
+6d6d21e6c67d790a733272cd3d03f9a1
+2008-12-10T06:47:35.992058Z
+13128
+tjohns
+
+Calendar
+dir
+
+Gapps
+dir
+
+DublinCore.php
+file
+
+
+
+
+2008-12-06T16:40:36.000000Z
+fb43dd7c63ebcdab6367e57c76d684d1
+2008-12-04T22:23:55.806608Z
+13021
+jhartmann
+has-props
+
+Extension
+dir
+
+Docs.php
+file
+
+
+
+
+2008-12-06T16:40:36.000000Z
+4e4ee82657c44040b51ebc803e8b5a33
+2008-12-04T22:23:55.806608Z
+13021
+jhartmann
+has-props
+
+Media
+dir
+
+App
+dir
+
+Spreadsheets.php
+file
+
+
+
+
+2008-12-06T16:40:36.000000Z
+ba2bc425d42fce6f259efcad597be157
+2008-12-04T22:23:55.806608Z
+13021
+jhartmann
+
+YouTube.php
+file
+
+
+
+
+2009-01-04T17:41:47.000000Z
+0220667ece6528205e866b77d97b1f9e
+2008-12-11T21:48:05.383793Z
+13161
+jhartmann
+
+Kind
+dir
+
+DublinCore
+dir
+
+Docs
+dir
+
+Spreadsheets
+dir
+
+Query.php
+file
+
+
+
+
+2008-12-06T16:40:36.000000Z
+71cfc61a76d8cbd6f4da393a4be46937
+2008-12-05T21:37:46.964944Z
+13046
+jhartmann
+
+Health.php
+file
+
+
+
+
+2009-01-04T17:41:47.000000Z
+23a120981a0de44ad61d70016d65908b
+2008-12-09T08:17:39.092674Z
+13107
+tjohns
+has-props
+
+YouTube
+dir
+
+ClientLogin.php
+file
+
+
+
+
+2008-12-06T16:40:36.000000Z
+7dd76b2753510e8c4eb25a5f7b3a2685
+2008-12-05T21:37:46.964944Z
+13046
+jhartmann
+
+Geo.php
+file
+
+
+
+
+2008-12-06T16:40:36.000000Z
+fd88d87410bd8736c0f7b80c7cb31d4e
+2008-12-04T22:23:55.806608Z
+13021
+jhartmann
+has-props
+
+AuthSub.php
+file
+
+
+
+
+2008-12-06T16:40:36.000000Z
+4179636b926097f6065e961b88599dd0
+2008-12-05T21:37:46.964944Z
+13046
+jhartmann
+
+Photos.php
+file
+
+
+
+
+2008-12-06T16:40:36.000000Z
+b47f669593262824a992f0517e2b7d15
+2008-12-04T22:23:55.806608Z
+13021
+jhartmann
+has-props
+
+Books.php
+file
+
+
+
+
+2008-12-06T16:40:36.000000Z
+86dc3bdca8369efbf12a2a6ea7455303
+2008-12-04T22:23:55.806608Z
+13021
+jhartmann
+has-props
+
+HttpClient.php
+file
+
+
+
+
+2009-01-04T17:41:47.000000Z
+da8d4c525d7ca0af594d66ace4b1d97c
+2008-12-13T22:31:47.921756Z
+13206
+thomas
+
+Health
+dir
+
+Gbase.php
+file
+
+
+
+
+2008-12-06T16:40:36.000000Z
+92bc3f595019785aabb86f875ffa1934
+2008-12-04T22:23:55.806608Z
+13021
+jhartmann
+
+Geo
+dir
+
+Photos
+dir
+
+Books
+dir
+

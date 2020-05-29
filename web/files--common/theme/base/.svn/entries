@@ -1,0 +1,34 @@
+8
+
+dir
+393
+http://svn.wikidot.org/repos/wikidot1/trunk/web/files--common/theme/base
+http://svn.wikidot.org/repos
+
+
+
+2008-09-27T12:37:45.626486Z
+262
+quake
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+fb797968-1a05-43ef-ab23-0011a79c62e5
+
+images
+dir
+
+css
+dir
+

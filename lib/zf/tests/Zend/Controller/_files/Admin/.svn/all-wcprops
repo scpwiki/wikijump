@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Controller/_files/Admin
+END
+FooBarController.php
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Controller/_files/Admin/FooBarController.php
+END
+BazController.php
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Controller/_files/Admin/BazController.php
+END
+FooController.php
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Controller/_files/Admin/FooController.php
+END

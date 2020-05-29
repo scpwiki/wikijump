@@ -23,6 +23,14 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use \ProcessException;
+use DB\ForumPostPeer;
+use Criteria;
+use DB\ForumPostRevisionPeer;
+
 class ForumPostRevisionsModule extends SmartyModule {
 	
 	public function build($runData){
@@ -35,7 +43,7 @@ class ForumPostRevisionsModule extends SmartyModule {
 			throw new ProcessException(_("No post specified."), "no_post");	
 		}
 		
-		$post = DB_ForumPostPeer::instance()->selectByPrimaryKey($postId);
+		$post = ForumPostPeer::instance()->selectByPrimaryKey($postId);
 		if($post == null || $post->getSiteId() != $site->getSiteId()){
 			throw new ProcessException(_("No post specified."), "no_post");	
 		}	
@@ -46,7 +54,7 @@ class ForumPostRevisionsModule extends SmartyModule {
 		$c->add("post_id", $postId);
 		$c->addOrderDescending("revision_id");
 		
-		$revs = DB_ForumPostRevisionPeer::instance()->select($c);
+		$revs = ForumPostRevisionPeer::instance()->select($c);
 		
 		$runData->contextAdd("revisions", $revs);
 		$runData->contextAdd("post", $post);

@@ -23,6 +23,14 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use Criteria;
+use DB\PetitionCampaignPeer;
+use \ProcessException;
+use DB\PetitionSignaturePeer;
+
 class PetitionListModule extends SmartyModule{
 	
 	public function build($runData){
@@ -36,7 +44,7 @@ class PetitionListModule extends SmartyModule{
 		$c->add("deleted", false);
 		$c->add("identifier", $campaignId);
 		
-		$camp = DB_PetitionCampaignPeer::instance()->selectOne($c);
+		$camp = PetitionCampaignPeer::instance()->selectOne($c);
 		
 		if(!$camp){
 			throw new ProcessException(_("The campaign can not be found."));	
@@ -56,7 +64,7 @@ class PetitionListModule extends SmartyModule{
 		if($limit > 0){
 			$c->setLimit($limit);
 		}
-		$signatures = DB_PetitionSignaturePeer::instance()->select($c);
+		$signatures = PetitionSignaturePeer::instance()->select($c);
 		
 		$runData->contextAdd("signatures", $signatures);
 		$runData->contextAdd("campaign", $camp);		

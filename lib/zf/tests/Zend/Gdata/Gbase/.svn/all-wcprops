@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/framework/!svn/ver/12350/standard/trunk/tests/Zend/Gdata/Gbase
+END
+BaseAttributeTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/Gbase/BaseAttributeTest.php
+END
+ItemEntryTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/Gbase/ItemEntryTest.php
+END
+ItemFeedTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/12350/standard/trunk/tests/Zend/Gdata/Gbase/ItemFeedTest.php
+END
+ItemQueryTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/Gbase/ItemQueryTest.php
+END
+QueryTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/Gbase/QueryTest.php
+END
+SnippetFeedTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/framework/!svn/ver/12350/standard/trunk/tests/Zend/Gdata/Gbase/SnippetFeedTest.php
+END
+SnippetQueryTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/Gbase/SnippetQueryTest.php
+END

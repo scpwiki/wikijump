@@ -23,6 +23,13 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use \WDPermissionManager;
+use Criteria;
+use DB\PetitionCampaignPeer;
+
 class PetitionAdminModule extends SmartyModule {
 	
 	public function isAllowed($runData){
@@ -43,7 +50,7 @@ class PetitionAdminModule extends SmartyModule {
 		$c->add("deleted", false);
 		$c->addOrderAscending("campaign_id");
 		
-		$camps = DB_PetitionCampaignPeer::instance()->select($c);
+		$camps = PetitionCampaignPeer::instance()->select($c);
 		
 		$runData->contextAdd("campaigns",$camps);
 

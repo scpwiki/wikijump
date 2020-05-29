@@ -1,0 +1,11 @@
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Controller/_files/modules/foo/views/scripts/admin/index
+END
+use-helper.phtml
+K 25
+svn:wc:ra_dav:version-url
+V 128
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Controller/_files/modules/foo/views/scripts/admin/index/use-helper.phtml
+END

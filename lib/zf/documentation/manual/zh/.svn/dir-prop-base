@@ -1,0 +1,15 @@
+K 10
+svn:ignore
+V 113
+configure
+config.nice
+autom4te.cache
+config.log
+config.status
+entities.ent
+Makefile
+html.xsl
+manual.xml
+.project
+
+END

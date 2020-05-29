@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use Criteria;
+use DB\FilePeer;
+
 class ImageAttachedFileModule extends SmartyModule {
 	
 	public function build($runData){
@@ -34,7 +40,7 @@ class ImageAttachedFileModule extends SmartyModule {
     		$c->add("page_id", $pageId);
     		$c->add("has_resized", true);
     		$c->addOrderAscending("filename");
-    		$files = DB_FilePeer::instance()->select($c);
+    		$files = FilePeer::instance()->select($c);
     		
     		$runData->contextAdd("files", $files);	
 	}

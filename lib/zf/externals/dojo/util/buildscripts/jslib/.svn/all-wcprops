@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/jslib
+END
+dojoGuardEnd.jsfrag
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/jslib/dojoGuardEnd.jsfrag
+END
+convertTestsToXDomain.js
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/jslib/convertTestsToXDomain.js
+END
+checkBuildSize.js
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/jslib/checkBuildSize.js
+END
+buildUtilXd.js
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/jslib/buildUtilXd.js
+END
+dojoGuardStart.jsfrag
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/jslib/dojoGuardStart.jsfrag
+END
+buildUtil.js
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/jslib/buildUtil.js
+END
+fileUtil.js
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/jslib/fileUtil.js
+END
+i18nUtil.js
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/jslib/i18nUtil.js
+END
+logger.js
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/jslib/logger.js
+END

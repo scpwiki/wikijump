@@ -1,0 +1,137 @@
+@CHARSET "UTF-8";
+
+/*CSS definition for the main todo list container*/
+.simpletodo-box {
+	border: 1px solid #DDDDDD;
+	position: relative;
+	max-width: 500px ;
+	padding: 5px ;
+	margin: 5px auto;	
+}
+/*CSS definition for list title element*/
+.simpletodo-box .title {
+	font-size: medium;
+	font-style: normal;
+	font-variant: normal;
+	font-weight: bold;
+	text-align: center ;
+	text-decoration: none ;
+	margin-top: 2% ;
+}
+
+.simpletodo-format-table {
+	margin-left: auto ;
+	margin-right: auto ;
+}
+
+/*CSS definition for direct parent for todo lists*/
+.simpletodo-sub-box {
+	position: relative ;
+	margin-left: auto ;
+	margin-right: auto ;
+	margin-top: 5% ;
+	margin-bottom: 5% ;
+	 
+}
+
+.simpletodo-sub-box .task:hover {
+	cursor:pointer ;
+}
+
+.simpletodo-sub-box .task .options {
+	
+	visibility: hidden ;
+	
+}
+
+.simpletodo-sub-box .task:hover .options {
+	
+	visibility: visible ;
+	
+}
+
+.simpletodo-box .simpletodo-sub-box.edit .task:hover .options {
+	visibility: hidden ;
+}
+
+.simpletodo-box .bottom-options {
+	text-align: center ;
+}
+
+#simpletodo-data {
+	display: none ;
+}
+
+.simpletodo-box .simpletodo-sub-box .task.iehover .options {
+	visibility: visible ;
+}
+
+.simpletodo-box .simpletodo-sub-box.edit .task.iehover .options {
+	visibility: hidden ;
+}
+
+.simpletodo-box .label{
+	display: none ;
+}
+
+.simpletodo-sub-box .follow-link {
+	display: none ;
+}
+.simpletodo-box .simpletodo-sub-box .follow-link.proper-link {
+	display: inline ;
+}
+/*Tu jest sekcja odpowiedzialna za wyswietlanie ikonek :-)*/
+.simpletodo-sub-box a.icon1 span {display: none;}
+.simpletodo-sub-box a.icon1 {	
+		background-image:url("/common--images/todo/link_go.png");
+		background-position: 4px 0;
+		width: 16px ;
+		height: 16px ;
+		vertical-align:middle;
+		padding: 0 4px ;
+		line-height: 0;
+		background-repeat: no-repeat; 
+		display:-moz-inline-block;
+		display:-moz-inline-box;
+		display:inline-block;
+		position:relative;
+}
+.simpletodo-sub-box a.icon2 span {display: none;}
+.simpletodo-sub-box a.icon2 {
+		background-image:url("/common--images/todo/cross.png");
+		width: 16px ;
+		height: 16px ;
+		vertical-align:middle;
+		background-position:4px 0;
+		padding: 0 4px ;
+		line-height: 0;
+		background-repeat: no-repeat; 
+		display:-moz-inline-block;
+		display:-moz-inline-box;
+		display:inline-block;
+		position:relative;
+}
+.simpletodo-sub-box a.icon3 span {display: none;}
+.simpletodo-sub-box a.icon3 {
+		background-image:url("/common--images/todo/link_edit.png");
+		background-position: 4px 0;
+		width: 16px ;
+		height: 16px ;
+		vertical-align:middle;
+		padding: 0 4px ;
+		line-height: 0;
+		background-repeat: no-repeat; 
+		display:-moz-inline-block;
+		display:-moz-inline-box;
+		display:inline-block;
+		position:relative;
+}
+
+.simpletodo-sub-box .follow-link {
+	padding-left: 0.5em ;
+}
+
+.simpletodo-box .bottom-options a{
+	text-decoration: none ;
+
+}

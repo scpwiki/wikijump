@@ -1,0 +1,107 @@
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/src/!svn/ver/15538/branches/1.2/util/buildscripts
+END
+LICENSE
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/LICENSE
+END
+webbuild.php
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/webbuild.php
+END
+listProfileDeps.js
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/listProfileDeps.js
+END
+build_mini.sh
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/build_mini.sh
+END
+copyright.txt
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/copyright.txt
+END
+clean_release.sh
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/clean_release.sh
+END
+mk_branch.sh
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/mk_branch.sh
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/README
+END
+makeDojoJsWeb.js
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/makeDojoJsWeb.js
+END
+webbuild.html
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/webbuild.html
+END
+cdnBuild.txt
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/cdnBuild.txt
+END
+build.bat
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/build.bat
+END
+changeVersion.js
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/changeVersion.js
+END
+build.sh
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/build.sh
+END
+build_release.sh
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/src/!svn/ver/15538/branches/1.2/util/buildscripts/build_release.sh
+END
+build.js
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/build.js
+END
+build_notice.txt
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/src/!svn/ver/15394/branches/1.2/util/buildscripts/build_notice.txt
+END

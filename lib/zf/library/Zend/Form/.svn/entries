@@ -1,0 +1,86 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/library/Zend/Form
+http://framework.zend.com/svn/framework
+
+
+
+2008-12-07T19:37:21.730831Z
+13090
+thomas
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+Element.php
+file
+
+
+
+
+2008-12-06T16:40:42.000000Z
+b3ac1112eac8fe71d665766ca869d571
+2008-11-23T14:15:48.966769Z
+12786
+matthew
+has-props
+
+Decorator
+dir
+
+SubForm.php
+file
+
+
+
+
+2008-12-06T16:40:42.000000Z
+236d693be7707a9c96a6b57a6b5395ef
+2008-03-06T19:32:34.354913Z
+8585
+matthew
+has-props
+
+Exception.php
+file
+
+
+
+
+2008-12-06T16:40:42.000000Z
+b964288e8adc17cb31362c27dd198cac
+2008-02-16T10:58:39.742447Z
+8064
+thomas
+has-props
+
+DisplayGroup.php
+file
+
+
+
+
+2008-12-06T16:40:42.000000Z
+9bcdd4da1ccdefaeb0097c2335c9cbd2
+2008-11-23T14:15:48.966769Z
+12786
+matthew
+has-props
+
+Element
+dir
+

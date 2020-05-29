@@ -23,6 +23,14 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyScreen;
+use DB\SitePeer;
+use \ProcessException;
+use DB\ThemePeer;
+use \CryptUtils;
+
 class LoginIframeScreen extends SmartyScreen {
 	
 	public function build($runData){
@@ -31,7 +39,7 @@ class LoginIframeScreen extends SmartyScreen {
 		$url = $pl->getParameterValue('url');
 		$siteId = $pl->getParameterValue('siteId');
 		if($siteId && is_numeric($siteId)){
-			$site = DB_SitePeer::instance()->selectByPrimaryKey($siteId);	
+			$site = SitePeer::instance()->selectByPrimaryKey($siteId);	
 		}
 		if(!$site){
 			throw new ProcessException(_('Invalid site'));	
@@ -65,7 +73,7 @@ class LoginIframeScreen extends SmartyScreen {
 		$themeId = $pl->getParameterValue('themeId');
 		
 		if($themeId && is_numeric($themeId)){
-			$theme = DB_ThemePeer::instance()->selectByPrimaryKey($themeId);	
+			$theme = ThemePeer::instance()->selectByPrimaryKey($themeId);	
 		}
 		if(!$theme){
 			throw new ProcessException(_('Invalid theme'));	

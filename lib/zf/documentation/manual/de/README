@@ -1,0 +1,60 @@
+Benötigte Software:
+
+- autoconf
+- make
+- xsltproc
+- xmllint
+
+Auf Windows sollte die Cygwin Software oder eine andere Portierung der
+GNU Entwicklungs Tools verwendet werden.
+
+Wie die DocBook Dokumentation erstellt wird:
+
+- "autoconf" in diesem Verzeichnis aufrufen
+- "./configure" in diesem Verzeichnis aufrufen
+- "make" aufrufen
+
+Die HTML Dateien werden im "html" Verzeichnis erstellt.
+
+Bei der Entwicklung von Inhalt können die Änderungen überprüft werden durch
+Aufruf von:
+
+  "make check"
+
+Das prüft ob das XML für das komplette Handbuch gültig ist.
+
+Die eigenen Änderungen in einer einzelnen Datei können überprüft werden
+durch Aufruf von:
+
+  "make XMLFILE=filename.xml check1"
+
+Die filename.xml Datei ist relativ zum "module_specs" Verzeichnis.
+
+DocBook Ressourcen:
+
+http://www.ibiblio.org/godoy/sgml/docbook/howto/index.html
+http://opensource.bureau-cornavin.com/crash-course/index.html
+http://ds9a.nl/docbook/
+http://www.sagehill.net/docbookxsl/index.html
+http://docbook.org/tdg/en/html/part2.html DocBook tag reference
+
+
+Es wird auch ein CHM Projekt vorbereitet um CHM Hilfe Dateien on the fly zu erstellen.
+Hierfür muß der MsHtmlHelpWorkshop installiert sein.
+
+Um die CHM Datei von der Kommandozeile aus zu erstellen gehe in das Verzeichnis
+in dem die HTML Dateien sind die vorher mit Hilfe von make erstellt wurden, wie vorher beschrieben.
+
+Dann wird folgendes ausgerufen:
+ "C:/path/to/workshop/hhc htmlhelp.hhp"
+
+
+
+To build the CHM file from within the commandshell go to the directory
+where your html files are build by using make as described before.
+Then call:
+ "C:/path/to/workshop/hhc htmlhelp.hhp"
+wobei "C:/path/to/workshop/" der Pfad zum MsHtmlHelpWorkshop ist
+ 
+Das erstellt eine "Zend_Framework_LANGUAGE.chm" Datei.
+In dieser Datei ist ein Index und in Zukunft auch ein Inhaltsverzeichnis zu finden.

@@ -23,6 +23,9 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+
 define("MAGPIE_DIR", WIKIDOT_ROOT."/lib/magpierss/");
 define("MAGPIE_CACHE_ON", false);
 define("MAGPIE_OUTPUT_ENCODING", "UTF-8");

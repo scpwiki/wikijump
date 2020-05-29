@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/src/!svn/ver/15493/branches/1.2/dojo/cldr
+END
+LICENSE
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/src/!svn/ver/15391/branches/1.2/dojo/cldr/LICENSE
+END
+supplemental.js
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/src/!svn/ver/15391/branches/1.2/dojo/cldr/supplemental.js
+END
+monetary.js
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/src/!svn/ver/15391/branches/1.2/dojo/cldr/monetary.js
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/src/!svn/ver/15391/branches/1.2/dojo/cldr/README
+END

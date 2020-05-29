@@ -23,6 +23,9 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+
 class LatexRenderer {
 	private $latexPath = "/usr/bin/latex";
 	private $dvipsPath = "/usr/bin/dvips";

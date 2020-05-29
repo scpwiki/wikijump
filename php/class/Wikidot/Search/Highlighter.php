@@ -23,7 +23,16 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-class Wikidot_Search_Highlighter {
+namespace Wikidot\Search;
+
+use Zend_Search_Lucene_Search_QueryParser;
+use DOMDocument;
+use DOMXPath;
+
+
+
+
+class Highlighter {
 	
 	static public function highlightIfSuitable($html, $request_uri, $referer) {
 	

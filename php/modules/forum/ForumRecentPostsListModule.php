@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use Criteria;
+use DB\ForumPostPeer;
+
 class ForumRecentPostsListModule extends SmartyModule {
 	
 	public function render($runData){
@@ -102,7 +108,7 @@ class ForumRecentPostsListModule extends SmartyModule {
 		$c->addJoin("forum_thread.category_id", "forum_category.category_id");
 		$c->addOrderDescending("post_id");
 		$c->setLimit($count, $offset);
-		$posts = DB_ForumPostPeer::instance()->select($c);
+		$posts = ForumPostPeer::instance()->select($c);
 		
 		$counted = count($posts);
 		$pagerData = array();

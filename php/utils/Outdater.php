@@ -23,6 +23,25 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \Outdater as Outdater;
+use Criteria;
+use DB\PageCompiledPeer;
+use DB\PagePeer;
+use \WikiTransformation;
+use ODate;
+use DB\PageLinkPeer;
+use DB\PageLink;
+use DB\PageExternalLinkPeer;
+use DB\PageExternalLink;
+use DB\PageInclusionPeer;
+use DB\PageInclusion;
+use DB\CategoryPeer;
+use Database;
+use DB\SitePeer;
+use \Indexer;
+
 class Outdater {
 	
 	private static $instance;
@@ -187,13 +206,13 @@ class Outdater {
 			
 		$c = new Criteria();
 		$c->add("page_id", $page->getPageId());
-		$compiled = DB_PageCompiledPeer::instance()->selectOne($c);
+		$compiled = PageCompiledPeer::instance()->selectOne($c);
 
 		/* Find out if the category is using any templates. */
 		if(!preg_match(';(:|^)_;', $page->getUnixName())) {
     		$category = $page->getCategory();
     		$categoryName = $category->getName();
-    	    $templatePage = DB_PagePeer::instance()->selectByName($page->getSiteId(), 
+    	    $templatePage = PagePeer::instance()->selectByName($page->getSiteId(), 
     		    ($categoryName == '_default' ? '' : $categoryName.':') .'_template');
     		
     		if($templatePage) {
@@ -244,10 +263,10 @@ class Outdater {
 			$c->addCriteriaAnd($c2);
 		}
 		
-		$dblinks = DB_PageLinkPeer::instance()->select($c);
+		$dblinks = PageLinkPeer::instance()->select($c);
 		foreach($dblinks as $link){
 			// get page
-			$page = DB_PagePeer::instance()->selectByPrimaryKey($link->getFromPageId());
+			$page = PagePeer::instance()->selectByPrimaryKey($link->getFromPageId());
 			$outdater = new Outdater($this->recurrenceLevel);
 			$outdater->pageEvent("source_changed", $page);	
 		}
@@ -265,15 +284,15 @@ class Outdater {
 		$c->add("site_id", $page->getSiteId());
 		$c->add("from_page_id", $page->getPageId());
 		$c->add("to_page_name", null);
-		$dblinks = DB_PageLinkPeer::instance()->select($c);
+		$dblinks = PageLinkPeer::instance()->select($c);
 		// delete links from database that are not current
 		if($linksExist == null && count($dblinks)>0){
 			//delete all
-			DB_PageLinkPeer::instance()->delete($c);
+			PageLinkPeer::instance()->delete($c);
 		}else{
 			foreach($dblinks as $dblink){
 				if($linksExist[$dblink->getToPageId()] == null){
-					DB_PageLinkPeer::instance()->deleteByPrimaryKey($dblink->getLinkId());
+					PageLinkPeer::instance()->deleteByPrimaryKey($dblink->getLinkId());
 				}else{
 					// already in the database = remove from links to add
 					unset($linksExist[$dblink->getToPageId()]);	
@@ -284,7 +303,7 @@ class Outdater {
 		if($linksExist && count($linksExist)>0){
 			// insert into database links that are not there yet.
 			foreach ($linksExist as $link){
-				$dblink = new DB_PageLink();
+				$dblink = new PageLink();
 				$dblink->setFromPageId($page->getPageId());
 				$dblink->setToPageId($link);
 				$dblink->setSiteId($page->getSiteId());
@@ -298,16 +317,16 @@ class Outdater {
 		$c = new Criteria();
 		$c->add("from_page_id", $page->getPageId());
 		$c->add("to_page_id", null);
-		$dblinks = DB_PageLinkPeer::instance()->select($c);
+		$dblinks = PageLinkPeer::instance()->select($c);
 		
 		// delete links from database that are not current
 		if($linksNotExist == null && count($dblinks)>0){
 			//delete all
-			DB_PageLinkPeer::instance()->delete($c);
+			PageLinkPeer::instance()->delete($c);
 		}else{
 			foreach($dblinks as $dblink){
 				if($linksNotExist[$dblink->getToPageName()] == null){
-					DB_PageLinkPeer::instance()->deleteByPrimaryKey($dblink->getLinkId());
+					PageLinkPeer::instance()->deleteByPrimaryKey($dblink->getLinkId());
 				}else{
 					// already in the database = remove from links to add
 					unset($linksNotExist[$dblink->getToPageName()]);	
@@ -319,7 +338,7 @@ class Outdater {
 		if($linksNotExist && count($linksNotExist)>0){
 			// insert into database links that are not there yet.
 			foreach ($linksNotExist as $link){
-				$dblink = new DB_PageLink();
+				$dblink = new PageLink();
 				$dblink->setFromPageId($page->getPageId());
 				$dblink->setToPageName($link);
 				$dblink->setSiteId($page->getSiteId());
@@ -337,7 +356,7 @@ class Outdater {
 		$externalLinks = $this->vars['externalLinks'];
 		$c = new Criteria();
 		$c->add("page_id", $page->getPageId());
-		$dblinks = DB_PageExternalLinkPeer::instance()->select($c);
+		$dblinks = PageExternalLinkPeer::instance()->select($c);
 		
 		/* From $externalLinks remove links that are already in $dblinks. */
 
@@ -346,7 +365,7 @@ class Outdater {
 				unset($externalLinks[$dblink->getToUrl()]);
 			} else {
 				/* remove from database */
-				DB_PageExternalLinkPeer::instance()->deleteByPrimaryKey($dblink->getLinkId());
+				PageExternalLinkPeer::instance()->deleteByPrimaryKey($dblink->getLinkId());
 			}
 		}
 		
@@ -354,7 +373,7 @@ class Outdater {
 		$now = new ODate();
 		if($externalLinks){
 			foreach($externalLinks as $elink){
-				$dblink = new DB_PageExternalLink();
+				$dblink = new PageExternalLink();
 				$dblink->setPageId($page->getPageId());
 				$dblink->setSiteId($page->getSiteId());
 				$dblink->setToUrl($elink);
@@ -374,16 +393,16 @@ class Outdater {
 		$c->add("including_page_id", $page->getPageId());
 		$c->add("included_page_name", null);
 		
-		$dbinclusions = DB_PageInclusionPeer::instance()->select($c);
+		$dbinclusions = PageInclusionPeer::instance()->select($c);
 		
 		// delete inclusions from database that are not current
 		if($inclusions == null && count($dbinclusions)>0){
 			//delete all
-			DB_PageInclusionPeer::instance()->delete($c);
+			PageInclusionPeer::instance()->delete($c);
 		}else{
 			foreach($dbinclusions as $dbinclusion){
 				if($inclusions[$dbinclusion->getIncludedPageId()] == null){
-					DB_PageLinkPeer::instance()->deleteByPrimaryKey($dbinclusion->getInclusionId());
+					PageLinkPeer::instance()->deleteByPrimaryKey($dbinclusion->getInclusionId());
 				}else{
 					// already in the database = remove from links to add
 					unset($inclusions[$dbinclusion->getIncludedPageId()]);	
@@ -395,7 +414,7 @@ class Outdater {
 		if($inclusions && count($inclusions)>0){
 			// insert into database links that are not there yet.
 			foreach ($inclusions as $inclusion){
-				$dbinclusion = new DB_PageInclusion();
+				$dbinclusion = new PageInclusion();
 				$dbinclusion->setIncludingPageId($page->getPageId());
 				$dbinclusion->setIncludedPageId($inclusion);
 				$dbinclusion->setSiteId($page->getSiteId());
@@ -410,18 +429,18 @@ class Outdater {
 		$c->add("site_id", $page->getSiteId());
 		$c->add("including_page_id", $page->getPageId());
 		$c->add("included_page_id", null);
-		$dblinks = DB_PageInclusionPeer::instance()->select($c);
+		$dblinks = PageInclusionPeer::instance()->select($c);
 		
 		$linksNotExist = $this->vars['inclusionsNotExist'];
 		
 		// delete links from database that are not current
 		if($linksNotExist == null && count($dblinks)>0){
 			//delete all
-			DB_PageInclusionPeer::instance()->delete($c);
+			PageInclusionPeer::instance()->delete($c);
 		}else{
 			foreach($dblinks as $dblink){
 				if($linksNotExist[$dblink->getIncludedPageName()] == null){
-					DB_PageInclusionPeer::instance()->deleteByPrimaryKey($dblink->getInclusionId());
+					PageInclusionPeer::instance()->deleteByPrimaryKey($dblink->getInclusionId());
 				}else{
 					// already in the database = remove from links to add
 					unset($linksNotExist[$dblink->getIncludedPageName()]);	
@@ -433,7 +452,7 @@ class Outdater {
 		if($linksNotExist && count($linksNotExist)>0){
 			// insert into database links that are not there yet.
 			foreach ($linksNotExist as $link){
-				$dblink = new DB_PageInclusion();
+				$dblink = new PageInclusion();
 				$dblink->setIncludingPageId($page->getPageId());
 				$dblink->setIncludedPageName($link);
 				$dblink->setSiteId($page->getSiteId());
@@ -458,10 +477,10 @@ class Outdater {
 			$c->addCriteriaAnd($c2);
 		}
 
-		$dbinclusions = DB_PageInclusionPeer::instance()->select($c);
+		$dbinclusions = PageInclusionPeer::instance()->select($c);
 		
 		foreach($dbinclusions as $inc){
-			$page = DB_PagePeer::instance()->selectByPrimaryKey($inc->getIncludingPageId());
+			$page = PagePeer::instance()->selectByPrimaryKey($inc->getIncludingPageId());
 			// triger source update (recompile)
 			$outdater = new Outdater($this->recurrenceLevel);
 			$outdater->pageEvent("source_changed", $page);	
@@ -478,7 +497,7 @@ class Outdater {
 		$c = new Criteria();
 		$c->add("parent_page_id", $page->getPageId());
 		
-		$pages = DB_PagePeer::instance()->select($c);
+		$pages = PagePeer::instance()->select($c);
 		
 		while($pages !== null && count($pages)>0 && $rec<10){
 			$p2 = array();
@@ -486,7 +505,7 @@ class Outdater {
 				$this->outdatePageCache($p);
 				$c = new Criteria();
 				$c->add("parent_page_id", $p->getPageId());
-				$ptmp = DB_PagePeer::instance()->select($c);
+				$ptmp = PagePeer::instance()->select($c);
 				$p2 = array_merge($p2, $ptmp);
 			}
 			$pages = $p2;
@@ -557,7 +576,7 @@ class Outdater {
 		// get default cat
 		$site = $GLOBALS['site'];
 		$pUnixName = $page->getUnixName();
-		$dcat = DB_CategoryPeer::instance()->selectByName('_default', $site->getSiteId());
+		$dcat = CategoryPeer::instance()->selectByName('_default', $site->getSiteId());
 		
 		$q = "SELECT unix_name FROM page WHERE category_id IN ( " .
 				"SELECT category_id FROM category WHERE nav_default = false " .
@@ -579,7 +598,7 @@ class Outdater {
 	
 	private function outdateCategoryPagesCache($category, $site = null){
 		if(!$site){
-			$site = DB_SitePeer::instance()->selectByPrimaryKey($category->getSiteId());	
+			$site = SitePeer::instance()->selectByPrimaryKey($category->getSiteId());	
 		}
 		
 		$q = "SELECT unix_name FROM page WHERE category_id='".$category->getCategoryId()."'";
@@ -605,7 +624,7 @@ class Outdater {
 		
 		$c = new Criteria();
 		$c->add("theme_id", $theme->getThemeId());
-		$cats = DB_CategoryPeer::instance()->select($c);
+		$cats = CategoryPeer::instance()->select($c);
 		foreach($cats as $cat){
 			$this->outdateCategoryPagesCache($cat);
 		}	
@@ -659,7 +678,7 @@ class Outdater {
 		
 		// check if forum not related to any page (page discussion)
 		if($thread->getPageId() !== null){
-			$page = DB_PagePeer::instance()->selectByPrimaryKey($thread->getPageId());
+			$page = PagePeer::instance()->selectByPrimaryKey($thread->getPageId());
 			$this->outdatePageCache($page);	
 		}
 		
@@ -696,12 +715,12 @@ class Outdater {
 	}
 	
 	public function recompileCategory($category){
-		$site = DB_SitePeer::instance()->selectByPrimaryKey($category->getSiteId());
+		$site = SitePeer::instance()->selectByPrimaryKey($category->getSiteId());
 		$site0 = $GLOBALS['site'];
 		$GLOBALS['site'] = $site;
 		$c = new Criteria();
 		$c->add("category_id", $category->getCategoryId());
-		$pages = DB_PagePeer::instance()->select($c);
+		$pages = PagePeer::instance()->select($c);
 		
 		foreach($pages as $page){
 			$this->recompilePage($page);
@@ -718,7 +737,7 @@ class Outdater {
 		$GLOBALS['site'] = $site;
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
-		$pages = DB_PagePeer::instance()->select($c);
+		$pages = PagePeer::instance()->select($c);
 		
 		foreach($pages as $page){
 			$this->recompilePage($page);
@@ -774,7 +793,7 @@ class Outdater {
 	
 	private function handleCategoryDelete($category, $site = null){
 		if(!$site){
-			$site = DB_SitePeer::instance()->selectByPrimaryKey($category->getSiteId());	
+			$site = SitePeer::instance()->selectByPrimaryKey($category->getSiteId());	
 		}	
 		if(is_string($category)){
 			$cname = $category->getName();	
@@ -802,7 +821,7 @@ class Outdater {
     		}
     		if(preg_match(';_template$;', $page)) {
     		    $site = $GLOBALS['site'];
-    		    $category = DB_CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId(), false);
+    		    $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId(), false);
     		    $this->recompileCategory($category);
     		}
 	    } elseif(preg_match(';_template$;', $page->getUnixName())) {

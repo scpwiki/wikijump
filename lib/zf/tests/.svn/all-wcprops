@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/framework/!svn/ver/13500/standard/trunk/tests
+END
+TestConfiguration.php.dist
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/13336/standard/trunk/tests/TestConfiguration.php.dist
+END
+AllTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/framework/!svn/ver/11973/standard/trunk/tests/AllTests.php
+END
+TestHelper.php
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/framework/!svn/ver/11973/standard/trunk/tests/TestHelper.php
+END

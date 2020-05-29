@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use Criteria;
+use DB\EmailInvitationPeer;
+
 class SentMemberInvitationsModule extends SmartyModule {
 	
 	public function build($runData){
@@ -42,7 +48,7 @@ class SentMemberInvitationsModule extends SmartyModule {
 		$c->add("user_id", $user->getUserId());
 		$c->addOrderDescending("invitation_id");
 		
-		$invitations = DB_EmailInvitationPeer::instance()->select($c);
+		$invitations = EmailInvitationPeer::instance()->select($c);
 		
 		$runData->contextAdd("invitations", $invitations);
 

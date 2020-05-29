@@ -1,0 +1,54 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Amf/Value
+http://framework.zend.com/svn/framework
+
+
+
+2008-10-18T14:29:41.078580Z
+12004
+mikaelkael
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+MessageHeaderTest.php
+file
+
+
+
+
+2008-12-06T16:40:30.000000Z
+0914e5a05e18e1bf8a2d25845a60340a
+2008-10-18T14:29:41.078580Z
+12004
+mikaelkael
+has-props
+
+MessageBodyTest.php
+file
+
+
+
+
+2008-12-06T16:40:30.000000Z
+abfeae7b183bf79dad6df084b22d3cc8
+2008-10-18T14:29:41.078580Z
+12004
+mikaelkael
+has-props
+

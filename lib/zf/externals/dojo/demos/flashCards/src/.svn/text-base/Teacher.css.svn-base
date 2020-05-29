@@ -1,0 +1,69 @@
+div.teacher {
+	background: url("../images/teacher_body.png");
+	width: 187px;
+	height: 493px;
+	position: absolute;
+}
+
+div.beerLadyInner {
+	width: 187px;
+	height: 493px;
+	position:relative;
+	top:0; left:0;
+}
+
+div.teacherAngry {
+	background:url('../images/teacher_mouth_angry.png') no-repeat center center;
+	height:18px; 
+	width:27px;
+	top:48px;
+	left:42px;
+}
+div.teacherBlink {
+	background:url('../images/teacher_eyes_closed.png') no-repeat center center;
+	top: 31px;
+	left: 33px;
+	width: 39px;
+	height: 19px;
+}
+
+div.teacherBlink,
+div.teacherAngry {
+	visibility:hidden;
+	position:absolute;
+}
+
+div.teacher .teacherBlinking .teacherBlink,
+div.teacher .teacherBeingAngry .teacherAngry {
+	visibility:visible;
+}
+
+div.teacherBubble {
+	background:url('../images/bubble.png') no-repeat center center;
+	width: 200px;
+	height: 130px;
+	position: absolute;
+	top: -105px;
+	left: 65px;
+}
+
+div.teacherSilent {
+	display: none;
+}
+
+div.teacherSpeaking {
+	display: inherit;
+}
+
+div.teacherBubbleContent {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	height: 50px;
+	left: 26px;
+	top: 25px;
+	width: 140px;
+	padding: 5px;
+	font-family: Tahoma;
+	text-align: center;
+}

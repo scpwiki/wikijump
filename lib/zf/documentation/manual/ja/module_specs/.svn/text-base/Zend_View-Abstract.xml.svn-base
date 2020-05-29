@@ -1,0 +1,67 @@
+<!-- EN-Revision: 10934 -->
+<sect1 id="zend.view.abstract">
+    <title>Zend_View_Abstract</title>
+
+    <para>
+        <code>Zend_View_Abstract</code> は
+        <code>Zend_View</code> の基底クラスです。<code>Zend_View</code>
+        は、単にこれを継承したうえで <code>_run()</code>
+        メソッドの具象実装を宣言したものです
+        (このメソッドは <code>render()</code> から実行されます)。
+    </para>
+
+    <para>
+        <code>Zend_View_Abstract</code> を継承したクラスを作成して
+        独自の機能を追加したいと思われる方も多いことでしょう。
+        このクラスにはさまざまなプライベートメンバーが存在するので、
+        その中身を理解するのは大変です。
+        このドキュメントでは、このクラスの設計方針とそこにいたる考え方を説明します。
+    </para>
+
+    <para>
+        <code>Zend_View</code> は、言わば「アンチテンプレートエンジン」
+        といったものであり、PHP のネイティブ機能を用いて描画を行います。
+        PHP のすべての機能がそのまま利用でき、
+        ビュースクリプトのスコープは呼び出し元オブジェクトを継承します。
+    </para>
+
+    <para>
+        特に後者は、この設計の重要なポイントとなります。
+        内部的には、<code>Zend_View::_run()</code> がやっているのは次のような処理です。
+    </para>
+
+    <programlisting role="php"><![CDATA[
+protected function _run()
+{
+    include func_get_arg(0);
+}
+?>]]></programlisting>
+
+    <para>
+        こうすることで、ビュースクリプトが現在のオブジェクト
+        (<code>$this</code>) および <emphasis>そのオブジェクトの
+        すべてのメソッドやメンバー</emphasis> にアクセスできるようになります。
+        多くの操作はアクセス制限されたメンバーの内容に依存しているので、
+        これは問題を引き起こす可能性があります。
+        ビュースクリプトから、アクセス制限されたメソッドを直接コールしたり
+        重要なプロパティを直接変更してしまったりもできてしまうということです。
+        もしうっかりスクリプトが <code>$_path</code> や
+        <code>$_file</code> を変更してしまったら、それ以降の
+        <code>render()</code> やビューヘルパーのコールは正常に動作しなくなります。
+    </para>
+
+    <para>
+        幸いなことに、PHP 5 では可視性を宣言することでこの問題を回避することができます。
+        private 宣言されたメンバーは、そのクラスを継承したオブジェクトからは
+        アクセスできなくなるのです。このおかげで現在の設計が可能となりました。
+        <code>Zend_View</code> は <code>Zend_View_Abstract</code>
+        を <emphasis>継承した</emphasis> クラスなので、
+        <code>Zend_View_Abstract</code> のメソッドやメンバーのうち
+        ビュースクリプトからアクセスできるのは protected あるいは public
+        なものだけです。これで、ビュースクリプトができることを効率的に制限できるようになり、
+        重要な場所をビュースクリプトから保護できるようになりました。
+    </para>
+</sect1>
+<!--
+vim:se ts=4 sw=4 et:
+-->

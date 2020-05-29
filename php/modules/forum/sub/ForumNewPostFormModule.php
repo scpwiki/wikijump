@@ -23,6 +23,19 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use Database;
+use DB\ForumThreadPeer;
+use \ProcessException;
+use Criteria;
+use DB\ModeratorPeer;
+use DB\AdminPeer;
+use \WDPermissionException;
+use \WDPermissionManager;
+use DB\ForumPostPeer;
+
 class ForumNewPostFormModule extends SmartyModule {
 	
 	public function build($runData){
@@ -40,7 +53,7 @@ class ForumNewPostFormModule extends SmartyModule {
 		$db = Database::connection();
 		$db->begin();
 
-		$thread = DB_ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
+		$thread = ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
 		if($thread == null || $thread->getSiteId() !== $site->getSiteId()){
 			throw new ProcessException(_("No thread found... Is it deleted?"), "no_thread");
 		}
@@ -52,10 +65,10 @@ class ForumNewPostFormModule extends SmartyModule {
 				$c = new Criteria();
 				$c->add("site_id", $site->getSiteId());
 				$c->add("user_id", $user->getUserId());
-				$rel = DB_ModeratorPeer::instance()->selectOne($c);
+				$rel = ModeratorPeer::instance()->selectOne($c);
 			}
 			if(!$rel || strpos($rel->getPermissions(), 'f') == false){
-				$rel = DB_AdminPeer::instance()->selectOne($c);
+				$rel = AdminPeer::instance()->selectOne($c);
 				if(!$rel){
 					throw new WDPermissionException(_("Sorry, this thread is blocked. Nobody can add new posts nor edit existing ones."));
 				}
@@ -68,7 +81,7 @@ class ForumNewPostFormModule extends SmartyModule {
 		WDPermissionManager::instance()->hasForumPermission('new_post', $runData->getUser(), $category);
 
 		if($postId !== null && is_numeric($postId)){
-			$post = DB_ForumPostPeer::instance()->selectByPrimaryKey($postId);
+			$post = ForumPostPeer::instance()->selectByPrimaryKey($postId);
 			if($post == null || $post->getThreadId() !== $thread->getThreadId()){
 				throw new ProcessException(_("Original post does not exist! Please reload the page to make it up-to-date."), "no_post");	
 			}
@@ -82,7 +95,7 @@ class ForumNewPostFormModule extends SmartyModule {
 			$nestLevel6 = 0;
 			$parents = array();
 			while($parentId6 != null){
-				$parent6 = DB_ForumPostPeer::instance()->selectByPrimaryKey($parentId6);
+				$parent6 = ForumPostPeer::instance()->selectByPrimaryKey($parentId6);
 				$parents[] = $parent6;
 				$parentId6 = $parent6->getParentId();
 				$nestLevel6++;	

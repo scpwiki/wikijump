@@ -1,0 +1,99 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Paginator/Adapter
+http://framework.zend.com/svn/framework
+
+
+
+2008-11-07T18:45:33.262091Z
+12380
+mikaelkael
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+IteratorTest.php
+file
+
+
+
+
+2008-12-06T16:40:26.000000Z
+958fd6775d29dfa4e50bfe66984bed97
+2008-10-09T01:38:48.549154Z
+11762
+mratzloff
+has-props
+
+NullTest.php
+file
+
+
+
+
+2008-12-06T16:40:26.000000Z
+7072e98c13fe433f624d65fb613c3b46
+2008-09-04T02:08:28.021373Z
+11218
+mratzloff
+has-props
+
+DbTableSelectTest.php
+file
+
+
+
+
+2008-12-06T16:40:26.000000Z
+6c2629c8ea0ce64b06a46ad3d4ae4b41
+2008-10-09T01:38:48.549154Z
+11762
+mratzloff
+has-props
+
+ArrayTest.php
+file
+
+
+
+
+2008-12-06T16:40:26.000000Z
+53fed11e00275c4a7d0dc1712a4accea
+2008-09-04T02:08:28.021373Z
+11218
+mratzloff
+has-props
+
+DbSelect
+dir
+
+DbSelectTest.php
+file
+
+
+
+
+2008-12-06T16:40:26.000000Z
+6450c4666a335026812a6eb8a06dad3d
+2008-11-04T21:00:01.164654Z
+12285
+mikaelkael
+has-props
+
+DbTableSelect
+dir
+

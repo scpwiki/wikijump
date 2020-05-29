@@ -23,6 +23,14 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use DB\OzoneUserPeer;
+use Criteria;
+use DB\MemberPeer;
+use DB\AdminPeer;
+
 class UserInfoWinModule extends SmartyModule {
 	
 	public function build($runData){
@@ -30,7 +38,7 @@ class UserInfoWinModule extends SmartyModule {
 		$pl = $runData->getParameterList();
 		$userId = $pl->getParameterValue("user_id");
 		
-		$user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+		$user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
 		$avatarUri = '/common--images/avatars/'.floor($userId/1000).'/'.$userId.'/a48.png';
 		$runData->contextAdd("user", $user); 
 		$runData->contextAdd("avatarUri", $avatarUri);
@@ -43,13 +51,13 @@ class UserInfoWinModule extends SmartyModule {
 		$c = new Criteria();
 		$c->add("user_id", $userId);
 		$c->add("site_id", $siteId);
-		$mem = DB_MemberPeer::instance()->selectOne($c);
+		$mem = MemberPeer::instance()->selectOne($c);
 		if( $mem != null){
 			$runData->contextAdd("member", $mem);
 			// also check for other roles: admin & moderator
-			if(DB_AdminPeer::instance()->selectOne($c) != null){
+			if(AdminPeer::instance()->selectOne($c) != null){
 				$runData->contextAdd("role", "admin");	
-			}elseif(DB_AdminPeer::instance()->selectOne($c) != null){
+			}elseif(AdminPeer::instance()->selectOne($c) != null){
 				$runData->contextAdd("role", "moderator");	
 			}
 		}

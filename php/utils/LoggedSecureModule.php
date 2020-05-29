@@ -23,6 +23,10 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+
 abstract class LoggedSecureModule extends SmartyModule {
 	
 	public function isAllowed($runData){

@@ -1,0 +1,41 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/dojo/fx
+http://svn.dojotoolkit.org/src
+
+
+
+2008-08-28T19:53:00.552341Z
+14999
+dante
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+easing.js
+file
+
+
+
+
+2008-12-06T16:42:12.000000Z
+e7c9cd88b6ea560d28e81062375c113f
+2008-08-28T19:53:00.552341Z
+14999
+dante
+has-props
+

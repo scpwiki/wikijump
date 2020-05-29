@@ -1,0 +1,327 @@
+.forum-breadcrumbs{
+	margin-top: -0.7em;
+}
+.forum-breadcrumbs a{
+
+}
+
+.forum-group{
+	margin: 0.5em 0;
+}
+
+.forum-group div.head{
+	background-color: #666;
+	color: #FFF;
+	padding: 0.5em 1em;
+	margin: 0;
+	border: 1px solid #333;
+}
+
+.forum-group div.head .title{
+	font-weight: bold;
+}
+
+.forum-group table{
+	width: 100%;
+	border-collapse: separate;
+	border-spacing: 1px;
+}
+.forum-group  table td{
+	border: 1px solid #DDD;
+	padding: 2px 10px;
+}
+
+.forum-group  table td.name .description{
+	color: #777;
+	font-size: 87%;
+}
+.forum-group  table td.name .title{
+	font-weight: bold;
+}
+
+.forum-group  table td.last{
+	width: 17em;
+	font-size: 85%;
+	text-align: center;
+}
+.forum-group  table td.posts{
+	width: 5em;
+	text-align: center;
+}
+.forum-group  table td.threads{
+	width: 5em;
+	text-align: center;
+}
+
+
+.forum-group table tr.head td{
+	text-align: center;
+	font-size: 85%;
+	background-color: #EEE;
+}
+
+
+
+
+/* category-view */
+
+.forum-category-box{
+	margin: 0.5em 0;
+}
+
+.forum-category-box  .description-block{
+	border: 1px solid #CCC;
+	margin: 1em 4em;
+	padding: 0.5em;
+	background-color: #F5F5F5;
+	height: 100%;
+	overflow: hidden;
+}
+
+
+.forum-category-box  .description-block .statistics{
+	padding: 0 0.5em;
+	font-size: 85%;
+	color: #666;
+	text-align: right;
+	float: right;
+}
+
+.forum-category-box .options{
+	text-align: right;
+	margin: 1em 4em;
+}
+
+.forum-category-box table{
+	width: 100%;
+	
+	border-collapse: separate;
+	border-spacing: 1px;
+	border: 1px solid #BBB;
+	margin: 10px 0; padding:0;
+}
+
+.forum-category-box table td{
+	border: 1px solid #DDD;
+	padding: 5px 10px;
+}
+.forum-category-box table tr.head td{
+	text-align: center;
+	font-size: 90%;
+	background-color: #EEE;
+}
+
+.forum-category-box  table td.name .description{
+	color: #777;
+	font-size: 87%;
+}
+.forum-category-box table td.name .title{
+	font-weight: bold;
+}
+
+.forum-category-box  table td.last{
+	width: 16em;
+	font-size: 87%;
+	text-align: center;
+}
+.forum-category-box table td.posts{
+	width: 5em;
+	text-align: center;
+}
+.forum-category-box table td.started{
+	width: 17em;
+	text-align: center;
+	font-size: 87%;
+}
+
+.forum-category-box .pager{
+	margin: 1em 0;
+	text-align: center;
+}
+
+/* new thread */
+
+.forum-new-thread-box  .description{
+	border: 1px solid #CCC;
+	margin: 1em 4em;
+	padding: 0.5em;
+	background-color: #F5F5F5;
+	overflow: auto;
+}
+
+
+.forum-new-thread-box  .description .statistics{
+	padding: 0 0.5em;
+	font-size: 87%;
+	color: #666;
+	text-align: right;
+	float: right;
+}
+
+
+/* thread view */
+
+.forum-thread-box{
+	margin: 0.5em 0;
+	
+}
+
+.forum-thread-box  .description-block{
+	border: 1px solid #CCC;
+	margin: 1em 4em;
+	padding: 0.5em;
+	background-color: #F5F5F5;
+	overflow: hidden;
+	height: 100%;
+}
+
+.forum-thread-box  .description-block .head{
+	color: #777;
+	font-size: 87%;
+}
+
+.forum-thread-box  .description-block .statistics{
+	margin: 0.5em 0;
+	padding: 0 0.5em;
+	font-size: 87%;
+	color: #666;
+	text-align: right;
+	float: right;
+}
+
+.forum-thread-box .options{
+	text-align: right;
+	margin: 0.2em 4em;
+}
+
+.forum-thread-box  .action-area{
+	margin: 1em 4em; padding: 0.5em 1em;
+	border: 1px solid #EEE;
+
+}
+
+.thread-container .post{
+	padding: 10px 0 10px 0;
+	width: 99%; /* I love you IE */
+}
+
+.thread-container .post .options a{
+	margin:0; padding:0;
+	color: #77A;
+}
+
+.thread-container .post .head{
+	padding: 0.2em 0.5em;
+	background-color: #EEE;
+}
+.thread-container .post  .long  .head .options{
+	float: right;	
+	margin:0; padding: 0;
+}
+
+.thread-container .post  .long  .head .title{
+	font-weight: bold;
+	font-size: 1.2em;
+}
+
+.thread-container .post  .long  .head .info{
+}
+
+.thread-container .post  .long  .content{}
+
+.thread-container .post  .long  .content p{
+	/*margin: 5px 0;*/
+}
+
+.thread-container .post  .long  .changes{
+	font-size: 85%;
+	color: #777;
+	text-align: right;
+	margin-bottom: 4px;
+}
+.thread-container .post  .long  .changes a {
+	color: #77A;
+}
+
+.thread-container .post  .long  .revisions {
+	text-align: right;
+	padding: 0.5em;
+	font-size: 90%;
+}
+
+.thread-container .post  .long  .revisions  .title{
+	font-weight: bold;
+	font-size: 110%;
+	padding-bottom: 0.3em;
+}
+
+.thread-container .post  .long  .revisions table {
+	margin: 0 0 0 auto;
+	font-size: 90%;
+}
+
+.thread-container .post  .long  .revisions table tr.active td{
+	background-color: #EEE;
+}
+
+.thread-container .post  .long  .options{
+	text-align: right;
+	margin: 0; padding: 0;
+	height: 1%;
+}
+
+.thread-container .post  .short{ display: none;
+	background-color: #F4F4F4;
+	padding: 0.2em 0.5em;
+}
+
+.thread-container .post  .short  .options{
+	color: #77A;
+	float: right;
+	margin:0; padding:0;
+}	
+
+.thread-container .post.folded   .long{ display: none;}
+.thread-container .post.folded   .short{ display: block;}
+
+/* structured layout */
+
+.post-container .post-container{
+	margin-left: 5%;
+}
+
+.post-container.fordelete{
+	border: 2px solid #E44;
+	padding: 0.5em;
+}
+
+div.new-post{
+	text-align: left;
+	margin: 20px 0;
+}
+div.new-post a{
+	border: 1px solid #999;
+	background-color: #F7F7F7;
+	padding: 5px 10px;
+	font-size: 100%;
+	font-weight: bold;
+}
+
+
+/* recent posts */
+
+.forum-recent-posts-box .pager{
+	margin: 1em 0;
+	text-align: center;
+}
+
+/* classes for mini-stats */
+
+.forum-mini-stat{
+	margin: 0.5em 0;
+}
+
+.forum-mini-stat .item .info{
+	color: #777;
+	font-size: 80%;	
+}

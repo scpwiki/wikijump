@@ -1,0 +1,147 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/library/Zend/InfoCard/Xml
+http://framework.zend.com/svn/framework
+
+
+
+2008-12-14T11:05:07.472795Z
+13213
+thomas
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+Element.php
+file
+
+
+
+
+2009-01-04T17:41:47.000000Z
+ffccc96e1c8838f4503b36f6c743fd7a
+2008-12-14T11:05:07.472795Z
+13213
+thomas
+has-props
+
+KeyInfo
+dir
+
+Exception.php
+file
+
+
+
+
+2008-12-06T16:40:41.000000Z
+75f0f648625cc72f546d84cf8f5bb50c
+2008-03-30T18:36:55.103786Z
+9094
+thomas
+has-props
+
+Assertion
+dir
+
+EncryptedData
+dir
+
+Security
+dir
+
+Element
+dir
+
+KeyInfo.php
+file
+
+
+
+
+2008-12-06T16:40:41.000000Z
+e085c48c9cae57d314e1b568a736d40e
+2008-03-30T18:36:55.103786Z
+9094
+thomas
+has-props
+
+EncryptedKey.php
+file
+
+
+
+
+2008-12-06T16:40:41.000000Z
+6f93a5dea82e63479a32a788dfc2d984
+2008-03-30T18:36:55.103786Z
+9094
+thomas
+has-props
+
+Assertion.php
+file
+
+
+
+
+2009-01-04T17:41:47.000000Z
+d2bf8b1762bc82b51b3b7d67fa628e8d
+2008-12-14T11:05:07.472795Z
+13213
+thomas
+has-props
+
+EncryptedData.php
+file
+
+
+
+
+2009-01-04T17:41:47.000000Z
+46cca556acd1fdd6c65c04c4932e9033
+2008-12-14T11:05:07.472795Z
+13213
+thomas
+has-props
+
+Security.php
+file
+
+
+
+
+2009-01-04T17:41:47.000000Z
+f8be9edcc4fefcaf6976eb5ff255eccb
+2008-12-14T11:05:07.472795Z
+13213
+thomas
+has-props
+
+SecurityTokenReference.php
+file
+
+
+
+
+2008-12-06T16:40:41.000000Z
+d64db9d6b0923dfb50b0a1f328b2985a
+2008-03-30T18:36:55.103786Z
+9094
+thomas
+has-props
+

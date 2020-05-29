@@ -1,0 +1,54 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/dojox/encoding/crypto
+http://svn.dojotoolkit.org/src
+
+
+
+2008-04-30T16:21:04.834850Z
+13506
+dylan
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+_base.js
+file
+
+
+
+
+2008-12-06T16:41:14.000000Z
+fe4782a38556cb1255eb332e596f0df7
+2007-12-10T20:33:28.012777Z
+11776
+ttrenka
+has-props
+
+Blowfish.js
+file
+
+
+
+
+2008-12-06T16:41:14.000000Z
+4f22c652b359f13d5c4cce450943811d
+2008-04-30T16:21:04.834850Z
+13506
+dylan
+has-props
+

@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \ManageSiteBaseModule;
+use Criteria;
+use DB\ModeratorPeer;
+
 class ManageSiteModeratorsModule extends ManageSiteBaseModule {
 	
 	public function build($runData){
@@ -32,7 +38,7 @@ class ManageSiteModeratorsModule extends ManageSiteBaseModule {
 		$c->addJoin("user_id", "ozone_user.user_id");
 		$c->addOrderAscending("ozone_user.nick_name");
 		
-		$mems = DB_ModeratorPeer::instance()->select($c);
+		$mems = ModeratorPeer::instance()->select($c);
 		if(count($mems)>0){
 			$runData->contextAdd("moderators", $mems);	
 		}

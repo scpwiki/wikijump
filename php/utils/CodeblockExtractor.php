@@ -23,6 +23,14 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use DB\PagePeer;
+use \ProcessException;
+use Exception;
+use Wikidot\Form;
+use Wikidot\Template;
+
 class CodeblockExtractor {
 
 	protected $mimeType = null;
@@ -42,7 +50,7 @@ class CodeblockExtractor {
 				$codeblockNo = 1;
 			}
 			
-			$page = DB_PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
+			$page = PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
 			
 			if($page == null){
 				throw new ProcessException("No such page");
@@ -108,11 +116,11 @@ class CodeblockExtractor {
 		// Wikidot (DTL) template is the rest
 		$template = trim(implode("\n---\n", $template_parts));
 		
-		$form = Wikidot_Form::fromYaml($form_def);
+		$form = Form::fromYaml($form_def);
 		$context = $form->computeValues($extValues);
 		
 		// render the template
-		$w_template = new Wikidot_Template($template);
+		$w_template = new Template($template);
 		return $w_template->render($context);
 	}
 }

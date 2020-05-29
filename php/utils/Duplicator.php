@@ -23,6 +23,29 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use Database;
+use Criteria;
+use DB\AdminPeer;
+use DB\Admin;
+use DB\Member;
+use ODate;
+use DB\ThemePeer;
+use DB\CategoryPeer;
+use \Outdater;
+use \Indexer;
+use DB\PagePeer;
+use DB\ForumGroupPeer;
+use DB\ForumCategoryPeer;
+use DB\FilePeer;
+use DB\PageSource;
+use DB\PageMetadata;
+use DB\PageRevision;
+use DB\Page;
+use DB\PageCompiled;
+use DB\PageTagPeer;
+
 class Duplicator {
     
     private $owner;
@@ -79,16 +102,16 @@ class Duplicator {
         $c = new Criteria();
         $c->add('site_id', $site->getSiteId());
         $c->add('founder', true);
-        $owner = DB_AdminPeer::instance()->selectOne($c);
+        $owner = AdminPeer::instance()->selectOne($c);
         
         $this->owner = $owner;
         
-        $admin = new DB_Admin();
+        $admin = new Admin();
         $admin->setSiteId($nsite->getSiteId());
         $admin->setUserId($owner->getUserId());
         $admin->setFounder(true); // will be nonremovable ;-)
         $admin->save();
-        $member = new DB_Member();
+        $member = new Member();
         $member->setSiteId($nsite->getSiteId());
         $member->setUserId($owner->getUserId());
         $member->setDateJoined(new ODate());
@@ -97,7 +120,7 @@ class Duplicator {
         /* Theme(s). */
 		$c = new Criteria();
 		$c->add('site_id', $site->getSiteId());
-		$themes = DB_ThemePeer::instance()->select($c);
+		$themes = ThemePeer::instance()->select($c);
 		$themeMap = array();
 		$nthemes = array();
 		foreach($themes as $theme){
@@ -120,7 +143,7 @@ class Duplicator {
         // get all categories from the site
         $c = new Criteria();
         $c->add("site_id", $site->getSiteId());
-        $categories = DB_CategoryPeer::instance()->select($c);
+        $categories = CategoryPeer::instance()->select($c);
         
         foreach ($categories as $cat) {
             if (!in_array($cat->getName(), $this->excludedCategories)) {
@@ -146,7 +169,7 @@ class Duplicator {
         $ind = Indexer::instance();
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
-		$pages = DB_PagePeer::instance()->select($c);
+		$pages = PagePeer::instance()->select($c);
 		foreach($pages as $p){
 			$ind->indexPage($p);
 		}
@@ -162,7 +185,7 @@ class Duplicator {
     		/* Copy existing structure. */
     		$c = new Criteria();
     		$c->add('site_id', $site->getSiteId());
-    		$groups = DB_ForumGroupPeer::instance()->select($c);
+    		$groups = ForumGroupPeer::instance()->select($c);
     		
     		foreach($groups as $group){
     		    $ngroup = clone($group);
@@ -173,7 +196,7 @@ class Duplicator {
         		
         		$c = new Criteria();
         		$c->add('group_id', $group->getGroupId());
-        		$categories = DB_ForumCategoryPeer::instance()->select($c);
+        		$categories = ForumCategoryPeer::instance()->select($c);
         		foreach($categories as $category){
         		    $ncategory = clone($category);
         		    $ncategory->setNew(true);
@@ -199,7 +222,7 @@ class Duplicator {
 		
 		$c = new Criteria();
 		$c->add('site_id', $site->getSiteId());
-		$files = DB_FilePeer::instance()->select($c);
+		$files = FilePeer::instance()->select($c);
 		foreach($files as $file){
 		    $nfile = clone($file);
 		    $nfile->setSiteId($nsite->getSiteId());
@@ -238,12 +261,12 @@ class Duplicator {
         
         // add user as admin
         if ($owner) {
-            $admin = new DB_Admin();
+            $admin = new Admin();
             $admin->setSiteId($nsite->getSiteId());
             $admin->setUserId($owner->getUserId());
             $admin->setFounder(true); // will be nonremovable ;-)
             $admin->save();
-            $member = new DB_Member();
+            $member = new Member();
             $member->setSiteId($nsite->getSiteId());
             $member->setUserId($owner->getUserId());
             $member->setDateJoined(new ODate());
@@ -253,7 +276,7 @@ class Duplicator {
         // get all categories from the site
         $c = new Criteria();
         $c->add("site_id", $site->getSiteId());
-        $categories = DB_CategoryPeer::instance()->select($c);
+        $categories = CategoryPeer::instance()->select($c);
         
         foreach ($categories as $cat) {
             if (!in_array($cat->getName(), $this->excludedCategories)) {
@@ -280,7 +303,7 @@ class Duplicator {
         // copy pages
         $c = new Criteria();
         $c->add("category_id", $category->getCategoryId());
-        $pages = DB_PagePeer::instance()->select($c);
+        $pages = PagePeer::instance()->select($c);
         foreach ($pages as $page) {
             $this->duplicatePage($page, $nsite, $cat);
         }
@@ -294,20 +317,20 @@ class Duplicator {
         }
         
         // check if page exists - if so, forcibly delete!!!
-        $p = DB_PagePeer::instance()->selectByName($nsite->getSiteId(), $newUnixName);
+        $p = PagePeer::instance()->selectByName($nsite->getSiteId(), $newUnixName);
         if ($p) {
-            DB_PagePeer::instance()->deleteByPrimaryKey($p->getPageId());
+            PagePeer::instance()->deleteByPrimaryKey($p->getPageId());
         }
         
         $owner = $this->owner;
         $now = new ODate();
         // create new page object based on the existing page
-        $nsource = new DB_PageSource();
+        $nsource = new PageSource();
         $nsource->setText($page->getSource());
         $nsource->save();
         
         $meta = $page->getMetadata();
-        $nmeta = new DB_PageMetadata();
+        $nmeta = new PageMetadata();
         $nmeta->setTitle($meta->getTitle());
         $nmeta->setUnixName($newUnixName);
         if ($owner) {
@@ -318,7 +341,7 @@ class Duplicator {
         $nmeta->save();
         
         $rev = $page->getCurrentRevision();
-        $nrev = new DB_PageRevision();
+        $nrev = new PageRevision();
         $nrev->setSiteId($nsite->getSiteId());
         $nrev->setSourceId($nsource->getSourceId());
         $nrev->setMetadataId($nmeta->getMetadataId());
@@ -328,7 +351,7 @@ class Duplicator {
         $nrev->setUserId($owner->getUserId());
         $nrev->obtainPK();
         
-        $npage = new DB_Page();
+        $npage = new Page();
         $npage->setSiteId($nsite->getSiteId());
         $npage->setCategoryId($ncategory->getCategoryId());
         $npage->setRevisionId($nrev->getRevisionId());
@@ -345,7 +368,7 @@ class Duplicator {
         $nrev->setPageId($npage->getPageId());
         $nrev->save();
         
-        $ncomp = new DB_PageCompiled();
+        $ncomp = new PageCompiled();
         $ncomp->setPageId($npage->getPageId());
         $ncomp->setDateCompiled($now);
         $ncomp->save();
@@ -353,7 +376,7 @@ class Duplicator {
         /* Copy tags too. */
         $c = new Criteria();
         $c->add('page_id', $page->getPageId());
-        $tags = DB_PageTagPeer::instance()->select($c);
+        $tags = PageTagPeer::instance()->select($c);
         foreach($tags as $tag){
             $tag->setNew(true);
             $tag->setTagId(null);
@@ -385,7 +408,7 @@ class Duplicator {
         
         $c = new Criteria();
         $c->add("site_id", $site->getSiteId());
-        $categories = DB_CategoryPeer::instance()->select($c);
+        $categories = CategoryPeer::instance()->select($c);
         
         $dump['categories'] = $categories;
         
@@ -395,7 +418,7 @@ class Duplicator {
             
             $c = new Criteria();
             $c->add("category_id", $cat->getCategoryId());
-            $pages = DB_PagePeer::instance()->select($c);
+            $pages = PagePeer::instance()->select($c);
             foreach ($pages as &$p) {
                 $p->setTemp("source", $p->getSource());
                 $p->setTemp("meta", $p->getMetadata());
@@ -429,12 +452,12 @@ class Duplicator {
         // add user as admin
         $owner = $this->owner;
         if ($owner) {
-            $admin = new DB_Admin();
+            $admin = new Admin();
             $admin->setSiteId($nsite->getSiteId());
             $admin->setUserId($owner->getUserId());
             $admin->setFounder(true); // will be nonremovable ;-)
             $admin->save();
-            $member = new DB_Member();
+            $member = new Member();
             $member->setSiteId($nsite->getSiteId());
             $member->setUserId($owner->getUserId());
             $member->setDateJoined(new ODate());
@@ -458,12 +481,12 @@ class Duplicator {
                 
                 $now = new ODate();
                 // create new page object based on the existing page
-                $nsource = new DB_PageSource();
+                $nsource = new PageSource();
                 $nsource->setText($page->getTemp("source"));
                 $nsource->save();
                 
                 $meta = $page->getTemp("meta");
-                $nmeta = new DB_PageMetadata();
+                $nmeta = new PageMetadata();
                 $nmeta->setTitle($meta->getTitle());
                 $nmeta->setUnixName($newUnixName);
                 if ($owner) {
@@ -473,7 +496,7 @@ class Duplicator {
                 }
                 $nmeta->save();
                 
-                $nrev = new DB_PageRevision();
+                $nrev = new PageRevision();
                 $nrev->setSiteId($nsite->getSiteId());
                 $nrev->setSourceId($nsource->getSourceId());
                 $nrev->setMetadataId($nmeta->getMetadataId());
@@ -482,7 +505,7 @@ class Duplicator {
                 $nrev->setUserId($owner->getUserId());
                 $nrev->obtainPK();
                 
-                $npage = new DB_Page();
+                $npage = new Page();
                 $npage->setSiteId($nsite->getSiteId());
                 $npage->setCategoryId($cat->getCategoryId());
                 $npage->setRevisionId($nrev->getRevisionId());
@@ -498,7 +521,7 @@ class Duplicator {
                 $nrev->setPageId($npage->getPageId());
                 $nrev->save();
                 
-                $ncomp = new DB_PageCompiled();
+                $ncomp = new PageCompiled();
                 $ncomp->setPageId($npage->getPageId());
                 $ncomp->setDateCompiled($now);
                 $ncomp->save();

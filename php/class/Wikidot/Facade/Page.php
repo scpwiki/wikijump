@@ -1,6 +1,29 @@
 <?php
 
-class Wikidot_Facade_Page extends Wikidot_Facade_Base {
+
+namespace Wikidot\Facade;
+
+use Wikidot\Facade\Base;
+use \WDPermissionManager;
+use Criteria;
+use DB\FilePeer;
+use DB\CategoryPeer;
+use Database;
+use Wikidot\Facade\Exception\WrongArguments;
+use ODate;
+use \WDStringUtils;
+use DB\Page as DBPage;
+use DB\PageCompiled;
+use DB\PageMetadata;
+use DB\PageRevision;
+use DB\PageSource;
+use DB\PageTagPeer;
+use DB\PageTag;
+use \Outdater;
+
+
+
+class Page extends Base {
 	/**
 	 * Get all page attributes from site
 	 * 
@@ -36,16 +59,16 @@ class Wikidot_Facade_Page extends Wikidot_Facade_Base {
 		
 		$c = new Criteria();
 		$c->add("page_id", $this->page->getPageId());
-		$files = DB_FilePeer::instance()->select($c);
+		$files = FilePeer::instance()->select($c);
 		
 		return $this->repr($files);
     }
 
     private function _getOrCreateCategory($site, $categoryName) {
-        $category = DB_CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId(), false);
+        $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId(), false);
         if ($category == null){
             // create the category - just clone the default category!!!
-            $category = DB_CategoryPeer::instance()->selectByName("_default", $site->getSiteId(), false);
+            $category = CategoryPeer::instance()->selectByName("_default", $site->getSiteId(), false);
             $category->setCategoryId(null);
             $category->setNew(true);
             $category->setName($categoryName);
@@ -68,7 +91,7 @@ class Wikidot_Facade_Page extends Wikidot_Facade_Base {
 		
 		// simple argument checking
 		if (! isset($args['page'])) {
-			throw new Wikidot_Facade_Exception_WrongArguments("Page argument must be passed");
+			throw new WrongArguments("Page argument must be passed");
 		}
 		
 		$pm = new WDPermissionManager();
@@ -91,7 +114,7 @@ class Wikidot_Facade_Page extends Wikidot_Facade_Base {
 			// check permissions to edit the page
 			$pm->hasPagePermission('edit', $this->performer, $page->getCategory(), $page);
 
-		} catch (Wikidot_Facade_Exception_WrongArguments $e) {
+		} catch (WrongArguments $e) {
             if ($this->source === null) {
                 $this->source = "";
             }
@@ -106,7 +129,7 @@ class Wikidot_Facade_Page extends Wikidot_Facade_Base {
             }
             $category = $this->_getOrCreateCategory($this->site, $category_name);
 
-            $page = new DB_Page();
+            $page = new DBPage();
             $page->setSiteId($this->site->getSiteId());
             $page->setCategoryId($category->getCategoryId());
             $page->setUnixName($arg_page);
@@ -114,7 +137,7 @@ class Wikidot_Facade_Page extends Wikidot_Facade_Base {
             $page->setOwnerUserId($this->performer->getUserId());
             $page->save();
 
-            $compiled = new DB_PageCompiled();
+            $compiled = new PageCompiled();
             $compiled->setPageId($page->getPageId());
             $compiled->save();
 		}
@@ -127,7 +150,7 @@ class Wikidot_Facade_Page extends Wikidot_Facade_Base {
 			
 		// construct new metadata
         if ($new) {
-            $new_meta = new DB_PageMetadata();
+            $new_meta = new PageMetadata();
             $new_meta->setUnixName($arg_page);
             $new_meta->setOwnerUserId($this->performer->getUserId());
         } else {
@@ -137,7 +160,7 @@ class Wikidot_Facade_Page extends Wikidot_Facade_Base {
         }
 		
         // construct new revision
-		$new_rev = new DB_PageRevision();
+		$new_rev = new PageRevision();
 		$new_rev->setSiteId($this->site->getSiteId());
 		$new_rev->setPageId($page->getPageId());
         $new_rev->setUserId($this->performer->getUserId());
@@ -156,7 +179,7 @@ class Wikidot_Facade_Page extends Wikidot_Facade_Base {
 		// handle source change
 		if ($new || ($this->source !== null && $page->getSource() != $this->source)) {
 			
-			$new_src = new DB_PageSource();
+			$new_src = new PageSource();
 			$new_src->setText($this->source);
 			$new_src->save();
 			
@@ -193,7 +216,7 @@ class Wikidot_Facade_Page extends Wikidot_Facade_Base {
 						$c->add('page_id', $page->getPageId());
 						$c->add('tag', $tag);
 						
-						if ($t = DB_PageTagPeer::instance()->selectOne($c)) {
+						if ($t = PageTagPeer::instance()->selectOne($c)) {
 							$t->delete();
 							$tags_deleted[] = $tag;
 						}
@@ -202,7 +225,7 @@ class Wikidot_Facade_Page extends Wikidot_Facade_Base {
 				
 				foreach ($new_tags as $tag) {
 					if (! in_array($tag, $cur_tags)) {
-						$t = new DB_PageTag();
+						$t = new PageTag();
 						$t->getPageId($page->getPageId());
 						$t->setSiteId($this->site->getSiteId());
 						$t->setTag($tag);

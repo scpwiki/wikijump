@@ -1,0 +1,60 @@
+<sect1 id="zend.currency.introduction">
+
+    <title>Introduction to Zend_Currency</title>
+
+    <para>
+        <code>Zend_Currency</code> is part of the strong support for i18n in Zend Framework. It handles all issues
+        related to currency, money representation and formatting. It also provides additional
+        methods which provide localized information on currencies, such as which currency is used
+        in which region.
+    </para>
+
+    <sect2 id="zend.currency.introduction.list">
+
+        <title>Why use <code>Zend_Currency</code>?</title>
+
+        <para>
+            <code>Zend_Currency</code> offers the following functions for handling currency manipulations.
+        </para>
+
+        <itemizedlist mark='opencircle'>
+            <listitem>
+                <para>
+                    <emphasis role="strong">Complete Locale support</emphasis>
+                </para>
+                <para>
+                    <code>Zend_Currency</code> works with all available locales and therefore knows about over 100 different localized currencies. This includes
+                    currency names, abbreviations, money signs and more.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    <emphasis role="strong">Reusable Currency Definitions</emphasis>
+                </para>
+                <para>
+                    <code>Zend_Currency</code> does not include the value of the currency. This is the reason why
+                    its functionality is not included in <code>Zend_Locale_Format</code>. <code>Zend_Currency</code> has the
+                    advantage that already defined currency representations can be reused.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    <emphasis role="strong">Fluent Interface</emphasis>
+                </para>
+                <para>
+                    <code>Zend_Currency</code> includes fluent interfaces where possible.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    <emphasis role="strong">Additional Methods</emphasis>
+                </para>
+                <para>
+                    <code>Zend_Currency</code> includes additional methods that offer information about
+                    which regions a currency is used in or which currency is used in a specified region.
+                </para>
+            </listitem>
+        </itemizedlist>
+    </sect2>
+
+</sect1>

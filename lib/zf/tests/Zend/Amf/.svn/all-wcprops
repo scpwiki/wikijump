@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/framework/!svn/ver/13288/standard/trunk/tests/Zend/Amf
+END
+AllTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Amf/AllTests.php
+END
+Contact.php
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Amf/Contact.php
+END
+ResponseTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/13288/standard/trunk/tests/Zend/Amf/ResponseTest.php
+END
+ServiceA.php
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/framework/!svn/ver/13187/standard/trunk/tests/Zend/Amf/ServiceA.php
+END
+ServiceB.php
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/framework/!svn/ver/13187/standard/trunk/tests/Zend/Amf/ServiceB.php
+END
+ServerTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/framework/!svn/ver/13187/standard/trunk/tests/Zend/Amf/ServerTest.php
+END
+RequestTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Amf/RequestTest.php
+END
+TypeLoaderTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Amf/TypeLoaderTest.php
+END

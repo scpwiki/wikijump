@@ -1,0 +1,80 @@
+<!-- EN-Revision: 11089 -->
+<sect1 id="zend.dojo.form" xmlns:xi="http://www.w3.org/2001/XInclude">
+    <title>Les éléments de formulaire et les décorateurs Dojo</title>
+
+    <para>Bâtie sur les <link linkend="zend.dojo.view.dijit">aides de vues dijit</link>, la famille des classes
+    <code>Zend_Dojo_Form</code> fournit la possibilité d'utiliser les Dijits nativement dans vos formulaires.</para>
+
+    <para>Il existe trois options pour utiliser les éléments de formulaires Dojo avec vos formulaires :</para>
+
+    <itemizedlist>
+        <listitem>
+            <para>Utilisez <code>Zend_Dojo::enableForm()</code>. Ceci ajoutera, de manière récursive, les chemins de
+            plugin des éléments et des décorateurs pour tous les éléments de formulaires attachés. De plus, ceci active
+            dojo dans l'objet de vue. Notez, cependant, que tout sous-formulaire que vous attacherez
+            <emphasis>après</emphasis> cet appel devront eux aussi faire leur appel à
+            <code>Zend_Dojo::enableForm()</code>.</para>
+        </listitem>
+
+        <listitem>
+            <para>Utilisez les implémentations de formulaires et sous-formulaires spécifiques à Dojo, respectivement
+            <code>Zend_Dojo_Form</code> et <code>Zend_Dojo_Form_SubForm</code>. Ceux-ci peuvent être utilisés en lieu et
+            place de <code>Zend_Form</code> et <code>Zend_Form_SubForm</code>, ils contiennent tous les chemins
+            appropriés des éléments et décorateurs, ils paramètrent une classe par défaut pour les DisplayGroup
+            spécifique à Dojo et activent dojo dans l'objet de vue.</para>
+        </listitem>
+
+        <listitem>
+            <para>En dernier, et le plus pénible, vous pouvez régler vous même les chemins appropriés vers les
+            décorateurs et les éléments, régler la classe de DisplayGroup par défaut, et activer dojo dans l'objet de
+            vue. Puisque <code>Zend_Dojo::enableForm()</code> fait déjà ceci, il n'y a que peu de raisons d'utiliser
+            cette voie.</para>
+        </listitem>
+    </itemizedlist>
+
+    <example id="zend.dojo.form.enable">
+        <title>Activation de Dojo dans vos formulaires existants</title>
+
+        <para>"Mais attendez," vous allez me dire ; "j'étends déjà Zend_Form avec ma propre classe de formulaire
+        personnalisé ! Comment puis-je activer Dojo ?'"</para>
+
+        <para>Premièrement, et sans doute le plus simple, étendez <code>Zend_Dojo_Form</code> au lieu de
+        <code>Zend_Form</code>, et mettez à jour tous les endroits où vous intanciez <code>Zend_Form_SubForm</code> en
+        le remplaçant par <code>Zend_Dojo_Form_SubForm</code>.</para>
+
+        <para>Une seconde approche consiste en un appel à <code>Zend_Dojo::enableForm()</code> dans la méthode
+        <code>init()</code> de vos formulaires ; quand la définition du formulaire est complète, bouclez à travers tous
+        les sous-formulaires pour y activer dojo pour chacun :</para>
+
+        <programlisting role="php"><![CDATA[
+class My_Form_Custom extends Zend_Form
+{
+    public function init()
+    {
+        // Activer Dojo pour le formulaire :
+        Zend_Dojo::enableForm($this);
+
+        // ... continuez la définition du formulaire ici
+
+        // Activer Dojo pour tous les formulaires :
+        foreach ($this->getSubForms() as $subForm) {
+            Zend_Dojo::enableForm($subForm);
+        }
+    }
+}
+]]></programlisting>
+    </example>
+
+    <para>L'utilisation des éléments de formulaires et les décorateurs spécifiques à Dijit est identique à l'utilisation
+    de tous autres éléments de formulaires ou décorateurs.</para>
+
+    <xi:include href="Zend_Dojo-Form-Decorators.xml">
+        <xi:fallback><xi:include href="../../en/module_specs/Zend_Dojo-Form-Decorators.xml" /></xi:fallback>
+    </xi:include>
+    <xi:include href="Zend_Dojo-Form-Elements.xml">
+        <xi:fallback><xi:include href="../../en/module_specs/Zend_Dojo-Form-Elements.xml" /></xi:fallback>
+    </xi:include>
+    <xi:include href="Zend_Dojo-Form-Examples.xml">
+        <xi:fallback><xi:include href="../../en/module_specs/Zend_Dojo-Form-Examples.xml" /></xi:fallback>
+    </xi:include>
+</sect1>

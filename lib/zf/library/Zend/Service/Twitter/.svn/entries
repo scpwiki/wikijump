@@ -1,0 +1,54 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/library/Zend/Service/Twitter
+http://framework.zend.com/svn/framework
+
+
+
+2008-12-12T01:38:03.359122Z
+13173
+yoshida@zend.co.jp
+has-props
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+Exception.php
+file
+
+
+
+
+2009-01-04T17:41:46.000000Z
+79cbc1393b7c66966e3f7bc80703e991
+2008-12-12T01:38:03.359122Z
+13173
+yoshida@zend.co.jp
+has-props
+
+Search.php
+file
+
+
+
+
+2008-12-06T16:40:33.000000Z
+3ecd36e338370b14e6d03590d91c6556
+2008-11-10T11:56:52.927134Z
+12489
+sidhighwind
+has-props
+

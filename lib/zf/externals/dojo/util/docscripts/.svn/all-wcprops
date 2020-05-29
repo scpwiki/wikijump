@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/src/!svn/ver/15394/branches/1.2/util/docscripts
+END
+generate.php
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/src/!svn/ver/15394/branches/1.2/util/docscripts/generate.php
+END
+LICENSE
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/src/!svn/ver/15394/branches/1.2/util/docscripts/LICENSE
+END
+_browse.php
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/src/!svn/ver/15394/branches/1.2/util/docscripts/_browse.php
+END
+makeCix.php
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/src/!svn/ver/15394/branches/1.2/util/docscripts/makeCix.php
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/src/!svn/ver/15394/branches/1.2/util/docscripts/README
+END

@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/framework/!svn/ver/13016/standard/trunk/tests/Zend/Layout
+END
+AllTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Layout/AllTests.php
+END
+LayoutTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/13016/standard/trunk/tests/Zend/Layout/LayoutTest.php
+END
+PluginTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Layout/PluginTest.php
+END
+HelperTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Layout/HelperTest.php
+END
+FunctionalTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Layout/FunctionalTest.php
+END

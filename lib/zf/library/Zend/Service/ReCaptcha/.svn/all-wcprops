@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/framework/!svn/ver/10741/standard/trunk/library/Zend/Service/ReCaptcha
+END
+MailHide.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/10741/standard/trunk/library/Zend/Service/ReCaptcha/MailHide.php
+END
+Exception.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/10741/standard/trunk/library/Zend/Service/ReCaptcha/Exception.php
+END
+Response.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/10741/standard/trunk/library/Zend/Service/ReCaptcha/Response.php
+END

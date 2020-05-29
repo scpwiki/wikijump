@@ -1,0 +1,57 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Wildfire
+http://framework.zend.com/svn/framework
+
+
+
+2008-11-12T16:07:55.406242Z
+12583
+alexander
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+_files
+dir
+
+AllTests.php
+file
+
+
+
+
+2008-12-06T16:40:29.000000Z
+58ab4e82db57e4b64184462757151a03
+2008-10-18T14:29:41.078580Z
+12004
+mikaelkael
+has-props
+
+WildfireTest.php
+file
+
+
+
+
+2008-12-06T16:40:29.000000Z
+795b58ff9b738bf403e2bf1ae262d9d3
+2008-11-12T16:07:55.406242Z
+12583
+alexander
+has-props
+

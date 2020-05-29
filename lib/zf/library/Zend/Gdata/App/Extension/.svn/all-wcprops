@@ -1,0 +1,149 @@
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/13292/standard/trunk/library/Zend/Gdata/App/Extension
+END
+Element.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/Extension/Element.php
+END
+Subtitle.php
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/Extension/Subtitle.php
+END
+Id.php
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/Extension/Id.php
+END
+Link.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/Extension/Link.php
+END
+Summary.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/Extension/Summary.php
+END
+Uri.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/Extension/Uri.php
+END
+Logo.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/Extension/Logo.php
+END
+Draft.php
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/Extension/Draft.php
+END
+Rights.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/Extension/Rights.php
+END
+Source.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/Extension/Source.php
+END
+Author.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/Extension/Author.php
+END
+Person.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/Extension/Person.php
+END
+Contributor.php
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/Extension/Contributor.php
+END
+Content.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/13292/standard/trunk/library/Zend/Gdata/App/Extension/Content.php
+END
+Category.php
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/Extension/Category.php
+END
+Published.php
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/Extension/Published.php
+END
+Name.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/Extension/Name.php
+END
+Control.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/Extension/Control.php
+END
+Title.php
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/Extension/Title.php
+END
+Text.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/Extension/Text.php
+END
+Generator.php
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/Extension/Generator.php
+END
+Updated.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/Extension/Updated.php
+END
+Email.php
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/Extension/Email.php
+END
+Icon.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/Extension/Icon.php
+END

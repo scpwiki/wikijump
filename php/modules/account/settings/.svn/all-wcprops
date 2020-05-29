@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/account/settings
+END
+ASBlockedModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/account/settings/ASBlockedModule.php
+END
+ASLanguageModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/account/settings/ASLanguageModule.php
+END
+ASEmailModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/account/settings/ASEmailModule.php
+END
+ASInvitationsModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/account/settings/ASInvitationsModule.php
+END
+ASMessagesModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/account/settings/ASMessagesModule.php
+END
+ASNotificationsModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/account/settings/ASNotificationsModule.php
+END

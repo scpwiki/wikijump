@@ -23,6 +23,21 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyAction;
+use \WDPermissionException;
+use \WDPermissionManager;
+use DB\OzoneUserPeer;
+use DB\OzoneUser;
+use DB\Member;
+use \WDStringUtils;
+use DB\Admin;
+use Criteria;
+use DB\AdminPeer;
+use DB\Moderator;
+use DB\ModeratorPeer;
+
 class ManageUsersAction extends SmartyAction {
 	
 	public function isAllowed($runData){
@@ -56,7 +71,7 @@ class ManageUsersAction extends SmartyAction {
 			
 			if ($nick_name) {
 				if ($id = 1 * $id) {
-					$u = DB_OzoneUserPeer::instance()->selectByPrimaryKey($id);
+					$u = OzoneUserPeer::instance()->selectByPrimaryKey($id);
 				} else {
 					$u = null;
 				}
@@ -64,14 +79,14 @@ class ManageUsersAction extends SmartyAction {
 				$next = false;
 				
 				if (! $u) {
-					$u = new DB_OzoneUser();
+					$u = new OzoneUser();
 					if (! $password) {
 						$next = true;
 					}
                     
                     $u->save();
                     
-                    $m = new DB_Member();
+                    $m = new Member();
                     $m->setUserId($u->getUserId());
                     $m->setSiteId($site->getSiteId());
                     $m->save();
@@ -93,7 +108,7 @@ class ManageUsersAction extends SmartyAction {
 
                     if ($admin) {
                         if (! WDPermissionManager::hasPermission('manage_site', $u, $site)) {
-                            $a = new DB_Admin();
+                            $a = new Admin();
                             $a->setUserId($u->getUserId());
                             $a->setSiteId($site->getSiteId());
                             $a->save();
@@ -102,12 +117,12 @@ class ManageUsersAction extends SmartyAction {
                         $c = new Criteria();
                         $c->add('site_id', $site->getSiteId());
                         $c->add('user_id', $u->getUserId());
-                        DB_AdminPeer::instance()->delete($c);
+                        AdminPeer::instance()->delete($c);
                     }
 					
                     if ($mod) {
                         if (! WDPermissionManager::hasPermission('moderate_site', $u, $site)) {
-                            $m = new DB_Moderator();
+                            $m = new Moderator();
                             $m->setUserId($u->getUserId());
                             $m->setSiteId($site->getSiteId());
                             $m->save();
@@ -116,7 +131,7 @@ class ManageUsersAction extends SmartyAction {
                         $c = new Criteria();
                         $c->add('site_id', $site->getSiteId());
                         $c->add('user_id', $u->getUserId());
-                        DB_ModeratorPeer::instance()->delete($c);
+                        ModeratorPeer::instance()->delete($c);
                     }
 				}
 			}

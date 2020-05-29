@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/membership
+END
+MembershipApplyModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/membership/MembershipApplyModule.tpl
+END
+MembershipEmailInvitationCongratulationModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/membership/MembershipEmailInvitationCongratulationModule.tpl
+END
+MembersListModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/membership/MembersListModule.tpl
+END
+MembershipByPasswordResultModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/membership/MembershipByPasswordResultModule.tpl
+END
+MembershipEmailInvitationModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/membership/MembershipEmailInvitationModule.tpl
+END
+MembershipByPasswordModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/membership/MembershipByPasswordModule.tpl
+END
+MembershipApplySuccessModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/membership/MembershipApplySuccessModule.tpl
+END

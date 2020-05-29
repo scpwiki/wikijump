@@ -1,0 +1,34 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/demos/Zend/Search/Lucene
+http://framework.zend.com/svn/framework
+
+
+
+2008-03-23T15:00:16.602967Z
+9028
+thomas
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+indexing
+dir
+
+feed-search
+dir
+

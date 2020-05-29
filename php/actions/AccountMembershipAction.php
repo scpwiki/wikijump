@@ -23,6 +23,25 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyAction;
+use \WDPermissionException;
+use DB\MemberInvitationPeer;
+use DB\SitePeer;
+use \ProcessException;
+use Criteria;
+use DB\MemberPeer;
+use Database;
+use DB\Member;
+use ODate;
+use DB\MembershipLink;
+use DB\MemberApplicationPeer;
+use \AdminNotificationMaker;
+use DB\AdminPeer;
+use DB\ModeratorPeer;
+use \WDStringUtils;
+
 class AccountMembershipAction extends SmartyAction {
 	
 	public static $forbiddenUnixNames = array(
@@ -74,8 +93,8 @@ class AccountMembershipAction extends SmartyAction {
 		$userId = $runData->getUserId();
 		$user = $runData->getUser();
 		
-		$invitation = DB_MemberInvitationPeer::instance()->selectByPrimaryKey($invitationId);
-		$site = DB_SitePeer::instance()->selectByPrimaryKey($invitation->getSiteId());
+		$invitation = MemberInvitationPeer::instance()->selectByPrimaryKey($invitationId);
+		$site = SitePeer::instance()->selectByPrimaryKey($invitation->getSiteId());
 		if($invitation == null || $invitation->getUserId() != $userId || $site == null){
 			throw new ProcessException(_("Invitation can not be found."), "no_invitation");
 		}
@@ -85,7 +104,7 @@ class AccountMembershipAction extends SmartyAction {
 			$maxMembers = $settings->getMaxPrivateMembers();
 			$c = new Criteria();
 			$c->add("site_id", $site->getSiteId());
-			$cmem = DB_MemberPeer::instance()->selectCount($c);
+			$cmem = MemberPeer::instance()->selectCount($c);
 			if($cmem >= $maxMembers){
 				throw new ProcessException(sprintf(_('Sorry, at the moment max %d member limit apply for private Wikis. The Site would have to be upgraded to allow more members.'), $maxMembers));		
 			}
@@ -95,14 +114,14 @@ class AccountMembershipAction extends SmartyAction {
 		$db = Database::connection();
 		$db->begin();
 		// create membership
-		$member = new DB_Member();
+		$member = new Member();
 		$member->setUserId($userId);
 		$member->setSiteId($invitation->getSiteId());
 		$member->setDateJoined(new ODate());
 		
 		$member->save();
 		
-		$ml = new DB_MembershipLink();
+		$ml = new MembershipLink();
 		$ml->setUserId($userId);
 		$ml->setSiteId($invitation->getSiteId());
 		$ml->setDate(new ODate());
@@ -115,9 +134,9 @@ class AccountMembershipAction extends SmartyAction {
 		$c->add("site_id", $site->getSiteId());
 		$c->add("user_id", $userId);
 			
-		DB_MemberApplicationPeer::instance()->delete($c);
+		MemberApplicationPeer::instance()->delete($c);
 		
-		DB_MemberInvitationPeer::instance()->deleteByPrimaryKey($invitationId);
+		MemberInvitationPeer::instance()->deleteByPrimaryKey($invitationId);
 		$runData->ajaxResponseAdd("message", _('Now you are a member of the site').' <a href="http://'.htmlspecialchars($site->getDomain()).'">'.htmlspecialchars($site->getName()).'</a>');
 		
 		AdminNotificationMaker::instance()->memberInvitationAccepted($site, $user);
@@ -133,8 +152,8 @@ class AccountMembershipAction extends SmartyAction {
 		$db = Database::connection();
 		$db->begin();
 		
-		$invitation = DB_MemberInvitationPeer::instance()->selectByPrimaryKey($invitationId);
-		$site = DB_SitePeer::instance()->selectByPrimaryKey($invitation->getSiteId());
+		$invitation = MemberInvitationPeer::instance()->selectByPrimaryKey($invitationId);
+		$site = SitePeer::instance()->selectByPrimaryKey($invitation->getSiteId());
 		if($invitation == null || $invitation->getUserId() != $userId || $site == null){
 			throw new ProcessException(_("Invitation can not be found."), "no_invitation");
 		}
@@ -142,7 +161,7 @@ class AccountMembershipAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("invitation_id", $invitationId);
 		$c->add("user_id", $userId);
-		DB_MemberInvitationPeer::instance()->delete($c);
+		MemberInvitationPeer::instance()->delete($c);
 		AdminNotificationMaker::instance()->memberInvitationDeclined($site, $user);
 		$db->commit();
 	}
@@ -162,7 +181,7 @@ class AccountMembershipAction extends SmartyAction {
 		
 		// check if admin
 		
-		$admin =  DB_AdminPeer::instance()->selectOne($c);
+		$admin =  AdminPeer::instance()->selectOne($c);
 		
 		if($admin && $admin->getFounder()){
 			throw new ProcessException(_("You have founded this site - sorry, you can not resign."), "founder_nonremovable");	
@@ -172,7 +191,7 @@ class AccountMembershipAction extends SmartyAction {
 			// check if not the last admin!!!
 			$c2 = new Criteria();
 			$c2->add("site_id", $siteId);
-			$acount = DB_AdminPeer::instance()->selectCount($c2);
+			$acount = AdminPeer::instance()->selectCount($c2);
 			if($acount == 1){
 				$runData->ajaxResponseAdd("status", "last_admin");
 				$runData->ajaxResponseAdd("message", _("You can not simply resign - you are the last admin of this site!"));
@@ -181,11 +200,11 @@ class AccountMembershipAction extends SmartyAction {
 			}
 		}
 		
-		DB_MemberPeer::instance()->delete($c);
-		DB_ModeratorPeer::instance()->delete($c);
-		DB_AdminPeer::instance()->delete($c);
+		MemberPeer::instance()->delete($c);
+		ModeratorPeer::instance()->delete($c);
+		AdminPeer::instance()->delete($c);
 		
-		$site = DB_SitePeer::instance()->selectByPrimaryKey($siteId);
+		$site = SitePeer::instance()->selectByPrimaryKey($siteId);
 		AdminNotificationMaker::instance()->memberResigned($site, $user);
 		
 		$db->commit();	
@@ -201,7 +220,7 @@ class AccountMembershipAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("user_id", $userId);
 		$c->add("site_id", $siteId);
-		$admin = DB_AdminPeer::instance()->selectOne($c);
+		$admin = AdminPeer::instance()->selectOne($c);
 		
 		if($admin && $admin->getFounder()){
 			throw new ProcessException(_("You have founded this site - sorry, you can not resign."), "founder_nonremovable");	
@@ -210,7 +229,7 @@ class AccountMembershipAction extends SmartyAction {
 		// you can not resign if you are the last admin...
 		$c2 = new Criteria();
 		$c2->add("site_id", $siteId);
-		$acount = DB_AdminPeer::instance()->selectCount($c2);
+		$acount = AdminPeer::instance()->selectCount($c2);
 		if( $acount == 1){
 			$runData->ajaxResponseAdd("status", "last_admin");
 			$runData->ajaxResponseAdd("message", _("You can not simply resign - you are the last admin of this site!"));
@@ -221,9 +240,9 @@ class AccountMembershipAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("user_id", $userId);
 		$c->add("site_id", $siteId);
-		DB_AdminPeer::instance()->delete($c);
+		AdminPeer::instance()->delete($c);
 		
-		$site = DB_SitePeer::instance()->selectByPrimaryKey($siteId);
+		$site = SitePeer::instance()->selectByPrimaryKey($siteId);
 		$user = $runData->getUser();
 		AdminNotificationMaker::instance()->adminResigned($site, $user);
 		
@@ -240,9 +259,9 @@ class AccountMembershipAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("user_id", $userId);
 		$c->add("site_id", $siteId);
-		DB_ModeratorPeer::instance()->delete($c);
+		ModeratorPeer::instance()->delete($c);
 		
-		$site = DB_SitePeer::instance()->selectByPrimaryKey($siteId);
+		$site = SitePeer::instance()->selectByPrimaryKey($siteId);
 		$user = $runData->getUser();
 		AdminNotificationMaker::instance()->moderatorResigned($site, $user);
 		
@@ -259,7 +278,7 @@ class AccountMembershipAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("user_id", $userId);
 		$c->add("site_id", $siteId);
-		DB_MemberApplicationPeer::instance()->delete($c);
+		MemberApplicationPeer::instance()->delete($c);
 		
 		$db->commit();
 	}
@@ -272,7 +291,7 @@ class AccountMembershipAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add('site_id', $siteId);
 		$c->add('deleted', true);
-		$site = DB_SitePeer::instance()->selectOne($c);
+		$site = SitePeer::instance()->selectOne($c);
 		
 		if(!$site){
 			throw new ProcessException(_('Error selecting a site to restore.'));
@@ -285,7 +304,7 @@ class AccountMembershipAction extends SmartyAction {
 		$c->add("user_id", $user->getUserId());
 		$c->add("site_id", $site->getSiteId());
 		$c->add("founder", true);
-		$rel = DB_AdminPeer::instance()->selectOne($c);
+		$rel = AdminPeer::instance()->selectOne($c);
 		
 		if(!$rel){
 			throw new ProcessException(_("Sorry, you have no permissions to restore this site."));
@@ -321,7 +340,7 @@ class AccountMembershipAction extends SmartyAction {
 			// check if the domain is not taken.
 			$c = new Criteria();
 			$c->add("unix_name", $unixName);
-			$ss = DB_SitePeer::instance()->selectOne($c);
+			$ss = SitePeer::instance()->selectOne($c);
 			if($ss){
 				$errors['unixname'] = _('Sorry, this web address is already used by another site.');
 						

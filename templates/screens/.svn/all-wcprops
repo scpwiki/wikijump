@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/repos/!svn/ver/251/wikidot1/trunk/templates/screens
+END
+NotificationDialog.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/repos/!svn/ver/2/wikidot1/trunk/templates/screens/NotificationDialog.tpl
+END
+HelpPop.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/repos/!svn/ver/2/wikidot1/trunk/templates/screens/HelpPop.tpl
+END
+DefaultError.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/repos/!svn/ver/2/wikidot1/trunk/templates/screens/DefaultError.tpl
+END

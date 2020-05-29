@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Rest/responses
+END
+returnNestedArray.xml
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Rest/responses/returnNestedArray.xml
+END
+returnVoid.xml
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Rest/responses/returnVoid.xml
+END
+returnObject.xml
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Rest/responses/returnObject.xml
+END
+returnString.xml
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Rest/responses/returnString.xml
+END
+returnError.xml
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Rest/responses/returnError.xml
+END
+returnFalse.xml
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Rest/responses/returnFalse.xml
+END
+returnInt.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Rest/responses/returnInt.xml
+END
+returnArray.xml
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Rest/responses/returnArray.xml
+END
+returnTrue.xml
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Rest/responses/returnTrue.xml
+END

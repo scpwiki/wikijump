@@ -23,6 +23,14 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use \WDPermissionManager;
+use Criteria;
+use DB\PetitionCampaignPeer;
+use \ProcessException;
+
 class ViewPetitionCampaignModule extends SmartyModule {
 	
 	public function isAllowed($runData){
@@ -41,7 +49,7 @@ class ViewPetitionCampaignModule extends SmartyModule {
 		$c->add("deleted", false);
 		$c->add("campaign_id", $campaignId);
 		
-		$camp = DB_PetitionCampaignPeer::instance()->selectOne($c);
+		$camp = PetitionCampaignPeer::instance()->selectOne($c);
 		
 		if(!$camp){
 			throw new ProcessException(_("The campaign can not be found."));	
@@ -53,7 +61,7 @@ class ViewPetitionCampaignModule extends SmartyModule {
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
 		$c->add("deleted", false);
-		$camps = DB_PetitionCampaignPeer::instance()->select($c);
+		$camps = PetitionCampaignPeer::instance()->select($c);
 		
 		$runData->contextAdd("campaigns", $camps);
 		$runData->contextAdd("campaignsCount", count($camps));

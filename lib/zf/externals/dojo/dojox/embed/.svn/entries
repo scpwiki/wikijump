@@ -1,0 +1,89 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/dojox/embed
+http://svn.dojotoolkit.org/src
+
+
+
+2008-10-01T19:44:40.459247Z
+15375
+BryanForbes
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+Object.js
+file
+
+
+
+
+2008-12-06T16:41:41.000000Z
+55b464b61b499bbff91705a79444d238
+2008-05-08T18:25:59.899938Z
+13643
+ttrenka
+has-props
+
+tests
+dir
+
+Quicktime.js
+file
+
+
+
+
+2008-12-06T16:41:41.000000Z
+360495b23be4e4d64c0834c7b7606094
+2008-06-26T15:19:42.274725Z
+14162
+ttrenka
+has-props
+
+Flash.js
+file
+
+
+
+
+2008-12-06T16:41:41.000000Z
+0d4ce7e2104db2ee7e2449aab55d701b
+2008-08-07T15:57:32.433194Z
+14746
+ttrenka
+has-props
+
+resources
+dir
+
+IE
+dir
+
+README
+file
+
+
+
+
+2008-12-06T16:41:41.000000Z
+ce9a1bcc1fb146308cd70b0b378396d5
+2008-10-01T19:44:40.459247Z
+15375
+BryanForbes
+has-props
+

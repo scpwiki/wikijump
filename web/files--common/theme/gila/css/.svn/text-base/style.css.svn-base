@@ -1,0 +1,381 @@
+/**********************************
+ * TITLE: Gila Screen Stylesheet  * 
+ * URI  : gila/gila-screen.css    *
+ * MODIF: 2003-Apr-30 19:09 +0800 *
+ **********************************/
+
+/* originally from http://www.openwebdesign.org/viewdesign.phtml?id=1192&referer=%2Fbrowse.php%3Fpage%3D1%26sort%3Ddownloadsdesc */
+
+/* ##### Common Styles ##### */
+
+body {
+  color: black;
+  background-color: rgb(243,242,235);
+  font-family: verdana, helvetica, arial, sans-serif;
+  font-size: 73%;  /* Enables font size scaling in MSIE */
+  margin: 0;
+  padding: 0;
+}
+
+/*
+html > body {
+  font-size: 9pt;
+}
+*/
+
+acronym, .titleTip {
+  border-bottom: 1px dotted rgb(168,140,83);
+  cursor: help;
+  margin: 0;
+  padding: 0;
+}
+
+.doNotDisplay {
+  display: none !important;
+}
+
+
+.smallCaps {
+  font-size: 117%;
+  font-variant: small-caps;
+}
+
+
+/* ##### Header ##### */
+
+#header {
+  color: inherit;
+  background-color: rgb(184,38,25);
+  padding-top: 1em;
+	height: 6em;
+}
+
+#header h1 {
+  padding: 0.25em 4mm 0.25em 4mm;
+	display: inline;
+}
+#header h2{
+	display: inline;
+	color: white;
+	font-size: 150%;
+}
+
+#header h1 a {
+  color: black;
+  background-color: transparent;
+  text-decoration: none;
+  font-size: 110%;  /* For MSIE */
+  font-weight: bold;
+  font-style: italic;
+	font-size: 138%;
+}
+
+#login-status{
+	right: 22em;
+}
+
+#search-top-box{
+	top: 10px;
+}
+
+#top-bar {
+  color: white;
+  background-color: black;
+  font-size: 109%;
+  text-align: center;
+  margin: 0;
+  padding: 0.5ex 0;
+	position: absolute;
+	bottom:0px;
+	left: 0; right:0;
+	width: 100%;
+}
+
+#top-bar ul{
+	margin: 0 auto 0 13em;
+	width: auto;
+}
+
+#top-bar a {
+  color: white;
+  background-color: black;
+  text-decoration: none;
+  font-weight: bold;
+  margin: 0;
+  padding: 0 1ex;
+}
+
+#top-bar a:hover {
+  color: black;
+  background-color: white;
+}
+
+#top-bar li ul li a{
+	background-color: black;
+}
+
+#header #login-status, #login-status a {
+	color: #EEE;
+	font-weight:bold;
+}
+
+#account-options a,#account-options a:hover,#account-options, a#account-topbutton{
+	color: #333;
+	font-weight: normal;
+	background-color: white;
+}
+
+
+/* ##### Left Side Bar ##### */
+
+#side-bar{
+  width: 14em;
+}
+
+#side-bar h1 {
+  color: rgb(64,64,64);
+  background-color: rgb(230,223,207);
+  font-weight: bold;
+  margin: 0;
+  padding: 0.8ex 1ex;
+  font-size: 1.5em;
+}
+
+#side-bar ul {
+  list-style-type: none;
+  list-style-position: outside;
+ /* margin: 0 0 1em 0;
+  padding: 0;*/
+}
+
+
+
+#side-bar ul{
+	display: block;
+	padding: 0;
+	list-style: none;
+}
+#side-bar ul li{
+	display:block;
+}
+#side-bar ul li a{
+	display:block;
+	padding: 5px 5px;
+}
+
+#side-bar a {
+  color: rgb(166,140,83);
+  background-color: transparent;
+  text-decoration: none;
+}
+
+#side-bar a:hover {
+  color: rgb(64,64,64);
+  background-color: transparent;
+  text-decoration: none;
+}
+
+#side-bar p {
+  color: rgb(166,140,83);
+  background-color: transparent;
+  /*line-height: 1.25em;*/
+  margin: 1ex 0.25ex 1.5em 0.75ex;
+  padding: 0;
+  display: block;
+}
+
+#side-bar  a {
+  text-decoration: underline;
+}
+
+#side-bar p a:hover {
+  text-decoration: none;
+}
+
+
+
+
+/* ##### Main Copy ##### */
+
+#main-content {
+  color: black;
+  background-color: white;
+  text-align: justify;
+  /*line-height: 1.5em;*/
+  margin: 0 0 0 15em;
+  padding: 0.5ex 4em 1em 1em;
+  border-left: 1px solid rgb(216,210,195);
+}
+
+#main-content p{
+	line-height: 1.4em;
+}
+
+#content-wrap{
+	min-height: 0; /* fixes ie7 peekaboo bug */
+	_height: 0; /* fixes ie6 peekaboo bug */
+}
+
+#page-title{
+	margin: 1em 0 0.5em 0;
+	font-size: 200%;	
+	border: none;
+	font-weight: bold;
+}
+
+#main-content h1 {
+  color: rgb(166,140,83);
+  background-color: transparent;
+  font-family: arial, verdana, helvetica, sans-serif;
+  font-size: 175%;
+  font-weight: bold;
+  font-style: italic;
+  text-align: left;
+  margin: 0.5em 0 0.5em 0;
+  padding: 1em 0 0 0;
+  border-top: 1px solid rgb(216,210,195);
+}
+
+#main-content h2 {
+	 font-family: arial, verdana, helvetica, sans-serif;
+ 	font-weight: bold;
+  	font-style: italic;
+	color: rgb(166,140,83);
+}
+
+#main-content h3 {
+	 font-family: arial, verdana, helvetica, sans-serif;
+ 	font-weight: bold;
+	color: rgb(180,150,93);
+}
+
+ a {
+  color: #7e5223;
+  background-color: transparent;
+  text-decoration: underline;
+}
+
+a:hover {
+  text-decoration: none;
+  background-color: transparent;
+}
+
+p {
+  margin: 1em 0 1.5em 0;
+  padding: 0;
+}
+
+dt {
+  font-weight: bold;
+  margin: 0;
+  padding: 0 0 0.5ex 0;
+}
+
+dd {
+  margin: 0 0 1.5em 1.5em;
+  padding: 0;
+}
+
+
+/* ##### Footer ##### */
+
+#footer {
+  color: black;
+  background-color: rgb(230,223,207);
+  font-size: 92%;
+ /* text-align: center;*/
+  /*line-height: 1.25em;*/
+  margin: 0;
+  padding: 1em 4mm 1em 4mm;
+  clear: both;
+}
+
+#footer div {
+  margin: 0;
+  padding: 0 0 1ex 0;
+}
+
+#footer a {
+  color: black;
+  background-color: transparent;
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+#footer a:hover {
+  text-decoration: none;
+}
+
+.page-options-bottom a{
+	color: #242;
+	background-color: rgb(243,242,235);
+	text-decoration: none;
+}
+.page-options-bottom a:hover{
+	background-color: #DDD;
+}
+
+a.action-area-close{
+	color: #242;
+	background-color: rgb(243,242,235);
+	text-decoration: none;
+}
+
+
+
+.owindow .title{
+	background-color: rgb(243,242,235);
+}
+
+/* FORUM COLORS */
+
+.forum-group div.head{
+	background-color: #a49585;
+	color: #FFF;
+}
+.forum-group div.head .title{
+	color: #efedea;
+}
+
+.thread-container .post .options a{
+	color: #ad8c68;
+}
+
+.thread-container .post  .long  .changes a {
+	color: #ad8c68;
+}
+.thread-container .post  .short  .options{
+	color: #ad8c68;
+}	
+
+.forum-group table tr.head td{
+	background-color: rgb(243,242,235);
+}
+
+.forum-category-box  .description-block{
+		background-color: rgb(243,242,235);
+}
+
+.forum-category-box table tr.head td{
+	background-color:rgb(243,242,235);
+}
+.forum-new-thread-box  .description{
+	background-color: rgb(243,242,235);
+}
+.forum-thread-box  .description-block{
+	background-color: rgb(243,242,235);
+}
+.thread-container .post .head{
+	background-color: rgb(243,242,235);
+}
+
+.thread-container .post  .long  .revisions table tr.active td{
+	background-color: rgb(243,242,235);
+}
+.thread-container .post  .short{ 
+	background-color: rgb(243,242,235);
+}
+
+div.new-post a{
+	background-color: rgb(243,242,235);
+}

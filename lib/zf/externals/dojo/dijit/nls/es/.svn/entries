@@ -1,0 +1,54 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/dijit/nls/es
+http://svn.dojotoolkit.org/src
+
+
+
+2008-04-15T17:15:21.334532Z
+13323
+peller
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+common.js
+file
+
+
+
+
+2008-12-06T16:41:10.000000Z
+d6710a58b7ac76fc299d2a0ab2c1a1ac
+2008-04-15T17:15:21.334532Z
+13323
+peller
+has-props
+
+loading.js
+file
+
+
+
+
+2008-12-06T16:41:10.000000Z
+948e8b42806be518e344242bf7111805
+2007-09-27T21:01:52.232662Z
+10640
+peller
+has-props
+

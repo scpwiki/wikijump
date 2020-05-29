@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Mime
+END
+AllTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Mime/AllTests.php
+END
+MessageTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Mime/MessageTest.php
+END
+PartTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Mime/PartTest.php
+END

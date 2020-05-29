@@ -1,0 +1,82 @@
+8
+
+dir
+393
+http://svn.wikidot.org/repos/wikidot1/trunk/php/screens
+http://svn.wikidot.org/repos
+
+
+
+2008-09-03T21:01:36.867015Z
+258
+quake
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+fb797968-1a05-43ef-ab23-0011a79c62e5
+
+extra
+dir
+
+feed
+dir
+
+wiki
+dir
+
+DefaultError.php
+file
+
+
+
+
+2008-12-06T16:40:07.000000Z
+5acd3a4226fc5981efa5010b27f1dd84
+2008-01-30T17:40:54.924226Z
+2
+michal_frackowiak
+has-props
+
+PrinterFriendly.php
+file
+
+
+
+
+2008-12-06T16:40:07.000000Z
+c73dce2ce5ec635a9a6bd752125fbb72
+2008-01-30T17:40:54.924226Z
+2
+michal_frackowiak
+has-props
+
+login
+dir
+
+DefaultScreen.php
+file
+
+
+
+
+2008-12-06T16:40:07.000000Z
+139cac57a89cf05156aa952abbc66aff
+2008-01-30T17:40:54.924226Z
+2
+michal_frackowiak
+has-props
+
+misc
+dir
+

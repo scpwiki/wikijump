@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/repos/!svn/ver/388/wikidot1/trunk/php/modules
+END
+DefaultModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/DefaultModule.php
+END
+LoginStatusModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/repos/!svn/ver/221/wikidot1/trunk/php/modules/LoginStatusModule.php
+END
+PageOptionsBottomModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/PageOptionsBottomModule.php
+END

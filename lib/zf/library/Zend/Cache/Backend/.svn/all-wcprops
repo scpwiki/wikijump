@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/framework/!svn/ver/13367/standard/trunk/library/Zend/Cache/Backend
+END
+Xcache.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/12519/standard/trunk/library/Zend/Cache/Backend/Xcache.php
+END
+File.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/12605/standard/trunk/library/Zend/Cache/Backend/File.php
+END
+Test.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Cache/Backend/Test.php
+END
+Interface.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/12412/standard/trunk/library/Zend/Cache/Backend/Interface.php
+END
+ExtendedInterface.php
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/framework/!svn/ver/12519/standard/trunk/library/Zend/Cache/Backend/ExtendedInterface.php
+END
+Sqlite.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/12519/standard/trunk/library/Zend/Cache/Backend/Sqlite.php
+END
+Apc.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/12519/standard/trunk/library/Zend/Cache/Backend/Apc.php
+END
+TwoLevels.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/12519/standard/trunk/library/Zend/Cache/Backend/TwoLevels.php
+END
+ZendPlatform.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/12519/standard/trunk/library/Zend/Cache/Backend/ZendPlatform.php
+END
+Memcached.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/13367/standard/trunk/library/Zend/Cache/Backend/Memcached.php
+END

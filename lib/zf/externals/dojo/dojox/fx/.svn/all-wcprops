@@ -1,0 +1,71 @@
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/src/!svn/ver/15393/branches/1.2/dojox/fx
+END
+text.js
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/src/!svn/ver/15393/branches/1.2/dojox/fx/text.js
+END
+Shadow.js
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/src/!svn/ver/15393/branches/1.2/dojox/fx/Shadow.js
+END
+easing.js
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/src/!svn/ver/15393/branches/1.2/dojox/fx/easing.js
+END
+_core.js
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/src/!svn/ver/15393/branches/1.2/dojox/fx/_core.js
+END
+_arg.js
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/src/!svn/ver/15393/branches/1.2/dojox/fx/_arg.js
+END
+_base.js
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/src/!svn/ver/15393/branches/1.2/dojox/fx/_base.js
+END
+flip.js
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/src/!svn/ver/15393/branches/1.2/dojox/fx/flip.js
+END
+split.js
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/src/!svn/ver/15393/branches/1.2/dojox/fx/split.js
+END
+scroll.js
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/src/!svn/ver/15393/branches/1.2/dojox/fx/scroll.js
+END
+style.js
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/src/!svn/ver/15393/branches/1.2/dojox/fx/style.js
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/src/!svn/ver/15393/branches/1.2/dojox/fx/README
+END

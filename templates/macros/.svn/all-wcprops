@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/repos/!svn/ver/2/wikidot1/trunk/templates/macros
+END
+MacrosXHTML.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/repos/!svn/ver/2/wikidot1/trunk/templates/macros/MacrosXHTML.tpl
+END
+Forms.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/repos/!svn/ver/2/wikidot1/trunk/templates/macros/Forms.tpl
+END
+Forum.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/repos/!svn/ver/2/wikidot1/trunk/templates/macros/Forum.tpl
+END
+GlobalMacros.autoload.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/repos/!svn/ver/2/wikidot1/trunk/templates/macros/GlobalMacros.autoload.tpl
+END
+PM.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/repos/!svn/ver/2/wikidot1/trunk/templates/macros/PM.tpl
+END
+Pager.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/repos/!svn/ver/2/wikidot1/trunk/templates/macros/Pager.tpl
+END
+PageNotExistsMacro.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/repos/!svn/ver/2/wikidot1/trunk/templates/macros/PageNotExistsMacro.tpl
+END

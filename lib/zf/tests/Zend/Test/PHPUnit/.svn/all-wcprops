@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/framework/!svn/ver/12337/standard/trunk/tests/Zend/Test/PHPUnit
+END
+AllTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Test/PHPUnit/AllTests.php
+END
+ControllerTestCaseTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/framework/!svn/ver/12337/standard/trunk/tests/Zend/Test/PHPUnit/ControllerTestCaseTest.php
+END

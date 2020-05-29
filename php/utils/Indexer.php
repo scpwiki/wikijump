@@ -23,6 +23,16 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \Indexer as Indexer;
+use DB\FtsEntryPeer;
+use DB\FtsEntry;
+use Criteria;
+use DB\PageTagPeer;
+use Database;
+use DB\ForumPostPeer;
+
 /** 
  * Full text search handler class.
  */
@@ -39,9 +49,9 @@ class Indexer {
 	
 	public function indexPage($page){
 		// look for an existing fts_entry
-		$ie = DB_FtsEntryPeer::instance()->selectByPageId($page->getPageId());
+		$ie = FtsEntryPeer::instance()->selectByPageId($page->getPageId());
 		if(!$ie){
-			$ie = new DB_FtsEntry();
+			$ie = new FtsEntry();
 			$ie->setPageId($page->getPageId());
 			$ie->setSiteId($page->getSiteId());	
 		} 	
@@ -63,7 +73,7 @@ class Indexer {
 		$c = new Criteria();
 		$c->add("page_id", $page->getPageId());
 		$c->addOrderAscending("tag");
-		$tags = DB_PageTagPeer::instance()->select($c);
+		$tags = PageTagPeer::instance()->select($c);
 		$tagstring = '';
 		foreach($tags as $tag){
 			$tagstring .= $tag->getTag().' ';	
@@ -79,15 +89,15 @@ class Indexer {
 	}
 	
 	public function deindexPage($page){
-		$ie = DB_FtsEntryPeer::instance()->selectByPageId($page->getPageId());
-		DB_FtsEntryPeer::instance()->deleteByPrimaryKey($ie->getFtsId());	
+		$ie = FtsEntryPeer::instance()->selectByPageId($page->getPageId());
+		FtsEntryPeer::instance()->deleteByPrimaryKey($ie->getFtsId());	
 	}
 	
 	public function indexThread($thread){
 		// look for an existing fts_entry
-		$ie = DB_FtsEntryPeer::instance()->selectByThreadId($thread->getThreadId());
+		$ie = FtsEntryPeer::instance()->selectByThreadId($thread->getThreadId());
 		if(!$ie){
-			$ie = new DB_FtsEntry();
+			$ie = new FtsEntry();
 			$ie->setThreadId($thread->getThreadId());
 			$ie->setSiteId($thread->getSiteId());
 		}
@@ -98,7 +108,7 @@ class Indexer {
 		$c = new Criteria();
 		$c->add("thread_id", $thread->getThreadId());
 		$c->addOrderAscending("post_id");
-		$posts = DB_ForumPostPeer::instance()->select($c);
+		$posts = ForumPostPeer::instance()->select($c);
 		
 		$text = '';
 		foreach($posts as $post){
@@ -121,8 +131,8 @@ class Indexer {
 	}
 	
 	public function deindexThread($thread){
-		$ie = DB_FtsEntryPeer::instance()->selectByThreadId($thread->getThreadId());
-		DB_FtsEntryPeer::instance()->deleteByPrimaryKey($ie->getFtsId());		
+		$ie = FtsEntryPeer::instance()->selectByThreadId($thread->getThreadId());
+		FtsEntryPeer::instance()->deleteByPrimaryKey($ie->getFtsId());		
 	}
 	
 }

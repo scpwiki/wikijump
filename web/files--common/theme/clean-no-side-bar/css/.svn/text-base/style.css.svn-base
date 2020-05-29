@@ -1,0 +1,10 @@
+/* change layout only - remove side bar */
+
+#side-bar{
+	display: none;
+}
+
+#main-content{
+	margin-left: 1em;
+	margin-right: 1em;
+}

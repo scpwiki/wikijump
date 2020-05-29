@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/framework/!svn/ver/13500/standard/trunk/library/Zend/Locale
+END
+Data.php
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/framework/!svn/ver/13450/standard/trunk/library/Zend/Locale/Data.php
+END
+Math.php
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/framework/!svn/ver/13500/standard/trunk/library/Zend/Locale/Math.php
+END
+Exception.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Locale/Exception.php
+END
+Format.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/framework/!svn/ver/13450/standard/trunk/library/Zend/Locale/Format.php
+END

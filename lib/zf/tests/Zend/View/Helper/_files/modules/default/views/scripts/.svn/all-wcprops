@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/svn/framework/!svn/ver/12577/standard/trunk/tests/Zend/View/Helper/_files/modules/default/views/scripts
+END
+partialLoopObject.phtml
+K 25
+svn:wc:ra_dav:version-url
+V 128
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/View/Helper/_files/modules/default/views/scripts/partialLoopObject.phtml
+END
+partialOne.phtml
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/View/Helper/_files/modules/default/views/scripts/partialOne.phtml
+END
+partialThree.phtml
+K 25
+svn:wc:ra_dav:version-url
+V 123
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/View/Helper/_files/modules/default/views/scripts/partialThree.phtml
+END
+partialActionCall.phtml
+K 25
+svn:wc:ra_dav:version-url
+V 128
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/View/Helper/_files/modules/default/views/scripts/partialActionCall.phtml
+END
+partialLoop.phtml
+K 25
+svn:wc:ra_dav:version-url
+V 122
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/View/Helper/_files/modules/default/views/scripts/partialLoop.phtml
+END
+partialObj.phtml
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/View/Helper/_files/modules/default/views/scripts/partialObj.phtml
+END
+partialLoopCouter.phtml
+K 25
+svn:wc:ra_dav:version-url
+V 128
+/svn/framework/!svn/ver/12577/standard/trunk/tests/Zend/View/Helper/_files/modules/default/views/scripts/partialLoopCouter.phtml
+END
+partialVars.phtml
+K 25
+svn:wc:ra_dav:version-url
+V 122
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/View/Helper/_files/modules/default/views/scripts/partialVars.phtml
+END

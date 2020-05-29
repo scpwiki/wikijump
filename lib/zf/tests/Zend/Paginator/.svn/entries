@@ -1,0 +1,50 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Paginator
+http://framework.zend.com/svn/framework
+
+
+
+2008-12-23T10:25:05.441356Z
+13439
+doctorrock83
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+Adapter
+dir
+
+_files
+dir
+
+AllTests.php
+file
+
+
+
+
+2008-12-06T16:40:26.000000Z
+e0f7ded15b93457f1cbeea2579008eef
+2008-11-04T21:00:01.164654Z
+12285
+mikaelkael
+has-props
+
+ScrollingStyle
+dir
+

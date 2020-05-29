@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/framework/!svn/ver/12757/standard/trunk/demos/Zend/Wildfire/public
+END
+.htaccess
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/11202/standard/trunk/demos/Zend/Wildfire/public/.htaccess
+END
+index.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/12757/standard/trunk/demos/Zend/Wildfire/public/index.php
+END

@@ -1,0 +1,31 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+		"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>Normalize JSON</title>
+	<script type="text/javascript" src="../../dojo/dojo.js" charset="utf-8" djConfig="isDebug: true"></script>
+	<script>
+		function process(){
+			console.log("point 1");
+			url = dojo.byId("url").value;
+			d2 = dojo.xhrGet({url: url, handleAs: "json-comment-optional"});
+			console.log("did get on " + url);
+			d2.addCallback(null, function(data){
+				dojo.byId("output").value = dojo.toJson(data, true);
+			});
+			d2.addErrback(null, function(err){
+				alert(err);
+			});
+		}
+	</script>			
+</head>
+<body class="tundra">
+	<p>
+		Enter a URL to a JSON file and then press normalize, and it will read in the data and then
+		print it with trailing commas removed, etc.
+	</p>
+	URL: <input id=url value="languages.json"> <button onclick="console.log(process); process(); console.log('done');">normalize</button>
+	<br>
+	<textarea id=output style="width: 90%; height: 500px;"></textarea>
+</body>
+</html>

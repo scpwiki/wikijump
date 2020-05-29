@@ -1,0 +1,53 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/util/resources
+http://svn.dojotoolkit.org/src
+
+
+
+2008-10-01T20:05:56.534477Z
+15376
+BryanForbes
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+logo
+dir
+
+LICENSE
+file
+
+
+
+
+2008-12-06T16:42:38.000000Z
+11ab1416e634de9512c8771b59ff9ff3
+2008-01-22T17:20:53.362841Z
+12125
+peller
+has-props
+
+themes
+dir
+
+dojotoolkit.org
+dir
+
+api
+dir
+

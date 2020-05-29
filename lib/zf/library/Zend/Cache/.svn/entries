@@ -1,0 +1,73 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/library/Zend/Cache
+http://framework.zend.com/svn/framework
+
+
+
+2008-12-19T09:55:38.566269Z
+13367
+yoshida@zend.co.jp
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+Frontend
+dir
+
+Exception.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+e2de7b52c81c6783b6fecdaaf97e6db8
+2008-03-16T19:29:48.372581Z
+8866
+thomas
+has-props
+
+Backend
+dir
+
+Backend.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+9f2c90ecc17045e91fc550aa5d3ced07
+2008-11-24T15:34:26.324147Z
+12796
+matthew
+has-props
+
+Core.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+b53a8e7fa3ee0e17d97e45918deb1a05
+2008-11-24T15:34:26.324147Z
+12796
+matthew
+has-props
+

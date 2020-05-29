@@ -1,0 +1,54 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Measure/Viscosity
+http://framework.zend.com/svn/framework
+
+
+
+2007-11-09T22:44:42.685618Z
+6799
+thomas
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+DynamicTest.php
+file
+
+
+
+
+2008-12-06T16:40:29.000000Z
+e8da3d404fe45e2b669dc1b6b60feba6
+2007-11-09T22:44:42.685618Z
+6799
+thomas
+has-props
+
+KinematicTest.php
+file
+
+
+
+
+2008-12-06T16:40:29.000000Z
+2c1022d42c303544a05d3b9e23f399c5
+2007-11-09T22:44:42.685618Z
+6799
+thomas
+has-props
+

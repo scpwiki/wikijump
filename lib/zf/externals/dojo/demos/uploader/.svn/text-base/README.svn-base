@@ -1,0 +1,39 @@
+-------------------------------------------------------------------------------
+The DojoX File Uploader Demo
+-------------------------------------------------------------------------------
+Author: Mike Wilcox (AnM8tR)
+-------------------------------------------------------------------------------
+Demo description
+
+	Demonstrates Dojo's multi-file uploader, using a SWF created with the 
+	Deft project. Uploader is degradable for users without the correct
+	Flash version.
+	
+-------------------------------------------------------------------------------
+Dependencies:
+	
+	dojox.form.FileUploader
+	dijit.form.Button
+	dojox.embed.Flash
+	dojo.io.iframe
+	dojox.html.styles
+	
+	The latest Flash Plugin (at least 9.0)
+	PHP5 / with GD2
+	writable UploadedFiles/ folder
+
+-------------------------------------------------------------------------------
+Installation instructions
+
+	Simply run the included demo.html
+	
+	To build, use the supplied demo.profile.js as your profileFile,
+	or run the included buildDemo.sh -- which [should] create an 
+	archive called uploaderDemo.tar.gz that you [should] be able to drop
+	on any webserver and view (only optimized, instead)
+	
+	If the demo stalls on the loader, your UploadedFiles/ folder probably isn't
+	writable by your webserver. Check the logs. 
+	
+-------------------------------------------------------------------------------
+

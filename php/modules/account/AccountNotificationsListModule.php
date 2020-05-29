@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \AccountBaseModule;
+use Criteria;
+use DB\NotificationPeer;
+
 class AccountNotificationsListModule extends AccountBaseModule {
 	
 	public function build($runData){
@@ -47,7 +53,7 @@ class AccountNotificationsListModule extends AccountBaseModule {
 		$c->addOrderDescending('notification_id');
 		$c->setLimit($count, $offset);	
 		
-		$nots = DB_NotificationPeer::instance()->select($c);
+		$nots = NotificationPeer::instance()->select($c);
 		
 		// now see if number of selected is equal $perPage + 1. If so - 
 		// there is at least 1 more page to show...

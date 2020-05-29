@@ -1,0 +1,70 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Gdata/Docs
+http://framework.zend.com/svn/framework
+
+
+
+2008-11-06T23:38:09.517819Z
+12350
+wil
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+_files
+dir
+
+DocumentListEntryTest.php
+file
+
+
+
+
+2008-12-06T16:40:26.000000Z
+2248a2b5521c0e334224e61302432569
+2008-10-18T14:29:41.078580Z
+12004
+mikaelkael
+has-props
+
+DocumentListFeedTest.php
+file
+
+
+
+
+2008-12-06T16:40:26.000000Z
+e2198b3b3ed81f61a10af324d5094bfc
+2008-11-06T23:38:09.517819Z
+12350
+wil
+has-props
+
+QueryTest.php
+file
+
+
+
+
+2008-12-06T16:40:26.000000Z
+c095b1cb2a9c07175bbc05e3445fe7e3
+2008-10-18T14:29:41.078580Z
+12004
+mikaelkael
+has-props
+

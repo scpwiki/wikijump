@@ -1,0 +1,356 @@
+
+/* GLOBAL WIDTH */
+
+#header, #top-bar {
+	width: 804px;
+	margin: 0 auto;
+}
+
+body {
+	background-color: #fff;
+	font-size: 0.80em;
+	color: #333;
+}
+
+div#container-wrap {
+	background-image: url(/local--files/files-shiny/body_bg.png);
+	background-repeat: repeat-x;
+}
+
+
+
+/* HEADER */
+
+#header {
+	height: 140px;
+	position: relative;
+	z-index: 10;
+	padding-bottom: 22px; /* FOR MENU */
+}
+
+#search-top-box {
+	position: absolute;
+	top: 79px;
+	right: 9px;
+	width: 250px;
+	text-align: right;
+}
+
+#login-status {
+	color: #aaa;
+	font-size: 90%;
+	z-index: 30;
+}
+
+#login-status a {
+	background: transparent;
+	color: #ddd;
+}
+
+#login-status ul a {
+	color: #700;
+	background: transparent;
+}
+
+#account-topbutton {
+	background: #ccc;
+	color: #700;
+}
+
+.printuser img.small {
+	margin-right: 0.4em;
+}
+
+#header h1 {
+	margin: 0;
+	padding: 0;
+	float: left;
+	max-height: 105px;
+}
+
+#header h2 {
+	margin: 0;
+	padding: 0;
+	clear: left;
+	float: left;
+	font-size: 105%;
+	max-height: 38px;
+}
+
+#header h1 a {
+	display: block;
+	margin: 0;
+	padding: 80px 0 25px;
+	line-height: 0px;
+	max-height: 0px;
+	color: #eee;
+	background: transparent;
+	font-size: 180%;
+	text-decoration: none;
+}
+
+#header h2 span {
+	display: block;
+	margin: 0;
+	padding: 19px 0;
+	line-height: 0px;
+	max-height: 0px;
+	color: #a02;
+	font-weight: bold;
+}
+
+
+
+/* TOP MENU */
+
+#top-bar {
+	position: absolute;
+	z-index: 50;
+	top: 140px;
+	right: 0;
+	height: 21px;
+	line-height: 18px;
+	padding: 0;
+	z-index: 20;
+	font-size: 90%;
+}
+
+#top-bar ul {
+	float: right;
+}
+
+#top-bar a {
+	color: #fff;
+	background: transparent;
+}
+
+#top-bar ul li, #top-bar ul li ul {
+	border-width: 1px 0 0;
+	border-color: #444;
+	border-style: solid;
+}
+
+#top-bar ul li a {
+	border-style: solid;
+	border-color: #444;
+	border-width: 0 0 0 1px;
+	text-decoration: none;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	line-height: 1px;
+	max-height: 1px;
+	overflow: hidden;
+}
+
+#top-bar ul li.sfhover a,
+#top-bar ul li:hover a {
+	background: #eee;
+	color: #a01;
+}
+
+#top-bar ul li.sfhover ul li a,
+#top-bar ul li:hover ul li a {
+	border-width: 0;
+	width: 150px;
+	border-top: 1px solid #ddd;
+	line-height: 160%;
+	height: auto;
+	max-height: none;
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+#top-bar ul li.sfhover a:hover,
+#top-bar ul li:hover a:hover {
+	background: #fff;
+	text-decoration: none;
+}
+
+#top-bar ul li ul {
+	border-width: 0 1px 1px 1px;
+	width: auto;
+}
+
+#top-bar ul li ul li, #top-bar ul li ul li.sfhover,
+#top-bar ul li ul li, #top-bar ul li ul li:hover {
+	border-width: 0;
+}
+
+#top-bar ul li ul li a {
+	border-width: 0;
+}
+
+#top-bar ul li ul a, #top-bar a:hover {
+	color: #a01;
+}
+
+/* IE7 HACK */ 
+#top-bar ul > li > ul {  
+	*margin-top: -4px; 
+}
+
+
+/* SIDE MENU */
+
+#side-bar {
+	clear: both;
+	padding: 10px;
+	margin: 0 0 0 2em;
+	width: 15em;
+	border: 1px solid #dedede;
+}
+
+
+
+/* CONTENT */
+
+#main-content {
+	margin: 0 4em 0 23em;
+}
+
+
+
+/* YUI-TABS */
+
+.yui-navset .yui-content{
+	background-color: #f5f5f5;
+}
+
+.yui-navset .yui-nav a,
+.yui-navset .yui-navset-top .yui-nav a {
+	background-color:#d8d8d8;
+	background-image: url(/local--files/files-shiny/yuitabs.png);
+}
+
+.yui-navset .yui-nav .selected a,
+.yui-navset .yui-nav .selected a:focus, /* no focus effect for selected */
+.yui-navset .yui-nav .selected a:hover { /* no hover effect for selected */
+	background:#700 url(/local--files/files-shiny/yuitabs.png) repeat-x left -1400px; /* selected tab background */
+	color:#fff;
+}
+
+.yui-navset .yui-nav a:hover,
+.yui-navset .yui-nav a:focus {
+	background:#d88 url(/local--files/files-shiny/yuitabs.png) repeat-x left -1300px;
+	text-decoration: none;
+}
+
+.yui-navset .yui-nav,
+.yui-navset .yui-navset-top .yui-nav {
+	border-color: #444;
+}
+
+.yui-navset .yui-nav,
+.yui-navset .yui-navset-top .yui-nav {
+	border-color: #444;
+}
+
+.yui-navset li {
+	line-height: normal;
+}
+
+
+
+/* FOOTER */
+
+#footer {
+	clear: both;
+	font-size: 77%;
+	background: #444;
+	color: #bbb;
+	margin-top: 15px;
+	padding: 3px 10px;
+}
+
+#footer .options {
+	visibility: visible;
+	display: block;
+	float: right;
+	width: 50%;
+	font-size: 100%;
+	text-align: right;
+}
+
+#footer a {
+	color: #fff;
+	background: transparent;
+}
+
+
+
+/* COMMON */
+
+#content-wrap {
+	margin-top: 2em;
+}
+
+h1, #page-title {
+	color: #901;
+	padding: 0 0 0.25em;
+	margin: 0 0 0.6em;
+	font-weight: normal;
+}
+
+h1 {
+	margin-top: 0.7em;
+	padding: 0;
+	font-weight: bold;
+}
+
+h2, h3, h4, h5, h6, h7 {
+	margin: 0.5em 0 0.4em;
+	padding: 0;
+	letter-spacing: 1px;
+}
+
+#page-title {
+	border-color: #bbb;
+}
+
+ul {
+	/*list-style-image: url(/local--files/files-shiny/bullet.gif);*/
+	list-style: square;
+}
+
+#top-bar ul {
+/*	list-style-image: none; /* IE ONLY! IF list-style-image IS SET */
+}
+
+
+li, p {
+	line-height: 141%;
+}
+
+
+a {
+	color: #b01;
+	text-decoration: none;
+}
+
+
+a.newpage {
+	color: #d61;
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+
+
+/* SOME NICE BOXES */
+
+div.sexy-box {
+	background: #eee;
+	border: 1px solid #ccc;
+	padding: 0 10px 12px;
+	margin: 7px 4px 12px;
+	overflow: hidden;
+}
+
+div.sexy-box img {
+    margin: 5px;
+    padding: 2px;
+    border: 1px solid #999;
+}

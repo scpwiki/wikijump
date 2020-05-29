@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use Database;
+use DB\Site;
+
 class SearchAllModule extends SmartyModule {
 	
 	public function build($runData){
@@ -126,7 +132,7 @@ class SearchAllModule extends SmartyModule {
 			$res = array_slice($res, 0, $perPage);
 			for($i=0; $i<count($res); $i++){
 				$o = $res[$i];
-				$res[$i]['site'] = new DB_Site($res[$i]);
+				$res[$i]['site'] = new Site($res[$i]);
 				if($o['page_id'] !== null){
 					$res[$i]['url'] = 'http://'.$res[$i]['site']->getDomain().'/'.$o['fts_unix_name'];	
 				}else{

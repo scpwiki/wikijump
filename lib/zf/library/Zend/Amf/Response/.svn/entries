@@ -1,0 +1,40 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/library/Zend/Amf/Response
+http://framework.zend.com/svn/framework
+
+
+
+2008-11-10T16:29:20.400078Z
+12508
+matthew
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+Http.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+3f5745dce41ccb3c8325375c11a2616a
+2008-11-10T16:29:20.400078Z
+12508
+matthew
+

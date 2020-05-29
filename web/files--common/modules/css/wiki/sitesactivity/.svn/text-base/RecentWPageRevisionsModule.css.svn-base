@@ -1,0 +1,16 @@
+.recent-w-page-revisions .list-item {
+	padding: 2px 0;
+}
+
+.recent-w-page-revisions .list-item .title{
+	font-size: 100%;
+}
+
+.recent-w-page-revisions .list-item .preview{
+	color: #555;
+	font-size: 85%;
+}
+
+.recent-w-page-revisions .list-item .in-site{
+	font-size: 85%;
+}

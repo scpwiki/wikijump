@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use Criteria;
+use DB\PagePeer;
+
 class RecentWPageRevisionsModule extends SmartyModule {
 	
 	public function render($runData){
@@ -90,7 +96,7 @@ class RecentWPageRevisionsModule extends SmartyModule {
 				"ORDER BY page.revision_id DESC LIMIT 10";
 		$c->setExplicitQuery($q);
 		
-		$pages = DB_PagePeer::instance()->select($c);
+		$pages = PagePeer::instance()->select($c);
 		$runData->contextAdd("pages", $pages);
 	}
 	

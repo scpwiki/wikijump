@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/12525/standard/trunk/tests/Zend/Controller/Router/Route
+END
+RegexTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/framework/!svn/ver/12525/standard/trunk/tests/Zend/Controller/Router/Route/RegexTest.php
+END
+HostnameTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/framework/!svn/ver/12313/standard/trunk/tests/Zend/Controller/Router/Route/HostnameTest.php
+END
+ChainTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/framework/!svn/ver/12210/standard/trunk/tests/Zend/Controller/Router/Route/ChainTest.php
+END
+ModuleTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/framework/!svn/ver/12310/standard/trunk/tests/Zend/Controller/Router/Route/ModuleTest.php
+END
+StaticTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Controller/Router/Route/StaticTest.php
+END

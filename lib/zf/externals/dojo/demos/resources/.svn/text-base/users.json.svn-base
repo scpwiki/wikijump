@@ -1,0 +1,394 @@
+{
+	// committers, please add yoself!
+	// find your lat/long (coords:) via:
+	// http://www.satsig.net/maps/lat-long-finder.htm
+	"committers": [
+		{
+			name:"Alex Russell",
+			title:"Co-Founder, Foundation President",
+			handle:"alex",
+			irc:"slightlyoff",
+			location:"San Francisco, CA",
+			employer: "SitePen, Inc", 
+			coords: { x: 37.7752, y:-122.4192 },
+			imgUrl:"images/users/alex.png",
+			website:"http://alex.dojotoolkit.org"
+		},
+		{
+			name:"Bill Keese",
+			title:"Dijit Project Lead",
+			handle:"bill",
+			irc:"wildbill",
+			location:"Sapporo, Japan",
+			employer: "IBM, Inc",
+			imgUrl:"images/users/wildbill.png",
+			coords: { x: 43.054798, y: 141.37449 },
+			blameFor:[
+				"dijit functionality"
+			]
+		},
+		{
+			name:"Adam Peller",
+			title:"DojoX Overlord",
+			handle:"peller",
+			irc:"peller",
+			location:"Boston, MA",
+			coords: { x:42.3308, y:-71.2070 },
+			employer: "IBM, Inc",
+			blameFor:[
+				"everything."
+			]
+		},
+		{
+			name:"Dylan Schiemann",
+			title:"Co-founder",
+			handle:"dylan",
+			irc:"dylanks",
+			location:"Gilbert, AZ",
+			coords: { x:33.3501, y:-111.7557 },
+			employer:"SitePen, Inc.",
+			imgUrl:"images/users/dylanks.png",
+			website:"http://dylanschiemann.com/",
+			blameFor:[
+				"The Dojo Foundation",
+				"SitePen, Inc",
+				"Comet Daily"
+			]
+		},
+		{
+			name:"Peter Higgins",
+			handle:"dante",
+			title:"Dojo Project Lead",
+			irc:"phiggins",
+			location:"Greeneville, TN",
+			coords: { x:36.1647, y:-82.8281 },
+			website:"http://higginsforpresident.net",
+			employer: "SitePen, Inc",
+			imgUrl:"images/users/dante.jpg",
+			blameFor:[
+				"dojox.fx",
+				"Lightbox / dojox.image",
+				"dojox.widget",
+				"dojox.layout",
+				"... actually lots of dojox"
+			]
+		},
+		{
+			name: "Nikolai Onken",
+			title:"CSS Technologist",
+			handle: "nonken",
+			irc: "nonken",
+			location: "Amsterdam",
+			website: "http://nikolaionken.com",
+			coords: {
+				x:52.3746, y:4.8145
+			},
+			employer: "Contractor",
+			blameFor:[
+				"Themes",
+				"Dojo Campus / Community",
+				"Demos"
+			],
+			imgUrl:"images/users/nonken.png"
+		},
+		{
+			name: "Becky Gibson",
+			title: "Committer / a11y Expert",
+			location: "",
+			irc:"becka11y",
+			handle:"becky",
+//			coords:{ x:41.9781, y:-91.6425 },
+			employer:"IBM, Inc",
+			imgUrl:"images/users/becka11y.png",
+			blameFor:[
+				"Accessibility"
+			]
+		},
+		{
+			name: "Bryan Forbes",
+			title: "Committer",
+			location: "Cedar Rapids, IA",
+			irc:"mxpxpod",
+			handle:"mxpxpod",
+			coords:{ x:41.9781, y:-91.6425 },
+			employer:"SitePen, Inc",
+			imgUrl:"images/users/bforbes.png",
+			blameFor:[
+				"fx", "Grid"
+			]
+		},
+		{
+			name:"Neil Roberts",
+			title: "Committer",
+			location: "Cedar Rapids, IA",
+			irc:"pottedmeat",
+			handle:"pottedmeat",
+			website:"http://someclosure.com",
+			coords:{ x:41.9761, y:-91.6465 },
+			employer:"SitePen, Inc",
+			imgUrl:"images/users/pottedmeat.png",
+			blameFor:[
+				"API Docs / jsdoc",
+				"dojox.dtl"
+			]
+		},
+		{
+			name:"Tom Trenka",
+			title: "Committer",
+			location: "St Paul, MN",
+			irc: "ttrenka",
+			handle:"ttrenka",
+			coords: { x:44.9530, y:-93.1670 },
+			employer:"SitePen, Inc",
+			imgUrl:"images/users/ttrenka.png",
+			blameFor:[
+				"dojox.av",
+				"dojox oversight" 
+			]
+		},
+		{
+			name:"James Burke",
+			title:"Committer",
+			location:"Los Angeles, CA",
+			irc:"tagneto",
+			handle:"jburke",
+			coords:{ x:33.6550, y:-117.8448 },
+			employer:"AOL, Inc",
+			blameFor:[
+				"Dojo Build / Package System",
+				"X-Domain Loader"
+			]
+		},
+		{
+			name:"Dustin Machi",
+			location:"Blacksburg, VA",
+			handle:"dmachi",
+			irc:"dmachi",
+			employer:"SitePen, Inc",
+			title:"Commiter",
+			coords: { x:37.2315, y:-80.4288 },
+			imgUrl:"images/users/dmachi.jpg",
+			blameFor:[
+				"dojo.rpc"
+			]
+		},
+		{
+			name:"Karl Tiedt",
+			handle:"tk",
+			title:"Committer",
+			irc:"tk",
+			location:"Colorado Springs, CO",
+			coords: { x:38.8381, y:-104.8214 },
+			employer: "Coyote Point Systems",
+			blameFor:[
+				"everything else."
+			]
+		},
+		{
+			name:"Robert Coup",
+			title: "Committer",
+			location: "Auckland, New Zealand",
+			irc:"rcoup",
+			handle:"rcoup",
+			imgUrl:"images/users/rcoup.png",
+			website:"http://rob.coup.net.nz/",
+			coords:{ y:174.7629, x:-36.8486 },
+			employer:"Koordinates.com"
+		},
+		{
+			name:"Eugene Lazutkin",
+			title: "Committer",
+			location: "Plano, TX",
+			irc:"uhop",
+			handle:"eugene",
+			imgUrl:"images/users/eugene.jpg",
+			website:"http://lazutkin.com/",
+			coords:{x: 33.0560, y: -96.7704},
+			employer:"SitePen, Inc.",
+			blameFor:[
+				"dojox.gfx", "dojox.charting", "dojox.lang",
+				"dojo.dnd", "dojox.gfx3d"
+			]
+		},
+		{
+			name:"Heng Liu",
+			title: "Committer",
+			location: "York, UK",
+			irc:"liucougar",
+			handle:"liucougar",
+			website:"http://liucougar.net/",
+			imgUrl:"images/users/heng.png",
+			coords:{x: 53.9577, y: -1.0823},
+			employer:"TeamPatent LLC",
+			blameFor:[
+				"dijit Editor?"
+			]
+		},
+		{
+			name: "Ben Lowery",
+			title: "Committer",
+			location: "Saratoga Springs, NY",
+			irc: "blowery",
+			handle: "blowery",
+			imgUrl:"images/users/blowery.jpg",
+			website: "http://blowery.org/",
+			coords: { x: 43.055719, y: -73.79508 },
+			employer: "Bloglines.com",
+			blameFor: [ "dojo.back" ]
+		},
+		{
+			name:"Torrey Rice",
+			title: "Committer",
+			location: "Gilbert, AZ",
+			irc:"itorrey",
+			handle:"itorrey",
+			website:"http://sitepen.com/",
+			imgUrl:"images/users/itorrey.jpg",
+			coords:{x: 53.9577, y: -1.0823},
+			employer:"SitePen, Inc",
+			blameFor:[
+				"Style"
+			]
+		},
+		{
+			name:"Nathan Toone",
+			title: "Committer",
+			location: "Layton, UT",
+			irc:"toonetown",
+			handle:"toonetown",
+			website:"http://www.toonetown.com/",
+			imgUrl:"images/users/ntoone.jpg",
+			coords:{x: 41.0893, y: -111.9735},
+			employer:"Blue Coat Systems, Inc",
+			blameFor:[
+				"dojox.form"
+			]
+		},
+		{
+			name:"Brad Neuberg",
+			title: "Committer",
+			location: "San Francisco, CA",
+			irc:"BradNeuberg",
+			handle:"BradNeuberg",
+			website:"http://codinginparadise.org/",
+			employer:"Google",
+			imgUrl:"images/users/bradn.png",
+			blameFor:[
+				"Dojo Offline",
+				"Gears integration",
+				"Dojo Storage (aka: dojox.storage)",
+				"dojox.flash"
+			]
+		},
+		{
+			name:"Brian Skinner",
+			title: "Committer",
+			location: "San Francisco, CA",
+			irc:"skinner",
+			handle:"skinner",
+			website:"http://gumption.org/skinner.htm",
+			blameFor:[
+				"OpenRecord",
+				"dojo.data API design",
+				"zillions of unit tests"
+			]
+		},
+		{
+			name:"Greg Wilkins",
+			title: "Committer",
+			location: "Sydney Australia or Colletta Italy",
+			employer:"webtide.com LLC",
+			irc:"gregw",
+			handle:"gregw",
+			website:"http://www.mortbay.com/images/holidays/index.html",
+			imgUrl:"images/users/gregw.png",
+
+			blameFor:[
+				"dojox.cometd"
+			]
+		},
+		{
+			name:"Wolfram Kriesing",
+			title: "Committer",
+			location: "Munich, Germany",
+			coords: {x:48.1391, y:11.5802},
+			employer: "self-employed",
+			irc: "mccain",
+			handle: "mccain",
+			website: "http://wolfram.kriesing.de/blog",
+			imgUrl: "images/users/mccain.jpg",
+			blameFor:[
+				"dojox.data.QueryReadStore",
+				"dojox.widget.Rating"
+			]
+		},
+		{
+			name: "David Bolter",
+			title: "Committer",
+			location: "Toronto, Canada",
+			irc:"davidb",
+			handle:"davidb",
+			coords:{ x:43.664238, y:-79.398674 },
+			employer:"University of Toronto",
+			website: "http://mindforks.blogspot.com/",
+			imgUrl:"images/users/davidb.png",
+			blameFor:[
+				"Accessibility"
+			]
+		},
+		{
+			name:"Jared Jurkiewicz",
+			title:"Committer",
+			handle:"jared",
+			irc:"jared_j",
+			location:"Raleigh, NC",
+			employer: "IBM, Inc",
+			imgUrl:"images/users/jared_j.jpg",
+			blameFor:[
+				"dojo.data",
+				"dojox.wire"
+			]
+		},
+		{
+			name:"Kris Zyp",
+			title:"Committer",
+			handle:"kriszyp",
+			irc:"kriszyp",
+			location:"Salt Lake City, UT",
+			employer: "SitePen, Inc",
+			imgUrl:"images/users/kris.jpg",
+			blameFor:[
+				"REST Stores",
+				"Various JSON modules",
+				"RPC/SMD",
+				"IO/Communication",
+				"Comet/Channels"
+			]
+		},
+		{
+		
+			name:"Sam Foster",
+			title:"Committer",
+			handle:"sfoster",
+			irc:"sfoster",
+			location:"Leeds, UK",
+			employer: "SitePen, Inc",
+			coords: { x: 53.8241, y:-1.5661 },
+			imgUrl:"images/users/sfoster.png",
+			blameFor:[
+				"dojo.html", "dojox.html"
+			]
+		}
+		// from ohloh + not above:
+		// Doug Hays (doughays) IBM
+		// Scott J Miles - (sjmiles)
+		// Fredrick J (mumme)
+		// Owen Willaims (?) (owen)
+		// Simon Bates (simonjb)
+		// Scott Orvell (sorvell)
+		
+		// other non-code-committing commiters?
+		// (crieke)
+	]
+		
+}

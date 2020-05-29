@@ -23,6 +23,13 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \AccountBaseModule;
+use Criteria;
+use DB\AdminPeer;
+use JSONService;
+
 class AccountDeletedSitesModule extends AccountBaseModule{
 	
 	public function build($runData){
@@ -35,7 +42,7 @@ class AccountDeletedSitesModule extends AccountBaseModule{
 		$c->addJoin("site_id", "site.site_id");
 		$c->add("site.deleted", true);
 		
-		$mems = DB_AdminPeer::instance()->select($c);
+		$mems = AdminPeer::instance()->select($c);
 		if(count($mems)>0){
 			$runData->contextAdd("admins", $mems);	
 		}

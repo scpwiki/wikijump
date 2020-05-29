@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/framework/!svn/ver/13213/standard/trunk/library/Zend/InfoCard/Adapter
+END
+Exception.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/InfoCard/Adapter/Exception.php
+END
+Interface.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/InfoCard/Adapter/Interface.php
+END
+Default.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/13213/standard/trunk/library/Zend/InfoCard/Adapter/Default.php
+END

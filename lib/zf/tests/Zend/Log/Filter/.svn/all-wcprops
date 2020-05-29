@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Log/Filter
+END
+ChainingTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Log/Filter/ChainingTest.php
+END
+PriorityTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Log/Filter/PriorityTest.php
+END
+MessageTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Log/Filter/MessageTest.php
+END
+SuppressTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Log/Filter/SuppressTest.php
+END

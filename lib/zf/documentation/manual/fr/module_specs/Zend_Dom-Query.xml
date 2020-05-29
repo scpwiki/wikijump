@@ -1,0 +1,208 @@
+<!-- EN-Revision: 12116 -->
+<sect1 id="zend.dom.query">
+    <title>Zend_Dom_Query</title>
+
+    <para><code>Zend_Dom_Query</code> fournit des mécanismes pour requêter dans les documents XML et (X)HTML en
+    utilisant soit XPath ou les sélecteurs CSS. Il a été développé pour faciliter les tests fonctionnels des
+    applications MVC, mais pourrait également être employé pour le développement rapide de "screen scrapers".</para>
+
+    <para>La notation de type sélecteur CSS est fournie comme notation plus simple et plus familière pour les
+    développeurs Web à utiliser lors de la requête de documents ayant une structure de type XML. La notation devrait
+    être familière pour n'importe qui ayant écrit des feuilles de styles CSS ou ayant utiliser des librairies Javascript
+    qui fournissent pour sélectionner des noeuds en utilisant des sélecteurs CSS (<ulink
+    url="http://prototypejs.org/api/utility/dollar-dollar">Prototype's $$()</ulink> et <ulink
+    url="http://api.dojotoolkit.org/jsdoc/dojo/HEAD/dojo.query">Dojo's dojo.query</ulink> ont tous les deux inspirer ce
+    composant).</para>
+
+    <sect2 id="zend.dom.query.operation">
+        <title>Aspect théorique</title>
+
+        <para>Pour utiliser <code>Zend_Dom_Query</code>, vous instanciez un objet <code>Zend_Dom_Query</code>, en
+        fournissant optionnellement un document à analyser (sous la forme d'une chaîne). Une fois que vous avez un
+        document, vous pouvez utiliser indifféremment les méthodes <code>query()</code> ou <code>queryXpath()</code> ;
+        chaque méthode retournera un objet <code>Zend_Dom_Query_Result</code> avec tout noeud trouvé.</para>
+
+        <para>La différence principale entre <code>Zend_Dom_Query</code> et l'utilisation de DOMDocument + DOMXPath est
+        la possibilité de requêter avec les sélecteurs CSS. Vous pouvez utiliser n'importe quel élément suivant, dans
+        n'importe quelle combinaison :</para>
+
+        <itemizedlist>
+            <listitem>
+                <para><emphasis>types de l'élément</emphasis> : fourni un type d'élément à rechercher : "div", "a",
+                "span", "h2", etc.</para>
+            </listitem>
+
+            <listitem>
+                <para><emphasis>attributs de style </emphasis>: les classes CSS à rechercher : ".error", "div.error",
+                "label.required", etc. Si un élément défini plus qu'une classe, la correspondance sera trouvé si la
+                classe est présente quelque part dans la déclaration de l'attribut.</para>
+            </listitem>
+
+            <listitem>
+                <para><emphasis>attribut id </emphasis>: ID de l'élément à rechercher : "#content", "div#nav",
+                etc.</para>
+            </listitem>
+
+            <listitem>
+                <para><emphasis>attributs arbitraires </emphasis>: tout attribut arbitraire de l'élément à rechercher.
+                Trois types de recherche sont possibles :</para>
+
+                <itemizedlist>
+                    <listitem>
+                        <para><emphasis>correspondance exacte </emphasis>: l'attribut vaut exactement la chaîne fournie
+                        : "div[bar="baz"]" trouvera un élément div qui possède un attribut "bar" dont la valeur vaut
+                        exactement "baz".</para>
+                    </listitem>
+
+                    <listitem>
+                        <para><emphasis>correspondance de mot </emphasis>: l'attribut contient un mot correspondant à la
+                        chaîne fournie : "div[bar~="baz"]" trouvera un élément div qui possède un attribut "bar" dont la
+                        valeur contient le mot "baz". "&lt;div bar="foo baz"&gt;" trouvera, mais pas "&lt;div bar="foo
+                        bazbat"&gt;".</para>
+                    </listitem>
+
+                    <listitem>
+                        <para><emphasis>correspondance de parties de chaînes </emphasis>: l'attribut contient la chaîne
+                        fournie : "div[bar*="baz"]" trouvera un élément div qui possède un attribut "bar" dont la valeur
+                        contient la chaîne "baz".</para>
+                    </listitem>
+                </itemizedlist>
+            </listitem>
+
+            <listitem>
+                <para><emphasis>Descendants directs </emphasis>: utilise "&gt;" entre les sélecteurs pour
+                représenter une descendance direct. "div &gt; span" trouvera seulement les éléments "span" qui sont
+                des descendants directs d'un élément "div". Peut aussi être utilisé avec chacun des sélecteurs
+                ci-dessus.</para>
+            </listitem>
+
+            <listitem>
+                <para><emphasis>Descendants </emphasis>: une chaîne avec des sélecteurs multiples ensemble pour
+                indiquer hiérarchie à rechercher. "div .foo span #one" trouvera un élément avec un id "one" qui est
+                un descendant avec un profondeur arbitraire d'un élément "span", qui est lui-même un descendant avec
+                un profondeur arbitraire d'un élément ayant une classe "foo", qui est un descendant avec un
+                profondeur arbitraire d'un élément "div". Par exemple, il trouvera le lien vers le mot "One" dans le
+                code ci-dessous :</para>
+
+                <programlisting role="html"><![CDATA[
+<div>
+<table>
+    <tr>
+        <td class="foo">
+            <div>
+                Lorem ipsum <span class="bar">
+                    <a href="/foo/bar" id="one">One</a>
+                    <a href="/foo/baz" id="two">Two</a>
+                    <a href="/foo/bat" id="three">Three</a>
+                    <a href="/foo/bla" id="four">Four</a>
+                </span>
+            </div>
+        </td>
+    </tr>
+</table>
+</div>
+]]></programlisting>
+            </listitem>
+        </itemizedlist>
+
+        <para>Une fois que vous avez réalisé votre recherche, vous pouvez ensuite travailler avec l'objet de résultat
+        pour déterminer les informations sur les noeuds, ainsi que pour les récupérer eux et/ou leurs contenus
+        directement afin de les examiner et les manipuler. <code>Zend_Dom_Query_Result</code> implémente
+        <code>Countable</code> and <code>Iterator</code>, et stocke le résultat en interne sous la forme
+        DOMNodes/DOMElements. En exemple, considérons l'appel suivant sur l'HTML ci-dessus :</para>
+
+        <programlisting role="php"><![CDATA[
+$dom = new Zend_Dom_Query($html);
+$results = $dom->query('.foo .bar a');
+
+$count = count($results);    // trouvera 4 correspondances
+foreach ($results as $result) {
+    // $result is a DOMElement
+}
+]]></programlisting>
+
+        <para><code>Zend_Dom_Query</code> permet aussi de faire directement des recherches de type XPath en utilisant la
+        méthode <code>queryXpath()</code> ; vous pouvez fournir toute requête XPath valide à cette méthode, et elle
+        retournera un objet <code>Zend_Dom_Query_Result</code>.</para>
+    </sect2>
+
+    <sect2 id="zend.dom.query.methods">
+        <title>Méthodes disponibles</title>
+
+        <para>La famille des classes <code>Zend_Dom_Query</code> possèdent les méthodes suivantes.</para>
+
+        <sect3 id="zend.dom.query.methods.zenddomquery">
+            <title>Zend_Dom_Query</title>
+
+            <para>Ces méthodes sont disponibles pour <code>Zend_Dom_Query</code> :</para>
+
+            <itemizedlist>
+                <listitem>
+                    <para><code>setDocumentXml($document)</code>: spécifie une chaîne XML dans laquelle requêter.</para>
+                </listitem>
+
+                <listitem>
+                    <para><code>setDocumentXhtml($document)</code>: spécifie une chaîne XHTML dans laquelle
+                    requêter.</para>
+                </listitem>
+
+                <listitem>
+                    <para><code>setDocumentHtml($document)</code>: spécifie une chaîne HTML dans laquelle
+                    requêter.</para>
+                </listitem>
+
+                <listitem>
+                    <para><code>setDocument($document)</code>: spécifie une chaîne dans laquelle requêter ;
+                    <code>Zend_Dom_Query</code> tentera alors de détecter automatiquement le type de document.</para>
+                </listitem>
+
+                <listitem>
+                    <para><code>getDocument()</code>: récupère le document original fourni à l'objet.</para>
+                </listitem>
+
+                <listitem>
+                    <para><code>getDocumentType()</code>: récupère le type de document fourni à l'objet ; sera une des
+                    constantes de classe : <code>DOC_XML</code>, <code>DOC_XHTML</code>, ou
+                    <code>DOC_HTML</code>.</para>
+                </listitem>
+
+                <listitem>
+                    <para><code>query($query)</code>: recherche dans le document en utilisant la notation de type
+                    sélecteur CSS.</para>
+                </listitem>
+
+                <listitem>
+                    <para><code>queryXpath($xPathQuery)</code>: recherche dans le document en utilisant la notation
+                    XPath.</para>
+                </listitem>
+            </itemizedlist>
+        </sect3>
+
+        <sect3 id="zend.dom.query.methods.zenddomqueryresult">
+            <title>Zend_Dom_Query_Result</title>
+
+            <para>Comme mentionné auparavant, <code>Zend_Dom_Query_Result</code> implémente à la fois
+            <code>Iterator</code> et <code>Countable</code>, et en tant que tel peut être utilisé dans une boucle
+            <code>foreach</code> ainsi qu'avec la fonction <code>count()</code>. De plus il expose les méthodes
+            suivantes :</para>
+
+            <itemizedlist>
+                <listitem>
+                    <para><code>getCssQuery()</code>: retourne le sélecteur CSS utilisé pour produire le résultat (si
+                    fourni).</para>
+                </listitem>
+
+                <listitem>
+                    <para><code>getXpathQuery()</code>: retourne la requête XPath utilisé pour produire le résultat,
+                    <code>Zend_Dom_Query</code> convertit les recherches de type sélecteur CSS en notation XPath, donc
+                    cette valeur sera toujours présente.</para>
+                </listitem>
+
+                <listitem>
+                    <para><code>getDocument()</code>: récupère l'élément DOMDocument dans lequel la recherche à été
+                    effectuée.</para>
+                </listitem>
+            </itemizedlist>
+        </sect3>
+    </sect2>
+</sect1>

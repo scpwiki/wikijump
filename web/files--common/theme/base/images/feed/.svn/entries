@@ -1,0 +1,54 @@
+8
+
+dir
+393
+http://svn.wikidot.org/repos/wikidot1/trunk/web/files--common/theme/base/images/feed
+http://svn.wikidot.org/repos
+
+
+
+2008-01-30T17:40:54.924226Z
+2
+michal_frackowiak
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+fb797968-1a05-43ef-ab23-0011a79c62e5
+
+feed-icon-28x28.png
+file
+
+
+
+
+2008-12-06T16:40:10.000000Z
+e077f1f611f09d672b0db3a79b96d530
+2008-01-30T17:40:54.924226Z
+2
+michal_frackowiak
+has-props
+
+feed-icon-14x14.png
+file
+
+
+
+
+2008-12-06T16:40:10.000000Z
+2168a573d0d45bd2f9a89b8236453d61
+2008-01-30T17:40:54.924226Z
+2
+michal_frackowiak
+has-props
+

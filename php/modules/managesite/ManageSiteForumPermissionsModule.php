@@ -23,6 +23,14 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \ManageSiteBaseModule;
+use \ProcessException;
+use Criteria;
+use DB\ForumGroupPeer;
+use DB\ForumCategoryPeer;
+
 class ManageSiteForumPermissionsModule extends ManageSiteBaseModule {
 	
 	public function build($runData){
@@ -39,7 +47,7 @@ class ManageSiteForumPermissionsModule extends ManageSiteBaseModule {
 		$c->add("site_id", $site->getSiteId());
 		$c->addOrderAscending("sort_index");
 
-		$groups = DB_ForumGroupPeer::instance()->select($c);
+		$groups = ForumGroupPeer::instance()->select($c);
 		
 		$catout = array();
 		$catout2 = array();
@@ -49,7 +57,7 @@ class ManageSiteForumPermissionsModule extends ManageSiteBaseModule {
 			$c->add("site_id", $site->getSiteId());
 			$c->addOrderAscending("sort_index");
 			$c->add("group_id", $group->getGroupId());
-			$categories = DB_ForumCategoryPeer::instance()->select($c);
+			$categories = ForumCategoryPeer::instance()->select($c);
 			$catout[$group->getGroupId()] = $categories; 
 			foreach($categories as $cat){
 				$catout2[] = $cat->getFieldValuesArray();

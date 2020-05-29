@@ -23,10 +23,15 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \AccountBaseModule;
+use DB\UserSettingsPeer;
+
 class ASMessagesModule extends AccountBaseModule {
 	
 	public function build($runData){
-		$us = DB_UserSettingsPeer::instance()->selectByPrimaryKey($runData->getUserId());
+		$us = UserSettingsPeer::instance()->selectByPrimaryKey($runData->getUserId());
 		$runData->contextAdd("from", trim($us->getReceivePm()));	
 	}
 	

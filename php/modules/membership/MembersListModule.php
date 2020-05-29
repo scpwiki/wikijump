@@ -23,6 +23,14 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use Criteria;
+use DB\AdminPeer;
+use DB\ModeratorPeer;
+use DB\MemberPeer;
+
 class MembersListModule extends SmartyModule {
 	
 	public function build($runData){
@@ -47,11 +55,11 @@ class MembersListModule extends SmartyModule {
 		if($from !== "admins" && $from !== "moderators"){$from = null;}
 
 		if($from === "admins"){
-			$mems = DB_AdminPeer::instance()->select($c);
+			$mems = AdminPeer::instance()->select($c);
 		}elseif($from === "moderators"){
-			$mems = DB_ModeratorPeer::instance()->select($c);
+			$mems = ModeratorPeer::instance()->select($c);
 		}else{
-			$mems = DB_MemberPeer::instance()->select($c);
+			$mems = MemberPeer::instance()->select($c);
 		}
 		if(count($mems)>0){
 			$runData->contextAdd("from", $from);

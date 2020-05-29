@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/repos/!svn/ver/2/wikidot1/trunk/web/files--common/modules/js/membership
+END
+MembershipApplyModule.js
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/repos/!svn/ver/2/wikidot1/trunk/web/files--common/modules/js/membership/MembershipApplyModule.js
+END
+MembershipEmailInvitationModule.js
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/repos/!svn/ver/2/wikidot1/trunk/web/files--common/modules/js/membership/MembershipEmailInvitationModule.js
+END
+MembershipByPasswordModule.js
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/repos/!svn/ver/2/wikidot1/trunk/web/files--common/modules/js/membership/MembershipByPasswordModule.js
+END

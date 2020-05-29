@@ -23,6 +23,23 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \WDPermissionManager;
+use Database;
+use Criteria;
+use DB\SitePeer;
+use \Duplicator;
+use DB\CategoryPeer;
+use \Outdater;
+use DB\ForumGroup;
+use DB\ForumCategory;
+use JSONService;
+use DB\ForumGroupPeer;
+use \ProcessException;
+use DB\ForumCategoryPeer;
+use DB\ForumThreadPeer;
+
 class ManageSiteForumAction {
 	
 	public function isAllowed($runData){
@@ -41,7 +58,7 @@ class ManageSiteForumAction {
 		// copy forum settings from template
 		$c = new Criteria();
 		$c->add("unix_name", "template-".$site->getLanguage());
-		$templateSite = DB_SitePeer::instance()->selectOne($c);
+		$templateSite = SitePeer::instance()->selectOne($c);
 
 		$fs = $templateSite->getForumSettings();
 		$fs->setNew(true);
@@ -55,22 +72,22 @@ class ManageSiteForumAction {
 		$d->setOwner($runData->getUser());
 		
 		// copy "forum" category
-		$fc = DB_CategoryPeer::instance()->selectByName("forum", $templateSite->getSiteId());
+		$fc = CategoryPeer::instance()->selectByName("forum", $templateSite->getSiteId());
 		$d->duplicateCategory($fc, $site);
 		
 		// recompile category.
 		$od = new Outdater();
-		$od->recompileCategory(DB_CategoryPeer::instance()->selectByName("forum", $site->getSiteId()));
+		$od->recompileCategory(CategoryPeer::instance()->selectByName("forum", $site->getSiteId()));
 		
 		// create a "Hidden" forum group and "Deleted" category
 		
-		$group = new DB_ForumGroup();
+		$group = new ForumGroup();
 		$group->setSiteId($site->getSiteId());
 		$group->setName("Hidden");
 		$group->setVisible(false);
 		$group->save();
 		
-		$del = new DB_ForumCategory();
+		$del = new ForumCategory();
 		$del->setSiteId($site->getSiteId());
 		$del->setName(_("Deleted threads"));
 		$del->setDescription(_("Deleted forum discussions should go here."));
@@ -78,7 +95,7 @@ class ManageSiteForumAction {
 		$del->setGroupId($group->getGroupId());
 		$del->save();
 		
-		$category = new DB_ForumCategory();
+		$category = new ForumCategory();
 		$category->setName(_("Per page discussions"));
 		$category->setDescription(_("This category groups discussions related to particular pages within this site."));
 		$category->setPerPageDiscussion(true);
@@ -108,7 +125,7 @@ class ManageSiteForumAction {
 			$g = null;
 			if($group['group_id'] == null){
 				// new group, add to database!
-				$g = new DB_ForumGroup();
+				$g = new ForumGroup();
 				$g->setName(trim($group['name']));
 				$g->setDescription(trim($group['description']));
 				$g->setVisible($group['visible']);
@@ -119,7 +136,7 @@ class ManageSiteForumAction {
 				$c = new Criteria();
 				$c->add("site_id", $site->getSiteId());
 				$c->add("group_id", $group['group_id']);
-				$g = DB_ForumGroupPeer::instance()->selectOne($c);
+				$g = ForumGroupPeer::instance()->selectOne($c);
 				if($g == null){
 					throw new ProcessException(_("Error fatching one of the forum groups."));
 				}
@@ -153,7 +170,7 @@ class ManageSiteForumAction {
 				$cat = $cates[$j];
 				if($cat['category_id'] == null){
 					// new category!
-					$ca = new DB_ForumCategory();
+					$ca = new ForumCategory();
 					$ca->setName(trim($cat['name']));
 					$ca->setDescription(trim($cat['description']));
 					$ca->setMaxNestLevel($cat['max_nest_level']);
@@ -166,7 +183,7 @@ class ManageSiteForumAction {
 					$c = new Criteria();
 					$c->add("site_id", $site->getSiteId());
 					$c->add("category_id", $cat['category_id']);
-					$ca = DB_ForumCategoryPeer::instance()->selectOne($c);
+					$ca = ForumCategoryPeer::instance()->selectOne($c);
 					if($ca == null){
 						throw new ProcessException(_("Error fatching one of the forum categories."));
 					}
@@ -210,11 +227,11 @@ class ManageSiteForumAction {
 			$c->add("category_id", $dcat);
 			
 			// check if empty
-			$cacount = DB_ForumThreadPeer::instance()->selectCount($c);
+			$cacount = ForumThreadPeer::instance()->selectCount($c);
 			if($cacount>0){
 					throw new ProcessException(_("One of the categories marked for deletation was not empty."));	
 			}
-			DB_ForumCategoryPeer::instance()->delete($c);
+			ForumCategoryPeer::instance()->delete($c);
 		}
 		
 		// now process deleted groups...
@@ -228,12 +245,12 @@ class ManageSiteForumAction {
 				$c->add("site_id", $site->getSiteId());
 				$c->add("group_id", $group['group_id']);
 				
-				$cacount = DB_ForumCategoryPeer::instance()->selectCount($c);
+				$cacount = ForumCategoryPeer::instance()->selectCount($c);
 				if($cacount>0){
 					throw new ProcessException(_("One of the groups marked for deletation was not empty."));	
 				}
 				
-				DB_ForumGroupPeer::instance()->delete($c);
+				ForumGroupPeer::instance()->delete($c);
 			}	
 		}
 		
@@ -246,11 +263,11 @@ class ManageSiteForumAction {
 			$c->add("category_id", $dcat);
 			
 			// check if empty
-			$cacount = DB_ForumThreadPeer::instance()->selectCount($c);
+			$cacount = ForumThreadPeer::instance()->selectCount($c);
 			if($cacount>0){
 					throw new ProcessException(_("One of the categories marked for deletation was not empty."));	
 			}
-			DB_ForumCategoryPeer::instance()->delete($c);
+			ForumCategoryPeer::instance()->delete($c);
 		}
 		
 		$outdater = new Outdater();
@@ -303,7 +320,7 @@ class ManageSiteForumAction {
 		 	$c = new Criteria();
 			$c->add("site_id", $site->getSiteId());
 			$c->add("category_id", $cat['category_id']);
-			$ca = DB_ForumCategoryPeer::instance()->selectOne($c);
+			$ca = ForumCategoryPeer::instance()->selectOne($c);
 			
 			if($cat == null){
 				throw new ProcessException("Invalid category.");
@@ -357,7 +374,7 @@ class ManageSiteForumAction {
 			$c = new Criteria();
 			$c->add("category_id", $categoryId);
 			$c->add("site_id", $siteId); // for sure ;-)
-			$dCategory = DB_CategoryPeer::instance()->selectOne($c);
+			$dCategory = CategoryPeer::instance()->selectOne($c);
 			
 			// now compare
 			$changed = false;

@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \AccountBaseModule;
+use \WikiTransformation;
+use DB\PrivateMessage;
+
 class PMPreviewModule extends AccountBaseModule {
 	
 	public function build($runData){
@@ -38,7 +44,7 @@ class PMPreviewModule extends AccountBaseModule {
 		
 		$body = $result;
 		
-		$message = new DB_PrivateMessage();
+		$message = new PrivateMessage();
 		$message->setFromUserId($runData->getUserId());
 		$message->setToUserId($toUserId);
 		$message->setBody($body);

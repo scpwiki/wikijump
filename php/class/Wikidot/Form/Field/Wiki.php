@@ -1,6 +1,14 @@
 <?php
 
-class Wikidot_Form_Field_Wiki extends Wikidot_Form_Field_Base {
+
+namespace Wikidot\Form\Field;
+
+use Wikidot\Form\Field\Base;
+use \WikiTransformation;
+
+
+
+class Wiki extends Base {
     public function renderView() {
         $wt = new WikiTransformation();
         $wt->setMode('pm');

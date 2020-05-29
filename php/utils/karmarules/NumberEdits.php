@@ -22,12 +22,23 @@
  * @copyright Copyright (c) 2008, Wikidot Inc.
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
+
+
+use \KarmaRuleInterface;
+use calculate;
+use Criteria;
+use add;
+use getUserId;
+use DB\PageRevisionPeer;
+use instance;
+use selectCount;
+
 class NumberEdits implements KarmaRuleInterface {
    
    public function calculate($user){
         $c = new Criteria();
         $c->add('user_id', $user->getUserId());
-        $count = DB_PageRevisionPeer::instance()->selectCount($c);
+        $count = PageRevisionPeer::instance()->selectCount($c);
         return $count;
    }
 }

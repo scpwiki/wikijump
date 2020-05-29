@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/framework/!svn/ver/12936/standard/trunk/tests/Zend/Auth/Adapter/OpenId
+END
+AllTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Auth/Adapter/OpenId/AllTests.php
+END
+OpenIdTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/framework/!svn/ver/12936/standard/trunk/tests/Zend/Auth/Adapter/OpenId/OpenIdTest.php
+END
+ResponseHelper.php
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Auth/Adapter/OpenId/ResponseHelper.php
+END

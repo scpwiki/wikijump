@@ -23,6 +23,13 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use \ProcessException;
+use DB\ForumPostRevisionPeer;
+use \WikiTransformation;
+
 class ForumPostRevisionModule extends SmartyModule {
 	
 	public function build($runData){
@@ -35,7 +42,7 @@ class ForumPostRevisionModule extends SmartyModule {
 			throw new ProcessException(_("No revision specified."), "no_post");	
 		}
 		
-		$revision = DB_ForumPostRevisionPeer::instance()->selectByPrimaryKey($revisionId);
+		$revision = ForumPostRevisionPeer::instance()->selectByPrimaryKey($revisionId);
 		if($revision == null){
 			throw new ProcessException(_("No revision specified."), "no_post");	
 		}	

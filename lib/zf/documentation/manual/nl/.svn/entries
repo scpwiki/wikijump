@@ -1,0 +1,124 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/documentation/manual/nl
+http://framework.zend.com/svn/framework
+
+
+
+2008-08-16T14:07:49.063612Z
+10909
+evil_easterbunny
+has-props
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+manual.xml.in
+file
+
+
+
+
+2008-12-06T16:41:01.000000Z
+654df60ef6e271a5139165307af5de0b
+2008-02-18T16:53:04.811793Z
+8122
+evil_easterbunny
+
+module_specs
+dir
+
+Makefile.in
+file
+
+
+
+
+2008-12-06T16:41:01.000000Z
+6761a27063311867340a9b72fa0e03f9
+2008-03-09T21:29:44.842965Z
+8721
+thomas
+
+figures
+dir
+
+html
+dir
+
+manual-lint.xml.in
+file
+
+
+
+
+2008-12-06T16:41:01.000000Z
+2a17561e6b27bedf7aaad524a88b2c8b
+2007-07-19T04:09:55.921894Z
+5782
+bkarwin
+
+configure.in
+file
+
+
+
+
+2008-12-06T16:41:01.000000Z
+ae60dad5ff0259654a8a26df32707273
+2008-02-16T10:58:39.742447Z
+8064
+thomas
+
+xinclude.mod
+file
+
+
+
+
+2008-12-06T16:41:01.000000Z
+57ec9c116cae76152f8bfd4a039551cb
+2007-03-02T23:44:01.305669Z
+3704
+bkarwin
+
+ref
+dir
+
+README
+file
+
+
+
+
+2008-12-06T16:41:01.000000Z
+0e1fe466cb109a13ad180581a929b212
+2008-03-08T18:14:17.127392Z
+8703
+thomas
+
+html.xsl.in
+file
+
+
+
+
+2008-12-06T16:41:01.000000Z
+3b6f0ebd3e72f80099b6c3fef88b237b
+2008-03-08T18:14:17.127392Z
+8703
+thomas
+

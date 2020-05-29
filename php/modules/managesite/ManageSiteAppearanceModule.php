@@ -23,6 +23,13 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \ManageSiteBaseModule;
+use Criteria;
+use DB\CategoryPeer;
+use DB\ThemePeer;
+
 class ManageSiteAppearanceModule extends ManageSiteBaseModule {
 	
 	public function build($runData){
@@ -34,7 +41,7 @@ class ManageSiteAppearanceModule extends ManageSiteBaseModule {
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
 		$c->addOrderAscending("replace(name, '_', '00000000')");
-		$categories = DB_CategoryPeer::instance()->select($c);
+		$categories = CategoryPeer::instance()->select($c);
 		
 		$runData->contextAdd("categories", $categories);
 		
@@ -44,7 +51,7 @@ class ManageSiteAppearanceModule extends ManageSiteBaseModule {
 			$arr = $category->getFieldValuesArray();
 			// change themes to conform to variants structure
 			if($arr['theme_id']){
-				$theme = DB_ThemePeer::instance()->selectByPrimaryKey($category->getThemeId());
+				$theme = ThemePeer::instance()->selectByPrimaryKey($category->getThemeId());
 				if($theme->getVariantOfThemeId() != null){
 					$arr['theme_id'] = $theme->getVariantOfThemeId();
 					$arr['variant_theme_id'] = $theme->getThemeId();
@@ -68,14 +75,14 @@ class ManageSiteAppearanceModule extends ManageSiteBaseModule {
 				"ORDER BY custom, sort_index, replace(name, '_', '00000000');";
 					
 		$c->setExplicitQuery($q);
-		$themes = DB_ThemePeer::instance()->select($c);
+		$themes = ThemePeer::instance()->select($c);
 		$runData->contextAdd("themes", $themes);
 		
 		// get theme variants too
 		$c = new Criteria();
 		$q = "SELECT * FROM theme WHERE variant_of_theme_id IS NOT NULL ORDER BY name";
 		$c->setExplicitQuery($q);
-		$variants =  DB_ThemePeer::instance()->select($c);
+		$variants =  ThemePeer::instance()->select($c);
 		
 		$variantsArray = array();
 		foreach($variants as $v){

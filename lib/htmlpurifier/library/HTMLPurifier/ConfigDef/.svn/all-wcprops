@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/ConfigDef
+END
+Namespace.php
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/ConfigDef/Namespace.php
+END
+Directive.php
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/ConfigDef/Directive.php
+END
+DirectiveAlias.php
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/ConfigDef/DirectiveAlias.php
+END

@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Auth/Adapter/Http/Resolver
+END
+Exception.php
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Auth/Adapter/Http/Resolver/Exception.php
+END
+File.php
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Auth/Adapter/Http/Resolver/File.php
+END
+Interface.php
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Auth/Adapter/Http/Resolver/Interface.php
+END

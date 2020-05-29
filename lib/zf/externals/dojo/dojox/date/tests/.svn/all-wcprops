@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/src/!svn/ver/15393/branches/1.2/dojox/date/tests
+END
+module.js
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/src/!svn/ver/15393/branches/1.2/dojox/date/tests/module.js
+END
+HebrewDate.js
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/src/!svn/ver/15393/branches/1.2/dojox/date/tests/HebrewDate.js
+END
+test_HebrewCalendar.html
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/src/!svn/ver/15393/branches/1.2/dojox/date/tests/test_HebrewCalendar.html
+END
+IslamicDate.js
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/src/!svn/ver/15393/branches/1.2/dojox/date/tests/IslamicDate.js
+END
+runTests.html
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/src/!svn/ver/15393/branches/1.2/dojox/date/tests/runTests.html
+END
+posix.js
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/src/!svn/ver/15393/branches/1.2/dojox/date/tests/posix.js
+END
+test_IslamicCalendar.html
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/src/!svn/ver/15393/branches/1.2/dojox/date/tests/test_IslamicCalendar.html
+END

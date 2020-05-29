@@ -1,0 +1,70 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/library/Zend/Pdf/Cmap
+http://framework.zend.com/svn/framework
+
+
+
+2008-11-10T18:41:24.698483Z
+12519
+alexander
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+TrimmedTable.php
+file
+
+
+
+
+2008-12-06T16:40:33.000000Z
+d68be437c2687503517dba968baa3236
+2008-11-10T18:41:24.698483Z
+12519
+alexander
+has-props
+
+ByteEncoding.php
+file
+
+
+
+
+2008-12-06T16:40:33.000000Z
+666f40eb7b3be0a2a79243d4c33d2f2c
+2008-11-10T18:41:24.698483Z
+12519
+alexander
+has-props
+
+SegmentToDelta.php
+file
+
+
+
+
+2008-12-06T16:40:33.000000Z
+cf5865c20831dc4c8dc2f7d0334587fc
+2008-11-10T18:41:24.698483Z
+12519
+alexander
+has-props
+
+ByteEncoding
+dir
+

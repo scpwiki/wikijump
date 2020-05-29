@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- WARNING: Eclipse auto-generated file.
+              Any modifications will be overwritten.
+              To include a user specific buildfile here, simply create one in the same
+              directory with the processing instruction <?eclipse.ant.import?>
+              as the first entry and export the buildfile again. -->
+<project basedir="." default="jar" name="searcher">
+    <property environment="env"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+    <path id="searcher.classpath">
+        <pathelement location="/usr/share/java/lucene-core-2.2.0.jar"/>
+        <pathelement location="/usr/share/java/lucene-analyzers-2.2.0.jar"/>
+        <pathelement location="/usr/share/java/lucene-memory-2.2.0.jar"/>
+        <pathelement location="/usr/share/java/lucene-misc-2.2.0.jar"/>
+        <pathelement location="/usr/share/java/lucene-queries-2.2.0.jar"/>
+        <pathelement location="/usr/share/java/lucene-regex-2.2.0.jar"/>
+        <pathelement location="/usr/share/java/lucene-similarity-2.2.0.jar"/>
+    </path>
+    <target name="init">
+        <copy includeemptydirs="false" todir=".">
+            <fileset dir="." excludes="**/*.launch, **/*.java"/>
+        </copy>
+    </target>
+    <target name="clean">
+    </target>
+    <target depends="clean" name="cleanall"/>
+    <target depends="build-subprojects,build-project" name="build"/>
+    <target name="build-subprojects"/>
+    <target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="." source="${source}" target="${target}">
+            <src path="."/>
+            <classpath refid="searcher.classpath"/>
+        </javac>
+    </target>
+    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
+    <target name="WikidotSearcher">
+        <java classname="WikidotSearcher" failonerror="true" fork="yes">
+            <classpath refid="searcher.classpath"/>
+        </java>
+    </target>
+    <target name="Searcher">
+        <java classname="Searcher" failonerror="true" fork="yes">
+            <classpath refid="searcher.classpath"/>
+        </java>
+    </target>
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <target name="jar" depends="build">
+        <jar destfile="../bin/wikidot_search.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Built-By" value="${user.name}"/>
+                <attribute name="Main-Class" value="WikidotSearcher"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="."/>
+            <zipfileset excludes="META-INF/*.SF" src="/usr/share/java/lucene-core-2.2.0.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/usr/share/java/lucene-analyzers-2.2.0.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/usr/share/java/lucene-memory-2.2.0.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/usr/share/java/lucene-misc-2.2.0.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/usr/share/java/lucene-queries-2.2.0.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/usr/share/java/lucene-regex-2.2.0.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/usr/share/java/lucene-similarity-2.2.0.jar"/>
+        </jar>
+    </target>
+</project>

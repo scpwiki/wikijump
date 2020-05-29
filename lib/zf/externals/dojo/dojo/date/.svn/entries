@@ -1,0 +1,54 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/dojo/date
+http://svn.dojotoolkit.org/src
+
+
+
+2008-07-14T20:04:03.909270Z
+14435
+peller
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+stamp.js
+file
+
+
+
+
+2008-12-06T16:42:12.000000Z
+a126d9160c9c6e3e987597a0250d7b66
+2008-03-03T18:12:37.382834Z
+12833
+pottedmeat
+has-props
+
+locale.js
+file
+
+
+
+
+2008-12-06T16:42:12.000000Z
+b3663799aa2528ac32f2f327f3066e52
+2008-07-14T20:04:03.909270Z
+14435
+peller
+has-props
+

@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/framework/!svn/ver/9506/standard/trunk/documentation/manual/pt-br
+END
+manual.xml.in
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/9506/standard/trunk/documentation/manual/pt-br/manual.xml.in
+END
+Makefile.in
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/9506/standard/trunk/documentation/manual/pt-br/Makefile.in
+END
+manual-lint.xml.in
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/9506/standard/trunk/documentation/manual/pt-br/manual-lint.xml.in
+END
+configure.in
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/9506/standard/trunk/documentation/manual/pt-br/configure.in
+END
+xinclude.mod
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/9506/standard/trunk/documentation/manual/pt-br/xinclude.mod
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/9506/standard/trunk/documentation/manual/pt-br/README
+END
+html.xsl.in
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/9506/standard/trunk/documentation/manual/pt-br/html.xsl.in
+END

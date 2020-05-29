@@ -1,0 +1,44 @@
+8
+
+dir
+393
+http://svn.wikidot.org/repos/wikidot1/trunk/lib/Text_Wiki/Text
+http://svn.wikidot.org/repos
+
+
+
+2008-09-01T10:52:28.671594Z
+257
+michal_frackowiak
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+fb797968-1a05-43ef-ab23-0011a79c62e5
+
+Wiki
+dir
+
+Wiki.php
+file
+
+
+
+
+2008-12-06T16:40:02.000000Z
+495d3921a47b284c41f1e4065beecbd0
+2008-08-05T09:04:53.284923Z
+162
+michal_frackowiak
+has-props
+

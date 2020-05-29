@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/account/pm
+END
+PMSentMessageModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/account/pm/PMSentMessageModule.tpl
+END
+PMInboxModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/account/pm/PMInboxModule.tpl
+END
+PMComposeContactsListModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/account/pm/PMComposeContactsListModule.tpl
+END
+PMPreviewModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/account/pm/PMPreviewModule.tpl
+END
+PMDraftsModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/account/pm/PMDraftsModule.tpl
+END
+PMInboxMessageModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/account/pm/PMInboxMessageModule.tpl
+END
+PMComposeModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/account/pm/PMComposeModule.tpl
+END
+PMDraftsMessageModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/account/pm/PMDraftsMessageModule.tpl
+END
+PMSentModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/account/pm/PMSentModule.tpl
+END

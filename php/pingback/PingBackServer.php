@@ -23,6 +23,11 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \PingBack;
+use Zend_XmlRpc_Server_Fault;
+
 /* TODO: static? */
 class PingBackServer {
 	/**

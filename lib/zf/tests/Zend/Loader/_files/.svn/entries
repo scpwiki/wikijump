@@ -1,0 +1,44 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Loader/_files
+http://framework.zend.com/svn/framework
+
+
+
+2008-10-23T19:59:32.795087Z
+12092
+matthew
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+ZfTest
+dir
+
+ParseError.php
+file
+
+
+
+
+2008-12-06T16:40:29.000000Z
+8379a6b35054a3c666fabb29d936ee50
+2008-02-16T10:58:39.742447Z
+8064
+thomas
+has-props
+

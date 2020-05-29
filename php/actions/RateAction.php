@@ -23,6 +23,19 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyAction;
+use \ProcessException;
+use DB\PagePeer;
+use Criteria;
+use DB\PageRateVotePeer;
+use Database;
+use DB\PageRateVote;
+use ODate;
+use \Outdater;
+use DB\MemberPeer;
+
 class RateAction extends SmartyAction{
 	
 	private $message;
@@ -42,7 +55,7 @@ class RateAction extends SmartyAction{
 			throw new ProcessException("Error");	
 		}
 		
-		$page = DB_PagePeer::instance()->selectByPrimaryKey($pageId);
+		$page = PagePeer::instance()->selectByPrimaryKey($pageId);
 		if(!$pageId || $page == null || $page->getSiteId() != $runData->getTemp("site")->getSiteId()){
 			throw new ProcessException(_("Error getting page information."), "no_page");
 		}	
@@ -60,11 +73,11 @@ class RateAction extends SmartyAction{
 		$c->add("page_id", $page->getPageId());
 		$c->add("user_id", $user->getUserId());
 		if($pl->getParameterValue("force")){
-			$v = DB_PageRateVotePeer::instance()->selectOne($c);
-			DB_PageRateVotePeer::instance()->delete($c);
+			$v = PageRateVotePeer::instance()->selectOne($c);
+			PageRateVotePeer::instance()->delete($c);
 			$rpoints = $points - $v->getRate();	
 		}else{
-			$v = DB_PageRateVotePeer::instance()->selectOne($c);
+			$v = PageRateVotePeer::instance()->selectOne($c);
 			if($v){
 				$runData->ajaxResponseAdd("status", "already_voted");
 				$runData->setModuleTemplate("pagerate/AlreadyRatedModule");
@@ -81,7 +94,7 @@ class RateAction extends SmartyAction{
 		$db = Database::connection();
 		$db->begin();
 		
-		$v = new DB_PageRateVote();
+		$v = new PageRateVote();
 		$v->setUserId($user->getUserId());
 		$v->setPageId($page->getPageId());
 		$v->setRate($points);
@@ -110,7 +123,7 @@ class RateAction extends SmartyAction{
 		$pageId = $pl->getParameterValue("pageId");
 		$user = $runData->getUser();
 		
-		$page = DB_PagePeer::instance()->selectByPrimaryKey($pageId);
+		$page = PagePeer::instance()->selectByPrimaryKey($pageId);
 		if(!$pageId || $page == null || $page->getSiteId() != $runData->getTemp("site")->getSiteId()){
 			throw new ProcessException(_("Error getting page information."), "no_page");
 		}	
@@ -128,12 +141,12 @@ class RateAction extends SmartyAction{
 		$c = new Criteria();
 		$c->add("page_id", $page->getPageId());
 		$c->add("user_id", $user->getUserId());
-		$v = DB_PageRateVotePeer::instance()->selectOne($c);
+		$v = PageRateVotePeer::instance()->selectOne($c);
 		if(!$v) {
 			$runData->ajaxResponseAdd("points",0);
 			return;
 		}
-		DB_PageRateVotePeer::instance()->delete($c);
+		PageRateVotePeer::instance()->delete($c);
 		$rpoints = 0 - $v->getRate();	
 		
 		// update page points
@@ -167,7 +180,7 @@ class RateAction extends SmartyAction{
 				$c = new Criteria();
 				$c->add("site_id", $category->getSiteId());
 				$c->add("user_id", $user->getUserId());
-				$rel = DB_MemberPeer::instance()->selectOne($c);
+				$rel = MemberPeer::instance()->selectOne($c);
 				if($rel){
 					return true;
 				}else{

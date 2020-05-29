@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/framework/!svn/ver/12936/standard/trunk/tests/Zend/Auth/Adapter
+END
+AllTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Auth/Adapter/AllTests.php
+END
+DigestTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Auth/Adapter/DigestTest.php
+END

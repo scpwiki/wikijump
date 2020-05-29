@@ -1,6 +1,17 @@
 <?php
 
-class Wikidot_Facade_User extends Wikidot_Facade_Base {
+
+namespace Wikidot\Facade;
+
+use Wikidot\Facade\Base;
+use \WDPermissionException;
+use Criteria;
+use DB\MemberPeer;
+use DB\SitePeer;
+
+
+
+class User extends Base {
 	/**
 	 * Just check if user exists and has access to the API.
 	 * 
@@ -26,11 +37,11 @@ class Wikidot_Facade_User extends Wikidot_Facade_Base {
 		
 		$c = new Criteria();
 		$c->add("user_id", $this->user->getUserId());
-		$memberships = DB_MemberPeer::instance()->selectByCriteria($c);
+		$memberships = MemberPeer::instance()->selectByCriteria($c);
 		
 		$sites = array();
 		foreach ($memberships as $membership) {
-			$site = DB_SitePeer::instance()->selectByPrimaryKey($membership->getSiteId());
+			$site = SitePeer::instance()->selectByPrimaryKey($membership->getSiteId());
 			if (! $site->getDeleted()) {
 				$sites[] = $site;
 			}

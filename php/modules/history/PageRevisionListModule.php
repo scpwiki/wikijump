@@ -23,6 +23,15 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use JSONService;
+use DB\PagePeer;
+use \ProcessException;
+use Criteria;
+use DB\PageRevisionPeer;
+
 class PageRevisionListModule extends SmartyModule {
 	
 	public function render($runData){
@@ -83,7 +92,7 @@ class PageRevisionListModule extends SmartyModule {
 		
 		// get the page
 		
-		$page = DB_PagePeer::instance()->selectByPrimaryKey($pageId);
+		$page = PagePeer::instance()->selectByPrimaryKey($pageId);
 		if($page == null || $page->getSiteId() !== $site->getSiteId()){
 			throw new ProcessException(_("Error selecting the page."), "no_page");	
 		}
@@ -108,7 +117,7 @@ class PageRevisionListModule extends SmartyModule {
 		$c->addOrderDescending('revision_id');
 		$c->setLimit($count, $offset);
 		
-		$pr = DB_PageRevisionPeer::instance()->select($c);
+		$pr = PageRevisionPeer::instance()->select($c);
 		
 		// now see if number of selected is equal $perPage + 1. If so - 
 		// there is at least 1 more page to show...

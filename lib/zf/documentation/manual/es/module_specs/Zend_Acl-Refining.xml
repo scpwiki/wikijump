@@ -1,0 +1,173 @@
+<sect1 id="zend.acl.refining">
+   
+    <title>Perfeccionamiento de los controles de acceso</title>
+    
+    <sect2 id="zend.acl.refining.precise">
+    
+        <title>Definir mejor los controles de acceso</title>
+        
+        <para>
+            The basic ACL as defined in the <link linkend="zend.acl.introduction">previous section</link> shows
+            how various privileges may be allowed upon the entire ACL (all resources). In practice, however, access
+            controls tend to have exceptions and varying degrees of complexity. Zend_Acl allows to you accomplish
+            these refinements in a straightforward and flexible manner.
+        </para>
+        
+        <para>
+            Por ejemplo, la CMS, se ha determinado que, si bien el personal de Grupo cubre las necesidades de la 
+			inmensa mayoría de los usuarios, hay una necesidad de un nuevo "comercialización" grupo que 
+			requiere el acceso a la newsletter y últimas noticias en el CMS. El grupo es bastante autosuficiente y 
+			tendrá la capacidad de publicar y archivar los dos boletines informativos y las últimas noticias.
+        </para>
+        
+        <para>
+            In addition, it has also been requested that the 'staff' grupo be allowed to view news stories but
+            not to revise the latest news. Finally, it should be impossible for anyone (administrators included)
+            to archive any 'announcement' news stories since they only have a lifespan of 1-2 days.
+        </para>
+        
+        <para>
+            First we revise the role registry to reflect these changes. We have determined that the 'marketing'
+            group has the same basic permissions as 'staff', so we define 'marketing' in such a way that it
+            inherits permissions from 'staff':
+        </para>
+        
+        <programlisting role="php"><![CDATA[ 
+ // El nuevo grupo de Marketing hereda los permisos de Staff
+ $acl->addRole(new Zend_Acl_Role('marketing'), 'staff'); ]]>
+        </programlisting>
+        
+        <para> A continuación, la nota que por encima de los controles de acceso se refieren a recursos específicos (por ejemplo, "boletín informativo", "últimas noticias", "anuncio de noticias"). Ahora añadimos estos recursos:</para>
+        
+        <programlisting role="php"><![CDATA[ 
+// Crear recursos para las reglas
+ // newsletter
+ $acl->add(new Zend_Acl_Resource('newsletter'));
+ 
+ // news
+ $acl->add(new Zend_Acl_Resource('news'));
+ 
+ // Últimas Noticias
+ $acl->add(new Zend_Acl_Resource('latest'), 'news');
+ 
+ // anuncio de noticias
+ $acl->add(new Zend_Acl_Resource('announcement'), 'news'); ]]>
+        </programlisting>
+
+        <para> Entonces es simplemente una cuestión de la definición de estas normas más específicas en ámbitos de la ACL:</para>
+
+        <programlisting role="php"><![CDATA[ // 
+ Marketing debe ser capaz de archivar y publicar boletines informativos y
+ // las últimas noticias
+ $acl->allow('marketing',
+ array('newsletter', 'latest'),
+ array('publish', 'archive'));
+ 
+ // Staff (and marketing, by inheritance), are denied permission to
+ // revise the latest news
+ $acl->deny('staff', 'latest', 'revise');
+ 
+ // Everyone (including administrators) are denied permission to
+ // archive news announcements
+ $acl->deny(null, 'announcement', 'archive'); ]]>
+     </programlisting>
+
+        <para> Ahora podemos consultar el ACL con respecto a los últimos cambios:</para>
+      
+        <programlisting role="php"><![CDATA[ 
+ echo $acl->isAllowed('staff', 'newsletter', 'publish') ?
+ "allowed" : "denied";
+ // denegado
+ 
+ echo $acl->isAllowed('marketing', 'newsletter', 'publish') ?
+ "allowed" : "denied";
+ // permitido	
+ 
+ echo $acl->isAllowed('staff', 'latest', 'publish') ?
+ "allowed" : "denied";
+ // denegado
+ 
+ echo $acl->isAllowed('marketing', 'latest', 'publish') ?
+ "allowed" : "denied";
+ // permitido	
+ 
+ echo $acl->isAllowed('marketing', 'latest', 'archive') ?
+ "allowed" : "denied";
+ // permitido	
+ 
+ echo $acl->isAllowed('marketing', 'latest', 'revise') ?
+ "allowed" : "denied";
+ // denegado
+ 
+ echo $acl->isAllowed('editor', 'announcement', 'archive') ?
+ "allowed" : "denied";
+ // denegado
+ 
+ echo $acl->isAllowed('administrator', 'announcement', 'archive') ?
+ "allowed" : "denied";
+ // denegado 
+ ]]>
+        </programlisting>
+
+</sect2>
+        
+       <sect2 id="zend.acl.refining.removing">
+           
+        <title> Eliminar los controles de acceso</title>
+           
+        <para> Para eliminar una o más reglas ACL, simplemente utilice el método removeAllow() o removeDeny(). 
+            Al igual que con allow() y deny(), puede utilizar un valor null para indicar que el método es aplicable a todos los roles, recursos y/o privilegios: </para>
+           
+           <programlisting role="php"><![CDATA[
+// Elimina la prohibición de leer las últimas noticias de staff (y marketing, 
+// por herencia)
+$acl->removeDeny('staff', 'latest', 'revise');
+
+echo $acl->isAllowed('marketing', 'latest', 'revise') ?
+ "allowed" : "denied"; 
+// permitido 
+
+// Elimina la autorización para publicar y archivar los boletines 
+// marketing 
+$acl->removeAllow('marketing',
+                  'newsletter',
+                  array('publish', 'archive'));
+
+echo $acl->isAllowed('marketing', 'newsletter', 'publish') ?
+     "allowed" : "denied";
+// denegado
+
+echo $acl->isAllowed('marketing', 'newsletter', 'archive') ?
+"allowed" : "denied";
+
+// denegado
+ ]]>
+           </programlisting>
+           
+        <para> 
+            Los privilegios pueden ser modificados cada vez más como se ha indicado anteriormente, pero un valor
+            null para los privilegios anula tales cambios incrementales:
+        </para>
+        
+           <programlisting role="php">
+<![CDATA[
+//Permitir al grupo de "marketing" todos los permisos a las últimas noticias
+$acl->allow('marketing', 'latest');
+
+echo $acl->isAllowed('marketing', 'latest', 'publish') ?
+"allowed" : "denied";
+//permitido
+
+echo $acl->isAllowed('marketing', 'latest', 'archive') ?
+"allowed" : "denied";
+//permitido
+
+echo $acl->isAllowed('marketing', 'latest', 'anything') ?
+"allowed" : "denied";
+// permitido
+]]>
+           </programlisting>
+           
+       </sect2>
+        
+</sect1>

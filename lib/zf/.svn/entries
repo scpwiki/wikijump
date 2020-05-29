@@ -1,0 +1,88 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk
+http://framework.zend.com/svn/framework
+
+
+
+2009-01-04T13:35:53.997680Z
+13504
+thomas
+has-props
+
+svn:special svn:externals svn:needs-lock
+svn:externals
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+LICENSE.txt
+file
+
+
+
+
+2008-12-06T16:41:02.000000Z
+95a93d6d64976c75807f9c5d871d8ab9
+2008-01-24T23:09:37.059923Z
+7621
+wil
+
+tests
+dir
+
+library
+dir
+
+INSTALL.txt
+file
+
+
+
+
+2008-12-06T16:41:02.000000Z
+28a11efa83b1609660be4c10d9ad24ae
+2008-11-21T22:36:34.085457Z
+12761
+wil
+
+externals
+dir
+
+incubator
+dir
+
+demos
+dir
+
+src
+dir
+
+documentation
+dir
+
+resources
+dir
+
+README.txt
+file
+
+
+
+
+2009-01-04T17:41:52.000000Z
+f480ecaeb220e00980ee1a2554e34392
+2008-12-23T12:02:49.859175Z
+13442
+alexander
+

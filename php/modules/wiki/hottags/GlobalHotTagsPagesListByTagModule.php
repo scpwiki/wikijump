@@ -23,6 +23,13 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use DB\CategoryPeer;
+use Criteria;
+use DB\PagePeer;
+
 class PagesListByTagModule extends SmartyModule {
 
 	public function render($runData){
@@ -84,7 +91,7 @@ class PagesListByTagModule extends SmartyModule {
 		
 		$categoryName =  $pl->getParameterValue("category");
 		if($categoryName){
-			$category = DB_CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
+			$category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
 			if($category == null){
 				return '';
 			}	
@@ -101,7 +108,7 @@ class PagesListByTagModule extends SmartyModule {
 		}
 		$c->addOrderAscending('COALESCE(page.title, page.unix_name)');
 		
-		$pages = DB_PagePeer::instance()->select($c);
+		$pages = PagePeer::instance()->select($c);
 		
 	//	$q = "SELECT site.* FROM site, tag WHERE tag.tag = '".db_escape_string($tag")."'
 		

@@ -1,0 +1,49 @@
+[main]
+; the following option determines the master domain for your Wikidot installation
+domain = mywikidot.com
+; the name of the Wikidot service 
+service = MyWikidot
+
+[security]
+; string that is used to generate unpredictable hashes for authentication
+; YOU MUST CHANGE IT or otherwise, anyone can predict the authentication
+; cookies and thus steal any session from your users
+secret = MyWikidotRandomString
+domain_upload = wikifiles.mywikidot.com
+
+[db]
+; PostgreSQL connection parameters 
+host = localhost
+user = wd
+password = wdpass
+database = wd1
+
+[mail]
+; ==================================================================
+; this actually works out of the box thanks to Gabrys (aka "Quake")
+; but you should put your own mail server info in here
+; ==================================================================
+; simple mail sending parameters
+host = smtp.gmail.com
+port = 465
+ssl = true
+auth = true
+user = wikidot.quake
+password = testpass
+
+; settings  if your ISP is Comcast
+;[mail]
+; simple mail sending parameters
+;host = smtp.comcast.net
+; ssl false for comcast
+;ssl = false
+;user = my-email@comcast.net
+;password = password-not-needed-for-comcast
+
+[misc]
+custom_domains = true
+
+; URL of documentation site
+; this is an external link to current wikisot syntax
+doc_url = http://www.wikidot.com/doc:wiki-syntax
+

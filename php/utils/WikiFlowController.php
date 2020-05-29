@@ -23,6 +23,17 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use WebFlowController;
+use OzoneLogger;
+use OzoneLoggerFileOutput;
+use RunData;
+use Criteria;
+use DB\SitePeer;
+use ModuleProcessor;
+use Wikidot\Search\Highlighter;
+
 class WikiFlowController extends WebFlowController {
 
 	public function process() {
@@ -67,7 +78,7 @@ class WikiFlowController extends WebFlowController {
 				$c = new Criteria();
 				$c->add("unix_name", $siteUnixName);
 				$c->add("site.deleted", false);
-				$site = DB_SitePeer::instance()->selectOne($c);
+				$site = SitePeer::instance()->selectOne($c);
 				if($site) {$memcache->set($mcKey, $site, 0, 864000);}	
 			}
 		} else {
@@ -79,7 +90,7 @@ class WikiFlowController extends WebFlowController {
 				$c = new Criteria();
 				$c->add("custom_domain", $siteHost);
 				$c->add("site.deleted", false);
-				$site = DB_SitePeer::instance()->selectOne($c);
+				$site = SitePeer::instance()->selectOne($c);
 				if($site) {$memcache->set($mcKey, $site, 0, 3600);}	
 			}
 			
@@ -89,7 +100,7 @@ class WikiFlowController extends WebFlowController {
 				$q = "SELECT site.* FROM site, domain_redirect WHERE domain_redirect.url='".db_escape_string($siteHost)."' " .
 						"AND site.deleted = false AND site.site_id = domain_redirect.site_id LIMIT 1";
 				$c->setExplicitQuery($q);
-				$site = DB_SitePeer::instance()->selectOne($c);
+				$site = SitePeer::instance()->selectOne($c);
 				if($site){
 					$newUrl = 'http://'.$site->getDomain().$_SERVER['REQUEST_URI'];
 					header("HTTP/1.1 301 Moved Permanently");
@@ -224,7 +235,7 @@ class WikiFlowController extends WebFlowController {
 		}
 
 		if (GlobalProperties::$SEARCH_HIGHLIGHT) {
-			$rendered = Wikidot_Search_Highlighter::highlightIfSuitable($rendered, $_SERVER["REQUEST_URI"], $_SERVER["HTTP_REFERER"]);
+			$rendered = Highlighter::highlightIfSuitable($rendered, $_SERVER["REQUEST_URI"], $_SERVER["HTTP_REFERER"]);
 		}
 		
 		echo str_replace("%%%CURRENT_TIMESTAMP%%%",time(),$rendered);

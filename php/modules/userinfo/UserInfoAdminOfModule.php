@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \SmartyLocalizedModule;
+use Criteria;
+use DB\AdminPeer;
+
 class UserInfoAdminOfModule extends SmartyLocalizedModule {
 	
 	public function build($runData){
@@ -36,7 +42,7 @@ class UserInfoAdminOfModule extends SmartyLocalizedModule {
 		$c->add("site.deleted", false);
 		$c->addOrderAscending("site.name");
 		
-		$mems = DB_AdminPeer::instance()->select($c);
+		$mems = AdminPeer::instance()->select($c);
 		if(count($mems)>0){
 			$runData->contextAdd("memberships", $mems);	
 		}

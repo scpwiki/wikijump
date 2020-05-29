@@ -23,6 +23,13 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \EventLogger as EventLogger;
+use DB\LogEvent;
+use ODate;
+use OZONE;
+
 class EventLogger {
 	
 	private static $instance;
@@ -246,7 +253,7 @@ class EventLogger {
 	}
 	
 	private function newEvent(){
-		$event = new DB_LogEvent();
+		$event = new LogEvent();
 		$event->setDate(new ODate());
 		
 		// now to make things easier dig into some global variables and set what is needed

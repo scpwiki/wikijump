@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/framework/!svn/ver/12221/standard/trunk/tests/Zend/Config/Writer
+END
+AllTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/12204/standard/trunk/tests/Zend/Config/Writer/AllTests.php
+END
+ArrayTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/12221/standard/trunk/tests/Zend/Config/Writer/ArrayTest.php
+END
+IniTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/12221/standard/trunk/tests/Zend/Config/Writer/IniTest.php
+END
+XmlTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/12221/standard/trunk/tests/Zend/Config/Writer/XmlTest.php
+END

@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use \WDPermissionManager;
+use DB\OzoneUserPeer;
+
 class ManageSuperUserModule extends SmartyModule {
 	
 	public function isAllowed($runData){
@@ -42,7 +48,7 @@ class ManageSuperUserModule extends SmartyModule {
 		
 		$pl = $runData->getParameterList();
 		
-		$o = DB_OzoneUserPeer::instance()->selectByPrimaryKey(1);
+		$o = OzoneUserPeer::instance()->selectByPrimaryKey(1);
 		$u = array(
 			"nick_name" => $o->getNickName(),
 		);

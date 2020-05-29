@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Search/Lucene/Index
+END
+DictionaryLoaderTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Search/Lucene/Index/DictionaryLoaderTest.php
+END
+SegmentInfoTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Search/Lucene/Index/SegmentInfoTest.php
+END
+FieldInfoTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Search/Lucene/Index/FieldInfoTest.php
+END
+TermInfoTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Search/Lucene/Index/TermInfoTest.php
+END
+SegmentMergerTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Search/Lucene/Index/SegmentMergerTest.php
+END
+SegmentInfoPriorityQueueTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Search/Lucene/Index/SegmentInfoPriorityQueueTest.php
+END
+TermTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Search/Lucene/Index/TermTest.php
+END

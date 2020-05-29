@@ -1,0 +1,52 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/documentation/manual/ko/ref
+http://framework.zend.com/svn/framework
+
+
+
+2008-11-21T22:34:05.353764Z
+12759
+wil
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+coding_standard.xml
+file
+
+
+
+
+2008-12-06T16:40:59.000000Z
+513624dba505a58a8e0dd86925051814
+2008-11-21T22:34:05.353764Z
+12759
+wil
+
+overview.xml
+file
+
+
+
+
+2008-12-06T16:40:59.000000Z
+b591f1d2f5cf1e84e8304fa6249fcf3f
+2007-08-29T03:35:16.339900Z
+6217
+seungjin
+

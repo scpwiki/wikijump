@@ -1,0 +1,54 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/dojox/widget/Dialog/images
+http://svn.dojotoolkit.org/src
+
+
+
+2008-05-07T03:35:10.424783Z
+13606
+dante
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+dialogCloseButton.png
+file
+
+
+
+
+2008-12-06T16:41:30.000000Z
+60116b37baa00b00ac0b0f39433c98c4
+2008-05-07T03:35:10.424783Z
+13606
+dante
+has-props
+
+dialogCloseButton.gif
+file
+
+
+
+
+2008-12-06T16:41:30.000000Z
+27de705a8b6282c36b66d00f3092e826
+2008-05-07T03:35:10.424783Z
+13606
+dante
+has-props
+

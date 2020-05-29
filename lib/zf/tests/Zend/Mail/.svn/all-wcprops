@@ -1,0 +1,83 @@
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/framework/!svn/ver/13406/standard/trunk/tests/Zend/Mail
+END
+MboxMessageOldTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Mail/MboxMessageOldTest.php
+END
+AllTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/framework/!svn/ver/13406/standard/trunk/tests/Zend/Mail/AllTests.php
+END
+MaildirWritableTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Mail/MaildirWritableTest.php
+END
+MaildirFolderTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Mail/MaildirFolderTest.php
+END
+InterfaceTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/framework/!svn/ver/11468/standard/trunk/tests/Zend/Mail/InterfaceTest.php
+END
+MaildirTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/11515/standard/trunk/tests/Zend/Mail/MaildirTest.php
+END
+MboxFolderTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Mail/MboxFolderTest.php
+END
+Pop3Test.php
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/framework/!svn/ver/11468/standard/trunk/tests/Zend/Mail/Pop3Test.php
+END
+SmtpTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Mail/SmtpTest.php
+END
+MessageTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Mail/MessageTest.php
+END
+MaildirMessageOldTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Mail/MaildirMessageOldTest.php
+END
+MboxTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Mail/MboxTest.php
+END
+ImapTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/framework/!svn/ver/11468/standard/trunk/tests/Zend/Mail/ImapTest.php
+END

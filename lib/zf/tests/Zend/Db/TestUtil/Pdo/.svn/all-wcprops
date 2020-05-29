@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/framework/!svn/ver/12016/standard/trunk/tests/Zend/Db/TestUtil/Pdo
+END
+Oci.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/12016/standard/trunk/tests/Zend/Db/TestUtil/Pdo/Oci.php
+END
+Mssql.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Db/TestUtil/Pdo/Mssql.php
+END
+Sqlite.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Db/TestUtil/Pdo/Sqlite.php
+END
+Mysql.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Db/TestUtil/Pdo/Mysql.php
+END
+Pgsql.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Db/TestUtil/Pdo/Pgsql.php
+END
+Ibm.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Db/TestUtil/Pdo/Ibm.php
+END
+Common.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Db/TestUtil/Pdo/Common.php
+END

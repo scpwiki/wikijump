@@ -1,6 +1,13 @@
 <?php
 
-class Wikidot_Form_Field_WikiBase extends Wikidot_Form_Field_Wiki {
+
+namespace Wikidot\Form\Field;
+
+use Wikidot\Form\Field\Wiki;
+
+
+
+class WikiBase extends Wiki {
     public $rule = "::";
     public function renderView() {
         if (preg_match($this->rule, $this->field['value'])) {

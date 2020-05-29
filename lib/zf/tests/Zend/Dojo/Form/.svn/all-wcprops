@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/framework/!svn/ver/13260/standard/trunk/tests/Zend/Dojo/Form
+END
+AllTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Dojo/Form/AllTests.php
+END
+SubFormTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Dojo/Form/SubFormTest.php
+END
+FormTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/framework/!svn/ver/12373/standard/trunk/tests/Zend/Dojo/Form/FormTest.php
+END

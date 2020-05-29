@@ -1,0 +1,70 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/dojox/editor/plugins/resources
+http://svn.dojotoolkit.org/src
+
+
+
+2008-09-10T11:43:08.036697Z
+15200
+mwilcox
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+editorPlugins.css
+file
+
+
+
+
+2008-12-06T16:41:35.000000Z
+ec96df3ad04b024983b1b3fe6e549b41
+2008-09-10T11:43:08.036697Z
+15200
+mwilcox
+has-props
+
+insertTable.html
+file
+
+
+
+
+2008-12-06T16:41:35.000000Z
+5e5ef8caa9507ae74c4050af1254875f
+2008-07-10T17:02:55.896158Z
+14379
+mwilcox
+has-props
+
+modifyTable.html
+file
+
+
+
+
+2008-12-06T16:41:35.000000Z
+40d64840b3a66f247cdcbd4587353d9c
+2008-07-10T17:02:55.896158Z
+14379
+mwilcox
+has-props
+
+images
+dir
+

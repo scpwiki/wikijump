@@ -23,6 +23,23 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use Database;
+use \WDStringUtils;
+use \ProcessException;
+use DB\PagePeer;
+use DB\CategoryPeer;
+use \WDPermissionManager;
+use DB\PageEditLock;
+use ODate;
+use Wikidot\Form;
+use Wikidot\Form\Renderer;
+use Criteria;
+use \WDEditUtils;
+use DB\PageEditLockPeer;
+
 class PageEditModule extends SmartyModule {
 	
 	protected static $AUTOINCREMENT_PAGE = 'autoincrementpage';
@@ -65,7 +82,7 @@ class PageEditModule extends SmartyModule {
 				throw new ProcessException(_("The page can not be found or does not exist."), "no_page");	
 			}
 		
-			$page = DB_PagePeer::instance()->selectByName($site->getSiteId(), $unixName);
+			$page = PagePeer::instance()->selectByName($site->getSiteId(), $unixName);
 			if($page != null){
 				// page exists!!! error!
 				throw new ProcessException(_("The page you want to create already exists. Please refresh the page in your browser to see it."));
@@ -93,7 +110,7 @@ class PageEditModule extends SmartyModule {
 				$suggestedTitle = $stitle;	
 			}
 			
-			$category = DB_CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
+			$category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
 			
 			if($category == null){
 				// get the default!
@@ -108,7 +125,7 @@ class PageEditModule extends SmartyModule {
 				$autoincrement = true;
 			}
 			if(!$autoincrement){
-				$lock = new DB_PageEditLock();
+				$lock = new PageEditLock();
 				$lock->setPageUnixName($unixName);
 				$lock->setSiteId($site->getSiteId());
 				$lock->setUserId($runData->getUserId());
@@ -148,19 +165,19 @@ class PageEditModule extends SmartyModule {
 			
             $templatePage = $category->getTemplatePage();
     		
-            if ($templatePage && $form = Wikidot_Form::fromSource($templatePage->getSource())) {
+            if ($templatePage && $form = Form::fromSource($templatePage->getSource())) {
 
-                $runData->contextAdd("form", new Wikidot_Form_Renderer($form));
+                $runData->contextAdd("form", new Renderer($form));
 
             } elseif (!$templatePage || !preg_match(';^={4,}$;sm', $templatePage->getSource())) {
         	    			
-    			$templatesCategory = DB_CategoryPeer::instance()->selectByName("template", $site->getSiteId());
+    			$templatesCategory = CategoryPeer::instance()->selectByName("template", $site->getSiteId());
     		
     			if($templatesCategory != null){
     				$c = new Criteria();
     				$c->add("category_id", $templatesCategory->getCategoryId());
     				$c->addOrderAscending("title");
-    				$templates =  DB_PagePeer::instance()->select($c);
+    				$templates =  PagePeer::instance()->select($c);
     				
     				$runData->contextAdd("templates", $templates);
     				
@@ -199,7 +216,7 @@ class PageEditModule extends SmartyModule {
 			throw new ProcessException(_("The page can not be found or does not exist."), "no_page");	
 		}
 		
-		$page = DB_PagePeer::instance()->selectByPrimaryKey($pageId);
+		$page = PagePeer::instance()->selectByPrimaryKey($pageId);
 		if(!$page || $page->getSiteId() !== $site->getSiteId()){
 			throw new ProcessException(_("The page can not be found or does not exist."), "no_page");	
 		}
@@ -218,10 +235,10 @@ class PageEditModule extends SmartyModule {
         $templatePage = $category->getTemplatePage();
 
         if (preg_match('/^[^:]*:[^_]|^[^_:][^:]*$/', $page->getUnixName())
-            && $templatePage && $form = Wikidot_Form::fromSource($templatePage->getSource())
+            && $templatePage && $form = Form::fromSource($templatePage->getSource())
         ) {
             $form->setDataFromYaml($page->getSource());
-            $runData->contextAdd("form", new Wikidot_Form_Renderer($form));
+            $runData->contextAdd("form", new Renderer($form));
 		
 		// check if mode is sections if page is editable in this mode
 		} elseif($mode == "section"){
@@ -251,7 +268,7 @@ class PageEditModule extends SmartyModule {
 		// if session is not started - start it!
 		$runData->sessionStart();
 		// create new page lock
-		$lock = new DB_PageEditLock();
+		$lock = new PageEditLock();
 		$lock->setPageId($page->getPageId());
 		$lock->setPageUnixName($page->getUnixName());
 		$lock->setSiteId($site->getSiteId());
@@ -267,7 +284,7 @@ class PageEditModule extends SmartyModule {
 		}
 		
 		// delete outdated...
-		DB_PageEditLockPeer::instance()->deleteOutdated($pageId);
+		PageEditLockPeer::instance()->deleteOutdated($pageId);
 		// check for conflicts
 		
 		if($pl->getParameterValue("force_lock") != null){
@@ -324,10 +341,10 @@ class PageEditModule extends SmartyModule {
 	}
 	
 	protected function createTempCategory($categoryName, $site){
-		$category = DB_CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId(), false);
+		$category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId(), false);
 		if($category == null){
 			// create the category - just clone the default category!!!
-			$category = DB_CategoryPeer::instance()->selectByName("_default", $site->getSiteId(), false); 
+			$category = CategoryPeer::instance()->selectByName("_default", $site->getSiteId(), false); 
 			$category->setName($categoryName);
 			// fill with some important things - we assume the _default category exists!!! IT REALLY SHOULD!!!
 			$category->setCategoryId(null);

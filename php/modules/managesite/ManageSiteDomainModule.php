@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \ManageSiteBaseModule;
+use Criteria;
+use DB\DomainRedirectPeer;
+
 class ManageSiteDomainModule extends ManageSiteBaseModule {
 	
 	public function build($runData){
@@ -37,7 +43,7 @@ class ManageSiteDomainModule extends ManageSiteBaseModule {
 		$c->add("site_id", $site->getSiteId());
 		$c->addOrderAscending("url");
 		
-		$redirects = DB_DomainRedirectPeer::instance()->select($c);
+		$redirects = DomainRedirectPeer::instance()->select($c);
 		$ra = array();
 		foreach($redirects as $r){
 			$ra[] = $r->getUrl();	

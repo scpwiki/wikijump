@@ -1,5 +1,12 @@
 <?php
 
-class Wikidot_Facade_Exception_NotImplemented extends Wikidot_Facade_Exception {
+
+namespace Wikidot\Facade\Exception;
+
+use Wikidot\Facade\Exception;
+
+
+
+class NotImplemented extends Exception {
 	protected $code = 501;
 }

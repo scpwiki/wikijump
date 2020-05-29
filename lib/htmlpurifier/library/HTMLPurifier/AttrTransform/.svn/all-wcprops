@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/AttrTransform
+END
+Border.php
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/AttrTransform/Border.php
+END
+ImgRequired.php
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/AttrTransform/ImgRequired.php
+END
+EnumToCSS.php
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/AttrTransform/EnumToCSS.php
+END
+Name.php
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/AttrTransform/Name.php
+END
+Lang.php
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/AttrTransform/Lang.php
+END
+Length.php
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/AttrTransform/Length.php
+END
+BdoDir.php
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/AttrTransform/BdoDir.php
+END
+BgColor.php
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/AttrTransform/BgColor.php
+END
+BoolToCSS.php
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/AttrTransform/BoolToCSS.php
+END
+ImgSpace.php
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/AttrTransform/ImgSpace.php
+END

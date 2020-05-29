@@ -1,0 +1,31 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/util/docscripts/lib
+http://svn.dojotoolkit.org/src
+
+
+
+2008-10-01T20:05:56.534477Z
+15376
+BryanForbes
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+parser
+dir
+

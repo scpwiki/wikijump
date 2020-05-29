@@ -23,6 +23,21 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use DB\PagePeer;
+use \ProcessException;
+use Criteria;
+use DB\ForumThreadPeer;
+use DB\ForumCategoryPeer;
+use DB\ForumCategory;
+use DB\ForumGroupPeer;
+use DB\ForumGroup;
+use DB\ForumThread;
+use ODate;
+use DB\ForumPostPeer;
+
 class ForumCommentsListModule extends SmartyModule {
 	
 	private $threadId;
@@ -100,12 +115,12 @@ class ForumCommentsListModule extends SmartyModule {
 		if($page == null){
 			$pageId = $pl->getParameterValue("pageId");
 			if($pageId !== null && is_numeric($pageId)){
-				$page = DB_PagePeer::instance()->selectByPrimaryKey($pageId);
+				$page = PagePeer::instance()->selectByPrimaryKey($pageId);
 			}else{
 				$pageName = $runData->getTemp("pageUnixName");
 				
 				$site = $runData->getTemp("site");	
-				$page =  DB_PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
+				$page =  PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
 			}
 
 			if($page == null || $page->getSiteId() !== $site->getSiteId()){
@@ -119,7 +134,7 @@ class ForumCommentsListModule extends SmartyModule {
 		$c->add("page_id", $page->getPageId());
 		$c->add("site_id", $site->getSiteId());
 		
-		$thread = DB_ForumThreadPeer::instance()->selectOne($c);
+		$thread = ForumThreadPeer::instance()->selectOne($c);
 		
 		if($thread == null){
 			// create thread!!!
@@ -127,11 +142,11 @@ class ForumCommentsListModule extends SmartyModule {
 			$c->add("site_id", $site->getSiteId());
 			$c->add("per_page_discussion", true);
 			
-			$category = DB_ForumCategoryPeer::instance()->selectOne($c);
+			$category = ForumCategoryPeer::instance()->selectOne($c);
 			
 			if($category == null){
 				// create this category!
-				$category = new DB_ForumCategory();
+				$category = new ForumCategory();
 				$category->setName(_("Per page discussions"));
 				$category->setDescription(_("This category groups discussions related to particular pages within this site."));
 				$category->setPerPageDiscussion(true);
@@ -141,9 +156,9 @@ class ForumCommentsListModule extends SmartyModule {
 				$c = new Criteria();
 				$c->add("site_id", $site->getSiteId());
 				$c->add("name", "Hidden");
-				$group = DB_ForumGroupPeer::instance()->selectOne($c);
+				$group = ForumGroupPeer::instance()->selectOne($c);
 				if($group == null){
-					$group = new DB_ForumGroup();
+					$group = new ForumGroup();
 					$group->setName(_("Hidden"));
 					$group->setDescription(_("Hidden group used for storing some discussion threads."));
 					$group->setSiteId($site->getSiteId());
@@ -155,7 +170,7 @@ class ForumCommentsListModule extends SmartyModule {
 			}
 			
 			// now create thread...
-			$thread = new DB_ForumThread();
+			$thread = new ForumThread();
 			$thread->setCategoryId($category->getCategoryId());
 			$thread->setSiteId($site->getSiteId());
 			$thread->setPageId($page->getPageId());
@@ -181,7 +196,7 @@ class ForumCommentsListModule extends SmartyModule {
 		$c->addJoin("user_id", "ozone_user.user_id");
 		$c->addOrderAscending("post_id");
 		
-		$posts = DB_ForumPostPeer::instance()->select($c);
+		$posts = ForumPostPeer::instance()->select($c);
 		
 		// make a mapping first.
 		$map = array();

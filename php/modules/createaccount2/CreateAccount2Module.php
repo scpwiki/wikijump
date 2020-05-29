@@ -23,6 +23,14 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use \ProcessException;
+use Criteria;
+use DB\OzoneSessionPeer;
+use \CreateAccount2Action;
+
 class CreateAccount2Module extends SmartyModule {
 	
 	public function isAllowed($runData){
@@ -47,7 +55,7 @@ class CreateAccount2Module extends SmartyModule {
 			$c = new Criteria();
 			$c->add('user_id', null);
 			$c->add("md5(session_id || 'someseed')", $sessionHash);
-			$session = DB_OzoneSessionPeer::instance()->selectOne($c);
+			$session = OzoneSessionPeer::instance()->selectOne($c);
 			
 			if($session){
 				$runData->setSession($session);

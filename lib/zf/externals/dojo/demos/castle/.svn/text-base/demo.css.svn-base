@@ -1,0 +1,174 @@
+@CHARSET "UTF-8";
+@import "../../dijit/themes/tundra/tundra.css";
+@import "../../dojox/layout/resources/ScrollPane.css";
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, font, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	outline: 0;
+	font-size: 100%;
+	font-family: verdana, kalimati;
+	vertical-align: baseline;
+}
+
+:link,:visited{
+	text-decoration: none;
+}
+
+/* remember to define focus styles! */
+:focus {
+	outline: 0;
+}
+body {
+	line-height: 1.5;
+	color: black;
+	background: white;
+	text-align: center;
+}
+ol, ul {
+	list-style: none;
+}
+/* tables still need 'cellspacing="0"' in the markup */
+table {
+	border-collapse: separate;
+	border-spacing: 0;
+}
+caption, th, td {
+	text-align: left;
+	font-weight: normal;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: "";
+}
+blockquote, q {
+	quotes: "" "";
+}
+
+/* other css */
+
+body{
+	background-image: url(images/main.png);
+	background-repeat: no-repeat;
+	font-size: 12px;
+	line-height: 1.3;
+	
+	background-position: center -20px;
+}
+
+
+#accordionPanel{
+	position:absolute;
+	top: 190px;
+	left: 50%;
+	margin-left: -475px;
+	width:455px;
+	height:270px;
+	z-index: 1000
+}
+
+li{
+	font-size:15px;
+	font-weight: bold;
+}
+
+a{
+-moz-outline-style: none;
+}
+
+a:link,a:visited{
+	color: #000000;
+	text-decoration: none;
+
+}
+
+a:hover{
+	color: #ff0000;
+	text-decoration: none;
+}
+
+#hidden{
+	display: none;
+}
+
+#content{
+	position:absolute;
+	top: 230px;
+	left: 50%;
+	width:630px;
+	margin-left: -190px;
+	height:375px;
+	text-align: justify;
+	overflow:auto;
+	padding: 0px 5px 0px 0px;
+}
+
+#accordionPanel .dojoxScrollHelper{
+	display: none;
+}
+
+#content .dojoxScrollHelper{
+	position: absolute;
+	left: auto;
+	right:0px !important;
+	background-color: #ffcc00;
+}
+
+#pane1 .dijitAccordionTitle{
+	background-image: url(images/25.png) !important;
+	background-repeat: no-repeat !important;
+}
+
+#pane2 .dijitAccordionTitle{
+	background-image: url(images/26.png) !important;
+	background-repeat: no-repeat !important;
+}
+
+#pane3 .dijitAccordionTitle{
+	background-image: url(images/27.png) !important;
+	background-repeat: no-repeat !important;
+}
+
+#pane1  .dijitAccordionTitle:hover{
+	background-image: url(images/25_over.png) !important;
+	background-repeat: no-repeat !important;
+}
+
+#pane2 .dijitAccordionTitle:hover{
+	background-image: url(images/26_over.png) !important;
+	background-repeat: no-repeat !important;
+}
+
+#pane3 .dijitAccordionTitle:hover{
+	background-image: url(images/27_over.png) !important;
+	background-repeat: no-repeat !important;
+}
+
+ul li{
+	text-align: left;
+	}
+
+
+.dijitAccordionBody, .dijitAccordionTitle, .dijitAccordionTitle-selected, .dijitAccordionPane, .dijitAccordionArrow{
+	background: none !important;
+	background-color: transparent !important;
+	border: 0px !important;
+	-moz-outline-style: none;
+}
+
+.dijitAccordionText{
+	visibility: hidden; ;
+	text-align:left;
+}
+
+#accordionPanel{
+	border: 0px;
+}

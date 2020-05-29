@@ -1,0 +1,119 @@
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/framework/!svn/ver/13002/standard/trunk/tests/Zend/Cache
+END
+SkipTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Cache/SkipTests.php
+END
+AllTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Cache/AllTests.php
+END
+TwoLevelsBackendTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/12796/standard/trunk/tests/Zend/Cache/TwoLevelsBackendTest.php
+END
+CommonBackendTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/12796/standard/trunk/tests/Zend/Cache/CommonBackendTest.php
+END
+OutputFrontendTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Cache/OutputFrontendTest.php
+END
+XcacheBackendTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/12796/standard/trunk/tests/Zend/Cache/XcacheBackendTest.php
+END
+ClassFrontendTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/12796/standard/trunk/tests/Zend/Cache/ClassFrontendTest.php
+END
+FactoryTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/11145/standard/trunk/tests/Zend/Cache/FactoryTest.php
+END
+SqliteBackendTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/12796/standard/trunk/tests/Zend/Cache/SqliteBackendTest.php
+END
+ApcBackendTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/12796/standard/trunk/tests/Zend/Cache/ApcBackendTest.php
+END
+PageFrontendTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/12796/standard/trunk/tests/Zend/Cache/PageFrontendTest.php
+END
+ZendPlatformBackendTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/12796/standard/trunk/tests/Zend/Cache/ZendPlatformBackendTest.php
+END
+MemcachedBackendTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/12796/standard/trunk/tests/Zend/Cache/MemcachedBackendTest.php
+END
+FileFrontendTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/13002/standard/trunk/tests/Zend/Cache/FileFrontendTest.php
+END
+CommonExtendedBackendTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/framework/!svn/ver/12796/standard/trunk/tests/Zend/Cache/CommonExtendedBackendTest.php
+END
+FunctionFrontendTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/12796/standard/trunk/tests/Zend/Cache/FunctionFrontendTest.php
+END
+FactoryException.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Cache/FactoryException.php
+END
+FileBackendTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/12796/standard/trunk/tests/Zend/Cache/FileBackendTest.php
+END
+CoreTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/framework/!svn/ver/12796/standard/trunk/tests/Zend/Cache/CoreTest.php
+END

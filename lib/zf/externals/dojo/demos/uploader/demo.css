@@ -1,0 +1,72 @@
+@import "../../dojo/resources/dojo.css";
+@import "../../dijit/themes/dijit.css";
+@import "../../dijit/themes/tundra/form/Button.css";
+@import "../../dijit/tests/css/dijitTests.css"; 
+@import "../../dojox/form/resources/FileInput.css"; 
+
+#wrapper{
+	width:100%;
+}
+
+
+#fileToUpload{
+	border:#CCCCCC 1px solid;
+	overflow-y:auto;
+	overflow-x:hidden;
+}
+
+#uploadedFiles{
+	border:#CCCC00 1px solid;
+	background:#FFFFCC;
+}
+
+.leftCol{
+	width:500px;
+	padding:5px;
+	vertical-align:top;
+}
+
+#rgtCol{
+	vertical-align:top;
+}
+
+textarea{
+	display:block;
+}
+
+#noFlash button, #hasFlash button{
+	font-size:9px;
+}
+
+.picFrame{
+	border:#CCCCCC 1px solid;
+	padding:3px;
+	width:320px;
+	margin:5px;
+}
+.picFrame img{
+	display:block;
+	margin-bottom:3px;
+	margin-left:auto;
+	margin-right:auto;
+}
+.picDesc{
+	text-align:left;
+	border:#CCCCCC 1px solid;
+	padding:2px;
+	font-size:10px;
+	color:#999999;
+}
+.picDesc .name{
+font-size:14px;
+color:#000033;
+}
+.picDesc strong{
+color:#666666;
+}
+.picDesc .date{
+}
+.picDesc .size{
+}
+.picDesc .dim{
+}

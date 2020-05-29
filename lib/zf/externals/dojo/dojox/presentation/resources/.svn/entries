@@ -1,0 +1,70 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/dojox/presentation/resources
+http://svn.dojotoolkit.org/src
+
+
+
+2008-05-08T15:50:55.581963Z
+13635
+jaredj
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+Show.html
+file
+
+
+
+
+2008-12-06T16:41:29.000000Z
+84e22968d90a1536f12c41eb5bda87f9
+2007-08-09T10:14:38.473430Z
+10041
+dante
+has-props
+
+Slide.html
+file
+
+
+
+
+2008-12-06T16:41:29.000000Z
+04be478c448aca4959b40e3ea8b9edb9
+2007-08-09T10:14:38.473430Z
+10041
+dante
+has-props
+
+Show.css
+file
+
+
+
+
+2008-12-06T16:41:29.000000Z
+14794a26d9190c57c73bd7f8e5b36685
+2008-05-08T15:50:55.581963Z
+13635
+jaredj
+has-props
+
+icons
+dir
+

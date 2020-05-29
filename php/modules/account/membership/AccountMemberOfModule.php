@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \AccountBaseModule;
+use Criteria;
+use DB\MemberPeer;
+
 class AccountMemberOfModule extends AccountBaseModule{
 	
 	public function build($runData){
@@ -35,7 +41,7 @@ class AccountMemberOfModule extends AccountBaseModule{
 		$c->addJoin("site_id", "site.site_id");
 		$c->add("site.deleted", false);
 		
-		$mems = DB_MemberPeer::instance()->select($c);
+		$mems = MemberPeer::instance()->select($c);
 		if(count($mems)>0){
 			$runData->contextAdd("memberships", $mems);	
 		}

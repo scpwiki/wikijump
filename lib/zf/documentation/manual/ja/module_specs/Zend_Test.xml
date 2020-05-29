@@ -1,0 +1,14 @@
+<!-- EN-Revision: 10125 -->
+<sect1 id="zend.test.introduction">
+    <title>導入</title>
+
+    <para>
+        <code>Zend_Test</code> は、Zend Framework
+        で作成したアプリケーションのユニットテストを支援するツールを提供します。
+        現在用意しているのは、Zend Framework
+        MVC アプリケーションのテストを支援する機能です。
+    </para>
+</sect1>
+<!--
+vim:se ts=4 sw=4 et:
+-->

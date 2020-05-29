@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/account/membership
+END
+AccountApplicationsModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/account/membership/AccountApplicationsModule.php
+END
+AccountInvitationsModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/account/membership/AccountInvitationsModule.php
+END
+AccountMemberOfModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/account/membership/AccountMemberOfModule.php
+END
+AccountAdminOfModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/account/membership/AccountAdminOfModule.php
+END
+AccountDeletedSitesModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/account/membership/AccountDeletedSitesModule.php
+END
+AccountModeratorOfModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/account/membership/AccountModeratorOfModule.php
+END
+AccountWikiNewslettersModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/account/membership/AccountWikiNewslettersModule.php
+END

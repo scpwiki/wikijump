@@ -1,0 +1,60 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Dom
+http://framework.zend.com/svn/framework
+
+
+
+2008-11-07T09:34:42.751123Z
+12358
+beberlei
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+_files
+dir
+
+AllTests.php
+file
+
+
+
+
+2008-12-06T16:40:20.000000Z
+5f80b0785af831e1a4742fdc005be54f
+2008-11-07T09:34:42.751123Z
+12358
+beberlei
+has-props
+
+Query
+dir
+
+QueryTest.php
+file
+
+
+
+
+2008-12-06T16:40:20.000000Z
+c2e1c35e1fa031678a9a3104881bc580
+2008-10-15T16:00:56.239481Z
+11973
+matthew
+has-props
+

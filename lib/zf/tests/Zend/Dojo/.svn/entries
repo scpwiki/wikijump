@@ -1,0 +1,73 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Dojo
+http://framework.zend.com/svn/framework
+
+
+
+2008-12-15T14:30:35.399188Z
+13260
+matthew
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+DataTest.php
+file
+
+
+
+
+2008-12-06T16:40:21.000000Z
+2880fd6abb4e68f8ba147659f0413dcd
+2008-10-15T16:00:56.239481Z
+11973
+matthew
+has-props
+
+AllTests.php
+file
+
+
+
+
+2008-12-06T16:40:21.000000Z
+5469b6b70e55843112b5f01b8e1a9199
+2008-10-15T16:00:56.239481Z
+11973
+matthew
+has-props
+
+DojoTest.php
+file
+
+
+
+
+2008-12-06T16:40:21.000000Z
+2c89f89d47c5577925e98fc46fff4274
+2008-10-15T16:00:56.239481Z
+11973
+matthew
+has-props
+
+Form
+dir
+
+View
+dir
+

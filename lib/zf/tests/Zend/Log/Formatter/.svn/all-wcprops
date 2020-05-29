@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/framework/!svn/ver/12363/standard/trunk/tests/Zend/Log/Formatter
+END
+SimpleTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10725/standard/trunk/tests/Zend/Log/Formatter/SimpleTest.php
+END
+XmlTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/12363/standard/trunk/tests/Zend/Log/Formatter/XmlTest.php
+END

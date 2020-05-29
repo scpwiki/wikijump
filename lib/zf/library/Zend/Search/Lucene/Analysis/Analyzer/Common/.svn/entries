@@ -1,0 +1,90 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/library/Zend/Search/Lucene/Analysis/Analyzer/Common
+http://framework.zend.com/svn/framework
+
+
+
+2008-11-14T06:53:07.458047Z
+12637
+ralph
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+Text
+dir
+
+TextNum
+dir
+
+Utf8
+dir
+
+Utf8Num
+dir
+
+Text.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+2983601f0ea2f3df573cde2d19be2bd1
+2008-11-14T06:53:07.458047Z
+12637
+ralph
+has-props
+
+TextNum.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+99a8c81cc804506dc4dd7b69f14c7da4
+2008-11-14T06:53:07.458047Z
+12637
+ralph
+has-props
+
+Utf8.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+e96d2bd75eae0e0bcbfc6e8fa3554841
+2008-11-10T16:30:12.898706Z
+12513
+matthew
+
+Utf8Num.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+78d9f31bc1c99a37e16dcbff8d17583a
+2008-11-10T16:30:12.898706Z
+12513
+matthew
+

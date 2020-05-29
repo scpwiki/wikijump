@@ -23,6 +23,11 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use \WikiTransformation;
+
 class SocialBookmarksModule extends SmartyModule {
 	
 	private $sites = Array(

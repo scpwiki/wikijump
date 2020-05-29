@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use DB\PagePeer;
+use Criteria;
+
 class PageTreeModule extends SmartyModule {
 	
 	public function build($runData){
@@ -36,7 +42,7 @@ class PageTreeModule extends SmartyModule {
 			$page = $runData->getTemp("page");
 		}else{
 		
-			$page = DB_PagePeer::instance()->selectByName($site->getSiteId(), $root);
+			$page = PagePeer::instance()->selectByName($site->getSiteId(), $root);
 		}
 		if(!$page){
 			$runData->setModuleTemplate("Empty");
@@ -53,7 +59,7 @@ class PageTreeModule extends SmartyModule {
 		$c = new Criteria();
 		$c->add("parent_page_id", $page->getPageId());
 		$c->addOrderAscending("COALESCE(title, unix_name)");
-		$children = DB_PagePeer::instance()->select($c);
+		$children = PagePeer::instance()->select($c);
 		
 		$descendants = array();
 		// select next level of children
@@ -78,7 +84,7 @@ class PageTreeModule extends SmartyModule {
 				$q .= ") ORDER BY COALESCE(title, unix_name)";
 				$c = new Criteria();
 				$c->setExplicitQuery($q);
-				$ch2 = DB_PagePeer::instance()->select($c);
+				$ch2 = PagePeer::instance()->select($c);
 				$ch1 = $ch2;
 			}else{
 				$ch1 = null;

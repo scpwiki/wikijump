@@ -23,6 +23,22 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyAction;
+use \WDPermissionException;
+use \WDPermissionManager;
+use \WDStringUtils;
+use Criteria;
+use DB\SitePeer;
+use \ProcessException;
+use \Duplicator;
+use Database;
+use DB\Site;
+use ODate;
+use \Indexer;
+use DB\PagePeer;
+
 class NewSiteAction extends SmartyAction {
 	
 	public function isAllowed($runData){
@@ -82,7 +98,7 @@ class NewSiteAction extends SmartyAction {
 			// check if the domain is not taken.
 			$c = new Criteria();
 			$c->add("unix_name", $unixName);
-			$ss = DB_SitePeer::instance()->selectOne($c);
+			$ss = SitePeer::instance()->selectOne($c);
 			if($ss){
 				$errors['unixname'] = _('Sorry, this web address is already used by another site.');		
 			}			
@@ -115,12 +131,12 @@ class NewSiteAction extends SmartyAction {
 		$db = Database::connection();
 		$db->begin();
 
-		$templateSite = DB_SitePeer::instance()->selectByPrimaryKey($templateId);
+		$templateSite = SitePeer::instance()->selectByPrimaryKey($templateId);
 		if(!preg_match(';^template\-;', $templateSite->getUnixName())){
 		    throw new ProcessException('Error');
 		}
 		
-		$site = new DB_Site();
+		$site = new Site();
 		$site->setName($name);
 		$site->setSubtitle($tagline);
 		$site->setUnixName($unixName);
@@ -150,7 +166,7 @@ class NewSiteAction extends SmartyAction {
 		$ind = Indexer::instance();
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
-		$pages = DB_PagePeer::instance()->select($c);
+		$pages = PagePeer::instance()->select($c);
 		foreach($pages as $p){
 			$ind->indexPage($p);
 		}	

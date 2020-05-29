@@ -23,6 +23,13 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \ManageSiteBaseModule;
+use \ProcessException;
+use Criteria;
+use DB\CategoryPeer;
+
 class ManageSitePerPageDiscussionModule extends ManageSiteBaseModule {
 	
 	public function build($runData){
@@ -41,7 +48,7 @@ class ManageSitePerPageDiscussionModule extends ManageSiteBaseModule {
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
 		$c->addOrderAscending("replace(name, '_', '00000000')");
-		$categories = DB_CategoryPeer::instance()->select($c);
+		$categories = CategoryPeer::instance()->select($c);
 		
 		$runData->contextAdd("categories", $categories);
 		

@@ -1,0 +1,25 @@
+/* reset styles */
+.page-calendar-box ul,  .page-calendar-box li{
+	margin: 0;
+	padding: 0;
+	list-style: none;
+} 
+
+.page-calendar-box ul li ul {
+	padding-left: 2em;
+	font-size: 87%;	
+}
+
+.page-calendar-box {
+	padding: 0.5em 0;
+}
+
+.page-calendar-box li.selected {
+	font-weight: bold;
+}
+
+/* IE sucks. */
+
+.page-calendar-box li.selected ul li{
+	font-weight: normal;
+}

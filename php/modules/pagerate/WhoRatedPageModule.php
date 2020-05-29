@@ -23,20 +23,27 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use DB\PagePeer;
+use Criteria;
+use DB\PageRateVotePeer;
+
 class WhoRatedPageModule extends SmartyModule {
 	
 	public function build($runData){
 		$pl = $runData->getParameterList();
 		$pageId = $pl->getParameterValue("pageId");
 		
-		$page = DB_PagePeer::instance()->selectByPrimaryKey($pageId);	
+		$page = PagePeer::instance()->selectByPrimaryKey($pageId);	
 		
 		$c = new Criteria();
 		$c->add("page_id", $page->getPageId());
 		$c->addJoin("user_id", "ozone_user.user_id");
 		$c->addOrderAscending("ozone_user.nick_name");
 		
-		$rates = DB_PageRateVotePeer::instance()->select($c);
+		$rates = PageRateVotePeer::instance()->select($c);
 		
 		$runData->contextAdd("rates", $rates);	
 	}

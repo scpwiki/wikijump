@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use Criteria;
+use DB\PagePeer;
+
 class BacklinksModule extends SmartyModule {
 	public function build($runData){
 	
@@ -40,7 +46,7 @@ class BacklinksModule extends SmartyModule {
 
 		$c->setExplicitQuery($q);
 		
-		$pages = DB_PagePeer::instance()->select($c);
+		$pages = PagePeer::instance()->select($c);
 				
 		$runData->contextAdd("pages",$pages);
 

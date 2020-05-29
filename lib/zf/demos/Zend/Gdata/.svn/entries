@@ -1,0 +1,151 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/demos/Zend/Gdata
+http://framework.zend.com/svn/framework
+
+
+
+2008-12-29T22:15:41.101944Z
+13473
+jhartmann
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+Calendar.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+06fe7b2bb8354ed516dbd755db9025c3
+2008-09-30T15:53:21.342907Z
+11550
+rboyd
+
+Gapps.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+38274f135ddf6fa2e1b003e97195c1ec
+2008-11-21T22:24:53.140436Z
+12757
+wil
+
+BooksBrowser
+dir
+
+Photos.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+c06d0db01417b50960b813cdb1bd82ac
+2008-11-21T22:24:53.140436Z
+12757
+wil
+has-props
+
+Spreadsheet-ClientLogin.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+0b862918c09c2100059632af05b8ae68
+2008-03-22T20:59:22.644084Z
+9001
+thomas
+
+YouTubeVideoApp
+dir
+
+YouTubeVideoBrowser
+dir
+
+Blogger.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+884ab061f6863ad8eb76d9ecfea334ea
+2008-09-06T16:00:28.835312Z
+11272
+yoshida@zend.co.jp
+
+Gbase.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+67b1ba0f23a539b721affb84a558d157
+2008-06-11T21:32:43.948292Z
+9674
+jhartmann
+
+MyLibrary
+dir
+
+Health.php
+file
+
+
+
+
+2009-01-04T17:41:49.000000Z
+a2703e14f2945db7e7ae8d46b1b321bb
+2008-12-12T01:00:42.956702Z
+13172
+tjohns
+has-props
+
+InstallationChecker.php
+file
+
+
+
+
+2009-01-04T17:41:49.000000Z
+ac55a12b994c27dfda2ceb0b1730259c
+2008-12-29T22:15:41.101944Z
+13473
+jhartmann
+
+Docs.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+dd6d8b8fa15411a1663cf5a77494c929
+2008-11-21T22:24:53.140436Z
+12757
+wil
+has-props
+

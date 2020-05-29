@@ -1,0 +1,35 @@
+-------------------------------------------------------------------------------
+The dojo.workers() Demo
+-------------------------------------------------------------------------------
+Author: Peter Higgins (dante)
+-------------------------------------------------------------------------------
+Demo description
+
+	A small demo showing off some of the capabilities of the Dojo Toolkit.
+	Animations, Valid HTML, Custom Widgetry, Using Backend (PHP) To create
+	and cache skewed images. Resembles "Coverflow" from Apple (of California).
+	
+-------------------------------------------------------------------------------
+Dependencies:
+
+	Dojo Core (fx.easing, fx, NodeList-fx)
+	Dijit (inherited: Dialog, layout.StackContainer)
+	DojoX (Dialog, RadioGroupSlide)
+	PHP5 / with GD2
+	writable cache/ folder
+
+-------------------------------------------------------------------------------
+Installation instructions
+
+	Simply run the included demo.html
+	
+	To build, use the supplied demo.profile.js as your profileFile,
+	or run the included buildDemo.sh -- which [should] create an 
+	archive called skewDemo.tar.gz that you [should] be able to drop
+	on any webserver and view (only optimized, instead)
+	
+	If the demo stalls on the loader, your cache/ folder probably isn't
+	writable by your webserver. Check the logs. 
+	
+-------------------------------------------------------------------------------
+

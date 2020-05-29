@@ -1,0 +1,130 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/documentation/manual
+http://framework.zend.com/svn/framework
+
+
+
+2009-01-04T13:35:53.997680Z
+13504
+thomas
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+uk
+dir
+
+ro
+dir
+
+zh
+dir
+
+pt-br
+dir
+
+sr
+dir
+
+tr
+dir
+
+fa
+dir
+
+ru
+dir
+
+de
+dir
+
+bg
+dir
+
+.svnignore
+dir
+
+ja
+dir
+
+id
+dir
+
+he
+dir
+
+en
+dir
+
+ar
+dir
+
+cs
+dir
+
+fr
+dir
+
+es
+dir
+
+ko
+dir
+
+nl
+dir
+
+pl
+dir
+
+README.txt
+file
+
+
+
+
+2008-12-06T16:41:02.000000Z
+9c2491fd4c2825dbb0c1a74a7e539e40
+2008-02-07T22:23:39.937347Z
+7855
+thomas
+
+it
+dir
+
+hu
+dir
+
+sk
+dir
+
+Makefile
+file
+
+
+
+
+2008-12-06T16:41:02.000000Z
+95b7dc37527676e6d6d55c8f297ec7ef
+2008-03-08T18:14:17.127392Z
+8703
+thomas
+
+sl
+dir
+

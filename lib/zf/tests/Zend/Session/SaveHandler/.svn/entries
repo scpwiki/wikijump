@@ -1,0 +1,54 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Session/SaveHandler
+http://framework.zend.com/svn/framework
+
+
+
+2008-10-15T16:00:56.239481Z
+11973
+matthew
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+AllTests.php
+file
+
+
+
+
+2008-12-06T16:40:20.000000Z
+96f0e42a107e343b8078b40cedfcdae6
+2008-10-15T16:00:56.239481Z
+11973
+matthew
+has-props
+
+DbTableTest.php
+file
+
+
+
+
+2008-12-06T16:40:20.000000Z
+bbc787f1a8b6bda24657745c4f827850
+2008-10-15T16:00:56.239481Z
+11973
+matthew
+has-props
+

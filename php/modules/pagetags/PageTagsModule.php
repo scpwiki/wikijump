@@ -23,6 +23,15 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use \ProcessException;
+use DB\PagePeer;
+use \WDPermissionManager;
+use Criteria;
+use DB\PageTagPeer;
+
 class PageTagsModule extends SmartyModule {
 
 	public function build($runData){
@@ -36,7 +45,7 @@ class PageTagsModule extends SmartyModule {
 			throw new ProcessException(_("The page can not be found or does not exist."), "no_page");	
 		}
 		
-		$page = DB_PagePeer::instance()->selectByPrimaryKey($pageId);
+		$page = PagePeer::instance()->selectByPrimaryKey($pageId);
 			
 		if($page == null || $page->getSiteId() != $site->getSiteId()){
 			throw new ProcessException(_("Error getting page information."), "no_page");
@@ -53,7 +62,7 @@ class PageTagsModule extends SmartyModule {
 		
 		$c->addOrderAscending("tag");
 		
-		$tags = DB_PageTagPeer::instance()->select($c);
+		$tags = PageTagPeer::instance()->select($c);
 		
 		$t2 = array();
 		

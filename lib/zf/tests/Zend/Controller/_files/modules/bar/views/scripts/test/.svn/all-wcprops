@@ -1,0 +1,11 @@
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Controller/_files/modules/bar/views/scripts/test
+END
+foo.php
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Controller/_files/modules/bar/views/scripts/test/foo.php
+END

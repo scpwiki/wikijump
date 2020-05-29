@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/framework/!svn/ver/12104/standard/trunk/tests/Zend/Http/Client
+END
+SkipTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/12036/standard/trunk/tests/Zend/Http/Client/SkipTests.php
+END
+SocketPersistentTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/framework/!svn/ver/12036/standard/trunk/tests/Zend/Http/Client/SocketPersistentTest.php
+END
+AllTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/12036/standard/trunk/tests/Zend/Http/Client/AllTests.php
+END
+SocketKeepaliveTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/framework/!svn/ver/12036/standard/trunk/tests/Zend/Http/Client/SocketKeepaliveTest.php
+END
+TestAdapterTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/framework/!svn/ver/12036/standard/trunk/tests/Zend/Http/Client/TestAdapterTest.php
+END
+ProxyAdapterTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/12036/standard/trunk/tests/Zend/Http/Client/ProxyAdapterTest.php
+END
+CurlTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/12036/standard/trunk/tests/Zend/Http/Client/CurlTest.php
+END
+StaticTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/12104/standard/trunk/tests/Zend/Http/Client/StaticTest.php
+END
+SocketTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/12036/standard/trunk/tests/Zend/Http/Client/SocketTest.php
+END

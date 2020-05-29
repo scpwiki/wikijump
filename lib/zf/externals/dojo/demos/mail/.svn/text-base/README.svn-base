@@ -1,0 +1,25 @@
+-------------------------------------------------------------------------------
+The Mail Demo
+-------------------------------------------------------------------------------
+Author: Bill Keese (wildbill)
+-------------------------------------------------------------------------------
+Demo description
+
+	This is the mail demo, a mock mail application, using most every
+	available Dijit in the Toolkit. 
+	
+-------------------------------------------------------------------------------
+Dependencies:
+
+	Dojo Core
+	Dijit (Lots!)
+
+-------------------------------------------------------------------------------
+Installation instructions
+
+	Simply run the included demo.html
+	
+	To build, use the supplied demo.profile.js as your profileFile
+	
+-------------------------------------------------------------------------------
+

@@ -1,0 +1,54 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/dojox/storage/tests/resources
+http://svn.dojotoolkit.org/src
+
+
+
+2008-10-15T15:31:36.169004Z
+15444
+jaredj
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+testXML.xml
+file
+
+
+
+
+2008-12-06T16:41:15.000000Z
+b22fbe9be77f68ec5db973f30e5f2805
+2008-10-01T19:44:40.459247Z
+15375
+BryanForbes
+has-props
+
+testBook.txt
+file
+
+
+
+
+2008-12-06T16:41:15.000000Z
+f947a5152f2b07917f267a5fcec6e8c3
+2008-10-15T15:31:36.169004Z
+15444
+jaredj
+has-props
+

@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/src/!svn/ver/15393/branches/1.2/dojox/json/tests
+END
+module.js
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/src/!svn/ver/15393/branches/1.2/dojox/json/tests/module.js
+END
+query.js
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/src/!svn/ver/15393/branches/1.2/dojox/json/tests/query.js
+END
+ref.js
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/src/!svn/ver/15393/branches/1.2/dojox/json/tests/ref.js
+END
+runTests.html
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/src/!svn/ver/15393/branches/1.2/dojox/json/tests/runTests.html
+END
+schema.js
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/src/!svn/ver/15393/branches/1.2/dojox/json/tests/schema.js
+END

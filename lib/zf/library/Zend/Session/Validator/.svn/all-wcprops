@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Session/Validator
+END
+HttpUserAgent.php
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Session/Validator/HttpUserAgent.php
+END
+Interface.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Session/Validator/Interface.php
+END
+Abstract.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Session/Validator/Abstract.php
+END

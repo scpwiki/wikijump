@@ -1,0 +1,136 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/documentation/manual/ja
+http://framework.zend.com/svn/framework
+
+
+
+2009-01-03T06:50:06.649199Z
+13496
+yoshida@zend.co.jp
+has-props
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+manual.xml.in
+file
+
+
+
+
+2009-01-04T17:41:50.000000Z
+f38d723d99ce66fe04d89c0f154ba477
+2009-01-02T23:53:14.588731Z
+13495
+takagi
+
+module_specs
+dir
+
+Makefile.in
+file
+
+
+
+
+2008-12-06T16:40:54.000000Z
+6761a27063311867340a9b72fa0e03f9
+2008-03-10T21:41:05.563554Z
+8739
+takagi
+
+figures
+dir
+
+html
+dir
+
+manual-lint.xml.in
+file
+
+
+
+
+2008-12-06T16:40:54.000000Z
+8e322323f7d542058bff2e3f974635e3
+2007-07-19T04:09:55.921894Z
+5782
+bkarwin
+
+configure.in
+file
+
+
+
+
+2008-12-06T16:40:54.000000Z
+ae60dad5ff0259654a8a26df32707273
+2008-02-16T10:58:39.742447Z
+8064
+thomas
+
+README.ja.UTF-8
+file
+
+
+
+
+2008-12-06T16:40:54.000000Z
+2f8c22be707edb65cdc6ba99360d25d4
+2006-04-10T17:28:52.933560Z
+117
+gavin
+
+xinclude.mod
+file
+
+
+
+
+2008-12-06T16:40:54.000000Z
+fb36d3d421b5f9440db92df0ba0af3fc
+2008-01-18T22:06:06.431345Z
+7503
+takagi
+
+ref
+dir
+
+README
+file
+
+
+
+
+2008-12-06T16:40:54.000000Z
+0e1fe466cb109a13ad180581a929b212
+2008-03-08T18:14:17.127392Z
+8703
+thomas
+
+html.xsl.in
+file
+
+
+
+
+2008-12-06T16:40:54.000000Z
+13e4e83530bcbb3a3c5fcbaed48951a7
+2008-03-08T18:14:17.127392Z
+8703
+thomas
+

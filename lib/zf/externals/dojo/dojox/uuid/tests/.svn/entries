@@ -1,0 +1,54 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/dojox/uuid/tests
+http://svn.dojotoolkit.org/src
+
+
+
+2007-06-21T20:40:26.844448Z
+9240
+skinner
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+uuid.js
+file
+
+
+
+
+2008-12-06T16:41:37.000000Z
+475c95d6a56767264b52705f941380c2
+2007-06-21T20:40:26.844448Z
+9240
+skinner
+has-props
+
+runTests.html
+file
+
+
+
+
+2008-12-06T16:41:37.000000Z
+c5ae63a487f1e1f4af14909489bbe243
+2007-06-21T20:40:26.844448Z
+9240
+skinner
+has-props
+

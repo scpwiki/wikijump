@@ -23,6 +23,22 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyAction;
+use \WDPermissionException;
+use \ProcessException;
+use DB\OzoneUserPeer;
+use \WDPermissionManager;
+use Database;
+use \WikiTransformation;
+use DB\PrivateMessage;
+use ODate;
+use \NotificationMaker;
+use Criteria;
+use JSONService;
+use DB\PrivateMessagePeer;
+
 class PMAction extends SmartyAction {
 	
 	public function isAllowed($runData){
@@ -43,7 +59,7 @@ class PMAction extends SmartyAction {
 		}
 		
 		$user = $runData->getUser();
-		$toUser = DB_OzoneUserPeer::instance()->selectByPrimaryKey($toUserId);
+		$toUser = OzoneUserPeer::instance()->selectByPrimaryKey($toUserId);
 		
 		if($toUser == null){
 			throw new ProcessException(_("Error selecting user."), "no_user");	
@@ -68,7 +84,7 @@ class PMAction extends SmartyAction {
 		$toUserId = $pl->getParameterValue("to_user_id");
 		
 		// TODO: validation. also check if user exists
-		$toUser = DB_OzoneUserPeer::instance()->selectByPrimaryKey($toUserId);
+		$toUser = OzoneUserPeer::instance()->selectByPrimaryKey($toUserId);
 		if($toUser == null){
 			$message = _("The recipient does not exist.");
 			throw new ProcessException($message, "no_recipient");	
@@ -85,7 +101,7 @@ class PMAction extends SmartyAction {
 		$wt->setMode('pm');
 		$body = $wt->processSource($source);
 
-		$message = new DB_PrivateMessage();
+		$message = new PrivateMessage();
 		$message->setDate(new ODate());
 		$message->setFromUserId($runData->getUserId());
 		$message->setToUserId($toUserId);
@@ -123,7 +139,7 @@ class PMAction extends SmartyAction {
 		$db = Database::connection();
 		$db->begin();
 		
-		$message = new DB_PrivateMessage();
+		$message = new PrivateMessage();
 		$message->setDate(new ODate()); // date of saving draft
 		$message->setFromUserId($runData->getUserId());
 		$message->setToUserId($toUserId);
@@ -156,7 +172,7 @@ class PMAction extends SmartyAction {
 		}
 		$c->addCriteriaAnd($c2);
 		
-		DB_PrivateMessagePeer::instance()->delete($c);
+		PrivateMessagePeer::instance()->delete($c);
 			
 		$db->commit();
 	}
@@ -173,14 +189,14 @@ class PMAction extends SmartyAction {
 		$c->add("to_user_id", $userId);
 		$c->add("flag", 0);
 		
-		DB_PrivateMessagePeer::instance()->delete($c);
+		PrivateMessagePeer::instance()->delete($c);
 		$c = new Criteria();
 		$c->add("to_user_id", $userId);
 		$c->add("message_id", $messageId, "<");
 		$c->add("flag", 0);
 		$c->addOrderDescending("message_id");
 		
-		$mid = DB_PrivateMessagePeer::instance()->selectOne($c);
+		$mid = PrivateMessagePeer::instance()->selectOne($c);
 		if($mid == null){
 				$c = new Criteria();
 			$c->add("to_user_id", $userId);
@@ -188,7 +204,7 @@ class PMAction extends SmartyAction {
 			$c->add("flag", 0);
 			$c->addOrderAscending("message_id");
 			
-			$mid = DB_PrivateMessagePeer::instance()->selectOne($c);	
+			$mid = PrivateMessagePeer::instance()->selectOne($c);	
 		}	
 		
 		if($mid !== null){
@@ -210,14 +226,14 @@ class PMAction extends SmartyAction {
 		$c->add("from_user_id", $userId);
 		$c->add("flag", 1);
 		
-		DB_PrivateMessagePeer::instance()->delete($c);
+		PrivateMessagePeer::instance()->delete($c);
 		$c = new Criteria();
 		$c->add("from_user_id", $userId);
 		$c->add("message_id", $messageId, "<");
 		$c->add("flag", 1);
 		$c->addOrderDescending("message_id");
 		
-		$mid = DB_PrivateMessagePeer::instance()->selectOne($c);
+		$mid = PrivateMessagePeer::instance()->selectOne($c);
 		if($mid == null){
 				$c = new Criteria();
 			$c->add("from_user_id", $userId);
@@ -225,7 +241,7 @@ class PMAction extends SmartyAction {
 			$c->add("flag", 1);
 			$c->addOrderAscending("message_id");
 			
-			$mid = DB_PrivateMessagePeer::instance()->selectOne($c);	
+			$mid = PrivateMessagePeer::instance()->selectOne($c);	
 		}	
 		
 		if($mid !== null){
@@ -254,7 +270,7 @@ class PMAction extends SmartyAction {
 		}
 		$c->addCriteriaAnd($c2);
 		
-		DB_PrivateMessagePeer::instance()->delete($c);
+		PrivateMessagePeer::instance()->delete($c);
 			
 		$db->commit();
 	}
@@ -271,14 +287,14 @@ class PMAction extends SmartyAction {
 		$c->add("from_user_id", $userId);
 		$c->add("flag", 2);
 		
-		DB_PrivateMessagePeer::instance()->delete($c);
+		PrivateMessagePeer::instance()->delete($c);
 		$c = new Criteria();
 		$c->add("from_user_id", $userId);
 		$c->add("message_id", $messageId, "<");
 		$c->add("flag", 2);
 		$c->addOrderDescending("message_id");
 		
-		$mid = DB_PrivateMessagePeer::instance()->selectOne($c);
+		$mid = PrivateMessagePeer::instance()->selectOne($c);
 		if($mid == null){
 				$c = new Criteria();
 			$c->add("from_user_id", $userId);
@@ -286,7 +302,7 @@ class PMAction extends SmartyAction {
 			$c->add("flag", 2);
 			$c->addOrderAscending("message_id");
 			
-			$mid = DB_PrivateMessagePeer::instance()->selectOne($c);	
+			$mid = PrivateMessagePeer::instance()->selectOne($c);	
 		}	
 		
 		if($mid !== null){
@@ -315,7 +331,7 @@ class PMAction extends SmartyAction {
 		}
 		$c->addCriteriaAnd($c2);
 		
-		DB_PrivateMessagePeer::instance()->delete($c);
+		PrivateMessagePeer::instance()->delete($c);
 			
 		$db->commit();
 	}

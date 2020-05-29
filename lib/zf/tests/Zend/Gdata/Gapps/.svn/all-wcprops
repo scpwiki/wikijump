@@ -1,0 +1,119 @@
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/framework/!svn/ver/13478/standard/trunk/tests/Zend/Gdata/Gapps
+END
+QuotaTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/Gapps/QuotaTest.php
+END
+ErrorTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/Gapps/ErrorTest.php
+END
+UserEntryTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/13478/standard/trunk/tests/Zend/Gdata/Gapps/UserEntryTest.php
+END
+UserFeedTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/Gapps/UserFeedTest.php
+END
+UserQueryTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/13478/standard/trunk/tests/Zend/Gdata/Gapps/UserQueryTest.php
+END
+EmailListEntryTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/framework/!svn/ver/13478/standard/trunk/tests/Zend/Gdata/Gapps/EmailListEntryTest.php
+END
+NicknameEntryTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/13478/standard/trunk/tests/Zend/Gdata/Gapps/NicknameEntryTest.php
+END
+EmailListFeedTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/Gapps/EmailListFeedTest.php
+END
+LoginTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/Gapps/LoginTest.php
+END
+EmailListRecipientEntryTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/svn/framework/!svn/ver/13478/standard/trunk/tests/Zend/Gdata/Gapps/EmailListRecipientEntryTest.php
+END
+NicknameFeedTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/Gapps/NicknameFeedTest.php
+END
+EmailListQueryTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/framework/!svn/ver/13478/standard/trunk/tests/Zend/Gdata/Gapps/EmailListQueryTest.php
+END
+EmailListRecipientFeedTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/Gapps/EmailListRecipientFeedTest.php
+END
+NicknameQueryTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/13478/standard/trunk/tests/Zend/Gdata/Gapps/NicknameQueryTest.php
+END
+EmailListRecipientQueryTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/svn/framework/!svn/ver/13478/standard/trunk/tests/Zend/Gdata/Gapps/EmailListRecipientQueryTest.php
+END
+ServiceExceptionTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/Gapps/ServiceExceptionTest.php
+END
+NameTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/Gapps/NameTest.php
+END
+EmailListTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/Gapps/EmailListTest.php
+END
+NicknameTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/Gapps/NicknameTest.php
+END

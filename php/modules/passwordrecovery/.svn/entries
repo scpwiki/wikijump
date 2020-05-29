@@ -1,0 +1,41 @@
+8
+
+dir
+393
+http://svn.wikidot.org/repos/wikidot1/trunk/php/modules/passwordrecovery
+http://svn.wikidot.org/repos
+
+
+
+2008-01-30T17:40:54.924226Z
+2
+michal_frackowiak
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+fb797968-1a05-43ef-ab23-0011a79c62e5
+
+PasswordRecoveryModule.php
+file
+
+
+
+
+2008-12-06T16:40:08.000000Z
+07f2cc4ffa34c0dc2a1deb36973e2bbc
+2008-01-30T17:40:54.924226Z
+2
+michal_frackowiak
+has-props
+

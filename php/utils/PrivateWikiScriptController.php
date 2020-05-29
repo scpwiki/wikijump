@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \UploadedFileFlowController;
+use Ozone;
+use RunData;
+
 class PrivateWikiScriptController extends UploadedFileFlowController {
 	
 	public function process() {

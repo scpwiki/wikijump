@@ -1,0 +1,54 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Pdf/Element/String
+http://framework.zend.com/svn/framework
+
+
+
+2006-11-15T17:45:10.178963Z
+1625
+darby
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+AllTests.php
+file
+
+
+
+
+2008-12-06T16:40:25.000000Z
+1d76554d5bb5c19c704e3b6c1b0dd65c
+2006-11-15T17:45:10.178963Z
+1625
+darby
+has-props
+
+BinaryTest.php
+file
+
+
+
+
+2008-12-06T16:40:25.000000Z
+db1d8bc2cff859f25a1f064a0cc5f036
+2006-11-15T17:45:10.178963Z
+1625
+darby
+has-props
+

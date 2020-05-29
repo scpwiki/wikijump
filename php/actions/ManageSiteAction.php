@@ -23,6 +23,34 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyAction;
+use \WDPermissionManager;
+use JSONService;
+use Database;
+use Criteria;
+use DB\CategoryPeer;
+use \ProcessException;
+use \Outdater;
+use DB\PagePeer;
+use DB\ThemePeer;
+use DB\Theme;
+use \WDStringUtils;
+use DB\SiteTagPeer;
+use DB\SiteTag;
+use DB\SitePeer;
+use DB\DomainRedirectPeer;
+use DB\DomainRedirect;
+use DB\MemberPeer;
+use DB\SiteViewerPeer;
+use DB\SiteViewer;
+use DB\AdminPeer;
+use DB\AnonymousAbuseFlagPeer;
+use DB\EmailInvitationPeer;
+use DB\MemberApplicationPeer;
+use DB\MemberInvitationPeer;
+
 class ManageSiteAction extends SmartyAction {
 	
 	public function isAllowed($runData){
@@ -53,7 +81,7 @@ class ManageSiteAction extends SmartyAction {
 			$c = new Criteria();
 			$c->add("category_id", $categoryId);
 			$c->add("site_id", $siteId); // for sure ;-)
-			$dCategory = DB_CategoryPeer::instance()->selectOne($c);
+			$dCategory = CategoryPeer::instance()->selectOne($c);
 			
 			// now compare
 			$changed = false;
@@ -95,7 +123,7 @@ class ManageSiteAction extends SmartyAction {
 				$c->add("site_id", $dCategory->getSiteId());
 				$c->add("theme_default", true);
 				$c->add("name", "_default", '!=');
-				$depcats = DB_CategoryPeer::instance()->select($c);
+				$depcats = CategoryPeer::instance()->select($c);
 				foreach($depcats as $dc){
 					$outdater = new Outdater();
 					$outdater->categoryEvent("category_save", $dc);	
@@ -113,7 +141,7 @@ class ManageSiteAction extends SmartyAction {
 		if($pageName == ''){
 			throw new ProcessException(_("No page given."), "form_error");	
 		}
-		$page = DB_PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
+		$page = PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
 		if($page == null){
 			throw new ProcessException(_("No page found with this name."), "form_error");	
 		}
@@ -150,7 +178,7 @@ class ManageSiteAction extends SmartyAction {
 		if(strlen($code) > 50000){
 			throw new ProcessException(_("CSS code seems to be to long."), "form_error");
 		}
-		$parentTheme = DB_ThemePeer::instance()->selectByPrimaryKey($parentThemeId);
+		$parentTheme = ThemePeer::instance()->selectByPrimaryKey($parentThemeId);
 		if($parentTheme == null){
 			throw new ProcessException(_("Parent theme can not be found."), "form_error");
 		}
@@ -160,7 +188,7 @@ class ManageSiteAction extends SmartyAction {
 			$c = new Criteria();
 			$c->add("site_id", $site->getSiteId());
 			$c->add("name", $name);
-			$th = DB_ThemePeer::instance()->selectOne($c);
+			$th = ThemePeer::instance()->selectOne($c);
 			if($th){
 				throw new ProcessException(_("Theme with this name already exists within this site."),	"form_error");
 			}
@@ -170,13 +198,13 @@ class ManageSiteAction extends SmartyAction {
 		$db->begin();
 		if($themeId){
 			// theme already exists	
-			$theme = DB_ThemePeer::instance()->selectByPrimaryKey($themeId);
+			$theme = ThemePeer::instance()->selectByPrimaryKey($themeId);
 			if($theme == null || $theme->getSiteId() !== $site->getSiteId()){
 				throw new ProcessException(_("Error selecting theme."), "wrong_theme");	
 			}
 		}else{
 			// new theme
-			$theme = new DB_Theme();
+			$theme = new Theme();
 			$theme->setCustom(true);
 			$theme->setSiteId($site->getSiteId());
 		}
@@ -218,7 +246,7 @@ class ManageSiteAction extends SmartyAction {
 		$pl =  $runData->getParameterList();
 		$site = $runData->getTemp("site");
 		$themeId = $pl->getParameterValue("themeId");
-		$theme = DB_ThemePeer::instance()->selectByPrimaryKey($themeId);
+		$theme = ThemePeer::instance()->selectByPrimaryKey($themeId);
 		if($theme == null || $theme->getSiteId() !== $site->getSiteId()){
 			throw new ProcessException(_("Error selecting theme."), "wrong_theme");	
 		}
@@ -230,12 +258,12 @@ class ManageSiteAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("theme_id", $theme->getThemeId());
 		$c->add("site_id", $site->getSiteId());
-		$cats = DB_CategoryPeer::instance()->select($c);
+		$cats = CategoryPeer::instance()->select($c);
 		if(count($cats)>0){
 			throw new ProcessException(_("This theme can not be deleted because there are still pages that use it. Please check themes assigned to particular categories."), "can_not_delete");
 		}
 		// ok, delete now!
-		DB_ThemePeer::instance()->deleteByPrimaryKey($theme->getThemeId());
+		ThemePeer::instance()->deleteByPrimaryKey($theme->getThemeId());
 		
 		$cmd = "rm -r ".escapeshellarg($site->getLocalFilesPath()."/theme/".$theme->getUnixName());
 		exec($cmd);
@@ -257,7 +285,7 @@ class ManageSiteAction extends SmartyAction {
 			$c = new Criteria();
 			$c->add("category_id", $categoryId);
 			$c->add("site_id", $siteId); // for sure ;-)
-			$dCategory = DB_CategoryPeer::instance()->selectOne($c);
+			$dCategory = CategoryPeer::instance()->selectOne($c);
 			if($dCategory == null){
 				throw new ProcessException(_("Error saving changes - one of the categories could not be found."), "no_category");	
 			}
@@ -297,7 +325,7 @@ class ManageSiteAction extends SmartyAction {
 			$c = new Criteria();
 			$c->add("category_id", $categoryId);
 			$c->add("site_id", $siteId); // for sure ;-)
-			$dCategory = DB_CategoryPeer::instance()->selectOne($c);
+			$dCategory = CategoryPeer::instance()->selectOne($c);
 			if($dCategory == null){
 				throw new ProcessException("Invalid category.");	
 			}
@@ -353,7 +381,7 @@ class ManageSiteAction extends SmartyAction {
 			$c = new Criteria();
 			$c->add("category_id", $categoryId);
 			$c->add("site_id", $siteId); // for sure ;-)
-			$dCategory = DB_CategoryPeer::instance()->selectOne($c);
+			$dCategory = CategoryPeer::instance()->selectOne($c);
 			
 			// now compare
 			$changed = false;
@@ -386,7 +414,7 @@ class ManageSiteAction extends SmartyAction {
 				$c->add("site_id", $dCategory->getSiteId());
 				$c->add("license_default", true);
 				$c->add("name", "_default", '!=');
-				$depcats = DB_CategoryPeer::instance()->select($c);
+				$depcats = CategoryPeer::instance()->select($c);
 				foreach($depcats as $dc){
 					$outdater = new Outdater();
 					$outdater->categoryEvent("category_save", $dc);	
@@ -468,7 +496,7 @@ class ManageSiteAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
 		
-		$dbTags = DB_SiteTagPeer::instance()->select($c);
+		$dbTags = SiteTagPeer::instance()->select($c);
 		$tags = preg_split("/[ ,]+/", $tags);
 		$tags = array_unique($tags);
 
@@ -476,13 +504,13 @@ class ManageSiteAction extends SmartyAction {
 			if(in_array($dbTag->getTag(), $tags)){
 				unset($tags[array_search($dbTag->getTag(), $tags)]);	
 			}else{
-				DB_SiteTagPeer::instance()->deleteByPrimaryKey($dbTag->getTagId());	
+				SiteTagPeer::instance()->deleteByPrimaryKey($dbTag->getTagId());	
 			}	
 		}
 		// insert all other
 		foreach($tags as $tag){
 			if(trim($tag) != ''){
-				$dbTag = new DB_SiteTag();
+				$dbTag = new SiteTag();
 				$dbTag->setSiteId($site->getSiteId());
 				$dbTag->setTag($tag);	
 				$dbTag->save();
@@ -531,7 +559,7 @@ class ManageSiteAction extends SmartyAction {
 			// check if domain taken.
 			$c = new Criteria();
 			$c->add("custom_domain", $domain);
-			$s = DB_SitePeer::instance()->selectOne($c);
+			$s = SitePeer::instance()->selectOne($c);
 		
 			if($s && $s->getSiteId() !== $site->getSiteId()){
 				throw new ProcessException(sprintf(_('Another wiki already maps the "%s" domain.'), $domain)); 	
@@ -539,7 +567,7 @@ class ManageSiteAction extends SmartyAction {
 			// check any redirects conflict
 			$c = new Criteria();
 			$c->add("url", $domain);
-			$s = DB_DomainRedirectPeer::instance()->selectOne($c);
+			$s = DomainRedirectPeer::instance()->selectOne($c);
 			if($s && $s->getSiteId() !== $site->getSiteId()){
 				throw new ProcessException(sprintf(_('Another wiki already redirects the "%s" domain.'), $domain)); 	
 			}
@@ -552,7 +580,7 @@ class ManageSiteAction extends SmartyAction {
 				// check if domain taken.
 				$c = new Criteria();
 				$c->add("custom_domain", $r);
-				$s = DB_SitePeer::instance()->selectOne($c);
+				$s = SitePeer::instance()->selectOne($c);
 			
 				if($s && $s->getSiteId() !== $site->getSiteId()){
 					throw new ProcessException(sprintf(_('Another wiki already maps the "%s" domain.'), $r)); 	
@@ -560,7 +588,7 @@ class ManageSiteAction extends SmartyAction {
 				// check any redirects conflict
 				$c = new Criteria();
 				$c->add("url", $r);
-				$s = DB_DomainRedirectPeer::instance()->selectOne($c);
+				$s = DomainRedirectPeer::instance()->selectOne($c);
 				if($s && $s->getSiteId() !== $site->getSiteId()){
 					throw new ProcessException(sprintf(_('Another wiki already redirects the "%s" domain.'), $r)); 	
 				}
@@ -572,7 +600,7 @@ class ManageSiteAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
 		
-		$dbRedirects = DB_DomainRedirectPeer::instance()->select($c);
+		$dbRedirects = DomainRedirectPeer::instance()->select($c);
 		
 		$memcache = Ozone::$memcache;
 		
@@ -582,13 +610,13 @@ class ManageSiteAction extends SmartyAction {
 			}else{
 				$key = 'domain_redirect..'.$dbr->getUrl();
 				$memcache->delete($key);
-				DB_DomainRedirectPeer::instance()->deleteByPrimaryKey($dbr->getRedirectId());	
+				DomainRedirectPeer::instance()->deleteByPrimaryKey($dbr->getRedirectId());	
 			}	
 		}
 		// insert all other
 		foreach($redirects as $redirect){
 			if(trim($redirect) != ''){
-				$dbRedirect = new DB_DomainRedirect();
+				$dbRedirect = new DomainRedirect();
 				$dbRedirect->setSiteId($site->getSiteId());
 				$dbRedirect->setUrl($redirect);	
 				$dbRedirect->save();
@@ -645,7 +673,7 @@ class ManageSiteAction extends SmartyAction {
 			$c->add("category_id", $categoryId);
 			
 			$c->add("site_id", $siteId); // for sure ;-)
-			$dCategory = DB_CategoryPeer::instance()->selectOne($c);
+			$dCategory = CategoryPeer::instance()->selectOne($c);
 			
 			// now compare
 			$changed = false;
@@ -675,7 +703,7 @@ class ManageSiteAction extends SmartyAction {
 				$c->add("site_id", $dCategory->getSiteId());
 				$c->add("nav_default", true);
 				$c->add("name", "_default", '!=');
-				$depcats = DB_CategoryPeer::instance()->select($c);
+				$depcats = CategoryPeer::instance()->select($c);
 				foreach($depcats as $dc){
 					$outdater = new Outdater();
 					$outdater->categoryEvent("category_save", $dc);	
@@ -701,7 +729,7 @@ class ManageSiteAction extends SmartyAction {
 			$c = new Criteria();
 			$c->add("category_id", $categoryId);
 			$c->add("site_id", $siteId); // for sure ;-)
-			$dCategory = DB_CategoryPeer::instance()->selectOne($c);
+			$dCategory = CategoryPeer::instance()->selectOne($c);
 			
 			// now compare
 			$changed = false;
@@ -743,7 +771,7 @@ class ManageSiteAction extends SmartyAction {
 			
 			$c = new Criteria();
 			$c->add("site_id", $site->getSiteId());
-			$cmem = DB_MemberPeer::instance()->selectCount($c);
+			$cmem = MemberPeer::instance()->selectCount($c);
 			if($cmem > $maxMembers){
 				throw new ProcessException(sprintf(_('Sorry, at the moment max %d member limit apply for private Wikis. The Site would have to be upgraded to allow more members.'), $maxMembers));		
 			}
@@ -798,20 +826,20 @@ class ManageSiteAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
 		
-		$dbViewers = DB_SiteViewerPeer::instance()->select($c);
+		$dbViewers = SiteViewerPeer::instance()->select($c);
 		$viewers = array_unique($viewers);
 
 		foreach($dbViewers as $dbViewer){
 			if(in_array($dbViewer->getUserId(), $viewers)){
 				unset($viewers[array_search($dbViewer->getUserId(), $viewers)]);	
 			}else{
-				DB_SiteViewerPeer::instance()->deleteByPrimaryKey($dbViewer->getViewerId());	
+				SiteViewerPeer::instance()->deleteByPrimaryKey($dbViewer->getViewerId());	
 			}	
 		}
 		// insert all other
 		foreach($viewers as $viewer){
 			if(trim($viewer) != ''){
-				$dbViewer = new DB_SiteViewer();
+				$dbViewer = new SiteViewer();
 				$dbViewer->setSiteId($site->getSiteId());
 				$dbViewer->setUserId($viewer);	
 				$dbViewer->save();
@@ -853,7 +881,7 @@ class ManageSiteAction extends SmartyAction {
 		$c->add("user_id", $user->getUserId());
 		$c->add("site_id", $site->getSiteId());
 		$c->add("founder", true);
-		$rel = DB_AdminPeer::instance()->selectOne($c);
+		$rel = AdminPeer::instance()->selectOne($c);
 		
 		if(!$rel){
 			throw new ProcessException(_("Sorry, you have no permissions to delete this site."));
@@ -868,11 +896,11 @@ class ManageSiteAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add('site_id', $site->getSiteId());
 		
-		DB_AnonymousAbuseFlagPeer::instance()->delete($c);
-		DB_DomainRedirectPeer::instance()->delete($c); 
-		DB_EmailInvitationPeer::instance()->delete($c);
-		DB_MemberApplicationPeer::instance()->delete($c);
-		DB_MemberInvitationPeer::instance()->delete($c);
+		AnonymousAbuseFlagPeer::instance()->delete($c);
+		DomainRedirectPeer::instance()->delete($c); 
+		EmailInvitationPeer::instance()->delete($c);
+		MemberApplicationPeer::instance()->delete($c);
+		MemberInvitationPeer::instance()->delete($c);
 
 		// now clear cache!
 
@@ -924,7 +952,7 @@ class ManageSiteAction extends SmartyAction {
 		$c->add("user_id", $user->getUserId());
 		$c->add("site_id", $site->getSiteId());
 		$c->add("founder", true);
-		$rel = DB_AdminPeer::instance()->selectOne($c);
+		$rel = AdminPeer::instance()->selectOne($c);
 		
 		if(!$rel){
 			throw new ProcessException(_("Sorry, you have no permissions to change URL of this site."));
@@ -963,7 +991,7 @@ class ManageSiteAction extends SmartyAction {
 			// check if the domain is not taken.
 			$c = new Criteria();
 			$c->add("unix_name", $unixName);
-			$ss = DB_SitePeer::instance()->selectOne($c);
+			$ss = SitePeer::instance()->selectOne($c);
 			if($ss){
 				$errors['unixname'] = _('Sorry, this web address is already used by another site.');
 						

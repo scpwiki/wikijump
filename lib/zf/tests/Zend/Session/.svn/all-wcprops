@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/framework/!svn/ver/13337/standard/trunk/tests/Zend/Session
+END
+AllTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Session/AllTests.php
+END
+SessionTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/13337/standard/trunk/tests/Zend/Session/SessionTest.php
+END
+SessionTestHelper.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/12582/standard/trunk/tests/Zend/Session/SessionTestHelper.php
+END
+README.txt
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Session/README.txt
+END

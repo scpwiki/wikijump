@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/framework/!svn/ver/12878/standard/trunk/tests/Zend/Controller
+END
+AllTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Controller/AllTests.php
+END
+ActionTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Controller/ActionTest.php
+END
+FrontTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10650/standard/trunk/tests/Zend/Controller/FrontTest.php
+END

@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Service/Nirvanix/Namespace
+END
+BaseTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Service/Nirvanix/Namespace/BaseTest.php
+END
+ImfsTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Service/Nirvanix/Namespace/ImfsTest.php
+END

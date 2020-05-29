@@ -1,0 +1,87 @@
+8
+
+dir
+393
+http://svn.wikidot.org/repos/wikidot1/trunk/conf
+http://svn.wikidot.org/repos
+
+
+
+2008-12-18T22:39:56.874216Z
+369
+quake
+has-props
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+fb797968-1a05-43ef-ab23-0011a79c62e5
+
+wikiparser
+dir
+
+forbidden_user_names.conf
+file
+
+
+
+
+2008-12-06T16:39:57.000000Z
+c973d78b403d215edaf588830a267390
+2008-01-30T17:40:54.924226Z
+2
+michal_frackowiak
+
+full-example-of-wikidot.ini
+file
+
+
+
+
+2009-01-04T17:41:33.000000Z
+9e32fe8d7b79eaab954e15e9ae841d36
+2008-12-18T22:23:31.117835Z
+367
+quake
+has-props
+
+database
+dir
+
+forbidden_site_names.conf
+file
+
+
+
+
+2008-12-06T16:39:57.000000Z
+3e4581c3152c80d55ddee0cff26b78d7
+2008-06-19T08:44:28.342911Z
+119
+michal_frackowiak
+
+wikidot.ini
+file
+
+
+
+
+2008-12-06T16:39:57.000000Z
+171a4fb442f789dedbc8a2267bc77b80
+2008-12-18T22:39:56.874216Z
+369
+quake
+has-props
+
+wiki_modules
+dir
+

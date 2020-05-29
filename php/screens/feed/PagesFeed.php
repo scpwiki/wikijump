@@ -23,6 +23,15 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \FeedScreen;
+use DB\CategoryPeer;
+use Criteria;
+use DB\PagePeer;
+use DB\OzoneUserPeer;
+use \WikiTransformation;
+
 class PagesFeed extends FeedScreen {
 	
 	public function render($runData){
@@ -111,7 +120,7 @@ class PagesFeed extends FeedScreen {
 		$categoryNames = array();
 		
 		foreach(preg_split('/[,;\s]+?/', $categoryName) as $cn) {
-		    $category = DB_CategoryPeer::instance()->selectByName($cn, $site->getSiteId());
+		    $category = CategoryPeer::instance()->selectByName($cn, $site->getSiteId());
 		    if($category) {
 		        $categories[] = $category;
 		        $categoryNames[] = $category->getName();
@@ -240,7 +249,7 @@ class PagesFeed extends FeedScreen {
 			$pageNo = 1;	
 		}
 		
-		$co = DB_PagePeer::instance()->selectCount($c);
+		$co = PagePeer::instance()->selectCount($c);
 		
 		$totalPages = ceil($co/$perPage);
 		if($pageNo>$totalPages){$pageNo = $totalPages;}
@@ -280,7 +289,7 @@ class PagesFeed extends FeedScreen {
 				break;
 		}
 		
-		$pages = DB_PagePeer::instance()->select($c);
+		$pages = PagePeer::instance()->select($c);
 		
 		/* Process... */
 	    $format = $pl->getParameterValue("module_body");
@@ -340,7 +349,7 @@ class PagesFeed extends FeedScreen {
 		    /* %%author%% */
 		    $ownerUserId = $page->getOwnerUserId();
 		    if($ownerUserId){
-		    	$user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($ownerUserId);
+		    	$user = OzoneUserPeer::instance()->selectByPrimaryKey($ownerUserId);
 			    $userString = '[[*user '.$user->getNickName().']]';
 			} else {
 			    $userString = 'Anonymous user';

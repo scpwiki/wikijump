@@ -1,0 +1,105 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/library/Zend/Db/Adapter
+http://framework.zend.com/svn/framework
+
+
+
+2008-12-18T19:37:47.021250Z
+13354
+mikaelkael
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+Pdo
+dir
+
+Exception.php
+file
+
+
+
+
+2008-12-06T16:40:36.000000Z
+cd410de1be148b9d3911a1d819fd3afb
+2008-02-16T10:58:39.742447Z
+8064
+thomas
+has-props
+
+Mysqli.php
+file
+
+
+
+
+2008-12-06T16:40:36.000000Z
+6b3281ccc397ab9f81396b7a00ee537c
+2008-12-04T00:37:15.798193Z
+13009
+sidhighwind
+has-props
+
+Oracle
+dir
+
+Db2
+dir
+
+Abstract.php
+file
+
+
+
+
+2009-01-04T17:41:47.000000Z
+55b5dbbc37037e83ce2039503ca06717
+2008-12-18T19:37:47.021250Z
+13354
+mikaelkael
+has-props
+
+Oracle.php
+file
+
+
+
+
+2009-01-04T17:41:47.000000Z
+81f91a8ab6dd8de6c9cf9280f8ede9d8
+2008-12-08T16:30:45.559465Z
+13095
+mikaelkael
+has-props
+
+Db2.php
+file
+
+
+
+
+2009-01-04T17:41:47.000000Z
+c8828104fabe95d2cd39eb122c6013ae
+2008-12-16T16:43:06.361397Z
+13320
+ralph
+has-props
+
+Mysqli
+dir
+

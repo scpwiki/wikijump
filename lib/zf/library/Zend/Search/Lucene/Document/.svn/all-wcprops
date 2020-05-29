@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/13040/standard/trunk/library/Zend/Search/Lucene/Document
+END
+Pptx.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/13040/standard/trunk/library/Zend/Search/Lucene/Document/Pptx.php
+END
+Docx.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/13040/standard/trunk/library/Zend/Search/Lucene/Document/Docx.php
+END
+Xlsx.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/13040/standard/trunk/library/Zend/Search/Lucene/Document/Xlsx.php
+END
+OpenXml.php
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/framework/!svn/ver/13040/standard/trunk/library/Zend/Search/Lucene/Document/OpenXml.php
+END
+Html.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/12144/standard/trunk/library/Zend/Search/Lucene/Document/Html.php
+END

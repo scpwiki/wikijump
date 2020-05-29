@@ -1,0 +1,41 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/demos/Zend/WebServices/Protocols
+http://framework.zend.com/svn/framework
+
+
+
+2008-03-22T22:09:29.185605Z
+9003
+thomas
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+xmlrpc-upc-lookup.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+d42b44d15ecfb115f306a86267f74268
+2008-03-22T22:09:29.185605Z
+9003
+thomas
+has-props
+

@@ -1,0 +1,181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+		"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+
+	<title>Dijit I18N Demo</title>
+
+	<link rel="stylesheet" href="demo.css">
+	
+	<script>
+		var djConfig = {
+			parseOnLoad: false,
+			isDebug: true
+		};
+		var locale, lang, bidi;
+
+		// read in HREF arguments
+		if(window.location.href.indexOf("?") > -1){
+			var str = window.location.href.substr(window.location.href.indexOf("?")+1);
+			var ary = str.split(/&/);
+			for(var i=0; i<ary.length; i++){
+				var split = ary[i].split(/=/),
+					key = split[0],
+					value = split[1];
+				switch(key){
+					case "locale":
+						djConfig.locale = locale = value;
+						lang = locale.replace(/-.*/, "");
+						break;
+					case "dir":
+						document.getElementsByTagName("html")[0].dir = value;
+						bidi = value;
+						break;
+				}
+			}
+		}
+	</script>
+	<script type="text/javascript" src="../../dojo/dojo.js" charset="utf-8"></script>
+	<script type="text/javascript">
+		dojo.require("demos.i18n.src");
+		var model;
+		dojo.addOnLoad(function(){
+			model = new i18nTreeModel({ lang: lang });
+
+			dojo.parser.parse();
+			dojo.byId("locale").innerHTML = locale || "default";
+			dojo.byId("dir").innerHTML = bidi || "default";
+			dojo.fadeOut({
+				node:"preLoader",
+				onEnd: function(){
+					dojo.style("preLoader", "display", "none");
+				},
+				delay:100,
+				duration:400
+			}).play();
+		});
+	</script>
+
+</head>
+<body class="tundra">
+	<div id="preLoader"><p></p></div>
+	<div id="main" style="width: 100%; height: 100%" dojoType="dijit.layout.BorderContainer">
+		<div dojoType="dijit.layout.ContentPane" region="top">
+			<h1 class="testTitle" dir="ltr">
+				Dijit I18N Demo (locale=<span id="locale"></span>  dir=<span id="dir"></span>)
+			</h1>
+			<p dir="ltr">
+				Use the tree to select a language or a language/country combo; the page will reload
+				in the specified locale.  Note that tree is also rerendered using the specified language for top level tree items.
+				Arabic and Hebrew display right-to-left so be sure to try those.
+			</p>
+			<p dir="ltr">
+				This won't work perfectly unless you've done a full build of dojo.cldr,
+				see <a href="../../util/buildscripts/cldr/README">the CLDR readme</a>.
+			</p>
+			<p dir="ltr">
+				Country data courtesy of <a href="http://ws.geonames.org/">Geonames</a>.
+			</p>
+		</div>
+	
+		<div dojoType="dijit.layout.ContentPane" region="leading" style="width: 30%" splitter="true">
+			<div dojoType="dijit.Tree" id="mytree" model="model" openOnClick="true">
+				<!-- override functions for display of each node -->
+				<script type="dojo/method" event="getIconClass" args="item">
+					var icon =
+						item.countryName ?
+						("countryIcon country" + item.countryCode + "Icon") :
+						dijit.Tree.prototype.getIconClass.apply(this, arguments);
+					return icon;
+				</script>
+				<script type="dojo/method" event="getLabel" args="item">
+					if(item.root){ return "Continents"; }
+					return item.name || item.countryName || item;  // language items are just strings... change?
+				</script>
+	
+				<!-- clicking a node refreshes the page with new locale setting -->
+				<script type="dojo/method" event="onClick" args="item, node">
+					if(item.type=="locale") {	// language
+						var locale = item.iso, lang = locale.replace(/-.*/, ""),
+							dir = (/ar|fa|he|ps|ur|yi/i).test(lang) ? "rtl" : "ltr";
+						window.location.href = window.location.href.replace(/\?.*/, "") + "?locale=" + locale + "&dir=" + dir;
+					}
+				</script>
+			</div>
+		</div>
+	
+		<div dojoType="dijit.layout.ContentPane" region="center">
+			<table>
+				<tr>
+					<td width="20%">
+						<label for="calendar" dir="ltr">Calendar (stand alone):</label>
+					</td>
+					<td width="50%">
+						<input dojoType="dijit._Calendar"/>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<label for="palette" dir="ltr">Color palette:</label>
+					</td>
+					<td>
+						<span dojoType="dijit.ColorPalette"></span>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<label for="date" dir="ltr">Date textbox:</label>
+					</td>
+					<td>
+						<input id="date" dojoType="dijit.form.DateTextBox" value="2006-07-04"/>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<label for="spinner" dir="ltr">Number spinner:</label>
+					</td>
+					<td>
+						<input id="spinner" dojoType="dijit.form.NumberSpinner" value="123456789"/>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<label for="currency" dir="ltr">Currency textbox:</label>
+					</td>
+					<td>
+						<input id="currency" type="text" name="income1" value="54775.53"
+							dojoType="dijit.form.CurrencyTextBox"
+							required="true"
+							constraints="{fractional:true}"
+							currency="USD"/>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<label for="combo1" dir="ltr">ComboBox:</label>
+					</td>
+					<td>
+						<select id="combo1" dojoType="dijit.form.ComboBox">
+							<option>option #1</option>
+							<option>option #2</option>
+							<option>option #3</option>
+						</select>
+					</td>
+				</tr>
+		<!--
+				<tr>
+					<td><label for="combo2" dir="ltr">Combo on languages and countries:</label></td>
+					<td>
+						<input id="combo2" dojoType="dijit.form.ComboBox"
+							value=""
+							store="store"
+							searchAttr="name"
+							name="anything"/>
+					</td>
+				</tr>
+		-->
+			</table>
+		</div>
+	</div>
+</body>
+</html>

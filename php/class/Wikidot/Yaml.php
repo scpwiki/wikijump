@@ -1,10 +1,21 @@
 <?php
 
+
+namespace Wikidot;
+
+use sfYamlParser;
+use Exception;
+use Spyc;
+use Wikidot_Yaml_Exception;
+use sfYaml;
+
+
+
 require_once(WIKIDOT_ROOT . "/lib/sfyaml/lib/sfYamlParser.php");
 require_once(WIKIDOT_ROOT . "/lib/sfyaml/lib/sfYaml.php");
 require_once(WIKIDOT_ROOT . "/lib/spyc/spyc.php");
 
-class Wikidot_Yaml {
+class Yaml {
 	public static function load($string, $forgiving = false) {
         if (substr($string, 0, 3) != '---') {
             $string = "---\n$string";

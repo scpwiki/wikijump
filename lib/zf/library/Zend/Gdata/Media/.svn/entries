@@ -1,0 +1,57 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/library/Zend/Gdata/Media
+http://framework.zend.com/svn/framework
+
+
+
+2008-12-04T22:23:55.806608Z
+13021
+jhartmann
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+Entry.php
+file
+
+
+
+
+2008-12-06T16:40:34.000000Z
+033afbff36a0a9a3f9fc1a2d3ca680d3
+2008-12-04T22:23:55.806608Z
+13021
+jhartmann
+has-props
+
+Feed.php
+file
+
+
+
+
+2008-12-06T16:40:34.000000Z
+8389a1ebf504a322ac908424f9b67afb
+2008-12-04T22:23:55.806608Z
+13021
+jhartmann
+has-props
+
+Extension
+dir
+

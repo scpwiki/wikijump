@@ -1,0 +1,254 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/library/Zend/Service
+http://framework.zend.com/svn/framework
+
+
+
+2008-12-14T11:16:42.202124Z
+13220
+thomas
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+Yahoo
+dir
+
+StrikeIron.php
+file
+
+
+
+
+2008-12-06T16:40:33.000000Z
+f2f92ce5bc43a7edda7259b71b816534
+2008-03-04T20:29:55.508997Z
+8539
+darby
+has-props
+
+Delicious
+dir
+
+ReCaptcha.php
+file
+
+
+
+
+2008-12-06T16:40:33.000000Z
+72e6533718cdd1334fb71bfe6749e849
+2008-08-07T02:21:41.684861Z
+10741
+matthew
+
+SlideShare
+dir
+
+Akismet.php
+file
+
+
+
+
+2008-12-06T16:40:33.000000Z
+bd7de6ea63a9b7b78f9e7b7df0b1ca38
+2008-03-01T19:56:46.444568Z
+8502
+weppos
+has-props
+
+Exception.php
+file
+
+
+
+
+2008-12-06T16:40:33.000000Z
+634d33a5cab7061288f3f58ef3b3ede7
+2008-02-16T10:58:39.742447Z
+8064
+thomas
+has-props
+
+Nirvanix.php
+file
+
+
+
+
+2008-12-06T16:40:33.000000Z
+06da1ea00962656d19cd5723309e52a2
+2008-03-05T18:56:21.241159Z
+8557
+matthew
+
+Audioscrobbler.php
+file
+
+
+
+
+2008-12-06T16:40:33.000000Z
+7cfe4eb2685c8b90e3922432095be1f9
+2008-03-30T18:36:55.103786Z
+9094
+thomas
+has-props
+
+Amazon
+dir
+
+Technorati.php
+file
+
+
+
+
+2008-12-06T16:40:33.000000Z
+0ad3af42252e87158f6486e7d1a4888c
+2008-02-16T10:58:39.742447Z
+8064
+thomas
+has-props
+
+Simpy.php
+file
+
+
+
+
+2008-12-06T16:40:33.000000Z
+1eaf58c72f73a6e384e8cb95e95ca6f6
+2008-07-26T17:29:07.595084Z
+10478
+elazar
+has-props
+
+Twitter.php
+file
+
+
+
+
+2009-01-04T17:41:46.000000Z
+c09e4594af3686d1c36fc2099f985c7c
+2008-12-12T01:38:03.359122Z
+13173
+yoshida@zend.co.jp
+has-props
+
+Abstract.php
+file
+
+
+
+
+2008-12-06T16:40:33.000000Z
+882995bca3e6abf3f965155ec9fd3731
+2008-02-16T10:58:39.742447Z
+8064
+thomas
+has-props
+
+StrikeIron
+dir
+
+ReCaptcha
+dir
+
+Nirvanix
+dir
+
+Technorati
+dir
+
+Flickr.php
+file
+
+
+
+
+2008-12-06T16:40:33.000000Z
+8b979ba04307549f9c524d5b48fa15b5
+2008-03-10T15:56:48.019074Z
+8733
+jokke
+has-props
+
+Simpy
+dir
+
+Twitter
+dir
+
+Yahoo.php
+file
+
+
+
+
+2008-12-06T16:40:33.000000Z
+ae1ff444d9509c5de1f126c9d233cd28
+2008-12-03T21:14:45.915294Z
+13004
+matthew
+has-props
+
+Delicious.php
+file
+
+
+
+
+2008-12-06T16:40:33.000000Z
+ee40ea1fc8fab90979920a6ae06a0cde
+2008-06-08T15:58:11.149167Z
+9638
+ghacek
+has-props
+
+SlideShare.php
+file
+
+
+
+
+2009-01-04T17:41:46.000000Z
+80b674d0a5a945045265b761c16c9f6b
+2008-12-14T11:16:42.202124Z
+13220
+thomas
+has-props
+
+Flickr
+dir
+
+Amazon.php
+file
+
+
+
+
+2008-12-06T16:40:33.000000Z
+00c0b52e2b22caf23103b9938eafb452
+2008-02-16T10:58:39.742447Z
+8064
+thomas
+has-props
+

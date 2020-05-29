@@ -1,0 +1,113 @@
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/HTMLModule
+END
+NonXMLCommonAttributes.php
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/HTMLModule/NonXMLCommonAttributes.php
+END
+Hypertext.php
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/HTMLModule/Hypertext.php
+END
+CommonAttributes.php
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/HTMLModule/CommonAttributes.php
+END
+Scripting.php
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/HTMLModule/Scripting.php
+END
+Bdo.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/HTMLModule/Bdo.php
+END
+Legacy.php
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/HTMLModule/Legacy.php
+END
+Object.php
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/HTMLModule/Object.php
+END
+Tidy.php
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/HTMLModule/Tidy.php
+END
+Tables.php
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/HTMLModule/Tables.php
+END
+List.php
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/HTMLModule/List.php
+END
+Presentation.php
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/HTMLModule/Presentation.php
+END
+XMLCommonAttributes.php
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/HTMLModule/XMLCommonAttributes.php
+END
+Ruby.php
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/HTMLModule/Ruby.php
+END
+Image.php
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/HTMLModule/Image.php
+END
+StyleAttribute.php
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/HTMLModule/StyleAttribute.php
+END
+Text.php
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/HTMLModule/Text.php
+END
+Edit.php
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/HTMLModule/Edit.php
+END
+Target.php
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/HTMLModule/Target.php
+END

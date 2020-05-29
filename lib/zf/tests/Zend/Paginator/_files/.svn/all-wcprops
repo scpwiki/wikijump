@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/framework/!svn/ver/13439/standard/trunk/tests/Zend/Paginator/_files
+END
+test.sqlite
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10942/standard/trunk/tests/Zend/Paginator/_files/test.sqlite
+END
+Zf4207.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Paginator/_files/Zf4207.php
+END
+config.xml
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/11779/standard/trunk/tests/Zend/Paginator/_files/config.xml
+END
+TestTable.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Paginator/_files/TestTable.php
+END
+testempty.sqlite
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/10942/standard/trunk/tests/Zend/Paginator/_files/testempty.sqlite
+END

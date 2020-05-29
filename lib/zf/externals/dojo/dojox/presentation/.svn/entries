@@ -1,0 +1,60 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/dojox/presentation
+http://svn.dojotoolkit.org/src
+
+
+
+2008-08-28T04:23:47.544714Z
+14984
+dante
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+tests
+dir
+
+_base.js
+file
+
+
+
+
+2008-12-06T16:41:29.000000Z
+86e5e0d4106e932e55fa6c8bfd105dc4
+2008-08-28T04:23:47.544714Z
+14984
+dante
+has-props
+
+resources
+dir
+
+README
+file
+
+
+
+
+2008-12-06T16:41:29.000000Z
+1820e7d3a2f0a69e350a2bcd516d51aa
+2007-10-31T14:49:34.167060Z
+11274
+dante
+has-props
+

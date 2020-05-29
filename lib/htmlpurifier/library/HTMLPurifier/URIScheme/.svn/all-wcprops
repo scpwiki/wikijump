@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/URIScheme
+END
+ftp.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/URIScheme/ftp.php
+END
+news.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/URIScheme/news.php
+END
+http.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/URIScheme/http.php
+END
+nntp.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/URIScheme/nntp.php
+END
+https.php
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/URIScheme/https.php
+END
+mailto.php
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/URIScheme/mailto.php
+END

@@ -1,0 +1,88 @@
+<!-- EN-Revision: 11495 -->
+<sect1 id="zend.mime.message">
+    <title>Zend_Mime_Message</title>
+
+    <sect2 id="zend.mime.message.introduction">
+      <title>導入</title>
+
+      <para><code>Zend_Mime_Message</code> は MIME 準拠のメッセージを表すものであり、
+      ひとつあるいは複数の部分に分かれたメッセージ (<link
+      linkend="zend.mime.part"><code>Zend_Mime_Part</code></link> オブジェクトで表されます)
+      を保持することができます。<code>Zend_Mime_Message</code> では、<code>Zend_Mime_Part</code> を使用して
+      MIME 準拠のマルチパートメッセージを作成します。
+      エンコーディングやバウンダリの処理も透過的に行われます。
+      与えられた文字列から <code>Zend_Mime_Message</code> オブジェクトを再構成することも可能です
+      (実験段階です)。<link
+      linkend="zend.mail"><code>Zend_Mail</code></link> で使用しています。</para>
+    </sect2>
+
+    <sect2 id="zend.mime.message.instantiation">
+        <title>インスタンスの作成</title>
+        <para>
+            <code>Zend_Mime_Message</code>
+            には明示的なコンストラクタはありません。
+        </para>
+    </sect2>
+
+    <sect2 id="zend.mime.message.addparts">
+        <title>MIME パートの追加</title>
+
+        <para><link linkend="zend.mime.part"><code>Zend_Mime_Part</code></link>
+        オブジェクトを <code>Zend_Mime_Message</code> オブジェクトに追加するには、
+        <code>-&gt;addPart($part)</code> をコールします。</para>
+
+        <para><code>-&gt;getParts()</code> メソッドは、
+        <code>Zend_Mime_Message</code> 内のすべての
+        <link linkend="zend.mime.part"><code>Zend_Mime_Part</code></link> オブジェクトを配列で返します。配列に保存されているのは
+        Zend_Mime_Part オブジェクトへの参照なので、内容を変更することが可能です。
+        配列に新たなパートを追加したり並び順を変更したりした場合は、
+        <code>-&gt;setParts($partsArray)</code> をコールして配列を
+        <link linkend="zend.mime.part"><code>Zend_Mime_Part</code></link> オブジェクトに書き戻さなければなりません。</para>
+
+        <para>関数 <code>-&gt;isMultiPart()</code> は、<code>Zend_Mime_Message</code>
+        オブジェクトに複数のパートが登録されている場合に true を返します。
+        この場合、実際の出力はマルチパート Mime メッセージとなります。</para>
+        </sect2>
+
+    <sect2 id="zend.mime.message.bondary">
+        <title>バウンダリの扱い</title>
+
+        <para><code>Zend_Mime_Message</code> は、バウンダリを生成するために通常は
+        <code>Zend_Mime</code> オブジェクトを使用します。
+        バウンダリを独自に定義する必要があったり
+        <code>Zend_Mime_Message</code> が使用する <code>Zend_Mime</code>
+        オブジェクトの振る舞いを変更したりしたい場合は、
+        <code>Zend_Mime</code> オブジェクトを自分で作成して <code>Zend_Mime_Message</code>
+        に登録します。通常は、この必要はありません。
+        この <code>Zend_Mime_Message</code> で使用する <code>Zend_Mime</code>
+        インスタンスを設定するには、<code>-&gt;setMime(Zend_Mime
+        $mime)</code> を使用します。</para>
+
+        <para><code>-&gt;getMime()</code> は
+        <code>Zend_Mime</code> のインスタンスを返します。
+        これは、<code>generateMessage()</code>
+        がコールされた際にメッセージをレンダリングする際に使用されます。</para>
+
+        <para><code>-&gt;generateMessage()</code> は、
+        <code>Zend_Mime_Message</code> の内容を文字列にレンダリングします。</para>
+    </sect2>
+
+    <sect2 id="zend.mime.message.parse">
+        <title>文字列をパースすることによる Zend_Mime_Message
+        オブジェクトの作成 (実験段階)</title>
+
+        <para>MIME に準拠したメッセージを含む文字列をもとにして、
+        <code>Zend_Mime_Message</code> オブジェクトを構築することができます。
+        <code>Zend_Mime_Message</code> には、このような文字列をパースして
+        <code>Zend_Mime_Message</code> オブジェクトを返す
+        静的なファクトリメソッドが用意されています。</para>
+
+        <para><code>Zend_Mime_Message::createFromMessage($str, $boundary)</code>
+        は、渡された文字列をデコードして <code>Zend_Mime_Message</code>
+        オブジェクトを返します。<code>-&gt;getParts()</code>
+        を使用すると、その中身を確認することができます。</para>
+    </sect2>
+</sect1>
+<!--
+vim:se ts=4 sw=4 et:
+-->

@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/src/!svn/ver/15392/branches/1.2/dijit/themes/soria/layout
+END
+TabContainer.css
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/src/!svn/ver/15392/branches/1.2/dijit/themes/soria/layout/TabContainer.css
+END
+TabContainer_rtl.css
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/src/!svn/ver/15392/branches/1.2/dijit/themes/soria/layout/TabContainer_rtl.css
+END
+ContentPane.css
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/src/!svn/ver/15392/branches/1.2/dijit/themes/soria/layout/ContentPane.css
+END
+SplitContainer.css
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/src/!svn/ver/15392/branches/1.2/dijit/themes/soria/layout/SplitContainer.css
+END
+BorderContainer.css
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/src/!svn/ver/15392/branches/1.2/dijit/themes/soria/layout/BorderContainer.css
+END
+AccordionContainer.css
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/src/!svn/ver/15392/branches/1.2/dijit/themes/soria/layout/AccordionContainer.css
+END
+AccordionContainer_rtl.css
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/src/!svn/ver/15392/branches/1.2/dijit/themes/soria/layout/AccordionContainer_rtl.css
+END

@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/src/!svn/ver/15393/branches/1.2/dojox/off/demos/editor/server/lib
+END
+derby.jar
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/src/!svn/ver/15393/branches/1.2/dojox/off/demos/editor/server/lib/derby.jar
+END
+json-lib-1.0b2-jdk13.jar
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/src/!svn/ver/15393/branches/1.2/dojox/off/demos/editor/server/lib/json-lib-1.0b2-jdk13.jar
+END
+commons-lang-2.2.jar
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/src/!svn/ver/15393/branches/1.2/dojox/off/demos/editor/server/lib/commons-lang-2.2.jar
+END
+jetty-util-6.1.3.jar
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/src/!svn/ver/15393/branches/1.2/dojox/off/demos/editor/server/lib/jetty-util-6.1.3.jar
+END
+commons-beanutils.jar
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/src/!svn/ver/15393/branches/1.2/dojox/off/demos/editor/server/lib/commons-beanutils.jar
+END
+ezmorph-1.0.jar
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/src/!svn/ver/15393/branches/1.2/dojox/off/demos/editor/server/lib/ezmorph-1.0.jar
+END
+servlet-api-2.5-6.1.3.jar
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/src/!svn/ver/15393/branches/1.2/dojox/off/demos/editor/server/lib/servlet-api-2.5-6.1.3.jar
+END
+jetty-6.1.3.jar
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/src/!svn/ver/15393/branches/1.2/dojox/off/demos/editor/server/lib/jetty-6.1.3.jar
+END

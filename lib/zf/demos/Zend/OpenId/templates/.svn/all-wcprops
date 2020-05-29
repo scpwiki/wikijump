@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/framework/!svn/ver/9506/standard/trunk/demos/Zend/OpenId/templates
+END
+profile.phtml
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/9506/standard/trunk/demos/Zend/OpenId/templates/profile.phtml
+END
+trust.phtml
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/9506/standard/trunk/demos/Zend/OpenId/templates/trust.phtml
+END
+registration_complete.phtml
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/svn/framework/!svn/ver/9506/standard/trunk/demos/Zend/OpenId/templates/registration_complete.phtml
+END
+register.phtml
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/9506/standard/trunk/demos/Zend/OpenId/templates/register.phtml
+END
+login.phtml
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/9506/standard/trunk/demos/Zend/OpenId/templates/login.phtml
+END
+identity.phtml
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/9506/standard/trunk/demos/Zend/OpenId/templates/identity.phtml
+END
+identity2.phtml
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/framework/!svn/ver/9506/standard/trunk/demos/Zend/OpenId/templates/identity2.phtml
+END

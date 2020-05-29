@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Auth/Adapter/Ldap
+END
+AllTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Auth/Adapter/Ldap/AllTests.php
+END
+OfflineTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Auth/Adapter/Ldap/OfflineTest.php
+END
+OnlineTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Auth/Adapter/Ldap/OnlineTest.php
+END

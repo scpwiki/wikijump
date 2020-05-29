@@ -1,0 +1,165 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>dojox.form.FileInputOverlay | The Dojo Toolkit</title>
+	<style type="text/css">
+		@import "../../../dojo/resources/dojo.css";
+		@import "../../../dijit/themes/dijit.css";
+		@import "../../../dijit/themes/tundra/form/Button.css";
+		@import "../../../dijit/tests/css/dijitTests.css"; 
+		
+		@import "../resources/FileInput.css"; 
+	</style>
+
+	<script type="text/javascript" src="../../../dojo/dojo.js" djConfig="isDebug:true, parseOnLoad: true"></script>
+	<script type="text/javascript">
+		dojo.require("dojox.form.FileUploader");
+		dojo.require("dijit.form.Button"); 
+		dojo.require("dojo.parser");
+		
+		handleChange = function(value){
+			console.log("The file chosen was: ", value);
+		}
+		onComplete = function(data){
+			console.log("Upload data:", data);
+		}
+		dojo.addOnLoad(function(){
+			var uploadUrl = "../resources/RecieveFile.php";
+			if(dijit.byId("btn0")){
+				var f0 = new dojox.form.FileInputOverlay({button:dijit.byId("btn0"), uploadUrl:uploadUrl, uploadOnChange:true});
+				dojo.connect(f0, "onChange", "handleChange");
+				dojo.connect(f0, "onComplete", "onComplete");
+			}
+			if(dijit.byId("btn1")){
+				var f1 = new dojox.form.FileInputOverlay({button:dijit.byId("btn1"), uploadUrl:uploadUrl, uploadOnChange:true});
+				dojo.connect(f1, "onChange", "handleChange");
+				dojo.connect(f1, "onComplete", "onComplete");
+			}
+			if(dijit.byId("btn2")){
+				var f2 = new dojox.form.FileInputOverlay({button:dijit.byId("btn2"), uploadUrl:uploadUrl, uploadOnChange:true});
+				dojo.connect(f2, "onChange", "handleChange");
+				dojo.connect(f2, "onComplete", "onComplete");
+			}
+			var n = dojo.byId("btn3"); 
+			if(n){
+				n.id = null;
+				var f2 = new dojox.form.FileInputOverlay({button:n, uploadUrl:uploadUrl, uploadOnChange:true});
+				dojo.connect(f2, "onChange", "handleChange");
+				dojo.connect(f2, "onComplete", "onComplete");
+			}
+			if(dijit.byId("btn4")){
+				var f4 = new dojox.form.FileInputOverlay({button:dijit.byId("btn4"), uploadUrl:uploadUrl, uploadOnChange:false});
+				dojo.connect(f4, "onChange", function(value){
+					console.log("VALUE:", value);
+					dojo.byId("fileToUpload").innerHTML = value;
+				});
+				dojo.connect(f4, "onComplete", function(data){
+					console.log("DATA:", data);
+					dojo.byId("fileToUpload").innerHTML = "";
+					var file = data.details.uploadedfile.name;
+					var size = data.details.uploadedfile.size;
+					console.log("FILE:", file, size);
+					dojo.byId("uploadedFiles").innerHTML += ( file +" ("+ Math.ceil(size*.001) +"KB)  " );
+				});
+			}
+			doUpload = function(){
+				dojo.byId("fileToUpload").innerHTML = "uploading..."
+				f4.upload();
+			}
+		});
+		
+
+	</script>
+    <style>
+		#wrapper{
+			width:100%;
+		}
+		.rgt{
+			float:right;
+		}
+		.lft{
+			float:left;
+			margin-left:30px;
+			margin-top:30px;
+			padding-left:20px;
+			padding-top:20px;
+			position:relative;
+			left:20px;
+			top:15px;
+		}
+		#btn1{
+			width:250px;
+			height:22px;
+		}
+		#btn2{
+			width:120px;
+			height:60px;		
+		}
+		.zero{
+			display:block;
+			margin-left:30px;
+			margin-top:30px;
+			padding-left:20px;
+			padding-top:20px;
+		}
+		.myDiv{
+			width:150px;
+			height:50px;
+			border:#999999 1px solid;
+			background:#00FFFF;
+		}
+		.browse{
+		width:100px;
+		height:25px;
+		}
+		#uploadBtn, #btn4{
+		width:100px;
+		height:20px;
+		margin-top:-2px;
+		}
+		.uploadBtn{
+		float:left;
+		}
+		#fileToUpload{
+		width:200px;
+		height:25px;
+		border:#CCCCCC 1px solid;
+		float:left;
+		}
+		.uploadedFilesLabel{
+		margin-top:35px;
+		}
+		#uploadedFiles{
+		width:500px;
+		height:25px;
+		border:#CCCC00 1px solid;
+		background:#FFFFCC;
+		}
+	</style>
+</head>
+<body class="tundra">
+<h1>dojox.form.FileUploader / FileInputOverlay</h1>
+
+<p>The following is an example of how FileInputOverlay's simple APIs can be tapped into, so you can build your own file input. For the file to actually upload, you'll need to have PHP enabled. </p>
+<p>NOTE: FileInputOverlay is intended to be a fallback from FileInputFlash in FileUploader. This test remains because of the layout complexity. It can of course be called directly if no Flash is desired.</p>
+<div id="btn4" class="browse" dojoType="dijit.form.Button">Browse...</div>
+<div id="fileToUpload"></div><div id="uploadBtn" class="uploadBtn" onClick="doUpload();" dojoType="dijit.form.Button">Upload</div>
+<div class="uploadedFilesLabel">Uploaded Files:</div>
+<div id="uploadedFiles"></div>
+
+<p>The main purpose behind FileInputOverlay is its ability to "attach" to buttons with as many different CSS styles as possible.<br>
+Below are tests for attaching to Dijit Buttons and a DIV. Some styles tested are inline, block, floats, margins and padding. See the test source code for the styles.</p>
+<p>See the console for logging information.</p>
+
+<div id="btn3" class="myDiv"><span>Div Btn3</span></div>
+
+<div id="wrapper">
+	<div id="btn0" class="zero" onClick="console.log('click.')"dojoType="dijit.form.Button">Btn 0</div>
+	<div id="btn1" class="lft" dojoType="dijit.form.Button">Btn 1</div>
+    <div id="btn2" class="rgt" dojoType="dijit.form.Button">Btn 2</div>
+	
+</div>
+<br><br><br><br><br><br><br>
+</body>
+</html>

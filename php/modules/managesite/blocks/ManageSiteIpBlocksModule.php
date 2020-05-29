@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \ManageSiteBaseModule;
+use Criteria;
+use DB\IpBlockPeer;
+
 class ManageSiteIpBlocksModule extends ManageSiteBaseModule {
 	
 	public function build($runData){
@@ -34,7 +40,7 @@ class ManageSiteIpBlocksModule extends ManageSiteBaseModule {
 		$c->add("site_id", $site->getSiteId());
 		$c->addOrderDescending("block_id");
 		
-		$blocks = DB_IpBlockPeer::instance()->select($c);
+		$blocks = IpBlockPeer::instance()->select($c);
 		if(count($blocks)>0){
 			$runData->contextAdd("blocks", $blocks);
 		}	

@@ -1,0 +1,77 @@
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/repos/!svn/ver/96/wikidot1/trunk/templates/modules/userinfo
+END
+UserInfoProfileModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/repos/!svn/ver/86/wikidot1/trunk/templates/modules/userinfo/UserInfoProfileModule.tpl
+END
+UserInfoModeratorOfModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/repos/!svn/ver/96/wikidot1/trunk/templates/modules/userinfo/UserInfoModeratorOfModule.tpl
+END
+UserInfoContributionsModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/userinfo/UserInfoContributionsModule.tpl
+END
+UserChangesListModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/userinfo/UserChangesListModule.tpl
+END
+UserInfoPostsModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/userinfo/UserInfoPostsModule.tpl
+END
+UserRecentPostsListModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/userinfo/UserRecentPostsListModule.tpl
+END
+UserChangesModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/userinfo/UserChangesModule.tpl
+END
+UserInfoMemberOfModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/userinfo/UserInfoMemberOfModule.tpl
+END
+UserInfoAdminOfModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/repos/!svn/ver/96/wikidot1/trunk/templates/modules/userinfo/UserInfoAdminOfModule.tpl
+END
+UserRecentPostsModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/userinfo/UserRecentPostsModule.tpl
+END
+UserAddToContactsModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/userinfo/UserAddToContactsModule.tpl
+END
+UserInfoModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/userinfo/UserInfoModule.tpl
+END

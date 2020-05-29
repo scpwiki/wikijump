@@ -1,0 +1,58 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>dijit.layout.TabContainer Programmatic Test</title>
+
+	<!-- only needed for test files: -->
+	<style type="text/css">
+		@import "../../../dojo/resources/dojo.css";
+		@import "../css/dijitTests.css";
+	</style>
+
+	<!-- required: the default dijit theme: -->
+	<link id="themeStyles" rel="stylesheet" href="../../../dijit/themes/tundra/tundra.css">
+
+	<!-- required: dojo.js -->
+	<script type="text/javascript" src="../../../dojo/dojo.js"
+		djConfig="isDebug: true, parseOnLoad: true"></script>
+
+	<!-- only needed for alternate theme testing: -->
+	<script type="text/javascript" src="../_testCommon.js"></script>
+
+	<script type="text/javascript">
+		dojo.require("dijit.dijit"); // optimize: load dijit layer
+		dojo.require("dijit.layout.TabContainer");
+        dojo.require("dijit.layout.ContentPane");
+
+		var tc, cp1, cp2, cp3;
+		dojo.addOnLoad(function(){
+ 				tc = new dijit.layout.TabContainer({style:'height:200px;width:500px;'}, dojo.byId('main'));
+ 
+				cp1 = new dijit.layout.ContentPane({title: 'Tab 1'});
+				cp1.domNode.innerHTML = "Contents of Tab 1";
+				tc.addChild(cp1);
+
+				cp2 = new dijit.layout.ContentPane({title: 'Tab 2'});
+				cp2.domNode.innerHTML = "Contents of Tab 2";
+				tc.addChild(cp2);
+
+                tc.startup();
+        });
+        
+        function addTab(){
+			cp3 = new dijit.layout.ContentPane({title: 'Tab 3'});
+			cp3.domNode.innerHTML = "Contents of Tab 3";
+			tc.addChild(cp3);
+        }
+	</script>
+</head>
+<body class="tundra">
+	<h2 class="testTitle">dijit.layout.TabContainer programmatic test</h2>
+	<div id='main'>
+	</div>
+
+	<button onclick="tc.selectChild(cp2);">select tab 2</button>
+	<button onclick="tc.removeChild(cp2);">remove tab 2</button>
+	<button onclick="addTab();">add tab 3</button>
+</body>
+</html>

@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/framework/!svn/ver/12576/standard/trunk/tests/Zend/Controller/Router
+END
+RouteTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/framework/!svn/ver/12576/standard/trunk/tests/Zend/Controller/Router/RouteTest.php
+END
+RewriteTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/12108/standard/trunk/tests/Zend/Controller/Router/RewriteTest.php
+END

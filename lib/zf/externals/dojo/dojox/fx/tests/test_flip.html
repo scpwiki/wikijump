@@ -1,0 +1,190 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>dojox.fx.flip | experimental fx add-ons for the Dojo Toolkit</title>
+		
+	<script type="text/javascript" src="../../../dojo/dojo.js" djConfig="isDebug:true, parseOnLoad: false" ></script>
+	<script type="text/javascript" src="../_base.js"></script>
+	<style type="text/css">
+		@import "../../../dojo/resources/dojo.css";
+		@import "../../../dijit/tests/css/dijitTests.css";
+		.testBox {
+			overflow:hidden; 
+		}
+	</style>
+	<script type="text/javascript">
+		dojo.require("dojox.fx.flip");
+		
+		// fx.flip example:
+		var flipinit = function(){
+
+			dojo.connect(dojo.byId("flipTop"), "onclick", function(e){
+				var anim = dojox.fx.flip({ 
+					node: "flip1",
+					dir: "top",
+					endColor: "#666666",
+					duration:300
+				});
+				dojo.connect(anim, "onEnd", this, function(){ 
+					var n = dojo.byId("flip1");
+					n.innerHTML = "TOP";
+					n.style.color = "#dddddd";	 
+					n.style.background = "#666666";  
+				})											  
+				anim.play(); 
+			});
+			dojo.connect(dojo.byId("flipRight"), "onclick", function(e){
+				var anim = dojox.fx.flip({ 
+					node: "flip1",
+					dir: "right",
+					endColor: "yellow",
+					duration:300
+				})											  
+				dojo.connect(anim, "onEnd", this, function(){ 
+					var n = dojo.byId("flip1");
+					n.innerHTML = "RIGHT";
+					n.style.color = "red";	 
+					n.style.background = "yellow";	 
+				})											  
+				anim.play(); 
+			});
+			dojo.connect(dojo.byId("flipBottom"), "onclick", function(e){
+				var anim = dojox.fx.flip({ 
+					node: "flip1",
+					dir: "bottom",
+					endColor: "red",
+					duration: 300
+				})											  
+				dojo.connect(anim, "onEnd", this, function(){ 
+					var n = dojo.byId("flip1");
+					n.innerHTML = "BOTTOM";
+					n.style.color = "yellow";	
+					n.style.background = "red";  
+				})											  
+				anim.play(); 
+			});
+
+			dojo.connect(dojo.byId("flipLeft"), "onclick", function(e){
+				
+				var anim = dojox.fx.flip({ 
+					node: "flip1",
+					dir: "left",
+					endColor: "blue",
+					duration:300
+				});		
+													  
+				dojo.connect(anim, "onEnd", this, function(){ 
+					dojo.byId("flip1").innerHTML = "LEFT";
+					dojo.byId("flip1").style.color = "white";  
+					dojo.byId("flip1").style.background = "blue";  
+				});
+				anim.play(); 
+
+			});
+		};
+		
+		// fx.flipCube example:
+		var cubeinit = function(){
+
+			dojo.connect(dojo.byId("cflipTop"), "onclick", function(e){
+				var anim = dojox.fx.flipCube({ 
+					node: dojo.byId("cflip1"),
+					dir: "top",
+					endColor: "#666666",
+					duration:900
+				});
+				dojo.connect(anim, "onEnd", this, function(){ 
+					dojo.byId("cflip1").innerHTML = "TOP";
+					dojo.byId("cflip1").style.color = "#dddddd";	 
+					dojo.byId("cflip1").style.background = "#666666";  
+				});											  
+				anim.play(); 
+			});
+			dojo.connect(dojo.byId("cflipRight"), "onclick", function(e){
+				var anim = dojox.fx.flipCube({ 
+					node: dojo.byId("cflip1"),
+					dir: "right",
+					endColor: "yellow",
+					duration:900
+				});											  
+				dojo.connect(anim, "onEnd", this, function(){ 
+					dojo.byId("flip1").innerHTML = "RIGHT";
+					dojo.byId("flip1").style.color = "red";	 
+					dojo.byId("flip1").style.background = "yellow";	 
+				});											  
+				anim.play(); 
+			});
+			dojo.connect(dojo.byId("cflipBottom"), "onclick", function(e){
+				var anim = dojox.fx.flipCube({ 
+					node: dojo.byId("cflip1"),
+					dir: "bottom",
+					endColor: "red",
+					duration: 900
+				});											  
+				dojo.connect(anim, "onEnd", this, function(){ 
+					dojo.byId("cflip1").innerHTML = "BOTTOM";
+					dojo.byId("cflip1").style.color = "yellow";	
+					dojo.byId("cflip1").style.background = "red";  
+				});											  
+				anim.play(); 
+			});
+			dojo.connect(dojo.byId("cflipLeft"), "onclick", function(e){
+				var anim = dojox.fx.flipCube({ 
+					node: "cflip1",
+					dir: "left",
+					endColor: "blue",
+					duration:900
+				});											  
+				dojo.connect(anim, "onEnd", this, function(){ 
+					dojo.byId("cflip1").innerHTML = "LEFT";
+					dojo.byId("cflip1").style.color = "white";  
+					dojo.byId("cflip1").style.background = "blue";  
+				});
+				anim.play(); 
+			});
+		};
+	
+		dojo.addOnLoad(flipinit);
+		dojo.addOnLoad(cubeinit);
+	</script>
+</head>
+<body class="tundra">
+	<h1 class="testTitle">dojox.fx.flip test</h1>
+	
+		<table style="height:300px; width:600px">
+			<tbody>
+				<tr><td style="text-align:center" colspan="3"><button style="margin:auto" id="flipTop">flip top</button></td></tr>
+				<tr>
+					<td valign="middle"><button id="flipLeft">flip left</button></td>
+					<td>
+						<div style="width:500px;height:200px;background:#666666;color:#999" id="flip1" class="testBox">
+						Lorem ipsum...
+	         			</div>
+					</td>
+					<td valign="middle"><button id="flipRight">flip right</button></td>
+				</tr>
+			<tr><td style="text-align:center"  colspan="3"><button style="margin:auto" id="flipBottom">flip bottom</button></td></tr>
+		</tbody>
+		</table>
+		
+	<h1 class="testTitle">dojox.fx.cube test</h1>
+
+		<table style="margin:0 100px;height:500px; width:500px">
+			<tbody>
+				<tr><td style="text-align:center" colspan="3"><button style="margin:auto" id="cflipTop">flip top</button></td></tr>
+				<tr>
+					<td valign="middle"><button id="cflipLeft">flip left</button></td>
+					<td>
+						<div style="width:400px;height:400px;background:#666;color:#999" id="cflip1" class="testBox">
+						Lorem ipsum...
+	         			</div>
+					</td>
+					<td valign="middle"><button id="cflipRight">flip right</button></td>
+				</tr>
+			<tr><td style="text-align:center" colspan="3"><button style="margin:auto" id="cflipBottom">flip bottom</button></td></tr>
+		</tbody>
+		</table>
+		
+</body>
+</html>

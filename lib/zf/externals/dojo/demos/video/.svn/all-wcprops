@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/src/!svn/ver/15395/branches/1.2/demos/video
+END
+src.js
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/src/!svn/ver/15395/branches/1.2/demos/video/src.js
+END
+demo.html
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/src/!svn/ver/15395/branches/1.2/demos/video/demo.html
+END
+items.json
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/src/!svn/ver/15395/branches/1.2/demos/video/items.json
+END
+demo.css
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/src/!svn/ver/15395/branches/1.2/demos/video/demo.css
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/src/!svn/ver/15395/branches/1.2/demos/video/README
+END
+buildDemo.sh
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/src/!svn/ver/15395/branches/1.2/demos/video/buildDemo.sh
+END
+demo.profile.js
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/src/!svn/ver/15395/branches/1.2/demos/video/demo.profile.js
+END

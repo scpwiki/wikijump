@@ -1,0 +1,34 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Db/Adapter/_files
+http://framework.zend.com/svn/framework
+
+
+
+2008-10-18T14:29:41.078580Z
+12004
+mikaelkael
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+Test
+dir
+
+Testnamespace
+dir
+

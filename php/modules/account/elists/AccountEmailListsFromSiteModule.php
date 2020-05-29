@@ -23,6 +23,14 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \AccountBaseModule;
+use Criteria;
+use DB\SitePeer;
+use DB_EmailListPeer;
+use DB_EmailListSubscriberPeer;
+
 class AccountEmailListsFromSiteModule extends AccountBaseModule {
 	
 	public function build($runData){
@@ -34,7 +42,7 @@ class AccountEmailListsFromSiteModule extends AccountBaseModule {
 		
 		$all = (bool) $pl->getParameterValue('all');
 		
-		$site = DB_SitePeer::instance()->selectByPrimaryKey($siteId);
+		$site = SitePeer::instance()->selectByPrimaryKey($siteId);
 		if($all){
 			$q = "SELECT email_list.* FROM email_list WHERE " .
 					"email_list.site_id = '{$site->getSiteId()}' " .

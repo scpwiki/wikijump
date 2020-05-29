@@ -23,6 +23,17 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use Database;
+use DB\ForumThreadPeer;
+use \ProcessException;
+use \WDPermissionManager;
+use Criteria;
+use DB\ForumGroupPeer;
+use DB\ForumCategoryPeer;
+
 class ForumThreadMoveModule extends SmartyModule {
 	
 	public function build($runData){
@@ -34,7 +45,7 @@ class ForumThreadMoveModule extends SmartyModule {
 		$db = Database::connection();
 		$db->begin();
 		
-		$thread = DB_ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
+		$thread = ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
 		if($thread == null || $thread->getSiteId() !== $site->getSiteId()){
 			throw new ProcessException(_("No thread found... Is it deleted?"), "no_thread");
 		}
@@ -52,7 +63,7 @@ class ForumThreadMoveModule extends SmartyModule {
 		$c->addOrderDescending("visible");
 		$c->addOrderAscending("sort_index");	
 			
-		$groups = DB_ForumGroupPeer::instance()->select($c);
+		$groups = ForumGroupPeer::instance()->select($c);
 		
 		$res = array();
 		
@@ -62,7 +73,7 @@ class ForumThreadMoveModule extends SmartyModule {
 			
 			$c->addOrderAscending("sort_index");
 			
-			$categories = DB_ForumCategoryPeer::instance()->select($c);
+			$categories = ForumCategoryPeer::instance()->select($c);
 			foreach($categories as $cat){
 				$res[] = array('group' => $g, 'category' => $cat);	
 			}			

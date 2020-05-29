@@ -1,0 +1,77 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/demos
+http://svn.dojotoolkit.org/src
+
+
+
+2008-10-03T21:45:20.522538Z
+15403
+peller
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+i18n
+dir
+
+mail
+dir
+
+form
+dir
+
+mojo
+dir
+
+video
+dir
+
+fonts
+dir
+
+skew
+dir
+
+flashCards
+dir
+
+resources
+dir
+
+castle
+dir
+
+uploader
+dir
+
+README
+file
+
+
+
+
+2008-12-06T16:42:10.000000Z
+faf5943955568f310f55e99931974a84
+2008-07-09T23:42:35.703407Z
+14364
+alex
+has-props
+
+nihao
+dir
+

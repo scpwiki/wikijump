@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/framework/!svn/ver/13497/standard/trunk/library/Zend/Mime
+END
+Exception.php
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Mime/Exception.php
+END
+Decode.php
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/framework/!svn/ver/12507/standard/trunk/library/Zend/Mime/Decode.php
+END
+Message.php
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/framework/!svn/ver/13497/standard/trunk/library/Zend/Mime/Message.php
+END
+Part.php
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/framework/!svn/ver/13210/standard/trunk/library/Zend/Mime/Part.php
+END

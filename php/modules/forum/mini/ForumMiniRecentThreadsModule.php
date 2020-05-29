@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \CacheableModule;
+use Criteria;
+use DB\ForumThreadPeer;
+
 class ForumMiniRecentThreadsModule extends CacheableModule {
 	
 	protected $timeOut = 300;
@@ -45,7 +51,7 @@ class ForumMiniRecentThreadsModule extends CacheableModule {
 		$c->addOrderDescending("thread_id");
 		$c->setLimit($limit);
 		
-		$threads = DB_ForumThreadPeer::instance()->select($c);
+		$threads = ForumThreadPeer::instance()->select($c);
 
 		$runData->contextAdd("threads", $threads);
 

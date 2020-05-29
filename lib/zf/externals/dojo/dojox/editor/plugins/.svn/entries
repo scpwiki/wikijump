@@ -1,0 +1,60 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/dojox/editor/plugins
+http://svn.dojotoolkit.org/src
+
+
+
+2008-09-25T13:43:46.979568Z
+15334
+peller
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+UploadImage.js
+file
+
+
+
+
+2008-12-06T16:41:35.000000Z
+ccbcbd1bd3e4f6f71dd5fb47ff0050af
+2008-09-25T13:43:46.979568Z
+15334
+peller
+has-props
+
+TablePlugins.js
+file
+
+
+
+
+2008-12-06T16:41:35.000000Z
+dbff717058ef112b9d6421871549516c
+2008-09-25T13:43:46.979568Z
+15334
+peller
+has-props
+
+resources
+dir
+
+nls
+dir
+

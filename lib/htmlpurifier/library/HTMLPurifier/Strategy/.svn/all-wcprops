@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/Strategy
+END
+FixNesting.php
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/Strategy/FixNesting.php
+END
+MakeWellFormed.php
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/Strategy/MakeWellFormed.php
+END
+ValidateAttributes.php
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/Strategy/ValidateAttributes.php
+END
+Composite.php
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/Strategy/Composite.php
+END
+RemoveForeignElements.php
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/Strategy/RemoveForeignElements.php
+END
+Core.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/Strategy/Core.php
+END

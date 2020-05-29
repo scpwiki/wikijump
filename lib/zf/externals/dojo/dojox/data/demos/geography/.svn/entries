@@ -1,0 +1,91 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/dojox/data/demos/geography
+http://svn.dojotoolkit.org/src
+
+
+
+2007-07-05T22:31:27.580614Z
+9493
+skinner
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+Italy
+dir
+
+China
+dir
+
+Brazil
+dir
+
+United States of America
+dir
+
+Mexico
+dir
+
+India
+dir
+
+Egypt
+dir
+
+Commonwealth of Australia
+dir
+
+root.json
+file
+
+
+
+
+2008-12-06T16:41:34.000000Z
+d7790a3bc06b67442425a8a472be35a5
+2007-07-05T22:31:27.580614Z
+9493
+skinner
+
+France
+dir
+
+Germany
+dir
+
+Mongolia
+dir
+
+Russia
+dir
+
+Kenya
+dir
+
+Canada
+dir
+
+Argentina
+dir
+
+Sudan
+dir
+
+Spain
+dir
+

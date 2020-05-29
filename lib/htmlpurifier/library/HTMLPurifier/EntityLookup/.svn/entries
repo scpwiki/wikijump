@@ -1,0 +1,40 @@
+8
+
+dir
+393
+http://svn.wikidot.org/repos/wikidot1/trunk/lib/htmlpurifier/library/HTMLPurifier/EntityLookup
+http://svn.wikidot.org/repos
+
+
+
+2008-02-08T08:27:12.411362Z
+8
+michal_frackowiak
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+fb797968-1a05-43ef-ab23-0011a79c62e5
+
+entities.ser
+file
+
+
+
+
+2008-12-06T16:40:04.000000Z
+5e2066baba7c0c0de8ff0ecc38ce2a5c
+2008-02-08T08:27:12.411362Z
+8
+michal_frackowiak
+

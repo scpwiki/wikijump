@@ -23,6 +23,13 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \ManageSiteBaseModule;
+use Criteria;
+use DB\SiteBackupPeer;
+use \FileHelper;
+
 class ManageSiteBackupModule extends ManageSiteBaseModule {
 	
 	public function build($runData){
@@ -34,7 +41,7 @@ class ManageSiteBackupModule extends ManageSiteBaseModule {
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
 		
-		$sb = DB_SiteBackupPeer::instance()->selectOne($c); 
+		$sb = SiteBackupPeer::instance()->selectOne($c); 
 		
 		if($sb){
 			if($sb->getStatus() == "completed"){
@@ -43,7 +50,7 @@ class ManageSiteBackupModule extends ManageSiteBaseModule {
 				// check if file exists
 				if(!file_exists($path)){
 					// in case something failed
-					DB_SiteBackupPeer::instance()->delete($c);
+					SiteBackupPeer::instance()->delete($c);
 					$sb = null;
 				}else{
 					$size = filesize($path);

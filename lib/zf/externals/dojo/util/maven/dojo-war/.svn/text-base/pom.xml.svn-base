@@ -1,0 +1,102 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+      <groupId>org.dojotoolkit</groupId>
+      <artifactId>dojo-project</artifactId>
+      <version>1.2-SNAPSHOT</version>
+      <relativePath>../pom.xml</relativePath>
+  </parent>
+  <groupId>org.dojotoolkit</groupId>
+  <artifactId>dojo-war</artifactId>
+  <packaging>war</packaging>
+  <name>Dojo Toolkit :: WAR</name>
+  <properties>
+    <jetty.version>6.1.11</jetty.version>
+  </properties>
+  <build>
+    <defaultGoal>install</defaultGoal>
+    <plugins>
+       <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-war-plugin</artifactId>
+          <configuration>
+            <webXml>${basedir}/src/main/webapp/WEB-INF/web.xml</webXml>
+          </configuration>
+      </plugin>
+
+     <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>unpack dojo</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.dojotoolkit</groupId>
+                  <artifactId>dojo</artifactId>
+                  <version>${project.version}</version>
+                  <type>zip</type>
+                </artifactItem>
+              </artifactItems>
+              <outputDirectory>${project.build.directory}/dojo</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-release</id>
+            <configuration>
+              <tasks>                
+                <copy todir="${project.build.directory}/${artifactId}-${version}">
+                 <fileset dir="${project.build.directory}/dojo/dojo-${version}"> 
+                   <include name="dojo/**" />                   
+                   <include name="dijit/**" />                   
+                   <include name="dojox/**" />                   
+                   <exclude name="**/docs/**" />                   
+                   <exclude name="**/demos/**" />                   
+                   <exclude name="**/tests/**" />                   
+                 </fileset>
+                </copy> 
+              </tasks>
+            </configuration>
+            <phase>process-sources</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.mortbay.jetty</groupId>
+        <artifactId>maven-jetty-plugin</artifactId>
+        <version>${jetty.version}</version>
+        <configuration>
+          <scanIntervalSeconds>0</scanIntervalSeconds>
+          <webAppConfig>
+            <contextPath>/dojo</contextPath>
+          </webAppConfig>
+        </configuration>
+      </plugin>
+
+    </plugins>
+  </build>
+  <dependencies>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>2.5</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+</project>

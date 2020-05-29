@@ -23,6 +23,22 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyAction;
+use DB\PagePeer;
+use \ProcessException;
+use \WDPermissionManager;
+use Criteria;
+use DB\FilePeer;
+use Exception;
+use \FileHelper;
+use \FileMime;
+use Database;
+use DB\File;
+use ODate;
+use \Outdater;
+
 class FileAction extends SmartyAction {
 	
 	public function perform($r){}
@@ -33,7 +49,7 @@ class FileAction extends SmartyAction {
 		$pageId = $pl->getParameterValue("pageId");
 		$fileName = trim($pl->getParameterValue("filename"));
 
-		$page = DB_PagePeer::instance()->selectByPrimaryKey($pageId);
+		$page = PagePeer::instance()->selectByPrimaryKey($pageId);
 		if($page == null || $page->getSiteId() != $site->getSiteId()){
 			throw new ProcessException(_("Problem selecting destination page."), "no_page");
 		}
@@ -52,7 +68,7 @@ class FileAction extends SmartyAction {
 		$c->add("site_id", $site->getSiteId());
 		$c->add("page_id", $pageId);
 		
-		$file = DB_FilePeer::instance()->selectOne($c);
+		$file = FilePeer::instance()->selectOne($c);
 		
 		if($file == null){
 			$runData->ajaxResponseAdd("exists", false);
@@ -85,7 +101,7 @@ class FileAction extends SmartyAction {
 			$pl = $runData->getParameterList();
 			$site = $runData->getTemp("site");
 			$pageId = $pl->getParameterValue("page_id");
-			$page = DB_PagePeer::instance()->selectByPrimaryKey($pageId);
+			$page = PagePeer::instance()->selectByPrimaryKey($pageId);
 			if($page == null || $page->getSiteId() != $site->getSiteId()){
 				$status = "error";
 				$runData->contextAdd("status", $status);
@@ -173,7 +189,7 @@ class FileAction extends SmartyAction {
 			$c->add("site_id", $site->getSiteId());
 			$c->add("page_id", $pageId);
 			
-			$conflictFiles = DB_FilePeer::instance()->select($c);
+			$conflictFiles = FilePeer::instance()->select($c);
 			if(count($conflictFiles)>0){
 				// file already exists!!!
 				try{
@@ -184,7 +200,7 @@ class FileAction extends SmartyAction {
 				}
 				
 				if($pl->getParameterValue("force") && $overwritePermission){
-					DB_FilePeer::instance()->delete($c);
+					FilePeer::instance()->delete($c);
 				}else{
 					$status = "file_exists";
 					$runData->contextAdd("status", $status);
@@ -225,7 +241,7 @@ class FileAction extends SmartyAction {
 			$db->begin();
 			
 			// if successfull create new file object and insert into database.
-			$f = new DB_File();
+			$f = new File();
 			$f->setPageId($pageId);
 			$f->setFilename($destinationFilename);
 			$f->setSize($file['size']);
@@ -308,8 +324,8 @@ class FileAction extends SmartyAction {
 		$db = Database::connection();
 		$db->begin();
 		
-		$file = DB_FilePeer::instance()->selectByPrimaryKey($fileId);
-		$page = DB_PagePeer::instance()->selectByPrimaryKey($file->getPageId());
+		$file = FilePeer::instance()->selectByPrimaryKey($fileId);
+		$page = PagePeer::instance()->selectByPrimaryKey($file->getPageId());
 		
 		if($file == null || $file->getSiteId() != $site->getSiteId() || $page==null){
 			throw new ProcessException(_("Error getting file data."), "file_error");
@@ -350,7 +366,7 @@ class FileAction extends SmartyAction {
 			$c = new Criteria();
 			$c->add("page_id", $page->getPageId());
 			$c->add("filename", $newName);
-			$conflict = DB_FilePeer::instance()->selectOne();
+			$conflict = FilePeer::instance()->selectOne();
 			// delete from filesystem
 			if($conflict){
 				$cmd = "rm ".escapeshellarg($conflict->getFilePath());
@@ -361,14 +377,14 @@ class FileAction extends SmartyAction {
 					exec($cmd);
 				}	
 			}
-			DB_FilePeer::instance()->delete($c);	
+			FilePeer::instance()->delete($c);	
 		}
 		// ok, move along. nothing to watch.
 		$c = new Criteria();
 		$c->add("page_id", $page->getPageId());
 		$c->add("filename", $newName);
 		
-		$conflictFile = DB_FilePeer::instance()->selectOne($c);
+		$conflictFile = FilePeer::instance()->selectOne($c);
 		if($conflictFile != null){
 			// file already exists!!! ask what to do!
 			$runData->contextAdd("newFile", $conflictFile);
@@ -446,8 +462,8 @@ class FileAction extends SmartyAction {
 		$db->begin();
 		$user = $runData->getUser();
 		
-		$file = DB_FilePeer::instance()->selectByPrimaryKey($fileId);
-		$page = DB_PagePeer::instance()->selectByPrimaryKey($file->getPageId());
+		$file = FilePeer::instance()->selectByPrimaryKey($fileId);
+		$page = PagePeer::instance()->selectByPrimaryKey($file->getPageId());
 		
 		if($file == null || $file->getSiteId() != $site->getSiteId()){
 			throw new ProcessException(_("Error getting file data."), "file_error");
@@ -465,7 +481,7 @@ class FileAction extends SmartyAction {
 				
 		}
 		
-		$destinationPage = DB_PagePeer::instance()->selectByName($site->getSiteId(), $destinationPageName);
+		$destinationPage = PagePeer::instance()->selectByName($site->getSiteId(), $destinationPageName);
 		
 		if($destinationPage == null){
 			throw new ProcessException(_("Destination page does not exist."), "no_destination");
@@ -495,12 +511,12 @@ class FileAction extends SmartyAction {
 			$c = new Criteria();
 			$c->add("page_id", $destinationPage->getPageId());
 			$c->add("filename", $file->getFilename());
-			DB_FilePeer::instance()->delete($c);	
+			FilePeer::instance()->delete($c);	
 		}
 		$c = new Criteria();
 		$c->add("page_id", $destinationPage->getPageId());
 		$c->add("filename", $file->getFilename());
-		$conflictFile = DB_FilePeer::instance()->selectOne($c);
+		$conflictFile = FilePeer::instance()->selectOne($c);
 		if($conflictFile != null){
 			// file already exists!!! ask what to do!
 			// check permissions to overwrite?
@@ -616,12 +632,12 @@ class FileAction extends SmartyAction {
 		
 		$db = Database::connection();
 		$db->begin();
-		$file = DB_FilePeer::instance()->selectByPrimaryKey($fileId);
+		$file = FilePeer::instance()->selectByPrimaryKey($fileId);
 		
 		if($file == null || $file->getSiteId() != $site->getSiteId()){
 			throw new ProcessException("File does not exist.", "no_file");
 		}
-		$page = DB_PagePeer::instance()->selectByPrimaryKey($file->getPageId());
+		$page = PagePeer::instance()->selectByPrimaryKey($file->getPageId());
 		if($page == null){
 			throw new ProcessException(_("Page does not exist."), "no_page");
 		}
@@ -638,7 +654,7 @@ class FileAction extends SmartyAction {
 			$cmd = "rm -r ".escapeshellarg($file->getResizedDir());
 			exec($cmd);
 		}	
-		DB_FilePeer::instance()->deleteByPrimaryKey($file->getFileId());
+		FilePeer::instance()->deleteByPrimaryKey($file->getFileId());
 		// create a new revision
 		$revision = $page->getCurrentRevision();
 		$revision->setNew(true);

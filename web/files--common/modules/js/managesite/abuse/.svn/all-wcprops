@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/repos/!svn/ver/2/wikidot1/trunk/web/files--common/modules/js/managesite/abuse
+END
+ManageSiteAnonymousAbuseModule.js
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/repos/!svn/ver/2/wikidot1/trunk/web/files--common/modules/js/managesite/abuse/ManageSiteAnonymousAbuseModule.js
+END
+ManageSitePageAbuseModule.js
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/repos/!svn/ver/2/wikidot1/trunk/web/files--common/modules/js/managesite/abuse/ManageSitePageAbuseModule.js
+END
+ManageSiteUserAbuseModule.js
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/repos/!svn/ver/2/wikidot1/trunk/web/files--common/modules/js/managesite/abuse/ManageSiteUserAbuseModule.js
+END

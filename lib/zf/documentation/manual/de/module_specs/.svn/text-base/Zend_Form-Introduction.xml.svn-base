@@ -1,0 +1,26 @@
+<!-- EN-Revision: 13170 -->
+<sect1 id="zend.form.introduction">
+    <title>Zend_Form</title>
+
+    <para>
+        Zend_Form vereinfacht die Erstellung und Handhabung von Forms in einer Web Anwendung.
+        Es führt die folgenden Aufgabe durch:
+    </para>
+
+    <itemizedlist>
+        <listitem><para>Element Eingabefilterung und Prüfung</para></listitem>
+        <listitem><para>Element Reihung</para></listitem>
+        <listitem><para>Element und Form Darstellung, inklusive Escaping</para></listitem>
+        <listitem><para>Element und Form Gruppierung</para></listitem>
+        <listitem><para>Element und Form-Level Konfiguration</para></listitem>
+    </itemizedlist>
+
+    <para>
+        Zend_Form verwendet verschiedene Zend Framework Komponenten um seine Ziele zu erfüllen. Das
+        inkludiert <code>Zend_Config</code>, <code>Zend_Validate</code>, <code>Zend_Filter</code>,
+        <code>Zend_Loader_PluginLoader</code>, und optional <code>Zend_View</code>.
+    </para>
+</sect1>
+<!--
+vim:se ts=4 sw=4 et:
+-->

@@ -1,0 +1,54 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/dojox/widget/SortList
+http://svn.dojotoolkit.org/src
+
+
+
+2008-08-13T13:16:25.030619Z
+14838
+nonken
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+SortList.html
+file
+
+
+
+
+2008-12-06T16:41:30.000000Z
+2d6c2b55e49df7ef6cf4c4cbe3ef3a9c
+2008-05-12T06:26:08.770758Z
+13690
+bill
+has-props
+
+SortList.css
+file
+
+
+
+
+2008-12-06T16:41:30.000000Z
+e490ec8c659eb3a3ff4705626b3d586c
+2008-08-13T13:16:25.030619Z
+14838
+nonken
+has-props
+

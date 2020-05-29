@@ -23,6 +23,14 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use \ProcessException;
+use DB\PageRevisionPeer;
+use DB\PagePeer;
+use Wikidot\Util\Diff;
+
 class PageDiffModule extends SmartyModule {
 	
 	public function build($runData){
@@ -35,8 +43,8 @@ class PageDiffModule extends SmartyModule {
 			throw new ProcessException(_("What is the point in comparing the revision with itself? Please choose different revisions of the page."), "same_revision");	
 		}
 
-		$fromRevision = DB_PageRevisionPeer::instance()->selectByPrimaryKey($fromRevisionId);
-		$toRevision = DB_PageRevisionPeer::instance()->selectByPrimaryKey($toRevisionId);
+		$fromRevision = PageRevisionPeer::instance()->selectByPrimaryKey($fromRevisionId);
+		$toRevision = PageRevisionPeer::instance()->selectByPrimaryKey($toRevisionId);
 		
 		if($fromRevision == null || $toRevision == null){
 			throw new ProcessException(_("Error selecting revisions to compare"), "no_revisions");
@@ -57,11 +65,11 @@ class PageDiffModule extends SmartyModule {
 		if($fromMetadata->getParentPageId() !== $toMetadata->getParentPageId()){
 			$changed['parent'] = true;
 			if($fromMetadata->getParentPageId()){
-				$fromParent = DB_PagePeer::instance()->selectByPrimaryKey($fromMetadata->getParentPageId())->getUnixName();
+				$fromParent = PagePeer::instance()->selectByPrimaryKey($fromMetadata->getParentPageId())->getUnixName();
 				$runData->contextAdd("fromParent", $fromParent);
 			}
 			if($toMetadata->getParentPageId()){
-				$toParent = DB_PagePeer::instance()->selectByPrimaryKey($toMetadata->getParentPageId())->getUnixName();
+				$toParent = PagePeer::instance()->selectByPrimaryKey($toMetadata->getParentPageId())->getUnixName();
 				$runData->contextAdd("toParent", $toParent);
 			}
 			
@@ -80,7 +88,7 @@ class PageDiffModule extends SmartyModule {
 			$t1 = $fromPageSource;
 			$t2 = $toPageSource;
 
-			$inlineDiff = Wikidot_Util_Diff::generateInlineStringDiff($t1, $t2);
+			$inlineDiff = Diff::generateInlineStringDiff($t1, $t2);
 			$runData->contextAdd("inlineDiff", $inlineDiff	);
 			
 		}

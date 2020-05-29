@@ -1,0 +1,383 @@
+<!-- EN-Revision: 11146 -->
+<sect1 id="zend.search.lucene.searching">
+    <title>インデックスの検索</title>
+
+    <sect2 id="zend.search.lucene.searching.query_building">
+        <title>クエリの作成</title>
+
+        <para>
+            インデックスを検索するには二通りの方法があります。
+            クエリパーサを使用して文字列からクエリを作成する方法と、
+            Zend_search_Lucene API を使用して独自のクエリを作成する方法です。
+        </para>
+
+        <para>
+        提供されているクエリパーサを使用する前に、以下の点を考慮してください。
+
+            <orderedlist>
+                <listitem>
+                    <para>
+                        プログラムで生成したクエリ文字列をクエリパーサに渡そうとしているなら、
+                        クエリ API を使用してクエリを直接作成すべきです。言い換えると、
+                        クエリパーサというのは人間が入力したテキストのために設計されたものであり、
+                        プログラムが生成したテキストのためのものではないのです。
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        トークン化されていないフィールドについては、
+                        クエリパーサを使用するよりも直接クエリに追加するほうが適しています。
+                        フィールドの値がアプリケーションによって生成されるのなら、
+                        フィールドのクエリ条件についても自動処理で作成すべきです。
+                        クエリパーサが使用している解析器は、人間が入力したテキストを
+                        単語に分解するために設計されています。
+                        日付やキーワードなどのプログラムが生成した値は、
+                        クエリ API で追加しなければなりません。
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        検索フォームにおいては、
+                        テキストで入力された内容はクエリパーサを使用すべきでしょう。
+                        その他のフィールド、例えば範囲指定やキーワードなどについては、
+                        クエリ API に直接渡すようにしましょう。
+                        限られた内容、例えばプルダウンメニューで選択するフィールドは、
+                        クエリ文字列に追加すべきではありません。
+                        その代わりに、TermQuery 条件として使用します。
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        論理クエリにより、複数のクエリをひとつにまとめることができます。
+                        これは、クエリ文字列で定義されるユーザ検索に条件を追加するための最良な方法です。
+                    </para>
+                </listitem>
+            </orderedlist>
+
+        </para>
+
+        <para>
+            どちらの方法を使用したとしても、インデックスを検索する API メソッドは同じです。
+        </para>
+
+        <programlisting role="php"><![CDATA[
+$index = Zend_Search_Lucene::open('/data/my_index');
+
+$index->find($query);
+]]>
+        </programlisting>
+        <para>
+            <code>Zend_Search_Lucene::find()</code> メソッドは、
+            入力の型を自動的に判別し、クエリパーサを使用して文字列から
+            Zend_Search_Lucene_Search_Query オブジェクトを作成します。
+        </para>
+
+        <para>
+            重要なのは、クエリパーサは標準の解析器を使用してクエリ文字列をトークン化するということです。
+            インデックス化されたテキストに対するすべての変換は、クエリ文字列エントリに対しても行われます。
+        </para>
+        <para>
+            小文字変換を行うことで大文字小文字を区別しない検索を行えるようにしたり、
+            ストップワードを取り除いたりといったさまざまなことを行います。
+        </para>
+        <para>
+            それに対して、API メソッドは単語の変換やフィルタリングを行いません。これは、
+            コンピュータが生成したフィールドやトークン化されていないフィールドに適しています。
+        </para>
+
+        <sect3 id="zend.search.lucene.searching.query_building.parsing">
+            <title>クエリのパース</title>
+            <para>
+                <code>Zend_Search_Lucene_Search_QueryParser::parse()</code>
+                メソッドを使用してクエリ文字列をパースし、
+                クエリオブジェクトに格納します。
+            </para>
+
+            <para>
+                このオブジェクトをクエリ作成 API メソッドで使用し、
+                ユーザが入力したクエリと機械が生成したクエリを結合します。
+            </para>
+
+            <para>
+                実際のところ、これが
+                トークン化されたいないフィールドを検索する唯一の方法となることもあります。
+
+                <programlisting role="php"><![CDATA[
+$userQuery = Zend_Search_Lucene_Search_QueryParser::parse($queryStr);
+
+$pathTerm  = new Zend_Search_Lucene_Index_Term(
+                     '/data/doc_dir/' . $filename, 'path'
+                 );
+$pathQuery = new Zend_Search_Lucene_Search_Query_Term($pathTerm);
+
+$query = new Zend_Search_Lucene_Search_Query_Boolean();
+$query->addSubquery($userQuery, true /* required */);
+$query->addSubquery($pathQuery, true /* required */);
+
+$hits = $index->find($query);
+]]>
+                </programlisting>
+            </para>
+
+            <para>
+                <code>Zend_Search_Lucene_Search_QueryParser::parse()</code>
+                メソッドはオプションのパラメータでエンコーディングを受け取ることができます。
+                ここで、クエリ文字列のエンコーディングを指定します。
+            <programlisting role="php"><![CDATA[
+$userQuery = Zend_Search_Lucene_Search_QueryParser::parse($queryStr,
+                                                          'iso-8859-5');
+]]>
+            </programlisting>
+            </para>
+
+            <para>
+                エンコーディングを省略した場合は、現在のロケールを使用します。
+            </para>
+
+            <para>
+                デフォルトのクエリ文字列エンコーディングを
+                <code>Zend_Search_Lucene_Search_QueryParser::setDefaultEncoding()</code>
+                メソッドで指定することもできます。
+                <programlisting role="php"><![CDATA[
+Zend_Search_Lucene_Search_QueryParser::setDefaultEncoding('iso-8859-5');
+...
+$userQuery = Zend_Search_Lucene_Search_QueryParser::parse($queryStr);
+]]>
+                </programlisting>
+            </para>
+
+            <para>
+                <code>Zend_Search_Lucene_Search_QueryParser::getDefaultEncoding()</code>
+                は、デフォルトのクエリ文字列エンコーディングを返します
+                (空文字列は "現在のロケール" を表します)。
+            </para>
+        </sect3>
+    </sect2>
+
+    <sect2 id="zend.search.lucene.searching.results">
+        <title>検索結果</title>
+        <para>
+            検索結果は Zend_Search_Lucene_Search_QueryHit オブジェクトの配列となります。
+            各オブジェクトは、2 つのプロパティを保持しています。
+            <code>$hit->document</code> がインデックス内のドキュメント番号、
+            <code>$hit->score</code> が検索結果のスコアを表します。
+            結果はスコア順に並べられます (スコアの高い結果が最初になります)。
+        </para>
+
+        <para>
+            Zend_Search_Lucene_Search_QueryHit オブジェクトでは、
+            検索結果としてヒットした Zend_Search_Lucene_Document
+            の各フィールドも公開しています。
+            この例で、ヒットしたドキュメントには
+            title と author の 2 つのフィールドが含まれています。
+        </para>
+        <programlisting role="php"><![CDATA[
+$index = Zend_Search_Lucene::open('/data/my_index');
+
+$hits = $index->find($query);
+
+foreach ($hits as $hit) {
+    echo $hit->score;
+    echo $hit->title;
+    echo $hit->author;
+}
+]]>
+        </programlisting>
+
+        <para>
+            保存されたフィールドは、常に UTF-8 エンコーディングで返されます。
+        </para>
+
+        <para>
+            オプションで、
+            Zend_Search_Lucene_Search_QueryHit から元の Zend_Search_Lucene_Document
+            を取得することができます。
+
+            保存されたドキュメントを取得するには、
+            インデックスオブジェクトの <code>getDocument()</code>
+            メソッドを使用し、その <code>getFieldValue()</code>
+            メソッドでフィールドの値を取得します。
+        </para>
+        <programlisting role="php"><![CDATA[
+$index = Zend_Search_Lucene::open('/data/my_index');
+
+$hits = $index->find($query);
+foreach ($hits as $hit) {
+    // ヒットした結果の Zend_Search_Lucene_Document オブジェクトを返します
+    echo $document = $hit->getDocument();
+
+    // Zend_Search_Lucene_Document から
+    // Zend_Search_Lucene_Field オブジェクトを返します
+    echo $document->getField('title');
+
+    // Zend_Search_Lucene_Field オブジェクトを値を文字列で返します
+    echo $document->getFieldValue('title');
+
+    // getFieldValue() と同じです
+    echo $document->title;
+}
+]]>
+        </programlisting>
+        <para>
+        Zend_Search_Lucene_Document オブジェクトで使用可能なフィールドは、
+        インデックス化の際に決まります。ドキュメントのフィールドは、
+        インデックス化用アプリケーション (例えば LuceneIndexCreation.jar)
+        によってインデックス化、あるいはインデックス化して保存されます。
+        </para>
+
+        <para>
+        ドキュメントを識別するフィールド (例では 'path')
+        もインデックス化して取得できるようにしなければならないことに注意しましょう。
+        </para>
+    </sect2>
+
+    <sect2 id="zend.search.lucene.searching.results-limiting">
+        <title>結果の制限</title>
+
+        <para>
+            検索処理の中でいちばん時間がかかるのが、スコアの計算です。
+            検索結果の数が多い (数万件程度) 場合、これには数秒程度かかることもあります。
+        </para>
+
+        <para>
+            Zend_Search_Lucene では、結果セットの件数を制限するためのメソッドとして
+            <code>getResultSetLimit()</code> と
+            <code>setResultSetLimit()</code> を用意しています。
+            <programlisting role="php"><![CDATA[
+$currentResultSetLimit = Zend_Search_Lucene::getResultSetLimit();
+
+Zend_Search_Lucene::setResultSetLimit($newLimit);
+]]>
+            </programlisting>
+            0 (デフォルト値) は、'制限しない' という意味です。
+        </para>
+
+        <para>
+            このメソッドが返す結果は、'スコアの高いほうから N 件' ではなく
+            あくまで '最初の N 件'
+            <footnote><para>
+                しかし、返される結果はスコア順 (あるいはその他指定した順)
+                で並べ替えられています。
+            </para></footnote>
+            です。
+        </para>
+    </sect2>
+
+    <sect2 id="zend.search.lucene.searching.results-scoring">
+        <title>結果の重み付け</title>
+        <para>
+            Zend_Search_Lucene は、Java Lucene と同じ重み付けアルゴリズムを使用します。
+            検索結果に一致したものが、デフォルトで重み順に並べ替えられます。スコアの高いものが先頭となり、
+            スコアの高いもののほうが低いものよりクエリにマッチするようになります。
+        </para>
+
+        <para>
+            大雑把に言うと、文書の中に検索語句が頻繁に登場するほどスコアが高くなります。
+        </para>
+
+        <para>
+            検索結果のスコアを取得するには <code>score</code> プロパティを使用します。
+        </para>
+        <programlisting role="php"><![CDATA[
+$hits = $index->find($query);
+
+foreach ($hits as $hit) {
+    echo $hit->id;
+    echo $hit->score;
+}
+]]>
+        </programlisting>
+
+        <para>
+            重みを計算するために使用されるのが
+            Zend_Search_Lucene_Search_Similarity クラスです。詳細は
+            <link linkend="zend.search.lucene.extending.scoring">拡張性
+            - 重み付けのアルゴリズム</link> を参照ください。
+        </para>
+
+    </sect2>
+
+    <sect2 id="zend.search.lucene.searching.sorting">
+        <title>検索結果の並べ替え</title>
+        <para>
+            検索結果は、デフォルトではスコアで並べ替えられます。
+            これを変更するには、並べ替え用の (ひとつあるいは複数の)
+            フィールドと並べ替えの形式、そして並べ替えの方向をパラメータで指定します。
+        </para>
+
+        <para>
+            <code>$index->find()</code> のコール時に、オプションのパラメータを指定することができます。
+            <programlisting role="php"><![CDATA[
+$index->find($query [, $sortField [, $sortType [, $sortOrder]]] 
+                    [, $sortField2 [, $sortType [, $sortOrder]]]
+             ...);
+]]>
+            </programlisting>
+        </para>
+
+        <para>
+            <code>$sortField</code> は、結果の並べ替えを行う保存されたフィールドの名前です。
+        </para>
+
+        <para>
+            <code>$sortType</code> は省略可能です。
+            <code>SORT_REGULAR</code> (通常の並べ替え。デフォルト)、
+            <code>SORT_NUMERIC</code> (数値として並べ替え)、
+            <code>SORT_STRING</code> (文字列として並べ替え) のいずれかとなります。
+        </para>
+
+        <para>
+            <code>$sortOrder</code> は省略可能です。
+            <code>SORT_ASC</code> (昇順で並べ替え。デフォルト)、
+            <code>SORT_DESC</code> (降順で並べ替え) のいずれかとなります。
+        </para>
+
+        <para>
+            例を以下に示します。
+            <programlisting role="php"><![CDATA[
+$index->find($query, 'quantity', SORT_NUMERIC, SORT_DESC);
+]]>
+            </programlisting>
+            <programlisting role="php"><![CDATA[
+$index->find($query, 'fname', SORT_STRING, 'lname', SORT_STRING);
+]]>
+            </programlisting>
+            <programlisting role="php"><![CDATA[
+$index->find($query, 'name', SORT_STRING, 'quantity', SORT_NUMERIC, SORT_DESC);
+]]>
+            </programlisting>
+        </para>
+
+        <para>
+            デフォルト以外の並び順を使用する際には注意しましょう。
+            並べ替えのためにはドキュメント全体をインデックスから読み込む必要があり、
+            検索のパフォーマンスが著しく低下してしまいます。
+        </para>
+    </sect2>
+
+    <sect2 id="zend.search.lucene.searching.highlighting">
+        <title>検索結果の強調</title>
+        <para>
+            <code>Zend_Search_Lucene_Search_Query::highlightMatches()</code>
+            メソッドを使用すると、HTML ドキュメントの中で検索用語を強調させることができます。
+            <programlisting role="php"><![CDATA[
+$query = Zend_Search_Lucene_Search_QueryParser::parse($queryStr);
+$hits = $index->find($query);
+...
+$highlightedHTML = $query->highlightMatches($sourceHTML);
+]]>
+            </programlisting>
+        </para>
+
+        <para>
+            <code>highlightMatches()</code> メソッドは、HTML の処理の際に
+            <code>Zend_Search_Lucene_Document_Html</code> クラスを使用しています
+            (詳細は <link linkend="zend.search.lucene.index-creation.html-documents">HTML
+            ドキュメントの節</link> を参照ください)。つまり、HTML ソースと同じ条件が適用されます。
+        </para>
+    </sect2>
+</sect1>
+
+<!--
+vim:se ts=4 sw=4 et:
+-->

@@ -1,0 +1,162 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<title>Dojox Calendar Test</title>
+		<style type="text/css">
+			@import "../../../dojo/resources/dojo.css";
+			@import "../../../dijit/themes/tundra/tundra.css";
+			@import "../../../dijit/themes/dijit.css";
+			@import "../../../dijit/tests/css/dijitTests.css";
+			@import "../Calendar/Calendar.css";
+
+			.title {
+				font-weight: bolder;
+			}
+		</style>
+
+		<script type="text/javascript" src="../../../dojo/dojo.js" djConfig="isDebug:true, parseOnLoad: true"></script>
+		<script type="text/javascript" src="../../../dijit/dijit.js"></script>
+		<script type="text/javascript" src="../../../dijit/_Calendar.js"></script>
+		<script type="text/javascript" src="../FisheyeLite.js"></script>
+		<script type="text/javascript" src="../../fx/_base.js"></script>
+		<script type="text/javascript" src="../Calendar.js"></script>
+		<script type="text/javascript">
+			dojo.require("dojo.parser");	// scan page for widgets and instantiate them
+			dojo.require("dojox.fx");
+			dojo.require("dojox.widget.CalendarFx");
+
+			dojo.declare(
+				"test.CalendarCustomFx",
+			 	[dojox.widget.Calendar], {
+
+				addFx: function(query, fromNode){
+					dojo.query(query, fromNode).onmouseover(function(evt){
+						dojox.fx.highlight({node: evt.target}).play();
+					});
+				}
+			});
+
+			dojo.addOnLoad(function(){
+				function log(str){
+					dojo.byId("report").innerHTML = str;
+				}
+				dojo.connect(dijit.byId("cal"), "onValueSelected", function(val){
+					log("Date Value selected: " + val.toString());
+				});
+
+				dojo.connect(dijit.byId("calDayOnly"), "onValueSelected", function(val){
+					log("Date Value selected: " + val.toString());
+				});
+
+				dojo.connect(dijit.byId("calMonthOnly"), "onValueSelected", function(val){
+					log("Month Value selected: " + val);
+				});
+
+				dojo.connect(dijit.byId("calYearOnly"), "onValueSelected", function(val){
+					log("Year Value selected: " + val);
+				});
+				dojo.connect(dijit.byId("calFisheye"), "onValueSelected", function(val){
+					log("Year Value selected: " + val.toString());
+				});
+				
+				dojo.connect(dijit.byId("calCustomFx"), "onValueSelected", function(val){
+					log("Year Value selected: " + val.toString());
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<div id="report" style="float:left; width:100%;height:40px;color:red;font-weight:bold;"></div>
+
+		<div>
+			<span style="width:50%;float:left;">
+				<div class="title">Typical Calendar usage, with day, month and year views</div>
+				<div dojoType="dojox.widget.Calendar" id="cal"></div>
+
+				<p>
+				Lorem ipsum dolor sit amet, <a href="#">consectetuer</a> adipiscing elit. Aenean
+				semper sagittis velit. Cras in mi. Duis porta mauris ut ligula.
+				Proin porta rutrum lacus. <a href="#">Etiam</a> consequat scelerisque quam. Nulla
+				facilisi.  Maecenas luctus venenatis nulla. In sit amet dui non mi
+				semper iaculis.  Sed molestie tortor at ipsum. <a href="#">Morbi</a> dictum rutrum
+				magna. Sed vitae risus.
+				</p>
+			</span>
+
+			<span style="width:50%;float:left;">
+				<div class="title">With day only view, no monthly or yearly</div>
+
+				<div dojoType="dojox.widget.DailyCalendar" id="calDayOnly"></div>
+
+				<p>
+				Lorem ipsum dolor sit amet, <a href="#">consectetuer</a> adipiscing elit. Aenean
+				semper sagittis velit. Cras in mi. Duis porta mauris ut ligula.
+				Proin porta rutrum lacus. <a href="#">Etiam</a> consequat scelerisque quam. Nulla
+				facilisi.  Maecenas luctus venenatis nulla. In sit amet dui non mi
+				semper iaculis.  Sed molestie tortor at ipsum. <a href="#">Morbi</a> dictum rutrum
+				magna. Sed vitae risus.
+				</p>
+			</span>
+		</div>
+
+		<div>
+			<span style="width:50%;float:left;">
+				<div class="title">With month only view, no daily or yearly</div>
+
+				<div dojoType="dojox.widget.MonthlyCalendar" id="calMonthOnly"></div>
+
+				<p>
+				Lorem ipsum dolor sit amet, <a href="#">consectetuer</a> adipiscing elit. Aenean
+				semper sagittis velit. Cras in mi. Duis porta mauris ut ligula.
+				Proin porta rutrum lacus. <a href="#">Etiam</a> consequat scelerisque quam. Nulla
+				facilisi.  Maecenas luctus venenatis nulla. In sit amet dui non mi
+				semper iaculis.  Sed molestie tortor at ipsum. <a href="#">Morbi</a> dictum rutrum
+				magna. Sed vitae risus.
+				</p>
+			</span>
+			<span style="width:50%;float:left;">
+				<div class="title">With year only view, no daily or yearly</div>
+
+				<div dojoType="dojox.widget.YearlyCalendar" id="calYearOnly"></div><p>
+				Lorem ipsum dolor sit amet, <a href="#">consectetuer</a> adipiscing elit. Aenean
+				semper sagittis velit. Cras in mi. Duis porta mauris ut ligula.
+				Proin porta rutrum lacus. <a href="#">Etiam</a> consequat scelerisque quam. Nulla
+				facilisi.  Maecenas luctus venenatis nulla. In sit amet dui non mi
+				semper iaculis.  Sed molestie tortor at ipsum. <a href="#">Morbi</a> dictum rutrum
+				magna. Sed vitae risus.
+				</p>
+			</span>
+		</div>
+		<div>
+			<span style="width:50%;float:left;">
+				<div class="title">Standard calendar, with FisheyeLite effects</div>
+
+				<div dojoType="dojox.widget.CalendarFisheye" id="calFisheye"></div>
+
+				<p>
+				Lorem ipsum dolor sit amet, <a href="#">consectetuer</a> adipiscing elit. Aenean
+				semper sagittis velit. Cras in mi. Duis porta mauris ut ligula.
+				Proin porta rutrum lacus. <a href="#">Etiam</a> consequat scelerisque quam. Nulla
+				facilisi.  Maecenas luctus venenatis nulla. In sit amet dui non mi
+				semper iaculis.  Sed molestie tortor at ipsum. <a href="#">Morbi</a> dictum rutrum
+				magna. Sed vitae risus.
+				</p>
+			</span>
+			<span style="width:50%;float:left;">
+				<div class="title">With custom Highlighting effects</div>
+
+				<div dojoType="test.CalendarCustomFx" id="calCustomFx"></div><p>
+				Lorem ipsum dolor sit amet, <a href="#">consectetuer</a> adipiscing elit. Aenean
+				semper sagittis velit. Cras in mi. Duis porta mauris ut ligula.
+				Proin porta rutrum lacus. <a href="#">Etiam</a> consequat scelerisque quam. Nulla
+				facilisi.  Maecenas luctus venenatis nulla. In sit amet dui non mi
+				semper iaculis.  Sed molestie tortor at ipsum. <a href="#">Morbi</a> dictum rutrum
+				magna. Sed vitae risus.
+				</p>
+			</span>
+		</div>
+
+
+	</body>
+</html>

@@ -1,0 +1,29 @@
+-------------------------------------------------------------------------------
+The Dojo Flash Card Demo 
+-------------------------------------------------------------------------------
+Author: Dustin Machi (dmachi)
+-------------------------------------------------------------------------------
+Demo description
+
+	A small demo showing off some of the capabilities of the Dojo Toolkit.
+	Animations, Custom Widgetry, Keyboard interaction, and time-based 
+ 	controls. 
+	
+-------------------------------------------------------------------------------
+Dependencies:
+
+	Dojo Core
+	Dijit
+	
+-------------------------------------------------------------------------------
+Installation instructions
+
+	Simply run the included demo.html
+	
+	To build, use the supplied demo.profile.js as your profileFile,
+	or run the included buildDemo.sh -- which [should] create an 
+	archive called skewDemo.tar.gz that you [should] be able to drop
+	on any webserver and view (only optimized, instead)
+	
+-------------------------------------------------------------------------------
+

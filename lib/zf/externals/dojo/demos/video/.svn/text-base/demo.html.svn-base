@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+
+	<title>dojox.av.FLVideo Demo</title>
+	<link rel="stylesheet" href="demo.css">
+
+	<script type="text/javascript" src="../../dojo/dojo.js" 
+    	djConfig="isDebug:true, popup:true, parseOnLoad: true, debugAtAllCosts:false"></script>
+
+	<script type="text/javascript" src="src.js" charset="utf-8"></script>
+
+</head>
+<body class="tundra">
+	<h1>dojox.av.FLVideo Demo</h1>
+	<div id="player">
+    <div id="vidContainer">
+	<div id="video"></div>
+  <div id="videoOverlay" dojoType="dojo.dnd.Target" jsId="c2" accept="blue,darkred">
+    	<div id="relatedBack" style="display:none;"></div>
+        <div id="relatedContainer" style="display:none;">
+            <div class="topRow">
+            <div dojoType="dijit.form.Button" onClick="controls.doPlay();">Play Again</div>
+            </div>
+            <div id="relatedNode" class="botRow">
+                <span class="relText">Related Items:</span>
+                <div class="related">
+                    <div class="thumb" style="background-image:url(media/thumbs/Workshop.jpg)"></div>
+                    <div class="title">Workshop</div>
+                    <div class="desc">The elves worked hard</div>
+                </div>
+                <div class="related">
+                    <div class="thumb" style="background-image:url(media/thumbs/Teacher.jpg)"></div>
+                    <div class="title">Teacher</div>
+                    <div class="desc">Santa went to classes</div>
+                </div>
+            </div> 
+        </div>
+        
+    </div>
+    </div>
+    <div id="timeNodes">
+        <div id="timeNode">0.00</div>
+        <div id="durNode">0.00</div>   
+    </div>
+    <div id="progressContainer">
+        <div id="progress" 
+            dojoType="dijit.form.HorizontalSlider"
+            showButtons="false"
+            intermediateChanges="true"
+            ></div>
+    </div>
+    <div onClick="controls.doPlay();" 
+        dojoType="dijit.form.Button"
+        title="Play"
+        showLabel="false"
+        iconClass="playIcon"
+        id="playButton"
+        >
+        Play
+    </div>
+    
+    <div onClick="controls.doPause();" 
+        dojoType="dijit.form.Button"
+        title="Pause"
+        showLabel="false"
+        iconClass="pauseIcon"
+        style="display:none;"
+        id="pauseButton"
+        >
+        Pause
+    </div>
+    
+    <div id="volContainer">
+   <!-- <div id="volume" 
+    	dojoType="dijit.form.HorizontalSlider"
+        showButtons="false"
+        intermediateChanges="true"
+        ></div>
+ 	</div> -->
+    
+    <div id="volume">
+    	<div id="volBack"></div>
+    	<div id="volMask"></div>
+    </div>
+    </div>
+</div>
+
+<div id="libContainer">
+    <div id="library" jsId="dnd_library" dojoType="dojo.dnd.Source" class="source" copyOnly="true"></div>
+    <div id="libDesc"<em>To play a video from the list, drag and drop it on the player.</em></div>
+</div>
+
+<!--<div id="timeline" dojoType="dojo.dnd.Source" jsId="c2" class="target" accept="blue,darkred" horizontal="true"></div> -->
+
+
+</body>
+</html>

@@ -1,0 +1,60 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/dojo/data
+http://svn.dojotoolkit.org/src
+
+
+
+2008-10-17T13:38:23.682694Z
+15475
+toonetown
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+ItemFileWriteStore.js
+file
+
+
+
+
+2008-12-06T16:42:12.000000Z
+4dfbc299b70763391c29fd307c3d7735
+2008-10-17T13:38:23.682694Z
+15475
+toonetown
+has-props
+
+ItemFileReadStore.js
+file
+
+
+
+
+2008-12-06T16:42:12.000000Z
+505c622d5308332564d2c1a1793333b1
+2008-09-08T21:00:42.055822Z
+15188
+jaredj
+has-props
+
+api
+dir
+
+util
+dir
+

@@ -1,0 +1,31 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/util/maven/dojo/src/main
+http://svn.dojotoolkit.org/src
+
+
+
+2008-07-01T04:46:24.540499Z
+14215
+gregw
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+assembly
+dir
+

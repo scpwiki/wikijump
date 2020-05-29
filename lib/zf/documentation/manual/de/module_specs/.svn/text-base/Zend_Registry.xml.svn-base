@@ -1,0 +1,332 @@
+<!-- EN-Revision: 11497 -->
+<sect1 id="zend.registry.using">
+
+    <title>Die Registry verwenden</title>
+
+    <para>
+        Die Registry ist ein Container für das Speichern von Objekten und Werten im
+        Raum der Anwendung. Durch das Speichern der Werte in der Registry steht das
+        selbe Objekt immer innerhalb der kompletten Anwendung zur Verfügung.
+        Dieser Mechanismus ist eine Alernative zur Verwendung eines Globalen Speichers.
+    </para>
+
+    <para>
+        Typischerweise wird die Registry durch Ihre statischen Methoden in der
+        Zend_Registry Klasse benutzt. Alternativ, ist die Klasse ein Array Objekt
+        und so können Elemente welche darin gespeichert wurden durch ein
+        gewöhnliches Array-artiges Interface verwendet werden.
+    </para>
+
+    <sect2 id="zend.registry.using.storing">
+
+        <title>Werte in die Registry speichern</title>
+
+        <para>
+            Um einen Eintrag in die Registry zu Speichern kann die statische Methode
+            <code>set()</code> verwendet werden.
+        </para>
+
+        <example id="zend.registry.using.storing.example">
+            <title>Beispiel der set() Methode</title>
+            <programlisting role="php"><![CDATA[
+Zend_Registry::set('index', $value);
+]]>
+            </programlisting>
+        </example>
+
+        <para>
+            Der Wert kann ein Objekt, ein Array oder ein Skalar sein.
+            Der gespeicherte Wert in einem speziellen Eintrag der Registry
+            kann durch <code>set()</code> verändert und mit einem neuen Wert
+            überschrieben werden.
+        </para>
+
+        <para>
+            Der Index kann ein Skalar, entweder eine Zeichenkette oder ein Integer,
+            sowie ein gewöhnliches Array sein.
+        </para>
+
+    </sect2>
+
+    <sect2 id="zend.registry.using.retrieving">
+
+        <title>Werte aus der Registry lesen</title>
+
+        <para>
+            Um einen Eintrag von der Registry zu erhalten, kann die statische Methode
+            <code>get()</code> verwendet werden.
+        </para>
+
+        <example id="zend.registry.using.retrieving.example">
+            <title>Beispiel der get() Methode</title>
+            <programlisting role="php"><![CDATA[
+$value = Zend_Registry::get('index');
+]]>
+            </programlisting>
+        </example>
+
+        <para>
+            Die <code>getInstance()</code> Methode gibt ein statisches Registry Objekt zurück.
+        </para>
+
+        <para>
+            Das Registry Objekt ist durchsuchbar.
+        </para>
+
+        <example id="zend.registry.using.retrieving.example-iterating">
+            <title>Beispiel des Durchsuchens der Registry</title>
+            <programlisting role="php"><![CDATA[
+$registry = Zend_Registry::getInstance();
+
+foreach ($registry as $index => $value) {
+    echo "Registry Index $index enthält:\n";
+    var_dump($value);
+}
+]]>
+            </programlisting>
+        </example>
+
+    </sect2>
+
+    <sect2 id="zend.registry.using.constructing">
+
+        <title>Erstellen eines Registry Objektes</title>
+
+        <para>
+            Zusätzlich zur Verwendung der statischen Registry durch die statischen Methoden,
+            kann eine  Instanz direkt erzeugt werden und als Objekt verwendet werden.
+        </para>
+
+        <para>
+            Die Registry Instanz die durch die statischen Methoden verwendet wird,
+            ist einfach eine solche Instanz welche als Vereinfachung statisch
+            gespeichert ist damit Sie von überall innerhalb der Anwendung verwendet
+            werden kann.
+        </para>
+
+        <para>
+            Der traditionelle <code>new</code> Constructor kann verwendet werden um
+            eine Instanz der Registry zu erstellen. Das eröffnet die Möglichkeit
+            die Einträge in der Registry als assoziatives Array zu initialisieren.
+        </para>
+
+        <example id="zend.registry.using.constructing.example">
+            <title>Beispiel für das Erstellen einer Registry</title>
+            <programlisting role="php"><![CDATA[
+$registry = new Zend_Registry(array('index' => $value));
+]]>
+            </programlisting>
+        </example>
+
+        <para>
+            Nach der Erstellung dieser Instanz kann Sie mit Array-Objekt Methoden
+            verwendet werden und diese Instanz kann die statische Instanz werden durch
+            Verwendung der Statischen Methode <code>setInstance()</code>.
+        </para>
+
+        <example id="zend.registry.using.constructing.example-setinstance">
+            <title>Beispiel der Initialisierung der statischen Registry</title>
+            <programlisting role="php"><![CDATA[
+$registry = new Zend_Registry(array('index' => $value));
+
+Zend_Registry::setInstance($registry);
+]]>
+            </programlisting>
+        </example>
+
+        <para>
+            Die <code>setInstance()</code> Methode wirft eine Zend_Exception wenn die
+            statische Registry bereits durch den ersten Zugriff initialisiert wurde.
+        </para>
+
+    </sect2>
+
+    <sect2 id="zend.registry.using.array-access">
+
+        <title>Auf die Registry als Array zugreifen</title>
+
+        <para>
+            Wenn mehrere Werte gesetzt oder gelesen werden sollen, kann es einfacher
+            sein auf die Registry in Array Schreibweise zuzugreifen.
+        </para>
+
+        <example id="zend.registry.using.array-access.example">
+            <title>Beispiel eines Array-zugriffs</title>
+            <programlisting role="php"><![CDATA[
+$registry = Zend_Registry::getInstance();
+
+$registry['index'] = $value;
+
+var_dump( $registry['index'] );
+]]>
+            </programlisting>
+        </example>
+
+    </sect2>
+
+    <sect2 id="zend.registry.using.array-object">
+
+        <title>Zugriff auf die Registry als Objekt</title>
+
+        <para>
+            Manchmal ist es einfacher auf die Registry in einer Objekt-Orientierten
+            Art und Weise zuzugreifen, durch Verwendung von Indexnamen als Objekt Eigenschaften.
+            Um das zu tun, muß das Registry Objekt mit der
+            <code>ArrayObject::ARRAY_AS_PROPS</code> Option erstellt und die
+            statische Instanz initialisiert werden. Das muß getan werden bevor auf die
+            statische Registry das erste Mal zugegriffen wird.
+            <emphasis role="strong">Achtung</emphasis> bei Verwendung dieser Option.
+            Einige Versionen von PHP haben Fehler wenn die Registry mit dieser Option
+            benutzt wird.
+        </para>
+
+        <example id="zend.registry.using.array-object.example">
+            <title>Beispiel eines Objektzugriffs</title>
+            <programlisting role="php"><![CDATA[
+// In der Anwendungs Bootstrap Datei:
+$registry = new Zend_Registry(array(), ArrayObject::ARRAY_AS_PROPS)
+Zend_Registry::setInstance($registry);
+$registry->tree = 'Apfel';
+
+.
+.
+.
+
+// In einer anderen Funktion, irgendwo in der Anwendung:
+$registry = Zend_Registry::getInstance();
+
+echo $registry->tree; // Gibt "Apfel" aus
+
+$registry->index = $value;
+
+var_dump($registry->index);
+]]>
+            </programlisting>
+        </example>
+
+    </sect2>
+
+    <sect2 id="zend.registry.using.isset">
+
+        <title>Abfragen ob ein Index existiert</title>
+
+        <para>
+            Um herauszufinden ob ein bestimmter Index in der Registry einen Wert hat,
+            kann die statische Methode <code>isRegistered()</code> verwendet werden.
+        </para>
+
+        <example id="zend.registry.using.isset.example-isregistered">
+            <title>Beispiel der isRegistered() Methode</title>
+            <programlisting role="php"><![CDATA[
+if (Zend_Registry::isRegistered($index)) {
+    $value = Zend_Registry::get($index);
+}
+]]>
+            </programlisting>
+        </example>
+
+        <para>
+            Um herauszufinden ob ein bestimmter Index in einem Registry Array Objekt
+            einen Wert hat kann <code>isset()</code> verwendet werden, wie bei einem
+            gewöhnlichen Array.
+        </para>
+
+        <example id="zend.registry.using.isset.example-isset">
+            <title>Beispiel der isset() Methode</title>
+            <programlisting role="php"><![CDATA[
+$registry = Zend_Registry::getInstance();
+
+// Verwendung des Array-Zugriffs Syntax
+if (isset($registry['index'])) {
+    var_dump( $registry['index'] );
+}
+
+// Verwendung des Objekt-Zugriffs Syntax, wenn aktiviert
+if (isset($registry->index)) {
+    var_dump( $registry->index );
+}
+]]>
+            </programlisting>
+        </example>
+
+    </sect2>
+
+    <sect2 id="zend.registry.using.subclassing">
+
+        <title>Erweitern der Registry</title>
+
+        <para>
+            Die statische Registry ist eine Instanz der Klasse Zend_Registry.
+            Wenn Funktionalität zur Registry hinzugefügt werden soll, kann eine
+            Klasse erstellt werden die Zend_Registry erweitert und dann kann diese
+            spezielle Klasse definiert werden die für die statische Registry verwendet
+            wird. Die statische Methode <code>setClassName()</code> kann verwendet
+            werden um die Klasse zu definieren. Diese Klasse muß Zend_Registry erweitern.
+        </para>
+
+        <example id="zend.registry.using.subclassing.example">
+            <title>Beispiel des Definierens des statischen Registry Klassennamens</title>
+            <programlisting role="php"><![CDATA[
+Zend_Registry::setClassName('Meine_Registry');
+
+Zend_Registry::set('index', $value);
+]]>
+            </programlisting>
+        </example>
+
+        <para>
+            Die Registry wirft eine Zend_Exception wenn man versucht den Klassennamen
+            zu setzen nachdem die Registry das erste Mal verwendet wurde. Es ist
+            notwendig den Klassennamen für die statische Registry in der Bootstrap
+            Datei der Anwendung zu definieren.
+        </para>
+
+    </sect2>
+
+    <sect2 id="zend.registry.using.unsetting">
+
+        <title>Entfernen der statischen Registry</title>
+
+        <para>
+            Obwohl es normalerweise nicht notwendig ist, kann die statische Instanz
+            der Registry entfernt werden. Hierfür kann die statische Methode
+            <code>_unsetInstance()</code> verwendet werden.
+        </para>
+
+        <note>
+            <title>Risiko des Datenverlustes</title>
+            <para>
+                Wenn <code>_unsetInstance()</code> verwendet wird,
+                werden alle Daten in der statischen Registry verworfen und können
+                nicht wiederhergestellt werden.
+            </para>
+        </note>
+
+        <para>
+            Diese Methode kann zum Beispiel verwendet werden, wenn
+            <code>setInstance()</code> oder <code>setClassName()</code> nach der
+            Initialisierung des statischen Registry Objektes verwendet werden soll.
+            Entfernen der statischen Instanz erlaubt die Benutzung dieser Methoden.
+        </para>
+
+        <example id="zend.registry.using.unsetting.example">
+            <title>Beispiel der _unsetInstance() Methode</title>
+            <programlisting role="php"><![CDATA[
+Zend_Registry::set('index', $value);
+
+Zend_Registry::_unsetInstance();
+
+// Ändern der Klasse
+Zend_Registry::setClassName('Meine_Registry');
+
+Zend_Registry::set('index', $value);
+]]>
+            </programlisting>
+        </example>
+
+    </sect2>
+
+</sect1>
+<!--
+vim:se ts=4 sw=4 et:
+-->

@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/src/!svn/ver/15392/branches/1.2/dijit/tests/_editor
+END
+test_richtext.css
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/src/!svn/ver/15392/branches/1.2/dijit/tests/_editor/test_richtext.css
+END
+test_ToggleDir.html
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/src/!svn/ver/15392/branches/1.2/dijit/tests/_editor/test_ToggleDir.html
+END
+customIcon.gif
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/src/!svn/ver/15392/branches/1.2/dijit/tests/_editor/customIcon.gif
+END
+test_TabIndent.html
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/src/!svn/ver/15392/branches/1.2/dijit/tests/_editor/test_TabIndent.html
+END
+test_CustomPlugin.html
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/src/!svn/ver/15392/branches/1.2/dijit/tests/_editor/test_CustomPlugin.html
+END
+test_RichText.html
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/src/!svn/ver/15392/branches/1.2/dijit/tests/_editor/test_RichText.html
+END

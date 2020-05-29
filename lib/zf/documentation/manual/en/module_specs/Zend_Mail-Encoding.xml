@@ -1,0 +1,16 @@
+<sect1 id="zend.mail.encoding">
+    <title>Encoding</title>
+    <para>
+        Text and HTML message bodies and headers are encoded with the quotedprintable mechanism by default.
+        All other attachments are encoded via base64 if no other encoding is given in the <code>addAttachment()</code>
+        call or assigned to the MIME part object later. 7Bit and 8Bit encoding currently only pass on the
+        binary content data.
+    </para>
+    <para>
+        <code>Zend_Mail_Transport_Smtp</code> encodes lines starting with one dot or two dots so that the mail
+        does not violate the SMTP protocol.
+    </para>
+</sect1>
+<!--
+vim:se ts=4 sw=4 et:
+-->

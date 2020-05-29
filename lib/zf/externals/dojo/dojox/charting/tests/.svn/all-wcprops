@@ -1,0 +1,101 @@
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/src/!svn/ver/15666/branches/1.2/dojox/charting/tests
+END
+test_chart2d_dynamics.html
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/src/!svn/ver/15666/branches/1.2/dojox/charting/tests/test_chart2d_dynamics.html
+END
+test_chart2d_updating.html
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/src/!svn/ver/15666/branches/1.2/dojox/charting/tests/test_chart2d_updating.html
+END
+test_win2d.html
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/src/!svn/ver/15393/branches/1.2/dojox/charting/tests/test_win2d.html
+END
+test_themes.html
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/src/!svn/ver/15393/branches/1.2/dojox/charting/tests/test_themes.html
+END
+test_bars.html
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/src/!svn/ver/15393/branches/1.2/dojox/charting/tests/test_bars.html
+END
+test_chart2d.html
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/src/!svn/ver/15666/branches/1.2/dojox/charting/tests/test_chart2d.html
+END
+runTests.html
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/src/!svn/ver/15393/branches/1.2/dojox/charting/tests/runTests.html
+END
+test_labels2d.html
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/src/!svn/ver/15393/branches/1.2/dojox/charting/tests/test_labels2d.html
+END
+test_cylinders.html
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/src/!svn/ver/15393/branches/1.2/dojox/charting/tests/test_cylinders.html
+END
+test_pie2d.html
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/src/!svn/ver/15393/branches/1.2/dojox/charting/tests/test_pie2d.html
+END
+test_event2d.html
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/src/!svn/ver/15393/branches/1.2/dojox/charting/tests/test_event2d.html
+END
+charting.js
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/src/!svn/ver/15393/branches/1.2/dojox/charting/tests/charting.js
+END
+test_scaler.html
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/src/!svn/ver/15393/branches/1.2/dojox/charting/tests/test_scaler.html
+END
+test_widget2d.html
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/src/!svn/ver/15666/branches/1.2/dojox/charting/tests/test_widget2d.html
+END
+Theme.js
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/src/!svn/ver/15393/branches/1.2/dojox/charting/tests/Theme.js
+END
+test_sparklines.html
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/src/!svn/ver/15393/branches/1.2/dojox/charting/tests/test_sparklines.html
+END

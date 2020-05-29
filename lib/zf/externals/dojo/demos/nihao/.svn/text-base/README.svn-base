@@ -1,0 +1,28 @@
+-------------------------------------------------------------------------------
+Another i18n Demo
+-------------------------------------------------------------------------------
+Author: Bill Keese (wildbill)
+-------------------------------------------------------------------------------
+Demo description
+
+	This is another i18n demo, showing a simple Calendar formatted based
+	on a specified locale. It demonstrates custom NLS creation and usage.
+	
+-------------------------------------------------------------------------------
+Dependencies:
+
+	Dojo Core
+	Dijit
+
+-------------------------------------------------------------------------------
+Installation instructions
+
+	Simply run the included demo.html
+	
+	To build, use the supplied demo.profile.js as your profileFile
+	
+-------------------------------------------------------------------------------
+
+Note:
+
+This should likely be in tests/i18n/ 

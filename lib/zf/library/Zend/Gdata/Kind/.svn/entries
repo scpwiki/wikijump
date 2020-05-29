@@ -1,0 +1,40 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/library/Zend/Gdata/Kind
+http://framework.zend.com/svn/framework
+
+
+
+2008-12-13T22:31:47.921756Z
+13206
+thomas
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+EventEntry.php
+file
+
+
+
+
+2009-01-04T17:41:47.000000Z
+4b9d52da062e7771cef1c1290738bd4c
+2008-12-13T22:31:47.921756Z
+13206
+thomas
+

@@ -1,0 +1,52 @@
+8
+
+dir
+393
+http://svn.wikidot.org/repos/wikidot1/trunk/templates/modules/account/contacts
+http://svn.wikidot.org/repos
+
+
+
+2008-01-30T17:40:54.924226Z
+2
+michal_frackowiak
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+fb797968-1a05-43ef-ab23-0011a79c62e5
+
+AccountContactsModule.tpl
+file
+
+
+
+
+2008-12-06T16:40:16.000000Z
+676ed865e23e6382f2252611334da10f
+2008-01-30T17:40:54.924226Z
+2
+michal_frackowiak
+
+AccountBackContactsModule.tpl
+file
+
+
+
+
+2008-12-06T16:40:16.000000Z
+bc220904bcecc8714af8f80e7a6738cd
+2008-01-30T17:40:54.924226Z
+2
+michal_frackowiak
+

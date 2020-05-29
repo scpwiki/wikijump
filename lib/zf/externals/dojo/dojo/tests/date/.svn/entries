@@ -1,0 +1,54 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/dojo/tests/date
+http://svn.dojotoolkit.org/src
+
+
+
+2008-10-20T14:51:15.664137Z
+15492
+peller
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+stamp.js
+file
+
+
+
+
+2008-12-06T16:42:11.000000Z
+a3270bf462259eb5c63e9ebd88ce3d02
+2008-06-26T01:30:56.341559Z
+14157
+peller
+has-props
+
+locale.js
+file
+
+
+
+
+2008-12-06T16:42:11.000000Z
+12909f9123cc7c63b248bab7f41ced55
+2008-10-20T14:51:15.664137Z
+15492
+peller
+has-props
+

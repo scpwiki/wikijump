@@ -23,6 +23,17 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyAction;
+use \WDPermissionException;
+use DB\OzoneUserPeer;
+use \ProcessException;
+use Database;
+use Criteria;
+use DB\ContactPeer;
+use DB\Contact;
+
 class ContactsAction extends SmartyAction {
 	
 	public function isAllowed($runData){
@@ -41,7 +52,7 @@ class ContactsAction extends SmartyAction {
 		
 		$targetUserId = $pl->getParameterValue("userId");
 		
-		$targetUser = DB_OzoneUserPeer::instance()->selectByPrimaryKey($targetUserId);
+		$targetUser = OzoneUserPeer::instance()->selectByPrimaryKey($targetUserId);
 		
 		$user = $runData->getUser();
 		
@@ -61,7 +72,7 @@ class ContactsAction extends SmartyAction {
 		$c->add("user_id", $user->getUserId());
 		$c->add("target_user_id", $targetUserId);
 		
-		$contact = DB_ContactPeer::instance()->selectOne($c);
+		$contact = ContactPeer::instance()->selectOne($c);
 		if($contact){
 			throw new ProcessException(_("This user is already in your contacts."),"already_contact");	
 		}
@@ -69,14 +80,14 @@ class ContactsAction extends SmartyAction {
 		// count contacts
 		$c = new Criteria();
 		$c->add("user_id", $user->getUserId());
-		$count = DB_ContactPeer::instance()->selectCount($c);
+		$count = ContactPeer::instance()->selectCount($c);
 		if($count>=1000){
 			throw new ProcessException(_("Sorry, at this moment you can not add more than 1000 contacts.", "max_reached"));	
 		}
 		
 		//...	
 		
-		$contact = new DB_Contact();
+		$contact = new Contact();
 		$contact->setUserId($user->getUserId());
 		$contact->setTargetUserId($targetUserId);
 		$contact->save();
@@ -98,7 +109,7 @@ class ContactsAction extends SmartyAction {
 		$c->add("user_id", $user->getUserId());
 		$c->add("target_user_id", $targetUserId);
 		
-		DB_ContactPeer::instance()->delete($c);
+		ContactPeer::instance()->delete($c);
 		
 	}
 	

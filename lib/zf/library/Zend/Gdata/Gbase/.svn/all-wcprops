@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/Gbase
+END
+ItemEntry.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/Gbase/ItemEntry.php
+END
+Entry.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/Gbase/Entry.php
+END
+ItemFeed.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/Gbase/ItemFeed.php
+END
+Feed.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/Gbase/Feed.php
+END
+ItemQuery.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/Gbase/ItemQuery.php
+END
+SnippetEntry.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/Gbase/SnippetEntry.php
+END
+Query.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/Gbase/Query.php
+END
+SnippetFeed.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/Gbase/SnippetFeed.php
+END
+SnippetQuery.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/Gbase/SnippetQuery.php
+END

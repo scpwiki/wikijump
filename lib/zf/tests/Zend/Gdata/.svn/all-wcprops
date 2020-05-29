@@ -1,0 +1,281 @@
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/framework/!svn/ver/13478/standard/trunk/tests/Zend/Gdata
+END
+AttendeeTypeTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/AttendeeTypeTest.php
+END
+AttendeeStatusTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/AttendeeStatusTest.php
+END
+OpenSearchItemsPerPageTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/OpenSearchItemsPerPageTest.php
+END
+EntryTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/framework/!svn/ver/12758/standard/trunk/tests/Zend/Gdata/EntryTest.php
+END
+WhenTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/WhenTest.php
+END
+FeedTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/framework/!svn/ver/13290/standard/trunk/tests/Zend/Gdata/FeedTest.php
+END
+ExtendedPropertyTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/ExtendedPropertyTest.php
+END
+OriginalEventTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/OriginalEventTest.php
+END
+CalendarTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/CalendarTest.php
+END
+TransparencyTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/TransparencyTest.php
+END
+GappsTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/GappsTest.php
+END
+CalendarEventTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/CalendarEventTest.php
+END
+RecurrenceExceptionTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/RecurrenceExceptionTest.php
+END
+CalendarOnlineTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/CalendarOnlineTest.php
+END
+EntryLinkTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/EntryLinkTest.php
+END
+GappsOnlineTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/GappsOnlineTest.php
+END
+GdataTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/framework/!svn/ver/13145/standard/trunk/tests/Zend/Gdata/GdataTest.php
+END
+AppTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/framework/!svn/ver/13140/standard/trunk/tests/Zend/Gdata/AppTest.php
+END
+CalendarFeedCompositeTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/CalendarFeedCompositeTest.php
+END
+FeedLinkTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/FeedLinkTest.php
+END
+GdataOnlineTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/12520/standard/trunk/tests/Zend/Gdata/GdataOnlineTest.php
+END
+EventStatusTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/EventStatusTest.php
+END
+CommentsTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/CommentsTest.php
+END
+DocsTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/DocsTest.php
+END
+SkipTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/SkipTests.php
+END
+SpreadsheetsTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/SpreadsheetsTest.php
+END
+AllTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/framework/!svn/ver/13157/standard/trunk/tests/Zend/Gdata/AllTests.php
+END
+YouTubeTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/YouTubeTest.php
+END
+CalendarFeedTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/CalendarFeedTest.php
+END
+OpenSearchStartIndexTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/OpenSearchStartIndexTest.php
+END
+RecurrenceTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/RecurrenceTest.php
+END
+DocsOnlineTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/12758/standard/trunk/tests/Zend/Gdata/DocsOnlineTest.php
+END
+WhoTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/WhoTest.php
+END
+SpreadsheetsOnlineTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/SpreadsheetsOnlineTest.php
+END
+YouTubeOnlineTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/13364/standard/trunk/tests/Zend/Gdata/YouTubeOnlineTest.php
+END
+QueryTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/QueryTest.php
+END
+ReminderTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/ReminderTest.php
+END
+WhereTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/WhereTest.php
+END
+HealthOnlineTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/13105/standard/trunk/tests/Zend/Gdata/HealthOnlineTest.php
+END
+AuthSubTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/AuthSubTest.php
+END
+BooksTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/BooksTest.php
+END
+OpenSearchTotalResultsTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/OpenSearchTotalResultsTest.php
+END
+PhotosOnlineTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/PhotosOnlineTest.php
+END
+BooksOnlineTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/BooksOnlineTest.php
+END
+GbaseOnlineTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/GbaseOnlineTest.php
+END
+VisibilityTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/VisibilityTest.php
+END

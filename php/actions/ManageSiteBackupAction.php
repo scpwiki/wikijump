@@ -23,6 +23,16 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyAction;
+use \WDPermissionManager;
+use \ProcessException;
+use Criteria;
+use DB\SiteBackupPeer;
+use DB\SiteBackup;
+use ODate;
+
 class ManageSiteBackupAction extends SmartyAction {
 	
 	public function isAllowed($runData){
@@ -46,9 +56,9 @@ class ManageSiteBackupAction extends SmartyAction {
 		
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
-		DB_SiteBackupPeer::instance()->delete($c);
+		SiteBackupPeer::instance()->delete($c);
 		
-		$sb = new DB_SiteBackup();
+		$sb = new SiteBackup();
 		$sb->setSiteId($site->getSiteId());
 		$sb->setBackupSource($backupSources);
 		$sb->setBackupFiles($backupFiles);
@@ -62,7 +72,7 @@ class ManageSiteBackupAction extends SmartyAction {
 		
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
-		DB_SiteBackupPeer::instance()->delete($c);
+		SiteBackupPeer::instance()->delete($c);
 		
 		@exec('rm -r '.WIKIDOT_ROOT.'/web/files--sites/'.$site->getUnixName().'/backup');	
 	}

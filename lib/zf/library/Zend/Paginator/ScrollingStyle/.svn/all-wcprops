@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Paginator/ScrollingStyle
+END
+Jumping.php
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Paginator/ScrollingStyle/Jumping.php
+END
+Sliding.php
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Paginator/ScrollingStyle/Sliding.php
+END
+Interface.php
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Paginator/ScrollingStyle/Interface.php
+END
+Elastic.php
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Paginator/ScrollingStyle/Elastic.php
+END
+All.php
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Paginator/ScrollingStyle/All.php
+END

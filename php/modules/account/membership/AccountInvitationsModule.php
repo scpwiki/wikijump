@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \AccountBaseModule;
+use Criteria;
+use DB\MemberInvitationPeer;
+
 class AccountInvitationsModule extends AccountBaseModule {
 	
 	public function build($runData){
@@ -33,7 +39,7 @@ class AccountInvitationsModule extends AccountBaseModule {
 		$c->add("user_id", $userId);
 		$c->addOrderDescending("invitation_id");
 		
-		$invs = DB_MemberInvitationPeer::instance()->select($c);
+		$invs = MemberInvitationPeer::instance()->select($c);
 		
 		if(count($invs)>0){
 			$runData->contextAdd("invitations", $invs);

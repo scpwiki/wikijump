@@ -1,0 +1,25 @@
+K 12
+bzr:file-ids
+V 102
+dojox/grid/_View.js	15393@560b804f-0ae3-0310-86f3-f6aa0a117693:branches%2F1.2:dojox%2Fgrid%2F_View.js
+
+K 25
+bzr:revision-id:v3-trunk0
+V 180
+26 bryan@reigndropsfall.net-20081021224746-bhjvon1mhwv9f115
+27 bryan@reigndropsfall.net-20081022231341-7llun77060nbtk0q
+32 bryan@reigndropsfall.net-20081028054912-7xct77emn2hkdrku
+
+K 17
+bzr:revision-info
+V 129
+timestamp: 2008-10-28 00:49:12.687999964 -0500
+committer: Bryan Forbes <bryan@reigndropsfall.net>
+properties: 
+	branch-nick: 1.2
+
+K 16
+bzr:text-parents
+V 0
+
+END

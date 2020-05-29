@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \CacheableModule;
+use Database;
+use DB\Page;
+
 class WantedPagesStandaloneModule extends CacheableModule {
 	
 	protected $timeOut = 300;
@@ -45,7 +51,7 @@ class WantedPagesStandaloneModule extends CacheableModule {
 		
 		if($all){
 			foreach($all as $a){
-				$page = new DB_Page($a);
+				$page = new Page($a);
 				$wun = $a['wanted_unix_name'];
 				$res[$wun][] = $page;	
 			}	

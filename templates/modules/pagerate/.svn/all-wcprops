@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/pagerate
+END
+PageRateWidgetModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/pagerate/PageRateWidgetModule.tpl
+END
+AlreadyRatedModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/pagerate/AlreadyRatedModule.tpl
+END
+TopRatedPagesModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/pagerate/TopRatedPagesModule.tpl
+END
+PageRateModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/pagerate/PageRateModule.tpl
+END
+WhoRatedPageModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/pagerate/WhoRatedPageModule.tpl
+END

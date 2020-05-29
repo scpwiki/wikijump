@@ -23,6 +23,16 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \Deleter as Deleter;
+use DB\SitePeer;
+use Database;
+use Criteria;
+use DB\PagePeer;
+use \Outdater;
+use DB\CategoryPeer;
+
 class Deleter {
     private static $instance;
     
@@ -45,7 +55,7 @@ class Deleter {
         }
         
         if (!$site) {
-            $site = DB_SitePeer::instance()->selectByPrimaryKey($page->getSiteId());
+            $site = SitePeer::instance()->selectByPrimaryKey($page->getSiteId());
         }
         
         // delete the sources and metadatas
@@ -58,7 +68,7 @@ class Deleter {
         $c = new Criteria();
         $c->add("parent_page_id", $page->getPageId());
         
-        $pages = DB_PagePeer::instance()->select($c);
+        $pages = PagePeer::instance()->select($c);
         
         // ok, these are direct children. need to clear the perent_page_id field
 
@@ -68,7 +78,7 @@ class Deleter {
             foreach ($pages as $p) {
                 $c = new Criteria();
                 $c->add("parent_page_id", $p->getPageId());
-                $ptmp = DB_PagePeer::instance()->select($c);
+                $ptmp = PagePeer::instance()->select($c);
                 $p2 = array_merge($p2, $ptmp);
                 
                 if ($rec === 0) {
@@ -112,11 +122,11 @@ class Deleter {
             
             $c = new Criteria();
             $c->add("category_id", $category->getCategoryId());
-            $count = DB_PagePeer::instance()->selectCount($c);
+            $count = PagePeer::instance()->selectCount($c);
             
             if ($count == 0) {
                 // delete the category
-                DB_CategoryPeer::instance()->delete($c);
+                CategoryPeer::instance()->delete($c);
                 $outdater->categoryEvent('delete', $category, $site);
             }
         }
@@ -137,7 +147,7 @@ class Deleter {
         $c = new Criteria();
         $c->add("site_id", $site->getSiteId());
         
-        $pages = DB_PagePeer::instance()->select($c);
+        $pages = PagePeer::instance()->select($c);
         
         foreach ($pages as $page) {
             $this->deletePage($page);
@@ -154,6 +164,6 @@ class Deleter {
         $outdater = new Outdater();
         $outdater->siteEvent('delete', $site);
         
-        DB_SitePeer::instance()->deleteByPrimaryKey($site->getSiteId());
+        SitePeer::instance()->deleteByPrimaryKey($site->getSiteId());
     }
 }

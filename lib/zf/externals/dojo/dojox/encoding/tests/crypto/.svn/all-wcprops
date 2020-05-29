@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/src/!svn/ver/15393/branches/1.2/dojox/encoding/tests/crypto
+END
+_base.js
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/src/!svn/ver/15393/branches/1.2/dojox/encoding/tests/crypto/_base.js
+END
+Blowfish.js
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/src/!svn/ver/15393/branches/1.2/dojox/encoding/tests/crypto/Blowfish.js
+END
+runTests.html
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/src/!svn/ver/15393/branches/1.2/dojox/encoding/tests/crypto/runTests.html
+END

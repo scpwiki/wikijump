@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/repos/!svn/ver/361/wikidot1/trunk/bin
+END
+compile_locale.sh
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/repos/!svn/ver/2/wikidot1/trunk/bin/compile_locale.sh
+END
+job.php
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/repos/!svn/ver/80/wikidot1/trunk/bin/job.php
+END
+generate_po.sh
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/repos/!svn/ver/15/wikidot1/trunk/bin/generate_po.sh
+END
+job.sh
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/repos/!svn/ver/89/wikidot1/trunk/bin/job.sh
+END
+configure.php
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/repos/!svn/ver/277/wikidot1/trunk/bin/configure.php
+END
+wikidot_search.jar
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/repos/!svn/ver/361/wikidot1/trunk/bin/wikidot_search.jar
+END
+generate_om.php
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/repos/!svn/ver/2/wikidot1/trunk/bin/generate_om.php
+END
+update-2008-08-19.php
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/repos/!svn/ver/239/wikidot1/trunk/bin/update-2008-08-19.php
+END
+generate_keys.sh
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/repos/!svn/ver/2/wikidot1/trunk/bin/generate_keys.sh
+END
+generate_mo.sh
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/repos/!svn/ver/2/wikidot1/trunk/bin/generate_mo.sh
+END

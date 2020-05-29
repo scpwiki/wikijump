@@ -1,0 +1,1923 @@
+<sect1 id="zend.form.forms">
+    <title>Creando formularios Usando Zend_Form</title>
+
+    <para>
+        La clase <code>Zend_Form</code> es usada para agregar elementos al formulario,
+        desplegar grupos y subformularios. Ellos pueden ejecutar las siguientes acciones 
+        en esos items:
+    </para>
+
+    <itemizedlist>
+        <listitem><para>
+        	Validación, incluye la recuperación de código y mensajes de error
+        </para></listitem>
+
+        <listitem><para>
+            Agregación de valores, incluyendo popular items y recuperar valores 
+			tanto filtrado como no filtrados de todos los items
+        </para></listitem>
+
+        <listitem><para>
+        	Iteración sobre todos los items, en el orden en el cual han sido introducidos o
+        	basados en el orden recuperado por cada item
+        </para></listitem>
+
+        <listitem><para>
+        	Generando el formulario entero, ya sea por un simple decorador que 
+        	ejecuta un personalizado formulario o por interacción sobre cada item del formulario 
+        </para></listitem>
+    </itemizedlist>
+
+    <para>
+    	Mientras los formularios creados con <code>Zend_Form</code> pueden ser complejos, probablemente
+    	el mejor uso es para formularios simples; es mejor usar para desarrollar
+    	aplicaciones rápidas y de prototipo.
+    </para>
+
+    <para>
+    	En lo más básico, simplemente instancie el objeto formulario:
+    </para>
+
+    <programlisting role="php"><![CDATA[
+// Generico objeto formulario:
+$form = new Zend_Form();
+
+// Nuevo objeto formulario:
+$form = new My_Form()
+]]>
+    </programlisting>
+
+    <para>
+    	Puede pasar opciones en la configuración, el cual será usado para determinar
+    	el estado del objeto, asi como también potencialmente crear nuevos elementos:
+    </para>
+
+    <programlisting role="php"><![CDATA[
+// Pasando opciones en la configuración:
+$form = new Zend_Form($config);
+]]>
+    </programlisting>
+
+    <para>
+    	La clase <code>Zend_Form</code> es iterable e iterará cada elemento,
+    	desplegará grupos y subformularios, usando el orden en el cual han sido registrados/introducidos y
+    	en cualquier otro índice de ordenación que cada uno pueda tener. Esto es útil en casos donde desee
+    	generar los elementos manualmente en el orden apropiado.
+    </para>
+
+    <para>
+    	La magia de <code>Zend_Form</code> radica en la habilidad para servir como una fábrica
+    	para elementos y desplegar grupos, así como también la habilidad de generarse a sí mismo
+    	a través de los decoradores.
+    </para>
+
+    <sect2 id="zend.form.forms.plugins">
+        <title>Plugin Loaders</title>
+        <para>
+        	<code>Zend_Form</code> hace usos de 
+            <code>Zend_Loader_PluginLoader</code> para permitir a los desarroladores especificar
+            la ubicación de alternativos elementos y decoradores. Cada uno tiene su propio
+            plugin loader asociado, generalmente los accesores son usados para
+            recuperar y modificar a cada uno.
+        </para>
+
+        <para>
+        	Los siguientes tipos de cargadores son usados con varios métodos 
+            plugin loader: 'element' y 'decorator'. Los nombres de tipo son capaz de distinguir mayúsculas de minúsculas
+        </para>
+
+        <para>
+        	Los métodos usados para interactuar con plugin loaders son los siguientes:
+        </para>
+
+        <itemizedlist>
+            <listitem><para>
+                <code>setPluginLoader($loader, $type)</code>: $loader es el 
+                objeto plugin loader en si, mientras tipo es uno de los tipos 
+                especificados arriba. Esto determina al plugin loader para el tipo dado
+                al nuevo objeto loader especificado.
+            </para></listitem>
+
+            <listitem><para>
+                <code>getPluginLoader($type)</code>: recupera el plugin loader
+                asociado con $type.
+            </para></listitem>
+
+            <listitem><para>
+                <code>addPrefixPath($prefix, $path, $type = null)</code>: adiciona una
+                asociación prefix/path al loader especificado por $type. Si
+                $type es nulo, intentará adicionar una ruta a los loaders,
+                adicionando el prefijo "_Element" y "_Decorator";
+                y adiconando la ruta a "Element/" y 
+                "Decorator/". Si tiene toda sus extra clases form element
+                en una jerarquía comun, estes es un método coveniente para
+                determinar la base del prefijo para ellos.
+            </para></listitem>
+
+            <listitem><para>
+            	<code>addPrefixPaths(array $spec)</code>: le permite añadir muchas
+            	rutas en uno o mas plugin loaders. Se espera que cada 
+            	matriz item será una matriz con las llaves 'path', 'prefix' y
+                'type'.
+            </para></listitem>
+        </itemizedlist>
+
+        <para>
+        	Adicionalmente, puede especificar la ruta del prefijo para todos los elementos y
+        	desplegar grupos creados a través de una instancia <code>Zend_Form</code> 
+        	usando los siguientes métodos:
+        </para>
+
+        <itemizedlist>
+            <listitem><para>
+            	<code>addElementPrefixPath($prefix, $path, $type = null)</code>:
+                Justo como <code>addPrefixPath()</code>, debe especificar una clase
+                prefijo y una ruta. Cuando especifica <code>$type</code>,  tiene que ser
+                <code>Zend_Form_Element</code>; vea la <link
+                    linkend="zend.form.elements.loaders">Sección elemento plugins
+                    </link> para más información de válidos valores
+                <code>$type</code>. Si <code>$type</code> no es 
+                especificado, el método asumirá un prefijo común para todos los
+                tipos.
+            </para></listitem>
+
+            <listitem><para>            
+                <code>addDisplayGroupPrefixPath($prefix, $path)</code>:
+                Justo como <code>addPrefixPath()</code>, debe especificar una clase
+                prefijo y una ruta; como sea, desde que desplegar grupos solo soporta 
+                decoradores como plugins, <code>$type</code> no es necesario.
+            </para></listitem>
+        </itemizedlist>
+
+        <para>
+        	Personalizados elementos y decoradores son una fácil manera para compartir 
+        	funcionalidad entre formularios y encapsular personalizada funcionalidad.
+        	Ver el  <link
+                linkend="zend.form.elements.loaders.customLabel">ejemplo personalizar 
+                etiqueta</link> en la documentación de elementos un ejemplo de
+            como personalizar elementos pueden ser usados como reemplazantes para clases
+            estándar.
+        </para>
+    </sect2>
+
+    <sect2 id="zend.form.forms.elements">
+        <title>Elementoss</title>
+        <para>
+            La clase <code>Zend_Form</code> proporciona muchos accesorios para adicionar y
+            remover elementos de un formulario. Estos pueden tomar instancias de objetos 
+            elemento o servir como fábricas para instanciar el objeto elemento a si mismos.
+        </para>
+
+        <para>
+        	El más básico método para adicionar un elemento es
+            <code>addElement()</code>.  Este método puede tomar también un objeto de
+            tipo <code>Zend_Form_Element</code> (o de una clase extendida
+            <code>Zend_Form_Element</code>), o argumentos para construir un nuevo 
+            elemento -- incluyendo el elemento tipo, nombre y algunas opciones de 
+            configuración.
+        </para>
+
+        <para>
+            Como algunos ejemplos:
+        </para>
+
+        <programlisting role="php"><![CDATA[
+// Usando un elemento instanciado:
+$element = new Zend_Form_Element_Text('foo');
+$form->addElement($element);
+
+// Usando una fábrica
+//
+// Crea un elemento de tipo Zend_Form_Element_Text con el 
+// nombre de 'foo':
+$form->addElement('text', 'foo');
+
+// Pasa una opción etiqueta al elemento:
+$form->addElement('text', 'foo', array('label' => 'Foo:'));
+]]>
+        </programlisting>
+
+        <note>
+            <title>addElement() Implementa una fluida interfaz</title>
+
+            <para>
+            	<code>addElement()</code> implementa una fluida interfaz; es
+            	decir, retorna el objeto <code>Zend_Form</code> y no un
+            	elemento. Este hecho le permite encadenar 
+            	multiples métodos addElement() u otros métodos formulario que
+            	implementen una fluida interfaz (todos los establecedores in Zend_Form
+            	implementan un patrón).
+            </para>
+
+            <para>
+            	Si desea retornar el elemento, use
+            	<code>createElement()</code>, el cual es esbozado abajo. Este conciente,
+            	de cualquier manera, que <code>createElement()</code> no adjunta el
+            	elemento al formulario.
+            </para>
+
+            <para>
+            	Internamente, <code>addElement()</code> en realidad emplea
+                <code>createElement()</code> para crear el elemento antes de
+                adjuntardolo al formulario.
+            </para>
+        </note>
+
+        <para>
+        	Una vez que el elemento ha sido añadido al formulario, puede recuperarlo por 
+        	el nombre. Puede también finalizar usando el método <code>getElement()</code>
+        	o usando sobrecarga para acceder al elemento como una propiedad
+        	objeto:
+        </para>
+
+        <programlisting role="php"><![CDATA[
+// getElement():
+$foo = $form->getElement('foo');
+
+// Como propiedad del objeto:
+$foo = $form->foo;
+]]>
+        </programlisting>
+
+        <para>
+        	Ocacionalmente, se quiere crear un elemento sin adjuntarlo 
+        	al formulario (para instanciar, si se desea hacer uso de las
+        	rutas de plugin introducidas con el formulario, pero despues se desea adjuntar el
+        	objeto al subformulario). El método <code>createElement()</code>
+        	permite hacer eso:
+        </para>
+
+        <programlisting role="php"><![CDATA[
+// $username llega a ser un objeto Zend_Form_Element_Text:
+$username = $form->createElement('text', 'username');
+]]>
+        </programlisting>
+
+        <sect3 id="zend.form.forms.elements.values">
+            <title>Leenar y recuperar valores</title>
+
+            <para>
+            	Después de validar el formulario, originalmente se necesitará recuperar los
+            	valores a si poder ejecutar otras operaciones, tal como actualizar una
+            	base de datos o notificar un servicio web. Se pueden recuperar todos los valores 
+            	para todos los elementos usando <code>getValues()</code>;
+                <code>getValue($name)</code> le permite recuperar un solo
+                valor del elemento por su nombre:                
+            </para>
+
+            <programlisting role="php"><![CDATA[
+// Obtener todos los valores:
+$values = $form->getValues();
+
+// Obteber solo los valores del elemento 'foo':
+$value = $form->getValue('foo');
+]]>
+            </programlisting>
+
+            <para>
+            	A veces se quiere llenar el formulario con especificos valores
+            	antes de generarlos. Estos pueden ser llevados a cabo ya sea con los
+            	métodos <code>setDefaults()</code> o <code>populate()</code>:
+            </para>
+
+            <programlisting role="php"><![CDATA[
+$form->setDefaults($data);
+$form->populate($data);
+]]>
+            </programlisting>
+
+            <para>
+            	Por otro lado, si se quisera limpiar el formulario antes de llenarlo 
+            	o validarlo; se puede realizar usando el 
+            	método <code>reset()</code>:
+            </para>
+
+            <programlisting role="php"><![CDATA[
+$form->reset();
+]]>
+            </programlisting>
+        </sect3>
+
+        <sect3 id="zend.form.forms.elements.global">
+            <title>Operaciones Globales</title>
+
+            <para>
+            	Ocacionalemnte se necesitará ciertas operaciones que afecten a todos
+            	los elementos. Escenarios comunes incluyen la necesidad de determinar rutas de acceso 
+            	al prefijo complemento para todos los elementos, determinando decoradores para todos los elementos y 
+            	determinando filtros para todos los elementos. Como los ejemplos:
+            </para>
+
+            <example id="zend.form.forms.elements.global.allpaths">
+                <title>Determinando rutas de acceso de prefijos para todos los elementos</title>
+
+                <para>
+                	Se puede determinar rutas de acceso para prefijos para todos los elementos por tipo, 
+                	o usando un prefijo global. Como los ejemplos:
+                </para>
+
+                <programlisting role="php"><![CDATA[
+// Determinar la ruta de acceso de prefijos global
+// Crear rutas de acceso para los prefijos My_Foo_Filter, My_Foo_Validate,
+// y My_Foo_Decorator
+$form->addElementPrefixPath('My_Foo', 'My/Foo/');
+
+// Sólo rutas de acceso de filtros:
+$form->addElementPrefixPath('My_Foo_Filter',
+                            'My/Foo/Filter',
+                            'filter');
+
+// Sólo rutas de acceso de validadores:
+$form->addElementPrefixPath('My_Foo_Validate',
+                            'My/Foo/Validate',
+                            'validate');
+
+// Sólo rutas de acceso de decoradores:
+$form->addElementPrefixPath('My_Foo_Decorator',
+                            'My/Foo/Decorator',
+                            'decorator');
+]]>
+                </programlisting>
+            </example>
+
+            <example id="zend.form.forms.elements.global.decorators">
+                <title>Determinando Decoradores para todos los elementos</title>
+
+                <para>
+                	Se pueden determinar decoradores para todos los elementos.
+                	<code>setElementDecorators()</code> acepta una matriz de
+                	decoradores, solo como <code>setDecorators()</code>, y 
+                	reescribira cualquier decorador previamente determinado en cada elemento. En
+                	este ejemplo, determinamos los decoradores para simplificar una ViewHelper
+                	y una Label:
+                </para>
+
+                <programlisting role="php"><![CDATA[
+$form->setElementDecorators(array(
+    'ViewHelper',
+    'Label'
+));
+]]>
+                </programlisting>
+            </example>
+
+            <example id="zend.form.forms.elements.global.decoratorsFilter">
+                <title>Determinando decoradores para algunos elementos</title>
+
+                <para>
+                	Pueden determinarse también decoradores para un subconjunto de elementos,
+                	ya sea por inclusión o exclusión. El segundo argumento
+                    <code>setElementDecorators()</code> puede ser una matriz de
+                    nombres elementos; por defecto, especificando como tal un array 
+                    determinará los decoradores especificados en esos elementos solamente. Puede
+                    tambien pasar un tercer elemento, una bandera indicando si  
+                    esta lista de elementos es para propósitos de inclusión o exclusión;
+                    si es falso, se decorará todos los elementos 
+                    <emphasis>excepto</emphasis> los pasados en la lista,
+                    Como uso estándar del método, cualquier decorador pasado 
+                    reescribirá cualquier decorador previamente determinado en cada
+                    elemento.
+                </para>
+
+                <para>
+                	En el siguiente fragmento, indicamos que queremos los decoradores
+                	ViewHelper y Label  para los elementos 
+                	'foo' y 'bar':
+                </para>
+
+                <programlisting role="php"><![CDATA[
+$form->setElementDecorators(
+    array(
+        'ViewHelper',
+        'Label'
+    ),
+    array(
+        'foo',
+        'bar'
+    )
+);
+]]>
+                </programlisting>
+
+                <para>
+                	Por otro lado, con este fragmento, indicaremos 
+                	que queremos usar solamente los decoradores 
+                	ViewHelper and Label para cada elemento <emphasis>excepto</emphasis>
+                    los elementos 'foo' y 'bar':
+                </para>
+
+                <programlisting role="php"><![CDATA[
+$form->setElementDecorators(
+    array(
+        'ViewHelper',
+        'Label'
+    ),
+    array(
+        'foo',
+        'bar'
+    ),
+    false
+);
+]]>
+                </programlisting>
+            </example>
+
+                <note>
+                    <title>Algunos Decoradores son Innapropiados para algunos Elementos</title>
+
+                    <para>
+                    	Mientras <code>setElementDecorators()</code> puede parecer como 
+                    	una buena solución, existen algunos casos donde puede
+                    	terminar con resultados inesperados, Por ejemplo,
+                    	los muchos elementos botones (Submit, Button, Reset)
+                        actualmente usan la etiqueta como el valor del botón 
+                        y sólo usan los decoradores ViewHelper y DtDdWrapper --
+                        previniendo una adicional etiqueta, error, y sugerencias de
+                        ser generadas; el ejemplo de arriba podría duplicar algún
+                        contenido (la etiqueta).
+                    </para>
+
+                    <para>
+                    	Se puede usar la matriz inclusión/exclusión para superar
+                    	este problema como se ha notado en el ejemplo anterior.
+                    </para>
+
+                    <para>
+ 						Entonces, use este método sabiamente y dese cuenta que puede
+ 						necesitar excluir o cambiar manualmente algunos elementos decoradores
+ 						para prevenir una no deseada salida.
+                    </para>
+                </note>
+
+            <example id="zend.form.forms.elements.global.filters">
+                <title>Determinando Filtros para todos los Elementos</title>
+
+                <para>
+                	En muchos casos, puede quererse aplicar el mismo filtro a todos
+                	los elementos; un caso común es <code>trim()</code> todos los valores:
+                </para>
+
+        <programlisting role="php"><![CDATA[
+$form->setElementFilters(array('StringTrim'));
+]]>
+        </programlisting>
+            </example>
+        </sect3>
+
+        <sect3 id="zend.form.forms.elements.methods">
+            <title>Métodos para Interactuar con los Elementos Methods For Interacting With Elements</title>
+
+            <para>
+            	Los siguientes métodos pueden ser usados para interactuar con los elementos:
+            </para>
+
+            <itemizedlist>
+                <listitem><para>
+                    <code>createElement($element, $name = null, $options = null)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>addElement($element, $name = null, $options = null)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>addElements(array $elements)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>setElements(array $elements)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>getElement($name)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>getElements()</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>removeElement($name)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>clearElements()</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>setDefaults(array $defaults)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>setDefault($name, $value)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>getValue($name)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>getValues()</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>getUnfilteredValue($name)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>getUnfilteredValues()</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>setElementFilters(array $filters)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>setElementDecorators(array $decorators)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>addElementPrefixPath($prefix, $path, $type = null)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>addElementPrefixPaths(array $spec)</code>
+                </para></listitem>
+            </itemizedlist>
+        </sect3>
+    </sect2>
+
+    <sect2 id="zend.form.forms.displaygroups">
+        <title>Desplegar Grupos</title>
+
+        <para>
+        	Desplegar grupos son una manera de crear grupos virtuales de elementos para
+        	desplegar propósitos. Todos los elementos quedan accesibles por nombre en el
+        	formulario, pero cuando interactúan o se ejecutan sobre el formulario, cualquiera de los elementos en
+        	un despliegue de grupo son generados juntos. El más común caso de uso es 
+        	agrupando los elementos en fieldsets. (TODO)
+        </para>
+
+        <para>
+        	La clase base para desplegar grupos es
+            <code>Zend_Form_DisplayGroup</code>.  Mientras pueda ser instanciado 
+            directamente originalmente, es mejor usar el método <code>addDisplayGroup()</code>
+            de la clase<code>Zend_Form</code>. Este método toma una 
+            matriz de elementos como su primer argumento y un nombre para desplegar 
+            grupos como segundo argumento. Se puede opcionalmente pasar en una matriz
+            de opciones o en un objeto <code>Zend_Config</code> como tercer argumento.
+        </para>
+
+        <para>
+        	Asumiendo que los elementos 'username' y 'password' has sido determinados
+        	en el formulario, el siguiente código podría agrupar estos elementos en un
+        	despliegue de grupos 'login':
+        </para>
+
+        <programlisting role="php"><![CDATA[
+$form->addDisplayGroup(array('username', 'password'), 'login');
+]]>
+        </programlisting>
+
+        <para>
+        	Se puede acceder a desplegar grupos usando el 
+        	método <code>getDisplayGroup()</code>, o mediante la sobrecarga usando el
+        	nombre del despliegue de grupo:
+        </para>
+
+        <programlisting role="php"><![CDATA[
+// Usando getDisplayGroup():
+$login = $form->getDisplayGroup('login');
+
+// Usando sobrecarga:
+$login = $form->login;
+]]>
+        </programlisting>
+
+        <note>
+            <title>(TODO)Default Decorators Do Not Need to Be Loaded</title>
+
+            <para>
+            	Por defecto, los decoradores por defecto son cargados durante la
+            	inicialización del objeto. Se puede deshabilitar pasando la
+            	opción 'disableLoadDefaultDecorators' cuando se crea un despliegue de grupo:
+            </para>
+
+            <programlisting role="php"><![CDATA[
+$form->addDisplayGroup(
+    array('foo', 'bar'),
+    'foobar',
+    array('disableLoadDefaultDecorators' => true)
+);
+]]>
+            </programlisting>
+
+            <para>
+            	Esta opción puede ser una mezcla con otras opciones pasadas,
+            	ambas como opciones de matrices o en el objeto <code>Zend_Config</code>
+            </para>
+        </note>
+
+        <sect3 id="zend.form.forms.displaygroups.global">
+            <title>Operaciones Globales</title>
+
+            <para>
+            	De la misma manera con los elementos, existen algunas operaciones las cuales
+            	pueden afectar todos los despliegues de grupo; incluye determinando decoradores
+            	y rutas de acceso de complemento en el cual  (TODO)
+                Just as with elements, there are some operations which might
+                affect all display groups; these include setting decorators and
+                setting the plugin path in which to look for decorators.
+            </para>
+
+            <example id="zend.form.forms.displaygroups.global.paths">
+                <title>Setting Decorator Prefix Path for All Display Groups</title>
+
+                <para>(TODO)
+                    By default, display groups inherit whichever decorator paths
+                    the form uses; however, if they should look in alternate
+                    locations, you can use the
+                    <code>addDisplayGroupPrefixPath()</code> method.
+                </para>
+
+                <programlisting role="php"><![CDATA[
+$form->addDisplayGroupPrefixPath('My_Foo_Decorator', 'My/Foo/Decorator');
+]]>
+                </programlisting>
+            </example>
+
+            <example id="zend.form.forms.displaygroups.global.decorators">
+                <title>Setting Decorators for All Display Groups</title>
+
+                <para>
+                    You can set decorators for all display groups.
+                    <code>setDisplayGroupDecorators()</code> accepts an array of
+                    decorators, just like <code>setDecorators()</code>, and will
+                    overwrite any previously set decorators in each display
+                    group. In this example, we set the decorators to simply a
+                    fieldset (the FormElements decorator is necessary to ensure
+                    that the elements are iterated):
+                </para>
+
+                <programlisting role="php"><![CDATA[
+$form->setDisplayGroupDecorators(array(
+    'FormElements',
+    'Fieldset'
+));
+]]>
+                </programlisting>
+            </example>
+        </sect3>
+
+        <sect3 id="zend.form.forms.displaygroups.customClasses">
+            <title>Using Custom Display Group Classes</title>
+
+            <para>
+                By default, <code>Zend_Form</code> uses the
+                <code>Zend_Form_DisplayGroup</code> class for display groups.
+                You may find you need to extend this class in order to provided
+                custom functionality. <code>addDisplayGroup()</code> does not
+                allow passing in a concrete instance, but does allow specifying
+                the class to use as one of its options, using the
+                'displayGroupClass' key:
+            </para>
+
+            <programlisting role="php"><![CDATA[
+// Use the 'My_DisplayGroup' class
+$form->addDisplayGroup(
+    array('username', 'password'),
+    'user',
+    array('displayGroupClass' => 'My_DisplayGroup')
+);
+]]>
+            </programlisting>
+
+            <para>
+                If the class has not yet been loaded, <code>Zend_Form</code>
+                will attempt to do so using <code>Zend_Loader</code>.
+            </para>
+
+            <para>
+                You can also specify a default display group class to use with
+                the form such that all display groups created with the form
+                object will use that class:
+            </para>
+
+            <programlisting role="php"><![CDATA[
+// Use the 'My_DisplayGroup' class for all display groups:
+$form->setDefaultDisplayGroupClass('My_DisplayGroup');
+]]>
+            </programlisting>
+
+            <para>
+                This setting may be specified in configurations as
+                'defaultDisplayGroupClass', and will be loaded early to ensure
+                all display groups use that class.
+            </para>
+        </sect3>
+
+        <sect3 id="zend.form.forms.displaygroups.interactionmethods">
+            <title>Methods for Interacting With Display Groups</title>
+
+            <para>
+            	Los siguinetes métodos pueden ser usados para interactuar con el despligue
+            	de grupos:
+            </para>
+
+            <itemizedlist>
+                <listitem><para>
+                    <code>addDisplayGroup(array $elements, $name, $options = null)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>addDisplayGroups(array $groups)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>setDisplayGroups(array $groups)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>getDisplayGroup($name)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>getDisplayGroups()</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>removeDisplayGroup($name)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>clearDisplayGroups()</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>setDisplayGroupDecorators(array $decorators)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>addDisplayGroupPrefixPath($prefix, $path)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>setDefaultDisplayGroupClass($class)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>getDefaultDisplayGroupClass($class)</code>
+                </para></listitem>
+            </itemizedlist>
+        </sect3>
+
+        <sect3 id="zend.form.forms.displaygroups.methods">
+            <title>Métodos Zend_Form_DisplayGroup</title>
+
+            <para>
+                <code>Zend_Form_DisplayGroup</code> tiene los siguinetes métodos,
+                agrupados por tipo:
+            </para>
+
+            <itemizedlist>
+                <listitem><para>Configuración:</para>
+                    <itemizedlist>
+                        <listitem><para><code>setOptions(array $options)</code></para></listitem>
+
+                        <listitem><para><code>setConfig(Zend_Config $config)</code></para></listitem>
+                    </itemizedlist>
+                </listitem>
+
+                <listitem><para>Metadatos:</para>
+                    <itemizedlist>
+                        <listitem><para><code>setAttrib($key, $value)</code></para></listitem>
+
+                        <listitem><para><code>addAttribs(array $attribs)</code></para></listitem>
+
+                        <listitem><para><code>setAttribs(array $attribs)</code></para></listitem>
+
+                        <listitem><para><code>getAttrib($key)</code></para></listitem>
+
+                        <listitem><para><code>getAttribs()</code></para></listitem>
+
+                        <listitem><para><code>removeAttrib($key)</code></para></listitem>
+
+                        <listitem><para><code>clearAttribs()</code></para></listitem>
+
+                        <listitem><para><code>setName($name)</code></para></listitem>
+
+                        <listitem><para><code>getName()</code></para></listitem>
+
+                        <listitem><para><code>setDescription($value)</code></para></listitem>
+
+                        <listitem><para><code>getDescription()</code></para></listitem>
+
+                        <listitem><para><code>setLegend($legend)</code></para></listitem>
+
+                        <listitem><para><code>getLegend()</code></para></listitem>
+
+                        <listitem><para><code>setOrder($order)</code></para></listitem>
+
+                        <listitem><para><code>getOrder()</code></para></listitem>
+                    </itemizedlist>
+                </listitem>
+
+                <listitem><para>Elementos:</para>
+                    <itemizedlist>
+                        <listitem><para><code>createElement($type, $name, array $options = array())</code></para></listitem>
+
+                        <listitem><para><code>addElement($typeOrElement, $name, array $options = array())</code></para></listitem>
+
+                        <listitem><para><code>addElements(array $elements)</code></para></listitem>
+
+                        <listitem><para><code>setElements(array $elements)</code></para></listitem>
+
+                        <listitem><para><code>getElement($name)</code></para></listitem>
+
+                        <listitem><para><code>getElements()</code></para></listitem>
+
+                        <listitem><para><code>removeElement($name)</code></para></listitem>
+
+                        <listitem><para><code>clearElements()</code></para></listitem>
+                    </itemizedlist>
+                </listitem>
+
+                <listitem><para>Plugin loaders:(TODO)</para>
+                    <itemizedlist>
+                        <listitem><para><code>setPluginLoader(Zend_Loader_PluginLoader $loader)</code></para></listitem>
+
+                        <listitem><para><code>getPluginLoader()</code></para></listitem>
+
+                        <listitem><para><code>addPrefixPath($prefix, $path)</code></para></listitem>
+
+                        <listitem><para><code>addPrefixPaths(array $spec)</code></para></listitem>
+                    </itemizedlist>
+                </listitem>
+
+                <listitem><para>Decoratores:</para>
+                    <itemizedlist>
+                        <listitem><para><code>addDecorator($decorator, $options = null)</code></para></listitem>
+
+                        <listitem><para><code>addDecorators(array $decorators)</code></para></listitem>
+
+                        <listitem><para><code>setDecorators(array $decorators)</code></para></listitem>
+
+                        <listitem><para><code>getDecorator($name)</code></para></listitem>
+
+                        <listitem><para><code>getDecorators()</code></para></listitem>
+
+                        <listitem><para><code>removeDecorator($name)</code></para></listitem>
+
+                        <listitem><para><code>clearDecorators()</code></para></listitem>
+                    </itemizedlist>
+                </listitem>
+
+                <listitem><para>Generadores:</para>
+                    <itemizedlist>
+                        <listitem><para><code>setView(Zend_View_Interface $view = null)</code></para></listitem>
+
+                        <listitem><para><code>getView()</code></para></listitem>
+
+                        <listitem><para><code>render(Zend_View_Interface $view = null)</code></para></listitem>
+                    </itemizedlist>
+                </listitem>
+
+                <listitem><para>I18n:</para>
+                    <itemizedlist>
+                        <listitem><para><code>setTranslator(Zend_Translate_Adapter $translator = null)</code></para></listitem>
+
+                        <listitem><para><code>getTranslator()</code></para></listitem>
+
+                        <listitem><para><code>setDisableTranslator($flag)</code></para></listitem>
+
+                        <listitem><para><code>translatorIsDisabled()</code></para></listitem>
+                    </itemizedlist>
+                </listitem>
+            </itemizedlist>
+        </sect3>
+    </sect2>
+
+    <sect2 id="zend.form.forms.subforms">
+        <title>Sub Formularios</title>
+
+        <para>
+            Sub formularios sirven para diferentes porpósitos:
+        </para>
+
+        <itemizedlist>
+            <listitem><para>
+            	Creando lógicos grupos de elementos. Desde que los sub formularios som 
+            	simplemente formularios, se pueden validar subformularios como entidades individuales.
+            </para></listitem>
+
+            <listitem><para>
+            	Creando formularios multi-páginas. Desde que los sub formularios son simplemente formularios,
+            	se puede deplegar un sub formulario por separado por página, incrementando formularios
+            	multi-páginas donde cada formulario tiene su propia validación lógica. Solo una vez
+            	todos los sub formularios validados podrían ser considerados completos.
+            </para></listitem>
+
+            <listitem><para>
+            	Desplegar agrupaciones. Como desplegar grupos, los sub formularios cuando se generan 
+            	como parte del largo formulario, pueden ser usados para agrupar elementos. Sea conciente,
+            	de todas maneras, que el objeto formulario master no tendrá
+            	conciencia de los elementos en un sub formulario.
+            </para></listitem>
+        </itemizedlist>
+
+        <para>
+            A sub form may be a <code>Zend_Form</code> object, or, more
+            typically, a <code>Zend_Form_SubForm</code> object. The latter
+            contains decorators suitable for inclusion in a larger form (i.e.,
+            it does not render additional HTML form tags, but does group
+            elements). To attach a sub form, simply add it to the form and give
+            it a name:
+        </para>
+
+        <programlisting role="php"><![CDATA[
+$form->addSubForm($subForm, 'subform');
+]]>
+        </programlisting>
+
+        <para>
+            You can retrieve a sub form using either
+            <code>getSubForm($name)</code> or overloading using the sub form
+            name:
+        </para>
+
+        <programlisting role="php"><![CDATA[
+// Using getSubForm():
+$subForm = $form->getSubForm('subform');
+
+// Using overloading:
+$subForm = $form->subform;
+]]>
+        </programlisting>
+
+        <para>
+            Sub forms are included in form iteration, though the elements it
+            contains are not.
+        </para>
+
+        <sect3 id="zend.form.forms.subforms.global">
+            <title>Global Operations</title>
+
+            <para>
+                Like elements and display groups, there are some operations that
+                might need to affect all sub forms. Unlike display groups and
+                elements, however, sub forms inherit most functionality from the
+                master form object, and the only real operation that may need to
+                be performed globally is setting decorators for sub forms. For
+                this purpose, there is the <code>setSubFormDecorators()</code>
+                method. In the next example, we'll set the decorator for all
+                subforms to be simply a fieldset (the FormElements decorator is
+                needed to ensure its elements are iterated):
+            </para>
+
+            <programlisting role="php"><![CDATA[
+$form->setSubFormDecorators(array(
+    'FormElements',
+    'Fieldset'
+));
+]]>
+            </programlisting>
+        </sect3>
+
+        <sect3 id="zend.form.forms.subforms.methods">
+            <title>Methods for Interacting With Sub Forms</title>
+
+            <para>
+                The following methods may be used to interact with sub forms:
+            </para>
+
+            <itemizedlist>
+                <listitem><para>
+                    <code>addSubForm(Zend_Form $form, $name, $order = null)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>addSubForms(array $subForms)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>setSubForms(array $subForms)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>getSubForm($name)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>getSubForms()</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>removeSubForm($name)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>clearSubForms()</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>setSubFormDecorators(array $decorators)</code>
+                </para></listitem>
+            </itemizedlist>
+        </sect3>
+    </sect2>
+
+    <sect2 id="zend.form.forms.metadata">
+        <title>Metadata and Attributes</title>
+
+        <para>
+            While a form's usefulness primarily derives from the elements it
+            contains, it can also contain other metadata, such as a name (often
+            used as a unique ID in the HTML markup); the form action and method;
+            the number of elements, groups, and sub forms it contains; and
+            arbitrary metadata (usually used to set HTML attributes for the form
+            tag itself).
+        </para>
+
+        <para>
+            You can set and retrieve a form's name using the name accessors:
+        </para>
+
+        <programlisting role="php"><![CDATA[
+// Set the name:
+$form->setName('registration');
+
+// Retrieve the name:
+$name = $form->getName();
+]]>
+        </programlisting>
+
+        <para>
+            To set the action (url to which the form submits) and method (method
+            by which it should submit, e.g., 'POST' or 'GET'), use the action
+            and method accessors:
+        </para>
+
+        <programlisting role="php"><![CDATA[
+// Set the action and method:
+$form->setAction('/user/login')
+     ->setMethod('post');
+]]>
+        </programlisting>
+
+        <para>
+            You may also specify the form encoding type specifically using the
+            enctype accessors. Zend_Form defines two constants,
+            <code>Zend_Form::ENCTYPE_URLENCODED</code> and
+            <code>Zend_Form::ENCTYPE_MULTIPART</code>, corresponding to the
+            values 'application/x-www-form-urlencoded' and
+            'multipart/form-data', respectively; however, you can set this to
+            any arbitrary encoding type.
+        </para>
+
+        <programlisting role="php"><![CDATA[
+// Set the action, method, and enctype:
+$form->setAction('/user/login')
+     ->setMethod('post')
+     ->setEnctype(Zend_Form::ENCTYPE_MULTIPART);
+]]>
+        </programlisting>
+
+        <note>
+            <para>
+                The method, action, and enctype are only used internally for rendering,
+                and not for any sort of validation.
+            </para>
+        </note>
+
+        <para>
+            <code>Zend_Form</code> implements the <code>Countable</code>
+            interface, allowing you to pass it as an argument to count:
+        </para>
+
+        <programlisting role="php"><![CDATA[
+$numItems = count($form);
+]]>
+        </programlisting>
+
+        <para>
+            Setting arbitrary metadata is done through the attribs accessors.
+            Since overloading in <code>Zend_Form</code> is used to access
+            elements, display groups, and sub forms, this is the only method for
+            accessing metadata.
+        </para>
+
+        <programlisting role="php"><![CDATA[
+// Setting attributes:
+$form->setAttrib('class', 'zend-form')
+     ->addAttribs(array(
+         'id'       => 'registration',
+         'onSubmit' => 'validate(this)',
+     ));
+
+// Retrieving attributes:
+$class = $form->getAttrib('class');
+$attribs = $form->getAttribs();
+
+// Remove an attribute:
+$form->removeAttrib('onSubmit');
+
+// Clear all attributes:
+$form->clearAttribs();
+]]>
+        </programlisting>
+    </sect2>
+
+    <sect2 id="zend.form.forms.decorators">
+        <title>Decorators</title>
+
+        <para>
+            Creating the markup for a form is often a time-consuming task,
+            particularly if you plan on re-using the same markup to show things
+            such as validation errors, submitted values, etc.
+            <code>Zend_Form</code>'s answer to this issue is
+            <emphasis>decorators</emphasis>.
+        </para>
+
+        <para>
+            Decorators for <code>Zend_Form</code> objects can be used to render
+            a form. The FormElements decorator will iterate through all items in
+            a form -- elements, display groups, and sub forms -- and render
+            them, returning the result. Additional decorators may then be used
+            to wrap this content, or append or prepend it.
+        </para>
+
+        <para>
+            The default decorators for <code>Zend_Form</code> are FormElements,
+            HtmlTag (wraps in a definition list), and Form; the equivalent code
+            for creating them is as follows:
+        </para>
+
+        <programlisting role="php"><![CDATA[
+$form->setDecorators(array(
+    'FormElements',
+    array('HtmlTag', array('tag' => 'dl')),
+    'Form'
+));
+]]>
+        </programlisting>
+
+        <para>
+            This creates output like the following:
+        </para>
+
+        <programlisting role="html"><![CDATA[
+<form action="/form/action" method="post">
+<dl>
+...
+</dl>
+</form>
+]]>
+</programlisting>
+
+        <para>
+            Any attributes set on the form object will be used as HTML
+            attributes of the <code>&lt;form&gt;</code> tag.
+        </para>
+
+        <note>
+            <title>Default Decorators Do Not Need to Be Loaded</title>
+
+            <para>
+                By default, the default decorators are loaded during object
+                initialization. You can disable this by passing the
+                'disableLoadDefaultDecorators' option to the constructor:
+            </para>
+
+            <programlisting role="php"><![CDATA[
+$form = new Zend_Form(array('disableLoadDefaultDecorators' => true));
+]]>
+            </programlisting>
+
+            <para>
+                This option may be mixed with any other options you pass,
+                both as array options or in a <code>Zend_Config</code> object.
+            </para>
+        </note>
+
+        <note>
+            <title>Using Multiple Decorators of the Same Type</title>
+
+            <para>
+                Internally, <code>Zend_Form</code> uses a decorator's
+                class as the lookup mechanism when retrieving decorators. As a
+                result, you cannot register multiple decorators of the same
+                type; subsequent decorators will simply overwrite those that
+                existed before.
+            </para>
+
+            <para>
+                To get around this, you can use aliases. Instead of passing a
+                decorator or decorator name as the first argument to
+                <code>addDecorator()</code>, pass an array with a single
+                element, with the alias pointing to the decorator object or
+                name:
+            </para>
+
+            <programlisting role="php"><![CDATA[
+// Alias to 'FooBar':
+$form->addDecorator(array('FooBar' => 'HtmlTag'), array('tag' => 'div'));
+
+// And retrieve later:
+$form = $element->getDecorator('FooBar');
+]]>
+            </programlisting>
+
+            <para>
+                In the <code>addDecorators()</code> and
+                <code>setDecorators()</code> methods, you will need to pass
+                the 'decorator' option in the array representing the decorator:
+            </para>
+
+            <programlisting role="php"><![CDATA[
+// Add two 'HtmlTag' decorators, aliasing one to 'FooBar':
+$form->addDecorators(
+    array('HtmlTag', array('tag' => 'div')),
+    array(
+        'decorator' => array('FooBar' => 'HtmlTag'),
+        'options' => array('tag' => 'dd')
+    ),
+);
+
+// And retrieve later:
+$htmlTag = $form->getDecorator('HtmlTag');
+$fooBar  = $form->getDecorator('FooBar');
+]]>
+            </programlisting>
+        </note>
+
+        <para>
+            You may create your own decorators for generating the form. One
+            common use case is if you know the exact HTML you wish to use; your
+            decorator could create the exact HTML and simply return it,
+            potentially using the decorators from individual elements or display
+            groups.
+        </para>
+
+        <para>
+            The following methods may be used to interact with decorators:
+        </para>
+
+        <itemizedlist>
+                <listitem><para>
+                    <code>addDecorator($decorator, $options = null)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>addDecorators(array $decorators)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>setDecorators(array $decorators)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>getDecorator($name)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>getDecorators()</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>removeDecorator($name)</code>
+                </para></listitem>
+
+                <listitem><para>
+                    <code>clearDecorators()</code>
+                </para></listitem>
+        </itemizedlist>
+
+        <para>
+            <code>Zend_Form</code> also uses overloading to allow rendering
+            specific decorators. <code>__call()</code> will intercept methods
+            that lead with the text 'render' and use the remainder of the method
+            name to lookup a decorator; if found, it will then render that
+            <emphasis>single</emphasis> decorator. Any arguments passed to the
+            method call will be used as content to pass to the decorator's
+            <code>render()</code> method. As an example:
+        </para>
+
+        <programlisting role="php"><![CDATA[
+// Render only the FormElements decorator:
+echo $form->renderFormElements();
+
+// Render only the fieldset decorator, passing in content:
+echo $form->renderFieldset("<p>This is fieldset content</p>");
+]]></programlisting>
+
+        <para>
+            If the decorator does not exist, an exception is raised.
+        </para>
+    </sect2>
+
+    <sect2 id="zend.form.forms.validation">
+        <title>Validation</title>
+
+        <para>
+            A primary use case for forms is validating submitted data.
+            <code>Zend_Form</code> allows you to validate an entire form at once
+            or a partial form, as well as to automate validation responses for
+            XmlHttpRequests (AJAX).  If the submitted data is not valid, it has
+            methods for retrieving the various error codes and messages for
+            elements and sub forms failing validations.
+        </para>
+
+        <para>
+            To validate a full form, use the <code>isValid()</code> method:
+        </para>
+
+        <programlisting role="php"><![CDATA[
+if (!$form->isValid($_POST)) {
+    // failed validation
+}
+]]>
+        </programlisting>
+
+        <para>
+            <code>isValid()</code> will validate every required element, and any
+            unrequired element contained in the submitted data.
+        </para>
+
+        <para>
+            Sometimes you may need to validate only a subset of the data; for
+            this, use <code>isValidPartial($data)</code>:
+        </para>
+
+        <programlisting role="php"><![CDATA[
+if (!$form->isValidPartial($data)) {
+    // failed validation
+}
+]]>
+        </programlisting>
+
+        <para>
+            <code>isValidPartial()</code> only attempts to validate those items
+            in the data for which there are matching elements; if an element is
+            not represented in the data, it is skipped.
+        </para>
+
+        <para>
+            When validating elements or groups of elements for an AJAX request,
+            you will typically be validating a subset of the form, and want the
+            response back in JSON. <code>processAjax()</code> does precisely
+            that:
+        </para>
+
+        <programlisting role="php"><![CDATA[
+$json = $form->processAjax($data);
+]]>
+        </programlisting>
+
+        <para>
+            You can then simply send the JSON response to the client. If the
+            form is valid, this will be a boolean true response. If not, it will
+            be a javascript object containing key/message pairs, where each
+            'message' is an array of validation error messages.
+        </para>
+
+        <para>
+            For forms that fail validation, you can retrieve both error codes
+            and error messages, using <code>getErrors()</code> and
+            <code>getMessages()</code>, respectively:
+        </para>
+
+        <programlisting role="php"><![CDATA[
+$codes = $form->getErrors();
+$messages = $form->getMessage();
+]]>
+        </programlisting>
+
+        <note>
+            <para>
+                Since the messages returned by <code>getMessages()</code> are an
+                array of error code/message pairs, <code>getErrors()</code> is
+                typically not needed.
+            </para>
+        </note>
+
+        <para>
+            You can retrieve codes and error messages for individual elements by
+            simply passing the element name to each:
+        </para>
+
+        <programlisting role="php"><![CDATA[
+$codes = $form->getErrors('username');
+$messages = $form->getMessages('username');
+]]>
+        </programlisting>
+
+        <note>
+            <para>
+                Note: When validating elements, <code>Zend_Form</code> sends a
+                second argument to each element's <code>isValid()</code> method:
+                the array of data being validated. This can then be used by
+                individual validators to allow them to utilize other submitted
+                values when determining the validity of the data. An example
+                would be a registration form that requires both a password and
+                password confirmation; the password element could use the
+                password confirmation as part of its validation.
+            </para>
+        </note>
+
+        <sect3 id="zend.form.forms.validation.errors">
+            <title>Custom Error Messages</title>
+
+            <para>
+                At times, you may want to specify one or more specific error
+                messages to use instead of the error messages generated by the
+                validators attached to your elements. Additionally, at times you
+                may want to mark the form invalid yourself. As of 1.6.0, this
+                functionality is possible via the following methods.
+            </para>
+
+            <itemizedlist>
+                <listitem><para>
+                    <code>addErrorMessage($message)</code>: add an error message
+                    to display on form validation errors. You may call this more
+                    than once, and new messages are appended to the stack.
+                </para></listitem>
+
+                <listitem><para>
+                    <code>addErrorMessages(array $messages)</code>: add multiple
+                    error messages to display on form validation errors.
+                </para></listitem>
+
+                <listitem><para>
+                    <code>setErrorMessages(array $messages)</code>: add multiple
+                    error messages to display on form validation errors,
+                    overwriting all previously set error messages.
+                </para></listitem>
+
+                <listitem><para>
+                    <code>getErrorMessages()</code>: retrieve the list of
+                    custom error messages that have been defined.
+                </para></listitem>
+
+                <listitem><para>
+                    <code>clearErrorMessages()</code>: remove all custom error
+                    messages that have been defined.
+                </para></listitem>
+
+                <listitem><para>
+                    <code>markAsError()</code>: mark the form as having
+                    failed validation.
+                </para></listitem>
+
+                <listitem><para>
+                    <code>addError($message)</code>: add a message to the custom
+                    error messages stack and flag the form as invalid.
+                </para></listitem>
+
+                <listitem><para>
+                    <code>addErrors(array $messages)</code>: add several
+                    messages to the custom error messages stack and flag the
+                    form as invalid.
+                </para></listitem>
+
+                <listitem><para>
+                    <code>setErrors(array $messages)</code>: overwrite the
+                    custom error messages stack with the provided messages and
+                    flag the form as invalid.
+                </para></listitem>
+            </itemizedlist>
+
+            <para>
+                All errors set in this fashion may be translated.
+            </para>
+        </sect3>
+    </sect2>
+
+    <sect2 id="zend.form.forms.methods">
+        <title>Methods</title>
+
+        <para>
+            The following is a full list of methods available to
+            <code>Zend_Form</code>, grouped by type:
+        </para>
+
+        <itemizedlist>
+            <listitem><para>Configuration and Options:</para>
+                <itemizedlist>
+                    <listitem><para><code>setOptions(array $options)</code></para></listitem>
+
+                    <listitem><para><code>setConfig(Zend_Config $config)</code></para></listitem>
+                </itemizedlist>
+            </listitem>
+
+            <listitem><para>Plugin Loaders and paths:</para>
+                <itemizedlist>
+                    <listitem><para><code>setPluginLoader(Zend_Loader_PluginLoader_Interface $loader, $type = null)</code></para></listitem>
+
+                    <listitem><para><code>getPluginLoader($type = null)</code></para></listitem>
+
+                    <listitem><para><code>addPrefixPath($prefix, $path, $type = null) </code></para></listitem>
+
+                    <listitem><para><code>addPrefixPaths(array $spec)</code></para></listitem>
+
+                    <listitem><para><code>addElementPrefixPath($prefix, $path, $type = null)</code></para></listitem>
+
+                    <listitem><para><code>addElementPrefixPaths(array $spec)</code></para></listitem>
+
+                    <listitem><para><code>addDisplayGroupPrefixPath($prefix, $path)</code></para></listitem>
+                </itemizedlist>
+            </listitem>
+
+            <listitem><para>Metadata:</para>
+                <itemizedlist>
+                    <listitem><para><code>setAttrib($key, $value)</code></para></listitem>
+
+                    <listitem><para><code>addAttribs(array $attribs)</code></para></listitem>
+
+                    <listitem><para><code>setAttribs(array $attribs)</code></para></listitem>
+
+                    <listitem><para><code>getAttrib($key)</code></para></listitem>
+
+                    <listitem><para><code>getAttribs()</code></para></listitem>
+
+                    <listitem><para><code>removeAttrib($key)</code></para></listitem>
+
+                    <listitem><para><code>clearAttribs()</code></para></listitem>
+
+                    <listitem><para><code>setAction($action)</code></para></listitem>
+
+                    <listitem><para><code>getAction()</code></para></listitem>
+
+                    <listitem><para><code>setMethod($method)</code></para></listitem>
+
+                    <listitem><para><code>getMethod()</code></para></listitem>
+
+                    <listitem><para><code>setName($name)</code></para></listitem>
+
+                    <listitem><para><code>getName()</code></para></listitem>
+                </itemizedlist>
+            </listitem>
+
+            <listitem><para>Elements:</para>
+                <itemizedlist>
+                    <listitem><para><code>addElement($element, $name = null, $options = null)</code></para></listitem>
+
+                    <listitem><para><code>addElements(array $elements)</code></para></listitem>
+
+                    <listitem><para><code>setElements(array $elements)</code></para></listitem>
+
+                    <listitem><para><code>getElement($name)</code></para></listitem>
+
+                    <listitem><para><code>getElements()</code></para></listitem>
+
+                    <listitem><para><code>removeElement($name)</code></para></listitem>
+
+                    <listitem><para><code>clearElements()</code></para></listitem>
+
+                    <listitem><para><code>setDefaults(array $defaults)</code></para></listitem>
+
+                    <listitem><para><code>setDefault($name, $value)</code></para></listitem>
+
+                    <listitem><para><code>getValue($name)</code></para></listitem>
+
+                    <listitem><para><code>getValues()</code></para></listitem>
+
+                    <listitem><para><code>getUnfilteredValue($name)</code></para></listitem>
+
+                    <listitem><para><code>getUnfilteredValues()</code></para></listitem>
+
+                    <listitem><para><code>setElementFilters(array $filters)</code></para></listitem>
+
+                    <listitem><para><code>setElementDecorators(array $decorators)</code></para></listitem>
+                </itemizedlist>
+            </listitem>
+
+            <listitem><para>Sub forms:</para>
+                <itemizedlist>
+                    <listitem><para><code>addSubForm(Zend_Form $form, $name, $order = null)</code></para></listitem>
+
+                    <listitem><para><code>addSubForms(array $subForms)</code></para></listitem>
+
+                    <listitem><para><code>setSubForms(array $subForms)</code></para></listitem>
+
+                    <listitem><para><code>getSubForm($name)</code></para></listitem>
+
+                    <listitem><para><code>getSubForms()</code></para></listitem>
+
+                    <listitem><para><code>removeSubForm($name)</code></para></listitem>
+
+                    <listitem><para><code>clearSubForms()</code></para></listitem>
+
+                    <listitem><para><code>setSubFormDecorators(array $decorators)</code></para></listitem>
+                </itemizedlist>
+            </listitem>
+
+            <listitem><para>Display groups:</para>
+                <itemizedlist>
+                    <listitem><para><code>addDisplayGroup(array $elements, $name, $options = null)</code></para></listitem>
+
+                    <listitem><para><code>addDisplayGroups(array $groups)</code></para></listitem>
+
+                    <listitem><para><code>setDisplayGroups(array $groups)</code></para></listitem>
+
+                    <listitem><para><code>getDisplayGroup($name)</code></para></listitem>
+
+                    <listitem><para><code>getDisplayGroups()</code></para></listitem>
+
+                    <listitem><para><code>removeDisplayGroup($name)</code></para></listitem>
+
+                    <listitem><para><code>clearDisplayGroups()</code></para></listitem>
+
+                    <listitem><para><code>setDisplayGroupDecorators(array $decorators)</code></para></listitem>
+                </itemizedlist>
+            </listitem>
+
+            <listitem><para>Validation</para>
+                <itemizedlist>
+                    <listitem><para><code>populate(array $values)</code></para></listitem>
+
+                    <listitem><para><code>isValid(array $data)</code></para></listitem>
+
+                    <listitem><para><code>isValidPartial(array $data)</code></para></listitem>
+
+                    <listitem><para><code>processAjax(array $data)</code></para></listitem>
+
+                    <listitem><para><code>persistData()</code></para></listitem>
+
+                    <listitem><para><code>getErrors($name = null)</code></para></listitem>
+
+                    <listitem><para><code>getMessages($name = null)</code></para></listitem>
+                </itemizedlist>
+            </listitem>
+
+            <listitem><para>Rendering:</para>
+                <itemizedlist>
+                    <listitem><para><code>setView(Zend_View_Interface $view = null)</code></para></listitem>
+
+                    <listitem><para><code>getView()</code></para></listitem>
+
+                    <listitem><para><code>addDecorator($decorator, $options = null)</code></para></listitem>
+
+                    <listitem><para><code>addDecorators(array $decorators)</code></para></listitem>
+
+                    <listitem><para><code>setDecorators(array $decorators)</code></para></listitem>
+
+                    <listitem><para><code>getDecorator($name)</code></para></listitem>
+
+                    <listitem><para><code>getDecorators()</code></para></listitem>
+
+                    <listitem><para><code>removeDecorator($name)</code></para></listitem>
+
+                    <listitem><para><code>clearDecorators()</code></para></listitem>
+
+                    <listitem><para><code>render(Zend_View_Interface $view = null)</code></para></listitem>
+                </itemizedlist>
+            </listitem>
+
+            <listitem><para>I18n:</para>
+                <itemizedlist>
+                    <listitem><para><code>setTranslator(Zend_Translate_Adapter $translator = null)</code></para></listitem>
+
+                    <listitem><para><code>getTranslator()</code></para></listitem>
+
+                    <listitem><para><code>setDisableTranslator($flag)</code></para></listitem>
+
+                    <listitem><para><code>translatorIsDisabled()</code></para></listitem>
+                </itemizedlist>
+            </listitem>
+        </itemizedlist>
+    </sect2>
+
+    <sect2 id="zend.form.forms.config">
+        <title>Configuration</title>
+
+        <para>
+            <code>Zend_Form</code> is fully configurable via
+            <code>setOptions()</code> and <code>setConfig()</code> (or by
+            passing options or a <code>Zend_Config</code> object to the
+            constructor).  Using these methods, you can specify form elements,
+            display groups, decorators, and metadata.
+        </para>
+
+        <para>
+            As a general rule, if 'set' + the option key refers to a
+            <code>Zend_Form</code> method, then the value provided will be
+            passed to that method. If the accessor does not exist, the key is
+            assumed to reference an attribute, and will be passed to
+            <code>setAttrib()</code>.
+        </para>
+
+        <para>
+            Exceptions to the rule include the following:
+        </para>
+
+        <itemizedlist>
+            <listitem><para>
+                    <code>prefixPaths</code> will be passed to
+                    <code>addPrefixPaths()</code>
+            </para></listitem>
+
+            <listitem><para>
+                <code>elementPrefixPaths</code> will be passed to
+                <code>addElementPrefixPaths()</code>
+            </para></listitem>
+
+            <listitem><para>
+                <code>displayGroupPrefixPaths</code> will be passed to
+                <code>addDisplayGroupPrefixPaths()</code>
+            </para></listitem>
+
+            <listitem>
+                <para>the following setters cannot be set in this way:</para>
+
+                <itemizedlist>
+                    <listitem><para><code>setAttrib (though setAttribs *will* work)</code></para></listitem>
+
+                    <listitem><para><code>setConfig</code></para></listitem>
+
+                    <listitem><para><code>setDefault</code></para></listitem>
+
+                    <listitem><para><code>setOptions</code></para></listitem>
+
+                    <listitem><para><code>setPluginLoader</code></para></listitem>
+
+                    <listitem><para><code>setSubForms</code></para></listitem>
+
+                    <listitem><para><code>setTranslator</code></para></listitem>
+
+                    <listitem><para><code>setView</code></para></listitem>
+                </itemizedlist>
+            </listitem>
+        </itemizedlist>
+
+        <para>
+            As an example, here is a config file that passes configuration for
+            every type of configurable data:
+        </para>
+
+        <programlisting role="ini"><![CDATA[
+[element]
+name = "registration"
+action = "/user/register"
+method = "post"
+attribs.class = "zend_form"
+attribs.onclick = "validate(this)"
+
+disableTranslator = 0
+
+prefixPath.element.prefix = "My_Element"
+prefixPath.element.path = "My/Element/"
+elementPrefixPath.validate.prefix = "My_Validate"
+elementPrefixPath.validate.path = "My/Validate/"
+displayGroupPrefixPath.prefix = "My_Group"
+displayGroupPrefixPath.path = "My/Group/"
+
+elements.username.type = "text"
+elements.username.options.label = "Username"
+elements.username.options.validators.alpha.validator = "Alpha"
+elements.username.options.filters.lcase = "StringToLower"
+; more elements, of course...
+
+elementFilters.trim = "StringTrim"
+;elementDecorators.trim = "StringTrim"
+
+displayGroups.login.elements.username = "username"
+displayGroups.login.elements.password = "password"
+displayGroupDecorators.elements.decorator = "FormElements"
+displayGroupDecorators.fieldset.decorator = "Fieldset"
+
+decorators.elements.decorator = "FormElements"
+decorators.fieldset.decorator = "FieldSet"
+decorators.fieldset.decorator.options.class = "zend_form"
+decorators.form.decorator = "Form"
+]]>
+</programlisting>
+
+        <para>
+            The above could easily be abstracted to an XML or PHP array-based
+            configuration file.
+        </para>
+    </sect2>
+
+    <sect2 id="zend.form.forms.custom">
+        <title>Custom forms</title>
+
+        <para>
+            An alternative to using configuration-based forms is to subclass
+            <code>Zend_Form</code>. This has several benefits:
+        </para>
+
+        <itemizedlist>
+            <listitem><para>
+                You can unit test your form easily to ensure validations and
+                rendering perform as expected.
+            </para></listitem>
+
+            <listitem><para>
+                Fine-grained control over individual elements.
+            </para></listitem>
+
+            <listitem><para>
+                Re-use of form objects, and greater portability (no need to
+                track config files).
+            </para></listitem>
+
+            <listitem><para>
+                Implementing custom functionality.
+            </para></listitem>
+        </itemizedlist>
+
+        <para>
+            The most typical use case would be to use the
+            <code>init()</code> method to setup specific form elements and
+            configuration:
+        </para>
+
+        <programlisting role="php"><![CDATA[
+class My_Form_Login extends Zend_Form
+{
+    public function init()
+    {
+        $username = new Zend_Form_Element_Text('username');
+        $username->class = 'formtext';
+        $username->setLabel('Username:')
+                 ->setDecorators(array(
+                     array('ViewHelper',
+                           array('helper' => 'formText')),
+                     array('Label',
+                           array('class' => 'label'))
+                 ));
+
+        $password = new Zend_Form_Element_Password('password');
+        $password->class = 'formtext';
+        $password->setLabel('Username:')
+                 ->setDecorators(array(
+                     array('ViewHelper',
+                           array('helper' => 'formPassword')),
+                     array('Label',
+                           array('class' => 'label'))
+                 ));
+
+        $submit = new Zend_Form_Element_Submit('login');
+        $submit->class = 'formsubmit';
+        $submit->setValue('Login')
+               ->setDecorators(array(
+                   array('ViewHelper',
+                   array('helper' => 'formSubmit'))
+               ));
+
+        $this->addElements(array(
+            $username,
+            $password,
+            $submit
+        ));
+
+        $this->setDecorators(array(
+            'FormElements',
+            'Fieldset',
+            'Form'
+        ));
+    }
+}
+]]>
+        </programlisting>
+
+        <para>
+            This form can then be instantiated with simply:
+        </para>
+
+        <programlisting role="php"><![CDATA[
+$form = new My_Form_Login();
+]]>
+        </programlisting>
+
+        <para>
+            and all functionality is already setup and ready; no config files
+            needed. (Note that this example is greatly simplified, as it
+            contains no validators or filters for the elements.)
+        </para>
+
+        <para>
+            Another common reason for extension is to define a set of
+            default decorators. You can do this by overriding the
+            <code>loadDefaultDecorators()</code> method:
+        </para>
+
+        <programlisting role="php"><![CDATA[
+class My_Form_Login extends Zend_Form
+{
+    public function loadDefaultDecorators()
+    {
+        $this->setDecorators(array(
+            'FormElements',
+            'Fieldset',
+            'Form'
+        ));
+    }
+}
+]]>
+        </programlisting>
+    </sect2>
+</sect1>
+<!--
+vim:se ts=4 sw=4 et:
+-->

@@ -1,0 +1,150 @@
+body {
+	background:url('images/background.jpg') repeat-x;
+	height:100%;
+	width:100%;
+	margin:0; padding:0;
+}
+
+#footer a { color:#ccc; font-weight:bold; }
+#footer a:link { color:#ccc; }
+#footer a:hover { color:#ededed; }
+#footer a:visited { color:#ccc; }
+
+a { color:#666; font-weight:normal; }
+a:link { color:#666; }
+a:hover { color:#333; }
+a:visited { color:#333; }
+
+#container {
+	width:920px;
+	margin:0 auto;
+	position:relative;
+}
+
+#downloadDiv, #box1, #box2, #box3, #box4 {
+	z-index:10;
+	visibility:hidden;
+	position:absolute;
+	margin:0;
+	padding:0;
+	text-align:center;
+	width:310px;
+	height:310px;
+}
+
+#box1 {
+	top:150px;
+	left:0;
+}
+#box2 {
+	z-index:12;
+	top:225px;
+	left:245px;
+}
+#box3 {
+	top:75px;
+	left:430px;
+}
+#box4 {
+	z-index:12;
+	top:235px;
+	left:610px;
+}
+
+#downloadDiv {
+	top:0; left:-500px;
+	visibility:visible;
+}
+
+h1.handle {
+	position:relative;
+	top:-2px;
+	margin:1.6em 0pt 0pt;
+	font:20pt Arial,sans-serif;
+	cursor:move;
+	z-index:2;
+	color:#bababd;
+	font-style:italic;
+	font-size:1.7em;
+}
+
+p {
+	position:relative;
+	z-index:2;
+	color:#1a1917;
+	font-family: "Lucida Grande",Arial,sans-serif;
+	font-size:0.8em;
+	padding-right:8px;
+	line-height:1.3em;
+}
+
+#container img {
+	position:absolute;
+	top:0; left:0;
+	z-index:1;
+}
+
+#header {
+	position:absolute;
+	top:200px;
+	left:-900px;
+	z-index:15;
+}
+
+#footer {
+	text-align:center;
+	position:relative;
+	top:610px;
+	width:880px;
+	margin:0 auto;
+	
+}
+
+#footer p {
+	color:#fff;
+	font-size:0.7em;
+	font-weight:normal;
+}
+
+#interact {
+	padding:5px;
+	position:absolute;
+	top:0;
+	right:5px;
+}
+
+#interact label {
+	font-weight:bold;
+	color:#fff;
+}
+
+#downloadButton {
+	background:url("images/download.gif") no-repeat top center;
+	visibility:hidden;
+	height:45px;
+	width:300px;
+	cursor:pointer;
+	z-index:42;
+}
+
+#downloadForm { visibility: hidden; }
+
+#submitNode { cursor:pointer; }
+
+span.a11ytext { visibility:hidden; cursor:pointer; }
+
+.dijit_a11y span.a11ytext { visibility:visible !important; }
+
+#whyDojoRoll, #whyList, #whyList li {
+	z-index:43;
+	color:#333;
+	font-weight:bold;
+	list-style-type:none;
+	text-align:center;
+}
+#whyDojoBox {
+	text-align:center;
+	width:300px;
+	height:2em;
+	position:relative;
+}

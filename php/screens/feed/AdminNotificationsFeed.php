@@ -23,6 +23,13 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \FeedScreen;
+use Criteria;
+use DB\AdminPeer;
+use DB\AdminNotificationPeer;
+
 class AdminNotificationsFeed extends FeedScreen {
 	
 	protected $requiresAuthentication = true;
@@ -37,7 +44,7 @@ class AdminNotificationsFeed extends FeedScreen {
 		$c->add("site_id", $site->getSiteId());
 		$c->add("user_id", $user->getUserId());
 		
-		$admin = DB_AdminPeer::instance()->selectOne($c);
+		$admin = AdminPeer::instance()->selectOne($c);
 		
 		if($admin == null){
 			return _("Sorry, you are not allowed to view this feed.");	
@@ -65,7 +72,7 @@ class AdminNotificationsFeed extends FeedScreen {
 		$c->addOrderDescending('notification_id');
 		$c->setLimit(20);	
 		
-		$nots = DB_AdminNotificationPeer::instance()->select($c);
+		$nots = AdminNotificationPeer::instance()->select($c);
 		
 		$channel['title'] = _('Admin notifications for site').' "'.htmlspecialchars($site->getName()).'"';
 		$channel['link'] = "http://".$site->getDomain()."/admin:manage/start/notifications";

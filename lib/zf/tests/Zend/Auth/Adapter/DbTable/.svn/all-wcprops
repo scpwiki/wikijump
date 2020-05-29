@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Auth/Adapter/DbTable
+END
+AllTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Auth/Adapter/DbTable/AllTests.php
+END
+BasicSqliteTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Auth/Adapter/DbTable/BasicSqliteTest.php
+END

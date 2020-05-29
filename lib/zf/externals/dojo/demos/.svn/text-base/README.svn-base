@@ -1,0 +1,39 @@
+-------------------------------------------------------------------------------
+Dojo Project Demos
+-------------------------------------------------------------------------------
+Project state:
+
+	experimental
+
+-------------------------------------------------------------------------------
+Project description
+
+	Demos which show off all of Dojo, potentially including a server-side
+	component. Each demo resides in a sub-directory. Demos should not depend on
+	other demos for code, but may depend on things in the top-level resources
+	directory or in dojo, dijit, dojox, and util namespaces.
+	
+	These demos are not included in releases, and unlike tests inside of Dijit,
+	they may depend on DojoX components or not be fully accessible, etc.
+	Additionally, icons, images, and other resources not licensable for use in
+	the mainline toolkit may be included in the demos/ directory so long as
+	their license status is noted in demo-specific LICENSE files.
+
+	Server-side components are recommended to be written in PHP 5 and may use
+	the Zend Framework should a MVC framework be required for a particular
+	demo.
+
+-------------------------------------------------------------------------------
+Dependencies:
+
+	Dojo Core
+	Dijit
+	DojoX
+
+-------------------------------------------------------------------------------
+Installation instructions
+
+	TODOC
+
+-------------------------------------------------------------------------------
+

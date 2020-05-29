@@ -23,6 +23,40 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyAction;
+use Wikidot\Yaml;
+use \WDStringUtils;
+use Database;
+use \ProcessException;
+use ODate;
+use DB\PageEditLockPeer;
+use DB\CategoryPeer;
+use \WDPermissionManager;
+use Criteria;
+use DB\PagePeer;
+use DB\PageEditLock;
+use DB\Page;
+use DB\PageRevision;
+use DB\PageSource;
+use DB\PageMetadata;
+use DB\PageCompiled;
+use \Outdater;
+use \EventLogger;
+use OzoneLogger;
+use \ODiff;
+use Exception;
+use \DependencyFixer;
+use DB\PageRevisionPeer;
+use DB\PageMetadataPeer;
+use DB\PageTagPeer;
+use DB\PageTag;
+use \WDPermissionException;
+use DB\ModeratorPeer;
+use DB\AdminPeer;
+use \Deleter;
+
 class WikiPageAction extends SmartyAction {
 	
 	protected static $AUTOINCREMENT_PAGE = 'autoincrementpage';
@@ -45,7 +79,7 @@ class WikiPageAction extends SmartyAction {
                     $data[$m[1]] = $val;
                 }
             }
-            $source = Wikidot_Yaml::dump($data);
+            $source = Yaml::dump($data);
         } else {
 		    $source = trim($pl->getParameterValue("source"));
         }
@@ -96,7 +130,7 @@ class WikiPageAction extends SmartyAction {
 				$autoincrement = true;
 			}
 			if(!$autoincrement){
-				DB_PageEditLockPeer::instance()->deleteOutdatedByPageName($site->getSiteId(), $unixName);
+				PageEditLockPeer::instance()->deleteOutdatedByPageName($site->getSiteId(), $unixName);
 			}
 			// a page should be created!
 			
@@ -111,10 +145,10 @@ class WikiPageAction extends SmartyAction {
 			}
 			
 			// check if category exists. if not - create it!
-			$category = DB_CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId(), false);
+			$category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId(), false);
 			if($category == null){
 				// create the category - just clone the default category!!!
-				$category = DB_CategoryPeer::instance()->selectByName("_default", $site->getSiteId(), false); 
+				$category = CategoryPeer::instance()->selectByName("_default", $site->getSiteId(), false); 
 				$category->setName($categoryName);
 				// fill with some important things - we assume the _default category exists!!! IT REALLY SHOULD!!!
 				$category->setCategoryId(null);
@@ -139,9 +173,9 @@ class WikiPageAction extends SmartyAction {
 				$c->add("lock_id", $lockId);
 				$c->add("secret", $lockSecret);
 				
-				$lock = DB_PageEditLockPeer::instance()->selectOne($c);
+				$lock = PageEditLockPeer::instance()->selectOne($c);
 				if($lock == null){
-					$page = DB_PagePeer::instance()->selectByName($site->getSiteId(), $unixName);
+					$page = PagePeer::instance()->selectByName($site->getSiteId(), $unixName);
 					if($page != null){
 						// page exists!!! error!
 						$runData->ajaxResponseAdd("noLockError", "other_locks");
@@ -156,7 +190,7 @@ class WikiPageAction extends SmartyAction {
 					
 					// check if we can TRANSPARENTLY recreate the lock IF there is no
 					// conflicting lock and the revision_id has not changed.
-					$lock = new DB_PageEditLock();
+					$lock = new PageEditLock();
 				
 					$lock->setPageUnixName($unixName);
 					$lock->setSiteId($site->getSiteId());
@@ -210,10 +244,10 @@ class WikiPageAction extends SmartyAction {
 				$runData->ajaxResponseAdd('pageUnixName', $unixName);
 			}
 			
-			$page = new DB_Page();	
+			$page = new Page();	
 			$page->obtainPK();
 			
-			$pageRevision = new DB_PageRevision();
+			$pageRevision = new PageRevision();
 			$pageRevision->setSiteId($site->getSiteId());
 			$pageRevision->setPageId($page->getPageId());
 			$pageRevision->setFlagNew(true);
@@ -224,12 +258,12 @@ class WikiPageAction extends SmartyAction {
 			$pageRevision->setPageId($page->getPageId());
 			$page->setRevisionId($pageRevision->getRevisionId());
 			
-			$pageSource = new DB_PageSource();
+			$pageSource = new PageSource();
 			$pageSource->setText($source);
 			$pageSource->save();
 			$pageRevision->setSourceId($pageSource->getSourceId());		
 			
-			$pageMetadata = new DB_PageMetadata();
+			$pageMetadata = new PageMetadata();
 			$pageMetadata->setTitle($title);
 			
 			$pageMetadata->setUnixName($unixName);
@@ -239,7 +273,7 @@ class WikiPageAction extends SmartyAction {
 			$pageMetadata->save();
 			$pageRevision->setMetadataId($pageMetadata->getMetadataId());	
 			
-			$pageCompiled = new DB_PageCompiled();
+			$pageCompiled = new PageCompiled();
 			$pageCompiled->setPageId($page->getPageId());
 			$newPage = true;
 			
@@ -253,7 +287,7 @@ class WikiPageAction extends SmartyAction {
 			$page->setTitle($title);
 			$page->setDateLastEdited($nowDate);
 
-			$pageCompiled = new DB_PageCompiled();
+			$pageCompiled = new PageCompiled();
 			$pageCompiled->setPageId($page->getPageId());
 			$pageCompiled->outdate();
 			$newPage = true;
@@ -288,7 +322,7 @@ class WikiPageAction extends SmartyAction {
 			if(!$autoincrement){
 				$c = new Criteria();
 				$c->add("lock_id", $lockId);
-				DB_PageEditLockPeer::instance()->delete($c);
+				PageEditLockPeer::instance()->delete($c);
 			}
 			EventLogger::instance()->logNewPage($page);
 			
@@ -296,12 +330,12 @@ class WikiPageAction extends SmartyAction {
 			
 			// THE PAGE ALREADY EXISTS
 			
-			DB_PageEditLockPeer::instance()->deleteOutdated($pageId);
+			PageEditLockPeer::instance()->deleteOutdated($pageId);
 			
 			$c = new Criteria();
 			$c->add("page_id", $pageId);
 			$c->setForUpdate(true);
-			$page = DB_PagePeer::instance()->selectOne($c);
+			$page = PagePeer::instance()->selectOne($c);
 			
 			if($page == null) {
 				throw new ProcessException(_("Page does not exist."));
@@ -316,7 +350,7 @@ class WikiPageAction extends SmartyAction {
 			$c->add("lock_id", $lockId);
 			$c->add("secret", $lockSecret);
 			
-			$lock = DB_PageEditLockPeer::instance()->selectOne($c);
+			$lock = PageEditLockPeer::instance()->selectOne($c);
 			if($lock == null){
 				OzoneLogger::instance()->debug("no lock");
 				// no lock!!! not good.
@@ -334,7 +368,7 @@ class WikiPageAction extends SmartyAction {
 				
 				// check if we can TRANSPARENTLY recreate the lock IF there is no
 				// conflicting lock and the revision_id has not changed.
-				$lock = new DB_PageEditLock();
+				$lock = new PageEditLock();
 				$lock->setPageId($page->getPageId());
 				$lock->setPageUnixName($page->getUnixName());
 				$lock->setSiteId($site->getSiteId());
@@ -409,7 +443,7 @@ class WikiPageAction extends SmartyAction {
 			} 
 			
 			// create new revision
-			$pageRevision = new DB_PageRevision();
+			$pageRevision = new PageRevision();
 			$pageRevision->setSiteId($site->getSiteId());
 			
 			// compare metadata
@@ -429,7 +463,7 @@ class WikiPageAction extends SmartyAction {
 			if($sourceChanged == false && $metadataChanged == false){
 				$c = new Criteria();
 				$c->add("lock_id", $lockId);
-				DB_PageEditLockPeer::instance()->delete($c);
+				PageEditLockPeer::instance()->delete($c);
 				$db->commit();
 				return;	
 			}
@@ -453,7 +487,7 @@ class WikiPageAction extends SmartyAction {
 					}	
 				}
 				
-				$pageSource = new DB_PageSource();
+				$pageSource = new PageSource();
 				if($fullSource){
 					$pageSource->setText($source);
 				}else{
@@ -519,7 +553,7 @@ class WikiPageAction extends SmartyAction {
 				$c->add("page_id", $pageId);
 				$c->add("range_start", $lock->getRangeEnd(), ">=");
 				$c->add("mode", "section");
-				$laterLocks = DB_PageEditLockPeer::instance()->select($c);
+				$laterLocks = PageEditLockPeer::instance()->select($c);
 				if(count($laterLocks)>0){
 					// take the length of the current lock
 					$sectionLength = $lock->getRangeEnd() - $lock->getRangeStart() +1;
@@ -552,7 +586,7 @@ class WikiPageAction extends SmartyAction {
 		if(!$pl->getParameterValue("and_continue") && !$autoincrement){
 			$c = new Criteria();
 			$c->add("lock_id", $lockId);
-			DB_PageEditLockPeer::instance()->delete($c);
+			PageEditLockPeer::instance()->delete($c);
 			$runData->ajaxResponseAdd("revisionId", $pageRevision->getRevisionId());
 		}
 		
@@ -571,7 +605,7 @@ class WikiPageAction extends SmartyAction {
 		$c->add("lock_id", $lockId);
 		$c->add("secret", $secret);
 		
-		DB_PageEditLockPeer::instance()->delete($c);
+		PageEditLockPeer::instance()->delete($c);
 	}
 
 	public function updateLockEvent($runData){
@@ -598,16 +632,16 @@ class WikiPageAction extends SmartyAction {
 		$db->begin();
 		
 		if($pageId!= null){
-			DB_PageEditLockPeer::instance()->deleteOutdated($pageId);
+			PageEditLockPeer::instance()->deleteOutdated($pageId);
 			$c = new Criteria();
 			$c->add("page_id", $pageId);
 			$c->setForUpdate(true);
-			$page = DB_PagePeer::instance()->selectOne($c);
+			$page = PagePeer::instance()->selectOne($c);
 			if($page == null) {
 				throw new ProcessException(_("Can not find the page."). "no_page");
 			}
 		}else {
-			DB_PageEditLockPeer::instance()->deleteOutdatedByPageName($site->getSiteId(), $unixName);
+			PageEditLockPeer::instance()->deleteOutdatedByPageName($site->getSiteId(), $unixName);
 		}
 		
 		// delete outdated locks...
@@ -617,7 +651,7 @@ class WikiPageAction extends SmartyAction {
 		$c->add("lock_id", $lockId);
 		$c->add("secret", $lockSecret);
 
-		$lock = DB_PageEditLockPeer::instance()->selectOne($c);
+		$lock = PageEditLockPeer::instance()->selectOne($c);
 		$dateLastAccessed = new ODate();
 		$timeLeft = 15*60 - $sinceLastInput;
 		$dateLastAccessed->subtractSeconds($sinceLastInput);
@@ -637,7 +671,7 @@ class WikiPageAction extends SmartyAction {
 				$runData->contextAdd("nonrecoverable", true);
 				$runData->ajaxResponseAdd("nonrecoverable", true);
 				
-			}elseif($page == null && DB_PagePeer::instance()->selectByName($site->getSiteId(), $unixName) != null){
+			}elseif($page == null && PagePeer::instance()->selectByName($site->getSiteId(), $unixName) != null){
 				// page exists!
 				$runData->ajaxResponseAdd("noLockError", "page_exists");
 				$runData->ajaxResponseAdd("nonrecoverable", true);
@@ -646,7 +680,7 @@ class WikiPageAction extends SmartyAction {
 				
 				// ok, see if there are conflicts and is it possible to 
 				// recreate the lock.	
-				$lock = new DB_PageEditLock();
+				$lock = new PageEditLock();
 				if($page != null) {
 					$lock->setPageId($page->getPageId());
 					$lock->setPageUnixName($page->getUnixName());
@@ -713,7 +747,7 @@ class WikiPageAction extends SmartyAction {
 			$c = new Criteria();
 			$c->add("page_id", $pageId);
 			$c->setForUpdate(true);
-			$page = DB_PagePeer::instance()->selectOne($c);
+			$page = PagePeer::instance()->selectOne($c);
 			if($page == null) {
 				throw new ProcessException(_("Can not find the page."). "no_page");
 			}
@@ -724,7 +758,7 @@ class WikiPageAction extends SmartyAction {
 			return;
 		}
 		
-		if($page == null && DB_PagePeer::instance()->selectByName($site->getSiteId(), $unixName) != null){
+		if($page == null && PagePeer::instance()->selectByName($site->getSiteId(), $unixName) != null){
 			$runData->ajaxResponseAdd("noLockError", "page_exists");
 			$runData->ajaxResponseAdd("nonrecoverable", true);
 			$runData->setModuleTemplate("edit/NewPageExistsWinModule");
@@ -732,12 +766,12 @@ class WikiPageAction extends SmartyAction {
 		
 		// delete outdated locks...
 		if($page != null){
-			DB_PageEditLockPeer::instance()->deleteOutdated($pageId);
+			PageEditLockPeer::instance()->deleteOutdated($pageId);
 		} else {
-			DB_PageEditLockPeer::instance()->deleteOutdatedByPageName($site->getSiteId(), $unixName);
+			PageEditLockPeer::instance()->deleteOutdatedByPageName($site->getSiteId(), $unixName);
 		}
 
-		$lock = new DB_PageEditLock();
+		$lock = new PageEditLock();
 		if($page != null) {
 			$lock->setPageId($page->getPageId());
 			$lock->setPageUnixName($page->getUnixName());
@@ -782,7 +816,7 @@ class WikiPageAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("lock_id", $lockId);
 		$c->add("secret", $lockSecret);
-		DB_PageEditLockPeer::instance()->delete($c);
+		PageEditLockPeer::instance()->delete($c);
 		
 		$this->updateLockEvent($runData);
 		
@@ -826,7 +860,7 @@ class WikiPageAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("page_id", $pageId);
 		$c->setForUpdate(true);
-		$page = DB_PagePeer::instance()->selectOne($c);
+		$page = PagePeer::instance()->selectOne($c);
 			
 		if($page == null || $page->getSiteId() != $site->getSiteId()){
 			throw new ProcessException(_("Error getting page information."), "no_page");
@@ -844,7 +878,7 @@ class WikiPageAction extends SmartyAction {
 		
 		// check if the new page exists or not.
 		
-		$conflictPage = DB_PagePeer::instance()->selectByName($site->getSiteId(), $newName);
+		$conflictPage = PagePeer::instance()->selectByName($site->getSiteId(), $newName);
 		if($conflictPage != null){
 			throw new ProcessException(_("The destination page already exists."), "page_exists");
 		}
@@ -854,16 +888,16 @@ class WikiPageAction extends SmartyAction {
 		// check if new page exists!
 		
 		// check for locks first
-		DB_PageEditLockPeer::instance()->deleteOutdated($pageId);
+		PageEditLockPeer::instance()->deleteOutdated($pageId);
 		
 		$c = new Criteria();
 		$c->add("page_id", $page->getPageId());
 		
 		if($pl->getParameterValue("force") === "yes"){
-			DB_PageEditLockPeer::instance()->delete($c);	
+			PageEditLockPeer::instance()->delete($c);	
 		}
 		
-		$locks = DB_PageEditLockPeer::instance()->select($c);
+		$locks = PageEditLockPeer::instance()->select($c);
 		
 		if(count($locks)>0){
 			$runData->ajaxResponseAdd("locks", true);
@@ -884,7 +918,7 @@ class WikiPageAction extends SmartyAction {
 		$metadata->save();
 		
 		$oldRevision = $page->getCurrentRevision();
-		$revision = new DB_PageRevision();
+		$revision = new PageRevision();
 		$revision->setSiteId($site->getSiteId());
 		
 		$revision->setPageId($page->getPageId());
@@ -949,10 +983,10 @@ class WikiPageAction extends SmartyAction {
 
 			// check if new category exists. if not - create it!
 			
-			$category = DB_CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId(), false);
+			$category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId(), false);
 			if($category == null){
 				// create the category - just clone the default category!!!
-				$category = DB_CategoryPeer::instance()->selectByName("_default", $site->getSiteId(), false); 
+				$category = CategoryPeer::instance()->selectByName("_default", $site->getSiteId(), false); 
 				$category->setName($categoryName);
 				// fill with some important things - we assume the _default category exists!!! IT REALLY SHOULD!!!
 				$category->setCategoryId(null);
@@ -978,15 +1012,15 @@ class WikiPageAction extends SmartyAction {
 			// also see if the old category is empty - if yes - delete it!
 			if($oldCategoryName != "_default"){
 				
-				$category = DB_CategoryPeer::instance()->selectByName($oldCategoryName, $site->getSiteId(), false);
+				$category = CategoryPeer::instance()->selectByName($oldCategoryName, $site->getSiteId(), false);
 				
 				$c = new Criteria();
 				$c->add("category_id", $category->getCategoryId());
-				$count = DB_PagePeer::instance()->selectCount($c);
+				$count = PagePeer::instance()->selectCount($c);
 				
 				if($count == 0){
 					// delete the category
-					DB_CategoryPeer::instance()->delete($c);
+					CategoryPeer::instance()->delete($c);
 					$outdater->categoryEvent('delete', $category, $site);	
 				}
 			}
@@ -1026,7 +1060,7 @@ class WikiPageAction extends SmartyAction {
 		if($fixDeps && preg_match('/^[0-9]+(,[0-9]+)*$/', $fixDeps)){
 			$fixPageIds = explode(',', $fixDeps);
 			foreach($fixPageIds as $pageId){
-				$page = DB_PagePeer::instance()->selectByPrimaryKey($pageId);
+				$page = PagePeer::instance()->selectByPrimaryKey($pageId);
 				if($page == null || $page->getSiteId() !== $site->getSiteId()){
 					continue;
 				}
@@ -1034,7 +1068,7 @@ class WikiPageAction extends SmartyAction {
 				// check for any locks
 				$c = new Criteria();
 				$c->add("page_id", $pageId);
-				$lock = DB_PageEditLockPeer::instance()->selectOne($c);
+				$lock = PageEditLockPeer::instance()->selectOne($c);
 				
 				if($lock){
 					continue;	
@@ -1057,7 +1091,7 @@ class WikiPageAction extends SmartyAction {
 
 		$c->setExplicitQuery($q);
 		
-		$pages = DB_PagePeer::instance()->select($c);
+		$pages = PagePeer::instance()->select($c);
 		
 		$q = "SELECT page_id, title, unix_name FROM page, page_inclusion " .
 				"WHERE page_inclusion.included_page_name='".db_escape_string($oldName)."' " .
@@ -1066,7 +1100,7 @@ class WikiPageAction extends SmartyAction {
 
 		$c->setExplicitQuery($q);
 		
-		$pagesI = DB_PagePeer::instance()->select($c);
+		$pagesI = PagePeer::instance()->select($c);
 		
 		if(count($pages)>0 || count($pagesI)>0){
 			$runData->setModuleTemplate("rename/LeftDepsModule");
@@ -1100,7 +1134,7 @@ class WikiPageAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("page_id", $pageId);
 		$c->setForUpdate(true);
-		$page = DB_PagePeer::instance()->selectOne($c);
+		$page = PagePeer::instance()->selectOne($c);
 			
 		if($page == null){
 			throw new ProcessException(_("Error: original page does not exist any more...???"), "no_page");
@@ -1116,7 +1150,7 @@ class WikiPageAction extends SmartyAction {
 			$ppId = null;
 		} else {
 			// get the page!
-			$pp = DB_PagePeer::instance()->selectByName($site->getSiteId(), $ppName);
+			$pp = PagePeer::instance()->selectByName($site->getSiteId(), $ppName);
 			if($pp == null){
 				// page does not exist. return error
 				throw new ProcessException(_("The requested page does not exist. Please indicate a parent page that already exists."), "no_parent_page");
@@ -1218,7 +1252,7 @@ class WikiPageAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("page_id", $pageId);
 		$c->setForUpdate(true);
-		$page = DB_PagePeer::instance()->selectOne($c);
+		$page = PagePeer::instance()->selectOne($c);
 			
 		if($page == null || $page->getSiteId() != $site->getSiteId()){
 			throw new ProcessException(_("Error getting page information."), "no_page");
@@ -1232,8 +1266,8 @@ class WikiPageAction extends SmartyAction {
 		
 		// get the revision
 		
-		$toRevision = DB_PageRevisionPeer::instance()->selectByPrimaryKey($revisionId);
-		$toMeta = DB_PageMetadataPeer::instance()->selectByPrimaryKey($toRevision->getMetadataId());
+		$toRevision = PageRevisionPeer::instance()->selectByPrimaryKey($revisionId);
+		$toMeta = PageMetadataPeer::instance()->selectByPrimaryKey($toRevision->getMetadataId());
 		$currentRevision = $page->getCurrentRevision();
 		
 		$currentMeta = $currentRevision->getMetadata();
@@ -1247,16 +1281,16 @@ class WikiPageAction extends SmartyAction {
 		}
 
 		// check for locks first
-		DB_PageEditLockPeer::instance()->deleteOutdated($pageId);
+		PageEditLockPeer::instance()->deleteOutdated($pageId);
 		
 		$c = new Criteria();
 		$c->add("page_id", $page->getPageId());
 		
 		if($pl->getParameterValue("force") === "yes"){
-			DB_PageEditLockPeer::instance()->delete($c);	
+			PageEditLockPeer::instance()->delete($c);	
 		}
 		
-		$locks = DB_PageEditLockPeer::instance()->select($c);
+		$locks = PageEditLockPeer::instance()->select($c);
 		
 		if(count($locks)>0){
 			$runData->ajaxResponseAdd("locks", true);
@@ -1340,7 +1374,7 @@ class WikiPageAction extends SmartyAction {
 				}	
 			}
 			
-			$pageSource = new DB_PageSource();
+			$pageSource = new PageSource();
 			if($fullSource){
 				$pageSource->setText($nSource);
 				$revision->setSinceFullSource(0);
@@ -1395,7 +1429,7 @@ class WikiPageAction extends SmartyAction {
 		
 		$site = $runData->getTemp("site");
 
-		$page = DB_PagePeer::instance()->selectByPrimaryKey($pageId);
+		$page = PagePeer::instance()->selectByPrimaryKey($pageId);
 			
 		if($page == null || $page->getSiteId() != $site->getSiteId()){
 			throw new ProcessException(_("Error getting page information."), "no_page");
@@ -1415,7 +1449,7 @@ class WikiPageAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("page_id", $pageId);
 		
-		$dbTags = DB_PageTagPeer::instance()->select($c);
+		$dbTags = PageTagPeer::instance()->select($c);
 		
 		$tags = preg_split("/[ ,]+/", $tags);
 		
@@ -1432,14 +1466,14 @@ class WikiPageAction extends SmartyAction {
 			if(in_array($dbTag->getTag(), $tags)){
 				unset($tags[array_search($dbTag->getTag(), $tags)]);	
 			}else{
-				DB_PageTagPeer::instance()->deleteByPrimaryKey($dbTag->getTagId());	
+				PageTagPeer::instance()->deleteByPrimaryKey($dbTag->getTagId());	
 			}	
 		}
 		// insert all the other
 
 		foreach($tags as $tag){
 			if(trim($tag) != ''){
-				$dbTag = new DB_PageTag();
+				$dbTag = new PageTag();
 				$dbTag->setSiteId($site->getSiteId());
 				$dbTag->setPageId($pageId);
 				$dbTag->setTag($tag);	
@@ -1462,7 +1496,7 @@ class WikiPageAction extends SmartyAction {
 		$pageId = $pl->getParameterValue("pageId");
 		$user = $runData->getUser();
 
-		$page = DB_PagePeer::instance()->selectByPrimaryKey($pageId);
+		$page = PagePeer::instance()->selectByPrimaryKey($pageId);
 		if(!$pageId || $page == null || $page->getSiteId() != $runData->getTemp("site")->getSiteId()){
 			throw new ProcessException(_("Error getting page information."), "no_page");
 		}	
@@ -1495,7 +1529,7 @@ class WikiPageAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("site_id", $page->getSiteId());
 		$c->add("user_id", $user->getUserId());
-		$rel = DB_ModeratorPeer::instance()->selectOne($c);
+		$rel = ModeratorPeer::instance()->selectOne($c);
 		if($rel && strpos($rel->getPermissions(), 'p') !== false){
 			return true;
 		}
@@ -1504,7 +1538,7 @@ class WikiPageAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("site_id", $page->getSiteId());
 		$c->add("user_id", $user->getUserId());
-		$rel = DB_AdminPeer::instance()->selectOne($c);
+		$rel = AdminPeer::instance()->selectOne($c);
 		if($rel){
 			return true;
 		}
@@ -1524,7 +1558,7 @@ class WikiPageAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add("page_id", $pageId);
 		$c->setForUpdate(true);
-		$page = DB_PagePeer::instance()->selectOne($c);
+		$page = PagePeer::instance()->selectOne($c);
 			
 		if($page == null || $page->getSiteId() != $site->getSiteId()){
 			throw new ProcessException(_("Error getting page information."), "no_page");

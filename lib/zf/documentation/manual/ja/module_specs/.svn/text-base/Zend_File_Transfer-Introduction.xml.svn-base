@@ -1,0 +1,323 @@
+<!-- EN-Revision: 13413 -->
+<sect1 id="zend.file.transfer.introduction">
+
+    <title>Zend_File_Transfer</title>
+
+    <para>
+        <code>Zend_File_Transfer</code> を使用すると、
+        ファイルのアップロードやダウンロードを管理することができます。
+        組み込みのバリデータを使ってファイルを検証したり、
+        フィルタによってファイルを変更したりという機能があります。
+        <code>Zend_File_Transfer</code> はアダプタ形式を採用しており、
+        HTTP や FTP、WEBDAV などのさまざまな転送プロトコルを同じ API で使用することができます。
+    </para>
+
+    <note>
+        <title>制限</title>
+        <para>
+            1.6.0 に同梱される現在の <code>Zend_File_Transfer</code>
+            の実装では、HTTP Post によるアップロードにしか対応していません。
+            ファイルのダウンロードやその他のアダプタについては次のリリースで追加される予定です。
+            実装されていないメソッドを実行すると例外をスローします。
+            したがって、実際のところは
+            <code>Zend_File_Transfer_Adapter_Http</code>
+            のインスタンスを直接操作することになります。
+            これは、将来複数のアダプタが使用可能になった段階で変更される予定です。
+        </para>
+    </note>
+
+    <note>
+        <title>フォーム</title>
+        <para>
+            <code>Zend_Form</code> を使う場合は <code>Zend_Form</code>
+            の API を使うようにし、<code>Zend_File_Transfer</code>
+            を直接使わないようにしましょう。<code>Zend_Form</code>
+            のファイル転送機能は <code>Zend_File_Transfer</code>
+            で実装されているので、この章の説明は <code>Zend_Form</code>
+            のユーザにも有用です。
+        </para>
+    </note>
+
+    <para>
+        <code>Zend_File_Transfer</code> の使い方はきわめて単純です。
+        ふたつの部分から成り立っており、
+        アップロードを行う HTTP フォームとアップロードされたファイルを
+        <code>Zend_File_Transfer</code> で処理するコードを作成します。
+        次の例を参照ください。
+    </para>
+
+    <example id="zend.file.transfer.introduction.example">
+        <title>シンプルなファイルアップロードフォーム</title>
+        <para>
+            これは、基本的なファイルアップロード処理の例です。
+            まずはファイルアップロードフォームから。
+            今回の例では。アップロードしたいファイルはひとつです。
+        </para>
+        <programlisting><![CDATA[
+<form enctype="multipart/form-data" action="/file/upload" method="POST">
+    <input type="hidden" name="MAX_FILE_SIZE" value="100000" />
+        アップロードするファイルを選択: <input name="uploadedfile" type="file" />
+    <br />
+    <input type="submit" value="アップロード" />
+</form>
+]]>
+</programlisting>
+        <para>
+            HTML を直接作成するのではなく、利便性を考慮して
+            <link linkend="zend.form.standardElements.file">Zend_Form_Element_File</link>
+            を使っていることに注意しましょう。
+        </para>
+        <para>
+            次はアップロードしたファイルを受け取る側です。
+            今回の例では、受け取る側は <code>/file/upload</code>
+            となります。そこで、<code>file</code> コントローラにアクション
+            <code>upload</code> を作成します。
+        </para>
+        <programlisting role="php"><![CDATA[
+$adapter = new Zend_File_Transfer_Adapter_Http();
+
+$adapter->setDestination('C:\temp');
+
+if (!$adapter->receive()) {
+    $messages = $adapter->getMessages();
+    echo implode("\n", $messages);
+}
+]]>
+        </programlisting>
+        <para>
+            このコードは <code>Zend_File_Transfer</code> のもっともシンプルな使用法を示すものです。
+            ローカルの保存先を <code>setDestination</code> メソッドで指定して
+            <code>receive()</code> メソッドをコールします。
+            アップロード時に何らかのエラーが発生した場合は、
+            返された例外の中でその情報を取得することができます。
+        </para>
+
+    </example>
+
+    <note>
+        <title>注意</title>
+        <para>
+            この例は、<code>Zend_File_Transfer</code> の基本的な API を説明するためだけのものです。
+            これをそのまま実際の環境で使用しては
+            <emphasis role="strong">いけません</emphasis>。
+            深刻なセキュリティ問題を引き起こしてしまいます。
+            常にバリデータを使用してセキュリティを向上させるようにしなければなりません。
+        </para>
+    </note>
+
+    <sect2 id="zend.file.transfer.introduction.adapters">
+
+        <title>Zend_File_Transfer がサポートするアダプタ</title>
+
+        <para>
+            <code>Zend_File_Transfer</code> は、
+            さまざまなアダプタと転送方向をサポートするように作られています。
+            ファイルのアップロードやダウンロードだけでなく、転送
+            (あるアダプタでのアップロードと別のアダプタでのダウンロードを同時に行う)
+            にも対応できるように設計されています。
+            しかし、Zend Framework 1.6 の時点で存在するアダプタは
+            Http アダプタひとつだけです。
+        </para>
+    </sect2>
+
+    <sect2 id="zend.file.transfer.introduction.options">
+
+        <title>Zend_File_Transfer のオプション</title>
+
+        <para>
+            <code>Zend_File_Transfer</code> やそのアダプタはさまざまなオプションをサポートしています。
+            オプションはコンストラクタで指定することもできますし、
+            <code>setOptions($options)</code> で指定することもできます。
+            <code>getOptions()</code> は、実際に設定されているオプションを返します。
+            サポートするオプションは次のとおりです。
+        </para>
+
+        <itemizedlist>
+            <listitem>
+                <para>
+                    <emphasis role="strong">ignoreNoFile</emphasis>: このオプションを true にすると、
+                    ファイルがフォームからアップロードされなかったときにバリデータは何も行いません。
+                    このオプションのデフォルトは false で、
+                    この場合はファイルがアップロードされなければエラーとなります。
+                </para>
+            </listitem>
+        </itemizedlist>
+    </sect2>
+
+    <sect2 id="zend.file.transfer.introduction.checking">
+
+        <title>ファイルのチェック</title>
+
+        <para>
+            <code>Zend_File_Transfer</code>
+            のメソッドの中には、さまざまな前提条件をチェックするためのものもあります。
+            これらは、アップロードされたファイルを処理する際に便利です。
+        </para>
+
+        <itemizedlist>
+            <listitem>
+                <para>
+                    <emphasis role="strong">isValid($files = null)</emphasis>: このメソッドは、
+                    ファイルにアタッチされたバリデータを用いてそのファイルが妥当なものかどうかを検証します。
+                    ファイル名を省略した場合はすべてのファイルをチェックします。
+                    <code>isValid()</code> を <code>receive()</code> の前にコールすることもできます。
+                    この場合、<code>receive()</code> がファイルを受信する際に内部的に
+                    <code>isValid</code> をコールすることはありません。
+                </para>
+            </listitem>
+
+            <listitem>
+                <para>
+                    <emphasis role="strong">isUploaded($files = null)</emphasis>: このメソッドは、
+                    指定したファイルがユーザによってアップロードされたものなのかどうかを調べます。
+                    これは、複数のファイルを任意でアップロードできるようにする場合などに便利です。
+                    ファイル名を省略した場合はすべてのファイルをチェックします。
+                </para>
+            </listitem>
+
+            <listitem>
+                <para>
+                    <emphasis role="strong">isReceived($files = null)</emphasis>: このメソッドは、
+                    指定したファイルがすでに受信済みであるかどうかを調べます。
+                    ファイル名を省略した場合はすべてのファイルをチェックします。
+                </para>
+            </listitem>
+        </itemizedlist>
+
+        <example id="zend.file.transfer.introduction.checking.example">
+            <title>ファイルのチェック</title>
+
+            <programlisting role="php"><![CDATA[
+$upload = new Zend_File_Transfer();
+
+// すべての既知の内部ファイル情報を返します
+$files = $upload->getFileInfo();
+
+foreach ($files as $file => $info) {
+    // アップロードされたファイルか ?
+    if (!$upload->isUploaded($file)) {
+        print "ファイルをアップロードしてください";
+        continue;
+    }
+
+    // バリデータを通過したか ?
+    if (!$upload->isValid($file)) {
+        print "$file は不適切です";
+        continue;
+    }
+}
+
+$upload->receive();
+]]>
+            </programlisting>
+
+        </example>
+    </sect2>
+
+    <sect2 id="zend.file.transfer.introduction.informations">
+
+        <title>さらなるファイル情報</title>
+
+        <para>
+            <code>Zend_File_Transfer</code> は、ファイルについてのさらなる情報を返すことができます。
+            次のメソッドが使用可能です。
+        </para>
+
+        <itemizedlist>
+            <listitem>
+                <para>
+                    <emphasis role="strong">getFileName($file = null, $path = true)</emphasis>:
+                    このメソッドは、転送されたファイルの実際のファイル名を返します。
+                </para>
+            </listitem>
+
+            <listitem>
+                <para>
+                    <emphasis role="strong">getFileInfo($file = null)</emphasis>:
+                    このメソッドは、転送されたファイルのすべての内部情報を返します。
+                </para>
+            </listitem>
+
+            <listitem>
+                <para>
+                    <emphasis role="strong">getHash($hash = 'crc32', $files = null)</emphasis>:
+                    このメソッドは、転送されたファイルの内容のハッシュを返します。
+                </para>
+            </listitem>
+        </itemizedlist>
+
+        <para>
+            <code>getFileName()</code> の最初のパラメータには、
+            要素の名前を渡すことができます。名前を省略した場合は、
+            すべてのファイル名を配列で返します。
+            multifile 形式であった場合も結果は配列となります。
+            ファイルがひとつだけだった場合は結果を文字列で返します。
+        </para>
+
+        <para>
+            デフォルトでは、ファイル名はフルパス形式で返されます。
+            パス抜きのファイル名だけがほしい場合は、2 番目のパラメータ
+            <code>$path</code> を設定します。これを false
+            にするとパスの部分を取り除いた結果を返します。
+        </para>
+
+        <example id="zend.file.transfer.introduction.informations.example1">
+            <title>ファイル名の取得</title>
+
+            <programlisting role="php"><![CDATA[
+$upload = new Zend_File_Transfer();
+$upload->receive();
+
+// すべてのファイルのファイル名を返します
+$names = $upload->getFileName();
+
+// フォームの 'foo' 要素のファイル名を返します。
+$names = $upload->getFileName('foo');
+]]>
+            </programlisting>
+
+        </example>
+
+        <note>
+            <para>
+                ファイルを受信する際にファイル名が変わることがあることに注意しましょう。
+                これは、ファイルを受信した後ですべてのフィルタが適用されるからです。
+                <code>getFileName()</code> をコールするのは、ファイルを受信してからでなければなりません。
+            </para>
+        </note>
+
+        <para>
+            <code>getHash()</code> の最初のパラメータには、ハッシュアルゴリズムの名前を指定します。
+            使用できるアルゴリズムについては
+            <ulink url="http://php.net/hash_algos">PHP の hash_algos メソッド</ulink>
+            を参照ください。アルゴリズムを省略した場合は
+            <code>crc32</code> をデフォルトのアルゴリズムとして使用します。
+        </para>
+
+        <example id="zend.file.transfer.introduction.informations.example2">
+            <title>ファイルのハッシュの取得</title>
+
+            <programlisting role="php"><![CDATA[
+$upload = new Zend_File_Transfer();
+$upload->receive();
+
+// 複数のファイルがアップロードされた場合は、すべてのファイルのハッシュを配列で返します
+$hash = $upload->getHash('md5');
+
+// フォームの 'foo' 要素のハッシュを返します。
+$names = $upload->getHash('crc32', 'foo');
+]]>
+            </programlisting>
+
+        </example>
+
+        <note>
+            <para>
+                複数のファイルを指定した場合は、返される結果が配列となることに注意しましょう。
+            </para>
+        </note>
+    </sect2>
+</sect1>
+<!--
+vim:se ts=4 sw=4 tw=80 et:
+-->

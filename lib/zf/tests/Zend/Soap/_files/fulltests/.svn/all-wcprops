@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/13336/standard/trunk/tests/Zend/Soap/_files/fulltests
+END
+server1.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/13336/standard/trunk/tests/Zend/Soap/_files/fulltests/server1.php
+END
+server2.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/13336/standard/trunk/tests/Zend/Soap/_files/fulltests/server2.php
+END

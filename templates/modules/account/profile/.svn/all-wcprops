@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/account/profile
+END
+APAboutModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/account/profile/APAboutModule.tpl
+END
+APAvatarModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/account/profile/APAvatarModule.tpl
+END
+ChangeScreenNameModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/account/profile/ChangeScreenNameModule.tpl
+END

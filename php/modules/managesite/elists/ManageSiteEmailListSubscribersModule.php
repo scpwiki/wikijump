@@ -23,6 +23,15 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \ManageSiteBaseModule;
+use Database;
+use Criteria;
+use DB_EmailListPeer;
+use \ProcessException;
+use DB\OzoneUserPeer;
+
 class ManageSiteEmailListSubscribersModule extends ManageSiteBaseModule {
 
 	public function build($runData){
@@ -52,7 +61,7 @@ class ManageSiteEmailListSubscribersModule extends ManageSiteBaseModule {
 		$c = new Criteria();
 		$c->setExplicitQuery($q);
 		
-		$users = DB_OzoneUserPeer::instance()->select($c);
+		$users = OzoneUserPeer::instance()->select($c);
 		
 		$runData->contextAdd('users', $users);
 		

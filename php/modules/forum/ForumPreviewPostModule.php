@@ -23,6 +23,14 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use \ProcessException;
+use \WikiTransformation;
+use DB\ForumPost;
+use ODate;
+
 class ForumPreviewPostModule extends SmartyModule {
 	
 	public function build($runData){
@@ -39,7 +47,7 @@ class ForumPreviewPostModule extends SmartyModule {
 		$wt->setMode('post');
 		$body = $wt->processSource($source);
 		
-		$post = new DB_ForumPost();
+		$post = new ForumPost();
 
 		$post->setText($body);
 		$post->setTitle($title);

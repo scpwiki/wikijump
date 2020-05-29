@@ -1,0 +1,107 @@
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Config/_files
+END
+allsections.xml
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Config/_files/allsections.xml
+END
+toplevelstring.xml
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Config/_files/toplevelstring.xml
+END
+circular.ini
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Config/_files/circular.ini
+END
+onetoplevelstring.xml
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Config/_files/onetoplevelstring.xml
+END
+config.ini
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Config/_files/config.ini
+END
+multipleinheritance.ini
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Config/_files/multipleinheritance.ini
+END
+invalid.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Config/_files/invalid.xml
+END
+shortparamstwo.xml
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Config/_files/shortparamstwo.xml
+END
+allsections.ini
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Config/_files/allsections.ini
+END
+nosections.ini
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Config/_files/nosections.ini
+END
+circular.xml
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Config/_files/circular.xml
+END
+config.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Config/_files/config.xml
+END
+invalid.ini
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Config/_files/invalid.ini
+END
+shortparamsone.xml
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Config/_files/shortparamsone.xml
+END
+array.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Config/_files/array.xml
+END
+separator.ini
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Config/_files/separator.ini
+END
+zf2843.ini
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Config/_files/zf2843.ini
+END

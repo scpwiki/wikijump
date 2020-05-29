@@ -1,0 +1,43 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/library/Zend/File/Transfer
+http://framework.zend.com/svn/framework
+
+
+
+2008-12-09T09:20:52.321507Z
+13111
+thomas
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+Adapter
+dir
+
+Exception.php
+file
+
+
+
+
+2008-12-06T16:40:32.000000Z
+25f06f404e562b0a5be56a720a4eccc1
+2008-07-04T15:38:13.310465Z
+9939
+thomas
+

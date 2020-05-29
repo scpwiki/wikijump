@@ -23,6 +23,13 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use \WDStringUtils;
+use Criteria;
+use DB\SitePeer;
+
 class NewSiteModule extends SmartyModule {
 	
 	public function build($runData){
@@ -45,7 +52,7 @@ class NewSiteModule extends SmartyModule {
 		$c = new Criteria();
 		$c->add('unix_name', '^template-', '~');
 		$c->addOrderAscending('site_id');
-		$templates = DB_SitePeer::instance()->select($c);
+		$templates = SitePeer::instance()->select($c);
 		$runData->contextAdd('templates', $templates);
 	}
 	

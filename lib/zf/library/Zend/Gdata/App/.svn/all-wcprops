@@ -1,0 +1,125 @@
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/framework/!svn/ver/13292/standard/trunk/library/Zend/Gdata/App
+END
+BaseMediaSource.php
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/BaseMediaSource.php
+END
+HttpException.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/HttpException.php
+END
+FeedSourceParent.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/FeedSourceParent.php
+END
+Exception.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/Exception.php
+END
+LoggingHttpClientAdapterSocket.php
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/framework/!svn/ver/12397/standard/trunk/library/Zend/Gdata/App/LoggingHttpClientAdapterSocket.php
+END
+FeedEntryParent.php
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/framework/!svn/ver/13290/standard/trunk/library/Zend/Gdata/App/FeedEntryParent.php
+END
+MediaFileSource.php
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/MediaFileSource.php
+END
+MediaSource.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/MediaSource.php
+END
+Entry.php
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/Entry.php
+END
+MediaEntry.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/MediaEntry.php
+END
+BadMethodCallException.php
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/BadMethodCallException.php
+END
+Feed.php
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/13140/standard/trunk/library/Zend/Gdata/App/Feed.php
+END
+VersionException.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/13158/standard/trunk/library/Zend/Gdata/App/VersionException.php
+END
+InvalidArgumentException.php
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/InvalidArgumentException.php
+END
+Base.php
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/Base.php
+END
+Extension.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/Extension.php
+END
+Util.php
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/Util.php
+END
+AuthException.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/AuthException.php
+END
+CaptchaRequiredException.php
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/CaptchaRequiredException.php
+END
+IOException.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/App/IOException.php
+END

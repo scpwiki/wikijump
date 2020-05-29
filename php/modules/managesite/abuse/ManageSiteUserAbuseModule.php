@@ -23,6 +23,14 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \ManageSiteBaseModule;
+use Database;
+use DB\OzoneUserPeer;
+use Criteria;
+use DB\MemberPeer;
+
 class ManageSiteUserAbuseModule extends ManageSiteBaseModule {
 	
 	public function build($runData){
@@ -45,14 +53,14 @@ class ManageSiteUserAbuseModule extends ManageSiteBaseModule {
 		if($all){
 			foreach($all as &$r){
 				// get user
-				$user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($r['target_user_id']);
+				$user = OzoneUserPeer::instance()->selectByPrimaryKey($r['target_user_id']);
 				if($user){
 					$r['user'] = $user;
 					// check if member
 					$c = new Criteria();
 					$c->add("site_id", $site->getSiteId());
 					$c->add("user_id", $user->getUserId());
-					$mem = DB_MemberPeer::instance()->selectOne($c);
+					$mem = MemberPeer::instance()->selectOne($c);
 					if($mem){
 						$r['member'] = $mem;	
 					}

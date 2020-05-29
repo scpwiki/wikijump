@@ -1,0 +1,28 @@
+-------------------------------------------------------------------------------
+The Form Demo
+-------------------------------------------------------------------------------
+Author: Bill Keese (wildbill)
+-------------------------------------------------------------------------------
+Demo description
+
+	This is the form demo, showing several dijit.form components and 
+	their usage. 
+	
+-------------------------------------------------------------------------------
+Dependencies:
+
+	Dojo Core
+	Dijit (Lots, mostly form widgets)
+
+-------------------------------------------------------------------------------
+Installation instructions
+
+	Simply run the included demo.html
+	
+	To build, use the supplied demo.profile.js as your profileFile
+	
+-------------------------------------------------------------------------------
+
+Note: this should be expanded into a full demo, utilizing backend
+logic and interaction, or migrated back to tests/form/
+

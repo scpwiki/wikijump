@@ -1,6 +1,17 @@
 <?php
 
-class Wikidot_Form_Field_PagePath extends Wikidot_Form_Field_WikiBase {
+
+namespace Wikidot\Form\Field;
+
+use Wikidot\Form\Field\WikiBase;
+use \WDStringUtils;
+use Criteria;
+use DB\CategoryPeer;
+use DB\PagePeer;
+
+
+
+class PagePath extends WikiBase {
     public $rule = ':^(\[\[\[[^|]]*(|[^]]*)?\]\]\][ /]*)*$:';
     public function renderEdit() {
         $m = array();
@@ -24,7 +35,7 @@ class Wikidot_Form_Field_PagePath extends Wikidot_Form_Field_WikiBase {
         $c = new Criteria();
         $c->add('name', $this->field['category']);
 
-        if ($category = DB_CategoryPeer::instance()->selectOne($c)) {
+        if ($category = CategoryPeer::instance()->selectOne($c)) {
             $categoryId = $category->getCategoryId();
             $pages = array();
             $parentId = null;
@@ -93,6 +104,6 @@ class Wikidot_Form_Field_PagePath extends Wikidot_Form_Field_WikiBase {
         } else {
             $c->setExplicitQuery("SELECT * FROM page WHERE category_id = $categoryId AND parent_page_id IS NULL");
         }
-        return DB_PagePeer::instance()->select($c);
+        return PagePeer::instance()->select($c);
     }
 }

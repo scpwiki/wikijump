@@ -23,6 +23,10 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \ListPagesModule;
+
 require_once(WIKIDOT_ROOT . '/php/modules/list/ListPagesModule.php');
 
 class NextPageModule extends ListPagesModule {

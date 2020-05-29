@@ -1,0 +1,61 @@
+8
+
+dir
+393
+http://svn.wikidot.org/repos/wikidot1/trunk/lib
+http://svn.wikidot.org/repos
+
+
+
+2008-12-25T16:22:03.009545Z
+390
+quake
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+fb797968-1a05-43ef-ab23-0011a79c62e5
+
+smarty
+dir
+
+magic
+dir
+
+phpmailer
+dir
+
+Text_Highlighter
+dir
+
+phpFlickr
+dir
+
+Text_Wiki
+dir
+
+JSON
+dir
+
+bitstream
+dir
+
+htmlpurifier
+dir
+
+magpierss
+dir
+
+ozone
+dir
+

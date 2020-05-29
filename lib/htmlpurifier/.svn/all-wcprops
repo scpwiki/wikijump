@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/repos/!svn/ver/10/wikidot1/trunk/lib/htmlpurifier
+END
+LICENSE
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/LICENSE
+END
+INSTALL
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/INSTALL
+END
+NEWS
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/NEWS
+END
+CREDITS
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/repos/!svn/ver/8/wikidot1/trunk/lib/htmlpurifier/CREDITS
+END

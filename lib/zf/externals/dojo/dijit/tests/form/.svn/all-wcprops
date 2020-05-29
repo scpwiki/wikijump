@@ -1,0 +1,113 @@
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/src/!svn/ver/15469/branches/1.2/dijit/tests/form
+END
+test_Textarea.html
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/src/!svn/ver/15392/branches/1.2/dijit/tests/form/test_Textarea.html
+END
+test_Spinner.html
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/src/!svn/ver/15392/branches/1.2/dijit/tests/form/test_Spinner.html
+END
+test_ComboBox_destroy.html
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/src/!svn/ver/15392/branches/1.2/dijit/tests/form/test_ComboBox_destroy.html
+END
+test_validStatePerformance.html
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/src/!svn/ver/15469/branches/1.2/dijit/tests/form/test_validStatePerformance.html
+END
+test_Slider.html
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/src/!svn/ver/15392/branches/1.2/dijit/tests/form/test_Slider.html
+END
+test_FilteringSelect.html
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/src/!svn/ver/15392/branches/1.2/dijit/tests/form/test_FilteringSelect.html
+END
+test_Form_onsubmit.html
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/src/!svn/ver/15392/branches/1.2/dijit/tests/form/test_Form_onsubmit.html
+END
+test_CheckBox.html
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/src/!svn/ver/15392/branches/1.2/dijit/tests/form/test_CheckBox.html
+END
+test_SimpleTextarea.html
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/src/!svn/ver/15392/branches/1.2/dijit/tests/form/test_SimpleTextarea.html
+END
+test_validate.html
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/src/!svn/ver/15392/branches/1.2/dijit/tests/form/test_validate.html
+END
+test_MultiSelect.html
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/src/!svn/ver/15392/branches/1.2/dijit/tests/form/test_MultiSelect.html
+END
+test_validationState.html
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/src/!svn/ver/15392/branches/1.2/dijit/tests/form/test_validationState.html
+END
+test_DateTextBox.html
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/src/!svn/ver/15392/branches/1.2/dijit/tests/form/test_DateTextBox.html
+END
+_autoComplete.html
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/src/!svn/ver/15392/branches/1.2/dijit/tests/form/_autoComplete.html
+END
+Form.html
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/src/!svn/ver/15392/branches/1.2/dijit/tests/form/Form.html
+END
+test_ComboBox.html
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/src/!svn/ver/15392/branches/1.2/dijit/tests/form/test_ComboBox.html
+END
+test_Button.html
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/src/!svn/ver/15392/branches/1.2/dijit/tests/form/test_Button.html
+END
+test_TimeTextBox.html
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/src/!svn/ver/15392/branches/1.2/dijit/tests/form/test_TimeTextBox.html
+END

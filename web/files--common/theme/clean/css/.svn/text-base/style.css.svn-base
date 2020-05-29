@@ -1,0 +1,184 @@
+/*
+*	Clean Theme for Wikidot.com
+*
+*
+*
+*/
+
+
+h1{
+	border-bottom: 1px solid #CCC;
+}
+
+
+/* LAYOUT */
+#container {
+	margin: 0 20px;
+}
+
+#header {
+	margin: 10px 0 10px 0px; 
+	height: 5em;
+
+	background-color: #DDD;
+}
+
+#header h1{
+	font-size: 170%;
+	border: none;
+	font-weight: bold;
+	color: #000;
+	margin: 0;
+	padding: 4px 10px 0 10px;
+}
+#header h2{
+	font-size: 140%;
+	color: #555;
+	padding: 4px 10px;
+}
+
+
+#side-bar{
+	border: 1px dashed #999;
+}
+
+/*
+* NAVIGATION ELEMENTS 
+*/
+
+/* elements from #header */
+
+#search-top-box{
+	position: absolute;
+	top:auto;
+	bottom: 1px;
+	right: 5px;
+	width: auto;
+	text-align: right;
+}
+
+#search-top-box-input{
+	width: 12em;
+}
+#login-status{
+	bottom: auto; left: auto;
+	right: 0.7em;
+	top: 0.5em;
+	overflow: visible;
+}
+
+/* top - bar */
+
+#top-bar{
+	bottom: 0;
+	right: 20em;
+}
+
+
+#top-bar ul{
+	padding:10px 10px 0 1px;
+}
+
+
+#top-bar li ul{
+	border: 1px solid #BBB;
+	border-top: none;
+	width: 14em;
+}
+
+#top-bar li a{
+	padding: 2px 2em;
+	background-color: #EEE;
+	border: 1px solid #BBB;
+	
+}
+#top-bar a:hover {
+	background-color: #555;
+	color: white;
+	text-decoration: none;
+}	
+
+#top-bar li ul li a{
+	width: 10em;
+	background-color: #FAFAFA;
+	
+}
+#top-bar li ul li a:hover{
+	background-color: #F2F2F2;
+	color: black;
+}
+
+
+/* bottom elements */
+#page-info{
+	color: #555;
+}
+
+
+/* footer */ 
+
+#footer{
+	background-color: #DDD;
+}
+
+#footer .options a{
+	color: #44B;
+}
+
+/*
+* 		INTERFACE ELEMENTS
+*/
+
+.page-options-bottom a{
+	color: #224;
+	background-color: #EEE;
+	text-decoration: none;
+}
+.page-options-bottom a:hover{
+	background-color: #DDD;
+}
+
+a.action-area-close{
+	color: #224;
+	background-color: #EEE;
+	text-decoration: none;
+}
+
+div.buttons input, input.button, button, file, a.button{
+	background-color: #F4F4F4;
+	border: 1px solid #AAA;
+}
+div.buttons input:hover, input.button:hover, button:hover,  a.button:hover{
+	background-color: #DDD;
+}
+
+/*
+*		WIKI-SPECIFIC
+*/
+
+div.wiki-note{
+	border: 1px solid #999;
+	background-color: #EEE;
+}
+
+/* ODIALOG ELEMENTS */
+
+.owindow{
+	background-color: white;
+	width: 50em;
+	border: 2px solid #BBB;
+}
+
+.owindow .title{
+	background-color: #F5F5F5;
+}
+
+.owindow .button-bar a{
+	background-color: #F4F4F4;
+	border: 1px solid #AAA;
+}
+.owindow .button-bar a:hover{
+	background-color: #DDD;
+}
+
+

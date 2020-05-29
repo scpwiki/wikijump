@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/framework/!svn/ver/12350/standard/trunk/tests/Zend/Gdata/Docs
+END
+DocumentListEntryTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/Docs/DocumentListEntryTest.php
+END
+DocumentListFeedTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/framework/!svn/ver/12350/standard/trunk/tests/Zend/Gdata/Docs/DocumentListFeedTest.php
+END
+QueryTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Gdata/Docs/QueryTest.php
+END

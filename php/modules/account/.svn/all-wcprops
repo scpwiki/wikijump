@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/account
+END
+DefaultModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/account/DefaultModule.php
+END
+AccountNotificationsModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/account/AccountNotificationsModule.php
+END
+AccountWelcomeModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/account/AccountWelcomeModule.php
+END
+AccountModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/account/AccountModule.php
+END
+AccountProfileModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/account/AccountProfileModule.php
+END
+AccountSettingsModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/account/AccountSettingsModule.php
+END
+AccountNotificationsListModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/account/AccountNotificationsListModule.php
+END

@@ -1,0 +1,119 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/dojo/tests/nls
+http://svn.dojotoolkit.org/src
+
+
+
+2007-03-25T02:05:12.630766Z
+7782
+peller
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+en-us-new_york-brooklyn
+dir
+
+zh-cn
+dir
+
+salutations.js
+file
+
+
+
+
+2008-12-06T16:42:11.000000Z
+2d4c8665a2af4a19dd885c48096e7c4b
+2007-03-01T19:53:01.908667Z
+7502
+peller
+has-props
+
+yi
+dir
+
+pt
+dir
+
+tr
+dir
+
+fa
+dir
+
+ru
+dir
+
+en-us-hawaii
+dir
+
+de
+dir
+
+sw
+dir
+
+ja
+dir
+
+he
+dir
+
+hi
+dir
+
+el
+dir
+
+en
+dir
+
+ar
+dir
+
+en-au
+dir
+
+cs
+dir
+
+fr
+dir
+
+es
+dir
+
+en-us-texas
+dir
+
+ko
+dir
+
+zh-tw
+dir
+
+pl
+dir
+
+th
+dir
+
+it
+dir
+

@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>Accordion Widget Demo</title>
+
+	<!-- only needed for test files: -->
+	<style type="text/css">
+		@import "../../../dojo/resources/dojo.css";
+		@import "../css/dijitTests.css";
+	</style>
+
+	<!-- required: the default dijit theme: -->
+	<link id="themeStyles" rel="stylesheet" href="../../../dijit/themes/tundra/tundra.css">
+
+	<!-- required: dojo.js -->
+	<script type="text/javascript" src="../../../dojo/dojo.js"
+		djConfig="isDebug: true, parseOnLoad: true"></script>
+
+	<!-- only needed for alternate theme testing: -->
+	<script type="text/javascript" src="../_testCommon.js"></script>
+
+	<script type="text/javascript">
+		dojo.require("dijit.dijit"); // optimize: load dijit layer
+		dojo.require("dijit.layout.AccordionContainer");
+
+		var accordion, pane4;
+
+		dojo.addOnLoad(function(){
+			accordion = new dijit.layout.AccordionContainer({style: "width: 400px; height: 400px;"}, dojo.byId("accordionShell"));
+			
+			dojo.forEach([ "pane 1", "pane 2", "pane 3" ], function(title, i){
+				var content = new dijit.layout.AccordionPane({id: title, title: title, selected: i==1});
+				content.containerNode.innerHTML = "this is " + title;
+				accordion.addChild(content);
+			});
+			accordion.startup();
+
+			// for testing purposes add another node after startup
+			pane4 = new dijit.layout.AccordionPane({title: "pane 4"});
+			pane4.containerNode.innerHTML = "this is pane 4";
+			accordion.addChild(pane4);
+		});
+	</script>
+</head>
+<body class="tundra" style="padding: 50px;">
+
+	<h1 class="testTitle">AccordionContainer Tests</h1>
+
+	<h2>Programatically created:</h2>
+	<div id="accordionShell"></div>
+
+	<button onclick="accordion.selectChild(pane4);">select pane 4</button>
+	<button onclick="accordion.removeChild(dijit.byId('pane 3'));">remove pane 3</button>
+
+</body>
+</html>

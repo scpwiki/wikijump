@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/12045/standard/trunk/documentation/manual/id/figures
+END
+zend.db.adapter.example-database.png
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/svn/framework/!svn/ver/9506/standard/trunk/documentation/manual/id/figures/zend.db.adapter.example-database.png
+END
+zend.layout.quickstart.example.png
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/svn/framework/!svn/ver/12045/standard/trunk/documentation/manual/id/figures/zend.layout.quickstart.example.png
+END
+zend.paginator.usage.rendering.control.png
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/svn/framework/!svn/ver/12045/standard/trunk/documentation/manual/id/figures/zend.paginator.usage.rendering.control.png
+END
+zend.controller.basics.png
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/framework/!svn/ver/9506/standard/trunk/documentation/manual/id/figures/zend.controller.basics.png
+END
+zend.wildfire.firebug.console.png
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/svn/framework/!svn/ver/12045/standard/trunk/documentation/manual/id/figures/zend.wildfire.firebug.console.png
+END
+zend.openid.protocol.jpg
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/svn/framework/!svn/ver/12045/standard/trunk/documentation/manual/id/figures/zend.openid.protocol.jpg
+END

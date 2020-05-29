@@ -1,0 +1,210 @@
+	@import "../../dijit/themes/tundra/tundra.css";
+	@import "../../dojox/widget/Dialog/Dialog.css";
+	@import "../../dojox/layout/resources/RadioGroup.css";
+
+	#dialog {
+		padding:12px;
+		-webkit-box-shadow:none;
+	}
+
+	#pseudoFooter,
+	#content {
+		position:absolute;
+		top:342px;
+		width:100%;
+	}
+
+	#pseudoFooter {
+		top:647px;
+	}
+
+	#logoWrapper {
+		float:left;
+		width:180px;
+		background:#333;
+		margin-right:7px;
+		padding-left:7px;
+		padding-right:1px;
+		-moz-border-radius:8pt;
+		-webkit-border-radius:7pt;
+	}
+
+	.anImage {
+		position:absolute;
+		top:45px;
+		width:120px;
+		height:200px;
+		overflow:hidden;
+		margin:0; padding:0;
+	}
+
+	.anImage .imageInner {
+		position:relative;
+	}
+
+	.imageNodeRight,
+	.imageNodeLeft,
+	.imageNodeCenter {
+		visibility:hidden;
+		position:absolute;
+		top:0;
+		left:0;
+		z-index:40;
+	}
+
+	.alignRight .imageNodeRight,
+	.alignLeft .imageNodeLeft,
+	.alignCenter .imageNodeCenter {
+		visibility:visible; 
+		z-index:42;
+	}
+
+	.alignRight,
+	.alignLeft {
+		z-index:39;
+	}
+	.alignCenter {
+		z-index:43;
+		cursor:pointer;
+	}
+
+	.containerWrapper {
+		overflow:hidden;
+	}
+
+	body, html {
+		background:#111;
+		margin:0; padding:0;
+		height:100%; width:100%;
+	}
+
+	#overlay {
+		background:#111 url('images/loading.gif') no-repeat center center;
+		width:100%; height:100%;
+		position:absolute;
+		top:0; left:0;
+		z-index:999;
+	}
+
+	#scrollContainer, 
+	#imageContainer {
+		overflow:hidden;
+		height:240px;
+		border-top:1px solid #eee;
+		border-bottom:1px solid #eee;
+		background:#000;
+		margin:0 auto;
+		outline:0;
+	}
+	#gmap {
+		display:none;
+		float:right;
+		border:1px solid #222;
+		height:225px;
+		width:225px;
+	}
+	#helper {
+		cursor:pointer;
+		margin-top:25px;
+		float:right;
+		height:24px;
+		width:24px;
+		background:url('images/info.png') no-repeat top left;
+	}
+	.dj_opera #helper {
+		margin-top:25px;
+	}
+
+	#pseudoFooter h1, 
+	#header h1 {
+		color:#fff;
+	}
+	#header {
+		padding-top:25px;
+	}
+
+	#imageContainer .anImage {
+		height:210px;
+		width:110px;
+		cursor:pointer;
+	}
+
+	.centered {
+		width:600px;
+		margin:0 auto;
+	}
+	.centeredText {
+		text-align:center;
+	}
+
+	#dialog_underlay {
+		background-color:#222;
+	}
+
+	#avatar {
+		width:180px;
+		float:left;
+		margin-right:20px;
+	}
+
+	.startsHidden {
+		visibility:hidden;
+	}
+
+	.opening {
+		margin-top:10px;
+		padding-right:7px;
+		float:right;
+		width:427px;
+		line-height:1.3em;
+		text-align:justify;
+	}
+
+	.opening .dialogHead {
+		font-weight:bold;
+		font-size:29pt;
+	}
+
+	body {
+		background:#111; /*  url('images/bg01.gif') repeat-x top left; */
+	}
+
+	.contribName {
+		font-family:Lucida Grande,sans-serif;
+		font-size:18px;
+	}
+	.personalDetails {
+		font-family:Lucida Grande,sans-serif;
+		font-size: 12px;
+	}
+	a {
+		font-size: 11px;
+		color: #c9c9c9;
+	}
+	.infoParagraph {
+		margin-top: 20px;
+		font-family: Verdana, Arial, Helvetica, sans-serif;
+		font-size: 13px;
+		/* for now: */
+		display:none;
+	}
+	.personalDetails div.label {
+		float: left;
+		width:60px;
+	}
+	.contentContainer {
+		margin-top:20px;
+		width: 600px;
+		color:#a5a5a5;
+		clear: both;
+	}
+	.contentContainer .imageColumn {
+		float: left;
+		width: 165px;
+	}
+	.contentContainer .detailsColumn {
+		margin-left: 30px;
+		float: left;
+		width: 400px;
+	}
+	

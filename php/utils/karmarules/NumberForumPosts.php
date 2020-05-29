@@ -22,12 +22,23 @@
  * @copyright Copyright (c) 2008, Wikidot Inc.
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
+
+
+use \KarmaRuleInterface;
+use calculate;
+use Criteria;
+use add;
+use getUserId;
+use DB\ForumPostPeer;
+use instance;
+use selectCount;
+
 class NumberForumPosts implements KarmaRuleInterface {
    
    public function calculate($user){
         $c = new Criteria();
         $c->add('user_id', $user->getUserId());
-        $count = DB_ForumPostPeer::instance()->selectCount($c);
+        $count = ForumPostPeer::instance()->selectCount($c);
         return $count;
    }
 }

@@ -1,0 +1,121 @@
+<sect1 id="zend.mail.introduction">
+
+    <title>Introduction</title>
+
+    <sect2 id="zend.mail.introduction.getting-started">
+
+        <title>Getting started</title>
+
+        <para>
+            <code>Zend_Mail</code> provides generalized functionality to compose and send both text and MIME-compliant
+            multipart e-mail messages. Mail can be sent with <code>Zend_Mail</code> via the default <code>Zend_Mail_Transport_Sendmail</code>
+            transport or via <code>Zend_Mail_Transport_Smtp</code>.
+        </para>
+
+        <example id="zend.mail.introduction.example-1">
+
+            <title>Simple E-Mail with Zend_Mail</title>
+
+            <para>
+                A simple e-mail consists of some recipients, a subject, a body and a sender. To send such a mail using
+                <code>Zend_Mail_Transport_Sendmail</code>, do the following:
+            </para>
+
+            <programlisting role="php"><![CDATA[
+$mail = new Zend_Mail();
+$mail->setBodyText('This is the text of the mail.');
+$mail->setFrom('somebody@example.com', 'Some Sender');
+$mail->addTo('somebody_else@example.com', 'Some Recipient');
+$mail->setSubject('TestSubject');
+$mail->send();
+]]>
+            </programlisting>
+
+        </example>
+
+        <note>
+            <title>Minimum definitions</title>
+            <para>
+                In order to send an e-mail with <code>Zend_Mail</code> you have to specify at least one recipient, a
+                sender (e.g., with <code>setFrom()</code>), and a message body (text and/or HTML).
+            </para>
+        </note>
+
+        <para>
+            For most mail attributes there are "get" methods to read the information stored in the mail object. For
+            further details, please refer to the API documentation. A special one is <code>getRecipients()</code>.
+            It returns an array with all recipient e-mail addresses that were added prior to the method call.
+        </para>
+
+        <para>
+            For security reasons, <code>Zend_Mail</code> filters all header fields to prevent header injection with
+            newline (<code>\n</code>) characters.
+        </para>
+
+        <para>
+            You also can use most methods of the <code>Zend_Mail</code> object with a convenient fluent interface.
+        </para>
+
+        <programlisting role="php"><![CDATA[
+$mail = new Zend_Mail();
+$mail->setBodyText('This is the text of the mail.')
+    ->setFrom('somebody@example.com', 'Some Sender')
+    ->addTo('somebody_else@example.com', 'Some Recipient')
+    ->setSubject('TestSubject')
+    ->send();
+]]>
+        </programlisting>
+
+    </sect2>
+
+    <sect2 id="zend.mail.introduction.sendmail">
+
+        <title>Configuring the default sendmail transport</title>
+
+        <para>
+            The default transport for a <code>Zend_Mail</code> instance is <code>Zend_Mail_Transport_Sendmail</code>.
+            It is essentially a wrapper to the PHP <ulink url="http://php.net/mail"><code>mail()</code></ulink> function.
+            If you wish to pass additional parameters to the <ulink url="http://php.net/mail"><code>mail()</code></ulink> function,
+            simply create a new transport instance and pass your parameters to the constructor. The new transport instance
+            can then act as the default <code>Zend_Mail</code> transport, or it can be passed to the <code>send()</code>
+            method of <code>Zend_Mail</code>.
+        </para>
+
+        <example id="zend.mail.introduction.sendmail.example-1">
+
+            <title>Passing additional parameters to the Zend_Mail_Transport_Sendmail transport</title>
+
+            <para>
+                This example shows how to change the Return-Path of the <ulink url="http://php.net/mail"><code>mail()</code></ulink>
+                function.
+            </para>
+
+            <programlisting role="php"><![CDATA[
+$tr = new Zend_Mail_Transport_Sendmail('-freturn_to_me@example.com');
+Zend_Mail::setDefaultTransport($tr);
+
+$mail = new Zend_Mail();
+$mail->setBodyText('This is the text of the mail.');
+$mail->setFrom('somebody@example.com', 'Some Sender');
+$mail->addTo('somebody_else@example.com', 'Some Recipient');
+$mail->setSubject('TestSubject');
+$mail->send();
+]]>
+            </programlisting>
+
+        </example>
+
+        <note>
+            <title>Safe mode restrictions</title>
+            <para>
+                The optional additional parameters will be cause the <ulink url="http://php.net/mail"><code>mail()</code></ulink> function to fail
+                if PHP is running in safe mode.
+            </para>
+        </note>
+
+    </sect2>
+
+</sect1>
+<!--
+vim:se ts=4 sw=4 et:
+-->

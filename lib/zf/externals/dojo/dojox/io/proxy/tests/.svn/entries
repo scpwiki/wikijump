@@ -1,0 +1,54 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/dojox/io/proxy/tests
+http://svn.dojotoolkit.org/src
+
+
+
+2007-10-16T14:08:43.355501Z
+10853
+jaredj
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+xip.html
+file
+
+
+
+
+2008-12-06T16:41:41.000000Z
+f4194432f9a620d7900ba68d322d446f
+2007-10-16T14:08:43.355501Z
+10853
+jaredj
+has-props
+
+frag.xml
+file
+
+
+
+
+2008-12-06T16:41:41.000000Z
+b37eed63d4d930d10909099dabf710e6
+2007-08-19T04:36:13.360312Z
+10274
+jburke
+has-props
+

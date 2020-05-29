@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/framework/!svn/ver/13029/standard/trunk/tests/Zend/Service
+END
+AllTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/12544/standard/trunk/tests/Zend/Service/AllTests.php
+END
+AkismetTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Service/AkismetTest.php
+END
+SimpyTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Service/SimpyTest.php
+END
+TwitterTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/13029/standard/trunk/tests/Zend/Service/TwitterTest.php
+END
+SlideShareTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Service/SlideShareTest.php
+END
+TwitterSearchTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/12534/standard/trunk/tests/Zend/Service/TwitterSearchTest.php
+END

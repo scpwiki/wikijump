@@ -23,6 +23,19 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use Screen;
+use Criteria;
+use DB\MemberPeer;
+use DB\SiteViewerPeer;
+use \ProcessException;
+use \WDStringUtils;
+use DB\PagePeer;
+use Ozone;
+use PathManager;
+use Exception;
+
 class PrinterFriendly extends Screen {
 
 	public function render($runData){
@@ -43,13 +56,13 @@ class PrinterFriendly extends Screen {
 					$c = new Criteria();
 					$c->add("site_id", $site->getSiteId());
 					$c->add("user_id", $user->getUserId());
-					$mem = DB_MemberPeer::instance()->selectOne($c);
+					$mem = MemberPeer::instance()->selectOne($c);
 					if(!$mem) {
 						// check if a viewer
 						$c = new Criteria();
 						$c->add("site_id", $site->getSiteId());
 						$c->add("user_id", $user->getUserId());
-						$vi = DB_SiteViewerPeer::instance()->selectOne($c);
+						$vi = SiteViewerPeer::instance()->selectOne($c);
 						if(!$vi) {
 							$user = null;
 						}
@@ -67,7 +80,7 @@ class PrinterFriendly extends Screen {
 			$runData->contextAdd("wikiPageName", $wikiPage);
 			// get wiki page from the database
 
-			$page = DB_PagePeer::instance()->selectByName($site->getSiteId(), $wikiPage);
+			$page = PagePeer::instance()->selectByName($site->getSiteId(), $wikiPage);
 			
 			if($page == null){
 				throw new ProcessException("No such page");

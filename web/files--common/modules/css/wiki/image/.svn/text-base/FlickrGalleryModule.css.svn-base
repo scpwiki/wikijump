@@ -1,0 +1,55 @@
+div.owindow.photowindow{
+	background-color: #222;
+	/*-moz-border-radius: 10px;*/
+	width: 80%;
+	margin: 1em 4em;
+	border: 1px solid #BBB;
+	color: #CCC;
+	
+}
+div.owindow.photowindow a, div.owindow.photowindow a:hover {
+	color: #AAA;
+	background-color: transparent;
+}
+
+div.owindow.photowindow .close{
+	font-size: 170%;
+	font-weight: bold;
+}
+
+.photowindow .phototitle{
+	font-size: 130%;
+	padding: 1em 2em;
+	color: #EEE;
+	font-weight: bold;
+}
+
+.photowindow table{
+	margin: 4em;
+}
+
+.photowindow td{
+	text-align: center;
+	vertical-align: middle;
+}
+
+.photowindow #photo-nav-prev, .photowindow #photo-nav-next{
+	font-size: 280%;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+.photowindow .description{
+	text-align: center;
+	padding: 0.7em;
+}
+
+.photowindow table{
+	margin-bottom: 0.3em;
+}
+
+.photowindow .hostedby{
+	text-align: right;
+	padding: 2px;
+	padding-top: 0.3em;
+}

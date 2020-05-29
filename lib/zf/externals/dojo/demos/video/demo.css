@@ -1,0 +1,220 @@
+@import "../../dojo/resources/dojo.css";
+@import "../../dijit/themes/dijit.css";
+@import "../../dijit/themes/tundra/form/Button.css";
+@import "../../dijit/tests/css/dijitTests.css"; 
+@import "../../dijit/themes/tundra/tundra.css";
+@import "../../dojo/resources/dnd.css";
+@import "../../dojo/tests/dnd/dndDefault.css";
+.dojoDndContainerOver {
+	border: 0;
+}
+#player, #video{
+	width:320px;
+	float:left;
+}
+#video{
+	height:240px;
+	position:absolute;
+}
+#vidContainer{
+	width:320px;
+	height:240px;
+	
+}
+#videoOverlay{
+	position:absolute;
+	width:320px;
+	height:240px;
+	cursor:pointer;
+	
+	/* IE needs a "color" for the drop target*/
+	background-color:#00FFFF;
+	opacity:0;
+	filter:alpha(opacity:0);
+}
+#progressContainer{
+	clear:both;
+}
+#timeNode, #durNode, #timeNodes{
+	height:16px;
+	margin-top:0px;
+	color:#F5FFC8;
+}
+#timeNode{
+	padding-left:2px;
+} 
+#durNode{
+	padding-right:2px;
+}
+#timeNodes{
+	background:#000000;
+}
+#timeNode, #durNode{
+	width:150px;
+	font-family:Verdana, Arial, Helvetica, sans-serif;
+	font-size:9px;
+}
+
+#timeNode{
+	float:left;
+}
+#durNode{
+	float:right;
+	text-align:right;
+}
+#playButton, #pauseButton{
+}
+.playIcon, .pauseIcon{
+	background-image:url(images/playerIcons);
+	background-repeat:no-repeat;
+	background-position:0px 0px;
+	width:24px;
+	height:24px;
+	clear:both;
+}
+.pauseIcon{
+	background-position:-24px 0px;
+}
+/*********** Volume ***********/
+#volContainer{
+	width:60px;
+	float:right;
+	position:relative;
+	top:-30px;
+}
+#volume{
+	cursor:pointer;
+}
+#volMask{
+	position:absolute;
+	background:url(images/volMask.png) no-repeat;
+	width:60px;
+	height:30px;
+}
+#volume img, #volume #volBack{
+	position:absolute;
+}
+#volBack{
+	background-image:url(images/volBack.png);
+	background-repeat:no-repeat;
+	background-color:#EEEEEE;
+	width:60px;
+	height:30px;
+	background-position:-30px 0px;
+}
+.volBackHover{
+	background-image:url(images/volBackOver.png) !important;
+}
+/*********** Library ***********/
+#libContainer{
+float:left;
+	margin-left:30px;
+	width:220px;
+}
+#library{
+	border:#999999 1px solid;
+	height:250px;
+	overflow-y:scroll;
+}
+#libDesc{
+	margin-top:5px;
+	font-size:12px;
+	color:#666666;
+}
+.dojoDndItem, .related{
+	border:#999999 1px solid;
+	padding:1px;
+	margin:2px;
+	height:60px;
+}
+.dojoDndItem .thumb, 
+.related .thumb{
+	width:80px;
+	height:60px;
+	background-repeat:no-repeat;
+	float:left;
+}
+.dojoDndItem .title,
+.related .title{
+	float:left;
+	width:100px;
+	height:20px;
+	padding-left:3px;
+	font-size:12px;
+	font-weight:bold;
+	color:#666666;
+}
+.dojoDndItem .desc,
+.related .desc{
+	float:left;
+	width:100px;
+	height:40px;
+	padding-left:3px;
+	font-size:9px;
+	color:#999999;
+}
+
+#relatedContainer, #relatedBack{
+	position:absolute;
+	width:320px;
+	height:240px;
+	opacity:0;
+	filter:alpha(opacity:0);
+}
+#relatedContainer .topRow{
+text-align:center;
+margin-top:20px;
+margin-bottom:10px;
+}
+#relatedContainer .botRow{
+text-align:left;
+}
+#relatedContainer .relText{
+font-weight:bold;
+color:#CCCCCC;
+margin-left:2px;
+}
+#relatedBack{
+background:#000000;
+}
+.related .title, .related .desc{
+width:150px;
+}
+.related .thumb{
+}
+.related{
+background-color:#FFFFFF;
+}
+.related:hover{
+background:#FFFCE2;
+cursor:pointer;
+}
+.target{
+float:left;
+display:block;
+width:200px;
+height:200px;
+border:#666666 1px solid;
+}
+
+/*********** Timeline ***********/
+#BillHappy{
+background-image:url(media/thumbs/BillHappy.jpg);
+}
+#timeline{
+border:#999999 1px solid;
+height:66px;
+clear:both;
+width:100%;
+}
+#timeline .dojoDndItem{
+border:0;
+width:80px;
+float:left;
+}
+.dojoDndAvatar .desc,
+.dojoDndAvatar .title,
+#timeline .dojoDndItem .desc,
+#timeline .dojoDndItem .title{
+display:none;
+}

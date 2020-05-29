@@ -1,0 +1,140 @@
+8
+
+dir
+393
+http://svn.wikidot.org/repos/wikidot1/trunk/php/modules/account
+http://svn.wikidot.org/repos
+
+
+
+2008-01-30T17:40:54.924226Z
+2
+michal_frackowiak
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+fb797968-1a05-43ef-ab23-0011a79c62e5
+
+profile
+dir
+
+settings
+dir
+
+DefaultModule.php
+file
+
+
+
+
+2008-12-06T16:40:09.000000Z
+9e76a8b6cc1567955a61daf45e411183
+2008-01-30T17:40:54.924226Z
+2
+michal_frackowiak
+has-props
+
+AccountNotificationsModule.php
+file
+
+
+
+
+2008-12-06T16:40:09.000000Z
+91dc1c37f9c2780063841c0d09997caf
+2008-01-30T17:40:54.924226Z
+2
+michal_frackowiak
+has-props
+
+elists
+dir
+
+AccountWelcomeModule.php
+file
+
+
+
+
+2008-12-06T16:40:09.000000Z
+1e83381b3cc53e8a8f9f92e4aeb4e651
+2008-01-30T17:40:54.924226Z
+2
+michal_frackowiak
+has-props
+
+watch
+dir
+
+AccountModule.php
+file
+
+
+
+
+2008-12-06T16:40:09.000000Z
+3e5aba63dc84c144e36541cb790dadb2
+2008-01-30T17:40:54.924226Z
+2
+michal_frackowiak
+has-props
+
+AccountProfileModule.php
+file
+
+
+
+
+2008-12-06T16:40:09.000000Z
+f20ec210979609991c4d5079ead1c203
+2008-01-30T17:40:54.924226Z
+2
+michal_frackowiak
+has-props
+
+AccountSettingsModule.php
+file
+
+
+
+
+2008-12-06T16:40:09.000000Z
+bfa1b9c6aa5cbdb633e2560323e74884
+2008-01-30T17:40:54.924226Z
+2
+michal_frackowiak
+has-props
+
+membership
+dir
+
+pm
+dir
+
+contacts
+dir
+
+AccountNotificationsListModule.php
+file
+
+
+
+
+2008-12-06T16:40:09.000000Z
+4b0b0b0159424be21eed65abbed35dcf
+2008-01-30T17:40:54.924226Z
+2
+michal_frackowiak
+has-props
+

@@ -1,0 +1,70 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Json
+http://framework.zend.com/svn/framework
+
+
+
+2008-11-24T19:53:04.851658Z
+12809
+matthew
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+JsonXMLTest.php
+file
+
+
+
+
+2008-12-06T16:40:32.000000Z
+6a8eb4e093ae06ab962641ad84cb7509
+2008-10-18T14:29:41.078580Z
+12004
+mikaelkael
+has-props
+
+AllTests.php
+file
+
+
+
+
+2008-12-06T16:40:32.000000Z
+2e4fb7551539a8888304da8dccea7b73
+2008-10-15T16:00:56.239481Z
+11973
+matthew
+has-props
+
+Server
+dir
+
+ServerTest.php
+file
+
+
+
+
+2008-12-06T16:40:32.000000Z
+17287a600f7a79857a3e876e9dfcdddc
+2008-10-30T13:34:35.559735Z
+12195
+matthew
+has-props
+

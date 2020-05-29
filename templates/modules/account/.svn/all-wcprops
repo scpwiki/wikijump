@@ -1,0 +1,71 @@
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/repos/!svn/ver/96/wikidot1/trunk/templates/modules/account
+END
+AccountModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/repos/!svn/ver/96/wikidot1/trunk/templates/modules/account/AccountModule.tpl
+END
+AccountSettingsModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/account/AccountSettingsModule.tpl
+END
+AccountProfileModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/account/AccountProfileModule.tpl
+END
+AccountRecentContribModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/account/AccountRecentContribModule.tpl
+END
+AccountNotificationsListModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/account/AccountNotificationsListModule.tpl
+END
+AccountMessagesModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/account/AccountMessagesModule.tpl
+END
+AccountRecentPostsModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/account/AccountRecentPostsModule.tpl
+END
+AccountNotificationsModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/account/AccountNotificationsModule.tpl
+END
+AccountNotLoggedInModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/account/AccountNotLoggedInModule.tpl
+END
+AccountStatisticsModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/repos/!svn/ver/96/wikidot1/trunk/templates/modules/account/AccountStatisticsModule.tpl
+END
+AccountWelcomeModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/account/AccountWelcomeModule.tpl
+END

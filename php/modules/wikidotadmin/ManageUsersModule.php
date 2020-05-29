@@ -23,6 +23,14 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use \WDPermissionException;
+use \WDPermissionManager;
+use Criteria;
+use DB\OzoneUserPeer;
+
 class ManageUsersModule extends SmartyModule {
 	
 	public function isAllowed($runData){
@@ -40,7 +48,7 @@ class ManageUsersModule extends SmartyModule {
 		$c = new Criteria();
 		$c->add('user_id', '1', '>');
 
-		foreach (DB_OzoneUserPeer::instance()->select($c) as $user) {
+		foreach (OzoneUserPeer::instance()->select($c) as $user) {
             $admin = WDPermissionManager::hasPermission('manage_site', $user, 1) ? 1 : 0;
             $mod = WDPermissionManager::hasPermission('moderate_site', $user, 1) ? 1 : 0;
 

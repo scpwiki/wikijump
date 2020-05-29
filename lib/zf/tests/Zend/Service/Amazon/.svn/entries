@@ -1,0 +1,70 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Service/Amazon
+http://framework.zend.com/svn/framework
+
+
+
+2008-11-15T16:51:39.915582Z
+12667
+beberlei
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+_files
+dir
+
+AllTests.php
+file
+
+
+
+
+2008-12-06T16:40:21.000000Z
+3ca6e7c53ea5863c290d34039a120eec
+2008-10-15T16:00:56.239481Z
+11973
+matthew
+has-props
+
+OfflineTest.php
+file
+
+
+
+
+2008-12-06T16:40:21.000000Z
+94e15b0498f0b28e7dabb64c7f6d814d
+2008-11-15T16:51:39.915582Z
+12667
+beberlei
+has-props
+
+OnlineTest.php
+file
+
+
+
+
+2008-12-06T16:40:21.000000Z
+84f2cff39289091e3fc730762bb08c22
+2008-10-15T16:00:56.239481Z
+11973
+matthew
+has-props
+

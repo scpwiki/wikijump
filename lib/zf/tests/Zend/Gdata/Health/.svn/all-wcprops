@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/framework/!svn/ver/13105/standard/trunk/tests/Zend/Gdata/Health
+END
+ProfileListEntryTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/framework/!svn/ver/13105/standard/trunk/tests/Zend/Gdata/Health/ProfileListEntryTest.php
+END
+ProfileEntryTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/13105/standard/trunk/tests/Zend/Gdata/Health/ProfileEntryTest.php
+END
+ProfileFeedTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/13105/standard/trunk/tests/Zend/Gdata/Health/ProfileFeedTest.php
+END
+QueryTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/13105/standard/trunk/tests/Zend/Gdata/Health/QueryTest.php
+END

@@ -1,0 +1,74 @@
+8
+
+dir
+393
+http://svn.wikidot.org/repos/wikidot1/trunk/php
+http://svn.wikidot.org/repos
+
+
+
+2008-12-25T16:32:27.621189Z
+393
+quake
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+fb797968-1a05-43ef-ab23-0011a79c62e5
+
+actions
+dir
+
+smarty_plugins
+dir
+
+utils
+dir
+
+screens
+dir
+
+class
+dir
+
+db
+dir
+
+quickmodules
+dir
+
+setup.php
+file
+
+
+
+
+2008-12-06T16:40:09.000000Z
+f2b06bfd7c2721ec49176ec3ec4e6bba
+2008-09-03T21:01:36.867015Z
+258
+quake
+has-props
+
+modules
+dir
+
+unclassified
+dir
+
+jobs
+dir
+
+pingback
+dir
+

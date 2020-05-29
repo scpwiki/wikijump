@@ -1,0 +1,72 @@
+<!-- EN-Revision: 12116 -->
+<sect1 id="zend.captcha.operation">
+    <title>Captcha Anwendung</title>
+
+    <para>
+        Alle konkreten CAPTCHA Objekte implementieren <code>Zend_Captcha_Adapter</code>, welches wie folgt
+        aussieht:
+    </para>
+
+    <programlisting role="php"><![CDATA[
+interface Zend_Captcha_Adapter extends Zend_Validate_Interface
+{
+    public function generate();
+
+    public function render(Zend_View $view, $element = null);
+
+    public function setName($name);
+
+    public function getName();
+
+    public function getDecorator();
+
+    // Zusätzlich um das Zend_Validate_Interface zu befriedigen:
+    public function isValid($value);
+
+    public function getMessages();
+
+    public function getErrors();
+}
+]]>
+    </programlisting>
+
+    <para>
+        Die benannten Mutatoren und Zugriffsmethoden werden verwenden um den Captcha Identifikator zu
+        spezifizieren und zu empfangen. <code>getDecorator()</code> kann verwendet werden um einen
+        Zend_Form Dekorator entweder durch seinen Namen zu spezifizieren oder indem ein aktuelles
+        Dekoratorobjekt zurückgegeben wird. Der wirkliche Schlüssel seiner Verwendung liegt aber in
+        <code>generate()</code> und <code>render()</code>. <code>generate()</code> wird verwendet
+        um das Captcha Token zu erstellen. Dieser Prozess speichert das Token typischerweise in der
+        Session damit es in nachfolgenden Anfragen verglichen werden kann. <code>render()</code> wird
+        verwendet um die Informationen die das Captcha repräsentieren darzustellen -- ob es ein Bild ist,
+        ein Figlet, ein logisches Problem, usw.
+    </para>
+
+    <para>
+        Ein typischer Verwendungsfall könnte wie folgt aussehen:
+    </para>
+
+    <programlisting role="php"><![CDATA[
+// Eine Instanz von Zend_View erstellen
+$view = new Zend_View();
+
+// Originale Anfrage:
+$captcha = new Zend_Captcha_Figlet(array(
+    'name' => 'foo',
+    'wordLen' => 6,
+    'timeout' => 300,
+));
+$id = $captcha->generate();
+echo $captcha->render($view);
+
+// Eine nachfolgende Anfrage:
+// Annahme das das Captcha vorher eingestellt wurde, und $value der übertragene Wert ist:
+if ($captcha->isValid($_POST['foo'], $_POST)) {
+    // Validated!
+}
+]]>
+    </programlisting>
+</sect1>
+<!--
+vim:se ts=4 sw=4 et:
+-->

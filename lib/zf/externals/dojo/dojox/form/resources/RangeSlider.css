@@ -1,0 +1,22 @@
+.dojoxRangeSlider .dijitSliderLeftBumperH, .dojoxRangeSlider .dijitSliderBottomBumperV  {
+    background:#FFFFFF !important;
+}
+
+.dojoxRangeSliderBarContainer {
+    position:relative;
+}
+
+.dojoxRangeSlider .dijitSliderProgressBarV {
+    position:relative !important;
+}
+
+.dojoxRangeSlider .dijitSliderProgressBar {
+    overflow:hidden;
+    cursor:pointer;
+    /* background:yellow !important; */
+}
+
+.dojoxRangeSlider .dijitSliderProgressBarV {
+    position:absolute !important;
+    border-width: 0px;
+}

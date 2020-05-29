@@ -1,0 +1,139 @@
+@import "../../dojo/resources/dojo.css";
+@import "../../dijit/themes/tundra/tundra.css";
+@import "src/Teacher.css";
+
+.tundra {
+	margin:0;
+	background:#9A8312;
+}
+
+.classContainer {
+	width: 900px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.classRoomOutline {
+	position: relative;
+	margin-top: 60px;
+	width: 868px;
+	height: 546px;
+	background: url("images/bg.png");
+}
+
+.classRoomBoard {
+	position: absolute;
+	top: -30px;
+	left: 120px;
+	width: 449px;
+	height: 550px;
+	background: url("images/board.png");
+}
+
+.classRoomTeacher {
+	z-index: 100;
+	top: 100px;
+	left: 30px;
+}
+
+.classRoomResult {
+	position: absolute;
+	left: 575px;
+	top: 115px;
+}
+
+.classRoomStart {
+	background: url("images/try_again.png");
+	width: 80px;
+	height: 17px;
+	position: absolute;
+	bottom: 20px;
+	right: 20px;
+	padding: 22px;
+}
+
+.classRoomStartContent {
+	font-size: 20px;
+	color: #FF0000;
+	text-align: center;
+	cursor: pointer;
+}
+
+.container {
+	padding: 10px 10px;
+	cursor: default;
+	font-size: 72pt;
+	color:#FFF;
+	width:200px;
+	position: absolute;
+	top: 130px;
+	left: 150px;
+}
+
+.container input {
+	background:#304535;
+}
+
+#scoreTable {
+	color:#FFF;
+	font-size:15pt;
+	text-align:left;
+}
+
+#score {
+	font-size:25pt;
+	padding-left: 30px;
+	margin-bottom: 20px;
+}
+
+#remaining {
+	background:url("images/remaining.png") no-repeat center left;
+	padding-left:35px;
+	padding: 10px 0 10px 30px;
+}
+
+#correct {
+	background:url("images/correct.png") no-repeat center left;
+	padding-left:35px;
+	padding: 10px 0 10px 30px;
+}
+
+#incorrect {
+	background:url("images/incorrect.png") no-repeat center left;
+	padding-left:35px;
+	padding: 10px 0 10px 30px;
+}
+
+#tooSlow {
+	background:url("images/slow.png") no-repeat center left;
+	padding-left:35px;
+	padding: 10px 0 10px 30px;
+}
+
+#correctTd,
+#incorrectTd,
+#tooSlowTd,
+#remainingTd {
+	padding-left: 5px;
+	font-weight: bold;
+}
+
+.answerInput {
+	width:100%; 
+	height: 100%; 
+	font-size: 72pt; 
+	border: 0px; 
+	color: #FFF; 
+	text-align: right;
+	outline:0;
+}
+
+.answerWrap {
+	margin: 0px; 
+	padding:0px;
+}
+
+.dividerLine {
+	border-bottom: 4px solid white;
+	height:4px;
+}

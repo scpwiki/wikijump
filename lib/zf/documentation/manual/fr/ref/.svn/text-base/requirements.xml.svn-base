@@ -1,0 +1,3136 @@
+<!-- EN-Revision: 12887 -->
+<appendix id="requirements">
+    <title>Configuration système requise par le Zend Framework</title>
+
+    <para>Le Zend Framework requière un interpréteur PHP5 avec un serveur web configuré pour gérer correctement les
+    scripts PHP. Certaines fonctionnalités requièrent des extensions additionnelles ou des fonctionnalités du serveur
+    web ; dans la plupart des cas le framework peut être utilisées sans celle-ci, bien que l'exécution puisse perdre en
+    performance ou les fonctionnalités auxiliaires peuvent ne pas être entièrement fonctionnelles. Un exemple d'un telle
+    dépendance est le mod_rewrite d'un environnement Apache, qui peut être utilisé pour implémenter les "jolies URL"
+    ("pretty URL") comme "http://www.exemple.com/utilisateur/edition". Si le mod_rewrite n'est pas activé, le ZF peut
+    être configuré pour supporter les URL de type "http://www.exemple.com?controller=utilisateur&amp;action=edition".
+    Les jolies URL peuvent être utilisées pour réduire la longueur des URLs avec une représentation textuelle ou pour
+    l'optimisation des moteurs de recherche (SEO), mais il n'affectent pas directement le fonctionnement de
+    l'application.</para>
+
+    <sect1 id="requirements.version">
+        <title>Version de PHP requise</title>
+
+        <para>Zend recommande la version la plus récente de PHP pour des questions de sécurité et de performances, et
+        supporte actuellement la version 5.2.4 de PHP (ou plus récent).</para>
+
+        <para>Zend Framework possède une collection étendue de tests automatisés, que vous pouvez lancer avec PHPUnit
+        3.3.0 ou plus.</para>
+    </sect1>
+
+    <sect1 id="requirements.extensions">
+        <title>Extensions PHP</title>
+
+        <para>Ci-dessous, la table recense toutes les extensions typiquement trouvées dans PHP et comment elles sont
+        utilisées dans le Zend Framework. Cela peut aider à vous guider pour savoir quelles extensions sont exigées pour
+        votre application. Cependant toutes les extensions utilisées par le Zend Framework ne sont pas exigées pour
+        chaque application.</para>
+
+        <para>Une dépendance de type "forte" indique que le composant ou la classe ne pourra pas fonctionner
+        correctement si l'extension respective n'est pas disponible, tandis qu'une dépendance de type "faible" indique
+        que le composant peut utiliser l'extension si elle est disponible mais fonctionnera malgré tout si elle ne l'est
+        pas. Certains composants utiliseront automatiquement les extensions si elles sont disponibles afin d'optimiser
+        les performances mais pourront exécuter du code similaire dans le propre code du composant si elles ne le sont
+        pas.</para>
+
+        <table frame="all" id="requirements.extensions.table-1">
+            <title>Extensions PHP utilisées par composant dans le Zend Framework</title>
+
+            <tgroup cols="3">
+                <!--<colspec colwidth="1in" />
+
+                <colspec colwidth="1in" />
+
+                <colspec colwidth="3in" />-->
+
+                <thead>
+                    <row>
+                        <entry>Extension</entry>
+
+                        <entry>Type de dépendance</entry>
+
+                        <entry>Utilisée par les composants du Zend Framework</entry>
+                    </row>
+                </thead>
+
+                <tbody>
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.apc.php"><code>apc</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.cache.backends.html"><code>Zend_Cache_Backend_Apc</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.bc.php"><code>bcmath</code></ulink></emphasis></entry>
+
+                        <entry>Faible</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.locale.html"><code>Zend_Locale</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://pecl.php.net/package/Bitset"><code>bitset</code></ulink></emphasis></entry>
+
+                        <entry>Faible</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.search.lucene.html"><code>Zend_Search_Lucene</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.bzip2.php"><code>bz2</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.calendar.php"><code>calendar</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.com.php"><code>com_dotnet</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="8" valign="middle"><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.ctype.php"><code>ctype</code></ulink></emphasis></entry>
+
+                        <entry morerows="8" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.auth.adapter.http.html"><code>Zend_Auth_Adapter_Http</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.gdata.html"><code>Zend_Gdata</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.http.html"><code>Zend_Http_Client</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.pdf.html"><code>Zend_Pdf</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.rest.client.html"><code>Zend_Rest_Client</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.rest.server.html"><code>Zend_Rest_Server</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.search.lucene.html"><code>Zend_Search_Lucene</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.uri.html"><code>Zend_Uri</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.validate.html"><code>Zend_Validate</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.curl.php"><code>curl</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.http.client.adapters.html"><code>Zend_Http_Client_Adapter_Curl</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.datetime.php"><code>date</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.dba.php"><code>dba</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.dbase.php"><code>dbase</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="10" valign="middle"><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.dom.php"><code>dom</code></ulink></emphasis></entry>
+
+                        <entry morerows="10" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.feed.html"><code>Zend_Feed</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.gdata.html"><code>Zend_Gdata</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.log.formatters.html"><code>Zend_Log_Formatter_Xml</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.rest.server.html"><code>Zend_Rest_Server</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.search.lucene.html"><code>Zend_Search_Lucene</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.amazon.html"><code>Zend_Service_Amazon</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.delicious.html"><code>Zend_Service_Delicious</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.flickr.html"><code>Zend_Service_Flickr</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.simpy.html"><code>Zend_Service_Simpy</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.yahoo.html"><code>Zend_Service_Yahoo</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.xmlrpc.html"><code>Zend_XmlRpc</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.exif.php"><code>exif</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.fbsql.php"><code>fbsql</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.fdf.php"><code>fdf</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.filter.php"><code>filter</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.ftp.php"><code>ftp</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.image.php"><code>gd</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.pdf.html"><code>Zend_Pdf</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.gettext.php"><code>gettext</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.gmp.php"><code>gmp</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.hash.php"><code>hash</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.auth.adapter.http.html"><code>Zend_Auth_Adapter_Http</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.ibm-db2.php"><code>ibm_db2</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.db.html"><code>Zend_Db_Adapter_Db2</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="7" valign="middle"><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.iconv.php"><code>iconv</code></ulink></emphasis></entry>
+
+                        <entry morerows="7" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.currency.html"><code>Zend_Currency</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.locale.parsing.html"><code>Zend_Locale_Format</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.mime.html"><code>Zend_Mime</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.pdf.html"><code>Zend_Pdf</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.search.lucene.html"><code>Zend_Search_Lucene</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.audioscrobbler.html"><code>Zend_Service_Audioscrobbler</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.flickr.html"><code>Zend_Service_Flickr</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.xmlrpc.client.html"><code>Zend_XmlRpc_Client</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.imap.php"><code>imap</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.ifx.php"><code>informix</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.ibase.php"><code>interbase</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry>Zend_Db_Adapter_Firebird</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.json.php"><code>json</code></ulink></emphasis></entry>
+
+                        <entry>Faible</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.json.html"><code>Zend_Json</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.ldap.php"><code>ldap</code></ulink></emphasis></entry>
+
+                        <entry>Hard</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.ldap.html"><code>Zend_Ldap</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="2" valign="middle"><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.libxml.php"><code>libxml</code></ulink></emphasis></entry>
+
+                        <entry morerows="2" valign="middle">Forte</entry>
+
+                        <entry><ulink url="http://www.php.net/manual/fr/ref.dom.php"><code>DOM</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.simplexml.php"><code>SimpleXML</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink url="http://www.php.net/manual/fr/ref.xslt.php"><code>XSLT</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.mbstring.php"><code>mbstring</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.feed.html"><code>Zend_Feed</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.mcrypt.php"><code>mcrypt</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.memcache.php"><code>memcache</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.cache.backends.html"><code>Zend_Cache_Backend_Memcached</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.mhash.php"><code>mhash</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.mime-magic.php"><code>mime_magic</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.http.html"><code>Zend_Http_Client</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.ming.php"><code>ming</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.msql.php"><code>msql</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.mssql.php"><code>mssql</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.mysql.php"><code>mysql</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.mysqli.php"><code>mysqli</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.db.html"><code>Zend_Db_Adapter_Mysqli</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.ncurses.php"><code>ncurses</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.oci8.php"><code>oci8</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.db.html"><code>Zend_Db_Adapter_Oracle</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.uodbc.php"><code>odbc</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.openssl.php"><code>openssl</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.pcntl.php"><code>pcntl</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.pcre.php"><code>pcre</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry>Virtuellement tous les composants</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.pdo.php"><code>pdo</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry>Tous les adaptateurs de base de données PDO</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.pdo-dblib.php"><code>pdo_dblib</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.pdo-firebird.php"><code>pdo_firebird</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><code>pdo_mssql</code></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.db.html"><code>Zend_Db_Adapter_Pdo_Mssql</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.pdo-mysql.php"><code>pdo_mysql</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.db.html"><code>Zend_Db_Adapter_Pdo_Mysql</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.pdo-oci.php"><code>pdo_oci</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.db.html"><code>Zend_Db_Adapter_Pdo_Oci</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.pdo-pgsql.php"><code>pdo_pgsql</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.db.html"><code>Zend_Db_Adapter_Pdo_Pgsql</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.pdo-sqlite.php"><code>pdo_sqlite</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.db.html"><code>Zend_Db_Adapter_Pdo_Sqlite</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.pgsql.php"><code>pgsql</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.posix.php"><code>posix</code></ulink></emphasis></entry>
+
+                        <entry>Faible</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.mail.html"><code>Zend_Mail</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.pspell.php"><code>pspell</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.readline.php"><code>readline</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.recode.php"><code>recode</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="9" valign="middle"><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/language.oop5.reflection.php"><code>Reflection</code></ulink></emphasis></entry>
+
+                        <entry morerows="9" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.controller.html"><code>Zend_Controller</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.filter.html"><code>Zend_Filter</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.filter.input.html"><code>Zend_Filter_Input</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.json.html"><code>Zend_Json</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.log.html"><code>Zend_Log</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.rest.server.html"><code>Zend_Rest_Server</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.server.reflection.html"><code>Zend_Server_Reflection</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.validate.html"><code>Zend_Validate</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.view.html"><code>Zend_View</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.xmlrpc.server.html"><code>Zend_XmlRpc_Server</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="1" valign="middle"><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.session.php"><code>session</code></ulink></emphasis></entry>
+
+                        <entry morerows="1" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.controller.actionhelpers.html"><code>Zend_Controller_Action_Helper_Redirector</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.session.html"><code>Zend_Session</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.shmop.php"><code>shmop</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="4" valign="middle"><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.simplexml.php"><code>SimpleXML</code></ulink></emphasis></entry>
+
+                        <entry morerows="4" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.config.adapters.xml.html"><code>Zend_Config_Xml</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.feed.html"><code>Zend_Feed</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.rest.client.html"><code>Zend_Rest_Client</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.audioscrobbler.html"><code>Zend_Service_Audioscrobbler</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.xmlrpc.html"><code>Zend_XmlRpc</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.soap.php"><code>soap</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.strikeiron.html"><code>Zend_Service_StrikeIron</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.sockets.php"><code>sockets</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.spl.php"><code>SPL</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry>Virtuellement tous les composants</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.sqlite.php"><code>SQLite</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.cache.backends.html">Zend_Cache_Backend_Sqlite</ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><code>standard</code></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry>Virtuellement tous les composants</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.sybase.php"><code>sybase</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong">sysvmsg</emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong">sysvsem</emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>--</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong">sysvshm</emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.tidy.php"><code>tidy</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.tokenizer.php"><code>tokenizer</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.wddx.php"><code>wddx</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="2" valign="middle"><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.xml.php"><code>xml</code></ulink></emphasis></entry>
+
+                        <entry morerows="2" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.translate.adapter.html"><code>Zend_Translate_Adapter_Qt</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.translate.adapter.html"><code>Zend_Translate_Adapter_Tmx</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.translate.adapter.html"><code>Zend_Translate_Adapter_Xliff</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.xmlreader.php"><code>XMLReader</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.xmlrpc.php"><code>xmlrpc</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.xmlwriter.php"><code>XMLWriter</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.xsl.php"><code>xsl</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.zip.php"><code>zip</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="1" valign="middle"><emphasis role="strong"><ulink
+                        url="http://www.php.net/manual/fr/ref.zlib.php"><code>zlib</code></ulink></emphasis></entry>
+
+                        <entry morerows="1" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.pdf.html"><code>Zend_Pdf</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.memcache.php"><code>Memcache</code></ulink></entry>
+                    </row>
+                </tbody>
+            </tgroup>
+        </table>
+    </sect1>
+
+    <sect1 id="requirements.zendcomponents">
+        <title>Les composants du Zend Framework</title>
+
+        <para>Ci-dessous vous trouverez un tableau qui liste tous les composants disponibles du Zend Framework ainsi que
+        les extensions PHP dont ils ont besoin. Ceci peut vous aider pour connaître les extensions requises pour votre
+        application. Les extensions par le Zend Framework ne sont pas utiles pour toutes les applications.</para>
+
+        <para>Une dépendance de type "forte" indique que le composant ou la classe ne pourra pas fonctionner
+        correctement si l'extension respective n'est pas disponible, tandis qu'une dépendance de type "faible" indique
+        que le composant peut utiliser l'extension si elle est disponible mais fonctionnera malgré tout si elle ne l'est
+        pas. Certains composants utiliseront automatiquement les extensions si elles sont disponibles afin d'optimiser
+        les performances mais pourront exécuter du code similaire dans le propre code du composant si elles ne le sont
+        pas.</para>
+
+        <table frame="all" id="requirements.zendcomponents.table-1">
+            <title>Composants du Zend Framework et les extensions PHP qu'ils utilisent</title>
+
+            <tgroup cols="4">
+                <!-- <colspec colwidth='3in'/>
+                <colspec colwidth='1in'/>
+                <colspec colwidth='3in'/>
+                <colspec colwidth='3in'/> -->
+                <thead>
+                    <row>
+                        <entry>Composant du Zend Framework</entry>
+
+                        <entry>Type de dépendance</entry>
+
+                        <entry>Sous-classe</entry>
+
+                        <entry>PHP Extension</entry>
+                    </row>
+                </thead>
+
+                <tbody>
+                    <row>
+                        <entry morerows="2" valign="middle"><emphasis role="strong">Tous les
+                        composants</emphasis></entry>
+
+                        <entry morerows="2" valign="middle">Forte</entry>
+
+                        <entry morerows="2" valign="middle">---</entry>
+
+                        <entry><ulink url="http://www.php.net/manual/fr/ref.pcre.php"><code>pcre</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink url="http://www.php.net/manual/fr/ref.spl.php"><code>SPL</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><code>standard</code></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.acl.html"><code>Zend_Acl</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="1" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.auth.html"><code>Zend_Auth</code></ulink></emphasis></entry>
+
+                        <entry morerows="1" valign="middle">Forte</entry>
+
+                        <entry morerows="1" valign="middle"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.auth.adapter.http.html"><code>Zend_Auth_Adapter_Http</code></ulink></entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.ctype.php"><code>ctype</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink url="http://www.php.net/manual/fr/ref.hash.php"><code>hash</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="3" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.cache.html"><code>Zend_Cache</code></ulink></emphasis></entry>
+
+                        <entry morerows="3" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.cache.backends.html"><code>Zend_Cache_Backend_Apc</code></ulink></entry>
+
+                        <entry><ulink url="http://www.php.net/manual/fr/ref.apc.php"><code>apc</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.cache.backends.html"><code>Zend_Cache_Backend_Memcached</code></ulink></entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.memcache.php"><code>memcache</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.cache.backends.html"><code>Zend_Cache_Backend_Sqlite</code></ulink></entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.sqlite.php"><code>sqlite</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.cache.backends.html"><code>Zend_Cache_Backend_Zlib</code></ulink></entry>
+
+                        <entry><ulink url="http://www.php.net/manual/fr/ref.zlib.php"><code>zlib</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="1" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.config.html"><code>Zend_Config</code></ulink></emphasis></entry>
+
+                        <entry morerows="1" valign="middle">Forte</entry>
+
+                        <entry morerows="1" valign="middle"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.config.adapters.xml.html"><code>Zend_Config_Xml</code></ulink></entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.libxml.php"><code>libxml</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.simplexml.php"><code>SimpleXML</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.console.getopt.html"><code>Zend_Console_Getopt</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="1" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.controller.html"><code>Zend_Controller</code></ulink></emphasis></entry>
+
+                        <entry morerows="1" valign="middle">Forte</entry>
+
+                        <entry>---</entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/language.oop5.reflection.php"><code>Reflection</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.controller.actionhelpers.html"><code>Zend_Controller_Action_Helper_Redirector</code></ulink></entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.session.php"><code>session</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.currency.html"><code>Zend_Currency</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry>---</entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.iconv.php"><code>iconv</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.date.html"><code>Zend_Date</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="8" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.db.html"><code>Zend_Db</code></ulink></emphasis></entry>
+
+                        <entry morerows="8" valign="middle">Forte</entry>
+
+                        <entry>Tous les adaptateurs PDO</entry>
+
+                        <entry><ulink url="http://www.php.net/manual/fr/ref.pdo.php"><code>pdo</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.db.html"><code>Zend_Db_Adapter_Db2</code></ulink></entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.ibm-db2.php"><code>ibm_db2</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.db.html"><code>Zend_Db_Adapter_Mysqli</code></ulink></entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.mysqli.php"><code>mysqli</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.db.html"><code>Zend_Db_Adapter_Oracle</code></ulink></entry>
+
+                        <entry><ulink url="http://www.php.net/manual/fr/ref.oci8.php"><code>oci8</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.db.html"><code>Zend_Db_Adapter_Pdo_Mssql</code></ulink></entry>
+
+                        <entry>pdo_mssql</entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.db.html"><code>Zend_Db_Adapter_Pdo_Mysql</code></ulink></entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.pdo-mysql.php"><code>pdo_mysql</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.db.html"><code>Zend_Db_Adapter_Pdo_Oci</code></ulink></entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.pdo-oci.php"><code>pdo_oci</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.db.html"><code>Zend_Db_Adapter_Pdo_Pgsql</code></ulink></entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.pdo-pgsql.php"><code>pdo_pgsql</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.db.html"><code>Zend_Db_Adapter_Pdo_Sqlite</code></ulink></entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.pdo-sqlite.php"><code>pdo_sqlite</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.debug.html"><code>Zend_Debug</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="3" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.feed.html"><code>Zend_Feed</code></ulink></emphasis></entry>
+
+                        <entry morerows="3" valign="middle">Forte</entry>
+
+                        <entry morerows="3" valign="middle">---</entry>
+
+                        <entry><ulink url="http://www.php.net/manual/fr/ref.dom.php"><code>dom</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.libxml.php"><code>libxml</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.mbstring.php"><code>mbstring</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.simplexml.php"><code>SimpleXML</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.filter.html"><code>Zend_Filter</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry>---</entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/language.oop5.reflection.php"><code>Reflection</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.form.html"><code>Zend_Form</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="2" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.gdata.html"><code>Zend_Gdata</code></ulink></emphasis></entry>
+
+                        <entry morerows="2" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.gdata.html"><code>Zend_Gdata_App</code></ulink></entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.ctype.php"><code>ctype</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="1" valign="middle">---</entry>
+
+                        <entry><ulink url="http://www.php.net/manual/fr/ref.dom.php"><code>dom</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.libxml.php"><code>libxml</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="2" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.http.html"><code>Zend_Http</code></ulink></emphasis></entry>
+
+                        <entry morerows="2" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.http.client.adapters.html"><code>Zend_Http_Client_Adapter_Curl</code></ulink></entry>
+
+                        <entry><ulink url="http://www.php.net/manual/fr/ref.curl.php"><code>curl</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="1" valign="middle"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.http.html"><code>Zend_Http_Client</code></ulink></entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.ctype.php"><code>ctype</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.mime-magic.php"><code>mime_magic</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.infocard.html"><code>Zend_InfoCard</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="1" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.json.html"><code>Zend_Json</code></ulink></emphasis></entry>
+
+                        <entry>Faible</entry>
+
+                        <entry>---</entry>
+
+                        <entry><ulink url="http://www.php.net/manual/fr/ref.json.php"><code>json</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry>Forte</entry>
+
+                        <entry>---</entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/language.oop5.reflection.php"><code>Reflection</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.layout.html"><code>Zend_Layout</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.ldap.html"><code>Zend_Ldap</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+
+                        <entry><ulink url="http://www.php.net/manual/en/ref.ldap.php"><code>ldap</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.loader.html"><code>Zend_Loader</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="1" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.locale.html"><code>Zend_Locale</code></ulink></emphasis></entry>
+
+                        <entry>Faible</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.locale.html"><code>Zend_Locale_Math</code></ulink></entry>
+
+                        <entry><ulink url="http://www.php.net/manual/fr/ref.bc.php"><code>bcmath</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.locale.parsing.html"><code>Zend_Locale_Format</code></ulink></entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.iconv.php"><code>iconv</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="2" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.log.html"><code>Zend_Log</code></ulink></emphasis></entry>
+
+                        <entry morerows="2" valign="middle">Forte</entry>
+
+                        <entry morerows="1" valign="middle"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.log.formatters.html"><code>Zend_Log_Formatter_Xml</code></ulink></entry>
+
+                        <entry><ulink url="http://www.php.net/manual/fr/ref.dom.php"><code>dom</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.libxml.php"><code>libxml</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry>---</entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/language.oop5.reflection.php"><code>Reflection</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.mail.html"><code>Zend_Mail</code></ulink></emphasis></entry>
+
+                        <entry>Faible</entry>
+
+                        <entry>---</entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.posix.php"><code>posix</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.measure.html"><code>Zend_Measure</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.memory.html"><code>Zend_Memory</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.mime.html"><code>Zend_Mime</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.mime.html"><code>Zend_Mime_Decode</code></ulink></entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.iconv.php"><code>iconv</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.openid.html"><code>Zend_OpenId</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="3" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.pdf.html"><code>Zend_Pdf</code></ulink></emphasis></entry>
+
+                        <entry morerows="3" valign="middle">Forte</entry>
+
+                        <entry morerows="3" valign="middle">---</entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.ctype.php"><code>ctype</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink url="http://www.php.net/manual/fr/ref.image.php"><code>gd</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.iconv.php"><code>iconv</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink url="http://www.php.net/manual/fr/ref.zlib.php"><code>zlib</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.registry.html"><code>Zend_Registry</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.request.html"><code>Zend_Request</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="6" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.rest.html"><code>Zend_Rest</code></ulink></emphasis></entry>
+
+                        <entry morerows="6" valign="middle">Forte</entry>
+
+                        <entry morerows="2" valign="middle"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.rest.client.html"><code>Zend_Rest_Client</code></ulink></entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.ctype.php"><code>ctype</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.libxml.php"><code>libxml</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.simplexml.php"><code>SimpleXML</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="3" valign="middle"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.rest.server.html"><code>Zend_Rest_Server</code></ulink></entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.ctype.php"><code>ctype</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink url="http://www.php.net/manual/fr/ref.dom.php"><code>dom</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.libxml.php"><code>libxml</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/language.oop5.reflection.php"><code>Reflection</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="4" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.search.lucene.html"><code>Zend_Search_Lucene</code></ulink></emphasis></entry>
+
+                        <entry>Faible</entry>
+
+                        <entry morerows="4" valign="middle">---</entry>
+
+                        <entry><ulink url="http://pecl.php.net/package/Bitset"><code>bitset</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="3" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.ctype.php"><code>ctype</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink url="http://www.php.net/manual/fr/ref.dom.php"><code>dom</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.iconv.php"><code>iconv</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.libxml.php"><code>libxml</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.server.reflection.html"><code>Zend_Server_Reflection</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry>---</entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/language.oop5.reflection.php"><code>Reflection</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.akismet.html"><code>Zend_Service_Akismet</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="1" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.amazon.html"><code>Zend_Service_Amazon</code></ulink></emphasis></entry>
+
+                        <entry morerows="1" valign="middle">Forte</entry>
+
+                        <entry morerows="1" valign="middle">---</entry>
+
+                        <entry><ulink url="http://www.php.net/manual/fr/ref.dom.php"><code>dom</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.libxml.php"><code>libxml</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="2" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.audioscrobbler.html"><code>Zend_Service_Audioscrobbler</code></ulink></emphasis></entry>
+
+                        <entry morerows="2" valign="middle">Forte</entry>
+
+                        <entry morerows="2" valign="middle">---</entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.iconv.php"><code>iconv</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.libxml.php"><code>libxml</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.simplexml.php"><code>SimpleXML</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="1" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.delicious.html"><code>Zend_Service_Delicious</code></ulink></emphasis></entry>
+
+                        <entry morerows="1" valign="middle">Forte</entry>
+
+                        <entry morerows="1" valign="middle">---</entry>
+
+                        <entry><ulink url="http://www.php.net/manual/fr/ref.dom.php"><code>dom</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.libxml.php"><code>libxml</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="2" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.flickr.html"><code>Zend_Service_Flickr</code></ulink></emphasis></entry>
+
+                        <entry morerows="2" valign="middle">Forte</entry>
+
+                        <entry morerows="2" valign="middle">---</entry>
+
+                        <entry><ulink url="http://www.php.net/manual/fr/ref.dom.php"><code>dom</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.iconv.php"><code>iconv</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.libxml.php"><code>libxml</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.nirvanix.html"><code>Zend_Service_Nirvanix</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="1" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.simpy.html"><code>Zend_Service_Simpy</code></ulink></emphasis></entry>
+
+                        <entry morerows="1" valign="middle">Forte</entry>
+
+                        <entry morerows="1" valign="middle">---</entry>
+
+                        <entry><ulink url="http://www.php.net/manual/fr/ref.dom.php"><code>dom</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.libxml.php"><code>libxml</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.slideshare.html"><code>Zend_Service_SlideShare</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.strikeiron.html"><code>Zend_Service_StrikeIron</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry>---</entry>
+
+                        <entry><ulink url="http://www.php.net/manual/fr/ref.soap.php"><code>soap</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.technorati.html"><code>Zend_Service_Technorati</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="1" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.yahoo.html"><code>Zend_Service_Yahoo</code></ulink></emphasis></entry>
+
+                        <entry morerows="1" valign="middle">Forte</entry>
+
+                        <entry morerows="1" valign="middle">---</entry>
+
+                        <entry><ulink url="http://www.php.net/manual/fr/ref.dom.php"><code>dom</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.libxml.php"><code>libxml</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.session.html"><code>Zend_Session</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry>---</entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.session.php"><code>session</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.timesync.html"><code>Zend_TimeSync</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="2" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.translate.html"><code>Zend_Translate</code></ulink></emphasis></entry>
+
+                        <entry morerows="2" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.translate.adapter.html"><code>Zend_Translate_Adapter_Qt</code></ulink></entry>
+
+                        <entry><ulink url="http://www.php.net/manual/fr/ref.xml.php"><code>xml</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.translate.adapter.html"><code>Zend_Translate_Adapter_Tmx</code></ulink></entry>
+
+                        <entry><ulink url="http://www.php.net/manual/fr/ref.xml.php"><code>xml</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.translate.adapter.html"><code>Zend_Translate_Adapter_Xliff</code></ulink></entry>
+
+                        <entry><ulink url="http://www.php.net/manual/fr/ref.xml.php"><code>xml</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.uri.html"><code>Zend_Uri</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry>---</entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.ctype.php"><code>ctype</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="1" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.validate.html"><code>Zend_Validate</code></ulink></emphasis></entry>
+
+                        <entry morerows="1" valign="middle">Forte</entry>
+
+                        <entry morerows="1" valign="middle">---</entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.ctype.php"><code>ctype</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/language.oop5.reflection.php"><code>Reflection</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.version.html"><code>Zend_Version</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.validate.html"><code>Zend_Validate</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry>---</entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/language.oop5.reflection.php"><code>Reflection</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="4" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.xmlrpc.html"><code>Zend_XmlRpc</code></ulink></emphasis></entry>
+
+                        <entry morerows="4" valign="middle">Forte</entry>
+
+                        <entry morerows="2" valign="middle">---</entry>
+
+                        <entry><ulink url="http://www.php.net/manual/fr/ref.dom.php"><code>dom</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.libxml.php"><code>libxml</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.simplexml.php"><code>SimpleXML</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.xmlrpc.client.html"><code>Zend_XmlRpc_Client</code></ulink></entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/ref.iconv.php"><code>iconv</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.xmlrpc.server.html"><code>Zend_XmlRpc_Server</code></ulink></entry>
+
+                        <entry><ulink
+                        url="http://www.php.net/manual/fr/language.oop5.reflection.php"><code>Reflection</code></ulink></entry>
+                    </row>
+                </tbody>
+            </tgroup>
+        </table>
+    </sect1>
+
+    <sect1 id="requirements.dependencies">
+        <title>Dépendances internes du Zend Framework</title>
+
+        <para>Ci-dessous vous trouverez un tableau listant les composants du Zend Framework ainsi que leurs dépendances
+        envers les autres composants du Zend Framework. Ceci peut vous aider si vous utilisez un composant seul au lieu
+        de la bibliothèque complète.</para>
+
+        <para>Une dépendance de type "forte" indique que le composant ou la classe ne pourra pas fonctionner
+        correctement si le composant respectif n'est pas disponible, tandis qu'une dépendance de type "faible" indique
+        que le composant peut avoir besoin du composant dans certains cas.</para>
+
+        <note>
+            <para>Bien qu'il soit possible d'utiliser uniquement certains composants au lieu du Zend Framework complet,
+            vous devriez avoir à l'esprit que ceci peut entraîner des problèmes quand des fichiers sont manquants ou que
+            des composants sont utilisés dynamiquement.</para>
+        </note>
+
+        <table frame="all" id="requirements.dependencies.table-1">
+            <title>Composants du Zend Framework et leurs dépendances envers les autres composants du Zend
+            Framework</title>
+
+            <tgroup cols="3">
+                <colspec colwidth="2in" />
+
+                <colspec colwidth="1in" />
+
+                <colspec colwidth="4in" />
+
+                <thead>
+                    <row>
+                        <entry>Composant du Zend Framework</entry>
+
+                        <entry>Type de dépendance</entry>
+
+                        <entry>Dépend du composant du Zend Framework</entry>
+                    </row>
+                </thead>
+
+                <tbody>
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.acl.html"><code>Zend_Acl</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="5" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.auth.html"><code>Zend_Auth</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="4" valign="middle">Faible</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.db.html"><code>Zend_Db</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.infocard.html"><code>Zend_InfoCard</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.ldap.html"><code>Zend_Ldap</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.openid.html"><code>Zend_OpenId</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.session.html"><code>Zend_Session</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="1" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.cache.html"><code>Zend_Cache</code></ulink></emphasis></entry>
+
+                        <entry morerows="1" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.loader.html"><code>Zend_Loader</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.config.html"><code>Zend_Config</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="1" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.console.getopt.html"><code>Zend_Console_Getopt</code></ulink></emphasis></entry>
+
+                        <entry morerows="1" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.json.html"><code>Zend_Json</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="9" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.controller.html"><code>Zend_Controller</code></ulink></emphasis></entry>
+
+                        <entry morerows="9" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.config.html"><code>Zend_Config</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.filter.html"><code>Zend_Filter</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.json.html"><code>Zend_Json</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.layout.html"><code>Zend_Layout</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.loader.html"><code>Zend_Loader</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.registry.html"><code>Zend_Registry</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.session.html"><code>Zend_Session</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.uri.html"><code>Zend_Uri</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.view.html"><code>Zend_View</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="1" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.currency.html"><code>Zend_Currency</code></ulink></emphasis></entry>
+
+                        <entry morerows="1" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.locale.html"><code>Zend_Locale</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="1" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.date.html"><code>Zend_Date</code></ulink></emphasis></entry>
+
+                        <entry morerows="1" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.locale.html"><code>Zend_Locale</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="3" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.db.html"><code>Zend_Db</code></ulink></emphasis></entry>
+
+                        <entry morerows="3" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.config.html"><code>Zend_Config</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.loader.html"><code>Zend_Loader</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.registry.html"><code>Zend_Registry</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.debug.html"><code>Zend_Debug</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="3" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.feed.html"><code>Zend_Feed</code></ulink></emphasis></entry>
+
+                        <entry morerows="3" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.http.html"><code>Zend_Http</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.loader.html"><code>Zend_Loader</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.uri.html"><code>Zend_Uri</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="3" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.filter.html"><code>Zend_Filter</code></ulink></emphasis></entry>
+
+                        <entry morerows="3" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.loader.html"><code>Zend_Loader</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.locale.html"><code>Zend_Locale</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.validate.html"><code>Zend_Validate</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="7" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.form.html"><code>Zend_Form</code></ulink></emphasis></entry>
+
+                        <entry morerows="7" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.controller.html"><code>Zend_Controller</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.filter.html"><code>Zend_Filter</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.json.html"><code>Zend_Json</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.loader.html"><code>Zend_Loader</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.registry.html"><code>Zend_Registry</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.session.html"><code>Zend_Session</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.validate.html"><code>Zend_Validate</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="4" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.gdata.html"><code>Zend_Gdata</code></ulink></emphasis></entry>
+
+                        <entry morerows="4" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.http.html"><code>Zend_Http</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.loader.html"><code>Zend_Loader</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.mime.html"><code>Zend_Mime</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.version.html"><code>Zend_Version</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="2" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.http.html"><code>Zend_Http</code></ulink></emphasis></entry>
+
+                        <entry morerows="2" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.loader.html"><code>Zend_Loader</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.uri.html"><code>Zend_Uri</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.infocard.html"><code>Zend_InfoCard</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.loader.html"><code>Zend_Loader</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.json.html"><code>Zend_Json</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="4" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.layout.html"><code>Zend_Layout</code></ulink></emphasis></entry>
+
+                        <entry morerows="4" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.controller.html"><code>Zend_Controller</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.filter.html"><code>Zend_Filter</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.loader.html"><code>Zend_Loader</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.view.html"><code>Zend_View</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.ldap.html"><code>Zend_Ldap</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.loader.html"><code>Zend_Loader</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.locale.html"><code>Zend_Locale</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.log.html"><code>Zend_Log</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="3" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.mail.html"><code>Zend_Mail</code></ulink></emphasis></entry>
+
+                        <entry morerows="3" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.loader.html"><code>Zend_Loader</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.mime.html"><code>Zend_Mime</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.validate.html"><code>Zend_Validate</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="1" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.measure.html"><code>Zend_Measure</code></ulink></emphasis></entry>
+
+                        <entry morerows="1" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.locale.html"><code>Zend_Locale</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="1" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.memory.html"><code>Zend_Memory</code></ulink></emphasis></entry>
+
+                        <entry morerows="1" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.cache.html"><code>Zend_Cache</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.mime.html"><code>Zend_Mime</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="3" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.openid.html"><code>Zend_OpenId</code></ulink></emphasis></entry>
+
+                        <entry morerows="3" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.controller.html"><code>Zend_Controller</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.http.html"><code>Zend_Http</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.session.html"><code>Zend_Session</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="2" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.pdf.html"><code>Zend_Pdf</code></ulink></emphasis></entry>
+
+                        <entry morerows="2" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.log.html"><code>Zend_Log</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.memory.html"><code>Zend_Memory</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="1" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.registry.html"><code>Zend_Registry</code></ulink></emphasis></entry>
+
+                        <entry morerows="1" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.loader.html"><code>Zend_Loader</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.request.html"><code>Zend_Request</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="3" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.rest.html"><code>Zend_Rest</code></ulink></emphasis></entry>
+
+                        <entry morerows="3" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.server.html"><code>Zend_Server</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.html"><code>Zend_Service</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.uri.html"><code>Zend_Uri</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.search.lucene.html"><code>Zend_Search_Lucene</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.server.reflection.html"><code>Zend_Server_Reflection</code></ulink></emphasis></entry>
+
+                        <entry>Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="3" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.akismet.html"><code>Zend_Service_Akismet</code></ulink></emphasis></entry>
+
+                        <entry morerows="3" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.http.html"><code>Zend_Http</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.uri.html"><code>Zend_Uri</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.version.html"><code>Zend_Version</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="2" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.amazon.html"><code>Zend_Service_Amazon</code></ulink></emphasis></entry>
+
+                        <entry morerows="2" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.http.html"><code>Zend_Http</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.rest.html"><code>Zend_Rest</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="1" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.audioscrobbler.html"><code>Zend_Service_Audioscrobbler</code></ulink></emphasis></entry>
+
+                        <entry morerows="1" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.http.html"><code>Zend_Http</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="4" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.delicious.html"><code>Zend_Service_Delicious</code></ulink></emphasis></entry>
+
+                        <entry morerows="4" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.date.html"><code>Zend_Date</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.http.html"><code>Zend_Http</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.json.html"><code>Zend_Json</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.rest.html"><code>Zend_Rest</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="3" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.flickr.html"><code>Zend_Service_Flickr</code></ulink></emphasis></entry>
+
+                        <entry morerows="3" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.http.html"><code>Zend_Http</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.rest.html"><code>Zend_Rest</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.validate.html"><code>Zend_Validate</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="2" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.nirvanix.html"><code>Zend_Service_Nirvanix</code></ulink></emphasis></entry>
+
+                        <entry morerows="2" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.http.html"><code>Zend_Http</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.loader.html"><code>Zend_Loader</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="2" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.simpy.html"><code>Zend_Service_Simpy</code></ulink></emphasis></entry>
+
+                        <entry morerows="2" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.http.html"><code>Zend_Http</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.rest.html"><code>Zend_Rest</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="2" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.slideshare.html"><code>Zend_Service_SlideShare</code></ulink></emphasis></entry>
+
+                        <entry morerows="2" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.cache.html"><code>Zend_Cache</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.http.html"><code>Zend_Http</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="2" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.strikeiron.html"><code>Zend_Service_StrikeIron</code></ulink></emphasis></entry>
+
+                        <entry morerows="2" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.http.html"><code>Zend_Http</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.loader.html"><code>Zend_Loader</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="5" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.technorati.html"><code>Zend_Service_Technorati</code></ulink></emphasis></entry>
+
+                        <entry morerows="5" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.date.html"><code>Zend_Date</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.http.html"><code>Zend_Http</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.locale.html"><code>Zend_Locale</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.rest.html"><code>Zend_Rest</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.uri.html"><code>Zend_Uri</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="3" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.service.yahoo.html"><code>Zend_Service_Yahoo</code></ulink></emphasis></entry>
+
+                        <entry morerows="3" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.http.html"><code>Zend_Http</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.rest.html"><code>Zend_Rest</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.validate.html"><code>Zend_Validate</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="1" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.session.html"><code>Zend_Session</code></ulink></emphasis></entry>
+
+                        <entry morerows="1" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.loader.html"><code>Zend_Loader</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="2" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.timesync.html"><code>Zend_TimeSync</code></ulink></emphasis></entry>
+
+                        <entry morerows="2" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.date.html"><code>Zend_Date</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.loader.html"><code>Zend_Loader</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="2" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.translate.html"><code>Zend_Translate</code></ulink></emphasis></entry>
+
+                        <entry morerows="2" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.loader.html"><code>Zend_Loader</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.locale.html"><code>Zend_Locale</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="2" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.uri.html"><code>Zend_Uri</code></ulink></emphasis></entry>
+
+                        <entry morerows="2" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.loader.html"><code>Zend_Loader</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.validate.html"><code>Zend_Validate</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="5" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.validate.html"><code>Zend_Validate</code></ulink></emphasis></entry>
+
+                        <entry morerows="3" valign="middle">Faible</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.date.html"><code>Zend_Date</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.filter.html"><code>Zend_Filter</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.locale.html"><code>Zend_Locale</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.registry.html"><code>Zend_Registry</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="1" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.loader.html"><code>Zend_Loader</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.version.html"><code>Zend_Version</code></ulink></emphasis></entry>
+
+                        <entry>---</entry>
+
+                        <entry>---</entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="6" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.view.html"><code>Zend_View</code></ulink></emphasis></entry>
+
+                        <entry morerows="6" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.controller.html"><code>Zend_Controller</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.json.html"><code>Zend_Json</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.layout.html"><code>Zend_Layout</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.loader.html"><code>Zend_Loader</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.locale.html"><code>Zend_Locale</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.registry.html"><code>Zend_Registry</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry morerows="2" valign="middle"><emphasis role="strong"><ulink
+                        url="http://framework.zend.com/manual/fr/zend.xmlrpc.html"><code>Zend_XmlRpc</code></ulink></emphasis></entry>
+
+                        <entry morerows="2" valign="middle">Forte</entry>
+
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.exception.html"><code>Zend_Exception</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.http.html"><code>Zend_Registry</code></ulink></entry>
+                    </row>
+
+                    <row>
+                        <entry><ulink
+                        url="http://framework.zend.com/manual/fr/zend.server.html"><code>Zend_Server</code></ulink></entry>
+                    </row>
+                </tbody>
+            </tgroup>
+        </table>
+    </sect1>
+</appendix>

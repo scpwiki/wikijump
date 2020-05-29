@@ -1,0 +1,57 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Controller/Router
+http://framework.zend.com/svn/framework
+
+
+
+2008-11-12T00:11:03.207845Z
+12576
+wil
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+RouteTest.php
+file
+
+
+
+
+2008-12-06T16:40:26.000000Z
+104fd571faaa18a2b0472c4893009c1f
+2008-11-12T00:11:03.207845Z
+12576
+wil
+has-props
+
+RewriteTest.php
+file
+
+
+
+
+2008-12-06T16:40:26.000000Z
+a8dcf01cdab47fbb3f004daa994a0df8
+2008-10-24T13:02:56.502533Z
+12108
+dasprid
+has-props
+
+Route
+dir
+

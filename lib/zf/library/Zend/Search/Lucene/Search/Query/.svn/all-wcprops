@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/12513/standard/trunk/library/Zend/Search/Lucene/Search/Query
+END
+Wildcard.php
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/framework/!svn/ver/12144/standard/trunk/library/Zend/Search/Lucene/Search/Query/Wildcard.php
+END
+Range.php
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/framework/!svn/ver/12513/standard/trunk/library/Zend/Search/Lucene/Search/Query/Range.php
+END
+Empty.php
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/framework/!svn/ver/12144/standard/trunk/library/Zend/Search/Lucene/Search/Query/Empty.php
+END
+Boolean.php
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/framework/!svn/ver/12500/standard/trunk/library/Zend/Search/Lucene/Search/Query/Boolean.php
+END
+MultiTerm.php
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svn/framework/!svn/ver/12513/standard/trunk/library/Zend/Search/Lucene/Search/Query/MultiTerm.php
+END
+Phrase.php
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/framework/!svn/ver/12513/standard/trunk/library/Zend/Search/Lucene/Search/Query/Phrase.php
+END
+Insignificant.php
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/framework/!svn/ver/12144/standard/trunk/library/Zend/Search/Lucene/Search/Query/Insignificant.php
+END
+Fuzzy.php
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/framework/!svn/ver/12513/standard/trunk/library/Zend/Search/Lucene/Search/Query/Fuzzy.php
+END
+Term.php
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/framework/!svn/ver/12144/standard/trunk/library/Zend/Search/Lucene/Search/Query/Term.php
+END

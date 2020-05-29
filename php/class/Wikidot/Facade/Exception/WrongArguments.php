@@ -1,5 +1,12 @@
 <?php
 
-class Wikidot_Facade_Exception_WrongArguments extends Wikidot_Facade_Exception {
+
+namespace Wikidot\Facade\Exception;
+
+use Wikidot\Facade\Exception;
+
+
+
+class WrongArguments extends Exception {
 	protected $code = 406;
 }

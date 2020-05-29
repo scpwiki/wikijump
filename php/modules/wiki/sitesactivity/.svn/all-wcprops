@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/wiki/sitesactivity
+END
+SomeGlobalStatsModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/wiki/sitesactivity/SomeGlobalStatsModule.php
+END
+MostActiveSitesModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/wiki/sitesactivity/MostActiveSitesModule.php
+END
+RecentWPageRevisionsModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/wiki/sitesactivity/RecentWPageRevisionsModule.php
+END
+MostActiveForumsModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/wiki/sitesactivity/MostActiveForumsModule.php
+END
+NewWUsersModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/wiki/sitesactivity/NewWUsersModule.php
+END

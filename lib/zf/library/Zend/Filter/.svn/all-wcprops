@@ -1,0 +1,113 @@
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/framework/!svn/ver/12833/standard/trunk/library/Zend/Filter
+END
+PregReplace.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Filter/PregReplace.php
+END
+Int.php
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Filter/Int.php
+END
+Exception.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Filter/Exception.php
+END
+Input.php
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/framework/!svn/ver/12670/standard/trunk/library/Zend/Filter/Input.php
+END
+Interface.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Filter/Interface.php
+END
+RealPath.php
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Filter/RealPath.php
+END
+StringTrim.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Filter/StringTrim.php
+END
+StripNewlines.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/10539/standard/trunk/library/Zend/Filter/StripNewlines.php
+END
+HtmlEntities.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/11783/standard/trunk/library/Zend/Filter/HtmlEntities.php
+END
+BaseName.php
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Filter/BaseName.php
+END
+Alnum.php
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/framework/!svn/ver/12751/standard/trunk/library/Zend/Filter/Alnum.php
+END
+Dir.php
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Filter/Dir.php
+END
+StripTags.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Filter/StripTags.php
+END
+StringToLower.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Filter/StringToLower.php
+END
+Digits.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Filter/Digits.php
+END
+StringToUpper.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Filter/StringToUpper.php
+END
+Inflector.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/framework/!svn/ver/12501/standard/trunk/library/Zend/Filter/Inflector.php
+END
+Alpha.php
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/framework/!svn/ver/12751/standard/trunk/library/Zend/Filter/Alpha.php
+END

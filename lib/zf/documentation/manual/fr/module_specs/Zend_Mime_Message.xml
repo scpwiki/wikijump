@@ -1,0 +1,68 @@
+<!-- EN-Revision: 11495 -->
+<sect1 id="zend.mime.message">
+    <title>Zend_Mime_Message</title>
+
+    <sect2 id="zend.mime.message.introduction">
+        <title>Introduction</title>
+
+        <para><code>Zend_Mime_Message</code> représente un message compatible MIME qui peut contenir une ou plusieurs
+        parties séparées (représentées par des objets <link linkend="zend.mime.part"><code>Zend_Mime_Part</code></link>)
+        Avec <code>Zend_Mime_Message</code>, les messages multiparts compatibles MIME peuvent être générés à partir de
+        <code>Zend_Mime_Part</code>. L'encodage et la gestion des frontières sont gérées de manière transparente par la
+        classe. Les objets <code>Zend_Mime_Message</code> peuvent aussi être reconstruits à partir de chaînes de
+        caractères données (expérimental). Utilisés par <link linkend="zend.mail"><code>Zend_Mail</code></link>.</para>
+    </sect2>
+
+    <sect2 id="zend.mime.message.instantiation">
+        <title>Instancier Zend_Mime_Message</title>
+
+        <para>Il n'y a pas de constructeur explicite pour <code>Zend_Mime_Message</code>.</para>
+    </sect2>
+
+    <sect2 id="zend.mime.message.addparts">
+        <title>Ajouter des parties MIME</title>
+
+        <para>Les objets <link linkend="zend.mime.part"><code>Zend_Mime_Part</code></link> peuvent êtres ajoutés à un
+        objet <code>Zend_Mime_Message</code> donné en appelant <code>-&gt;addPart($part)</code>.</para>
+
+        <para>Un tableau avec toutes les objets <link linkend="zend.mime.part"><code>Zend_Mime_Part</code></link> du
+        <code>Zend_Mime_Message</code> est retourné dans un tableau grâce à <code>-&gt;getParts()</code>. Les objets
+        Zend_Mime_Part peuvent ainsi être changés car ils sont stockés dans le tableau comme références. Si des parties
+        sont ajoutées au tableau, ou que la séquence est changée, le tableau à besoin d'être retourné à l'objet <link
+        linkend="zend.mime.part"><code>Zend_Mime_Part</code></link> en appelant
+        <code>-&gt;setParts($partsArray)</code>.</para>
+
+        <para>La fonction <code>-&gt;isMultiPart()</code> retournera <code>true</code> si plus d'une partie est
+        enregistrée avec l'objet Zend_Mime_Message, l'objet pourra ainsi régénérer un objet Multipart-Mime-Message lors
+        de la génération de la sortie.</para>
+    </sect2>
+
+    <sect2 id="zend.mime.message.bondary">
+        <title>Gérer les frontières</title>
+
+        <para><code>Zend_Mime_Message</code> crée et utilise généralement son propre objet <code>Zend_Mime</code> pour
+        générer une frontière. Si vous avez besoin de définir une frontière ou si vous voulez changer le comportement de
+        l'objet <code>Zend_Mime</code> utilisé par <code>Zend_Mime_Message</code>, vous pouvez instancier l'objet
+        <code>Zend_Mime</code> vous-même et l'enregistrer ensuite dans <code>Zend_Mime_Message</code>. Généralement,
+        vous n'aurez pas besoin de faire cela. <code>-&gt;setMime(Zend_Mime $mime)</code> définit une instance spéciale
+        de <code>Zend_Mime</code> pour qu'elle soit utilisée par ce Message.</para>
+
+        <para><code>-&gt;getMime()</code> retourne l'instance de <code>Zend_Mime</code> qui sera utilisée pour générer
+        le message lorsque <code>generateMessage()</code> est appelée.</para>
+
+        <para><code>-&gt;generateMessage()</code> génère le contenu Z<code>Zend_Mime_Message</code> en une chaîne de
+        caractères.</para>
+    </sect2>
+
+    <sect2 id="zend.mime.message.parse">
+        <title>Parser une chaîne de caractère pour créer un objet Zend_Mime_Message (expérimental)</title>
+
+        <para>Un message compatible MIME donné sous forme de chaîne de caractère peut être utilisé pour reconstruire un
+        objet <code>Zend_Mime_Message</code>. <code>Zend_Mime_Message</code> a une méthode de fabrique statique pour
+        parser cette chaîne et retourner un objet <code>Zend_Mime_Message</code>.</para>
+
+        <para><code>Zend_Mime_Message::createFromMessage($str, $boundary)</code> décode la chaîne de caractères donnée
+        et retourne un objet <code>Zend_Mime_Message</code> qui peut ensuite être examiné en utilisant
+        <code>-&gt;getParts()</code>.</para>
+    </sect2>
+</sect1>

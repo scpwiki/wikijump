@@ -23,6 +23,19 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyAction;
+use \ProcessException;
+use \CryptUtils;
+use \EventLogger;
+use DB\OzoneUserPeer;
+use SecurityManager;
+use ODate;
+use Database;
+use Criteria;
+use DB\OzoneSessionPeer;
+
 class LoginAction extends SmartyAction {
 	
 	public function perform($r){}
@@ -58,7 +71,7 @@ class LoginAction extends SmartyAction {
 		$upass = preg_replace('/^'.$seed.'/', '', $upass);
 		
 		if($userId && is_numeric($userId) && $userId >0){
-			$user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+			$user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
 			if($user && $user->getPassword() !== md5($upass)){
 				$user = null;
 			}
@@ -116,12 +129,12 @@ class LoginAction extends SmartyAction {
 			$c->add("user_id", $userId);
 			$c->add("ip_address", $runData->createIpString());
 			// outdate the cache first
-			$ss = DB_OzoneSessionPeer::instance()->select($c);
+			$ss = OzoneSessionPeer::instance()->select($c);
 			$mc = OZONE::$memcache;
 			foreach($ss as $s){
 				$mc->delete('session..'.$s->getSessionId());	
 			}
-			DB_OzoneSessionPeer::instance()->delete($c);
+			OzoneSessionPeer::instance()->delete($c);
 		}
 
 		$db->commit();

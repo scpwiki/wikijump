@@ -1,6 +1,14 @@
 <?php
 
-class Wikidot_Form {
+
+namespace Wikidot;
+
+use Wikidot\Yaml;
+use \WDStringUtils;
+
+
+
+class Form {
 	public $fields = array();
 	public $presets = array();
 
@@ -9,7 +17,7 @@ class Wikidot_Form {
 	
 	public static function fromYaml($yamlString, $dataYamlString = null) {
 		$form = new self();
-		$yaml = Wikidot_Yaml::load($yamlString, true); // forgiving mode ;)
+		$yaml = Yaml::load($yamlString, true); // forgiving mode ;)
 		
 		if (is_array($yaml['fields'])) {
 			foreach ($yaml['fields'] as $name => $f) {
@@ -92,7 +100,7 @@ class Wikidot_Form {
     public function setDataFromYaml($dataYamlString) {
 
         if ($dataYamlString) {
-            $data = Wikidot_Yaml::load($dataYamlString, true); // forgiving mode again ;)
+            $data = Yaml::load($dataYamlString, true); // forgiving mode again ;)
         } else {
             $data = array();
         }

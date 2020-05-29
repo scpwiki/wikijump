@@ -23,6 +23,16 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \FeedScreen;
+use DB\PagePeer;
+use Criteria;
+use DB\FrontForumFeedPeer;
+use \ProcessException;
+use DB\ForumCategoryPeer;
+use DB\ForumThreadPeer;
+
 class FrontForumFeed extends FeedScreen {
 	
 	public function render($runData){
@@ -47,14 +57,14 @@ class FrontForumFeed extends FeedScreen {
 		$feed = $mc->get($fkey);
 		
 		if(!$feed){	
-			$page = DB_PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
+			$page = PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
 		
 			// 	get the feed object	
 			$c = new Criteria();
 			$c->add("page_id", $page->getPageId());
 			$c->add("label", $label);
 		
-			$feed = DB_FrontForumFeedPeer::instance()->selectOne($c);
+			$feed = FrontForumFeedPeer::instance()->selectOne($c);
 			$mc->set($fkey, $feed, 0, 3600);
 		}
 		
@@ -117,14 +127,14 @@ class FrontForumFeed extends FeedScreen {
 		$label = $pl->getParameterValue("label");
 		
 		// get the feed object
-		$page = DB_PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
+		$page = PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
 		if(!$page){
 			throw new ProcessException(_("No such page."), "no_page");	
 		}
 		$c = new Criteria();
 		$c->add("page_id", $page->getPageId());
 		$c->add("label", $label);
-		$feed = DB_FrontForumFeedPeer::instance()->selectOne($c);
+		$feed = FrontForumFeedPeer::instance()->selectOne($c);
 
 		$categoryIds = $feed->getCategories();
 		$cats = preg_split('/[,;] ?/', $categoryIds);
@@ -137,7 +147,7 @@ class FrontForumFeed extends FeedScreen {
 		}
 		
 		// get page
-		$page = DB_PagePeer::instance()->selectByPrimaryKey($feed->getPageId());
+		$page = PagePeer::instance()->selectByPrimaryKey($feed->getPageId());
 		if(!$page){
 			throw new ProcessException(_("Page can not be found."), "no_page");
 		}
@@ -148,7 +158,7 @@ class FrontForumFeed extends FeedScreen {
 				throw new ProcessException(_('Problem parsing attribute "category".'),"no_category");	
 			}
 
-			$category = DB_ForumCategoryPeer::instance()->selectByPrimaryKey($categoryId);
+			$category = ForumCategoryPeer::instance()->selectByPrimaryKey($categoryId);
 		
 			if($category == null || $category->getSiteId() !== $site->getSiteId()){
 				throw new ProcessException(_("Requested forum category does not exist."), "no_category");	
@@ -162,7 +172,7 @@ class FrontForumFeed extends FeedScreen {
 
 		$c->addOrderDescending("thread_id");
 		$c->setLimit(30);
-		$threads = DB_ForumThreadPeer::instance()->select($c);
+		$threads = ForumThreadPeer::instance()->select($c);
 
 		$channel['title'] = $feed->getTitle();
 		$channel['link'] = "http://".$site->getDomain()."/".$page->getUnixName();

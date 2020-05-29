@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/View/Helper/_files/modules/default/views/scripts/foo
+END
+baz.phtml
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/View/Helper/_files/modules/default/views/scripts/foo/baz.phtml
+END
+bar.phtml
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/View/Helper/_files/modules/default/views/scripts/foo/bar.phtml
+END

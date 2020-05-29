@@ -1,0 +1,10 @@
+div.sites-tag-cloud-box {
+	/*border: 1px solid #BBD;*/
+	padding: 0 10px;
+	font-size: 4em;
+
+}
+
+div.sites-tag-cloud-box a.tag{
+	text-decoration: none;
+}

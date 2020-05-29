@@ -23,6 +23,13 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \SmartyLocalizedModule;
+use \WDPermissionException;
+use DB\OzoneUserPeer;
+use \ProcessException;
+
 class UserAddToContactsModule extends SmartyLocalizedModule {
 	
 	public function isAllowed($runData){
@@ -38,7 +45,7 @@ class UserAddToContactsModule extends SmartyLocalizedModule {
 		
 		$targetUserId = $pl->getParameterValue("userId");
 		
-		$targetUser = DB_OzoneUserPeer::instance()->selectByPrimaryKey($targetUserId);
+		$targetUser = OzoneUserPeer::instance()->selectByPrimaryKey($targetUserId);
 		
 		if($targetUser == null){
 			throw new ProcessException(_("User can not be found."), "no_user");	

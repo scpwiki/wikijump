@@ -1,0 +1,12 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+	<HEAD>
+		<title>Dijit Robot Test Runner</title>
+	</HEAD>
+	<BODY>
+		Redirecting to D.O.H runner
+		<SCRIPT>
+			window.location.replace("../../util/doh/runner.html?testModule=dijit.tests.robotTests"+window.location.search.replace(/^\?/,"&"));
+		</SCRIPT>
+	</BODY>
+</HTML> 

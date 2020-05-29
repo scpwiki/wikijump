@@ -1,0 +1,101 @@
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/framework/!svn/ver/13286/standard/trunk/tests/Zend/Db/Table
+END
+TableBugsProducts.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Db/Table/TableBugsProducts.php
+END
+TestSetup.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Db/Table/TestSetup.php
+END
+TableBugsCustom.php
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/12290/standard/trunk/tests/Zend/Db/Table/TableBugsCustom.php
+END
+OracleTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/12016/standard/trunk/tests/Zend/Db/Table/OracleTest.php
+END
+TableProductsCustom.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Db/Table/TableProductsCustom.php
+END
+OdbcTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Db/Table/OdbcTest.php
+END
+Db2Test.php
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Db/Table/Db2Test.php
+END
+TableBugs.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Db/Table/TableBugs.php
+END
+TableProducts.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Db/Table/TableProducts.php
+END
+MysqliTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Db/Table/MysqliTest.php
+END
+TableAccountsCustom.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Db/Table/TableAccountsCustom.php
+END
+TableBugsProductsCustom.php
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Db/Table/TableBugsProductsCustom.php
+END
+TableAccounts.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Db/Table/TableAccounts.php
+END
+StaticTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Db/Table/StaticTest.php
+END
+TestCommon.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/13136/standard/trunk/tests/Zend/Db/Table/TestCommon.php
+END
+TableSpecial.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Db/Table/TableSpecial.php
+END

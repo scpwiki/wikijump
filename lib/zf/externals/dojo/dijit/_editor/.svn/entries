@@ -1,0 +1,99 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/dijit/_editor
+http://svn.dojotoolkit.org/src
+
+
+
+2008-11-11T00:35:44.471279Z
+15638
+peller
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+html.js
+file
+
+
+
+
+2008-12-06T16:41:08.000000Z
+81b25c6f42e71e6388ecd27c20d9bbaf
+2008-06-06T17:31:29.269939Z
+13902
+liucougar
+has-props
+
+selection.js
+file
+
+
+
+
+2008-12-06T16:41:08.000000Z
+0d63836fb0560c3cd77a2309770bc70c
+2008-06-19T15:47:55.406982Z
+14069
+liucougar
+has-props
+
+plugins
+dir
+
+RichText.js
+file
+
+
+
+
+2008-12-06T16:41:08.000000Z
+4036f5ce414f4219a1fabe718f0bd8e0
+2008-10-16T02:29:57.057020Z
+15447
+peller
+has-props
+
+range.js
+file
+
+
+
+
+2008-12-06T16:41:08.000000Z
+72a78ba7f8c96e9ba511e8832f07212a
+2008-06-11T15:57:17.066641Z
+13977
+liucougar
+has-props
+
+_Plugin.js
+file
+
+
+
+
+2008-12-06T16:41:08.000000Z
+9407b1888911c5a68d5c4cc3be957236
+2008-08-10T15:49:44.794937Z
+14802
+bill
+has-props
+
+nls
+dir
+

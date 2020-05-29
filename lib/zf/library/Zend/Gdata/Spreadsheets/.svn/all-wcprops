@@ -1,0 +1,71 @@
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/Spreadsheets
+END
+SpreadsheetEntry.php
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/Spreadsheets/SpreadsheetEntry.php
+END
+SpreadsheetFeed.php
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/Spreadsheets/SpreadsheetFeed.php
+END
+ListEntry.php
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/Spreadsheets/ListEntry.php
+END
+WorksheetEntry.php
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/Spreadsheets/WorksheetEntry.php
+END
+ListFeed.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/Spreadsheets/ListFeed.php
+END
+WorksheetFeed.php
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/Spreadsheets/WorksheetFeed.php
+END
+CellEntry.php
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/Spreadsheets/CellEntry.php
+END
+ListQuery.php
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/Spreadsheets/ListQuery.php
+END
+CellFeed.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/Spreadsheets/CellFeed.php
+END
+DocumentQuery.php
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/Spreadsheets/DocumentQuery.php
+END
+CellQuery.php
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/framework/!svn/ver/13021/standard/trunk/library/Zend/Gdata/Spreadsheets/CellQuery.php
+END

@@ -23,6 +23,14 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyAction;
+use \WDStringUtils;
+use \ProcessException;
+use Criteria;
+use DB\SitePeer;
+
 class NewWikiWidgetAction extends SmartyAction{
 
 	public function perform($runData){}
@@ -63,7 +71,7 @@ class NewWikiWidgetAction extends SmartyAction{
 		// check if the domain is not taken.
 		$c = new Criteria();
 		$c->add("unix_name", $unixName);
-		$ss = DB_SitePeer::instance()->selectOne($c);
+		$ss = SitePeer::instance()->selectOne($c);
 		if($ss){
 			throw new ProcessException(_('Sorry, this web address is already used by another wiki.'));
 					

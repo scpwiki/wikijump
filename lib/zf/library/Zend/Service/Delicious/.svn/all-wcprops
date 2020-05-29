@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Service/Delicious
+END
+Exception.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Service/Delicious/Exception.php
+END
+SimplePost.php
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Service/Delicious/SimplePost.php
+END
+PostList.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Service/Delicious/PostList.php
+END
+Post.php
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Service/Delicious/Post.php
+END

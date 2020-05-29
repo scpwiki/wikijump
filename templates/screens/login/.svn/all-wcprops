@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/repos/!svn/ver/251/wikidot1/trunk/templates/screens/login
+END
+CustomDomainScript.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/repos/!svn/ver/251/wikidot1/trunk/templates/screens/login/CustomDomainScript.tpl
+END
+LoginIframeScreen.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/repos/!svn/ver/2/wikidot1/trunk/templates/screens/login/LoginIframeScreen.tpl
+END

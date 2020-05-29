@@ -1,0 +1,41 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Search/Lucene/Storage/_files
+http://framework.zend.com/svn/framework
+
+
+
+2007-04-27T11:12:34.636815Z
+4616
+alexander
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+sample_data
+file
+
+
+
+
+2008-12-06T16:40:31.000000Z
+a4aec503cb77ee1b614349cc24dbd58a
+2007-04-27T11:12:34.636815Z
+4616
+alexander
+has-props
+

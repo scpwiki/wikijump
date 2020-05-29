@@ -1,0 +1,86 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/dojox/wire/tests
+http://svn.dojotoolkit.org/src
+
+
+
+2008-01-14T15:02:48.531596Z
+12026
+jaredj
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+markup
+dir
+
+module.js
+file
+
+
+
+
+2008-12-06T16:41:33.000000Z
+170fbf2b41b33624d55fb3e6891ae994
+2008-01-14T15:02:48.531596Z
+12026
+jaredj
+has-props
+
+wire.js
+file
+
+
+
+
+2008-12-06T16:41:33.000000Z
+662b4f13e29f82c278c7f39419d825e9
+2007-06-12T14:33:44.098206Z
+9051
+jaredj
+has-props
+
+programmatic
+dir
+
+runTests.html
+file
+
+
+
+
+2008-12-06T16:41:33.000000Z
+492d1fba6ed599aabd5264b59026191a
+2007-10-31T08:15:04.139820Z
+11262
+alex
+has-props
+
+wireml.js
+file
+
+
+
+
+2008-12-06T16:41:33.000000Z
+083ee39745d1afb115ec66c3bb013447
+2007-06-01T18:17:39.709055Z
+8862
+jaredj
+has-props
+

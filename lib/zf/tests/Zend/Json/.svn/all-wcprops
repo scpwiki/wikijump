@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/framework/!svn/ver/12809/standard/trunk/tests/Zend/Json
+END
+JsonXMLTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Json/JsonXMLTest.php
+END
+AllTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Json/AllTests.php
+END
+ServerTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/framework/!svn/ver/12195/standard/trunk/tests/Zend/Json/ServerTest.php
+END

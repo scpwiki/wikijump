@@ -1,0 +1,66 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+
+	<title>dojox.form.FileUploader !</title>
+	<link rel="stylesheet" href="demo.css">
+
+	<script type="text/javascript" src="../../dojo/dojo.js" 
+    	djConfig="isDebug:false, parseOnLoad: true, debugAtAllCosts:false"></script>
+
+	<script type="text/javascript" src="src.js" charset="utf-8"></script>
+
+</head>
+<body class="tundra">
+	<table width="100%" border="0" cellspacing="0" cellpadding="0">
+	  <tr>
+		<td class="leftCol">
+	
+			<div id="hasFlash">
+				<h1>
+					dojox.form.FileUploader - FileInputFlash Test
+					<br/> Flash Mode - <span id="fmode"></span>
+				</h1>
+				<div onClick="showWithoutFlash()" dojoType="dijit.form.Button">Emulate No Flash Plugin</div>
+				<div id="fbm" onClick="showMulti()" dojoType="dijit.form.Button">Switch to Multi-File mode</div>
+				<div id="fbs" onClick="showSingle()" dojoType="dijit.form.Button">Switch to Single-File mode</div>
+			
+				<p>Flash Plugin mode</em></p>
+				<p id="fMulti">Multiple-file mode. You may choose multiple files from the System Dialog.</p>
+				<p id="fSingle">Single-file mode. You may choose only one from the System Dialog.</p>
+			</div>
+		
+			<div id="noFlash">
+				<h1>
+					dojox.form.FileUploader - Degraded to FileInputOverlay
+					<br/>HTML Mode - <span id="hmode"></span>
+				</h1>
+				<div onClick="showWithFlash()" dojoType="dijit.form.Button">Normal Flash Plugin Mode</div>
+				<div id="hbm" onClick="showMulti()" dojoType="dijit.form.Button">Switch to Multi-File mode</div>
+				<div id="hbs" onClick="showSingle()" dojoType="dijit.form.Button">Switch to Single-File mode</div>
+
+				<p>HTML file input overlay mode.</p>
+				<p id="hMulti">Multiple-file mode. You may upload multiple files by adding files to the upload list, one at a time.</p>
+				<p id="hSingle">Single-file mode. You may choose only one from the System Dialog.</p>
+			</div>
+		
+			<div id="btn0" class="browse" dojoType="dijit.form.Button">Select Images...</div>
+			<span id="fTypes">Choose from these types:</span>
+		
+			<textarea cols="50" rows="6" id="fileToUpload"></textarea>
+		
+			<div id="uploadBtn" class="uploadBtn" onClick="doUpload();" dojoType="dijit.form.Button">Upload</div>
+		
+			<div class="uploadedFilesLabel">Uploaded Files:</div>
+		
+			<textarea cols="50" rows="4" id="uploadedFiles"></textarea>
+		
+			<div onClick="cleanUp()" dojoType="dijit.form.Button">Remove Files</div>
+			<!-- Test destroy: <div onClick="Destroy()" dojoType="dijit.form.Button">Destroy()</div> -->
+		</td>
+		<td id="rgtCol">&nbsp;</td>
+	  </tr>
+	</table>
+</body>
+</html>

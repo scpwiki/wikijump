@@ -23,6 +23,13 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \FeedScreen;
+use Criteria;
+use DB\PageRevisionPeer;
+use \WDRenderUtils;
+
 class WatchedPageChangesFeed extends FeedScreen {
 	
 	protected $requiresAuthentication = true;
@@ -76,7 +83,7 @@ class WatchedPageChangesFeed extends FeedScreen {
 		$c->addOrderDescending("page_revision.revision_id");
 		$c->setLimit(30);
 		
-		$revisions = DB_PageRevisionPeer::instance()->select($c);
+		$revisions = PageRevisionPeer::instance()->select($c);
 		
 		$channel['title'] = _('Wikidot.com watched pages changes for user').' "'.$user->getNickName().'"';
 		$channel['link'] = "http://" . GlobalProperties::$URL_HOST . "/account:you/start/watched-changes";

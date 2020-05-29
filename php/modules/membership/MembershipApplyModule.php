@@ -23,6 +23,13 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use Criteria;
+use DB\MemberPeer;
+use DB\MemberApplicationPeer;
+
 class MembershipApplyModule extends SmartyModule{
 	
 	public function build($runData){
@@ -46,7 +53,7 @@ class MembershipApplyModule extends SmartyModule{
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
 		$c->add("user_id", $userId);
-		$a = DB_MemberPeer::instance()->selectOne($c);
+		$a = MemberPeer::instance()->selectOne($c);
 		if($a != null){
 			$reason = "already_member";
 			$runData->contextAdd("reason", $reason);
@@ -57,7 +64,7 @@ class MembershipApplyModule extends SmartyModule{
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
 		$c->add("user_id", $userId);
-		$a = DB_MemberApplicationPeer::instance()->selectOne($c);
+		$a = MemberApplicationPeer::instance()->selectOne($c);
 		if($a != null){
 			$reason = "already_applied";
 			$runData->contextAdd("reason", $reason);

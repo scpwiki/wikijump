@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Dojo/Form/Decorator
+END
+TabContainerTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Dojo/Form/Decorator/TabContainerTest.php
+END
+AllTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Dojo/Form/Decorator/AllTests.php
+END
+DijitElementTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Dojo/Form/Decorator/DijitElementTest.php
+END
+SplitContainerTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Dojo/Form/Decorator/SplitContainerTest.php
+END
+BorderContainerTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Dojo/Form/Decorator/BorderContainerTest.php
+END
+AccordionContainerTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Dojo/Form/Decorator/AccordionContainerTest.php
+END
+AccordionPaneTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Dojo/Form/Decorator/AccordionPaneTest.php
+END
+DijitContainerTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Dojo/Form/Decorator/DijitContainerTest.php
+END
+DijitFormTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Dojo/Form/Decorator/DijitFormTest.php
+END
+StackContainerTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Dojo/Form/Decorator/StackContainerTest.php
+END

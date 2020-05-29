@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \ManageSiteBaseModule;
+use Criteria;
+use DB\MemberPeer;
+
 class ManageSiteMembersListModule extends ManageSiteBaseModule {
 	
 	public function build($runData){
@@ -43,7 +49,7 @@ class ManageSiteMembersListModule extends ManageSiteBaseModule {
 		$c->add("site_id", $runData->getTemp("site")->getSiteId());
 		$c->addJoin("user_id", "ozone_user.user_id");
 		
-		$mems = DB_MemberPeer::instance()->select($c);
+		$mems = MemberPeer::instance()->select($c);
 		if(count($mems)>0){
 			$runData->contextAdd("memberships", $mems);	
 		}

@@ -1,0 +1,124 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/documentation/manual/fr
+http://framework.zend.com/svn/framework
+
+
+
+2008-12-29T14:40:56.100508Z
+13471
+mikaelkael
+has-props
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+manual.xml.in
+file
+
+
+
+
+2009-01-04T17:41:52.000000Z
+80cf2bc20b1edac6163e76fd4cf50940
+2008-12-20T17:44:22.613185Z
+13390
+mikaelkael
+
+module_specs
+dir
+
+Makefile.in
+file
+
+
+
+
+2008-12-06T16:40:59.000000Z
+6761a27063311867340a9b72fa0e03f9
+2008-03-09T21:29:44.842965Z
+8721
+thomas
+
+figures
+dir
+
+html
+dir
+
+manual-lint.xml.in
+file
+
+
+
+
+2008-12-06T16:40:59.000000Z
+94b7acb6f3a5755e1bbc00abab37274c
+2007-07-19T04:09:55.921894Z
+5782
+bkarwin
+
+configure.in
+file
+
+
+
+
+2008-12-06T16:40:59.000000Z
+ae60dad5ff0259654a8a26df32707273
+2008-02-16T10:58:39.742447Z
+8064
+thomas
+
+xinclude.mod
+file
+
+
+
+
+2008-12-06T16:40:59.000000Z
+7cefaf9bc3e6a28b62fe170dcf778e85
+2008-01-20T15:25:54.197577Z
+7535
+mikaelkael
+
+ref
+dir
+
+README
+file
+
+
+
+
+2008-12-06T16:40:59.000000Z
+0e1fe466cb109a13ad180581a929b212
+2008-03-08T18:14:17.127392Z
+8703
+thomas
+
+html.xsl.in
+file
+
+
+
+
+2008-12-06T16:40:59.000000Z
+6936096029ca009ee92dec877ff7526d
+2008-03-08T18:14:17.127392Z
+8703
+thomas
+

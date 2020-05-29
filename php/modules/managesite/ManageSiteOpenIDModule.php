@@ -23,6 +23,13 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \ManageSiteBaseModule;
+use JSONService;
+use Criteria;
+use DB\OpenidEntryPeer;
+
 class ManageSiteOpenIDModule extends ManageSiteBaseModule {
 
 	public function build($runData){
@@ -59,12 +66,12 @@ class ManageSiteOpenIDModule extends ManageSiteBaseModule {
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
 		$c->add("page_id", null);
-		$ooroot = DB_OpenidEntryPeer::instance()->selectOne($c);
+		$ooroot = OpenidEntryPeer::instance()->selectOne($c);
 		
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
 		$c->add("page_id", null, "!=");
-		$oos = DB_OpenidEntryPeer::instance()->select($c);
+		$oos = OpenidEntryPeer::instance()->select($c);
 		
 		$runData->contextAdd("openIdRoot", $ooroot);
 		

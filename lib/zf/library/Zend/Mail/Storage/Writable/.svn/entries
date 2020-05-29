@@ -1,0 +1,54 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/library/Zend/Mail/Storage/Writable
+http://framework.zend.com/svn/framework
+
+
+
+2008-11-10T18:41:24.698483Z
+12519
+alexander
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+Interface.php
+file
+
+
+
+
+2008-12-06T16:40:41.000000Z
+bb0b4308ef920471bcb63ccaa4663352
+2008-03-30T19:29:10.744895Z
+9098
+thomas
+has-props
+
+Maildir.php
+file
+
+
+
+
+2008-12-06T16:40:41.000000Z
+202b6361163ca9bbc6d2c0de54b19844
+2008-11-10T18:41:24.698483Z
+12519
+alexander
+has-props
+

@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/framework/!svn/ver/13219/standard/trunk/library/Zend/Search/Lucene
+END
+Document.php
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/framework/!svn/ver/12513/standard/trunk/library/Zend/Search/Lucene/Document.php
+END
+Exception.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Search/Lucene/Exception.php
+END
+Interface.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/12144/standard/trunk/library/Zend/Search/Lucene/Interface.php
+END
+Proxy.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/12500/standard/trunk/library/Zend/Search/Lucene/Proxy.php
+END
+FSMAction.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Search/Lucene/FSMAction.php
+END
+Field.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/12637/standard/trunk/library/Zend/Search/Lucene/Field.php
+END
+LockManager.php
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/framework/!svn/ver/13219/standard/trunk/library/Zend/Search/Lucene/LockManager.php
+END
+FSM.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/13219/standard/trunk/library/Zend/Search/Lucene/FSM.php
+END
+PriorityQueue.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Search/Lucene/PriorityQueue.php
+END

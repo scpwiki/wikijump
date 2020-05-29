@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/managesite/abuse
+END
+ManageSiteAnonymousAbuseModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/managesite/abuse/ManageSiteAnonymousAbuseModule.php
+END
+ManageSitePageAbuseModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/managesite/abuse/ManageSitePageAbuseModule.php
+END
+ManageSiteUserAbuseModule.php
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/repos/!svn/ver/2/wikidot1/trunk/php/modules/managesite/abuse/ManageSiteUserAbuseModule.php
+END

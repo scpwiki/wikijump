@@ -1,0 +1,169 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Search/Lucene
+http://framework.zend.com/svn/framework
+
+
+
+2008-11-14T06:53:07.458047Z
+12637
+ralph
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+AllTests.php
+file
+
+
+
+
+2008-12-06T16:40:32.000000Z
+ee8a3ed26d04cf9c256819aa504a48e8
+2008-10-18T14:29:41.078580Z
+12004
+mikaelkael
+has-props
+
+_indexSource
+dir
+
+SearchTest.php
+file
+
+
+
+
+2008-12-06T16:40:32.000000Z
+1eaa25cf1bc8181cd5328113e6c5b826
+2008-10-18T14:29:41.078580Z
+12004
+mikaelkael
+has-props
+
+Search23Test.php
+file
+
+
+
+
+2008-12-06T16:40:32.000000Z
+544dfe825d6df86ca82a703a1fa22f4c
+2008-10-18T14:29:41.078580Z
+12004
+mikaelkael
+has-props
+
+_files
+dir
+
+LuceneTest.php
+file
+
+
+
+
+2008-12-06T16:40:32.000000Z
+866369f70eaa58f686d055600f65b1af
+2008-10-18T14:29:41.078580Z
+12004
+mikaelkael
+has-props
+
+_openXmlDocuments
+dir
+
+Storage
+dir
+
+DocumentTest.php
+file
+
+
+
+
+2008-12-06T16:40:32.000000Z
+0718723b36e328721d7a2b276fb7aa49
+2008-11-14T06:53:07.458047Z
+12637
+ralph
+has-props
+
+_index
+dir
+
+Index
+dir
+
+_indexSample
+dir
+
+FieldTest.php
+file
+
+
+
+
+2008-12-06T16:40:32.000000Z
+90dd963fc029fc9e6c0370978be34a56
+2008-10-18T14:29:41.078580Z
+12004
+mikaelkael
+has-props
+
+AnalysisTest.php
+file
+
+
+
+
+2008-12-06T16:40:32.000000Z
+c47fa71879ef953e55ac13c203943d1b
+2008-11-14T06:53:07.458047Z
+12637
+ralph
+has-props
+
+FSMTest.php
+file
+
+
+
+
+2008-12-06T16:40:32.000000Z
+7f8c40a301fc2fa2d935eeaf7ec6d9a5
+2008-10-18T14:29:41.078580Z
+12004
+mikaelkael
+has-props
+
+PriorityQueueTest.php
+file
+
+
+
+
+2008-12-06T16:40:32.000000Z
+fca855e9feeb4e258b4ff52b598d0db0
+2008-10-18T14:29:41.078580Z
+12004
+mikaelkael
+has-props
+
+_index23Sample
+dir
+

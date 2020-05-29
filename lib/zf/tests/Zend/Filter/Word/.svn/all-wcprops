@@ -1,0 +1,83 @@
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Filter/Word
+END
+CamelCaseToUnderscoreTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Filter/Word/CamelCaseToUnderscoreTest.php
+END
+UnderscoreToCamelCaseTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Filter/Word/UnderscoreToCamelCaseTest.php
+END
+UnderscoreToPathSeparatorTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Filter/Word/UnderscoreToPathSeparatorTest.php
+END
+DashToUnderscoreTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Filter/Word/DashToUnderscoreTest.php
+END
+UnderscoreToDashTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Filter/Word/UnderscoreToDashTest.php
+END
+UnderscoreToSeparatorTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Filter/Word/UnderscoreToSeparatorTest.php
+END
+CamelCaseToDashTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Filter/Word/CamelCaseToDashTest.php
+END
+DashToCamelCaseTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Filter/Word/DashToCamelCaseTest.php
+END
+CamelCaseToSeparatorTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Filter/Word/CamelCaseToSeparatorTest.php
+END
+SeparatorToCamelCaseTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Filter/Word/SeparatorToCamelCaseTest.php
+END
+DashToSeparatorTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Filter/Word/DashToSeparatorTest.php
+END
+SeparatorToDashTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Filter/Word/SeparatorToDashTest.php
+END
+SeparatorToSeparatorTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Filter/Word/SeparatorToSeparatorTest.php
+END

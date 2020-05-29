@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/repos/!svn/ver/384/wikidot1/trunk/tests
+END
+xmlrpc-ex.html
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/repos/!svn/ver/190/wikidot1/trunk/tests/xmlrpc-ex.html
+END
+lucene_search.php
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/repos/!svn/ver/373/wikidot1/trunk/tests/lucene_search.php
+END
+xmlrpc-test.php
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/repos/!svn/ver/258/wikidot1/trunk/tests/xmlrpc-test.php
+END
+highlight_test.php
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/repos/!svn/ver/315/wikidot1/trunk/tests/highlight_test.php
+END
+lucene_bootstrap.php
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/repos/!svn/ver/384/wikidot1/trunk/tests/lucene_bootstrap.php
+END

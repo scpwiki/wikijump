@@ -1,0 +1,35 @@
+-------------------------------------------------------------------------------
+The dijit i18n (internationalization) Demo
+-------------------------------------------------------------------------------
+Author: Bill Kease (wildbill)
+-------------------------------------------------------------------------------
+Demo description
+
+	A demo showing off the capabilities of Dijit i18n also using remote data 
+	providers.
+
+	Flag images taken from http://www.famfamfam.com/lab/icons/flags/, according to license:
+
+	   “Flags” are 247 icons — in GIF and PNG formats — representing most countries in the world as small pixel icons.
+	   These flag icons are available for free use for any purpose with no requirement for attribution.
+
+	Country data is pulled from
+	 http://ws.geonames.org/countryInfoJSON?formatted=true
+	under creative commons attribution license
+
+-------------------------------------------------------------------------------
+Dependencies:
+
+	Dojo Core 
+	Dijit (many widgets)
+	DojoX (rpc)
+
+-------------------------------------------------------------------------------
+Installation instructions
+
+	Simply run the included demo.html
+	
+	To build, use the supplied demo.profile.js as your profileFile
+	
+-------------------------------------------------------------------------------
+

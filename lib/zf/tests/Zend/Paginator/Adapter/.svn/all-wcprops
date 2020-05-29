@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/framework/!svn/ver/12380/standard/trunk/tests/Zend/Paginator/Adapter
+END
+IteratorTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/framework/!svn/ver/11762/standard/trunk/tests/Zend/Paginator/Adapter/IteratorTest.php
+END
+NullTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/11218/standard/trunk/tests/Zend/Paginator/Adapter/NullTest.php
+END
+DbTableSelectTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/framework/!svn/ver/11762/standard/trunk/tests/Zend/Paginator/Adapter/DbTableSelectTest.php
+END
+ArrayTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/framework/!svn/ver/11218/standard/trunk/tests/Zend/Paginator/Adapter/ArrayTest.php
+END
+DbSelectTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/framework/!svn/ver/12285/standard/trunk/tests/Zend/Paginator/Adapter/DbSelectTest.php
+END

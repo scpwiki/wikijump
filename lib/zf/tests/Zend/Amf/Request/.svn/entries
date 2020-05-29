@@ -1,0 +1,56 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Amf/Request
+http://framework.zend.com/svn/framework
+
+
+
+2008-10-09T20:08:49.036801Z
+11800
+wadearnold
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+mock
+dir
+
+bytearray.bin
+file
+
+
+
+
+2008-12-06T16:40:30.000000Z
+f6fc6eaadd47b33bdc4aeb5368e4a992
+2008-10-09T20:08:49.036801Z
+11800
+wadearnold
+has-props
+
+longstring.bin
+file
+
+
+
+
+2008-12-06T16:40:30.000000Z
+0373726a230cbd21e0cfaa6ff2770773
+2008-10-03T05:01:37.428106Z
+11632
+wadearnold
+

@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/framework/!svn/ver/12529/standard/trunk/library/Zend/Text/Table/Decorator
+END
+Interface.php
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/framework/!svn/ver/12529/standard/trunk/library/Zend/Text/Table/Decorator/Interface.php
+END
+Unicode.php
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/framework/!svn/ver/12529/standard/trunk/library/Zend/Text/Table/Decorator/Unicode.php
+END
+Ascii.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/12529/standard/trunk/library/Zend/Text/Table/Decorator/Ascii.php
+END

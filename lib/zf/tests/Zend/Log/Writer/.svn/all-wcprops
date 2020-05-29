@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/framework/!svn/ver/12606/standard/trunk/tests/Zend/Log/Writer
+END
+MockTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/12004/standard/trunk/tests/Zend/Log/Writer/MockTest.php
+END
+NullTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Log/Writer/NullTest.php
+END
+StreamTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/12022/standard/trunk/tests/Zend/Log/Writer/StreamTest.php
+END
+FirebugTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/12606/standard/trunk/tests/Zend/Log/Writer/FirebugTest.php
+END
+DbTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Log/Writer/DbTest.php
+END

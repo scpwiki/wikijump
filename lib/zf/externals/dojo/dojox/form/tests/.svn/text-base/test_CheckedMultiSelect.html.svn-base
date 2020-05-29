@@ -1,0 +1,161 @@
+<html>
+	<head>
+	    <script type="text/javascript" 
+	        src="../../../dojo/dojo.js"
+	        djConfig="isDebug: true, parseOnLoad: true">
+	    </script>
+	    <script type="text/javascript">
+			dojo.require("doh.runner");
+	        dojo.require("dojo.parser");
+			dojo.require("dojox.form.CheckedMultiSelect");
+			dojo.require("dijit.form.Button");
+			dojo.require("dijit.form.Form");
+			
+			var perfNum = 100;
+			var numOptions = 0;
+		
+			dojo.addOnLoad(function(){
+				doh.register("tests",
+					[
+						function test_setValue(t){
+							t.is(["VA","WA"], form.getValues().ms1);
+							t.is(["TX","GA"], form.getValues().ms2);
+							ms1.attr("value", ["TN","CA"]);
+							t.is(["TN","CA"], form.getValues().ms1);
+							ms1.invertSelection();
+							t.is(["VA","WA","FL"], form.getValues().ms1);							
+						},
+						function test_addSelected(t){
+							dojo.forEach(ms2.getOptions(ms2.getValue()), function(i){
+								ms2.removeOption(i);
+								ms1.addOption(i);
+							});
+							t.is([], form.getValues().ms2);
+							ms1.invertSelection();
+							t.is(["TN","CA"], form.getValues().ms1);
+						},
+						function test_performance(t){
+							var i, start, add, del, opts = [];
+							for(i = 0; i < perfNum; i++){
+								opts.push({value: i + "", label: "Option " + (i + 1)});
+							}
+							start = new Date();
+							ms3.addOption(opts);
+							add = new Date();
+							ms3.removeOption(opts);
+							del = new Date();
+							console.log("Create (" + perfNum + "): " + (add.getTime() - start.getTime()) +
+										"ms, Remove: " + (del.getTime() - add.getTime()) + "ms");
+							t.t(true);
+						},
+						function delete_selected(t){
+							t.is(["TN","CA"], ms1.getValue());
+							var d = new doh.Deferred();
+							ms1.removeOption("CA");
+							window.setTimeout(function(){
+								try{
+									t.is(["TN"], ms1.getValue());
+									d.callback(true);
+								}catch(e){ d.errback(e); }
+							}, 100);
+							return d;
+						}
+					]
+				);
+				doh.run();
+				dojo.connect(ms1, "onChange", function(val){
+					console.log("First Select Changed to " + val);
+				});
+				dojo.connect(ss1, "onChange", function(val){
+					console.log("First Radio Select Changed to " + val);
+				});
+			});
+		</script>
+		<style>
+			@import url(../../../dojo/resources/dojo.css);
+			@import url(../../../dijit/themes/tundra/tundra.css);
+			@import url(../resources/CheckedMultiSelect.css);
+			@import url(../../../dijit/tests/css/dijitTests.css);
+		</style>
+		<style>
+		.ark { text-decoration: underline; }
+		</style>
+	</head>	
+	<body class="tundra">
+		<h1 class="testTitle">Test: dojox.form.CheckedMultiSelect</h1>
+		<form dojoType="dijit.form.Form" jsId="form">
+			<h2>Check Boxes</h2>
+			<select jsId="ms1" multiple="true" name="ms1" dojoType="dojox.form.CheckedMultiSelect">
+				<option value="TN">Tennessee</option>
+				<option value="VA" selected="selected">Virginia</option>
+				<option value="WA" selected="selected">Washington</option>
+				<option value="FL">Florida</option>
+				<option value="CA">California</option>
+			</select>
+			<select jsId="ms2" multiple="true" name="ms2" dojoType="dojox.form.CheckedMultiSelect">
+				<option value="UT">Utah</option>
+				<option value="TX" selected="selected">Texas</option>
+				<option value="GA" selected="selected">Georgia</option>
+				<option value="ID">Idaho</option>
+				<option value="WY">Wyoming</option>
+				<option value="OR">Oregon</option>
+				<option value="PA">Pennsylvania</option>
+			</select>
+			<select jsId="ms3" multiple="true" name="ms3" dojoType="dojox.form.CheckedMultiSelect">
+			</select>
+		<hr>
+			<h2>Radio Buttons</h2>
+			<select jsId="ss1" name="ss1" dojoType="dojox.form.CheckedMultiSelect">
+				<option value="TN">Tennessee</option>
+				<option value="VA" selected="selected">Virginia</option>
+				<option value="WA">Washington</option>
+				<option value="FL">Florida</option>
+				<option value="CA">California</option>
+			</select>
+			<select jsId="ss2" name="ss2" value="TX" dojoType="dojox.form.CheckedMultiSelect">
+				<option value="UT">Utah</option>
+				<option value="TX">Texas</option>
+				<option value="GA">Georgia</option>
+				<option value="ID">Idaho</option>
+				<option value="WY">Wyoming</option>
+				<option value="OR">Oregon</option>
+				<option value="PA">Pennsylvania</option>
+			</select>
+			<select jsId="ss3" name="ss3" dojoType="dojox.form.CheckedMultiSelect">
+			</select>
+		<hr>
+			<button dojoType="dijit.form.Button">
+				<script type="dojo/method" event="onClick">
+					console.dir(form.getValues());
+				</script>
+				Get Values
+			</button>
+			<button dojoType="dijit.form.Button">
+				<script type="dojo/method" event="onClick">
+					numOptions++;
+					ms3.addOption({value: numOptions + "", label: "Option " + (numOptions)});
+				</script>
+				Add Check Option
+			</button>
+			<button dojoType="dijit.form.Button">
+				<script type="dojo/method" event="onClick">
+					numOptions++;
+					ss3.addOption({value: numOptions + "", label: "Option " + (numOptions)});
+				</script>
+				Add Radio Option
+			</button>
+			<button dojoType="dijit.form.Button">
+				<script type="dojo/method" event="onClick">
+					ms3.attr("disabled", !ms3.disabled);
+				</script>
+				Toggle Disabled
+			</button>
+			<button dojoType="dijit.form.Button">
+				<script type="dojo/method" event="onClick">
+					ms1.invertSelection(true);
+				</script>
+				Invert Selection
+			</button>
+		</form>
+	</body>
+</html>

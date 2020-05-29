@@ -23,6 +23,23 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyAction;
+use \WDPermissionException;
+use \ProcessException;
+use Database;
+use Criteria;
+use DB\PageAbuseFlagPeer;
+use DB\PageAbuseFlag;
+use \EventLogger;
+use DB\OzoneUserPeer;
+use DB\UserAbuseFlagPeer;
+use DB\SitePeer;
+use DB\UserAbuseFlag;
+use DB\AnonymousAbuseFlagPeer;
+use DB\AnonymousAbuseFlag;
+
 class AbuseFlagAction extends SmartyAction {
 	
 	public function isAllowed($runData){
@@ -59,10 +76,10 @@ class AbuseFlagAction extends SmartyAction {
 			$c->add("site_id", $site->getSiteId());
 			$c->add("path", $path);
 			
-			$flag = DB_PageAbuseFlagPeer::instance()->selectOne($c);
+			$flag = PageAbuseFlagPeer::instance()->selectOne($c);
 			
 			if($flag == null){
-				$flag = new DB_PageAbuseFlag();
+				$flag = new PageAbuseFlag();
 				$flag->setUserId($user->getUserId());
 				$flag->setSiteId($site->getSiteId());
 				$flag->setPath($path);
@@ -75,7 +92,7 @@ class AbuseFlagAction extends SmartyAction {
 			$c->add("user_id", $user->getUserId());
 			$c->add("site_id", $site->getSiteId());
 			$c->add("path", $path);
-			DB_PageAbuseFlagPeer::instance()->delete($c);
+			PageAbuseFlagPeer::instance()->delete($c);
 			EventLogger::instance()->logUnflagPage($path);
 		}
 		
@@ -94,7 +111,7 @@ class AbuseFlagAction extends SmartyAction {
 			throw new ProcessException(_("Error processing the request."), "no_target_user");	
 		}
 		
-		$targetUser = DB_OzoneUserPeer::instance()->selectByPrimaryKey($targetUserId);
+		$targetUser = OzoneUserPeer::instance()->selectByPrimaryKey($targetUserId);
 		if($targetUser == null){
 			throw new ProcessException(_("Error processing the request."), "no_target_user");	
 		}
@@ -114,7 +131,7 @@ class AbuseFlagAction extends SmartyAction {
 			$c->add("user_id", $user->getUserId());
 			$c->add("target_user_id", $targetUser->getUserId());
 			
-			$flag = DB_UserAbuseFlagPeer::instance()->selectOne($c);
+			$flag = UserAbuseFlagPeer::instance()->selectOne($c);
 			
 			if($flag == null){
 				
@@ -127,11 +144,11 @@ class AbuseFlagAction extends SmartyAction {
 						$siteUnixName=$matches[1];
 						$c = new Criteria();
 						$c->add("unix_name", $siteUnixName);
-						$siter = DB_SitePeer::instance()->selectOne($c);
+						$siter = SitePeer::instance()->selectOne($c);
 					} else {
 						$c = new Criteria();
 						$c->add("custom_domain", $host);
-						$siter = DB_SitePeer::instance()->selectOne($c);	
+						$siter = SitePeer::instance()->selectOne($c);	
 					}
 					
 					if($siter !== null){
@@ -139,7 +156,7 @@ class AbuseFlagAction extends SmartyAction {
 					}
 				}
 				
-				$flag = new DB_UserAbuseFlag();
+				$flag = new UserAbuseFlag();
 				$flag->setUserId($user->getUserId());
 				$flag->setSiteId($siteId);
 				$flag->setTargetUserId($targetUser->getUserId());
@@ -151,7 +168,7 @@ class AbuseFlagAction extends SmartyAction {
 			$c = new Criteria();
 			$c->add("user_id", $user->getUserId());
 			$c->add("target_user_id", $targetUser->getUserId());
-			DB_UserAbuseFlagPeer::instance()->delete($c);
+			UserAbuseFlagPeer::instance()->delete($c);
 			EventLogger::instance()->logUnflagUser($targetUser);
 		}
 		
@@ -199,13 +216,13 @@ class AbuseFlagAction extends SmartyAction {
 				$c->add("user_id", $user->getUserId());
 				$c->add("address", $ip);
 			
-				$flag = DB_AnonymousAbuseFlagPeer::instance()->selectOne($c);
+				$flag = AnonymousAbuseFlagPeer::instance()->selectOne($c);
 			
 				if($flag == null){
 				
 					$siteId = $site->getSiteId();
 					
-					$flag = new DB_AnonymousAbuseFlag();
+					$flag = new AnonymousAbuseFlag();
 					$flag->setUserId($user->getUserId());
 					$flag->setSiteId($siteId);
 					$flag->setAddress($ip);
@@ -224,7 +241,7 @@ class AbuseFlagAction extends SmartyAction {
 				$c = new Criteria();
 				$c->add("user_id", $user->getUserId());
 				$c->add("address", $ip);
-				DB_AnonymousAbuseFlagPeer::instance()->delete($c);
+				AnonymousAbuseFlagPeer::instance()->delete($c);
 			}
 			EventLogger::instance()->logUnflagAnonymous($userString);
 		}

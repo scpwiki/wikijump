@@ -1,0 +1,36 @@
+-------------------------------------------------------------------------------
+The DojoX Flash Video Demo
+-------------------------------------------------------------------------------
+Author: Mike Wilcox (AnM8tR)
+-------------------------------------------------------------------------------
+Demo description
+
+	Demonstrates DojoX's video component, using a SWF created with the 
+	Deft project.
+	
+-------------------------------------------------------------------------------
+Dependencies:
+	
+	dojox.av.FLVideo
+    dijit.form.Button
+    dijit.form.Slider 
+    dojo.dnd.Source
+    
+    The FLV videos in the media folder.
+
+-------------------------------------------------------------------------------
+Installation instructions
+
+	Simply run the included demo.html
+	
+	To build, use the supplied demo.profile.js as your profileFile,
+	or run the included buildDemo.sh -- which [should] create an 
+	archive called videoDemo.tar.gz that you [should] be able to drop
+	on any webserver and view (only optimized, instead)
+	
+	If there are video errors (Stream Not Found), check that your 
+    server handles the FLV mime type. Also be sure that the media
+    is accessible by the web ACL (aka, permissions are set).
+	
+-------------------------------------------------------------------------------
+

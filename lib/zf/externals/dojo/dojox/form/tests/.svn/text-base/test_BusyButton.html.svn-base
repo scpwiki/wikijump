@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<title>BusyButton Test</title>
+
+		<!-- for tests -->
+		<style type="text/css">
+			@import url(../../../dojo/resources/dojo.css);
+			@import url(../../../dijit/themes/tundra/tundra.css);
+			@import url(../../../dijit/tests/css/dijitTests.css);
+			
+			@import url(../resources/BusyButton.css);
+		</style>
+		
+		<!-- required: a default dijit theme: -->
+		<link id="themeStyles" rel="stylesheet" href="../../../dijit/themes/tundra/tundra.css">
+		
+		<!-- required: dojo.js -->
+		<script type="text/javascript" src="../../../dojo/dojo.js"
+			djConfig="parseOnLoad: true, isDebug: true"></script>
+		<script type="text/javascript" src="../BusyButton.js"></script>
+		<script type="text/javascript">
+			
+			dojo.addOnLoad(function(){
+				dojo.connect(dijit.byId("buttonCancel"), "onClick", function(){
+					dijit.byId("button_noTimeout").cancel();
+				});
+				dojo.connect(dijit.byId("buttonCancel2"), "onClick", function(){
+					dijit.byId("button_noTimeout2").attr("label", "Chargeback failed...", 1000);
+				});
+				dojo.connect(dijit.byId("button_noTimeout3"), "_onClick", function(){
+					dijit.byId("button_noTimeout3").attr("label", "Creating account...");
+					dijit.byId("button_noTimeout3").resetTimeout();
+				});
+			});
+		</script>
+	</head>
+	<body class="tundra">
+		<h1 class="testTitle">Test: dojox.form.BusyButton</h1>
+		<p>
+		Normal busy button, 5000 miliseconds timeout<br />
+		<button dojoType="dojox.form.BusyButton" timeout="5000" >Click</button>
+		</p>
+	
+		<p>
+		Busy button, no timeout, custom label<br />
+		<button dojoType="dojox.form.BusyButton" id="button_noTimeout" busyLabel="Charging creditcard..." >Pay now</button> <button dojoType="dijit.form.Button" id="buttonCancel">Cancel button</button>
+		</p>
+		<p>
+		Busy button, no initial timeout, changing state and setting timeout on button press<br />
+		<button dojoType="dojox.form.BusyButton" id="button_noTimeout2" busyLabel="Canceling payment...">Cancel payment</button> <button dojoType="dijit.form.Button" id="buttonCancel2">Change state</button>
+		</p>
+		<p>
+		Busy button, initially busy with 10 sec timeout<br />
+		<button dojoType="dojox.form.BusyButton" id="button_noTimeout3" isBusy="true" busyLabel="Please read the agreement..." timeout="10000">I Agree</button>
+		</p>
+	</body>
+</hmtl>

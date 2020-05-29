@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/repos/!svn/ver/252/wikidot1/trunk/conf/database
+END
+simpletodo-db.xml
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/repos/!svn/ver/2/wikidot1/trunk/conf/database/simpletodo-db.xml
+END
+wikidot-forum-db.xml
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/repos/!svn/ver/2/wikidot1/trunk/conf/database/wikidot-forum-db.xml
+END
+base-db.xml
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/repos/!svn/ver/246/wikidot1/trunk/conf/database/base-db.xml
+END
+wikidot-db.xml
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/repos/!svn/ver/252/wikidot1/trunk/conf/database/wikidot-db.xml
+END
+petition-db.xml
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/repos/!svn/ver/2/wikidot1/trunk/conf/database/petition-db.xml
+END

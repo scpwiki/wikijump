@@ -1,0 +1,56 @@
+@import "../../dojo/resources/dojo.css";
+@import "../../dijit/themes/tundra/tundra.css";
+@import "../../dijit/themes/tundra/tundra_rtl.css";
+@import "../../dijit/tests/css/dijitTests.css";
+
+.formQuestion {
+	background-color:#d0e3f5;
+	padding:0.3em;
+	font-weight:900;
+	font-family:Verdana, Arial, sans-serif;
+	font-size:0.8em;
+	color:#5a5a5a;
+}
+.formAnswer {
+	background-color:#f5eede;
+	padding:0.3em;
+	margin-bottom:1em;
+	width: 100%;
+}
+.pageSubContentTitle {
+		color:#8e8e8e;
+		font-size:1em;
+		font-family:Verdana, Arial, sans-serif;
+		margin-bottom:0.75em;
+}
+body .short {
+	width: 5em;
+}
+body .medium {
+	width: 10em;
+}
+body .long {
+	width: 20em;
+}
+.firstLabel {
+	display: inline-block;
+	display: -moz-inline-box;
+	width: 10em;
+	min-width: 10em;
+}
+.secondLabel {
+	width: auto;
+	margin-left: 5em;
+	margin-right: 1em;
+}
+fieldset label {
+	margin-right: 1em;
+}
+.noticeMessage {
+	display: block;
+	float: right;
+	font-weight: normal;
+	font-family:Arial, Verdana, sans-serif;
+	color:#663;
+	font-size:0.9em;
+}

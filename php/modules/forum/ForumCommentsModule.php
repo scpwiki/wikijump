@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use \ProcessException;
+use DB\PagePeer;
+
 class ForumCommentsModule extends SmartyModule {
 	
 	protected $processPage = true;
@@ -68,7 +74,7 @@ class ForumCommentsModule extends SmartyModule {
 		if($pageName == null){
 			return $out;	
 		}
-		$page = DB_PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
+		$page = PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
 		$pageId = $page->getPageId();
 		$link = '/feed/page/comments-'.$pageId.'.xml';
 		$title =  "Comments for the page \"".$page->getTitleOrUnixName()."\"";

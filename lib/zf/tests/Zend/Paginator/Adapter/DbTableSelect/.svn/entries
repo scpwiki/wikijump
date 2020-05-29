@@ -1,0 +1,40 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Paginator/Adapter/DbTableSelect
+http://framework.zend.com/svn/framework
+
+
+
+2008-11-04T21:00:01.164654Z
+12285
+mikaelkael
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+OracleTest.php
+file
+
+
+
+
+2008-12-06T16:40:26.000000Z
+359bbfc849cd77a18e5a06bf0a691c96
+2008-11-04T21:00:01.164654Z
+12285
+mikaelkael
+

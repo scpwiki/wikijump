@@ -1,0 +1,86 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Http
+http://framework.zend.com/svn/framework
+
+
+
+2008-10-23T22:36:28.250749Z
+12104
+shahar
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+CookieTest.php
+file
+
+
+
+
+2008-12-06T16:40:25.000000Z
+491d2fa5cfa0c742078f622dbdb42b79
+2006-12-03T17:34:25.330827Z
+2073
+shahar
+has-props
+
+_files
+dir
+
+AllTests.php
+file
+
+
+
+
+2008-12-06T16:40:25.000000Z
+4601dd5be7bf2428ea22e77ce67703c8
+2008-10-20T18:37:47.122201Z
+12036
+shahar
+has-props
+
+ResponseTest.php
+file
+
+
+
+
+2008-12-06T16:40:25.000000Z
+8da06e4f470a317fee13362825218903
+2008-10-15T16:00:56.239481Z
+11973
+matthew
+has-props
+
+CookieJarTest.php
+file
+
+
+
+
+2008-12-06T16:40:25.000000Z
+e4c5b553aa195a6c4f7e136bc749d94a
+2008-10-15T16:00:56.239481Z
+11973
+matthew
+has-props
+
+Client
+dir
+

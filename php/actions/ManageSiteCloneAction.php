@@ -23,6 +23,16 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyAction;
+use \WDPermissionManager;
+use \WDStringUtils;
+use Criteria;
+use DB\SitePeer;
+use \ProcessException;
+use \Duplicator;
+
 class ManageSiteCloneAction extends SmartyAction {
 	
 	public function isAllowed($runData){
@@ -82,7 +92,7 @@ class ManageSiteCloneAction extends SmartyAction {
 			// check if the domain is not taken.
 			$c = new Criteria();
 			$c->add("unix_name", $unixName);
-			$ss = DB_SitePeer::instance()->selectOne($c);
+			$ss = SitePeer::instance()->selectOne($c);
 			if($ss){
 				$errors['unixname'] = _('Sorry, this web address is already used by another site.');		
 			}			

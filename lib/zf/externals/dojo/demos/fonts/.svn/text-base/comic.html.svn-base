@@ -1,0 +1,19 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<title>Make me say silly things.  Courtesy of SitePen.</title>
+		<link rel="stylesheet" href="demo.css">
+		<script type="text/javascript" src="../../dojo/dojo.js" charset="utf-8"></script>
+		<script type="text/javascript">
+			dojo.require("demos.fonts.src");
+			dojo.require("demos.fonts.src.comic");
+		</script>
+	</head>
+	<body id="comics">
+		<div id="canvas"></div>
+		<div id="prompt"></div>
+		<textarea id="text-input"></textarea>
+		<input id="doIt" type="button" value="Go!">
+	</body>
+</html>

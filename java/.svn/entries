@@ -1,0 +1,52 @@
+8
+
+dir
+393
+http://svn.wikidot.org/repos/wikidot1/trunk/java
+http://svn.wikidot.org/repos
+
+
+
+2008-12-18T18:15:43.024340Z
+361
+quake
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+fb797968-1a05-43ef-ab23-0011a79c62e5
+
+WikidotSearcher.java
+file
+
+
+
+
+2009-01-04T17:41:33.000000Z
+b6be4fa49e65920bb482ad5c68c1f8d4
+2008-12-18T18:15:43.024340Z
+361
+quake
+
+build.xml
+file
+
+
+
+
+2009-01-04T17:41:33.000000Z
+1c8198119b05060dc03fcad90fecc5f6
+2008-12-18T17:42:10.124486Z
+355
+quake
+

@@ -23,6 +23,14 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use \ProcessException;
+use Criteria;
+use DB\ForumCategoryPeer;
+use DB\ForumThreadPeer;
+
 class ForumViewCategoryModule extends SmartyModule {
 	
 	private $category;
@@ -98,7 +106,7 @@ class ForumViewCategoryModule extends SmartyModule {
 		$c->add("category_id", $categoryId);
 		$c->add("site_id", $site->getSiteId());
 		
-		$category = DB_ForumCategoryPeer::instance()->selectOne($c);
+		$category = ForumCategoryPeer::instance()->selectOne($c);
 		
 		if($category == null || $category->getSiteId() !== $site->getSiteId()){
 			throw new ProcessException(_("Requested forum category does not exist."), "no_category");	
@@ -128,7 +136,7 @@ class ForumViewCategoryModule extends SmartyModule {
 		}
 		$c->setLimit($perPage, $offset);
 		
-		$threads = DB_ForumThreadPeer::instance()->select($c);
+		$threads = ForumThreadPeer::instance()->select($c);
 		
 		$runData->contextAdd("pagerData", $pagerData);
 		$runData->contextAdd("category", $category);

@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/framework/!svn/ver/12776/standard/trunk/tests/Zend/File/Transfer/Adapter
+END
+AllTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/File/Transfer/Adapter/AllTests.php
+END
+AbstractTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/framework/!svn/ver/12776/standard/trunk/tests/Zend/File/Transfer/Adapter/AbstractTest.php
+END

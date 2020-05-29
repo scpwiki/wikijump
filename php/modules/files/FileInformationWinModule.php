@@ -23,13 +23,18 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use DB\FilePeer;
+
 class FileInformationWinModule extends SmartyModule {
 	
 	public function build($runData){
 		$pl = $runData->getParameterList();
 		$fileId = $pl->getParameterValue("file_id");
 		
-		$file = DB_FilePeer::instance()->selectByPrimaryKey($fileId);
+		$file = FilePeer::instance()->selectByPrimaryKey($fileId);
 		
 		if($file == null || $file->getSiteId() != $runData->getTemp("site")->getSiteId()){
 			$runData->ajaxResponseAdd("status", "wrong_file");

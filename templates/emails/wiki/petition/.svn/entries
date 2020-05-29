@@ -1,0 +1,40 @@
+8
+
+dir
+393
+http://svn.wikidot.org/repos/wikidot1/trunk/templates/emails/wiki/petition
+http://svn.wikidot.org/repos
+
+
+
+2008-01-30T17:40:54.924226Z
+2
+michal_frackowiak
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+fb797968-1a05-43ef-ab23-0011a79c62e5
+
+PetitionConfirmation.tpl
+file
+
+
+
+
+2008-12-06T16:40:16.000000Z
+d8dc12fbfe9177fdcc1c8809e78e0380
+2008-01-30T17:40:54.924226Z
+2
+michal_frackowiak
+

@@ -23,6 +23,13 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \ManageSiteBaseModule;
+use Criteria;
+use DB\ForumGroupPeer;
+use DB\ForumCategoryPeer;
+
 class ManageSiteGetForumLayoutModule extends ManageSiteBaseModule {
 	
 	public function build($runData){
@@ -34,7 +41,7 @@ class ManageSiteGetForumLayoutModule extends ManageSiteBaseModule {
 		$c->add("site_id", $site->getSiteId());
 		$c->addOrderAscending("sort_index");
 
-		$groups = DB_ForumGroupPeer::instance()->select($c);
+		$groups = ForumGroupPeer::instance()->select($c);
 		
 		$g0 = array();
 		$c0 = array();
@@ -54,7 +61,7 @@ class ManageSiteGetForumLayoutModule extends ManageSiteBaseModule {
 			$c->add("site_id", $site->getSiteId());
 			$c->addOrderAscending("sort_index");
 			$c->add("group_id", $group->getGroupId());
-			$categories = DB_ForumCategoryPeer::instance()->select($c);
+			$categories = ForumCategoryPeer::instance()->select($c);
 			$ccount = 0;
 			foreach ($categories as $cat){
 				$crow = array();

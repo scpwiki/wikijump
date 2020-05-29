@@ -1,0 +1,54 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/demos/mojo/src
+http://svn.dojotoolkit.org/src
+
+
+
+2008-10-02T14:46:54.477965Z
+15386
+dante
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+drop.js
+file
+
+
+
+
+2008-12-06T16:41:42.000000Z
+7aea4a51763c404dfa7fc81380259250
+2008-10-01T20:09:09.542873Z
+15377
+BryanForbes
+has-props
+
+download.js
+file
+
+
+
+
+2008-12-06T16:41:42.000000Z
+bf41544a9fb64a2ae1cdfc4c292cd925
+2008-10-02T14:46:54.477965Z
+15386
+dante
+has-props
+

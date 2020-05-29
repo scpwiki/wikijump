@@ -1,0 +1,41 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/_files/_testDir1/Class1
+http://framework.zend.com/svn/framework
+
+
+
+2008-05-04T17:40:32.172177Z
+9352
+thomas
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+Subclass2.php
+file
+
+
+
+
+2008-12-06T16:40:29.000000Z
+c8d0937af6c524cf9b8de422cf2db730
+2008-05-04T17:40:32.172177Z
+9352
+thomas
+has-props
+

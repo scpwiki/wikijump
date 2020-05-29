@@ -23,6 +23,13 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \CacheableModule;
+use ODate;
+use Criteria;
+use DB\ForumThreadPeer;
+
 class ForumMiniActiveThreadsModule extends CacheableModule {
 	
 	protected $timeOut = 300;
@@ -51,10 +58,10 @@ class ForumMiniActiveThreadsModule extends CacheableModule {
 		$c = new Criteria();
 		$c->setExplicitQuery($q);
 		
-		$threads = DB_ForumThreadPeer::instance()->select($c);
+		$threads = ForumThreadPeer::instance()->select($c);
 		
 		foreach($threads as &$thread){
-			$thread = DB_ForumThreadPeer::instance()->selectByPrimaryKey($thread->getThreadId());	
+			$thread = ForumThreadPeer::instance()->selectByPrimaryKey($thread->getThreadId());	
 		}
 
 		$runData->contextAdd("threads", $threads);

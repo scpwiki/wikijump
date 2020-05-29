@@ -1,0 +1,641 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/library/Zend
+http://framework.zend.com/svn/framework
+
+
+
+2009-01-03T21:56:19.026928Z
+13501
+thomas
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+Dom
+dir
+
+File
+dir
+
+Log
+dir
+
+Session
+dir
+
+Request
+dir
+
+Form.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+90aed330e238d19420a23f87f5621c3e
+2008-11-23T14:15:48.966769Z
+12786
+matthew
+has-props
+
+Dojo
+dir
+
+Loader.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+aad9ce4ff24bdd10e01dbb70400f4654
+2008-11-22T17:05:16.521415Z
+12772
+matthew
+has-props
+
+Service
+dir
+
+Soap
+dir
+
+Feed
+dir
+
+Config
+dir
+
+Pdf
+dir
+
+Debug.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+66faae734072e8c05fb367107c226e83
+2008-11-07T11:20:58.179615Z
+12364
+beberlei
+
+OpenId
+dir
+
+Validate.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+3d5bd487d86278cd24867ee96388c1c8
+2008-11-22T16:12:23.809858Z
+12770
+matthew
+has-props
+
+Http
+dir
+
+Gdata
+dir
+
+Ldap
+dir
+
+Controller
+dir
+
+Paginator
+dir
+
+Db
+dir
+
+Cache.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+9f3798b3135a22c60636b99f782bcdd7
+2008-11-10T18:41:24.698483Z
+12519
+alexander
+has-props
+
+ProgressBar
+dir
+
+Currency
+dir
+
+TimeSync
+dir
+
+Translate
+dir
+
+Memory.php
+file
+
+
+
+
+2009-01-04T17:41:49.000000Z
+d7122ff404ccad2b9d9401afaaa00fad
+2008-12-14T11:08:18.651759Z
+13215
+thomas
+
+Uri
+dir
+
+Json.php
+file
+
+
+
+
+2009-01-04T17:41:49.000000Z
+500455230d3986feb44f0d2600c254dc
+2008-12-14T11:05:40.664131Z
+13214
+thomas
+has-props
+
+Locale
+dir
+
+Acl
+dir
+
+Auth
+dir
+
+Server
+dir
+
+Log.php
+file
+
+
+
+
+2009-01-04T17:41:49.000000Z
+cc894cb37ff93d9f2fae38dd8dddd30f
+2008-12-26T14:13:34.994560Z
+13459
+yoshida@zend.co.jp
+has-props
+
+Session.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+66c2538e99e1e6f8c6a8d94875c43d2a
+2008-11-20T20:10:43.072063Z
+12722
+matthew
+has-props
+
+View
+dir
+
+Date
+dir
+
+Layout
+dir
+
+Test
+dir
+
+Dojo.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+dcc52cae7bf7cdbfc1df411df3756e98
+2008-07-16T14:51:08.087667Z
+10130
+matthew
+has-props
+
+Mail
+dir
+
+InfoCard
+dir
+
+Filter
+dir
+
+Mime
+dir
+
+Feed.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+3bc00926d13f2143b7ccd5ef27abc63a
+2008-07-24T19:46:15.958903Z
+10383
+matthew
+has-props
+
+Config.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+2e457c78d7359a51b8055f102a4e92ff
+2008-10-30T20:42:37.406628Z
+12204
+dasprid
+has-props
+
+Registry.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+c700542361ee371c23a628abf2f50df2
+2008-10-21T20:56:32.254379Z
+12065
+doctorrock83
+has-props
+
+Pdf.php
+file
+
+
+
+
+2009-01-04T17:41:49.000000Z
+86f391b38142ced7549337d5bf125789
+2008-12-14T11:11:56.247759Z
+13218
+thomas
+has-props
+
+Measure
+dir
+
+Console
+dir
+
+Captcha
+dir
+
+Form
+dir
+
+OpenId.php
+file
+
+
+
+
+2009-01-04T17:41:49.000000Z
+0014d7728a23b5dd3dc2dc1b42ad0569
+2008-12-14T11:11:56.247759Z
+13218
+thomas
+has-props
+
+Wildfire
+dir
+
+XmlRpc
+dir
+
+Gdata.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+c4ecbdce719815f61f89424159daad77
+2008-12-04T22:29:19.495484Z
+13022
+jhartmann
+
+Ldap.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+48d25173716fa5611a671b51d5920947
+2008-10-09T01:53:43.313964Z
+11765
+miallen
+has-props
+
+Loader
+dir
+
+Paginator.php
+file
+
+
+
+
+2009-01-04T17:41:49.000000Z
+9b97db489f3ca43cd7b6aeabbf596527
+2008-12-23T10:25:05.441356Z
+13439
+doctorrock83
+has-props
+
+Db.php
+file
+
+
+
+
+2009-01-04T17:41:49.000000Z
+bb66d6decc7a5a96361062975c94d8d5
+2008-12-10T18:36:46.323835Z
+13136
+doctorrock83
+has-props
+
+ProgressBar.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+f962c5239ea42c45b8da82ad4e974841
+2008-11-05T11:26:37.107469Z
+12296
+dasprid
+has-props
+
+Currency.php
+file
+
+
+
+
+2009-01-04T17:41:49.000000Z
+a7cc37e88a94e6ad170bf2cb2d01f522
+2008-12-23T18:12:34.212283Z
+13450
+thomas
+
+TimeSync.php
+file
+
+
+
+
+2009-01-04T17:41:49.000000Z
+7722b4e0a84ab7ff6c9adfe979e68cb4
+2008-12-14T11:11:56.247759Z
+13218
+thomas
+has-props
+
+Translate.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+2a861bebbcaea299ad222144e0d856d5
+2008-10-08T18:54:10.717486Z
+11749
+thomas
+
+Text
+dir
+
+Exception.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+7444d4451b0836b2412d695f1c0b4941
+2008-02-16T10:58:39.742447Z
+8064
+thomas
+has-props
+
+Locale.php
+file
+
+
+
+
+2009-01-04T17:41:49.000000Z
+237b499d7d99332a7b244792bc4462ef
+2008-12-19T10:48:07.428806Z
+13368
+thomas
+has-props
+
+Acl.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+ddc6e8f79d6486942fa46f37a2d8e98d
+2008-05-08T16:28:31.942363Z
+9417
+darby
+has-props
+
+Uri.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+aa2aeafd7cf43a6961e6d6d5efb2d410
+2008-10-20T18:54:44.034793Z
+12037
+shahar
+has-props
+
+Auth.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+e0f37b55df9f736ae960e3fb069f798c
+2008-10-08T18:33:58.094920Z
+11747
+norm2782
+has-props
+
+Validate
+dir
+
+View.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+0a1b62ddbdd9f8d78d8d1c6c7fd82d5a
+2008-08-04T16:51:59.546545Z
+10638
+matthew
+has-props
+
+Amf
+dir
+
+Cache
+dir
+
+Layout.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+e1ff10530fb7c767ec1783003315234a
+2008-12-04T15:25:43.689741Z
+13016
+doctorrock83
+has-props
+
+Date.php
+file
+
+
+
+
+2009-01-04T17:41:49.000000Z
+b742bb0775aa3f092309c0d55b8c3091
+2008-12-19T12:22:49.002850Z
+13373
+thomas
+has-props
+
+Search
+dir
+
+Memory
+dir
+
+Mail.php
+file
+
+
+
+
+2009-01-04T17:41:49.000000Z
+6f12794bba0c07c3a6bba24b515e2e32
+2009-01-03T12:19:55.920632Z
+13499
+yoshida@zend.co.jp
+has-props
+
+Json
+dir
+
+InfoCard.php
+file
+
+
+
+
+2009-01-04T17:41:49.000000Z
+548c00b167e92b3ece22235b4bacb6df
+2008-12-14T11:05:07.472795Z
+13213
+thomas
+has-props
+
+Filter.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+12857944112f7ecdcee0f2028fead503
+2008-11-22T16:12:23.809858Z
+12770
+matthew
+has-props
+
+Version.php
+file
+
+
+
+
+2009-01-04T17:41:49.000000Z
+18fb3d161f9277da8f50b25af01e1c66
+2008-12-23T15:32:22.430841Z
+13445
+alexander
+has-props
+
+Rest
+dir
+
+Mime.php
+file
+
+
+
+
+2008-12-06T16:40:43.000000Z
+c6863305e022ca7748914d845d195505
+2008-11-06T21:00:08.925774Z
+12343
+thomas
+has-props
+

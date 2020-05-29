@@ -1,0 +1,150 @@
+@import "../../dojo/resources/dojo.css";
+@import "../../dijit/tests/css/dijitTests.css"; 
+
+#news {
+	margin: 0 auto;
+	width: 960px;
+}
+#header {
+	margin: 0;
+	margin-bottom: 2em;
+	position: relative;
+}
+#footer {
+	margin: 0;
+	margin-top: -8px;
+	padding-top: 4px;
+	border-top: 3px solid #000;
+	font-size: 11px;
+	text-align: right;
+}
+#pageTitle {
+	border-top: 1px solid #000;
+	border-bottom: 3px solid #000;
+	background-color: white;
+	text-align: center; 
+}
+#title {
+	margin: 0;
+	font-size: 60px;
+}
+#subtitle {
+	margin: 0;
+	font-size: 12px;
+}
+#date {
+	font-family: Georgia, serif;
+	font-size: 11px;
+	text-align: right;
+}
+
+#body {
+	font-family: Georgia, serif;
+	font-size: 11px;
+	color: #333;
+	line-height: 1.5em;
+}
+.row {
+	position: relative;
+	width: 960px;
+	margin: 1em 0;
+	border-bottom: 1px solid #ccc;
+}
+
+.cols1 {
+	width: 300px; /* 10px gutter on each side */
+	padding: 10px;
+}
+.cols2 {
+	width: 630px; /* 10px gutter on one side */
+	padding: 10px;
+}
+.cols3 {
+	width: 960px;
+	padding: 10px;
+}
+.left { }
+.center {
+	position: absolute;
+	top:0;
+	left: 320px;
+}
+.right {
+	position: absolute;
+	top:0;
+	right: 0;
+}
+
+#chart {
+	margin: 0 auto;
+	width: 228px;
+}
+#body h2 {
+	font-family: Arial, serif;
+	font-size: 16px;
+	margin:0;
+}
+#body p {
+	margin: 0;
+	margin-bottom: 1em;
+}
+.caption { 
+	text-align: right;
+	font-size: 10px;
+}
+
+/*  For the comics demo */
+#comics #canvas {
+	position: absolute;
+	bottom:0;
+	left:0;
+	width:900px; 
+	height:600px; 
+}
+#comics #prompt {
+	position: absolute;
+	bottom:121px;
+	left:601px;
+	width: 300px;
+	height: 18px;
+}
+#comics #text-input {
+	position: absolute;
+	bottom:0;
+	left:601px;
+	width: 300px;
+	height: 120px;
+}
+#comics #doIt {
+	position: absolute;
+	bottom: 125px;
+	left: 860px;
+}
+
+#charts .label {
+	width: 228px;
+	text-align: center;
+	position: absolute;
+	bottom:0;
+	font-size: 11px;
+}
+#charts #container {
+	position: relative;
+	margin: 12px auto;
+	width: 684px;
+	height: 248px;
+}
+#charts #pie1,
+#charts #pie2,
+#charts #pie3 {
+	position: absolute;
+	bottom: 24px;
+	width: 228px;
+	height: 228px;
+}
+#charts #pie1,
+#charts #label1 { left: 0; }
+#charts #pie2,
+#charts #label2 { left: 228px; }
+#charts #pie3,
+#charts #label3 { left: 456px; }

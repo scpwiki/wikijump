@@ -23,6 +23,13 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \SmartyLocalizedModule;
+use \ProcessException;
+use Criteria;
+use DB\OzoneUserPeer;
+
 class UserInfoModule extends SmartyLocalizedModule {
 	
 	private $user; // nasty hack again...
@@ -45,7 +52,7 @@ class UserInfoModule extends SmartyLocalizedModule {
 		// get user
 		$c = new Criteria();
 		$c->add("unix_name", $userUnixName);
-		$user = DB_OzoneUserPeer::instance()->selectOne($c);
+		$user = OzoneUserPeer::instance()->selectOne($c);
 		
 		if($user == null){
 			throw new ProcessException(_("User does not exist."));

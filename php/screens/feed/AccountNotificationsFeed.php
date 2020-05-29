@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \FeedScreen;
+use Criteria;
+use DB\NotificationPeer;
+
 class AccountNotificationsFeed extends FeedScreen {
 	
 	protected $requiresAuthentication = true;
@@ -72,7 +78,7 @@ class AccountNotificationsFeed extends FeedScreen {
 		$c->addOrderDescending('notification_id');
 		$c->setLimit(20);	
 		
-		$nots = DB_NotificationPeer::instance()->select($c);
+		$nots = NotificationPeer::instance()->select($c);
 		
 		$channel['title'] = sprintf(_('%s account notifications for user'), GlobalProperties::$SERVICE_NAME).' "'.htmlspecialchars($user->getNickName()).'"';
 		$channel['link'] = "http://" . GlobalProperties::$URL_HOST . "/account:you/start/notifications";

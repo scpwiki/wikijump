@@ -23,6 +23,13 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use \ProcessException;
+use Criteria;
+use DB\PageRevisionPeer;
+
 class PageHistoryModule extends SmartyModule {
 	
 	public function build($runData){
@@ -36,7 +43,7 @@ class PageHistoryModule extends SmartyModule {
 		$c->add('page_id', $pageId);
 		$c->addOrderDescending('revision_id');
 		
-		$pageRevisions = DB_PageRevisionPeer::instance()->select($c);
+		$pageRevisions = PageRevisionPeer::instance()->select($c);
 		$runData->contextAdd("pageRevisions", $pageRevisions);
 	}
 	

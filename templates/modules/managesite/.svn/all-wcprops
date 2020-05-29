@@ -1,0 +1,239 @@
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/repos/!svn/ver/170/wikidot1/trunk/templates/modules/managesite
+END
+ManageSiteOpenIDModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/managesite/ManageSiteOpenIDModule.tpl
+END
+ManageSiteModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/repos/!svn/ver/89/wikidot1/trunk/templates/modules/managesite/ManageSiteModule.tpl
+END
+ManageSiteModeratorsModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/managesite/ManageSiteModeratorsModule.tpl
+END
+ManageSiteCustomThemesModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/managesite/ManageSiteCustomThemesModule.tpl
+END
+ManageSiteRecentModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/managesite/ManageSiteRecentModule.tpl
+END
+ManageSiteClone2Module.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/repos/!svn/ver/89/wikidot1/trunk/templates/modules/managesite/ManageSiteClone2Module.tpl
+END
+ManageSiteForumPermissionsModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/managesite/ManageSiteForumPermissionsModule.tpl
+END
+ManageSiteGetForumLayoutModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/managesite/ManageSiteGetForumLayoutModule.tpl
+END
+ManageSiteForumLayoutModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/managesite/ManageSiteForumLayoutModule.tpl
+END
+ManageSitePerPageDiscussionModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/managesite/ManageSitePerPageDiscussionModule.tpl
+END
+ManageSiteInvitationsHistoryModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/managesite/ManageSiteInvitationsHistoryModule.tpl
+END
+ManageSiteForumRecentModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/managesite/ManageSiteForumRecentModule.tpl
+END
+ManageSitePrivateSettingsModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/managesite/ManageSitePrivateSettingsModule.tpl
+END
+ManageSiteTemplatesModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/repos/!svn/ver/96/wikidot1/trunk/templates/modules/managesite/ManageSiteTemplatesModule.tpl
+END
+ManageSiteNavigationModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/managesite/ManageSiteNavigationModule.tpl
+END
+ManageSiteMembersApplicationsModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/managesite/ManageSiteMembersApplicationsModule.tpl
+END
+ManageSiteDeleteModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/managesite/ManageSiteDeleteModule.tpl
+END
+ManageSiteEditCustomThemeModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/managesite/ManageSiteEditCustomThemeModule.tpl
+END
+ManageSiteDomainModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/repos/!svn/ver/96/wikidot1/trunk/templates/modules/managesite/ManageSiteDomainModule.tpl
+END
+ManageSiteSecureAccessModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/repos/!svn/ver/96/wikidot1/trunk/templates/modules/managesite/ManageSiteSecureAccessModule.tpl
+END
+ManageSitePermissionsModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/managesite/ManageSitePermissionsModule.tpl
+END
+ManageSiteAdminsModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/managesite/ManageSiteAdminsModule.tpl
+END
+ManageSiteGeneralModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/managesite/ManageSiteGeneralModule.tpl
+END
+ManageSiteEmailInvitationsModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/repos/!svn/ver/96/wikidot1/trunk/templates/modules/managesite/ManageSiteEmailInvitationsModule.tpl
+END
+ManageSiteLicenseModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/managesite/ManageSiteLicenseModule.tpl
+END
+ManageSiteDelete2Module.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/managesite/ManageSiteDelete2Module.tpl
+END
+ManageSiteLetUsersInviteModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/managesite/ManageSiteLetUsersInviteModule.tpl
+END
+ManageSiteMembersListModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/managesite/ManageSiteMembersListModule.tpl
+END
+ManageSiteModeratorPermissionsModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/managesite/ManageSiteModeratorPermissionsModule.tpl
+END
+ManageSiteMembersModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/managesite/ManageSiteMembersModule.tpl
+END
+ManageSiteWelcomeModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/managesite/ManageSiteWelcomeModule.tpl
+END
+ManageSiteAppearanceModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/repos/!svn/ver/170/wikidot1/trunk/templates/modules/managesite/ManageSiteAppearanceModule.tpl
+END
+ManageSiteCloneModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/repos/!svn/ver/112/wikidot1/trunk/templates/modules/managesite/ManageSiteCloneModule.tpl
+END
+ManageSiteFilesModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/managesite/ManageSiteFilesModule.tpl
+END
+ManageSiteNotificationsListModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/managesite/ManageSiteNotificationsListModule.tpl
+END
+ManageSiteRenameModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/managesite/ManageSiteRenameModule.tpl
+END
+ManageSiteNotificationsModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/managesite/ManageSiteNotificationsModule.tpl
+END
+ManageSiteMembersInviteModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/repos/!svn/ver/77/wikidot1/trunk/templates/modules/managesite/ManageSiteMembersInviteModule.tpl
+END
+ManageSiteForumSettingsModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/repos/!svn/ver/96/wikidot1/trunk/templates/modules/managesite/ManageSiteForumSettingsModule.tpl
+END

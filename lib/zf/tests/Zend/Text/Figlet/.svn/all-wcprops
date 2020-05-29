@@ -1,0 +1,131 @@
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Text/Figlet
+END
+CorrectEncoding.figlet
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Text/Figlet/CorrectEncoding.figlet
+END
+NoSmushRightToLeft.figlet
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Text/Figlet/NoSmushRightToLeft.figlet
+END
+StandardAlignRight.figlet
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Text/Figlet/StandardAlignRight.figlet
+END
+InvalidFont.flf
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Text/Figlet/InvalidFont.flf
+END
+StandardAlignCenter.figlet
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Text/Figlet/StandardAlignCenter.figlet
+END
+GenerateDummies.sh
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Text/Figlet/GenerateDummies.sh
+END
+OutputWidth50AlignRight.figlet
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Text/Figlet/OutputWidth50AlignRight.figlet
+END
+WordWrapRightToLeft.figlet
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Text/Figlet/WordWrapRightToLeft.figlet
+END
+WordWrapLeftToRight.figlet
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Text/Figlet/WordWrapLeftToRight.figlet
+END
+SmushForced.figlet
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Text/Figlet/SmushForced.figlet
+END
+CharWrapLeftToRight.figlet
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Text/Figlet/CharWrapLeftToRight.figlet
+END
+CharWrapRightToLeft.figlet
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Text/Figlet/CharWrapRightToLeft.figlet
+END
+StandardRightToLeftAlignRight.figlet
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Text/Figlet/StandardRightToLeftAlignRight.figlet
+END
+StandardAlignLeft.figlet
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Text/Figlet/StandardAlignLeft.figlet
+END
+StandardRightToLeftAlignCenter.figlet
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Text/Figlet/StandardRightToLeftAlignCenter.figlet
+END
+NoSmush.figlet
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Text/Figlet/NoSmush.figlet
+END
+GzippedFont.gz
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Text/Figlet/GzippedFont.gz
+END
+ParagraphOff.figlet
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Text/Figlet/ParagraphOff.figlet
+END
+ParagraphOn.figlet
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Text/Figlet/ParagraphOn.figlet
+END
+StandardRightToLeftAlignLeft.figlet
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Text/Figlet/StandardRightToLeftAlignLeft.figlet
+END
+SmushDefault.figlet
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Text/Figlet/SmushDefault.figlet
+END

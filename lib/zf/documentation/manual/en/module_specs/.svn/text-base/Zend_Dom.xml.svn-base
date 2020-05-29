@@ -1,0 +1,13 @@
+<sect1 id="zend.dom.introduction">
+    <title>Introduction</title>
+
+    <para>
+        <code>Zend_Dom</code> provides tools for working with DOM documents and
+        structures. Currently, we offer <code>Zend_Dom_Query</code>, which
+        provides a unified interface for querying DOM documents utilizing both
+        XPath and CSS selectors.
+    </para>
+</sect1>
+<!--
+vim:se ts=4 sw=4 et:
+-->

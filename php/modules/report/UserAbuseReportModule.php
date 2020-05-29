@@ -23,13 +23,18 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use DB\OzoneUserPeer;
+
 class UserAbuseReportModule extends SmartyModule {
 	
 	public function build($runData){
 		$pl = $runData->getParameterList();
 		$userId = $pl->getParameterValue("userId");
 		
-		$user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+		$user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
 		$runData->contextAdd("user", $user);
 		
 		$site =  $runData->getTemp("site");

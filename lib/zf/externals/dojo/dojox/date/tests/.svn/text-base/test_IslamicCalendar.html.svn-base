@@ -1,0 +1,340 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<title>Islamic Calendar Widget Test</title>
+		<style type="text/css">
+			@import "../../../dojo/resources/dojo.css";
+			@import "../../../dijit/tests/css/dijitTests.css";
+		</style>
+
+		<!-- required: a default theme file -->
+		<link rel="stylesheet" id="themeStyles" href="../../../dijit/themes/tundra/tundra.css">
+
+		<!-- required: dojo.js -->		
+		<script type="text/javascript" src="../../../dojo/dojo.js" djConfig="parseOnLoad: true, isDebug: true, extraLocale: ['ar']"></script>
+
+		<!-- do not use! only or testing dynamic themes: -->
+		<script type="text/javascript" src="../../../dijit/tests/_testCommon.js"></script>
+
+		<script type="text/javascript">
+
+			dojo.require("dojo.parser"); // scan page for widgets
+
+			dojo.require("dojo.cldr.supplemental");
+//			dojo.require("dojo.date");
+			dojo.require("dojo.date.locale");
+			dojo.require("dojox.date.IslamicDate");
+//			dojo.requireLocalization("dojo.cldr", "islamic");
+			dojo.require("dijit._Calendar");
+
+dojo.declare(
+	"dojox.date._IslamicCalendar",
+	[dijit._Widget, dijit._Templated],
+	{
+	//	
+	//	summary:
+	//		A simple GUI for choosing a date in the context of a monthly calendar.
+	//
+	//	description:
+	//		A simple GUI for choosing a date in the context of a monthly calendar.
+	//		This widget is used internally by other widgets and is not accessible
+	//		as a standalone widget.
+	//		This widget can't be used in a form because it doesn't serialize the date to an
+	//		`<input>` field.  For a form element, use dijit.form.DateTextBox instead.
+	//
+	//		Note that the parser takes all dates attributes passed in the
+	//		[RFC 3339 format](http://www.faqs.org/rfcs/rfc3339.html), e.g. `2005-06-30T08:05:00-07:00`
+	//		so that they are serializable and locale-independent.
+	//
+	//	example:
+	//	|	var calendar = new dojox.date._IslamicCalendar({}, dojo.byId("calendarNode"));
+	//
+	//	example:
+	//	|	<div dojoType="dojox.date._IslamicCalendar"></div>
+	//	
+		templatePath: dojo.moduleUrl("dijit", "templates/Calendar.html"),
+
+		// value: Date
+		// 	the currently selected Date
+		value: new dojox.date.IslamicDate(),
+
+		// dayWidth: String
+		// 	How to represent the days of the week in the calendar header. See dojo.date.locale
+		dayWidth: "narrow",
+
+		setValue: function(/*Date*/ value){
+
+			// summary: set the current date and update the UI.  If the date is disabled, the selection will
+			//	not change, but the display will change to the corresponding month.
+			if(!this.value || (Number(value)!=Number(value))){
+				value = new dojox.date.IslamicDate(value.getFullYear(),value.getMonth(), value.getDate());
+				this.displayMonth = new dojox.date.IslamicDate(value.getFullYear(),value.getMonth(), value.getDate());
+				if(!this.isDisabledDate(value, this.lang)){
+					this.value = value;
+					this.value.setHours(0,0,0,0);
+					this.onChange(this.value);
+				}
+				this._populateGrid();
+			}
+		},
+
+		_setText: function(node, text){
+			while(node.firstChild){
+				node.removeChild(node.firstChild);
+			}
+			node.appendChild(dojo.doc.createTextNode(text));
+		},
+
+		_populateGrid: function(){
+			var month = this.displayMonth;
+
+			month.setDate(1);
+			var firstDay = month.getDay();
+			var daysInMonth = dojox.date.IslamicDate.getDaysInIslamicMonth(month);
+			var preMonth = new dojox.date.IslamicDate(month.getFullYear(),(month.getMonth()-1), month.getDate());
+			var daysInPreviousMonth = dojox.date.IslamicDate.getDaysInIslamicMonth(preMonth);
+			var today = new dojox.date.IslamicDate();
+			today.setHours(0,0,0,0);
+			var selected = this.value;
+
+			var dayOffset = dojo.cldr.supplemental.getFirstDayOfWeek(this.lang);
+			if(dayOffset > firstDay){ dayOffset -= 7; }
+
+			// Iterate through dates in the calendar and fill in date numbers and style info
+			dojo.query(".dijitCalendarDateTemplate", this.domNode).forEach(function(template, i){
+				i += dayOffset;
+				var date = new dojox.date.IslamicDate(month.getFullYear(),month.getMonth(), month.getDate());
+				var number, clazz = "dijitCalendar", adj = 0;
+
+				if(i < firstDay){
+					number = daysInPreviousMonth - firstDay + i + 1;
+					adj = -1;
+					clazz += "Previous";
+				}else if(i >= (firstDay + daysInMonth)){
+					number = i - firstDay - daysInMonth + 1;
+					adj = 1;
+					clazz += "Next";
+				}else{
+					number = i - firstDay + 1;
+					clazz += "Current";
+				}
+
+				if(adj){
+					date.setMonth(date.getMonth()+adj);
+				}
+				date.setDate(number);
+
+				if(Number(date)==Number(today)){
+					clazz = "dijitCalendarCurrentDate " + clazz;
+				}
+
+				if(Number(date)==Number(selected)){
+					clazz = "dijitCalendarSelectedDate " + clazz;
+				}
+
+				if(this.isDisabledDate(date, this.lang)){
+					clazz = "dijitCalendarDisabledDate " + clazz;
+				}
+
+				var clazz2 = this.getClassForDate(date, this.lang);
+				if(clazz2){
+					clazz += clazz2 + " " + clazz;
+				}
+
+				template.className =  clazz + "Month dijitCalendarDateTemplate";
+				template.dijitDateValue = date.valueOf();
+				var label = dojo.query(".dijitCalendarDateLabel", template)[0];
+				this._setText(label, date.getDate());
+			}, this);
+
+			// Fill in localized month name
+			var monthNames = dojox.date.IslamicDate._getNames('months', 'wide', 'format',this.lang);
+			this._setText(this.monthLabelNode, monthNames[month.getMonth()]);
+
+			// Fill in localized prev/current/next years
+			var y = month.getFullYear() - 1;
+			var d = new dojox.date.IslamicDate();
+			dojo.forEach(["previous", "current", "next"], function(name){
+				d.setYear(y++);
+				this._setText(this[name+"YearLabelNode"],
+					dojo.date.locale.format(d, {selector:'year', locale:this.lang}));
+			}, this);
+
+			// Set up repeating mouse behavior
+			var _this = this;
+			var typematic = function(nodeProp, dateProp, adj){
+				dijit.typematic.addMouseListener(_this[nodeProp], _this, function(count){
+					if(count >= 0){ _this._adjustDisplay(dateProp, adj); }
+				}, 0.8, 500);
+			};
+			typematic("incrementMonth", "month", 1);
+			typematic("decrementMonth", "month", -1);
+			typematic("nextYearLabelNode", "year", 1);
+			typematic("previousYearLabelNode", "year", -1);
+		},
+
+		goToToday: function(){
+			this.setValue(new dojox.date.IslamicDate());
+		},
+
+		postCreate: function(){
+			this.inherited(arguments);
+			
+			var cloneClass = dojo.hitch(this, function(clazz, n){
+				var template = dojo.query(clazz, this.domNode)[0];
+	 			for(var i=0; i<n; i++){
+					template.parentNode.appendChild(template.cloneNode(true));
+				}
+			});
+
+			// clone the day label and calendar day templates 6 times to make 7 columns
+			cloneClass(".dijitCalendarDayLabelTemplate", 6);
+			cloneClass(".dijitCalendarDateTemplate", 6);
+
+			// now make 6 week rows
+			cloneClass(".dijitCalendarWeekTemplate", 5);
+
+			// insert localized day names in the header
+			var dayNames = dojox.date.IslamicDate._getNames('days', this.dayWidth, 'standAlone', this.lang);
+			var dayOffset = dojo.cldr.supplemental.getFirstDayOfWeek(this.lang);
+			dojo.query(".dijitCalendarDayLabel", this.domNode).forEach(function(label, i){
+				this._setText(label, dayNames[(i + dayOffset) % 7]);
+			}, this);
+
+			// Fill in spacer element with all the month names (invisible) so that the maximum width will affect layout
+			var monthNames = dojox.date.IslamicDate._getNames('months', 'wide', 'format', this.lang);
+
+			dojo.forEach(monthNames, function(name){
+				var monthSpacer = dojo.doc.createElement("div");
+				this._setText(monthSpacer, name);
+				this.monthLabelSpacer.appendChild(monthSpacer);
+			}, this);
+
+			this.value = null;
+			this.setValue(new dojox.date.IslamicDate());
+		},
+
+		_adjustDisplay: function(/*String*/part, /*int*/amount){
+			switch(part){
+			case "month":
+				this.displayMonth.setMonth(this.displayMonth.getMonth()+amount);
+				break;
+			case "year":
+				this.displayMonth.setYear(this.displayMonth.getFullYear()+amount);
+				break;
+			}
+			
+			this._populateGrid();
+		},
+
+		_onDayClick: function(/*Event*/evt){
+			var node = evt.target;
+			dojo.stopEvent(evt);
+			while(!node.dijitDateValue){
+				node = node.parentNode;
+			}
+			if(!dojo.hasClass(node, "dijitCalendarDisabledDate")){
+				this.setValue(node.dijitDateValue);
+				this.onValueSelected(this.value);
+			}
+		},
+
+		_onDayMouseOver: function(/*Event*/evt){
+			var node = evt.target;
+			if(node && (node.dijitDateValue || node == this.previousYearLabelNode || node == this.nextYearLabelNode) ){
+				dojo.addClass(node, "dijitCalendarHoveredDate");
+				this._currentNode = node;
+			}
+		},
+
+		_onDayMouseOut: function(/*Event*/evt){
+			if(!this._currentNode){ return; }
+			for(var node = evt.relatedTarget; node;){
+				if(node == this._currentNode){ return; }
+				try{
+					node = node.parentNode;
+				}catch(x){
+					node = null;
+				}
+			}
+			dojo.removeClass(this._currentNode, "dijitCalendarHoveredDate");
+			this._currentNode = null;
+		},
+
+		onValueSelected: function(/*Date*/date){
+			// summary: a date cell was selected.  It may be the same as the previous value.
+		},
+
+		onChange: function(/*Date*/date){
+			// summary: called only when the selected date has changed
+		},
+
+		isDisabledDate: function(/*Date*/dateObject, /*String?*/locale){
+			// summary:
+			//	May be overridden to disable certain dates in the calendar e.g. `isDisabledDate=dojo.date.locale.isWeekend`
+/*=====
+			return false; // Boolean
+=====*/
+		},
+
+		getClassForDate: function(/*Date*/dateObject, /*String?*/locale){
+			// summary:
+			//  May be overridden to return CSS classes to associate with the date entry for the given dateObject,
+			//  for example to indicate a holiday in specified locale.
+
+/*=====
+			return ""; // String
+=====*/
+		}
+	}
+);
+			dojo.addOnLoad(function(){
+				//Need to declare BigCalendar here in an addOnLoad block so that it works
+				//with xdomain loading, where the dojo.require for dojox.date._IslamicCalendar 
+				//may load asynchronously. This also means we cannot have HTML
+				//markup in the body tag for BigCalendar, but instead inject it in this
+				//onload handler after BigCalendar is defined.
+				dojo.declare("BigCalendar", dojox.date._IslamicCalendar, {
+					templatePath: "../../../dijit/tests/_altCalendar.html"
+				});
+				
+				var bigCalendar = dojo.byId("calendar5");
+				bigCalendar.setAttribute("dojoType", "BigCalendar");
+				dojo.parser.parse(bigCalendar.parentNode);
+			});
+
+			dojo.addOnLoad(function(){
+//				dojo.connect("islamicCalendar1", function(date){ dijit.byId("gregorianCalendar1").setValue(date); });
+			});
+
+			function myHandler(id,newValue){
+				console.debug("onChange for id = " + id + ", value: " + newValue);
+			}
+		</script>
+	</head>
+	<body class="tundra">
+		<h1 class="testTitle">Islamic Calendar Test</h1>
+		before <span id="islamicCalendar1" dojoType="dojox.date._IslamicCalendar" onChange="myHandler(this.id,arguments[0])"></span><span id="gregorianCalendar1" dojoType="dijit._Calendar" onChange="myHandler(this.id,arguments[0])"></span>after
+		before <input id="islamicCalendarArabic1" dojoType="dojox.date._IslamicCalendar" onChange="myHandler(this.id,arguments[0])"
+			lang="ar"><input id="gregorianCalendarArabic1" dojoType="dijit._Calendar" onChange="myHandler(this.id,arguments[0])" lang="ar">after
+		<p>Customized template with "today" button</p>
+		<style>
+			#calendar5 .dijitCalendarDateTemplate { height: 50px; width: 50px; border: 1px solid #ccc; vertical-align: top }
+			#calendar5 .dijitCalendarDateLabel, #calendar5 .dijitCalendarDateTemplate { text-align: inherit }
+			#calendar5 .dijitCalendarDayLabel { font-weight: bold }
+			#calendar5 .dijitCalendarSelectedYear { font-size: 1.5em }
+			#calendar5 .dijitCalendarMonth { font-family: serif; letter-spacing: 0.2em; font-size: 2em }
+		</style>
+		<script>
+			dojo.declare("BigCalendar", dojox.date._IslamicCalendar, {
+				templatePath: "../../../dijit/tests/_altCalendar.html"
+			});
+		</script>
+		<div> <!-- Parent div used so we have a handle to use for dojo.parser.parse after BigCalendar gets defined. -->  <!-- The input below will be replaced by BigCalendar which is defined in a dojo.addOnLoad block. -->
+			<input id="calendar5" dayWidth="abbr" value="1429-03-15" lang="ar">
+		</div> <!-- 
+		<input id="calendar5" dojoType="dojox.date._IslamicCalendar" dayWidth="abbr" templatePath="../../../dijit/tests/_altCalendar.html" value="1429-03-15">
+ -->
+	</body>
+</html>

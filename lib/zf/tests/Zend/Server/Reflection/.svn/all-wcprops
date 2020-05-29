@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Server/Reflection
+END
+ReturnValueTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Server/Reflection/ReturnValueTest.php
+END
+MethodTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Server/Reflection/MethodTest.php
+END
+ParameterTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Server/Reflection/ParameterTest.php
+END
+ClassTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Server/Reflection/ClassTest.php
+END
+FunctionTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Server/Reflection/FunctionTest.php
+END
+NodeTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Server/Reflection/NodeTest.php
+END
+PrototypeTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/framework/!svn/ver/10523/standard/trunk/tests/Zend/Server/Reflection/PrototypeTest.php
+END

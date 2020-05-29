@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/framework/!svn/ver/12664/standard/trunk/tests/Zend/Filter/File
+END
+LowerCaseTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/12664/standard/trunk/tests/Zend/Filter/File/LowerCaseTest.php
+END
+RenameTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/12541/standard/trunk/tests/Zend/Filter/File/RenameTest.php
+END
+UpperCaseTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/12664/standard/trunk/tests/Zend/Filter/File/UpperCaseTest.php
+END

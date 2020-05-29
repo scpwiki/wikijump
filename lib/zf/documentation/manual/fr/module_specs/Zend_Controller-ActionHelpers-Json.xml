@@ -1,0 +1,68 @@
+<!-- EN-Revision: 11089 -->
+<sect3 id="zend.controller.actionhelpers.json">
+    <title>JSON</title>
+
+    <para>Les réponses JSON sont les réponses de choix dans une architecture de type AJAX qui attend des données
+    structurées. JSON peut être immédiatement interprété du coté du client, ce qui rend la tâche plus simple et plus
+    rapide.</para>
+
+    <para>L'aide d'action JSON effectue plusieurs traitements :</para>
+
+    <itemizedlist>
+        <listitem>
+            <para>Désactive les layouts si elles sont activées.</para>
+        </listitem>
+
+        <listitem>
+            <para>Désactive le ViewRenderer s'il est activé.</para>
+        </listitem>
+
+        <listitem>
+            <para>Envoie à la réponse un en-tête 'Content-Type' à 'application/json'.</para>
+        </listitem>
+
+        <listitem>
+            <para>Par défaut, retourne immédiatement la réponse, sans attendre la fin de l'exécution de l'action.</para>
+        </listitem>
+    </itemizedlist>
+
+    <para>Son utilisation est toute simple, appelez le depuis le gestionnaire d'aides (Broker), ou appelez une de ses
+    méthodes <code>encodeJson()</code> ou <code>sendJson()</code>:</para>
+
+    <programlisting role="php"><![CDATA[
+class FooController extends Zend_Controller_Action
+{
+    public function barAction()
+    {
+        // Effectue des traitements ici ...
+        // Envoie la réponse JSON :
+        $this->_helper->json($data);
+
+        // ou...
+        $this->_helper->json->sendJson($data);
+
+        // ou retourne la chaine json:
+        $json = $this->_helper->json->encodeJson($data);
+    }
+}
+]]></programlisting>
+
+    <note>
+        <title>Conserver les Layouts</title>
+
+        <para>Si vous avez besoin des layouts, pour par exemple générer vos réponses JSON dans un contexte particulier,
+        chaque méthode de l'aide JSON accepte un second paramètre booléen. A <code>true</code>, les layouts resteront
+        activées (par défaut à <code>false</code>) :</para>
+
+        <programlisting role="php"><![CDATA[
+class FooController extends Zend_Controller_Action
+{
+    public function barAction()
+    {
+        // Récupère la chaine JSON, en laissant les layouts activés :
+        $json = $this->_helper->json->encodeJson($data, true);
+    }
+}
+]]></programlisting>
+    </note>
+</sect3>

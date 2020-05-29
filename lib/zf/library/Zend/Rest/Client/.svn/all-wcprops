@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/framework/!svn/ver/12365/standard/trunk/library/Zend/Rest/Client
+END
+Exception.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Rest/Client/Exception.php
+END
+Result.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/12365/standard/trunk/library/Zend/Rest/Client/Result.php
+END

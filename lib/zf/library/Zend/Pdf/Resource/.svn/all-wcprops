@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/framework/!svn/ver/13211/standard/trunk/library/Zend/Pdf/Resource
+END
+ImageFactory.php
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Pdf/Resource/ImageFactory.php
+END
+Image.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Pdf/Resource/Image.php
+END
+Font.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/13211/standard/trunk/library/Zend/Pdf/Resource/Font.php
+END

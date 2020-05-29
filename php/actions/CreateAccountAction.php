@@ -23,6 +23,26 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyAction;
+use \ProcessException;
+use \CryptUtils;
+use \WDStringUtils;
+use Criteria;
+use DB\OzoneUserPeer;
+use OzoneEmail;
+use Database;
+use DB\OzoneUser;
+use ODate;
+use DB\Profile;
+use DB\UserSettings;
+use DB\SitePeer;
+use DB\CategoryPeer;
+use \Duplicator;
+use DB\PagePeer;
+use \Outdater;
+
 class CreateAccountAction extends SmartyAction {
 
 	public static $forbiddenUnixNames = array(
@@ -117,7 +137,7 @@ class CreateAccountAction extends SmartyAction {
 			// check if user does not exist
 			$c = new Criteria();
 			$c->add("unix_name", $unixified);
-			$u = DB_OzoneUserPeer::instance()->selectOne($c);
+			$u = OzoneUserPeer::instance()->selectOne($c);
 			if($u != null){
 				$errors['name'] = _("A user with this screen name (or very similar) already exists.");
 			}	
@@ -134,7 +154,7 @@ class CreateAccountAction extends SmartyAction {
 			// check if email is unique
 			$c = new Criteria();
 			$c->add("lower(email)", strtolower($email));
-			$u = DB_OzoneUserPeer::instance()->selectOne($c);	
+			$u = OzoneUserPeer::instance()->selectOne($c);	
 			if($u != null){
 				$errors['email'] = _("A user with this email already exists.");
 			}
@@ -270,7 +290,7 @@ class CreateAccountAction extends SmartyAction {
 		
 		$c = new Criteria();
 		$c->add("lower(email)", strtolower($email));
-		$u = DB_OzoneUserPeer::instance()->selectOne($c);	
+		$u = OzoneUserPeer::instance()->selectOne($c);	
 		if($u != null){
 			$runData->resetSession();
 			throw new ProcessException(_("A user with this email already exists. Must have been created meanwhile... " .
@@ -280,7 +300,7 @@ class CreateAccountAction extends SmartyAction {
 		$unixified = WDStringUtils::toUnixName($name);
 		$c = new Criteria();
 		$c->add("unix_name", $unixified);
-		$u = DB_OzoneUserPeer::instance()->selectOne($c);
+		$u = OzoneUserPeer::instance()->selectOne($c);
 		if($u != null){
 			$runData->resetSession();
 			throw new ProcessException(_("A user with this name (or very similar) already exists. Must have been created meanwhile... " .
@@ -289,7 +309,7 @@ class CreateAccountAction extends SmartyAction {
 
 		// add new user!!!
 
-		$nuser = new DB_OzoneUser();
+		$nuser = new OzoneUser();
 		/* email as the username!!! */
 		$nuser->setName($email);
 		$nuser->setEmail($email);
@@ -308,11 +328,11 @@ class CreateAccountAction extends SmartyAction {
 
 		// profile
 		
-		$profile = new DB_Profile();
+		$profile = new Profile();
 		$profile->setUserId($nuser->getUserId());
 		$profile->save();
 		
-		$us = new DB_UserSettings();
+		$us = new UserSettings();
 		$us->setUserId($nuser->getUserId());
 		$us->save();
 		
@@ -320,20 +340,20 @@ class CreateAccountAction extends SmartyAction {
 		
 		$c = new Criteria();
 		$c->add("unix_name", "template-en");
-		$tsite = DB_SitePeer::instance()->selectOne($c);
+		$tsite = SitePeer::instance()->selectOne($c);
 		
 		$c = new Criteria();
 		$c->add("unix_name", "profiles");
-		$nsite = DB_SitePeer::instance()->selectOne($c);
-		$ncategory = DB_CategoryPeer::instance()->selectByName('profile', $nsite->getSiteId());
+		$nsite = SitePeer::instance()->selectOne($c);
+		$ncategory = CategoryPeer::instance()->selectByName('profile', $nsite->getSiteId());
 
 		$dup = new Duplicator;
 		$dup->setOwner($nuser);
 		
-		$dup->duplicatePage(DB_PagePeer::instance()->selectByName($tsite->getSiteId(), 'profile:template'),
+		$dup->duplicatePage(PagePeer::instance()->selectByName($tsite->getSiteId(), 'profile:template'),
 					$nsite,  $ncategory, 'profile:'.$nuser->getUnixName());
 		
-		$page = DB_PagePeer::instance()->selectByName($nsite->getSiteId(), 'profile:'.$nuser->getUnixName());
+		$page = PagePeer::instance()->selectByName($nsite->getSiteId(), 'profile:'.$nuser->getUnixName());
 		
 		$ou = new Outdater();
 		$ou->pageEvent('new_page', $page);

@@ -1,0 +1,73 @@
+<!-- EN-Revision: 12116 -->
+<sect1 id="zend.gdata.exception">
+    <title>Attraper les exceptions Gdata</title>
+
+    <para>La classe <code>Zend_Gdata_App_Exception</code> est la classe de base de toutes les exceptions envoyées par
+    les composants Gdata.</para>
+
+    <programlisting role="php"><![CDATA[
+try {
+    $client =
+        Zend_Gdata_ClientLogin::getHttpClient($username, $password);
+} catch(Zend_Gdata_App_Exception $ex) {
+    // Affiche l'exception à l'utilisateur
+    die($ex->getMessage());
+}
+]]></programlisting>
+
+    <para>Voici les sous classes exception utilisées dans Zend_Gdata: <itemizedlist>
+            <listitem>
+                <para><code>Zend_Gdata_App_AuthException</code> indique que les identifiants du compte utilisateur sont
+                erronés.</para>
+            </listitem>
+
+            <listitem>
+                <para><code>Zend_Gdata_App_BadMethodCallException</code> est levée lorsque vous tentez d'utiliser une
+                méthode sur un service qui ne l'implémente pas. Par exemple, le service CodeSearch ne supporte pas la
+                méthode <code>post()</code>.</para>
+            </listitem>
+
+            <listitem>
+                <para><code>Zend_Gdata_App_HttpException</code> indique un échec de requête HTTP. Cette exception vous
+                donne le moyen de récupérer la réponse <code>Zend_Http_Response</code> entière pour déterminer la cause
+                exacte de l'erreur, alors que <code>$e-&gt;getMessage()</code> ne montre pas autant de détails.</para>
+            </listitem>
+
+            <listitem>
+                <para><code>Zend_Gdata_App_InvalidArgumentException</code> est envoyée lorsque l'application envoie une
+                valeur non attendue. Par exemple spécifier la visibilité d'un calendrier à "banane", ou récupérer le
+                flux d'un blog Blogger sans spécifier le nom du blog en question.</para>
+            </listitem>
+
+            <listitem>
+                <para><code>Zend_Gdata_App_CaptchaRequiredException</code> est envoyée lorsqu'une tentative de
+                ClientLogin reçoit un challenge <trademark>CAPTCHA</trademark> depuis le service d'authentification.
+                Cette exception contient un jeton ID et une URL vers une image <trademark>CAPTCHA</trademark> . Cette
+                image est un puzzle visuel qui devrait être retournée à l'utilisateur du service. Après récupération de
+                la réponse de l'utilisateur, celle-ci peut être incluse lors du ClientLogin suivant. L'utilisateur peut
+                aussi alternativement être redirigé vers ce site : <ulink
+                url="https://www.google.com/accounts/DisplayUnlockCaptcha"></ulink>. De plus amples informations peuvent
+                être trouvées dans <link linkend="zend.gdata.clientlogin">la documentation du ClientLogin</link>.</para>
+            </listitem>
+        </itemizedlist></para>
+
+    <para>Vous pouvez ainsi utiliser ces sous-classes d'exceptions pour les gérer chacune différemment. Référez vous à
+    l'API pour savoir quel composant Zend_Gdata envoie quel type d'exception.</para>
+
+    <programlisting role="php"><![CDATA[
+try {
+    $client =
+        Zend_Gdata_ClientLogin::getHttpClient($username,
+                                              $password,
+                                              $service);
+} catch(Zend_Gdata_App_AuthException $authEx) {
+    // identifiants fournis incorrects
+    // Vous pourriez par exemple offrir une
+    // seconde chance à l'utilisateur ici
+    ...
+} catch(Zend_Gdata_App_HttpException $httpEx) {
+    // les serveurs Google Data sont injoignables
+    die($httpEx->getMessage);
+}
+]]></programlisting>
+</sect1>

@@ -1,0 +1,125 @@
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/src/!svn/ver/15393/branches/1.2/dojox/fx/tests
+END
+test_sizeTo.html
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/src/!svn/ver/15393/branches/1.2/dojox/fx/tests/test_sizeTo.html
+END
+example_backgroundPosition.html
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/src/!svn/ver/15393/branches/1.2/dojox/fx/tests/example_backgroundPosition.html
+END
+_base.js
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/src/!svn/ver/15393/branches/1.2/dojox/fx/tests/_base.js
+END
+test_text.html
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/src/!svn/ver/15393/branches/1.2/dojox/fx/tests/test_text.html
+END
+test_Shadow.html
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/src/!svn/ver/15393/branches/1.2/dojox/fx/tests/test_Shadow.html
+END
+runTests.html
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/src/!svn/ver/15393/branches/1.2/dojox/fx/tests/runTests.html
+END
+example_dojoAnimations.html
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/src/!svn/ver/15393/branches/1.2/dojox/fx/tests/example_dojoAnimations.html
+END
+example_easingChart2D.html
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/src/!svn/ver/15393/branches/1.2/dojox/fx/tests/example_easingChart2D.html
+END
+test_flip.html
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/src/!svn/ver/15393/branches/1.2/dojox/fx/tests/test_flip.html
+END
+test_split.html
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/src/!svn/ver/15393/branches/1.2/dojox/fx/tests/test_split.html
+END
+test_slideBy.html
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/src/!svn/ver/15393/branches/1.2/dojox/fx/tests/test_slideBy.html
+END
+test_Nodelist-fx.html
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/src/!svn/ver/15393/branches/1.2/dojox/fx/tests/test_Nodelist-fx.html
+END
+test_scroll.html
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/src/!svn/ver/15393/branches/1.2/dojox/fx/tests/test_scroll.html
+END
+_animation.css
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/src/!svn/ver/15393/branches/1.2/dojox/fx/tests/_animation.css
+END
+example_Line.html
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/src/!svn/ver/15393/branches/1.2/dojox/fx/tests/example_Line.html
+END
+test_animateClass.html
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/src/!svn/ver/15393/branches/1.2/dojox/fx/tests/test_animateClass.html
+END
+test_easing.html
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/src/!svn/ver/15393/branches/1.2/dojox/fx/tests/test_easing.html
+END
+test_highlight.html
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/src/!svn/ver/15393/branches/1.2/dojox/fx/tests/test_highlight.html
+END
+test_wipeTo.html
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/src/!svn/ver/15393/branches/1.2/dojox/fx/tests/test_wipeTo.html
+END
+test_crossFade.html
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/src/!svn/ver/15393/branches/1.2/dojox/fx/tests/test_crossFade.html
+END

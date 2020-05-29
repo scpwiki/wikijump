@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/framework/!svn/ver/11561/standard/trunk/library/Zend/Db/Profiler
+END
+Exception.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Db/Profiler/Exception.php
+END
+Firebug.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/framework/!svn/ver/11561/standard/trunk/library/Zend/Db/Profiler/Firebug.php
+END
+Query.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Db/Profiler/Query.php
+END

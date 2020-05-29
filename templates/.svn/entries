@@ -1,0 +1,46 @@
+8
+
+dir
+393
+http://svn.wikidot.org/repos/wikidot1/trunk/templates
+http://svn.wikidot.org/repos
+
+
+
+2008-12-19T13:56:42.326329Z
+377
+quake
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+fb797968-1a05-43ef-ab23-0011a79c62e5
+
+layouts
+dir
+
+screens
+dir
+
+macros
+dir
+
+modules
+dir
+
+emails
+dir
+
+misc
+dir
+

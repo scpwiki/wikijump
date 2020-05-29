@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \SmartyLocalizedModule;
+use Criteria;
+use DB\ForumPostPeer;
+
 class UserRecentPostsListModule extends SmartyLocalizedModule {
 	
 	public function build($runData){
@@ -67,7 +73,7 @@ class UserRecentPostsListModule extends SmartyLocalizedModule {
 		$c->add("site.deleted", false);
 		$c->addOrderDescending("post_id");
 		$c->setLimit($count, $offset);
-		$posts = DB_ForumPostPeer::instance()->select($c);
+		$posts = ForumPostPeer::instance()->select($c);
 		
 		$counted = count($posts);
 		$pagerData = array();

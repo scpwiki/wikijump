@@ -1,0 +1,19 @@
+<!-- EN-Revision: 10934 -->
+<sect1 id="zend.mail.additional-headers">
+    <title>Entêtes additionnelles</title>
+
+    <para>Des entêtes arbitraires peuvent être définies en utilisant la méthode <code>addHeader()</code>. Elle a besoin
+    de deux paramètres contenant le nom et la valeur du champ d'en-tête. Un troisième paramètre optionnel détermine si
+    l'entête doit avoir une ou plusieurs valeurs :</para>
+
+    <example id="zend.mail.additional-headers.example-1">
+        <title>Ajouter des entêtes à l'émail</title>
+
+        <programlisting role="php"><![CDATA[
+$mail = new Zend_Mail();
+$mail->addHeader('X-MailGenerator', 'MaSuperApplication');
+$mail->addHeader('X-greetingsTo', 'Maman', true); // plusieurs valeurs
+$mail->addHeader('X-greetingsTo', 'Papa', true);
+]]></programlisting>
+    </example>
+</sect1>

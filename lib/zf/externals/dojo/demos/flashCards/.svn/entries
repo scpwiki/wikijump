@@ -1,0 +1,99 @@
+8
+
+dir
+16215
+http://svn.dojotoolkit.org/src/branches/1.2/demos/flashCards
+http://svn.dojotoolkit.org/src
+
+
+
+2008-10-01T20:09:09.542873Z
+15377
+BryanForbes
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+560b804f-0ae3-0310-86f3-f6aa0a117693
+
+src.js
+file
+
+
+
+
+2008-12-06T16:41:55.000000Z
+0d612c32fff77876d1ca6fe79101345f
+2008-10-01T20:09:09.542873Z
+15377
+BryanForbes
+has-props
+
+images
+dir
+
+src
+dir
+
+demo.html
+file
+
+
+
+
+2008-12-06T16:41:55.000000Z
+e6384256790239c399513ca007da46f2
+2008-10-01T20:09:09.542873Z
+15377
+BryanForbes
+has-props
+
+demo.css
+file
+
+
+
+
+2008-12-06T16:41:55.000000Z
+fece868f4bb79c5387fcee992df3e653
+2008-10-01T20:09:09.542873Z
+15377
+BryanForbes
+has-props
+
+README
+file
+
+
+
+
+2008-12-06T16:41:55.000000Z
+1703147902b5ecb315b2a9e6cd451da3
+2008-10-01T20:09:09.542873Z
+15377
+BryanForbes
+has-props
+
+demo.profile.js
+file
+
+
+
+
+2008-12-06T16:41:55.000000Z
+da6b5c93ccd02e68fc70075d3568995e
+2008-10-01T20:09:09.542873Z
+15377
+BryanForbes
+has-props
+

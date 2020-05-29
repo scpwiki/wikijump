@@ -23,6 +23,10 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyScreen;
+
 class Captcha extends SmartyScreen {
 
 	private $lx = 100;

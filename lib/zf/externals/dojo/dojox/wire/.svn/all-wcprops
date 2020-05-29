@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/src/!svn/ver/15393/branches/1.2/dojox/wire
+END
+TextAdapter.js
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/src/!svn/ver/15393/branches/1.2/dojox/wire/TextAdapter.js
+END
+Wire.js
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/src/!svn/ver/15393/branches/1.2/dojox/wire/Wire.js
+END
+XmlWire.js
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/src/!svn/ver/15393/branches/1.2/dojox/wire/XmlWire.js
+END
+TableAdapter.js
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/src/!svn/ver/15393/branches/1.2/dojox/wire/TableAdapter.js
+END
+CompositeWire.js
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/src/!svn/ver/15393/branches/1.2/dojox/wire/CompositeWire.js
+END
+_base.js
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/src/!svn/ver/15393/branches/1.2/dojox/wire/_base.js
+END
+DataWire.js
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/src/!svn/ver/15393/branches/1.2/dojox/wire/DataWire.js
+END
+TreeAdapter.js
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/src/!svn/ver/15393/branches/1.2/dojox/wire/TreeAdapter.js
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/src/!svn/ver/15393/branches/1.2/dojox/wire/README
+END

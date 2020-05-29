@@ -1,0 +1,44 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Auth
+http://framework.zend.com/svn/framework
+
+
+
+2008-11-28T17:53:44.407128Z
+12936
+dmitry
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+Adapter
+dir
+
+AllTests.php
+file
+
+
+
+
+2008-12-06T16:40:28.000000Z
+ee2a9ed55e1a89e868ba26bacb23d362
+2008-11-25T18:06:14.528499Z
+12831
+matthew
+has-props
+

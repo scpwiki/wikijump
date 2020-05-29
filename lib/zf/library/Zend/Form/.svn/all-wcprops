@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/framework/!svn/ver/13090/standard/trunk/library/Zend/Form
+END
+Element.php
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/framework/!svn/ver/12786/standard/trunk/library/Zend/Form/Element.php
+END
+SubForm.php
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Form/SubForm.php
+END
+Exception.php
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Form/Exception.php
+END
+DisplayGroup.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/framework/!svn/ver/12786/standard/trunk/library/Zend/Form/DisplayGroup.php
+END

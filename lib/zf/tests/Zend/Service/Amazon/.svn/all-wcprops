@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/framework/!svn/ver/12667/standard/trunk/tests/Zend/Service/Amazon
+END
+AllTests.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Service/Amazon/AllTests.php
+END
+OfflineTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/framework/!svn/ver/12667/standard/trunk/tests/Zend/Service/Amazon/OfflineTest.php
+END
+OnlineTest.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/11973/standard/trunk/tests/Zend/Service/Amazon/OnlineTest.php
+END

@@ -1,0 +1,40 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Service/Amazon/_files
+http://framework.zend.com/svn/framework
+
+
+
+2008-11-15T16:41:02.126893Z
+12666
+beberlei
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+mozart_result.xml
+file
+
+
+
+
+2008-12-06T16:40:21.000000Z
+ff1a37807cffd260faab85adba09075a
+2008-11-15T16:41:02.126893Z
+12666
+beberlei
+

@@ -23,6 +23,13 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \AccountBaseModule;
+use Criteria;
+use DB\ContactPeer;
+use Database;
+
 class AccountContactsModule extends AccountBaseModule {
 
     public function build($runData) {
@@ -35,7 +42,7 @@ class AccountContactsModule extends AccountBaseModule {
         $c->addJoin("target_user_id", "ozone_user.user_id");
         $c->addOrderAscending("ozone_user.nick_name");
         
-        $contacts = DB_ContactPeer::instance()->select($c);
+        $contacts = ContactPeer::instance()->select($c);
         
         if (true || count($contacts) > 0) {
             // get the list who contacts you back to display emails.

@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \CacheableModule;
+use Criteria;
+use DB\SitePeer;
+
 class SitesListByTagModule extends CacheableModule {
 	
 	protected $timeOut=300;
@@ -59,7 +65,7 @@ class SitesListByTagModule extends CacheableModule {
 		$c->add("site_tag.site_id", "site.site_id", "=", false);
 		$c->addOrderAscending('site.name');
 		
-		$sites = DB_SitePeer::instance()->select($c);
+		$sites = SitePeer::instance()->select($c);
 		
 	//	$q = "SELECT site.* FROM site, tag WHERE tag.tag = '".db_escape_string($tag")."'
 		

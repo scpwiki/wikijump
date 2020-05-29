@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/framework/!svn/ver/13095/standard/trunk/library/Zend/Db/Adapter/Pdo
+END
+Oci.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/13095/standard/trunk/library/Zend/Db/Adapter/Pdo/Oci.php
+END
+Mssql.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/12960/standard/trunk/library/Zend/Db/Adapter/Pdo/Mssql.php
+END
+Sqlite.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Db/Adapter/Pdo/Sqlite.php
+END
+Abstract.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/framework/!svn/ver/12978/standard/trunk/library/Zend/Db/Adapter/Pdo/Abstract.php
+END
+Mysql.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/12788/standard/trunk/library/Zend/Db/Adapter/Pdo/Mysql.php
+END
+Pgsql.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/framework/!svn/ver/10523/standard/trunk/library/Zend/Db/Adapter/Pdo/Pgsql.php
+END
+Ibm.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/framework/!svn/ver/12958/standard/trunk/library/Zend/Db/Adapter/Pdo/Ibm.php
+END

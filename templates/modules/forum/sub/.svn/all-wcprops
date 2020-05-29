@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/repos/!svn/ver/96/wikidot1/trunk/templates/modules/forum/sub
+END
+ForumNewPostFormModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/forum/sub/ForumNewPostFormModule.tpl
+END
+ForumEditThreadMetaModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/forum/sub/ForumEditThreadMetaModule.tpl
+END
+ForumPostRevisionModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/forum/sub/ForumPostRevisionModule.tpl
+END
+ForumPostRevisionsModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/forum/sub/ForumPostRevisionsModule.tpl
+END
+ForumDeletePostModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/forum/sub/ForumDeletePostModule.tpl
+END
+ForumEditThreadBlockModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/forum/sub/ForumEditThreadBlockModule.tpl
+END
+ForumEditThreadStickinessModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/repos/!svn/ver/2/wikidot1/trunk/templates/modules/forum/sub/ForumEditThreadStickinessModule.tpl
+END
+ForumThreadMoveModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/repos/!svn/ver/96/wikidot1/trunk/templates/modules/forum/sub/ForumThreadMoveModule.tpl
+END
+ForumEditPostFormModule.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/repos/!svn/ver/45/wikidot1/trunk/templates/modules/forum/sub/ForumEditPostFormModule.tpl
+END

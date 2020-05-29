@@ -23,6 +23,14 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use \WDPermissionException;
+use \ProcessException;
+use Criteria;
+use DB\PageAbuseFlagPeer;
+
 class FlagPageModule extends SmartyModule {
 	
 	public function isAllowed($runData){
@@ -48,7 +56,7 @@ class FlagPageModule extends SmartyModule {
 		$c->add("site_id", $site->getSiteId());
 		$c->add("path", $path);
 		
-		$flag = DB_PageAbuseFlagPeer::instance()->selectOne($c);
+		$flag = PageAbuseFlagPeer::instance()->selectOne($c);
 		
 		if($flag){
 			$runData->contextAdd("flagged", true);	

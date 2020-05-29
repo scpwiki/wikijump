@@ -1,0 +1,41 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/library/Zend/OpenId/Consumer/Storage
+http://framework.zend.com/svn/framework
+
+
+
+2008-12-01T12:54:06.228003Z
+12969
+dmitry
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+File.php
+file
+
+
+
+
+2008-12-06T16:40:34.000000Z
+260e3486b50cd3ab0668973db501552f
+2008-12-01T12:54:06.228003Z
+12969
+dmitry
+has-props
+

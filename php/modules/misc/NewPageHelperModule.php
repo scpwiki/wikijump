@@ -23,6 +23,13 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use SmartyModule;
+use \WDStringUtils;
+use \ProcessException;
+use DB\PagePeer;
+
 class NewPageHelperModule extends SmartyModule {
 	
 	public function build($runData){
@@ -47,7 +54,7 @@ class NewPageHelperModule extends SmartyModule {
 				if(!preg_match("/^template:/",$t)){
 					throw new ProcessException(sprintf(_('"%s" is not in the "template:" category.'), $t), "not_template");	
 				}
-				$page = DB_PagePeer::instance()->selectByName($site->getSiteId(), $t);	
+				$page = PagePeer::instance()->selectByName($site->getSiteId(), $t);	
 				if($page == null){
 					throw new ProcessException(sprintf(_('Template "%s" can not be found.'),$t), "no_template");
 				}

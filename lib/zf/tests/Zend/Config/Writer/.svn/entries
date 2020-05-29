@@ -1,0 +1,86 @@
+8
+
+dir
+13504
+http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Config/Writer
+http://framework.zend.com/svn/framework
+
+
+
+2008-10-31T20:32:43.631450Z
+12221
+dasprid
+has-props
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+44c647ce-9c0f-0410-b52a-842ac1e357ba
+
+AllTests.php
+file
+
+
+
+
+2008-12-06T16:40:22.000000Z
+a4ed8b81b7d408b69e5a5c612fc14b48
+2008-10-30T20:42:37.406628Z
+12204
+dasprid
+has-props
+
+files
+dir
+
+ArrayTest.php
+file
+
+
+
+
+2008-12-06T16:40:22.000000Z
+887832a0645333bc28d8381989c2fb1a
+2008-10-31T20:32:43.631450Z
+12221
+dasprid
+has-props
+
+temp
+dir
+
+IniTest.php
+file
+
+
+
+
+2008-12-06T16:40:22.000000Z
+60e749bf445f47281470d0f05bb2f277
+2008-10-31T20:32:43.631450Z
+12221
+dasprid
+has-props
+
+XmlTest.php
+file
+
+
+
+
+2008-12-06T16:40:22.000000Z
+c9ae300930ea43e8a1bb96f29ef64f2d
+2008-10-31T20:32:43.631450Z
+12221
+dasprid
+has-props
+

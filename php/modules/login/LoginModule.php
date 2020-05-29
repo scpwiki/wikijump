@@ -1,5 +1,11 @@
 <?php
-class LoginModule extends SmartyModule {
+class
+
+use SmartyModule;
+use \ProcessException;
+use DB\OzoneUserPeer;
+
+ LoginModule extends SmartyModule {
 	
 	public function build($runData){
 		
@@ -32,7 +38,7 @@ class LoginModule extends SmartyModule {
 			
 			$userId = $_COOKIE['welcome'];
 			if($userId && is_numeric($userId) && $userId >0){
-				$user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+				$user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
 			}
 			if($user == null){
 				setcookie('welcome', 'dummy', time() - 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
