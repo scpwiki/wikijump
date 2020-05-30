@@ -24,58 +24,6 @@
  */
 
 
-
-use \DatabaseConnection;
-use false;
-use __construct;
-use __destruct;
-use link;
-use pg_close;
-use getType;
-use type;
-use setServer;
-use server;
-use setPort;
-use port;
-use setUser;
-use user;
-use setPassword;
-use password;
-use setDatabase;
-use database;
-use connect;
-use ob_start;
-use GlobalProperties;
-use pg_pconnect;
-use pg_connect;
-use PGSQL_CONNECT_FORCE_NEW;
-use ob_get_clean;
-use \OzoneDatabaseException;
-use pg_query;
-use \OzoneLogger;
-use instance;
-use debug;
-use query;
-use is_array;
-use null;
-use microtime;
-use true;
-use error;
-use pg_last_error;
-use count;
-use \PgResult;
-use tableExists;
-use db_escape_string;
-use pg_fetch_assoc;
-use columnExists;
-use begin;
-use transactionStarted;
-use commit;
-use rollback;
-use lock;
-use pg_fetch_row;
-use getLink;
-
 /**
  * PostgreSQL databse connection resource.
  *
