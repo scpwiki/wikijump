@@ -1,0 +1,12 @@
+[db]
+; PostgreSQL connection parameters 
+host = localhost
+user = wikidot
+password = wikidot
+database = wikidot
+
+[main]
+port = 8080
+
+[search]
+highlight = true
