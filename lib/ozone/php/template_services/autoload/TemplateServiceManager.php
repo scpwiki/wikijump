@@ -22,6 +22,11 @@
  * @copyright Copyright (c) 2008, Wikidot Inc.
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
+
+
+use \TemplateService;
+use \PathManager;
+
 /**
  * TemplateServiceManager is a TemplateService for accessing 
  * on-demand (not autoloaded) services.

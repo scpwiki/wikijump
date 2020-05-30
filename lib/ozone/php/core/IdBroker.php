@@ -23,6 +23,11 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \Database;
+use DB\IdBrokerPeer;
+
 /**
  * Id broker utility.
  *
@@ -31,7 +36,7 @@ class IdBroker{
 
 	public function nextId($tableName){
 		$db = Database::connection();
-		$idbpeer = DB_IdBrokerPeer::instance();
+		$idbpeer = IdBrokerPeer::instance();
 		$db->begin();
 		$t = $idbpeer->selectOneByExplicitQuery("WHERE table_name = '$tableName' FOR UPDATE");
 		$index = $t->getNextFreeIndex();

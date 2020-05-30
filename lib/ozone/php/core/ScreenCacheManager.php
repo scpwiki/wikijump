@@ -23,6 +23,14 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \ScreenCacheManager as ScreenCacheManager;
+use \Criteria;
+use \ODate;
+use DB_ScreenCachePeer;
+use DB_ScreenCache;
+
 /**
  * Simple db-based screen cache manager.
  *

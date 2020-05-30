@@ -23,6 +23,11 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \PathManager;
+use Services_JSON;
+
 require_once PathManager::externalLibFile('JSON/JSON.php');
 
 /**

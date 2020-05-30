@@ -22,11 +22,19 @@
  * @copyright Copyright (c) 2008, Wikidot Inc.
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
+
+namespace DB;
+
+use DB_OzoneSessionBase;
+use \Database;
+
+
+
  
 /**
  * The Session Object
  */
-class DB_OzoneSession extends DB_OzoneSessionBase {
+class OzoneSession extends DB_OzoneSessionBase {
 
 	private $serializedData = array();
 	

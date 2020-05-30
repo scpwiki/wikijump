@@ -23,6 +23,11 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use Smarty;
+use \PathManager;
+
 define('SMARTY_DIR', WIKIDOT_ROOT.'/lib/smarty/libs/');
 require_once (SMARTY_DIR.'Smarty.class.php');
 

@@ -23,6 +23,16 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
  
+
+
+use \DBGeneratorReferencer;
+use \DBGeneratorTable;
+use \DBGeneratorView;
+use \Database;
+use \Criteria;
+use DB\IdBrokerPeer;
+use DB_IdBroker;
+
 /**
  * Database generator.
  *
@@ -117,7 +127,7 @@ class DBGeneratorDatabase {
 				$c = new Criteria();
 				$c->add('column_name', $pkColumn->getName());
 				$c->add('table_name', $table->getName());
-				$r = DB_IdBrokerPeer::instance()->selectOne($c);
+				$r = IdBrokerPeer::instance()->selectOne($c);
 				if($r == null){
 					$idbe = new DB_IdBroker();
 					$idbe->setTableName($table->getName());
@@ -129,7 +139,7 @@ class DBGeneratorDatabase {
 		}
 		
 		//in case of regeneration - update the indexes:
-		$idbp = DB_IdBrokerPeer::instance();
+		$idbp = IdBrokerPeer::instance();
 		$idbp->updateIndexes();
 			
 	}

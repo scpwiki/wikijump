@@ -1,4 +1,12 @@
 <?php 
+
+namespace DB;
+
+use DB_IdBrokerPeerBase;
+use \Database;
+
+
+
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
@@ -17,29 +25,38 @@
  * http://www.wikidot.org/license
  * 
  * @category Ozone
- * @package Ozone_Util
+ * @package Ozone_Db
  * @version $Id$
  * @copyright Copyright (c) 2008, Wikidot Inc.
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
-
+ 
 /**
- * Handles unique string services.
+ * Id broker peer class.
+ *
  */
-class DB_UniqueStringBrokerPeer extends DB_UniqueStringBrokerPeerBase {
+class IdBrokerPeer extends DB_IdBrokerPeerBase {
 
-	public function increaseIndex(){
-		$query = "UPDATE unique_string_broker SET last_index=last_index+1";
-		Database::connection()->query($query);	
+	/**
+	 * Updates internal data regarding indexes for primary keys.
+	 */
+	public function updateIndexes(){
+		$ents = $this->select();	
+		foreach ($ents as $ent){
+			// get max value of index in the database
+			$query = "SELECT MAX(".$ent->getColumnName().") AS m FROM ".$ent->getTableName(); 	
+			$db = Database::connection();
+			$result = $db->query($query);
+			$row = $result->nextRow();
+			$maxIdx = $row['m'];
+			if($maxIdx == null){ 
+				$ent->setNextFreeIndex(0);
+			} else {
+				$ent->setNextFreeIndex($maxIdx + 1);
+			}
+		
+			$ent->save();
+		}
 	}
-	
-	public function init(){
-		$query = "INSERT INTO unique_string_broker (last_index) values (0)";
-		Database::connection()->query($query);	
-	}
-	
-	public function reset(){
-		$query = "UPDATE unique_string_broker SET last_index=0";
-		Database::connection()->query($query);	
-	}
+
 }

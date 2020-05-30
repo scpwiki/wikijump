@@ -1,5 +1,16 @@
 <?php
 
+
+
+use \PageProperties;
+use \ParameterList;
+use \ModuleHelpers;
+use DB\OzoneSession;
+use \ODate;
+use \Criteria;
+use DB_OzoneSessionPeer;
+use \FormTool;
+
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
@@ -394,7 +405,7 @@ class RunData {
 			$cookieKey = GlobalProperties::$SESSION_COOKIE_NAME;
 			$sessionSecure = GlobalProperties::$SESSION_COOKIE_SECURE;
 			$cookieResult = $this->_setCookie($cookieKey, $sessionId, time() + 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN, $sessionSecure);
-			$session = new DB_OzoneSession();
+			$session = new OzoneSession();
 	
 			// set IP
 			$session->setIpAddress($this->createIpString());

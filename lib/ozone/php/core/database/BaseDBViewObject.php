@@ -23,6 +23,10 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \OzoneException;
+
 /**
  * Base object for all database OM objects representing views. It implements
  * most of the database logic - getting field valuse etc. 

@@ -23,6 +23,13 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \MyConnection;
+use \PgConnection;
+use \IdBroker;
+use \Database as Database;
+
 /**
  * Database object (class) holds the main database connection.
  */ 

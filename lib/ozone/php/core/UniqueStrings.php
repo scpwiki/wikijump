@@ -23,6 +23,12 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
  
+
+
+use \Database;
+use \Criteria;
+use DB\UniqueStringBrokerPeer;
+
 /**
  * Utility class for providing unique strings.
  *
@@ -41,15 +47,15 @@ class UniqueStrings {
  		$db->begin();
  		$c = new Criteria();
  		$c->setForUpdate(true);
- 		$index = DB_UniqueStringBrokerPeer::instance()->selectOne($c);
+ 		$index = UniqueStringBrokerPeer::instance()->selectOne($c);
  		if($index != null){
  			$idx = $index->getLastIndex();
  			$number = $idx + 1;
  			//update index + 1
- 			DB_UniqueStringBrokerPeer::instance()->increaseIndex();
+ 			UniqueStringBrokerPeer::instance()->increaseIndex();
  		} else {
  			$number = 0;
- 			DB_UniqueStringBrokerPeer::instance()->init();
+ 			UniqueStringBrokerPeer::instance()->init();
  		}
  		$db->commit();
  		// TRANSACTION OR TABLE LOCK SHOULD END HERE
@@ -57,6 +63,6 @@ class UniqueStrings {
  	}
  	
  	public static function resetCounter(){
- 		DB_UniqueStringBrokerPeer::instance()->reset();	
+ 		UniqueStringBrokerPeer::instance()->reset();	
  	}
  }

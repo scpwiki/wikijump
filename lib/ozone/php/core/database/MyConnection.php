@@ -23,6 +23,48 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
  
+
+
+use \DatabaseConnection;
+use __construct;
+use __destruct;
+use mysql_close;
+use link;
+use getType;
+use type;
+use setServer;
+use server;
+use setPort;
+use port;
+use setUser;
+use user;
+use setPassword;
+use password;
+use setDatabase;
+use database;
+use connect;
+use mysql_connect;
+use \OzoneDatabaseException;
+use mysql_error;
+use selectDatabase;
+use \OzoneLogger;
+use instance;
+use debug;
+use mysql_select_db;
+use query;
+use is_array;
+use null;
+use mysql_query;
+use Exception;
+use count;
+use \MyResult;
+use tableExists;
+use true;
+use false;
+use columnExists;
+use nextRow;
+use array_search;
+
 /**
  * MySQL database connection resource.
  *

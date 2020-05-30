@@ -23,6 +23,20 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
+
+
+use \OzoneLoggerOutput;
+use setLogFileName;
+use logFileName;
+use handleEvent;
+use array_search;
+use \OzoneLogger;
+use sprintf;
+use date;
+use fopen;
+use fwrite;
+use fclose;
+
 /**
  * File output for logger.
  *

@@ -23,6 +23,21 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
  
+
+
+use \DatabaseResult;
+use __construct;
+use result;
+use __destruct;
+use mysql_free_result;
+use nextRow;
+use mysql_fetch_array;
+use resetPosition;
+use asObjects;
+use setNew;
+use false;
+use getSize;
+
 /**
  * MySQL database query result.
  *

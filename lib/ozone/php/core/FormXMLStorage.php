@@ -23,6 +23,10 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
  
+
+
+use \PathManager;
+
 /**
  * A gelper class for XML data storage (definition) of the forms. The only
  * reason for this class is to make the Form object lighter and to store only
