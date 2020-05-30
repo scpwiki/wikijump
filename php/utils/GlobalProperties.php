@@ -23,18 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-
-
-use Exception;
-use \GlobalPropertiesException;
-use \GlobalProperties as GlobalProperties;
-
-use Exception;
-use \GlobalPropertiesException;
-use \GlobalProperties as GlobalProperties;
-
 class GlobalPropertiesException extends Exception {
 	
 }
