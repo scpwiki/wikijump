@@ -1,11 +1,10 @@
 <?php
-class
 
 use SmartyModule;
 use \ProcessException;
 use DB\OzoneUserPeer;
 
- LoginModule extends SmartyModule {
+class LoginModule extends SmartyModule {
 	
 	public function build($runData){
 		

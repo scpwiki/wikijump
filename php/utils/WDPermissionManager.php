@@ -1,7 +1,4 @@
 <?php
-class
-
-use \WDPermissionManager as WDPermissionManager;
 use DB\OzoneUserPeer;
 use DB\SitePeer;
 use Criteria;
@@ -19,7 +16,7 @@ use DB\PrivateUserBlockPeer;
 use DB\IpBlockPeer;
 use DB\UserBlockPeer;
 
- WDPermissionManager {
+class WDPermissionManager {
 	
 	private static $instance;
 	

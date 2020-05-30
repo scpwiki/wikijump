@@ -26,7 +26,6 @@
 
 
 use \PathManager;
-use Memcache;
 use \DummyMemcache;
 use \OzoneSmarty;
 

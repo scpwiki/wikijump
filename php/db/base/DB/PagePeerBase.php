@@ -26,7 +26,7 @@
 namespace DB;
 
 use BaseDBPeer;
-
+use DB\PagePeer;
 
 
  
@@ -47,8 +47,7 @@ class PagePeerBase extends BaseDBPeer {
 	
 	public static function instance(){
 		if(self::$peerInstance == null){
-			$className = "DB_PagePeer";
-			self::$peerInstance = new $className();
+			self::$peerInstance = new PagePeer();
 		}
 		return self::$peerInstance;
 	}

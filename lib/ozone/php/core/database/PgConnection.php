@@ -104,6 +104,7 @@ class PgConnection implements DatabaseConnection{
 			$time_start = microtime(true);
 			$result = pg_query($this->link,$query);
 			if (!$result) {
+				OzoneLogger::instance()->error(pg_last_error($this->link));
 				OzoneLogger::instance()->error("execution of query  \"$query\" failed");
 				throw new OzoneDatabaseException("error: ".pg_last_error($this->link)."\n");
 			}

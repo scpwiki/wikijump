@@ -26,7 +26,7 @@
 namespace DB;
 
 use BaseDBPeer;
-
+use DB\CategoryPeer;
 
 
  
@@ -47,8 +47,7 @@ class CategoryPeerBase extends BaseDBPeer {
 	
 	public static function instance(){
 		if(self::$peerInstance == null){
-			$className = "DB_CategoryPeer";
-			self::$peerInstance = new $className();
+			self::$peerInstance = new CategoryPeer();
 		}
 		return self::$peerInstance;
 	}

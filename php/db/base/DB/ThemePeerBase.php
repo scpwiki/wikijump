@@ -26,7 +26,7 @@
 namespace DB;
 
 use BaseDBPeer;
-
+use DB\ThemePeer;
 
 
  
@@ -47,8 +47,7 @@ class ThemePeerBase extends BaseDBPeer {
 	
 	public static function instance(){
 		if(self::$peerInstance == null){
-			$className = "DB_ThemePeer";
-			self::$peerInstance = new $className();
+			self::$peerInstance = new ThemePeer();
 		}
 		return self::$peerInstance;
 	}
