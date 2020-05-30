@@ -24,23 +24,7 @@
  */
 
 
-
 use \DatabaseResult;
-use __construct;
-use result;
-use nextRow;
-use pg_fetch_assoc;
-use resetPosition;
-use asObjects;
-use null;
-use getPrimaryKeyName;
-use setNew;
-use false;
-use getFieldValue;
-use getSize;
-use getResult;
-use fetchAll;
-use pg_fetch_all;
 
 /**
  * PostgreSQL database query result.
