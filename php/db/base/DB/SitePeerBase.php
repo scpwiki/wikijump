@@ -26,7 +26,7 @@
 namespace DB;
 
 use BaseDBPeer;
-
+use DB\SitePeer;
 
 
  
@@ -47,8 +47,7 @@ class SitePeerBase extends BaseDBPeer {
 	
 	public static function instance(){
 		if(self::$peerInstance == null){
-			$className = "DB_SitePeer";
-			self::$peerInstance = new $className();
+			self::$peerInstance = new SitePeer();
 		}
 		return self::$peerInstance;
 	}

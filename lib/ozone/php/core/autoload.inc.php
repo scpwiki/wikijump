@@ -54,7 +54,7 @@ set_include_path($paths);
  * @param string $className name of the class
  */
 spl_autoload_register( function($className) {
-	
+	$className = str_replace('\\','/', $className);
 	include_once($className.'.php');
 	if(! class_exists($className) && ! interface_exists($className)) {
 		@include_once(str_replace('_', DIRECTORY_SEPARATOR, $className) . '.php');
