@@ -90,7 +90,7 @@ class PgConnection implements DatabaseConnection{
 			throw new OzoneDatabaseException($error);
 		}
 		/* configure the connection */
-		@pg_query($this->link, 'SET search_path TO "$user", public, ts2');
+		pg_query($this->link, 'SET search_path TO "$user", public, ts2');
 		OzoneLogger::instance()->debug("database connection successful");
 	}
 
