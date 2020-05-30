@@ -33,8 +33,8 @@ $classpath[] = $opath."/php/core/database";
 $classpath[] = $opath."/php/core";
 $classpath[] = $opath."/php/core/exceptions";
 
-$classpath[] = $apath."/php/db/base/DB";
-$classpath[] = $apath."/php/db/DB";
+$classpath[] = $apath."/php/db/base";
+$classpath[] = $apath."/php/db";
 $classpath[] = $apath."/php/utils";
 $classpath[] = $apath."/php/class";
 $classpath[] = $apath."/php/pingback";
@@ -53,9 +53,9 @@ set_include_path($paths);
  * Function responsible for including .php files containing class definitions.
  * @param string $className name of the class
  */
-function __autoload($className) {
+spl_autoload_register( function($className) {
 	
-	@include_once($className.'.php');
+	include_once($className.'.php');
 	if(! class_exists($className) && ! interface_exists($className)) {
 		@include_once(str_replace('_', DIRECTORY_SEPARATOR, $className) . '.php');
 	}
@@ -65,4 +65,4 @@ function __autoload($className) {
 	}
 	
 	return;
-}
+});
