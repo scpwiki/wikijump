@@ -29,7 +29,7 @@ use DB\SitePeer;
 use DB\Site;
 use DB\SiteSettingsPeer;
 use DB\SiteSettings;
-use DB\PagePeer;
+//use DB\PagePeer;
 use DB\Page;
 use DB\CategoryPeer;
 use DB\Category;
@@ -40,8 +40,7 @@ use DB\PageCompiled;
 use DB\PageTag;
 use DB\PageTagPeer;
 
-/**
- * PostgreSQL database query result.
+ /* PostgreSQL database query result.
  *
  */ 
 class PgResult implements DatabaseResult{
@@ -62,60 +61,13 @@ class PgResult implements DatabaseResult{
 
 	public function asObjects($className, $prefetched = null) {
 		$out = array();
-		// check if has a primary key and make it the array key too
-		$peerClassName = end(explode('_',$className.'Peer'));
-		switch($peerClassName) {
-		case 'SitePeer':
-			$peer = new SitePeer;
-			break;
-		case 'SiteSettingsPeer':
-			$peer = new SiteSettingsPeer;
-			break;
-		case 'PagePeer':
-			$peer = new PagePeer;
-			break;
-		case 'CategoryPeer':
-			$peer = new CategoryPeer;
-			break;
-		case 'ThemePeer':
-			$peer = new ThemePeer;
-			break;
-		case 'PageCompiledPeer':
-			$peer = new PageCompiledPeer;
-			break;
-		 case 'PageTagPeer':
-                        $peer = new PageTagPeer;
-                        break;
-		default:
-			$peer = new $peerClassName;
-			//trigger_error($peerClassName);
-			//die();
-		}
+		// check if has a primary key and make it the array key tooi
+		$className = str_replace('_','\\',$className);
+		$peerClassName = $className.'Peer';
+		$peer = new $peerClassName;
 		$pkn = $peer->getPrimaryKeyName();
 		while($line = pg_fetch_assoc($this->result)){
-			if($className == "DB_Site") {
-				$obj = new Site($line, $prefetched);
-			}
-			else if($className == "DB_SiteSettings") {
-				$obj = new SiteSettings($line, $prefetched);
-			}
-			else if($className == "DB_Category") {
-				$obj = new Category($line, $prefetched);
-			}
-			else if($className == "DB_Theme") {
-				$obj = new Theme($line, $prefetched);
-			}
-			else if($className == "DB_Page") {
-				$obj = new Page($line, $prefetched);
-			}
-			else if($className == "DB_PageCompiled") {
-                                $obj = new PageCompiled($line, $prefetched);
-                        }
-			 else if($className == "DB_PageTag") {
-                                $obj = new PageTag($line, $prefetched);
-                        }
-
-			else {	$obj = new $className($line, $prefetched); }
+			$obj = new $className($line, $prefetched); 
 			$obj->setNew(false);
 			if($pkn == null){
 				$out[] = $obj;
