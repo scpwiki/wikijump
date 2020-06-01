@@ -25,7 +25,6 @@
  
 
 
-use \SecurityManager as SecurityManager;
 use DB\OzoneUserPeer;
 use DB\OzoneGroupPeer;
 use DB\OzonePermissionPeer;
@@ -50,31 +49,31 @@ class SecurityManager {
 	}
 	
 	public  function getUserByID($userId){
-		$peer = DB_OzoneUserPeer::instance();
+		$peer = OzoneUserPeer::instance();
 		$query = "WHERE user_id = '".db_escape_string($userId)."'";
 		return $peer->selectOneByExplicitQuery($query);
 	}
 	
 	public function getUserByName($username){
-		$peer = DB_OzoneUserPeer::instance();
+		$peer = OzoneUserPeer::instance();
 		$query = "WHERE name = '".db_escape_string($username)."'";
 		return $peer->selectOneByExplicitQuery($query);
 	}	
 	
 	public function getGroupById($groupId){
-		$peer = DB_OzoneGroupPeer::instance();
+		$peer = OzoneGroupPeer::instance();
 		$query = "WHERE group_id = '".db_escape_string($groupId)."'";
 		return $peer->selectOneByExplicitQuery($query);	
 	}
 	
 	public function getGroupByName($groupname){
-		$peer = DB_OzoneGroupPeer::instance();
+		$peer = OzoneGroupPeer::instance();
 		$query = "WHERE name = '".db_escape_string($groupname)."'";
 		return $peer->selectOneByExplicitQuery($query);
 	}
 
 	public  function authenticateUser($username, $password){
-		$peer = DB_OzoneUserPeer::instance();
+		$peer = OzoneUserPeer::instance();
 		$query = "WHERE lower(name) = lower('".db_escape_string($username)."') AND password = '".db_escape_string(md5($password))."' AND user_id>0";
 		return $peer->selectOneByExplicitQuery($query);
 	}	
@@ -91,13 +90,13 @@ class SecurityManager {
 	}
 	
 	public function getPermissionById($permissionId){
-		$peer = DB_OzonePermissionPeer::instance();
+		$peer = OzonePermissionPeer::instance();
 		$query = "WHERE permission_id = '".db_escape_string($permissionId)."'";
 		return $peer->selectOneByExplicitQuery($query);	
 	}
 	
 	public function getPermissionByName($permissionname){
-		$peer = DB_OzonePermissionPeer::instance();
+		$peer = OzonePermissionPeer::instance();
 		$query = "WHERE name = '".db_escape_string($permissionname)."'";
 		return $peer->selectOneByExplicitQuery($query);
 	}
@@ -117,7 +116,7 @@ class SecurityManager {
 			$groupObject = $group;	
 		}
 		
-		$relation = new DB_OzoneUserGroupRelation();
+		$relation = new OzoneUserGroupRelation();
 		$relation->setOzoneUser($userObject);
 		$relation->setOzoneGroup($groupObject);
 		$relation->save();			
@@ -141,7 +140,7 @@ class SecurityManager {
 		$c = new Criteria();
 		$c->add("user_id", $userObject->getUserId());
 		$c->add("group_id", $groupObject->getGroupId());
-		DB_OzoneUserGroupRelationPeer::instance()->delete($c);
+		OzoneUserGroupRelationPeer::instance()->delete($c);
 	}
 	
 	public function createGroup($name, $parentGroup=null){
@@ -150,11 +149,11 @@ class SecurityManager {
 				//	get object 
 				$parentGroupObject = $this->getGroupByName($parentGroup);
 			} else {
-				$parentGroupObject = $group;	
+				$parentGroupObject = $this->getGroupById($parentGroup);
 			}
 		}
 		
-		$newGroup = new DB_OzoneGroup();
+		$newGroup = new OzoneGroup();
 		$newGroup->setName("$name");
 		if($parentGroupObject != null){
 			$newGroup->setParentGroupId($parentGroupObject->getGroupId());	
@@ -186,7 +185,7 @@ class SecurityManager {
 		$c = new Criteria();
 		$c->add("user_id", $userObject->getUserId());
 		$c->add("group_id", $groupObject->getGroupId());
-		$rel = DB_OzoneUserGroupRelationPeer::instance()->selectOne($c);
+		$rel = OzoneUserGroupRelationPeer::instance()->selectOne($c);
 		
 		if($rel !== null){
 			return true;
@@ -243,7 +242,7 @@ class SecurityManager {
 	
 		$c = new Criteria();
 		$c->add("parent_group_id", $groupObject->getGroupId());
-		$groups = DB_OzoneGroupPeer::instance()->select($c);
+		$groups = OzoneGroupPeer::instance()->select($c);
 		return $groups;
 	}
 	
@@ -289,7 +288,7 @@ class SecurityManager {
 		}
 		$c = new Criteria();
 		$c->add("group_id", $groupObject->getParentGroupId());
-		$groups = DB_OzoneGroupPeer::instance()->selectOne($c);
+		$groups = OzoneGroupPeer::instance()->selectOne($c);
 		return $group;
 		
 	}
@@ -328,7 +327,7 @@ class SecurityManager {
 		$c->add("ozone_user_group_relation.group_id", $groupObject->getGroupId());
 		$c->add("ozone_user_group_relation.user_id", "ozone_user.user_id", "=", false);
 		
-		$users = DB_OzoneUserPeer::instance()->select($c);
+		$users = OzoneUserPeer::instance()->select($c);
 		return $users;
 		
 	}
@@ -344,13 +343,13 @@ class SecurityManager {
 	public  function getUserAllGroups($userId){
 		$c = new Criteria();
 		$c->add("user_id", $userId);
-		$rels = DB_OzoneUserGroupRelationPeer::instance()->select($c);
+		$rels = OzoneUserGroupRelationPeer::instance()->select($c);
 		// now get groups.
 		$groups = array();
 		foreach($rels as $rel){
 			$c = new Criteria();
 			$c->add("group_id", $rel->getGroupId());
-			$group = DB_OzoneGroupPeer::instance()->selectOne($c);
+			$group = OzoneGroupPeer::instance()->selectOne($c);
 			$groups[$group->getGroupId()] = $group;	
 		}
 		
