@@ -139,8 +139,8 @@ class OzoneSession extends OzoneSessionBase {
 		$this->newSession = $val;	
 	}
 	
-	public function setUserId($userId){
-		parent::setUserId($userId);
+	public function setUserId($userId, $raw = false){
+		parent::setUserId($userId, $raw);
 		$this->cachedUser = null;
 		$this->sessionChanged = true;
 	}
