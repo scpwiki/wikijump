@@ -167,29 +167,8 @@ abstract class BaseDBObject {
 	 * @param array $row values to fill the object data
 	 */
 	public function populate($row) {
-		$peerName = $this->peerName;
-		if( $peerName == "DB_SitePeer") {
-			$peer = new SitePeer(); }
-		else if ($peerName=="DB_SiteSettingsPeer") {
-			$peer = new SiteSettingsPeer();
-		}
-		else if ($peerName=="DB_CategoryPeer") {
-                        $peer = new CategoryPeer();
-		}
-		else if($peerName=="DB_ThemePeer") {
-			$peer = new ThemePeer();
-		}
-		else if($peerName=="DB_PagePeer") {
-			$peer = new PagePeer();
-		}
-		 else if($peerName=="DB_PageCompiledPeer") {
-                        $peer = new PageCompiledPeer();
-                }
-		else {
-			$peer = new $peerName();
-		}
-			
-		// copy the values from $row, but only with keys that exist in $fieldList
+		$peerName = str_replace("_", "\\", $this->peerName);
+		$peer = new $peerName();
 		foreach ($this->fieldNames as $field) {
 			$fieldType = $peer->getFieldType($field);
 			
