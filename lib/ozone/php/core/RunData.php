@@ -437,7 +437,7 @@ class RunData {
 			$mkey = 'session..'.$s->getSessionId();
 			$memcache->delete($mkey);
 			
-			DB_OzoneSessionPeer :: instance()->deleteByPrimaryKey($s->getSessionId());
+			OzoneSessionPeer :: instance()->deleteByPrimaryKey($s->getSessionId());
 			$this->session = null;
 			
 		}
@@ -456,7 +456,7 @@ class RunData {
 		$c = new Criteria();
 		$c->add("user_id", $user_id);
 		$c->add("MD5('${domain}_${secret}_' || session_id)", $session_hash);
-		$session = DB_OzoneSessionPeer::instance()->selectOne($c);
+		$session = OzoneSessionPeer::instance()->selectOne($c);
 		
 		return $session;
 	}
@@ -503,7 +503,7 @@ class RunData {
 		
 		$session = $memcache->get($mkey);
 		if(!$session){
-			$session = DB_OzoneSessionPeer :: instance()->selectByPrimaryKey($cookieSessionId);
+			$session = OzoneSessionPeer :: instance()->selectByPrimaryKey($cookieSessionId);
 		}
 		if(!$session){
 			// no session object, delete the cookie!
@@ -552,7 +552,7 @@ class RunData {
 			// cleanup again
 			$c = new Criteria();
 			$c->add("session_id", $session->getSessionId());
-			DB_OzoneSessionPeer :: instance()->delete($c);
+			OzoneSessionPeer :: instance()->delete($c);
 			$memcache->delete($mkey);
 		}else {
 		
