@@ -73,7 +73,7 @@ class OzoneUser extends OzoneUserBase {
     }
     
     public function save() {
-        $memcache = Ozone::$memcache;
+        $memcache = \Ozone::$memcache;
         $key = 'user..' . $this->getUserId();
         $memcache->delete($key);
         parent::save();
