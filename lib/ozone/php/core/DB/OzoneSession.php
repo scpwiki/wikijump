@@ -151,7 +151,7 @@ class OzoneSession extends OzoneSessionBase {
 		}
 		$userId = $this->getUserId();
 		if($userId == null) {return null;}
-		$user = DB_OzoneUserPeer :: instance()->selectByPrimaryKeyCached($userId);
+		$user = OzoneUserPeer :: instance()->selectByPrimaryKeyCached($userId);
 		$this->cachedUser = $user;	
 		return $user;
 	}
