@@ -37,7 +37,7 @@ use DB\DomainRedirectBase;
 class DomainRedirect extends DomainRedirectBase {
 
 	public function save(){
-		$memcache = Ozone::$memcache;
+		$memcache = \Ozone::$memcache;
 		$key = 'domain_redirect..'.$this->getUrl();
 		$memcache->delete($key);
 			

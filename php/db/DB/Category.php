@@ -237,7 +237,7 @@ class Category extends CategoryBase {
     }
 	
 	public function save(){
-		$memcache = Ozone::$memcache;
+		$memcache = \Ozone::$memcache;
 		$key = 'category..'.$this->getSiteId().'..'.$this->getName();
 		$memcache->delete($key);
 		$key = 'categorybyid..'.$this->getSiteId().'..'.$this->getCategoryId();

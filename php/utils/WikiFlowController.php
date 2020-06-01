@@ -63,7 +63,7 @@ class WikiFlowController extends WebFlowController {
 		// check if site (wiki) exists!
 		$siteHost = $_SERVER["HTTP_HOST"];
 
-		$memcache = Ozone::$memcache;
+		$memcache = \Ozone::$memcache;
 		if(preg_match("/^([a-zA-Z0-9\-]+)\." . GlobalProperties::$URL_DOMAIN_PREG . "$/", $siteHost, $matches)==1){
 			$siteUnixName=$matches[1];
 

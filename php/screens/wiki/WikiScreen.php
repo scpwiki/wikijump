@@ -87,7 +87,7 @@ class WikiScreen extends Screen {
 		$wikiPage = WDStringUtils::toUnixName($wikiPage);
 		$runData->setTemp("pageUnixName", $wikiPage);
 
-		$memcache = Ozone::$memcache;
+		$memcache = \Ozone::$memcache;
 		if($runData->getAction() == null 
 				&& $runData->getRequestMethod() == "GET" 
 			

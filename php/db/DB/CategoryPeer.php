@@ -45,7 +45,7 @@ class CategoryPeer extends CategoryPeerBase {
 		}
 		
 		if($useMemcache){
-			$memcache = Ozone::$memcache;
+			$memcache = \Ozone::$memcache;
 			$key = 'category..'.$siteId.'..'.$name;
 			$cat = $memcache->get($key);
 			if($cat){
@@ -71,7 +71,7 @@ class CategoryPeer extends CategoryPeerBase {
 	public function selectById($categoryId, $siteId,  $useMemcache=true){
 
 		if($useMemcache){
-			$memcache = Ozone::$memcache;
+			$memcache = \Ozone::$memcache;
 			$key = 'categorybyid..'.$siteId.'..'.$categoryId;
 			$cat = $memcache->get($key);
 			if($cat != false){

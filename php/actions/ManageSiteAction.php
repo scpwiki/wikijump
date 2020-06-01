@@ -602,7 +602,7 @@ class ManageSiteAction extends SmartyAction {
 		
 		$dbRedirects = DomainRedirectPeer::instance()->select($c);
 		
-		$memcache = Ozone::$memcache;
+		$memcache = \Ozone::$memcache;
 		
 		foreach($dbRedirects as $dbr){
 			if(in_array($dbr->getUrl(), $redirects)){

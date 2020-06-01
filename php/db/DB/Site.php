@@ -75,7 +75,7 @@ class Site extends SiteBase {
     }
 
     public function save() {
-        $memcache = Ozone::$memcache;
+        $memcache = \Ozone::$memcache;
         $key = 'site..' . $this->getUnixName();
         $memcache->delete($key);
         $key = 'site_cd..' . $this->getCustomDomain();

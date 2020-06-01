@@ -46,7 +46,7 @@ abstract class WikidotController extends WebFlowController {
 	 */
 	protected function siteFromHost($siteHost, $customDomains = false, $uploadDomain = false) {
 		
-		$memcache = Ozone::$memcache;
+		$memcache = \Ozone::$memcache;
 		
 		if ($uploadDomain) {
 			$regexp = "/^([a-zA-Z0-9\-]+)\.(" . GlobalProperties::$URL_DOMAIN_PREG . "|" . GlobalProperties::$URL_UPLOAD_DOMAIN_PREG . ")$/";

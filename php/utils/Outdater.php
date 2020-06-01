@@ -516,7 +516,7 @@ class Outdater {
 	
 	public function outdatePageCache($page){
 		// both levels!	
-		$memcache = Ozone::$memcache;
+		$memcache = \Ozone::$memcache;
 		$site = $GLOBALS['site'];
 		$now = time();
 		if(is_string($page)){

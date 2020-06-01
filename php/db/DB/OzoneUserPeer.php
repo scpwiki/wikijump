@@ -37,7 +37,7 @@ use DB\OzoneUserPeerBase;
 class OzoneUserPeer extends OzoneUserPeerBase {
 
     public function selectByPrimaryKeyCached($userId) {
-        $memcache = Ozone::$memcache;
+        $memcache = \Ozone::$memcache;
         $key = 'user..' . $userId;
         $u = $memcache->get($key);
         if ($u != false) {
