@@ -26,7 +26,7 @@
 namespace DB;
 
 use BaseDBPeer;
-
+use DB\IpBlockPeer;
 
 
  

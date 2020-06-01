@@ -33,8 +33,6 @@ use DB\ForumSettingsPeer;
 use Ozone;
 use \GlobalProperties;
 
-
-
 /**
  * Object Model class.
  *
