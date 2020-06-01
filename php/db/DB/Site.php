@@ -31,6 +31,7 @@ use DB\SiteSettingsPeer;
 use DB\SiteSuperSettingsPeer;
 use DB\ForumSettingsPeer;
 use Ozone;
+use \GlobalProperties;
 
 
 
