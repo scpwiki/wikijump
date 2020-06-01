@@ -23,16 +23,8 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
 use \ODate;
 use \Database;
-use DB\SitePeer;
-use DB\SiteSettingsPeer;
-use DB\CategoryPeer;
-use DB\ThemePeer;
-use DB\PagePeer;
-use DB\PageCompiledPeer;
 
 /**
  * Base object for all database OM objects representing tables. It implements
