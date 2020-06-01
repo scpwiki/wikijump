@@ -39,7 +39,7 @@ class PageBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='page';
-		$this->peerName = 'DB_PagePeer';
+		$this->peerName = 'DB\\PagePeer';
 		$this->primaryKeyName = 'page_id';
 		$this->fieldNames = array( 'page_id' ,  'site_id' ,  'category_id' ,  'parent_page_id' ,  'revision_id' ,  'source_id' ,  'metadata_id' ,  'revision_number' ,  'title' ,  'unix_name' ,  'date_created' ,  'date_last_edited' ,  'last_edit_user_id' ,  'last_edit_user_string' ,  'thread_id' ,  'owner_user_id' ,  'blocked' ,  'rate' );
 		
@@ -64,7 +64,7 @@ class PageBase extends BaseDBObject {
 				}
 			}
 		}
-		$foreignPeerClassName = 'DB_SitePeer';	
+		$foreignPeerClassName = 'DB\\SitePeer';	
 		$fpeer = new $foreignPeerClassName();
 		
 		$criteria = new Criteria();

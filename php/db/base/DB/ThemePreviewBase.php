@@ -37,7 +37,7 @@ class ThemePreviewBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='theme_preview';
-		$this->peerName = 'DB_ThemePreviewPeer';
+		$this->peerName = 'DB\\ThemePreviewPeer';
 		$this->primaryKeyName = 'theme_id';
 		$this->fieldNames = array( 'theme_id' ,  'body' );
 		

@@ -37,7 +37,7 @@ class MembershipLinkBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='membership_link';
-		$this->peerName = 'DB_MembershipLinkPeer';
+		$this->peerName = 'DB\\MembershipLinkPeer';
 		$this->primaryKeyName = 'link_id';
 		$this->fieldNames = array( 'link_id' ,  'site_id' ,  'by_user_id' ,  'user_id' ,  'date' ,  'type' );
 		

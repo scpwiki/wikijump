@@ -38,7 +38,7 @@ class GlobalUserBlockPeerBase extends BaseDBPeer {
 	
 	protected function internalInit(){
 		$this->tableName='global_user_block';
-		$this->objectName='DB_GlobalUserBlock';
+		$this->objectName='DB\\GlobalUserBlock';
 		$this->primaryKeyName = 'block_id';
 		$this->fieldNames = array( 'block_id' ,  'site_id' ,  'user_id' ,  'reason' ,  'date_blocked' );
 		$this->fieldTypes = array( 'block_id' => 'serial',  'site_id' => 'int',  'user_id' => 'int',  'reason' => 'text',  'date_blocked' => 'timestamp');
@@ -47,7 +47,7 @@ class GlobalUserBlockPeerBase extends BaseDBPeer {
 	
 	public static function instance(){
 		if(self::$peerInstance == null){
-			$className = "DB_GlobalUserBlockPeer";
+			$className = "DB\\GlobalUserBlockPeer";
 			self::$peerInstance = new $className();
 		}
 		return self::$peerInstance;

@@ -37,7 +37,7 @@ class PageInclusionBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='page_inclusion';
-		$this->peerName = 'DB_PageInclusionPeer';
+		$this->peerName = 'DB\\PageInclusionPeer';
 		$this->primaryKeyName = 'inclusion_id';
 		$this->fieldNames = array( 'inclusion_id' ,  'site_id' ,  'including_page_id' ,  'included_page_id' ,  'included_page_name' );
 		

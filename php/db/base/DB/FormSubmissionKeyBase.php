@@ -37,7 +37,7 @@ class FormSubmissionKeyBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='form_submission_key';
-		$this->peerName = 'DB_FormSubmissionKeyPeer';
+		$this->peerName = 'DB\\FormSubmissionKeyPeer';
 		$this->primaryKeyName = 'key_id';
 		$this->fieldNames = array( 'key_id' ,  'date_submitted' );
 		

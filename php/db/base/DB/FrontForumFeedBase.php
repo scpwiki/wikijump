@@ -37,7 +37,7 @@ class FrontForumFeedBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='front_forum_feed';
-		$this->peerName = 'DB_FrontForumFeedPeer';
+		$this->peerName = 'DB\\FrontForumFeedPeer';
 		$this->primaryKeyName = 'feed_id';
 		$this->fieldNames = array( 'feed_id' ,  'page_id' ,  'title' ,  'label' ,  'description' ,  'categories' ,  'parmhash' ,  'site_id' );
 		

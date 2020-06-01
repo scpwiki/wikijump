@@ -37,7 +37,7 @@ class UniqueStringBrokerBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='unique_string_broker';
-		$this->peerName = 'DB_UniqueStringBrokerPeer';
+		$this->peerName = 'DB\\UniqueStringBrokerPeer';
 		$this->primaryKeyName = '';
 		$this->fieldNames = array( 'last_index' );
 		

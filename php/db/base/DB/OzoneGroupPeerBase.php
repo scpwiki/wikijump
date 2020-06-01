@@ -38,7 +38,7 @@ class OzoneGroupPeerBase extends BaseDBPeer {
 	
 	protected function internalInit(){
 		$this->tableName='ozone_group';
-		$this->objectName='DB_OzoneGroup';
+		$this->objectName='DB\\OzoneGroup';
 		$this->primaryKeyName = 'group_id';
 		$this->fieldNames = array( 'group_id' ,  'parent_group_id' ,  'name' ,  'description' );
 		$this->fieldTypes = array( 'group_id' => 'serial',  'parent_group_id' => 'int',  'name' => 'varchar(50)',  'description' => 'text');
@@ -47,7 +47,7 @@ class OzoneGroupPeerBase extends BaseDBPeer {
 	
 	public static function instance(){
 		if(self::$peerInstance == null){
-			$className = "DB_OzoneGroupPeer";
+			$className = "DB\\OzoneGroupPeer";
 			self::$peerInstance = new $className();
 		}
 		return self::$peerInstance;

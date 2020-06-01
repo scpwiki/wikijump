@@ -37,7 +37,7 @@ class ForumPostBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='forum_post';
-		$this->peerName = 'DB_ForumPostPeer';
+		$this->peerName = 'DB\\ForumPostPeer';
 		$this->primaryKeyName = 'post_id';
 		$this->fieldNames = array( 'post_id' ,  'thread_id' ,  'parent_id' ,  'user_id' ,  'user_string' ,  'title' ,  'text' ,  'date_posted' ,  'site_id' ,  'revision_number' ,  'revision_id' ,  'date_last_edited' ,  'edited_user_id' ,  'edited_user_string' );
 		

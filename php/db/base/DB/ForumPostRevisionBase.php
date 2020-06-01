@@ -37,7 +37,7 @@ class ForumPostRevisionBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='forum_post_revision';
-		$this->peerName = 'DB_ForumPostRevisionPeer';
+		$this->peerName = 'DB\\ForumPostRevisionPeer';
 		$this->primaryKeyName = 'revision_id';
 		$this->fieldNames = array( 'revision_id' ,  'post_id' ,  'user_id' ,  'user_string' ,  'text' ,  'title' ,  'date' );
 		

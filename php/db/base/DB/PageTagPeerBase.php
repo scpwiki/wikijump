@@ -38,7 +38,7 @@ class PageTagPeerBase extends BaseDBPeer {
 	
 	protected function internalInit(){
 		$this->tableName='page_tag';
-		$this->objectName='DB_PageTag';
+		$this->objectName='DB\\PageTag';
 		$this->primaryKeyName = 'tag_id';
 		$this->fieldNames = array( 'tag_id' ,  'site_id' ,  'page_id' ,  'tag' );
 		$this->fieldTypes = array( 'tag_id' => 'bigserial',  'site_id' => 'int',  'page_id' => 'int',  'tag' => 'varchar(64)');

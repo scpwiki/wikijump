@@ -37,7 +37,7 @@ class ContactBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='contact';
-		$this->peerName = 'DB_ContactPeer';
+		$this->peerName = 'DB\\ContactPeer';
 		$this->primaryKeyName = 'contact_id';
 		$this->fieldNames = array( 'contact_id' ,  'user_id' ,  'target_user_id' );
 		

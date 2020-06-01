@@ -38,7 +38,7 @@ class ModeratorPeerBase extends BaseDBPeer {
 	
 	protected function internalInit(){
 		$this->tableName='moderator';
-		$this->objectName='DB_Moderator';
+		$this->objectName='DB\\Moderator';
 		$this->primaryKeyName = 'moderator_id';
 		$this->fieldNames = array( 'moderator_id' ,  'site_id' ,  'user_id' ,  'permissions' );
 		$this->fieldTypes = array( 'moderator_id' => 'serial',  'site_id' => 'int',  'user_id' => 'int',  'permissions' => 'char(10)');
@@ -47,7 +47,7 @@ class ModeratorPeerBase extends BaseDBPeer {
 	
 	public static function instance(){
 		if(self::$peerInstance == null){
-			$className = "DB_ModeratorPeer";
+			$className = "DB\\ModeratorPeer";
 			self::$peerInstance = new $className();
 		}
 		return self::$peerInstance;

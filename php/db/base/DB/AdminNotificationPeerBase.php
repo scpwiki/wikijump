@@ -38,7 +38,7 @@ class AdminNotificationPeerBase extends BaseDBPeer {
 	
 	protected function internalInit(){
 		$this->tableName='admin_notification';
-		$this->objectName='DB_AdminNotification';
+		$this->objectName='DB\\AdminNotification';
 		$this->primaryKeyName = 'notification_id';
 		$this->fieldNames = array( 'notification_id' ,  'site_id' ,  'body' ,  'type' ,  'viewed' ,  'date' ,  'extra' ,  'notify_online' ,  'notify_feed' ,  'notify_email' );
 		$this->fieldTypes = array( 'notification_id' => 'serial',  'site_id' => 'int',  'body' => 'text',  'type' => 'varchar(50)',  'viewed' => 'boolean',  'date' => 'timestamp',  'extra' => 'bytea',  'notify_online' => 'boolean',  'notify_feed' => 'boolean',  'notify_email' => 'boolean');
@@ -47,7 +47,7 @@ class AdminNotificationPeerBase extends BaseDBPeer {
 	
 	public static function instance(){
 		if(self::$peerInstance == null){
-			$className = "DB_AdminNotificationPeer";
+			$className = "DB\\AdminNotificationPeer";
 			self::$peerInstance = new $className();
 		}
 		return self::$peerInstance;

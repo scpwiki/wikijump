@@ -37,7 +37,7 @@ class WatchedForumThreadBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='watched_forum_thread';
-		$this->peerName = 'DB_WatchedForumThreadPeer';
+		$this->peerName = 'DB\\WatchedForumThreadPeer';
 		$this->primaryKeyName = 'watched_id';
 		$this->fieldNames = array( 'watched_id' ,  'user_id' ,  'thread_id' );
 		

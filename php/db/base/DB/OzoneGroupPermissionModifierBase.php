@@ -40,7 +40,7 @@ class OzoneGroupPermissionModifierBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='ozone_group_permission_modifier';
-		$this->peerName = 'DB_OzoneGroupPermissionModifierPeer';
+		$this->peerName = 'DB\\OzoneGroupPermissionModifierPeer';
 		$this->primaryKeyName = 'group_permission_id';
 		$this->fieldNames = array( 'group_permission_id' ,  'group_id' ,  'permission_id' ,  'modifier' );
 		
@@ -65,7 +65,7 @@ class OzoneGroupPermissionModifierBase extends BaseDBObject {
 				}
 			}
 		}
-		$foreignPeerClassName = 'DB_OzoneGroupPeer';	
+		$foreignPeerClassName = 'DB\\OzoneGroupPeer';	
 		$fpeer = new $foreignPeerClassName();
 		
 		$criteria = new Criteria();
@@ -95,7 +95,7 @@ class OzoneGroupPermissionModifierBase extends BaseDBObject {
 				}
 			}
 		}
-		$foreignPeerClassName = 'DB_OzonePermissionPeer';	
+		$foreignPeerClassName = 'DB\\OzonePermissionPeer';	
 		$fpeer = new $foreignPeerClassName();
 		
 		$criteria = new Criteria();

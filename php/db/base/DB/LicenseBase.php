@@ -37,7 +37,7 @@ class LicenseBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='license';
-		$this->peerName = 'DB_LicensePeer';
+		$this->peerName = 'DB\\LicensePeer';
 		$this->primaryKeyName = 'license_id';
 		$this->fieldNames = array( 'license_id' ,  'name' ,  'description' ,  'sort' );
 		

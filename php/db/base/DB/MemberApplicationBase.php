@@ -37,7 +37,7 @@ class MemberApplicationBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='member_application';
-		$this->peerName = 'DB_MemberApplicationPeer';
+		$this->peerName = 'DB\\MemberApplicationPeer';
 		$this->primaryKeyName = 'application_id';
 		$this->fieldNames = array( 'application_id' ,  'site_id' ,  'user_id' ,  'status' ,  'date' ,  'comment' ,  'reply' );
 		

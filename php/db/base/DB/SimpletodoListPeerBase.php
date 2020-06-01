@@ -38,7 +38,7 @@ class SimpletodoListPeerBase extends BaseDBPeer {
 	
 	protected function internalInit(){
 		$this->tableName='simpletodo_list';
-		$this->objectName='DB_SimpletodoList';
+		$this->objectName='DB\\SimpletodoList';
 		$this->primaryKeyName = 'list_id';
 		$this->fieldNames = array( 'list_id' ,  'site_id' ,  'label' ,  'title' ,  'data' );
 		$this->fieldTypes = array( 'list_id' => 'serial',  'site_id' => 'int',  'label' => 'varchar(256)',  'title' => 'varchar(256)',  'data' => 'text');
@@ -47,7 +47,7 @@ class SimpletodoListPeerBase extends BaseDBPeer {
 	
 	public static function instance(){
 		if(self::$peerInstance == null){
-			$className = "DB_SimpletodoListPeer";
+			$className = "DB\\SimpletodoListPeer";
 			self::$peerInstance = new $className();
 		}
 		return self::$peerInstance;

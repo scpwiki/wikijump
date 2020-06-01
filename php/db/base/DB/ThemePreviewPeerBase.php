@@ -38,7 +38,7 @@ class ThemePreviewPeerBase extends BaseDBPeer {
 	
 	protected function internalInit(){
 		$this->tableName='theme_preview';
-		$this->objectName='DB_ThemePreview';
+		$this->objectName='DB\\ThemePreview';
 		$this->primaryKeyName = 'theme_id';
 		$this->fieldNames = array( 'theme_id' ,  'body' );
 		$this->fieldTypes = array( 'theme_id' => 'int',  'body' => 'text');
@@ -47,7 +47,7 @@ class ThemePreviewPeerBase extends BaseDBPeer {
 	
 	public static function instance(){
 		if(self::$peerInstance == null){
-			$className = "DB_ThemePreviewPeer";
+			$className = "DB\\ThemePreviewPeer";
 			self::$peerInstance = new $className();
 		}
 		return self::$peerInstance;

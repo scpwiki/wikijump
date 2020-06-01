@@ -37,7 +37,7 @@ class CommentBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='comment';
-		$this->peerName = 'DB_CommentPeer';
+		$this->peerName = 'DB\\CommentPeer';
 		$this->primaryKeyName = 'comment_id';
 		$this->fieldNames = array( 'comment_id' ,  'page_id' ,  'parent_id' ,  'user_id' ,  'user_string' ,  'title' ,  'text' ,  'date_posted' ,  'site_id' ,  'revision_number' ,  'revision_id' ,  'date_last_edited' ,  'edited_user_id' ,  'edited_user_string' );
 		

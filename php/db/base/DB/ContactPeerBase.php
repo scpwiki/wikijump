@@ -38,7 +38,7 @@ class ContactPeerBase extends BaseDBPeer {
 	
 	protected function internalInit(){
 		$this->tableName='contact';
-		$this->objectName='DB_Contact';
+		$this->objectName='DB\\Contact';
 		$this->primaryKeyName = 'contact_id';
 		$this->fieldNames = array( 'contact_id' ,  'user_id' ,  'target_user_id' );
 		$this->fieldTypes = array( 'contact_id' => 'serial',  'user_id' => 'int',  'target_user_id' => 'int');
@@ -47,7 +47,7 @@ class ContactPeerBase extends BaseDBPeer {
 	
 	public static function instance(){
 		if(self::$peerInstance == null){
-			$className = "DB_ContactPeer";
+			$className = "DB\\ContactPeer";
 			self::$peerInstance = new $className();
 		}
 		return self::$peerInstance;

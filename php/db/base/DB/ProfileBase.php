@@ -37,7 +37,7 @@ class ProfileBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='profile';
-		$this->peerName = 'DB_ProfilePeer';
+		$this->peerName = 'DB\\ProfilePeer';
 		$this->primaryKeyName = 'user_id';
 		$this->fieldNames = array( 'user_id' ,  'real_name' ,  'gender' ,  'birthday_day' ,  'birthday_month' ,  'birthday_year' ,  'about' ,  'location' ,  'website' ,  'im_aim' ,  'im_gadu_gadu' ,  'im_google_talk' ,  'im_icq' ,  'im_jabber' ,  'im_msn' ,  'im_yahoo' ,  'change_screen_name_count' );
 		

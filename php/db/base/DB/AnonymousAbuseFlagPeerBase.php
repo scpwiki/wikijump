@@ -38,7 +38,7 @@ class AnonymousAbuseFlagPeerBase extends BaseDBPeer {
 	
 	protected function internalInit(){
 		$this->tableName='anonymous_abuse_flag';
-		$this->objectName='DB_AnonymousAbuseFlag';
+		$this->objectName='DB\\AnonymousAbuseFlag';
 		$this->primaryKeyName = 'flag_id';
 		$this->fieldNames = array( 'flag_id' ,  'user_id' ,  'address' ,  'proxy' ,  'site_id' ,  'site_valid' ,  'global_valid' );
 		$this->fieldTypes = array( 'flag_id' => 'serial',  'user_id' => 'int',  'address' => 'inet',  'proxy' => 'boolean',  'site_id' => 'int',  'site_valid' => 'boolean',  'global_valid' => 'boolean');
@@ -47,7 +47,7 @@ class AnonymousAbuseFlagPeerBase extends BaseDBPeer {
 	
 	public static function instance(){
 		if(self::$peerInstance == null){
-			$className = "DB_AnonymousAbuseFlagPeer";
+			$className = "DB\\AnonymousAbuseFlagPeer";
 			self::$peerInstance = new $className();
 		}
 		return self::$peerInstance;

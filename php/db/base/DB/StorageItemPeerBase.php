@@ -38,7 +38,7 @@ class StorageItemPeerBase extends BaseDBPeer {
 	
 	protected function internalInit(){
 		$this->tableName='storage_item';
-		$this->objectName='DB_StorageItem';
+		$this->objectName='DB\\StorageItem';
 		$this->primaryKeyName = 'item_id';
 		$this->fieldNames = array( 'item_id' ,  'date' ,  'timeout' ,  'data' );
 		$this->fieldTypes = array( 'item_id' => 'varchar(256)',  'date' => 'timestamp',  'timeout' => 'int',  'data' => 'bytea');
@@ -47,7 +47,7 @@ class StorageItemPeerBase extends BaseDBPeer {
 	
 	public static function instance(){
 		if(self::$peerInstance == null){
-			$className = "DB_StorageItemPeer";
+			$className = "DB\\StorageItemPeer";
 			self::$peerInstance = new $className();
 		}
 		return self::$peerInstance;

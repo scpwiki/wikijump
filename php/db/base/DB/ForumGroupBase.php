@@ -37,7 +37,7 @@ class ForumGroupBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='forum_group';
-		$this->peerName = 'DB_ForumGroupPeer';
+		$this->peerName = 'DB\\ForumGroupPeer';
 		$this->primaryKeyName = 'group_id';
 		$this->fieldNames = array( 'group_id' ,  'name' ,  'description' ,  'sort_index' ,  'site_id' ,  'visible' );
 		

@@ -37,7 +37,7 @@ class AdminNotificationBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='admin_notification';
-		$this->peerName = 'DB_AdminNotificationPeer';
+		$this->peerName = 'DB\\AdminNotificationPeer';
 		$this->primaryKeyName = 'notification_id';
 		$this->fieldNames = array( 'notification_id' ,  'site_id' ,  'body' ,  'type' ,  'viewed' ,  'date' ,  'extra' ,  'notify_online' ,  'notify_feed' ,  'notify_email' );
 		

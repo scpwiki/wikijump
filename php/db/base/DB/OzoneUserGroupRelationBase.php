@@ -40,7 +40,7 @@ class OzoneUserGroupRelationBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='ozone_user_group_relation';
-		$this->peerName = 'DB_OzoneUserGroupRelationPeer';
+		$this->peerName = 'DB\\OzoneUserGroupRelationPeer';
 		$this->primaryKeyName = 'user_group_id';
 		$this->fieldNames = array( 'user_group_id' ,  'user_id' ,  'group_id' );
 		
@@ -65,7 +65,7 @@ class OzoneUserGroupRelationBase extends BaseDBObject {
 				}
 			}
 		}
-		$foreignPeerClassName = 'DB_OzoneUserPeer';	
+		$foreignPeerClassName = 'DB\\OzoneUserPeer';
 		$fpeer = new $foreignPeerClassName();
 		
 		$criteria = new Criteria();
@@ -95,7 +95,7 @@ class OzoneUserGroupRelationBase extends BaseDBObject {
 				}
 			}
 		}
-		$foreignPeerClassName = 'DB_OzoneGroupPeer';	
+		$foreignPeerClassName = 'DB\\OzoneGroupPeer';
 		$fpeer = new $foreignPeerClassName();
 		
 		$criteria = new Criteria();

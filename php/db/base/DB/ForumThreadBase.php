@@ -37,7 +37,7 @@ class ForumThreadBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='forum_thread';
-		$this->peerName = 'DB_ForumThreadPeer';
+		$this->peerName = 'DB\\ForumThreadPeer';
 		$this->primaryKeyName = 'thread_id';
 		$this->fieldNames = array( 'thread_id' ,  'user_id' ,  'user_string' ,  'category_id' ,  'title' ,  'description' ,  'number_posts' ,  'date_started' ,  'site_id' ,  'last_post_id' ,  'page_id' ,  'sticky' ,  'blocked' );
 		

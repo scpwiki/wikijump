@@ -37,7 +37,7 @@ class IpBlockBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='ip_block';
-		$this->peerName = 'DB_IpBlockPeer';
+		$this->peerName = 'DB\\IpBlockPeer';
 		$this->primaryKeyName = 'block_id';
 		$this->fieldNames = array( 'block_id' ,  'site_id' ,  'ip' ,  'flag_proxy' ,  'reason' ,  'date_blocked' );
 		

@@ -38,7 +38,7 @@ class WatchedForumThreadPeerBase extends BaseDBPeer {
 	
 	protected function internalInit(){
 		$this->tableName='watched_forum_thread';
-		$this->objectName='DB_WatchedForumThread';
+		$this->objectName='DB\\WatchedForumThread';
 		$this->primaryKeyName = 'watched_id';
 		$this->fieldNames = array( 'watched_id' ,  'user_id' ,  'thread_id' );
 		$this->fieldTypes = array( 'watched_id' => 'serial',  'user_id' => 'int',  'thread_id' => 'int');
@@ -47,7 +47,7 @@ class WatchedForumThreadPeerBase extends BaseDBPeer {
 	
 	public static function instance(){
 		if(self::$peerInstance == null){
-			$className = "DB_WatchedForumThreadPeer";
+			$className = "DB\\WatchedForumThreadPeer";
 			self::$peerInstance = new $className();
 		}
 		return self::$peerInstance;

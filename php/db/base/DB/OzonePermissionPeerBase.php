@@ -38,7 +38,7 @@ class OzonePermissionPeerBase extends BaseDBPeer {
 	
 	protected function internalInit(){
 		$this->tableName='ozone_permission';
-		$this->objectName='DB_OzonePermission';
+		$this->objectName='DB\\OzonePermission';
 		$this->primaryKeyName = 'permission_id';
 		$this->fieldNames = array( 'permission_id' ,  'name' ,  'description' );
 		$this->fieldTypes = array( 'permission_id' => 'serial',  'name' => 'varchar(50)',  'description' => 'text');
@@ -47,7 +47,7 @@ class OzonePermissionPeerBase extends BaseDBPeer {
 	
 	public static function instance(){
 		if(self::$peerInstance == null){
-			$className = "DB_OzonePermissionPeer";
+			$className = "DB\\OzonePermissionPeer";
 			self::$peerInstance = new $className();
 		}
 		return self::$peerInstance;

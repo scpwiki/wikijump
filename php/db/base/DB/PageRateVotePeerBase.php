@@ -38,7 +38,7 @@ class PageRateVotePeerBase extends BaseDBPeer {
 	
 	protected function internalInit(){
 		$this->tableName='page_rate_vote';
-		$this->objectName='DB_PageRateVote';
+		$this->objectName='DB\\PageRateVote';
 		$this->primaryKeyName = 'rate_id';
 		$this->fieldNames = array( 'rate_id' ,  'user_id' ,  'page_id' ,  'rate' ,  'date' );
 		$this->fieldTypes = array( 'rate_id' => 'serial',  'user_id' => 'int',  'page_id' => 'int',  'rate' => 'int',  'date' => 'timestamp');
@@ -47,7 +47,7 @@ class PageRateVotePeerBase extends BaseDBPeer {
 	
 	public static function instance(){
 		if(self::$peerInstance == null){
-			$className = "DB_PageRateVotePeer";
+			$className = "DB\\PageRateVotePeer";
 			self::$peerInstance = new $className();
 		}
 		return self::$peerInstance;

@@ -38,7 +38,7 @@ class CommentPeerBase extends BaseDBPeer {
 	
 	protected function internalInit(){
 		$this->tableName='comment';
-		$this->objectName='DB_Comment';
+		$this->objectName='DB\\Comment';
 		$this->primaryKeyName = 'comment_id';
 		$this->fieldNames = array( 'comment_id' ,  'page_id' ,  'parent_id' ,  'user_id' ,  'user_string' ,  'title' ,  'text' ,  'date_posted' ,  'site_id' ,  'revision_number' ,  'revision_id' ,  'date_last_edited' ,  'edited_user_id' ,  'edited_user_string' );
 		$this->fieldTypes = array( 'comment_id' => 'serial',  'page_id' => 'int',  'parent_id' => 'int',  'user_id' => 'int',  'user_string' => 'varchar(80)',  'title' => 'varchar(256)',  'text' => 'text',  'date_posted' => 'timestamp',  'site_id' => 'int',  'revision_number' => 'int',  'revision_id' => 'int',  'date_last_edited' => 'timestamp',  'edited_user_id' => 'int',  'edited_user_string' => 'varchar(80)');
@@ -47,7 +47,7 @@ class CommentPeerBase extends BaseDBPeer {
 	
 	public static function instance(){
 		if(self::$peerInstance == null){
-			$className = "DB_CommentPeer";
+			$className = "DB\\CommentPeer";
 			self::$peerInstance = new $className();
 		}
 		return self::$peerInstance;

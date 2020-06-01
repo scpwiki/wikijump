@@ -37,7 +37,7 @@ class UserBlockBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='user_block';
-		$this->peerName = 'DB_UserBlockPeer';
+		$this->peerName = 'DB\\UserBlockPeer';
 		$this->primaryKeyName = 'block_id';
 		$this->fieldNames = array( 'block_id' ,  'site_id' ,  'user_id' ,  'reason' ,  'date_blocked' );
 		

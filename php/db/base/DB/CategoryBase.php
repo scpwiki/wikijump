@@ -37,7 +37,7 @@ class CategoryBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='category';
-		$this->peerName = 'DB_CategoryPeer';
+		$this->peerName = 'DB\\CategoryPeer';
 		$this->primaryKeyName = 'category_id';
 		$this->fieldNames = array( 'category_id' ,  'site_id' ,  'name' ,  'theme_default' ,  'theme_id' ,  'theme_external_url' ,  'permissions_default' ,  'permissions' ,  'license_default' ,  'license_id' ,  'license_other' ,  'nav_default' ,  'top_bar_page_name' ,  'side_bar_page_name' ,  'template_id' ,  'per_page_discussion' ,  'per_page_discussion_default' ,  'rating' ,  'category_template_id' ,  'autonumerate' ,  'page_title_template' ,  'enable_pingback_out' ,  'enable_pingback_in' );
 		

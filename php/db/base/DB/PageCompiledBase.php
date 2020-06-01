@@ -37,7 +37,7 @@ class PageCompiledBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='page_compiled';
-		$this->peerName = 'DB_PageCompiledPeer';
+		$this->peerName = 'DB\\PageCompiledPeer';
 		$this->primaryKeyName = 'page_id';
 		$this->fieldNames = array( 'page_id' ,  'text' ,  'date_compiled' );
 		

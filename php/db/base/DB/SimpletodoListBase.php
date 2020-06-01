@@ -37,7 +37,7 @@ class SimpletodoListBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='simpletodo_list';
-		$this->peerName = 'DB_SimpletodoListPeer';
+		$this->peerName = 'DB\\SimpletodoListPeer';
 		$this->primaryKeyName = 'list_id';
 		$this->fieldNames = array( 'list_id' ,  'site_id' ,  'label' ,  'title' ,  'data' );
 		

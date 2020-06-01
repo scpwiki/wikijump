@@ -37,7 +37,7 @@ class PageExternalLinkBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='page_external_link';
-		$this->peerName = 'DB_PageExternalLinkPeer';
+		$this->peerName = 'DB\\PageExternalLinkPeer';
 		$this->primaryKeyName = 'link_id';
 		$this->fieldNames = array( 'link_id' ,  'site_id' ,  'page_id' ,  'to_url' ,  'pinged' ,  'ping_status' ,  'date' );
 		

@@ -37,7 +37,7 @@ class ForumCategoryBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='forum_category';
-		$this->peerName = 'DB_ForumCategoryPeer';
+		$this->peerName = 'DB\\ForumCategoryPeer';
 		$this->primaryKeyName = 'category_id';
 		$this->fieldNames = array( 'category_id' ,  'group_id' ,  'name' ,  'description' ,  'number_posts' ,  'number_threads' ,  'last_post_id' ,  'permissions_default' ,  'permissions' ,  'max_nest_level' ,  'sort_index' ,  'site_id' ,  'per_page_discussion' );
 		

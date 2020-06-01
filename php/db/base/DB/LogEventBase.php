@@ -37,7 +37,7 @@ class LogEventBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='log_event';
-		$this->peerName = 'DB_LogEventPeer';
+		$this->peerName = 'DB\\LogEventPeer';
 		$this->primaryKeyName = 'event_id';
 		$this->fieldNames = array( 'event_id' ,  'date' ,  'user_id' ,  'ip' ,  'proxy' ,  'type' ,  'site_id' ,  'page_id' ,  'revision_id' ,  'thread_id' ,  'post_id' ,  'user_agent' ,  'text' );
 		

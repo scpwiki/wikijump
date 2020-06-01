@@ -37,7 +37,7 @@ class PetitionCampaignBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='petition_campaign';
-		$this->peerName = 'DB_PetitionCampaignPeer';
+		$this->peerName = 'DB\\PetitionCampaignPeer';
 		$this->primaryKeyName = 'campaign_id';
 		$this->fieldNames = array( 'campaign_id' ,  'site_id' ,  'name' ,  'identifier' ,  'active' ,  'number_signatures' ,  'deleted' ,  'collect_address' ,  'collect_city' ,  'collect_state' ,  'collect_zip' ,  'collect_country' ,  'collect_comments' ,  'show_city' ,  'show_state' ,  'show_zip' ,  'show_country' ,  'show_comments' ,  'thank_you_page' );
 		

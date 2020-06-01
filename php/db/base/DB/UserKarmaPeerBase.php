@@ -38,7 +38,7 @@ class UserKarmaPeerBase extends BaseDBPeer {
 	
 	protected function internalInit(){
 		$this->tableName='user_karma';
-		$this->objectName='DB_UserKarma';
+		$this->objectName='DB\\UserKarma';
 		$this->primaryKeyName = 'user_id';
 		$this->fieldNames = array( 'user_id' ,  'points' ,  'level' );
 		$this->fieldTypes = array( 'user_id' => 'int',  'points' => 'int',  'level' => 'int');
@@ -47,7 +47,7 @@ class UserKarmaPeerBase extends BaseDBPeer {
 	
 	public static function instance(){
 		if(self::$peerInstance == null){
-			$className = "DB_UserKarmaPeer";
+			$className = "DB\\UserKarmaPeer";
 			self::$peerInstance = new $className();
 		}
 		return self::$peerInstance;

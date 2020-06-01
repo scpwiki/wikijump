@@ -38,7 +38,7 @@ class PrivateUserBlockPeerBase extends BaseDBPeer {
 	
 	protected function internalInit(){
 		$this->tableName='private_user_block';
-		$this->objectName='DB_PrivateUserBlock';
+		$this->objectName='DB\\PrivateUserBlock';
 		$this->primaryKeyName = 'block_id';
 		$this->fieldNames = array( 'block_id' ,  'user_id' ,  'blocked_user_id' );
 		$this->fieldTypes = array( 'block_id' => 'serial',  'user_id' => 'int',  'blocked_user_id' => 'int');
@@ -47,7 +47,7 @@ class PrivateUserBlockPeerBase extends BaseDBPeer {
 	
 	public static function instance(){
 		if(self::$peerInstance == null){
-			$className = "DB_PrivateUserBlockPeer";
+			$className = "DB\\PrivateUserBlockPeer";
 			self::$peerInstance = new $className();
 		}
 		return self::$peerInstance;

@@ -37,7 +37,7 @@ class ForumSettingsBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='forum_settings';
-		$this->peerName = 'DB_ForumSettingsPeer';
+		$this->peerName = 'DB\\ForumSettingsPeer';
 		$this->primaryKeyName = 'site_id';
 		$this->fieldNames = array( 'site_id' ,  'permissions' ,  'per_page_discussion' ,  'max_nest_level' );
 		

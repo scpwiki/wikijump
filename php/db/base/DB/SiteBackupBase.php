@@ -37,7 +37,7 @@ class SiteBackupBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='site_backup';
-		$this->peerName = 'DB_SiteBackupPeer';
+		$this->peerName = 'DB\\SiteBackupPeer';
 		$this->primaryKeyName = 'backup_id';
 		$this->fieldNames = array( 'backup_id' ,  'site_id' ,  'status' ,  'backup_source' ,  'backup_files' ,  'date' ,  'rand' );
 		

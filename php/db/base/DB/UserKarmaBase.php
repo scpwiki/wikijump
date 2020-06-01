@@ -37,7 +37,7 @@ class UserKarmaBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='user_karma';
-		$this->peerName = 'DB_UserKarmaPeer';
+		$this->peerName = 'DB\\UserKarmaPeer';
 		$this->primaryKeyName = 'user_id';
 		$this->fieldNames = array( 'user_id' ,  'points' ,  'level' );
 		

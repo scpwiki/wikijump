@@ -38,7 +38,7 @@ class IpBlockPeerBase extends BaseDBPeer {
 	
 	protected function internalInit(){
 		$this->tableName='ip_block';
-		$this->objectName='DB_IpBlock';
+		$this->objectName='DB\\IpBlock';
 		$this->primaryKeyName = 'block_id';
 		$this->fieldNames = array( 'block_id' ,  'site_id' ,  'ip' ,  'flag_proxy' ,  'reason' ,  'date_blocked' );
 		$this->fieldTypes = array( 'block_id' => 'serial',  'site_id' => 'int',  'ip' => 'inet',  'flag_proxy' => 'boolean',  'reason' => 'text',  'date_blocked' => 'timestamp');
@@ -47,7 +47,7 @@ class IpBlockPeerBase extends BaseDBPeer {
 	
 	public static function instance(){
 		if(self::$peerInstance == null){
-			$className = "DB_IpBlockPeer";
+			$className = "DB\\IpBlockPeer";
 			self::$peerInstance = new $className();
 		}
 		return self::$peerInstance;

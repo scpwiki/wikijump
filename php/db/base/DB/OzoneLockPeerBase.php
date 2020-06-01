@@ -38,7 +38,7 @@ class OzoneLockPeerBase extends BaseDBPeer {
 	
 	protected function internalInit(){
 		$this->tableName='ozone_lock';
-		$this->objectName='DB_OzoneLock';
+		$this->objectName='DB\\OzoneLock';
 		$this->primaryKeyName = 'key';
 		$this->fieldNames = array( 'key' );
 		$this->fieldTypes = array( 'key' => 'varchar(100)');
@@ -47,7 +47,7 @@ class OzoneLockPeerBase extends BaseDBPeer {
 	
 	public static function instance(){
 		if(self::$peerInstance == null){
-			$className = "DB_OzoneLockPeer";
+			$className = "DB\\OzoneLockPeer";
 			self::$peerInstance = new $className();
 		}
 		return self::$peerInstance;

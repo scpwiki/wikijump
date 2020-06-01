@@ -37,7 +37,7 @@ class PageMetadataBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='page_metadata';
-		$this->peerName = 'DB_PageMetadataPeer';
+		$this->peerName = 'DB\\PageMetadataPeer';
 		$this->primaryKeyName = 'metadata_id';
 		$this->fieldNames = array( 'metadata_id' ,  'parent_page_id' ,  'title' ,  'unix_name' ,  'owner_user_id' );
 		

@@ -37,7 +37,7 @@ class SiteBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='site';
-		$this->peerName = 'DB_SitePeer';
+		$this->peerName = 'DB\\SitePeer';
 		$this->primaryKeyName = 'site_id';
 		$this->fieldNames = array( 'site_id' ,  'name' ,  'subtitle' ,  'unix_name' ,  'description' ,  'language' ,  'date_created' ,  'custom_domain' ,  'default_page' ,  'visible' ,  'private' ,  'deleted' );
 		

@@ -37,7 +37,7 @@ class OpenidEntryBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='openid_entry';
-		$this->peerName = 'DB_OpenidEntryPeer';
+		$this->peerName = 'DB\\OpenidEntryPeer';
 		$this->primaryKeyName = 'openid_id';
 		$this->fieldNames = array( 'openid_id' ,  'site_id' ,  'page_id' ,  'type' ,  'user_id' ,  'url' ,  'server_url' );
 		

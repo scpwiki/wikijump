@@ -37,7 +37,7 @@ class PageSourceBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='page_source';
-		$this->peerName = 'DB_PageSourcePeer';
+		$this->peerName = 'DB\\PageSourcePeer';
 		$this->primaryKeyName = 'source_id';
 		$this->fieldNames = array( 'source_id' ,  'text' );
 		

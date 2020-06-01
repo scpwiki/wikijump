@@ -37,7 +37,7 @@ class OzoneUserBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='ozone_user';
-		$this->peerName = 'DB_OzoneUserPeer';
+		$this->peerName = 'DB\\OzoneUserPeer';
 		$this->primaryKeyName = 'user_id';
 		$this->fieldNames = array( 'user_id' ,  'name' ,  'nick_name' ,  'password' ,  'email' ,  'unix_name' ,  'last_login' ,  'registered_date' ,  'super_admin' ,  'super_moderator' ,  'language' );
 		

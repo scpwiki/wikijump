@@ -37,7 +37,7 @@ class AdminBase extends BaseDBObject {
 
 	protected function internalInit(){
 		$this->tableName='admin';
-		$this->peerName = 'DB_AdminPeer';
+		$this->peerName = 'DB\\AdminPeer';
 		$this->primaryKeyName = 'admin_id';
 		$this->fieldNames = array( 'admin_id' ,  'site_id' ,  'user_id' ,  'founder' );
 		
