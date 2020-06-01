@@ -34,9 +34,9 @@ class LoginStatusModule extends Module{
 		// Smarty if not required!
 		
 		$user = $runData->getUser();
-	
+		
 		if (GlobalProperties::$WIKI_FARM) {
-			$url_prefix = 'http://'.$loginDomain.'.'.GlobalProperties::$URL_DOMAIN;
+			$url_prefix = GlobalProperties::$HTTP_SCHEMA.'://'.GlobalProperties::$LOGIN_DOMAIN.'.'.GlobalProperties::$URL_DOMAIN;
 		} else {
 			$url_prefix = '';
 		}
@@ -46,7 +46,7 @@ class LoginStatusModule extends Module{
 			
 			$originalUrl = $_SERVER['REQUEST_URI'];
 			if (GlobalProperties::$WIKI_FARM) {
-				$originalUrl = 'http://' . $_SERVER['HTTP_HOST'] . $originalUrl;
+				$originalUrl = GlobalProperties::$LOGIN_DOMAIN . $_SERVER['HTTP_HOST'] . $originalUrl;
 			}
 			
 			if(preg_match(';\?origUrl=.*$;', $originalUrl)){
@@ -54,8 +54,7 @@ class LoginStatusModule extends Module{
 				parse_str(preg_replace(';^.*?\?;', '', $_SERVER['REQUEST_URI']), $o);
 				$originalUrl = $o['origUrl'];
 			}
-			
-			$loginDomain = 'www';
+
 			if($site->getLanguage() != 'en'){
 				$loginDomain = $site->getLanguage();
 			}

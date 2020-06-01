@@ -37,12 +37,14 @@ class GlobalProperties {
 	// main settings
 	public static $SERVICE_NAME;
 	public static $URL_DOMAIN;
+	public static $LOGIN_DOMAIN;
 	public static $URL_HOST;
 	public static $WIKI_FARM;
 	public static $HTTP_PORT;
 	
 	// security settings
 	public static $USE_SSL;
+	public static $HTTP_SCHEMA;
 	public static $SECRET;
 	public static $SECRET_DOMAIN_LOGIN;
 	public static $USE_UPLOAD_DOMAIN;
@@ -173,6 +175,7 @@ class GlobalProperties {
 
 		if (self::$WIKI_FARM) {
 			self::$SERVICE_NAME			= self::fromIni("main",		"service");		//no default
+			self::$LOGIN_DOMAIN			= self::fromIni("main",		"login_domain",		"www");
 			self::$URL_DOMAIN			= self::fromIni("main",		"domain",		"singlewiki.wikidot.dev");
 			self::$URL_HOST				= self::fromIni("main",		"main_wiki",	"www." . self::$URL_DOMAIN);
 		} else {
@@ -184,6 +187,7 @@ class GlobalProperties {
 		// security settings
 		self::$SECRET					= self::fromIni("security",	"secret",					self::fromFile('secret'));
 		self::$USE_SSL					= self::fromIni("security",	"ssl",						false);
+		self::$HTTP_SCHEMA				= self::fromIni("security",	"schema",						"http");
 		self::$SECRET_DOMAIN_LOGIN		= self::fromIni("security",	"secret_login",				self::$SECRET . "_custom_domain_login");
 		self::$USE_UPLOAD_DOMAIN		= self::fromIni("security",	"upload_separate_domain",	false);
 		self::$URL_UPLOAD_DOMAIN		= self::fromIni("security",	"upload_domain",			"wd.files." . self::$URL_DOMAIN);
