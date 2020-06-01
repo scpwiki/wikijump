@@ -65,7 +65,9 @@ set_include_path($paths);
 }); */
 
 spl_autoload_register(function ($class) {
-	trigger_error("Paths: ".get_include_path());
+    if(GlobalProperties::$LOGGER_LEVEL == "debug") {
+        trigger_error("Paths: " . get_include_path());
+    }
             $file = str_replace('\\', DIRECTORY_SEPARATOR, $class).'.php';
             if (stream_resolve_include_path($file)) {
 		    require $file;
