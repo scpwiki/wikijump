@@ -25,7 +25,7 @@
 
 namespace DB;
 
-use DB_InvitationBase;
+use DB\InvitationBase;
 
 
 
@@ -34,6 +34,6 @@ use DB_InvitationBase;
  * Object Model class.
  *
  */
-class Invitation extends DB_InvitationBase {
+class Invitation extends InvitationBase {
 
 }

@@ -2,7 +2,7 @@
 
 namespace DB;
 
-use DB_ForumTopicPeerBase;
+use DB\ForumTopicPeerBase;
 
 
 
@@ -34,6 +34,6 @@ use DB_ForumTopicPeerBase;
  * Object Model class.
  *
  */
-class ForumTopicPeer extends DB_ForumTopicPeerBase {
+class ForumTopicPeer extends ForumTopicPeerBase {
 
 }

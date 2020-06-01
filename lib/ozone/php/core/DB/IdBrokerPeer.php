@@ -2,7 +2,7 @@
 
 namespace DB;
 
-use DB_IdBrokerPeerBase;
+use DB\IdBrokerPeerBase;
 use \Database;
 
 
@@ -35,7 +35,7 @@ use \Database;
  * Id broker peer class.
  *
  */
-class IdBrokerPeer extends DB_IdBrokerPeerBase {
+class IdBrokerPeer extends IdBrokerPeerBase {
 
 	/**
 	 * Updates internal data regarding indexes for primary keys.

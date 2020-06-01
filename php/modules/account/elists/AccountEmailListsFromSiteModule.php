@@ -28,8 +28,8 @@
 use \AccountBaseModule;
 use Criteria;
 use DB\SitePeer;
-use DB_EmailListPeer;
-use DB_EmailListSubscriberPeer;
+use DB\EmailListPeer;
+use DB\EmailListSubscriberPeer;
 
 class AccountEmailListsFromSiteModule extends AccountBaseModule {
 	

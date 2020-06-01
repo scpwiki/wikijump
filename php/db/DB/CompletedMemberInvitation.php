@@ -25,7 +25,7 @@
 
 namespace DB;
 
-use DB_CompletedMemberInvitationBase;
+use DB\CompletedMemberInvitationBase;
 
 
 
@@ -34,6 +34,6 @@ use DB_CompletedMemberInvitationBase;
  * Object Model class.
  *
  */
-class CompletedMemberInvitation extends DB_CompletedMemberInvitationBase {
+class CompletedMemberInvitation extends CompletedMemberInvitationBase {
 
 }

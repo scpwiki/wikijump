@@ -2,7 +2,7 @@
 
 namespace DB;
 
-use DB_PageSourceArchivePeerBase;
+use DB\PageSourceArchivePeerBase;
 
 
 
@@ -34,6 +34,6 @@ use DB_PageSourceArchivePeerBase;
  * Object Model class.
  *
  */
-class PageSourceArchivePeer extends DB_PageSourceArchivePeerBase {
+class PageSourceArchivePeer extends PageSourceArchivePeerBase {
 
 }

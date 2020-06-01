@@ -2,7 +2,7 @@
 
 namespace DB;
 
-use DB_PageRatePeerBase;
+use DB\PageRatePeerBase;
 
 
 
@@ -34,6 +34,6 @@ use DB_PageRatePeerBase;
  * Object Model class.
  *
  */
-class PageRatePeer extends DB_PageRatePeerBase {
+class PageRatePeer extends PageRatePeerBase {
 
 }

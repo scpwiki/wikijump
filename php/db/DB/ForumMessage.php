@@ -25,7 +25,7 @@
 
 namespace DB;
 
-use DB_ForumMessageBase;
+use DB\ForumMessageBase;
 
 
 
@@ -34,6 +34,6 @@ use DB_ForumMessageBase;
  * Object Model class.
  *
  */
-class ForumMessage extends DB_ForumMessageBase {
+class ForumMessage extends ForumMessageBase {
 
 }

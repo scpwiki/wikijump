@@ -3,8 +3,8 @@
 <?php echo '<?php'; ?>
 
 //please extend this class
-class DB_<?php echo $this->_tpl_vars['className']; ?>
- extends DB_<?php echo $this->_tpl_vars['className']; ?>
+class <?php echo $this->_tpl_vars['className']; ?>
+ extends <?php echo $this->_tpl_vars['className']; ?>
 Base {
 
 	

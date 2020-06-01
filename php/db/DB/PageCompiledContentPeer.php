@@ -2,7 +2,7 @@
 
 namespace DB;
 
-use DB_PageCompiledContentPeerBase;
+use DB\PageCompiledContentPeerBase;
 
 
 
@@ -34,6 +34,6 @@ use DB_PageCompiledContentPeerBase;
  * Object Model class.
  *
  */
-class PageCompiledContentPeer extends DB_PageCompiledContentPeerBase {
+class PageCompiledContentPeer extends PageCompiledContentPeerBase {
 
 }

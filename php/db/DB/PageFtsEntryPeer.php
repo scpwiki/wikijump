@@ -2,7 +2,7 @@
 
 namespace DB;
 
-use DB_PageFtsEntryPeerBase;
+use DB\PageFtsEntryPeerBase;
 
 
 
@@ -34,6 +34,6 @@ use DB_PageFtsEntryPeerBase;
  * Object Model class.
  *
  */
-class PageFtsEntryPeer extends DB_PageFtsEntryPeerBase {
+class PageFtsEntryPeer extends PageFtsEntryPeerBase {
 
 }

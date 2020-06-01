@@ -27,7 +27,7 @@
 
 use \ManageSiteBaseModule;
 use Criteria;
-use DB_EmailListPeer;
+use DB\EmailListPeer;
 
 class ManageSiteEmailListsModule extends ManageSiteBaseModule {
 

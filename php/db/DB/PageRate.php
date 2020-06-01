@@ -25,7 +25,7 @@
 
 namespace DB;
 
-use DB_PageRateBase;
+use DB\PageRateBase;
 
 
 
@@ -34,6 +34,6 @@ use DB_PageRateBase;
  * Object Model class.
  *
  */
-class PageRate extends DB_PageRateBase {
+class PageRate extends PageRateBase {
 
 }

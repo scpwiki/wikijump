@@ -25,7 +25,7 @@
 
 namespace DB;
 
-use DB_PageFtsEntryBase;
+use DB\PageFtsEntryBase;
 
 
 
@@ -34,6 +34,6 @@ use DB_PageFtsEntryBase;
  * Object Model class.
  *
  */
-class PageFtsEntry extends DB_PageFtsEntryBase {
+class PageFtsEntry extends PageFtsEntryBase {
 
 }

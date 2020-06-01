@@ -25,7 +25,7 @@
 
 namespace DB;
 
-use DB_AcceptedInvitationBase;
+use DB\AcceptedInvitationBase;
 
 
 
@@ -34,6 +34,6 @@ use DB_AcceptedInvitationBase;
  * Object Model mapped class.
  *
  */
-class AcceptedInvitation extends DB_AcceptedInvitationBase {
+class AcceptedInvitation extends AcceptedInvitationBase {
 
 }

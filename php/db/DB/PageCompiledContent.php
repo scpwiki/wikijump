@@ -25,7 +25,7 @@
 
 namespace DB;
 
-use DB_PageCompiledContentBase;
+use DB\PageCompiledContentBase;
 
 
 
@@ -34,6 +34,6 @@ use DB_PageCompiledContentBase;
  * Object Model class.
  *
  */
-class PageCompiledContent extends DB_PageCompiledContentBase {
+class PageCompiledContent extends PageCompiledContentBase {
 
 }

@@ -25,7 +25,7 @@
 
 namespace DB;
 
-use DB_ScreenCacheBase;
+use DB\ScreenCacheBase;
 
 
 
@@ -34,6 +34,6 @@ use DB_ScreenCacheBase;
  * Object Model class.
  *
  */
-class ScreenCache extends DB_ScreenCacheBase {
+class ScreenCache extends ScreenCacheBase {
 
 }

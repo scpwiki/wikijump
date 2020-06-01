@@ -2,7 +2,7 @@
 
 namespace DB;
 
-use DB_ScreenCachePeerBase;
+use DB\ScreenCachePeerBase;
 
 
 
@@ -34,6 +34,6 @@ use DB_ScreenCachePeerBase;
  * Object Model class.
  *
  */
-class ScreenCachePeer extends DB_ScreenCachePeerBase {
+class ScreenCachePeer extends ScreenCachePeerBase {
 
 }

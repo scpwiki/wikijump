@@ -2,7 +2,7 @@
 
 namespace DB;
 
-use DB_CompletedMemberInvitationPeerBase;
+use DB\CompletedMemberInvitationPeerBase;
 
 
 
@@ -34,6 +34,6 @@ use DB_CompletedMemberInvitationPeerBase;
  * Object Model class.
  *
  */
-class CompletedMemberInvitationPeer extends DB_CompletedMemberInvitationPeerBase {
+class CompletedMemberInvitationPeer extends CompletedMemberInvitationPeerBase {
 
 }

@@ -2,7 +2,7 @@
 
 namespace DB;
 
-use DB_UniqueStringBrokerPeerBase;
+use DB\UniqueStringBrokerPeerBase;
 use \Database;
 
 
@@ -34,7 +34,7 @@ use \Database;
 /**
  * Handles unique string services.
  */
-class UniqueStringBrokerPeer extends DB_UniqueStringBrokerPeerBase {
+class UniqueStringBrokerPeer extends UniqueStringBrokerPeerBase {
 
 	public function increaseIndex(){
 		$query = "UPDATE unique_string_broker SET last_index=last_index+1";

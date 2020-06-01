@@ -33,7 +33,7 @@ use _selectLink;
 use _ping;
 use ODate;
 use subtractSeconds;
-use db_escape_string;
+use DB\escape_string;
 use getDate;
 use Criteria;
 use setExplicitQuery;

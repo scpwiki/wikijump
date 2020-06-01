@@ -8,7 +8,7 @@ use \ModuleHelpers;
 use DB\OzoneSession;
 use \ODate;
 use \Criteria;
-use DB_OzoneSessionPeer;
+use DB\OzoneSessionPeer;
 use \FormTool;
 
 /**

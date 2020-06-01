@@ -25,7 +25,7 @@
 
 namespace DB;
 
-use DB_UserSecurityQuestionBase;
+use DB\UserSecurityQuestionBase;
 
 
 
@@ -34,6 +34,6 @@ use DB_UserSecurityQuestionBase;
  * Object Model class.
  *
  */
-class UserSecurityQuestion extends DB_UserSecurityQuestionBase {
+class UserSecurityQuestion extends UserSecurityQuestionBase {
 
 }

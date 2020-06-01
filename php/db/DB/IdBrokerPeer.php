@@ -2,7 +2,7 @@
 
 namespace DB;
 
-use DB_IdBrokerPeerBase;
+use DB\IdBrokerPeerBase;
 
 
 
@@ -34,6 +34,6 @@ use DB_IdBrokerPeerBase;
  * Object Model class.
  *
  */
-class IdBrokerPeer extends DB_IdBrokerPeerBase {
+class IdBrokerPeer extends IdBrokerPeerBase {
 
 }

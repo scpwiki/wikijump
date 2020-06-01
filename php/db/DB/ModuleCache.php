@@ -25,7 +25,7 @@
 
 namespace DB;
 
-use DB_ModuleCacheBase;
+use DB\ModuleCacheBase;
 
 
 
@@ -34,6 +34,6 @@ use DB_ModuleCacheBase;
  * Object Model class.
  *
  */
-class ModuleCache extends DB_ModuleCacheBase {
+class ModuleCache extends ModuleCacheBase {
 
 }

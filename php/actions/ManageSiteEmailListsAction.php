@@ -29,12 +29,12 @@ use SmartyAction;
 use \WDPermissionManager;
 use \ProcessException;
 use Database;
-use DB_EmailList;
+use DB\EmailList;
 use Criteria;
-use DB_EmailListPeer;
+use DB\EmailListPeer;
 use Excepion;
 use ProcessExcepion;
-use DB_EmailListSubscriberPeer;
+use DB\EmailListSubscriberPeer;
 
 class ManageSiteEmailListsAction extends SmartyAction {
 	

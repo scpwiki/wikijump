@@ -26,13 +26,13 @@
 
 
 use \SecurityManager as SecurityManager;
-use DB_OzoneUserPeer;
-use DB_OzoneGroupPeer;
-use DB_OzonePermissionPeer;
-use DB_OzoneUserGroupRelation;
+use DB\OzoneUserPeer;
+use DB\OzoneGroupPeer;
+use DB\OzonePermissionPeer;
+use DB\OzoneUserGroupRelation;
 use \Criteria;
-use DB_OzoneUserGroupRelationPeer;
-use DB_OzoneGroup;
+use DB\OzoneUserGroupRelationPeer;
+use DB\OzoneGroup;
 
 /**
  * Security (ACL) manager.

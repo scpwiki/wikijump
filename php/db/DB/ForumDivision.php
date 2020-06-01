@@ -25,7 +25,7 @@
 
 namespace DB;
 
-use DB_ForumDivisionBase;
+use DB\ForumDivisionBase;
 
 
 
@@ -34,6 +34,6 @@ use DB_ForumDivisionBase;
  * Object Model class.
  *
  */
-class ForumDivision extends DB_ForumDivisionBase {
+class ForumDivision extends ForumDivisionBase {
 
 }

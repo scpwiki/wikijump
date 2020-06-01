@@ -3,11 +3,11 @@
 
 namespace DB;
 
-use DB_ApiKeyBase;
+use DB\ApiKeyBase;
 
 
 //please extend this class
-class ApiKey extends DB_ApiKeyBase {
+class ApiKey extends ApiKeyBase {
 
 	
 }

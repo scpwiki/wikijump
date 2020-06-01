@@ -27,8 +27,8 @@
 
 use \Form;
 use \Criteria;
-use DB_FormSubmissionKeyPeer;
-use DB_FormSubmissionKey;
+use DB\FormSubmissionKeyPeer;
+use DB\FormSubmissionKey;
 use \ODate;
 
 /**

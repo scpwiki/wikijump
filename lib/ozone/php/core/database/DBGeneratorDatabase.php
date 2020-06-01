@@ -31,7 +31,7 @@ use \DBGeneratorView;
 use \Database;
 use \Criteria;
 use DB\IdBrokerPeer;
-use DB_IdBroker;
+use DB\IdBroker;
 
 /**
  * Database generator.

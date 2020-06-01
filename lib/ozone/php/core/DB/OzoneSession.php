@@ -25,7 +25,7 @@
 
 namespace DB;
 
-use DB_OzoneSessionBase;
+use DB\OzoneSessionBase;
 use \Database;
 
 
@@ -34,7 +34,7 @@ use \Database;
 /**
  * The Session Object
  */
-class OzoneSession extends DB_OzoneSessionBase {
+class OzoneSession extends OzoneSessionBase {
 
 	private $serializedData = array();
 	

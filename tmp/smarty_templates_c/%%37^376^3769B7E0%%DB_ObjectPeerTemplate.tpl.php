@@ -3,8 +3,8 @@
 <?php echo '<?php'; ?>
  
 //please extend this class
-class DB_<?php echo $this->_tpl_vars['className']; ?>
-Peer extends DB_<?php echo $this->_tpl_vars['className']; ?>
+class <?php echo $this->_tpl_vars['className']; ?>
+Peer extends <?php echo $this->_tpl_vars['className']; ?>
 PeerBase {
 
 }

@@ -25,7 +25,7 @@
 
 namespace DB;
 
-use DB_PageSourceArchiveBase;
+use DB\PageSourceArchiveBase;
 
 
 
@@ -34,6 +34,6 @@ use DB_PageSourceArchiveBase;
  * Object Model class.
  *
  */
-class PageSourceArchive extends DB_PageSourceArchiveBase {
+class PageSourceArchive extends PageSourceArchiveBase {
 
 }

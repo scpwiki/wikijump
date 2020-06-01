@@ -2,7 +2,7 @@
 
 namespace DB;
 
-use DB_ModuleCachePeerBase;
+use DB\ModuleCachePeerBase;
 
 
 
@@ -34,6 +34,6 @@ use DB_ModuleCachePeerBase;
  * Object Model class.
  *
  */
-class ModuleCachePeer extends DB_ModuleCachePeerBase {
+class ModuleCachePeer extends ModuleCachePeerBase {
 
 }

@@ -28,7 +28,7 @@
 use \ManageSiteBaseModule;
 use Database;
 use Criteria;
-use DB_EmailListPeer;
+use DB\EmailListPeer;
 use \ProcessException;
 use DB\OzoneUserPeer;
 

@@ -2,7 +2,7 @@
 
 namespace DB;
 
-use DB_AcceptedInvitationPeerBase;
+use DB\AcceptedInvitationPeerBase;
 
 
 
@@ -34,6 +34,6 @@ use DB_AcceptedInvitationPeerBase;
  * Object Model mapped class.
  *
  */
-class AcceptedInvitationPeer extends DB_AcceptedInvitationPeerBase {
+class AcceptedInvitationPeer extends AcceptedInvitationPeerBase {
 
 }

@@ -2,7 +2,7 @@
 
 namespace DB;
 
-use DB_UserSecurityQuestionPeerBase;
+use DB\UserSecurityQuestionPeerBase;
 
 
 
@@ -34,6 +34,6 @@ use DB_UserSecurityQuestionPeerBase;
  * Object Model class.
  *
  */
-class UserSecurityQuestionPeer extends DB_UserSecurityQuestionPeerBase {
+class UserSecurityQuestionPeer extends UserSecurityQuestionPeerBase {
 
 }
