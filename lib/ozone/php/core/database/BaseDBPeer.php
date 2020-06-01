@@ -43,7 +43,7 @@ abstract class BaseDBPeer {
 	public $defaultValues;
 
 	public static function peerForTable($tableName){
-		$className = 'DB_'.capitalizeFirstLetter(underscoreToLowerCase($tableName)).'Peer';
+		$className = capitalizeFirstLetter(underscoreToLowerCase($tableName)).'Peer';
 		return new $className;
 	}
 	
