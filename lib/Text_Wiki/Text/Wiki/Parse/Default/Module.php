@@ -74,7 +74,7 @@ class Text_Wiki_Parse_Module extends Text_Wiki_Parse {
         // check if not containing another module!!!
         $con = $matches[0];
         
-        if (preg_match_all('/^\[\[module\s([a-z0-9_\-\/]+)(\s+.*?)?\]\]/smi', $con, &$dummy) > 1) {
+        if (preg_match_all('/^\[\[module\s([a-z0-9_\-\/]+)(\s+.*?)?\]\]/smi', $con,$dummy) > 1) {
             return preg_replace('/^\[\[module/', '[[module654', $con);
         }
         
