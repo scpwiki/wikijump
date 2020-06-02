@@ -36,7 +36,7 @@ class Dojo
     $files = scandir($dir);
 
     foreach ($files as $file) {
-      if ($file{0} == '.') continue;
+      if ($file[0] == '.') continue;
       if (is_dir($dir . '/' . $file)) {
         if ($recurse) {
           $file = $dir . '/' . $file;

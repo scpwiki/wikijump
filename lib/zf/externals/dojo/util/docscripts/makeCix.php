@@ -239,7 +239,7 @@ function expando_dojo($array){
 	$ret = array();
 	foreach($array as $namespace => $results){
 		foreach($results as $item => $data){
-			switch($item{0}){
+			switch($item[0]){
 				case "#" : break;
 				default:
 					$list = explode(".",$item);

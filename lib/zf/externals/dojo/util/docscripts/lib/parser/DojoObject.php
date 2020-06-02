@@ -93,7 +93,7 @@ class DojoObject extends DojoBlock
             $this->body->addBlockCommentBreak();
           }
           $end = array($line_number, strlen($match[0]));
-          if ($match[2]{0} == '"' || $match[2]{0} == "'") {
+          if ($match[2][0] == '"' || $match[2][0] == "'") {
             $key = trim(implode(Text::chop($this->package->getSource(), $line_number, strpos($line, '"') + 1, $line_number, strlen($match[0]) - 3, false)));
           }else{
             $key = $match[2];
@@ -109,7 +109,7 @@ class DojoObject extends DojoBlock
         $this->values[$key][] = $parameter;
       }
     }
-    while ($lines[$end[0]]{$end[1]} != '}');
+    while ($lines[$end[0]][$end[1]] != '}');
     
     $this->setEnd($end[0], $end[1]);
     return $end;

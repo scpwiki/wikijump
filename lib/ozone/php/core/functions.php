@@ -89,14 +89,14 @@ function underscoreToLowerCase($string) {
     $string = trim($string);
     $nextUpper = false;
     for ($i = 0; $i < strlen($string); $i++) {
-        if ($string{$i} != '_') {
+        if ($string[$i] != '_') {
             if ($nextUpper) {
                 $out .= strtoupper(
-                        $string{$i});
+                        $string[$i]);
                 $nextUpper = false;
             } else {
                 $out .= strtolower(
-                        $string{$i});
+                        $string[$i]);
             }
         } else {
             $nextUpper = true;
@@ -110,17 +110,17 @@ function lowerCaseToUnderscore($string) {
     $out = '';
     $string = trim($string);
     for ($i = 0; $i < strlen($string); $i++) {
-        if (ctype_upper($string{$i}) && $i != 0) {
+        if (ctype_upper($string[$i]) && $i != 0) {
             $out .= '_';
         }
-        $out .= strtoupper($string{$i});
+        $out .= strtoupper($string[$i]);
     }
     return $out;
 }
 
 function capitalizeFirstLetter($string) {
     $out = trim($string);
-    $out{0} = strtoupper($out{0});
+    $out[0] = strtoupper($out[0]);
     return $out;
 }
 

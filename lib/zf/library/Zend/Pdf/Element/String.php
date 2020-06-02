@@ -165,7 +165,7 @@ class Zend_Pdf_Element_String extends Zend_Pdf_Element
             if ($inStr[$count] != '\\' || $count == strlen($inStr)-1)  {
                 $outStr .= $inStr[$count];
             } else { // Escape sequence
-                switch ($inStr{++$count}) {
+                switch ($inStr[++$count]) {
                     // '\\n' - line feed (LF)
                     case 'n':
                         $outStr .= "\n";
@@ -223,11 +223,11 @@ class Zend_Pdf_Element_String extends Zend_Pdf_Element
 
                             if (ord($inStr[$count+1]) >= ord('0') &&
                                 ord($inStr[$count+1]) <= ord('9')) {
-                                $nextCode .= $inStr{++$count};
+                                $nextCode .= $inStr[++$count];
 
                                 if (ord($inStr[$count+1]) >= ord('0') &&
                                     ord($inStr[$count+1]) <= ord('9')) {
-                                    $nextCode .= $inStr{++$count};
+                                    $nextCode .= $inStr[++$count];
                                 }
                             }
 

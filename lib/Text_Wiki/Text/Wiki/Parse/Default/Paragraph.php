@@ -116,7 +116,7 @@ class Text_Wiki_Parse_Paragraph extends Text_Wiki_Parse {
         $key = '';
         $len = strlen($matches[0]);
         for ($i = 1; $i < $len; $i++) {
-            $char = $matches[0]{$i};
+            $char = $matches[0][$i];
             if ($char == $delim) {
                 break;
             } else {

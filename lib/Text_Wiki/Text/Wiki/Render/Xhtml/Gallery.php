@@ -85,7 +85,7 @@ class Text_Wiki_Render_Xhtml_Gallery extends Text_Wiki_Render {
       			
       			// SINGLE IMAGE PROCESSING BEGINS
 
-				if($src && $src{0} == '*'){
+				if($src && $src[0] == '*'){
 					$src = substr($src, 1);
 				   	$target  = 'target="_blank"';
 				}
@@ -140,7 +140,7 @@ class Text_Wiki_Render_Xhtml_Gallery extends Text_Wiki_Render {
 		        
 		       if (isset($attr['link'])) {
 		       		$link = $attr['link'];
-		       		if($link{0} == '*'){
+		       		if($link[0] == '*'){
 	        				$link = substr($link, 1);
 	        				$target  = 'target="_blank"';
 	        				$attr['link'] = $link;

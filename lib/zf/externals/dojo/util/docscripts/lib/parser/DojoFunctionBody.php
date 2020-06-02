@@ -104,7 +104,7 @@ class DojoFunctionBody extends DojoBlock
     $indented = false;
     $blank = false;
     foreach ($lines as $i => $line) {
-      if ($line{0} == "|") {
+      if ($line[0] == "|") {
         if(!$indented){
           $indented = true;
           if (!$blank) {

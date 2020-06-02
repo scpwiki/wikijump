@@ -27,7 +27,7 @@ class DojoParameters extends DojoBlock
       $end = $parameter->build();
 
       $this->parameters[] = $parameter;
-    } while ($code[$end[0]]{$end[1]} != $this->terminator);
+    } while ($code[$end[0]][$end[1]] != $this->terminator);
 
     $this->setEnd($end[0], $end[1]);
     return $end;

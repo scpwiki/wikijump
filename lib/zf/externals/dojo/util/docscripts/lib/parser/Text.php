@@ -102,11 +102,11 @@ class Text
       }
       $lines[$end_line] = Text::blankOutAt($lines[$end_line], $end_position + 1, strlen($lines[$end_line]));
       if ($exclusive) {
-        if ($lines[$start_line]{$start_position}) {
-          $lines[$start_line]{$start_position} = ' ';
+        if ($lines[$start_line][$start_position]) {
+          $lines[$start_line][$start_position] = ' ';
         }
-        if ($lines[$end_line]{$end_position}) {
-          $lines[$end_line]{$end_position} = ' ';
+        if ($lines[$end_line][$end_position]) {
+          $lines[$end_line][$end_position] = ' ';
         }
       }
 

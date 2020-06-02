@@ -100,10 +100,10 @@ class DojoParameter extends DojoBlock
     $lines = Text::chop($this->package->getSource(), $this->start[0], $this->start[1], $this->end[0], $this->end[1], true);
     $parameter_value = Text::trim(implode("\n", $lines));
 
-    if ($parameter_value{0} == '"' || $parameter_value{0} == "'") {
+    if ($parameter_value[0] == '"' || $parameter_value[0] == "'") {
       $this->parameter_value = new DojoString($parameter_value);
     }
-    elseif ($parameter_value{0} == '{') {
+    elseif ($parameter_value[0] == '{') {
       foreach ($lines as $line_number => $line) {
         if (($position = strpos($line, '{')) !== false) {
           $this->parameter_value = new DojoObject($this->package, $line_number, $position);
@@ -119,7 +119,7 @@ class DojoParameter extends DojoBlock
         }
       }
     }
-    elseif ($parameter_value{0} == '[') {
+    elseif ($parameter_value[0] == '[') {
       foreach ($lines as $line_number => $line) {
         if (($position = strpos($line, '[')) !== false) {
           require_once('DojoArray.php'); // Chase condition

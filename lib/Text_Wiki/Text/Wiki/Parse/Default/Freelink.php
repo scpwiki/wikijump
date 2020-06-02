@@ -125,7 +125,7 @@ class Text_Wiki_Parse_Freelink extends Text_Wiki_Parse {
         $text = $matches[3];
         $anchor = $matches[2];
 
-        if($page{0} == '_'){
+        if($page[0] == '_'){
         		$page = substr($page, 1);
         		$nonbr = true;	
         }

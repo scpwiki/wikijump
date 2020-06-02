@@ -139,7 +139,7 @@ class Text_Wiki_Parse_Image extends Text_Wiki_Parse {
             // fix the target="_blank"
 
             $link = $options['attr']['link'];
-            if ($link && $link{0} == '*') {
+            if ($link && $link[0] == '*') {
                 $link = substr($link, 1);
                 $options['target'] = '_blank';
                 $options['attr']['link'] = $link;
@@ -171,7 +171,7 @@ class Text_Wiki_Parse_Image extends Text_Wiki_Parse {
         // fix the target="_blank"
 
         $src = $options['src'];
-        if ($src && $src{0} == '*') {
+        if ($src && $src[0] == '*') {
             $src = substr($src, 1);
             $options['target'] = '_blank';
             $options['src'] = $src;

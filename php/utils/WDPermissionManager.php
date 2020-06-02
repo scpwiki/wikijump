@@ -820,10 +820,10 @@ class WDPermissionManager {
 		if(preg_match("/^.*?$actionCode:([a-z]*).*$/", $permString) !== 0){
 			$a2 = preg_replace("/^.*?$actionCode:([a-z]*).*$/", "\\1", $permString);
 			for($i = 0; $i<strlen($a2); $i++){
-				if($extraUserDesc && $extraUserDesc[$a2{$i}]){
-					$allowedUsers[] = $extraUserDesc[$a2{$i}];
+				if($extraUserDesc && $extraUserDesc[$a2[$i]]){
+					$allowedUsers[] = $extraUserDesc[$a2[$i]];
 				}else{
-					$allowedUsers[] = self::$userClassesDesc[array_search($a2{$i}, self::$userClasses)];
+					$allowedUsers[] = self::$userClassesDesc[array_search($a2[$i], self::$userClasses)];
 				}	
 			}
 		}

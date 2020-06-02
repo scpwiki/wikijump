@@ -479,12 +479,12 @@ function dojo_get_contents($namespace, $file_name) {
   }
 
   foreach ($output as $object_name => $object) {
-    if ($object_name{0} == '#') {
+    if ($object_name[0] == '#') {
       continue;
     }
     $parts = explode('.', $object_name);
     $last = array_pop($parts);
-    if ($last{0} == '_') {
+    if ($last[0] == '_') {
       $output[$object_name]['private'] = true;
     }
     if (strpos($object_name, '._') !== false) {

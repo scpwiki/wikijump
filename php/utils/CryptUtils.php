@@ -37,7 +37,7 @@ class CryptUtils {
 		$charMax = 90;
 		$out = '';
 		for($i = 0; $i<$length; $i++){
-			$out .= $vals{rand(0, 35)};	
+			$out .= $vals[rand(0, 35)];
 		}
 		return $out;
 	}

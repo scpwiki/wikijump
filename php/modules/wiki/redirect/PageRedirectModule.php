@@ -52,7 +52,7 @@ class PageRedirectModule extends SmartyModule {
 			// ok, redirect!!!
 
 			// check if mapping should be done.
-			if($target{strlen($target)-1} === '/' && strpos($currentUri, '/',1)){
+			if($target[strlen($target)-1] === '/' && strpos($currentUri, '/',1)){
 				$map = true;
 			}else{
 				$map = false;

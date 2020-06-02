@@ -111,15 +111,15 @@ class Text_Wiki_Parse_Smiley extends Text_Wiki_Parse {
                     $cur = $smiley;
                 }
                 $len = strlen($cur);
-                if (($cur{0} == ':') && ($len > 2) && ($cur{$len - 1} == ':')) {
+                if (($cur[0] == ':') && ($len > 2) && ($cur[$len - 1] == ':')) {
                     $reg1 .= $sep1 . preg_quote(substr($cur, 1, -1), '#');
                     $sep1 = '|';
                     continue;
                 }
                 if ($autoNose && ($len === 2)) {
-                    $variante = $cur{0} . '-' . $cur{1};
+                    $variante = $cur[0] . '-' . $cur[1];
                     $this->_smileys[$variante] = &$this->_smileys[$smiley];
-                    $cur = preg_quote($cur{0}, '#') . '-?' . preg_quote($cur{1}, '#');
+                    $cur = preg_quote($cur[0], '#') . '-?' . preg_quote($cur[1], '#');
                 } else {
                     $cur = preg_quote($cur, '#');
                 }
