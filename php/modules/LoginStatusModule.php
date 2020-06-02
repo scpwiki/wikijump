@@ -59,8 +59,8 @@ class LoginStatusModule extends Module{
 				$loginDomain = $site->getLanguage();
 			}
 			
-			$out  = '<a href="' . $url_prefix . '/auth:newaccount?origUrl='.urlencode($originalUrl).'">'._('create account').'</a> '._('or') . ' ';
-			$out .= '<a href="' . $url_prefix . '/auth:login?origUrl='.urlencode($originalUrl).'">'._('login').'</a> ';
+			$out  = '<a href="' . $url_prefix . '/auth:newaccount?origUrl='.urlencode(GlobalProperties::$HTTP_SCHEMA.'://').urlencode($originalUrl).'">'._('create account').'</a> '._('or') . ' ';
+			$out .= '<a href="' . $url_prefix . '/auth:login?origUrl='.urlencode(GlobalProperties::$HTTP_SCHEMA.'://').urlencode($originalUrl).'">'._('login').'</a> ';
 			
 			//$out = '<a href="javascript:;" onclick="WIKIDOT.page.listeners.createAccount(event)">'._('create account').'</a> '._('or').' <a href="javascript:;" onclick="WIKIDOT.page.listeners.loginClick(event)">'._('login').'</a>';
 		} else {
