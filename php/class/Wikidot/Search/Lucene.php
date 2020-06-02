@@ -388,7 +388,7 @@ class Lucene {
 	
 	protected function executeWikidotSearch($query) {
 		$results = array();
-		if (GlobalProperties::$SEARCH_USE_JAVA) {
+		if (\GlobalProperties::$SEARCH_USE_JAVA) {
 			$cmd = "java -jar " . escapeshellcmd(WIKIDOT_ROOT . "/bin/wikidot_search.jar");
 			$cmd .= " " . escapeshellarg($this->indexFile);
 			$cmd .= " " . escapeshellarg($query);
@@ -398,7 +398,7 @@ class Lucene {
 			if (count($results)) {
 				// something other than int in the first line means we had an exception in java program
 				if (! is_numeric($results[0])) {
-					throw new Exception(join("\n", $results));
+					throw new \Exception(join("\n", $results));
 				}
 			}
 		} else {
