@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/unit_test/templates
+END
+parse_obj_meth.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/unit_test/templates/parse_obj_meth.tpl
+END
+parse_math.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/unit_test/templates/parse_math.tpl
+END
+index.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/unit_test/templates/index.tpl
+END
+constant.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/unit_test/templates/constant.tpl
+END
+assign_var.tpl
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/unit_test/templates/assign_var.tpl
+END

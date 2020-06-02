@@ -1,0 +1,275 @@
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins
+END
+function.html_image.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/function.html_image.php
+END
+modifier.spacify.php
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/modifier.spacify.php
+END
+modifier.count_sentences.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/modifier.count_sentences.php
+END
+modifier.escape.php
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/modifier.escape.php
+END
+modifier.count_paragraphs.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/modifier.count_paragraphs.php
+END
+compiler.assign.php
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/compiler.assign.php
+END
+modifier.strip.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/modifier.strip.php
+END
+modifier.count_words.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/modifier.count_words.php
+END
+modifier.cat.php
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/modifier.cat.php
+END
+modifier.debug_print_var.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/modifier.debug_print_var.php
+END
+modifier.replace.php
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/modifier.replace.php
+END
+function.eval.php
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/function.eval.php
+END
+modifier.string_format.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/modifier.string_format.php
+END
+modifier.nl2br.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/modifier.nl2br.php
+END
+modifier.strip_tags.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/modifier.strip_tags.php
+END
+modifier.default.php
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/modifier.default.php
+END
+modifier.capitalize.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/modifier.capitalize.php
+END
+modifier.date_format.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/modifier.date_format.php
+END
+function.cycle.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/function.cycle.php
+END
+modifier.count_characters.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/modifier.count_characters.php
+END
+modifier.lower.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/modifier.lower.php
+END
+block.textformat.php
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/block.textformat.php
+END
+function.popup.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/function.popup.php
+END
+function.html_radios.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/function.html_radios.php
+END
+function.assign_debug_info.php
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/function.assign_debug_info.php
+END
+outputfilter.trimwhitespace.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/outputfilter.trimwhitespace.php
+END
+function.html_table.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/function.html_table.php
+END
+modifier.wordwrap.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/modifier.wordwrap.php
+END
+modifier.regex_replace.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/modifier.regex_replace.php
+END
+function.html_options.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/function.html_options.php
+END
+function.counter.php
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/function.counter.php
+END
+function.html_select_time.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/function.html_select_time.php
+END
+shared.make_timestamp.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/shared.make_timestamp.php
+END
+function.mailto.php
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/function.mailto.php
+END
+function.popup_init.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/function.popup_init.php
+END
+function.debug.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/function.debug.php
+END
+function.math.php
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/function.math.php
+END
+function.fetch.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/function.fetch.php
+END
+modifier.indent.php
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/modifier.indent.php
+END
+modifier.truncate.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/modifier.truncate.php
+END
+function.html_select_date.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/function.html_select_date.php
+END
+shared.escape_special_chars.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/shared.escape_special_chars.php
+END
+function.html_checkboxes.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/function.html_checkboxes.php
+END
+function.config_load.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/function.config_load.php
+END
+modifier.upper.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/repos/!svn/ver/2/wikidot1/trunk/lib/smarty/libs/plugins/modifier.upper.php
+END
