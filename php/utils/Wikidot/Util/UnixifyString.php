@@ -30,7 +30,7 @@ use InvalidArgumentException;
 
 
 
-class String{
+class UnixifyString{
 
 	static private  $UNIXIFY_CONVERT_ARRAY = array(
 		'À'=>'A','À'=>'A','Á'=>'A','Á'=>'A','Â'=>'A','Â'=>'A',

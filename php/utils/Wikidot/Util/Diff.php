@@ -25,8 +25,8 @@
 
 namespace Wikidot\Util;
 
-use Wikidot\Util\String;
-use Wikidot_Exception;
+use Wikidot\Util\UnixifyString;
+use Wikidot\Facade\Exception;
 use Wikidot\Util\Diff as WikidotUtilDiff;
 
 
@@ -90,8 +90,8 @@ class Diff {
 	 */
 	static public function generateStringDiff($fromString, $toString, $contextLines = 1, $minimal = true){
 		// fix "no new line at the end" problem.
-		$fromString = String::addTrailingNewline($fromString);
-		$toString = String::addTrailingNewline($toString);
+		$fromString = UnixifyString::addTrailingNewline($fromString);
+		$toString = UnixifyString::addTrailingNewline($toString);
 		
 		return self::unifiedDiff($fromString, $toString, $contextLines, $minimal);
 	}
@@ -106,8 +106,8 @@ class Diff {
 	 */
 	static public function patchString($string, $patch, $reverse = false){
 		// fix "no new line at the end" problem.
-		$string = String::addTrailingNewline($string);
-		$patch = String::addTrailingNewline($patch);
+		$string = UnixifyString::addTrailingNewline($string);
+		$patch = UnixifyString::addTrailingNewline($patch);
 		
 		if($reverse == false){
 			$flags = XDIFF_PATCH_NORMAL;
@@ -115,9 +115,9 @@ class Diff {
 			$flags = XDIFF_PATCH_REVERSE;
 		}
 		$errors = array();
-		$r = xdiff_string_patch($string, $patch, $flags, &$errors);
+		$r = xdiff_string_patch($string, $patch, $flags, $errors);
 		if(count($errors) > 0){
-			throw new Wikidot_Exception("Error while applying the patch.");
+			throw Exception("Error while applying the patch.");
 		}
 		return $r;
 	}
@@ -158,7 +158,7 @@ class Diff {
 				continue;
 			}
 			$type = null;
-			switch($d{0}){
+			switch($d[0]){
 				case ' ':
 					$type = 'copy';
 					break;
