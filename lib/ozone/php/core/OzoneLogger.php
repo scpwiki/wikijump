@@ -24,9 +24,6 @@
  */
  
 
-
-use \OzoneLogger as OzoneLogger;
-
 /**
  * Logger tool.
  *

@@ -24,13 +24,6 @@
  */
 
 
-
-use \ScreenCacheManager as ScreenCacheManager;
-use \Criteria;
-use \ODate;
-use DB\ScreenCachePeer;
-use DB\ScreenCache;
-
 /**
  * Simple db-based screen cache manager.
  *

@@ -23,12 +23,7 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \NotificationMaker as NotificationMaker;
 use DB\Notification;
-use \WDRenderUtils;
-use ODate;
 use DB\SitePeer;
 
 class NotificationMaker {

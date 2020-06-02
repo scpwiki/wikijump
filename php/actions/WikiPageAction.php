@@ -24,17 +24,9 @@
  */
 
 
-
-use SmartyAction;
 use Wikidot\Yaml;
-use \WDStringUtils;
-use Database;
-use \ProcessException;
-use ODate;
 use DB\PageEditLockPeer;
 use DB\CategoryPeer;
-use \WDPermissionManager;
-use Criteria;
 use DB\PagePeer;
 use DB\PageEditLock;
 use DB\Page;
@@ -42,20 +34,12 @@ use DB\PageRevision;
 use DB\PageSource;
 use DB\PageMetadata;
 use DB\PageCompiled;
-use \Outdater;
-use \EventLogger;
-use OzoneLogger;
-use \ODiff;
-use Exception;
-use \DependencyFixer;
 use DB\PageRevisionPeer;
 use DB\PageMetadataPeer;
 use DB\PageTagPeer;
 use DB\PageTag;
-use \WDPermissionException;
 use DB\ModeratorPeer;
 use DB\AdminPeer;
-use \Deleter;
 
 class WikiPageAction extends SmartyAction {
 	
@@ -272,11 +256,7 @@ class WikiPageAction extends SmartyAction {
 			}
 			$pageMetadata->save();
 			$pageRevision->setMetadataId($pageMetadata->getMetadataId());	
-			
-			$pageCompiled = new PageCompiled();
-			$pageCompiled->setPageId($page->getPageId());
-			$newPage = true;
-			
+
 			// update the page object
 			
 			$page->setUnixName($unixName);
@@ -290,7 +270,6 @@ class WikiPageAction extends SmartyAction {
 			$pageCompiled = new PageCompiled();
 			$pageCompiled->setPageId($page->getPageId());
 			$pageCompiled->outdate();
-			$newPage = true;
 
 			$page->setCategoryId($category->getCategoryId());
 

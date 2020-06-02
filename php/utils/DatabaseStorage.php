@@ -25,11 +25,8 @@
 
 
 
-use \DatabaseStorage as DatabaseStorage;
 use DB\StorageItemPeer;
 use DB\StorageItem;
-use ODate;
-use Criteria;
 
 class DatabaseStorage {
 	

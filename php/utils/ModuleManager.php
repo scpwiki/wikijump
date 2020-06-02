@@ -24,9 +24,6 @@
  */
 
 
-
-use \ModuleManager as ModuleManager;
-
 /**
  * Module controlls permissions, resolves module names etc.
  */

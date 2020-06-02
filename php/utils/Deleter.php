@@ -25,12 +25,8 @@
 
 
 
-use \Deleter as Deleter;
 use DB\SitePeer;
-use Database;
-use Criteria;
 use DB\PagePeer;
-use \Outdater;
 use DB\CategoryPeer;
 
 class Deleter {

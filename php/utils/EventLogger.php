@@ -23,12 +23,7 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \EventLogger as EventLogger;
 use DB\LogEvent;
-use ODate;
-use OZONE;
 
 class EventLogger {
 	

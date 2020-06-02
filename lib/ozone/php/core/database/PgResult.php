@@ -24,22 +24,6 @@
  */
 
 
-use \DatabaseResult;
-use DB\SitePeer;
-use DB\Site;
-use DB\SiteSettingsPeer;
-use DB\SiteSettings;
-//use DB\PagePeer;
-use DB\Page;
-use DB\CategoryPeer;
-use DB\Category;
-use DB\ThemePeer;
-use DB\Theme;
-use DB\PageCompiledPeer;
-use DB\PageCompiled;
-use DB\PageTag;
-use DB\PageTagPeer;
-
  /* PostgreSQL database query result.
  *
  */ 

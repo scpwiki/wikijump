@@ -24,10 +24,6 @@
  */
 
 
-
-use phpFlickr;
-use \FlickrHandler as FlickrHandler;
-
 /*
  * Wikidot version 1
  * 
