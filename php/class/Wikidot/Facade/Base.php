@@ -130,7 +130,7 @@ abstract class Base {
 	 */
 	protected function parseArgs($args, $requiredArgs = array()) {
 		if (! is_array($args)) {
-			throw new WrongArguments("Argument is not an array");
+			throw new Exception\WrongArguments("Argument is not an array");
 		}
 		
 		// simple types
@@ -260,7 +260,7 @@ abstract class Base {
 		$tags = array_unique($tags);
 		$total_length = -1;
 		$tags_new = array();
-		foreach ($tag as $tags) {
+		foreach ($tags as $tag) {
 			$tag = $this->_parseString($tag, "tag", $max_tag_length);
 			$total_length += strlen8($tag) + 1;
 			$tags_new[] = strtolower($tag);
