@@ -43,11 +43,6 @@ class ParameterList {
 		if($runData->isAjaxMode()){
 			$this->allParameters['AMODULE'] = array();
 			foreach ($_POST as $key => $value) {
-			  // 	if magic_quotes_gpc are set, reove escaping
-			 	if(get_magic_quotes_gpc()){
-				    $value = stripslashes($value);
-			 	}
-	
 				$value = $this->fixNewLines($value);
 				
 				$this->parameterArray[$key] = $value;
@@ -96,11 +91,7 @@ class ParameterList {
 			// POST parameters are not affected by mod_rewrite
 			$this->allParameters['POST'] = array();
 			foreach ($_POST as $key => $value) {
-			  // 	if magic_quotes_gpc are set, reove escaping
-			 	if(get_magic_quotes_gpc()){
-				    $value = stripslashes($value);
-			 	}
-	
+
 				$value = $this->fixNewLines($value);
 				
 				$this->parameterArray[$key] = $value;

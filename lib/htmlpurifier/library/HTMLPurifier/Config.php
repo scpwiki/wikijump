@@ -435,8 +435,8 @@ class HTMLPurifier_Config
      */
     public static function prepareArrayFromForm($array, $index, $allowed = true, $mq_fix = true) {
         $array = (isset($array[$index]) && is_array($array[$index])) ? $array[$index] : array();
-        $mq = get_magic_quotes_gpc() && $mq_fix;
-        
+        //        $mq = get_magic_quotes_gpc() && $mq_fix;
+        $mq = false; // get_magic_quotes_gpc() always returns false since 5.4, deprecated in 7.4
         $allowed = HTMLPurifier_Config::getAllowedDirectivesForForm($allowed);
         $ret = array();
         foreach ($allowed as $key) {
