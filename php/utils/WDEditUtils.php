@@ -42,13 +42,13 @@ class WDEditUtils {
 		// first count all occurences of <h[1-6]> tags.
 		$content = preg_replace("/%+/", '', $content);
 		$content = preg_replace('/<(h[1-6]) id="toc.+?>.+?<\/\\1>/s', "%%%%",$content);
-		$count1 = preg_match_all("/%%%%/", $content, &$matches);
+		$count1 = preg_match_all("/%%%%/", $content, $matches);
 		// now remove all tags with contents and recount.
 		
 		// now remove all tags with insides
 		$content = preg_replace("/<(\w+)[^>]*?>.*?<\/\\1>/sm","", $content);
 		OzoneLogger::instance()->debug($content);
-		$count2 = preg_match_all("/%%%%/", $content, &$matches2);
+		$count2 = preg_match_all("/%%%%/", $content, $matches2);
 		if($count2 == 0){
 			return false;	
 		}
@@ -109,7 +109,7 @@ class WDEditUtils {
 
 		// now find all the occurences of headings in the compiled content.
 		$pattern = '/<h([1-6]) id="toc([0-9]+)"[^>]*?>(?:\s*<span>)?\s*stoc([0-9]+)/';
-		preg_match_all($pattern, $compiled, &$matches, PREG_SET_ORDER);
+		preg_match_all($pattern, $compiled, $matches, PREG_SET_ORDER);
 		// array of the form:
 		// 		key: sequential
 		//		value: array(toc_id,level,start, end) - start&end lines of the section
