@@ -155,7 +155,7 @@ class WikiTransformation {
             $b = str_ireplace("%%%%%user%%%%%", $userString, $b);
             
 //            if($lastRevision->getUserId()){
-//	            $user = DB_OzoneUserPeer::instance()->selectByPrimaryKey($lastRevision->getUserId());
+//	            $user = DB\OzoneUserPeer::instance()->selectByPrimaryKey($lastRevision->getUserId());
 //	            if ($user->getUserId() > 0) {
 //	                $userString = '[[*user ' . $user->getNickName() . ']]';
 //	            } else {

@@ -5,7 +5,7 @@ chdir(dirname(__FILE__));
 require ('../php/setup.php');
 Ozone::init();
 
-$user = DB_OzoneUserPeer::instance()->selectByPrimaryKey(1);
+$user = DB\OzoneUserPeer::instance()->selectByPrimaryKey(1);
 $page_facade = new Wikidot_Facade_Page($user);
 
 $dirs = $argv;

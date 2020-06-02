@@ -45,7 +45,7 @@ class Text_Wiki_Render_Xhtml_User extends Text_Wiki_Render {
         $unixName = WDStringUtils::toUnixName($userName);
         $c = new Criteria();
         $c->add("unix_name", $unixName);
-        $user = DB_OzoneUserPeer::instance()->selectOne($c);
+        $user = DB\OzoneUserPeer::instance()->selectOne($c);
         
         if ($user == null) {
             return '<span class="error-inline">' . sprintf(_('User <em>%s</em> can not be found.'), $userName) . '</span>';

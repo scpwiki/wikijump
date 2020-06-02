@@ -41,7 +41,7 @@ $user = null;
 if (isset($_SERVER['PHP_AUTH_USER'])) {
 	$app = $_SERVER['PHP_AUTH_USER'];
 	$key = $_SERVER['PHP_AUTH_PW'];
-	$user = DB_ApiKeyPeer::instance()->getUserByKey($key);
+	$user = DB\ApiKeyPeer::instance()->getUserByKey($key);
 }
 
 if (! $user) {
