@@ -23,14 +23,8 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \Outdater as Outdater;
-use Criteria;
 use DB\PageCompiledPeer;
 use DB\PagePeer;
-use \WikiTransformation;
-use ODate;
 use DB\PageLinkPeer;
 use DB\PageLink;
 use DB\PageExternalLinkPeer;
@@ -38,9 +32,7 @@ use DB\PageExternalLink;
 use DB\PageInclusionPeer;
 use DB\PageInclusion;
 use DB\CategoryPeer;
-use Database;
 use DB\SitePeer;
-use \Indexer;
 
 class Outdater {
 	
