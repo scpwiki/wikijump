@@ -61,7 +61,7 @@
 			 {/if}
 		</td>
 		<td style="width: 15em">{printuser user=$pr->getUserOrString() image="true"}</td>
-		<td style="padding: 0 0.5em; width: 7em;"><span class="odate">{$pr->getDateLastEdited()->getTimestamp()}|%e %b %Y|agohover</span></td>
+		<td style="padding: 0 0.5em; width: 7em;"><span class="odate">{$pr->getDateLastEditedTS()}|%e %b %Y|agohover</span></td>
 		<td style="font-size: 90%">{$pr->getComments()|escape}</td>
 	</tr>
 	{/foreach}

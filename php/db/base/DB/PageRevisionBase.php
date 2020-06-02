@@ -196,6 +196,11 @@ class PageRevisionBase extends BaseDBObject {
 	public function getDateLastEdited() {
 		return $this->getFieldValue('date_last_edited');
 	}
+
+    public function getDateLastEditedTS() {
+        $odate = $this->getFieldValue('date_last_edited');
+        return $odate->getTimestamp();
+    }
 	
 	public function setDateLastEdited($v1, $raw=false) {
 		$this->setFieldValue('date_last_edited', $v1, $raw); 
