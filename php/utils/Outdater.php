@@ -190,7 +190,7 @@ class Outdater {
 	/**
 	 * This is the place where pages are compiled!
 	 *
-	 * @param Db_Page $page
+	 * @param Db\Page $page
 	 */
 	private function recompilePage($page){
 		// compiled content not up to date. recompile!

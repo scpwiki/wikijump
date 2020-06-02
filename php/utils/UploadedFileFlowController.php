@@ -54,7 +54,7 @@ class UploadedFileFlowController extends WikidotController {
 	/**
 	 * Build URL from site name, domain and file name
 	 *
-	 * @param DB_Site $site site to get name from
+	 * @param DB\Site $site site to get name from
 	 * @param string $domain domain to use
 	 * @param string $file file to redirect to
 	 */
@@ -71,7 +71,7 @@ class UploadedFileFlowController extends WikidotController {
 	/**
 	 * checks whether file is from a public area (public wiki or non-restricted directory)
 	 *
-	 * @param DB_Site $site
+	 * @param DB\Site $site
 	 * @param string $file
 	 * @return boolean
 	 */
@@ -97,8 +97,8 @@ class UploadedFileFlowController extends WikidotController {
 	 * 
 	 * public because FilesAuthScriptModule needs it
 	 *
-	 * @param DB_OzoneUser $user
-	 * @param DB_Site $site
+	 * @param DB\OzoneUser $user
+	 * @param DB\Site $site
 	 * @param string $file
 	 * @return bool
 	 */
@@ -122,7 +122,7 @@ class UploadedFileFlowController extends WikidotController {
 	/**
 	 * builds the path to local file
 	 *
-	 * @param DB_Site $site
+	 * @param DB\Site $site
 	 * @param string $file
 	 * @return string
 	 */
@@ -161,7 +161,7 @@ class UploadedFileFlowController extends WikidotController {
 	/**
 	 * Serves a code extracted from the page
 	 *
-	 * @param DB_Site $site
+	 * @param DB\Site $site
 	 * @param string $fileName code/pagename/number
 	 * @param int $expires timeout in seconds
 	 */

@@ -164,8 +164,8 @@ abstract class WikidotController extends WebFlowController {
 	/**
 	 * checks if the user is a member of a site
 	 *
-	 * @param DB_OzoneUser $user
-	 * @param DB_Site $site
+	 * @param DB\OzoneUser $user
+	 * @param DB\Site $site
 	 * @return boolean
 	 */
 	protected function member($user, $site) {

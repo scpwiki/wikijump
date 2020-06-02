@@ -410,7 +410,7 @@ abstract class Base {
 	/**
 	 * External representation of a page object
 	 *  
-	 * @param DB_Page $page
+	 * @param DB\Page $page
 	 * @param string $hint
 	 * @return array
 	 */
