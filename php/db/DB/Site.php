@@ -49,7 +49,7 @@ class Site extends SiteBase {
 
     public function getSettings() {
         $key = "sitesettings.." . $this->getSiteId();
-        $mc = OZONE::$memcache;
+        $mc = \Ozone::$memcache;
         $s = $mc->get($key);
         if (!$s) {
             $c = new Criteria();

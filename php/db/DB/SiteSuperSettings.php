@@ -38,7 +38,7 @@ class SiteSuperSettings extends SiteSuperSettingsBase {
 
 	public function save(){
 		$key = "sitesupersettings..".$this->getSiteId();
-		$mc = OZONE::$memcache;
+		$mc = \Ozone::$memcache;
 		$s = $mc->delete($key);
 		parent::save();	
 	}

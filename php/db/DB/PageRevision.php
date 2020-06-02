@@ -152,7 +152,7 @@ class PageRevision extends PageRevisionBase {
 			$page = $this->getPage();
 			if($page){
 				$key = "sitechangesfeed..".$page->getSiteId();
-				$mc = OZONE::$memcache;
+				$mc = \Ozone::$memcache;
 				$mc->delete($key);
 				
 				$tkey = "siterevisions_lc..".$page->getSiteId();

@@ -83,7 +83,7 @@ class AdminNotification extends AdminNotificationBase {
 	
 	public function save(){
 		$key = "adminnotificationsfeed..".$this->getSiteId();
-		$mc = OZONE::$memcache;	
+		$mc = \Ozone::$memcache;
 		$mc->delete($key);
 		return parent::save();
 	}

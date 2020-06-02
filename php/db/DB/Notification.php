@@ -87,7 +87,7 @@ class Notification extends NotificationBase {
 	
 	public function save(){
 		$key = "notificationsfeed..".$this->getUserId();
-		$mc = OZONE::$memcache;	
+		$mc = \Ozone::$memcache;
 		$mc->delete($key);
 		return parent::save();
 	}

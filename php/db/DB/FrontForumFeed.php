@@ -43,7 +43,7 @@ class FrontForumFeed extends FrontForumFeedBase {
 		$page = PagePeer::instance()->selectByPrimaryKey($this->getPageId());
 		$site = $GLOBALS['site'];
 		$fkey = "frontforumfeedobject..".$site->getUnixName().'..'.$page->getUnixName().'..'.$this->getLabel();
-		$mc = OZONE::$memcache;
+		$mc = \Ozone::$memcache;
 		$mc->delete($fkey);
 		parent::save();
 	}
