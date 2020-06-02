@@ -49,7 +49,7 @@ class Text_Wiki_Render_Xhtml extends Text_Wiki_Render {
 			// convert the entities.  we silence the call here so that
 			// errors about charsets don't pop up, per counsel from
 			// Jan at Horde.  (http://pear.php.net/bugs/bug.php?id=4474)
-			$this->wiki->source = @htmlentities(
+			$this->wiki->source = htmlentities(
 				$this->wiki->source,
 				$quotes,
 				$charset
@@ -69,9 +69,10 @@ class Text_Wiki_Render_Xhtml extends Text_Wiki_Render {
 			// convert the entities.  we silence the call here so that
 			// errors about charsets don't pop up, per counsel from
 			// Jan at Horde.  (http://pear.php.net/bugs/bug.php?id=4474)
-			$this->wiki->source = @htmlspecialchars(
+			$this->wiki->source = htmlspecialchars(
 				$this->wiki->source,
-				$quotes
+				$quotes,
+                'ISO-8859-1'
 			);
 
 			// re-convert the delimiter
