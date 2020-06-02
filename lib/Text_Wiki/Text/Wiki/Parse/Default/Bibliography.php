@@ -38,7 +38,7 @@ class Text_Wiki_Parse_Bibliography extends Text_Wiki_Parse {
             &$this, 'process'), $this->wiki->source, 1);
     }
 
-    function process($matches) {
+    function process(&$matches) {
         $inner = $matches[2];
         $args = $this->getAttrs($matches[1]);
         $title = $args['title'];

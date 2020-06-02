@@ -47,7 +47,7 @@ class Text_Wiki_Parse_Footnoteblock extends Text_Wiki_Parse {
     		$this->wiki->source = preg_replace_callback($regex, array($this,"process"),	$this->wiki->source, 1);
     }
     
-    function process($matches)
+    function process(&$matches)
     {
     		$footnotes = $this->wiki->vars['footnotes'];
     		if(count($footnotes) == 0){return '';} // render nothing if no footnotes.
