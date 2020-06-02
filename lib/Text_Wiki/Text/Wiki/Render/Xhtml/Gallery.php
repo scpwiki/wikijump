@@ -192,7 +192,7 @@ class Text_Wiki_Render_Xhtml_Gallery extends Text_Wiki_Render {
     		// get page first
     		
     		$site = $GLOBALS['site'];
-    		$page = DB_PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
+    		$page = DB\PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
     		if($page == null){
     			return '<div class="error-block">Error selecting page.</div>';	
     		}

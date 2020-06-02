@@ -57,7 +57,7 @@ class Text_Wiki_Render_Xhtml_Image extends Text_Wiki_Render {
         $postVars = $this->getConf("post_vars");
         
         if (preg_match('/^:first/', $src)) {
-    		$page = DB_PagePeer::instance()->selectByName($GLOBALS['site']->getSiteId(), $this->wiki->vars['pageName']);
+    		$page = DB\PagePeer::instance()->selectByName($GLOBALS['site']->getSiteId(), $this->wiki->vars['pageName']);
     		if (! $page) {
     			return "";
     		}

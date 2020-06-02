@@ -87,7 +87,7 @@ class Text_Wiki_Parse_Include extends Text_Wiki_Parse {
      	$runData = Ozone::getRunData();
      	$site = $runData->getTemp("site");
     
-    		$page = DB_PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
+    		$page = DB\PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
     
     		if($page == null){
     			//$output =  $this->wiki->addToken(

@@ -56,7 +56,7 @@ class PagePreviewModule extends SmartyModule {
 	/*	if($mode == "append"){
 			// combine current source and submitted source
 			$pageId = $pl->getParameterValue("page_id");
-			$page = DB_PagePeer::instance()->selectByPrimaryKey($pageId);
+			$page = DB\PagePeer::instance()->selectByPrimaryKey($pageId);
 			$source = $page->getSource()."\n\n[[div id=\"append-preview-div\"]]\n".$source."\n[[/div]]\n";
 		}
 		*/
