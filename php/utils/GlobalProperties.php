@@ -175,7 +175,7 @@ class GlobalProperties {
 
 		if (self::$WIKI_FARM) {
 			self::$SERVICE_NAME			= self::fromIni("main",		"service");		//no default
-			self::$LOGIN_DOMAIN			= self::fromIni("main",		"login_domain",		"www");
+			self::$LOGIN_DOMAIN			= self::fromIni("main",		"login_domain",		"www.");
 			self::$URL_DOMAIN			= self::fromIni("main",		"domain",		"singlewiki.wikidot.dev");
 			self::$URL_HOST				= self::fromIni("main",		"main_wiki",	"www." . self::$URL_DOMAIN);
 		} else {
