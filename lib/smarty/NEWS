@@ -1,3 +1,185 @@
+- revert super global access changes, and instead rely on
+  USE_SUPER_GLOBALS for security
+
+Version 2.6.25 (May 19th, 2009)
+-------------------------------
+- fix E_NOTICE when sessions are disabled (mohrt)
+
+Version 2.6.24 (May 16th, 2009)
+-------------------------------
+- fix problem introduced with super global changes (mohrt)
+
+Version 2.6.23 (May 13th, 2009)
+-------------------------------
+- strip backticks from {math} equations (mohrt)
+- make PHP super globals read-only from template (mohrt)
+- throw error when template exists but not readable (mohrt)
+
+Version 2.6.22 (Dec 17th, 2008)
+-------------------------------
+
+- back out method chaining, bug in some versions of PCRE causes errors (mohrt)
+
+Version 2.6.21 (Dec 2nd, 2008)
+------------------------------
+
+- fix  function injection security hole closed (U.Tews)
+- fix pass expiration time at cache_handler_fuc call in core.write_cache_file.php (U.Tews)
+- Update of compiler.class.php to allow method chaining for PHP4 and PHP5 (U.Tews)
+
+Version 2.6.20 (Feb 15th, 2008)
+-------------------------------
+
+- fix cache tag bug when multiple cache tags on a page (mankyd,
+  mohrt)
+- fix /e tag checking when using arrays with regex_replace
+  (mohrt)
+- fix that function results can be used with condition like "is even" in 
+  {if} tags (U.Tews)
+- fix handling of non-empty <pre>-tags and empty <textarea>- and
+  <script>-tags (Spuerhund, messju)
+
+Version 2.6.19 (Feb 11th, 2008)
+-------------------------------
+
+- fix regex_replace allowing \0 in the search string (c960657,
+  monte)
+- add append feature to {capture} (jablko, monte)
+- fix when (un)registering filters with the same method name but different class
+  name (danilo)
+- fix calling registered objects' methods with an empty argument list
+  (marcello, messju)
+ 
+Version 2.6.18 (Mar 7th, 2007)
+------------------------------
+
+- fix html_select_date separator when parts are missing (hayk,
+  monte)
+- fix broken detection of non-cached blocks introduced in 2.6.17
+  (messju)
+
+Version 2.6.17 (Mar 5th, 2007)
+------------------------------
+
+- fix php handling (monte, boots, danilo)
+- fix handling of plugin tags directly followed by an else tag (Fahr, danilo)
+- fix handling of $etc in the truncate modifier when $etc is longer
+  than $length (Sylvinus, messju)
+- fix handling of %I with mysql timestamps in the date_format modifier
+  (danilo, boots)
+- update smarty_core_write_file() and smarty_modifier_date_format() to better
+  recognize Windows (boots, danilo)
+- emulate %h, %n, %r, %R, %t in the date_format modifier on Windows 
+  (danilo, boots)
+
+Version 2.6.16 (Dec 1st, 2006)
+------------------------------
+
+- fixed replacement bug in trimwhitespace output filter that was introduced
+  in the last release (Spuerhund, boots)
+
+Version 2.6.15 (Nov 30th, 2006)
+-------------------------------
+
+- change file writing semantics in smarty_core_write_file() to unlink() only
+  when rename() fails or a Windows system is detected (c960657, boots) 
+- update debug.tpl to xhtml 1.1 compliance, fix javascript escaping in debug
+  output and apply a Smarty based color scheme (cybot, boots)
+- enhance reporting precision of debug_print_var modifier (cybot, boots) 
+- make html_select_date work consistently with 0000-00-00 00:00:00 and
+  0000-00-00 inputs (cybot, boots)
+- fix wrong handling of insert's name attribute. (messju)
+- fix false replacement of "$t" inside double quotes (checat, messju)
+- added support for column headings and caption element to html_table and
+  updated the output to use thead/tbody elements (boots)
+- fixed ordering of replacements in trimwhitespace output filter (Getty, boots)
+- update mailto function plugin to work around a firefox/thunderbird
+  escaping bug (elijahlofgren, boots)
+- emulate %l in the date_format modifier on windows (boots) 
+- fix handling of apostrophes in capitalize modifier (Alec Smecher, boots)
+
+Version 2.6.14 (May 28th, 2006)
+-------------------------------
+
+- fix compiler bug allowing php tags in secure templates
+  (boots,monte)
+- un-hide hidden xml open tags (boots)
+- fix handling of block-methods of registered objects (El Hombre Gris,
+  messju)
+
+Version 2.6.13 (March 9th, 2006)
+--------------------------------
+
+ - update regex_replace, removing possible use of "e" modifier
+
+Version 2.6.12 (Jan 18th, 2006)
+-------------------------------
+
+ - fix improper use of references in the compiler handling cached
+   attributes and in compiled code handling block plugins (messju)
+ - make Smarty::_read_file() work on latest php (messju)
+ - fixed improper tokenization of certain inline math expressions (boots)
+
+Version 2.6.11 (Dec 14, 2005)
+-----------------------------
+
+ - fixed code generation of non-cacheable blocks to play well with php's
+   "Alternative syntax for control structures" (kihara, messju)
+ - fix handling of multiple identical inserts in one display()-call (messju)
+ - replace {} string access with equivalent substr() to avoid E_STRICT
+   warnings in PHP 5.1 (boots)
+ - return valid reference in get_config_vars() when given var is
+   non-existant (Thomas Schulz, boots)
+ - plugin html_image: fix incorrect secure_dir error when
+   file doesn't exist (monte)
+ - plugin html_image: add path_prefix param (monte)
+ - add char_set parameter to escape modifier (Loading, monte)
+ - fix notice in debug security check (Drakla, monte)
+ - return valid reference in get_template_vars() when given var is
+   non-existant (monte)
+ - add escape type "urlpathinfo" to escape modifier (monte)
+
+Version 2.6.10 (Aug 5, 2005)
+----------------------------
+
+  - allow secure_dir to be a filename, not just
+    a directory name (monte)
+  - set debug.tpl as a secure_dir, not the entire
+    SMARTY_DIR (monte)
+  - fix proper escaping for literal strings in
+    Smarty_Compiler::_parse_var_props() (boots, messju)
+  - remove ambiguity for numeric values passed to smarty_make_timestamp()
+    (and thus the date_format modifier). numeric values are treated as
+    timestamps now. (andreas, messju)
+  - add passthru attribute feature to html_select_date (Sedgar,
+    monte)
+  - add "middle" parameter to truncate (monte)
+  - make form input label ids optional (monte)
+  - add error message for empty if/elseif statements (eykanal,
+    monte)
+  - cast selected value to string for comparison in html_radios
+    (Exeption, monte)
+  - updated html_select_date's year_as_text-feature to be xhtml compliant
+    (Mark West, messju)
+  - fix handling of selected month html_select_date (Yuri Weseman, messju)
+
+Version 2.6.9 (Mar 31, 2005)
+----------------------------
+
+  - disallow variable function calls in {if} statements (messju, monte)
+  - disallow variable function calls in {math} equations (messju, monte)
+
+Version 2.6.8 (Mar 21, 2005)
+----------------------------
+
+  - remove e-modifier from regex_replace modifier (messju)
+  - remove cast of object to array in foreach's from-attribute (messju)
+  - add "null" as a valid token for {if} when security is enabled (messju)
+  - add javascript_charcode encoding option to mailto function
+    (monte)
+  - add ids to html_radios labels (monte, menulis)
+  - fix handling of strip-tags with non-default delimiters (Mark West, messju)
+
 Version 2.6.7 (Feb 3, 2005)
 ---------------------------
 

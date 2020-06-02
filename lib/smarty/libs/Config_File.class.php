@@ -17,15 +17,19 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * @link http://smarty.php.net/
- * @version 2.6.7
+ * For questions, help, comments, discussion, etc., please join the
+ * Smarty mailing list. Send a blank e-mail to
+ * smarty-discussion-subscribe@googlegroups.com 
+ *
+ * @link http://www.smarty.net/
+ * @version 2.6.25-dev
  * @copyright Copyright: 2001-2005 New Digital Group, Inc.
  * @author Andrei Zmievski <andrei@php.net>
  * @access public
  * @package Smarty
  */
 
-/* $Id: Config_File.class.php,v 1.1 2005/07/05 12:19:25 rumcajs_78 Exp $ */
+/* $Id$ */
 
 /**
  * Config file reading class
@@ -39,29 +43,29 @@ class Config_File {
     /**
      * Controls whether variables with the same name overwrite each other.
      */
-    public $overwrite        =    true;
+    var $overwrite        =    true;
 
     /**
      * Controls whether config values of on/true/yes and off/false/no get
      * converted to boolean values automatically.
      */
-    public $booleanize        =    true;
+    var $booleanize        =    true;
 
     /**
      * Controls whether hidden config sections/vars are read from the file.
      */
-    public $read_hidden     =    true;
+    var $read_hidden     =    true;
 
     /**
      * Controls whether or not to fix mac or dos formatted newlines.
      * If set to true, \r or \r\n will be changed to \n.
      */
-    public $fix_newlines =    true;
+    var $fix_newlines =    true;
     /**#@-*/
 
     /** @access private */
-    public $_config_path    = "";
-    public $_config_data    = array();
+    var $_config_path    = "";
+    var $_config_data    = array();
     /**#@-*/
 
     /**
@@ -69,7 +73,7 @@ class Config_File {
      *
      * @param string $config_path (optional) path to the config files
      */
-    function Config_File($config_path = NULL)
+    public function __construct($config_path = NULL)
     {
         if (isset($config_path))
             $this->set_path($config_path);
@@ -105,7 +109,7 @@ class Config_File {
      * @param string $var_name (optional) variable to get info for
      * @return string|array a value or array of values
      */
-    function &get($file_name, $section_name = NULL, $var_name = NULL)
+    function get($file_name, $section_name = NULL, $var_name = NULL)
     {
         if (empty($file_name)) {
             $this->_trigger_error_msg('Empty config file name');
@@ -285,9 +289,9 @@ class Config_File {
             $line = $lines[$i];
             if (empty($line)) continue;
 
-            if ( $line{0} == '[' && preg_match('!^\[(.*?)\]!', $line, $match) ) {
+            if ( substr($line, 0, 1) == '[' && preg_match('!^\[(.*?)\]!', $line, $match) ) {
                 /* section found */
-                if ($match[1]{0} == '.') {
+                if (substr($match[1], 0, 1) == '.') {
                     /* hidden section */
                     if ($this->read_hidden) {
                         $section_name = substr($match[1], 1);
@@ -347,7 +351,7 @@ class Config_File {
      */
     function _set_config_var(&$container, $var_name, $var_value, $booleanize)
     {
-        if ($var_name{0} == '.') {
+        if (substr($var_name, 0, 1) == '.') {
             if (!$this->read_hidden)
                 return;
             else
