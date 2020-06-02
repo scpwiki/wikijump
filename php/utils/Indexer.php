@@ -25,7 +25,6 @@
 
 
 
-use \Indexer as Indexer;
 use DB\FtsEntryPeer;
 use DB\FtsEntry;
 use Criteria;
@@ -81,9 +80,9 @@ class Indexer {
 		
 	    $db = Database::connection();
     	$v = pg_version($db->getLink());
-		if(!preg_match(';^8\.3;', $v['server'])){
-		    $db->query("SELECT set_curcfg('default')");
-		}
+//		if(!preg_match(';^8\.3;', $v['server'])){
+//		    $db->query("SELECT set_curcfg('default')");
+//		}
         $ie->setVector("(setweight( to_tsvector('$title'), 'A') || to_tsvector('".db_escape_string($text)."') || setweight( to_tsvector('$tagstring'), 'B'))", true);
 		$ie->save();
 	}
