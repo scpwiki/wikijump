@@ -81,7 +81,8 @@ class OzoneUserBase extends BaseDBObject {
 	}
 	
 	public function setPassword($v1, $raw=false) {
-		$this->setFieldValue('password', $v1, $raw); 
+	    $password = password_hash($v1, PASSWORD_BCRYPT, ['cost' => 11]);
+		$this->setFieldValue('password', $password, $raw);
 	}
 	
 		

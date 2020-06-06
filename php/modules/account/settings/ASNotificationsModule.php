@@ -23,17 +23,13 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-
-use \AccountBaseModule;
-
 class ASNotificationsModule extends AccountBaseModule {
 	
 	public function build($runData){
 		$user = $runData->getUser();
 		$username = $user->getName();
 		
-		$password = md5("feed_hashed_password_".$user->getPassword());
+		$password = $user->getPassword();
 		
 		$password = substr($password,0,15);
 		

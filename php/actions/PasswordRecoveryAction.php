@@ -100,16 +100,11 @@ class PasswordRecoveryAction extends SmartyAction {
 		$password = $pl->getParameterValue("password");
 		$password2 = $pl->getParameterValue("password2");
 		
-		$password = trim(CryptUtils::rsaDecrypt($password));
-		$password = preg_replace("/^__/", '', $password);
-		$password2 = trim(CryptUtils::rsaDecrypt($password2));
-		$password2 = preg_replace("/^__/", '', $password2);
-		
 		// check password
-		if(strlen8($password)<6){
-			throw new ProcessException( _("Please provide a password min. 6 characters long."),"form_error");	
-		}elseif(strlen8($password)>20){
-				throw new ProcessException( _("Password should not be longer than 20 characters."),"form_error");		
+		if(strlen8($password)<8){
+			throw new ProcessException( _("Password reset failed: Minimum password length is 8 characters."),"form_error");
+		}elseif(strlen8($password)>256){
+				throw new ProcessException( _("Password reset failed: Maximum password length is 256 characters to avoid denial of service."),"form_error");
 		}elseif($password2 != $password){
 				throw new ProcessException( _("Passwords are not identical."),"form_error");	
 		}	
@@ -122,7 +117,7 @@ class PasswordRecoveryAction extends SmartyAction {
 			throw ProcessException("No such user.", "no_user");	
 		}
 		
-		$user->setPassword(md5($password));
+		$user->setPassword($password);
 		$user->save();
 		
 	}

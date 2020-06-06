@@ -73,9 +73,11 @@ class SecurityManager {
 	}
 
 	public  function authenticateUser($username, $password){
-		$peer = OzoneUserPeer::instance();
-		$query = "WHERE lower(name) = lower('".db_escape_string($username)."') AND password = '".db_escape_string(md5($password))."' AND user_id>0";
-		return $peer->selectOneByExplicitQuery($query);
+		$user = $this->getUserByName($username);
+		if(password_verify($password, $user->getPassword())) {
+		    return $user;
+        }
+		return null;
 	}	
 	
 	public function setUserPassword($user, $password){
@@ -85,7 +87,7 @@ class SecurityManager {
 		} else {
 			$userObject = $user;	
 		}
-		$userObject->setPassword(md5($password));
+		$userObject->setPassword($password);
 		$userObject->save();
 	}
 	

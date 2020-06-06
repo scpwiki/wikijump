@@ -75,13 +75,13 @@ class CreateAccount2Action extends SmartyAction {
 		//name
 		$unixified = WDStringUtils::toUnixName($name);
 		if(strlen($name)<2){
-			$errors['name'] = _("You really should provide the screen name you want to use.");
+			$errors['name'] = _("Account creation failed: Username too short. Minimum 3 characters.");
 		}elseif(strlen8($name)>20){
-			$errors['name'] = _("Your screen name should not be longer than 20 characters.");
+			$errors['name'] = _("Account creation failed: Username too long. Maximum 20 characters.");
 		}elseif(preg_match('/^[ _a-zA-Z0-9-\!#\$%\^\*\(\)]+$/', $name) == 0){
-			$errors['name'] = _("Only alphanumeric characters (+a few special) can be used in the screen name.");	
+			$errors['name'] = _("Account creation failed: Accepted characters in usernames are (a-z, A-Z, 0-9, !, #, $, %, ^, *, (, ), _, and space.");
 		}elseif(strlen($unixified)<2){
-			$errors['name'] = _("It seems there are too less alphanumeric characters in your screen name");	
+			$errors['name'] = _("Account creation failed: Username needs at least 2 non-special characters.");
 		}else{
 			
 			//handle forbidden names
@@ -90,7 +90,7 @@ class CreateAccount2Action extends SmartyAction {
 			$forbiddenUnixNames = explode("\n", file_get_contents(WIKIDOT_ROOT.'/conf/forbidden_user_names.conf'));
 			foreach($forbiddenUnixNames as $f){
 				if(preg_match($f, $unixName) >0){
-					$errors['name']	= _('For some reason this name is not allowed or is reserved for future use.');	
+					$errors['name']	= _('Account creation failed: Username is blocked from registration.');
 				}	
 			}
 			
@@ -99,34 +99,30 @@ class CreateAccount2Action extends SmartyAction {
 			$c->add("unix_name", $unixified);
 			$u = OzoneUserPeer::instance()->selectOne($c);
 			if($u != null){
-				$errors['name'] = _("A user with this screen name (or very similar) already exists.");
+				$errors['name'] = _("Account creation failed: A user with this screen name (or very similar) already exists.");
 			}	
 		}
 		
 		// now check email
-		if(strlen($email)<5){
-			$errors['email'] = _("Please provide a valid email address.");	
-		}elseif(strlen($email)>50){
-			$errors['email'] = _("Please provide a valid email address - this one seems is to long.");		
-		}elseif(preg_match("/^[_a-zA-Z0-9-]+(\.[_a-zA-Z0-9-]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/", $email) ==0){
-			$errors['email'] = _("Please provide a valid email address.");
+		if(filter_var($email, FILTER_VALIDATE_EMAIL, FILTER_FLAG_EMAIL_UNICODE) == false){
+            $errors['email'] = _("Account creation failed: Invalid email address.");
 		}else{
 			// check if email is unique
 			$c = new Criteria();
 			$c->add("lower(email)", strtolower($email));
 			$u = OzoneUserPeer::instance()->selectOne($c);	
 			if($u != null){
-				$errors['email'] = _("A user with this email already exists.");
+				$errors['email'] = _("Account creation failed: A user with this email already exists.");
 			}
 		}
 		
 		// check password
-		if(strlen8($password)<6){
-			$errors['password'] = _("Please provide a password min. 6 characters long.");	
-		}elseif(strlen8($password)>20){
-			$errors['password'] = _("Password should not be longer than 20 characters.");		
+		if(strlen8($password)<8){
+			$errors['password'] = _("Account creation failed: Password minimum is 8 characters.");
+		}elseif(strlen8($password)>256){
+			$errors['password'] = _("Account creation failed: Maximum password length is 256 characters to avoid denial of service.");
 		}elseif($password2 != $password){
-			$errors['password2'] = _("Passwords are not identical.");
+			$errors['password2'] = _("Account creation failed: Passwords are not identical.");
 		}	
 		
 		// check language
@@ -139,11 +135,11 @@ class CreateAccount2Action extends SmartyAction {
 		$captcha = str_replace('0','O', $captcha);
 		$captcha = strtoupper($captcha);
 		if($captcha != strtoupper($runData->sessionGet("captchaCode"))){
-			$errors['captcha'] = _("Human verification code is not valid.");	
+			$errors['captcha'] = _("Account creation failed: CAPTCHA does not match.");
 		}
 		
 		if(!$pl->getParameterValue("tos")){
-			$errors['tos'] = _("Please read and agree to the Terms of Service.");	
+			$errors['tos'] = _("Account creation failed: Please read and agree to the Terms of Service.");
 		}
 		
 		if(count($errors)>0){
@@ -257,8 +253,7 @@ class CreateAccount2Action extends SmartyAction {
 		$u = OzoneUserPeer::instance()->selectOne($c);	
 		if($u != null){
 			$runData->resetSession();
-			throw new ProcessException(_("A user with this email already exists. Must have been created meanwhile... " .
-					"Unfortunately you have to repeat the whole procedure. :-("), "user_exists");
+			throw new ProcessException(_("Account creation failed: A user with this email already exists."), "user_exists");
 		}
 		
 		$unixified = WDStringUtils::toUnixName($name);
@@ -267,8 +262,7 @@ class CreateAccount2Action extends SmartyAction {
 		$u = OzoneUserPeer::instance()->selectOne($c);
 		if($u != null){
 			$runData->resetSession();
-			throw new ProcessException(_("A user with this name (or very similar) already exists. Must have been created meanwhile... " .
-					"Unfortunately you have to repeat the whole procedure. :-("), "user_exists");
+			throw new ProcessException(_("Account creation failed: A user with this name (or very similar) already exists."), "user_exists");
 		}
 
 		// add new user!!!
@@ -277,7 +271,7 @@ class CreateAccount2Action extends SmartyAction {
 		/* email as the username!!! */
 		$nuser->setName($email);
 		$nuser->setEmail($email);
-		$nuser->setPassword(md5($password));		
+		$nuser->setPassword($password);
 		
 		$nuser->setNickName($name);
 		$nuser->setUnixName($unixified);

@@ -101,7 +101,7 @@ class ManageUsersAction extends SmartyAction {
 					$u->setUnixName(WDStringUtils::toUnixName($nick_name));
 					
 					if ($password) {
-						$u->setPassword(md5($password));
+						$u->setPassword($password);
 					}
                     
                     $u->save();

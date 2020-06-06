@@ -56,7 +56,7 @@ class ManageSuperUserAction extends SmartyAction {
 		$u->setEmail($nick_name);
 		$u->setNickName($nick_name);
 		$u->setUnixName(WDStringUtils::toUnixName($nick_name));
-		$u->setPassword(md5($password));
+		$u->setPassword($password);
 		$u->setSuperAdmin(true);
 		
 		$u->save();

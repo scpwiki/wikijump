@@ -55,58 +55,43 @@ class LoginAction extends SmartyAction {
 		$seed = $runData->sessionGet("login_seed");
 		
 		if($seed == null){
-			throw new ProcessException(_("You have been inactive quite long while trying to log in and your session data have expired. Please try to click 'log in' once again."), "no_seed");
-		}
-		
-		$uname = CryptUtils::rsaDecrypt($uname);
-		$upass = CryptUtils::rsaDecrypt($upass);
-		
-		// remove seed
-		if(preg_match('/^'.$seed.'/', $uname) == 0 || preg_match('/^'.$seed.'/', $upass) == 0){
-			EventLogger::instance()->logFailedLogin($uname);
-			throw new ProcessException(_("The user and password do not match."), "login_invalid");
-		}
-		
-		$uname = preg_replace('/^'.$seed.'/', '', $uname);
-		$upass = preg_replace('/^'.$seed.'/', '', $upass);
-		
-		if($userId && is_numeric($userId) && $userId >0){
-			$user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
-			if($user && $user->getPassword() !== md5($upass)){
-				$user = null;
-			}
-		}else{
-		
-			$user = SecurityManager::authenticateUser($uname, $upass);
-		}
-		
-		if($user == null){
-			EventLogger::instance()->logFailedLogin($uname);
-			throw new ProcessException(_("The login and password do not match."), "login_invalid");
+			throw new ProcessException(_("Your session has expired. Please log in again."), "no_seed");
 		}
 
-		$runData->resetSession();
-		$session = $runData->getSession();
-		$session->setUserId($user->getUserId());
-		// set other parameters
-		$session->setStarted(new ODate());
-		$session->setLastAccessed(new ODate());
-		
-		$user->setLastLogin(new ODate());
-		$user->save();
-		
-		if($keepLogged){
-			$session->setInfinite(true);	
-		}
-		if($bindIP){
-			$session->setCheckIp(true);
-		}
-		
-		setcookie("welcome", $user->getUserId(), time() + 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
-		
-		// log event
-		EventLogger::instance()->logLogin();
-			
+		if($userId && is_numeric($userId) && $userId >0) {
+            $user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+            if (!$user or password_verify($upass, $user->getPassword())) {
+                $user = null;
+                EventLogger::instance()->logFailedLogin($uname);
+                throw new ProcessException(_("The login and password do not match."), "login_invalid");
+            } else {
+                $runData->resetSession();
+                $session = $runData->getSession();
+                $session->setUserId($user->getUserId());
+                // set other parameters
+                $session->setStarted(new ODate());
+                $session->setLastAccessed(new ODate());
+
+                $user->setLastLogin(new ODate());
+                $user->save();
+
+                if ($keepLogged) {
+                    $session->setInfinite(true);
+                }
+                if ($bindIP) {
+                    $session->setCheckIp(true);
+                }
+
+                setcookie("welcome", $user->getUserId(), time() + 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
+
+                // log event
+                EventLogger::instance()->logLogin();
+            }
+        } else {
+            $user = null;
+            EventLogger::instance()->logFailedLogin($uname);
+            throw new ProcessException(_("Login failed. Please report this (LoginAction::loginEvent)"), "login_invalid");
+        }
 	}
 	
 	public function loginCancelEvent($runData){

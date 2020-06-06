@@ -149,7 +149,7 @@ class FeedFlowController extends WebFlowController {
 			if($username !== null && $password !== null){
 				$user = SecurityManager::getUserByName($username);
 				if($user){
-					$upass = md5("feed_hashed_password_".$user->getPassword());
+					$upass = $user->getPassword();
 					$upass = substr($upass,0,15);
 					if($upass !== $password){
 						$user = null;

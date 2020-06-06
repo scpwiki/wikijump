@@ -33,7 +33,7 @@ class ManageSiteNotificationsModule extends ManageSiteBaseModule {
 		$user = $runData->getUser();
 		$username = $user->getName();
 		
-		$password = md5("feed_hashed_password_".$user->getPassword());
+		$password = $user->getPassword();
 		
 		$password = substr($password,0,15);
 		

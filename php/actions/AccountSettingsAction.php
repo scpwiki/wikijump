@@ -56,32 +56,24 @@ class AccountSettingsAction extends SmartyAction {
 		$newPassword1 = ($pl->getParameterValue("new_password1"));
 		$newPassword2 = ($pl->getParameterValue("new_password2"));
 		
-		$oldPassword = trim(CryptUtils::rsaDecrypt($oldPassword));
-		$newPassword1 = trim(CryptUtils::rsaDecrypt($newPassword1));
-		$newPassword2 = trim(CryptUtils::rsaDecrypt($newPassword2));
-		
-		$oldPassword = preg_replace("/^__/", '', $oldPassword);
-		$newPassword1 = preg_replace("/^__/", '', $newPassword1);
-		$newPassword2 = preg_replace("/^__/", '', $newPassword2);
-		
-		if(md5($oldPassword) !== $user->getPassword()){
-			throw new ProcessException(_("Can not change your password. The current password is invalid."), "form_error");
+		if(password_verify($oldPassword, $user->getPassword()) == false){
+			throw new ProcessException(_("Password reset failed: Your current password is incorrect."), "form_error");
 		}
 		if($newPassword1 !== $newPassword2){
-			throw new ProcessException(_("Can not change your password. New passwords differ but should be identical to eliminate typos."), "form_error");
+			throw new ProcessException(_("Password reset failed: New passwords do not match."), "form_error");
 			
 		}
-		if(strlen8($newPassword1)<6){
-			throw new ProcessException(_("Can not change your password. The new password is too short. Min 6 characters please!"), "form_error");
+		if(strlen8($newPassword1)<8){
+			throw new ProcessException(_("Password reset failed: Minimum password length is 8 characters."), "form_error");
 			
 		}
-		if(strlen8($newPassword1)>20){
-			throw new ProcessException(_("Can not change your password. The new password is too long. Max 20 characters please!"), "form_error");
+		if(strlen8($newPassword1)>256){
+			throw new ProcessException(_("Password reset failed: Maximum password length is 256 characters to avoid denial of service."), "form_error");
 			
 		}
 		
 		// ok, change the password!!!
-		$user->setPassword(md5($newPassword1));
+		$user->setPassword($newPassword1);
 		$user->save();
 		
 	}
@@ -95,8 +87,8 @@ class AccountSettingsAction extends SmartyAction {
 			throw new ProcessException(_("Email must be provided."), "no_email");	
 		}
 		
-		if(preg_match("/^[_a-zA-Z0-9-]+(\.[_a-zA-Z0-9-]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/", $email) ==0){
-			throw new ProcessException(_("Valid email must be provided."), "no_email");	
+		if(filter_var($email, FILTER_VALIDATE_EMAIL, FILTER_FLAG_EMAIL_UNICODE) == false){
+			throw new ProcessException(_("Valid email must be provided."), "no_email");
 		}	
 		
 		// check for users with the email

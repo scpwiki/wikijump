@@ -113,16 +113,16 @@ class CreateAccountAction extends SmartyAction {
 		$errors = array();
 		
 		//name
-		$unixified = WDStringUtils::toUnixName($name);
-		if(strlen($name)<2){
-			$errors['name'] = _("You really should provide the screen name you want to use.");
-		}elseif(strlen8($name)>20){
-			$errors['name'] = _("Your screen name should not be longer than 20 characters.");
-		}elseif(preg_match('/^[ _a-zA-Z0-9-\!#\$%\^\*\(\)]+$/', $name) == 0){
-			$errors['name'] = _("Only alphanumeric characters (+a few special) can be used in the screen name.");	
-		}elseif(strlen($unixified)<2){
-			$errors['name'] = _("It seems there are too less alphanumeric characters in your screen name");	
-		}else{
+        $unixified = WDStringUtils::toUnixName($name);
+        if(strlen($name)<2){
+            $errors['name'] = _("Account creation failed: Username too short. Minimum 3 characters.");
+        }elseif(strlen8($name)>20){
+            $errors['name'] = _("Account creation failed: Username too long. Maximum 20 characters.");
+        }elseif(preg_match('/^[ _a-zA-Z0-9-\!#\$%\^\*\(\)]+$/', $name) == 0){
+            $errors['name'] = _("Account creation failed: Accepted characters in usernames are (a-z, A-Z, 0-9, !, #, $, %, ^, *, (, ), _, and space.");
+        }elseif(strlen($unixified)<2){
+            $errors['name'] = _("Account creation failed: Username needs at least 2 non-special characters.");
+        }else{
 			
 			//handle forbidden names
 			$unixName = WDStringUtils::toUnixName($name);	
@@ -313,7 +313,7 @@ class CreateAccountAction extends SmartyAction {
 		/* email as the username!!! */
 		$nuser->setName($email);
 		$nuser->setEmail($email);
-		$nuser->setPassword(md5($password));		
+		$nuser->setPassword($password);
 		
 		$nuser->setNickName($name);
 		$nuser->setUnixName($unixified);

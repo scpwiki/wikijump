@@ -52,72 +52,62 @@ class Login2Action extends SmartyAction {
 		// decrypt! woooohhooooo!!!!!!!!
 		
 		
-		if($userId && is_numeric($userId) && $userId >0){
-			$user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
-			if($user && $user->getPassword() !== md5($upass)){
-				$user = null;
-			}
-		}else{
-		
-            // allow logging with nick name too
-            if (! strpos('@', $uname)) {
-                $c = new Criteria();
-                $c->add('lower(nick_name)', strtolower($uname));
-                $user_by_nick = OzoneUserPeer::instance()->selectOne($c);
-                if ($user_by_nick) {
-                    $uname = $user_by_nick->getName();
-                }
-            }
-            
-    		$user = SecurityManager::authenticateUser($uname, $upass);
-		}
-		
-		if($user == null){
-			EventLogger::instance()->logFailedLogin($uname);
-			throw new ProcessException(_("The login and password do not match."), "login_invalid");
-		}
+		if($userId && is_numeric($userId) && $userId >0) {
+            $user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+            if ($user == null or password_verify($upass, $user->getPassword()) == false) {
+                $user = null;
+                EventLogger::instance()->logFailedLogin($uname);
+                throw new ProcessException(_("The login and password do not match."), "login_invalid");
+            } else {
 
-		$originalUrl = $runData->sessionGet('loginOriginalUrl');
-		
-		$runData->resetSession();
-		$session = $runData->getSession();
-		$session->setUserId($user->getUserId());
-		// set other parameters
-		$session->setStarted(new ODate());
-		$session->setLastAccessed(new ODate());
-		
-		$user->setLastLogin(new ODate());
-		$user->save();
-		
-		if($keepLogged){
-			$session->setInfinite(true);	
-		}
-		if($bindIP){
-			$session->setCheckIp(true);
-		}
-		
-		
-		/* If the request is over https:, we should also use loginauth.php script to set non-ssl ip address. */
-		
-		if($_SERVER['HTTPS']){
-			$sessionHash = md5($session->getSessionId() . LoginAuthController::$secretSeed);
-			$parms = array('sessionHash' => $sessionHash);
-			if($originalUrl){
-				$parms['origUrl'] = $originalUrl;
-			}
-			$originalUrl = 'http://' . GlobalProperties::$URL_HOST. '/loginauth.php?'.http_build_query($parms);
-		}
-		
-		if($originalUrl){
-			$runData->ajaxResponseAdd('originalUrl', $originalUrl);
-		}
-		
-		setcookie("welcome", $user->getUserId(), time() + 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
-		setcookie(GlobalProperties::$SESSION_COOKIE_NAME_IE, $runData->getSessionId(), null, "/");
-		
-		// log event
-		EventLogger::instance()->logLogin();
-			
+                $originalUrl = $runData->sessionGet('loginOriginalUrl');
+
+                $runData->resetSession();
+                $session = $runData->getSession();
+                $session->setUserId($user->getUserId());
+                // set other parameters
+                $session->setStarted(new ODate());
+                $session->setLastAccessed(new ODate());
+
+                $user->setLastLogin(new ODate());
+                $user->save();
+
+                if ($keepLogged) {
+                    $session->setInfinite(true);
+                }
+                if ($bindIP) {
+                    $session->setCheckIp(true);
+                }
+
+
+                /* If the request is over https:, we should also use loginauth.php script to set non-ssl ip address. */
+
+                if ($_SERVER['HTTPS']) {
+                    $sessionHash = md5($session->getSessionId() . LoginAuthController::$secretSeed);
+                    $parms = array('sessionHash' => $sessionHash);
+                    if ($originalUrl) {
+                        $parms['origUrl'] = $originalUrl;
+                    }
+                    $originalUrl = GlobalProperties::$HTTP_SCHEMA . GlobalProperties::$URL_HOST . '/loginauth.php?' . http_build_query($parms);
+                }
+
+                if ($originalUrl) {
+                    $runData->ajaxResponseAdd('originalUrl', $originalUrl);
+                }
+
+                setcookie("welcome", $user->getUserId(), time() + 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
+                setcookie(GlobalProperties::$SESSION_COOKIE_NAME_IE, $runData->getSessionId(), null, "/");
+
+                // log event
+                EventLogger::instance()->logLogin();
+            }
+        }
+		else {
+		    // I'm not clear enough yet on things to understand when we'd hit this use case,
+            //   but it looks like it wasn't handled previously either.
+            EventLogger::instance()->logFailedLogin($uname);
+            throw new ProcessException(_("Login failure. Please report this. (Login2Action::loginEvent)"), "login_invalid");
+        }
 	}
 	
 	public function loginCancelEvent($runData){
