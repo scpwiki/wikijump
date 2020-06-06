@@ -60,6 +60,12 @@ class SecurityManager {
 		return $peer->selectOneByExplicitQuery($query);
 	}
 
+    public function getUserByNickname($username){
+        $peer = OzoneUserPeer::instance();
+        $query = "WHERE nick_name = '".db_escape_string($username)."'";
+        return $peer->selectOneByExplicitQuery($query);
+    }
+
     public function getUserByEmail($email){
         $peer = OzoneUserPeer::instance();
         $query = "WHERE email = '".db_escape_string($email)."'";
@@ -79,6 +85,12 @@ class SecurityManager {
 	}
 
 	public function authenticateUser($username, $password){
+	    // A slight digression here on dumb conventions.
+        // The getUserByName method actually checks the *email* of the user.
+        // Theoretically 'name' and 'email' are two different fields in the DB.
+        // But if there's a way to have 'name' be something other than an email, I don't know how.
+        // So if you want to look up by their friendly name/username, use the `nick_name` column.
+        // TODO: Clean up this behavior everywhere.
 	    if(strpos($username, '@') !== false) { // Email provided
             $user = $this->getUserByEmail($username);
             if(password_verify($password, $user->getPassword())) {
@@ -86,7 +98,7 @@ class SecurityManager {
             }
         }
 	    else { // No @, so it's a username.
-            $user = $this->getUserByName($username);
+            $user = $this->getUserByNickname($username);
             if(password_verify($password, $user->getPassword())) {
                 return $user;
             }
