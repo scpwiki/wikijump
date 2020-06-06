@@ -58,9 +58,15 @@ class SecurityManager {
 		$peer = OzoneUserPeer::instance();
 		$query = "WHERE name = '".db_escape_string($username)."'";
 		return $peer->selectOneByExplicitQuery($query);
-	}	
-	
-	public function getGroupById($groupId){
+	}
+
+    public function getUserByEmail($email){
+        $peer = OzoneUserPeer::instance();
+        $query = "WHERE email = '".db_escape_string($email)."'";
+        return $peer->selectOneByExplicitQuery($query);
+    }
+
+    public function getGroupById($groupId){
 		$peer = OzoneGroupPeer::instance();
 		$query = "WHERE group_id = '".db_escape_string($groupId)."'";
 		return $peer->selectOneByExplicitQuery($query);	
@@ -72,11 +78,19 @@ class SecurityManager {
 		return $peer->selectOneByExplicitQuery($query);
 	}
 
-	public  function authenticateUser($username, $password){
-		$user = $this->getUserByName($username);
-		if(password_verify($password, $user->getPassword())) {
-		    return $user;
+	public function authenticateUser($username, $password){
+	    if(strpos($username, '@') !== false) { // Email provided
+            $user = $this->getUserByEmail($username);
+            if(password_verify($password, $user->getPassword())) {
+                return $user;
+            }
         }
+	    else { // No @, so it's a username.
+            $user = $this->getUserByName($username);
+            if(password_verify($password, $user->getPassword())) {
+                return $user;
+            }
+	    }
 		return null;
 	}	
 	

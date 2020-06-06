@@ -58,56 +58,59 @@ class Login2Action extends SmartyAction {
                 $user = null;
                 EventLogger::instance()->logFailedLogin($uname);
                 throw new ProcessException(_("The login and password do not match."), "login_invalid");
-            } else {
-
-                $originalUrl = $runData->sessionGet('loginOriginalUrl');
-
-                $runData->resetSession();
-                $session = $runData->getSession();
-                $session->setUserId($user->getUserId());
-                // set other parameters
-                $session->setStarted(new ODate());
-                $session->setLastAccessed(new ODate());
-
-                $user->setLastLogin(new ODate());
-                $user->save();
-
-                if ($keepLogged) {
-                    $session->setInfinite(true);
-                }
-                if ($bindIP) {
-                    $session->setCheckIp(true);
-                }
-
-
-                /* If the request is over https:, we should also use loginauth.php script to set non-ssl ip address. */
-
-                if ($_SERVER['HTTPS']) {
-                    $sessionHash = md5($session->getSessionId() . LoginAuthController::$secretSeed);
-                    $parms = array('sessionHash' => $sessionHash);
-                    if ($originalUrl) {
-                        $parms['origUrl'] = $originalUrl;
-                    }
-                    $originalUrl = GlobalProperties::$HTTP_SCHEMA . GlobalProperties::$URL_HOST . '/loginauth.php?' . http_build_query($parms);
-                }
-
-                if ($originalUrl) {
-                    $runData->ajaxResponseAdd('originalUrl', $originalUrl);
-                }
-
-                setcookie("welcome", $user->getUserId(), time() + 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
-                setcookie(GlobalProperties::$SESSION_COOKIE_NAME_IE, $runData->getSessionId(), null, "/");
-
-                // log event
-                EventLogger::instance()->logLogin();
             }
+		}
+        else {
+            // Auth via username.
+            $sm = new SecurityManager();
+            $user = $sm->authenticateUser($uname,$upass);
+            if(!$user) {
+                EventLogger::instance()->logFailedLogin($uname);
+                throw new ProcessException(_("The login and password do not match."), "login_invalid");
+            }
+            $originalUrl = $runData->sessionGet('loginOriginalUrl');
+
+            $runData->resetSession();
+            $session = $runData->getSession();
+            $session->setUserId($user->getUserId());
+            // set other parameters
+            $session->setStarted(new ODate());
+            $session->setLastAccessed(new ODate());
+
+            $user->setLastLogin(new ODate());
+            $user->save();
+
+            if ($keepLogged) {
+                $session->setInfinite(true);
+            }
+            if ($bindIP) {
+                $session->setCheckIp(true);
+            }
+
+
+            /* If the request is over https:, we should also use loginauth.php script to set non-ssl ip address. */
+
+            if ($_SERVER['HTTPS']) {
+                $sessionHash = md5($session->getSessionId() . LoginAuthController::$secretSeed);
+                $parms = array('sessionHash' => $sessionHash);
+                if ($originalUrl) {
+                    $parms['origUrl'] = $originalUrl;
+                }
+                $originalUrl = GlobalProperties::$HTTP_SCHEMA . GlobalProperties::$URL_HOST . '/loginauth.php?' . http_build_query($parms);
+            }
+
+            if ($originalUrl) {
+                $runData->ajaxResponseAdd('originalUrl', $originalUrl);
+            }
+
+            setcookie("welcome", $user->getUserId(), time() + 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
+            setcookie(GlobalProperties::$SESSION_COOKIE_NAME_IE, $runData->getSessionId(), null, "/");
+
+            // log event
+            EventLogger::instance()->logLogin();
         }
-		else {
-		    // I'm not clear enough yet on things to understand when we'd hit this use case,
-            //   but it looks like it wasn't handled previously either.
-            EventLogger::instance()->logFailedLogin($uname);
-            throw new ProcessException(_("Login failure. Please report this. (Login2Action::loginEvent)"), "login_invalid");
-        }
+
+
 	}
 	
 	public function loginCancelEvent($runData){
