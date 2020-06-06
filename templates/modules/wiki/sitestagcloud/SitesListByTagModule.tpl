@@ -8,7 +8,7 @@
 	{foreach from=$sites item=site}
 		<div class="site-list-item">
 			<div class="name">
-				<a href="http://{$site->getDomain()}">{$site->getName()|escape}</a>
+				<a href="{$HTTP_SCHEMA}{$site->getDomain()}">{$site->getName()|escape}</a>
 			</div>
 			{if $site->getSubtitle()}
 				<div class="subtitle">

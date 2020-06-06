@@ -92,7 +92,7 @@ class ForumCategoryThreadsFeed extends FeedScreen {
 		$channel = array();
 		
 		$channel['title'] = $category->getName()." (new threads)";
-		$channel['link'] = "http://".$site->getDomain()."/forum/c-".$categoryId."/".$category->getUnixifiedName();
+		$channel['link'] = GlobalProperties::$HTTP_SCHEMA . $site->getDomain()."/forum/c-".$categoryId."/".$category->getUnixifiedName();
 		$channel['description'] = _("Threads in the forum category")." \"".$category->getName()."\"";
 		if($category->getDescription()){
 			$channel['description'] .=  " - ".$category->getDescription();
@@ -111,15 +111,15 @@ class ForumCategoryThreadsFeed extends FeedScreen {
 			$item = array();
 			
 			$item['title'] = $thread->getTitle();
-			$item['link'] = "http://".$site->getDomain()."/forum/t-".$thread->getThreadId().'/'.$thread->getUnixifiedTitle();
-			$item['guid'] = "http://".$site->getDomain()."/forum/t-".$thread->getThreadId();
+			$item['link'] = GlobalProperties::$HTTP_SCHEMA . $site->getDomain()."/forum/t-".$thread->getThreadId().'/'.$thread->getUnixifiedTitle();
+			$item['guid'] = GlobalProperties::$HTTP_SCHEMA . $site->getDomain()."/forum/t-".$thread->getThreadId();
 			$item['date'] = date('r', $thread->getDateStarted()->getTimestamp());
 			
 			//replace relative links with absolute links!
 			$post = $thread->getFirstPost();
 			$content =  $post->getText();
 			
-			$content = preg_replace(';(<.*?)(src|href)="/([^"]+)"([^>]*>);si', '\\1\\2="http://'.$site->getDomain().'/\\3"\\4', $content);
+			$content = preg_replace(';(<.*?)(src|href)="/([^"]+)"([^>]*>);si', '\\1\\2="'.GlobalProperties::$HTTP_SCHEMA . $site->getDomain().'/\\3"\\4', $content);
 			$content = preg_replace(';<script\s+[^>]+>.*?</script>;is', '', $content);
 			$content = preg_replace(';(<[^>]*\s+)on[a-z]+="[^"]+"([^>]*>);si', '\\1 \\2', $content);
 

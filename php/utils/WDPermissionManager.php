@@ -83,7 +83,7 @@ class WDPermissionManager {
 	
 	private static $userClassesDesc = array(
 		'anonymous' => 'anonymous users',
-		'registered' => '<a href="http://www.wikidot.com">Wikidot.com</a> registered users',
+		'registered' => 'registered users',
 		'member' => 'members of this site',
 		'owner' => 'owner (creator) of this page'
 	);
@@ -122,7 +122,7 @@ class WDPermissionManager {
 			
 		self:: $userClassesDesc = array(
 			'anonymous' => _('anonymous users'),
-			'registered' => _('<a href="http://www.wikidot.com">Wikidot.com</a> registered users'),
+			'registered' => _('registered users'),
 			'member' => _('members of this site'),
 			'owner' => _('owner (creator) of this page'));
 	}

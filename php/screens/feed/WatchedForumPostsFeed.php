@@ -86,7 +86,7 @@ class WatchedForumPostsFeed extends FeedScreen {
 		$posts = ForumPostPeer::instance()->select($c);
 		
 		$channel['title'] = _('Wikidot.com watched forum discussions for user').' "'.$user->getNickName().'"';
-		$channel['link'] = "http://" . GlobalProperties::$URL_HOST . "/account:you/start/watched-forum";
+		$channel['link'] = GlobalProperties::$HTTP_SCHEMA . GlobalProperties::$URL_HOST . "/account:you/start/watched-forum";
 		
 		$items = array();
 		
@@ -98,23 +98,23 @@ class WatchedForumPostsFeed extends FeedScreen {
 			$item = array();
 		
 			$item['title'] = $post->getTitle() . ' ('._('on site').' "'.htmlspecialchars($site->getName()).'")';
-			$item['link'] = "http://".$site->getDomain()."/forum/t-".$thread->getThreadId().'/'.$thread->getUnixifiedTitle().'#post-'.$post->getPostId();
-			$item['guid'] = "http://".$site->getDomain()."/forum/t-".$thread->getThreadId().'#post-'.$post->getPostId();
+			$item['link'] = GlobalProperties::$HTTP_SCHEMA . $site->getDomain()."/forum/t-".$thread->getThreadId().'/'.$thread->getUnixifiedTitle().'#post-'.$post->getPostId();
+			$item['guid'] = GlobalProperties::$HTTP_SCHEMA . $site->getDomain()."/forum/t-".$thread->getThreadId().'#post-'.$post->getPostId();
 			
 			$item['date'] = date('r', $post->getDatePosted()->getTimestamp());
 			
 			$content =  $post->getText();
 			
-			$content = preg_replace(';(<.*?)(src|href)="/([^"]+)"([^>]*>);si', '\\1\\2="http://'.$site->getDomain().'/\\3"\\4', $content);
+			$content = preg_replace(';(<.*?)(src|href)="/([^"]+)"([^>]*>);si', '\\1\\2="'.GlobalProperties::$HTTP_SCHEMA . $site->getDomain().'/\\3"\\4', $content);
 			$content = preg_replace(';<script\s+[^>]+>.*?</script>;is', '', $content);
 			$content = preg_replace(';(<[^>]*\s+)on[a-z]+="[^"]+"([^>]*>);si', '\\1 \\2', $content);
 			
 			// add extra info.
 			
 			$content .= '<br/><hr/>';
-			$content .= _('Site').': <a href="http://'.$site->getDomain().'">'.htmlspecialchars($site->getName()).'</a><br/>';
-			$content .= _('Forum category').': <a href="http://'.$site->getDomain().'/forum/c-'.$thread->getCategoryId().'">'.htmlspecialchars($thread->getForumCategory()->getName()).'</a><br/>';
-			$content .= _('Forum thread').': <a href="http://'.$site->getDomain().'/forum/t-'.$thread->getThreadId().'/'.$thread->getUnixifiedTitle().'">'
+			$content .= _('Site').': <a href="'.GlobalProperties::$HTTP_SCHEMA . $site->getDomain().'">'.htmlspecialchars($site->getName()).'</a><br/>';
+			$content .= _('Forum category').': <a href="'.GlobalProperties::$HTTP_SCHEMA . $site->getDomain().'/forum/c-'.$thread->getCategoryId().'">'.htmlspecialchars($thread->getForumCategory()->getName()).'</a><br/>';
+			$content .= _('Forum thread').': <a href="'.GlobalProperties::$HTTP_SCHEMA . $site->getDomain().'/forum/t-'.$thread->getThreadId().'/'.$thread->getUnixifiedTitle().'">'
 				.htmlspecialchars($thread->getTitle()).'</a><br/>';
 			$content .= _('Author of the post').': '.WDRenderUtils::renderUser($post->getUserOrString()).'<br/>';
 			

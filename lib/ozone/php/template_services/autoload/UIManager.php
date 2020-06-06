@@ -43,7 +43,7 @@ class UIManager extends TemplateService{
 	}
 
 	public function getBaseURL(){
-		return "http://".GlobalProperties::$URL_HOST."/";	
+		return GlobalProperties::$HTTP_SCHEMA . GlobalProperties::$URL_HOST."/";
 	}
 
 	/**
@@ -52,7 +52,7 @@ class UIManager extends TemplateService{
 	 * @return string full URL
 	 */
 	public function style($filename){
-		return "http://".GlobalProperties::$URL_HOST."/ui/skins/". $this->page->getSkin()."/css/".$filename;	
+		return GlobalProperties::$HTTP_SCHEMA . GlobalProperties::$URL_HOST."/ui/skins/". $this->page->getSkin()."/css/".$filename;
 	}
 	
 	/**
@@ -61,7 +61,7 @@ class UIManager extends TemplateService{
 	 * @return string full URL
 	 */
 	public function javaScript($filename){
-		return "http://".GlobalProperties::$URL_HOST."/ui/skins/". $this->page->getSkin()."/js/".$filename;
+		return GlobalProperties::$HTTP_SCHEMA . GlobalProperties::$URL_HOST."/ui/skins/". $this->page->getSkin()."/js/".$filename;
 	}
 	
 	/**
@@ -70,11 +70,11 @@ class UIManager extends TemplateService{
 	 * @return string full URL
 	 */
 	public function image($filename){
-		return "http://".GlobalProperties::$URL_HOST."/ui/skins/". $this->page->getSkin()."/images/".$filename;
+		return GlobalProperties::$HTTP_SCHEMA . GlobalProperties::$URL_HOST."/ui/skins/". $this->page->getSkin()."/images/".$filename;
 	}
 	
 	public function getImageBaseURL(){
-		return "http://".GlobalProperties::$URL_HOST."/ui/skins/". $this->page->getSkin()."/images/";
+		return GlobalProperties::$HTTP_SCHEMA . GlobalProperties::$URL_HOST."/ui/skins/". $this->page->getSkin()."/images/";
 	}
 	
 }

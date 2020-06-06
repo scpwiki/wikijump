@@ -17,7 +17,7 @@
 	</ul>
 	<br/><br/>
 	<ul>
-		<li><a href="http://{$URL_HOST}/account:you/start/messages/composeto/{$user->getUserId()}">{t}Write PM{/t}</a></li>
+		<li><a href="{$HTTP_SCHEMA}{$URL_HOST}/account:you/start/messages/composeto/{$user->getUserId()}">{t}Write PM{/t}</a></li>
 		<li><a href="javascript:;" onclick="WIKIDOT.modules.UserInfoModule.listeners.addContact(event,{$userId})">{t}Add to contacts{/t}</a></li>
 	</ul>
 	

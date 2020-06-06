@@ -29,6 +29,7 @@ use DB\AdminNotificationBase;
 use OZONE;
 use DB\OzoneUserPeer;
 use \WDRenderUtils;
+use GlobalProperties;
 
 
 
@@ -145,31 +146,31 @@ class AdminNotification extends AdminNotificationBase {
 		
 		switch($type){
 			case 'NEW_MEMBER_APPLICATION':
-				$urls =  array(	array(_('check pending applications'),'http://'.$site->getDomain().'/admin:manage/start/ma')
+				$urls =  array(	array(_('check pending applications'),GlobalProperties::$HTTP_SCHEMA . $site->getDomain().'/admin:manage/start/ma')
 								);
 				break;	
 			case 'INVITATION_ACCEPTED':
-				$urls  = array(	array(_('site members'),'http://'.$site->getDomain().'/admin:manage/start/members-list')
+				$urls  = array(	array(_('site members'),GlobalProperties::$HTTP_SCHEMA . $site->getDomain().'/admin:manage/start/members-list')
 								);
 				break;	
 			case 'INVITATION_DECLINED':
 				break;	
 			case 'NEW_MEMBER_BY_PASSWORD':
-				$urls = array(	array('_(site members)','http://'.$site->getDomain().'/admin:manage/start/members-list')
+				$urls = array(	array('_(site members)',GlobalProperties::$HTTP_SCHEMA . $site->getDomain().'/admin:manage/start/members-list')
 							);
 				break;	
 			case 'MEMBER_RESIGNED':
-				$urls = array(	array(_('site members'),'http://'.$site->getDomain().'/admin:manage/start/members-list')
+				$urls = array(	array(_('site members'),GlobalProperties::$HTTP_SCHEMA . $site->getDomain().'/admin:manage/start/members-list')
 								);
 				break;	
 			case 'MODERATOR_RESIGNED':
-				$urls = array(	array(_('site moderators'),'http://'.$site->getDomain().'/admin:manage/start/moderators'),
-					array(_('site members'),'http://'.$site->getDomain().'/admin:manage/start/members-list')
+				$urls = array(	array(_('site moderators'),GlobalProperties::$HTTP_SCHEMA . $site->getDomain().'/admin:manage/start/moderators'),
+					array(_('site members'),GlobalProperties::$HTTP_SCHEMA . $site->getDomain().'/admin:manage/start/members-list')
 								);
 				break;	
 			case 'ADMIN_RESIGNED':
-				$urls = array(	array(_('site adminitrators'),'http://'.$site->getDomain().'/admin:manage/start/admins'),
-					array(_('site members'),'http://'.$site->getDomain().'/admin:manage/start/members-list')
+				$urls = array(	array(_('site adminitrators'),GlobalProperties::$HTTP_SCHEMA . $site->getDomain().'/admin:manage/start/admins'),
+					array(_('site members'),GlobalProperties::$HTTP_SCHEMA . $site->getDomain().'/admin:manage/start/members-list')
 								);
 				break;	
 		}

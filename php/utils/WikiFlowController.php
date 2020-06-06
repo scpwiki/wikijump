@@ -102,7 +102,7 @@ class WikiFlowController extends WebFlowController {
 				$c->setExplicitQuery($q);
 				$site = SitePeer::instance()->selectOne($c);
 				if($site){
-					$newUrl = 'http://'.$site->getDomain().$_SERVER['REQUEST_URI'];
+					$newUrl = GlobalProperties::$HTTP_SCHEMA . $site->getDomain().$_SERVER['REQUEST_URI'];
 					header("HTTP/1.1 301 Moved Permanently");
 					header("Location: ".$newUrl);
 					exit();	
@@ -156,7 +156,7 @@ class WikiFlowController extends WebFlowController {
 			if(!$sslMode){
 				// not enabled, redirect to http:
 				header("HTTP/1.1 301 Moved Permanently");
-				header("Location: ".'http://'.$_SERVER["HTTP_HOST"].$_SERVER['REQUEST_URI']);
+				header("Location: ".GlobalProperties::$HTTP_SCHEMA . $_SERVER["HTTP_HOST"].$_SERVER['REQUEST_URI']);
 				exit();	
 			}elseif($sslMode == "ssl_only_paranoid"){
 				// use secure authentication cookie
@@ -224,8 +224,8 @@ class WikiFlowController extends WebFlowController {
 		if($_SERVER['HTTPS']){
 			// ?
 			// scripts
-			$rendered = preg_replace(';<script(.*?)src="http://' . GlobalProperties::$URL_HOST_PREG . '(.*?)</script>;s', '<script\\1src="https://' . GlobalProperties::$URL_HOST . '\\2</script>', $rendered);
-			$rendered = preg_replace(';<link(.*?)href="http://' . GlobalProperties::$URL_HOST_PREG . '(.*?)/>;s', '<link\\1href="https://' . GlobalProperties::$URL_HOST . '\\2/>', $rendered);
+			$rendered = preg_replace(';<script(.*?)src="'.GlobalProperties::$HTTP_SCHEMA . GlobalProperties::$URL_HOST_PREG . '(.*?)</script>;s', '<script\\1src="https://' . GlobalProperties::$URL_HOST . '\\2</script>', $rendered);
+			$rendered = preg_replace(';<link(.*?)href="'.GlobalProperties::$HTTP_SCHEMA . GlobalProperties::$URL_HOST_PREG . '(.*?)/>;s', '<link\\1href="https://' . GlobalProperties::$URL_HOST . '\\2/>', $rendered);
 			$rendered = preg_replace(';(<img\s+.*?src=")http(://' . GlobalProperties::$URL_HOST_PREG . '(.*?)/>);s', '\\1https\\2', $rendered);
 			do{
 				$renderedOld = $rendered;

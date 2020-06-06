@@ -180,10 +180,10 @@
 			 		
 	 			</div>
 				{if $SERVICE_NAME!=""}
-	 				Part of <a href="http://{$URL_HOST}">{$SERVICE_NAME|escape}</a>
+	 				Part of <a href="{$HTTP_SCHEMA}{$URL_HOST}">{$SERVICE_NAME|escape}</a>
 	 				&#8212; 
 				{/if}
- 				Powered by <a href="http://www.wikidot.org/">Wikidot</a>
+ 				Powered by <a href="https://github.com/scpwiki/wikidot">Wikidork</a>
 	 		</div>
 	 		{if $licenseText!=""}
 		 		<div id="license-area" class="license-area">

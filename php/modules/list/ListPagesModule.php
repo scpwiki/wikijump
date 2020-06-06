@@ -614,7 +614,7 @@ class ListPagesModule extends SmartyModule {
 			$b = str_ireplace('%%category%%', $categoryName00, $b);
 			
             /* %%link%% */
-            $b = str_ireplace('%%link%%', 'http://' . $site->getDomain().'/'.$page->getUnixName(), $b);
+            $b = str_ireplace('%%link%%', GlobalProperties::$HTTP_SCHEMA . $site->getDomain().'/'.$page->getUnixName(), $b);
             
             /* %%tags%% */
             $b = preg_replace_callback("/%%tags%%/i", array(
@@ -667,7 +667,7 @@ class ListPagesModule extends SmartyModule {
         
         if($rssTitle !== null) {
 	        
-	        $url = 'http://' . $site->getDomain() . '/feed/pages';
+	        $url = GlobalProperties::$HTTP_SCHEMA . $site->getDomain() . '/feed/pages';
 	        if (count($categoryNames) > 0) {
 	            $url .= '/category/' . urlencode(implode(',', $categoryNames));
 	        }

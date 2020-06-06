@@ -61,7 +61,7 @@ class SiteChangesFeed extends FeedScreen {
 		$revisions = PageRevisionPeer::instance()->select($c);
 
 		$channel['title'] = _('Recent page changes from site').' "'.htmlspecialchars($site->getName()).'" (a Wikidot site)';
-		$channel['link'] = "http://".$site->getDomain();
+		$channel['link'] = GlobalProperties::$HTTP_SCHEMA . $site->getDomain();
 		
 		$items = array();
 		
@@ -70,7 +70,7 @@ class SiteChangesFeed extends FeedScreen {
 			
 			$item = array();
 
-			$item['link'] = 'http://'.$site->getDomain().'/'.$page->getUnixName();
+			$item['link'] = GlobalProperties::$HTTP_SCHEMA . $site->getDomain().'/'.$page->getUnixName();
 			
 			$desc = '';
 			
@@ -96,7 +96,7 @@ class SiteChangesFeed extends FeedScreen {
 			
 			$item['title'] = '"'.$page->getTitleOrUnixName().'" - '.implode(', ', $flags);
 			$desc = '';
-			$desc .= _('Page').': <a href="http://'.$site->getDomain().'/'.$page->getUnixName().'">'.htmlspecialchars($page->getTitle()).'</a> ('.$page->getUnixName().')<br/>';
+			$desc .= _('Page').': <a href="'.GlobalProperties::$HTTP_SCHEMA . $site->getDomain().'/'.$page->getUnixName().'">'.htmlspecialchars($page->getTitle()).'</a> ('.$page->getUnixName().')<br/>';
 			$desc .= _('Current revision number').': '.$rev->getRevisionNumber().'<br/>';
 			$desc .= _('Date changed').': '.date('r', $rev->getDateLastEdited()->getTimestamp()).'<br/>';
 			$desc .= _('Change type').': '.implode(', ', $flags).'<br/>';

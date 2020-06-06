@@ -12,7 +12,7 @@
 			<table>
 				<tr>
 					<td class="site">
-						<a href="http://{$site->getDomain()}">{$site->getName()|escape}</a>
+						<a href="{$HTTP_SCHEMA}{$site->getDomain()}">{$site->getName()|escape}</a>
 					</td>
 					<td class="title">
 						<a href="/{$page->getUnixname()}">{if $page->getTitle()|escape}{$page->getTitle()|escape}{else}{$page->getUnixName()|escape}{/if}</a>

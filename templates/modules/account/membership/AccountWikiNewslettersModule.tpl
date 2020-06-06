@@ -52,7 +52,7 @@
 				{assign var=site value=$mem->getSite()}
 				<tr>
 					<td>
-						<a href="http://{$site->getDomain()}">{$site->getName()|escape}</a>
+						<a href="{$HTTP_SCHEMA}{$site->getDomain()}">{$site->getName()|escape}</a>
 						{if $site->getSubtitle()}
 							<br/>
 							{$site->getSubtitle()|escape}

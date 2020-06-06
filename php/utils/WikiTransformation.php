@@ -191,7 +191,7 @@ class WikiTransformation {
 			
             /* %%link%% */
 			$site = $page->getSite();
-            $b = str_ireplace('%%%%%link%%%%%', 'http://' . $site->getDomain().'/'.$page->getUnixName(), $b);
+            $b = str_ireplace('%%%%%link%%%%%', GlobalProperties::$HTTP_SCHEMA . $site->getDomain().'/'.$page->getUnixName(), $b);
             
             /* %%tags%% */
             $b = preg_replace_callback("/%%%%%tags%%%%%/i", array(

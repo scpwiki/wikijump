@@ -222,7 +222,7 @@ class SocialBookmarksModule extends SmartyModule {
     	 	 	$pageName = $page->getUnixName();
     	 	}
 
-    	 	$permalink = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+    	 	$permalink = GlobalProperties::$HTTP_SCHEMA . $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
     	 	
     	 	$out = '';
     	 	$id = 'social'.rand(1,100000);

@@ -20,7 +20,7 @@
 				</td>
 				<td style="padding: 10px; border-left: 1px solid #999">
 					<p>
-						{t escape=no}This site is a part of the <a href="http://{$URL_HOST}">{$SERVICE_NAME}</a>
+						{t escape=no}This site is a part of the <a href="{$HTTP_SCHEMA}{$URL_HOST}">{$SERVICE_NAME}</a>
 						and uses shared user authentication.{/t}
 					</p>
 					<p>

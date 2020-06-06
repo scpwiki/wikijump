@@ -86,7 +86,7 @@ class WatchedPageChangesFeed extends FeedScreen {
 		$revisions = PageRevisionPeer::instance()->select($c);
 		
 		$channel['title'] = _('Wikidot.com watched pages changes for user').' "'.$user->getNickName().'"';
-		$channel['link'] = "http://" . GlobalProperties::$URL_HOST . "/account:you/start/watched-changes";
+		$channel['link'] = GlobalProperties::$HTTP_SCHEMA . GlobalProperties::$URL_HOST . "/account:you/start/watched-changes";
 		
 		$items = array();
 		
@@ -97,7 +97,7 @@ class WatchedPageChangesFeed extends FeedScreen {
 		
 			$item['title'] = '"'.$page->getTitleOrUnixName().'" '._('on site').' "'.
 				$site->getName().'"';
-			$item['link'] = 'http://'.$site->getDomain().'/'.$page->getUnixName();
+			$item['link'] = GlobalProperties::$HTTP_SCHEMA . $site->getDomain().'/'.$page->getUnixName();
 			
 			$desc = '';
 			
@@ -121,8 +121,8 @@ class WatchedPageChangesFeed extends FeedScreen {
 				$flags[] = _("new page");	
 			}
 			
-			$desc .= _('Site').': <a href="http://'.$site->getDomain().'">'.htmlspecialchars($site->getName()).'</a><br/>';
-			$desc .= _('Page').': <a href="http://'.$site->getDomain().'/'.$page->getUnixName().'">'.htmlspecialchars($page->getTitle()).'</a> ('.$page->getUnixName().')<br/>';
+			$desc .= _('Site').': <a href="'.GlobalProperties::$HTTP_SCHEMA . $site->getDomain().'">'.htmlspecialchars($site->getName()).'</a><br/>';
+			$desc .= _('Page').': <a href="'.GlobalProperties::$HTTP_SCHEMA . $site->getDomain().'/'.$page->getUnixName().'">'.htmlspecialchars($page->getTitle()).'</a> ('.$page->getUnixName().')<br/>';
 			$desc .= _('Current revision number').': '.$rev->getRevisionNumber().'<br/>';
 			$desc .= _('Date changed').': '.date('r', $rev->getDateLastEdited()->getTimestamp()).'<br/>';
 			$desc .= _('Change type').': '.implode(', ', $flags).'<br/>';

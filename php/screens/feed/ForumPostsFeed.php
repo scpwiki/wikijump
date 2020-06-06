@@ -85,7 +85,7 @@ class ForumPostsFeed extends FeedScreen {
 		$channel = array();
 		
 		$channel['title'] = $site->getName()." - "._("new forum posts");
-		$channel['link'] = "http://".$site->getDomain()."/forum/start";
+		$channel['link'] = GlobalProperties::$HTTP_SCHEMA . $site->getDomain()."/forum/start";
 		$channel['description'] = _("Posts in forums of the site"). " \"".$site->getName()."\"";
 		if($site->getSubtitle()){
 			$channel['description'] .=  " - ".$site->getSubtitle();
@@ -111,13 +111,13 @@ class ForumPostsFeed extends FeedScreen {
 			$thread = $post->getForumThread();
 			
 			$item['title'] = $post->getTitle();
-			$item['link'] = "http://".$site->getDomain()."/forum/t-".$thread->getThreadId().'/'.$thread->getUnixifiedTitle().'#post-'.$post->getPostId();
-			$item['guid'] = "http://".$site->getDomain()."/forum/t-".$thread->getThreadId().'#post-'.$post->getPostId();
+			$item['link'] = GlobalProperties::$HTTP_SCHEMA . $site->getDomain()."/forum/t-".$thread->getThreadId().'/'.$thread->getUnixifiedTitle().'#post-'.$post->getPostId();
+			$item['guid'] = GlobalProperties::$HTTP_SCHEMA . $site->getDomain()."/forum/t-".$thread->getThreadId().'#post-'.$post->getPostId();
 			$item['date'] = date('r', $post->getDatePosted()->getTimestamp());
 			// TODO: replace relative links with absolute links!
 			$content =  $post->getText();
 			
-			$content = preg_replace(';(<.*?)(src|href)="/([^"]+)"([^>]*>);si', '\\1\\2="http://'.$site->getDomain().'/\\3"\\4', $content);
+			$content = preg_replace(';(<.*?)(src|href)="/([^"]+)"([^>]*>);si', '\\1\\2="'.GlobalProperties::$HTTP_SCHEMA . $site->getDomain().'/\\3"\\4', $content);
 			$content = preg_replace(';<script\s+[^>]+>.*?</script>;is', '', $content);
 			$content = preg_replace(';(<[^>]*\s+)on[a-z]+="[^"]+"([^>]*>);si', '\\1 \\2', $content);
 
@@ -125,8 +125,8 @@ class ForumPostsFeed extends FeedScreen {
 			
 			$content .= '<br/>';
 			$fcategory = $thread->getForumCategory();
-			$content .= _('Forum category').': <a href="http://'.$site->getDomain().'/forum/c-'.$thread->getCategoryId().'">'.htmlspecialchars($fcategory->getForumGroup()->getName().' / '.$fcategory->getName()).'</a><br/>';
-			$content .= _('Forum thread').': <a href="http://'.$site->getDomain().'/forum/t-'.$thread->getThreadId().'/'.$thread->getUnixifiedTitle().'">'
+			$content .= _('Forum category').': <a href="'.GlobalProperties::$HTTP_SCHEMA . $site->getDomain().'/forum/c-'.$thread->getCategoryId().'">'.htmlspecialchars($fcategory->getForumGroup()->getName().' / '.$fcategory->getName()).'</a><br/>';
+			$content .= _('Forum thread').': <a href="'.GlobalProperties::$HTTP_SCHEMA . $site->getDomain().'/forum/t-'.$thread->getThreadId().'/'.$thread->getUnixifiedTitle().'">'
 				.htmlspecialchars($thread->getTitle()).'</a>';
 			
 			$item['content'] = $content;

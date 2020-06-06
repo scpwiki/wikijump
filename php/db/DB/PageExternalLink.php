@@ -6,6 +6,7 @@ namespace DB;
 use DB\PageExternalLinkBase;
 use DB\PagePeer;
 use DB\SitePeer;
+use GlobalProperties;
 
 
 //please extend this class
@@ -15,7 +16,7 @@ class PageExternalLink extends PageExternalLinkBase {
 		$page = PagePeer::instance()->selectByPrimaryKey($this->getPageId());
 		$site = SitePeer::instance()->selectByPrimaryKey($page->getSiteId());
 		
-		$h = 'http://'.$site->getDomain().'/'.$page->getUnixName();
+		$h = GlobalProperties::$HTTP_SCHEMA . $site->getDomain().'/'.$page->getUnixName();
 		return $h;
 	}
 }

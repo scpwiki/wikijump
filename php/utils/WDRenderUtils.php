@@ -63,13 +63,13 @@ class WDRenderUtils {
 		}
 		
 		$out = '<span class="'.$class.'">';
-		$linkInner = 'href="http://' . GlobalProperties::$URL_HOST . '/user:info/'.$user->getUnixName().'" onclick="WIKIDOT.page.listeners.userInfo('.$user->getUserId().'); return false;" ';
+		$linkInner = 'href="'.GlobalProperties::$HTTP_SCHEMA . GlobalProperties::$URL_HOST . '/user:info/'.$user->getUnixName().'" onclick="WIKIDOT.page.listeners.userInfo('.$user->getUserId().'); return false;" ';
 		if($params['image'] != null){
 			$image = $params['image'];
 			// handle sizes...
 			$out .= 	'<a '.$linkInner.' ><img class="small" src="/common--images/avatars/'.floor($userId/1000).'/'.$userId.'/a16.png" alt="'.htmlspecialchars($user->getNickName()).'"';
 			/* karma: */
-			$out .= ' style="background-image:url(http://' . GlobalProperties::$URL_HOST . '/userkarma.php?u=' . $userId . ')"';
+			$out .= ' style="background-image:url('.GlobalProperties::$HTTP_SCHEMA . GlobalProperties::$URL_HOST . '/userkarma.php?u=' . $userId . ')"';
 			/* end of karma */
 			$out .= '/></a>';
 		}

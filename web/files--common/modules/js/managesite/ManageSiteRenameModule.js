@@ -35,7 +35,7 @@ WIKIDOT.modules.ManagerSiteRenameModule.callbacks = {
 		w.content = "The URL has been changed.";
 		w.show();
 
-		setTimeout('window.location.href="http://'+r.unixName+'.'+URL_DOMAIN+'"', 500);
+		setTimeout('window.location.href="'+HTTP_SCHEMA+r.unixName+'.'+URL_DOMAIN+'"', 500);
 		
 	}
 	

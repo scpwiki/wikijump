@@ -175,7 +175,7 @@ class FrontForumFeed extends FeedScreen {
 		$threads = ForumThreadPeer::instance()->select($c);
 
 		$channel['title'] = $feed->getTitle();
-		$channel['link'] = "http://".$site->getDomain()."/".$page->getUnixName();
+		$channel['link'] = GlobalProperties::$HTTP_SCHEMA . $site->getDomain()."/".$page->getUnixName();
 		if($feed->getDescription()){
 			$channel['description'] = $feed->getDescription();
 		}
@@ -186,7 +186,7 @@ class FrontForumFeed extends FeedScreen {
 			$item = array();
 			
 			$item['title'] = $thread->getTitle();
-			$item['link'] = "http://".$site->getDomain()."/forum/t-".$thread->getThreadId().'/'.$thread->getUnixifiedTitle();
+			$item['link'] = GlobalProperties::$HTTP_SCHEMA . $site->getDomain()."/forum/t-".$thread->getThreadId().'/'.$thread->getUnixifiedTitle();
 			$item['guid'] = $item['link'];
 			$item['date'] = date('r', $thread->getDateStarted()->getTimestamp());
 			
@@ -200,7 +200,7 @@ class FrontForumFeed extends FeedScreen {
 			
 			$content =  $post->getText();
 			
-			$content = preg_replace(';(<.*?)(src|href)="/([^"]+)"([^>]*>);si', '\\1\\2="http://'.$site->getDomain().'/\\3"\\4', $content);
+			$content = preg_replace(';(<.*?)(src|href)="/([^"]+)"([^>]*>);si', '\\1\\2="'.GlobalProperties::$HTTP_SCHEMA . $site->getDomain().'/\\3"\\4', $content);
 			$content = preg_replace(';<script\s+[^>]+>.*?</script>;is', '', $content);
 			$content = preg_replace(';(<[^>]*\s+)on[a-z]+="[^"]+"([^>]*>);si', '\\1 \\2', $content);
 

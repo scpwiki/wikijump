@@ -51,6 +51,7 @@ smarty_core_load_plugins(array('plugins' => array(array('modifier', 'escape', '/
 ";
 // 		window.onload = WikidotInit();
 
+		var HTTP_SCHEMA = '<?php echo $this->_tpl_vars['HTTP_SCHEMA']; ?>
 		var URL_HOST = '<?php echo $this->_tpl_vars['URL_HOST']; ?>
 ';
 		var URL_DOMAIN = '<?php echo $this->_tpl_vars['URL_DOMAIN']; ?>

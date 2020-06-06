@@ -44,7 +44,7 @@ WIKIDOT.modules.AccountDeletedSitesModule.callbacks = {
 		w.content = "The site has been restored.";
 		w.show();
 		
-		setTimeout('window.location.href="http://'+r.unixName+'.'+URL_DOMAIN+'"', 500);
+		setTimeout('window.location.href="'+HTTP_SCHEMA+r.unixName+'.'+URL_DOMAIN+'"', 500);
 	}
 }
 

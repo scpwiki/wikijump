@@ -5,11 +5,11 @@
 	directly to your feed reader please use the following feeds:
 	
 <p style="text-align: center">
-	<a href="http://{$URL_HOST}/feed/watched/page-changes.xml">http://{$URL_HOST}/feed/watched/page-changes.xml</a>
+	<a href="{$HTTP_SCHEMA}{$URL_HOST}/feed/watched/page-changes.xml">http://{$URL_HOST}/feed/watched/page-changes.xml</a>
 	<br/>
 	and
 	<br/>
-	<a href="http://{$URL_HOST}/feed/watched/forum-posts.xml">http://{$URL_HOST}/feed/watched/forum-posts.xml</a>
+	<a href="{$HTTP_SCHEMA}{$URL_HOST}/feed/watched/forum-posts.xml">http://{$URL_HOST}/feed/watched/forum-posts.xml</a>
 </p>
 
 <ul>

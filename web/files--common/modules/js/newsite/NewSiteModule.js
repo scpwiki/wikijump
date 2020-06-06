@@ -63,6 +63,6 @@ WIKIDOT.modules.NewSiteModule.callbacks = {
 		w.content = "New site successfuly created!";
 		w.show();
 		
-		setTimeout("window.location.href='http://"+r.siteUnixName+"."+URL_DOMAIN+"'", 1000);;
+		setTimeout("window.location.href='"+HTTP_SCHEMA+r.siteUnixName+"."+URL_DOMAIN+"'", 1000);;
 	}	
 }

@@ -17,7 +17,7 @@
 		{t}From{/t}: {$profile->getLocation()|escape}<br/>
 	{/if}
 	{if $profile->getWebsite()}
-		{t}Website{/t}: <a href="{$profile->getWebsite()|escape}">{$profile->getWebsite()|replace:'http://':''|escape}</a><br/>
+		{t}Website{/t}: <a href="{$profile->getWebsite()|escape}">{$profile->getWebsite()|replace:{$HTTP_SCHEMA}:''|escape}</a><br/>
 	{/if}
 	
 	{t}User since{/t}:  <span class="odate">{$user->getRegisteredDate()->getTimestamp()}|%e %b %Y, %H:%M %Z (%O {t}ago{/t})</span><br/>

@@ -6,7 +6,7 @@
 
 {foreach from=$applications item=application}
 	{assign var=site value=$application->getSite()}
-	<h3>{t}Application to site{/t} <a href="http://{$site->getDomain()}">{$site->getName()|escape}</a></h3>
+	<h3>{t}Application to site{/t} <a href="{$HTTP_SCHEMA}{$site->getDomain()}">{$site->getName()|escape}</a></h3>
 	<table class="form alignleft">
 		{if $site->getDescription()!= ''}
 			<tr>

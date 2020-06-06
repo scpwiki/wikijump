@@ -137,7 +137,7 @@ class AccountMembershipAction extends SmartyAction {
 		MemberApplicationPeer::instance()->delete($c);
 		
 		MemberInvitationPeer::instance()->deleteByPrimaryKey($invitationId);
-		$runData->ajaxResponseAdd("message", _('Now you are a member of the site').' <a href="http://'.htmlspecialchars($site->getDomain()).'">'.htmlspecialchars($site->getName()).'</a>');
+		$runData->ajaxResponseAdd("message", _('Now you are a member of the site').' <a href='.GlobalProperties::$HTTP_SCHEMA . htmlspecialchars($site->getDomain()).'">'.htmlspecialchars($site->getName()).'</a>');
 		
 		AdminNotificationMaker::instance()->memberInvitationAccepted($site, $user);
 		$db->commit();
