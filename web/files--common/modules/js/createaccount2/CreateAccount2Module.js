@@ -13,7 +13,7 @@ WIKIDOT.modules.CreateAccount2Module = {};
 
 WIKIDOT.modules.CreateAccount2Module.listeners = {
 	cancel: function(e){
-		window.location.href=HTTP_SCHEMA+window.location.hostname;
+		window.location.href=HTTP_SCHEMA+"://"+window.location.hostname;
 	},
 	
 	backClick: function(e){

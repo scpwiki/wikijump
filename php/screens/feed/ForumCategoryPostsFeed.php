@@ -92,7 +92,7 @@ class ForumCategoryPostsFeed extends FeedScreen {
 		$channel = array();
 		
 		$channel['title'] = $category->getName()." ("._('new posts').")";
-		$channel['link'] = GlobalProperties::$HTTP_SCHEMA . $site->getDomain()."/forum/c-".$categoryId."/".$category->getUnixifiedName();
+		$channel['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/forum/c-".$categoryId."/".$category->getUnixifiedName();
 		$channel['description'] = _("Posts in the forum category")." \"".$category->getName()."\"";
 		if($category->getDescription()){
 			$channel['description'] .=  " - ".$category->getDescription();
@@ -115,13 +115,13 @@ class ForumCategoryPostsFeed extends FeedScreen {
 			$thread = $post->getForumThread();
 			
 			$item['title'] = $thread->getTitle().': '.$post->getTitle();
-			$item['link'] = GlobalProperties::$HTTP_SCHEMA . $site->getDomain()."/forum/t-".$thread->getThreadId().'/'.$thread->getUnixifiedTitle().'#post-'.$post->getPostId();
-			$item['guid'] = GlobalProperties::$HTTP_SCHEMA . $site->getDomain()."/forum/t-".$thread->getThreadId().'#post-'.$post->getPostId();
+			$item['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/forum/t-".$thread->getThreadId().'/'.$thread->getUnixifiedTitle().'#post-'.$post->getPostId();
+			$item['guid'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/forum/t-".$thread->getThreadId().'#post-'.$post->getPostId();
 			$item['date'] = date('r', $post->getDatePosted()->getTimestamp());
 			// TODO: replace relative links with absolute links!
 			$content =  $post->getText();
 			
-			$content = preg_replace(';(<.*?)(src|href)="/([^"]+)"([^>]*>);si', '\\1\\2="'.GlobalProperties::$HTTP_SCHEMA . $site->getDomain().'/\\3"\\4', $content);
+			$content = preg_replace(';(<.*?)(src|href)="/([^"]+)"([^>]*>);si', '\\1\\2="'.GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'/\\3"\\4', $content);
 			$content = preg_replace(';<script\s+[^>]+>.*?</script>;is', '', $content);
 			$content = preg_replace(';(<[^>]*\s+)on[a-z]+="[^"]+"([^>]*>);si', '\\1 \\2', $content);
 			

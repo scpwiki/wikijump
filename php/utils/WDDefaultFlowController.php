@@ -256,8 +256,8 @@ class WDDefaultFlowController extends WebFlowController {
 		if($_SERVER['HTTPS']){
 			// ?
 			// scripts
-			$rendered = preg_replace(';<script(.*?)src="'.GlobalProperties::$HTTP_SCHEMA . GlobalProperties::$URL_HOST_PREG .'(.*?)</script>;s', '<script\\1src="https://' . GlobalProperties::$URL_HOST .'\\2</script>', $rendered);
-			$rendered = preg_replace(';<link(.*?)href="'.GlobalProperties::$HTTP_SCHEMA . GlobalProperties::$URL_HOST_PREG .'(.*?)/>;s', '<link\\1href="https://' . GlobalProperties::$URL_HOST .'\\2/>', $rendered);
+			$rendered = preg_replace(';<script(.*?)src="'.GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST_PREG .'(.*?)</script>;s', '<script\\1src="https://' . GlobalProperties::$URL_HOST .'\\2</script>', $rendered);
+			$rendered = preg_replace(';<link(.*?)href="'.GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST_PREG .'(.*?)/>;s', '<link\\1href="https://' . GlobalProperties::$URL_HOST .'\\2/>', $rendered);
 			$rendered = preg_replace(';(<img\s+.*?src=")http(://' . GlobalProperties::$URL_HOST_PREG .'(.*?)/>);s', '\\1https\\2', $rendered);
 			do{
 				$renderedOld = $rendered;

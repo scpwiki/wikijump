@@ -90,7 +90,7 @@ class LoginAuthController extends WebFlowController {
 		
 		$url = $pl->getParameterValue('origUrl');
 		if(!$url){
-			$url = GlobalProperties::$HTTP_SCHEMA . GlobalProperties::$URL_HOST;
+			$url = GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST;
 		}
 		
 		//echo $url;

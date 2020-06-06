@@ -108,7 +108,7 @@ class PageCommentsFeed extends FeedScreen {
 		$channel = array();
 		
 		$channel['title'] = _('Comments for page').' "'.$page->getTitleOrUnixName().'"';
-		$channel['link'] = GlobalProperties::$HTTP_SCHEMA . $site->getDomain()."/".$page->getUnixName()."/comments/show";
+		$channel['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/".$page->getUnixName()."/comments/show";
 
 		$items = array();
 		
@@ -134,7 +134,7 @@ class PageCommentsFeed extends FeedScreen {
 			// TODO: replace relative links with absolute links!
 			$content =  $post->getText();
 			
-			$content = preg_replace(';(<.*?)(src|href)="/([^"]+)"([^>]*>);si', '\\1\\2="'.GlobalProperties::$HTTP_SCHEMA . $site->getDomain().'/\\3"\\4', $content);
+			$content = preg_replace(';(<.*?)(src|href)="/([^"]+)"([^>]*>);si', '\\1\\2="'.GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'/\\3"\\4', $content);
 			$content = preg_replace(';<script\s+[^>]+>.*?</script>;is', '', $content);
 			$content = preg_replace(';(<[^>]*\s+)on[a-z]+="[^"]+"([^>]*>);si', '\\1 \\2', $content);
 

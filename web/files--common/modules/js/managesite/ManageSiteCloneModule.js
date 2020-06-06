@@ -33,7 +33,7 @@ WIKIDOT.modules.ManageSiteCloneModule.listeners = {
 	},
 	
 	goToTheSite: function(e){
-		window.location.href = HTTP_SCHEMA+WIKIDOT.modules.ManageSiteCloneModule.vars.unixname+"."+URL_DOMAIN;
+		window.location.href = HTTP_SCHEMA+"://"+WIKIDOT.modules.ManageSiteCloneModule.vars.unixname+"."+URL_DOMAIN;
 	}
 }
 

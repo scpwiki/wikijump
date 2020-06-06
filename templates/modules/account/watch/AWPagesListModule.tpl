@@ -14,10 +14,10 @@
 		{assign var=site value=$page->getSite()}
 			<tr>
 				<td>
-					site: <a href="{$HTTP_SCHEMA}{$site->getDomain()}">{$site->getName()|escape}</a>
+					site: <a href="{$HTTP_SCHEMA}://{$site->getDomain()}">{$site->getName()|escape}</a>
 				</td>
 				<td>
-					| <a href="{$HTTP_SCHEMA}{$site->getDomain()}/{$page->getUnixName()}">{$page->getTitle()|escape}</a>
+					| <a href="{$HTTP_SCHEMA}://{$site->getDomain()}/{$page->getUnixName()}">{$page->getTitle()|escape}</a>
 				</td>
 				<td>
 					| <a href="javascript:;" onclick="WIKIDOT.modules.AWChangesModule.listeners.removeWatchedPage(event, {$page->getPageId()})">remove</a>

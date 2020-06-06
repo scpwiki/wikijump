@@ -317,7 +317,7 @@ class PagesFeed extends FeedScreen {
 		    $item = array();
 		    
 			$item['title'] = $page->getTitle();
-			$item['link'] = GlobalProperties::$HTTP_SCHEMA . $site->getDomain()."/".$page->getUnixName();
+			$item['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/".$page->getUnixName();
 			$item['guid'] = $item['link'];
 			$item['date'] = date('r', $page->getDateCreated()->getTimestamp());
 
@@ -362,7 +362,7 @@ class PagesFeed extends FeedScreen {
     		$content = $wt->processSource($b);
     		$d = utf8_encode("\xFE");
             $content = preg_replace("/" . $d . "module \"([a-zA-Z0-9\/_]+?)\"(.+?)?" . $d . "/", '', $content);
-    		$content = preg_replace(';(<.*?)(src|href)="/([^"]+)"([^>]*>);si', '\\1\\2="'.GlobalProperties::$HTTP_SCHEMA . $site->getDomain().'/\\3"\\4', $content);
+    		$content = preg_replace(';(<.*?)(src|href)="/([^"]+)"([^>]*>);si', '\\1\\2="'.GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'/\\3"\\4', $content);
 			$content = preg_replace(';<script\s+[^>]+>.*?</script>;is', '', $content);
 			$content = preg_replace(';(<[^>]*\s+)on[a-z]+="[^"]+"([^>]*>);si', '\\1 \\2', $content);
     		

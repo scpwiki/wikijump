@@ -44,9 +44,9 @@ class NotificationMaker {
 		$not->setUserId($message->getToUserId());
 		$not->setType("new_private_message");
 		
-		$body = 'You have a new private message in your <a href="'.GlobalProperties::$HTTP_SCHEMA . GlobalProperties::$URL_HOST . '/account:you/start/messages">Inbox</a>!<br/>';
+		$body = 'You have a new private message in your <a href="'.GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST . '/account:you/start/messages">Inbox</a>!<br/>';
 		$body .= "From: ".WDRenderUtils::renderUser($fromUser)."<br/>";
-		$body .= 'Subject: <a href="'.GlobalProperties::$HTTP_SCHEMA . GlobalProperties::$URL_HOST . '/account:you/start/messages/inboxmessage/'.$message->getMessageId().'">'.htmlspecialchars($message->getSubject()).'</a><br/>';
+		$body .= 'Subject: <a href="'.GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST . '/account:you/start/messages/inboxmessage/'.$message->getMessageId().'">'.htmlspecialchars($message->getSubject()).'</a><br/>';
 		$body .= 'Preview (first few words): ';
 		$body .= $message->getPreview();
 		

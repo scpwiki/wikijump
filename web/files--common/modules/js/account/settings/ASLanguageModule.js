@@ -38,7 +38,7 @@ WIKIDOT.modules.ASLanguageModule.callbacks = {
 		w.show();
 		var lang = r.language;
 		var url;
-		url = HTTP_SCHEMA+URL_HOST+"/account:you";
+		url = HTTP_SCHEMA+"://"+URL_HOST+"/account:you";
 		setTimeout("window.location.href='"+url+"'", 1500);
 	}
 		

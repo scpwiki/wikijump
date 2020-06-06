@@ -134,9 +134,9 @@ class SearchAllModule extends SmartyModule {
 				$o = $res[$i];
 				$res[$i]['site'] = new Site($res[$i]);
 				if($o['page_id'] !== null){
-					$res[$i]['url'] = GlobalProperties::$HTTP_SCHEMA . $res[$i]['site']->getDomain().'/'.$o['fts_unix_name'];
+					$res[$i]['url'] = GlobalProperties::$HTTP_SCHEMA . "://" . $res[$i]['site']->getDomain().'/'.$o['fts_unix_name'];
 				}else{
-					$res[$i]['url'] = GlobalProperties::$HTTP_SCHEMA . $res[$i]['site']->getDomain().'/forum/t-'.$o['thread_id'].'/'.$o['unix_name'];
+					$res[$i]['url'] = GlobalProperties::$HTTP_SCHEMA . "://" . $res[$i]['site']->getDomain().'/forum/t-'.$o['thread_id'].'/'.$o['unix_name'];
 				}
 			}
 			

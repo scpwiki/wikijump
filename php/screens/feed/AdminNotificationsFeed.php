@@ -75,7 +75,7 @@ class AdminNotificationsFeed extends FeedScreen {
 		$nots = AdminNotificationPeer::instance()->select($c);
 		
 		$channel['title'] = _('Admin notifications for site').' "'.htmlspecialchars($site->getName()).'"';
-		$channel['link'] = GlobalProperties::$HTTP_SCHEMA . $site->getDomain()."/admin:manage/start/notifications";
+		$channel['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/admin:manage/start/notifications";
 		
 		$items = array();
 		
@@ -86,11 +86,11 @@ class AdminNotificationsFeed extends FeedScreen {
 			$item['title'] = $not->getTitle();
 			switch($not->getType()){
 				case "NEW_MEMBER_APPLICATION":
-					$item['link'] = GlobalProperties::$HTTP_SCHEMA . $site->getDomain()."/admin:manage/start/ma";
+					$item['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/admin:manage/start/ma";
 					break;	
 				
 				default:
-					$item['link'] = GlobalProperties::$HTTP_SCHEMA . $site->getDomain()."/admin:manage/start/notifications"."#notification-".$not->getNotificationId();;
+					$item['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/admin:manage/start/notifications"."#notification-".$not->getNotificationId();;
 			}
 			
 			$body = $not->getBody();

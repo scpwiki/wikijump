@@ -14,10 +14,10 @@
 		{assign var=site value=$thread->getSite()}
 			<tr>
 				<td>
-					site: <a href="{$HTTP_SCHEMA}{$site->getDomain()}">{$site->getName()|escape}</a>
+					site: <a href="{$HTTP_SCHEMA}://{$site->getDomain()}">{$site->getName()|escape}</a>
 				</td>
 				<td>
-					| <a href="{$HTTP_SCHEMA}{$site->getDomain()}/forum/t-{$thread->getThreadId()}/{$thread->getUnixifiedTitle()|escape}">{$thread->getTitle()|escape}</a>
+					| <a href="{$HTTP_SCHEMA}://{$site->getDomain()}/forum/t-{$thread->getThreadId()}/{$thread->getUnixifiedTitle()|escape}">{$thread->getTitle()|escape}</a>
 				</td>
 				<td>
 					| <a href="javascript:;" onclick="WIKIDOT.modules.AWForumModule.listeners.removeWatchedThread(event, {$thread->getThreadId()})">remove</a>

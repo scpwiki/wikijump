@@ -129,7 +129,7 @@ WIKIDOT.page.listeners = {
 	},
 	
 	loginClick: function(e, resetRemember){
-		var url = HTTP_SCHEMA+URL_HOST+'/auth:login?origUrl=' + encodeURIComponent(window.location.href);
+		var url = HTTP_SCHEMA+"://"+URL_HOST+'/auth:login?origUrl=' + encodeURIComponent(window.location.href);
 		window.location.href = url;
 		return;
 		//var p = new Object();
@@ -145,7 +145,7 @@ WIKIDOT.page.listeners = {
 	},
 	
 	createAccount: function(e){
-		var url = HTTP_SCHEMA+URL_HOST+'/auth:newaccount?origUrl=' + encodeURIComponent(window.location.href);
+		var url = HTTP_SCHEMA+"://"+URL_HOST+'/auth:newaccount?origUrl=' + encodeURIComponent(window.location.href);
 		window.location.href = url;
 		return;
 		//OZONE.ajax.requestModule("createaccount/CreateAccountModule", null, WIKIDOT.page.callbacks.createAccount);

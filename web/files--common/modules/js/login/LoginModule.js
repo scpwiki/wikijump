@@ -43,7 +43,7 @@ WIKIDOT.modules.LoginModule.listeners = {
 	},
 	
 	cancel: function(e){
-		var url = getQueryString('origUrl', HTTP_SCHEMA+URL_HOST);
+		var url = getQueryString('origUrl', HTTP_SCHEMA+"://"+URL_HOST);
 		window.location.href = url;
 	},
 	
@@ -73,12 +73,12 @@ WIKIDOT.modules.LoginModule.callbacks = {
 		if(originalUrl){
 			window.location.href=originalUrl;
 		}else{
-			window.location.href=HTTP_SCHEMA+window.location.host;
+			window.location.href=HTTP_SCHEMA+"://"+window.location.host;
 		}
 	},
 	
 	cancel: function(r){
-		window.location.href=HTTP_SCHEMA+window.location.host;
+		window.location.href=HTTP_SCHEMA+"://"+window.location.host;
 	}
 }
 

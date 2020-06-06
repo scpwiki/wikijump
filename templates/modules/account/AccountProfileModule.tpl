@@ -9,7 +9,7 @@
 </div>
 
 <div>
-	<h3><a href="{$HTTP_SCHEMA}profiles.{$URL_DOMAIN}/profile:{$user->getUnixName()}">{t}Edit a page about myself{/t}</a></h3>
+	<h3><a href="{$HTTP_SCHEMA}://profiles.{$URL_DOMAIN}/profile:{$user->getUnixName()}">{t}Edit a page about myself{/t}</a></h3>
 	<p>
 		{t}Edit contents of the page that people see after clicking on your screen name.{/t}
 	</p>
@@ -23,7 +23,7 @@
 </div>
 
 <div>
-	<h3><a href="{$HTTP_SCHEMA}{$URL_HOST}/user:info/{$user->getUnixName()}" target="_blank">{t}View my profile{/t}</a></h3>
+	<h3><a href="{$HTTP_SCHEMA}://{$URL_HOST}/user:info/{$user->getUnixName()}" target="_blank">{t}View my profile{/t}</a></h3>
 	<p>
 		{t}View your profile as other people see it.{/t}
 	</p>

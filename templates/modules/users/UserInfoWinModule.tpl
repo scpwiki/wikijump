@@ -20,7 +20,7 @@
 			{t}From{/t}: {$profile->getLocation()|escape}<br/>
 		{/if}
 		{if $profile->getWebsite()}
-			{t}Website{/t}: <a href="{$profile->getWebsite()|escape}">{$profile->getWebsite()|replace:{$HTTP_SCHEMA}:''|escape}</a><br/>
+			{t}Website{/t}: <a href="{$profile->getWebsite()|escape}">{$profile->getWebsite()|replace:{$HTTP_SCHEMA}://:''|escape}</a><br/>
 		{/if}
 		
 		{t 1=$SERVICE_NAME}User of %1 since{/t}:  <span class="odate">{$user->getRegisteredDate()->getTimestamp()}|%e %b %Y, %H:%M %Z (%O {t}ago{/t})</span><br/>
@@ -52,8 +52,8 @@
 			<a  href="javascript:;" 	onclick="WIKIDOT.modules.UserInfoWinModule.listeners.flagUser(event, {$user->getUserId()})">{t}flag user as abusive{/t}</a>
 			<span id="user-abuse-report-button">[?]</span>
 		</div>
-		<a href="{$HTTP_SCHEMA}{$URL_HOST}/user:info/{$user->getUnixName()}">{t}profile page{/t}</a>
-		| <a href="{$HTTP_SCHEMA}{$URL_HOST}/account:you/start/messages/composeto/{$user->getUserId()}">{t}write private message{/t}</a>
+		<a href="{$HTTP_SCHEMA}://{$URL_HOST}/user:info/{$user->getUnixName()}">{t}profile page{/t}</a>
+		| <a href="{$HTTP_SCHEMA}://{$URL_HOST}/account:you/start/messages/composeto/{$user->getUserId()}">{t}write private message{/t}</a>
 		| <a href="javascript:;" onclick="WIKIDOT.modules.UserInfoWinModule.listeners.addContact(event,{$user->getUserId()})">{t}to contacts{/t}</a>
 		</div>
 	</div>

@@ -185,7 +185,7 @@ WIKIDOT.modules.ForumViewThreadModule.listeners = {
 	permanentLink: function(postId){
 		var t2 = new OZONE.dialogs.SmallInfoBox();
 		t2.content='<h1>Permanent link</h1><p>Permanent link for this post is:</p>' +
-				'<p><strong>'+HTTP_SCHEMA+WIKIREQUEST.info.domain+'/forum:thread/t/'+WIKIDOT.forumThreadId+'#post-'+postId+'</strong></p>'	;
+				'<p><strong>'+HTTP_SCHEMA+"://"+WIKIREQUEST.info.domain+'/forum:thread/t/'+WIKIDOT.forumThreadId+'#post-'+postId+'</strong></p>'	;
 		t2.buttons = ["close"];
 		t2.title=" ";
 		t2.clickOutsideToClose = true;

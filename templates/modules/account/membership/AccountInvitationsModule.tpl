@@ -16,7 +16,7 @@
 					{t}Site{/t}:
 				</td>
 				<td>
-					<a href="{$HTTP_SCHEMA}{$site->getDomain()}" target="_blank">{$site->getName()|escape}</a>
+					<a href="{$HTTP_SCHEMA}://{$site->getDomain()}" target="_blank">{$site->getName()|escape}</a>
 				</td>
 			</tr>
 			<tr>

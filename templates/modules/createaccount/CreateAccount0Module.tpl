@@ -89,7 +89,7 @@
 						<input type="checkbox" name="tos" class="checkbox">
 						
 						<!-- TODO: De-Wikidot.com-ize - change -->
-						{t 1=$URL_HOST}I have read and agree to the <a href="{$HTTP_SCHEMA}%1/legal:terms-of-service"
+						{t 1=$URL_HOST}I have read and agree to the <a href="{$HTTP_SCHEMA}://%1/legal:terms-of-service"
 						target="_blank">Terms of Service</a>.{/t}
 						
 					</td>

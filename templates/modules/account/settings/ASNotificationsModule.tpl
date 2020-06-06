@@ -126,7 +126,7 @@
 	RSS 2.0 feed:
 </p>
 <p style="text-align: center">
-	<a href="{$HTTP_SCHEMA}{$URL_HOST}/feed/account/notifications.xml">http://{$URL_HOST}/feed/account/notifications.xml</a>
+	<a href="{$HTTP_SCHEMA}://{$URL_HOST}/feed/account/notifications.xml">http://{$URL_HOST}/feed/account/notifications.xml</a>
 </p>
 <ul>
 	<li>

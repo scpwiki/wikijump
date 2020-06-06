@@ -5,5 +5,5 @@
 	to go to this Site.
 </p>
 <p style="text-align: center; font-weigh: bold; font-size: 140%;">
-	<a href="{$HTTP_SCHEMA}{$site->getDomain()}">{$site->getDomain()}</a>
+	<a href="{$HTTP_SCHEMA}://{$site->getDomain()}">{$site->getDomain()}</a>
 </p>

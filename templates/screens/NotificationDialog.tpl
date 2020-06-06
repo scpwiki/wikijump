@@ -9,7 +9,7 @@
 		<p>
 			There {if $count == 1}is 1 new notification{else}are {$count} new notifications{/if} for you regarding your user account.
 			To view the full list of notifications visit 
-			<a href="{$HTTP_SCHEMA}{$URL_HOST}/account:you/start/notifications">my notifications</a>
+			<a href="{$HTTP_SCHEMA}://{$URL_HOST}/account:you/start/notifications">my notifications</a>
 			page.
 		</p>
 	
@@ -35,7 +35,7 @@
 	
 		{if $more !== null}
 			<div>
-				... and <a href="{$HTTP_SCHEMA}{$URL_HOST}/account:you/start/notifications">{$more} more new notifications</a>.
+				... and <a href="{$HTTP_SCHEMA}://{$URL_HOST}/account:you/start/notifications">{$more} more new notifications</a>.
 			</div>
 		{/if}
 	</div>

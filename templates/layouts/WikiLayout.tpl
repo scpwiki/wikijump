@@ -180,7 +180,7 @@
 			 		
 	 			</div>
 				{if $SERVICE_NAME!=""}
-	 				Part of <a href="{$HTTP_SCHEMA}{$URL_HOST}">{$SERVICE_NAME|escape}</a>
+	 				Part of <a href="{$HTTP_SCHEMA}://{$URL_HOST}">{$SERVICE_NAME|escape}</a>
 	 				&#8212; 
 				{/if}
  				Powered by <a href="https://github.com/scpwiki/wikidot">Wikidork</a>

@@ -9,7 +9,7 @@
 					{t}options{/t}: <a href="javascript:;" onclick="WIKIDOT.modules.AccountAdminOfModule.listeners.resign(event,{$site->getSiteId()}, '{$site->getName()|escape}')">{t}resign{/t}</a>
 				</div>
 				<div class="name">
-					<a href="{$HTTP_SCHEMA}{$site->getDomain()}">{$site->getName()|escape}</a>
+					<a href="{$HTTP_SCHEMA}://{$site->getDomain()}">{$site->getName()|escape}</a>
 				</div>
 				{if $site->getSubtitle()}
 					<div class="subtitle">

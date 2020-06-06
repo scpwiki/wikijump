@@ -16,7 +16,7 @@
 		
 		<ul>
 			<li>
-				{t escape=no}You could go to <a href="{$HTTP_SCHEMA}{$URL_HOST}/account:you">your account panel</a>
+				{t escape=no}You could go to <a href="{$HTTP_SCHEMA}://{$URL_HOST}/account:you">your account panel</a>
 				to{/t}: 
 				<ul>
 					<li>{t}configure your profile - load buddy icon (avatar), provide more
@@ -26,7 +26,7 @@
 				</ul>
 			</li>
 			<li>
-				{t 1=$URL_HOST escape="no"}<a href="{$HTTP_SCHEMA}%1/new-site">Create a new wiki</a>, invite people to participate, create discussion fora etc.{/t}
+				{t 1=$URL_HOST escape="no"}<a href="{$HTTP_SCHEMA}://%1/new-site">Create a new wiki</a>, invite people to participate, create discussion fora etc.{/t}
 			</li>
 			
 		</ul>

@@ -28,7 +28,7 @@
 			{foreach from=$res item=r}
 				<tr>
 					<td>
-						<a href="{$HTTP_SCHEMA}{$r.site->getDomain()}">{$r.site->getName()|escape}</a>
+						<a href="{$HTTP_SCHEMA}://{$r.site->getDomain()}">{$r.site->getName()|escape}</a>
 					</td>
 					<td style="text-align: right">
 						{$r.number_posts} 

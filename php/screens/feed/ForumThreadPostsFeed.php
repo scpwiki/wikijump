@@ -99,7 +99,7 @@ class ForumThreadPostsFeed extends FeedScreen {
 		}else{
 			$channel['title'] = $thread->getTitle();
 		}
-		$channel['link'] = GlobalProperties::$HTTP_SCHEMA . $site->getDomain()."/forum/t-".$threadId."/".$thread->getUnixifiedTitle();
+		$channel['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/forum/t-".$threadId."/".$thread->getUnixifiedTitle();
 		
 		$channel['description'] = _("Posts in the discussion thread")." \"".$thread->getTitle()."\"";
 		if($thread->getDescription()){
@@ -125,12 +125,12 @@ class ForumThreadPostsFeed extends FeedScreen {
 				$item['title'] = "(no title)";
 			}
 			$item['link'] = $channel['link'].'#post-'.$post->getPostId();
-			$item['guid'] = GlobalProperties::$HTTP_SCHEMA . $site->getDomain()."/forum/t-".$threadId.'#post-'.$post->getPostId();
+			$item['guid'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/forum/t-".$threadId.'#post-'.$post->getPostId();
 			$item['date'] = date('r', $post->getDatePosted()->getTimestamp());
 			// TODO: replace relative links with absolute links!
 			$content =  $post->getText();
 			
-			$content = preg_replace(';(<.*?)(src|href)="/([^"]+)"([^>]*>);si', '\\1\\2="'.GlobalProperties::$HTTP_SCHEMA . $site->getDomain().'/\\3"\\4', $content);
+			$content = preg_replace(';(<.*?)(src|href)="/([^"]+)"([^>]*>);si', '\\1\\2="'.GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'/\\3"\\4', $content);
 			$content = preg_replace(';<script\s+[^>]+>.*?</script>;is', '', $content);
 			$content = preg_replace(';(<[^>]*\s+)on[a-z]+="[^"]+"([^>]*>);si', '\\1 \\2', $content);
 			

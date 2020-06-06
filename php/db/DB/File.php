@@ -65,7 +65,7 @@ class File extends FileBase {
 		
 		$page = PagePeer::instance()->selectByPrimaryKey($this->getPageId());
 		$site = SitePeer::instance()->selectByPrimaryKey($this->getSiteId());
-		$out =  GlobalProperties::$HTTP_SCHEMA . $site->getDomain()."/local--resized-images/".
+		$out =  GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/local--resized-images/".
 			$page->getUnixName().'/'.$this->getFilename();
 		if($size){
 			$out .= '/'.strtolower($size).'.jpg';	
@@ -77,7 +77,7 @@ class File extends FileBase {
 		$page = PagePeer::instance()->selectByPrimaryKey($this->getPageId());
 		$site = SitePeer::instance()->selectByPrimaryKey($this->getSiteId());
 	
-		return 	GlobalProperties::$HTTP_SCHEMA . $site->getDomain()."/local--files/".
+		return 	GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/local--files/".
 			$page->getUnixName()."/".$this->getFilename();	
 	}
 	

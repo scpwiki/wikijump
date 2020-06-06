@@ -39,7 +39,7 @@
 						{$result.headline_text}
 					</div> 
 					<div class="site">
-						site: <a href="{$HTTP_SCHEMA}{$result.site->getDomain()|escape}">{$result.site->getName()|escape}</a>
+						site: <a href="{$HTTP_SCHEMA}://{$result.site->getDomain()|escape}">{$result.site->getName()|escape}</a>
 					</div>
 					<div class="url">
 						{*<a href="{$result.url}">*}{$result.url}{*</a>*}

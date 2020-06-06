@@ -4,7 +4,7 @@
 	
 	<p>
 		If you think this page violates
-		<a href="{$HTTP_SCHEMA}{$URL_HOST}/legal:terms-of-service" target="_blank">Terms of Service</a>
+		<a href="{$HTTP_SCHEMA}://{$URL_HOST}/legal:terms-of-service" target="_blank">Terms of Service</a>
 		of {$SERVICE_NAME},
 		contains objectionable content, may offend etc., you can
 		flag this page as objectionable. 

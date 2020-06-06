@@ -96,7 +96,7 @@ class Login2Action extends SmartyAction {
                 if ($originalUrl) {
                     $parms['origUrl'] = $originalUrl;
                 }
-                $originalUrl = GlobalProperties::$HTTP_SCHEMA . GlobalProperties::$URL_HOST . '/loginauth.php?' . http_build_query($parms);
+                $originalUrl = GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST . '/loginauth.php?' . http_build_query($parms);
             }
 
             if ($originalUrl) {

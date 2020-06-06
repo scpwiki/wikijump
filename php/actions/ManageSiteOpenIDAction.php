@@ -135,7 +135,7 @@ class ManageSiteOpenIDAction extends SmartyAction {
 				$entry->setPageId($pageId);
 			}
 	
-			$entry->setUrl(GlobalProperties::$HTTP_SCHEMA . $url);
+			$entry->setUrl(GlobalProperties::$HTTP_SCHEMA . "://" . $url);
 			$entry->setServerUrl($serverUrl);
 			// save the entry
 			$entry->save();

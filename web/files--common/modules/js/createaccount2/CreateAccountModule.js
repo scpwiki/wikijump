@@ -15,7 +15,7 @@ WIKIDOT.modules.CreateAccountModule.vars = {};
 
 WIKIDOT.modules.CreateAccountModule.listeners = {
 	cancel: function(e){
-		window.location.href = HTTP_SCHEMA+window.location.hostname;
+		window.location.href = HTTP_SCHEMA+"://"+window.location.hostname;
 	},
 	
 	nextClick: function(e){

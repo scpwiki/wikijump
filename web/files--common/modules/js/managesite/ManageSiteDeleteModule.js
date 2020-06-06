@@ -43,7 +43,7 @@ WIKIDOT.modules.ManagerSiteDeleteModule.callbacks = {
 		if(!WIKIDOT.utils.handleError(r)) {return;}
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "The site has been deleted.";
-		setTimeout('window.location.href="'+HTTP_SCHEMA+URL_DOMAIN+'/account:you/start/deletedsites"', 1000);
+		setTimeout('window.location.href="'+HTTP_SCHEMA+"://"+URL_DOMAIN+'/account:you/start/deletedsites"', 1000);
 		w.show();	
 	}
 }

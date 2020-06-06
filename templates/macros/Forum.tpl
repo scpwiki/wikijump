@@ -25,7 +25,7 @@
 					{else}
 						{if $linkBackSite}
 							{assign var=thread value=$post->getForumThread()}
-							<a href="{$HTTP_SCHEMA}{$site->getDomain()}/forum/t-{$thread->getThreadId()}/{$thread->getUnixifiedTitle()}#post-{$post->getPostId()}">{$post->getTitle()|escape}</a>
+							<a href="{$HTTP_SCHEMA}://{$site->getDomain()}/forum/t-{$thread->getThreadId()}/{$thread->getUnixifiedTitle()}#post-{$post->getPostId()}">{$post->getTitle()|escape}</a>
 						{else}
 							{$post->getTitle()|escape}
 						{/if}
@@ -41,8 +41,8 @@
 					{/if}
 					{if $linkBackSite}					
 						<br/>
-						on site <a href="{$HTTP_SCHEMA}{$site->getDomain()}">{$site->getName()|escape}</a><br/>
-						in discussion: <a href="{$HTTP_SCHEMA}{$site->getDomain()}/forum/t-{$thread->getThreadId()}/{$thread->getUnixifiedTitle()}">{$thread->getTitle()|escape}</a>
+						on site <a href="{$HTTP_SCHEMA}://{$site->getDomain()}">{$site->getName()|escape}</a><br/>
+						in discussion: <a href="{$HTTP_SCHEMA}://{$site->getDomain()}/forum/t-{$thread->getThreadId()}/{$thread->getUnixifiedTitle()}">{$thread->getTitle()|escape}</a>
 					{/if}
 				</div>
 			</div>

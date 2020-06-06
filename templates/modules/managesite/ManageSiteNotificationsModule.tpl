@@ -17,7 +17,7 @@
 	RSS 2.0 feed:
 </p>
 <p style="text-align: center">
-	<a href="{$HTTP_SCHEMA}{$site->getDomain()}/feed/admin.xml">http://{$site->getDomain()}/feed/admin.xml</a>
+	<a href="{$HTTP_SCHEMA}://{$site->getDomain()}/feed/admin.xml">http://{$site->getDomain()}/feed/admin.xml</a>
 </p>
 <ul>
 	<li>

@@ -23,7 +23,7 @@
 <h2>Shortcuts:</h2>
 <ul>
 	<li><a href="/new-site">Get a new wiki</a></li>
-	<li><a href="{$HTTP_SCHEMA}{$URL_HOST}">Go to main page</a></li>
+	<li><a href="{$HTTP_SCHEMA}://{$URL_HOST}">Go to main page</a></li>
 	
 </ul>
 
