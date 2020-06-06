@@ -111,9 +111,9 @@
 		</div>
 	
 	  	<div id="print-head">
-		  	{t}Site{/t}: <b>{$site->getName()|escape}</b> at http://{$site->getDomain()}
+		  	{t}Site{/t}: <b>{$site->getName()|escape}</b> at {$HTTP_SCHEMA}://{$site->getDomain()}
 		  	<br/>
-		  	{t}Source page{/t}: <b>{$wikiPage->getTitleOrUnixName()|escape}</b> at http://{$site->getDomain()}/{$wikiPage->getUnixName()}
+		  	{t}Source page{/t}: <b>{$wikiPage->getTitleOrUnixName()|escape}</b> at {$HTTP_SCHEMA}://{$site->getDomain()}/{$wikiPage->getUnixName()}
 	  	</div>
 		<div id="content-wrap">
 			<div id="main-content">

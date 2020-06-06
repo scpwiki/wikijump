@@ -22,7 +22,7 @@
 					</div>
 				{/if}
 				<div>
-					previously located at: http://{$site->getUnixName()|regex_replace:"/\.\.del\.\..*$/":""}.{$URL_DOMAIN}
+					previously located at: {$HTTP_SCHEMA}://{$site->getUnixName()|regex_replace:"/\.\.del\.\..*$/":""}.{$URL_DOMAIN}
 				</div>
 				
 			</div>

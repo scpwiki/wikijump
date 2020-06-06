@@ -10,8 +10,8 @@ The original message is included below:
 {/if}
 {$user->getNickName()} {if $profile->getRealName()}({$profile->getRealName()}){/if} would like to invite you
 to join members of the wiki website "{$site->getName()}"
-created at {$SERVICE_NAME} and located at the address 
-http://{$site->getDomain()|escape}.
+created at {$SERVICE_NAME} and located at the address
+{$HTTP_SCHEMA}://{$site->getDomain()|escape}.
 {if $message!=""}
 
 {$message|wordwrap}{/if}	
@@ -22,7 +22,7 @@ you will be able to join the mentioned
 Site. 
 
 To proceed or learn more click the follow link:
-http://{$URL_HOST}/invitation/hash/{$hash}
+{$HTTP_SCHEMA}://{$URL_HOST}/invitation/hash/{$hash}
 
 See you
 

@@ -71,7 +71,7 @@
 		<p>
 			{$user->getNickName()|escape} {if $profile->getRealName()}({$profile->getRealName()|escape}){/if}
 			would like to invite you to join members of the wiki website "{$site->getName()|escape}" created at {$SERVICE_NAME} and
-			located at the address http://{$site->getDomain()|escape}.
+			located at the address {$HTTP_SCHEMA}://{$site->getDomain()|escape}.
 		</p>
 		<textarea cols="30" rows="5" style="width: 90%" id="inv-message"></textarea>
 	

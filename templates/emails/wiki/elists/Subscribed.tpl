@@ -4,7 +4,7 @@ You have successfully subscribed to the email list
 {$emailListAddress}.
 
 This list belongs to the wiki: {$site->getName()|escape} located at:
-http://{$siteUrl}.
+{$HTTP_SCHEMA}://{$siteUrl}.
 
 To use this list efficiently please:
 * send emails directly to {$emailListAddress},
@@ -13,5 +13,5 @@ To use this list efficiently please:
   
 From now on you will receive all emails sent to the list.
 
-To unsubscribe, please go to http://{$URL_HOST}/account:you/start/email-lists
+To unsubscribe, please go to {$HTTP_SCHEMA}://{$URL_HOST}/account:you/start/email-lists
 and review your subscriptions.

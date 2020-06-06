@@ -149,6 +149,6 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 'defmacro', '/v
  <?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_defmacro($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?> 
 
  <?php $this->_tag_stack[] = array('defmacro', array('name' => 'printUser')); smarty_block_defmacro($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?> <?php echo ' 
-	<a href="http://{$URL_HOST}/user:info/{$user->getUnixName()}">{$user->getNickName()|escape}</a>
+	<a href="{$HTTP_SCHEMA}://{$URL_HOST}/user:info/{$user->getUnixName()}">{$user->getNickName()|escape}</a>
 '; ?>
  <?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_defmacro($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?> 

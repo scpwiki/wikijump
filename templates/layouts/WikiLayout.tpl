@@ -37,7 +37,7 @@
  		WIKIREQUEST.info.lang = "{$site->getLanguage()}";
  		OZONE.lang = "{$site->getLanguage()}";
 // 		window.onload = WikidotInit();
-
+		var HTTP_SCHEMA = '{$HTTP_SCHEMA}';
 		var URL_HOST = '{$URL_HOST}';
 		var URL_DOMAIN = '{$URL_DOMAIN}';
  	</script>

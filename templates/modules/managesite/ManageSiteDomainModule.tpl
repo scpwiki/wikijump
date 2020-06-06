@@ -108,7 +108,7 @@
 
 <h2>Note:</h2>
 <p>
-	This site will <u>always</u> be available via <em>http://{$site->getUnixName()|escape}.{$URL_DOMAIN}</em> address
+	This site will <u>always</u> be available via <em>{$HTTP_SCHEMA}://{$site->getUnixName()|escape}.{$URL_DOMAIN}</em> address
 	regardless of the custom domain settings.
 </p>
 <p>
