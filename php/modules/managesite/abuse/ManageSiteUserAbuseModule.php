@@ -24,11 +24,7 @@
  */
 
 
-
-use \ManageSiteBaseModule;
-use Database;
 use DB\OzoneUserPeer;
-use Criteria;
 use DB\MemberPeer;
 
 class ManageSiteUserAbuseModule extends ManageSiteBaseModule {

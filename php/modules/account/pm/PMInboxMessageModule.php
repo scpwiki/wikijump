@@ -24,11 +24,7 @@
  */
 
 
-
-use \AccountBaseModule;
 use DB\PrivateMessagePeer;
-use \ProcessException;
-use Criteria;
 
 class PMInboxMessageModule extends AccountBaseModule {
 	

@@ -3,13 +3,6 @@
 
 namespace DB;
 
-use DB\MemberApplicationBase;
-use DB\Site;
-use DB\SitePeer;
-use DB\OzoneUser;
-use DB\OzoneUserPeer;
-
-
 
 /**
  * Wikidot - free wiki collaboration software

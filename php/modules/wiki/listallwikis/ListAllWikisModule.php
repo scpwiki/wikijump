@@ -24,9 +24,6 @@
  */
 
 
-
-use \CacheableModule;
-use Criteria;
 use DB\SitePeer;
 
 class ListAllWikisModule extends CacheableModule{

@@ -24,9 +24,6 @@
  */
 
 
-
-use \AccountBaseModule;
-
 class ASLanguageModule extends AccountBaseModule {
 	
 	public function build($runData){

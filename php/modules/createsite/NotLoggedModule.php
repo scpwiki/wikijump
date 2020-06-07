@@ -24,9 +24,6 @@
  */
 
 
-
-use SmartyModule;
-
 class NotLoggedModule extends SmartyModule{
 
 	public function build($runData){

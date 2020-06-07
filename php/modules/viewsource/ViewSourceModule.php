@@ -24,9 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use \ProcessException;
 use DB\PagePeer;
 
 class ViewSourceModule extends SmartyModule{

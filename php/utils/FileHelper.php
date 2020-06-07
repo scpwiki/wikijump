@@ -24,9 +24,6 @@
  */
 
 
-
-use Database;
-
 class FileHelper {
 	
 	public static function totalSiteFilesSize($siteId){

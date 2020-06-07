@@ -24,11 +24,7 @@
  */
 
 
-
-use SmartyModule;
-use \ProcessException;
 use DB\ThemePeer;
-use Criteria;
 use DB\Theme;
 
 class ThemePreviewerModule extends SmartyModule {

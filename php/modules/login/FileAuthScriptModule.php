@@ -24,10 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use \UploadedFileFlowController;
-
 class FileAuthScriptModule extends SmartyModule {
 	
 	public function build($runData){

@@ -4,8 +4,6 @@
 namespace Wikidot\Form;
 
 use Wikidot\Form;
-use Wikidot\Form\Field;
-
 
 
 class Renderer extends Form {

@@ -24,9 +24,6 @@
  */
 
 
-
-use \ManageSiteBaseModule;
-
 class ManageSiteMembersModule extends ManageSiteBaseModule {
 	
 	public function build($runData){

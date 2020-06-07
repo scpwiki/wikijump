@@ -24,21 +24,12 @@
  */
 
 
-
-use SmartyAction;
-use \WDPermissionManager;
-use Database;
 use DB\Admin;
-use ODate;
 use DB\OzoneUserPeer;
-use \ProcessException;
-use Exception;
-use Criteria;
 use DB\MemberPeer;
 use DB\MemberInvitationPeer;
 use DB\UserSettingsPeer;
 use DB\MemberInvitation;
-use \NotificationMaker;
 use DB\AdminPeer;
 use DB\ModeratorPeer;
 use DB\UserBlockPeer;
@@ -47,10 +38,8 @@ use DB\Moderator;
 use DB\MemberApplicationPeer;
 use DB\Member;
 use DB\MembershipLink;
-use JSONService;
 use DB\EmailInvitationPeer;
 use DB\EmailInvitation;
-use OzoneEmail;
 
 class ManageSiteMembershipAction extends SmartyAction {
 	

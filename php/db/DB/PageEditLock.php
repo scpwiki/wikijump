@@ -25,13 +25,7 @@
 
 namespace DB;
 
-use DB\PageEditLockBase;
-use DB\PageEditLockPeer;
 use Criteria;
-use DB\OzoneUser;
-use DB\OzoneUserPeer;
-
-
 
 
 /**

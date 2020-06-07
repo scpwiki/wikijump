@@ -24,11 +24,6 @@
  */
 
 
-
-use \TemplateService;
-use \PathManager;
-use \Ozone;
-
 /**
  * Macro loader.
  *

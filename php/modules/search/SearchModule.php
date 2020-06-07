@@ -24,10 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use Database;
-
 class SearchModule extends SmartyModule {
 	
 	public function build($runData){

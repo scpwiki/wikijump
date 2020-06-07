@@ -24,9 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use Criteria;
 use DB\MemberPeer;
 
 class MembershipByPasswordModule extends SmartyModule{

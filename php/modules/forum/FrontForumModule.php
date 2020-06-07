@@ -24,16 +24,9 @@
  */
 
 
-
-use SmartyModule;
-use \ProcessException;
-use Criteria;
 use DB\ForumCategoryPeer;
 use DB\SitePeer;
 use DB\ForumThreadPeer;
-use \WikiTransformation;
-use \WDRenderUtils;
-use \WDStringUtils;
 use DB\FrontForumFeedPeer;
 use DB\FrontForumFeed;
 

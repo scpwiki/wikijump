@@ -24,9 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use Criteria;
 use DB\PagePeer;
 
 class RenameBacklinksModule extends SmartyModule {

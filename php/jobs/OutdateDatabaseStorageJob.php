@@ -24,10 +24,7 @@
  */
 
 
-
-use SchedulerJob;
 use run;
-use \DatabaseStorage;
 use instance;
 use clean;
 

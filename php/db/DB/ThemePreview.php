@@ -25,10 +25,6 @@
 
 namespace DB;
 
-use DB\ThemePreviewBase;
-
-
-
 
 /**
  * Object Model class.

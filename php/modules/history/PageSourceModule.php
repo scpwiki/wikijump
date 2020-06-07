@@ -24,10 +24,7 @@
  */
 
 
-
-use SmartyModule;
 use DB\PageRevisionPeer;
-use \ProcessException;
 
 class PageSourceModule extends SmartyModule{
 	public function build($runData){

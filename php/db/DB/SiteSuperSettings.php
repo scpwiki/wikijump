@@ -25,10 +25,6 @@
 
 namespace DB;
 
-use DB\SiteSuperSettingsBase;
-
-
-
 
 /**
  * Object Model class.

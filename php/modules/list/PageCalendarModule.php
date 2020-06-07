@@ -24,13 +24,8 @@
  */
 
 
-
-use SmartyModule;
 use DB\CategoryPeer;
-use \ProcessException;
-use Criteria;
 use DB\PageTagPeer;
-use Database;
 use DB\PagePeer;
 
 class PageCalendarModule extends SmartyModule {

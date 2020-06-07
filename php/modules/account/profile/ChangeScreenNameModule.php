@@ -24,9 +24,6 @@
  */
 
 
-
-use \AccountBaseModule;
-
 class ChangeScreenNameModule extends AccountBaseModule{
 	
 	public function build($runData){

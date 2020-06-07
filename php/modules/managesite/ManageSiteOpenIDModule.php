@@ -24,10 +24,6 @@
  */
 
 
-
-use \ManageSiteBaseModule;
-use JSONService;
-use Criteria;
 use DB\OpenidEntryPeer;
 
 class ManageSiteOpenIDModule extends ManageSiteBaseModule {

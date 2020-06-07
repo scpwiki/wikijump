@@ -24,12 +24,7 @@
  */
 
 
-
-use SmartyModule;
 use DB\PagePeer;
-use \ProcessException;
-use \WDPermissionManager;
-use Exception;
 
 class RenamePageModule extends SmartyModule {
 	

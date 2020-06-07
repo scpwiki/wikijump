@@ -24,10 +24,6 @@
  */
 
 
-
-use \AccountBaseModule;
-use \CryptUtils;
-
 class AccountModule extends AccountBaseModule {
 	
 	protected $processPage = true;

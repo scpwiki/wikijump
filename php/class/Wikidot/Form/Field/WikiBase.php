@@ -3,9 +3,6 @@
 
 namespace Wikidot\Form\Field;
 
-use Wikidot\Form\Field\Wiki;
-
-
 
 class WikiBase extends Wiki {
     public $rule = "::";

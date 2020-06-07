@@ -24,9 +24,6 @@
  */
 
 
-
-use \AccountBaseModule;
-use Criteria;
 use DB\ForumThreadPeer;
 
 class AWThreadsListModule extends AccountBaseModule {

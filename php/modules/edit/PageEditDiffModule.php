@@ -24,8 +24,6 @@
  */
 
 
-
-use SmartyModule;
 use DB\PageRevisionPeer;
 use Wikidot\Util\Diff;
 

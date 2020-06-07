@@ -24,11 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use \ProcessException;
-use \CryptUtils;
-
 class CreateAccount0Module extends SmartyModule {
 	
 	public function isAllowed($runData){

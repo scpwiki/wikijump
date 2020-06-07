@@ -24,13 +24,6 @@
  */
 
 
-
-use SmartyAction;
-use JSONService;
-use \DatabaseStorage;
-use \ProcessException;
-use OzoneEmail;
-use \WDStringUtils;
 use DB\PagePeer;
 
 class MailFormAction extends SmartyAction{

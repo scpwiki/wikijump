@@ -24,18 +24,13 @@
  */
 
 
-
-use SchedulerJob;
 use run;
-use Database;
 use init;
 use _selectLink;
 use _ping;
-use ODate;
 use subtractSeconds;
 use DB\escape_string;
 use getDate;
-use Criteria;
 use setExplicitQuery;
 use DB\PageExternalLinkPeer;
 use instance;
@@ -45,12 +40,9 @@ use true;
 use setPingStatus;
 use save;
 use buildPageUrl;
-use \PingBack;
 use getToUrl;
 use ping;
-use \PingBackException;
 use getMessage;
-use Exception;
 
 /**
  * Sends pingbacks.

@@ -26,10 +26,8 @@
 namespace DB;
 
 use BaseDBPeer;
-use DB\IpBlockPeer;
 
 
- 
 /**
  * Base peer class mapped to the database table ip_block.
  */

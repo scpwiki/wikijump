@@ -24,9 +24,6 @@
  */
 
 
-
-use \ManageSiteBaseModule;
-
 class DefaultModule extends ManageSiteBaseModule {
 	
 	public function build($r){}

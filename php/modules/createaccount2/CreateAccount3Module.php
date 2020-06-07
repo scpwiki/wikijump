@@ -24,10 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use \ProcessException;
-
 class CreateAccount3Module extends SmartyModule {
 
 	public function build($runData){

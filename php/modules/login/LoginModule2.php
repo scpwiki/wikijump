@@ -24,10 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use \ProcessException;
-
 class LoginModule2 extends SmartyModule {
 	
 	public function build($runData){

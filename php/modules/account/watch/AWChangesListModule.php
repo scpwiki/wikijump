@@ -24,9 +24,6 @@
  */
 
 
-
-use \AccountBaseModule;
-use Criteria;
 use DB\PageRevisionPeer;
 
 class AWChangesListModule extends AccountBaseModule {

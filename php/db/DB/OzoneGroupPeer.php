@@ -2,9 +2,6 @@
 
 namespace DB;
 
-use DB\OzoneGroupPeerBase;
-
-
 
 /**
  * Wikidot - free wiki collaboration software

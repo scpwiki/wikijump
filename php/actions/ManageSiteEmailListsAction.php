@@ -24,13 +24,7 @@
  */
 
 
-
-use SmartyAction;
-use \WDPermissionManager;
-use \ProcessException;
-use Database;
 use DB\EmailList;
-use Criteria;
 use DB\EmailListPeer;
 use Excepion;
 use ProcessExcepion;

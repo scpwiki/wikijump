@@ -24,10 +24,6 @@
  */
 
 
-
-use \PathManager;
-use Services_JSON;
-
 require_once PathManager::externalLibFile('JSON/JSON.php');
 
 /**

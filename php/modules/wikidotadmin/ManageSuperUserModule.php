@@ -24,9 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use \WDPermissionManager;
 use DB\OzoneUserPeer;
 
 class ManageSuperUserModule extends SmartyModule {

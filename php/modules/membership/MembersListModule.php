@@ -24,9 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use Criteria;
 use DB\AdminPeer;
 use DB\ModeratorPeer;
 use DB\MemberPeer;

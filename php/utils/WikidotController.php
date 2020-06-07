@@ -24,12 +24,8 @@
  */
 
 
-
-use WebFlowController;
-use Criteria;
 use DB\SitePeer;
 use DB\MemberPeer;
-use \FileMime;
 
 abstract class WikidotController extends WebFlowController {
 	

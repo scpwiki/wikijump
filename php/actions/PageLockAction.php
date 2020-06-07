@@ -24,8 +24,6 @@
  */
 
 
-
-use Criteria;
 use DB\PageEditLockPeer;
 
 class PageLockAction {

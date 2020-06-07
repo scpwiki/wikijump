@@ -25,10 +25,6 @@
 
 namespace DB;
 
-use DB\ForumSettingsBase;
-
-
-
 
 /**
  * Object Model class.

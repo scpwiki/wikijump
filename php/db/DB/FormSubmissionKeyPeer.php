@@ -2,9 +2,6 @@
 
 namespace DB;
 
-use DB\FormSubmissionKeyPeerBase;
-
-
 
 /**
  * Wikidot - free wiki collaboration software

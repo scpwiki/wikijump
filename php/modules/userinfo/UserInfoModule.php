@@ -24,10 +24,6 @@
  */
 
 
-
-use \SmartyLocalizedModule;
-use \ProcessException;
-use Criteria;
 use DB\OzoneUserPeer;
 
 class UserInfoModule extends SmartyLocalizedModule {

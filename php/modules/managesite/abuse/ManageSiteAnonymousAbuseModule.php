@@ -24,10 +24,6 @@
  */
 
 
-
-use \ManageSiteBaseModule;
-use Database;
-
 class ManageSiteAnonymousAbuseModule extends ManageSiteBaseModule {
 	
 	public function build($runData){

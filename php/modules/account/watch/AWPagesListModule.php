@@ -24,9 +24,6 @@
  */
 
 
-
-use \AccountBaseModule;
-use Criteria;
 use DB\PagePeer;
 
 class AWPagesListModule extends AccountBaseModule {

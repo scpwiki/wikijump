@@ -24,11 +24,7 @@
  */
 
 
-
-use \AccountBaseModule;
-use Criteria;
 use DB\AdminPeer;
-use JSONService;
 
 class AccountDeletedSitesModule extends AccountBaseModule{
 	

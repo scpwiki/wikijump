@@ -24,9 +24,6 @@
  */
 
 
-
-use SmartyModule;
-
 class CreateSite0Module extends SmartyModule{
 
 	public function build($runData){

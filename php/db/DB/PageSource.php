@@ -25,10 +25,6 @@
 
 namespace DB;
 
-use DB\PageSourceBase;
-
-
-
 
 /**
  * Object Model class.

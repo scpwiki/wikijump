@@ -25,10 +25,6 @@
 
 namespace DB;
 
-use DB\ModeratorPeerBase;
-
-
-
 
 /**
  * Object Model class.

@@ -24,9 +24,6 @@
  */
 
 
-
-use \FeedScreen;
-use Criteria;
 use DB\NotificationPeer;
 
 class AccountNotificationsFeed extends FeedScreen {

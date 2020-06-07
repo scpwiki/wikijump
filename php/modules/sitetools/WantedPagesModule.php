@@ -24,9 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use Database;
 use DB\Page;
 
 class WantedPagesModule extends SmartyModule {

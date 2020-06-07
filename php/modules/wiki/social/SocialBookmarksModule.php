@@ -24,10 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use \WikiTransformation;
-
 class SocialBookmarksModule extends SmartyModule {
 	
 	private $sites = Array(

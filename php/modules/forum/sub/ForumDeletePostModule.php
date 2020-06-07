@@ -24,14 +24,7 @@
  */
 
 
-
-use SmartyModule;
-use \ProcessException;
 use DB\ForumPostPeer;
-use \WDPermissionManager;
-use Exception;
-use \WDPermissionException;
-use Criteria;
 
 class ForumDeletePostModule extends SmartyModule {
 	

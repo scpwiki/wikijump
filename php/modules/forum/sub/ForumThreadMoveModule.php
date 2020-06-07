@@ -24,13 +24,7 @@
  */
 
 
-
-use SmartyModule;
-use Database;
 use DB\ForumThreadPeer;
-use \ProcessException;
-use \WDPermissionManager;
-use Criteria;
 use DB\ForumGroupPeer;
 use DB\ForumCategoryPeer;
 

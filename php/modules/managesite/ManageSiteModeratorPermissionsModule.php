@@ -24,10 +24,7 @@
  */
 
 
-
-use \ManageSiteBaseModule;
 use DB\ModeratorPeer;
-use \ProcessException;
 
 class ManageSiteModeratorPermissionsModule extends ManageSiteBaseModule {
 

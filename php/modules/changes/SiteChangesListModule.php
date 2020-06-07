@@ -24,10 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use JSONService;
-use Criteria;
 use DB\PageRevisionPeer;
 
 class SiteChangesListModule extends SmartyModule {

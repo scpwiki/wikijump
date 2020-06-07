@@ -24,14 +24,7 @@
  */
 
 
-
-use SmartyAction;
-use \WDPermissionException;
-use \CryptUtils;
-use \ProcessException;
-use Criteria;
 use DB\OzoneUserPeer;
-use OzoneEmail;
 use DB\UserSettingsPeer;
 use DB\PrivateUserBlockPeer;
 use DB\PrivateUserBlock;

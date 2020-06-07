@@ -24,19 +24,8 @@
  */
 
 
-
-use SmartyAction;
-use \WDPermissionException;
-use \ProcessException;
 use DB\OzoneUserPeer;
-use \WDPermissionManager;
-use Database;
-use \WikiTransformation;
 use DB\PrivateMessage;
-use ODate;
-use \NotificationMaker;
-use Criteria;
-use JSONService;
 use DB\PrivateMessagePeer;
 
 class PMAction extends SmartyAction {

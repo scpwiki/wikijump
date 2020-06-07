@@ -24,13 +24,6 @@
  */
 
 
-
-use \Form;
-use \Criteria;
-use DB\FormSubmissionKeyPeer;
-use DB\FormSubmissionKey;
-use \ODate;
-
 /**
  * Form upload tool.
  *

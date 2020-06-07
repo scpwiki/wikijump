@@ -3,7 +3,6 @@
 
 namespace Wikidot\Form\Field;
 
-use Wikidot\Form\Field\WikiBase;
 use \WDStringUtils;
 use Criteria;
 use DB\CategoryPeer;

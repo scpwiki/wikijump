@@ -2,9 +2,6 @@
 
 namespace DB;
 
-use DB\FrontForumFeedPeerBase;
-
-
 
 /**
  * Wikidot - free wiki collaboration software

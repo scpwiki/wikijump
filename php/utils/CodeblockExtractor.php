@@ -26,8 +26,6 @@
 
 
 use DB\PagePeer;
-use \ProcessException;
-use Exception;
 use Wikidot\Form;
 use Wikidot\Template;
 

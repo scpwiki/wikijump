@@ -25,10 +25,6 @@
 
 namespace DB;
 
-use DB\ForumGroupBase;
-
-
-
 
 /**
  * Object Model class.

@@ -24,15 +24,8 @@
  */
 
 
-
-use SmartyAction;
-use \WDPermissionManager;
-use \ProcessException;
-use Database;
-use Criteria;
 use DB\PetitionCampaignPeer;
 use DB\PetitionCampaign;
-use \WDStringUtils;
 use DB\PagePeer;
 use DB\PetitionSignaturePeer;
 

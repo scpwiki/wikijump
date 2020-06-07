@@ -24,8 +24,6 @@
  */
 
 
-
-use SmartyModule;
 use DB\OzoneUserPeer;
 
 class LoginModule3 extends SmartyModule {

@@ -29,7 +29,6 @@ use DB\OzoneUserPeer;
 use DB\OzoneGroupPeer;
 use DB\OzonePermissionPeer;
 use DB\OzoneUserGroupRelation;
-use \Criteria;
 use DB\OzoneUserGroupRelationPeer;
 use DB\OzoneGroup;
 

@@ -24,9 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use Criteria;
 use DB\OzoneUserPeer;
 
 class UserSearchModule extends SmartyModule {

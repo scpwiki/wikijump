@@ -24,9 +24,6 @@
  */
 
 
-
-use \AccountBaseModule;
-
 class DefaultModule extends AccountBaseModule {
 	
 	public function build($r){}

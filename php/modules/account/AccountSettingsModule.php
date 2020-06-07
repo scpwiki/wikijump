@@ -24,9 +24,6 @@
  */
 
 
-
-use \AccountBaseModule;
-
 class AccountSettingsModule extends AccountBaseModule {
 	
 	public function build($runData){

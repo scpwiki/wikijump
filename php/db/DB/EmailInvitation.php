@@ -25,11 +25,6 @@
 
 namespace DB;
 
-use DB\EmailInvitationBase;
-use DB\OzoneUserPeer;
-
-
-
 
 /**
  * Object Model class.

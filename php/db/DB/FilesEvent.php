@@ -25,10 +25,6 @@
 
 namespace DB;
 
-use DB\FilesEventBase;
-
-
-
 
 /**
  * Object Model class.

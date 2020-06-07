@@ -25,12 +25,7 @@
 
 namespace DB;
 
-use DB\SiteBase;
 use Criteria;
-use DB\SiteSettingsPeer;
-use DB\SiteSuperSettingsPeer;
-use DB\ForumSettingsPeer;
-use Ozone;
 use \GlobalProperties;
 
 /**

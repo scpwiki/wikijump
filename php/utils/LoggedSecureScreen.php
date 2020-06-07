@@ -24,9 +24,6 @@
  */
 
 
-
-use SmartyScreen;
-
 abstract class LoggedSecureScreen extends SmartyScreen {
 	
 	public function isAllowed($runData){

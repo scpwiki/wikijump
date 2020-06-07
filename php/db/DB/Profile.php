@@ -25,10 +25,6 @@
 
 namespace DB;
 
-use DB\ProfileBase;
-
-
-
 
 /**
  * Object Model class.

@@ -35,9 +35,6 @@ use DB\PagePeer;
 use Criteria;
 use DB\FtsEntryPeer;
 use DB\MemberPeer;
-use Wikidot\Search\Exception;
-
-
 
 
 class Lucene {

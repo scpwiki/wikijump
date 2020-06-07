@@ -25,10 +25,6 @@
 
 namespace DB;
 
-use DB\SimpletodoListBase;
-
-
-
 
 /**
  * Object Model class.

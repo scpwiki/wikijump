@@ -3,9 +3,6 @@
 
 namespace DB;
 
-use DB\PageExternalLinkBase;
-use DB\PagePeer;
-use DB\SitePeer;
 use GlobalProperties;
 
 

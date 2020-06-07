@@ -24,10 +24,6 @@
  */
 
 
-
-use \CacheableModule;
-use ODate;
-use Criteria;
 use DB\ForumThreadPeer;
 
 class ForumMiniActiveThreadsModule extends CacheableModule {

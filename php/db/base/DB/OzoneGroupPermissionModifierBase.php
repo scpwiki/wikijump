@@ -26,13 +26,9 @@
 namespace DB;
 
 use BaseDBObject;
-use DB\OzoneGroup;
 use Criteria;
-use DB\OzonePermission;
 
 
-
- 
 /**
  * Base class mapped to the database table ozone_group_permission_modifier.
  */

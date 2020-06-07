@@ -24,10 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use \ProcessException;
-
 class AnonymousInfoWinModule extends SmartyModule {
 	
 	public function build($runData){

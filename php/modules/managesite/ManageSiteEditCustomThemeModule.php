@@ -24,11 +24,7 @@
  */
 
 
-
-use \ManageSiteBaseModule;
-use Criteria;
 use DB\ThemePeer;
-use \ProcessException;
 
 class ManageSiteEditCustomThemeModule extends ManageSiteBaseModule {
 	

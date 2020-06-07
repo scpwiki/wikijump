@@ -24,11 +24,7 @@
  */
 
 
-
-use SmartyModule;
 use DB\OzoneUserPeer;
-use \ProcessException;
-use Criteria;
 use DB\MemberPeer;
 use DB\MembershipLinkPeer;
 

@@ -26,10 +26,8 @@
 namespace DB;
 
 use BaseDBPeer;
-use DB\SiteSettingsPeer;
 
 
- 
 /**
  * Base peer class mapped to the database table site_settings.
  */

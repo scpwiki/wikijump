@@ -24,10 +24,6 @@
  */
 
 
-
-use \CacheableModule;
-use Database;
-
 class SitesTagCloudModule extends CacheableModule {
 	
 	protected $timeOut=300;

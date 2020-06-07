@@ -24,12 +24,7 @@
  */
 
 
-
-use \ManageSiteBaseModule;
-use Database;
-use Criteria;
 use DB\EmailListPeer;
-use \ProcessException;
 use DB\OzoneUserPeer;
 
 class ManageSiteEmailListSubscribersModule extends ManageSiteBaseModule {

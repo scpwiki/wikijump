@@ -24,11 +24,6 @@
  */
 
 
-
-use SmartyAction;
-use \WDPermissionManager;
-use \ProcessException;
-use Database;
 use DB\OzoneUserPeer;
 
 class ManageSiteAbuseAction extends SmartyAction {

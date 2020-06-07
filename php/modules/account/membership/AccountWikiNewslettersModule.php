@@ -24,9 +24,6 @@
  */
 
 
-
-use \AccountBaseModule;
-use Criteria;
 use DB\MemberPeer;
 use DB\UserSettingsPeer;
 

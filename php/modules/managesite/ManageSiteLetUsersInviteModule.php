@@ -24,9 +24,6 @@
  */
 
 
-
-use \ManageSiteBaseModule;
-
 class ManageSiteLetUsersInviteModule extends ManageSiteBaseModule {
 
 	public function build($runData){

@@ -24,11 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use \ProcessException;
-use \WDStringUtils;
-
 class PageRedirectModule extends SmartyModule {
 	
 	public function build($runData){

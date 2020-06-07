@@ -24,10 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use \ProcessException;
-
 class CreateAccountModule extends SmartyModule {
 	
 	public function isAllowed($runData){

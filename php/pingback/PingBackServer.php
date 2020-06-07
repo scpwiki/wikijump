@@ -24,10 +24,6 @@
  */
 
 
-
-use \PingBack;
-use Zend_XmlRpc_Server_Fault;
-
 /* TODO: static? */
 class PingBackServer {
 	/**

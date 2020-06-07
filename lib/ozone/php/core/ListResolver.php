@@ -24,10 +24,6 @@
  */
 
 
-
-use \TemplateService;
-use \PathManager;
-
 /**
  * List resolver template service.
  *

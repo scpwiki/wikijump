@@ -24,9 +24,6 @@
  */
 
 
-
-use SmartyScreen;
-
 class DefaultError extends SmartyScreen{
 	public function build($runData){}	
 	

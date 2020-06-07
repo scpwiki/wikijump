@@ -24,9 +24,6 @@
  */
 
 
-
-use SmartyModule;
-
 abstract class SmartyLocalizedModule extends SmartyModule {
 	
 	public function render($runData){

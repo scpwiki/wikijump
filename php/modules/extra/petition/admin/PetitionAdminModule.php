@@ -24,10 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use \WDPermissionManager;
-use Criteria;
 use DB\PetitionCampaignPeer;
 
 class PetitionAdminModule extends SmartyModule {

@@ -2,9 +2,6 @@
 
 namespace DB;
 
-use DB\PrivateMessagePeerBase;
-
-
 
 /**
  * Wikidot - free wiki collaboration software

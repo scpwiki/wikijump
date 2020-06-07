@@ -24,9 +24,6 @@
  */
 
 
-
-use SmartyModule;
-
 class MemcachedInfoModule extends SmartyModule {
 	
 	public function build($runData){

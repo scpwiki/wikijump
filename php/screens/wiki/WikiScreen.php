@@ -24,21 +24,14 @@
  */
 
 
-
-use Screen;
-use Criteria;
 use DB\MemberPeer;
 use DB\SiteViewerPeer;
-use \WDStringUtils;
 use DB\PagePeer;
 use DB\CategoryPeer;
 use DB\PageTagPeer;
 use DB\ForumThreadPeer;
 use DB\OpenidEntryPeer;
-use Ozone;
-use PathManager;
 use DB\NotificationPeer;
-use Database;
 use DB\PrivateMessagePeer;
 
 class WikiScreen extends Screen {

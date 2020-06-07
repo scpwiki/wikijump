@@ -25,10 +25,6 @@
 
 namespace DB;
 
-use DB\LicenseBase;
-
-
-
 
 /**
  * Object Model class.

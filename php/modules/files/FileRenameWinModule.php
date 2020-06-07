@@ -24,12 +24,8 @@
  */
 
 
-
-use SmartyModule;
 use DB\FilePeer;
-use \ProcessException;
 use DB\PagePeer;
-use \WDPermissionManager;
 
 class FileRenameWinModule extends SmartyModule {
 	

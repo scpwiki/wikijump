@@ -24,9 +24,6 @@
  */
 
 
-
-use \CacheableModule;
-use Criteria;
 use DB\CategoryPeer;
 
 class SiteChangesModule extends CacheableModule {

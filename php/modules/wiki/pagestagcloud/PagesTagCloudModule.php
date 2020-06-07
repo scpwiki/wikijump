@@ -24,11 +24,7 @@
  */
 
 
-
-use SmartyModule;
-use \ProcessException;
 use DB\CategoryPeer;
-use Database;
 
 class PagesTagCloudModule extends SmartyModule{
 	

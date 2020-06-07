@@ -24,12 +24,7 @@
  */
 
 
-
-use SmartyModule;
-use \ProcessException;
-use \WikiTransformation;
 use DB\ForumPost;
-use ODate;
 
 class ForumPreviewPostModule extends SmartyModule {
 	

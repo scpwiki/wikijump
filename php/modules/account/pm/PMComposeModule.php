@@ -24,10 +24,7 @@
  */
 
 
-
-use \AccountBaseModule;
 use DB\PrivateMessagePeer;
-use \ProcessException;
 use DB\OzoneUserPeer;
 
 class PMComposeModule extends AccountBaseModule {

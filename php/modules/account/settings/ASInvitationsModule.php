@@ -24,8 +24,6 @@
  */
 
 
-
-use \AccountBaseModule;
 use DB\UserSettingsPeer;
 
 class ASInvitationsModule extends AccountBaseModule {

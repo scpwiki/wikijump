@@ -24,9 +24,6 @@
  */
 
 
-
-use \OzoneException;
-
 /**
  * Database exception.
  *

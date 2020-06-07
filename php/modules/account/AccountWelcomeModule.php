@@ -24,9 +24,6 @@
  */
 
 
-
-use \AccountBaseModule;
-
 class AccountWelcomeModule extends AccountBaseModule {
 	
 	public function build($runData){

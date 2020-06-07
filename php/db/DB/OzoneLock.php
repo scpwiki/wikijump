@@ -25,10 +25,6 @@
 
 namespace DB;
 
-use DB\OzoneLockBase;
-
-
-
 
 /**
  * Object Model class.

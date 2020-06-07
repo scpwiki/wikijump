@@ -24,12 +24,7 @@
  */
 
 
-
-use SmartyModule;
-use JSONService;
 use DB\PagePeer;
-use \ProcessException;
-use Criteria;
 use DB\PageRevisionPeer;
 
 class PageRevisionListModule extends SmartyModule {

@@ -26,7 +26,6 @@
 
 
 use Date;
-use \JobEntry;
 
 /**
  * Scheduler.

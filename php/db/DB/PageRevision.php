@@ -25,15 +25,8 @@
 
 namespace DB;
 
-use DB\PageRevisionBase;
 use Criteria;
-use DB\PageSourcePeer;
 use \ODiff;
-use DB\OzoneUser;
-use DB\OzoneUserPeer;
-use DB\PageMetadataPeer;
-use DB\Page;
-use DB\PagePeer;
 use Exception;
 
 

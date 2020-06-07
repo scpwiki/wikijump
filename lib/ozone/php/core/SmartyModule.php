@@ -24,11 +24,6 @@
  */
 
 
-
-use \Module;
-use \PathManager;
-use \Ozone;
-
 /**
  * Abstract class for smarty-based modules.
  *

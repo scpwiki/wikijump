@@ -24,8 +24,6 @@
  */
 
 
-
-use \AccountBaseModule;
 use DB\ProfilePeer;
 
 class APAboutModule extends AccountBaseModule {

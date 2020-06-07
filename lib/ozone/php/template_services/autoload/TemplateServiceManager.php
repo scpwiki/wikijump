@@ -24,9 +24,6 @@
  */
 
 
-use \TemplateService;
-use \PathManager;
-
 /**
  * TemplateServiceManager is a TemplateService for accessing 
  * on-demand (not autoloaded) services.

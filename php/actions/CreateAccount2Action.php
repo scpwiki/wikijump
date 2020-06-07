@@ -24,23 +24,13 @@
  */
 
 
-
-use SmartyAction;
-use \ProcessException;
-use \WDStringUtils;
-use Criteria;
 use DB\OzoneUserPeer;
-use OzoneEmail;
-use Database;
 use DB\OzoneUser;
-use ODate;
 use DB\Profile;
 use DB\UserSettings;
 use DB\SitePeer;
 use DB\CategoryPeer;
-use \Duplicator;
 use DB\PagePeer;
-use \Outdater;
 
 class CreateAccount2Action extends SmartyAction {
 

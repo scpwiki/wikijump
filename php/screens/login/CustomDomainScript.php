@@ -24,8 +24,6 @@
  */
 
 
-
-use SmartyScreen;
 use DB\SitePeer;
 
 class CustomDomainScript extends SmartyScreen {

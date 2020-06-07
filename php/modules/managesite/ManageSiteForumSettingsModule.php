@@ -24,9 +24,6 @@
  */
 
 
-
-use \ManageSiteBaseModule;
-
 class ManageSiteForumSettingsModule extends ManageSiteBaseModule {
 	
 	public function build($runData){

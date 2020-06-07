@@ -24,11 +24,7 @@
  */
 
 
-
-use \AccountBaseModule;
-use Criteria;
 use DB\ContactPeer;
-use Database;
 
 class AccountContactsModule extends AccountBaseModule {
 

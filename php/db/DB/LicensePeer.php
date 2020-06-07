@@ -3,9 +3,6 @@
 
 namespace DB;
 
-use DB\LicensePeerBase;
-
-
 
 /**
  * Wikidot - free wiki collaboration software

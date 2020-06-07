@@ -25,11 +25,6 @@
 
 namespace DB;
 
-use DB\PrivateMessageBase;
-use DB\OzoneUserPeer;
-
-
-
 
 /**
  * Object Model class.

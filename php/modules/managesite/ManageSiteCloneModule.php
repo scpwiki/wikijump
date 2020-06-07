@@ -24,9 +24,6 @@
  */
 
 
-
-use \ManageSiteBaseModule;
-
 class ManageSiteCloneModule extends ManageSiteBaseModule {
 	
 	public function build($runData){

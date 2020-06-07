@@ -2,9 +2,6 @@
 
 namespace DB;
 
-use DB\PageRateVotePeerBase;
-
-
 
 /**
  * Wikidot - free wiki collaboration software

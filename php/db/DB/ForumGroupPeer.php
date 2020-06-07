@@ -2,9 +2,6 @@
 
 namespace DB;
 
-use DB\ForumGroupPeerBase;
-
-
 
 /**
  * Wikidot - free wiki collaboration software

@@ -24,9 +24,6 @@
  */
 
 
-
-use SmartyModule;
-
 abstract class LoggedSecureModule extends SmartyModule {
 	
 	public function isAllowed($runData){

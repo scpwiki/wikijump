@@ -24,12 +24,7 @@
  */
 
 
-
-use SmartyModule;
-use \ProcessException;
 use DB\PagePeer;
-use \WDPermissionManager;
-use Criteria;
 use DB\PageTagPeer;
 
 class PageTagsModule extends SmartyModule {

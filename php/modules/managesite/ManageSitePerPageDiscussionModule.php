@@ -24,10 +24,6 @@
  */
 
 
-
-use \ManageSiteBaseModule;
-use \ProcessException;
-use Criteria;
 use DB\CategoryPeer;
 
 class ManageSitePerPageDiscussionModule extends ManageSiteBaseModule {

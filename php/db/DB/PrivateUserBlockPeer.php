@@ -2,9 +2,6 @@
 
 namespace DB;
 
-use DB\PrivateUserBlockPeerBase;
-
-
 
 /**
  * Wikidot - free wiki collaboration software

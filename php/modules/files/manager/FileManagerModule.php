@@ -24,10 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use \FileHelper;
-
 class FileManagerModule extends SmartyModule {
 	
 	public function build($runData){

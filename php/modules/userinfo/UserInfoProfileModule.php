@@ -24,10 +24,7 @@
  */
 
 
-
-use \SmartyLocalizedModule;
 use DB\OzoneUserPeer;
-use Criteria;
 use DB\SitePeer;
 use DB\PagePeer;
 

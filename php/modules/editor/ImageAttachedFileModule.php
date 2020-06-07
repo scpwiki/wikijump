@@ -24,9 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use Criteria;
 use DB\FilePeer;
 
 class ImageAttachedFileModule extends SmartyModule {

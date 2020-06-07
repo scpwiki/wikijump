@@ -24,9 +24,6 @@
  */
 
 
-
-use Exception;
-
 class PingBackException extends Exception {
 
 }

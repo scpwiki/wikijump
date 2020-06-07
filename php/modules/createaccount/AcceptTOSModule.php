@@ -24,11 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use \ProcessException;
-use \CryptUtils;
-use Criteria;
 use DB\SitePeer;
 use DB\PagePeer;
 

@@ -24,9 +24,6 @@
  */
 
 
-
-use \ManageSiteBaseModule;
-
 class ManageSiteNotificationsModule extends ManageSiteBaseModule {
 	
 	public function build($runData){

@@ -24,9 +24,6 @@
  */
 
 
-
-use SmartyModule;
-
 class InviteMembersModule extends SmartyModule {
 	
 	public function build($runData){

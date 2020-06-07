@@ -24,9 +24,6 @@
  */
 
 
-
-use SmartyModule;
-
 class NewWikiModule extends SmartyModule{
 
 	public function build($runData){

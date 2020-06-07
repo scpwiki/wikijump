@@ -24,12 +24,8 @@
  */
 
 
-
-use \FeedScreen;
 use DB\PagePeer;
 use DB\ForumThreadPeer;
-use \ProcessException;
-use Criteria;
 use DB\ForumPostPeer;
 
 class PageCommentsFeed extends FeedScreen {

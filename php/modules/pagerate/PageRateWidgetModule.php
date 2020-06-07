@@ -24,8 +24,6 @@
  */
 
 
-
-use SmartyModule;
 use DB\PagePeer;
 use DB\CategoryPeer;
 

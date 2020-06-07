@@ -24,9 +24,6 @@
  */
 
 
-
-use \AccountBaseModule;
-
 class APAvatarModule extends AccountBaseModule{
 	
 	public function build($runData){

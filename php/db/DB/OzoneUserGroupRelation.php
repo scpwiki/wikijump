@@ -25,10 +25,6 @@
 
 namespace DB;
 
-use DB\OzoneUserGroupRelationBase;
-
-
-
 
 /**
  * Object Model class.

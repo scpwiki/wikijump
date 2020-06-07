@@ -24,14 +24,7 @@
  */
 
 
-
-use SmartyAction;
-use \WDPermissionManager;
-use \WDStringUtils;
-use Criteria;
 use DB\SitePeer;
-use \ProcessException;
-use \Duplicator;
 
 class ManageSiteCloneAction extends SmartyAction {
 	

@@ -3,8 +3,6 @@
 namespace DB;
 
 use DB\ApiKeyPeerBase;
-use DB\OzoneUserPeer;
-
 
 
 //please extend this class

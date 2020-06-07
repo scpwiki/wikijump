@@ -2,9 +2,6 @@
 
 namespace DB;
 
-use DB\AdminNotificationPeerBase;
-
-
 
 /**
  * Wikidot - free wiki collaboration software

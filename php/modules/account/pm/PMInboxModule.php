@@ -24,9 +24,6 @@
  */
 
 
-
-use \AccountBaseModule;
-use Criteria;
 use DB\PrivateMessagePeer;
 
 class PMInboxModule extends AccountBaseModule {

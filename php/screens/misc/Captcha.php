@@ -24,9 +24,6 @@
  */
 
 
-
-use SmartyScreen;
-
 class Captcha extends SmartyScreen {
 
 	private $lx = 100;

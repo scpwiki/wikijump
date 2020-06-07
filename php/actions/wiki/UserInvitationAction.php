@@ -24,17 +24,9 @@
  */
 
 
-
-use SmartyAction;
-use \ProcessException;
-use Criteria;
 use DB\MemberPeer;
-use JSONService;
 use DB\EmailInvitationPeer;
-use Database;
 use DB\EmailInvitation;
-use ODate;
-use OzoneEmail;
 
 class UserInvitationAction extends SmartyAction {
 	

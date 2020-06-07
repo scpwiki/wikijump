@@ -1,9 +1,6 @@
 <?php
 
 
-
-use Exception;
-
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.

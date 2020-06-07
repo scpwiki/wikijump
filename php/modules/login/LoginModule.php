@@ -1,7 +1,5 @@
 <?php
 
-use SmartyModule;
-use \ProcessException;
 use DB\OzoneUserPeer;
 
 class LoginModule extends SmartyModule {

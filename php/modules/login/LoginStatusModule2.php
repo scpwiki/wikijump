@@ -24,9 +24,6 @@
  */
 
 
-
-use SmartyModule;
-
 class LoginStatusModule2 extends SmartyModule{
 
 	public function build($runData){

@@ -24,10 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use Database;
-
 class SomeGlobalStatsModule extends SmartyModule {
 	
 	protected $timeOut=3600;

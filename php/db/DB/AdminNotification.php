@@ -25,9 +25,7 @@
 
 namespace DB;
 
-use DB\AdminNotificationBase;
 use OZONE;
-use DB\OzoneUserPeer;
 use \WDRenderUtils;
 use GlobalProperties;
 

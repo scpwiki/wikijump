@@ -2,9 +2,6 @@
 
 namespace DB;
 
-use DB\DomainRedirectPeerBase;
-
-
 
 /**
  * Wikidot - free wiki collaboration software

@@ -24,31 +24,18 @@
  */
 
 
-
-use SmartyAction;
-use \ProcessException;
-use \WikiTransformation;
-use Database;
-use Criteria;
 use DB\ForumCategoryPeer;
-use \WDPermissionManager;
 use DB\ForumThread;
-use ODate;
 use DB\ForumPostRevision;
 use DB\ForumPost;
-use \Outdater;
-use \Indexer;
-use \EventLogger;
 use DB\ForumThreadPeer;
 use DB\ModeratorPeer;
 use DB\AdminPeer;
-use \WDPermissionException;
 use DB\ForumPostPeer;
 use DB\PagePeer;
 use DB\ForumCategory;
 use DB\ForumGroupPeer;
 use DB\ForumGroup;
-use Exception;
 
 class ForumAction extends SmartyAction {
 	

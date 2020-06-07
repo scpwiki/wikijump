@@ -2,9 +2,6 @@
 
 namespace DB;
 
-use DB\UserSettingsPeerBase;
-
-
 
 /**
  * Wikidot - free wiki collaboration software

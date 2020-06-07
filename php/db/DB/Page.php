@@ -25,21 +25,9 @@
 
 namespace DB;
 
-use DB\PageBase;
 use Criteria;
-use DB\PageCompiledPeer;
 use \ProcessException;
-use DB\PageRevisionPeer;
 use Database;
-use DB\FilePeer;
-use DB\CategoryPeer;
-use DB\PageCompiled;
-use DB\OzoneUserPeer;
-use DB\SitePeer;
-use DB\PageTagPeer;
-use DB\PagePeer;
-
-
 
 
 /**

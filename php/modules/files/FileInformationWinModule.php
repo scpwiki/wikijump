@@ -24,8 +24,6 @@
  */
 
 
-
-use SmartyModule;
 use DB\FilePeer;
 
 class FileInformationWinModule extends SmartyModule {

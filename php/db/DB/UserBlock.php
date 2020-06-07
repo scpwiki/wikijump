@@ -25,12 +25,6 @@
 
 namespace DB;
 
-use DB\UserBlockBase;
-use DB\OzoneUser;
-use DB\OzoneUserPeer;
-
-
-
 
 /**
  * Object Model class.

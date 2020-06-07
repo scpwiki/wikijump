@@ -25,11 +25,6 @@
 
 namespace DB;
 
-use DB\FrontForumFeedBase;
-use DB\PagePeer;
-
-
-
 
 /**
  * Object Model class.

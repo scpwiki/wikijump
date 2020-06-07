@@ -1,17 +1,13 @@
 <?php
 use DB\OzoneUserPeer;
 use DB\SitePeer;
-use Criteria;
 use DB\AdminPeer;
 use DB\ModeratorPeer;
 use DB\MemberPeer;
-use \WDPermissionException;
-use Ozone;
 use DB\Page;
 use DB\PagePeer;
 use DB\UserSettingsPeer;
 use DB\ContactPeer;
-use Database;
 use DB\PrivateUserBlockPeer;
 use DB\IpBlockPeer;
 use DB\UserBlockPeer;

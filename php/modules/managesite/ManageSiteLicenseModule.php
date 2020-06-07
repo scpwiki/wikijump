@@ -24,9 +24,6 @@
  */
 
 
-
-use \ManageSiteBaseModule;
-use Criteria;
 use DB\CategoryPeer;
 use DB\LicensePeer;
 

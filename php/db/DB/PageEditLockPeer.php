@@ -25,7 +25,6 @@
 
 namespace DB;
 
-use DB\PageEditLockPeerBase;
 use Criteria;
 use ODate;
 

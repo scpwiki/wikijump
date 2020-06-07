@@ -24,17 +24,9 @@
  */
 
 
-
-use SmartyAction;
-use \ProcessException;
-use \WDPermissionManager;
-use Database;
-use Criteria;
 use DB\MemberApplicationPeer;
 use DB\MemberPeer;
 use DB\MemberApplication;
-use ODate;
-use \AdminNotificationMaker;
 use DB\Member;
 use DB\MembershipLink;
 use DB\MemberInvitationPeer;
@@ -43,7 +35,6 @@ use DB\SitePeer;
 use DB\OzoneUserPeer;
 use DB\ContactPeer;
 use DB\Contact;
-use Exception;
 
 class MembershipApplyAction extends SmartyAction {
 	

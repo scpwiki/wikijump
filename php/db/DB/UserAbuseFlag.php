@@ -25,10 +25,6 @@
 
 namespace DB;
 
-use DB\UserAbuseFlagBase;
-
-
-
 
 /**
  * Object Model class.

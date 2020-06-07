@@ -3,7 +3,6 @@
 
 namespace Wikidot;
 
-use Wikidot\Yaml;
 use \WDStringUtils;
 
 

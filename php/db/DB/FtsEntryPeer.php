@@ -2,7 +2,6 @@
 
 namespace DB;
 
-use DB\FtsEntryPeerBase;
 use Criteria;
 
 

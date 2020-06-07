@@ -24,9 +24,6 @@
  */
 
 
-
-use \ManageSiteBaseModule;
-use Criteria;
 use DB\SiteTagPeer;
 
 class ManageSiteGeneralModule extends ManageSiteBaseModule {

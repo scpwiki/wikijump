@@ -25,12 +25,7 @@
 
 namespace DB;
 
-use DB\FileBase;
 use \FileHelper;
-use DB\PagePeer;
-use DB\SitePeer;
-use DB\OzoneUser;
-use DB\OzoneUserPeer;
 use GlobalProperties;
 
 

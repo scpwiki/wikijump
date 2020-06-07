@@ -24,14 +24,7 @@
  */
 
 
-
-use SmartyModule;
-use \WDPermissionManager;
-use Exception;
-use \ProcessException;
-use Criteria;
 use DB\SimpletodoListPeer;
-use JSONService;
 
 class SimpleToDoModule extends SmartyModule {
     

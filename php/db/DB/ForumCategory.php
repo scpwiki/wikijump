@@ -25,16 +25,9 @@
 
 namespace DB;
 
-use DB\ForumCategoryBase;
 use \WDStringUtils;
-use DB\ForumSettingsPeer;
 use Database;
 use Criteria;
-use DB\ForumThreadPeer;
-use DB\ForumPostPeer;
-use DB\ForumGroupPeer;
-
-
 
 
 /**

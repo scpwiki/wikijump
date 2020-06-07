@@ -24,9 +24,6 @@
  */
 
 
-
-use \ManageSiteBaseModule;
-use Criteria;
 use DB\UserBlockPeer;
 
 class ManageSiteUserBlocksModule extends ManageSiteBaseModule {

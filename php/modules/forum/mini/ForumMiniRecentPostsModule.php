@@ -24,11 +24,7 @@
  */
 
 
-
-use \CacheableModule;
 use DB\ForumCategoryPeer;
-use \ProcessException;
-use Criteria;
 use DB\ForumPostPeer;
 
 class ForumMiniRecentPostsModule extends CacheableModule {

@@ -24,11 +24,7 @@
  */
 
 
-
-use \FeedScreen;
 use DB\ForumCategoryPeer;
-use \ProcessException;
-use Criteria;
 use DB\ForumThreadPeer;
 
 class ForumCategoryThreadsFeed extends FeedScreen {

@@ -24,11 +24,6 @@
  */
 
 
-
-use \CacheableModule;
-use \FlickrHandler;
-use \ProcessException;
-
 class FlickrGalleryModule extends CacheableModule {
 	
 	protected $timeOut = 120;

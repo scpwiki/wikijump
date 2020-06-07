@@ -2,9 +2,6 @@
 
 namespace DB;
 
-use DB\PageAbuseFlagPeerBase;
-
-
 
 /**
  * Wikidot - free wiki collaboration software

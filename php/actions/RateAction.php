@@ -24,16 +24,9 @@
  */
 
 
-
-use SmartyAction;
-use \ProcessException;
 use DB\PagePeer;
-use Criteria;
 use DB\PageRateVotePeer;
-use Database;
 use DB\PageRateVote;
-use ODate;
-use \Outdater;
 use DB\MemberPeer;
 
 class RateAction extends SmartyAction{

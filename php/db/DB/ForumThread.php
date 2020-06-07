@@ -25,18 +25,8 @@
 
 namespace DB;
 
-use DB\ForumThreadBase;
 use \WDStringUtils;
-use DB\PagePeer;
-use DB\OzoneUser;
-use DB\OzoneUserPeer;
 use Criteria;
-use DB\ForumPostPeer;
-use DB\ForumCategoryPeer;
-use DB\ForumCategory;
-use DB\SitePeer;
-
-
 
 
 /**

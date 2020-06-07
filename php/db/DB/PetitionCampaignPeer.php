@@ -2,9 +2,6 @@
 
 namespace DB;
 
-use DB\PetitionCampaignPeerBase;
-
-
 
 /**
  * Wikidot - free wiki collaboration software

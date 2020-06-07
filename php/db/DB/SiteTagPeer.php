@@ -2,9 +2,6 @@
 
 namespace DB;
 
-use DB\SiteTagPeerBase;
-
-
 
 /**
  * Wikidot - free wiki collaboration software

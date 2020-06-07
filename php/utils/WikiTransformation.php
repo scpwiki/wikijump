@@ -27,12 +27,8 @@
 
 use DB\OzoneUserPeer;
 use DB\ForumThreadPeer;
-use Criteria;
 use DB\PageTagPeer;
-use Text_Wiki;
 use Text_Antiwiki;
-use Ozone;
-use Database;
 
 require_once(WIKIDOT_ROOT."/lib/Text_Wiki/Text/Wiki.php");
 // just for text_wiki extend the include_path

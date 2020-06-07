@@ -24,11 +24,6 @@
  */
 
 
-
-use SmartyAction;
-use \WDStringUtils;
-use \ProcessException;
-use Criteria;
 use DB\SitePeer;
 
 class NewWikiWidgetAction extends SmartyAction{

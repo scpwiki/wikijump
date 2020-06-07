@@ -27,9 +27,7 @@
 
 use DB\FtsEntryPeer;
 use DB\FtsEntry;
-use Criteria;
 use DB\PageTagPeer;
-use Database;
 use DB\ForumPostPeer;
 
 /** 

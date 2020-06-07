@@ -25,10 +25,6 @@
 
 namespace DB;
 
-use DB\StorageItemBase;
-
-
-
 
 /**
  * Object Model class.

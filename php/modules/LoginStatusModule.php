@@ -24,9 +24,6 @@
  */
 
 
-
-use Module;
-
 class LoginStatusModule extends Module{
 
 	public function render($runData){

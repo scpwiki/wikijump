@@ -24,11 +24,7 @@
  */
 
 
-
-use SmartyModule;
 use DB\PagePeer;
-use \ProcessException;
-use \WDPermissionManager;
 
 class ParentPageModule extends SmartyModule{
 	

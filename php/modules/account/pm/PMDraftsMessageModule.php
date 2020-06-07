@@ -24,12 +24,7 @@
  */
 
 
-
-use \AccountBaseModule;
 use DB\PrivateMessagePeer;
-use \ProcessException;
-use \WikiTransformation;
-use Criteria;
 
 class PMDraftsMessageModule extends AccountBaseModule {
 	

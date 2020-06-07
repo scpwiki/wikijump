@@ -24,10 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use \WDStringUtils;
-use Criteria;
 use DB\SitePeer;
 
 class NewSiteModule extends SmartyModule {

@@ -24,9 +24,6 @@
  */
 
 
-
-use \AccountBaseModule;
-use Criteria;
 use DB\NotificationPeer;
 
 class AccountNotificationsListModule extends AccountBaseModule {

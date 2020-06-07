@@ -24,11 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use \ProcessException;
-use Database;
-
 class GlobalHotTagsModule extends SmartyModule{
 	
 	public function render($runData){

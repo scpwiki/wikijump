@@ -24,13 +24,6 @@
  */
 
 
-
-use \CacheableModule;
-use \ProcessException;
-use \MagpieFeed;
-use Exception;
-use \WikiTransformation;
-
 class FeedModule extends CacheableModule {
 	
 	protected $timeOut = 300;

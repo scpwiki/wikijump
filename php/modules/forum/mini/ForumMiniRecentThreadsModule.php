@@ -24,9 +24,6 @@
  */
 
 
-
-use \CacheableModule;
-use Criteria;
 use DB\ForumThreadPeer;
 
 class ForumMiniRecentThreadsModule extends CacheableModule {

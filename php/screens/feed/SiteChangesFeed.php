@@ -24,11 +24,7 @@
  */
 
 
-
-use \FeedScreen;
-use Criteria;
 use DB\PageRevisionPeer;
-use \WDRenderUtils;
 
 class SiteChangesFeed extends FeedScreen {
 

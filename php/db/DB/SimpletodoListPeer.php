@@ -2,9 +2,6 @@
 
 namespace DB;
 
-use DB\SimpletodoListPeerBase;
-
-
 
 /**
  * Wikidot - free wiki collaboration software

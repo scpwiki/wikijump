@@ -3,9 +3,6 @@
 
 namespace DB;
 
-use DB\MembershipLinkBase;
-
-
 
 /**
  * Wikidot - free wiki collaboration software

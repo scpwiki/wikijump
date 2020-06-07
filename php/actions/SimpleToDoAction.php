@@ -24,13 +24,7 @@
  */
 
 
-
-use SmartyAction;
-use \ProcessException;
 use DB\PagePeer;
-use \WDPermissionManager;
-use JSONService;
-use Criteria;
 use DB\SimpletodoListPeer;
 use DB\SimpletodoList;
 

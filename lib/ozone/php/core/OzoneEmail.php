@@ -24,9 +24,6 @@
  */
 
 
-
-use \SmartyEmail;
-
 /**
  * Default email class.
  *

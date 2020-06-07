@@ -24,11 +24,7 @@
  */
 
 
-
-use \CacheableModule2;
 use DB\CategoryPeer;
-use \ProcessException;
-use Criteria;
 use DB\PagePeer;
 use DB\ForumThreadPeer;
 

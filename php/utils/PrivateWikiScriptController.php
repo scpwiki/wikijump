@@ -24,11 +24,6 @@
  */
 
 
-
-use \UploadedFileFlowController;
-use Ozone;
-use RunData;
-
 class PrivateWikiScriptController extends UploadedFileFlowController {
 	
 	public function process() {

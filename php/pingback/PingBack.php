@@ -24,18 +24,6 @@
  */
 
 
-
-use \PingBackException;
-use Zend_XmlRpc_Client;
-use Zend_Http_Client_Adapter_Exception;
-use Zend_Http_Client_Exception;
-use Zend_XmlRpc_Client_FaultException;
-use Exception;
-use \PingBackNotAvailableException;
-use SimpleXMLElement;
-use Zend_Http_Client;
-use DOMDocument;
-
 require_once('Zend/Http/Client.php');
 require_once('Zend/XmlRpc/Client.php');
 require_once('Zend/XmlRpc/Client/FaultException.php');

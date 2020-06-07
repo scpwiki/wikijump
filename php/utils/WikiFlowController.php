@@ -24,14 +24,7 @@
  */
 
 
-
-use WebFlowController;
-use OzoneLogger;
-use OzoneLoggerFileOutput;
-use RunData;
-use Criteria;
 use DB\SitePeer;
-use ModuleProcessor;
 use Wikidot\Search\Highlighter;
 
 class WikiFlowController extends WebFlowController {

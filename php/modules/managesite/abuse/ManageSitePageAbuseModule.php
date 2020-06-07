@@ -24,10 +24,6 @@
  */
 
 
-
-use \ManageSiteBaseModule;
-use Database;
-
 class ManageSitePageAbuseModule extends ManageSiteBaseModule {
 	
 	public function build($runData){

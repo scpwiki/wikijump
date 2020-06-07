@@ -24,17 +24,11 @@
  */
 
 
-
-use SmartyModule;
 use DB\CategoryPeer;
-use \ProcessException;
-use Criteria;
 use DB\PageTagPeer;
-use ODate;
 use DB\PagePeer;
 use DB\PageRevisionPeer;
 use DB\OzoneUserPeer;
-use \WikiTransformation;
 use DB\ForumThreadPeer;
 
 class ListPagesModule extends SmartyModule {

@@ -24,9 +24,6 @@
  */
 
 
-
-use \ManageSiteBaseModule;
-
 class ManageSiteEmailInvitationsModule extends ManageSiteBaseModule {
 	
 	protected $processPage = true;

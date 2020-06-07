@@ -24,12 +24,8 @@
  */
 
 
-
-use SchedulerJob;
 use run;
-use Database;
 use init;
-use \KarmaCalculator;
 use updateAll;
 
 /**

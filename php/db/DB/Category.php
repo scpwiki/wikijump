@@ -25,12 +25,6 @@
 
 namespace DB;
 
-use DB\CategoryBase;
-use DB\LicensePeer;
-use DB\CategoryPeer;
-use DB\PagePeer;
-use DB\ThemePeer;
-use DB\Theme;
 use Criteria;
 
 

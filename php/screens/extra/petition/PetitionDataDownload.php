@@ -24,14 +24,8 @@
  */
 
 
-
-use SmartyScreen;
-use \WDPermissionManager;
-use Criteria;
 use DB\PetitionCampaignPeer;
-use \ProcessException;
 use DB\PetitionSignaturePeer;
-use Database;
 
 class PetitionDataDownload extends SmartyScreen {
 	

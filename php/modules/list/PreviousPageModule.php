@@ -24,9 +24,6 @@
  */
 
 
-
-use \NextPageModule;
-
 require_once(WIKIDOT_ROOT . '/php/modules/list/NextPageModule.php');
 
 class PreviousPageModule extends NextPageModule {

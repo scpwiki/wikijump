@@ -24,9 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use Criteria;
 use DB\CategoryPeer;
 
 class WikiCategoriesModule extends SmartyModule {

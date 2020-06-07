@@ -24,11 +24,7 @@
  */
 
 
-
-use SmartyModule;
-use \ProcessException;
 use DB\ForumPostRevisionPeer;
-use \WikiTransformation;
 
 class ForumPostRevisionModule extends SmartyModule {
 	

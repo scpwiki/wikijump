@@ -2,10 +2,8 @@
 
 namespace DB;
 
-use DB\CategoryPeerBase;
 use \WDStringUtils;
 use Criteria;
-use Ozone;
 
 
 /**

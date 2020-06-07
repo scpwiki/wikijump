@@ -24,9 +24,6 @@
  */
 
 
-
-use \ManageSiteBaseModule;
-use Criteria;
 use DB\OzoneUserPeer;
 
 class ManageSitePrivateSettingsModule extends ManageSiteBaseModule {

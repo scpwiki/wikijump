@@ -25,10 +25,6 @@
 
 namespace DB;
 
-use DB\OzonePermissionBase;
-
-
-
 
 /**
  * Object Model class.

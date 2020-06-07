@@ -24,18 +24,13 @@
  */
 
 
-
-use SmartyModule;
 use DB\PagePeer;
-use \ProcessException;
-use Criteria;
 use DB\ForumThreadPeer;
 use DB\ForumCategoryPeer;
 use DB\ForumCategory;
 use DB\ForumGroupPeer;
 use DB\ForumGroup;
 use DB\ForumThread;
-use ODate;
 use DB\ForumPostPeer;
 
 class ForumCommentsListModule extends SmartyModule {

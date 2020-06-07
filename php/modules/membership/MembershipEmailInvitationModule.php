@@ -24,9 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use Criteria;
 use DB\EmailInvitationPeer;
 use DB\SitePeer;
 use DB\OzoneUserPeer;

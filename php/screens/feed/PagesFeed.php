@@ -24,13 +24,9 @@
  */
 
 
-
-use \FeedScreen;
 use DB\CategoryPeer;
-use Criteria;
 use DB\PagePeer;
 use DB\OzoneUserPeer;
-use \WikiTransformation;
 
 class PagesFeed extends FeedScreen {
 	

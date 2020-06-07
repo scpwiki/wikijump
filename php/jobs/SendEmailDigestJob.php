@@ -24,18 +24,13 @@
  */
 
 
-
-use SchedulerJob;
 use run;
-use \WDDigestSender;
-use Criteria;
 use add;
 use addOrderAscending;
 use DB\OzoneUserPeer;
 use instance;
 use select;
 use handleUser;
-use Exception;
 
 /**
  * Sends email digest with unread notifications (if a user accepts this)

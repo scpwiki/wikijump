@@ -24,10 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use \FlickrHandler;
-
 class FlickrCheckModule extends SmartyModule {
 	
 	public function build($runData){

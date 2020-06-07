@@ -25,12 +25,6 @@
 
 namespace DB;
 
-use DB\ForumPostRevisionBase;
-use DB\OzoneUser;
-use DB\OzoneUserPeer;
-
-
-
 
 /**
  * Object Model class.

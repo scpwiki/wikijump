@@ -24,9 +24,6 @@
  */
 
 
-
-use \CacheableModule;
-use Database;
 use DB\Page;
 
 class WantedPagesStandaloneModule extends CacheableModule {

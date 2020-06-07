@@ -25,10 +25,6 @@
 
 namespace DB;
 
-use DB\PageLinkBase;
-
-
-
 
 /**
  * Object Model class.

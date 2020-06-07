@@ -24,9 +24,6 @@
  */
 
 
-
-use \SmartyLocalizedModule;
-
 class UserChangesModule extends SmartyLocalizedModule {
 	
 	public function build($runData){

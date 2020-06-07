@@ -24,9 +24,6 @@
  */
 
 
-
-use \AccountBaseModule;
-use Criteria;
 use DB\ContactPeer;
 
 class PMComposeContactsListModule extends AccountBaseModule {

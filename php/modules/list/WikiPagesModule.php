@@ -24,11 +24,7 @@
  */
 
 
-
-use \CacheableModule;
 use DB\CategoryPeer;
-use \ProcessException;
-use Criteria;
 use DB\PagePeer;
 
 class WikiPagesModule extends CacheableModule {

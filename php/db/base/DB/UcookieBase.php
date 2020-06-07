@@ -26,13 +26,9 @@
 namespace DB;
 
 use BaseDBObject;
-use DB\Site;
 use Criteria;
-use DB\OzoneSession;
 
 
-
- 
 /**
  * Base class mapped to the database table ucookie.
  */

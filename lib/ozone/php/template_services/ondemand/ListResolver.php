@@ -24,12 +24,6 @@
  */
 
 
-
-use \TemplateService;
-use \PathManager;
-use \Criteria;
-use \MessageResolver;
-
 /**
  * List resolver service.
  *

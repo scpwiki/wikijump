@@ -24,19 +24,11 @@
  */
 
 
-
-use \WDPermissionManager;
-use Database;
-use Criteria;
 use DB\SitePeer;
-use \Duplicator;
 use DB\CategoryPeer;
-use \Outdater;
 use DB\ForumGroup;
 use DB\ForumCategory;
-use JSONService;
 use DB\ForumGroupPeer;
-use \ProcessException;
 use DB\ForumCategoryPeer;
 use DB\ForumThreadPeer;
 

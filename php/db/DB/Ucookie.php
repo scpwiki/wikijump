@@ -3,10 +3,6 @@
 
 namespace DB;
 
-use DB\UcookieBase;
-use DB\Site;
-use DB\OzoneSession;
-
 
 //please extend this class
 class Ucookie extends UcookieBase {

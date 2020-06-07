@@ -24,20 +24,9 @@
  */
 
 
-
-use SmartyAction;
 use DB\PagePeer;
-use \ProcessException;
-use \WDPermissionManager;
-use Criteria;
 use DB\FilePeer;
-use Exception;
-use \FileHelper;
-use \FileMime;
-use Database;
 use DB\File;
-use ODate;
-use \Outdater;
 
 class FileAction extends SmartyAction {
 	

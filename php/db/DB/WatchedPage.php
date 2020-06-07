@@ -25,10 +25,6 @@
 
 namespace DB;
 
-use DB\WatchedPageBase;
-
-
-
 
 /**
  * Object Model class.

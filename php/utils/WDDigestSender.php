@@ -24,14 +24,8 @@
  */
 
 
-
-use Database;
-use Criteria;
 use DB\NotificationPeer;
-use OZONE;
 use DB\PrivateMessagePeer;
-use OzoneEmail;
-use \ProcessException;
 
 class WDDigestSender {
 	

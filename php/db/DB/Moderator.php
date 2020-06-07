@@ -25,14 +25,6 @@
 
 namespace DB;
 
-use DB\ModeratorBase;
-use DB\Site;
-use DB\SitePeer;
-use DB\OzoneUser;
-use DB\OzoneUserPeer;
-
-
-
 
 /**
  * Object Model class.

@@ -2,9 +2,6 @@
 
 namespace DB;
 
-use DB\ContactPeerBase;
-
-
 
 /**
  * Wikidot - free wiki collaboration software

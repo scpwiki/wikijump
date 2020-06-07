@@ -24,9 +24,6 @@
  */
 
 
-
-use \FeedScreen;
-use Criteria;
 use DB\ForumThreadPeer;
 
 class ForumThreadsFeed extends FeedScreen {

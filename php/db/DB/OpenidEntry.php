@@ -25,11 +25,6 @@
 
 namespace DB;
 
-use DB\OpenidEntryBase;
-use DB\PagePeer;
-
-
-
 
 /**
  * Object Model class.

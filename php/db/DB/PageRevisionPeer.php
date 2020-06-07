@@ -2,9 +2,6 @@
 
 namespace DB;
 
-use DB\PageRevisionPeerBase;
-
-
 
 /**
  * Wikidot - free wiki collaboration software

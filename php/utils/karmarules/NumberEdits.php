@@ -24,9 +24,7 @@
  */
 
 
-use \KarmaRuleInterface;
 use calculate;
-use Criteria;
 use add;
 use getUserId;
 use DB\PageRevisionPeer;

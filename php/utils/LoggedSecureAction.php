@@ -24,9 +24,6 @@
  */
 
 
-
-use SmartyAction;
-
 abstract class LoggedSecureAction extends SmartyAction {
 	
 	public function isAllowed($runData){

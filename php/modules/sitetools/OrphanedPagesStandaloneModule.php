@@ -24,9 +24,6 @@
  */
 
 
-
-use \CacheableModule;
-use Criteria;
 use DB\PagePeer;
 
 class OrphanedPagesStandaloneModule extends CacheableModule {

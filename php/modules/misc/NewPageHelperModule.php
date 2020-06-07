@@ -24,10 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use \WDStringUtils;
-use \ProcessException;
 use DB\PagePeer;
 
 class NewPageHelperModule extends SmartyModule {

@@ -24,9 +24,6 @@
  */
 
 
-
-use \ManageSiteBaseModule;
-
 class ManageSiteSecureAccessModule extends ManageSiteBaseModule {
 	
 	public function build($runData){

@@ -24,9 +24,6 @@
  */
 
 
-
-use SmartyModule;
-
 /**
  * A better way to cache
  */

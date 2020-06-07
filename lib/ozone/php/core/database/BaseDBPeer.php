@@ -24,11 +24,6 @@
  */
 
 
-
-use \Database;
-use \Criteria;
-use \ODate;
-
 /**
  * Base peer class.
  *

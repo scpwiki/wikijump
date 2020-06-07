@@ -24,12 +24,7 @@
  */
 
 
-
-use SmartyModule;
-use \WDPermissionManager;
-use Criteria;
 use DB\PetitionCampaignPeer;
-use \ProcessException;
 
 class ViewPetitionCampaignModule extends SmartyModule {
 	

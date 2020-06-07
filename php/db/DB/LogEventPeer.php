@@ -2,9 +2,6 @@
 
 namespace DB;
 
-use DB\LogEventPeerBase;
-
-
 
 /**
  * Wikidot - free wiki collaboration software

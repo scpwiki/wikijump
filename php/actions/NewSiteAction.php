@@ -24,19 +24,8 @@
  */
 
 
-
-use SmartyAction;
-use \WDPermissionException;
-use \WDPermissionManager;
-use \WDStringUtils;
-use Criteria;
 use DB\SitePeer;
-use \ProcessException;
-use \Duplicator;
-use Database;
 use DB\Site;
-use ODate;
-use \Indexer;
 use DB\PagePeer;
 
 class NewSiteAction extends SmartyAction {

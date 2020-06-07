@@ -24,12 +24,7 @@
  */
 
 
-
-use SmartyModule;
-use \ProcessException;
-use Criteria;
 use DB\OzoneSessionPeer;
-use \CreateAccount2Action;
 
 class CreateAccount2Module extends SmartyModule {
 	

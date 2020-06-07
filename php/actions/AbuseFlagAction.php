@@ -24,15 +24,8 @@
  */
 
 
-
-use SmartyAction;
-use \WDPermissionException;
-use \ProcessException;
-use Database;
-use Criteria;
 use DB\PageAbuseFlagPeer;
 use DB\PageAbuseFlag;
-use \EventLogger;
 use DB\OzoneUserPeer;
 use DB\UserAbuseFlagPeer;
 use DB\SitePeer;

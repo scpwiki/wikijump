@@ -24,9 +24,6 @@
  */
 
 
-
-use \PingBackException;
-
 class PingBackProcessingException  extends PingBackException {
 
 }

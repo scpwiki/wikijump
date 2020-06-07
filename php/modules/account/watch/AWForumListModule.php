@@ -24,9 +24,6 @@
  */
 
 
-
-use \AccountBaseModule;
-use Criteria;
 use DB\ForumPostPeer;
 
 class AWForumListModule extends AccountBaseModule {

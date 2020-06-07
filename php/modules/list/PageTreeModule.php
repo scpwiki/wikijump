@@ -24,10 +24,7 @@
  */
 
 
-
-use SmartyModule;
 use DB\PagePeer;
-use Criteria;
 
 class PageTreeModule extends SmartyModule {
 	

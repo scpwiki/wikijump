@@ -24,12 +24,7 @@
  */
 
 
-
-use SmartyModule;
 use DB\PagePeer;
-use \ProcessException;
-use \WDPermissionException;
-use Criteria;
 use DB\ModeratorPeer;
 use DB\AdminPeer;
 

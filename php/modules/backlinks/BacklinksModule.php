@@ -24,10 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use \ProcessException;
-use Criteria;
 use DB\PagePeer;
 
 class BacklinksModule extends SmartyModule {

@@ -3,7 +3,6 @@
 
 namespace Wikidot\Facade;
 
-use Wikidot\Facade\Base;
 use \WDPermissionManager;
 use Criteria;
 use DB\PagePeer;

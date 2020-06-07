@@ -24,9 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use Criteria;
 use DB\EmailInvitationPeer;
 
 class SentMemberInvitationsModule extends SmartyModule {

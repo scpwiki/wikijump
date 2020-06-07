@@ -24,19 +24,10 @@
  */
 
 
-
-use SmartyAction;
-use \WDPermissionException;
-use \FileMime;
 use DB\ProfilePeer;
-use \ProcessException;
-use Database;
-use \WDStringUtils;
-use Criteria;
 use DB\OzoneUserPeer;
 use DB\SitePeer;
 use DB\PagePeer;
-use \Outdater;
 
 class AccountProfileAction extends SmartyAction {
 

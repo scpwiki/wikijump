@@ -24,9 +24,6 @@
  */
 
 
-
-use \FlickrGalleryModule;
-
 class FlickrGallerySubModule extends FlickrGalleryModule {
 	
 }

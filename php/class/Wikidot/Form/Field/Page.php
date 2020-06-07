@@ -3,9 +3,6 @@
 
 namespace Wikidot\Form\Field;
 
-use Wikidot\Form\Field\Base;
-
-
 
 class Page extends Base {
     public function renderView() {

@@ -24,11 +24,7 @@
  */
 
 
-
-use ODate;
-use \ODiff;
 use DB\PageSource;
-use \WDStringUtils;
 
 /**
  * This class handles source changes looking for inslusions and links and

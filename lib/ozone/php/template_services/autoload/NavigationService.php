@@ -24,11 +24,6 @@
  */
 
 
-
-use \TemplateService;
-use \PathManager;
-use \Ozone;
-
 /**
  * Navigation service.
  *

@@ -24,9 +24,6 @@
  */
 
 
-
-use \ManageSiteBaseModule;
-use Criteria;
 use DB\EmailInvitationPeer;
 
 class ManageSiteInvitationsHistoryModule extends ManageSiteBaseModule {

@@ -24,9 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use \ProcessException;
 use DB\PageRevisionPeer;
 use DB\PagePeer;
 use Wikidot\Util\Diff;

@@ -2,9 +2,6 @@
 
 namespace DB;
 
-use DB\WatchedForumThreadPeerBase;
-
-
 
 /**
  * Wikidot - free wiki collaboration software

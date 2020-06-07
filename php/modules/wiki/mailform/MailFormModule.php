@@ -24,12 +24,6 @@
  */
 
 
-
-use \CacheableModule;
-use \ProcessException;
-use \MailFormUtils;
-use \DatabaseStorage;
-
 class MailFormModule extends CacheableModule{ //SmartyModule {
 	
 	public $timeOut = 600;

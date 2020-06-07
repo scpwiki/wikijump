@@ -24,12 +24,7 @@
  */
 
 
-
-use SmartyModule;
-use \ProcessException;
-use Criteria;
 use DB\ForumCategoryPeer;
-use \WDPermissionManager;
 
 class ForumNewThreadModule extends SmartyModule {
 	

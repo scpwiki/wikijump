@@ -25,10 +25,6 @@
 
 namespace DB;
 
-use DB\AnonymousAbuseFlagBase;
-
-
-
 
 /**
  * Object Model mapped class.

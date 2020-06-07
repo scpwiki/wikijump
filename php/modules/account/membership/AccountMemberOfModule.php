@@ -24,9 +24,6 @@
  */
 
 
-
-use \AccountBaseModule;
-use Criteria;
 use DB\MemberPeer;
 
 class AccountMemberOfModule extends AccountBaseModule{

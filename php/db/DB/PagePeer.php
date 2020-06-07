@@ -25,7 +25,6 @@
 
 namespace DB;
 
-use DB\PagePeerBase;
 use Criteria;
 use \WDStringUtils;
 

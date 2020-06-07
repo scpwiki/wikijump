@@ -24,11 +24,7 @@
  */
 
 
-
-use SmartyModule;
-use \ProcessException;
 use DB\PagePeer;
-use \FileHelper;
 
 class PageFilesModule extends SmartyModule{
 	

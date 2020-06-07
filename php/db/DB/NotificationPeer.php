@@ -2,9 +2,6 @@
 
 namespace DB;
 
-use DB\NotificationPeerBase;
-
-
 
 /**
  * Wikidot - free wiki collaboration software

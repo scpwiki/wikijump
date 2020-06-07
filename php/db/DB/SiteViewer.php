@@ -25,10 +25,6 @@
 
 namespace DB;
 
-use DB\SiteViewerBase;
-
-
-
 
 /**
  * Object Model class.

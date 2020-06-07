@@ -25,10 +25,6 @@
 
 namespace DB;
 
-use DB\GlobalUserBlockBase;
-
-
-
 
 /**
  * Object Model class.

@@ -2,9 +2,6 @@
 
 namespace DB;
 
-use DB\StorageItemPeerBase;
-
-
 
 /**
  * Wikidot - free wiki collaboration software

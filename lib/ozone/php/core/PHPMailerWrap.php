@@ -22,11 +22,7 @@
  * @copyright Copyright (c) 2008, Wikidot Inc.
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
- 
 
-
-use \PathManager;
-use PHPMailer;
 
 require_once PathManager::externalLibFile('phpmailer/class.phpmailer.php');
 

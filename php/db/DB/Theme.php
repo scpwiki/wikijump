@@ -25,12 +25,7 @@
 
 namespace DB;
 
-use DB\ThemeBase;
-use DB\ThemePeer;
 use \ProcessException;
-use DB\ThemePreviewPeer;
-
-
 
 
 /**

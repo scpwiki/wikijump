@@ -24,9 +24,6 @@
  */
 
 
-
-use \SmartyLocalizedModule;
-use Criteria;
 use DB\ForumPostPeer;
 
 class UserRecentPostsListModule extends SmartyLocalizedModule {

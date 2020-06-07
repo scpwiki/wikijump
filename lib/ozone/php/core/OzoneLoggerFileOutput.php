@@ -24,13 +24,10 @@
  */
 
 
-
-use \OzoneLoggerOutput;
 use setLogFileName;
 use logFileName;
 use handleEvent;
 use array_search;
-use \OzoneLogger;
 use sprintf;
 use date;
 use fopen;

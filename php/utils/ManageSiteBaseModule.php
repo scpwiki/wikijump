@@ -24,10 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use \WDPermissionManager;
-
 abstract class ManageSiteBaseModule extends SmartyModule {
 	
 	public function isAllowed($runData){

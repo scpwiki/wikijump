@@ -26,7 +26,6 @@
 namespace DB;
 
 use BaseDBObject;
-use DB\OzoneUser;
 use Criteria;
 
 

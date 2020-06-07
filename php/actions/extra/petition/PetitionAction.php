@@ -24,17 +24,9 @@
  */
 
 
-
-use SmartyAction;
-use Database;
-use Criteria;
 use DB\PetitionCampaignPeer;
-use \ProcessException;
 use DB\PetitionSignature;
 use DB\PetitionSignaturePeer;
-use ODate;
-use \WDStringUtils;
-use OzoneEmail;
 
 class PetitionAction extends SmartyAction {
 	

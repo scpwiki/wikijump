@@ -25,7 +25,6 @@
 
 namespace DB;
 
-use DB\MembershipLinkPeerBase;
 use Criteria;
 
 

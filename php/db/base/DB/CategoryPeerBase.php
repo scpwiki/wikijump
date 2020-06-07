@@ -26,10 +26,8 @@
 namespace DB;
 
 use BaseDBPeer;
-use DB\CategoryPeer;
 
 
- 
 /**
  * Base peer class mapped to the database table category.
  */

@@ -24,11 +24,7 @@
  */
 
 
-
-use SmartyModule;
 use DB\PageRevisionPeer;
-use \ProcessException;
-use \WikiTransformation;
 
 class PageVersionModule extends SmartyModule {
 	

@@ -24,20 +24,11 @@
  */
 
 
-
-use SmartyModule;
-use Database;
-use \WDStringUtils;
-use \ProcessException;
 use DB\PagePeer;
 use DB\CategoryPeer;
-use \WDPermissionManager;
 use DB\PageEditLock;
-use ODate;
 use Wikidot\Form;
 use Wikidot\Form\Renderer;
-use Criteria;
-use \WDEditUtils;
 use DB\PageEditLockPeer;
 
 class PageEditModule extends SmartyModule {

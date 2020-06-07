@@ -24,16 +24,8 @@
  */
 
 
-
-use SmartyAction;
-use \WDPermissionManager;
-use JSONService;
-use \Outdater;
-use Database;
-use Criteria;
 use DB\OpenidEntryPeer;
 use DB\PagePeer;
-use \ProcessException;
 use DB\OpenidEntry;
 
 class ManageSiteOpenIDAction extends SmartyAction {

@@ -25,11 +25,7 @@
 
 namespace DB;
 
-use DB\PetitionCampaignBase;
 use Criteria;
-use DB\PetitionSignaturePeer;
-
-
 
 
 /**

@@ -24,11 +24,7 @@
  */
 
 
-
-use \SmartyLocalizedModule;
-use \WDPermissionException;
 use DB\OzoneUserPeer;
-use \ProcessException;
 
 class UserAddToContactsModule extends SmartyLocalizedModule {
 	

@@ -24,12 +24,8 @@
  */
 
 
-
-use SmartyScreen;
 use DB\SitePeer;
-use \ProcessException;
 use DB\ThemePeer;
-use \CryptUtils;
 
 class LoginIframeScreen extends SmartyScreen {
 	

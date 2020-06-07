@@ -2,9 +2,6 @@
 
 namespace DB;
 
-use DB\FilesEventPeerBase;
-
-
 
 /**
  * Wikidot - free wiki collaboration software

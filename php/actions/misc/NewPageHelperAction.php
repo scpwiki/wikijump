@@ -24,10 +24,6 @@
  */
 
 
-
-use SmartyAction;
-use \ProcessException;
-use \WDStringUtils;
 use DB\PagePeer;
 
 class NewPageHelperAction extends SmartyAction {

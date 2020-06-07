@@ -2,9 +2,6 @@
 
 namespace DB;
 
-use DB\GlobalIpBlockPeerBase;
-
-
 
 /**
  * Wikidot - free wiki collaboration software

@@ -24,11 +24,6 @@
  */
 
 
-
-use \OzoneSmarty;
-use \StringHelper;
-use \PathManager;
-
 /**
  * Database view generator.
  *

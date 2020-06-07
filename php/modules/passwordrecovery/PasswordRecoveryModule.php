@@ -24,11 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use \ProcessException;
-use \CryptUtils;
-
 class PasswordRecoveryModule extends SmartyModule {
 	
 	public function build($runData){

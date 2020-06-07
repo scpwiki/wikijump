@@ -24,13 +24,7 @@
  */
 
 
-
-use SmartyAction;
-use \ProcessException;
-use \CryptUtils;
-use Criteria;
 use DB\OzoneUserPeer;
-use OzoneEmail;
 
 class PasswordRecoveryAction extends SmartyAction {
 	

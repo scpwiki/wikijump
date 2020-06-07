@@ -25,10 +25,6 @@
 
 namespace DB;
 
-use DB\ThemePeerBase;
-
-
-
 
 /**
  * Object Model class.

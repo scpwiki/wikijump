@@ -3,7 +3,6 @@
 
 namespace Wikidot\Facade;
 
-use Wikidot\Facade\Base;
 use \WDPermissionException;
 use Criteria;
 use DB\MemberPeer;

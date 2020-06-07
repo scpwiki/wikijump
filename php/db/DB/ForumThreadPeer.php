@@ -2,9 +2,6 @@
 
 namespace DB;
 
-use DB\ForumThreadPeerBase;
-
-
 
 /**
  * Wikidot - free wiki collaboration software

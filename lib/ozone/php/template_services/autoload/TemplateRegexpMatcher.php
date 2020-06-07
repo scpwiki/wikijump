@@ -24,9 +24,6 @@
  */
 
 
-
-use \TemplateService;
-
 /**
  * Service for matching the current template name against given regular
  * expression. Should be useful when making menus etc.

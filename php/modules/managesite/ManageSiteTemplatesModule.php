@@ -24,10 +24,7 @@
  */
 
 
-
-use \ManageSiteBaseModule;
 use DB\CategoryPeer;
-use Criteria;
 use DB\PagePeer;
 
 class ManageSiteTemplatesModule extends ManageSiteBaseModule {

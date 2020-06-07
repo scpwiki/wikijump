@@ -26,13 +26,9 @@
 namespace DB;
 
 use BaseDBObject;
-use DB\OzoneUser;
 use Criteria;
-use DB\OzoneGroup;
 
 
-
- 
 /**
  * Base class mapped to the database table ozone_user_group_relation.
  */

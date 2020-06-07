@@ -25,17 +25,6 @@
 
 namespace DB;
 
-use DB\ForumPostBase;
-use DB\OzoneUser;
-use DB\OzoneUserPeer;
-use DB\ForumThread;
-use DB\ForumThreadPeer;
-use DB\Site;
-use DB\SitePeer;
-use DB\ForumPostRevisionPeer;
-
-
-
 
 /**
  * Object Model class.

@@ -24,19 +24,10 @@
  */
 
 
-
-use SmartyAction;
-use \WDPermissionManager;
-use JSONService;
-use Database;
-use Criteria;
 use DB\CategoryPeer;
-use \ProcessException;
-use \Outdater;
 use DB\PagePeer;
 use DB\ThemePeer;
 use DB\Theme;
-use \WDStringUtils;
 use DB\SiteTagPeer;
 use DB\SiteTag;
 use DB\SitePeer;

@@ -24,11 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use \WDPermissionException;
-use \WDPermissionManager;
-use Criteria;
 use DB\OzoneUserPeer;
 
 class ManageUsersModule extends SmartyModule {

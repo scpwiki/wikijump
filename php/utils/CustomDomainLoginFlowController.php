@@ -24,11 +24,6 @@
  */
 
 
-
-use \WikidotController;
-use RunData;
-use Ozone;
-
 class CustomDomainLoginFlowController extends WikidotController {
 
 	static public $controllerUrl = "/domainauth.php";

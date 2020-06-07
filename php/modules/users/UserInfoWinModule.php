@@ -24,10 +24,7 @@
  */
 
 
-
-use SmartyModule;
 use DB\OzoneUserPeer;
-use Criteria;
 use DB\MemberPeer;
 use DB\AdminPeer;
 

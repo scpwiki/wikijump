@@ -25,10 +25,6 @@
 
 namespace DB;
 
-use DB\DomainRedirectBase;
-
-
-
 
 /**
  * Object Model class.

@@ -24,9 +24,6 @@
  */
 
 
-
-use SmartyModule;
-
 class CustomDomainScriptModule extends SmartyModule {
 	
 	public function build($runData){

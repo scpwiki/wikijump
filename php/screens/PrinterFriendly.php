@@ -24,17 +24,9 @@
  */
 
 
-
-use Screen;
-use Criteria;
 use DB\MemberPeer;
 use DB\SiteViewerPeer;
-use \ProcessException;
-use \WDStringUtils;
 use DB\PagePeer;
-use Ozone;
-use PathManager;
-use Exception;
 
 class PrinterFriendly extends Screen {
 

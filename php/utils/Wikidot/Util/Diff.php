@@ -25,8 +25,6 @@
 
 namespace Wikidot\Util;
 
-use Wikidot\Util\UnixifyString;
-use Wikidot\Facade\Exception;
 use Wikidot\Util\Diff as WikidotUtilDiff;
 
 

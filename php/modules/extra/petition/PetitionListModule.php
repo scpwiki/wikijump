@@ -24,11 +24,7 @@
  */
 
 
-
-use SmartyModule;
-use Criteria;
 use DB\PetitionCampaignPeer;
-use \ProcessException;
 use DB\PetitionSignaturePeer;
 
 class PetitionListModule extends SmartyModule{

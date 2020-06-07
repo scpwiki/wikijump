@@ -24,12 +24,7 @@
  */
 
 
-
-use SmartyModule;
-use \WDPermissionException;
-use \ProcessException;
 use DB\OzoneUserPeer;
-use Criteria;
 use DB\UserAbuseFlagPeer;
 
 class FlagUserModule extends SmartyModule {

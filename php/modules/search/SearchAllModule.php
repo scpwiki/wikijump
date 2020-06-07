@@ -24,9 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use Database;
 use DB\Site;
 
 class SearchAllModule extends SmartyModule {

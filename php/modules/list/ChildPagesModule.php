@@ -24,11 +24,7 @@
  */
 
 
-
-use SmartyModule;
 use DB\PagePeer;
-use \ProcessException;
-use Criteria;
 
 class ChildPagesModule extends SmartyModule {
 	

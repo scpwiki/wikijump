@@ -24,15 +24,7 @@
  */
 
 
-
-use SmartyAction;
 use DB\OzoneUserPeer;
-use Criteria;
-use SecurityManager;
-use \EventLogger;
-use \ProcessException;
-use ODate;
-use Database;
 use DB\OzoneSessionPeer;
 
 class Login2Action extends SmartyAction {

@@ -24,10 +24,6 @@
  */
 
 
-
-use \ManageSiteBaseModule;
-use \ProcessException;
-use Criteria;
 use DB\ForumGroupPeer;
 use DB\ForumCategoryPeer;
 

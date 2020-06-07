@@ -24,11 +24,7 @@
  */
 
 
-
-use \FeedScreen;
-use Criteria;
 use DB\ForumPostPeer;
-use \WDRenderUtils;
 
 class WatchedForumPostsFeed extends FeedScreen {
 	

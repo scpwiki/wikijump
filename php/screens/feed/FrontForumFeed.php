@@ -24,12 +24,8 @@
  */
 
 
-
-use \FeedScreen;
 use DB\PagePeer;
-use Criteria;
 use DB\FrontForumFeedPeer;
-use \ProcessException;
 use DB\ForumCategoryPeer;
 use DB\ForumThreadPeer;
 

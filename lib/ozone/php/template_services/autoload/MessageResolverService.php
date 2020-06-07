@@ -24,10 +24,6 @@
  */
 
 
-
-use \TemplateService;
-use \MessageResolver;
-
 /**
  * Message resolver service.
  *

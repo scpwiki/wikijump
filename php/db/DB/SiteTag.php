@@ -25,10 +25,6 @@
 
 namespace DB;
 
-use DB\SiteTagBase;
-
-
-
 
 /**
  * Object Model class.

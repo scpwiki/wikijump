@@ -24,9 +24,6 @@
  */
 
 
-
-use OZONE;
-
 class WikiditorUtils {
 	
 	public static function getPageEditToolbar(){

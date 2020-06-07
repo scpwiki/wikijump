@@ -24,9 +24,6 @@
  */
 
 
-
-use \FileItem;
-
 /**
  * File upload utility.
  *

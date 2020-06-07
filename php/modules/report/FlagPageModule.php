@@ -24,11 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use \WDPermissionException;
-use \ProcessException;
-use Criteria;
 use DB\PageAbuseFlagPeer;
 
 class FlagPageModule extends SmartyModule {

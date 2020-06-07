@@ -24,12 +24,7 @@
  */
 
 
-
-use SmartyModule;
-use Database;
 use DB\ForumThreadPeer;
-use \ProcessException;
-use \WDPermissionManager;
 
 class ForumEditThreadBlockModule extends SmartyModule {
 	

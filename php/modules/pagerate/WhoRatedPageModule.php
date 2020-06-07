@@ -24,10 +24,7 @@
  */
 
 
-
-use SmartyModule;
 use DB\PagePeer;
-use Criteria;
 use DB\PageRateVotePeer;
 
 class WhoRatedPageModule extends SmartyModule {

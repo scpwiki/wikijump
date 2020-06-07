@@ -1,15 +1,8 @@
 <?php
 
 
-
-use \PageProperties;
-use \ParameterList;
-use \ModuleHelpers;
 use DB\OzoneSession;
-use \ODate;
-use \Criteria;
 use DB\OzoneSessionPeer;
-use \FormTool;
 
 /**
  * Wikidot - free wiki collaboration software

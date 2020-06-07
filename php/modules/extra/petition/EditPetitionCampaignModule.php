@@ -24,9 +24,6 @@
  */
 
 
-
-use SmartyModule;
-
 class EditPetitionCampaignModule extends SmartyModule {
 	
 	public function build($runData){

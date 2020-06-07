@@ -24,9 +24,6 @@
  */
 
 
-
-use \SmartyLocalizedModule;
-
 class UserRecentPostsModule extends SmartyLocalizedModule {
 	
 	protected $timeOut = 300;

@@ -24,13 +24,7 @@
  */
 
 
-
-use SmartyAction;
-use \WDPermissionException;
 use DB\OzoneUserPeer;
-use \ProcessException;
-use Database;
-use Criteria;
 use DB\ContactPeer;
 use DB\Contact;
 

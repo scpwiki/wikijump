@@ -24,9 +24,6 @@
  */
 
 
-
-use \ManageSiteBaseModule;
-
 class ManageSiteModule extends ManageSiteBaseModule {
 	
 	protected $processPage = true;

@@ -25,10 +25,6 @@
 
 namespace DB;
 
-use DB\PetitionSignatureBase;
-
-
-
 
 /**
  * Object Model class.

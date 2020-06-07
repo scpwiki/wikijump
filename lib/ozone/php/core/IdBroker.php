@@ -24,8 +24,6 @@
  */
 
 
-
-use \Database;
 use DB\IdBrokerPeer;
 
 /**

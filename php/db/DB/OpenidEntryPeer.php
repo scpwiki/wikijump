@@ -2,9 +2,6 @@
 
 namespace DB;
 
-use DB\OpenidEntryPeerBase;
-
-
 
 /**
  * Wikidot - free wiki collaboration software

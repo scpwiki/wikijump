@@ -24,12 +24,7 @@
  */
 
 
-
-use \SmartyLocalizedModule;
 use DB\OzoneUserPeer;
-use \ProcessException;
-use JSONService;
-use Criteria;
 use DB\PageRevisionPeer;
 
 class UserChangesListModule extends SmartyLocalizedModule {

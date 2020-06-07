@@ -26,10 +26,8 @@
 namespace DB;
 
 use BaseDBPeer;
-use DB\PageCompiledPeer;
 
 
- 
 /**
  * Base peer class mapped to the database table page_compiled.
  */

@@ -24,10 +24,7 @@
  */
 
 
-
-use Module;
 use DB\CategoryPeer;
-use \WDPermissionManager;
 
 class PageOptionsBottomModule extends Module {
 	

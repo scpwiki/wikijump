@@ -2,9 +2,6 @@
 
 namespace DB;
 
-use DB\WatchedPagePeerBase;
-
-
 
 /**
  * Wikidot - free wiki collaboration software

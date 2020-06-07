@@ -25,12 +25,6 @@
 
 namespace DB;
 
-use DB\MemberInvitationBase;
-use DB\SitePeer;
-use DB\OzoneUserPeer;
-
-
-
 
 /**
  * Object Model class.

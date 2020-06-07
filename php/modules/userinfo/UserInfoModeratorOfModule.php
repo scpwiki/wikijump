@@ -24,9 +24,6 @@
  */
 
 
-
-use \SmartyLocalizedModule;
-use Criteria;
 use DB\ModeratorPeer;
 
 class UserInfoModeratorOfModule extends SmartyLocalizedModule {

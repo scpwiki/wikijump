@@ -24,10 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use \ProcessException;
-use Criteria;
 use DB\PageRevisionPeer;
 
 class PageHistoryModule extends SmartyModule {

@@ -24,10 +24,6 @@
  */
 
 
-
-use OzoneLogger;
-use \WikiTransformation;
-
 class WDEditUtils {
 	
 	/**

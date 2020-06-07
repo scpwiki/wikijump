@@ -24,9 +24,6 @@
  */
 
 
-
-use SmartyModule;
-
 abstract class CacheableModule extends SmartyModule {
 
 	protected $timeOut = 0;

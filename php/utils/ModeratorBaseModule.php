@@ -24,10 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use Criteria;
-
 class ModeratorBaseModule extends SmartyModule {
 	
 	/**

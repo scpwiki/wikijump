@@ -24,11 +24,7 @@
  */
 
 
-
-use SmartyModule;
 use DB\PagePeer;
-use \ProcessException;
-use \WikiTransformation;
 use DB\CategoryPeer;
 
 class PagePreviewModule extends SmartyModule {

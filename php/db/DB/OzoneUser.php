@@ -25,14 +25,7 @@
 
 namespace DB;
 
-use DB\OzoneUserBase;
-use DB\Profile;
-use DB\ProfilePeer;
-use DB\UserSettingsPeer;
 use Criteria;
-use DB\UserKarmaPeer;
-
-
 
 
 /**

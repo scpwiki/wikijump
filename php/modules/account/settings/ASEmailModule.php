@@ -24,9 +24,6 @@
  */
 
 
-
-use \AccountBaseModule;
-
 class ASEmailModule extends AccountBaseModule {
 	
 	public function build($runData){

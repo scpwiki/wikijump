@@ -26,10 +26,8 @@
 namespace DB;
 
 use BaseDBPeer;
-use DB\PagePeer;
 
 
- 
 /**
  * Base peer class mapped to the database table page.
  */

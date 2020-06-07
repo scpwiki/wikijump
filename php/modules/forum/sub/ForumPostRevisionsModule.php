@@ -24,11 +24,7 @@
  */
 
 
-
-use SmartyModule;
-use \ProcessException;
 use DB\ForumPostPeer;
-use Criteria;
 use DB\ForumPostRevisionPeer;
 
 class ForumPostRevisionsModule extends SmartyModule {

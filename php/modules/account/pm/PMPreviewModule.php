@@ -24,9 +24,6 @@
  */
 
 
-
-use \AccountBaseModule;
-use \WikiTransformation;
 use DB\PrivateMessage;
 
 class PMPreviewModule extends AccountBaseModule {

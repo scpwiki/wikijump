@@ -24,15 +24,9 @@
  */
 
 
-
-use SmartyModule;
-use \ProcessException;
 use DB\ForumPostPeer;
-use \WDPermissionManager;
-use Criteria;
 use DB\ModeratorPeer;
 use DB\AdminPeer;
-use \WDPermissionException;
 
 class ForumEditPostFormModule extends SmartyModule {
 	

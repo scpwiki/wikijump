@@ -24,9 +24,6 @@
  */
 
 
-
-use \TemplateService;
-
 /**
  * Module service.
  *

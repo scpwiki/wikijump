@@ -26,8 +26,6 @@
 
 
 use DB\SitePeer;
-use \ProcessException;
-use Criteria;
 use DB\PagePeer;
 
 class Backuper {

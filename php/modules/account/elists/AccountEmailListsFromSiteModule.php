@@ -24,9 +24,6 @@
  */
 
 
-
-use \AccountBaseModule;
-use Criteria;
 use DB\SitePeer;
 use DB\EmailListPeer;
 use DB\EmailListSubscriberPeer;

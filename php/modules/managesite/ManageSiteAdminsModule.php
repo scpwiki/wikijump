@@ -24,9 +24,6 @@
  */
 
 
-
-use \ManageSiteBaseModule;
-use Criteria;
 use DB\AdminPeer;
 
 class ManageSiteAdminsModule extends ManageSiteBaseModule {

@@ -24,12 +24,6 @@
  */
 
 
-
-use SmartyAction;
-use \WDPermissionException;
-use \ProcessException;
-use Database;
-use Criteria;
 use DB\WatchedForumThreadPeer;
 use DB\WatchedForumThread;
 use DB\WatchedPagePeer;

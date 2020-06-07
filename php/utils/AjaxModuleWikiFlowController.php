@@ -24,22 +24,9 @@
  */
 
 
-
-use WebFlowController;
-use OzoneLogger;
-use OzoneLoggerFileOutput;
-use RunData;
-use \ProcessException;
-use Criteria;
 use DB\SitePeer;
 use DB\MemberPeer;
 use DB\SiteViewerPeer;
-use \WDPermissionException;
-use Ozone;
-use Database;
-use Exception;
-use ModuleProcessor;
-use JSONService;
 
 class AjaxModuleWikiFlowController extends WebFlowController {
 

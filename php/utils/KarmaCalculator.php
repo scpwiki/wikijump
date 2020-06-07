@@ -24,8 +24,6 @@
  */
 
 
-
-use Criteria;
 use DB\UserKarmaPeer;
 use DB\UserKarma;
 use DB\OzoneUserPeer;

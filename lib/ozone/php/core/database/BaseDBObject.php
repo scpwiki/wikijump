@@ -23,9 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-use \ODate;
-use \Database;
-
 /**
  * Base object for all database OM objects representing tables. It implements
  * most of the database logic - getting/setting field valuse, inserting/updating etc. 

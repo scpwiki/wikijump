@@ -24,8 +24,6 @@
  */
 
 
-
-use SchedulerJob;
 use run;
 use Wikidot\Search\Lucene;
 use processQueue;

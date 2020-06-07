@@ -24,9 +24,6 @@
  */
 
 
-
-use Exception;
-
 class ProcessException extends Exception {
 	
 	protected $status;

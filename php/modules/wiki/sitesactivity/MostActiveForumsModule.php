@@ -24,10 +24,6 @@
  */
 
 
-
-use SmartyModule;
-use ODate;
-use Database;
 use DB\SitePeer;
 
 class MostActiveForumsModule extends SmartyModule {

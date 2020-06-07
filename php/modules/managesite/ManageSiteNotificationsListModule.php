@@ -24,9 +24,6 @@
  */
 
 
-
-use \ManageSiteBaseModule;
-use Criteria;
 use DB\AdminNotificationPeer;
 
 class ManageSiteNotificationsListModule extends ManageSiteBaseModule {

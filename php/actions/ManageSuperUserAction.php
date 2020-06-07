@@ -24,11 +24,7 @@
  */
 
 
-
-use SmartyAction;
-use \WDPermissionManager;
 use DB\OzoneUserPeer;
-use \WDStringUtils;
 
 class ManageSuperUserAction extends SmartyAction {
 	

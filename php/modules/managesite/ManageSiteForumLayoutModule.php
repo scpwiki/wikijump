@@ -24,10 +24,6 @@
  */
 
 
-
-use \ManageSiteBaseModule;
-use \ProcessException;
-
 class ManageSiteForumLayoutModule extends ManageSiteBaseModule {
 	
 	public function build($runData){
