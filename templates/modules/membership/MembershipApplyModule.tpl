@@ -58,13 +58,13 @@
 				Please log in or create an account first.{/t}
 			{/if}
 			{if $reason=="already_applied"}
-				{t}It seems you have already applied for membership.{/t}
+				{t}You have already applied for membership.{/t}
 			{/if}
 			{if $reason=="already_member"}
-				{t}It seems you already are a member of this site.{/t}
+				{t}You are already a member of this site.{/t}
 			{/if}
 			{if $reason=="already_admin"}
-				{t}It seems you already are an admin of this site.{/t}
+				{t}You are already an admin of this site.{/t}
 			{/if}
 		</div>
 	{/if}
