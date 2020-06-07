@@ -51,7 +51,7 @@ class PMDraftsModule extends AccountBaseModule {
 		// limits...
 		$totalPages = ceil($co/$perPage);
 		if($pageNo>$totalPages){$pageNo = $totalPages;}
-		$offset = ($pageNo-1) * $perPage;
+		$offset = max(($pageNo-1) * $perPage, 0);
 		
 		$c->setLimit($perPage, $offset); 
 		$runData->contextAdd("totalPages", $totalPages);
