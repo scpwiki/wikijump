@@ -38,6 +38,7 @@ WIKIDOT.modules.PasswordRecoveryModule.listeners = {
 		
 		var p = new Object();
 		//p.email = linebrk(hex2b64(rsa.encrypt('__'+email)),64);
+		p.email = email;
 		p.action = "PasswordRecoveryAction";
 		p.event = "step1";
 		OZONE.ajax.requestModule("passwordrecovery/PasswordRecovery2Module", p, WIKIDOT.modules.PasswordRecoveryModule.callbacks.next1);
