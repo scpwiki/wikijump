@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,20 +27,20 @@
 use DB\PagePeer;
 
 class NewPageHelperModule extends SmartyModule {
-	
+
 	public function build($runData){
-		
+
 		$site = $runData->getTemp("site");
-		
+
 		$pl = $runData->getParameterList();
 		$categoryName = trim($pl->getParameterValue("category", "MODULE"));
-		
+
 		$template=trim($pl->getParameterValue("template", "MODULE"));
-		
+
 		$format=trim($pl->getParameterValue("format", "MODULE"));
-		
-		$runData->contextAdd("categoryName", WDStringUtils::toUnixName($categoryName));	
-		
+
+		$runData->contextAdd("categoryName", WDStringUtils::toUnixName($categoryName));
+
 		if($template){
 			$ta = explode(',', $template);
 			$tp = array();
@@ -48,9 +48,9 @@ class NewPageHelperModule extends SmartyModule {
 			// 	for each of the suggested arrays
 				$t = trim($t);
 				if(!preg_match("/^template:/",$t)){
-					throw new ProcessException(sprintf(_('"%s" is not in the "template:" category.'), $t), "not_template");	
+					throw new ProcessException(sprintf(_('"%s" is not in the "template:" category.'), $t), "not_template");
 				}
-				$page = PagePeer::instance()->selectByName($site->getSiteId(), $t);	
+				$page = PagePeer::instance()->selectByName($site->getSiteId(), $t);
 				if($page == null){
 					throw new ProcessException(sprintf(_('Template "%s" can not be found.'),$t), "no_template");
 				}
@@ -58,39 +58,39 @@ class NewPageHelperModule extends SmartyModule {
 			}
 
 			if(count($tp)>1){
-				$runData->contextAdd("templates", $tp);	
+				$runData->contextAdd("templates", $tp);
 			}
 			if(count($tp) == 1){
-				$runData->contextAdd("template", $tp[0]);	
+				$runData->contextAdd("template", $tp[0]);
 			}
 		}
-		
+
 		// size of the field
-		
+
 		$fieldSize = $pl->getParameterValue("size", "MODULE");
 		$style = $pl->getParameterValue("style", "MODULE");
 		$buttonText = $pl->getParameterValue("button", "MODULE");
-		
+
 		if(!$fieldSize){
 			$fieldSize = 30;
 		}
-		
+
 		$runData->contextAdd('size', $fieldSize);
 		$runData->contextAdd('style', $style);
 		$runData->contextAdd('button', $buttonText);
-		
+
 		// check if format is valid (vali regexp)
 		$m = false;
 		if($format){
 			$m = @preg_match($format, 'abc');
-		
+
 			if($m !== false){
 				$runData->contextAdd('format', $format);
 			}else{
 				$runData->contextAdd("formatError", $format);
 			}
 		}
-		
+
 	}
-	
+
 }

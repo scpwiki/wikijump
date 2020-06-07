@@ -8,18 +8,18 @@ require_once 'HTMLPurifier/Generator.php';
  */
 class HTMLPurifier_ErrorCollector
 {
-    
+
     protected $errors = array();
     protected $locale;
     protected $generator;
     protected $context;
-    
+
     public function __construct($context) {
         $this->locale    =& $context->get('Locale');
         $this->generator =& $context->get('Generator');
         $this->context   =& $context;
     }
-    
+
     /**
      * Sends an error message to the collector for later use
      * @param $line Integer line number, or HTMLPurifier_Token that caused error
@@ -27,18 +27,18 @@ class HTMLPurifier_ErrorCollector
      * @param $msg string Error message text
      */
     public function send($severity, $msg) {
-        
+
         $args = array();
         if (func_num_args() > 2) {
             $args = func_get_args();
             array_shift($args);
             unset($args[0]);
         }
-        
+
         $token = $this->context->get('CurrentToken', true);
         $line  = $token ? $token->line : $this->context->get('CurrentLine', true);
         $attr  = $this->context->get('CurrentAttr', true);
-        
+
         // perform special substitutions, also add custom parameters
         $subst = array();
         if (!is_null($token)) {
@@ -48,18 +48,18 @@ class HTMLPurifier_ErrorCollector
             $subst['$CurrentAttr.Name'] = $attr;
             if (isset($token->attr[$attr])) $subst['$CurrentAttr.Value'] = $token->attr[$attr];
         }
-        
+
         if (empty($args)) {
             $msg = $this->locale->getMessage($msg);
         } else {
             $msg = $this->locale->formatMessage($msg, $args);
         }
-        
+
         if (!empty($subst)) $msg = strtr($msg, $subst);
-        
+
         $this->errors[] = array($line, $severity, $msg);
     }
-    
+
     /**
      * Retrieves raw error data for custom formatter to use
      * @param List of arrays in format of array(Error message text,
@@ -68,16 +68,16 @@ class HTMLPurifier_ErrorCollector
     public function getRaw() {
         return $this->errors;
     }
-    
+
     /**
      * Default HTML formatting implementation for error messages
      * @param $config Configuration array, vital for HTML output nature
      */
     public function getHTMLFormatted($config) {
         $ret = array();
-        
+
         $errors = $this->errors;
-        
+
         // sort error array by line
         // line numbers are enabled if they aren't explicitly disabled
         if ($config->get('Core', 'MaintainLineNumbers') !== false) {
@@ -91,28 +91,28 @@ class HTMLPurifier_ErrorCollector
             }
             array_multisort($has_line, SORT_DESC, $lines, SORT_ASC, $original_order, SORT_ASC, $errors);
         }
-        
+
         foreach ($errors as $error) {
             list($line, $severity, $msg) = $error;
             $string = '';
             $string .= '<strong>' . $this->locale->getErrorName($severity) . '</strong>: ';
-            $string .= $this->generator->escape($msg); 
+            $string .= $this->generator->escape($msg);
             if ($line) {
-                // have javascript link generation that causes 
+                // have javascript link generation that causes
                 // textarea to skip to the specified line
                 $string .= $this->locale->formatMessage(
                     'ErrorCollector: At line', array('line' => $line));
             }
             $ret[] = $string;
         }
-        
+
         if (empty($errors)) {
             return '<p>' . $this->locale->getMessage('ErrorCollector: No errors') . '</p>';
         } else {
             return '<ul><li>' . implode('</li><li>', $ret) . '</li></ul>';
         }
-        
+
     }
-    
+
 }
 

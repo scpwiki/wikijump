@@ -53,7 +53,7 @@ $memObject = $memoryManager->createLocked($data);
             The locked objects class (<code>Zend_Memory_Container_Locked</code>)
             guarantees virtually the same performance as working with a string
             variable.  The overhead is a single dereference to get the class property.
-            
+
             锁定的对象类(<code>Zend_Memory_Container_Locked</code>)保证了和处理字符串变量差不多的性能.
         </para>
 

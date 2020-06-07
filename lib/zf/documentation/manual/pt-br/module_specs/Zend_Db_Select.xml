@@ -22,7 +22,7 @@
         <itemizedlist>
             <listitem>
                 <para>
-                    Métodos orientados a objetos para especificação de consultas SQL 
+                    Métodos orientados a objetos para especificação de consultas SQL
 					de maneira "piece-by-piece" (aos pedaços ou em partes);
                 </para>
             </listitem>
@@ -50,7 +50,7 @@
         <para>
             A utilização de Zend_Db_Select não é obrigatória. Para consultas SELECT
             muito simples, normalmente é mais fácil escrever toda a consulta SQL
-			em uma string e executá-la usando métodos da classe Adapter, como o 
+			em uma string e executá-la usando métodos da classe Adapter, como o
 			<code>query()</code> ou <code>fetchAll()</code>. O uso de Zend_Db_Select
 			é muito útil quando você precisa montar uma consulta SELECT usando "procedures"
 			(através de procedimentos), ou quando você precisa montar a consulta baseando-se
@@ -64,7 +64,7 @@
         <title>Criando um Objeto Select</title>
 
         <para>
-            Você pode criar uma instância de um objeto Zend_Db_Select 
+            Você pode criar uma instância de um objeto Zend_Db_Select
 			usando o método <code>select()</code> de um objeto Zend_Db_Adapter_Abstract.
         </para>
 
@@ -77,7 +77,7 @@ $select = $db->select();]]></programlisting>
         </example>
 
         <para>
-            Outra forma de criar um objeto Zend_Db_Select é com o 
+            Outra forma de criar um objeto Zend_Db_Select é com o
 			construtor dele, especificando o adaptador como parâmetro.
         </para>
 
@@ -138,7 +138,7 @@ $select = $db->select()
             Os exemplos nesta seção mostram o uso da  interface "fluent",
             mas você pode usar a interface "non-fluent" em todos os casos.
             É freqüentemente necessário usar a interface "non-fluent" quando, por exemplo,
-            sua aplicação precisa executar alguma lógica antes de adicionar uma cláusula 
+            sua aplicação precisa executar alguma lógica antes de adicionar uma cláusula
 			a uma consulta.
         </para>
 
@@ -149,7 +149,7 @@ $select = $db->select()
             <para>
                 Especifique a tabela para esta consulta usando o método <code>from()</code>.
 				Você pode especificar o nome da tabela como uma simples string.
-				Zend_Db_Select coloca o entre aspas o nome da tabela, então, você pode 
+				Zend_Db_Select coloca o entre aspas o nome da tabela, então, você pode
 				usar caracteres especiais.
             </para>
 
@@ -188,12 +188,12 @@ $select = $db->select()
             </example>
 
             <para>
-                Algumas marcas de RDBMS dão suporte a um especificador de schema 
-				para uma tabela. Você pode especificar o nome a tabela como 
+                Algumas marcas de RDBMS dão suporte a um especificador de schema
+				para uma tabela. Você pode especificar o nome a tabela como
 				"<code>schemaName.tableName</code>", onde Zend_Db_Select coloca entre aspas
-				cada uma das partes individualmente, ou então você deve especificar o nome 
+				cada uma das partes individualmente, ou então você deve especificar o nome
 				do schema separadamente. Um nome de schema especificado no nome da tabela
-				precede um schema fornecido separadamente se eventualmente ambos forem 
+				precede um schema fornecido separadamente se eventualmente ambos forem
 				informados.
             </para>
 
@@ -222,7 +222,7 @@ $select = $db->select()
 
             <para>
                 No segundo argumento do método <code>from()</code> ,
-                você pode especificaras colunas a serem selecionadas da 
+                você pode especificaras colunas a serem selecionadas da
 				respectiva tabela. Se você não especificar nenhuma coluna,
 				o valor padrão é "<code>*</code>", o caracter curinga para "todas as colunas".
             </para>
@@ -230,12 +230,12 @@ $select = $db->select()
             <para>
                 Você pode listar as colunas em um simples array de strings, ou como
 				um mapeamento associativo do alias da coluna para nome da coluna.
-				Se você só tiver uma coluna para consultar, e não precisar indicar um 
+				Se você só tiver uma coluna para consultar, e não precisar indicar um
 				alias, você pode listá-la em uma string simples ao invés de um array.
             </para>
 
             <para>
-                Se você passar um array vazio como o argumento de colunas, nenhuma 
+                Se você passar um array vazio como o argumento de colunas, nenhuma
 				coluna da respectiva tabela será incluída no result set.
                 Veja um exemplo de <link linkend="zend.db.select.building.join.example-no-columns">código</link> sob a seção do método <code>join()</code>.
             </para>
@@ -285,7 +285,7 @@ $select = $db->select()
 
             <para>
                Algumas vezes as colunas de uma consulta SQL são expressões, e não
-			   simplesmente o nome de uma couna da tabela. Expressões não devem usar 
+			   simplesmente o nome de uma couna da tabela. Expressões não devem usar
 			   nomes de correlação ou aspas. Se a string da coluna possuir parênteses,
 			   Zend_Db_Select a reconhecerá como uma expressão.
             </para>
@@ -294,8 +294,8 @@ $select = $db->select()
                 Você também pode criar um objeto do tipo Zend_Db_Expr explicitamente,
                 para prevenir que uma string seja tratada como um nome de coluna.
 				Zend_Db_Expr é uma classe diminuta que contém uma única string.
-				Zend_Db_Select reconhece obtejos do tipo Zend_Db_Expr e os converte 
-				novamente para strings, mas não efetua qualquer alteração como a 
+				Zend_Db_Select reconhece obtejos do tipo Zend_Db_Expr e os converte
+				novamente para strings, mas não efetua qualquer alteração como a
 				colocação de aspas ou nomes de correlação.
             </para>
 
@@ -341,13 +341,13 @@ $select = $db->select()
 
             <para>
                 Nos casos acima, Zend_Db_Select não altera a string
-				para colocar os nomes de correlação ou aspas. Se as 
+				para colocar os nomes de correlação ou aspas. Se as
 				mudanças forem necessárias para evitar alguma ambiguidade,
 				você deve fazê-las manualmente na string.
             </para>
 
             <para>
-                Se os nomes das colunas são palavras-chave SQL ou possuem 
+                Se os nomes das colunas são palavras-chave SQL ou possuem
 				caracteres especiais, você deve usar o método <code>quoteIdentifier()</code>
 				da classe Adapter, e interpolar o resultado na string. O método
 				<code>quoteIdentifier()</code> usa aspas no SQL para delimitar o identificador,

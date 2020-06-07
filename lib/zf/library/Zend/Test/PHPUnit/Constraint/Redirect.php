@@ -4,7 +4,7 @@ require_once 'PHPUnit/Framework/Constraint.php';
 
 /**
  * Redirection constraints
- * 
+ *
  * @uses       PHPUnit_Framework_Constraint
  * @package    Zend_Test
  * @subpackage PHPUnit
@@ -51,7 +51,7 @@ class Zend_Test_PHPUnit_Constraint_Redirect extends PHPUnit_Framework_Constraint
 
     /**
      * Constructor; setup constraint state
-     * 
+     *
      * @return void
      */
     public function __construct()
@@ -60,8 +60,8 @@ class Zend_Test_PHPUnit_Constraint_Redirect extends PHPUnit_Framework_Constraint
 
     /**
      * Indicate negative match
-     * 
-     * @param  bool $flag 
+     *
+     * @param  bool $flag
      * @return void
      */
     public function setNegate($flag = true)
@@ -71,7 +71,7 @@ class Zend_Test_PHPUnit_Constraint_Redirect extends PHPUnit_Framework_Constraint
 
     /**
      * Evaluate an object to see if it fits the constraints
-     * 
+     *
      * @param  string $other String to examine
      * @param  null|string Assertion type
      * @return bool
@@ -126,11 +126,11 @@ class Zend_Test_PHPUnit_Constraint_Redirect extends PHPUnit_Framework_Constraint
 
     /**
      * Report Failure
-     * 
+     *
      * @see    PHPUnit_Framework_Constraint for implementation details
-     * @param  mixed $other 
+     * @param  mixed $other
      * @param  string $description Additional message to display
-     * @param  bool $not 
+     * @param  bool $not
      * @return void
      * @throws PHPUnit_Framework_ExpectationFailedException
      */
@@ -170,7 +170,7 @@ class Zend_Test_PHPUnit_Constraint_Redirect extends PHPUnit_Framework_Constraint
 
     /**
      * Complete implementation
-     * 
+     *
      * @return string
      */
     public function toString()
@@ -180,7 +180,7 @@ class Zend_Test_PHPUnit_Constraint_Redirect extends PHPUnit_Framework_Constraint
 
     /**
      * Check to see if content is matched in selected nodes
-     * 
+     *
      * @param  Zend_Controller_Response_HttpTestCase $response
      * @param  string $match Content to match
      * @return bool
@@ -200,9 +200,9 @@ class Zend_Test_PHPUnit_Constraint_Redirect extends PHPUnit_Framework_Constraint
 
     /**
      * Check to see if content is NOT matched in selected nodes
-     * 
+     *
      * @param  Zend_Controller_Response_HttpTestCase $response
-     * @param  string $match 
+     * @param  string $match
      * @return bool
      */
     protected function _notMatch($response, $match)
@@ -220,7 +220,7 @@ class Zend_Test_PHPUnit_Constraint_Redirect extends PHPUnit_Framework_Constraint
 
     /**
      * Check to see if content is matched by regex in selected nodes
-     * 
+     *
      * @param  Zend_Controller_Response_HttpTestCase $response
      * @param  string $pattern
      * @return bool
@@ -240,7 +240,7 @@ class Zend_Test_PHPUnit_Constraint_Redirect extends PHPUnit_Framework_Constraint
 
     /**
      * Check to see if content is NOT matched by regex in selected nodes
-     * 
+     *
      * @param  Zend_Controller_Response_HttpTestCase $response
      * @param  string $pattern
      * @return bool

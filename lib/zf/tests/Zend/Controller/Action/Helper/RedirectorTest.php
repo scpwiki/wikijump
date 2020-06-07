@@ -16,7 +16,7 @@ require_once 'Zend/Controller/Response/Http.php';
 /**
  * Test class for Zend_Controller_Action_Helper_Redirector.
  */
-class Zend_Controller_Action_Helper_RedirectorTest extends PHPUnit_Framework_TestCase 
+class Zend_Controller_Action_Helper_RedirectorTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @var Zend_Controller_Action_Helper_Redirector
@@ -52,7 +52,7 @@ class Zend_Controller_Action_Helper_RedirectorTest extends PHPUnit_Framework_Tes
     /**
      * Set up redirector
      *
-     * Creates request, response, and action controller objects; sets action 
+     * Creates request, response, and action controller objects; sets action
      * controller in redirector, and sets exit to false.
      *
      * Also resets the front controller instance.
@@ -119,7 +119,7 @@ class Zend_Controller_Action_Helper_RedirectorTest extends PHPUnit_Framework_Tes
     {
         $this->redirector->setCode('303');
         $this->assertEquals(303, $this->redirector->getCode());
-        
+
         try {
             $this->redirector->setCode('251');
             $this->fail('Invalid redirect code should throw exception');
@@ -130,7 +130,7 @@ class Zend_Controller_Action_Helper_RedirectorTest extends PHPUnit_Framework_Tes
             $this->redirector->setCode('351');
             $this->fail('Invalid redirect code should throw exception');
         } catch (Exception $e) {
-        }        
+        }
     }
 
     public function testRedirectorShouldOnlyAllowValidHttpRedirectCodes()
@@ -139,12 +139,12 @@ class Zend_Controller_Action_Helper_RedirectorTest extends PHPUnit_Framework_Tes
             $this->redirector->setCode('306');
             $this->fail('Invalid redirect code should throw exception');
         } catch (Zend_Controller_Action_Exception $e) {
-        }        
+        }
         try {
             $this->redirector->setCode('304');
             $this->fail('Invalid redirect code should throw exception');
         } catch (Zend_Controller_Action_Exception $e) {
-        }        
+        }
     }
 
     public function testExit()

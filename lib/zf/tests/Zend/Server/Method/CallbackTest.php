@@ -12,7 +12,7 @@ require_once 'Zend/Server/Method/Callback.php';
 /**
  * Test class for Zend_Server_Method_Callback
  */
-class Zend_Server_Method_CallbackTest extends PHPUnit_Framework_TestCase 
+class Zend_Server_Method_CallbackTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.

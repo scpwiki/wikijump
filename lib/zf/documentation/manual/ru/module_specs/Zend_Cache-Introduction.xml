@@ -43,7 +43,7 @@ $cache = Zend_Cache::factory('Core',
 ]]>
         </programlisting>
     </example>
-    
+
     <note>
         <title>Фронтэнды и бэкэнды, содержащие несколько слов в названии</title>
         <para>
@@ -90,7 +90,7 @@ print_r($result);
 ]]>
         </programlisting>
     </example>
-    
+
     <example id="zend.cache.introduction.example-3">
         <title>Кэширование вывода с помощью фронтэнда <code>Zend_Cache</code></title>
         <para>

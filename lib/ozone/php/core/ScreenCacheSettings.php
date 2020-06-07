@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Web
  * @version $Id$
@@ -31,12 +31,12 @@
  *
  */
 class ScreenCacheSettings {
-	
+
 	protected $anonymousLayoutTimeout;
 	protected $loggedLayoutTimeout ;
 	protected $anonymousScreenTimeout;
 	protected $loggedScreenTimeout;
-	
+
 	public function getLayoutTimeout($runData){
 		if($runData->isUserAuthenticated()){
 			$timeout = $this->loggedLayoutTimeout;
@@ -45,16 +45,16 @@ class ScreenCacheSettings {
 		}
 		return $timeout;
 	}
-	
+
 	public function isLayoutCacheable($runData){
 		$timeout = 	$this->getLayoutTimeout($runData);
 		if($timeout == null || $timeout == 0){
 			return false;
 		} else {
-			return true;	
+			return true;
 		}
 	}
-	
+
 	public function getScreenTimeout($runData){
 		if($runData->isUserAuthenticated()){
 			$timeout = $this->loggedScreenTimeout;
@@ -63,30 +63,30 @@ class ScreenCacheSettings {
 		}
 		return $timeout;
 	}
-	
+
 	public function isScreenCacheable($runData){
 		$timeout = 	$this->getScreenTimeout($runData);
 		if($timeout == null || $timeout == 0){
 			return false;
 		} else {
-			return true;	
+			return true;
 		}
 	}
 
 	public function setAnonymousLayoutTimeout($time){
-		$this->anonymousLayoutTimeout = $time;	
+		$this->anonymousLayoutTimeout = $time;
 	}
-	
+
 	public function setAnonymousScreenTimeout($time){
-		$this->anonymousScreenTimeout = $time;	
+		$this->anonymousScreenTimeout = $time;
 	}
-	
+
 	public function setLoggedLayoutTimeout($time){
-		$this->loggedLayoutTimeout = $time;	
+		$this->loggedLayoutTimeout = $time;
 	}
-	
+
 	public function setLoggedScreenTimeout($time){
-		$this->loggedScreenTimeout = $time;	
+		$this->loggedScreenTimeout = $time;
 	}
-	
+
 }

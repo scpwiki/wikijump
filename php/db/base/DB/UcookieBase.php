@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version \$Id\$
@@ -39,19 +39,19 @@ class UcookieBase extends BaseDBObject {
 		$this->peerName = 'DB\\UcookiePeer';
 		$this->primaryKeyName = 'ucookie_id';
 		$this->fieldNames = array( 'ucookie_id' ,  'site_id' ,  'session_id' ,  'date_granted' );
-		
+
 		//$this->fieldDefaultValues=
 	}
 
 
-	
+
 			public function getSite(){
 			if(is_array($this->prefetched)){
 			if(in_array('site', $this->prefetched)){
 				if(in_array('site', $this->prefetchedObjects)){
 					return $this->prefetchedObjects['site'];
 				} else {
-					
+
 					$obj = new Site($this->sourceRow);
 					$obj->setNew(false);
 					//$obj->prefetched = $this->prefetched;
@@ -61,17 +61,17 @@ class UcookieBase extends BaseDBObject {
 				}
 			}
 		}
-		$foreignPeerClassName = 'DB\\SitePeer';	
+		$foreignPeerClassName = 'DB\\SitePeer';
 		$fpeer = new $foreignPeerClassName();
-		
+
 		$criteria = new Criteria();
-		
+
 		$criteria->add("site_id", $this->fieldValues['site_id']);
-		
+
 		$result = $fpeer->selectOneByCriteria($criteria);
 		return $result;
 	}
-	
+
 		public function setSite($primaryObject){
 			$this->fieldValues['site_id'] = $primaryObject->getFieldValue('site_id');
 	}
@@ -81,7 +81,7 @@ class UcookieBase extends BaseDBObject {
 				if(in_array('ozone_session', $this->prefetchedObjects)){
 					return $this->prefetchedObjects['ozone_session'];
 				} else {
-					
+
 					$obj = new OzoneSession($this->sourceRow);
 					$obj->setNew(false);
 					//$obj->prefetched = $this->prefetched;
@@ -91,59 +91,59 @@ class UcookieBase extends BaseDBObject {
 				}
 			}
 		}
-		$foreignPeerClassName = 'DB\\OzoneSessionPeer';	
+		$foreignPeerClassName = 'DB\\OzoneSessionPeer';
 		$fpeer = new $foreignPeerClassName();
-		
+
 		$criteria = new Criteria();
-		
+
 		$criteria->add("session_id", $this->fieldValues['session_id']);
-		
+
 		$result = $fpeer->selectOneByCriteria($criteria);
 		return $result;
 	}
-	
+
 		public function setOzoneSession($primaryObject){
 			$this->fieldValues['session_id'] = $primaryObject->getFieldValue('session_id');
 	}
-		
-	
-		
+
+
+
 	public function getUcookieId() {
 		return $this->getFieldValue('ucookie_id');
 	}
-	
+
 	public function setUcookieId($v1, $raw=false) {
-		$this->setFieldValue('ucookie_id', $v1, $raw); 
+		$this->setFieldValue('ucookie_id', $v1, $raw);
 	}
-	
-		
+
+
 	public function getSiteId() {
 		return $this->getFieldValue('site_id');
 	}
-	
+
 	public function setSiteId($v1, $raw=false) {
-		$this->setFieldValue('site_id', $v1, $raw); 
+		$this->setFieldValue('site_id', $v1, $raw);
 	}
-	
-		
+
+
 	public function getSessionId() {
 		return $this->getFieldValue('session_id');
 	}
-	
+
 	public function setSessionId($v1, $raw=false) {
-		$this->setFieldValue('session_id', $v1, $raw); 
+		$this->setFieldValue('session_id', $v1, $raw);
 	}
-	
-		
+
+
 	public function getDateGranted() {
 		return $this->getFieldValue('date_granted');
 	}
-	
+
 	public function setDateGranted($v1, $raw=false) {
-		$this->setFieldValue('date_granted', $v1, $raw); 
+		$this->setFieldValue('date_granted', $v1, $raw);
 	}
-	
-		
-	
+
+
+
 
 }

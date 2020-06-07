@@ -29,7 +29,7 @@ class MyEntry extends Zend_Feed_Entry_Atom
     {
         parent::__construct($uri, $xml);
 
-        Zend_Feed::registerNamespace('myns', 
+        Zend_Feed::registerNamespace('myns',
                                      'http://www.example.com/myns/1.0');
     }
 
@@ -57,7 +57,7 @@ class MyEntry extends Zend_Feed_Entry_Atom
                 parent::__set($var, $value);
         }
     }
-    
+
     public function __call($var, $unused)
     {
         switch ($var) {
@@ -82,7 +82,7 @@ $entry = new MyEntry();
 $entry->myUpdated = '2005-04-19T15:30';
 
 // wywołanie w stylu metody jest obsługiwane przez funkcję __call
-$entry->myUpdated();  
+$entry->myUpdated();
 // wywołanie w stylu właściwości jest obsługiwane przez funkcję __get
 $entry->myUpdated;
 ]]>

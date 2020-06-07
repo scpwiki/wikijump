@@ -10,7 +10,7 @@ require_once 'PHPUnit/Framework/IncompleteTestError.php';
  * @subpackage UnitTests
  * @version $Id: ParameterTest.php 1625 2006-11-15 17:45:10Z darby $
  */
-class Zend_Server_Reflection_ParameterTest extends PHPUnit_Framework_TestCase 
+class Zend_Server_Reflection_ParameterTest extends PHPUnit_Framework_TestCase
 {
     protected function _getParameter()
     {
@@ -22,14 +22,14 @@ class Zend_Server_Reflection_ParameterTest extends PHPUnit_Framework_TestCase
     /**
      * __construct() test
      *
-     * Call as method call 
+     * Call as method call
      *
      * Expects:
-     * - r: 
-     * - type: Optional; has default; 
-     * - description: Optional; has default; 
-     * 
-     * Returns: void 
+     * - r:
+     * - type: Optional; has default;
+     * - description: Optional; has default;
+     *
+     * Returns: void
      */
     public function test__construct()
     {
@@ -42,13 +42,13 @@ class Zend_Server_Reflection_ParameterTest extends PHPUnit_Framework_TestCase
     /**
      * __call() test
      *
-     * Call as method call 
+     * Call as method call
      *
      * Expects:
-     * - method: 
-     * - args: 
-     * 
-     * Returns: mixed 
+     * - method:
+     * - args:
+     *
+     * Returns: mixed
      */
     public function test__call()
     {

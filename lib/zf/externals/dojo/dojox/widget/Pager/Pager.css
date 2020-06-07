@@ -35,7 +35,7 @@
 }
 
 .horizontalPagerIcon {
-	cursor: pointer;	
+	cursor: pointer;
 }
 
 /* Vertical classes */
@@ -64,17 +64,17 @@
 }
 
 .verticalPagerIcon {
-	cursor: pointer;	
+	cursor: pointer;
 }
 
 /* Misc. */
 
 .pagerIconContainer {
-	position: absolute;	
+	position: absolute;
 }
 
 .pagerIconContainer img {
-	cursor: pointer;	
+	cursor: pointer;
 }
 
 /* Items */
@@ -82,9 +82,9 @@
 .pagerItems {
 	list-style: none;
 	padding: 0;
-	margin: 0;	
+	margin: 0;
 }
-	
+
 .pagerItem {
 	overflow: hidden;
 	padding: 0;

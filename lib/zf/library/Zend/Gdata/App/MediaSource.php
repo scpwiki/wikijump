@@ -38,7 +38,7 @@ interface Zend_Gdata_App_MediaSource
      */
     public function encode();
 
-    /** 
+    /**
      * Set the content type for the file attached (example image/png)
      *
      * @param string $value The content type
@@ -46,7 +46,7 @@ interface Zend_Gdata_App_MediaSource
      */
     public function setContentType($value);
 
-    /** 
+    /**
      * The content type for the file attached (example image/png)
      *
      * @return string The content type
@@ -54,7 +54,7 @@ interface Zend_Gdata_App_MediaSource
     public function getContentType();
 
     /**
-     * Sets the Slug header value.  Used by some services to determine the 
+     * Sets the Slug header value.  Used by some services to determine the
      * title for the uploaded file.  A null value indicates no slug header.
      *
      * @var string The slug value
@@ -63,7 +63,7 @@ interface Zend_Gdata_App_MediaSource
     public function setSlug($value);
 
     /**
-     * Returns the Slug header value.  Used by some services to determine the 
+     * Returns the Slug header value.  Used by some services to determine the
      * title for the uploaded file.  Returns null if no slug should be used.
      *
      * @return string The slug value

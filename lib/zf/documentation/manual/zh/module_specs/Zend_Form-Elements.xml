@@ -472,7 +472,7 @@ $messages = $element->getMessages();
         <itemizedlist>
             <listitem>
                 <para>
-                    缺省地，当元素是必需的，标志 'allowEmpty'也是 true。这意味着如果传递给 <code>isValid()</code> 的值为空，校验器将被跳过。可以用访问器 <code>setAllowEmpty($flag)</code> 来切换这个标志。当标志为 false，并且传递了一个值，校验器将仍然运行。 
+                    缺省地，当元素是必需的，标志 'allowEmpty'也是 true。这意味着如果传递给 <code>isValid()</code> 的值为空，校验器将被跳过。可以用访问器 <code>setAllowEmpty($flag)</code> 来切换这个标志。当标志为 false，并且传递了一个值，校验器将仍然运行。
                 </para>
             </listitem>
 
@@ -509,7 +509,7 @@ $messages = $element->getMessages();
             </para></listitem>
 
             <listitem><para>
-                    <code>setAllowEmpty($flag)</code> 和 <code>getAllowEmpty()</code> 让你修改可选元素的行为（例如，要求的标志为 false 的元素）。当 'allow empty' 标志为 true 时，空值将传递给校验器链。 
+                    <code>setAllowEmpty($flag)</code> 和 <code>getAllowEmpty()</code> 让你修改可选元素的行为（例如，要求的标志为 false 的元素）。当 'allow empty' 标志为 true 时，空值将传递给校验器链。
             </para></listitem>
 
             <listitem><para>
@@ -544,7 +544,7 @@ $messages = $element->getMessages();
                 <code>clearValidators()</code> （删除所有校验器）
             </para></listitem>
         </itemizedlist>
-        <sect3 id="zend.form.elements.validators.errors">        
+        <sect3 id="zend.form.elements.validators.errors">
             <title> 定制错误消息 </title>
 
             <para>
@@ -577,10 +577,10 @@ $messages = $element->getMessages();
                 <listitem><para>
                     <code>markAsError()</code>: 标记表单已经有失败的校验。
                 </para></listitem>
-                
+
                 <listitem><para>
                     <code>hasErrors()</code>: 确定是否元素有失败校验或标记为无效。
- 	 	</para></listitem>                
+ 	 	</para></listitem>
 
                 <listitem><para>
                     <code>addError($message)</code>: 添加一条消息给定制错误消息栈并标记表单无效。
@@ -598,7 +598,7 @@ $messages = $element->getMessages();
             <para>
                 所有用这个方式设置的错误可以被翻译。
             </para>
-        </sect3>                
+        </sect3>
     </sect2>
 
     <sect2 id="zend.form.elements.decorators">
@@ -630,7 +630,7 @@ $messages = $element->getMessages();
             </para></listitem>
 
             <listitem><para>
-                <emphasis>Label</emphasis>: 使用 <code>Zend_View_Helper_FormLabel</code> 预先准备一个标签给元素，并把它封装在一个 &lt;dt&gt; 标签里。如果没有提供标签（Label），就解析定义术语（definition term）标签（tag）。 
+                <emphasis>Label</emphasis>: 使用 <code>Zend_View_Helper_FormLabel</code> 预先准备一个标签给元素，并把它封装在一个 &lt;dt&gt; 标签里。如果没有提供标签（Label），就解析定义术语（definition term）标签（tag）。
             </para></listitem>
         </itemizedlist>
 
@@ -644,7 +644,7 @@ $messages = $element->getMessages();
             <programlisting role="php"><![CDATA[<?php
 $element = new Zend_Form_Element('foo', array('disableLoadDefaultDecorators' => true));
 ]]></programlisting>
-            
+
             <para>
                 该选项可以和企图选项混合，它们都是数组选项或在 <code>Zend_Config</code> 对象里。
             </para>
@@ -664,7 +664,7 @@ $this->addDecorators(array(
 ?>]]></programlisting>
 
         <para>
-            初始内容由 'ViewHelper' 装饰器生成，它生成表单元素自己。接着，'Errors' 装饰器从元素里抓取错误消息。如果有任何错误，就传递给 'FormErrors' 视图助手来解析。下一个装饰器 'HtmlTag' 在一个 HTML &lt;dd&gt; 标签里封装元素和错误。最后，'label' 装饰器读取元素的标签并传递给 'FormLabel' 视图助手，封装在一个 HTML &lt;dt&gt; 标签里。缺省地，数据预先准备给内容，输出结果基本上是这样的： 
+            初始内容由 'ViewHelper' 装饰器生成，它生成表单元素自己。接着，'Errors' 装饰器从元素里抓取错误消息。如果有任何错误，就传递给 'FormErrors' 视图助手来解析。下一个装饰器 'HtmlTag' 在一个 HTML &lt;dd&gt; 标签里封装元素和错误。最后，'label' 装饰器读取元素的标签并传递给 'FormLabel' 视图助手，封装在一个 HTML &lt;dt&gt; 标签里。缺省地，数据预先准备给内容，输出结果基本上是这样的：
         </para>
 
         <programlisting role="html"><![CDATA[
@@ -1078,7 +1078,7 @@ $form->addPrefixPath('My_Element', 'My/Element/', 'element')
 ?>]]></programlisting>
 
         <para>
-            'foo' 元素现在是 <code>My_Element_Text</code> 类型并展示你描画的行为。 
+            'foo' 元素现在是 <code>My_Element_Text</code> 类型并展示你描画的行为。
         </para>
 
         <para>

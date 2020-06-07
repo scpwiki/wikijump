@@ -5,7 +5,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -18,14 +18,14 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version \$Id\$
  * @copyright Copyright (c) 2008, Wikidot Inc.
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
- 
+
 /**
  * Base peer class mapped to the database table <?php echo $this->_tpl_vars['tableName']; ?>
 .
@@ -33,7 +33,7 @@
 class DB_<?php echo $this->_tpl_vars['className']; ?>
 PeerBase extends BaseDBPeer {
 	public static $peerInstance;
-	
+
 	protected function internalInit(){
 		$this->tableName='<?php echo $this->_tpl_vars['tableName']; ?>
 ';
@@ -62,7 +62,7 @@ if ($this->_foreach['columns']['total'] > 0):
 ' => '<?php echo $this->_tpl_vars['val']; ?>
 '<?php if (! ($this->_foreach['columns']['iteration'] == $this->_foreach['columns']['total'])): ?>, <?php endif;  endforeach; endif; unset($_from); ?>);
 	}
-	
+
 	public static function instance(){
 		if(self::$peerInstance == null){
 			$className = "DB_<?php echo $this->_tpl_vars['className']; ?>

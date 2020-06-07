@@ -30,7 +30,7 @@ require_once 'Zend/Wildfire/Plugin/FirePhp/TableMessage.php';
 
 /**
  * Writes DB events as log messages to the Firebug Console via FirePHP.
- * 
+ *
  * @category   Zend
  * @package    Zend_Db
  * @subpackage Profiler
@@ -44,25 +44,25 @@ class Zend_Db_Profiler_Firebug extends Zend_Db_Profiler
      * @var string
      */
     protected $_label = null;
-    
+
     /**
      * The label template for this profiler
      * @var string
      */
     protected $_label_template = '%label% (%totalCount% @ %totalDuration% sec)';
-  
+
     /**
      * The message envelope holding the profiling summary
      * @var Zend_Wildfire_Plugin_FirePhp_TableMessage
      */
     protected $_message = null;
-  
+
     /**
      * The total time taken for all profiled queries.
      * @var float
      */
     protected $_totalElapsedTime = 0;
-  
+
     /**
      * Constructor
      *
@@ -89,7 +89,7 @@ class Zend_Db_Profiler_Firebug extends Zend_Db_Profiler
         parent::setEnabled($enable);
 
         if ($this->getEnabled()) {
-          
+
             if (!$this->_message) {
                 $this->_message = new Zend_Wildfire_Plugin_FirePhp_TableMessage($this->_label);
                 $this->_message->setBuffered(true);
@@ -104,7 +104,7 @@ class Zend_Db_Profiler_Firebug extends Zend_Db_Profiler
                 $this->_message->setDestroy(true);
                 $this->_message = null;
             }
-          
+
         }
 
         return $this;
@@ -120,7 +120,7 @@ class Zend_Db_Profiler_Firebug extends Zend_Db_Profiler
     public function queryEnd($queryId)
     {
         parent::queryEnd($queryId);
-        
+
         if (!$this->getEnabled()) {
             return;
         }
@@ -128,19 +128,19 @@ class Zend_Db_Profiler_Firebug extends Zend_Db_Profiler
         $this->_message->setDestroy(false);
 
         $profile = $this->getQueryProfile($queryId);
-        
+
         $this->_totalElapsedTime += $profile->getElapsedSecs();
-        
+
         $this->_message->addRow(array((string)round($profile->getElapsedSecs(),5),
                                       $profile->getQuery(),
                                       ($params=$profile->getQueryParams())?$params:null));
-                                      
+
         $this->updateMessageLabel();
     }
-    
+
     /**
      * Update the label of the message holding the profile info.
-     * 
+     *
      * @return void
      */
     protected function updateMessageLabel()

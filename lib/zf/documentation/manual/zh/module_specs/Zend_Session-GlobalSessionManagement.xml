@@ -205,7 +205,7 @@ Zend_Session::setOptions($config->toArray());]]>
                 <itemizedlist mark='opencircle'>
                     <listitem>
                         <para>
-                            - 攻击者首先在你的站点上发起一个会话，以获得一个合法的会话标识符   
+                            - 攻击者首先在你的站点上发起一个会话，以获得一个合法的会话标识符
                         </para>
                     </listitem>
                     <listitem>
@@ -215,7 +215,7 @@ Zend_Session::setOptions($config->toArray());]]>
                     </listitem>
                     <listitem>
                         <para>
-                            - 受害者和攻击者来自同一个上网代理（比如他们都处于一个大公司的同一个防火墙后面，像AOL）      
+                            - 受害者和攻击者来自同一个上网代理（比如他们都处于一个大公司的同一个防火墙后面，像AOL）
                         </para>
                     </listitem>
                 </itemizedlist>
@@ -248,7 +248,7 @@ if (!isset($defaultNamespace->initialized)) {
 
         <para>
             通常，用户代理结束时，会话也就结束了，比如当用户退出浏览器。然而，你的应用程序可能通过持久cookies的使用提供扩展用户会话超过客户端程序的生命期的能力。在会话被启动来控制在持久会话cookie过期之前时间的长度之前使用<code>Zend_Session::rememberMe()</code>。如果你没有指定秒数，那么会话cookie的生命期缺省为<code>remember_me_seconds</code>，它可以用<code>Zend_Session::setOptions()</code>来设置。为了帮助阻止会话固定/劫持，当用户成功地通过你的程序的认证，使用这个函数（例如，从一个“登录”表单）。
-        </para>                                                                                                                              
+        </para>
 
     </sect2>
 
@@ -257,7 +257,7 @@ if (!isset($defaultNamespace->initialized)) {
         <title><code>forgetMe()</code></title>
 
         <para>
-            此函数补充了<code>rememberMe()</code>，当用户代理终止时，写入一个有结束生命期的会话cookie。 
+            此函数补充了<code>rememberMe()</code>，当用户代理终止时，写入一个有结束生命期的会话cookie。
         </para>
 
     </sect2>

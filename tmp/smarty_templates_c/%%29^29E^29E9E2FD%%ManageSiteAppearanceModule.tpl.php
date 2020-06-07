@@ -7,11 +7,11 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 <p>
 	Below you can choose a theme for your site. You can select individual theme for each
 	of page categories.
-</p>	
+</p>
 
 <div id="sm-appearance-form-div">
 	<form id="sm-appearance-form">
-		
+
 		<table class="sm-theme-table">
 			<tr>
 				<td>
@@ -30,9 +30,9 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 					<table>
 						<tr>
 							<td style="padding-right: 2em;">
-					
-					
-					
+
+
+
 						<h3><?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Choose a built-in theme<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>:</h3>
 						<select name="theme" id="sm-appearance-theme-id">
 							<?php if (count($_from = (array)$this->_tpl_vars['themes'])):
@@ -91,12 +91,12 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 				</td>
 			</tr>
 		</table>
-		
-	
-		
+
+
+
 		<div id="sm-appearance-theme-preview" style="overflow: hidden;">
 			<h2><?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Theme details<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>:</h2>
-			
+
 			<?php if (count($_from = (array)$this->_tpl_vars['themes'])):
     foreach ($_from as $this->_tpl_vars['theme']):
 ?>

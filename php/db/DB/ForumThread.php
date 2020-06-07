@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot_Db
  * @version $Id$
@@ -34,11 +34,11 @@ use Criteria;
  *
  */
 class ForumThread extends ForumThreadBase {
-	
+
 	private $page;
-	
+
 	public function getUnixifiedTitle(){
-		return WDStringUtils::toUnixName($this->getTitle());	
+		return WDStringUtils::toUnixName($this->getTitle());
 	}
 
 	public function getTitle(){
@@ -49,9 +49,9 @@ class ForumThread extends ForumThreadBase {
 			$page = $this->getPage();
 			return $page->getTitle();
 		}
-				
+
 	}
-	
+
 	public function getPage(){
 		if($this->page){
 			return $this->page;
@@ -59,10 +59,10 @@ class ForumThread extends ForumThreadBase {
 			if($this->getPageId() === null){return null;}
 			$page = PagePeer::instance()->selectByPrimaryKey($this->getPageId());
 			$this->page = $page;
-			return $page;	
-		}	
+			return $page;
+		}
 	}
-	
+
 	public function getUser(){
 		if($this->getUserId() == 0){return null;}
 		if(is_array($this->prefetched)){
@@ -78,23 +78,23 @@ class ForumThread extends ForumThreadBase {
 			}
 		}
 		return OzoneUserPeer::instance()->selectByPrimaryKey($this->getUserId());
-		
+
 	}
-	
+
 	public function getUserOrString(){
 		$user = $this->getUser();
 		if($user == null){
-			return $this->getUserString();	
+			return $this->getUserString();
 		}else{
 			return $user;
 		}
-		
+
 	}
-	
+
 	public function getOzoneUser(){
-		return $this->getUser();	
+		return $this->getUser();
 	}
-	
+
 	public function getLastPost(){
 		if($this->getLastPostId() == null){
 			return;
@@ -102,12 +102,12 @@ class ForumThread extends ForumThreadBase {
 		$c = new Criteria();
 		$c->add("post_id", $this->getLastPostId());
 		$c->addJoin("user_id", "ozone_user.user_id");
-		
+
 		$post = ForumPostPeer::instance()->selectOne($c);
-		return $post;	
+		return $post;
 	}
-	
-	/** 
+
+	/**
 	 * Scans for the last post.
 	 */
 	public function findLastPost(){
@@ -116,26 +116,26 @@ class ForumThread extends ForumThreadBase {
 		$c->addOrderDescending("post_id");
 		$post = ForumPostPeer::instance()->selectOne($c);
 		if($post){
-			$this->setLastPostId($post->getPostId());	
+			$this->setLastPostId($post->getPostId());
 		}
 		return $post;
 	}
-	
+
 	public function calculateNumberPosts(){
 		$c = new Criteria();
 		$c->add("thread_id", $this->getThreadId());
 		$num = ForumPostPeer::instance()->selectCount($c);
 		$this->setNumberPosts($num);
 	}
-	
+
 	public function getCategory(){
 		$categoryId = $this->getCategoryId();
 
 		$category = ForumCategoryPeer::instance()->selectByPrimaryKey($categoryId);
 		return $category;
-			
+
 	}
-	
+
 	public function getForumCategory(){
 		if(is_array($this->prefetched)){
 			if(in_array('forum_category', $this->prefetched)){
@@ -151,23 +151,23 @@ class ForumThread extends ForumThreadBase {
 		}
 		return ForumCategoryPeer::instance()->selectByPrimaryKey($this->getCategoryId());
 	}
-	
+
 	public function getFirstPost(){
 		$c = new Criteria();
 		$c->add("thread_id", $this->getThreadId());
 		$c->addOrderAscending("post_id");
 		$post = ForumPostPeer::instance()->selectOne($c);
-		return $post;	
+		return $post;
 	}
-	
+
 	public function getSite(){
-		return SitePeer::instance()->selectByPrimaryKey($this->getSiteId());	
+		return SitePeer::instance()->selectByPrimaryKey($this->getSiteId());
 	}
-/*	
+/*
 	public function save(){
 		$o = new Outdater();
 		$o->forumEvent("thread_save", $this);
-		parent::save();	
+		parent::save();
 	}
-*/	
+*/
 }

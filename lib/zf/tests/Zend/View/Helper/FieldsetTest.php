@@ -14,7 +14,7 @@ require_once 'Zend/View.php';
 /**
  * Test class for Zend_View_Helper_Fieldset
  */
-class Zend_View_Helper_FieldsetTest extends PHPUnit_Framework_TestCase 
+class Zend_View_Helper_FieldsetTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.

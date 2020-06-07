@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot_Db
  * @version $Id$
@@ -34,10 +34,10 @@ class OpenidEntry extends OpenidEntryBase {
 
 	public function getPageUnixName(){
 		if($this->getPageId()){
-			return PagePeer::instance()->selectByPrimaryKey($this->getPageId())->getUnixName();	
+			return PagePeer::instance()->selectByPrimaryKey($this->getPageId())->getUnixName();
 		}else{
 			return null;
-		}	
+		}
 	}
 
 }

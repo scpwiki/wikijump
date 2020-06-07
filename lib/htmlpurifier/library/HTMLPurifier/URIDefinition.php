@@ -32,7 +32,7 @@ HTMLPurifier_ConfigSchema::define(
 HTMLPurifier_ConfigSchema::define(
     'URI', 'DefaultScheme', 'http', 'string', '
 <p>
-    Defines through what scheme the output will be served, in order to 
+    Defines through what scheme the output will be served, in order to
     select the proper object validator when no scheme information is present.
 </p>
 ');
@@ -40,13 +40,13 @@ HTMLPurifier_ConfigSchema::define(
 HTMLPurifier_ConfigSchema::define(
     'URI', 'Host', null, 'string/null', '
 <p>
-    Defines the domain name of the server, so we can determine whether or 
-    an absolute URI is from your website or not.  Not strictly necessary, 
-    as users should be using relative URIs to reference resources on your 
-    website.  It will, however, let you use absolute URIs to link to 
-    subdomains of the domain you post here: i.e. example.com will allow 
-    sub.example.com.  However, higher up domains will still be excluded: 
-    if you set %URI.Host to sub.example.com, example.com will be blocked. 
+    Defines the domain name of the server, so we can determine whether or
+    an absolute URI is from your website or not.  Not strictly necessary,
+    as users should be using relative URIs to reference resources on your
+    website.  It will, however, let you use absolute URIs to link to
+    subdomains of the domain you post here: i.e. example.com will allow
+    sub.example.com.  However, higher up domains will still be excluded:
+    if you set %URI.Host to sub.example.com, example.com will be blocked.
     <strong>Note:</strong> This directive overrides %URI.Base because
     a given page may be on a sub-domain, but you wish HTML Purifier to be
     more relaxed and allow some of the parent domains too.
@@ -61,7 +61,7 @@ HTMLPurifier_ConfigSchema::define(
     inserted into.  This information is important if HTML Purifier needs
     to calculate absolute URIs from relative URIs, such as when %URI.MakeAbsolute
     is on.  You may use a non-absolute URI for this value, but behavior
-    may vary (%URI.MakeAbsolute deals nicely with both absolute and 
+    may vary (%URI.MakeAbsolute deals nicely with both absolute and
     relative paths, but forwards-compatibility is not guaranteed).
     <strong>Warning:</strong> If set, the scheme on this URI
     overrides the one specified by %URI.DefaultScheme. This directive has
@@ -71,47 +71,47 @@ HTMLPurifier_ConfigSchema::define(
 
 class HTMLPurifier_URIDefinition extends HTMLPurifier_Definition
 {
-    
+
     public $type = 'URI';
     protected $filters = array();
     protected $registeredFilters = array();
-    
+
     /**
      * HTMLPurifier_URI object of the base specified at %URI.Base
      */
     public $base;
-    
+
     /**
      * String host to consider "home" base, derived off of $base
      */
     public $host;
-    
+
     /**
      * Name of default scheme based on %URI.DefaultScheme and %URI.Base
      */
     public $defaultScheme;
-    
+
     public function __construct() {
         $this->registerFilter(new HTMLPurifier_URIFilter_DisableExternal());
         $this->registerFilter(new HTMLPurifier_URIFilter_DisableExternalResources());
         $this->registerFilter(new HTMLPurifier_URIFilter_HostBlacklist());
         $this->registerFilter(new HTMLPurifier_URIFilter_MakeAbsolute());
     }
-    
+
     public function registerFilter($filter) {
         $this->registeredFilters[$filter->name] = $filter;
     }
-    
+
     public function addFilter($filter, $config) {
         $filter->prepare($config);
         $this->filters[$filter->name] = $filter;
     }
-    
+
     protected function doSetup($config) {
         $this->setupMemberVariables($config);
         $this->setupFilters($config);
     }
-    
+
     protected function setupFilters($config) {
         foreach ($this->registeredFilters as $name => $filter) {
             $conf = $config->get('URI', $name);
@@ -121,7 +121,7 @@ class HTMLPurifier_URIDefinition extends HTMLPurifier_Definition
         }
         unset($this->registeredFilters);
     }
-    
+
     protected function setupMemberVariables($config) {
         $this->host = $config->get('URI', 'Host');
         $base_uri = $config->get('URI', 'Base');
@@ -133,7 +133,7 @@ class HTMLPurifier_URIDefinition extends HTMLPurifier_Definition
         }
         if (is_null($this->defaultScheme)) $this->defaultScheme = $config->get('URI', 'DefaultScheme');
     }
-    
+
     public function filter(&$uri, $config, $context) {
         foreach ($this->filters as $name => $x) {
             $result = $this->filters[$name]->filter($uri, $config, $context);
@@ -141,5 +141,5 @@ class HTMLPurifier_URIDefinition extends HTMLPurifier_Definition
         }
         return true;
     }
-    
+
 }

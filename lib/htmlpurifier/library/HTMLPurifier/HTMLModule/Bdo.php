@@ -9,12 +9,12 @@ require_once 'HTMLPurifier/AttrTransform/BdoDir.php';
  */
 class HTMLPurifier_HTMLModule_Bdo extends HTMLPurifier_HTMLModule
 {
-    
+
     public $name = 'Bdo';
     public $attr_collections = array(
         'I18N' => array('dir' => false)
     );
-    
+
     public function __construct() {
         $bdo =& $this->addElement(
             'bdo', true, 'Inline', 'Inline', array('Core', 'Lang'),
@@ -25,9 +25,9 @@ class HTMLPurifier_HTMLModule_Bdo extends HTMLPurifier_HTMLModule
             )
         );
         $bdo->attr_transform_post['required-dir'] = new HTMLPurifier_AttrTransform_BdoDir();
-        
+
         $this->attr_collections['I18N']['dir'] = 'Enum#ltr,rtl';
     }
-    
+
 }
 

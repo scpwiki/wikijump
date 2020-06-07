@@ -44,7 +44,7 @@ class Zend_Gdata_Docs_QueryTest extends PHPUnit_Framework_TestCase
         $this->docQuery->setTitle(null);
         $this->assertTrue($this->docQuery->getTitle() == null);
     }
-    
+
     public function testTitleExact()
     {
         $this->assertTrue($this->docQuery->getTitleExact() == null);
@@ -54,14 +54,14 @@ class Zend_Gdata_Docs_QueryTest extends PHPUnit_Framework_TestCase
         $this->docQuery->setTitleExact(null);
         $this->assertTrue($this->docQuery->getTitleExact() == null);
     }
-    
+
     public function testProjection()
     {
         $this->assertTrue($this->docQuery->getProjection() == 'full');
         $this->docQuery->setProjection('abc');
         $this->assertTrue($this->docQuery->getProjection() == 'abc');
     }
-    
+
     public function testVisibility()
     {
         $this->assertTrue($this->docQuery->getVisibility() == 'private');

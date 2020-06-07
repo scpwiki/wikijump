@@ -119,17 +119,17 @@
 }
 
 .answerInput {
-	width:100%; 
-	height: 100%; 
-	font-size: 72pt; 
-	border: 0px; 
-	color: #FFF; 
+	width:100%;
+	height: 100%;
+	font-size: 72pt;
+	border: 0px;
+	color: #FFF;
 	text-align: right;
 	outline:0;
 }
 
 .answerWrap {
-	margin: 0px; 
+	margin: 0px;
 	padding:0px;
 }
 

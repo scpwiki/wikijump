@@ -10,35 +10,35 @@ $patterns = array(
 	'digg' => ';^<script language="JavaScript" src="http://digg.com/diggjs/[^"]*" type="text/javascript"></script>$;s',
 	// digg this
 	'digg_this' => ';^<script>\s*digg_url\s*=\s*[\'"][^\'"]+[\'"]\;\s*</script>\s*<script src="http://digg.com/api/diggthis.js">\s*</script>\s*$;s',
-	
+
 	//'statcounter' => ';^(<!\-\- Start of StatCounter Code \-\->\s*)?<script type="text/javascript" language="javascript">\s*<!\-\-\s*[^<]+</script>\s*<script type="text/javascript" language="javascript"\s*src="https://secure.statcounter.com/counter/counter.js"></script><noscript><a\s*href="http://www.statcounter.com/" target="_blank"><img[^>]*</a>\s*</noscript>\s*(<!\-\- End of StatCounter Code \-\->)?$;si'
 	'statcounter' => ';^(<!\-\- Start of StatCounter Code \-\->\s*)?<script type="text/javascript"( language="javascript")?>\s*(<!\-\-)?\s*(\s*var sc_[a-z0-9_ =",]+ *\;)*\s*(//\-\->)?\s*</script>\s*<script type="text/javascript"( language="javascript")?\s*src="https?://(secure|www)\.statcounter\.com/[^"]+"></script>\s*<noscript>(<div class="statcounter">)?(<a\s+(class="statcounter")?\s*href="http://www\.statcounter\.com/"( target="_blank")?>)?<img[^>]*>(</a>)?\s*(</div>)?\s*</noscript>\s*(<!\-\- End of StatCounter Code \-\->)?(\s*<br/?>\s*<a href="http://[a-z0-9]+\.statcounter\.com/project/standard/stats\.php[^"]+">[^<]*</a>)?$;si'
 	,'statcounter_html' => ';^(<!\-\- Start of StatCounter Code \-\->\s*)?\s*(<a\s+href="http://www\.statcounter\.com/" target="_blank">)?<img[^>]*>(</a>)?\s*(<!\-\- End of StatCounter Code \-\->)?(\s*<br/?>\s*<a href="http://[a-z0-9]+\.statcounter\.com/project/standard/stats\.php[^"]+">[^<]*</a>)?$;si',
-	
+
 	//feedblitz - subscribe
 	'fb' => ';^<form Method="POST" action="http://www\.feedblitz\.com/f/[^"]*">\s*[^<]*(<br/?>)?<input name="EMAIL" maxlength="255" type="text" size="30" value="">(<br/?>)?\s*<input name="FEEDID"[^>]*>\s*<input type="submit" value="[^"]*">\s*(<br>(<a href="http://www\.feedblitz\.com/f\?preview[^"]+">Preview</a> \| )?Powered by <a href="http://www\.feedblitz\.com">FeedBlitz</a>)?</form>$;s',
-	
+
 	'fb2' => ';^<a href="http://www\.feedblitz\.com/f/[^"]*">\s*<img title="[^"]*" border="0" src="http://www.feedblitz.com/i[^"]*"></a>$;',
-	
+
 	//'fb3' => ';^<form Method="POST" action="http://www\.feedblitz\.com/f/[^"]+">[^<]*(<br/)?<input name="EMAIL" maxlength="255" type="text" size="30" value=""><br><input name="FEEDID" type="hidden" value="95900"><input type="submit" value="Subscribe me!"><br><a href="http://www.feedblitz.com/f?previewfeed=95900">Preview</a> | Powered by <a href="http://www.feedblitz.com">FeedBlitz</a></form>$;si',
 	//wikimapia
 	'wikimapia' => ';^<iframe src="?http://wikimapia\.org/s/[^>]+></iframe>$;s',
-	
+
 	//quimble poll
 	'quimble' => ';^<script type=[\'"]text/javascript[\'"] src=[\'"]http://quimble\.com/inpage/index/[0-9]+[\'"]></script>$;s',
-	
+
 	//'babelfish' => ';^<script\s+type="text/javascript"\s+(language="JavaScript1\.2"\s+)?src="http://www\.altavista\.com/help/free/inc_translate"></script>\s*<noscript><a href="http://www\.altavista\.com/babelfish/tr"></noscript>$;s',
-	
+
 	//'babelfish2' => ';^<script language="JavaScript1.2" src="http://www.altavista.com/static/scripts/translate_[^"]+.js"></script>$;',
-	
+
 	'ybabelfish' => ';^<script\s+type="text/javascript"\s+charset="UTF\-8"\s+(language="JavaScript1\.2"\s+)?src="http://[^\.]+\.babelfish\.yahoo\.com/free_trans_service/babelfish2\.js\?from_lang=([^"&]*?)&region=us"></script>$;s',
-	
+
 	'ybabelfish2' => ';^<script\s+type="text/javascript"\s+charset="UTF\-8"\s+(language="JavaScript1\.2"\s+)?src="http://babelfish\.yahoo\.com/free_trans_service/babelfish1\.js"></script>\s*<noscript><a href="http://babelfish\.yahoo\.com">[^<]+</a></noscript>$;s',
-	
+
 	'quickmaps' => ';^<iframe\s+src="http://quikmaps\.com/[^"]+"\s+[^>]*></iframe>$;s',
-	
+
 	'googlecalendar' => ';^<iframe src="http://www\.google\.com/calendar/embed[^"]+"\s+style="[^"]*"[^>]*>\s*</iframe>$;s',
-	
+
 	'zohosheet' => ';^<iframe src=(\'|")http://(www\.zohosheet|sheet\.zoho)\.com/[^\'"]+(\'|") frameborder=(\'|")[0-9]+(\'|") style=(\'|")height:[0-9]+px\;\s*width:[0-9]+px(\'|") scrolling=(\'|")?no(\'|")?>\s*</iframe>$;s',
 	'zohosheer-range' => ';^<iframe src=(\'|")http://(www\.zohosheet|sheet\.zoho)\.com/[^\'"]+(\'|") frameborder=(\'|")[0-9]+(\'|") style=(\'|")height:[0-9]+px\;\s*width:[0-9]+px(\'|") marginwidth=(\'|")0(\'|") marginheight=(\'|")0(\'|") scrolling=(\'|")auto(\'|")>\s*</iframe>$;s',
 	'zohowriter' => ';^<script src="http://(www\.zohowriter|writer\.zoho)\.com/public/[^"]+"></script>$;si',
@@ -47,14 +47,14 @@ $patterns = array(
 	'zoho-generic' =>';<iframe\s+(frameborder=(\'|")0(\'|")\s*)?\s*src=(\'|")http://[a-z0-9]+\.zoho\.com/[^\'"]+(\'|") width=(\'|")[0-9]+(\'|") height=(\'|")[0-9]+(\'|")></iframe>$;si',
 	'editgrid' => ';^<div style="[^"]+">\s*<a style="[^"]+" href="http://www\.editgrid\.com/[^"]+" target="_blank">EditGrid Spreadsheet</a> by <a style="[^"]+" href="http://www\.editgrid\.com/[^"]*" target="_blank">[^<>]*</a>\.?</div>\s*((<iframe frameborder="0" src="http://www.editgrid.com/publish/[^"]+" style="[^"]*">(&nbsp\;)?</iframe>)|(<script type="text/javascript" src="http://www\.editgrid\.com/[^"]*">(&nbsp\;)?</script>))$;s',
 	'photobucketwidget' => ';<embed type="application/x-shockwave-flash" wmode="transparent" src="http://[a-z0-9]+.photobucket.com/pbwidget.swf\?[^"]+" height="[0-9]+" width="[0-9]+"></embed>$;',
-	
+
 	'picassa' => ';^<div\s+style="[^"]+"><div style="[^"]*"><a href="http://picasaweb\.google\.com/[^"]+"><img src="http://[a-z0-9]+\.google\.com/[^"]*" width="[0-9]+" height="[0-9]+" style="[^"]+"></a></div><a href="http://picasaweb\.google\.com/[^"]*"><div style="[^"]+">[^<]+</div></a><div style="[^"]*"></div></div>$;si',
 	'meebowidget' => ';^(<!\-\-[^\-]+\-\->)?\s*<embed src="http://widget\.meebo\.com/mm.swf?[^"]+" type="application/x-shockwave-flash" wmode="transparent" width="[0-9]+" height="[0-9]+"></embed>$;si',
 	'gabbly-chat' => ';^<iframe src=(\'|")http://cw\.gabbly\.com/gabbly/[^\'"]+(\'|") scrolling=(\'|")no(\'|") style=(\'|")[^\'"]*(\'|") frameborder=(\'|")0(\'|")></iframe>$;si',
 	'labpixies' => ';^<script\s+type="text/javascript"\s+src="http://www\.labpixies\.com/lib/lp_gadget_syndication.php[^"]+">\s*</script>$;s',
 	'instacalc' => ';^<script>\s*instacalc_embed_url = (\'|")http://instacalc\.com/[^"]+(\'|")\;\s+instacalc_embed_height = [0-9]+\;\s*</script>\s*<script src="http://instacalc\.com/javascripts/embed\.js">\s*</script>$;s',
 	'googlegadgets' => ';^<script src="http://(www\.)?gmodules\.com/ig/ifr\?[^"]*">\s*</script>$;s',
-	
+
 	'feedburnercount' => ';^<a\s*href="http://feeds\.feedburner\.com/[^"]+">\s*<img\s*src="http://feeds.feedburner.com/[^"]+[^>]+/>\s*</a>$;s',
 	'feedburneremail' => '!^<form\s+style="[^"]+"\s+action="http://www\.feedburner\.com/fb/a/emailverify"\s+method="post"\s+target="popupwindow"\s+onsubmit="window.open\(\'http://www\.feedburner\.com\'[^\)]+\);return true"><p>[^<]+</p><p><input type="text" style="width:140px" name="email"/></p><input type="hidden" value="http://feeds\.feedburner\.com/[^"]+" name="url"/><input type="hidden" value="[^"]+" name="title"/><input type="submit" value="[^"]+"\s*/>(<p>Delivered by <a href="http://www.feedburner.com/" target="_blank">FeedBurner</a></p>)?\s*</form>$!s',
 	'snap' =>  ';^<script\s+defer\s+id="snap_preview_anywhere"\s+type="text/javascript"\s+src="http://spa\.snap\.com/snap_preview_anywhere\.js[^"]+">\s*</script>$;si',
@@ -90,7 +90,7 @@ $patterns = array(
 	'teachertube' => ';^<embed src="http://www\.teachertube\.com/[a-z0-9\-/]+/mediaplayer\.swf" width="425" height="350" type="application/x-shockwave-flash" allowfullscreen="true"\s+(menu="false")?\s+flashvars="height=350&width=425&file=http://www\.teachertube\.com/flvideo/[a-z0-9]+\.flv&image=http://www\.teachertube\.com/thumb/[a-z0-9]+\.jpg&location=http://www\.teachertube\.com/[a-z0-9\-/]+/mediaplayer\.swf&logo=http://www\.teachertube\.com/images/greylogo\.swf&searchlink=http://teachertube\.com/search_result\.php%3Fsearch_id%3D&frontcolor=0xffffff&backcolor=0x000000&lightcolor=0xFF0000&screencolor=0xffffff&autostart=false&volume=80&overstretch=fit&link=http://www\.teachertube\.com/view_video.php\?viewkey=[a-z0-9]+&linkfromdisplay=true&recommendations=http://www\.teachertube\.com/embedplaylist\.php\?chid=[0-9]+"></embed>$;si',
 	'slideBoom' => ';^<object classid="clsid:d27cdb6e\-ae6d\-11cf\-96b8\-444553540000" codebase="http://fpdownload\.macromedia\.com/pub/shockwave/cabs/flash/swflash\.cab[^"]*" width="[0-9]+" height="[0-9]+" id="onlinePlayer"><param name="allowScriptAccess" value="always" /><param name="movie" value="http://www\.slideboom\.com/player/player\.swf\?id_resource=[0-9]+" /><param name="quality" value="high" /><param name="bgcolor" value="#ffffff" /><param name="flashVars" value="mode=[0-9]+&idResource=[0-9]+&siteUrl=http://www\.slideboom\.com&embed=[0-9]+" /><param name="allowFullScreen" value="true" /><embed src="http://www\.slideboom\.com/player/player\.swf\?id_resource=[0-9]+" quality="high" bgcolor="#ffffff" width="[0-9]+" height="[0-9]+" name="onlinePlayer" allowScriptAccess="always" type="application/x-shockwave-flash" pluginspage="http://www\.macromedia\.com/go/getflashplayer" allowFullScreen="true" flashVars="mode=[0-9]+&idResource=[0-9]+&siteUrl=http://www\.slideboom\.com&embed=[0-9]+"></embed></object>$;si',
 	'voicethread' => ';^<object width="[0-9]+" height="[0-9]+"><param name="movie" value="http://voicethread\.com/book.swf\?b=[0-9]+"></param><param name="wmode" value="transparent"></param><embed src="http://voicethread\.com/book\.swf\?b=[0-9]+" type="application/x-shockwave-flash" wmode="transparent" width="[0-9]+" height="[0-9]+"></embed></object><img style="visibility:hidden\;width:0px\;height:0px\;" border=0 width=0 height=0 src="http://counters\.gigya\.com/wildfire/[^"]+" />$;si',
-	'alexa' => '|^<!\-\- Alexa Graph Widget from http://www\.alexa\.com/site/site_stats/signup \-\->\s*<script type="text/javascript"\s+src="http://widgets\.alexa\.com/traffic/javascript/graph\.js"></script>\s*<script type="text/javascript">/\*\s*<!\[CDATA\[\*/\s*// USER\-EDITABLE VARIABLES\s*// enter up to 3 domains, separated by a space\s*var sites\s*= \[\'[^\']+\'\];\s*var opts = {\s*width:\s*[0-9]+,  // width in pixels \(max 400\)\s+height:\s*[0-9]+,  // height in pixels \(max 300\)\s+type:\s*\'[a-z]\',  // "r" Reach, "n" Rank, "p" Page Views\s+range:\s*\'[^\']+\', // "7d", "1m", "3m", "6m", "1y", "3y", "5y", "max"\s+bgcolor:\s*\'[a-z0-9]+\' // hex value without "#" char \(usually "e6f3fc"\)\s*};\s*// END USER\-EDITABLE VARIABLES\s+AGraphManager\.add\( new AGraph\(sites, opts\) \);\s+//\]\]></script>\s*<!-- end Alexa Graph Widget -->$|si',	
+	'alexa' => '|^<!\-\- Alexa Graph Widget from http://www\.alexa\.com/site/site_stats/signup \-\->\s*<script type="text/javascript"\s+src="http://widgets\.alexa\.com/traffic/javascript/graph\.js"></script>\s*<script type="text/javascript">/\*\s*<!\[CDATA\[\*/\s*// USER\-EDITABLE VARIABLES\s*// enter up to 3 domains, separated by a space\s*var sites\s*= \[\'[^\']+\'\];\s*var opts = {\s*width:\s*[0-9]+,  // width in pixels \(max 400\)\s+height:\s*[0-9]+,  // height in pixels \(max 300\)\s+type:\s*\'[a-z]\',  // "r" Reach, "n" Rank, "p" Page Views\s+range:\s*\'[^\']+\', // "7d", "1m", "3m", "6m", "1y", "3y", "5y", "max"\s+bgcolor:\s*\'[a-z0-9]+\' // hex value without "#" char \(usually "e6f3fc"\)\s*};\s*// END USER\-EDITABLE VARIABLES\s+AGraphManager\.add\( new AGraph\(sites, opts\) \);\s+//\]\]></script>\s*<!-- end Alexa Graph Widget -->$|si',
 	'dailymotion2'		=> ';^\<div\>\<object\s+width\="[0-9]+"\s+height\="[0-9]+"\>\<param\s+name\="movie"\s+value\="http\://www\.dailymotion\.com/swf/[^">]+"\>\</param\>\<param\s+name\="allowFullScreen"\s+value\="true"\>\</param\>\<param\s+name\="allowScriptAccess"\s+value\="always"\>\</param\>\<embed\s+src\="http\://www\.dailymotion\.com/swf/[^">]+"\s+type\="application/x-shockwave-flash"\s+width\="[0-9]+"\s+height\="[0-9]+"\s+allowFullScreen\="true"\s+allowScriptAccess\="always"\>\</embed\>\</object\>\<br\s+/\>\<b\>\<a\s+href\="http\://www\.dailymotion\.com/video/[^">]+"\>[^<>]+\</a\>\</b\>\<br\s+/\>\<i\>[^<>]+\<a\s+href\="http\://www\.dailymotion\.com/[^">]+"\>[^<>]+\</a\>\</i\>\</div\>$;si',
 	'reflection.js'		=> ';^\<script\s+type\="text/javascript"\s+src\="https?\://static\.wikidot\.com/common--misc/reflection\.js"\>\</script\>$;si',
 	'blip.tv'			=> ';^\<embed\s+src\="http\://blip\.tv/play/[^">]+"\s+type\="application/x-shockwave-flash"\s+width\="[0-9]+"\s+height\="[0-9]+"\s+allowscriptaccess\="always"\s+allowfullscreen\="true"\>\</embed\>$;si',

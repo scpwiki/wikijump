@@ -1,6 +1,6 @@
 <sect1 id="zend.mail.multiple-emails">
     <title>Invio multiplo di e-mail da una singola connessione SMTP</title>
-    
+
     <para>
         Per impostazione predefinita, un singolo transport SMTP crea una singola connessione e la riutilizza per tutto il ciclo di esecuzione dello script.
         E' possibile inviare più e-mail sfruttando questa connessione SMTP. Un comando RSET è inviato prima di ogni consegna per verificare il corretto funzionamento della trasmissione SMTP.
@@ -27,7 +27,7 @@ for ($i = 0; $i > 5; $i++) {
 }]]>
         </programlisting>
     </example>
-    
+
     <para>
         Se si desidera utilizzare una connessione separata per ogni invio, è necessario creare e distruggere il transport prima e dopo ogni chiamata al metodo <function>send()</function>.
         In alternativa, è possibile manipolare la connessione tra ogni invio accedendo all'oggetto che rappresenta il protocollo di trasmissione.

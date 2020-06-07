@@ -19,7 +19,7 @@
  * @link       http://pear.php.net/package/Text_Wiki
  */
 class Text_Wiki_Render_Xhtml_Footnoteblock extends Text_Wiki_Render {
-    
+
     public $conf = array();
 
     /**
@@ -34,7 +34,7 @@ class Text_Wiki_Render_Xhtml_Footnoteblock extends Text_Wiki_Render {
      * @return string The text rendered from the token options.
      *
      */
-    
+
     function token($options) {
         $footnotes = $this->wiki->vars['footnotes'];
         if (count($footnotes) == 0) {
@@ -64,7 +64,7 @@ class Text_Wiki_Render_Xhtml_Footnoteblock extends Text_Wiki_Render {
     			$out .= '<a href="javascript:;" ' .
     					'onclick="WIKIDOT.page.utils.scrollToReference(\'footnoteref-'.$id.'\')">'.$id . '</a>. ' .
     							'<span class="content">'.$content.'</span>';
-    			$out .= '</div>'; 	
+    			$out .= '</div>';
     		}
     		$out .= '</div>';
         return $out;

@@ -2,13 +2,13 @@
   label: 'name',
   items: [
 	{ name:'Africa', type:'continent', children:[
-		{ name:'Egypt', type:'country' }, 
+		{ name:'Egypt', type:'country' },
 		{ name:'Kenya', type:'country', children:[
 			{ name:'Nairobi', type:'city' },
 			{ name:'Mombasa', type:'city' } ]
 		},
 		{ name:'Sudan', type:'country', children:
-			{ name:'Khartoum', type:'city' } 
+			{ name:'Khartoum', type:'city' }
 		} ]
 	},
 	{ name:'Asia', type:'continent', children:[

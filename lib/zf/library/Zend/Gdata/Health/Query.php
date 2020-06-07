@@ -100,7 +100,7 @@ class Zend_Gdata_Health_Query extends Zend_Gdata_Query
      */
     public function setCategory($item, $name = null)
     {
-        $this->_category = $item . 
+        $this->_category = $item .
             ($name ? '/' . urlencode('{' . self::ITEM_CATEGORY_NS . '}' . $name) : null);
         return $this;
     }
@@ -132,7 +132,7 @@ class Zend_Gdata_Health_Query extends Zend_Gdata_Query
     /**
      * Returns the value set for the grouped parameter.
      *
-     * @return string grouped parameter.  
+     * @return string grouped parameter.
      */
     public function getGrouped()
     {
@@ -142,11 +142,11 @@ class Zend_Gdata_Health_Query extends Zend_Gdata_Query
             return null;
         }
     }
-    
+
     /**
      * Setter for the max-results-group parameter.
      *
-     * @param int $value Specifies the maximum number of groups to be 
+     * @param int $value Specifies the maximum number of groups to be
      *     retrieved. Must be an integer value greater than zero. This parameter
      *     is only valid if grouped=true.
      * @return Zend_Gdata_Health_Query Provides a fluent interface
@@ -158,7 +158,7 @@ class Zend_Gdata_Health_Query extends Zend_Gdata_Query
                 require_once 'Zend/Gdata/App/InvalidArgumentException.php';
                 throw new Zend_Gdata_App_InvalidArgumentException(
                     'The max-results-group parameter must be set to a value
-                    greater than 0 and can only be used if grouped=true'); 
+                    greater than 0 and can only be used if grouped=true');
             } else {
               $this->_params['max-results-group'] = $value;
             }
@@ -169,7 +169,7 @@ class Zend_Gdata_Health_Query extends Zend_Gdata_Query
     /**
      *  Returns the value set for max-results-group.
      *
-     * @return int Returns max-results-group parameter.  
+     * @return int Returns max-results-group parameter.
      */
     public function getMaxResultsGroup()
     {
@@ -183,9 +183,9 @@ class Zend_Gdata_Health_Query extends Zend_Gdata_Query
     /**
      *  Setter for the max-results-group parameter.
      *
-     * @param int $value Specifies the maximum number of records to be 
-     *     retrieved from each group.  The limits that you specify with this 
-     *     parameter apply to all groups. Must be an integer value greater than 
+     * @param int $value Specifies the maximum number of records to be
+     *     retrieved from each group.  The limits that you specify with this
+     *     parameter apply to all groups. Must be an integer value greater than
      *     zero. This parameter is only valid if grouped=true.
      * @return Zend_Gdata_Health_Query Provides a fluent interface
      */
@@ -194,8 +194,8 @@ class Zend_Gdata_Health_Query extends Zend_Gdata_Query
         if ($value !== null) {
             if ($value <= 0 || $this->getGrouped() !== 'true') {
               throw new Zend_Gdata_App_InvalidArgumentException(
-                  'The max-results-in-group parameter must be set to a value 
-                  greater than 0 and can only be used if grouped=true'); 
+                  'The max-results-in-group parameter must be set to a value
+                  greater than 0 and can only be used if grouped=true');
             } else {
               $this->_params['max-results-in-group'] = $value;
             }
@@ -206,7 +206,7 @@ class Zend_Gdata_Health_Query extends Zend_Gdata_Query
     /**
      *  Returns the value set for max-results-in-group.
      *
-     * @return int Returns max-results-in-group parameter.  
+     * @return int Returns max-results-in-group parameter.
      */
     public function getMaxResultsInGroup()
     {
@@ -220,9 +220,9 @@ class Zend_Gdata_Health_Query extends Zend_Gdata_Query
     /**
      * Setter for the start-index-group parameter.
      *
-     * @param int $value Retrieves only items whose group ranking is at 
+     * @param int $value Retrieves only items whose group ranking is at
      *     least start-index-group. This should be set to a 1-based index of the
-     *     first group to be retrieved. The range is applied per category. 
+     *     first group to be retrieved. The range is applied per category.
      *     This parameter is only valid if grouped=true.
      * @return Zend_Gdata_Health_Query Provides a fluent interface
      */
@@ -230,7 +230,7 @@ class Zend_Gdata_Health_Query extends Zend_Gdata_Query
     {
         if ($value !== null && $this->getGrouped() !== 'true') {
             throw new Zend_Gdata_App_InvalidArgumentException(
-                'The start-index-group can only be used if grouped=true'); 
+                'The start-index-group can only be used if grouped=true');
         } else {
           $this->_params['start-index-group'] = $value;
         }
@@ -240,7 +240,7 @@ class Zend_Gdata_Health_Query extends Zend_Gdata_Query
     /**
      *  Returns the value set for start-index-group.
      *
-     * @return int Returns start-index-group parameter.  
+     * @return int Returns start-index-group parameter.
      */
     public function getStartIndexGroup()
     {
@@ -254,7 +254,7 @@ class Zend_Gdata_Health_Query extends Zend_Gdata_Query
     /**
      *  Setter for the start-index-in-group parameter.
      *
-     * @param int $value  A 1-based index of the records to be retrieved from 
+     * @param int $value  A 1-based index of the records to be retrieved from
      *     each group. This parameter is only valid if grouped=true.
      * @return Zend_Gdata_Health_Query Provides a fluent interface
      */
@@ -271,7 +271,7 @@ class Zend_Gdata_Health_Query extends Zend_Gdata_Query
     /**
      * Returns the value set for start-index-in-group.
      *
-     * @return int Returns start-index-in-group parameter.  
+     * @return int Returns start-index-in-group parameter.
      */
     public function getStartIndexInGroup()
     {

@@ -53,7 +53,7 @@
         <programlisting role="php"><![CDATA[
 
 <?= $this->partial('partial.phtml', array(
-    'from' => 'Team Framework', 
+    'from' => 'Team Framework',
     'subject' => 'view partials')); ?>
 ]]>
         </programlisting>

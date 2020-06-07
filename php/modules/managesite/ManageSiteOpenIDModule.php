@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -32,8 +32,8 @@ class ManageSiteOpenIDModule extends ManageSiteBaseModule {
 		$site = $runData->getTemp("site");
 		$settings = $site->getSettings();
 
-		$runData->contextAdd("siteDomain", $site->getDomain()); 
-		
+		$runData->contextAdd("siteDomain", $site->getDomain());
+
 		$openIdServices = array(
 			array(	'pattern' => '^[a-z0-9\.\-]+\.myopenid\.com\/?$',
 					'server' => 'http://www.myopenid.com/server'),
@@ -50,29 +50,29 @@ class ManageSiteOpenIDModule extends ManageSiteBaseModule {
 					array(	'pattern' => '^myid\.pl\/id\/',
 					'server' => 'http://myid.pl/auth')
 		);
-		
+
 		$json = new JSONService();
 		$os = $json->encode($openIdServices);
-		
+
 		$runData->contextAdd("openIdServices", $os);
-		
+
 		// current settings
 		$runData->contextAdd("enabled", $settings->getOpenidEnabled());
-		
+
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
 		$c->add("page_id", null);
 		$ooroot = OpenidEntryPeer::instance()->selectOne($c);
-		
+
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
 		$c->add("page_id", null, "!=");
 		$oos = OpenidEntryPeer::instance()->select($c);
-		
+
 		$runData->contextAdd("openIdRoot", $ooroot);
-		
+
 		$runData->contextAdd("openIds", $oos);
-		
+
 	}
-	
+
 }

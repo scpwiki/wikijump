@@ -47,11 +47,11 @@ HTMLPurifier_ConfigSchema::define(
  * This filter extracts <style> blocks from input HTML, cleans them up
  * using CSSTidy, and then places them in $purifier->context->get('StyleBlocks')
  * so they can be used elsewhere in the document.
- * 
+ *
  * @note
  *      See tests/HTMLPurifier/Filter/ExtractStyleBlocksTest.php for
  *      sample usage.
- * 
+ *
  * @note
  *      This filter can also be used on stylesheets not included in the
  *      document--something purists would probably prefer. Just directly
@@ -59,11 +59,11 @@ HTMLPurifier_ConfigSchema::define(
  */
 class HTMLPurifier_Filter_ExtractStyleBlocks extends HTMLPurifier_Filter
 {
-    
+
     public $name = 'ExtractStyleBlocks';
     private $_styleMatches = array();
     private $_tidy;
-    
+
     /**
      * @param $tidy
      *      Instance of csstidy to use, false to turn off cleaning,
@@ -73,7 +73,7 @@ class HTMLPurifier_Filter_ExtractStyleBlocks extends HTMLPurifier_Filter
         if ($tidy === null) $tidy = new csstidy();
         $this->_tidy = $tidy;
     }
-    
+
     /**
      * Save the contents of CSS blocks to style matches
      * @param $matches preg_replace style $matches array
@@ -81,7 +81,7 @@ class HTMLPurifier_Filter_ExtractStyleBlocks extends HTMLPurifier_Filter
     protected function styleCallback($matches) {
         $this->_styleMatches[] = $matches[1];
     }
-    
+
     /**
      * Removes inline <style> tags from HTML, saves them for later use
      * @todo Extend to indicate non-text/css style blocks
@@ -98,7 +98,7 @@ class HTMLPurifier_Filter_ExtractStyleBlocks extends HTMLPurifier_Filter
         }
         return $html;
     }
-    
+
     /**
      * Takes CSS (the stuff found in <style>) and cleans it.
      * @warning Requires CSSTidy <http://csstidy.sourceforge.net/>
@@ -167,6 +167,6 @@ class HTMLPurifier_Filter_ExtractStyleBlocks extends HTMLPurifier_Filter
         }
         return $css;
     }
-    
+
 }
 

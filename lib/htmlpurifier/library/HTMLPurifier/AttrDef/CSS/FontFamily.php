@@ -9,7 +9,7 @@ require_once 'HTMLPurifier/AttrDef.php';
  */
 class HTMLPurifier_AttrDef_CSS_FontFamily extends HTMLPurifier_AttrDef
 {
-    
+
     public function validate($string, $config, $context) {
         static $generic_names = array(
             'serif' => true,
@@ -18,7 +18,7 @@ class HTMLPurifier_AttrDef_CSS_FontFamily extends HTMLPurifier_AttrDef
             'fantasy' => true,
             'cursive' => true
         );
-        
+
         $string = $this->parseCDATA($string);
         // assume that no font names contain commas in them
         $fonts = explode(',', $string);
@@ -43,15 +43,15 @@ class HTMLPurifier_AttrDef_CSS_FontFamily extends HTMLPurifier_AttrDef
                 $font = str_replace("\\\n", "\n", $font);       // de-escape newlines
             }
             // $font is a pure representation of the font name
-            
+
             if (ctype_alnum($font)) {
                 // very simple font, allow it in unharmed
                 $final .= $font . ', ';
                 continue;
             }
-            
+
             // complicated font, requires quoting
-            
+
             // armor single quotes and new lines
             $font = str_replace("'", "\\'", $font);
             $font = str_replace("\n", "\\\n", $font);
@@ -61,6 +61,6 @@ class HTMLPurifier_AttrDef_CSS_FontFamily extends HTMLPurifier_AttrDef
         if ($final === '') return false;
         return $final;
     }
-    
+
 }
 

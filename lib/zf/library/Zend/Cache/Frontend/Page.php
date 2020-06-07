@@ -63,12 +63,12 @@ class Zend_Cache_Frontend_Page extends Zend_Cache_Core
      *     - (boolean) makeIdWithXXXVariables (XXXX = 'Get', 'Post', 'Session', 'Files' or 'Cookie') :
      *       if true, we have to use the content of this superglobal array to make a cache id
      *       if false, the cache id won't be dependent of the content of this superglobal array
-     *     - (int) specific_lifetime : cache specific lifetime 
-     *                                (false => global lifetime is used, null => infinite lifetime, 
-     *                                 integer => this lifetime is used), this "lifetime" is probably only 
+     *     - (int) specific_lifetime : cache specific lifetime
+     *                                (false => global lifetime is used, null => infinite lifetime,
+     *                                 integer => this lifetime is used), this "lifetime" is probably only
      *                                usefull when used with "regexps" array
-     *     - (array) tags : array of tags (strings) 
-     *     - (int) priority : integer between 0 (very low priority) and 10 (maximum priority) used by 
+     *     - (array) tags : array of tags (strings)
+     *     - (int) priority : integer between 0 (very low priority) and 10 (maximum priority) used by
      *                        some particular backends
      *
      * ====> (array) regexps :
@@ -320,7 +320,7 @@ class Zend_Cache_Frontend_Page extends Zend_Cache_Core
                     $storedHeaders[] = array($headerSentName, $headerSentValue);
                 }
             }
-        }       
+        }
         $array = array(
             'data' => $data,
             'headers' => $storedHeaders

@@ -20,7 +20,7 @@ require_once 'Zend/View.php';
 /**
  * Test class for Zend_Layout.
  */
-class Zend_Layout_LayoutTest extends PHPUnit_Framework_TestCase 
+class Zend_Layout_LayoutTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.
@@ -471,7 +471,7 @@ class Zend_Layout_LayoutTest extends PHPUnit_Framework_TestCase
         $layout->setInflectorTarget('php');
         $this->assertEquals($layout->getInflectorTarget(), $inflector->getTarget());
     }
-    
+
     public function testLayoutWithViewBasePath()
     {
         $layout = new Zend_Layout(array(
@@ -481,7 +481,7 @@ class Zend_Layout_LayoutTest extends PHPUnit_Framework_TestCase
         $layout->setLayout('layout2');
         $this->assertEquals('foobar-helper-output', $layout->render());
     }
-    
+
     public function testResettingMvcInstanceUnregistersHelperAndPlugin()
     {
         $this->testGetMvcInstanceReturnsLayoutInstanceWhenStartMvcHasBeenCalled();
@@ -497,7 +497,7 @@ class Zend_Layout_LayoutTest extends PHPUnit_Framework_TestCase
         Zend_Layout::resetMvcInstance();
         $this->assertNull(Zend_Layout::getMvcInstance());
     }
-    
+
     public function testMinimalViewObjectWorks()
     {
         require_once dirname(__FILE__) . '/_files/MinimalCustomView.php';
@@ -507,7 +507,7 @@ class Zend_Layout_LayoutTest extends PHPUnit_Framework_TestCase
             ));
         $layout->render();
     }
-    
+
     // #ZF-5152
     public function testCallingStartMvcTwiceDoesntGenerateAnyUnexpectedBehavior()
     {
@@ -517,7 +517,7 @@ class Zend_Layout_LayoutTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(Zend_Layout::getMvcInstance()->getLayoutPath(),'/some/other/path');
         $this->assertTrue(Zend_Layout::getMvcInstance()->isEnabled());
     }
-    
+
 }
 
 /**

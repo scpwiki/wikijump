@@ -253,7 +253,7 @@ class Zend_OpenId_Consumer
             $pos = strpos($params['openid_return_to'], '?');
             if ($pos === false ||
                 SUBSTR($params['openid_return_to'], 0 , $pos) != Zend_OpenId::selfUrl()) {
-                
+
                 $this->_setError("Wrong openid.return_to '".
                     $params['openid_return_to']."' != '" . Zend_OpenId::selfUrl() ."'");
                 return false;
@@ -576,7 +576,7 @@ class Zend_OpenId_Consumer
 
         while(1) {
             $ret = $this->_httpRequest($url, 'POST', $params, $status);
-            if ($ret === false) {               
+            if ($ret === false) {
                 $this->_setError("HTTP request failed");
                 return false;
             }
@@ -715,7 +715,7 @@ class Zend_OpenId_Consumer
      * @param string &$server OpenID server URL
      * @param float &$version OpenID protocol version
      * @return bool
-     * @todo OpenID 2.0 (7.3) XRI and Yadis discovery 
+     * @todo OpenID 2.0 (7.3) XRI and Yadis discovery
      */
     protected function _discovery(&$id, &$server, &$version)
     {
@@ -849,7 +849,7 @@ class Zend_OpenId_Consumer
             $params['openid.ns'] = Zend_OpenId::NS_2_0;
         }
 
-        $params['openid.mode'] = $immediate ? 
+        $params['openid.mode'] = $immediate ?
             'checkid_immediate' : 'checkid_setup';
 
         $params['openid.identity'] = $id;

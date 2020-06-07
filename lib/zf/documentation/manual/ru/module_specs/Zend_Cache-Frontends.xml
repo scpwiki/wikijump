@@ -863,20 +863,20 @@ $frontendOptions = array(
    'regexps' => array(
        // кэширование всего IndexController
        '^/$' => array('cache' => true),
-       
+
        // кэширование всего IndexController
        '^/index/' => array('cache' => true),
-       
+
        // не кэшируем ArticleController...
        '^/article/' => array('cache' => false),
-       
+
        // ...но кэшируем действие "view" контроллера ArticleController
        '^/article/view/' => array(
            'cache' => true,
-           
+
            // кэшируем, даже если есть переменные $_POST
            'cache_with_post_variables' => true,
-           
+
            // но кэш будет зависеть от массива $_POST
            'make_id_with_post_variables' => true,
        )

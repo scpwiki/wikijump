@@ -74,7 +74,7 @@ class Zend_Search_Lucene_DocumentTest extends PHPUnit_Framework_TestCase
         if (PHP_OS == 'AIX') {
             return; // tests below here not valid on AIX
         }
-        
+
         $wordsWithUmlautsIso88591 = iconv('UTF-8', 'ISO-8859-1', 'Words with umlauts: åãü...');
         $document->addField(Zend_Search_Lucene_Field::Text('description', $wordsWithUmlautsIso88591, 'ISO-8859-1'));
         $this->assertEquals($document->description, $wordsWithUmlautsIso88591);
@@ -145,13 +145,13 @@ class Zend_Search_Lucene_DocumentTest extends PHPUnit_Framework_TestCase
     	}
 
 		$docxDocument = Zend_Search_Lucene_Document_Docx::loadDocxFile(dirname(__FILE__) . '/_openXmlDocuments/test.docx', true);
-		
+
         $this->assertTrue($docxDocument instanceof Zend_Search_Lucene_Document_Docx);
 		$this->assertEquals($docxDocument->getFieldValue('title'), 'Test document');
 		$this->assertEquals($docxDocument->getFieldValue('description'), 'This is a test document which can be used to demonstrate something.');
 		$this->assertTrue($docxDocument->getFieldValue('body') != '');
     }
-    
+
     public function testPptx()
     {
     	if (!class_exists('ZipArchive')) {
@@ -165,7 +165,7 @@ class Zend_Search_Lucene_DocumentTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals($pptxDocument->getFieldValue('description'), 'This is a test document which can be used to demonstrate something.');
 		$this->assertTrue($pptxDocument->getFieldValue('body') != '');
     }
-    
+
     public function testXlsx()
     {
     	if (!class_exists('ZipArchive')) {

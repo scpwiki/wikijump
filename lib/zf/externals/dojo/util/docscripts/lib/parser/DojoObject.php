@@ -27,23 +27,23 @@ class DojoObject extends DojoBlock
   public function getName(){
     return $this->name;
   }
-  
+
   public function setAnonymous($anonymous){
     $this->anonymous = true;
   }
-  
+
   public function isAnonymous(){
     return $this->anonymous;
   }
-  
+
   public function getBlockCommentKeys(){
     return $this->body->getBlockCommentKeys();
   }
-  
+
   public function getBlockComment($key){
     return $this->body->getBlockComment($key);
   }
-  
+
   public function addBlockCommentKey($key){
     return $this->body->addBlockCommentKey($key);
   }
@@ -56,10 +56,10 @@ class DojoObject extends DojoBlock
     if(!$this->start){
       die("DojoObject->build() used before setting a start position");
     }
-  
+
     $lines = Text::chop($this->package->getCode(), $this->start[0], $this->start[1], false, false, true);
     $end = array($this->start[0], $this->start[1]);
-  
+
     do {
       $lines = Text::chop($this->package->getCode(), $end[0], $end[1], false, false, true);
       foreach ($lines as $line_number => $line) {
@@ -110,25 +110,25 @@ class DojoObject extends DojoBlock
       }
     }
     while ($lines[$end[0]][$end[1]] != '}');
-    
+
     $this->setEnd($end[0], $end[1]);
     return $end;
   }
-  
+
   public function getKeys(){
     if (!$this->values) {
       $this->build();
     }
     return array_keys($this->values);
   }
-  
+
   public function getValues(){
     if(!$this->values){
       $this->build();
     }
     return $this->values;
   }
-  
+
   public function rollOut(&$output, $item_type = 'Object'){
     $package_name = $this->package->getPackageName();
     $name = $this->getName();
@@ -187,14 +187,14 @@ class DojoObject extends DojoBlock
         $output[$full_variable_name]['summary'] = $comment;
       }
     }
-  
+
     foreach($check_keys as $ck){
       if(!$this->isAnonymous() && $comment = $this->getBlockComment($ck)){
-        $output[$name][$ck] = $comment; 
+        $output[$name][$ck] = $comment;
       }
     }
   }
-  
+
   public function removeCodeFrom($lines){
     for($i = $this->start[0]; $i <= $this->end[0]; $i++){
       $line = $lines[$i];
@@ -204,7 +204,7 @@ class DojoObject extends DojoBlock
         $lines[$i] = Text::blankOutAt($line, 0, $this->end[1]);
       }else{
         $lines[$i] = Text::blankOut($line, $line);
-      } 
+      }
     }
     return $lines;
   }

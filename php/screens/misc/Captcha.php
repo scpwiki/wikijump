@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -33,7 +33,7 @@ class Captcha extends SmartyScreen {
 	private $b;
 
 	private $_noise = 5;
-	
+
 	private $_minsize=13;
 	private $_maxsize=20;
 
@@ -45,12 +45,12 @@ class Captcha extends SmartyScreen {
 	public function render($runData) {
 
 		$this->TtfFolder = WIKIDOT_ROOT.'/lib/bitstream/';
-		
+
 		$runData->setScreenTemplate(null); // this assures no other output will be generated; templating service will NOT run
 		$key = $runData->getParameterList()->getParameterValue("key");
 		if($key == null || $key == ''){
 			$key = 'captchaCode';
-		}	
+		}
 		$ivcode = $runData->sessionGet($key);
 
 		$image =  imagecreatetruecolor($this->lx, $this->ly);
@@ -83,14 +83,14 @@ class Captcha extends SmartyScreen {
 				$color	= imagecolorallocate($image, $this->r, $this->g, $this->b);
 				imageline($image, $i, 0, $i, $this->ly, $color);
 			}
-			
+
 			for($i=0 ; $i < $this->ly; $i += (int)($this->_minsize / 1.8)){
 				$this->random_color(160, 224);
 				$color	= imagecolorallocate($image, $this->r, $this->g, $this->b);
 				imageline($image, 0, $i, $this->lx, $i, $color);
 			}
 		}
-		
+
 		// generate Text
 		for($i=0, $x = intval(rand($this->_minsize,$this->_maxsize)); $i < strlen($ivcode); $i++){
 			$text	= strtoupper(substr($ivcode, $i, 1));
@@ -111,7 +111,7 @@ class Captcha extends SmartyScreen {
 
 		header("Content-type: image/png");
 		header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
-		
+
 		// always modified
 		header("Last-Modified: ".gmdate("D, d M Y H:i:s")." GMT");
 
@@ -121,14 +121,14 @@ class Captcha extends SmartyScreen {
 
 		// HTTP/1.0
 		header("Pragma: no-cache");
-		
+
 		imagepng($image);
 		imagedestroy($image);
 
 	}
 
 	public function build($runData){}
-	
+
 	private function random_color($min,$max){
 		srand((double)microtime() * 1000000);
 		$this->r = intval(rand($min,$max));
@@ -137,17 +137,17 @@ class Captcha extends SmartyScreen {
 		srand((double)microtime() * 1000000);
 		$this->b = intval(rand($min,$max));
 	}
-	
+
 	private function changeTtf(){
 		if(is_array($this->TtfFonts)){
 			srand((float)microtime() * 10000000);
 			$key = array_rand($this->TtfFonts);
 			$this->TtfFile = $this->TtfFolder.$this->TtfFonts[$key];
-			
+
 			if(!file_exists($this->TtfFile)){
 				echo "file ".	$this->TtfFile . ' does not exist';
 			}
-			
+
 		}else{
 			$this->TtfFile = $this->TtfFolder.$this->TtfFonts;
 		}

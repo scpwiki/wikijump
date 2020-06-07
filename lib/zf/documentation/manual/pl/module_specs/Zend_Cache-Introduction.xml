@@ -36,9 +36,9 @@ $backendOptions = array(
 );
 
 // pobieranie obiektu Zend_Cache_Core
-$cache = Zend_Cache::factory('Core', 
-                             'File', 
-                             $frontendOptions, 
+$cache = Zend_Cache::factory('Core',
+                             'File',
+                             $frontendOptions,
                              $backendOptions);
 ]]>
        </programlisting>
@@ -49,11 +49,11 @@ $cache = Zend_Cache::factory('Core',
        <para>
             Niektóre frontendy i backendy są nazwane przy użyciu wielu słów, na
             przykład 'ZendPlatform'. Gdy określamy ich nazwę w metodzie fabryki,
-            oddzielamy wyrazy używając separatora wyrazów takiego jak spacja 
+            oddzielamy wyrazy używając separatora wyrazów takiego jak spacja
             (' '), myślnik ('-') lub kropka ('.').
         </para>
     </note>
-    
+
     <example id="zend.cache.introduction.example-2">
         <title>Buforowanie wyniku zapytania do bazy danych</title>
         <para>
@@ -109,9 +109,9 @@ $frontendOptions = array(
 
 $backendOptions = array('cache_dir' => './tmp/');
 
-$cache = Zend_Cache::factory('Output', 
-                             'File', 
-                             $frontendOptions, 
+$cache = Zend_Cache::factory('Output',
+                             'File',
+                             $frontendOptions,
                              $backendOptions);
 
 // przekazujemy unikalny identyfikator do metody start()

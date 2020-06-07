@@ -184,9 +184,9 @@ div#container-wrap {
 	color: #a01;
 }
 
-/* IE7 HACK */ 
-#top-bar ul > li > ul {  
-	*margin-top: -4px; 
+/* IE7 HACK */
+#top-bar ul > li > ul {
+	*margin-top: -4px;
 }
 
 

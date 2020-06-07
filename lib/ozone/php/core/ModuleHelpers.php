@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Web
  * @version $Id$
@@ -31,10 +31,10 @@
  *
  */
 class ModuleHelpers {
-	
+
 	public static function findModuleClass($template){
 		$classFilename = PathManager :: moduleClass($template);
-		
+
 		if (file_exists($classFilename)) {
 			$moduleClassPath = $classFilename;
 			$tmp1 = explode('/', $template);

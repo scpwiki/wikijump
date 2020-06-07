@@ -136,7 +136,7 @@ class FooController extends Zend_Controller_Action
 $this->_helper->autoCompleteDojo($data);
 ]]>
         </programlisting>
-        
+
         <example id="zend.controller.actionhelpers.autocomplete.dojo.example1">
             <title>Zend MVC を使用した、Dojo でのオートコンプリート</title>
 
@@ -173,7 +173,7 @@ dojo.declare("custom.TestNameReadStore", dojox.data.QueryReadStore, {
 });
 ]]>
 </programlisting>
-            
+
             <para>
                 このクラスは、単に Dojo 自身の QueryReadStore
                 クラスを継承したものです。継承元のクラス自体は抽象クラスです。
@@ -191,7 +191,7 @@ class TestController extends Zend_Controller_Action
     protected $_form;
 
     public function getForm()
-    {   
+    {
         if (null === $this->_form) {
             $this->_form = new Zend_Form();
             $this->_form->setMethod('get')
@@ -216,7 +216,7 @@ class TestController extends Zend_Controller_Action
 }
 ]]>
             </programlisting>
-            
+
             <para>
                 ここでは、単に 'test' と 'go' メソッドのみを持つフォームを作成します。
                 'test' メソッドは、特別な Dojo 固有の属性
@@ -271,7 +271,7 @@ class TestController extends Zend_Controller_Action
 }
 ]]>
             </programlisting>
-            
+
             <para>
                 <code>autocompleteAction()</code>
                 ではいくつかの作業を行っています。
@@ -313,8 +313,8 @@ class TestController extends Zend_Controller_Action
    // HTML head での読み込み ?>
 <? $this->headScript()
         ->setAllowArbitraryAttributes(true)
-        ->appendFile($this->baseUrl() . '/javascript/dojo/dojo.js', 
-            'text/javascript', 
+        ->appendFile($this->baseUrl() . '/javascript/dojo/dojo.js',
+            'text/javascript',
             array('djConfig' => 'parseOnLoad: true'))
         ->captureStart() ?>
 djConfig.usePlainJson=true;

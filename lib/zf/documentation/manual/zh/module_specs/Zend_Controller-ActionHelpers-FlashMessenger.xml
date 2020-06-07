@@ -26,7 +26,7 @@ class SomeController extends Zend_Controller_Action
 
     public function init()
     {
-        $this->_flashMessenger = 
+        $this->_flashMessenger =
             $this->_helper->getHelper('FlashMessenger');
         $this->initView();
     }
@@ -34,8 +34,8 @@ class SomeController extends Zend_Controller_Action
     public function myAction()
     {
         /**
-         * default method of getting 
-         * Zend_Controller_Action_Helper_FlashMessenger instance 
+         * default method of getting
+         * Zend_Controller_Action_Helper_FlashMessenger instance
          * on-demand
          */
         $this->_flashMessenger->addMessage('Record Saved!');

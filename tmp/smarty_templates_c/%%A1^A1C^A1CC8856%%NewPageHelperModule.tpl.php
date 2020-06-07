@@ -33,7 +33,7 @@ smarty_core_load_plugins(array('plugins' => array(array('modifier', 'escape', '/
 		<?php if ($this->_tpl_vars['autoincrement']): ?>
 			<input type="hidden" name="autoincrement" value="true"/>
 		<?php endif; ?>
-		
+
 	</form>
 </div>
 <?php if ($this->_tpl_vars['formatError']): ?>

@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,17 +27,17 @@
 use DB\MemberApplicationPeer;
 
 class ManageSiteMembersApplicationsModule extends ManageSiteBaseModule {
-	
+
 	public function build($runData){
-		
+
 		// find all current applications
 		$c = new Criteria();
 		$c->add("site_id", $runData->getTemp("site")->getSiteId());
 		$c->add("status", "pending");
 		$c->addOrderDescending("application_id");
-		
+
 		$applications = MemberApplicationPeer::instance()->select($c);
-		$runData->contextAdd("applications", $applications);	
+		$runData->contextAdd("applications", $applications);
 	}
-	
+
 }

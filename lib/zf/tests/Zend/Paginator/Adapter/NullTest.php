@@ -43,7 +43,7 @@ class Zend_Paginator_Adapter_NullTest extends PHPUnit_Framework_TestCase
      * @var Zend_Paginator_Adapter_Array
      */
     private $_adapter;
-    
+
     /**
      * Prepares the environment before running a test.
      */
@@ -60,13 +60,13 @@ class Zend_Paginator_Adapter_NullTest extends PHPUnit_Framework_TestCase
         $this->_adapter = null;
         parent::tearDown();
     }
-    
+
     public function testGetsItems()
     {
         $actual = $this->_adapter->getItems(0, 10);
         $this->assertEquals(array_fill(0, 10, null), $actual);
     }
-    
+
     public function testReturnsCorrectCount()
     {
         $this->assertEquals(101, $this->_adapter->count());

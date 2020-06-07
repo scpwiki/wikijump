@@ -24,7 +24,7 @@ require_once 'Zend/Form/Decorator/Abstract.php';
 
 /**
  * Word-based captcha decorator
- * 
+ *
  * Adds hidden field for ID and text input field for captcha text
  *
  * @category   Zend
@@ -38,8 +38,8 @@ class Zend_Form_Decorator_Captcha_Word extends Zend_Form_Decorator_Abstract
 {
     /**
      * Render captcha
-     * 
-     * @param  string $content 
+     *
+     * @param  string $content
      * @return string
      */
     public function render($content)

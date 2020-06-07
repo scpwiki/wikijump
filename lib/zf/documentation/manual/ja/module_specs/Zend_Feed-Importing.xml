@@ -239,7 +239,7 @@ array(
 
             <programlisting role="php"><![CDATA[
 // 独自のビルダソースからフィードを読み込みます
-$atomFeedFromArray = 
+$atomFeedFromArray =
     Zend_Feed::importBuilder(new Zend_Feed_Builder($array));
 
 // この行は、上と同じ意味です。

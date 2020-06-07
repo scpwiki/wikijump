@@ -6,7 +6,7 @@
 
         <para>
             Zend_XmlRpc_Server 依照 <ulink url="http://www.xmlrpc.com/spec">www.xmlrpc.com 上的规格描述</ulink>
-            实现了一个全功能 XML-RPC 服务器。同时，它还实现了允许批量传输（boxcarring）的 system.multicall() 
+            实现了一个全功能 XML-RPC 服务器。同时，它还实现了允许批量传输（boxcarring）的 system.multicall()
             方法。
         </para>
     </sect2>
@@ -37,7 +37,7 @@ echo $server->handle();]]>
         </para>
 
         <para>
-            为了启动 Zend_XmlRpc_Server，开发人员必须通过 <code>setClass()</code> 
+            为了启动 Zend_XmlRpc_Server，开发人员必须通过 <code>setClass()</code>
             和 <code>addFunction()</code> 方法附加一个或者多个类或函数到服务器。
         </para>
 
@@ -51,7 +51,7 @@ echo $server->handle();]]>
         <para>
             这时 <code>Zend_XmlRpc_Server::handle()</code> 将基于请求尝试调度合适的处理程序。
             它将返回基于 <code>Zend_XmlRpc_Response</code> 的对象或者 <code>Zend_XmlRpc_Server_Fault</code>
-            对象。这些对象都有 <code>__toString()</code> 用来创建合法的，允许直接返回的 XML-RPC 的 
+            对象。这些对象都有 <code>__toString()</code> 用来创建合法的，允许直接返回的 XML-RPC 的
             XML 响应文本。
         </para>
     </sect2>
@@ -71,7 +71,7 @@ echo $server->handle();]]>
         </para>
 
         <itemizedlist>
-            <listitem><para>dateTime.iso8601，字符串格式 
+            <listitem><para>dateTime.iso8601，字符串格式
                     YYYYMMDDTHH:mm:ss</para></listitem>
             <listitem><para>base64, base64 编码数据</para></listitem>
             <listitem><para>struct, 结构匹配的数组</para></listitem>
@@ -131,7 +131,7 @@ function myFunc($val1, $val2, $val3)
 
         <para>
             XML-RPC 有名字空间的概念；通常，它允许使用“.”分割 XML-RPC 方法到各个命名空间。
-            这有助于防止不同类提供的不同服务方法之间的命名冲突。例如，XML-RPC 
+            这有助于防止不同类提供的不同服务方法之间的命名冲突。例如，XML-RPC
             服务在命名空间“system”中保留了一些方法：
         </para>
 
@@ -162,10 +162,10 @@ $server->addFunction('somefunc', 'funcs');]]>
         <title>自定义请求对象</title>
 
         <para>
-            多数情况下，只需要使用 Zend_XmlRpc_Server 默认提供的请求类型 
-            Zend_XmlRpc_Request_Http。然而，仍然有可能在 CLI、GUI 或者其他环境使用 
-            XML-RPC，亦或需要记录每个请求。需要从 Zend_XmlRpc_Request 
-            继承，创建自定义的对象来完成这个工作。最重要的是记得确保实现 getMethod() 
+            多数情况下，只需要使用 Zend_XmlRpc_Server 默认提供的请求类型
+            Zend_XmlRpc_Request_Http。然而，仍然有可能在 CLI、GUI 或者其他环境使用
+            XML-RPC，亦或需要记录每个请求。需要从 Zend_XmlRpc_Request
+            继承，创建自定义的对象来完成这个工作。最重要的是记得确保实现 getMethod()
             和 getParams() 方法，这样 XML-RPC 服务器就可以获取必要的信息进行调度。
         </para>
     </sect2>
@@ -175,13 +175,13 @@ $server->addFunction('somefunc', 'funcs');]]>
 
         <para>
             和请求对象一样，Zend_XmlRpc_Server 可以返回自定义响应对象；默认情况下，
-            Zend_XmlRpc_Response_Http 对象被返回，这个对象包含一个合适的用于 XML-RPC 的 
+            Zend_XmlRpc_Response_Http 对象被返回，这个对象包含一个合适的用于 XML-RPC 的
             HTTP Content-Type 头。使用自定义对象的情况可能是需要记录响应，或需要发送响应到
             STDOUT。
         </para>
 
         <para>
-            在调用 handle() 之前使用 Zend_XmlRpc_Server::setResponseClass() 
+            在调用 handle() 之前使用 Zend_XmlRpc_Server::setResponseClass()
             指定自定义的响应类。
         </para>
     </sect2>
@@ -196,7 +196,7 @@ $server->addFunction('somefunc', 'funcs');]]>
         </para>
 
         <para>
-            异常类也可以加入白名单中作为失败响应。要做到这点，只需使用 
+            异常类也可以加入白名单中作为失败响应。要做到这点，只需使用
             Zend_XmlRpc_Server_Fault::attachFaultException() 添加一个异常类到白名单即可：
         </para>
 
@@ -217,7 +217,7 @@ Zend_XmlRpc_Server_Fault::attachFaultException('My_Project_Exception');]]>
     <sect2 id="zend.xmlrpc.server.caching">
         <title>在请求之间缓存服务器定义</title>
         <para>
-            附加多个类到 XML-RPC 服务器实例可能消耗大量的资源；每一个类必须使用反射 
+            附加多个类到 XML-RPC 服务器实例可能消耗大量的资源；每一个类必须使用反射
             API 进行自省（通过 Zend_Server_Reflection），生成一个包含有所有可用方法的列表用于服务器调用。
         </para>
         <para>

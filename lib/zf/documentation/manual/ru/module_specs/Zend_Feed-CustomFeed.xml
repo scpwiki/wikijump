@@ -81,7 +81,7 @@ $entry = new MyEntry();
 $entry->myUpdated = '2005-04-19T15:30';
 
 // вызов в виде метода обрабатывается функцией __call
-$entry->myUpdated();  
+$entry->myUpdated();
 // вызов в виде свойства обрабатывается функцией __get
 $entry->myUpdated;
 ]]>

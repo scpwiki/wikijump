@@ -21,26 +21,26 @@
             min- and a max-value, and choose an adapter to output the data. If
             you want to process a file, you would do something like:
         </para>
-        
+
         <programlisting role="php"><![CDATA[
 $progressBar = new Zend_ProgressBar($adapter, 0, $fileSize);
 
 while (!feof($fp)) {
     // Do something
-    
+
     $progressBar->update($currentByteCount);
 }
 
 $progressBar->finish();
 ]]>
         </programlisting>
-        
+
         <para>
             In the first step, an instance of <code>Zend_ProgressBar</code> is
             created, with a specific adapter, a min-value of 0 and a max-value
             of the total filesize. Then a file is processed and in every loop
             the progressbar is updated with the current byte count. At the end
-            of the loop, the progressbar status is set to finished.  
+            of the loop, the progressbar status is set to finished.
         </para>
         <para>
             You can also call the <code>update()</code> method of
@@ -67,7 +67,7 @@ $progressBar->finish();
         <title>Standard adapters</title>
         <para>
             <code>Zend_ProgressBar</code> comes with the following three adapters:
-            
+
             <itemizedlist mark="opencircle">
                 <listitem><para><xref linkend="zend.progressbar.adapter.console" /></para></listitem>
                 <listitem><para><xref linkend="zend.progressbar.adapter.jspush" /></para></listitem>

@@ -89,7 +89,7 @@ RewriteRule ^.*$ - [NC,L]
 RewriteRule ^.*$ index.php [NC,L]
 ]]>
             </programlisting>
-            
+
             <para>
                 Этим правила перезаписи соотвественно направляют запросы к
                 существующим ресурсам (существующие символьные
@@ -121,7 +121,7 @@ RewriteRule ^.*$ index.php [NC,L]
 Zend_Controller_Front::run('/path/to/app/controllers');
 ]]>
             </programlisting>
-            
+
             <para>
                 Этот код выполняет инстанцирование и запуск фронт-контроллера,
                 который будет направлять запросы к контроллерам действий.
@@ -204,7 +204,7 @@ class IndexController extends Zend_Controller_Action
                 директорией видов, и что действующие скрипты вида будут в
                 поддиректории <code>views/scripts/</code>.
                 Таким образом, шаблон для рендеринга будет находится в
-                <code>application/views/scripts/index/index.phtml</code>.               
+                <code>application/views/scripts/index/index.phtml</code>.
             </para>
         </sect3>
 

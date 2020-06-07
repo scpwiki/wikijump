@@ -1,30 +1,30 @@
 <?php
 /**
- * 
- * Creates a button, e.g. edit, history etc.
- * 
- * @category Text
- * 
- * @package Text_Wiki
- * 
- * @author Michal Frackowiak
- * 
- * @license LGPL
- * 
- * @version $Id$
- * 
- */
-
-/**
- * 
+ *
  * Creates a button, e.g. edit, history etc.
  *
  * @category Text
- * 
+ *
  * @package Text_Wiki
- * 
+ *
  * @author Michal Frackowiak
- * 
+ *
+ * @license LGPL
+ *
+ * @version $Id$
+ *
+ */
+
+/**
+ *
+ * Creates a button, e.g. edit, history etc.
+ *
+ * @category Text
+ *
+ * @package Text_Wiki
+ *
+ * @author Michal Frackowiak
+ *
  */
 class Text_Wiki_Parse_Button extends Text_Wiki_Parse {
 
@@ -35,7 +35,7 @@ class Text_Wiki_Parse_Button extends Text_Wiki_Parse {
         $type = $matches[1];
         $attrString = $matches[2];
         $attr = $this->getAttrs(trim($attrString));
-        
+
         $allowedAttrs = array('text', 'class', 'style');
         $options = array();
         foreach($allowedAttrs as $aa){
@@ -43,12 +43,12 @@ class Text_Wiki_Parse_Button extends Text_Wiki_Parse {
         		$options[$aa] = $attr[$aa];
         	}
         }
-        
+
         $type = str_replace("_", "-", $type);
-        
+
         $options['type'] = $type;
-        
+
         return $this->wiki->addToken($this->rule, $options);
-        
+
     }
 }

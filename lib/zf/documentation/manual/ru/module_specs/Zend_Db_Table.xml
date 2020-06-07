@@ -903,7 +903,7 @@ $rows = $table->find(array(1234, 5678), array('ABC', 'DEF'));
 
                     <para>
                         Следующие варианты являются корректными и
-                        функционально идентичными, но, тем не менее, 
+                        функционально идентичными, но, тем не менее,
                         рекомендуется обновить свой код с тем, чтобы
                         получить преимущества нового подхода.
                     </para>
@@ -1450,7 +1450,7 @@ $backendOptions  = array(
     'cacheDir'                => 'cacheDir'
     );
 
-$cache = Zend_Cache::factory('Core', 
+$cache = Zend_Cache::factory('Core',
                              'File',
                              $frontendOptions,
                              $backendOptions);
@@ -1495,7 +1495,7 @@ $backendOptions  = array(
     'cacheDir'                => 'cacheDir'
     );
 
-$cache = Zend_Cache::factory('Core', 
+$cache = Zend_Cache::factory('Core',
                              'File',
                              $frontendOptions,
                              $backendOptions);

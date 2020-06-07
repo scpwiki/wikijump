@@ -139,7 +139,7 @@ class Zend_Search_Lucene_AnalysisTest extends PHPUnit_Framework_TestCase
             // PCRE unicode support is turned off
             return;
         }
-                
+
         $analyzer = new Zend_Search_Lucene_Analysis_Analyzer_Common_Utf8();
 
         // UTF-8 text with a cyrillic symbols
@@ -237,7 +237,7 @@ class Zend_Search_Lucene_AnalysisTest extends PHPUnit_Framework_TestCase
             // mbstring extension is disabled
             return;
         }
-        
+
         $analyzer = new Zend_Search_Lucene_Analysis_Analyzer_Common_Utf8Num_CaseInsensitive();
 
         // UTF-8 text with a cyrillic symbols
@@ -266,7 +266,7 @@ class Zend_Search_Lucene_AnalysisTest extends PHPUnit_Framework_TestCase
         if (PHP_OS == 'AIX') {
             $this->markTestSkipped('Test not available on AIX');
         }
-        
+
         $analyzer = new Zend_Search_Lucene_Analysis_Analyzer_Common_Utf8();
 
         // UTF-8 text with a cyrillic symbols

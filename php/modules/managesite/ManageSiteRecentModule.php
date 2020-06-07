@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -25,14 +25,14 @@
 
 
 class ManageSiteRecentModule extends ManageSiteBaseModule {
-	
+
 	public function build($runData){
-		
+
 		$uri = GlobalProperties::$MODULES_JS_URL.'/changes/SiteChangesModule.js';
 		$this->extraJs[] = $uri;
-		
+
 		$this->extraCss[] = GlobalProperties::$MODULES_CSS_URL.'/changes/SiteChangesModule.css';
-		
+
 	}
-	
+
 }

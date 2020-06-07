@@ -807,7 +807,7 @@ public function skew($x, $y, $xAngle, $yAngle);
  * Cela prend un instantané des styles courants, des zones de dessins
  * et de toutes les rotations/translations/changements de taille appliqués.
  *
- * @return Zend_Pdf_Page 
+ * @return Zend_Pdf_Page
  */
 public function saveGS();
 

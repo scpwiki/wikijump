@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Web
  * @version $Id$
@@ -29,12 +29,12 @@
  *
  */
 class UIManager extends TemplateService{
-	
+
 	protected $serviceName = "ui";
 
 	/** Just a cache of PageProperties object */
 	private $page;
-	
+
 	public function __construct($runData = null){
 		$this->page = $runData->getPage();
 	}
@@ -44,14 +44,14 @@ class UIManager extends TemplateService{
 	}
 
 	/**
-	 * Returns full URL for the given CSS filename. 
+	 * Returns full URL for the given CSS filename.
 	 * @param string $filename
 	 * @return string full URL
 	 */
 	public function style($filename){
 		return GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST."/ui/skins/". $this->page->getSkin()."/css/".$filename;
 	}
-	
+
 	/**
 	 * Returns full URL for the given JavaScript filename.
 	 * @param string $filename
@@ -60,7 +60,7 @@ class UIManager extends TemplateService{
 	public function javaScript($filename){
 		return GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST."/ui/skins/". $this->page->getSkin()."/js/".$filename;
 	}
-	
+
 	/**
 	 * Returns full URL for the given image filename.
 	 * @param string $filename
@@ -69,9 +69,9 @@ class UIManager extends TemplateService{
 	public function image($filename){
 		return GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST."/ui/skins/". $this->page->getSkin()."/images/".$filename;
 	}
-	
+
 	public function getImageBaseURL(){
 		return GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST."/ui/skins/". $this->page->getSkin()."/images/";
 	}
-	
+
 }

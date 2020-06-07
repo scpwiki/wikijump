@@ -36,17 +36,17 @@ class Zend_Gdata_App_AuthorTest extends PHPUnit_Framework_TestCase
                 true);
         $this->author = new Zend_Gdata_App_Extension_Author();
     }
-      
+
     public function testEmptyAuthorShouldHaveEmptyExtensionsList() {
         $this->assertTrue(is_array($this->author->extensionElements));
         $this->assertTrue(count($this->author->extensionElements) == 0);
     }
-      
+
     public function testNormalAuthorShouldHaveNoExtensionElements() {
         $this->author->name = new Zend_Gdata_App_Extension_Name('Jeff Scudder');
         $this->assertEquals($this->author->name->text, 'Jeff Scudder');
         $this->assertEquals(count($this->author->extensionElements), 0);
-        $newAuthor = new Zend_Gdata_App_Extension_Author(); 
+        $newAuthor = new Zend_Gdata_App_Extension_Author();
         $newAuthor->transferFromXML($this->author->saveXML());
         $this->assertEquals(count($newAuthor->extensionElements), 0);
         $newAuthor->extensionElements = array(
@@ -105,7 +105,7 @@ class Zend_Gdata_App_AuthorTest extends PHPUnit_Framework_TestCase
     public function testConvertFullAuthorToAndFromString() {
         $this->author->transferFromXML($this->authorText);
         $this->assertEquals($this->author->name->text, 'John Doe');
-        $this->assertEquals($this->author->email->text, 
+        $this->assertEquals($this->author->email->text,
                 'johndoes@someemailadress.com');
         $this->assertEquals($this->author->uri->text, 'http://www.google.com');
     }

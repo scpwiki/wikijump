@@ -77,7 +77,7 @@
       <para>
        <emphasis role="strong"> 自动源文检测：</emphasis>
         Zend_Translate 能够检测和集成多个源文件并根据文件名或目录另外地检测哪个地方（locale）在用。
-      </para> 
+      </para>
     </listitem>
 	</itemizedlist>
 

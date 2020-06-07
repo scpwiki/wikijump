@@ -5,9 +5,9 @@
 	or how to use JSON php class to mangle data.  No benchmark data
 	is stored currently.
 
--- 
+--
 -- Table structure for table `benchmarks`
--- 
+--
 
 CREATE TABLE `benchmarks` (
   `id` int(11) NOT NULL auto_increment,
@@ -38,7 +38,7 @@ if (is_array($_POST)) {
 	$table    = '';
 
 	mysql_connect("localhost",$username,$password);
-	mysql_select_db($dataBase); 
+	mysql_select_db($dataBase);
 
 	require("../../dojo/tests/resources/JSON.php");
 	$json = new Services_JSON();
@@ -49,13 +49,13 @@ if (is_array($_POST)) {
 
 	print "<h1>Thank YOU!</h1>";
 	print "
-		<p>Your results have been added to our database. No 
-		personal information outside of what you see here 
+		<p>Your results have been added to our database. No
+		personal information outside of what you see here
 		has been stored.
 		</p>
 
-		<p>You can <a href= \"javascript:history.back()\">go back</a> 
-		and run more tests, or even better, load up another browser 
+		<p>You can <a href= \"javascript:history.back()\">go back</a>
+		and run more tests, or even better, load up another browser
 		and the submit your tests again!
 		</p>
 
@@ -63,33 +63,33 @@ if (is_array($_POST)) {
 
 		";
 
-	print "<h3>Results Submitted:</h3>"; 
+	print "<h3>Results Submitted:</h3>";
 	print "<pre style=\"font:6pt Terminal,sans-serif; border:1px solid #cecece; background-color:#ededed; padding:20px; \">";
 
 		$ua = $string->clientNavigator;
 		$dojov = $string->dojoVersion;
 
 		print "Client: ".$ua."\n";
-		print "Dojo v".$dojov."\n"; 
+		print "Dojo v".$dojov."\n";
 
 		if (is_array($string->dataSet)) {
 			print "\nTest Results:";
 			// should client serialize a key, or is this safer?
-			$dataSet = md5(serialize($string)); 
+			$dataSet = md5(serialize($string));
 			foreach ($string->dataSet as $test) {
 				$data = array(
 					'dataSet' => $dataSet,
 					'useragent' => $ua,
 					'dojover' => $dojov,
 					'testNum' => $test->testNum,
-					'testMethod' => $test->testMethod,	
+					'testMethod' => $test->testMethod,
 					'testTime' => $test->testTime,
 					'testAverage' => $test->testAverage,
 					'testCount' => $test->testCount,
 					'dijit' => $test->dijit
 				);
-				print_r($data); 
-				add_rec($table,$data); 
+				print_r($data);
+				add_rec($table,$data);
 			}
 		}
 
@@ -97,15 +97,15 @@ if (is_array($_POST)) {
 			// not saving errors at this point
 			print "\nErrors:";
 			foreach ($string->errors as $error) {
-				print_r($error); 
+				print_r($error);
 			}
 		}
-	print "</pre>"; 
+	print "</pre>";
 }
 
 function add_rec($table, $data) {
 
-	if (!is_array($data)) { return FALSE; } 
+	if (!is_array($data)) { return FALSE; }
 
 	$keys = array_keys($data);
 	$values = array_values($data);

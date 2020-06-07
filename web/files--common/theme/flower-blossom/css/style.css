@@ -1,7 +1,7 @@
 /* from: http://www.openwebdesign.org/viewdesign.phtml?id=3185&referer=%2Fbrowse.php */
 
 body{
-	background:#fafafa; 
+	background:#fafafa;
 	font: 0.8em Verdana, arial, helvetica,sans-serif;
 }
 
@@ -107,7 +107,7 @@ top:2em; right:0;
 }
 #account-options a:hover{
 	background-color: #EEE;
-}	
+}
 
 #login-status{
 	right: 22em;
@@ -175,7 +175,7 @@ top:2em; right:0;
   padding: 0;
   margin:0;
   background: #fafee9;
-  color:#000;	
+  color:#000;
 	border-right: 1px solid #3f3c1e;
 }
 
@@ -210,14 +210,14 @@ top:2em; right:0;
 
 
 
-#main-content{ 
-	margin:0; 
-	margin-left: 24%; 
-	background:#fafafa; 
+#main-content{
+	margin:0;
+	margin-left: 24%;
+	background:#fafafa;
 	color:#333;
-	padding:1em; 
-	 
-	
+	padding:1em;
+
+
 }
 
 #main-content p{

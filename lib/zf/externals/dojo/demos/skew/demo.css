@@ -55,7 +55,7 @@
 	.alignRight .imageNodeRight,
 	.alignLeft .imageNodeLeft,
 	.alignCenter .imageNodeCenter {
-		visibility:visible; 
+		visibility:visible;
 		z-index:42;
 	}
 
@@ -86,7 +86,7 @@
 		z-index:999;
 	}
 
-	#scrollContainer, 
+	#scrollContainer,
 	#imageContainer {
 		overflow:hidden;
 		height:240px;
@@ -115,7 +115,7 @@
 		margin-top:25px;
 	}
 
-	#pseudoFooter h1, 
+	#pseudoFooter h1,
 	#header h1 {
 		color:#fff;
 	}
@@ -207,4 +207,3 @@
 		float: left;
 		width: 400px;
 	}
-	

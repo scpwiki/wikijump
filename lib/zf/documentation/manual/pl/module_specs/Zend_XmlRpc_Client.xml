@@ -155,24 +155,24 @@ $result = $client->call('test.sayHello', array($arg1, $arg2));
                     </tbody>
                 </tgroup>
             </table>
-            
+
             <note>
                 <title>Na co zamieniane są puste tablice?</title>
 
                 <para>
-                    Przekazanie pustej tablicy do metody XML-RPC jest 
+                    Przekazanie pustej tablicy do metody XML-RPC jest
                     problematyczne, ponieważ może ona przedstawiać pustą tablicę
-                    lub strukturę. Obiekt <code>Zend_XmlRpc_Client</code> 
-                    wykrywa takie przypadki i wywołuje metodę serwera 
-                    <code>system.methodSignature</code> aby określić na jaki typ 
+                    lub strukturę. Obiekt <code>Zend_XmlRpc_Client</code>
+                    wykrywa takie przypadki i wywołuje metodę serwera
+                    <code>system.methodSignature</code> aby określić na jaki typ
                     XML-RPC powinien tę tablicę zamienić
                 </para>
 
                 <para>
-                    Jednak może to powodować pewne problemy. Po pierwsze, 
-                    serwery które nie obsługują metody 
-                    <code>system.methodSignature</code> będą zapisywać nieudane 
-                    żądania, a obiekt <code>Zend_XmlRpc_Client</code> będzie 
+                    Jednak może to powodować pewne problemy. Po pierwsze,
+                    serwery które nie obsługują metody
+                    <code>system.methodSignature</code> będą zapisywać nieudane
+                    żądania, a obiekt <code>Zend_XmlRpc_Client</code> będzie
                     wtedy zamieniał puste tablice na puste tablice XML-RPC.
                     Po drugie oznacza to, że każde wywołanie z argumentami w
                     postaci tablic będą powodować konieczność przeprowadzenia

@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Web
  * @version $Id$
@@ -32,7 +32,7 @@
  * creating new methods: <rulename>Rule($fieldValue, $ruleValue).
  */
 class BaseFormValidator {
-	
+
 	/**
 	 * Checks if the field is an integer value.
 	 */
@@ -43,7 +43,7 @@ class BaseFormValidator {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Checks if value as greater than the minimal value given.
 	 */
@@ -54,7 +54,7 @@ class BaseFormValidator {
 			return true;
 		}
 	}
-	
+
 	/**
 	 * Checks if value as greater than the maximal value given.
 	 */
@@ -65,7 +65,7 @@ class BaseFormValidator {
 			return true;
 		}
 	}
-	
+
 	/**
 	 * Check if the string is shorter than the maximum length given.
 	 */
@@ -73,10 +73,10 @@ class BaseFormValidator {
 		if(strlen($fieldValue)>$ruleValue){
 			return false;
 		} else {
-			return true;	
-		}		
+			return true;
+		}
 	}
-	
+
 	/**
 	 * Check if the string is longer than the minimum length given.
 	 */
@@ -84,10 +84,10 @@ class BaseFormValidator {
 		if(strlen($fieldValue)<$ruleValue){
 			return false;
 		} else {
-			return true;	
-		}		
+			return true;
+		}
 	}
-	
+
 	/**
 	 * Checks if the string matches the given regexp pattern.
 	 */
@@ -96,12 +96,12 @@ class BaseFormValidator {
 			return true;
 		} else{
 			return false;
-		}	
+		}
 	}
-	
+
 	/* -------------------------------------------------*/
 	/* file upload rules follow */
-	
+
 	/**
 	 * Checks if the upload is "real".
 	 */
@@ -119,10 +119,10 @@ class BaseFormValidator {
 		if($fieldValue->getError() != UPLOAD_ERR_OK){
 			return false;
 		}
-		
+
 		return is_uploaded_file($fieldValue->getTmpName());
 	}
-	
+
 	/**
 	 * Checks if the upload size does not exceed given.
 	 */
@@ -135,9 +135,9 @@ class BaseFormValidator {
 		if($fileItem->getSize() > $ruleValue){
 			return false;
 		}
-		return true;	
+		return true;
 	}
-	
+
 	/**
 	 * Checks if the download file mime type matches against the given regexp pattern.
 	 */
@@ -145,9 +145,9 @@ class BaseFormValidator {
 
 		$out = preg_match("$ruleValue", $fieldValue->getType());
 		if($out !== false){
-			return true;	
+			return true;
 		} else {
 			return false;
-		}	
+		}
 	}
 }

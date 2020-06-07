@@ -19,7 +19,7 @@ Zend_Debug::dump($var, $label=null, $echo=true);]]></programlisting>
     </para>
 
     <para>
-        Il parametro <code>$label</code> è una stringa da inserire prima dell'output di <code>Zend_Debug::dump()</code>.  
+        Il parametro <code>$label</code> è una stringa da inserire prima dell'output di <code>Zend_Debug::dump()</code>.
         Può essere utile, per esempio, per utilizzare delle etichette se si sta eseguendo il dump a schermo di informazioni su più variabili.
     </para>
 
@@ -41,7 +41,7 @@ Zend_Debug::dump($var, $label=null, $echo=true);]]></programlisting>
         <title>Debug con Zend_Log</title>
         <para>
             L'utilizzo di <code>Zend_Debug::dump()</code> è conveniente per il debug specifico durante lo sviluppo del software.
-            E' possibile inserire o rimuovere rapidamente il codice necessario per stampare una variabile.  
+            E' possibile inserire o rimuovere rapidamente il codice necessario per stampare una variabile.
         </para>
         <para>
             Anche l'uso del componente <link linkend="zend.log.overview">Zend_Log</link> è da tenere in considerazione quando si desidera scrivere un sistema di debug del codice più permanente.

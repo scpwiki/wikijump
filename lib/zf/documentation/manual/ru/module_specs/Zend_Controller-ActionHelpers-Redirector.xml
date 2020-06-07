@@ -75,7 +75,7 @@
                     <code>gotoUrlAndExit()</code>.
                 </para>
             </listitem>
-            
+
             <listitem>
                 <para>
                     <code>setUseAbsoluteUri()</code> может использоваться для
@@ -151,11 +151,11 @@ class SomeController extends Zend_Controller_Action
      * @var Zend_Controller_Action_Helper_Redirector
      */
     protected $_redirector = null;
-    
+
     public function init()
     {
         $this->_redirector = $this->_helper->getHelper('Redirector');
-        
+
         // Установка опций по умолчанию для редиректора
         // Поскольку объект зарегистрирован в брокере помощников,
         // то эти опции будут действительными для всех
@@ -165,7 +165,7 @@ class SomeController extends Zend_Controller_Action
                           ->setGotoSimple("this-action",
                                           "some-controller");
     }
-    
+
     public function myAction()
     {
         /* делаем что-то */
@@ -199,12 +199,12 @@ class AlternativeController extends Zend_Controller_Action
      * @var Zend_Controller_Action_Helper_Redirector
      */
     protected $_redirector = null;
-    
+
     public function init()
     {
         $this->_redirector = $this->_helper->getHelper('Redirector');
     }
-    
+
     public function myAction()
     {
         /* делаем что-то */
@@ -213,7 +213,7 @@ class AlternativeController extends Zend_Controller_Action
             ->gotoUrl('/my-controller/my-action/param1/test/param2/test2');
         // это место никогда не будет достигнуто,
         // т.к. по умолчанию производится переход и завершение выполнения
-        return; 
+        return;
     }
 }]]>
             </programlisting>
@@ -241,12 +241,12 @@ class ForwardController extends Zend_Controller_Action
      * @var Zend_Controller_Action_Helper_Redirector
      */
     protected $_redirector = null;
-    
+
     public function init()
     {
         $this->_redirector = $this->_helper->getHelper('Redirector');
     }
-    
+
     public function myAction()
     {
         /* Делаем что-то */
@@ -304,19 +304,19 @@ class BlogAdminController extends Zend_Controller_Action
      * @var Zend_Controller_Action_Helper_Redirector
      */
     protected $_redirector = null;
-    
+
     public function init()
     {
         $this->_redirector = $this->_helper->getHelper('Redirector');
     }
-    
+
     public function returnAction()
     {
         /* делаем что-то */
 
         // Перенаправление в архив блога. Строит URL
         // /blog/2006/4/24/42
-        
+
         $this->_redirector->gotoRoute(
             array('year' => 2006,
                   'month' => 4,

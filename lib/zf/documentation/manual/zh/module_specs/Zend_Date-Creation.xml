@@ -39,7 +39,7 @@ $date = new Zend_Date();
             <para>
                 有时候用静态方法生成日期更容易。因此，你可以使用  <emphasis role="strong"><code>now()</code></emphasis> 方法，
                 它返回 <code>Zend_Date</code> 的一个新实例，就象你用 <code>new Zend_Date()</code> 一样。
-                但它将总返回当前日期并且不能用可选的参数修改。 
+                但它将总返回当前日期并且不能用可选的参数修改。
             </para>
 
             <programlisting role="php"><![CDATA[
@@ -163,11 +163,11 @@ $date = new Zend_Date($datecolumn, Zend_Date::ISO_8601);
             </para>
 
             <programlisting role="php"><![CDATA[
-$datearray = array('year' => 2006, 
-                   'month' => 4, 
-                   'day' => 18, 
-                   'hour' => 12, 
-                   'minute' => 3, 
+$datearray = array('year' => 2006,
+                   'month' => 4,
+                   'day' => 18,
+                   'hour' => 12,
+                   'minute' => 3,
                    'second' => 10);
 $date = new Zend_Date($datearray);
 ]]>

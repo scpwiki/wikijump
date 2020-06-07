@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version \$Id\$
@@ -29,13 +29,13 @@ use BaseDBPeer;
 
 
 
- 
+
 /**
  * Base peer class mapped to the database table forum_thread.
  */
 class ForumThreadPeerBase extends BaseDBPeer {
 	public static $peerInstance;
-	
+
 	protected function internalInit(){
 		$this->tableName='forum_thread';
 		$this->objectName='DB\\ForumThread';
@@ -44,7 +44,7 @@ class ForumThreadPeerBase extends BaseDBPeer {
 		$this->fieldTypes = array( 'thread_id' => 'serial',  'user_id' => 'int',  'user_string' => 'varchar(80)',  'category_id' => 'int',  'title' => 'varchar(256)',  'description' => 'varchar(1000)',  'number_posts' => 'int',  'date_started' => 'timestamp',  'site_id' => 'int',  'last_post_id' => 'int',  'page_id' => 'int',  'sticky' => 'boolean',  'blocked' => 'boolean');
 		$this->defaultValues = array( 'number_posts' => '1',  'sticky' => 'false',  'blocked' => 'false');
 	}
-	
+
 	public static function instance(){
 		if(self::$peerInstance == null){
 			$className = "DB\\ForumThreadPeer";

@@ -14,7 +14,7 @@
             <listitem>
                 <para>
                     <ulink url="http://framework.zend.com/download">下载最新的稳定版本。</ulink>
-                    这个版本有 <code>.zip</code> 和 <code>.tar.gz</code> 
+                    这个版本有 <code>.zip</code> 和 <code>.tar.gz</code>
                     两种格式，对于 Zend Framework 的新手来说是不错的选择。
                 </para>
             </listitem>
@@ -57,7 +57,7 @@
 
     <para>
         当拥有了一个可用的 Zend Framework 副本时，应用程序需要能够访问到框架中的类。虽然有
-        <ulink url="http://www.php.net/manual/zh/configuration.changes.php">许多的方法来达到这个目的</ulink>，PHP 的 
+        <ulink url="http://www.php.net/manual/zh/configuration.changes.php">许多的方法来达到这个目的</ulink>，PHP 的
         <ulink url="http://www.php.net/manual/zh/ini.core.php#ini.include-path"><code>include_path</code></ulink>
         必须含有 Zend Framework 库的路径。
     </para>

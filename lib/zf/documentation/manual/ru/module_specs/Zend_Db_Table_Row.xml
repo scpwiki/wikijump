@@ -62,7 +62,7 @@ $row = $rowset->current();
             </programlisting>
 
         </example>
-        
+
         <sect3 id="zend.db.table.row.read.get">
             <title>Чтение значений столбцов из строки</title>
 
@@ -533,7 +533,7 @@ $bugs = new Bugs(array('rowClass' => 'MyRow'));
                 использовать этот способ вместо переопределения метода
                 <code>__construct</code>, если только не требуется изменять
                 метаданные программным путем.
-            
+
                 <example id="zend.db.table.row.init.usage.example">
 
                     <title>Пример использования метода init()</title>
@@ -652,7 +652,7 @@ class MyLoggingRow extends Zend_Db_Table_Row_Abstract
     protected function _insert()
     {
         $log = Zend_Registry::get('database_log');
-        $log->info(Zend_Debug::dump($this->_data, 
+        $log->info(Zend_Debug::dump($this->_data,
                                     "INSERT: $this->_tableClass",
                                     false)
                   );

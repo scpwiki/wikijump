@@ -5,14 +5,14 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 
 <div class="error-block" id="loginerror" style="display: none"></div>
 <form id="login-form" action="common--html/dummy.html" method="post"
-	onsubmit="WIKIDOT.modules.LoginModule.listeners.loginClick(event)">		
-	
+	onsubmit="WIKIDOT.modules.LoginModule.listeners.loginClick(event)">
+
 	<?php if ($this->_tpl_vars['user']): ?>
 		<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Hello<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>, <span style="font-size:130%; font-weight: bold"><?php echo ((is_array($_tmp=$this->_tpl_vars['user']->getNickName())) ? $this->_run_mod_handler('escape', true, $_tmp) : smarty_modifier_escape($_tmp)); ?>
 </span>
 		<br/>
 		<br/>
-	<?php else: ?>			
+	<?php else: ?>
 		<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Email<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
 		<br/>
 		<input class="text" name="name" type="text" size="25" id="login-form-name"/>
@@ -28,18 +28,18 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 		<a href="javascript:;" style="font-size: 85%" onclick="WIKIDOT.modules.LoginModule.listeners.switchUser(event)"><?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Log in as a different user<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?></a>.
 		<br/><br/>
 	<?php endif; ?>
-	
-	<input class="checkbox" name="keepLogged" type="checkbox" 
+
+	<input class="checkbox" name="keepLogged" type="checkbox"
 		id="login-form-keeplogged" checked="checked"/>
 	<label for="login-form-keeplogged"><?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Keep me logged in unless I log out<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?></label> <span id="keep-logged-info">[?]</span>
 	<br/>
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(Uncheck if on a shared computer)
-	
+
 	<br/>
 	<input class="checkbox" name="bindIP" type="checkbox" checked="checked"
 		id="login-form-bindip"/>
 	<label for="login-form-bindip"><?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Bind session to my IP<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?></label> <span id="bind-ip-info">[?]</span>
-	
+
 
 	<hr/>
 	<p>
@@ -54,8 +54,8 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 		<input type="submit" value="<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>login<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>" style="font-weight: bold"/>
 	</div>
 	<div id="keep-logged-info-hovertip">
-			<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Select this option and you will not be automatically logged-out after 30 minutes 
-			of inactivity.<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?> 
+			<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Select this option and you will not be automatically logged-out after 30 minutes
+			of inactivity.<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
 		</div>
 		<div id="bind-ip-info-hovertip">
 			<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>In order to increase security it is advised to bind the session to the IP address of the computer you use.
@@ -63,4 +63,3 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 			(and log out) occasionally. Option recommended.<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
 		</div>
 </form>
-				

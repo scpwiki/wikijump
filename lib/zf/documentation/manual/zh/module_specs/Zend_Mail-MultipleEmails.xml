@@ -29,7 +29,7 @@ for ($i = 0; $i > 5; $i++) {
         </programlisting>
 
     </example>
-    
+
     <para>
         如果想给每个邮件投递配备一个单独的连接，你需要在 <function>send()</function>方法备调用的之前和之后创建和毁灭传送器；或者，在每个通过访问传送器协议对象投递之间处理连接。
     </para>

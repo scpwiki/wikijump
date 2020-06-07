@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Web
  * @version $Id$
@@ -28,38 +28,38 @@
  * Global variables service for Smarty.
  */
 class GlobalVariablesService extends TemplateService {
-	
+
 	protected $serviceName = "globals";
-	
+
 	private $storage = array();
 	private $runData;
-	
+
 	public function __construct($runData){
 		$this->runData = $runData;
 	}
-		
+
 	public function set($key, $value){
 		$this->storage[$key] = $value;
 	}
-	
+
 	public function del($key = null){
 		if($key !== null){
-			unset($this->storage[$key]);	
+			unset($this->storage[$key]);
 		} else {
 			$this->storage = array();
-		}	
-	}
-	
-	public function get($key){
-		return $this->storage[$key];	
-	}
-	
-	public function hasKey($key){
-		if($this->storage[$key] !== null){
-			return true;	
-		}	else {
-			return false;	
 		}
 	}
-	
+
+	public function get($key){
+		return $this->storage[$key];
+	}
+
+	public function hasKey($key){
+		if($this->storage[$key] !== null){
+			return true;
+		}	else {
+			return false;
+		}
+	}
+
 }

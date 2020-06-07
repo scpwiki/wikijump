@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -28,25 +28,25 @@
  * Module controlls permissions, resolves module names etc.
  */
 class ModuleManager {
-	
+
 	private static $instance;
-	
+
 	private $wikiConfig;
 	private $ajaxConfig;
-	
+
 	public static function instance(){
 		if(self::$instance == null){
-			self::$instance = new ModuleManager();	
+			self::$instance = new ModuleManager();
 		}
 		return self::$instance;
 	}
-	
+
 	/**
 	 * Takes module name used in wiki source and returns template name
 	 */
 	public function resolveWikiModuleName($name){
 		if($this->wikiConfig == null){
-			$this->loadWikiConfig();	
+			$this->loadWikiConfig();
 		}
 		$row = $this->wikiConfig[$name];
 		return $row['template'];
@@ -67,26 +67,26 @@ class ModuleManager {
 		$stor = array();
 		foreach($m1 as $m){
 			$m3 = explode(" ", $m);
-			$stor[$m3[0]] = array('name' => $m3[0], 'template' =>$m3[1], 'permissions' => $m3[2]);	
+			$stor[$m3[0]] = array('name' => $m3[0], 'template' =>$m3[1], 'permissions' => $m3[2]);
 		}
 		$this->wikiConfig = $stor;
-		
+
 	}
-	
+
 	public function canWikiUseModule($siteName, $moduleName){
 		if($this->wikiConfig == null){
-			$this->loadWikiConfig();	
+			$this->loadWikiConfig();
 		}
 
 		$row = $this->wikiConfig[$moduleName];
-		
+
 		if($row == null){
-			return false;	
+			return false;
 		}
 		if($row['permissions'] == null){
-			return true;	
+			return true;
 		}
-		
+
 		$sites = explode(",", $row['permissions']);
 		if(in_array($siteName, $sites)){
 			return true;
@@ -94,5 +94,5 @@ class ModuleManager {
 			return false;
 		}
 	}
-	
+
 }

@@ -2,7 +2,7 @@
          compiled from /var/www/wikidot/templates/macros/GlobalMacros.autoload.tpl */ ?>
 <?php require_once(SMARTY_CORE_DIR . 'core.load_plugins.php');
 smarty_core_load_plugins(array('plugins' => array(array('block', 'defmacro', '/var/www/wikidot/templates/macros/GlobalMacros.autoload.tpl', 4, false),)), $this); ?>
- <?php $this->_tag_stack[] = array('defmacro', array('name' => 'printErrorMessages')); smarty_block_defmacro($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?> <?php echo ' 
+ <?php $this->_tag_stack[] = array('defmacro', array('name' => 'printErrorMessages')); smarty_block_defmacro($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?> <?php echo '
 	{if $messages != null}
 	<div style="text-align: center">
 	<table class="errormess">
@@ -20,9 +20,9 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 'defmacro', '/v
 	</div>
 	{/if}
 '; ?>
- <?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_defmacro($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?> 
+ <?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_defmacro($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
 
- <?php $this->_tag_stack[] = array('defmacro', array('name' => 'printSuccessMessages')); smarty_block_defmacro($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?> <?php echo ' 
+ <?php $this->_tag_stack[] = array('defmacro', array('name' => 'printSuccessMessages')); smarty_block_defmacro($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?> <?php echo '
 	{if $messages != null}
 	<div style="text-align: center">
 	<table class="successmess">
@@ -40,20 +40,20 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 'defmacro', '/v
 	</div>
 	{/if}
 '; ?>
- <?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_defmacro($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?> 
+ <?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_defmacro($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
 
 
 
- <?php $this->_tag_stack[] = array('defmacro', array('name' => 'pager')); smarty_block_defmacro($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?> <?php echo ' 
+ <?php $this->_tag_stack[] = array('defmacro', array('name' => 'pager')); smarty_block_defmacro($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?> <?php echo '
 
 {assign var=currentPage value=$pagerData->getCurrentPage()}
 {assign var=knownPages value=$pagerData->getKnownPages()}
 {assign var=totalPages value=$pagerData->getTotalPages()}
 {if $totalPages > 1 || $knownPages>1}
-<table class="pager" 
+<table class="pager"
 	{if $style}
 		style="{$style}"
-	{/if}	
+	{/if}
 >
 	<tr>
 		<td>
@@ -63,9 +63,9 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 'defmacro', '/v
 				{assign var=pages value=$totalPages}
 			{else}
 				{assign var=pages value=$knownPages}
-			{/if} 
+			{/if}
 		</td>
-		
+
 		{if $currentPage != 1}
 			{assign var="topage" value=$currentPage-1}
 			<td>
@@ -86,7 +86,7 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 'defmacro', '/v
 				<a href="{$golink->copy()->addParameter("page_number", 3)}">3</a>
 			{/if}
 			{if $currentPage  > 6}
-				...	
+				...
 			{/if}
 
 			{if $currentPage-2 >= 1}
@@ -124,7 +124,7 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 'defmacro', '/v
 				{assign var="topage" value=$pages-1}
 				<a href="{$golink->copy()->addParameter("page_number", $topage)}">{$pages-1}</a>
 			{/if}
-			
+
 			{if $knownPages != null}
 				...
 			{/if}
@@ -133,7 +133,7 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 'defmacro', '/v
 				<a href="{$golink->copy()->addParameter("page_number", $pages)}">{$pages}</a>
 			{/if}
 		</td>
-		
+
 		{if $currentPage != $pages}
 			<td>
 				{assign var="topage" value=$currentPage+1}
@@ -146,9 +146,9 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 'defmacro', '/v
 
 {/if}
 '; ?>
- <?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_defmacro($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?> 
+ <?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_defmacro($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
 
- <?php $this->_tag_stack[] = array('defmacro', array('name' => 'printUser')); smarty_block_defmacro($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?> <?php echo ' 
+ <?php $this->_tag_stack[] = array('defmacro', array('name' => 'printUser')); smarty_block_defmacro($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?> <?php echo '
 	<a href="{$HTTP_SCHEMA}://{$URL_HOST}/user:info/{$user->getUnixName()}">{$user->getNickName()|escape}</a>
 '; ?>
- <?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_defmacro($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?> 
+ <?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_defmacro($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>

@@ -63,10 +63,10 @@ class Zend_Captcha_DumbTest extends PHPUnit_Framework_TestCase
         }
 
         $this->element = new Zend_Form_Element_Captcha(
-            'captchaD', 
+            'captchaD',
             array(
                 'captcha' => array(
-                    'Dumb', 
+                    'Dumb',
                     'sessionClass' => 'Zend_Captcha_DumbTest_SessionContainer'
                 )
             )

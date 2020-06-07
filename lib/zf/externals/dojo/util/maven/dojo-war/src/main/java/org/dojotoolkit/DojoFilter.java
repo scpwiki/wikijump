@@ -17,9 +17,9 @@ public class DojoFilter implements Filter
 {
     private ServletContext _context;
     private String _cacheControl="public, max-age=2419200";
-    
+
     /* ------------------------------------------------------------ */
-    /* 
+    /*
      * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
      */
     public void init(FilterConfig filterConfig) throws ServletException
@@ -28,11 +28,11 @@ public class DojoFilter implements Filter
         String tmp = _context.getInitParameter("cacheControl");
         if (tmp!=null)
             _cacheControl=tmp;
-	
+
     }
 
     /* ------------------------------------------------------------ */
-    /* 
+    /*
      * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse, javax.servlet.FilterChain)
      */
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -43,7 +43,7 @@ public class DojoFilter implements Filter
     }
 
     /* ------------------------------------------------------------ */
-    /* 
+    /*
      * @see javax.servlet.Filter#destroy()
      */
     public void destroy()

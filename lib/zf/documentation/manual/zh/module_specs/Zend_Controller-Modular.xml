@@ -31,7 +31,7 @@ application/
             scripts/
                 index/
             helpers/
-            filters/        
+            filters/
     news/
         controllers/
             IndexController.php
@@ -87,7 +87,7 @@ $front->setControllerDirectory(array(
         </para>
 
         <programlisting role="php"><![CDATA[
-$front->addControllerDirectory('/path/to/application/news/controllers', 
+$front->addControllerDirectory('/path/to/application/news/controllers',
                                'news');
 ]]>
         </programlisting>

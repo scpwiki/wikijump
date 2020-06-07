@@ -31,14 +31,14 @@ class HTMLPurifier_HTMLModule_Scripting extends HTMLPurifier_HTMLModule
     public $name = 'Scripting';
     public $elements = array('script', 'noscript');
     public $content_sets = array('Block' => 'script | noscript', 'Inline' => 'script | noscript');
-    
+
     public function __construct() {
         // TODO: create custom child-definition for noscript that
-        // auto-wraps stray #PCDATA in a similar manner to 
+        // auto-wraps stray #PCDATA in a similar manner to
         // blockquote's custom definition (we would use it but
         // blockquote's contents are optional while noscript's contents
         // are required)
-        
+
         // TODO: convert this to new syntax, main problem is getting
         // both content sets working
         foreach ($this->elements as $element) {

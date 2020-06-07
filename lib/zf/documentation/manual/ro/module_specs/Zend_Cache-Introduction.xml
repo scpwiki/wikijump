@@ -87,7 +87,7 @@ print_r($result);?>]]>
         <title>Punerea în cache a textelor afişate cu interfaţa de ieşire din <code>Zend_Cache</code></title>
         <para>
 			Marcăm secţiuni în care dorim să punem în cache textele care vor fi afişate adăugând nişte condiţii,
-			mai exact încapsulăm fiecare secţiune între metodele <code>start()</code> şi <code>end()</code> 
+			mai exact încapsulăm fiecare secţiune între metodele <code>start()</code> şi <code>end()</code>
         </para><para>
 			În secţiune, afişaţi datele în mod normal - tot ceea ce este afişat va fi pus în cache în loc să fie afişat
 			până când este executată metoda <code>end()</code> (este poate cel mai util exemplu de a folosi această clasă).
@@ -114,15 +114,15 @@ if(!$cache->start('mypage')) {
     $cache->end(); // ieşirea este salvată şi trimisă navigatorului
 }
 
-echo 'Acest text nu este păstrat în cache niciodată ('.time().').';?>]]>       
+echo 'Acest text nu este păstrat în cache niciodată ('.time().').';?>]]>
 		</programlisting>
 		<para>
-		   Notaţi că afişăm rezultatul funcţiei <code>time()</code> de două ori; o facem în scop 
-		   demonstrativ. Încercaţi să reîmprospătaţi pagina de mai multe ori; veţi vedea că primul 
-		   număr nu se schimbă în timp ce al doilea se schimbă pe măsură ce trece timpul. Acest 
-		   lucru se întâmplă pentru că primul număr a fost salvat în cache şi este citit de acolo la a doua 
+		   Notaţi că afişăm rezultatul funcţiei <code>time()</code> de două ori; o facem în scop
+		   demonstrativ. Încercaţi să reîmprospătaţi pagina de mai multe ori; veţi vedea că primul
+		   număr nu se schimbă în timp ce al doilea se schimbă pe măsură ce trece timpul. Acest
+		   lucru se întâmplă pentru că primul număr a fost salvat în cache şi este citit de acolo la a doua
 		   accesare. După jumătate de minut (am setat timpul de expirare la 30 de secunde) numerele
-		   ar trebui să se potrivească din nou pentru că înregistrarea din cache a expirat -- doar pentru ca 
+		   ar trebui să se potrivească din nou pentru că înregistrarea din cache a expirat -- doar pentru ca
 		   rezultatul să fie din nou pus în cache. Ar trebui să încercaţi codul acesta în navigator sau în consolă.
        </para>
     </example>

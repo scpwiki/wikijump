@@ -25,7 +25,7 @@ class IndexControllerTest extends Zend_Test_PHPUnit_Controller_TestCase
     }
 }
 ]]></programlisting>
-    
+
     <para>
         しかし、時にはこれ以外の情報 (GET 変数や POST 変数、
         COOKIE 情報など) が必要になることもあります。

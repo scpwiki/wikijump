@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,23 +15,23 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Web
  * @version $Id$
  * @copyright Copyright (c) 2008, Wikidot Inc.
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
- 
+
 /**
  * Language-variant block for Smarty.
  */
- 
+
 function smarty_block_ltext($params, $content, &$smarty, &$repeat)
 {
     if (isset($content)) {
         $lang = $params['lang'];
-        if($lang == ""){ 
+        if($lang == ""){
         	//produce some error?
         	return;
         }
@@ -40,6 +40,6 @@ function smarty_block_ltext($params, $content, &$smarty, &$repeat)
         } else {
         	return;
         }
-        
+
     }
 }

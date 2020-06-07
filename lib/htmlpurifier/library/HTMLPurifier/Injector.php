@@ -4,56 +4,56 @@
  * Injects tokens into the document while parsing for well-formedness.
  * This enables "formatter-like" functionality such as auto-paragraphing,
  * smiley-ification and linkification to take place.
- * 
- * @todo Allow injectors to request a re-run on their output. This 
+ *
+ * @todo Allow injectors to request a re-run on their output. This
  *       would help if an operation is recursive.
  */
 abstract class HTMLPurifier_Injector
 {
-    
+
     /**
      * Advisory name of injector, this is for friendly error messages
      */
     public $name;
-    
+
     /**
      * Amount of tokens the injector needs to skip + 1. Because
      * the decrement is the first thing that happens, this needs to
      * be one greater than the "real" skip count.
      */
     public $skip = 1;
-    
+
     /**
      * Instance of HTMLPurifier_HTMLDefinition
      */
     protected $htmlDefinition;
-    
+
     /**
      * Reference to CurrentNesting variable in Context. This is an array
      * list of tokens that we are currently "inside"
      */
     protected $currentNesting;
-    
+
     /**
      * Reference to InputTokens variable in Context. This is an array
      * list of the input tokens that are being processed.
      */
     protected $inputTokens;
-    
+
     /**
      * Reference to InputIndex variable in Context. This is an integer
      * array index for $this->inputTokens that indicates what token
      * is currently being processed.
      */
     protected $inputIndex;
-    
+
     /**
      * Array of elements and attributes this injector creates and therefore
      * need to be allowed by the definition. Takes form of
      * array('element' => array('attr', 'attr2'), 'element2')
      */
     public $needed = array();
-    
+
     /**
      * Prepares the injector by giving it the config and context objects:
      * this allows references to important variables to be made within
@@ -80,7 +80,7 @@ abstract class HTMLPurifier_Injector
         $this->inputIndex     =& $context->get('InputIndex');
         return false;
     }
-    
+
     /**
      * Tests if the context node allows a certain element
      * @param $name Name of element to test for
@@ -99,23 +99,23 @@ abstract class HTMLPurifier_Injector
         }
         return true;
     }
-    
+
     /**
      * Handler that is called when a text token is processed
      */
     public function handleText(&$token) {}
-    
+
     /**
      * Handler that is called when a start or empty token is processed
      */
     public function handleElement(&$token) {}
-    
+
     /**
      * Notifier that is called when an end token is processed
      * @note This differs from handlers in that the token is read-only
      */
     public function notifyEnd($token) {}
-    
-    
+
+
 }
 

@@ -78,7 +78,7 @@
             </para>
             <programlisting role="php"><![CDATA[
 // Tworzymy połączenie do bazy danych SQLite przechowywanej w pamięci
-$dbAdapter = new Zend_Db_Adapter_Pdo_Sqlite(array('dbname' => 
+$dbAdapter = new Zend_Db_Adapter_Pdo_Sqlite(array('dbname' =>
                                                   ':memory:'));
 
 // Budujemy zapytanie tworzące prostą tabelę
@@ -110,9 +110,9 @@ $dbAdapter->query($sqlInsert);
             <programlisting role="php"><![CDATA[
 // Konfigurujemy instancję za pomocą parametrów konstruktora
 $authAdapter = new Zend_Auth_Adapter_DbTable(
-    $dbAdapter, 
-    'users', 
-    'username', 
+    $dbAdapter,
+    'users',
+    'username',
     'password'
 );
 
@@ -193,14 +193,14 @@ $result = $this->_auth->authenticate($adapter);
 
 if ($result->isValid()) {
 
-    // przechowujemy tożsamość jako obiekt, w którym zwracane są jedynie 
+    // przechowujemy tożsamość jako obiekt, w którym zwracane są jedynie
     // pola username oraz real_name
     $storage = $this->_auth->getStorage();
     $storage->write($adapter->getResultRowObject(array(
-        'username', 
+        'username',
         'real_name'
     )));
-    
+
     // przechowujemy tożsamość jako obiekt, w którym kolumna zawierająca
     // hasło została pominięta
     $storage->write($adapter->getResultRowObject(
@@ -222,36 +222,36 @@ if ($result->isValid()) {
         <title>Przykład zaawansowanego użycia</title>
         <para>
             O ile głównym przeznaczeniem komponentu Zend_Auth (i odpowiednio
-            Zend_Auth_Adapter_DbTable) jest 
+            Zend_Auth_Adapter_DbTable) jest
             <emphasis role="strong">uwierzytelnianie</emphasis> a nie
-            <emphasis role="strong">autoryzacja</emphasis>, 
+            <emphasis role="strong">autoryzacja</emphasis>,
             jest kilka problemów które możemy rozwiązać odrobinę przekraczając
             pole zastosowań komponentu. Zależnie od tego jak zdecydujesz
-            wyjaśnić swój problem, czasem może być przydatne rozwiązanie 
+            wyjaśnić swój problem, czasem może być przydatne rozwiązanie
             problemu autoryzacji podczas uwierzytelniania.
         </para>
         <para>
-            Komponent Zend_Auth_Adapter_DbTable posiada pewien wbudowany 
-            mechanizm, który może być użyty do dodania dodatkowych warunków 
-            podczas uwierzytelniania, dzięki czemu można rozwiązać niektóre 
+            Komponent Zend_Auth_Adapter_DbTable posiada pewien wbudowany
+            mechanizm, który może być użyty do dodania dodatkowych warunków
+            podczas uwierzytelniania, dzięki czemu można rozwiązać niektóre
             problemy.
         </para>
         <programlisting role="php"><![CDATA[
 // Wartość pola "status" dla tego konta nie jest równa wartości "compromised"
 $adapter = new Zend_Auth_Adapter_DbTable(
-    $db, 
-    'users', 
-    'username', 
-    'password', 
+    $db,
+    'users',
+    'username',
+    'password',
     'MD5(?) AND status != "compromised"'
 );
 
 // Wartość pola "active" dla tego konta jest równa wartości "TRUE"
 $adapter = new Zend_Auth_Adapter_DbTable(
-    $db, 
-    'users', 
-    'username', 
-    'password', 
+    $db,
+    'users',
+    'username',
+    'password',
     'MD5(?) AND active = "TRUE"'
 );
 ]]>
@@ -259,8 +259,8 @@ $adapter = new Zend_Auth_Adapter_DbTable(
         <para>
             Innym przykładem może być implementacja mechanizmu saltingu. Jest to
             technika pozwalająca w znaczny sposób zwiększyć bezpieczeństwo
-            aplikacji. Polega ona na tym, że dołączając do każdego hasła losowy 
-            łańcuch znaków spowodujemy, że niemożliwe będzie przeprowadzenie 
+            aplikacji. Polega ona na tym, że dołączając do każdego hasła losowy
+            łańcuch znaków spowodujemy, że niemożliwe będzie przeprowadzenie
             ataku brute force na bazę danych w oparciu o przygotowany słownik.
         </para>
         <para>
@@ -268,7 +268,7 @@ $adapter = new Zend_Auth_Adapter_DbTable(
             przechowywać nasz łańcuch znaków salt:
         </para>
         <programlisting role="php"><![CDATA[
-$sqlAlter = "ALTER TABLE [users] " 
+$sqlAlter = "ALTER TABLE [users] "
           . "ADD COLUMN [password_salt] "
           . "AFTER [password]";
 
@@ -295,8 +295,8 @@ $adapter = new Zend_Auth_Adapter_DbTable(
     'users',
     'username',
     'password',
-    "MD5(CONCAT('" 
-    . Zend_Registry::get('staticSalt') 
+    "MD5(CONCAT('"
+    . Zend_Registry::get('staticSalt')
     . "', ?, password_salt))"
 );
 ]]>

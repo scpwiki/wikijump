@@ -41,7 +41,7 @@
     </para>
 
     <para>
-        <code>HeadStyle</code> 覆盖 <code>append()</code>， <code>offsetSet()</code>，<code>prepend()</code> 和 <code>set()</code> 中的每一个来加强上述特殊方法的用法。 在内部，它存储每个条目为 <code>stdClass</code> 令牌，它在稍后用 <code>itemToString()</code> 方法 serializes 。这允许在堆栈里检查条目，并可选地通过修改返回的对象来修改这些条目。 
+        <code>HeadStyle</code> 覆盖 <code>append()</code>， <code>offsetSet()</code>，<code>prepend()</code> 和 <code>set()</code> 中的每一个来加强上述特殊方法的用法。 在内部，它存储每个条目为 <code>stdClass</code> 令牌，它在稍后用 <code>itemToString()</code> 方法 serializes 。这允许在堆栈里检查条目，并可选地通过修改返回的对象来修改这些条目。
     </para>
 
     <para>
@@ -80,7 +80,7 @@ $this->headStyle()->prependStyle($firstStyles);
 ]]></programlisting>
 
         <para>
-            当准备好在布局脚本里输出所有样式声明，简单地 echo 助手：        
+            当准备好在布局脚本里输出所有样式声明，简单地 echo 助手：
         </para>
 
         <programlisting role="php"><![CDATA[

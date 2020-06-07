@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version \$Id\$
@@ -29,13 +29,13 @@ use BaseDBPeer;
 
 
 
- 
+
 /**
  * Base peer class mapped to the database table openid_entry.
  */
 class OpenidEntryPeerBase extends BaseDBPeer {
 	public static $peerInstance;
-	
+
 	protected function internalInit(){
 		$this->tableName='openid_entry';
 		$this->objectName='DB\\OpenidEntry';
@@ -44,7 +44,7 @@ class OpenidEntryPeerBase extends BaseDBPeer {
 		$this->fieldTypes = array( 'openid_id' => 'serial',  'site_id' => 'int',  'page_id' => 'int',  'type' => 'varchar(10)',  'user_id' => 'int',  'url' => 'varchar(100)',  'server_url' => 'varchar(100)');
 		$this->defaultValues = array();
 	}
-	
+
 	public static function instance(){
 		if(self::$peerInstance == null){
 			$className = "DB\\OpenidEntryPeer";

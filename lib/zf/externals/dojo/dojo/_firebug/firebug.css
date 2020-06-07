@@ -22,7 +22,7 @@
 	border-top: 1px solid ThreeDHighlight;
 	border-bottom: 1px solid ThreeDShadow;
 	padding: 2px 6px;
-	
+
 	background:#f0f0f0;
 }
 
@@ -91,7 +91,7 @@
 	padding-bottom: 3px;
 }
 .firebug .logRow-warning {
-	
+
 	background: #00FFFF url(warningIcon.png) no-repeat 2px 2px;
 	padding-left: 20px;
 	padding-bottom: 3px;

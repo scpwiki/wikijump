@@ -24,9 +24,9 @@ require_once 'Zend/Captcha/Word.php';
 
 /**
  * Example dumb word-based captcha
- * 
+ *
  * Note that only rendering is necessary for word-based captcha
- *  
+ *
  * @category   Zend
  * @package    Zend_Captcha
  * @subpackage Adapter

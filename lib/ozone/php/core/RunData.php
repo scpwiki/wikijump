@@ -7,7 +7,7 @@ use DB\OzoneSessionPeer;
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -20,7 +20,7 @@ use DB\OzoneSessionPeer;
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Web
  * @version $Id$
@@ -37,12 +37,12 @@ class RunData {
 	private $screenTemplate;
 	private $screenClassName;
 	private $screenClassPath;
-	
+
 	// used only when processing a module
 	private $moduleTemplate;
 	private $moduleClassName;
 	private $moduleClassPath;
-	
+
 	private $context;
 	private $action;
 	private $actionEvent;
@@ -61,13 +61,13 @@ class RunData {
 
 	private $requestUri;
 	private $requestMethod;
-	
+
 	private $extra = array();
 
 	private $formToolHttpProcessed = false;
-	
+
 	private $temp; // temporary variables
-	
+
 	private $_outCookies = array();
 
 	/**
@@ -125,13 +125,13 @@ class RunData {
 				}
 			}
 		}
-		
+
 		if (! preg_match(';\.' . GlobalProperties::$URL_DOMAIN_PREG . '$;', $_SERVER['HTTP_HOST'])) {
 			GlobalProperties::$SESSION_COOKIE_NAME .= "_" . substr(md5($_SERVER['HTTP_HOST']), 3, 8);
 			GlobalProperties::$SESSION_COOKIE_DOMAIN = '.' . $_SERVER['HTTP_HOST'];
 		}
 
-		// initialize cookies... 
+		// initialize cookies...
 		$this->cookies = $_COOKIE;
 
 		// store original request uri and request method:
@@ -246,7 +246,7 @@ class RunData {
 			$template = $this->parameterList->getParameterValue("moduleName");
 			if ($template == null || preg_match('/^[a-z0-9_\/]+$/i',$template) != 1) {
 				$template = "Empty";
-			}	
+			}
 			$this->moduleTemplate = $template;
 			$this->findClass();
 		}
@@ -258,22 +258,22 @@ class RunData {
 
 	public function getScreenTemplate() {
 		return str_replace(',', '/', $this->screenTemplate);
-		
+
 	}
-	
+
 	public function getModuleTemplate() {
 		return  $this->moduleTemplate;
 	}
-	
+
 	public function setModuleTemplate($template) {
 		$this->moduleTemplate = $template;
 		$this->findClass();
 	}
-	
+
 	public function getModuleClassPath() {
 		return  $this->moduleClassPath;
 	}
-	
+
 	public function getModuleClassName() {
 		return  $this->moduleClassName;
 	}
@@ -318,9 +318,9 @@ class RunData {
 	public function getContext() {
 		return $this->context;
 	}
-	
+
 	public function setContext($context){
-		$this->context = $context;	
+		$this->context = $context;
 	}
 
 	public function getLanguage() {
@@ -328,18 +328,18 @@ class RunData {
 	}
 
 	public function setLanguage($lang){
-		$this->language = $lang;	
+		$this->language = $lang;
 	}
 
 	public function setAjaxMode($val){
 		$this->ajaxMode = $val;
-	}	
-	
+	}
+
 	public function getAjaxMode(){
-		return $this->ajaxMode;	
+		return $this->ajaxMode;
 	}
 	public function isAjaxMode(){
-		return $this->ajaxMode;	
+		return $this->ajaxMode;
 	}
 
 	/**
@@ -348,7 +348,7 @@ class RunData {
 	private function findClass() {
 		if(!$this->ajaxMode){
 		$classFilename = PathManager :: screenClass($this->screenTemplate);
-		
+
 		if (file_exists($classFilename)) {
 			$this->screenClassPath = $classFilename;
 			$tmp1 = explode('/', $this->screenTemplate);
@@ -399,29 +399,29 @@ class RunData {
 			$sessionSecure = GlobalProperties::$SESSION_COOKIE_SECURE;
 			$cookieResult = $this->_setCookie($cookieKey, $sessionId, time() + 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN, $sessionSecure);
 			$session = new OzoneSession();
-	
+
 			// set IP
 			$session->setIpAddress($this->createIpString());
-			
+
 			// set UA hash
 			$session->setUaHash($this->createUaHash());
-			
+
 			// set unique SESSION_ID
 			$session->setSessionId($sessionId);
-	
+
 			$date = new ODate();
 			$session->setStarted($date);
 			$session->setLastAccessed($date);
-			
+
 			$session->setNewSession(true);
 			$session->setUserId(null); // will this work?
 			$this->session = $session;
 		}
 	}
-	
-	/** 
+
+	/**
 	 * Stops handling session - removing the cookie etc.
-	 * 
+	 *
 	 */
 	public function sessionStop($removeCookie = true){
 		$s = $this->getSession();
@@ -429,37 +429,37 @@ class RunData {
 			$memcache = \Ozone::$memcache;
 			$mkey = 'session..'.$s->getSessionId();
 			$memcache->delete($mkey);
-			
+
 			OzoneSessionPeer :: instance()->deleteByPrimaryKey($s->getSessionId());
 			$this->session = null;
-			
+
 		}
 		if($removeCookie){
 			$cookieKey = GlobalProperties::$SESSION_COOKIE_NAME;
 			$this->_setCookie($cookieKey, 'dummy', time() - 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
 		}
 	}
-	
+
 	public function getSessionFromDomainHash($session_hash, $domain, $user_id) {
 		$domain = pg_escape_string(strtolower($domain));
 		$user_id = (int) $user_id;
 		$session_hash = pg_escape_string($session_hash);
 		$secret = pg_escape_string(GlobalProperties::$SECRET_DOMAIN_LOGIN);
-		
+
 		$c = new Criteria();
 		$c->add("user_id", $user_id);
 		$c->add("MD5('${domain}_${secret}_' || session_id)", $session_hash);
 		$session = OzoneSessionPeer::instance()->selectOne($c);
-		
+
 		return $session;
 	}
-	
+
 	public function generateSessionDomainHash($domain) {
 		$domain = strtolower($domain);
 		$user_id = $this->getUserId();
 		$session_id = $this->getSessionId();
 		$secret = GlobalProperties::$SECRET_DOMAIN_LOGIN;
-		
+
 		return md5("${domain}_${secret}_${session_id}");
 	}
 
@@ -470,21 +470,21 @@ class RunData {
 		// check if session cookie exists
 		$cookieKey = GlobalProperties::$SESSION_COOKIE_NAME;
 		$cookieSessionId = $this->cookies[$cookieKey];
-		
+
 		// TODO: we can optimise this a bit... like don't fetch the session the second time from db
 		$m = array();
 		if (preg_match(";^_domain_cookie_(.*)_(.*)$;", $cookieSessionId, $m)) {
 			$user_id = (int) $m[1];
 			$session_hash = $m[2];
 			$domain = $_SERVER['HTTP_HOST'];
-			
+
 			$session_from_db = $this->getSessionFromDomainHash($session_hash, $domain, $user_id);
-			
+
 			if ($session_from_db) {
 				$cookieSessionId = $session_from_db->getSessionId();
 			}
 		}
-		
+
 		if ($cookieSessionId == false || $cookieSessionId == '' || !$cookieSessionId) {
 			// no session cookie, we do not force one (new cool policy).
 			return ;
@@ -493,7 +493,7 @@ class RunData {
 		// try memcached first
 		$memcache = \Ozone::$memcache;
 		$mkey = 'session..'.$cookieSessionId;
-		
+
 		$session = $memcache->get($mkey);
 		if(!$session){
 			$session = OzoneSessionPeer :: instance()->selectByPrimaryKey($cookieSessionId);
@@ -503,11 +503,11 @@ class RunData {
 			$this->_setCookie($cookieKey, $cookieSessionId, time() - 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
 			return;
 		}
-		
-		// if we are here it means that the session object EXISTS in the database. now see if it is 
+
+		// if we are here it means that the session object EXISTS in the database. now see if it is
 		// valid. if ok - leave it. if not - clean up.
 		$sessionValid = true;
-		
+
 		if ($session->getInfinite() == false) {
 
 			$minTimestamp = new ODate();
@@ -532,15 +532,15 @@ class RunData {
 				return; // nasty, we should not remove this session.
 			}
 		}
-		
+
 		/* Check UA hash. */
-		
+
 		if($session->getUaHash() != $this->createUaHash()){
 			$sessionValid = false;
 			$this->session = null;
 			return;
 		}
-		
+
 		if($sessionValid == false){
 			// cleanup again
 			$c = new Criteria();
@@ -548,12 +548,12 @@ class RunData {
 			OzoneSessionPeer :: instance()->delete($c);
 			$memcache->delete($mkey);
 		}else {
-		
+
 			// 	all is right, set the session now.
 			$this->session = $session;
 		}
 		return;
-	
+
 	}
 
 	/**
@@ -569,24 +569,24 @@ class RunData {
 			} else{
 				$date = new ODate();
 				$session->setLastAccessed($date);
-				
+
 				// save it to the database too?
 				$lastSavedDate = $session->getTemp("lastSaved");
-				if($session->getSessionChanged() 
-						|| !$lastSavedDate 
+				if($session->getSessionChanged()
+						|| !$lastSavedDate
 						|| $date->getTimestamp() - $lastSavedDate->getTimestamp() > 300
 						|| $session->isNew()){
 					$session->save();
 					$session->setTemp("lastSaved", $date);
-					$session->setSessionChanged(false);		
+					$session->setSessionChanged(false);
 				}
-					
+
 				$mc = OZONE::$memcache;
 				$key = 'session..'.$session->getSessionId();
 				$mc->set($key, $session, 0, 600);
 			}
 		}
-		
+
 		$this->_setCookies();
 	}
 
@@ -600,7 +600,7 @@ class RunData {
 	}
 
 	public function sessionAdd($key, $value) {
-		
+
 		if ($this->session == null) {
 			$this->sessionStart();
 		}
@@ -611,7 +611,7 @@ class RunData {
 		if ($this->session !== null) {
 			return $this->session->getSerialized($key);
 		} else{
-			return null;	
+			return null;
 		}
 	}
 
@@ -637,7 +637,7 @@ class RunData {
 			$this->sessionAdd('form_tool', $formTool);
 			OzoneLogger :: instance()->debug("obtaining new FormTool");
 		}
-		// 
+		//
 		if ($this->formToolHttpProcessed == false) {
 			// extract form data form the http request
 			$formTool->processHttpRequest($this);
@@ -684,17 +684,17 @@ class RunData {
 		}
 		return $this->session->getOzoneUser();
 	}
-	
+
 	public function setExtra($key, $value){
-		$this->extra[$key] = $value;	
+		$this->extra[$key] = $value;
 	}
-	
+
 	public function getExtra($key){
-		return $this->extra[$key];	
+		return $this->extra[$key];
 	}
-	
+
 	public function extraAsArray(){
-		return $this->extra;	
+		return $this->extra;
 	}
 
 	public function createIpString() {
@@ -718,39 +718,39 @@ class RunData {
 		return $out;
 
 	}
-	
+
 	public function createUaHash() {
 		return md5($_SERVER['HTTP_USER_AGENT'] . 'hashstring');
 	}
-	
+
 	public function setTemp($key, $value){
-		$this->temp[$key] = $value;	
+		$this->temp[$key] = $value;
 	}
-	
+
 	public function getTemp($key){
-		return $this->temp[$key];	
+		return $this->temp[$key];
 	}
-	
+
 	public function ajaxResponseAdd($key, $value){
-		$this->ajaxResponse[$key] = $value;	
+		$this->ajaxResponse[$key] = $value;
 	}
-	
+
 	public function ajaxResponseGet($key){
-		return $this->ajaxResponse[$key];	
+		return $this->ajaxResponse[$key];
 	}
-	
+
 	public function getAjaxResponse(){
-		return $this->ajaxResponse;	
+		return $this->ajaxResponse;
 	}
-	
+
 	public function getSessionId(){
 		if($this->session != null){
 			return $this->session->getSessionId();
 		} else {
-			return null;	
-		}	
+			return null;
+		}
 	}
-	
+
 	protected function _setCookie($cookieName, $value = null, $time = null, $path = null, $domain = null){
 		$this->_outCookies[$cookieName] = array(
 		'value' => $value,
@@ -759,7 +759,7 @@ class RunData {
 		'domain' => $domain
 		);
 	}
-	
+
 	protected function _setCookies(){
 		foreach($this->_outCookies as $name => $cookie){
 			setcookie($name, $cookie['value'], $cookie['time'], $cookie['path'], $cookie['domain']);

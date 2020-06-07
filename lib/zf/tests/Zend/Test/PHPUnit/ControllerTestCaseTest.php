@@ -21,7 +21,7 @@ require_once 'Zend/Controller/Action.php';
 /**
  * Test class for Zend_Test_PHPUnit_ControllerTestCase.
  */
-class Zend_Test_PHPUnit_ControllerTestCaseTest extends PHPUnit_Framework_TestCase 
+class Zend_Test_PHPUnit_ControllerTestCaseTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.

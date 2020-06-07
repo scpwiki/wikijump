@@ -3,7 +3,7 @@
 
     <para>
         La clase <code>Zend_Form</code> es usada para agregar elementos al formulario,
-        desplegar grupos y subformularios. Ellos pueden ejecutar las siguientes acciones 
+        desplegar grupos y subformularios. Ellos pueden ejecutar las siguientes acciones
         en esos items:
     </para>
 
@@ -13,7 +13,7 @@
         </para></listitem>
 
         <listitem><para>
-            Agregación de valores, incluyendo popular items y recuperar valores 
+            Agregación de valores, incluyendo popular items y recuperar valores
 			tanto filtrado como no filtrados de todos los items
         </para></listitem>
 
@@ -23,8 +23,8 @@
         </para></listitem>
 
         <listitem><para>
-        	Generando el formulario entero, ya sea por un simple decorador que 
-        	ejecuta un personalizado formulario o por interacción sobre cada item del formulario 
+        	Generando el formulario entero, ya sea por un simple decorador que
+        	ejecuta un personalizado formulario o por interacción sobre cada item del formulario
         </para></listitem>
     </itemizedlist>
 
@@ -74,7 +74,7 @@ $form = new Zend_Form($config);
     <sect2 id="zend.form.forms.plugins">
         <title>Plugin Loaders</title>
         <para>
-        	<code>Zend_Form</code> hace usos de 
+        	<code>Zend_Form</code> hace usos de
             <code>Zend_Loader_PluginLoader</code> para permitir a los desarroladores especificar
             la ubicación de alternativos elementos y decoradores. Cada uno tiene su propio
             plugin loader asociado, generalmente los accesores son usados para
@@ -82,7 +82,7 @@ $form = new Zend_Form($config);
         </para>
 
         <para>
-        	Los siguientes tipos de cargadores son usados con varios métodos 
+        	Los siguientes tipos de cargadores son usados con varios métodos
             plugin loader: 'element' y 'decorator'. Los nombres de tipo son capaz de distinguir mayúsculas de minúsculas
         </para>
 
@@ -92,8 +92,8 @@ $form = new Zend_Form($config);
 
         <itemizedlist>
             <listitem><para>
-                <code>setPluginLoader($loader, $type)</code>: $loader es el 
-                objeto plugin loader en si, mientras tipo es uno de los tipos 
+                <code>setPluginLoader($loader, $type)</code>: $loader es el
+                objeto plugin loader en si, mientras tipo es uno de los tipos
                 especificados arriba. Esto determina al plugin loader para el tipo dado
                 al nuevo objeto loader especificado.
             </para></listitem>
@@ -108,7 +108,7 @@ $form = new Zend_Form($config);
                 asociación prefix/path al loader especificado por $type. Si
                 $type es nulo, intentará adicionar una ruta a los loaders,
                 adicionando el prefijo "_Element" y "_Decorator";
-                y adiconando la ruta a "Element/" y 
+                y adiconando la ruta a "Element/" y
                 "Decorator/". Si tiene toda sus extra clases form element
                 en una jerarquía comun, estes es un método coveniente para
                 determinar la base del prefijo para ellos.
@@ -116,7 +116,7 @@ $form = new Zend_Form($config);
 
             <listitem><para>
             	<code>addPrefixPaths(array $spec)</code>: le permite añadir muchas
-            	rutas en uno o mas plugin loaders. Se espera que cada 
+            	rutas en uno o mas plugin loaders. Se espera que cada
             	matriz item será una matriz con las llaves 'path', 'prefix' y
                 'type'.
             </para></listitem>
@@ -124,7 +124,7 @@ $form = new Zend_Form($config);
 
         <para>
         	Adicionalmente, puede especificar la ruta del prefijo para todos los elementos y
-        	desplegar grupos creados a través de una instancia <code>Zend_Form</code> 
+        	desplegar grupos creados a través de una instancia <code>Zend_Form</code>
         	usando los siguientes métodos:
         </para>
 
@@ -136,24 +136,24 @@ $form = new Zend_Form($config);
                 <code>Zend_Form_Element</code>; vea la <link
                     linkend="zend.form.elements.loaders">Sección elemento plugins
                     </link> para más información de válidos valores
-                <code>$type</code>. Si <code>$type</code> no es 
+                <code>$type</code>. Si <code>$type</code> no es
                 especificado, el método asumirá un prefijo común para todos los
                 tipos.
             </para></listitem>
 
-            <listitem><para>            
+            <listitem><para>
                 <code>addDisplayGroupPrefixPath($prefix, $path)</code>:
                 Justo como <code>addPrefixPath()</code>, debe especificar una clase
-                prefijo y una ruta; como sea, desde que desplegar grupos solo soporta 
+                prefijo y una ruta; como sea, desde que desplegar grupos solo soporta
                 decoradores como plugins, <code>$type</code> no es necesario.
             </para></listitem>
         </itemizedlist>
 
         <para>
-        	Personalizados elementos y decoradores son una fácil manera para compartir 
+        	Personalizados elementos y decoradores son una fácil manera para compartir
         	funcionalidad entre formularios y encapsular personalizada funcionalidad.
         	Ver el  <link
-                linkend="zend.form.elements.loaders.customLabel">ejemplo personalizar 
+                linkend="zend.form.elements.loaders.customLabel">ejemplo personalizar
                 etiqueta</link> en la documentación de elementos un ejemplo de
             como personalizar elementos pueden ser usados como reemplazantes para clases
             estándar.
@@ -164,7 +164,7 @@ $form = new Zend_Form($config);
         <title>Elementoss</title>
         <para>
             La clase <code>Zend_Form</code> proporciona muchos accesorios para adicionar y
-            remover elementos de un formulario. Estos pueden tomar instancias de objetos 
+            remover elementos de un formulario. Estos pueden tomar instancias de objetos
             elemento o servir como fábricas para instanciar el objeto elemento a si mismos.
         </para>
 
@@ -172,8 +172,8 @@ $form = new Zend_Form($config);
         	El más básico método para adicionar un elemento es
             <code>addElement()</code>.  Este método puede tomar también un objeto de
             tipo <code>Zend_Form_Element</code> (o de una clase extendida
-            <code>Zend_Form_Element</code>), o argumentos para construir un nuevo 
-            elemento -- incluyendo el elemento tipo, nombre y algunas opciones de 
+            <code>Zend_Form_Element</code>), o argumentos para construir un nuevo
+            elemento -- incluyendo el elemento tipo, nombre y algunas opciones de
             configuración.
         </para>
 
@@ -188,7 +188,7 @@ $form->addElement($element);
 
 // Usando una fábrica
 //
-// Crea un elemento de tipo Zend_Form_Element_Text con el 
+// Crea un elemento de tipo Zend_Form_Element_Text con el
 // nombre de 'foo':
 $form->addElement('text', 'foo');
 
@@ -203,7 +203,7 @@ $form->addElement('text', 'foo', array('label' => 'Foo:'));
             <para>
             	<code>addElement()</code> implementa una fluida interfaz; es
             	decir, retorna el objeto <code>Zend_Form</code> y no un
-            	elemento. Este hecho le permite encadenar 
+            	elemento. Este hecho le permite encadenar
             	multiples métodos addElement() u otros métodos formulario que
             	implementen una fluida interfaz (todos los establecedores in Zend_Form
             	implementan un patrón).
@@ -224,7 +224,7 @@ $form->addElement('text', 'foo', array('label' => 'Foo:'));
         </note>
 
         <para>
-        	Una vez que el elemento ha sido añadido al formulario, puede recuperarlo por 
+        	Una vez que el elemento ha sido añadido al formulario, puede recuperarlo por
         	el nombre. Puede también finalizar usando el método <code>getElement()</code>
         	o usando sobrecarga para acceder al elemento como una propiedad
         	objeto:
@@ -240,7 +240,7 @@ $foo = $form->foo;
         </programlisting>
 
         <para>
-        	Ocacionalmente, se quiere crear un elemento sin adjuntarlo 
+        	Ocacionalmente, se quiere crear un elemento sin adjuntarlo
         	al formulario (para instanciar, si se desea hacer uso de las
         	rutas de plugin introducidas con el formulario, pero despues se desea adjuntar el
         	objeto al subformulario). El método <code>createElement()</code>
@@ -259,10 +259,10 @@ $username = $form->createElement('text', 'username');
             <para>
             	Después de validar el formulario, originalmente se necesitará recuperar los
             	valores a si poder ejecutar otras operaciones, tal como actualizar una
-            	base de datos o notificar un servicio web. Se pueden recuperar todos los valores 
+            	base de datos o notificar un servicio web. Se pueden recuperar todos los valores
             	para todos los elementos usando <code>getValues()</code>;
                 <code>getValue($name)</code> le permite recuperar un solo
-                valor del elemento por su nombre:                
+                valor del elemento por su nombre:
             </para>
 
             <programlisting role="php"><![CDATA[
@@ -287,8 +287,8 @@ $form->populate($data);
             </programlisting>
 
             <para>
-            	Por otro lado, si se quisera limpiar el formulario antes de llenarlo 
-            	o validarlo; se puede realizar usando el 
+            	Por otro lado, si se quisera limpiar el formulario antes de llenarlo
+            	o validarlo; se puede realizar usando el
             	método <code>reset()</code>:
             </para>
 
@@ -303,8 +303,8 @@ $form->reset();
 
             <para>
             	Ocacionalemnte se necesitará ciertas operaciones que afecten a todos
-            	los elementos. Escenarios comunes incluyen la necesidad de determinar rutas de acceso 
-            	al prefijo complemento para todos los elementos, determinando decoradores para todos los elementos y 
+            	los elementos. Escenarios comunes incluyen la necesidad de determinar rutas de acceso
+            	al prefijo complemento para todos los elementos, determinando decoradores para todos los elementos y
             	determinando filtros para todos los elementos. Como los ejemplos:
             </para>
 
@@ -312,7 +312,7 @@ $form->reset();
                 <title>Determinando rutas de acceso de prefijos para todos los elementos</title>
 
                 <para>
-                	Se puede determinar rutas de acceso para prefijos para todos los elementos por tipo, 
+                	Se puede determinar rutas de acceso para prefijos para todos los elementos por tipo,
                 	o usando un prefijo global. Como los ejemplos:
                 </para>
 
@@ -346,7 +346,7 @@ $form->addElementPrefixPath('My_Foo_Decorator',
                 <para>
                 	Se pueden determinar decoradores para todos los elementos.
                 	<code>setElementDecorators()</code> acepta una matriz de
-                	decoradores, solo como <code>setDecorators()</code>, y 
+                	decoradores, solo como <code>setDecorators()</code>, y
                 	reescribira cualquier decorador previamente determinado en cada elemento. En
                 	este ejemplo, determinamos los decoradores para simplificar una ViewHelper
                 	y una Label:
@@ -368,20 +368,20 @@ $form->setElementDecorators(array(
                 	Pueden determinarse también decoradores para un subconjunto de elementos,
                 	ya sea por inclusión o exclusión. El segundo argumento
                     <code>setElementDecorators()</code> puede ser una matriz de
-                    nombres elementos; por defecto, especificando como tal un array 
+                    nombres elementos; por defecto, especificando como tal un array
                     determinará los decoradores especificados en esos elementos solamente. Puede
-                    tambien pasar un tercer elemento, una bandera indicando si  
+                    tambien pasar un tercer elemento, una bandera indicando si
                     esta lista de elementos es para propósitos de inclusión o exclusión;
-                    si es falso, se decorará todos los elementos 
+                    si es falso, se decorará todos los elementos
                     <emphasis>excepto</emphasis> los pasados en la lista,
-                    Como uso estándar del método, cualquier decorador pasado 
+                    Como uso estándar del método, cualquier decorador pasado
                     reescribirá cualquier decorador previamente determinado en cada
                     elemento.
                 </para>
 
                 <para>
                 	En el siguiente fragmento, indicamos que queremos los decoradores
-                	ViewHelper y Label  para los elementos 
+                	ViewHelper y Label  para los elementos
                 	'foo' y 'bar':
                 </para>
 
@@ -400,8 +400,8 @@ $form->setElementDecorators(
                 </programlisting>
 
                 <para>
-                	Por otro lado, con este fragmento, indicaremos 
-                	que queremos usar solamente los decoradores 
+                	Por otro lado, con este fragmento, indicaremos
+                	que queremos usar solamente los decoradores
                 	ViewHelper and Label para cada elemento <emphasis>excepto</emphasis>
                     los elementos 'foo' y 'bar':
                 </para>
@@ -426,11 +426,11 @@ $form->setElementDecorators(
                     <title>Algunos Decoradores son Innapropiados para algunos Elementos</title>
 
                     <para>
-                    	Mientras <code>setElementDecorators()</code> puede parecer como 
+                    	Mientras <code>setElementDecorators()</code> puede parecer como
                     	una buena solución, existen algunos casos donde puede
                     	terminar con resultados inesperados, Por ejemplo,
                     	los muchos elementos botones (Submit, Button, Reset)
-                        actualmente usan la etiqueta como el valor del botón 
+                        actualmente usan la etiqueta como el valor del botón
                         y sólo usan los decoradores ViewHelper y DtDdWrapper --
                         previniendo una adicional etiqueta, error, y sugerencias de
                         ser generadas; el ejemplo de arriba podría duplicar algún
@@ -554,16 +554,16 @@ $form->setElementFilters(array('StringTrim'));
         	Desplegar grupos son una manera de crear grupos virtuales de elementos para
         	desplegar propósitos. Todos los elementos quedan accesibles por nombre en el
         	formulario, pero cuando interactúan o se ejecutan sobre el formulario, cualquiera de los elementos en
-        	un despliegue de grupo son generados juntos. El más común caso de uso es 
+        	un despliegue de grupo son generados juntos. El más común caso de uso es
         	agrupando los elementos en fieldsets. (TODO)
         </para>
 
         <para>
         	La clase base para desplegar grupos es
-            <code>Zend_Form_DisplayGroup</code>.  Mientras pueda ser instanciado 
+            <code>Zend_Form_DisplayGroup</code>.  Mientras pueda ser instanciado
             directamente originalmente, es mejor usar el método <code>addDisplayGroup()</code>
-            de la clase<code>Zend_Form</code>. Este método toma una 
-            matriz de elementos como su primer argumento y un nombre para desplegar 
+            de la clase<code>Zend_Form</code>. Este método toma una
+            matriz de elementos como su primer argumento y un nombre para desplegar
             grupos como segundo argumento. Se puede opcionalmente pasar en una matriz
             de opciones o en un objeto <code>Zend_Config</code> como tercer argumento.
         </para>
@@ -580,7 +580,7 @@ $form->addDisplayGroup(array('username', 'password'), 'login');
         </programlisting>
 
         <para>
-        	Se puede acceder a desplegar grupos usando el 
+        	Se puede acceder a desplegar grupos usando el
         	método <code>getDisplayGroup()</code>, o mediante la sobrecarga usando el
         	nombre del despliegue de grupo:
         </para>
@@ -906,7 +906,7 @@ $form->setDefaultDisplayGroupClass('My_DisplayGroup');
 
         <itemizedlist>
             <listitem><para>
-            	Creando lógicos grupos de elementos. Desde que los sub formularios som 
+            	Creando lógicos grupos de elementos. Desde que los sub formularios som
             	simplemente formularios, se pueden validar subformularios como entidades individuales.
             </para></listitem>
 
@@ -918,7 +918,7 @@ $form->setDefaultDisplayGroupClass('My_DisplayGroup');
             </para></listitem>
 
             <listitem><para>
-            	Desplegar agrupaciones. Como desplegar grupos, los sub formularios cuando se generan 
+            	Desplegar agrupaciones. Como desplegar grupos, los sub formularios cuando se generan
             	como parte del largo formulario, pueden ser usados para agrupar elementos. Sea conciente,
             	de todas maneras, que el objeto formulario master no tendrá
             	conciencia de los elementos en un sub formulario.

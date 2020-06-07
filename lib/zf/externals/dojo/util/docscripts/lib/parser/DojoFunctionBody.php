@@ -20,7 +20,7 @@ class DojoFunctionBody extends DojoBlock
   private $externalized_objects = array();
   private $externalized_avariables = array();
   private $externalized_ivariables = array();
-  private $externalized_variables = array();  
+  private $externalized_variables = array();
   private $externalized_mixins = array();
   private $this_inheritance_calls = array();
   private $extra_initial_comment_block = array();
@@ -151,8 +151,8 @@ class DojoFunctionBody extends DojoBlock
   }
 
   public function getBlockCommentKeys() {
-    if ($this->comments) { 
-      return array_keys($this->comments); 
+    if ($this->comments) {
+      return array_keys($this->comments);
     }
 
     $this->build();

@@ -11,19 +11,19 @@ require_once 'HTMLPurifier/AttrDef.php';
  */
 class HTMLPurifier_AttrDef_Enum extends HTMLPurifier_AttrDef
 {
-    
+
     /**
      * Lookup table of valid values.
      * @todo Make protected
      */
     public $valid_values   = array();
-    
+
     /**
      * Bool indicating whether or not enumeration is case sensitive.
      * @note In general this is always case insensitive.
      */
     protected $case_sensitive = false; // values according to W3C spec
-    
+
     /**
      * @param $valid_values List of valid values
      * @param $case_sensitive Bool indicating whether or not case sensitive
@@ -34,7 +34,7 @@ class HTMLPurifier_AttrDef_Enum extends HTMLPurifier_AttrDef
         $this->valid_values = array_flip($valid_values);
         $this->case_sensitive = $case_sensitive;
     }
-    
+
     public function validate($string, $config, $context) {
         $string = trim($string);
         if (!$this->case_sensitive) {
@@ -42,10 +42,10 @@ class HTMLPurifier_AttrDef_Enum extends HTMLPurifier_AttrDef
             $string = ctype_lower($string) ? $string : strtolower($string);
         }
         $result = isset($this->valid_values[$string]);
-        
+
         return $result ? $string : false;
     }
-    
+
     /**
      * @param $string In form of comma-delimited list of case-insensitive
      *      valid values. Example: "foo,bar,baz". Prepend "s:" to make
@@ -61,6 +61,6 @@ class HTMLPurifier_AttrDef_Enum extends HTMLPurifier_AttrDef
         $values = explode(',', $string);
         return new HTMLPurifier_AttrDef_Enum($values, $sensitive);
     }
-    
+
 }
 

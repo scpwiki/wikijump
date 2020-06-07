@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -35,10 +35,10 @@ class UnixifyString{
 	static private  $UNIXIFY_CONVERT_ARRAY = array(
 		'À'=>'A','À'=>'A','Á'=>'A','Á'=>'A','Â'=>'A','Â'=>'A',
 		'Ã'=>'A','Ã'=>'A','Ä'=>'Ae','Ä'=>'A','Å'=>'A','Å'=>'A',
-		'Æ'=>'Ae','Æ'=>'AE',		
-		'Ā'=>'A','Ą'=>'A','Ă'=>'A',			
+		'Æ'=>'Ae','Æ'=>'AE',
+		'Ā'=>'A','Ą'=>'A','Ă'=>'A',
 		'Ç'=>'C','Ç'=>'C','Ć'=>'C','Č'=>'C','Ĉ'=>'C','Ċ'=>'C',
-		'Ď'=>'D','Đ'=>'D','Ð'=>'D','Ð'=>'D',			
+		'Ď'=>'D','Đ'=>'D','Ð'=>'D','Ð'=>'D',
 		'È'=>'E','È'=>'E','É'=>'E','É'=>'E','Ê'=>'E','Ê'=>'E','Ë'=>'E','Ë'=>'E',
 		'Ē'=>'E','Ę'=>'E','Ě'=>'E','Ĕ'=>'E','Ė'=>'E',
 		'Ĝ'=>'G','Ğ'=>'G','Ġ'=>'G','Ģ'=>'G',
@@ -63,7 +63,7 @@ class UnixifyString{
 		'Ŵ'=>'W',
 		'Ý'=>'Y','Ý'=>'Y','Ŷ'=>'Y','Ÿ'=>'Y',
 		'Ź'=>'Z','Ž'=>'Z','Ż'=>'Z',
-		'Þ'=>'T','Þ'=>'T',		
+		'Þ'=>'T','Þ'=>'T',
 		'à'=>'a','á'=>'a','â'=>'a','ã'=>'a','ä'=>'ae',
 		'ä'=>'ae',
 		'å'=>'a','ā'=>'a','ą'=>'a','ă'=>'a','å'=>'a',
@@ -114,28 +114,28 @@ class UnixifyString{
 		'/'=>'-',
 		'.'=>'-',
 		':' => '-'
-			
+
 	);
 
 	static public function toUnixName($text){
 		return self::unixify($text);
 	}
-	
+
 	/**
 	 * Converts a strig by replacing all alphanumeric characters that do not match
 	 * [0-9a-z\-] to their ASCII equivalents (e.g. 'ą' -> 'a') and non-alphanumeric
 	 * characters to '-'.
 	 * @param string $text
 	 * @param string $allowedSpecialChars
-	 * 
+	 *
 	 * @asserts('ąść')='asc'
-	 */ 
+	 */
 	static public function unixify($text, $allowedSpecialChars = null){
-		
+
 		$convertArray = null;
 		$asc = null;
 		$ascEscaped = null;
-		
+
 		$text = trim($text);
 		if($allowedSpecialChars){
 			$asc = (array) $allowedSpecialChars;
@@ -171,7 +171,7 @@ class UnixifyString{
 		return $text;
 
 	}
-	
+
 	/**
 	 * Unixifies a string so that it follows the wiki page naming convention.
 	 * A colon (:) is allowed.
@@ -183,15 +183,15 @@ class UnixifyString{
 		$text = str_replace('-:', ':', $text);
 		$text = preg_replace('/^:/', '', $text);
 		$text = preg_replace('/:$/', '', $text);
-		
+
 		return $text;
 	}
-	
+
 	static public function addTrailingNewline($text){
 		if (!preg_match(";\n$;", $text)) {
 			$text .= "\n";
 		}
 		return $text;
 	}
-	
+
 }

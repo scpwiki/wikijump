@@ -1,6 +1,6 @@
-{ 
-	name:'Sudan', 
+{
+	name:'Sudan',
 	type:'country',
-	children:{stub:'Khartoum'} 
+	children:{stub:'Khartoum'}
 }
 

@@ -5,10 +5,10 @@ smarty_core_load_plugins(array('plugins' => array(array('modifier', 'escape', '/
 <h1>Navigation elements</h1>
 
 <p>
-	You can choose which navigation elements (<em>top-bar</em> and <em>side-bar</em>) 
+	You can choose which navigation elements (<em>top-bar</em> and <em>side-bar</em>)
 	should appear in pages within a specified category.
 </p>
-	
+
 	<table class="form">
 		<tr>
 			<td>
@@ -32,7 +32,7 @@ smarty_core_load_plugins(array('plugins' => array(array('modifier', 'escape', '/
 			</td>
 		</tr>
 	</table>
-	
+
 	<div id="sm-nav-list">
 		<table class="form">
 			<tr>
@@ -59,7 +59,7 @@ smarty_core_load_plugins(array('plugins' => array(array('modifier', 'escape', '/
 			</tr>
 		</table>
 	</div>
-	
+
 	<div class="buttons">
 		<input type="button" value="cancel" id="sm-nav-cancel"/>
 		<input type="button" value="save changes" id="sm-nav-save"/>
@@ -69,7 +69,7 @@ smarty_core_load_plugins(array('plugins' => array(array('modifier', 'escape', '/
 	NOTE: if the chosen pages do not exist no navigation elemen will be displayed.
 </p>
 <p>
-	BUT if you really want to get rid of the side element you should also choose a proper 
+	BUT if you really want to get rid of the side element you should also choose a proper
 	theme without the side bar. Most of the available themes have such a variant.
 </p>
 

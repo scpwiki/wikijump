@@ -11,19 +11,19 @@
         <title>Gerekli PHP versiyonu</title>
 
         <para>
-		Zend Framework PHP 5.1.4 veya yenisini gerektiriyor. Bazı SPL arayüzleri <code>Countable</code> 
+		Zend Framework PHP 5.1.4 veya yenisini gerektiriyor. Bazı SPL arayüzleri <code>Countable</code>
 		gibi , PHP'nin önceki sürümlerinde kararlı değildi.
         </para>
 
         <para>
-	    Zend Framework PHPUnit 3.0 veya yenisiyle çalıştırabileceğiniz geniş kapsamlı 
+	    Zend Framework PHPUnit 3.0 veya yenisiyle çalıştırabileceğiniz geniş kapsamlı
 	    otomatikleşmiş testler içermektedir.PHPUnit'in bu versiyonu da ayrıca PHP 5.1.4
 	    veya yenisini gerektirmektedir.
         </para>
         <para>
-            Yukarıda bahsedilen PHP versiyonunda Zend Framework doğru olarak çalışaktır ama 
+            Yukarıda bahsedilen PHP versiyonunda Zend Framework doğru olarak çalışaktır ama
 	    buna rağmen PHP 5.2.3 veya yenisini kullanmanızı şiddetle tavsiye ediyoruz.
-	    PHP'nin yeni versiyonunda  önemli güvenlik ve performans geliştirmeleri  var.	    
+	    PHP'nin yeni versiyonunda  önemli güvenlik ve performans geliştirmeleri  var.
         </para>
 
     </sect1>
@@ -33,9 +33,9 @@
         <title>PHP Eklentileri</title>
 
         <para>
-            Aşağıdaki tablo PHP'de tipik olarak bulunan eklentileri listelemektedir , 
-	    ve Zend Framework'de nasıl kullanıldıklarını göstermektedir.	    
-	    Bu size hangi eklentilerin uygulamanız için gerekli olabileceği konusunda 
+            Aşağıdaki tablo PHP'de tipik olarak bulunan eklentileri listelemektedir ,
+	    ve Zend Framework'de nasıl kullanıldıklarını göstermektedir.
+	    Bu size hangi eklentilerin uygulamanız için gerekli olabileceği konusunda
 	    yol gösterebilir.
 	    Zend Framework tarafından kullanılan tüm eklentiler her uygulama tarafından
 	    ihtiyaç duyulmayacaktır.
@@ -124,7 +124,7 @@
 				<ulink url="http://framework.zend.com/manual/tr/zend.service.flickr.html"><code>Zend_Service_Flickr</code></ulink>,
 				<ulink url="http://framework.zend.com/manual/tr/zend.service.simpy.html"><code>Zend_Service_Simpy</code></ulink>,
 				<ulink url="http://framework.zend.com/manual/tr/zend.service.yahoo.html"><code>Zend_Service_Yahoo</code></ulink>,
-				<ulink url="http://framework.zend.com/manual/tr/zend.xmlrpc.html"><code>Zend_XmlRpc</code></ulink>		
+				<ulink url="http://framework.zend.com/manual/tr/zend.xmlrpc.html"><code>Zend_XmlRpc</code></ulink>
 			</entry>
                     </row>
                     <row>
@@ -370,7 +370,7 @@
 				<ulink url="http://framework.zend.com/manual/tr/zend.server.reflection.html"><code>Zend_Server_Reflection</code></ulink>,
 				<ulink url="http://framework.zend.com/manual/tr/zend.validate.html"><code>Zend_Validate</code></ulink>,
 				<ulink url="http://framework.zend.com/manual/tr/zend.view.html"><code>Zend_View</code></ulink>,
-				<ulink url="http://framework.zend.com/manual/tr/zend.xmlrpc.server.html"><code>Zend_XmlRpc_Server</code></ulink>	
+				<ulink url="http://framework.zend.com/manual/tr/zend.xmlrpc.server.html"><code>Zend_XmlRpc_Server</code></ulink>
 			</entry>
                     </row>
                     <row>

@@ -9,7 +9,7 @@ require_once dirname(__FILE__) . '/../../../TestHelper.php';
 require_once 'Zend/View.php';
 require_once 'Zend/View/Helper/HtmlFlash.php';
 
-class Zend_View_Helper_HtmlFlashTest extends PHPUnit_Framework_TestCase 
+class Zend_View_Helper_HtmlFlashTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @var Zend_View_Helper_HtmlFlash
@@ -53,7 +53,7 @@ class Zend_View_Helper_HtmlFlashTest extends PHPUnit_Framework_TestCase
         $htmlFlash = $this->helper->htmlFlash('/path/to/flash.swf');
 
         $objectStartElement = '<object data="/path/to/flash.swf" type="application/x-shockwave-flash">';
-  
+
         $this->assertContains($objectStartElement, $htmlFlash);
         $this->assertContains('</object>', $htmlFlash);
     }

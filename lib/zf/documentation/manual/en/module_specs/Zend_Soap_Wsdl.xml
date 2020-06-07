@@ -404,7 +404,7 @@ $soapMyClassType = $wsdl->getType('MyClass');
             <para>
                 See <ulink url="http://www.w3.org/TR/wsdl#_types"/> for the details.
             </para>
-            
+
         </sect3>
     </sect2>
 

@@ -23,7 +23,7 @@
 .nihilo .dijitToolbar .dijitDropDownButton,
 .nihilo .dijitToolbar .dijitComboButton .dijitButtonContents,
 .nihilo .dijitToolbar .dijitComboButton .dijitDownArrowButton {
-	background: none;	
+	background: none;
 	padding: 1px;	/* on hover etc., margin replaced w/border */
 }
 
@@ -53,7 +53,7 @@
 	background-color:#ffe284;
 }
 
-.nihilo .dijitToolbar label {	
+.nihilo .dijitToolbar label {
 	padding: 3px 3px 0 6px;
 }
 

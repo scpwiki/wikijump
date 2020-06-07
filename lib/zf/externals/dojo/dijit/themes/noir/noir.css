@@ -27,8 +27,8 @@
 }
 
 .noir .dijitButton .dijitRight {
-	height:30px;	
-	margin-left:15px; 
+	height:30px;
+	margin-left:15px;
 	padding-right:15px;
 }
 .dj_ie .noir .dijitButton .dijitRight {
@@ -36,7 +36,7 @@
 }
 
 .noir .dijitButton .dijitButtonNode,
-.noir .dijitComboButton .dijitButtonNode, 
+.noir .dijitComboButton .dijitButtonNode,
 .noir .dijitDropDownButton .dijitButtonNode {
 	/* generic styles */
 	vertical-align:top;
@@ -54,7 +54,7 @@
 
 
 .noir .dijitButtonHover .dijitButtonNode,
-.noir .dijitComboButtonHover .dijitButtonNode, 
+.noir .dijitComboButtonHover .dijitButtonNode,
 .noir .dijitDropDownButtonHover .dijitButtonNode {
 	/* hover styles */
 	color:#fa4242;
@@ -78,8 +78,8 @@
 /* drop-down-button specific */
 
 .noir .dijitDropDownButton .dijitRight {
-	height:30px;	
-	margin-left:15px; 
+	height:30px;
+	margin-left:15px;
 	padding-right:31px;
 }
 
@@ -88,10 +88,10 @@
 	margin-left:15px;
 }
 .noir .dijitComboButton .dijitRight,
-.noir .dijitComboButton .dijitArrowButton div {	
-	height:30px;	
+.noir .dijitComboButton .dijitArrowButton div {
+	height:30px;
 	width:35px;
-	
+
 	/* don't display arrow text; just use background image */
 	font-size: 0px;
 }
@@ -100,19 +100,19 @@
 
 
 /****
-		dijit.form.ComboBox 
+		dijit.form.ComboBox
  ****/
 .noir .dijitComboBox TABLE {
 	margin-left:10px;
 }
 
-.noir .dijitComboBox .dijitStretch {	
+.noir .dijitComboBox .dijitStretch {
 	height:30px;
 	#margin-top:0px;
 }
 
 .noir .dijitComboBox .dijitRight,
-.noir .dijitComboBox .dijitRightSpacer {	
+.noir .dijitComboBox .dijitRightSpacer {
 	height:30px;
 	width:32px;
 }
@@ -134,8 +134,8 @@
 	border:0px;
 	margin:0px;
 
-	/* IE7 HACK: get things to line up 
-	#top:-1px;					
+	/* IE7 HACK: get things to line up
+	#top:-1px;
 	#left:10px;
 	#padding-top:6px;
 	*/
@@ -164,7 +164,7 @@
 	padding-left:10px;
 }
 
-.noir .dijitSpinner .dijitStretch {	
+.noir .dijitSpinner .dijitStretch {
 	height:30px;
 	#margin-top:0px;
 }

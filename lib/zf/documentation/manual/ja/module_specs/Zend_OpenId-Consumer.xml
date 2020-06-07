@@ -348,7 +348,7 @@ class DbStorage extends Zend_OpenId_Consumer_Storage
                 " expires timestamp" .
                 ")");
         }
-        
+
         // ディスカバリーテーブルが存在しない場合は作成します
         if (!in_array($discovery_table, $tables)) {
             $this->_db->getConnection()->exec(
@@ -360,7 +360,7 @@ class DbStorage extends Zend_OpenId_Consumer_Storage
                 " expires timestamp" .
                 ")");
         }
-        
+
         // ノンステーブルが存在しない場合は作成します
         if (!in_array($nonce_table, $tables)) {
             $this->_db->getConnection()->exec(

@@ -61,7 +61,7 @@ a:hover {
 	color: #E7E9DC;
 	font-weight: normal;
 	font-size: 220%;
-	margin: 0px 75px;	
+	margin: 0px 75px;
 }
 #header h1 a,#header h1 a:hover{
 	color: #E7E9DC;
@@ -70,7 +70,7 @@ a:hover {
 #header h2{
 	color: #dcdcdc;
 	font-size: 130%;
-	margin: 5px 75px;	
+	margin: 5px 75px;
 }
 
 #header #login-status, #login-status a {
@@ -166,7 +166,7 @@ a:hover {
 	border-top: 2px solid #2A343D;
 	color: #E7E9DC;
 	text-align: left;
-	
+
 }
 #footer p {
 	padding-right: 100px;
@@ -184,7 +184,7 @@ a:hover {
 
 .page-options-bottom a, a.action-area-close{
 	color: #242;
-	background-color: #fdfcf6; 
+	background-color: #fdfcf6;
 	text-decoration: none;
 }
 

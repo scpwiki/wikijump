@@ -12,7 +12,7 @@ require_once 'Zend/View.php';
 require_once 'Zend/View/Helper/Placeholder.php';
 
 
-class Zend_View_Helper_RenderToPlaceholderTest extends PHPUnit_Framework_TestCase 
+class Zend_View_Helper_RenderToPlaceholderTest extends PHPUnit_Framework_TestCase
 {
 
     protected $_view = null;

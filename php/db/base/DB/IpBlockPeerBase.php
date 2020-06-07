@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version \$Id\$
@@ -33,7 +33,7 @@ use BaseDBPeer;
  */
 class IpBlockPeerBase extends BaseDBPeer {
 	public static $peerInstance;
-	
+
 	protected function internalInit(){
 		$this->tableName='ip_block';
 		$this->objectName='DB\\IpBlock';
@@ -42,7 +42,7 @@ class IpBlockPeerBase extends BaseDBPeer {
 		$this->fieldTypes = array( 'block_id' => 'serial',  'site_id' => 'int',  'ip' => 'inet',  'flag_proxy' => 'boolean',  'reason' => 'text',  'date_blocked' => 'timestamp');
 		$this->defaultValues = array( 'flag_proxy' => 'false');
 	}
-	
+
 	public static function instance(){
 		if(self::$peerInstance == null){
 			$className = "DB\\IpBlockPeer";

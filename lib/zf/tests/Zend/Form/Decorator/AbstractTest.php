@@ -21,7 +21,7 @@ require_once 'Zend/Loader/PluginLoader.php';
  *
  * Uses Zend_Form_Decorator_Errors as a concrete implementation
  */
-class Zend_Form_Decorator_AbstractTest extends PHPUnit_Framework_TestCase 
+class Zend_Form_Decorator_AbstractTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.

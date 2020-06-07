@@ -406,7 +406,7 @@ $view->addHelperPath('/other/path/to/helpers', 'Your_View_Helper');
                 префикс с или без завершающего знака подчеркивания методу
                 <code>addHelperPath()</code> или <code>setHelperPath()</code>).
             </para></listitem>
-                
+
             <listitem><para>
                 Класс должен иметь открытый метод, имя которого
                 соответствует имени помощника. Это метод, который будет

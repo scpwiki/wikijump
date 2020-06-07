@@ -351,7 +351,7 @@ class Zend_Service_Flickr_OfflineTest extends PHPUnit_Framework_TestCase
             $this->assertContains('parameters are invalid', $e->getMessage());
         }
     }
-    
+
     /**
      * Basic testing to ensure that groupPoolGetPhotos() works as expected
      *
@@ -503,7 +503,7 @@ class Zend_Service_Flickr_OfflineTest extends PHPUnit_Framework_TestCase
             $this->assertContains('supply a group id', $e->getMessage());
         }
     }
-     
+
     /**
      * Ensures that groupPoolGetPhotos() throws an exception when an array is given for group_id
      *
@@ -555,7 +555,7 @@ class Zend_Service_Flickr_OfflineTest_FlickrProtectedMethodProxy extends Zend_Se
     {
         $this->_validateTagSearch($options);
     }
-    
+
     public function proxyValidateGroupPoolGetPhotos(array $options)
     {
         $this->_validateGroupPoolGetPhotos($options);

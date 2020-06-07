@@ -12,7 +12,7 @@ require_once 'Zend/Json.php';
 /**
  * Test class for Zend_Json_Server_Request
  */
-class Zend_Json_Server_RequestTest extends PHPUnit_Framework_TestCase 
+class Zend_Json_Server_RequestTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.

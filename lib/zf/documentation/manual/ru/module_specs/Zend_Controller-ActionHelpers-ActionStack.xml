@@ -76,8 +76,8 @@ class FooController extends Zend_Controller_Action
         $request = clone $this->getRequest();
         // Не устанавливайте контроллер и модуль;
         // используются текущие значения
-        $request->setActionName('baz')              
-                ->setParams(array('bar' => 'baz')); 
+        $request->setActionName('baz')
+                ->setParams(array('bar' => 'baz'));
         $this->_helper->actionStack($request);
 
         // Add call to /bar/bat

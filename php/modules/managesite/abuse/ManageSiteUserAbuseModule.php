@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -28,12 +28,12 @@ use DB\OzoneUserPeer;
 use DB\MemberPeer;
 
 class ManageSiteUserAbuseModule extends ManageSiteBaseModule {
-	
+
 	public function build($runData){
-		
+
 		$site = $runData->getTemp("site");
-		
-		// get 
+
+		// get
 		$q = "SELECT target_user_id, count(*) AS rank " .
 				"FROM user_abuse_flag " .
 				"WHERE site_id='".$site->getSiteId()."' " .
@@ -41,11 +41,11 @@ class ManageSiteUserAbuseModule extends ManageSiteBaseModule {
 
 		$db = Database::connection();
 		$res = $db->query($q);
-		
+
 		$all = $res->fetchAll();
-		
+
 		$r2 = array();
-		
+
 		if($all){
 			foreach($all as &$r){
 				// get user
@@ -58,13 +58,13 @@ class ManageSiteUserAbuseModule extends ManageSiteBaseModule {
 					$c->add("user_id", $user->getUserId());
 					$mem = MemberPeer::instance()->selectOne($c);
 					if($mem){
-						$r['member'] = $mem;	
+						$r['member'] = $mem;
 					}
-					$r2[] = $r;	
-				}	
-			}	
+					$r2[] = $r;
+				}
+			}
 		}
-		
+
 		$runData->contextAdd("reps", $r2);
 
 	}

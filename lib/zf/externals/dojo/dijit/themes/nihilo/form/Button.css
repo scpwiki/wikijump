@@ -11,17 +11,17 @@
 	/* border:1px outset #a0a0a0; */
 	border:1px solid #dedede;
 	border-bottom:1px solid #dedede;
-	padding: 0.1em 0.2em 0.2em 0.2em; 
+	padding: 0.1em 0.2em 0.2em 0.2em;
 	background: #fff url("../images/buttonEnabled.png") repeat-x top left;
 }
 
-.nihilo .dijitButtonNode button { 
-	border: 0px; 
-	background-color: transparent; 
-} 
- 
+.nihilo .dijitButtonNode button {
+	border: 0px;
+	background-color: transparent;
+}
+
 .nihilo .dijitButtonText {
-	text-align: center; 
+	text-align: center;
 	padding: 0 0.3em;
 }
 
@@ -90,8 +90,8 @@
 	background:url("../images/spriteArrows.png") no-repeat left top;
 	width: 11px;
 }
-.nihilo .dijitUpArrowButton .dijitArrowButtonInner { 
-	background:url("../images/spriteArrows.png") no-repeat -22px top; 
+.nihilo .dijitUpArrowButton .dijitArrowButtonInner {
+	background:url("../images/spriteArrows.png") no-repeat -22px top;
 	width: 11px;
 }
 .dj_ie6 .nihilo .dijitArrowButtonInner {

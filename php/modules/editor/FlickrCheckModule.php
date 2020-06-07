@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -25,20 +25,20 @@
 
 
 class FlickrCheckModule extends SmartyModule {
-	
+
 	public function build($runData){
 		$flickrId = $runData->getParameterList()->getParameterValue("flickr_id");
 		$secret = $runData->getParameterList()->getParameterValue("secret");
 		$flickr = FlickrHandler::instance();
-		
+
 		$photo = $flickr->photos_getInfo($flickrId, $secret);
 		if($photo == null){
 			$runData->contextAdd("nophoto", true);
-			return;	
+			return;
 		}
 		$src = $flickr->buildPhotoURL($photo, "thumbnail");
 		$runData->contextAdd("flickrId", $flickrId.$secret);
 		$runData->contextAdd("photoSrc", $src);
 		$runData->contextAdd("photo", $photo);
-	}	
+	}
 }

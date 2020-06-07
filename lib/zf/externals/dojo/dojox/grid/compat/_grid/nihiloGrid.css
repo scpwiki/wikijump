@@ -54,7 +54,7 @@
 	text-align: center;
 }
 
-.nihilo .dojoxGrid-header .dojoxGrid-cell { 
+.nihilo .dojoxGrid-header .dojoxGrid-cell {
 	border: 1px solid transparent;
 	/* border-color: #F6F4EB #ACA899 #ACA899 #F6F4EB; */
 	border-color: white #ACA899 #919191 white;
@@ -104,7 +104,7 @@
 
 /* rowbar */
 
-.nihilo .dojoxGrid-rowbar { 
+.nihilo .dojoxGrid-rowbar {
 	border: none;
 	/*
 	border-color: #F6F4EB #ACA899 #ACA899 #F6F4EB;
@@ -153,7 +153,7 @@
 }
 
 .nihilo .dojoxGrid-row-over .dojoxGrid-cell {
-	background-color: #ffe284; 
+	background-color: #ffe284;
 }
 
 .nihilo .dojoxGrid-row-odd {
@@ -173,11 +173,11 @@
 
 .nihilo .dojoxGrid-invisible {
 	visibility: hidden;
-}		
+}
 
 .nihilo .Xdojo-ie .dojoxGrid-invisible {
 	display: none;
-}		
+}
 
 .nihilo .dojoxGrid-invisible td, .dojoxGrid-header .dojoxGrid-invisible td {
 	border-top-width: 0;
@@ -226,7 +226,7 @@
 /* FIXME: these colors are off! */
 .nihilo .dojoxGrid-row-editing td {
 	/* background-color: #F4FFF4; */
-	background-color: #ffe284; 
+	background-color: #ffe284;
 	/* padding: 0px 3px 0px 3px; */
 }
 
@@ -258,7 +258,7 @@
 	height: 0px, width: 0px;
 }
 
-.dijit_a11y .dojoxGrid-rowbar-selected { 
+.dijit_a11y .dojoxGrid-rowbar-selected {
 	border-top: 1px solid white;
 	border-bottom: 1px dashed black;
 	border-top: 0;

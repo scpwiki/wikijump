@@ -71,7 +71,7 @@ class Zend_Feed_Entry_Atom extends Zend_Feed_Entry_Abstract
         // Look for link rel="edit" in the entry object.
         $deleteUri = $this->link('edit');
         if (!$deleteUri) {
-            /** 
+            /**
              * @see Zend_Feed_Exception
              */
             require_once 'Zend/Feed/Exception.php';
@@ -99,7 +99,7 @@ class Zend_Feed_Entry_Atom extends Zend_Feed_Entry_Abstract
                     continue;
                 // Error
                 default:
-                    /** 
+                    /**
                      * @see Zend_Feed_Exception
                      */
                     require_once 'Zend/Feed/Exception.php';
@@ -136,7 +136,7 @@ class Zend_Feed_Entry_Atom extends Zend_Feed_Entry_Abstract
             // entry object and PUT.
             $editUri = $this->link('edit');
             if (!$editUri) {
-                /** 
+                /**
                  * @see Zend_Feed_Exception
                  */
                 require_once 'Zend/Feed/Exception.php';
@@ -156,7 +156,7 @@ class Zend_Feed_Entry_Atom extends Zend_Feed_Entry_Abstract
                 $response = $client->request('PUT');
             }
             if ($response->getStatus() !== 200) {
-                /** 
+                /**
                  * @see Zend_Feed_Exception
                  */
                 require_once 'Zend/Feed/Exception.php';
@@ -164,7 +164,7 @@ class Zend_Feed_Entry_Atom extends Zend_Feed_Entry_Abstract
             }
         } else {
             if ($postUri === null) {
-                /** 
+                /**
                  * @see Zend_Feed_Exception
                  */
                 require_once 'Zend/Feed/Exception.php';
@@ -176,7 +176,7 @@ class Zend_Feed_Entry_Atom extends Zend_Feed_Entry_Abstract
             $response = $client->request('POST');
 
             if ($response->getStatus() !== 201) {
-                /** 
+                /**
                  * @see Zend_Feed_Exception
                  */
                 require_once 'Zend/Feed/Exception.php';
@@ -201,7 +201,7 @@ class Zend_Feed_Entry_Atom extends Zend_Feed_Entry_Abstract
                 }
             }
 
-            /** 
+            /**
              * @see Zend_Feed_Exception
              */
             require_once 'Zend/Feed/Exception.php';
@@ -210,7 +210,7 @@ class Zend_Feed_Entry_Atom extends Zend_Feed_Entry_Abstract
 
         $newEntry = $newEntry->getElementsByTagName($this->_rootElement)->item(0);
         if (!$newEntry) {
-            /** 
+            /**
              * @see Zend_Feed_Exception
              */
             require_once 'Zend/Feed/Exception.php';

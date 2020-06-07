@@ -38,7 +38,7 @@ foreach ($feed as $entry) {
             <listitem>
                 <para><code>link</code> - I feed possono avere più collegamenti, ciascuno identificato da un attributo <code>type</code></para>
                 <para>
-                    L'equivalente per un canale RSS sarebbe <code>type="text/html"</code>. 
+                    L'equivalente per un canale RSS sarebbe <code>type="text/html"</code>.
                     Un collegamento che indica una versione alternativa dello stesso contenuto del feed dovrebbe contenere l'attributo <code>rel="alternate"</code>.
                 </para>
             </listitem>

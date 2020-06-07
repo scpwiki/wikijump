@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -38,11 +38,11 @@ class CreateAccount2Action extends SmartyAction {
 
 	public function perform($runData) {
 	}
-	
+
 	public function acceptRulesEvent($runData){
 		$accept = $runData->getParameterList()->getParameterValue("acceptrules");
 		if(!$accept){
-			throw new ProcessException(_("You must accept Terms of Service before proceeding."), "must_accept");	
+			throw new ProcessException(_("You must accept Terms of Service before proceeding."), "must_accept");
 		}
 
 	}
@@ -55,13 +55,13 @@ class CreateAccount2Action extends SmartyAction {
 		$email = ($pl->getParameterValue("email"));
 		$password = ($pl->getParameterValue("password"));
 		$password2 = ($pl->getParameterValue("password2"));
-		
+
 		$captcha = trim($pl->getParameterValue("captcha"));
 
 		// validate now.
-		
+
 		$errors = array();
-		
+
 		//name
 		$unixified = WDStringUtils::toUnixName($name);
 		if(strlen($name)<2){
@@ -73,26 +73,26 @@ class CreateAccount2Action extends SmartyAction {
 		}elseif(strlen($unixified)<2){
 			$errors['name'] = _("Account creation failed: Username needs at least 2 non-special characters.");
 		}else{
-			
+
 			//handle forbidden names
-			$unixName = WDStringUtils::toUnixName($name);	
-			
+			$unixName = WDStringUtils::toUnixName($name);
+
 			$forbiddenUnixNames = explode("\n", file_get_contents(WIKIDOT_ROOT.'/conf/forbidden_user_names.conf'));
 			foreach($forbiddenUnixNames as $f){
 				if(preg_match($f, $unixName) >0){
 					$errors['name']	= _('Account creation failed: Username is blocked from registration.');
-				}	
+				}
 			}
-			
+
 			// check if user does not exist
 			$c = new Criteria();
 			$c->add("unix_name", $unixified);
 			$u = OzoneUserPeer::instance()->selectOne($c);
 			if($u != null){
 				$errors['name'] = _("Account creation failed: A user with this screen name (or very similar) already exists.");
-			}	
+			}
 		}
-		
+
 		// now check email
 		if(filter_var($email, FILTER_VALIDATE_EMAIL, FILTER_FLAG_EMAIL_UNICODE) == false){
             $errors['email'] = _("Account creation failed: Invalid email address.");
@@ -100,12 +100,12 @@ class CreateAccount2Action extends SmartyAction {
 			// check if email is unique
 			$c = new Criteria();
 			$c->add("lower(email)", strtolower($email));
-			$u = OzoneUserPeer::instance()->selectOne($c);	
+			$u = OzoneUserPeer::instance()->selectOne($c);
 			if($u != null){
 				$errors['email'] = _("Account creation failed: A user with this email already exists.");
 			}
 		}
-		
+
 		// check password
 		if(strlen8($password)<8){
 			$errors['password'] = _("Account creation failed: Password minimum is 8 characters.");
@@ -113,39 +113,39 @@ class CreateAccount2Action extends SmartyAction {
 			$errors['password'] = _("Account creation failed: Maximum password length is 256 characters to avoid denial of service.");
 		}elseif($password2 != $password){
 			$errors['password2'] = _("Account creation failed: Passwords are not identical.");
-		}	
-		
+		}
+
 		// check language
 		$lang = $pl->getParameterValue("language");
 		if($lang !== "pl" && $lang !== "en"){
-			$errors['language'] = _("Please select your preferred language.");	
+			$errors['language'] = _("Please select your preferred language.");
 		}
-		
+
 		// captcha
 		$captcha = str_replace('0','O', $captcha);
 		$captcha = strtoupper($captcha);
 		if($captcha != strtoupper($runData->sessionGet("captchaCode"))){
 			$errors['captcha'] = _("Account creation failed: CAPTCHA does not match.");
 		}
-		
+
 		if(!$pl->getParameterValue("tos")){
 			$errors['tos'] = _("Account creation failed: Please read and agree to the Terms of Service.");
 		}
-		
+
 		if(count($errors)>0){
-			$runData->ajaxResponseAdd("formErrors", $errors);	
+			$runData->ajaxResponseAdd("formErrors", $errors);
 			throw new ProcessException("Form errors", "form_errors");
 		}
-			
+
 		// store data in the session
-		
+
 		$data = array(
 			'name' => $name,
 			'email' => $email,
 			'password' => $password	,
 			'language' =>$lang
 		);
-		
+
 		$runData->sessionAdd("ca_data", $data);
 
 		// send email HERE:
@@ -153,16 +153,16 @@ class CreateAccount2Action extends SmartyAction {
 		$data = $runData->sessionGet("ca_data");
 		$email = $data['email'];
 		$name = $data['name'];
-		
-		//generate the email verification code 
-		
+
+		//generate the email verification code
+
 		$evcode = $runData->sessionGet('evcode');
 		if(!$evcode){
 			srand((double)microtime()*1000000);
 			$string = md5(rand(0,9999));
 			$evcode = substr($string, 2, 9);
 		}
-		
+
 		//send a confirmation email to the user.
 		$oe = new OzoneEmail();
 		$oe->addAddress($email);
@@ -171,31 +171,31 @@ class CreateAccount2Action extends SmartyAction {
 		$oe->contextAdd('email', $email);
 		$oe->contextAdd('evcode', $evcode);
 		$oe->contextAdd('sessionHash', md5($runData->getSession()->getSessionId() . self::$EVCODE_SEED));
-		
+
 		$oe->setBodyTemplate('RegistrationEmailVerification');
-	
+
 		if (!$oe->Send()) {
 			throw new ProcessException(_("The email can not be sent to this address."), "email_failed");
-		} 		
+		}
 		$runData->sessionAdd('evcode', $evcode);
-		
+
 	}
 
 	public function sendEmailVerEvent($runData){
-		
+
 		$data = $runData->sessionGet("ca_data");
 		$email = $data['email'];
 		$name = $data['name'];
-		
-		//generate the email verification code 
-		
+
+		//generate the email verification code
+
 		$evcode = $runData->sessionGet('evcode');
 		if($evcode == null){
 			srand((double)microtime()*1000000);
 			$string = md5(rand(0,9999));
 			$evcode = substr($string, 2, 6);
 		}
-		
+
 		//send a confirmation email to the user.
 		$oe = new OzoneEmail();
 		$oe->addAddress($email);
@@ -203,49 +203,49 @@ class CreateAccount2Action extends SmartyAction {
 		$oe->contextAdd('name', $name);
 		$oe->contextAdd('email', $email);
 		$oe->contextAdd('evcode', $evcode);
-		
+
 		$oe->setBodyTemplate('RegistrationEmailVerification');
-	
+
 		if (!$oe->Send()) {
 			throw new ProcessException(_("The email can not be sent to this address."), "email_failed");
-		} 		
+		}
 		$runData->sessionAdd('evcode', $evcode);
 	}
-	
+
 	public function finalizeEvent($runData, $skipEvcode = false){
 		// get the form data
 		$pl = $runData->getParameterList();
-		
+
 		if(!$skipEvcode){
 			$evcode = $pl->getParameterValue("evcode", "AMODULE");
-			
+
 			//check if the email vercode is correct
 			$evcode2 = $runData->sessionGet('evcode');
 			if ($evcode !== $evcode2) {
 				throw new ProcessException(_("Invalid email verification code."), "invalid_code");
 			}
 		}
-		
+
 		$data = $runData->sessionGet("ca_data");
-		
+
 		$name = $data['name'];
 		$email = $data['email'];
 		$password = $data['password'];
 		$lang = $data['language'];
-		
+
 		$db = Database::connection();
 		$db->begin();
-		
+
 		// check again if email and nick are not duplicate!
-		
+
 		$c = new Criteria();
 		$c->add("lower(email)", strtolower($email));
-		$u = OzoneUserPeer::instance()->selectOne($c);	
+		$u = OzoneUserPeer::instance()->selectOne($c);
 		if($u != null){
 			$runData->resetSession();
 			throw new ProcessException(_("Account creation failed: A user with this email already exists."), "user_exists");
 		}
-		
+
 		$unixified = WDStringUtils::toUnixName($name);
 		$c = new Criteria();
 		$c->add("unix_name", $unixified);
@@ -262,30 +262,30 @@ class CreateAccount2Action extends SmartyAction {
 		$nuser->setName($email);
 		$nuser->setEmail($email);
 		$nuser->setPassword($password);
-		
+
 		$nuser->setNickName($name);
 		$nuser->setUnixName($unixified);
-		
+
 		$nuser->setLanguage($lang);
-		
+
 		$date = new ODate();
 		$nuser->setRegisteredDate($date);
 		$nuser->setLastLogin($date);
-		
+
 		$nuser->save();
 
 		// profile
-		
+
 		$profile = new Profile();
 		$profile->setUserId($nuser->getUserId());
 		$profile->save();
-		
+
 		$us = new UserSettings();
 		$us->setUserId($nuser->getUserId());
 		$us->save();
-		
+
 		// profile page
-		
+
 		$c = new Criteria();
 		$c->add("unix_name", "profiles");
 		$nsite = SitePeer::instance()->selectOne($c);
@@ -293,17 +293,17 @@ class CreateAccount2Action extends SmartyAction {
 
 		$dup = new Duplicator;
 		$dup->setOwner($nuser);
-		
+
 		$dup->duplicatePage(PagePeer::instance()->selectByName($nsite->getSiteId(), 'template:profile'),
 					$nsite,  $ncategory, 'profile:'.$nuser->getUnixName());
-		
+
 		$page = PagePeer::instance()->selectByName($nsite->getSiteId(), 'profile:'.$nuser->getUnixName());
-		
+
 		$ou = new Outdater();
 		$ou->pageEvent('new_page', $page);
-		
+
 		$db->commit();
-		
+
 		/* Handle originalUrl. */
 		$originalUrl = $runData->sessionGet('loginOriginalUrl');
 		if($originalUrl){
@@ -317,9 +317,9 @@ class CreateAccount2Action extends SmartyAction {
 		$runData->getSession()->setUserId($nuser->getUserId());
 		setcookie("welcome", $nuser->getUserId(), time() + 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
 		setcookie(GlobalProperties::$SESSION_COOKIE_NAME_IE, $runData->getSessionId(), null, "/");
-		
+
 	}
-	
+
 	public function cancelEvent($runData){
 		// reset session etc.
 		$runData->resetSession();

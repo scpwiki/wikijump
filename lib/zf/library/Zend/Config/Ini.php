@@ -116,7 +116,7 @@ class Zend_Config_Ini extends Zend_Config
             require_once 'Zend/Config/Exception.php';
             throw new Zend_Config_Exception($this->_loadFileErrorStr);
         }
-        
+
         $preProcessedArray = array();
         foreach ($iniArray as $key => $data)
         {
@@ -178,7 +178,7 @@ class Zend_Config_Ini extends Zend_Config
 
         $this->_loadedSection = $section;
     }
-    
+
     /**
      * Helper function to process each element in the section and handle
      * the "extends" inheritance keyword. Passes control to _processKey()

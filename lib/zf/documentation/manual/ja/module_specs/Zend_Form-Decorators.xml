@@ -330,7 +330,7 @@ class My_Decorator_Errors
 }
 ]]>
         </programlisting>
-    
+
         <para>
             この例では、デコレータ名の最後の部分である 'Errors' が
             <code>Zend_Form_Decorator_Errors</code> と同じなので、このデコレータの

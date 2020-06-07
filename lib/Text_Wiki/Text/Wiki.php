@@ -61,16 +61,16 @@ class Text_Wiki {
         'Modulepre',
         'Module',
         'Module654',
-       
+
     	'Iftags',
-    
+
         'Comment',
         'Iframe',
     	'Date',
         'Math',
-        
+
         'Concatlines',
-        
+
         'Freelink',
         'Equationreference',
         'Footnote',
@@ -80,7 +80,7 @@ class Text_Wiki {
         'Bibliography',
         'Bibcite',
  //       'Function',
- //       'Html',   
+ //       'Html',
         'Divprefilter',
  //       'Embed',
         'Anchor',
@@ -350,7 +350,7 @@ class Text_Wiki {
 	public $store = array();
 
 	public $vars = array();
-	
+
 	/**
 	 * Stores format while processing the source.
 	 */
@@ -859,7 +859,7 @@ class Text_Wiki {
                     $this->parseObj[$name]->parse();
                 }
             }
-            
+
         }
     }
 
@@ -958,7 +958,7 @@ class Text_Wiki {
         }
 
 		// this is a nasty hack... should be put somewhere else, e.g. Postfilter?
-		
+
 		// fix TOC tags within entries
 		$d = utf8_encode("\xFC");
 		$output = preg_replace_callback("/$d$d(.*?)$d$d/s", array($this, 'strip'), $output);
@@ -966,9 +966,9 @@ class Text_Wiki {
         // return the rendered source text.
         return $output;
     }
-    
+
     public function strip($matches){
-    	return strip_tags($matches[1]);	
+    	return strip_tags($matches[1]);
     }
 
     /**
@@ -1113,9 +1113,9 @@ class Text_Wiki {
         $rule = ucwords(strtolower($rule));
         $file = $rule . '.php';
         $class = "Text_Wiki_Parse_$rule";
-		
+
             $loc = $this->findFile('parse', $file);
-         
+
             if ($loc) {
                 // found the class
                 include_once $loc;

@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version \$Id\$
@@ -29,7 +29,7 @@ use BaseDBObject;
 
 
 
- 
+
 /**
  * Base class mapped to the database table membership_link.
  */
@@ -40,69 +40,69 @@ class MembershipLinkBase extends BaseDBObject {
 		$this->peerName = 'DB\\MembershipLinkPeer';
 		$this->primaryKeyName = 'link_id';
 		$this->fieldNames = array( 'link_id' ,  'site_id' ,  'by_user_id' ,  'user_id' ,  'date' ,  'type' );
-		
+
 		//$this->fieldDefaultValues=
 	}
 
 
-	
-		
-	
-		
+
+
+
+
 	public function getLinkId() {
 		return $this->getFieldValue('link_id');
 	}
-	
+
 	public function setLinkId($v1, $raw=false) {
-		$this->setFieldValue('link_id', $v1, $raw); 
+		$this->setFieldValue('link_id', $v1, $raw);
 	}
-	
-		
+
+
 	public function getSiteId() {
 		return $this->getFieldValue('site_id');
 	}
-	
+
 	public function setSiteId($v1, $raw=false) {
-		$this->setFieldValue('site_id', $v1, $raw); 
+		$this->setFieldValue('site_id', $v1, $raw);
 	}
-	
-		
+
+
 	public function getByUserId() {
 		return $this->getFieldValue('by_user_id');
 	}
-	
+
 	public function setByUserId($v1, $raw=false) {
-		$this->setFieldValue('by_user_id', $v1, $raw); 
+		$this->setFieldValue('by_user_id', $v1, $raw);
 	}
-	
-		
+
+
 	public function getUserId() {
 		return $this->getFieldValue('user_id');
 	}
-	
+
 	public function setUserId($v1, $raw=false) {
-		$this->setFieldValue('user_id', $v1, $raw); 
+		$this->setFieldValue('user_id', $v1, $raw);
 	}
-	
-		
+
+
 	public function getDate() {
 		return $this->getFieldValue('date');
 	}
-	
+
 	public function setDate($v1, $raw=false) {
-		$this->setFieldValue('date', $v1, $raw); 
+		$this->setFieldValue('date', $v1, $raw);
 	}
-	
-		
+
+
 	public function getType() {
 		return $this->getFieldValue('type');
 	}
-	
+
 	public function setType($v1, $raw=false) {
-		$this->setFieldValue('type', $v1, $raw); 
+		$this->setFieldValue('type', $v1, $raw);
 	}
-	
-		
-	
+
+
+
 
 }

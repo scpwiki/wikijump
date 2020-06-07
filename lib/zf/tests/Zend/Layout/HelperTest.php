@@ -16,7 +16,7 @@ require_once 'Zend/Controller/Action/HelperBroker.php';
 /**
  * Test class for Zend_Layout_Controller_Action_Helper_Layout
  */
-class Zend_Layout_HelperTest extends PHPUnit_Framework_TestCase 
+class Zend_Layout_HelperTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.

@@ -13,7 +13,7 @@ require_once 'Zend/Filter/Word/SeparatorToCamelCase.php';
 /**
  * Test class for Zend_Filter_Word_SeparatorToCamelCase.
  */
-class Zend_Filter_Word_SeparatorToCamelCaseTest extends PHPUnit_Framework_TestCase 
+class Zend_Filter_Word_SeparatorToCamelCaseTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.

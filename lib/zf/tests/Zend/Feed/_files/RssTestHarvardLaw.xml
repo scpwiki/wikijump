@@ -9,7 +9,7 @@
 		<language>en-us</language>
 		<pubDate>Sat, 21 Jan 2006 05:00:00 GMT</pubDate>
 		<lastBuildDate>Sun, 22 Jan 2006 02:01:58 GMT</lastBuildDate>
-		<docs>http://backend.userland.com/rss</docs> 
+		<docs>http://backend.userland.com/rss</docs>
 		<generator>UserLand Frontier v9.5</generator>
 		<category domain="http://www.weblogs.com/rssUpdates/changes.xml">rssUpdates</category>
 		<managingEditor>rcade@yahoo.com</managingEditor>
@@ -104,7 +104,7 @@ conducted.&lt;br&gt;</description>
 			<link>http://blogs.law.harvard.edu/tech/2004/05/31#a550</link>
 			<description>If you&apos;re not tracking this site&apos;s &lt;A href=&quot;http://blogs.law.harvard.edu/tech/rssChangeNotes&quot;&gt;change notes page&lt;/A&gt;, you might have missed a few minor edits to the documentation for RSS 2.0:&lt;BR&gt;
 &lt;UL&gt;
-&lt;LI&gt;The &lt;A href=&quot;http://cyber.law.harvard.edu/blogs/gems/tech/rss2sample.xml&quot;&gt;RSS 2.0 sample file&lt;/A&gt; has been updated. 
+&lt;LI&gt;The &lt;A href=&quot;http://cyber.law.harvard.edu/blogs/gems/tech/rss2sample.xml&quot;&gt;RSS 2.0 sample file&lt;/A&gt; has been updated.
 &lt;LI&gt;An &lt;A href=&quot;http://blogs.law.harvard.edu/tech/rssChangeNotes#53104Dw&quot;&gt;encoding issue&lt;/A&gt; has been fixed on the &lt;A href=&quot;http://blogs.law.harvard.edu/tech/skipHoursDays&quot;&gt;skipHours and skipDays&lt;/A&gt; page. &lt;/LI&gt;&lt;/UL&gt;Suggestions for further improvements to the documentation are encouraged.&lt;BR&gt;&lt;BR&gt;</description>
 			<dc:creator>Rogers Cadenhead</dc:creator>
 			<guid>http://blogs.law.harvard.edu/tech/2004/05/31#a550</guid>

@@ -1,7 +1,7 @@
 <?php
 	// this file is just a bouncer for ContentPane.html test
 	error_reporting(E_ALL ^ E_NOTICE);
-	
+
 	if(isset($_GET['mode'])){
 		switch($_GET['mode']){
 			case 'htmlPaths':
@@ -18,7 +18,7 @@
 					<link media='print' type='text/css' rel='stylesheet' href='getResponse.php?mode=linkMediaPrint'>
 					";
 				break;
-	
+
 			case 'importCss':
 				header('Content-type: text/css; charset=utf-8');
 				echo "#importMediaTest {
@@ -34,7 +34,7 @@
 						height: 100px;
 					}";
 				break;
-	
+
 			case 'linkCss':
 				header('Content-type: text/css; charset=utf-8');
 				echo "#linkMediaTest {
@@ -70,21 +70,21 @@
 					height: 100px;
 				}";
 				break;
-	
+
 			case 'remoteJsTrue':
 				header('Content-type: text/javascript; charset=utf-8');
 				echo "unTypedVarInDocScope = true;";
 				break;
-	
+
 			case 'remoteJsFalse':
 				header('Content-type: text/javascript; charset=utf-8');
 				echo "unTypedVarInDocScope = false;";
 				break;
-	
+
 			case 'bounceInput':
 				echo file_get_contents("php://input");
 				break;
-	
+
 			case 'bounceHeaders';
 				if(function_exists("apache_request_headers")){
 					$headers = apache_request_headers();
@@ -100,7 +100,7 @@
 					}
 				}
 				break;
-	
+
 			default:
 				echo "unkown mode {$_GET['mode']}";
 		}

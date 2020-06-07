@@ -8,9 +8,9 @@ require_once 'HTMLPurifier/HTMLModule.php';
  */
 class HTMLPurifier_HTMLModule_Ruby extends HTMLPurifier_HTMLModule
 {
-    
+
     public $name = 'Ruby';
-    
+
     public function __construct() {
         $this->addElement('ruby', true, 'Inline',
             'Custom: ((rb, (rt | (rp, rt, rp))) | (rbc, rtc, rtc?))',
@@ -23,6 +23,6 @@ class HTMLPurifier_HTMLModule_Ruby extends HTMLPurifier_HTMLModule
         $rt->excludes = array('ruby' => true);
         $this->addElement('rp', true, false, 'Optional: #PCDATA', 'Common');
     }
-    
+
 }
 

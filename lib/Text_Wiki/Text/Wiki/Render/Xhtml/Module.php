@@ -19,7 +19,7 @@
  * @link       http://pear.php.net/package/Text_Wiki
  */
 class Text_Wiki_Render_Xhtml_Module extends Text_Wiki_Render {
-    
+
     public $conf = array();
 
     /**
@@ -34,7 +34,7 @@ class Text_Wiki_Render_Xhtml_Module extends Text_Wiki_Render {
      * @return string The text rendered from the token options.
      *
      */
-    
+
     function token($options) {
         $moduleName = $options['moduleName'];
         $siteName = $GLOBALS['site']->getUnixName();
@@ -43,7 +43,7 @@ class Text_Wiki_Render_Xhtml_Module extends Text_Wiki_Render {
         if ($mm->canWikiUseModule($siteName, $moduleName) == false) {
             return $this->renderError(sprintf(_("Module <em>%s</em> does not exist or can not be used within this site."), $moduleName));
         }
-        
+
         $attr = $options['attr'];
         if ($options['module_body']) {
             $attr .= ' module_body="' . urlencode($options['module_body']) . '"';
@@ -55,7 +55,7 @@ class Text_Wiki_Render_Xhtml_Module extends Text_Wiki_Render {
             $out .= " " . urlencode($attr) . " ";
         }
         $out .= $d;
-        
+
         return $out;
     }
 }

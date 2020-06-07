@@ -8,17 +8,17 @@
 
         <para>
         Zend_Acl didesain sedemikian rupa sehingga ia tidak bergantung pada teknologi backend seperti database
-        atau server cache untuk menyimpan data ACL. Zend_Acl sepenuhnya diimplementasikan dalam kode PHP 
+        atau server cache untuk menyimpan data ACL. Zend_Acl sepenuhnya diimplementasikan dalam kode PHP
         sehingga perangkat administrasi lainnya (seperti penyimpanan data ACL) dapat dibangun di atasnya
-        dengan relatif mudah dan fleksibel. Sebab terkadang kita perlu mengelola ACL ini secara interaktif, 
-        tidak persistence seperti halnya kalau kita menyimpan dalam database. Untuk itu Zend_Acl menyediakan 
+        dengan relatif mudah dan fleksibel. Sebab terkadang kita perlu mengelola ACL ini secara interaktif,
+        tidak persistence seperti halnya kalau kita menyimpan dalam database. Untuk itu Zend_Acl menyediakan
         method untuk melakukan setup dan query ACL dari aplikasi secara dinamis.
         </para>
 
         <para>
         Dengan kata lain, penyimpanan data ACL diserahkan sepenuhnya kepada developer, karena penggunaan tempat
         penyimpanan data ACL sangat beragam dan berbeda untuk tiap aplikasi. Yang jelas, objek Zend_Acl
-        dapat diserialisasikan, dan dengan menggunakan fungsi 
+        dapat diserialisasikan, dan dengan menggunakan fungsi
         <ulink url="http://php.net/serialize"><code>serialize()</code></ulink> di PHP, anda dapat menyimpan
         hasil keluarannya ke tempat penyimpanan sesuai keinginan anda. Bisa ke dalam file, database atau
         mekanisme caching.
@@ -81,9 +81,9 @@ $acl->allow(null, null, null, new CleanIPAssertion());
         <para>
         Kode di atas membuat aturan yang memperbolehkan siapapun untuk melakukan apapun
         pada semua resource, kecuali ketika orang tersebut menggunakan IP yang masuk daftar blacklist. Ini karena jika
-        class assert bernilai <code>false</code> (IP masuk daftar blacklist) maka aturan jadi tidak berlaku, 
+        class assert bernilai <code>false</code> (IP masuk daftar blacklist) maka aturan jadi tidak berlaku,
         yang artinya semua akses ditolak.
-        Mesti anda fahami, ini adalah kasus spesial. Karena kita memberi nilai <code>null</code> pada parameter masukan 
+        Mesti anda fahami, ini adalah kasus spesial. Karena kita memberi nilai <code>null</code> pada parameter masukan
         (ingat kembali sifat Zend_Acl di <link linkend="zend.acl.introduction">sub bab sebelumnya</link>
         yang default-nya menolak semua role untuk mengakses semua resource).
         Namun jika anda menetapkan aturan tertentu pada role, resource dan/atau hak akses tertentu, maka class assert yang
@@ -93,7 +93,7 @@ $acl->allow(null, null, null, new CleanIPAssertion());
 
         <para>
         Perhatikan di method <code>assert()</code> dari objek assertion di atas. ACL, role, resource dan
-        hak akses (privilege) digunakan sebagai parameter masukannya. Ini memungkinkan anda untuk 
+        hak akses (privilege) digunakan sebagai parameter masukannya. Ini memungkinkan anda untuk
         menentukan bilamana class assertion yang anda buat diberlakukan terhadap ACL, role, resource
         dan hak akses tertentu.
         </para>

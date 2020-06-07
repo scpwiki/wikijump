@@ -20,14 +20,14 @@
  * @link       http://pear.php.net/package/Text_Wiki
  */
 class Text_Wiki_Render_Xhtml_Typography extends Text_Wiki_Render {
-    
-    public $replacements = array("``" => '&#8220;', "''" => '&#8221;', 
-        ",," => '&#8222;', "`" => '&#8216;', "'" => '&#8217;', 
-        "<<" => '&#171;', ">>" => '&#187;', " " => '&#160;', 
+
+    public $replacements = array("``" => '&#8220;', "''" => '&#8221;',
+        ",," => '&#8222;', "`" => '&#8216;', "'" => '&#8217;',
+        "<<" => '&#171;', ">>" => '&#187;', " " => '&#160;',
         "..." => '&#8230;', "---" => '&#8212;', "--" => '&#8212;')
 
     ;
-    
+
     public $conf = array();
 
     /**
@@ -42,7 +42,7 @@ class Text_Wiki_Render_Xhtml_Typography extends Text_Wiki_Render {
      * @return string The text rendered from the token options.
      *
      */
-    
+
     function token($options) {
         return ($this->replacements[$options['char']]);
     }

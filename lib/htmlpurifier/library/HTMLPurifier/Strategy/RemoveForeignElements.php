@@ -10,9 +10,9 @@ require_once 'HTMLPurifier/AttrValidator.php';
 HTMLPurifier_ConfigSchema::define(
     'Core', 'RemoveInvalidImg', true, 'bool', '
 <p>
-  This directive enables pre-emptive URI checking in <code>img</code> 
-  tags, as the attribute validation strategy is not authorized to 
-  remove elements from the document.  This directive has been available 
+  This directive enables pre-emptive URI checking in <code>img</code>
+  tags, as the attribute validation strategy is not authorized to
+  remove elements from the document.  This directive has been available
   since 1.3.0, revert to pre-1.3.0 behavior by setting to false.
 </p>
 '
@@ -24,7 +24,7 @@ HTMLPurifier_ConfigSchema::define(
   This directive enables HTML Purifier to remove not only script tags
   but all of their contents. This directive has been deprecated since 2.1.0,
   and when not set the value of %Core.HiddenElements will take
-  precedence. This directive has been available since 2.0.0, and can be used to 
+  precedence. This directive has been available since 2.0.0, and can be used to
   revert to pre-2.0.0 behavior by setting it to false.
 </p>
 '
@@ -35,7 +35,7 @@ HTMLPurifier_ConfigSchema::define(
 <p>
   This directive is a lookup array of elements which should have their
   contents removed when they are not allowed by the HTML definition.
-  For example, the contents of a <code>script</code> tag are not 
+  For example, the contents of a <code>script</code> tag are not
   normally shown in a document, so if script tags are to be removed,
   their contents should be removed to. This is opposed to a <code>b</code>
   tag, which defines some presentational changes but does not hide its
@@ -46,7 +46,7 @@ HTMLPurifier_ConfigSchema::define(
 
 /**
  * Removes all unrecognized tags from the list of tokens.
- * 
+ *
  * This strategy iterates through all the tokens and removes unrecognized
  * tokens. If a token is not recognized but a TagTransform is defined for
  * that element, the element will be transformed accordingly.
@@ -54,41 +54,41 @@ HTMLPurifier_ConfigSchema::define(
 
 class HTMLPurifier_Strategy_RemoveForeignElements extends HTMLPurifier_Strategy
 {
-    
+
     public function execute($tokens, $config, $context) {
         $definition = $config->getHTMLDefinition();
         $generator = new HTMLPurifier_Generator();
         $result = array();
-        
+
         $escape_invalid_tags = $config->get('Core', 'EscapeInvalidTags');
         $remove_invalid_img  = $config->get('Core', 'RemoveInvalidImg');
-        
+
         $remove_script_contents = $config->get('Core', 'RemoveScriptContents');
         $hidden_elements     = $config->get('Core', 'HiddenElements');
-        
+
         // remove script contents compatibility
         if ($remove_script_contents === true) {
             $hidden_elements['script'] = true;
         } elseif ($remove_script_contents === false && isset($hidden_elements['script'])) {
             unset($hidden_elements['script']);
         }
-        
+
         $attr_validator = new HTMLPurifier_AttrValidator();
-        
+
         // removes tokens until it reaches a closing tag with its value
         $remove_until = false;
-        
+
         // converts comments into text tokens when this is equal to a tag name
         $textify_comments = false;
-        
+
         $token = false;
         $context->register('CurrentToken', $token);
-        
+
         $e = false;
         if ($config->get('Core', 'CollectErrors')) {
             $e =& $context->get('ErrorCollector');
         }
-        
+
         foreach($tokens as $token) {
             if ($remove_until) {
                 if (empty($token->is_tag) || $token->name !== $remove_until) {
@@ -97,7 +97,7 @@ class HTMLPurifier_Strategy_RemoveForeignElements extends HTMLPurifier_Strategy
             }
             if (!empty( $token->is_tag )) {
                 // DEFINITION CALL
-                
+
                 // before any processing, try to transform the element
                 if (
                     isset($definition->info_tag_transform[$token->name])
@@ -110,9 +110,9 @@ class HTMLPurifier_Strategy_RemoveForeignElements extends HTMLPurifier_Strategy
                                     transform($token, $config, $context);
                     if ($e) $e->send(E_NOTICE, 'Strategy_RemoveForeignElements: Tag transform', $original_name);
                 }
-                
+
                 if (isset($definition->info[$token->name])) {
-                    
+
                     // mostly everything's good, but
                     // we need to make sure required attributes are in order
                     if (
@@ -134,13 +134,13 @@ class HTMLPurifier_Strategy_RemoveForeignElements extends HTMLPurifier_Strategy
                         }
                         $token->armor['ValidateAttributes'] = true;
                     }
-                    
+
                     if (isset($hidden_elements[$token->name]) && $token->type == 'start') {
                         $textify_comments = $token->name;
                     } elseif ($token->name === $textify_comments && $token->type == 'end') {
                         $textify_comments = false;
                     }
-                    
+
                 } elseif ($escape_invalid_tags) {
                     // invalid tag, generate HTML representation and insert in
                     if ($e) $e->send(E_WARNING, 'Strategy_RemoveForeignElements: Foreign element to text');
@@ -184,11 +184,11 @@ class HTMLPurifier_Strategy_RemoveForeignElements extends HTMLPurifier_Strategy
             // we removed tokens until the end, throw error
             $e->send(E_ERROR, 'Strategy_RemoveForeignElements: Token removed to end', $remove_until);
         }
-        
+
         $context->destroy('CurrentToken');
-        
+
         return $result;
     }
-    
+
 }
 

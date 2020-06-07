@@ -1,15 +1,15 @@
 <sect1 id="zend.mail.introduction">
 
     <title>Wprowadzenie</title>
-    
+
     <sect2 id="zend.mail.introduction.getting-started">
-    
+
         <title>Getting started</title>
-        
+
         <para>
             <code>Zend_Mail</code> zapewnia możliwość tworzenia i wysyłania tekstowych
             wiadomości e-mail oraz wieloczęściowych wiadomości e-mail zgodnych z MIME.
-            Wiadomość może być wysłana przez <code>Zend_Mail</code> za pomocą 
+            Wiadomość może być wysłana przez <code>Zend_Mail</code> za pomocą
             domyślnego transportu <code>Zend_Mail_Transport_Sendmail</code> lub
             za pomocą <code>Zend_Mail_Transport_Smtp</code>.
         </para>
@@ -17,7 +17,7 @@
         <example id="zend.mail.introduction.example-1">
             <title>Wysyłanie prostego e-maila za pomocą Zend_Mail</title>
             <para>
-                Prosty e-mail składa się z odbiorców, z tematu, treści i z nadawcy. 
+                Prosty e-mail składa się z odbiorców, z tematu, treści i z nadawcy.
                 Aby wysłać taki e-mail używając <code>Zend_Mail_Transport_Sendmail</code>
                 możesz zrobić to w ten sposób:
             </para>
@@ -66,17 +66,17 @@ $mail->setBodyText('This is the text of the mail.')
     ->send();
 ]]>
         </programlisting>
-    
+
     </sect2>
-    
+
     <sect2 id="zend.mail.introduction.sendmail">
 
         <title>Configuring the default sendmail transport</title>
 
         <para>
             The default transport for a <code>Zend_Mail</code> instance is <code>Zend_Mail_Transport_Sendmail</code>.
-            It is essentially a wrapper to the PHP <ulink url="http://php.net/mail"><code>mail()</code></ulink> function. 
-            If you wish to pass additional parameters to the <ulink url="http://php.net/mail"><code>mail()</code></ulink> function, 
+            It is essentially a wrapper to the PHP <ulink url="http://php.net/mail"><code>mail()</code></ulink> function.
+            If you wish to pass additional parameters to the <ulink url="http://php.net/mail"><code>mail()</code></ulink> function,
             simply create a new transport instance and pass your parameters to the constructor. The new transport instance
             can then act as the default <code>Zend_Mail</code> transport, or it can be passed to the <code>send()</code>
             method of <code>Zend_Mail</code>.

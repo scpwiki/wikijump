@@ -20,11 +20,11 @@ class DojoPackage
     $this->dojo = $dojo;
     $this->setFile($file);
   }
-  
+
   public function getFile(){
     return $this->file;
   }
-  
+
   public function setFile($file){
     $this->file = $file;
   }
@@ -48,7 +48,7 @@ class DojoPackage
         $this->declarations[$declaration->getFunctionName()][] = $declaration;
       }
     }
-    
+
     return $this->declarations;
   }
 
@@ -61,7 +61,7 @@ class DojoPackage
     }
 
     $lines = $this->getCode();
-    
+
     $matches = preg_grep('%function%', $lines);
     $last_line = 0;
     foreach ($matches as $line_number => $line) {
@@ -83,10 +83,10 @@ class DojoPackage
         }
       }
     }
-    
+
     return $this->executions;
   }
-  
+
   /**
    * Use this to find everywhere in the code a function is called.
    *
@@ -96,7 +96,7 @@ class DojoPackage
     if ($this->calls[$name]) {
       return $this->calls[$name];
     }
-    
+
     $this->calls[$name] = array();
     $lines = $this->getCode();
     $lines = preg_grep('%\b' . preg_quote($name) . '\s*\(%', $lines);
@@ -111,7 +111,7 @@ class DojoPackage
     }
     return $this->calls[$name];
   }
-  
+
   public function removeCodeFrom($lines){
     $keys = array_keys($lines);
     $first = array_shift($keys);
@@ -142,7 +142,7 @@ class DojoPackage
     }
     return $lines;
   }
-  
+
   public function getAliases(){
     if($this->aliases){
       return $this->aliases;
@@ -155,7 +155,7 @@ class DojoPackage
     if ($this->objects) {
       return $this->objects;
     }
-    
+
     $lines = $this->getCode();
     foreach ($lines as $line_number => $line) {
       if ($line_number < $end_line_number) {
@@ -170,7 +170,7 @@ class DojoPackage
     }
     return $this->objects;
   }
-  
+
   public function getSource(){
     if ($this->source) {
       return $this->source;
@@ -201,7 +201,7 @@ class DojoPackage
     }
     return $this->source = $lines;
   }
-  
+
   /**
    * Removes comments and strings, preserving layout
    */
@@ -209,9 +209,9 @@ class DojoPackage
     if ($this->code) {
       return $this->code;
     }
-    
+
     $lines = $this->getSource();
-    
+
     $in_comment = false;
     foreach ($lines as $line_number => $line) {
       //print "$line_number $line\n";
@@ -224,7 +224,7 @@ class DojoPackage
           $line = Text::blankOut($line, $line);
         }
       }
-      
+
       $position = 0;
       $in_single_string = false;
       $in_double_string = false;
@@ -288,11 +288,11 @@ class DojoPackage
             $matches[$pos] = '*/';
           }
         }
-        
+
         if (!$matches) {
           break;
         }
-        
+
         ksort($matches);
         foreach ($matches as $position => $match) {
           if ($in_comment === false && $in_regex === false && $in_single_string === false && $in_double_string === false) {
@@ -337,16 +337,16 @@ class DojoPackage
         }
         ++$position;
       }
-      
+
       if($i == 500){
         die("\$i should not reach 500: $line");
       }
-      
+
       if ($in_comment !== false && !empty($line)) {
         $line = Text::blankOutAt($line, $in_comment);
         $in_comment = 0;
       }
-      
+
       //print "$line_number $line\n";
       $lines[$line_number] = $line;
     }
@@ -354,7 +354,7 @@ class DojoPackage
     return $this->code = $lines;
   }
 
-  /** 
+  /**
    * After all calls are done, return what's left
    */
   public function getExternalVariables(){
@@ -388,7 +388,7 @@ class DojoPackage
 
     return $variables;
   }
-  
+
   /**
    * Remove items from the passed objects if they are inside of existing calls or declarations
    */
@@ -402,7 +402,7 @@ class DojoPackage
             $swallowed[] = $objects[$i];
           }
           unset($objects[$i]);
-        }        
+        }
         foreach ($pobject->declarations as $declaration) {
           if (($object->start[0] > $declaration->start[0] || ($object->start[0] == $declaration->start[0] && $object->start[1] > $declaration->start[1]))
               && ($object->end[0] < $declaration->end[0] || ($object->end[0] == $declaration->end[0] && $object->end[1] < $declaration->end[1]))) {

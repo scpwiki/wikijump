@@ -105,7 +105,7 @@ class Zend_Cache_Core
      * @var string $_lastId
      */
     private $_lastId = null;
-    
+
     /**
      * True if the backend implements Zend_Cache_Backend_ExtendedInterface
      *
@@ -115,11 +115,11 @@ class Zend_Cache_Core
 
     /**
      * Array of capabilities of the backend (only if it implements Zend_Cache_Backend_ExtendedInterface)
-     * 
+     *
      * @var array
      */
     protected $_backendCapabilities = array();
-    
+
     /**
      * Constructor
      *
@@ -156,7 +156,7 @@ class Zend_Cache_Core
             $this->_extendedBackend = true;
             $this->_backendCapabilities = $this->_backend->getCapabilities();
         }
-        
+
     }
 
     /**
@@ -304,7 +304,7 @@ class Zend_Cache_Core
      * @param  string $id             Cache id (if not set, the last cache id will be used)
      * @param  array $tags           Cache tags
      * @param  int $specificLifetime If != false, set a specific lifetime for this cache record (null => infinite lifetime)
-     * @param  int   $priority         integer between 0 (very low priority) and 10 (maximum priority) used by some particular backends         
+     * @param  int   $priority         integer between 0 (very low priority) and 10 (maximum priority) used by some particular backends
      * @throws Zend_Cache_Exception
      * @return boolean True if no problem
      */
@@ -428,10 +428,10 @@ class Zend_Cache_Core
         self::_validateTagsArray($tags);
         return $this->_backend->clean($mode, $tags);
     }
-    
+
     /**
      * Return an array of stored cache ids which match given tags
-     * 
+     *
      * In case of multiple tags, a logical AND is made between tags
      *
      * @param array $tags array of tags
@@ -447,15 +447,15 @@ class Zend_Cache_Core
         }
         return $this->_backend->getIdsMatchingTags($tags);
     }
-    
+
     /**
      * Return an array of stored cache ids which don't match given tags
-     * 
+     *
      * In case of multiple tags, a logical OR is made between tags
      *
      * @param array $tags array of tags
      * @return array array of not matching cache ids (string)
-     */    
+     */
     public function getIdsNotMatchingTags($tags = array())
     {
         if (!$this->_extendedBackend) {
@@ -466,10 +466,10 @@ class Zend_Cache_Core
         }
         return $this->_backend->getIdsNotMatchingTags($tags);
     }
-    
+
     /**
      * Return an array of stored cache ids
-     * 
+     *
      * @return array array of stored cache ids (string)
      */
     public function getIds()
@@ -479,7 +479,7 @@ class Zend_Cache_Core
         }
         return $this->_backend->getIds();
     }
-    
+
     /**
      * Return an array of stored tags
      *
@@ -493,9 +493,9 @@ class Zend_Cache_Core
         if (!($this->_backendCapabilities['tags'])) {
             Zend_Cache::throwException('tags are not supported by the current backend');
         }
-        return $this->_backend->getTags();        
+        return $this->_backend->getTags();
     }
-    
+
     /**
      * Return the filling percentage of the backend storage
      *
@@ -506,9 +506,9 @@ class Zend_Cache_Core
         if (!$this->_extendedBackend) {
             Zend_Cache::throwException('Current backend doesn\'t implement the Zend_Cache_Backend_ExtendedInterface, so this method is not available');
         }
-        return $this->_backend->getFillingPercentage();        
+        return $this->_backend->getFillingPercentage();
     }
-    
+
     /**
      * Give (if possible) an extra lifetime to the given cache id
      *
@@ -521,9 +521,9 @@ class Zend_Cache_Core
         if (!$this->_extendedBackend) {
             Zend_Cache::throwException('Current backend doesn\'t implement the Zend_Cache_Backend_ExtendedInterface, so this method is not available');
         }
-        return $this->_backend->touch($id, $extraLifetime);           
+        return $this->_backend->touch($id, $extraLifetime);
     }
-    
+
     /**
      * Validate a cache id or a tag (security, reliable filenames, reserved prefixes...)
      *

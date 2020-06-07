@@ -185,7 +185,7 @@ class UserControllerTest extends Zend_Test_PHPUnit_ControllerTestCase
              ->resetResponse();
 
         $this->request->setPost(array());
-        
+
         // ...
     }
 
@@ -243,7 +243,7 @@ class UserControllerTest extends Zend_Test_PHPUnit_ControllerTestCase
         $this->assertQueryContentContains('h2', 'foobar');
     }
 
-    public function 
+    public function
         testAuthenticatedUsersShouldBeRedirectedToProfilePageWhenVisitingLoginPage()
     {
         $this->loginUser('foobar', 'foobar');

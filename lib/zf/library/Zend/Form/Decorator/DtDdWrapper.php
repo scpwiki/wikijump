@@ -25,9 +25,9 @@ require_once 'Zend/Form/Decorator/Abstract.php';
 /**
  * Zend_Form_Decorator_DtDdWrapper
  *
- * Creates an empty <dt> item, and wraps the content in a <dd>. Used as a 
+ * Creates an empty <dt> item, and wraps the content in a <dd>. Used as a
  * default decorator for subforms and display groups.
- * 
+ *
  * @category   Zend
  * @package    Zend_Form
  * @subpackage Decorator
@@ -44,13 +44,13 @@ class Zend_Form_Decorator_DtDdWrapper extends Zend_Form_Decorator_Abstract
     protected $_placement = null;
 
     /**
-     * Render 
+     * Render
      *
      * Renders as the following:
      * <dt></dt>
      * <dd>$content</dd>
-     * 
-     * @param  string $content 
+     *
+     * @param  string $content
      * @return string
      */
     public function render($content)

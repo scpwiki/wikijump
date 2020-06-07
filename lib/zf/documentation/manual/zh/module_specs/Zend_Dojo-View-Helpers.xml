@@ -3,7 +3,7 @@
 
     <para>
         引用一下 Dojo 手册：“Dijit 是基于 dojo 之上的一个小部件系统”，Dijit 有
-        许多布局和表单小部件，用来提供访问、本地化和标准化（和可主题化）的观感。        
+        许多布局和表单小部件，用来提供访问、本地化和标准化（和可主题化）的观感。
     </para>
 
     <para>
@@ -13,7 +13,7 @@
     <itemizedlist>
         <listitem>
             <para>
-                <emphasis>布局容器</emphasis>: 
+                <emphasis>布局容器</emphasis>:
                 这些设计上在视图脚本理使用或由表单装饰器用于表单、子表单和显示组。
                 它们封装了 dijit.layout 提供的各种类。每个 dijit 布局视图助手有下面的参数：
             </para>
@@ -34,7 +34,7 @@
 
                 <listitem><para>
                         <code>$attribs</code> （可选）：任何用于解析容器 div 的附加的 HTML 属性。
-                        如果在这个数组里传递了键 'id'，它将被用于表单元素 DOM id，并且 <code>$id</code> 
+                        如果在这个数组里传递了键 'id'，它将被用于表单元素 DOM id，并且 <code>$id</code>
                         将用于它的名字。
                 </para></listitem>
             </itemizedlist>
@@ -144,8 +144,8 @@ $view->addHelperPath('Zend/Dojo/View/Helper', 'Zend_Dojo_View_Helper');
 
                 <programlisting role="php"><![CDATA[
 <?= $view->accordionContainer(
-    'foo', 
-    $content, 
+    'foo',
+    $content,
     array(
         'duration' => 200,
     ),
@@ -164,8 +164,8 @@ $view->addHelperPath('Zend/Dojo/View/Helper', 'Zend_Dojo_View_Helper');
 
                 <programlisting role="php"><![CDATA[
 <?= $view->accordionPane(
-    'foo', 
-    $content, 
+    'foo',
+    $content,
     array(
         'title' => 'Pane Title',
     ),
@@ -184,8 +184,8 @@ $view->addHelperPath('Zend/Dojo/View/Helper', 'Zend_Dojo_View_Helper');
 
                 <programlisting role="php"><![CDATA[
 <?= $view->borderContainer(
-    'foo', 
-    $content, 
+    'foo',
+    $content,
     array(
         'design' => 'headline',
     ),
@@ -204,8 +204,8 @@ $view->addHelperPath('Zend/Dojo/View/Helper', 'Zend_Dojo_View_Helper');
 
                 <programlisting role="php"><![CDATA[
 <?= $view->contentPane(
-    'foo', 
-    $content, 
+    'foo',
+    $content,
     array(
         'title'  => 'Pane Title',
         'region' => 'left',
@@ -225,8 +225,8 @@ $view->addHelperPath('Zend/Dojo/View/Helper', 'Zend_Dojo_View_Helper');
 
                 <programlisting role="php"><![CDATA[
 <?= $view->splitContainer(
-    'foo', 
-    $content, 
+    'foo',
+    $content,
     array(
         'orientation'  => 'horizontal',
         'sizerWidth'   => 7,
@@ -247,8 +247,8 @@ $view->addHelperPath('Zend/Dojo/View/Helper', 'Zend_Dojo_View_Helper');
 
                 <programlisting role="php"><![CDATA[
 <?= $view->stackContainer(
-    'foo', 
-    $content, 
+    'foo',
+    $content,
     array(),
     array(
         'style' => 'width: 400px; height: 500px; border: 1px;',
@@ -265,8 +265,8 @@ $view->addHelperPath('Zend/Dojo/View/Helper', 'Zend_Dojo_View_Helper');
 
                 <programlisting role="php"><![CDATA[
 <?= $view->stackContainer(
-    'foo', 
-    $content, 
+    'foo',
+    $content,
     array(),
     array(
         'style' => 'width: 400px; height: 500px; border: 1px;',
@@ -371,8 +371,8 @@ echo $view->borderContainer()->captureEnd('masterLayout');
 
                 <programlisting role="php"><![CDATA[
 <?= $view->button(
-    'foo', 
-    'Show Me!', 
+    'foo',
+    'Show Me!',
     array('iconClass' => 'myButtons'),
 ); ?>
 ]]></programlisting>
@@ -380,7 +380,7 @@ echo $view->borderContainer()->captureEnd('masterLayout');
 
             <listitem>
                 <para>
-                    <emphasis>CheckBox</emphasis>：dijit.form.CheckBox. 
+                    <emphasis>CheckBox</emphasis>：dijit.form.CheckBox.
                     显示一个 checkbox。接受可选的第五个参数，<code>$checkedOptions</code> 数组，
                     包含：
                 </para>
@@ -401,8 +401,8 @@ echo $view->borderContainer()->captureEnd('masterLayout');
 
                 <programlisting role="php"><![CDATA[
 <?= $view->checkBox(
-    'foo', 
-    'bar', 
+    'foo',
+    'bar',
     array(),
     array(),
     array('checkedValue' => 'foo', 'unCheckedValue' => 'bar')
@@ -412,7 +412,7 @@ echo $view->borderContainer()->captureEnd('masterLayout');
 
             <listitem>
                 <para>
-                    <emphasis>ComboBox</emphasis>：dijit.layout.ComboBox. 
+                    <emphasis>ComboBox</emphasis>：dijit.layout.ComboBox.
                     组合框是一个混合体，包括选择框和带有自动完成的文字框。
                     关键是在列表里没有相应的选项的时候可以手工输入，而且是有效的。
                     它接受可选的第五个参数：联合数组 <code>$options</code>；如果提供
@@ -478,8 +478,8 @@ echo $view->borderContainer()->captureEnd('masterLayout');
                 <programlisting role="php"><![CDATA[
 // As a select element:
 echo $view->comboBox(
-    'foo', 
-    'bar', 
+    'foo',
+    'bar',
     array(
         'autocomplete' => false,
     ),
@@ -493,8 +493,8 @@ echo $view->comboBox(
 
 // As a dojo.data-enabled element:
 echo $view->comboBox(
-    'foo', 
-    'bar', 
+    'foo',
+    'bar',
     array(
         'autocomplete' => false,
         'store'        => 'stateStore',
@@ -529,7 +529,7 @@ echo $view->currencyTextBox(
                         目前有这些 <ulink
                             url="http://trac.dojotoolkit.org/ticket/7183">
                         和 build 层一起使用的 CurrencyTextBox 的已知问题
-                        </ulink>. 
+                        </ulink>.
                         一个解决办法是确保文档的 Content-Type http-equiv meta tag 把字符集设置为 utf-8，
                         可通过调用下列方法来完成：
                     </para>
@@ -546,7 +546,7 @@ $view->headMeta()->appendHttpEquiv('Content-Type', 'text/html; charset=utf-8');
 
             <listitem>
                 <para>
-                    <emphasis>DateTextBox</emphasis>：dijit.form.DateTextBox. 
+                    <emphasis>DateTextBox</emphasis>：dijit.form.DateTextBox.
                     从 ValidationTextBox 继承，提供客户端的日期校验和下拉式日历。
                     你可以指定任何 dijit 可用的参数给 ValidationTextBox 或 TextBox。
                 </para>
@@ -624,7 +624,7 @@ echo $view->dateTextBox(
                     <listitem><para>
                         <emphasis>labels</emphasis> （可选）：标签数组。
                         在滑尺的一端使用空字符串只为内部值提供标签。
-                        当指定一个 'Labels' dijit 变量时必需。                        
+                        当指定一个 'Labels' dijit 变量时必需。
                     </para></listitem>
 
                     <listitem><para>
@@ -811,13 +811,13 @@ echo $view->radioButton(
             <listitem>
                 <para>
                     <emphasis>SubmitButton</emphasis>：和提交元素相关的 dijit.form.Button。
-                     参见按钮视图助手有更多的细节。主要的区别是这个按钮可以提交一个表单。                      
+                     参见按钮视图助手有更多的细节。主要的区别是这个按钮可以提交一个表单。
                 </para>
             </listitem>
 
             <listitem>
                 <para>
-                    <emphasis>Textarea</emphasis>：dijit.form.Textarea. 
+                    <emphasis>Textarea</emphasis>：dijit.form.Textarea.
                     除了有很多行以外，和普通的文本区域一样，它们按照用户类型来扩展。
                     宽度通过风格来设定。
                 </para>

@@ -31,9 +31,9 @@
     <sect2 id="zend.acl.introduction.resources">
         <title>关于资源(Resource)</title>
         <para>
-            在 Zend_Acl 中，创建一个 resource 非常简单。Zend_Acl 提供了 resource 
+            在 Zend_Acl 中，创建一个 resource 非常简单。Zend_Acl 提供了 resource
             接口<code>Zend_Acl_Resource_Interface</code> 使开发者在程序中创建 resources 非常容易。
-            为了使Zend_Acl把某个对象当作一个resource，一个类只需要实现这个只包含了一个方法 <code>getResourceId()</code> 的接口。 
+            为了使Zend_Acl把某个对象当作一个resource，一个类只需要实现这个只包含了一个方法 <code>getResourceId()</code> 的接口。
             另外，<code>Zend_Acl_Resource</code>是一个包含在 Zend_Acl 里作为一个基本的 resource 实现的类，开发者可以任意扩展它。
         </para>
         <para>
@@ -52,7 +52,7 @@
         <title>关于角色(Role)</title>
         <para>
             象 Resources 一样，创建一个 role 也非常简单。 Zend_Acl 提供了 <code>Zend_Acl_Role_Interface</code> 使开发者创建 roles 非常容易。
-            为了使Zend_Acl把某个对象当作一个 role，一个类只需要实现这个只包含了一个方法 <code>getRoleId()</code> 的接口。 
+            为了使Zend_Acl把某个对象当作一个 role，一个类只需要实现这个只包含了一个方法 <code>getRoleId()</code> 的接口。
             另外，<code>Zend_Acl_Role</code>是一个包含在Zend_Acl里作为一个基本的 role 实现的类，开发者可以任意扩展它。
         </para>
         <para>
@@ -66,7 +66,7 @@
         <example id="zend.acl.introduction.roles.example.multiple_inheritance">
             <title>角色之间的多重继承</title>
             <para>
-               下面的代码定义了三个基本角色 - "<code>guest</code>", "<code>member</code>", 和 "<code>admin</code>" - 
+               下面的代码定义了三个基本角色 - "<code>guest</code>", "<code>member</code>", 和 "<code>admin</code>" -
                其它角色可以从它们继承。接着，创建一个"<code>someUser</code>" 角色并从其它三个基本角色继承。
                在<code>$parents</code> 数组里这些角色出现的顺序很重要。 必要时，Zend_Acl 不但搜索为被查询的角色
                （这里指 "<code>someUser</code>"）定义的访问规则，而且搜索为被查询的角色所继承的角色
@@ -194,7 +194,7 @@ $acl->addRole($roleGuest);
 // Staff 从 guest 继承
 $acl->addRole(new Zend_Acl_Role('staff'), $roleGuest);
 
-/* 
+/*
 另外, 上面的也可这样来写：
 $acl->addRole(new Zend_Acl_Role('staff'), 'guest');
 */
@@ -217,11 +217,11 @@ $acl->addRole(new Zend_Acl_Role('administrator'));
            你也许注意到我们在这个范例里没有定义任何特定的 resources， 这简单地表示这些规则适用于所有 resources。
            Zend_Acl 提供一个实现，籍此，规则只需要被分配从一般到特殊，最小化规则的需求，因为 resources 和 roles 继承由它们祖先定义的规则。
         </para>
-        
+
         <note>
             <para>
                 一般来说，当且仅当更具体的规则没有使用， Zend_Acl 就服从已给定的规则。
-            </para>  
+            </para>
         </note>
 
         <para>
@@ -240,7 +240,7 @@ $acl->addRole(new Zend_Acl_Role('administrator'));
 // Guest 只可以浏览内容
 $acl->allow($roleGuest, null, 'view');
 
-/* 
+/*
 另外, 上面也可写为：
 $acl->allow('guest', null, 'view');
 */

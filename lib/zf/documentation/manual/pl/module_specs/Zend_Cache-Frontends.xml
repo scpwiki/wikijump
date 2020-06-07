@@ -11,7 +11,7 @@
                 jest rozszerzany przez inne klasy.
             </para>
             <note><para>
-                Wszystkie frontendy dziedziczą z klasy <code>Zend_Cache_Core</code> 
+                Wszystkie frontendy dziedziczą z klasy <code>Zend_Cache_Core</code>
                 więc jej metody i opcje (opisane niżej) są także dostępne w innych
                 frontendach, dlatego nie będą tu opisane.
             </para></note>
@@ -48,15 +48,15 @@
                               <entry><code>string</code></entry>
                               <entry><code>null</code></entry>
                               <entry>
-                                określa rzedrostek dla wszystkich identyfikatorów 
-                                bufora, jeśli ma wartość <code>null</code>, nie 
-                                będzie użyty żaden przedrostek. Przedrostek 
-                                identyfikatorów zasadniczo tworzy przestrzeń nazw 
-                                dla buforu, pozwalając na korzystanie z dzielonego 
-                                bufora przez kilka aplikacji czy serwisów 
-                                internetowych. Każda aplikacja czy serwis 
-                                internetowy powinny używać innego przedrostka, 
-                                więc określone identyfikatory będą mogły być 
+                                określa rzedrostek dla wszystkich identyfikatorów
+                                bufora, jeśli ma wartość <code>null</code>, nie
+                                będzie użyty żaden przedrostek. Przedrostek
+                                identyfikatorów zasadniczo tworzy przestrzeń nazw
+                                dla buforu, pozwalając na korzystanie z dzielonego
+                                bufora przez kilka aplikacji czy serwisów
+                                internetowych. Każda aplikacja czy serwis
+                                internetowy powinny używać innego przedrostka,
+                                więc określone identyfikatory będą mogły być
                                 użyte więcej niż raz.
                               </entry>
                           </row>
@@ -116,7 +116,7 @@
                               <entry><code>false</code></entry>
                               <entry>
                                 jeśli ma wartość true, komponent ustawi flagę
-                                PHP ignore_user_abort wewnątrz metody save() 
+                                PHP ignore_user_abort wewnątrz metody save()
                                 aby zapobiec uszkodzeniom buforu w niektórych
                                 przypadkach
                               </entry>
@@ -199,12 +199,12 @@ echo($data);
             </programlisting>
             <para>
                 Jeśli chcesz buforować specjalne wartości (np. wartości logiczne
-                przy włączonej opcji "automatic_serialization") lub puste 
-                łańcuchy znaków, nie możesz używać uproszczonej konstrukcji 
+                przy włączonej opcji "automatic_serialization") lub puste
+                łańcuchy znaków, nie możesz używać uproszczonej konstrukcji
                 przedstawionej powyżej. Musisz jawnie sprawdzić rekord bufora.
             </para>
             <programlisting role="php"><![CDATA[
-// konstrukcja uproszczona (nie działa poprawnie dla pustych 
+// konstrukcja uproszczona (nie działa poprawnie dla pustych
 // łańcuchów znaków i wartości logicznych)
 if (!($data = $cache->load($id))) {
 
@@ -730,13 +730,13 @@ $cache->start();
             </programlisting>
             <para>
                 bardziej kompleksowy przykład, który pokazuje sposób centralnego
-                zarządzania buforowaniem w pliku ładującym (przykładowo do użycia 
+                zarządzania buforowaniem w pliku ładującym (przykładowo do użycia
                 z klasą Zend_Controller)
             </para>
             <programlisting role="php"><![CDATA[
 /**
- * Powinieneś unikać tworzenia dużej ilości kodu przed sekcją buforowania na 
- * przykład, w celu optymalizacji, instrukcje "require_once" lub 
+ * Powinieneś unikać tworzenia dużej ilości kodu przed sekcją buforowania na
+ * przykład, w celu optymalizacji, instrukcje "require_once" lub
  * "Zend_Loader::loadClass" powinny znajdować się za sekcją buforowania
  */
 
@@ -772,13 +772,13 @@ $backendOptions = array(
 );
 
 // pobieranie obiektu Zend_Cache_Frontend_Page
-$cache = Zend_Cache::factory('Page', 
-                             'File', 
-                             $frontendOptions, 
+$cache = Zend_Cache::factory('Page',
+                             'File',
+                             $frontendOptions,
                              $backendOptions);
 
 $cache->start();
-// jeśli bufor jest trafiony, wynik jest wysyłany do przeglądaki 
+// jeśli bufor jest trafiony, wynik jest wysyłany do przeglądaki
 // a skrypt tutaj kończy działanie
 
 // [...] koniec pliku uruchamiającego
@@ -790,7 +790,7 @@ $cache->start();
             <title>Metoda zaniechania buforowania</title>
             <para>
                 Z powodu wymagań projektowych, w niektórych przypadkach (na przykład
-                gdy używamy kodów innych niż HTTP/200), możesz potrzebować zaniechać 
+                gdy używamy kodów innych niż HTTP/200), możesz potrzebować zaniechać
                 proces buforowania. Dlatego dla tego frontendu udostępniamy metodę cancel().
             </para>
             <programlisting role="php"><![CDATA[

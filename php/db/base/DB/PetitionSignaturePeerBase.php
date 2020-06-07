@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version \$Id\$
@@ -29,13 +29,13 @@ use BaseDBPeer;
 
 
 
- 
+
 /**
  * Base peer class mapped to the database table petition_signature.
  */
 class PetitionSignaturePeerBase extends BaseDBPeer {
 	public static $peerInstance;
-	
+
 	protected function internalInit(){
 		$this->tableName='petition_signature';
 		$this->objectName='DB\\PetitionSignature';
@@ -44,7 +44,7 @@ class PetitionSignaturePeerBase extends BaseDBPeer {
 		$this->fieldTypes = array( 'signature_id' => 'serial',  'campaign_id' => 'int',  'first_name' => 'varchar(256)',  'last_name' => 'varchar(256)',  'address1' => 'varchar(256)',  'address2' => 'varchar(256)',  'zip' => 'varchar(256)',  'city' => 'varchar(256)',  'state' => 'varchar(256)',  'country' => 'varchar(256)',  'country_code' => 'varchar(8)',  'comments' => 'text',  'email' => 'varchar(256)',  'confirmed' => 'boolean',  'confirmation_hash' => 'varchar(256)',  'confirmation_url' => 'varchar(256)',  'date' => 'timestamp');
 		$this->defaultValues = array( 'confirmed' => 'false');
 	}
-	
+
 	public static function instance(){
 		if(self::$peerInstance == null){
 			$className = "DB\\PetitionSignaturePeer";

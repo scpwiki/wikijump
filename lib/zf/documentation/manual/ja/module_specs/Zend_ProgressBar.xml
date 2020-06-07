@@ -21,20 +21,20 @@
             最小値と最大値を指定した上でデータ出力用のアダプタを選択するだけです。
             何かのファイルの処理を行いたい場合は、たとえば次のようになります。
         </para>
-        
+
         <programlisting role="php"><![CDATA[
 $progressBar = new Zend_ProgressBar($adapter, 0, $fileSize);
 
 while (!feof($fp)) {
     // なにかの処理
-    
+
     $progressBar->update($currentByteCount);
 }
 
 $progressBar->finish();
 ]]>
         </programlisting>
-        
+
         <para>
             まず第一段階として、<code>Zend_ProgressBar</code>
             のインスタンスを作成してアダプタを指定し、
@@ -69,7 +69,7 @@ $progressBar->finish();
         <title>標準のアダプタ</title>
         <para>
             <code>Zend_ProgressBar</code> には次の 3 つのアダプタが同梱されています。
-            
+
             <itemizedlist mark="opencircle">
                 <listitem><para><xref linkend="zend.progressbar.adapter.console" /></para></listitem>
                 <listitem><para><xref linkend="zend.progressbar.adapter.jspush" /></para></listitem>

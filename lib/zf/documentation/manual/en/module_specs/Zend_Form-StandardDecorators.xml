@@ -200,7 +200,7 @@ class Util
             Some developers and designers prefer to group all error messages at
             the top of the form. The FormErrors decorator allows you to do this.
         </para>
-        
+
         <para>
             By default, the generated list of errors has the following markup:
         </para>

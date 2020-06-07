@@ -1,7 +1,7 @@
 <!-- EN-Revision: 11477 -->
 <sect1 id="zend.gdata.photos">
     <title>Picasa Web Albums の使用法</title>
-    
+
     <para>
         Picasa Web Albums は、自分の写真のアルバムを管理したり
         他人のアルバムや写真を閲覧したりするサービスです。
@@ -9,13 +9,13 @@
         たとえばアルバムへの追加や更新、削除、
         そして写真へのタグ付けやコメントを行うことができます。
     </para>
-    
+
     <para>
         公開されているアルバムや写真へのアクセスについては、
         アカウントによる制限はありません。
         しかし、読み込み専用以外のアクセスを行うにはログインする必要があります。
     </para>
-    
+
     <para>
         API についての詳細な情報、
         たとえば API へのアクセスを有効にする方法などは <ulink
@@ -23,7 +23,7 @@
         Web Albums Data API の概要</ulink>
         を参照ください。
     </para>
-    
+
     <note>
         <title>認証</title>
         <para>
@@ -33,7 +33,7 @@
             認証していない接続でも読み込み専用のアクセスは可能です。
         </para>
     </note>
-    
+
     <sect2 id="zend.gdata.photos.connecting">
         <title>サービスへの接続</title>
         <para>
@@ -43,7 +43,7 @@
             クライアントと Google Calendar サーバとの間のやり取りは
             HTTP で行われ、認証済みの接続と未認証の接続の両方が利用できます。
         </para>
-        
+
         <para>
             何らかのトランザクションが発生する際には、
             必ず接続を確立する必要があります。
@@ -51,7 +51,7 @@
             <code>Zend_Gdata_Photos</code>
             サービスのインスタンスをそこにバインドするという手順で行います。
         </para>
-        
+
         <sect3 id="zend.gdata.photos.connecting.authentication">
             <title>認証</title>
             <para>
@@ -63,7 +63,7 @@
                 Picasa サーバとの認証が必要になります。
                 Google Picasa がサポートしている認証方式は、次の 3 通りです。
             </para>
-            
+
             <itemizedlist>
                 <listitem>
                     <para>
@@ -86,7 +86,7 @@
                     </para>
                 </listitem>
             </itemizedlist>
-            
+
             <para>
                 <code>Zend_Gdata</code> ライブラリは、
                 これらのすべての方式に対応しています。
@@ -100,7 +100,7 @@
                 を参照ください。
             </para>
         </sect3>
-    
+
         <sect3 id="zend.gdata.photos.connecting.service">
             <title>サービスのインスタンスの作成</title>
             <para>
@@ -110,7 +110,7 @@
                 モデルへの共通インターフェイスを提供し、
                 サーバとのリクエストのやりとりを支援します。
             </para>
-            
+
             <para>
                 使用する認証方式を決めたら、次に
                 <code>Zend_Gdata_Photos</code> のインスタンスを作成します。
@@ -122,7 +122,7 @@
                 <code>Zend_Http_Client</code>
                 のインスタンスを自動的に作成して使用します。
             </para>
-            
+
             <para>
                 以下の例は、ClientAuth 認証を使用してサービスクラスを作成するものです。
             </para>
@@ -139,7 +139,7 @@ $client = Zend_Gdata_ClientLogin::getHttpClient($user, $pass, $service);
 $service = new Zend_Gdata_Photos($client);
 ]]>
             </programlisting>
-            
+
             <para>
                 AuthSub を使用するサービスを作成するのもほぼ同様ですが、
                 少々長めになります。
@@ -149,7 +149,7 @@ session_start();
 
 /**
  * 現在のページの完全な URL を、環境変数をもとにして返します
- * 
+ *
  * 次の環境変数を使用します
  * $_SERVER['HTTPS'] = (on|off|)
  * $_SERVER['HTTP_HOST'] = Host: ヘッダの値
@@ -158,7 +158,7 @@ session_start();
  *
  * @return string 現在の URL
  */
-function getCurrentUrl() 
+function getCurrentUrl()
 {
     global $_SERVER;
 
@@ -193,13 +193,13 @@ function getCurrentUrl()
  *
  * @return string AuthSub URL
  */
-function getAuthSubUrl() 
+function getAuthSubUrl()
 {
     $next = getCurrentUrl();
     $scope = 'http://picasaweb.google.com/data';
     $secure = false;
     $session = true;
-    return Zend_Gdata_AuthSub::getAuthSubTokenUri($next, $scope, $secure, 
+    return Zend_Gdata_AuthSub::getAuthSubTokenUri($next, $scope, $secure,
         $session);
 }
 
@@ -213,13 +213,13 @@ function getAuthSubUrl()
  *
  * @return Zend_Http_Client
  */
-function getAuthSubHttpClient() 
+function getAuthSubHttpClient()
 {
     global $_SESSION, $_GET;
     if (!isset($_SESSION['sessionToken']) && isset($_GET['token'])) {
-        $_SESSION['sessionToken'] = 
+        $_SESSION['sessionToken'] =
             Zend_Gdata_AuthSub::getAuthSubSessionToken($_GET['token']);
-    } 
+    }
     $client = Zend_Gdata_AuthSub::getHttpClient($_SESSION['sessionToken']);
     return $client;
 }
@@ -231,7 +231,7 @@ function getAuthSubHttpClient()
 $service = new Zend_Gdata_Photos(getAuthSubHttpClient());
 ]]>
             </programlisting>
-            
+
             <para>未認証のサーバを作成して、公開フィードへのアクセスに使用することができます。</para>
             <programlisting role="php"><![CDATA[
 // サービスのインスタンスを、未認証の HTTP クライアントで作成します
@@ -240,14 +240,14 @@ $service = new Zend_Gdata_Photos();
             </programlisting>
         </sect3>
     </sect2>
-    
+
     <sect2 id="zend.gdata.photos.queries">
         <title>クエリの仕組みと作成方法</title>
         <para>
             サービスに対してデータを要求するために最初にやることは、
             クエリを作成することです。以下の形式用のクエリクラスが用意されています。
         </para>
-        
+
         <itemizedlist>
             <listitem>
                 <para>
@@ -272,7 +272,7 @@ $service = new Zend_Gdata_Photos();
                 </para>
             </listitem>
         </itemizedlist>
-        
+
         <para>新しい <code>UserQuery</code> を作成するには次のようにします。</para>
         <programlisting role="php"><![CDATA[
 $service = Zend_Gdata_Photos::AUTH_SERVICE_NAME;
@@ -283,13 +283,13 @@ $query = new Zend_Gdata_Photos_UserQuery();
 $query->setUser("sample.user");
 ]]>
         </programlisting>
-        
+
         <para>
             各クエリで検索結果を絞り込むために使用するパラメータを取得したり設定したりするには、
             それぞれ get(Parameter) および set(Parameter)
             を使用して次のようにします。
         </para>
-        
+
         <itemizedlist>
             <listitem>
                 <para>
@@ -383,14 +383,14 @@ $query->setUser("sample.user");
             </listitem>
         </itemizedlist>
     </sect2>
-    
+
     <sect2 id="zend.gdata.photos.retrieval">
         <title>フィードやエントリの取得</title>
         <para>
             このサービスには、ユーザやアルバムそして写真に関する
             フィードや個々のエントリを取得する機能があります。
         </para>
-        
+
         <sect3 id="zend.gdata.photos.user_retrieval">
             <title>ユーザの取得</title>
             <para>
@@ -398,7 +398,7 @@ $query->setUser("sample.user");
                 指定したユーザが認証済みユーザである場合は、
                 "<code>hidden</code>" とマークされているエントリも返されます。
             </para>
-        
+
             <para>ユーザのフィードにアクセスするには、ユーザ名を <code>getUserFeed</code> メソッドに渡します。</para>
             <programlisting role="php"><![CDATA[
 $service = Zend_Gdata_Photos::AUTH_SERVICE_NAME;
@@ -412,7 +412,7 @@ try {
 }
 ]]>
             </programlisting>
-        
+
             <para>あるいは、クエリを作成してフィードにアクセスすることもできます。この場合は、まず次のようにします。</para>
             <programlisting role="php"><![CDATA[
 $service = Zend_Gdata_Photos::AUTH_SERVICE_NAME;
@@ -429,7 +429,7 @@ try {
 }
 ]]>
             </programlisting>
-        
+
             <para>クエリを作成すると、ユーザエントリオブジェクトも取得できるようになります。</para>
             <programlisting role="php"><![CDATA[
 $service = Zend_Gdata_Photos::AUTH_SERVICE_NAME;
@@ -448,11 +448,11 @@ try {
 ]]>
             </programlisting>
         </sect3>
-    
+
         <sect3 id="zend.gdata.photos.album_retrieval">
             <title>アルバムの取得</title>
             <para>このサービスには、アルバムのフィードやアルバムのコンテンツ一覧を取得する機能があります。</para>
-        
+
             <para>
                 アルバムのフィードにアクセスするには、クエリオブジェクトを作成してそれを <code>getAlbumFeed</code> に渡します。
             </para>
@@ -472,14 +472,14 @@ try {
 }
 ]]>
             </programlisting>
-        
+
             <para>
                 あるいは、<code>setAlbumName</code>
                 でクエリオブジェクトにアルバム名を指定することもできます。
                 アルバム名は アルバム ID とは互いに排他的です。
                 一方を指定すると、もう一方は取り消されます。
             </para>
-        
+
             <para>クエリを作成すると、アルバムエントリオブジェクトも取得できるようになります。</para>
             <programlisting role="php"><![CDATA[
 $service = Zend_Gdata_Photos::AUTH_SERVICE_NAME;
@@ -499,11 +499,11 @@ try {
 ]]>
             </programlisting>
         </sect3>
-    
+
         <sect3 id="zend.gdata.photos.photo_retrieval">
             <title>写真の取得</title>
             <para>このサービスには、写真のフィードやコメント・タグ一覧を取得する機能があります。</para>
-        
+
             <para>
                 写真のフィードにアクセスするには、クエリオブジェクトを作成してそれを <code>getPhotoFeed</code> に渡します。
             </para>
@@ -524,7 +524,7 @@ try {
 }
 ]]>
             </programlisting>
-        
+
             <para>クエリを作成すると、写真エントリオブジェクトも取得できるようになります。</para>
             <programlisting role="php"><![CDATA[
 $service = Zend_Gdata_Photos::AUTH_SERVICE_NAME;
@@ -545,7 +545,7 @@ try {
 ]]>
             </programlisting>
         </sect3>
-    
+
         <sect3 id="zend.gdata.photos.comment_retrieval">
             <title>コメントの取得</title>
             <para>
@@ -553,7 +553,7 @@ try {
                 クエリが返す結果の種類として "comment" を指定することで、
                 指定したユーザやアルバム、写真に関連づけられたコメントを取得できるようになります。
             </para>
-        
+
             <para>指定した写真のコメントを処理するには、次のようにします。</para>
             <programlisting role="php"><![CDATA[
 $service = Zend_Gdata_Photos::AUTH_SERVICE_NAME;
@@ -580,7 +580,7 @@ try {
 ]]>
             </programlisting>
         </sect3>
-    
+
         <sect3 id="zend.gdata.photos.tag_retrieval">
             <title>タグの取得</title>
             <para>
@@ -588,7 +588,7 @@ try {
                 クエリが返す結果の種類として "tag" を指定することで、
                 指定した写真に関連づけられたタグを取得できるようになります。
             </para>
-        
+
             <para>指定した写真のタグを処理するには、次のようにします。</para>
             <programlisting role="php"><![CDATA[
 $service = Zend_Gdata_Photos::AUTH_SERVICE_NAME;
@@ -615,13 +615,13 @@ try {
 ]]>
             </programlisting>
         </sect3>
-        
+
     </sect2>
-    
+
     <sect2 id="zend.gdata.photos.creation">
         <title>エントリの作成</title>
         <para>このサービスには、アルバムや写真、コメント、そしてタグを作成する機能があります。</para>
-    
+
         <sect3 id="zend.gdata.photos.album_creation">
             <title>アルバムの作成</title>
             <para>このサービスは、認証済みユーザ用の新しいアルバムの作成をサポートしています。</para>
@@ -637,7 +637,7 @@ $service->insertAlbumEntry($entry);
 ]]>
             </programlisting>
         </sect3>
-    
+
         <sect3 id="zend.gdata.photos.photo_creation">
             <title>写真の作成</title>
             <para>このサービスは、認証済みユーザ用の新しい写真の作成をサポートしています。</para>
@@ -665,7 +665,7 @@ $service->insertPhotoEntry($entry, $albumEntry);
 ]]>
             </programlisting>
         </sect3>
-    
+
         <sect3 id="zend.gdata.photos.comment_creation">
             <title>コメントの作成</title>
             <para>このサービスは、写真への新しいコメントの作成をサポートしています。</para>
@@ -690,7 +690,7 @@ $service->insertCommentEntry($entry, $photoEntry);
 ]]>
             </programlisting>
         </sect3>
-    
+
         <sect3 id="zend.gdata.photos.tag_creation">
             <title>タグの作成</title>
             <para>このサービスは、写真への新しいタグの作成をサポートしています。</para>
@@ -714,13 +714,13 @@ $service->insertTagEntry($entry, $photoEntry);
 ]]>
             </programlisting>
         </sect3>
-    
+
     </sect2>
-    
+
     <sect2 id="zend.gdata.photos.deletion">
         <title>エントリの削除</title>
         <para>このサービスには、アルバムや写真、コメント、そしてタグを削除する機能があります。</para>
-        
+
         <sect3 id="zend.gdata.photos.album_deletion">
             <title>アルバムの削除</title>
             <para>このサービスは、認証済みユーザ用のアルバムの削除をサポートしています。</para>
@@ -740,7 +740,7 @@ $service->deleteAlbumEntry($entry, true);
 ]]>
             </programlisting>
         </sect3>
-    
+
         <sect3 id="zend.gdata.photos.photo_deletion">
             <title>写真の削除</title>
             <para>このサービスは、認証済みユーザ用の写真の削除をサポートしています。</para>
@@ -761,7 +761,7 @@ $service->deletePhotoEntry($entry, true);
 ]]>
             </programlisting>
         </sect3>
-    
+
         <sect3 id="zend.gdata.photos.comment_deletion">
             <title>コメントの削除</title>
             <para>このサービスは、認証済みユーザのコメントの削除をサポートしています。</para>
@@ -784,7 +784,7 @@ $service->deleteCommentEntry($entry, true);
 ]]>
             </programlisting>
         </sect3>
-    
+
         <sect3 id="zend.gdata.photos.tag_deletion">
             <title>タグの削除</title>
             <para>このサービスは、認証済みユーザのタグの削除をサポートしています。</para>
@@ -814,7 +814,7 @@ $service->deleteTagEntry($tagEntry, true);
 ]]>
             </programlisting>
         </sect3>
-    
+
         <sect3 id="zend.gdata.photos.optimistic_concurrenty">
             <title>楽観的な同時並行性 (削除時の注意)</title>
             <para>
@@ -826,7 +826,7 @@ $service->deleteTagEntry($tagEntry, true);
                 ただし明示的にその他の設定をしている場合は別です
                 (この場合、更新後のエントリに対して削除を試みます)。
             </para>
-        
+
             <para>
                 削除時のバージョン管理の処理方法については <code>deleteAlbumEntry</code>
                 で見ることができます。
@@ -847,6 +847,6 @@ try {
 ]]>
             </programlisting>
         </sect3>
-        
+
     </sect2>
 </sect1>

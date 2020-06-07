@@ -35,7 +35,7 @@
                 </listitem>
             </itemizedlist>
         </para>
-        
+
         <para>
             インデックスの変更は、インデックスが更新されたときに <emphasis role="strong">のみ</emphasis>
             行います。インデックスの更新が行われるのは、
@@ -71,11 +71,11 @@
                 </listitem>
             </itemizedlist>
         </para>
-        
+
         <para>
             下位バージョンへの変換はサポートしていません。
         </para>
-        
+
         <note>
             <title>重要!</title>
             <para>
@@ -85,7 +85,7 @@
                 インデックスのバックアップを取得しておきましょう。
             </para>
         </note>
-        
+
     </sect2>
 
 

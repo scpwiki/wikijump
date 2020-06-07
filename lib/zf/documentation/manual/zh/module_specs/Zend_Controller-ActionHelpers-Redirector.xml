@@ -21,7 +21,7 @@
 
             <listitem>
                 <para>
-                    <code>setExit()</code> 在重定向后强制执行<code>exit()</code>方法。默认已设定。 
+                    <code>setExit()</code> 在重定向后强制执行<code>exit()</code>方法。默认已设定。
                 </para>
             </listitem>
 
@@ -110,11 +110,11 @@ class SomeController extends Zend_Controller_Action
         $this->_redirector = $this->_helper->getHelper('Redirector');
 
         // Set the default options for the redirector
-        // Since the object is registered in the helper broker, these 
+        // Since the object is registered in the helper broker, these
         // become relevant for all actions from this point forward
         $this->_redirector->setCode(303)
                           ->setExit(false)
-                          ->setGotoSimple("this-action", 
+                          ->setGotoSimple("this-action",
                                           "some-controller");
     }
 
@@ -122,7 +122,7 @@ class SomeController extends Zend_Controller_Action
     {
         /* do some stuff */
 
-        // Redirect to a previously registered URL, and force an exit 
+        // Redirect to a previously registered URL, and force an exit
         // to occur when done:
         $this->_redirector->redirectAndExit();
         return; // never reached
@@ -194,12 +194,12 @@ class ForwardController extends Zend_Controller_Action
     {
         /* do some stuff */
 
-        // Redirect to 'my-action' of 'my-controller' in the current 
+        // Redirect to 'my-action' of 'my-controller' in the current
         // module, using the params param1 => test and param2 => test2
-        $this->_redirector->gotoSimple('my-action', 
-                                       'my-controller', 
-                                       null, 
-                                       array('param1' => 'test', 
+        $this->_redirector->gotoSimple('my-action',
+                                       'my-controller',
+                                       null,
+                                       array('param1' => 'test',
                                              'param2' => 'test2'
                                              )
                                        );
@@ -219,8 +219,8 @@ class ForwardController extends Zend_Controller_Action
             <programlisting role="php"><![CDATA[
 $route = new Zend_Controller_Router_Route(
     'blog/:year/:month/:day/:id',
-    array('controller' => 'archive', 
-          'module' => 'blog', 
+    array('controller' => 'archive',
+          'module' => 'blog',
           'action' => 'view')
 );
 $router->addRoute('blogArchive', $route);
@@ -253,9 +253,9 @@ class BlogAdminController extends Zend_Controller_Action
         // Redirect to blog archive. Builds the following URL:
         // /blog/2006/4/24/42
         $this->_redirector->gotoRoute(
-            array('year' => 2006, 
-                  'month' => 4, 
-                  'day' => 24, 
+            array('year' => 2006,
+                  'month' => 4,
+                  'day' => 24,
                   'id' => 42),
             'blogArchive'
         );

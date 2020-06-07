@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -29,14 +29,14 @@ use DB\ForumThreadPeer;
 class AWThreadsListModule extends AccountBaseModule {
 
 	public function build($runData){
-		
+
 		$user = $runData->getUser();
-		$runData->contextAdd("user",$user);	
-		
+		$runData->contextAdd("user",$user);
+
 		$pl = $runData->getParameterList();
-		
+
 		// get watched threads for this user
-		
+
 		$c = new Criteria();
 		/*$c->add("watched_forum_thread.user_id", $user->getUserId());
 		$c->addJoin("thread_id", "forum_thread.thread_id");
@@ -47,18 +47,18 @@ class AWThreadsListModule extends AccountBaseModule {
 		$c->add("watched_forum_thread.user_id", $user->getUserId());
 		$c->
 		*/
-		
+
 		$q = "SELECT forum_thread.* FROM watched_forum_thread, forum_thread " .
 				"WHERE watched_forum_thread.user_id='".$user->getUserId()."' " .
 						"AND watched_forum_thread.thread_id=forum_thread.thread_id";
-		$c->setExplicitQuery($q);	
-				
+		$c->setExplicitQuery($q);
+
 		$threads = ForumThreadPeer::instance()->select($c);
-		
+
 		$runData->contextAdd("threads", $threads);
-		
+
 		$runData->contextAdd("threadsCount", count($threads));
-		
+
 	}
 
 }

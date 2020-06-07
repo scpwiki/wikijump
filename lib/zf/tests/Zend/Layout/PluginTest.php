@@ -18,7 +18,7 @@ require_once 'Zend/Controller/Response/Cli.php';
 /**
  * Test class for Zend_Layout_Controller_Plugin_Layout
  */
-class Zend_Layout_PluginTest extends PHPUnit_Framework_TestCase 
+class Zend_Layout_PluginTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.

@@ -1,11 +1,11 @@
-/** 
- * dijit.layout.TabContainer 
+/**
+ * dijit.layout.TabContainer
  *
- * To style TabContainer with rounded corners 
+ * To style TabContainer with rounded corners
  * you can use these classes: .dijitTab (left), .dijitTabContent (center), dijitTabInnerDiv (right)
  * For tabs aligned to top you can style a stripe div right underneath the tabs using .dijitTabStripe
- */ 
- 
+ */
+
 /* Classes for all types of tabs (top/bottom/left/right) */
 
 /* Tabs, shared classes */
@@ -217,7 +217,7 @@
 /* strip */
 .nihilo .dijitTabContainerBottomStrip {
 	padding-bottom: 2px;
-	padding-left: 3px;	
+	padding-left: 3px;
 	border: 1px solid #ccc;
 }
 
@@ -284,7 +284,7 @@
 /* strip */
 .nihilo .dijitTabContainerRightStrip {
 	padding-right: 2px;
-	padding-top: 3px;	
+	padding-top: 3px;
 	border: 1px solid #ccc;
 }
 
@@ -338,7 +338,7 @@ border-bottom: solid #fff 1px;
 /* strip */
 .nihilo .dijitTabContainerLeftStrip {
 	padding-left: 2px;
-	padding-top: 3px;	
+	padding-top: 3px;
 	border: 1px solid #ccc;
 }
 
@@ -371,5 +371,5 @@ border-bottom: solid #fff 1px;
 	border-top: 0px solid #ccc;
 	border-right: 0px solid #ccc;
 	padding-top: 0px;
-	padding-left: 0px;	
+	padding-left: 0px;
 }

@@ -23,7 +23,7 @@ class Text_Wiki_Render_Xhtml_Button extends Text_Wiki_Render {
     public $conf = array();
 
 	function token($options){
-    	
+
     	$type = $options['type'];
     	$text = $options['text'];
     	$style = $options['style'];
@@ -42,7 +42,7 @@ class Text_Wiki_Render_Xhtml_Button extends Text_Wiki_Render {
     		'backlinks'
 
     	);
-    	
+
     	$defaultText = array(
     		'edit' => _('edit'),
     		'edit-append' => _('append'),
@@ -54,9 +54,9 @@ class Text_Wiki_Render_Xhtml_Button extends Text_Wiki_Render {
     		'source' => _('view source'),
     		'talk' => _('talk'),
     		'backlinks' => _('backlinks')
-    		
+
     	);
-    	
+
     	$jsOnclick = array(
     		'edit' => 'WIKIDOT.page.listeners.editClick(event)',
     		'edit-append' => 'WIKIDOT.page.listeners.append(event)',
@@ -70,37 +70,37 @@ class Text_Wiki_Render_Xhtml_Button extends Text_Wiki_Render {
     		'backlinks' => 'WIKIDOT.page.listeners.backlinksClick(event)'
 
     	);
-    	
+
     	//$jsOnload = array(
     	//	'talk' => "this.href='/talk:'+WIKIREQUEST.info.pageUnixName; alert(this.href);"
-    	
+
     	$hrefs = array();
-    	
+
     	if(!in_array($type, $allowedTypes)){
-    		return '<div class="error-block">'._('The button type is not recognized').'</div>';	
+    		return '<div class="error-block">'._('The button type is not recognized').'</div>';
     	}
-    	
+
     	// ok, fine
-    	
+
     	if(!$class){
     		$class = "wiki-standalone-button";
     	}
-    	
+
     	if(!$text){
     		$text = $defaultText[$type];
     	}
 
     	$out = '<a class="'.htmlspecialchars($class).'" ';
     	if($style){
-    		$out .= 'style="'.htmlspecialchars($style).'" ';	
-    	} 
+    		$out .= 'style="'.htmlspecialchars($style).'" ';
+    	}
     	$out .= 'href="'.($hrefs[$type]?$hrefs[$type]:'javascript:;').'" ';
     	$out .= ($jsOnclick[$type]?'onclick="'.$jsOnclick[$type].'" ':' ');
-    	
+
     	$out .= '>';
     	$out .= htmlspecialchars($text);
     	$out .= '</a>';
-    	
+
     	return $out;
 
     }

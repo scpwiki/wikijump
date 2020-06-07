@@ -13,7 +13,7 @@ require_once 'Zend/Json.php';
 /**
  * Test class for Zend_Json_Server_Smd_Service
  */
-class Zend_Json_Server_Smd_ServiceTest extends PHPUnit_Framework_TestCase 
+class Zend_Json_Server_Smd_ServiceTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.
@@ -213,7 +213,7 @@ class Zend_Json_Server_Smd_ServiceTest extends PHPUnit_Framework_TestCase
     public function testShouldBeAbleToAddArbitraryParamOptions()
     {
         $this->service->addParam(
-            'integer', 
+            'integer',
             array(
                 'name'        => 'foo',
                 'optional'    => false,

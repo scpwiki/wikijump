@@ -1,16 +1,16 @@
 <?php
 /**
-* 
+*
 * @category Text
-* 
+*
 * @package Text_Wiki
-* 
+*
 * @author Michal Frackowiak
-* 
+*
 * @license LGPL
-* 
+*
 * @version $Id$
-* 
+*
 */
 
 /**
@@ -42,14 +42,14 @@ class Text_Wiki_Parse_File extends Text_Wiki_Parse {
 
     function process(&$matches)
     {
-    	
+
     		$file = trim($matches[1]);
     		$anchor = trim($matches[2]);
-      
+
       	if($anchor == null || $anchor === ''){
       		$anchor = $file;
       	}
-      
+
       	$options = array('file' => $file,
       					 'anchor' => $anchor);
         return $this->wiki->addToken($this->rule, $options);

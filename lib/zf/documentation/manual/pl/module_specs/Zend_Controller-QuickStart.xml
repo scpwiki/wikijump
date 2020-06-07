@@ -4,14 +4,14 @@
     <sect2 id="zend.controller.quickstart.introduction">
         <title>Wprowadzenie</title>
         <para>
-            Klasa <code>Zend_Controller</code> jest sercem systemu MVC 
+            Klasa <code>Zend_Controller</code> jest sercem systemu MVC
             biblioteki Zend Framework. MVC oznacza <ulink
                 url="http://pl.wikipedia.org/wiki/Model-widok-kontroler">Model-Widok-Kontroler</ulink>
-            i jest wzorcem projektowym mającym na celu oddzielenie logiki 
+            i jest wzorcem projektowym mającym na celu oddzielenie logiki
             aplikacji od logiki wyświetlania. Klasa
             <code>Zend_Controller_Front</code> implementuje wzorzec projektowy
             <ulink
-                url="http://www.martinfowler.com/eaaCatalog/frontController.html">kontrolera 
+                url="http://www.martinfowler.com/eaaCatalog/frontController.html">kontrolera
                 frontowego</ulink>. Wszystkie żądania są przechwytywane
             przez kontroler frontowy i na podstawie adresu URL uruchamiany
             jest odpowiedni kontroler akcji.
@@ -66,7 +66,7 @@ html/
 
             <para>
                 W swoim serwerze www, ustaw główną ścieżkę serwera na katalog
-                <code>html</code> znajdujący się w powyższej przykładowej 
+                <code>html</code> znajdujący się w powyższej przykładowej
                 strukturze katalogów.
             </para>
         </sect3>
@@ -98,7 +98,7 @@ RewriteRule !\.(js|ico|gif|jpg|png|css)$ index.php
                     Powyższe reguły przepisania przygotowane sa dla serwera
                     Apache; aby zobaczyć przykładowe reguły dla innych serwerów,
                     zobacz <link
-                      linkend="zend.controller.router.introduction">dokumentację 
+                      linkend="zend.controller.router.introduction">dokumentację
                     routera</link>.
                 </para>
             </note>
@@ -109,8 +109,8 @@ RewriteRule !\.(js|ico|gif|jpg|png|css)$ index.php
 
             <para>
                 Plik ładujący jest miejscem, przez którze przechodzą wszystkie
-                żądania -- w tym przypadku jest to -- <code>html/index.php</code>. 
-                Otwórz plik <code>html/index.php</code> w dowolnym edytorze i 
+                żądania -- w tym przypadku jest to -- <code>html/index.php</code>.
+                Otwórz plik <code>html/index.php</code> w dowolnym edytorze i
                 dodaj poniższy kod:
             </para>
 
@@ -164,7 +164,7 @@ Zend_Controller_Front::run('/path/to/app/controllers');
             <para>
                 Idąc dalej, utwórzmy teraz domyślny kontroler akcji i metodę
                 akcji. Jak wspomniano wcześniej, domyślna nazwa kontrolera oraz
-                akcji to <code>index</code>. Otwórz w edytorze plik 
+                akcji to <code>index</code>. Otwórz w edytorze plik
                 <code>application/controllers/IndexController.php</code>, i
                 dodaj poniższy kod:
             </para>
@@ -239,8 +239,8 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
                 Domyślnie, <link
                     linkend="zend.controller.plugins.standard.errorhandler">wtyczka
                 obsługi błędów</link> jest zarejestrowana. Ta wtyczka
-                expects that a controller exists to handle errors. 
-                By default, it assumes an <code>ErrorController</code> in the 
+                expects that a controller exists to handle errors.
+                By default, it assumes an <code>ErrorController</code> in the
                 default module with an <code>errorAction</code> method:
             </para>
 

@@ -520,7 +520,7 @@ class Zend_Controller_Router_RouteTest extends PHPUnit_Framework_TestCase
      * Test guarding performance. Test may be failing on slow systems and shouldn't be failing on production.
      * This test is not critical in nature - it allows keeping changes performant.
      */
-    
+
     /**
 	 * This test is commented out because performance testing should be done separately from unit
 	 * testing. It will be ported to a performance regression suite when such a suite is available.
@@ -579,17 +579,17 @@ class Zend_Controller_Router_RouteTest extends PHPUnit_Framework_TestCase
         $url = $route->assemble(array('id' => 1), false, true);
         $this->assertEquals('My+Controller/id/1', $url);
     }
-    
+
     public function testPartialMatch()
     {
         $this->markTestSkipped('Route features not ready');
-        
+
         $route = new Zend_Controller_Router_Route(':lang/:temp', array('lang' => 'pl'), array('temp' => '\d+'));
 
         $values = $route->match('en/tmp/ctrl/action/id/1', true);
 
         $this->assertFalse($values);
-        
+
         $route = new Zend_Controller_Router_Route(':lang/:temp', array('lang' => 'pl'));
 
         $values = $route->match('en/tmp/ctrl/action/id/1', true);
@@ -598,9 +598,9 @@ class Zend_Controller_Router_RouteTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('en', $values['lang']);
         $this->assertEquals('tmp', $values['temp']);
         $this->assertEquals(6, $values[null]);
-        
+
     }
-    
+
 
 }
 

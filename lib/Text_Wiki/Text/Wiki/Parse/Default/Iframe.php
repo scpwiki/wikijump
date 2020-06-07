@@ -1,27 +1,27 @@
 <?php
 /**
  * @category Text
- * 
+ *
  * @package Text_Wiki
- * 
+ *
  * @author Michal Frackowiak
- * 
+ *
  * @license LGPL
- * 
+ *
  * @version $Id$
- * 
+ *
  */
 
 /**
- * 
+ *
  * Creates an iframe.
  *
  * @category Text
- * 
+ *
  * @package Text_Wiki
- * 
+ *
  * @author Michal Frackowiak
- * 
+ *
  */
 class Text_Wiki_Parse_Iframe extends Text_Wiki_Parse {
 
@@ -50,7 +50,7 @@ class Text_Wiki_Parse_Iframe extends Text_Wiki_Parse {
             $tmp[] = preg_quote($val, '/');
         }
         $schemes = implode('|', $tmp);
-        
+
         // build the regex
         $urlRegex =
             "(?:(?:$schemes)" . // allowed schemes
@@ -58,17 +58,17 @@ class Text_Wiki_Parse_Iframe extends Text_Wiki_Parse {
             "[^ \\/\"\'{$this->wiki->delim}]*\\/" . // no spaces, backslashes, slashes, double-quotes, single quotes, or delimiters;
             ")*" . // end pattern
             "[^ \\t\\n\\/\"{$this->wiki->delim}]*?)";
-            
-		$this->regex = ';\[\[iframe\s+('.$urlRegex.')(\s+.*?)?\]\];si'; 
-		
+
+		$this->regex = ';\[\[iframe\s+('.$urlRegex.')(\s+.*?)?\]\];si';
+
 	}
 
     /**
-    * 
+    *
     * Generates a token entry for the matched text.  Token options are:
-    * 
+    *
     * 'text' => The full matched text, not including the <code></code> tags.
-    * 
+    *
     * @access public
     *
     * @param array &$matches The array of matches from parse().
@@ -77,25 +77,25 @@ class Text_Wiki_Parse_Iframe extends Text_Wiki_Parse {
     * the source text.
     *
     */
-    
+
     function process(&$matches)
     {
-    	
+
     	$options = array();
     	$options['src'] = $matches[1];
-    	
+
     	$attr = $this->getAttrs(trim($matches[2]));
-    	
+
     	$iframeAttributes = array('align', 'frameborder', 'height', 'scrolling', 'width', 'class', 'style');
-    	
+
     	foreach($iframeAttributes as $a){
     		$options[$a] = $attr[$a];
     	}
-    	
+
     	$token = $this->wiki->addToken(
             $this->rule, $options
         );
-        
+
         return $token;
 
     }

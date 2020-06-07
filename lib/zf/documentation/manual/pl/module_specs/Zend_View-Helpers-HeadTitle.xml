@@ -9,14 +9,14 @@
     </para>
 
     <para>
-        Helper <code>HeadTitle</code> jest implementacją 
-        <link linkend="zend.view.helpers.initial.placeholder">helpera 
+        Helper <code>HeadTitle</code> jest implementacją
+        <link linkend="zend.view.helpers.initial.placeholder">helpera
             Placeholder</link>. Nadpisuje metodę <code>toString()</code> aby
         wygenerować element <code>&lt;title&gt;</code>, a także dodaje metodę
-        <code>headTitle()</code> do szybkiego i łatwego ustawiania elementów 
-        tytułu. Sygnaturą tej metody jest 
+        <code>headTitle()</code> do szybkiego i łatwego ustawiania elementów
+        tytułu. Sygnaturą tej metody jest
         <code>headTitle($title, $setType = 'APPEND')</code>; domyślnie wartość
-        jest dołączana na koniec stosu, ale możesz także określić opcję 'PREPEND' 
+        jest dołączana na koniec stosu, ale możesz także określić opcję 'PREPEND'
         (umieszczenie na początku stosu) lub 'SET' (zastąpienie stosu).
     </para>
 

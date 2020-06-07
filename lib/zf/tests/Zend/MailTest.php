@@ -432,9 +432,9 @@ class Zend_MailTest extends PHPUnit_Framework_TestCase
 
     /**
      * Helper method for {@link testZf928ToAndBccHeadersShouldNotMix()}; extracts individual header lines
-     * 
-     * @param Zend_Mail_Transport_Abstract $mock 
-     * @param string $type 
+     *
+     * @param Zend_Mail_Transport_Abstract $mock
+     * @param string $type
      * @return string
      */
     protected function _getHeader(Zend_Mail_Transport_Abstract $mock, $type = 'To')
@@ -608,7 +608,7 @@ class Zend_MailTest extends PHPUnit_Framework_TestCase
     public function testSetDateInvalidString()
     {
         $mail = new Zend_Mail();
-        
+
         try {
             $mail->setDate('invalid date');
             $this->fail('Invalid date should throw an exception');

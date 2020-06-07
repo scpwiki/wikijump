@@ -123,7 +123,7 @@ $cookie = Zend_Http_Cookie::fromString('foo=bar; secure;',
                <title>Zend_Http_Cookie オブジェクトの文字列化</title>
                <programlisting role="php"><![CDATA[
 // 新しいクッキーを作成します。
-$cookie = new Zend_Http_Cookie('foo', 
+$cookie = new Zend_Http_Cookie('foo',
                                'two words',
                                '.example.com',
                                time() + 7200,
@@ -300,7 +300,7 @@ $cookie->match('https://sub.domain.example.com/somedir/otherdir/foo.php');
 // 二時間で有効期限切れとなります。
 $cookie = Zend_Http_Cookie::fromString('foo=two+words; ' +
                                        'domain=www.example.com; ' +
-                                       'expires=' 
+                                       'expires='
                                        . date(DATE_COOKIE, time() + 7200));
 
 $cookie->match('http://www.example.com/');

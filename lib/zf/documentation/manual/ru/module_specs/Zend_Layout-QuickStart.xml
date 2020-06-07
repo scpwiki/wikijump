@@ -36,10 +36,10 @@
     <title>My Site</title>
 </head>
 <body>
-<?php 
+<?php
     // извлечение содержимого ключа 'content'
     // с использованием помощника макета:
-    echo $this->layout()->content; 
+    echo $this->layout()->content;
 
     // извлечение содержимого ключа 'foo'
     // с использованием помощника меток заполнения:
@@ -125,7 +125,7 @@
 // В вашем файле загрузки:
 Zend_Layout::startMvc();
 ?>]]></programlisting>
-        
+
         <para>
             <code>startMvc()</code> может принимать массив опций или объект
             <code>Zend_Config</code> для настойки экземпляра. Эти опции описаны
@@ -174,7 +174,7 @@ class FooController extends Zend_Controller_Action
 
         <programlisting role="php"><![CDATA[<?php
 // Возвращает null, если до этого не был вызван startMvc()
-$layout = Zend_Layout::getMvcInstance(); 
+$layout = Zend_Layout::getMvcInstance();
 ?>]]></programlisting>
 
         <para>
@@ -210,7 +210,7 @@ $layout = Zend_Layout::getMvcInstance();
     <div id="content"><?= $this->layout()->content ?></div>
 </body>
 ]]></programlisting>
-        
+
         <para>
             Эта возможность особенно полезна, если используется вместе с
             <link linkend="zend.controller.actionhelpers.actionstack">помощником

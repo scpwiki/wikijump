@@ -10,7 +10,7 @@
 
     <para>
         Captcha 可带有许多表单，包括问逻辑问题、现实变形字体和图像并询问它们的关系。
-        Zend_Captcha 的目标是提供各种各样的后台支持，既可独立使用也可以和 <code>Zend_Form</code> 一起使用。         
+        Zend_Captcha 的目标是提供各种各样的后台支持，既可独立使用也可以和 <code>Zend_Form</code> 一起使用。
     </para>
 </sect1>
 <!--

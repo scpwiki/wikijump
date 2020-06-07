@@ -20,7 +20,7 @@
  * @link       http://pear.php.net/package/Text_Wiki
  */
 class Text_Wiki_Render_Xhtml_Size extends Text_Wiki_Render {
-    
+
     public $conf = array();
 
     /**
@@ -35,17 +35,17 @@ class Text_Wiki_Render_Xhtml_Size extends Text_Wiki_Render {
      * @return string The text rendered from the token options.
      *
      */
-    
+
     function token($options) {
         if ($options['type'] == 'start') {
             $size = $options['size'];
             $argstr = '';
             return '<span style="font-size:' . $size . ';">';
         }
-        
+
         if ($options['type'] == 'end') {
             return "</span>";
         }
-    
+
     }
 }

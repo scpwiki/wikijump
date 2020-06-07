@@ -57,10 +57,10 @@ $loader->addPrefixPath('Zend_View_Helper', 'Zend/View/Helper/')
 $formTextClass = $loader->load('FormText'); // 'Zend_View_Helper_FormText';
 
 // load 'FormLabel' helper:
-$formLabelClass = $loader->load('FormLabel'); // 'Foo_View_Helper_FormLabel' 
+$formLabelClass = $loader->load('FormLabel'); // 'Foo_View_Helper_FormLabel'
 
 // load 'FormSubmit' helper:
-$formSubmitClass = $loader->load('FormSubmit'); // 'Bar_View_Helper_FormSubmit' 
+$formSubmitClass = $loader->load('FormSubmit'); // 'Bar_View_Helper_FormSubmit'
 ?>]]></programlisting>
 
         <para>
@@ -93,7 +93,7 @@ $loader = new Zend_Loader_PluginLoader(array(
 
         <para>
             <code>Zend_Loader_PluginLoader</code> 在不需要使用单态实例的情况下，也可选地允许共享插件，这是通过静态注册表来完成的，在实例化时需要注册表名作为构造器的第二个参数：
-            
+
         </para>
 
         <programlisting role="php"><![CDATA[<?php
@@ -119,7 +119,7 @@ $loader = new Zend_Loader_PluginLoader(array(), 'foobar');
             </para></listitem>
 
             <listitem><para>
-                    <code>clearPaths($prefix = null)</code> 将缺省地清除所有的已注册路径，或者如果提供了 <code>$prefix</code> 并放在堆栈里，只清除和那些和给定前缀关联的路径。 
+                    <code>clearPaths($prefix = null)</code> 将缺省地清除所有的已注册路径，或者如果提供了 <code>$prefix</code> 并放在堆栈里，只清除和那些和给定前缀关联的路径。
             </para></listitem>
 
             <listitem><para>

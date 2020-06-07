@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,27 +27,27 @@
 use DB\ForumThreadPeer;
 
 class ForumEditThreadBlockModule extends SmartyModule {
-	
+
 	public function build($runData){
 		$pl = $runData->getParameterList();
-		
+
 		$threadId = $pl->getParameterValue("threadId");
 		$site = $runData->getTemp("site");
-		
+
 		$db = Database::connection();
 		$db->begin();
-		
+
 		$thread = ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
 		if($thread == null || $thread->getSiteId() !== $site->getSiteId()){
 			throw new ProcessException(_("No thread found... Is it deleted?"), "no_thread");
 		}
-		
+
 		$category = $thread->getForumCategory();
 		WDPermissionManager::instance()->hasForumPermission('moderate_forum', $runData->getUser(), $category);
 
-		$runData->contextAdd("thread", $thread);	
-			
+		$runData->contextAdd("thread", $thread);
+
 		$db->commit();
 	}
-	
+
 }

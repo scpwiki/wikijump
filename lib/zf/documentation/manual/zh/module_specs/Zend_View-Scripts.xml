@@ -258,7 +258,7 @@ class Zend_View_Smarty implements Zend_View_Interface
     }
 
     /**
-     * Return the template engine object	 
+     * Return the template engine object
      *
      * @return Smarty
      */

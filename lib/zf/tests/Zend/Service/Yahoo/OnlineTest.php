@@ -327,11 +327,11 @@ class Zend_Service_Yahoo_OnlineTest extends PHPUnit_Framework_TestCase
             $this->assertContains('error occurred sending request', $e->getMessage());
         }
     }
-    
+
     /**
      * Check support for the region option and ensure that it throws an exception
      * for unsupported regions
-     * 
+     *
      * @group ZF-3222
      * @return void
      */

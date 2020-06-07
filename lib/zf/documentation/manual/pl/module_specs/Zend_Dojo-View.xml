@@ -7,7 +7,7 @@
 
     <itemizedlist>
         <listitem><para>
-            <emphasis>dojo():</emphasis> ustawia środowisko Dojo dla strony, 
+            <emphasis>dojo():</emphasis> ustawia środowisko Dojo dla strony,
             włączając w to zmienne konfiguracyjne dojo, własne ściezki modułów,
             wyrażenia dołączające moduły, arkusze stylów, adresy CDN i wiele
             innych.
@@ -19,7 +19,7 @@
 
         <para>
             Aby użyć helperów widoków Dojo będziesz musiał poinformować
-            obiekt widoku gdzie może je znaleźć. Możesz to zrobić wywołując 
+            obiekt widoku gdzie może je znaleźć. Możesz to zrobić wywołując
             metodę <code>addHelperPath()</code>:
         </para>
 

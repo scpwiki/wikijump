@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -25,23 +25,23 @@
 
 
 class InviteMembersModule extends SmartyModule {
-	
+
 	public function build($runData){
-		
+
 		// check if logged in
 		$user = $runData->getUser();
 		if(!$user){
 			$runData->setModuleTemplate("misc/AskToLoginModule");
-			return;	
+			return;
 		}
-		
+
 		$site = $runData->getTemp("site");
 		$runData->contextAdd("site", $site);
 		$runData->contextAdd("settings", $site->getSettings());
-		
+
 		$runData->contextAdd("user", $user);
 		$runData->contextAdd("profile", $runData->getUser()->getProfile());
-	
+
 	}
-	
+
 }

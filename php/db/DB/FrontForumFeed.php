@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot_Db
  * @version $Id$
@@ -34,7 +34,7 @@ class FrontForumFeed extends FrontForumFeedBase {
 
 	public function save(){
 		// set parmhash
-		$this->setParmhash(crc32($this->getTitle()." ".$this->getCategories()));	
+		$this->setParmhash(crc32($this->getTitle()." ".$this->getCategories()));
 		$page = PagePeer::instance()->selectByPrimaryKey($this->getPageId());
 		$site = $GLOBALS['site'];
 		$fkey = "frontforumfeedobject..".$site->getUnixName().'..'.$page->getUnixName().'..'.$this->getLabel();

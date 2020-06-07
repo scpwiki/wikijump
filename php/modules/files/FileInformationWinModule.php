@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,22 +27,22 @@
 use DB\FilePeer;
 
 class FileInformationWinModule extends SmartyModule {
-	
+
 	public function build($runData){
 		$pl = $runData->getParameterList();
 		$fileId = $pl->getParameterValue("file_id");
-		
+
 		$file = FilePeer::instance()->selectByPrimaryKey($fileId);
-		
+
 		if($file == null || $file->getSiteId() != $runData->getTemp("site")->getSiteId()){
 			$runData->ajaxResponseAdd("status", "wrong_file");
 			$runData->ajaxResponseAdd("message", _("Error getting file information."));
 			$runData->setModuleTemplate("Empty");
-			return;	
+			return;
 		}
-		
+
 		$runData->contextAdd("file", $file);
-			
+
 	}
-	
+
 }

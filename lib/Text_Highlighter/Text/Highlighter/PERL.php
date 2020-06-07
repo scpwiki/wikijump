@@ -1,11 +1,11 @@
 <?php
 /**
  * Auto-generated class. PERL syntax highlighting
- * 
- * This highlighter is EXPERIMENTAL, so that it may work incorrectly. 
+ *
+ * This highlighter is EXPERIMENTAL, so that it may work incorrectly.
  * Most rules were created by Mariusz Jakubowski, and extended by me.
  * My  knowledge  of  Perl  is  poor,  and  Perl  syntax  seems  too
- * complicated to me. 
+ * complicated to me.
  *
  * PHP version 4 and 5
  *
@@ -20,7 +20,7 @@
  * @link       http://pear.php.net/package/Text_Highlighter
  * @category   Text
  * @package    Text_Highlighter
- * @version    generated from: : perl.xml 21 2005-02-04 07:08:05Z andrey 
+ * @version    generated from: : perl.xml 21 2005-02-04 07:08:05Z andrey
  * @author Mariusz 'kg' Jakubowski <kg@alternatywa.info>
  * @author Andrey Demenev <demenev@gmail.com>
  *
@@ -72,7 +72,7 @@ class  Text_Highlighter_PERL extends Text_Highlighter
             9 => '/(\\$#?[1-9\'`@!])|((?i)\\$([a-z1-9_]+|\\^(?-i)[A-Z]?(?i)))|((?i)[\\$@%]#?\\{[a-z1-9]+\\})|(\\\\[\\\\"\'`tnr\\$\\{@])/',
         );
         $this->_counts = array (
-            -1 => 
+            -1 =>
             array (
                 0 => 2,
                 1 => 0,
@@ -99,10 +99,10 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 22 => 0,
                 23 => 0,
             ),
-            0 => 
+            0 =>
             array (
             ),
-            1 => 
+            1 =>
             array (
                 0 => 2,
                 1 => 0,
@@ -129,7 +129,7 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 22 => 0,
                 23 => 0,
             ),
-            2 => 
+            2 =>
             array (
                 0 => 2,
                 1 => 0,
@@ -157,7 +157,7 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 23 => 0,
                 24 => 0,
             ),
-            3 => 
+            3 =>
             array (
                 0 => 2,
                 1 => 0,
@@ -184,33 +184,33 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 22 => 0,
                 23 => 0,
             ),
-            4 => 
+            4 =>
             array (
                 0 => 0,
                 1 => 1,
                 2 => 0,
                 3 => 0,
             ),
-            5 => 
+            5 =>
             array (
                 0 => 0,
             ),
-            6 => 
+            6 =>
             array (
                 0 => 0,
             ),
-            7 => 
+            7 =>
             array (
                 0 => 0,
                 1 => 1,
                 2 => 0,
                 3 => 0,
             ),
-            8 => 
+            8 =>
             array (
                 0 => 0,
             ),
-            9 => 
+            9 =>
             array (
                 0 => 0,
                 1 => 1,
@@ -219,7 +219,7 @@ class  Text_Highlighter_PERL extends Text_Highlighter
             ),
         );
         $this->_delim = array (
-            -1 => 
+            -1 =>
             array (
                 0 => '',
                 1 => 'comment',
@@ -246,10 +246,10 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 22 => '',
                 23 => '',
             ),
-            0 => 
+            0 =>
             array (
             ),
-            1 => 
+            1 =>
             array (
                 0 => '',
                 1 => 'comment',
@@ -276,7 +276,7 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 22 => '',
                 23 => '',
             ),
-            2 => 
+            2 =>
             array (
                 0 => '',
                 1 => 'comment',
@@ -304,7 +304,7 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 23 => '',
                 24 => '',
             ),
-            3 => 
+            3 =>
             array (
                 0 => '',
                 1 => 'comment',
@@ -331,33 +331,33 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 22 => '',
                 23 => '',
             ),
-            4 => 
+            4 =>
             array (
                 0 => '',
                 1 => '',
                 2 => '',
                 3 => '',
             ),
-            5 => 
+            5 =>
             array (
                 0 => '',
             ),
-            6 => 
+            6 =>
             array (
                 0 => '',
             ),
-            7 => 
+            7 =>
             array (
                 0 => '',
                 1 => '',
                 2 => '',
                 3 => '',
             ),
-            8 => 
+            8 =>
             array (
                 0 => '',
             ),
-            9 => 
+            9 =>
             array (
                 0 => '',
                 1 => '',
@@ -366,7 +366,7 @@ class  Text_Highlighter_PERL extends Text_Highlighter
             ),
         );
         $this->_inner = array (
-            -1 => 
+            -1 =>
             array (
                 0 => 'special',
                 1 => 'comment',
@@ -393,10 +393,10 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 22 => 'identifier',
                 23 => 'number',
             ),
-            0 => 
+            0 =>
             array (
             ),
-            1 => 
+            1 =>
             array (
                 0 => 'special',
                 1 => 'comment',
@@ -423,7 +423,7 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 22 => 'identifier',
                 23 => 'number',
             ),
-            2 => 
+            2 =>
             array (
                 0 => 'special',
                 1 => 'comment',
@@ -451,7 +451,7 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 23 => 'identifier',
                 24 => 'number',
             ),
-            3 => 
+            3 =>
             array (
                 0 => 'special',
                 1 => 'comment',
@@ -478,33 +478,33 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 22 => 'identifier',
                 23 => 'number',
             ),
-            4 => 
+            4 =>
             array (
                 0 => 'var',
                 1 => 'var',
                 2 => 'var',
                 3 => 'special',
             ),
-            5 => 
+            5 =>
             array (
                 0 => 'special',
             ),
-            6 => 
+            6 =>
             array (
                 0 => 'string',
             ),
-            7 => 
+            7 =>
             array (
                 0 => 'var',
                 1 => 'var',
                 2 => 'var',
                 3 => 'special',
             ),
-            8 => 
+            8 =>
             array (
                 0 => 'special',
             ),
-            9 => 
+            9 =>
             array (
                 0 => 'var',
                 1 => 'var',
@@ -525,7 +525,7 @@ class  Text_Highlighter_PERL extends Text_Highlighter
             9 => '/"/',
         );
         $this->_states = array (
-            -1 => 
+            -1 =>
             array (
                 0 => -1,
                 1 => 0,
@@ -552,10 +552,10 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 22 => -1,
                 23 => -1,
             ),
-            0 => 
+            0 =>
             array (
             ),
-            1 => 
+            1 =>
             array (
                 0 => -1,
                 1 => 0,
@@ -582,7 +582,7 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 22 => -1,
                 23 => -1,
             ),
-            2 => 
+            2 =>
             array (
                 0 => -1,
                 1 => 0,
@@ -610,7 +610,7 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 23 => -1,
                 24 => -1,
             ),
-            3 => 
+            3 =>
             array (
                 0 => -1,
                 1 => 0,
@@ -637,33 +637,33 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 22 => -1,
                 23 => -1,
             ),
-            4 => 
+            4 =>
             array (
                 0 => -1,
                 1 => -1,
                 2 => -1,
                 3 => -1,
             ),
-            5 => 
+            5 =>
             array (
                 0 => -1,
             ),
-            6 => 
+            6 =>
             array (
                 0 => -1,
             ),
-            7 => 
+            7 =>
             array (
                 0 => -1,
                 1 => -1,
                 2 => -1,
                 3 => -1,
             ),
-            8 => 
+            8 =>
             array (
                 0 => -1,
             ),
-            9 => 
+            9 =>
             array (
                 0 => -1,
                 1 => -1,
@@ -672,315 +672,315 @@ class  Text_Highlighter_PERL extends Text_Highlighter
             ),
         );
         $this->_keywords = array (
-            -1 => 
+            -1 =>
             array (
-                0 => 
+                0 =>
                 array (
                 ),
                 1 => -1,
                 2 => -1,
                 3 => -1,
                 4 => -1,
-                5 => 
+                5 =>
                 array (
                 ),
-                6 => 
+                6 =>
                 array (
                 ),
                 7 => -1,
                 8 => -1,
-                9 => 
+                9 =>
                 array (
                 ),
-                10 => 
+                10 =>
                 array (
                 ),
-                11 => 
+                11 =>
                 array (
                 ),
                 12 => -1,
-                13 => 
+                13 =>
                 array (
                 ),
-                14 => 
+                14 =>
                 array (
                 ),
-                15 => 
+                15 =>
                 array (
                 ),
-                16 => 
+                16 =>
                 array (
                 ),
-                17 => 
+                17 =>
                 array (
                 ),
-                18 => 
+                18 =>
                 array (
                 ),
                 19 => -1,
                 20 => -1,
                 21 => -1,
-                22 => 
+                22 =>
                 array (
                     'reserved' => '/^(abs|accept|alarm|atan2|bind|binmode|bless|caller|chdir|chmod|chomp|chop|chown|chr|chroot|close|closedir|connect|continue|cos|crypt|dbmclose|dbmopen|defined|delete|die|do|dump|each|endgrent|endhostent|endnetent|endprotoent|endpwent|endservent|eof|eval|exec|exists|exit|exp|fcntl|fileno|flock|fork|format|formline|getc|getgrent|getgrgid|getgrnam|gethostbyaddr|gethostbyname|gethostent|getlogin|getnetbyaddr|getnetbyname|getnetent|getpeername|getpgrp|getppid|getpriority|getprotobyname|getprotobynumber|getprotoent|getpwent|getpwnam|getpwuid|getservbyname|getservbyport|getservent|getsockname|getsockopt|glob|gmtime|goto|grep|hex|import|index|int|ioctl|join|keys|kill|last|lc|lcfirst|length|link|listen|local|localtime|lock|log|lstat|map|mkdir|msgctl|msgget|msgrcv|msgsnd|my|next|no|oct|open|opendir|ord|our|pack|package|pipe|pop|pos|print|printf|prototype|push|quotemeta|rand|read|readdir|readline|readlink|readpipe|recv|redo|ref|rename|require|reset|return|reverse|rewinddir|rindex|rmdir|scalar|seek|seekdir|select|semctl|semget|semop|send|setgrent|sethostent|setnetent|setpgrp|setpriority|setprotoent|setpwent|setservent|setsockopt|shift|shmctl|shmget|shmread|shmwrite|shutdown|sin|sleep|socket|socketpair|sort|splice|split|sprintf|sqrt|srand|stat|study|sub|substr|symlink|syscall|sysopen|sysread|sysseek|system|syswrite|tell|telldir|tie|tied|time|times|truncate|uc|ucfirst|umask|undef|unlink|unpack|unshift|untie|use|utime|values|vec|wait|waitpid|wantarray|warn|write|y)$/',
                     'missingreserved' => '/^(new)$/',
                     'flowcontrol' => '/^(if|else|elsif|while|unless|for|foreach|until|do|continue|not|or|and|eq|ne|gt|lt)$/',
                 ),
-                23 => 
+                23 =>
                 array (
                 ),
             ),
-            0 => 
+            0 =>
             array (
             ),
-            1 => 
+            1 =>
             array (
-                0 => 
+                0 =>
                 array (
                 ),
                 1 => -1,
                 2 => -1,
                 3 => -1,
                 4 => -1,
-                5 => 
+                5 =>
                 array (
                 ),
-                6 => 
+                6 =>
                 array (
                 ),
                 7 => -1,
                 8 => -1,
-                9 => 
+                9 =>
                 array (
                 ),
-                10 => 
+                10 =>
                 array (
                 ),
-                11 => 
+                11 =>
                 array (
                 ),
                 12 => -1,
-                13 => 
+                13 =>
                 array (
                 ),
-                14 => 
+                14 =>
                 array (
                 ),
-                15 => 
+                15 =>
                 array (
                 ),
-                16 => 
+                16 =>
                 array (
                 ),
-                17 => 
+                17 =>
                 array (
                 ),
-                18 => 
+                18 =>
                 array (
                 ),
                 19 => -1,
                 20 => -1,
                 21 => -1,
-                22 => 
+                22 =>
                 array (
                     'reserved' => '/^(abs|accept|alarm|atan2|bind|binmode|bless|caller|chdir|chmod|chomp|chop|chown|chr|chroot|close|closedir|connect|continue|cos|crypt|dbmclose|dbmopen|defined|delete|die|do|dump|each|endgrent|endhostent|endnetent|endprotoent|endpwent|endservent|eof|eval|exec|exists|exit|exp|fcntl|fileno|flock|fork|format|formline|getc|getgrent|getgrgid|getgrnam|gethostbyaddr|gethostbyname|gethostent|getlogin|getnetbyaddr|getnetbyname|getnetent|getpeername|getpgrp|getppid|getpriority|getprotobyname|getprotobynumber|getprotoent|getpwent|getpwnam|getpwuid|getservbyname|getservbyport|getservent|getsockname|getsockopt|glob|gmtime|goto|grep|hex|import|index|int|ioctl|join|keys|kill|last|lc|lcfirst|length|link|listen|local|localtime|lock|log|lstat|map|mkdir|msgctl|msgget|msgrcv|msgsnd|my|next|no|oct|open|opendir|ord|our|pack|package|pipe|pop|pos|print|printf|prototype|push|quotemeta|rand|read|readdir|readline|readlink|readpipe|recv|redo|ref|rename|require|reset|return|reverse|rewinddir|rindex|rmdir|scalar|seek|seekdir|select|semctl|semget|semop|send|setgrent|sethostent|setnetent|setpgrp|setpriority|setprotoent|setpwent|setservent|setsockopt|shift|shmctl|shmget|shmread|shmwrite|shutdown|sin|sleep|socket|socketpair|sort|splice|split|sprintf|sqrt|srand|stat|study|sub|substr|symlink|syscall|sysopen|sysread|sysseek|system|syswrite|tell|telldir|tie|tied|time|times|truncate|uc|ucfirst|umask|undef|unlink|unpack|unshift|untie|use|utime|values|vec|wait|waitpid|wantarray|warn|write|y)$/',
                     'missingreserved' => '/^(new)$/',
                     'flowcontrol' => '/^(if|else|elsif|while|unless|for|foreach|until|do|continue|not|or|and|eq|ne|gt|lt)$/',
                 ),
-                23 => 
+                23 =>
                 array (
                 ),
             ),
-            2 => 
+            2 =>
             array (
-                0 => 
+                0 =>
                 array (
                 ),
                 1 => -1,
                 2 => -1,
                 3 => -1,
                 4 => -1,
-                5 => 
+                5 =>
                 array (
                 ),
-                6 => 
+                6 =>
                 array (
                 ),
                 7 => -1,
                 8 => -1,
-                9 => 
+                9 =>
                 array (
                 ),
-                10 => 
+                10 =>
                 array (
                 ),
-                11 => 
+                11 =>
                 array (
                 ),
                 12 => -1,
-                13 => 
+                13 =>
                 array (
                 ),
-                14 => 
+                14 =>
                 array (
                 ),
-                15 => 
+                15 =>
                 array (
                 ),
-                16 => 
+                16 =>
                 array (
                 ),
-                17 => 
+                17 =>
                 array (
                 ),
-                18 => 
+                18 =>
                 array (
                 ),
-                19 => 
+                19 =>
                 array (
                 ),
                 20 => -1,
                 21 => -1,
                 22 => -1,
-                23 => 
+                23 =>
                 array (
                     'reserved' => '/^(abs|accept|alarm|atan2|bind|binmode|bless|caller|chdir|chmod|chomp|chop|chown|chr|chroot|close|closedir|connect|continue|cos|crypt|dbmclose|dbmopen|defined|delete|die|do|dump|each|endgrent|endhostent|endnetent|endprotoent|endpwent|endservent|eof|eval|exec|exists|exit|exp|fcntl|fileno|flock|fork|format|formline|getc|getgrent|getgrgid|getgrnam|gethostbyaddr|gethostbyname|gethostent|getlogin|getnetbyaddr|getnetbyname|getnetent|getpeername|getpgrp|getppid|getpriority|getprotobyname|getprotobynumber|getprotoent|getpwent|getpwnam|getpwuid|getservbyname|getservbyport|getservent|getsockname|getsockopt|glob|gmtime|goto|grep|hex|import|index|int|ioctl|join|keys|kill|last|lc|lcfirst|length|link|listen|local|localtime|lock|log|lstat|map|mkdir|msgctl|msgget|msgrcv|msgsnd|my|next|no|oct|open|opendir|ord|our|pack|package|pipe|pop|pos|print|printf|prototype|push|quotemeta|rand|read|readdir|readline|readlink|readpipe|recv|redo|ref|rename|require|reset|return|reverse|rewinddir|rindex|rmdir|scalar|seek|seekdir|select|semctl|semget|semop|send|setgrent|sethostent|setnetent|setpgrp|setpriority|setprotoent|setpwent|setservent|setsockopt|shift|shmctl|shmget|shmread|shmwrite|shutdown|sin|sleep|socket|socketpair|sort|splice|split|sprintf|sqrt|srand|stat|study|sub|substr|symlink|syscall|sysopen|sysread|sysseek|system|syswrite|tell|telldir|tie|tied|time|times|truncate|uc|ucfirst|umask|undef|unlink|unpack|unshift|untie|use|utime|values|vec|wait|waitpid|wantarray|warn|write|y)$/',
                     'missingreserved' => '/^(new)$/',
                     'flowcontrol' => '/^(if|else|elsif|while|unless|for|foreach|until|do|continue|not|or|and|eq|ne|gt|lt)$/',
                 ),
-                24 => 
+                24 =>
                 array (
                 ),
             ),
-            3 => 
+            3 =>
             array (
-                0 => 
+                0 =>
                 array (
                 ),
                 1 => -1,
                 2 => -1,
                 3 => -1,
                 4 => -1,
-                5 => 
+                5 =>
                 array (
                 ),
-                6 => 
+                6 =>
                 array (
                 ),
                 7 => -1,
                 8 => -1,
-                9 => 
+                9 =>
                 array (
                 ),
-                10 => 
+                10 =>
                 array (
                 ),
-                11 => 
+                11 =>
                 array (
                 ),
                 12 => -1,
-                13 => 
+                13 =>
                 array (
                 ),
-                14 => 
+                14 =>
                 array (
                 ),
-                15 => 
+                15 =>
                 array (
                 ),
-                16 => 
+                16 =>
                 array (
                 ),
-                17 => 
+                17 =>
                 array (
                 ),
-                18 => 
+                18 =>
                 array (
                 ),
                 19 => -1,
                 20 => -1,
                 21 => -1,
-                22 => 
+                22 =>
                 array (
                     'reserved' => '/^(abs|accept|alarm|atan2|bind|binmode|bless|caller|chdir|chmod|chomp|chop|chown|chr|chroot|close|closedir|connect|continue|cos|crypt|dbmclose|dbmopen|defined|delete|die|do|dump|each|endgrent|endhostent|endnetent|endprotoent|endpwent|endservent|eof|eval|exec|exists|exit|exp|fcntl|fileno|flock|fork|format|formline|getc|getgrent|getgrgid|getgrnam|gethostbyaddr|gethostbyname|gethostent|getlogin|getnetbyaddr|getnetbyname|getnetent|getpeername|getpgrp|getppid|getpriority|getprotobyname|getprotobynumber|getprotoent|getpwent|getpwnam|getpwuid|getservbyname|getservbyport|getservent|getsockname|getsockopt|glob|gmtime|goto|grep|hex|import|index|int|ioctl|join|keys|kill|last|lc|lcfirst|length|link|listen|local|localtime|lock|log|lstat|map|mkdir|msgctl|msgget|msgrcv|msgsnd|my|next|no|oct|open|opendir|ord|our|pack|package|pipe|pop|pos|print|printf|prototype|push|quotemeta|rand|read|readdir|readline|readlink|readpipe|recv|redo|ref|rename|require|reset|return|reverse|rewinddir|rindex|rmdir|scalar|seek|seekdir|select|semctl|semget|semop|send|setgrent|sethostent|setnetent|setpgrp|setpriority|setprotoent|setpwent|setservent|setsockopt|shift|shmctl|shmget|shmread|shmwrite|shutdown|sin|sleep|socket|socketpair|sort|splice|split|sprintf|sqrt|srand|stat|study|sub|substr|symlink|syscall|sysopen|sysread|sysseek|system|syswrite|tell|telldir|tie|tied|time|times|truncate|uc|ucfirst|umask|undef|unlink|unpack|unshift|untie|use|utime|values|vec|wait|waitpid|wantarray|warn|write|y)$/',
                     'missingreserved' => '/^(new)$/',
                     'flowcontrol' => '/^(if|else|elsif|while|unless|for|foreach|until|do|continue|not|or|and|eq|ne|gt|lt)$/',
                 ),
-                23 => 
+                23 =>
                 array (
                 ),
             ),
-            4 => 
+            4 =>
             array (
-                0 => 
+                0 =>
                 array (
                 ),
-                1 => 
+                1 =>
                 array (
                 ),
-                2 => 
+                2 =>
                 array (
                 ),
-                3 => 
+                3 =>
                 array (
                 ),
             ),
-            5 => 
+            5 =>
             array (
-                0 => 
+                0 =>
                 array (
                 ),
             ),
-            6 => 
+            6 =>
             array (
-                0 => 
+                0 =>
                 array (
                 ),
             ),
-            7 => 
+            7 =>
             array (
-                0 => 
+                0 =>
                 array (
                 ),
-                1 => 
+                1 =>
                 array (
                 ),
-                2 => 
+                2 =>
                 array (
                 ),
-                3 => 
+                3 =>
                 array (
                 ),
             ),
-            8 => 
+            8 =>
             array (
-                0 => 
+                0 =>
                 array (
                 ),
             ),
-            9 => 
+            9 =>
             array (
-                0 => 
+                0 =>
                 array (
                 ),
-                1 => 
+                1 =>
                 array (
                 ),
-                2 => 
+                2 =>
                 array (
                 ),
-                3 => 
+                3 =>
                 array (
                 ),
             ),
         );
         $this->_parts = array (
-            0 => 
+            0 =>
             array (
             ),
-            1 => 
+            1 =>
             array (
-                0 => 
+                0 =>
                 array (
                     1 => 'special',
                     2 => 'string',
@@ -989,7 +989,7 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 2 => NULL,
                 3 => NULL,
                 4 => NULL,
-                5 => 
+                5 =>
                 array (
                     1 => 'reserved',
                     2 => 'special',
@@ -998,7 +998,7 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 7 => NULL,
                 8 => NULL,
                 9 => NULL,
-                10 => 
+                10 =>
                 array (
                     1 => 'quotes',
                     2 => 'quotes',
@@ -1007,7 +1007,7 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                     6 => 'string',
                     8 => 'quotes',
                 ),
-                11 => 
+                11 =>
                 array (
                     1 => 'quotes',
                     2 => 'quotes',
@@ -1019,7 +1019,7 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 14 => NULL,
                 15 => NULL,
                 16 => NULL,
-                17 => 
+                17 =>
                 array (
                     1 => 'brackets',
                     2 => 'var',
@@ -1032,9 +1032,9 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 22 => NULL,
                 23 => NULL,
             ),
-            2 => 
+            2 =>
             array (
-                0 => 
+                0 =>
                 array (
                     1 => 'special',
                     2 => 'string',
@@ -1043,7 +1043,7 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 2 => NULL,
                 3 => NULL,
                 4 => NULL,
-                5 => 
+                5 =>
                 array (
                     1 => 'reserved',
                     2 => 'special',
@@ -1052,7 +1052,7 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 7 => NULL,
                 8 => NULL,
                 9 => NULL,
-                10 => 
+                10 =>
                 array (
                     1 => 'quotes',
                     2 => 'quotes',
@@ -1061,7 +1061,7 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                     6 => 'string',
                     8 => 'quotes',
                 ),
-                11 => 
+                11 =>
                 array (
                     1 => 'quotes',
                     2 => 'quotes',
@@ -1069,7 +1069,7 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                     5 => 'quotes',
                 ),
                 12 => NULL,
-                13 => 
+                13 =>
                 array (
                     1 => 'string',
                     2 => 'code',
@@ -1078,7 +1078,7 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 15 => NULL,
                 16 => NULL,
                 17 => NULL,
-                18 => 
+                18 =>
                 array (
                     1 => 'brackets',
                     2 => 'var',
@@ -1091,9 +1091,9 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 23 => NULL,
                 24 => NULL,
             ),
-            3 => 
+            3 =>
             array (
-                0 => 
+                0 =>
                 array (
                     1 => 'special',
                     2 => 'string',
@@ -1102,7 +1102,7 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 2 => NULL,
                 3 => NULL,
                 4 => NULL,
-                5 => 
+                5 =>
                 array (
                     1 => 'reserved',
                     2 => 'special',
@@ -1111,7 +1111,7 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 7 => NULL,
                 8 => NULL,
                 9 => NULL,
-                10 => 
+                10 =>
                 array (
                     1 => 'quotes',
                     2 => 'quotes',
@@ -1120,7 +1120,7 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                     6 => 'string',
                     8 => 'quotes',
                 ),
-                11 => 
+                11 =>
                 array (
                     1 => 'quotes',
                     2 => 'quotes',
@@ -1132,7 +1132,7 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 14 => NULL,
                 15 => NULL,
                 16 => NULL,
-                17 => 
+                17 =>
                 array (
                     1 => 'brackets',
                     2 => 'var',
@@ -1145,33 +1145,33 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 22 => NULL,
                 23 => NULL,
             ),
-            4 => 
+            4 =>
             array (
                 0 => NULL,
                 1 => NULL,
                 2 => NULL,
                 3 => NULL,
             ),
-            5 => 
+            5 =>
             array (
                 0 => NULL,
             ),
-            6 => 
+            6 =>
             array (
                 0 => NULL,
             ),
-            7 => 
+            7 =>
             array (
                 0 => NULL,
                 1 => NULL,
                 2 => NULL,
                 3 => NULL,
             ),
-            8 => 
+            8 =>
             array (
                 0 => NULL,
             ),
-            9 => 
+            9 =>
             array (
                 0 => NULL,
                 1 => NULL,
@@ -1180,7 +1180,7 @@ class  Text_Highlighter_PERL extends Text_Highlighter
             ),
         );
         $this->_subst = array (
-            -1 => 
+            -1 =>
             array (
                 0 => false,
                 1 => false,
@@ -1207,10 +1207,10 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 22 => false,
                 23 => false,
             ),
-            0 => 
+            0 =>
             array (
             ),
-            1 => 
+            1 =>
             array (
                 0 => false,
                 1 => false,
@@ -1237,7 +1237,7 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 22 => false,
                 23 => false,
             ),
-            2 => 
+            2 =>
             array (
                 0 => false,
                 1 => false,
@@ -1265,7 +1265,7 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 23 => false,
                 24 => false,
             ),
-            3 => 
+            3 =>
             array (
                 0 => false,
                 1 => false,
@@ -1292,33 +1292,33 @@ class  Text_Highlighter_PERL extends Text_Highlighter
                 22 => false,
                 23 => false,
             ),
-            4 => 
+            4 =>
             array (
                 0 => false,
                 1 => false,
                 2 => false,
                 3 => false,
             ),
-            5 => 
+            5 =>
             array (
                 0 => false,
             ),
-            6 => 
+            6 =>
             array (
                 0 => false,
             ),
-            7 => 
+            7 =>
             array (
                 0 => false,
                 1 => false,
                 2 => false,
                 3 => false,
             ),
-            8 => 
+            8 =>
             array (
                 0 => false,
             ),
-            9 => 
+            9 =>
             array (
                 0 => false,
                 1 => false,
@@ -1336,5 +1336,5 @@ class  Text_Highlighter_PERL extends Text_Highlighter
         $this->_defClass = 'code';
         $this->_checkDefines();
     }
-    
+
 }

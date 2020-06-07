@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,23 +27,23 @@
 use DB\PagePeer;
 
 class WikiCategoriesPageListModule extends SmartyModule {
-	
+
 	public function build($runData){
 		$categoryId = $runData->getParameterList()->getParameterValue("category_id");
-		
+
 		$site = $runData->getTemp("site");
-		
+
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
 		$c->add("category_id", $categoryId);
 		$c->addOrderAscending("COALESCE(title, unix_name)");
 		$pages = PagePeer::instance()->select($c);
-		
+
 		if(count($pages)>0){
-			$runData->contextAdd("pages", $pages);	
+			$runData->contextAdd("pages", $pages);
 		}
-		
-		$runData->ajaxResponseAdd("categoryId", $categoryId);	
+
+		$runData->ajaxResponseAdd("categoryId", $categoryId);
 	}
-	
+
 }

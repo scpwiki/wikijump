@@ -53,9 +53,9 @@ class Text_Wiki_Render_Xhtml_Image extends Text_Wiki_Render {
         $src = $options['src'];
 
         $size = $options['attr']['size'];
-        
+
         $postVars = $this->getConf("post_vars");
-        
+
         if (preg_match('/^:first/', $src)) {
     		$page = DB\PagePeer::instance()->selectByName($GLOBALS['site']->getSiteId(), $this->wiki->vars['pageName']);
     		if (! $page) {
@@ -73,25 +73,25 @@ class Text_Wiki_Render_Xhtml_Image extends Text_Wiki_Render {
     			return "";
     		}
         }
-        
+
         // see if is a flickr image
         if (strpos($src, 'flickr:') !== false) {
-        		//check if valid arguments, handle sizes etc. 
+        		//check if valid arguments, handle sizes etc.
         		preg_match("/^flickr:([0-9]+)(?:_([a-z0-9]+))?/i", $src, $mat2);
         		$photoId = $mat2[1];
         		$secret = $mat2[2];
         		if(!in_array($size, array("small", "medium", "thumbnail", "square", "large", "original"))){
-	        		$size = null;	
+	        		$size = null;
 	        }
-        		
+
         		$flickr = FlickrHandler::instance();
 			$photo = $flickr->photos_getInfo($photoId, $secret);
-			
+
 			if($photo == null){
 				return '<div class="error-block">'.sprintf(_('Error fetching flickr image (id: %s) info. The file does not exist, is private or other problem.'),$photoId).'</div>';
 			}
-			
-			$src = $flickr->buildPhotoURL($photo, $size); //"http://static.flickr.com/".$photo['_attributes']['server']."/".$photo['_attributes']['id']."_".$photo['_attributes']['secret'].".jpg"; 	
+
+			$src = $flickr->buildPhotoURL($photo, $size); //"http://static.flickr.com/".$photo['_attributes']['server']."/".$photo['_attributes']['id']."_".$photo['_attributes']['secret'].".jpg";
          	// set/override link attribute
          	$options['attr']['link'] = $photo['urls']['url'][0]['_value'];
         }elseif (strpos($src, '://') === false) {
@@ -99,16 +99,16 @@ class Text_Wiki_Render_Xhtml_Image extends Text_Wiki_Render {
             // the source refers to a local file.
             // add the URL base to it.
             if(!in_array($size, array("small", "medium", "thumbnail", "square"))){
-	        		$size = null;	
+	        		$size = null;
 	        }
-	        
-	        // should we force size? yes if the file has resized version but is 
+
+	        // should we force size? yes if the file has resized version but is
 	        // not a viewable image, e.g. .pdf
-	        
+
 	        if(!$size && !preg_match('/\.(png|jpg|gif)$/i', $src)){
-	        		$size = "medium";	
+	        		$size = "medium";
 	        }
-            
+
             // see if it refers to a different page
             	if($postVars || preg_match("/^%%%[^%]+%%$/", $src)){
             			// this is ok. used for feed parsing.
@@ -131,9 +131,9 @@ class Text_Wiki_Render_Xhtml_Image extends Text_Wiki_Render {
 		        	$noLocal = $this->getConf("no_local");
 		    		if($noLocal){
 		    			return '<span class="error-inline">' .
-		   					_('Sorry, local images without page name specified not allowed. Use <em>pagename</em>/<em>filename</em> as the image source').'</span>';	
+		   					_('Sorry, local images without page name specified not allowed. Use <em>pagename</em>/<em>filename</em> as the image source').'</span>';
 		    		}
-		      		
+
 	       		if($size){
 	        			$src = "/local--resized-images/".
 					$this->wiki->vars['pageName'].'/'.$src.'/'.$size.'.jpg';
@@ -141,7 +141,7 @@ class Text_Wiki_Render_Xhtml_Image extends Text_Wiki_Render {
             				// link to the original image
             				$srch = preg_replace("/^\//", '', $options['src']);
             				$options['attr']['link'] = 	"/local--files/".$this->wiki->vars['pageName'] .'/'. $srch;
-            			}	
+            			}
 	            	}else{
 	         		$src = "/local--files/".$this->wiki->vars['pageName'] .'/'. $src;
 	         	}
@@ -189,8 +189,8 @@ class Text_Wiki_Render_Xhtml_Image extends Text_Wiki_Render {
                 $css = null;
             }
 
-			if($key == "class" || $key == "alt"  || $key == "style" 
-				|| $key=="width" || $key=="height"){          
+			if($key == "class" || $key == "alt"  || $key == "style"
+				|| $key=="width" || $key=="height"){
 	            	$key = htmlspecialchars($key);
             		$val = htmlspecialchars($val);
             		$output .= " $key=\"$val\"";
@@ -216,21 +216,21 @@ class Text_Wiki_Render_Xhtml_Image extends Text_Wiki_Render {
             $css = $this->formatConf(' class="%s"', 'css_link');
             $target = '';
             if($options['target']){
-            		$target = ' target="'.$options['target'].'" ';	
+            		$target = ' target="'.$options['target'].'" ';
             }
             $output = "<a$css href=\"$href\" $target>$output</a>";
         }
-        
+
         $align = $options['align'];
-		
+
 		if($align){
-			
+
 			$output2 = $output;
 			$output = '';
-			
+
 	        // start the HTML output
 	        $output .= '<div class="image-container';
-	        
+
 	        if($align === "f<"){
 				$output .= ' floatleft';
 			}elseif($align ==="f>"){
@@ -242,9 +242,9 @@ class Text_Wiki_Render_Xhtml_Image extends Text_Wiki_Render {
 			}elseif($align === '='){
 				$output .= ' aligncenter';
 	        }
-	        
+
 			$output .= '">';
-			
+
 			$output .= $output2;
       		$output .= '</div>';
       	}

@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -25,27 +25,27 @@
 
 
 class AccountModule extends AccountBaseModule {
-	
+
 	protected $processPage = true;
-	
+
 	public function isAllowed($runData){
-		
-		return true;	
+
+		return true;
 	}
-	
+
 	public function build($runData){
 		if(!$runData->getUser()){
 			$runData->setModuleTemplate('account/AccountNotLoggedInModule');
 			return;
 		}
-		
+
 		$user = $runData->getUser();
-		$runData->contextAdd("user",$user);	
-		
+		$runData->contextAdd("user",$user);
+
 		$pl = $runData->getParameterList();
 		$start = $pl->getParameterValue("start");
 		if($start){
-			$runData->contextAdd("start", $start);	
+			$runData->contextAdd("start", $start);
 		}
 		$composeTo = $pl->getParameterValue("composeto");
 		if($composeTo){
@@ -60,10 +60,10 @@ class AccountModule extends AccountBaseModule {
 		$this->extraJs[] = '/common--javascript/crypto/rsa.js';
 
 	}
-	
+
 	public function processPage($out, $runData){
 		$out = preg_replace("/<div id=\"page-title\">(.*?)<\/div>/is",'',$out, 1);
-		return $out;	
+		return $out;
 	}
-	
+
 }

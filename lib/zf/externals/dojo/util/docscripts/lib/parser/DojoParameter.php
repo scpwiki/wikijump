@@ -140,7 +140,7 @@ class DojoParameter extends DojoBlock
 
     return $this->parameter_value;
   }
-  
+
   public function getType(){
     if ($this->parameter_type) {
       return $this->parameter_type;
@@ -156,5 +156,5 @@ class DojoParameter extends DojoBlock
     return $this->parameter_type = implode(' ', array_diff($type, array('')));
   }
 }
-  
+
 ?>

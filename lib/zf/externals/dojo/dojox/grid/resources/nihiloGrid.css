@@ -17,7 +17,7 @@
 	background-color:  #e9e9e9;
 }
 
-.nihilo .dojoxGridHeader .dojoxGridCell { 
+.nihilo .dojoxGridHeader .dojoxGridCell {
 	border-width: 1px;
 	padding-bottom: 0px;
 	border-color: transparent #ACA899 #919191 transparent;
@@ -61,7 +61,7 @@
 
 /* rowbar */
 
-.nihilo .dojoxGridRowbar { 
+.nihilo .dojoxGridRowbar {
 	border: none;
 	background: url(../../../dijit/themes/nihilo/images/titleBar.png) #e9e9e9 repeat-y right;
 	border-right: 1px solid #ccc;
@@ -95,7 +95,7 @@
 }
 
 .nihilo .dojoxGridRowOver .dojoxGridCell {
-	background-color: #ffe284; 
+	background-color: #ffe284;
 }
 
 .nihilo .dojoxGridRowOdd {
@@ -141,7 +141,7 @@
 /* FIXME: these colors are off! */
 .nihilo .dojoxGridRowEditing td {
 	/* background-color: #F4FFF4; */
-	background-color: #ffe284; 
+	background-color: #ffe284;
 	/* padding: 0px 3px 0px 3px; */
 }
 

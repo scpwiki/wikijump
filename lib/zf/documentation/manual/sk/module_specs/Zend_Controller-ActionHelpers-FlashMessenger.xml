@@ -11,7 +11,7 @@
             nasledujúcu požiadavku. Vo všeobecnosti je dobré ak sa použije
             <code>Zend_Session</code> alebo <code>Zend_Session_Namespace</code>,
             ktoré sa inicializuje pomocou <code>Zend_Session::start()</code>
-            (pre viac detailov o používaní pozri 
+            (pre viac detailov o používaní pozri
             <link linkend="zend.session.startingasession">Zend Session</link>)
         </para>
 

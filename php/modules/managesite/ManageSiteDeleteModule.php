@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -28,18 +28,18 @@ use DB\AdminPeer;
 use DB\OzoneUserPeer;
 
 class ManageSiteDeleteModule extends ManageSiteBaseModule {
-	
+
 	public function build($runData){
 		$site = $runData->getTemp("site");
 		$user = $runData->getUser();
 		$runData->contextAdd("site", $site);
-		
+
 		$c = new Criteria();
 		$c->add("user_id", $user->getUserId());
 		$c->add("site_id", $site->getSiteId());
 		$c->add("founder", true);
 		$rel = AdminPeer::instance()->selectOne($c);
-		
+
 		if($rel){
 			$runData->contextAdd('allowed', true);
 		}else{
@@ -52,5 +52,5 @@ class ManageSiteDeleteModule extends ManageSiteBaseModule {
 		}
 
 	}
-	
+
 }

@@ -1,8 +1,8 @@
 @import "../../dojo/resources/dojo.css";
 @import "../../dijit/themes/dijit.css";
 @import "../../dijit/themes/tundra/form/Button.css";
-@import "../../dijit/tests/css/dijitTests.css"; 
-@import "../../dojox/form/resources/FileInput.css"; 
+@import "../../dijit/tests/css/dijitTests.css";
+@import "../../dojox/form/resources/FileInput.css";
 
 #wrapper{
 	width:100%;

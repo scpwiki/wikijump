@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Web
  * @version $Id$
@@ -25,18 +25,18 @@
 
 
 /**
- * TemplateServiceManager is a TemplateService for accessing 
+ * TemplateServiceManager is a TemplateService for accessing
  * on-demand (not autoloaded) services.
  */
 class TemplateServiceManager extends TemplateService{
 	protected $serviceName = "serviceManager";
 	private $runData;
 	protected $storage = array();
-	
+
 	public function __construct($runData){
 		$this->runData = $runData;
 	}
-	
+
 	public function getService($className){
 		if(isset($this->storage["$className"])){
 			return 	$this->storage["$className"];
@@ -47,5 +47,5 @@ class TemplateServiceManager extends TemplateService{
 			return $instance;
 		}
 	}
-	
+
 }

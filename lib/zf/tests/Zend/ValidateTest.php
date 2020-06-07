@@ -160,10 +160,10 @@ class Zend_ValidateTest extends PHPUnit_Framework_TestCase
 
     /**
      * Handle file not found errors
-     * 
+     *
      * @group  ZF-2724
-     * @param  int $errnum 
-     * @param  string $errstr 
+     * @param  int $errnum
+     * @param  string $errstr
      * @return void
      */
     public function handleNotFoundError($errnum, $errstr)

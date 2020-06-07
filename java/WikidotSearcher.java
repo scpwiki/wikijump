@@ -7,13 +7,13 @@ import org.apache.lucene.search.Query;
 
 public class WikidotSearcher {
 	public static void main(String[] args) {
-		
+
 		if (args.length != 2) {
 			System.err.println("Usage:");
 			System.err.println("  java -jar lucene_search.jar <index_dir> <search_query>");
 			return;
 		}
-		
+
 		try {
 			String indexPath = args[0];
 			String queryString = args[1];
@@ -24,12 +24,12 @@ public class WikidotSearcher {
 
 			Hits hits = indexSearcher.search(query);
 			int hitCount = hits.length();
-			
+
 			for (int i = 0; i < hitCount; i++) {
 				Document doc = hits.doc(i);
 				System.out.println(doc.get("fts_id"));
 			}
-			
+
 		} catch (Exception e) {
 			System.err.println("Exception: " + e.getMessage());
 			e.printStackTrace();

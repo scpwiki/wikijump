@@ -1,7 +1,7 @@
 .dojoxFloatingPane {
 	background-color:#fff;
-	position:relative; 
-	border: 1px solid #dedede; 
+	position:relative;
+	border: 1px solid #dedede;
 	overflow: hidden;
 	-webkit-box-shadow: 0px 5px 10px #adadad;
 }
@@ -32,25 +32,25 @@
 .tundra .dojoxFloatingPaneTitle {
 	background:#fafafa url("../../../dijit/themes/tundra/images/titleBarBg.gif") repeat-x bottom left;
 	border:1px solid #bfbfbf;
-	color:#000; 	
+	color:#000;
 }
 
 
 /* Icons */
 .dojoxFloatingCloseIcon {
-	background:url('../../../dijit/themes/tundra/images/tabClose.png') no-repeat center center; 
+	background:url('../../../dijit/themes/tundra/images/tabClose.png') no-repeat center center;
 	width:16px;
-	height:16px; 
+	height:16px;
 	overflow:hidden;
-	float:right; 
+	float:right;
 }
 
 .dojoxFloatingMinimizeIcon {
-	background:url('../../../dijit/themes/tundra/images/spriteArrows.png') no-repeat 0px center; 
+	background:url('../../../dijit/themes/tundra/images/spriteArrows.png') no-repeat 0px center;
 	width:7px;
 	margin: 0px 4px;
 	overflow:hidden;
-	float:right; 
+	float:right;
 }
 .soria .dojoxFloatingMinimizeIcon {
 		background:url("../../../dijit/themes/soria/images/spriteRoundedIconsSmallBl.png") no-repeat -15px top;
@@ -63,7 +63,7 @@
 	width:7px;
 	margin: 0px 4px;
 	overflow:hidden;
-	float:right;	
+	float:right;
 }
 .soria .dojoxFloatingMaximizeIcon {
 	background:url("../../../dijit/themes/soria/images/spriteRoundedIconsSmallBl.png") no-repeat -45px top;
@@ -71,7 +71,7 @@
 
 .floatingPaneMaximized .dojoxFloatingRestoreIcon { display:inline; }
 .dojoxFloatingRestoreIcon {
-	background:url('../../../dijit/themes/tundra/images/spriteArrows.png') no-repeat 0px center; 
+	background:url('../../../dijit/themes/tundra/images/spriteArrows.png') no-repeat 0px center;
 	width:7px;
 	margin: 0px 4px;
 	float:right;
@@ -80,19 +80,19 @@
 
 .dojoxFloatingResizeHandle {
 	background:url('icons/resize.png') no-repeat bottom right;
-	position:absolute; 
-	right:0; 
-	bottom:0; 	
+	position:absolute;
+	right:0;
+	bottom:0;
 	width:16px;
-	height:16px; 
+	height:16px;
 	cursor:nw-resize;
 }
 
 .dojoxFloatingCloseIcon {
 	width:15px;
-	height:15px; 
+	height:15px;
 	overflow:hidden;
-	float:right; 
+	float:right;
 	cursor:pointer;
 }
 
@@ -101,7 +101,7 @@
 }
 
 .tundra .dojoxFloatingCloseIcon {
-	background:url('../../../dijit/themes/tundra/images/tabClose.png') no-repeat center center; 	
+	background:url('../../../dijit/themes/tundra/images/tabClose.png') no-repeat center center;
 }
 
 /* our un-used dock styles for now */
@@ -109,16 +109,16 @@
 	position:absolute;
 	bottom:0px;
 	left:0px;
-	overflow:hidden; 
+	overflow:hidden;
 	margin:0;
-	margin-bottom:3px; 
-	padding:0px; 
+	margin-bottom:3px;
+	padding:0px;
 	width:100%;
 	z-index:99; /* position the dock _just_ below the lowest pane */
 
 	background:transparent;
-	/* background-color:#fff; 
-	border-top:1px solid #ccc; 
+	/* background-color:#fff;
+	border-top:1px solid #ccc;
 	*/
 }
 
@@ -130,9 +130,9 @@
 .dojoxDockRestoreButton {
 	background:url('../../../dijit/themes/tundra/images/arrowUp.png') no-repeat center center;
 	width:16px; height:16px;
-	overflow:hidden; 
+	overflow:hidden;
 	float:left;
-	margin-top:2px; 
+	margin-top:2px;
 }
 .soria .dojoxDockRestoreButton {
 	background:url("../../../dijit/themes/soria/images/spriteRoundedIconsSmallBl.png") no-repeat -45px top;
@@ -158,7 +158,7 @@
 	border-radius: 2px;
 	-webkit-border-radius: 2px;
 	-moz-border-radius: 3px;
-	cursor:pointer; 
+	cursor:pointer;
 	list-style: none;
 	padding: 2px;
 	margin: 0px;
@@ -173,9 +173,9 @@
 
 .dojoxFloatingPaneContent {
 	overflow: auto;
-	background-color: #fff; 
-	height: 100%; 
-	width:	100%; 
+	background-color: #fff;
+	height: 100%;
+	width:	100%;
 }
 
 .dojoxFloatingPaneCanvas {

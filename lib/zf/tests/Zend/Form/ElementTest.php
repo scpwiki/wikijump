@@ -700,7 +700,7 @@ class Zend_Form_ElementTest extends PHPUnit_Framework_TestCase
         $this->element->addValidators(array(
             'NotEmpty',
             'Alnum',
-            'Digits', 
+            'Digits',
         ));
 
         $validator  = $this->element->getValidator('Alnum');
@@ -1147,7 +1147,7 @@ class Zend_Form_ElementTest extends PHPUnit_Framework_TestCase
         $this->element->addFilters(array(
             'Alpha',
             'Alnum',
-            'Digits', 
+            'Digits',
         ));
 
         $filter  = $this->element->getFilter('Alnum');

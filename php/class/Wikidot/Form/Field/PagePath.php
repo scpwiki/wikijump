@@ -42,7 +42,7 @@ class PagePath extends WikiBase {
             foreach ($path as $part) {
                 $select = "<select>";
                 $select .= '<option value=""></option>';
-                
+
                 $pages = $this->selectPagesByParent($categoryId, $parentId);
                 $parentId = null;
                 foreach ($pages as $page) {
@@ -69,7 +69,7 @@ class PagePath extends WikiBase {
         for ($i = 1; $i < count($selects); $i++) {
             $selectsEnd .= '</span>';
         }
-        
+
         return '<div class="field-pagepath-chooser">' .
             '<input class="value" type="hidden" name="field_' . $this->field['name'] . '" value="' . $this->hvalue() . '"/>' .
             '<input class="category" type="hidden" value="' . $this->field['category'] . '"/>' .

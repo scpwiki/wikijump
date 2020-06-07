@@ -31,7 +31,7 @@ require_once 'Zend/Form/Decorator/Abstract.php';
  * - separator: Separator to use between elements
  *
  * Any other options passed will be used as HTML attributes of the form tag.
- * 
+ *
  * @category   Zend
  * @package    Zend_Form
  * @subpackage Decorator
@@ -64,7 +64,7 @@ class Zend_Form_Decorator_FormElements extends Zend_Form_Decorator_Abstract
     /**
      * Render form elements
      *
-     * @param  string $content 
+     * @param  string $content
      * @return string
      */
     public function render($content)

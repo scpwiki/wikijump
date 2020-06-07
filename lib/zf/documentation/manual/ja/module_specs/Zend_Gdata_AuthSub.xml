@@ -78,7 +78,7 @@ $my_calendar = 'http://www.google.com/calendar/feeds/default/private/full';
 if (!isset($_SESSION['cal_token'])) {
     if (isset($_GET['token'])) {
         // single-use トークンをセッショントークンに変換します
-        $session_token = 
+        $session_token =
             Zend_Gdata_AuthSub::getAuthSubSessionToken($_GET['token']);
         // セッショントークンをセッションに保存します
         $_SESSION['cal_token'] = $session_token;

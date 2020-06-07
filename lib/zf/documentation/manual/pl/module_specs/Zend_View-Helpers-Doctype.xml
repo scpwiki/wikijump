@@ -2,16 +2,16 @@
     <title>Helper Doctype</title>
 
     <para>
-        Poprawne dokumenty HTML oraz XHTML powinny zawierać deklarację typu 
-        dokumentu <code>DOCTYPE</code>. Oprócz tego, że wszystkie rodzaje 
-        deklaracji trudno jest zapamiętać, to wyświetlanie niektórych elementów 
-        w dokumencie może zależeć od jego typu (przykładowo, użycie CDATA w 
-        elementach <code>&lt;script&gt;</code> czy w elementach 
+        Poprawne dokumenty HTML oraz XHTML powinny zawierać deklarację typu
+        dokumentu <code>DOCTYPE</code>. Oprócz tego, że wszystkie rodzaje
+        deklaracji trudno jest zapamiętać, to wyświetlanie niektórych elementów
+        w dokumencie może zależeć od jego typu (przykładowo, użycie CDATA w
+        elementach <code>&lt;script&gt;</code> czy w elementach
         <code>&lt;style&gt;</code>).
     </para>
 
     <para>
-        Helper <code>Doctype</code> pozwala ci na określenie jedno z 
+        Helper <code>Doctype</code> pozwala ci na określenie jedno z
         następujących typów:
     </para>
 
@@ -31,7 +31,7 @@
     </para>
 
     <para>
-        Helper <code>Doctype</code> jest implementacją 
+        Helper <code>Doctype</code> jest implementacją
         <link linkend="zend.view.helpers.initial.placeholder">helpera Placeholder
             </link>.
     </para>
@@ -40,10 +40,10 @@
         <title>Podstawowe użycie helpera Doctype</title>
 
         <para>
-            Możesz określić typ dokumentu w dowolnej chwili. 
-            Jednak helpery których działania zależy od typu dokumentu mogą 
+            Możesz określić typ dokumentu w dowolnej chwili.
+            Jednak helpery których działania zależy od typu dokumentu mogą
             sprawdzić ten typ tylko pod warunkiem że go wcześniej określisz,
-            więc najlepiej będzie jak określisz typ dokumentu w pliku 
+            więc najlepiej będzie jak określisz typ dokumentu w pliku
             uruchamiającym:
         </para>
 
@@ -52,16 +52,16 @@ $doctypeHelper = new Zend_View_Helper_Doctype();
 $doctypeHelper->doctype('XHTML1_STRICT');
 ]]>
         </programlisting>
-        
+
         <para>
             I teraz wyświetl definicję typu dokumentu w swoim skrypcie layoutu:
         </para>
-        
+
         <programlisting role="php"><![CDATA[
 <?php echo $this->doctype() ?>
 ]]>
         </programlisting>
-        
+
     </example>
 
     <example id="zend.view.helpers.initial.doctype.retrieving">
@@ -79,7 +79,7 @@ $doctype = $view->doctype()->getDoctype();
         </programlisting>
 
         <para>
-            Najczęściej będzie potrzebował sprawdzić czy dany typ dokumentu jest 
+            Najczęściej będzie potrzebował sprawdzić czy dany typ dokumentu jest
             typem XHTML czy nie; do tego wystarczy metoda <code>isXhtml()</code>:
         </para>
 

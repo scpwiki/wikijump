@@ -38,14 +38,14 @@ class Zend_Config_Writer_Ini extends Zend_Config_Writer
      * @var string
      */
     protected $_filename = null;
-        
+
     /**
      * String that separates nesting levels of configuration data identifiers
      *
      * @var string
      */
     protected $_nestSeparator = '.';
-    
+
     /**
      * Set the target filename
      *
@@ -55,10 +55,10 @@ class Zend_Config_Writer_Ini extends Zend_Config_Writer
     public function setFilename($filename)
     {
         $this->_filename = $filename;
-        
+
         return $this;
     }
-    
+
     /**
      * Set the nest separator
      *
@@ -68,10 +68,10 @@ class Zend_Config_Writer_Ini extends Zend_Config_Writer
     public function setNestSeparator($separator)
     {
         $this->_nestSeparator = $separator;
-        
+
         return $this;
     }
-    
+
     /**
      * Defined by Zend_Config_Writer
      *
@@ -86,41 +86,41 @@ class Zend_Config_Writer_Ini extends Zend_Config_Writer
         if ($filename !== null) {
             $this->setFilename($filename);
         }
-        
+
         if ($config !== null) {
             $this->setConfig($config);
         }
-        
+
         if ($this->_filename === null) {
             require_once 'Zend/Config/Exception.php';
             throw new Zend_Config_Exception('No filename was set');
         }
-        
+
         if ($this->_config === null) {
             require_once 'Zend/Config/Exception.php';
             throw new Zend_Config_Exception('No config was set');
         }
-        
+
         $iniString   = '';
         $extends     = $this->_config->getExtends();
         $sectionName = $this->_config->getSectionName();
-        
+
         if (is_string($sectionName)) {
             $iniString .= '[' . $sectionName . ']' . "\n"
                        .  $this->_addBranch($this->_config)
                        .  "\n";
-        } else {       
+        } else {
             foreach ($this->_config as $sectionName => $data) {
                 if (isset($extends[$sectionName])) {
                     $sectionName .= ' : ' . $extends[$sectionName];
                 }
-                
+
                 $iniString .= '[' . $sectionName . ']' . "\n"
                            .  $this->_addBranch($data)
                            .  "\n";
             }
         }
-       
+
         $result = @file_put_contents($this->_filename, $iniString);
 
         if ($result === false) {
@@ -128,7 +128,7 @@ class Zend_Config_Writer_Ini extends Zend_Config_Writer
             throw new Zend_Config_Exception('Could not write to file "' . $this->_filename . '"');
         }
     }
-    
+
     /**
      * Add a branch to an INI string recursively
      *
@@ -141,7 +141,7 @@ class Zend_Config_Writer_Ini extends Zend_Config_Writer
 
         foreach ($config as $key => $value) {
             $group = array_merge($parents, array($key));
-            
+
             if ($value instanceof Zend_Config) {
                 $iniString .= $this->_addBranch($value, $group);
             } else {
@@ -151,10 +151,10 @@ class Zend_Config_Writer_Ini extends Zend_Config_Writer
                            .  "\n";
             }
         }
-        
+
         return $iniString;
     }
-    
+
     /**
      * Prepare a value for INI
      *

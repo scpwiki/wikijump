@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -36,33 +36,33 @@ class ManageSiteEmailListSubscribersModule extends ManageSiteBaseModule {
 
 		$db = Database::connection();
 		$db->begin();
-	
-		// get the list		
+
+		// get the list
 		$c= new Criteria();
 		$c->add('site_id', $site->getSiteId());
 		$c->add('list_id', $listId);
-		
+
 		$list = DB_EmailListPeer::instance()->selectOne($c);
-		
+
 		if(!$list){
 			throw new ProcessException('The requested list  cannot be found.');
 		}
-		
+
 		// get all subscribers
 		$q = "SELECT ozone_user.* FROM email_list_subscriber, ozone_user WHERE ".
 			"email_list_subscriber.list_id = '{$list->getListId()}' AND email_list_subscriber.user_id = ozone_user.user_id " .
 			"ORDER BY ozone_user.nick_name";
-			
+
 		$c = new Criteria();
 		$c->setExplicitQuery($q);
-		
+
 		$users = OzoneUserPeer::instance()->select($c);
-		
+
 		$runData->contextAdd('users', $users);
-		
+
 		$runData->contextAdd('list',$list);
 		$runData->contextAdd('site', $site);
 
 	}
-	
+
 }

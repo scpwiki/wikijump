@@ -71,7 +71,7 @@ class Zend_Controller_Router_Route_RegexTest extends PHPUnit_Framework_TestCase
     {
         $route = new Zend_Controller_Router_Route_Regex('users/(.+)');
         $values = $route->match('users/martel');
-        
+
         $this->assertSame(1, count($values));
         $this->assertSame('martel', $values[1]);
     }
@@ -80,7 +80,7 @@ class Zend_Controller_Router_Route_RegexTest extends PHPUnit_Framework_TestCase
     {
         $route = new Zend_Controller_Router_Route_Regex('users/(user_(\d+).html)');
         $values = $route->match('users/user_1354.html');
-        
+
         $this->assertSame(2, count($values));
         $this->assertSame('user_1354.html', $values[1]);
         $this->assertSame('1354', $values[2]);
@@ -89,13 +89,13 @@ class Zend_Controller_Router_Route_RegexTest extends PHPUnit_Framework_TestCase
     public function testNegativeMatch()
     {
 
-        $route = new Zend_Controller_Router_Route_Regex('((?!admin|moderator).+)', 
+        $route = new Zend_Controller_Router_Route_Regex('((?!admin|moderator).+)',
            array('module' => 'index', 'controller' => 'index'),
            array(1 => 'action')
         );
 
         $values = $route->match('users');
-        
+
         $this->assertSame(3, count($values));
         $this->assertSame('index', $values['module']);
         $this->assertSame('index', $values['controller']);
@@ -106,25 +106,25 @@ class Zend_Controller_Router_Route_RegexTest extends PHPUnit_Framework_TestCase
     {
         $route = new Zend_Controller_Router_Route_Regex('users/?(.+)?', array(1 => 'martel'));
         $values = $route->match('users');
-        
+
         $this->assertSame(1, count($values));
         $this->assertSame('martel', $values[1]);
     }
-    
+
     public function testVariableMatchWithNumericDefault()
     {
         $route = new Zend_Controller_Router_Route_Regex('users/?(.+)?', array(1 => 'martel'));
         $values = $route->match('users/vicki');
-        
+
         $this->assertSame(1, count($values));
         $this->assertSame('vicki', $values[1]);
     }
-    
+
     public function testNamedVariableMatch()
     {
         $route = new Zend_Controller_Router_Route_Regex('users/(?P<username>.+)');
         $values = $route->match('users/martel');
-        
+
         $this->assertSame(1, count($values));
         $this->assertSame('martel', $values[1]);
     }
@@ -133,25 +133,25 @@ class Zend_Controller_Router_Route_RegexTest extends PHPUnit_Framework_TestCase
     {
         $route = new Zend_Controller_Router_Route_Regex('users/(.+)', null, array(1 => 'username'));
         $values = $route->match('users/martel');
-        
+
         $this->assertSame(1, count($values));
         $this->assertSame('martel', $values['username']);
     }
-    
+
     public function testMappedVariableWithDefault()
     {
         $route = new Zend_Controller_Router_Route_Regex('users(?:/(.+))?', array('username' => 'martel'), array(1 => 'username'));
         $values = $route->match('users');
-        
+
         $this->assertSame(1, count($values));
         $this->assertSame('martel', $values['username']);
     }
-    
+
     public function testMappedVariableWithNamedSubpattern()
     {
         $route = new Zend_Controller_Router_Route_Regex('users/(?P<name>.+)', null, array(1 => 'username'));
         $values = $route->match('users/martel');
-        
+
         $this->assertSame(1, count($values));
         $this->assertSame('martel', $values['username']);
     }
@@ -160,36 +160,36 @@ class Zend_Controller_Router_Route_RegexTest extends PHPUnit_Framework_TestCase
     {
         $route = new Zend_Controller_Router_Route_Regex('users/(\w+)/?(?:p/(\d+))?', null, array(1 => 'username', 2 => 'page'));
         $values = $route->match('users/martel/p/1');
-        
+
         $this->assertSame(2, count($values));
         $this->assertSame('martel', $values['username']);
         $this->assertSame('1', $values['page']);
     }
-    
+
     public function testEmptyOptionalVar()
     {
         $route = new Zend_Controller_Router_Route_Regex('users/(\w+)/?(?:p/(\d+))?', null, array(1 => 'username', 2 => 'page'));
         $values = $route->match('users/martel');
-        
+
         $this->assertSame(1, count($values));
         $this->assertSame('martel', $values['username']);
     }
-    
+
     public function testMixedMap()
     {
         $route = new Zend_Controller_Router_Route_Regex('users/(\w+)/?(?:p/(\d+))?', null, array(1 => 'username'));
         $values = $route->match('users/martel/p/1');
-        
+
         $this->assertSame(2, count($values));
         $this->assertSame('martel', $values['username']);
         $this->assertSame('1', $values[2]);
     }
-    
+
     public function testNumericDefaultWithMap()
     {
         $route = new Zend_Controller_Router_Route_Regex('users/?(.+)?', array(1 => 'martel'), array(1 => 'username'));
         $values = $route->match('users');
-        
+
         $this->assertSame(1, count($values));
         $this->assertSame('martel', $values['username']);
     }
@@ -198,58 +198,58 @@ class Zend_Controller_Router_Route_RegexTest extends PHPUnit_Framework_TestCase
     {
         $route = new Zend_Controller_Router_Route_Regex('users/(\w+)/?(?:p/(\d+))?', array(2 => '1'), array(1 => 'username'));
         $values = $route->match('users/martel/p/10');
-        
+
         $this->assertSame(2, count($values));
         $this->assertSame('martel', $values['username']);
         $this->assertSame('10', $values[2]);
     }
-    
+
     public function testMixedMapWithDefaults2()
     {
         $route = new Zend_Controller_Router_Route_Regex('users/?(\w+)?/?(?:p/(\d+))?', array(2 => '1', 'username' => 'martel'), array(1 => 'username'));
         $values = $route->match('users');
-        
+
         $this->assertSame(2, count($values));
         $this->assertSame('martel', $values['username']);
         $this->assertSame('1', $values[2]);
     }
-    
+
     public function testOptionalVarWithMapAndDefault()
     {
         $route = new Zend_Controller_Router_Route_Regex('users/(\w+)/?(?:p/(\d+))?', array('page' => '1', 'username' => 'martel'), array(1 => 'username', 2 => 'page'));
         $values = $route->match('users/martel');
-        
+
         $this->assertSame(2, count($values));
         $this->assertSame('martel', $values['username']);
         $this->assertSame('1', $values['page']);
     }
-    
+
     public function testOptionalVarWithMapAndNumericDefault()
     {
         $route = new Zend_Controller_Router_Route_Regex('users/(\w+)/?(?:p/(\d+))?', array(2 => '1'), array(2 => 'page'));
         $values = $route->match('users/martel');
-        
+
         $this->assertSame(2, count($values));
         $this->assertSame('martel', $values[1]);
         $this->assertSame('1', $values['page']);
     }
-    
+
     public function testMappedAndNumericDefault()
     {
         $route = new Zend_Controller_Router_Route_Regex('users/?(\w+)?', array(1 => 'martel', 'username' => 'vicki'), array(1 => 'username'));
         $values = $route->match('users');
 
         // Matches both defaults but the one defined last is used
-        
+
         $this->assertSame(1, count($values));
         $this->assertSame('vicki', $values['username']);
     }
-    
+
     public function testAssemble()
     {
         $route = new Zend_Controller_Router_Route_Regex('users/(.+)', null, array(1 => 'username'), 'users/%s');
         $values = $route->match('users/martel');
-        
+
         $url = $route->assemble();
         $this->assertSame('users/martel', $url);
     }
@@ -258,51 +258,51 @@ class Zend_Controller_Router_Route_RegexTest extends PHPUnit_Framework_TestCase
     {
         $route = new Zend_Controller_Router_Route_Regex('users/?(.+)?', array(1 => 'martel'), null, 'users/%s');
         $values = $route->match('users');
-        
+
         $url = $route->assemble();
         $this->assertSame('users/martel', $url);
     }
-    
+
     public function testAssembleWithMappedDefault()
     {
         $route = new Zend_Controller_Router_Route_Regex('users/?(.+)?', array('username' => 'martel'), array(1 => 'username'), 'users/%s');
         $values = $route->match('users');
-        
+
         $url = $route->assemble();
         $this->assertSame('users/martel', $url);
     }
-    
+
     public function testAssembleWithData()
     {
         $route = new Zend_Controller_Router_Route_Regex('users/(.+)', null, null, 'users/%s');
         $values = $route->match('users/martel');
-        
+
         $url = $route->assemble(array(1 => 'vicki'));
         $this->assertSame('users/vicki', $url);
     }
-    
+
     public function testAssembleWithMappedVariable()
     {
         $route = new Zend_Controller_Router_Route_Regex('users/(.+)', null, array(1 => 'username'), 'users/%s');
         $values = $route->match('users/martel');
-        
+
         $url = $route->assemble(array('username' => 'vicki'));
         $this->assertSame('users/vicki', $url);
     }
-    
+
     public function testAssembleWithMappedVariableAndNumericKey()
     {
         $route = new Zend_Controller_Router_Route_Regex('users/(.+)', null, array(1 => 'username'), 'users/%s');
         $values = $route->match('users/martel');
-        
+
         $url = $route->assemble(array(1 => 'vicki'));
         $this->assertSame('users/vicki', $url);
     }
-    
+
     public function testAssembleWithoutMatch()
     {
         $route = new Zend_Controller_Router_Route_Regex('users/(.+)', null, null, 'users/%s');
-        
+
         try {
             $url = $route->assemble();
             $this->fail();
@@ -312,36 +312,36 @@ class Zend_Controller_Router_Route_RegexTest extends PHPUnit_Framework_TestCase
     public function testAssembleWithDefaultWithoutMatch()
     {
         $route = new Zend_Controller_Router_Route_Regex('users/?(.+)?', array(1 => 'martel'), null, 'users/%s');
-        
+
         $url = $route->assemble();
         $this->assertSame('users/martel', $url);
     }
-    
+
     public function testAssembleWithMappedDefaultWithoutMatch()
     {
         $route = new Zend_Controller_Router_Route_Regex('users/?(.+)?', array('username' => 'martel'), array(1 => 'username'), 'users/%s');
-        
+
         $url = $route->assemble();
         $this->assertSame('users/martel', $url);
     }
-    
+
     public function testAssembleWithDataWithoutMatch()
     {
         $route = new Zend_Controller_Router_Route_Regex('users/(.+)', null, null, 'users/%s');
-        
+
         $url = $route->assemble(array(1 => 'vicki'));
         $this->assertSame('users/vicki', $url);
     }
-    
+
     public function testAssembleWithMappedVariableWithoutMatch()
     {
         $route = new Zend_Controller_Router_Route_Regex('users/(.+)', null, array(1 => 'username'), 'users/%s');
-        
+
         $url = $route->assemble(array('username' => 'vicki'));
         $this->assertSame('users/vicki', $url);
     }
-    
-    
+
+
     public function testAssembleZF1332()
     {
         $route = new Zend_Controller_Router_Route_Regex(
@@ -350,18 +350,18 @@ class Zend_Controller_Router_Route_RegexTest extends PHPUnit_Framework_TestCase
             array(1 => 'name', 2 => 'id', 3 => 'class'),
             '%s.%s-%s.html'
          );
-        
+
         $route->match('uml-explained-composition.72-3.html');
-                
+
         $url = $route->assemble();
 
         $this->assertSame('uml-explained-composition.72-3.html', $url);
 
         $url = $route->assemble(array('name' => 'post_name', 'id' => '12', 'class' => 5));
-        
+
         $this->assertSame('post_name.12-5.html', $url);
     }
-    
+
     public function testGetInstance()
     {
         require_once 'Zend/Config.php';
@@ -376,12 +376,12 @@ class Zend_Controller_Router_Route_RegexTest extends PHPUnit_Framework_TestCase
         /* numeric Zend_Config indexes don't work at the moment
             'map' => array(
                 '1' => 'forum_id'
-            )  
+            )
         */
-        
+
         $config = new Zend_Config($routeConf);
         $route = Zend_Controller_Router_Route_Regex::getInstance($config);
-        
+
         $this->assertType('Zend_Controller_Router_Route_Regex', $route);
 
         $values = $route->match('forum/1');
@@ -389,11 +389,11 @@ class Zend_Controller_Router_Route_RegexTest extends PHPUnit_Framework_TestCase
         $this->assertSame('ctrl', $values['controller']);
 
     }
-    
+
     /**
      * @issue ZF-2301
      */
-    public function testAssemblyOfRouteWithMergedMatchedParts() 
+    public function testAssemblyOfRouteWithMergedMatchedParts()
     {
         $route = new Zend_Controller_Router_Route_Regex(
             'itemlist(?:/(\d+))?',
@@ -401,25 +401,25 @@ class Zend_Controller_Router_Route_RegexTest extends PHPUnit_Framework_TestCase
             array(1 => 'page'), // Parameter map
             'itemlist/%d'
         );
-        
+
         // make sure defaults work
         $this->assertEquals(array('page' => 1), $route->match('/itemlist/'));
-        
+
         // make sure default assembly work
         $this->assertEquals('itemlist/1', $route->assemble());
-        
+
         // make sure the route is parsed correctly
         $this->assertEquals(array('page' => 2), $route->match('/itemlist/2'));
-        
+
         // check to make sure that the default assembly will return with default 1 (previously defined)
         $this->assertEquals('itemlist/2', $route->assemble());
-        
+
         // check to make sure that the assembly will return with provided page=3 in the correct place
         $this->assertEquals('itemlist/3', $route->assemble(array('page' => 3)));
-        
+
         // check to make sure that the assembly can reset a single parameter
         $this->assertEquals('itemlist/1', $route->assemble(array('page' => null)));
-        
+
     }
 
     /**
@@ -446,5 +446,5 @@ class Zend_Controller_Router_Route_RegexTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals($url, $expectedUrl, 'Assembled url isn\'t encoded properly when using the encode parameter.');
     }
-    
+
 }

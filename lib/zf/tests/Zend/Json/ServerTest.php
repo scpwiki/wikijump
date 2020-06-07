@@ -14,7 +14,7 @@ require_once 'Zend/Json.php';
 /**
  * Test class for Zend_Json_Server
  */
-class Zend_Json_ServerTest extends PHPUnit_Framework_TestCase 
+class Zend_Json_ServerTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.
@@ -381,10 +381,10 @@ class Zend_Json_ServerTest_Foo
 {
     /**
      * Bar
-     * 
-     * @param  bool $one 
-     * @param  string $two 
-     * @param  mixed $three 
+     *
+     * @param  bool $one
+     * @param  string $two
+     * @param  mixed $three
      * @return array
      */
     public function bar($one, $two = 'two', $three = null)
@@ -394,7 +394,7 @@ class Zend_Json_ServerTest_Foo
 
     /**
      * Baz
-     * 
+     *
      * @return void
      */
     public function baz()
@@ -405,7 +405,7 @@ class Zend_Json_ServerTest_Foo
 
 /**
  * Test function for JSON-RPC server
- * 
+ *
  * @return bool
  */
 function Zend_Json_ServerTest_FooFunc()

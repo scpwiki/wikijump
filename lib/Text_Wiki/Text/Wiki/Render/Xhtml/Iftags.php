@@ -21,7 +21,7 @@
 class Text_Wiki_Render_Xhtml_Iftags extends Text_Wiki_Render {
 
     function token($options){
-       
+
        	return '';
     }
 }

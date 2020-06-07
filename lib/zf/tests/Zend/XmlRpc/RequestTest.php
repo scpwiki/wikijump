@@ -10,7 +10,7 @@ require_once 'PHPUnit/Framework/IncompleteTestError.php';
  * @subpackage UnitTests
  * @version $Id: RequestTest.php 4901 2007-05-23 15:46:16Z matthew $
  */
-class Zend_XmlRpc_RequestTest extends PHPUnit_Framework_TestCase 
+class Zend_XmlRpc_RequestTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Zend_XmlRpc_Request object
@@ -21,7 +21,7 @@ class Zend_XmlRpc_RequestTest extends PHPUnit_Framework_TestCase
     /**
      * Setup environment
      */
-    public function setUp() 
+    public function setUp()
     {
         $this->_request = new Zend_XmlRpc_Request();
     }
@@ -29,7 +29,7 @@ class Zend_XmlRpc_RequestTest extends PHPUnit_Framework_TestCase
     /**
      * Teardown environment
      */
-    public function tearDown() 
+    public function tearDown()
     {
         unset($this->_request);
     }
@@ -59,14 +59,14 @@ class Zend_XmlRpc_RequestTest extends PHPUnit_Framework_TestCase
         $r = new Zend_XmlRpc_Request();
         $this->assertEquals('', $r->getMethod());
         $this->assertEquals(array(), $r->getParams());
-        
+
         $method = 'foo.bar';
         $params = array('baz', 1, array('foo' => 'bar'));
         $r = new Zend_XmlRpc_Request($method, $params);
         $this->assertEquals($method, $r->getMethod());
         $this->assertEquals($params, $r->getParams());
     }
-    
+
 
     /**
      * addParam()/getParams() test
@@ -185,8 +185,8 @@ class Zend_XmlRpc_RequestTest extends PHPUnit_Framework_TestCase
 
     /**
      * helper for saveXML() and __toString() tests
-     * 
-     * @param string $xml 
+     *
+     * @param string $xml
      * @return void
      */
     protected function _testXmlRequest($xml, $argv)

@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,26 +27,26 @@
 use DB\PrivateMessage;
 
 class PMPreviewModule extends AccountBaseModule {
-	
+
 	public function build($runData){
 
 		$pl = $runData->getParameterList();
 		$source = $pl->getParameterValue("source");
 		$subject = $pl->getParameterValue("subject");
 		$toUserId = $pl->getParameterValue("to_user_id");
-			
+
 		$wt = new WikiTransformation();
 		$wt->setMode('pm');
 		$result = $wt->processSource($source);
-		
+
 		$body = $result;
-		
+
 		$message = new PrivateMessage();
 		$message->setFromUserId($runData->getUserId());
 		$message->setToUserId($toUserId);
 		$message->setBody($body);
 		$message->setSubject($subject);
-		
+
 		$runData->contextAdd("message", $message);
 
 	}

@@ -6,15 +6,15 @@
         Zend Framework wymaga interpretera PHP 5 z serwerem pozwalającym na
         poprawną obsługę skryptów PHP. Niektóre funkcjonalności wymagają
         dodatkowych rozszerzeń lub funkcji serwera; w większości przypadków
-        framework może być użyty bez nich, jednak może ucierpieć na tym 
+        framework może być użyty bez nich, jednak może ucierpieć na tym
         wydajność, a niektóre poboczne fukncjonalności mogą nie działać w pełni
-        sprawnie. Przykładem takiej zależności jest rozszerzenie mod_rewrite 
+        sprawnie. Przykładem takiej zależności jest rozszerzenie mod_rewrite
         serwera Apache, które może być użyte do utworzenia "przyjaznych URL" jak
         "http://www.example.com/user/edit". Jeśli rozszerzenie mod_rewrite nie
         jest aktywne, ZF może być skonfigurowany w taki sposób aby obsłużyć
-        adresy URL w postaci "http://www.example.com?controller=user&amp;action=edit". 
+        adresy URL w postaci "http://www.example.com?controller=user&amp;action=edit".
         Przyjazen URL mogą być użyte aby skrócić adresy w celu polepszenia ich
-        czytelności lub dla potrzeb optymalizacji pod kątem wyszukiwarek 
+        czytelności lub dla potrzeb optymalizacji pod kątem wyszukiwarek
         internetowych (SEO), jednak nie mają one bezpośredniego wpływu na
         funkcjonalność aplikacji.
     </para>
@@ -24,13 +24,13 @@
         <title>Wersja PHP</title>
 
         <para>
-            Zend zaleca wersję PHP 5.2.3 lub wyższą z powodu znacznego zwiększenia 
-            bezpieczeństwa i wydajności, jednak Zend Framework do działania 
+            Zend zaleca wersję PHP 5.2.3 lub wyższą z powodu znacznego zwiększenia
+            bezpieczeństwa i wydajności, jednak Zend Framework do działania
             wymaga wersji PHP 5.1.4 lub wyższej.
         </para>
 
         <para>
-            Zend Framework posiada obszerny zestaw testów jednostkowych, które 
+            Zend Framework posiada obszerny zestaw testów jednostkowych, które
             możesz uruchomić za pomocą biblioteki PHPUnit 3.0 lub wyższej.
         </para>
 
@@ -41,7 +41,7 @@
         <title>Rozszerzenia PHP</title>
 
         <para>
-            Poniżej znajdziesz tabelę wypisującą wszystkie typowe rozszerzenia 
+            Poniżej znajdziesz tabelę wypisującą wszystkie typowe rozszerzenia
             jakie można znaleźć w PHP i opisującą w jaki sposób są użyte w
             Zend Framework. Powinieneś upewnić się, że rozszerzenia wymagane przez
             komponenty ZF których chcesz użyć, są dostępne na twoim serwerze PHP.
@@ -51,9 +51,9 @@
         <para>
             Zależność "silna" oznacza, że dany komponent lub klasa nie będzie
             działać prawidłowo jeśli odpowiednie rozszerzenie nie jest dostępne,
-            a zależność "słaba" oznacza że dany komponent może korzystać z 
-            rozszerzenia jeśli jest dostępne, ale będzie działać poprawnie także 
-            i bez niego. Wiele komponentów automatycznie użyje określonych 
+            a zależność "słaba" oznacza że dany komponent może korzystać z
+            rozszerzenia jeśli jest dostępne, ale będzie działać poprawnie także
+            i bez niego. Wiele komponentów automatycznie użyje określonych
             rozszerzeń w celu zwiększenia wydajności, ale wykona kod o podobnej
             funkcjonalności jeśli brak będzie potrzebnego rozszerzenia.
         </para>
@@ -620,8 +620,8 @@
         <title>Komponenty Zend Framework</title>
 
         <para>
-            Poniżej znajduje się tabela, która przedstawia spis wszystkich 
-            dostępnych komponentów Zend Framework i rozszerzeń PHP których 
+            Poniżej znajduje się tabela, która przedstawia spis wszystkich
+            dostępnych komponentów Zend Framework i rozszerzeń PHP których
             one wymagają. Może ci to pomóc upewnić się, które rozszerzenia są
             wymagane przez twoją aplikację. Nie wszystkie rozszerzenia używane
             przez Zend Framework są wymagane dla każdej aplikacji.
@@ -630,9 +630,9 @@
         <para>
             Zależność "silna" oznacza, że dany komponent lub klasa nie będzie
             działać prawidłowo jeśli odpowiednie rozszerzenie nie jest dostępne,
-            a zależność "słaba" oznacza że dany komponent może korzystać z 
-            rozszerzenia jeśli jest dostępne, ale będzie działać poprawnie także 
-            i bez niego. Wiele komponentów automatycznie użyje określonych 
+            a zależność "słaba" oznacza że dany komponent może korzystać z
+            rozszerzenia jeśli jest dostępne, ale będzie działać poprawnie także
+            i bez niego. Wiele komponentów automatycznie użyje określonych
             rozszerzeń w celu zwiększenia wydajności, ale wykona kod o podobnej
             funkcjonalności jeśli brak będzie potrzebnego rozszerzenia.
         </para>
@@ -1183,7 +1183,7 @@
             gdy potrzebujesz tylko jednego komponentu zamiast całego Zend Framework.
         </para>
 
-        <para>            
+        <para>
             Zależność "silna" oznacza, że dany komponent lub klasa nie będzie
             działać prawidłowo jeśli zależny komponent nie jest dostępny,
             a zależność "słaba" oznacza że dany komponent może wymagać
@@ -1193,9 +1193,9 @@
 
         <note>
             <para>
-                Nawet jeśli jest możliwe oddzielenie pojedynczego komponentu od 
+                Nawet jeśli jest możliwe oddzielenie pojedynczego komponentu od
                 Zend Framework powinieneś pamiętać że może to spowodować
-                problemy gdy zabraknie plików lub komponentów używanych 
+                problemy gdy zabraknie plików lub komponentów używanych
                 dynamicznie.
             </para>
         </note>

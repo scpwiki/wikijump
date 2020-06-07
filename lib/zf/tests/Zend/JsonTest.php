@@ -443,14 +443,14 @@ class Zend_JsonTest extends PHPUnit_Framework_TestCase
 
     	$this->assertEquals('{"firstName":"John","lastName":"Doe","email":"john@doe.com"}', $result);
     }
-    
+
     public function testIteratorToJson()
     {
         $iterator = new ArrayIterator(array('bla' => 'foo', 'bar', 'baz' => true));
-        
+
         $actual = Zend_Json_Encoder::encode($iterator);
         $expected = '{"__className":"ArrayIterator","bla":"foo",0:"bar","baz":true}';
-        
+
         $this->assertEquals($expected, $actual);
     }
 }

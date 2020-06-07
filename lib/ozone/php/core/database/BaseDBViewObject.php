@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Db
  * @version $Id$
@@ -26,20 +26,20 @@
 
 /**
  * Base object for all database OM objects representing views. It implements
- * most of the database logic - getting field valuse etc. 
- */ 
+ * most of the database logic - getting field valuse etc.
+ */
 abstract class BaseDBViewObject {
 
 	/**
 	 * List of the fields of this particular object/view.
 	 * @var array
-	 */ 
+	 */
 	protected $fieldNames;
 
 	/**
 	 * Contains the values of the fields.
 	 * @var array
-	 */ 
+	 */
 	protected $fieldValues = array();
 
 	/**
@@ -68,7 +68,7 @@ abstract class BaseDBViewObject {
 	protected abstract function internalInit();
 
 	/**
-	 * Default constructor. If $row is non-null then object properties are filled with 
+	 * Default constructor. If $row is non-null then object properties are filled with
 	 * values of the row. If $row is null, object properties are filled with default values.
 	 * @param array $row initial values for the object
 	 */
@@ -94,7 +94,7 @@ abstract class BaseDBViewObject {
 				$val = $row[$field];
 			}
 			if($val == "NULL"){
-				$val = null;	
+				$val = null;
 			}
 			$this->fieldValues[$field] = $val;
 		}
@@ -103,18 +103,18 @@ abstract class BaseDBViewObject {
 	/**
 	 * Gets field value.
 	 * @param string $fieldName name of the field.
-	 * @return mixed 
+	 * @return mixed
 	 */
 	public function getFieldValue($filedName){
-		return $this->fieldValues[$filedName];	
+		return $this->fieldValues[$filedName];
 	}
-	
+
 	/**
 	 * Gets all field values as an array.
 	 * @return array array of the field values.
 	 */
 	public function getFieldValuesArray(){
-		return $this->fieldValues;	
+		return $this->fieldValues;
 	}
 
 	/**
@@ -125,7 +125,7 @@ abstract class BaseDBViewObject {
 	public function getTemp($key){
 		return $this->temporaryStorage[$key];
 	}
-	
+
 	/**
 	 * Sets key-value pair in the temporary storage
 	 * @param mixed $key
@@ -134,21 +134,21 @@ abstract class BaseDBViewObject {
 	public function setTemp($key, $value){
 		$this->temporaryStorage[$key] = $value;
 	}
-	
+
 	/**
 	 * Clears temporary storage. If $key is supplied - only one key-value is cleared.
 	 * If $key is null - all the storage is cleared.
 	 */
 	public function clearTemp($key=null){
 		if($key == null){
-			$this->temporaryStorage = array();	
+			$this->temporaryStorage = array();
 		} else{
-			unset($this->temporaryStorage[$key]);	
+			unset($this->temporaryStorage[$key]);
 		}
 	}
-	
+
 	public function setNew($val=null){
-		return;	
+		return;
 	}
 
 }

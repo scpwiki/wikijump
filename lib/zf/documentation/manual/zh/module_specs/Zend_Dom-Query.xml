@@ -8,11 +8,11 @@
     </para>
 
     <para>
-        当用 XML 结构查询文档时，对于 web 开发者来说，CSS 选择器符号简单而熟悉。 
+        当用 XML 结构查询文档时，对于 web 开发者来说，CSS 选择器符号简单而熟悉。
         对开发过 Cascading Style Sheets  或用过提供使用 CSS 选择器
         （<ulink url="http://prototypejs.org/api/utility/dollar-dollar">Prototype's
-            $$()</ulink> 和 
-        <ulink url="http://api.dojotoolkit.org/jsdoc/dojo/HEAD/dojo.query">Dojo's 
+            $$()</ulink> 和
+        <ulink url="http://api.dojotoolkit.org/jsdoc/dojo/HEAD/dojo.query">Dojo's
             dojo.query</ulink> 都是组件的灵魂）选择节点的功能的 Javascript 工具箱的开发者来说，符号应当很熟悉。
     </para>
 
@@ -38,13 +38,13 @@
             </para></listitem>
 
             <listitem><para>
-                <emphasis>style attributes</emphasis>: 
-                匹配 '.error'、 'div.error'、 'label.required' 等的 CSS 风格属性。 
+                <emphasis>style attributes</emphasis>:
+                匹配 '.error'、 'div.error'、 'label.required' 等的 CSS 风格属性。
                 如果任何元素定义了超过一个风格，只要命名的风格出现在风格声明的任何地方，它将匹配。
             </para></listitem>
 
             <listitem><para>
-                <emphasis>id attributes</emphasis>: 
+                <emphasis>id attributes</emphasis>:
                 匹配 '#content'、 'div#nav' 等的元素 ID 属性。
             </para></listitem>
 
@@ -67,7 +67,7 @@
                     </para></listitem>
 
                     <listitem><para>
-                        <emphasis>substring match</emphasis>: 
+                        <emphasis>substring match</emphasis>:
                         包含 'div[bar*="baz"]' 字符串的属性将匹配一个带有在它内部
                         任何地方包含字符串 "baz" 的 "bar" 属性的 div 元素。
                     </para></listitem>
@@ -75,14 +75,14 @@
              </listitem>
 
                 <listitem><para>
-                    <emphasis>direct descendents</emphasis>: 
+                    <emphasis>direct descendents</emphasis>:
                     利用在选择器之间的 '&gt;'表示直接的子孙。'div > span'将只选择 'div'直接的子孙 'span' 元素。
                     它可用于任何上述的选择器。
                 </para></listitem>
 
                 <listitem>
                     <para>
-                        <emphasis>descendents</emphasis>: 
+                        <emphasis>descendents</emphasis>:
                         把多个选择器集中成一字符串来表示一个搜索的层次。
                         'div .foo span #one' 选择一个 id 'one' 的元素，它是在 'span' 元素下任意深度的子孙，
                         它也是 'foo' 类下面任意深度的子孙，而 'foo' 元素是 'div' 元素下任意深度的子孙。
@@ -96,10 +96,10 @@
             <td class="foo">
                 <div>
                     Lorem ipsum <span class="bar">
-                        <a href="/foo/bar" id="one">One</a> 
-                        <a href="/foo/baz" id="two">Two</a> 
-                        <a href="/foo/bat" id="three">Three</a> 
-                        <a href="/foo/bla" id="four">Four</a> 
+                        <a href="/foo/bar" id="one">One</a>
+                        <a href="/foo/baz" id="two">Two</a>
+                        <a href="/foo/bat" id="three">Three</a>
+                        <a href="/foo/bla" id="four">Four</a>
                     </span>
                 </div>
             </td>

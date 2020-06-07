@@ -3,7 +3,7 @@
 	top: 0; left: 0; right:0;
 	width: 100%;
 	background-color: #222;
-	
+
 	filter: alpha(opacity=80);
 	opacity: 0.8;
 	z-index: 40;
@@ -106,7 +106,7 @@ table#odialog-box-container td div{
 	width: auto;
 }
 .owindow.owait .content{
-	
+
 	margin: 10px;
 	padding: 0 50px 20px 50px;
 	background-repeat: no-repeat;

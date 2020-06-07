@@ -2,11 +2,11 @@
     <title>Wprowadzenie</title>
 
     <para>
-        Komponent <code>Zend_Layout</code> implementuje klasyczny wzorzec 
-        projektowy Dwuetapowych Widoków (Two Step View), pozwalając programistom 
-        na wyświetleniu zawartości aplikacji wewnątrz innego widoku, najczęściej 
-        będącego szablonem strony. Z tego powodu, że takie szablony są często w 
-        innych projektach nazywane <emphasis>layoutami</emphasis>, także Zend 
+        Komponent <code>Zend_Layout</code> implementuje klasyczny wzorzec
+        projektowy Dwuetapowych Widoków (Two Step View), pozwalając programistom
+        na wyświetleniu zawartości aplikacji wewnątrz innego widoku, najczęściej
+        będącego szablonem strony. Z tego powodu, że takie szablony są często w
+        innych projektach nazywane <emphasis>layoutami</emphasis>, także Zend
         Framework używa tego nazewnictwa w celu zachowania spójności.
     </para>
 
@@ -30,7 +30,7 @@
         </para></listitem>
 
         <listitem><para>
-                Możliwość wyłączania layoutów, zmiany skryptów layoutów; 
+                Możliwość wyłączania layoutów, zmiany skryptów layoutów;
                 możliwość przeprowadzania tych akcji zarówno wewnątrz kontrolerów
                 jak i skryptów widoków.
         </para></listitem>

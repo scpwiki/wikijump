@@ -11,7 +11,7 @@
         <para>
             I metodi di <code>Zend_Loader</code> sono la scelta migliore se il nome del file da caricare è variabile.
             Per esempio, se è basato su un parametro immesso da un utente o l'argomento di un metodo.
-            Se si sta caricando un file o una classe dove il nome è costante, non c'è alcun beneficio nell'utilizzo di <code>Zend_Loader</code> rispetto all'uso delle funzioni PHP tradizionali come 
+            Se si sta caricando un file o una classe dove il nome è costante, non c'è alcun beneficio nell'utilizzo di <code>Zend_Loader</code> rispetto all'uso delle funzioni PHP tradizionali come
             <ulink url="http://php.net/require_once"><code>require_once()</code></ulink>.
         </para>
     </tip>
@@ -38,7 +38,7 @@ Zend_Loader::loadFile($filename, $dirs=null, $once=false);]]>
         <para>
             Il parametro <code>$filename</code> specifica il nome del file da caricare, che non deve contenere alcuna indicazione di un percorso.
             Un controllo di sicurezza è eseguito su <code>$filename</code>.
-            <code>$filename</code> può contenere unicamente caratteri alfanumerici, trattini ("-"), underscore ("_") o punti ("."). 
+            <code>$filename</code> può contenere unicamente caratteri alfanumerici, trattini ("-"), underscore ("_") o punti (".").
             Nessuna di queste restrizioni è applicata al parametro <code>$dirs</code>.
         </para>
 
@@ -94,7 +94,7 @@ Zend_Loader::loadClass('Container_Tree',
         </para>
 
         <para>
-            Il metodo <code>Zend_Loader::loadFile()</code> è utilizzato per il caricamento del file, dunque il nome della classe può contenere solo caratteri alfanumerici, trattini ("-"), underscore ("_") o punti ("."). 
+            Il metodo <code>Zend_Loader::loadFile()</code> è utilizzato per il caricamento del file, dunque il nome della classe può contenere solo caratteri alfanumerici, trattini ("-"), underscore ("_") o punti (".").
         </para>
 
     </sect2>
@@ -119,7 +119,7 @@ if (Zend_Loader::isReadable($filename)) {
         <para>
             Il parametro <code>$filename</code> specifica il nome del file da verificare.
             Può contenere l'indicazione di un percorso.
-            Questo metodo è un wrapper per la funzione PHP 
+            Questo metodo è un wrapper per la funzione PHP
             <ulink url="http://php.net/is_readable"><code>is_readable()</code></ulink>.
             La funzione PHP non esegue la ricerca nelle cartelle indicate da <code>include_path</code>,
             contrariamente a <code>Zend_Loader::isReadable()</code>.

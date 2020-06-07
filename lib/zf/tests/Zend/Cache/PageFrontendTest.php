@@ -3,7 +3,7 @@
  * @package    Zend_Cache
  * @subpackage UnitTests
  */
- 
+
  /**
  * Zend_Cache
  */
@@ -21,9 +21,9 @@ require_once 'PHPUnit/Framework/TestCase.php';
  * @subpackage UnitTests
  */
 class Zend_Cache_PageFrontendTest extends PHPUnit_Framework_TestCase {
-    
+
     private $_instance;
-    
+
     public function setUp()
     {
         if (!$this->_instance) {
@@ -32,17 +32,17 @@ class Zend_Cache_PageFrontendTest extends PHPUnit_Framework_TestCase {
             $this->_instance->setBackend($this->_backend);
         }
     }
-    
+
     public function tearDown()
     {
         unset($this->_instance);
     }
-    
+
     public function testConstructorCorrectCall()
     {
-        $test = new Zend_Cache_Frontend_Page(array('lifetime' => 3600, 'caching' => true));      
+        $test = new Zend_Cache_Frontend_Page(array('lifetime' => 3600, 'caching' => true));
     }
-    
+
     public function testConstructorUnimplementedOption()
     {
         try {
@@ -50,9 +50,9 @@ class Zend_Cache_PageFrontendTest extends PHPUnit_Framework_TestCase {
         } catch (Exception $e) {
             return;
         }
-        $this->fail('Zend_Cache_Exception was expected but not thrown');    
+        $this->fail('Zend_Cache_Exception was expected but not thrown');
     }
-    
+
     public function testConstructorWithBadDefaultOptions()
     {
         try {
@@ -60,9 +60,9 @@ class Zend_Cache_PageFrontendTest extends PHPUnit_Framework_TestCase {
         } catch (Exception $e) {
             return;
         }
-        $this->fail('Zend_Cache_Exception was expected but not thrown');    
+        $this->fail('Zend_Cache_Exception was expected but not thrown');
     }
-    
+
     /**
      * The only bad default options are non-string keys
      * @group ZF-5034
@@ -74,9 +74,9 @@ class Zend_Cache_PageFrontendTest extends PHPUnit_Framework_TestCase {
         } catch (Exception $e) {
             return;
         }
-        $this->fail('Zend_Cache_Exception was expected but not thrown');    
+        $this->fail('Zend_Cache_Exception was expected but not thrown');
     }
-    
+
     public function testConstructorWithBadRegexps()
     {
         try {
@@ -84,9 +84,9 @@ class Zend_Cache_PageFrontendTest extends PHPUnit_Framework_TestCase {
         } catch (Exception $e) {
             return;
         }
-        $this->fail('Zend_Cache_Exception was expected but not thrown');    
+        $this->fail('Zend_Cache_Exception was expected but not thrown');
     }
-    
+
     public function testConstructorWithBadRegexps2()
     {
         try {
@@ -94,9 +94,9 @@ class Zend_Cache_PageFrontendTest extends PHPUnit_Framework_TestCase {
         } catch (Exception $e) {
             return;
         }
-        $this->fail('Zend_Cache_Exception was expected but not thrown');    
+        $this->fail('Zend_Cache_Exception was expected but not thrown');
     }
-    
+
     /**
      * Only non-string keys should raise exceptions
      * @group ZF-5034
@@ -104,13 +104,13 @@ class Zend_Cache_PageFrontendTest extends PHPUnit_Framework_TestCase {
     public function testConstructorWithBadRegexps3()
     {
         $array = array(
-           '^/$' => array('cache' => true),         
-           '^/index/' => array('cache' => true),    
-           '^/article/' => array('cache' => false), 
-           '^/article/view/' => array(            
-               1 => true,                    
-               'cache_with_post_variables' => true,   
-               'make_id_with_post_variables' => true,   
+           '^/$' => array('cache' => true),
+           '^/index/' => array('cache' => true),
+           '^/article/' => array('cache' => false),
+           '^/article/view/' => array(
+               1 => true,
+               'cache_with_post_variables' => true,
+               'make_id_with_post_variables' => true,
            )
         );
         try {
@@ -118,29 +118,29 @@ class Zend_Cache_PageFrontendTest extends PHPUnit_Framework_TestCase {
         } catch (Exception $e) {
             return;
         }
-        $this->fail('Zend_Cache_Exception was expected but not thrown'); 
+        $this->fail('Zend_Cache_Exception was expected but not thrown');
     }
-    
+
     public function testConstructorWithGoodRegexps()
     {
         $array = array(
-           '^/$' => array('cache' => true),         
-           '^/index/' => array('cache' => true),    
-           '^/article/' => array('cache' => false), 
-           '^/article/view/' => array(            
-               'cache' => true,                    
-               'cache_with_post_variables' => true,   
-               'make_id_with_post_variables' => true,   
+           '^/$' => array('cache' => true),
+           '^/index/' => array('cache' => true),
+           '^/article/' => array('cache' => false),
+           '^/article/view/' => array(
+               'cache' => true,
+               'cache_with_post_variables' => true,
+               'make_id_with_post_variables' => true,
            )
         );
-        $test = new Zend_Cache_Frontend_Page(array('regexps' => $array));        
+        $test = new Zend_Cache_Frontend_Page(array('regexps' => $array));
     }
-    
+
     public function testConstructorWithGoodDefaultOptions()
     {
         $test = new Zend_Cache_Frontend_Page(array('default_options' => array('cache' => true)));
     }
-    
+
     public function testStartEndCorrectCall1()
     {
         ob_start();
@@ -154,7 +154,7 @@ class Zend_Cache_PageFrontendTest extends PHPUnit_Framework_TestCase {
         ob_implicit_flush(true);
         $this->assertEquals('foo', $data);
     }
-    
+
     public function testStartEndCorrectCall2()
     {
         ob_start();
@@ -168,7 +168,7 @@ class Zend_Cache_PageFrontendTest extends PHPUnit_Framework_TestCase {
         ob_implicit_flush(true);
         $this->assertEquals('foobar', $data);
     }
-    
+
     public function testStartEndCorrectCallWithDebug()
     {
         $this->_instance->setOption('debug_header', true);
@@ -182,6 +182,6 @@ class Zend_Cache_PageFrontendTest extends PHPUnit_Framework_TestCase {
         ob_end_clean();
         ob_implicit_flush(true);
         $this->assertEquals('DEBUG HEADER : This is a cached page !foo', $data);
-    }   
+    }
 }
 

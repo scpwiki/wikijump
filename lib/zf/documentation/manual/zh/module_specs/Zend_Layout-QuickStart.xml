@@ -2,7 +2,7 @@
     <title>Zend_Layout 快速入门</title>
 
     <para>
-        <code>Zend_Layout</code>有两个基本用例：带有Zend Framework MVC和不带。 
+        <code>Zend_Layout</code>有两个基本用例：带有Zend Framework MVC和不带。
     </para>
 
     <sect2 id="zend.layout.quickstart.layouts">
@@ -26,9 +26,9 @@
     <title>My Site</title>
 </head>
 <body>
-<?php 
+<?php
     // fetch 'content' key using layout helper:
-    echo $this->layout()->content; 
+    echo $this->layout()->content;
 
     // fetch 'foo' key using placeholder helper:
     echo $this->placeholder('Zend_Layout')->foo;
@@ -89,7 +89,7 @@
 // In your bootstrap:
 Zend_Layout::startMvc();
 ?>]]></programlisting>
-        
+
         <para>
             <code>startMvc()</code> 可以带一个可选的数组或<code>Zend_Config</code> 对象来定制实例；这些选项详见<xref linkend="zend.layout.options" /> 。
         </para>
@@ -129,7 +129,7 @@ class FooController extends Zend_Controller_Action
 
         <programlisting role="php"><![CDATA[<?php
 // Returns null if startMvc() has not first been called
-$layout = Zend_Layout::getMvcInstance(); 
+$layout = Zend_Layout::getMvcInstance();
 ?>]]></programlisting>
 
         <para>
@@ -149,7 +149,7 @@ $layout = Zend_Layout::getMvcInstance();
     <div id="content"><?= $this->layout()->content ?></div>
 </body>
 ]]></programlisting>
-        
+
         <para>
             当和动作堆栈 <link linkend="zend.controller.actionhelpers.actionstack">动作助手</link> 和 <link linkend="zend.controller.plugins.standard.actionstack">插件</link>一起协同使用时，这个特性特别有用，通过循环可以设置一个动作堆栈，这样就创建一个部件化的页面。
         </para>

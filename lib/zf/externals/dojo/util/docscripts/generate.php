@@ -29,9 +29,9 @@ foreach ($files as $set){
 		}
 		$resource->appendChild($requires);
 	}
-	
+
 	unset($contents['#requires']);
-	
+
 	$vars = $document->createElement('vars');
 	foreach ($contents as $name => $set) {
 		$var = $document->createElement('var');
@@ -48,27 +48,27 @@ foreach ($files as $set){
 			$var->setAttribute('type', $set['type']);
 		}
 		unset($set['type']);
-		
+
 		if ($set['initialized']) {
 			$var->setAttribute('initialized', $set['initialized']);
 		}
 		unset($set['initialized']);
-		
+
 		if ($set['prototype']) {
 			$var->setAttribute('prototype', $set['prototype']);
 			unset($set['prototype']);
 		}
-		
+
 		if ($set['instance']) {
 			$var->setAttribute('instance', $set['instance']);
 			unset($set['instance']);
 		}
-		
+
 		if ($set['private']) {
 			$var->setAttribute('private', $set['private']);
 			unset($set['private']);
 		}
-		
+
 		if ($set['parameters']) {;
 			$parameters = $document->createElement('parameters');
 			foreach ($set['parameters'] as $parameter_name => $parameter_set) {
@@ -79,7 +79,7 @@ foreach ($files as $set){
 					$parameter->setAttribute('type', $parameter_set['type']);
 				}
 				unset($parameter_set['type']);
-				
+
 				if ($paramter_set['optional']) {
 					$paramter->setAttribute('optional', $parameter_set['optional']);
 				}
@@ -96,13 +96,13 @@ foreach ($files as $set){
 					$parameter->appendChild($summary);
 				}
 				unset($parameter_set['summary']);
-				
+
 				if (!empty($parameter_set)) {
 					print_r($parameter_set);
 					die('parameter');
 				}
 			}
-			
+
 			unset($set['parameters']);
 		}
 
@@ -112,7 +112,7 @@ foreach ($files as $set){
 			$var->appendChild($summary);
 		}
 		unset($set['summary']);
-		
+
 		if ($set['description']) {
 			$description = $document->createElement('description');
 			$description->appendChild($document->createTextNode($set['description']));

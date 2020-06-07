@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -25,22 +25,22 @@
 
 
 class CreateAccount1Module extends SmartyModule {
-	
+
 	public function isAllowed($runData){
 		if($runData->getUserId() !== null){
-			throw new ProcessException(_("You are already logged in. Why would you want to create a new account?"), "logged_in"); 	
-		}	
+			throw new ProcessException(_("You are already logged in. Why would you want to create a new account?"), "logged_in");
+		}
 		$rstep = $runData->sessionGet("rstep");
 		if($rstep === null || !($rstep == 1 || $rstep == 0 || $rstep == 2)){
-			throw new ProcessException(_("Registration flow error."),"registration_error"); 	
+			throw new ProcessException(_("Registration flow error."),"registration_error");
 		}
 		return true;
 
 	}
-	
+
 	public function build($runData){
-		
+
 		$runData->sessionAdd("rstep", 1);
 	}
-	
+
 }

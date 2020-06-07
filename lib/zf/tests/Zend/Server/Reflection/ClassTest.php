@@ -12,19 +12,19 @@ require_once 'Zend/Server/Reflection.php';
  * @subpackage UnitTests
  * @version $Id: ClassTest.php 1625 2006-11-15 17:45:10Z darby $
  */
-class Zend_Server_Reflection_ClassTest extends PHPUnit_Framework_TestCase 
+class Zend_Server_Reflection_ClassTest extends PHPUnit_Framework_TestCase
 {
     /**
      * __construct() test
      *
-     * Call as method call 
+     * Call as method call
      *
      * Expects:
-     * - reflection: 
-     * - namespace: Optional; 
-     * - argv: Optional; has default; 
-     * 
-     * Returns: void 
+     * - reflection:
+     * - namespace: Optional;
+     * - argv: Optional; has default;
+     *
+     * Returns: void
      */
     public function test__construct()
     {
@@ -45,13 +45,13 @@ class Zend_Server_Reflection_ClassTest extends PHPUnit_Framework_TestCase
     /**
      * __call() test
      *
-     * Call as method call 
+     * Call as method call
      *
      * Expects:
-     * - method: 
-     * - args: 
-     * 
-     * Returns: mixed 
+     * - method:
+     * - args:
+     *
+     * Returns: mixed
      */
     public function test__call()
     {
@@ -73,9 +73,9 @@ class Zend_Server_Reflection_ClassTest extends PHPUnit_Framework_TestCase
     /**
      * getMethods() test
      *
-     * Call as method call 
+     * Call as method call
      *
-     * Returns: array 
+     * Returns: array
      */
     public function testGetMethods()
     {
@@ -102,9 +102,9 @@ class Zend_Server_Reflection_ClassTest extends PHPUnit_Framework_TestCase
     /**
      * __wakeup() test
      *
-     * Call as method call 
+     * Call as method call
      *
-     * Returns: void 
+     * Returns: void
      */
     public function test__wakeup()
     {

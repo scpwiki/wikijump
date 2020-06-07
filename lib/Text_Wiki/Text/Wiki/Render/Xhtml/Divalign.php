@@ -21,7 +21,7 @@
  * @link       http://pear.php.net/package/Text_Wiki
  */
 class Text_Wiki_Render_Xhtml_Divalign extends Text_Wiki_Render {
-    
+
     public $conf = array();
 
     /**
@@ -36,17 +36,17 @@ class Text_Wiki_Render_Xhtml_Divalign extends Text_Wiki_Render {
      * @return string The text rendered from the token options.
      *
      */
-    
+
     function token($options) {
         $align = $options['align'];
-        
+
         if ($options['type'] == 'start') {
             return '<div style="text-align: ' . $align . ';">';
         }
-        
+
         if ($options['type'] == 'end') {
             return "</div>";
         }
-    
+
     }
 }

@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot_Db
  * @version $Id$
@@ -35,9 +35,9 @@ use \ProcessException;
 class Theme extends ThemeBase {
 
 	protected $_external;
-	
+
     public function getStyleUrls() {
-        
+
         if ($this->getExtendsThemeId()) {
             // get parent theme
             $parent = ThemePeer::instance()->selectByPrimaryKey($this->getExtendsThemeId());
@@ -48,7 +48,7 @@ class Theme extends ThemeBase {
         } else {
             $files = array();
         }
-        
+
         $files[] = $this->getStyleUrl();
         return $files;
     }
@@ -69,7 +69,7 @@ class Theme extends ThemeBase {
     public function getThemePreview() {
         return ThemePreviewPeer::instance()->selectByPrimaryKey($this->getThemeId());
     }
-    
+
     public function setExternalUrl($url){
     	$this->_external = $url;
     }

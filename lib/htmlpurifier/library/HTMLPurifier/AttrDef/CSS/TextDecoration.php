@@ -9,15 +9,15 @@ require_once 'HTMLPurifier/AttrDef.php';
  */
 class HTMLPurifier_AttrDef_CSS_TextDecoration extends HTMLPurifier_AttrDef
 {
-    
+
     public function validate($string, $config, $context) {
-        
+
         static $allowed_values = array(
             'line-through' => true,
             'overline' => true,
             'underline' => true
         );
-        
+
         $string = strtolower($this->parseCDATA($string));
         $parts = explode(' ', $string);
         $final = '';
@@ -29,8 +29,8 @@ class HTMLPurifier_AttrDef_CSS_TextDecoration extends HTMLPurifier_AttrDef
         $final = rtrim($final);
         if ($final === '') return false;
         return $final;
-        
+
     }
-    
+
 }
 

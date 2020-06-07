@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace DB;
 
@@ -10,7 +10,7 @@ use \Database;
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -23,14 +23,14 @@ use \Database;
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Db
  * @version $Id$
  * @copyright Copyright (c) 2008, Wikidot Inc.
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
- 
+
 /**
  * Id broker peer class.
  *
@@ -41,20 +41,20 @@ class IdBrokerPeer extends IdBrokerPeerBase {
 	 * Updates internal data regarding indexes for primary keys.
 	 */
 	public function updateIndexes(){
-		$ents = $this->select();	
+		$ents = $this->select();
 		foreach ($ents as $ent){
 			// get max value of index in the database
-			$query = "SELECT MAX(".$ent->getColumnName().") AS m FROM ".$ent->getTableName(); 	
+			$query = "SELECT MAX(".$ent->getColumnName().") AS m FROM ".$ent->getTableName();
 			$db = Database::connection();
 			$result = $db->query($query);
 			$row = $result->nextRow();
 			$maxIdx = $row['m'];
-			if($maxIdx == null){ 
+			if($maxIdx == null){
 				$ent->setNextFreeIndex(0);
 			} else {
 				$ent->setNextFreeIndex($maxIdx + 1);
 			}
-		
+
 			$ent->save();
 		}
 	}

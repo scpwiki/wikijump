@@ -18,7 +18,7 @@
 		$log = $json->encode($item) . "\n";
 		fwrite($handle, $log);
 	}
-	
+
 	fclose($handle);
 
 	$response = "{'eventsRecieved': '" . sizeof($items) . "', 'id': '" . $id . "'}";
@@ -27,5 +27,5 @@
 	}else{
 		print $response;
 	}
-	
+
 ?>

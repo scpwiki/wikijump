@@ -5,7 +5,7 @@
  */
 class HTMLPurifier_PercentEncoder
 {
-    
+
     /**
      * Fix up percent-encoding by decoding unreserved characters and normalizing
      * @param $string String to normalize
@@ -41,6 +41,6 @@ class HTMLPurifier_PercentEncoder
         }
         return $ret;
     }
-    
+
 }
 

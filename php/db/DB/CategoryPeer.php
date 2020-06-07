@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace DB;
 
@@ -9,7 +9,7 @@ use Criteria;
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -22,7 +22,7 @@ use Criteria;
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot_Db
  * @version $Id$
@@ -37,24 +37,24 @@ use Criteria;
 class CategoryPeer extends CategoryPeerBase {
 
 	public function selectByName($name, $siteId, $useMemcache=true){
-		
+
 		if($name !== "_default"){
 			$name = WDStringUtils::toUnixName($name);
 		}
-		
+
 		if($useMemcache){
 			$memcache = \Ozone::$memcache;
 			$key = 'category..'.$siteId.'..'.$name;
 			$cat = $memcache->get($key);
 			if($cat){
 				return $cat;
-			} else{ 
-			
+			} else{
+
 				$c = new Criteria();
 				$c->add("name", $name);
 				$c->add("site_id", $siteId);
 				$cat = $this->selectOne($c);
-				$memcache->set($key, $cat, 0, 864000); // 10 days ;-)	
+				$memcache->set($key, $cat, 0, 864000); // 10 days ;-)
 				return $cat;
 			}
 		}else{
@@ -65,7 +65,7 @@ class CategoryPeer extends CategoryPeerBase {
 			return $cat;
 		}
 	}
-	
+
 	public function selectById($categoryId, $siteId,  $useMemcache=true){
 
 		if($useMemcache){
@@ -74,24 +74,24 @@ class CategoryPeer extends CategoryPeerBase {
 			$cat = $memcache->get($key);
 			if($cat != false){
 				return $cat;
-			} else{ 
-			
+			} else{
+
 				$c = new Criteria();
 				$c->add("category_id", $categoryId);
 				$c->add("site_id", $siteId);
 				$cat = $this->selectOne($c);
-				$memcache->set($key, $cat, 0, 864000);	
+				$memcache->set($key, $cat, 0, 864000);
 				return $cat;
 			}
 		}else{
-			
+
 			$c = new Criteria();
 			$c->add("category_id", $categoryId);
 			$c->add("site_id", $siteId);
 			$cat = $this->selectOne($c);
 			return $cat;
 		}
-		
+
 	}
 
 }

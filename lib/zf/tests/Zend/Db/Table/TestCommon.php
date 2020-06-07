@@ -1290,7 +1290,7 @@ abstract class Zend_Db_Table_TestCommon extends Zend_Db_Table_TestSetup
     }
 
     /**
-     * Ensures that table metadata caching can be persistent in the object even 
+     * Ensures that table metadata caching can be persistent in the object even
      * after a flushed cache, if the setMetadataCacheInClass property is true.
      *
      * @group  ZF-2510
@@ -1449,7 +1449,7 @@ abstract class Zend_Db_Table_TestCommon extends Zend_Db_Table_TestSetup
         $rows = $table->fetchAll($select);
         $this->assertEquals(0, count($rows));
     }
-    
+
     public function testSerialiseTable()
     {
         $table = $this->_table['products'];

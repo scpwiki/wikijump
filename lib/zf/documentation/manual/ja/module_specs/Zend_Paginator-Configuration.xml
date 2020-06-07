@@ -5,7 +5,7 @@
     <para>
         <code>Zend_Paginator</code> には設定用のメソッドがいくつか用意されています。
     </para>
-        
+
     <table id="zend.paginator.configuration.table">
         <title><code>Zend_Paginator</code> の設定用メソッド</title>
 

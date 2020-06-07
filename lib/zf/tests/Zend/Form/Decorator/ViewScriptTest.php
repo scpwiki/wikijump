@@ -15,7 +15,7 @@ require_once 'Zend/View.php';
 /**
  * Test class for Zend_Form_Decorator_ViewScript
  */
-class Zend_Form_Decorator_ViewScriptTest extends PHPUnit_Framework_TestCase 
+class Zend_Form_Decorator_ViewScriptTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.

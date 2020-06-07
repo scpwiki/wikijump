@@ -48,7 +48,7 @@
             <code>Zend_Service_Nirvanix</code>
             は、REST サービスに対する比較的軽量な PHP 5 ラッパーを提供します。
         </para>
-      
+
         <para>
             <code>Zend_Service_Nirvanix</code> の狙いは
             Nirvanix REST サービスをより簡単に使用できるようにすることですが、
@@ -218,7 +218,7 @@ $imfs = $nirvanix->getService('IMFS');
 $result = $imfs->renameFile(array('filePath' => '/path/to/foo.txt',
                                   'newFileName' => 'bar.txt'));
 ]]>
-        </programlisting>        
+        </programlisting>
 
         <para>
             上の例では、<code>IMFS</code> 名前空間へのプロキシを作成します。
@@ -325,7 +325,7 @@ Zend_Service_Nirvanix_Response Object
 </Response>
 ]]>
 </programlisting>
-    
+
         <para>
             上の例のように <code>ResponseCode</code> がゼロの場合は、
             その操作が成功したことを表します。操作が成功しなかった場合は

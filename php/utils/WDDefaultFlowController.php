@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -37,70 +37,70 @@ class WDDefaultFlowController extends WebFlowController {
 		$loggerFileOutput->setLogFileName(WIKIDOT_ROOT."/logs/ozone.log");
 		$logger->addLoggerOutput($loggerFileOutput);
 		$logger->setDebugLevel(GlobalProperties::$LOGGER_LEVEL);
-		
+
 		$logger->debug("request processing started, logger initialized");
-		
+
 		Ozone ::init();
-		
+
 		$runData = new RunData();
 		$runData->init();
 		Ozone :: setRunData($runData);
-		$logger->debug("RunData object created and initialized"); 
+		$logger->debug("RunData object created and initialized");
 
 		// check if site (wiki) exists!
 		$siteHost = $_SERVER["HTTP_HOST"];
-		
+
 		$memcache = \Ozone::$memcache;
 		if(preg_match("/^([a-zA-Z0-9\-]+)\." . GlobalProperties::$URL_DOMAIN_PREG . "$/", $siteHost, $matches)==1){
 			$siteUnixName=$matches[1];
 			// select site based on the unix name
-			
+
 			// check memcached first!
-			
+
 			// the memcache block is to avoid database connection if possible
-			
+
 			$mcKey = 'site..'.$siteUnixName;
-			$site = $memcache->get($mcKey); 
+			$site = $memcache->get($mcKey);
 			if($site == false){
 				$c = new Criteria();
 				$c->add("unix_name", $siteUnixName);
 				$c->add("site.deleted", false);
 				$site = SitePeer::instance()->selectOne($c);
-				$memcache->set($mcKey, $site, 0, 3600);	
+				$memcache->set($mcKey, $site, 0, 3600);
 			}
 		} else {
 			// select site based on the custom domain
 			$mcKey = 'site_cd..'.$siteHost;
 			$site = $memcache->get($mcKey);
-			if($site == false){	
+			if($site == false){
 				$c = new Criteria();
 				$c->add("custom_domain", $siteHost);
 				$c->add("site.deleted", false);
 				$site = SitePeer::instance()->selectOne($c);
-				$memcache->set($mcKey, $site, 0, 3600);	
+				$memcache->set($mcKey, $site, 0, 3600);
 			}
 			GlobalProperties::$SESSION_COOKIE_DOMAIN = '.'.$siteHost;
-			
+
 		}
 
 		if($site == null){
-			$runData->setScreenTemplate("wiki/SiteNotFound");	
+			$runData->setScreenTemplate("wiki/SiteNotFound");
 			exit(1);
 		} else {
-			$runData->setTemp("site", $site);	
+			$runData->setTemp("site", $site);
 			//nasty global thing...
 			$GLOBALS['siteId'] = $site->getSiteId();
 			$GLOBALS['site'] = $site;
 		}
-		
+
 		// set language
 			$runData->setLanguage($site->getLanguage());
 			$GLOBALS['lang'] = $site->getLanguage();
-			
+
 			// and for gettext too:
-		
+
 			$lang = $site->getLanguage();
-		
+
 			switch($lang){
 				case 'pl':
 					$glang="pl_PL";
@@ -110,19 +110,19 @@ class WDDefaultFlowController extends WebFlowController {
 					break;
 			}
 
-			putenv("LANG=$glang"); 
-			putenv("LANGUAGE=$glang"); 
+			putenv("LANG=$glang");
+			putenv("LANGUAGE=$glang");
 			setlocale(LC_ALL, $glang.'.UTF-8');
 
 			// Set the text domain as 'messages'
 			$gdomain = 'messages';
-			bindtextdomain($gdomain, WIKIDOT_ROOT.'/locale'); 
+			bindtextdomain($gdomain, WIKIDOT_ROOT.'/locale');
 			textdomain($gdomain);
-		
+
 			$settings = $site->getSettings();
-			// handle SSL 
+			// handle SSL
 			$sslMode = $settings->getSslMode();
-		
+
 			if($_SERVER['HTTPS']){
 				if(!$sslMode){
 					// not enabled, issue an errorr
@@ -132,7 +132,7 @@ class WDDefaultFlowController extends WebFlowController {
 					// i.e. change authentication scheme
 					GlobalProperties::$SESSION_COOKIE_NAME = "WIKIDOT_SESSION_SECURE_ID";
 					GlobalProperties::$SESSION_COOKIE_SECURE = true;
-					
+
 				}
 			}else{
 				// page accessed via http (nonsecure)
@@ -144,13 +144,13 @@ class WDDefaultFlowController extends WebFlowController {
 					case 'ssl_only':
 						throw new ProcessException(_("Nonsecure access is not enabled for this Wiki."));
 						break;
-					
+
 				}
 			}
 
 		// handle session at the begging of procession
 		$runData->handleSessionStart();
-		
+
 		$template = $runData->getScreenTemplate();
 		$classFile = $runData->getScreenClassPath();
 		$className = $runData->getScreenClassName();
@@ -158,18 +158,18 @@ class WDDefaultFlowController extends WebFlowController {
 
 		require_once ($classFile);
 		$screen = new $className ();
-		
+
 		// screen security check
 		if(!$screen->isAllowed($runData)){
 			if($classFile == $runData->getScreenClassPath()){
 				$runData->setScreenTemplate("errors/NotAllowed");
 			} else {
-				// $screen->isAllowed() should set the error template!!! if not - 
+				// $screen->isAllowed() should set the error template!!! if not -
 				// default NotAllowed is used
-			
+
 				// reload the class again - we do not want the unsecure screen to render!
 				$classFile = $runData->getScreenClassPath();
-			
+
 				$className = $runData->getScreenClassName();
 				$logger->debug("processing template: ".$runData->getScreenTemplate().", class: $className");
 				require_once ($classFile);
@@ -179,28 +179,28 @@ class WDDefaultFlowController extends WebFlowController {
 		}
 
 		// PROCESS ACTION
-		
+
 		$actionClass = $runData->getAction();
 		$logger->debug("processing action $actionClass");
 		while ($actionClass != null) {
-			
+
 			require_once (PathManager :: actionClass($actionClass));
 			$tmpa1 = explode('/', $actionClass);
             $actionClassStripped = end($tmpa1);
 
 			$action = new $actionClassStripped();
-			
+
 			$classFile = $runData->getScreenClassPath();
 			if(!$action->isAllowed($runData)){
 				if($classFile == $runData->getScreenClassPath()){
 					$runData->setScreenTemplate("errors/NotAllowed");
 				}
-				// $action->isAllowed() should set the error template!!! if not - 
+				// $action->isAllowed() should set the error template!!! if not -
 				// default NotAllowed is used
 				break;
-					
+
 			}
-			
+
 			$actionEvent = $runData->getActionEvent();
 			if ($actionEvent != null) {
 				$action-> $actionEvent ($runData);
@@ -221,7 +221,7 @@ class WDDefaultFlowController extends WebFlowController {
 		}
 
 		// end action process
-	
+
 		// check if template has been changed by the action. if so...
 		if($template != $runData->getScreenTemplate){
 			$classFile = $runData->getScreenClassPath();
@@ -239,9 +239,9 @@ class WDDefaultFlowController extends WebFlowController {
 	 		$moduleProcessor->setJavascriptInline(true); // embed associated javascript files in <script> tags
 	 		$moduleProcessor->setCssInline(true);
 	 		$rendered = $moduleProcessor->process($rendered);
-			
+
 		}
-		
+
 		$runData->handleSessionEnd();
 
 		// one more thing - some url will need to be rewritten if using HTTPS
@@ -257,7 +257,7 @@ class WDDefaultFlowController extends WebFlowController {
 
 			}while($renderedOld != $rendered);
 		}
-		
+
 		echo $rendered;
 
 	}

@@ -131,8 +131,8 @@ class Zend_Cache_Backend
      * Return true if the automatic cleaning is available for the backend
      *
      * DEPRECATED : use getCapabilities() instead
-     * 
-     * @deprecated 
+     *
+     * @deprecated
      * @return boolean
      */
     public function isAutomaticCleaningAvailable()

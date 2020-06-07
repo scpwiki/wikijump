@@ -5,12 +5,12 @@ smarty_core_load_plugins(array('plugins' => array(array('modifier', 'escape', '/
 <h1>Custom themes</h1>
 
 <p>
-	Using custom themes you can easily convert your site into a brand new quality. 
+	Using custom themes you can easily convert your site into a brand new quality.
 	The idea is simple - you can create your own CSS rules. <br/>
 	<!-- TODO: De-Wikidot.com-ize - change -->
 	Look at the <a href="http://www.wikidot.com/doc:layout-reference" target="_blank">CSS layout reference too</a> and
 	<!-- TODO: De-Wikidot.com-ize - change -->
-	<a href="http://community.wikidot.com/howto:design-your-own-css-theme"  target="_blank">Design 
+	<a href="http://community.wikidot.com/howto:design-your-own-css-theme"  target="_blank">Design
 	your own CSS theme</a> howto.
 </p>
 

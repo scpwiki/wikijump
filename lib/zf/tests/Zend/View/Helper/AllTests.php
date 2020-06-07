@@ -106,7 +106,7 @@ class Zend_View_Helper_AllTests
         $suite->addTestSuite('Zend_View_Helper_Placeholder_StandaloneContainerTest');
         $suite->addTestSuite('Zend_View_Helper_TranslateTest');
         $suite->addTestSuite('Zend_View_Helper_UrlTest');
-        
+
         return $suite;
     }
 }

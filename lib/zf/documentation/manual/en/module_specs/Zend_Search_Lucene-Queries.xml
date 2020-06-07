@@ -16,7 +16,7 @@ $query = Zend_Search_Lucene_Search_QueryParser::parse($queryString);
 
     <sect2 id="zend.search.lucene.queries.exceptions">
         <title>Query Parser Exceptions</title>
-        
+
         <para>
         The query parser may generate two types of exceptions:
         <itemizedlist>
@@ -49,15 +49,15 @@ try {
         <para>
             Starting in 1.5, query parsing exceptions are suppressed by default. If query doesn't conform query language,
             then it's tokenized using current default analyzer and all tokenized terms are used for searching.
-            
+
             Use <code>Zend_Search_Lucene_Search_QueryParser::dontSuppressQueryParsingExceptions()</code> method
             to turn exceptions on.
-            <code>Zend_Search_Lucene_Search_QueryParser::suppressQueryParsingExceptions()</code> and 
+            <code>Zend_Search_Lucene_Search_QueryParser::suppressQueryParsingExceptions()</code> and
             <code>Zend_Search_Lucene_Search_QueryParser::queryParsingExceptionsSuppressed()</code> methods are also
             intended to manage exceptions handling behavior.
-            
+
         </para>
-        
+
     </sect2>
 
     <sect2 id="zend.search.lucene.queries.term-query">
@@ -355,7 +355,7 @@ $hits  = $index->find($query);
                 </listitem>
             </itemizedlist>
         </para>
-        
+
         <para>
             Each query which uses boolean operators can be rewritten using signs notation and constructed using API. For example:
             <programlisting role="querystring"><![CDATA[

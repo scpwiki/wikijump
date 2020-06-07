@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -25,23 +25,23 @@
 
 
 class PrivateWikiScriptController extends UploadedFileFlowController {
-	
+
 	public function process() {
-		
+
 		Ozone::init();
 		$runData = new RunData();
 		$runData->init();
 		Ozone::setRunData($runData);
-		
+
 		$runData->handleSessionStart();
 		$user = $runData->getUser();
 		$site = $this->siteFromHost($_SERVER['HTTP_HOST'], false, true);
-		
+
 		if (! $this->userAllowed($user, $site)) {
 			$this->setContentTypeHeader("text/javascript");
 			echo "window.location = '/local--auth/' + encodeURIComponent(window.location);";
 		}
-			
+
 	}
-	
+
 }

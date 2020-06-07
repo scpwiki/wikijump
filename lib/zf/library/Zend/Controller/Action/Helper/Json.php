@@ -46,8 +46,8 @@ class Zend_Controller_Action_Helper_Json extends Zend_Controller_Action_Helper_A
     /**
      * Create JSON response
      *
-     * Encodes and returns data to JSON. Content-Type header set to 
-     * 'application/json', and disables layouts and viewRenderer (if being 
+     * Encodes and returns data to JSON. Content-Type header set to
+     * 'application/json', and disables layouts and viewRenderer (if being
      * used).
      *
      * @param  mixed   $data
@@ -77,9 +77,9 @@ class Zend_Controller_Action_Helper_Json extends Zend_Controller_Action_Helper_A
 
     /**
      * Encode JSON response and immediately send
-     * 
-     * @param  mixed   $data 
-     * @param  boolean $keepLayouts 
+     *
+     * @param  mixed   $data
+     * @param  boolean $keepLayouts
      * @return string|void
      */
     public function sendJson($data, $keepLayouts = false)
@@ -99,12 +99,12 @@ class Zend_Controller_Action_Helper_Json extends Zend_Controller_Action_Helper_A
     /**
      * Strategy pattern: call helper as helper broker method
      *
-     * Allows encoding JSON. If $sendNow is true, immediately sends JSON 
-     * response. 
-     * 
-     * @param  mixed   $data 
-     * @param  boolean $sendNow 
-     * @param  boolean $keepLayouts 
+     * Allows encoding JSON. If $sendNow is true, immediately sends JSON
+     * response.
+     *
+     * @param  mixed   $data
+     * @param  boolean $sendNow
+     * @param  boolean $keepLayouts
      * @return string|void
      */
     public function direct($data, $sendNow = true, $keepLayouts = false)

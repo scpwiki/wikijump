@@ -66,10 +66,10 @@ class Zend_Json_Server_Error
 
     /**
      * Constructor
-     * 
-     * @param  string $message 
-     * @param  int $code 
-     * @param  mixed $data 
+     *
+     * @param  string $message
+     * @param  int $code
+     * @param  mixed $data
      * @return void
      */
     public function __construct($message = null, $code = -32000, $data = null)
@@ -81,8 +81,8 @@ class Zend_Json_Server_Error
 
     /**
      * Set error code
-     * 
-     * @param  int $code 
+     *
+     * @param  int $code
      * @return Zend_Json_Server_Error
      */
     public function setCode($code)
@@ -103,7 +103,7 @@ class Zend_Json_Server_Error
 
     /**
      * Get error code
-     * 
+     *
      * @return int|null
      */
     public function getCode()
@@ -113,8 +113,8 @@ class Zend_Json_Server_Error
 
     /**
      * Set error message
-     * 
-     * @param  string $message 
+     *
+     * @param  string $message
      * @return Zend_Json_Server_Error
      */
     public function setMessage($message)
@@ -129,7 +129,7 @@ class Zend_Json_Server_Error
 
     /**
      * Get error message
-     * 
+     *
      * @return string
      */
     public function getMessage()
@@ -139,8 +139,8 @@ class Zend_Json_Server_Error
 
     /**
      * Set error data
-     * 
-     * @param  mixed $data 
+     *
+     * @param  mixed $data
      * @return Zend_Json_Server_Error
      */
     public function setData($data)
@@ -151,7 +151,7 @@ class Zend_Json_Server_Error
 
     /**
      * Get error data
-     * 
+     *
      * @return mixed
      */
     public function getData()
@@ -161,7 +161,7 @@ class Zend_Json_Server_Error
 
     /**
      * Cast error to array
-     * 
+     *
      * @return array
      */
     public function toArray()
@@ -175,7 +175,7 @@ class Zend_Json_Server_Error
 
     /**
      * Cast error to JSON
-     * 
+     *
      * @return string
      */
     public function toJson()
@@ -186,7 +186,7 @@ class Zend_Json_Server_Error
 
     /**
      * Cast to string (JSON)
-     * 
+     *
      * @return string
      */
     public function __toString()

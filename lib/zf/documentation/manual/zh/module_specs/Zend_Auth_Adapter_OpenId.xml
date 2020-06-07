@@ -19,7 +19,7 @@
             <para>
                 <code>Zend_OpenId</code> 利用有效的 <ulink url="http://php.net/gmp">GMP extension</ulink>。当使用 <code>Zend_Auth_Adapter_OpenId</code> 时，可以考虑打开 GMP extension 来改善性能。
             </para>
-        </note>        
+        </note>
     </sect2>
 
     <sect2 id="zend.auth.adapter.openid.specifics">
@@ -37,7 +37,7 @@
         </para>
 
         <programlisting role="php"><![CDATA[
-<?php        
+<?php
 $status = "";
 $auth = Zend_Auth::getInstance();
 if ((isset($_POST['openid_action']) &&
@@ -48,8 +48,8 @@ if ((isset($_POST['openid_action']) &&
     $result = $auth->authenticate(
         new Zend_Auth_Adapter_OpenId(@$_POST['openid_identifier']));
     if ($result->isValid()) {
-        $status = "You are logged in as " 
-                . $auth->getIdentity() 
+        $status = "You are logged in as "
+                . $auth->getIdentity()
                 . "<br>\n";
     } else {
         $auth->clearIdentity();
@@ -62,8 +62,8 @@ if ((isset($_POST['openid_action']) &&
         $_POST['openid_action'] == "logout") {
         $auth->clearIdentity();
     } else {
-        $status = "You are logged in as " 
-                . $auth->getIdentity() 
+        $status = "You are logged in as "
+                . $auth->getIdentity()
                 . "<br>\n";
     }
 }

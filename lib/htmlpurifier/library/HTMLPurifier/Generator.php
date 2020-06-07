@@ -12,7 +12,7 @@ HTMLPurifier_ConfigSchema::defineAlias('Core', 'CommentScriptContents', 'Output'
 HTMLPurifier_ConfigSchema::define(
     'Output', 'TidyFormat', false, 'bool', <<<HTML
 <p>
-    Determines whether or not to run Tidy on the final output for pretty 
+    Determines whether or not to run Tidy on the final output for pretty
     formatting reasons, such as indentation and wrap.
 </p>
 <p>
@@ -53,25 +53,25 @@ HTMLPurifier_ConfigSchema::define('Output', 'Newline', null, 'string/null', '
  */
 class HTMLPurifier_Generator
 {
-    
+
     /**
      * Bool cache of %HTML.XHTML
      * @private
      */
     private $_xhtml = true;
-    
+
     /**
      * Bool cache of %Output.CommentScriptContents
      * @private
      */
     private $_scriptFix = false;
-    
+
     /**
      * Cache of HTMLDefinition
      * @private
      */
     private $_def;
-    
+
     /**
      * Generates HTML from an array of tokens.
      * @param $tokens Array of HTMLPurifier_Token
@@ -82,10 +82,10 @@ class HTMLPurifier_Generator
         $html = '';
         if (!$config) $config = HTMLPurifier_Config::createDefault();
         $this->_scriptFix   = $config->get('Output', 'CommentScriptContents');
-        
+
         $this->_def = $config->getHTMLDefinition();
         $this->_xhtml = $this->_def->doctype->xml;
-        
+
         if (!$tokens) return '';
         for ($i = 0, $size = count($tokens); $i < $size; $i++) {
             if ($this->_scriptFix && $tokens[$i]->name === 'script'
@@ -103,7 +103,7 @@ class HTMLPurifier_Generator
             $html .= $this->generateFromToken($tokens[$i]);
         }
         if ($config->get('Output', 'TidyFormat') && extension_loaded('tidy')) {
-            
+
             $tidy_options = array(
                'indent'=> true,
                'output-xhtml' => $this->_xhtml,
@@ -132,7 +132,7 @@ class HTMLPurifier_Generator
         $html = str_replace("\n", $nl, $html);
         return $html;
     }
-    
+
     /**
      * Generates HTML from a single token.
      * @param $token HTMLPurifier_Token object.
@@ -143,25 +143,25 @@ class HTMLPurifier_Generator
         if ($token->type == 'start') {
             $attr = $this->generateAttributes($token->attr, $token->name);
             return '<' . $token->name . ($attr ? ' ' : '') . $attr . '>';
-            
+
         } elseif ($token->type == 'end') {
             return '</' . $token->name . '>';
-            
+
         } elseif ($token->type == 'empty') {
             $attr = $this->generateAttributes($token->attr, $token->name);
              return '<' . $token->name . ($attr ? ' ' : '') . $attr .
                 ( $this->_xhtml ? ' /': '' )
                 . '>';
-            
+
         } elseif ($token->type == 'text') {
             return $this->escape($token->data);
-            
+
         } else {
             return '';
-            
+
         }
     }
-    
+
     /**
      * Special case processor for the contents of script tags
      * @warning This runs into problems if there's already a literal
@@ -175,7 +175,7 @@ class HTMLPurifier_Generator
         $data = preg_replace('#//\s*$#', '', $token->data);
         return '<!--//--><![CDATA[//><!--' . "\n" . trim($data) . "\n" . '//--><!]]>';
     }
-    
+
     /**
      * Generates attribute declarations from attribute array.
      * @param $assoc_array_of_attributes Attribute array
@@ -196,7 +196,7 @@ class HTMLPurifier_Generator
         }
         return rtrim($html);
     }
-    
+
     /**
      * Escapes raw text data.
      * @param $string String data to escape for HTML.
@@ -207,6 +207,6 @@ class HTMLPurifier_Generator
         // changed by Michal Frackowiak from Wikidot.org
         return htmlspecialchars($string, null, 'UTF-8');
     }
-    
+
 }
 

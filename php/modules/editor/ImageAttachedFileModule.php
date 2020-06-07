@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,19 +27,19 @@
 use DB\FilePeer;
 
 class ImageAttachedFileModule extends SmartyModule {
-	
+
 	public function build($runData){
 		$pl = $runData->getParameterList();
-		
+
 		$pageId = $pl->getParameterValue("pageId");
-		
+
 		$c = new Criteria();
     		$c->add("page_id", $pageId);
     		$c->add("has_resized", true);
     		$c->addOrderAscending("filename");
     		$files = FilePeer::instance()->select($c);
-    		
-    		$runData->contextAdd("files", $files);	
+
+    		$runData->contextAdd("files", $files);
 	}
-	
+
 }

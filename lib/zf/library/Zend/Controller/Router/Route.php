@@ -90,7 +90,7 @@ class Zend_Controller_Router_Route extends Zend_Controller_Router_Route_Abstract
     public function getVersion() {
         return 1;
     }
-    
+
     /**
      * Instantiates route based on passed Zend_Config structure
      *
@@ -152,7 +152,7 @@ class Zend_Controller_Router_Route extends Zend_Controller_Router_Route_Abstract
         $values = array();
 
         $path = trim($path, $this->_urlDelimiter);
-        
+
         if ($path != '') {
 
             $path = explode($this->_urlDelimiter, $path);
@@ -163,7 +163,7 @@ class Zend_Controller_Router_Route extends Zend_Controller_Router_Route_Abstract
                 if (!array_key_exists($pos, $this->_parts)) {
                     return false;
                 }
-                
+
                 // If it's a wildcard, get the rest of URL as wildcard data and stop matching
                 if ($this->_parts[$pos] == '*') {
                     $count = count($path);
@@ -195,7 +195,7 @@ class Zend_Controller_Router_Route extends Zend_Controller_Router_Route_Abstract
                 } else {
                     $pathStaticCount++;
                 }
-                
+
             }
 
         }
@@ -215,7 +215,7 @@ class Zend_Controller_Router_Route extends Zend_Controller_Router_Route_Abstract
         }
 
         $this->_values = $values;
-        
+
         return $return;
 
     }

@@ -59,7 +59,7 @@
 	text-align: center;
 }
 
-.dojoxGridHeader .dojoxGridCell { 
+.dojoxGridHeader .dojoxGridCell {
 	border: 1px solid;
 	border-color: #F6F4EB #ACA899 #ACA899 #F6F4EB;
 	background: url(images/grid_dx_gradient.gif) #E8E1CF top repeat-x;
@@ -117,7 +117,7 @@
 
 /* rowbar */
 
-.dojoxGridRowbar { 
+.dojoxGridRowbar {
 	border: 1px solid;
 	border-color: #F6F4EB #ACA899 #ACA899 #F6F4EB;
 	border-top: none;
@@ -186,11 +186,11 @@
 
 .dojoxGridInvisible {
 	visibility: hidden;
-}		
+}
 
 .Xdojo-ie .dojoxGridInvisible {
 	display: none;
-}		
+}
 
 .dojoxGridInvisible td, .dojoxGridHeader .dojoxGridInvisible td {
 	border-top-width: 0;
@@ -256,7 +256,7 @@
 	width: 0;
 }
 
-.dijit_a11y .dojoxGridRowbarSelected { 
+.dijit_a11y .dojoxGridRowbarSelected {
 	border-top: 1px solid white;
 	border-bottom: 1px dashed black;
 	border-top: 0;

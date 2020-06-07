@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -28,7 +28,7 @@ use DB\PagePeer;
 use DB\CategoryPeer;
 
 class PageRateWidgetModule extends SmartyModule {
-	
+
 	public function build($runData){
 		$page = $runData->getTemp("page");
 		if($page){
@@ -43,11 +43,11 @@ class PageRateWidgetModule extends SmartyModule {
 				$rate = 0;
 			}
 		}
-		
+
 		// get the category too
 		if(!$page){
 			$site = $runData->getTemp("site");
-			$category = CategoryPeer::instance()->selectByName('_default', $site->getSiteId());	
+			$category = CategoryPeer::instance()->selectByName('_default', $site->getSiteId());
 		}else{
 			$category = $runData->getTemp("category");
 			if(!$category){
@@ -56,7 +56,7 @@ class PageRateWidgetModule extends SmartyModule {
 		}
 		$type = $category->getRatingType();
 		$runData->contextAdd("type", $type);
-		$runData->contextAdd("rate", $rate);	
+		$runData->contextAdd("rate", $rate);
 	}
-	
+
 }

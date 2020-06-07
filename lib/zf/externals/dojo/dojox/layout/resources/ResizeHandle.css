@@ -15,20 +15,20 @@
 }
 
 .dojoxResizeNE {
-	cursor: ne-resize; 
+	cursor: ne-resize;
 }
 
 .dojoxResizeW {
-	cursor: w-resize; 
+	cursor: w-resize;
 }
 
 
-.dojoxResizeN { 
-	cursor: n-resize; 
+.dojoxResizeN {
+	cursor: n-resize;
 }
 
 .dojoxResizeHandleClone {
-	position:absolute; top:0; left:0; 
-	border:1px dashed #666; 
-	z-index:999; 
+	position:absolute; top:0; left:0;
+	border:1px dashed #666;
+	z-index:999;
 }

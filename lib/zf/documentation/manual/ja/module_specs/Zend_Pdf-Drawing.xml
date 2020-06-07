@@ -70,7 +70,7 @@ $color3 = new Zend_Pdf_Color_Html('forestgreen');
  * @param float $y1
  * @param float $x2
  * @param float $y2
- * @return Zend_Pdf_Page 
+ * @return Zend_Pdf_Page
  */
 public function drawLine($x1, $y1, $x2, $y2);
 ]]>
@@ -89,7 +89,7 @@ public function drawLine($x1, $y1, $x2, $y2);
  * @param float $x2
  * @param float $y2
  * @param integer $fillType
- * @return Zend_Pdf_Page 
+ * @return Zend_Pdf_Page
  */
 public function drawRectangle($x1, $y1, $x2, $y2,
                     $fillType = Zend_Pdf_Page::SHAPE_DRAW_FILL_AND_STROKE);
@@ -108,7 +108,7 @@ public function drawRectangle($x1, $y1, $x2, $y2,
  * @param array $y  - float の配列 (頂点の Y 座標)
  * @param integer $fillType
  * @param integer $fillMethod
- * @return Zend_Pdf_Page 
+ * @return Zend_Pdf_Page
  */
 public function drawPolygon($x, $y,
                             $fillType =
@@ -142,7 +142,7 @@ public function drawPolygon($x, $y,
  * @param mixed $param4
  * @param mixed $param5
  * @param mixed $param6
- * @return Zend_Pdf_Page 
+ * @return Zend_Pdf_Page
  */
 public function  drawCircle($x,
                             $y,
@@ -171,7 +171,7 @@ public function  drawCircle($x,
  * @param mixed $param5
  * @param mixed $param6
  * @param mixed $param7
- * @return Zend_Pdf_Page 
+ * @return Zend_Pdf_Page
  */
 public function drawEllipse($x1,
                             $y1,
@@ -203,7 +203,7 @@ public function drawEllipse($x1,
  * @param string $charEncoding (オプション) ソーステキストの文字エンコーディング。
  *   デフォルトは現在のロケールです。
  * @throws Zend_Pdf_Exception
- * @return Zend_Pdf_Page 
+ * @return Zend_Pdf_Page
  */
 public function drawText($text, $x, $y, $charEncoding = '');
 ]]>
@@ -255,7 +255,7 @@ $pdfPage->drawText($unicodeString, 72, 720, 'UTF-8');
  *
  * @param Zend_Pdf_Resource_Font $font
  * @param float $fontSize
- * @return Zend_Pdf_Page 
+ * @return Zend_Pdf_Page
  */
 public function setFont(Zend_Pdf_Resource_Font $font, $fontSize);
 ]]>
@@ -472,7 +472,7 @@ $pdfPage->setFont($font, 36)
             </programlisting>
         </example>
     </sect2>
-        
+
 
     <sect2 id="zend.pdf.drawing.extracting-fonts">
         <title>フォントの抽出</title>
@@ -592,7 +592,7 @@ for ($charIndex = 0; $charIndex < strlen($text); $charIndex++) {
             </programlisting>
                     </para>
                 </listitem>
-            </itemizedlist> 
+            </itemizedlist>
         </para>
     </sect2>
 
@@ -613,7 +613,7 @@ for ($charIndex = 0; $charIndex < strlen($text); $charIndex++) {
  * @param float $y1
  * @param float $x2
  * @param float $y2
- * @return Zend_Pdf_Page 
+ * @return Zend_Pdf_Page
  */
 public function drawImage(Zend_Pdf_Resource_Image $image, $x1, $y1, $x2, $y2);
 ]]>
@@ -670,7 +670,7 @@ public function setLineWidth(float $width);
  *
  * @param array $pattern
  * @param array $phase
- * @return Zend_Pdf_Page 
+ * @return Zend_Pdf_Page
  */
 public function setLineDashingPattern($pattern, $phase = 0);
 ]]>
@@ -859,14 +859,14 @@ public function skew($x, $y, $xAngle, $yAngle);
  * 現在適用されているスタイル・位置・クリップ領域および
  * 回転/移動/拡大縮小などを情報を保存します。
  *
- * @return Zend_Pdf_Page 
+ * @return Zend_Pdf_Page
  */
 public function saveGS();
 
 /**
  * 直近の saveGS() で保存されたグラフィックの状態を復元します。
  *
- * @return Zend_Pdf_Page 
+ * @return Zend_Pdf_Page
  */
 public function restoreGS();
 ]]>
@@ -892,7 +892,7 @@ public function restoreGS();
  * @param float $y1
  * @param float $x2
  * @param float $y2
- * @return Zend_Pdf_Page 
+ * @return Zend_Pdf_Page
  */
 public function clipRectangle($x1, $y1, $x2, $y2);
 ]]>
@@ -904,7 +904,7 @@ public function clipRectangle($x1, $y1, $x2, $y2);
  * @param array $x  - float の配列 (頂点の X 座標)
  * @param array $y  - float の配列 (頂点の Y 座標)
  * @param integer $fillMethod
- * @return Zend_Pdf_Page 
+ * @return Zend_Pdf_Page
  */
 public function clipPolygon($x,
                             $y,
@@ -921,7 +921,7 @@ public function clipPolygon($x,
  * @param float $radius
  * @param float $startAngle
  * @param float $endAngle
- * @return Zend_Pdf_Page 
+ * @return Zend_Pdf_Page
  */
 public function clipCircle($x,
                            $y,
@@ -946,7 +946,7 @@ public function clipCircle($x,
  * @param float $y2
  * @param float $startAngle
  * @param float $endAngle
- * @return Zend_Pdf_Page 
+ * @return Zend_Pdf_Page
  */
 public function clipEllipse($x1,
                             $y1,
@@ -972,7 +972,7 @@ public function clipEllipse($x1,
  * このページの描画操作で使用する予定のスタイルを設定します。
  *
  * @param Zend_Pdf_Style $style
- * @return Zend_Pdf_Page 
+ * @return Zend_Pdf_Page
  */
 public function setStyle(Zend_Pdf_Style $style);
 
@@ -994,7 +994,7 @@ public function getStyle();
  * 線の色を設定します。
  *
  * @param Zend_Pdf_Color $color
- * @return Zend_Pdf_Page 
+ * @return Zend_Pdf_Page
  */
 public function setLineColor(Zend_Pdf_Color $color);
 ]]>
@@ -1013,7 +1013,7 @@ public function getLineColor();
  * 線の幅を設定します。
  *
  * @param float $width
- * @return Zend_Pdf_Page 
+ * @return Zend_Pdf_Page
  */
 public function setLineWidth($width);
 ]]>
@@ -1033,7 +1033,7 @@ public function getLineWidth();
  *
  * @param array $pattern
  * @param float $phase
- * @return Zend_Pdf_Page 
+ * @return Zend_Pdf_Page
  */
 public function setLineDashingPattern($pattern, $phase = 0);
 ]]>
@@ -1061,7 +1061,7 @@ public function getLineDashingPhase();
  * 塗りつぶし色を設定します。
  *
  * @param Zend_Pdf_Color $color
- * @return Zend_Pdf_Page 
+ * @return Zend_Pdf_Page
  */
 public function setFillColor(Zend_Pdf_Color $color);
 ]]>
@@ -1081,7 +1081,7 @@ public function getFillColor();
  *
  * @param Zend_Pdf_Resource_Font $font
  * @param float $fontSize
- * @return Zend_Pdf_Page 
+ * @return Zend_Pdf_Page
  */
 public function setFont(Zend_Pdf_Resource_Font $font, $fontSize);
 ]]>
@@ -1091,7 +1091,7 @@ public function setFont(Zend_Pdf_Resource_Font $font, $fontSize);
  * 現在のフォントサイズを変更します。
  *
  * @param float $fontSize
- * @return Zend_Pdf_Page 
+ * @return Zend_Pdf_Page
  */
 public function setFontSize($fontSize);
 ]]>
@@ -1138,7 +1138,7 @@ public function getFontSize();
  * @param float $alpha
  * @param string $mode
  * @throws Zend_Pdf_Exception
- * @return Zend_Pdf_Page 
+ * @return Zend_Pdf_Page
  */
 public function setAlpha($alpha, $mode = 'Normal');
 ]]>

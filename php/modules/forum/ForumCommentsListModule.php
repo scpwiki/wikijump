@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -34,27 +34,27 @@ use DB\ForumThread;
 use DB\ForumPostPeer;
 
 class ForumCommentsListModule extends SmartyModule {
-	
+
 	private $threadId;
-	
+
 	protected $processPage = false;
-	
+
 	public function render($runData){
 		$site = $runData->getTemp("site");
-		
+
 		$pl = $runData->getParameterList();
 		$pageId = $pl->getParameterValue("pageId");
 		$pageName = $runData->getTemp("pageUnixName");
-		
+
 		$parmHash = md5(serialize($pl->asArray()));
-		
+
 		if($pageId !== null){
 			$key = 'pagecomments_v_pageid..'.$site->getUnixName().'..'.$pageId.'..'.$parmHash;
 		}else{
 			$key = 'pagecomments_v_pagename..'.$site->getUnixName().'..'.$pageName.'..'.$parmHash;
 		}
 		$akey = 'forumall_lc..'.$site->getUnixName();
-		
+
 		$uri = GlobalProperties::$MODULES_JS_URL.'/forum/ForumViewThreadModule.js';
 		$this->extraJs[] = $uri;
 
@@ -69,12 +69,12 @@ class ForumCommentsListModule extends SmartyModule {
 			$changeTimestamp = $mc->get($tkey);
 			if($changeTimestamp && $changeTimestamp <= $cacheTimestamp && $allForumTimestamp && $allForumTimestamp <= $cacheTimestamp){
 				$runData->ajaxResponseAdd("threadId", $threadId);
-				return $struct['content'];	
+				return $struct['content'];
 			}
 		}
-		
+
 		$out = parent::render($runData);
-		
+
 		// and store the data now
 		$struct = array();
 		$now = time();
@@ -86,7 +86,7 @@ class ForumCommentsListModule extends SmartyModule {
 			$tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$this->threadId; // last change timestamp
 			$changeTimestamp = $mc->get($tkey);
 		}
-		
+
 		$mc->set($key, $struct, 0, 864000);
 		if(!$changeTimestamp){
 			$tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$this->threadId;
@@ -98,47 +98,47 @@ class ForumCommentsListModule extends SmartyModule {
 			$mc->set($akey, $allForumTimestamp, 0, 10000);
 		}
 
-		return $out; 
+		return $out;
 	}
-	
+
 	public function build($runData){
 		$site = $runData->getTemp("site");
 		$page = $runData->getTemp("page");
-		
+
 		$pl = $runData->getParameterList();
-		
+
 		if($page == null){
 			$pageId = $pl->getParameterValue("pageId");
 			if($pageId !== null && is_numeric($pageId)){
 				$page = PagePeer::instance()->selectByPrimaryKey($pageId);
 			}else{
 				$pageName = $runData->getTemp("pageUnixName");
-				
-				$site = $runData->getTemp("site");	
+
+				$site = $runData->getTemp("site");
 				$page =  PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
 			}
 
 			if($page == null || $page->getSiteId() !== $site->getSiteId()){
-				throw new ProcessException(_("Can not find related page."), "no_page");	
+				throw new ProcessException(_("Can not find related page."), "no_page");
 			}
 		}
-		
+
 		// check for a discussion thread. if not exists - create it!
-		
+
 		$c = new Criteria();
 		$c->add("page_id", $page->getPageId());
 		$c->add("site_id", $site->getSiteId());
-		
+
 		$thread = ForumThreadPeer::instance()->selectOne($c);
-		
+
 		if($thread == null){
 			// create thread!!!
 			$c = new Criteria();
 			$c->add("site_id", $site->getSiteId());
 			$c->add("per_page_discussion", true);
-			
+
 			$category = ForumCategoryPeer::instance()->selectOne($c);
-			
+
 			if($category == null){
 				// create this category!
 				$category = new ForumCategory();
@@ -146,7 +146,7 @@ class ForumCommentsListModule extends SmartyModule {
 				$category->setDescription(_("This category groups discussions related to particular pages within this site."));
 				$category->setPerPageDiscussion(true);
 				$category->setSiteId($site->getSiteId());
-				
+
 				// choose group. create one?
 				$c = new Criteria();
 				$c->add("site_id", $site->getSiteId());
@@ -163,7 +163,7 @@ class ForumCommentsListModule extends SmartyModule {
 				$category->setGroupId($group->getGroupId());
 				$category->save();
 			}
-			
+
 			// now create thread...
 			$thread = new ForumThread();
 			$thread->setCategoryId($category->getCategoryId());
@@ -173,26 +173,26 @@ class ForumCommentsListModule extends SmartyModule {
 			$thread->setDateStarted(new ODate());
 			$thread->setNumberPosts(0);
 			$thread->save();
-			
+
 			$page->setThreadId($thread->getThreadId());
 			$page->save();
-			
+
 			$category->setNumberThreads($category->getNumberThreads()+1);
-			$category->save();	
+			$category->save();
 		}else{
 			$category = $thread->getForumCategory();
 		}
-		
+
 		$this->threadId = $thread->getThreadId();
-		
+
 		$c = new Criteria();
 		$c->add("thread_id", $thread->getThreadId());
 		$c->add("site_id", $site->getSiteId());
 		$c->addJoin("user_id", "ozone_user.user_id");
 		$c->addOrderAscending("post_id");
-		
+
 		$posts = ForumPostPeer::instance()->select($c);
-		
+
 		// make a mapping first.
 		$map = array();
 		$levels = array();
@@ -206,13 +206,13 @@ class ForumCommentsListModule extends SmartyModule {
 				$levels[$postId] = 0;
 			} else {
 				// find a parent
-				
+
 				$cpos = array_search($parentId, $map);
 				$clevel = $levels[$parentId];
-				// find a place for the post, i.e. the place where level_next == level or the end of array	
+				// find a place for the post, i.e. the place where level_next == level or the end of array
 				$cpos++;
 				while(isset($map[$cpos]) && $levels[$map[$cpos]]>$clevel){
-					$cpos++;	
+					$cpos++;
 				}
 				// insert at this position!!!
 				array_splice($map, $cpos, 0, $postId);
@@ -221,7 +221,7 @@ class ForumCommentsListModule extends SmartyModule {
 		}
 
 		// create container control list
-		
+
 		$cc = array();
 		foreach($map as $pos => $m){
 			// open if previous post has LOWER level
@@ -230,26 +230,26 @@ class ForumCommentsListModule extends SmartyModule {
 			if(isset($map[$pos+1])){
 				$nlevel = $levels[$map[$pos+1]];
 				if( $nlevel>$clevel){
-					$cc[$pos] = 'k';	
+					$cc[$pos] = 'k';
 				}
 				if($nlevel < $clevel){
-					$cc[$pos]=str_repeat('c', $clevel-$nlevel);	
+					$cc[$pos]=str_repeat('c', $clevel-$nlevel);
 				}
-					
+
 			}else{
-				$cc[$pos]=str_repeat('c', $clevel);	
-			}  	
+				$cc[$pos]=str_repeat('c', $clevel);
+			}
 		}
 
 		$runData->contextAdd("postmap", $map);
 		$runData->contextAdd("levels", $levels);
 		$runData->contextAdd("containerControl", $cc);
-		
+
 		$runData->contextAdd("thread", $thread);
 		$runData->contextAdd("category", $category);
 		$runData->contextAdd("posts", $posts);
 
 		$runData->ajaxResponseAdd("threadId", $thread->getThreadId());
 	}
-	
+
 }

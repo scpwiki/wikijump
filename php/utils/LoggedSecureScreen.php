@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -25,13 +25,13 @@
 
 
 abstract class LoggedSecureScreen extends SmartyScreen {
-	
+
 	public function isAllowed($runData){
 		if($runData->isUserAuthenticated()){
 			$runData->contextAdd("loggedUserId", $runData->getUserId());
 			return true;
 		}	else {
-			
+
 			// if some conditions are met, you can be succesfuly redirected after the login
 			if($runData->getRequestMethod() == "GET" || $runData->getAction === null){
 				$runData->contextAdd("requestedTemplate", $runData->getScreenTemplate());
@@ -41,9 +41,9 @@ abstract class LoggedSecureScreen extends SmartyScreen {
 			}
 			$runData->setScreenTemplate("LoginUser");
 			return false;
-				
+
 		}
-		
+
 	}
-	
+
 }

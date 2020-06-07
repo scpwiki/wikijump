@@ -24,11 +24,11 @@ class Text_Wiki_Render_Xhtml_Email extends Text_Wiki_Render {
     function token($options) {
         $email = $options['email'];
         $text = $options['text'];
-        
+
         $out = '<span class="wiki-email">';
         $out .= str_replace('@', '|', strrev($email) . '#' . strrev($text));
         $out .= '</span>';
-        
+
         return $out;
     }
 }

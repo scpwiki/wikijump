@@ -17,11 +17,11 @@
         wieloma żądaniami do serwisu przez tego samego klienta. W
         przeciwieństwie do danych z ciasteczka, dane sesji nie są przechowywane
         po stronie klienta i są one dostępne dla klienta tylko wtedy, gdy kod po
-        stronie serwera dobrowolnie udostępni dane w odpowiedzi na żądanie 
-        klienta. Dla celów tego komponentu oraz dokumentacji, określenie "dane 
-        sesji" odnoszą się do danych przechowywanych po stronie serwera w 
-        tablicy 
-        <ulink url="http://www.php.net/manual/en/reserved.variables.php#reserved.variables.session"><code>$_SESSION</code></ulink>, 
+        stronie serwera dobrowolnie udostępni dane w odpowiedzi na żądanie
+        klienta. Dla celów tego komponentu oraz dokumentacji, określenie "dane
+        sesji" odnoszą się do danych przechowywanych po stronie serwera w
+        tablicy
+        <ulink url="http://www.php.net/manual/en/reserved.variables.php#reserved.variables.session"><code>$_SESSION</code></ulink>,
         zarządzanych przez <code>Zend_Session</code>,
         oraz indywidualnie manipulowanych przez obiekty dostępowe
         <code>Zend_Session_Namespace</code>.
@@ -33,17 +33,17 @@
     </para>
 
     <para>
-        Instancje <code>Zend_Session_Namespace</code> są obiektami dostępowymi 
+        Instancje <code>Zend_Session_Namespace</code> są obiektami dostępowymi
         dla przestrzeni nazw będących wycinkami tablicy <code>$_SESSION</code>.
-        Komponent <code>Zend_Session</code> rozszerza istniejącą funkcjonalność 
-        PHP ext/session dodając interfejs umożliwiający administrację i 
+        Komponent <code>Zend_Session</code> rozszerza istniejącą funkcjonalność
+        PHP ext/session dodając interfejs umożliwiający administrację i
         zarządzanie, a także zapewniając API dla przestrzeni nazw
         <code>Zend_Session_Namespace</code>.
         <code>Zend_Session_Namespace</code> zapewnia ustandaryzowany zorientowany
         obiektowo interfejs do pracy z przestrzeniami nazw istniejącymi wewnątrz
         standardowego mechanizmu sesji PHP. Wspierane są zarówno przestrzenie
-        nazw dla anonimowych użytkowników, jak i dla uwierzytelnionych (np. 
-        zalogowanych). <code>Zend_Auth</code>, komponent autentykacji w Zend 
+        nazw dla anonimowych użytkowników, jak i dla uwierzytelnionych (np.
+        zalogowanych). <code>Zend_Auth</code>, komponent autentykacji w Zend
         Framework używa <code>Zend_Session_Namespace</code> do przechowywania informacji
         związanych z autentykowanymi użytkownikami w przestrzeni nazw "Zend_Auth".
         Z tego względu, że <code>Zend_Session</code> używa normalnych
@@ -59,16 +59,16 @@
     </para>
 
     <para>
-        Domyślna 
+        Domyślna
         <ulink url="http://www.php.net/manual/en/function.session-set-save-handler.php">obsługa
         zapisu sesji</ulink> nie rozwiązuje problemu zarządzania tym powiązaniem
-        dla klastrów serwerów, ponieważ dane sesji przechowywane są w systemie 
-        plików serwera, który odpowiada na żądanie. Jeśli żądanie może byc 
-        przetworzone przez inny serwer niż ten, na którym zapisane są dane 
-        sesji, to przetwarzający serwer nie ma dostępu do danych sesji (jeśli 
-        nie są dostępne w systemie plików połączonym siecią). Dodatkowe 
-        odpowiednie możliwości obsługi zapisu będą zapewnione, gdy będzie to 
-        możliwe. Namawiamy członków społeczności aby wysyłali propozycje 
+        dla klastrów serwerów, ponieważ dane sesji przechowywane są w systemie
+        plików serwera, który odpowiada na żądanie. Jeśli żądanie może byc
+        przetworzone przez inny serwer niż ten, na którym zapisane są dane
+        sesji, to przetwarzający serwer nie ma dostępu do danych sesji (jeśli
+        nie są dostępne w systemie plików połączonym siecią). Dodatkowe
+        odpowiednie możliwości obsługi zapisu będą zapewnione, gdy będzie to
+        możliwe. Namawiamy członków społeczności aby wysyłali propozycje
         możliwości obsługi zapisu na listę
         <ulink url="mailto:fw-auth@lists.zend.com">fw-auth@lists.zend.com</ulink>.
         Obsługa zapisu kompatybilna z Zend_Db została opisana na liście.

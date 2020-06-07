@@ -174,10 +174,10 @@ if (Zend_Loader::isReadable($filename)) {
                 Z powodu semantyki referencji do statycznych funkcji w PHP,
                 musisz zaimplementować kod zarówno dla metody <code>loadClass()</code>
                 jak i dla metody <code>autoload()</code>, a metoda <code>autoload()</code>
-                musi wywołać metodę <code>self::loadClass()</code>.  
+                musi wywołać metodę <code>self::loadClass()</code>.
                 Jeśli twoja metoda <code>autoload()</code> odnosi się do klasy
                 rodzica i wywołuje metodę <code>self::loadClass()</code>, wtedy
-                wywołuje metodę o tej nazwie pochodzącą z klasy rodzica, a nie 
+                wywołuje metodę o tej nazwie pochodzącą z klasy rodzica, a nie
                 z klasy rozszerzonej.
             </para>
             <programlisting role="php"><![CDATA[
@@ -226,12 +226,12 @@ Zend_Loader::registerAutoload('My_Loader');
 ]]>
             </programlisting>
         </example>
-        
+
         <para>
             Możesz usunąć metodą autoloadera. Metoda
             <code>registerAutoload()</code> przyjmuje opcjonalny drugi argument,
             ktorego wartością domyślna jest <code>true</code>. Jeśli ten argument
-            ma wartość <code>false</code>, metoda autoloadera zostanie 
+            ma wartość <code>false</code>, metoda autoloadera zostanie
             wyrejestrowana ze stosu autoloaderów SPL.
         </para>
 

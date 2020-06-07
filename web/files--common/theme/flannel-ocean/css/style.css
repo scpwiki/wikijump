@@ -11,7 +11,7 @@
 	border-bottom: 3px solid #707080;
 	background-image: url(../../flannel/images/flannel-bg-1.png);
 	background-repeat: repeat-x;
-	background-position: 0 2.1em; 
+	background-position: 0 2.1em;
 }
 
 
@@ -69,7 +69,7 @@
 }
 #account-options a:hover{
 	background-color: #EEE;
-}	
+}
 
 #top-bar{
 	right: 10em;
@@ -90,7 +90,7 @@
 #side-bar h1, #side-bar h2,#side-bar h3{
 	/*border-top: 1px dotted #777;*/
 	border-bottom: 1px dotted #777;
-}  
+}
 
 #side-bar h1{
 	font-size: 170%;
@@ -124,7 +124,7 @@
 }
 
 
-/* footer */ 
+/* footer */
 /*
 #footer{
 	background-color: #DDD;
@@ -238,4 +238,4 @@ div.buttons input:hover, input.button:hover, button:hover,  a.button:hover, .owi
 }
 .thread-container .post  .short  .options{
 	color: #727290;
-}	
+}

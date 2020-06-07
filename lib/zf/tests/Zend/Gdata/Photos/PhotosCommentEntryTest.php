@@ -30,10 +30,10 @@ require_once 'Zend/Http/Client/Adapter/Test.php';
  */
 class Zend_Gdata_Photos_PhotosCommentEntryTest extends PHPUnit_Framework_TestCase
 {
-    
+
     protected $commentEntry = null;
 
-    /** 
+    /**
       * Called before each test to setup any fixtures.
       */
     public function setUp()
@@ -45,7 +45,7 @@ class Zend_Gdata_Photos_PhotosCommentEntryTest extends PHPUnit_Framework_TestCas
     }
 
     /**
-      * Verify that a given property is set to a specific value 
+      * Verify that a given property is set to a specific value
       * and that the getter and magic variable return the same value.
       *
       * @param object $obj The object to be interrogated.
@@ -62,12 +62,12 @@ class Zend_Gdata_Photos_PhotosCommentEntryTest extends PHPUnit_Framework_TestCas
     }
 
     /**
-      * Verify that a given property is set to a specific value 
+      * Verify that a given property is set to a specific value
       * and that the getter and magic variable return the same value.
       *
       * @param object $obj The object to be interrogated.
       * @param string $name The name of the property to be verified.
-      * @param string $secondName 2nd level accessor function name      
+      * @param string $secondName 2nd level accessor function name
       * @param object $value The expected value of the property.
       */
     protected function verifyProperty2($obj, $name, $secondName, $value)
@@ -82,12 +82,12 @@ class Zend_Gdata_Photos_PhotosCommentEntryTest extends PHPUnit_Framework_TestCas
 
     /**
       * Verify that a given property is set to a specific value,
-      * that it keeps that value when set using the setter, 
+      * that it keeps that value when set using the setter,
       * and that the getter and magic variable return the same value.
       *
       * @param object $obj The object to be interrogated.
-      * @param string $name The name of the property to be verified. 
-      * @param string $secondName 2nd level accessor function name   
+      * @param string $name The name of the property to be verified.
+      * @param string $secondName 2nd level accessor function name
       * @param object $value The expected value of the property.
       */
     protected function verifyProperty3($obj, $name, $secondName, $value)
@@ -113,12 +113,12 @@ class Zend_Gdata_Photos_PhotosCommentEntryTest extends PHPUnit_Framework_TestCas
 
         // Assert that the entry's ID is correct
         $this->assertTrue($entry->getId() instanceof Zend_Gdata_App_Extension_Id);
-        $this->verifyProperty2($entry, "id", "text", 
+        $this->verifyProperty2($entry, "id", "text",
                 "http://picasaweb.google.com/data/entry/api/user/sample.user/albumid/1/photoid/100/commentid/5");
     }
 
-    /** 
-      * Check for the existence of an <atom:author> and verify that they 
+    /**
+      * Check for the existence of an <atom:author> and verify that they
       * contain the expected values.
       */
     public function testAuthor()
@@ -136,7 +136,7 @@ class Zend_Gdata_Photos_PhotosCommentEntryTest extends PHPUnit_Framework_TestCas
     }
 
     /**
-      * Check for the existence of an <atom:published> and verify that it contains 
+      * Check for the existence of an <atom:published> and verify that it contains
       * the expected value.
       */
     public function testPublished()
@@ -149,7 +149,7 @@ class Zend_Gdata_Photos_PhotosCommentEntryTest extends PHPUnit_Framework_TestCas
     }
 
     /**
-      * Check for the existence of an <atom:updated> and verify that it contains 
+      * Check for the existence of an <atom:updated> and verify that it contains
       * the expected value.
       */
     public function testUpdated()
@@ -158,7 +158,7 @@ class Zend_Gdata_Photos_PhotosCommentEntryTest extends PHPUnit_Framework_TestCas
 
         // Assert that the entry's updated date is correct
         $this->assertTrue($entry->getUpdated() instanceof Zend_Gdata_App_Extension_Updated);
-        $this->verifyProperty2($entry, "updated", "text", 
+        $this->verifyProperty2($entry, "updated", "text",
                 "2007-09-21T18:22:53.000Z");
     }
 
@@ -198,9 +198,9 @@ class Zend_Gdata_Photos_PhotosCommentEntryTest extends PHPUnit_Framework_TestCas
 
         // Assert that the entry's title is correct
         $this->assertTrue($entry->getGphotoId() instanceof Zend_Gdata_Photos_Extension_Id);
-        $this->verifyProperty2($entry, "gphotoId", "text", 
+        $this->verifyProperty2($entry, "gphotoId", "text",
                 "5");
-        $this->verifyProperty3($entry, "gphotoId", "text", 
+        $this->verifyProperty3($entry, "gphotoId", "text",
                 "5");
     }
 
@@ -214,10 +214,10 @@ class Zend_Gdata_Photos_PhotosCommentEntryTest extends PHPUnit_Framework_TestCas
 
         // Assert that the entry's title is correct
         $this->assertTrue($entry->getGphotoPhotoId() instanceof Zend_Gdata_Photos_Extension_PhotoId);
-        $this->verifyProperty2($entry, "gphotoPhotoId", "text", 
+        $this->verifyProperty2($entry, "gphotoPhotoId", "text",
                 "100");
-        $this->verifyProperty3($entry, "gphotoPhotoId", "text", 
+        $this->verifyProperty3($entry, "gphotoPhotoId", "text",
                 "100");
     }
-    
+
 }

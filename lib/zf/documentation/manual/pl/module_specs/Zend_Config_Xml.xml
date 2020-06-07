@@ -81,10 +81,10 @@ echo $config->database->params->dbname; // wyświetla "dbname"
     <example id="zend.config.adapters.xml.example.attributes">
         <title>Używanie atrybutów znaczników w Zend_Config_Xml</title>
         <para>
-            Komponent Zend_Config_Xml obsługuje także dwa inne sposoby 
-            definiowania elementów w pliku konfiguracyjnym. Oba sposoby używają 
-            atrybutów. Z tego względu, że atrybuty <code>extends</code> oraz 
-            <code>value</code> są zastrzeżone (do rozszerzania sekcji oraz do 
+            Komponent Zend_Config_Xml obsługuje także dwa inne sposoby
+            definiowania elementów w pliku konfiguracyjnym. Oba sposoby używają
+            atrybutów. Z tego względu, że atrybuty <code>extends</code> oraz
+            <code>value</code> są zastrzeżone (do rozszerzania sekcji oraz do
             alternatywnego sposobu użycia atrybutów), nie mogą one być użyte.
             Pierwszym sposobem użycia atrybutu jest dodanie go w elemencie
             rodzica. Zostanie on automatycznie przełożony jako element dziecko:
@@ -106,10 +106,10 @@ echo $config->database->params->dbname; // wyświetla "dbname"
 ]]>
         </programlisting>
         <para>
-            Kolejny sposób tak naprawdę nie zmniejsza objętości pliku 
+            Kolejny sposób tak naprawdę nie zmniejsza objętości pliku
             konfiguracyjnego, ale ułatwia zarządzanie nim, ponieważ eliminuje
             konieczność pisania nazw znaczników podwójnie. Po prostu tworzysz
-            pusty znacznik, który zawiera swoją wartość wewnątrz atrybutu 
+            pusty znacznik, który zawiera swoją wartość wewnątrz atrybutu
             <code>value</code>:
         </para>
         <programlisting role="xml"><![CDATA[

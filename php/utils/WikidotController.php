@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id: UploadedFileFlowController.php,v 1.5 2008/08/01 14:00:27 quake Exp $
@@ -28,31 +28,31 @@ use DB\SitePeer;
 use DB\MemberPeer;
 
 abstract class WikidotController extends WebFlowController {
-	
+
 	static protected $HTML_MIME_TYPES = ";^text/html|^application/xhtml+xml|^application/xml|^text/xml;";
 	static protected $HTML_SERVE_AS = "text/plain";
-	
+
 	/**
 	 * Gets a site from given hostname. This version works for custom domains and upload domain if needed
 	 *
 	 * @param string $siteHost the host to check
-	 * @param bool $customDomains whether to check custom domains 
+	 * @param bool $customDomains whether to check custom domains
 	 * @param bool $uploadDomain whether to check upload domains as well
 	 * @return DB_Site
 	 */
 	protected function siteFromHost($siteHost, $customDomains = false, $uploadDomain = false) {
-		
+
 		$memcache = \Ozone::$memcache;
-		
+
 		if ($uploadDomain) {
 			$regexp = "/^([a-zA-Z0-9\-]+)\.(" . GlobalProperties::$URL_DOMAIN_PREG . "|" . GlobalProperties::$URL_UPLOAD_DOMAIN_PREG . ")$/";
 		} else {
 			$regexp = "/^([a-zA-Z0-9\-]+)\.(" . GlobalProperties::$URL_DOMAIN_PREG . ")$/";
 		}
-		
+
 		if (preg_match($regexp, $siteHost, $matches) == 1) {
 			// select site based on the unix name
-				
+
 			$siteUnixName = $matches[1];
 			$mcKey = 'site..'.$siteUnixName;
 			$site = $memcache->get($mcKey);
@@ -66,27 +66,27 @@ abstract class WikidotController extends WebFlowController {
 				}
 			}
 		}
-		
-		
+
+
 		// select site based on the custom domain
 
 		if (! $site && $customDomains) {
 			$mcKey = 'site_cd..'.$siteHost;
 			$site = $memcache->get($mcKey);
-			if ($site == false) {	
+			if ($site == false) {
 				$c = new Criteria();
 				$c->add("custom_domain", $siteHost);
 				$c->add("site.deleted", false);
 				$site = SitePeer::instance()->selectOne($c);
 				if ($site) {
 					$memcache->set($mcKey, $site, 0, 3600);
-				}	
+				}
 			}
 		}
-		
+
 		return $site;
 	}
-	
+
 	protected function isUploadDomain($siteHost) {
 
 		if (preg_match("/^[^.]*\." . GlobalProperties::$URL_UPLOAD_DOMAIN_PREG . "$/", $siteHost)) {
@@ -108,11 +108,11 @@ abstract class WikidotController extends WebFlowController {
 			return false;
 		}
 	}
-	
+
 	protected function fileNotExists() {
 		$this->serveFile(WIKIDOT_ROOT."/files/file_not_exists.html", "text/html");
 	}
-	
+
 	private function calculateEtag($path) {
 		if (file_exists($path)) {
 			$stat = stat($path);
@@ -122,7 +122,7 @@ abstract class WikidotController extends WebFlowController {
 		}
 		return '"none"';
 	}
-	
+
 	public function return304() {
 		header("HTTP/1.0 304 Not Modified");
 	}
@@ -135,7 +135,7 @@ abstract class WikidotController extends WebFlowController {
 	 */
 	protected function serveFileWithMime($path, $expires = null, $restrictHtml = false) {
 		$etag = $this->calculateEtag($path);
-		
+
 		if (isset($_SERVER["HTTP_IF_NONE_MATCH"])) {
 			if ($_SERVER["HTTP_IF_NONE_MATCH"] == $etag) {
 				$this->return304();
@@ -193,11 +193,11 @@ abstract class WikidotController extends WebFlowController {
 		} else {
 			$mime = false;
 		}
-			
+
 		if (! $mime || $mime == "application/msword") {
 			$mime = "application/octet-stream";
 		}
-		
+
 		if ($restrictHtml && preg_match(self::$HTML_MIME_TYPES, $mime)) {
 			$mime = self::$HTML_SERVE_AS;
 		}

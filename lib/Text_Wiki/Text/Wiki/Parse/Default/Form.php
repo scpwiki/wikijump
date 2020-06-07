@@ -31,7 +31,7 @@
  */
 
 class Text_Wiki_Parse_Form extends Text_Wiki_Parse {
-    
+
     /**
      *
      * The regular expression used to find source text matching this
@@ -42,7 +42,7 @@ class Text_Wiki_Parse_Form extends Text_Wiki_Parse {
      * @var string
      *
      */
-    
+
     public $regex = '/\[\[form\]\]\s*\n(.*)\n---\s*\n(.*)\n\[\[\/form\]\]/is';
 
     /**
@@ -61,11 +61,11 @@ class Text_Wiki_Parse_Form extends Text_Wiki_Parse {
      * the source text.
      *
      */
-    
+
     function process(&$matches) {
         $formYaml = $matches[1];
         $dataYaml = $matches[2];
-        
+
         if (substr($dataYaml, 0, 2) == '%%') {
             $dataYaml = '';
         }

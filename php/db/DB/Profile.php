@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot_Db
  * @version $Id$
@@ -35,13 +35,13 @@ class Profile extends ProfileBase {
     public function getBirthdayDate($format = null) {
         if ($this->getBirthdayDay() == null) {
             return null;
-        
+
         }
-        
+
         $day = $this->getBirthdayDay();
         $month = $this->getBirthdayMonth();
         $year = $this->getBirthdayYear();
-        
+
         $date = mktime(0, 0, 0, $month, $day, $year);
         if ($format == null) {
             $format = "%e %b %Y";

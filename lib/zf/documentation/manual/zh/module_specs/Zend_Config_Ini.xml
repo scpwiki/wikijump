@@ -15,8 +15,8 @@
             缺省地，键分离器字符是句号(<code>.</code>)。然而，这个可以通过当构造<code>Zend_Config_Ini</code>对象时修改<code>$options</code> key <code>'nestSeparator'</code> 被修改。例如：
             <programlisting role="php"><![CDATA[
 $options['nestSeparator'] = ':';
-$config = new Zend_Config_Ini('/path/to/config.ini', 
-                              'staging', 
+$config = new Zend_Config_Ini('/path/to/config.ini',
+                              'staging',
                               $options);
 ]]>
             </programlisting>

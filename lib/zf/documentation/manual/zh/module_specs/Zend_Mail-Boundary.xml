@@ -8,7 +8,7 @@
         <programlisting role="php"><![CDATA[
 $mail = new Zend_Mail();
 $mail->setMimeBoundary('=_' . md5(microtime(1) . $someId++));
-// build message... 
+// build message...
 ]]>
        </programlisting>
     </example>

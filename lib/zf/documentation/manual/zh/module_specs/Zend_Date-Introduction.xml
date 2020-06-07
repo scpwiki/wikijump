@@ -32,15 +32,15 @@
             时区设置的全部列表，请参考 <ulink url="http://unicode.org/cldr/data/diff/supplemental/territory_containment_un_m_49.html">CLDR Timezone Identifier List</ulink>。
             <example id="zend.date.setdefaulttimezone.example-1">
                 <title> 设置一个缺省的时区 </title>
-                <programlisting role="php"><![CDATA[ 
-// timezone for an American in California                
+                <programlisting role="php"><![CDATA[
+// timezone for an American in California
 date_default_timezone_set('America/Los_Angeles');
 // timezone for a German in Germany
 date_default_timezone_set('Europe/Berlin');
-]]>        
+]]>
                 </programlisting>
             </example>
-            <emphasis role="strong"> 当创建 Zend_Date 实例时，它们的时区就自动地变成当前缺省时区！</emphasis> 
+            <emphasis role="strong"> 当创建 Zend_Date 实例时，它们的时区就自动地变成当前缺省时区！</emphasis>
             这样，时区设置将有效地解决任何夏时制（DST）问题，不需要显式地指定夏时制。
         </para>
 
@@ -97,7 +97,7 @@ date_default_timezone_set('Europe/Berlin');
                     例如，即使 MsSQL 和 <ulink url="http://dev.mysql.com/doc/refman/5.0/en/date-and-time-functions.html">MySQL</ulink>
                     有点不同，<code>Zend_Date</code> 都用 <link linkend="zend.date.constants.list">Zend_Date::ISO_8601</link>
                     格式规范常量来支持它们。当日期字符串符合 "Y/m/d" or "Y-m-d H:i:s" 根据 PHP date() 格式令牌，使用 Zend_Date
-                    的内置的 ISO 8601 日期格式。 
+                    的内置的 ISO 8601 日期格式。
                 </para>
             </listitem>
             <listitem>

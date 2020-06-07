@@ -15,9 +15,9 @@
 
         <para>
             Weryfikator bada dane wejściowe w oparciu o pewne wymagania i tworzy
-            wynik w postaci wartości logicznej - wartość ta mówi czy dane 
-            wejściowe spełniają te wymagania. Jeśli dane wejściowe nie spełniają 
-            wymagań, weryfikator może dodatkowo przekazać informacje o tym, które 
+            wynik w postaci wartości logicznej - wartość ta mówi czy dane
+            wejściowe spełniają te wymagania. Jeśli dane wejściowe nie spełniają
+            wymagań, weryfikator może dodatkowo przekazać informacje o tym, które
             z wymagań nie zostały spełnione.
         </para>
 
@@ -49,8 +49,8 @@
         <para>
             Jeśli metoda <code>isValid()</code> zwróci <code>false</code>, za
             pomocą metody <code>getMessages()</code> można pobrać tablicę
-            wiadomości wyjaśniających powody niepowodzenia weryfikacji. 
-            Klucze elementów tablicy są krótkimi łańcuchami znaków, które 
+            wiadomości wyjaśniających powody niepowodzenia weryfikacji.
+            Klucze elementów tablicy są krótkimi łańcuchami znaków, które
             identyfikują powody nieudanej weryfikacji, a wartości elementów
             odpowiadają pełnym treściom komunikatów. Klucze i wartości są
             zależne od klasy; każda klasa weryfikatora definiuje własny zestaw
@@ -61,7 +61,7 @@
 
         <note>
             <para>
-                Metoda <code>getMessages()</code> 
+                Metoda <code>getMessages()</code>
                 zwracaja informacje o nieudanej weryfikacji tylko dla ostatniego
                 wywołania metody <code>isValid()</code>. Każde wywołanie metody
                 <code>isValid()</code> czyści wszystkie komunikaty i błędy,
@@ -118,11 +118,11 @@ if ($validator->isValid($email)) {
             Drugi opcjonalny argument jest łańcuchem znaków, który identyfikuje
             szablon komunikatu który chcesz ustawić, co jest przydatne gdy
             klasa definiuje więcej niż jeden komunikatów o błędach.
-            Jeśli pominiesz drugi argument, metoda <code>setMessage()</code> 
-            założy, że komunikat, który określisz powinien być użyty dla 
-            pierwszego szablonu komunikatu zadeklarowanego w klasie weryfikatora. 
+            Jeśli pominiesz drugi argument, metoda <code>setMessage()</code>
+            założy, że komunikat, który określisz powinien być użyty dla
+            pierwszego szablonu komunikatu zadeklarowanego w klasie weryfikatora.
             Wiele klas weryfikatorów posiada tylko jeden szablon komunikatu błędu,
-            więc nie ma potrzeby dokładnego określania szablonu komunikatu, który 
+            więc nie ma potrzeby dokładnego określania szablonu komunikatu, który
             chcesz nadpisać.
         </para>
 
@@ -139,7 +139,7 @@ if (!$validator->isValid('word')) {
     $messages = $validator->getMessages();
     echo current($messages);
 
-    // "Łańcuch znaków 'word' jest za krotki; 
+    // "Łańcuch znaków 'word' jest za krotki;
     // musi składać się z przynajmniej 8 znaków"
 }
 ]]>
@@ -155,9 +155,9 @@ if (!$validator->isValid('word')) {
 $validator = new Zend_Validate_StringLength(8, 12);
 
 $validator->setMessages( array(
-    Zend_Validate_StringLength::TOO_SHORT => 
+    Zend_Validate_StringLength::TOO_SHORT =>
         'Łańcuch znaków \'%value%\' jest za krótki',
-    Zend_Validate_StringLength::TOO_LONG  => 
+    Zend_Validate_StringLength::TOO_LONG  =>
         'Łańcuch znaków \'%value%\' jest za długi'
 ));
 ]]>
@@ -167,11 +167,11 @@ $validator->setMessages( array(
 
         <para>
             Jeśli twoja aplikacja wymaga większej elastyczności w związku z
-            raportowaniem nieudanej weryfikacji, możesz uzyskać dostęp do 
-            właściwości używając tych samych nazw, co identyfikatory komunikatów 
-            używane przez daną klasę weryfikatora. Właściwość <code>value</code> 
-            jest zawsze dostępna w weryfikatorze; jest to wartość, która została 
-            podana jako argument metody <code>isValid()</code>. Inne właściwości 
+            raportowaniem nieudanej weryfikacji, możesz uzyskać dostęp do
+            właściwości używając tych samych nazw, co identyfikatory komunikatów
+            używane przez daną klasę weryfikatora. Właściwość <code>value</code>
+            jest zawsze dostępna w weryfikatorze; jest to wartość, która została
+            podana jako argument metody <code>isValid()</code>. Inne właściwości
             mogą być obsługiwane indywidualnie w każdej klasie weryfikatora.
 
             <programlisting role="php"><![CDATA[
@@ -203,8 +203,8 @@ if (!validator->isValid('word')) {
             wywołania. Pierwszym argumentem tej metody są dane wejściowe, które
             chcesz przekazać do metody <code>isValid()</code>. Drugi argument
             jest łańcuchem znaków, który odpowiada, bazowej nazwie klasy
-            weryfikatora, relatywnie do przestrzeni nazw <code>Zend_Validate</code>. 
-            Metoda <code>is()</code> automatycznie ładuje klasę, tworzy instancję 
+            weryfikatora, relatywnie do przestrzeni nazw <code>Zend_Validate</code>.
+            Metoda <code>is()</code> automatycznie ładuje klasę, tworzy instancję
             i wywołuje metodę <code>isValid()</code> na danych wejściowych.
 
             <programlisting role="php"><![CDATA[
@@ -244,8 +244,8 @@ if (Zend_Validate::is($value, 'Between', array(1, 12))) {
         </para>
 
         <para>
-            Dodatkowo klasa <code>Zend_Filter_Input</code> pozwala na utworzenie 
-            instancji i wywołanie większej ilości klas filtrów i weryfikatorów w 
+            Dodatkowo klasa <code>Zend_Filter_Input</code> pozwala na utworzenie
+            instancji i wywołanie większej ilości klas filtrów i weryfikatorów w
             celu przetworzenia zestawu danych wejściowych. Zobacz
             <xref linkend="zend.filter.input" />.
         </para>

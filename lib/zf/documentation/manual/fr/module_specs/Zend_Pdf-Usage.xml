@@ -158,7 +158,7 @@ $page2->drawPolygon($x, $y,
 // Mouvement du système de coordonnées
 $page2->saveGS();
 $page2->translate(60, 250); // Décalage du système de coordonnées
-                    
+
 // Dessine un rectangle
 $page2->setFillColor(new Zend_Pdf_Color_GrayScale(0.8))
       ->setLineColor(new Zend_Pdf_Color_GrayScale(0.2))
@@ -196,7 +196,7 @@ for ($count = 0; $count < 8; $count++) {
 $page2->drawPolygon($x, $y,
                     Zend_Pdf_Page::SHAPE_DRAW_FILL_AND_STROKE,
                     Zend_Pdf_Page::FILL_METHOD_EVEN_ODD);
-                    
+
 
 // Dessine une ligne
 $page2->setLineWidth(0.5)
@@ -209,7 +209,7 @@ $page2->saveGS();
 $page2->translate(60, 150)     // Décalage du système de coordonnées
       ->skew(0, 0, 0, -M_PI/9) // Mise en biais du système de coordonnées
       ->scale(0.9, 0.9);       // Mise à l'échelle du système de coordonnées
-                    
+
 // Dessine un rectangle
 $page2->setFillColor(new Zend_Pdf_Color_GrayScale(0.8))
       ->setLineColor(new Zend_Pdf_Color_GrayScale(0.2))
@@ -247,7 +247,7 @@ for ($count = 0; $count < 8; $count++) {
 $page2->drawPolygon($x, $y,
                     Zend_Pdf_Page::SHAPE_DRAW_FILL_AND_STROKE,
                     Zend_Pdf_Page::FILL_METHOD_EVEN_ODD);
-                    
+
 // Dessine une ligne
 $page2->setLineWidth(0.5)
       ->drawLine(0, 25, 340, 25);

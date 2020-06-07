@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -30,19 +30,19 @@ class ManageSiteEmailListsModule extends ManageSiteBaseModule {
 
 	public function build($runData){
 		$site = $runData->getTemp('site');
-		
+
 		// get all email lists.
-		
+
 		$c = new Criteria();
 		$c->add('site_id', $site->getSiteId());
 		$c->addOrderDescending('special');
 		$c->addOrderAscending('title');
-		
+
 		$lists = DB_EmailListPeer::instance()->select($c);
-		
+
 		$runData->contextAdd('lists', $lists);
 		$runData->contextAdd('site', $site);
 
 	}
-	
+
 }

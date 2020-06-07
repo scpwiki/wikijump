@@ -108,7 +108,7 @@ $p_parameter = $opts->p; // null if not set
             </listitem>
         </itemizedlist>
         <para>
-            在上述所有的方法中，flag 字符串是对应于别名列表中的第一个字符串。例如：如果选项别名被声明如"<code>verbose|v</code>"，那么第一个字符串，"<code>verbose</code>"，被用作选项的规范名称。选项flag的名称不包括任何前面所述的短横线。 
+            在上述所有的方法中，flag 字符串是对应于别名列表中的第一个字符串。例如：如果选项别名被声明如"<code>verbose|v</code>"，那么第一个字符串，"<code>verbose</code>"，被用作选项的规范名称。选项flag的名称不包括任何前面所述的短横线。
         </para>
     </sect2>
 

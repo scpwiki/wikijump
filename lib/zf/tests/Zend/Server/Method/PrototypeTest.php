@@ -12,7 +12,7 @@ require_once 'Zend/Server/Method/Prototype.php';
 /**
  * Test class for Zend_Server_Method_Prototype
  */
-class Zend_Server_Method_PrototypeTest extends PHPUnit_Framework_TestCase 
+class Zend_Server_Method_PrototypeTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.

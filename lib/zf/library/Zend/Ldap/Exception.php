@@ -176,7 +176,7 @@ class Zend_Ldap_Exception extends Zend_Exception
             if ($ret === true) {
                 if ($err <= -1 && $err >= -17) {
                     /* For some reason draft-ietf-ldapext-ldap-c-api-xx.txt error
-                     * codes in OpenLDAP are negative values from -1 to -17. 
+                     * codes in OpenLDAP are negative values from -1 to -17.
                      */
                     $err = Zend_Ldap_Exception::LDAP_SERVER_DOWN + (-$err - 1);
                 }

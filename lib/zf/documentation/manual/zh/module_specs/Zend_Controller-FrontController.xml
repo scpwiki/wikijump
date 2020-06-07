@@ -105,7 +105,7 @@ $front->addControllerDirectory('../modules/foo/controllers', 'foo');
                 可以通过<code>getControllerDirectory()</code>获取控制器目录的当前设置；它将返回一个模块/目录对关联数组。
             </para>
         </sect3>
-        
+
         <sect3 id="zend.controller.front.methods.primary.addmoduledirectory">
             <title>addModuleDirectory() and getModuleDirectory()</title>
 
@@ -113,7 +113,7 @@ $front->addControllerDirectory('../modules/foo/controllers', 'foo');
                 前端控制器的一个功能是你可以
                 <link
                     linkend="zend.controller.modular">定义一个模块目录结构
-                </link> 
+                </link>
                 来创建独立的组件，被叫做“模块”。
             </para>
 

@@ -4,6 +4,6 @@
 		<column name="site_id" type="int"/>
 		<column name="label" type="varchar(256)"/>
 		<column name="title" type="varchar(256)"/>
-		<column name="data" type="text"/> 
+		<column name="data" type="text"/>
 	</table>
 </database>

@@ -10,7 +10,7 @@
 
     <para>
         Instalasi Zend Framework terbilang sangat mudah. Begitu anda mengunduh dan meng-ekstrak framework, anda tinggal menambahkan folder
-        /library pada include path di setting PHP anda. Atau bisa juga dengan memindahkan folder library ini ke lokasi 
+        /library pada include path di setting PHP anda. Atau bisa juga dengan memindahkan folder library ini ke lokasi
         tertentu di filesystem anda yang bisa diakses skrip PHP. Selesai.
 
         <itemizedlist>
@@ -23,11 +23,11 @@
             </listitem>
             <listitem>
                 <para>
-                    <ulink url="http://framework.zend.com/download/snapshot">Unduh nighly snapshot versi terakhir.</ulink> 
-                    Untuk anda yang ingin mengetahui komponen-komponen Zend Framework paling baru yang sedang dikembangkan 
-                    namun belum dikategorikan stabil, nightly snapshot adalah tempatnya. Snapshot ini berisi selain 
+                    <ulink url="http://framework.zend.com/download/snapshot">Unduh nighly snapshot versi terakhir.</ulink>
+                    Untuk anda yang ingin mengetahui komponen-komponen Zend Framework paling baru yang sedang dikembangkan
+                    namun belum dikategorikan stabil, nightly snapshot adalah tempatnya. Snapshot ini berisi selain
                     komponen ZF juga disertai dokumentasi dalam bahasa Inggris atau bahasa lain yang tersedia.
-                    
+
                 </para>
             </listitem>
             <listitem>
@@ -44,7 +44,7 @@
                     tempat anda bekerja.
                 </para>
                 <para>
-                    <ulink url="http://svnbook.red-bean.com/nightly/en/svn.ref.svn.c.checkout.html">Check out</ulink> 
+                    <ulink url="http://svnbook.red-bean.com/nightly/en/svn.ref.svn.c.checkout.html">Check out</ulink>
                     untuk anda yang ingin berkontribusi dalam pengembangan Zend Framework, dan folder lokal tempat anda
                     bekerja dapat diupdate kapanpun dengan  <ulink url="http://svnbook.red-bean.com/nightly/en/svn.ref.svn.c.update.html"><code>svn
                     update</code></ulink>.
@@ -65,7 +65,7 @@
     <para>
         Begitu anda sudah mendapatkan salinan Zend Framework, aplikasi anda harus dapat mengakses class-class
         di dalam framework. Meskipun <ulink url="http://www.php.net/manual/en/configuration.changes.php">
-        ada berbagai cara untuk melakukan ini</ulink>, setting 
+        ada berbagai cara untuk melakukan ini</ulink>, setting
         <ulink url="http://www.php.net/manual/en/ini.core.php#ini.include-path"><code>include_path</code></ulink>
         di PHP anda mesti menyertakan path ke library Zend Framework.
     </para>
@@ -78,7 +78,7 @@
     </para>
 
     <para>
-        Karena komponen-komponen Zend Framework didesain untuk dapat berjalan secara terpisah dan sendiri-sendiri, 
+        Karena komponen-komponen Zend Framework didesain untuk dapat berjalan secara terpisah dan sendiri-sendiri,
         anda mungkin menggunakan kombinasi yang unik dari komponen-komponen ini untuk keperluan aplikasi anda.
         Bab-bab berikutnya akan menjelaskan secara komprehensif dari tiap-tiap komponen Zend Framework.
     </para>

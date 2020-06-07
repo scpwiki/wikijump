@@ -9,13 +9,13 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 		<?php else: ?>
 			<a href="javascript:;" onclick="WIKIDOT.modules.MostActiveForumsModule.listeners.changeTime(event, '24h')"> 24 <?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>hours<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?></a>
 		<?php endif; ?>
-		| 
+		|
 		<?php if ($this->_tpl_vars['range'] == '7days'): ?>
 			7 <?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>days<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
 		<?php else: ?>
 			<a href="javascript:;" onclick="WIKIDOT.modules.MostActiveForumsModule.listeners.changeTime(event, '7d')"> 7 <?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>days<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?></a>
 		<?php endif; ?>
-		| 
+		|
 		<?php if ($this->_tpl_vars['range'] == 'month'): ?>
 			<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>month<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
 		<?php else: ?>
@@ -40,7 +40,7 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 					</td>
 					<td style="text-align: right">
 						<?php echo $this->_tpl_vars['r']['number_posts']; ?>
- 
+
 					</td>
 				</tr>
 			<?php endforeach; endif; unset($_from); ?>

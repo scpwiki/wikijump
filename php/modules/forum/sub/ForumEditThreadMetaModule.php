@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -29,23 +29,23 @@ use DB\ModeratorPeer;
 use DB\AdminPeer;
 
 class ForumEditThreadMetaModule extends SmartyModule {
-	
+
 	public function build($runData){
 		$pl = $runData->getParameterList();
-		
+
 		$threadId = $pl->getParameterValue("threadId");
 		$site = $runData->getTemp("site");
 		$user = $runData->getUser();
-		
+
 		$db = Database::connection();
 		$db->begin();
-		
+
 		$thread = ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
-		
+
 		if($thread == null || $thread->getSiteId() !== $site->getSiteId()){
 			throw new ProcessException(_("No thread found... Is it deleted?"), "no_thread");
 		}
-			
+
 		// check if thread blocked
 		if($thread->getBlocked()){
 			// check if moderator or admin
@@ -58,15 +58,15 @@ class ForumEditThreadMetaModule extends SmartyModule {
 				if(!$rel){
 					throw new WDPermissionException(_("Sorry, this thread is blocked. Nobody can add new posts nor edit existing ones."));
 				}
-			}	
-		}	
-			
+			}
+		}
+
 		$category = $thread->getCategory();
-		WDPermissionManager::instance()->hasForumPermission('edit_thread', $runData->getUser(), $category, $thread);	
-			
-		$runData->contextAdd("thread", $thread);	
-			
+		WDPermissionManager::instance()->hasForumPermission('edit_thread', $runData->getUser(), $category, $thread);
+
+		$runData->contextAdd("thread", $thread);
+
 		$db->commit();
 	}
-	
+
 }

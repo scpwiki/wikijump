@@ -159,7 +159,7 @@ class Zend_Gdata_YouTube_UserProfileEntry extends Zend_Gdata_Entry
      * @var string
      */
     protected $_description = null;
-    
+
     /**
      * The contents of the 'About Me' field.
      *
@@ -257,14 +257,14 @@ class Zend_Gdata_YouTube_UserProfileEntry extends Zend_Gdata_Entry
      * @var string
      */
     protected $_firstName = null;
-    
+
     /**
      * Last name
      *
      * @var string
      */
     protected $_lastName = null;
-    
+
     /**
      * Statistics
      *
@@ -625,7 +625,7 @@ class Zend_Gdata_YouTube_UserProfileEntry extends Zend_Gdata_Entry
             return $this->_statistics;
         }
     }
-    
+
     /**
      * Returns the thumbnail
      *

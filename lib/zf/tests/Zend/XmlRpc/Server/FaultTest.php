@@ -18,7 +18,7 @@ require_once 'Zend/XmlRpc/Server/Fault.php';
  * @subpackage UnitTests
  * @version $Id: FaultTest.php 12568 2008-11-11 19:54:06Z matthew $
  */
-class Zend_XmlRpc_Server_FaultTest extends PHPUnit_Framework_TestCase 
+class Zend_XmlRpc_Server_FaultTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.
@@ -58,8 +58,8 @@ class Zend_XmlRpc_Server_FaultTest extends PHPUnit_Framework_TestCase
         Zend_XmlRpc_Server_Fault::detachFaultException('zxrs_fault_test_exception');
 
         $exceptions = array(
-            'zxrs_fault_test_exception', 
-            'zxrs_fault_test_exception2', 
+            'zxrs_fault_test_exception',
+            'zxrs_fault_test_exception2',
             'zxrs_fault_test_exception3'
         );
         Zend_XmlRpc_Server_Fault::attachFaultException($exceptions);
@@ -103,8 +103,8 @@ class Zend_XmlRpc_Server_FaultTest extends PHPUnit_Framework_TestCase
 
 
         $exceptions = array(
-            'zxrs_fault_test_exception', 
-            'zxrs_fault_test_exception2', 
+            'zxrs_fault_test_exception',
+            'zxrs_fault_test_exception2',
             'zxrs_fault_test_exception3'
         );
         Zend_XmlRpc_Server_Fault::attachFaultException($exceptions);
@@ -218,7 +218,7 @@ class zxrs_fault_test_exception2 extends Exception {}
 class zxrs_fault_test_exception3 extends Exception {}
 class zxrs_fault_test_exception4 extends zxrs_fault_test_exception {}
 
-class zxrs_fault_observer 
+class zxrs_fault_observer
 {
     private static $_instance = false;
 

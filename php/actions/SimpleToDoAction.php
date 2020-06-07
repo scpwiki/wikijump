@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -29,13 +29,13 @@ use DB\SimpletodoListPeer;
 use DB\SimpletodoList;
 
 class SimpleToDoAction extends SmartyAction {
-    
+
     public function perform($r){
-        
+
     }
 
     public $dataArray = array();
-    
+
     public function saveEvent($runData){
         $site = $runData->getTemp("site");
         $pl = $runData->getParameterList();
@@ -48,7 +48,7 @@ class SimpleToDoAction extends SmartyAction {
 		if(!$page) {
 			throw new ProcessException(_("Page does not exist."));
 		}
-			
+
 			// check permissions
 		$category = $page->getCategory();
 		WDPermissionManager::instance()->hasPagePermission('edit', $runData->getUser(), $category, $page);
@@ -80,12 +80,12 @@ class SimpleToDoAction extends SmartyAction {
             $dataArray['data'][$i]['link'] = $listData->data[$i]->link ;
             $dataArray['data'][$i]['checked'] = $listData->data[$i]->checked ;
         }
-        
+
         $c = new Criteria();
         $c->add('label',$listData->label);
         $c->add('site_id', $site->getSiteId());
         $list = SimpletodoListPeer::instance()->selectOne($c);
-        
+
         if (!$list){
             $list = new SimpletodoList();
             $list->setSiteId($site->getSiteId());

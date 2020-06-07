@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * http://www.wikidot.org
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,7 +27,7 @@
 use DB\OzoneUserPeer;
 
 class ManageSuperUserAction extends SmartyAction {
-	
+
 	public function isAllowed($runData){
 		$pl = $runData->getParameterList();
 		if ($key = $pl->getParameterValue("key")) {
@@ -35,18 +35,18 @@ class ManageSuperUserAction extends SmartyAction {
 				return true;
 			}
 		}
-		WDPermissionManager::instance()->hasPermission('manage_site', $runData->getUser(), $runData->getTemp("site"));	
+		WDPermissionManager::instance()->hasPermission('manage_site', $runData->getUser(), $runData->getTemp("site"));
 		return true;
 	}
-	
+
 	public function perform($r){}
-	
+
 	public function saveEvent($runData){
 		$pl = $runData->getParameterList();
-		
+
 		$nick_name = $pl->getParameterValue("nick_name");
 		$password = $pl->getParameterValue("password1");
-		
+
 		$u = OzoneUserPeer::instance()->selectByPrimaryKey(1);
 		$u->setName($nick_name);
 		$u->setEmail($nick_name);
@@ -54,8 +54,8 @@ class ManageSuperUserAction extends SmartyAction {
 		$u->setUnixName(WDStringUtils::toUnixName($nick_name));
 		$u->setPassword($password);
 		$u->setSuperAdmin(true);
-		
+
 		$u->save();
 	}
-	
+
 }

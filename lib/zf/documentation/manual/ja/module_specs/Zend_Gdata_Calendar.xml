@@ -135,7 +135,7 @@ function getCurrentUrl()
     global $_SERVER;
 
     // php_self をフィルタリングし、セキュリティを確保します
-    $php_request_uri = 
+    $php_request_uri =
         htmlentities(substr($_SERVER['REQUEST_URI'],
                             0,
                             strcspn($_SERVER['REQUEST_URI'], "\n\r")),
@@ -158,7 +158,7 @@ function getCurrentUrl()
     return $protocol . $host . $port . $php_request_uri;
 }
 
-/** 
+/**
  * AuthSub 認証済みの HTTP クライアントを作成し、ログインが必要なら
  * ユーザを AuthSub サーバにリダイレクトします
  */
@@ -177,7 +177,7 @@ function getAuthSubHttpClient()
 
         // ユーザを AuthSub サーバにリダイレクトします
 
-        $authSubUrl = Zend_Gdata_AuthSub::getAuthSubTokenUri($next, 
+        $authSubUrl = Zend_Gdata_AuthSub::getAuthSubTokenUri($next,
                                                              $scope,
                                                              $secure,
                                                              $session);
@@ -267,7 +267,7 @@ try {
 echo "<h1>カレンダーリストのフィード</h1>";
 echo "<ul>";
 foreach ($listFeed as $calendar) {
-    echo "<li>" . $calendar->title . 
+    echo "<li>" . $calendar->title .
          " (Event Feed: " . $calendar->id . ")</li>";
 }
 echo "</ul>";

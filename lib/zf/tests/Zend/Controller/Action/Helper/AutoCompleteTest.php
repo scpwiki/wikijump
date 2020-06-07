@@ -22,7 +22,7 @@ require_once 'Zend/Layout.php';
 /**
  * Test class for Zend_Controller_Action_Helper_AutoComplete.
  */
-class Zend_Controller_Action_Helper_AutoCompleteTest extends PHPUnit_Framework_TestCase 
+class Zend_Controller_Action_Helper_AutoCompleteTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.

@@ -345,7 +345,7 @@ class Zend_Gdata_AllTests
         $suite->addTestSuite('Zend_Gdata_Books_CollectionFeedTest');
         $suite->addTestSuite('Zend_Gdata_Books_VolumeEntryTest');
         $suite->addTestSuite('Zend_Gdata_Books_VolumeFeedTest');
-        
+
         $suite->addTestSuite('Zend_Gdata_Health_QueryTest');
         $suite->addTestSuite('Zend_Gdata_Health_ProfileListEntryTest');
         $suite->addTestSuite('Zend_Gdata_Health_ProfileEntryTest');

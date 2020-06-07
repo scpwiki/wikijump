@@ -2,7 +2,7 @@
     <title>Tworzenie elementów formularza za pomocą klasy Zend_Form_Element</title>
 
     <para>
-        Formularz składa się z elementów, które zazwyczaj odpowiadają elementom 
+        Formularz składa się z elementów, które zazwyczaj odpowiadają elementom
         formularzy HTML. Klasa Zend_Form_Element obsługuje pojedyncze elementy
         formularza w takich zakresach:
     </para>
@@ -34,8 +34,8 @@
 
     <para>
         Klasa bazowa <code>Zend_Form_Element</code> jest domyślnie skonfigurowana
-        dla wielu przypadków użycia, jednak najlepiej jest rozszerzyć tę klasę 
-        aby utworzyć najczęściej używane elementy. Dodatkowo Zend Framework 
+        dla wielu przypadków użycia, jednak najlepiej jest rozszerzyć tę klasę
+        aby utworzyć najczęściej używane elementy. Dodatkowo Zend Framework
         zawiera pewną ilość standardowych elementów XHTML; możesz o nich przeczytać <link
             linkend="zend.form.standardElements">w rozdziale Standardowe Elementy</link>.
     </para>
@@ -53,7 +53,7 @@
         </para>
 
         <para>
-            W metodach obsługujących ładowanie wtyczek używane są następujące 
+            W metodach obsługujących ładowanie wtyczek używane są następujące
             typy: 'validate', 'filter' oraz 'decorator'. Wielkość liter w nazwach
             typów nie jest istotna.
         </para>
@@ -114,7 +114,7 @@
 
             <para>
                 Spróbujmy stworzyć własny dekorator dla etykiety. Damy jego klasie
-                przedrostek "My_Decorator", a sama klasa będzie znajdować się 
+                przedrostek "My_Decorator", a sama klasa będzie znajdować się
                 w pliku "My/Decorator/Label.php".
             </para>
 
@@ -245,7 +245,7 @@ $element->addFilter('alnum');
         <para>
             Krótkie nazwy są zazwyczaj nazwą klasy filtra pozbawioną
             przedrostka. W domyślnym przypadku, będzie to oznaczało
-            że pomijamy przedrostek 'Zend_Filter_'. Nie jest też konieczne 
+            że pomijamy przedrostek 'Zend_Filter_'. Nie jest też konieczne
             aby pierwsza litera była wielka.
         </para>
 
@@ -253,9 +253,9 @@ $element->addFilter('alnum');
             <title>Użycie własnych klas filtrów</title>
 
             <para>
-                Jeśli posiadasz własny zestaw klas filtrów, możesz przekazać 
+                Jeśli posiadasz własny zestaw klas filtrów, możesz przekazać
                 klasie <code>Zend_Form_Element</code> informacje o tym za pomocą
-                metody <code>addPrefixPath()</code>. Na przykład jeśli posiadasz 
+                metody <code>addPrefixPath()</code>. Na przykład jeśli posiadasz
                 filtry z przedostkiem 'My_Filter' możesz przekazać do klasy
                 <code>Zend_Form_Element</code> informację w taki sposób:
             </para>
@@ -266,13 +266,13 @@ $element->addPrefixPath('My_Filter', 'My/Filter/', 'filter');
             </programlisting>
 
             <para>
-                (Zauważ że trzeci argument oznacza typ wtyczek dla którego 
+                (Zauważ że trzeci argument oznacza typ wtyczek dla którego
                 określamy przedrostek)
             </para>
         </note>
 
         <para>
-            Jęśli w potrzebujesz niefiltrowaną wartość użyj metody 
+            Jęśli w potrzebujesz niefiltrowaną wartość użyj metody
             <code>getUnfilteredValue()</code>:
         </para>
 
@@ -365,7 +365,7 @@ $element->addValidator('alnum');
         <para>
             Krótkie nazwy są zazwyczaj nazwą klasy weryfikatora pozbawioną
             przedrostka. W domyślnym przypadku, będzie to oznaczało
-            że pomijamy przedrostek 'Zend_Validate_'. Nie jest też konieczne 
+            że pomijamy przedrostek 'Zend_Validate_'. Nie jest też konieczne
             aby pierwsza litera była wielka.
         </para>
 
@@ -373,9 +373,9 @@ $element->addValidator('alnum');
             <title>Użycie własnych klas weryfikatorów</title>
 
             <para>
-                Jeśli posiadasz własny zestaw klas weryfikatorów, możesz przekazać 
+                Jeśli posiadasz własny zestaw klas weryfikatorów, możesz przekazać
                 klasie <code>Zend_Form_Element</code> informacje o tym za pomocą
-                metody <code>addPrefixPath()</code>. Na przykład jeśli posiadasz 
+                metody <code>addPrefixPath()</code>. Na przykład jeśli posiadasz
                 weryfikatory z przedostkiem 'My_Validator' możesz przekazać do klasy
                 <code>Zend_Form_Element</code> informację w taki sposób:
             </para>
@@ -386,7 +386,7 @@ $element->addPrefixPath('My_Validator', 'My/Validator/', 'validate');
             </programlisting>
 
             <para>
-                (Zauważ że trzeci argument oznacza typ wtyczek dla którego 
+                (Zauważ że trzeci argument oznacza typ wtyczek dla którego
                 określamy przedrostek)
             </para>
         </note>
@@ -450,7 +450,7 @@ $validator = new Zend_Validate_StringLength(6, 20);
         <para>
             Możesz także ustawić wiele weryfikatorów na raz, używając metody
             <code>addValidators()</code>. Podstawowym sposobem użycia jest
-            przekazanie tablicy tablic, gdzie każda z tablic posiada od 1 do 3 
+            przekazanie tablicy tablic, gdzie każda z tablic posiada od 1 do 3
             wartości, zgodnych z wywołaniem metody <code>addValidator()</code>:
         </para>
 
@@ -482,7 +482,7 @@ $element->addValidators(array(
         </programlisting>
 
         <para>
-            Ten przykład pokazuje w jaki sposób możesz skonfigurować 
+            Ten przykład pokazuje w jaki sposób możesz skonfigurować
             weryfikatory w pliku konfiguracyjnym:
         </para>
 
@@ -524,7 +524,7 @@ if ($element->isValid($value)) {
                 <code>Zend_Form_Element::isValid()</code> filtruje wartości
                 za pomocą ustawionych filtrów zanim zostanie przeprowadzona
                 weryfikacja. Zobacz <link
-                    linkend="zend.form.elements.filters">rozdział Filtry</link> 
+                    linkend="zend.form.elements.filters">rozdział Filtry</link>
                 aby uzyskać więcej informacji.
             </para>
         </note>
@@ -737,7 +737,7 @@ $messages = $element->getMessages();
 
                 <listitem><para>
                     <code>addErrorMessages(array $messages)</code>: add multiple
-                    error messages to display on form validation errors. 
+                    error messages to display on form validation errors.
                 </para></listitem>
 
                 <listitem><para>
@@ -747,7 +747,7 @@ $messages = $element->getMessages();
                 </para></listitem>
 
                 <listitem><para>
-                    <code>getErrorMessages()</code>: retrieve the list of 
+                    <code>getErrorMessages()</code>: retrieve the list of
                     custom error messages that have been defined.
                 </para></listitem>
 
@@ -822,8 +822,8 @@ $messages = $element->getMessages();
                 <emphasis>ViewHelper</emphasis>: określą klasę pomocniczą widoku,
                 która ma być użyta do renderowania określonego elementu. Atrybut
                 'helper' może być użyty aby określić która klasa pomocnicza ma być
-                użyta. Domyślnie klasa <code>Zend_Form_Element</code> określa 
-                domyślną klasę pomocniczą jako 'formText', jednak klasy 
+                użyta. Domyślnie klasa <code>Zend_Form_Element</code> określa
+                domyślną klasę pomocniczą jako 'formText', jednak klasy
                 rozszerzające określają inne klasy pomocnicze.
             </para></listitem>
 
@@ -850,19 +850,19 @@ $messages = $element->getMessages();
             <title>Domyślne dekoratory nie muszą być ładowane</title>
 
             <para>
-                Domyślny zestaw dekoratorów jest ładowany podczas inicjowania 
+                Domyślny zestaw dekoratorów jest ładowany podczas inicjowania
                 obiektu. Możesz to zablokować określając opcję
                 'disableLoadDefaultDecorators' konstruktora:
             </para>
 
             <programlisting role="php"><![CDATA[
-$element = new Zend_Form_Element('foo', 
-                                 array('disableLoadDefaultDecorators' => 
+$element = new Zend_Form_Element('foo',
+                                 array('disableLoadDefaultDecorators' =>
                                       true)
                                  );
 ]]>
             </programlisting>
-            
+
             <para>
                 Ta opcja może być użyta równolegle wraz z dowolnymi innymi
                 opcjami jakie przekażesz, zarówno w postaci tablicy opcji jak
@@ -874,9 +874,9 @@ $element = new Zend_Form_Element('foo',
             Z tego względu, że kolejność w jakiej rejestrowane są dekoratory ma
             znaczenie -- dekoratory są uruchamiane w takiej kolejności w jakiej
             zostały zarejestrowane -- musisz się upewnić, że rejestrujesz
-            je w odpowiedniej kolejności lub użyć opcji pozwalającej na 
-            zarejestrowanie dekoratora w konkretnej pozycji. Poniżej jako 
-            przykład został zamieszczony przykładowy kod, który rejestruje 
+            je w odpowiedniej kolejności lub użyć opcji pozwalającej na
+            zarejestrowanie dekoratora w konkretnej pozycji. Poniżej jako
+            przykład został zamieszczony przykładowy kod, który rejestruje
             domyślne dekoratory:
         </para>
 
@@ -940,7 +940,7 @@ $this->addDecorators(array(
 
             <programlisting role="php"><![CDATA[
 // Alias dla 'FooBar':
-$element->addDecorator(array('FooBar' => 'HtmlTag'), 
+$element->addDecorator(array('FooBar' => 'HtmlTag'),
                        array('tag' => 'div'));
 
 // Pobieramy dekorator:
@@ -950,7 +950,7 @@ $decorator = $element->getDecorator('FooBar');
 
             <para>
                 Do metod <code>addDecorators()</code> oraz
-                <code>setDecorators()</code> musisz przekazać opcję 
+                <code>setDecorators()</code> musisz przekazać opcję
                 'decorator' znajdującą się w tablicy reprezentującej dekorator.
             </para>
 
@@ -1026,7 +1026,7 @@ $fooBar  = $element->getDecorator('FooBar');
             </para></listitem>
 
             <listitem><para>
-                <emphasis>order</emphasis>: pozycja w której element ma być wstawiony 
+                <emphasis>order</emphasis>: pozycja w której element ma być wstawiony
                 w formularzu. Używa metod dostępowych <code>setOrder()</code> oraz
                 <code>getOrder()</code>.
             </para></listitem>
@@ -1038,7 +1038,7 @@ $fooBar  = $element->getDecorator('FooBar');
 
             <listitem><para>
                 <emphasis>description</emphasis>: opis elementu; zazwyczaj używane
-                do utworzenia 
+                do utworzenia
                 often used to provide tooltip or javascript contextual hinting
                 describing the purpose of the element. Używa metod dostępowych
                 <code>setDescription()</code> oraz <code>getDescription()</code>.
@@ -1072,7 +1072,7 @@ $fooBar  = $element->getDecorator('FooBar');
 
         <para>
             Elementy formularzy mogą wymagać dodatkowych danych meta. Przykładowo
-            dla elementów formularzy XHTML możesz chcieć określić takie atrybuty 
+            dla elementów formularzy XHTML możesz chcieć określić takie atrybuty
             jak 'class' czy 'id'. Do obsługi tego istnieje kilka metod dostępowych:
         </para>
 
@@ -1121,7 +1121,7 @@ $element->class = 'text;
 
         <para>
             Komponent <code>Zend_Form</code> posiada duży zestaw standardowych
-            elementów; przeczytaj rozdział 
+            elementów; przeczytaj rozdział
             <link linkend="zend.form.standardElements">Standardowe Elementy</link>
             aby poznać więcej szczegółów.
         </para>
@@ -1238,8 +1238,8 @@ $element->class = 'text;
         <title>Konfiguracja</title>
 
         <para>
-            Konstruktor klasy <code>Zend_Form_Element</code>przyjmuje w 
-            parametrze tablicę opcji lub obiekt <code>Zend_Config</code> 
+            Konstruktor klasy <code>Zend_Form_Element</code>przyjmuje w
+            parametrze tablicę opcji lub obiekt <code>Zend_Config</code>
             zawierający pcje. Klasa może być także skonfigurowana za pomocą
             metod <code>setOptions()</code> oraz <code>setConfig()</code>.
             Generalnie klucze nazwane są w taki sposób:
@@ -1331,7 +1331,7 @@ decorators.label.decorator = "Label"
         <title>Własne elementy</title>
 
         <para>
-            Możesz tworzyć własne elementy po prostu rozszerzając klasę 
+            Możesz tworzyć własne elementy po prostu rozszerzając klasę
             <code>Zend_Form_Element</code>. Powodami aby to zrobić mogą być:
         </para>
 
@@ -1413,7 +1413,7 @@ class My_Element_Text extends Zend_Form_Element
         $this->addDecorator('ViewHelper')
              ->addDecorator('DisplayError')
              ->addDecorator('Label')
-             ->addDecorator('HtmlTag', 
+             ->addDecorator('HtmlTag',
                             array('tag' => 'div', 'class' => 'element'));
     }
 }

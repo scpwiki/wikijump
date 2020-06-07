@@ -31,7 +31,7 @@ abstract class Zend_ProgressBar_Adapter
 {
     /**
      * Option keys to skip when calling setOptions()
-     * 
+     *
      * @var array
      */
     protected $_skipOptions = array(
@@ -41,9 +41,9 @@ abstract class Zend_ProgressBar_Adapter
 
     /**
      * Create a new adapter
-     * 
+     *
      * $options may be either be an array or a Zend_Config object which
-     * specifies adapter related options. 
+     * specifies adapter related options.
      *
      * @param null|array|Zend_Config $options
      */
@@ -55,7 +55,7 @@ abstract class Zend_ProgressBar_Adapter
             $this->setConfig($options);
         }
     }
-    
+
     /**
      * Set options via a Zend_Config instance
      *
@@ -65,10 +65,10 @@ abstract class Zend_ProgressBar_Adapter
     public function setConfig(Zend_Config $config)
     {
         $this->setOptions($config->toArray());
-        
+
         return $this;
     }
-    
+
     /**
      * Set options via an array
      *
@@ -87,10 +87,10 @@ abstract class Zend_ProgressBar_Adapter
                 $this->$method($value);
             }
         }
-        
+
         return $this;
     }
-    
+
     /**
      * Notify the adapter about an update
      *
@@ -103,7 +103,7 @@ abstract class Zend_ProgressBar_Adapter
      * @return void
      */
     abstract public function notify($current, $max, $percent, $timeTaken, $timeRemaining, $text);
-    
+
     /**
      * Called when the progress is explicitly finished
      *

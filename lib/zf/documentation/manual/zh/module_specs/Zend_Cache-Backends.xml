@@ -53,7 +53,7 @@
                           <entry><code>'crc32'</code></entry>
                           <entry>
                             读控制类型 (仅在读控制启用时). 可用的值有: 'md5' (最好但最慢),
-                            'crc32' (安全性稍差,但更快,更好的选择), 
+                            'crc32' (安全性稍差,但更快,更好的选择),
                             'adler32' (新选择，比 crc32 快),
                             'strlen' for a length only test (最快).
                         </entry>
@@ -96,10 +96,10 @@
                           <entry><code>metatadatas_array_max_size</code></entry>
                           <entry><code>int</code></entry>
                           <entry><code>100</code></entry>
-                          <entry> 
+                          <entry>
                               metadatas 数组的内部最大尺寸（除非你知道你在做什么，不要更改这个值）
                           </entry>
-                      </row>                 
+                      </row>
                   </tbody>
               </tgroup>
           </table>

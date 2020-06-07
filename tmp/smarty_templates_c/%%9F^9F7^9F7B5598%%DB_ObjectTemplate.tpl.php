@@ -7,5 +7,5 @@ class <?php echo $this->_tpl_vars['className']; ?>
  extends <?php echo $this->_tpl_vars['className']; ?>
 Base {
 
-	
+
 }

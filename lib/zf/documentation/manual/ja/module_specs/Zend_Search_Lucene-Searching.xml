@@ -308,7 +308,7 @@ foreach ($hits as $hit) {
         <para>
             <code>$index->find()</code> のコール時に、オプションのパラメータを指定することができます。
             <programlisting role="php"><![CDATA[
-$index->find($query [, $sortField [, $sortType [, $sortOrder]]] 
+$index->find($query [, $sortField [, $sortType [, $sortOrder]]]
                     [, $sortField2 [, $sortType [, $sortOrder]]]
              ...);
 ]]>

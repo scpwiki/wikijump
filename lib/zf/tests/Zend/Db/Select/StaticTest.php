@@ -363,7 +363,7 @@ class Zend_Db_Select_StaticTest extends Zend_Db_Select_TestCommon
         $this->assertEquals('SELECT "zfprice".* FROM "zfprice" WHERE ("price_total" = 200.450000)', $sql);
     }
 
-    /** 
+    /**
      *      * Test adding an OR WHERE clause to a Zend_Db_Select object.
      */
 

@@ -52,14 +52,14 @@
                 <code>form($name, $attribs, $content):</code> 生成一个 XHTML 表单。所有 <code>$attribs</code> 转义和解析成表单标签的 XHTML 属性。如果 <code>$content</code>  不以布尔 false 出现，那么内容就是在表单标签内被解析，如果 <code>$content</code>  是布尔 false （缺省），只有开头的表单标签被生成。
             </para></listitem>
 
-            <listitem><para>            
-                <code>formButton($name, $value, $attribs):</code> 生成 &lt;button /&gt; 元素; 
+            <listitem><para>
+                <code>formButton($name, $value, $attribs):</code> 生成 &lt;button /&gt; 元素;
             </para></listitem>
 
             <listitem><para>
                 <code>formCheckbox($name, $value, $attribs,$options):</code> 生成 &lt;input type="checkbox" /&gt; 元素。
             </para>
-             
+
             <para>
                 缺省地，当没有提供 $value 并且没有 $options，'0' 被假定为未选的值，'1'为选中的值。
                 如果传递 $value，但没有 $options，选中的值就被假定为传递的值。
@@ -86,26 +86,26 @@ echo $this->formCheckbox('foo');
 // '1' and '0' as checked/unchecked options; checked
 echo $this->formCheckbox('foo', null, array('checked' => true));
 
-// 'bar' and '0' as checked/unchecked options; not checked 
+// 'bar' and '0' as checked/unchecked options; not checked
 echo $this->formCheckbox('foo', 'bar');
 
-// 'bar' and '0' as checked/unchecked options; checked 
+// 'bar' and '0' as checked/unchecked options; checked
 echo $this->formCheckbox('foo', 'bar', array('checked' => true));
 
-// 'bar' and 'baz' as checked/unchecked options; unchecked 
+// 'bar' and 'baz' as checked/unchecked options; unchecked
 echo $this->formCheckbox('foo', null, null, array('bar', 'baz');
 
-// 'bar' and 'baz' as checked/unchecked options; unchecked 
+// 'bar' and 'baz' as checked/unchecked options; unchecked
 echo $this->formCheckbox('foo', null, null, array(
-    'checked' => 'bar', 
+    'checked' => 'bar',
     'unChecked' => 'baz'
 ));
 
-// 'bar' and 'baz' as checked/unchecked options; checked 
+// 'bar' and 'baz' as checked/unchecked options; checked
 echo $this->formCheckbox('foo', 'bar', null, array('bar', 'baz');
 echo $this->formCheckbox('foo', null, array('checked' => true), array('bar', 'baz');
 
-// 'bar' and 'baz' as checked/unchecked options; unchecked 
+// 'bar' and 'baz' as checked/unchecked options; unchecked
 echo $this->formCheckbox('foo', 'baz', null, array('bar', 'baz');
 echo $this->formCheckbox('foo', null, array('checked' => false), array('bar', 'baz');
 ]]></programlisting>
@@ -115,7 +115,7 @@ echo $this->formCheckbox('foo', null, array('checked' => false), array('bar', 'b
                     这样，如果值是未选的，你将仍获得有效的返回到表单的值。
                 </para>
             </listitem>
- 
+
             <listitem>
                 <para>
                     <code>formErrors($errors, $options):</code> 生成一个无顺序的 XHTML 列表来显示错误。 <code>$errors</code> 是个字符串或字符串数组；<code>$options</code> 是你想放入开头列表标签的任何属性。
@@ -154,9 +154,9 @@ echo $this->formCheckbox('foo', null, array('checked' => false), array('bar', 'b
                 <code>formLabel($name, $value, $attribs):</code> 生成
                 &lt;label&gt;设置 <code>for</code> 属性给
                 <code>$name</code>，实际的标签字符给 <code>$value</code>。
-                
+
                 如果 <code>disable</code> 传递给
-                <code>attribs</code>，什么都不返回。 
+                <code>attribs</code>，什么都不返回。
             </para></listitem>
 
             <listitem><para>
@@ -337,7 +337,7 @@ $view->addHelperPath('/other/path/to/helpers', 'Your_View_Helper');
         </para>
 
         <programlisting role="php"><![CDATA[<?php
-class My_View_Helper_SpecialPurpose 
+class My_View_Helper_SpecialPurpose
 {
     protected $_count = 0;
     public function specialPurpose()

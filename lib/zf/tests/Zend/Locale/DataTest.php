@@ -998,7 +998,7 @@ class Zend_Locale_DataTest extends PHPUnit_Framework_TestCase
             'COP' => 'Col$', 'CRC' => 'C', 'CVE' => 'CVEsc', 'CYP' => '£C', 'DEM' => 'DM', 'DJF' => 'DF',
             'DZD' => 'DA', 'ESP' => '₧', 'ETB' => 'Br', 'EUR' => '€', 'FJD' => 'F$', 'FRF' => 'FF',
             'GBP' => '£', 'GEL' => 'lari', 'GNF' => 'GF', 'GYD' => 'G$', 'HNL' => 'L',
-            'HUF' => 'Ft', 'IDR' => 'Rp', 'IEP' => 'IR£', 'INR' => '0≤Rs.|1≤Re.|1<Rs.', 'IQD' => 'ID', 
+            'HUF' => 'Ft', 'IDR' => 'Rp', 'IEP' => 'IR£', 'INR' => '0≤Rs.|1≤Re.|1<Rs.', 'IQD' => 'ID',
             'IRR' => 'RI', 'ITL' => '₤', 'JMD' => 'J$', 'JOD' => 'JD', 'JPY' => '¥', 'KES' => 'K Sh',
             'KGS' => 'som', 'KHR' => 'CR', 'KMF' => 'CF', 'KWD' => 'KD', 'KZT' => 'T', 'LBP' => 'LL',
             'LKR' => 'SL Re', 'LSL' => 'M', 'LYD' => 'LD', 'MKD' => 'MDen', 'MNT' => 'Tug', 'MRO' => 'UM',

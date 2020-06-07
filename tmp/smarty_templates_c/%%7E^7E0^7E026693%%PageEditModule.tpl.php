@@ -12,7 +12,7 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 
 <?php else: ?>
 	<div>
-		
+
 		<form id="edit-page-form">
 			<input type="hidden" name="page_id" value="<?php echo ((is_array($_tmp=$this->_tpl_vars['pageId'])) ? $this->_run_mod_handler('escape', true, $_tmp) : smarty_modifier_escape($_tmp)); ?>
 "/>
@@ -25,7 +25,7 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 							</td>
 							<td>
 								<input class="text" id="edit-page-title" name="title" type="text" value="<?php echo ((is_array($_tmp=$this->_tpl_vars['title'])) ? $this->_run_mod_handler('escape', true, $_tmp) : smarty_modifier_escape($_tmp)); ?>
-" size="35" maxlength="128" 
+" size="35" maxlength="128"
 									style="font-weight: bold; font-size: 130%;"/>
 							</td>
 						</tr>
@@ -40,7 +40,7 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 									<option value=""  style="padding: 0 1em">no template (blank page)</option>
 									<?php if (count($_from = (array)$this->_tpl_vars['templates'])):
     foreach ($_from as $this->_tpl_vars['template']):
-?>	
+?>
 										<option value="<?php echo $this->_tpl_vars['template']->getPageId(); ?>
 "  style="padding: 0 1em" <?php if ($this->_tpl_vars['template']->getPageId() == $this->_tpl_vars['templateId']): ?>selected="selected"<?php endif; ?>><?php echo ((is_array($_tmp=$this->_tpl_vars['template']->getTitle())) ? $this->_run_mod_handler('escape', true, $_tmp) : smarty_modifier_escape($_tmp)); ?>
 </option>
@@ -64,7 +64,7 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 				<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Need help? Check the<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?> <a href="<?php echo $this->_tpl_vars['URL_DOCS']; ?>
 " target="_blank"><?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>documentation<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?></a>.
 			</div>
-		
+
 			<table style="padding: 2px 0; border: none;">
 				<tr>
 					<td style="border: none; padding: 0 5px;">
@@ -87,12 +87,12 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 					</td>
 				</tr>
 			</table>
-			
+
 			<?php if ($this->_tpl_vars['anonymousString']): ?>
 				<div class="note-block">
 					<h3><?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Anonymous edit!<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?></h3>
 					<p>
-						<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>You are editing this page content as an anonymous user. 
+						<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>You are editing this page content as an anonymous user.
 						Please remember that in such a case your IP address will be revealed to public
 						and the changes will be signed by the following identity:<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?><br/>
 						<?php echo smarty_function_printuser(array('user' => $this->_tpl_vars['anonymousString'],'image' => 'true'), $this);?>
@@ -100,7 +100,7 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 					</p>
 				</div>
 			<?php endif; ?>
-			
+
 			<div class="buttons alignleft">
 				<input type="button" name="cancel" id="edit-cancel-button" value="<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>cancel<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>" onclick="WIKIDOT.modules.PageEditModule.listeners.cancel(event)"/>
 				<?php if (! $this->_tpl_vars['newPage'] && $this->_tpl_vars['mode'] != 'append'): ?><input type="button" name="diff" id="edit-diff-button" value="<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>view diff<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>" onclick="WIKIDOT.modules.PageEditModule.listeners.viewDiff(event)"/><?php endif; ?>
@@ -109,12 +109,12 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 				<input type="button" name="save" id="edit-save-button"  value="<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>save<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>" onclick="WIKIDOT.modules.PageEditModule.listeners.save(event)"/>
 			</div>
 		</form>
-	
-	
+
+
 	</div>
-	
+
 	<div id="view-diff-div"></div>
-	
+
 	<div id="preview-message" style="display: none">
 		<div class="preview-message">
 			<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>This is a preview only!!!<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?><br/>

@@ -8,8 +8,8 @@
       aktualną zawartość części wiadomości oraz informacje o jej kodowaniu, typie
       oraz o oryginalej nazwie pliku. Dostarcza ona metody do generowania łańcuchów
       znaków z przechowywanych danych. Obiekty <code>Zend_Mime_Part</code> mogą
-      być dodane do 
-      <link linkend="zend.mime.message"><code>Zend_Mime_Message</code></link> 
+      być dodane do
+      <link linkend="zend.mime.message"><code>Zend_Mime_Message</code></link>
       aby zebrać kompletną wieloczęściową wiadomość.</para>
     </sect2>
 

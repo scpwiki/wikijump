@@ -57,7 +57,7 @@ class Text_Wiki_Render_Xhtml_Form extends Text_Wiki_Render {
         $output .= "<td class=\"form-view-field-label\">$h_label:</td>";
         $output .= "<td class=\"form-view-field-value\">$h_value</td>";
         $output .= '</tr>';
-        
+
         return $output;
     }
 }

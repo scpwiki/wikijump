@@ -3,7 +3,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -16,7 +16,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Util
  * @version $Id$
@@ -37,50 +37,50 @@
 function ls($__dir = "./", $__pattern = "*.*") {
     settype($__dir, "string");
     settype($__pattern, "string");
-    
+
     $__ls = array();
     $__regexp = preg_quote($__pattern, "/");
     $__regexp = preg_replace("/[\\x5C][\x2A]/", ".*", $__regexp);
     $__regexp = preg_replace("/[\\x5C][\x3F]/", ".", $__regexp);
-    
+
     if (is_dir($__dir))
         if (($__dir_h = @opendir($__dir)) !== FALSE) {
             while (($__file = readdir($__dir_h)) !== FALSE)
                 if (preg_match(
                         "/^" .
                                  $__regexp .
-                                 "$/", 
+                                 "$/",
                                 $__file))
                             array_push(
-                                    $__ls, 
+                                    $__ls,
                                     $__file);
-            
+
             closedir($__dir_h);
             sort($__ls, SORT_STRING);
         }
-    
+
     return $__ls;
 }
 
 function lsreg($__dir = "./", $__pattern = ".*") {
     settype($__dir, "string");
     settype($__pattern, "string");
-    
+
     $__ls = array();
     if (is_dir($__dir))
         if (($__dir_h = @opendir($__dir)) !== FALSE) {
             while (($__file = readdir($__dir_h)) !== FALSE)
                 if (preg_match(
-                        $__pattern, 
+                        $__pattern,
                         $__file))
                     array_push(
-                            $__ls, 
+                            $__ls,
                             $__file);
-            
+
             closedir($__dir_h);
             sort($__ls, SORT_STRING);
         }
-    
+
     return $__ls;
 }
 
@@ -102,7 +102,7 @@ function underscoreToLowerCase($string) {
             $nextUpper = true;
         }
     }
-    
+
     return $out;
 }
 
@@ -135,7 +135,7 @@ function findNodeWithAttribute($list, $attrName, $attrValue) {
 
 /**
  * Creates the directory by recurence. Starting from leftmost directory given (e.g. when
- * supplied /var/www/ozone/sampleapp/tmp) it checks if all parrent directories exists 
+ * supplied /var/www/ozone/sampleapp/tmp) it checks if all parrent directories exists
  * (e.g. /var, /var/www, ...) and if not - creates them.
  * @param string $dir name of the directory (absolute preferred)
  */
@@ -155,7 +155,7 @@ function mkdirfull($dir) {
                 $dir0)) {
             mkdir($dir0);
         } else {
-            if (is_dir($dir0)) {    //TODO: throw some exception - file exists but is NOT a directory	
+            if (is_dir($dir0)) {    //TODO: throw some exception - file exists but is NOT a directory
             }
         }
     }
@@ -188,8 +188,8 @@ function db_escape_string($val) {
 }
 
 /**
- * Useful function to extract text value from the xml structure for the $node 
- * using requested $lang. If $lang is null then values: Ozone::runData->getLanguage(), 
+ * Useful function to extract text value from the xml structure for the $node
+ * using requested $lang. If $lang is null then values: Ozone::runData->getLanguage(),
  * GlobalProperties::$DEFAULT_LANGUAGE are used in that order. If again it does not work
  * the first <text> child node returned.
  * @param SimpleXMLElement $node
@@ -203,10 +203,10 @@ function xml_localized_text($node, $lang = null) {
     if ($lang == null) {
         $lang = $runData->getLanguage();
     }
-    
+
     $text = findNodeWithAttribute($node->text, "lang", "$lang");
     if ($text == null) {
-        $text = findNodeWithAttribute($node->text, "lang", 
+        $text = findNodeWithAttribute($node->text, "lang",
                 GlobalProperties::$DEFAULT_LANGUAGE);
     }
     if ($text == null) {
@@ -215,9 +215,9 @@ function xml_localized_text($node, $lang = null) {
     return "$text";
 }
 
-/** 
- * Gets PEAR::Date object set to the current UTC (GMT) time. 
- * Somehow this works for a greater number of configurations 
+/**
+ * Gets PEAR::Date object set to the current UTC (GMT) time.
+ * Somehow this works for a greater number of configurations
  * than just calling Date() contstuctor...
  */
 function currentDateUTC() {
@@ -277,7 +277,7 @@ function strlen8($string) {
 
 /**
  * Glues filesystem directory path from multiple components, where each component
- * represent one or more directories, the final can be a file. 
+ * represent one or more directories, the final can be a file.
  * E.g. gluePath('/usr', 'bin', 'sed) will produce '/usr/bin/sed'.
  * The result does not have double-slashes nor trailing slash.
  *
@@ -293,16 +293,16 @@ function glue_path() {
         $co = preg_replace(
                 ';[' . preg_quote(
                         DIRECTORY_SEPARATOR) .
-                         '/]$;', 
-                        '', 
+                         '/]$;',
+                        '',
                         $co);
         if (!$first) {
             $co = preg_replace(
                     ';^[' .
                              preg_quote(
                                     DIRECTORY_SEPARATOR) .
-                             '/];', 
-                            '', 
+                             '/];',
+                            '',
                             $co);
         } else {
             $first = false;

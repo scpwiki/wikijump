@@ -39,35 +39,35 @@ class Text_Wiki_Render_Xhtml_Gallery extends Text_Wiki_Render {
     * @return string The text rendered from the token options.
     *
     */
- 
+
     function token($options)
     {
-    
-    	$pageName = $this->wiki->vars['pageName'];	
-    		
+
+    	$pageName = $this->wiki->vars['pageName'];
+
     	$size = $options['size'];
-    			
+
     	if(!in_array($size, array("small", "medium", "thumbnail", "square", "original"))){
 	    		$size = "thumbnail";
 	    }
-        
+
         $sources = $options['sources'];
-      
+
       	if($sources){
-      		
+
       		$noLocal = $this->getConf("no_local");
-      		
+
       		// each line is a source + parameters.
-      		// parse in a similar way as the image rule.	
-      		
+      		// parse in a similar way as the image rule.
+
       		// parse sources
       		$sources = explode("\n", $sources);
       		if(count($sources) === 0){
       			return '<div class="error-block">'._('Sorry, no images found.').'</div>';
       		}
-      		
+
       		$out = '<div class="gallery-box">';
-      		
+
       		foreach($sources as $row){
       			if(!preg_match("/^: /", $row)){
       				continue;
@@ -80,9 +80,9 @@ class Text_Wiki_Render_Xhtml_Gallery extends Text_Wiki_Render {
       			}else{
       				 // everything after the space is attribute arguments
       				 $src = substr($row, 0, $pos);
-      				 $attr = $this->getAttrs(substr($row, $pos+1));	
+      				 $attr = $this->getAttrs(substr($row, $pos+1));
       			}
-      			
+
       			// SINGLE IMAGE PROCESSING BEGINS
 
 				if($src && $src[0] == '*'){
@@ -98,13 +98,13 @@ class Text_Wiki_Render_Xhtml_Gallery extends Text_Wiki_Render {
 
 		        		$flickr = FlickrHandler::instance();
 					$photo = $flickr->photos_getInfo($photoId, $secret);
-					
+
 					if($photo == null){
 						return '<div class="error-block">Error fetching flickr image (id: '.$photoId.') info. ' .
 								'The file does not exist, is private or other problem.</div>';
 					}
-					
-					$src = $flickr->buildPhotoURL($photo, $size); //"http://static.flickr.com/".$photo['_attributes']['server']."/".$photo['_attributes']['id']."_".$photo['_attributes']['secret'].".jpg"; 	
+
+					$src = $flickr->buildPhotoURL($photo, $size); //"http://static.flickr.com/".$photo['_attributes']['server']."/".$photo['_attributes']['id']."_".$photo['_attributes']['secret'].".jpg";
 		         	// set/override link attribute
 		         	$attr['link'] = $photo['urls']['url'][0]['_value'];
 		        }elseif (strpos($src, '://') === false) {
@@ -122,22 +122,22 @@ class Text_Wiki_Render_Xhtml_Gallery extends Text_Wiki_Render {
 	    						return '<div class="error-block">' .
 						    				'Error fetching local image (: '.$row.').' .
 						    				'Sorry, can not load files attached to this page in this mode. ' .
-						    				'You should specify source page for each local image.</div>';	
+						    				'You should specify source page for each local image.</div>';
 						    	}
 		            		$osrc = "/local--files/".$this->wiki->vars['pageName'] .'/'. $src;
 		            		$src = "/local--resized-images/".
-								$this->wiki->vars['pageName'].'/'.$src.'/'.$size.'.jpg';	
+								$this->wiki->vars['pageName'].'/'.$src.'/'.$size.'.jpg';
 		            }
 		            if($size == "original"){
-		            	$src = $osrc;	
+		            	$src = $osrc;
 		            }
 		        }elseif(strpos($src, '://') !== false){
 		        	$attr['link'] = $src;
 		        	$size = "original";
 		        }else{
-		        		return '<div class="error-block">Sorry, format for gallery item:<pre>'.$row.'</pre> is not supported.</div>';	
+		        		return '<div class="error-block">Sorry, format for gallery item:<pre>'.$row.'</pre> is not supported.</div>';
 		        }
-		        
+
 		       if (isset($attr['link'])) {
 		       		$link = $attr['link'];
 		       		if($link[0] == '*'){
@@ -145,7 +145,7 @@ class Text_Wiki_Render_Xhtml_Gallery extends Text_Wiki_Render {
 	        				$target  = 'target="_blank"';
 	        				$attr['link'] = $link;
 	     			}
-		       	
+
 		            // yes, the image is clickable.
 		            // are we linked to a URL or a wiki page?
 		            if (strpos($attr['link'], '://')) {
@@ -164,37 +164,37 @@ class Text_Wiki_Render_Xhtml_Gallery extends Text_Wiki_Render {
 		            $href = $osrc;
 		        }
 
-		      	$out .= '<div class="gallery-item '.$size.'">';	
+		      	$out .= '<div class="gallery-item '.$size.'">';
     				$out .= '<table><tr><td>';
     				$out .= '<a href="'.$href.'" '.$target.'>';
     				$out .= '<img src="'.$src.'" alt=""/>';
     				$out .= '</a>';
     				$out .= '</td></tr></table>';
     				$out .= '</div>';
-		      			
+
       			// SINGLE IMAGE PROCESSING ENDS
-      			
+
       		}
-            
+
         		$out .= '</div>';
 
       		return $out;
       	}
-        
+
         // local mode
         $noLocal = $this->getConf("no_local");
 	   	if($noLocal){
 	    		return '<div class="error-block">' .
 	    				'Sorry, can not load files attached to the page in this mode. ' .
-	    				'You should specify sources for each image.</div>';	
+	    				'You should specify sources for each image.</div>';
 	    	}
-            	
+
     		// get page first
-    		
+
     		$site = $GLOBALS['site'];
     		$page = DB\PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
     		if($page == null){
-    			return '<div class="error-block">Error selecting page.</div>';	
+    			return '<div class="error-block">Error selecting page.</div>';
     		}
     		// get attachments that might be images.
     		$c = new Criteria();
@@ -202,27 +202,27 @@ class Text_Wiki_Render_Xhtml_Gallery extends Text_Wiki_Render {
     		$c->add("mimetype", "^image", "~*");
     		$c->add("has_resized", true);
     		$files = DB_FilePeer::instance()->select($c);
-    		
+
     		if(count($files) == 0){
     			return '<div class="error-block">Sorry, no images found attached ' .
-    					'to this page.</div>';	
+    					'to this page.</div>';
     		}
-    		
+
     		// ok, we have images. now GOGOGO!!!
     		$out = '<div class="gallery-box">';
-    		
+
     		foreach($files as $file){
-    			
+
     			$src = '/local--resized-images/'.
 					$pageName.'/'.$file->getFilename().'/'.$size.'.jpg';
     			$href = 'local--files/'.$pageName.'/'.$file->getFilename();
-    			
+
     			if($size == "original"){
 		            $src = $href;
-		         
+
 		        }
-    			
-    			$out .= '<div class="gallery-item '.$size.'">';	
+
+    			$out .= '<div class="gallery-item '.$size.'">';
     			$out .= '<table><tr><td>';
     			$out .= '<a href="'.$href.'">';
     			$out .= '<img src="'.$src.'" alt=""/>';
@@ -232,11 +232,11 @@ class Text_Wiki_Render_Xhtml_Gallery extends Text_Wiki_Render {
     		}
 
     		$out .= '</div>';
-    			
+
     	 	return $out;
 
     }
-    
+
      function getAttrs($text)
     {
         $tmp = explode('="', trim($text));

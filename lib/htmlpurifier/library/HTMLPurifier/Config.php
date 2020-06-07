@@ -29,64 +29,64 @@ if (!defined('PHP_EOL')) {
  *
  * @warning This class is strongly defined: that means that the class
  *          will fail if an undefined directive is retrieved or set.
- * 
+ *
  * @note Many classes that could (although many times don't) use the
  *       configuration object make it a mandatory parameter.  This is
  *       because a configuration object should always be forwarded,
  *       otherwise, you run the risk of missing a parameter and then
  *       being stumped when a configuration directive doesn't work.
- * 
+ *
  * @todo Reconsider some of the public member variables
  */
 class HTMLPurifier_Config
 {
-    
+
     /**
      * HTML Purifier's version
      */
     public $version = '3.0.0';
-    
+
     /**
-     * Bool indicator whether or not to automatically finalize 
+     * Bool indicator whether or not to automatically finalize
      * the object if a read operation is done
      */
     public $autoFinalize = true;
-    
+
     // protected member variables
-    
+
     /**
      * Namespace indexed array of serials for specific namespaces (see
      * getSerial() for more info).
      */
     protected $serials = array();
-    
+
     /**
      * Serial for entire configuration object
      */
     protected $serial;
-    
+
     /**
      * Two-level associative array of configuration directives
      */
     protected $conf;
-    
+
     /**
      * Reference HTMLPurifier_ConfigSchema for value checking
      * @note This is public for introspective purposes. Please don't
      *       abuse!
      */
     public $def;
-    
+
     /**
      * Indexed array of definitions
      */
     protected $definitions;
-    
+
     /**
      * Bool indicator whether or not config is finalized
      */
     protected $finalized = false;
-    
+
     /**
      * @param $definition HTMLPurifier_ConfigSchema that defines what directives
      *                    are allowed.
@@ -95,7 +95,7 @@ class HTMLPurifier_Config
         $this->conf = $definition->defaults; // set up, copy in defaults
         $this->def  = $definition; // keep a copy around for checking
     }
-    
+
     /**
      * Convenience constructor that creates a config object based on a mixed var
      * @param mixed $config Variable that defines the state of the config
@@ -114,7 +114,7 @@ class HTMLPurifier_Config
         elseif (is_array($config)) $ret->loadArray($config);
         return $ret;
     }
-    
+
     /**
      * Convenience constructor that creates a default configuration object.
      * @return Default HTMLPurifier_Config object.
@@ -124,7 +124,7 @@ class HTMLPurifier_Config
         $config = new HTMLPurifier_Config($definition);
         return $config;
     }
-    
+
     /**
      * Retreives a value from the configuration.
      * @param $namespace String namespace
@@ -146,7 +146,7 @@ class HTMLPurifier_Config
         }
         return $this->conf[$namespace][$key];
     }
-    
+
     /**
      * Retreives an array of directives to values from a given namespace
      * @param $namespace String namespace
@@ -160,7 +160,7 @@ class HTMLPurifier_Config
         }
         return $this->conf[$namespace];
     }
-    
+
     /**
      * Returns a md5 signature of a segment of the configuration object
      * that uniquely identifies that particular configuration
@@ -176,7 +176,7 @@ class HTMLPurifier_Config
         }
         return $this->serials[$namespace];
     }
-    
+
     /**
      * Returns a md5 signature for the entire configuration object
      * that uniquely identifies that particular configuration
@@ -187,7 +187,7 @@ class HTMLPurifier_Config
         }
         return $this->serial;
     }
-    
+
     /**
      * Retrieves all directives, organized by namespace
      */
@@ -195,7 +195,7 @@ class HTMLPurifier_Config
         if (!$this->finalized && $this->autoFinalize) $this->finalize();
         return $this->conf;
     }
-    
+
     /**
      * Sets a value to configuration.
      * @param $namespace String namespace
@@ -243,17 +243,17 @@ class HTMLPurifier_Config
             return;
         }
         $this->conf[$namespace][$key] = $value;
-        
+
         // reset definitions if the directives they depend on changed
-        // this is a very costly process, so it's discouraged 
+        // this is a very costly process, so it's discouraged
         // with finalization
         if ($namespace == 'HTML' || $namespace == 'CSS') {
             $this->definitions[$namespace] = null;
         }
-        
+
         $this->serials[$namespace] = false;
     }
-    
+
     /**
      * Convenience function for error reporting
      */
@@ -262,7 +262,7 @@ class HTMLPurifier_Config
         foreach ($lookup as $name => $b) $list[] = $name;
         return implode(', ', $list);
     }
-    
+
     /**
      * Retrieves reference to the HTML definition.
      * @param $raw Return a copy that has not been setup yet. Must be
@@ -272,7 +272,7 @@ class HTMLPurifier_Config
         $def =& $this->getDefinition('HTML', $raw);
         return $def; // prevent PHP 4.4.0 from complaining
     }
-    
+
     /**
      * Retrieves reference to the CSS definition
      */
@@ -280,7 +280,7 @@ class HTMLPurifier_Config
         $def =& $this->getDefinition('CSS', $raw);
         return $def;
     }
-    
+
     /**
      * Retrieves a definition
      * @param $type Type of definition: HTML, CSS, etc
@@ -340,7 +340,7 @@ class HTMLPurifier_Config
         $cache->set($this->definitions[$type], $this);
         return $this->definitions[$type];
     }
-    
+
     /**
      * Loads configuration values from an array with the following structure:
      * Namespace.Directive => Value
@@ -363,7 +363,7 @@ class HTMLPurifier_Config
             }
         }
     }
-    
+
     /**
      * Returns a list of array(namespace, directive) for all directives
      * that are allowed in a web-form context as per an allowed
@@ -405,13 +405,13 @@ class HTMLPurifier_Config
         }
         return $ret;
     }
-    
+
     /**
      * Loads configuration values from $_GET/$_POST that were posted
      * via ConfigForm
      * @param $array $_GET or $_POST array to import
      * @param $index Index/name that the config variables are in
-     * @param $allowed List of allowed namespaces/directives 
+     * @param $allowed List of allowed namespaces/directives
      * @param $mq_fix Boolean whether or not to enable magic quotes fix
      */
     public static function loadArrayFromForm($array, $index, $allowed = true, $mq_fix = true) {
@@ -419,7 +419,7 @@ class HTMLPurifier_Config
         $config = HTMLPurifier_Config::create($ret);
         return $config;
     }
-    
+
     /**
      * Merges in configuration values from $_GET/$_POST to object. NOT STATIC.
      * @note Same parameters as loadArrayFromForm
@@ -428,7 +428,7 @@ class HTMLPurifier_Config
          $ret = HTMLPurifier_Config::prepareArrayFromForm($array, $index, $allowed, $mq_fix);
          $this->loadArray($ret);
     }
-    
+
     /**
      * Prepares an array from a form into something usable for the more
      * strict parts of HTMLPurifier_Config
@@ -452,7 +452,7 @@ class HTMLPurifier_Config
         }
         return $ret;
     }
-    
+
     /**
      * Loads configuration values from an ini file
      * @param $filename Name of ini file
@@ -462,7 +462,7 @@ class HTMLPurifier_Config
         $array = parse_ini_file($filename, true);
         $this->loadArray($array);
     }
-    
+
     /**
      * Checks whether or not the configuration object is finalized.
      * @param $error String error message, or false for no error
@@ -473,7 +473,7 @@ class HTMLPurifier_Config
         }
         return $this->finalized;
     }
-    
+
     /**
      * Finalizes configuration only if auto finalize is on and not
      * already finalized
@@ -481,14 +481,14 @@ class HTMLPurifier_Config
     public function autoFinalize() {
         if (!$this->finalized && $this->autoFinalize) $this->finalize();
     }
-    
+
     /**
      * Finalizes a configuration object, prohibiting further change
      */
     public function finalize() {
         $this->finalized = true;
     }
-    
+
 }
 
 

@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,18 +27,18 @@
 use DB\OzoneUserPeer;
 
 class UserAbuseReportModule extends SmartyModule {
-	
+
 	public function build($runData){
 		$pl = $runData->getParameterList();
 		$userId = $pl->getParameterValue("userId");
-		
+
 		$user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
 		$runData->contextAdd("user", $user);
-		
+
 		$site =  $runData->getTemp("site");
 		if($site->getUnixName() !== 'www'){
 			$runData->contextAdd("site", $site);
 		}
 	}
-	
+
 }

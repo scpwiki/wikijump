@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Logger
  * @version $Id$
@@ -39,16 +39,16 @@ use fclose;
  *
  */
 class OzoneLoggerFileOutput implements OzoneLoggerOutput {
-	
+
 	private $logFileName;
-	
-	/** 
+
+	/**
 	 * Sets output file name for logging.
 	 */
 	public function setLogFileName($fileName){
-		$this->logFileName = $fileName;	
+		$this->logFileName = $fileName;
 	}
-	
+
 	public function handleEvent($event){
 		// first create the output string:
 		$debugLevelString = array_search($event['level'], OzoneLogger::$LEVELS);
@@ -56,8 +56,8 @@ class OzoneLoggerFileOutput implements OzoneLoggerOutput {
 			date("Y.m.d G:i:s T", $event['timestamp']),
 			$event['class'], $event['type'], $event['function'],
 			$event['line'],
-			$event['message']); 
-		// quickly open file. 
+			$event['message']);
+		// quickly open file.
 		$file = fopen($this->logFileName, "a");
 		fwrite($file, $out);
 		fclose($file);

@@ -42,7 +42,7 @@
                 <para>
                     <code>dispatchLoopStartup()</code> вызывается до того,
                     как <code>Zend_Controller_Front</code> войдет в цикл
-                    диспетчеризации. 
+                    диспетчеризации.
                 </para>
             </listitem>
 
@@ -124,7 +124,7 @@ class MyPlugin extends Zend_Controller_Plugin_Abstract
             Классы плагинов регистрируются через
             <code>Zend_Controller_Front::registerPlugin()</code>, их можно
             регистрировать в любой момент времени. Следующий пример
-            демонстрирует использование плагина в цепочке контроллеров:  
+            демонстрирует использование плагина в цепочке контроллеров:
         </para>
 
         <programlisting role="php"><![CDATA[

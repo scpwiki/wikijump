@@ -114,7 +114,7 @@ class My_Analyzer extends Zend_Search_Lucene_Analysis_Analyzer_Common
             $token = new Zend_Search_Lucene_Analysis_Token(
                                       substr($this->_input,
                                              $termStartPosition,
-                                             $this->_position - 
+                                             $this->_position -
                                              $termStartPosition),
                                       $termStartPosition,
                                       $this->_position);

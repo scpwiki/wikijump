@@ -15,7 +15,7 @@
     </itemizedlist>
 
     <para>
-        Komponent jest w dużym stopniu oparty o inne komponenty Zend Framework 
+        Komponent jest w dużym stopniu oparty o inne komponenty Zend Framework
         takie jak <code>Zend_Config</code>, <code>Zend_Validate</code>,
         <code>Zend_Filter</code>, <code>Zend_Loader_PluginLoader</code> oraz
         opcjonalnie <code>Zend_View</code>.

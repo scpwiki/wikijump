@@ -7,7 +7,7 @@
         <title>Съхраняване на ACL информация за заазване на състоянието</title>
 
         <para>
-		
+
         Zend_Acl was designed in such a way that it does not require any particular backend technology such
         as a database or cache server for storage of the ACL data. Its complete PHP implementation enables
         customized administration tools to be built upon Zend_Acl with relative ease and flexibility. Many

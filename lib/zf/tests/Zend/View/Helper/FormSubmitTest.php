@@ -13,7 +13,7 @@ require_once 'Zend/Registry.php';
 /**
  * Test class for Zend_View_Helper_FormSubmit.
  */
-class Zend_View_Helper_FormSubmitTest extends PHPUnit_Framework_TestCase 
+class Zend_View_Helper_FormSubmitTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.

@@ -15,7 +15,7 @@ require_once 'Zend/Registry.php';
 /**
  * Test class for Zend_Controller_Plugin_ActionStack.
  */
-class Zend_Controller_Plugin_ActionStackTest extends PHPUnit_Framework_TestCase 
+class Zend_Controller_Plugin_ActionStackTest extends PHPUnit_Framework_TestCase
 {
     public $key       = 'Zend_Controller_Plugin_ActionStack';
     public $registry;

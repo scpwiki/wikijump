@@ -46,7 +46,7 @@ class MyAuthAdapter implements Zend_Auth_Adapter_Interface
     /**
      * Performs an authentication attempt
      *
-     * @throws Zend_Auth_Adapter_Exception If authentication cannot 
+     * @throws Zend_Auth_Adapter_Exception If authentication cannot
      *                                     be performed
      * @return Zend_Auth_Result
      */
@@ -215,8 +215,8 @@ class MyStorage implements Zend_Auth_Storage_Interface
     /**
      * Returns true if and only if storage is empty
      *
-     * @throws Zend_Auth_Storage_Exception If it is impossible to 
-     *                                     determine whether storage 
+     * @throws Zend_Auth_Storage_Exception If it is impossible to
+     *                                     determine whether storage
      *                                     is empty
      * @return boolean
      */
@@ -232,7 +232,7 @@ class MyStorage implements Zend_Auth_Storage_Interface
      *
      * Behavior is undefined when storage is empty.
      *
-     * @throws Zend_Auth_Storage_Exception If reading contents from 
+     * @throws Zend_Auth_Storage_Exception If reading contents from
      *                                     storage is impossible
      * @return mixed
      */
@@ -247,7 +247,7 @@ class MyStorage implements Zend_Auth_Storage_Interface
      * Writes $contents to storage
      *
      * @param  mixed $contents
-     * @throws Zend_Auth_Storage_Exception If writing $contents to 
+     * @throws Zend_Auth_Storage_Exception If writing $contents to
      *                                     storage is impossible
      * @return void
      */
@@ -261,7 +261,7 @@ class MyStorage implements Zend_Auth_Storage_Interface
     /**
      * Clears contents from storage
      *
-     * @throws Zend_Auth_Storage_Exception If clearing contents from 
+     * @throws Zend_Auth_Storage_Exception If clearing contents from
      *                                     storage is impossible
      * @return void
      */
@@ -287,7 +287,7 @@ Zend_Auth::getInstance()->setStorage(new MyStorage());
  * @todo Set up the auth adapter, $authAdapter
  */
 
-// Authenticate, saving the result, and persisting the identity on 
+// Authenticate, saving the result, and persisting the identity on
 // success
 $result = Zend_Auth::getInstance()->authenticate($authAdapter);
 ]]>
@@ -340,7 +340,7 @@ if (!$result->isValid()) {
         echo "$message\n";
     }
 } else {
-    // Authentication succeeded; the identity ($username) is stored 
+    // Authentication succeeded; the identity ($username) is stored
     // in the session
     // $result->getIdentity() === $auth->getIdentity()
     // $result->getIdentity() === $username

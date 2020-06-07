@@ -17,7 +17,7 @@ h1{
 }
 
 #header {
-	margin: 10px 0 10px 0px; 
+	margin: 10px 0 10px 0px;
 	height: 5em;
 
 	background-color: #DDD;
@@ -43,7 +43,7 @@ h1{
 }
 
 /*
-* NAVIGATION ELEMENTS 
+* NAVIGATION ELEMENTS
 */
 
 /* elements from #header */
@@ -90,18 +90,18 @@ h1{
 	padding: 2px 2em;
 	background-color: #EEE;
 	border: 1px solid #BBB;
-	
+
 }
 #top-bar a:hover {
 	background-color: #555;
 	color: white;
 	text-decoration: none;
-}	
+}
 
 #top-bar li ul li a{
 	width: 10em;
 	background-color: #FAFAFA;
-	
+
 }
 #top-bar li ul li a:hover{
 	background-color: #F2F2F2;
@@ -115,7 +115,7 @@ h1{
 }
 
 
-/* footer */ 
+/* footer */
 
 #footer{
 	background-color: #DDD;

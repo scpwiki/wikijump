@@ -104,7 +104,7 @@ $mail = new Zend_Mail_Storage_Maildir(array('dirname' => '/home/test/mail/'));]]
         <para>Entrambi i costruttori generano un'eccezione <code>Zend_Mail_Exception</code> se l'archivio non può essere letto.</para>
 
     </sect2>
-    
+
     <sect2 id="zend.mail.read-open-remote">
         <title>Apertura di un sistema di salvataggio remoto</title>
 
@@ -140,7 +140,7 @@ $mail = new Zend_Mail_Storage_Pop3(array('host'     => 'example.com',
         <programlisting role="php"><![CDATA[<?php
 // esempi per Zend_Mail_Storage_Pop3, gli stessi funzionano per Zend_Mail_Storage_Imap
 
-// utilizzo di SSL su una porta differente 
+// utilizzo di SSL su una porta differente
 // (i valori predefiniti sono 995 per Pop3 e 993 per Imap)
 $mail = new Zend_Mail_Storage_Pop3(array('host'     => 'example.com'
                                          'user'     => 'test',
@@ -159,7 +159,7 @@ $mail = new Zend_Mail_Storage_Pop3(array('host'     => 'example.com'
         </para>
 
     </sect2>
-        
+
     <sect2 id="zend.mail.read-fetching">
         <title>Lettura dei messaggi e semplici metodi</title>
 
@@ -174,8 +174,8 @@ $message = $mail->getMessage($messageNum);]]>
         </programlisting>
 
         <para>
-            L'accesso sotto forma di array è supportato, ma non consente di specificare alcun parametro aggiuntivo al metodo <code>getMessage()</code>. 
-            Se questo non è un problema e si può vivere anche solo con i valori predefiniti, allora si può usare: 
+            L'accesso sotto forma di array è supportato, ma non consente di specificare alcun parametro aggiuntivo al metodo <code>getMessage()</code>.
+            Se questo non è un problema e si può vivere anche solo con i valori predefiniti, allora si può usare:
         </para>
 
         <programlisting role="php"><![CDATA[<?php
@@ -213,7 +213,7 @@ unset($mail[$messageNum]);]]>
         </programlisting>
 
     </sect2>
-    
+
     <sect2 id="zend.mail.read-message">
         <title>Interazione con i messaggi</title>
 
@@ -240,8 +240,8 @@ $type = $message->contentType;]]>
 
         <programlisting role="php"><![CDATA[<?php
 // recupera l'intestazione come proprietà
-// il risultato è sempre una stringa, 
-// dove le diverse occorrenze sono separate dal carattere carattere newline (\n) 
+// il risultato è sempre una stringa,
+// dove le diverse occorrenze sono separate dal carattere carattere newline (\n)
 $received = $message->received;
 
 // stesso risultato usando il metodo getHeader()
@@ -407,7 +407,7 @@ if (!$message->hasFlag('$SpamTested')) {
         <para>
             Per i sistemi di salvataggio locali è necessario usare delle classi a parte chiamate <code>Zend_Mail_Storage_Folder_Mbox</code> o <code>Zend_Mail_Storage_Folder_Maildir</code>.
             Entrambe necessitano di un parametro chiamato <code>dirname</code> che corrisponde alla cartella principale.
-            Il formato per maildir è definito in maildir++ (con un punto come delimitatore predefinito), in Mbox è una gerarchia di directory contenenti file Mbox. Se nella cartella principale di Mbox non è presente un file Mbox chiamato INBOX, allora è necessario specificare un'altra cartella nel costruttore. 
+            Il formato per maildir è definito in maildir++ (con un punto come delimitatore predefinito), in Mbox è una gerarchia di directory contenenti file Mbox. Se nella cartella principale di Mbox non è presente un file Mbox chiamato INBOX, allora è necessario specificare un'altra cartella nel costruttore.
         </para>
         <para>
             Il supporto alle cartelle è nativo in <code>Zend_Mail_Storage_Imap</code>.
@@ -418,7 +418,7 @@ if (!$message->hasFlag('$SpamTested')) {
 // mbox con cartelle
 $mail = new Zend_Mail_Storage_Folder_Mbox(array('dirname' => '/home/test/mail/'));
 
-// mbox con una cartella predefinita non chiamata INBOX, 
+// mbox con una cartella predefinita non chiamata INBOX,
 // funziona anche con Zend_Mail_Storage_Folder_Maildir e Zend_Mail_Storage_Imap
 $mail = new Zend_Mail_Storage_Folder_Mbox(array('dirname' => '/home/test/mail/',
                                                 'folder'  => 'Archive'));
@@ -472,7 +472,7 @@ $mail = new Zend_Mail_Storage_Imap(array('host'     => 'example.com'
         <para>
             Se si utilizza un iteratore la chiave dell'elemento corrente corrisponde al nome locale.
             Il nome globale è anche restituito dal metodo magico <code>__toString()</code>.
-            Alcune cartelle non sono selezionabili, ovvero non è possibile salvare all'interno dei messaggi e se selezionate il risultato è un errore. E' possibile eseguire un controllo con il metodo <code>isSelectable()</code>. 
+            Alcune cartelle non sono selezionabili, ovvero non è possibile salvare all'interno dei messaggi e se selezionate il risultato è un errore. E' possibile eseguire un controllo con il metodo <code>isSelectable()</code>.
             E' molto semplice stampare la visualizzazione dell'intero albero delle cartelle:
         </para>
 
@@ -567,7 +567,7 @@ $cache->set($cache_id, $mail);]]>
             <title>Estensione delle classi dei protocolli</title>
 
             <para>
-                I sistemi di salvataggio remoti utilizzano due classi: <code>Zend_Mail_Storage_&lt;Name&gt;</code> e <code>Zend_Mail_Protocol_&lt;Name&gt;</code>. 
+                I sistemi di salvataggio remoti utilizzano due classi: <code>Zend_Mail_Storage_&lt;Name&gt;</code> e <code>Zend_Mail_Protocol_&lt;Name&gt;</code>.
                 La classe protocol traduce i comandi e le risposte da e in PHP, come ad esempio i metodi per i comandi o le variabili con strutture di dati differenti.
                 L'altra classe principale implementa l'interfaccia comune.
             </para>

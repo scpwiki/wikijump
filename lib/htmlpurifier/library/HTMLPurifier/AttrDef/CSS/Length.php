@@ -8,7 +8,7 @@ require_once 'HTMLPurifier/AttrDef/CSS/Number.php';
  */
 class HTMLPurifier_AttrDef_CSS_Length extends HTMLPurifier_AttrDef
 {
-    
+
     /**
      * Valid unit lookup table.
      * @warning The code assumes all units are two characters long.  Be careful
@@ -20,7 +20,7 @@ class HTMLPurifier_AttrDef_CSS_Length extends HTMLPurifier_AttrDef
      * Instance of HTMLPurifier_AttrDef_Number to defer number validation to
      */
     protected $number_def;
-    
+
     /**
      * @param $non_negative Bool indication whether or not negative values are
      *                      allowed.
@@ -28,28 +28,28 @@ class HTMLPurifier_AttrDef_CSS_Length extends HTMLPurifier_AttrDef
     public function __construct($non_negative = false) {
         $this->number_def = new HTMLPurifier_AttrDef_CSS_Number($non_negative);
     }
-    
+
     public function validate($length, $config, $context) {
-        
+
         $length = $this->parseCDATA($length);
         if ($length === '') return false;
         if ($length === '0') return '0';
         $strlen = strlen($length);
         if ($strlen === 1) return false; // impossible!
-        
+
         // we assume all units are two characters
         $unit = substr($length, $strlen - 2);
         if (!ctype_lower($unit)) $unit = strtolower($unit);
         $number = substr($length, 0, $strlen - 2);
-        
+
         if (!isset($this->units[$unit])) return false;
-        
+
         $number = $this->number_def->validate($number, $config, $context);
         if ($number === false) return false;
-        
+
         return $number . $unit;
-        
+
     }
-    
+
 }
 

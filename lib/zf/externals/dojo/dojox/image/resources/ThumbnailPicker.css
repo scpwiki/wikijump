@@ -1,7 +1,7 @@
 /* dojox.image.ThumbnailPicker */
 
 .thumbWrapper .thumbNav {
-	background-repeat: no-repeat;	
+	background-repeat: no-repeat;
 	background-position: center;
 	padding-top: 1px;
 	width: 30px;
@@ -81,7 +81,7 @@
 }
 
 .thumbWrapper .thumbLoaded {
-	background-color: transparent;	
+	background-color: transparent;
 }
 
 .thumbScroller {
@@ -99,7 +99,7 @@
 
 .thumbVert .thumbScroller {
 	height: 500px;
-	width: 100px;	
+	width: 100px;
 }
 
 .thumbWrapper {

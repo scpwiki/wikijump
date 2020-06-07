@@ -54,7 +54,7 @@
 	right: 10px;
 	top: auto;
 	bottom: 5px;
-	
+
 }
 
 #top-bar{
@@ -91,7 +91,7 @@
 #side-bar h1, #side-bar h2,#side-bar h3{
 	/*border-top: 1px dotted #777;*/
 	border-bottom: 1px dotted #777;
-}  
+}
 
 #side-bar a{
 	border: none;
@@ -213,4 +213,4 @@ div.buttons input:hover, input.button:hover, button:hover,  a.button:hover, .owi
 }
 .thread-container .post  .short  .options{
 	color: #6f6d63;
-}	
+}

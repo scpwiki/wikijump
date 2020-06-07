@@ -55,7 +55,7 @@ $element->addDecorator('DijitElement')
 ]]></programlisting>
 
     <para>
-        实际上，DijitElement 装饰器用来替换标准的 ViewHelper 装饰器。 
+        实际上，DijitElement 装饰器用来替换标准的 ViewHelper 装饰器。
     </para>
 
     <para>
@@ -239,8 +239,8 @@ $form->addElement(
 
             <programlisting role="php"><![CDATA[
 $form->addElement(
-    'ComboBox', 
-    'foo', 
+    'ComboBox',
+    'foo',
     array(
         'label'        => 'ComboBox (select)',
         'value'        => 'blue',
@@ -263,8 +263,8 @@ $form->addElement(
 
             <programlisting role="php"><![CDATA[
 $form->addElement(
-    'ComboBox', 
-    'foo', 
+    'ComboBox',
+    'foo',
     array(
         'label'       => 'ComboBox (datastore)',
         'storeId'     => 'stateStore',
@@ -282,7 +282,7 @@ $form->addElement(
 
         <para>
             上述例子也可以使用 <code>FilteringSelect</code> 来代替 <code>ComboBox</code>。
-        </para>        
+        </para>
     </sect3>
 
     <sect3 id="zend.dojo.form.elements.currencyTextBox">
@@ -334,8 +334,8 @@ $form->addElement(
 
             <programlisting role="php"><![CDATA[
 $form->addElement(
-    'CurrencyTextBox', 
-    'foo', 
+    'CurrencyTextBox',
+    'foo',
     array(
         'label'          => 'Currency:',
         'required'       => true,
@@ -401,8 +401,8 @@ $form->addElement(
 
             <programlisting role="php"><![CDATA[
 $form->addElement(
-    'DateTextBox', 
-    'foo', 
+    'DateTextBox',
+    'foo',
     array(
         'label'          => 'Date:',
         'required'       => true,
@@ -432,7 +432,7 @@ $form->addElement(
             <listitem>
                 <para>
                     <code>setTopDecorationDijit($dijit)</code> 和
-                    <code>setBottomDecorationDijit($dijit)</code>: 
+                    <code>setBottomDecorationDijit($dijit)</code>:
                     设置 dijit 的名字用于滑尺的顶或底。这个不包括"dijit.form."前缀，
                     已经是最终的名字 － "HorizontalRule" 或 "HorizontalRuleLabels"。
                 </para>
@@ -448,8 +448,8 @@ $form->addElement(
 
             <listitem>
                 <para>
-                    <code>setTopDecorationLabels(array $labels)</code> 和 
-                    <code>setBottomDecorationLabels(array $labels)</code>: 
+                    <code>setTopDecorationLabels(array $labels)</code> 和
+                    <code>setBottomDecorationLabels(array $labels)</code>:
                     设置标签用于 RuleLabels dijit 类型之一，这些是索引数组；
                     指定一个空间来跳过给定的标签位置（如开头或结尾）。
                 </para>
@@ -457,7 +457,7 @@ $form->addElement(
 
             <listitem>
                 <para>
-                    <code>setTopDecorationParams(array $params)</code> 和 
+                    <code>setTopDecorationParams(array $params)</code> 和
                     <code>setBottomDecorationParams(array $params)</code>:
                     配置给定的刻度或刻度标签 dijit 的 dijit 参数。
                 </para>
@@ -474,7 +474,7 @@ $form->addElement(
             <listitem>
                 <para>
                     <code>getTopDecoration()</code> 和
-                    <code>getBottomDecoration()</code>: 
+                    <code>getBottomDecoration()</code>:
                     获取所有由上述增变器给定规则或 RuleLabels 定义的元数据。
                 </para>
             </listitem>
@@ -490,8 +490,8 @@ $form->addElement(
 
             <programlisting role="php"><![CDATA[
 $form->addElement(
-    'HorizontalSlider', 
-    'horizontal', 
+    'HorizontalSlider',
+    'horizontal',
     array(
         'label'                     => 'HorizontalSlider',
         'value'                     => 5,
@@ -553,40 +553,40 @@ $form->addElement(
                 <code>getDefaultTimeout()</code>: 设置和获取缺省超时值，以毫秒为单位，
                 当按住按钮时，数值就发生变化。
             </para></listitem>
-            
+
             <listitem><para>
                 <code>setTimeoutChangeRate($rate)</code> 和
                 <code>getTimeoutChangeRate()</code>: 设置和获取比率，以毫秒为单位，
                 就是当按住按钮时，数值的变化率。
             </para></listitem>
-            
+
             <listitem><para>
                 <code>setLargeDelta($delta)</code> 和
                 <code>getLargeDelta()</code>: 设置和读取当按钮被按住数字应当改变的值的大小。
             </para></listitem>
-            
+
             <listitem><para>
                 <code>setSmallDelta($delta)</code> 和
                 <code>getSmallDelta()</code>: 设置和读取当按钮被按住一次数字的变化量。
             </para></listitem>
-            
+
             <listitem><para>
                 <code>setIntermediateChanges($flag)</code> 和
                 <code>getIntermediateChanges()</code>: 设置和读取当按钮被按住时是否显示数值的标志。
             </para></listitem>
-            
+
             <listitem><para>
                 <code>setRangeMessage($message)</code> 和
                 <code>getRangeMessage()</code>: 设置和读取指示可用数值范围的信息。
             </para></listitem>
-            
+
             <listitem><para>
-                <code>setMin($value)</code> 和 <code>getMin()</code>: 
+                <code>setMin($value)</code> 和 <code>getMin()</code>:
                 设置和获取最小可能值。
             </para></listitem>
-            
+
             <listitem><para>
-                <code>setMax($value)</code> 和 <code>getMax()</code>: 
+                <code>setMax($value)</code> 和 <code>getMax()</code>:
                 设置和获取最大可能值。
             </para></listitem>
         </itemizedlist>
@@ -596,8 +596,8 @@ $form->addElement(
 
             <programlisting role="php"><![CDATA[
 $form->addElement(
-    'NumberSpinner', 
-    'foo', 
+    'NumberSpinner',
+    'foo',
     array(
         'value'             => '7',
         'label'             => 'NumberSpinner',
@@ -644,7 +644,7 @@ $form->addElement(
             </para></listitem>
 
             <listitem><para>
-                <code>setType($type)</code> 和 <code>getType()</code>: 
+                <code>setType($type)</code> 和 <code>getType()</code>:
                 设置和获取数字格式类型（应当为 'decimal'、'percent' 或 'currency'其中之一 ）。
             </para></listitem>
 
@@ -653,7 +653,7 @@ $form->addElement(
             </para></listitem>
 
             <listitem><para>
-                <code>setStrict($flag)</code> 和 <code>getStrict()</code>: 
+                <code>setStrict($flag)</code> 和 <code>getStrict()</code>:
                 设置和读取严格标志的值，它用来指示对空白字符和非数字字符控制的严格程度。
             </para></listitem>
         </itemizedlist>
@@ -663,8 +663,8 @@ $form->addElement(
 
             <programlisting role="php"><![CDATA[
 $form->addElement(
-    'NumberTextBox', 
-    'elevation', 
+    'NumberTextBox',
+    'elevation',
     array(
         'label'          => 'NumberTextBox',
         'required'       => true,
@@ -700,8 +700,8 @@ $form->addElement(
 
             <programlisting role="php"><![CDATA[
 $form->addElement(
-    'PasswordTextBox', 
-    'password', 
+    'PasswordTextBox',
+    'password',
     array(
         'label'          => 'Password',
         'required'       => true,
@@ -726,20 +726,20 @@ $form->addElement(
         <para>
             单选按钮从 DijitMulti 继承，它让你通过 <code>setMultiOptions()</code> 和 <code>setMultiOption()</code> 方法来指定选择选项。
         </para>
-        
+
         <para>
             缺省地，该元素注册一个 <code>InArray</code> 校验器，它依靠注册的选项的数组键来校验。
             你可以通过调用 <code>setRegisterInArrayValidator(false)</code> 或传递一个 false 值给
             <code>registerInArrayValidator</code>配置键来禁止该行为。
-        </para>        
+        </para>
 
         <example id="zend.dojo.form.elements.radioButton.example">
             <title> 单选按钮 dijit 元素用法范例 </title>
 
             <programlisting role="php"><![CDATA[
 $form->addElement(
-    'RadioButton', 
-    'foo', 
+    'RadioButton',
+    'foo',
     array(
         'label' => 'RadioButton',
         'multiOptions'  => array(
@@ -759,32 +759,32 @@ $form->addElement(
 
         <para>
             <link linkend="zend.dojo.form.elements.horizontalSlider">水平滑尺</link> 和
-            <link linkend="zend.dojo.form.elements.verticalSlider">垂直滑尺</link> 
+            <link linkend="zend.dojo.form.elements.verticalSlider">垂直滑尺</link>
             都是从滑尺摘要元素派生而来的。它包含了许多通用的方法来配置你的滑尺，包括：
         </para>
 
         <itemizedlist>
             <listitem><para>
                 <code>setClickSelect($flag)</code> 和
-                <code>getClickSelect()</code>: 
+                <code>getClickSelect()</code>:
                 设置和获取确定是否点击滑尺来可以修改数值的标志。
             </para></listitem>
 
             <listitem><para>
                 <code>setIntermediateChanges($flag)</code> 和
-                <code>getIntermediateChanges()</code>: 
+                <code>getIntermediateChanges()</code>:
                 设置和获取是否对每个滑尺修改时间发送通知的标志。
             </para></listitem>
 
             <listitem><para>
                 <code>setShowButtons($flag)</code> 和
-                <code>getShowButtons()</code>: 
+                <code>getShowButtons()</code>:
                 设置和获取是否在两端显示按钮的标志。如果有的话，客户可以通过点击按钮来修改滑尺的值。
             </para></listitem>
 
             <listitem><para>
                 <code>setDiscreteValues($value)</code> 和
-                <code>getDiscreteValues()</code>: 
+                <code>getDiscreteValues()</code>:
                 设置和获取滑尺的不连续的数值。
             </para></listitem>
 
@@ -806,7 +806,7 @@ $form->addElement(
             范例在每个具体的继承类里提供。
         </para>
     </sect3>
-    
+
     <sect3 id="zend.dojo.form.elements.submitButton">
         <title>提交按钮</title>
 
@@ -821,8 +821,8 @@ $form->addElement(
 
             <programlisting role="php"><![CDATA[
 $form->addElement(
-    'SubmitButton', 
-    'foo', 
+    'SubmitButton',
+    'foo',
     array(
         'required'   => false,
         'ignore'     => true,
@@ -831,7 +831,7 @@ $form->addElement(
 );
 ]]></programlisting>
         </example>
-    </sect3>    
+    </sect3>
 
     <sect3 id="zend.dojo.form.elements.textBox">
         <title>文字框</title>
@@ -871,8 +871,8 @@ $form->addElement(
 
             <programlisting role="php"><![CDATA[
 $form->addElement(
-    'TextBox', 
-    'foo', 
+    'TextBox',
+    'foo',
     array(
         'value'      => 'some text',
         'label'      => 'TextBox',
@@ -897,8 +897,8 @@ $form->addElement(
 
             <programlisting role="php"><![CDATA[
 $form->addElement(
-    'Textarea', 
-    'textarea', 
+    'Textarea',
+    'textarea',
     array(
         'label'    => 'Textarea',
         'required' => true,
@@ -947,7 +947,7 @@ $form->addElement(
 
             <listitem><para>
                 <code>setVisibleRange($format)</code> 和
-                <code>getVisibleRange()</code>: 
+                <code>getVisibleRange()</code>:
                 在时间选择器中在给定的时刻，设置和获取可见时间的范围，必须遵循 ISO-8601格式。
             </para></listitem>
         </itemizedlist>
@@ -961,8 +961,8 @@ $form->addElement(
 
             <programlisting role="php"><![CDATA[
 $form->addElement(
-    'TimeTextBox', 
-    'foo', 
+    'TimeTextBox',
+    'foo',
     array(
         'label'              => 'TimeTextBox',
         'required'           => true,
@@ -986,7 +986,7 @@ $form->addElement(
 
         <itemizedlist>
             <listitem><para>
-                <code>setInvalidMessage($message)</code> 和 
+                <code>setInvalidMessage($message)</code> 和
                 <code>getInvalidMessage()</code>: 设置和获取工具提示消息来显示什么时候值没有通过校验。
             </para></listitem>
 
@@ -1002,13 +1002,13 @@ $form->addElement(
 
             <listitem><para>
                 <code>setConstraint($key, $value)</code> 和
-                <code>getConstraint($key)</code>: 
+                <code>getConstraint($key)</code>:
                 设置和获取另外的限制，用于校验元素；使用子类。限制存储在 dijit 参数数组中，键值为 'constraints'。
             </para></listitem>
 
             <listitem><para>
                 <code>setConstraints(array $constraints)</code> 和
-                <code>getConstraints()</code>: 
+                <code>getConstraints()</code>:
                 设置和获取独立的限制，用于校验元素，是哟功能子类。
             </para></listitem>
 
@@ -1031,8 +1031,8 @@ $form->addElement(
 
             <programlisting role="php"><![CDATA[
 $form->addElement(
-    'ValidationTextBox', 
-    'foo', 
+    'ValidationTextBox',
+    'foo',
     array(
         'label'          => 'ValidationTextBox',
         'required'       => true,
@@ -1064,8 +1064,8 @@ $form->addElement(
 
             <programlisting role="php"><![CDATA[
 $form->addElement(
-    'VerticalSlider', 
-    'foo', 
+    'VerticalSlider',
+    'foo',
     array(
         'label'                    => 'VerticalSlider',
         'value'                    => 5,

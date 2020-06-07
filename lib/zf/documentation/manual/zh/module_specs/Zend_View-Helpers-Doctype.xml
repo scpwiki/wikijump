@@ -39,7 +39,7 @@
 $doctypeHelper = new Zend_View_Helper_Doctype();
 $doctypeHelper->doctype('XHTML1_STRICT');
 ]]></programlisting>
-        
+
         <para>
             然后在布局脚本中输出：
         </para>
@@ -47,7 +47,7 @@ $doctypeHelper->doctype('XHTML1_STRICT');
         <programlisting role="php"><![CDATA[
 <?php echo $this->doctype() ?>
 ]]></programlisting>
- 	
+
     </example>
 
     <example id="zend.view.helpers.initial.doctype.retrieving">

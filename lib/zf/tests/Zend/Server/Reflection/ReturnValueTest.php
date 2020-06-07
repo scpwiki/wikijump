@@ -10,18 +10,18 @@ require_once 'PHPUnit/Framework/IncompleteTestError.php';
  * @subpackage UnitTests
  * @version $Id: ReturnValueTest.php 1625 2006-11-15 17:45:10Z darby $
  */
-class Zend_Server_Reflection_ReturnValueTest extends PHPUnit_Framework_TestCase 
+class Zend_Server_Reflection_ReturnValueTest extends PHPUnit_Framework_TestCase
 {
     /**
      * __construct() test
      *
-     * Call as method call 
+     * Call as method call
      *
      * Expects:
-     * - type: Optional; has default; 
-     * - description: Optional; has default; 
-     * 
-     * Returns: void 
+     * - type: Optional; has default;
+     * - description: Optional; has default;
+     *
+     * Returns: void
      */
     public function test__construct()
     {
@@ -32,9 +32,9 @@ class Zend_Server_Reflection_ReturnValueTest extends PHPUnit_Framework_TestCase
     /**
      * getType() test
      *
-     * Call as method call 
+     * Call as method call
      *
-     * Returns: string 
+     * Returns: string
      */
     public function testGetType()
     {
@@ -48,12 +48,12 @@ class Zend_Server_Reflection_ReturnValueTest extends PHPUnit_Framework_TestCase
     /**
      * setType() test
      *
-     * Call as method call 
+     * Call as method call
      *
      * Expects:
-     * - type: 
-     * 
-     * Returns: void 
+     * - type:
+     *
+     * Returns: void
      */
     public function testSetType()
     {
@@ -66,9 +66,9 @@ class Zend_Server_Reflection_ReturnValueTest extends PHPUnit_Framework_TestCase
     /**
      * getDescription() test
      *
-     * Call as method call 
+     * Call as method call
      *
-     * Returns: string 
+     * Returns: string
      */
     public function testGetDescription()
     {
@@ -82,12 +82,12 @@ class Zend_Server_Reflection_ReturnValueTest extends PHPUnit_Framework_TestCase
     /**
      * setDescription() test
      *
-     * Call as method call 
+     * Call as method call
      *
      * Expects:
-     * - description: 
-     * 
-     * Returns: void 
+     * - description:
+     *
+     * Returns: void
      */
     public function testSetDescription()
     {

@@ -1,8 +1,8 @@
 /** Offline Widget Styles */
 
 #dot-widget-container{
-	/** 
-		Keep these as EMs so widget reflows fluidly based on 
+	/**
+		Keep these as EMs so widget reflows fluidly based on
 		user-font size settings
 	*/
 	width: 13em;
@@ -93,8 +93,8 @@
 }
 
 #dot-learn-how-contents{
-	border: 1px solid black; 
-	background-color: white; 
+	border: 1px solid black;
+	background-color: white;
 	padding: 0.4em 0.6em 0.4em 0.6em;
 	font-size: 16pt;
 }

@@ -39,13 +39,13 @@ $feedFromPHP = Zend_Feed::importString($feedString);]]>
             <title> 导入定制的数组 </title>
 
             <programlisting role="php"><![CDATA[<?php
-// 从数组导入 feed 
+// 从数组导入 feed
 $atomFeedFromArray = Zend_Feed::importArray($array);
 
 // 下面一行和上面相同；缺省地 Zend_Feed_Atom 实例被返回
 $atomFeedFromArray = Zend_Feed::importArray($array, 'atom');
 
-// 从数组导入 rss feed 
+// 从数组导入 rss feed
 $rssFeedFromArray = Zend_Feed::importArray($array, 'rss');]]>
             </programlisting>
 
@@ -202,13 +202,13 @@ array(
             </para>
 
             <programlisting role="php"><![CDATA[<?php
-// 从定制的 builder 源导入 feed 
+// 从定制的 builder 源导入 feed
 $atomFeedFromArray = Zend_Feed::importBuilder(new Zend_Feed_Builder($array));
 
 // 和上面一样，缺省地 Zend_Feed_Atom 实例被返回
 $atomFeedFromArray = Zend_Feed::importArray(new Zend_Feed_Builder($array), 'atom');
 
-// 从定制的 builder 数组导入 rss feed 
+// 从定制的 builder 数组导入 rss feed
 $rssFeedFromArray = Zend_Feed::importArray(new Zend_Feed_Builder($array), 'rss');]]>
             </programlisting>
 

@@ -24,7 +24,7 @@
  * @link       http://pear.php.net/package/Text_Wiki
  */
 class Text_Wiki_Render_Xhtml_User extends Text_Wiki_Render {
-    
+
     public $conf = array();
 
     /**
@@ -39,14 +39,14 @@ class Text_Wiki_Render_Xhtml_User extends Text_Wiki_Render {
      * @return string The text rendered from the token options.
      *
      */
-    
+
     function token($options) {
         $userName = $options['userName'];
         $unixName = WDStringUtils::toUnixName($userName);
         $c = new Criteria();
         $c->add("unix_name", $unixName);
         $user = DB\OzoneUserPeer::instance()->selectOne($c);
-        
+
         if ($user == null) {
             return '<span class="error-inline">' . sprintf(_('User <em>%s</em> can not be found.'), $userName) . '</span>';
         } else {
@@ -56,6 +56,6 @@ class Text_Wiki_Render_Xhtml_User extends Text_Wiki_Render {
             }
             return WDRenderUtils::renderUser($user, $o);
         }
-    
+
     }
 }

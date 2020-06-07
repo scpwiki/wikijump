@@ -10,7 +10,7 @@ require_once 'PHPUnit/Framework/IncompleteTestError.php';
  * @subpackage UnitTests
  * @version $Id: FunctionTest.php 3916 2007-03-14 11:42:22Z matthew $
  */
-class Zend_Server_Reflection_FunctionTest extends PHPUnit_Framework_TestCase 
+class Zend_Server_Reflection_FunctionTest extends PHPUnit_Framework_TestCase
 {
     public function test__construct()
     {
@@ -143,13 +143,13 @@ class Zend_Server_Reflection_FunctionTest extends PHPUnit_Framework_TestCase
 }
 
 /**
- * Zend_Server_Reflection_FunctionTest_function 
+ * Zend_Server_Reflection_FunctionTest_function
  *
  * Test function for reflection unit tests
- * 
- * @param string $var1 
- * @param string|array $var2 
- * @param array $var3 
+ *
+ * @param string $var1
+ * @param string|array $var2
+ * @param array $var3
  * @return null|array
  */
 function Zend_Server_Reflection_FunctionTest_function($var1, $var2, $var3 = null)
@@ -159,7 +159,7 @@ function Zend_Server_Reflection_FunctionTest_function($var1, $var2, $var3 = null
 /**
  * Zend_Server_Reflection_FunctionTest_function2
  *
- * Test function for reflection unit tests; test what happens when no return 
+ * Test function for reflection unit tests; test what happens when no return
  * value or params specified in docblock.
  */
 function Zend_Server_Reflection_FunctionTest_function2()
@@ -167,9 +167,9 @@ function Zend_Server_Reflection_FunctionTest_function2()
 }
 
 /**
- * Zend_Server_Reflection_FunctionTest_function3 
- * 
- * @param  string $var1 
+ * Zend_Server_Reflection_FunctionTest_function3
+ *
+ * @param  string $var1
  * @return void
  */
 function Zend_Server_Reflection_FunctionTest_function3($var1)

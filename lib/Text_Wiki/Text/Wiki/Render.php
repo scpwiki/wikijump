@@ -178,9 +178,9 @@ class Text_Wiki_Render {
             return null;
         }
     }
-    
+
     function renderError($message){
-    		return '<div class="error-block">'.$message.'</div>';	
+    		return '<div class="error-block">'.$message.'</div>';
     }
 
 }

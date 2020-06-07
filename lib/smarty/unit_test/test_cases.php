@@ -18,8 +18,8 @@ class Obj {
     }
 }
 
-    
-class SmartyTest extends PHPUnit_TestCase {   
+
+class SmartyTest extends PHPUnit_TestCase {
     // contains the object handle of the string class
     public $abc;
     // contains the last triggered error's errorlevel
@@ -30,84 +30,84 @@ class SmartyTest extends PHPUnit_TestCase {
        $this->PHPUnit_TestCase($name);
     }
 
-    // called before the test functions will be executed    
-    // this function is defined in PHPUnit_TestCase and overwritten 
+    // called before the test functions will be executed
+    // this function is defined in PHPUnit_TestCase and overwritten
     // here
     function setUp() {
         // create a new instance of String with the
         // string 'abc'
         $this->smarty = new Smarty;
     }
-    // called after the test functions are executed    
-    // this function is defined in PHPUnit_TestCase and overwritten 
-    // here    
+    // called after the test functions are executed
+    // this function is defined in PHPUnit_TestCase and overwritten
+    // here
     function tearDown() {
         // delete your instance
         unset($this->smarty);
     }
-    
+
     // dummy errorhandler for functions that are supposed to call trigger_error()
     function error_handler($errorlevel) {
         if ($errorlevel) $this->errorlevel = $errorlevel;
     }
 
     /* DIRECTORY TESTS */
-    
+
     // test that template_dir exists
     function test_template_dir_exists() {
-        $this->assertTrue(file_exists($this->smarty->template_dir));                       
+        $this->assertTrue(file_exists($this->smarty->template_dir));
     }
     // test that template_dir is a directory
     function test_template_dir_is_dir() {
-        $this->assertTrue(is_dir($this->smarty->template_dir));                       
+        $this->assertTrue(is_dir($this->smarty->template_dir));
     }
     // test that template_dir is readable
     function test_template_dir_is_readable() {
-        $this->assertTrue(is_readable($this->smarty->template_dir));                       
+        $this->assertTrue(is_readable($this->smarty->template_dir));
     }
     // test that config_dir exists
     function test_config_dir_exists() {
-        $this->assertTrue(file_exists($this->smarty->config_dir));                       
+        $this->assertTrue(file_exists($this->smarty->config_dir));
     }
     // test that config_dir is a directory
     function test_config_dir_is_dir() {
-        $this->assertTrue(is_dir($this->smarty->config_dir));                       
+        $this->assertTrue(is_dir($this->smarty->config_dir));
     }
     // test that config_dir is readable
     function test_config_dir_is_readable() {
-        $this->assertTrue(is_readable($this->smarty->config_dir));                       
+        $this->assertTrue(is_readable($this->smarty->config_dir));
     }
     // test that compile_dir exists
     function test_compile_dir_exists() {
-        $this->assertTrue(file_exists($this->smarty->compile_dir));                       
+        $this->assertTrue(file_exists($this->smarty->compile_dir));
     }
     // test that compile_dir is a directory
     function test_compile_dir_is_dir() {
-        $this->assertTrue(is_dir($this->smarty->compile_dir));                       
+        $this->assertTrue(is_dir($this->smarty->compile_dir));
     }
     // test that compile_dir is readable
     function test_compile_dir_is_readable() {
-        $this->assertTrue(is_readable($this->smarty->compile_dir));                       
+        $this->assertTrue(is_readable($this->smarty->compile_dir));
     }
     // test that compile_dir is writable
     function test_compile_dir_is_writable() {
-        $this->assertTrue(is_writable($this->smarty->compile_dir));                       
+        $this->assertTrue(is_writable($this->smarty->compile_dir));
     }
     // test that cache_dir exists
     function test_cache_dir_exists() {
-        $this->assertTrue(file_exists($this->smarty->cache_dir));                       
+        $this->assertTrue(file_exists($this->smarty->cache_dir));
     }
     // test that cache_dir is a directory
     function test_cache_dir_is_dir() {
-        $this->assertTrue(is_dir($this->smarty->cache_dir));                       
+        $this->assertTrue(is_dir($this->smarty->cache_dir));
     }
     // test that cache_dir is readable
     function test_cache_dir_is_readable() {
-        $this->assertTrue(is_readable($this->smarty->cache_dir));                       
+        $this->assertTrue(is_readable($this->smarty->cache_dir));
     }
     // test that cache_dir is writable
     function test_cache_dir_is_writable() {
-        $this->assertTrue(is_writable($this->smarty->cache_dir));                       
+        $this->assertTrue(is_writable($this->smarty->cache_dir));
     }
 
     /* METHOD EXISTS TESTS */
@@ -229,13 +229,13 @@ class SmartyTest extends PHPUnit_TestCase {
         $this->assertTrue(method_exists($this->smarty, '_get_plugin_filepath'));
     }
 
-    
+
     function test_clear_compiled_tpl() {
         $this->assertTrue($this->smarty->clear_compiled_tpl());
     }
-    
+
     /* DISPLAY TESTS */
-    
+
     // test that display() executes properly
     function test_call_to_display() {
         ob_start();
@@ -251,7 +251,7 @@ class SmartyTest extends PHPUnit_TestCase {
     function test_call_to_fetch() {
         $this->assertEquals($this->smarty->fetch('index.tpl'), 'TEST STRING');
     }
-    
+
     /* ASSIGN TESTS */
 
     // test assigning a simple template variable
@@ -261,7 +261,7 @@ class SmartyTest extends PHPUnit_TestCase {
     }
 
     /* PARSING TESTS */
-    
+
     // test assigning and calling an object
     function test_parse_obj_meth() {
         $obj  = new Obj();
@@ -276,7 +276,7 @@ foo:foo
 one:2
 foo:foo:b', $this->smarty->fetch('parse_obj_meth.tpl'));
     }
-    
+
     // test assigning and calling an object
     function test_parse_math() {
         $obj  = new Obj();
@@ -298,7 +298,7 @@ foo:foo:b', $this->smarty->fetch('parse_obj_meth.tpl'));
 8.5
 7', $this->smarty->fetch('parse_math.tpl'));
     }
-    
+
     /* CONFIG FILE TESTS */
 
     // test assigning a double quoted global variable
@@ -429,7 +429,7 @@ foo:foo:b', $this->smarty->fetch('parse_obj_meth.tpl'));
         $this->assertEquals('test constant', $this->smarty->fetch('constant.tpl',
                                                      null, 'var_const_allowed'));
         $this->smarty->security_settings = $security_settings;
-        $this->smarty->security = $security;   
+        $this->smarty->security = $security;
     }
 
     function test_core_is_secure_function_smarty_var_const_not_allowed() {

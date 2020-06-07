@@ -109,7 +109,7 @@ Zend_Controller_Action_HelperBroker::addPrefix('My_Action_Helpers');
 
                 <programlisting role="php"><![CDATA[
 // Add helpers prefixed with Helper in Plugins/Helpers/
-Zend_Controller_Action_HelperBroker::addPath('./Plugins/Helpers', 
+Zend_Controller_Action_HelperBroker::addPath('./Plugins/Helpers',
                                              'Helper');
 ]]>
                 </programlisting>
@@ -121,7 +121,7 @@ Zend_Controller_Action_HelperBroker::addPath('./Plugins/Helpers',
         </para>
 
         <para>
-           使用<code>hasHelper($name)</code>方法来判定助手经纪人中是否存在某助手，<code>$name</code>是助手的短名称（去掉前缀的）：        
+           使用<code>hasHelper($name)</code>方法来判定助手经纪人中是否存在某助手，<code>$name</code>是助手的短名称（去掉前缀的）：
         </para>
 
         <programlisting role="php"><![CDATA[
@@ -143,13 +143,13 @@ if (Zend_Controller_Action_HelperBroker::hasHelper('redirector')) {
         <programlisting role="php"><![CDATA[
 // Check if 'redirector' helper is registered with the broker, and fetch:
 if (Zend_Controller_Action_HelperBroker::hasHelper('redirector')) {
-    $redirector = 
+    $redirector =
         Zend_Controller_Action_HelperBroker::getExistingHelper('redirector');
 }
 
-// Or, simply retrieve it, not worrying about whether or not it was 
+// Or, simply retrieve it, not worrying about whether or not it was
 // previously registered:
-$redirector = 
+$redirector =
     Zend_Controller_Action_HelperBroker::getStaticHelper('redirector');
 }
 ]]>

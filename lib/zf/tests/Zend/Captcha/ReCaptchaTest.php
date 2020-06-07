@@ -63,10 +63,10 @@ class Zend_Captcha_ReCaptchaTest extends PHPUnit_Framework_TestCase
         }
 
         $this->element = new Zend_Form_Element_Captcha(
-            'captchaR', 
+            'captchaR',
             array(
                 'captcha' => array(
-                    'ReCaptcha', 
+                    'ReCaptcha',
                     'sessionClass' => 'Zend_Captcha_ReCaptchaTest_SessionContainer'
                 )
             )

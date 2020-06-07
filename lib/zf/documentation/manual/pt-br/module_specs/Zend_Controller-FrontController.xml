@@ -11,7 +11,7 @@
                 url="http://pt-br.wikipedia.org/wiki/Model-view-controller">Model-View-Controller
                 (MVC)</ulink>. Seu objetivo é inicializar o ambiente de requisição,
 			    roterizar as requisições que chegam, e despachalas para quaquel ações
-			    descobertas; ele agrega alguma resposta e devolve-os quando o 
+			    descobertas; ele agrega alguma resposta e devolve-os quando o
 			    processo é completo.
         </para>
 
@@ -19,27 +19,27 @@
             <code>Zend_Controller_Front</code> também implementa o <ulink
                 url="http://pt-br.wikipedia.org/wiki/Singleton_pattern">padrão Singleton
             </ulink>, signicando que somente uma instancia dele pode estar disponivel
-			em qualquer tempo. Isto permite que ele atue também como um registro em 
+			em qualquer tempo. Isto permite que ele atue também como um registro em
 			que outros objetos no processo de despacho possam usar.
         </para>
 
         <para>
             <code>Zend_Controller_Front</code> registra uma <link
                 linkend="zend.controller.plugins">plugin de entrada</link> que
-            por si só, permite que vários eventos sejam disparados para 
+            por si só, permite que vários eventos sejam disparados para
 			outros plugins observadores. Em muitos casos, isto permite ao
-			desenvolvedor a oportunidade para mudar o processo de despacho do 
+			desenvolvedor a oportunidade para mudar o processo de despacho do
 			site sem a necessidade de extender o controlador de frente para
 			adicionar funcionalidade.
         </para>
 
         <para>
 			O mínimo necessário, que o controlador de frente necessita é um ou mais
-			caminho para os diretórios contendo os 
+			caminho para os diretórios contendo os
 			<link linkend="zend.controller.action">controles de ação</link>
-			para poder fazer seu trabalho. Vários metódos também 
+			para poder fazer seu trabalho. Vários metódos também
 			podem ser invocados para mudar o ambiente do controlador de frente
-			e suas classe auxiliares. 
+			e suas classe auxiliares.
         </para>
 
         <note>
@@ -49,8 +49,8 @@
                     linkend="zend.controller.plugins.standard.errorhandler">ErrorHandler</link>
 				plugin, bem como o  <link
                     linkend="zend.controller.actionhelpers.viewrenderer">ViewRenderer</link>
-				plugin de ação auxiliar. Faz isto para simplificar o controle de erro e 
-				a apresentação de visulizadores em seus controles, repectivamente. 
+				plugin de ação auxiliar. Faz isto para simplificar o controle de erro e
+				a apresentação de visulizadores em seus controles, repectivamente.
             </para>
 
             <para>
@@ -89,9 +89,9 @@ $front->setParam('noViewRenderer', true);]]>
 
             <para>
                 <code>getInstance()</code> é usado para retirar a instancia
-				do controlador de frente. Como o controlador de frente 
+				do controlador de frente. Como o controlador de frente
 				implementa o padrão Singleton, isto também é a unica
-				maneira possível de instanciar um objeto controlador de frente. 
+				maneira possível de instanciar um objeto controlador de frente.
             </para>
 
             <programlisting role="php"><![CDATA[<?php
@@ -108,7 +108,7 @@ $front = Zend_Controller_Front::getInstance();]]>
                 onde procurar os arquivos da classes dos <link
                     linkend="zend.controller.action">controladores de ação</link>.
 				Ele aceita tanto um caminho único ou um array associativo
-				com pares módulo/caminho. 
+				com pares módulo/caminho.
             </para>
 
             <para>
@@ -133,13 +133,13 @@ $front->addControllerDirectory('../modules/foo/controllers', 'foo');]]>
             <note>
                 <para>
 					Se você usar <code>addControllerDirectory()</code>  sem um
-					nome de módulo, ele irá configurar o diretório para o módulo 
+					nome de módulo, ele irá configurar o diretório para o módulo
 					<code>padrão</code> -- sobrescrevendo-o se ele já existir.
                 </para>
             </note>
 
             <para>
-				Você pode pegar a configuração corrente do diretório do 
+				Você pode pegar a configuração corrente do diretório do
 				controlador usando <code>getControllerDirectory()</code>;
 				isto irá retornar um array de pares módulo/diretório.
             </para>
@@ -151,7 +151,7 @@ $front->addControllerDirectory('../modules/foo/controllers', 'foo');]]>
             <para>
                 <code>dispatch(Zend_Controller_Request_Abstract $request = null,
                     Zend_Controller_Response_Abstract $response = null)</code>
-				faz o trabalho pesado do controlador de frente. Ele pode 
+				faz o trabalho pesado do controlador de frente. Ele pode
 				opcionalmente pegar um <link linkend="zend.controller.request">objeto
 			    de requisição</link> e/ou um <link
                     linkend="zend.controller.response">objeto de resposta</link>,
@@ -163,13 +163,13 @@ $front->addControllerDirectory('../modules/foo/controllers', 'foo');]]>
 				Se nenhum objeto de requisição ou resposta for passado,
 				<code>dispatch()</code> irá procurar por objetos previamente
 				registrados e usa-los ou instanciar versões padrão para usar
-				em seus processos (em ambos os casos, o HTTP será usado como padrão). 
+				em seus processos (em ambos os casos, o HTTP será usado como padrão).
             </para>
 
             <para>
-				Similarmente, <code>dispatch()</code> checa por uma 
+				Similarmente, <code>dispatch()</code> checa por uma
 				<link linkend="zend.controller.router">router</link> registrada e
-				um objetos de 
+				um objetos de
 				<link linkend="zend.controller.dispatcher">dispacho</link>,
 				instanceando a versão padrão de cada um deles se não encontrar
 				nenhum.
@@ -200,10 +200,10 @@ $front->addControllerDirectory('../modules/foo/controllers', 'foo');]]>
             <title>run()</title>
 
             <para>
-                <code>Zend_Controller_Front::run($path)</code> é um método estático 
+                <code>Zend_Controller_Front::run($path)</code> é um método estático
 				que toma simplesmente um caminho para um diretório contendo
-				os controladores. Ele  
-				
+				os controladores. Ele
+
                 <code>Zend_Controller_Front::run($path)</code> is a static
                 method taking simply a path to a directory containing
                 controllers. Ele traz um exemplo de controlador de frente (via
@@ -236,7 +236,7 @@ Zend_Controller_Front::run('../application/controllers');]]>
 			Além dos métodos enumerados em cima, há um número de
             os métodos acessores que podem ser usados para afetar o ambiente
 			do controlador de frente - e assim o ambiente das classes em que
-			o controlador de frente delega.			
+			o controlador de frente delega.
         </para>
 
         <itemizedlist>
@@ -247,7 +247,7 @@ Zend_Controller_Front::run('../application/controllers');]]>
 					Seu propósito inicial é para teste, mas
 					ele também pode ser usado para intâncias onde você
 					deseja encadear um conjunto de múltiplos controladores de
-					frente. 
+					frente.
                 </para>
             </listitem>
 
@@ -257,7 +257,7 @@ Zend_Controller_Front::run('../application/controllers');]]>
 					específicar um nome difetente para usar no controlador padrão
 					('index' é usado de outra maneira) e recuperar o valor atual.
 					Eles apontaram para o <link
-                        linkend="zend.controller.dispatcher">o despachante</link>. 
+                        linkend="zend.controller.dispatcher">o despachante</link>.
                 </para>
             </listitem>
 
@@ -265,7 +265,7 @@ Zend_Controller_Front::run('../application/controllers');]]>
                 <para>
 					<code>(set|get)DefaultActionName()</code> permite a você epecíficar
 					um nome diferente para ser usado na ação padrão ('index' é usado
-					por padrão) e recuperar o valor atual. Eles apontãm para 
+					por padrão) e recuperar o valor atual. Eles apontãm para
 					<link linkend="zend.controller.dispatcher"> o
                         despachante</link>.
                 </para>
@@ -351,7 +351,7 @@ Zend_Controller_Front::run('../application/controllers');]]>
 
             <listitem>
                 <para>
-                    <code>unregisterPlugin($plugin)</code> let you 
+                    <code>unregisterPlugin($plugin)</code> let you
                     unregister <link
                         linkend="zend.controller.plugins">plugin objects</link>.
                     <code>$plugin</code> may be either a plugin object or a

@@ -112,7 +112,7 @@ class Zend_View_Helper_FormRadio extends Zend_View_Helper_FormElement
         // build the element
         $xhtml = '';
         $list  = array();
-        
+
         // should the name affect an array collection?
         $name = $this->view->escape($name);
         if ($this->_isArray && ('[]' != substr($name, -2))) {
@@ -165,7 +165,7 @@ class Zend_View_Helper_FormRadio extends Zend_View_Helper_FormElement
                     . ' value="' . $this->view->escape($opt_value) . '"'
                     . $checked
                     . $disabled
-                    . $this->_htmlAttribs($attribs) 
+                    . $this->_htmlAttribs($attribs)
                     . $endTag
                     . (('append' == $labelPlacement) ? $opt_label : '')
                     . '</label>';

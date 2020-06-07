@@ -9,22 +9,22 @@ require_once 'HTMLPurifier/AttrDef/URI/IPv6.php';
  */
 class HTMLPurifier_AttrDef_URI_Host extends HTMLPurifier_AttrDef
 {
-    
+
     /**
      * Instance of HTMLPurifier_AttrDef_URI_IPv4 sub-validator
      */
     protected $ipv4;
-    
+
     /**
      * Instance of HTMLPurifier_AttrDef_URI_IPv6 sub-validator
      */
     protected $ipv6;
-    
+
     public function __construct() {
         $this->ipv4 = new HTMLPurifier_AttrDef_URI_IPv4();
         $this->ipv6 = new HTMLPurifier_AttrDef_URI_IPv6();
     }
-    
+
     public function validate($string, $config, $context) {
         $length = strlen($string);
         if ($string === '') return '';
@@ -35,19 +35,19 @@ class HTMLPurifier_AttrDef_URI_Host extends HTMLPurifier_AttrDef
             if ($valid === false) return false;
             return '['. $valid . ']';
         }
-        
+
         // need to do checks on unusual encodings too
         $ipv4 = $this->ipv4->validate($string, $config, $context);
         if ($ipv4 !== false) return $ipv4;
-        
+
         // validate a domain name here, do filtering, etc etc etc
-        
+
         // We could use this, but it would break I18N domain names
         //$match = preg_match('/^[a-z0-9][\w\-\.]*[a-z0-9]$/i', $string);
         //if (!$match) return false;
-        
+
         return $string;
     }
-    
+
 }
 

@@ -1,4 +1,4 @@
-{ identifier: 'abbr', 
+{ identifier: 'abbr',
   label: 'name',
   items: [
 	{ abbr:'ec', name:'Ecuador',           capital:'Quito' },
@@ -8,7 +8,7 @@
 	{ abbr:'er',
 	  name:'Eritrea',
 	  capital:'Asmara',
-	  independence:{_type:'Date', _value:"1993-05-24T00:00:00Z"} // May 24, 1993 in ISO-8601 standard  
+	  independence:{_type:'Date', _value:"1993-05-24T00:00:00Z"} // May 24, 1993 in ISO-8601 standard
           },
 	{ abbr:'ee',
 	  name:'Estonia',

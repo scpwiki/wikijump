@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,20 +27,20 @@
 use DB\PageRevisionPeer;
 
 class PageHistoryModule extends SmartyModule {
-	
+
 	public function build($runData){
 		$pageId = $runData->getParameterList()->getParameterValue("page_id");
-		
+
 		if(!$pageId || !is_numeric($pageId)){
-			throw new ProcessException(_("The page can not be found or does not exist."), "no_page");	
+			throw new ProcessException(_("The page can not be found or does not exist."), "no_page");
 		}
-		
+
 		$c = new Criteria();
 		$c->add('page_id', $pageId);
 		$c->addOrderDescending('revision_id');
-		
+
 		$pageRevisions = PageRevisionPeer::instance()->select($c);
 		$runData->contextAdd("pageRevisions", $pageRevisions);
 	}
-	
+
 }

@@ -75,7 +75,7 @@ $dispatcher->setParam('prefixDefaultModule', true);
             дополнительные параметры, которые хотите передать новому
             действию.
         </para>
-        
+
         <programlisting role="php"><![CDATA[
 public function fooAction()
 {
@@ -154,33 +154,33 @@ interface Zend_Controller_Dispatcher_Interface
 
     /**
      * Устанавливает пользовательский параметр
-     * (через фронт-контроллер или для локального использования) 
-     * 
-     * @param string $name 
-     * @param mixed $value 
+     * (через фронт-контроллер или для локального использования)
+     *
+     * @param string $name
+     * @param mixed $value
      * @return Zend_Controller_Dispatcher_Interface
      */
     public function setParam($name, $value);
 
     /**
      * Устанавливает массив пользовательских параметров
-     * 
-     * @param array $params 
+     *
+     * @param array $params
      * @return Zend_Controller_Dispatcher_Interface
      */
     public function setParams(array $params);
 
     /**
      * Возвращает один пользовательский параметр
-     * 
-     * @param string $name 
+     *
+     * @param string $name
      * @return mixed
      */
     public function getParam($name);
 
     /**
      * Возвращает все пользовательские параметры
-     * 
+     *
      * @return array
      */
     public function getParams();
@@ -196,23 +196,23 @@ interface Zend_Controller_Dispatcher_Interface
 
     /**
      * Устанавливает объект ответа для использования, если есть
-     * 
-     * @param Zend_Controller_Response_Abstract|null $response 
+     *
+     * @param Zend_Controller_Response_Abstract|null $response
      * @return void
      */
     public function setResponse(Zend_Controller_Response_Abstract $response = null);
 
     /**
      * Возвращает объект ответа, если есть
-     * 
+     *
      * @return Zend_Controller_Response_Abstract|null
      */
     public function getResponse();
 
     /**
      * Добавляет директорию в стек директорий контроллеров
-     * 
-     * @param string $path 
+     *
+     * @param string $path
      * @param string $args
      * @return Zend_Controller_Dispatcher_Interface
      */
@@ -221,7 +221,7 @@ interface Zend_Controller_Dispatcher_Interface
     /**
      * Устанавливает директорию(-ии), в которой хранятся файлы контроллеров
      *
-     * @param string|array $dir 
+     * @param string|array $dir
      * @return Zend_Controller_Dispatcher_Interface
      */
     public function setControllerDirectory($path);
@@ -229,7 +229,7 @@ interface Zend_Controller_Dispatcher_Interface
     /**
      * Возвращает установленную в данное время директорию(-ии) для поиска
      * файлов контроллеров
-     * 
+     *
      * @return array
      */
     public function getControllerDirectory();
@@ -245,29 +245,29 @@ interface Zend_Controller_Dispatcher_Interface
 
     /**
      * Валиден или нет данный модуль
-     * 
-     * @param string $module 
+     *
+     * @param string $module
      * @return boolean
      */
     public function isValidModule($module);
 
     /**
      * Возвращает используемое по умолчанию имя модуля
-     * 
+     *
      * @return string
      */
     public function getDefaultModule();
 
     /**
      * Возвращает используемое по умолчанию имя контроллера
-     * 
+     *
      * @return string
      */
     public function getDefaultControllerName();
 
     /**
      * Возвращает имя используемого по умолчанию действия
-     * 
+     *
      * @return string
      */
     public function getDefaultAction();

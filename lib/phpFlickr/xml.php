@@ -22,13 +22,13 @@ class SAXY_Custom  {
         $this->sp->xml_set_element_handler(array(&$this, "startElement"), array(&$this, "endElement"));
         $this->sp->xml_set_character_data_handler(array(&$this, "charData"));
     }
-    
+
     function parse($xml)
     {
         $this->sp->parse($xml);
         return $this->sp->endElementHandler[0]->result;
     }
-    
+
     function startElement($parser, $name, $attributes) {
         $this->level++;
         $tmp = array();
@@ -38,8 +38,8 @@ class SAXY_Custom  {
         $tmp['attributes'] = $attributes;
         $this->result[] = $tmp;
 
-    } 
-    
+    }
+
     function endElement($parser, $name) {
         $tmp = array_pop($this->result);
         if ($tmp['type'] == 'complete' && $tmp['tag'] == $name) {
@@ -56,38 +56,38 @@ class SAXY_Custom  {
             $this->result[] = $tmp;
         }
         $this->level--;
-    } 
-    
+    }
+
     function charData($parser, $text) {
         $tmp = array_pop($this->result);
         $tmp['type'] = 'complete';
         $tmp['value'] = $text;
         $this->result[] = $tmp;
     }
-    
-} 
-	
+
+}
+
 class xml  {
    /** If attributesDirectlyUnderParent is true then a tag's attributes will be merged into
      * the tag itself rather than under the special '_attributes' key.
-     * For example: 
+     * For example:
      *  false: $tag['_attributes'][$attributeName];
      *  true: $tag[$attributeName]; OR $tag['_attributes'][$attributeName];
      *
      * @var boolean
      */
    public $attributesDirectlyUnderParent = false;
-   
+
    /** If childTagsDirectlyUnderParent is true then a tag's children will be merged into
      * the tag itself rather than under the special '_value' key.
-     * For example: 
+     * For example:
      *  false: $tag['_value'][$childTagName];
      *  true: $tag[$childTagName];
      *
      * @var boolean
      */
    public $childTagsDirectlyUnderParent = false;
-   
+
    public $caseInsensitive = false;
 
    //public $_replace = array('�','&',"\n","", "�","�");
@@ -101,21 +101,21 @@ class xml  {
      $this->attributesDirectlyUnderParent = $attributesDirectlyUnderParent;
      $this->childTagsDirectlyUnderParent = $childTagsDirectlyUnderParent;
    }
-   
+
    function parse($xml)
    {
     /* This is the original code that uses PHP's crappy XML functions.
        $this->_parser = xml_parser_create();
-       
+
        $this->input = $xml;
        $xml = str_replace($this->_replace, $this->_replaceWith, $xml);
        $xml = str_replace(">{lf}", ">\n", $xml);
-       
+
        unset($this->_struct, $this->_index, $this->parsed);
        xml_set_object($this->_parser, $this);
        xml_parser_set_option($this->_parser, XML_OPTION_CASE_FOLDING, $this->caseInsensitive);
        xml_parser_set_option($this->_parser, XML_OPTION_SKIP_WHITE, 1);
-       
+
        xml_parse_into_struct($this->_parser, $xml, $this->_struct, $this->_index);
       //*/
 
@@ -126,18 +126,18 @@ class xml  {
 
        $this->parsed = $this->_postProcess($this->_struct);
        $this->parsed = array($this->parsed['_name']=>$this->parsed);
-       
+
        return $this->parsed;
    }
-   
+
    /* You'll note that I used php's array pointer functions in the _postProcess function.
-    In fact it looks like I made a foreach overly complicated in the 'open' case of the 
-    switch statement. However this is not the case. By using the array pointer functions, 
-    each time you go another call deeper (or shallower) in the recursion it doesn't loose 
+    In fact it looks like I made a foreach overly complicated in the 'open' case of the
+    switch statement. However this is not the case. By using the array pointer functions,
+    each time you go another call deeper (or shallower) in the recursion it doesn't loose
     its place in the structure array.*/
   function _postProcess() {
     $item = current($this->_struct);
-    
+
     $ret = array('_name'=>$item['tag'], '_attributes'=>array(), '_value'=>null);
 
     if (isset($item['attributes']) && count($item['attributes'])>0) {
@@ -153,20 +153,20 @@ class xml  {
 
     if (isset($item['value']) && $item['value'] != null)
       $item['value'] = str_replace($this->_replaceWith, $this->_replace, $item['value']);
-    
+
     switch ($item['type']) {
       case 'open':
         $children = array();
         while (($child = next($this->_struct)) !== FALSE ) {
           if ($child['level'] <= $item['level'])
             break;
-          
+
           $subItem = $this->_postProcess();
-          
+
           if (isset($subItem['_name'])) {
             if (!isset($children[$subItem['_name']]))
               $children[$subItem['_name']] = array();
-          
+
             $children[$subItem['_name']][] = $subItem;
           }
           else {
@@ -183,12 +183,12 @@ class xml  {
             }
           }
         }
-        
+
         if ($this->childTagsDirectlyUnderParent)
           $ret = array_merge($ret, $this->_condenseArray($children));
         else
           $ret['_value'] = $this->_condenseArray($children);
-        
+
         break;
       case 'close':
         break;
@@ -209,7 +209,7 @@ class xml  {
 
     //added by Dan Coulter
 
-    
+
     /*
     foreach ($ret as $key => $data) {
         if (!is_null($data) && !is_array($data)) {
@@ -219,7 +219,7 @@ class xml  {
     */
     return $ret;
   }
-  
+
   function _condenseArray($array) {
     $newArray = array();
     foreach ($array as $key => $value) {
@@ -228,7 +228,7 @@ class xml  {
       else
         $newArray[$key] = $value;
     }
-    
+
     return $newArray;
   }
 }

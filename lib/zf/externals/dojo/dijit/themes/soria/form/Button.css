@@ -11,17 +11,17 @@
 	/* border:1px outset #a0a0a0; */
 	border: 1px solid #8ba0bd;
 	border-bottom:1px solid #657c9c;
-	padding: 0.1em 0.2em 0.2em 0.2em; 
+	padding: 0.1em 0.2em 0.2em 0.2em;
 	background: #bcd5f0 url("../images/buttonEnabled.png") repeat-x top left;
 }
 
-.soria .dijitButtonNode button { 
-	border: 0px; 
-	background-color: transparent; 
-} 
- 
+.soria .dijitButtonNode button {
+	border: 0px;
+	background-color: transparent;
+}
+
 .soria .dijitButtonText {
-	text-align: center; 
+	text-align: center;
 	padding: 0 0.3em;
 }
 
@@ -90,8 +90,8 @@
 	background:url("../images/spriteArrows.png") no-repeat left top;
 	width: 11px;
 }
-.soria .dijitUpArrowButton .dijitArrowButtonInner { 
-	background:url("../images/spriteArrows.png") no-repeat -22px top; 
+.soria .dijitUpArrowButton .dijitArrowButtonInner {
+	background:url("../images/spriteArrows.png") no-repeat -22px top;
 	width: 11px;
 }
 .dj_ie6 .soria .dijitArrowButtonInner {

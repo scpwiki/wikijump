@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Form
  * @version $Id$
@@ -30,21 +30,21 @@
  */
 class FileUpload {
 
-	private $multiple = false;	
+	private $multiple = false;
 
 	public function __construct(){
 
 	}
-	
+
 	public function processUpload(){
 		// check if proper upload
-		
+
 		//check if multiple
 		//is_array($_FILES[])
 		// get all uploaded files
 
 	}
-	
+
 	public function getFileItem($fieldKey){
 		/* a nasty hack follows... because of a strange behaviour of the $_FILES array */
 		$ar = array();
@@ -53,8 +53,8 @@ class FileUpload {
 		$ar['type'] = $_FILES["$fieldKey"]['type'];
 		$ar['size'] = $_FILES["$fieldKey"]['size'];
 		$ar['error'] = $_FILES["$fieldKey"]['error'];
-		return new FileItem($ar);	
-		
-	}	
-	
+		return new FileItem($ar);
+
+	}
+
 }

@@ -68,8 +68,8 @@ class Zend_Validate_Identical extends Zend_Validate_Abstract
 
     /**
      * Set token against which to compare
-     * 
-     * @param  string $token 
+     *
+     * @param  string $token
      * @return Zend_Validate_Identical
      */
     public function setToken($token)
@@ -80,7 +80,7 @@ class Zend_Validate_Identical extends Zend_Validate_Abstract
 
     /**
      * Retrieve token
-     * 
+     *
      * @return string
      */
     public function getToken()
@@ -91,7 +91,7 @@ class Zend_Validate_Identical extends Zend_Validate_Abstract
     /**
      * Defined by Zend_Validate_Interface
      *
-     * Returns true if and only if a token has been set and the provided value 
+     * Returns true if and only if a token has been set and the provided value
      * matches that token.
      *
      * @param  string $value

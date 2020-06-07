@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot_Db
  * @version $Id$
@@ -47,25 +47,25 @@ class ForumPost extends ForumPostBase {
 			}
 		}
 		return OzoneUserPeer::instance()->selectByPrimaryKey($this->getUserId());
-		
+
 	}
-	
+
 	public function getEditedUser(){
 		if($this->getEditedUserId() == 0){return null;}
 		return OzoneUserPeer::instance()->selectByPrimaryKey($this->getEditedUserId());
-		
+
 	}
-	
+
 	public function getEditedUserOrString(){
 		$user = $this->getEditedUser();
 		if($user == null){
-			return $this->getEditedUserString();	
+			return $this->getEditedUserString();
 		}else{
 			return $user;
 		}
-		
+
 	}
-	
+
 	public function getForumThread(){
 		if(is_array($this->prefetched)){
 			if(in_array('forum_thread', $this->prefetched)){
@@ -80,9 +80,9 @@ class ForumPost extends ForumPostBase {
 			}
 		}
 		return ForumThreadPeer::instance()->selectByPrimaryKey($this->getThreadId());
-		
+
 	}
-	
+
 	public function getSite(){
 		if(is_array($this->prefetched)){
 			if(in_array('site', $this->prefetched)){
@@ -97,38 +97,38 @@ class ForumPost extends ForumPostBase {
 			}
 		}
 		return SitePeer::instance()->selectByPrimaryKey($this->getSiteId());
-		
+
 	}
-	
+
 	public function getUserOrString(){
 		$user = $this->getUser();
 		if($user == null){
-			return $this->getUserString();	
+			return $this->getUserString();
 		}else{
 			return $user;
 		}
-		
+
 	}
-	
+
 	public function getOzoneUser(){
-		return $this->getUser();	
+		return $this->getUser();
 	}
-	
+
 	public function getRevision(){
 		$r = ForumPostRevisionPeer::instance()->selectByPrimaryKey($this->getRevisionId());
-		return $r;	
+		return $r;
 	}
-	
-/*	
+
+/*
    	public function save(){
 		$o = new Outdater();
 		$o->forumEvent("post_save", $this);
-		parent::save();	
+		parent::save();
 	}
 */
 
 	public function getPreview($length = 200){
-		
+
 		$text = $this->getText();
 		$text =  preg_replace(';<table style=".*?id="toc".*?</table>;s', '', $text, 1);
 		$stripped = strip_tags($text);
@@ -142,7 +142,7 @@ class ForumPost extends ForumPostBase {
 			$substr = trim(substr($substr, 0,$length));
 			$substr .= '...';
 		}else{
-			$substr = $stripped;	
+			$substr = $stripped;
 		}
 		return $substr;
 	}

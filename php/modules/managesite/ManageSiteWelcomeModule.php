@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -28,44 +28,44 @@ use DB\SiteTagPeer;
 use DB\MemberPeer;
 
 class ManageSiteWelcomeModule extends ManageSiteBaseModule {
-	
+
 	public function build($runData){
-		
+
 		$site = $runData->getTemp("site");
-		
+
 		$fsettings = $site->getForumSettings();
-		
+
 		$tips = array();
-		
+
 		if(!$fsettings){
 			$tips['forum'] = true;
 		}
-		
+
 		// site tags
-		
+
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
 		$t = SiteTagPeer::instance()->selectOne($c);
-		
+
 		if(!$t){
-			$tips['tags'] = true;	
+			$tips['tags'] = true;
 		}
-		
+
 		// count members... ???
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
 		$co = MemberPeer::instance()->selectCount($c);
-		
+
 		if($co<4){
-			$tips['invite'] = true;	
+			$tips['invite'] = true;
 		}
 
 		if(count($tips)>0){
-			$runData->contextAdd("tips", $tips);	
+			$runData->contextAdd("tips", $tips);
 		}
-		
+
 		$runData->contextAdd('site', $site);
 
 	}
-	
+
 }

@@ -53,7 +53,7 @@ require_once 'Zend/Dojo/View/Helper/Dojo.php';
  * @copyright  Copyright (c) 2005-2008 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
-class Zend_Dojo_View_Helper_HorizontalSliderTest extends PHPUnit_Framework_TestCase 
+class Zend_Dojo_View_Helper_HorizontalSliderTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.
@@ -103,8 +103,8 @@ class Zend_Dojo_View_Helper_HorizontalSliderTest extends PHPUnit_Framework_TestC
     public function getElement()
     {
         return $this->helper->horizontalSlider(
-            'elementId', 
-            '', 
+            'elementId',
+            '',
             array(
                 'minimum'        => -10,
                 'maximum'        => 10,
@@ -234,8 +234,8 @@ class Zend_Dojo_View_Helper_HorizontalSliderTest extends PHPUnit_Framework_TestC
     public function disabledShouldAllowPassingLabelParametersViaDecorationParameters()
     {
         $html = $this->helper->horizontalSlider(
-            'elementId', 
-            '', 
+            'elementId',
+            '',
             array(
                 'minimum'        => -10,
                 'maximum'        => 10,
@@ -299,9 +299,9 @@ class Zend_Dojo_View_Helper_HorizontalSliderTest extends PHPUnit_Framework_TestC
                     'topDecorationDijit' => 'HorizontalRuleLabels',
                     'topDecorationLabels' => array('0%', '50%', '100%'),
                     'topDecorationParams' => array('style' => 'padding-bottom: 20px;')
-                )   
-            );      
-                    
+                )
+            );
+
         $form->addSubForm($sliderForm, 'slidertab')
              ->setView($this->getView());
         $html = $form->render();

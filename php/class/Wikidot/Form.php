@@ -13,11 +13,11 @@ class Form {
 
     // keep this up to date with Text_Wiki_Parse_Form!
     public static $FORM_REGEXP = '/\[\[form\]\]\s*\n(.*)\n---\s*\n(.*)\n\[\[\/form\]\]/is';
-	
+
 	public static function fromYaml($yamlString, $dataYamlString = null) {
 		$form = new self();
 		$yaml = Yaml::load($yamlString, true); // forgiving mode ;)
-		
+
 		if (is_array($yaml['fields'])) {
 			foreach ($yaml['fields'] as $name => $f) {
 				unset($first_value);
@@ -85,11 +85,11 @@ class Form {
                 $f['name'] = $name;
 				$form->fields[$name] = $f;
 			}
-			
+
 		}
 
         $form->setDataFromYaml($dataYamlString);
-       
+
 		if (is_array($yaml['presets'])) {
 			$form->presets = $yaml['presets'];
 		}
@@ -111,7 +111,7 @@ class Form {
                 $this->fields[$name]['value'] = null;
             }
         }
- 
+
     }
 
     public static function fromSource($source) {
@@ -123,15 +123,15 @@ class Form {
             return null;
         }
     }
-	
+
 	public function computeValues($values) {
 		$ret = array();
 		foreach ($this->fields as $name => $field) {
 			if (isset($values[$name]) && (is_string($name) || is_numeric($name))) {
 				$value = $values[$name];
 				$type = $field['type'];
-				
-				if ($type == 'select') { 
+
+				if ($type == 'select') {
 					if (isset($field['options'][$value])) {
 						$ret[$name] = $field['options'][$value]['value'];
 					}

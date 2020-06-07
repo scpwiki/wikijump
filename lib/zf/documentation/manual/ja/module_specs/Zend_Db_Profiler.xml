@@ -256,7 +256,7 @@ foreach ($profiler->getQueryProfiles() as $query) {
     }
 }
 
-echo '全部で ' . $queryCount . ' 件のクエリが ' . $totalTime . 
+echo '全部で ' . $queryCount . ' 件のクエリが ' . $totalTime .
      ' 秒で実行されました' . "\n";
 echo '平均の所要時間: ' . $totalTime / $queryCount . ' 秒' . "\n";
 echo '1 秒あたりのクエリ実行数: ' . $queryCount / $totalTime . "\n";

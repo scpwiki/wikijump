@@ -39,7 +39,7 @@
         <programlisting role="php"><![CDATA[
 // Ściągamy najnowsze nagłówki ze Slashdot
 try {
-    $slashdotRss = 
+    $slashdotRss =
         Zend_Feed::import('http://rss.slashdot.org/Slashdot/slashdot');
 } catch (Zend_Feed_Exception $e) {
     // importowanie danych nie udało się

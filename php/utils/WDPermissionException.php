@@ -2,5 +2,5 @@
 
 
 class WDPermissionException extends Exception {
-	protected $code = 403;	
+	protected $code = 403;
 }

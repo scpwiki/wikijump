@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Web
  * @version $Id$
@@ -29,19 +29,19 @@
  *
  */
 class NavigationService extends TemplateService {
-	
+
 	protected $serviceName = "navigation";
-	
+
 	private $navPath;
-	
+
 	function __construct($runData = null){
 			$this->navPath = PathManager::navigationTemplateDir();
-		
+
 	}
-	
+
 	public function render($navigationTemplate){
 		$smarty = Ozone::getSmarty();
-		
+
 		return 	$smarty->fetch($this->navPath . $navigationTemplate.'.tpl');
 	}
 

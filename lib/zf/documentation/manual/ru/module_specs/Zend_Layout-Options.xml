@@ -147,7 +147,7 @@ $layout = Zend_Layout::startMvc($options);
                 Использование объекта конфигурации:
             </para>
 
-            <programlisting role="php"><![CDATA[<?php 
+            <programlisting role="php"><![CDATA[<?php
 $config = new Zend_Config_Ini('/path/to/layout.ini', 'layout');
 
 // Использование конструктора:
@@ -180,7 +180,7 @@ $layout->setOptions($options);
 // Использование объекта Zend_Config:
 $layout->setConfig($options);
 ?>]]></programlisting>
-        
+
             <para>
                 Но следует иметь в виду, что некоторые опции, такие, как
                 <code>pluginClass</code> и <code>helperClass</code> не будут

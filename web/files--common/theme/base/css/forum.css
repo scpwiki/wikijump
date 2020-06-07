@@ -94,7 +94,7 @@
 
 .forum-category-box table{
 	width: 100%;
-	
+
 	border-collapse: separate;
 	border-spacing: 1px;
 	border: 1px solid #BBB;
@@ -163,7 +163,7 @@
 
 .forum-thread-box{
 	margin: 0.5em 0;
-	
+
 }
 
 .forum-thread-box  .description-block{
@@ -215,7 +215,7 @@
 	background-color: #EEE;
 }
 .thread-container .post  .long  .head .options{
-	float: right;	
+	float: right;
 	margin:0; padding: 0;
 }
 
@@ -279,7 +279,7 @@
 	color: #77A;
 	float: right;
 	margin:0; padding:0;
-}	
+}
 
 .thread-container .post.folded   .long{ display: none;}
 .thread-container .post.folded   .short{ display: block;}
@@ -323,5 +323,5 @@ div.new-post a{
 
 .forum-mini-stat .item .info{
 	color: #777;
-	font-size: 80%;	
+	font-size: 80%;
 }

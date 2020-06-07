@@ -15,7 +15,7 @@ Run with 100 words, 1000 iterations and overhead of 2
     4188 - builderReusedFor
     4319 - builderFor
     5155 - builderForEach
-    
+
 switch to for loop in append and ditch arraylike for array(r9607)
 Run with 100 words, 1000 iterations and overhead of 3
     62 - concatOnce
@@ -32,8 +32,8 @@ Run with 100 words, 1000 iterations and overhead of 3
     2005 - builderReusedFor
     2073 - builderFor
     2830 - builderForEach
-    
-    
+
+
 inline append for array, remove string check
 Run with 100 words, 1000 iterations and overhead of 4
     55 - concatOnce
@@ -50,7 +50,7 @@ Run with 100 words, 1000 iterations and overhead of 4
     1854 - builderReusedFor
     1922 - builderFor
     2714 - builderForEach
-    
+
 add string check back in using typeof
 Run with 100 words, 1000 iterations and overhead of 3
     63 - concatOnce
@@ -67,7 +67,7 @@ Run with 100 words, 1000 iterations and overhead of 3
     1870 - builderReusedFor
     1937 - builderFor
     2702 - builderForEach
-    
+
 first cut less complex isArray
 Run with 100 words, 1000 iterations and overhead of 3
     63 - concatOnce
@@ -84,7 +84,7 @@ Run with 100 words, 1000 iterations and overhead of 3
     2027 - builderReusedFor
     2129 - builderFor
     2898 - builderForEach
-    
+
 switch to typeof for array, put string check back in using typeof (r9610)
 Run with 100 words, 1000 iterations and overhead of 2
     63 - concatOnce
@@ -102,7 +102,7 @@ Run with 100 words, 1000 iterations and overhead of 2
     1510 - builderFor
     2108 - builderForEach
 
-remove arguments-style array support. only support an explicit array.    
+remove arguments-style array support. only support an explicit array.
 Run with 100 words, 1000 iterations and overhead of 2
     63 - concatOnce
     75 - joinExisting
@@ -120,7 +120,7 @@ Run with 100 words, 1000 iterations and overhead of 2
     865 - joinForEach
     975 - builderFor
     1562 - builderForEach
-    
+
 just running for tests
 Run with 100 words, 1000 iterations and overhead of 3
     63 - concatOnce
@@ -131,7 +131,7 @@ Run with 100 words, 1000 iterations and overhead of 3
     385 - concatFor
     748 - builderFor
     748 - builderReusedFor
-    
+
 remove array support in append
 Run with 1000 words, 1000 iterations and overhead of 2
     382 - concatOnce
@@ -141,7 +141,7 @@ Run with 1000 words, 1000 iterations and overhead of 2
     3038 - concatFor
     3549 - joinFor
 
-add in appendArray support to match once, use += for append    
+add in appendArray support to match once, use += for append
 Run with 1000 words, 1000 iterations and overhead of 3
     379 - concatOnce
     381 - builderReusedOnce

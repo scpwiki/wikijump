@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -25,24 +25,24 @@
 
 
 class ManageSitePageAbuseModule extends ManageSiteBaseModule {
-	
+
 	public function build($runData){
-		
+
 		$site = $runData->getTemp("site");
-		
-		// get 
-		
+
+		// get
+
 		$q = "SELECT path, count(*) AS rank " .
 				"FROM page_abuse_flag " .
 				"WHERE site_id='".$site->getSiteId()."' " .
 				"AND site_valid = TRUE GROUP BY path " .
 				"ORDER BY rank DESC, path";
-		
+
 		$db = Database::connection();
 		$res = $db->query($q);
-		
+
 		$all = $res->fetchAll();
-		
+
 		$runData->contextAdd("reps", $all);
 
 	}

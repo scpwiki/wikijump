@@ -2,7 +2,7 @@
     <title>区域助手（Partial Helper） </title>
 
     <para>
-        <code>Partial</code> 视图助手被用来在它自己的变量范围内解析特定的模板。主要用法是（解析）可重用的模板片段，你不需要操心变量名的冲突。另外，它们让你从特定的模块指定 partial 视图脚本。 
+        <code>Partial</code> 视图助手被用来在它自己的变量范围内解析特定的模板。主要用法是（解析）可重用的模板片段，你不需要操心变量名的冲突。另外，它们让你从特定的模块指定 partial 视图脚本。
     </para>
 
     <para>
@@ -30,7 +30,7 @@
 
         <programlisting role="php"><![CDATA[
 <?= $this->partial('partial.phtml', array(
-    'from' => 'Team Framework', 
+    'from' => 'Team Framework',
     'subject' => 'view partials')); ?>
 ]]></programlisting>
 
@@ -80,11 +80,11 @@ $view->partial()->setObjectKey('model');
 // partial view script:
 $view->partialLoop()->setObjectKey('model');
 ]]></programlisting>
-            
+
             <para>
                 当传递 <code>Zend_Db_Table_Rowset</code>s 给 <code>partialLoop()</code>时这个技术相当有用，
                 因为你在视图脚本里有全部访问 row 对象的权限，允许你调用它们的方法（如从父或依赖的 rows 获取数据）。
-            </para>            
+            </para>
         </note>
 
 

@@ -54,7 +54,7 @@
             返回整数 <code>$value</code>。
         </para>
     </sect2>
-    
+
     <sect2 id="zend.filter.set.stripnewlines">
         <title>StripNewlines</title>
         <para>
@@ -89,7 +89,7 @@
     <sect2 id="zend.filter.set.stringtrim">
         <title>StringTrim</title>
         <para>
-            返回从头到尾整理过的字符串 <code>$value</code>。 
+            返回从头到尾整理过的字符串 <code>$value</code>。
         </para>
     </sect2>
 

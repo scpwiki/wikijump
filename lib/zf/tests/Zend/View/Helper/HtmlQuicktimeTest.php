@@ -9,7 +9,7 @@ require_once dirname(__FILE__) . '/../../../TestHelper.php';
 require_once 'Zend/View.php';
 require_once 'Zend/View/Helper/HtmlQuicktime.php';
 
-class Zend_View_Helper_HtmlQuicktimeTest extends PHPUnit_Framework_TestCase 
+class Zend_View_Helper_HtmlQuicktimeTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @var Zend_View_Helper_HtmlQuicktime
@@ -56,7 +56,7 @@ class Zend_View_Helper_HtmlQuicktimeTest extends PHPUnit_Framework_TestCase
                             . ' type="video/quicktime"'
                             . ' classid="clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B"'
                             . ' codebase="http://www.apple.com/qtactivex/qtplugin.cab">';
-        
+
         $this->assertContains($objectStartElement, $htmlQuicktime);
         $this->assertContains('</object>', $htmlQuicktime);
     }

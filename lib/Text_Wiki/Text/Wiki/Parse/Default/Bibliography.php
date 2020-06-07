@@ -1,31 +1,31 @@
 <?php
 
 /**
- * 
- * Parses the [[bibliography]] block.
- * 
- * @category Text
- * 
- * @package Text_Wiki
- * 
- * @author Michal Frackowiak
- * 
- * @license LGPL
- * 
- * @version $Id$
- * 
- */
-
-/**
- * 
+ *
  * Parses the [[bibliography]] block.
  *
  * @category Text
- * 
+ *
  * @package Text_Wiki
- * 
+ *
  * @author Michal Frackowiak
- * 
+ *
+ * @license LGPL
+ *
+ * @version $Id$
+ *
+ */
+
+/**
+ *
+ * Parses the [[bibliography]] block.
+ *
+ * @category Text
+ *
+ * @package Text_Wiki
+ *
+ * @author Michal Frackowiak
+ *
  */
 
 class Text_Wiki_Parse_Bibliography extends Text_Wiki_Parse {
@@ -51,7 +51,7 @@ class Text_Wiki_Parse_Bibliography extends Text_Wiki_Parse {
 
         $inside = preg_replace_callback("/^:\s?([a-z0-9]+)\s?:\s(.*)$/mi", array(
             &$bi, 'process'), $inner);
-        
+
         return "\n" . $this->wiki->addToken($this->rule, array(
             'type' => 'start', 'title' => $title)) . str_replace("\n", " ", $inside) . $this->wiki->addToken($this->rule, array(
             'type' => 'end')) . "\n";

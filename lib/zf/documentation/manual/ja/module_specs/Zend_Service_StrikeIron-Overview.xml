@@ -215,7 +215,7 @@ echo $rateInfo->GST;
       </para>
 
       <para>
-        次に、そのサービスの <code>getTaxRateCanada()</code> 
+        次に、そのサービスの <code>getTaxRateCanada()</code>
         メソッドをコールします。メソッドに対してキーワードパラメータを渡すには
         連想配列を使用します。これは、すべての StrikeIron
         のメソッドで共通の方法です。

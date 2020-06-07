@@ -1,43 +1,43 @@
 /* based on http://www.openwebdesign.org/viewdesign.phtml?id=2063&referer=%2Fbrowse.php%3Fpage%3D1%26sort%3Ddownloadsdesc */
 
 body {
-	font-family:verdana, arial, sans-serif;  
-	color:#555555; 
+	font-family:verdana, arial, sans-serif;
+	color:#555555;
 /*	text-align:center;*/
 	background-color:#DDDDDD;
 	min-width: 60em;
-	
+
 }
 
 
 h1 {
 	/*padding:0; margin:0;*/
-	font-size:200%; 
-	font-weight:normal; font-style:italic; 
+	font-size:200%;
+	font-weight:normal; font-style:italic;
 	color:#8CD749; font-family:"Trebuchet MS", verdana, arial, sans-serif;
 }
 
 h2 {
-	background-color:#DDDDDD; 
-	color:#3B4471;  
-	font-weight:normal; 
-	margin:0.2em; padding:0; 
-	font-style:italic; 
+	background-color:#DDDDDD;
+	color:#3B4471;
+	font-weight:normal;
+	margin:0.2em; padding:0;
+	font-style:italic;
 	font-family:"Trebuchet MS", verdana, arial, sans-serif;
 }
 
 
 a:link, a:visited {
-	color:#4da020; 
+	color:#4da020;
 	text-decoration:underline;
 }
 a:hover {
-	color:#3B4471; 
+	color:#3B4471;
 	text-decoration:none;
 	background-color: transparent;
 }
 a:active {
-	color:#4da020; 
+	color:#4da020;
 	text-decoration:underline;
 }
 
@@ -59,18 +59,18 @@ a:active {
 	background-image:url(../images/margin2_r.png);
 	background-repeat: repeat-y;
 	background-position: top right;
-	
+
 
 }
 
 
 
 #header {
-	padding:1em 0; 
+	padding:1em 0;
 	margin:0;
 	text-align:left;
-	background-image:url(../images/leaf.jpg); 
-	background-repeat:no-repeat; 
+	background-image:url(../images/leaf.jpg);
+	background-repeat:no-repeat;
 	background-position:right center;
 	height: 6em;
 }
@@ -80,7 +80,7 @@ a:active {
 }
 #header h2 {
 	margin-left: 50px;
-	text-indent:4em; 
+	text-indent:4em;
 	color:#3B4471;
 	background-color: transparent;
 }
@@ -126,12 +126,12 @@ text-align: left;
 text-align:left; padding:0 0 0 1.5em;}
 
 #side-bar h1 {
-	background-color:#DDDDDD; 
-	color:#3B4471; 
-	font-size:130%; 
-	font-weight:normal; 
-	margin:0.2em; padding:0.2em 1em; 
-	font-style:italic; 
+	background-color:#DDDDDD;
+	color:#3B4471;
+	font-size:130%;
+	font-weight:normal;
+	margin:0.2em; padding:0.2em 1em;
+	font-style:italic;
 	font-family:"Trebuchet MS", verdana, arial, sans-serif;
 }
 
@@ -167,7 +167,7 @@ text-align:left; margin:0.5em 13.5em 0 0; padding:0.5em 1ex 1em 1.5ex;
 
 
 #footer {
-color:#999999; font-size:75%; margin:2.5em 0.2em 0.5em 0.5em; padding:0.8em; 
+color:#999999; font-size:75%; margin:2.5em 0.2em 0.5em 0.5em; padding:0.8em;
 border-top:1px solid #999999; text-align:left; clear:both;}
 
 #footer .right {
@@ -180,7 +180,7 @@ float:right; clear:right; text-align:right;}
 
 .page-options-bottom a, a.action-area-close{
 	color: #242;
-	background-color: #DDDDDD; 
+	background-color: #DDDDDD;
 	text-decoration: none;
 }
 .page-options-bottom a:hover{
@@ -214,36 +214,36 @@ float:right; clear:right; text-align:right;}
 }
 .thread-container .post  .short  .options{
 	color: #739462;
-}	
+}
 
 .forum-group table tr.head td{
-	background-color: #DDDDDD; 
+	background-color: #DDDDDD;
 }
 
 .forum-category-box  .description-block{
-		background-color: #DDDDDD; 
+		background-color: #DDDDDD;
 }
 
 .forum-category-box table tr.head td{
-	background-color:#DDDDDD; 
+	background-color:#DDDDDD;
 }
 .forum-new-thread-box  .description{
-	background-color: #DDDDDD; 
+	background-color: #DDDDDD;
 }
 .forum-thread-box  .description-block{
-	background-color: #DDDDDD; 
+	background-color: #DDDDDD;
 }
 .thread-container .post .head{
-	background-color: #DDDDDD; 
+	background-color: #DDDDDD;
 }
 
 .thread-container .post  .long  .revisions table tr.active td{
 	background-color: rgb(243,242,235);
 }
-.thread-container .post  .short{ 
-	background-color: #DDDDDD; 
+.thread-container .post  .short{
+	background-color: #DDDDDD;
 }
 
 div.new-post a{
-	background-color: #DDDDDD; 
+	background-color: #DDDDDD;
 }

@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -31,9 +31,9 @@ use DB\CategoryPeer;
 
 class Deleter {
     private static $instance;
-    
+
     private $vars = array();
-    
+
     private $recurrenceLevel = 0;
 
     public static function instance() {
@@ -49,23 +49,23 @@ class Deleter {
         if (!$page) {
             return;
         }
-        
+
         if (!$site) {
             $site = SitePeer::instance()->selectByPrimaryKey($page->getSiteId());
         }
-        
+
         // delete the sources and metadatas
 
         $db = Database::connection();
-        
+
         // get descandants first
         $rec = 0;
-        
+
         $c = new Criteria();
         $c->add("parent_page_id", $page->getPageId());
-        
+
         $pages = PagePeer::instance()->select($c);
-        
+
         // ok, these are direct children. need to clear the perent_page_id field
 
         $descs = array();
@@ -76,7 +76,7 @@ class Deleter {
                 $c->add("parent_page_id", $p->getPageId());
                 $ptmp = PagePeer::instance()->select($c);
                 $p2 = array_merge($p2, $ptmp);
-                
+
                 if ($rec === 0) {
                     $p->setParentPageId(null);
                     $p->save();
@@ -84,16 +84,16 @@ class Deleter {
                     $m = $p->getMetadata();
                     $m->setParentPageId(null);
                     $m->save();
-                
+
                 }
             }
             $descs = array_merge($descs, $pages, $p2);
             $pages = $p2;
             $rec++;
         }
-        
+
         $category = $page->getCategory();
-        
+
         // sources
         $q = "DELETE FROM page_source WHERE source_id IN (SELECT page_revision.source_id FROM page_revision WHERE page_id='" . $page->getPageId() . "')";
         $db->query($q);
@@ -103,34 +103,34 @@ class Deleter {
         // delete the page too
         $q = "DELETE FROM page WHERE page_id='" . $page->getPageId() . "'";
         $db->query($q);
-        
+
         // remove from cache too.
         $outdater = new Outdater();
         $outdater->pageEvent('delete', $page->getUnixName());
-        
+
         // outdate descs too
         foreach ($descs as $desc) {
             $outdater->outdatePageCache($desc);
         }
-        
+
         // delete the category if empty
         if ($category->getName() != "_default") {
-            
+
             $c = new Criteria();
             $c->add("category_id", $category->getCategoryId());
             $count = PagePeer::instance()->selectCount($c);
-            
+
             if ($count == 0) {
                 // delete the category
                 CategoryPeer::instance()->delete($c);
                 $outdater->categoryEvent('delete', $category, $site);
             }
         }
-        
+
         // remove FILES (if any)
         $path = WIKIDOT_ROOT . "/web/files--sites/" . $site->getUnixName() . "/files/" . $page->getUnixName();
         exec('rm -r ' . escapeshellarg($path) . ' &> /dev/null');
-        
+
     //
     }
 
@@ -142,13 +142,13 @@ class Deleter {
 
         $c = new Criteria();
         $c->add("site_id", $site->getSiteId());
-        
+
         $pages = PagePeer::instance()->select($c);
-        
+
         foreach ($pages as $page) {
             $this->deletePage($page);
         }
-        
+
         // delete forum? no. will be autodeleted based on the database constrains.
 
         // need to delete post revisions
@@ -159,7 +159,7 @@ class Deleter {
 
         $outdater = new Outdater();
         $outdater->siteEvent('delete', $site);
-        
+
         SitePeer::instance()->deleteByPrimaryKey($site->getSiteId());
     }
 }

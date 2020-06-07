@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -29,35 +29,35 @@ use DB\SitePeer;
 use DB\OzoneUserPeer;
 
 class MembershipEmailInvitationModule extends SmartyModule {
-	
+
 	public function build($runData){
 		$pl = $runData->getParameterList();
 		$user = $runData->getUser();
 		$hash = $pl->getParameterValue("hash");
 
 		// get the invitation entry (if any)
-		
+
 		$c = new Criteria();
 		$c->add("hash", $hash);
 		$c->add("accepted", false);
-		
+
 		$inv = EmailInvitationPeer::instance()->selectOne($c);
-		
+
 		$runData->contextAdd("user", $user);
-		
+
 		if(!$inv){
 			//sorry, no invitation
 			return;
 		}
-		
+
 		$site = SitePeer::instance()->selectByPrimaryKey($inv->getSiteId());
-		
+
 		$sender = OzoneUserPeer::instance()->selectByPrimaryKey($inv->getUserId());
 		$runData->contextAdd("sender", $sender);
 		$runData->contextAdd("site", $site);
 		$runData->contextAdd("invitation", $inv);
 		$runData->contextAdd("hash", $hash);
-			
+
 	}
-	
+
 }

@@ -17,7 +17,7 @@
 	background-color:  #e9e9e9;
 }
 
-.soria .dojoxGridHeader .dojoxGridCell { 
+.soria .dojoxGridHeader .dojoxGridCell {
 	border-width: 1px;
 	padding-bottom: 0px;
 	border-color: transparent #ACA899 #919191 transparent;
@@ -61,7 +61,7 @@
 
 /* rowbar */
 
-.soria .dojoxGridRowbar { 
+.soria .dojoxGridRowbar {
 	border: none;
 	background: url(../../../dijit/themes/soria/images/titleBar.png) #e9e9e9 repeat-y right;
 	border-right: 1px solid #ccc;
@@ -95,7 +95,7 @@
 }
 
 .soria .dojoxGridRowOver .dojoxGridCell {
-	background-color: #60a1ea; 
+	background-color: #60a1ea;
 	color:#fff;
 }
 
@@ -142,7 +142,7 @@
 /* FIXME: these colors are off! */
 .soria .dojoxGridRowEditing td {
 	/* background-color: #F4FFF4; */
-	background-color: #60a1ea; 
+	background-color: #60a1ea;
 	/* padding: 0px 3px 0px 3px; */
 }
 

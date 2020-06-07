@@ -3,20 +3,20 @@
     <title>Introducción</title>
 
     <para>
-		El componente <code>Zend_Date</code> ofrece una API detallada pero simple para manipular fechas y horas. 
-		Sus metodos aceptan una gran variedad de tipos de informacion, incluyendo partes de fecha, 
-		en numerosas combinaciones provocando muchas caracteristicas y posibilidades sobre y mas alla de las 
-		funciones de fecha PHP existentes. Para las ultimas actualizaciones manuales, 
+		El componente <code>Zend_Date</code> ofrece una API detallada pero simple para manipular fechas y horas.
+		Sus metodos aceptan una gran variedad de tipos de informacion, incluyendo partes de fecha,
+		en numerosas combinaciones provocando muchas caracteristicas y posibilidades sobre y mas alla de las
+		funciones de fecha PHP existentes. Para las ultimas actualizaciones manuales,
 		por favor ver el siguiente link ulink url="http://framework.zend.com/wiki/display/ZFDOCDEV/Home">our online manual
         (frequently synced to Subversion)</ulink>
 		.
     </para>
 
     <para>
-		Aunque la simplicidad sea el objetivo, trabajar con fechas y tiempos localizados mientras se modifica, 
-		combina y compara partes, provoca una complejidad inevitable. Fechas, como asi tambien los tiempos, 
-		a menudo son escritos diferentemente en zonas locales distintas. Por ejemplo, algunos colocan primero el mes, 
-		mientras otros escriben el año en primer lugar cuando expresan fechas calendarios. Para mas informacion 
+		Aunque la simplicidad sea el objetivo, trabajar con fechas y tiempos localizados mientras se modifica,
+		combina y compara partes, provoca una complejidad inevitable. Fechas, como asi tambien los tiempos,
+		a menudo son escritos diferentemente en zonas locales distintas. Por ejemplo, algunos colocan primero el mes,
+		mientras otros escriben el año en primer lugar cuando expresan fechas calendarios. Para mas informacion
 		relacionada con manejo de localizaciones y normalizacion, por favor refierase a  <link linkend="zend.locale.date.datesandtimes"><code>Zend_Locale</code>
         </link>
         .
@@ -24,8 +24,8 @@
 
     <para>
 		<code>Zend_Date</code> tambien soporta nombre de meses abreviados en varios idiomas. <code>Zend_Locale</code>
-		facilita la normalizacion de meses localizados y nombres de dias de semana a marcas de tiempo, los cuales pueden, 
-		a su vez, ser mostrados localizados a otras regiones. 
+		facilita la normalizacion de meses localizados y nombres de dias de semana a marcas de tiempo, los cuales pueden,
+		a su vez, ser mostrados localizados a otras regiones.
     </para>
 
     <sect2 id="zend.date.setdefaulttimezone">

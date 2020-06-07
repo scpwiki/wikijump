@@ -8,9 +8,9 @@ require_once 'HTMLPurifier/URIFilter.php';
  */
 class HTMLPurifier_URI
 {
-    
+
     public $scheme, $userinfo, $host, $port, $path, $query, $fragment;
-    
+
     /**
      * @note Automatically normalizes scheme and port
      */
@@ -23,7 +23,7 @@ class HTMLPurifier_URI
         $this->query = $query;
         $this->fragment = $fragment;
     }
-    
+
     /**
      * Retrieves a scheme object corresponding to the URI's scheme/default
      * @param $config Instance of HTMLPurifier_Config
@@ -50,7 +50,7 @@ class HTMLPurifier_URI
         }
         return $scheme_obj;
     }
-    
+
     /**
      * Generic validation method applicable for all schemes
      * @param $config Instance of HTMLPurifier_Config
@@ -58,31 +58,31 @@ class HTMLPurifier_URI
      * @return True if validation/filtering succeeds, false if failure
      */
     public function validate($config, $context) {
-        
+
         // validate host
         if (!is_null($this->host)) {
             $host_def = new HTMLPurifier_AttrDef_URI_Host();
             $this->host = $host_def->validate($this->host, $config, $context);
             if ($this->host === false) $this->host = null;
         }
-        
+
         // validate port
         if (!is_null($this->port)) {
             if ($this->port < 1 || $this->port > 65535) $this->port = null;
         }
-        
+
         // query and fragment are quite simple in terms of definition:
         // *( pchar / "/" / "?" ), so define their validation routines
         // when we start fixing percent encoding
-        
+
         // path gets to be validated against a hodge-podge of rules depending
         // on the status of authority and scheme, but it's not that important,
         // esp. since it won't be applicable to everyone
-        
+
         return true;
-        
+
     }
-    
+
     /**
      * Convert URI back to string
      * @return String URI appropriate for output
@@ -96,7 +96,7 @@ class HTMLPurifier_URI
             $authority .= $this->host;
             if(!is_null($this->port))     $authority .= ':' . $this->port;
         }
-        
+
         // reconstruct the result
         $result = '';
         if (!is_null($this->scheme))    $result .= $this->scheme . ':';
@@ -104,16 +104,16 @@ class HTMLPurifier_URI
         $result .= $this->path;
         if (!is_null($this->query))     $result .= '?' . $this->query;
         if (!is_null($this->fragment))  $result .= '#' . $this->fragment;
-        
+
         return $result;
     }
-    
+
     /**
      * Returns a copy of the URI object
      */
     public function copy() {
         return unserialize(serialize($this));
     }
-    
+
 }
 

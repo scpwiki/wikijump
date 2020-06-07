@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Form
  * @version $Id$
@@ -31,15 +31,15 @@
  */
 class FormXMLStorage {
 	public static $storage = array();
-	
+
 	public static function initForm($formName){
 		$fileName = PathManager::formSpecFile($formName);
 		$xml = simplexml_load_file($fileName);
-		
+
 		self::$storage["$formName"]=array();
 		$formxml = $xml->form[0];
 		self::$storage["$formName"]['xml'] = $formxml;
-		
+
 		// refactor just a bit for an easy access to fields
 		$fields = array();
 		$fieldNames = array();
@@ -51,26 +51,26 @@ class FormXMLStorage {
 		self::$storage["$formName"]['fields'] = $fields;
 		self::$storage["$formName"]['fieldNames'] = $fieldNames;
 	}
-	
+
 	public static function getFormXML($formName){
 		if(self::$storage["$formName"] == null){
-			self::initForm($formName);	
+			self::initForm($formName);
 		}
-		return self::$storage["$formName"]['xml'];	
-	} 
-	
+		return self::$storage["$formName"]['xml'];
+	}
+
 	public static function getFormFields($formName){
 		if(self::$storage["$formName"] == null){
 			self::initForm($formName);
 		}
-		return self::$storage["$formName"]['fields'];	
-	} 
-	
+		return self::$storage["$formName"]['fields'];
+	}
+
 	public static function getFormFieldNames($formName){
 		if(self::$storage["$formName"] == null){
-			self::initForm($formName);	
+			self::initForm($formName);
 		}
-		return self::$storage["$formName"]['fieldNames'];	
+		return self::$storage["$formName"]['fieldNames'];
 	}
 
 }

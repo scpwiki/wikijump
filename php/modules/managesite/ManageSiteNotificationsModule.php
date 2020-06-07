@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -25,20 +25,20 @@
 
 
 class ManageSiteNotificationsModule extends ManageSiteBaseModule {
-	
+
 	public function build($runData){
 		$user = $runData->getUser();
 		$username = $user->getName();
-		
+
 		$password = $user->getPassword();
-		
+
 		$password = substr($password,0,15);
-		
+
 		$runData->contextAdd("feedUsername", $username);
 		$runData->contextAdd("feedPassword", $password);
-		
+
 		$runData->contextAdd("site", $runData->getTemp("site"));
-		
-	}	
-	
+
+	}
+
 }

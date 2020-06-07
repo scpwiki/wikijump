@@ -246,7 +246,7 @@ class My_Controller_Action extends Zend_Controller_Action
                     <listitem>
                         <para>
                             Rozszerzenie klasy <code>Zend_Controller_Dispatcher</code> o
-                            nadpisanie metody <code>getAction()</code>, która 
+                            nadpisanie metody <code>getAction()</code>, która
                             sprawdza czy akcja istnieje. Na przykład:
                         </para>
 

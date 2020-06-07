@@ -61,7 +61,7 @@ class Zend_Text_Table_Column
      * @var integer
      */
     protected $_colSpan = 1;
-    
+
     /**
      * Allowed align parameters
      *
@@ -116,15 +116,15 @@ class Zend_Text_Table_Column
         } else {
             $inputCharset = strtolower($charset);
         }
-        
+
         $outputCharset = Zend_Text_Table::getOutputCharset();
-        
+
         if ($inputCharset !== $outputCharset) {
             if (PHP_OS != 'AIX') {
                 // AIX does not understand these character sets
                 $content = iconv($inputCharset, $outputCharset, $content);
             }
-            
+
         }
 
         $this->_content = $content;
@@ -195,9 +195,9 @@ class Zend_Text_Table_Column
             require_once 'Zend/Text/Table/Exception.php';
             throw new Zend_Text_Table_Exception('$columnWidth must be an integer and greater than 0');
         }
-        
+
         $columnWidth -= ($padding * 2);
-        
+
         if ($columnWidth < 1) {
             require_once 'Zend/Text/Table/Exception.php';
             throw new Zend_Text_Table_Exception('Padding (' . $padding . ') is greater than column width');

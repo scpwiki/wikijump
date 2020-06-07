@@ -1,6 +1,6 @@
-{ 
+{
 	"identifier": "count",
-	"label": "count", 
+	"label": "count",
 	"items": [
 		{ "count": 1,    "value": "true" },
 		{ "count": 2,    "value": true   },

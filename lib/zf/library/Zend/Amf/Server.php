@@ -82,19 +82,19 @@ class Zend_Amf_Server implements Zend_Server_Interface
      * @var array
      */
     protected $_table = array();
-    
+
     /**
-     * 
+     *
      * @var bool session flag; whether or not to add a session to each response.
      */
     protected $_session = false;
-    
+
     /**
      * Namespace allows all AMF calls to not clobber other php session variables
      * @var Zend_Session_NameSpace default session namespace zend_amf
      */
     protected $_sesionNamespace = 'zend_amf';
-    
+
     /**
      * Set the default session.name if php_
      * @var unknown_type
@@ -122,7 +122,7 @@ class Zend_Amf_Server implements Zend_Server_Interface
     {
         return $this->_production;
     }
-    
+
     /**
      * @param namespace of all incoming sessions defaults to Zend_Amf
      * @return Zend_Amf_Server
@@ -134,7 +134,7 @@ class Zend_Amf_Server implements Zend_Server_Interface
         $this->_sesionNamespace = new Zend_Session_Namespace($namespace);
         return $this;
     }
-    
+
     /**
      * Whether of not the server is using sessions
      * @return bool
@@ -336,9 +336,9 @@ class Zend_Amf_Server implements Zend_Server_Interface
             $newBody     = new Zend_Amf_Value_MessageBody($responseURI, null, $return);
             $response->addAmfBody($newBody);
         }
-        // Add a session header to the body if session is requested. 
+        // Add a session header to the body if session is requested.
         if($this->isSession()) {
-           $currentID = session_id(); 
+           $currentID = session_id();
            if(!strpos($_SERVER['QUERY_STRING'], $currentID) !== FALSE) {
                if(strrpos($_SERVER['QUERY_STRING'], "?") !== FALSE) {
                     $joint = "&";
@@ -495,8 +495,8 @@ class Zend_Amf_Server implements Zend_Server_Interface
         if (2 < func_num_args()) {
             $argv = array_slice(func_get_args(), 2);
         }
-        
-        // Use the class name as the name space by default. 
+
+        // Use the class name as the name space by default.
         if ($namespace == '') {
             $namespace = substr($class, 0, strrpos($class, '.'));
         }
@@ -606,8 +606,8 @@ class Zend_Amf_Server implements Zend_Server_Interface
         }
         $this->_table = $table;
     }
-    
- 	
+
+
 
     /**
      * Raise a server fault

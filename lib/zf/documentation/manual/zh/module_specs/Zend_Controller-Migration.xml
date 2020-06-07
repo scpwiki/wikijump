@@ -4,7 +4,7 @@
     <para>
         随着时间的推移，MVC组件的API修改了许多。如果你从Zend Framework早期的版本开始使用，遵照下面的方针来移植你的脚本来使用新的架构。
     </para>
-    
+
         <sect2 id="zend.controller.migration.fromoneohtoonesix">
         <title> 从 1.5.x 移植到 1.6.0 或更新的版本 </title>
 
@@ -13,7 +13,7 @@
 
             <para>
                 引起我们注意的是<code>Zend_Controller_Front</code> 和
-                <code>Zend_Controller_Router_Route_Module</code> 使用的分发器方法不在分发器接口里。    
+                <code>Zend_Controller_Router_Route_Module</code> 使用的分发器方法不在分发器接口里。
                 我们现在添加了下列三个方法来确保定制的分发器可以继续工作：
             </para>
 
@@ -32,7 +32,7 @@
             </itemizedlist>
         </sect3>
     </sect2>
-        
+
     <sect2 id="zend.controller.migration.fromoneohtoonefive">
         <title> 从 1.0.x 到 1.5.0 或更新的版本的移植 </title>
 
@@ -345,7 +345,7 @@ final protected function _forward($action, $controller = null, $module = null, a
         <para>
             （这段就让它保持原样吧 Jason Qi）
         </para>
-        
+
         <para>
             The most basic usage of the MVC components has not changed; you can
             still do each of the following:

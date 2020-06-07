@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,34 +27,34 @@
 use DB\OzoneUserPeer;
 
 class NewWUsersModule extends SmartyModule {
-	
+
 	public function render($runData){
 		$key = "module..0..NewWUsersModule";
 		$mc = OZONE::$memcache;
-		
+
 		$out = $mc->get($key);
 		if(!$out){
 			$out = parent::render($runData);
-			$mc->set($key, $out, 0, 180);	
-		} 
-		
+			$mc->set($key, $out, 0, 180);
+		}
+
 		return $out;
-		
+
 	}
-	
+
 	public function build($runData){
 		// get a few new users
-		
+
 		$c = new Criteria();
 		$c->add('user_id', 0, '>');
 		$c->addOrderDescending("user_id");
-		
+
 		$c->setLimit(5);
-		
+
 		$users = OzoneUserPeer::instance()->select($c);
-		
+
 		$runData->contextAdd("users", $users);
-			
+
 	}
-	
+
 }

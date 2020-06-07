@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot_Web
  * @version $Id$
@@ -45,10 +45,10 @@ $moduleName = $_GET['module'];
 $modulePath = WIKIDOT_ROOT . "/php/quickmodules/" . $moduleName . ".php";
 if (file_exists($modulePath)) {
     require_once ($modulePath);
-    
+
     $module = new $moduleName();
     $response = $module->process($parsedData);
-    
+
     if ($parsedData['callbackIndex'] !== null) {
         $response['callbackIndex'] = $parsedData['callbackIndex'];
     }
@@ -62,7 +62,7 @@ if (file_exists($modulePath)) {
     return;
 }
 
-/* 
+/*
  * example query:
- * http://www.example.com/quickmodule.php?module=PageLookupQModule&q=howto&s=1 
+ * http://www.example.com/quickmodule.php?module=PageLookupQModule&q=howto&s=1
  */

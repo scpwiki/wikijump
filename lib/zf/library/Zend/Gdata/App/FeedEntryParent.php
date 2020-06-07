@@ -662,7 +662,7 @@ abstract class Zend_Gdata_App_FeedEntryParent extends Zend_Gdata_App_Base
      * namespaces and returns the full namespace URI if
      * available. Returns the prefix, unmodified, if it's not
      * registered.
-     * 
+     *
      * The current entry or feed's version will be used when performing the
      * namespace lookup unless overridden using $majorVersion and
      * $minorVersion. If the entry/fee has a null version, then the latest
@@ -686,7 +686,7 @@ abstract class Zend_Gdata_App_FeedEntryParent extends Zend_Gdata_App_Base
         if (is_null($minorVersion)) {
             $minorVersion = $this->getMinorProtocolVersion();
         }
-        
+
         // Perform lookup
         return parent::lookupNamespace($prefix, $majorVersion, $minorVersion);
     }

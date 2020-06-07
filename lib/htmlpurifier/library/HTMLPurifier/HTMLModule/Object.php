@@ -9,12 +9,12 @@ require_once 'HTMLPurifier/HTMLModule.php';
  */
 class HTMLPurifier_HTMLModule_Object extends HTMLPurifier_HTMLModule
 {
-    
+
     public $name = 'Object';
-    
+
     public function __construct() {
-        
-        $this->addElement('object', false, 'Inline', 'Optional: #PCDATA | Flow | param', 'Common', 
+
+        $this->addElement('object', false, 'Inline', 'Optional: #PCDATA | Flow | param', 'Common',
             array(
                 'archive' => 'URI',
                 'classid' => 'URI',
@@ -40,8 +40,8 @@ class HTMLPurifier_HTMLModule_Object extends HTMLPurifier_HTMLModule
                 'valuetype' => 'Enum#data,ref,object'
            )
         );
-    
+
     }
-    
+
 }
 

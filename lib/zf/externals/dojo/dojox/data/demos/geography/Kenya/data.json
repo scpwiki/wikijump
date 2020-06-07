@@ -1,9 +1,9 @@
-{ 
-	name:'Kenya', 
+{
+	name:'Kenya',
 	type:'country',
 	children:[
-		{stub:'Nairobi'}, 
+		{stub:'Nairobi'},
 		{stub:'Mombasa'}
-	] 
+	]
 }
 

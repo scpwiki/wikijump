@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version \$Id\$
@@ -29,13 +29,13 @@ use BaseDBPeer;
 
 
 
- 
+
 /**
  * Base peer class mapped to the database table profile.
  */
 class ProfilePeerBase extends BaseDBPeer {
 	public static $peerInstance;
-	
+
 	protected function internalInit(){
 		$this->tableName='profile';
 		$this->objectName='DB\\Profile';
@@ -44,7 +44,7 @@ class ProfilePeerBase extends BaseDBPeer {
 		$this->fieldTypes = array( 'user_id' => 'int',  'real_name' => 'varchar(70)',  'gender' => 'char(1)',  'birthday_day' => 'int',  'birthday_month' => 'int',  'birthday_year' => 'int',  'about' => 'text',  'location' => 'varchar(70)',  'website' => 'varchar(100)',  'im_aim' => 'varchar(100)',  'im_gadu_gadu' => 'varchar(100)',  'im_google_talk' => 'varchar(100)',  'im_icq' => 'varchar(100)',  'im_jabber' => 'varchar(100)',  'im_msn' => 'varchar(100)',  'im_yahoo' => 'varchar(100)',  'change_screen_name_count' => 'int');
 		$this->defaultValues = array( 'change_screen_name_count' => '0');
 	}
-	
+
 	public static function instance(){
 		if(self::$peerInstance == null){
 			$className = "DB\\ProfilePeer";

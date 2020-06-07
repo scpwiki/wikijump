@@ -89,7 +89,7 @@ $logger->emerg('Emergency message');
   <sect2 id="zend.log.overview.destroying-a-logger">
     <title>销毁Log</title>
     <para>
-      
+
       如果Log对象不再需要,设置包含Log实例的变量为<code>null</code>即可销毁它.
       这会在Log对象被销毁前自动地调用每个附加在Log上的Writer的<code>shutdown()</code>方法:
 
@@ -127,7 +127,7 @@ DEBUG   = 7;  // Debug: 小时消息]]>
       RFC文档中有阐述.名字和对应的消息等级号于其他PHP日志系统是兼容的,
       例如<ulink url="http://pear.php.net/package/log">PEAR Log</ulink>,
       它也许能够和<code>Zend_Log</code>进行互操作.
-      
+
     </para>
 
     <para>
@@ -150,7 +150,7 @@ $logger->addPriority('FOO', 8);
 
 	上面的代码片断创建了一个新的日志消息等级, <code>FOO</code>,它的值为 <code>8</code>,
 	这个新的消息等级可以被用于日志:
-	
+
       <programlisting role="php"><![CDATA[
 $logger->log('Foo message', 8);
 $logger->foo('Foo Message');

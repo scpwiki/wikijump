@@ -853,7 +853,7 @@ $messages = $element->getMessages();
             </para></listitem>
 
             <listitem><para>
-                <emphasis>Label</emphasis>: 
+                <emphasis>Label</emphasis>:
                 <code>Zend_View_Helper_FormLabel</code>
                 を用いて要素の前にラベルを追加し、それを
                 &lt;dt&gt; タグで囲みます。

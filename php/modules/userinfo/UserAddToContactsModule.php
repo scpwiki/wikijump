@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,7 +27,7 @@
 use DB\OzoneUserPeer;
 
 class UserAddToContactsModule extends SmartyLocalizedModule {
-	
+
 	public function isAllowed($runData){
 		$userId = $runData->getUserId();
 		if($userId == null || $userId <1){
@@ -35,21 +35,21 @@ class UserAddToContactsModule extends SmartyLocalizedModule {
 		}
 		return true;
 	}
-	
+
 	public function build($runData){
 		$pl = $runData->getParameterList();
-		
+
 		$targetUserId = $pl->getParameterValue("userId");
-		
+
 		$targetUser = OzoneUserPeer::instance()->selectByPrimaryKey($targetUserId);
-		
+
 		if($targetUser == null){
-			throw new ProcessException(_("User can not be found."), "no_user");	
+			throw new ProcessException(_("User can not be found."), "no_user");
 		}
-		
+
 		// check how many contacts so far...
 
-		$runData->contextAdd("user", $targetUser);	
+		$runData->contextAdd("user", $targetUser);
 	}
-	
+
 }

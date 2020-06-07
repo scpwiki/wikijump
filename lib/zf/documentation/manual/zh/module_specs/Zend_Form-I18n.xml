@@ -2,7 +2,7 @@
     <title> Zend_Form 的国际化 </title>
 
     <para>
-        开发者日益需要制作网站内容支持多种语言和地区。Zend_Form 把这样的任务变得简单并利用 <link linkend="zend.translate">Zend_Translate</link> 和 <link linkend="zend.validate">Zend_Validate</link> 来完成。    
+        开发者日益需要制作网站内容支持多种语言和地区。Zend_Form 把这样的任务变得简单并利用 <link linkend="zend.translate">Zend_Translate</link> 和 <link linkend="zend.validate">Zend_Validate</link> 来完成。
     </para>
 
     <para>
@@ -93,7 +93,7 @@ $element->setTranslator($translate);
                 <para>
                     <emphasis>Validation error messages.</emphasis> 校验错误消息可以被翻译。使用从 <code>Zend_Validate</code> 校验类来的各种错误代码常数作为消息的 IDs。更多关于这些代码的信息，参见 <link linkend="zend.validate">Zend_Validate</link> 文档。
                 </para>
-                
+
                 <para>
                    另外，到 1.6.0 版，你可使用实际的错误消息作为消息识别符来提供翻译。我们倾向在 1.6.0 版及以上使用这个办法，因为我们在将来的版本中废除消息键翻译。
                 </para>

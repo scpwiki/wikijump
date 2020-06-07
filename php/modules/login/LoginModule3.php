@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,22 +27,22 @@
 use DB\OzoneUserPeer;
 
 class LoginModule3 extends SmartyModule {
-	
+
 	public function build($runData){
 		$pl = $runData->getParameterList();
-		
+
 		$backUrl = $pl->getParameterValue('backUrl');
 		$runData->contextAdd('backUrl', $backUrl);
-		
+
 		// check if reset remebered user
 		$pl = $runData->getParameterList();
 
 		if($pl->getParameterValue("reset")){
-			
+
 			setcookie('welcome', 'dummy', time() - 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
 		}else{
 			// check if a recognized user
-			
+
 			$userId = $_COOKIE['welcome'];
 			if($userId && is_numeric($userId) && $userId >0){
 				$user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
@@ -51,9 +51,9 @@ class LoginModule3 extends SmartyModule {
 				setcookie('welcome', 'dummy', time() - 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
 			}
 		}
-		
+
 		$runData->contextAdd("user", $user);
-		
+
 	}
-	
+
 }

@@ -20,7 +20,7 @@
  * @link       http://pear.php.net/package/Text_Wiki
  */
 class Text_Wiki_Render_Xhtml_Note extends Text_Wiki_Render {
-    
+
     public $conf = array();
 
     /**
@@ -35,15 +35,15 @@ class Text_Wiki_Render_Xhtml_Note extends Text_Wiki_Render {
      * @return string The text rendered from the token options.
      *
      */
-    
+
     function token($options) {
         if ($options['type'] == 'start') {
             return '<div class="wiki-note">';
         }
-        
+
         if ($options['type'] == 'end') {
             return "</div>";
         }
-    
+
     }
 }

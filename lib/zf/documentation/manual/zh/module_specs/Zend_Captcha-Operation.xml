@@ -7,7 +7,7 @@
     </para>
 
     <programlisting role="php"><![CDATA[
-interface Zend_Captcha_Adapter extends Zend_Validate_Interface 
+interface Zend_Captcha_Adapter extends Zend_Validate_Interface
 {
     public function generate();
 

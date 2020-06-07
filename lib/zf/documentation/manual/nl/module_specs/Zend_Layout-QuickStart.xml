@@ -33,9 +33,9 @@
     <title>Mijn website</title>
 </head>
 <body>
-<?php 
+<?php
     // Vraag de 'content'-sleutel op met behulp van de layout helper:
-    echo $this->layout()->content; 
+    echo $this->layout()->content;
 
     // Vraag de 'foo'-sleutel op met behulp van de placeholder helper:
     echo $this->placeholder('Zend_Layout')->foo;
@@ -89,7 +89,7 @@
 
         <para>
             <code>Zend_Controller</code> biedt een uitgebreide set aan
-            uitbreidingsfunctionaliteiten via de <link 
+            uitbreidingsfunctionaliteiten via de <link
             linkend="zend.controller.plugins">front controller plugins</link>
             en <link linkend="zend.controller.actionhelpers">actiiecontroller
             helpers</link>. <code>Zend_View</code> heeft ook <link
@@ -110,7 +110,7 @@
         </para>
 
         <para>
-            Laten we om te beginnen kijken naar het initialiseren van 
+            Laten we om te beginnen kijken naar het initialiseren van
             <code>Zend_Layout</code> in een MVC-context.
         </para>
 
@@ -118,7 +118,7 @@
 // In de bootstrap:
 Zend_Layout::startMvc();
 ?>]]></programlisting>
-        
+
         <para>
             Je kunt aan <code>startMvc()</code> een optionele array van
             configuratieopties of een instantie van <code>Zend_Config</code>
@@ -168,11 +168,11 @@ class FooController extends Zend_Controller_Action
 
         <programlisting role="php"><![CDATA[<?php
 // Geeft null terug als startMvc() nog niet aangeroepen is
-$layout = Zend_Layout::getMvcInstance(); 
+$layout = Zend_Layout::getMvcInstance();
 ?>]]></programlisting>
 
         <para>
-            Tot slot heeft de front controller plugin van 
+            Tot slot heeft de front controller plugin van
             <code>Zend_Layout</code> één belangrijke toegevoegde
             functionaliteit ten opzichte van het renderen van de layout:
             <code>Zend_Layout</code> vraagt alle benoemde segmenten uit het
@@ -186,11 +186,11 @@ $layout = Zend_Layout::getMvcInstance();
             Een voorbeeldje: Stel dat je applicatiecode als eerst langs
             <code>FooController::indexAction()</code> komt, waarvan de
             uitkomst in het 'default' response segment wordt geplaatst en de
-            code vervolgens doorstuurt naar 
+            code vervolgens doorstuurt naar
             <code>NavController::menuAction()</code>, waarvan de uitkomst in
             het 'nav' response segment wordt geplaatst en tot slot langs
-            <code>CommentController::fetchAction()</code> wordt gestuurd, 
-            waarvan de uitkomst aan het eind van het 'default' response 
+            <code>CommentController::fetchAction()</code> wordt gestuurd,
+            waarvan de uitkomst aan het eind van het 'default' response
             segment wordt toegevoegd. Je kunt dan beide segmenten apart
             door je layout script laten renderen:
         </para>
@@ -204,14 +204,14 @@ $layout = Zend_Layout::getMvcInstance();
     <div id="content"><?= $this->layout()->content ?></div>
 </body>
 ]]></programlisting>
-        
+
         <para>
             Deze functionaliteit is vooral handig als hij wordt gebruikt samen
             met de ActionStack
             <link linkend="zend.controller.actionhelpers.actionstack">action
                 helper</link> en <link
             linkend="zend.controller.plugins.standard.actionstack">plugin</link>.
-            Hiermee kun je een lijst van uit te voeren acties aanleggen, 
+            Hiermee kun je een lijst van uit te voeren acties aanleggen,
             waardoor je allerlei widgets kunt laden binnen één layout.
         </para>
     </sect2>

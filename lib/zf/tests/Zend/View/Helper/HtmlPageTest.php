@@ -9,7 +9,7 @@ require_once dirname(__FILE__) . '/../../../TestHelper.php';
 require_once 'Zend/View.php';
 require_once 'Zend/View/Helper/HtmlPage.php';
 
-class Zend_View_Helper_HtmlPageTest extends PHPUnit_Framework_TestCase 
+class Zend_View_Helper_HtmlPageTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @var Zend_View_Helper_HtmlPage
@@ -55,7 +55,7 @@ class Zend_View_Helper_HtmlPageTest extends PHPUnit_Framework_TestCase
         $objectStartElement = '<object data="/path/to/page.html"'
                             . ' type="text/html"'
                             . ' classid="clsid:25336920-03F9-11CF-8FD0-00AA00686F13">';
-        
+
         $this->assertContains($objectStartElement, $htmlPage);
         $this->assertContains('</object>', $htmlPage);
     }

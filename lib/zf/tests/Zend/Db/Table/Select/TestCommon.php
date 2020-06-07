@@ -74,7 +74,7 @@ abstract class Zend_Db_Table_Select_TestCommon extends Zend_Db_Select_TestCommon
         if (!array_key_exists($table, $this->_table)) {
             throw new Zend_Exception('Non-existent table name');
         }
-        
+
         return $this->_table[$table];
     }
 
@@ -143,7 +143,7 @@ abstract class Zend_Db_Table_Select_TestCommon extends Zend_Db_Select_TestCommon
         $table = $this->_getSelectTable($tableName);
 
         $select = $table->select();
-        
+
         if ($useTable) {
             $select->from($table, $fields);
         }
@@ -193,7 +193,7 @@ abstract class Zend_Db_Table_Select_TestCommon extends Zend_Db_Select_TestCommon
     {
         $table = $this->_getSelectTable('products');
         $select = $table->select();
-        
+
         $this->assertType('Zend_Db_Table_TableProducts', $select->getTable());
     }
 }

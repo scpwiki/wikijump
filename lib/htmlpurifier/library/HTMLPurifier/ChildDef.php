@@ -24,23 +24,23 @@ class HTMLPurifier_ChildDef
      * Used occasionally in terms of context.
      */
     public $type;
-    
+
     /**
      * Bool that indicates whether or not an empty array of children is okay
-     * 
+     *
      * This is necessary for redundant checking when changes affecting
      * a child node may cause a parent node to now be disallowed.
      */
     public $allow_empty;
-    
+
     /**
      * Lookup array of all elements that this definition could possibly allow
      */
     public $elements = array();
-    
+
     /**
      * Validates nodes according to definition and returns modification.
-     * 
+     *
      * @param $tokens_of_children Array of HTMLPurifier_Token
      * @param $config HTMLPurifier_Config object
      * @param $context HTMLPurifier_Context object

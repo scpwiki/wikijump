@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -28,36 +28,36 @@ use DB\CategoryPeer;
 use DB\PagePeer;
 
 class WikiPagesModule extends CacheableModule {
-	
+
 	protected $timeOut = 10;
-	
+
 	public function build($runData){
-		
+
 		$pl = $runData->getParameterList();
 		$site = $runData->getTemp("site");
-		
+
 		$categoryName = $pl->getParameterValue("category", "MODULE", "AMODULE");
 		$details = $pl->getParameterValue("details", "MODULE", "AMODULE");
 		$preview = $pl->getParameterValue("preview", "MODULE", "AMODULE");
-		
+
 		$order = $pl->getParameterValue("order", "MODULE", "AMODULE");
 		$limit = $pl->getParameterValue("limit", "MODULE", "AMODULE");
-		
+
 		if($categoryName !== null){
 			$category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
 			if($category == null){
-				throw new ProcessException(_("The category can not be found."));	
+				throw new ProcessException(_("The category can not be found."));
 			}
 		}
-		
+
 		// now select pages according to the specified criteria
-		
+
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
 		if($category){
-			$c->add("category_id", $category->getCategoryId());	
+			$c->add("category_id", $category->getCategoryId());
 		}
-		
+
 		switch($order){
 			case 'dateCreatedDesc':
 				$c->addOrderDescending('page_id');
@@ -77,19 +77,19 @@ class WikiPagesModule extends CacheableModule {
 			default:
 				$c->addOrderAscending("COALESCE(title, unix_name)");
 		}
-		
+
 		if($limit && is_numeric($limit) && $limit > 0){
-			$c->setLimit($limit);	
+			$c->setLimit($limit);
 		}
-		
+
 		$pages = PagePeer::instance()->select($c);
-		
+
 		// by default cathegorize by first letter...
-		
+
 		$runData->contextAdd("pages", $pages);
 		$runData->contextAdd("details", $details);
 		$runData->contextAdd("preview", $preview);
-		
+
 	}
-	
+
 }

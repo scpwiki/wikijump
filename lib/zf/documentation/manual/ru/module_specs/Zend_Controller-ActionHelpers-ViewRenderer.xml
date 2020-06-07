@@ -491,7 +491,7 @@ $viewRenderer =
 
                 <listitem>
                     <para>
-                        <code>:action</code>: 
+                        <code>:action</code>:
                         СловаРазделенныеРегистром (CamelCase) разделяются
                         тире, символы, не являющиеся буквенно-цифровыми,
                         переводятся в тире и
@@ -502,7 +502,7 @@ $viewRenderer =
 
                     <para>
                         Внутри себя инфлектор использует фильтры
-                        <code>Zend_Filter_Word_CamelCaseToDash</code>, 
+                        <code>Zend_Filter_Word_CamelCaseToDash</code>,
                         <code>Zend_Filter_PregReplace</code> и
                         <code>Zend_Filter_StringToLower</code>.
                     </para>
@@ -711,7 +711,7 @@ class Foo_BarController extends Zend_Controller_Action
                 имитирует иерархию директорий контроллеров.
             </para>
         </note>
-        
+
         <example id="zend.controller.actionhelper.viewrenderer.basicusage.example-2">
             <title>Отключение авторендеринга</title>
 
@@ -748,7 +748,7 @@ class Bar_BatController extends Zend_Controller_Action
 ]]>
             </programlisting>
         </example>
-        
+
         <note>
             <para>
                 В большинстве случаев не имеет смысла глобально отключать
@@ -904,7 +904,7 @@ class SearchController extends Zend_Controller_Action
     public function resultsAction()
     {
         // Предполагается, что $this->model - текущая модель
-        $this->view->results = 
+        $this->view->results =
             $this->model->find($this->_getParam('query', '');
 
         // render() по умолчанию использует ViewRenderer

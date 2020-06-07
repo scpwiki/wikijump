@@ -121,7 +121,7 @@ $response = $client->request();
 ]]>
                 </programlisting>
             </example>
-            request() 带一个可选的参数 - 请求方法，它可以是 GET, POST, PUT, HEAD, 
+            request() 带一个可选的参数 - 请求方法，它可以是 GET, POST, PUT, HEAD,
             DELETE, TRACE, OPTIONS 或 CONNECT 等由 HTTP 协议定义的方法。
             <footnote>
               <para>

@@ -3,8 +3,8 @@
     <title>Helper JSON</title>
 
     <para>
-        Przy tworzeniu widoków które zwracają obiekt JSON trzeba ustawić 
-        odpowiedni nagłówek. Tym właśnie się zajmuje helper JSON, a dodatkowo 
+        Przy tworzeniu widoków które zwracają obiekt JSON trzeba ustawić
+        odpowiedni nagłówek. Tym właśnie się zajmuje helper JSON, a dodatkowo
         domyślnie wyłącza layouty (jeżeli są aktywne).
     </para>
 

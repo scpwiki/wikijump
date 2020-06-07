@@ -26,7 +26,7 @@
                 <username>dbuser</username>
                 <password>secret</password>
                 <dbname>dbname</dbname>
-            </params>            
+            </params>
         </database>
     </production>
     <staging extends="production">
@@ -35,7 +35,7 @@
                 <host>dev.example.com</host>
                 <username>devuser</username>
                 <password>devsecret</password>
-            </params>            
+            </params>
         </database>
     </staging>
 </configdata>
@@ -105,7 +105,7 @@ echo $config->database->params->dbname; // 输出 "dbname"
 </configdata>
 ]]>
 </programlisting>
-    </example>    
+    </example>
 </sect1>
 <!--
 vim:se ts=4 sw=4 et:

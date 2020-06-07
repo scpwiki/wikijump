@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,7 +27,7 @@
 use DB\PagePeer;
 
 class TemplateSourceModule extends SmartyModule{
-	
+
 	public function build($runData){
 		$pageId = $runData->getParameterList()->getParameterValue("page_id");
 		$page = PagePeer::instance()->selectByPrimaryKey($pageId);
@@ -38,12 +38,12 @@ class TemplateSourceModule extends SmartyModule{
 //	        $split = preg_split(';^=default={4,}$;sm', $source);
 //	        if(count($split) == 2){
 //	            /* Fine, there is some initial content. */
-//	            $source = trim($split[1]);   
+//	            $source = trim($split[1]);
 //	        } else {
 //	            $source = null;
 //	        }
 //		}
 		$runData->contextAdd("source", $source);
 	}
-	
+
 }

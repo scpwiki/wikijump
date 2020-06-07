@@ -546,10 +546,10 @@ abstract class Zend_Db_Table_Abstract
     }
 
     /**
-     * Indicate whether metadata should be cached in the class for the duration 
+     * Indicate whether metadata should be cached in the class for the duration
      * of the instance
-     * 
-     * @param  bool $flag 
+     *
+     * @param  bool $flag
      * @return Zend_Db_Table_Abstract
      */
     public function setMetadataCacheInClass($flag)
@@ -559,9 +559,9 @@ abstract class Zend_Db_Table_Abstract
     }
 
     /**
-     * Retrieve flag indicating if metadata should be cached for duration of 
+     * Retrieve flag indicating if metadata should be cached for duration of
      * instance
-     * 
+     *
      * @return bool
      */
     public function metadataCacheInClass()
@@ -713,7 +713,7 @@ abstract class Zend_Db_Table_Abstract
 
     /**
      * Retrieve table columns
-     * 
+     *
      * @return array
      */
     protected function _getCols()

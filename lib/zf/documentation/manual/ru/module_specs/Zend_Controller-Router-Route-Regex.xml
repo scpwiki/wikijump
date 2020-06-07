@@ -16,10 +16,10 @@
         же, как в предыдущих примерах, но на этот раз с использованием маршрута
         Regex:
     </para>
-    
+
     <programlisting role="php"><![CDATA[
 $route = new Zend_Controller_Router_Route_Regex(
-    'archive/(\d+)', 
+    'archive/(\d+)',
     array(
         'controller' => 'archive',
         'action'     => 'show'
@@ -28,7 +28,7 @@ $route = new Zend_Controller_Router_Route_Regex(
 $router->addRoute('archive', $route);
 ]]>
     </programlisting>
-        
+
     <para>
         Каждый определенный подшаблон регулярного выражения будет внедрен в
         объект запроса. В нашем примере после успешного сопоставления с
@@ -50,7 +50,7 @@ $values = array(
             Ведущая и замыкающая косые черты удаляются из URL в маршрутизаторе
             до сопоставления. Поэтому URL-у
             <code>http://domain.com/foo/bar/</code> будет соответствовать
-            регулярное выражение <code>foo/bar</code>, но не 
+            регулярное выражение <code>foo/bar</code>, но не
             <code>/foo/bar</code>.
         </para>
     </note>
@@ -80,7 +80,7 @@ $values = array(
     </para>
 
     <programlisting role="php"><![CDATA[
-public function showAction() 
+public function showAction()
 {
     $request = $this->getRequest();
     $year    = $request->getParam(1); // $year = '2006';
@@ -90,10 +90,10 @@ public function showAction()
 
     <note>
         <para>
-            Обратите внимание, что ключ является целым числом (1), а не строкой ('1'). 
+            Обратите внимание, что ключ является целым числом (1), а не строкой ('1').
         </para>
     </note>
-    
+
     <para>
         Этот маршрут не будет работать в точности так же, как и аналогичный ему
         стандартный маршрут, потому что еще не определено значение по умолчанию
@@ -103,10 +103,10 @@ public function showAction()
         том, чтобы сделать часть 'year' опциональной вместе с косой чертой, но
         отлавливать только число:
     </para>
-    
+
     <programlisting role="php"><![CDATA[
 $route = new Zend_Controller_Router_Route_Regex(
-    'archive(?:/(\d+))?', 
+    'archive(?:/(\d+))?',
     array(
         1            => '2006',
         'controller' => 'archive',
@@ -116,7 +116,7 @@ $route = new Zend_Controller_Router_Route_Regex(
 $router->addRoute('archive', $route);
 ]]>
     </programlisting>
-        
+
     <para>
         А теперь давайте обратимся к проблеме, которую вы, должно быть, заметили
         сами. Использование целочисленных ключей для параметров не является
@@ -129,7 +129,7 @@ $router->addRoute('archive', $route);
 
     <programlisting role="php"><![CDATA[
 $route = new Zend_Controller_Router_Route_Regex(
-    'archive/(\d+)', 
+    'archive/(\d+)',
     array(
         'controller' => 'archive',
         'action' => 'show'
@@ -165,21 +165,21 @@ $values = array(
 
     <programlisting role="php"><![CDATA[
 $route = new Zend_Controller_Router_Route_Regex(
-    'archive/(\d+)', 
+    'archive/(\d+)',
     array( ... ),
     array(1 => 'year')
 );
 
 // ИЛИ
-        
+
 $route = new Zend_Controller_Router_Route_Regex(
-    'archive/(\d+)', 
+    'archive/(\d+)',
     array( ... ),
     array('year' => 1)
 );
 ]]>
     </programlisting>
-        
+
     <note>
         <para>
             Ключи подшаблонов должны быть представлены целыми числами.
@@ -228,7 +228,7 @@ $values = array(
 
     <programlisting role="php"><![CDATA[
 $route = new Zend_Controller_Router_Route_Regex(
-    'archive/(\d+)', 
+    'archive/(\d+)',
     array( ... ),
     array('year' => 1),
     'archive/%s'
@@ -253,11 +253,11 @@ $route = new Zend_Controller_Router_Route_Regex(
 $route = new Zend_Controller_Router_Route_Regex(
     'blog/archive/(\d+)-(.+)\.html',
     array(
-        'controller' => 'blog', 
+        'controller' => 'blog',
         'action'     => 'view'
-    ), 
+    ),
     array(
-        1 => 'id', 
+        1 => 'id',
         2 => 'description'
     ),
     'blog/archive/%d-%s.html'

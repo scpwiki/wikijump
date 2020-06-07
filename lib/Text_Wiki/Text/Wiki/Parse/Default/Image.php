@@ -31,17 +31,17 @@
  */
 
 class Text_Wiki_Parse_Image extends Text_Wiki_Parse {
-    
+
     /**
      * URL schemes recognized by this rule.
      *
      * @access public
      * @var array
      */
-    public $conf = array('schemes' => 'http|https|ftp|gopher|news', 
-        'host_regexp' => '(?:[^.\s/"\'<\\\#delim#\ca-\cz]+\.)*[a-z](?:[-a-z0-9]*[a-z0-9])?\.?', 
+    public $conf = array('schemes' => 'http|https|ftp|gopher|news',
+        'host_regexp' => '(?:[^.\s/"\'<\\\#delim#\ca-\cz]+\.)*[a-z](?:[-a-z0-9]*[a-z0-9])?\.?',
         'path_regexp' => '(?:/[^\s"<\\\#delim#\ca-\cz]*)?');
-    
+
     /**
      *
      * The regular expression used to find source text matching this
@@ -52,7 +52,7 @@ class Text_Wiki_Parse_Image extends Text_Wiki_Parse {
      * @var string
      *
      */
-    
+
     public $regex = '/(\[\[((?:f)?[<>=])?image\s+)(.+?)(?:\]\])(?:(.*?)\[\[\/image\]\])?/is';
 
     /**
@@ -75,7 +75,7 @@ class Text_Wiki_Parse_Image extends Text_Wiki_Parse {
     function Text_Wiki_Parse_Image(&$obj) {
         $default = $this->conf;
         parent::Text_Wiki_Parse($obj);
-        
+
         // convert the list of recognized schemes to a regex OR,
         $schemes = $this->getConf('schemes', $default['schemes']);
         $this->url = str_replace('#delim#', $this->wiki->delim, '#(?:' . (is_array($schemes) ? implode('|', $schemes) : $schemes) . ')://' . $this->getConf('host_regexp', $default['host_regexp']) . $this->getConf('path_regexp', $default['path_regexp']) . '#');
@@ -97,12 +97,12 @@ class Text_Wiki_Parse_Image extends Text_Wiki_Parse {
      * the source text.
      *
      */
-    
+
     function process(&$matches) {
         $pos = strpos($matches[3], ' ');
-        
+
         if ($pos === false) {
-            $options = array('src' => $matches[3], 
+            $options = array('src' => $matches[3],
                 'attr' => array());
         } else {
             // everything after the space is attribute arguments
@@ -133,7 +133,7 @@ class Text_Wiki_Parse_Image extends Text_Wiki_Parse {
                 $attr2['size'] = strtolower($attr['size']);
             }
             $options = array(
-                'src' => substr($matches[3], 0, $pos), 
+                'src' => substr($matches[3], 0, $pos),
                 'attr' => $attr2);
 
             // fix the target="_blank"
@@ -144,7 +144,7 @@ class Text_Wiki_Parse_Image extends Text_Wiki_Parse {
                 $options['target'] = '_blank';
                 $options['attr']['link'] = $link;
             }
-            
+
             // check the scheme case of external link
             if (array_key_exists('link', $options['attr'])) {
                 // external url ?
@@ -156,18 +156,18 @@ class Text_Wiki_Parse_Image extends Text_Wiki_Parse {
                 }
             }
         }
-        
+
         $align = $matches[2];
-        
+
         if ($align != null && $align !== '') {
             $options['align'] = $align;
         }
-        
+
         $caption = $matches[4];
         if ($caption != null && $caption !== '') {
             $options['caption'] = $caption;
         }
-        
+
         // fix the target="_blank"
 
         $src = $options['src'];
@@ -176,7 +176,7 @@ class Text_Wiki_Parse_Image extends Text_Wiki_Parse {
             $options['target'] = '_blank';
             $options['src'] = $src;
         }
-        
+
         return ($align ? "\n\n" : '') . $this->wiki->addToken($this->rule, $options) . ($align ? "\n\n" : '');
     }
 }

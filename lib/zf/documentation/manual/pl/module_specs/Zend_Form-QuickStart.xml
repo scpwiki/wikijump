@@ -2,7 +2,7 @@
     <title>Szybki start z Zend_Form</title>
 
     <para>
-        Ten przewodnik opisuje podstawy tworzenia, weryfikacji oraz 
+        Ten przewodnik opisuje podstawy tworzenia, weryfikacji oraz
         renderowania formularzy za pomocą komponentu <code>Zend_Form</code>.
     </para>
 
@@ -26,8 +26,8 @@ $form = new Zend_Form;
         </para>
 
         <para>
-            Jeśli chcesz określić akcję oraz metodę wywołania formularza, możesz 
-            to zrobić za pomocą metod dostępowych <code>setAction()</code> oraz 
+            Jeśli chcesz określić akcję oraz metodę wywołania formularza, możesz
+            to zrobić za pomocą metod dostępowych <code>setAction()</code> oraz
             <code>setMethod()</code>:
         </para>
 
@@ -38,15 +38,15 @@ $form->setAction('/resource/process')
         </programlisting>
 
         <para>
-            Powyższy kod ustawia akcję formularza na adres URL 
-            "/resource/process" oraz metodę wykonania formularza na HTTP POST. 
+            Powyższy kod ustawia akcję formularza na adres URL
+            "/resource/process" oraz metodę wykonania formularza na HTTP POST.
             Będzie to wzięte pod uwagę podczas renderowania formularza.
         </para>
 
         <para>
             Możesz ustawić dodatkowe atrybuty dla znacznika
             <code>&lt;form&gt;</code> używając metod setAttrib() lub
-            setAttribs().  Przykładowo jeśli chcesz ustawić idetyfikator, 
+            setAttribs().  Przykładowo jeśli chcesz ustawić idetyfikator,
             utaw atrybut "id":
         </para>
 
@@ -60,7 +60,7 @@ $form->setAttrib('id', 'login');
         <title>Dodawanie elementów do formularza</title>
 
         <para>
-            Formularz jest bezużyteczny jeśli nie posiada elementów. 
+            Formularz jest bezużyteczny jeśli nie posiada elementów.
             Komponent <code>Zend_Form</code> posiada kilkanaście domyślnych
             elementów które mogą być renderowane do postaci XHTML za pomocą
             klas pomocniczych <code>Zend_View</code>. Te elementy to:
@@ -114,9 +114,9 @@ $form->setAttrib('id', 'login');
 
         <para>
             Masz dwie możliwości dodania elementów do formularza: możesz utworzyć
-            egzemplarze konkretnych elementów i przekeazać je do obiektu, lub 
-            po prostu przekazać typy elementów i pozwolić obiektowi 
-            <code>Zend_Form</code> na atomatyczne utworzenie egzemplarzy 
+            egzemplarze konkretnych elementów i przekeazać je do obiektu, lub
+            po prostu przekazać typy elementów i pozwolić obiektowi
+            <code>Zend_Form</code> na atomatyczne utworzenie egzemplarzy
             obiektów określonego typu.
         </para>
 
@@ -136,16 +136,16 @@ $form->addElement('text', 'username');
         <para>
             Domyślnie elementy te nie posiadają filtrów i weryfikatorów.
             Oznacza to że musisz skonfigurować dla swoich elementów chociaż
-            weryfikatory i opcjonalnie filtry. Możesz to zrobić (a) zanim 
-            przekażesz element do formularza, (b) za pomocą opcji 
-            konfiguracyjnych przekazanych podczas tworzenia elementu poprzez 
-            obiekt <code>Zend_Form</code> lub (c) pobierając istniejący element 
+            weryfikatory i opcjonalnie filtry. Możesz to zrobić (a) zanim
+            przekażesz element do formularza, (b) za pomocą opcji
+            konfiguracyjnych przekazanych podczas tworzenia elementu poprzez
+            obiekt <code>Zend_Form</code> lub (c) pobierając istniejący element
             z obiektu formularza i konfigurowanie go.
         </para>
 
         <para>
             Przyjrzyjmy się wpierw tworzeniu weryfikatorów dla konkretnego
-            egzemplarza elementu. Możesz przekazać obiekt 
+            egzemplarza elementu. Możesz przekazać obiekt
             <code>Zend_Validate_*</code> lub nazwę weryfikatora który ma być 
             użyty:
         </para>
@@ -198,7 +198,7 @@ $username->setRequired(true);
 
         <para>
             Filtry są rejestrowane w taki sam sposób jak weryfikatory. Aby
-            pokazać jak działają, dodajmy filtr zamieniający znaki na małe 
+            pokazać jak działają, dodajmy filtr zamieniający znaki na małe
             litery:
         </para>
 
@@ -227,11 +227,11 @@ $username->addValidators(array('alnum',
         </programlisting>
 
         <para>
-            Tworzenie obiektu dla każdego z elementów formularza może być czasem 
-            nieco kłopotliwe. Spróbujmy zatem użyć sposobu (b) przedstawionego 
-            wyżej. Kiedy tworzymy nowy element używając metody 
-            <code>Zend_Form::addElement()</code> jako fabryki, możemy 
-            opcjonalnie przekazać opcje konfiguracyjne. Obejmuje to także 
+            Tworzenie obiektu dla każdego z elementów formularza może być czasem
+            nieco kłopotliwe. Spróbujmy zatem użyć sposobu (b) przedstawionego
+            wyżej. Kiedy tworzymy nowy element używając metody
+            <code>Zend_Form::addElement()</code> jako fabryki, możemy
+            opcjonalnie przekazać opcje konfiguracyjne. Obejmuje to także
             konfigurację filtrów i weryfikatorów. Aby to zrobić użyj kodu:
         </para>
 
@@ -262,7 +262,7 @@ $form->addElement('text', 'username', array(
             Renderowanie formularza jest proste. Większość elementów używa do
             tego klas pomocniczych <code>Zend_View</code>, więc potrzebny będzie
             do tego także obiekt widoku. Masz dwie możliwości: użycie metody
-            formularza render() lub po prostu wyświetlenie formularza za pomocą 
+            formularza render() lub po prostu wyświetlenie formularza za pomocą
             konstrukcji echo.
         </para>
 
@@ -279,8 +279,8 @@ echo $form;
             Domyślnie obiekty <code>Zend_Form</code> oraz
             <code>Zend_Form_Element</code> użyją obiektu widoku zainicjowanego
             w obiekcie <code>ViewRenderer</code>, co oznacza, że nie musisz go
-            ręcznie ustawiać gdy używasz wzorca MVC Zend Framework. Renderowanie 
-            formularza w skrypcie widoku jest wtedy bardzo proste: 
+            ręcznie ustawiać gdy używasz wzorca MVC Zend Framework. Renderowanie
+            formularza w skrypcie widoku jest wtedy bardzo proste:
         </para>
 
         <programlisting role="php"><![CDATA[
@@ -289,12 +289,12 @@ echo $form;
         </programlisting>
 
         <para>
-            <code>Zend_Form</code> używa "dekoratorów" do przeprowadzania 
-            renderowania. Te dekoratory mogą zastępować zawartość, dodawać 
-            zawartość na początku lub na końcu, a także mieć pełny wgląd w 
-            element przekazany do nich. Możesz użyć kilku dekoratorów aby 
-            uzyskać wymagany efekt. Domyślnie <code>Zend_Form_Element</code> 
-            używa czterech dekoratorów aby wygenerować kod wyjściowy; wygląda 
+            <code>Zend_Form</code> używa "dekoratorów" do przeprowadzania
+            renderowania. Te dekoratory mogą zastępować zawartość, dodawać
+            zawartość na początku lub na końcu, a także mieć pełny wgląd w
+            element przekazany do nich. Możesz użyć kilku dekoratorów aby
+            uzyskać wymagany efekt. Domyślnie <code>Zend_Form_Element</code>
+            używa czterech dekoratorów aby wygenerować kod wyjściowy; wygląda
             to w taki sposób:
         </para>
 
@@ -334,23 +334,23 @@ $element->addDecorators(array(
         </para>
 
         <para>
-            Możesz zmienić dekoratory używane przez element jeśli chcesz mieć 
+            Możesz zmienić dekoratory używane przez element jeśli chcesz mieć
             inny wyjściowy kod XHTML; zobacz rozdział poświęcony dekoratorom
             aby uzyskać więcej informacji.
         </para>
 
         <para>
-            Formularz przechodzi poprzez wszystkie elementy i zawiera je 
+            Formularz przechodzi poprzez wszystkie elementy i zawiera je
             wewnątrz znacznika HTML <code>&lt;form&gt;</code>. Akcja i metoda
-            wysyłania formuarza które podałeś podczas jego konfigurowania 
+            wysyłania formuarza które podałeś podczas jego konfigurowania
             zostaną dołączone do znacznika<code>&lt;form&gt;</code>, tak samo jak
-            inne atrybuty ustawione za pomocą metody <code>setAttribs()</code>. 
+            inne atrybuty ustawione za pomocą metody <code>setAttribs()</code>.
         </para>
 
         <para>
             Formularz przechodzi przez elementy w takiej kolejności w jakiej
-            były one zarejestrowane lub jeśli twój element zawiera odpowiedni 
-            atrybut, zostanie on użyty w celu ustalenia kolejności. Możesz 
+            były one zarejestrowane lub jeśli twój element zawiera odpowiedni
+            atrybut, zostanie on użyty w celu ustalenia kolejności. Możesz
             ustawiać kolejność elementów używając metody:
         </para>
 
@@ -374,14 +374,14 @@ $form->addElement('text', 'username', array('order' => 10));
 
         <para>
             Po tym jak formularz zostanie wysłany, musisz sprawdzić czy pomyślnie
-            przeszedł weryfikację. Każdy element jest sprawdzany w oparciu o 
+            przeszedł weryfikację. Każdy element jest sprawdzany w oparciu o
             podane dane; jeśli nie ma klucza odpowiadającego nazwie elementu, a
-            element jest oznaczony jako wymagany, weryfikacja zostanie 
+            element jest oznaczony jako wymagany, weryfikacja zostanie
             przeprowadzona w oparciu o pustą wartość (null).
         </para>
 
         <para>
-            Skąd pochodzą dane? Możesz użyć tablic <code>$_POST</code>, 
+            Skąd pochodzą dane? Możesz użyć tablic <code>$_POST</code>,
             <code>$_GET</code> lub dowolnych innych źródeł danych
             (np. żądań do serwisów web):
         </para>
@@ -396,7 +396,7 @@ if ($form->isValid($_POST)) {
         </programlisting>
 
         <para>
-            Jeśli używasz żądań AJAX, możesz potrzebować przeprowadzić 
+            Jeśli używasz żądań AJAX, możesz potrzebować przeprowadzić
             weryfikację pojedynczego elementu lub grupy elementów.
             Metoda <code>isValidPartial()</code> częściowo weryfikuje formularz.
             W przeciwieństwie do metody <code>isValid()</code>, nie przeprowadza
@@ -413,9 +413,9 @@ if ($form->isValidPartial($_POST)) {
         </programlisting>
 
         <para>
-            Do częściowej weryfikacji formularza możemy także użyć metody 
+            Do częściowej weryfikacji formularza możemy także użyć metody
             <code>processAjax()</code>.  W przeciwieństwie do metody
-            <code>isValidPartial()</code>, zwraca ona łańcuch znaków w formacie 
+            <code>isValidPartial()</code>, zwraca ona łańcuch znaków w formacie
             JSON zawierający informacje o błędach.
         </para>
 
@@ -460,13 +460,13 @@ if (!$form->isValid($_POST)) {
         </programlisting>
 
         <para>
-            Dostępne są dwie metody do sprawdzania błędów. Metoda 
-            <code>getErrors()</code> zwraca tablicę asocjacyjną zawierającą 
-            informacje o błędach w postaci nazwa elementu / kody (gdzie kody są 
-            tablicami kodów błędów). Metoda <code>getMessages()</code> zwraca 
-            tablicę asocjacyjną zawierającą informacje o błędach w postaci nazwa 
-            elementu / komunikaty (gdzie komunikaty są asocjacyjną tablicą w 
-            postaci kod / komunikat). Jeśli dany element nie zawiera błędów, nie 
+            Dostępne są dwie metody do sprawdzania błędów. Metoda
+            <code>getErrors()</code> zwraca tablicę asocjacyjną zawierającą
+            informacje o błędach w postaci nazwa elementu / kody (gdzie kody są
+            tablicami kodów błędów). Metoda <code>getMessages()</code> zwraca
+            tablicę asocjacyjną zawierającą informacje o błędach w postaci nazwa
+            elementu / komunikaty (gdzie komunikaty są asocjacyjną tablicą w
+            postaci kod / komunikat). Jeśli dany element nie zawiera błędów, nie
             będzie zawarty w tablicy.
         </para>
     </sect2>
@@ -487,9 +487,9 @@ if (!$form->isValid($_POST)) {
         <para>
             Dla zobrazowania załóżmy że poprawna nazwa użytkownika powinna
             składać się jedynie ze znaków alfanumerycznych, powinna zaczynać
-            się od litery, jej długość powinna zawierać się między 6 a 12 
-            znakami; litery powinny zostać zamienione na małe. Hasło musi 
-            składać się minimalnie z 6 znaków. Wartość przycisku wysyłającego 
+            się od litery, jej długość powinna zawierać się między 6 a 12
+            znakami; litery powinny zostać zamienione na małe. Hasło musi
+            składać się minimalnie z 6 znaków. Wartość przycisku wysyłającego
             formularz zignorujemy, więc nie musi być ona weryfikowana.
         </para>
 
@@ -557,7 +557,7 @@ class UserController extends Zend_Controller_Action
             $this->view->form = $form;
             return $this->render('form');
         }
-        
+
         $values = $form->getValues();
         // spróbuj uwierzytelnić
     }
@@ -576,7 +576,7 @@ class UserController extends Zend_Controller_Action
         </programlisting>
 
         <para>
-            Jak zauważysz w kodzie kontrolera, może być wymagane jeszcze trochę 
+            Jak zauważysz w kodzie kontrolera, może być wymagane jeszcze trochę
             pracy: jeśli wysłane dane będą poprawne, powinieneś przeprowadzić
             uwierzytelnienie używając np. klasy <code>Zend_Auth</code>.
         </para>
@@ -589,11 +589,11 @@ class UserController extends Zend_Controller_Action
             Wszystkie klasy <code>Zend_Form</code> można skonfigurować za pomocą
             komponentu <code>Zend_Config</code>; możesz przkazać obiekt klasy
             <code>Zend_Config</code> do konstruktora lub przekazać go za pomocą
-            metody <code>setConfig()</code>. Spójrzmy jak możemy utworzyć 
-            powyższy formularz używając pliku INI. Wpierw weźmy pod uwagę 
-            zalecenia i umieśćmy konfigurację w sekcjach odnoszących się do typu 
-            wdrożenia aplikacji i skupmy się na sekcji 'development'. Następnie 
-            ustawmy utwórzmy sekcję dla danego kontrolera ('user'), oraz klucz 
+            metody <code>setConfig()</code>. Spójrzmy jak możemy utworzyć
+            powyższy formularz używając pliku INI. Wpierw weźmy pod uwagę
+            zalecenia i umieśćmy konfigurację w sekcjach odnoszących się do typu
+            wdrożenia aplikacji i skupmy się na sekcji 'development'. Następnie
+            ustawmy utwórzmy sekcję dla danego kontrolera ('user'), oraz klucz
             dla formularza ('login'):
         </para>
 
@@ -644,7 +644,7 @@ $form   = new Zend_Form($config->user->login);
         <title>Podsumowanie</title>
 
         <para>
-            Dzięki temu przewodnikowi powinieneś nauczyć się wykorzystywać moc 
+            Dzięki temu przewodnikowi powinieneś nauczyć się wykorzystywać moc
             i elastyczność komponentu <code>Zend_Form</code>. Teraz możesz
             przeczytać bardziej szczegółowe informacje!
         </para>

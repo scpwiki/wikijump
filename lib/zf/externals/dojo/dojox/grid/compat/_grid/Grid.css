@@ -54,7 +54,7 @@
 	text-align: center;
 }
 
-.dojoxGrid-header .dojoxGrid-cell { 
+.dojoxGrid-header .dojoxGrid-cell {
 	border: 1px solid;
 	border-color: #F6F4EB #ACA899 #ACA899 #F6F4EB;
 	background: url(images/grid_dx_gradient.gif) #E8E1CF top repeat-x;
@@ -71,13 +71,13 @@
 }
 
 .dojoxGrid-sort-down {
-	background: url(images/grid_sort_down.gif) left no-repeat; 
+	background: url(images/grid_sort_down.gif) left no-repeat;
 	padding-left:16px;
 	margin-left:4px;
 }
 
 .dojoxGrid-sort-up {
-	background: url(images/grid_sort_up.gif) left no-repeat; 
+	background: url(images/grid_sort_up.gif) left no-repeat;
 	padding-left:16px;
 	margin-left:4px;
 }
@@ -100,7 +100,7 @@
 
 /* rowbar */
 
-.dojoxGrid-rowbar { 
+.dojoxGrid-rowbar {
 	border: 1px solid;
 	border-color: #F6F4EB #ACA899 #ACA899 #F6F4EB;
 	border-top: none;
@@ -169,11 +169,11 @@
 
 .dojoxGrid-invisible {
 	visibility: hidden;
-}		
+}
 
 .Xdojo-ie .dojoxGrid-invisible {
 	display: none;
-}		
+}
 
 .dojoxGrid-invisible td, .dojoxGrid-header .dojoxGrid-invisible td {
 	border-top-width: 0;

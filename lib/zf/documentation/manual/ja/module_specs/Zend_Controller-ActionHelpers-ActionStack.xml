@@ -75,7 +75,7 @@ class FooController extends Zend_Controller_Action
         // (FooController::bazAction() にリクエスト変数 bar == baz を指定したもの)
         $request = clone $this->getRequest();
         // コントローラやモジュールは指定せず、現在の値を使用します
-        $request->setActionName('baz') 
+        $request->setActionName('baz')
                 ->setParams(array('bar' => 'baz'));
         $this->_helper->actionStack($request);
 

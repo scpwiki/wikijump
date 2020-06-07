@@ -7,7 +7,7 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 		<h3>We are almost ready to create a new site for you<?php if ($this->_tpl_vars['unixName']): ?> at <span style="text-decoration: underline"><?php echo $this->_tpl_vars['unixName']; ?>
 .<?php echo $this->_tpl_vars['URL_DOMAIN']; ?>
 </span><?php endif; ?>...</h3>
-		
+
 		<p>
 			<?php $this->_tag_stack[] = array('t', array('1' => $this->_tpl_vars['SERVICE_NAME'])); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>However you would need to have a valid user account at %1 so that we could identify you in the future.<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
 		</p>
@@ -18,7 +18,7 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 						<a href="javascript:;" onclick="WIKIDOT.page.listeners.loginClick(event)"
 							><?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Log in<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?></a>
 					</div>
-					<p>	
+					<p>
 						<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>if you already have a Wikidot account<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
 					</p>
 				</td>
@@ -35,10 +35,10 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 		</table>
 
 	<?php else: ?>
-		
-		
+
+
 		<div class="error-block" id="new-site-form-errors" style="display: none"></div>
-		
+
 		<form id="new-site-form">
 			<table class="form">
 				<tr>
@@ -103,7 +103,7 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 							<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>If you check this, the site is visible only to its members.<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
 						</div>
 					</td>
-					
+
 				</tr>
 							<tr>
 					<td>
@@ -114,17 +114,17 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 						<br/>
 						<?php $this->_tag_stack[] = array('t', array('1' => $this->_tpl_vars['URL_HOST'])); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>I have read and agree to the <a href="http://%1/legal:terms-of-service"
 						target="_blank">Terms of Service</a>.<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
-						
+
 					</td>
-					
+
 				</tr>
 			</table>
 			<div class="buttons">
 				<input type="button" value="<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Get a new wiki<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>" onclick="WIKIDOT.modules.NewSiteModule.listeners.next3(event)"/>
 			</div>
 		</form>
-		
-		
-		
+
+
+
 	<?php endif; ?>
 </div>

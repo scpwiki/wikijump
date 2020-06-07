@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -29,15 +29,15 @@ use DB\PageRevisionPeer;
 class PageSourceModule extends SmartyModule{
 	public function build($runData){
 		$revisionId = $runData->getParameterList()->getParameterValue("revision_id");
-		
+
 		$revision = PageRevisionPeer::instance()->selectByPrimaryKey($revisionId);
 		if($revision == null){
-			throw new ProcessException(_("Revision error"), "revision_error");	
+			throw new ProcessException(_("Revision error"), "revision_error");
 		}
 		$source = $revision->getSourceText();
-		
+
 		$runData->contextAdd("source", $source);
-		$runData->contextAdd("revisionNo", $revision->getRevisionNumber());	
+		$runData->contextAdd("revisionNo", $revision->getRevisionNumber());
 	}
-	
+
 }

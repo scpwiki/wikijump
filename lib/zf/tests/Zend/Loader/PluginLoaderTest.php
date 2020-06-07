@@ -333,7 +333,7 @@ class Zend_Loader_PluginLoaderTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($className, $loader->getClassName('FormSubmit'));
         $this->assertEquals('ZfTest_FormSubmit', $loader->getClassName('FormSubmit'));
     }
-    
+
     /**
      * @issue ZF-2741
      */
@@ -350,7 +350,7 @@ class Zend_Loader_PluginLoaderTest extends PHPUnit_Framework_TestCase
         }
         $this->assertEquals($className, $loader->getClassName('Word_UnderscoreToDash'));
     }
-    
+
     /**
      * @group ZF-4670
      */

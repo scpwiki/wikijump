@@ -82,17 +82,17 @@ class Zend_Gdata_Health_Extension_Ccr extends Zend_Gdata_App_Extension_Element
         }
         $domElement = $doc->importNode($this->_ccrDom, true);
         return $domElement;
-    } 
+    }
 
     /**
-     * Magic helper that allows drilling down and returning specific elements 
+     * Magic helper that allows drilling down and returning specific elements
      * in the CCR. For example, to retrieve the users medications
      * (/ContinuityOfCareRecord/Body/Medications) from the entry's CCR, call
      * $entry->getCcr()->getMedications().  Similarly, getConditions() would
      * return extract the user's conditions.
      *
      * @param string $name Name of the function to call
-     * @return array.<DOMElement> A list of the appropriate CCR data 
+     * @return array.<DOMElement> A list of the appropriate CCR data
      */
     public function __call($name, $args)
     {

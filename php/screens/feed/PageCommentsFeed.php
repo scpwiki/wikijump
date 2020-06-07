@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -29,17 +29,17 @@ use DB\ForumThreadPeer;
 use DB\ForumPostPeer;
 
 class PageCommentsFeed extends FeedScreen {
-	
+
 	public function render($runData){
 		$site = $runData->getTemp("site");
-		
+
 		$pl = $runData->getParameterList();
 		$pageId = $pl->getParameterValue("p");
 
 		$parmHash = md5(serialize($pl->asArray()));
 
 		$key = 'pagecommentsfeed_f..'.$site->getUnixName().'..'.$pageId.'..'.$parmHash;
-		
+
 		$akey = 'forumall_lc..'.$site->getUnixName();
 
 		$mc = OZONE::$memcache;
@@ -53,12 +53,12 @@ class PageCommentsFeed extends FeedScreen {
 			$changeTimestamp = $mc->get($tkey);
 			if($changeTimestamp && $changeTimestamp <= $cacheTimestamp && $allForumTimestamp && $allForumTimestamp <= $cacheTimestamp){
 				$runData->ajaxResponseAdd("threadId", $threadId);
-				return $struct['content'];	
+				return $struct['content'];
 			}
 		}
-		
+
 		$out = parent::render($runData);
-		
+
 		// and store the data now
 		$struct = array();
 		$now = time();
@@ -70,7 +70,7 @@ class PageCommentsFeed extends FeedScreen {
 			$tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$this->threadId; // last change timestamp
 			$changeTimestamp = $mc->get($tkey);
 		}
-		
+
 		$mc->set($key, $struct, 0, 1000);
 		if(!$changeTimestamp){
 			$tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$this->threadId;
@@ -82,32 +82,32 @@ class PageCommentsFeed extends FeedScreen {
 			$mc->set($akey, $allForumTimestamp, 0, 10000);
 		}
 
-		return $out; 
+		return $out;
 	}
-	
+
 	public function build($runData){
-		
+
 		$site = $runData->getTemp("site");
-		
+
 		$pl = $runData->getParameterList();
 		$pageId = $pl->getParameterValue("p");
-		
+
 		$page = PagePeer::instance()->selectByPrimaryKey($pageId);
 		$threadId = $page->getThreadId();
-		
+
 		$thread = ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
 		if($thread == null){
-			throw new ProcessException("No such thread.", "no_thread");	
+			throw new ProcessException("No such thread.", "no_thread");
 		}
 		$this->threadId = $thread->getThreadId();
-		
+
 		$channel = array();
-		
+
 		$channel['title'] = _('Comments for page').' "'.$page->getTitleOrUnixName().'"';
 		$channel['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/".$page->getUnixName()."/comments/show";
 
 		$items = array();
-		
+
 		$c = new Criteria();
 		$c->add("thread_id", $threadId);
 		$c->add("forum_post.site_id", $site->getSiteId());
@@ -115,10 +115,10 @@ class PageCommentsFeed extends FeedScreen {
 		$c->addOrderDescending("post_id");
 		$c->setLimit(20);
 		$posts = ForumPostPeer::instance()->select($c);
-		
+
 		foreach($posts as $post){
 			$item = array();
-			
+
 			if($post->getTitle() != ''){
 				$item['title'] = $post->getTitle();
 			}else{
@@ -129,24 +129,24 @@ class PageCommentsFeed extends FeedScreen {
 			$item['date'] = date('r', $post->getDatePosted()->getTimestamp());
 			// TODO: replace relative links with absolute links!
 			$content =  $post->getText();
-			
+
 			$content = preg_replace(';(<.*?)(src|href)="/([^"]+)"([^>]*>);si', '\\1\\2="'.GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'/\\3"\\4', $content);
 			$content = preg_replace(';<script\s+[^>]+>.*?</script>;is', '', $content);
 			$content = preg_replace(';(<[^>]*\s+)on[a-z]+="[^"]+"([^>]*>);si', '\\1 \\2', $content);
 
 			$item['content'] = $content;
 			if($post->getUserId()>0){
-				$item['authorUserId'] = $post->getUserId();	
+				$item['authorUserId'] = $post->getUserId();
 				$user = $post->getUser();
 				$item['author']=$user->getNickName();
 			}else{
-				$item['author']=$post->getUserString();	
+				$item['author']=$post->getUserString();
 			}
-			$items[] = $item;	
+			$items[] = $item;
 		}
-		
+
 		$runData->contextAdd("channel", $channel);
 		$runData->contextAdd("items", $items);
 	}
-	
+
 }

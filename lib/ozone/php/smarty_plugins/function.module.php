@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,14 +15,14 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Web
  * @version $Id$
  * @copyright Copyright (c) 2008, Wikidot Inc.
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
- 
+
 /**
  * Module placeholder generator for Smarty.
  */
@@ -33,18 +33,18 @@ function smarty_function_module($params, & $smarty) {
 	}
 	$templateName = $params['name'];
 	$parameters = $params['parameters'];
-	
+
 	unset($params['name']);
 	// convert params to string key="value"
 	foreach($params as $key => $value){
-		$parameters.="$key=\"$value\" ";	
+		$parameters.="$key=\"$value\" ";
 	}
-	
+
 	if($parameters!==null){
-		$parmstring = " ".urlencode($parameters)." ";	
+		$parmstring = " ".urlencode($parameters)." ";
 	}
 	$d = utf8_encode("\xFE");
 	$out = $d."module \"".$templateName."\" ".$parmstring.$d;
 	return $out;
-	
+
 }

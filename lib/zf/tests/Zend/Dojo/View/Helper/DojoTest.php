@@ -48,7 +48,7 @@ require_once 'Zend/View.php';
  * @copyright  Copyright (c) 2005-2008 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
-class Zend_Dojo_View_Helper_DojoTest extends PHPUnit_Framework_TestCase 
+class Zend_Dojo_View_Helper_DojoTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.

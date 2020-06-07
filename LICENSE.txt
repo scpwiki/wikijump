@@ -1,9 +1,9 @@
 Wikidot - free wiki collaboration software
 Copyright (c) 2008 by Wikidot Inc.
 
-Wikidot (version 1) software  is available under the GNU AFFERO GENERAL 
-PUBLIC LICENSE Version 3 (see below). For information about 
-licensing of included parts and packages copyrighted by other authors 
+Wikidot (version 1) software  is available under the GNU AFFERO GENERAL
+PUBLIC LICENSE Version 3 (see below). For information about
+licensing of included parts and packages copyrighted by other authors
 please see the copyright notices within individual packages or files.
 
 This program is free software: you can redistribute it and/or modify
@@ -21,7 +21,7 @@ http://www.wikidot.com/license
 
 -----------------------------------------------------------------------
 
- 
+
                     GNU AFFERO GENERAL PUBLIC LICENSE
                        Version 3, 19 November 2007
 
@@ -89,7 +89,7 @@ License.
 
   "Copyright" also means copyright-like laws that apply to other kinds
 of works, such as semiconductor masks.
- 
+
   "The Program" refers to any copyrightable work licensed under this
 License.  Each licensee is addressed as "you".  "Licensees" and
 "recipients" may be individuals or organizations.

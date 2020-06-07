@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot_Web
  * @version $Id$
@@ -26,7 +26,7 @@
 require ('../php/setup.php');
 
 header('Content-type: image/png');
-$offset = 3600 * 1;	
+$offset = 3600 * 1;
 // calc the string in GMT not localtime and add the offset
 $expire = "Expires: " . gmdate("D, d M Y H:i:s", time() + $offset) . " GMT";
 //output the HTTP header
@@ -66,7 +66,7 @@ $karmaLevel = false;
 if(GlobalProperties::$USE_MEMCACHE == true){
 	$memcache = new Memcache();
 	$memcache->connect(GlobalProperties::$MEMCACHE_HOST, GlobalProperties::$MEMCACHE_PORT);
-	
+
 	/* Check memcache for the karma level. */
 	$key = 'user_karma_level..'.$userId;
 	$karmaLevel = $memcache->get($key);

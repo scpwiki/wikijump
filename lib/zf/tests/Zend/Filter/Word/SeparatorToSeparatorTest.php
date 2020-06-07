@@ -13,7 +13,7 @@ require_once 'Zend/Filter/Word/SeparatorToSeparator.php';
 /**
  * Test class for Zend_Filter_Word_SeparatorToSeparator.
  */
-class Zend_Filter_Word_SeparatorToSeparatorTest extends PHPUnit_Framework_TestCase 
+class Zend_Filter_Word_SeparatorToSeparatorTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.
@@ -21,7 +21,7 @@ class Zend_Filter_Word_SeparatorToSeparatorTest extends PHPUnit_Framework_TestCa
      * @access public
      * @static
      */
-    public static function main() 
+    public static function main()
     {
         require_once "PHPUnit/TextUI/TestRunner.php";
 
@@ -38,7 +38,7 @@ class Zend_Filter_Word_SeparatorToSeparatorTest extends PHPUnit_Framework_TestCa
         $this->assertNotEquals($string, $filtered);
         $this->assertEquals('dash-separated-words', $filtered);
     }
-    
+
     public function testFilterSeparatesWordsWithSearchSpecified()
     {
         $string   = 'dash=separated=words';
@@ -48,7 +48,7 @@ class Zend_Filter_Word_SeparatorToSeparatorTest extends PHPUnit_Framework_TestCa
         $this->assertNotEquals($string, $filtered);
         $this->assertEquals('dash-separated-words', $filtered);
     }
-    
+
     public function testFilterSeparatesWordsWithSearchAndReplacementSpecified()
     {
         $string   = 'dash=separated=words';
@@ -58,7 +58,7 @@ class Zend_Filter_Word_SeparatorToSeparatorTest extends PHPUnit_Framework_TestCa
         $this->assertNotEquals($string, $filtered);
         $this->assertEquals('dash?separated?words', $filtered);
     }
-    
+
 }
 
 // Call Zend_Filter_Word_SeparatorToSeparatorTest::main() if this source file is executed directly.

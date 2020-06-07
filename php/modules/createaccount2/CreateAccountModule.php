@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -25,16 +25,16 @@
 
 
 class CreateAccountModule extends SmartyModule {
-	
+
 	public function isAllowed($runData){
 		if($runData->getUserId() !== null){
-			throw new ProcessException(_("You are already logged in. Why would you want to create a new account?"), "logged_in"); 	
-		}	
-		
+			throw new ProcessException(_("You are already logged in. Why would you want to create a new account?"), "logged_in");
+		}
+
 		$rstep = $runData->sessionGet("rstep");
-		return true;	
+		return true;
 	}
-	
+
 	public function build($runData){
 
 		$site = $runData->getTemp('site');
@@ -44,11 +44,11 @@ class CreateAccountModule extends SmartyModule {
 			$site = $runData->getTemp("site");
 			header("HTTP/1.1 301 Moved Permanently");
 			header("Location: ".'https://'.$site->getDomain().$_SERVER['REQUEST_URI']);
-			exit();		
+			exit();
 		}
-		
+
 		$code =  $runData->sessionGet('captchaCode');
-		
+
 		if($code === null){
 			srand((double)microtime()*1000000);
 			$string = md5(rand(0,9999));
@@ -59,9 +59,9 @@ class CreateAccountModule extends SmartyModule {
 		}
 		$runData->contextAdd('evcode', $code);
 		$runData->contextAdd("rand", rand(0,1000));
-		
+
 		$runData->sessionAdd("rstep", 0);
-		
+
 		$pl = $runData->getParameterList();
 		$originalUrl = $pl->getParameterValue('origUrl');
 		if($originalUrl){
@@ -72,5 +72,5 @@ class CreateAccountModule extends SmartyModule {
 			$runData->sessionAdd('loginOriginalUrl', $originalUrl);
 		}
 	}
-	
+
 }

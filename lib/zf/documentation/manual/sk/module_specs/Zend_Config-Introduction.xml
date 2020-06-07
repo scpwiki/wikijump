@@ -5,7 +5,7 @@
         konfiguračných údajov v rámci aplikácie. Poskytuje vnorené vlastnosti pre
         prístup ku konfigurácii v rámci aplikácie. Konfiguračné údaje môžu byt
         z rozličných zdrojov a je podporované aj hierarchické uloženie. Momentálne
-        <code>Zend_Config</code> poskytuje adaptéry pre prístup k konfiguračným 
+        <code>Zend_Config</code> poskytuje adaptéry pre prístup k konfiguračným
         dátam uloženým v textových súboroch pomocou
         <link linkend="zend.config.adapters.ini"><code>Zend_Config_Ini</code></link> a
         <link linkend="zend.config.adapters.xml"><code>Zend_Config_Xml</code></link>.
@@ -16,8 +16,8 @@
             Očakáva sa, že sa použije jeden z adaptérov ako napríklad
             <link linkend="zend.config.adapters.ini"><code>Zend_Config_Ini</code></link>, alebo
             <link linkend="zend.config.adapters.xml"><code>Zend_Config_Xml</code></link>, ale
-            ak sú konfiguračné dáta prístupné ako PHP pole, je možné predať toto 
-            pole <code>Zend_Config</code> konštruktoru a zužitkovať jednoduchý 
+            ak sú konfiguračné dáta prístupné ako PHP pole, je možné predať toto
+            pole <code>Zend_Config</code> konštruktoru a zužitkovať jednoduchý
             objektovo-orientovaný prístup:
         </para>
         <programlisting role="php"><![CDATA[<?php
@@ -53,7 +53,7 @@ $myApplicationObject->databaseConnect($config->database->type,
     </para>
     <para>
         Popri objektovo-orientovanom prístupe <code>Zend_Config</code> poskytuje
-        metódu <code>get()</code> ktorá umožňuje vrátiť zadanú východziu hodnotu. 
+        metódu <code>get()</code> ktorá umožňuje vrátiť zadanú východziu hodnotu.
         Na príklad:
     </para>
     <programlisting role="php"><![CDATA[<?php

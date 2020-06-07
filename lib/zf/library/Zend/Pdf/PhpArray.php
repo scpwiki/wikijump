@@ -113,7 +113,7 @@ class Zend_Pdf_PhpArray implements ArrayAccess, Iterator, Countable {
     {
         $this->_items = array();
     }
-    
+
     /**
      * Defined by Countable interface
      *
@@ -123,6 +123,6 @@ class Zend_Pdf_PhpArray implements ArrayAccess, Iterator, Countable {
     {
         return count($this->_items);
     }
-    
+
 }
 

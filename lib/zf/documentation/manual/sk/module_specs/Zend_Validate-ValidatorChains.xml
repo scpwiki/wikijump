@@ -47,7 +47,7 @@ if ($validatorChain->isValid($username)) {
         na <code>true</code> sa preruší validácia v prípade neúspešnej validácie a nebudú
         vykonané všetky ostatné validácie, ktoré sú zbytočné, alebo nevhodné v danej
         situácii. Ak náš príklad upravíme nasledovne, potom alfanumerická validácia
-        neprebehne ak bude neúspešná validácia na dĺžku reťazca: 
+        neprebehne ak bude neúspešná validácia na dĺžku reťazca:
 
         <programlisting role="php"><![CDATA[<?php
 

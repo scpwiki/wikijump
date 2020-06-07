@@ -34,31 +34,31 @@ require_once 'Zend/Cache/Core.php';
  */
 class Zend_Cache_Frontend_File extends Zend_Cache_Core
 {
-	
+
 	/**
 	 * Consts for master_files_mode
 	 */
 	const MODE_AND = 'AND';
 	const MODE_OR  = 'OR';
-	
+
     /**
      * Available options
      *
      * ====> (string) master_file :
      * - a complete path of the master file
      * - deprecated (see master_files)
-     * 
+     *
      * ====> (array) master_files :
      * - an array of complete path of master files
      * - this option has to be set !
-     * 
+     *
      * ====> (string) master_files_mode :
      * - Zend_Cache_Frontend_File::MODE_AND or Zend_Cache_Frontend_File::MODE_OR
      * - if MODE_AND, then all master files have to be touched to get a cache invalidation
      * - if MODE_OR (default), then a single touched master file is enough to get a cache invalidation
      *
      * ====> (boolean) ignore_missing_master_files
-     * - if set to true, missing master files are ignored silently 
+     * - if set to true, missing master files are ignored silently
      * - if set to false (default), an exception is thrown if there is a missing master file
      * @var array available options
      */
@@ -73,7 +73,7 @@ class Zend_Cache_Frontend_File extends Zend_Cache_Core
      * Master file mtimes
      *
      * Array of int
-     * 
+     *
      * @var array
      */
     private $_masterFile_mtimes = null;
@@ -94,10 +94,10 @@ class Zend_Cache_Frontend_File extends Zend_Cache_Core
             Zend_Cache::throwException('master_files option must be set');
         }
     }
-    
+
     /**
      * Change the master_file option
-     * 
+     *
      * @param string $masterFile the complete path and name of the master file
      */
     public function setMasterFiles($masterFiles)
@@ -110,25 +110,25 @@ class Zend_Cache_Frontend_File extends Zend_Cache_Core
         foreach ($masterFiles as $masterFile) {
         	$this->_masterFile_mtimes[$i] = @filemtime($masterFile);
         	if ((!($this->_specificOptions['ignore_missing_master_files'])) && (!($this->_masterFile_mtimes[$i]))) {
-        		Zend_Cache::throwException('Unable to read master_file : '.$masterFile);     
+        		Zend_Cache::throwException('Unable to read master_file : '.$masterFile);
         	}
         	$i++;
         }
     }
-    
+
     /**
      * Change the master_file option
-     * 
-     * To keep the compatibility 
-     * 
+     *
+     * To keep the compatibility
+     *
      * @deprecated
      * @param string $masterFile the complete path and name of the master file
-     */    
+     */
     public function setMasterFile($masterFile)
     {
   		$this->setMasterFiles(array(0 => $masterFile));
     }
-    
+
     /**
      * Public frontend to set an option
      *

@@ -8,21 +8,21 @@
 }
 
 .gridContainer {
-	display:block;	
+	display:block;
 	position: relative;
-	background:#FFF;	
-	margin:0px;	
+	background:#FFF;
+	margin:0px;
 	padding:10px;
 /*	height:1%; /* Bug focus with IE6/7) */
 }
-	
+
 /* MOW: dnd might change to make this easier? */
 .gridContainer .dojoDndAvatarHeader	{
 	display:none;
 }
 
 .gridContainerTable {
-	width:100%;	
+	width:100%;
 	border:1px solid #F60;
 	height: 100%;
 }
@@ -32,7 +32,7 @@
 	top:40%;
 	left:40%;
 	width: 200px;
-	height: auto;	
+	height: auto;
 	border: 1px solid #F60;
 	background-color: #FFF;
 	text-align: center;
@@ -45,9 +45,9 @@
 
 /* default underlay for the container */
 .gridContainerZone {
-	vertical-align: top;	
-	padding:12px;	
-	background-color: #FDFDFD;	 
+	vertical-align: top;
+	padding:12px;
+	background-color: #FDFDFD;
 	height: 100%;
 }
 
@@ -58,9 +58,9 @@
 /* the "splitters" */
 .gridContainerGrip {
 	cursor:default;
-	position:absolute;	
-	width:5px;	
-	padding: 0px;	
+	position:absolute;
+	width:5px;
+	padding: 0px;
 	margin:0px;
 	background-image: url(images/pixel.gif);
 	background-color: #ededed;
@@ -71,14 +71,14 @@
 	border-right:1px solid #a7a7a7;
 }
 
-/* splitter selected state */	
+/* splitter selected state */
 .gridContainerGripShow, .gridContainerGrip:focus {
-	cursor:e-resize;	
-	position:absolute;	
-	width:5px;	
-	padding:0px;	
+	cursor:e-resize;
+	position:absolute;
+	width:5px;
+	padding:0px;
 	margin:0px;
-	background-color: #a7a7a7;	
+	background-color: #a7a7a7;
 	background-image: url(images/grip_bg.gif);
 }
 

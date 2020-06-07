@@ -1370,7 +1370,7 @@ class Zend_Form_FormTest extends PHPUnit_Framework_TestCase
         $subForm->addElement('text', 'test')->test
             ->setRequired(true)->addValidator('Identical', false, array('Test Value'));
         $this->form->addSubForm($subForm, 'sub');
-        
+
         $this->form->setElementsBelongTo('foo[bar]');
         $subForm->setElementsBelongTo('my[subform]');
 
@@ -1400,7 +1400,7 @@ class Zend_Form_FormTest extends PHPUnit_Framework_TestCase
         $subSubForm->addElement('text', 'test2')->test2
             ->setRequired(true)->addValidator('Identical', false, array('Test2 Value'));
         $subForm->addSubForm($subSubForm, 'subSub');
-        
+
         $this->form->setElementsBelongTo('form[first]');
         // Notice we skipped subForm, to mix manual and auto elementsBelongTo.
         $subSubForm->setElementsBelongTo('subsubform[first]');
@@ -1969,7 +1969,7 @@ class Zend_Form_FormTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($form->isValidPartial($data), var_export($data, 1));
         $this->assertEquals('0', $form->sub->subSub->home->getValue());
     }
-    
+
     public function testCanGetMessagesOfNestedFormsWithMultiLevelElementsBelongingToArrays()
     {
         $this->_checkZf2794();
@@ -2010,7 +2010,7 @@ class Zend_Form_FormTest extends PHPUnit_Framework_TestCase
                 'lastName'  => 'Cow',
             ),
         ));
-        
+
 
         $form->sub->subSub->home->addValidator('StringLength', false, array(4, 6));
         $data['foo']['bar']['baz'] = array('bat' => array('quux' => array('home' => 'ab')));

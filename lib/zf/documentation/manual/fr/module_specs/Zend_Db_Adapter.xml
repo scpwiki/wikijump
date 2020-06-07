@@ -368,7 +368,7 @@ $db = Zend_Db::factory('Pdo_Mysql', $params);
             sérialisés, si vous ne le voulez pas, vous devez passer l'option <code>Zend_Db::ALLOW_SERIALIZATION=false</code>,
             regardez l'exemple ci-dessus. Afin de respecter le principe de connexions paresseuses, l'adaptateur ne se
             reconectera pas après la désérialisation. Vous devez appeler vous-même <code>getConnection()</code>. Vous
-            pouvez permettre à l'adaptateur de se reconnecter automatiquement en utilisant l'option d'adaptateur 
+            pouvez permettre à l'adaptateur de se reconnecter automatiquement en utilisant l'option d'adaptateur
             <code>Zend_Db::AUTO_RECONNECT_ON_UNSERIALIZE=true</code>.</para>
 
             <example id="zend.db.adapter.connecting.getconnection.example">

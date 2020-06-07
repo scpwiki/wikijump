@@ -404,7 +404,7 @@ $viewRenderer->setView($view);]]>
         <title>Переход с 0.9.2 на 0.9.3 и более поздние версии</title>
 
         <para>
-            В версии 0.9.3 были добавлены <link 
+            В версии 0.9.3 были добавлены <link
             linkend="zend.controller.actionhelpers">помощники действий</link>
             (action helpers).
             Это изменение включает в себя удаление перечисленных ниже методов
@@ -540,7 +540,7 @@ final protected function _forward($action,
 
         <para>
             Базовое использование компонент системы MVC не изменилось,
-            следующий код будет корректно выполняться и в версии 0.6.0:  
+            следующий код будет корректно выполняться и в версии 0.6.0:
         </para>
 
         <programlisting role="php"><![CDATA[
@@ -554,7 +554,7 @@ $router = new Zend_Controller_RewriteRouter();
 $router->addRoute('user',
                   'user/:username',
                   array('controller' => 'user', 'action' => 'info')
-);                  
+);
 
 /* -- установка его во фронт-контроллере -- */
 $ctrl = Zend_Controller_Front::getInstance();
@@ -653,7 +653,7 @@ echo $response;
                 <itemizedlist>
                     <listitem><para>
                         Его конструктор теперь включает в себя три аргумента:
-                        <code>Zend_Controller_Request_Abstract $request</code>, 
+                        <code>Zend_Controller_Request_Abstract $request</code>,
                         <code>Zend_Controller_Response_Abstract $response</code>
                         и <code>array $params</code> (необязательный).
                         <code>Zend_Controller_Action::__construct()</code>
@@ -671,7 +671,7 @@ echo $response;
                         во фронт-контроллере; единственным его назначением
                         является использование класса как контроллера страниц.
                         Теперь он принимает два необязательных аргумента –
-                        <code>Zend_Controller_Request_Abstract $request</code> 
+                        <code>Zend_Controller_Request_Abstract $request</code>
                         и <code>Zend_Controller_Response_Abstract $response</code>.
                     </para></listitem>
 

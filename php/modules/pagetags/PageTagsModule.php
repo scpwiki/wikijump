@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -33,41 +33,41 @@ class PageTagsModule extends SmartyModule {
 		$user = $runData->getUser();
 		$pl = $runData->getParameterList();
 		$pageId = $pl->getParameterValue("pageId");
-		
+
 		$site = $runData->getTemp("site");
-		
+
 		if(!$pageId || !is_numeric($pageId)){
-			throw new ProcessException(_("The page can not be found or does not exist."), "no_page");	
+			throw new ProcessException(_("The page can not be found or does not exist."), "no_page");
 		}
-		
+
 		$page = PagePeer::instance()->selectByPrimaryKey($pageId);
-			
+
 		if($page == null || $page->getSiteId() != $site->getSiteId()){
 			throw new ProcessException(_("Error getting page information."), "no_page");
-		} 
-		
+		}
+
 		$category = $page->getCategory();
-		
+
 		WDPermissionManager::instance()->hasPagePermission('edit', $user, $category, $page);
-		
+
 		// get the tags now
-		
+
 		$c = new Criteria();
 		$c->add("page_id", $pageId);
-		
+
 		$c->addOrderAscending("tag");
-		
+
 		$tags = PageTagPeer::instance()->select($c);
-		
+
 		$t2 = array();
-		
+
 		foreach($tags as $t){
-			$t2[] = $t->getTag();	
-		}	
-		
+			$t2[] = $t->getTag();
+		}
+
 		$t3 = implode(' ', $t2);
-		
+
 		$runData->contextAdd("tags", $t3);
 	}
-	
+
 }

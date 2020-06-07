@@ -62,7 +62,7 @@
             Poniżej jest przykładowy adapter uwierzytelniania, który do
             przeprowadzenia procesu wymaga ustawionej nazwy użytkownika oraz
             hasła. Inne szczegóły, takie jak sposób przeprowadzania zapytania
-            uwierzytelniającego, zostały pominięte w celu zwiększenia 
+            uwierzytelniającego, zostały pominięte w celu zwiększenia
             czytelności:
 
             <programlisting role="php"><![CDATA[
@@ -81,7 +81,7 @@ class MyAuthAdapter implements Zend_Auth_Adapter_Interface
     /**
      * Przeprowadza próbę uwierzytelniania
      *
-     * @throws Zend_Auth_Adapter_Exception Jeśli uwierzytelnianie 
+     * @throws Zend_Auth_Adapter_Exception Jeśli uwierzytelnianie
      *                                     nie może być przeprowadzone
      * @return Zend_Auth_Result
      */
@@ -284,7 +284,7 @@ $auth->setStorage(new Zend_Auth_Storage_Session('someNamespace'));
  * @todo Ustawić adapter uwierzytelniania, $authAdapter
  */
 
-// Uwierzytelniamy, zapisując wynik i przechowując tożsamość 
+// Uwierzytelniamy, zapisując wynik i przechowując tożsamość
 // po udanym uwierzytelnieniu
 $result = $auth->authenticate($authAdapter);
 ]]>
@@ -325,7 +325,7 @@ class MyStorage implements Zend_Auth_Storage_Interface
     /**
      * Zwraca wartość logiczną true tylko wtedy gdy pojemnik jest pusty
      *
-     * @throws Zend_Auth_Storage_Exception Jeśli okreslenie czy pojemnik 
+     * @throws Zend_Auth_Storage_Exception Jeśli okreslenie czy pojemnik
      *                                     jest pusty jest niemożliwe
      * @return boolean
      */
@@ -341,7 +341,7 @@ class MyStorage implements Zend_Auth_Storage_Interface
      *
      * Zachowanie jest nieokreślone w przypadku gdy pojemnik jest pusty.
      *
-     * @throws Zend_Auth_Storage_Exception Jeśli odczyt zawartości 
+     * @throws Zend_Auth_Storage_Exception Jeśli odczyt zawartości
      *                                     pojemnika jest niemożliwy
      * @return mixed
      */
@@ -356,7 +356,7 @@ class MyStorage implements Zend_Auth_Storage_Interface
      * Zapisuje zawartość $contents w pojemniku
      *
      * @param  mixed $contents
-     * @throws Zend_Auth_Storage_Exception Jeśli zapisanie zawartości $contents 
+     * @throws Zend_Auth_Storage_Exception Jeśli zapisanie zawartości $contents
      *                                     do pojemnika jest niemożliwe
      * @return void
      */
@@ -370,7 +370,7 @@ class MyStorage implements Zend_Auth_Storage_Interface
     /**
      * Czyści zawartość pojemnika
      *
-     * @throws Zend_Auth_Storage_Exception Jeśli wyczyszczenie zawartości 
+     * @throws Zend_Auth_Storage_Exception Jeśli wyczyszczenie zawartości
      *                                     pojemnika jest niemożliwe
      * @return void
      */

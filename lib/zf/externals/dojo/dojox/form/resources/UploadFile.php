@@ -6,8 +6,8 @@
 //
 //		NOTE: This is obviously a PHP file, and thus you need PHP running for this to work
 //		NOTE: Directories must have write permissions
-//		NOTE: This code uses the GD library (to get image sizes), that sometimes is not pre-installed in a 
-//				standard PHP build. 
+//		NOTE: This code uses the GD library (to get image sizes), that sometimes is not pre-installed in a
+//				standard PHP build.
 //
 require("cLOG.php");
 function findTempDirectory()
@@ -72,7 +72,7 @@ if( isset($_FILES['Filedata'])){
 
 }elseif( isset($_FILES['uploadedfile']) ){
 	//
-	// 	If the data passed has 'uploadedfile', then it's HTML. 
+	// 	If the data passed has 'uploadedfile', then it's HTML.
 	//	There may be better ways to check this, but this is just a test file.$returnFlashdata = false;
 	//
 	$m = move_uploaded_file($_FILES['uploadedfile']['tmp_name'],  $upload_path . $_FILES['uploadedfile']['name']);
@@ -111,7 +111,7 @@ if( isset($_FILES['Filedata'])){
 		}
 		$cnt++;
 	}
-	
+
 }else{
 	//
 	//	deleting files

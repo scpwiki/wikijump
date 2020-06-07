@@ -23,7 +23,7 @@ $configArray = array(
     )
 );
 
-// 基于配置数据创建面向对象的 wrapper 
+// 基于配置数据创建面向对象的 wrapper
 $config = new Zend_Config($configArray);
 
 // 输出配置数据 (结果在'www.example.com'中)

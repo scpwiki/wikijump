@@ -11,7 +11,7 @@
     </para>
     <para>
         默认情况下， <code>Zend_Json</code> 将解码JSON对象作为关联数组。但是如果你希望它返回一个对象， 以可以这样来指定：
-    </para>    
+    </para>
         <programlisting role="php"><![CDATA[
 // 解码 JSON 对象作为 PHP 对象
 $phpNative = Zend_Json::decode($encodedValue, Zend_Json::TYPE_OBJECT);

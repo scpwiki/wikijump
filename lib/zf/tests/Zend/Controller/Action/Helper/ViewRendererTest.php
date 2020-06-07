@@ -19,7 +19,7 @@ require_once dirname(__FILE__) . '/../../_files/modules/bar/controllers/IndexCon
 /**
  * Test class for Zend_Controller_Action_Helper_ViewRenderer.
  */
-class Zend_Controller_Action_Helper_ViewRendererTest extends PHPUnit_Framework_TestCase 
+class Zend_Controller_Action_Helper_ViewRendererTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Base path to controllers, views
@@ -498,9 +498,9 @@ class Zend_Controller_Action_Helper_ViewRendererTest extends PHPUnit_Framework_T
         $controller = new Bar_IndexController($this->request, $this->response, array());
         $expected   = 'baz/bat.php';
         $this->assertEquals(
-            $expected, 
+            $expected,
             $this->helper->getViewScript(
-                null, 
+                null,
                 array('controller' => 'baz', 'action' => 'bat', 'suffix' => 'php')
             )
         );
@@ -714,13 +714,13 @@ class Zend_Controller_Action_Helper_ViewRendererTest extends PHPUnit_Framework_T
 
         require_once 'Zend/Filter/PregReplace.php';
         require_once 'Zend/Filter/Word/UnderscoreToSeparator.php';
-        
+
         $inflector = new Zend_Filter_Inflector('test.phtml');
         $inflector->addRules(array(
             ':module'     => array('Word_CamelCaseToDash', 'stringToLower'),
             ':controller' => array('Word_CamelCaseToDash', new Zend_Filter_Word_UnderscoreToSeparator(DIRECTORY_SEPARATOR), 'StringToLower'),
             ':action'     => array(
-                'Word_CamelCaseToDash', 
+                'Word_CamelCaseToDash',
                 new Zend_Filter_PregReplace('/[^a-z0-9]+/i', '-'),
                 'StringToLower'
             ),
@@ -731,7 +731,7 @@ class Zend_Controller_Action_Helper_ViewRendererTest extends PHPUnit_Framework_T
         $body = $this->response->getBody();
         $this->assertContains('Rendered index/test.phtml in bar module', $body);
     }
-    
+
     public function testStockInflectorAllowsSubDirectoryViewScripts()
     {
         $this->request->setModuleName('bar')
@@ -750,18 +750,18 @@ class Zend_Controller_Action_Helper_ViewRendererTest extends PHPUnit_Framework_T
                       ->setActionName('admin');
         $controller = new Bar_IndexController($this->request, $this->response, array());
         $this->helper->setActionController($controller);
-                      
+
         $this->helper->setViewBasePathSpec(':moduleDir/:module');
         $this->helper->initView();
-        
-        $viewScriptPaths = $this->helper->view->getAllPaths(); 
+
+        $viewScriptPaths = $this->helper->view->getAllPaths();
 
         // we need this until View decides to not use DIRECTORY_SEPARATOR
         $expectedPathRegex = (DIRECTORY_SEPARATOR == '\\') ? '#modules\\\\bar\\\\bar\\\\scripts\\\\$#' : '#modules/bar/bar/scripts/$#';
         $this->assertRegExp($expectedPathRegex, $viewScriptPaths['script'][0]);
         $this->assertEquals($this->helper->getViewScript(), 'index/admin.phtml');
     }
-    
+
     /**
      * @see ZF-2738
      */
@@ -778,7 +778,7 @@ class Zend_Controller_Action_Helper_ViewRendererTest extends PHPUnit_Framework_T
         $this->assertRegExp($expectedPathRegex, $viewScriptPaths['script'][0]);
         $this->assertEquals('car-bar/baz.phtml', $this->helper->getViewScript());
     }
-    
+
     public function testCorrectViewHelperPathShouldBePropagatedWhenSubControllerInvoked()
     {
         require_once $this->basePath . '/_files/modules/foo/controllers/Admin/IndexController.php';
@@ -791,7 +791,7 @@ class Zend_Controller_Action_Helper_ViewRendererTest extends PHPUnit_Framework_T
         $body = $this->response->getBody();
         $this->assertContains('fooUseHelper invoked', $body, 'Received ' . $body);
     }
-    
+
     public function testCorrectViewHelperPathShouldBePropagatedWhenSubControllerInvokedInDefaultModule()
     {
         require_once $this->basePath . '/_files/modules/default/controllers/Admin/HelperController.php';

@@ -18,7 +18,7 @@
         таблицы стилей или использует инструменты Javascript,
         имеющие функционал для получения узлов через селекторы CSS
         (именно функции <ulink url="http://prototypejs.org/api/utility/dollar-dollar">
-            $$()</ulink> из Prototype и 
+            $$()</ulink> из Prototype и
         <ulink url="http://api.dojotoolkit.org/jsdoc/dojo/HEAD/dojo.query">
             dojo.query</ulink> из Dojo натолкнули автора на создание этой
         компоненты).
@@ -125,10 +125,10 @@
         <td class="foo">
             <div>
                 Lorem ipsum <span class="bar">
-                    <a href="/foo/bar" id="one">One</a> 
-                    <a href="/foo/baz" id="two">Two</a> 
-                    <a href="/foo/bat" id="three">Three</a> 
-                    <a href="/foo/bla" id="four">Four</a> 
+                    <a href="/foo/bar" id="one">One</a>
+                    <a href="/foo/baz" id="two">Two</a>
+                    <a href="/foo/bat" id="three">Three</a>
+                    <a href="/foo/bla" id="four">Four</a>
                 </span>
             </div>
         </td>

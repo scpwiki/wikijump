@@ -3,7 +3,7 @@
  * @package    Zend_Cache
  * @subpackage UnitTests
  */
- 
+
  /**
  * Zend_Cache
  */
@@ -21,9 +21,9 @@ require_once 'PHPUnit/Framework/TestCase.php';
  * @subpackage UnitTests
  */
 class Zend_Cache_OutputFrontendTest extends PHPUnit_Framework_TestCase {
-    
+
     private $_instance;
-    
+
     public function setUp()
     {
         if (!$this->_instance) {
@@ -32,17 +32,17 @@ class Zend_Cache_OutputFrontendTest extends PHPUnit_Framework_TestCase {
             $this->_instance->setBackend($this->_backend);
         }
     }
-    
+
     public function tearDown()
     {
         unset($this->_instance);
     }
-    
+
     public function testConstructorCorrectCall()
     {
-        $test = new Zend_Cache_Frontend_Output(array('lifetime' => 3600, 'caching' => true));      
+        $test = new Zend_Cache_Frontend_Output(array('lifetime' => 3600, 'caching' => true));
     }
-    
+
     public function testStartEndCorrectCall1()
     {
         ob_start();
@@ -56,7 +56,7 @@ class Zend_Cache_OutputFrontendTest extends PHPUnit_Framework_TestCase {
         ob_implicit_flush(true);
         $this->assertEquals('foo', $data);
     }
-    
+
     public function testStartEndCorrectCall2()
     {
         ob_start();

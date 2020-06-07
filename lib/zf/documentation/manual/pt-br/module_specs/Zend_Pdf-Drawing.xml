@@ -4,7 +4,7 @@
     <sect2 id="zend.pdf.drawing.geometry">
         <title>Geometria.</title>
         <para>
-        O formato de arquivo PDF usa a mesma geometria do PostScript. A geometria começa no canto inferior esquerdo da página 
+        O formato de arquivo PDF usa a mesma geometria do PostScript. A geometria começa no canto inferior esquerdo da página
 		e, por padrão, é medida em pontos (1/72 polegada).
         </para>
         <para>
@@ -205,7 +205,7 @@ $pdfPage->drawText($unicodeString, 72, 720, 'UTF-8');
     <sect2 id="zend.pdf.drawing.using-fonts">
         <title>Using fonts.</title>
         <para>
-        O método <code>Zend_Pdf_Page::drawText()</code> usa a fonte atual da página, que é configurada através do 
+        O método <code>Zend_Pdf_Page::drawText()</code> usa a fonte atual da página, que é configurada através do
 		método <code>Zend_Pdf_Page::setFont()</code>:
         </para>
         <programlisting role="php"><![CDATA[<?php
@@ -224,8 +224,8 @@ public function setFont(Zend_Pdf_Resource_Font $font, $fontSize);]]>
         </para>
         <para>
         Zend_Pdf atualmente dá suporte às 14 fontes PDF padrão, assim como às suas fontes personalizadas TrueType.
-		Objetos do tipo Font são obtidos via um dos dois métodos fábrica(factory): 
-		<code>Zend_Pdf_Font::fontWithName($fontName)</code> para as 14 fontes padrão ou 
+		Objetos do tipo Font são obtidos via um dos dois métodos fábrica(factory):
+		<code>Zend_Pdf_Font::fontWithName($fontName)</code> para as 14 fontes padrão ou
 		<code>end_Pdf_Font::fontWithPath($filePath)</code> para fontes personalizadas.
         </para>
         <example id="zend.pdf.drawing.using-fonts.example-1">
@@ -358,7 +358,7 @@ $font = Zend_Pdf_Font::fontWithPath('/path/to/unEmbeddableFont.ttf',
         <para>
         Programas de fonte podem ser um tanto grandes, alguns alcançam dezenas e megabytes. Por padrão todas as fontes
 		embarcadas são comprimidas usando o esquema de compressão Flate, resultando, em média, em uma economia de espaço de
-		50%. Se, por alguma razão, você não quer comprimir o programa da fonte, você pode desabilitar isso através de uya opção: 
+		50%. Se, por alguma razão, você não quer comprimir o programa da fonte, você pode desabilitar isso através de uya opção:
         </para>
         <example id="zend.pdf.drawing.using-fonts.example-5">
             <title>Não comprimir uma fonte embarcada.</title>
@@ -492,7 +492,7 @@ public function setLineDashingPattern($pattern, $phase = 0);]]>
 					a direita e subtrai 1 cada vez que um segmento cruza da direita para a esquerda. Após a
 					contagem de todos os cruzamentos, se o resultado for 0 então o ponto está fora do caminho;
 					de outra forma está dentro.
-					
+
 					Nota: O método descrito não especifica o que fazer se um caminho segmento coincide
 					ou é tangente ao escolhido raio. Uma vez que a direcção do raio é arbitrária,
 					a regra simplesmente escolhe um raio que não encontra tais problemas de interseção	.
@@ -503,7 +503,7 @@ public function setLineDashingPattern($pattern, $phase = 0);]]>
 
 					Para um caminho que consiste em uma estrela de cinco pontas, desenhada com cinco linhas retas
 					conectadas interseccionando-se, a regra considera como sendo o interior toda a área delimitada
-					pela estrela, incluindo o pentágono no centro. Para um caminho composto de dois círculos 
+					pela estrela, incluindo o pentágono no centro. Para um caminho composto de dois círculos
 					concêntricos, as áreas delimitadas por ambos os círculos são consideradas como sendo o interior,
 					desde que ambos os círculos sejam desenhados na mesma direção. Se os círculos forem desenhados
 					em direções opostas, apenas a forma do "donut" entre eles está no interior, de acordo
@@ -522,14 +522,14 @@ public function setLineDashingPattern($pattern, $phase = 0);]]>
 					determina a "interiorização" de um ponto através do desenho de um raio daquele ponto
 					em qualquer direção  e simplesmente contando a quantidade de segmentos de caminhos que
 					cruzam o raio, independentemente da direção.  Se a quantidade for impar, o ponto está
-					no interior; se for par está no exterior. Isto gera os mesmos resultados da regra 
-					"nonzero winding number" para caminhos com formas simples, mas produz resultados 
+					no interior; se for par está no exterior. Isto gera os mesmos resultados da regra
+					"nonzero winding number" para caminhos com formas simples, mas produz resultados
 					diferentes para os mais de forma mais complexa.
-					
+
 					A Figura 4.11 (em uma Referência PDF) mostra os efeitos da aplicação da regra "even-odd"
-					para caminhos complexos. Para a estrela de cinco pontas, a regra considera os pontos 
+					para caminhos complexos. Para a estrela de cinco pontas, a regra considera os pontos
 					triangulares como estando no interior do caminho, mas não o pentágono no centro. Para os
-					dois círculos concântricos, apenas a forma do "donut" entre os círculos é considerada como 
+					dois círculos concântricos, apenas a forma do "donut" entre os círculos é considerada como
 					interior, independentemente das direções em que eles foram desenhados.
                     </para>
                 </blockquote>
@@ -648,7 +648,7 @@ public function clipEllipse($x1, $y1, $x2, $y2, $startAngle = null, $endAngle = 
         A classe <code>Zend_Pdf_Style</code> fornece funcionalidades de estilo.
         </para>
         <para>
-        Estilos podem ser usados para o armazenamento de um conjunto de parâmetros do estado gráfico e 
+        Estilos podem ser usados para o armazenamento de um conjunto de parâmetros do estado gráfico e
 		aplicá-los à uma página PDF com uma operação:
         </para>
         <programlisting role="php"><![CDATA[<?php

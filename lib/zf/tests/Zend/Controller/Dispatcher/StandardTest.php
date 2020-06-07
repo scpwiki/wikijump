@@ -13,7 +13,7 @@ require_once 'Zend/Controller/Request/Http.php';
 require_once 'Zend/Controller/Request/Simple.php';
 require_once 'Zend/Controller/Response/Cli.php';
 
-class Zend_Controller_Dispatcher_StandardTest extends PHPUnit_Framework_TestCase 
+class Zend_Controller_Dispatcher_StandardTest extends PHPUnit_Framework_TestCase
 {
     protected $_dispatcher;
 

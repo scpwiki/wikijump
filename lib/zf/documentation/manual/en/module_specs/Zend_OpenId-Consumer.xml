@@ -285,7 +285,7 @@ if (!$consumer->check($_POST['openid_identifier'], 'example-4_3.php')) {
             cases. Some developers may want to store information in a database, while others may
             need to use common storage suitable for server farms. Fortunately,
             developers may easily replace the default storage with their own. To specify a custom storage mechanism,
-            one need only extend the <code>Zend_OpenId_Consumer_Storage</code> class and pass this subclass 
+            one need only extend the <code>Zend_OpenId_Consumer_Storage</code> class and pass this subclass
             to the <code>Zend_OpenId_Consumer</code> constructor in the first argument.
         </para>
 
@@ -331,7 +331,7 @@ class DbStorage extends Zend_OpenId_Consumer_Storage
                 " expires timestamp" .
                 ")");
         }
-        
+
         // If the discovery table doesn't exist, create it
         if (!in_array($discovery_table, $tables)) {
             $this->_db->getConnection()->exec(
@@ -343,7 +343,7 @@ class DbStorage extends Zend_OpenId_Consumer_Storage
                 " expires timestamp" .
                 ")");
         }
-        
+
         // If the nonce table doesn't exist, create it
         if (!in_array($nonce_table, $tables)) {
             $this->_db->getConnection()->exec(

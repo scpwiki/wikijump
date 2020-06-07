@@ -52,7 +52,7 @@ class Zend_Paginator_ScrollingStyle_ElasticTest extends PHPUnit_Framework_TestCa
      * @var Zend_Paginator
      */
     private $_paginator;
-    
+
     /**
      * Prepares the environment before running a test.
      */
@@ -73,7 +73,7 @@ class Zend_Paginator_ScrollingStyle_ElasticTest extends PHPUnit_Framework_TestCa
         $this->_paginator = null;
         parent::tearDown();
     }
-    
+
     public function testGetsPagesInRangeForFirstPage()
     {
         $this->_paginator->setCurrentPageNumber(1);
@@ -81,7 +81,7 @@ class Zend_Paginator_ScrollingStyle_ElasticTest extends PHPUnit_Framework_TestCa
         $expected = array_combine(range(1, 5), range(1, 5));
         $this->assertEquals($expected, $actual);
     }
-    
+
     public function testGetsPagesInRangeForSecondPage()
     {
         $this->_paginator->setCurrentPageNumber(2);
@@ -89,7 +89,7 @@ class Zend_Paginator_ScrollingStyle_ElasticTest extends PHPUnit_Framework_TestCa
         $expected = array_combine(range(1, 6), range(1, 6));
         $this->assertEquals($expected, $actual);
     }
-    
+
     public function testGetsPagesInRangeForTenthPage()
     {
         $this->_paginator->setCurrentPageNumber(10);
@@ -97,7 +97,7 @@ class Zend_Paginator_ScrollingStyle_ElasticTest extends PHPUnit_Framework_TestCa
         $expected = array_combine(range(6, 14), range(6, 14));
         $this->assertEquals($expected, $actual);
     }
-    
+
     public function testGetsPagesInRangeForLastPage()
     {
         $this->_paginator->setCurrentPageNumber(21);
@@ -105,15 +105,15 @@ class Zend_Paginator_ScrollingStyle_ElasticTest extends PHPUnit_Framework_TestCa
         $expected = array_combine(range(13, 21), range(13, 21));
         $this->assertEquals($expected, $actual);
     }
-    
+
     public function testGetsNextAndPreviousPageForFirstPage()
     {
         $this->_paginator->setCurrentPageNumber(1);
         $pages = $this->_paginator->getPages('Elastic');
-        
+
         $this->assertEquals(2, $pages->next);
     }
-    
+
     public function testGetsNextAndPreviousPageForSecondPage()
     {
         $this->_paginator->setCurrentPageNumber(2);
@@ -121,7 +121,7 @@ class Zend_Paginator_ScrollingStyle_ElasticTest extends PHPUnit_Framework_TestCa
         $this->assertEquals(1, $pages->previous);
         $this->assertEquals(3, $pages->next);
     }
-    
+
     public function testGetsNextAndPreviousPageForMiddlePage()
     {
         $this->_paginator->setCurrentPageNumber(10);
@@ -129,7 +129,7 @@ class Zend_Paginator_ScrollingStyle_ElasticTest extends PHPUnit_Framework_TestCa
         $this->assertEquals(9, $pages->previous);
         $this->assertEquals(11, $pages->next);
     }
-    
+
     public function testGetsNextAndPreviousPageForSecondLastPage()
     {
         $this->_paginator->setCurrentPageNumber(20);
@@ -137,7 +137,7 @@ class Zend_Paginator_ScrollingStyle_ElasticTest extends PHPUnit_Framework_TestCa
         $this->assertEquals(19, $pages->previous);
         $this->assertEquals(21, $pages->next);
     }
-    
+
     public function testGetsNextAndPreviousPageForLastPage()
     {
         $this->_paginator->setCurrentPageNumber(21);

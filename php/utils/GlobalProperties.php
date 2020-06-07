@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot_Web
  * @version $Id$
@@ -24,7 +24,7 @@
  */
 
 class GlobalPropertiesException extends Exception {
-	
+
 }
 
 /**
@@ -33,7 +33,7 @@ class GlobalPropertiesException extends Exception {
  *
  */
 class GlobalProperties {
-	
+
 	// main settings
 	public static $SERVICE_NAME;
 	public static $URL_DOMAIN;
@@ -41,7 +41,7 @@ class GlobalProperties {
 	public static $URL_HOST;
 	public static $WIKI_FARM;
 	public static $HTTP_PORT;
-	
+
 	// security settings
 	public static $USE_SSL;
 	public static $HTTP_SCHEMA;
@@ -51,21 +51,21 @@ class GlobalProperties {
 	public static $URL_UPLOAD_DOMAIN;
 	public static $RESTRICT_HTML;
 	public static $SECRET_MANAGE_SUPERADMIN;
-	
+
 	// database settings
 	public static $DATABASE_SERVER;
 	public static $DATABASE_PORT;
 	public static $DATABASE_USER;
 	public static $DATABASE_PASSWORD;
 	public static $DATABASE_NAME;
-	
+
 	// search settings
 	public static $SEARCH_LUCENE_INDEX;
 	public static $SEARCH_LUCENE_QUEUE;
 	public static $SEARCH_LUCENE_LOCK;
 	public static $SEARCH_HIGHLIGHT;
 	public static $SEARCH_USE_JAVA;
-	
+
 	// mail settings
 	public static $DEFAULT_SMTP_HOST;
 	public static $DEFAULT_SMTP_PORT;
@@ -79,26 +79,26 @@ class GlobalProperties {
 	public static $DEFAULT_SMTP_REPLY_TO;
 	public static $DEFAULT_SMTP_SENDER;
 	public static $SUPPORT_EMAIL;
-	
+
 	// memcache settings
 	public static $USE_MEMCACHE;
 	public static $MEMCACHE_HOST;
 	public static $MEMCACHE_PORT;
-	
+
 	// session settings
 	public static $SESSION_TIMEOUT;
 	public static $SESSION_COOKIE_NAME;
 	public static $SESSION_COOKIE_SECURE;
 	public static $SESSION_COOKIE_NAME_IE;
-	
+
 	// ui settings
 	public static $UI_SLEEP;
 	public static $DEFAULT_LANGUAGE;
-	
+
 	// log settings
 	public static $LOGGER_LEVEL;
 	public static $LOGGER_FILE;
-	
+
 	// other settings
 	public static $CACHE_FILES_FOR;
 	public static $URL_DOCS;
@@ -110,7 +110,7 @@ class GlobalProperties {
 	public static $MODULES_CSS_URL;
 	public static $XSENDFILE_USE;
 	public static $XSENDFILE_HEADER;
-	
+
 	// non-configurable properties
 	public static $DATABASE_TYPE;
 	public static $DATABASE_USE_PERSISTENT_CONNECTIONS;
@@ -119,14 +119,14 @@ class GlobalProperties {
 	public static $URL_HOST_PREG;
 	public static $URL_DOMAIN_PREG;
 	public static $URL_UPLOAD_DOMAIN_PREG;
-	
+
 	/**
 	 * array with ini options processesed
 	 *
 	 * @var array
 	 */
 	protected static $iniConfig;
-	
+
 	/**
 	 * get a configuration option from ini file
 	 * return a default one if none found
@@ -159,16 +159,16 @@ class GlobalProperties {
 		}
 		return trim($s);
 	}
-	
+
 	/**
 	 * read wikidot.ini file
 	 * set some default values
-	 * calculate other values 
+	 * calculate other values
 	 */
 	public static function init() {
-		
+
 		self::$iniConfig = parse_ini_file(WIKIDOT_ROOT . "/conf/wikidot.ini", true);
-		
+
 		// main settings
 		self::$WIKI_FARM				= self::fromIni("main",		"wiki_farm",	false);
 		self::$HTTP_PORT				= self::fromIni("main",		"port",			8080);
@@ -183,7 +183,7 @@ class GlobalProperties {
 			self::$URL_DOMAIN			= self::fromIni("main",		"domain",		"singlewiki.wikidot.dev");
 			self::$URL_HOST				= self::fromIni("main",		"main_wiki",	"www." . self::$URL_DOMAIN);
 		}
-		
+
 		// security settings
 		self::$SECRET					= self::fromIni("security",	"secret",					self::fromFile('secret'));
 		self::$USE_SSL					= self::fromIni("security",	"ssl",						false);
@@ -193,21 +193,21 @@ class GlobalProperties {
 		self::$URL_UPLOAD_DOMAIN		= self::fromIni("security",	"upload_domain",			"wd.files." . self::$URL_DOMAIN);
 		self::$RESTRICT_HTML			= self::fromIni("security",	"upload_restrict_html",		true);
 		self::$SECRET_MANAGE_SUPERADMIN = self::fromIni("security", "secret_manage_superadmin",  md5(self::$SECRET . '_super_admin'));
-		
+
 		// database settings
 		self::$DATABASE_USER			= self::fromIni("db",		"user");			// no default!
 		self::$DATABASE_PASSWORD		= self::fromIni("db",		"password");		// no default!
 		self::$DATABASE_NAME			= self::fromIni("db",		"database");		// no default!
 		self::$DATABASE_SERVER			= self::fromIni("db",		"host",				"127.0.0.1");
 		self::$DATABASE_PORT			= self::fromIni("db",		"port",				"5432");
-		
+
 		// search settings
 		self::$SEARCH_LUCENE_INDEX		= self::fromIni("search",	"lucene_index",		WIKIDOT_ROOT . "/tmp/lucene_index");
 		self::$SEARCH_LUCENE_QUEUE		= self::fromIni("search",	"lucene_queue",		WIKIDOT_ROOT . "/tmp/lucene_queue");
 		self::$SEARCH_LUCENE_LOCK		= self::fromIni("search",	"lucene_lock",		WIKIDOT_ROOT . "/tmp/lucene_lock");
 		self::$SEARCH_HIGHLIGHT			= self::fromIni("search",	"highlight",		false);
 		self::$SEARCH_USE_JAVA			= self::fromIni("search",	"use_java",			false);
-		
+
 		// mail settings
 		self::$DEFAULT_SMTP_HOST		= self::fromIni("mail",		"host",				"127.0.0.1");
 		self::$DEFAULT_SMTP_SECURE		= self::fromIni("mail",		"ssl",				false) ? "ssl" : "";
@@ -221,26 +221,26 @@ class GlobalProperties {
 		self::$DEFAULT_SMTP_REPLY_TO	= self::fromIni("mail",		"reply_to",			"no-reply@" . self::$DEFAULT_SMTP_HOSTNAME);
 		self::$DEFAULT_SMTP_SENDER		= self::fromIni("mail",		"sender",			self::$DEFAULT_SMTP_FROM_EMAIL);
 		self::$SUPPORT_EMAIL			= self::fromIni("mail",		"support",			self::$DEFAULT_SMTP_FROM_EMAIL);
-		
+
 		// memcache settings
 		self::$USE_MEMCACHE				= self::fromIni("memcached","enable",			false);
 		self::$MEMCACHE_HOST			= self::fromIni("memcached","host",				"127.0.0.1");
 		self::$MEMCACHE_PORT			= self::fromIni("memcached","port",				11211);
-		
+
 		// session settings
 		self::$SESSION_TIMEOUT 			= self::fromIni("session",	"timeout",			3600);
 		self::$SESSION_COOKIE_NAME		= self::fromIni("session",	"cookie_name", 		"WIKIDOT_SESSION_ID");
 		self::$SESSION_COOKIE_SECURE	= self::fromIni("session",	"cookie_ssl",		false);
 		self::$SESSION_COOKIE_NAME_IE	= self::fromIni("session",	"ie_cookie_name",	self::$SESSION_COOKIE_NAME . "_IE");
-		
+
 		// ui settings
 		self::$UI_SLEEP 				= self::fromIni("ui",		"sleep",			true);
 		self::$DEFAULT_LANGUAGE			= self::fromIni("ui",		"language",			"en");
-		
+
 		// log settings
 		self::$LOGGER_LEVEL				= self::fromIni("log",		"level",			"fatal");
 		self::$LOGGER_FILE				= self::fromIni("log",		"file",				"wikidot.log"); // TODO: use this setting
-		
+
 		// other settings
 		self::$CACHE_FILES_FOR			= self::fromIni("misc",		"cache_files_for",	0);
 		self::$URL_DOCS					= self::fromIni("misc",		"doc_url",			"http://www.wikidot.org/doc");
@@ -252,7 +252,7 @@ class GlobalProperties {
 		self::$MODULES_CSS_URL			= self::fromIni("misc",		"modules_css_url",	"/common--modules/css");
 		self::$XSENDFILE_USE			= self::fromIni("misc",		"xsendfile",		false);
 		self::$XSENDFILE_HEADER			= self::fromIni("misc",		"xsendfile_header",	"X-LIGHTTPD-send-file");
-		
+
 		// non-configurable properties
 		self::$DATABASE_TYPE			= "pgsql";
 		self::$DATABASE_USE_PERSISTENT_CONNECTIONS = false;

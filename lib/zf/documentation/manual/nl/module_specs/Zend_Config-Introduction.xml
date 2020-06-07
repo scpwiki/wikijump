@@ -1,22 +1,22 @@
 <sect1 id="zend.config.introduction">
     <title>Introductie</title>
     <para>
-        <code>Zend_Config</code> is ontworpen om de toegang tot en het gebruik van configuratiedata te 
+        <code>Zend_Config</code> is ontworpen om de toegang tot en het gebruik van configuratiedata te
         vereenvoudigen voor webapplicaties. Het levert een op geneste object eigenschap gebaseerde gebruikers interface
-        om toegang te krijgen tot de configuratie data vanuit de webapplicatie. De configuratie data kan van 
+        om toegang te krijgen tot de configuratie data vanuit de webapplicatie. De configuratie data kan van
         verschillende media komen die ondersteuning hebben van hiërarchische data opslag.
-        Momenteel levert <code>Zend_Config</code> hulpklassen voor configuratiedata die in tekstbestanden wordt 
-        opgeslagen via <link linkend="zend.config.adapters.ini"><code>Zend_Config_Ini</code></link> en 
+        Momenteel levert <code>Zend_Config</code> hulpklassen voor configuratiedata die in tekstbestanden wordt
+        opgeslagen via <link linkend="zend.config.adapters.ini"><code>Zend_Config_Ini</code></link> en
         <link linkend="zend.config.adapters.xml"><code>Zend_Config_Xml</code></link>.
     </para>
      <example id="zend.config.introduction.example.using">
         <title>Zend_Config gebruiken zonder hulpklasse</title>
         <para>
-            Normaal gesproken wordt er verondersteld dat gebruikers één van de hulpklassen als 
-            <link linkend="zend.config.adapters.ini"><code>Zend_Config_Ini</code></link> of 
-            <link linkend="zend.config.adapters.xml"><code>Zend_Config_Xml</code></link> zullen gebruiken, 
-            maar indien de configuratiedata in een PHP array is opgeslaan, 
-            kan je de data direct aan <code>Zend_Config</code> doorgeven om een eenvoudig object geörienteerde 
+            Normaal gesproken wordt er verondersteld dat gebruikers één van de hulpklassen als
+            <link linkend="zend.config.adapters.ini"><code>Zend_Config_Ini</code></link> of
+            <link linkend="zend.config.adapters.xml"><code>Zend_Config_Xml</code></link> zullen gebruiken,
+            maar indien de configuratiedata in een PHP array is opgeslaan,
+            kan je de data direct aan <code>Zend_Config</code> doorgeven om een eenvoudig object geörienteerde
             interface te gebruiken:
         </para>
         <programlisting role="php"><![CDATA[<?php
@@ -51,7 +51,7 @@ $db = Zend_Db::factory($config->database->adapter,
 $db = Zend_Db::factory($config->database);]]></programlisting>
     </example>
     <para>
-        Zoals in het voorbeeld hierboven is geïllustreerd, verstrekt <code>Zend_Config</code> een geneste 
+        Zoals in het voorbeeld hierboven is geïllustreerd, verstrekt <code>Zend_Config</code> een geneste
         objecteigenschap syntax om de configuratiedata aan te spreken die aan zijn constructor werd doorgegeven.
     </para>
     <para>

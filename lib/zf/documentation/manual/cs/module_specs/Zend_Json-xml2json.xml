@@ -8,8 +8,8 @@
     </para>
 
     <para>
-        <code>Zend_Json</code> zahrnuje statickou metodu 
-        <code>Zend_Json::fromXml()</code>. Tato funkce generuje JSON ze vstupu 
+        <code>Zend_Json</code> zahrnuje statickou metodu
+        <code>Zend_Json::fromXml()</code>. Tato funkce generuje JSON ze vstupu
         ve formátu XML. Tato funkce přijímá jako vstupní parametr jakýkoliv XML
         řetězec. Také přijímá druhý, volitelný parametr zda ignorovat XML
         atributy během převodu. Pokud není tento volitelný parametr zadán,
@@ -23,7 +23,7 @@
 
     <para>
         Funkce <code>Zend_Json::fromXml()</code> provádí konverzi vstupního XML
-        řetězce a vrací odpovídající zápis ve formátu JSON. V případě chyby v 
+        řetězce a vrací odpovídající zápis ve formátu JSON. V případě chyby v
         XML nebo chyby při převodu, tato funkce vyhazuje výjimku. Tato konverze
         také využívá rekurzivitu při procházení XML stromu. Podporuje zanoření
         do 25 úrovní. Za touto hloubkou vyhodí <code>Zend_Json_Exception</code>.
@@ -36,7 +36,7 @@
         výstup z funkce <code>Zend_Json::fromXml()</code>. Tento příklad využívá
         volitelného parametru pro neignorování XML atributů během převodu.
         Proto vrácený JSON řetězec obsahuje reprezentaci XML atributů přítomných
-        ve vstupním XML řetězci.  
+        ve vstupním XML řetězci.
     </para>
 
     <para>

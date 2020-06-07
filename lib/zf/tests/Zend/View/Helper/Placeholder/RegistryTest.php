@@ -18,7 +18,7 @@ require_once 'Zend/View/Helper/Placeholder/Registry.php';
  * @package    Zend_View
  * @subpackage UnitTests
  */
-class Zend_View_Helper_Placeholder_RegistryTest extends PHPUnit_Framework_TestCase 
+class Zend_View_Helper_Placeholder_RegistryTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @var Zend_View_Helper_Placeholder_Registry

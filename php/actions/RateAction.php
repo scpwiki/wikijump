@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -30,36 +30,36 @@ use DB\PageRateVote;
 use DB\MemberPeer;
 
 class RateAction extends SmartyAction{
-	
+
 	private $message;
-	
+
 	public function perform($r){}
-	
+
 	public function ratePageEvent($runData){
 		$pl = $runData->getParameterList();
 		$site = $runData->getTemp("site");
-		
+
 		$pageId = $pl->getParameterValue("pageId");
 		$user = $runData->getUser();
-		
+
 		$points = $pl->getParameterValue("points");
-		
+
 		if($points != 1 && $points != -1){
-			throw new ProcessException("Error");	
+			throw new ProcessException("Error");
 		}
-		
+
 		$page = PagePeer::instance()->selectByPrimaryKey($pageId);
 		if(!$pageId || $page == null || $page->getSiteId() != $runData->getTemp("site")->getSiteId()){
 			throw new ProcessException(_("Error getting page information."), "no_page");
-		}	
-		
+		}
+
 		// check if allowed
 		if(!$this->canRatePage($user, $page)){
 			// prepare the message
-			
-			throw new ProcessException($this->message);	
+
+			throw new ProcessException($this->message);
 		}
-		
+
 		// ok, now check if not rated already...
 
 		$c = new Criteria();
@@ -68,7 +68,7 @@ class RateAction extends SmartyAction{
 		if($pl->getParameterValue("force")){
 			$v = PageRateVotePeer::instance()->selectOne($c);
 			PageRateVotePeer::instance()->delete($c);
-			$rpoints = $points - $v->getRate();	
+			$rpoints = $points - $v->getRate();
 		}else{
 			$v = PageRateVotePeer::instance()->selectOne($c);
 			if($v){
@@ -79,58 +79,58 @@ class RateAction extends SmartyAction{
 				return;
 				//throw new ProcessException("It seems you have already voted here. " .
 			}
-			$rpoints = $points;	
+			$rpoints = $points;
 		}
-		
+
 		//ok, now VOTEEEEeeeeee!!!!!
-		
+
 		$db = Database::connection();
 		$db->begin();
-		
+
 		$v = new PageRateVote();
 		$v->setUserId($user->getUserId());
 		$v->setPageId($page->getPageId());
 		$v->setRate($points);
 		$v->setDate(new ODate());
-		
+
 		$v->save();
-		
+
 		// update page points
 		$q = "UPDATE page SET rate=COALESCE((" .
 				"SELECT sum(rate) FROM page_rate_vote WHERE page_id = '".$page->getPageId()."'),0) " .
 				"WHERE page_id='".$page->getPageId()."'";
-		
+
 		$db->query($q);
 		$outdater = new Outdater();
 		$outdater->pageEvent("page_vote", $page);
 
 		$db->commit();
-			
+
 		$runData->ajaxResponseAdd("points", $rpoints);
 	}
-	
+
 	public function cancelVoteEvent($runData){
 		$pl = $runData->getParameterList();
 		$site = $runData->getTemp("site");
-		
+
 		$pageId = $pl->getParameterValue("pageId");
 		$user = $runData->getUser();
-		
+
 		$page = PagePeer::instance()->selectByPrimaryKey($pageId);
 		if(!$pageId || $page == null || $page->getSiteId() != $runData->getTemp("site")->getSiteId()){
 			throw new ProcessException(_("Error getting page information."), "no_page");
-		}	
-		
+		}
+
 		// check if allowed
 		if(!$this->canRatePage($user, $page)){
 			// prepare the message
-			
-			throw new ProcessException($this->message);	
+
+			throw new ProcessException($this->message);
 		}
-		
+
 		$db = Database::connection();
 		$db->begin();
-		
+
 		$c = new Criteria();
 		$c->add("page_id", $page->getPageId());
 		$c->add("user_id", $user->getUserId());
@@ -140,35 +140,35 @@ class RateAction extends SmartyAction{
 			return;
 		}
 		PageRateVotePeer::instance()->delete($c);
-		$rpoints = 0 - $v->getRate();	
-		
+		$rpoints = 0 - $v->getRate();
+
 		// update page points
 		$q = "UPDATE page SET rate=COALESCE((" .
 				"SELECT sum(rate) FROM page_rate_vote WHERE page_id = '".$page->getPageId()."'),0) " .
 				"WHERE page_id='".$page->getPageId()."'";
-		
+
 		$db->query($q);
 		$outdater = new Outdater();
 		$outdater->pageEvent("page_vote", $page);
-		
-		$db->commit();	
-		
+
+		$db->commit();
+
 		$runData->ajaxResponseAdd("points", $rpoints);
 	}
-	
+
 	private function canRatePage($user, $page){
 		if(!$user){
 			$this->message = _("You should be at least logged in to try rating...");
 			return false;
 		}
-		
+
 		$category = $page->getCategory();
 		if($category->getRatingEnabledEff()){
 			$ps = $category->getRatingBy();
 			if($ps == 'r'){
 				return true;
 			}
-		
+
 			if($ps == 'm'){
 				$c = new Criteria();
 				$c->add("site_id", $category->getSiteId());
@@ -178,12 +178,12 @@ class RateAction extends SmartyAction{
 					return true;
 				}else{
 					$this->message = _("Voting is enabled only for Site Members.");
-				}	
+				}
 			}
 		}else{
-			$this->message = _("Rating is disabled for this page.");	
+			$this->message = _("Rating is disabled for this page.");
 		}
-		return false;	
+		return false;
 	}
-	
+
 }

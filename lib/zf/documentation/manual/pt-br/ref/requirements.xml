@@ -38,7 +38,7 @@
         <para>
 			A baixo está uma tabela que lista todas as extensões típicas
 			encontradas no PHP, e como elas são usadas no Zend Framework.
-			Isto pode ajudar a guiá-lo para saber quais extensões são 
+			Isto pode ajudar a guiá-lo para saber quais extensões são
 			requeridas para a sua aplicação. Nem todas as extensões usadas
 			pelo Zend Framework são necessárias para as aplicações.
         </para>

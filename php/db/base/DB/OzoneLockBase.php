@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version \$Id\$
@@ -29,7 +29,7 @@ use BaseDBObject;
 
 
 
- 
+
 /**
  * Base class mapped to the database table ozone_lock.
  */
@@ -40,24 +40,24 @@ class OzoneLockBase extends BaseDBObject {
 		$this->peerName = 'DB\\OzoneLockPeer';
 		$this->primaryKeyName = 'key';
 		$this->fieldNames = array( 'key' );
-		
+
 		//$this->fieldDefaultValues=
 	}
 
 
-	
-		
-	
-		
+
+
+
+
 	public function getKey() {
 		return $this->getFieldValue('key');
 	}
-	
+
 	public function setKey($v1, $raw=false) {
-		$this->setFieldValue('key', $v1, $raw); 
+		$this->setFieldValue('key', $v1, $raw);
 	}
-	
-		
-	
+
+
+
 
 }

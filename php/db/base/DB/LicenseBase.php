@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version \$Id\$
@@ -29,7 +29,7 @@ use BaseDBObject;
 
 
 
- 
+
 /**
  * Base class mapped to the database table license.
  */
@@ -40,51 +40,51 @@ class LicenseBase extends BaseDBObject {
 		$this->peerName = 'DB\\LicensePeer';
 		$this->primaryKeyName = 'license_id';
 		$this->fieldNames = array( 'license_id' ,  'name' ,  'description' ,  'sort' );
-		
+
 		//$this->fieldDefaultValues=
 	}
 
 
-	
-		
-	
-		
+
+
+
+
 	public function getLicenseId() {
 		return $this->getFieldValue('license_id');
 	}
-	
+
 	public function setLicenseId($v1, $raw=false) {
-		$this->setFieldValue('license_id', $v1, $raw); 
+		$this->setFieldValue('license_id', $v1, $raw);
 	}
-	
-		
+
+
 	public function getName() {
 		return $this->getFieldValue('name');
 	}
-	
+
 	public function setName($v1, $raw=false) {
-		$this->setFieldValue('name', $v1, $raw); 
+		$this->setFieldValue('name', $v1, $raw);
 	}
-	
-		
+
+
 	public function getDescription() {
 		return $this->getFieldValue('description');
 	}
-	
+
 	public function setDescription($v1, $raw=false) {
-		$this->setFieldValue('description', $v1, $raw); 
+		$this->setFieldValue('description', $v1, $raw);
 	}
-	
-		
+
+
 	public function getSort() {
 		return $this->getFieldValue('sort');
 	}
-	
+
 	public function setSort($v1, $raw=false) {
-		$this->setFieldValue('sort', $v1, $raw); 
+		$this->setFieldValue('sort', $v1, $raw);
 	}
-	
-		
-	
+
+
+
 
 }

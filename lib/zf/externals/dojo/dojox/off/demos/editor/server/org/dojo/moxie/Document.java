@@ -13,7 +13,7 @@ public class Document{
 	protected long createdOn;
 	protected long lastUpdated;
 	protected String content = null;
-	
+
 	/**
 		@param id The ID of this document; this can either be a positive
 		number if this document exists in the database; it can also be null
@@ -27,62 +27,62 @@ public class Document{
 		if(validFileName(fileName) == false){
 			throw new MoxieException("Invalid file name");
 		}
-		
+
 		this.id = id;
 		this.fileName = fileName;
 		this.createdOn = createdOn;
 		this.lastUpdated = lastUpdated;
 		this.content = content;
 	}
-	
+
 	public void setId(Integer Id){
 		this.id = id;
 	}
-	
+
 	public Integer getId(){
 		return this.id;
 	}
-	
+
 	public void setOrigId(Integer origId){
 		this.origId = origId;
 	}
-	
+
 	public Integer getOrigId(){
 		return this.origId;
 	}
-	
+
 	public void setFileName(String fileName){
 		this.fileName = fileName;
 	}
-	
+
 	public String getFileName(){
 		return fileName;
 	}
-	
+
 	public void setCreatedOn(long createdOn){
 		this.createdOn = createdOn;
 	}
-	
+
 	public long getCreatedOn(){
 		return this.createdOn;
 	}
-	
+
 	public void setLastUpdated(long lastUpdated){
 		this.lastUpdated = lastUpdated;
 	}
-	
+
 	public long getLastUpdated(){
 		return this.lastUpdated;
 	}
-	
+
 	public void setContent(String content){
 		this.content = content;
 	}
-	
+
 	public String getContent(){
 		return content;
 	}
-	
+
 	public String toString(){
 		StringBuffer results = new StringBuffer();
 		results.append("{");
@@ -95,15 +95,15 @@ public class Document{
 		results.append("lastUpdated: " + this.lastUpdated + ", ");
 		results.append("content: '" + this.content + "'");
 		results.append("}");
-		
+
 		return results.toString();
 	}
-	
+
 	public static boolean validFileName(String fileName){
 		if(fileName == null || fileName.trim().equals("")){
 			return false;
 		}
-		
-		return Pattern.matches("^[0-9A-Za-z_]*$", fileName); 
+
+		return Pattern.matches("^[0-9A-Za-z_]*$", fileName);
 	}
 }

@@ -135,7 +135,7 @@
 /* strip */
 .tundra .dijitTabContainerBottomStrip {
 	padding-bottom: 2px;
-	padding-left: 3px;	
+	padding-left: 3px;
 	border: 1px solid #ccc;
 }
 
@@ -172,7 +172,7 @@
 /* strip */
 .tundra .dijitTabContainerRightStrip {
 	padding-right: 2px;
-	padding-top: 3px;	
+	padding-top: 3px;
 	border: 1px solid #ccc;
 }
 
@@ -200,7 +200,7 @@
 /* strip */
 .tundra .dijitTabContainerLeftStrip {
 	padding-left: 2px;
-	padding-top: 3px;	
+	padding-top: 3px;
 	border: 1px solid #ccc;
 }
 
@@ -233,5 +233,5 @@
 	border-top: 0px solid #ccc;
 	border-right: 0px solid #ccc;
 	padding-top: 0px;
-	padding-left: 0px;	
+	padding-left: 0px;
 }

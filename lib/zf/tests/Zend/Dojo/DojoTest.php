@@ -24,7 +24,7 @@ require_once 'Zend/View.php';
 /**
  * Test class for Zend_Dojo
  */
-class Zend_Dojo_DojoTest extends PHPUnit_Framework_TestCase 
+class Zend_Dojo_DojoTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.

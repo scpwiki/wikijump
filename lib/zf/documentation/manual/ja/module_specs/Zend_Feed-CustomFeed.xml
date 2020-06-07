@@ -82,7 +82,7 @@ $entry = new MyEntry();
 $entry->myUpdated = '2005-04-19T15:30';
 
 // メソッド型のコールは __call 関数が処理します
-$entry->myUpdated();  
+$entry->myUpdated();
 // プロパティ型のコールは __get 関数が処理します
 $entry->myUpdated;
 ]]>

@@ -30,10 +30,10 @@ require_once 'Zend/Http/Client/Adapter/Test.php';
  */
 class Zend_Gdata_Photos_PhotosPhotoFeedTest extends PHPUnit_Framework_TestCase
 {
-    
+
     protected $photoFeed = null;
 
-    /** 
+    /**
       * Called before each test to setup any fixtures.
       */
     public function setUp()
@@ -45,7 +45,7 @@ class Zend_Gdata_Photos_PhotosPhotoFeedTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-      * Verify that a given property is set to a specific value 
+      * Verify that a given property is set to a specific value
       * and that the getter and magic variable return the same value.
       *
       * @param object $obj The object to be interrogated.
@@ -62,12 +62,12 @@ class Zend_Gdata_Photos_PhotosPhotoFeedTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-      * Verify that a given property is set to a specific value 
+      * Verify that a given property is set to a specific value
       * and that the getter and magic variable return the same value.
       *
       * @param object $obj The object to be interrogated.
       * @param string $name The name of the property to be verified.
-      * @param string $secondName 2nd level accessor function name      
+      * @param string $secondName 2nd level accessor function name
       * @param object $value The expected value of the property.
       */
     protected function verifyProperty2($obj, $name, $secondName, $value)
@@ -82,12 +82,12 @@ class Zend_Gdata_Photos_PhotosPhotoFeedTest extends PHPUnit_Framework_TestCase
 
     /**
       * Verify that a given property is set to a specific value,
-      * that it keeps that value when set using the setter, 
+      * that it keeps that value when set using the setter,
       * and that the getter and magic variable return the same value.
       *
       * @param object $obj The object to be interrogated.
-      * @param string $name The name of the property to be verified. 
-      * @param string $secondName 2nd level accessor function name   
+      * @param string $name The name of the property to be verified.
+      * @param string $secondName 2nd level accessor function name
       * @param object $value The expected value of the property.
       */
     protected function verifyProperty3($obj, $name, $secondName, $value)
@@ -103,8 +103,8 @@ class Zend_Gdata_Photos_PhotosPhotoFeedTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($value, $obj->$propGetter()->$secondGetter());
     }
 
-    /** 
-      * Convert sample feed to XML then back to objects. Ensure that 
+    /**
+      * Convert sample feed to XML then back to objects. Ensure that
       * all objects are instances of appropriate entry type and object count matches.
       */
     public function testPhotoFeedToAndFromString()
@@ -116,9 +116,9 @@ class Zend_Gdata_Photos_PhotosPhotoFeedTest extends PHPUnit_Framework_TestCase
                               $entry instanceof Zend_Gdata_Photos_TagEntry);
         }
         $this->assertTrue($entryCount > 0);
-        
-        /* Grab XML from $this->photoFeed and convert back to objects */ 
-        $newListFeed = new Zend_Gdata_Photos_PhotoFeed( 
+
+        /* Grab XML from $this->photoFeed and convert back to objects */
+        $newListFeed = new Zend_Gdata_Photos_PhotoFeed(
                 $this->photoFeed->saveXML());
         $newEntryCount = 0;
         foreach ($newListFeed as $entry) {
@@ -128,9 +128,9 @@ class Zend_Gdata_Photos_PhotosPhotoFeedTest extends PHPUnit_Framework_TestCase
         }
         $this->assertEquals($entryCount, $newEntryCount);
     }
-    
-    /** 
-      * Ensure that the number of entries equals the number 
+
+    /**
+      * Ensure that the number of entries equals the number
       * of entries defined in the sample file.
       */
     public function testEntryCount()
@@ -152,7 +152,7 @@ class Zend_Gdata_Photos_PhotosPhotoFeedTest extends PHPUnit_Framework_TestCase
 
         // Assert that the feed's ID is correct
         $this->assertTrue($feed->getId() instanceof Zend_Gdata_App_Extension_Id);
-        $this->verifyProperty2($feed, "id", "text", 
+        $this->verifyProperty2($feed, "id", "text",
                 "http://picasaweb.google.com/data/feed/api/user/sample.user/albumid/1/photoid/100");
 
         // Assert that all entries have an Atom ID object
@@ -162,12 +162,12 @@ class Zend_Gdata_Photos_PhotosPhotoFeedTest extends PHPUnit_Framework_TestCase
 
         // Assert one of the entry's IDs
         $entry = $feed[0];
-        $this->verifyProperty2($entry, "id", "text", 
+        $this->verifyProperty2($entry, "id", "text",
                 "http://picasaweb.google.com/data/entry/api/user/sample.user/albumid/1/photoid/100/tag/tag");
     }
 
     /**
-      * Check for the existence of an <atom:updated> and verify that it contains 
+      * Check for the existence of an <atom:updated> and verify that it contains
       * the expected value.
       */
     public function testUpdated()
@@ -176,7 +176,7 @@ class Zend_Gdata_Photos_PhotosPhotoFeedTest extends PHPUnit_Framework_TestCase
 
         // Assert that the feed's updated date is correct
         $this->assertTrue($feed->getUpdated() instanceof Zend_Gdata_App_Extension_Updated);
-        $this->verifyProperty2($feed, "updated", "text", 
+        $this->verifyProperty2($feed, "updated", "text",
                 "2007-09-21T18:23:05.000Z");
 
         // Assert that all entries have an Atom Updated object
@@ -217,7 +217,7 @@ class Zend_Gdata_Photos_PhotosPhotoFeedTest extends PHPUnit_Framework_TestCase
 
         // Assert that the feed's title is correct
         $this->assertTrue($feed->getSubtitle() instanceof Zend_Gdata_App_Extension_Subtitle);
-        $this->verifyProperty2($feed, "subtitle", "text", 
+        $this->verifyProperty2($feed, "subtitle", "text",
                 "Blue");
     }
 
@@ -246,7 +246,7 @@ class Zend_Gdata_Photos_PhotosPhotoFeedTest extends PHPUnit_Framework_TestCase
 
         // Assert that the feed's title is correct
         $this->assertTrue($feed->getIcon() instanceof Zend_Gdata_App_Extension_Icon);
-        $this->verifyProperty2($feed, "icon", "text", 
+        $this->verifyProperty2($feed, "icon", "text",
                 "http://lh4.google.com/sample.user/Rt8WU4DZEKI/AAAAAAAAABY/IVgLqmnzJII/s288/Aqua%20Blue.jpg");
     }
 
@@ -260,9 +260,9 @@ class Zend_Gdata_Photos_PhotosPhotoFeedTest extends PHPUnit_Framework_TestCase
 
         // Assert that the feed's title is correct
         $this->assertTrue($feed->getGphotoId() instanceof Zend_Gdata_Photos_Extension_Id);
-        $this->verifyProperty2($feed, "gphotoId", "text", 
+        $this->verifyProperty2($feed, "gphotoId", "text",
                 "100");
-        $this->verifyProperty3($feed, "gphotoId", "text", 
+        $this->verifyProperty3($feed, "gphotoId", "text",
                 "100");
     }
 
@@ -276,9 +276,9 @@ class Zend_Gdata_Photos_PhotosPhotoFeedTest extends PHPUnit_Framework_TestCase
 
         // Assert that the feed's version is correct
         $this->assertTrue($feed->getGphotoVersion() instanceof Zend_Gdata_Photos_Extension_Version);
-        $this->verifyProperty2($feed, "gphotoVersion", "text", 
+        $this->verifyProperty2($feed, "gphotoVersion", "text",
                 "1190398985145172");
-        $this->verifyProperty3($feed, "gphotoVersion", "text", 
+        $this->verifyProperty3($feed, "gphotoVersion", "text",
                 "1190398985145172");
     }
 
@@ -292,9 +292,9 @@ class Zend_Gdata_Photos_PhotosPhotoFeedTest extends PHPUnit_Framework_TestCase
 
         // Assert that the feed's albumid is correct
         $this->assertTrue($feed->getGphotoAlbumId() instanceof Zend_Gdata_Photos_Extension_AlbumId);
-        $this->verifyProperty2($feed, "gphotoAlbumId", "text", 
+        $this->verifyProperty2($feed, "gphotoAlbumId", "text",
                 "1");
-        $this->verifyProperty3($feed, "gphotoAlbumId", "text", 
+        $this->verifyProperty3($feed, "gphotoAlbumId", "text",
                 "1");
     }
 
@@ -308,9 +308,9 @@ class Zend_Gdata_Photos_PhotosPhotoFeedTest extends PHPUnit_Framework_TestCase
 
         // Assert that the feed's timestamp is correct
         $this->assertTrue($feed->getGphotoTimestamp() instanceof Zend_Gdata_Photos_Extension_Timestamp);
-        $this->verifyProperty2($feed, "gphotoTimestamp", "text", 
+        $this->verifyProperty2($feed, "gphotoTimestamp", "text",
                 "1189025362000");
-        $this->verifyProperty3($feed, "gphotoTimestamp", "text", 
+        $this->verifyProperty3($feed, "gphotoTimestamp", "text",
                 "1189025362000");
     }
 
@@ -324,9 +324,9 @@ class Zend_Gdata_Photos_PhotosPhotoFeedTest extends PHPUnit_Framework_TestCase
 
         // Assert that the feed's width is correct
         $this->assertTrue($feed->getGphotoWidth() instanceof Zend_Gdata_Photos_Extension_Width);
-        $this->verifyProperty2($feed, "gphotoWidth", "text", 
+        $this->verifyProperty2($feed, "gphotoWidth", "text",
                 "2560");
-        $this->verifyProperty3($feed, "gphotoWidth", "text", 
+        $this->verifyProperty3($feed, "gphotoWidth", "text",
                 "2560");
     }
 
@@ -340,9 +340,9 @@ class Zend_Gdata_Photos_PhotosPhotoFeedTest extends PHPUnit_Framework_TestCase
 
         // Assert that the feed's height is correct
         $this->assertTrue($feed->getGphotoHeight() instanceof Zend_Gdata_Photos_Extension_Height);
-        $this->verifyProperty2($feed, "gphotoHeight", "text", 
+        $this->verifyProperty2($feed, "gphotoHeight", "text",
                 "1600");
-        $this->verifyProperty3($feed, "gphotoHeight", "text", 
+        $this->verifyProperty3($feed, "gphotoHeight", "text",
                 "1600");
     }
 
@@ -356,9 +356,9 @@ class Zend_Gdata_Photos_PhotosPhotoFeedTest extends PHPUnit_Framework_TestCase
 
         // Assert that the feed's size is correct
         $this->assertTrue($feed->getGphotoSize() instanceof Zend_Gdata_Photos_Extension_Size);
-        $this->verifyProperty2($feed, "gphotoSize", "text", 
+        $this->verifyProperty2($feed, "gphotoSize", "text",
                 "883405");
-        $this->verifyProperty3($feed, "gphotoSize", "text", 
+        $this->verifyProperty3($feed, "gphotoSize", "text",
                 "883405");
     }
 
@@ -372,9 +372,9 @@ class Zend_Gdata_Photos_PhotosPhotoFeedTest extends PHPUnit_Framework_TestCase
 
         // Assert that the feed's client is correct
         $this->assertTrue($feed->getGphotoClient() instanceof Zend_Gdata_Photos_Extension_Client);
-        $this->verifyProperty2($feed, "gphotoClient", "text", 
+        $this->verifyProperty2($feed, "gphotoClient", "text",
                 "");
-        $this->verifyProperty3($feed, "gphotoClient", "text", 
+        $this->verifyProperty3($feed, "gphotoClient", "text",
                 "");
     }
 
@@ -388,9 +388,9 @@ class Zend_Gdata_Photos_PhotosPhotoFeedTest extends PHPUnit_Framework_TestCase
 
         // Assert that the feed's checksum is correct
         $this->assertTrue($feed->getGphotoChecksum() instanceof Zend_Gdata_Photos_Extension_Checksum);
-        $this->verifyProperty2($feed, "gphotoChecksum", "text", 
+        $this->verifyProperty2($feed, "gphotoChecksum", "text",
                 "");
-        $this->verifyProperty3($feed, "gphotoChecksum", "text", 
+        $this->verifyProperty3($feed, "gphotoChecksum", "text",
                 "");
     }
 
@@ -404,9 +404,9 @@ class Zend_Gdata_Photos_PhotosPhotoFeedTest extends PHPUnit_Framework_TestCase
 
         // Assert that the feed's title is correct
         $this->assertTrue($feed->getGphotoCommentingEnabled() instanceof Zend_Gdata_Photos_Extension_CommentingEnabled);
-        $this->verifyProperty2($feed, "gphotoCommentingEnabled", "text", 
+        $this->verifyProperty2($feed, "gphotoCommentingEnabled", "text",
                 "true");
-        $this->verifyProperty3($feed, "gphotoCommentingEnabled", "text", 
+        $this->verifyProperty3($feed, "gphotoCommentingEnabled", "text",
                 "true");
     }
 
@@ -420,10 +420,10 @@ class Zend_Gdata_Photos_PhotosPhotoFeedTest extends PHPUnit_Framework_TestCase
 
         // Assert that the feed's title is correct
         $this->assertTrue($feed->getGphotoCommentCount() instanceof Zend_Gdata_Photos_Extension_CommentCount);
-        $this->verifyProperty2($feed, "gphotoCommentCount", "text", 
+        $this->verifyProperty2($feed, "gphotoCommentCount", "text",
                 "1");
-        $this->verifyProperty3($feed, "gphotoCommentCount", "text", 
+        $this->verifyProperty3($feed, "gphotoCommentCount", "text",
                 "1");
     }
-    
+
 }

@@ -3,9 +3,9 @@
 
 /**
  * Wikidot (Community Edition) - free wiki collaboration software
- * 
+ *
  * 							http://www.wikidot.org
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * @category Wikidot
  * @package Wikidot_Tools
  * @version $Id$
@@ -50,7 +50,7 @@ if(in_array('-o', $argv)){
 	// output to a file
 	$po = array_search('-o', $argv);
 	$ofile = $argv[$po + 1];
-	$executeSql = false;	
+	$executeSql = false;
 }
 
 $schemaFiles = ls(WIKIDOT_ROOT."/conf/database", "*-db.xml");
@@ -76,7 +76,7 @@ foreach ($schemaFiles as $key => $file) {
 	echo "processing file $file:\n";
 	echo "----------------------------------------\n";
 	$xml = simplexml_load_file(WIKIDOT_ROOT."/conf/database/$file");
-	
+
 	$database->addSchema($xml);
 }
 // update references between tables

@@ -1017,7 +1017,7 @@ CODE;
         }
 
         $this->_code .= <<<CODE
- 
+
  *
  * PHP version 4 and 5
  *
@@ -1078,7 +1078,7 @@ CODE;
  */
 class  Text_Highlighter_{$this->language} extends Text_Highlighter
 {
-    
+
 CODE;
         $this->_code .= 'public $_language = \'' . strtolower($this->language) . "';\n\n";
         $array = var_export($syntax, true);
@@ -1258,7 +1258,7 @@ CODE;
 ;
         \$this->_checkDefines();
     }
-    
+
 }
 CODE;
 }

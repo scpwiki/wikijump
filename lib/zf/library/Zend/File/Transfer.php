@@ -44,7 +44,7 @@ class Zend_File_Transfer
                 $adapter = 'Zend_File_Transfer_Adapter_Http';
                 break;
         }
-        
+
         Zend_Loader::loadClass($adapter);
         $this->_adapter = new $adapter();
         if (!$this->_adapter instanceof Zend_File_Transfer_Adapter) {

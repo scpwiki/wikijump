@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Db
  * @version $Id$
@@ -34,15 +34,15 @@ class DBGeneratorReferencer {
 			$entry['primary_key'] = $primaryKeyName;
 			$entry['referencing_table'] = $referencingTableName;
 			$entry['referencing_key'] = $referencingKeyName;
-			$entry['custom_function'] = $customFunction; 
+			$entry['custom_function'] = $customFunction;
 			$this->references[] = $entry;
 		}
 	}
-	
+
 	public function getReferences(){
-		return $this->references;	
+		return $this->references;
 	}
-	
+
 	public function processXMLTable($xmlTable){
 		$freferences = $xmlTable->foreignReference;
 		foreach ($freferences as $fr){
@@ -50,5 +50,5 @@ class DBGeneratorReferencer {
 			OzoneLogger::instance()->debug("found reference: M: ".$fr['foreignTable'].".". $fr['foreignKey'].", S: ". $xmlTable['name'].".".$fr['localKey']. " ". $fr['customFunction']);
 		}
 	}
-	
+
 }

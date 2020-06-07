@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version \$Id\$
@@ -29,13 +29,13 @@ use BaseDBPeer;
 
 
 
- 
+
 /**
  * Base peer class mapped to the database table comment.
  */
 class CommentPeerBase extends BaseDBPeer {
 	public static $peerInstance;
-	
+
 	protected function internalInit(){
 		$this->tableName='comment';
 		$this->objectName='DB\\Comment';
@@ -44,7 +44,7 @@ class CommentPeerBase extends BaseDBPeer {
 		$this->fieldTypes = array( 'comment_id' => 'serial',  'page_id' => 'int',  'parent_id' => 'int',  'user_id' => 'int',  'user_string' => 'varchar(80)',  'title' => 'varchar(256)',  'text' => 'text',  'date_posted' => 'timestamp',  'site_id' => 'int',  'revision_number' => 'int',  'revision_id' => 'int',  'date_last_edited' => 'timestamp',  'edited_user_id' => 'int',  'edited_user_string' => 'varchar(80)');
 		$this->defaultValues = array( 'revision_number' => '0');
 	}
-	
+
 	public static function instance(){
 		if(self::$peerInstance == null){
 			$className = "DB\\CommentPeer";

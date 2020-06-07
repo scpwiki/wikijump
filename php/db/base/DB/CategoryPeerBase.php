@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version \$Id\$
@@ -33,7 +33,7 @@ use BaseDBPeer;
  */
 class CategoryPeerBase extends BaseDBPeer {
 	public static $peerInstance;
-	
+
 	protected function internalInit(){
 		$this->tableName='category';
 		$this->objectName='DB\\Category';
@@ -42,7 +42,7 @@ class CategoryPeerBase extends BaseDBPeer {
 		$this->fieldTypes = array( 'category_id' => 'serial',  'site_id' => 'int',  'name' => 'varchar(80)',  'theme_default' => 'boolean',  'theme_id' => 'int',  'theme_external_url' => 'varchar(512)',  'permissions_default' => 'boolean',  'permissions' => 'varchar(200)',  'license_default' => 'boolean',  'license_id' => 'int',  'license_other' => 'varchar(300)',  'nav_default' => 'boolean',  'top_bar_page_name' => 'varchar(128)',  'side_bar_page_name' => 'varchar(128)',  'template_id' => 'int',  'per_page_discussion' => 'boolean',  'per_page_discussion_default' => 'boolean',  'rating' => 'varchar(10)',  'category_template_id' => 'int',  'autonumerate' => 'boolean',  'page_title_template' => 'varchar(256)',  'enable_pingback_out' => 'boolean',  'enable_pingback_in' => 'boolean');
 		$this->defaultValues = array( 'theme_default' => 'true',  'permissions_default' => 'true',  'license_default' => 'true',  'nav_default' => 'true',  'per_page_discussion_default' => 'true',  'autonumerate' => 'false',  'enable_pingback_out' => 'false',  'enable_pingback_in' => 'false');
 	}
-	
+
 	public static function instance(){
 		if(self::$peerInstance == null){
 			self::$peerInstance = new CategoryPeer();

@@ -69,9 +69,9 @@ HTMLPurifier_ConfigSchema::define(
 HTMLPurifier_ConfigSchema::define(
     'HTML', 'Parent', 'div', 'string', '
 <p>
-    String name of element that HTML fragment passed to library will be 
-    inserted in.  An interesting variation would be using span as the 
-    parent element, meaning that only inline tags would be allowed. 
+    String name of element that HTML fragment passed to library will be
+    inserted in.  An interesting variation would be using span as the
+    parent element, meaning that only inline tags would be allowed.
     This directive has been available since 1.3.0.
 </p>
 ');
@@ -79,16 +79,16 @@ HTMLPurifier_ConfigSchema::define(
 HTMLPurifier_ConfigSchema::define(
     'HTML', 'AllowedElements', null, 'lookup/null', '
 <p>
-    If HTML Purifier\'s tag set is unsatisfactory for your needs, you 
-    can overload it with your own list of tags to allow.  Note that this 
-    method is subtractive: it does its job by taking away from HTML Purifier 
-    usual feature set, so you cannot add a tag that HTML Purifier never 
-    supported in the first place (like embed, form or head).  If you 
-    change this, you probably also want to change %HTML.AllowedAttributes. 
+    If HTML Purifier\'s tag set is unsatisfactory for your needs, you
+    can overload it with your own list of tags to allow.  Note that this
+    method is subtractive: it does its job by taking away from HTML Purifier
+    usual feature set, so you cannot add a tag that HTML Purifier never
+    supported in the first place (like embed, form or head).  If you
+    change this, you probably also want to change %HTML.AllowedAttributes.
 </p>
 <p>
-    <strong>Warning:</strong> If another directive conflicts with the 
-    elements here, <em>that</em> directive will win and override. 
+    <strong>Warning:</strong> If another directive conflicts with the
+    elements here, <em>that</em> directive will win and override.
     This directive has been available since 1.3.0.
 </p>
 ');
@@ -96,15 +96,15 @@ HTMLPurifier_ConfigSchema::define(
 HTMLPurifier_ConfigSchema::define(
     'HTML', 'AllowedAttributes', null, 'lookup/null', '
 <p>
-    If HTML Purifier\'s attribute set is unsatisfactory, overload it! 
-    The syntax is "tag.attr" or "*.attr" for the global attributes 
+    If HTML Purifier\'s attribute set is unsatisfactory, overload it!
+    The syntax is "tag.attr" or "*.attr" for the global attributes
     (style, id, class, dir, lang, xml:lang).
 </p>
 <p>
-    <strong>Warning:</strong> If another directive conflicts with the 
-    elements here, <em>that</em> directive will win and override. For 
-    example, %HTML.EnableAttrID will take precedence over *.id in this 
-    directive.  You must set that directive to true before you can use 
+    <strong>Warning:</strong> If another directive conflicts with the
+    elements here, <em>that</em> directive will win and override. For
+    example, %HTML.EnableAttrID will take precedence over *.id in this
+    directive.  You must set that directive to true before you can use
     IDs at all. This directive has been available since 1.3.0.
 </p>
 ');
@@ -132,85 +132,85 @@ HTMLPurifier_ConfigSchema::define(
 /**
  * Definition of the purified HTML that describes allowed children,
  * attributes, and many other things.
- * 
+ *
  * Conventions:
- * 
+ *
  * All member variables that are prefixed with info
  * (including the main $info array) are used by HTML Purifier internals
  * and should not be directly edited when customizing the HTMLDefinition.
  * They can usually be set via configuration directives or custom
  * modules.
- * 
+ *
  * On the other hand, member variables without the info prefix are used
  * internally by the HTMLDefinition and MUST NOT be used by other HTML
  * Purifier internals. Many of them, however, are public, and may be
  * edited by userspace code to tweak the behavior of HTMLDefinition.
- * 
+ *
  * @note This class is inspected by Printer_HTMLDefinition; please
  *       update that class if things here change.
  */
 class HTMLPurifier_HTMLDefinition extends HTMLPurifier_Definition
 {
-    
+
     // FULLY-PUBLIC VARIABLES ---------------------------------------------
-    
+
     /**
      * Associative array of element names to HTMLPurifier_ElementDef
      */
     public $info = array();
-    
+
     /**
      * Associative array of global attribute name to attribute definition.
      */
     public $info_global_attr = array();
-    
+
     /**
      * String name of parent element HTML will be going into.
      */
     public $info_parent = 'div';
-    
+
     /**
      * Definition for parent element, allows parent element to be a
      * tag that's not allowed inside the HTML fragment.
      */
     public $info_parent_def;
-    
+
     /**
      * String name of element used to wrap inline elements in block context
      * @note This is rarely used except for BLOCKQUOTEs in strict mode
      */
     public $info_block_wrapper = 'p';
-    
+
     /**
      * Associative array of deprecated tag name to HTMLPurifier_TagTransform
      */
     public $info_tag_transform = array();
-    
+
     /**
      * Indexed list of HTMLPurifier_AttrTransform to be performed before validation.
      */
     public $info_attr_transform_pre = array();
-    
+
     /**
      * Indexed list of HTMLPurifier_AttrTransform to be performed after validation.
      */
     public $info_attr_transform_post = array();
-    
+
     /**
      * Nested lookup array of content set name (Block, Inline) to
      * element name to whether or not it belongs in that content set.
      */
     public $info_content_sets = array();
-    
+
     /**
      * Doctype object
      */
     public $doctype;
-    
-    
-    
+
+
+
     // RAW CUSTOMIZATION STUFF --------------------------------------------
-    
+
     /**
      * Adds a custom attribute to a pre-existing element
      * @param $element_name String element name to add attribute to
@@ -223,10 +223,10 @@ class HTMLPurifier_HTMLDefinition extends HTMLPurifier_Definition
         $element =& $module->addBlankElement($element_name);
         $element->attr[$attr_name] = $def;
     }
-    
+
     /**
      * Adds a custom element to your HTML definition
-     * @note See HTMLPurifier_HTMLModule::addElement for detailed 
+     * @note See HTMLPurifier_HTMLModule::addElement for detailed
      *       parameter and return value descriptions.
      */
     public function &addElement($element_name, $type, $contents, $attr_collections, $attributes) {
@@ -236,7 +236,7 @@ class HTMLPurifier_HTMLDefinition extends HTMLPurifier_Definition
         $element =& $module->addElement($element_name, true, $type, $contents, $attr_collections, $attributes);
         return $element;
     }
-    
+
     /**
      * Adds a blank element to your HTML definition, for overriding
      * existing behavior
@@ -248,7 +248,7 @@ class HTMLPurifier_HTMLDefinition extends HTMLPurifier_Definition
         $element =& $module->addBlankElement($element_name);
         return $element;
     }
-    
+
     /**
      * Retrieves a reference to the anonymous module, so you can
      * bust out advanced features without having to make your own
@@ -261,39 +261,39 @@ class HTMLPurifier_HTMLDefinition extends HTMLPurifier_Definition
         }
         return $this->_anonModule;
     }
-    
+
     private $_anonModule;
-    
-    
+
+
     // PUBLIC BUT INTERNAL VARIABLES --------------------------------------
-    
+
     public $type = 'HTML';
     public $manager; /**< Instance of HTMLPurifier_HTMLModuleManager */
-    
+
     /**
      * Performs low-cost, preliminary initialization.
      */
     public function __construct() {
         $this->manager = new HTMLPurifier_HTMLModuleManager();
     }
-    
+
     protected function doSetup($config) {
         $this->processModules($config);
         $this->setupConfigStuff($config);
         unset($this->manager);
-        
+
         // cleanup some of the element definitions
         foreach ($this->info as $k => $v) {
             unset($this->info[$k]->content_model);
             unset($this->info[$k]->content_model_type);
         }
     }
-    
+
     /**
      * Extract out the information from the manager
      */
     protected function processModules($config) {
-        
+
         if ($this->_anonModule) {
             // for user specific changes
             // this is late-loaded so we don't have to deal with PHP4
@@ -301,10 +301,10 @@ class HTMLPurifier_HTMLDefinition extends HTMLPurifier_Definition
             $this->manager->addModule($this->_anonModule);
             unset($this->_anonModule);
         }
-        
+
         $this->manager->setup($config);
         $this->doctype = $this->manager->doctype;
-        
+
         foreach ($this->manager->modules as $module) {
             foreach($module->info_tag_transform         as $k => $v) {
                 if ($v === false) unset($this->info_tag_transform[$k]);
@@ -319,17 +319,17 @@ class HTMLPurifier_HTMLDefinition extends HTMLPurifier_Definition
                 else $this->info_attr_transform_post[$k] = $v;
             }
         }
-        
+
         $this->info = $this->manager->getElements();
         $this->info_content_sets = $this->manager->contentSets->lookup;
-        
+
     }
-    
+
     /**
      * Sets up stuff based on config. We need a better way of doing this.
      */
     protected function setupConfigStuff($config) {
-        
+
         $block_wrapper = $config->get('HTML', 'BlockWrapper');
         if (isset($this->info_content_sets['Block'][$block_wrapper])) {
             $this->info_block_wrapper = $block_wrapper;
@@ -337,7 +337,7 @@ class HTMLPurifier_HTMLDefinition extends HTMLPurifier_Definition
             trigger_error('Cannot use non-block element as block wrapper',
                 E_USER_ERROR);
         }
-        
+
         $parent = $config->get('HTML', 'Parent');
         $def = $this->manager->getElement($parent, true);
         if ($def) {
@@ -348,23 +348,23 @@ class HTMLPurifier_HTMLDefinition extends HTMLPurifier_Definition
                 E_USER_ERROR);
             $this->info_parent_def = $this->manager->getElement($this->info_parent, true);
         }
-        
+
         // support template text
         $support = "(for information on implementing this, see the ".
                    "support forums) ";
-        
+
         // setup allowed elements
-        
+
         $allowed_elements = $config->get('HTML', 'AllowedElements');
         $allowed_attributes = $config->get('HTML', 'AllowedAttributes');
-        
+
         if (!is_array($allowed_elements) && !is_array($allowed_attributes)) {
             $allowed = $config->get('HTML', 'Allowed');
             if (is_string($allowed)) {
                 list($allowed_elements, $allowed_attributes) = $this->parseTinyMCEAllowedList($allowed);
             }
         }
-        
+
         if (is_array($allowed_elements)) {
             foreach ($this->info as $name => $d) {
                 if(!isset($allowed_elements[$name])) unset($this->info[$name]);
@@ -376,7 +376,7 @@ class HTMLPurifier_HTMLDefinition extends HTMLPurifier_Definition
                 trigger_error("Element '$element' is not supported $support", E_USER_WARNING);
             }
         }
-        
+
         $allowed_attributes_mutable = $allowed_attributes; // by copy!
         if (is_array($allowed_attributes)) {
             foreach ($this->info_global_attr as $attr_key => $info) {
@@ -415,9 +415,9 @@ class HTMLPurifier_HTMLDefinition extends HTMLPurifier_Definition
                 }
             }
         }
-        
+
     }
-    
+
     /**
      * Parses a TinyMCE-flavored Allowed Elements and Attributes list into
      * separate lists for processing. Format is element[attr1|attr2],element2...
@@ -428,10 +428,10 @@ class HTMLPurifier_HTMLDefinition extends HTMLPurifier_Definition
      * @todo Give this its own class, probably static interface
      */
     public function parseTinyMCEAllowedList($list) {
-        
+
         $elements = array();
         $attributes = array();
-        
+
         $chunks = preg_split('/(,|[\n\r]+)/', $list);
         foreach ($chunks as $chunk) {
             if (empty($chunk)) continue;
@@ -450,12 +450,12 @@ class HTMLPurifier_HTMLDefinition extends HTMLPurifier_Definition
                 $attributes["$element.$key"] = true;
             }
         }
-        
+
         return array($elements, $attributes);
-        
+
     }
-    
-    
+
+
 }
 
 

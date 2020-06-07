@@ -12,7 +12,7 @@ if (!defined('HTMLPURIFIER_SCHEMA_STRICT')) define('HTMLPURIFIER_SCHEMA_STRICT',
  * Configuration definition, defines directives and their defaults.
  * @note If you update this, please update Printer_ConfigForm
  * @todo The ability to define things multiple times is confusing and should
- *       be factored out to its own function named registerDependency() or 
+ *       be factored out to its own function named registerDependency() or
  *       addNote(), where only the namespace.name and an extra descriptions
  *       documenting the nature of the dependency are needed.  Since it's
  *       possible that the dependency is registered before the configuration
@@ -28,23 +28,23 @@ if (!defined('HTMLPURIFIER_SCHEMA_STRICT')) define('HTMLPURIFIER_SCHEMA_STRICT',
  *       execution.
  */
 class HTMLPurifier_ConfigSchema {
-    
+
     /**
      * Defaults of the directives and namespaces.
      * @note This shares the exact same structure as HTMLPurifier_Config::$conf
      */
     public $defaults = array();
-    
+
     /**
      * Definition of the directives.
      */
     public $info = array();
-    
+
     /**
      * Definition of namespaces.
      */
     public $info_namespace = array();
-    
+
     /**
      * Lookup table of allowed types.
      */
@@ -61,7 +61,7 @@ class HTMLPurifier_ConfigSchema {
         'hash'      => 'Associative array',
         'mixed'     => 'Mixed'
     );
-    
+
     /**
      * Initializes the default namespaces.
      */
@@ -78,7 +78,7 @@ class HTMLPurifier_ConfigSchema {
         $this->defineNamespace('Cache', 'Configuration for DefinitionCache and related subclasses.');
         $this->defineNamespace('Test', 'Developer testing configuration for our unit tests.');
     }
-    
+
     /**
      * Retrieves an instance of the application-wide configuration definition.
      */
@@ -92,7 +92,7 @@ class HTMLPurifier_ConfigSchema {
         }
         return $instance;
     }
-    
+
     /**
      * Defines a directive for configuration
      * @warning Will fail of directive's namespace is defined
@@ -105,7 +105,7 @@ class HTMLPurifier_ConfigSchema {
      */
     public static function define($namespace, $name, $default, $type, $description) {
         $def =& HTMLPurifier_ConfigSchema::instance();
-        
+
         // basic sanity checks
         if (HTMLPURIFIER_SCHEMA_STRICT) {
             if (!isset($def->info[$namespace])) {
@@ -124,7 +124,7 @@ class HTMLPurifier_ConfigSchema {
                 return;
             }
         }
-        
+
         if (isset($def->info[$namespace][$name])) {
             // already defined
             if (
@@ -136,13 +136,13 @@ class HTMLPurifier_ConfigSchema {
             }
         } else {
             // needs defining
-            
+
             // process modifiers (OPTIMIZE!)
             $type_values = explode('/', $type, 2);
             $type = $type_values[0];
             $modifier = isset($type_values[1]) ? $type_values[1] : false;
             $allow_null = ($modifier === 'null');
-            
+
             if (HTMLPURIFIER_SCHEMA_STRICT) {
                 if (!isset($def->types[$type])) {
                     trigger_error('Invalid type for configuration directive',
@@ -156,7 +156,7 @@ class HTMLPurifier_ConfigSchema {
                     return;
                 }
             }
-            
+
             $def->info[$namespace][$name] =
                 new HTMLPurifier_ConfigDef_Directive();
             $def->info[$namespace][$name]->type = $type;
@@ -169,7 +169,7 @@ class HTMLPurifier_ConfigSchema {
         $line = $backtrace[0]['line'];
         $def->info[$namespace][$name]->addDescription($file,$line,$description);
     }
-    
+
     /**
      * Defines a namespace for directives to be put into.
      * @param $namespace Namespace's name
@@ -198,10 +198,10 @@ class HTMLPurifier_ConfigSchema {
         $def->info_namespace[$namespace]->description = $description;
         $def->defaults[$namespace] = array();
     }
-    
+
     /**
      * Defines a directive value alias.
-     * 
+     *
      * Directive value aliases are convenient for developers because it lets
      * them set a directive to several values and get the same result.
      * @param $namespace Directive's namespace
@@ -234,7 +234,7 @@ class HTMLPurifier_ConfigSchema {
             $def->info[$namespace][$name]->aliases[$alias] = $real;
         }
     }
-    
+
     /**
      * Defines a set of allowed values for a directive.
      * @param $namespace Namespace of directive
@@ -272,7 +272,7 @@ class HTMLPurifier_ConfigSchema {
             return;
         }
     }
-    
+
     /**
      * Defines a directive alias for backwards compatibility
      * @param $namespace
@@ -314,7 +314,7 @@ class HTMLPurifier_ConfigSchema {
                 $new_namespace, $new_name);
         $def->info[$new_namespace][$new_name]->directiveAliases[] = "$namespace.$name";
     }
-    
+
     /**
      * Validate a variable according to type. Return null if invalid.
      * @todo Consider making protected
@@ -407,7 +407,7 @@ class HTMLPurifier_ConfigSchema {
         $error = new HTMLPurifier_Error();
         return $error;
     }
-    
+
     /**
      * Takes an absolute path and munges it into a more manageable relative path
      * @todo Consider making protected
@@ -421,7 +421,7 @@ class HTMLPurifier_ConfigSchema {
         $filename = str_replace('\\', '/', $filename);
         return $filename;
     }
-    
+
     /**
      * Checks if var is an HTMLPurifier_Error object
      * @todo Consider making protected

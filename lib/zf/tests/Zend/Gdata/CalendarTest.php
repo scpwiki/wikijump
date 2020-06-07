@@ -37,7 +37,7 @@ class Zend_Gdata_CalendarTest extends PHPUnit_Framework_TestCase
                 true);
         $this->eventFeed = new Zend_Gdata_Calendar_EventFeed();
     }
-    
+
     public function testEmptyEventFeedShouldHaveNoExtensionElements() {
         $this->assertTrue(is_array($this->eventFeed->extensionElements));
         $this->assertTrue(count($this->eventFeed->extensionElements) == 0);
@@ -59,7 +59,7 @@ class Zend_Gdata_CalendarTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(is_array($this->eventFeed->extensionAttributes));
         $this->assertTrue(count($this->eventFeed->extensionAttributes) == 0);
     }
-    
+
     public function testEventFeedToAndFromString()
     {
         $this->eventFeed->transferFromXML($this->eventFeedText);
@@ -70,8 +70,8 @@ class Zend_Gdata_CalendarTest extends PHPUnit_Framework_TestCase
         }
         $this->assertTrue($entryCount > 0);
 
-        /* Grab XML from $this->eventFeed and convert back to objects */ 
-        $newEventFeed = new Zend_Gdata_Calendar_EventFeed( 
+        /* Grab XML from $this->eventFeed and convert back to objects */
+        $newEventFeed = new Zend_Gdata_Calendar_EventFeed(
                 $this->eventFeed->saveXML());
         $newEntryCount = 0;
         foreach ($newEventFeed as $entry) {

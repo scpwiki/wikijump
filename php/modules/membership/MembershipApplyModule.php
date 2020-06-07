@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -28,24 +28,24 @@ use DB\MemberPeer;
 use DB\MemberApplicationPeer;
 
 class MembershipApplyModule extends SmartyModule{
-	
+
 	public function build($runData){
 		$site = $runData->getTemp("site");
 		$userId = $runData->getUserId();
-		
+
 		$reason = null;
 		if(!$runData->isUserAuthenticated()){
 			$reason = "not_logged";
-		}	
-		
+		}
+
 		$settings = $site->getSettings();
-		
+
 		if(!$settings->getAllowMembershipByApply()){
 			$reason = "not_enabled";
 			$runData->contextAdd("reason", $reason);
 			return;
 		}
-		
+
 		// check if not a member already
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
@@ -56,7 +56,7 @@ class MembershipApplyModule extends SmartyModule{
 			$runData->contextAdd("reason", $reason);
 			return;
 		}
-		
+
 		// see if there is already an application...
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
@@ -69,8 +69,8 @@ class MembershipApplyModule extends SmartyModule{
 		}
 
 		if($reason !== null){
-			$runData->contextAdd("reason", $reason);	
+			$runData->contextAdd("reason", $reason);
 		}
 	}
-	
+
 }

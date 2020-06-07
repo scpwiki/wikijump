@@ -31,7 +31,7 @@ function uniDecode($str, $charcode="UTF-8")
 
 function cp($m)
 {
-    return iconv('UTF-8', 'GBK', uniDecode('%u' . dechex($m[1])));        
+    return iconv('UTF-8', 'GBK', uniDecode('%u' . dechex($m[1])));
 }
 
 function c($str)

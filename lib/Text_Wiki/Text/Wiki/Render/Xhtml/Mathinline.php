@@ -19,7 +19,7 @@
  * @link       http://pear.php.net/package/Text_Wiki
  */
 class Text_Wiki_Render_Xhtml_Mathinline extends Text_Wiki_Render {
-    
+
     public $conf = array();
 
     /**
@@ -34,7 +34,7 @@ class Text_Wiki_Render_Xhtml_Mathinline extends Text_Wiki_Render {
      * @return string The text rendered from the token options.
      *
      */
-    
+
     function token($options) {
         $content = $options['content'];
         $hashcode = md5($content);
@@ -44,12 +44,12 @@ class Text_Wiki_Render_Xhtml_Mathinline extends Text_Wiki_Render {
         if (!file_exists($dir)) {
             mkdirfull($dir);
         }
-        
+
         $tmpDir = WIKIDOT_ROOT . '/tmp/math';
         if (!file_exists($tmpDir)) {
             mkdirfull($tmpDir);
         }
-        
+
         $imgFile = $hashcode . '.png';
         if (!file_exists($dir . '/' . $imgFile)) {
             $renderer = new LatexRenderer();
@@ -62,11 +62,11 @@ class Text_Wiki_Render_Xhtml_Mathinline extends Text_Wiki_Render {
         if (!file_exists($dir . '/' . $imgFile)) {
             return '<span class="error-inline">' . _('The equation has not been processed correctly. Most prabably it has syntax error(s).') . '	</span>';
         }
-        
+
         $out = '<img class="math-inline" src="/local--math/inline/' . $imgFile . '" alt="' . htmlentities($content) . '" />';
-        
+
         return $out;
-        
+
         $content = $options['content'];
         $hashcode = md5($content);
         $runData = Ozone::getRunData();
@@ -75,13 +75,13 @@ class Text_Wiki_Render_Xhtml_Mathinline extends Text_Wiki_Render {
         if (!file_exists($dir)) {
             mkdirfull($dir);
         }
-        
+
         $imgFile = $hashcode . '.png';
-        
+
         $imgFile = $hashcode . '.png';
         $out = '<img src="http://' . $site->getDomain() . '/local--math/inline/' . $imgFile . '" alt="' . htmlentities($content) . '" />';
-        
+
         return $out;
-    
+
     }
 }

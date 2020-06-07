@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Db
  * @version $Id$
@@ -26,7 +26,7 @@
 
  /* PostgreSQL database query result.
  *
- */ 
+ */
 class PgResult implements DatabaseResult{
 
 	private $result;
@@ -51,7 +51,7 @@ class PgResult implements DatabaseResult{
 		$peer = new $peerClassName;
 		$pkn = $peer->getPrimaryKeyName();
 		while($line = pg_fetch_assoc($this->result)){
-			$obj = new $className($line, $prefetched); 
+			$obj = new $className($line, $prefetched);
 			$obj->setNew(false);
 			if($pkn == null){
 				$out[] = $obj;
@@ -61,17 +61,17 @@ class PgResult implements DatabaseResult{
 		}
 		return $out;
 	}
-	
+
 	public function getSize(){
-			
+
 	}
-	
+
 	public function getResult(){
-		return $this->result;	
+		return $this->result;
 	}
-	
+
 	public function fetchAll(){
-		return pg_fetch_all($this->result);	
+		return pg_fetch_all($this->result);
 	}
 
 }

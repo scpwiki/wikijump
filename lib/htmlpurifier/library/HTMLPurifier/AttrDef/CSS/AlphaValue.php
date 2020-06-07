@@ -5,11 +5,11 @@ require_once 'HTMLPurifier/AttrDef/CSS/Number.php';
 
 class HTMLPurifier_AttrDef_CSS_AlphaValue extends HTMLPurifier_AttrDef_CSS_Number
 {
-    
+
     public function __construct() {
         parent::__construct(false); // opacity is non-negative, but we will clamp it
     }
-    
+
     public function validate($number, $config, $context) {
         $result = parent::validate($number, $config, $context);
         if ($result === false) return $result;
@@ -18,5 +18,5 @@ class HTMLPurifier_AttrDef_CSS_AlphaValue extends HTMLPurifier_AttrDef_CSS_Numbe
         if ($float > 1.0) $result = '1';
         return $result;
     }
-    
+
 }

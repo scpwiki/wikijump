@@ -3,10 +3,10 @@
     <title>Variabelen dumpen</title>
 
     <para>
-        Informatie over een uitdrukking wordt door de statische methode 
+        Informatie over een uitdrukking wordt door de statische methode
         <code>Zend_Debug::dump()</code> weergegeven of terug gegeven.
         Deze simpele manier van debuggen wordt veel gebruikt, omdat het
-        makkelijk is om te gebruiken, geen initialisatie, speciale 
+        makkelijk is om te gebruiken, geen initialisatie, speciale
         programma's of debug omgevingen nodig heeft.
     </para>
 
@@ -38,11 +38,11 @@ Zend_Debug::dump($var, $label=null, $echo=true);]]></programlisting>
     </para>
 
     <para>
-        Het is misschien handig om te weten dat intern de  <code>Zend_Debug::dump()</code> 
+        Het is misschien handig om te weten dat intern de  <code>Zend_Debug::dump()</code>
         methode, de PHP functie <ulink url="http://php.net/var_dump"><code>var_dump()</code></ulink>
         omhulst. Als er wordt gedetecteerd dat het om een web presentatie gaat,
-        dan wordt de waarde van <code>var_dump()</code> automatisch door 
-        <ulink url="http://php.net/htmlspecialchars"><code>htmlspecialchars()</code></ulink> gehaald 
+        dan wordt de waarde van <code>var_dump()</code> automatisch door
+        <ulink url="http://php.net/htmlspecialchars"><code>htmlspecialchars()</code></ulink> gehaald
         en door de (x)HTML <code>&lt;pre&gt;</code> tags omhulst.
     </para>
 
@@ -57,7 +57,7 @@ Zend_Debug::dump($var, $label=null, $echo=true);]]></programlisting>
             Bekijk ook de <link linkend="zend.log.overview">Zend_Log</link> component
             als je een meer permanente debug code schrijft.
             Als voorbeeld, kan je het <code>DEBUG</code> logboek level gebruiken en de
-            logboek schrijver gebruiken voor de string die teruggegeven wordt door 
+            logboek schrijver gebruiken voor de string die teruggegeven wordt door
             <code>Zend_Debug::dump()</code>.
         </para>
     </tip>
