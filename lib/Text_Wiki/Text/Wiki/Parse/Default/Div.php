@@ -40,7 +40,7 @@ class Text_Wiki_Parse_Div extends Text_Wiki_Parse {
      * @var string
      *
      */
-    public $regex = '/(\n)?\[\[div(\s.*?)?\]\] *\n((?:(?R)|.)*?)\[\[\/div\]\] */msi';
+    public $regex = '/(\n)?\[\[div(\s.*?)?\]\] *\n((?:(?R)|.)*?)\[\[\/div_?\]\] */msi';
 
     /**
      *
