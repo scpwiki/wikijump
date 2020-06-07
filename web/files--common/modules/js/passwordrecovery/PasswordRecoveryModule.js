@@ -37,7 +37,7 @@ WIKIDOT.modules.PasswordRecoveryModule.listeners = {
 		rsa.setPublic(WIKIDOT.vars.rsakey, "10001");
 		
 		var p = new Object();
-		p.email = linebrk(hex2b64(rsa.encrypt('__'+email)),64);
+		//p.email = linebrk(hex2b64(rsa.encrypt('__'+email)),64);
 		p.action = "PasswordRecoveryAction";
 		p.event = "step1";
 		OZONE.ajax.requestModule("passwordrecovery/PasswordRecovery2Module", p, WIKIDOT.modules.PasswordRecoveryModule.callbacks.next1);
@@ -58,8 +58,8 @@ WIKIDOT.modules.PasswordRecoveryModule.listeners = {
 		//crypt
 		var rsa = new RSAKey();
 		rsa.setPublic(WIKIDOT.vars.rsakey, "10001");
-		p.password = linebrk(hex2b64(rsa.encrypt('__'+p.password)),64);
-		p.password2 = linebrk(hex2b64(rsa.encrypt('__'+p.password2)),64);
+		// p.password = linebrk(hex2b64(rsa.encrypt('__'+p.password)),64);
+		// p.password2 = linebrk(hex2b64(rsa.encrypt('__'+p.password2)),64);
 
 		OZONE.ajax.requestModule("passwordrecovery/PasswordRecovery3Module", p, WIKIDOT.modules.PasswordRecoveryModule.callbacks.next2);
 	}

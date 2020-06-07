@@ -38,8 +38,8 @@ class PasswordRecoveryAction extends SmartyAction {
 			throw new ProcessException(_("Email must be provided."), "no_email");	
 		}	
 		
-		$email = trim(CryptUtils::rsaDecrypt($email));
-		$email = preg_replace("/^__/", '', $email);
+//		$email = trim(CryptUtils::rsaDecrypt($email));
+//		$email = preg_replace("/^__/", '', $email);
 		
 		if($email == null || $email == ''){
 			throw new ProcessException(_("Email must be provided."), "no_email");	
