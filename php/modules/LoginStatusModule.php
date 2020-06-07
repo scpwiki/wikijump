@@ -43,7 +43,7 @@ class LoginStatusModule extends Module{
 			
 			$originalUrl = $_SERVER['REQUEST_URI'];
 			if (GlobalProperties::$WIKI_FARM) {
-				$originalUrl = GlobalProperties::$LOGIN_DOMAIN . $_SERVER['HTTP_HOST'] . $originalUrl;
+				$originalUrl = $_SERVER['HTTP_HOST'] . $originalUrl;
 			}
 			
 			if(preg_match(';\?origUrl=.*$;', $originalUrl)){
