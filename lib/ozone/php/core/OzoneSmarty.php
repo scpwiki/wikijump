@@ -54,7 +54,8 @@ class OzoneSmarty extends Smarty{
 		$this->assign("URL_HOST", GlobalProperties::$URL_HOST);
 		$this->assign("URL_DOMAIN", GlobalProperties::$URL_DOMAIN);
 		$this->assign("URL_DOCS", GlobalProperties::$URL_DOCS);
-		$this->assign("IP_HOST", GlobalProperties::$IP_HOST);		
+		$this->assign("HTTP_SCHEMA", GlobalProperties::$HTTP_SCHEMA);
+		$this->assign("IP_HOST", GlobalProperties::$IP_HOST);
 		$this->assign("SERVICE_NAME", GlobalProperties::$SERVICE_NAME);		
 		$this->assign("SUPPORT_EMAIL", GlobalProperties::$SUPPORT_EMAIL);		
 	}	
