@@ -5,3 +5,7 @@ files/public.pem
 files/modulus.pem
 conf/wikidot.ini
 ozone-mapfile.php
+/tmp
+/web/files--common/tmp
+/web/files--sites
+/logs/ozone.log
