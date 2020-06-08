@@ -55,13 +55,13 @@ class SecurityManager {
 
 	public function getUserByName($username){
 		$peer = OzoneUserPeer::instance();
-		$query = "WHERE name = '".db_escape_string($username)."'";
+		$query = "WHERE lower(name) = '".db_escape_string(strtolower($username))."'";
 		return $peer->selectOneByExplicitQuery($query);
 	}
 
     public function getUserByNickname($username){
         $peer = OzoneUserPeer::instance();
-        $query = "WHERE nick_name = '".db_escape_string($username)."'";
+        $query = "WHERE lower(nick_name) = '".db_escape_string(strtolower($username))."'";
         return $peer->selectOneByExplicitQuery($query);
     }
 
