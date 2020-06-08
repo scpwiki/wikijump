@@ -83,7 +83,7 @@ class UserInvitationAction extends SmartyAction {
 			$c->setExplicitQuery($q);
 			$m = MemberPeer::instance()->selectOne($c);
 			if($m){
-				throw new ProcessException(sprintf(_('User with the email address "%s" is already a member of this Site. Remove him from the list and send invitations again.'), htmlspecialchars($email)), 'aleady_member');
+				throw new ProcessException(sprintf(_('User with the email address "%s" is already a member of this Site. Remove them from the list and send invitations again.'), htmlspecialchars($email)), 'aleady_member');
 			}
 
 			// check if not sent already to this address.
@@ -93,7 +93,7 @@ class UserInvitationAction extends SmartyAction {
 			$ii = EmailInvitationPeer::instance()->selectOne($c);
 
 			if($ii){
-				throw new ProcessException(sprintf(_('User with the email address "%s" has been already invited to this Site. Remove him from the list and send invitations again. If you want to resend an invitation please rather look at the history of sent invitations.'), htmlspecialchars($email)), 'aleady_member');
+				throw new ProcessException(sprintf(_('User with the email address "%s" has been already invited to this Site. Remove them from the list and send invitations again. If you want to resend an invitation please rather look at the history of sent invitations.'), htmlspecialchars($email)), 'aleady_member');
 			}
 		}
 

@@ -7,8 +7,8 @@
 		If you think this user violates
 		<a href="{$HTTP_SCHEMA}://{$URL_HOST}/legal:terms-of-service" target="_blank">Terms of Service</a>
 		of {$SERVICE_NAME},
-		posts objectionable content, may offend by his/her actions etc., you can
-		flag him/her as abusive. 
+		posts objectionable content, may offend by their actions etc., you can
+		flag them as abusive. 
 	</p>
 	<p>
 		No user will be automatically blocked, banned nor removed but the responsible authorities will

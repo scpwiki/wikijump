@@ -27,7 +27,7 @@
 		Are you sure you want to remove user <b>%%USER_NAME%%</b> from the members?
 	</p>
 	<p>
-		If the user is also an administrator/moderator of this site his privileges will be lost too.
+		If the user is also an administrator/moderator of this site their privileges will be lost too.
 	</p>
 </div>
 <div style="display: none" id="remove-ban-user-dialog">
@@ -37,6 +37,6 @@
 		ban from accessing the site in the future?
 	</p>
 	<p>
-		If the user is also an administrator/moderator of this site his privileges will be lost too.
+		If the user is also an administrator/moderator of this site their privileges will be lost too.
 	</p>
 </div>
