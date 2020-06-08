@@ -55,7 +55,6 @@ class Login2Action extends SmartyAction {
         else {
             // Auth via username.
             $sm = new SecurityManager();
-            if(!$user) {
             $user = $sm->authenticateUser($uname, $upass);
             if (!$user) {
                 EventLogger::instance()->logFailedLogin($uname);
