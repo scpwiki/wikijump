@@ -55,11 +55,13 @@ class Login2Action extends SmartyAction {
         else {
             // Auth via username.
             $sm = new SecurityManager();
-            $user = $sm->authenticateUser($uname,$upass);
             if(!$user) {
+            $user = $sm->authenticateUser($uname, $upass);
+            if (!$user) {
                 EventLogger::instance()->logFailedLogin($uname);
                 throw new ProcessException(_("The login and password do not match."), "login_invalid");
             }
+        }
             $originalUrl = $runData->sessionGet('loginOriginalUrl');
 
             $runData->resetSession();
@@ -100,8 +102,6 @@ class Login2Action extends SmartyAction {
 
             // log event
             EventLogger::instance()->logLogin();
-        }
-
 
 	}
 
