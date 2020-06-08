@@ -19,13 +19,13 @@
             </listitem>
             <listitem>
                 <para>
-                    <ulink url="http://framework.zend.com/download/snapshot">Scaricamento dell'ultima istantanea notturna.</ulink> 
+                    <ulink url="http://framework.zend.com/download/snapshot">Scaricamento dell'ultima istantanea notturna.</ulink>
                     Per chi desidera essere all'avanguardia, le istantanee notturne rappresentano l'ultimo progresso nello sviluppo del Framework Zend. Le istantanee incorporano sia la documentazione Inglese sia tutte le altre lingue disponibili. Se si prevede di lavorare con l'ultima versione di sviluppo del Framework Zend, si consideri l'utilizzo di un client Subversion (SVN).
                 </para>
             </listitem>
             <listitem>
                 <para>
-                    Utilizzo di un client <ulink url="http://subversion.tigris.org">Subversion</ulink> (SVN). 
+                    Utilizzo di un client <ulink url="http://subversion.tigris.org">Subversion</ulink> (SVN).
                     Il Framework Zend è un software open source ed il deposito dei pacchetti Subversion utilizzato nello sviluppo è disponibile pubblicamente. Si consideri di utilizzare SVN per scaricare il Framework Zend se SVN è già in uso nello sviluppo della propria applicazione, si desidera contribuire allo sviluppo framework o è necessario aggiornare la propria versione disponibile del framework con una frequenza maggiore rispetto al rilascio delle nuove versioni.
                 </para>
                 <para>

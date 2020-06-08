@@ -2,10 +2,10 @@
     <title>Wprowadzenie</title>
 
     <para>
-        Komponent <code>Zend_Dom</code> zapewnia narzędzia do pracy z 
+        Komponent <code>Zend_Dom</code> zapewnia narzędzia do pracy z
         dokumentami i strukturami DOM. Obecnie dostępna jest klasa
-        <code>Zend_Dom_Query</code>, która zapewnia jednolity interfejs 
-        służący do wskazywania elementów dokumentów DOM za pomocą selektorów 
+        <code>Zend_Dom_Query</code>, która zapewnia jednolity interfejs
+        służący do wskazywania elementów dokumentów DOM za pomocą selektorów
         XPath oraz CSS.
     </para>
 </sect1>

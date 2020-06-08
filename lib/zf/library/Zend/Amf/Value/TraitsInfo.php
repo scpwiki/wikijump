@@ -20,8 +20,8 @@
  */
 
 /**
- * Zend_Amf_Value_TraitsInfo 
- * 
+ * Zend_Amf_Value_TraitsInfo
+ *
  * @package    Zend_Amf
  * @subpackage Value
  * @copyright  Copyright (c) 2005-2008 Zend Technologies USA Inc. (http://www.zend.com)

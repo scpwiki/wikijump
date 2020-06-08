@@ -28,7 +28,7 @@ if (!isset($argv[1])) {
 try {
     $pdf = Zend_Pdf::load($argv[1]);
 } catch (Zend_Pdf_Exception $e) {
-    if ($e->getMessage() == 'Can not open \'' . $argv[1] . 
+    if ($e->getMessage() == 'Can not open \'' . $argv[1] .
                             '\' file for reading.') {
         // Utworzenie nowego pliku PDF jeśli plik nie istnieje
         $pdf = new Zend_Pdf();
@@ -38,7 +38,7 @@ try {
             $argv[2] = $argv[1];
         }
     } else {
-        // Wyrzucenie wyjątku jeśli nie był to wyjątek 
+        // Wyrzucenie wyjątku jeśli nie był to wyjątek
         // "Can't open file"
         throw $e;
     }
@@ -60,10 +60,10 @@ $style->setFont(Zend_Pdf_Font::fontWithName(
 
 try {
     // Utworzenie obiektu obrazka
-    $stampImage = Zend_Pdf_Image::imageWithPath(dirname(__FILE__) . 
+    $stampImage = Zend_Pdf_Image::imageWithPath(dirname(__FILE__) .
                                                 '/stamp.jpg');
 } catch (Zend_Pdf_Exception $e) {
-    // Przykład obsłużenia wyjątków podczas ładowania obrazków 
+    // Przykład obsłużenia wyjątków podczas ładowania obrazków
     if ($e->getMessage() != 'Image extension is not installed.' &&
         $e->getMessage() != 'JPG support is not configured properly.') {
         throw $e;
@@ -89,13 +89,13 @@ foreach ($pdf->pages as $page){
     $page->restoreGS();
 }
 
-// Dodanie nowej strony wygenerowanej przez obiekt 
+// Dodanie nowej strony wygenerowanej przez obiekt
 // Zend_Pdf (strona jest dołączona do dokumentu)
 $pdf->pages[] = ($page1 = $pdf->newPage('A4'));
 
-// Dodanie nowej strony wygenerowanej przez obiekt 
+// Dodanie nowej strony wygenerowanej przez obiekt
 // Zend_Pdf_Page (strona nie jest dołączona do dokumentu)
-$pdf->pages[] = 
+$pdf->pages[] =
     ($page2 = new Zend_Pdf_Page(Zend_Pdf_Page::SIZE_LETTER_LANDSCAPE));
 
 // Utworzenie nowej czcionki

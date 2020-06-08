@@ -46,7 +46,7 @@ class Zend_Soap_AutoDiscoverTest extends PHPUnit_Framework_TestCase
     function testSetClass()
     {
         $scriptUri = 'http://localhost/my_script.php';
-        
+
         $server = new Zend_Soap_AutoDiscover();
         $server->setClass('Zend_Soap_AutoDiscover_Test');
         $dom = new DOMDocument();
@@ -585,7 +585,7 @@ class Zend_Soap_AutoDiscoverTest extends PHPUnit_Framework_TestCase
             $server->setPersistence("bogus");
             $this->fail();
         } catch(Zend_Soap_AutoDiscover_Exception $e) {
-            
+
         }
 
         try {
@@ -881,6 +881,6 @@ class Zend_Soap_AutoDiscoverTestClass2
      */
     public function addMultiple($test)
     {
-        
+
     }
 }

@@ -88,7 +88,7 @@ foreach ($videoFeed as $videoEntry) {
 ]]>
             </programlisting>
             </example>
-            
+
 
             <para>
                 For more details on the different query parameters, please
@@ -215,7 +215,7 @@ $videoFeed = $yt->getUserFavorites('liz');
 ]]>
             </programlisting>
             </example>
-            
+
         </sect3>
 
         <sect3 id="zend.gdata.youtube.videos.responses">
@@ -297,7 +297,7 @@ $commentFeed = $yt->getVideoCommentFeed(null,
             </para>
                        <example id="zend.gdata.youtube.playlists.user.example">
           <title>Retrieving the playlists of a user</title>
-            
+
             <programlisting role="php"><![CDATA[
 $yt = new Zend_Gdata_YouTube();
 $playlistListFeed = $yt->getPlaylistListFeed('liz');
@@ -346,7 +346,7 @@ $playlistVideoFeed = $yt->getPlaylistVideoFeed($feedUrl);
         </para>
         <example id="zend.gdata.youtube.subscriptions.example">
           <title>Retrieving all subscriptions for a user</title>
-        
+
         <programlisting role="php"><![CDATA[
 $yt = new Zend_Gdata_YouTube();
 $subscriptionFeed = $yt->getSubscriptionFeed('liz');
@@ -369,7 +369,7 @@ foreach ($subscriptionFeed as $subscriptionEntry) {
         </para>
                   <example id="zend.gdata.youtube.profile.example">
           <title>Retrieving a user's profile</title>
-        
+
         <programlisting role="php"><![CDATA[
 $yt = new Zend_Gdata_YouTube();
 $userProfile = $yt->getUserProfile('liz');
@@ -589,7 +589,7 @@ $form = '<form action="'. $postUrl .'?nexturl='. $nextUrl .
       </para>
       <example id="zend.gdata.youtube.uploads.status.example">
           <title>Checking video upload status</title>
-      
+
       <programlisting role="php"><![CDATA[
 try {
     $control = $videoEntry->getControl();

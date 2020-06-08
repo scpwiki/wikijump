@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -28,22 +28,22 @@ use DB\OzoneUserPeer;
 use DB\OzoneSessionPeer;
 
 class Login2Action extends SmartyAction {
-	
+
 	public function perform($r){}
-	
+
 	public function loginEvent($runData){
 		$pl = $runData->getParameterList();
 		$uname = $pl->getParameterValue("name");
 		$upass = $pl->getParameterValue("password");
-		
+
 		$userId = $pl->getParameterValue("welcome");
-		
+
 		$keepLogged = $pl->getParameterValue("keepLogged");
 		$bindIP = $pl->getParameterValue("bindIP");
-		
+
 		// decrypt! woooohhooooo!!!!!!!!
-		
-		
+
+
 		if($userId && is_numeric($userId) && $userId >0) {
             $user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
             if ($user == null or password_verify($upass, $user->getPassword()) == false) {
@@ -104,11 +104,11 @@ class Login2Action extends SmartyAction {
 
 
 	}
-	
+
 	public function loginCancelEvent($runData){
-		$runData->sessionDel("login_seed");	
+		$runData->sessionDel("login_seed");
 	}
-	
+
 	public function logoutEvent($runData){
 		$db = Database::connection();
 		$db->begin();
@@ -116,9 +116,9 @@ class Login2Action extends SmartyAction {
 		if($runData->getUser()){
 			$userId = $runData->getUser()->getUserId();
 		}
-		
+
 		$runData->sessionStop();
-		
+
 		// be even wiser! delete all sessions by this user from the current IP string!
 		if($userId !== null){
 			$c = new Criteria();
@@ -128,12 +128,12 @@ class Login2Action extends SmartyAction {
 			$ss = OzoneSessionPeer::instance()->select($c);
 			$mc = OZONE::$memcache;
 			foreach($ss as $s){
-				$mc->delete('session..'.$s->getSessionId());	
+				$mc->delete('session..'.$s->getSessionId());
 			}
 			OzoneSessionPeer::instance()->delete($c);
 		}
 
 		$db->commit();
 	}
-	
+
 }

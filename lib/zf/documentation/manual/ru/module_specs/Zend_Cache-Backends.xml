@@ -392,7 +392,7 @@ $cache = Zend_Cache::factory('Core', 'Zend Platform');
                               значение этого аргумента используется в конце
                               имени класса "Zend_Cache_Backend_[...]".
                           </entry>
-                      </row>    
+                      </row>
                       <row>
                           <entry><code>slow_backend_autoload</code></entry>
                           <entry><code>boolean</code></entry>
@@ -403,7 +403,7 @@ $cache = Zend_Cache::factory('Core', 'Zend Platform');
                               (полезно только при использовании собственных
                               бэкэндов).
                           </entry>
-                      </row>     
+                      </row>
                       <row>
                           <entry><code>fast_backend_autoload</code></entry>
                           <entry><code>boolean</code></entry>
@@ -414,7 +414,7 @@ $cache = Zend_Cache::factory('Core', 'Zend Platform');
                               (полезно только при использовании собственных
                               бэкэндов).
                           </entry>
-                      </row>  
+                      </row>
                       <row>
                           <entry><code>auto_refresh_fast_cache</code></entry>
                           <entry><code>boolean</code></entry>
@@ -424,7 +424,7 @@ $cache = Zend_Cache::factory('Core', 'Zend Platform');
                               автоматическое обновление "быстрого" кэша при
                               попадании в кэш.
                           </entry>
-                      </row>  
+                      </row>
                       <row>
                           <entry><code>stats_update_factor</code></entry>
                           <entry><code>integer</code></entry>
@@ -437,7 +437,7 @@ $cache = Zend_Cache::factory('Core', 'Zend Platform');
                               быстрого бэкэнда производится случайным образом
                               1 раз на x записей в кэш.
                           </entry>
-                      </row>                              
+                      </row>
                   </tbody>
               </tgroup>
           </table>

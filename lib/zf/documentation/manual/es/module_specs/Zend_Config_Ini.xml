@@ -2,7 +2,7 @@
     <title>Zend_Config_Ini</title>
     <para>
         <code>Zend_Config_Ini</code> permite a los desarrolladores almacenar datos de configuración en un formato de datos INI familiar, y leer de ellos en la aplicación usando una sintáxis de propiedades de objetos anidados. El formato INI se especializa en proveer tanto la habilidad de mantener una jerarquía de claves de datos (data keys) de configuración como la de mantener una jerarquía entre secciones de datos de configuración.
-		Las jerarquías de datos de configuración son provistas separando las claves mediante el carácter punto 
+		Las jerarquías de datos de configuración son provistas separando las claves mediante el carácter punto
         (<code>.</code>). Una sección puede extender o heredar de otra sección indicando el nombre de la sección seguido de dos puntos (<code>:</code>) y el nombre de la sección desde la cual se quieren heredar los datos.
     </para>
     <note>

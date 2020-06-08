@@ -51,7 +51,7 @@ RewriteRule ^.*$ index.php [NC,L]
             Rewrite Router может также использоваться с веб-сервером IIS, если
             <ulink url="http://www.isapirewrite.com">Isapi_Rewrite</ulink>
             был установлен как расширение Isapi со следующими правилами
-            перезаписи: 
+            перезаписи:
         </para>
 
         <programlisting role="php"><![CDATA[
@@ -67,7 +67,7 @@ RewriteRule ^[\w/\%]*(?:\.(?!(?:js|ico|gif|jpg|png|css|html)$)[\w\%]*$)? /index.
                 строка. В этом случае
                 <code>Zend_Controller_Request_Http</code> попытается
                 использовать <code>$_SERVER['HTTP_X_REWRITE_URL']</code>,
-                значение которого устанавливается расширением Isapi_Rewrite.  
+                значение которого устанавливается расширением Isapi_Rewrite.
             </para>
         </note>
 
@@ -148,7 +148,7 @@ $router->addRoute('user',
                 <xref linkend="zend.controller.router.default-routes" /> *
              </para></listitem>
         </itemizedlist>
-        
+
         <para>
             Маршруты могут использоваться несколько раз для создания цепочки или
             пользовательской схемы маршрутизации в приложении. Вы можете
@@ -171,7 +171,7 @@ $router->addRoute('user',
                 Наиболее часто имя маршрута используется через хелпер
                 Zend_View для URL:
             </para>
-                
+
             <programlisting role="php"><![CDATA[
 <a href=
 "<?= $this->url(array('username' => 'martel'), 'user') ?>">Martel</a>
@@ -193,7 +193,7 @@ $router->addRoute('user',
             диспетчере и пользовательских контроллерах. Если соответствие не
             найдено, то проверяется следующий маршрут в цепочке.
         </para>
-            
+
         <note>
             <title>Обратный порядок сопоставления</title>
             <para>
@@ -231,7 +231,7 @@ $router->addRoute('user',
         </note>
 
     </sect2>
-    
+
     <sect2 id="zend.controller.router.default-routes">
         <title>Маршруты по умолчанию</title>
 
@@ -380,7 +380,7 @@ $router->setGlobalParam('lang', 'en');
             <xi:fallback><xi:include href="../../en/module_specs/Zend_Controller-Router-Route-Hostname.xml" /></xi:fallback>
         </xi:include>
     </sect2>
-    
+
     <sect2 id="zend.controller.router.add-config">
         <title>Использование Zend_Config вместе с RewriteRouter</title>
 
@@ -413,14 +413,14 @@ routes.archive.type = "Zend_Controller_Router_Route_Regex"
 routes.archive.route = "archive/(\d+)"
 routes.archive.defaults.controller = "archive"
 routes.archive.defaults.action = "show"
-routes.archive.map.1 = "year" 
+routes.archive.map.1 = "year"
 ; ИЛИ: routes.archive.map.year = 1
 ]]>
         </programlisting>
 
         <para>
             Этот INI-файл может быть затем прочитан в объект
-            <code>Zend_Config</code> как показано ниже: 
+            <code>Zend_Config</code> как показано ниже:
         </para>
 
         <programlisting role="php"><![CDATA[
@@ -444,7 +444,7 @@ $router->addConfig($config, 'routes');
             используемого для данного маршрута; по умолчанию используется
             класс <code>Zend_Controller_Router_Route</code>. В примере выше
             для маршрута 'news' должен использоваться класс
-            <code>Zend_Controller_Router_Route_Static</code>.    
+            <code>Zend_Controller_Router_Route_Static</code>.
         </para>
     </sect2>
 

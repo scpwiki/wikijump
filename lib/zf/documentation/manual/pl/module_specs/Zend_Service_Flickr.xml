@@ -99,7 +99,7 @@ $results = $flickr->groupPoolGetPhotos($groupId);
 foreach ($results as $result) {
     echo $result->title . '<br />';
 }
-]]>            
+]]>
             </programlisting>
         </example>
         <note>

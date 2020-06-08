@@ -1,5 +1,5 @@
 /* Calendar*/
-	
+
 .tundra .dijitCalendarIncrementControl {
 	/* next/prev month buttons */
 	width:15px;
@@ -56,7 +56,7 @@
 }
 
 .tundra .dijitCalendarBodyContainer {
-	border-bottom: 1px solid #eeeeee;	
+	border-bottom: 1px solid #eeeeee;
 }
 
 .tundra .dijitCalendarMonthLabel {
@@ -96,7 +96,7 @@
 }
 
 .tundra .dijitCalendarCurrentMonthDisabled {
-	/* days that are part of this month - disabled */	
+	/* days that are part of this month - disabled */
 	background-color:#bbbbbc !important;
 }
 

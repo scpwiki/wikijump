@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version \$Id\$
@@ -29,13 +29,13 @@ use BaseDBPeer;
 
 
 
- 
+
 /**
  * Base peer class mapped to the database table email_invitation.
  */
 class EmailInvitationPeerBase extends BaseDBPeer {
 	public static $peerInstance;
-	
+
 	protected function internalInit(){
 		$this->tableName='email_invitation';
 		$this->objectName='DB\\EmailInvitation';
@@ -44,7 +44,7 @@ class EmailInvitationPeerBase extends BaseDBPeer {
 		$this->fieldTypes = array( 'invitation_id' => 'serial',  'hash' => 'varchar(200)',  'email' => 'varchar(128)',  'name' => 'varchar(100)',  'user_id' => 'int',  'site_id' => 'int',  'become_member' => 'boolean',  'to_contacts' => 'boolean',  'message' => 'text',  'attempts' => 'int',  'accepted' => 'boolean',  'delivered' => 'boolean',  'date' => 'timestamp');
 		$this->defaultValues = array( 'become_member' => 'true',  'attempts' => '1',  'accepted' => 'false',  'delivered' => 'true');
 	}
-	
+
 	public static function instance(){
 		if(self::$peerInstance == null){
 			$className = "DB\\EmailInvitationPeer";

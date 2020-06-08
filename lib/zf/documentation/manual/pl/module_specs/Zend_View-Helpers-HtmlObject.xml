@@ -3,7 +3,7 @@
 
     <para>
         Element HTML <code><![CDATA[<object>]]></code> używany jest do
-        wstawiania do kodu strony takich elementów interaktywnych jak Flash czy 
+        wstawiania do kodu strony takich elementów interaktywnych jak Flash czy
         QuickTime. Helpery te pozwalają na łatwe wstawianie tych obiektów.
     </para>
 
@@ -62,9 +62,9 @@
         </para>
 
         <programlisting role="html"><![CDATA[
-<object data="/path/to/flash.swf" 
-        type="application/x-shockwave-flash" 
-        classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" 
+<object data="/path/to/flash.swf"
+        type="application/x-shockwave-flash"
+        classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
         codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab">
 </object>
 ]]>
@@ -84,36 +84,36 @@
         <para>
             Pierwszy argument w helperze jest zawsze wymagany. Określa on adres
             URL zasobu, który chcesz dołączyć do dokumentu (X)HTML. Drugi
-            argument jest wymagany tylko w helperze <code>htmlObject</code>. 
+            argument jest wymagany tylko w helperze <code>htmlObject</code>.
             Inne helpery posiadają poprawną domyślną wartość dla tego argumentu.
             Trzeci argument jest używany do przekazywania atrybutów do obiektu
             elementu. Akceptuje on tablicę par klucz-wartość. Przykładem
-            mogą być atrybuty <code>classid</code> oraz <code>codebase</code>. 
-            Czwarty argument przyjmuje także tylko tablice elementów w postaci 
-            klucz-wartość i używa ich do elementów <code><![CDATA[<param>]]></code>. 
+            mogą być atrybuty <code>classid</code> oraz <code>codebase</code>.
+            Czwarty argument przyjmuje także tylko tablice elementów w postaci
+            klucz-wartość i używa ich do elementów <code><![CDATA[<param>]]></code>.
             Ostatni argument umożliwia przekazanie dodatkowej zawartości do obiektu.
             Zobacz przykład używający wszystkich argumentów.
         </para>
 
         <programlisting role="php"><![CDATA[
 echo $this->htmlObject(
-    '/path/to/file.ext', 
-    'mime/type', 
+    '/path/to/file.ext',
+    'mime/type',
     array(
-        'attr1' => 'aval1', 
+        'attr1' => 'aval1',
         'attr2' => 'aval2'
-    ), 
+    ),
     array(
-        'param1' => 'pval1', 
+        'param1' => 'pval1',
         'param2' => 'pval2'
-    ), 
+    ),
     'some content'
 );
 
 /*
 Spowoduje to wyświetlenie:
 
-<object data="/path/to/file.ext" type="mime/type" 
+<object data="/path/to/file.ext" type="mime/type"
     attr1="aval1" attr2="aval2">
     <param name="param1" value="pval1" />
     <param name="param2" value="pval2" />

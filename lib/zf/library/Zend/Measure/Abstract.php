@@ -235,7 +235,7 @@ abstract class Zend_Measure_Abstract
             } else {
                 $value = call_user_func(Zend_Locale_Math::$mul, $value, $this->_units[$this->getType()][0], 25);
             }
-            
+
             // Convert to expected value
             if (is_array($this->_units[$type][0])) {
                 foreach (array_reverse($this->_units[$type][0]) as $key => $found) {

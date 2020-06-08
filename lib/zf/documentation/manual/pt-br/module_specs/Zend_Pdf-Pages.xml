@@ -12,7 +12,7 @@
 
         <para>
             Uma nova página pode ser obtida através da criação de um novo objeto <code>Zend_Pdf_Page</code> ou pela chamada
-			ao método <code>Zend_Pdf::newPage()</code>, que retorna um objeto <code>Zend_Pdf_Page</code>. A diferença é que 
+			ao método <code>Zend_Pdf::newPage()</code>, que retorna um objeto <code>Zend_Pdf_Page</code>. A diferença é que
 			o método <code>Zend_Pdf::newPage()</code> cria uma nova página já anexada ao documento. Isso faz com que,
 			diferentemente das páginas não anexadas, a página criada por este método não possa ser usada em outros documentos
 			PDF. Entretanto, ela tem uma performance um pouco melhor.
@@ -74,7 +74,7 @@
     <sect2 id="zend.pdf.pages.cloning">
         <title>Clonde de Páginas.</title>
         <para>
-            Páginas PDF podem ser clonadas através da criação de um novo objeto <code>Zend_Pdf_Page</code> com uma página 
+            Páginas PDF podem ser clonadas através da criação de um novo objeto <code>Zend_Pdf_Page</code> com uma página
 			já existente como parâmetro:
         </para>
 

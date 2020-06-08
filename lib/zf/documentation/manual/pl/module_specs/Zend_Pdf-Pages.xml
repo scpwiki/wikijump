@@ -107,15 +107,15 @@ unset($pdf->pages[$templatePageIndex]);
         </example>
 
         <para>
-            Jest to przydatne gdy chcesz utworzyć wiele stron używając jednego 
+            Jest to przydatne gdy chcesz utworzyć wiele stron używając jednego
             szablonu.
         </para>
 
         <caution>
             <para>
-                Ważne! Klonowane strony korzystają z tych samych zasobów co 
-                szablon strony, więc mogą być one użyte tylko w tym samym 
-                dokumencie co szablon. Zmodyfkowany dokument może być zapisany 
+                Ważne! Klonowane strony korzystają z tych samych zasobów co
+                szablon strony, więc mogą być one użyte tylko w tym samym
+                dokumencie co szablon. Zmodyfkowany dokument może być zapisany
                 jako nowy dokument.
             </para>
         </caution>

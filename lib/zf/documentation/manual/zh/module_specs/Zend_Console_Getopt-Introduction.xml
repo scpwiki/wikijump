@@ -48,7 +48,7 @@
     <note>
         <title>Getopt 不是应用程序框架 </title>
         <para>
-            <code>Zend_Console_Getopt</code> <emphasis> 不 </emphasis> 不翻译 flags 和 parameters 的意思，这个类也不实现程序流程或调用程序代码。你必需在你自己的程序代码中实现这些动作。你可以使用 <code>Zend_Console_Getopt</code> 来解析命令行和提供面向对象的方法来查询由用户给定的 options ，但使用这些信息去调用程序的部分应当在其它 PHP 类里。 
+            <code>Zend_Console_Getopt</code> <emphasis> 不 </emphasis> 不翻译 flags 和 parameters 的意思，这个类也不实现程序流程或调用程序代码。你必需在你自己的程序代码中实现这些动作。你可以使用 <code>Zend_Console_Getopt</code> 来解析命令行和提供面向对象的方法来查询由用户给定的 options ，但使用这些信息去调用程序的部分应当在其它 PHP 类里。
         </para>
     </note>
     <para>

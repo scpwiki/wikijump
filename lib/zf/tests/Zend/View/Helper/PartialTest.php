@@ -24,7 +24,7 @@ require_once 'Zend/Controller/Front.php';
  * @package    Zend_View
  * @subpackage UnitTests
  */
-class Zend_View_Helper_PartialTest extends PHPUnit_Framework_TestCase 
+class Zend_View_Helper_PartialTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @var Zend_View_Helper_Partial

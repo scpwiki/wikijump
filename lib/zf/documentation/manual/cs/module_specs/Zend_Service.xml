@@ -6,7 +6,7 @@
     </para>
     <para>
         Pokud potřebuje podporu obecných REST služeb založených na XML, můžete
-        se podívat na 
+        se podívat na
         <link linkend="zend.rest.client"><code>Zend_Rest_Client</code></link>.
     </para>
     <para>

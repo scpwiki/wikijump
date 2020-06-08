@@ -83,7 +83,7 @@ if (is_string($ret)) {
 ]]>
             </programlisting>
         </example>
-	        
+
 	    <note>
 	        <para>
 	            この処理、そしてその後の対話形式のスクリプトではセキュアな接続
@@ -91,7 +91,7 @@ if (is_string($ret)) {
 	            これは、パスワードの漏洩を防ぐためです。
 	        </para>
 	   </note>
-	        
+
         <para>
             次のスクリプトは、識別サーバ <code>Zend_OpenId_Provider</code>
             用のログイン画面を実装したものです。
@@ -255,7 +255,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' &&
             "openid.action" を追加した場所を指すことになります。
         </para>
 
-        
+
         <note>
 	        <para>
 	            次の例は完全なものではありません。

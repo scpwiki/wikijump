@@ -26,7 +26,7 @@
  * @link       http://pear.php.net/package/Text_Wiki
  */
 class Text_Wiki_Render_Xhtml_Wikilink extends Text_Wiki_Render {
-    
+
     public $conf = array(
         'pages' => array(), // set to null or false to turn off page checks
         'view_url' => 'http://example.com/index.php?page=%s',
@@ -55,7 +55,7 @@ class Text_Wiki_Render_Xhtml_Wikilink extends Text_Wiki_Render {
     {
         extract($options);
         if($site){
-            
+
             $o = '<a href="http://'.$site.'.'.GlobalProperties::$URL_DOMAIN.'/'.$page.'">';
             $o .= $text;
             $o .= '</a>';
@@ -91,11 +91,11 @@ class Text_Wiki_Render_Xhtml_Wikilink extends Text_Wiki_Render {
 		if($exists && $textFromTitle){
 			// get displayed text from the page title
 			$pageObj = DB_PagePeer::instance()->selectByPrimaryKey($exists);
-			$text = $pageObj->getTitleOrUnixName();	
+			$text = $pageObj->getTitleOrUnixName();
 		}
-		
+
 		if(!$exists && $textFromTitle){
-			$text = $page;	
+			$text = $page;
 		}
 
         // convert *after* checking against page names so as not to mess
@@ -103,9 +103,9 @@ class Text_Wiki_Render_Xhtml_Wikilink extends Text_Wiki_Render {
         $page = htmlspecialchars(trim($page));
         $anchor = htmlspecialchars(trim($anchor));
         $text = htmlspecialchars(trim($text));
-        
+
        	if($nonbr){
-       		$text = str_replace(' ', '&nbsp;', $text);	
+       		$text = str_replace(' ', '&nbsp;', $text);
        	}
 
         // does the page exist?
@@ -113,10 +113,10 @@ class Text_Wiki_Render_Xhtml_Wikilink extends Text_Wiki_Render {
 
             // PAGE EXISTS.
 			// store it in the array
-			
+
 			$wiki = $this->wiki;
 			if($wiki->vars['internalLinksExist'] == null){
-				$wiki->vars['internalLinksExist'] = array();	
+				$wiki->vars['internalLinksExist'] = array();
 			}
 			$wiki->vars['internalLinksExist'][$exists]=$exists;
 
@@ -141,10 +141,10 @@ class Text_Wiki_Render_Xhtml_Wikilink extends Text_Wiki_Render {
         } else {
         		$wiki = $this->wiki;
 			if($wiki->vars['internalLinksNotExist'] == null){
-				$wiki->vars['internalLinksNotExist'] = array();	
+				$wiki->vars['internalLinksNotExist'] = array();
 			}
 			$wiki->vars['internalLinksNotExist'][$page] = $page;
-			
+
             // PAGE DOES NOT EXIST.
 			//WikiTransformation::$internalLinksNotExist[$page] = $page; //which is the page unix name!
 

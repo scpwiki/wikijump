@@ -1,7 +1,7 @@
 <sect1 id="zend.feed.introduction">
     <title>Úvod</title>
     <para>
-        <code>Zend_Feed</code> poskytuje funkcionalitu pre spracovanie RSS a Atom 
+        <code>Zend_Feed</code> poskytuje funkcionalitu pre spracovanie RSS a Atom
         zdrojov. Poskytuje prirodzený spôsob pre prístup k jednotlivým častiam zdroja,
         ako sú elementy, atribúty a jednotlivé položky. Okrem toho <code>Zend_Feed</code>
         poskytuje podporu pre modifikáciu zdroja a jeho položiek a spätné uloženie
@@ -9,10 +9,10 @@
     </para>
 
     <para>
-        Programátorsky, <code>Zend_Feed</code> pozostáva zo základnej triedy 
+        Programátorsky, <code>Zend_Feed</code> pozostáva zo základnej triedy
         <code>Zend_Feed</code> abstraktných tried <code>Zend_Feed_Abstract</code>
         a <code>Zend_Feed_Entry_Abstract</code> pre reprezentáciu zdroja a položiek
-        v zdroji. Ďalej sú to špecifické implementácie zdroja a jeho položiek 
+        v zdroji. Ďalej sú to špecifické implementácie zdroja a jeho položiek
         pre RSS a Atom.
     </para>
 
@@ -27,7 +27,7 @@
         <para>
             Veľa RSS zdrojov ma rôzne prúdy a rôzne vlastnosti. Špecifikácia RSS
             poskytuje veľa voliteľných vlastnosti a preto si dávajte pozor pri
-            písaní kódu ktorý pracuje s RSS zdrojmi. 
+            písaní kódu ktorý pracuje s RSS zdrojmi.
         </para>
     </note>
 

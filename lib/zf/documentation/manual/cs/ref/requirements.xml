@@ -17,7 +17,7 @@
         </para>
 
         <para>
-            Zend Framework má obsáhlou kolekci automatických testů, které můžete 
+            Zend Framework má obsáhlou kolekci automatických testů, které můžete
             spustit s použitím PHPUnit 3.0 nebo vyšší. Tato verze PHPUnit také
             vyžaduje PHP 5.1.4 nebo vyšší.
         </para>
@@ -25,7 +25,7 @@
         <para>
             Přestože Zend Framework bude fungovat správně s verzí PHP zmíněnou výše,
             doporučujeme použití PHP 5.2.3 nebo vyšší. Novější verze PHP obsahuje
-            důležitá bezpečnostní a výkonová vylepšení. 
+            důležitá bezpečnostní a výkonová vylepšení.
         </para>
 
     </sect1>
@@ -42,7 +42,7 @@
         </para>
 
         <para>
-            Typ použití "Závislost" znamená, že komponenta nebo třídy nejsou 
+            Typ použití "Závislost" znamená, že komponenta nebo třídy nejsou
             použitelné bez přislušného rozšíření. Způsob použití "Volitelné"
             znamená, že pokud rozšíření není dostupné, komponenta nebo třídy
             automaticky použije alternativní kód.
@@ -539,7 +539,7 @@
         <title>Zend Framework komponenty</title>
 
         <para>
-            Následující tabulka obsahuje seznam všech komponent Zend Frameworku 
+            Následující tabulka obsahuje seznam všech komponent Zend Frameworku
             a která PHP rozšíření potřebují. Tato tabulka vám může pomoci
             zjistit, které rozšíření jsou potřebná pro vaši aplikaci. Ne všechna
             rozšíření použitá Zend Frameworkem jsou potřebná pro každou aplikaci.

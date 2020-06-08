@@ -14,7 +14,7 @@ require_once 'Zend/View.php';
 /**
  * Test class for Zend_Form_Decorator_FormErrors
  */
-class Zend_Form_Decorator_FormErrorsTest extends PHPUnit_Framework_TestCase 
+class Zend_Form_Decorator_FormErrorsTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.

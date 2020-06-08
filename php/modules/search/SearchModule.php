@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -25,42 +25,42 @@
 
 
 class SearchModule extends SmartyModule {
-	
+
 	public function build($runData){
 
 		$pl = $runData->getParameterList();
 		$query = trim($pl->getParameterValue("q"));
 		$area = $pl->getParameterValue("a");
-		
+
 		$mini = (bool) $pl->getParameterValue('mini');
 		$runData->contextAdd('mini', $mini);
 
 		if($area != 'p' && $area != 'f'){
 			$area = null;
 		}
-		
+
 		if($query == ''){
-			return;	
+			return;
 		}
 		if(strlen($query)<3){
 			$runData->contextAdd("query", $query);
-			$runData->contextAdd("errorMessage", _("Your query should be at least 3 characters long.")); 
-			return;	
+			$runData->contextAdd("errorMessage", _("Your query should be at least 3 characters long."));
+			return;
 		}
-		
+
 		$site = $runData->getTemp("site");
-		
+
 		// pagination
-		
+
 		$pageNumber = $pl->getParameterValue("p");
 		if($pageNumber == null || !is_numeric($pageNumber) || $pageNumber <1){
-			$pageNumber = 1;	
+			$pageNumber = 1;
 		}
 		$perPage = 10;
-		
+
 		$limit = $perPage*2+1;
 		$offset = ($pageNumber - 1)*$perPage;
-		
+
 		$qe = $query;
 		$qe = preg_replace("/[!:\?^]/", ' ', $qe);
 		$qe = preg_replace("/[&\|!]+/", ' ', $qe);
@@ -69,16 +69,16 @@ class SearchModule extends SmartyModule {
 		$qe = trim($qe);
 		$qe = preg_replace('/ +/', '&', $qe);
 		// prepare fts query
-		
+
 		// escaped query
 		$eq = "'".db_escape_string($qe)."'";
-		
+
 		// search pages
 		$headlineOptions = "'MaxWords=200, MinWords=100'";
-		
+
 		// 	check if separate database for searching
 		$db = Database::connection();
-		
+
 		$v = pg_version($db->getLink());
 		$tsprefix = '';
 		if(!preg_match(';^8\.3;', $v['server'])){
@@ -86,13 +86,13 @@ class SearchModule extends SmartyModule {
 		} else {
 			$tsprefix = 'ts_'; // because in postgresql 8.3 functions are ts_rank and ts_header
 		}
-		
+
 		$q = "SELECT *, {$tsprefix}headline(text, q, 'MaxWords=50, MinWords=30') AS headline_text, {$tsprefix}headline(title, q, $headlineOptions) AS headline_title, {$tsprefix}rank(vector, q) as rank FROM (SELECT * FROM fts_entry, to_tsquery($eq) AS q " .
 				"WHERE " .
 				"site_id='".$site->getSiteId()."'";
-		
+
 		if($area){
-			
+
 			switch($area){
 				case 'f':
 					$q .= " AND thread_id IS NOT NULL ";
@@ -101,56 +101,56 @@ class SearchModule extends SmartyModule {
 					$q .= " AND page_id IS NOT NULL ";
 					break;
 			}
-				
+
 		}
 		$q .= " AND " .
 				"vector @@ q ORDER BY {$tsprefix}rank(vector, q) DESC LIMIT $limit OFFSET $offset ) AS fts_entry ORDER BY rank DESC";
-		
+
 		$r = $db->query($q);
 		$res = $r->fetchAll();
 
 		if($res){
 			// fix urls
 
-			$counted = count($res); 
-		
+			$counted = count($res);
+
 			$pagerData = array();
 			$pagerData['current_page'] = $pageNumber;
 			if($counted >$perPage*2){
 				$knownPages=$pageNumber + 2;
-				$pagerData['known_pages'] = $knownPages;	
+				$pagerData['known_pages'] = $knownPages;
 			} elseif($counted>$perPage){
 				$knownPages=$pageNumber + 1;
-				$pagerData['total_pages'] = $knownPages; 
+				$pagerData['total_pages'] = $knownPages;
 			}else{
-				$totalPages = $pageNumber;	
+				$totalPages = $pageNumber;
 				$pagerData['total_pages'] = $totalPages;
 			}
-			
+
 			$res = array_slice($res, 0, $perPage);
-			
+
 			for($i=0; $i<count($res); $i++){
 				$o = $res[$i];
 				if($o['page_id'] !== null){
-					$res[$i]['url'] = '/'.$o['unix_name'];	
+					$res[$i]['url'] = '/'.$o['unix_name'];
 				}else{
-					$res[$i]['url'] = '/forum/t-'.$o['thread_id'].'/'.$o['unix_name'];	
+					$res[$i]['url'] = '/forum/t-'.$o['thread_id'].'/'.$o['unix_name'];
 				}
 			}
-			
+
 		}
-		
+
 		$runData->contextAdd("pagerData", $pagerData);
-		
+
 		$runData->contextAdd("results", $res);
 		$runData->contextAdd("countResults", count($res));
 		$runData->contextAdd("query", $query);
 		$runData->contextAdd("encodedQuery", urldecode($query));
 		$runData->contextAdd("queryEncoded", urlencode($query));
 		$runData->contextAdd("area", $area);
-		$runData->contextAdd("query_debug", $qe); 
+		$runData->contextAdd("query_debug", $qe);
 		$runData->contextAdd("domain", $site->getDomain());
-		
+
 	}
-	
+
 }

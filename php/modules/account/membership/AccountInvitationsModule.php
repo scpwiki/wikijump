@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,7 +27,7 @@
 use DB\MemberInvitationPeer;
 
 class AccountInvitationsModule extends AccountBaseModule {
-	
+
 	public function build($runData){
 
 		// just get invitations
@@ -35,9 +35,9 @@ class AccountInvitationsModule extends AccountBaseModule {
 		$c = new Criteria();
 		$c->add("user_id", $userId);
 		$c->addOrderDescending("invitation_id");
-		
+
 		$invs = MemberInvitationPeer::instance()->select($c);
-		
+
 		if(count($invs)>0){
 			$runData->contextAdd("invitations", $invs);
 		}

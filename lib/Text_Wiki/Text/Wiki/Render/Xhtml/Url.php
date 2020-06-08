@@ -119,14 +119,14 @@ class Text_Wiki_Render_Xhtml_Url extends Text_Wiki_Render {
         /* Add to array of external links. */
         $wiki = $this->wiki;
 		if($wiki->vars['externalLinks'] == null){
-			$wiki->vars['externalLinks'] = array();	
+			$wiki->vars['externalLinks'] = array();
 		}
 		if(preg_match(';^https?://;', $href0)){
 			$href0 = substr($href0,0,2000);
 			$wiki->vars['externalLinks'][$href0]=$href0;
 		}
 
-           
+
         return $output;
     }
 }

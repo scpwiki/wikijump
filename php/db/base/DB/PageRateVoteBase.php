@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version \$Id\$
@@ -29,7 +29,7 @@ use BaseDBObject;
 
 
 
- 
+
 /**
  * Base class mapped to the database table page_rate_vote.
  */
@@ -40,60 +40,60 @@ class PageRateVoteBase extends BaseDBObject {
 		$this->peerName = 'DB\\PageRateVotePeer';
 		$this->primaryKeyName = 'rate_id';
 		$this->fieldNames = array( 'rate_id' ,  'user_id' ,  'page_id' ,  'rate' ,  'date' );
-		
+
 		//$this->fieldDefaultValues=
 	}
 
 
-	
-		
-	
-		
+
+
+
+
 	public function getRateId() {
 		return $this->getFieldValue('rate_id');
 	}
-	
+
 	public function setRateId($v1, $raw=false) {
-		$this->setFieldValue('rate_id', $v1, $raw); 
+		$this->setFieldValue('rate_id', $v1, $raw);
 	}
-	
-		
+
+
 	public function getUserId() {
 		return $this->getFieldValue('user_id');
 	}
-	
+
 	public function setUserId($v1, $raw=false) {
-		$this->setFieldValue('user_id', $v1, $raw); 
+		$this->setFieldValue('user_id', $v1, $raw);
 	}
-	
-		
+
+
 	public function getPageId() {
 		return $this->getFieldValue('page_id');
 	}
-	
+
 	public function setPageId($v1, $raw=false) {
-		$this->setFieldValue('page_id', $v1, $raw); 
+		$this->setFieldValue('page_id', $v1, $raw);
 	}
-	
-		
+
+
 	public function getRate() {
 		return $this->getFieldValue('rate');
 	}
-	
+
 	public function setRate($v1, $raw=false) {
-		$this->setFieldValue('rate', $v1, $raw); 
+		$this->setFieldValue('rate', $v1, $raw);
 	}
-	
-		
+
+
 	public function getDate() {
 		return $this->getFieldValue('date');
 	}
-	
+
 	public function setDate($v1, $raw=false) {
-		$this->setFieldValue('date', $v1, $raw); 
+		$this->setFieldValue('date', $v1, $raw);
 	}
-	
-		
-	
+
+
+
 
 }

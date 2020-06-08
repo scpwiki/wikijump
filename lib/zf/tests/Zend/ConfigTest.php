@@ -365,7 +365,7 @@ class Zend_ConfigTest extends PHPUnit_Framework_TestCase
         $this->assertType('stdClass', $config->b->c);
         $this->assertType('stdClass', $config->b->d);
     }
-    
+
     /**
      * ensure that modification is not allowed after calling setReadOnly()
      *
@@ -377,17 +377,17 @@ class Zend_ConfigTest extends PHPUnit_Framework_TestCase
             );
         $config = new Zend_Config($configData, true);
         $config->b = 'b';
-        
+
         $config->setReadOnly();
         try {
             $config->c = 'c';
         } catch (Zend_Config_Exception $expected) {
             $this->assertContains('is read only', $expected->getMessage());
             return;
-        }        
+        }
         $this->fail('Expected read only exception has not been raised.');
     }
-    
+
     public function testZF3408_countNotDecreasingOnUnset()
     {
         $configData = array(
@@ -400,8 +400,8 @@ class Zend_ConfigTest extends PHPUnit_Framework_TestCase
         unset($config->b);
         $this->assertEquals(count($config), 2);
     }
-    
-    public function testZF4107_ensureCloneDoesNotKeepNestedReferences() 
+
+    public function testZF4107_ensureCloneDoesNotKeepNestedReferences()
     {
         $parent = new Zend_Config(array('key' => array('nested' => 'parent')), true);
         $newConfig = clone $parent;
@@ -409,9 +409,9 @@ class Zend_ConfigTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals('override', $newConfig->key->nested, '$newConfig is not overridden');
         $this->assertEquals('parent', $parent->key->nested, '$parent has been overridden');
-        
+
     }
-    
+
     /**
      * @group ZF-3575
      *
@@ -435,7 +435,7 @@ class Zend_ConfigTest extends PHPUnit_Framework_TestCase
             $this->fail('Unexpected exception on nested object has been raised: ' . $e->getMessage());
         }
         $this->assertEquals('no', $config2->key->nested);
-        
+
     }
 }
 

@@ -55,17 +55,17 @@ class Zend_Gdata_App_MediaEntry extends Zend_Gdata_App_Entry
     /**
      * The attached MediaSource/file
      *
-     * @var Zend_Gdata_App_MediaSource 
+     * @var Zend_Gdata_App_MediaSource
      */
     protected $_mediaSource = null;
 
     /**
      * The Zend_Mime object used to generate the boundary
      *
-     * @var Zend_Mime 
+     * @var Zend_Mime
      */
     protected $_mime = null;
-   
+
     /**
      * Constructs a new MediaEntry, representing XML data and optional
      * file to upload
@@ -79,18 +79,18 @@ class Zend_Gdata_App_MediaEntry extends Zend_Gdata_App_Entry
         $this->_mime = new Zend_Mime();
         $this->_mediaSource = $mediaSource;
     }
- 
+
     /**
      * Return the Zend_Mime object associated with this MediaEntry.  This
      * object is used to generate the media boundaries.
-     * 
+     *
      * @return Zend_Mime The Zend_Mime object associated with this MediaEntry.
      */
     public function getMime()
     {
         return $this->_mime;
     }
-    
+
     /**
      * Return the MIME multipart representation of this MediaEntry.
      *
@@ -105,12 +105,12 @@ class Zend_Gdata_App_MediaEntry extends Zend_Gdata_App_Entry
         } else {
             $mimeMessage = new Zend_Mime_Message();
             $mimeMessage->setMime($this->_mime);
-           
+
             $xmlPart = new Zend_Mime_Part($xmlData);
             $xmlPart->type = 'application/atom+xml';
             $xmlPart->encoding = null;
             $mimeMessage->addPart($xmlPart);
-            
+
             $binaryPart = new Zend_Mime_Part($this->getMediaSource()->encode());
             $binaryPart->type = $this->getMediaSource()->getContentType();
             $binaryPart->encoding = null;
@@ -119,7 +119,7 @@ class Zend_Gdata_App_MediaEntry extends Zend_Gdata_App_Entry
             return $mimeMessage->generateMessage();
         }
     }
-   
+
     /**
      * Return the MediaSource object representing the file attached to this
      * MediaEntry.
@@ -148,11 +148,11 @@ class Zend_Gdata_App_MediaEntry extends Zend_Gdata_App_Entry
         }
         return $this;
     }
-    
+
     /**
      * Return the boundary used in the MIME multipart message
      *
-     * @return string The boundary used in the MIME multipart message 
+     * @return string The boundary used in the MIME multipart message
      */
     public function getBoundary()
     {

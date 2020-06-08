@@ -40,7 +40,7 @@ $form = new My_Form()
 ?>]]></programlisting>
 
     <para>
-        你可以可选地传递配置参数，它用来设置对象状态以及可能生成新元素： 
+        你可以可选地传递配置参数，它用来设置对象状态以及可能生成新元素：
     </para>
 
     <programlisting role="php"><![CDATA[<?php
@@ -127,7 +127,7 @@ $element = new Zend_Form_Element_Text('foo');
 $form->addElement($element);
 
 // Using a factory
-// 
+//
 // Creates an element of type Zend_Form_Element_Text with the
 // name of 'foo':
 $form->addElement('text', 'foo');
@@ -251,16 +251,16 @@ $form->setElementDecorators(array(
 ));
 ?>]]></programlisting>
             </example>
-            
+
             <example id="zend.form.forms.elements.global.decoratorsFilter">
                 <title> 为某些元素设置装饰器 </title>
 
                 <para>
-                    你也可以对一个元素的子集设置装饰器，包含和排除都可以。 
+                    你也可以对一个元素的子集设置装饰器，包含和排除都可以。
                     <code>setElementDecorators()</code> 的第二个参数可以是元素名数组；
                     缺省地，指定这样一个数组将只对这些元素设置指定的装饰器。
-                    你也可以传递第三个参数，用来指示是包含还是排除这个元素列表的标志。                                        
-                    如果是 false，它将装饰 <emphasis>除了</emphasis> 这些在列表中的元素 <emphasis>之外</emphasis> 
+                    你也可以传递第三个参数，用来指示是包含还是排除这个元素列表的标志。
+                    如果是 false，它将装饰 <emphasis>除了</emphasis> 这些在列表中的元素 <emphasis>之外</emphasis>
                     的所有元素。使用方法的标准用法，在每个元素中，任何传递的装饰器将覆盖任何先前设置的装饰器。
                 </para>
 
@@ -311,7 +311,7 @@ $form->setElementDecorators(
                         你可以使用 包含/排除 数组来克服在前面例子中所述的问题。
                     </para>
 
-                    <para>                    
+                    <para>
                         所以，要灵活使用这个方法，你需要排除或手工修改一些元素的装饰器来防止不希望的输出。
                     </para>
                 </note>
@@ -452,12 +452,12 @@ $login = $form->login;
 
             <programlisting role="php"><![CDATA[<?php
 $form->addDisplayGroup(
-    array('foo', 'bar'), 
-    'foobar', 
+    array('foo', 'bar'),
+    'foobar',
     array('disableLoadDefaultDecorators' => true)
 );
 ]]></programlisting>
-            
+
             <para>
                 该选项可以和其它选项混合，它们都是数组或者 <code>Zend_Config</code> 对象。
             </para>
@@ -508,7 +508,7 @@ $form->setDisplayGroupDecorators(array(
             <programlisting role="php"><![CDATA[<?php
 // Use the 'My_DisplayGroup' class
 $form->addDisplayGroup(
-    array('username', 'password'), 
+    array('username', 'password'),
     'user',
     array('displayGroupClass' => 'My_DisplayGroup')
 );
@@ -701,9 +701,9 @@ $form->setDefaultDisplayGroupClass('My_DisplayGroup');
                         <listitem><para><code>setTranslator(Zend_Translate_Adapter $translator = null)</code></para></listitem>
 
                         <listitem><para><code>getTranslator()</code></para></listitem>
-                        
+
                         <listitem><para><code>setDisableTranslator($flag)</code></para></listitem>
-                     
+
                         <listitem><para><code>translatorIsDisabled()</code></para></listitem>
                     </itemizedlist>
                 </listitem>
@@ -735,7 +735,7 @@ $form->setDefaultDisplayGroupClass('My_DisplayGroup');
         <para>
             子表单可以是 <code>Zend_Form</code> 对象，或者更一般地是 <code>Zend_Form_SubForm</code> 对象。后者包含适合包含在大表单（例如，它不解析另外的 HTML 表单标签，但解析组元素）里的装饰器。为了加上子表单，简单地把它添加到一个表单并给出名字：
         </para>
-        
+
         <programlisting role="php"><![CDATA[<?php
 $form->addSubForm($subForm, 'subform');
 ?>]]></programlisting>
@@ -902,7 +902,7 @@ $form->clearAttribs();
         <title> 装饰器 </title>
 
         <para>
-            为表单生成 markup 通常是一件耗时的任务，特别是如果打算重复使用同一个 markup 来显示校验错误、提交的值等。<code>Zend_Form</code> 的解决办法是<emphasis> 装饰器（decorators）</emphasis>。 
+            为表单生成 markup 通常是一件耗时的任务，特别是如果打算重复使用同一个 markup 来显示校验错误、提交的值等。<code>Zend_Form</code> 的解决办法是<emphasis> 装饰器（decorators）</emphasis>。
         </para>
 
         <para>
@@ -947,7 +947,7 @@ $form->setDecorators(array(
             <programlisting role="php"><![CDATA[<?php
 $form = new Zend_Form(array('disableLoadDefaultDecorators' => true));
 ]]></programlisting>
-            
+
             <para>
                 该选项可以和其它任何选项混合，它们都是数组或在一个 <code>Zend_Config</code> 对象里。
             </para>
@@ -981,7 +981,7 @@ $form = $element->getDecorator('FooBar');
 $form->addDecorators(
     array('HtmlTag', array('tag' => 'div')),
     array(
-        'decorator' => array('FooBar' => 'HtmlTag'), 
+        'decorator' => array('FooBar' => 'HtmlTag'),
         'options' => array('tag' => 'dd')
     ),
 );
@@ -994,7 +994,7 @@ $fooBar  = $form->getDecorator('FooBar');
 
         <para>
             为生成表单，你可以生成自己的装饰器。一个通常的用例是如果你知道额外的你想用的 HTML，你的装饰器可以潜在地使用从独立的元素或显示组来的装饰器生成额外的 HTML 并返回它。
-            
+
         </para>
 
         <para>
@@ -1160,7 +1160,7 @@ $messages = $form->getMessages('username');
                 所有用这个方式设置的错误可以被翻译。
  	 	另外，你可以插入占位符 "%value%" 来表示元素的值；当读取到错误消息时，这个当前元素值将被替换。
             </para>
-        </sect3>        
+        </sect3>
     </sect2>
 
     <sect2 id="zend.form.forms.methods">
@@ -1348,9 +1348,9 @@ $messages = $form->getMessages('username');
                     <listitem><para><code>setTranslator(Zend_Translate_Adapter $translator = null)</code></para></listitem>
 
                     <listitem><para><code>getTranslator()</code></para></listitem>
-                     
+
                     <listitem><para><code>setDisableTranslator($flag)</code></para></listitem>
-                     
+
                     <listitem><para><code>translatorIsDisabled()</code></para></listitem>
                 </itemizedlist>
             </listitem>
@@ -1421,7 +1421,7 @@ method = "post"
 attribs.class = "zend_form"
 attribs.onclick = "validate(this)"
 
-disableTranslator = 0 
+disableTranslator = 0
 
 prefixPath.element.prefix = "My_Element"
 prefixPath.element.path = "My/Element/"
@@ -1538,7 +1538,7 @@ $form = new My_Form_Login();
         <para>
             所有的功能已经设置并准备好了，不需要配置文件。（注意这个例子非常简化，因为它没有为元素包含校验器和过滤器。）
         </para>
-        
+
         <para>
             另一个普通的扩展原因是定义一组缺省的装饰器，可以通过覆盖（overriding）<code>loadDefaultDecorators()</code> 方法来完成：
         </para>

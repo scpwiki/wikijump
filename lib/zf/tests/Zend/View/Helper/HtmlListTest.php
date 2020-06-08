@@ -11,7 +11,7 @@ require_once "PHPUnit/Framework/TestSuite.php";
 require_once 'Zend/View.php';
 require_once 'Zend/View/Helper/HtmlList.php';
 
-class Zend_View_Helper_HtmlListTest extends PHPUnit_Framework_TestCase 
+class Zend_View_Helper_HtmlListTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @var Zend_View_Helper_HtmlList
@@ -61,7 +61,7 @@ class Zend_View_Helper_HtmlListTest extends PHPUnit_Framework_TestCase
         foreach ($items as $item) {
             $this->assertContains('<li>' . $item . '</li>', $list);
         }
-    } 
+    }
 
     public function testMakeOrderedList()
     {
@@ -74,7 +74,7 @@ class Zend_View_Helper_HtmlListTest extends PHPUnit_Framework_TestCase
         foreach ($items as $item) {
             $this->assertContains('<li>' . $item . '</li>', $list);
         }
-    } 
+    }
 
     public function testMakeUnorderedListWithAttribs()
     {
@@ -90,7 +90,7 @@ class Zend_View_Helper_HtmlListTest extends PHPUnit_Framework_TestCase
         foreach ($items as $item) {
             $this->assertContains('<li>' . $item . '</li>', $list);
         }
-    } 
+    }
 
     public function testMakeOrderedListWithAttribs()
     {
@@ -106,7 +106,7 @@ class Zend_View_Helper_HtmlListTest extends PHPUnit_Framework_TestCase
         foreach ($items as $item) {
             $this->assertContains('<li>' . $item . '</li>', $list);
         }
-    } 
+    }
 
     /*
      * @see ZF-5018
@@ -122,8 +122,8 @@ class Zend_View_Helper_HtmlListTest extends PHPUnit_Framework_TestCase
         $this->assertContains('one<ul>' . Zend_View_Helper_HtmlList::EOL.'<li>four', $list);
         $this->assertContains('<li>six</li>' . Zend_View_Helper_HtmlList::EOL . '</ul>' .
             Zend_View_Helper_HtmlList::EOL . '</li>' . Zend_View_Helper_HtmlList::EOL . '<li>two', $list);
-    } 
-    
+    }
+
     /*
      * @see ZF-5018
      */
@@ -137,9 +137,9 @@ class Zend_View_Helper_HtmlListTest extends PHPUnit_Framework_TestCase
         $this->assertContains('</ul>' . Zend_View_Helper_HtmlList::EOL, $list);
         $this->assertContains('one<ul>' . Zend_View_Helper_HtmlList::EOL . '<li>four', $list);
         $this->assertContains('<li>four<ul>' . Zend_View_Helper_HtmlList::EOL . '<li>six', $list);
-        $this->assertContains('<li>five</li>' . Zend_View_Helper_HtmlList::EOL . '</ul>' . 
+        $this->assertContains('<li>five</li>' . Zend_View_Helper_HtmlList::EOL . '</ul>' .
             Zend_View_Helper_HtmlList::EOL . '</li>' . Zend_View_Helper_HtmlList::EOL . '<li>two', $list);
-    } 
+    }
 
     public function testListWithValuesToEscapeForZF2283()
     {
@@ -149,11 +149,11 @@ class Zend_View_Helper_HtmlListTest extends PHPUnit_Framework_TestCase
 
         $this->assertContains('<ul>', $list);
         $this->assertContains('</ul>', $list);
-        
+
         $this->assertContains('<li>one &lt;small&gt; test</li>', $list);
         $this->assertContains('<li>second &amp; third</li>', $list);
         $this->assertContains('<li>And \'some\' &quot;final&quot; test</li>', $list);
-    } 
+    }
 
     public function testListEscapeSwitchedOffForZF2283()
     {
@@ -163,9 +163,9 @@ class Zend_View_Helper_HtmlListTest extends PHPUnit_Framework_TestCase
 
         $this->assertContains('<ul>', $list);
         $this->assertContains('</ul>', $list);
-        
+
         $this->assertContains('<li>one <b>small</b> test</li>', $list);
-    } 
+    }
 
     /**
      * @see ZF-2527
@@ -190,11 +190,11 @@ class Zend_View_Helper_HtmlListTest extends PHPUnit_Framework_TestCase
         $items = array('one', array('four', 'five', 'six'), 'two', 'three');
 
         $list = $this->helper->htmlList($items, false, array('class' => 'foo'));
-        
+
         foreach ($items[1] as $item) {
             $this->assertRegexp('#<ul[^>]*?class="foo"[^>]*>.*?(<li>' . $item . ')#s', $list);
         }
-        
+
     }
 
     /**
@@ -205,14 +205,14 @@ class Zend_View_Helper_HtmlListTest extends PHPUnit_Framework_TestCase
         $items = array(
             '<b>one</b>',
             array(
-                '<b>four</b>', 
-                '<b>five</b>', 
+                '<b>four</b>',
+                '<b>five</b>',
                 '<b>six</b>',
                 array(
-                    '<b>two</b>', 
+                    '<b>two</b>',
                     '<b>three</b>',
                 ),
-            ), 
+            ),
         );
 
         $list = $this->helper->htmlList($items, false, false, false);

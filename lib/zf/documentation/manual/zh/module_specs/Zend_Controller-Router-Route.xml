@@ -142,7 +142,7 @@ $router->addRoute('archive', $route);
             用上述定义的路由，路由器仅当year变量包含数字数据将匹配它，例如<code>http://domain.com/archive/2345</code>。象<code>http://example.com/archive/test</code>这样的URL将不被匹配并且控制将被传递给在链中的下一个路由。
         </para>
     </sect4>
-    
+
     <sect4 id="zend.controller.router.routes.standard.hostname-routing">
         <title> 主机名路由 </title>
 
@@ -170,7 +170,7 @@ $router->addRoute('archive', $route);
             如果你想匹配参数在主机名里，使用 regex 选项。在下面例子中，子域为动作控制器被用作用户名参数。
             当组装路由时，你可以给出用户名为参数，就像你用其它路径参数一样：
         </para>
-        
+
         <programlisting role="php"><![CDATA[
 $route = new Zend_Controller_Router_Route(
     array(
@@ -179,7 +179,7 @@ $route = new Zend_Controller_Router_Route(
             'reverse' => '%s.mysite.com'
             'params'  => array(
                 1 => 'username'
-            ) 
+            )
         ),
         'path' => ''
     ),
@@ -192,7 +192,7 @@ $route = new Zend_Controller_Router_Route(
 $router->addRoute('profile', $route);
 ]]>
         </programlisting>
-    </sect4>    
+    </sect4>
 </sect3>
 <!--
 vim:se ts=4 sw=4 et:

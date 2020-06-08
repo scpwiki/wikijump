@@ -3,11 +3,11 @@
 	margin: 0;
 	padding: 0;
 	list-style: none;
-} 
+}
 
 .page-calendar-box ul li ul {
 	padding-left: 2em;
-	font-size: 87%;	
+	font-size: 87%;
 }
 
 .page-calendar-box {

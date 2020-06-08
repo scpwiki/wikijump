@@ -93,7 +93,7 @@ foreach ($hits as $hit) {
 
         <para>
              <code>Zend_Search_Lucene::maxDoc()</code> returns one greater than the largest possible document number.
-             It's actually the overall number of the documents in the index including deleted documents, 
+             It's actually the overall number of the documents in the index including deleted documents,
              so it has a synonym: <code>Zend_Search_Lucene::count()</code>.
         </para>
 

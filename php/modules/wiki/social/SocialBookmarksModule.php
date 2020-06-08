@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -25,7 +25,7 @@
 
 
 class SocialBookmarksModule extends SmartyModule {
-	
+
 	private $sites = Array(
 
 	'blinkbits' => Array(
@@ -187,16 +187,16 @@ class SocialBookmarksModule extends SmartyModule {
 		'favicon' => 'facebook.gif',
 		'onclick' => "window.open('http://www.facebook.com/sharer.php?u='+encodeURIComponent(location.href)+'&t='+encodeURIComponent(document.title),'sharer','toolbar=0,status=0,width=626,height=436');return false;"
 	)
-	
+
 	);
-	
+
 	public function render($runData){
-		
+
 		$sites = $runData->getParameterList()->getParameterValue("sites");
-    	 	
+
     	 	// split sites by ", "
     	 	$ss = preg_split('/,\s*/', $sites);
-    	 	
+
     	 	$out = '';
     	 	$imageUrl = "/common--images/social/";
     	 	if($sites && $sites != ""){
@@ -208,7 +208,7 @@ class SocialBookmarksModule extends SmartyModule {
     	 	}else{
     	 		$ss2 = $this->sites;
     	 	}
-    	 	
+
     	 	// render
     	 	$wikiSite = $runData->getTemp("site");
     	 	$page = $runData->getTemp("page");
@@ -219,7 +219,7 @@ class SocialBookmarksModule extends SmartyModule {
     	 	}
 
     	 	$permalink = GlobalProperties::$HTTP_SCHEMA . "://" . $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
-    	 	
+
     	 	$out = '';
     	 	$id = 'social'.rand(1,100000);
     	 	$out .= '<span id="'.$id.'">';
@@ -229,29 +229,29 @@ class SocialBookmarksModule extends SmartyModule {
     	 		$url = str_replace('BLOGNAME', urlencode($wikiSite->getName()), $url);
     	 		$out .= '<a href="'.$url.'" style="margin: 0 2px" title="'.$site['name'].'" '.($site['onclick']?' onclick="'.$site['onclick'].'"':'');
     	 		if(isset($site['onclick'])){
-    	 			$out .= ' onclick="'.$site['onclick'].'" ';	
+    	 			$out .= ' onclick="'.$site['onclick'].'" ';
     	 		}
     	 		$out .= '>';
     	 		$out .= '<img src="'.$imageUrl.$site['favicon'].'" alt="'.$site['name'].'"/></a>';
-    	 		
+
     	 	}
     	 	$out .= '</span>';
     	 	// ok, now fix the d.... title
     	 	$out .= '<script type="text/javascript">
 			var socialspan = $("'.$id.'");
-			var els = socialspan.getElementsByTagName("a");	
+			var els = socialspan.getElementsByTagName("a");
 			for(var i=0;i<els.length;i++){
 				els[i].href = els[i].href.replace("TITLE", encodeURIComponent(document.title));
 			}
-			</script>'		
+			</script>'
 				;
-				
+
 			// purify???
 			$wt = new WikiTransformation();
 			$out = $wt->purifyHtml($out);
     	 	return $out;
-    	 	
+
 	}
-	
+
 	public function build($r){}
 }

@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -38,11 +38,11 @@ class FeedFlowController extends WebFlowController {
 		$loggerFileOutput->setLogFileName(WIKIDOT_ROOT."/logs/ozone.log");
 		$logger->addLoggerOutput($loggerFileOutput);
 		$logger->setDebugLevel(GlobalProperties::$LOGGER_LEVEL);
-		
+
 		$logger->debug("Feed request processing started, logger initialized");
 
 		Ozone ::init();
-		
+
 		$runData = new RunData();
 		$runData->init();
 		Ozone :: setRunData($runData);
@@ -55,42 +55,42 @@ class FeedFlowController extends WebFlowController {
 		if(preg_match("/^([a-zA-Z0-9\-]+)\." . GlobalProperties::$URL_DOMAIN . "$/", $siteHost, $matches)==1){
 			$siteUnixName=$matches[1];
 			// select site based on the unix name
-			
+
 			// check memcached first!
-			
+
 			// the memcache block is to avoid database connection if possible
-			
+
 			$mcKey = 'site..'.$siteUnixName;
-			$site = $memcache->get($mcKey); 
+			$site = $memcache->get($mcKey);
 			if($site == false){
 				$c = new Criteria();
 				$c->add("unix_name", $siteUnixName);
 				$c->add("site.deleted", false);
 				$site = SitePeer::instance()->selectOne($c);
-				$memcache->set($mcKey, $site, 0, 3600);	
+				$memcache->set($mcKey, $site, 0, 3600);
 			}
 		} else {
 			// select site based on the custom domain
 			$mcKey = 'site_cd..'.$siteHost;
 			$site = $memcache->get($mcKey);
-			if($site == false){	
+			if($site == false){
 				$c = new Criteria();
 				$c->add("custom_domain", $siteHost);
 				$c->add("site.deleted", false);
 				$site = SitePeer::instance()->selectOne($c);
-				$memcache->set($mcKey, $site, 0, 3600);	
+				$memcache->set($mcKey, $site, 0, 3600);
 			}
 			GlobalProperties::$SESSION_COOKIE_DOMAIN = '.'.$siteHost;
-			
+
 		}
-		
+
 		if($site == null){
 			$content = file_get_contents(WIKIDOT_ROOT."/files/site_not_exists.html");
 			echo $content;
-			return $content;	
-		} 
-		
-		$runData->setTemp("site", $site);	
+			return $content;
+		}
+
+		$runData->setTemp("site", $site);
 		//nasty global thing...
 		$GLOBALS['siteId'] = $site->getSiteId();
 		$GLOBALS['site'] = $site;
@@ -99,9 +99,9 @@ class FeedFlowController extends WebFlowController {
 		$lang = $site->getLanguage();
 		$runData->setLanguage($lang);
 		$GLOBALS['lang'] = $lang;
-		
+
 		// and for gettext too:
-		
+
 		switch($lang){
 			case 'pl':
 				$glang="pl_PL";
@@ -111,12 +111,12 @@ class FeedFlowController extends WebFlowController {
 				break;
 		}
 
-		putenv("LANG=$glang"); 
-		putenv("LANGUAGE=$glang"); 
+		putenv("LANG=$glang");
+		putenv("LANGUAGE=$glang");
 		setlocale(LC_ALL, $glang.'.UTF-8');
-		
+
 		$settings = $site->getSettings();
-		// handle SSL 
+		// handle SSL
 		$sslMode = $settings->getSslMode();
 		if($_SERVER['HTTPS']){
 			if(!$sslMode){
@@ -133,7 +133,7 @@ class FeedFlowController extends WebFlowController {
 
 		require_once ($classFile);
 		$screen = new $className ();
-			
+
 		// check if requires authentication
 		if($screen->getRequiresAuthentication() || $site->getPrivate()){
 			$username = $_SERVER['PHP_AUTH_USER'];
@@ -147,9 +147,9 @@ class FeedFlowController extends WebFlowController {
 					if($upass !== $password){
 						$user = null;
 					}
-				}	
-			}	
-			
+				}
+			}
+
 			if($site->getPrivate()){
 				if($user && !$user->getSuperAdmin() && !$user->getSuperModerator()){
 					// check if member
@@ -157,19 +157,19 @@ class FeedFlowController extends WebFlowController {
 					$c->add("site_id", $site->getSiteId());
 					$c->add("user_id", $user->getUserId());
 					$mem = MemberPeer::instance()->selectOne($c);
-					if(!$mem) { 
+					if(!$mem) {
 						// check if a viewer
 						$c = new Criteria();
 						$c->add("site_id", $site->getSiteId());
 						$c->add("user_id", $user->getUserId());
 						$vi = SiteViewerPeer::instance()->selectOne($c);
-						if(!$vi) { 
+						if(!$vi) {
 							$user = null;
 						}
 					}
 				}
 			}
-			
+
 			if($user == null){
 				header('WWW-Authenticate: Basic realm="Private"');
    				header('HTTP/1.0 401 Unauthorized');
@@ -178,8 +178,8 @@ class FeedFlowController extends WebFlowController {
    				exit();
 			}
 			$runData->setTemp("user", $user);
-		}	
-	
+		}
+
 		$logger->debug("OZONE initialized");
 
 		$logger->info("Ozone engines successfully initialized");
@@ -187,7 +187,7 @@ class FeedFlowController extends WebFlowController {
 		$rendered = $screen->render($runData);
 
 		echo str_replace("%%%CURRENT_TIMESTAMP%%%",time(),$rendered);
-		
+
 		return $rendered;
 	}
 

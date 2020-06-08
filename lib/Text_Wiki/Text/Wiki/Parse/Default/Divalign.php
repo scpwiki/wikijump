@@ -1,52 +1,52 @@
 <?php
 
 /**
- * 
+ *
  * @category Text
- * 
+ *
  * @package Text_Wiki
- * 
+ *
  * @author Michal Frackowiak
- * 
+ *
  * @license LGPL
- * 
+ *
  * @version $Id$
- * 
+ *
  */
 
 /**
- * 
+ *
  * Parses alignmnent blocks.
  *
  * @category Text
- * 
+ *
  * @package Text_Wiki
- * 
+ *
  * @author Michal Frackowiak
- * 
+ *
  */
 
 class Text_Wiki_Parse_Divalign extends Text_Wiki_Parse {
-    
+
     /**
-     * 
+     *
      * The regular expression used to find source text matching this
      * rule.
-     * 
+     *
      * @access public
-     * 
+     *
      * @var string
-     * 
+     *
      */
-    
+
     public $regex = '/^\[\[(=|<|>|==)\]\]\n((?:(?R)|.)*?)\[\[\/\\1\]\]$/msi';
 
     /**
-     * 
+     *
      * Generates a token entry for the matched text.  Token options are:
-     * 
+     *
      * 'text' => The full matched text, not including the <code></code> tags.
-     * 
+     *
      * @access public
      *
      * @param array &$matches The array of matches from parse().
@@ -55,31 +55,31 @@ class Text_Wiki_Parse_Divalign extends Text_Wiki_Parse {
      * the source text.
      *
      */
-    
+
     function process(&$matches) {
         $align = $matches[1];
         $content = $matches[2];
-        
+
         $options = array('type' => 'start');
-        
-        $aligns = array('=' => 'center', '<' => 'left', 
+
+        $aligns = array('=' => 'center', '<' => 'left',
             '>' => 'right', '==' => 'justify');
-        
+
         $align = $aligns[$align];
-        
+
         if (!$align) {
             return;
         }
-        
+
         $options['align'] = $align;
-        
+
         $start = $this->wiki->addToken($this->rule, $options);
-        
+
         $end = $this->wiki->addToken($this->rule, array(
             'type' => 'end'));
-        
+
         return $start . "\n\n" . $content . "\n\n" . $end;
-    
+
     }
 
     function parse() {

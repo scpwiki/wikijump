@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -28,72 +28,72 @@ use DB\AdminPeer;
 use DB\AdminNotificationPeer;
 
 class AdminNotificationsFeed extends FeedScreen {
-	
+
 	protected $requiresAuthentication = true;
-	
+
 	public function render($runData){
 		$user = $runData->getTemp("user");
 		$site = $runData->getTemp("site");
-		
+
 		// check if site admin
-		
+
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
 		$c->add("user_id", $user->getUserId());
-		
+
 		$admin = AdminPeer::instance()->selectOne($c);
-		
+
 		if($admin == null){
-			return _("Sorry, you are not allowed to view this feed.");	
+			return _("Sorry, you are not allowed to view this feed.");
 		}
-		
+
 		$key = "adminnotificationsfeed..".$site->getSiteId();
 		$mc = OZONE::$memcache;
 		$out = $mc->get($key);
 		if($out){
-			return $out;	
+			return $out;
 		}
 		$out = parent::render($runData);
 		$mc->set($key, $out, 0, 3600);
 		return $out;
 	}
-	
+
 	public function build($runData){
-	
+
 		$site = $runData->getTemp("site");
-		
+
 		// now just get notifications for the site...
-		
+
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
 		$c->addOrderDescending('notification_id');
-		$c->setLimit(20);	
-		
+		$c->setLimit(20);
+
 		$nots = AdminNotificationPeer::instance()->select($c);
-		
+
 		$channel['title'] = _('Admin notifications for site').' "'.htmlspecialchars($site->getName()).'"';
 		$channel['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/admin:manage/start/notifications";
-		
+
 		$items = array();
-		
+
 		foreach($nots as $not){
 			$extra = $not->getExtra();
 			$item = array();
-			
+
 			$item['title'] = $not->getTitle();
 			switch($not->getType()){
 				case "NEW_MEMBER_APPLICATION":
 					$item['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/admin:manage/start/ma";
-					break;	
-				
+					break;
+
 				default:
 					$item['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/admin:manage/start/notifications"."#notification-".$not->getNotificationId();;
 			}
-			
+
 			$body = $not->getBody();
-			
+
 			$body = preg_replace('/onclick="[^"]+"/', '', $body);
-			
+
 			$item['description'] = $body;
 
 			$item['guid'] = $channel['link']."#notification-".$not->getNotificationId();
@@ -101,11 +101,11 @@ class AdminNotificationsFeed extends FeedScreen {
 			// TODO: replace relative links with absolute links!
 			$content =  '';
 
-			$items[] = $item;	
+			$items[] = $item;
 		}
-		
+
 		$runData->contextAdd("channel", $channel);
 		$runData->contextAdd("items", $items);
 	}
-	
+
 }

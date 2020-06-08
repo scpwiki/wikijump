@@ -50,21 +50,21 @@ require_once 'Zend/Config/Writer/Xml.php';
 class Zend_Config_Writer_XmlTest extends PHPUnit_Framework_TestCase
 {
     protected $_tempName;
-    
+
     public function setUp()
     {
         $this->_tempName = tempnam(dirname(__FILE__) . '/temp', 'tmp');
     }
-    
+
     public function tearDown()
     {
         @unlink($this->_tempName);
     }
-    
+
     public function testNoFilenameSet()
     {
         $writer = new Zend_Config_Writer_Xml(array('config' => new Zend_Config(array())));
-        
+
         try {
             $writer->write();
             $this->fail('An expected Zend_Config_Exception has not been raised');
@@ -72,11 +72,11 @@ class Zend_Config_Writer_XmlTest extends PHPUnit_Framework_TestCase
             $this->assertContains('No filename was set', $expected->getMessage());
         }
     }
-    
+
     public function testNoConfigSet()
     {
         $writer = new Zend_Config_Writer_Xml(array('filename' => $this->_tempName));
-        
+
         try {
             $writer->write();
             $this->fail('An expected Zend_Config_Exception has not been raised');
@@ -84,11 +84,11 @@ class Zend_Config_Writer_XmlTest extends PHPUnit_Framework_TestCase
             $this->assertContains('No config was set', $expected->getMessage());
         }
     }
-    
+
     public function testFileNotWritable()
     {
         $writer = new Zend_Config_Writer_Xml(array('config' => new Zend_Config(array()), 'filename' => '/../../../'));
-        
+
         try {
             $writer->write();
             $this->fail('An expected Zend_Config_Exception has not been raised');
@@ -96,42 +96,42 @@ class Zend_Config_Writer_XmlTest extends PHPUnit_Framework_TestCase
             $this->assertContains('Could not write to file', $expected->getMessage());
         }
     }
-    
+
     public function testWriteAndRead()
     {
         $config = new Zend_Config(array('default' => array('test' => 'foo')));
 
         $writer = new Zend_Config_Writer_Xml(array('config' => $config, 'filename' => $this->_tempName));
         $writer->write();
-                
+
         $config = new Zend_Config_Xml($this->_tempName, null);
-        
+
         $this->assertEquals('foo', $config->default->test);
     }
-    
+
     public function testWriteAndReadSingleSection()
     {
         $config = new Zend_Config_Xml(dirname(__FILE__) . '/files/allsections.xml', 'staging', array('skipExtends' => true));
 
         $writer = new Zend_Config_Writer_Xml(array('config' => $config, 'filename' => $this->_tempName));
         $writer->write();
-                
+
         $config = new Zend_Config_Xml($this->_tempName, null);
-        
+
         $this->assertEquals('staging', $config->staging->hostname);
         $this->assertEquals('false', $config->staging->debug);
         $this->assertEquals(null, @$config->production);
     }
-    
+
     public function testArgumentOverride()
     {
         $config = new Zend_Config(array('default' => array('test' => 'foo')));
 
         $writer = new Zend_Config_Writer_Xml();
         $writer->write($this->_tempName, $config);
-               
+
         $config = new Zend_Config_Xml($this->_tempName, null);
-        
+
         $this->assertEquals('foo', $config->default->test);
     }
 }

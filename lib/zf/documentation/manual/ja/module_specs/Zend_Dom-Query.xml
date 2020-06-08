@@ -124,10 +124,10 @@
         <td class="foo">
             <div>
                 Lorem ipsum <span class="bar">
-                    <a href="/foo/bar" id="one">One</a> 
-                    <a href="/foo/baz" id="two">Two</a> 
-                    <a href="/foo/bat" id="three">Three</a> 
-                    <a href="/foo/bla" id="four">Four</a> 
+                    <a href="/foo/bar" id="one">One</a>
+                    <a href="/foo/baz" id="two">Two</a>
+                    <a href="/foo/bat" id="three">Three</a>
+                    <a href="/foo/bla" id="four">Four</a>
                 </span>
             </div>
         </td>

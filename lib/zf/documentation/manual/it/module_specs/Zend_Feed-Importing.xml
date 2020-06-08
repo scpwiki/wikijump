@@ -47,7 +47,7 @@ $feedDaPHP = Zend_Feed::importString($stringaFeed);]]>
 // importazione di un feed da un array
 $feedAtomDaArray = Zend_Feed::importArray($array);
 
-// la linea successiva è equivalente alla precedente; 
+// la linea successiva è equivalente alla precedente;
 // un'istanza di Zend_Feed_Atom è restituita per impostazione predefinita
 $feedAtomDaArray = Zend_Feed::importArray($array, 'atom');
 
@@ -214,7 +214,7 @@ array(
 // importazione di un feed da un costruttore personalizzato
 $feedAtomDaArray = Zend_Feed::importBuilder(new Zend_Feed_Builder($array));
 
-// la linea successiva è equivalente alla precedente; 
+// la linea successiva è equivalente alla precedente;
 // un'istanza di Zend_Feed_Atom è restituita per impostazione predefinita
 $feedAtomDaArray = Zend_Feed::importArray(new Zend_Feed_Builder($array), 'atom');
 

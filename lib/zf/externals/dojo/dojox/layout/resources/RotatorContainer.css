@@ -56,27 +56,27 @@
 .tundra .rotatorIcons .previous {
 	background-position:0 0;
 }
-.tundra .rotatorIcons .dijitButtonHover .previous { 
+.tundra .rotatorIcons .dijitButtonHover .previous {
 	background-position:0 -16px;
 }
-.tundra .rotatorIcons .dijitButtonActive .previous { 
+.tundra .rotatorIcons .dijitButtonActive .previous {
 	background-position:0 -32px;
 }
 
 .tundra .rotatorIcons .next{
 	background-position:-16px 0;
 }
-.tundra .rotatorIcons .dijitButtonHover .next{ 
+.tundra .rotatorIcons .dijitButtonHover .next{
 	background-position:-16px -16px;
 }
-.tundra .rotatorIcons .dijitButtonActive .next{ 
+.tundra .rotatorIcons .dijitButtonActive .next{
 	background-position:-16px -32px;
 }
 
 .tundra .rotatorIcons .playPause{
 	background-position:-32px 0;
 }
-.tundra .rotatorIcons .dijitToggleButtonHover .playPause{ 
+.tundra .rotatorIcons .dijitToggleButtonHover .playPause{
 	background-position:-32px -16px;
 }
 .tundra .rotatorIcons .dijitToggleButtonActive .playPause {
@@ -89,6 +89,6 @@
 .tundra .rotatorIcons .dijitToggleButtonCheckedHover .playPause {
 	background-position:-48px -16px;
 }
-.tundra .rotatorIcons .dijitToggleButtonCheckedActive .playPause { 
+.tundra .rotatorIcons .dijitToggleButtonCheckedActive .playPause {
 	background-position:-48px -32px;
 }

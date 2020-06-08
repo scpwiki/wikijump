@@ -90,7 +90,7 @@ class FooController extends Zend_Controller_Action
                 <code>initView()</code>, <code>getViewScript()</code>,
                 <code>render()</code>, and <code>renderScript()</code> each
                 proxy to the <code>ViewRenderer</code> unless the helper is not
-                in the helper broker or the <code>noViewRenderer</code> flag has 
+                in the helper broker or the <code>noViewRenderer</code> flag has
                 been set.
             </para>
 
@@ -113,13 +113,13 @@ class FooController extends Zend_Controller_Action
             </programlisting>
 
             <para>
-                Możesz chcieć wyłączyć klasę <code>ViewRenderer</code> 
-                jeśli nie potrzebujesz obiektu widoku lub jeśli nie chcesz 
-                renderować skryptów widoku. (na przykład jeśli używasz 
-                kontrolera akcji aby obsługiwać żądania do webserwisu takie jak 
-                SOAP, XML-RPC czy REST). W większości przypadków nie będziesz 
-                potrzebować wyłączać globalnie renderowania klasy 
-                <code>ViewRenderer</code>, wystarczy selektywne wyłączenie 
+                Możesz chcieć wyłączyć klasę <code>ViewRenderer</code>
+                jeśli nie potrzebujesz obiektu widoku lub jeśli nie chcesz
+                renderować skryptów widoku. (na przykład jeśli używasz
+                kontrolera akcji aby obsługiwać żądania do webserwisu takie jak
+                SOAP, XML-RPC czy REST). W większości przypadków nie będziesz
+                potrzebować wyłączać globalnie renderowania klasy
+                <code>ViewRenderer</code>, wystarczy selektywne wyłączenie
                 wewnątrz pojedynczego kontrolera lub akcji.
             </para>
         </note>
@@ -510,20 +510,20 @@ class MyController extends Zend_Controller_Action
 
             <para>
                 Jeśli zażądamy nieistniejącej akcji kontrolera, wywołana zostanie
-                metoda <code>Zend_Controller_Action::__call()</code>. Metoda 
-                <code>__call()</code> jest oczywiście magiczną metodą PHP 
+                metoda <code>Zend_Controller_Action::__call()</code>. Metoda
+                <code>__call()</code> jest oczywiście magiczną metodą PHP
                 służącą do przeładowania metod.
             </para>
 
             <para>
                 Domyślnie, ta metoda wyrzuca wyjątek
                 <code>Zend_Controller_Action_Exception</code> oznaczający, że
-                zażądana metoda nie została znaleziona w kontrolerze. Jeśli nazwa 
-                zażądanej metody zakończona jest słowem 'Action', zakładane jest, 
-                że zażądana została akcja i że ona nie istnieje; taki błąd 
-                powoduje wyrzucenie wyjątku z kodem 404. Próby wywołania 
-                wszystkich innych metod powodują wyrzucenie wyjątku z kodem 500. 
-                Pozwala to na rozróżnienie błędu nie znalezionej strony od 
+                zażądana metoda nie została znaleziona w kontrolerze. Jeśli nazwa
+                zażądanej metody zakończona jest słowem 'Action', zakładane jest,
+                że zażądana została akcja i że ona nie istnieje; taki błąd
+                powoduje wyrzucenie wyjątku z kodem 404. Próby wywołania
+                wszystkich innych metod powodują wyrzucenie wyjątku z kodem 500.
+                Pozwala to na rozróżnienie błędu nie znalezionej strony od
                 innych błędów aplikacji.
             </para>
 

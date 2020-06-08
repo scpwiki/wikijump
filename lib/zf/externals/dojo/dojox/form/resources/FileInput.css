@@ -14,12 +14,12 @@
 .dijitFileInputRealBlind {
 	right:0;
 }
-.dijitFileInputReal:hover { cursor:pointer; } 
+.dijitFileInputReal:hover { cursor:pointer; }
 
 .dijitFileInputButton,
 .dijitFileInputText {
 	border:1px solid #333;
-	padding:2px 12px 2px 12px; 
+	padding:2px 12px 2px 12px;
 	cursor:pointer;
 }
 
@@ -37,7 +37,7 @@
 	top:0; left:0;
 	border:1px solid #333;
 	background:#cad2de url('../../../dijit/themes/tundra/images/dijitProgressBarAnim.gif') repeat-x top left;
-	padding:2px;	
+	padding:2px;
 }
 
 /* tundra */
@@ -52,7 +52,7 @@
 	border:1px solid #9b9b9b;
 	line-height: normal;
 }
-.tundra .dijitFileInputButton, 
+.tundra .dijitFileInputButton,
 .tundra .dijitFileInputText {
 	border:1px solid #9b9b9b;
 	padding:0px 12px 0px 12px; /* .3em .4em .2em .4em; */
@@ -62,37 +62,37 @@
 /* Soria */
 .soria .dijitProgressOverlay {
 	border:1px solid #8BA0BD;
-	background-color:#cad2de; 
+	background-color:#cad2de;
 }
 .soria .dijitFakeInput input {
 	border:1px solid #8BA0BD;
 	background:#fff url("../../../dijit/themes/soria/images/validationInputBg.png") repeat-x top left;
 	line-height:normal;
-	background-position:0 -30px; 
+	background-position:0 -30px;
 	padding:0.2em 0.3em;
 }
 .soria .dijitFileInputButton,
 .soria .dijitFileInputText {
 	border:1px solid #8BA0BD;
 	padding:2px 12px 2px 12px;
-	background:#b7cdee url('../../../dijit/themes/soria/images/buttonEnabled.png') repeat-x; 
+	background:#b7cdee url('../../../dijit/themes/soria/images/buttonEnabled.png') repeat-x;
 }
 
 /* Nihilo */
 .nihilo .dijitProgressOverlay {
 	border:1px solid #DEDEDE;
-	background-color:#cad2de; 
+	background-color:#cad2de;
 }
 .nihilo .dijitFakeInput input {
 	border:1px solid #DEDEDE;
 	background:#fff url("../../../dijit/themes/nihilo/images/validationInputBg.png") repeat-x top left;
 	line-height:normal;
-	background-position:0 -30px; 
+	background-position:0 -30px;
 	padding:0.2em 0.3em;
 }
 .nihilo .dijitFileInputButton,
 .nihilo .dijitFileInputText {
 	border:1px solid #DEDEDE;
 	padding:2px 12px 2px 12px;
-	background:#b7cdee url('../../../dijit/themes/nihilo/images/buttonEnabled.png') repeat-x; 
+	background:#b7cdee url('../../../dijit/themes/nihilo/images/buttonEnabled.png') repeat-x;
 }

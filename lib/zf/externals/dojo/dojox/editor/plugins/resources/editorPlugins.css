@@ -79,53 +79,53 @@
 	background:url(images/uploadImageIcon.gif) no-repeat 0px 4px;
 }
 
-.editorIconInsertTable{				
+.editorIconInsertTable{
 	background-position:0px 0px;	}
 
-.editorIconInsertTableRowBefore{ 	
+.editorIconInsertTableRowBefore{
 	background-position:-19px 0px;	}
-.dijitDisabled .editorIconInsertTableRowBefore{ 	
+.dijitDisabled .editorIconInsertTableRowBefore{
 	background-position:-120px 0px;	}
-	
-.editorIconInsertTableRowAfter{ 	
+
+.editorIconInsertTableRowAfter{
 	background-position:-35px 0px;	}
-.dijitDisabled .editorIconInsertTableRowAfter{ 	
+.dijitDisabled .editorIconInsertTableRowAfter{
 	background-position:-136px 0px;	}
 
-.editorIconInsertTableColumnBefore{ 	
+.editorIconInsertTableColumnBefore{
 	background-position:-52px 0px;	}
-.dijitDisabled .editorIconInsertTableColumnBefore{ 	
+.dijitDisabled .editorIconInsertTableColumnBefore{
 	background-position:-154px 0px;	}
-	
-.editorIconInsertTableColumnAfter{ 	
+
+.editorIconInsertTableColumnAfter{
 	background-position:-69px 0px;	}
-.dijitDisabled .editorIconInsertTableColumnAfter{ 	
+.dijitDisabled .editorIconInsertTableColumnAfter{
 	background-position:-171px 0px;	}
-	
-.editorIconDeleteTableRow{ 	
+
+.editorIconDeleteTableRow{
 	background-position:-86px 0px;	}
-.dijitDisabled .editorIconDeleteTableRow{ 	
+.dijitDisabled .editorIconDeleteTableRow{
 	background-position:-205px 0px;	}
-	
-.editorIconDeleteTableColumn{ 	
+
+.editorIconDeleteTableColumn{
 	background-position:-103px 0px;	}
-.dijitDisabled .editorIconDeleteTableColumn{ 	
+.dijitDisabled .editorIconDeleteTableColumn{
 	background-position:-188px 0px;	}
-	
-.editorIconColorTableCell{ 	
+
+.editorIconColorTableCell{
 	background-position:-222px 0px;	}
-.dijitDisabled .editorIconColorTableCell{ 	
+.dijitDisabled .editorIconColorTableCell{
 	background-position:-239px 0px;	}
 
-.editorIconModifyTable{ 	
+.editorIconModifyTable{
 	background-position:-256px 0px;	}
-.dijitDisabled .editorIconModifyTable{ 	
+.dijitDisabled .editorIconModifyTable{
 	background-position:-273px 0px;	}
 
 
 
 
-.RichTextEditable .dijitTextBox, 
+.RichTextEditable .dijitTextBox,
 .RichTextEditable .dijitComboBox,
 .RichTextEditable  .dijitSpinner {
 	width: 5em;

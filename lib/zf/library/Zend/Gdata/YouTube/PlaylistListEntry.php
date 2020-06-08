@@ -85,7 +85,7 @@ class Zend_Gdata_YouTube_PlaylistListEntry extends Zend_Gdata_Entry
      * @var Zend_Gdata_YouTube_Extension_PlaylistId
      */
     protected $_playlistId = null;
-    
+
     /**
      * CountHint for this playlist.
      *
@@ -192,7 +192,7 @@ class Zend_Gdata_YouTube_PlaylistListEntry extends Zend_Gdata_Entry
     /**
      * Returns the description relating to the video.
      *
-     * @return Zend_Gdata_YouTube_Extension_Description  The description 
+     * @return Zend_Gdata_YouTube_Extension_Description  The description
      *         relating to the video
      */
     public function getDescription()
@@ -208,7 +208,7 @@ class Zend_Gdata_YouTube_PlaylistListEntry extends Zend_Gdata_Entry
      * Returns the countHint relating to the playlist.
      *
      * The countHint is the number of videos on a playlist.
-     * 
+     *
      * @throws Zend_Gdata_App_VersionException
      * @return Zend_Gdata_YouTube_Extension_CountHint  The count of videos on
      *         a playlist.
@@ -218,7 +218,7 @@ class Zend_Gdata_YouTube_PlaylistListEntry extends Zend_Gdata_Entry
         if (($this->getMajorProtocolVersion() == null) ||
             ($this->getMajorProtocolVersion() == 1)) {
             require_once 'Zend/Gdata/App/VersionException.php';
-            throw new Zend_Gdata_App_VersionException('The yt:countHint ' . 
+            throw new Zend_Gdata_App_VersionException('The yt:countHint ' .
                 'element is not supported in versions earlier than 2.');
         } else {
             return $this->_countHint;
@@ -227,7 +227,7 @@ class Zend_Gdata_YouTube_PlaylistListEntry extends Zend_Gdata_Entry
 
     /**
      * Returns the Id relating to the playlist.
-     * 
+     *
      * @throws Zend_Gdata_App_VersionException
      * @return Zend_Gdata_YouTube_Extension_PlaylistId  The id of this playlist.
      */
@@ -236,7 +236,7 @@ class Zend_Gdata_YouTube_PlaylistListEntry extends Zend_Gdata_Entry
         if (($this->getMajorProtocolVersion() == null) ||
             ($this->getMajorProtocolVersion() == 1)) {
             require_once 'Zend/Gdata/App/VersionException.php';
-            throw new Zend_Gdata_App_VersionException('The yt:playlistId ' . 
+            throw new Zend_Gdata_App_VersionException('The yt:playlistId ' .
                 'element is not supported in versions earlier than 2.');
         } else {
             return $this->_playlistId;

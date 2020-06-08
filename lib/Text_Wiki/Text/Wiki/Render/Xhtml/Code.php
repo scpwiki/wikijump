@@ -63,7 +63,7 @@ class Text_Wiki_Render_Xhtml_Code extends Text_Wiki_Render {
         $css_filename = $this->formatConf(' class="%s"', 'css_filename');
 
 		$text = trim($text);
-		
+
         if ($type == 'php') {
         	 	/*if (substr($text, 0, 5) != '<?php') {
                 // PHP code example:
@@ -119,9 +119,9 @@ class Text_Wiki_Render_Xhtml_Code extends Text_Wiki_Render {
             $text = htmlspecialchars($text);
             $text = "<pre$css><code$css_code>$text</code></pre>";
         }
-		
+
 		 $text = "<div class=\"code\">".$text."</div>";
-		
+
         if ($css_filename && isset($attr['filename'])) {
             $text = "<div$css_filename>" .
                 $attr['filename'] . '</div>' . $text;

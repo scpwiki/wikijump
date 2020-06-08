@@ -7,9 +7,9 @@ require_once 'HTMLPurifier/AttrDef/HTML/FrameTarget.php';
  */
 class HTMLPurifier_HTMLModule_Target extends HTMLPurifier_HTMLModule
 {
-    
+
     public $name = 'Target';
-    
+
     public function __construct() {
         $elements = array('a');
         foreach ($elements as $name) {
@@ -19,6 +19,6 @@ class HTMLPurifier_HTMLModule_Target extends HTMLPurifier_HTMLModule
             );
         }
     }
-    
+
 }
 

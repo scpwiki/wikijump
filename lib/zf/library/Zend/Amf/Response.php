@@ -171,7 +171,7 @@ class Zend_Amf_Response
 
     /**
      * Retrieve attached AMF message headers
-     * 
+     *
      * @return array Array of Zend_Amf_Value_MessageHeader objects
      */
     public function getAmfHeaders()

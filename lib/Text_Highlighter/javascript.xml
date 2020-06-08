@@ -60,17 +60,17 @@
     <onlyin region="mlcomment"/>
     <onlyin region="comment"/>
   </block>
-  
+
   <block name="email" match="\w+[\.\w\-]+@(\w+[\.\w\-])+" innerClass="url" contained="yes">
     <onlyin region="mlcomment"/>
     <onlyin region="comment"/>
   </block>
-  
+
   <block name="note" match="\b(note|fixme):" innerClass="inlinedoc" contained="yes" case="no">
     <onlyin region="mlcomment"/>
     <onlyin region="comment"/>
   </block>
-  
+
 
   <block name="cvstag" match="\$\w+:.+\$" innerClass="inlinedoc" contained="yes">
     <onlyin region="mlcomment"/>
@@ -178,6 +178,6 @@
     <keyword match="true"/>
     <keyword match="try"/>
     <keyword match="volatile"/>
-  </keywords> 
+  </keywords>
 
 </highlight>

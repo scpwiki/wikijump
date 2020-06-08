@@ -74,12 +74,12 @@ class Zend_ProgressBar_ProgressBarTest extends PHPUnit_Framework_TestCase
     {
         $progressBar = $this->_getProgressBar(0, 100, 'foobar');
         $progressBar->update(25);
-        
+
         $progressBar = $this->_getProgressBar(0, 100, 'foobar');
         $progressBar->update();
         $this->assertEquals(25, $progressBar->getCurrent());
     }
-    
+
     public function testDefaultPercentage()
     {
         $progressBar = $this->_getProgressBar(0, 100);

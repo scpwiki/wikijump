@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -28,28 +28,28 @@ use DB\ModeratorPeer;
 
 class ManageSiteModeratorPermissionsModule extends ManageSiteBaseModule {
 
-	public function build($runData){	
+	public function build($runData){
 		$pl = $runData->getParameterList();
 		$moderatorId = $pl->getParameterValue("moderatorId");
 		$site = $runData->getTemp("site");
 		$mod = ModeratorPeer::instance()->selectByPrimaryKey($moderatorId);
 		if($mod == null || $mod->getSiteId() != $site->getSiteId()){
-			throw new ProcessException("No such moderator.");	
+			throw new ProcessException("No such moderator.");
 		}
 		$runData->contextAdd("moderator", $mod);
 		$ps = $mod->getPermissions();
 
 		if(strpos($ps, 'p')!== false){
-			$runData->contextAdd("ppages", true);	
+			$runData->contextAdd("ppages", true);
 		}
 		if(strpos($ps, 'f')!== false){
-			$runData->contextAdd("pforum", true);	
+			$runData->contextAdd("pforum", true);
 		}
 		if(strpos($ps, 'u')!== false){
-			$runData->contextAdd("pusers", true);	
+			$runData->contextAdd("pusers", true);
 		}
-		
+
 		$runData->ajaxResponseAdd("moderatorId", $moderatorId);
 	}
-	
+
 }

@@ -133,7 +133,7 @@ $db = Zend_Db::factory('PDO_MYSQL', $params);
             </programlisting>
 
         </para>
-        
+
     </sect2>
 
     <sect2 id="zend.db.profiler.using">
@@ -255,7 +255,7 @@ foreach ($profiler->getQueryProfiles() as $query) {
     }
 }
 
-echo 'Executed ' . $queryCount . ' queries in ' . $totalTime . 
+echo 'Executed ' . $queryCount . ' queries in ' . $totalTime .
      ' seconds' . "\n";
 echo 'Average query length: ' . $totalTime / $queryCount .
      ' seconds' . "\n";

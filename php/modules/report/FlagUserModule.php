@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -28,7 +28,7 @@ use DB\OzoneUserPeer;
 use DB\UserAbuseFlagPeer;
 
 class FlagUserModule extends SmartyModule {
-	
+
 	public function isAllowed($runData){
 		$userId = $runData->getUserId();
 		if($userId == null || $userId <1){
@@ -36,40 +36,40 @@ class FlagUserModule extends SmartyModule {
 		}
 		return true;
 	}
-	
+
 	public function build($runData){
 		$pl = $runData->getParameterList();
-			
+
 		$targetUserId = $pl->getParameterValue("targetUserId");
 		if($targetUserId == null || $targetUserId == '' || !is_numeric($targetUserId)){
-			throw new ProcessException(_("Error processing the request."), "no_target_user");	
+			throw new ProcessException(_("Error processing the request."), "no_target_user");
 		}
-		
+
 		$targetUser = OzoneUserPeer::instance()->selectByPrimaryKey($targetUserId);
 		if($targetUser == null){
-			throw new ProcessException(_("Error processing the request."), "no_target_user");	
+			throw new ProcessException(_("Error processing the request."), "no_target_user");
 		}
-		
-		$site = $runData->getTemp("site"); 	
+
+		$site = $runData->getTemp("site");
 		$user = $runData->getUser();
-		
+
 		if($targetUser->getUserId() === $user->getUserId()){
 			throw new ProcessException(_("Sorry, event with the extreme level of self-criticism you can not flag yourself as an abusive user ;-)") ,"not_yourself");
 		}
-		
+
 		// check if flagged already
 		$c = new Criteria();
 		$c->add("user_id", $user->getUserId());
 		$c->add("target_user_id", $targetUser->getUserId());
-		
+
 		$flag = UserAbuseFlagPeer::instance()->selectOne($c);
-		
+
 		if($flag){
-			$runData->contextAdd("flagged", true);	
+			$runData->contextAdd("flagged", true);
 		}
-		
+
 		$runData->contextAdd("user", $targetUser);
-		
+
 	}
-	
+
 }

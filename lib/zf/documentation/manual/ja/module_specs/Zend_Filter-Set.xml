@@ -21,7 +21,7 @@
              言語はZend_Localeで指定されます。
             </para>
         </note>
-        
+
     </sect2>
 
     <sect2 id="zend.filter.set.alpha">

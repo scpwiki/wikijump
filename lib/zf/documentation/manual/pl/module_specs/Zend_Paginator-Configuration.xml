@@ -5,7 +5,7 @@
         Klasa <code>Zend_Paginator</code> posiada kilka metod konfiguracyjnych
         których możemy użyć:
     </para>
-        
+
     <table id="zend.paginator.configuration.table">
         <title>Metody konfiguracyjne <code>Zend_Paginator</code></title>
 
@@ -26,15 +26,15 @@
                 <row>
                     <entry>setItemCountPerPage</entry>
                     <entry>
-                        Ustawia maksymalną ilość elementów wyświetlanych na 
+                        Ustawia maksymalną ilość elementów wyświetlanych na
                         jednej stronie (domyślnie 10).
                     </entry>
                 </row>
                 <row>
                     <entry>setPageRange</entry>
                     <entry>
-                        Ustawia ilość elementów wyświetlanych w nawigacji 
-                        paginacji (domyślnie 10). 
+                        Ustawia ilość elementów wyświetlanych w nawigacji
+                        paginacji (domyślnie 10).
                         Uwaga: W większości przypadków ta ilość będzie określona
                         na sztywno, ale style przewijania posiadają możliwość
                         użycia jej tylko jako startową wartość (np. styl Elastic).

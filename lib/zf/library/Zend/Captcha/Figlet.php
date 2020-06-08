@@ -27,7 +27,7 @@ require_once 'Zend/Text/Figlet.php';
 
 /**
  * Captcha based on figlet text rendering service
- * 
+ *
  * Note that this engine seems not to like numbers
  *
  * @category   Zend
@@ -45,11 +45,11 @@ class Zend_Captcha_Figlet extends Zend_Captcha_Word
      * @var Zend_Text_Figlet
      */
     protected $_figlet;
-    
+
     /**
      * Constructor
-     * 
-     * @param  null|string|array|Zend_Config $options 
+     *
+     * @param  null|string|array|Zend_Config $options
      * @return void
      */
     public function __construct($options = null)
@@ -57,7 +57,7 @@ class Zend_Captcha_Figlet extends Zend_Captcha_Word
         parent::__construct($options);
         $this->_figlet = new Zend_Text_Figlet($options);
     }
-    
+
     /**
      * Generate new captcha
      *
@@ -66,7 +66,7 @@ class Zend_Captcha_Figlet extends Zend_Captcha_Word
     public function generate()
     {
         $this->_useNumbers = false;
-        return parent::generate();    
+        return parent::generate();
     }
 
     /**

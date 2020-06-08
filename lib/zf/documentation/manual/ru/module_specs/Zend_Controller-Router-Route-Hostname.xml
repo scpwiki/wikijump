@@ -65,7 +65,7 @@ $router->addRoute('user', $hostnameRoute->chain($plainPathRoute);
             маршрута по имени хоста.
         </para>
     </note>
-    
+
     <sect4 id="zend.controller.router.routes.hostname.config">
         <title>Указание маршрутов по имени хоста через Zend_Config</title>
 

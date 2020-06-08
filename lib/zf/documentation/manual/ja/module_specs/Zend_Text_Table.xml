@@ -32,7 +32,7 @@
         <code>Zend_Text_Table_Column</code> です。
         表を作成する際に、表のオプションを配列で指定することができます。
         指定できるオプションは次のとおりです。
-        
+
         <itemizedlist>
             <listitem>
                 <para>
@@ -93,7 +93,7 @@
         複数行にする場合は <code>\n</code> で行を区切ります。
         2 番目のパラメータは配置を指定します。デフォルトは左詰めで、
         <code>Zend_Text_Table_Column</code> のクラス定数のいずれかを指定することができます。
-        
+
         <itemizedlist>
             <listitem>
                 <para>
@@ -111,7 +111,7 @@
                 </para>
             </listitem>
         </itemizedlist>
-        
+
         3 番目のパラメータは列の連結 (colspan) を指定します。
         たとえば、このパラメータに "2" を指定すると、
         表の中で 2 つの列が連結されるようになります。
@@ -126,7 +126,7 @@
         メソッドを使用します。あるいは、
         <code>echo $table;</code> や <code>$tableString = (string) $table</code>
         などとしてマジックメソッド <code>__toString</code> を使用することもできます。
-    </para>    
+    </para>
     <example id="zend.text.table.example.using">
         <title>Zend_Text_Table の使用例</title>
         <para>

@@ -1,5 +1,5 @@
 /**********************************
- * TITLE: Gila Screen Stylesheet  * 
+ * TITLE: Gila Screen Stylesheet  *
  * URI  : gila/gila-screen.css    *
  * MODIF: 2003-Apr-30 19:09 +0800 *
  **********************************/
@@ -218,7 +218,7 @@ acronym, .titleTip {
 
 #page-title{
 	margin: 1em 0 0.5em 0;
-	font-size: 200%;	
+	font-size: 200%;
 	border: none;
 	font-weight: bold;
 }
@@ -346,7 +346,7 @@ a.action-area-close{
 }
 .thread-container .post  .short  .options{
 	color: #ad8c68;
-}	
+}
 
 .forum-group table tr.head td{
 	background-color: rgb(243,242,235);
@@ -372,7 +372,7 @@ a.action-area-close{
 .thread-container .post  .long  .revisions table tr.active td{
 	background-color: rgb(243,242,235);
 }
-.thread-container .post  .short{ 
+.thread-container .post  .short{
 	background-color: rgb(243,242,235);
 }
 

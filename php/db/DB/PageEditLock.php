@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot_Db
  * @version $Id$
@@ -65,7 +65,7 @@ class PageEditLock extends PageEditLockBase {
                 $c->add("lock_id", $this->getLockId(), "!=");
             }
         } else {
-            
+
             // now if the page exists.
 
             if ($this->getMode() == "page") {
@@ -76,7 +76,7 @@ class PageEditLock extends PageEditLockBase {
                     $c->add("lock_id", $this->getLockId(), "!=");
                 }
             }
-            
+
             if ($this->getMode() == "append") {
                 // conflicts only with "page" mode
                 $c = new Criteria();
@@ -86,11 +86,11 @@ class PageEditLock extends PageEditLockBase {
                 }
                 $c->add("mode", "page");
             }
-            
+
             if ($this->getMode() == "section") {
                 // conflicts with "page" mode and "section" mode when regions overlap
                 $c = new Criteria();
-                
+
                 // create query by hand...
                 $q = "page_id = " . $this->getPageId() . " ";
                 if ($this->getLockId() != null) {
@@ -120,7 +120,7 @@ class PageEditLock extends PageEditLockBase {
             }
         }
         return OzoneUserPeer::instance()->selectByPrimaryKey($this->getUserId());
-    
+
     }
 
     public function getUserOrString() {
@@ -130,7 +130,7 @@ class PageEditLock extends PageEditLockBase {
         } else {
             return $user;
         }
-    
+
     }
 
     /**

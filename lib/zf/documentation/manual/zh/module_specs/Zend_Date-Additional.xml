@@ -12,7 +12,7 @@
         <title> 检查日期 </title>
 
         <para>
-            大部分输入的日期可能是字符串，问题是你不能确保这些字符串是真的日期。因此 <code>Zend_Date</code> 
+            大部分输入的日期可能是字符串，问题是你不能确保这些字符串是真的日期。因此 <code>Zend_Date</code>
             有个特有的静态函数来加查日期字符串。<code>Zend_Locale</code>  有个特有的函数 <code>getDate($date, $locale);</code> ，它解析
             日期并返回正确的格式化的日期部分。例如月名将被识别和返回月数。
             但 <code>Zend_Locale</code> 不知道什么是日期，因为它是个格式化和本地化的类，所以我们集成了一个特有的函数 <code>isDate($date);</code> 来做这个。
@@ -162,7 +162,7 @@ $mylocation = array('latitude' => 41.5, 'longitude' => 13.2446);
 
         <para>
             现在所有需要的数据可以被设置了，下一步是创建带有计算日落和日出的日期的 <code>Zend_Date</code> 对象。
-             
+
             有三个函数用于计算，用 '<code>getSunset()</code>'  计算日落，用 '<code>getSunrise()</code>' 计算日出，所有和太阳相关的信息使用 '<code>getSunInfo()</code>' 。
             经过计算后，<code>Zend_Date</code> 对象返回时就带有计算过的时间。
         </para>
@@ -215,7 +215,7 @@ foreach ($info as $sun) {
         <example id="zend.date.additional.timezones.example-1">
             <title> 使用时区 </title>
             <programlisting role="php"><![CDATA[
-// Set a default timezone... this has to be done within the bootstrap 
+// Set a default timezone... this has to be done within the bootstrap
 // file or php.ini
 // We do this here just for having a complete example
 date_default_timezone_set('Europe/Vienna');
@@ -254,7 +254,7 @@ print $date->getIso();
         <example id="zend.date.additional.timezones.example-2">
             <title> 多重时区 </title>
             <programlisting role="php"><![CDATA[
-// Set a default timezone... this has to be done within the bootstrap 
+// Set a default timezone... this has to be done within the bootstrap
 // file or php.ini.
 // We do this here just for having a complete example.
 date_default_timezone_set('Europe/Vienna');

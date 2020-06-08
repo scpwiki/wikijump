@@ -248,7 +248,7 @@ class My_Controller_PreDispatchPlugin
             $defaultAction  = $dispatcher->getDefaultAction();
             $controllerName = $request->getControllerName();
             $response       = $front->getResponse();
-            $response->setRedirect('/' . $controllerName 
+            $response->setRedirect('/' . $controllerName
                                   . '/' . $defaultAction);
             $response->sendHeaders();
             exit;

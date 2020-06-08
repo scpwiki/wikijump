@@ -159,7 +159,7 @@ class Zend_Cache_AllTests
         } else {
             $suite->addTestSuite('Zend_Cache_ZendPlatformBackendTest');
         }
-        
+
         /*
          * Check if APC tests are enabled, and if extension is available.
          */

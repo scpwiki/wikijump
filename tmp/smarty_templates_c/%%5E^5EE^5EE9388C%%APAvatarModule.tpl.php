@@ -21,8 +21,8 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 	</tr></table>
 </p>
 <p>
-	<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Delete it if you wish. However due to caching issues you might need to 
-	hit "reload" in your browser to see the changes. It might also take max 1 hour for the 
+	<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Delete it if you wish. However due to caching issues you might need to
+	hit "reload" in your browser to see the changes. It might also take max 1 hour for the
 	change to be visible for others depending on their image caching.<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
 </p>
 <?php else: ?>
@@ -36,13 +36,13 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 </ul>
 
 <div id="file-upload-div"  style="display: none">
-	<form id="file-upload-form" enctype="multipart/form-data" 
+	<form id="file-upload-form" enctype="multipart/form-data"
 		action="/default--flow/account__AvatarUploadTarget" target="_upload_iframe" method="POST"
 		onsubmit="WIKIDOT.modules.APAvatarModule.listeners.startUpload(event)"
 		>
 		<input type="hidden" name="action" value="AccountProfileAction"/>
 		<input type="hidden" name="event" value="uploadAvatar"/>
-		
+
 		<!-- MAX_FILE_SIZE must precede the file input field -->
 	    <input type="hidden" name="MAX_FILE_SIZE" value="<?php echo $this->_tpl_vars['maxUpload']; ?>
 " />
@@ -57,7 +57,7 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 				</td>
 			</tr>
 		</table>
-		   	
+
 		<div class="buttons">
 		   	<input class="button" type="button" value="<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>cancel<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>" onclick="WIKIDOT.modules.APAvatarModule.listeners.reset(event)"/>
 		   	<input class="button" type="submit" value="<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>upload file<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>" />
@@ -72,7 +72,7 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 	   			<td>
 					<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Enter image web address (URL)<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>:
 				</td>
-				<td> 
+				<td>
 					<input class="test" id="upload-uri" type="text" size="30" maxlength="80"/>
 					<div class="sub">
 						<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>start with <em>http://</em> or <em>ftp://</em><?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
@@ -97,12 +97,12 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 		<img src="" alt="<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>wrong image?<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>" style="border: 1px solid #777;" id="avatar-preview-large"/>&nbsp;&nbsp;&nbsp;&nbsp;<img src="" alt="<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>wrong image?<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>"  style="border: 1px solid #777;"  id="avatar-preview-small"/>
 	</div>
 	<p>
-		<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Above you shoud see the uploaded image. There should be an image 
+		<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Above you shoud see the uploaded image. There should be an image
 		scaled down (if was larger) to 100x100px format and 16x16px square format.<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
 	</p>
 	<p>
-		<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Note: Due to caching issues you might need to 
-		hit "reload" in your browser to see the changes. It might also take max 1 hour for the 
+		<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Note: Due to caching issues you might need to
+		hit "reload" in your browser to see the changes. It might also take max 1 hour for the
 		change to be visible for others depending on their image caching.<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
 	</p>
 	<p>
@@ -116,8 +116,8 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 
 <div id="avatar-success" style="display: none">
 	<h2><?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Success!!!<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?> ;-)</h2>
-	<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Your buddy icon has been successfully changed! However due to caching issues you might need to 
-	hit "reload" in your browser to see the changes. It might also take max 1 hour for the 
+	<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Your buddy icon has been successfully changed! However due to caching issues you might need to
+	hit "reload" in your browser to see the changes. It might also take max 1 hour for the
 	change to be visible for others depending on their image caching.<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
 </div>
 <?php endif; ?>

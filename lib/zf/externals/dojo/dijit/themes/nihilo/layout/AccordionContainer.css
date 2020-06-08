@@ -1,10 +1,10 @@
-/** 
- * dijit.layout.Accordioncontainer 
+/**
+ * dijit.layout.Accordioncontainer
  *
  */
 
 .nihilo .dijitAccordionContainer {
-	border-color: #ccc;	
+	border-color: #ccc;
 }
 
 /* nested classes */
@@ -46,7 +46,7 @@
 	border-top: 1px solid #dedede;
 	border-bottom: 1px solid #dedede;
 	padding: 5px 4px 5px 8px;
-	cursor: default;	
+	cursor: default;
 	color: #243C5F;
 }
 

@@ -4,8 +4,8 @@
 
     <para>
         W skryptach widoków często potrzebne jest przeprowadzanie złożonych
-        funkcji: na przykład formatowanie daty, generowanie elementów 
-        formularzy, czy wyświetlanie odnośnikow akcji. Możesz użyć klas 
+        funkcji: na przykład formatowanie daty, generowanie elementów
+        formularzy, czy wyświetlanie odnośnikow akcji. Możesz użyć klas
         helperów w tym celu.
     </para>
 
@@ -29,15 +29,15 @@
             MixedCased, ale wywoływana metoda zawsze ma postać camelCased.
         </para>
     </note>
-    
+
     <note>
         <title>Domyślne ścieżki helperów</title>
 
         <para>
             Domyślna ścieżka helperów zawsze wskazuje na ścieżkę helperów
             widoków Zend Framework np., 'Zend/View/Helper/'. Nawet jeśli
-            wywołasz metodę <code>setHelperPath()</code> aby nadpisać istniejące 
-            ścieżki, domyślna ścieżka zawsze będzie ustawiona aby być pewnym, że 
+            wywołasz metodę <code>setHelperPath()</code> aby nadpisać istniejące
+            ścieżki, domyślna ścieżka zawsze będzie ustawiona aby być pewnym, że
             domyślne helpery będą zawsze działać.
         </para>
     </note>
@@ -79,18 +79,18 @@
 
             <listitem><para>
                 <code>fieldset($name, $content, $attribs):</code> Tworzy element
-                fieldset. Jeśli tablica <code>$attribs</code> zawiera 
-                klucz 'legend', ta wartość zostanie użyta jako legenda pola 
-                fieldset. Pole fieldset będzie zawierać zawartość przekazaną do 
+                fieldset. Jeśli tablica <code>$attribs</code> zawiera
+                klucz 'legend', ta wartość zostanie użyta jako legenda pola
+                fieldset. Pole fieldset będzie zawierać zawartość przekazaną do
                 tego helpera przez zmienną <code>$content</code>.
             </para></listitem>
 
             <listitem><para>
-                <code>form($name, $attribs, $content):</code> Generuje formularz. 
-                Wszystkie atrybuty z tablicy <code>$attribs</code> będą 
+                <code>form($name, $attribs, $content):</code> Generuje formularz.
+                Wszystkie atrybuty z tablicy <code>$attribs</code> będą
                 zabezpieczone i zrenderowane jako atrybuty XHTML znacznika form.
                 Jeśli przekazana jest zmienna <code>$content</code> i ma inną
-                wartość niż false, to zawartość tej zmiennej zostanie 
+                wartość niż false, to zawartość tej zmiennej zostanie
                 zrenderowana wraz ze znacznikiem otwierającym i zamykającym
                 formularz; jeśli zmienna <code>$content</code> ma wartość false
                 (domyślnie), zostanie zrenderowany tylko znacznik otwierający.
@@ -105,13 +105,13 @@
                 <para>
                     <code>formCheckbox($name, $value, $attribs,
                         $options):</code> Tworzy element &lt;input type="checkbox"
-                    /&gt;.  
+                    /&gt;.
                 </para>
 
                 <para>
-                    Domyślnie, jeśli zmienne $value oraz $options nie są 
-                    przekazane, dla pola niezaznaczonego zostanie przyjęta 
-                    wartość '0', a dla zaznaczonego wartość '1'. 
+                    Domyślnie, jeśli zmienne $value oraz $options nie są
+                    przekazane, dla pola niezaznaczonego zostanie przyjęta
+                    wartość '0', a dla zaznaczonego wartość '1'.
                     Jeśli zostanie przekazana zmienna $value, ale nie zostanie
                     przekazana zmienna $options, dla pola zaznaczonego zostanie
                     przyjęta wartość zmiennej $value.
@@ -119,16 +119,16 @@
 
                 <para>
                     Zmienna $options powinna być tablicą. Jeśli tablica jest
-                    indeksowana, dla pola zaznaczonego zostanie przyjęta pierwsza 
+                    indeksowana, dla pola zaznaczonego zostanie przyjęta pierwsza
                     wartość, a druga wartość dla pola niezaznaczonego; wszystkie
                     inne wartości zostaną zignorowane. Możesz także przekazać
                     tablicę asocjacyjną z kluczami 'checked' oraz 'unChecked'.
                 </para>
 
                 <para>
-                    Jeśli zmienna $options zostanie przekazana, a wartość 
-                    $value jest równa wartości określonej dla pola zaznaczonego, 
-                    to element zostanie zaznaczony. Możesz także określić czy 
+                    Jeśli zmienna $options zostanie przekazana, a wartość
+                    $value jest równa wartości określonej dla pola zaznaczonego,
+                    to element zostanie zaznaczony. Możesz także określić czy
                     element ma być zaznaczony przekazująć logiczną wartość dla
                     atrybutu 'checked'.
                 </para>
@@ -138,47 +138,47 @@
                 </para>
 
                 <programlisting role="php"><![CDATA[
-// '1' oraz '0' jako opcje dla pola zaznaczonego/niezaznaczonego; 
+// '1' oraz '0' jako opcje dla pola zaznaczonego/niezaznaczonego;
 // pole jest niezaznaczone
 echo $this->formCheckbox('foo');
 
-// '1' oraz '0' jako opcje dla pola zaznaczonego/niezaznaczonego; 
+// '1' oraz '0' jako opcje dla pola zaznaczonego/niezaznaczonego;
 // pole jest zaznaczone
 echo $this->formCheckbox('foo', null, array('checked' => true));
 
-// 'bar' oraz '0' jako opcje dla pola zaznaczonego/niezaznaczonego; 
-// pole jest niezaznaczone 
+// 'bar' oraz '0' jako opcje dla pola zaznaczonego/niezaznaczonego;
+// pole jest niezaznaczone
 echo $this->formCheckbox('foo', 'bar');
 
-// 'bar' oraz '0' jako opcje dla pola zaznaczonego/niezaznaczonego; 
-// pole jest zaznaczone 
+// 'bar' oraz '0' jako opcje dla pola zaznaczonego/niezaznaczonego;
+// pole jest zaznaczone
 echo $this->formCheckbox('foo', 'bar', array('checked' => true));
 
-// 'bar' oraz 'baz' jako opcje dla pola zaznaczonego/niezaznaczonego; 
-// pole jest niezaznaczone 
+// 'bar' oraz 'baz' jako opcje dla pola zaznaczonego/niezaznaczonego;
+// pole jest niezaznaczone
 echo $this->formCheckbox('foo', null, null, array('bar', 'baz');
 
-// 'bar' oraz 'baz' jako opcje dla pola zaznaczonego/niezaznaczonego; 
-// pole jest niezaznaczone 
+// 'bar' oraz 'baz' jako opcje dla pola zaznaczonego/niezaznaczonego;
+// pole jest niezaznaczone
 echo $this->formCheckbox('foo', null, null, array(
-    'checked' => 'bar', 
+    'checked' => 'bar',
     'unChecked' => 'baz'
 ));
 
-// 'bar' oraz 'baz' jako opcje dla pola zaznaczonego/niezaznaczonego; 
-// pole jest zaznaczone 
+// 'bar' oraz 'baz' jako opcje dla pola zaznaczonego/niezaznaczonego;
+// pole jest zaznaczone
 echo $this->formCheckbox('foo', 'bar', null, array('bar', 'baz');
-echo $this->formCheckbox('foo', 
-                         null, 
-                         array('checked' => true), 
+echo $this->formCheckbox('foo',
+                         null,
+                         array('checked' => true),
                          array('bar', 'baz');
 
-// 'bar' oraz 'baz' jako opcje dla pola zaznaczonego/niezaznaczonego; 
-// pole jest niezaznaczone 
+// 'bar' oraz 'baz' jako opcje dla pola zaznaczonego/niezaznaczonego;
+// pole jest niezaznaczone
 echo $this->formCheckbox('foo', 'baz', null, array('bar', 'baz');
-echo $this->formCheckbox('foo', 
-                         null, 
-                         array('checked' => false), 
+echo $this->formCheckbox('foo',
+                         null,
+                         array('checked' => false),
                          array('bar', 'baz');
 ]]>
                 </programlisting>
@@ -195,8 +195,8 @@ echo $this->formCheckbox('foo',
                 <para>
                     <code>formErrors($errors, $options):</code> Generuje listę
                     nieuporządkowaną zawierająca informacje o błędach. Zmienna
-                    <code>$errors</code> powinna być łańcuchem znaków lub 
-                    tablicą łańcuchów znaków; Zmienna <code>$options</code> 
+                    <code>$errors</code> powinna być łańcuchem znaków lub
+                    tablicą łańcuchów znaków; Zmienna <code>$options</code>
                     powinna zawiierać atrybuty jakie chcesz umieścić w znaczniku
                     otwierającym listę.
                 </para>
@@ -220,7 +220,7 @@ echo $this->formCheckbox('foo',
                     </para></listitem>
 
                     <listitem><para>
-                            <code>setElementEnd($string)</code>; domyślną 
+                            <code>setElementEnd($string)</code>; domyślną
                             wartością jest '&lt;/li&gt;&lt;/ul&gt;'.
                     </para></listitem>
                 </itemizedlist>
@@ -239,25 +239,25 @@ echo $this->formCheckbox('foo',
             <listitem><para>
                 <code>formLabel($name, $value, $attribs):</code> Tworzy element
                 &lt;label&gt;, nadając atrybutowi <code>for</code> wartość
-                zmiennej <code>$name</code> i ustawiając jako etykietę wartość 
-                zmiennej <code>$value</code>. 
+                zmiennej <code>$name</code> i ustawiając jako etykietę wartość
+                zmiennej <code>$value</code>.
                 Jeśli opcja <code>disable</code> zostanie przekazana w zmiennej
                 <code>$attribs</code>, żaden kod nie zostanie zwrócony.
             </para></listitem>
 
             <listitem><para>
                 <code>formMultiCheckbox($name, $value, $attribs, $options,
-                $listsep):</code> Tworzy listę elementów checkbox. Zmienna 
-                <code>$options</code> powinna być asocjacyjną tablicą, i może 
-                mieć dowolne rozmiary. Zmienna <code>$value</code> może być 
-                pojedynczą wartością lub tablicą wartości, które odpowiadają 
-                kluczom tablicy <code>$options</code>. Zmienna 
-                <code>$listsep</code> jest separatorem elementów, domyślnie ma 
-                wartość &lt;br /&gt;. Domyślnie ten element jest traktowany jako 
-                tablica; wszystkie pola mają te samą nazwę i będą wysłane jako 
+                $listsep):</code> Tworzy listę elementów checkbox. Zmienna
+                <code>$options</code> powinna być asocjacyjną tablicą, i może
+                mieć dowolne rozmiary. Zmienna <code>$value</code> może być
+                pojedynczą wartością lub tablicą wartości, które odpowiadają
+                kluczom tablicy <code>$options</code>. Zmienna
+                <code>$listsep</code> jest separatorem elementów, domyślnie ma
+                wartość &lt;br /&gt;. Domyślnie ten element jest traktowany jako
+                tablica; wszystkie pola mają te samą nazwę i będą wysłane jako
                 tablica.
             </para></listitem>
-            
+
             <listitem><para>
                 <code>formPassword($name, $value, $attribs):</code> Tworzy
                 element &lt;input type="password" /&gt;.
@@ -314,7 +314,7 @@ echo $this->formCheckbox('foo',
                 przekazanego do niej parametru <code>$items</code>.
                 Jeśli parametr <code>$items</code> jest wielowymiarową tablicą,
                 zostanie zbudowana lista zagnieżdżona. Jeśli flaga <code>$escape</code>
-                ma wartość true (domyślnie), każdy z elementów zostanie 
+                ma wartość true (domyślnie), każdy z elementów zostanie
                 zabezpieczony za pomocą mechanizmu zarejestrowanego w obiekcie
                 widoku; przekaż wartość false aby zezwolić na wyświetlanie kodu
                 html wewnątrz elementów list.
@@ -451,20 +451,20 @@ $view->setHelperPath('/path/to/more/helpers', 'My_View_Helper');
         <programlisting role="php"><![CDATA[
 $view = new Zend_View();
 
-// Dodaj ścieżkę /path/to/some/helpers z przedrostkiem 
+// Dodaj ścieżkę /path/to/some/helpers z przedrostkiem
 // klasy 'My_View_Helper'
 $view->addHelperPath('/path/to/some/helpers', 'My_View_Helper');
 
-// Dodaj ścieżkę /other/path/to/helpers z przedrostkiem 
+// Dodaj ścieżkę /other/path/to/helpers z przedrostkiem
 // klasy 'Your_View_Helper'
 $view->addHelperPath('/other/path/to/helpers', 'Your_View_Helper');
 
-// teraz kiedy wywołasz $this->helperName(), Zend_View będzie 
-// wpierw szukał w "/path/to/some/helpers/HelperName" używając 
+// teraz kiedy wywołasz $this->helperName(), Zend_View będzie
+// wpierw szukał w "/path/to/some/helpers/HelperName" używając
 // nazwy klasy "Your_View_Helper_HelperName",
-// następnie w "/other/path/to/helpers/HelperName.php" używając 
+// następnie w "/other/path/to/helpers/HelperName.php" używając
 // nazwy klasy "My_View_Helper_HelperName"
-// i ostatecznie w "Zend/View/Helper/HelperName.php" używając 
+// i ostatecznie w "Zend/View/Helper/HelperName.php" używając
 // nazwy klasy "Zend_View_Helper_HelperName".
 ]]>
         </programlisting>
@@ -495,14 +495,14 @@ $view->addHelperPath('/other/path/to/helpers', 'Your_View_Helper');
             </para></listitem>
 
             <listitem><para>
-                Nazwa klasy musi przynajmniej składać się z nazwy helpera, 
+                Nazwa klasy musi przynajmniej składać się z nazwy helpera,
                 używając formy MixedCaps. Np. jeśli tworzysz helper nazwany
-                "twojHelper", nazwą klasy musi być przynajmniej "TwojHelper". 
+                "twojHelper", nazwą klasy musi być przynajmniej "TwojHelper".
                 Możesz, a nawet powinieneś dać nazwie klasy przedostek i jest
                 zalecane aby znalazła się w nim część 'View_Helper' aby cała
-                nazwa klasy wyglądała mniej więcej tak: "My_View_Helper_TwojHelper". 
-                (Będziesz musiał przekazać ten przedrostek, ze końcowym znakiem 
-                podkreślenia lub bez, do jednej z metod <code>addHelperPath()</code> 
+                nazwa klasy wyglądała mniej więcej tak: "My_View_Helper_TwojHelper".
+                (Będziesz musiał przekazać ten przedrostek, ze końcowym znakiem
+                podkreślenia lub bez, do jednej z metod <code>addHelperPath()</code>
                 lub <code>setHelperPath()</code>).
             </para></listitem>
 
@@ -612,7 +612,7 @@ class My_View_Helper_ScriptPath
             a także po to, aby określić w jaki sposób powinno się uzyskiwać do
             tego obiektu dostęp.
         </para>
-        
+
         <para>
             Jeśli rozszerzasz klasę <code>Zend_View_Helper_Abstract</code>
             nie musisz definiować tej metody, ponieważ jest ona zdefiniowana

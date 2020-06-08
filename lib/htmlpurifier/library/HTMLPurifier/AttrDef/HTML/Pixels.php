@@ -7,9 +7,9 @@ require_once 'HTMLPurifier/AttrDef.php';
  */
 class HTMLPurifier_AttrDef_HTML_Pixels extends HTMLPurifier_AttrDef
 {
-    
+
     public function validate($string, $config, $context) {
-        
+
         $string = trim($string);
         if ($string === '0') return $string;
         if ($string === '')  return false;
@@ -19,18 +19,18 @@ class HTMLPurifier_AttrDef_HTML_Pixels extends HTMLPurifier_AttrDef
         }
         if (!is_numeric($string)) return false;
         $int = (int) $string;
-        
+
         if ($int < 0) return '0';
-        
+
         // upper-bound value, extremely high values can
         // crash operating systems, see <http://ha.ckers.org/imagecrash.html>
         // WARNING, above link WILL crash you if you're using Windows
-        
+
         if ($int > 1200) return '1200';
-        
+
         return (string) $int;
-        
+
     }
-    
+
 }
 

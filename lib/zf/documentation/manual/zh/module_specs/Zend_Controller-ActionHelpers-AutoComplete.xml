@@ -95,7 +95,7 @@ class FooController extends Zend_Controller_Action
         </para>
 
         <para>
-            在 Zend Framework 中，可以传递简单的索引的数组给 AutoCompleteDojo 助手，它将返回一个适合和这样一个存储一起使用的 JSON 响应： 
+            在 Zend Framework 中，可以传递简单的索引的数组给 AutoCompleteDojo 助手，它将返回一个适合和这样一个存储一起使用的 JSON 响应：
         </para>
 
         <programlisting role="php"><![CDATA[
@@ -103,7 +103,7 @@ class FooController extends Zend_Controller_Action
 $this->_helper->autoCompleteDojo($data);
 ]]>
         </programlisting>
-        
+
         <example id="zend.controller.actionhelpers.autocomplete.dojo.example1">
             <title>AutoCompletion with Dojo Using Zend MVC</title>
 
@@ -114,7 +114,7 @@ $this->_helper->autoCompleteDojo($data);
             <para>
                 首先，看一下必需的 javascript 。Dojo 为生成 OOP javascript 提供一个完整的框架，很像 Zend Framework 对于 PHP。它的部分功能是使用目录等级结构生成假的命名空间（pseudo-namespaces ）。 我们将在和 Dojo 同一级目录创建一个 'custom' 目录，那是 Dojo 发行的一部分。 在目录里面，我们将创建 javascript 文件，TestNameReadStore.js  带有以下内容：
             </para>
-      
+
             <programlisting role="javascript"><![CDATA[
 dojo.provide("custom.TestNameReadStore");
 dojo.declare("custom.TestNameReadStore", dojox.data.QueryReadStore, {
@@ -125,7 +125,7 @@ dojo.declare("custom.TestNameReadStore", dojox.data.QueryReadStore, {
 });
 ]]>
 </programlisting>
-            
+
             <para>
                 该类是 Dojo 自己的 QueryReadStore 的扩展，QueryReadStore 是一个抽象类。我们简单地通过请求定义一个方法，并把它分配给 'test' 元素。
             </para>
@@ -133,14 +133,14 @@ dojo.declare("custom.TestNameReadStore", dojox.data.QueryReadStore, {
             <para>
                 下一步，为我们想要的 AutoCompletion 生成表单元素：
             </para>
-             
+
             <programlisting role="php"><![CDATA[
 class TestController extends Zend_Controller_Action
 {
     protected $_form;
 
     public function getForm()
-    {   
+    {
         if (null === $this->_form) {
             $this->_form = new Zend_Form();
             $this->_form->setMethod('get')
@@ -156,7 +156,7 @@ class TestController extends Zend_Controller_Action
                         'hasDownArrow'   => 'true',
                         'label' => 'Your input:',
                     )),
-                    'go' => array('type' => 'submit', 
+                    'go' => array('type' => 'submit',
                                   'options' => array('label' => 'Go!'))
                 ));
         }
@@ -165,7 +165,7 @@ class TestController extends Zend_Controller_Action
 }
 ]]>
             </programlisting>
-            
+
             <para>
                 这里，我们用 'test' 和 'go' 方法生成表单。'test' 方法添加若干特别的 Dojo 专用的属性：dojoType、 store、 autoComplete 和 hasDownArrow。dojoType 用来指示我们在生成 comboBox，并且我们将把它链接到 'testStore' 的数据存储（键 'store'）－－ 稍后还有更多。指定 'autoComplete' 作为 false 告诉 Dojo 不要自动选择第一个匹配，但是要显示一个匹配列表。最后，'hasDownArrow' 生成和选择 box 类似的向下箭头，这样我们可以显示和隐藏匹配。
             </para>
@@ -209,7 +209,7 @@ class TestController extends Zend_Controller_Action
 }
 ]]>
             </programlisting>
-            
+
             <para>
                 在 <code>autocompleteAction()</code> 中我们做许多事情。首先，我们注意确保我们有个 post 请求，并且有个 'format' 参数的值为 'ajax'；这样减少欺骗查询给动作。接着，我们检查 'test' 参数，并和我们的数据比较。（我在这里故意忽略了 <code>getData()</code> 的实现 －－ 它可以是任何数据源）。最后，发送匹配给 AutoCompletion 助手。
             </para>
@@ -221,7 +221,7 @@ class TestController extends Zend_Controller_Action
             <programlisting role="php"><![CDATA[
 <? // setup our data store: ?>
 <div dojoType="custom.TestNameReadStore" jsId="testStore"
-    url="<?= $this->baseUrl() ?>/unit-test/autocomplete/format/ajax" 
+    url="<?= $this->baseUrl() ?>/unit-test/autocomplete/format/ajax"
     requestMethod="get"></div>
 
 <? // render our form: ?>
@@ -233,12 +233,12 @@ class TestController extends Zend_Controller_Action
 @import "<?= $this->baseUrl() ?>/javascript/dojo/resources/dojo.css";
 <? $this->headStyle()->captureEnd() ?>
 
-<? // setup javascript to load in HTML head, including all required 
+<? // setup javascript to load in HTML head, including all required
    // Dojo libraries: ?>
 <? $this->headScript()
         ->setAllowArbitraryAttributes(true)
-        ->appendFile($this->baseUrl() . '/javascript/dojo/dojo.js', 
-            'text/javascript', 
+        ->appendFile($this->baseUrl() . '/javascript/dojo/dojo.js',
+            'text/javascript',
             array('djConfig' => 'parseOnLoad: true'))
         ->captureStart() ?>
 djConfig.usePlainJson=true;

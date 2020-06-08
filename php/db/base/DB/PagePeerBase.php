@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version \$Id\$
@@ -33,7 +33,7 @@ use BaseDBPeer;
  */
 class PagePeerBase extends BaseDBPeer {
 	public static $peerInstance;
-	
+
 	protected function internalInit(){
 		$this->tableName='page';
 		$this->objectName='DB\\Page';
@@ -42,7 +42,7 @@ class PagePeerBase extends BaseDBPeer {
 		$this->fieldTypes = array( 'page_id' => 'serial',  'site_id' => 'int',  'category_id' => 'int',  'parent_page_id' => 'int',  'revision_id' => 'int',  'source_id' => 'int',  'metadata_id' => 'int',  'revision_number' => 'int',  'title' => 'varchar(256)',  'unix_name' => 'varchar(256)',  'date_created' => 'timestamp',  'date_last_edited' => 'timestamp',  'last_edit_user_id' => 'int',  'last_edit_user_string' => 'varchar(80)',  'thread_id' => 'int',  'owner_user_id' => 'int',  'blocked' => 'boolean',  'rate' => 'int');
 		$this->defaultValues = array( 'revision_number' => '0',  'blocked' => 'false',  'rate' => '0');
 	}
-	
+
 	public static function instance(){
 		if(self::$peerInstance == null){
 			self::$peerInstance = new PagePeer();

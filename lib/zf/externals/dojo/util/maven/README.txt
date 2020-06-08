@@ -8,13 +8,13 @@ maven/java           - The parent pom for java dojo utilities
 maven/java/dojo      - Packages dojo as a java Webapp.
 
 
-Maven projects will be able to use the zip, tar and/or war 
+Maven projects will be able to use the zip, tar and/or war
 maven artifacts as dependencies and include them in their
 webapps as resources or templates.
 
-Currently there is no public dojo repository. So artifacts 
-are only installed to your local maven repository. So maven 
-projects will need build this locally.  Eventually the artifacts 
+Currently there is no public dojo repository. So artifacts
+are only installed to your local maven repository. So maven
+projects will need build this locally.  Eventually the artifacts
 will be published.
 
 The artifacts are also available at:
@@ -27,7 +27,7 @@ The artifacts are also available at:
 
 
 To build everything:
-  mvn 
+  mvn
 
 
 To re build the war file
@@ -43,7 +43,7 @@ or
 
 
 To run a jetty server with the war
- 
+
   mvn -f java/dojo/pom.xml jetty:run-war
 
 or

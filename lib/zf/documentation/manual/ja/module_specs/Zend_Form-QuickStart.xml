@@ -503,7 +503,7 @@ if (!$form->isValid($_POST)) {
             20 文字までの間であることとし、
             入力された内容はすべて小文字に変換することにします。
             パスワードは 6 文字以上でなければならないようにします。
-            We'll simply toss the submit value when done, 
+            We'll simply toss the submit value when done,
             so it can remain unvalidated.
         </para>
 
@@ -569,7 +569,7 @@ class UserController extends Zend_Controller_Action
             $this->view->form = $form;
             return $this->render('form');
         }
-        
+
         $values = $form->getValues();
         // ここで認証処理を行います
     }

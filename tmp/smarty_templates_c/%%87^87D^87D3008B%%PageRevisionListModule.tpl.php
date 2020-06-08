@@ -33,7 +33,7 @@ smarty_core_load_plugins(array('plugins' => array(array('function', 'pager', '/v
 	<?php if (count($_from = (array)$this->_tpl_vars['revisions'])):
     foreach ($_from as $this->_tpl_vars['pr']):
 ?>
-	
+
 	<tr id="revision-row-<?php echo $this->_tpl_vars['pr']->getRevisionId(); ?>
 ">
 		<td><?php echo $this->_tpl_vars['pr']->getRevisionNumber(); ?>
@@ -58,13 +58,13 @@ smarty_core_load_plugins(array('plugins' => array(array('function', 'pager', '/v
 		 	<?php endif; ?>
 		 	<?php if ($this->_tpl_vars['pr']->getFlagRename()): ?>
 		 		<span class="spantip" title="<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>page renamed/moved<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>">R</span>
-		 	<?php endif; ?>  
+		 	<?php endif; ?>
 		 	<?php if ($this->_tpl_vars['pr']->getFlagFile()): ?>
 		 		<span class="spantip" title="<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>file/attachment action<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>">F</span>
-		 	<?php endif; ?>  
+		 	<?php endif; ?>
 		 	<?php if ($this->_tpl_vars['pr']->getFlagMeta()): ?>
 		 		<span class="spantip" title="<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>meta data changed<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>">M</span>
-		 	<?php endif; ?> 
+		 	<?php endif; ?>
 		</td>
 		<td style="width: 5em" class="optionstd">
 			 <a title="<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>view page revision<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>" href="javascript:;" onclick="showVersion(<?php echo $this->_tpl_vars['pr']->getRevisionId(); ?>

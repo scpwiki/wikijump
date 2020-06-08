@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Web
  * @version $Id$
@@ -39,11 +39,11 @@ class DefaultWebFlowController extends WebFlowController {
 		$loggerFileOutput->setLogFileName(WIKIDOT_ROOT."/logs/ozone.log");
 		$logger->addLoggerOutput($loggerFileOutput);
 		$logger->setDebugLevel(GlobalProperties::$LOGGER_LEVEL);
-		
+
 		$logger->debug("request processing started, logger initialized");
 
 		Ozone ::init();
-		
+
 		$runData = new RunData();
 		$runData->init();
 		Ozone :: setRunData($runData);
@@ -51,7 +51,7 @@ class DefaultWebFlowController extends WebFlowController {
 
 		// handle session at the begging of procession
 		$runData->handleSessionStart();
-		
+
 		$template = $runData->getScreenTemplate();
 		$classFile = $runData->getScreenClassPath();
 		$className = $runData->getScreenClassName();
@@ -59,18 +59,18 @@ class DefaultWebFlowController extends WebFlowController {
 
 		require_once ($classFile);
 		$screen = new $className ();
-		
+
 		// screen security check
 		if(!$screen->isAllowed($runData)){
 			if($classFile == $runData->getScreenClassPath()){
 				$runData->setScreenTemplate("errors/NotAllowed");
 			} else {
-				// $screen->isAllowed() should set the error template!!! if not - 
+				// $screen->isAllowed() should set the error template!!! if not -
 				// default NotAllowed is used
-			
+
 				// reload the class again - we do not want the unsecure screen to render!
 				$classFile = $runData->getScreenClassPath();
-			
+
 				$className = $runData->getScreenClassName();
 				$logger->debug("processing template: ".$runData->getScreenTemplate().", class: $className");
 				require_once ($classFile);
@@ -80,7 +80,7 @@ class DefaultWebFlowController extends WebFlowController {
 		}
 
 		$logger->info("Ozone engines successfully initialized");
-		
+
 		// caching of LAYOUT tasks should start here
 		$cacheSettings = $screen->getScreenCacheSettings();
 		$updateLayoutContentLater = false;
@@ -91,39 +91,39 @@ class DefaultWebFlowController extends WebFlowController {
 				// process modules...
 	 			$moduleProcessor = new ModuleProcessor($runData);
 	 			$out = $moduleProcessor->process($content);
-				echo $out;	
-				
+				echo $out;
+
 				$runData->handleSessionEnd();
-				
+
 				return;
 			} else {
-				$updateLayoutContentLater = true;	
+				$updateLayoutContentLater = true;
 			}
 		}
 
 		// PROCESS ACTION
-		
+
 		$actionClass = $runData->getAction();
 		$logger->debug("processing action $actionClass");
 		while ($actionClass != null) {
-			
+
 			require_once (PathManager :: actionClass($actionClass));
 			$tmpa1 = explode('/', $actionClass);
             $actionClassStripped = end($tmpa1);
 
 			$action = new $actionClassStripped();
-			
+
 			$classFile = $runData->getScreenClassPath();
 			if(!$action->isAllowed($runData)){
 				if($classFile == $runData->getScreenClassPath()){
 					$runData->setScreenTemplate("errors/NotAllowed");
 				}
-				// $action->isAllowed() should set the error template!!! if not - 
+				// $action->isAllowed() should set the error template!!! if not -
 				// default NotAllowed is used
 				break;
-					
+
 			}
-			
+
 			$actionEvent = $runData->getActionEvent();
 			if ($actionEvent != null) {
 				$action-> $actionEvent ($runData);
@@ -144,7 +144,7 @@ class DefaultWebFlowController extends WebFlowController {
 		}
 
 		// end action process
-	
+
 		// check if template has been changed by the action. if so...
 		if($template != $runData->getScreenTemplate){
 			$classFile = $runData->getScreenClassPath();
@@ -161,9 +161,9 @@ class DefaultWebFlowController extends WebFlowController {
 			// process modules...
 	 		$moduleProcessor = new ModuleProcessor($runData);
 	 		$out = $moduleProcessor->process($rendered);
-			
+
 		}
-		
+
 		if($updateLayoutContentLater == true){
 			ScreenCacheManager::instance()->updateCachedLayout($runData, $rendered);
 		}

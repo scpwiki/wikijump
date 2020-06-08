@@ -6,7 +6,7 @@
 
         <para>
             控制器（Controller）结构包含一个可以在控制器周期内确定事件发生时调用用户代码的插件系统。
-            前端控制器（Front controller）使用插件 broker 作为用户插件注册，同时插件 broker 
+            前端控制器（Front controller）使用插件 broker 作为用户插件注册，同时插件 broker
             确保前端控制器中注册的每个插件都在事件发生时调用相应的事件方法。
         </para>
 
@@ -30,7 +30,7 @@
             </listitem>
             <!--
             dispatch 这里应该是分发还是调度？现在的 zend.controller.dispatcher 翻译是使用了分发和分发器，但是调度是不是更合适一些？
-            @todo: 确认 dispatch 的翻译方式，dispatcher 的翻译方式。 
+            @todo: 确认 dispatch 的翻译方式，dispatcher 的翻译方式。
             -->
             <listitem>
                 <para>
@@ -59,7 +59,7 @@
 
             <listitem>
                 <para>
-                    <code>dispatchLoopShutdown()</code> 在 <code>Zend_Controller_Front</code> 
+                    <code>dispatchLoopShutdown()</code> 在 <code>Zend_Controller_Front</code>
                     推出其分发循环后调用。
                 </para>
             </listitem>
@@ -91,7 +91,7 @@ class MyPlugin extends Zend_Controller_Plugin_Abstract
 
         <para>
             <code>Zend_Controller_Plugin_Abstract</code> 也可以通过调用
-            <code>getRequest()</code> 和 <code>getResponse()</code> 
+            <code>getRequest()</code> 和 <code>getResponse()</code>
             方法从控制器中分别获取 request 对象和 response 对象.
         </para>
     </sect2>
@@ -198,7 +198,7 @@ $front->dispatch();
         <para>
             Zend Framework 在其标准发行包中包含错误处理插件。
         </para>
-        
+
         <xi:include href="Zend_Controller-Plugins-ActionStack.xml" />
         <xi:include href="Zend_Controller-Plugins-ErrorHandler.xml" />
     </sect2>

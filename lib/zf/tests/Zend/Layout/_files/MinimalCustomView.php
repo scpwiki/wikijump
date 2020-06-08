@@ -2,7 +2,7 @@
 
 class Zend_Layout_Test_MinimalCustomView implements Zend_View_Interface
 {
-    
+
     public function getEngine() {}
 
     public function setScriptPath($path) {}
@@ -24,5 +24,5 @@ class Zend_Layout_Test_MinimalCustomView implements Zend_View_Interface
     public function clearVars() {}
 
     public function render($name) {}
-    
+
 }

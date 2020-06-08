@@ -64,18 +64,18 @@ class Zend_Controller_Router_Route_Chain extends Zend_Controller_Router_Route_Ab
     {
 
         $path = $request->getPathInfo();
-        
+
         $values = array();
 
         foreach ($this->_routes as $key => $route) {
-            
-            // TODO: Should be an interface method. Hack for 1.0 BC  
+
+            // TODO: Should be an interface method. Hack for 1.0 BC
             if (!method_exists($route, 'getVersion') || $route->getVersion() == 1) {
                 $match = $request->getPathInfo();
             } else {
                 $match = $request;
             }
-            
+
             $res = $route->match($match);
             if ($res === false) return false;
 
@@ -100,12 +100,12 @@ class Zend_Controller_Router_Route_Chain extends Zend_Controller_Router_Route_Ab
             if ($key > 0) {
                 $value .= $this->_separators[$key];
             }
-            
+
             $value .= $route->assemble($data, $reset, $encode);
-            
+
             if (method_exists($route, 'getVariables')) {
                 $variables = $route->getVariables();
-                
+
                 foreach ($variables as $variable) {
                     $data[$variable] = null;
                 }
@@ -117,7 +117,7 @@ class Zend_Controller_Router_Route_Chain extends Zend_Controller_Router_Route_Ab
 
     /**
      * Set the request object for this and the child routes
-     * 
+     *
      * @param  Zend_Controller_Request_Abstract|null $request
      * @return void
      */

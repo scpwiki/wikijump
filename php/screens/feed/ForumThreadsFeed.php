@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,17 +27,17 @@
 use DB\ForumThreadPeer;
 
 class ForumThreadsFeed extends FeedScreen {
-	
+
 	public function render($runData){
 		$site = $runData->getTemp("site");
-		
+
 		$pl = $runData->getParameterList();
 		$parmHash = md5(serialize($pl->asArray()));
-		
+
 		$key = 'forumposts_f..'.$site->getUnixName().'..'.$parmHash;
 		$tkey = 'forumstart_lc..'.$site->getUnixName(); // last change timestamp
 		$akey = 'forumall_lc..'.$site->getUnixName();
-	
+
 		$mc = OZONE::$memcache;
 		$struct = $mc->get($key);
 		$changeTimestamp = $mc->get($tkey);
@@ -45,15 +45,15 @@ class ForumThreadsFeed extends FeedScreen {
 		if($struct){
 			// check the times
 			$cacheTimestamp = $struct['timestamp'];
-			
+
 			// afford 1 minute delay
 			if($changeTimestamp && $changeTimestamp <= $cacheTimestamp+60 && $allForumTimestamp && $allForumTimestamp <= $cacheTimestamp){
-				return $struct['content'];	
+				return $struct['content'];
 			}
 		}
-		
+
 		$out = parent::render($runData);
-		
+
 		// and store the data now
 		$struct = array();
 		$now = time();
@@ -69,19 +69,19 @@ class ForumThreadsFeed extends FeedScreen {
 			$allForumTimestamp = $now;
 			$mc->set($akey, $allForumTimestamp, 0, 10000);
 		}
-			
-		return $out; 
+
+		return $out;
 	}
-	
+
 	public function build($runData){
-	
+
 		$site = $runData->getTemp("site");
-		
+
 		$pl = $runData->getParameterList();
 		$categoryId = $pl->getParameterValue("c");
-		
+
 		$channel = array();
-		
+
 		$channel['title'] =  $site->getName()." - "._("new forum threads");
 		$channel['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/forum/start";
 		$channel['description'] = _("Threads in forums of the site")." \"".$site->getName()."\"";
@@ -90,7 +90,7 @@ class ForumThreadsFeed extends FeedScreen {
 		}
 
 		$items = array();
-		
+
 		$c = new Criteria();
 		$c->add("forum_thread.site_id", $site->getSiteId());
 		$c->add("forum_group.visible", true);
@@ -100,43 +100,43 @@ class ForumThreadsFeed extends FeedScreen {
 		$c->addOrderDescending("thread_id");
 		$c->setLimit(20);
 		$threads = ForumThreadPeer::instance()->select($c);
-		
+
 		foreach($threads as $thread){
 			$item = array();
-			
+
 			$item['title'] = $thread->getTitle();
 			$item['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/forum/t-".$thread->getThreadId().'/'.$thread->getUnixifiedTitle();
 			$item['guid'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/forum/t-".$thread->getThreadId();
 			$item['date'] = date('r', $thread->getDateStarted()->getTimestamp());
-			
+
 			//replace relative links with absolute links!
 			$post = $thread->getFirstPost();
 			if(!$post){
-				continue;	
+				continue;
 			}
 			$content =  $post->getText();
-			
+
 			$content = preg_replace(';(<.*?)(src|href)="/([^"]+)"([^>]*>);si', '\\1\\2="'.GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'/\\3"\\4', $content);
 			$content = preg_replace(';<script\s+[^>]+>.*?</script>;is', '', $content);
 			$content = preg_replace(';(<[^>]*\s+)on[a-z]+="[^"]+"([^>]*>);si', '\\1 \\2', $content);
-			
+
 			if($thread->getDescription()){
-				$item['description'] = $thread->getDescription();	
+				$item['description'] = $thread->getDescription();
 			}
-			
+
 			$item['content'] = $content;
 			if($post->getUserId()>0){
-				$item['authorUserId'] = $post->getUserId();	
+				$item['authorUserId'] = $post->getUserId();
 				$user = $post->getUser();
 				$item['author']=$user->getNickName();
 			}else{
-				$item['author']=$post->getUserString();	
+				$item['author']=$post->getUserString();
 			}
-			$items[] = $item;	
+			$items[] = $item;
 		}
-		
+
 		$runData->contextAdd("channel", $channel);
 		$runData->contextAdd("items", $items);
 	}
-	
+
 }

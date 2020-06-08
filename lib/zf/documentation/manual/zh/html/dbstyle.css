@@ -1,4 +1,4 @@
-body {	
+body {
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-size:10pt;
 	#line-height:1.5em;
@@ -54,7 +54,7 @@ pre.programlisting {
 	font-size: 9pt;
 	font-weight: normal;
 	background-color: #F0FAFF;
-	border: 1px dashed #0099CC;	
+	border: 1px dashed #0099CC;
 	padding: 0.1in;
 	margin: 0.2in;
 	clear: right;

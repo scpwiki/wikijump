@@ -61,12 +61,12 @@ application/
         <note>
             <title>Brak przestrzeni nazw w domyślnym module</title>
             <para>
-                Zauważ, że w domyślnym module nazwa kontrolera nie ma 
-                przedrostka defniującego przestrzeń nazw. Dlatego w powyższym 
-                przykładzie kontrolery w domyślnym module nie potrzebują 
-                przedrostka 'Default_' -- są one po prostu uruchamiane jako 
-                'IndexController' oraz 'FooController'. Przedrostek definiujący 
-                przestrzeń nazw jest jednak używany we wszystkich innych 
+                Zauważ, że w domyślnym module nazwa kontrolera nie ma
+                przedrostka defniującego przestrzeń nazw. Dlatego w powyższym
+                przykładzie kontrolery w domyślnym module nie potrzebują
+                przedrostka 'Default_' -- są one po prostu uruchamiane jako
+                'IndexController' oraz 'FooController'. Przedrostek definiujący
+                przestrzeń nazw jest jednak używany we wszystkich innych
                 modułach.
             </para>
         </note>

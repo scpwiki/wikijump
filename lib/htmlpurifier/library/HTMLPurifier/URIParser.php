@@ -9,7 +9,7 @@ require_once 'HTMLPurifier/URI.php';
  */
 class HTMLPurifier_URIParser
 {
-    
+
     /**
      * Parses a URI
      * @param $uri string URI to parse
@@ -23,19 +23,19 @@ class HTMLPurifier_URIParser
             '(\?([^#<>\'"]*))?'.   // 7. Query
             '(#([^<>\'"]*))?'.     // 8. Fragment
             '!';
-        
+
         $matches = array();
         $result = preg_match($r_URI, $uri, $matches);
-        
+
         if (!$result) return false; // *really* invalid URI
-        
+
         // seperate out parts
         $scheme     = !empty($matches[1]) ? $matches[2] : null;
         $authority  = !empty($matches[3]) ? $matches[4] : null;
         $path       = $matches[5]; // always present, can be empty
         $query      = !empty($matches[6]) ? $matches[7] : null;
         $fragment   = !empty($matches[8]) ? $matches[9] : null;
-        
+
         // further parse authority
         if ($authority !== null) {
             // ridiculously inefficient: it's a stacked regex!
@@ -53,10 +53,10 @@ class HTMLPurifier_URIParser
         } else {
             $port = $host = $userinfo = null;
         }
-        
+
         return new HTMLPurifier_URI(
             $scheme, $userinfo, $host, $port, $path, $query, $fragment);
     }
-    
+
 }
 

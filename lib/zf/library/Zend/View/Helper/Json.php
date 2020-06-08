@@ -43,8 +43,8 @@ class Zend_View_Helper_Json extends Zend_View_Helper_Abstract
      * Encode data as JSON, disable layouts, and set response header
      *
      * If $keepLayouts is true, does not disable layouts.
-     * 
-     * @param  mixed $data 
+     *
+     * @param  mixed $data
      * @param  bool $keepLayouts
      * @return string|void
      */

@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Web
  * @version $Id$
@@ -34,7 +34,7 @@ class ListResolver extends TemplateService{
 	private function loadList($listName){
 		$fileName = PathManager::listSpecFile($listName);
 			$xml = simplexml_load_file($fileName);
-			
+
 			$optionList = $xml->option;
 			$out = array();
 			foreach($optionList as $option){
@@ -47,18 +47,18 @@ class ListResolver extends TemplateService{
 		if(!isset($this->storage["$listName"])){
 			$this->loadList($listName);
 		}
-		return $this->storage["$listName"];	
+		return $this->storage["$listName"];
 	}
-	
+
 	public function resolveKey($listName, $keyName){
 		if(!isset($this->storage["$listName"])){
 			$this->loadList($listName);
 		}
-		return $this->storage["$listName"]["$keyName"];	
+		return $this->storage["$listName"]["$keyName"];
 	}
-	
+
 	public function test(){
 		echo "ListResolver tested";
 	}
-	
+
 }

@@ -54,7 +54,7 @@ class Text_Wiki_Render_Xhtml_Toc extends Text_Wiki_Render {
     {
         // type, id, level, count, attr
         extract($options);
-		
+
         switch ($type) {
 
         case 'list_start':
@@ -68,7 +68,7 @@ class Text_Wiki_Render_Xhtml_Toc extends Text_Wiki_Render {
             		$html .= '<table style="margin:0; padding:0"><tr><td style="margin:0; padding:0">';
             }
             $html .= '<div';
-           
+
 			$class = null;
 			if($options['align'] == "f<"){
 				$class="floatleft";
@@ -108,7 +108,7 @@ class Text_Wiki_Render_Xhtml_Toc extends Text_Wiki_Render {
 
             $pad = ($level - $this->min);
             $html .= " style=\"margin-left: {$pad}em;\">";
-			
+
 			$d = utf8_encode("\xFC");
             $html .= "<a href=\"#$id\">$d$d";
             return $html;

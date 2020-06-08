@@ -13,7 +13,7 @@ require_once 'Zend/Filter/Word/DashToCamelCase.php';
 /**
  * Test class for Zend_Filter_Word_DashToCamelCase.
  */
-class Zend_Filter_Word_DashToCamelCaseTest extends PHPUnit_Framework_TestCase 
+class Zend_Filter_Word_DashToCamelCaseTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.
@@ -21,7 +21,7 @@ class Zend_Filter_Word_DashToCamelCaseTest extends PHPUnit_Framework_TestCase
      * @access public
      * @static
      */
-    public static function main() 
+    public static function main()
     {
         require_once "PHPUnit/TextUI/TestRunner.php";
 

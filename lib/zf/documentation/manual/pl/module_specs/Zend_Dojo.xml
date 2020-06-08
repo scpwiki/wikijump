@@ -4,7 +4,7 @@
     <para>
         Od wersji 1.6.0, Zend Framework zawiera bibliotekę <ulink
             url="http://dojotoolkit.org">Dojo Toolkit</ulink> aby umożliwić
-        tworzenie nowoczesnych aplikacji bez konieczności instalowania 
+        tworzenie nowoczesnych aplikacji bez konieczności instalowania
         dodatkowych bibliotek. ZF został zintegrowany z Dojo w następujących
         zakresach:
     </para>
@@ -18,15 +18,15 @@
     </itemizedlist>
 
     <para>
-        Pakiet Dojo został umieszczony w katalogu <code>externals/dojo/</code> 
-        znajdującym się w dystrybucji Zend Framework. Jest to dystrybucja 
-        źródłowa, która zawiera pełen kod javascript Dojo, testy jednostkowe, a 
+        Pakiet Dojo został umieszczony w katalogu <code>externals/dojo/</code>
+        znajdującym się w dystrybucji Zend Framework. Jest to dystrybucja
+        źródłowa, która zawiera pełen kod javascript Dojo, testy jednostkowe, a
         także narzędzia do kompilacji. Możesz utworzyć symboliczny link do Dojo
         w swoim katalogu z plikami javascript, skopiować pliki, lub użyć narzędzia
         do kompilacji w celu stworzenia własnej wersji, którą dołączysz do swojego
-        projektu. Możesz też użyć jednego z systemów CDN (Content Delivery 
-        Network), które oferują Dojo (ZF obsługuje zarówno oficjalny AOL CDN jak 
-        i Google CDN). 
+        projektu. Możesz też użyć jednego z systemów CDN (Content Delivery
+        Network), które oferują Dojo (ZF obsługuje zarówno oficjalny AOL CDN jak
+        i Google CDN).
     </para>
 </sect1>
 <!--

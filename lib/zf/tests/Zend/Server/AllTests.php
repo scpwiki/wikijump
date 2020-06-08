@@ -42,7 +42,7 @@ class Zend_Server_AllTests
         $suite->addTestSuite('Zend_Server_Reflection_ParameterTest');
         $suite->addTestSuite('Zend_Server_Reflection_PrototypeTest');
         $suite->addTestSuite('Zend_Server_Reflection_ReturnValueTest');
-       
+
         return $suite;
     }
 }

@@ -34,12 +34,12 @@ $db = Zend_Db::factory('Pdo_Mysql', array(
 // 保存ハンドラの $config に直接私増す
 Zend_Db_Table_Abstract::setDefaultAdapter($db);
 $config = array(
-    'name'           => 'session', 
-    'primary'        => 'id', 
+    'name'           => 'session',
+    'primary'        => 'id',
     'modifiedColumn' => 'modified',
     'dataColumn'     => 'data',
-    'lifetimeColumn' => 'lifetime' 
-); 
+    'lifetimeColumn' => 'lifetime'
+);
 
 // Zend_Session_SaveHandler_DbTable を作成し、それを
 // Zend_Session の保存ハンドラとして設定します
@@ -73,7 +73,7 @@ CREATE TABLE `session` (
 // テーブル固有の内容についてもここで設定することができます
 $config = array(
     'name'              => 'session', // Zend_Db_Table のテーブル名
-    'primary'           => array( 
+    'primary'           => array(
         'session_id',   // PHP のセッション ID
         'save_path',    // session.save_path
         'name',         // セッション名
@@ -83,14 +83,14 @@ $config = array(
         'sessionId',          // 主キーの最初のカラムはセッション ID
         'sessionSavePath',    // 主キーの 2 番目のカラムは保存パス
         'sessionName',        // 主キーの 3 番目のカラムはセッション名
-    ), 
+    ),
     'modifiedColumn'    => 'modified',     // セッションの有効期間
     'dataColumn'        => 'session_data', // シリアライズしたデータ
     'lifetimeColumn'    => 'lifetime',     // 指定したレコードの生存期間
 );
 
 // Zend_Session に、この保存ハンドラを使うように通知します
-Zend_Session::setSaveHandler(new Zend_Session_SaveHandler_DbTable($config)); 
+Zend_Session::setSaveHandler(new Zend_Session_SaveHandler_DbTable($config));
 
 // セッションを開始します
 Zend_Session::start();

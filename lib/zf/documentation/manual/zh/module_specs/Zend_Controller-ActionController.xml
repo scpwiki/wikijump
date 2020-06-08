@@ -122,7 +122,7 @@ class FooController extends Zend_Controller_Action
         <title>派遣前后的钩子</title>
 
         <para>
-            <code>Zend_Controller_Action</code>指定两个方法，<code>preDispatch()</code> 和<code>postDispatch()</code>，可能被调用来bookend一个请求的动作。这在很多场合都有用：例如在运行一个动作（通过调用<code>preDispatch()</code>里的<code>_forward()</code>，动作将被跳过）前校验认证和ACLs，或者在网站范围的模板里（<code>postDispatch()</code>）替换生成的内容。           
+            <code>Zend_Controller_Action</code>指定两个方法，<code>preDispatch()</code> 和<code>postDispatch()</code>，可能被调用来bookend一个请求的动作。这在很多场合都有用：例如在运行一个动作（通过调用<code>preDispatch()</code>里的<code>_forward()</code>，动作将被跳过）前校验认证和ACLs，或者在网站范围的模板里（<code>postDispatch()</code>）替换生成的内容。
         </para>
     </sect2>
 
@@ -219,7 +219,7 @@ applicationOrModule/
             </programlisting>
 
             <para>
-                换句话说，视图脚本假定放在<code>views/scripts/</code>子目录，同时假定<code> views</code>子目录还包含兄弟功能（助手和过滤器）。确定视图脚本名称和路径时，先以<code> views/scripts/</code>作为基路径，然后加上以视图脚本对应控制器命名的目录。 
+                换句话说，视图脚本假定放在<code>views/scripts/</code>子目录，同时假定<code> views</code>子目录还包含兄弟功能（助手和过滤器）。确定视图脚本名称和路径时，先以<code> views/scripts/</code>作为基路径，然后加上以视图脚本对应控制器命名的目录。
             </para>
         </sect3>
 
@@ -231,8 +231,8 @@ applicationOrModule/
             </para>
 
             <programlisting role="php"><![CDATA[
-string render(string $action = null, 
-              string $name = null, 
+string render(string $action = null,
+              string $name = null,
               bool $noController = false);
 ]]>
             </programlisting>
@@ -263,11 +263,11 @@ class MyController extends Zend_Controller_Action
         // Renders baz.phtml
         $this->render('baz', null, true);
 
-        // Renders my/login.phtml to the 'form' segment of the 
+        // Renders my/login.phtml to the 'form' segment of the
         // response object
         $this->render('login', 'form');
 
-        // Renders site.phtml to the 'page' segment of the response 
+        // Renders site.phtml to the 'page' segment of the response
         // object; does not use the 'my/' subirectory
         $this->render('site', 'page', true);
     }
@@ -373,15 +373,15 @@ class MyController extends Zend_Controller_Action
     public function __call($method, $args)
     {
         if ('Action' == substr($method, -6)) {
-            // If the action method was not found, render the error 
+            // If the action method was not found, render the error
             // template
             return $this->render('error');
         }
 
         // all other methods throw an exception
-        throw new Exception('Invalid method "' 
-                            . $method 
-                            . '" called', 
+        throw new Exception('Invalid method "'
+                            . $method
+                            . '" called',
                             500);
     }
 }
@@ -403,15 +403,15 @@ class MyController extends Zend_Controller_Action
     public function __call($method, $args)
     {
         if ('Action' == substr($method, -6)) {
-            // If the action method was not found, forward to the 
+            // If the action method was not found, forward to the
             // index action
             return $this->_forward('index');
         }
 
         // all other methods throw an exception
-        throw new Exception('Invalid method "' 
-                            . $method 
-                            . '" called', 
+        throw new Exception('Invalid method "'
+                            . $method
+                            . '" called',
                             500);
     }
 }

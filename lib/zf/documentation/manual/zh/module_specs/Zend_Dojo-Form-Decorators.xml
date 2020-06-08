@@ -96,16 +96,16 @@ $element->setDecorators(array(
 $form->setDecorators(array(
     'FormElements',
     array('TabContainer', array(
-        'id'          => 'tabContainer', 
+        'id'          => 'tabContainer',
         'style'       => 'width: 600px; height: 500px;',
         'dijitParams' => array(
             'tabPosition' => 'top'
-        ), 
+        ),
     )),
     'DijitForm',
 ));
 
-// Use a ContentPane in your sub form (which can be used with all but 
+// Use a ContentPane in your sub form (which can be used with all but
 // AccordionContainer):
 $subForm->setDecorators(array(
     'FormElements',

@@ -3,15 +3,15 @@
     <title>Standardowe klasy weryfikatorów</title>
 
     <para>
-        Zend Framework posiada standardowy zestaw gotowych do użycia klas 
+        Zend Framework posiada standardowy zestaw gotowych do użycia klas
         weryfikatorów.
     </para>
 
     <sect2 id="zend.validate.set.alnum">
         <title>Alnum</title>
         <para>
-            Zwraca wartość <code>true</code> tylko wtedy, gdy wartość <code>$value</code> 
-            zawiera tylko znaki alfabetu oraz cyfry. Ten weryfikator posiada także opcję, 
+            Zwraca wartość <code>true</code> tylko wtedy, gdy wartość <code>$value</code>
+            zawiera tylko znaki alfabetu oraz cyfry. Ten weryfikator posiada także opcję,
             służącą do określenia, czy białe znaki mąją być uznane za prawidłowe.
         </para>
     </sect2>
@@ -19,17 +19,17 @@
     <sect2 id="zend.validate.set.alpha">
         <title>Alpha</title>
         <para>
-            Zwraca wartość <code>true</code> tylko wtedy, gdy wartość <code>$value</code> 
-            zawiera tylko znaki alfabetu. Ten weryfikator posiada także opcję, 
+            Zwraca wartość <code>true</code> tylko wtedy, gdy wartość <code>$value</code>
+            zawiera tylko znaki alfabetu. Ten weryfikator posiada także opcję,
             służącą do określenia, czy białe znaki mąją być uznane za prawidłowe.
         </para>
     </sect2>
-    
+
     <sect2 id="zend.validate.set.barcode">
         <title>Barcode</title>
         <para>
             Ten weryfikator jest pomocny przy sprawdzaniu poprawności wartości kodu kreskowego. Obecnie obsługuje standardy
-            "<code>UPC-A</code>" (Universal Product Code) oraz "<code>EAN-13</code>" (European Article Number). Metoda 
+            "<code>UPC-A</code>" (Universal Product Code) oraz "<code>EAN-13</code>" (European Article Number). Metoda
             <code>isValid()</code> zwraca wartość <code>true</code> tylko w przypadku poprawnej weryfikacji poprzez algorytm
             kodów kreskowych. Powinieneś usunąć wszystkie znaki nie będące cyframi od zera do dziewiątki (0-9) przed
             podaniem wartości do weryfikatora.
@@ -39,11 +39,11 @@
     <sect2 id="zend.validate.set.between">
         <title>Between</title>
         <para>
-            Zwraca wartość <code>true</code> tylko wtedy, gdy wartość <code>$value</code> 
+            Zwraca wartość <code>true</code> tylko wtedy, gdy wartość <code>$value</code>
             znajduje się pomiędzy minimalną a maksymalną zadaną graniczną wartością.
-            Porównanie domyślnie nie jest ostre (wartość <code>$value</code> może 
-            być równa granicznej wartości), ale może być to nadpisane w celu uzyskania 
-            ścisłego porównania, w którym wartość <code>$value</code> musi być 
+            Porównanie domyślnie nie jest ostre (wartość <code>$value</code> może
+            być równa granicznej wartości), ale może być to nadpisane w celu uzyskania
+            ścisłego porównania, w którym wartość <code>$value</code> musi być
             ściśle większa od wartości minimalnej i ściśle mniejsza od wartości maksymalnej.
         </para>
     </sect2>
@@ -51,7 +51,7 @@
     <sect2 id="zend.validate.set.ccnum">
         <title>Ccnum</title>
         <para>
-            Zwraca wartość <code>true</code> tylko wtedy, gdy wartość <code>$value</code> 
+            Zwraca wartość <code>true</code> tylko wtedy, gdy wartość <code>$value</code>
             jest prawidłowym numerem karty kredytowej według algorytmu Luhn'a (suma kontrolna mod-10).
         </para>
     </sect2>
@@ -62,9 +62,9 @@
             Zwraca wartość <code>true</code> jeśli wartość <code>$value</code> jest poprawną datą
             w formacie <code>YYYY-MM-DD</code>. Jeśli podano opcjonalny parametr <code>locale</code> wtedy data będzie
             sprawdzana zgodnie z podaną lokalizacją. Dodatkowo jeśli podano opcjonalny parametr <code>format</code> będzie
-            on podstawą do sprawdzenia poprawności daty. Sprawdź 
+            on podstawą do sprawdzenia poprawności daty. Sprawdź
             <link linkend="zend.date.others.comparison.table">Zend_Date::isDate()</link> aby uzyskać szczegóły opcjonalnych
-            parametrów. 
+            parametrów.
         </para>
     </sect2>
 
@@ -107,9 +107,9 @@
     <sect2 id="zend.validate.set.in_array">
         <title>InArray</title>
         <para>
-            Zwraca wartość <code>true</code> tylko wtedy gdy wartość <code>$value</code> 
-            znajduje się w zadanej tablicy. Jeśli opcja ścisłego sprawdzania ma 
-            wartość <code>true</code>, wtedy typ wartości <code>$value</code> 
+            Zwraca wartość <code>true</code> tylko wtedy gdy wartość <code>$value</code>
+            znajduje się w zadanej tablicy. Jeśli opcja ścisłego sprawdzania ma
+            wartość <code>true</code>, wtedy typ wartości <code>$value</code>
             jest także sprawdzany.
         </para>
     </sect2>
@@ -157,10 +157,10 @@
             minimalnej i mniejsza lub równa od zadanej wartości maksymalnej.
             (wtedy gdy zadana wartość maksymalna jest różna od <code>null</code>).
             Od wersji 1.5.0 metoda <code>setMin()</code> wyrzuca wyjątek jeśli
-            zadana wartość minimalna jest ustawiona na wartość większą od 
+            zadana wartość minimalna jest ustawiona na wartość większą od
             zadanej wartości maksymalnej, a metoda <code>setMax()</code> wyrzuca
-            wyjątek jeśli zadana wartość maksymalna jest ustawiona na wartość 
-            mniejszą od zadanej wartości minimalnej. Od wersji 1.0.2, ta klasa 
+            wyjątek jeśli zadana wartość maksymalna jest ustawiona na wartość
+            mniejszą od zadanej wartości minimalnej. Od wersji 1.0.2, ta klasa
             obsługuje UTF-8 i inne kodowania znaków, w oparciu o obecną wartość dyrektywy
             <ulink url="http://www.php.net/manual/en/ref.iconv.php#iconv.configuration"><code>iconv.internal_encoding</code></ulink>.
         </para>

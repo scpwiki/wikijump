@@ -7,7 +7,7 @@
 
     <itemizedlist>
         <listitem><para>
-                <emphasis>layout</emphasis>：被使用的布局。使用当前变形器来解析提供给合适的布局视图脚本的名称。缺省地，这个值是'layout'并解析为'layout.phtml'。访问器是<code>setLayout()</code> 和 <code>getLayout()</code>。 
+                <emphasis>layout</emphasis>：被使用的布局。使用当前变形器来解析提供给合适的布局视图脚本的名称。缺省地，这个值是'layout'并解析为'layout.phtml'。访问器是<code>setLayout()</code> 和 <code>getLayout()</code>。
         </para></listitem>
 
         <listitem><para>
@@ -95,7 +95,7 @@ $layout = Zend_Layout::startMvc($options);
                 现在使用配置对象：
             </para>
 
-            <programlisting role="php"><![CDATA[<?php 
+            <programlisting role="php"><![CDATA[<?php
 $config = new Zend_Config_Ini('/path/to/layout.ini', 'layout');
 
 // Using constructor:
@@ -106,7 +106,7 @@ $layout = Zend_Layout::startMvc($config);
 ?>]]></programlisting>
 
             <para>
-               基本上，这是定制<code>Zend_Layout</code>实例的最简单的方法。  
+               基本上，这是定制<code>Zend_Layout</code>实例的最简单的方法。
             </para>
         </example>
 
@@ -124,7 +124,7 @@ $layout->setOptions($options);
 // Using a Zend_Config object:
 $layout->setConfig($options);
 ?>]]></programlisting>
-        
+
             <para>
                 然而要注意特定的选项，如<code>pluginClass</code> 和 <code>helperClass</code>，当用这个方法传递，将没有效果；它们需要传递给构造器或者<code>startMvc()</code> 方法。
             </para>

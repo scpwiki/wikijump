@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Db
  * @version $Id$
@@ -31,7 +31,7 @@
  *
  */
 class DBGeneratorColumn {
-	
+
 	private $name;
 	private $type;
 	private $defaultValue = null;
@@ -41,9 +41,9 @@ class DBGeneratorColumn {
 
 	public function __construct($column_xml){
 		$this->name = $column_xml['name'];
-		$this->type = $column_xml['type'];	
+		$this->type = $column_xml['type'];
 		if($column_xml['null'] == 'no' OR $column_xml['null'] == 'false'){
-			$this->canNull = false;	
+			$this->canNull = false;
 		}
 		if($column_xml['primaryKey'] == 'yes' || $column_xml['primaryKey'] == 'true'){
 			$this->primaryKey = true;
@@ -51,61 +51,61 @@ class DBGeneratorColumn {
 		if($column_xml['unique'] == 'yes' || $column_xml['unique'] == 'true'){
 			$this->unique = true;
 		}
-		
+
 		if(isset($column_xml['default'])){
 			$this->defaultValue = 	$column_xml['default'];
 		}
-		
+
 	}
-	
+
 	public function generateSQLPropertyString(){
 		$out = $this->name." ".$this->type." ";
 		if($this->canNull === false){
-			$out .= " NOT NULL ";	
-		}	
+			$out .= " NOT NULL ";
+		}
 		if($this->defaultValue !== null ){
-			$out .= "DEFAULT '" . $this->defaultValue ."' ";	
+			$out .= "DEFAULT '" . $this->defaultValue ."' ";
 		}
 		if($this->primaryKey == true){
-			$out .= "PRIMARY KEY";	
+			$out .= "PRIMARY KEY";
 		}
 		if($this->unique == true){
-			$out .= " UNIQUE ";	
+			$out .= " UNIQUE ";
 		}
 		return $out;
 	}
-	
+
 	public function getName(){
-		return $this->name;	
+		return $this->name;
 	}
-	
+
 	public function getType(){
-		return $this->type;	
+		return $this->type;
 	}
-	
+
 	public function getPropertyName(){
 		return underscoreToLowerCase($this->name);
 	}
-	
+
 	public function getPropertyNameFirstCapitalized(){
 		return capitalizeFirstLetter(underscoreToLowerCase($this->name));
 	}
-	
+
 	public function isPrimaryKey(){
-		return $this->primaryKey;	
+		return $this->primaryKey;
 	}
 	public function setPrimaryKey($val){
-		$this->primaryKey = $val;	
+		$this->primaryKey = $val;
 	}
 	public function isUnique(){
-		return $this->unique;	
+		return $this->unique;
 	}
 	public function setUnique(){
 		return $this->unique;
 	}
-	
+
 	public function getDefaultValue(){
-		return $this->defaultValue;	
+		return $this->defaultValue;
 	}
 
 	public function isIntLike(){
@@ -115,7 +115,7 @@ class DBGeneratorColumn {
 			return true;
 		} else {
 			return false;
-		}	
+		}
 	}
-	
+
 }

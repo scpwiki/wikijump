@@ -8,7 +8,7 @@
   </authors>
 
   <comment>
-FIXME:  While this construction : s.split /z/i 
+FIXME:  While this construction : s.split /z/i
 is valid, regular expression is not recognized as such
 (/ folowing an identifier or number is not recognized as
 start of RE), making highlighting improper
@@ -19,24 +19,24 @@ start of RE), making highlighting improper
   <default innerClass="code" />
 
   <region name="data" start="/^__END__$/m" end="$" delimClass="reserved" innerClass="comment" never-conteined="yes" />
-  
-  <region name="strdouble" delimClass="quotes" innerClass="string" 
+
+  <region name="strdouble" delimClass="quotes" innerClass="string"
           start="&quot;" end="&quot;" >
   </region>
 
-  <region name="qstrdouble" delimClass="quotes" innerClass="string" 
+  <region name="qstrdouble" delimClass="quotes" innerClass="string"
       start="%[Qx]([!&quot;#\$%&amp;'+\-*.\/:;=?@^`|~{&lt;\[(])" end="%b1%"  remember="yes" />
-  
-  <region name="strsingle" delimClass="quotes" innerClass="string" 
+
+  <region name="strsingle" delimClass="quotes" innerClass="string"
           start="'" end="'" />
 
-  <region name="qstrsingle" delimClass="quotes" innerClass="string" 
+  <region name="qstrsingle" delimClass="quotes" innerClass="string"
       start="%[wq]([!&quot;#\$%&amp;'+\-*.\/:;=?@^`|~{&lt;\[(])" end="%b1%"  remember="yes" />
 
   <block name="global" match="\$(\W|\w+)" innerClass="var" />
 
   <block name="classvar" match="/@@?[_a-z][\d_a-z]*/i" innerClass="var" />
-  
+
   <region name="brackets" delimClass="brackets" innerClass="code" start="\(" end="\)" >
     <contains all="yes"/>
   </region>
@@ -55,14 +55,14 @@ start of RE), making highlighting improper
 
   <block name="identifier" match="[a-z_]\w*" innerClass="identifier" />
 
-  <block name="exponent" 
-         match="((\d+|((\d*\.\d+)|(\d+\.\d*)))[eE][+-]?\d+)" 
+  <block name="exponent"
+         match="((\d+|((\d*\.\d+)|(\d+\.\d*)))[eE][+-]?\d+)"
          innerClass="number" />
 
   <block name="float" match="(\d*\.\d+)|(\d+\.\d*)" innerClass="number"/>
 
   <block name="hexinteger" match="0[xX][\da-f]+l?" innerClass="number" />
-  
+
   <block name="integer" match="\d+l?|\b0l?\b" innerClass="number" />
 
   <block name="octinteger" match="0[0-7]+l?" innerClass="number" />
@@ -71,7 +71,7 @@ start of RE), making highlighting improper
   <region name="rubydoc" start="/^=begin$/m" end="/^=end$/m" delimClass="comment" innerClass="comment">
       <contains block="cvstag" />
   </region>
-  
+
   <block name="cvstag" match="\$\w+\s*:.+\$" innerClass="inlinedoc" contained="yes">
     <onlyin region="comment"/>
     <onlyin region="rubydoc"/>
@@ -81,10 +81,10 @@ start of RE), making highlighting improper
       <contains block="cvstag" />
   </region>
 
-  <region name="regexp" delimClass="quotes" innerClass="string" start="\s*\/" end="\/[iomx]*" 
+  <region name="regexp" delimClass="quotes" innerClass="string" start="\s*\/" end="\/[iomx]*"
    neverAfter="(?&lt;!\band|\bor|\bwhile|\buntil|\bunless|\bif|\belsif|\bwhen|[~=!|&amp;(,\[])$">
   </region>
-  
+
   <keywords name="reserved" inherits="identifier" innerClass="reserved" case = "yes">
       <keyword match="__FILE__" />
       <keyword match="require" />

@@ -11,17 +11,17 @@
         A következő ábra bemutatja a munkafolyamatot, az utána következőkben pedig részletesen leírjuk a kölcsönhatásokat:
     </para>
     <para>
-        <inlinegraphic 
-            align="center" 
-            fileref="figures/zend.controller.basics.png" 
-            format="PNG" 
-            scale="100" 
-            valign="middle" 
-            width="483" 
+        <inlinegraphic
+            align="center"
+            fileref="figures/zend.controller.basics.png"
+            format="PNG"
+            scale="100"
+            valign="middle"
+            width="483"
         />
     </para>
     <para>
-        A 
+        A
         <code>Zend_Controller</code>
         munkafolyamatot több összetevő valósítja meg. Habár nem szükséges teljesen megérteni ezen összetevők működését ahhoz, hogy használjuk a rendszert, a folyamat gyakorlati ismerete hasznos lehet.
     </para>
@@ -38,7 +38,7 @@
             </listitem>
             <listitem>
                 <para>
-                    A 
+                    A
                     <code>Zend_Controller_Request_Abstract</code>
                     (gyakran csak mint a
                     <code>Kérés Objektum</code>)
@@ -135,7 +135,7 @@
                 <para>
                     A
                     <code>Zend_Controller_Response_Abstract</code>
-                    ír le egy a műveletvezérlőkből a válaszok összegyűjtésére és visszaküldésére használt alap válasz osztályt. Mind a fejléc, mind pedig a törzs tartalmat összegyűjti. 
+                    ír le egy a műveletvezérlőkből a válaszok összegyűjtésére és visszaküldésére használt alap válasz osztályt. Mind a fejléc, mind pedig a törzs tartalmat összegyűjti.
                 </para>
                 <para>
                     Az alapértelmezett válasz osztály a

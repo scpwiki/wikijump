@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version \$Id\$
@@ -29,7 +29,7 @@ use BaseDBObject;
 
 
 
- 
+
 /**
  * Base class mapped to the database table theme_preview.
  */
@@ -40,33 +40,33 @@ class ThemePreviewBase extends BaseDBObject {
 		$this->peerName = 'DB\\ThemePreviewPeer';
 		$this->primaryKeyName = 'theme_id';
 		$this->fieldNames = array( 'theme_id' ,  'body' );
-		
+
 		//$this->fieldDefaultValues=
 	}
 
 
-	
-		
-	
-		
+
+
+
+
 	public function getThemeId() {
 		return $this->getFieldValue('theme_id');
 	}
-	
+
 	public function setThemeId($v1, $raw=false) {
-		$this->setFieldValue('theme_id', $v1, $raw); 
+		$this->setFieldValue('theme_id', $v1, $raw);
 	}
-	
-		
+
+
 	public function getBody() {
 		return $this->getFieldValue('body');
 	}
-	
+
 	public function setBody($v1, $raw=false) {
-		$this->setFieldValue('body', $v1, $raw); 
+		$this->setFieldValue('body', $v1, $raw);
 	}
-	
-		
-	
+
+
+
 
 }

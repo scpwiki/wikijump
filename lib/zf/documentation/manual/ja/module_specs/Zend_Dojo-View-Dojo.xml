@@ -60,11 +60,11 @@ $view->addHelperPath('Zend/Dojo/View/Helper/', 'Zend_Dojo_View_Helper');
         <programlisting role="php"><![CDATA[
 <? // FilteringSelect 用のデータストアの設定 ?>
 <div dojoType="custom.PairedStore" jsId="stateStore"
-    url="/data/autocomplete/type/state/format/ajax" 
+    url="/data/autocomplete/type/state/format/ajax"
     requestMethod="get"></div>
 
 <? // 入力要素 ?>
-State: <input id="state" dojoType="dijit.form.FilteringSelect" 
+State: <input id="state" dojoType="dijit.form.FilteringSelect"
     store="stateStore" pageSize="5" />
 
 <? // 必須 dojo 要素の設定
@@ -86,17 +86,17 @@ $this->dojo()->enable()
 <?= $this->doctype() ?>
 <html>
 <head>
-    <?= $this->headTitle() ?> 
-    <?= $this->headMeta() ?> 
-    <?= $this->headLink() ?> 
-    <?= $this->headStyle() ?> 
+    <?= $this->headTitle() ?>
+    <?= $this->headMeta() ?>
+    <?= $this->headLink() ?>
+    <?= $this->headStyle() ?>
 <? if ($this->dojo()->isEnabled()){
     $this->dojo()->setLocalPath('/js/dojo/dojo.js')
                  ->addStyleSheetModule('dijit.themes.tundra');
     echo $this->dojo();
    }
 ?>
-    <?= $this->headScript() ?> 
+    <?= $this->headScript() ?>
 </head>
 <body class="tundra">
     <?= $this->layout()->content ?>
@@ -209,7 +209,7 @@ $view->dojo()->addStylesheetModule('dijit.themes.tundra');
             リストの最後の名前を CSS ファイルと見て行います。上の例では、Dojo は
             'dijit/themes/tundra/tundra.css' のテーマを探します。
         </para>
-        
+
         <para>
             テーマを使う際に重要なのは、使用するすべての dijit
             について、それを囲むコンテナにテーマのクラスを指定することです。

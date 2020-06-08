@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,9 +27,9 @@
 
 
 class WDRenderUtils {
-	
+
 	public static function renderUser($user, $params=array()){
-		
+
 		if($user == null || $user == ''){return null;}
 		if(is_string($user)){
 			$linkInner = 'href="javascript:;"  onclick="WIKIDOT.page.listeners.anonymousUserInfo(\''.$user.'\'); return false;" ';
@@ -42,26 +42,26 @@ class WDRenderUtils {
 			}
 			$out .= '<a '.$linkInner.'>'._('Anonymous');
 			list($ip, $proxy) = explode("|",$user);
-			
+
 			if(!$params['noip']) {$out .= ' <span class="ip">('.htmlspecialchars($ip).')</span>';}
-			
-			$out .= '</a></span>';	
+
+			$out .= '</a></span>';
 			return $out;
 		}
-		
+
 		$userId = $user->getUserId();
-		
+
 		if($userId<0){
 			// always mean some kind of system bot. just print bot name.
 			$out = '<span class="printuser">'.htmlspecialchars($user->getNickName()).'</span>';
 			return $out;
 		}
-		
+
 		$class = "printuser";
 		if($params['image'] && $params['image'] !== 'small'){
-			$class .= " avatarhover";	
+			$class .= " avatarhover";
 		}
-		
+
 		$out = '<span class="'.$class.'">';
 		$linkInner = 'href="'.GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST . '/user:info/'.$user->getUnixName().'" onclick="WIKIDOT.page.listeners.userInfo('.$user->getUserId().'); return false;" ';
 		if($params['image'] != null){
@@ -78,8 +78,8 @@ class WDRenderUtils {
 		}else{
 			htmlspecialchars($user->getNickName());
 		}
-		return $out;	
-		
+		return $out;
+
 	}
-	
+
 }

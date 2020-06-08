@@ -67,7 +67,7 @@ class NewsController extends Zend_Controller_Action
 }
 ]]>
     </programlisting>
-    
+
     <para>
         Предположим, нам нужно, чтобы действие <code>listAction()</code> было
         доступно и в формате XML. Вместо того, чтобы создавать новое действие,
@@ -229,7 +229,7 @@ $this->_helper->contextSwitch()->setAutoJsonSerialization(false);
                 использует функцию обратного вызова для отключения
                 ViewRenderer, если включена автоматическая сериализация
                 JSON.</para>
-                
+
                 <para>Вызов функции пост-обработки производится во время
                 операции <code>postDispatch()</code> и может использоваться для
                 выполнения произвольной логики. Например, контекст JSON
@@ -806,7 +806,7 @@ class CommentController extends Zend_Controller_Action
                 (можно также передавать параметр
                 через строку запроса, например: "?format=json").
             </para>
-                
+
             <para>
                 Если ваша AJAX-библиотека передает заголовок 'X-Requested-With:
                 XmlHttpRequest', то эти действия будут возвращать ответ в

@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -31,36 +31,36 @@ use DB\AdminPeer;
 class PageBlockModule extends SmartyModule {
 
 	public function build($runData){
-	
+
 		$pl = $runData->getParameterList();
 		$site = $runData->getTemp("site");
-		
+
 		$pageId = $pl->getParameterValue("page_id");
 		$user = $runData->getUser();
 
 		$page = PagePeer::instance()->selectByPrimaryKey($pageId);
 		if(!$pageId || $page == null || $page->getSiteId() != $runData->getTemp("site")->getSiteId()){
 			throw new ProcessException(_("Error getting page information."), "no_page");
-		}	
-		
-		if($this->canSetBlock($user, $page) == false){
-			throw new WDPermissionException(_("Sorry, only Site Admnistrators and selected Moderators can block a page."));	
 		}
-		
+
+		if($this->canSetBlock($user, $page) == false){
+			throw new WDPermissionException(_("Sorry, only Site Admnistrators and selected Moderators can block a page."));
+		}
+
 		$runData->contextAdd("page", $page);
 
 	}
-	
+
 	private function canSetBlock($user, $page){
-		
+
 		if($user && ($user->getSuperAdmin() || $user->getSuperModerator())){
-			return true;	
+			return true;
 		}
-		
+
 		if(!$user){
-			return false;	
+			return false;
 		}
-		
+
 		// still nothing. check if moderator of "pages".
 		$c = new Criteria();
 		$c->add("site_id", $page->getSiteId());
@@ -69,7 +69,7 @@ class PageBlockModule extends SmartyModule {
 		if($rel && strpos($rel->getPermissions(), 'p') !== false){
 			return true;
 		}
-			
+
 		// still nothing. check if admin.
 		$c = new Criteria();
 		$c->add("site_id", $page->getSiteId());
@@ -78,8 +78,8 @@ class PageBlockModule extends SmartyModule {
 		if($rel){
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 }

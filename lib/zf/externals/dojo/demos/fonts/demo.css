@@ -1,5 +1,5 @@
 @import "../../dojo/resources/dojo.css";
-@import "../../dijit/tests/css/dijitTests.css"; 
+@import "../../dijit/tests/css/dijitTests.css";
 
 #news {
 	margin: 0 auto;
@@ -22,7 +22,7 @@
 	border-top: 1px solid #000;
 	border-bottom: 3px solid #000;
 	background-color: white;
-	text-align: center; 
+	text-align: center;
 }
 #title {
 	margin: 0;
@@ -88,7 +88,7 @@
 	margin: 0;
 	margin-bottom: 1em;
 }
-.caption { 
+.caption {
 	text-align: right;
 	font-size: 10px;
 }
@@ -98,8 +98,8 @@
 	position: absolute;
 	bottom:0;
 	left:0;
-	width:900px; 
-	height:600px; 
+	width:900px;
+	height:600px;
 }
 #comics #prompt {
 	position: absolute;

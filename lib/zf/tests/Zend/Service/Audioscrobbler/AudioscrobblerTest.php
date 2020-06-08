@@ -45,12 +45,12 @@ class Zend_Service_Audioscrobbler_AudioscrobblerTest extends PHPUnit_Framework_T
     public function setUp()
     {
     }
-    
+
     public function testRequestThrowsHttpClientExceptionWithNoUserError()
     {
         $as = new Zend_Service_Audioscrobbler(true, self::readTestResponse('errorNoUserExists'));
         $as->set('user', 'foobarfoo');
-        
+
         try {
             $response = $as->userGetProfileInformation();
             $this->fail('Expected Zend_Service_Technorati_Exception not thrown');
@@ -63,7 +63,7 @@ class Zend_Service_Audioscrobbler_AudioscrobblerTest extends PHPUnit_Framework_T
     {
         $as = new Zend_Service_Audioscrobbler(true, self::readTestResponse('errorResponseStatusError'));
         $as->set('user', 'foobarfoo');
-        
+
         try {
             $response = $as->userGetProfileInformation();
             $this->fail('Expected Zend_Service_Technorati_Exception not thrown');
@@ -76,6 +76,6 @@ class Zend_Service_Audioscrobbler_AudioscrobblerTest extends PHPUnit_Framework_T
     {
         return file_get_contents(dirname(__FILE__) . DIRECTORY_SEPARATOR . '_files' . DIRECTORY_SEPARATOR . $file);
     }
-    
+
 
 }

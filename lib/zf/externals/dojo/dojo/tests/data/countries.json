@@ -1,4 +1,4 @@
-{ identifier: 'abbr', 
+{ identifier: 'abbr',
   label: 'name',
   items: [
 	{ abbr:'ec', name:'Ecuador',           capital:'Quito' },

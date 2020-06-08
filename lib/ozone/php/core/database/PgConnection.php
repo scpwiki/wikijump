@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Db
  * @version $Id$
@@ -35,11 +35,11 @@ class PgConnection implements DatabaseConnection{
 
 	private $user;
 	private $password;
-	
+
 	private $type="pgsql";
 
 	private $link;
-	
+
 	private $transactionStarted = false;
 
 	// construction is based on the GlobalProperties object
@@ -52,29 +52,29 @@ class PgConnection implements DatabaseConnection{
 			pg_close($this->link);
 
 	}
-	
+
 	public function getType(){
-		return $this->type;	
+		return $this->type;
 	}
-	
+
 	public function setServer($server){
-		$this->server=$server;	
-	} 
-	
+		$this->server=$server;
+	}
+
 	public function setPort($port){
-		$this->port = $port;	
+		$this->port = $port;
 	}
-	
+
 	public function setUser($user){
-		$this->user = $user;	
+		$this->user = $user;
 	}
-	
+
 	public function setPassword($password){
-		$this->password = $password;	
+		$this->password = $password;
 	}
-	
+
 	public function setDatabase($database){
-		$this->database = $database;	
+		$this->database = $database;
 	}
 
 	function connect() {
@@ -100,7 +100,7 @@ class PgConnection implements DatabaseConnection{
 			if($query == '' || $query == null) {
 				return;
 			}
-			
+
 			$time_start = microtime(true);
 			$result = pg_query($this->link,$query);
 			if (!$result) {
@@ -114,10 +114,10 @@ class PgConnection implements DatabaseConnection{
 		} else {
 			//if query is empty
 			if(count($query) == 0){
-				return null;	
+				return null;
 			}
 			foreach ($query as $q){
-				$result = $this->query($q);	
+				$result = $this->query($q);
 			}
 		}
 		return new PgResult($result);
@@ -141,28 +141,28 @@ class PgConnection implements DatabaseConnection{
 		return false;
 
 	}
-	
+
 	public function begin(){
 		if(!$this->transactionStarted){
-			$this->query("BEGIN WORK");	
+			$this->query("BEGIN WORK");
 			$this->transactionStarted = true;
 		}
 	}
-	
+
 	public function commit(){
 		if($this->transactionStarted == true){
 			$this->query("COMMIT");
 			$this->transactionStarted = false;
 		}
 	}
-	
+
 	public function rollback(){
 		if($this->transactionStarted == true){
 			$this->query("ROLLBACK");
 			$this->transactionStarted = false;
 		}
 	}
-	
+
 	/**
 	 * Obtains a lock with a given key. Works only within transaction.
 	 */
@@ -175,11 +175,11 @@ class PgConnection implements DatabaseConnection{
 			$q2 = "INSERT INTO ozone_lock (key) VALUES ('".db_escape_string($key)."')";
 			pg_query($this->link,$q2);
 			// try again
-			$r = pg_query($q);	
+			$r = pg_query($q);
 		}
 		return true;
 	}
-	
+
 	public function getLink(){
 	    return $this->link;
 	}

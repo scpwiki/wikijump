@@ -60,7 +60,7 @@ $feedFromPHP = Zend_Feed::importString($feedString);
 // importowanie kanału z tablicy
 $atomFeedFromArray = Zend_Feed::importArray($array);
 
-// poniższy kod odpowiada kodowi powyżej; 
+// poniższy kod odpowiada kodowi powyżej;
 // domyślnie zwracana jest instancja Zend_Feed_Atom
 $atomFeedFromArray = Zend_Feed::importArray($array, 'atom');
 
@@ -84,15 +84,15 @@ array(
       'author'      => 'autor kanału', //opcjonalne
       'email'       => 'adres email autora', //opcjonalne
       'webmaster'   =>     // opcjonalne, ignorowane jeśli używany jest atom
-                       'adres osoby odpowiedzialnej' . 
-                       'za sprawy techniczne' 
+                       'adres osoby odpowiedzialnej' .
+                       'za sprawy techniczne'
       'copyright'   => 'informacje o prawach autorskich', //opcjonalne
       'image'       => 'adres obrazka', //opcjonalne
       'generator'   => 'generator', // opcjonalne
       'language'    => 'język w jakim publikowany jest kanał', // opcjonalne
       'ttl'         =>     // opcjonalne, ignorowane jeśli używany jest atom
-                       'na jak długo, w minutach, kanał może' . 
-                       'być buforowany przed odświeżeniem', 
+                       'na jak długo, w minutach, kanał może' .
+                       'być buforowany przed odświeżeniem',
       'rating'      =>     // opcjonalne, ignorowane jeśli używany jest atom
                        'Ocena PICS dla kanału.',
       'cloud'       => array(
@@ -245,16 +245,16 @@ array(
 
             <programlisting role="php"><![CDATA[
 // importowanie kanału z własnego źródła
-$atomFeedFromArray = 
+$atomFeedFromArray =
     Zend_Feed::importBuilder(new Zend_Feed_Builder($array));
 
-// poniższy kod odpowiada kodowi powyżej; 
+// poniższy kod odpowiada kodowi powyżej;
 // domyślnie zwracana jest instancja Zend_Feed_Atom
-$atomFeedFromArray = 
+$atomFeedFromArray =
     Zend_Feed::importArray(new Zend_Feed_Builder($array), 'atom');
 
 // importowanie kanału rss z własnego źródła
-$rssFeedFromArray = 
+$rssFeedFromArray =
     Zend_Feed::importArray(new Zend_Feed_Builder($array), 'rss');
 ]]>
             </programlisting>

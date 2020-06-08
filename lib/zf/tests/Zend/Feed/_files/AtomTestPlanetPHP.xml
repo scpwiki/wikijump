@@ -35,7 +35,7 @@ Portage overlays:
  [3] /usr/local/overlay/php/testing
  [4] /usr/local/overlay/php/experimental
  [5] /usr/local/overlay/gentopia
- [6] /usr/local/overlay/xgl</pre> 
+ [6] /usr/local/overlay/xgl</pre>
     ]]></content></entry><entry><title type="text">PHP Insecurity</title><link rel="alternate" type="text/html" href="http://shiflett.org/archive/185" title="PHP Insecurity"/><author><name>Chris Shiflett</name></author><id>http://shiflett.org/archive/185</id><updated>2006-01-23T16:15:00Z</updated><published>2006-01-23T16:15:00Z</published><content type="html"><![CDATA[<p><a href="http://www.greebo.net/">Andrew van der Stock</a> has written a <a href="http://www.greebo.net/?p=320">strong criticism</a> of PHP's insecurity. Andrew is a seasoned security expert and a major contributor to <a href="http://www.owasp.org/">OWASP</a>, and he states:</p>
 <blockquote>After writing PHP forum software for three years now, I've come to the conclusion that it is basically impossible for normal programmers to write secure PHP code. It takes far too much effort.</blockquote>
 <p>He <a href="http://www.greebo.net/?p=320">continues</a>, citing specific areas where he thinks PHP is weak and asserting that "PHP must now mature and take on a proper security architecture."</p>

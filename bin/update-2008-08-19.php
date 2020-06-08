@@ -4,20 +4,20 @@ chdir(dirname(__FILE__));
 require_once ("../php/setup.php") ;
 
 function addAPage ( $ncat , $unixName , $source , $title ) {
-	
+
 	$now = new ODate ( ) ;
-	
+
 	$nsource = new DB_PageSource ( ) ;
 	$nsource->setText ( $source ) ;
 	$nsource->save () ;
-	
+
 	$nmeta = new DB_PageMetadata ( ) ;
 	$nmeta->setTitle ( $title ) ;
 	$nmeta->setUnixName ( $unixName ) ;
-	
+
 	$nmeta->setOwnerUserId ( 1 ) ;
 	$nmeta->save () ;
-	
+
 	$nrev = new DB_PageRevision ( ) ;
 	$nrev->setSiteId ( 1 ) ;
 	$nrev->setSourceId ( $nsource->getSourceId () ) ;
@@ -26,7 +26,7 @@ function addAPage ( $ncat , $unixName , $source , $title ) {
 	$nrev->setDateLastEdited ( $now ) ;
 	$nrev->setUserId ( 1 ) ;
 	$nrev->obtainPK () ;
-	
+
 	$npage = new DB_Page ( ) ;
 	$npage->setSiteId ( 1 ) ;
 	$npage->setCategoryId ( $ncat->getCategoryId () ) ;
@@ -39,11 +39,11 @@ function addAPage ( $ncat , $unixName , $source , $title ) {
 	$npage->setDateCreated ( $now ) ;
 	$npage->setLastEditUserId ( 1 ) ;
 	$npage->setOwnerUserId ( 1 ) ;
-	
+
 	$npage->save () ;
 	$nrev->setPageId ( $npage->getPageId () ) ;
 	$nrev->save () ;
-	
+
 	$ncomp = new DB_PageCompiled ( ) ;
 	$ncomp->setPageId ( $npage->getPageId () ) ;
 	$ncomp->setDateCompiled ( $now ) ;

@@ -38,7 +38,7 @@ class Zend_Config_Writer_Array extends Zend_Config_Writer
      * @var string
      */
     protected $_filename = null;
-    
+
     /**
      * Set the target filename
      *
@@ -48,10 +48,10 @@ class Zend_Config_Writer_Array extends Zend_Config_Writer
     public function setFilename($filename)
     {
         $this->_filename = $filename;
-        
+
         return $this;
     }
-    
+
     /**
      * Defined by Zend_Config_Writer
      *
@@ -66,33 +66,33 @@ class Zend_Config_Writer_Array extends Zend_Config_Writer
         if ($filename !== null) {
             $this->setFilename($filename);
         }
-        
+
         if ($config !== null) {
             $this->setConfig($config);
         }
-        
+
         if ($this->_filename === null) {
             require_once 'Zend/Config/Exception.php';
             throw new Zend_Config_Exception('No filename was set');
         }
-        
+
         if ($this->_config === null) {
             require_once 'Zend/Config/Exception.php';
             throw new Zend_Config_Exception('No config was set');
         }
-        
+
         $data        = $this->_config->toArray();
         $sectionName = $this->_config->getSectionName();
-        
+
         if (is_string($sectionName)) {
             $data = array($sectionName => $data);
         }
-        
+
         $arrayString = "<?php\n"
                      . "return " . var_export($data, true) . ";\n";
-       
+
         $result = @file_put_contents($this->_filename, $arrayString);
-        
+
         if ($result === false) {
             require_once 'Zend/Config/Exception.php';
             throw new Zend_Config_Exception('Could not write to file "' . $this->_filename . '"');

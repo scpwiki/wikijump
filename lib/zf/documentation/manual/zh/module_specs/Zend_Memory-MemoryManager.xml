@@ -195,7 +195,7 @@ $memoryManager->setMinSize($newSize);        // Set MinSize limit in bytes
 
             <para>
                 默认的最小大小是16KB(16384字节).
-            </para> 
+            </para>
 
         </sect3>
 

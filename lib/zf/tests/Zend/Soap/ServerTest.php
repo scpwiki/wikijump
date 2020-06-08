@@ -495,7 +495,7 @@ class Zend_Soap_ServerTest extends PHPUnit_Framework_TestCase
             $server->setPersistence('bogus');
             $this->fail();
         } catch(Zend_Soap_Server_Exception $e) {
-            
+
         }
     }
 
@@ -775,7 +775,7 @@ class Zend_Soap_ServerTest extends PHPUnit_Framework_TestCase
             $server->loadFunctions("bogus");
             $this->fail();
         } catch(Zend_Soap_Server_Exception $e) {
-            
+
         }
     }
 

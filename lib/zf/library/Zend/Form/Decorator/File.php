@@ -26,7 +26,7 @@ require_once 'Zend/Form/Decorator/Abstract.php';
  * Zend_Form_Decorator_File
  *
  * Fixes the rendering for all subform and multi file elements
- * 
+ *
  * @category   Zend
  * @package    Zend_Form
  * @subpackage Decorator
@@ -50,7 +50,7 @@ class Zend_Form_Decorator_File extends Zend_Form_Decorator_Abstract
 
     /**
      * Get attributes to pass to file helper
-     * 
+     *
      * @return array
      */
     public function getAttribs()
@@ -72,8 +72,8 @@ class Zend_Form_Decorator_File extends Zend_Form_Decorator_Abstract
 
     /**
      * Render a form file
-     * 
-     * @param  string $content 
+     *
+     * @param  string $content
      * @return string
      */
     public function render($content)

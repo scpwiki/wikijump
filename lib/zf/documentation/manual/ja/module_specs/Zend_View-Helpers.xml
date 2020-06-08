@@ -149,7 +149,7 @@ echo $this->formCheckbox('foo', null, null, array('bar', 'baz');
 
 // 'bar' および 'baz' でチェック状態と未チェック状態を表します。これはチェックされていません
 echo $this->formCheckbox('foo', null, null, array(
-    'checked' => 'bar', 
+    'checked' => 'bar',
     'unChecked' => 'baz'
 ));
 

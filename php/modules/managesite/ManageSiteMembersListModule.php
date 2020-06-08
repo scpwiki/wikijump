@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,7 +27,7 @@
 use DB\MemberPeer;
 
 class ManageSiteMembersListModule extends ManageSiteBaseModule {
-	
+
 	public function build($runData){
 		// get all the members
 		/*
@@ -36,21 +36,21 @@ class ManageSiteMembersListModule extends ManageSiteBaseModule {
 		$c->add("member.site_id", $runData->getTemp("site")->getSiteId());
 		$c->add("member.user_id", "ozone_user.user_id", "=", false);
 		$c->addOrderAscending("nick_name");
-		
+
 		$members = DB_OzoneUserPeer::instance()->select($c);
-		
+
 		$runData->contextAdd("members", $members);
-		
+
 		*/
 		$c = new Criteria();
 		$c->add("site_id", $runData->getTemp("site")->getSiteId());
 		$c->addJoin("user_id", "ozone_user.user_id");
-		
+
 		$mems = MemberPeer::instance()->select($c);
 		if(count($mems)>0){
-			$runData->contextAdd("memberships", $mems);	
+			$runData->contextAdd("memberships", $mems);
 		}
-			
+
 	}
-	
+
 }

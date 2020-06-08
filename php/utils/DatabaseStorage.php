@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -29,50 +29,50 @@ use DB\StorageItemPeer;
 use DB\StorageItem;
 
 class DatabaseStorage {
-	
+
 	private static $instance;
-	
+
 	public static function instance(){
 		if(!self::$instance){
-			self::$instance = new DatabaseStorage();	
+			self::$instance = new DatabaseStorage();
 		}
 		return self::$instance;
-			
+
 	}
-	
+
 	public function set($key, $value, $timeout){
 
 		// delete it if already in the database
 		StorageItemPeer::instance()->deleteByPrimaryKey($key);
 		if(!$value){
-			return;	
+			return;
 		}
 		$item = new StorageItem();
 		$item->setItemId($key);
 		$item->setData($value);
 		$item->setTimeout($timeout);
 		$item->setDate(new ODate());
-			
+
 		$item->save();
 	}
-	
+
 	public function get($key){
 		$item = StorageItemPeer::instance()->selectByPrimaryKey($key);
 		if($item){
 			$timestamp = $item->getDate()->getTimestamp() + $item->getTimeout();
 
 			if($timestamp < time()){
-				
-				// delete the item, it is outdated!	
+
+				// delete the item, it is outdated!
 				StorageItemPeer::instance()->deleteByPrimaryKey($key);
 			}else{
-				
-				return $item->getData();	
-			}	
+
+				return $item->getData();
+			}
 		}
-		return null;	
+		return null;
 	}
-	
+
 	/**
 	 * Cleans outdated items from the database.
 	 */
@@ -82,5 +82,5 @@ class DatabaseStorage {
 		$c->add("date + (timeout || 'sec')::interval", new ODate(), '<');
 		StorageItemPeer::instance()->delete($c);
 	}
-	
+
 }

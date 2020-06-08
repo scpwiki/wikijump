@@ -63,7 +63,7 @@ class MyValid_Float extends Zend_Validate_Abstract
 
         <para>
             下面的例子演示一组稍微复杂的校验规则，要求输入值是数字并有最小值和最大值的范围。由于下面确切的原因之一，输入值校验失败：
-            
+
             <itemizedlist>
                 <listitem>
                     <para>输入值不是数字。</para>
@@ -131,7 +131,7 @@ class MyValid_NumericBetween extends Zend_Validate_Abstract
 
         <para>
             注意如果任何在<code>isValid()</code>中的校验检查失败，一个恰当的失败消息被准备，并且方法立即返回<code>false</code>。这些校验规则因此继续独立。换句话说，如果一个测试失败，不需要测试任何后来的校验规则。然而这本来不是个案例。下面的例子示例如何编写带有独立校验规则的类，校验对象返回什么校验企图失败的。
-            
+
         </para>
 
     </example>
@@ -142,7 +142,7 @@ class MyValid_NumericBetween extends Zend_Validate_Abstract
 
         <para>
            考虑编写一个为密码加强强度的校验类－当用户被要求为帮助使用户账户安全而选择符合一定条件的密码。让我们假设口令安全条件加强那个密码：
-           
+
             <itemizedlist>
                 <listitem>
                     <para>至少8个字符长，</para>

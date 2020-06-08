@@ -43,7 +43,7 @@ class Zend_Db_Select_Db2Test extends Zend_Db_Select_TestCommon
                             ->where($product_name . ' = ?', "as'as:x");
         return $select;
     }
-    
+
     public function getDriver()
     {
         return 'Db2';

@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Db
  * @version $Id$
@@ -25,34 +25,34 @@
 
 /**
  * Base object for all database OM objects representing tables. It implements
- * most of the database logic - getting/setting field valuse, inserting/updating etc. 
- */ 
+ * most of the database logic - getting/setting field valuse, inserting/updating etc.
+ */
 abstract class BaseDBObject {
 
 	/**
 	 * List of the fields of this particular object/table.
 	 * @var array
-	 */ 
+	 */
 	protected $fieldNames;
 
 	/**
 	 * Contains the values of the fields.
 	 * @var array
-	 */ 
+	 */
 	protected $fieldValues = array();
-	
+
 	/**
 	 * Lists modified (by setters) fields.
 	 * @var array
 	 */
 	protected $modifiedFields = array();
-	
+
 	/**
 	 * Default values as defined in the -db.xml files.
 	 * @var array
 	 */
 	protected $fieldDefaultValues = array();
-	
+
 	/**
 	 * Name of the corresponding table.
 	 * $var string
@@ -60,19 +60,19 @@ abstract class BaseDBObject {
 	protected $tableName;
 
 	/**
-	 * Is the object new? It affects the way save() method works. If object "is new" then 
+	 * Is the object new? It affects the way save() method works. If object "is new" then
 	 * save() works as INSERT. Otherwise it acts as UPDATE.
-	 * @var boolean 
+	 * @var boolean
 	 */
 	protected $isnew = true;
-	
+
 	/**
 	 * Name of the primary key (column) in the table. At this point primary key can
 	 * be constituted only from single column.
 	 * @var string
 	 */
 	protected $primaryKeyName;
-	
+
 	/**
 	 * Class name of the corresponding "Peer".
 	 * @var string
@@ -91,7 +91,7 @@ abstract class BaseDBObject {
 	 * It is than used to populate any object that was fetched from the join query.
 	 */
 	protected $sourceRow = null;
-	
+
 	/**
 	 * If using joins this holds an array with table names that were fetched with the select query.
 	 */
@@ -109,13 +109,13 @@ abstract class BaseDBObject {
 	protected $raw = array();
 
 	/**
-	 * Function used to set values of $tableName, $fieldDefaultValues 
+	 * Function used to set values of $tableName, $fieldDefaultValues
 	 * and $fieldNames.
 	 */
 	protected abstract function internalInit();
 
 	/**
-	 * Default constructor. If $row is non-null then object properties are filled with 
+	 * Default constructor. If $row is non-null then object properties are filled with
 	 * values of the row. If $row is null, object properties are filled with default values.
 	 * @param array $row initial values for the object
 	 */
@@ -128,7 +128,7 @@ abstract class BaseDBObject {
 				if($prefetched != null){
 					$this->prefetched = $prefetched;
 					$this->prefetchedObjects = array();
-				}	
+				}
 			}
 		} else {
 			// default values shoud be set HERE!!!
@@ -139,14 +139,14 @@ abstract class BaseDBObject {
 				// handle special types
 
 				if($value === "true"){
-					$value = true;	
+					$value = true;
 				}
 				if($value === "false"){
-					$value = false;	
+					$value = false;
 				}
-				$this->fieldValues["$key"]=$value;	
-			}	
-			
+				$this->fieldValues["$key"]=$value;
+			}
+
 		}
 
 	}
@@ -160,29 +160,29 @@ abstract class BaseDBObject {
 		$peer = new $peerName();
 		foreach ($this->fieldNames as $field) {
 			$fieldType = $peer->getFieldType($field);
-			
+
 			$val = $row[$this->tableName."___".$field];
 			if ($val == null) {
 				$val = $row[$field];
 			}
-			
+
 			// handle date object (timestamp)
-			
+
 			if(strtoupper($fieldType) == "TIMESTAMP"){
 				$val = new ODate($val);
 				// for sure again set TZ to UTC
 			}
-			
+
 			if($val == "NULL"){
-				$val = null;	
+				$val = null;
 			}
-			
+
 			// handle boolean
 			if(strtoupper($fieldType) == "BOOLEAN"){
 				if($val == "T" || $val == "t" || $val == "TRUE"){
-					$val = true;	
+					$val = true;
 				} elseif($val == "F" || $val == "f" || $val == "FALSE"){
-					$val = false;	
+					$val = false;
 				} else {
 					$val = null;
 				}
@@ -197,7 +197,7 @@ abstract class BaseDBObject {
 	 * to store object in the database yet but want to assign primary key value immediately.
 	 */
 	public function obtainPK() {
-		
+
 		$pkName = $this->primaryKeyName;
 		$sequenceName = $this->tableName.'_'.$pkName.'_seq';
 		$db = Database::connection();
@@ -207,25 +207,25 @@ abstract class BaseDBObject {
 
 		$this->fieldValues["$pkName"] = $idx;
 	}
-	
+
 	/**
-	 * Sets the field as (un)modified. Only fields marked as modified are updated when 
+	 * Sets the field as (un)modified. Only fields marked as modified are updated when
 	 * performing save/update. Setters set fields as modified by default.
 	 * @param string $fieldName name of the field/property (capitalized)
-	 * @param boolean $modified 
+	 * @param boolean $modified
 	 */
 	public function setFieldModified($fieldName, $modified=true){
 		if($modified==true){
 			// if not already modified, set 'modified'
 			if(!$this->modifiedFields["$fieldName"]==true){
-				$this->modifiedFields["$fieldName"] = true; 	
+				$this->modifiedFields["$fieldName"] = true;
 			}
 		}else{
 			unset($this->modifiedFields["$fieldName"]);
-		}	
+		}
 	}
-	
-	/** 
+
+	/**
 	 * Checks if the field is mofified.
 	 * @param string $fieldName
 	 * @return boolean true if modified
@@ -236,17 +236,17 @@ abstract class BaseDBObject {
 			return true;
 		}else {
 			return false;
-		}	
+		}
 	}
-	
+
 	/**
 	 * Returns all modified fields
 	 * @return array array of modified fields
 	 */
 	public function getModifiedFields(){
-		return array_keys($this->modifiedFields);	
+		return array_keys($this->modifiedFields);
 	}
-	
+
 	/**
 	 * Sets value of the field.
 	 * @param string $fieldName name of the field
@@ -254,31 +254,31 @@ abstract class BaseDBObject {
 	 */
 	public function setFieldValue($fieldName, $fieldValue, $raw = false){
 		if($raw){
-			$this->raw[$fieldName] = true;	
+			$this->raw[$fieldName] = true;
 		}else{
-			unset($this->raw[$fieldName]);	
+			unset($this->raw[$fieldName]);
 		}
 		$this->setFieldModified($fieldName);
-		$this->fieldValues[$fieldName] = $fieldValue;	
+		$this->fieldValues[$fieldName] = $fieldValue;
 	}
-	
+
 	/**
 	 * Gets field value.
 	 * @param string $fieldName name of the field.
-	 * @return mixed 
+	 * @return mixed
 	 */
 	public function getFieldValue($filedName){
-		return $this->fieldValues[$filedName];	
+		return $this->fieldValues[$filedName];
 	}
-	
+
 	/**
 	 * Gets all field values as an array.
 	 * @return array array of the field values.
 	 */
 	public function getFieldValuesArray(){
-		return $this->fieldValues;	
+		return $this->fieldValues;
 	}
-	
+
 	/**
 	 * Gets the 'is new' status.
 	 * @return boolean
@@ -307,11 +307,11 @@ abstract class BaseDBObject {
 	}
 
 	/**
-	 * Saves the object into database. Based on the 'is new' status an UPDATE or INSERT 
+	 * Saves the object into database. Based on the 'is new' status an UPDATE or INSERT
 	 * is performed. Internally the save() method on the Peer object is called.
 	 */
 	public function save() {
-				
+
 		$pn = $this->peerName;
 		$a = new $pn;
 		$a->save($this);
@@ -326,7 +326,7 @@ abstract class BaseDBObject {
 	public function getTemp($key){
 		return $this->temporaryStorage[$key];
 	}
-	
+
 	/**
 	 * Sets key-value pair in the temporary storage
 	 * @param mixed $key
@@ -335,19 +335,19 @@ abstract class BaseDBObject {
 	public function setTemp($key, $value){
 		$this->temporaryStorage[$key] = $value;
 	}
-	
+
 	/**
 	 * Clears temporary storage. If $key is supplied - only one key-value is cleared.
 	 * If $key is null - all the storage is cleared.
 	 */
 	public function clearTemp($key=null){
 		if($key == null){
-			$this->temporaryStorage = array();	
+			$this->temporaryStorage = array();
 		} else{
-			unset($this->temporaryStorage[$key]);	
+			unset($this->temporaryStorage[$key]);
 		}
 	}
-	
+
 	public function getSourceRow(){
 		return $this->sourceRow;
 	}

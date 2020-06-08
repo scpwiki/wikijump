@@ -181,8 +181,8 @@ title:{Aida TO Carmen}
     <sect2 id="zend.search.lucene.query-language.fuzzy">
         <title>Fuzzy Searches</title>
         <para>
-            Zend_Search_Lucene as well as Java Lucene supports fuzzy searches based on the Levenshtein Distance, or Edit Distance algorithm. 
-            To do a fuzzy search use the tilde, "~", symbol at the end of a Single word Term. For example to search for a term similar 
+            Zend_Search_Lucene as well as Java Lucene supports fuzzy searches based on the Levenshtein Distance, or Edit Distance algorithm.
+            To do a fuzzy search use the tilde, "~", symbol at the end of a Single word Term. For example to search for a term similar
             in spelling to "roam" use the fuzzy search:
 
             <programlisting role="querystring"><![CDATA[
@@ -192,7 +192,7 @@ roam~
 
             This search will find terms like foam and roams.
 
-            Additional (optional) parameter can specify the required similarity. The value is between 0 and 1, with a value closer to 1 only terms 
+            Additional (optional) parameter can specify the required similarity. The value is between 0 and 1, with a value closer to 1 only terms
             with a higher similarity will be matched. For example:
 
             <programlisting role="querystring"><![CDATA[

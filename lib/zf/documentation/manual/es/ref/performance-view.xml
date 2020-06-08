@@ -86,7 +86,7 @@ class My_View extends Zend_View
      * @param  bool $reset Whether or not to reset the route defaults with those provided
      * @return string Url for the link href attribute.
      */
-    public function url(array $urlOptions = array(), $name = null, 
+    public function url(array $urlOptions = array(), $name = null,
         $reset = false, $encode = true
     ) {
         if (!array_key_exists('url', $this->_localHelperObjects)) {
@@ -101,8 +101,8 @@ class My_View extends Zend_View
      * Echo a message
      *
      * Direct implementation.
-     * 
-     * @param  string $string 
+     *
+     * @param  string $string
      * @return string
      */
     public function message($string)
@@ -326,8 +326,8 @@ class My_View_Helper_BugList extends Zend_View_Helper_Abstract
         $html  = "<ul>\n";
         foreach ($model->fetchActive() as $bug) {
             $html .= sprintf(
-                "<li><b>%s</b>: %s</li>\n", 
-                $this->view->escape($bug->id), 
+                "<li><b>%s</b>: %s</li>\n",
+                $this->view->escape($bug->id),
                 $this->view->escape($bug->summary)
             );
         }

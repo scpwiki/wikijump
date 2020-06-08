@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version \$Id\$
@@ -29,7 +29,7 @@ use BaseDBObject;
 
 
 
- 
+
 /**
  * Base class mapped to the database table ozone_permission.
  */
@@ -40,42 +40,42 @@ class OzonePermissionBase extends BaseDBObject {
 		$this->peerName = 'DB\\OzonePermissionPeer';
 		$this->primaryKeyName = 'permission_id';
 		$this->fieldNames = array( 'permission_id' ,  'name' ,  'description' );
-		
+
 		//$this->fieldDefaultValues=
 	}
 
 
-	
-		
-	
-		
+
+
+
+
 	public function getPermissionId() {
 		return $this->getFieldValue('permission_id');
 	}
-	
+
 	public function setPermissionId($v1, $raw=false) {
-		$this->setFieldValue('permission_id', $v1, $raw); 
+		$this->setFieldValue('permission_id', $v1, $raw);
 	}
-	
-		
+
+
 	public function getName() {
 		return $this->getFieldValue('name');
 	}
-	
+
 	public function setName($v1, $raw=false) {
-		$this->setFieldValue('name', $v1, $raw); 
+		$this->setFieldValue('name', $v1, $raw);
 	}
-	
-		
+
+
 	public function getDescription() {
 		return $this->getFieldValue('description');
 	}
-	
+
 	public function setDescription($v1, $raw=false) {
-		$this->setFieldValue('description', $v1, $raw); 
+		$this->setFieldValue('description', $v1, $raw);
 	}
-	
-		
-	
+
+
+
 
 }

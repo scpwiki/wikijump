@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,37 +27,37 @@
 use DB\OzoneUserPeer;
 
 class PasswordRecoveryAction extends SmartyAction {
-	
+
 	public function perform($r){}
-	
+
 	public function step1Event($runData){
 		$pl = $runData->getParameterList();
-		
+
 		$email = $pl->getParameterValue("email", "AMODULE");
 		if($email == null || $email == ''){
-			throw new ProcessException(_("Email must be provided."), "no_email");	
-		}	
-		
+			throw new ProcessException(_("Email must be provided."), "no_email");
+		}
+
 //		$email = trim(CryptUtils::rsaDecrypt($email));
 //		$email = preg_replace("/^__/", '', $email);
-		
+
 		if($email == null || $email == ''){
-			throw new ProcessException(_("Email must be provided."), "no_email");	
+			throw new ProcessException(_("Email must be provided."), "no_email");
 		}
-		
+
 		if(preg_match("/^[_a-zA-Z0-9-]+(\.[_a-zA-Z0-9-]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/", $email) ==0){
-			throw new ProcessException(_("Valid email must be provided."), "no_email");	
-		}	
-		
+			throw new ProcessException(_("Valid email must be provided."), "no_email");
+		}
+
 		// check for users with the email
 		$c = new Criteria();
 		$c->add("lower(email)", strtolower($email));
 		$user = OzoneUserPeer::instance()->selectOne($c);
-		
+
 		if($user == null){
-			throw new ProcessException(_("This email can not be found in our database."), "no_email");		
+			throw new ProcessException(_("This email can not be found in our database."), "no_email");
 		}
-		
+
 		// generate code
 		srand((double)microtime()*1000000);
 		$string = md5(rand(0,9999));
@@ -70,55 +70,55 @@ class PasswordRecoveryAction extends SmartyAction {
 		$oe->contextAdd("user", $user);
 		$oe->contextAdd("email", $email);
 		$oe->contextAdd('revcode', $evcode);
-		
+
 		$oe->setBodyTemplate('PasswordRecoveryEmail');
-	
+
 		if (!$oe->Send()) {
 			throw new ProcessException(_("The email can not be sent to this address."), "no_email");
-		} 		 
-		
+		}
+
 		$runData->sessionAdd("revcode", $evcode);
 		$runData->sessionAdd("prUserId", $user->getUserId());
 		$runData->contextAdd("email", $email);
 	}
-	
+
 	public function step2Event($runData){
 		$pl = $runData->getParameterList();
-		
+
 		$evercode = $pl->getParameterValue("evercode");
-		
+
 		if($evercode != $runData->sessionGet("revcode")){
 			throw new ProcessException(_("The verification codes do not match."), "form_error");
 		}
-		
+
 		$password = $pl->getParameterValue("password");
 		$password2 = $pl->getParameterValue("password2");
-		
+
 		// check password
 		if(strlen8($password)<8){
 			throw new ProcessException( _("Password reset failed: Minimum password length is 8 characters."),"form_error");
 		}elseif(strlen8($password)>256){
 				throw new ProcessException( _("Password reset failed: Maximum password length is 256 characters to avoid denial of service."),"form_error");
 		}elseif($password2 != $password){
-				throw new ProcessException( _("Passwords are not identical."),"form_error");	
-		}	
-		
+				throw new ProcessException( _("Passwords are not identical."),"form_error");
+		}
+
 		// ok. seems fine.
-		
+
 		$userId = $runData->sessionGet("prUserId");
 		$user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
 		if($user == null){
-			throw ProcessException("No such user.", "no_user");	
+			throw ProcessException("No such user.", "no_user");
 		}
-		
+
 		$user->setPassword($password);
 		$user->save();
-		
+
 	}
-	
+
 	public function cancelEvent($runData){
 		// reset session etc.
 		$runData->resetSession();
 	}
-	
+
 }

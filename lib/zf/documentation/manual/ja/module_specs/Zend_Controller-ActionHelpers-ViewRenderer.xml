@@ -878,7 +878,7 @@ class SearchController extends Zend_Controller_Action
     public function resultsAction()
     {
         // $this->model に現在のモデルが設定されているものとします
-        $this->view->results = 
+        $this->view->results =
             $this->model->find($this->_getParam('query', '');
 
         // render() は、デフォルトでは ViewRenderer へのプロキシとなります。

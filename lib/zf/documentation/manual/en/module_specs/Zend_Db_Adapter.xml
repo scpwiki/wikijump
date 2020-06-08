@@ -479,9 +479,9 @@ $db = Zend_Db::factory('Pdo_Mysql', $params);
             <para>
                 Additionally, an adapter can get serialized to store it, for example,
                 in a session variable. This can be very useful not only for the
-                adapter itself, but for other objects that aggregate it, like a 
+                adapter itself, but for other objects that aggregate it, like a
                 <code>Zend_Db_Select</code> object. By default, adapters are allowed
-                to be serialized, if you don't want it, you should consider passing the 
+                to be serialized, if you don't want it, you should consider passing the
                 <code>Zend_Db::ALLOW_SERIALIZATION=false</code> option, see the example above.
                 To respect lazy connections principle, the adapter won't reconnect itself
                 after being unserialized. You must then call <code>getConnection()

@@ -24,7 +24,7 @@ require_once 'Zend/Form/Element/Xhtml.php';
 
 /**
  * Image form element
- * 
+ *
  * @category   Zend
  * @package    Zend_Form
  * @subpackage Element
@@ -54,7 +54,7 @@ class Zend_Form_Element_Image extends Zend_Form_Element_Xhtml
 
     /**
      * Load default decorators
-     * 
+     *
      * @return void
      */
     public function loadDefaultDecorators()
@@ -74,8 +74,8 @@ class Zend_Form_Element_Image extends Zend_Form_Element_Xhtml
 
     /**
      * Set image path
-     * 
-     * @param  string $path 
+     *
+     * @param  string $path
      * @return Zend_Form_Element_Image
      */
     public function setImage($path)
@@ -86,7 +86,7 @@ class Zend_Form_Element_Image extends Zend_Form_Element_Xhtml
 
     /**
      * Get image path
-     * 
+     *
      * @return string
      */
     public function getImage()
@@ -96,8 +96,8 @@ class Zend_Form_Element_Image extends Zend_Form_Element_Xhtml
 
     /**
      * Set image value to use when submitted
-     * 
-     * @param  mixed $value 
+     *
+     * @param  mixed $value
      * @return Zend_Form_Element_Image
      */
     public function setImageValue($value)
@@ -108,7 +108,7 @@ class Zend_Form_Element_Image extends Zend_Form_Element_Xhtml
 
     /**
      * Get image value to use when submitted
-     * 
+     *
      * @return mixed
      */
     public function getImageValue()
@@ -118,7 +118,7 @@ class Zend_Form_Element_Image extends Zend_Form_Element_Xhtml
 
     /**
      * Was this element used to submit the form?
-     * 
+     *
      * @return bool
      */
     public function isChecked()

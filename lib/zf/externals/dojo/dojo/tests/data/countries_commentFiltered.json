@@ -1,5 +1,5 @@
 /*
-{ identifier: 'abbr', 
+{ identifier: 'abbr',
   items: [
 	{ abbr:'ec', name:'Ecuador',           capital:'Quito' },
 	{ abbr:'eg', name:'Egypt',             capital:'Cairo' },

@@ -11,7 +11,7 @@
         <title>PHP 版本需求</title>
 
         <para>
-            Zend Framework 需要 PHP 5.1.4 或更高版本。例如 <code>Countable</code> 
+            Zend Framework 需要 PHP 5.1.4 或更高版本。例如 <code>Countable</code>
             这样一些 SPL 接口在 PHP 之前的版本中没有被正式使用。
         </para>
 
@@ -436,7 +436,7 @@
                         <entry>Virtually all components</entry>
                     </row>
                     <row>
-                        <entry><ulink url="http://www.php.net/manual/en/ref.sqlite.php"><code>SQLite</code></ulink></entry>	
+                        <entry><ulink url="http://www.php.net/manual/en/ref.sqlite.php"><code>SQLite</code></ulink></entry>
                         <entry>依赖</entry>
                         <entry><ulink url="http://framework.zend.com/manual/en/zend.cache.backends.html">Zend_Cache_Backend_Sqlite</ulink></entry>
                     </row>

@@ -162,7 +162,7 @@ $pdf->save($pdfPath);
                         </listitem>
                         <listitem>
                             <para>
-                                <emphasis>null</emphasis> - 
+                                <emphasis>null</emphasis> -
                                 ドキュメントがトラッピングされているかどうかが判別不可能、
                                 あるいは一部だけトラッピングされている状態です。
                                 さらなるトラッピングが必要かもしれません。

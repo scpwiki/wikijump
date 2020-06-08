@@ -27,7 +27,7 @@ $mail->send();]]>
             </programlisting>
 
         </example>
-    
+
         <note>
             <title>Specifiche minime</title>
             <para>

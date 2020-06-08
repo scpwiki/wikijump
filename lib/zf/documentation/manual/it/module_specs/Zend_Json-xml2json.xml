@@ -12,7 +12,7 @@
         La chiamata a questo funzione avviene nel modo seguente:
     </para>
     <programlisting role="php"><![CDATA[
-        // la funzione fromXml accetta semplicemente una stringa 
+        // la funzione fromXml accetta semplicemente una stringa
         // con contenuto XML come input
         $contenutoJson = Zend_Json::fromXml($stringaContenutoXml, true);?>]]>
     </programlisting>

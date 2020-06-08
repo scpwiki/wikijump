@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,20 +27,20 @@
 use DB\IpBlockPeer;
 
 class ManageSiteIpBlocksModule extends ManageSiteBaseModule {
-	
+
 	public function build($runData){
-			
+
 		// get current blocks!
 		$site = $runData->getTemp("site");
-		
+
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
 		$c->addOrderDescending("block_id");
-		
+
 		$blocks = IpBlockPeer::instance()->select($c);
 		if(count($blocks)>0){
 			$runData->contextAdd("blocks", $blocks);
-		}	
+		}
 	}
-	
+
 }

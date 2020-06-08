@@ -59,7 +59,7 @@
 
 		$files = array();
 
-		//Handle query for files.  Must try to generate patterns over the query 
+		//Handle query for files.  Must try to generate patterns over the query
 		//attributes.
 		$patterns = array();
 		if (is_array($query)) {

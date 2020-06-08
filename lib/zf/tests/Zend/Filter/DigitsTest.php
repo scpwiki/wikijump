@@ -55,7 +55,7 @@ class Zend_Filter_DigitsTest extends PHPUnit_Framework_TestCase
      * @var mixed
      **/
     protected static $_unicodeEnabled;
-    
+
     /**
      * Creates a new Zend_Filter_Digits object for each test method
      *
@@ -104,7 +104,7 @@ class Zend_Filter_DigitsTest extends PHPUnit_Framework_TestCase
 	            '0x9f'    => '09'
 	            );
 	    }
-	            
+
         foreach ($valuesExpected as $input => $output) {
             $this->assertEquals(
                 $output,

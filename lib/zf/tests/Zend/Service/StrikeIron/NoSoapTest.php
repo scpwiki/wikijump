@@ -39,7 +39,7 @@ require_once 'Zend/Service/StrikeIron/BaseTest.php';
  * @copyright  Copyright (c) 2005-2008 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
-class Zend_Service_StrikeIron_NoSoapTest extends PHPUnit_Framework_TestCase 
+class Zend_Service_StrikeIron_NoSoapTest extends PHPUnit_Framework_TestCase
 {
 
     public function setUp()
@@ -49,7 +49,7 @@ class Zend_Service_StrikeIron_NoSoapTest extends PHPUnit_Framework_TestCase
             $this->markTestSkipped('SOAP extension is loaded, so cannot test for exception');
         }
     }
-    
+
     public function testNoSoapException()
     {
         try {

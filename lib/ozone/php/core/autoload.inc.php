@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,14 +15,14 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone
  * @version $Id$
  * @copyright Copyright (c) 2008, Wikidot Inc.
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
- 
+
 // define autoload paths
 $opath = OZONE_ROOT;
 $apath = WIKIDOT_ROOT;
@@ -41,7 +41,7 @@ $classpath[] = $apath."/conf";
 $classpath[] = $apath."/lib/zf/library";
 
 $GLOBALS['classpath'] = $classpath;
- 
+
 $paths = explode(PATH_SEPARATOR, get_include_path());
 $paths = array_merge($paths, $classpath);
 $paths = array_unique($paths);

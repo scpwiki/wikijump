@@ -40,7 +40,7 @@
             </para>
             <programlisting role="php"><![CDATA[
 // 创建一个 in-memory SQLite 数据库连接
-$dbAdapter = new Zend_Db_Adapter_Pdo_Sqlite(array('dbname' => 
+$dbAdapter = new Zend_Db_Adapter_Pdo_Sqlite(array('dbname' =>
                                                   ':memory:'));
 
 // 构造一个简单表的创建语句
@@ -135,7 +135,7 @@ Array
 $result = $this->_auth->authenticate($adapter);
 
 if ($result->isValid()) {
-    // store the identity as an object where only the username and 
+    // store the identity as an object where only the username and
     //real_name have been returned
     $storage = $this->_auth->getStorage();
     $storage->write($adapter->getResultRowObject(array(
@@ -143,7 +143,7 @@ if ($result->isValid()) {
         'real_name',
     )));
 
-    // store the identity as an object where the password column has 
+    // store the identity as an object where the password column has
     // been omitted
     $storage->write($adapter->getResultRowObject(
         null,
@@ -151,7 +151,7 @@ if ($result->isValid()) {
     ));
 
     /* ... */
-    
+
 } else {
 
     /* ... */
@@ -199,7 +199,7 @@ $adapter = new Zend_Auth_Adapter_DbTable(
 $sqlAlter = "ALTER TABLE [users] "
           . "ADD COLUMN [password_salt] "
           . "AFTER [password]";
-          
+
 $dbAdapter->query($sqlAlter);
 ]]>
         </programlisting>
@@ -222,8 +222,8 @@ $adapter = new Zend_Auth_Adapter_DbTable(
     'users',
     'username',
     'password',
-    "MD5(CONCAT('" 
-    . Zend_Registry::get('staticSalt') 
+    "MD5(CONCAT('"
+    . Zend_Registry::get('staticSalt')
     . "', ?, password_salt))"
 );
 ]]>

@@ -31,7 +31,7 @@ class Zend_Gdata_Spreadsheets_SpreadsheetFeedTest extends PHPUnit_Framework_Test
 
     public function setUp()
     {
-        $this->sprFeed = new Zend_Gdata_Spreadsheets_SpreadsheetFeed( 
+        $this->sprFeed = new Zend_Gdata_Spreadsheets_SpreadsheetFeed(
                 file_get_contents(dirname(__FILE__) . '/_files/TestDataSpreadsheetFeedSample1.xml'),
                 true);
     }
@@ -43,12 +43,12 @@ class Zend_Gdata_Spreadsheets_SpreadsheetFeedTest extends PHPUnit_Framework_Test
         {
             $this->assertTrue($entry instanceof Zend_Gdata_Spreadsheets_SpreadsheetEntry);
         }
-        
+
         $newSprFeed = new Zend_Gdata_Spreadsheets_SpreadsheetFeed();
         $doc = new DOMDocument();
         $doc->loadXML($this->sprFeed->saveXML());
         $newSprFeed->transferFromDom($doc->documentElement);
-        
+
         $this->assertTrue(count($newSprFeed->entries) == 1);
         foreach($newSprFeed->entries as $entry)
         {

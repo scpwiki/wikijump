@@ -13,7 +13,7 @@
         alebo zavolaním metódy <code>Zend_Pdf::newPage()</code>, ktorá vráti objekt
         <code>Zend_Pdf_Page</code>. Rozdiel je ten, že metóda <code>Zend_Pdf::newPage()</code>
         vytvorí stránku, ktorá je spojená z dokumentom. Rozdiel oproti nespojeným
-        stránkam je to, že nemôže byť použitá vo viacerých PDF dokumentoch, ale 
+        stránkam je to, že nemôže byť použitá vo viacerých PDF dokumentoch, ale
         za to je rýchlejšia.
     <footnote>
         <para>

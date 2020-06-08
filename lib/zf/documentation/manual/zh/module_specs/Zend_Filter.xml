@@ -30,7 +30,7 @@
 
         <para>
             下面一个简单的例子，示范了在2个输入数据上使用过滤器，"<code>&amp;</code>" 符号和双引号 (<code>&quot;</code>) 字符：
-            
+
             <programlisting role="php"><![CDATA[
 $htmlEntities = new Zend_Filter_HtmlEntities();
 
@@ -48,8 +48,8 @@ echo $htmlEntities->filter('"'); // &quot;
         <title> 使用静态 <code>get()</code> 方法 </title>
 
         <para>
-            如果不方便加载给定的过滤器类和创建过滤器的实例，可以使用静态方法 <code>Zend_Filter::get()</code> 作为备用的调用风格。这个方法的第一个参数是数据输入值，将传递给 <code>filter()</code> 方法，第二个参数是个字符串，对应于过滤器类的基本名，和 Zend_Filter 名称空间有关。<code>get()</code> 方法自动加载这个类，创建一个实例，并应用 <code>filter()</code> 方法给数据输入。 
-            
+            如果不方便加载给定的过滤器类和创建过滤器的实例，可以使用静态方法 <code>Zend_Filter::get()</code> 作为备用的调用风格。这个方法的第一个参数是数据输入值，将传递给 <code>filter()</code> 方法，第二个参数是个字符串，对应于过滤器类的基本名，和 Zend_Filter 名称空间有关。<code>get()</code> 方法自动加载这个类，创建一个实例，并应用 <code>filter()</code> 方法给数据输入。
+
             <programlisting role="php"><![CDATA[
 echo Zend_Filter::get('&', 'HtmlEntities');
 ]]>

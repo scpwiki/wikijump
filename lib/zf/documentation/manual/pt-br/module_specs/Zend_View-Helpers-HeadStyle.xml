@@ -3,7 +3,7 @@
 
     <para>
         O elemento HTML <code>&lt;style&gt;</code> é usado para incluir
-        folhas de estilo CSS de forma inline no elemento HTML <code>&lt;head&gt;</code>. 
+        folhas de estilo CSS de forma inline no elemento HTML <code>&lt;head&gt;</code>.
     </para>
 
     <note>
@@ -11,14 +11,14 @@
 
         <para>
             O <link linkend="zend.view.helpers.initial.headlink">HeadLink</link>
-            deve ser usado para criar elementos <code>&lt;link&gt;</code> para 
-            a inclusão de folhas de estilo externas. <code>HeadScript</code> é usado quando 
+            deve ser usado para criar elementos <code>&lt;link&gt;</code> para
+            a inclusão de folhas de estilo externas. <code>HeadScript</code> é usado quando
             você deseja definir folhas de estilo inline.
         </para>
     </note>
 
     <para>
-        O assistente <code>HeadStyle</code> dá suporte aos seguintes métodos para a configuração 
+        O assistente <code>HeadStyle</code> dá suporte aos seguintes métodos para a configuração
 		e adição de declarações de folhas de estilo:
     </para>
 
@@ -35,7 +35,7 @@
 
     <para>
         Em todos os casos, <code>$content</code> é a verdadeira declaração CSS.
-        $attributes são quaisquer atributos adicionais que você dejesa prover para a 
+        $attributes são quaisquer atributos adicionais que você dejesa prover para a
         tag <code>style</code>: lang, title, media, ou dir são todos admissíveis.
     </para>
 
@@ -81,9 +81,9 @@ $this->headStyle()->appendStyle($styles);
 ]]></programlisting>
 
         <para>
-            A ordenação é muito importante no CSS; você talvez tenha que 
+            A ordenação é muito importante no CSS; você talvez tenha que
 			assegurar que as declarações sejam carregadas em uma ordem específica
-			devido à ordem do CSS; use as diretivas append, prepend, e offsetSet 
+			devido à ordem do CSS; use as diretivas append, prepend, e offsetSet
 			para lhe auxiliar nessa tarefa:
         </para>
 

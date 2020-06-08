@@ -7,30 +7,30 @@
         <title>Precieze toegangscontrole</title>
 
         <para>
-	        De basis ACL zoals gedefineerd in de <link linkend="zend.acl.introduction">vorige sectie</link> 
+	        De basis ACL zoals gedefineerd in de <link linkend="zend.acl.introduction">vorige sectie</link>
 	        laat zien hoe verschillende privileges kunnen worden toegestaan op de gehele ACL ( alle Bronnen ).
 	        Echter in de praktijk, neigen toegangscontroles naar het hebben van uitzonderingen en gevarieerde
-	        niveaus van complexiteit. Zend_Acl staat je toe deze verfijningen in een duidelijke en flexibele manier 
+	        niveaus van complexiteit. Zend_Acl staat je toe deze verfijningen in een duidelijke en flexibele manier
 	        te bereiken.
         </para>
 
         <para>
 	        Voor het voorbeeld CMS, is vastgesteld dat terwijl de 'medewerker' groep de benodigheden voor het
 	        merendeel van de gebruikers dekt, er een behoefte is aan een nieuwe 'marketing' groep die toegang
-	        nodig heeft tot de nieuwsbrieven en het laatste nieuws in het CMS. De groep is vrij onafhankelijk 
+	        nodig heeft tot de nieuwsbrieven en het laatste nieuws in het CMS. De groep is vrij onafhankelijk
 	        en heeft de mogelijkheid om nieuwsbrieven en het laatste nieuws te publiceren en te archiveren.
         </para>
 
         <para>
-	        Verder, is er ook verzocht dat de 'medewerker' groep wordt toegestaan om nieuws berichten te zien, 
+	        Verder, is er ook verzocht dat de 'medewerker' groep wordt toegestaan om nieuws berichten te zien,
 	        maar ze mogen het laatste nieuws niet herzien. Als laatste, zou het voor iedereen (zelfs voor de
 	        administrators) onmogelijk moeten zijn om nieuws aankondigingen te archiveren, omdat deze
 	        een levensduur hebben van 1-2 dagen.
         </para>
 
         <para>
-	        Allereerst passen we de Rol lijst aan. We hebben ontdekt dat de 'marketing' groep de zelfde basis 
-	        rechten heeft als de 'medewerkers', dus we defineren 'marketing' zo dat het de rechten overerft 
+	        Allereerst passen we de Rol lijst aan. We hebben ontdekt dat de 'marketing' groep de zelfde basis
+	        rechten heeft als de 'medewerkers', dus we defineren 'marketing' zo dat het de rechten overerft
 	        van 'medewerker':
         </para>
 
@@ -106,7 +106,7 @@ echo $acl->isAllowed('administrator', 'aankondiging', 'archiveren') ?
 
         <para>
 	        Om één of meer toegangregels te verwijderen van de ACL, gebruiken we simpelweg de beschikbare
-	        <code>removeAllow()</code> of <code>removeDeny()</code> methodes. Net als bij <code>allow()</code> 
+	        <code>removeAllow()</code> of <code>removeDeny()</code> methodes. Net als bij <code>allow()</code>
 	        en <code>deny()</code>, mag je een <code>null</code> waarde gebruiken om aan te geven dat het
 	        voor alle Rollen, Bronnen en privileges geldt:
         </para>

@@ -25,7 +25,7 @@ require_once 'Zend/View.php';
  * @package    Zend_View
  * @subpackage UnitTests
  */
-class Zend_View_Helper_Placeholder_StandaloneContainerTest extends PHPUnit_Framework_TestCase 
+class Zend_View_Helper_Placeholder_StandaloneContainerTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.

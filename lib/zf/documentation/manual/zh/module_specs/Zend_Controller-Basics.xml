@@ -45,7 +45,7 @@
                 </para>
 
                 <para>
-                    <code>Zend_Controller_Router_Rewrite</code>也可以用来匹配任意的路径；参见<link linkend="zend.controller.router">路由器文档</link> 有更多的信息。    
+                    <code>Zend_Controller_Router_Rewrite</code>也可以用来匹配任意的路径；参见<link linkend="zend.controller.router">路由器文档</link> 有更多的信息。
                 </para>
             </listitem>
 
@@ -61,7 +61,7 @@
                 <para>
                     缺省的派遣器是<code>Zend_Controller_Dispatcher_Standard</code>。它定义控制器为以Controller结尾的 MixedCasedClasses，并且动作为以Action结尾的camelCasedMethods：<code>FooController::barAction()</code>。在这个例子中，控制器是<code>foo</code>，动作是the action as <code>bar</code>。
                 </para>
-                
+
                 <note>
                     <title> 大小写命名协议 </title>
 

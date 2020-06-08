@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,31 +27,31 @@
 use DB\ForumPostRevisionPeer;
 
 class ForumPostRevisionModule extends SmartyModule {
-	
+
 	public function build($runData){
 		$pl = $runData->getParameterList();
 		$revisionId = $pl->getParameterValue("revisionId");
-		
+
 		$site = $runData->getTemp("site");
-		
+
 		if($revisionId == null || !is_numeric($revisionId)){
-			throw new ProcessException(_("No revision specified."), "no_post");	
+			throw new ProcessException(_("No revision specified."), "no_post");
 		}
-		
+
 		$revision = ForumPostRevisionPeer::instance()->selectByPrimaryKey($revisionId);
 		if($revision == null){
-			throw new ProcessException(_("No revision specified."), "no_post");	
-		}	
-		
+			throw new ProcessException(_("No revision specified."), "no_post");
+		}
+
 		$runData->ajaxResponseAdd("title", $revision->getTitle());
-		
+
 		$source = $revision->getText();
 		$wt = new WikiTransformation();
 		$body = $wt->processSource($source);
-		
+
 		$runData->ajaxResponseAdd("content", $body);
 		$runData->ajaxResponseAdd("postId", $revision->getPostId());
 
 	}
-	
+
 }

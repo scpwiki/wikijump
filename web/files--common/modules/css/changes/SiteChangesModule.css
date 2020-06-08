@@ -17,7 +17,7 @@
 
 .changes-list-item table{
 	width: 98%;
-	
+
 }
 
 .changes-list-item .title{
@@ -75,13 +75,13 @@
 }
 
 .changes-list-item .revision-no{
-	float: right;	
+	float: right;
 	text-align: center;
 	width: 10em;
 }
 
 .changes-list-item .flags{
-	float: right;	
+	float: right;
 	text-align: left;
 	width: 4em;
 }

@@ -22,7 +22,7 @@ foreach ($dir as $file)
         $text = preg_replace('/([^\n])(\]\]\>)(\<\/programlisting\>)/', "$1\n$2$3", $text);
         // Put \n between ]]> and </programlisting>
         $text = preg_replace('/(\]\]\>)(\<\/programlisting\>)/', "$1\n$2", $text);
-        // Put same indent before </programlisting> as before <programlisting> 
+        // Put same indent before </programlisting> as before <programlisting>
         $text = preg_replace_callback('/([^\n]*)(<programlisting role="php"><)(.*?)(<\/programlisting>)/s', "InsertSpace", $text);
         file_put_contents($file->getPathName(),$text);
     }

@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -25,19 +25,19 @@
 
 
 class PasswordRecoveryModule extends SmartyModule {
-	
+
 	public function build($runData){
 		$userId = $runData->getUserId();
 		if($userId !== null){
-			throw new ProcessException(_("You already are logged in."), "already_logged");	
-		}	
+			throw new ProcessException(_("You already are logged in."), "already_logged");
+		}
 		$runData->ajaxResponseAdd("key", CryptUtils::modulus());
-		
+
 		$runData->sessionStart();
 		$seed = CryptUtils::generateSeed(10);
 		$runData->sessionAdd("login_seed", $seed);
 		$this->extraJs[] = '/common--javascript/crypto/rsa.js';
 
 	}
-	
+
 }

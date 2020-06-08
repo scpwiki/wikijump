@@ -5,7 +5,7 @@
         <title>介绍</title>
 
         <para>
-            Zend Framework 通过 <code>Zend_XmlRpc_Client</code> 作为客户端提供了调用远程 
+            Zend Framework 通过 <code>Zend_XmlRpc_Client</code> 作为客户端提供了调用远程
             XML-RPC 服务的功能。主要功能包括在 PHP 和 XML-RPC 之间进行类型的自动转换，
             服务代理对象（a server proxy object），和访问服务器的自省功能
             （introspection capabilities）。
@@ -18,7 +18,7 @@
         <title>方法调用</title>
 
         <para>
-            <code>Zend_XmlRpc_Client</code> 的构造函数接受 XML-RPC 服务器端 URL 
+            <code>Zend_XmlRpc_Client</code> 的构造函数接受 XML-RPC 服务器端 URL
             地址作为第一个参数。返回新的实例可以用来调用这个服务器端任意数量的远程方法。
         </para>
 
@@ -49,7 +49,7 @@ echo $client->call('test.sayHello');
 
         <para>
             <code>call()</code> 方法接受远程调用的名字作为第一个参数。如果远程调用需要其他参数，
-            可以通过 <code>call()</code> 的第二个可选参数使用 <code>array</code> 
+            可以通过 <code>call()</code> 的第二个可选参数使用 <code>array</code>
             的形式传递到远程方法。
         </para>
 
@@ -71,14 +71,14 @@ $result = $client->call('test.sayHello', array($arg1, $arg2));
         </example>
 
         <para>
-            如果远程方法不需要任何参数，这个可选参数可以留空或者传递一个空的 <code>array()</code> 
+            如果远程方法不需要任何参数，这个可选参数可以留空或者传递一个空的 <code>array()</code>
             过去。远程方法的参数数组可以包含原始的 PHP 类型，<code>Zend_XmlRpc_Value</code>
             对象，或者两种的混合。
         </para>
 
         <para>
             <code>call()</code> 方法会自动转换 XML-PRC 响应并返回等价的 PHP 原始类型。
-            返回值的 <code>Zend_XmlRpc_Response</code> 对象也可以在调用之后使用 
+            返回值的 <code>Zend_XmlRpc_Response</code> 对象也可以在调用之后使用
             <code>getLastResponse()</code> 方法获得。
         </para>
     </sect2>
@@ -86,9 +86,9 @@ $result = $client->call('test.sayHello', array($arg1, $arg2));
     <sect2 id="zend.xmlrpc.value.parameters">
         <title>类型及转换</title>
         <para>
-            一些远程方法调用时需要参数。它们作为数组传递到 <code>Zend_XmlRpc_Client</code> 
+            一些远程方法调用时需要参数。它们作为数组传递到 <code>Zend_XmlRpc_Client</code>
             的 <code>call()</code> 方法的第二个参数。每个参数，不论是原始的 PHP 类型，
-            还是一个对象表示的特定的 XML-RPC 类型（一个 <code>Zend_XmlRpc_Value</code> 
+            还是一个对象表示的特定的 XML-RPC 类型（一个 <code>Zend_XmlRpc_Value</code>
             对象）都会自动转换。
         </para>
 
@@ -143,24 +143,24 @@ $result = $client->call('test.sayHello', array($arg1, $arg2));
                     </tbody>
                 </tgroup>
             </table>
-			
+
             <note>
                 <title>一个空的数组会如何转换？</title>
 
                 <para>
                     传递空数组到 XML-RPC 方法，由于它既可表示为一个数组也可表示为一个结构，
                     所以会产生问题。<code>Zend_XmlRpc_Client</code> 会监测这种情况并向服务器进行一个
-                    <code>system.methodSignature</code> 请求来决定实际将要转换到的 XML-RPC 类型。                    
+                    <code>system.methodSignature</code> 请求来决定实际将要转换到的 XML-RPC 类型。
                 </para>
 
                 <para>
                     不过，这样做本身就可能导致问题出现。首先，服务器不支持 <code>system.methodSignature</code>
-                    将会产生一个失败请求，同时 <code>Zend_XmlRpc_Client</code> 
-                    会强制转换这个值为 XML-RPC 数组类型。此外，这意味着任何数组参数都可能导致对远端服务器的一次额外请求。                    
+                    将会产生一个失败请求，同时 <code>Zend_XmlRpc_Client</code>
+                    会强制转换这个值为 XML-RPC 数组类型。此外，这意味着任何数组参数都可能导致对远端服务器的一次额外请求。
                 </para>
 
                 <para>
-                    可以在 XML-RPC 调用前调用 <code>setSkipSystemLookup()</code> 
+                    可以在 XML-RPC 调用前调用 <code>setSkipSystemLookup()</code>
                     方法，以便完全屏蔽这个查询：
                 </para>
 
@@ -192,9 +192,9 @@ $result = $client->call('foo.bar', array(array()));
                     </listitem>
                     <listitem>
                         <para>
-                            当自动转换失败时（例如，你希望传递一个空的 XML-RPC 
+                            当自动转换失败时（例如，你希望传递一个空的 XML-RPC
                             结构作为参数。空的结构在 PHP 中应当是一个空的数组，
-                            但是如果传递一个空数组作为参数，它将被自动转换为 XML-RPC 
+                            但是如果传递一个空数组作为参数，它将被自动转换为 XML-RPC
                             数组，虽然它同数组没有联系）。
                         </para>
                     </listitem>
@@ -202,8 +202,8 @@ $result = $client->call('foo.bar', array(array()));
             </para>
 
             <para>
-                有两种方法创建 <code>Zend_XmlRpc_Value</code> 对象：直接实例化某个 
-                <code>Zend_XmlRpc_Value</code> 的子类；或者使用静态工厂方法 
+                有两种方法创建 <code>Zend_XmlRpc_Value</code> 对象：直接实例化某个
+                <code>Zend_XmlRpc_Value</code> 的子类；或者使用静态工厂方法
                 <code>Zend_XmlRpc_Value::getXmlRpcValue()</code>。
             </para>
 
@@ -266,9 +266,9 @@ $result = $client->call('foo.bar', array(array()));
                 <note>
                     <title>自动转换</title>
                     <para>
-                        当创建新的 <code>Zend_XmlRpc_Value</code> 对象时，它的值通过 
+                        当创建新的 <code>Zend_XmlRpc_Value</code> 对象时，它的值通过
                         PHP 类型设置。PHP 类型将会通过 PHP 类型转换到指定的类型。例如，
-                        如果给 <code>Zend_XmlRpc_Value_Integer</code> 
+                        如果给 <code>Zend_XmlRpc_Value_Integer</code>
                         对象提供一个字符串，它将由 <code>(int)$value</code> 转换。
                     </para>
                 </note>
@@ -284,9 +284,9 @@ $result = $client->call('foo.bar', array(array()));
         </para>
 
         <para>
-            调用 <code>Zend_XmlRpc_Client</code> 实例的 <code>getProxy()</code> 
+            调用 <code>Zend_XmlRpc_Client</code> 实例的 <code>getProxy()</code>
             方法实例化一个服务器代理。该方法将返回一个 <code>Zend_XmlRpc_Client_ServerProxy</code>
-            实例。对服务器代理方法的任何调用将会传递到远程，而参数的传递就如同其他任何 
+            实例。对服务器代理方法的任何调用将会传递到远程，而参数的传递就如同其他任何
             PHP 方法一样。
         </para>
 
@@ -324,7 +324,7 @@ $hello = $test->sayHello(1, 2);         // test.Hello(1,2) returns "hello"
 
         <para>
             若远端服务器支持任意深度嵌套的命名空间，仍然可以通过服务器代理使用。例如，
-            如果上面的例子有一个方法 <code>test.foo.bar()</code>，则可以使用 
+            如果上面的例子有一个方法 <code>test.foo.bar()</code>，则可以使用
             <code>$test->foo->bar()</code> 来调用。
         </para>
     </sect2>
@@ -341,8 +341,8 @@ $hello = $test->sayHello(1, 2);         // test.Hello(1,2) returns "hello"
             <title>HTTP 错误</title>
 
             <para>
-                当 HTTP 错误发生时，例如远端 HTTP 服务器返回 
-                <code>404 Not Found</code>，将会抛出一个 
+                当 HTTP 错误发生时，例如远端 HTTP 服务器返回
+                <code>404 Not Found</code>，将会抛出一个
                 <code>Zend_XmlRpc_Client_HttpException</code> 异常。
             </para>
 
@@ -367,7 +367,7 @@ try {
             </example>
 
             <para>
-                不论是如何使用 XML-RPC 客户端的，当 HTTP 错误发生时，都会抛出 
+                不论是如何使用 XML-RPC 客户端的，当 HTTP 错误发生时，都会抛出
                 <code>Zend_XmlRpc_Client_HttpException</code> 异常。
             </para>
         </sect3>
@@ -382,8 +382,8 @@ try {
             </para>
 
             <para>
-                当 <code>call()</code> 方法或者服务器代理对象被使用时，XML-RPC 
-                失败会抛出一个 <code>Zend_XmlRpc_Client_FaultException</code> 
+                当 <code>call()</code> 方法或者服务器代理对象被使用时，XML-RPC
+                失败会抛出一个 <code>Zend_XmlRpc_Client_FaultException</code>
                 异常。异常代码和消息会直接映射到原始的 XML-RPC 失败相应的内容上去。
             </para>
 
@@ -408,7 +408,7 @@ try {
             </example>
 
             <para>
-                当请求时使用 <code>call()</code> 方法，会在失败的时候抛出 
+                当请求时使用 <code>call()</code> 方法，会在失败的时候抛出
                 <code>Zend_XmlRpc_Client_FaultException</code> 异常。可以调用
                 <code>getLastResponse()</code> 获得包含在 <code>Zend_XmlRpc_Response</code>
                 对象中的异常。
@@ -431,7 +431,7 @@ try {
         </para>
 
         <para>
-            调用 <code>Zend_XmlRpcClient</code> 的 <code>getIntrospector()</code> 
+            调用 <code>Zend_XmlRpcClient</code> 的 <code>getIntrospector()</code>
             方法可以获得 <code>Zend_XmlRpc_Client_ServerIntrospection</code> 实例。
             通过它可以使用服务器的自省功能。
         </para>
@@ -441,7 +441,7 @@ try {
         <title>从请求作出回应</title>
         <para>
             本质上说，<code>Zend_XmlRpc_Client</code> 实例的 <code>call()</code>
-            方法创建了请求对象（<code>Zend_XmlRpc_Request</code>）并将其传递给另一个方法 
+            方法创建了请求对象（<code>Zend_XmlRpc_Request</code>）并将其传递给另一个方法
             <code>doRequest()</code>，<code>doRequest()</code> 方法返回响应对象（<code>Zend_XmlRpc_Response</code>）。
         </para>
 

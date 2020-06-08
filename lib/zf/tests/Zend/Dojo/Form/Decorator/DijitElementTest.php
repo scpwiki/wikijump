@@ -50,7 +50,7 @@ require_once 'Zend/Dojo/View/Helper/Dojo.php';
  * @copyright  Copyright (c) 2005-2008 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
-class Zend_Dojo_Form_Decorator_DijitElementTest extends PHPUnit_Framework_TestCase 
+class Zend_Dojo_Form_Decorator_DijitElementTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.
@@ -118,9 +118,9 @@ class Zend_Dojo_Form_Decorator_DijitElementTest extends PHPUnit_Framework_TestCa
 
     /**
      * Handle an error (for testing notices)
-     * 
-     * @param  int $errno 
-     * @param  string $errstr 
+     *
+     * @param  int $errno
+     * @param  string $errstr
      * @return void
      */
     public function handleError($errno, $errstr)

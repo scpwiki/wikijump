@@ -52,9 +52,9 @@ class Zend_Paginator_ScrollingStyle_JumpingTest extends PHPUnit_Framework_TestCa
      * @var Zend_Paginator
      */
     private $_paginator;
-    
+
     private $_expectedRange;
-    
+
     /**
      * Prepares the environment before running a test.
      */
@@ -76,28 +76,28 @@ class Zend_Paginator_ScrollingStyle_JumpingTest extends PHPUnit_Framework_TestCa
         $this->_paginator = null;
         parent::tearDown();
     }
-    
+
     public function testGetsPagesInRangeForFirstPage()
     {
         $this->_paginator->setCurrentPageNumber(1);
         $actual = $this->_scrollingStyle->getPages($this->_paginator);
         $this->assertEquals($this->_expectedRange, $actual);
     }
-    
+
     public function testGetsPagesInRangeForSecondPage()
     {
         $this->_paginator->setCurrentPageNumber(2);
         $actual = $this->_scrollingStyle->getPages($this->_paginator);
         $this->assertEquals($this->_expectedRange, $actual);
     }
-    
+
     public function testGetsPagesInRangeForSecondLastPage()
     {
         $this->_paginator->setCurrentPageNumber(10);
         $actual = $this->_scrollingStyle->getPages($this->_paginator);
         $this->assertEquals($this->_expectedRange, $actual);
     }
-    
+
     public function testGetsPagesInRangeForLastPage()
     {
         $this->_paginator->setCurrentPageNumber(11);
@@ -105,15 +105,15 @@ class Zend_Paginator_ScrollingStyle_JumpingTest extends PHPUnit_Framework_TestCa
         $expected = array(11 => 11);
         $this->assertEquals($expected, $actual);
     }
-    
+
     public function testGetsNextAndPreviousPageForFirstPage()
     {
         $this->_paginator->setCurrentPageNumber(1);
         $pages = $this->_paginator->getPages('Jumping');
-        
+
         $this->assertEquals(2, $pages->next);
     }
-    
+
     public function testGetsNextAndPreviousPageForSecondPage()
     {
         $this->_paginator->setCurrentPageNumber(2);
@@ -121,7 +121,7 @@ class Zend_Paginator_ScrollingStyle_JumpingTest extends PHPUnit_Framework_TestCa
         $this->assertEquals(1, $pages->previous);
         $this->assertEquals(3, $pages->next);
     }
-    
+
     public function testGetsNextAndPreviousPageForMiddlePage()
     {
         $this->_paginator->setCurrentPageNumber(6);
@@ -129,7 +129,7 @@ class Zend_Paginator_ScrollingStyle_JumpingTest extends PHPUnit_Framework_TestCa
         $this->assertEquals(5, $pages->previous);
         $this->assertEquals(7, $pages->next);
     }
-    
+
     public function testGetsNextAndPreviousPageForSecondLastPage()
     {
         $this->_paginator->setCurrentPageNumber(10);
@@ -137,7 +137,7 @@ class Zend_Paginator_ScrollingStyle_JumpingTest extends PHPUnit_Framework_TestCa
         $this->assertEquals(9, $pages->previous);
         $this->assertEquals(11, $pages->next);
     }
-    
+
     public function testGetsNextAndPreviousPageForLastPage()
     {
         $this->_paginator->setCurrentPageNumber(11);

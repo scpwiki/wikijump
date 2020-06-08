@@ -10,8 +10,8 @@ smarty_core_load_plugins(array('plugins' => array(array('function', 'printuser',
 ?>
 	<?php $this->assign('user', $this->_tpl_vars['membership']->getUser()); ?>
 	<?php echo smarty_function_printuser(array('user' => $this->_tpl_vars['user'],'image' => 'yes'), $this);?>
- 
-	
+
+
 	<div style="padding-left: 20px">
 		member since:  <span class="odate"><?php echo $this->_tpl_vars['membership']->getDateJoined()->getTimestamp(); ?>
 |%e %b %Y, %H:%M %Z|agohover</span>
@@ -19,10 +19,10 @@ smarty_core_load_plugins(array('plugins' => array(array('function', 'printuser',
 ').style.display=='none') $('mem-options-<?php echo $this->_tpl_vars['user']->getUserId(); ?>
 ').style.display = 'block'; else $('mem-options-<?php echo $this->_tpl_vars['user']->getUserId(); ?>
 ').style.display = 'none';">options</a>)
-		
+
 		<div id="mem-options-<?php echo $this->_tpl_vars['user']->getUserId(); ?>
 " style="display: none">
-			
+
 			<a href="javascript:;" onclick="removeUser(<?php echo $this->_tpl_vars['user']->getUserId(); ?>
 , '<?php echo $this->_tpl_vars['user']->getNickName(); ?>
 ')">remove</a>
@@ -34,7 +34,7 @@ smarty_core_load_plugins(array('plugins' => array(array('function', 'printuser',
 			| <a href="javascript:;" onclick="toAdmins(<?php echo $this->_tpl_vars['user']->getUserId(); ?>
 , '<?php echo $this->_tpl_vars['user']->getNickName(); ?>
 ')">to admins</a>
-			
+
 		</div>
 	</div>
 <?php endforeach; endif; unset($_from); ?>

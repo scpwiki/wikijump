@@ -3,21 +3,21 @@
 	$dbserver = 'localhost';
 	$dbuser = 'root';
 	$dbpassword = 'root';
-	
+
 	error_reporting(E_ALL);
-	
+
 	/*
 		Simple protocol:
-			- Inputs via POST variables. 
+			- Inputs via POST variables.
 			- Output is a string that can be evaluated into a JSON
 			  First element of the array contains return status.
-				
+
 		This simplified tutorial code should not be deployed without a security review.
 	*/
-	
+
 	@include "json.php";
-	
-	// set up response encoding 
+
+	// set up response encoding
 	header("Content-Type: text/html; charset=utf-8");
 
 	// util
@@ -25,10 +25,10 @@
 		// make sure input strings are 'clean'
 		return mysql_real_escape_string(@$_POST[$inName]);
 	}
-		
+
 	// used for json encoding
 	$json = new Services_JSON();
-	
+
 	function echoJson($inData) {
 		global $json;
 		// delay in ms
@@ -37,7 +37,7 @@
 			usleep($delay * 1000);
 		echo '/* ' . $json->encode($inData) . ' */';
 	}
-	
+
 	function error($inMessage) {
 		$inMessage = str_replace('"', '\\"', $inMessage);
 		error_log($inMessage);
@@ -51,9 +51,9 @@
 		$o = Array();
 		while ($row = ($inArray ? mysql_fetch_row($inResult) : mysql_fetch_object($inResult)))
 			$o[] = $row;
-		return $o;	
+		return $o;
 	}
-	
+
 	// connect to DB
 	mysql_connect($dbserver, $dbuser, $dbpassword);
 
@@ -73,7 +73,7 @@
 
 	// set UTF8 output (MySql > 4.0)
 	mysql_query("SET NAMES UTF8");
-	
+
 	// server, database, table meta data
 	function getDatabases() {
 		$result = mysql_query("SHOW DATABASES");
@@ -82,19 +82,19 @@
 			$r = strtolower($row[0]);
 			if ($r != 'mysql' && $r != 'information_schema')
 				$output[] = $row[0];
-		}	
-		return $output;	
+		}
+		return $output;
 	}
-	
+
 	function getTables() {
 		global $database;
 		$result = mysql_query("SHOW TABLES FROM $database");
 		$output = Array();
 		while ($row = mysql_fetch_row($result))
 			$output[] = $row[0];
-		return $output;	
+		return $output;
 	}
-	
+
 	function getColumns() {
 		global $table, $colCache;
 		if (!$colCache) {
@@ -102,9 +102,9 @@
 			return getArray($result, false);
 			$colCache = getArray($result, false);
 		}
-		return $colCache;	
+		return $colCache;
 	}
-	
+
 	// returns object: $this->name, $this->index
 	function getPk() {
 		global $pkCache;
@@ -116,31 +116,31 @@
 				if ($c->Key == 'PRI') {
 					$k = $c->Field;
 					break;
-				}	
+				}
 			}
 			$pkCache->index = $i;
 			$pkCache->name = $k;
-		}	
+		}
 		return $pkCache;
 	}
-	
+
 	function getTableInfo() {
 		global $table, $database;
 		$c = getColumns();
 		$r = rowcount();
 		return array("count" => $r, "columns" => $c, "database" => $database, "table" => $table);
 	}
-	
+
 	function getOldPostPkValue() {
 		$pk = getPk();
 		return getPostString('_o' . $pk->index);
 	}
-	
+
 	function getNewPostPkValue() {
 		$pk = getPk();
 		return getPostString('_' . $pk->index);
 	}
-	
+
 	function getPostColumns() {
 		$columns = getColumns();
 		for ($i=0, $a=array(), $p; (($p=getPostString("_".$i)) != ''); $i++) {
@@ -148,10 +148,10 @@
 			$r->name = $columns[$i]->Field;
 			$r->value = $p;
 			$a[] = $r;
-		}	
+		}
 		return $a;
 	}
-	
+
 	function getOrderBy() {
 		$ob = getPostString("orderby");
 		if (is_numeric($ob)) {
@@ -160,12 +160,12 @@
 		}
 		return $ob;
 	}
-	
+
 	function getWhere() {
 		$w = getPostString("where");
 		return ($w ? " WHERE $w" : "");
 	}
-	
+
 	// basic operations
 	function rowcount()	{
 		global $table;
@@ -178,7 +178,7 @@
 		else
 			return 0;
 	}
-	
+
 	function select($inQuery = '') {
 		global $table;
 		// built limit clause
@@ -194,18 +194,18 @@
 		// execute query
 		if (!$result = mysql_query($query))
 			error("failed to perform query: $query. " . mysql_error());
-		// fetch each result row 
+		// fetch each result row
 		return getArray($result);
 	}
 
 	function reflectRow() {
 		global $table;
 		$pk = getPk();
-		$key = getNewPostPkValue();			
+		$key = getNewPostPkValue();
 		$where = "`$pk->name`=\"$key\"";
 		return select("SELECT * FROM `$table` WHERE $where LIMIT 1");
 	}
-	
+
 	function update() {
 		// build set clause
 		for ($i=0, $set = array(), $cols = getPostColumns(), $v; ($v=$cols[$i]); $i++)
@@ -223,15 +223,15 @@
 					"MySql says: [" . mysql_error() ."]");
 		else {
 			return reflectRow();
-		}	
+		}
 	}
-	
+
 	function insert() {
 		global $table;
 		// build values clause
 		for ($i=0, $values = array(), $cols = getPostColumns(), $v; ($v=$cols[$i]); $i++)
 			$values[] = $v->value;
-		$values = '"' . implode('", "', $values) . '"';			
+		$values = '"' . implode('", "', $values) . '"';
 		// build query
 		$query = "INSERT INTO `$table` VALUES($values)";
 		// execute query
@@ -242,7 +242,7 @@
 			return reflectRow();
 		}
 	}
-	
+
 	function delete() {
 		global $table;
 		// build query
@@ -255,12 +255,12 @@
 			// execute query
 			if (!mysql_query($query) || mysql_affected_rows() != 1)
 				error("failed to perform query: [$query]. " .
-					"Affected rows: " . mysql_affected_rows() .". " . 
+					"Affected rows: " . mysql_affected_rows() .". " .
 					"MySql says: [" . mysql_error() ."]");
-		}	
-		return $deleted;			
+		}
+		return $deleted;
 	}
-	
+
 	// find (full text search)
 	function findData($inFindCol, $inFind, $inOrderBy, $inFullText) {
 		global $table;
@@ -270,7 +270,7 @@
 		// return rows
 		return getArray($result);
 	}
-	
+
 	// binary search through sorted data, supports start point ($inFindFrom) and direction ($inFindForward)
 	function findRow($inData, $inFindFrom=-1, $inFindForward) {
 		$b = -1;
@@ -293,26 +293,26 @@
 				else {
 					$b = $p;
 					break;
-				}	
-			}	
+				}
+			}
 			if ($inFindFrom == $inData[$b][0]) {
 				// add or subtract 1
 				$b = ($inFindForward ? ($b+1 > $l-1 ? 0 : $b+1) : ($b-1 < 0 ? $l-1 : $b-1) );
-			}	
+			}
 			else if (!$inFindForward)
 				// subtract 1
 				$b = ($b-1 < 0 ? $l-1 : $b-1);
-		}	
+		}
 		return $inData[$b][0];
 	}
-	
+
 	function buildFindWhere($inFindData, $inKey, $inCol) {
 		$o = Array();
 		foreach($inFindData as $row)
 			$o[] = $inCol . "='" . $row[$inKey] . "'";
 		return (count($o) ? ' WHERE ' . implode(' OR ', $o) : '');
 	}
-		
+
 	function find($inFindCol, $inFind='', $inOb='', $inFindFrom=0, $inFindForward=true, $inFullText=true) {
 		global $table;
 		// build order by clause
@@ -326,7 +326,7 @@
 		if (!$inFind)
 			$inFind = getPostString('findText');
 		if (!$inFindCol)
-			$inFindCol = getPostString('findCol');	
+			$inFindCol = getPostString('findCol');
 		if (empty($inFindFrom))
 			$inFindFrom = getPostString('findFrom');
 		$ff = getPostString('findForward');
@@ -334,8 +334,8 @@
 			$inFindForward = (strtolower($ff) == 'true' ? true : false);
 		$ft = getPostString('findFullText');
 		if ($ft)
-			$inFullText = (strtolower($ft) == 'true' ? true : false);	
-		
+			$inFullText = (strtolower($ft) == 'true' ? true : false);
+
 		// get find data
 		$f = findData($inFindCol, $inFind, $orderby,  $inFullText);
 		$pk = getPk();
@@ -346,14 +346,14 @@
 		mysql_query('SET @row = -1;');
 		if (!$result = mysql_query($query))
 			error("failed to perform query: $query. " . mysql_error());
-		
-		// return row number 
+
+		// return row number
 		return findRow(getArray($result), $inFindFrom, $inFindForward);
 	}
-	
+
 	// our command list
-	$cmds = array( 
-		"count" => "rowcount", 
+	$cmds = array(
+		"count" => "rowcount",
 		"select" => "select",
 		"update" => "update",
 		"insert" => "insert",
@@ -364,15 +364,15 @@
 		"columns" => "getColumns",
 		"info" => "getTableInfo"
 	);
-		
+
 	// process input params
 	$cmd = @$_POST["command"];
-	
+
 	//$cmd="select";
-	
+
 	// dispatch command
 	$func = @$cmds[$cmd];
-	if (function_exists($func)) 
+	if (function_exists($func))
 		echoJson(call_user_func($func));
 	else
 		error("bad command");

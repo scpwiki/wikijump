@@ -525,7 +525,7 @@ $result = $cache->foobar2('1', '2');
                               <entry><code>string</code></entry>
                               <entry><code>Zend_Cache_Frontend_File::MODE_OR</code></entry>
                               <entry>
-                                  <code>Zend_Cache_Frontend_File::MODE_AND</code> or <code>Zend_Cache_Frontend_File::MODE_OR</code> ; 
+                                  <code>Zend_Cache_Frontend_File::MODE_AND</code> or <code>Zend_Cache_Frontend_File::MODE_OR</code> ;
                                   if <code>MODE_AND</code>, then all master files have to be touched to get a cache invalidation
                                   if <code>MODE_OR</code>, then a single touched master file is enough to get a cache invalidation
                               </entry>

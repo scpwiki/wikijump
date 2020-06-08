@@ -15,8 +15,8 @@
         <programlisting role="php"><![CDATA[
 <?php $this->placeholder('foo')->set("Some text for later") ?>
 
-<?php 
-    echo $this->placeholder('foo'); 
+<?php
+    echo $this->placeholder('foo');
     // outputs "Some text for later"
 ?>
 ]]></programlisting>
@@ -58,15 +58,15 @@
 
         <programlisting role="php"><![CDATA[
 <!-- later view script -->
-<?php 
+<?php
 $this->placeholder('foo')->setPrefix("<ul>\n    <li>")
-                         ->setSeparator("</li><li>\n") 
+                         ->setSeparator("</li><li>\n")
                          ->setIndent(4)
                          ->setPostfix("</li></ul>\n");
 ?>
 
-<?php 
-    echo $this->placeholder('foo'); 
+<?php
+    echo $this->placeholder('foo');
 	//输出一个带有漂亮缩进的HTML无序列表
 ?>
 ]]></programlisting>
@@ -119,12 +119,12 @@ echo $foo['bar'];
 
         <programlisting role="php"><![CDATA[
 <!-- Default capture: append -->
-<?php $this->placeholder('foo')->captureStart(); 
+<?php $this->placeholder('foo')->captureStart();
 foreach ($this->data as $datum): ?>
 <div class="foo">
     <h2><?= $datum->title ?></h2>
     <p><?= $datum->content ?></p>
-</div> 
+</div>
  <?php endforeach; ?>
 <?php $this->placeholder('foo')->captureEnd() ?>
 
@@ -138,7 +138,7 @@ foreach ($this->data as $datum): ?>
 <div class="foo">
     <h2><?= $datum->title ?></h2>
     <p><?= $datum->content ?></p>
-</div> 
+</div>
  <?php endforeach; ?>
 <?php $this->placeholder('foo')->captureEnd() ?>
 

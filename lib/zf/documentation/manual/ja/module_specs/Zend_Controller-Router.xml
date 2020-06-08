@@ -79,11 +79,11 @@ RewriteRule ^[\w/\%]*(?:\.(?!(?:js|ico|gif|jpg|png|css|html)$)[\w\%]*$)? /index.
                  <rule name="Imported Rule 1" stopProcessing="true">
                      <match url="^.*$" />
                      <conditions logicalGrouping="MatchAny">
-                         <add input="{REQUEST_FILENAME}" 
-                             matchType="IsFile" pattern="" 
+                         <add input="{REQUEST_FILENAME}"
+                             matchType="IsFile" pattern=""
                              ignoreCase="false" />
-                         <add input="{REQUEST_FILENAME}" 
-                             matchType="IsDirectory" 
+                         <add input="{REQUEST_FILENAME}"
+                             matchType="IsDirectory"
                              pattern="" ignoreCase="false" />
                      </conditions>
                      <action type="None" />

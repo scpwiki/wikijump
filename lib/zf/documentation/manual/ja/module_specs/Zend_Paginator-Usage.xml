@@ -30,14 +30,14 @@
                     <row>
                         <entry>DbSelect</entry>
                         <entry>
-                            <link linkend="zend.db.select"><code>Zend_Db_Select</code></link> 
+                            <link linkend="zend.db.select"><code>Zend_Db_Select</code></link>
                             のインスタンスを使用し、配列を返します。
                         </entry>
                     </row>
                     <row>
                         <entry>DbTableSelect</entry>
                         <entry>
-                            <link linkend="zend.db.table.fetch-all"><code>Zend_Db_Table_Select</code></link> 
+                            <link linkend="zend.db.table.fetch-all"><code>Zend_Db_Table_Select</code></link>
                             のインスタンスを使用し、
                             <code>Zend_Db_Table_Rowset_Abstract</code>
                             のインスタンスを返します。
@@ -48,7 +48,7 @@
                     <row>
                         <entry>Iterator</entry>
                         <entry>
-                            <ulink url="http://www.php.net/~helly/php/ext/spl/interfaceIterator.html"><code>Iterator</code></ulink> 
+                            <ulink url="http://www.php.net/~helly/php/ext/spl/interfaceIterator.html"><code>Iterator</code></ulink>
                             のインスタンスを使用します。
                         </entry>
                     </row>
@@ -159,7 +159,7 @@ $paginator->setCurrentPageNumber($this->_getParam('page'));
 
         <para>
             それ以外にもオプションがあります。詳細は
-            <link linkend="zend.paginator.configuration">設定</link> 
+            <link linkend="zend.paginator.configuration">設定</link>
             を参照ください。
         </para>
 
@@ -403,7 +403,7 @@ See http://developer.yahoo.com/ypatterns/pattern.php?pattern=searchpagination
   <?php endif; ?>
 <?php endforeach; ?>
 
-<!-- 次のページへのリンク --> 
+<!-- 次のページへのリンク -->
 <?php if (isset($this->next)): ?>
   <a href="<?= $this->url(array('page' => $this->next)); ?>">
     Next &gt;
@@ -421,7 +421,7 @@ See http://developer.yahoo.com/ypatterns/pattern.php?pattern=searchpagination
                 項目のページ処理
 
                 <programlisting role="php"><![CDATA[
-<!-- 
+<!--
 See http://developer.yahoo.com/ypatterns/pattern.php?pattern=itempagination
 -->
 

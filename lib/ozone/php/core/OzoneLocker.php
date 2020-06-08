@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Db
  * @version $Id$
@@ -33,7 +33,7 @@
 class OzonePGLocker {
 	// use separate database connection
 	public static $connection;
-	
+
 	public static function lock($key){
 		if(self::$connection == null){
 			$connectionString = "host=".$this->server." port=".$this->port." dbname=".$this->database." user=".$this->user." password=".$this->password;
@@ -48,14 +48,14 @@ class OzonePGLocker {
 			$q2 = "INSERT INTO ozone_lock (key) VALUES ('".db_escape_string($key)."')";
 			pg_query($q2);
 			// try again. I hope no 2 concurent inserts will be done at the some time... :-(
-			$r = pg_query($q);	
+			$r = pg_query($q);
 		}
 		return true;
-			
+
 	}
-	
+
 	public static function release($key){
-			
+
 	}
-	
+
 }

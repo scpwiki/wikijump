@@ -105,11 +105,11 @@
                           <entry><code>int</code></entry>
                           <entry><code>100</code></entry>
                           <entry>
-                              wewnętrzny maksymalny rozmiar tablicy danych meta 
-                              (nie zmieniaj tej wartości jeśli nie jesteś do 
+                              wewnętrzny maksymalny rozmiar tablicy danych meta
+                              (nie zmieniaj tej wartości jeśli nie jesteś do
                               końca pewien co robisz)
                           </entry>
-                      </row>      
+                      </row>
                   </tbody>
               </tgroup>
           </table>
@@ -280,8 +280,8 @@
         </para>
         <para>
             Gdy określasz nazwę tego backendu podczas użycia metody
-            <code>Zend_Cache::factory()</code>, wstaw pomiędzy słowami 'Zend' 
-            oraz 'Platform' jeden z dozwolonych separatorów wyrazów -- '-', 
+            <code>Zend_Cache::factory()</code>, wstaw pomiędzy słowami 'Zend'
+            oraz 'Platform' jeden z dozwolonych separatorów wyrazów -- '-',
             '.', ' ', lub '_':
         </para>
         <programlisting role="php"><![CDATA[

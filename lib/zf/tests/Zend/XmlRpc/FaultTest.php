@@ -10,7 +10,7 @@ require_once 'PHPUnit/Framework/IncompleteTestError.php';
  * @subpackage UnitTests
  * @version $Id: FaultTest.php 5279 2007-06-13 14:11:19Z matthew $
  */
-class Zend_XmlRpc_FaultTest extends PHPUnit_Framework_TestCase 
+class Zend_XmlRpc_FaultTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Zend_XmlRpc_Fault object
@@ -21,7 +21,7 @@ class Zend_XmlRpc_FaultTest extends PHPUnit_Framework_TestCase
     /**
      * Setup environment
      */
-    public function setUp() 
+    public function setUp()
     {
         $this->_fault = new Zend_XmlRpc_Fault();
     }
@@ -29,7 +29,7 @@ class Zend_XmlRpc_FaultTest extends PHPUnit_Framework_TestCase
     /**
      * Teardown environment
      */
-    public function tearDown() 
+    public function tearDown()
     {
         unset($this->_fault);
     }
@@ -142,8 +142,8 @@ class Zend_XmlRpc_FaultTest extends PHPUnit_Framework_TestCase
 
     /**
      * helper for saveXML() and __toString() tests
-     * 
-     * @param string $xml 
+     *
+     * @param string $xml
      * @return void
      */
     protected function _testXmlFault($xml)

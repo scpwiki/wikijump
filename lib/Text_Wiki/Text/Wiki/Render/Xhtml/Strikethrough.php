@@ -20,7 +20,7 @@
  * @link       http://pear.php.net/package/Text_Wiki
  */
 class Text_Wiki_Render_Xhtml_Strikethrough extends Text_Wiki_Render {
-    
+
     public $conf = array('css' => null);
 
     /**
@@ -35,12 +35,12 @@ class Text_Wiki_Render_Xhtml_Strikethrough extends Text_Wiki_Render {
      * @return string The text rendered from the token options.
      *
      */
-    
+
     function token($options) {
         if ($options['type'] == 'start') {
             return '<span style="text-decoration: line-through;">';
         }
-        
+
         if ($options['type'] == 'end') {
             return '</span>';
         }

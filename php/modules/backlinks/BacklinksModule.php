@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -28,13 +28,13 @@ use DB\PagePeer;
 
 class BacklinksModule extends SmartyModule {
 	public function build($runData){
-	
+
 		$pageId = $runData->getParameterList()->getParameterValue("page_id");
-		
+
 		if(!$pageId || !is_numeric($pageId)){
-			throw new ProcessException(_("The page can not be found or does not exist."), "no_page");	
+			throw new ProcessException(_("The page can not be found or does not exist."), "no_page");
 		}
-		
+
 		// create a very custom query ;-)
 		$c = new Criteria();
 		$q = "SELECT page_id, title, unix_name FROM page_link, page " .
@@ -42,19 +42,19 @@ class BacklinksModule extends SmartyModule {
 				"AND page_link.from_page_id=page.page_id ORDER BY COALESCE(title, unix_name)";
 
 		$c->setExplicitQuery($q);
-		
+
 		$pages = PagePeer::instance()->select($c);
-		
+
 		$q = "SELECT page_id, title, unix_name FROM page, page_inclusion " .
 				"WHERE page_inclusion.included_page_id='".db_escape_string($pageId)."' " .
 				"AND page_inclusion.including_page_id=page.page_id ORDER BY COALESCE(title, unix_name)";
 
 		$c->setExplicitQuery($q);
-		
+
 		$pagesI = PagePeer::instance()->select($c);
 
 		$runData->contextAdd("pagesI",$pagesI);
-		
+
 		$runData->contextAdd("pages",$pages);
 		$runData->contextAdd("pagesCount", count($pages));
 	}

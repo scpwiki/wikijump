@@ -134,7 +134,7 @@ class ErrorController extends Zend_Controller_Action
                 // ... get some output to display...
                 break;
             default:
-                // application error; display error page, but don't 
+                // application error; display error page, but don't
                 // change status code
                 break;
         }
@@ -176,7 +176,7 @@ public function errorAction()
                         '/tmp/applicationException.log'
                     )
                 );
-                $log->debug($exception->getMessage() . "\n" .  
+                $log->debug($exception->getMessage() . "\n" .
                             $exception->getTraceAsString());
                 break;
         }

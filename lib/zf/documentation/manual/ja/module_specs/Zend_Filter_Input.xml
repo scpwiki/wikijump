@@ -541,11 +541,11 @@ $input->setDefaultEscapeFilter(new Zend_Filter_StringTrim());
             </para>
 
             <programlisting role="php"><![CDATA[
-$filters = array( 
-    'month' => array( 
-        'Digits',        // 数値インデックスのフィルタ名 [0] 
-        'fields' => 'mo' // 文字列インデックスのフィールド名 ['fields'] 
-    ) 
+$filters = array(
+    'month' => array(
+        'Digits',        // 数値インデックスのフィルタ名 [0]
+        'fields' => 'mo' // 文字列インデックスのフィールド名 ['fields']
+    )
 );
 ]]>
             </programlisting>

@@ -23,7 +23,7 @@ $progressBar = new Zend_ProgressBar(0, $fileSize, $adapter);
 
 while (!feof($fp)) {
     // Faire quelque chose
-    
+
     $progressBar->update($currentByteCount);
 }
 

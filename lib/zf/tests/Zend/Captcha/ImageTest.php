@@ -72,7 +72,7 @@ class Zend_Captcha_ImageTest extends PHPUnit_Framework_TestCase
         if(!function_exists("imageftbbox")) {
             $this->markTestSkipped("Image CAPTCHA requires FT fonts support");
         }
-        
+
         if (isset($this->word)) {
             unset($this->word);
         }
@@ -81,11 +81,11 @@ class Zend_Captcha_ImageTest extends PHPUnit_Framework_TestCase
             @mkdir($this->testDir);
         }
         $this->element = new Zend_Form_Element_Captcha('captchaI', array(
-                     'captcha' => array('Image', 
+                     'captcha' => array('Image',
                      'sessionClass' => 'Zend_Captcha_ImageTest_SessionContainer',
                      'imgDir' => $this->testDir,
                      'font' => dirname(__FILE__). '/../Pdf/_fonts/Vera.ttf'
-  
+
             )
         ));
         $this->captcha =  $this->element->getCaptcha();
@@ -105,12 +105,12 @@ class Zend_Captcha_ImageTest extends PHPUnit_Framework_TestCase
                     unlink($file->getPathname());
             }
         }
-        
+
     }
 
     /**
      * Determine system TMP directory
-     * 
+     *
      * @return string
      * @throws Zend_File_Transfer_Exception if unable to determine directory
      */
@@ -148,7 +148,7 @@ class Zend_Captcha_ImageTest extends PHPUnit_Framework_TestCase
         $view->addHelperPath(dirname(__FILE__) . '/../../../../library/Zend/View/Helper');
         return $view;
     }
-    
+
     public function testCaptchaIsRendered()
     {
         $html = $this->element->render($this->getView());
@@ -171,7 +171,7 @@ class Zend_Captcha_ImageTest extends PHPUnit_Framework_TestCase
         $this->assertRegexp("|<img[^>]*?src=\"/images/captcha/$id.png\"|", $html, "Expected $id in HTML:\n" . $html);
     }
 
-    public function testCaptchaHasAlt() 
+    public function testCaptchaHasAlt()
     {
         $html = $this->element->render($this->getView());
 	$this->assertRegexp('|<img[^>]*? alt=""|', $html, "Expected alt= in HTML:\n" . $html);
@@ -179,14 +179,14 @@ class Zend_Captcha_ImageTest extends PHPUnit_Framework_TestCase
         $html = $this->element->render($this->getView());
 	$this->assertRegexp('|<img[^>]*? alt="Test Image"|', $html, "Wrong alt in HTML:\n" . $html);
     }
-    
+
     public function testCaptchaSetSuffix()
     {
         $this->captcha->setSuffix(".jpeg");
         $html = $this->element->render($this->getView());
         $this->assertContains(".jpeg", $html, $html);
     }
-    
+
     public function testCaptchaSetImgURL()
     {
         $this->captcha->setImgURL("/some/other/URL/");
@@ -199,14 +199,14 @@ class Zend_Captcha_ImageTest extends PHPUnit_Framework_TestCase
         $this->element->render($this->getView());
         $this->assertTrue(file_exists($this->testDir."/".$this->captcha->getId().".png"));
     }
-    
+
     public function testCaptchaSetExpiration()
     {
         $this->assertEquals($this->captcha->getExpiration(), 600);
         $this->captcha->setExpiration(3600);
         $this->assertEquals($this->captcha->getExpiration(), 3600);
     }
-    
+
     public function testCaptchaImageCleanup()
     {
         $this->element->render($this->getView());
@@ -219,7 +219,7 @@ class Zend_Captcha_ImageTest extends PHPUnit_Framework_TestCase
 	clearstatcache();
         $this->assertFalse(file_exists($filename), "File $filename was found even after GC");
     }
-    
+
     public function testGenerateReturnsId()
     {
         $id = $this->captcha->generate();
@@ -227,7 +227,7 @@ class Zend_Captcha_ImageTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(is_string($id));
         $this->id = $id;
     }
-    
+
     public function testGetWordReturnsWord()
     {
         $this->captcha->generate();
@@ -250,27 +250,27 @@ class Zend_Captcha_ImageTest extends PHPUnit_Framework_TestCase
 
     public function testAdapterElementName()
     {
-        $this->assertEquals($this->captcha->getName(), 
+        $this->assertEquals($this->captcha->getName(),
                     $this->element->getName());
     }
-    
+
     public function testGenerateIsRandomised()
     {
         $id1 = $this->captcha->generate();
         $word1 = $this->captcha->getWord();
         $id2 = $this->captcha->generate();
         $word2 = $this->captcha->getWord();
-        
+
         $this->assertFalse(empty($id1));
         $this->assertFalse(empty($id2));
         $this->assertFalse($id1 == $id2);
         $this->assertFalse($word1 == $word2);
     }
-    
+
     public function testRenderSetsValue()
     {
         $this->testCaptchaIsRendered();
-        $this->assertEquals($this->captcha->getId(), 
+        $this->assertEquals($this->captcha->getId(),
                 $this->element->getValue());
     }
 
@@ -294,7 +294,7 @@ class Zend_Captcha_ImageTest extends PHPUnit_Framework_TestCase
         $input = array($this->element->getName() => array("id" => $this->captcha->getId(), "input" => $this->captcha->getWord()));
         $this->assertTrue($this->element->isValid("", $input));
     }
-    
+
     public function testMissingNotValid()
     {
         $this->testCaptchaIsRendered();
@@ -302,7 +302,7 @@ class Zend_Captcha_ImageTest extends PHPUnit_Framework_TestCase
         $input = array($this->element->getName() => array("input" => "blah"));
         $this->assertFalse($this->element->isValid("", $input));
     }
-    
+
     public function testWrongWordNotValid()
     {
         $this->testCaptchaIsRendered();

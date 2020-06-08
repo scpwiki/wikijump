@@ -49,7 +49,7 @@ class Zend_Controller_FrontTest extends PHPUnit_Framework_TestCase
         $this->_controller->setControllerDirectory(dirname(__FILE__) . DIRECTORY_SEPARATOR . '_files')
                           ->setParam('noErrorHandler', true)
                           ->setParam('noViewRenderer', true)
-                          ->returnResponse(true) 
+                          ->returnResponse(true)
                           ->throwExceptions(false);
         Zend_Controller_Action_HelperBroker::resetHelpers();
     }
@@ -403,7 +403,7 @@ class Zend_Controller_FrontTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test that a set base URL is pushed to the request during the dispatch 
+     * Test that a set base URL is pushed to the request during the dispatch
      * process
      */
     public function testBaseUrlPushedToRequest()
@@ -576,7 +576,7 @@ class Zend_Controller_FrontTest extends PHPUnit_Framework_TestCase
         $this->assertNotEquals($controllerDirs, $test);
         $this->assertFalse(array_key_exists('foo', $test));
     }
-    
+
     public function testAddModuleDirectoryThrowsExceptionForInvalidDirectory()
     {
         $moduleDir = 'doesntexist';
@@ -619,7 +619,7 @@ class Zend_Controller_FrontTest extends PHPUnit_Framework_TestCase
     {
         $this->assertFalse($this->_controller->hasPlugin('Zend_Controller_Plugin_ErrorHandler'));
         $request = new Zend_Controller_Request_Http('http://example.com/index/index');
-        $this->_controller->setParam('noErrorHandler', false) 
+        $this->_controller->setParam('noErrorHandler', false)
                           ->setResponse(new Zend_Controller_Response_Cli());
         $response = $this->_controller->dispatch($request);
 
@@ -630,7 +630,7 @@ class Zend_Controller_FrontTest extends PHPUnit_Framework_TestCase
     {
         $this->assertFalse($this->_controller->hasPlugin('Zend_Controller_Plugin_ErrorHandler'));
         $request = new Zend_Controller_Request_Http('http://example.com/index/index');
-        $this->_controller->setParam('noErrorHandler', true) 
+        $this->_controller->setParam('noErrorHandler', true)
                           ->setResponse(new Zend_Controller_Response_Cli());
         $response = $this->_controller->dispatch($request);
 

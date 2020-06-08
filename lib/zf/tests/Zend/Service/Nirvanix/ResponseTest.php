@@ -18,7 +18,7 @@
  * @copyright  Copyright (c) 2005-2008 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
- 
+
 /**
  * @see Zend_Service_Nirvanix_Response
  */
@@ -34,7 +34,7 @@ require_once 'Zend/Service/Nirvanix/Response.php';
 class Zend_Service_Nirvanix_ResponseTest extends PHPUnit_Framework_TestCase
 {
     // Constructor
-    
+
     public function testThrowsWhenInputStringIsNotXML()
     {
         $notXml = 'foo';
@@ -68,7 +68,7 @@ class Zend_Service_Nirvanix_ResponseTest extends PHPUnit_Framework_TestCase
         } catch (Zend_Service_Nirvanix_Exception $e) {
             $this->assertEquals(42, $e->getCode());
             $this->assertEquals('foo', $e->getMessage());
-        }        
+        }
     }
 
     // getSxml()
@@ -99,7 +99,7 @@ class Zend_Service_Nirvanix_ResponseTest extends PHPUnit_Framework_TestCase
     }
 
     // __call()
-    
+
     public function testUndefinedMethodIsDelegatedToSimpleXMLElement()
     {
         $xml = "<?xml version='1.0'?>
@@ -108,7 +108,7 @@ class Zend_Service_Nirvanix_ResponseTest extends PHPUnit_Framework_TestCase
                     <foo>bar</foo>
                   </Response>";
         $resp = new Zend_Service_Nirvanix_Response($xml);
-        $this->assertEquals('Response', $resp->getName());        
+        $this->assertEquals('Response', $resp->getName());
     }
-    
+
 }

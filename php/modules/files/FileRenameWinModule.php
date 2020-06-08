@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -28,11 +28,11 @@ use DB\FilePeer;
 use DB\PagePeer;
 
 class FileRenameWinModule extends SmartyModule {
-	
+
 	public function build($runData){
 		$pl = $runData->getParameterList();
 		$fileId = $pl->getParameterValue("file_id");
-		
+
 		$file = FilePeer::instance()->selectByPrimaryKey($fileId);
 		if($file == null || $file->getSiteId() != $runData->getTemp("site")->getSiteId()){
 			throw new ProcessException(_("Error getting file information."), "no_file");
@@ -46,9 +46,9 @@ class FileRenameWinModule extends SmartyModule {
 		// now check for permissions!!!
 		$user = $runData->getUser();
 		WDPermissionManager::instance()->hasPagePermission('rename_file', $user, $category);
-		
+
 		$runData->contextAdd("file", $file);
-			
+
 	}
-	
+
 }

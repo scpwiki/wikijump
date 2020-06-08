@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -31,17 +31,17 @@ use ProcessExcepion;
 use DB\EmailListSubscriberPeer;
 
 class ManageSiteEmailListsAction extends SmartyAction {
-	
+
 	public function isAllowed($runData){
-		WDPermissionManager::instance()->hasPermission('manage_site', $runData->getUser(), $runData->getTemp("site"));	
-		
+		WDPermissionManager::instance()->hasPermission('manage_site', $runData->getUser(), $runData->getTemp("site"));
+
 		return true;
 	}
-	
+
 	public function perform($r){}
-	
+
 	public function saveListEvent($runData){
-		
+
 		$pl =  $runData->getParameterList();
 		$site = $runData->getTemp("site");
 		$siteId = $site->getSiteId();
@@ -51,7 +51,7 @@ class ManageSiteEmailListsAction extends SmartyAction {
 		$listTitle = trim($pl->getParameterValue('title'));
 		$listUnixName = trim($pl->getParameterValue('unixName'));
 		$listWhoCanJoin = trim($pl->getParameterValue('whoCanJoin'));
-		
+
 		if(strlen($listTitle) > 30){
 			throw new ProcessException('List title can not be longer than 30 characters');
 		}
@@ -64,10 +64,10 @@ class ManageSiteEmailListsAction extends SmartyAction {
 		if(strlen($listUnixName) == 0){
 			throw new ProcessException('Unix name (address) of the list should be provided.');
 		}
-		
+
 		$db = Database::connection();
 		$db->begin();
-		
+
 		$list = null;
 		if($isNew){
 			$list = new DB_EmailList();
@@ -81,16 +81,16 @@ class ManageSiteEmailListsAction extends SmartyAction {
 		$list->setTitle($listTitle);
 		$list->setUnixName($listUnixName);
 		$list->setWhoCanJoin($listWhoCanJoin);
-		
+
 		try{
 			$list->save();
 		}catch(Excepion $e){
 			throw new ProcessExcepion("List cannot be saved.");
-		}	
+		}
 		$db->commit();
-		
+
 	}
-	
+
 	public function unsubscribeEvent($runData){
 		$pl =  $runData->getParameterList();
 		$site = $runData->getTemp("site");
@@ -100,18 +100,18 @@ class ManageSiteEmailListsAction extends SmartyAction {
 		$c = new Criteria();
 		$c->add('list_id', $listId);
 		$c->add('site_id', $site->getSiteId());
-		
+
 		$db = Database::connection();
 		$db->begin();
 		$list = DB_EmailListPeer::instance()->selectOne($c);
 		if(!$list){
 			throw new ProcessException('The requested list  cannot be found.');
 		}
-		
+
 		$c = new Criteria();
 		$c->add('list_id', $listId);
 		$c->add('user_id', $userId);
-		
+
 		DB_EmailListSubscriberPeer::instance()->delete($c);
 		$list->calculateSubscriberCount();
 		$list->save();

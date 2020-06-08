@@ -14,7 +14,7 @@
 	border-left: solid black 1px;
 	display:inline;
 	position:static !important;
-	border:0 !important;	
+	border:0 !important;
 	margin:0 !important;
 	vertical-align:top !important;
 	visibility:visible !important;
@@ -70,12 +70,12 @@
 	border-width: 0px 1px 0px 0px;
 }
 .tundra .dojoxFilePickerTextBoxDisabled {
-	border-color: #d5d5d5 #d5d5d5 #bdbdbd #d5d5d5; 
+	border-color: #d5d5d5 #d5d5d5 #bdbdbd #d5d5d5;
 	background:#e4e4e4 url("../../../dijit/themes/tundra/images/buttonDisabled.png") top repeat-x;
 }
 .tundra .dojoxFilePickerTextBoxHover .dijitDownArrowButton {
-	border-color:		#a5beda; 
-	border-bottom-color:#5c7590; 
+	border-color:		#a5beda;
+	border-bottom-color:#5c7590;
 	color:#000;
 	background:#fcfdff url("../../../dijit/themes/tundra/images/buttonHover.png") repeat-x bottom;
 }

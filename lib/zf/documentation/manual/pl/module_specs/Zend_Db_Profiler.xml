@@ -37,17 +37,17 @@ $db->getProfiler()->setEnabled(false);
 $db->getProfiler()->setEnabled(true);
 ]]>
         </programlisting>
-        
+
         <para>
             Wartość opcji '<code>profiler</code>' jest dość elastyczna. Jest
-            ona interpretowana zależnie id jej typu. W większości przypadków 
+            ona interpretowana zależnie id jej typu. W większości przypadków
             powinieneś użyć wartości logicznej, ale inne typy pozwalają na
             dostosowanie zachowania profilera do własnych potrzeb.
         </para>
 
         <para>
             Parametr logiczny włącza profiler jeśli ma wartość
-            <code>true</code>, lub wyłącza jeśli ma wartość <code>false</code>.  
+            <code>true</code>, lub wyłącza jeśli ma wartość <code>false</code>.
             Klasą profilera domyślnie jest klasa <code>Zend_Db_Profiler</code>.
             <programlisting role="php"><![CDATA[
 $params['profiler'] = true;
@@ -58,7 +58,7 @@ $db = Zend_Db::factory('PDO_MYSQL', $params);
 
         <para>
             Przekazanie instancji obiektu profilera powoduje jej użycie przez
-            sterownik bazy danych. Musi to być obiekt klasy 
+            sterownik bazy danych. Musi to być obiekt klasy
             <code>Zend_Db_Profiler</code> lub klasy ją rozszerzającej. Aktywacja
             profilera odbywa się osobno.
             <programlisting role="php"><![CDATA[
@@ -77,7 +77,7 @@ $db = Zend_Db::factory('PDO_MYSQL', $params);
             logicznej, a '<code>instance</code>' wartości instancji, obie są
             opisane powyżej. Klucz '<code>class</code>' jest używany do podania
             nazwy klasy jaka ma być użyta we własnym profilerze. Musi być to
-            obiekt klasy <code>Zend_Db_Profiler</code> lub klasy ją rozszerzającej. 
+            obiekt klasy <code>Zend_Db_Profiler</code> lub klasy ją rozszerzającej.
             Instancja klasy jest tworzona bez żadnych argumentów. Opcja
             '<code>class</code>' jest ingorowana jeśli podana jest opcja
             '<code>instance</code>'.
@@ -92,7 +92,7 @@ $db = Zend_Db::factory('PDO_MYSQL', $params);
         </para>
 
         <para>
-            Ostatecznie, argument może być obiektem klasy <code>Zend_Config</code> 
+            Ostatecznie, argument może być obiektem klasy <code>Zend_Config</code>
             zawierającym właściwości, które są traktowane jako klucze tablicy
             opisane powyżej. Przykładowo plik "config.ini" może zawierać
             następujące dane:
@@ -111,7 +111,7 @@ $params['profiler'] = $config->db->profiler;
 $db = Zend_Db::factory('PDO_MYSQL', $params);
 ]]>
             </programlisting>
-            
+
             Właściwość '<code>instance</code>' może być użyta w następujący sposób:
             <programlisting role="php"><![CDATA[
 $profiler = new MyProject_Db_Profiler();
@@ -126,7 +126,7 @@ $db = Zend_Db::factory('PDO_MYSQL', $params);
             </programlisting>
 
         </para>
-        
+
     </sect2>
 
     <sect2 id="zend.db.profiler.using">
@@ -194,7 +194,7 @@ $profiler = $db->getProfiler();
             <listitem>
                 <para>
                     Metoda <code>getQuery()</code> zwraca tekst SQL zapytania.
-                    Tekst przygotowanego zapytania SQL z parametrami jest 
+                    Tekst przygotowanego zapytania SQL z parametrami jest
                     tekstem w takiej postaci w jakiej był on przygotowany, więc
                     zawiera on etykiety, a nie wartości użyte podczas wykonania
                     zapytania.
@@ -202,10 +202,10 @@ $profiler = $db->getProfiler();
             </listitem>
             <listitem>
                 <para>
-                    Metoda <code>getQueryParams()</code> zwraca tablicę wartości 
-                    parametrów użytych podczas wykonania przygotowanego 
-                    zapytania. Odnosi się to do parametrów oraz do argumentów 
-                    metody <code>execute()</code>. Klucze tablicy są oparte na 
+                    Metoda <code>getQueryParams()</code> zwraca tablicę wartości
+                    parametrów użytych podczas wykonania przygotowanego
+                    zapytania. Odnosi się to do parametrów oraz do argumentów
+                    metody <code>execute()</code>. Klucze tablicy są oparte na
                     pozycji (od 1 w górę) lub nazwane (łańcuchy znaków).
                 </para>
             </listitem>

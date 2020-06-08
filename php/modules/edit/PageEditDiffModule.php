@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -28,27 +28,27 @@ use DB\PageRevisionPeer;
 use Wikidot\Util\Diff;
 
 class PageEditDiffModule extends SmartyModule {
-	
+
 	public function build($runData){
 		$pl = $runData->getParameterList();
 		$toPageSource = $pl->getParameterValue("source");
 		$mode = $pl->getParameterValue("mode");
 		$revisionId = $pl->getParameterValue("revision_id");
-		
+
 		$revision = PageRevisionPeer::instance()->selectByPrimaryKey($revisionId);
 		$fromPageSource = $revision->getSourceText();
-		
+
 		if($mode == "section"){
 			// compare only a fragment...
 			$rangeStart = $pl->getParameterValue("range_start");
 			$rangeEnd = $pl->getParameterValue("range_end");
-			
+
 			$s2 = explode("\n", $fromPageSource);
-			$fromPageSource = implode("\n", array_slice($s2, $rangeStart, $rangeEnd-$rangeStart+1));	
+			$fromPageSource = implode("\n", array_slice($s2, $rangeStart, $rangeEnd-$rangeStart+1));
 		}
 
 		// create page diff... wooo...
-		
+
 		$t1 = $fromPageSource;
 		$t2 = $toPageSource;
 
@@ -56,5 +56,5 @@ class PageEditDiffModule extends SmartyModule {
 		$runData->contextAdd("diff", $inlineDiff	);
 
 	}
-	
+
 }

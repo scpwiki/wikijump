@@ -69,17 +69,17 @@ class Zend_Uri_HttpTest extends PHPUnit_Framework_TestCase
 
         foreach ($tests as $uri) {
             $obj = Zend_Uri_Http::fromString($uri);
-            $this->assertEquals($uri, $obj->getUri(), 
+            $this->assertEquals($uri, $obj->getUri(),
                 "getUri() returned value that differs from input for $uri");
         }
     }
-    
+
     /**
      * Make sure an exception is thrown when trying to use fromString() with a
      * non-HTTP scheme
-     * 
+     *
      * @see http://framework.zend.com/issues/browse/ZF-4395
-     * 
+     *
      * @expectedException Zend_Uri_Exception
      */
     public function testFromStringInvalidScheme()
@@ -219,13 +219,13 @@ class Zend_Uri_HttpTest extends PHPUnit_Framework_TestCase
             'http://example.com/?q=\\',
             'http://example.com/?q=^',
             'http://example.com/?q=`',
-        ); 
-        
+        );
+
         foreach ($unwise as $uri) {
             $this->assertFalse(Zend_Uri::check($uri), "failed for URI $uri");
         }
     }
-    
+
     /**
      * Test that after setting 'allow_unwise' to true unwise characters are
      * accepted
@@ -240,30 +240,30 @@ class Zend_Uri_HttpTest extends PHPUnit_Framework_TestCase
             'http://example.com/?q=\\',
             'http://example.com/?q=^',
             'http://example.com/?q=`',
-        ); 
-        
+        );
+
         Zend_Uri::setConfig(array('allow_unwise' => true));
-        
+
         foreach ($unwise as $uri) {
             $this->assertTrue(Zend_Uri::check($uri), "failed for URI $uri");
         }
-        
+
         Zend_Uri::setConfig(array('allow_unwise' => false));
     }
-    
+
     /**
      * Test that an extremely long URI does not break things up
-     * 
+     *
      * @link http://framework.zend.com/issues/browse/ZF-3712
      */
     public function testVeryLongUriZF3712()
     {
         $uri = file_get_contents(dirname(realpath(__FILE__)) . DIRECTORY_SEPARATOR .
            '_files' . DIRECTORY_SEPARATOR . 'testVeryLongUriZF3712.txt');
-        
+
         $this->_testValidUri($uri);
     }
-    
+
     /**
      * Test a known valid URI
      *

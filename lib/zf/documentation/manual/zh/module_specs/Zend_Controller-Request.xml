@@ -55,7 +55,7 @@
             </note>
 
             <para>
-               特定的超全局变量也可以选择特定的方法来访问，如<code>$_POST['user']</code>可以调用请求对象的<code>getPost('user')</code>访问，<code>getQuery()</code>可以获取<code>$_GET</code>元素，<code>getHeader()</code>可以获取请求消息头。               
+               特定的超全局变量也可以选择特定的方法来访问，如<code>$_POST['user']</code>可以调用请求对象的<code>getPost('user')</code>访问，<code>getQuery()</code>可以获取<code>$_GET</code>元素，<code>getHeader()</code>可以获取请求消息头。
             </para>
 
             <note>
@@ -63,8 +63,8 @@
                 <para>
                     需要注意：在请求对象中访问数据是没有经过任何过滤的，路由器和分发器根据任务来验证过滤数据，但在请求对象中没有任何处理。
                 </para>
-            </note> 
-             
+            </note>
+
               <note>
                 <title> 也获取原始 （Raw） POST 数据！</title>
 
@@ -92,9 +92,9 @@
             <para>
                 如果你希望从你通过 <code>setParam()</code> 设置的参数中获取（参数），使用 <code>getUserParam()</code>。
             </para>
-             
+
             <para>
-                 另外，从 1.5.0 开始，可以锁定搜索哪个参数源，<code>setParamSources()</code> 允许指定一个空数组或者一个带有一个或多个指示哪个参数源被允许（缺省两者都被允许）的值 '_GET'或'_POST'的数组；如果想限制只访问 '_GET'，那么指定 <code>setParamSources(array('_GET'))</code> 。                  
+                 另外，从 1.5.0 开始，可以锁定搜索哪个参数源，<code>setParamSources()</code> 允许指定一个空数组或者一个带有一个或多个指示哪个参数源被允许（缺省两者都被允许）的值 '_GET'或'_POST'的数组；如果想限制只访问 '_GET'，那么指定 <code>setParamSources(array('_GET'))</code> 。
             </para>
 
             <note>
@@ -151,7 +151,7 @@ $response   = $controller->dispatch();
             </programlisting>
 
         </sect3>
-        
+
         <sect3 id="zend.controller.request.http.method">
             <title> 决定请求方式 </title>
 
@@ -172,12 +172,12 @@ $response   = $controller->dispatch();
                 这些基本用例是来创建 RESTful MVC 架构的。
             </para>
         </sect3>
-            
+
         <sect3 id="zend.controller.request.http.ajax">
             <title>删除 AJAX 请求</title>
 
             <para>
-                <code>Zend_Controller_Request_Http</code> 有一个初步的方法用来检测AJAX请求：<code>isXmlHttpRequest()</code>。这个方法寻找一个带有'XMLHttpRequest' 值的HTTP请求头<code>X-Requested-With</code>；如果发现，就返回true。 
+                <code>Zend_Controller_Request_Http</code> 有一个初步的方法用来检测AJAX请求：<code>isXmlHttpRequest()</code>。这个方法寻找一个带有'XMLHttpRequest' 值的HTTP请求头<code>X-Requested-With</code>；如果发现，就返回true。
             </para>
 
             <para>
@@ -295,7 +295,7 @@ abstract class Zend_Controller_Request_Abstract
         </para>
 
         <para>
-	    需要一个请求类来与特定的环境交互以获得需要的数据时，可以扩展该基类或它的衍生类。例如<link linkend="zend.controller.request.http">HTTP环境</link>，CLI环境，或者PHP-GTK环境。 
+	    需要一个请求类来与特定的环境交互以获得需要的数据时，可以扩展该基类或它的衍生类。例如<link linkend="zend.controller.request.http">HTTP环境</link>，CLI环境，或者PHP-GTK环境。
         </para>
     </sect2>
 </sect1>

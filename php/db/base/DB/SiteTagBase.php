@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version \$Id\$
@@ -29,7 +29,7 @@ use BaseDBObject;
 
 
 
- 
+
 /**
  * Base class mapped to the database table site_tag.
  */
@@ -40,42 +40,42 @@ class SiteTagBase extends BaseDBObject {
 		$this->peerName = 'DB\\SiteTagPeer';
 		$this->primaryKeyName = 'tag_id';
 		$this->fieldNames = array( 'tag_id' ,  'site_id' ,  'tag' );
-		
+
 		//$this->fieldDefaultValues=
 	}
 
 
-	
-		
-	
-		
+
+
+
+
 	public function getTagId() {
 		return $this->getFieldValue('tag_id');
 	}
-	
+
 	public function setTagId($v1, $raw=false) {
-		$this->setFieldValue('tag_id', $v1, $raw); 
+		$this->setFieldValue('tag_id', $v1, $raw);
 	}
-	
-		
+
+
 	public function getSiteId() {
 		return $this->getFieldValue('site_id');
 	}
-	
+
 	public function setSiteId($v1, $raw=false) {
-		$this->setFieldValue('site_id', $v1, $raw); 
+		$this->setFieldValue('site_id', $v1, $raw);
 	}
-	
-		
+
+
 	public function getTag() {
 		return $this->getFieldValue('tag');
 	}
-	
+
 	public function setTag($v1, $raw=false) {
-		$this->setFieldValue('tag', $v1, $raw); 
+		$this->setFieldValue('tag', $v1, $raw);
 	}
-	
-		
-	
+
+
+
 
 }

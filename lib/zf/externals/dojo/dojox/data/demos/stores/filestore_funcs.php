@@ -1,9 +1,9 @@
 <?php
 	/**
 	 *  Helper function to convert a simple pattern to a regular expression for matching.
-	 * 
+	 *
 	 *	Returns a regular expression object that conforms to the defined conversion rules.
-	 *		For example:  
+	 *		For example:
 	 *		ca*   -> /^ca.*$/
 	 *		*ca*  -> /^.*ca.*$/
 	 *		*c\*a*  -> /^.*c\*a.*$/
@@ -15,7 +15,7 @@
 	 *			* Means match anything, so ca* means match anything starting with ca
 	 *			? Means match single character.  So, b?b will match to bob and bab, and so on.
 	 *      	\ is an escape character.  So for example, \* means do not treat * as a match, but literal character *.
-	 *  			To use a \ as a character in the string, it must be escaped.  So in the pattern it should be 
+	 *  			To use a \ as a character in the string, it must be escaped.  So in the pattern it should be
 	 *				represented by \\ to be treated as an ordinary \ character instead of an escape.
 	 */
 	function patternToRegExp(/*String*/$pattern){
@@ -64,7 +64,7 @@
 	 * @param $expand boolean to indicate whether or not to inflate all children files along a path/file, or leave them as stubs.
 	 * @param $showHiddenFiles boolean to indicate to return hidden files as part of the list.
 	 */
-	function getAllfiles($dir, $rootDir, $recurse, $dirsOnly, $expand, $showHiddenFiles) { 
+	function getAllfiles($dir, $rootDir, $recurse, $dirsOnly, $expand, $showHiddenFiles) {
 		//  summary:
 		//      A function to obtain all the files in a particular directory (file or dir)
 		$files = array();
@@ -99,12 +99,12 @@
 		return $files;
 	}
 
-	/** 
+	/**
 	 * Function to generate an associative map of data about a specific file.
 	 * @param $file The name of the file this object represents.
 	 * @param $dir The sub-path that contains the file defined by $file
 	 * @param $rootDir The directory from which to append dir and name to get the full path to the file.
-	 * @param $expand boolean to denote that if the file is a directory, expand all children in the children attribute 
+	 * @param $expand boolean to denote that if the file is a directory, expand all children in the children attribute
 	 *        to a a full object
 	 * @param $showHiddenFiles boolean to denote if hidden files should be shown in-view or not.
 	 *
@@ -129,7 +129,7 @@
 
 		$atts = stat($fullPath);
 
-		$rootPath = realPath($rootDir);                                       
+		$rootPath = realPath($rootDir);
 		$resolvedDir = realPath($rootDir."/".$dir);
 		$resolvedFullPath = realPath($fullPath);
 
@@ -228,7 +228,7 @@
 	}
 
 	/**
-	 * A compound comparator class, whose role it is to sequentially call a set of comparators on two objects and 
+	 * A compound comparator class, whose role it is to sequentially call a set of comparators on two objects and
 	 * return the combined result of the comparison.
 	 */
 	class CompoundComparator {
@@ -237,7 +237,7 @@
 
 		/**
 		 * Function to compare two objects $a and $b, using the chain of comparators.
-		 * @param $a The first object to compare.  
+		 * @param $a The first object to compare.
 		 * @param $b The second object to compare.
 		 * @returns -1, 0, 1.  -1 if a < b, 1 if a > b, and 0 if a = b.
 		 */
@@ -335,7 +335,7 @@
 	 * @param attr The attribute of the tem to examine.
 	 * @parma value The value to compare it to.
 	 * @param rExp A regular Expression pattern object generated off 'value' if any.
-	 * 
+	 *
 	 * @returns boolean denoting if the value was matched or not.
 	 */
 	function containsValue($item, $attr, $value, $rExp, $ignoreCase) {
@@ -356,7 +356,7 @@
 					$matched = ($value == $possibleValue);
 				}
 			}
-		}              
+		}
 		return $matched;
 	}
 // No closing PHP tag on purpose.  Do not want it to print whitepace and thus not allow setting headers later.

@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -28,12 +28,12 @@ use DB\SitePeer;
 use DB\EmailListPeer;
 
 class AccountEmailListsModule extends AccountBaseModule {
-	
+
 	public function build($runData){
-		
+
 		$pl = $runData->getParameterList();
 		$totalAll = (bool) $pl->getParameterValue('totalAll');
-		
+
 		$user = $runData->getUser();
 		$c = new Criteria();
 		if($totalAll){
@@ -50,9 +50,9 @@ class AccountEmailListsModule extends AccountBaseModule {
 					"AND email_list_subscriber.list_id = email_list.list_id AND email_list.site_id = site.site_id " .
 					"ORDER BY site.name, email_list.title";
 			$c->setExplicitQuery($q);
-			
+
 			$lists = DB_EmailListPeer::instance()->select($c);
-			
+
 			// sorry  for the DIIIIRTY STYLE!!!
 			$sites = array();
 			foreach($lists as $l){
@@ -69,5 +69,5 @@ class AccountEmailListsModule extends AccountBaseModule {
 		$runData->contextAdd('totalAll', $totalAll);
 		$runData->contextAdd('user', $user);
 	}
-	
+
 }

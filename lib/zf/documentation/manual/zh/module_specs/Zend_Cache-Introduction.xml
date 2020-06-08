@@ -28,9 +28,9 @@ $backendOptions = array(
 );
 
 // 取得一个Zend_Cache_Core 对象
-$cache = Zend_Cache::factory('Core', 
-                             'File', 
-                             $frontendOptions, 
+$cache = Zend_Cache::factory('Core',
+                             'File',
+                             $frontendOptions,
                              $backendOptions);
 ]]>
             </programlisting>
@@ -91,9 +91,9 @@ $frontendOptions = array(
 // 翻译时实验系统为Windows,请使用Windows的读者修改cacheDir的路径为实际的路径
 $backendOptions = array('cache_dir' => './tmp/');
 
-$cache = Zend_Cache::factory('Output', 
-                             'File', 
-                             $frontendOptions, 
+$cache = Zend_Cache::factory('Output',
+                             'File',
+                             $frontendOptions,
                              $backendOptions);
 
 // 传递一个唯一标识符给start()方法

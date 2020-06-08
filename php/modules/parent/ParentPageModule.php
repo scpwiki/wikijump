@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,25 +27,25 @@
 use DB\PagePeer;
 
 class ParentPageModule extends SmartyModule{
-	
+
 	public function build($runData){
 		$pageId = $runData->getParameterList()->getParameterValue("page_id");
-		
+
 		$page = PagePeer::instance()->selectByPrimaryKey($pageId);
 		if($page == null || $page->getSiteId() != $runData->getTemp("site")->getSiteId()){
 			throw new ProcessException(_("Error getting page information."), "no_page");
 		}
-		
+
 		$user = $runData->getUser();
 		// check permissions now
 		$category = $page->getCategory();
 		// now check for permissions!!!
 		WDPermissionManager::instance()->hasPagePermission('edit', $user, $category, $page);
-			
+
 		if($page->getParentPageId() !== null){
 			$parentPage = PagePeer::instance()->selectByPrimaryKey($page->getParentPageId());
 			$runData->contextAdd("parentPageName", $parentPage->getUnixName());
 		}
 	}
-	
+
 }

@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -29,27 +29,27 @@ use DB\PagePeer;
 class AWPagesListModule extends AccountBaseModule {
 
 	public function build($runData){
-		
+
 		$user = $runData->getUser();
-		$runData->contextAdd("user",$user);	
-		
+		$runData->contextAdd("user",$user);
+
 		$pl = $runData->getParameterList();
-		
+
 		// get watched pages for this user
-		
+
 		$c = new Criteria();
-		
+
 		$q = "SELECT page.* FROM watched_page, page " .
 				"WHERE watched_page.user_id='".$user->getUserId()."' " .
 						"AND watched_page.page_id=page.page_id";
-		$c->setExplicitQuery($q);	
-				
+		$c->setExplicitQuery($q);
+
 		$pages = PagePeer::instance()->select($c);
-		
+
 		$runData->contextAdd("pages", $pages);
-		
+
 		$runData->contextAdd("pagesCount", count($pages));
-		
+
 	}
 
 }

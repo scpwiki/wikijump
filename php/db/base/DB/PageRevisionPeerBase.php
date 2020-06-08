@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version \$Id\$
@@ -29,13 +29,13 @@ use BaseDBPeer;
 
 
 
- 
+
 /**
  * Base peer class mapped to the database table page_revision.
  */
 class PageRevisionPeerBase extends BaseDBPeer {
 	public static $peerInstance;
-	
+
 	protected function internalInit(){
 		$this->tableName='page_revision';
 		$this->objectName='DB\\PageRevision';
@@ -44,7 +44,7 @@ class PageRevisionPeerBase extends BaseDBPeer {
 		$this->fieldTypes = array( 'revision_id' => 'serial',  'page_id' => 'int',  'site_id' => 'int',  'source_id' => 'int',  'metadata_id' => 'int',  'flags' => 'varchar(100)',  'flag_text' => 'boolean',  'flag_title' => 'boolean',  'flag_file' => 'boolean',  'flag_rename' => 'boolean',  'flag_meta' => 'boolean',  'flag_new' => 'boolean',  'flag_new_site' => 'boolean',  'since_full_source' => 'int',  'diff_source' => 'boolean',  'revision_number' => 'int',  'date_last_edited' => 'timestamp',  'user_id' => 'int',  'user_string' => 'varchar(80)',  'comments' => 'text');
 		$this->defaultValues = array( 'flag_text' => 'false',  'flag_title' => 'false',  'flag_file' => 'false',  'flag_rename' => 'false',  'flag_meta' => 'false',  'flag_new' => 'false',  'flag_new_site' => 'false',  'since_full_source' => '0',  'diff_source' => 'false',  'revision_number' => '0');
 	}
-	
+
 	public static function instance(){
 		if(self::$peerInstance == null){
 			$className = "DB\\PageRevisionPeer";

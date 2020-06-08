@@ -4,13 +4,13 @@
 
     <para>
         Zend Framework wymaga wersji PHP 5.1.4 lub nowszej, ale Zend zaleca wersję
-        5.2.3 lub wyższą ponieważ w tej drugiej poprawiono wiele krytycznych 
+        5.2.3 lub wyższą ponieważ w tej drugiej poprawiono wiele krytycznych
         błędów w kwestii bezpieczeństwa i wydajności. Więcej na ten temat możesz znaleźć w
         <link linkend="requirements">załączniku opisującym wymagania systemowyme</link>.
     </para>
 
     <para>
-        Instalowanie Zend Framework jest ekstremalnie proste. Po pobraniu i 
+        Instalowanie Zend Framework jest ekstremalnie proste. Po pobraniu i
         rozpakowaniu frameworka powinieneś dodać katalog /library na początek
         dyrektywy include_path. Możesz także przenieść katalog /library w innej
         miejsce np. współdzielone między aplikacjami.
@@ -27,32 +27,32 @@
             <listitem>
                 <para>
                     <ulink url="http://framework.zend.com/download/snapshot">Ściągnij najnowszą wersję
-                    nocną</ulink>. Dla tych odważnych, nocne wersje reprezentują 
-                    ostatnie postępy w rozwoju Zend Framework. Wersje te można 
-                    ściagnąć tylko z angielską dokumentacją lub wraz z 
-                    dokumentacją we wszystkich dostępnych językach. Jeśli nie 
-                    chcesz używać najnowszych wydanych wersji Zend Framework, 
+                    nocną</ulink>. Dla tych odważnych, nocne wersje reprezentują
+                    ostatnie postępy w rozwoju Zend Framework. Wersje te można
+                    ściagnąć tylko z angielską dokumentacją lub wraz z
+                    dokumentacją we wszystkich dostępnych językach. Jeśli nie
+                    chcesz używać najnowszych wydanych wersji Zend Framework,
                     rozważ użycie klienta Subversion (SVN).
                 </para>
             </listitem>
             <listitem>
                 <para>
-                    Używając klienta <ulink url="http://subversion.tigris.org">Subversion</ulink> 
-                    (SVN). Zend Framework jest oprogramowaniem o otwartym kodzie 
-                    źródłówym i repozytorium Subversion używane to jego tworzenia 
-                    jest publicznie dostępne. Rozważ użycie SVN do pobrania 
+                    Używając klienta <ulink url="http://subversion.tigris.org">Subversion</ulink>
+                    (SVN). Zend Framework jest oprogramowaniem o otwartym kodzie
+                    źródłówym i repozytorium Subversion używane to jego tworzenia
+                    jest publicznie dostępne. Rozważ użycie SVN do pobrania
                     Zend Framework jeżeli obecnie używasz SVN do rozwijania swojej
-                    aplikacji, jeżeli chcesz brać udział w rozwoju frameworka lub 
+                    aplikacji, jeżeli chcesz brać udział w rozwoju frameworka lub
                     gdy potrzebujesz aktualizować Zend Framework częściej niż
                     wydawane są jego wersje.
                 </para>
                 <para>
-                    <ulink url="http://svnbook.red-bean.com/nightly/en/svn.ref.svn.c.export.html">Eksportowanie</ulink> 
+                    <ulink url="http://svnbook.red-bean.com/nightly/en/svn.ref.svn.c.export.html">Eksportowanie</ulink>
                     jest przydatne gdy chcesz pobrać określoną wersję bez katalogów <code>.svn</code>,
                     tworzonych w kopii roboczej.
                 </para>
                 <para>
-                    <ulink url="http://svnbook.red-bean.com/nightly/en/svn.ref.svn.c.checkout.html">Pobranie 
+                    <ulink url="http://svnbook.red-bean.com/nightly/en/svn.ref.svn.c.checkout.html">Pobranie
                     kopii roboczej</ulink> jest dobrym rozwiązaniem gdy chcesz brać
                     udział w rozwijaniu Zend Framework i wtedy, gdy chcesz mieć
                     możliwość aktualizowania swojej kopii roboczej za pomocą
@@ -62,7 +62,7 @@
                 <para>
                     <ulink url="http://svnbook.red-bean.com/nightly/en/svn.advanced.externals.html">Definicja
                     zewnętrznych plików</ulink> jest bardzo wygodna dla programistów,
-                    którzy używają SVN do zarządzania kopiami roboczymi swojej 
+                    którzy używają SVN do zarządzania kopiami roboczymi swojej
                     aplikacji.
                 </para>
                 <para>
@@ -85,14 +85,14 @@
     <para>
         Zend zapewnia <ulink url="http://framework.zend.com/docs/quickstart">poradnik Szybki Start</ulink>
         który pozwoli ci na możliwie szybkie zapoznanie się z frameworkiem. Jest to
-        niesamowity sposób rozpoczęcia nauki frameworka, wraz z 
+        niesamowity sposób rozpoczęcia nauki frameworka, wraz z
         realnymi przykładami zastosowania, które możesz wykorzystać.
     </para>
 
     <para>
-        Z tego względu, że komponenty Zend Framework są raczej ze sobą luźno 
+        Z tego względu, że komponenty Zend Framework są raczej ze sobą luźno
         związane, możesz ich użyć w swoich aplikacjach w przeróżnych kombinacjach.
-        Kolejne rozdziały w wyczerpujący sposób opiszą cały framework, komponent 
+        Kolejne rozdziały w wyczerpujący sposób opiszą cały framework, komponent
         po komponencie.
     </para>
 

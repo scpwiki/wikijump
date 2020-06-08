@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -25,16 +25,16 @@
 
 
 class AccountWelcomeModule extends AccountBaseModule {
-	
+
 	public function build($runData){
-		
+
 		$user = $runData->getUser();
 		$runData->contextAdd("user", $user);
-		
+
 		$userId = $user->getUserId();
-		
+
 		$tips = array();
-		
+
 		// check if has an avatar
 		$avatarDir = WIKIDOT_ROOT.'/web/files--common/images/avatars/';
 		$avatarDir .= '' . floor($userId/1000).'/'.$userId;
@@ -44,17 +44,17 @@ class AccountWelcomeModule extends AccountBaseModule {
 			$avatarUri = '/common--images/avatars/'.floor($userId/1000).'/'.$userId.'/a48.png';
 			$avatarUri .= '?'.rand(1,10000);
 			$runData->contextAdd("avatarUri", $avatarUri);
-			
+
 		}else{
-			$hasAvatar = false;	
+			$hasAvatar = false;
 			$tips['avatar'] = true;
 		}
-		
-		$runData->contextAdd("hasAvatar", $hasAvatar);	
+
+		$runData->contextAdd("hasAvatar", $hasAvatar);
 		if(count($tips)>0){
-			$runData->contextAdd("tips", $tips);	
+			$runData->contextAdd("tips", $tips);
 		}
 
 	}
-	
+
 }

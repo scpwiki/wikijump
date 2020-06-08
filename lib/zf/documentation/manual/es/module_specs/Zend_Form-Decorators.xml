@@ -10,15 +10,15 @@
     <para>
     	Un arbitrario número de decoradores pueden estar junto a cada elemento
     	(elements, display groups, sub forms o el objeto form por si mismo);
-    	Sin embargo, solo un decorador de un tipo dado puede estar al lado de cada 
+    	Sin embargo, solo un decorador de un tipo dado puede estar al lado de cada
     	elemento. Los decoradores son llamados en el orden en que han sido introducidos. Dependiendo
-    	del decorador, se puede reemplazar el contenido que se ha pasado o adjunto o 
-    	pre enviado. 
+    	del decorador, se puede reemplazar el contenido que se ha pasado o adjunto o
+    	pre enviado.
     </para>
 
     <para>
         El estado del objeto es determinado via las opciones de configuración pasadas al constructor
-        o el método decorador <code>setOptions()</code>. Cuando se crean 
+        o el método decorador <code>setOptions()</code>. Cuando se crean
         decoradores mediante funciones <code>addDecorator()</code> o métodos relacionados,
         las opciones pueden ser pasadas como argumentos al método. Esto puese ser usado para
         una especifica ubicación, un separador se usa entre el contenido pasado y el
@@ -31,7 +31,7 @@
         dando al decorador conocimiento del item representado. Esto permite
         crear decoradores que solo representan especificas porciones del item
         -- tal como etiquetas, el valor, mensajes de error, etc. Encadenando
-        muchos decoradores que representan especificos segmentos, usted 
+        muchos decoradores que representan especificos segmentos, usted
         puede construir complejos marcados representando al item entero.
     </para>
 
@@ -53,14 +53,14 @@
             <listitem><para>
                     <code>placement</code>: La ubicación puede ser cualquiera de los dos 'append' o
                     'prepend' (caso insensitivo) e indica cualquier contenido
-                    pasado a <code>render()</code> será adjuntado o 
+                    pasado a <code>render()</code> será adjuntado o
                     antepuesto respectivamente. En el caso de que el decorador
                     reemplace el contenido, esta configuración es ignorada. La configuración
                     por defecto es adjuntada.
             </para></listitem>
 
             <listitem><para>
-            		<code>separator</code>: El separator es usado entre el 
+            		<code>separator</code>: El separator es usado entre el
             		contenido pasado a <code>render()</code> y el nuevo contenido
             		generado por el decorador, o entre items generados por el
             		decorador (ejemplo FormElements usa el separador entre cada
@@ -71,7 +71,7 @@
         </itemizedlist>
 
         <para>
-        	La interface del decorador especifica los métodos para interactuar con las 
+        	La interface del decorador especifica los métodos para interactuar con las
         	opciones. Esto incluye:
         </para>
 
@@ -102,7 +102,7 @@
             tipos de clases <code>Zend_Form</code>: <code>Zend_Form</code>,
             <code>Zend_Form_Element</code>, <code>Zend_Form_DisplayGroup</code>,
             y todas las clases derivan de ellas. El método
-            <code>setElement()</code> permite determinar el objeto del 
+            <code>setElement()</code> permite determinar el objeto del
             decorador que esta actualmente trabajando con, y <code>getElement()</code>
             es usado para recuperarlo.
         </para>
@@ -123,7 +123,7 @@
 
         <para>
         	<code>Zend_Form</code> entrega muchos decoradores estándar; ver
-            <link linkend="zend.form.standardDecorators">el capítulo Decoradores 
+            <link linkend="zend.form.standardDecorators">el capítulo Decoradores
             estándar</link> para detalles.
         </para>
     </sect2>
@@ -169,7 +169,7 @@ interface Zend_Decorator_Interface
         <para>
         	Como ejemplo, vamos a decir quue usted quiere reducir el número de
         	decoradores que utiliza, y construir un "compuesto" decorador que cuidó
-        	la etiqueta generadora, elemento, algún mensaje de error, y describir 
+        	la etiqueta generadora, elemento, algún mensaje de error, y describir
         	en HTML <code>div</code>. Usted puede construir como un 'Compuesto'
             decorador como sigue:
         </para>
@@ -279,7 +279,7 @@ $form->addElementPrefixPath('My_Decorator',
         </programlisting>
 
         <para>
-        	Usted puede especificar este decorador como 'Compuesto' y adjuntarlo a 
+        	Usted puede especificar este decorador como 'Compuesto' y adjuntarlo a
         	un elemento:
         </para>
 
@@ -293,16 +293,16 @@ $element->setDecorators(array('Composite'));
         	Mientras este ejemplo mostró cómo crear un decorador que genera
         	salidas complejas de muchas propiedades de elementos, usted puede también crear
         	decoradores que manejen un solo aspecto de un elemento; los decoradores
-        	'Decorador' y 'etiqueta' son excelentes ejemplos para 
+        	'Decorador' y 'etiqueta' son excelentes ejemplos para
         	esta práctica. Hacerlo le permite mezclar y combinar decoradores para llegar
-        	a complejas salidas -- y también anular aspectos de decoración para 
+        	a complejas salidas -- y también anular aspectos de decoración para
         	personalizar sus necesidades.
         </para>
 
         <para>
         	Por ejemplo, si usted quiere simplemente desplegar que un error a ocurrido
-        	cuando validabamos un elemento, pero no desplegar individualmente 
-        	cada uno de los mensajes de error, usted podría crear su propio 
+        	cuando validabamos un elemento, pero no desplegar individualmente
+        	cada uno de los mensajes de error, usted podría crear su propio
         	decorador 'Errores':
         </para>
 
@@ -334,7 +334,7 @@ class My_Decorator_Errors
         	'Errors', se combina como <code>Zend_Form_Decorator_Errors</code>,
             será generado <emphasis>en lugar de</emphasis> el decorador
             -- significa que usted no necesitará cambiar ningún decorador para modificar la
-            salida. Nombrando sus decoradores después de los existentes decoradores 
+            salida. Nombrando sus decoradores después de los existentes decoradores
             estándar, usted puede modificar decoradores sin necesitad de modificar sus
             elementos decoradores.
         </para>

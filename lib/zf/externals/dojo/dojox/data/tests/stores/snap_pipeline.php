@@ -63,7 +63,7 @@ if($_GET["sn_count"]) {
     foreach($slice as $r) {
         $out_rows[] = "[" . join(", ", $r) . "]";
     }
-    
+
     echo join(", ", $out_rows);
     echo "])";
  }

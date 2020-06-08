@@ -8,17 +8,17 @@
 
         <para>
 	    <code>Zend_Db_Profiler</code> sorgularınızın profillenmesine imkan
-	    verir. Profiller bağdaştırıcı tarafından işlenen sorguları hem de 
+	    verir. Profiller bağdaştırıcı tarafından işlenen sorguları hem de
 	    sorguları çalıştırmak için geçen süreyi içerir ve  gerçekleştirilen
 	    sorguların sınıflarınıza ek hata ayıklama kodu eklemeden incelenmesini
 	    mümkün kılar. Ayrıca gelişmiş kullanım geliştiriciye hangi sorguların
 	    profilleneceğini filtrelemeye izin verir.
-	    
+
         </para>
 
         <para>
             Profilleyiciyi (profiler'ı) bağdaştırıcı yapıcısına gerekli direktifi vererek
-	    yada bağdaştırıcıdan sonra etkinleştirmesini isteyerek etkinleştirebilirsiniz.	    
+	    yada bağdaştırıcıdan sonra etkinleştirmesini isteyerek etkinleştirebilirsiniz.
         </para>
 
         <programlisting role="php"><![CDATA[<?php
@@ -47,7 +47,7 @@ $db->getProfiler()->setEnabled(true);]]>
         </para>
 
         <para>
-            Boole argüman <code>true</code> ise profilleyiciyi etkinleştirir , veya <code>false</code> ise 
+            Boole argüman <code>true</code> ise profilleyiciyi etkinleştirir , veya <code>false</code> ise
 	    etkisizleştirir.
 	    Profilleyici sınıfı bağdaştırıcı'nın varsayılan profilleyici sınıfı ,
 	    örneğin <code>Zend_Db_Profiler</code>.
@@ -73,10 +73,10 @@ $db = Zend_Db::factory('PDO_MYSQL', $params);]]>
 	    Argüman '<code>enabled</code>', '<code>instance</code>', ve '<code>class</code>' anahtarlarından herhangi
 	    birini içeren birleşmeli dizi olabilir. '<code>enabled</code>' ve '<code>instance</code>' anahtarları
 	    boole ve yukarıda belgelenen örnek tiplere uyar. '<code>class</code>' anahtarı özel bir profilleyici
-	    kullanmak için bir sınıfı isimlendirmek için kullanılır. Sınıf mutlaka <code>Zend_Db_Profiler</code> veya 
+	    kullanmak için bir sınıfı isimlendirmek için kullanılır. Sınıf mutlaka <code>Zend_Db_Profiler</code> veya
 	    altsınıf olmalı. Sınıfın yapıcı argümanları olmadan intance'ı oluşturuldu. '<code>instance</code>' seçeneği
 	    sağlandığında '<code>class</code>' seçeneği gözardı edilir.
-	    
+
             <programlisting role="php"><![CDATA[
 $params['profiler'] = array(
     'enabled' => true,
@@ -87,10 +87,10 @@ $db = Zend_Db::factory('PDO_MYSQL', $params);]]>
         </para>
 
         <para>
-	    Son olarak argüman  yukarıda açıklandığı gibi dizi anahtarları olarak işlem gören 
-	    özellikler içeren <code>Zend_Config</code> tipinin nesnesi olabilir. Örneğin 
+	    Son olarak argüman  yukarıda açıklandığı gibi dizi anahtarları olarak işlem gören
+	    özellikler içeren <code>Zend_Config</code> tipinin nesnesi olabilir. Örneğin
 	    "config.ini" dosyası takip eden veriyi içerebilir:
-            
+
             <programlisting role="ini"><![CDATA[
 [main]
 db.profiler.class   = "MyProject_Db_Profiler"
@@ -106,7 +106,7 @@ $db = Zend_Db::factory('PDO_MYSQL', $params);]]>
             </programlisting>
 
             '<code>instance</code>' özelliği aşağıdaki gibi kullanılabilir:
-	    
+
             <programlisting role="php"><![CDATA[
 $profiler = new MyProject_Db_Profiler();
 $profiler->setEnabled(true);
@@ -127,7 +127,7 @@ $db = Zend_Db::factory('PDO_MYSQL', $params);]]>
         <title>Profilleyiciyi Kullanma</title>
 
         <para>
-	   Herhangi bir noktada bağdaştırıcının <code>getProfiler()</code> metodu 
+	   Herhangi bir noktada bağdaştırıcının <code>getProfiler()</code> metodu
 	   ile profilleyiciyi yakalayın:
         </para>
 
@@ -137,13 +137,13 @@ $profiler = $db->getProfiler();]]>
 
         <para>
 	    Bu <code>Zend_Db_Profiler</code> nesnesinin instance'ını döndürür.
-	    Bu instance ile geliştirici çeşitli metodlar ile sorgularınızı gözden geçirebilir:            
+	    Bu instance ile geliştirici çeşitli metodlar ile sorgularınızı gözden geçirebilir:
         </para>
 
         <itemizedlist>
             <listitem>
                 <para>
-		    <code>getTotalNumQueries()</code> profillenen sorguların toplam adedini döndürür.                    
+		    <code>getTotalNumQueries()</code> profillenen sorguların toplam adedini döndürür.
                 </para>
             </listitem>
             <listitem>
@@ -154,13 +154,13 @@ $profiler = $db->getProfiler();]]>
             </listitem>
             <listitem>
                 <para>
-		    <code>getQueryProfiles()</code> sorgu profillerini dizi olarak döndürür.                    
+		    <code>getQueryProfiles()</code> sorgu profillerini dizi olarak döndürür.
                 </para>
             </listitem>
             <listitem>
                 <para>
-		    <code>getLastQueryProfile()</code> sorgunun bitip bitmemesine bakmaksızın 
-		    son sorgu profilini döndürür.(Bitmediyse bitiş zamanı null olur)                    
+		    <code>getLastQueryProfile()</code> sorgunun bitip bitmemesine bakmaksızın
+		    son sorgu profilini döndürür.(Bitmediyse bitiş zamanı null olur)
                 </para>
             </listitem>
             <listitem>
@@ -179,7 +179,7 @@ $profiler = $db->getProfiler();]]>
             <listitem>
                 <para>
 		    <code>getQuery()</code> sorgunun SQL metnini döndürür.
-		    Paremetreleriyle hazırlanmış deyimin SQL metni sorgunun 
+		    Paremetreleriyle hazırlanmış deyimin SQL metni sorgunun
 		    hazırlandığı zamanki metindir bu yüzden paremetre yer tutucularını
 		    içerir , deyim çalıştırıldığı zamanki değerleri değil.
                 </para>
@@ -188,14 +188,14 @@ $profiler = $db->getProfiler();]]>
                 <para>
 		    <code>getQueryParams()</code> hazırlanmış sorguları çalıştırırken
 		    kullanılan paremetreleri dizi olarak döndürür. Bu uç paremetreleri ve
-		    deyimin  <code>execute()</code>  metoduna gelen argümaları içerir. 
-		    Dizinin anahtarları konumsaldır ( 1 tabanlı) veya isimlendirilmiş (string) 
+		    deyimin  <code>execute()</code>  metoduna gelen argümaları içerir.
+		    Dizinin anahtarları konumsaldır ( 1 tabanlı) veya isimlendirilmiş (string)
 		    paremetre indislidir.
                 </para>
             </listitem>
             <listitem>
                 <para>
-                    <code>getElapsedSecs()</code> sorgunun çalıştığı süreyi 
+                    <code>getElapsedSecs()</code> sorgunun çalıştığı süreyi
 		    saniye olarak döndürür.
                 </para>
             </listitem>
@@ -214,10 +214,10 @@ echo $query->getQuery();]]>
         </programlisting>
 
         <para>
-            Muhtemelen sayfa yavaş oluşturuluyor;ilk önce profilleyici ile tüm sorgular için 
+            Muhtemelen sayfa yavaş oluşturuluyor;ilk önce profilleyici ile tüm sorgular için
 	    toplam kaç saniye harcandığını belirleyin ve en uzun çalışan sorguyu bulmak için
 	    sorguları teker teker kontrol edin:
-            
+
         </para>
 
         <programlisting role="php"><![CDATA[<?php
@@ -247,9 +247,9 @@ echo "En uzun sorgu: \n" . $longestQuery . "\n";]]>
         <title>İleri Profilleyici Kullanımı</title>
 
         <para>
-            Sorgu denetlemeye ek olarak , profilleyici geliştiriciye hangi 
+            Sorgu denetlemeye ek olarak , profilleyici geliştiriciye hangi
 	    sorguların profilleneceğini filtrelemeye imkan sağlar. Takip
-	    eden metodlar <code>Zend_Db_Profiler</code> isntance'ında çalışır: 
+	    eden metodlar <code>Zend_Db_Profiler</code> isntance'ında çalışır:
         </para>
 
         <sect3 id="zend.db.profiler.advanced.filtertime">
@@ -283,7 +283,7 @@ $profiler->setFilterElapsedSecs(null);]]>
             <itemizedlist>
                 <listitem>
                     <para>
-                        <code>Zend_Db_Profiler::CONNECT</code>: bağlantı işlemleri veya 
+                        <code>Zend_Db_Profiler::CONNECT</code>: bağlantı işlemleri veya
 			veri tabanı seçimi.
                     </para>
                 </listitem>
@@ -365,7 +365,7 @@ $profiles = $profiler->getQueryProfiles(Zend_Db_Profiler::SELECT);
 // Sadece SELECT, INSERT, and UPDATE  sorgusu profillerine eriş
 $profiles = $profiler->getQueryProfiles(Zend_Db_Profiler::SELECT | Zend_Db_Profiler::INSERT | Zend_Db_Profiler::UPDATE);
 
-// DELETE sorgularına eriş ( böylece verinin neden kaybolmaya devam ettiğini 
+// DELETE sorgularına eriş ( böylece verinin neden kaybolmaya devam ettiğini
 // anlayabilelim)
 $profiles = $profiler->getQueryProfiles(Zend_Db_Profiler::DELETE);]]>
             </programlisting>

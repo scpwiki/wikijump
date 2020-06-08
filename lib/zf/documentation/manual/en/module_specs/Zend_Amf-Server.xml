@@ -31,7 +31,7 @@ echo $response;
         </para>
 
         <programlisting role="php"><![CDATA[
-$server = new Zend_Amf_Server(); 
+$server = new Zend_Amf_Server();
 $server->addFunction('myUberCoolFunction');
 $response = $server->handle();
 echo $response;

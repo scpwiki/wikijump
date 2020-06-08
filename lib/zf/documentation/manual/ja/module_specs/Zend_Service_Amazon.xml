@@ -172,7 +172,7 @@ $amazon = new Zend_Service_Amazon('AMAZON_API_KEY');
 $results = $amazon->itemSearch(array(
     'SearchIndex'   => 'Books',
     'Keywords'      => 'php',
-    'ResponseGroup' => 'Small,ItemAttributes,Images,SalesRank,Reviews,' . 
+    'ResponseGroup' => 'Small,ItemAttributes,Images,SalesRank,Reviews,' .
                        'EditorialReview,Similarities,ListmaniaLists'
     ));
 foreach ($results as $result) {

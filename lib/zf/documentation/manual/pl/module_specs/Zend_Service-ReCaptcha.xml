@@ -3,12 +3,12 @@
 
     <sect2 id="zend.service.recaptcha.introduction">
         <title>Wprowadzenie</title>
- 
+
         <para>
             Komponent <code>Zend_Service_ReCaptcha</code> zapewnia klienta dla
             usługi <ulink url="http://recaptcha.net/">reCAPTCHA Web Service</ulink>.
             Cytując serwis internetowy reCAPTCHA, "reCAPTCHA jest darmowym
-            serwisem CAPTCHA który pomaga skanować książki." 
+            serwisem CAPTCHA który pomaga skanować książki."
             Każdy element reCAPTCHA wymaga, aby użytkownik wpisał dwa słowa:
             pierwsze które jest tradycyjnym captcha, oraz drugie które jest
             słowem zeskanowanym z jakiegoś tekstu, którego oprogramowanie do
@@ -40,7 +40,7 @@ $recaptcha = new Zend_Service_ReCaptcha($pubKey, $privKey);
         </programlisting>
 
         <para>
-            Aby wyświetlić element reCAPTCHA, po prostu wywołaj metodę 
+            Aby wyświetlić element reCAPTCHA, po prostu wywołaj metodę
             <code>getHTML()</code>:
         </para>
 
@@ -57,14 +57,14 @@ echo $recaptcha->getHTML();
 
         <programlisting role="php"><![CDATA[
 $result = $recaptcha->verify(
-    $_POST['recaptcha_challenge_field'], 
+    $_POST['recaptcha_challenge_field'],
     $_POST['recaptcha_response_field']
 );
 ]]>
         </programlisting>
 
         <para>
-            Gdy posiadasz wynik, sprawdź czy jest pozytywny. Wynik działania 
+            Gdy posiadasz wynik, sprawdź czy jest pozytywny. Wynik działania
             metody jest obiektem klasy <code>Zend_Service_ReCaptcha_Response</code>
             i zapewnia on metodę <code>isValid()</code>.
         </para>
@@ -75,13 +75,13 @@ if (!$result->isValid()) {
 }
 ]]>
         </programlisting>
-        
+
         <para>
             Jeszcze prostszy w użyciu jest <link
                 linkend="zend.captcha.adapters.recaptcha">sterownik ReCaptcha</link>
             dla klasy <code>Zend_Captcha</code> lub użycie tego sterownika w
-            <link linkend="zend.form.standardElements.captcha">elemencie 
-                formularza Captcha</link>. W każdym z tych przypadków 
+            <link linkend="zend.form.standardElements.captcha">elemencie
+                formularza Captcha</link>. W każdym z tych przypadków
             wyświetlanie oraz weryfikacja elementu reCAPTCHA jest zautomatyzowana.
         </para>
     </sect2>

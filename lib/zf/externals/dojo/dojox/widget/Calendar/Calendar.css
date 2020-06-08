@@ -26,8 +26,8 @@
     text-align: center;
 }
 
-.dojoxCalendar .dijitCalendarDateTemplate { 
-	padding: 0px; 
+.dojoxCalendar .dijitCalendarDateTemplate {
+	padding: 0px;
 }
 
 .dojoxCalendar .noPointer, .dojoxCalendar .noPointer * {

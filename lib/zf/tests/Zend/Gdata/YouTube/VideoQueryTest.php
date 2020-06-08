@@ -103,7 +103,7 @@ class Zend_Gdata_YouTube_VideoQueryTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($exceptionCaught, 'Expected Zend_Gdata_App_' .
             'IllegalArgumentException when using alpha in setLocation');
     }
-    
+
     public function testLocationExceptionOnOnlyOneCoordinateV2() {
         $yt = new Zend_Gdata_YouTube();
         $query = $yt->newVideoQuery();

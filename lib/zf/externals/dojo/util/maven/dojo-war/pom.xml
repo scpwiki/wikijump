@@ -56,17 +56,17 @@
           <execution>
             <id>copy-release</id>
             <configuration>
-              <tasks>                
+              <tasks>
                 <copy todir="${project.build.directory}/${artifactId}-${version}">
-                 <fileset dir="${project.build.directory}/dojo/dojo-${version}"> 
-                   <include name="dojo/**" />                   
-                   <include name="dijit/**" />                   
-                   <include name="dojox/**" />                   
-                   <exclude name="**/docs/**" />                   
-                   <exclude name="**/demos/**" />                   
-                   <exclude name="**/tests/**" />                   
+                 <fileset dir="${project.build.directory}/dojo/dojo-${version}">
+                   <include name="dojo/**" />
+                   <include name="dijit/**" />
+                   <include name="dojox/**" />
+                   <exclude name="**/docs/**" />
+                   <exclude name="**/demos/**" />
+                   <exclude name="**/tests/**" />
                  </fileset>
-                </copy> 
+                </copy>
               </tasks>
             </configuration>
             <phase>process-sources</phase>

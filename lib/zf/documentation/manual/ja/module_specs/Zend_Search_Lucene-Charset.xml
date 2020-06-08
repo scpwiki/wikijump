@@ -126,19 +126,19 @@ if (@preg_match('/\pL/u', 'a') == 1) {
 ]]>
             </programlisting>
         </para>
-        
+
         <para>
             大文字小文字を区別しないバージョンの UTF-8 互換解析器を使用する場合は、さらに
             <ulink url="http://www.php.net/manual/en/ref.mbstring.php">mbstring</ulink>
             拡張モジュールが必要です。
         </para>
-        
+
         <para>
             「mbstring 拡張モジュールは使いたくないけれど、大文字小文字を区別しない検索はしたい」
             という場合は、次のようにします。
             まず、インデックス化の前に元データを正規化し、
             検索の際にはクエリ文字列を小文字に変換します。
-        
+
             <programlisting role="php"><![CDATA[
 
 // インデックス化

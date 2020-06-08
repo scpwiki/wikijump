@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot_Db
  * @version $Id$
@@ -42,25 +42,25 @@ class Category extends CategoryBase {
 				return $this->getLicenseOther();
 			} else {
 				$license = LicensePeer::instance()->selectById($this->getLicenseId());
-				return $license->getDescription();	
-			}	
+				return $license->getDescription();
+			}
 		} else {
 			if($this->getLicenseDefault()){
 				// get default license (for the '_default' category
 				$dc = CategoryPeer::instance()->selectByName('_default', $this->getSiteId());
-				return $dc->getLicenseText();		
+				return $dc->getLicenseText();
 			} else {
 				if($this->getLicenseId() == 1){
 					return $this->getLicenseOther();
 				} else {
 					$license = LicensePeer::instance()->selectById($this->getLicenseId());
 					return $license->getDescription();
-				}		
+				}
 			}
 		}
-		
+
 	}
-	
+
 	public function getTopPage(){
 		if($this->getName() === '_default'){
 			$pageName = $this->getTopBarPageName();
@@ -71,13 +71,13 @@ class Category extends CategoryBase {
 				$pageName = $dc->getTopBarPageName();
 			} else {
 				$pageName = $this->getTopBarPageName();
-			}	
+			}
 		}
 		// now GET this page ;-)
 		$page = PagePeer::instance()->selectByName($this->getSiteId(), $pageName);
 		return $page;
-	}	
-	
+	}
+
 	public function getSidePage(){
 		if($this->getName() === '_default'){
 			$pageName = $this->getSideBarPageName();
@@ -88,13 +88,13 @@ class Category extends CategoryBase {
 				$pageName = $dc->getSideBarPageName();
 			} else {
 				$pageName = $this->getSideBarPageName();
-			}	
+			}
 		}
 		// now GET this page ;-)
 		$page = PagePeer::instance()->selectByName($this->getSiteId(), $pageName);
 		return $page;
-	}	
-	
+	}
+
 	public function getTheme(){
 		if($this->getExternalTheme()){
 			$theme = $this->getExternalTheme();
@@ -108,8 +108,8 @@ class Category extends CategoryBase {
 			}
 			return $theme;
 		}
-		
-		
+
+
 		if($this->getName() === '_default'){
 			$theme = ThemePeer::instance()->selectByPrimaryKey($this->getThemeId());
 		} else {
@@ -122,7 +122,7 @@ class Category extends CategoryBase {
 		}
 		return $theme;
 	}
-	
+
 	protected function getExternalTheme(){
 		if(!$this->getThemeExternalUrl()){
 			return null;
@@ -138,7 +138,7 @@ class Category extends CategoryBase {
 		$t->setThemeId($baseTheme->getThemeId()); // needed sometime
 		return $t;
 	}
-	
+
 	public function getPermissionString(){
 		if($this->getName() === '_default' || !$this->getPermissionsDefault()){
 			$ps = $this->getPermissions();
@@ -148,31 +148,31 @@ class Category extends CategoryBase {
 		}
 		return $ps;
 	}
-	
+
 	public function getShowDiscuss(){
 		$ppd = $this->getPerPageDiscussion();
 		if($ppd === null && $this->getName() !== '_default'){
 			$dc = CategoryPeer::instance()->selectByName('_default', $this->getSiteId());
-			$ppd = $dc->getPerPageDiscussion();	
+			$ppd = $dc->getPerPageDiscussion();
 		}
 		if($ppd === null){
 			$ppd = false;
-		}	
-		return $ppd;	
+		}
+		return $ppd;
 	}
-	
+
 	public function getRatingString(){
 		$ppd = $this->getRating();
 		if(strpos($ppd, 'e') === false && strpos($ppd, 'd') === false && $this->getName() !== '_default'){
 			$dc = CategoryPeer::instance()->selectByName('_default', $this->getSiteId());
-			$ppd = $dc->getRating();	
+			$ppd = $dc->getRating();
 		}
 		if($ppd === null){
 			$ppd = 'd';
-		}	
-		return $ppd;		
+		}
+		return $ppd;
 	}
-	
+
 	public function getRatingEnabled(){
 		$s = $this->getRating();
 		if(strpos($s, 'e') !== false){
@@ -180,7 +180,7 @@ class Category extends CategoryBase {
 		}elseif(strpos($s, 'd') !== false){
 			return false;
 		}else{
-			return null;	
+			return null;
 		}
 	}
 	public function getRatingEnabledEff(){
@@ -190,7 +190,7 @@ class Category extends CategoryBase {
 		}elseif(strpos($s, 'd') !== false){
 			return false;
 		}else{
-			return null;	
+			return null;
 		}
 	}
 
@@ -201,7 +201,7 @@ class Category extends CategoryBase {
 		if(!$m) {$m = 'P';}
 		return $m;
 	}
-	
+
 	public function getRatingBy(){
 		$s = $this->getRatingString();
 		if(strpos($s, 'm') !== false){
@@ -210,7 +210,7 @@ class Category extends CategoryBase {
 			return 'r';
 		}
 	}
-	
+
 	public function getRatingVisible(){
 		$s = $this->getRatingString();
 		if(strpos($s, 'v')!== false){
@@ -229,18 +229,18 @@ class Category extends CategoryBase {
         }
         return PagePeer::instance()->selectByName($this->getSiteId(), $name);
     }
-	
+
 	public function save(){
 		$memcache = \Ozone::$memcache;
 		$key = 'category..'.$this->getSiteId().'..'.$this->getName();
 		$memcache->delete($key);
 		$key = 'categorybyid..'.$this->getSiteId().'..'.$this->getCategoryId();
 		$memcache->delete($key);
-		
+
 		if($this->getPerPageDiscussion() === null && $this->getName() == '_default'){
 			$this->setPerPageDiscussion(false);
 		}
-		parent::save();	
+		parent::save();
 	}
-	
+
 }

@@ -24,7 +24,7 @@
         </para>
 
         <para>
-            Для примера предположим, что ваш класс определен следующим образом: 
+            Для примера предположим, что ваш класс определен следующим образом:
         </para>
 
         <programlisting role="php"><![CDATA[
@@ -42,7 +42,7 @@ class FooController extends Zend_Controller_Action
 }
 ]]>
         </programlisting>
-            
+
         <para>
             Приведенный выше класс <code>FooController</code> (контроллер
             <code>foo</code>) определяет два действия - <code>bar</code> и
@@ -229,7 +229,7 @@ $this->getResponse()->appendBody($content);
                     заключает в себе параметры запроса, такие, как значения
                     _GET, _POST, или пользовательские параметры, определенные в
                     пути URL. Для их получения используйте
-                    <code>_getParam($key)</code> или 
+                    <code>_getParam($key)</code> или
                     <code>_getAllParams()</code>. Вы можете также установить
                     параметры запроса, используя метод <code>_setParam()</code>,
                     это полезно при перенаправлении на другие действия через
@@ -313,7 +313,7 @@ applicationOrModule/
         filters/
 ]]>
             </programlisting>
-            
+
             <para>
                 Другими словами, предполагается, что скрипты вида находятся в
                 поддиректории <code>views/scripts/</code> и поддиректория
@@ -390,7 +390,7 @@ class MyController extends Zend_Controller_Action
 
         // Рендеринг my/login.phtml в сегмент 'form' объекта ответа
         $this->render('login', 'form');
-        
+
         // Рендеринг site.phtml в сегмент 'page' объекта ответа,
         // при этом не используется поддиректория 'my/'
         $this->render('site', 'page', true);
@@ -556,7 +556,7 @@ class MyController extends Zend_Controller_Action
 }
 ]]>
             </programlisting>
-            
+
             <para>
                 Другая возможность состоит в том, что вы можете
                 производить переход на страницу контроллера по умолчанию:

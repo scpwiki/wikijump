@@ -47,7 +47,7 @@ require_once 'Zend/Dojo/View/Helper/Dojo.php';
  * @copyright  Copyright (c) 2005-2008 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
-class Zend_Dojo_View_Helper_TextBoxTest extends PHPUnit_Framework_TestCase 
+class Zend_Dojo_View_Helper_TextBoxTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.
@@ -97,10 +97,10 @@ class Zend_Dojo_View_Helper_TextBoxTest extends PHPUnit_Framework_TestCase
     public function getElement()
     {
         return $this->helper->textBox(
-            'elementId', 
-            'someText', 
+            'elementId',
+            'someText',
             array(
-                'required'    => true, 
+                'required'    => true,
                 'trim'        => true,
                 'propercase'  => true,
             ),

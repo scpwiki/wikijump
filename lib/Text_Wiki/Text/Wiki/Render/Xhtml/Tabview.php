@@ -20,7 +20,7 @@
  * @link       http://pear.php.net/package/Text_Wiki
  */
 class Text_Wiki_Render_Xhtml_Tabview extends Text_Wiki_Render {
-    
+
     public $conf = array();
 
     /**
@@ -35,9 +35,9 @@ class Text_Wiki_Render_Xhtml_Tabview extends Text_Wiki_Render {
      * @return string The text rendered from the token options.
      *
      */
-    
+
     function token($options) {
-        
+
         if ($options['type'] == 'start') {
             $out = <<<EOT
 <script type="text/javascript" src="/common--javascript/yahooui/element-beta-min.js"></script>
@@ -51,13 +51,13 @@ EOT;
                     $class = ' class="selected"';
                 }
                 $out .= '<li' . $class . '><a href="javascript:;"><em>' . ($tab['title'] ? $tab['title'] : 'untitled') . '</em></a></li>';
-            
+
             }
             $out .= '</ul>';
             $out .= '<div class="yui-content">';
             return $out;
         }
-        
+
         if ($options['type'] == 'tabStart') {
             $style = '';
             if ($options['tabId'] != 0) {
@@ -68,16 +68,16 @@ EOT;
         if ($options['type'] == 'tabEnd') {
             return '</div>';
         }
-        
+
         if ($options['type'] == 'end') {
             $out = '</div></div>';
             // load and execute the script! (bad hack)
-            
+
 
             //$out .=  <<<EOT
             //<script type="text/javascript">
             //</script>
-            
+
 
             $out .= <<<EOT
 <script type="text/javascript">
@@ -86,9 +86,9 @@ EOT;
 })();
 </script>
 EOT;
-            
+
             return $out;
         }
-    
+
     }
 }

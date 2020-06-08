@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -29,23 +29,23 @@ class LoginStatusModule extends Module{
 	public function render($runData){
 		// use non-templating solution to have some optimisation here. not to call
 		// Smarty if not required!
-		
+
 		$user = $runData->getUser();
-		
+
 		if (GlobalProperties::$WIKI_FARM) {
 			$url_prefix = GlobalProperties::$HTTP_SCHEMA.'://' . GlobalProperties::$LOGIN_DOMAIN . GlobalProperties::$URL_DOMAIN;
 		} else {
 			$url_prefix = '';
 		}
-		
+
 		if($user == null){
 			$site = $runData->getTemp('site');
-			
+
 			$originalUrl = $_SERVER['REQUEST_URI'];
 			if (GlobalProperties::$WIKI_FARM) {
 				$originalUrl = $_SERVER['HTTP_HOST'] . $originalUrl;
 			}
-			
+
 			if(preg_match(';\?origUrl=.*$;', $originalUrl)){
 				$o = array();
 				parse_str(preg_replace(';^.*?\?;', '', $_SERVER['REQUEST_URI']), $o);
@@ -55,15 +55,15 @@ class LoginStatusModule extends Module{
 			if($site->getLanguage() != 'en'){
 				$loginDomain = $site->getLanguage();
 			}
-			
+
 			$out  = '<a href="' . $url_prefix . '/auth:newaccount?origUrl='.urlencode(GlobalProperties::$HTTP_SCHEMA.'://').urlencode($originalUrl).'">'._('create account').'</a> '._('or') . ' ';
 			$out .= '<a href="' . $url_prefix . '/auth:login?origUrl='.urlencode(GlobalProperties::$HTTP_SCHEMA.'://').urlencode($originalUrl).'">'._('login').'</a> ';
-			
+
 			//$out = '<a href="javascript:;" onclick="WIKIDOT.page.listeners.createAccount(event)">'._('create account').'</a> '._('or').' <a href="javascript:;" onclick="WIKIDOT.page.listeners.loginClick(event)">'._('login').'</a>';
 		} else {
-			
+
 			$lang = $user->getLanguage();
-		
+
 			switch($lang){
 				case 'pl':
 					$glang="pl_PL";
@@ -73,13 +73,13 @@ class LoginStatusModule extends Module{
 					break;
 			}
 
-			putenv("LANG=$glang"); 
-			putenv("LANGUAGE=$glang"); 
+			putenv("LANG=$glang");
+			putenv("LANGUAGE=$glang");
 			setlocale(LC_ALL, $glang.'.UTF-8');
-		
+
 			$userId = $user->getUserId();
 			$linkInner = 'href="' . $url_prefix . '/user:info/'.$user->getUnixName().'" onclick="WIKIDOT.page.listeners.userInfo('.$user->getUserId().'); return false;" ';
-			
+
 			$out = '<span class="printuser"><a '.$linkInner.'><img class="small" src="/common--images/avatars/'.floor($userId/1000).'/'.$userId.'/a16.png" alt="avatar"';
 			/* karma: */
 			$out .= ' style="background-image:url(' . $url_prefix . '/userkarma.php?u=' .$userId  . ')"';
@@ -102,7 +102,7 @@ class LoginStatusModule extends Module{
             // back the language!
 
             $lang = $GLOBALS['lang'];
-            
+
             switch ($lang) {
                 case 'pl':
                     $glang = "pl_PL";
@@ -110,13 +110,13 @@ class LoginStatusModule extends Module{
                 case 'en':
                     $glang = "en_US";
                     break;
-            } 
+            }
 
             putenv("LANG=$glang");
             putenv("LANGUAGE=$glang");
             setlocale(LC_ALL, $glang . '.UTF-8');
         }
 
-        return $out; 	
-	}	
+        return $out;
+	}
 }

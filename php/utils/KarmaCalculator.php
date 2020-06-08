@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -29,10 +29,10 @@ use DB\UserKarma;
 use DB\OzoneUserPeer;
 
 class KarmaCalculator {
-    
+
     protected $_rules = array();
-    
-    
+
+
     public function __construct(){
         /* Init rules. */
         $rulesPath  = WIKIDOT_ROOT.'/php/utils/karmarules/';
@@ -43,7 +43,7 @@ class KarmaCalculator {
             $this->_rules[] = new $cn();
         }
     }
-    
+
     public function calculate($user){
         $p = 0;
         foreach($this->_rules as $rule) {
@@ -51,7 +51,7 @@ class KarmaCalculator {
         }
         return $p;
     }
-    
+
     public function update($user){
         $p = $this->calculate($user);
         /* Get the karma object. */
@@ -65,22 +65,22 @@ class KarmaCalculator {
         $karma->setPoints($p);
         $karma->save();
     }
-    
+
     public function updateLevels(){
-   
+
         /* How many points you need to have to get to a level. */
         $minPointsLevel1 = 30;
         $minPointsLevel2 = 100;
         $minPointsLevel3 = 200;
         $minPointsLevel4 = 300;
         $minPointsLevel5 = 500;
-        
+
         /* Once you pass this limit, we will not take your level5 limit back. */
         $keepLevel5Limit = 1000;
-        
+
         /* Calculate the distribution. */
         $db = Database::$connection;
-        
+
         $totalUsers = UserKarmaPeer::instance()->selectCount();
         /* Make karma=none for non-active users. */
         $q = "UPDATE user_karma SET level=0 WHERE points < $minPointsLevel1";
@@ -89,18 +89,18 @@ class KarmaCalculator {
         $c = new Criteria();
         $c->add('points', $minPointsLevel1, '>=');
         $totalUsers = UserKarmaPeer::instance()->selectCount($c);
-        
+
         /* Number of users to fall into a given level. */
         $limits = array();
         $limitLevel5 = ceil($totalUsers * 0.05);
         $limitLevel4 = ceil($totalUsers * 0.10);
         $limitLevel3 = ceil($totalUsers * 0.20);
         $limitLevel2 = ceil($totalUsers * 0.30);
-       
+
         //$c = new Criteria();
         //$c->add('points', $minPointsLevel5, '.=');
         //$c->setLimit()
-        
+
         /* Set level one by default. */
         $q = array();
         $q[] = "UPDATE user_karma SET level=1 WHERE points >= $minPointsLevel1 AND (level < 5 OR points < $keepLevel5Limit)";
@@ -110,7 +110,7 @@ class KarmaCalculator {
         $q[] = "UPDATE user_karma SET level=2 WHERE user_id IN (SELECT user_id FROM user_karma WHERE points >= $minPointsLevel2 AND level < 3 ORDER BY points DESC LIMIT $limitLevel2)";
         $db->query($q);
     }
-    
+
     public function updateAll(){
         $offset = 0;
         $step = 1000;
@@ -134,5 +134,5 @@ class KarmaCalculator {
         $this->updateLevels();
         $db->commit();
     }
-    
+
 }

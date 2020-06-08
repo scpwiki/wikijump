@@ -14,31 +14,31 @@
             <itemizedlist>
                 <listitem>
                     <para>
-                        <code>Zend_Search_Lucene::FORMAT_PRE_2_1</code> for Java Lucene 1.4-1.9 index format. 
+                        <code>Zend_Search_Lucene::FORMAT_PRE_2_1</code> for Java Lucene 1.4-1.9 index format.
                     </para>
                 </listitem>
                 <listitem>
                     <para>
-                        <code>Zend_Search_Lucene::FORMAT_2_1</code> for Java Lucene 2.1 index format (also used for Lucene 2.2). 
+                        <code>Zend_Search_Lucene::FORMAT_2_1</code> for Java Lucene 2.1 index format (also used for Lucene 2.2).
                     </para>
                 </listitem>
                 <listitem>
                     <para>
-                        <code>Zend_Search_Lucene::FORMAT_2_3</code> for Java Lucene 2.3 index format. 
+                        <code>Zend_Search_Lucene::FORMAT_2_3</code> for Java Lucene 2.3 index format.
                     </para>
                 </listitem>
             </itemizedlist>
         </para>
-        
+
         <para>
-            Index modifications are performed <emphasis role="strong">only</emphasis> if any index update is done. 
-            That happens if a new document is added to an index or index optimization is started manually 
-            by <code>$index->optimize()</code> call. 
+            Index modifications are performed <emphasis role="strong">only</emphasis> if any index update is done.
+            That happens if a new document is added to an index or index optimization is started manually
+            by <code>$index->optimize()</code> call.
         </para>
-        
+
         <para>
-            In a such case Zend_Search_Lucene may convert index to the higher format version. 
-            That <emphasis role="strong">always</emphasis> happens for the indices in <code>Zend_Search_Lucene::FORMAT_PRE_2_1</code> format, 
+            In a such case Zend_Search_Lucene may convert index to the higher format version.
+            That <emphasis role="strong">always</emphasis> happens for the indices in <code>Zend_Search_Lucene::FORMAT_PRE_2_1</code> format,
             which are automatically converted to 2.1 format.
         </para>
 
@@ -48,22 +48,22 @@
             <itemizedlist>
                 <listitem>
                     <para>
-                        <code>Zend_Search_Lucene::FORMAT_2_1</code> actually does nothing since pre-2.1 indices are automatically converted 
-                        to 2.1 format. 
+                        <code>Zend_Search_Lucene::FORMAT_2_1</code> actually does nothing since pre-2.1 indices are automatically converted
+                        to 2.1 format.
                     </para>
                 </listitem>
                 <listitem>
                     <para>
-                        <code>Zend_Search_Lucene::FORMAT_2_3</code> forces conversion to the 2.3 format. 
+                        <code>Zend_Search_Lucene::FORMAT_2_3</code> forces conversion to the 2.3 format.
                     </para>
                 </listitem>
             </itemizedlist>
         </para>
-        
+
         <para>
             Backward conversions are not supported.
         </para>
-        
+
         <note>
             <title>Important!</title>
             <para>
@@ -71,7 +71,7 @@
                 migration to upper version, but want to have possibility to go back.
             </para>
         </note>
-        
+
     </sect2>
 
 

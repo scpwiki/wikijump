@@ -46,9 +46,9 @@
         </para>
 
         <programlisting role="php"><![CDATA[
-// Tworzymy instancję podając klucz API 
+// Tworzymy instancję podając klucz API
 // i adres URL używanej aplikacji
-$akismet = new Zend_Service_Akismet($apiKey, 
+$akismet = new Zend_Service_Akismet($apiKey,
                                     'http://framework.zend.com/wiki/');
 if ($akismet->verifyKey($apiKey) {
     echo "Key is valid.\n";
@@ -180,7 +180,7 @@ if ($akismet->verifyKey($apiKey) {
 $data = array(
     'user_ip'              => '111.222.111.222',
     'user_agent'           => 'Mozilla/5.0 (Windows; U; Windows NT' .
-                              '5.2; en-GB; rv:1.8.1) Gecko/20061010' . 
+                              '5.2; en-GB; rv:1.8.1) Gecko/20061010' .
                               'Firefox/2.0',
     'comment_type'         => 'contact',
     'comment_author'       => 'John Doe',
@@ -225,8 +225,8 @@ if ($akismet->isSpam($data)) {
             <programlisting role="php"><![CDATA[
 $data = array(
     'user_ip'              => '111.222.111.222',
-    'user_agent'           => 'Mozilla/5.0 (Windows; U; Windows NT 5.2;' . 
-                              'en-GB; rv:1.8.1) Gecko/20061010' . 
+    'user_agent'           => 'Mozilla/5.0 (Windows; U; Windows NT 5.2;' .
+                              'en-GB; rv:1.8.1) Gecko/20061010' .
                               'Firefox/2.0',
     'comment_type'         => 'contact',
     'comment_author'       => 'John Doe',
@@ -269,8 +269,8 @@ $akismet->submitSpam($data));
             <programlisting role="php"><![CDATA[
 $data = array(
     'user_ip'              => '111.222.111.222',
-    'user_agent'           => 'Mozilla/5.0 (Windows; U; Windows NT 5.2;' . 
-                              'en-GB; rv:1.8.1) Gecko/20061010' . 
+    'user_agent'           => 'Mozilla/5.0 (Windows; U; Windows NT 5.2;' .
+                              'en-GB; rv:1.8.1) Gecko/20061010' .
                               'Firefox/2.0',
     'comment_type'         => 'contact',
     'comment_author'       => 'John Doe',
@@ -346,7 +346,7 @@ $akismet->submitHam($data));
                 <para>
                     Wartość użyta do ustawienia nazwy klienta HTTP powinna być
                     w formacie <code>nazwa klienta/wersja | Akismet/wersja</code>.
-                    Domyślna wartość to <code>Zend Framework/ZF-VERSION | Akismet/1.11</code>, 
+                    Domyślna wartość to <code>Zend Framework/ZF-VERSION | Akismet/1.11</code>,
                     gdzie <code>ZF-VERSION</code> jest numerem obecnej wersji ZF
                     przechowywanym w stałej <code>Zend_Framework::VERSION</code>.
                 </para>

@@ -12,15 +12,15 @@ abstract class DojoBlock
       $this->setStart($line_number, $position);
     }
   }
-  
+
   public function setStart($line_number, $position){
     $this->start = array($line_number, $position);
   }
-  
+
   protected function setEnd($line_number, $position){
       $this->end = array($line_number, $position);
   }
-  
+
   public abstract function build();
 }
 

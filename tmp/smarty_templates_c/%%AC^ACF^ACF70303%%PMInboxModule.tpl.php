@@ -12,7 +12,7 @@ smarty_core_load_plugins(array('plugins' => array(array('function', 'pager', '/v
 <table class="pm-list">
 	<tr class="headers">
 		<td>&nbsp;</td>
-		
+
 		<td>
 			<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Subject<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
 		</td>
@@ -26,14 +26,14 @@ smarty_core_load_plugins(array('plugins' => array(array('function', 'pager', '/v
 			&nbsp;
 		</td>
 	</tr>
-	
+
 	<?php if (count($_from = (array)$this->_tpl_vars['messages'])):
     foreach ($_from as $this->_tpl_vars['message']):
 ?>
 		<tr>
 			<td>&nbsp;</td>
 			<td class="subject">
-				<a href="javascript:;" 
+				<a href="javascript:;"
 				<?php if ($this->_tpl_vars['message']->getFlagNew()): ?> style="font-weight: bold"<?php endif; ?>
 				onclick="WIKIDOT.modules.AccountMessagesModule.listeners.viewInboxMessage(<?php echo $this->_tpl_vars['message']->getMessageId(); ?>
 )"><?php echo ((is_array($_tmp=$this->_tpl_vars['message']->getSubject())) ? $this->_run_mod_handler('escape', true, $_tmp) : smarty_modifier_escape($_tmp)); ?>
@@ -50,13 +50,13 @@ smarty_core_load_plugins(array('plugins' => array(array('function', 'pager', '/v
 			<td>
 				<input class="message-select" type="checkbox" id="message-check-<?php echo $this->_tpl_vars['message']->getMessageId(); ?>
 "/>
-			</td>		
+			</td>
 		</tr>
 	<?php endforeach; endif; unset($_from); ?>
-	
+
 	<!-- options -->
 	<?php if ($this->_tpl_vars['messages']): ?>
-		<tr>	
+		<tr>
 			<td colspan="4"  style="padding: 1em 2em 0 0; text-align: right;">
 				<a href="javascript:;" onclick="WIKIDOT.modules.PMInboxModule.listeners.removeSelected(event)"><?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>remove selected<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?></a>
 			</td>

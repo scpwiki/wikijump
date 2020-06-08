@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,7 +27,7 @@
 class CryptUtils {
 	private static $keyFile = 'files/key.pem';
 	private static $publicFile = 'files/public.pem';
-	
+
 	public static function generateSeed($length=10){
 		$vals = '0123456789abcdefghijklmnopqrstuvwxyz';
 		$charMin = 48;
@@ -38,7 +38,7 @@ class CryptUtils {
 		}
 		return $out;
 	}
-	
+
 	public static function rsaGenerateModulus(){
 		$keyFile = WIKIDOT_ROOT.'/'.self::$keyFile;
 		$keyFile = escapeshellarg($keyFile);
@@ -66,14 +66,14 @@ class CryptUtils {
 
    		$error = stream_get_contents($pipes[2]);
    		if($error !== null && $error !== ''){
-   			throw new Exception(_("RSA decryption failed").": ".$error);	
+   			throw new Exception(_("RSA decryption failed").": ".$error);
    		}
-			
+
 		$result =  stream_get_contents($pipes[1]);
 		fclose($pipes[1]);
 		return $result;
 	}
-	
+
 	public static function rsaEncrypt($text){
 		$keyFile = WIKIDOT_ROOT.'/'.self::$publicFile;
 		$keyFile = escapeshellarg($keyFile);
@@ -92,14 +92,14 @@ class CryptUtils {
 
    		$error = stream_get_contents($pipes[2]);
    		if($error !== null && $error !== ''){
-   			throw new Exception(_("RSA decryption failed").": ".$error);	
+   			throw new Exception(_("RSA decryption failed").": ".$error);
    		}
-			
+
 		$result =  stream_get_contents($pipes[1]);
 		fclose($pipes[1]);
 		return $result;
 	}
-	
+
 	public static function modulus(){
 	    $m = file_get_contents(WIKIDOT_ROOT.'/files/modulus.pem');
 	    return trim($m);

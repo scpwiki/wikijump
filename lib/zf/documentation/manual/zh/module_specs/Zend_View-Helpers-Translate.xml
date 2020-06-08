@@ -8,7 +8,7 @@
 
 
     <para>
-        在下面所有的例子里我们使用简单的数组翻译适配器（Array Translation Adapter）。当然你也可以使用任何 <code>Zend_Translate</code> 的实例和 <code>Zend_Translate_Adapter</code> 的任何子类。有若干方法来实例化<code> 翻译 </code>视图助手：                 
+        在下面所有的例子里我们使用简单的数组翻译适配器（Array Translation Adapter）。当然你也可以使用任何 <code>Zend_Translate</code> 的实例和 <code>Zend_Translate_Adapter</code> 的任何子类。有若干方法来实例化<code> 翻译 </code>视图助手：
     </para>
 
     <itemizedlist>
@@ -44,7 +44,7 @@
         <title> 已注册的实例 </title>
 
         <para>
-            为使用已注册的实例就是创建一个 <code>Zend_Translate</code> 或者 <code>Zend_Translate_Adapter</code> 的实例并在 <code>Zend_Registry</code> 里用 <code>Zend_Translate</code> 作为它的键。   
+            为使用已注册的实例就是创建一个 <code>Zend_Translate</code> 或者 <code>Zend_Translate_Adapter</code> 的实例并在 <code>Zend_Registry</code> 里用 <code>Zend_Translate</code> 作为它的键。
         </para>
 
         <programlisting role="php"><![CDATA[<?php
@@ -193,7 +193,7 @@ $this->translate("Today is %1\$s in %2\$s. Actual time: %3\$s", $date, 'it');
         <programlisting role="php"><![CDATA[<?php
 // 在视图里
 $date = array("Monday", "April", "11:20:55");
-$this->translate()->setLocale('it'); 
+$this->translate()->setLocale('it');
 $this->translate("Today is %1\$s in %2\$s. Actual time: %3\$s", $date);
 ?>]]></programlisting>
 
@@ -218,7 +218,7 @@ $date = array("Monday", "April", "11:20:55");
 // 从上面的例子里返回 'de' 作为缺省地点
 $this->translate()->getLocale();
 
-$this->translate()->setLocale('it'); 
+$this->translate()->setLocale('it');
 $this->translate("Today is %1\$s in %2\$s. Actual time: %3\$s", $date);
 
 // 返回 'it' 为新的缺省地点

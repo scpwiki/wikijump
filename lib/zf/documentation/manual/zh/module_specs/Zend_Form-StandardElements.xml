@@ -31,7 +31,7 @@
         <para>
             HTML checkboxes 让你返回一个特定的值，但基本上以布尔来操作：当它被 check，值就被提交；当没有 check，什么都不提交。在内部，<code>Zend_Form_Element_Checkbox</code> 强制这个状态。
         </para>
-            
+
         <para>
             缺省地，已选的值是 '1'，未选的值是 '0'。你可以通过 <code>setCheckedValue()</code> 和 <code>setUncheckedValue()</code> 访问器分别来指定使用的值。在内部，任何时候你设置这个值，如果提供的值和已选的值匹配，那就是设置了，但是任何其它的值都可以使未选的值设置了。
         </para>
@@ -67,7 +67,7 @@
         <programlisting role="php"><![CDATA[<?php
 $form->addElement('hash', 'no_csrf_foo', array('salt' => 'unique'));
 ?>]]></programlisting>
-        
+
         <para>
             你可以稍后使用 <code>setSalt($salt)</code> 方法设置 salt。
         </para>
@@ -148,7 +148,7 @@ $element->setValue(array('bar', 'bat'));
 
         <para>
             注意即使是设置一个单个的值，也必需传递一个数组。
-        </para>        
+        </para>
     </sect2>
 
     <sect2 id="zend.form.standardElements.multiselect">
@@ -196,7 +196,7 @@ $element->setValue(array('bar', 'bat'));
         <title>Zend_Form_Element_Radio</title>
 
         <para>
-            Radio 元素让你指定若干选项，而你只需要一个返回值。<code>Zend_Form_Element_Radio</code> 继承基础类  <code>Zend_Form_Element_Multi</code>，让你指定若干选项并使用 <code>formRadio</code> 视图助手来显示。 
+            Radio 元素让你指定若干选项，而你只需要一个返回值。<code>Zend_Form_Element_Radio</code> 继承基础类  <code>Zend_Form_Element_Multi</code>，让你指定若干选项并使用 <code>formRadio</code> 视图助手来显示。
         </para>
 
         <para>

@@ -61,10 +61,10 @@ $loader->addPrefixPath('Zend_View_Helper', 'Zend/View/Helper/')
 $formTextClass = $loader->load('FormText'); // 'Zend_View_Helper_FormText';
 
 // load 'FormLabel' helper:
-$formLabelClass = $loader->load('FormLabel'); // 'Foo_View_Helper_FormLabel' 
+$formLabelClass = $loader->load('FormLabel'); // 'Foo_View_Helper_FormLabel'
 
 // load 'FormSubmit' helper:
-$formSubmitClass = $loader->load('FormSubmit'); // 'Bar_View_Helper_FormSubmit' 
+$formSubmitClass = $loader->load('FormSubmit'); // 'Bar_View_Helper_FormSubmit'
 ?>]]></programlisting>
 
         <para>
@@ -77,7 +77,7 @@ $formSubmitClass = $loader->load('FormSubmit'); // 'Bar_View_Helper_FormSubmit'
             <para>
                 In alcuni casi, è necessario utilizzare lo stesso prefisso per percorsi differenti.
                 Attualmente <code>Zend_Loader_PluginLoader</code> registra un array di percorsi per ogni prefisso specificato; l'ultimo registrato è il primo ad essere controllato.
-                Questa soluzione è particolarmente utile se si utilizzano componenti in incubator 
+                Questa soluzione è particolarmente utile se si utilizzano componenti in incubator
                 (NdT. la cartella contenente i moduli dello Zend Framework ancora in fase di sviluppo).
             </para>
         </note>

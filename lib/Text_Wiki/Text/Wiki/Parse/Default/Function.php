@@ -1,37 +1,37 @@
 <?php
 
 /**
-* 
-* Parses for an API function documentation block.
-* 
-* @category Text
-* 
-* @package Text_Wiki
-* 
-* @author Paul M. Jones <pmjones@php.net>
-* 
-* @license LGPL
-* 
-* @version $Id$
-* 
-*/
-
-/**
-* 
+*
 * Parses for an API function documentation block.
 *
 * @category Text
-* 
+*
 * @package Text_Wiki
-* 
+*
 * @author Paul M. Jones <pmjones@php.net>
-* 
+*
+* @license LGPL
+*
+* @version $Id$
+*
+*/
+
+/**
+*
+* Parses for an API function documentation block.
+*
+* @category Text
+*
+* @package Text_Wiki
+*
+* @author Paul M. Jones <pmjones@php.net>
+*
 */
 
 class Text_Wiki_Parse_Function extends Text_Wiki_Parse {
 
     public $regex = '/^(\<function\>)\n(.+)\n(\<\/function\>)(\s|$)/Umsi';
-    
+
     function process(&$matches)
     {
         // default options
@@ -42,42 +42,42 @@ class Text_Wiki_Parse_Function extends Text_Wiki_Parse {
             'params' => array(),
             'throws' => array()
         );
-        
+
         // split apart the markup lines and loop through them
         $lines = explode("\n", $matches[2]);
         foreach ($lines as $line) {
-            
+
             // skip blank lines
             if (trim($line) == '') {
                 continue;
             }
-            
-            // find the first ':' on the line; the left part is the 
+
+            // find the first ':' on the line; the left part is the
             // type, the right part is the value. skip lines without
             // a ':' on them.
             $pos = strpos($line, ':');
             if ($pos === false) {
                 continue;
             }
-            
+
             // $type is the line type: name, access, return, param, throws
             // 012345678901234
             // name: something
             $type = trim(substr($line, 0, $pos));
             $val = trim(substr($line, $pos+1));
-            
+
             switch($type) {
-            
+
             case 'a':
             case 'access':
                 $opts['access'] = $val;
                 break;
-                
+
             case 'n':
             case 'name':
                 $opts['name'] = $val;
                 break;
-                
+
             case 'p':
             case 'param':
                 $tmp = explode(',', $val);
@@ -102,13 +102,13 @@ class Text_Wiki_Parse_Function extends Text_Wiki_Parse {
                     );
                 }
                 break;
-            
+
             case 'r':
             case 'return':
             case 'returns':
                 $opts['return'] = $val;
                 break;
-            
+
             case 't':
             case 'throws':
                 $tmp = explode(',', $val);
@@ -125,14 +125,14 @@ class Text_Wiki_Parse_Function extends Text_Wiki_Parse {
                     );
                 }
                 break;
-        
+
             default:
                 $opts[$type] = $val;
                 break;
-            
+
             }
         }
-        
+
         // add the token back in place
         return $this->wiki->addToken($this->rule, $opts) . $matches[4];
     }

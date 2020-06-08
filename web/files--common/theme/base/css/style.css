@@ -95,11 +95,11 @@ a.newpage{
 
 
 /*
-* 		LAYOUT 
+* 		LAYOUT
 */
 
 #page-content{
-	
+
 }
 
 #container {
@@ -144,7 +144,7 @@ a.newpage{
 	padding: 1em;
 	margin: 0 0 1em 0;
 	clear: left;
-	
+
 }
 
 #side-bar ul{
@@ -196,20 +196,20 @@ a.newpage{
 	font-size: 85%;
 }
 
-/* footer */ 
+/* footer */
 
 #footer{
 	margin-top: 5px;
 	padding: 3px 10px;
-	clear: both; 
-	overflow: hidden; 
+	clear: both;
+	overflow: hidden;
 }
 
 #footer .options{
 	float: right;
 	font-size: 90%;
 	padding: 1px 0;
-	
+
 }
 
 #license-area {
@@ -230,7 +230,7 @@ a.newpage{
 	right: 1em;
 	top: 3em;
 	z-index:10;
-	
+
 }
 
 #search-top-box input.empty{
@@ -249,7 +249,7 @@ a.newpage{
 
 #account-options{
 	position: absolute;
-	
+
 	box-sizing: border-box
 	-moz-box-sizing: border-box;
 	width: 15em;
@@ -259,7 +259,7 @@ a.newpage{
 	background-color: white;
 	display: none;
 	border: 1px solid #888;
-	
+
 }
 
 #account-options ul{
@@ -314,7 +314,7 @@ a.newpage{
 	float:left;
 	margin: 0 5px;
 	padding:0;
-	
+
 }
 #top-bar li ul{
 	padding: 0;
@@ -343,7 +343,7 @@ a.newpage{
 #top-bar a:hover {
 	background-color: #FFF;
 	text-decoration: underline;
-}	
+}
 
 #top-bar li ul li a{
 	width: 10em;
@@ -369,15 +369,15 @@ a.newpage{
 /* side-bar */
 
 
-/* 
-*		INTERFACE ELEMENTS 
+/*
+*		INTERFACE ELEMENTS
 */
 
 .edit-section-button{
 	margin-top: 0.7em;margin-right: 0.5em;
 	padding: 0 0.5em;
 	float:right;
-	
+
 	background-color: #FFF;
 }
 
@@ -476,8 +476,8 @@ a.action-area-close:hover{
 
 
 
-/* 
-*		WIKI-SPECIFIC ELEMENTS 
+/*
+*		WIKI-SPECIFIC ELEMENTS
 */
 
 
@@ -505,7 +505,7 @@ table.wiki-content-table th{
 	border: 1px dashed gray;
 	background-color: #F7F7F7;
 	display: table;
-	
+
 }
 
 #toc .title {
@@ -532,7 +532,7 @@ table.wiki-content-table th{
 }
 
 tt{
-	font-family: 'Andale Mono', 'Courier New', Courier, monospace; 
+	font-family: 'Andale Mono', 'Courier New', Courier, monospace;
 	font-size: 98%;
 }
 
@@ -541,7 +541,7 @@ pre{
 	font-family: 'Andale Mono', 'Courier New', Courier, monospace;
 }
 
-.code { 
+.code {
 	border: 1px dashed #DDD;
 	background-color: #F7F7F7;
 	font-family: 'Andale Mono', 'Courier New', Courier, monospace;
@@ -608,7 +608,7 @@ a.footnoteref{
 
 a.bibcite{
 	display: inline-block;
-}	
+}
 
 .image-container{
 	padding: 1em;
@@ -678,7 +678,7 @@ a.bibcite{
 
 
 .gallery-item.thumbnail td{
-	
+
 }
 
 .gallery-box .gallery-item table, .gallery-box .gallery-item .td{
@@ -688,7 +688,7 @@ a.bibcite{
 }
 
 .new-page-box{
-	text-align: center; 
+	text-align: center;
 	margin: 1em 0;
 }
 
@@ -791,7 +791,7 @@ table.page-compare td, table.page-compare th{
 	border: 1px solid #333;
 }
 .pager .target {
-	
+
 }
 
 /* page files & files upload */
@@ -862,13 +862,13 @@ a.avatar-hover div div{
 	background-color: white;
 	opacity: 0.9;
 	filter: alpha(opacity=90);
-	
+
 }
 
 a.avatar-hover div span{
 	padding: 0.5em 1em;
 	margin: 0 1em;
-	
+
 	background-color: white;
 	opacity: 0.9;
 	filter: alpha(opacity=90);
@@ -889,7 +889,7 @@ a.avatar-hover div span{
 /* inline widgets */
 
 .wait-block{
-	padding-left: 20px; 
+	padding-left: 20px;
 	background-repeat: no-repeat;
 	background-image: url(../images/progress/progresscircle.gif)
 }
@@ -930,7 +930,7 @@ a.avatar-hover div span{
 }
 
 .wait-icon{
-	
+
 	height: 40px;
 	background-repeat: no-repeat;
 	background-position: center center;
@@ -1042,7 +1042,7 @@ div.buttons{
 }
 
 div.buttons.alignleft{
-	text-align: left; 
+	text-align: left;
 }
 
 div.buttons input, input.button, button, file, a.button{
@@ -1129,7 +1129,7 @@ div.site-list-item .name{
 	font-weight: bold;
 }
 div.site-list-item .subtitle{
-}	
+}
 div.site-list-item .description{
 	font-style: italic;
 	padding-left: 2em;
@@ -1293,7 +1293,7 @@ version: 2.3.1
 .yui-navset-left .yui-nav,
 .yui-navset-right .yui-nav {
    position:absolute;
-   z-index:1; 
+   z-index:1;
 }
 
 .yui-navset-top .yui-nav,
@@ -1330,7 +1330,7 @@ version: 2.3.1
 }
 
 .yui-navset .yui-nav .selected,
-.yui-navset .yui-navset-top .yui-nav .selected { 
+.yui-navset .yui-navset-top .yui-nav .selected {
     margin:0 0.16em -1px 0; /* for overlap */
 }
 
@@ -1415,11 +1415,11 @@ version: 2.3.1
 }
 
 .yui-navset-left .yui-nav .selected,
-.yui-navset .yui-navset-left .yui-nav .selected { 
+.yui-navset .yui-navset-left .yui-nav .selected {
     margin:0 -1px 0.16em 0;
 }
 
-.yui-navset-right .yui-nav .selected { 
+.yui-navset-right .yui-nav .selected {
     margin:0 0 0.16em -1px;
 }
 
@@ -1467,18 +1467,18 @@ version: 2.3.1
 }
 
 .yui-navset .yui-navset-bottom .yui-nav .selected,
-.yui-navset-bottom .yui-nav .selected { 
+.yui-navset-bottom .yui-nav .selected {
     margin:-1px 0.16em 0 0; /* for overlap */
 }
 
 .yui-navset .yui-navset-bottom .yui-nav li,
-.yui-navset-bottom .yui-nav li { 
+.yui-navset-bottom .yui-nav li {
     padding:0 0 1px 0; /* gecko: make room for overflow */
     vertical-align:top;
 }
 
 .yui-navset .yui-navset-bottom .yui-nav li a,
-.yui-navset-bottom .yui-nav li a { 
+.yui-navset-bottom .yui-nav li a {
 }
 
 .yui-navset .yui-navset-bottom .yui-nav a em,

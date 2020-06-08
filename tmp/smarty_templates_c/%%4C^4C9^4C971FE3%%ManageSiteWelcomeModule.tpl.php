@@ -6,14 +6,14 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 
 <p>
 	<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>This is the administrative panel for your Site.<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
-	
+
 	<?php $this->_tag_stack[] = array('t', array('escape' => false)); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>But remember: <b>With Great Power Comes Great Responsibility</b>.<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
 </p>
 
 <?php if ($this->_tpl_vars['tips']): ?>
 
 	<h2><?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>A few tips for your Site<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?></h2>
-	
+
 	<ul>
 		<?php if ($this->_tpl_vars['tips']['forum']): ?>
 			<li>
@@ -26,24 +26,24 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 			<li>
 				<strong>Use site tags</strong><br/>
 				If your Site already has some interesting content you should describe your Site by appropriate Tags
-				- it will be easier to find for others. Go to 
+				- it will be easier to find for others. Go to
 				<a href="javascript:;" onclick="WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-general')">General settings</a>.
 			</li>
 		<?php endif; ?>
 		<?php if ($this->_tpl_vars['tips']['invite']): ?>
 			<li>
 				<strong><?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Invite your friends or coworkers!<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?></strong><br/>
-				<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>It is easy to invite new people to join your site as members 
-				(if you need members at all). 
+				<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>It is easy to invite new people to join your site as members
+				(if you need members at all).
 				You can just send them emails with special invitations.<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?><br/>
 				<a href="javascript:;" onclick="WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-email-invitations')"><?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Send email invitations now!<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?></a>.
 			</li>
 			<li>
-				Or even better - <a href="javascript:;" onclick="WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-users-email-invitations')">you can allow your members to invite their friends</a> if you want the 
+				Or even better - <a href="javascript:;" onclick="WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-users-email-invitations')">you can allow your members to invite their friends</a> if you want the
 				community to grow quickly!
 			</li>
 		<?php endif; ?>
-		
+
 	</ul>
 
 <?php endif; ?>

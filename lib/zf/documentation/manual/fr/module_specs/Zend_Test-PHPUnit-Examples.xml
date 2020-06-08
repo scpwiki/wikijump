@@ -147,7 +147,7 @@ class UserControllerTest extends Zend_Test_PHPUnit_ControllerTestCase
 
         <para>Une fois ceci en place, nous pouvons écrire nos tests. Cependant, combien de ces tests nécessiteront qu'un
         utilisateur soit connecté ? La solution la plus simple est d'utiliser la logique de votre application pour faire
-        ceci... et d'esquiver un peu par l'utilisation des méthodes <code>resetResponse()</code> et 
+        ceci... et d'esquiver un peu par l'utilisation des méthodes <code>resetResponse()</code> et
         <code>resetResponse()</code>, qui vous permettront de dispatcher une nouvelle requête.</para>
 
         <programlisting role="php"><![CDATA[
@@ -169,7 +169,7 @@ class UserControllerTest extends Zend_Test_PHPUnit_ControllerTestCase
              ->resetResponse();
 
         $this->request->setPost(array());
-        
+
         // ...
     }
 

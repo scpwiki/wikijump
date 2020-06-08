@@ -48,11 +48,11 @@ $view->addHelperPath('Zend/Dojo/View/Helper/', 'Zend_Dojo_View_Helper');
         <programlisting role="php"><![CDATA[
 <? // setup data store for FilteringSelect ?>
 <div dojoType="custom.PairedStore" jsId="stateStore"
-    url="/data/autocomplete/type/state/format/ajax" 
+    url="/data/autocomplete/type/state/format/ajax"
     requestMethod="get"></div>
 
 <? // Input element: ?>
-State: <input id="state" dojoType="dijit.form.FilteringSelect" 
+State: <input id="state" dojoType="dijit.form.FilteringSelect"
     store="stateStore" pageSize="5" />
 
 <? // setup required dojo elements:
@@ -71,16 +71,16 @@ $this->dojo()->enable()
 <?= $this->doctype() ?>
 <html>
 <head>
-    <?= $this->headTitle() ?> 
-    <?= $this->headMeta() ?> 
-    <?= $this->headLink() ?> 
-    <?= $this->headStyle() ?> 
+    <?= $this->headTitle() ?>
+    <?= $this->headMeta() ?>
+    <?= $this->headLink() ?>
+    <?= $this->headStyle() ?>
 <? if ($this->dojo()->isEnabled()):
     $this->dojo()->setLocalPath('/js/dojo/dojo.js')
                  ->addStyleSheetModule('dijit.themes.tundra');
     echo $this->dojo();
 ?>
-    <?= $this->headScript() ?> 
+    <?= $this->headScript() ?>
 </head>
 <body class="tundra">
     <?= $this->layout()->content ?>
@@ -168,10 +168,10 @@ $view->dojo()->addStylesheetModule('dijit.themes.tundra');
 ]]></programlisting>
 
         <para>
-            模块路径通过使用字符 '.'作为目录分隔符和在主题目录里列表中最后的值作为CSS文件的名称来找出。            
+            模块路径通过使用字符 '.'作为目录分隔符和在主题目录里列表中最后的值作为CSS文件的名称来找出。
             在上述例子中，Dojo 在 'dijit/themes/tundra/tundra.css' 中寻找主题。
         </para>
-        
+
         <para>
             当使用主题时，记住传递主题类很重要，至少，传递在你使用的 dijits 周围的容器；
             最常用的用例是在 body 里传递它：
@@ -241,7 +241,7 @@ $view->dojo()->addLayer('/js/foo/foo.js');
         </para>
 
         <itemizedlist>
-            <listitem><para><code>setView(Zend_View_Interface $view)</code>: 
+            <listitem><para><code>setView(Zend_View_Interface $view)</code>:
                     在容器中设置一个视图实例。</para></listitem>
             <listitem><para><code>enable()</code>: 显式地开启 Dojo
                     集成。</para></listitem>
@@ -255,13 +255,13 @@ $view->dojo()->addLayer('/js/foo/foo.js');
                     已经被请求。</para></listitem>
             <listitem><para><code>registerModulePath($module, $path)</code>:
                     注册一个定制的 Dojo 模块路径。</para></listitem>
-            <listitem><para><code>getModulePaths()</code>: 
+            <listitem><para><code>getModulePaths()</code>:
                     获得已注册模块路径列表。</para></listitem>
             <listitem><para><code>addLayer($path)</code>: 添加一个 layer （定制）
                     路径。</para></listitem>
-            <listitem><para><code>getLayers()</code>: 
+            <listitem><para><code>getLayers()</code>:
                     获得已注册的 layer 路径（定制）的列表。</para></listitem>
-            <listitem><para><code>removeLayer($path)</code>: 
+            <listitem><para><code>removeLayer($path)</code>:
                     从已注册的 layers （定制）列表里删除匹配 <code>$path</code> 的 layer。
                     </para></listitem>
             <listitem><para><code>setCdnBase($url)</code>: 为  CDN 设置基础 URL；
@@ -275,79 +275,79 @@ $view->dojo()->addLayer('/js/foo/foo.js');
             <listitem><para><code>setCdnVersion($version = null)</code>:
                     从 CDN 设置 Dojo 的版本。
                     </para></listitem>
-            <listitem><para><code>getCdnVersion()</code>: 
+            <listitem><para><code>getCdnVersion()</code>:
                     从将要用的 CDN 获取 Dojo 的版本。
                     </para></listitem>
-            <listitem><para><code>setCdnDojoPath($path)</code>: 
+            <listitem><para><code>setCdnDojoPath($path)</code>:
                     在一个 CDN 中设置 dojo.js 或 dojo.xd.js 文件的相对路径 ；
                     一般地是 <code>Zend_Dojo::CDN_DOJO_PATH_AOL</code> 或
                     <code>Zend_Dojo::CDN_DOJO_PATH_GOOGLE</code> 其中之一，但
                     它只需要是带版本号的路径字符串。
                     </para></listitem>
-            <listitem><para><code>getCdnDojoPath()</code>: 
+            <listitem><para><code>getCdnDojoPath()</code>:
                     获取最后的 CDN url 指向 dojo.js文件的路径段。
                     </para></listitem>
-            <listitem><para><code>useCdn()</code>: 
+            <listitem><para><code>useCdn()</code>:
                     告诉容器使用 CDN；显式地开启集成。
                     </para></listitem>
-            <listitem><para><code>setLocalPath($path)</code>: 
+            <listitem><para><code>setLocalPath($path)</code>:
                     告诉容器指向本地 Dojo 安装（和服务器相关的路径，包括 dojo.js 文件自己）
-                    的路径。显式地开启集成。                    
+                    的路径。显式地开启集成。
                     </para></listitem>
-            <listitem><para><code>getLocalPath()</code>: 
+            <listitem><para><code>getLocalPath()</code>:
                     确定使用哪个本地 Dojo 路径。
                     </para></listitem>
-            <listitem><para><code>useLocalPath()</code>: 
+            <listitem><para><code>useLocalPath()</code>:
                     是否集成使用 Dojo 本地路径？
                     </para></listitem>
-            <listitem><para><code>setDjConfig(array $config)</code>: 
+            <listitem><para><code>setDjConfig(array $config)</code>:
                     设置 dojo/dijit 配置值（需要联合数组）。
                     </para></listitem>
-            <listitem><para><code>setDjConfigOption($option, $value)</code>: 
+            <listitem><para><code>setDjConfigOption($option, $value)</code>:
                     设置一单个的 dojo/dijit 配置值。
                     </para></listitem>
-            <listitem><para><code>getDjConfig()</code>: 
+            <listitem><para><code>getDjConfig()</code>:
                     获取所有的 dojo/dijit 配置值。
                     </para></listitem>
             <listitem><para><code>getDjConfigOption($option, $default =
-                    null)</code>: 
+                    null)</code>:
                     获取一单个的 dojo/dijit 配置值。
                     </para></listitem>
-            <listitem><para><code>addStylesheetModule($module)</code>: 
+            <listitem><para><code>addStylesheetModule($module)</code>:
                     基于模块主题添加风格。
                     </para></listitem>
-            <listitem><para><code>getStylesheetModules()</code>: 
+            <listitem><para><code>getStylesheetModules()</code>:
                     获取注册为模块主题的风格。
                     </para></listitem>
-            <listitem><para><code>addStylesheet($path)</code>: 
+            <listitem><para><code>addStylesheet($path)</code>:
                     添加一个本地风格来和 Dojo 一起使用。
                     </para></listitem>
-            <listitem><para><code>getStylesheets()</code>: 
+            <listitem><para><code>getStylesheets()</code>:
                     获取本地 Dojo 风格。
                     </para></listitem>
-            <listitem><para><code>addOnLoad($spec, $function = null)</code>: 
+            <listitem><para><code>addOnLoad($spec, $function = null)</code>:
                     为 dojo.onLoad 添加一个 lambda 来调用。如果传递一个参数，那就是
                     函数名或一个 javascript closure。如果传递两个参数，第一参数是
                     对象实例变量的名字，第二个参数是该对象的方法名或使用这个对象的
                     一个 closure。
                     </para></listitem>
-            <listitem><para><code>getOnLoadActions()</code>: 
+            <listitem><para><code>getOnLoadActions()</code>:
                     获取所有用容器注册的 dojo.onLoad 动作，将是一个数组的数组。
                     </para></listitem>
             <listitem><para><code>onLoadCaptureStart($obj = null)</code>:
                     为 dojo.onLoad() 抓取用做 lambda 的数据。如果提供了 $obj，
                     那么 JS 抓取代码被认为是一个和 Javascript 对象一起使用的 closure 。
                     </para></listitem>
-            <listitem><para><code>onLoadCaptureEnd($obj = null)</code>: 
+            <listitem><para><code>onLoadCaptureEnd($obj = null)</code>:
                     停止为使用 dojo.onLoad() 抓取数据。
                     </para></listitem>
             <listitem><para><code>javascriptCaptureStart()</code>:
  	            抓取任意的 javascript 包含到 Dojo JS （onLoad、 require 等语句）。
  	            </para></listitem>
- 	    <listitem><para><code>javascriptCaptureEnd()</code>: 
+ 	    <listitem><para><code>javascriptCaptureEnd()</code>:
  	             停止抓取 javascript。
  	             </para></listitem>
-            <listitem><para><code>__toString()</code>: 
+            <listitem><para><code>__toString()</code>:
                     转换容器为字符串；解析所有的 HTMl 风格和脚本元素。
                     </para></listitem>
         </itemizedlist>

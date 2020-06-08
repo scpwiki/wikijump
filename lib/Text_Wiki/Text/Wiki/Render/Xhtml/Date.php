@@ -27,7 +27,7 @@ class Text_Wiki_Render_Xhtml_Date extends Text_Wiki_Render {
        	$format = '|'.$format;
        }
        	$output = '<span class="odate">' . $timestamp . $format . '</span>';
-       	
+
         return $output;
     }
 }

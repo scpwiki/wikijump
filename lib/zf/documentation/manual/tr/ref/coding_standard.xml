@@ -8,7 +8,7 @@
 
             <para>
 		Bu belge geliştiriciler ve geliştirici takımları veya Zend Framework üzerinde
-		geliştirme yapanlar için yönergeler ve kaynaklar sağlamaktadır.		
+		geliştirme yapanlar için yönergeler ve kaynaklar sağlamaktadır.
 		Kapsanan konular :
 
                 <itemizedlist>
@@ -55,9 +55,9 @@
             </para>
 
             <para>
-                <emphasis>ÖNEMLİ:</emphasis><code>__HALT_COMPILER()</code> ile ikili herhangi veri dahil edilebilir olmasına		
+                <emphasis>ÖNEMLİ:</emphasis><code>__HALT_COMPILER()</code> ile ikili herhangi veri dahil edilebilir olmasına
 		rağmen herhangi bir Zend Framework PHP dosyasıyla veya bunlardan türetilen dosyalarda dahil etme engellenmiştir.
-		Bu özelliğin kullanımına sadece bazı özel kurulum betiklerinde izin verilmiştir.	
+		Bu özelliğin kullanımına sadece bazı özel kurulum betiklerinde izin verilmiştir.
             </para>
         </sect2>
 
@@ -71,7 +71,7 @@
             <title>Maksimum Satır Uzunluğu</title>
 
             <para>
-                Hedef satır uzunluğu 80 karakterdir , örn. geliştiriciler mümkün olduğunca 
+                Hedef satır uzunluğu 80 karakterdir , örn. geliştiriciler mümkün olduğunca
 		kodu pratik olan 80-sütün sınırına yakın tutmalılar.Gene de daha uzun satırlar
 		kabul edilebilir.Herhangi bir satır PHP kodunun maksimum uzunluğu 120 karakterdir.
             </para>
@@ -81,8 +81,8 @@
             <title>Satır Sonlandırma</title>
 
             <para>
-		Satır sonlandırma unix metin dosyaları için standart bir yöntemdir.Satırlar 
-		mutlaka linefeed(LF) ile bitmelidir.Linefeed'ler ordinal olarak 10 veya onaltılık 
+		Satır sonlandırma unix metin dosyaları için standart bir yöntemdir.Satırlar
+		mutlaka linefeed(LF) ile bitmelidir.Linefeed'ler ordinal olarak 10 veya onaltılık
 		olarak 0x0A şeklinde temsil edilir.
             </para>
 
@@ -101,7 +101,7 @@
             <title>Sınıflar</title>
 
             <para>
-		Zend Framework sınıfların isimlerini bulundukları dizinlere eşlenmesini sağlayan  bir isimlendirme kuralına sahip. 
+		Zend Framework sınıfların isimlerini bulundukları dizinlere eşlenmesini sağlayan  bir isimlendirme kuralına sahip.
 		Zend Framework'ün kök dizini altındaki tüm sınıfların hiyerarşik olarak barındırıldığı "Zend/" dizinidir.
             </para>
 
@@ -109,7 +109,7 @@
                 Sınıf isimleri sadece alfanümerik karakterlerden oluşabilir.
 		Numaralar sınıf isimlerinde kullanılabilirler ancak bu kullanım uygun bulunmamaktadır.
 		Altçizgilerin sadece konum ayıracının yerine kullanılmasına izin verilir -- "Zend/Db/Table.php" dosya
-		adı mutlaka "Zend_Db_Table" sınıfına  eşleme yapmalıdır.	
+		adı mutlaka "Zend_Db_Table" sınıfına  eşleme yapmalıdır.
             </para>
 
             <para>
@@ -119,14 +119,14 @@
             </para>
 
             <para>
-		Zend tarafından veya katılımcı ortak firmalardan biri tarafından 
+		Zend tarafından veya katılımcı ortak firmalardan biri tarafından
 		yazılan ve Zend Framework ile dağıtılan Zend Framework sınıfları "Zend_" ile başlamalı
 		ve bundan dolayı hiyerarşik olarak "Zend/" dizini içinde yerini almalı.
             </para>
 
             <para>
                 Bunlar sınıflar için kabul edilebilir isimler :
-                
+
 
                 <programlisting role="php"><![CDATA[
 Zend_Db
@@ -161,14 +161,14 @@ Zend_Controller_Dispatcher_Interface]]>
 
             <para>
 		Diğer tüm dosyalar için sadece alfanümerik karakterler , altçizgiler ve tire karakteri ("-")
-		kullanılabilir. Boşluklar ve geri kalan karakterler kullanılamaz. 
+		kullanılabilir. Boşluklar ve geri kalan karakterler kullanılamaz.
             </para>
 
             <para>
                 PHP kodu içeren her dosya mutlaka ".php" dosya uzantısına sahip olmalıdır.
 		Bu örnekler yukarıdaki bölümdeki sınıf isimlerini içererek kabul edilebilen dosya isimleri
 		göstermektedir :
-		
+
 
                 <programlisting role="php"><![CDATA[
 Zend/Db.php
@@ -186,7 +186,7 @@ Zend/View/Helper/FormRadio.php]]>
 
             <para>
 		Fonksiyon isimleri sadece alfanümerik karakterler içerebilir. Altçizgiler fonksiyon isimlerinde
-		kullanılamaz. Numaralar kullanılabilir ancak bu kullanım uygun bulunmamaktadır                
+		kullanılamaz. Numaralar kullanılabilir ancak bu kullanım uygun bulunmamaktadır
             </para>
 
             <para>
@@ -219,7 +219,7 @@ widgetFactory()]]>
 
             <para>
 		Fonksiyonlar ("floating functions") genel kapsamda kullanılabilir ancak bu kullanım uygun bulunmamaktadır.
-                Bu fonksiyonları static bir sınıf'ın içine koymalısınız.                
+                Bu fonksiyonları static bir sınıf'ın içine koymalısınız.
             </para>
         </sect2>
 
@@ -229,13 +229,13 @@ widgetFactory()]]>
             <para>
                 Değişken isimleri sadece alfanümerik karakterleden oluşabilir.Altçizgi kullanılamaz.
 		Değişken isimlerinde numaralar kullanılabilir ancak bu kullanım uygun bulunmamaktadır.
-		
+
             </para>
 
             <para>
                 "private" veya "protected" construct'ı ile tanımlanmış sınıf üyesi değişkenlerin
-		değişken isminin ilk harfi altçizgi olmalı.Bu fonksiyon adında altçizgi kullanılabilir tek  kullanım 
-		şeklidir. "public" ile tanımlanmış üye değişkenler asla altçizgi ile başlamamalı.	
+		değişken isminin ilk harfi altçizgi olmalı.Bu fonksiyon adında altçizgi kullanılabilir tek  kullanım
+		şeklidir. "public" ile tanımlanmış üye değişkenler asla altçizgi ile başlamamalı.
             </para>
 
             <para>
@@ -269,7 +269,7 @@ widgetFactory()]]>
 
             <para>
                 Sabitler "const" construct'ı kullanılarak sınıf üyeleri olarak tanımlanmalı.
-		Sabitler genel kapsamda "define" ile tanımlanabilmesine karşın bu tanımlama uygun görülmemektedir.		
+		Sabitler genel kapsamda "define" ile tanımlanabilmesine karşın bu tanımlama uygun görülmemektedir.
             </para>
         </sect2>
     </sect1>
@@ -281,7 +281,7 @@ widgetFactory()]]>
             <title>PHP Kodu Sınırlaması</title>
 
             <para>
-                PHP kodu her zaman için tam,standart PHP tagleri ile ayrılmalı :		
+                PHP kodu her zaman için tam,standart PHP tagleri ile ayrılmalı :
 
                 <programlisting role="php"><![CDATA[<?php
 
@@ -290,7 +290,7 @@ widgetFactory()]]>
 
             <para>
                 Kısa taglere izin verilmez. Sadece PHP kodu içeren dosyalarda kapama tagi her zaman
-		için gözardı edilmeli (bakınız <xref linkend="coding-standard.php-file-formatting.general" />).		
+		için gözardı edilmeli (bakınız <xref linkend="coding-standard.php-file-formatting.general" />).
             </para>
         </sect2>
 
@@ -315,8 +315,8 @@ $a = 'Örnek String';]]>
 
                 <para>
 		    Bir yalın string kesme işareti içerdiği zaman string tırnak işareti veya çift tırnak ile ayrılmalı.
-		    Bu özellikle SQL ifadelerine uygun :	    
-                    
+		    Bu özellikle SQL ifadelerine uygun :
+
 
                     <programlisting role="php"><![CDATA[
 $sql = "SELECT `id`, `name` from `people` WHERE `name`='Fred' OR `name`='Susan'";]]>
@@ -331,7 +331,7 @@ $sql = "SELECT `id`, `name` from `people` WHERE `name`='Fred' OR `name`='Susan'"
 
                 <para>
                     Değişken yerine koyma şu iki şekilde yapılabilir :
-                    
+
 
                     <programlisting role="php"><![CDATA[
 $greeting = "Merhaba $isim, tekrar hoşgeldin!";
@@ -342,7 +342,7 @@ $greeting = "Merhaba {$isim}, tekrar hoşgeldin!";]]>
 
                 <para>
                     Tutarlılık için bu kullanıma izin verilmez :
-                    
+
 
                     <programlisting role="php"><![CDATA[
 $greeting = "Merhaba ${isim}, tekrar hoşgeldin!";]]>
@@ -367,7 +367,7 @@ $company = 'Zend' . 'Technologies';]]>
 		    ifadeyi birden çok satıra bölebiliriz.Bu gibi durumlarda her başarılı satır
 		    "." operatörünün "=" operatörünün altına döşendiği gibi whitespace ile takviye
 		    edilmeli :
-		    
+
                     <programlisting role="php"><![CDATA[
 $sql = "SELECT `id`, `name` FROM `people` "
      . "WHERE `name` = 'Susan' "
@@ -393,7 +393,7 @@ $sql = "SELECT `id`, `name` FROM `people` "
                 <para>
 		    İndeksli dizileri <code>array</code> construct'ı ile tanımlarken  , okunabilirliği artırmak için
 		    her virgül ayıracından sonra  boşluk bırakılmalı :
-                    
+
 
                     <programlisting role="php"><![CDATA[
 $sampleArray = array(1, 2, 3, 'Zend', 'Studio');]]>
@@ -401,8 +401,8 @@ $sampleArray = array(1, 2, 3, 'Zend', 'Studio');]]>
                 </para>
 
                 <para>
-                    "array" construct'ı ile çok satırlı indeksli diziler de tanımlanabilir. 
-		    Bu durumda aşağıda gösterildiği gibi her başarılı satırın başlangıcı aynı hizaya gelecek şekilde  
+                    "array" construct'ı ile çok satırlı indeksli diziler de tanımlanabilir.
+		    Bu durumda aşağıda gösterildiği gibi her başarılı satırın başlangıcı aynı hizaya gelecek şekilde
 		    boşluklarla takviye edilmeli :
 
                     <programlisting role="php"><![CDATA[
@@ -418,9 +418,9 @@ $sampleArray = array(1, 2, 3, 'Zend', 'Studio',
 
                 <para>
                     Birleşmeli dizileri <code>array</code> construct'ı ile tanımlarken ifadeyi satırlara bölmek
-		    tavsiye edilir. Bu durumda her başarılı satır her anahtar ve değer aynı hizaya gelecek 
+		    tavsiye edilir. Bu durumda her başarılı satır her anahtar ve değer aynı hizaya gelecek
 		    şekilde whitespace ile takviye edilmeli:
-                    
+
 
                     <programlisting role="php"><![CDATA[
 $sampleArray = array('ilkAnahtar'  => 'ilkDeger',
@@ -473,7 +473,7 @@ class SampleClass
                     Sınıf içinde tanımlanmış her değişken sınıfın en üstünde , herhangi bir fonksiyon tanımlamadan
 		    listelenmeli.
                 </para><para>
-                    <code>var</code> construct'ına izin verilmez. Üye değişkenler görünürlüklerini her zaman 
+                    <code>var</code> construct'ına izin verilmez. Üye değişkenler görünürlüklerini her zaman
 		    <code>private</code>,<code>protected</code> veya <code>public</code> constructlarından biriyle
 		    tanımlar.Üye değişkenlere direk erişim için onları public yapabilirsiniz ama erişir değişkenler (set/get)
 		    kabul gördüğünden bu yöntem uygun değildir.
@@ -493,17 +493,17 @@ class SampleClass
 		    Sınıflar içindeki fonksiyonlar görünürlüklerini her zaman <code>private</code>,<code>protected</code>
 		    veya <code>public</code> constructlarından  biriyle tanımlanmalı.
                 </para><para>
-                    Sınıflarda olduğu gibi , her zaman büyük parantez fonksiyon isminin altındaki 
+                    Sınıflarda olduğu gibi , her zaman büyük parantez fonksiyon isminin altındaki
 		    satıra yazılır.("Bir gerçek büyük parantez" formu).
-		    
-		    Fonksiyon ismi ile fonksiyon argümanları için açılan 
+
+		    Fonksiyon ismi ile fonksiyon argümanları için açılan
 		    parantez arasında boşluk bulunmaz.
-		    
+
                 </para><para>
                     Genel kapsamda fonksiyon kullanmak kesinlikle uygun bulunmuyor.
                 </para><para>
                     Bir sınıfta kabuledilebilir fonksiyon tanımlaması örneği :
-		    
+
 
                     <programlisting role="php"><![CDATA[
 /**
@@ -548,7 +548,7 @@ class Foo
 
                 <para>
                     Return değeri parantez içine anlınmamalı. Bu okunabilirliğe engel olabilir ayrıca
-		    ilerde eğer metod referans ile return yapacak şekilde değişirse kodun çalışmasını 
+		    ilerde eğer metod referans ile return yapacak şekilde değişirse kodun çalışmasını
 		    durdurabilir.
 
                     <programlisting role="php"><![CDATA[
@@ -583,9 +583,9 @@ class Foo
 
                 <para>
                     Fonksiyon argümanları virgülden ayıracından sonra bir boşluk bırakılarak yazılır.
-                    
+
                     Üç argüman alan bir fonksiyon için kabul edilebilir bir fonksiyon çağrısı örneği:
-                    
+
 
                     <programlisting role="php"><![CDATA[
 threeArguments(1, 2, 3);]]>
@@ -596,8 +596,8 @@ threeArguments(1, 2, 3);]]>
 		    Çağrı anında referans ile aktarım yapılamaz. Fonksiyon argümanlarını referans ile aktarmak için
 		    fonksiyon tanımlamaları bölümüne bakın.
                 </para><para>
-                    
-		    Argüman olarak dizileri alabilen fonksiyonlar için fonksiyon çağrısı "array" 
+
+		    Argüman olarak dizileri alabilen fonksiyonlar için fonksiyon çağrısı "array"
 		    construct'ını içerebilir ve okunabilirliği artırmak için satırlara ayrılabilir.
 		    Bu gibi durumlarda dizi yazım kuralları geçerliliğini korur:
 
@@ -625,7 +625,7 @@ threeArguments(array(1, 2, 3, 'Zend', 'Studio',
 
                 <para>
                     Parantezler içindeki koşullu ifadelerdeki operatörler okunabilirliği artırmak için boşluklarla
-		    ayrılmalı. Daha geniş koşulların mantıksal gruplandırılmasını geliştirmesi için 
+		    ayrılmalı. Daha geniş koşulların mantıksal gruplandırılmasını geliştirmesi için
 		    iç parantez kullanılmalı.
                 </para>
 
@@ -641,7 +641,7 @@ if ($a != 2) {
 
                 <para>
                     "else" veya "else" içeren "if" ifadeleri için biçimlendirme bu örneklerdeki gib olmalı :
-                    
+
 
                     <programlisting role="php"><![CDATA[
 if ($a != 2) {
@@ -660,7 +660,7 @@ if ($a != 2) {
 }]]>
                     </programlisting>
                     PHP kimi durumlarda buradaki ifadelerin büyük parantez kullanmadan yazılmasına izin verir.
-                    Kodlama standardında bir fark olmaz ve tüm "if" , "elseif" veya "else" ifadeleri 
+                    Kodlama standardında bir fark olmaz ve tüm "if" , "elseif" veya "else" ifadeleri
 		    büyük parantez kullanmak zorundadır.
                 </para>
 
@@ -701,10 +701,10 @@ switch ($numPeople) {
                 </para>
 
                 <para>
-                    
+
 		   <emphasis>NOT:</emphasis>Bazen <code>break</code> veya <code>return</code>  eklemeyerek  sıradaki case'e düşen <code>case</code>
 		    ifadesi yazmak yararlıdır.
-		    
+
 		    Bu gibi durumları hatalardan ayırt etmek için <code>break</code> veya  <code>return</code> ihmal edilmiş <code>case</code>
 		    ifadelerine "// break intentionally omitted"("//break kasıtlı olarak koyulmadı") yorumu eklenmeli.
                 </para>
@@ -720,13 +720,13 @@ switch ($numPeople) {
                 <para>
                     Tüm bilgilendirme kısımları ("docblocks") phpDocumentor biçimi ile uyumlu olmalı.
 		    phpDocumenter biçimini açıklamak bu belgenin kapsamı dışındadır.
-		    Daha fazla bilgi için lütfen ziyaret edin : <ulink url="http://phpdoc.org/">http://phpdoc.org/</ulink>                    
+		    Daha fazla bilgi için lütfen ziyaret edin : <ulink url="http://phpdoc.org/">http://phpdoc.org/</ulink>
                 </para>
 
                 <para>
-                    Zend Framework için veya Zend Framework ile çalışan her kaynak kod dosyası her dosyanın üstünde 
+                    Zend Framework için veya Zend Framework ile çalışan her kaynak kod dosyası her dosyanın üstünde
 		    "dosya seviyesinde" ve her sınıfın üstünde "sınıf seviyesinde" bilgilendirme kısmı içermelidir.
-		    
+
 		    Aşağıdakiler bilgilendirme kısmı örnekleri :
                 </para>
             </sect3>
@@ -735,7 +735,7 @@ switch ($numPeople) {
                 <title>Dosyalar</title>
 
                 <para>
-                    PHP kodu içeren her dosya üst kısmında en az aşağıdaki kadar phpDocumentor tagleri içerecek şekilde 
+                    PHP kodu içeren her dosya üst kısmında en az aşağıdaki kadar phpDocumentor tagleri içerecek şekilde
 		    bir başlık kısmına sahip olmalı:
 
                     <programlisting role="php"><![CDATA[
@@ -761,7 +761,7 @@ switch ($numPeople) {
 
                 <para>
                     Her sınıf en az aşağıdaki kadar phpDocumentor tagleri içerecek şekilde bilgilendirme kısmı içermeli :
-                    
+
 
                     <programlisting role="php"><![CDATA[
 /**
@@ -785,7 +785,7 @@ switch ($numPeople) {
 
                 <para>
                 Her fonksiyon ,nesne methodları  en az aşağıdaki gibi bilgilendirme kısmı içermeli:
-                
+
                     <itemizedlist>
                         <listitem><para>Fonksiyonun açıklaması</para></listitem>
                         <listitem><para>Tüm argümanlar</para></listitem>
@@ -796,13 +796,13 @@ switch ($numPeople) {
                 <para>
                     Fonksiyonun erişim seviyesi fonksiyon tanımlanırken "public","private" veya "protected" construct'ları ile
 		    tanımlandığı için "@access" taginin kullanılmasına gerek yoktur.
-		    
+
                 </para>
 
                 <para>
-                    
+
 		    Eğer fonksiyon/metod kural dışı durum(exception) fırlatabiliyorsa , @throws kullanın:
-                    
+
 
                     <programlisting role="php"><![CDATA[
 @throws exceptionclass [açıklama]]]>

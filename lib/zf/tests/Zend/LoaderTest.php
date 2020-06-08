@@ -347,12 +347,12 @@ class Zend_LoaderTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * In order to play nice with spl_autoload, an autoload callback should 
-     * *not* emit errors (exceptions are okay). ZF-2923 requests that this 
+     * In order to play nice with spl_autoload, an autoload callback should
+     * *not* emit errors (exceptions are okay). ZF-2923 requests that this
      * behavior be applied, which counters the previous request in ZF-2463.
      *
-     * As it is, the new behavior *will* hide parse and other errors. However, 
-     * a fatal error *will* be raised in such situations, which is as 
+     * As it is, the new behavior *will* hide parse and other errors. However,
+     * a fatal error *will* be raised in such situations, which is as
      * appropriate or more appropriate than raising an exception.
      *
      * @todo   Determine how to get the shell_exec to work on windows

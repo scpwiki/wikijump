@@ -4,7 +4,7 @@
         <code>Zend_Mail</code> poskytuje obecnú funkcionalitu pre posielanie a vytvaranie
         textovych a MIME e-mailov. E-Mail môže byť poslaný pomocou vstavanej PHP
         funkcie <ulink url="http://php.net/mail"><code>mail()</code></ulink> alebo
-        cez SMTP spojenie. 
+        cez SMTP spojenie.
     </para>
     <example>
         <title>Jednoduchý E-Mail pomocou Zend_Mail</title>
@@ -44,7 +44,7 @@ $mail->send();
     <para>
         Väčšinu metód je možné použiť v pohodlnom plynulom rozhraní. Pohodlné plynulé
         rozhranie znamená, to že každé volanie vráti referenciu na objekt nad ktorým
-        bola metóda volaná a hneď je teda možné zavolať inú metódu. 
+        bola metóda volaná a hneď je teda možné zavolať inú metódu.
     </para>
         <programlisting role="php"><![CDATA[<?php
 require_once 'Zend/Mail.php';

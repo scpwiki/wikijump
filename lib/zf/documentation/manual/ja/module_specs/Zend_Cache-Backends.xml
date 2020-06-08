@@ -205,7 +205,7 @@
                           <entry><code>array</code></entry>
                           <entry>
                             <code>
-                              array(array('host' => 'localhost', 'port' => 11211, 'persistent' => true, 'weight' => 1, 
+                              array(array('host' => 'localhost', 'port' => 11211, 'persistent' => true, 'weight' => 1,
                               'timeout' => 5, 'retry_interval' => 15, 'status' => true ))
                             </code>
                           </entry>

@@ -11,11 +11,11 @@
         adaptera, since it may be appropriate to do so in certain situations.
     </para>
     <para>
-        Each configuration data array value becomes a property of the 
-        <code>Zend_Config</code> object. The key is used as the property name. 
-        If a value is itself an array, then the resulting object property is 
-        created as a new <code>Zend_Config</code> object, loaded with the array 
-        data. This occurs recursively, such that a hierarchy of configuration 
+        Each configuration data array value becomes a property of the
+        <code>Zend_Config</code> object. The key is used as the property name.
+        If a value is itself an array, then the resulting object property is
+        created as a new <code>Zend_Config</code> object, loaded with the array
+        data. This occurs recursively, such that a hierarchy of configuration
         data may be created with any number of levels.
     </para>
     <para>
@@ -68,11 +68,11 @@
         nie jest obsługiwane.
     </para>
     <para>
-        Jeśli masz dwa obiekty <code>Zend_Config</code>, możesz je połączyć w 
-        jeden pojedynczy obiekt używając metody <code>merge()</code>. 
+        Jeśli masz dwa obiekty <code>Zend_Config</code>, możesz je połączyć w
+        jeden pojedynczy obiekt używając metody <code>merge()</code>.
         Na przykład, mając obiekt $config oraz $localConfig, możesz dołączyć
-        obiekt $localConfig do $config używając metody 
-        <code>$config->merge($localConfig);</code>. Dane z obiektu $localConfig 
+        obiekt $localConfig do $config używając metody
+        <code>$config->merge($localConfig);</code>. Dane z obiektu $localConfig
         nadpiszą dane o tej samej nazwie znajdujące się w obiekcie $config.
     </para>
 </sect1>

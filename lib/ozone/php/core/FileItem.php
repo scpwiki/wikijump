@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,14 +15,14 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Form
  * @version $Id$
  * @copyright Copyright (c) 2008, Wikidot Inc.
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
- 
+
 
 
 
@@ -35,8 +35,8 @@ class FileItem {
 	private $tmpName;
 	private $size;
 	private $type;
-	private $error;	
-	
+	private $error;
+
 	public function __construct($ar){
 		$this->name = $ar['name'];
 		$this->type = $ar['type'];
@@ -44,27 +44,27 @@ class FileItem {
 		$this->error = $ar['error'];
 		$this->size = $ar['size'];
 	}
-	
+
 	public function getName(){
-		return $this->name;	
+		return $this->name;
 	}
-	
+
 	public function getTmpName(){
-		return $this->tmpName;	
+		return $this->tmpName;
 	}
-	
+
 	public function getSize(){
-		return $this->size;	
+		return $this->size;
 	}
-	
+
 	public function getType(){
-		return $this->type;	
+		return $this->type;
 	}
-	
+
 	/**
 	 * Returns the error code.
 	 */
 	public function getError(){
-		return $this->error;	
+		return $this->error;
 	}
 }

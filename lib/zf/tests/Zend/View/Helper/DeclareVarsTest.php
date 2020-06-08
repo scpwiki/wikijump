@@ -11,7 +11,7 @@ require_once "PHPUnit/Framework/TestSuite.php";
 require_once 'Zend/View.php';
 require_once 'Zend/View/Helper/DeclareVars.php';
 
-class Zend_View_Helper_DeclareVarsTest extends PHPUnit_Framework_TestCase 
+class Zend_View_Helper_DeclareVarsTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.

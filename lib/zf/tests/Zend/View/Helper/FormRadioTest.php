@@ -10,13 +10,13 @@ require_once 'Zend/View/Helper/FormRadio.php';
 require_once 'Zend/View.php';
 
 /**
- * Zend_View_Helper_FormRadioTest 
+ * Zend_View_Helper_FormRadioTest
  *
  * Tests formRadio helper
- * 
+ *
  * @uses PHPUnit_Framework_TestCase
  */
-class Zend_View_Helper_FormRadioTest extends PHPUnit_Framework_TestCase 
+class Zend_View_Helper_FormRadioTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.

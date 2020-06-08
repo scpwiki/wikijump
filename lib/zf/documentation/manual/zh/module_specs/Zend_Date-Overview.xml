@@ -121,7 +121,7 @@ $date2 = new Zend_Date('Feb 31, 2007', Zend_Date::DATES, 'en_US');
 echo $date2, "\n"; // outputs "Mar 3, 2007 12:00:00 AM"
 
 // strictly restricts interpretation to specified format
-$date3 = new Zend_Date('Feb 31, 2007', 'MM.dd.yyyy'); 
+$date3 = new Zend_Date('Feb 31, 2007', 'MM.dd.yyyy');
 echo $date3, "\n"; // outputs "Mar 3, 2007 12:00:00 AM"
 ]]>
             </programlisting>
@@ -134,7 +134,7 @@ echo $date3, "\n"; // outputs "Mar 3, 2007 12:00:00 AM"
             如果 <code>$date</code> 是包含日期的字符串，语言的地方标识符要用来解析月和星期的名字。
             如果没有 <code>$date</code>  输入参数，那么 <code>$locale</code> 参数指定地方来用于本地化输出（例如，日期格式的字符串表示）。
             注意 <code>$date</code>  输入参数可能实际有类型名 （例如 <code>$hour</code> 对于 <code>addHour()</code>），尽管它不能防止用 <code>Zend_Date</code> 对象作为参数。
-            如果没有指定 <code>$locale</code> ，那么当前对象的地方用于解释 <code>$date</code>，或选择本地化的格式来输出。 
+            如果没有指定 <code>$locale</code> ，那么当前对象的地方用于解释 <code>$date</code>，或选择本地化的格式来输出。
         </para>
              <para>
         从 Zend Framework 1.7.0 开始，<code>Zend_Date</code> 也支持程序范围的地方的用法。你可以简单地如下设置 <code>Zend_Locale</code> 实例到注册表。
@@ -244,7 +244,7 @@ print $date;
                             <entry>
                                 <ulink url="http://en.wikipedia.org/wiki/Millisecond">毫秒</ulink>
                             </entry>
-                            <entry> 
+                            <entry>
                                 毫秒表示千分之一秒(0-999)。<code>Zend_Date</code> 支持两个另外的方法来支持小于秒的时间单位。
                                 缺省地，<code>Zend_Date</code>  实例精确到毫秒，如 <code>getFractionalPrecision()</code> ，我们用 <code>setFractionalPrecision($precision)</code> 来修改精确度。
                                 然而，因为 <code>Zend_Date</code> 使用 <code><ulink url="http://php.net/microtime">microtime()</ulink></code>，精确度实际上限制到微秒。
@@ -266,7 +266,7 @@ print $date;
                             </entry>
                             <entry>
                                 如果 <code>$date</code>  操作数是 <code>Zend_Date</code> 的实例或一个数字字符串，<code>Zend_Date::WEEK</code> 是从 <code>$date</code> 里取出。
-                                否则产生一个异常。（假定为罗马教皇日历） 
+                                否则产生一个异常。（假定为罗马教皇日历）
                              </entry>
                         </row>
                         <row>
@@ -281,9 +281,9 @@ print $date;
                             <entry>Weekday</entry>
                             <entry>
                                 Weekdays 表示为从 0 （星期日） 到 6 （星期六）.
-                                如果 <code>$date</code>  操作数是 <code>Zend_Date</code> 的实例或一个数字字符串，<code>Zend_Date::WEEKDAY_DIGIT</code> 是从 <code>$date</code> 里取出。  
+                                如果 <code>$date</code>  操作数是 <code>Zend_Date</code> 的实例或一个数字字符串，<code>Zend_Date::WEEKDAY_DIGIT</code> 是从 <code>$date</code> 里取出。
                                 否则，根据这些文档 <code>Zend_Date::WEEKDAY_NARROW</code>、
-                                <code>Zend_Date::WEEKDAY_NAME</code>、 <code>Zend_Date::WEEKDAY_SHORT</code> 和 <code>Zend_Date::WEEKDAY</code> （假定为罗马教皇日历）的惯例尝试从天里取出。                                 
+                                <code>Zend_Date::WEEKDAY_NAME</code>、 <code>Zend_Date::WEEKDAY_SHORT</code> 和 <code>Zend_Date::WEEKDAY</code> （假定为罗马教皇日历）的惯例尝试从天里取出。
                             </entry>
                         </row>
                         <row>
@@ -563,7 +563,7 @@ print $date;
                                 <emphasis role="strong">toArray()</emphasis>
                             </para>
                             <para>
-                                根据对象的地方的约定返回选择的日期的表示的数组。返回数组和 PHP 的 <ulink url="http://php.net/getdate">getdate()</ulink> 
+                                根据对象的地方的约定返回选择的日期的表示的数组。返回数组和 PHP 的 <ulink url="http://php.net/getdate">getdate()</ulink>
                                 函数相同并包括：
                             </para>
                             <para>
@@ -657,7 +657,7 @@ print $date;
                                 <emphasis role="strong">注:</emphasis>这个方法调用 <link linkend="id.date.basic.operations"><code>get()</code></link>
                                 并把结果做成 PHP 整数，如果  <code>get()</code> 返回一个包含对于你的系统的PHP太大的数的字符串，结果不可预计。
                                 使用 <code>get()</code> 作为替换。
-                                
+
                             </para>
                         </entry>
                     </row>
@@ -670,7 +670,7 @@ print $date;
                                 <emphasis role="strong">get($part = null, $locale = null)</emphasis>
                             </para>
                             <para>
-                                这个方法返回对象根据 <code>$locale</code> 本地化的日期的 <code>$part</code>，格式为字符串或整数。                                 
+                                这个方法返回对象根据 <code>$locale</code> 本地化的日期的 <code>$part</code>，格式为字符串或整数。
                                 更多信息参见<xref linkend="id.date.basic.operations" />。
                             </para>
                         </entry>

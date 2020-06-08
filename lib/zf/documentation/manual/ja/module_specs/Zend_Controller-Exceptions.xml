@@ -339,7 +339,7 @@ class My_Controller_PreDispatchPlugin extends Zend_Controller_Plugin_Abstract
             $defaultAction  = $dispatcher->getDefaultAction();
             $controllerName = $request->getControllerName();
             $response       = $front->getResponse();
-            $response->setRedirect('/' . $controllerName 
+            $response->setRedirect('/' . $controllerName
                                   . '/' . $defaultAction);
             $response->sendHeaders();
             exit;

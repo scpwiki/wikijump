@@ -109,7 +109,7 @@ $layoutVars   = $placeholders->placeholder('Zend_Layout')->getArrayCopy();
         <para>
             有三个选项来修改变形：通过<code>Zend_Layout</code>访问器修改变形目标和/或视图后缀，修改变形器规则和与<code>Zend_Layout</code>实例联合变形器目标，或者创建你自己的变形器实例并传递给<code>Zend_Layout::setInflector()</code>。
         </para>
-        
+
         <example id="zend.layout.advanced.inflector.accessors">
             <title>使用Zend_Layout访问器来修改变形器(inflector)</title>
 

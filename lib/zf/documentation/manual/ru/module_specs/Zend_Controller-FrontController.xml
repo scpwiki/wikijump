@@ -40,7 +40,7 @@
             Можно также использовать различные методы для дальнейшей
             настройки конфигураций фронт-контроллера и его помощников.
         </para>
-        
+
         <note>
             <title>Поведение по умолчанию</title>
             <para>
@@ -74,7 +74,7 @@ $front->setParam('noViewRenderer', true);
 ]]>
             </programlisting>
         </note>
-        
+
     </sect2>
 
     <sect2 id="zend.controller.front.methods.primary">
@@ -88,7 +88,7 @@ $front->setParam('noViewRenderer', true);
 
         <sect3 id="zend.controller.front.methods.primary.getinstance">
             <title>getInstance()</title>
-            
+
             <para>
                 <code>getInstance()</code> используется для получения экземпляра
                 фронт-контроллера. Поскольку фронт-контроллер реализует паттерн
@@ -151,7 +151,7 @@ $front->addControllerDirectory('../modules/foo/controllers', 'foo');
                 модуль => директория.
             </para>
         </sect3>
-            
+
         <sect3 id="zend.controller.front.methods.primary.addmoduledirectory">
             <title>addModuleDirectory() и getModuleDirectory()</title>
 
@@ -391,7 +391,7 @@ Zend_Controller_Front::run('../application/controllers');
                     позволяет регистрировать <link
                         linkend="zend.controller.plugins">объекты плагинов</link>.
                     Путем установки опционального параметра
-                    <code>$stackIndex</code>, вы можете 
+                    <code>$stackIndex</code>, вы можете
                     контролировать порядок, в котором выполняются плагины.
                 </para>
             </listitem>

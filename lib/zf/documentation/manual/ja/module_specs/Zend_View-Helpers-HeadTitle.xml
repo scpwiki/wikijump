@@ -34,7 +34,7 @@
             つまりサイト、コントローラ、アクションその他のリソースについての情報を示すことがあります。
         </para>
 
-        <programlisting role="php"><![CDATA[ 
+        <programlisting role="php"><![CDATA[
 // コントローラとアクションの名前を title 部に設定します
 $request = Zend_Controller_Front::getInstance()->getRequest();
 $this->headTitle($request->getActionName())

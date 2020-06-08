@@ -52,7 +52,7 @@ $this->getResponse()
         </programlisting>
 
         <para>
-            这样做，可以在显示内容之前，将所有消息头一次发送。		
+            这样做，可以在显示内容之前，将所有消息头一次发送。
         </para>
 
         <note>
@@ -62,7 +62,7 @@ $this->getResponse()
         </note>
 
         <para>
-			      如果程序中发生了异常，检查响应对象的<code>isException()</code> 标志，使用<code>getException()</code>获取异常。此外，可以创建定制的响应对象重定向到错误页面，记录异常消息，漂亮的格式化异常消息等。			          
+			      如果程序中发生了异常，检查响应对象的<code>isException()</code> 标志，使用<code>getException()</code>获取异常。此外，可以创建定制的响应对象重定向到错误页面，记录异常消息，漂亮的格式化异常消息等。
         </para>
 
         <para>
@@ -231,7 +231,7 @@ class MyController extends Zend_Controller_Action
         </programlisting>
 
         <para>
-			      上面的例子中，调用<code>/my/foo</code>会使得最终响应对象中的内容呈现下面的结构：           
+			      上面的例子中，调用<code>/my/foo</code>会使得最终响应对象中的内容呈现下面的结构：
         </para>
 
         <programlisting role="php"><![CDATA[
@@ -300,7 +300,7 @@ array(
         <itemizedlist>
             <listitem>
                 <para>
-                    <code>setException(Exception $e)</code> 注册一个异常。	
+                    <code>setException(Exception $e)</code> 注册一个异常。
                 </para>
             </listitem>
 

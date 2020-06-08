@@ -1,4 +1,4 @@
-Welcome to Zend Framework 1.7.2! This is the second maintenance release in the 
+Welcome to Zend Framework 1.7.2! This is the second maintenance release in the
 Zend Framework 1.7 series. This release maintains backwards compatibility
 with all Zend Framework 1.x releases.
 

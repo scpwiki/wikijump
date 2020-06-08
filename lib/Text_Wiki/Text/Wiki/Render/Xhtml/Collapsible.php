@@ -45,19 +45,19 @@ class Text_Wiki_Render_Xhtml_Collapsible extends Text_Wiki_Render {
     		}else{
     			$folded = true;
     		}
-    		
+
     		if($args['show']){
     			$show = $args['show'];
     		}else{
     			$show = "+ show block";
     		}
-    		
+
    			if($args['hide']){
     			$hide = $args['hide'];
     		}else{
     			$hide = "- hide block";
     		}
-    		
+
     		if($args['hideLocation'] && $args['hideLocation'] == 'bottom'){
     			$hideLocation = 'bottom';
     		}elseif($args['hideLocation'] && $args['hideLocation'] == 'both'){
@@ -65,9 +65,9 @@ class Text_Wiki_Render_Xhtml_Collapsible extends Text_Wiki_Render {
     		}else{
     			$hideLocation = 'top';
     		}
-    		
+
     		$count = $options['count'];
-    		
+
     		$hideB = '<div><a href="javascript:;" onclick="$(\'collapsible-block-'.$count.'-unfolded\').style.display=\'none\';$(\'collapsible-block-'.$count.'-folded\').style.display=\'block\';">'.htmlspecialchars($hide).'</a></div>';
 
     	 	if ($options['type'] == 'start') {
@@ -83,7 +83,7 @@ class Text_Wiki_Render_Xhtml_Collapsible extends Text_Wiki_Render {
     	 		$out .= '<div id="collapsible-block-'.$count.'-content">';
 
             	return $out;
-            	
+
         }
 
         if ($options['type'] == 'end') {

@@ -52,7 +52,7 @@ class Util
         </para>
 
         <para>
-            缺省地，如果没有描述，就不会生成输出。如果有描述，它将缺省地封装在 <code>p</code> 标签里，当生成装饰器时你可以通过传递一个 <code>tag</code>选项或调用 <code>setTag()</code> 来指定一个标签。你也可以使用 <code>class</code> 选项或调用 <code>setClass()</code> 来指定一个类，缺省使用 'hint' 类。            
+            缺省地，如果没有描述，就不会生成输出。如果有描述，它将缺省地封装在 <code>p</code> 标签里，当生成装饰器时你可以通过传递一个 <code>tag</code>选项或调用 <code>setTag()</code> 来指定一个标签。你也可以使用 <code>class</code> 选项或调用 <code>setClass()</code> 来指定一个类，缺省使用 'hint' 类。
         </para>
 
         <para>
@@ -148,7 +148,7 @@ class Util
         </para>
 
         <para>
-            你可以可选地指定一个 'tag' 选项，如果提供了，它封装在 block 一级标签（tag）封装这个标签（label）。如果有 'tag' 选项而没有标签（label）存在，那么标签（tag）就被不带内容解析。你可以用 'class' 选项或调用 <code>setClass()</code> 来指定和标签（tag）一起使用的类。 
+            你可以可选地指定一个 'tag' 选项，如果提供了，它封装在 block 一级标签（tag）封装这个标签（label）。如果有 'tag' 选项而没有标签（label）存在，那么标签（tag）就被不带内容解析。你可以用 'class' 选项或调用 <code>setClass()</code> 来指定和标签（tag）一起使用的类。
         </para>
 
         <para>
@@ -239,7 +239,7 @@ $element->setDecorators(array(array('ViewScript', array(
 $element->viewScript = '_element.phtml';
 $element->setDecorators(array(array('ViewScript', array('class' => 'form element'))));
 ?>]]></programlisting>
-        
+
         <para>
             你可以接着有一个如下的视图脚本：
         </para>
@@ -249,7 +249,7 @@ $element->setDecorators(array(array('ViewScript', array('class' => 'form element
     <?= $this->formLabel($this->element->getName(), $this->element->getLabel()) ?>
     <?= $this->{$this->element->helper}(
         $this->element->getName(),
-        $this->element->getValue(), 
+        $this->element->getValue(),
         $this->element->getAttribs()
     ) ?>
     <?= $this->formErrors($this->element->getMessages()) ?>

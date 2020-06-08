@@ -48,7 +48,7 @@ $entry->{'myns:container_elt'}->part2 = 'second nested custom part';
 echo $entry->saveXML();
 
 ?>
-]]>   
+]]>
         </programlisting>
     </example>
 </sect1>

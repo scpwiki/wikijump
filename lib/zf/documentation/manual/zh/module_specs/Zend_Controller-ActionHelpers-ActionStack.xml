@@ -28,9 +28,9 @@ class FooController extends Zend_Controller_Action
         // Add two actions to the stack
         // Add call to /foo/baz/bar/baz
         // (FooController::bazAction() with request var bar == baz)
-        $this->_helper->actionStack('baz', 
-                                    'foo', 
-                                    'default', 
+        $this->_helper->actionStack('baz',
+                                    'foo',
+                                    'default',
                                     array('bar' => 'baz'));
 
         // Add call to /bar/bat
@@ -60,16 +60,16 @@ class FooController extends Zend_Controller_Action
         // (FooController::bazAction() with request var bar == baz)
         $request = clone $this->getRequest();
         // Don't set controller or module; use current values
-        $request->setActionName('baz')               
-                ->setParams(array('bar' => 'baz')); 
+        $request->setActionName('baz')
+                ->setParams(array('bar' => 'baz'));
         $this->_helper->actionStack($request);
 
         // Add call to /bar/bat
         // (BarController::batAction())
         $request = clone $this->getRequest();
         // don't set module; use current value
-        $request->setActionName('bat')      
-                ->setControllerName('bar'); 
+        $request->setActionName('bat')
+                ->setControllerName('bar');
         $this->_helper->actionStack($request);
     }
 }

@@ -33,7 +33,7 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 
 					</div>
 				<?php endif; ?>
-				
+
 			</div>
 		<?php endforeach; endif; unset($_from); ?>
 	</div>

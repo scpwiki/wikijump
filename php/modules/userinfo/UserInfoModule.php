@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,56 +27,56 @@
 use DB\OzoneUserPeer;
 
 class UserInfoModule extends SmartyLocalizedModule {
-	
+
 	private $user; // nasty hack again...
-	
+
 	protected $processPage = true;
-	
+
 	public function build($runData){
 
-		// a hack to get unix user name 
+		// a hack to get unix user name
 		$qs =  $_SERVER['QUERY_STRING'];
 		$splited = explode("/",$qs);
-		
+
 		// WARNING!!! this is a hack! not a proper use of ParameterList object!
 		$userUnixName = $splited[3];
-		
+
 		if($userUnixName == null || $userUnixName == ''){
-			throw new ProcessException(_("No user specified."), "no_user");	
+			throw new ProcessException(_("No user specified."), "no_user");
 		}
-		
+
 		// get user
 		$c = new Criteria();
 		$c->add("unix_name", $userUnixName);
 		$user = OzoneUserPeer::instance()->selectOne($c);
-		
+
 		if($user == null){
 			throw new ProcessException(_("User does not exist."));
 		}
-		
+
 		$runData->contextAdd("user", $user);
-		$runData->contextAdd("userUnixName", $userUnixName); 
+		$runData->contextAdd("userUnixName", $userUnixName);
 		$runData->contextAdd("userId", $user->getUserId());
-		
+
 		$this->user = $user;
 
-		// get the referring page too in case one wants to 
+		// get the referring page too in case one wants to
 		// flag an abusive user. than we set site_id of the flag
 		// to the site which the user comes from if
 		// this is a wikidot site.
-		
+
 		$referer = $_SERVER['HTTP_REFERER'];
-		
+
 		if($referer){
 			$referer = parse_url($referer);
-			$referer = $referer['host'];	
+			$referer = $referer['host'];
 		}
-		
+
 		$runData->contextAdd("referer", $referer);
-		
+
 		$runData->contextAdd("uu", $runData->getUser());
 	}
-	
+
 	public function processPage($out, $runData){
 		// modify title of the page
 		$user = $this->user;
@@ -84,7 +84,7 @@ class UserInfoModule extends SmartyLocalizedModule {
 			$out = preg_replace("/<title>(.+?)<\/title>/is","<title>".GlobalProperties::$SERVICE_NAME.": ".$user->getNickName()."</title>",$out);
 			$out = preg_replace("/<div id=\"page-title\">(.*?)<\/div>/is",'',$out, 1);
 		}
-		return $out;	
+		return $out;
 	}
-	
+
 }

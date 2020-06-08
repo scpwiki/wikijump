@@ -17,27 +17,27 @@
 
 class HTMLPurifier_HTMLModule
 {
-    
+
     // -- Overloadable ----------------------------------------------------
-    
+
     /**
      * Short unique string identifier of the module
      */
     public $name;
-    
+
     /**
      * Informally, a list of elements this module changes. Not used in
      * any significant way.
      */
     public $elements = array();
-    
+
     /**
      * Associative array of element names to element definitions.
      * Some definitions may be incomplete, to be merged in later
      * with the full definition.
      */
     public $info = array();
-    
+
     /**
      * Associative array of content set names to content set additions.
      * This is commonly used to, say, add an A element to the Inline
@@ -45,7 +45,7 @@ class HTMLPurifier_HTMLModule
      * and NOT info_content_sets member variable of HTMLDefinition.
      */
     public $content_sets = array();
-    
+
     /**
      * Associative array of attribute collection names to attribute
      * collection additions. More rarely used for adding attributes to
@@ -55,22 +55,22 @@ class HTMLPurifier_HTMLModule
      * with extra behavior associated with it.
      */
     public $attr_collections = array();
-    
+
     /**
      * Associative array of deprecated tag name to HTMLPurifier_TagTransform
      */
     public $info_tag_transform = array();
-    
+
     /**
      * List of HTMLPurifier_AttrTransform to be performed before validation.
      */
     public $info_attr_transform_pre = array();
-    
+
     /**
      * List of HTMLPurifier_AttrTransform to be performed after validation.
      */
     public $info_attr_transform_post = array();
-    
+
     /**
      * Boolean flag that indicates whether or not getChildDef is implemented.
      * For optimization reasons: may save a call to a function. Be sure
@@ -78,9 +78,9 @@ class HTMLPurifier_HTMLModule
      * no effect!
      */
     public $defines_child_def = false;
-    
+
     /**
-     * Retrieves a proper HTMLPurifier_ChildDef subclass based on 
+     * Retrieves a proper HTMLPurifier_ChildDef subclass based on
      * content_model and content_model_type member variables of
      * the HTMLPurifier_ElementDef class. There is a similar function
      * in HTMLPurifier_HTMLDefinition.
@@ -88,9 +88,9 @@ class HTMLPurifier_HTMLModule
      * @return HTMLPurifier_ChildDef subclass
      */
     public function getChildDef($def) {return false;}
-    
+
     // -- Convenience -----------------------------------------------------
-    
+
     /**
      * Convenience function that sets up a new element
      * @param $element Name of element to add
@@ -103,7 +103,7 @@ class HTMLPurifier_HTMLModule
      *              element?
      * @param $attr What unique attributes does the element define?
      * @note See ElementDef for in-depth descriptions of these parameters.
-     * @return Reference to created element definition object, so you 
+     * @return Reference to created element definition object, so you
      *         can set advanced parameters
      */
     public function &addElement($element, $safe, $type, $contents, $attr_includes = array(), $attr = array()) {
@@ -122,7 +122,7 @@ class HTMLPurifier_HTMLModule
         if (!is_string($contents)) $this->info[$element]->child = $contents;
         return $this->info[$element];
     }
-    
+
     /**
      * Convenience function that creates a totally blank, non-standalone
      * element.
@@ -139,7 +139,7 @@ class HTMLPurifier_HTMLModule
         }
         return $this->info[$element];
     }
-    
+
     /**
      * Convenience function that registers an element to a content set
      * @param Element to register
@@ -151,7 +151,7 @@ class HTMLPurifier_HTMLModule
         else $this->content_sets[$type] .= ' | ';
         $this->content_sets[$type] .= $element;
     }
-    
+
     /**
      * Convenience function that transforms single-string contents
      * into separate content model and content model type
@@ -177,7 +177,7 @@ class HTMLPurifier_HTMLModule
         $content_model = trim($content_model);
         return array($content_model_type, $content_model);
     }
-    
+
     /**
      * Convenience function that merges a list of attribute includes into
      * an attribute array.
@@ -191,7 +191,7 @@ class HTMLPurifier_HTMLModule
         }
         $attr[0] = $attr_includes;
     }
-    
+
     /**
      * Convenience function that generates a lookup table with boolean
      * true as value.

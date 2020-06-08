@@ -89,10 +89,10 @@ $validator = new Zend_Validate_Hostname(Zend_Validate_Hostname::ALLOW_DNS | Zend
         これらのドメインについても、Zend_Validate_Hostname
         の検証プロセスで使用する文字を拡張することで検証することができます。
     </para>
-    
+
     <para>
         現在は、次のような ccTLD をサポートしています。
-   
+
         <itemizedlist>
                 <listitem>
                     <para>at (オーストリア)</para>
@@ -119,9 +119,9 @@ $validator = new Zend_Validate_Hostname(Zend_Validate_Hostname::ALLOW_DNS | Zend
                     <para>se (スウェーデン)</para>
                 </listitem>
         </itemizedlist>
-    
+
     </para>
-    
+
     <para>
         IDN ドメインに対するマッチングを行う方法は、通常のホスト名の場合とまったく同じです。
         というのも、IDN のマッチングはデフォルトで有効になっているからです。
@@ -129,7 +129,7 @@ $validator = new Zend_Validate_Hostname(Zend_Validate_Hostname::ALLOW_DNS | Zend
         のコンストラクタにパラメータを渡すか、あるいは
         <code>$validator->setValidateIdn()</code> メソッドを使用します。
     </para>
-    
+
     <para>
         IDN の検証を無効にするには、Zend_Validate_Hostname
         のコンストラクタに二番目のパラメータを次のように渡します。
@@ -147,7 +147,7 @@ $validator = new Zend_Validate_Hostname(Zend_Validate_Hostname::ALLOW_DNS, false
         追加の文字を指定した ccTLD ファイルが Zend/Validate/Hostname
         に存在しない場合は、通常のホスト名の検証を行います。
     </para>
-    
+
     <para>
         IDN の検証は、DNS ホスト名の検証を有効にしている場合にのみ行われることに注意しましょう。
     </para>
@@ -170,7 +170,7 @@ $validator = new Zend_Validate_Hostname(Zend_Validate_Hostname::ALLOW_DNS, true,
         <code>$validator->ValidateTld()</code> に渡すことで、
         TLD の検証を有効あるいは無効にすることもできます。
     </para>
-    
+
     <para>
         TLD の検証は、DNS ホスト名の検証を有効にしている場合にのみ行われることに注意しましょう。
     </para>

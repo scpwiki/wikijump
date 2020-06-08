@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version \$Id\$
@@ -29,13 +29,13 @@ use BaseDBPeer;
 
 
 
- 
+
 /**
  * Base peer class mapped to the database table ozone_group_permission_modifier.
  */
 class OzoneGroupPermissionModifierPeerBase extends BaseDBPeer {
 	public static $peerInstance;
-	
+
 	protected function internalInit(){
 		$this->tableName='ozone_group_permission_modifier';
 		$this->objectName='DB\\OzoneGroupPermissionModifier';
@@ -44,7 +44,7 @@ class OzoneGroupPermissionModifierPeerBase extends BaseDBPeer {
 		$this->fieldTypes = array( 'group_permission_id' => 'serial',  'group_id' => 'varchar(20)',  'permission_id' => 'varchar(20)',  'modifier' => 'int');
 		$this->defaultValues = array();
 	}
-	
+
 	public static function instance(){
 		if(self::$peerInstance == null){
 			$className = "DB\\OzoneGroupPermissionModifierPeer";

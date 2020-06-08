@@ -39,7 +39,7 @@ input{
 	background-image:url(../images/sideback2_r.png);
 	background-repeat: repeat-y;
 	background-position: top right;
-	
+
 }
 
 
@@ -67,7 +67,7 @@ textarea{
 /*
 #extra-div-1{
 	position: absolute;
-	left:0; bottom: 0; top:0; 
+	left:0; bottom: 0; top:0;
 
 	width: 3em; height: auto;
 
@@ -80,7 +80,7 @@ textarea{
 
 #extra-div-2{
 	position: absolute;
-	right:0; top:0; 
+	right:0; top:0;
 
 	width: 3em; height: 100%;
 
@@ -96,7 +96,7 @@ textarea{
 	padding-left: 2em;
 	/*font-size: 1.1em;*/
 	font-weight: bold;
-	
+
 }
 #top-bar li{
 	margin: 0;
@@ -149,7 +149,7 @@ textarea{
 	padding: 0;
 	background-color: #F9FFEE;
 	border-right: 1px solid #ACBF60;
-	
+
 }
 
 #side-bar h1, #side-bar h2, #side-bar h3{
@@ -172,7 +172,7 @@ textarea{
 	display: block;
 	padding-left: 1em;
 	border-bottom: 1px solid #D9DDCF;
-	
+
 	color: #1E2B31;
 	text-decoration: none;
 }
@@ -226,7 +226,7 @@ textarea{
 	border-top: 2px solid #2A343D;
 	color: #E7E9DC;
 	text-align: left;
-	
+
 }
 
 #footer a {
@@ -244,11 +244,11 @@ textarea{
 
 .page-options-bottom a, a.action-area-close{
 	color: #242;
-	background-color: #EEE; 
+	background-color: #EEE;
 	text-decoration: none;
 }
 .page-options-bottom a:hover, a.action-area-close:hover{
-	background-color: #DDD; 
+	background-color: #DDD;
 }
 
 .page-tags span{

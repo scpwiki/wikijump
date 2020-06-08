@@ -88,13 +88,13 @@
 	*/
 	background: #ffffff url("images/popupMenuBg.gif") repeat-x bottom left;
 	border: 1px solid #7eabcd;
-	padding: 0.45em;	
+	padding: 0.45em;
 	-webkit-border-radius: 3px;
 }
 .dj_ff3 .tundra .dijitTooltipContainer {
 	/* only do this for FF3, because FF2 has problems with glitches */
 	-moz-border-radius: 3px;
-}	
+}
 .tundra .dijitTooltipConnector {
 	/* the arrow piece */
 	border:0px;

@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot_Db
  * @version $Id$
@@ -37,7 +37,7 @@ use \WDRenderUtils;
  *
  */
 class Notification extends NotificationBase {
-	
+
 	/**
 	 * Generates notification title based on the type
 	 */
@@ -46,7 +46,7 @@ class Notification extends NotificationBase {
 		switch($type){
 			case 'new_private_message':
 				$title = _("New private message");
-				break;	
+				break;
 			case 'new_membership_invitation':
 				$title = _("New membership invitation");
 				break;
@@ -72,35 +72,35 @@ class Notification extends NotificationBase {
 				$title = _("Membership application declined");
 				break;
 		}
-		
+
 		return $title;
 	}
-	
+
 	public function setExtra($data){
-		parent::setExtra(serialize($data));	
+		parent::setExtra(serialize($data));
 	}
-	
+
 	public function getExtra(){
-		return unserialize(pg_unescape_bytea(parent::getExtra()));	
+		return unserialize(pg_unescape_bytea(parent::getExtra()));
 	}
-	
+
 	public function save(){
 		$key = "notificationsfeed..".$this->getUserId();
 		$mc = \Ozone::$memcache;
 		$mc->delete($key);
 		return parent::save();
 	}
-	
+
 	public function getBody(){
-		
+
 		if(parent::getBody() != ""){
 			return parent::getBody();
 		}
-		
+
 		$type = $this->getType();
 		$extra = $this->getExtra();
 		$lang = OZONE::getRunData()->getLanguage();
-		
+
 		switch($type){
 			case 'new_private_message':
 				$fromUser = OzoneUserPeer::instance()->selectByPrimaryKey($extra['from_user_id']);
@@ -108,7 +108,7 @@ class Notification extends NotificationBase {
 				$body .= _("From").": ".WDRenderUtils::renderUser($fromUser)."<br/>";
 				$body .= _('Subject').': <a href="'.GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST . '/account:you/start/messages/inboxmessage/'.$extra['message_id'].'">'.htmlspecialchars($extra['subject']).'</a><br/>';
 				$body .= _('Preview (first few words)').': '.$extra['preview'];
-				break;	
+				break;
 			case 'new_membership_invitation':
 				$body = _('You have received an invitation to join members of the site').' <a href="'.GlobalProperties::$HTTP_SCHEMA . "://" . $extra['site_domain'].'">"'.htmlspecialchars($extra['site_name']).'"</a>.';
 				break;
@@ -138,7 +138,7 @@ class Notification extends NotificationBase {
 		}
 		return $body;
 	}
-	
+
 	public function getUrls(){
 		$type = $this->getType();
 		$extra = $this->getExtra();
@@ -147,12 +147,12 @@ class Notification extends NotificationBase {
 		}
 
 		$lang = OZONE::getRunData()->getLanguage();
-		
+
 		switch($type){
 			case 'new_private_message':
 				$urls = array(	array(_('read the message'),GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST . '/account:you/start/messages/inboxmessage/'.$extra['message_id']),
 								array(_('inbox folder'), GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST . '/account:you/start/messages'));
-				break;	
+				break;
 			case 'new_membership_invitation':
 				$urls = array(array(_('view invitation'), GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST . '/account:you/start/invitations'));
 				break;
@@ -183,10 +183,10 @@ class Notification extends NotificationBase {
 		}
 		return $urls;
 	}
-	
+
 	public function getLocalizedExtra(){
 		$extra = 	unserialize(parent::getExtra());
 		// ???
 	}
-	
+
 }

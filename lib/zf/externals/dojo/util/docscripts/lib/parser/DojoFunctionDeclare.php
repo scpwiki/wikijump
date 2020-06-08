@@ -53,23 +53,23 @@ class DojoFunctionDeclare extends DojoBlock
   public function setPrototype($function_name){
     $this->prototype = $function_name;
   }
-  
+
   public function getPrototype(){
     return $this->prototype;
   }
-  
+
   public function setInstance($function_name){
     $this->instance = $function_name;
   }
-  
+
   public function getInstance(){
     return $this->instance;
   }
-  
+
   public function setConstructor($constructor){
     $this->constructor = $constructor;
   }
-  
+
   public function isConstructor(){
     return $this->constructor;
   }
@@ -81,11 +81,11 @@ class DojoFunctionDeclare extends DojoBlock
   public function isAnonymous(){
     return $this->anonymous;
   }
-  
+
   public function isThis(){
     return ($this->prototype || $this->instance);
   }
-  
+
   public function getThis(){
     return ($this->prototype) ? $this->prototype : $this->instance;
   }
@@ -93,7 +93,7 @@ class DojoFunctionDeclare extends DojoBlock
   public function setExecutedFunction($function) {
     $this->in_executed_function = $function;
   }
-  
+
   public function getInstanceVariableNames(){
     return array_unique($this->body->getInstanceVariableNames());
   }
@@ -101,11 +101,11 @@ class DojoFunctionDeclare extends DojoBlock
   public function removeSwallowedMixins(&$mixins) {
     return $this->body->removeSwallowedMixins($mixins);
   }
-  
+
   public function getReturnComments(){
     return array_unique($this->body->getReturnComments());
   }
-  
+
   public function getThisInheritanceCalls(){
     $output = array();
     $calls = array_unique($this->body->getThisInheritanceCalls());
@@ -146,13 +146,13 @@ class DojoFunctionDeclare extends DojoBlock
   public function getLocalVariableNames(){
     return $this->body->getLocalVariableNames();
   }
-  
+
   public function removeCodeFrom($lines){
     $this->build();
 
     return Text::blankOutAtPositions($lines, $this->start[0], $this->start[1], $this->end[0], $this->end[1]);
   }
-  
+
   public function build(){
     if (!$this->start) {
       die("DojoFunctionDeclare->build() used before setting a start position");
@@ -160,7 +160,7 @@ class DojoFunctionDeclare extends DojoBlock
     if($this->end){
       return $this->end;
     }
-  
+
     $lines = Text::chop($this->package->getCode(), $this->start[0], $this->start[1]);
     $line = trim($lines[$this->start[0]]);
     if(strpos($line, 'function') === 0){
@@ -210,10 +210,10 @@ class DojoFunctionDeclare extends DojoBlock
       }
       $this->function_name = $name;
     }
-    
+
     $this->parameters->setStart($this->start[0], strpos($lines[$this->start[0]], '('));
     $end = $this->parameters->build();
-    
+
     $lines = Text::chop($this->package->getCode(), $end[0], $end[1]);
     foreach($lines as $line_number => $line){
       if(($pos = strpos($line, '{')) !== false){
@@ -222,11 +222,11 @@ class DojoFunctionDeclare extends DojoBlock
       }
     }
   }
-  
+
   public function getParameter($pos){
     return $this->parameters->getParameter($pos);
   }
-  
+
   public function getParameters(){
     return $this->parameters->getParameters();
   }
@@ -241,7 +241,7 @@ class DojoFunctionDeclare extends DojoBlock
     }
     return $names;
   }
-  
+
   public function addBlockCommentKey($key){
     $this->body->addBlockCommentKey($key);
   }
@@ -253,19 +253,19 @@ class DojoFunctionDeclare extends DojoBlock
   public function getBlockCommentKeys(){
     return $this->body->getBlockCommentKeys();
   }
-  
+
   public function getBlockComment($key){
     return $this->body->getBlockComment($key);
   }
-  
+
   public function getSource(){
     return $this->body->getSource();
   }
-  
+
   public function getInstanceFunctions($function_name){
     return $this->body->getInstanceFunctions($function_name);
   }
-  
+
   public function rollOut(&$output){
     // Basically, any this.variables in here never impact this object, they apply to the "this" function
     $masquerading_as_function = $function_name = $this->getFunctionName();
@@ -402,7 +402,7 @@ class DojoFunctionDeclare extends DojoBlock
         if ($full_parameter_type) {
             $comment =  preg_replace('%^' . preg_quote($full_parameter_type) . '\s*%', '', $comment);
         }
-        $output[$function_name]['parameters'][$key] = array_merge($output[$function_name]['parameters'][$key], $options); 
+        $output[$function_name]['parameters'][$key] = array_merge($output[$function_name]['parameters'][$key], $options);
         $output[$function_name]['parameters'][$key]['type'] = $parameter_type;
         $output[$function_name]['parameters'][$key]['summary'] = htmlentities($comment);
       }
@@ -423,7 +423,7 @@ class DojoFunctionDeclare extends DojoBlock
         $output[$function_name]['chains']['call'][] = $call;
       }
     }
-    
+
     if($this->getPrototype()){
       $output[$function_name]['prototype'] = $this->getPrototype();
     }

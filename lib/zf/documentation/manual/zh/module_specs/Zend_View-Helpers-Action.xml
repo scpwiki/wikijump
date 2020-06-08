@@ -21,9 +21,9 @@
         </para>
 
         <programlisting role="php"><![CDATA[
-<div id="sidebar right"> 
+<div id="sidebar right">
     <div class="item">
-        <?= $this->action('list', 'comment', null, array('count' => 10)); ?> 
+        <?= $this->action('list', 'comment', null, array('count' => 10)); ?>
     </div>
 </div>
 ]]>

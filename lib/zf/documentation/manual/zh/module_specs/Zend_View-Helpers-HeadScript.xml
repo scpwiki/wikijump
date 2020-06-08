@@ -41,7 +41,7 @@
     </para>
 
     <para>
-        <code>HeadScript</code> 覆盖 <code>append()</code>， <code>offsetSet()</code>，<code>prepend()</code> 和 <code>set()</code> 中的每一个来加强上述特殊方法的用法。在内部，它存储每个条目为 <code>stdClass</code> 令牌，它在稍后用 <code>itemToString()</code> 方法 serializes 。这允许在堆栈里检查条目，并可选地通过修改返回的对象来修改这些条目。 
+        <code>HeadScript</code> 覆盖 <code>append()</code>， <code>offsetSet()</code>，<code>prepend()</code> 和 <code>set()</code> 中的每一个来加强上述特殊方法的用法。在内部，它存储每个条目为 <code>stdClass</code> 令牌，它在稍后用 <code>itemToString()</code> 方法 serializes 。这允许在堆栈里检查条目，并可选地通过修改返回的对象来修改这些条目。
     </para>
 
     <para>
@@ -54,7 +54,7 @@
         <para>
             当包含脚本内嵌在 HTML <code>body</code>里时，应当使用<code>HeadScript</code> 的兄弟助手，<link linkend="zend.view.helpers.initial.inlinescript">InlineScript</link>。为了加速页面的加载，提高用户访问速度，特别是当使用第三方分析脚本（比如Google Analytics等流量统计系统的javascript文件 --Haohappy注），把脚本放在文档的最后是一个好的习惯。
         </para>
-    </note> 
+    </note>
 
     <note>
         <title> 任意的属性缺省关闭 （Disabled）</title>
@@ -137,7 +137,7 @@ $('foo_form').action = action;
              </para></listitem>
 
             <listitem><para>
-                    如果需要为 <code>&lt;script&gt;</code> 标签指定附加属性， 把它们放入数组作为第三个参数传递给 <code>captureStart()</code> 。 
+                    如果需要为 <code>&lt;script&gt;</code> 标签指定附加属性， 把它们放入数组作为第三个参数传递给 <code>captureStart()</code> 。
             </para></listitem>
         </itemizedlist>
     </example>

@@ -9,7 +9,7 @@
         下面是一个用自定义Atom条目类处理<code>myns:</code>命名空间的例子。注意构造函数中已经为你调用了<code>registerNamespace()</code>，所以最终用户就可以完全不必当心命名空间了。
     </para>
 
-    <example id="zend.feed.custom-feed.example.extending"> 
+    <example id="zend.feed.custom-feed.example.extending">
         <title>用自定义的命名空间继承Atom条目类</title>
         <programlisting role="php"><![CDATA[<?php
 /**
@@ -51,7 +51,7 @@ class MyEntry extends Zend_Feed_Entry_Atom
                 parent::__set($var, $value);
         }
     }
-    
+
     public function __call($var, $unused)
     {
         switch ($var) {
@@ -63,7 +63,7 @@ class MyEntry extends Zend_Feed_Entry_Atom
                 return parent::__call($var, $unused);
         }
     }
-}]]>   
+}]]>
         </programlisting>
         <para>
             接下来你就可以直接实例化和设置<code>myUpdated</code>属性来使用这个类：
@@ -73,7 +73,7 @@ $entry = new MyEntry();
 $entry->myUpdated = '2005-04-19T15:30';
 
 // method-style call is handled by __call function
-$entry->myUpdated();  
+$entry->myUpdated();
 // property-style call is handled by __get function
 $entry->myUpdated;]]>
        </programlisting>

@@ -22,7 +22,7 @@ require_once 'Zend/View.php';
 /**
  * Test class for Zend_Controller_Action_Helper_AjaxContext.
  */
-class Zend_Controller_Action_Helper_AjaxContextTest extends PHPUnit_Framework_TestCase 
+class Zend_Controller_Action_Helper_AjaxContextTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.

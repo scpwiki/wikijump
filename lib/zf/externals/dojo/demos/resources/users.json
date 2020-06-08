@@ -9,7 +9,7 @@
 			handle:"alex",
 			irc:"slightlyoff",
 			location:"San Francisco, CA",
-			employer: "SitePen, Inc", 
+			employer: "SitePen, Inc",
 			coords: { x: 37.7752, y:-122.4192 },
 			imgUrl:"images/users/alex.png",
 			website:"http://alex.dojotoolkit.org"
@@ -143,7 +143,7 @@
 			imgUrl:"images/users/ttrenka.png",
 			blameFor:[
 				"dojox.av",
-				"dojox oversight" 
+				"dojox oversight"
 			]
 		},
 		{
@@ -366,7 +366,7 @@
 			]
 		},
 		{
-		
+
 			name:"Sam Foster",
 			title:"Committer",
 			handle:"sfoster",
@@ -386,9 +386,9 @@
 		// Owen Willaims (?) (owen)
 		// Simon Bates (simonjb)
 		// Scott Orvell (sorvell)
-		
+
 		// other non-code-committing commiters?
 		// (crieke)
 	]
-		
+
 }

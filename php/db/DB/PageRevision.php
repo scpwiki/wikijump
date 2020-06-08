@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot_Db
  * @version $Id$
@@ -39,12 +39,12 @@ use Exception;
 class PageRevision extends PageRevisionBase {
 
 	public function getSourceText(){
-		
+
 		if($this->getDiffSource() == false){
-		
+
 			$c = new Criteria();
 			$c->add("source_id", $this->getSourceId());
-		
+
 			$source = PageSourcePeer::instance()->selectOne($c);
 			return $source->getText();
 		} else{
@@ -56,37 +56,37 @@ class PageRevision extends PageRevisionBase {
 					"AND page_revision.source_id = page_source.source_id " .
 					"ORDER BY page_revision.revision_id DESC " .
 					"LIMIT ".($this->getSinceFullSource()+1);
-		
+
 			$c = new Criteria();
 			$c->setExplicitQuery($q);
 			$sources = PageSourcePeer::instance()->select($c);
-			
+
 			// original source...
 			$s = end($sources);
 			$s0 = $s->getText();
-			
+
 			$differ = new ODiff();
 			while($s = prev($sources)){
 				$s0 = $differ->patchString($s0, $s->getText());
 				if($differ->getErrors() != null){
-					return "Error processing the source - please report the problem to the support";	
+					return "Error processing the source - please report the problem to the support";
 				}
-				
+
 			}
-			
+
 			return trim($s0);
-		}	
+		}
 	}
-	
+
 	public function resetFlags(){
 		$this->setFlagText(false);
 		$this->setFlagTitle(false);
 		$this->setFlagRename(false);
 		$this->setFlagNew(false);
-		$this->setFlagFile(false);	
+		$this->setFlagFile(false);
 		$this->setFlagNewSite(false);
 	}
-	
+
 	public function getUser(){
 		if($this->getUserId() == 0){return null;}
 		if(is_array($this->prefetched)){
@@ -102,27 +102,27 @@ class PageRevision extends PageRevisionBase {
 			}
 		}
 		return OzoneUserPeer::instance()->selectByPrimaryKey($this->getUserId());
-		
+
 	}
-	
+
 	public function getUserOrString(){
 		$user = $this->getUser();
 		if($user == null){
-			return $this->getUserString();	
+			return $this->getUserString();
 		}else{
 			return $user;
 		}
-		
+
 	}
-	
+
 	public function getOzoneUser() {
-		return $this->getUser();	
+		return $this->getUser();
 	}
-	
+
 	public function getMetadata() {
 		return PageMetadataPeer::instance()->selectByPrimaryKey($this->getMetadataId());
-	}	
-	
+	}
+
 	public function getPage(){
 		if(is_array($this->prefetched)){
 			if(in_array('page', $this->prefetched)){
@@ -137,9 +137,9 @@ class PageRevision extends PageRevisionBase {
 			}
 		}
 		return PagePeer::instance()->selectByPrimaryKey($this->getPageId());
-		
+
 	}
-	
+
 	public function save(){
 		try{
 			$page = $this->getPage();
@@ -147,15 +147,15 @@ class PageRevision extends PageRevisionBase {
 				$key = "sitechangesfeed..".$page->getSiteId();
 				$mc = \Ozone::$memcache;
 				$mc->delete($key);
-				
+
 				$tkey = "siterevisions_lc..".$page->getSiteId();
 				$mc->set($tkey, time(), 0, 3600);
-				
+
 				$tkey = "pagerevisions_lc..".$page->getPageId();
 				$mc->set($tkey, time(), 0, 3600);
 			}
 		}catch(Exception $e){}
-		
-		parent::save();	
+
+		parent::save();
 	}
 }

@@ -223,14 +223,14 @@ class Zend_Http_Client
 
     /**
      * Fileinfo magic database resource
-     * 
+     *
      * This varaiable is populated the first time _detectFileMimeType is called
      * and is then reused on every call to this method
      *
      * @var resource
      */
     static protected $_fileInfoDb = null;
-    
+
     /**
      * Contructor method. Will create a new HTTP client. Accepts the target
      * URL and optionally configuration array.
@@ -310,7 +310,7 @@ class Zend_Http_Client
         if ($this->adapter instanceof Zend_Http_Client_Adapter_Interface) {
             $this->adapter->setConfig($config);
         }
-        
+
         return $this;
     }
 
@@ -383,7 +383,7 @@ class Zend_Http_Client
                 require_once 'Zend/Http/Client/Exception.php';
                 throw new Zend_Http_Client_Exception("{$name} is not a valid HTTP header name");
             }
-            
+
             $normalized_name = strtolower($name);
 
             // If $value is null or false, unset the header
@@ -943,14 +943,14 @@ class Zend_Http_Client
                 $headers[] = 'Accept-encoding: identity';
             }
         }
-        
+
         // Set the Content-Type header
         if ($this->method == self::POST &&
            (! isset($this->headers[strtolower(self::CONTENT_TYPE)]) && isset($this->enctype))) {
 
             $headers[] = self::CONTENT_TYPE . ': ' . $this->enctype;
         }
-        
+
         // Set the user agent header
         if (! isset($this->headers['user-agent']) && isset($this->config['useragent'])) {
             $headers[] = "User-Agent: {$this->config['useragent']}";
@@ -1043,7 +1043,7 @@ class Zend_Http_Client
                     break;
             }
         }
-        
+
         // Set the Content-Length if we have a body or if request is POST/PUT
         if ($body || $this->method == self::POST || $this->method == self::PUT) {
             $this->setHeaders(self::CONTENT_LENGTH, strlen($body));
@@ -1087,15 +1087,15 @@ class Zend_Http_Client
 
         return $parameters;
     }
-    
+
     /**
      * Attempt to detect the MIME type of a file using available extensions
-     * 
+     *
      * This method will try to detect the MIME type of a file. If the fileinfo
-     * extension is available, it will be used. If not, the mime_magic 
+     * extension is available, it will be used. If not, the mime_magic
      * extension which is deprected but is still available in many PHP setups
-     * will be tried. 
-     * 
+     * will be tried.
+     *
      * If neither extension is available, the default application/octet-stream
      * MIME type will be returned
      *
@@ -1105,26 +1105,26 @@ class Zend_Http_Client
     protected function _detectFileMimeType($file)
     {
         $type = null;
-        
+
         // First try with fileinfo functions
         if (function_exists('finfo_open')) {
             if (self::$_fileInfoDb === null) {
                 self::$_fileInfoDb = @finfo_open(FILEINFO_MIME);
             }
-            
-            if (self::$_fileInfoDb) { 
+
+            if (self::$_fileInfoDb) {
                 $type = finfo_file(self::$_fileInfoDb, $file);
             }
-            
+
         } elseif (function_exists('mime_content_type')) {
             $type = mime_content_type($file);
         }
-        
+
         // Fallback to the default application/octet-stream
         if (! $type) {
             $type = 'application/octet-stream';
         }
-        
+
         return $type;
     }
 

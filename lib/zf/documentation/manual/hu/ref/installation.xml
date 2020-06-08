@@ -25,7 +25,7 @@
             </listitem>
             <listitem>
                 <para>
-                    Egy 
+                    Egy
                     <ulink url="http://subversion.tigris.org">Subversion</ulink>
                     (SVN) ügyfél használata. A Zend Framework nyílt forrású szoftver, és a fejlesztéséhez használt Subversion raktára nyílvánosan hozzáférhető. Vedd fontolóra egy SVN ügyfél használatát a Zend Framework beszerzéséhez, ha már most is SVN-t használsz az alkalmazásaid fejlesztéséhez, részt akarsz venni a keretrendszer fejlesztésében, vagy sokkal sűrűbben kell frissítened a keretrendszer-verziód, mint ahogy a kiadások megjelennek.
                 </para>
@@ -60,7 +60,7 @@
     </para>
     <para>A Zend Framework egyik leghasznosabb jellegzetessége az
         <ulink url="http://www.martinfowler.com/eaaCatalog/frontController.html">Elülső Vezérlő</ulink>
-        és a 
+        és a
         <ulink url="http://hu.wikipedia.org/wiki/Modell-nézet-vezérlő">Modell-Nézet-Vezérlő</ulink>
          (MNV) minták megvalósítása.
         <link linkend="zend.controller.quickstart">Kezdj a Zend Framework MNV-vel!</link>

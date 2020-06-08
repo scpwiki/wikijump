@@ -19,7 +19,7 @@
             当且仅当<code>$value</code>只包含字母字符，返回 <code>true</code>。这个校验器包括一个考虑空白字符是否有效的选项。
         </para>
     </sect2>
-     
+
     <sect2 id="zend.validate.set.barcode">
         <title>Barcode</title>
         <para>

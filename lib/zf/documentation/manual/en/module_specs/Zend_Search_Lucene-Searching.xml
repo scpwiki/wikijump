@@ -156,7 +156,7 @@ $userQuery = Zend_Search_Lucene_Search_QueryParser::parse($queryStr);
         </para>
 
         <para>
-            The Zend_Search_Lucene_Search_QueryHit object also exposes each field of the Zend_Search_Lucene_Document found in the search 
+            The Zend_Search_Lucene_Search_QueryHit object also exposes each field of the Zend_Search_Lucene_Document found in the search
             as a property of the hit.  In the following example, a hit is returned with two fields from the corresponding document: title and author.
         </para>
         <programlisting role="php"><![CDATA[

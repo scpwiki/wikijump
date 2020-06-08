@@ -63,7 +63,7 @@ echo $recaptcha->getHTML();
 
         <programlisting role="php"><![CDATA[
 $result = $recaptcha->verify(
-    $_POST['recaptcha_challenge_field'], 
+    $_POST['recaptcha_challenge_field'],
     $_POST['recaptcha_response_field']
 );
 ]]>
@@ -81,7 +81,7 @@ if (!$result->isValid()) {
 }
 ]]>
         </programlisting>
-        
+
         <para>
             もっと簡単な使用法は、<link
                 linkend="zend.captcha.adapters.recaptcha">ReCaptcha</link>

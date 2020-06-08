@@ -43,7 +43,7 @@
                     <entry>程序间术语字符串工业标准；XML 格式 </entry>
                 </row>
                 <row>
-                    <entry>Tmx</entry>                    
+                    <entry>Tmx</entry>
                     <entry>使用 tmx (*.tmx/*.xml) 文件</entry>
                     <entry>程序间转化工业标准;XML格式;人可读</entry>
                 </row>
@@ -62,7 +62,7 @@
                     <entry>使用 xmltm (*.xml) 文件</entry>
                     <entry>XML 文档转换内存工业标准；XML 格式；人可读</entry>
                 </row>
-                <row>                
+                <row>
                     <entry>其他</entry>
                     <entry>*.sql</entry>
                     <entry>与其他适配器不同,可能在将来实现</entry>
@@ -90,8 +90,8 @@
                 当使用基于 xml 源格式如 TMX 或 XLIFF，你必需在 xml 文件头内定义编码，因为不定义编码，xml 文件将被 xml 解析器缺省地当作 UTF-8。
                 你也应当知道实际上 xml 文件的编码局限于 PHP 支持的编码是 UTF-8，ISO-8859-1 和 US-ASCII。
             </para>
-        </note> 
-        
+        </note>
+
         <sect3 id="zend.translate.adapter.array">
 
             <title>Zend_Translate_Adapter_Array</title>
@@ -142,7 +142,7 @@
                 在客户想自己翻译的情况下你只能用这个适配器，对于一般的翻译源，不要使用它。
             </para>
         </sect3>
-        
+
         <sect3 id="zend.translate.adapter.tbx">
 
             <title>Zend_Translate_Adapter_Tbx</title>
@@ -155,7 +155,7 @@
                 这个适配器对预翻译原文已存在的公司来说很理想，文件是人类可读，并且不依赖操作系统的。
             </para>
         </sect3>
-    
+
         <sect3 id="zend.translate.adapter.tmx">
 
             <title>Zend_Translate_Adapter_Tmx</title>
@@ -207,7 +207,7 @@
                 这个适配器仅用于源文件已经存在，这个格式的文件是人类可读，并且不依赖操作系统。
             </para>
         </sect3>
-        
+
     </sect2>
 
     <sect2 id="zend.translate.adapter.selfwritten">

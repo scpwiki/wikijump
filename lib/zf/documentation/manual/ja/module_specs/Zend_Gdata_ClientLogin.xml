@@ -90,7 +90,7 @@ try {
    $client = Zend_Gdata_ClientLogin::getHttpClient($email, $passwd, 'cl');
 } catch (Zend_Gdata_App_CaptchaRequiredException $cre) {
     echo 'CAPTCHA 画像の URL: ' . $cre->getCaptchaUrl() . "\n";
-    echo 'トークン ID: ' . $cre->getCaptchaToken() . "\n"; 
+    echo 'トークン ID: ' . $cre->getCaptchaToken() . "\n";
 } catch (Zend_Gdata_App_AuthException $ae) {
    echo '認証に失敗: ' . $ae->exception() . "\n";
 }

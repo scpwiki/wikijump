@@ -8,7 +8,7 @@
 
     <para>
         Głównymi założeniami projektowymi komponentu <code>Zend_Paginator</code> są:
-        
+
         <itemizedlist>
             <listitem>
                 <para>
@@ -30,8 +30,8 @@
             <listitem>
                 <para>
                     Luźne połączenie komponentu <code>Zend_Paginator</code> z
-                    innymi komponentami Zend Framework aby użytkownicy mogli 
-                    użyć go niezależnie od <code>Zend_View</code>, 
+                    innymi komponentami Zend Framework aby użytkownicy mogli
+                    użyć go niezależnie od <code>Zend_View</code>,
                     <code>Zend_Db</code> itp.
                 </para>
             </listitem>

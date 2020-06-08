@@ -87,7 +87,7 @@ $logger->info('Informational message');
     </para>
 
   </sect2>
-  
+
 <xi:include href="Zend_Log-Writers-Firebug.xml">
     <xi:fallback href="../en/module_specs/Zend_Log-Writers-Firebug.xml"/>
 </xi:include>

@@ -22,9 +22,9 @@
 				function(){  },
 				{
 					label: "",
-			
+
 					templateString: "<button dojoAttachEvent='onclick:onClick'>${label}</button>",
-			
+
 					onClick: function(){
 						this.domNode.style.backgroundColor="green";
 					},
@@ -67,7 +67,7 @@
 	$trailingChaff = 100;
 	$items = 100;
 ?>
-<? 
+<?
 	function generateChaff($iters){
 		for($i=0;$i<$iters;$i++){ ?>
 			<pre class="highlighted"><code><span class="hl-reserved">var </span><span class="hl-identifier">dlg</span><span class="hl-default"> = </span><span class="hl-reserved">new </span><span class="hl-identifier">blah</span><span class="hl-default">.</span><span class="hl-identifier">ext</span><span class="hl-default">.</span><span class="hl-identifier">LayoutDialog</span><span class="hl-brackets">(</span><span class="hl-identifier">config</span><span class="hl-code">.</span><span class="hl-identifier">id</span><span class="hl-code"> || </span><span class="hl-identifier">blah</span><span class="hl-code">.</span><span class="hl-identifier">util</span><span class="hl-code">.</span><span class="hl-identifier">Dom</span><span class="hl-code">.</span><span class="hl-identifier">generateId</span><span class="hl-brackets">()</span><span class="hl-code">, </span><span class="hl-brackets">{
@@ -139,9 +139,9 @@
 			undertakes laborious physical exercise, except to obtain some
 			advantage from it? But who has any right to find fault with a man
 			who chooses to enjoy a pleasure that has no annoying consequences,
-			or one who avoids a pain that produces no resultant pleasure?" 
+			or one who avoids a pain that produces no resultant pleasure?"
 			</p>
-		<? } 
+		<? }
 	} // end generateChaff
 	$widgetName = "SimpleButton";
 ?>

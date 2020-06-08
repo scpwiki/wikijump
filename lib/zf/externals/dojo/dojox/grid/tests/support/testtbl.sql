@@ -20,7 +20,7 @@ CREATE TABLE `testtbl` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='InnoDB free: 4096 kB; InnoDB free: 4096 kB; InnoDB free: 409';
 
 -- ----------------------------
--- Records 
+-- Records
 -- ----------------------------
 INSERT INTO `testtbl` VALUES ('363', ' Lopez, Felipe', ' 0.26', '2005-01-01');
 INSERT INTO `testtbl` VALUES ('364', ' Lopez, Javy', ' 0.267', '2005-01-01');

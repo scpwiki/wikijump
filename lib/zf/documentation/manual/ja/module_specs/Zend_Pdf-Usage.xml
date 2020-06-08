@@ -157,7 +157,7 @@ $page2->drawPolygon($x, $y,
 // 座標系を移動します
 $page2->saveGS();
 $page2->translate(60, 250); // 座標系の移動
-                    
+
 // 矩形を描画します
 $page2->setFillColor(new Zend_Pdf_Color_GrayScale(0.8))
       ->setLineColor(new Zend_Pdf_Color_GrayScale(0.2))
@@ -195,7 +195,7 @@ for ($count = 0; $count < 8; $count++) {
 $page2->drawPolygon($x, $y,
                     Zend_Pdf_Page::SHAPE_DRAW_FILL_AND_STROKE,
                     Zend_Pdf_Page::FILL_METHOD_EVEN_ODD);
-                    
+
 // 直線を描画します
 $page2->setLineWidth(0.5)
       ->drawLine(0, 25, 340, 25);
@@ -208,7 +208,7 @@ $page2->saveGS();
 $page2->translate(60, 150)     // 座標系を移動します
       ->skew(0, 0, 0, -M_PI/9) // 座標系を傾けます
       ->scale(0.9, 0.9);       // 座標系の倍率を変えます
-                    
+
 // 矩形を描画します
 $page2->setFillColor(new Zend_Pdf_Color_GrayScale(0.8))
       ->setLineColor(new Zend_Pdf_Color_GrayScale(0.2))
@@ -246,7 +246,7 @@ for ($count = 0; $count < 8; $count++) {
 $page2->drawPolygon($x, $y,
                     Zend_Pdf_Page::SHAPE_DRAW_FILL_AND_STROKE,
                     Zend_Pdf_Page::FILL_METHOD_EVEN_ODD);
-                    
+
 // 直線を描画します
 $page2->setLineWidth(0.5)
       ->drawLine(0, 25, 340, 25);

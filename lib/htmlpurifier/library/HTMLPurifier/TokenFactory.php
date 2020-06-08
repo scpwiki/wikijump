@@ -4,7 +4,7 @@ require_once 'HTMLPurifier/Token.php';
 
 /**
  * Factory for token generation (PHP 5 only).
- * 
+ *
  * @note Doing some benchmarking indicates that the new operator is much
  *       slower than the clone operator (even discounting the cost of the
  *       constructor).  This class is for that optimization.  We may want to
@@ -15,14 +15,14 @@ require_once 'HTMLPurifier/Token.php';
  */
 class HTMLPurifier_TokenFactory
 {
-    
+
     /**
      * Prototypes that will be cloned.
      * @private
      */
     // p stands for prototype
     private $p_start, $p_end, $p_empty, $p_text, $p_comment;
-    
+
     /**
      * Generates blank prototypes for cloning.
      */
@@ -33,7 +33,7 @@ class HTMLPurifier_TokenFactory
         $this->p_text   = new HTMLPurifier_Token_Text('');
         $this->p_comment= new HTMLPurifier_Token_Comment('');
     }
-    
+
     /**
      * Creates a HTMLPurifier_Token_Start.
      * @param $name Tag name
@@ -45,7 +45,7 @@ class HTMLPurifier_TokenFactory
         $p->__construct($name, $attr);
         return $p;
     }
-    
+
     /**
      * Creates a HTMLPurifier_Token_End.
      * @param $name Tag name
@@ -56,7 +56,7 @@ class HTMLPurifier_TokenFactory
         $p->__construct($name);
         return $p;
     }
-    
+
     /**
      * Creates a HTMLPurifier_Token_Empty.
      * @param $name Tag name
@@ -68,7 +68,7 @@ class HTMLPurifier_TokenFactory
         $p->__construct($name, $attr);
         return $p;
     }
-    
+
     /**
      * Creates a HTMLPurifier_Token_Text.
      * @param $data Data of text token
@@ -79,7 +79,7 @@ class HTMLPurifier_TokenFactory
         $p->__construct($data);
         return $p;
     }
-    
+
     /**
      * Creates a HTMLPurifier_Token_Comment.
      * @param $data Data of comment token
@@ -90,6 +90,6 @@ class HTMLPurifier_TokenFactory
         $p->__construct($data);
         return $p;
     }
-    
+
 }
 

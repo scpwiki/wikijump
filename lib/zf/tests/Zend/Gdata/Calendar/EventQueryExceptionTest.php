@@ -30,7 +30,7 @@ require_once 'PHPUnit/Framework/TestCase.php';
  */
 class Zend_Gdata_Calendar_EventQueryExceptionTest extends PHPUnit_Framework_TestCase
 {
-    
+
     const GOOGLE_DEVELOPER_CALENDAR = 'developer-calendar@google.com';
 
     public function setUp()
@@ -44,7 +44,7 @@ class Zend_Gdata_Calendar_EventQueryExceptionTest extends PHPUnit_Framework_Test
     public function testSingleEventsThrowsExceptionOnSetInvalidValue()
     {
         $this->query->resetParameters();
-        $singleEvents = 'puppy';        
+        $singleEvents = 'puppy';
         $this->query->setUser(self::GOOGLE_DEVELOPER_CALENDAR);
         $this->query->setSingleEvents($singleEvents);
     }
@@ -55,9 +55,9 @@ class Zend_Gdata_Calendar_EventQueryExceptionTest extends PHPUnit_Framework_Test
     public function testFutureEventsThrowsExceptionOnSetInvalidValue()
     {
         $this->query->resetParameters();
-        $futureEvents = 'puppy';        
+        $futureEvents = 'puppy';
         $this->query->setUser(self::GOOGLE_DEVELOPER_CALENDAR);
         $this->query->setFutureEvents($futureEvents);
     }
-    
+
 }

@@ -34,7 +34,7 @@ require_once dirname(__FILE__) . '/DbSelectTest.php';
  * @copyright  Copyright (c) 2005-2008 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
-class Zend_Paginator_Adapter_DbTableSelectTest extends Zend_Paginator_Adapter_DbSelectTest 
+class Zend_Paginator_Adapter_DbTableSelectTest extends Zend_Paginator_Adapter_DbSelectTest
 {
     /**
      * @group ZF-3775
@@ -44,7 +44,7 @@ class Zend_Paginator_Adapter_DbTableSelectTest extends Zend_Paginator_Adapter_Db
         $query   = $this->_table->select();
         $adapter = new Zend_Paginator_Adapter_DbTableSelect($query);
         $items   = $adapter->getItems(0, 10);
-        
+
         $this->assertType('Zend_Db_Table_Rowset', $items);
     }
 }

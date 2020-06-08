@@ -1,15 +1,15 @@
 <sect1 id="zend.cache.theory">
     <title>Teoria buforowania</title>
     <para>
-        Są trzy kluczowe składniki w Zend_Cache. Pierwszym jest unikalny 
-        identyfikator (łańcuch znakow) który jest używany do identyfikowania 
-        rekordów bufora. Drugim jest dyrektywa <code>'lifetime'</code> jaką 
-        pokazano w przykładach; definiuje ona jak długo buforowany zasób jest 
-        uznawany za 'świeży'. Trzecim kluczowym składnikiem jest warunkowe 
-        wykonanie więc część twojego kodu może być ominięta, co powoduje wzrost 
-        wydajności. Główna funkcja frontendu (np. 
-        <code>Zend_Cache_Core::get()</code>) jest zawsze zaprojektowana tak, aby 
-        zwracała  wartość false gdy bufor jest nieaktualny, jeśli jest to 
+        Są trzy kluczowe składniki w Zend_Cache. Pierwszym jest unikalny
+        identyfikator (łańcuch znakow) który jest używany do identyfikowania
+        rekordów bufora. Drugim jest dyrektywa <code>'lifetime'</code> jaką
+        pokazano w przykładach; definiuje ona jak długo buforowany zasób jest
+        uznawany za 'świeży'. Trzecim kluczowym składnikiem jest warunkowe
+        wykonanie więc część twojego kodu może być ominięta, co powoduje wzrost
+        wydajności. Główna funkcja frontendu (np.
+        <code>Zend_Cache_Core::get()</code>) jest zawsze zaprojektowana tak, aby
+        zwracała  wartość false gdy bufor jest nieaktualny, jeśli jest to
         sensowne dla danego frontendu. To pozwala użytkownikom na ominięcie bloków
         kodu, które chcą buforować, zawierając je w wyrażenie <code>if(){ ... }</code>
         gdzie warunkiem jest metoda Zend_Cache. Na końcu takich bloków musisz zapisać
@@ -115,10 +115,10 @@ $cache->clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, array('tagA', 'tagC'));
 ]]>
         </programlisting>
         <para>
-            Dostępne tryby czyszczenia bufora to: <code>CLEANING_MODE_ALL</code>, 
-            <code>CLEANING_MODE_OLD</code>, <code>CLEANING_MODE_MATCHING_TAG</code> 
-            oraz <code>CLEANING_MODE_NOT_MATCHING_TAG</code>. Dwa ostatnia, jak 
-            nazwa wskazuje, mogą w operacji czyszczenia być użyte wraz z tablicą 
+            Dostępne tryby czyszczenia bufora to: <code>CLEANING_MODE_ALL</code>,
+            <code>CLEANING_MODE_OLD</code>, <code>CLEANING_MODE_MATCHING_TAG</code>
+            oraz <code>CLEANING_MODE_NOT_MATCHING_TAG</code>. Dwa ostatnia, jak
+            nazwa wskazuje, mogą w operacji czyszczenia być użyte wraz z tablicą
             etykiet.
         </para>
     </sect2>

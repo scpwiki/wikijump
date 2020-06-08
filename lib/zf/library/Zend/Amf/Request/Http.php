@@ -53,8 +53,8 @@ class Zend_Amf_Request_Http extends Zend_Amf_Request
      */
     public function __construct()
     {
-        // php://input allows you to read raw POST data. It is a less memory 
-        // intensive alternative to $HTTP_RAW_POST_DATA and does not need any 
+        // php://input allows you to read raw POST data. It is a less memory
+        // intensive alternative to $HTTP_RAW_POST_DATA and does not need any
         // special php.ini directives
         $amfRequest = file_get_contents('php://input');
 
@@ -69,7 +69,7 @@ class Zend_Amf_Request_Http extends Zend_Amf_Request
 
     /**
      * Retrieve raw AMF Request
-     * 
+     *
      * @return string
      */
     public function getRawRequest()

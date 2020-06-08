@@ -101,7 +101,7 @@ public final class DOHRobot extends Applet{
 		public void componentShown(ComponentEvent evt){
 			// sets the security manager to fix a bug in liveconnect in Safari on Mac
 			if(key != -1){ return; }
-			window = (JSObject) JSObject.getWindow(applet());   
+			window = (JSObject) JSObject.getWindow(applet());
 
 			AccessController.doPrivileged(new PrivilegedAction(){
 				public Object run(){
@@ -311,7 +311,7 @@ public final class DOHRobot extends Applet{
 						keystring += chars;
 						if(altgraph && !shift){
 							shift = false;
-							// Set robot auto delay now that FF/Mac inited all of the keys. 
+							// Set robot auto delay now that FF/Mac inited all of the keys.
 							// Good for DND.
 							robot.setAutoDelay(1);
 							try{
@@ -835,7 +835,7 @@ public final class DOHRobot extends Applet{
 
 				/**
 				 * Constant for the F13 function key.
-				 * 
+				 *
 				 * @since 1.2
 				 */
 				/*
@@ -848,7 +848,7 @@ public final class DOHRobot extends Applet{
 
 				/**
 				 * Constant for the F14 function key.
-				 * 
+				 *
 				 * @since 1.2
 				 */
 				case 125:
@@ -857,7 +857,7 @@ public final class DOHRobot extends Applet{
 
 				/**
 				 * Constant for the F15 function key.
-				 * 
+				 *
 				 * @since 1.2
 				 */
 				case 126:
@@ -1357,10 +1357,10 @@ public final class DOHRobot extends Applet{
 		public boolean checkTopLevelWindow(Object window){
 			// If our users temporarily accept our cert for a session,
 			// then use the same session to browse to a malicious website also using our applet,
-			// that website can automatically execute the applet. 
+			// that website can automatically execute the applet.
 			// To resolve this issue, RobotSecurityManager overrides checkTopLevelWindow
 			// to check the JVM to see if there are other instances of the applet running on different domains.
-			// If there are, it prompts the user to confirm that they want to run the applet before continuing. 
+			// If there are, it prompts the user to confirm that they want to run the applet before continuing.
 
 			// null is not supposed to be allowed
 			// so we allow it to distinguish our security manager.

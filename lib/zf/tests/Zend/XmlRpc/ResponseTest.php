@@ -10,7 +10,7 @@ require_once 'PHPUnit/Framework/IncompleteTestError.php';
  * @subpackage UnitTests
  * @version $Id: ResponseTest.php 5478 2007-06-28 20:20:08Z matthew $
  */
-class Zend_XmlRpc_ResponseTest extends PHPUnit_Framework_TestCase 
+class Zend_XmlRpc_ResponseTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Zend_XmlRpc_Response object
@@ -21,7 +21,7 @@ class Zend_XmlRpc_ResponseTest extends PHPUnit_Framework_TestCase
     /**
      * Setup environment
      */
-    public function setUp() 
+    public function setUp()
     {
         $this->_response = new Zend_XmlRpc_Response();
     }
@@ -29,7 +29,7 @@ class Zend_XmlRpc_ResponseTest extends PHPUnit_Framework_TestCase
     /**
      * Teardown environment
      */
-    public function tearDown() 
+    public function tearDown()
     {
         unset($this->_response);
     }
@@ -57,9 +57,9 @@ class Zend_XmlRpc_ResponseTest extends PHPUnit_Framework_TestCase
     /**
      * isFault() test
      *
-     * Call as method call 
+     * Call as method call
      *
-     * Returns: boolean 
+     * Returns: boolean
      */
     public function testIsFault()
     {
@@ -77,16 +77,16 @@ class Zend_XmlRpc_ResponseTest extends PHPUnit_Framework_TestCase
         $this->_response->loadXml('foo');
         $this->assertType('Zend_XmlRpc_Fault', $this->_response->getFault());
     }
-    
+
     /**
      * loadXml() test
      *
-     * Call as method call 
+     * Call as method call
      *
      * Expects:
-     * - response: 
-     * 
-     * Returns: boolean 
+     * - response:
+     *
+     * Returns: boolean
      */
     public function testLoadXml()
     {
@@ -106,8 +106,8 @@ class Zend_XmlRpc_ResponseTest extends PHPUnit_Framework_TestCase
 
     /**
      * helper for saveXML() and __toString() tests
-     * 
-     * @param string $xml 
+     *
+     * @param string $xml
      * @return void
      */
     protected function _testXmlResponse($xml)

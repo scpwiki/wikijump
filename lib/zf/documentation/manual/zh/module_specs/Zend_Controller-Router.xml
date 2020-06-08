@@ -3,11 +3,11 @@
     <sect2 id="zend.controller.router.introduction">
         <title>简介</title>
         <para>
-            <code>Zend_Controller_Router_Rewrite</code>是标准的框架路由器。路由是个过程，在这个过程中它取出URI的端点（跟着基本URL的URI的那部分）并把它分解成参数来决定哪个模块、哪个控制器和控制器中的哪个动作应该接受请求。模块、控制器、动作和其它参数被打包到<code>Zend_Controller_Request_Http</code>对象，接着这个对象由<code>Zend_Controller_Dispatcher_Standard</code>来处理。路由只发生一次：当请求最初被接收和第一个控制器被派遣之前。                     
+            <code>Zend_Controller_Router_Rewrite</code>是标准的框架路由器。路由是个过程，在这个过程中它取出URI的端点（跟着基本URL的URI的那部分）并把它分解成参数来决定哪个模块、哪个控制器和控制器中的哪个动作应该接受请求。模块、控制器、动作和其它参数被打包到<code>Zend_Controller_Request_Http</code>对象，接着这个对象由<code>Zend_Controller_Dispatcher_Standard</code>来处理。路由只发生一次：当请求最初被接收和第一个控制器被派遣之前。
         </para>
 
         <para>
-            <code>Zend_Controller_Router_Rewrite</code>被设计来考虑使用纯php结构时mod_rewrite-like的功能性。它非常宽松地基于Ruby on Rails并且不要求任何先前的web服务器URL rewriting的知识。它被设计来和单个Apache的 mod_rewrite规则（其中之一）一起工作：            
+            <code>Zend_Controller_Router_Rewrite</code>被设计来考虑使用纯php结构时mod_rewrite-like的功能性。它非常宽松地基于Ruby on Rails并且不要求任何先前的web服务器URL rewriting的知识。它被设计来和单个Apache的 mod_rewrite规则（其中之一）一起工作：
         </para>
 
         <programlisting role="php"><![CDATA[
@@ -24,7 +24,7 @@ RewriteRule !\.(js|ico|gif|jpg|png|css)$ index.php
 RewriteEngine on
 RewriteCond %{SCRIPT_FILENAME} !-f
 RewriteCond %{SCRIPT_FILENAME} !-d
-RewriteRule ^(.*)$ index.php/$1 
+RewriteRule ^(.*)$ index.php/$1
 ]]>
         </programlisting>
 
@@ -51,8 +51,8 @@ RewriteRule ^[\w/\%]*(?:\.(?!(?:js|ico|gif|jpg|png|css)$)[\w\%]*$)? /index.php [
         <programlisting role="lighttpd"><![CDATA[
 url.rewrite-once = (
     ".*\?(.*)$" => "/index.php?$1",
-    ".*\.(js|ico|gif|jpg|png|css)$" => "$0", 
-    "" => "/index.php" 
+    ".*\.(js|ico|gif|jpg|png|css)$" => "$0",
+    "" => "/index.php"
 )
 ]]>
 </programlisting>
@@ -71,8 +71,8 @@ url.rewrite-once = (
 $router = $ctrl->getRouter(); // returns a rewrite router by default
 $router->addRoute(
     'user',
-    new Zend_Controller_Router_Route('user/:username', 
-                                     array('controller' => 'user', 
+    new Zend_Controller_Router_Route('user/:username',
+                                     array('controller' => 'user',
                                            'action' => 'info'))
 );
 ]]>
@@ -87,7 +87,7 @@ $router->addRoute(
         </para>
 
         <programlisting role="php"><![CDATA[
-$router->addRoute('user', 
+$router->addRoute('user',
                   new Zend_Controller_Router_Route('user/:username'));
 ]]>
         </programlisting>
@@ -117,7 +117,7 @@ $router->addRoute('user',
             </para>
 
             <programlisting role="php"><![CDATA[
-"<?= $this->url(array('username' => 'martel'), 'user') ?>">Martel</a>            
+"<?= $this->url(array('username' => 'martel'), 'user') ?>">Martel</a>
 ]]>
             </programlisting>
 
@@ -212,8 +212,8 @@ http://example/blog/archive/list/sort/alpha/date/desc
         </para>
 
         <programlisting role="php"><![CDATA[
-$compat = new Zend_Controller_Router_Route_Module(array(), 
-                                                  $dispatcher, 
+$compat = new Zend_Controller_Router_Route_Module(array(),
+                                                  $dispatcher,
                                                   $request);
 $this->addRoute('default', $compat);
 ]]>
@@ -239,7 +239,7 @@ $router->removeDefaultRoutes();
         </para>
 
         <para>
-            如果基本URL被误删除，你可以通过<code>Zend_Controller_Request_Http</code> 和调用 <code>setBaseUrl()</code> 方法（参见<xref linkend="zend.controller.request.http.baseurl" />）用你自己的基本路径重写它。    
+            如果基本URL被误删除，你可以通过<code>Zend_Controller_Request_Http</code> 和调用 <code>setBaseUrl()</code> 方法（参见<xref linkend="zend.controller.request.http.baseurl" />）用你自己的基本路径重写它。
         </para>
 
         <programlisting role="php"><![CDATA[

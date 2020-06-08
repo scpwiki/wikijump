@@ -22,7 +22,7 @@
 
 	float: left;
 	list-style: none;
-}	
+}
 .wd-editor-toolbar-panel ul li{
 	padding: 0; margin: 1px;
 	float: left;
@@ -97,16 +97,16 @@ a.weditor-strikethrough{
 }
 a.weditor-teletype{
 	background-position: -220px 0;
-}	
+}
 a.weditor-quote{
 	background-position: -242px 0;
-}	
+}
 a.weditor-superscript{
 	background-position: -264px 0;
 }
 a.weditor-subscript{
 	background-position: -286px 0;
-}	
+}
 a.weditor-raw{
 	background-position: -308px 0;
 }

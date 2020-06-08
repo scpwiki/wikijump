@@ -51,7 +51,7 @@ class SimpleDemo {
     public function __construct($email, $password)
     {
         try {
-          $client = Zend_Gdata_ClientLogin::getHttpClient($email, $password, 
+          $client = Zend_Gdata_ClientLogin::getHttpClient($email, $password,
                     Zend_Gdata_Books::AUTH_SERVICE_NAME);
         } catch (Zend_Gdata_App_AuthException $ae) {
           exit("Error: ". $ae->getMessage() ."\nCredentials provided were ".
@@ -71,7 +71,7 @@ class SimpleDemo {
         foreach($feed as $entry) {
             $titles = $entry->getTitles();
             $rating = $entry->getRating();
-            if (count($titles)) {                
+            if (count($titles)) {
                 if (!is_object($rating)) {
                     $rating_str = "?";
                 } else {
@@ -120,13 +120,13 @@ class SimpleDemo {
         $entry->setId(
             new Zend_Gdata_App_Extension_Id($volumeId));
         print "Inserting ".$volumeId."\n\n";
-        return $this->gdClient->insertVolume($entry);        
+        return $this->gdClient->insertVolume($entry);
     }
 
     /**
      * Add an arbitrary book to the library feed
      * @param string $volumeId Volume to add a rating to
-     * @param float $rating Numeric rating from 0 to 5 
+     * @param float $rating Numeric rating from 0 to 5
      * @return void
      */
     public function addRating($volumeId, $rating)
@@ -138,7 +138,7 @@ class SimpleDemo {
             new Zend_Gdata_Extension_Rating($rating, "0", 5, 1));
         print "Inserting a rating of ".$rating." for ".$volumeId."\n\n";
         return $this->gdClient->insertVolume($entry,
-            Zend_Gdata_Books::MY_ANNOTATIONS_FEED_URI);        
+            Zend_Gdata_Books::MY_ANNOTATIONS_FEED_URI);
     }
 
     /**
@@ -151,7 +151,7 @@ class SimpleDemo {
     public function removeBook($entry)
     {
         print "Deleting ".$entry->getId()->getText()."\n\n";
-        $this->gdClient->deleteVolume($entry);        
+        $this->gdClient->deleteVolume($entry);
     }
 
     /**

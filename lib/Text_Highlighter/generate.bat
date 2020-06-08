@@ -22,7 +22,7 @@ rem @link       http://pear.php.net/package/Text_Highlighter
 set "MHL_PARAMS="
 :doshift
 set "MHL_PARAMS=%MHL_PARAMS% %1"
-shift 
+shift
 if -%1- == -- GOTO noshift
 GOTO doshift
 :noshift

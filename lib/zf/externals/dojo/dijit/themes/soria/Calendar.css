@@ -1,5 +1,5 @@
 /* Calendar*/
-	
+
 .soria .dijitCalendarIncrementControl {
 	/* next/prev month buttons */
 	width:15px;
@@ -8,7 +8,7 @@
 	background-repeat: no-repeat;
 }
 .dj_ie6 .soria .dijitCalendarIncrementControl {
-	font-size:.1em;	
+	font-size:.1em;
 	background-image: url("images/spriteRoundedIconsSmall.gif");
 }
 
@@ -56,7 +56,7 @@
 }
 
 .soria .dijitCalendarBodyContainer {
-	border-bottom: 1px solid #eeeeee;	
+	border-bottom: 1px solid #eeeeee;
 }
 
 .soria .dijitCalendarMonthLabel {
@@ -98,7 +98,7 @@
 }
 
 .soria .dijitCalendarCurrentMonthDisabled {
-	/* days that are part of this month - disabled */	
+	/* days that are part of this month - disabled */
 	background-color:#bbbbbc !important;
 }
 

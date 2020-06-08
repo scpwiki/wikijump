@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot_Cron
  * @version $Id$
@@ -38,15 +38,15 @@ use delete;
  *
  */
 class RemoveOldSessionsJob implements SchedulerJob {
-	
+
 	public function run(){
 		$c = new Criteria();
 		$c->add("infinite", false);
 		$date = currentDateUTC();
 		$date->subtractSeconds(3600);
 		$c->add("last_accessed", $date, "<");
-		
-		OzoneSessionPeer::instance()->delete($c);		
+
+		OzoneSessionPeer::instance()->delete($c);
 	}
-	
+
 }

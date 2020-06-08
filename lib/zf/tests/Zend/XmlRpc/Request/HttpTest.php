@@ -14,7 +14,7 @@ require_once 'Zend/XmlRpc/Request/Http.php';
  * @subpackage UnitTests
  * @version $Id: HttpTest.php 11973 2008-10-15 16:00:56Z matthew $
  */
-class Zend_XmlRpc_Request_HttpTest extends PHPUnit_Framework_TestCase 
+class Zend_XmlRpc_Request_HttpTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.
@@ -30,7 +30,7 @@ class Zend_XmlRpc_Request_HttpTest extends PHPUnit_Framework_TestCase
     /**
      * Setup environment
      */
-    public function setUp() 
+    public function setUp()
     {
         $this->xml =<<<EOX
 <?xml version="1.0" encoding="UTF-8"?>
@@ -81,7 +81,7 @@ EOX;
     /**
      * Teardown environment
      */
-    public function tearDown() 
+    public function tearDown()
     {
         $_SERVER = $this->server;
         unset($this->request);

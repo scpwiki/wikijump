@@ -1,12 +1,12 @@
 <sect1 id="zend.config.introduction">
     <title>Wprowadzenie</title>
     <para>
-        Klasa <code>Zend_Config</code> została stworzona aby uprościć użycie 
-        danych konfiguracyjnych w aplikacjach. Dostarcza ona interfejs bazujący 
-        na właściwościach obiektów służący do odczytywania danych 
+        Klasa <code>Zend_Config</code> została stworzona aby uprościć użycie
+        danych konfiguracyjnych w aplikacjach. Dostarcza ona interfejs bazujący
+        na właściwościach obiektów służący do odczytywania danych
         konfiguracyjnych wewnątrz kodu aplikacji. Dane konfiguracyjne  mogą 
-        pochodzić z różnego rodzaju źródeł, w których dane konfiguracyjne są 
-        przechowywane hierarchiczne. Obecnie <code>Zend_Config</code> dostarcza 
+        pochodzić z różnego rodzaju źródeł, w których dane konfiguracyjne są
+        przechowywane hierarchiczne. Obecnie <code>Zend_Config</code> dostarcza
         klasy obsługujące dane konfiguracyjne przechowywane w plikach tekstowych:
         <link linkend="zend.config.adapters.ini"><code>Zend_Config_Ini</code></link>, oraz
         <link linkend="zend.config.adapters.xml"><code>Zend_Config_Xml</code></link>.
@@ -59,8 +59,8 @@ $db = Zend_Db::factory($config->database);
         dostępu do danych konfiguracyjnych przekazanych do konstruktora.
     </para>
     <para>
-        Oprócz zorientowanego obiektowo dostępu do wartości klasa 
-        <code>Zend_Config</code> posiada także metodę <code>get()</code> 
+        Oprócz zorientowanego obiektowo dostępu do wartości klasa
+        <code>Zend_Config</code> posiada także metodę <code>get()</code>
         umożliwiającą zwrócenie podanej domyślnej wartości jeśli element nie
         istnieje. Na przykład:
     </para>
@@ -71,7 +71,7 @@ $host = $config->database->get('host', 'localhost');
     <example id="zend.config.introduction.example.file.php">
         <title>Użycie Zend_Config z plikiem konfiguracyjnym PHP</title>
         <para>
-            Często wskazane może być użycie do konfiguracji zwykłego pliku PHP. 
+            Często wskazane może być użycie do konfiguracji zwykłego pliku PHP.
             Poniższy kod pokazuje w jak łatwy sposób można to zrobić:
         </para>
         <programlisting role="php"><![CDATA[

@@ -35,14 +35,14 @@ require_once 'Zend/View/Helper/Abstract.php';
  * @subpackage Helper
  * @copyright  Copyright (c) 2005-2008 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
- */ 
+ */
 class Zend_View_Helper_Placeholder extends Zend_View_Helper_Abstract
-{  
+{
     /**
      * Placeholder items
      * @var array
-     */  
-    protected $_items = array();  
+     */
+    protected $_items = array();
 
     /**
      * @var Zend_View_Helper_Placeholder_Registry
@@ -53,30 +53,30 @@ class Zend_View_Helper_Placeholder extends Zend_View_Helper_Abstract
      * Constructor
      *
      * Retrieve container registry from Zend_Registry, or create new one and register it.
-     * 
+     *
      * @return void
      */
     public function __construct()
     {
         $this->_registry = Zend_View_Helper_Placeholder_Registry::getRegistry();
     }
-  
- 
+
+
     /**
      * Placeholder helper
-     * 
-     * @param  string $name 
+     *
+     * @param  string $name
      * @return Zend_View_Helper_Placeholder_Container_Abstract
-     */  
-    public function placeholder($name)  
-    {  
-        $name = (string) $name;  
+     */
+    public function placeholder($name)
+    {
+        $name = (string) $name;
         return $this->_registry->getContainer($name);
-    }  
+    }
 
     /**
      * Retrieve the registry
-     * 
+     *
      * @return Zend_View_Helper_Placeholder_Registry
      */
     public function getRegistry()

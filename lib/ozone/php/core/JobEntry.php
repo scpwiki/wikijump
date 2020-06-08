@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Cron
  * @version $Id$
@@ -32,45 +32,45 @@ use Date;
  *
  */
 class JobEntry {
-	
+
 	private $name;
 	private $jobObject;
-	
+
 	private $second = "0";
 	private $minute = "0";
 	private $day = "*";
 	private $month = "*";
 	private $dayOfWeek = "*";
-	
+
 	private $secondArray;
 	private $minuteArray;
 	private $dayArray;
 	private $monthArray;
 	private $dayOfWeekArray;
-	
+
 	public function setName($name){
-		$this->name=$name;	
+		$this->name=$name;
 	}
-	
+
 	public function getName(){
-		return $this->name;	
+		return $this->name;
 	}
-	
+
 	public function setJobObject($object){
-		$this->jobObject = $object;	
+		$this->jobObject = $object;
 	}
-	
+
 	public function getJobObject(){
-		return $this->jobObject;	
+		return $this->jobObject;
 	}
-	
+
 	public function getNextRunTime($date){
 		// check if $date is a timestamp...
 		if(($date instanceof Date) == false && is_integer($date) ){
-			$date = new Date($date);			
+			$date = new Date($date);
 		}
 		// assume now $date IS instanceof Date
-		
+
 		$cSecond = $date->getSecond();
 		$cMinute = $date->getMinute();
 		$cHour = $date->getHour();
@@ -80,18 +80,18 @@ class JobEntry {
 
 		$found = false;
 		while($found === false){
-			
+
 			while($found === false){
 				// iterate months...
 				$cMonth = $this->findNextInArray($cMonth, $this->monthArray);
 				if($cMonth === null){
-					break;	
+					break;
 				}
 				// find the day now
 				while($found === false){
 					$cDay = $this->findNextInArray($cDay, $this->dayArray);
 					if($cDay === null){
-						break;	
+						break;
 					}
 					// here dayOfWeek and number of days in month should be checked!
 					$date = new Date();
@@ -99,7 +99,7 @@ class JobEntry {
 					$date->setMonth($cMonth);
 					$numberOfDaysInMonth = $date->getDaysInMonth();
 					if($cDay>$numberOfDaysInMonth){
-						break;	
+						break;
 					}
 					if($this->dayOfWeekArray !== null){
 						// get day of the week
@@ -107,31 +107,31 @@ class JobEntry {
 						$dayOfWeek = $date->getDayOfWeek();
 						if(!in_array($dayOfWeek, $this->dayOfWeekArray)){
 							$cDay++;
-							continue;	
-						}	
+							continue;
+						}
 					}
-					
+
 					while($found === false){
 						if($cHour == 24){break;}
 						$cHour = $this->findNextInArray($cHour, $this->hourArray);
 						if($cHour === null){
-							break;	
+							break;
 						}
 						while($found === false){
 							if($cMinute == 60){	break;}
 							$cMinute = 	$this->findNextInArray($cMinute, $this->minuteArray);
 							if($cMinute === null){
-								break;	
+								break;
 							}
-							while($found === false){	
-								if($cSecond==60){break;}					
+							while($found === false){
+								if($cSecond==60){break;}
 								$cSecond = 	$this->findNextInArray($cSecond, $this->secondArray);
 								if($cSecond === null){
-									break;		
+									break;
 								}else{
-								
+
 									// FOUND IT!!! WOOOO!
-									// create Date object	
+									// create Date object
 									$date = new Date();
 									$date->setYear($cYear);
 									$date->setMonth($cMonth);
@@ -139,32 +139,32 @@ class JobEntry {
 									$date->setHour($cHour);
 									$date->setMinute($cMinute);
 									$date->setSecond($cSecond);
-									
+
 									return $date;
-									
+
 								}
 							}
 							$cMinute++;
 							$cSecond = 0;
-							
+
 						}
 						$cHour++;
 						$cMinute = 0;
 						$cSecond = 0;
-						
+
 					}
 					$cDay++;
 					$cHour = 0;
 					$cMinute = 0;
 					$cSecond = 0;
 				}
-				$cMonth++;	
+				$cMonth++;
 				$cDay=0;
 				$cHour = 0;
 				$cMinute = 0;
 				$cSecond = 0;
 			}
-			$cYear++; 
+			$cYear++;
 			$cMonth = 0;
 			$cDay=0;
 			$cHour = 0;
@@ -172,28 +172,28 @@ class JobEntry {
 			$cSecond = 0;
 		}
 	}
-	
+
 	public function setSecond($second){
-		$this->second = $second;	
+		$this->second = $second;
 	}
-	
+
 	public function setMinute($minute){
-		$this->minute = $minute;	
+		$this->minute = $minute;
 	}
-	
+
 	public function setHour($hour){
-		$this->hour = $hour;	
+		$this->hour = $hour;
 	}
-	
+
 	public function setDay($day){
-		$this->day = $day;	
+		$this->day = $day;
 	}
-	
+
 	public function setMonth($month){
-		$this->month = $month;	
+		$this->month = $month;
 	}
 	public function setDayOfWeek($dayOfWeek){
-		$this->dayOfWeek = $dayOfWeek;	
+		$this->dayOfWeek = $dayOfWeek;
 	}
 
 	public function prepare(){
@@ -210,24 +210,24 @@ class JobEntry {
 		$this->monthArray = $this->intervalStringToArray($this->month, 1, 12);
 		$this->dayOfWeekArray = $this->intervalStringToArray($this->dayOfWeek, 0, 6);
 	}
-	
+
 	/**
 	 * Given the interval devinition string for a given property and allowed
 	 * range the method returns all allowed values as an array.
 	 */
 	private function intervalStringToArray($string, $rangeMin, $rangeMax){
-		
+
 		// if "*"
 		if($string === "*"){
 			$result = null;
-			return $result;	
+			return $result;
 		}
-		
+
 		//if $string is just an integer...
 		if(preg_match("/^[0-9]+$/",$string)){
 			$result = array();
 			$result[]=(int)$string;
-			return $result;	
+			return $result;
 		}
 
 		// if is a coma-separated list:
@@ -235,41 +235,41 @@ class JobEntry {
 			$result = array();
 			$result=explode(",",$string);
 			for($i = 0; $i<count($result); $i++){
-				$result[$i] = (int)$result[$i];	
-			}	
-			return $result;	
+				$result[$i] = (int)$result[$i];
+			}
+			return $result;
 		}
-		
+
 		// if of form "*/n"
 		if(preg_match("/^\*/[0-9]+$/",$string)){
 			$result = array();
 			$repeat = (int)substr($string, 2);
 			for($i=0;$i<=$rangeMax; $i+=$repeat){
-				$result[]=$i;	
+				$result[]=$i;
 			}
-			return $result;	
+			return $result;
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Finds next values in a sorted array that is equal or greater than the starting
 	 * value. If not found - null is returned.
 	 */
 	private function findNextInArray($startval, $array){
 		if($array === null){
-			return $startval; // null means "any" here. so the starting value is just fine.	
+			return $startval; // null means "any" here. so the starting value is just fine.
 		}
-		
+
 		$count = count($array);
 		for($i = 0; $i<$count; $i++){
 			if($array[$i] >= $startval){
-				return $array[$i];	
-			}	
+				return $array[$i];
+			}
 		}
-		
+
 		return null;
-			
+
 	}
 }

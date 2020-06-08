@@ -15,7 +15,7 @@ require_once 'Zend/XmlRpc/Server/Cache.php';
  * @subpackage UnitTests
  * @version $Id: CacheTest.php 11973 2008-10-15 16:00:56Z matthew $
  */
-class Zend_XmlRpc_Server_CacheTest extends PHPUnit_Framework_TestCase 
+class Zend_XmlRpc_Server_CacheTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.
@@ -36,14 +36,14 @@ class Zend_XmlRpc_Server_CacheTest extends PHPUnit_Framework_TestCase
 
     /**
      * Local file for caching
-     * @var string 
+     * @var string
      */
     protected $_file;
 
     /**
      * Setup environment
      */
-    public function setUp() 
+    public function setUp()
     {
         $this->_file = realpath(dirname(__FILE__)) . '/xmlrpc.cache';
         $this->_server = new Zend_XmlRpc_Server();
@@ -53,7 +53,7 @@ class Zend_XmlRpc_Server_CacheTest extends PHPUnit_Framework_TestCase
     /**
      * Teardown environment
      */
-    public function tearDown() 
+    public function tearDown()
     {
         if (file_exists($this->_file)) {
             unlink($this->_file);

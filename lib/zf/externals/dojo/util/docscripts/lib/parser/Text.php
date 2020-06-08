@@ -7,7 +7,7 @@ class Text
 
   /**
    * Blanks out a portion of a string with whitespace
-   * 
+   *
    *  @param $to_blank Portion of the string to be removed
    *  @param $string Overall string to remove it from
    */
@@ -119,7 +119,7 @@ class Text
   public static function findTermination($source_array, $termination_characters, $enclosing_characters = '') {
     $characters = array();
     $terminators = array();
-    foreach (self::toArray($termination_characters) as $character) { 
+    foreach (self::toArray($termination_characters) as $character) {
       $terminators[$character] = true;
     }
     foreach (self::toArray($enclosing_characters) as $index => $character) {

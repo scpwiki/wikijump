@@ -3,7 +3,7 @@
 @import "../../dojox/grid/resources/Grid.css";
 @import "../../dojox/grid/resources/soriaGrid.css";
 
-html, body, #main{	
+html, body, #main{
 	width: 100%;	/* make the body expand to fill the visible window */
 	height: 100%;
 	overflow: hidden;	/* erase window level scrollbars */
@@ -13,11 +13,11 @@ html, body, #main{
 }
 
 #banner, #footer {
-background-color: #ededff; 
+background-color: #ededff;
 color: #333;
-padding:3px; 
+padding:3px;
 }
-#banner { text-align:right; } 
+#banner { text-align:right; }
 
 /* list of messages
 TODO: If i add the rules below as a plain tr/td it seems to mess up accordion, tree, etc. ???
@@ -30,17 +30,17 @@ TODO: If i add the rules below as a plain tr/td it seems to mess up accordion, t
 #listPane tr, #listPane td { cursor: pointer; }
 
 table.demoTable {
-	border-collapse: collapse;	
+	border-collapse: collapse;
 }
 
 th {
-	background-color: #4f8ce5; 
-	color: #666; 
+	background-color: #4f8ce5;
+	color: #666;
 	font-weight:: bold !important;
 	margin:0;
-	padding:3px; 
+	padding:3px;
 	background-image:url('../../dijit/themes/soria/images/titleBar.png');
-	background-position:0px -1px; 
+	background-position:0px -1px;
 }
 
 .dijitRtl caption,
@@ -48,17 +48,17 @@ th {
 	text-align:right;
 }
 
-th .arrowNode { 
-	position:relative; 
+th .arrowNode {
+	position:relative;
 	float:left;
 	top:4px;
-	left:4px; 
+	left:4px;
 	width:16px;
 	height:16px;
 }
 
 .dijitRtl th .arrowNode{
-	float:right;	
+	float:right;
 }
 
 th.arrowUp .arrowNode {
@@ -79,12 +79,12 @@ th.arrowDown .arrowNode {
 	background:transparent url("../../dijit/themes/soria/images/spriteRoundedIconsSmall.png") -15px top no-repeat;
 }
 
-.demoTable td { padding:3px; } 
+.demoTable td { padding:3px; }
 .demoTable {
-	border-spacing:0; 
-	padding:0; margin:0; 
+	border-spacing:0;
+	padding:0; margin:0;
 	width:98%;
-	
+
 }
 .oddRow {
 	background-color: #f2f5f9;
@@ -109,7 +109,7 @@ th.arrowDown .arrowNode {
 .messageHeader {
 	font:12pt Arial,sans-serif;
 	font-weight:bold;
-	color:#333; 
+	color:#333;
 }
 body .dojoSplitPane {
 	background: #ededff;
@@ -129,11 +129,11 @@ body .dojoSplitPane {
 .mailIconOk,
 .mailIconTrashcanFull {
 	background-image: url('icons.png'); /* mail icons sprite image */
-	background-repeat: no-repeat; 
+	background-repeat: no-repeat;
 	width: 16px;
 	height: 16px;
 	text-align: center;
-	padding-right:4px; 
+	padding-right:4px;
 }
 
 .dj_ie6 .mailIconCancel,
@@ -176,7 +176,7 @@ body .dojoSplitPane {
 	color:#ededed;
 	font:72pt Arial,san-serif;
 	font-weight:bold;
-	
+
 }
 
 /* buttons on Contact tab for filtering list of contacts to a given letter */

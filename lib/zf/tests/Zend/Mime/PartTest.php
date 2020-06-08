@@ -72,7 +72,7 @@ class Zend_Mime_PartTest extends PHPUnit_Framework_TestCase
         $content = $this->part->getContent();
         $this->assertEquals($this->_testText, $content);
     }
-    
+
     public function testStreamEncoding()
     {
         $testfile = realpath(__FILE__);
@@ -88,7 +88,7 @@ class Zend_Mime_PartTest extends PHPUnit_Framework_TestCase
         $encoded = stream_get_contents($fp2);
         fclose($fp);
         $this->assertEquals(base64_decode($encoded),$original);
-        
+
         // test QuotedPrintable
         $fp = fopen($testfile,'rb');
         $this->assertTrue(is_resource($fp));

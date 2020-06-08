@@ -24,8 +24,8 @@
         <programlisting role="php"><![CDATA[
 <?php $this->placeholder('foo')->set("Some text for later") ?>
 
-<?php 
-    echo $this->placeholder('foo'); 
+<?php
+    echo $this->placeholder('foo');
     // 出力は "Some text for later" となります
 ?>
 ]]></programlisting>
@@ -88,15 +88,15 @@
 
         <programlisting role="php"><![CDATA[
 <!-- 後で使用するビュースクリプト -->
-<?php 
+<?php
 $this->placeholder('foo')->setPrefix("<ul>\n    <li>")
-                         ->setSeparator("</li><li>\n") 
+                         ->setSeparator("</li><li>\n")
                          ->setIndent(4)
                          ->setPostfix("</li></ul>\n");
 ?>
 
-<?php 
-    echo $this->placeholder('foo'); 
+<?php
+    echo $this->placeholder('foo');
     // 順序なしリストをきれいに字下げして出力します
 ?>
 ]]></programlisting>
@@ -174,7 +174,7 @@ echo $foo['bar'];
 
         <programlisting role="php"><![CDATA[
 <!-- デフォルトのキャプチャは追記モードです -->
-<?php $this->placeholder('foo')->captureStart(); 
+<?php $this->placeholder('foo')->captureStart();
 foreach ($this->data as $datum): ?>
 <div class="foo">
     <h2><?= $datum->title ?></h2>
@@ -188,7 +188,7 @@ foreach ($this->data as $datum): ?>
 
         <programlisting role="php"><![CDATA[
 <!-- 特定のキーにキャプチャします -->
-<?php $this->placeholder('foo')->captureStart('SET', 'data'); 
+<?php $this->placeholder('foo')->captureStart('SET', 'data');
 foreach ($this->data as $datum): ?>
 <div class="foo">
     <h2><?= $datum->title ?></h2>

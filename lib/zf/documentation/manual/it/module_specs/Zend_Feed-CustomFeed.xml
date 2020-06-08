@@ -74,7 +74,7 @@ $entry = new MyEntry();
 $entry->myUpdated = '2005-04-19T15:30';
 
 // la chiamata in stile metodo è gestita dalla funzione __call
-$entry->myUpdated();  
+$entry->myUpdated();
 // la chiamata in stile proprietà è gestita dalla funzione __get
 $entry->myUpdated;]]>
         </programlisting>

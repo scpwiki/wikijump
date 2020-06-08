@@ -23,22 +23,22 @@ require_once 'Zend/Soap/Wsdl/Parser.php';
 
 /**
  * Zend_Soap_Wsdl_CodeGenerator
- * 
+ *
  * @category   Zend
  * @package    Zend_Soap
  */
 class Zend_Soap_Wsdl_CodeGenerator {
-   
+
     /**
      * @var string WSDL Filename/URI
      */
     private static $filename = null;
-    
+
     /**
      * @var string PHP Code for output
      */
     private static $php_code;
-    
+
     /**
      * @var object Zend_Soap_Wsdl_Parser Result
      */
@@ -53,17 +53,17 @@ class Zend_Soap_Wsdl_CodeGenerator {
     public static function parse($wsdl, $output = null)
     {
         self::$wsdl = Zend_Soap_Wsdl_Parser::parse($wsdl);
-        
+
         self::$php_code = self::generatePhp();
-        
+
         if (!is_null($output) && is_writable($output)) {
             file_put_contents($output);
         }
-        
+
         return self::$php_code;
-        
+
     }
-    
+
     /**
      * Generate the output PHP
      *
@@ -85,10 +85,10 @@ class Zend_Soap_Wsdl_CodeGenerator {
             $classname = 'SoapService';
         } else {
             $classname = self::$wsdl->name;
-        }                
-            
+        }
+
         $php_code .= "class {$classname} {\n";
-        
+
         foreach (self::$wsdl->operations as $name => $io) {
             if (isset($io['documentation'])) {
                 $php_code .= "\n\t/**\n";
@@ -115,9 +115,9 @@ class Zend_Soap_Wsdl_CodeGenerator {
             }
             $php_code .= "\t}\n";
         }
-        
+
         $php_code .= "\n}";
-        
+
         $php_code .= PHP_EOL. "\$server = new SoapServer;" .PHP_EOL;
         $php_code .= "\$server->setClass($classname);";
         $php_code .= "\n?>";

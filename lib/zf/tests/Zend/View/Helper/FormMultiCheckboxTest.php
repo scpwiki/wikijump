@@ -13,7 +13,7 @@ require_once 'Zend/Registry.php';
 /**
  * Test class for Zend_View_Helper_FormMultiCheckbox
  */
-class Zend_View_Helper_FormMultiCheckboxTest extends PHPUnit_Framework_TestCase 
+class Zend_View_Helper_FormMultiCheckboxTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.

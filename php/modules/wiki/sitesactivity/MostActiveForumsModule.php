@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,39 +27,39 @@
 use DB\SitePeer;
 
 class MostActiveForumsModule extends SmartyModule {
-	
+
 	protected $timeOut=3600;
-	
+
 	public function render($runData){
 		$pl = $runData->getParameterList();
-		
+
 		$site = $runData->getTemp("site");
 		$range = $pl->getParameterValue("range", "AMODULE");
-		
+
 		$key = "module..0..MostActiveForumsModule..".$site->getSiteId().'..'.$range;
 		$mc = OZONE::$memcache;
-		
+
 		$out = $mc->get($key);
 		if(!$out){
 			$out = parent::render($runData);
-			$mc->set($key, $out, 0, 3600);	
-		} 
-		
+			$mc->set($key, $out, 0, 3600);
+		}
+
 		return $out;
-		
+
 	}
-	
+
 	public  function build($runData){
-		
+
 		$pl = $runData->getParameterList();
-		
+
 		$range = $pl->getParameterValue("range", "AMODULE");
 		$dateStart = new ODate();
-		
+
 		if(!in_array($range, array('24h', '7days', 'month'))){
 			$range = '7days';
 		}
-		
+
 		switch($range){
 			case '24h':
 				$dateStart->addSeconds(-60*60*24);
@@ -69,15 +69,15 @@ class MostActiveForumsModule extends SmartyModule {
 				break;
 			case 'month':
 				$dateStart->addSeconds(-60*60*24*31);
-				break;	
-		}	
-		
+				break;
+		}
+
 		$q = "SELECT site.site_id, count(*) AS number_posts FROM site, forum_post WHERE forum_post.date_posted > '".$dateStart->getDate()."' AND  site.visible = TRUE AND site.private = FALSE AND site.deleted = FALSE AND site.site_id = forum_post.site_id GROUP BY site.site_id ORDER BY number_posts  DESC LIMIT 10";
-		
+
 		$db = Database::connection();
-		
+
 		$res = $db->query($q);
-		
+
 		$all = $res->fetchAll();
 		if($all){
 			foreach($all as &$a){
@@ -86,7 +86,7 @@ class MostActiveForumsModule extends SmartyModule {
 		}
 		$runData->contextAdd("res", $all);
 		$runData->contextAdd("range", $range);
-			
+
 	}
-	
+
 }

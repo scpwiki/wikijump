@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -25,7 +25,7 @@
 
 
 class FileAuthScriptModule extends SmartyModule {
-	
+
 	public function build($runData){
 		$site = $runData->getTemp('site');
 		// TODO: ControllerUtils
@@ -34,10 +34,10 @@ class FileAuthScriptModule extends SmartyModule {
 			$pwdomain = $site->getUnixName() . "." . GlobalProperties::$URL_UPLOAD_DOMAIN;
 			$pwproto = ($_SERVER["HTTPS"]) ? "https" : "http";
 			$pwurl = "$pwproto://$pwdomain/filesauth.php";
-			
+
 			$runData->contextAdd("usePrivateWikiScript", true);
 			$runData->contextAdd("privateWikiScriptUrl", $pwurl);
 		}
 	}
-	
+
 }

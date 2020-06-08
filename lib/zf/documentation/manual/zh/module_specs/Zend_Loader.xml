@@ -111,7 +111,7 @@ if (Zend_Loader::isReadable($filename)) {
         <title> 使用 Autoloader</title>
 
         <para>
-            <code>Zend_Loader</code> 类包括一个可以用 PHP SPL autoloader 注册的方法。<code>Zend_Loader::autoload()</code> 是 callback 方法。为方便起见，<code>Zend_Loader</code> 提供 <code>registerAutoload()</code> 函数注册它的 <code>autoload()</code> 方法。如果 <code>spl_autoload</code> 扩展不在你的 PHP 环境中，那么 <code>registerAutoload()</code> 方法将抛出 <code>Zend_Exception</code>。  
+            <code>Zend_Loader</code> 类包括一个可以用 PHP SPL autoloader 注册的方法。<code>Zend_Loader::autoload()</code> 是 callback 方法。为方便起见，<code>Zend_Loader</code> 提供 <code>registerAutoload()</code> 函数注册它的 <code>autoload()</code> 方法。如果 <code>spl_autoload</code> 扩展不在你的 PHP 环境中，那么 <code>registerAutoload()</code> 方法将抛出 <code>Zend_Exception</code>。
         </para>
 
         <example id="zend.loader.load.autoload.example">

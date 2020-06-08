@@ -7,7 +7,7 @@ namespace DB;
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -20,7 +20,7 @@ namespace DB;
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot_Db
  * @version $Id$
@@ -35,7 +35,7 @@ namespace DB;
 class MembershipLink extends MembershipLinkBase {
 
     public function getTypeDescription() {
-        
+
         switch ($this->getType()) {
             case 'INTERNAL_INVITATION':
                 return _("invitation");
@@ -45,8 +45,8 @@ class MembershipLink extends MembershipLinkBase {
                 return _("accepted membership application");
             case 'BY_PASSWORD':
                 return _("by password");
-        
+
         }
-    
+
     }
 }

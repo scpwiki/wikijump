@@ -72,7 +72,7 @@ $jsonContents = Zend_Json::fromXml($xmlStringContents, true);
         <author><first>Jack</first><last>Herrington</last></author>
         <publisher>O'Reilly</publisher>
     </book>
-</books> 
+</books>
 ]]>
     </programlisting>
 
@@ -110,7 +110,7 @@ $jsonContents = Zend_Json::fromXml($xmlStringContents, true);
          "publisher" : "O'Reilly"
       }
    ]}
-}  
+}
 ]]>
     </programlisting>
 

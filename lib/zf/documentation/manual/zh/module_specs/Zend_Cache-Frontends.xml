@@ -171,7 +171,7 @@ echo($data);
                 如果你想缓存特殊值（带 "automatic_serialization" 选项的布尔值）或不能用上述紧缩结构的空字符串，你需要正式地测试缓存记录。
             </para>
             <programlisting role="php"><![CDATA[
-// the compact construction 
+// the compact construction
 // (not good if you cache empty strings and/or booleans)
 if (!($data = $cache->load($id))) {
 
@@ -314,9 +314,9 @@ echo 'This is never cached ('.time().').';
             <programlisting role="php"><![CDATA[
 $cache->call('veryExpensiveFunc', $params);
 
-// $params is an array 
-// For example to call veryExpensiveFunc(1, 'foo', 'bar') with 
-// caching, you can use 
+// $params is an array
+// For example to call veryExpensiveFunc(1, 'foo', 'bar') with
+// caching, you can use
 // $cache->call('veryExpensiveFunc', array(1, 'foo', 'bar'))
 ]]>
             </programlisting>
@@ -685,7 +685,7 @@ $cache->start();
             <programlisting role="php"><![CDATA[
 /*
  * you should avoid putting too many lines before the cache section.
- * For example, for optimal performances, "require_once" or 
+ * For example, for optimal performances, "require_once" or
  * "Zend_Loader::loadClass" should be after the cache section.
  */
 
@@ -695,22 +695,22 @@ $frontendOptions = array(
    'regexps' => array(
        // cache the whole IndexController
        '^/$' => array('cache' => true),
-       
+
        // cache the whole IndexController
        '^/index/' => array('cache' => true),
-       
+
        // we don't cache the ArticleController...
        '^/article/' => array('cache' => false),
-       
+
        // ... but we cache the "view" action of this ArticleController
-       '^/article/view/' => array(              
+       '^/article/view/' => array(
            'cache' => true,
-           
+
            // and we cache even there are some variables in $_POST
            'cache_with_post_variables' => true,
-           
-           // but the cache will be dependent on the $_POST array 
-           'make_id_with_post_variables' => true 
+
+           // but the cache will be dependent on the $_POST array
+           'make_id_with_post_variables' => true
        )
    )
 );
@@ -720,16 +720,16 @@ $backendOptions = array(
 );
 
 // getting a Zend_Cache_Frontend_Page object
-$cache = Zend_Cache::factory('Page', 
-                             'File', 
-                             $frontendOptions, 
+$cache = Zend_Cache::factory('Page',
+                             'File',
+                             $frontendOptions,
                              $backendOptions);
 
 $cache->start();
-// if the cache is hit, the result is sent to the browser and the 
+// if the cache is hit, the result is sent to the browser and the
 // script stop here
 
-// [...] the end of the bootstrap file 
+// [...] the end of the bootstrap file
 // these lines won't be executed if the cache is hit
 ]]>
             </programlisting>

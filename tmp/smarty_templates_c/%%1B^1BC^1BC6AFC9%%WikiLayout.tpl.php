@@ -2,7 +2,7 @@
          compiled from /var/www/wikidot/templates/layouts/WikiLayout.tpl */ ?>
 <?php require_once(SMARTY_CORE_DIR . 'core.load_plugins.php');
 smarty_core_load_plugins(array('plugins' => array(array('modifier', 'escape', '/var/www/wikidot/templates/layouts/WikiLayout.tpl', 7, false),array('modifier', 'regex_replace', '/var/www/wikidot/templates/layouts/WikiLayout.tpl', 91, false),array('modifier', 'replace', '/var/www/wikidot/templates/layouts/WikiLayout.tpl', 184, false),array('function', 'module', '/var/www/wikidot/templates/layouts/WikiLayout.tpl', 42, false),array('function', 'macro', '/var/www/wikidot/templates/layouts/WikiLayout.tpl', 126, false),array('block', 't', '/var/www/wikidot/templates/layouts/WikiLayout.tpl', 85, false),)), $this); ?>
-<!DOCTYPE html 
+<!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="<?php echo $this->_tpl_vars['site']->getLanguage(); ?>
@@ -12,12 +12,12 @@ smarty_core_load_plugins(array('plugins' => array(array('modifier', 'escape', '/
 <head>
  	<title><?php echo $this->_tpl_vars['site']->getName();  if ($this->_tpl_vars['wikiPage'] && $this->_tpl_vars['wikiPage']->getTitle()): ?>: <?php echo ((is_array($_tmp=$this->_tpl_vars['wikiPage']->getTitle())) ? $this->_run_mod_handler('escape', true, $_tmp) : smarty_modifier_escape($_tmp));  endif; ?></title>
  	<script type="text/javascript" src="/common--javascript/json.js"></script>
- 	
+
 	<script type="text/javascript" src="/common--javascript/combined.js"></script>
-	
+
  	<script type="text/javascript" src="/common--javascript/OZONE.js"></script>
  	<script type="text/javascript" src="/common--javascript/dialog/OZONE.dialog.js"></script>
- 	
+
  	<script  type="text/javascript">
  		// global request information
  		<?php echo '
@@ -57,36 +57,36 @@ smarty_core_load_plugins(array('plugins' => array(array('modifier', 'escape', '/
 		var URL_DOMAIN = '<?php echo $this->_tpl_vars['URL_DOMAIN']; ?>
 ';
  	</script>
- 	
+
 
  	<?php echo smarty_function_module(array('name' => "login/CustomDomainScriptModule"), $this);?>
 
 	<?php echo smarty_function_module(array('name' => "login/FileAuthScriptModule"), $this);?>
 
 
- 	
+
  	<meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
     <meta http-equiv="content-language" content="<?php echo $this->_tpl_vars['site']->getLanguage(); ?>
 "/>
- 	
+
  	<script type="text/javascript" src="/common--javascript/WIKIDOT.js"></script>
  	<script type="text/javascript" src="/common--javascript/WIKIDOT.page.js"></script>
  	<script type="text/javascript" src="/common--javascript/WIKIDOT.editor.js"></script>
- 	
+
    	<style type="text/css" id="internal-style">
-   		
+
    		<?php if (count($_from = (array)$this->_tpl_vars['theme']->getStyleUrls())):
     foreach ($_from as $this->_tpl_vars['file']):
 ?>
    			@import url(<?php echo $this->_tpl_vars['file']; ?>
 );
    		<?php endforeach; endif; unset($_from); ?>
-   		
+
     </style>
-    
+
     <link rel="shortcut icon" href="/common--theme/base/images/favicon.gif"/>
     <link rel="icon" type="image/gif" href="/common--theme/base/images/favicon.gif"/>
-    
+
         <?php if ($this->_tpl_vars['openId'] && $this->_tpl_vars['openId']['enabled']): ?>
     	<link rel="openid.server" href="<?php echo $this->_tpl_vars['openId']['server']; ?>
 " />
@@ -95,7 +95,7 @@ smarty_core_load_plugins(array('plugins' => array(array('modifier', 'escape', '/
   		<meta http-equiv="X-XRDS-Location" content="<?php echo $this->_tpl_vars['openId']['identity']; ?>
 /xrds" />
     <?php endif; ?>
-    
+
 </head>
 
   <body id="html-body">
@@ -109,14 +109,14 @@ smarty_core_load_plugins(array('plugins' => array(array('modifier', 'escape', '/
 		  			<h2><span><?php echo ((is_array($_tmp=$this->_tpl_vars['site']->getSubtitle())) ? $this->_run_mod_handler('escape', true, $_tmp) : smarty_modifier_escape($_tmp)); ?>
 </span></h2>
 		  		<?php endif; ?>
-		  		
+
 		  		<div id="search-top-box">
 		  			<form id="search-top-box-form" action="dummy">
 			  			<input id="search-top-box-input" class="text empty" type="text" size="15" name="query" value="<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>search this wiki<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>" onfocus="<?php echo 'if(YAHOO.util.Dom.hasClass(this, \'empty\')){YAHOO.util.Dom.removeClass(this,\'empty\'); this.value=\'\';}'; ?>
 "/><input class="button" type="submit" name="search" value="<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>search<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>"/>
 				 	</form>
 	  			</div>
-		  		
+
 		  		<?php if ($this->_tpl_vars['topBarContent']): ?>
 			  		<div id="top-bar">
 			  			<?php echo ((is_array($_tmp=$this->_tpl_vars['topBarContent'])) ? $this->_run_mod_handler('regex_replace', true, $_tmp, "/>\s+</s", "><") : smarty_modifier_regex_replace($_tmp, "/>\s+</s", "><")); ?>
@@ -127,7 +127,7 @@ smarty_core_load_plugins(array('plugins' => array(array('modifier', 'escape', '/
 </div>
 		  		<div id="header-extra-div-1"><span></span></div><div id="header-extra-div-2"><span></span></div><div id="header-extra-div-3"><span></span></div>
 		  	</div>
-		  	
+
 			<div id="content-wrap">
 				<?php if ($this->_tpl_vars['sideBar1Content']): ?>
 					<div id="side-bar">
@@ -135,10 +135,10 @@ smarty_core_load_plugins(array('plugins' => array(array('modifier', 'escape', '/
 
 					</div>
 				<?php endif; ?>
-				
+
 				<div id="main-content">
 					<div id="action-area-top"></div>
-					
+
 					<?php if ($this->_tpl_vars['wikiPage'] == null || $this->_tpl_vars['wikiPage']->getTitle() != ''): ?>
 					<div id="page-title">
 					<?php if ($this->_tpl_vars['wikiPage']):  echo ((is_array($_tmp=$this->_tpl_vars['wikiPage']->getTitle())) ? $this->_run_mod_handler('escape', true, $_tmp) : smarty_modifier_escape($_tmp));  else:  $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>The page does not (yet) exist.<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack);  endif; ?>
@@ -157,8 +157,8 @@ smarty_core_load_plugins(array('plugins' => array(array('modifier', 'escape', '/
 
 						</div>
 					<?php endif; ?>
-					
-					
+
+
 					<div id="page-content">
 						<?php if ($this->_tpl_vars['pageNotExists']): ?>
 							<?php echo $this->_tpl_vars['macros']->load('PageNotExistsMacro'); ?>
@@ -183,18 +183,18 @@ smarty_core_load_plugins(array('plugins' => array(array('modifier', 'escape', '/
 							</span>
 						</div>
 					<?php endif; ?>
-					
+
 					<div style="clear:both; height:1px; font-size:1px;"></div>
 					<?php if (! $this->_tpl_vars['pageNotExists']): ?>
 						<?php echo smarty_function_module(array('name' => 'PageOptionsBottomModule','showDiscuss' => $this->_tpl_vars['category']->getShowDiscuss(),'threadId' => $this->_tpl_vars['wikiPage']->getThreadId(),'pageUnixName' => $this->_tpl_vars['wikiPage']->getUnixName()), $this);?>
-			
+
 					<?php endif; ?>
-					
+
 					<div id="action-area" style="display: none"></div>
 				</div>
 			</div>
-			
-			
+
+
 				 		<div id="footer">
 	 			<div class="options">
 		 			<a href="<?php echo $this->_tpl_vars['URL_DOCS']; ?>
@@ -202,21 +202,21 @@ smarty_core_load_plugins(array('plugins' => array(array('modifier', 'escape', '/
 			 			<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>help<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
 			 		</a>
 		 					 			|
-			 		<a href="javascript:;" id="bug-report-button" 
+			 		<a href="javascript:;" id="bug-report-button"
 			 			onclick="WIKIDOT.page.listeners.pageBugReport(event)">
 			 			<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>report a bug<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
 			 		</a>
 		 			|
-			 		<a href="javascript:;" id="abuse-report-button" 
+			 		<a href="javascript:;" id="abuse-report-button"
 			 			onclick="WIKIDOT.page.listeners.flagPageObjectionable(event)">
 			 			<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>flag as objectionable<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
 			 		</a>
-			 		
+
 	 			</div>
 	 			Part of <a href="http://<?php echo $this->_tpl_vars['URL_HOST']; ?>
 "><?php echo ((is_array($_tmp=$this->_tpl_vars['SERVICE_NAME'])) ? $this->_run_mod_handler('escape', true, $_tmp) : smarty_modifier_escape($_tmp)); ?>
 </a>
-	 			&#8212; 
+	 			&#8212;
  				Powered by <a href="http://www.wikidot.org/">Wikidot</a>
 	 		</div>
 	 		<?php if ($this->_tpl_vars['licenseText'] != ""): ?>
@@ -225,17 +225,17 @@ smarty_core_load_plugins(array('plugins' => array(array('modifier', 'escape', '/
 
 				</div>
 			<?php endif; ?>
-			
+
 			<div id="extrac-div-1"><span></span></div><div id="extrac-div-2"><span></span></div><div id="extrac-div-3"><span></span></div>
-			
+
 	 	</div>
 	 </div>
- 	
+
  	<!-- These extra divs/spans may be used as catch-alls to add extra imagery. -->
 	<div id="extra-div-1"><span></span></div><div id="extra-div-2"><span></span></div><div id="extra-div-3"><span></span></div>
 	<div id="extra-div-4"><span></span></div><div id="extra-div-5"><span></span></div><div id="extra-div-6"><span></span></div>
- 	
- 	 	
+
+
  	<div id="page-options-bottom-tips" style="display: none">
  		<div id="edit-button-hovertip">
  			<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Click here to edit contents of this page.<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
@@ -270,21 +270,21 @@ smarty_core_load_plugins(array('plugins' => array(array('modifier', 'escape', '/
  		<div id="view-source-button-hovertip">
  			<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>View wiki source for this page without editing.<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
  		</div>
- 		<div id="parent-page-button-hovertip">	
+ 		<div id="parent-page-button-hovertip">
  			<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>View/set parent page (used for creating breadcrumbs and structured layout).<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
  		</div>
- 		
+
  		<div id="abuse-report-button-hovertip">
  			<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>	Notify administrators if there is objectionable content in this page.<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
  		</div>
  		<div id="bug-report-button-hovertip">
 			<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Something does not work as expected? Find out what you can do.<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
  		</div>
- 		
+
  	</div>
- 	
+
  	<div id="account-notifications-dummy" style="display:none"></div>
- 	
+
  	<div style="display:none" id="dummy-ondomready-block"></div>
   </body>
 

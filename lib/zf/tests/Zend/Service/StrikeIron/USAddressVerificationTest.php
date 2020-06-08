@@ -44,25 +44,25 @@ require_once 'Zend/Service/StrikeIron/USAddressVerification.php';
  * @copyright  Copyright (c) 2005-2008 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
-class Zend_Service_StrikeIron_USAddressVerificationTest extends PHPUnit_Framework_TestCase 
+class Zend_Service_StrikeIron_USAddressVerificationTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
         $this->soapClient = new stdclass();
         $this->service = new Zend_Service_StrikeIron_USAddressVerification(array('client' => $this->soapClient));
     }
-    
+
     public function testInheritsFromBase()
     {
         $this->assertType('Zend_Service_StrikeIron_Base', $this->service);
     }
-    
+
     public function testHasCorrectWsdl()
     {
         $wsdl = 'http://ws.strikeiron.com/zf1.StrikeIron/USAddressVerification4_0?WSDL';
         $this->assertEquals($wsdl, $this->service->getWsdl());
     }
-    
+
     public function testInstantiationFromFactory()
     {
         $strikeIron = new Zend_Service_StrikeIron(array('client' => $this->soapClient));

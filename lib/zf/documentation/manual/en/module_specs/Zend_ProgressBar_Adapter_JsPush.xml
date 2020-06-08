@@ -11,7 +11,7 @@
         You can set the adapter options either via the <code>set*</code> methods
         or give an array or a Zend_Config instance with options as first
         parameter to the constructor. The available options are:
-    </para>      
+    </para>
     <itemizedlist>
         <listitem>
             <para>
@@ -90,7 +90,7 @@
     position: absolute;
     left: -100px;
     top: -100px;
-    
+
     width: 1px;
     height: 1px;
 }
@@ -98,7 +98,7 @@
 #zend-progressbar-container {
     width: 100px;
     height: 30px;
-    
+
     border: 1px solid #000000;
     background-color: #ffffff;
 }
@@ -106,7 +106,7 @@
 #zend-progressbar-done {
     width: 0;
     height: 30px;
-    
+
     background-color: #000000;
 }
 ]]>
@@ -151,7 +151,7 @@ function Zend_ProgressBar_Update(data)
             You should take care of not sending too many updates, as every update
             has a min-size of 1kb. This is a requirement for the Safari browser
             to actually render and execute the function call. Internet Explorer
-            has a similar limitation of 256 bytes. 
+            has a similar limitation of 256 bytes.
         </para>
     </note>
 </sect3>

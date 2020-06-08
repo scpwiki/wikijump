@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -28,13 +28,13 @@ use DB\FilePeer;
 use DB\PagePeer;
 
 class FileMoveWinModule extends SmartyModule {
-	
+
 	public function build($runData){
 		$pl = $runData->getParameterList();
 		$fileId = $pl->getParameterValue("file_id");
-		
+
 		$file = FilePeer::instance()->selectByPrimaryKey($fileId);
-		
+
 		if($file == null || $file->getSiteId() != $runData->getTemp("site")->getSiteId()){
 			throw new ProcessException(_("Error getting file information."), "no_file");
 		}
@@ -42,7 +42,7 @@ class FileMoveWinModule extends SmartyModule {
 		if($page == null || $page->getSiteId() != $runData->getTemp("site")->getSiteId()){
 			throw new ProcessException(_("Error getting page information."), "no_page");
 		}
-		
+
 		// check permissions
 		$category = $page->getCategory();
 		// now check for permissions!!!
@@ -51,7 +51,7 @@ class FileMoveWinModule extends SmartyModule {
 
 		$runData->contextAdd("file", $file);
 		$runData->contextAdd("page", $page);
-			
+
 	}
-	
+
 }

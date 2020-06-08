@@ -9,7 +9,7 @@
         <para>
         Dasar-dasar ACL yang dijelaskan dalam <link linkend="zend.acl.introduction">sub bab sebelumnya</link>
         memperlihatkan bagaimana berbagai hak akses diterapkan terhadap seluruh ACL (semua resource).
-        Namun dalam prakteknya, kontrol akses sering kali memiliki pengecualian-pengecualian dan beragam 
+        Namun dalam prakteknya, kontrol akses sering kali memiliki pengecualian-pengecualian dan beragam
         tingkat kompleksitas. Zend_Acl memungkinkan anda mengantisipasi hal-hal detail seperti ini dalam langkah jelas
         dan fleksibel.
         </para>
@@ -64,7 +64,7 @@ $acl->add(new Zend_Acl_Resource('announcement'), 'news');
         </para>
 
         <programlisting role="php"><![CDATA[
-// Marketing bisa mempublish and mengarsip (archive) newsletter dan 
+// Marketing bisa mempublish and mengarsip (archive) newsletter dan
 // berita terakhir
 $acl->allow('marketing',
             array('newsletter', 'latest'),
@@ -159,7 +159,7 @@ echo $acl->isAllowed('marketing', 'newsletter', 'archive') ?
 
         <para>
         Hak akses dapat dimodifikasi secara spesifik untuk aksi tertentu (publish, archive)
-        seperti ditunjukan di atas, tapi nilai <code>null</code> pada hak akses akan menimpah 
+        seperti ditunjukan di atas, tapi nilai <code>null</code> pada hak akses akan menimpah
         modifikasi semacam itu:
         </para>
 

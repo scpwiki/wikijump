@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Db
  * @version $Id$
@@ -71,7 +71,7 @@ class MyConnection implements DatabaseConnection{
 	private $password;
 
 	private $link;
-	
+
 	private $type="mysql";
 
 	// construction is based on the GlobalProperties object
@@ -83,29 +83,29 @@ class MyConnection implements DatabaseConnection{
 			mysql_close($this->link);
 
 	}
-	
+
 	public function getType(){
-		return $this->type;	
+		return $this->type;
 	}
-	
+
 	public function setServer($server){
-		$this->server=$server;	
-	} 
-	
+		$this->server=$server;
+	}
+
 	public function setPort($port){
-		$this->port = $port;	
+		$this->port = $port;
 	}
-	
+
 	public function setUser($user){
-		$this->user = $user;	
+		$this->user = $user;
 	}
-	
+
 	public function setPassword($password){
-		$this->password = $password;	
+		$this->password = $password;
 	}
-	
+
 	public function setDatabase($database){
-		$this->database = $database;	
+		$this->database = $database;
 	}
 
 	function connect() {
@@ -135,10 +135,10 @@ class MyConnection implements DatabaseConnection{
 		} else {
 			//if query is empty
 			if(count($query) == 0){
-				return;	
+				return;
 			}
 			foreach ($query as $q){
-				$result = $this->query($q);	
+				$result = $this->query($q);
 			}
 		}
 		return new MyResult($result);

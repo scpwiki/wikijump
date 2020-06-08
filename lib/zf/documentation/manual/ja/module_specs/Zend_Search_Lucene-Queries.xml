@@ -18,7 +18,7 @@ $query = Zend_Search_Lucene_Search_QueryParser::parse($queryString);
 
     <sect2 id="zend.search.lucene.queries.exceptions">
         <title>クエリパーサの例外</title>
-        
+
         <para>
         クエリパーサは、二種類の例外を発生させます。
         <itemizedlist>
@@ -55,16 +55,16 @@ try {
             バージョン 1.5 以降では、クエリのパース時の例外はデフォルトで抑制されるようになります。
             クエリ言語に反するクエリが渡された場合は、現在のデフォルトの解析器を用いてそれをトークン化し、
             トークン化された単語で検索します。
-            
+
             例外を有効にするには
             <code>Zend_Search_Lucene_Search_QueryParser::dontSuppressQueryParsingExceptions()</code>
             メソッドを使用します。
             <code>Zend_Search_Lucene_Search_QueryParser::suppressQueryParsingExceptions()</code> メソッドおよび
             <code>Zend_Search_Lucene_Search_QueryParser::queryParsingExceptionsSuppressed()</code>
             メソッドも、例外処理の振る舞いを変更するためのものです。
-            
+
         </para>
-        
+
     </sect2>
 
     <sect2 id="zend.search.lucene.queries.term-query">
@@ -365,7 +365,7 @@ $hits  = $index->find($query);
                 </listitem>
             </itemizedlist>
         </para>
-        
+
         <para>
             boolean 演算子を使用する各クエリは、符号記法や API を用いて書き換えることができます。たとえば
 	        <programlisting role="querystring"><![CDATA[

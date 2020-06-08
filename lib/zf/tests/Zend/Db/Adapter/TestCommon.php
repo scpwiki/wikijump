@@ -1897,7 +1897,7 @@ abstract class Zend_Db_Adapter_TestCommon extends Zend_Db_TestSetup
         $serialized = serialize($this->_db);
         $db = unserialize($serialized);
         $this->assertFalse($db->isConnected());
-        
+
         $params = $this->_util->getParams();
         $params['options'] = array(
             Zend_Db::AUTO_RECONNECT_ON_UNSERIALIZE => true

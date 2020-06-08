@@ -560,7 +560,7 @@ class UserController extends Zend_Controller_Action
             $this->form = $form;
             return $this->render('form');
         }
-        
+
         $values = $form->getValues();
         // аутентификация...
     }

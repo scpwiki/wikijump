@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,20 +27,20 @@
 use DB\PagePeer;
 
 class PageFilesModule extends SmartyModule{
-	
+
 	public function build($runData){
 		$site = $runData->getTemp("site");
-		
+
 		$pageId = $runData->getParameterList()->getParameterValue("page_id");
 		if(!$pageId || !is_numeric($pageId)){
-			throw new ProcessException(_("The page can not be found or does not exist."), "no_page");	
+			throw new ProcessException(_("The page can not be found or does not exist."), "no_page");
 		}
 		$page = PagePeer::instance()->selectByPrimaryKey($pageId);
 		if(!$page || $page->getSiteId() !== $site->getSiteId()){
-			throw new ProcessException(_("The page can not be found or does not exist."), "no_page");	
+			throw new ProcessException(_("The page can not be found or does not exist."), "no_page");
 		}
 		$files = $page->getFiles();
-		
+
 		if(count($files)>0){
 			$runData->contextAdd("files", $files);
 			$runData->contextAdd("filePath", "/local--files/".$page->getUnixName()."/");
@@ -48,7 +48,7 @@ class PageFilesModule extends SmartyModule{
 			$totalPageSize = FileHelper::formatSize($totalPageSize);
 			$runData->contextAdd("totalPageSize", $totalPageSize);
 		}
-		
+
 	}
-	
+
 }

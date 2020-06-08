@@ -178,31 +178,31 @@ base/path/
             </para></listitem>
         </itemizedlist>
     </sect2>
-    
+
     <sect2 id="zend.view.introduction.shortTags">
         <title>Krótkie znaczniki wewnątrz skryptów widoków</title>
 
         <para>
             W naszych przykładach i dokumentacji używamy krótkich znaczników PHP:
-            <code>&lt;?</code> oraz <code>&lt;?=</code>. 
+            <code>&lt;?</code> oraz <code>&lt;?=</code>.
             Dodatkowo używamy <ulink
                 url="http://us.php.net/manual/en/control-structures.alternative-syntax.php">alternatywnej
-                składni instrukcji kontrolnych</ulink>. Te wygodne skróty, 
+                składni instrukcji kontrolnych</ulink>. Te wygodne skróty,
             których można użyć w skryptach widoków, pozwalają na zwiększenie
             czytelności kodu
         </para>
 
         <para>
             Jednak wielu programistów woli używać pełnych znaczników dla celów
-            poprawności czy przenośności aplikacji. Przykładowo dyrektywa 
-            <code>short_open_tag</code> jest wyłączona w rekomendowanym pliku 
-            konfiguracyjnym php.ini.recommended, a także jeśli używasz w 
+            poprawności czy przenośności aplikacji. Przykładowo dyrektywa
+            <code>short_open_tag</code> jest wyłączona w rekomendowanym pliku
+            konfiguracyjnym php.ini.recommended, a także jeśli używasz w
             skryptach widoków języka XML, krótkie znaczniki mogłyby powodować
             błędy.
         </para>
 
         <para>
-            Dodatkowo, jeśli użyjesz krótkich znaczników gdy ich obsługa jest 
+            Dodatkowo, jeśli użyjesz krótkich znaczników gdy ich obsługa jest
             wyłączona, to mogą wystąpić błędy w skryptach widoków lub po prostu
             kod może zostać wyświetlony użytkownikom.
         </para>
@@ -224,8 +224,8 @@ php_value "short_open_tag" "on"
                 </programlisting>
 
                 <para>
-                    To będzie możliwe tylko jeśli posiadasz uprawnienia 
-                    pozwalające na tworzenie i użycie plików 
+                    To będzie możliwe tylko jeśli posiadasz uprawnienia
+                    pozwalające na tworzenie i użycie plików
                     <code>.htaccess</code>. Ta dyrektywa może być także dodana
                     do pliku <code>httpd.conf</code>.
                 </para>
@@ -245,7 +245,7 @@ $view->setUseStreamWrapper(true);
                 <para>
                     Rejestruje to klasę <code>Zend_View_Stream</code> jako klasę
                     obsługującą strumień daych dla skryptów widoków i umożliwia
-                    dalsze działanie skryptów widoków, tak jakby obsługa krótkich 
+                    dalsze działanie skryptów widoków, tak jakby obsługa krótkich
                     znaczników była aktywna.
                 </para>
             </listitem>
@@ -257,9 +257,9 @@ $view->setUseStreamWrapper(true);
             <para>
                 Użycie strumienia danych <emphasis>zmniejszy</emphasis> wydajność
                 aplikacji, ale obecnie nie są dostępne testy które mogłyby pokazać
-                jak bardzo zmniejszy. Zalecamy włączenie obsługi krótkich 
+                jak bardzo zmniejszy. Zalecamy włączenie obsługi krótkich
                 znaczników, konwersję skryptów widoków aby używały pełnych
-                znaczników lub wprowadzenie dobrego buforowania części lub 
+                znaczników lub wprowadzenie dobrego buforowania części lub
                 całości widoków.
             </para>
         </note>

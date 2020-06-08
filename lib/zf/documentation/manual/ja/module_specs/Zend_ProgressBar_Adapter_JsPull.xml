@@ -19,7 +19,7 @@
         メソッドを使用するか、あるいはコンストラクタの最初のパラメータで
         配列か Zend_Config インスタンスを渡します。
         使用できるオプションは次のとおりです。
-    </para>      
+    </para>
     <itemizedlist>
         <listitem>
             <para>

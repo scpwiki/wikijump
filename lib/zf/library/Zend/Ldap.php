@@ -94,7 +94,7 @@ class Zend_Ldap
                     if ($ch === '=') {
                         $key = trim(substr($dn, $ko, $di - $ko));
                         if ($keys !== null) {
-                            $keys[] = $key; 
+                            $keys[] = $key;
                         }
                         $state = 2;
                         $vo = $di + 1;
@@ -121,7 +121,7 @@ class Zend_Ldap
             }
         }
 
-        return $state === 1 && $ko > 0; 
+        return $state === 1 && $ko > 0;
     }
 
     /**
@@ -742,7 +742,7 @@ class Zend_Ldap
              * @see Zend_Ldap_Exception
              */
             require_once 'Zend/Ldap/Exception.php';
-    
+
             switch (Zend_Ldap_Exception::getLdapCode($this)) {
                 case Zend_Ldap_Exception::LDAP_SERVER_DOWN:
                     /* If the error is related to establishing a connection rather than binding,
@@ -750,7 +750,7 @@ class Zend_Ldap
                      */
                     $message = $this->_connectString;
             }
-    
+
             $zle = new Zend_Ldap_Exception($this->_resource, $message);
         }
         $this->disconnect();

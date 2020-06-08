@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version \$Id\$
@@ -29,13 +29,13 @@ use BaseDBPeer;
 
 
 
- 
+
 /**
  * Base peer class mapped to the database table site_backup.
  */
 class SiteBackupPeerBase extends BaseDBPeer {
 	public static $peerInstance;
-	
+
 	protected function internalInit(){
 		$this->tableName='site_backup';
 		$this->objectName='DB\\SiteBackup';
@@ -44,7 +44,7 @@ class SiteBackupPeerBase extends BaseDBPeer {
 		$this->fieldTypes = array( 'backup_id' => 'serial',  'site_id' => 'int',  'status' => 'varchar(50)',  'backup_source' => 'boolean',  'backup_files' => 'boolean',  'date' => 'timestamp',  'rand' => 'varchar(100)');
 		$this->defaultValues = array( 'backup_source' => 'true',  'backup_files' => 'true');
 	}
-	
+
 	public static function instance(){
 		if(self::$peerInstance == null){
 			$className = "DB\\SiteBackupPeer";

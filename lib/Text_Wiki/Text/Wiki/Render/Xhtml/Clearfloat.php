@@ -32,7 +32,7 @@ class Text_Wiki_Render_Xhtml_Clearfloat extends Text_Wiki_Render {
      * @return string The text rendered from the token options.
      *
      */
-    
+
     function token($options) {
         $side = $options['side'];
         if ($side == ">") {
@@ -42,7 +42,7 @@ class Text_Wiki_Render_Xhtml_Clearfloat extends Text_Wiki_Render {
         } else {
             $side = "both";
         }
-        
+
         return "<div style=\"clear:$side; height: 0px; font-size: 1px\"></div>\n";
     }
 }

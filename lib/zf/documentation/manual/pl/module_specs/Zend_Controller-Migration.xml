@@ -6,7 +6,7 @@
         Zend Framework we wczesnej wersji, postępuj według poniższych wskazówek
         aby przeprowadzić migrację swoich skryptów aby używały nowej architektury.
     </para>
-    
+
     <sect2 id="zend.controller.migration.fromoneohtoonesix">
         <title>Migracja z wersji 1.5.x do 1.6.0 lub nowszej</title>
 
@@ -14,12 +14,12 @@
             <title>Zmiany w interfejsie obiektu uruchamiającego</title>
 
             <para>
-                Użytkownicy zwrócili naszą uwagę na fakt, że klasy 
+                Użytkownicy zwrócili naszą uwagę na fakt, że klasy
                 <code>Zend_Controller_Front</code> oraz
                 <code>Zend_Controller_Router_Route_Module</code> używały metod
-                obiektu uruchamiającego, które nie były zdefiniowane w 
+                obiektu uruchamiającego, które nie były zdefiniowane w
                 interfejsie tego obiektu.
-                Dodaliśmy teraz do interfejsu poniższe trzy metody aby upewnić 
+                Dodaliśmy teraz do interfejsu poniższe trzy metody aby upewnić
                 się, że własne obiekty uruchamiające będą poprawnie działać:
             </para>
 
@@ -30,7 +30,7 @@
                 </para></listitem>
 
                 <listitem><para>
-                    <code>getDefaultControllerName()</code>: metoda powinna 
+                    <code>getDefaultControllerName()</code>: metoda powinna
                     zwracać nazwę domyślnego kontrolera.
                 </para></listitem>
 
@@ -41,55 +41,55 @@
             </itemizedlist>
         </sect3>
     </sect2>
-    
+
     <sect2 id="zend.controller.migration.fromoneohtoonefive">
         <title>Migracja z wersji 1.0.x do 1.5.0 lub nowszej</title>
 
         <para>
-            O ile większość z podstawowych funkcjonalności i cała udokumentowana 
+            O ile większość z podstawowych funkcjonalności i cała udokumentowana
             funkcjonalność pozostały te same, to nastąpiła jedna istotna zmiana
             w jednej <emphasis>nieudokumentowanej</emphasis> funkcjonalności.
         </para>
 
         <para>
-            Udokumentowanym sposobem tworzenia adresów URL w postaci camelCased 
-            jest użycie znaku separatora w nazwie akcji; domyślnie separatorem 
-            mogą być znaki '.' lub '-', jednak może to być skonfigurowane w 
-            obiekcie uruchamiającym. Obiekt uruchamiający zmienia litery w 
-            nazwie akcji na małe i używa separatorów aby otrzymać nazwę metody 
-            akcji w postaci camelCasing. Jednak z tego powodu, że funkcje PHP 
-            nie są wrażliwe na wielkość liter, <emphasis>mogłeś</emphasis> wciąż 
-            tworzyć adresy w postaci camelCasing, a obiekt uruchamiający wciąż 
-            otrzymywał na ich podstawie nazwę tej samej akcji. Na przykład adres 
-            'camel-cased' zostałby zamieniony przez obiekt uruchamiający na 
-            'camelCasedAction', a adres 'camelCased' na 'camelcasedAction'; 
+            Udokumentowanym sposobem tworzenia adresów URL w postaci camelCased
+            jest użycie znaku separatora w nazwie akcji; domyślnie separatorem
+            mogą być znaki '.' lub '-', jednak może to być skonfigurowane w
+            obiekcie uruchamiającym. Obiekt uruchamiający zmienia litery w
+            nazwie akcji na małe i używa separatorów aby otrzymać nazwę metody
+            akcji w postaci camelCasing. Jednak z tego powodu, że funkcje PHP
+            nie są wrażliwe na wielkość liter, <emphasis>mogłeś</emphasis> wciąż
+            tworzyć adresy w postaci camelCasing, a obiekt uruchamiający wciąż
+            otrzymywał na ich podstawie nazwę tej samej akcji. Na przykład adres
+            'camel-cased' zostałby zamieniony przez obiekt uruchamiający na
+            'camelCasedAction', a adres 'camelCased' na 'camelcasedAction';
             z tego powodu że PHP nie jest wrażliwe na wielkość liter, w obu
             przypadkach zostanie uruchomiona ta sama metoda.
         </para>
 
         <para>
-            Powoduje to problemy w klasie ViewRenderer gdy szuka ona skryptów 
-            widoku. Podstawowym udokumentowanym sposobem jest zastępowanie 
-            wszystkich separatorów wyrazów znakiem podkreślenia oraz zmiana 
-            liter na małe. Wprowadza to niezgodność semantyczną pomiędzy akcjami 
-            a skryptami widoków, a regulacja tego pozwoli na znajdowanie 
-            skryptów widoków w każdej sytuacji. Teraz jeśli wywołamy metodę 
-            'camelCased', separator wyrazów nie będzie już znajdować się w 
+            Powoduje to problemy w klasie ViewRenderer gdy szuka ona skryptów
+            widoku. Podstawowym udokumentowanym sposobem jest zastępowanie
+            wszystkich separatorów wyrazów znakiem podkreślenia oraz zmiana
+            liter na małe. Wprowadza to niezgodność semantyczną pomiędzy akcjami
+            a skryptami widoków, a regulacja tego pozwoli na znajdowanie
+            skryptów widoków w każdej sytuacji. Teraz jeśli wywołamy metodę
+            'camelCased', separator wyrazów nie będzie już znajdować się w
             nazwie i ViewRenderer spróbuje uruchomić inny plik --
             'camelcased.phtml' zamiast 'camel-cased.phtml'.
         </para>
 
         <para>
             Niektórzy programiści polegali na tej "funkcjonalności", która nigdy
-            nie była zamierzona. Wiele zmian w wersji 1.5.0 spowodowało, że 
+            nie była zamierzona. Wiele zmian w wersji 1.5.0 spowodowało, że
             klasa ViewRenderer nie znajduje już plików widoków w taki sposób;
-            semnatyczna zgodność jest teraz wymuszona. Po pierwsze, obiekt 
-            uruchamiający wymusza teraz wrażliwość na wielkość liter w nazwach 
+            semnatyczna zgodność jest teraz wymuszona. Po pierwsze, obiekt
+            uruchamiający wymusza teraz wrażliwość na wielkość liter w nazwach
             akcji. Oznacza to, że odwoływanie się do akcji używając w adresie
-            formy camelCasing nie będzie już dłużej prowadzić do tej samej 
-            metody, do której prowadziło odwołanie za pomocą separatorów 
-            wyrazów (np., 'camel-casing'). Teraz klasa ViewRenderer podczas 
-            szukania skryptów widoku akceptuje jedynie formę z separatorami 
+            formy camelCasing nie będzie już dłużej prowadzić do tej samej
+            metody, do której prowadziło odwołanie za pomocą separatorów
+            wyrazów (np., 'camel-casing'). Teraz klasa ViewRenderer podczas
+            szukania skryptów widoku akceptuje jedynie formę z separatorami
             wyrazów.
         </para>
 
@@ -100,7 +100,7 @@
 
         <itemizedlist>
             <listitem><para>
-                    Najlepsza opcja: zmień nazwy skwoich skryptów wiodku. Plus: 
+                    Najlepsza opcja: zmień nazwy skwoich skryptów wiodku. Plus:
                     kompatybilność wsteczna. Minus: jeśli masz dużo skryptów
                     widoku, które polegają na tym niezamierzonym zachowaniu,
                     możesz mieć dużo plików do zmiany.
@@ -108,8 +108,8 @@
 
             <listitem>
                 <para>
-                    Druga najlepsza opcja: klasa ViewRenderer teraz określa 
-                    nazwę skryptu widoku za pomocą klasy <code>Zend_Filter_Inflector</code>; 
+                    Druga najlepsza opcja: klasa ViewRenderer teraz określa
+                    nazwę skryptu widoku za pomocą klasy <code>Zend_Filter_Inflector</code>;
                     możesz zmodyfikować reguły określania nazwy, aby nie używać
                     separatorów wyrazów w nazwach akcji.
                 </para>
@@ -130,7 +130,7 @@ $inflector->setFilterRule(':action', array(
                 <para>
                     Powyższy kod zmieni sposób określania nazwy skryptu widoku,
                     aby nie oddzielał słów za pomocą znaku podkreślenia; możesz
-                    także usunać filtr 'StringToLower' jeśli 
+                    także usunać filtr 'StringToLower' jeśli
                     <emphasis>chcesz</emphasis> używać nazw skryptów widoku
                     w postaci camelCased.
                 </para>
@@ -156,13 +156,13 @@ $front->setParam('useCaseSensitiveActions', true);
                 <para>
                     Pozwoli ci to wciąż używać formy camelCasing w adresach URL
                     i taie wywołanie będzie uruchamiać tę samą akcję jak podczas
-                    użycia separatorów wyrazów. Jednak oznacza to, że oryginalny 
-                    błąd będzie wciąż występował; jeśli nie chcesz aby wystąpiły 
+                    użycia separatorów wyrazów. Jednak oznacza to, że oryginalny
+                    błąd będzie wciąż występował; jeśli nie chcesz aby wystąpiły
                     problemy, użyj przynajmniej drugiej z przedstawionych opcji.
                 </para>
 
                 <para>
-                    Zauważ też, że użycie tej flagi spowoduje wyświetlenie 
+                    Zauważ też, że użycie tej flagi spowoduje wyświetlenie
                     informacji o tym, że jej użycie jest przestarzałe.
                 </para>
             </listitem>
@@ -207,8 +207,8 @@ $front->setParam('noErrorHandler', true);
         </para>
 
         <para>
-            Jest kilka strategii które możesz podjąc aby zaktualizować swój kod. 
-            Krótkoterminowo możesz globalnie wyłączyć użycie klasy 
+            Jest kilka strategii które możesz podjąc aby zaktualizować swój kod.
+            Krótkoterminowo możesz globalnie wyłączyć użycie klasy
             <code>ViewRenderer</code> w kontrolerze frontowym w pliku uruchamiającym
             przed uruchomieniem żądania:
         </para>
@@ -220,16 +220,16 @@ $front->setParam('noViewRenderer', true);
         </programlisting>
 
         <para>
-            Jednak długoterminowo nie jest to dobra strategia, ponieważ będziesz 
+            Jednak długoterminowo nie jest to dobra strategia, ponieważ będziesz
             musiał pisać więcej kodu.
         </para>
 
         <para>
             Kiedy będziesz gotowy do użycia funkcjonalności klasy <code>ViewRenderer</code>,
             będzie kilka rzeczy które będziesz musiał sprawdzić w kodzie swoich kontrolerów.
-            
+
             Wpierw spójrz na metody akcji (metody kończące się na 'Action') i
-            sprawdź co one robią. Będziesz musiał wprowadzić zmiany, jeśli w 
+            sprawdź co one robią. Będziesz musiał wprowadzić zmiany, jeśli w
             metodzie nie jest przeprowadzana żadna z poniższych czynności:
         </para>
 
@@ -250,8 +250,8 @@ $this->_helper->viewRenderer->setNoRender();
         </programlisting>
 
         <para>
-            Jeśli żadna z twoich akcji nie renderuje, nie przenosi i nie 
-            przekierowuje, możesz powyższą linię umieścić w metodzie 
+            Jeśli żadna z twoich akcji nie renderuje, nie przenosi i nie
+            przekierowuje, możesz powyższą linię umieścić w metodzie
             <code>preDispatch()</code> lub <code>init()</code>:
         </para>
 
@@ -265,10 +265,10 @@ public function preDispatch()
         </programlisting>
 
         <para>
-            Jeśli wywołujesz metodę <code>render()</code>, 
+            Jeśli wywołujesz metodę <code>render()</code>,
             i używasz <link
                 linkend="zend.controller.modular">klasycznej modularnej struktury
-                katalogów</link>, 
+                katalogów</link>,
             możesz potrzebować zaktualizować swój kod aby używał automatycznego
             renderowania:
         </para>
@@ -299,8 +299,8 @@ public function preDispatch()
 
         <para>
             Jeśli nie używasz klasycznej modularnej struktury katalogów, jest
-            wiele sposobów ustawienia bazowej ścieżki widoków i specyfikacji 
-            ścieżek skryptów, do czego możesz użyć klasy <code>ViewRenderer</code>. 
+            wiele sposobów ustawienia bazowej ścieżki widoków i specyfikacji
+            ścieżek skryptów, do czego możesz użyć klasy <code>ViewRenderer</code>.
             Proszę przeczytaj <link
                 linkend="zend.controller.actionhelpers.viewrenderer">dokumentację
                 klasy ViewRenderer</link> aby uzyskać więcej informacji na
@@ -308,9 +308,9 @@ public function preDispatch()
         </para>
 
         <para>
-            Jeśli używasz obiektu widoku z rejestru, konfigurujesz swój własny 
-            obiekt lub używasz innej implementacji widoku, możesz przekazać ten 
-            obiekt do obiektu <code>ViewRenderer</code>. Możesz to łatwo zrobić 
+            Jeśli używasz obiektu widoku z rejestru, konfigurujesz swój własny
+            obiekt lub używasz innej implementacji widoku, możesz przekazać ten
+            obiekt do obiektu <code>ViewRenderer</code>. Możesz to łatwo zrobić
             w dowolnym momencie.
         </para>
 
@@ -342,12 +342,12 @@ $viewRenderer->setView($view);
         </itemizedlist>
 
         <para>
-            Jest wiele sposobów na zmodyfikowanie obiektu <code>ViewRenderer</code>, 
-            włączając w to ustawienie innego skryptu widoku do renderowania, 
-            zastąpienie wszystkich części ścieżki skrytu widoku (także przyrostka), 
+            Jest wiele sposobów na zmodyfikowanie obiektu <code>ViewRenderer</code>,
+            włączając w to ustawienie innego skryptu widoku do renderowania,
+            zastąpienie wszystkich części ścieżki skrytu widoku (także przyrostka),
             wybranie segmentu obiektu odpowiedzi w którym ma być zrenderowany
-            i kilka innych. Jeśli nie chcesz używać klasycznej modularnej 
-            struktury katalogów, możesz określić inne specyfikacje ścieżek za 
+            i kilka innych. Jeśli nie chcesz używać klasycznej modularnej
+            struktury katalogów, możesz określić inne specyfikacje ścieżek za
             pomocą klasy <code>ViewRenderer</code>.
         </para>
 

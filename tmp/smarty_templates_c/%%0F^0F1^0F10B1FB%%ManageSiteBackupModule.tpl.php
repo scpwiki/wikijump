@@ -11,7 +11,7 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 	own computer.<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
 </p>
 <p>
-	<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>The backup option at the moment has a few limitations: you can not restore from it automatically, 
+	<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>The backup option at the moment has a few limitations: you can not restore from it automatically,
 	it does not include all page revisions, only current (latest), it does not include forum discussion or page comments.<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
 </p>
 
@@ -77,9 +77,9 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 					</p>
 				</td>
 			</tr>
-		<?php endif; ?>	
+		<?php endif; ?>
 	</table>
-	
+
 	<?php if ($this->_tpl_vars['backup'] && ( $this->_tpl_vars['backup']->getStatus() == "" || $this->_tpl_vars['backup']->getStatus() == 'started' )): ?>
 		<p style="text-align: center;">
 			<a href="javascript:;" onclick="WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-backup');"><?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>refresh status<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?></a>
@@ -90,8 +90,8 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 			</p>
 		<?php endif; ?>
 	<?php endif; ?>
-	
-	
+
+
 <?php else: ?>
 	<p>
 		<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>No backup is available for download.<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
@@ -105,7 +105,7 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 	<h2><?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Create a backup<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?></h2>
 
 	<form id="backup-form">
-	
+
 		<table class="form">
 			<tr>
 				<td>
@@ -123,8 +123,8 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 					<input name="backupFiles" type="checkbox" class="checkbox" checked="checked"/>
 				</td>
 			</tr>
-		</table>	
-	
+		</table>
+
 		<div class="buttons">
 			<input type="button" onclick="$('create-backup-form').style.display='none'" value="<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>cancel<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>"/>
 			<input type="button" value="<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>create backup<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>" onclick="WIKIDOT.modules.ManageSiteBackupModule.listeners.requestBackup(event)"/>

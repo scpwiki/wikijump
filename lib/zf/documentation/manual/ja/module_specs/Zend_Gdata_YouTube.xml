@@ -100,7 +100,7 @@ foreach ($videoFeed as $videoEntry) {
 ]]>
             </programlisting>
             </example>
-            
+
 
             <para>
                 その他のクエリパラメータの詳細は
@@ -136,7 +136,7 @@ $videoFeed = $yt->getVideoFeed($query);
             </programlisting>
             </example>
         </sect3>
- 
+
         <sect3 id="zend.gdata.youtube.videos.standard">
             <title>標準のフィード</title>
 
@@ -229,7 +229,7 @@ $videoFeed = $yt->getUserFavorites('liz');
 ]]>
             </programlisting>
             </example>
-            
+
         </sect3>
 
         <sect3 id="zend.gdata.youtube.videos.responses">
@@ -309,7 +309,7 @@ $commentFeed = $yt->getVideoCommentFeed(null,
             </para>
                        <example id="zend.gdata.youtube.playlists.user.example">
           <title>指定したユーザのプレイリストの取得</title>
-            
+
             <programlisting role="php"><![CDATA[
 $yt = new Zend_Gdata_YouTube();
 $playlistListFeed = $yt->getPlaylistListFeed('liz');
@@ -357,10 +357,10 @@ $playlistVideoFeed = $yt->getPlaylistVideoFeed($feedUrl);
         </para>
         <example id="zend.gdata.youtube.subscriptions.example">
           <title>指定したユーザのすべての購読の取得</title>
-        
+
         <programlisting role="php"><![CDATA[
 $yt = new Zend_Gdata_YouTube();
-$subscriptionFeed = $yt->getSubscriptionFeed('liz'); 
+$subscriptionFeed = $yt->getSubscriptionFeed('liz');
 
 foreach ($subscriptionFeed as $subscriptionEntry) {
     echo $subscriptionEntry->title->text . "\n";
@@ -379,7 +379,7 @@ foreach ($subscriptionFeed as $subscriptionEntry) {
         </para>
                   <example id="zend.gdata.youtube.profile.example">
           <title>ユーザのプロファイルの取得</title>
-        
+
         <programlisting role="php"><![CDATA[
 $yt = new Zend_Gdata_YouTube();
 $userProfile = $yt->getUserProfile('liz');
@@ -611,7 +611,7 @@ $form = '<form action="'. $postUrl .'?nexturl='. $nextUrl .
       </para>
       <example id="zend.gdata.youtube.uploads.status.example">
           <title>動画のアップロード状況のチェック</title>
-      
+
       <programlisting role="php"><![CDATA[
 try {
     $control = $videoEntry->getControl();

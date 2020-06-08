@@ -38,10 +38,10 @@ class Zend_Paginator_Adapter_Null implements Zend_Paginator_Adapter_Interface
      * @var integer
      */
     protected $_count = null;
-    
+
     /**
      * Constructor.
-     * 
+     *
      * @param array $count Total item count
      */
     public function __construct($count = 0)

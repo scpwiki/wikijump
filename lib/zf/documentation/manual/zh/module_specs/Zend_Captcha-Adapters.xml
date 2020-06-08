@@ -11,12 +11,12 @@
         <para>
             Zend_Captcha_Word 是个摘要适配器，它是 Dumb、Figlet 和 Image 适配器的基础。
             ，它提供了增变器用来指定字符长度、会话 TTL 、会话命名空间对象，如果你不想
-            使用 Zend_Session_Namespace，它提供了会话命名空间来用于持久。            
+            使用 Zend_Session_Namespace，它提供了会话命名空间来用于持久。
             另外，它封装了所有校验逻辑。
         </para>
 
         <para>
-            缺省地，字符长度为 8，会话超时为 5 分钟，Zend_Session_Namespace 
+            缺省地，字符长度为 8，会话超时为 5 分钟，Zend_Session_Namespace
             用于持久（使用命名空间"Zend_Form_Captcha_&lt;captcha ID&gt;"）。
         </para>
 
@@ -37,7 +37,7 @@
             </para></listitem>
 
             <listitem><para>
-                <code>setSessionClass($class)</code> 和 
+                <code>setSessionClass($class)</code> 和
                 <code>getSessionClass()</code> 指定替代的
                 <code>Zend_Session_Namespace</code> 实现来持久 captcha 令牌和获取当前值。
             </para></listitem>
@@ -57,8 +57,8 @@
         </itemizedlist>
 
         <para>
-            
-            所有字符 captchas 传递一个选项数组给构造器，或者把它们传递给 
+
+            所有字符 captchas 传递一个选项数组给构造器，或者把它们传递给
             <code>setOptions()</code> （或传递一个 <code>Zend_Config</code> 对象给 <code>setConfig()</code>）。
             缺省地，可能使用所有的键 <code>wordLen</code>、 <code>timeout</code> 和
             <code>sessionClass</code> ；每个具体的实现可能定义另外的键或选项。
@@ -91,7 +91,7 @@
         <para>
             传递给构造器的选项也可以传递给适配器使用的 <link
                 linkend="zend.text.figlet">Zend_Text_Figlet</link> 对象。
-            请参考关于配置选项的细节的文档。             
+            请参考关于配置选项的细节的文档。
         </para>
     </sect2>
 
@@ -123,7 +123,7 @@
             </para></listitem>
 
             <listitem><para>
-                <code>setFont($font)</code> 和 <code>getFont()</code> 
+                <code>setFont($font)</code> 和 <code>getFont()</code>
                 指定要用的字体。它是到字体文件的全路径。如果没有设置这个值，captcha
                 就在生成的时候抛出异常。字体是必需的。
             </para></listitem>

@@ -38,7 +38,7 @@ class Zend_Config_Writer_Xml extends Zend_Config_Writer
      * @var string
      */
     protected $_filename = null;
-    
+
     /**
      * Set the target filename
      *
@@ -48,10 +48,10 @@ class Zend_Config_Writer_Xml extends Zend_Config_Writer
     public function setFilename($filename)
     {
         $this->_filename = $filename;
-        
+
         return $this;
     }
-    
+
     /**
      * Defined by Zend_Config_Writer
      *
@@ -66,25 +66,25 @@ class Zend_Config_Writer_Xml extends Zend_Config_Writer
         if ($filename !== null) {
             $this->setFilename($filename);
         }
-        
+
         if ($config !== null) {
             $this->setConfig($config);
         }
-        
+
         if ($this->_filename === null) {
             require_once 'Zend/Config/Exception.php';
             throw new Zend_Config_Exception('No filename was set');
         }
-        
+
         if ($this->_config === null) {
             require_once 'Zend/Config/Exception.php';
             throw new Zend_Config_Exception('No config was set');
         }
-        
+
         $xml         = new SimpleXMLElement('<zend-config/>');
         $extends     = $this->_config->getExtends();
         $sectionName = $this->_config->getSectionName();
-        
+
         if (is_string($sectionName)) {
             $child = $xml->addChild($sectionName);
 
@@ -94,30 +94,30 @@ class Zend_Config_Writer_Xml extends Zend_Config_Writer
                 if (!($data instanceof Zend_Config)) {
                     continue;
                 }
-            
+
                 $child = $xml->addChild($sectionName);
-                
+
                 if (isset($extends[$sectionName])) {
                     $child->addAttribute('extends', $extends[$sectionName]);
                 }
-    
+
                 $this->_addBranch($data, $child);
             }
         }
-                
+
         $dom = dom_import_simplexml($xml)->ownerDocument;
         $dom->formatOutput = true;
-        
+
         $xmlString = $dom->saveXML();
-       
+
         $result = @file_put_contents($this->_filename, $xmlString);
-        
+
         if ($result === false) {
             require_once 'Zend/Config/Exception.php';
             throw new Zend_Config_Exception('Could not write to file "' . $this->_filename . '"');
         }
     }
-    
+
     /**
      * Add a branch to an XML object recursively
      *

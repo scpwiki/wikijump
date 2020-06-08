@@ -28,7 +28,7 @@ public class WikidotIndexer {
 				if (lock == null) {
 					return;
 				}
-				
+
 				IndexModifier im = new IndexModifier(args[1], new StandardAnalyzer(), false);
 				BufferedReader qr = new BufferedReader(new InputStreamReader(new FileInputStream(new File(args[2]))));
 				// read the whole file
@@ -44,20 +44,20 @@ public class WikidotIndexer {
 				raf.setLength(0);
 				raf.close();
 				lock.release();
-				
+
 				try {
 					while (true) {
-						
+
 						try {
 							String line = qr.readLine();
-							
+
 							if (line == null) { // EOF
 								break;
 							}
-							
+
 							String cmd = line.split(" ")[0];
 							String id = line.split(" ")[1];
-							
+
 							if (cmd.equals("DELETE_PAGE")) {
 								im.deleteDocuments(new Term("page_id", id));
 							} else if (cmd.equals("DELETE_THREAD")) {
@@ -65,23 +65,23 @@ public class WikidotIndexer {
 							} else if (cmd.equals("DELETE_SITE")) {
 								im.deleteDocuments(new Term("site_id", id));
 							} else if (cmd.equals("INDEX_FTS")) {
-	
+
 								im.deleteDocuments(new Term("fts_id", id));
 								Document doc = new Document();
 								doc.add(new Field("fts_id", id, Field.Store.YES, Field.Index.TOKENIZED));
-								
+
 								while (true) {
 									line = qr.readLine();
 									if (line.trim().equals("")) { // empty line
 										break;
 									}
-									
+
 									args = line.split(" ", 4);
 									String fieldType = args[0];
 									String key = args[1];
 									float boost = new Float(args[2]).floatValue();
 									String value = args[3];
-									
+
 									Field field = new Field(key, value,	fieldType.equals("TEXT") ? Field.Store.YES : Field.Store.NO, Field.Index.TOKENIZED);
 									field.setBoost(boost);
 									doc.add(field);
@@ -94,12 +94,12 @@ public class WikidotIndexer {
 					}
 					im.optimize();
 					im.close();
-					
+
 				} catch (Exception e) {
 					im.close();
 					throw e;
 				}
-			
+
 			} else if (args.length == 3 && args[0].equals("search")) {
 // search
 				IndexSearcher indexSearcher = new IndexSearcher(args[1]);
@@ -108,7 +108,7 @@ public class WikidotIndexer {
 
 				Hits hits = indexSearcher.search(query);
 				int hitCount = hits.length();
-				
+
 				for (int i = 0; i < hitCount; i++) {
 					Document doc = hits.doc(i);
 					System.out.println(doc.get("fts_id"));
@@ -119,9 +119,9 @@ public class WikidotIndexer {
 				System.err.println("Usage:");
 				System.err.println("  java -jar wikidotIndexer.jar process <index_dir> <queue_file> <lock_file>");
 				System.err.println("  java -jar wikidotIndexer.jar search <index_dir> <search_phrase>");
-				
+
 			}
-			
+
 		} catch (Exception e) {
 			System.err.println("Exception: " + e.getMessage());
 			e.printStackTrace();

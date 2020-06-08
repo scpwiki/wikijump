@@ -25,7 +25,7 @@ class Zend_Json_JsonXMLTest extends PHPUnit_Framework_TestCase
     /**
      * xml2json Test 1
      * It tests the conversion of a contact list xml into Json format.
-     * 
+     *
      * XML characteristic to be tested: XML containing an array of child elements.
      *
      */
@@ -74,16 +74,16 @@ class Zend_Json_JsonXMLTest extends PHPUnit_Framework_TestCase
 </contacts>
 
 EOT;
-  
+
         // There are not going to be any XML attributes in this test XML.
         // Hence, set the flag to ignore XML attributes.
         $ignoreXmlAttributes = true;
-        $jsonContents = "";   
+        $jsonContents = "";
         $ex = null;
 
-        // Convert XNL to JSON now.   
+        // Convert XNL to JSON now.
         // fromXml function simply takes a String containing XML contents as input.
-        try {    
+        try {
             $jsonContents = Zend_Json::fromXml($xmlStringContents, $ignoreXmlAttributes);
         } catch (Exception $ex) {
             ;
@@ -96,13 +96,13 @@ EOT;
         // Test if it is not a NULL object.
         $this->assertNotNull($phpArray, "JSON result for XML input 1 is NULL");
         // Test for one of the expected fields in the JSON result.
-        $this->assertSame("Jane Smith", $phpArray['contacts']['contact'][3]['name'], "The last contact name converted from XML input 1 is not correct");  
+        $this->assertSame("Jane Smith", $phpArray['contacts']['contact'][3]['name'], "The last contact name converted from XML input 1 is not correct");
     } // End of function testUsingXML1
 
     /**
      * xml2json Test 2
      * It tests the conversion of book publication xml into Json format.
-     * 
+     *
      * XML characteristic to be tested: XML containing an array of child elements with XML attributes.
      *
      */
@@ -130,16 +130,16 @@ EOT;
 </books>
 
 EOT;
-  
+
         // There are going to be XML attributes in this test XML.
         // Hence, set the flag NOT to ignore XML attributes.
         $ignoreXmlAttributes = false;
-        $jsonContents = "";   
+        $jsonContents = "";
         $ex = null;
 
-        // Convert XNL to JSON now.   
+        // Convert XNL to JSON now.
         // fromXml function simply takes a String containing XML contents as input.
-        try {    
+        try {
             $jsonContents = Zend_Json::fromXml($xmlStringContents, $ignoreXmlAttributes);
         } catch (Exception $ex) {
             ;
@@ -160,7 +160,7 @@ EOT;
     /**
      * xml2json Test 3
      * It tests the conversion of food menu xml into Json format.
-     * 
+     *
      * XML characteristic to be tested: XML containing an array of child elements.
      *
      */
@@ -217,16 +217,16 @@ EOT;
 </breakfast_menu>
 
 EOT;
-  
+
         // There are not going to be any XML attributes in this test XML.
         // Hence, set the flag to ignore XML attributes.
         $ignoreXmlAttributes = true;
-        $jsonContents = "";   
+        $jsonContents = "";
         $ex = null;
 
-        // Convert XNL to JSON now.   
+        // Convert XNL to JSON now.
         // fromXml function simply takes a String containing XML contents as input.
-        try {    
+        try {
             $jsonContents = Zend_Json::fromXml($xmlStringContents, $ignoreXmlAttributes);
         } catch (Exception $ex) {
             ;
@@ -245,7 +245,7 @@ EOT;
     /**
      * xml2json Test 4
      * It tests the conversion of RosettaNet purchase order xml into Json format.
-     * 
+     *
      * XML characteristic to be tested: XML containing an array of child elements and multiple attributes.
      *
      */
@@ -330,16 +330,16 @@ EOT;
 </PurchaseRequisition>
 
 EOT;
-  
+
         // There are going to be XML attributes in this test XML.
         // Hence, set the flag NOT to ignore XML attributes.
         $ignoreXmlAttributes = false;
-        $jsonContents = "";   
+        $jsonContents = "";
         $ex = null;
 
-        // Convert XNL to JSON now.   
+        // Convert XNL to JSON now.
         // fromXml function simply takes a String containing XML contents as input.
-        try {    
+        try {
             $jsonContents = Zend_Json::fromXml($xmlStringContents, $ignoreXmlAttributes);
         } catch (Exception $ex) {
             ;
@@ -362,7 +362,7 @@ EOT;
     /**
      * xml2json Test 5
      * It tests the conversion of TV shows xml into Json format.
-     * 
+     *
      * XML characteristic to be tested: XML containing simple CDATA.
      *
      */
@@ -375,23 +375,23 @@ EOT;
     <show>
         <name>The Simpsons</name>
     </show>
-    
+
     <show>
         <name><![CDATA[Lois & Clark]]></name>
     </show>
 </tvshows>
 
 EOT;
-  
+
         // There are not going to be any XML attributes in this test XML.
         // Hence, set the flag to ignore XML attributes.
         $ignoreXmlAttributes = true;
-        $jsonContents = "";   
+        $jsonContents = "";
         $ex = null;
 
-        // Convert XNL to JSON now.   
+        // Convert XNL to JSON now.
         // fromXml function simply takes a String containing XML contents as input.
-        try {    
+        try {
             $jsonContents = Zend_Json::fromXml($xmlStringContents, $ignoreXmlAttributes);
         } catch (Exception $ex) {
             ;
@@ -410,7 +410,7 @@ EOT;
     /**
      * xml2json Test 6
      * It tests the conversion of demo application xml into Json format.
-     * 
+     *
      * XML characteristic to be tested: XML containing a large CDATA.
      *
      */
@@ -464,16 +464,16 @@ echo getMovies()->asXML();
 </demo>
 
 EOT;
-  
+
         // There are not going to be any XML attributes in this test XML.
         // Hence, set the flag to ignore XML attributes.
         $ignoreXmlAttributes = true;
-        $jsonContents = "";   
+        $jsonContents = "";
         $ex = null;
 
-        // Convert XNL to JSON now.   
+        // Convert XNL to JSON now.
         // fromXml function simply takes a String containing XML contents as input.
-        try {    
+        try {
             $jsonContents = Zend_Json::fromXml($xmlStringContents, $ignoreXmlAttributes);
         } catch (Exception $ex) {
             ;
@@ -494,7 +494,7 @@ EOT;
     /**
      * xml2json Test 7
      * It tests the conversion of an invalid xml into Json format.
-     * 
+     *
      * XML characteristic to be tested: XML containing invalid syntax.
      *
      */
@@ -514,16 +514,16 @@ thrown by the Zend_Json::fromXml function.
 </invalidxml>
 
 EOT;
-  
+
         // There are not going to be any XML attributes in this test XML.
         // Hence, set the flag to ignore XML attributes.
         $ignoreXmlAttributes = true;
-        $jsonContents = "";   
+        $jsonContents = "";
         $ex = null;
 
-        // Convert XNL to JSON now.   
+        // Convert XNL to JSON now.
         // fromXml function simply takes a String containing XML contents as input.
-        try {    
+        try {
             $jsonContents = Zend_Json::fromXml($xmlStringContents, $ignoreXmlAttributes);
         } catch (Exception $ex) {
             ;

@@ -9,7 +9,7 @@ require_once 'PHPUnit/Framework/IncompleteTestError.php';
  * @package ortus
  * @version $Id: NodeTest.php 1625 2006-11-15 17:45:10Z darby $
  */
-class Zend_Server_Reflection_NodeTest extends PHPUnit_Framework_TestCase 
+class Zend_Server_Reflection_NodeTest extends PHPUnit_Framework_TestCase
 {
     /**
      * __construct() test

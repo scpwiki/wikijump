@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -29,17 +29,17 @@ use DB\ContactPeer;
 class AccountContactsModule extends AccountBaseModule {
 
     public function build($runData) {
-        
+
         $user = $runData->getUser();
-        
+
         // get all contacts
         $c = new Criteria();
         $c->add("contact.user_id", $user->getUserId());
         $c->addJoin("target_user_id", "ozone_user.user_id");
         $c->addOrderAscending("ozone_user.nick_name");
-        
+
         $contacts = ContactPeer::instance()->select($c);
-        
+
         if (true || count($contacts) > 0) {
             // get the list who contacts you back to display emails.
             // by query
@@ -47,7 +47,7 @@ class AccountContactsModule extends AccountBaseModule {
             $db = Database::connection();
             $res = $db->query($q);
             $back = $res->fetchAll();
-            
+
             if ($back) {
                 foreach ($back as &$b) {
                     $b = $b['user_id'];
@@ -66,9 +66,9 @@ class AccountContactsModule extends AccountBaseModule {
         }
 
         $runData->contextAdd("contacts", $contacts);
-        
+
         $maxContacts = 10;
         $runData->contextAdd("maxContacts", $maxContacts);
-    
+
     }
 }

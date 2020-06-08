@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Web
  * @version $Id$
@@ -46,36 +46,36 @@ class ListResolver extends TemplateService{
 			$this->storage["$listName"] = $out;
 			$this->pleaseSelectValues["$listName"] = $xml->pleaseselect[0]->text[0].'';
 	}
-	
+
 	public function loadListFromTable($listName){
 		$tableName = $listName;
 		// table must have columns: key, text and sort_index
 		// the row with option_id = null indicates the "please select" value
-		
+
 		$peerName = $peerName = "DB_". capitalizeFirstLetter(underscoreToLowerCase($tableName))."Peer";
 		$peer = new $peerName();
 		$c = new Criteria();
 		$c->add("key", null);
-		
+
 		$pleaseSelectOption = $peer->selectOne($c);
-		
+
 		$c = new Criteria();
 		$c->add("key", null, "!=");
 		$c->addOrderAscending("sort_index");
 		$c->addOrderAscending("text");
-		
+
 		$options = $peer->select($c);
-		
+
 		if($pleaseSelectOption != null){
 			$this->pleaseSelectValues["$listName"] = $pleaseSelectOption->getText();
 		} else {
 			// try SELECT_PLEASE_SELECT from the messages...
 			$text = MessageResolver::instance()->message("SELECT_PLEASE_SELECT");
 			if($text != null){
-				$this->pleaseSelectValues["$listName"] = $text;	
-			}	
+				$this->pleaseSelectValues["$listName"] = $text;
+			}
 		}
-		
+
 		$out = array();
 		foreach($options as $option){
 			$optionKey=$option->getKey();
@@ -88,32 +88,32 @@ class ListResolver extends TemplateService{
 		if(!isset($this->storage["$listName"])){
 			$this->loadList($listName);
 		}
-		return $this->storage["$listName"];	
+		return $this->storage["$listName"];
 	}
-	
+
 	public function getValuesArrayFromTable($listName){
 		if(!isset($this->storage["$listName"])){
 			$this->loadListFromTable($listName);
 		}
-		return $this->storage["$listName"];	
+		return $this->storage["$listName"];
 	}
-	
+
 	public function getPleaseSelectValue($listName){
 		if(!isset($this->pleaseSelectValues["$listName"])){
 			$this->loadList($listName);
 		}
 		return $this->pleaseSelectValues["$listName"];
 	}
-	
+
 	public function resolveKey($listName, $keyName){
 		if(!isset($this->storage["$listName"])){
 			$this->loadList($listName);
 		}
-		return $this->storage["$listName"]["$keyName"];	
+		return $this->storage["$listName"]["$keyName"];
 	}
-	
+
 	public function test(){
 		echo "ListResolver tested";
 	}
-	
+
 }

@@ -38,7 +38,7 @@ interface Zend_Loader_PluginLoader_Interface
      * @return Zend_Loader_PluginLoader
      */
     public function addPrefixPath($prefix, $path);
-    
+
     /**
      * Remove a prefix (or prefixed-path) from the registry
      *
@@ -47,7 +47,7 @@ interface Zend_Loader_PluginLoader_Interface
      * @return Zend_Loader_PluginLoader
      */
     public function removePrefixPath($prefix, $path = null);
-    
+
     /**
      * Whether or not a Helper by a specific name
      *
@@ -63,7 +63,7 @@ interface Zend_Loader_PluginLoader_Interface
      * @return string
      */
     public function getClassName($name);
-    
+
     /**
      * Load a helper via the name provided
      *

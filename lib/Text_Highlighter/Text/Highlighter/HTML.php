@@ -1,6 +1,6 @@
 <?php
 /**
- * Auto-generated class. HTML syntax highlighting 
+ * Auto-generated class. HTML syntax highlighting
  *
  * PHP version 4 and 5
  *
@@ -15,7 +15,7 @@
  * @link       http://pear.php.net/package/Text_Highlighter
  * @category   Text
  * @package    Text_Highlighter
- * @version    generated from: : html.xml 26 2005-04-21 16:31:33Z andrey 
+ * @version    generated from: : html.xml 26 2005-04-21 16:31:33Z andrey
  * @author Andrey Demenev <demenev@gmail.com>
  *
  */
@@ -58,64 +58,64 @@ class  Text_Highlighter_HTML extends Text_Highlighter
             2 => '/((?i)(&)[\\w\\-\\.]+;)/',
         );
         $this->_counts = array (
-            -1 => 
+            -1 =>
             array (
                 0 => 0,
                 1 => 0,
                 2 => 1,
             ),
-            0 => 
+            0 =>
             array (
             ),
-            1 => 
+            1 =>
             array (
                 0 => 0,
                 1 => 0,
                 2 => 0,
             ),
-            2 => 
+            2 =>
             array (
                 0 => 1,
             ),
         );
         $this->_delim = array (
-            -1 => 
+            -1 =>
             array (
                 0 => 'comment',
                 1 => 'brackets',
                 2 => '',
             ),
-            0 => 
+            0 =>
             array (
             ),
-            1 => 
+            1 =>
             array (
                 0 => '',
                 1 => '',
                 2 => 'quotes',
             ),
-            2 => 
+            2 =>
             array (
                 0 => '',
             ),
         );
         $this->_inner = array (
-            -1 => 
+            -1 =>
             array (
                 0 => 'comment',
                 1 => 'code',
                 2 => 'special',
             ),
-            0 => 
+            0 =>
             array (
             ),
-            1 => 
+            1 =>
             array (
                 0 => 'reserved',
                 1 => 'var',
                 2 => 'string',
             ),
-            2 => 
+            2 =>
             array (
                 0 => 'special',
             ),
@@ -126,87 +126,87 @@ class  Text_Highlighter_HTML extends Text_Highlighter
             2 => '/(?i)"/',
         );
         $this->_states = array (
-            -1 => 
+            -1 =>
             array (
                 0 => 0,
                 1 => 1,
                 2 => -1,
             ),
-            0 => 
+            0 =>
             array (
             ),
-            1 => 
+            1 =>
             array (
                 0 => -1,
                 1 => -1,
                 2 => 2,
             ),
-            2 => 
+            2 =>
             array (
                 0 => -1,
             ),
         );
         $this->_keywords = array (
-            -1 => 
+            -1 =>
             array (
                 0 => -1,
                 1 => -1,
-                2 => 
+                2 =>
                 array (
                 ),
             ),
-            0 => 
+            0 =>
             array (
             ),
-            1 => 
+            1 =>
             array (
-                0 => 
+                0 =>
                 array (
                 ),
-                1 => 
+                1 =>
                 array (
                 ),
                 2 => -1,
             ),
-            2 => 
+            2 =>
             array (
-                0 => 
+                0 =>
                 array (
                 ),
             ),
         );
         $this->_parts = array (
-            0 => 
+            0 =>
             array (
             ),
-            1 => 
+            1 =>
             array (
                 0 => NULL,
                 1 => NULL,
                 2 => NULL,
             ),
-            2 => 
+            2 =>
             array (
                 0 => NULL,
             ),
         );
         $this->_subst = array (
-            -1 => 
+            -1 =>
             array (
                 0 => false,
                 1 => false,
                 2 => false,
             ),
-            0 => 
+            0 =>
             array (
             ),
-            1 => 
+            1 =>
             array (
                 0 => false,
                 1 => false,
                 2 => false,
             ),
-            2 => 
+            2 =>
             array (
                 0 => false,
             ),
@@ -218,5 +218,5 @@ class  Text_Highlighter_HTML extends Text_Highlighter
         $this->_defClass = 'code';
         $this->_checkDefines();
     }
-    
+
 }

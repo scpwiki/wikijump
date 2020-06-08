@@ -118,7 +118,7 @@ class Zend_Soap_Wsdl_ArrayOfTypeSequenceStrategyTest extends PHPUnit_Framework_T
             $return = $this->wsdl->addComplexType('Zend_Soap_Wsdl_SequenceTest[]');
             $this->fail();
         } catch(Zend_Soap_Wsdl_Exception $e) {
-            
+
         }
     }
 
@@ -128,7 +128,7 @@ class Zend_Soap_Wsdl_ArrayOfTypeSequenceStrategyTest extends PHPUnit_Framework_T
             $return = $this->wsdl->addComplexType('Zend_Soap_Wsdl_SequenceTest');
             $this->fail();
         } catch(Zend_Soap_Wsdl_Exception $e) {
-            
+
         }
     }
 

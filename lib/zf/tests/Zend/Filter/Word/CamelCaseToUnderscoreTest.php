@@ -13,7 +13,7 @@ require_once 'Zend/Filter/Word/CamelCaseToUnderscore.php';
 /**
  * Test class for Zend_Filter_Word_CamelCaseToUnderscore.
  */
-class Zend_Filter_Word_CamelCaseToUnderscoreTest extends PHPUnit_Framework_TestCase 
+class Zend_Filter_Word_CamelCaseToUnderscoreTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.

@@ -4,9 +4,9 @@
     <para>
     O módulo Zend_Pdf é um motor para manipulação de PDF (Portable Document Format) totalmente escrito em PHP 5.
     Ele pode carregar documentos existentes, criar novos documentos, modificar e salvar documentos modificados.
-    Dessa forma, este módulo pode ajudar qualquer aplicação baseada em PHP a preparar dinamicamente documentos 
+    Dessa forma, este módulo pode ajudar qualquer aplicação baseada em PHP a preparar dinamicamente documentos
 	em PDF através da modificação de um template já existente ou pela geração de um documento a partir de rabiscos.
-	
+
     O módulo Zend_Pdf dá suporte às seguintes características:
     <itemizedlist>
         <listitem>

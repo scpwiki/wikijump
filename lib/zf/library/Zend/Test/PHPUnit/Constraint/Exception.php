@@ -3,8 +3,8 @@
 require_once 'PHPUnit/Framework/ExpectationFailedException.php';
 
 /**
- * Zend_Test_PHPUnit_Constraint_Exception 
- * 
+ * Zend_Test_PHPUnit_Constraint_Exception
+ *
  * @uses       PHPUnit_Framework_ExpectationFailedException
  * @package    Zend_Test
  * @subpackage PHPUnit

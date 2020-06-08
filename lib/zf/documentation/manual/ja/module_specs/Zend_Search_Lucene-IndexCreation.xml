@@ -56,7 +56,7 @@ $doc = new Zend_Search_Lucene_Document();
 // ドキュメントの URL を、検索結果の ID として保存します。
 $doc->addField(Zend_Search_Lucene_Field::Text('url', $docUrl));
 // ドキュメントの内容をインデックス化します。
-$doc->addField(Zend_Search_Lucene_Field::UnStored('contents', 
+$doc->addField(Zend_Search_Lucene_Field::UnStored('contents',
                                                   $docContent));
 
 // ドキュメントをインデックスに追加します。

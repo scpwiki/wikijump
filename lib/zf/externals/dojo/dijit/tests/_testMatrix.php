@@ -14,7 +14,7 @@
 <body>
 
 	<h1 class="testTitle">Dijit Test Matrix Table</h1>
-	
+
 	<table id="testMatrix">
 		<thead>
 			<tr class="top"><th rowspan="2">Test</th><th colspan="4">Tundra</th><th colspan="4">Nihilo</th><th colspan="4">Soria</th></tr>
@@ -26,7 +26,7 @@
 			printLinks("./form", "Dijit Form Widget Tests");
 			printLinks("./layout", "Dijit Layout Widget Tests");
 			printLinks("./tree","Dijit Tree Tests");
-			
+
 		?>
 		</tbody>
 	</table>
@@ -43,7 +43,7 @@ function printLinks($path, $group){
 		if(preg_match("/(test_|demo_)(.*)\.html/", $file, $matches)){
 			$base = $matches[0];
 			$link = $path."/".$matches[0];
-			print 
+			print
 			"<tr class='testRow ". (++$i % 2 ==0 ? "alt" : "")   ."'>" .
 
 				"<td class='label'>" . $base . "</td>" .
@@ -53,7 +53,7 @@ function printLinks($path, $group){
 				"<td><a href='".$link."?a11y=true'>run</a></td>" .
 				"<td><a href='".$link."?dir=rtl'>run</a></td>" .
 				"<td><a href='".$link."?dir=rtl&amp;a11y=true'>run</a></td>" .
-				
+
 				// nihilo
 				"<td><a href='".$link."?theme=nihilo'>run</a></td>" .
 				"<td><a href='".$link."?theme=nihilo&amp;a11y=true'>run</a></td>" .
@@ -65,7 +65,7 @@ function printLinks($path, $group){
 				"<td><a href='".$link."?theme=soria&amp;a11y=true'>run</a></td>" .
 				"<td><a href='".$link."?theme=soria&amp;dir=rtl'>run</a></td>" .
 				"<td><a href='".$link."?theme=soria&amp;dir=rtl&amp;a11y=true'>run</a></td>" .
-									
+
 			 "</tr>";
 		}
 	}

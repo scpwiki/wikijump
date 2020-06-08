@@ -14,7 +14,7 @@ require_once 'Zend/Form/SubForm.php';
 /**
  * Test class for Zend_Form_Decorator_PrepareElements
  */
-class Zend_Form_Decorator_PrepareElementsTest extends PHPUnit_Framework_TestCase 
+class Zend_Form_Decorator_PrepareElementsTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.

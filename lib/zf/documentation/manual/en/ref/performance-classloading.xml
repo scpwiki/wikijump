@@ -63,7 +63,7 @@ $paths = array(
 );
 set_include_path(implode(PATH_SEPARATOR, $paths);
 ]]></programlisting>
-            
+
             <para>
                 However, even so, it's typically a trivial task to simply pass
                 the path to <code>realpath()</code>.

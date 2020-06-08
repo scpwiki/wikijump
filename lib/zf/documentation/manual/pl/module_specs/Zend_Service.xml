@@ -12,7 +12,7 @@
         Oprócz tego, że możesz rozszerzyć klasę <code>Zend_Service</code> oraz
         użyć klasy <code>Zend_Rest_Client</code> dla serwisów opartych o REST,
         Zend zapewnia także obsługę popularnych serwisów. Przejrzyj poniższe
-        rozdziały aby uzyskać szczegółowe informacje o każdym obsługiwanym 
+        rozdziały aby uzyskać szczegółowe informacje o każdym obsługiwanym
         serwisie.
     </para>
 

@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,7 +27,7 @@
 use DB\PageAbuseFlagPeer;
 
 class FlagPageModule extends SmartyModule {
-	
+
 	public function isAllowed($runData){
 		$userId = $runData->getUserId();
 		if($userId == null || $userId <1){
@@ -35,28 +35,28 @@ class FlagPageModule extends SmartyModule {
 		}
 		return true;
 	}
-	
+
 	public function build($runData){
 		$pl = $runData->getParameterList();
-		
+
 		$path = $pl->getParameterValue("path");
 		if($path == null || $path == ''){
-			throw new ProcessException(_("Error processing the request."), "no_path");	
+			throw new ProcessException(_("Error processing the request."), "no_path");
 		}
-		$site = $runData->getTemp("site"); 	
+		$site = $runData->getTemp("site");
 		$user = $runData->getUser();
 		// check if flagged already
 		$c = new Criteria();
 		$c->add("user_id", $user->getUserId());
 		$c->add("site_id", $site->getSiteId());
 		$c->add("path", $path);
-		
+
 		$flag = PageAbuseFlagPeer::instance()->selectOne($c);
-		
+
 		if($flag){
-			$runData->contextAdd("flagged", true);	
+			$runData->contextAdd("flagged", true);
 		}
-		
+
 	}
-	
+
 }

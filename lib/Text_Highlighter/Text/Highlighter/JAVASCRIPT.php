@@ -1,6 +1,6 @@
 <?php
 /**
- * Auto-generated class. JAVASCRIPT syntax highlighting 
+ * Auto-generated class. JAVASCRIPT syntax highlighting
  *
  * PHP version 4 and 5
  *
@@ -15,7 +15,7 @@
  * @link       http://pear.php.net/package/Text_Highlighter
  * @category   Text
  * @package    Text_Highlighter
- * @version    generated from: : javascript.xml 26 2005-04-21 16:31:33Z andrey 
+ * @version    generated from: : javascript.xml 26 2005-04-21 16:31:33Z andrey
  * @author Andrey Demenev <demenev@gmail.com>
  *
  */
@@ -63,7 +63,7 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
             7 => '/((?i)\\\\\\/)/',
         );
         $this->_counts = array (
-            -1 => 
+            -1 =>
             array (
                 0 => 0,
                 1 => 0,
@@ -76,7 +76,7 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
                 8 => 0,
                 9 => 0,
             ),
-            0 => 
+            0 =>
             array (
                 0 => 0,
                 1 => 0,
@@ -89,7 +89,7 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
                 8 => 0,
                 9 => 0,
             ),
-            1 => 
+            1 =>
             array (
                 0 => 0,
                 1 => 0,
@@ -102,7 +102,7 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
                 8 => 0,
                 9 => 0,
             ),
-            2 => 
+            2 =>
             array (
                 0 => 0,
                 1 => 0,
@@ -115,35 +115,35 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
                 8 => 0,
                 9 => 0,
             ),
-            3 => 
+            3 =>
             array (
                 0 => 3,
                 1 => 1,
                 2 => 1,
                 3 => 0,
             ),
-            4 => 
+            4 =>
             array (
                 0 => 0,
             ),
-            5 => 
+            5 =>
             array (
                 0 => 0,
             ),
-            6 => 
+            6 =>
             array (
                 0 => 3,
                 1 => 1,
                 2 => 1,
                 3 => 0,
             ),
-            7 => 
+            7 =>
             array (
                 0 => 0,
             ),
         );
         $this->_delim = array (
-            -1 => 
+            -1 =>
             array (
                 0 => 'brackets',
                 1 => 'brackets',
@@ -156,7 +156,7 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
                 8 => '',
                 9 => '',
             ),
-            0 => 
+            0 =>
             array (
                 0 => 'brackets',
                 1 => 'brackets',
@@ -169,7 +169,7 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
                 8 => '',
                 9 => '',
             ),
-            1 => 
+            1 =>
             array (
                 0 => 'brackets',
                 1 => 'brackets',
@@ -182,7 +182,7 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
                 8 => '',
                 9 => '',
             ),
-            2 => 
+            2 =>
             array (
                 0 => 'brackets',
                 1 => 'brackets',
@@ -195,35 +195,35 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
                 8 => '',
                 9 => '',
             ),
-            3 => 
+            3 =>
             array (
                 0 => '',
                 1 => '',
                 2 => '',
                 3 => '',
             ),
-            4 => 
+            4 =>
             array (
                 0 => '',
             ),
-            5 => 
+            5 =>
             array (
                 0 => '',
             ),
-            6 => 
+            6 =>
             array (
                 0 => '',
                 1 => '',
                 2 => '',
                 3 => '',
             ),
-            7 => 
+            7 =>
             array (
                 0 => '',
             ),
         );
         $this->_inner = array (
-            -1 => 
+            -1 =>
             array (
                 0 => 'code',
                 1 => 'code',
@@ -236,7 +236,7 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
                 8 => 'identifier',
                 9 => 'number',
             ),
-            0 => 
+            0 =>
             array (
                 0 => 'code',
                 1 => 'code',
@@ -249,7 +249,7 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
                 8 => 'identifier',
                 9 => 'number',
             ),
-            1 => 
+            1 =>
             array (
                 0 => 'code',
                 1 => 'code',
@@ -262,7 +262,7 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
                 8 => 'identifier',
                 9 => 'number',
             ),
-            2 => 
+            2 =>
             array (
                 0 => 'code',
                 1 => 'code',
@@ -275,29 +275,29 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
                 8 => 'identifier',
                 9 => 'number',
             ),
-            3 => 
+            3 =>
             array (
                 0 => 'url',
                 1 => 'url',
                 2 => 'inlinedoc',
                 3 => 'inlinedoc',
             ),
-            4 => 
+            4 =>
             array (
                 0 => 'special',
             ),
-            5 => 
+            5 =>
             array (
                 0 => 'special',
             ),
-            6 => 
+            6 =>
             array (
                 0 => 'url',
                 1 => 'url',
                 2 => 'inlinedoc',
                 3 => 'inlinedoc',
             ),
-            7 => 
+            7 =>
             array (
                 0 => 'special',
             ),
@@ -313,7 +313,7 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
             7 => '/\\/g?i?/',
         );
         $this->_states = array (
-            -1 => 
+            -1 =>
             array (
                 0 => 0,
                 1 => 1,
@@ -326,7 +326,7 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
                 8 => -1,
                 9 => -1,
             ),
-            0 => 
+            0 =>
             array (
                 0 => 0,
                 1 => 1,
@@ -339,7 +339,7 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
                 8 => -1,
                 9 => -1,
             ),
-            1 => 
+            1 =>
             array (
                 0 => 0,
                 1 => 1,
@@ -352,7 +352,7 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
                 8 => -1,
                 9 => -1,
             ),
-            2 => 
+            2 =>
             array (
                 0 => 0,
                 1 => 1,
@@ -365,35 +365,35 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
                 8 => -1,
                 9 => -1,
             ),
-            3 => 
+            3 =>
             array (
                 0 => -1,
                 1 => -1,
                 2 => -1,
                 3 => -1,
             ),
-            4 => 
+            4 =>
             array (
                 0 => -1,
             ),
-            5 => 
+            5 =>
             array (
                 0 => -1,
             ),
-            6 => 
+            6 =>
             array (
                 0 => -1,
                 1 => -1,
                 2 => -1,
                 3 => -1,
             ),
-            7 => 
+            7 =>
             array (
                 0 => -1,
             ),
         );
         $this->_keywords = array (
-            -1 => 
+            -1 =>
             array (
                 0 => -1,
                 1 => -1,
@@ -403,16 +403,16 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
                 5 => -1,
                 6 => -1,
                 7 => -1,
-                8 => 
+                8 =>
                 array (
                     'builtin' => '/^(String|Array|RegExp|Function|Math|Number|Date|Image|window|document|navigator|onAbort|onBlur|onChange|onClick|onDblClick|onDragDrop|onError|onFocus|onKeyDown|onKeyPress|onKeyUp|onLoad|onMouseDown|onMouseOver|onMouseOut|onMouseMove|onMouseUp|onMove|onReset|onResize|onSelect|onSubmit|onUnload)$/',
                     'reserved' => '/^(break|continue|do|while|export|for|in|if|else|import|return|label|switch|case|var|with|delete|new|this|typeof|void|abstract|boolean|byte|catch|char|class|const|debugger|default|double|enum|extends|false|final|finally|float|function|implements|goto|instanceof|int|interface|long|native|null|package|private|protected|public|short|static|super|synchronized|throw|throws|transient|true|try|volatile)$/',
                 ),
-                9 => 
+                9 =>
                 array (
                 ),
             ),
-            0 => 
+            0 =>
             array (
                 0 => -1,
                 1 => -1,
@@ -422,16 +422,16 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
                 5 => -1,
                 6 => -1,
                 7 => -1,
-                8 => 
+                8 =>
                 array (
                     'builtin' => '/^(String|Array|RegExp|Function|Math|Number|Date|Image|window|document|navigator|onAbort|onBlur|onChange|onClick|onDblClick|onDragDrop|onError|onFocus|onKeyDown|onKeyPress|onKeyUp|onLoad|onMouseDown|onMouseOver|onMouseOut|onMouseMove|onMouseUp|onMove|onReset|onResize|onSelect|onSubmit|onUnload)$/',
                     'reserved' => '/^(break|continue|do|while|export|for|in|if|else|import|return|label|switch|case|var|with|delete|new|this|typeof|void|abstract|boolean|byte|catch|char|class|const|debugger|default|double|enum|extends|false|final|finally|float|function|implements|goto|instanceof|int|interface|long|native|null|package|private|protected|public|short|static|super|synchronized|throw|throws|transient|true|try|volatile)$/',
                 ),
-                9 => 
+                9 =>
                 array (
                 ),
             ),
-            1 => 
+            1 =>
             array (
                 0 => -1,
                 1 => -1,
@@ -441,16 +441,16 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
                 5 => -1,
                 6 => -1,
                 7 => -1,
-                8 => 
+                8 =>
                 array (
                     'builtin' => '/^(String|Array|RegExp|Function|Math|Number|Date|Image|window|document|navigator|onAbort|onBlur|onChange|onClick|onDblClick|onDragDrop|onError|onFocus|onKeyDown|onKeyPress|onKeyUp|onLoad|onMouseDown|onMouseOver|onMouseOut|onMouseMove|onMouseUp|onMove|onReset|onResize|onSelect|onSubmit|onUnload)$/',
                     'reserved' => '/^(break|continue|do|while|export|for|in|if|else|import|return|label|switch|case|var|with|delete|new|this|typeof|void|abstract|boolean|byte|catch|char|class|const|debugger|default|double|enum|extends|false|final|finally|float|function|implements|goto|instanceof|int|interface|long|native|null|package|private|protected|public|short|static|super|synchronized|throw|throws|transient|true|try|volatile)$/',
                 ),
-                9 => 
+                9 =>
                 array (
                 ),
             ),
-            2 => 
+            2 =>
             array (
                 0 => -1,
                 1 => -1,
@@ -460,66 +460,66 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
                 5 => -1,
                 6 => -1,
                 7 => -1,
-                8 => 
+                8 =>
                 array (
                     'builtin' => '/^(String|Array|RegExp|Function|Math|Number|Date|Image|window|document|navigator|onAbort|onBlur|onChange|onClick|onDblClick|onDragDrop|onError|onFocus|onKeyDown|onKeyPress|onKeyUp|onLoad|onMouseDown|onMouseOver|onMouseOut|onMouseMove|onMouseUp|onMove|onReset|onResize|onSelect|onSubmit|onUnload)$/',
                     'reserved' => '/^(break|continue|do|while|export|for|in|if|else|import|return|label|switch|case|var|with|delete|new|this|typeof|void|abstract|boolean|byte|catch|char|class|const|debugger|default|double|enum|extends|false|final|finally|float|function|implements|goto|instanceof|int|interface|long|native|null|package|private|protected|public|short|static|super|synchronized|throw|throws|transient|true|try|volatile)$/',
                 ),
-                9 => 
+                9 =>
                 array (
                 ),
             ),
-            3 => 
+            3 =>
             array (
-                0 => 
+                0 =>
                 array (
                 ),
-                1 => 
+                1 =>
                 array (
                 ),
-                2 => 
+                2 =>
                 array (
                 ),
-                3 => 
+                3 =>
                 array (
                 ),
             ),
-            4 => 
+            4 =>
             array (
-                0 => 
+                0 =>
                 array (
                 ),
             ),
-            5 => 
+            5 =>
             array (
-                0 => 
+                0 =>
                 array (
                 ),
             ),
-            6 => 
+            6 =>
             array (
-                0 => 
+                0 =>
                 array (
                 ),
-                1 => 
+                1 =>
                 array (
                 ),
-                2 => 
+                2 =>
                 array (
                 ),
-                3 => 
+                3 =>
                 array (
                 ),
             ),
-            7 => 
+            7 =>
             array (
-                0 => 
+                0 =>
                 array (
                 ),
             ),
         );
         $this->_parts = array (
-            0 => 
+            0 =>
             array (
                 0 => NULL,
                 1 => NULL,
@@ -532,7 +532,7 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
                 8 => NULL,
                 9 => NULL,
             ),
-            1 => 
+            1 =>
             array (
                 0 => NULL,
                 1 => NULL,
@@ -545,7 +545,7 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
                 8 => NULL,
                 9 => NULL,
             ),
-            2 => 
+            2 =>
             array (
                 0 => NULL,
                 1 => NULL,
@@ -558,35 +558,35 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
                 8 => NULL,
                 9 => NULL,
             ),
-            3 => 
+            3 =>
             array (
                 0 => NULL,
                 1 => NULL,
                 2 => NULL,
                 3 => NULL,
             ),
-            4 => 
+            4 =>
             array (
                 0 => NULL,
             ),
-            5 => 
+            5 =>
             array (
                 0 => NULL,
             ),
-            6 => 
+            6 =>
             array (
                 0 => NULL,
                 1 => NULL,
                 2 => NULL,
                 3 => NULL,
             ),
-            7 => 
+            7 =>
             array (
                 0 => NULL,
             ),
         );
         $this->_subst = array (
-            -1 => 
+            -1 =>
             array (
                 0 => false,
                 1 => false,
@@ -599,7 +599,7 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
                 8 => false,
                 9 => false,
             ),
-            0 => 
+            0 =>
             array (
                 0 => false,
                 1 => false,
@@ -612,7 +612,7 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
                 8 => false,
                 9 => false,
             ),
-            1 => 
+            1 =>
             array (
                 0 => false,
                 1 => false,
@@ -625,7 +625,7 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
                 8 => false,
                 9 => false,
             ),
-            2 => 
+            2 =>
             array (
                 0 => false,
                 1 => false,
@@ -638,29 +638,29 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
                 8 => false,
                 9 => false,
             ),
-            3 => 
+            3 =>
             array (
                 0 => false,
                 1 => false,
                 2 => false,
                 3 => false,
             ),
-            4 => 
+            4 =>
             array (
                 0 => false,
             ),
-            5 => 
+            5 =>
             array (
                 0 => false,
             ),
-            6 => 
+            6 =>
             array (
                 0 => false,
                 1 => false,
                 2 => false,
                 3 => false,
             ),
-            7 => 
+            7 =>
             array (
                 0 => false,
             ),
@@ -674,5 +674,5 @@ class  Text_Highlighter_JAVASCRIPT extends Text_Highlighter
         $this->_defClass = 'code';
         $this->_checkDefines();
     }
-    
+
 }

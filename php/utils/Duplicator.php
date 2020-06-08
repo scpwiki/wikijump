@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -42,14 +42,14 @@ use DB\PageCompiled;
 use DB\PageTagPeer;
 
 class Duplicator {
-    
+
     private $owner;
     private $excludedCategories = array();
-    
+
     private $pageMap;
 
     public function cloneSite($site, $siteProperties, $attrs = array()) {
-        
+
         $db = Database::connection();
         $db->begin();
         /*
@@ -59,7 +59,7 @@ class Duplicator {
         $nsite = clone ($site);
         $nsite->setNew(true);
         $nsite->setSiteId(null);
-        
+
         $nsite->setUnixName($siteProperties['unixname']);
         if (isset($siteProperties['name'])) {
             $nsite->setName($siteProperties['name']);
@@ -79,28 +79,28 @@ class Duplicator {
         }
         $nsite->setCustomDomain(null);
         $nsite->save();
-        
+
         /* Super settings. */
         // site_super_settings
         $superSettings = $site->getSuperSettings();
         $superSettings->setNew(true);
         $superSettings->setSiteId($nsite->getSiteId());
         $superSettings->save();
-        
+
         /* Site settings. */
         $settings = $site->getSettings();
         $settings->setNew(true);
         $settings->setSiteId($nsite->getSiteId());
         $settings->save();
-        
+
         /* Now handle site owner. */
         $c = new Criteria();
         $c->add('site_id', $site->getSiteId());
         $c->add('founder', true);
         $owner = AdminPeer::instance()->selectOne($c);
-        
+
         $this->owner = $owner;
-        
+
         $admin = new Admin();
         $admin->setSiteId($nsite->getSiteId());
         $admin->setUserId($owner->getUserId());
@@ -111,7 +111,7 @@ class Duplicator {
         $member->setUserId($owner->getUserId());
         $member->setDateJoined(new ODate());
         $member->save();
-    
+
         /* Theme(s). */
 		$c = new Criteria();
 		$c->add('site_id', $site->getSiteId());
@@ -133,13 +133,13 @@ class Duplicator {
                 $ntheme->save();
             }
         }
-		
-		
+
+
         // get all categories from the site
         $c = new Criteria();
         $c->add("site_id", $site->getSiteId());
         $categories = CategoryPeer::instance()->select($c);
-        
+
         foreach ($categories as $cat) {
             if (!in_array($cat->getName(), $this->excludedCategories)) {
                 $ncategory = $this->duplicateCategory($cat, $nsite);
@@ -153,13 +153,13 @@ class Duplicator {
                     $ncategory->save();
                 }
             }
-            
+
         }
-        
+
         /* Recompile WHOLE site. */
         $od = new Outdater();
         $od->recompileWholeSite($nsite);
-        
+
         /* Index. */
         $ind = Indexer::instance();
 		$c = new Criteria();
@@ -168,27 +168,27 @@ class Duplicator {
 		foreach($pages as $p){
 			$ind->indexPage($p);
 		}
-		
+
 		/* Handle forum too. */
-		
+
 		$fs = $site->getForumSettings();
 		if($fs) {
     		$fs->setNew(true);
     		$fs->setSiteId($nsite->getSiteId());
     		$fs->save();
-    		
+
     		/* Copy existing structure. */
     		$c = new Criteria();
     		$c->add('site_id', $site->getSiteId());
     		$groups = ForumGroupPeer::instance()->select($c);
-    		
+
     		foreach($groups as $group){
     		    $ngroup = clone($group);
         		$ngroup->setNew(true);
         		$ngroup->setGroupId(null);
         		$ngroup->setSiteId($nsite->getSiteId());
         		$ngroup->save();
-        		
+
         		$c = new Criteria();
         		$c->add('group_id', $group->getGroupId());
         		$categories = ForumCategoryPeer::instance()->select($c);
@@ -205,16 +205,16 @@ class Duplicator {
         		}
     		}
 		}
-		
+
 		/* Copy ALL files from the filesystem. */
 		$srcDir = WIKIDOT_ROOT."/web/files--sites/".$site->getUnixName();
 		$destDir = WIKIDOT_ROOT."/web/files--sites/".$nsite->getUnixName();
-		
-		$cmd = 'cp -r '. escapeshellarg($srcDir) . ' ' . escapeshellarg($destDir); 
+
+		$cmd = 'cp -r '. escapeshellarg($srcDir) . ' ' . escapeshellarg($destDir);
 		exec($cmd);
-		
+
 		/* Copy file objects. */
-		
+
 		$c = new Criteria();
 		$c->add('site_id', $site->getSiteId());
 		$files = FilePeer::instance()->select($c);
@@ -229,31 +229,31 @@ class Duplicator {
 		    $nfile->setPageId($pageId);
 		    $nfile->save();
 		}
-		
+
 		$db->commit();
 		return $nsite;
     }
 
-    /** 
+    /**
      * Duplicates the site by copying all the pages & categories & settings.
      */
     public function duplicateSite($site, $nsite) {
         $owner = $this->owner;
         // first copy settings
-        
+
 
         // site_super_settings
         $superSettings = $site->getSuperSettings();
         $superSettings->setNew(true);
         $superSettings->setSiteId($nsite->getSiteId());
         $superSettings->save();
-        
+
         // site_settings
         $settings = $site->getSettings();
         $settings->setNew(true);
         $settings->setSiteId($nsite->getSiteId());
         $settings->save();
-        
+
         // add user as admin
         if ($owner) {
             $admin = new Admin();
@@ -267,19 +267,19 @@ class Duplicator {
             $member->setDateJoined(new ODate());
             $member->save();
         }
-        
+
         // get all categories from the site
         $c = new Criteria();
         $c->add("site_id", $site->getSiteId());
         $categories = CategoryPeer::instance()->select($c);
-        
+
         foreach ($categories as $cat) {
             if (!in_array($cat->getName(), $this->excludedCategories)) {
                 $this->duplicateCategory($cat, $nsite);
             }
-        
+
         }
-        
+
         // recompile WHOLE site!!!
         $od = new Outdater();
         $od->recompileWholeSite($nsite);
@@ -306,24 +306,24 @@ class Duplicator {
     }
 
     public function duplicatePage($page, $nsite, $ncategory, $newUnixName = null) {
-        
+
         if ($newUnixName == null) {
             $newUnixName = $page->getUnixName();
         }
-        
+
         // check if page exists - if so, forcibly delete!!!
         $p = PagePeer::instance()->selectByName($nsite->getSiteId(), $newUnixName);
         if ($p) {
             PagePeer::instance()->deleteByPrimaryKey($p->getPageId());
         }
-        
+
         $owner = $this->owner;
         $now = new ODate();
         // create new page object based on the existing page
         $nsource = new PageSource();
         $nsource->setText($page->getSource());
         $nsource->save();
-        
+
         $meta = $page->getMetadata();
         $nmeta = new PageMetadata();
         $nmeta->setTitle($meta->getTitle());
@@ -334,7 +334,7 @@ class Duplicator {
             $nmeta->setOwnerUserId($meta->getOwnerUserId());
         }
         $nmeta->save();
-        
+
         $rev = $page->getCurrentRevision();
         $nrev = new PageRevision();
         $nrev->setSiteId($nsite->getSiteId());
@@ -345,7 +345,7 @@ class Duplicator {
         $nrev->setDateLastEdited($now);
         $nrev->setUserId($owner->getUserId());
         $nrev->obtainPK();
-        
+
         $npage = new Page();
         $npage->setSiteId($nsite->getSiteId());
         $npage->setCategoryId($ncategory->getCategoryId());
@@ -358,16 +358,16 @@ class Duplicator {
         $npage->setDateCreated($now);
         $npage->setLastEditUserId($owner->getUserId());
         $npage->setOwnerUserId($owner->getUserId());
-        
+
         $npage->save();
         $nrev->setPageId($npage->getPageId());
         $nrev->save();
-        
+
         $ncomp = new PageCompiled();
         $ncomp->setPageId($npage->getPageId());
         $ncomp->setDateCompiled($now);
         $ncomp->save();
-        
+
         /* Copy tags too. */
         $c = new Criteria();
         $c->add('page_id', $page->getPageId());
@@ -379,7 +379,7 @@ class Duplicator {
             $tag->setPageId($npage->getPageId());
             $tag->save();
         }
-        
+
         $this->pageMap[$page->getPageId()] = $npage->getPageId();
     }
 
@@ -391,26 +391,26 @@ class Duplicator {
      * Dumps everything.
      */
     public function dumpSite($site) {
-        
+
         $dump = array();
         $superSettings = $site->getSuperSettings();
         $settings = $site->getSettings();
         $fs = $site->getForumSettings();
-        
+
         $dump['superSettings'] = $superSettings;
         $dump['settings'] = $settings;
         $dump['forumSettings'] = $fs;
-        
+
         $c = new Criteria();
         $c->add("site_id", $site->getSiteId());
         $categories = CategoryPeer::instance()->select($c);
-        
+
         $dump['categories'] = $categories;
-        
+
         $dump['pages'] = array();
-        
+
         foreach ($categories as $cat) {
-            
+
             $c = new Criteria();
             $c->add("category_id", $cat->getCategoryId());
             $pages = PagePeer::instance()->select($c);
@@ -420,30 +420,30 @@ class Duplicator {
             }
             $dump['pages'][$cat->getCategoryId()] = $pages;
         }
-        
+
         return $dump;
-    
+
     }
 
     public function restoreSite($nsite, $dump) {
-        
+
         $superSettings = $dump['superSettings'];
         $settings = $dump['settings'];
-        
+
         $superSettings->setNew(true);
         $superSettings->setSiteId($nsite->getSiteId());
         $superSettings->save();
-        
+
         // site_settings
         $settings->setNew(true);
         $settings->setSiteId($nsite->getSiteId());
         $settings->save();
-        
+
         $forumSettings = $dump['forumSettings'];
         $forumSettings->setNew(true);
         $forumSettings->setSiteId($nsite->getSiteId());
         $forumSettings->save();
-        
+
         // add user as admin
         $owner = $this->owner;
         if ($owner) {
@@ -458,28 +458,28 @@ class Duplicator {
             $member->setDateJoined(new ODate());
             $member->save();
         }
-        
+
         $categories = $dump['categories'];
-        
+
         foreach ($categories as $category) {
             $cat = clone ($category);
             $cat->setNew(true);
             $cat->setCategoryId(null);
             $cat->setSiteId($nsite->getSiteId());
             $cat->save();
-            
+
             // get pages
             $pages = $dump['pages'][$category->getCategoryId()];
-            
+
             foreach ($pages as $page) {
                 $newUnixName = $page->getUnixName();
-                
+
                 $now = new ODate();
                 // create new page object based on the existing page
                 $nsource = new PageSource();
                 $nsource->setText($page->getTemp("source"));
                 $nsource->save();
-                
+
                 $meta = $page->getTemp("meta");
                 $nmeta = new PageMetadata();
                 $nmeta->setTitle($meta->getTitle());
@@ -490,7 +490,7 @@ class Duplicator {
                     $nmeta->setOwnerUserId($meta->getOwnerUserId());
                 }
                 $nmeta->save();
-                
+
                 $nrev = new PageRevision();
                 $nrev->setSiteId($nsite->getSiteId());
                 $nrev->setSourceId($nsource->getSourceId());
@@ -499,7 +499,7 @@ class Duplicator {
                 $nrev->setDateLastEdited($now);
                 $nrev->setUserId($owner->getUserId());
                 $nrev->obtainPK();
-                
+
                 $npage = new Page();
                 $npage->setSiteId($nsite->getSiteId());
                 $npage->setCategoryId($cat->getCategoryId());
@@ -511,22 +511,22 @@ class Duplicator {
                 $npage->setDateLastEdited($now);
                 $npage->setLastEditUserId($owner->getUserId());
                 $npage->setOwnerUserId($owner->getUserId());
-                
+
                 $npage->save();
                 $nrev->setPageId($npage->getPageId());
                 $nrev->save();
-                
+
                 $ncomp = new PageCompiled();
                 $ncomp->setPageId($npage->getPageId());
                 $ncomp->setDateCompiled($now);
                 $ncomp->save();
             }
-        
+
         }
-        
+
         $od = new Outdater();
         $od->recompileWholeSite($nsite);
-    
+
     }
 
 }

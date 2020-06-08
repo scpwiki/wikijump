@@ -11,7 +11,7 @@ class DojoArray extends DojoParameters
 	public function getItems(){
 		return $this->getParameters();
 	}
-	
+
 	public function getItem($pos){
 		return $this->getParameter($pos);
 	}

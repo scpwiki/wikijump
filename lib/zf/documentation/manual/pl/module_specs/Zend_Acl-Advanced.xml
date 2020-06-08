@@ -13,7 +13,7 @@
         implementacja w PHP pozwala na podstawie Zend_Acl budować dostosowane
         narzędzia administracyjne, które są relatywnie łatwe oraz elastyczne.
         Wiele sytuacji wymaga pewnej formy interaktywnego zarządzania ACL, a
-        Zend_Acl zapewnia metody do ustawiania oraz odpytywania kontroli 
+        Zend_Acl zapewnia metody do ustawiania oraz odpytywania kontroli
         dostępu aplikacji.
         </para>
 
@@ -53,9 +53,9 @@
         <programlisting role="php"><![CDATA[
 class CleanIPAssertion implements Zend_Acl_Assert_Interface
 {
-    public function assert(Zend_Acl $acl, 
+    public function assert(Zend_Acl $acl,
                            Zend_Acl_Role_Interface $role = null,
-                           Zend_Acl_Resource_Interface $resource = null, 
+                           Zend_Acl_Resource_Interface $resource = null,
                            $privilege = null)
     {
         return $this->_isCleanIP($_SERVER['REMOTE_ADDR']);

@@ -80,8 +80,8 @@ fastcgi.server = (
 		  "bin-path" => "/usr/bin/php5-cgi",
 		  "broken-scriptfilename" => "enable",
 	  	  "allow-x-send-file" => "enable",
-	  	  
-		  "bin-environment" => ( 
+
+		  "bin-environment" => (
 			"PHP_FCGI_CHILDREN" => "16",
 			"PHP_FCGI_MAX_REQUESTS" => "10000",
 		  ),

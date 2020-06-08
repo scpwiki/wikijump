@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -29,17 +29,17 @@ use DB\PagePeer;
 use DB\OzoneUserPeer;
 
 class PagesFeed extends FeedScreen {
-	
+
 	public function render($runData){
 		$site = $runData->getTemp("site");
 		$pl = $runData->getParameterList();
 		$categoryName = $pl->getParameterValue("category");
 		$parmHash = md5(serialize($pl->asArray()));
-		
+
 		$key = 'listpagesfeed_v..'.$site->getUnixName().'..'.$categoryName.'..'.$parmHash;
-		
+
 		$valid = true;
-		
+
 		$mc = OZONE::$memcache;
 		$struct = $mc->get($key);
 		if(!$struct){
@@ -47,26 +47,26 @@ class PagesFeed extends FeedScreen {
 		}
 		$cacheTimestamp = $struct['timestamp'];
 		$now = time();
-		
+
 		// now check lc for ALL categories involved
 		$cats = preg_split('/[,;\s]+?/', $categoryName);
-		
+
         foreach($cats as $cat){
-		
+
 			$tkey = 'pagecategory_lc..'.$site->getUnixName().'..'.$cat; // last change timestamp
 			$changeTimestamp = $mc->get($tkey);
 			if($changeTimestamp && $cacheTimestamp && $changeTimestamp <= $cacheTimestamp){
-				//cache valid	
+				//cache valid
 			}else{
 				$valid = false;
 				if(!$changeTimestamp){
 					// 	put timestamp
 					$mc->set($tkey, $now, 0, 864000);
 					$valid = false;
-				}	
+				}
 			}
 		}
-		
+
 		if(count($cats) == 0) {
 		    $akey = 'pageall_lc..'.$site->getUnixName();
     		$allPagesTimestamp = $mc->get($akey);
@@ -78,57 +78,57 @@ class PagesFeed extends FeedScreen {
 					// 	put timestamp
 					$mc->set($akey, $now, 0, 864000);
 					$valid = false;
-				}	
+				}
     		}
 		}
-		
+
         if($valid){
 			$this->vars = $struct['vars'];
-			return $struct['content'];	
+			return $struct['content'];
 		}
-		
+
 		$out = parent::render($runData);
-		
+
 		// and store the data now
 		$struct = array();
 		$now = time();
 		$struct['timestamp'] = $now;
 		$struct['content'] = $out;
-		$struct['vars']=$this->vars;	
-		
+		$struct['vars']=$this->vars;
+
 		$mc->set($key, $struct, 0, 864000);
-		
-		return $out; 
+
+		return $out;
 	}
-	
+
 	public function build($runData){
-	
+
 	    $pl = $runData->getParameterList();
 		$site = $runData->getTemp("site");
-		
+
 		$categoryName = $pl->getParameterValue("category");
-		
+
 		$order = $pl->getParameterValue("order");
 		$limit = $pl->getParameterValue("limit");
 		$perPage = $pl->getParameterValue("perPage");
-		
+
 		$categories = array();
 		$categoryNames = array();
-		
+
 		foreach(preg_split('/[,;\s]+?/', $categoryName) as $cn) {
 		    $category = CategoryPeer::instance()->selectByName($cn, $site->getSiteId());
 		    if($category) {
 		        $categories[] = $category;
 		        $categoryNames[] = $category->getName();
 		    }
-		}	
+		}
 		//if(count($categories) == 0){
-		//	throw new ProcessException(_("The category can not be found."));	
+		//	throw new ProcessException(_("The category can not be found."));
 		//}
-	
-		
+
+
 		// now select pages according to the specified criteria
-		
+
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
 		if(count($categories) > 0){
@@ -138,24 +138,24 @@ class PagesFeed extends FeedScreen {
 		    }
 		    $c->addCriteriaAnd($ccat);
 		}
-		
+
 		$c->add('unix_name', '(^|:)_', '!~');
-		
+
 		/* Handle tags! */
-		
+
 		$tagString = $pl->getParameterValue("tag");
 		if(!$tagString) {
 		    $tagString = $pl->getParameterValue("tags");
 		}
-		
+
 		if($tagString) {
     		/* Split tags. */
     		$tags = preg_split(';[\s,\;]+;', $tagString);
-    		
+
     		$tagsAny = array();
     		$tagsAll = array();
     		$tagsNone = array();
-    		
+
     		foreach($tags as $t){
     		    if(substr($t, 0, 1) == '+') {
     		        $tagsAll[] = substr($t, 1);
@@ -165,9 +165,9 @@ class PagesFeed extends FeedScreen {
     		        $tagsAny[] = $t;
     		    }
     		}
-    		
+
     		/* Create extra conditions to the SELECT */
-    		
+
     		/* ANY */
     		if(count($tagsAny) > 0) {
     		    $t = array();
@@ -177,7 +177,7 @@ class PagesFeed extends FeedScreen {
         		$tagQuery = "SELECT count(*) FROM page_tag "
         		    ."WHERE page_tag.page_id=page.page_id "
         		    ."AND (".implode(' OR ', $t).")";
-        		
+
         		$c->add('('.$tagQuery.')', 1, '>=');
     		}
     		/* ALL */
@@ -189,7 +189,7 @@ class PagesFeed extends FeedScreen {
         		$tagQuery = "SELECT count(*) FROM page_tag "
         		    ."WHERE page_tag.page_id=page.page_id "
         		    ."AND (".implode(' OR ', $t).")";
-        		
+
         		$c->add('('.$tagQuery.')', count($tagsAll));
     		}
     		/* NONE */
@@ -201,17 +201,17 @@ class PagesFeed extends FeedScreen {
         		$tagQuery = "SELECT count(*) FROM page_tag "
         		    ."WHERE page_tag.page_id=page.page_id "
         		    ."AND (".implode(' OR ', $t).")";
-        		
+
         		$c->add('('.$tagQuery.')', 0);
     		}
-    	
-    		
+
+
 		}
-		
+
 		/* Handle date ranges. */
-		
+
 		$date = $pl->getParameterValue("date");
-		
+
 		$dateA = array();
 		if(preg_match(';^[0-9]{4};', $date)){
 		    $dateA['year'] = $date;
@@ -221,49 +221,49 @@ class PagesFeed extends FeedScreen {
 		    $dateA['year'] = $dateS[0];
 		    $dateA['month'] = $dateS[1];
 		}
-		
+
 		if(isset($dateA['year'])){
 		    $c->add('EXTRACT(YEAR FROM date_created)', $dateA['year']);
 		}
-		
+
 	    if(isset($dateA['month'])){
 		    $c->add('EXTRACT(MONTH FROM date_created)', $dateA['month']);
 		}
-		
+
 		/* Handle pagination. */
-		
+
 		if(!$perPage || !preg_match(';^[0-9]+$;', $perPage) ){
 		    $perPage = 20;
 		}
-		
+
 		if($limit && preg_match(';^[0-9]+$;', $perPage)){
-			$c->setLimit($limit);	
+			$c->setLimit($limit);
 		}
-		
+
 	    $pageNo = $pl->getParameterValue("p");
 		if($pageNo == null || !preg_match(';^[0-9]+$;', $pageNo)){
-			$pageNo = 1;	
+			$pageNo = 1;
 		}
-		
+
 		$co = PagePeer::instance()->selectCount($c);
-		
+
 		$totalPages = ceil($co/$perPage);
 		if($pageNo>$totalPages){$pageNo = $totalPages;}
 		$offset = ($pageNo-1) * $perPage;
-		
-		$c->setLimit($perPage, $offset); 
+
+		$c->setLimit($perPage, $offset);
 		$runData->contextAdd("totalPages", $totalPages);
 		$runData->contextAdd("currentPage", $pageNo);
 		$runData->contextAdd("count", $co);
 		$runData->contextAdd("totalPages", $totalPages);
-		
+
 		/* Pager's base url */
 		$url = $_SERVER['REQUEST_URI'];
 		$url = preg_replace(';(/p/[0-9]+)|$;', '/p/%d', $url, 1);
 		$runData->contextAdd("pagerUrl", $url);
 
 	    switch($order){
-			
+
 			case 'dateCreatedAsc':
 				$c->addOrderAscending('page_id');
 				break;
@@ -284,42 +284,42 @@ class PagesFeed extends FeedScreen {
 				$c->addOrderDescending('page_id');
 				break;
 		}
-		
+
 		$pages = PagePeer::instance()->select($c);
-		
+
 		/* Process... */
 	    $format = $pl->getParameterValue("module_body");
 	    if(!$format){
 			$format = "" .
 					"+ %%linked_title%%\n\n" .
 					_("by")." %%author%% %%date|%O ago (%e %b %Y, %H:%M %Z)%%\n\n" .
-					"%%content%%\n\n%%comments%%";	
+					"%%content%%\n\n%%comments%%";
 		}
-		
+
 		//$wt = new WikiTransformation();
 		//$wt->setMode("feed");
 		//$template = $wt->processSource($format);
-		
-		//$template = preg_replace('/<p\s*>\s*(%%((?:short)|(?:description)|(?:summary)|(?:content)|(?:long)|(?:body)|(?:text))%%)\s*<\/\s*p>/smi', 
+
+		//$template = preg_replace('/<p\s*>\s*(%%((?:short)|(?:description)|(?:summary)|(?:content)|(?:long)|(?:body)|(?:text))%%)\s*<\/\s*p>/smi',
 		//			"<div>\\1</div>", $template);
 
 		//$template = $format;
 		$items = array();
-		
+
 		foreach($pages as $page) {
 		    $title = $page->getTitle();
 		    $source = $page->getSource();
-		    
+
 		    $item = array();
-		    
+
 			$item['title'] = $page->getTitle();
 			$item['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/".$page->getUnixName();
 			$item['guid'] = $item['link'];
 			$item['date'] = date('r', $page->getDateCreated()->getTimestamp());
 
-			
+
 		    $b = '';
-		    
+
 		    /* Create content of the feed. */
 		    $cont = '';
 		    /* get summary for the page. */
@@ -339,9 +339,9 @@ class PagesFeed extends FeedScreen {
     	            $cont = $s;
     	        }
     	    }
-    	    
+
     	    $b .= $cont ."\n\n";
-    	  	
+
 		    /* %%author%% */
 		    $ownerUserId = $page->getOwnerUserId();
 		    if($ownerUserId){
@@ -349,9 +349,9 @@ class PagesFeed extends FeedScreen {
 			    $userString = '[[*user '.$user->getNickName().']]';
 			} else {
 			    $userString = 'Anonymous user';
-			} 
+			}
 			$b .= 'by ' . $userString;
-		   
+
 			$wt = new WikiTransformation();
     		$wt->setMode("list");
     		$wt->setPage($page);
@@ -361,9 +361,9 @@ class PagesFeed extends FeedScreen {
     		$content = preg_replace(';(<.*?)(src|href)="/([^"]+)"([^>]*>);si', '\\1\\2="'.GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'/\\3"\\4', $content);
 			$content = preg_replace(';<script\s+[^>]+>.*?</script>;is', '', $content);
 			$content = preg_replace(';(<[^>]*\s+)on[a-z]+="[^"]+"([^>]*>);si', '\\1 \\2', $content);
-    		
+
     		$item['content'] = $content;
-			
+
 		    $items[] = $item;
 		}
 		$channel = array();
@@ -372,10 +372,10 @@ class PagesFeed extends FeedScreen {
 //		if($feed->getDescription()){
 //			$channel['description'] = $feed->getDescription();
 //		}
-		
+
 		$runData->contextAdd("channel", $channel);
 		$runData->contextAdd("items", $items);
-		
+
 	}
-	
+
 }

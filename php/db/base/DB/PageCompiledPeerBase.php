@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version \$Id\$
@@ -33,7 +33,7 @@ use BaseDBPeer;
  */
 class PageCompiledPeerBase extends BaseDBPeer {
 	public static $peerInstance;
-	
+
 	protected function internalInit(){
 		$this->tableName='page_compiled';
 		$this->objectName='DB\\PageCompiled';
@@ -42,7 +42,7 @@ class PageCompiledPeerBase extends BaseDBPeer {
 		$this->fieldTypes = array( 'page_id' => 'int',  'text' => 'text',  'date_compiled' => 'timestamp');
 		$this->defaultValues = array();
 	}
-	
+
 	public static function instance(){
 		if(self::$peerInstance == null){
 			self::$peerInstance = new PageCompiledPeer();

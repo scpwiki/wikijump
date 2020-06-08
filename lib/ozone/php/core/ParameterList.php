@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Web
  * @version $Id$
@@ -35,24 +35,24 @@ class ParameterList {
 	private $parameterArray = array ();
 	private $parameterTypes = array ();
 	private $parameterFrom = array();
-	
+
 	private $allParameters = array();
 
 	public function initParameterList($runData) {
-		
+
 		if($runData->isAjaxMode()){
 			$this->allParameters['AMODULE'] = array();
 			foreach ($_POST as $key => $value) {
 				$value = $this->fixNewLines($value);
-				
+
 				$this->parameterArray[$key] = $value;
 				$this->parameterTypes[$key] = "AMODULE";
 				$this->parameterFrom[$key] = 0; // 0 means "direct", + values means 'inherited'
 				$this->allParameters['AMODULE'][$key] = $value;
-				
+
 			}
 		} else{
-			//initialize GET parameters from the url... because of mod_rewrite	
+			//initialize GET parameters from the url... because of mod_rewrite
 			$qs =  $_SERVER['QUERY_STRING'];
 			/* Check if there is a "?" char - if so, remove it. */
 			$qs = preg_replace(';\?.*$;', '', $qs);
@@ -61,7 +61,7 @@ class ParameterList {
 				$this->parameterArray['template'] = $splited[0];
 				$this->parameterTypes['template'] = "GET";
 			}
-			
+
 			/* Additionally parse the usual GET parameters. */
 			$uri = $_SERVER['REQUEST_URI'];
 			$uri = preg_replace(';^[^\?]*\?;', '', $uri);
@@ -75,7 +75,7 @@ class ParameterList {
 				$this->parameterFrom[$key] = 0;
 				$this->allParameters['GET'][$key] = urldecode($value);
 			}
-			
+
 			// now populate other parameters...
 			$this->allParameters['GET'] = array();
 			for($i=1; $i<count($splited); $i+=2){
@@ -86,20 +86,20 @@ class ParameterList {
 				$this->parameterFrom[$key] = 0;
 				$this->allParameters['GET'][$key] = urldecode($value);
 			}
-			
+
 
 			// POST parameters are not affected by mod_rewrite
 			$this->allParameters['POST'] = array();
 			foreach ($_POST as $key => $value) {
 
 				$value = $this->fixNewLines($value);
-				
+
 				$this->parameterArray[$key] = $value;
 				$this->parameterTypes[$key] = "POST";
 				$this->parameterFrom[$key] = 0;
 				$this->allParameters['POST'][$key] = urldecode($value);
 			}
-		
+
 		}
 
 	}
@@ -130,37 +130,37 @@ class ParameterList {
 	public function asArray() {
 		return $this->parameterArray;
 	}
-	
+
 	public function asArrayAll(){
 		return $this->allParameters;
 	}
-	
+
 	public function addParameter($key, $value, $type=null){
 			$this->parameterArray["$key"] = $value;
 			$this->parameterTypes["$key"] = $type;
 			$this->allParameters[$type][$key] = $value;
 	}
-	
+
 	public function numberOfParameters(){
-		return count($this->parameterArray);	
+		return count($this->parameterArray);
 	}
 
 	private function fixNewLines($text){
 		$text = str_replace("\r\n", "\n", $text);
 		$text = str_replace("\r", "\n", $text);
-		return $text;	
+		return $text;
 	}
-	
+
 	public function getParametersByType($type){
 		$out = array();
 		foreach($this->parameterArray as $key => $value){
 			if($this->parameterTypes[$key] === $type){
-				$out[$key] = $value;	
-			}	
-		}	
+				$out[$key] = $value;
+			}
+		}
 		return $out;
 	}
-	
+
 	public function resolveParameter($key, $from) {
 		if(isset($this->allParameters[$from][$key])) {
 			return $this->allParameters[$from][$key];

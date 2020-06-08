@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version \$Id\$
@@ -29,13 +29,13 @@ use BaseDBPeer;
 
 
 
- 
+
 /**
  * Base peer class mapped to the database table forum_category.
  */
 class ForumCategoryPeerBase extends BaseDBPeer {
 	public static $peerInstance;
-	
+
 	protected function internalInit(){
 		$this->tableName='forum_category';
 		$this->objectName='DB\\ForumCategory';
@@ -44,7 +44,7 @@ class ForumCategoryPeerBase extends BaseDBPeer {
 		$this->fieldTypes = array( 'category_id' => 'serial',  'group_id' => 'int',  'name' => 'varchar(80)',  'description' => 'text',  'number_posts' => 'int',  'number_threads' => 'int',  'last_post_id' => 'int',  'permissions_default' => 'boolean',  'permissions' => 'varchar(200)',  'max_nest_level' => 'int',  'sort_index' => 'int',  'site_id' => 'int',  'per_page_discussion' => 'boolean');
 		$this->defaultValues = array( 'number_posts' => '0',  'number_threads' => '0',  'permissions_default' => 'true',  'sort_index' => '0',  'per_page_discussion' => 'false');
 	}
-	
+
 	public static function instance(){
 		if(self::$peerInstance == null){
 			$className = "DB\\ForumCategoryPeer";

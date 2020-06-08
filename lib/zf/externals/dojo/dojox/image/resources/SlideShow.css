@@ -1,23 +1,23 @@
 /* dojox.image.SlideShow */
 
-.slideShowWrapper { 
-	position:relative; 
+.slideShowWrapper {
+	position:relative;
 	background:#fff;
-	padding:8px; 
-	border:1px solid #333;	
+	padding:8px;
+	border:1px solid #333;
 	padding-bottom:20px;
 	overflow:hidden;
 	text-align: center;
 	-moz-border-radius:3pt;
 	-webkit-border-radius:4pt;
-	-webkit-drop-shadow:#ccc 4pt; 
+	-webkit-drop-shadow:#ccc 4pt;
 }
-.slideShowNav { 
+.slideShowNav {
 	position:absolute;
-	bottom:-18px;	
+	bottom:-18px;
 	left:0px;
 	padding:0px 3px 2px 0px;
-	background-color:#fff; 
+	background-color:#fff;
 	width:100%;
 }
 .slideShowNavWrapper { float:right;  }
@@ -27,7 +27,7 @@
 	font-size:10pt;
 }
 .slideShowTitle .slideShowCounterText {
-	font-size:6pt; color:#666; 
+	font-size:6pt; color:#666;
 }
 .slideShowHidden {
 	position:absolute;
@@ -53,20 +53,20 @@
 }
 .slideShowSlideShow {
 	position:absolute;
-	top:30px; 
+	top:30px;
 	padding: 0 5px;
 	border: 0px;
-	text-decoration: none; 
+	text-decoration: none;
 	color: #2e6ab1;
 }
 .slideShowLoading { background-color: #fad66a; }
 .slideShowLoaded { background-color: transparent; }
 /*
-.sprite-arrowbottom { background-position: 0 -30px; } 
-.sprite-arrowtop { background-position: 0 -430px; } 
+.sprite-arrowbottom { background-position: 0 -30px; }
+.sprite-arrowtop { background-position: 0 -430px; }
 */
 .slideShowCtrlPrev {
-	background-position: -96px 0px; 
+	background-position: -96px 0px;
 	float: left;
 }
 .slideShowCtrlNext {

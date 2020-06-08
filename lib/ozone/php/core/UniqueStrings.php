@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Util
  * @version $Id$
@@ -33,7 +33,7 @@ use DB\UniqueStringBrokerPeer;
 class UniqueStrings {
  	private static $tr_lastTime;
  	private static $tr_lastTimeIssuedNumber = 0;
- 	
+
  	/**
  	 * Returns time-based + int element string.
  	 */
@@ -58,8 +58,8 @@ class UniqueStrings {
  		// TRANSACTION OR TABLE LOCK SHOULD END HERE
  		return $timePart."_".$number;
  	}
- 	
+
  	public static function resetCounter(){
- 		UniqueStringBrokerPeer::instance()->reset();	
+ 		UniqueStringBrokerPeer::instance()->reset();
  	}
  }

@@ -13,13 +13,13 @@ HTMLPurifier_ConfigSchema::define(
  */
 class HTMLPurifier_IDAccumulator
 {
-    
+
     /**
      * Lookup table of IDs we've accumulated.
      * @public
      */
     public $ids = array();
-    
+
     /**
      * Builds an IDAccumulator, also initializing the default blacklist
      * @param $config Instance of HTMLPurifier_Config
@@ -31,7 +31,7 @@ class HTMLPurifier_IDAccumulator
         $id_accumulator->load($config->get('Attr', 'IDBlacklist'));
         return $id_accumulator;
     }
-    
+
     /**
      * Add an ID to the lookup table.
      * @param $id ID to be added.
@@ -41,7 +41,7 @@ class HTMLPurifier_IDAccumulator
         if (isset($this->ids[$id])) return false;
         return $this->ids[$id] = true;
     }
-    
+
     /**
      * Load a list of IDs into the lookup table
      * @param $array_of_ids Array of IDs to load
@@ -52,6 +52,6 @@ class HTMLPurifier_IDAccumulator
             $this->ids[$id] = true;
         }
     }
-    
+
 }
 

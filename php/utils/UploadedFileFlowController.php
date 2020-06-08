@@ -34,7 +34,7 @@ class UploadedFileFlowController extends WikidotController {
 	 * @var unknown_type
 	 */
 	static protected $RESTRICTED_AREAS = array("resized-images", "files", "code", "auth");
-	
+
 	/**
 	 * displays a forbidden screen and send 401 HTTP response code
 	 *
@@ -88,7 +88,7 @@ class UploadedFileFlowController extends WikidotController {
 
 	/**
 	 * Checks if user is allowed to view a file
-	 * 
+	 *
 	 * public because FilesAuthScriptModule needs it
 	 *
 	 * @param DB\OzoneUser $user
@@ -176,19 +176,19 @@ class UploadedFileFlowController extends WikidotController {
 			} else {
 				$params = null;
 			}
-			
+
 			$ext = new CodeblockExtractor($site, $pageName, $number, $params);
-			
+
 			$mime = $ext->getMimeType();
 			if ($restrict_html && preg_match(self::$HTML_MIME_TYPES, $mime)) {
 				$mime = self::$HTML_SERVE_AS;
 			}
-		
+
 			$this->setContentTypeHeader($mime);
 			$this->setExpiresHeader($expires);
-			
+
 			echo $ext->getContents();
-				
+
 		} else {
 			$this->fileNotExists();
 		}
@@ -202,7 +202,7 @@ class UploadedFileFlowController extends WikidotController {
 	protected function serveAuthResponse($fileName) {
 
 		if (preg_match(";^auth/(.*)$;", $fileName, $m)) {
-				
+
 			$this->redirect(urldecode($m[1]));
 		} else {
 			$this->fileNotExists();
@@ -224,7 +224,7 @@ class UploadedFileFlowController extends WikidotController {
 			$this->siteNotExists();
 			return;
 		}
-		
+
 		if ($site->getSettings()->getSslMode() == "ssl_only" && ! $_SERVER['HTTPS']) {
 			header("HTTP/1.1 301 Moved Permanently");
 			header("Location: https://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]");
@@ -243,9 +243,9 @@ class UploadedFileFlowController extends WikidotController {
 		$path = $this->buildPath($site, $file);
 
 		if ($this->isUploadDomain($siteHost) || ! GlobalProperties::$USE_UPLOAD_DOMAIN) {
-				
+
 			if ($this->publicArea($site, $file)) {
-					
+
 				if ($this->isCodeRequest($file)) {
 					$this->serveCode($site, $file, GlobalProperties::$CACHE_FILES_FOR, GlobalProperties::$RESTRICT_HTML);
 				} else {
@@ -255,14 +255,14 @@ class UploadedFileFlowController extends WikidotController {
 				return;
 
 			} else {
-					
+
 				/* NON PUBLIC AREA -- CHECK PERMISSION! */
 
 				$runData->handleSessionStart();
 				$user = $runData->getUser();
 
 				if ($this->userAllowed($user, $site, $file)) {
-						
+
 					if ($this->isCodeRequest($file)) {
 						$this->serveCode($site, $file, -3600);
 					} elseif ($this->isAuthRequest($file)) {
@@ -271,19 +271,19 @@ class UploadedFileFlowController extends WikidotController {
 						$this->serveFileWithMime($path, -3600, GlobalProperties::$RESTRICT_HTML);
 					}
 					return;
-						
+
 				} else {
-						
+
 					$url = $this->buildURL($site, GlobalProperties::$URL_DOMAIN, $file);
 					$this->redirect($url);
 					return;
 				}
 			}
-				
+
 		} else {
 
 			/* NOT UPLOAD DOMAIN, so it's *.wikidot.com or a custom domain */
-				
+
 			if ($this->publicArea($site, $file)) {
 
 				$url = $this->buildURL($site, GlobalProperties::$URL_UPLOAD_DOMAIN, $file);
@@ -296,15 +296,15 @@ class UploadedFileFlowController extends WikidotController {
 				$user = $runData->getUser();
 
 				if ($this->userAllowed($user, $site, $file)) {
-					
+
 					$siteFilesDomain = $site->getUnixName() . "." . GlobalProperties::$URL_UPLOAD_DOMAIN;
-					
+
 					$skey = $runData->generateSessionDomainHash($siteFilesDomain);
 					$user_id = $user->getUserId();
-						
+
 					$file_url = $this->buildURL($site, GlobalProperties::$URL_UPLOAD_DOMAIN, $file);
 					$url = $siteFilesDomain . CustomDomainLoginFlowController::$controllerUrl;
-						
+
 					$this->redirect($url, array("user_id" => $user_id, "skey" => $skey, "url" => $file_url), true);
 					return;
 				}

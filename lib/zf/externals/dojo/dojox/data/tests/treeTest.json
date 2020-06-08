@@ -1,4 +1,4 @@
-{ 
+{
 	node1: { id: 'node1', name:'node1', someProperty:'somePropertyA', children:[
 			{ id: 'node1.1',name:'node1.1', someProperty:'somePropertyA1'},
 			{ id: 'node1.2',name:'node1.2', someProperty:'somePropertyA2'}

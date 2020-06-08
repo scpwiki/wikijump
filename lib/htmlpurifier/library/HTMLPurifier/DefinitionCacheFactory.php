@@ -21,18 +21,18 @@ HTMLPurifier_ConfigSchema::defineAlias(
  */
 class HTMLPurifier_DefinitionCacheFactory
 {
-    
+
     protected $caches = array('Serializer' => array());
     protected $implementations = array();
     protected $decorators = array();
-    
+
     /**
      * Initialize default decorators
      */
     public function setup() {
         $this->addDecorator('Cleanup');
     }
-    
+
     /**
      * Retrieves an instance of global definition cache factory.
      */
@@ -46,16 +46,16 @@ class HTMLPurifier_DefinitionCacheFactory
         }
         return $instance;
     }
-    
+
     /**
      * Registers a new definition cache object
      * @param $short Short name of cache object, for reference
-     * @param $long Full class name of cache object, for construction 
+     * @param $long Full class name of cache object, for construction
      */
     public function register($short, $long) {
         $this->implementations[$short] = $long;
     }
-    
+
     /**
      * Factory method that creates a cache object based on configuration
      * @param $name Name of definitions handled by cache
@@ -90,10 +90,10 @@ class HTMLPurifier_DefinitionCacheFactory
         $this->caches[$method][$type] = $cache;
         return $this->caches[$method][$type];
     }
-    
+
     /**
      * Registers a decorator to add to all new cache objects
-     * @param 
+     * @param
      */
     public function addDecorator($decorator) {
         if (is_string($decorator)) {
@@ -102,6 +102,6 @@ class HTMLPurifier_DefinitionCacheFactory
         }
         $this->decorators[$decorator->name] = $decorator;
     }
-    
+
 }
 

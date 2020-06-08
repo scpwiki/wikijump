@@ -9,7 +9,7 @@
             <ulink url="http://hu.wikipedia.org/wiki/Modell-nézet-vezérlő">Modell-Nézet-Vezérlő</ulink>
             (Model-View-Controller, MVC), egy tervezési minta, melynek célja az alkalmazási logika elválasztása a megjelenítési logikától. A
             <code>Zend_Controller_Front</code>
-            egy 
+            egy
             <ulink url="http://www.martinfowler.com/eaaCatalog/frontController.html">Elülső Vezérlő</ulink>
             (Front Controller) mintát valósít meg, melyben az elülső vezérlő minden kérést elfog, és a kért URL alapján kézbesít az önálló Műveletvezérlőknek (Action Controllers).
         </para>
@@ -111,13 +111,13 @@ Zend_Controller_Front::run('/eléresi/út/a/vezérlőkhöz');]]>
                 mutat automatikusan).
             </para>
             <para>
-                Ezután a 
+                Ezután a
                 <code>Zend_Controller</code>
                 kézbesítője veszi a vezérlő nevet és egy leképezi egy osztályra. Alapból nagykezdőbetűzi a vezérlő nevét és hozzáfűzi a
                 <code>Controller</code>
                 szót. Ilymódon, a fenti példánkban a
                 <code>roadmap</code>
-                vezérlő a 
+                vezérlő a
                 <code>RoadmapController</code>
                 osztályra lesz leképezve.
             </para>
@@ -126,7 +126,7 @@ Zend_Controller_Front::run('/eléresi/út/a/vezérlőkhöz');]]>
                 <code>Action</code>
                 szó van hozzáfűzve. Tehát, a fenti példánkban a
                 <code>components</code>
-                műveletből 
+                műveletből
                 <code>componentsAction</code>
                 lesz, és végül a tagfüggvény neve
                 <code>RoadmapController::componentsAction()<code>.
@@ -189,14 +189,14 @@ class IndexController extends Zend_Controller_Action
             <programlisting role="php"><![CDATA[<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html
-	lang="hu" 
-	xml:lang="hu" 
-	xmlns="http://www.w3.org/1999/xhtml" 
+	lang="hu"
+	xml:lang="hu"
+	xmlns="http://www.w3.org/1999/xhtml"
 </html>
     <head>
-        <meta 
-            content="text/html; charset=utf-8" 
-            http-equiv="Content-Type" 
+        <meta
+            content="text/html; charset=utf-8"
+            http-equiv="Content-Type"
         />
         <title>Első Zend Framework alkalmazásom</title>
     </head>
@@ -239,14 +239,14 @@ class ErrorController extends Zend_Controller_Action
             <programlisting role="php"><![CDATA[<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html
-	lang="hu" 
-	xml:lang="hu" 
-	xmlns="http://www.w3.org/1999/xhtml" 
+	lang="hu"
+	xml:lang="hu"
+	xmlns="http://www.w3.org/1999/xhtml"
 </html>
     <head>
-        <meta 
-            content="text/html; charset=utf-8" 
-            http-equiv="Content-Type" 
+        <meta
+            content="text/html; charset=utf-8"
+            http-equiv="Content-Type"
         />
         <title>Hiba</title>
     </head>

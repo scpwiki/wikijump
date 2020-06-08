@@ -279,7 +279,7 @@ if (Zend_Controller_Action_HelperBroker::hasHelper('redirector')) {
             <xi:fallback><xi:include href="../../en/module_specs/Zend_Controller-ActionHelpers-ViewRenderer.xml" /></xi:fallback>
         </xi:include>
     </sect2>
-    
+
     <sect2 id="zend.controller.actionhelper.writingyourown">
         <title>Написание собственных помощников</title>
 
@@ -344,7 +344,7 @@ if (Zend_Controller_Action_HelperBroker::hasHelper('redirector')) {
                     последнего символа подчеркивания, иначе возвращается полное
                     имя класса. Например, если класс называется
                     <code>Zend_Controller_Action_Helper_Redirector</code>, то он
-                    вернет <code>Redirector</code>, а если класс называется 
+                    вернет <code>Redirector</code>, а если класс называется
                     <code>FooMessage</code> то он просто вернет свое полное имя.
                 </para>
             </listitem>
@@ -366,7 +366,7 @@ if (Zend_Controller_Action_HelperBroker::hasHelper('redirector')) {
 $this->_helper->redirector('item', 'view', 'blog', array('id' => 42));
 ]]>
         </programlisting>
-        
+
         <para>
             Метод брокера помощников <code>__call()</code> ищет помощника с
             именем <code>redirector</code>, затем смотрит, имеет ли помощник

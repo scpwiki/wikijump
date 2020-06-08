@@ -40,28 +40,28 @@ class Zend_Gdata_Spreadsheets_ListQueryTest extends PHPUnit_Framework_TestCase
         $this->docQuery->setWorksheetId('123');
         $this->assertTrue($this->docQuery->getWorksheetId() == '123');
     }
-    
+
     public function testSpreadsheetKey()
     {
         $this->assertTrue($this->docQuery->getSpreadsheetKey() == null);
         $this->docQuery->setSpreadsheetKey('abc');
         $this->assertTrue($this->docQuery->getSpreadsheetKey() == 'abc');
     }
-    
+
     public function testRowId()
     {
         $this->assertTrue($this->docQuery->getRowId() == null);
         $this->docQuery->setRowId('xyz');
         $this->assertTrue($this->docQuery->getRowId() == 'xyz');
     }
-    
+
     public function testProjection()
     {
         $this->assertTrue($this->docQuery->getProjection() == 'full');
         $this->docQuery->setProjection('abc');
         $this->assertTrue($this->docQuery->getProjection() == 'abc');
     }
-    
+
     public function testVisibility()
     {
         $this->assertTrue($this->docQuery->getVisibility() == 'private');
@@ -78,8 +78,8 @@ class Zend_Gdata_Spreadsheets_ListQueryTest extends PHPUnit_Framework_TestCase
         $this->docQuery->setSpreadsheetQuery(null);
         $this->assertTrue($this->docQuery->getSpreadsheetQuery() == null);
     }
-    
-    
+
+
     public function testOrderBy()
     {
         $this->assertTrue($this->docQuery->getOrderBy() == null);
@@ -89,7 +89,7 @@ class Zend_Gdata_Spreadsheets_ListQueryTest extends PHPUnit_Framework_TestCase
         $this->docQuery->setOrderBy(null);
         $this->assertTrue($this->docQuery->getOrderBy() == null);
     }
-    
+
     public function testReverse()
     {
         $this->assertTrue($this->docQuery->getReverse() == null);

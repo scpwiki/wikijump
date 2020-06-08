@@ -38,7 +38,7 @@ abstract class Zend_Controller_Router_Route_Abstract implements Zend_Controller_
     public function getVersion() {
         return 2;
     }
-    
+
     public function chain(Zend_Controller_Router_Route_Interface $route, $separator = '/')
     {
         require_once 'Zend/Controller/Router/Route/Chain.php';

@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot_Db
  * @version $Id$
@@ -37,14 +37,14 @@ use Database;
 class Page extends PageBase {
 
 	protected static $_titleTemplate = array();
-	
+
     public function getSource() {
         return $this->getCurrentRevision()->getSourceText();
     }
 
     public function getMetadata() {
         return $this->getCurrentRevision()->getMetadata();
-        
+
     }
 
     public function getCompiled() {
@@ -74,7 +74,7 @@ class Page extends PageBase {
         $q = "SELECT * FROM file WHERE page_id='" . $this->getPageId() . "' ORDER BY filename, file_id DESC";
         $c = new Criteria();
         $c->setExplicitQuery($q);
-        
+
         return FilePeer::instance()->select($c);
     }
 
@@ -95,7 +95,7 @@ class Page extends PageBase {
 
         $category = CategoryPeer::instance()->selectById($categoryId, $siteId);
         return $category;
-    
+
     }
 
     public function getTitleOrUnixName() {
@@ -110,10 +110,10 @@ class Page extends PageBase {
 	 public function getLicenseText(){
 		$category = $this->getCategory();
 		i
-		return DB_LicensePeer::instance()->selectById($category->getLicenseId	
+		return DB_LicensePeer::instance()->selectById($category->getLicenseId
 	}
 	*/
-    
+
     public function getPreview($length = 200) {
         if (is_array($this->prefetched)) {
             if (in_array('page_compiled', $this->prefetched)) {
@@ -164,20 +164,20 @@ class Page extends PageBase {
             return null;
         }
         return OzoneUserPeer::instance()->selectByPrimaryKey($this->getLastEditUserId());
-    
+
     }
 
     public function getSite() {
         return SitePeer::instance()->selectByPrimaryKey($this->getSiteId());
     }
-    
+
     public function getTags(){
     	$c = new Criteria();
     	$c->add('page_id', $this->getPageId());
     	$tags = PageTagPeer::instance()->select($c);
     	return $tags;
     }
-    
+
     public function getTagsAsArray(){
     	$tags = $this->getTags();
     	$t = array();
@@ -186,13 +186,13 @@ class Page extends PageBase {
     	}
     	return $t;
     }
-    
+
     public function getTitle(){
     	//print_r(count(self::$_titleTemplate));
-    	
+
     	$categoryId = $this->getCategoryId();
-    	if($categoryId){    		
-    		if(!array_key_exists($categoryId, self::$_titleTemplate)) {			
+    	if($categoryId){
+    		if(!array_key_exists($categoryId, self::$_titleTemplate)) {
     			/* Check for template. */
     			$c = new Criteria();
     			$templateUnixName = '_titletemplate';
@@ -225,7 +225,7 @@ class Page extends PageBase {
     	}
     	return parent::getTitle();
     }
-    
+
     public function getTitleRaw() {
     	return parent::getTitle();
     }

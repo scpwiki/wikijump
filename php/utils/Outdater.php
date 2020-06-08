@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -35,28 +35,28 @@ use DB\CategoryPeer;
 use DB\SitePeer;
 
 class Outdater {
-	
+
 	private static $instance;
-	
+
 	private $vars = array();
-	
+
 	private $recurrenceLevel = 0;
-	
+
 	public static function instance(){
 		if(self::$instance == null){
 			self::$instance = new Outdater();
 		}
-		return self::$instance;	
+		return self::$instance;
 	}
-	
+
 	public function __construct($baseRecurrenceLevel=0){
 		$this->recurrenceLevel = $baseRecurrenceLevel +1;
-	}	
-	
+	}
+
 	public function pageEvent($eventType, $page, $parm2 = null){
-		
+
 		if($this->recurrenceLevel >5) return;
-		
+
 		switch($eventType){
 			case 'new_page':
 				$this->recompilePage($page);
@@ -138,27 +138,27 @@ class Outdater {
 				$this->outdateRatingStars($page);
 				break;
 		}
-		
+
 		// reset vars
 		$this->vars = array();
 	}
-	
+
 	public function forumEvent($eventType, $parm=null){
 		switch($eventType){
-			case 'post_save': 
+			case 'post_save':
 				// $parm is the post object here
 				$this->handleForumPostSave($parm);
-				break;	
-			case 'thread_save': 
+				break;
+			case 'thread_save':
 				// $parm is the post object here
 				$this->handleForumThreadSave($parm);
-				break;	
+				break;
 			case 'outdate_forum':
 				$this->handleWholeForumOutdate();
 				break;
-		}	
+		}
 	}
-	
+
 	public function categoryEvent($eventType, $category =null){
 		switch($eventType){
 			case 'category_save':
@@ -166,9 +166,9 @@ class Outdater {
 				break;
 		}
 	}
-	
+
 	public function themeEvent($eventType, $theme =null){
-		
+
 		switch($eventType){
 			case 'theme_save':
 				$this->outdateThemeDependentCategories($theme);
@@ -186,7 +186,7 @@ class Outdater {
 				break;
 		}
 	}
-	
+
 	/**
 	 * This is the place where pages are compiled!
 	 *
@@ -194,8 +194,8 @@ class Outdater {
 	 */
 	private function recompilePage($page){
 		// compiled content not up to date. recompile!
-		$source = $page->getSource(); 
-			
+		$source = $page->getSource();
+
 		$c = new Criteria();
 		$c->add("page_id", $page->getPageId());
 		$compiled = PageCompiledPeer::instance()->selectOne($c);
@@ -204,9 +204,9 @@ class Outdater {
 		if(!preg_match(';(:|^)_;', $page->getUnixName())) {
     		$category = $page->getCategory();
     		$categoryName = $category->getName();
-    	    $templatePage = PagePeer::instance()->selectByName($page->getSiteId(), 
+    	    $templatePage = PagePeer::instance()->selectByName($page->getSiteId(),
     		    ($categoryName == '_default' ? '' : $categoryName.':') .'_template');
-    		
+
     		if($templatePage) {
         	    $source = $this->assemblySource($source, $templatePage->getSource(), $page);
     		}
@@ -214,11 +214,11 @@ class Outdater {
 		$wt = new WikiTransformation();
 		$wt->setPage($page);
 		$result = $wt->processSource($source);
-		
+
 		$compiled->setText($result);
 		$compiled->setDateCompiled(new ODate());
 		$compiled->save();
-		
+
 		$linksExist = $wt->wiki->vars['internalLinksExist'];
 		$linksNotExist = $wt->wiki->vars['internalLinksNotExist'];
 		$inclusions = $wt->wiki->vars['inclusions'];
@@ -230,45 +230,45 @@ class Outdater {
 		$this->vars['inclusions'] = $inclusions;
 		$this->vars['inclusionsNotExist'] = $inclusionsNotExist;
 		$this->vars['externalLinks'] = $externalLinks;
-		
+
 	}
-	
+
 	private function assemblySource($source, $templateSource, $page = null){
 	    $t = new WikiTransformation(false);
 	    return $t->assemblyTemplate($source, $templateSource, $page);
 	}
-	
+
 	/**
 	 * Recompile pages that point to this page (named or unnamed links.
 	 */
 	private function fixInLinks($page){
-		
+
 		$site = $GLOBALS['site'];
 		$c = new Criteria();
 		$c->add("site_id",$site->getSiteId());
 		if(is_string($page)){
-			$c->add("to_page_name", $page);	
+			$c->add("to_page_name", $page);
 		}else{
 			$c2=new Criteria();
 			$c2->add("to_page_id", $page->getPageId());
 			$c2->addOr("to_page_name", $page->getUnixName());
 			$c->addCriteriaAnd($c2);
 		}
-		
+
 		$dblinks = PageLinkPeer::instance()->select($c);
 		foreach($dblinks as $link){
 			// get page
 			$page = PagePeer::instance()->selectByPrimaryKey($link->getFromPageId());
 			$outdater = new Outdater($this->recurrenceLevel);
-			$outdater->pageEvent("source_changed", $page);	
+			$outdater->pageEvent("source_changed", $page);
 		}
 	}
-	
+
 	/**
 	 * Updates the table of links that originate from this page.
 	 */
 	private function fixOutLinks($page){
-		
+
 		$linksExist = $this->vars['linksExist'];
 		$linksNotExist = $this->vars['linksNotExist'];
 		// get links from the database first
@@ -287,11 +287,11 @@ class Outdater {
 					PageLinkPeer::instance()->deleteByPrimaryKey($dblink->getLinkId());
 				}else{
 					// already in the database = remove from links to add
-					unset($linksExist[$dblink->getToPageId()]);	
+					unset($linksExist[$dblink->getToPageId()]);
 				}
-			}	
-		}	
-		
+			}
+		}
+
 		if($linksExist && count($linksExist)>0){
 			// insert into database links that are not there yet.
 			foreach ($linksExist as $link){
@@ -299,18 +299,18 @@ class Outdater {
 				$dblink->setFromPageId($page->getPageId());
 				$dblink->setToPageId($link);
 				$dblink->setSiteId($page->getSiteId());
-				$dblink->save();	
+				$dblink->save();
 			}
 		}
-		
+
 		// NAMED LINKS
-		
+
 		// get links from the database first
 		$c = new Criteria();
 		$c->add("from_page_id", $page->getPageId());
 		$c->add("to_page_id", null);
 		$dblinks = PageLinkPeer::instance()->select($c);
-		
+
 		// delete links from database that are not current
 		if($linksNotExist == null && count($dblinks)>0){
 			//delete all
@@ -321,12 +321,12 @@ class Outdater {
 					PageLinkPeer::instance()->deleteByPrimaryKey($dblink->getLinkId());
 				}else{
 					// already in the database = remove from links to add
-					unset($linksNotExist[$dblink->getToPageName()]);	
+					unset($linksNotExist[$dblink->getToPageName()]);
 				}
 			}
-				
-		}	
-		
+
+		}
+
 		if($linksNotExist && count($linksNotExist)>0){
 			// insert into database links that are not there yet.
 			foreach ($linksNotExist as $link){
@@ -334,12 +334,12 @@ class Outdater {
 				$dblink->setFromPageId($page->getPageId());
 				$dblink->setToPageName($link);
 				$dblink->setSiteId($page->getSiteId());
-				$dblink->save();	
+				$dblink->save();
 			}
 		}
-		
+
 		/*
-		 * Insert external links. 
+		 * Insert external links.
 		 */
 		$externalLinks = $this->vars['externalLinks'];
 		if(!$externalLinks){
@@ -349,7 +349,7 @@ class Outdater {
 		$c = new Criteria();
 		$c->add("page_id", $page->getPageId());
 		$dblinks = PageExternalLinkPeer::instance()->select($c);
-		
+
 		/* From $externalLinks remove links that are already in $dblinks. */
 
 		foreach($dblinks as $dblink){
@@ -360,7 +360,7 @@ class Outdater {
 				PageExternalLinkPeer::instance()->deleteByPrimaryKey($dblink->getLinkId());
 			}
 		}
-		
+
 		/* Now save new URLs. */
 		$now = new ODate();
 		if($externalLinks){
@@ -374,7 +374,7 @@ class Outdater {
 			}
 		}
 	}
-	
+
 	/**
 	 * Update table of inclusions - pages that are included by this page.
 	 */
@@ -384,9 +384,9 @@ class Outdater {
 		$c->add("site_id", $page->getSiteId());
 		$c->add("including_page_id", $page->getPageId());
 		$c->add("included_page_name", null);
-		
+
 		$dbinclusions = PageInclusionPeer::instance()->select($c);
-		
+
 		// delete inclusions from database that are not current
 		if($inclusions == null && count($dbinclusions)>0){
 			//delete all
@@ -397,12 +397,12 @@ class Outdater {
 					PageLinkPeer::instance()->deleteByPrimaryKey($dbinclusion->getInclusionId());
 				}else{
 					// already in the database = remove from links to add
-					unset($inclusions[$dbinclusion->getIncludedPageId()]);	
+					unset($inclusions[$dbinclusion->getIncludedPageId()]);
 				}
 			}
-				
-		}	
-		
+
+		}
+
 		if($inclusions && count($inclusions)>0){
 			// insert into database links that are not there yet.
 			foreach ($inclusions as $inclusion){
@@ -410,21 +410,21 @@ class Outdater {
 				$dbinclusion->setIncludingPageId($page->getPageId());
 				$dbinclusion->setIncludedPageId($inclusion);
 				$dbinclusion->setSiteId($page->getSiteId());
-				$dbinclusion->save();	
+				$dbinclusion->save();
 			}
 		}
 
 		// NAMED inclusions (where pages do not exist)
-		
+
 		// get links from the database first
 		$c = new Criteria();
 		$c->add("site_id", $page->getSiteId());
 		$c->add("including_page_id", $page->getPageId());
 		$c->add("included_page_id", null);
 		$dblinks = PageInclusionPeer::instance()->select($c);
-		
+
 		$linksNotExist = $this->vars['inclusionsNotExist'];
-		
+
 		// delete links from database that are not current
 		if($linksNotExist == null && count($dblinks)>0){
 			//delete all
@@ -435,12 +435,12 @@ class Outdater {
 					PageInclusionPeer::instance()->deleteByPrimaryKey($dblink->getInclusionId());
 				}else{
 					// already in the database = remove from links to add
-					unset($linksNotExist[$dblink->getIncludedPageName()]);	
+					unset($linksNotExist[$dblink->getIncludedPageName()]);
 				}
 			}
-				
-		}	
-		
+
+		}
+
 		if($linksNotExist && count($linksNotExist)>0){
 			// insert into database links that are not there yet.
 			foreach ($linksNotExist as $link){
@@ -448,20 +448,20 @@ class Outdater {
 				$dblink->setIncludingPageId($page->getPageId());
 				$dblink->setIncludedPageName($link);
 				$dblink->setSiteId($page->getSiteId());
-				$dblink->save();	
+				$dblink->save();
 			}
 		}
-		
+
 	}
-	
+
 	private function recompileInclusionDeps($page){
 		// get deps
 		$site = $GLOBALS['site'];
 		$c = new Criteria();
 		$c->add("site_id",$site->getSiteId());
-		
+
 		if(is_string($page)){
-			$c->add("included_page_name", $page);	
+			$c->add("included_page_name", $page);
 		}else{
 			$c2=new Criteria();
 			$c2->add("included_page_id", $page->getPageId());
@@ -470,27 +470,27 @@ class Outdater {
 		}
 
 		$dbinclusions = PageInclusionPeer::instance()->select($c);
-		
+
 		foreach($dbinclusions as $inc){
 			$page = PagePeer::instance()->selectByPrimaryKey($inc->getIncludingPageId());
 			// triger source update (recompile)
 			$outdater = new Outdater($this->recurrenceLevel);
-			$outdater->pageEvent("source_changed", $page);	
+			$outdater->pageEvent("source_changed", $page);
 		}
-		
+
 	}
-	
+
 	public function outdateDescendantsCache($page){
 		// to keep breadcrumbs up-to-date
-		
+
 		//get all descendants.
 		$rec = 0;
-		
+
 		$c = new Criteria();
 		$c->add("parent_page_id", $page->getPageId());
-		
+
 		$pages = PagePeer::instance()->select($c);
-		
+
 		while($pages !== null && count($pages)>0 && $rec<10){
 			$p2 = array();
 			foreach($pages as $p){
@@ -503,11 +503,11 @@ class Outdater {
 			$pages = $p2;
 			$rec++;
 		}
-		
+
 	}
-	
+
 	public function outdatePageCache($page){
-		// both levels!	
+		// both levels!
 		$memcache = \Ozone::$memcache;
 		$site = $GLOBALS['site'];
 		$now = time();
@@ -516,50 +516,50 @@ class Outdater {
 		}else{
 			$pageName = $page->getUnixName();
 		}
-		
+
 		$key = 'url..'.$site->getUnixName() . '.' . GlobalProperties::$URL_DOMAIN . '/'.$pageName;
 		$cd = $site->getCustomDomain();
 		if($cd !== null && $cd !==''){
 			$key = 'url..'.$cd.'/'.$pageName;
 			$memcache->delete($key);
 		}
-		
+
 		// check if default landing page
 		if($site->getDefaultPage() == $pageName){
 			$key = 'url..'.$site->getUnixName(). '.' . GlobalProperties::$URL_DOMAIN;
 			if($cd !== null && $cd !==''){
 				$key = 'url..'.$cd;
 				$memcache->delete($key);
-			}	
+			}
 		}
-		
+
 		$memcache->delete($key);
 		$key = 'page..'.$site->getUnixName().'..'.$pageName;
 		$memcache->delete($key);
-		
+
 		/* Touch the catefory "last change" timestamp. */
-		
+
 	    if(strpos( $pageName, ":") != false){
-			$tmp0 = explode(':',$pageName); 
+			$tmp0 = explode(':',$pageName);
 			$categoryName = $tmp0[0];
 		} else {
 			$categoryName = "_default";
 		}
 		$ckey = 'pagecategory_lc..'.$site->getUnixName().'..'.$categoryName;
 		$memcache->set($ckey, $now, 0, 10000);
-		
+
 		$ckey = 'pageall_lc..'.$site->getUnixName();
 		$memcache->set($ckey, $now, 0, 10000);
-		
+
 		/*
-		 * Outdate code blocks. 
+		 * Outdate code blocks.
 		 */
-		
+
 		$ckey = 'pagecodeblocks..' . $site->getSiteId() . '..' . $pageName;
 		$memcache->delete($ckey);
-		
+
 	}
-	
+
 	/**
 	 * Check if this page is a navigation page for any of the categories.
 	 * If so - clear cache of all pages in the category.
@@ -569,17 +569,17 @@ class Outdater {
 		$site = $GLOBALS['site'];
 		$pUnixName = $page->getUnixName();
 		$dcat = CategoryPeer::instance()->selectByName('_default', $site->getSiteId());
-		
+
 		$q = "SELECT unix_name FROM page WHERE category_id IN ( " .
 				"SELECT category_id FROM category WHERE nav_default = false " .
 					"AND (top_bar_page_name='$pUnixName' OR side_bar_page_name='$pUnixName') " .
 					"AND site_id='".$site->getSiteId()."'";
 		if($dcat->getTopBarPageName() === $pUnixName || $dcat->getSideBarPageName() === $pUnixName){
 			$q .= "UNION SELECT category_id FROM category WHERE nav_default = true " .
-					"AND site_id='".$site->getSiteId()."'"; 
+					"AND site_id='".$site->getSiteId()."'";
 		}
 		$q .= ")";
-		
+
 		$db = Database::connection();
 		$r = $db->query($q);
 		while($row = $r->nextRow()){
@@ -587,21 +587,21 @@ class Outdater {
 			$this->outdatePageCache($name);
 		}
 	}
-	
+
 	private function outdateCategoryPagesCache($category, $site = null){
 		if(!$site){
-			$site = SitePeer::instance()->selectByPrimaryKey($category->getSiteId());	
+			$site = SitePeer::instance()->selectByPrimaryKey($category->getSiteId());
 		}
-		
+
 		$q = "SELECT unix_name FROM page WHERE category_id='".$category->getCategoryId()."'";
 		$db = Database::connection();
 		$r = $db->query($q);
 		while($row = $r->nextRow()){
 			$name = $row['unix_name'];
-		}	
-		
+		}
+
 		// the above is not necesarily necessary. try the below code:
-		
+
 		$aKey = 'category_lc..'.$site->getUnixName().'..'.$category->getName();
 		$mc = OZONE::$memcache;
 		$now = time();
@@ -611,32 +611,32 @@ class Outdater {
 		$key = 'categorybyid..'.$site->getSiteId().'..'.$category->getCategoryId();
 		$mc->delete($key);
 	}
-	
+
 	private function outdateThemeDependentCategories($theme){
-		
+
 		$c = new Criteria();
 		$c->add("theme_id", $theme->getThemeId());
 		$cats = CategoryPeer::instance()->select($c);
 		foreach($cats as $cat){
 			$this->outdateCategoryPagesCache($cat);
-		}	
+		}
 	}
-	
+
 	private function outdateAllPagesCache($site){
 		if(!$site){
 			$site = $GLOBALS['site'];
 		}
 		$q = "SELECT unix_name FROM page WHERE site_id='".$site->getSiteId()."'";
-		
+
 		$db = Database::connection();
 		$r = $db->query($q);
 		while($row = $r->nextRow()){
 			$name = $row['unix_name'];
 			$this->outdatePageCache($name);
-		}	
-		// again the above is not necesarily necessary. try the below code:	
+		}
+		// again the above is not necesarily necessary. try the below code:
 		$q = "SELECT name FROM category WHERE site_id='".$site->getSiteId()."'";
-		
+
 		$db = Database::connection();
 		$r = $db->query($q);
 		$mc = OZONE::$memcache;
@@ -645,67 +645,67 @@ class Outdater {
 			$name = $row['name'];
 			$aKey = 'category_lc..'.$site->getUnixName().'..'.$name;
 			$mc->set($aKey, $now, 0, 7200);
-		}	
+		}
 	}
-	
+
 	public function handleForumPostSave($post){
 		$mc = Ozone::$memcache;
 		// create an antry with mod time
 		$now = time();
 		$site = $GLOBALS['site'];
-		
+
 		// outdate forum thread
 		$tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$post->getThreadId();
 		$mc->set($tkey, $now, 0, 1000);
-		
+
 		// outdate forum category
 		$thread = $post->getForumThread();
 		$tkey = 'forumcategory_lc..'.$site->getUnixName().'..'.$thread->getCategoryId();
 		$mc->set($tkey, $now, 0, 1000);
-		
+
 		// outdate whole forum ;-)    (affects the main view)
-		
+
 		$tkey = 'forumstart_lc..'.$site->getUnixName();
 		$mc->set($tkey, $now, 0, 1000);
-		
+
 		// check if forum not related to any page (page discussion)
 		if($thread->getPageId() !== null){
 			$page = PagePeer::instance()->selectByPrimaryKey($thread->getPageId());
-			$this->outdatePageCache($page);	
+			$this->outdatePageCache($page);
 		}
-		
+
 	}
-	
+
 	public function handleForumThreadSave($thread){
 		$mc = Ozone::$memcache;
 		// create an antry with mod time
 		$now = time();
-		$site = $GLOBALS['site'];	
-		
+		$site = $GLOBALS['site'];
+
 		// outdate forum thread
 		$tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$thread->getThreadId();
 		$mc->set($tkey, $now, 0, 1000);
-		
+
 		// outdate forum category
 		$tkey = 'forumcategory_lc..'.$site->getUnixName().'..'.$thread->getCategoryId();
 		$mc->set($tkey, $now, 0, 1000);
-		
+
 		// outdate whole forum ;-)    (affects the main view)
 		$tkey = 'forumstart_lc..'.$site->getUnixName();
 		$mc->set($tkey, $now, 0, 1000);
-		
+
 	}
-	
+
 	private function handleWholeForumOutdate(){
 		$mc = Ozone::$memcache;
 		// create an antry with mod time
 		$now = time();
-		$site = $GLOBALS['site'];	
-		
+		$site = $GLOBALS['site'];
+
 		$key = 'forumall_lc..'.$site->getUnixName();
 		$mc->set($key, $now, 0, 3600);
 	}
-	
+
 	public function recompileCategory($category){
 		$site = SitePeer::instance()->selectByPrimaryKey($category->getSiteId());
 		$site0 = $GLOBALS['site'];
@@ -713,84 +713,84 @@ class Outdater {
 		$c = new Criteria();
 		$c->add("category_id", $category->getCategoryId());
 		$pages = PagePeer::instance()->select($c);
-		
+
 		foreach($pages as $page){
 			$this->recompilePage($page);
 			$this->outdatePageCache($page);
 			$this->fixOutLinks($page);
-			$this->fixInclusions($page);	
+			$this->fixInclusions($page);
 		}
-		
+
 		$GLOBALS['site']=$site0;
 	}
-	
+
 	public function recompileWholeSite($site){
 		$site0 = $GLOBALS['site'];
 		$GLOBALS['site'] = $site;
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
 		$pages = PagePeer::instance()->select($c);
-		
+
 		foreach($pages as $page){
 			$this->recompilePage($page);
 			$this->outdatePageCache($page);
 			$this->fixOutLinks($page);
 			$this->fixInclusions($page);
-			Indexer::instance()->indexPage($page);	
+			Indexer::instance()->indexPage($page);
 		}
-		
+
 		$GLOBALS['site']=$site0;
 	}
-	
+
 	public function indexPage($page){
 		Indexer::instance()->indexPage($page);
 	}
-	
+
 	public function outdatePageTagsCache($page){
-		
+
 		if(is_string($page)){
 			return;
 		}else{
 			$siteId = $page->getSiteId();
 		}
-		
+
 		$key = "page_tags_lc..".$siteId;
 		$mc = OZONE::$memcache;
 
 		$mc->set($key, time(), 0, 3600);
-			
+
 	}
-	
+
 	public function outdateRatingStars($page){
 		$siteId = $page->getSiteId();
-		
+
 		$key = "top_rated_pages_lc..".$siteId;
 		$mc = OZONE::$memcache;
 
 		$mc->set($key, time(), 0, 3600);
 	}
-	
+
 	private function handleSiteDelete($site){
 		$mc = OZONE::$memcache;
-		
+
 		$key = "sitesettings..".$site->getSiteId();
 		$mc->delete($key);
-		
+
 		$key = 'site..'.$site->getUnixName();
 		$mc->delete($key);
-		
+
 		$key = 'site_cd..'.$site->getCustomDomain();
-		$mc->delete($key);	
+		$mc->delete($key);
 	}
-	
+
 	private function handleCategoryDelete($category, $site = null){
 		if(!$site){
-			$site = SitePeer::instance()->selectByPrimaryKey($category->getSiteId());	
-		}	
+			$site = SitePeer::instance()->selectByPrimaryKey($category->getSiteId());
+		}
 		if(is_string($category)){
-			$cname = $category->getName();	
+			$cname = $category->getName();
 		}else{
-			$cname = $category;	
+			$cname = $category;
 		}
 		$key = 'category_lc..'.$site->getUnixName().'..'.$cname;
 		$mc = OZONE::$memcache;
@@ -800,13 +800,13 @@ class Outdater {
 		$mc->delete($key);
 		$key = 'categorybyid..'.$site->getSiteId().'..'.$cname;
 		$mc->delete($key);
-		
+
 	}
-	
+
 	private function handleTemplateChange($page){
 	    if(is_string($page)){
     	    if(strpos( $page, ":") != false){
-    			$tmp0 = explode(':',$page); 
+    			$tmp0 = explode(':',$page);
     			$categoryName = $tmp0[0];
     		} else {
     			$categoryName = "_default";
@@ -821,5 +821,5 @@ class Outdater {
 	        $this->recompileCategory($category);
         }
 	}
-	
+
 }

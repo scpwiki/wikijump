@@ -251,7 +251,7 @@ class My_Decorator_Errors
     }
 }
 ?>]]></programlisting>
-    
+
         <para>
             在这个特定的例子中，因为装饰器的最后一节，'Errors'，匹配 <code>Zend_Form_Decorator_Errors</code>，它将 <emphasis> 代替 </emphasis> 那个装饰器被解析 －－  你不需要修改任何装饰器来修改输出。通过在已存在的标准装饰器之后命名你的装饰器，你可以不需要修改元素的装饰器来修改装饰。
         </para>

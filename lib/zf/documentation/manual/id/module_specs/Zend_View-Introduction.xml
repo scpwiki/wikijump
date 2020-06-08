@@ -4,7 +4,7 @@
     <para>
         Zend_View adalah class yang dapat Anda gunakan untuk bekerja dengan
         bagian "view" dari pola model-view-controller. Yaitu untuk menjaga
-        view script terpisah dari model dan controller script. Zend_View 
+        view script terpisah dari model dan controller script. Zend_View
         menyediakan sebuah sistem pembantu (helpers), output filters dan
         variable escaping.
     </para>

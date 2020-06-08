@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -25,25 +25,25 @@
 
 
 class PageRedirectModule extends SmartyModule {
-	
+
 	public function build($runData){
 		$pl = $runData->getParameterList();
-		
+
 		$noRedirect = (bool) $pl->getParameterValue("noredirect");
-		
+
 		if($runData->isAjaxMode()){
 			$noRedirect = true;
 		}
-		
+
 		$target = trim($pl->getParameterValue("destination"));
-		
+
 		if($target == ""){
-			throw new ProcessException(_('No redirection destination specified. Please use the destination="page-name" or destination="url" attribute.'));	
+			throw new ProcessException(_('No redirection destination specified. Please use the destination="page-name" or destination="url" attribute.'));
 		}
-		
+
 		$currentUri = $_SERVER['REQUEST_URI'];
-		
-		if(!$noRedirect){	
+
+		if(!$noRedirect){
 			// ok, redirect!!!
 
 			// check if mapping should be done.
@@ -52,29 +52,29 @@ class PageRedirectModule extends SmartyModule {
 			}else{
 				$map = false;
 			}
-			
+
 			// check if $target is an URI or just a page name
 			if(!strpos($target, '://')){
 				$target = WDStringUtils::toUnixName($target);
 				$target = '/'.$target;
 				if($map) {$target .= '/';}
 			}
-			
+
 			if($map){
 				// use more advanced mapping
-				
+
 				//strip page name and take the remaining part
 				$mappedUri = substr($currentUri, strpos($currentUri, '/',1)+1);
 				$target .= $mappedUri;
-				
+
 			}
-			
+
 			header('HTTP/1.1 301 Moved Permanently');
 			header('Location: '.$target);
 			exit();
 		}else{
-			$runData->contextAdd("target", $target);	
-		}	
+			$runData->contextAdd("target", $target);
+		}
 	}
-	
+
 }

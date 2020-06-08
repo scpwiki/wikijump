@@ -14,7 +14,7 @@
     </para>
 
     <programlisting role="javascript"><![CDATA[
-{ 
+{
     identifier: '<name>',
     <label: '<label>',>
     items: [

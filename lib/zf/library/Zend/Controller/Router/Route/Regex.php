@@ -62,7 +62,7 @@ class Zend_Controller_Router_Route_Regex extends Zend_Controller_Router_Route_Ab
     public function getVersion() {
         return 1;
     }
-    
+
     /**
      * Matches a user submitted path with a previously defined route.
      * Assigns and returns an array of defaults on a successful match.
@@ -173,7 +173,7 @@ class Zend_Controller_Router_Route_Regex extends Zend_Controller_Router_Route_Ab
             foreach ($mergedData as $key => &$value) {
                 $value = urlencode($value);
             }
-        }	
+        }
 
         ksort($mergedData);
 

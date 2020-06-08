@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,18 +27,18 @@
 use DB\SiteBackupPeer;
 
 class ManageSiteBackupModule extends ManageSiteBaseModule {
-	
+
 	public function build($runData){
-		
+
 		// get current backups
-		
+
 		$site = $runData->getTemp("site");
-		
+
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
-		
-		$sb = SiteBackupPeer::instance()->selectOne($c); 
-		
+
+		$sb = SiteBackupPeer::instance()->selectOne($c);
+
 		if($sb){
 			if($sb->getStatus() == "completed"){
 				// get backup file size
@@ -51,17 +51,17 @@ class ManageSiteBackupModule extends ManageSiteBaseModule {
 				}else{
 					$size = filesize($path);
 					$sizeFormatted = FileHelper::formatSize($size);
-				
-					$runData->contextAdd('size', $sizeFormatted);	
-				
+
+					$runData->contextAdd('size', $sizeFormatted);
+
 				}
 
 			}
 		}
-		
+
 		$runData->contextAdd("site", $site);
 		$runData->contextAdd("backup", $sb);
 
 	}
-	
+
 }

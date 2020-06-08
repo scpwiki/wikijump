@@ -18,7 +18,7 @@
  * @copyright  Copyright (c) 2005-2008 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
- 
+
 /**
  * @see Zend_Service_Nirvanix_FunctionalTestCase
  */
@@ -34,7 +34,7 @@ require_once 'Zend/Service/Nirvanix/FunctionalTestCase.php';
 class Zend_Service_Nirvanix_NirvanixTest extends Zend_Service_Nirvanix_FunctionalTestCase
 {
     // getService()
-    
+
     public function testFactoryReturnsBaseWhenNoSubclassAvailable()
     {
         $base = $this->nirvanix->getService('Foo');
@@ -46,7 +46,7 @@ class Zend_Service_Nirvanix_NirvanixTest extends Zend_Service_Nirvanix_Functiona
         $imfs = $this->nirvanix->getService('IMFS');
         $this->assertType('Zend_Service_Nirvanix_Namespace_Imfs', $imfs);
     }
-    
+
     public function testFactoryPassesHttpClientInstanceWithOptions()
     {
         $nirvanixOptions = $this->nirvanix->getOptions();
@@ -56,9 +56,9 @@ class Zend_Service_Nirvanix_NirvanixTest extends Zend_Service_Nirvanix_Functiona
         $fooOptions = $foo->getOptions();
         $this->assertSame($this->httpClient, $nirvanixOptions['httpClient']);
     }
-    
+
     // getOptions()
-    
+
     public function testGetOptionsReturnsOptions()
     {
         $options = $this->nirvanix->getOptions();

@@ -102,7 +102,7 @@ $inflector->addRules(array('script' => 'Word_CamelCaseToDash'));
             <code>Zend_Filter_Inflector</code> のユーティリティメソッド
             <code>addFilterPrefixPath()</code> を使用します。
         </para>
-            
+
         <programlisting role="php"><![CDATA[
 $inflector->addFilterPrefixPath('My_Filter', 'My/Filter/');
 ]]>
@@ -196,8 +196,8 @@ class Foo
 
     /**
      * ターゲットを設定してインフレクタのターゲットを更新します
-     * 
-     * @param  string $target 
+     *
+     * @param  string $target
      * @return Foo
      */
     public function setTarget($target)
@@ -216,7 +216,7 @@ class Foo
         <para>
             先ほど説明したように、静的なルールとフィルタを使用したルールのふたつがあります。
         </para>
-        
+
         <note>
             <para>
                 インフレクタにメソッドを追加するときに
@@ -280,8 +280,8 @@ class Foo
 
     /**
      * サフィックスを設定し、インフレクタの静的ルールを更新します
-     * 
-     * @param  string $suffix 
+     *
+     * @param  string $suffix
      * @return Foo
      */
     public function setSuffix($suffix)

@@ -284,10 +284,10 @@ class Zend_Amf_ServerTest extends PHPUnit_Framework_TestCase
         // Check the message body is the expected data to be returned
         $this->assertEquals("String: 12345", $acknowledgeMessage->body);
     }
-    
+
     /**
-     * Test to make sure that you can have the same method name in two different classes. 
-     * 
+     * Test to make sure that you can have the same method name in two different classes.
+     *
      * @group ZF-5040
      * @return unknown_type
      */

@@ -33,7 +33,7 @@ $acl->addRole(new Zend_Acl_Role('marketing'), 'staff');
         </para>
 
         <programlisting role="php"><![CDATA[
-// Create Resources for the rules 
+// Create Resources for the rules
 
 // newsletter
 $acl->add(new Zend_Acl_Resource('newsletter'));
@@ -118,7 +118,7 @@ echo $acl->isAllowed('administrator', 'announcement', 'archive') ?
         </para>
 
         <programlisting role="php"><![CDATA[
-// 除去 “禁止 staff 修订最近的新闻”(和marketing, 由于继承的原因) 
+// 除去 “禁止 staff 修订最近的新闻”(和marketing, 由于继承的原因)
 //（等于允许staff修订最近的新闻 Jason注）
 $acl->removeDeny('staff', 'latest', 'revise');
 

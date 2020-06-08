@@ -15,19 +15,19 @@ require_once 'Zend/Controller/Request/Simple.php';
 /**
  * Test class for Zend_Controller_Action_Helper_ActionStack.
  */
-class Zend_Controller_Action_Helper_ActionStackTest extends PHPUnit_Framework_TestCase 
+class Zend_Controller_Action_Helper_ActionStackTest extends PHPUnit_Framework_TestCase
 {
-    
+
     /**
      * @var Zend_Controller_Front
      */
     public $front;
-    
+
     /**
      * @var Zend_Controller_Request_Http
      */
     public $request;
-    
+
     /**
      * Runs the test methods of this class.
      *
@@ -52,7 +52,7 @@ class Zend_Controller_Action_Helper_ActionStackTest extends PHPUnit_Framework_Te
     {
         $this->front = Zend_Controller_Front::getInstance();
         $this->front->resetInstance();
-        
+
         $this->request = new Zend_Controller_Request_Http();
         $this->front->setRequest($this->request);
     }
@@ -108,7 +108,7 @@ class Zend_Controller_Action_Helper_ActionStackTest extends PHPUnit_Framework_Te
     {
         $helper = new Zend_Controller_Action_Helper_ActionStack();
         $plugin = $this->front->getPlugin('Zend_Controller_Plugin_ActionStack');
-        
+
         $helper->actionToStack('baz', 'bar', 'foo');
         $next = $plugin->popStack();
         $this->assertTrue($next instanceof Zend_Controller_Request_Abstract);
@@ -152,12 +152,12 @@ class Zend_Controller_Action_Helper_ActionStackTest extends PHPUnit_Framework_Te
                    'Zend_Controller_Action_Exception expected, '.get_class($e).' caught');
         }
     }
-    
+
      public function testCannotStackActionIfNoRequestAvailable()
     {
         $helper = new Zend_Controller_Action_Helper_ActionStack();
         $plugin = $this->front->getPlugin('Zend_Controller_Plugin_ActionStack');
-        
+
         $helper->direct('baz', 'bar', 'foo');
         $next = $plugin->popStack();
         $this->assertTrue($next instanceof Zend_Controller_Request_Abstract);

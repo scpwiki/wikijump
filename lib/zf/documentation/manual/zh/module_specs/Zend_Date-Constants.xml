@@ -1070,7 +1070,7 @@ print $date->toString("'Era:GGGG='GGGG, ' Date:yy.MMMM.dd'yy.MMMM.dd");
 
             <para>
                 对于 <emphasis role="strong">year</emphasis> 有两个可用的指定器经常发生错误：
-                ISO 年的<emphasis role="strong">Y</emphasis> 指定器和真实年的 <emphasis role="strong">y</emphasis> 的指定器。 
+                ISO 年的<emphasis role="strong">Y</emphasis> 指定器和真实年的 <emphasis role="strong">y</emphasis> 的指定器。
                 区别微小但意义重大。
                 <emphasis role="strong">Y</emphasis> 计算 ISO 年，常用于日历格式，例如 the 31. December 2007。
                 真实年为 2007，但它是 2008 年的第一周的第一天，所以，如果使用 'dd.MM.yyyy' 会得到 '31.December.2007' 但如果使用 'dd.MM.YYYY' 会得到 '31.December.2008'。

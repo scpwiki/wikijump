@@ -636,7 +636,7 @@ class MyLoggingRow extends Zend_Db_Table_Row_Abstract
     protected function _insert()
     {
         $log = Zend_Registry::get('database_log');
-        $log->info(Zend_Debug::dump($this->_data, 
+        $log->info(Zend_Debug::dump($this->_data,
                                     "INSERT: $this->_tableClass",
                                     false)
                   );

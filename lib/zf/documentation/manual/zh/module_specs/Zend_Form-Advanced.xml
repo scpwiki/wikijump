@@ -63,7 +63,7 @@
     </dl>
 </form>
 ]]></programlisting>
-        
+
         <para>
             在本例中，帐单地址和邮寄地址包含一些相同的字段，这意味着一个可能会覆盖另一个。我们可以用数组符号来解决这个问题：
         </para>
@@ -107,7 +107,7 @@
                 type="text" value="" /></dd>
 
             <dt><label for="billing-municipality">City:</label></dt>
-            <dd><input name="billing[municipality]" id="billing-municipality" 
+            <dd><input name="billing[municipality]" id="billing-municipality"
                 type="text" value="" /></dd>
 
             <dt><label for="billing-province">State:</label></dt>
@@ -288,8 +288,8 @@ class My_Form_Registration extends Zend_Form
 
     /**
      * Prepare a sub form for display
-     * 
-     * @param  string|Zend_Form_SubForm $spec 
+     *
+     * @param  string|Zend_Form_SubForm $spec
      * @return Zend_Form_SubForm
      */
     public function prepareSubForm($spec)
@@ -309,7 +309,7 @@ class My_Form_Registration extends Zend_Form
 
     /**
      * Add form decorators to an individual sub form
-     * 
+     *
      * @param  Zend_Form_SubForm $subForm
      * @return My_Form_Registration
      */
@@ -325,14 +325,14 @@ class My_Form_Registration extends Zend_Form
 
     /**
      * Add a submit button to an individual sub form
-     * 
+     *
      * @param  Zend_Form_SubForm $subForm
      * @return My_Form_Registration
      */
     public function addSubmitButton(Zend_Form_SubForm $subForm)
     {
         $subForm->addElement(new Zend_Form_Element_Submit(
-            'save', 
+            'save',
             array(
                 'label'    => 'Save and continue',
                 'required' => false,
@@ -344,8 +344,8 @@ class My_Form_Registration extends Zend_Form
 
     /**
      * Add action and method to sub form
-     * 
-     * @param  Zend_Form_SubForm $subForm 
+     *
+     * @param  Zend_Form_SubForm $subForm
      * @return My_Form_Registration
      */
     public function addSubFormActions(Zend_Form_SubForm $subForm)
@@ -395,7 +395,7 @@ class RegistrationController extends Zend_Controller_Action
 
     /**
      * Get the session namespace we're using
-     * 
+     *
      * @return Zend_Session_Namespace
      */
     public function getSessionNamespace()
@@ -410,7 +410,7 @@ class RegistrationController extends Zend_Controller_Action
 
     /**
      * Get a list of forms already stored in the session
-     * 
+     *
      * @return array
      */
     public function getStoredForms()
@@ -425,7 +425,7 @@ class RegistrationController extends Zend_Controller_Action
 
     /**
      * Get list of all subforms available
-     * 
+     *
      * @return array
      */
     public function getPotentialForms()
@@ -435,7 +435,7 @@ class RegistrationController extends Zend_Controller_Action
 
     /**
      * What sub form was submitted?
-     * 
+     *
      * @return false|Zend_Form_SubForm
      */
     public function getCurrentSubForm()
@@ -459,7 +459,7 @@ class RegistrationController extends Zend_Controller_Action
 
     /**
      * Get the next sub form to display
-     * 
+     *
      * @return Zend_Form_SubForm|false
      */
     public function getNextSubForm()
@@ -494,12 +494,12 @@ class RegistrationController extends Zend_Controller_Action
 class My_Form_Registration extends Zend_Form
 {
     // ...
-    
+
     /**
      * Is the sub form valid?
-     * 
-     * @param  Zend_Form_SubForm $subForm 
-     * @param  array $data 
+     *
+     * @param  Zend_Form_SubForm $subForm
+     * @param  array $data
      * @return bool
      */
     public function subFormIsValid(Zend_Form_SubForm $subForm, array $data)
@@ -515,7 +515,7 @@ class My_Form_Registration extends Zend_Form
 
     /**
      * Is the full form valid?
-     * 
+     *
      * @return bool
      */
     public function formIsValid()
@@ -541,7 +541,7 @@ class RegistrationController extends Zend_Controller_Action
 
     public function indexAction()
     {
-        // Either re-display the current page, or grab the "next" (first) 
+        // Either re-display the current page, or grab the "next" (first)
         // sub form
         if (!$form = $this->getCurrentSubForm()) {
             $form = $this->getNextSubForm();
@@ -573,7 +573,7 @@ class RegistrationController extends Zend_Controller_Action
     }
 }
 ]]></programlisting>
-            
+
             <para>
                 正如你注意到的，处理表单的代码相当简单。我们检查是否有一个子表单提交，如果没有，就回到 landing 页面。如果我们确实有一个子表单，就尝试校验它，如果失败，重新显示。如果子表单有效，那么我们就检查表单是否有效，它将指示我们是否完成，如果没有，我们就显示下一个表单片段。最后，我们显示一个确认过的带有会话内容的页面。
             </para>
@@ -613,7 +613,7 @@ foreach ($this->info as $info):
 <? endforeach;
 endforeach ?>
 ]]></programlisting>
-            
+
             <para>
                 Zend Framework 的下次发行将通过抽象会话和顺序逻辑来提供制作多页面表单的组件。在这期间，上述例子对如何为你的站点生成多页面是个合理的指南。
             </para>

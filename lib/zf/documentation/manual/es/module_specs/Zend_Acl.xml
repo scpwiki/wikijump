@@ -223,7 +223,7 @@ $acl->allow('invitado', null, 'ver');
 // Personal hereda el privilegio de ver de invitado, pero tambien necesita privilegios adicionales
 $acl->allow('personal', null, array('editar', 'enviar', 'revisar'));
 
-// Editor hereda los privilegios de ver, editar, enviar, y revisar de personal, 
+// Editor hereda los privilegios de ver, editar, enviar, y revisar de personal,
 // pero tambien necesita privilegios adicionales
 $acl->allow('editor', null, array('publicar', 'archivar', 'eliminar'));
 

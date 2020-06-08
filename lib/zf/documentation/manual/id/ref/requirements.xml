@@ -39,7 +39,7 @@
             Anda akan melihat di table berikut daftar extension PHP yang biasanya
             tersedia dan bagaimana extension tersebut digunakan oleh Zend Framework.
             Anda harus memastikan extension yang dibutuhkan komponen ZF yang anda perlukan
-            telah tersedia di instalasi PHP anda. Tidak semua aplikasi membutuhkan semua 
+            telah tersedia di instalasi PHP anda. Tidak semua aplikasi membutuhkan semua
             extension di table tersebut.
         </para>
 
@@ -1174,7 +1174,7 @@
         <para>
             Berikut adalah daftar komponen Zend Framework dan kebergantungannya terhadap
             komponen lain. Daftar ini dapat membantu anda manakala anda
-            hanya ingin menggunakan sebagian komponen ZF saja pada aplikasi yang anda buat, 
+            hanya ingin menggunakan sebagian komponen ZF saja pada aplikasi yang anda buat,
             tidak seluruhnya.
         </para>
 

@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -28,21 +28,21 @@ use DB\ForumThreadPeer;
 use DB\ForumPostPeer;
 
 class ForumViewThreadModule extends SmartyModule{
-	
+
 	protected $processPage = true;
-	
+
 	public function render($runData){
-		
+
 		$site = $runData->getTemp("site");
 		$pl = $runData->getParameterList();
 		$threadId = $pl->getParameterValue("t");
-		
+
 		$parmHash = md5(serialize($pl->asArray()));
-		
+
 		$key = 'forumthread_v..'.$site->getUnixName().'..'.$threadId.'..'.$parmHash;
 		$tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$threadId; // last change timestamp
 		$akey = 'forumall_lc..'.$site->getUnixName();
-		
+
 		$mc = OZONE::$memcache;
 		$struct = $mc->get($key);
 		$cacheTimestamp = $struct['timestamp'];
@@ -50,22 +50,22 @@ class ForumViewThreadModule extends SmartyModule{
 		$allForumTimestamp = $mc->get($akey);
 		if($struct){
 			// check the times
-			
+
 			if($changeTimestamp && $changeTimestamp <= $cacheTimestamp && $allForumTimestamp && $allForumTimestamp <= $cacheTimestamp){
 				$this->categoryName = $struct['categoryName'];
 				$this->threadTitle = $struct['threadTitle'];
 				$this->threadId = $struct['threadId'];
 				$this->tpage = $struct['tpage'];
-				
+
 				$out = $struct['content'];
 				$page = $GLOBALS['page'];
-		
-				return $out;	
+
+				return $out;
 			}
 		}
-		
+
 		$out = parent::render($runData);
-		
+
 		// and store the data now
 		$struct = array();
 		$now = time();
@@ -75,9 +75,9 @@ class ForumViewThreadModule extends SmartyModule{
 		$struct['threadTitle']=$this->threadTitle;
 		$struct['threadId']=$this->threadId;
 		$struct['tpage'] = $this->tpage;
-		
+
 		$mc->set($key, $struct, 0, 864000);
-		
+
 		if(!$changeTimestamp){
 			$changeTimestamp = $now;
 			$mc->set($tkey, $changeTimestamp, 0, 864000);
@@ -87,46 +87,46 @@ class ForumViewThreadModule extends SmartyModule{
 			$mc->set($akey, $allForumTimestamp, 0, 864000);
 		}
 
-		return $out; 
+		return $out;
 	}
-	
+
 	public function build($runData){
 		$site = $runData->getTemp("site");
 		$pl = $runData->getParameterList();
 		$threadId = $pl->getParameterValue("t");
-		
+
 		if($threadId == null || !is_numeric($threadId)){
-			throw new ProcessException(_("Invalid thread."), "invalid_thread");	
-		} 
-		
+			throw new ProcessException(_("Invalid thread."), "invalid_thread");
+		}
+
 		$c = new Criteria();
 		$c->add("thread_id", $threadId);
 		$c->add("site_id", $site->getSiteId());
-		
+
 		$thread = ForumThreadPeer::instance()->selectOne($c);
-		
+
 		if($thread == null){
-			throw new ProcessException(_("No thread."), "no_thread");	
+			throw new ProcessException(_("No thread."), "no_thread");
 		}
 		$this->threadTitle = $thread->getTitle();
 		$this->threadId = $thread->getThreadId();
-		
+
 		$category = $thread->getForumCategory();
 		$this->categoryName = $category->getName();
-		
+
 		// check if connected to a page
 		$this->tpage = $thread->getPage();
-		
+
 		// get posts
-		
+
 		$c = new Criteria();
 		$c->add("thread_id", $threadId);
 		$c->add("site_id", $site->getSiteId());
 		$c->addJoin("user_id", "ozone_user.user_id");
 		$c->addOrderAscending("post_id");
-		
+
 		$posts = ForumPostPeer::instance()->select($c);
-		
+
 		// make a mapping first.
 		$map = array();
 		$levels = array();
@@ -140,13 +140,13 @@ class ForumViewThreadModule extends SmartyModule{
 				$levels[$postId] = 0;
 			} else {
 				// find a parent
-				
+
 				$cpos = array_search($parentId, $map);
 				$clevel = $levels[$parentId];
-				// find a place for the post, i.e. the place where level_next == level or the end of array	
+				// find a place for the post, i.e. the place where level_next == level or the end of array
 				$cpos++;
 				while(isset($map[$cpos]) && $levels[$map[$cpos]]>$clevel){
-					$cpos++;	
+					$cpos++;
 				}
 				// insert at this position!!!
 				array_splice($map, $cpos, 0, $postId);
@@ -155,7 +155,7 @@ class ForumViewThreadModule extends SmartyModule{
 		}
 
 		// create container control list
-		
+
 		$cc = array();
 		foreach($map as $pos => $m){
 			// open if previous post has LOWER level
@@ -164,29 +164,29 @@ class ForumViewThreadModule extends SmartyModule{
 			if(isset($map[$pos+1])){
 				$nlevel = $levels[$map[$pos+1]];
 				if( $nlevel>$clevel){
-					$cc[$pos] = 'k';	
+					$cc[$pos] = 'k';
 				}
 				if($nlevel < $clevel){
-					$cc[$pos]=str_repeat('c', $clevel-$nlevel);	
+					$cc[$pos]=str_repeat('c', $clevel-$nlevel);
 				}
-					
+
 			}else{
-				$cc[$pos]=str_repeat('c', $clevel);	
-			}  	
+				$cc[$pos]=str_repeat('c', $clevel);
+			}
 		}
 
 		$runData->contextAdd("postmap", $map);
 		$runData->contextAdd("levels", $levels);
 		$runData->contextAdd("containerControl", $cc);
-		
+
 		$runData->contextAdd("thread", $thread);
 		$runData->contextAdd("category", $category);
 		$runData->contextAdd("posts", $posts);
-		
+
 		$page = $GLOBALS['page'];
-		
+
 	}
-	
+
 	public function processPage($out, $runData){
 		// modify title of the page
 		if($this->threadTitle){
@@ -197,16 +197,16 @@ class ForumViewThreadModule extends SmartyModule{
 		if(!$this->tpage){
 			$ptitle = htmlspecialchars($this->threadTitle);
 		}else{
-			$ptitle = '<a href="/'.$this->tpage->getUnixName().'">'.htmlspecialchars($this->tpage->getTitle()).'</a> / '._('discussion').'</h1>';	
+			$ptitle = '<a href="/'.$this->tpage->getUnixName().'">'.htmlspecialchars($this->tpage->getTitle()).'</a> / '._('discussion').'</h1>';
 		}
-		
+
 		$out = preg_replace("/<div id=\"page-title\">(?:.*?)<\/div>/is","<div id=\"page-title\">".preg_quote_replacement($ptitle)."</div>",$out);
 		// add rss feed info
 		$link = '/feed/forum/t-'.$this->threadId.'.xml';
-		$out = preg_replace("/<\/head>/", 
+		$out = preg_replace("/<\/head>/",
 			'<link rel="alternate" type="application/rss+xml" title="'._('Posts in the discussion thread').' &quot;'.htmlspecialchars($this->threadTitle).'&quot;" href="'.$link.'"/></head>',
 			$out,1);
-		return $out;	
+		return $out;
 	}
-	
+
 }

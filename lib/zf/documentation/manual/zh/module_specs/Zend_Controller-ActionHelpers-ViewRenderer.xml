@@ -189,7 +189,7 @@ $this->foo(); // call Foo_View_Helper_Foo::foo()
 
             <listitem>
                 <para>
-                    <code>initView($path, $prefix, $options)</code>可以指定视图的基路径，为助手和过滤器脚本设置类前缀，设定<code>ViewRenderer</code>选项。可以传入以下任意的标志：<code>neverRender</code>，<code>noRender</code>，<code>noController</code>， <code>scriptAction</code>，和<code>responseSegment</code>。	
+                    <code>initView($path, $prefix, $options)</code>可以指定视图的基路径，为助手和过滤器脚本设置类前缀，设定<code>ViewRenderer</code>选项。可以传入以下任意的标志：<code>neverRender</code>，<code>noRender</code>，<code>noController</code>， <code>scriptAction</code>，和<code>responseSegment</code>。
                 </para>
             </listitem>
 
@@ -221,7 +221,7 @@ $this->_helper->viewRenderer('form', 'html', true);
         <programlisting role="php"><![CDATA[
 $view    = new Zend_View(array('encoding' => 'UTF-8'));
 $options = array('noController' => true, 'neverRender' => true);
-$viewRenderer = 
+$viewRenderer =
     new Zend_Controller_Action_Helper_ViewRenderer($view, $options);
 ]]>
         </programlisting>
@@ -623,7 +623,7 @@ class SearchController extends Zend_Controller_Action
     public function resultsAction()
     {
         // Assume $this->model is the current model
-        $this->view->results = 
+        $this->view->results =
             $this->model->find($this->_getParam('query', '');
 
         // render() by default proxies to the ViewRenderer

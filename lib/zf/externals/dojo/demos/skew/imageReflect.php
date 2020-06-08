@@ -2,7 +2,7 @@
 
 if(empty($_REQUEST['debug'])){
 	error_reporting(1);
-	header("Content-Type: image/png"); 
+	header("Content-Type: image/png");
 }
 
 require_once("src/image-lib.php");
@@ -22,20 +22,20 @@ $defaults = array(
 );
 
 forEach($defaults as $key => $pair){
-	$$key = (empty($_REQUEST[$key]) ? $pair : $_REQUEST[$key]);	
+	$$key = (empty($_REQUEST[$key]) ? $pair : $_REQUEST[$key]);
 }
 
 $cachefile = "cache/" . md5(
-		$src . 
+		$src .
 		$skew .
-		$reflect . 
-		$angle . 
-		$spread . 
-		$decay . 
-		$spacing . 
-		$refdir . 
+		$reflect .
+		$angle .
+		$spread .
+		$decay .
+		$spacing .
+		$refdir .
 		$thumbsize .
-		$greyscale 
+		$greyscale
 	) . ".png";
 
 if(file_exists($cachefile)){
@@ -43,9 +43,9 @@ if(file_exists($cachefile)){
 	$mod = filemtime($cachefile);
 	$cached = !empty($_SERVER['HTTP_IF_MODIFIED_SINCE']);
 	$resp = $cached ? 304 : 200;
-	
+
 	header("Last-Modified: " . gmdate('D, d M Y H:i:s', $mod) . "GMT", true, $resp);
-	
+
 	if(!$cached){
 		header("Content-Length: " . filesize($cachefile));
 		if($fp = fopen($cachefile, "r")){
@@ -55,9 +55,9 @@ if(file_exists($cachefile)){
 		}
 	}
 	exit;
-	
+
 }else{
-	
+
 	$ext = strtolower(substr($src, -3, 3));
 	switch($ext){
 		case "png" : $image = imagecreatefrompng($src); break;
@@ -65,7 +65,7 @@ if(file_exists($cachefile)){
 	}
 
 	if(!empty($image)){
-		
+
 		$im = imageReflect(imageSquareThumb(($greyscale==1 ? imageGreyscale($image) : $image), $thumbsize), $refdir, $spread, $decay, $spacing);
 
 		$dir = false;
@@ -74,7 +74,7 @@ if(file_exists($cachefile)){
 			case "left" : $dir = 1; break;
 			case "right" : $dir = 2; break;
 		}
-	
+
 		if($dir){
 			$display = imageSkew($im, $angle, $dir - 1);
 		}else{

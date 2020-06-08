@@ -8,15 +8,15 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 	It is <u>very</u> important to clarify the copyright and ownership issues for your site.
 	We highly recomment setting an open "<a href="http://en.wikipedia.org/wiki/Copyleft"
 	target="_blank">copyleft</a>" license that allows making the
-	Content more or less free to copy, modify and use. 
+	Content more or less free to copy, modify and use.
 </p>
 <p>
 	This is particularly important when your Site is created and edited collaboratively.
 </p>
 <p>
 	Read more about <a href="http://creativecommons.org/about/licenses/meet-the-licenses"
-	target="_blank">Creative Commons licenses</a>, use a <a href="http://creativecommons.org/license/" 
-	target="_blank">wizard</a> to select the proper license or just visit 
+	target="_blank">Creative Commons licenses</a>, use a <a href="http://creativecommons.org/license/"
+	target="_blank">wizard</a> to select the proper license or just visit
 	<a href="http://creativecommons.org/" target="_blank">Creative Commons</a>.
 </p>
 
@@ -51,7 +51,7 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 					<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Choose the license<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>:
 				</td>
 				<td>
-				
+
 					<select id="sm-license-lic">
 						<?php if (count($_from = (array)$this->_tpl_vars['licenses'])):
     foreach ($_from as $this->_tpl_vars['license']):
@@ -80,13 +80,13 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 					</td>
 				</tr>
 			</table>
-		</div>	
+		</div>
 	</div>
 	<div class="buttons">
 		<input type="button" value="<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>cancel<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>" id="sm-license-cancel"/>
 		<input type="button" value="<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>save changes<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>" id="sm-license-save"/>
 	</div>
-	
+
 </div>
 
 <div id="sm-license-preview" style="margin-bottom:2em">

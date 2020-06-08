@@ -46,7 +46,7 @@
 
 .Time{
 	padding-left:2px;
-} 
+}
 
 .Duration{
 	padding-right:2px;
@@ -131,7 +131,7 @@
 
 
 .Progress{
-	
+
 }
 .Progress, .ProgressLoaded, .ProgressPosition, .ProgressHandle{
 	height:10px;
@@ -179,7 +179,7 @@ background:url(images/progressLoadedBk.png) repeat-x;
 	background-position:-15px -138px;
 	cursor:pointer;
 }
-.Volume .icon{	
+.Volume .icon{
 	background-position:-60px -43px;
 	width:18px;
 	height:16px;
@@ -187,15 +187,15 @@ background:url(images/progressLoadedBk.png) repeat-x;
 	top:7px;
 	left:7px;
 }
-.Volume.mute .icon{	
+.Volume.mute .icon{
 	background-position:-1px -43px;
 }
-.Volume.low .icon{	
+.Volume.low .icon{
 	background-position:-20px -43px;
 }
-.Volume.med .icon{	
+.Volume.med .icon{
 	background-position:-40px -43px;
 }
-.Volume.high .icon{	
+.Volume.high .icon{
 	background-position:-60px -43px;
 }

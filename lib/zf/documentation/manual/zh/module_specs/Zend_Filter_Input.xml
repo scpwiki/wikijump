@@ -27,7 +27,7 @@
         <listitem>
             <para>
                 <emphasis role="strong">Validators</emphasis> 根据条件来检查输入值并报告输入值是否通过测试。
-                它不修改输入值，但检查可能会失败。例如：如果需要一个 email 地址字符串，而输入值是 “abc123” ，那么这个值就无效。                
+                它不修改输入值，但检查可能会失败。例如：如果需要一个 email 地址字符串，而输入值是 “abc123” ，那么这个值就无效。
 
             </para>
         </listitem>
@@ -77,7 +77,7 @@
         <title> 声明过滤器和校验器规则 </title>
 
         <para>
-            在创建 Zend_Filter_Input 实例之前，声明过滤器规则数组和校验器规则数组。  
+            在创建 Zend_Filter_Input 实例之前，声明过滤器规则数组和校验器规则数组。
             这个关联数组映射规则名到过滤器或校验器，或者过滤器或校验器链。
         </para>
 
@@ -136,7 +136,7 @@ $validators = array(
                     映射到类名或过滤器/校验器对象的字符串，就像上述例子一样。
                     另外，可以使用第三种选择：包含映射到带有传递给自己的构造器
                     的类名的字符串的数组。
-                    
+
                     <programlisting role="php"><![CDATA[<?php
 $validators = array(
     'month'   => array(
@@ -263,7 +263,7 @@ if ($input->isValid('month')) {
                 </listitem>
                 <listitem>
                     <para>
-                        <emphasis role="strong">Missing</emphasis> 是那些不存在于输入数据，但用 
+                        <emphasis role="strong">Missing</emphasis> 是那些不存在于输入数据，但用
                         metacommand <code>'presence'=>'required'</code>（参见在 metacommands 中 <link linkend="zend.filter.input.metacommands.presence"> 后面的章节 </link>）声明过的字段。
                     </para>
                 </listitem>
@@ -470,7 +470,7 @@ $validators = array(
             <title>The <code>PRESENCE</code> metacommand</title>
 
             <para>
-                在校验器数组里的每个条目可能有一个叫做 'presence' 的 metacommand。 
+                在校验器数组里的每个条目可能有一个叫做 'presence' 的 metacommand。
                 如果这个 metacommand 的值是 'required'，那么字段必需存在于输入数据，
                 否则，就报告为丢失字段。
             </para>
@@ -734,7 +734,7 @@ $validators = array(
             <title> 对所有的规则使用选项来设置 metacommands </title>
 
             <para>
-                'allowEmpty'、 'breakChainOnFailure' 和 'presence' metacommands 
+                'allowEmpty'、 'breakChainOnFailure' 和 'presence' metacommands
                 的缺省值可以使用 Zend_Filter_Input 构造器的 <code>$options</code> 参数来为所有的规则设置。
                 它让你为所有的规则设置缺省值而不需要为每个规则设置 metacommand。
             </para>

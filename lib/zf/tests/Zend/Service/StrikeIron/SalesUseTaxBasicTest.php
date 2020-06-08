@@ -44,19 +44,19 @@ require_once 'Zend/Service/StrikeIron/SalesUseTaxBasic.php';
  * @copyright  Copyright (c) 2005-2008 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
-class Zend_Service_StrikeIron_SalesUseTaxBasicTest extends PHPUnit_Framework_TestCase 
+class Zend_Service_StrikeIron_SalesUseTaxBasicTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
         $this->soapClient = new stdclass();
         $this->service = new Zend_Service_StrikeIron_SalesUseTaxBasic(array('client' => $this->soapClient));
     }
-    
+
     public function testInheritsFromBase()
     {
         $this->assertType('Zend_Service_StrikeIron_Base', $this->service);
     }
-    
+
     public function testWsdl()
     {
         $wsdl = 'http://ws.strikeiron.com/zf1.StrikeIron/taxdatabasic4?WSDL';
@@ -67,7 +67,7 @@ class Zend_Service_StrikeIron_SalesUseTaxBasicTest extends PHPUnit_Framework_Tes
     {
         $strikeIron = new Zend_Service_StrikeIron(array('client' => $this->soapClient));
         $client = $strikeIron->getService(array('class' => 'SalesUseTaxBasic'));
-        
+
         $this->assertType('Zend_Service_StrikeIron_SalesUseTaxBasic', $client);
     }
 }

@@ -42,7 +42,7 @@
 <body>
 
 	<h1 class="testTitle">DojoX test files overview</h1>
-	
+
 	<table id="testMatrix">
 		<thead>
 			<tr class="top"><th rowspan="2">Test</th><th colspan="4">Tundra</th><th colspan="4">Nihilo</th><th colspan="4">Soria</th></tr>
@@ -53,23 +53,23 @@
 			foreach(getprojects() as $project){
 				$note = "";
 				if($project['readme']){
-					$note = "<a class='readmeLink' href='".$project['readme']."'>about</a>"; 
+					$note = "<a class='readmeLink' href='".$project['readme']."'>about</a>";
 				}
 				if($project['tests'] || $project['demos']){
 					print "<tr class='spacer'><td colspan='13'><span class='projectname'>dojox.". $project['name'] . "</span> ".$note."</td></tr>";
 
 					if($project['tests']){
-						printLinks($project['tests']);					
+						printLinks($project['tests']);
 					}
 					if($project['demos']){
 						printLinks($project['demos']);
 					}
 
 				}
-				
+
 			}
 		//	printLinks("./tree","Dijit Tree Tests");
-			
+
 		?>
 		</tbody>
 	</table>
@@ -118,7 +118,7 @@ function printLinks($path){
 		if(preg_match("/([a-zA-Z])(.*)\.html/", $file, $matches)){
 			$base = $matches[0];
 			$link = $path."/".$matches[0];
-			print 
+			print
 			"<tr class='testRow ". (++$i % 2 ==0 ? "alt" : "")   ."'>" .
 
 				"<td class='label'>" . $base . "</td>" .
@@ -128,7 +128,7 @@ function printLinks($path){
 				"<td><a href='".$link."?a11y=true'>a11y</a></td>" .
 				"<td><a href='".$link."?dir=rtl'>rtl</a></td>" .
 				"<td><a href='".$link."?dir=rtl&amp;a11y=true'>both</a></td>" .
-				
+
 				// nihilo
 				"<td><a href='".$link."?theme=nihilo'>nihilo</a></td>" .
 				"<td><a href='".$link."?theme=nihilo&amp;a11y=true'>a11y</a></td>" .
@@ -140,7 +140,7 @@ function printLinks($path){
 				"<td><a href='".$link."?theme=soria&amp;a11y=true'>a11y</a></td>" .
 				"<td><a href='".$link."?theme=soria&amp;dir=rtl'>rtl</a></td>" .
 				"<td><a href='".$link."?theme=soria&amp;dir=rtl&amp;a11y=true'>combo</a></td>" .
-									
+
 			 "</tr>";
 		}
 	}

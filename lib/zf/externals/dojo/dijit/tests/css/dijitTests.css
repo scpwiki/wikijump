@@ -14,7 +14,7 @@ h1.testTitle {
 
 .plusIcon, .plusBlockIcon {
 	background-image: url(../images/plus.gif);
-	background-repeat: no-repeat; 
+	background-repeat: no-repeat;
 	background-position: center center;
 	width: 18px;
 	height: 18px;
@@ -24,14 +24,14 @@ h1.testTitle {
 }
 .noteIcon {
 	background-image: url(../images/note.gif);
-	background-repeat: no-repeat; 
+	background-repeat: no-repeat;
 	background-position: center center;
 	width: 18px;
 	height: 18px;
 }
 .flatScreenIcon {
 	background-image: url(../images/flatScreen.gif);
-	background-repeat: no-repeat; 
+	background-repeat: no-repeat;
 	width: 32px;
 	height: 32px;
 }
@@ -43,18 +43,18 @@ h1.testTitle {
 	width:200px;
 	visibility:hidden;
 	background-color:#fff !important;
-	color:#000 !important; 
+	color:#000 !important;
 	border:1px solid #000;
-	padding:5px; 
+	padding:5px;
 }
 .dijitTestNodeDialog table {
 	background-color:#fff !important;
 }
 .dijitTestNodeDialog td {
-	padding:3px; 
+	padding:3px;
 }
 .dijitTestNodeShowing {
-	visibility:visible; 
+	visibility:visible;
 }
 
 body .customFolderOpenedIcon, body .customFolderClosedIcon {

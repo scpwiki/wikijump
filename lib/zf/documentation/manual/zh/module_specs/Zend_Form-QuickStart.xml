@@ -34,7 +34,7 @@ $form->setAction('/resource/process')
         </para>
 
         <para>
-            你可以通过使用 setAttrib() 或 setAttribs() 方法为 <code>&lt;form&gt;</code> 标签设置另外的 HTML 属性，例如：如果想设置 id, 则设置 "id" 属性： 
+            你可以通过使用 setAttrib() 或 setAttribs() 方法为 <code>&lt;form&gt;</code> 标签设置另外的 HTML 属性，例如：如果想设置 id, 则设置 "id" 属性：
         </para>
 
         <programlisting role="php"><![CDATA[<?php
@@ -439,7 +439,7 @@ class UserController extends Zend_Controller_Action
             $this->view->form = $form;
             return $this->render('form');
         }
-        
+
         $values = $form->getValues();
         // now try and authenticate....
     }

@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone
  * @version $Id$
@@ -34,41 +34,41 @@ class Ozone {
 	public static $smarty;
 	public static $smartyPlain;
 	public static $smartyInitialized = false;
-	
+
 	public static $memcache = null;
-	
+
 	public static $smartyPlainTemplateVars;
 
 	public static $runData;
 
 	public static function init() {
 		// create db connection
-		
+
 		// see if tmp directories exist - and create if not
-		
+
 		$dir = PathManager::smartyCompileDir();
 		if(!file_exists($dir)) { mkdirfull($dir);}
-		
+
 		$dir = PathManager::smartyCacheDir();
 		if(!file_exists($dir)) { mkdirfull($dir);}
-		
+
 		$dir = PathManager::smartyMacroTemplateDir();
 		if(!file_exists($dir)) { mkdirfull($dir);}
-		
+
 		// connect to memcache server
 		if(GlobalProperties::$USE_MEMCACHE == true){
 			self::$memcache = new Memcache();
 			self::$memcache->connect(GlobalProperties::$MEMCACHE_HOST, GlobalProperties::$MEMCACHE_PORT);
-			self::$memcache->setCompressThreshold(5000); 
+			self::$memcache->setCompressThreshold(5000);
 		}else{
 			self::$memcache = new DummyMemcache();
 		}
 
 	}
-	
+
 	public static function initSmarty($initServices = true){
-		 //initialize SMARTY		
-		 
+		 //initialize SMARTY
+
 		self :: $smarty = new OzoneSmarty();
 		self::$smarty->load_filter('pre', 'defmacrohelp');
 		if($initServices){
@@ -89,7 +89,7 @@ class Ozone {
 			$service = new $class(self::$runData);
 			self :: $smarty->assign($service->serviceName(), $service);
 		}
-		
+
 		// load services from application path
 		$audir = PathManager::ozoneApplicationPhpServiceAutoloadDir();
 		$serviceFiles = ls($audir, "*.php");
@@ -99,7 +99,7 @@ class Ozone {
 			$service = new $class(self::$runData);
 			self :: $smarty->assign($service->serviceName(), $service);
 		}
-		
+
 	}
 
 	public static function parseMacros() {
@@ -116,28 +116,28 @@ class Ozone {
 
 	public static function getSmarty() {
 		if(self::$smartyInitialized == false){
-			self::initSmarty();	
+			self::initSmarty();
 		}
 		return self :: $smarty;
 	}
-	
+
 	public static function updateSmartyPlain(){
 		self::$smartyPlain = new OzoneSmarty();
 		self::$smartyPlainTemplateVars = self::$smarty->get_template_vars();
 		self::$smartyPlain->setMacroRegister(self::$smarty->getMacroRegister());
 	}
-	
+
 	public static function getSmartyPlain(){
 		if(self::$smartyInitialized == false){
-			self::initSmarty();	
+			self::initSmarty();
 		}
 		$plain = clone(self::$smartyPlain);
 		$plain->setTemplateVars(self::$smartyPlainTemplateVars);
-		return $plain;	
+		return $plain;
 	}
 
 	public static function reset() {
-		## remove temporary files ... 	
+		## remove temporary files ...
 	}
 
 	public static function setRunData($runData) {

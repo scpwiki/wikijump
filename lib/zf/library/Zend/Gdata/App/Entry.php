@@ -224,12 +224,12 @@ class Zend_Gdata_App_Entry extends Zend_Gdata_App_FeedEntryParent
         if (is_null($uri) && $editLink != null) {
             $uri = $editLink->getHref();
         }
-        
+
         // Set classname to current class, if not otherwise set
         if (is_null($className)) {
             $className = get_class($this);
         }
-        
+
         // Append ETag, if present (Gdata v2 and above, only) and doesn't
         // conflict with existing headers
         if ($this->_etag != null
@@ -237,7 +237,7 @@ class Zend_Gdata_App_Entry extends Zend_Gdata_App_FeedEntryParent
                 && !array_key_exists('If-None-Match', $extraHeaders)) {
             $extraHeaders['If-None-Match'] = $this->_etag;
         }
-        
+
         // If an HTTP 304 status (Not Modified)is returned, then we return
         // null.
         $result = null;
@@ -247,7 +247,7 @@ class Zend_Gdata_App_Entry extends Zend_Gdata_App_FeedEntryParent
             if ($e->getResponse()->getStatus() != '304')
                 throw $e;
         }
-        
+
         return $result;
     }
 

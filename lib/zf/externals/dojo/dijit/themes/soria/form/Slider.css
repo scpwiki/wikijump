@@ -39,7 +39,7 @@
 	/* border-color: #b4b4b4; */
 }
 .soria .dijitSliderFocused .dijitSliderBar {
-	border-color:#8ba0bd;	
+	border-color:#8ba0bd;
 }
 
 .dijit_a11y .dijitSliderProgressBar {
@@ -120,7 +120,7 @@
 	background:url('../images/spriteRoundedIconsSmall.png') no-repeat -15px top;
 	#background:url('../images/spriteRoundedIconsSmall.gif') no-repeat -15px top;
 }
-.soria .dijitSliderDecrementIconH { 
+.soria .dijitSliderDecrementIconH {
 	background:url('../images/spriteRoundedIconsSmall.png') no-repeat 0px top;
 	#background:url('../images/spriteRoundedIconsSmall.gif') no-repeat 0px top;
 }

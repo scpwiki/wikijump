@@ -25,7 +25,7 @@
 		<available property="js_ok" file="${user.home}/.ant/lib/js.jar" />
 		<available property="saxon8_ok" file="${user.home}/.ant/lib/saxon8.jar" />
 		<available property="resolver_ok" file="${user.home}/.ant/lib/resolver.jar" />
-		
+
 		<condition property="config_ok">
 			<and>
 				<isset property="bsf_ok" />
@@ -213,7 +213,7 @@
 		}
 		fs.addOr(orSelector);
 	}
-		
+
 	ds = fs.getDirectoryScanner(project);
 	srcFiles = ds.getIncludedFiles();
 	var destdir = attributes.get("destdir");

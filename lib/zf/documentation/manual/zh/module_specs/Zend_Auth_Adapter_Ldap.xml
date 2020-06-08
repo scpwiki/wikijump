@@ -28,13 +28,13 @@ $password = $this->_request->getParam('password');
 
 $auth = Zend_Auth::getInstance();
 
-$config = new Zend_Config_Ini('../application/config/config.ini', 
+$config = new Zend_Config_Ini('../application/config/config.ini',
                               'production');
 $log_path = $config->ldap->log_path;
 $options = $config->ldap->toArray();
 unset($options['log_path']);
 
-$adapter = new Zend_Auth_Adapter_Ldap($options, $username, 
+$adapter = new Zend_Auth_Adapter_Ldap($options, $username,
                                       $password);
 
 $result = $auth->authenticate($adapter);
@@ -89,7 +89,7 @@ ldap.server2.baseDn = "CN=Users,DC=w,DC=net"
         </para>
 
         <para>
-            这个配置示例了在不同的域的服务器的多域认证，也可以在同一域中用多个服务器来提供冗余。 
+            这个配置示例了在不同的域的服务器的多域认证，也可以在同一域中用多个服务器来提供冗余。
         </para>
 
         <para>
@@ -140,7 +140,7 @@ Array
 )
 ]]>
 </programlisting>
-            上述每组选项提供的信息是不同的，主要是因为当绑定（参见下面 <emphasis> 服务器选项 </emphasis> 一节中的 <code>bindRequiresDn</code> 选项）时 AD 不要求在 DN 表单中的有用户名，这意味着我们可以忽略很多和为认证用户名获取 DN 相关的选项。 
+            上述每组选项提供的信息是不同的，主要是因为当绑定（参见下面 <emphasis> 服务器选项 </emphasis> 一节中的 <code>bindRequiresDn</code> 选项）时 AD 不要求在 DN 表单中的有用户名，这意味着我们可以忽略很多和为认证用户名获取 DN 相关的选项。
         </para>
 
         <note>
@@ -177,7 +177,7 @@ Array
 
         <para>
             <emphasis> 在 Zend_Auth_Adapter_Ldap 的上下文中</emphasis> 的每组服务器选项包含下列选项，它们基本上不可修改地传递给 <code>Zend_Ldap::setOptions()</code>：
-            
+
             <table id="zend.auth.adapter.ldap.server-options.table">
               <title> 服务器选项 </title>
               <tgroup cols="2">
@@ -355,7 +355,7 @@ Array
                       <row>
                         <entry><emphasis role="strong">accountCanonicalForm</emphasis></entry>
                         <entry>
-                            几乎可以确定你想要这个值为 3 来使用反斜杠式的名称（例如 <emphasis>FOO\alice</emphasis>），这对于 Windows 用户来说是最熟悉的。你 <emphasis> 不 </emphasis> 应该使用不合格的格式 2 （例如 <emphasis>alice</emphasis>），因为它可能授权在其它信任域里（例如 <emphasis>BAR\alice</emphasis> 和 <emphasis>FOO\alice</emphasis> 将被当作相同的用户）相同名字的用户访问你的程序。（参见下面的注释）  
+                            几乎可以确定你想要这个值为 3 来使用反斜杠式的名称（例如 <emphasis>FOO\alice</emphasis>），这对于 Windows 用户来说是最熟悉的。你 <emphasis> 不 </emphasis> 应该使用不合格的格式 2 （例如 <emphasis>alice</emphasis>），因为它可能授权在其它信任域里（例如 <emphasis>BAR\alice</emphasis> 和 <emphasis>FOO\alice</emphasis> 将被当作相同的用户）相同名字的用户访问你的程序。（参见下面的注释）
                         </entry>
                       </row>
                       <row>
@@ -367,7 +367,7 @@ Array
                       <row>
                         <entry><emphasis role="strong">accountDomainNameShort</emphasis></entry>
                         <entry>
-                            AD 服务器是授权的域用户的 NetBIOS 名称。如果使用反斜杠风格 <emphasis role="strong">accountCanonicalForm</emphasis>，这个是必需的。 
+                            AD 服务器是授权的域用户的 NetBIOS 名称。如果使用反斜杠风格 <emphasis role="strong">accountCanonicalForm</emphasis>，这个是必需的。
                         </entry>
                       </row>
                     </tbody>
@@ -427,7 +427,7 @@ Array
                       <row>
                         <entry><emphasis role="strong">bindRequiresDn</emphasis></entry>
                         <entry>
-                            必需并一定是 <code>true</code>，因为当执行绑定时 OpenLDAP 要求 DN 格式的用户名。 
+                            必需并一定是 <code>true</code>，因为当执行绑定时 OpenLDAP 要求 DN 格式的用户名。
                         </entry>
                       </row>
                       <row>

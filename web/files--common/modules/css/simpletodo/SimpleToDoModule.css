@@ -6,7 +6,7 @@
 	position: relative;
 	max-width: 500px ;
 	padding: 5px ;
-	margin: 5px auto;	
+	margin: 5px auto;
 }
 /*CSS definition for list title element*/
 .simpletodo-box .title {
@@ -31,7 +31,7 @@
 	margin-right: auto ;
 	margin-top: 5% ;
 	margin-bottom: 5% ;
-	 
+
 }
 
 .simpletodo-sub-box .task:hover {
@@ -39,15 +39,15 @@
 }
 
 .simpletodo-sub-box .task .options {
-	
+
 	visibility: hidden ;
-	
+
 }
 
 .simpletodo-sub-box .task:hover .options {
-	
+
 	visibility: visible ;
-	
+
 }
 
 .simpletodo-box .simpletodo-sub-box.edit .task:hover .options {
@@ -82,7 +82,7 @@
 }
 /*Tu jest sekcja odpowiedzialna za wyswietlanie ikonek :-)*/
 .simpletodo-sub-box a.icon1 span {display: none;}
-.simpletodo-sub-box a.icon1 {	
+.simpletodo-sub-box a.icon1 {
 		background-image:url("/common--images/todo/link_go.png");
 		background-position: 4px 0;
 		width: 16px ;
@@ -90,7 +90,7 @@
 		vertical-align:middle;
 		padding: 0 4px ;
 		line-height: 0;
-		background-repeat: no-repeat; 
+		background-repeat: no-repeat;
 		display:-moz-inline-block;
 		display:-moz-inline-box;
 		display:inline-block;
@@ -105,7 +105,7 @@
 		background-position:4px 0;
 		padding: 0 4px ;
 		line-height: 0;
-		background-repeat: no-repeat; 
+		background-repeat: no-repeat;
 		display:-moz-inline-block;
 		display:-moz-inline-box;
 		display:inline-block;
@@ -120,7 +120,7 @@
 		vertical-align:middle;
 		padding: 0 4px ;
 		line-height: 0;
-		background-repeat: no-repeat; 
+		background-repeat: no-repeat;
 		display:-moz-inline-block;
 		display:-moz-inline-box;
 		display:inline-block;

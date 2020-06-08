@@ -20,88 +20,88 @@ use DB\PagePeer;
 
 
 abstract class Base {
-	
+
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $app = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var DB_OzoneUser
 	 */
 	protected $performer = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var DB_OzoneUser
 	 */
 	protected $user = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var DB_Site
 	 */
 	public $site = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var DB_Category
 	 */
 	protected $category = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var DB_Page
 	 */
 	protected $page = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var DB_Page
 	 */
 	protected $parent_page = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var bool
 	 */
 	protected $clear_parent_page = false;
-	
+
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $title = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $source = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $tags = null;
-	
+
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $config = array();
-	
+
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $config_keys = array('expose_file_path');
-	
+
 	/**
 	 * construct Facade object
-	 * 
+	 *
 	 * @param $performer DB_OzoneUser
 	 * @param $app string application
 	 * @param $config array configuration array, keys: expose_file_path: false by default
@@ -109,7 +109,7 @@ abstract class Base {
 	public function __construct($performer = null, $app = null, $config = null) {
 		$this->performer = $performer;
 		$this->app = $app;
-		
+
 		if (is_array($config)) {
 			foreach ($this->config_keys as $key) {
 				if (isset($config[$key])) {
@@ -120,10 +120,10 @@ abstract class Base {
 			}
 		}
 	}
-	
+
 	/**
 	 * Parse the arguments array and resolve objects from their names.
-	 * 
+	 *
 	 * @param array $args the argument array
 	 * @param array $requiredArgs the required argument array keys
 	 * @return array the array of arguments filtered and resolved to native types
@@ -132,7 +132,7 @@ abstract class Base {
 		if (! is_array($args)) {
 			throw new Exception\WrongArguments("Argument is not an array");
 		}
-		
+
 		// simple types
 		foreach ($args as $key => $value) {
 			switch ($key) {
@@ -172,31 +172,31 @@ abstract class Base {
 					break;
 			}
 		}
-		
+
 		// more sophisticated ones...
 		if ($this->category) {
 			$this->category = $this->_parseCategory($this->site, $this->category);
 		}
-		
+
 		if ($this->page) {
 			$this->page = $this->_parsePage($this->site, $this->page);
 		}
-		
+
 		if ($this->parent_page) {
 			$this->parent_page = $this->_parsePage($this->site, $this->parent_page);
 		}
-		
+
 		if ($this->parent_page === "") { // empty string is passed as the parent_page
 			$this->clear_parent_page = true;
 		}
-		
+
 		foreach ($requiredArgs as $key) {
 			if (! $this->$key) {
 				throw new WrongArguments("Required argument array key not passed: $key");
 			}
 		}
 	}
-	
+
 	protected function repr($object, $hint = null) {
 		// first deal with arrays of objects
 		if (is_array($object)) {
@@ -206,50 +206,50 @@ abstract class Base {
 			}
 			return $array;
 		}
-		
+
 		// page
 		if ($object instanceof Page) {
 			return $this->_reprPage($object, $hint);
 		}
-		
+
 		// category
 		if ($object instanceof Category) {
 			return $this->_reprCategory($object);
 		}
-		
+
 		// site
 		if ($object instanceof Site) {
 			return $this->_reprSite($object);
 		}
-		
+
 		// file
 		if ($object instanceof File) {
 			return $this->_reprFile($object);
 		}
-		
+
 		// the result is of none supported types
 		throw new WrongReturnValue("Invalid type of returned value");
 	}
-	
+
 	protected function _parseString($value, $key = "", $max_length = null, $trim = true) {
 		if (is_numeric($value)) {
 			$value = "$value";
 		}
 		if (is_string($value)) {
-			
+
 			if ($trim) {
 				$value= trim($value);
 			}
-			
+
 			if ($max_length && strlen8($value) > $max_length) {
 				throw new WrongArguments("Argument $key is too long (> $max_length)");
-			} 
-			
+			}
+
 			return $value;
 		}
 		throw new WrongArguments("Argument $key must be a string");
 	}
-	
+
 	protected function _parseTags($tags, $max_tag_length = null, $max_total_length = null) {
 		if (is_string($tags)) {
 			$tags = preg_split("/[ ,]+/", trim($tags));
@@ -270,52 +270,52 @@ abstract class Base {
 		}
 		return $tags_new;
 	}
-	
+
 	protected function _parseUser($user) {
 		if (is_int($user)) { // int = ID
 			$user = OzoneUserPeer::instance()->selectByPrimaryKey($user);
 		}
-		
+
 		if (is_string($user)) {
 			$c = new Criteria();
 			$unix_name = WDStringUtils::toUnixName($user);
 			$c->add('unix_name', $unix_name);
 			$user = OzoneUserPeer::instance()->selectOne($c);
 		}
-		
+
 		if ($user instanceof OzoneUser) {
 			return $user;
 		}
 		throw new WrongArguments("User does not exist");
 	}
-	
+
 	protected function _parseSite($site) {
 		if (is_int($site)) { // int = ID
-			
+
 			$site = SitePeer::instance()->selectByPrimaryKey($site);
-			
+
 		} elseif (is_string($site)) { // string = name
-			
+
 			$c = new Criteria();
 			$c->add("unix_name", WDStringUtils::toUnixName($site));
 			$site = SitePeer::instance()->selectOne($c);
-			
+
 		}
-		
+
 		if ($site instanceof Site) {
 			return $site;
 		}
-		
+
 		throw new WrongArguments("Site does not exist");
 	}
-	
+
 	protected function _parseCategory($site, $category) {
 		if (is_int($category)) { // int = ID
-			
+
 			$category = SitePeer::instance()->selectByPrimaryKey($category);
-			
+
 		} elseif (is_string($category)) {
-			
+
 			if ($site) {
 				$c = new Criteria();
 				$c->add("name", WDStringUtils::toUnixName($category));
@@ -323,50 +323,50 @@ abstract class Base {
 				$category = CategoryPeer::instance()->selectOne($c);
 			}
 		}
-		
+
 		if ($category instanceof Category) {
 			return $category;
 		}
 		throw new WrongArguments("Category does not exist");
 	}
-	
+
 	protected function _parsePage($site, $page) {
 		if (is_int($page)) { // int = ID
-			
+
 			$page = PagePeer::instance()->selectByPrimaryKey($page);
-			
+
 		} elseif (is_string($page)) {
-			
+
 			if ($site) {
-				
+
 				$page = preg_replace("/^_default:/", "", $page);
-				
+
 				$c = new Criteria();
 				$c->add("unix_name", WDStringUtils::toUnixName($page));
 				$c->add("site_id", $site->getSiteId());
 				$page = PagePeer::instance()->selectOne($c);
 			}
 		}
-		
+
 		if ($page instanceof Page) {
 			return $page;
 		}
 		throw new WrongArguments("Page does not exist");
 	}
-	
+
 	/**
 	 * string representation of date from ODate
-	 * 
+	 *
 	 * @param $date ODate
 	 * @return string
 	 */
 	protected function _reprDate($date) {
 		return $date->getDate();
 	}
-	
+
 	/**
 	 * string representation of compiled page
-	 * 
+	 *
 	 * @param $compiled DB_PageCompiled
 	 * @return string
 	 */
@@ -374,16 +374,16 @@ abstract class Base {
 		$d = utf8_encode("\xFE");
 		$content = $compiled->getText();
         $content = preg_replace("/" . $d . "module \"([a-zA-Z0-9\/_]+?)\"(.+?)?" . $d . "/", '', $content);
-        // TODO fix links: 
+        // TODO fix links:
     	//$content = preg_replace(';(<.*?)(src|href)="/([^"]+)"([^>]*>);si', '\\1\\2="http://'.$site->getDomain().'/\\3"\\4', $content);
 		$content = preg_replace(';<script\s+[^>]+>.*?</script>;is', '', $content);
 		$content = preg_replace(';(<[^>]*\s+)on[a-z]+="[^"]+"([^>]*>);si', '\\1 \\2', $content);
 		return $content;
 	}
-	
+
 	/**
 	 * representation of site
-	 * 
+	 *
 	 * @param $site DB_Site
 	 * @return array
 	 */
@@ -394,10 +394,10 @@ abstract class Base {
 			"private" => $site->getPrivate(),
 		);
 	}
-	
+
 	/**
 	 * representation of category
-	 * 
+	 *
 	 * @param $category DB_Category
 	 * @return array
 	 */
@@ -406,10 +406,10 @@ abstract class Base {
 			"name" => $category->getName(),
 		);
 	}
-	
+
 	/**
 	 * External representation of a page object
-	 *  
+	 *
 	 * @param DB\Page $page
 	 * @param string $hint
 	 * @return array
@@ -419,21 +419,21 @@ abstract class Base {
 			$category = $page->getCategoryName();
 			$name = preg_replace("|^$category:|", "", $page->getUnixName());
 			$tags = $page->getTagsAsArray();
-			
+
 			$parent_page_name = null;
 			if ($parent_page_id = $page->getParentPageId()) {
 				if ($parent_page = PagePeer::instance()->selectByPrimaryKey($parent_page_id)) {
 					$parent_page_name = $parent_page->getUnixName();
 				}
 			}
-			
+
 			$user_created_name = null;
 			if ($user_created_id = $page->getOwnerUserId()) {
 				if ($user_created = OzoneUserPeer::instance()->selectByPrimaryKey($user_created_id)) {
 					$user_created_name = $user_created->getNickName();
 				}
 			}
-			
+
 			return array(
 				"site" => $page->getSite()->getUnixName(),
     			"category" => $category,
@@ -458,10 +458,10 @@ abstract class Base {
 			);
 		}
 	}
-	
+
 	/**
 	 * representation of file
-	 * 
+	 *
 	 * @param $file DB_File
 	 * @return array
 	 */

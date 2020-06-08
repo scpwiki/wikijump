@@ -8,9 +8,9 @@ require_once 'HTMLPurifier/ConfigDef.php';
  */
 class HTMLPurifier_ConfigDef_Directive extends HTMLPurifier_ConfigDef
 {
-    
+
     public $class = 'directive';
-    
+
     public function __construct(
         $type = null,
         $descriptions = null,
@@ -24,7 +24,7 @@ class HTMLPurifier_ConfigDef_Directive extends HTMLPurifier_ConfigDef
         if (     $allowed !== null)      $this->allowed = $allowed;
         if (     $aliases !== null)      $this->aliases = $aliases;
     }
-    
+
     /**
      * Allowed type of the directive. Values are:
      *      - string
@@ -38,35 +38,35 @@ class HTMLPurifier_ConfigDef_Directive extends HTMLPurifier_ConfigDef
      *      - mixed (anything goes)
      */
     public $type = 'mixed';
-    
+
     /**
      * Plaintext descriptions of the configuration entity is. Organized by
      * file and line number, so multiple descriptions are allowed.
      */
     public $descriptions = array();
-    
+
     /**
      * Is null allowed? Has no effect for mixed type.
      * @bool
      */
     public $allow_null = false;
-    
+
     /**
      * Lookup table of allowed values of the element, bool true if all allowed.
      */
     public $allowed = true;
-    
+
     /**
      * Hash of value aliases, i.e. values that are equivalent.
      */
     public $aliases = array();
-    
+
     /**
      * Advisory list of directive aliases, i.e. other directives that
      * redirect here
      */
     public $directiveAliases = array();
-    
+
     /**
      * Adds a description to the array
      */
@@ -74,6 +74,6 @@ class HTMLPurifier_ConfigDef_Directive extends HTMLPurifier_ConfigDef
         if (!isset($this->descriptions[$file])) $this->descriptions[$file] = array();
         $this->descriptions[$file][$line] = $description;
     }
-    
+
 }
 

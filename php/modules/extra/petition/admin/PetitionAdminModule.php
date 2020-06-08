@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,31 +27,31 @@
 use DB\PetitionCampaignPeer;
 
 class PetitionAdminModule extends SmartyModule {
-	
+
 	public function isAllowed($runData){
-		WDPermissionManager::instance()->hasPermission('manage_site', $runData->getUser(), $runData->getTemp("site"));	
+		WDPermissionManager::instance()->hasPermission('manage_site', $runData->getUser(), $runData->getTemp("site"));
 		return true;
 	}
-	
+
 	public function build($runData){
-		
+
 		$pl = $runData->getParameterList();
 
 		$site = $runData->getTemp("site");
-		
+
 		// get current campaigns
-		
+
 		$c = new Criteria();
 		$c->add("site_id", $site->getSiteId());
 		$c->add("deleted", false);
 		$c->addOrderAscending("campaign_id");
-		
+
 		$camps = PetitionCampaignPeer::instance()->select($c);
-		
+
 		$runData->contextAdd("campaigns",$camps);
 
 		$withoutBox = (bool) $pl->getParameterValue("withoutBox");
 		$runData->contextAdd("withoutBox", $withoutBox);
 	}
-	
+
 }

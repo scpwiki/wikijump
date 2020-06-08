@@ -2,10 +2,10 @@
 
 /**
  * Chainable filters for custom URI processing.
- * 
+ *
  * These filters can perform custom actions on a URI filter object,
  * including transformation or blacklisting.
- * 
+ *
  * @warning This filter is called before scheme object validation occurs.
  *          Make sure, if you require a specific scheme object, you
  *          you check that it exists. This allows filters to convert
@@ -13,17 +13,17 @@
  */
 abstract class HTMLPurifier_URIFilter
 {
-    
+
     /**
      * Unique identifier of filter
      */
     public $name;
-    
+
     /**
      * Performs initialization for the filter
      */
     public function prepare($config) {}
-    
+
     /**
      * Filter a URI object
      * @param &$uri Reference to URI object
@@ -34,5 +34,5 @@ abstract class HTMLPurifier_URIFilter
      *         all changes are committed directly on the URI object
      */
     abstract public function filter(&$uri, $config, $context);
-    
+
 }

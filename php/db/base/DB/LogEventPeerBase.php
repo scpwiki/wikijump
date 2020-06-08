@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version \$Id\$
@@ -29,13 +29,13 @@ use BaseDBPeer;
 
 
 
- 
+
 /**
  * Base peer class mapped to the database table log_event.
  */
 class LogEventPeerBase extends BaseDBPeer {
 	public static $peerInstance;
-	
+
 	protected function internalInit(){
 		$this->tableName='log_event';
 		$this->objectName='DB\\LogEvent';
@@ -44,7 +44,7 @@ class LogEventPeerBase extends BaseDBPeer {
 		$this->fieldTypes = array( 'event_id' => 'bigserial',  'date' => 'timestamp',  'user_id' => 'int',  'ip' => 'inet',  'proxy' => 'inet',  'type' => 'varchar(256)',  'site_id' => 'int',  'page_id' => 'int',  'revision_id' => 'int',  'thread_id' => 'int',  'post_id' => 'int',  'user_agent' => 'varchar(512)',  'text' => 'text');
 		$this->defaultValues = array();
 	}
-	
+
 	public static function instance(){
 		if(self::$peerInstance == null){
 			$className = "DB\\LogEventPeer";

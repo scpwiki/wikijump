@@ -20,7 +20,7 @@
  * @link       http://pear.php.net/package/Text_Wiki
  */
 class Text_Wiki_Render_Xhtml_Span extends Text_Wiki_Render {
-    
+
     public $conf = array();
 
     /**
@@ -35,7 +35,7 @@ class Text_Wiki_Render_Xhtml_Span extends Text_Wiki_Render {
      * @return string The text rendered from the token options.
      *
      */
-    
+
     function token($options) {
         if ($options['type'] == 'start') {
             $args = $options['args'];
@@ -45,10 +45,10 @@ class Text_Wiki_Render_Xhtml_Span extends Text_Wiki_Render {
             }
             return "<span " . $argstr . ">";
         }
-        
+
         if ($options['type'] == 'end') {
             return "</span>";
         }
-    
+
     }
 }

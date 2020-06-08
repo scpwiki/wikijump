@@ -15,7 +15,7 @@ require_once 'Zend/View.php';
 /**
  * Test class for Zend_Form_Decorator_Label
  */
-class Zend_Form_Decorator_LabelTest extends PHPUnit_Framework_TestCase 
+class Zend_Form_Decorator_LabelTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.

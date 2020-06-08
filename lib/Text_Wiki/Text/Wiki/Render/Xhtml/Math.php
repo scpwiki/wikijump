@@ -19,7 +19,7 @@
  * @link       http://pear.php.net/package/Text_Wiki
  */
 class Text_Wiki_Render_Xhtml_Math extends Text_Wiki_Render {
-    
+
     public $conf = array();
 
     /**
@@ -34,7 +34,7 @@ class Text_Wiki_Render_Xhtml_Math extends Text_Wiki_Render {
      * @return string The text rendered from the token options.
      *
      */
-    
+
     function token($options) {
         $content = $options['content'];
         $type = $options['type'];
@@ -45,18 +45,18 @@ class Text_Wiki_Render_Xhtml_Math extends Text_Wiki_Render {
         if (!file_exists($dir)) {
             mkdirfull($dir);
         }
-        
+
         $tmpDir = WIKIDOT_ROOT . '/tmp/math';
         if (!file_exists($tmpDir)) {
             mkdirfull($tmpDir);
         }
-        
+
         $imgFile = $hashcode . '.png';
         if (!file_exists($dir . '/' . $imgFile)) {
             $renderer = new LatexRenderer();
             $renderer->setTmpDir($tmpDir);
             $renderer->setOutputDir($dir);
-            
+
             if ($type == 'eqnarray') {
                 $content2 = "\\begin{eqnarray*}\n" . $content . "\n\\end{eqnarray*}";
             } else {
@@ -64,17 +64,17 @@ class Text_Wiki_Render_Xhtml_Math extends Text_Wiki_Render {
             }
             $renderer->render($content2, $hashcode);
         }
-        
+
         if (!file_exists($dir . '/' . $imgFile)) {
             return '<div class="error-block">' . _('The equation has not been processed correctly. Most prabably it has syntax error(s).') . '</div>';
         }
-        
+
         $label = $options['label'];
         $idPrefix = $this->getConf("id_prefix");
         $idString = ' id="equation-' . $idPrefix . $options['id'] . '" ';
         $equationNumberLabel = '<span class="equation-number">(' . $options['id'] . ')</span>';
         $out = '<div class="math-equation"' . $idString . '><img src="/local--math/eqs/' . $imgFile . '" alt="' . htmlentities($content) . '" /></div>';
-        
+
         return $equationNumberLabel . $out;
     }
 }

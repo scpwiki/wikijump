@@ -78,7 +78,7 @@ if (is_string($ret)) {
 ]]>
             </programlisting>
         </example>
-	        
+
 	    <note>
 	        <para>
 	            It is a good idea to use a secure connection (HTTPS) for these scripts-
@@ -86,7 +86,7 @@ if (is_string($ret)) {
 	            disclosure.
 	        </para>
 	   </note>
-	        
+
         <para>
             The following script implements a login screen for an identity
             server using <code>Zend_OpenId_Provider</code> and redirects to this page when a
@@ -247,7 +247,7 @@ is your identity URL.
             <code>Zend_OpenId_Provider</code> assumes that they point to the same page
             with the additional "openid.action" GET argument.
         </para>
-        
+
         <note>
 	        <para>
 	            The following example is not complete. It doesn't provide GUI code for

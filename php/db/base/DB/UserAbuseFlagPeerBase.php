@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version \$Id\$
@@ -29,13 +29,13 @@ use BaseDBPeer;
 
 
 
- 
+
 /**
  * Base peer class mapped to the database table user_abuse_flag.
  */
 class UserAbuseFlagPeerBase extends BaseDBPeer {
 	public static $peerInstance;
-	
+
 	protected function internalInit(){
 		$this->tableName='user_abuse_flag';
 		$this->objectName='DB\\UserAbuseFlag';
@@ -44,7 +44,7 @@ class UserAbuseFlagPeerBase extends BaseDBPeer {
 		$this->fieldTypes = array( 'flag_id' => 'serial',  'user_id' => 'int',  'target_user_id' => 'int',  'site_id' => 'int',  'site_valid' => 'boolean',  'global_valid' => 'boolean');
 		$this->defaultValues = array( 'site_valid' => 'true',  'global_valid' => 'true');
 	}
-	
+
 	public static function instance(){
 		if(self::$peerInstance == null){
 			$className = "DB\\UserAbuseFlagPeer";

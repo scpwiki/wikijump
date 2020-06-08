@@ -43,7 +43,7 @@ class Zend_Gdata_Spreadsheets_CellQueryTest extends PHPUnit_Framework_TestCase
         $this->docQuery->setMinRow(null);
         $this->assertTrue($this->docQuery->getMinRow() == null);
     }
-    
+
     public function testMaxRow()
     {
         $this->assertTrue($this->docQuery->getMaxRow() == null);
@@ -53,7 +53,7 @@ class Zend_Gdata_Spreadsheets_CellQueryTest extends PHPUnit_Framework_TestCase
         $this->docQuery->setMaxRow(null);
         $this->assertTrue($this->docQuery->getMaxRow() == null);
     }
-    
+
     public function testMinCol()
     {
         $this->assertTrue($this->docQuery->getMinCol() == null);
@@ -63,7 +63,7 @@ class Zend_Gdata_Spreadsheets_CellQueryTest extends PHPUnit_Framework_TestCase
         $this->docQuery->setMinCol(null);
         $this->assertTrue($this->docQuery->getMinCol() == null);
     }
-    
+
     public function testMaxCol()
     {
         $this->assertTrue($this->docQuery->getMaxCol() == null);
@@ -73,7 +73,7 @@ class Zend_Gdata_Spreadsheets_CellQueryTest extends PHPUnit_Framework_TestCase
         $this->docQuery->setMaxCol(null);
         $this->assertTrue($this->docQuery->getMaxCol() == null);
     }
-    
+
     public function testRange()
     {
         $this->assertTrue($this->docQuery->getRange() == null);
@@ -83,7 +83,7 @@ class Zend_Gdata_Spreadsheets_CellQueryTest extends PHPUnit_Framework_TestCase
         $this->docQuery->setRange(null);
         $this->assertTrue($this->docQuery->getRange() == null);
     }
-    
+
     public function testReturnEmpty()
     {
         $this->assertTrue($this->docQuery->getReturnEmpty() == null);
@@ -93,35 +93,35 @@ class Zend_Gdata_Spreadsheets_CellQueryTest extends PHPUnit_Framework_TestCase
         $this->docQuery->setReturnEmpty(null);
         $this->assertTrue($this->docQuery->getReturnEmpty() == null);
     }
-    
+
     public function testWorksheetId()
     {
         $this->assertTrue($this->docQuery->getWorksheetId() == 'default');
         $this->docQuery->setWorksheetId('123');
         $this->assertTrue($this->docQuery->getWorksheetId() == '123');
     }
-    
+
     public function testSpreadsheetKey()
     {
         $this->assertTrue($this->docQuery->getSpreadsheetKey() == null);
         $this->docQuery->setSpreadsheetKey('abc');
         $this->assertTrue($this->docQuery->getSpreadsheetKey() == 'abc');
     }
-    
+
     public function testCellId()
     {
         $this->assertTrue($this->docQuery->getCellId() == null);
         $this->docQuery->setCellId('xyz');
         $this->assertTrue($this->docQuery->getCellId() == 'xyz');
     }
-    
+
     public function testProjection()
     {
         $this->assertTrue($this->docQuery->getProjection() == 'full');
         $this->docQuery->setProjection('abc');
         $this->assertTrue($this->docQuery->getProjection() == 'abc');
     }
-    
+
     public function testVisibility()
     {
         $this->assertTrue($this->docQuery->getVisibility() == 'private');

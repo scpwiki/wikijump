@@ -28,5 +28,5 @@ smarty_core_load_plugins(array('plugins' => array(array('modifier', 'escape', '/
 			</div>
 		<?php endforeach; endif; unset($_from); ?>
 	<?php endif; ?>
-	
+
 </div>

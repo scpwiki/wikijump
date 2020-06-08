@@ -12,16 +12,16 @@ require_once 'HTMLPurifier/AttrTransform/ImgRequired.php';
  */
 class HTMLPurifier_HTMLModule_Image extends HTMLPurifier_HTMLModule
 {
-    
+
     public $name = 'Image';
-    
+
     public function __construct() {
         $img =& $this->addElement(
             'img', true, 'Inline', 'Empty', 'Common',
             array(
                 'alt*' => 'Text',
                 'height' => 'Length',
-                'longdesc' => 'URI', 
+                'longdesc' => 'URI',
                 'src*' => new HTMLPurifier_AttrDef_URI(true), // embedded
                 'width' => 'Length'
             )
@@ -31,6 +31,6 @@ class HTMLPurifier_HTMLModule_Image extends HTMLPurifier_HTMLModule
         $img->attr_transform_post[] =
             new HTMLPurifier_AttrTransform_ImgRequired();
     }
-    
+
 }
 

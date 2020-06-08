@@ -330,7 +330,7 @@ $user1234 = $accountsRowset->current();
 $select = $accountsTable->select()->order('name ASC')
                                   ->limit(3);
 
-$bugsAssignedToUser = $user1234->findDependentRowset('Bugs', 
+$bugsAssignedToUser = $user1234->findDependentRowset('Bugs',
                                                      'Engineer',
                                                      $select);
 ]]>
@@ -579,7 +579,7 @@ $engineer = $bug1->findParentAccountsByEngineer();
 
         <programlisting role="php">
 <![CDATA[
-$row->findManyToManyRowset($table, 
+$row->findManyToManyRowset($table,
                            $intersectionTable,
                            [$rule1,
                                [$rule2,

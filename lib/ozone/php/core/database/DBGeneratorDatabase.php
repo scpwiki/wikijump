@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Db
  * @version $Id$
@@ -37,7 +37,7 @@ class DBGeneratorDatabase {
 	private $referencer;
 
 	private $sql = array();
-	
+
 	private $executeSql = true;
 
 	public function __construct($xml = null) {
@@ -51,12 +51,12 @@ class DBGeneratorDatabase {
 			$this->tables["$tname"] = new DBGeneratorTable($table);
 			$this->referencer->processXMLTable($table);
 		}
-		
+
     	foreach ($xml->view as $view) {
     		echo "view: ".$view['name']."\n";
     		$vname = $view['name'];
     		$this->views["$vname"] = new DBGeneratorView($view);
-    	}	
+    	}
 	}
 
 	public function executeSQL() {
@@ -80,7 +80,7 @@ class DBGeneratorDatabase {
 				}
 			}
 		}
-		
+
 		foreach ($this->views as $view) {
 			unset($sql);
 			if (!$db->tableExists($view->getName())) {
@@ -89,7 +89,7 @@ class DBGeneratorDatabase {
 				$sql = "DROP VIEW ".$view->getName()	;
 				$sql = $view->generateSQLCreateString()."\n";
 			}
-			if($sql){ 
+			if($sql){
 				$this->sql = array_merge($this->sql, (array)$sql);
 				if($this->executeSql){
 					$db->query($sql);
@@ -97,7 +97,7 @@ class DBGeneratorDatabase {
 			}
 		}
 	}
-	
+
 	public function generateClasses(){
 		foreach ($this->tables as $table) {
 			$table->generateClass();
@@ -106,14 +106,14 @@ class DBGeneratorDatabase {
 			$view->generateClass();
 		}
 	}
-	
+
 	public function setupIdBroker(){
 		// for each table with a INT-LIKE primary key let the pk be
 		// handled by the IdBroker.
 
 		foreach($this->tables as $table){
 			$pkColumn = $table->getPkColumn();
-			
+
 			if($pkColumn != null && ($pkColumn->isIntLike())){
 				echo $pkColumn->getName();
 				// check if not already there
@@ -124,39 +124,39 @@ class DBGeneratorDatabase {
 				if($r == null){
 					$idbe = new DB_IdBroker();
 					$idbe->setTableName($table->getName());
-					$idbe->setColumnName($pkColumn->getName());	
+					$idbe->setColumnName($pkColumn->getName());
 					$idbe->save();
 				}
-			}	
-			
+			}
+
 		}
-		
+
 		//in case of regeneration - update the indexes:
 		$idbp = IdBrokerPeer::instance();
 		$idbp->updateIndexes();
-			
+
 	}
-	
+
 	/**
 	 * Updates references between tables. It is required before the SQL and
 	 * class genetation.
 	 */
 	public function updateReferences(){
-//			
+//
 //			// add referencing keys to the "primary table"
-//				
+//
 //
 //
 
 		foreach ($this->tables as $table){
-			$table->updateReferences($this->referencer);	
+			$table->updateReferences($this->referencer);
 		}
 	}
-	
+
 	public function setExecuteSql($val){
 		$this->executeSql = $val;
 	}
-	
+
 	public function getSql(){
 		return $this->sql;
 	}

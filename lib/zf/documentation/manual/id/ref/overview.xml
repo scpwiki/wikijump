@@ -16,11 +16,11 @@
         implementasi MVC dengan performa prima, abstraksi database yang mudah digunakan, dan komponen
         form yang mengimplementasikan form HTML, validasi, dan filtering sekaligus sehingga developer dapat
         mengimplementasikan keseluruhan fungsionalitas ini dalam satu langkah mudah.
-        Komponen lainnya seperti Zend_Auth dan Zend_Acl menyediakan fungsionalitas otentikasi dan otorisasi 
+        Komponen lainnya seperti Zend_Auth dan Zend_Acl menyediakan fungsionalitas otentikasi dan otorisasi
         terhadap semua model credential yang umum dipakai. Komponen lain mengimplementasikan library client untuk
         mengakses web service populer yang ada saat ini. Apapun yang dibutuhkan aplikasi anda, anda akan
         sering mendapati Zend Framework mampu digunakan untuk mempersingkat waktu development anda.
-        Dan lagi ZF dibangun dengan pondasi testing yang menyeluruh. Sehingga anda tidak perlu khawatir 
+        Dan lagi ZF dibangun dengan pondasi testing yang menyeluruh. Sehingga anda tidak perlu khawatir
         dengan stabilitas framework ini.
     </para>
     <para>
@@ -31,10 +31,10 @@
         untuk pengembang Zend Framework.
     </para>
     <para>
-        Zend Framework tidak dapat menyediakan dan mendukung semua fitur yang ada saat ini tanpa bantuan komunitas 
-        pengembang dan pengguna ZF yang penuh semangat dan dedikasi tinggi. Anggota komunitas, termasuk kontributor, 
-        menyediakan waktu mereka di <ulink url="http://framework.zend.com/archives">mailing list</ulink>, 
-        <ulink url="http://www.zftalk.com">channel IRC</ulink>, dan berbagai forum lain. Apapun pertanyaan yang 
+        Zend Framework tidak dapat menyediakan dan mendukung semua fitur yang ada saat ini tanpa bantuan komunitas
+        pengembang dan pengguna ZF yang penuh semangat dan dedikasi tinggi. Anggota komunitas, termasuk kontributor,
+        menyediakan waktu mereka di <ulink url="http://framework.zend.com/archives">mailing list</ulink>,
+        <ulink url="http://www.zftalk.com">channel IRC</ulink>, dan berbagai forum lain. Apapun pertanyaan yang
         mungkin anda miliki untuk ZF, komunitas ZF akan selalu bersedia membantu anda.
     </para>
 </sect1>

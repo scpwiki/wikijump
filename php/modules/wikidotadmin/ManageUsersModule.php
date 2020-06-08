@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,18 +27,18 @@
 use DB\OzoneUserPeer;
 
 class ManageUsersModule extends SmartyModule {
-	
+
 	public function isAllowed($runData){
 		if ($runData->getTemp("site")->getSiteId() != 1) {
 			throw new WDPermissionException("No permission");
 		}
 		WDPermissionManager::instance()->hasPermission('manage_site', $runData->getUser(), $runData->getTemp("site"));
-		
+
 		return true;
 	}
-	
+
 	public function build($runData){
-		
+
 		$users = array();
 		$c = new Criteria();
 		$c->add('user_id', '1', '>');
@@ -58,7 +58,7 @@ class ManageUsersModule extends SmartyModule {
 			$users[] = array("user_id" => "new$i");
 		}
 		$runData->contextAdd("users", $users);
-		
+
 	}
-	
+
 }

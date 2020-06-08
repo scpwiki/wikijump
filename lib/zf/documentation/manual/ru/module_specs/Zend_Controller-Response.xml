@@ -12,7 +12,7 @@
             фронт-контроллер будет передавать любые пойманные исключения объекту
             ответа, позволяя разработчику должным образом обрабатывать
             исключения. Эта возможность может быть отключена установкой
-            <code>Zend_Controller_Front::throwExceptions(true)</code>: 
+            <code>Zend_Controller_Front::throwExceptions(true)</code>:
         </para>
 
         <programlisting role="php"><![CDATA[
@@ -52,7 +52,7 @@ $response->sendResponse();
 ]]>
             </programlisting>
         </note>
-            
+
         <para>
             Разработчики должны использовать объект ответа в своих контроллерах
             действий. Вместо прямого вывода данных и отправки заголовков
@@ -310,7 +310,7 @@ class MyController extends Zend_Controller_Action
 }
 ]]>
         </programlisting>
-        
+
         <para>
             В примере выше вызов <code>/my/foo</code> приведет к тому, что
             конечное содержимое тела объекта ответа будет иметь следующую
@@ -392,7 +392,7 @@ array(
 
             <listitem>
                 <para>
-                    <code>getBody($spec = false)</code> может использоваться для 
+                    <code>getBody($spec = false)</code> может использоваться для
                     получения массива сегментов, если <code>$spec</code> - имя
                     именованного сегмента. Если равен false, то будет возвращена
                     строка, сформированная посредством объединения всех

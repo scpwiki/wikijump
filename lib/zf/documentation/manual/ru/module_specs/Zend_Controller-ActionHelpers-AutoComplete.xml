@@ -141,7 +141,7 @@ class FooController extends Zend_Controller_Action
 $this->_helper->autoCompleteDojo($data);
 ]]>
         </programlisting>
-        
+
         <example id="zend.controller.actionhelpers.autocomplete.dojo.example1">
             <title>Автодополнение с Dojo и Zend MVC</title>
 
@@ -176,7 +176,7 @@ dojo.declare("custom.TestNameReadStore", dojox.data.QueryReadStore, {
 });
 ]]>
 </programlisting>
-            
+
             <para>
                 Этот класс просто наследует от класса QueryReadStore фреймворка
                 Dojo, который сам по себе является абстрактным. Мы просто
@@ -195,7 +195,7 @@ class TestController extends Zend_Controller_Action
     protected $_form;
 
     public function getForm()
-    {   
+    {
         if (null === $this->_form) {
             $this->_form = new Zend_Form();
             $this->_form->setMethod('get')
@@ -220,7 +220,7 @@ class TestController extends Zend_Controller_Action
 }
 ]]>
             </programlisting>
-            
+
             <para>
                 Здесь мы просто создаем форму с методами 'test' и 'go'. Метод
                 'test' добавляет несколько специальных, специфических для Dojo
@@ -274,7 +274,7 @@ class TestController extends Zend_Controller_Action
 }
 ]]>
             </programlisting>
-            
+
             <para>
                 В методе <code>autocompleteAction()</code> мы делаем несколько
                 вещей. Сначала мы проверяем, был ли произведен POST-запрос и
@@ -313,8 +313,8 @@ class TestController extends Zend_Controller_Action
    // необходимые библиотеки для Dojo: ?>
 <? $this->headScript()
         ->setAllowArbitraryAttributes(true)
-        ->appendFile($this->baseUrl() . '/javascript/dojo/dojo.js', 
-            'text/javascript', 
+        ->appendFile($this->baseUrl() . '/javascript/dojo/dojo.js',
+            'text/javascript',
             array('djConfig' => 'parseOnLoad: true'))
         ->captureStart() ?>
 djConfig.usePlainJson=true;

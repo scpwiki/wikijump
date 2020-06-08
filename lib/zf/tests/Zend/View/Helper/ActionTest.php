@@ -24,7 +24,7 @@ require_once 'Zend/View.php';
 /**
  * Test class for Zend_View_Helper_Action.
  */
-class Zend_View_Helper_ActionTest extends PHPUnit_Framework_TestCase 
+class Zend_View_Helper_ActionTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.
@@ -243,7 +243,7 @@ class Zend_View_Helper_ActionTest extends PHPUnit_Framework_TestCase
         $this->assertContains('Foo Nest', $title);
         $this->assertContains('Nested Stuff', $title);
     }
-    
+
     /**
      * @issue ZF-2716
      */
@@ -253,18 +253,18 @@ class Zend_View_Helper_ActionTest extends PHPUnit_Framework_TestCase
         $partial = new Zend_View_Helper_Partial();
         $this->view->setScriptPath(dirname(__FILE__) . '/_files/modules/default/views/scripts/');
         $partial->setView($this->view);
-        
+
         Zend_Controller_Action_HelperBroker::getStaticHelper('viewRenderer')->view = $this->view;
-        
+
         $partial->partial('partialActionCall.phtml');
-        
+
         $this->assertSame($this->view, Zend_Controller_Action_HelperBroker::getStaticHelper('viewRenderer')->view);
 
     }
-    
+
     /**
      * Future ViewRenderer State issues should be included in this test.
-     * 
+     *
      * @issue ZF-2846
      */
     public function testActionReturnsViewRendererToOriginalState()
@@ -276,20 +276,20 @@ class Zend_View_Helper_ActionTest extends PHPUnit_Framework_TestCase
 
         // make sure noRender is false
         $this->assertFalse($viewRenderer->getNoRender());
-        
+
         $value = $this->helper->action('bar', 'foo');
-        
+
         $viewRendererPostAction = Zend_Controller_Action_HelperBroker::getStaticHelper('viewRenderer');
-        
+
         // ViewRenderer noRender should still be false
         $this->assertFalse($viewRendererPostAction->getNoRender());
         $this->assertSame($viewRenderer, $viewRendererPostAction);
     }
-    
+
     /**
      * Multiple call state issue
-     * 
-     * 
+     *
+     *
      * @group ZF-3456
      */
     public function testActionCalledWithinActionResetsResponseState()
@@ -297,9 +297,9 @@ class Zend_View_Helper_ActionTest extends PHPUnit_Framework_TestCase
         $value = $this->helper->action('bar-one', 'baz', 'foo');
         $this->assertEquals('Baz-Three-View-Script|Baz-Two-View-Script|Baz-One-View-Script', $value);
     }
-    
-    
-    
+
+
+
 }
 
 // Call Zend_View_Helper_ActionTest::main() if this source file is executed directly.

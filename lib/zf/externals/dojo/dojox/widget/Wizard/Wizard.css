@@ -1,11 +1,11 @@
 .dojoxWizard {
-	position:relative; 
+	position:relative;
 }
 
 .dojoxWizardButtons {
 	position:absolute;
 	bottom:5px;
-	right:5px;	
+	right:5px;
 }
 
 .tundra .dojoxWizard {

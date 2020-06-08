@@ -47,7 +47,7 @@ require_once 'Zend/Dojo/View/Helper/Dojo.php';
  * @copyright  Copyright (c) 2005-2008 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
-class Zend_Dojo_View_Helper_FilteringSelectTest extends PHPUnit_Framework_TestCase 
+class Zend_Dojo_View_Helper_FilteringSelectTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.
@@ -97,8 +97,8 @@ class Zend_Dojo_View_Helper_FilteringSelectTest extends PHPUnit_Framework_TestCa
     public function getElementAsSelect()
     {
         return $this->helper->filteringSelect(
-            'elementId', 
-            'someCombo', 
+            'elementId',
+            'someCombo',
             array(),
             array(),
             array(
@@ -115,16 +115,16 @@ class Zend_Dojo_View_Helper_FilteringSelectTest extends PHPUnit_Framework_TestCa
     public function getElementAsRemoter()
     {
         return $this->helper->filteringSelect(
-            'elementId', 
-            'someCombo', 
+            'elementId',
+            'someCombo',
             array(
                 'store' => array(
-                    'store' => 'stateStore', 
-                    'type' => 'dojo.data.ItemFileReadStore', 
+                    'store' => 'stateStore',
+                    'type' => 'dojo.data.ItemFileReadStore',
                     'params' => array(
                         'url' => 'states.txt'
                     )
-                ), 
+                ),
                 'searchAttr' => 'name'
             ),
             array()

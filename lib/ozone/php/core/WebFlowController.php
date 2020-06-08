@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,14 +15,14 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Web
  * @version $Id$
  * @copyright Copyright (c) 2008, Wikidot Inc.
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
- 
+
 
 
 
@@ -81,7 +81,7 @@ abstract class WebFlowController {
 			header("Etag: $etag");
 		}
 	}
-	
+
 	/**
 	 * Redirects browser to certain URL build from URL and params
 	 *
@@ -90,19 +90,19 @@ abstract class WebFlowController {
 	 * @param bool $addProtocol whether to add autodiscovered protocol to the front of URL
 	 */
 	protected function redirect($url, $params = null, $addProtocol = false) {
-		
+
 		if ($addProtocol) {
 			$proto = ($_SERVER["HTTPS"]) ? "https" : "http";
 			$url = "$proto://$url";
 		}
-		
+
 		if (is_array($params)) {
 			$url = $url . "?" . http_build_query($params);
 		}
-		
+
 		header('HTTP/1.1 301 Moved Permanently');
 		header("Location: $url");
-		
+
 	}
 
 	/**

@@ -86,7 +86,7 @@
       <layout>default</layout>
     </repository>
   </repositories>
-	
+
   <distributionManagement>
     <repository>
       <id>download.dojotoolkit.org</id>
@@ -100,7 +100,7 @@
       <url>scpexe://download.dojotoolkit.org/srv/www/vhosts/download.dojotoolkit.org/maven2-snapshot</url>
       <layout>default</layout>
     </snapshotRepository>
-    <!-- none yet 
+    <!-- none yet
     <site>
       <id></id>
       <name></name>
@@ -152,7 +152,7 @@
           <groupId>org.apache.maven</groupId>
           <artifactId>maven-release-plugin</artifactId>
           <version>2.0-beta-7</version>
-        </plugin> 
+        </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-war-plugin</artifactId>

@@ -12,15 +12,15 @@
             <ulink
                 url="http://www.martinfowler.com/eaaCatalog/frontController.html">Front
                 Controller</ulink>, no qual todos os pedidos são
-			interceptado pelo controlador e despachados individualmente 
-			para ações baseadas no URL requerido.  
+			interceptado pelo controlador e despachados individualmente
+			para ações baseadas no URL requerido.
         </para>
         <para>
-			O sistema <code>Zend_Controller</code> foi construído com a extensibilidade 
+			O sistema <code>Zend_Controller</code> foi construído com a extensibilidade
 			em mente, tanto por derivação das classes existentes, como escrevendo
 			novas classes que implementam as várias interfaces e classes abstratas
 			que formam a fundação da família classes controladoras, ou escrevendo
-			plugins ou ações auxiliadoras para aumentar ou manipular a funcionalidade 
+			plugins ou ações auxiliadoras para aumentar ou manipular a funcionalidade
 			do sistema.
         </para>
     </sect2>
@@ -37,7 +37,7 @@
             <title>Crie sua estrutura de arquivos</title>
 
             <para>
-				O primeiro passo é criar sua estrutura de arquivos. A estrutura 
+				O primeiro passo é criar sua estrutura de arquivos. A estrutura
 				típica é a seguinte:
             </para>
 
@@ -64,7 +64,7 @@ html/
 
             <para>
 				No seu servidor web, defina seu documento raiz para
-				o diretório <code>html</code> da estrutura de arquivos 
+				o diretório <code>html</code> da estrutura de arquivos
 				acima mencionada.
             </para>
         </sect3>
@@ -73,7 +73,7 @@ html/
             <title>Crie suas regras de re-escrita</title>
 
             <para>
-                Edite o arquivo <code>html/.htaccess</code> acima 
+                Edite o arquivo <code>html/.htaccess</code> acima
 				para ficar como:
             </para>
 
@@ -95,7 +95,7 @@ RewriteRule !\.(js|ico|gif|jpg|png|css)$ index.php
                 <para>
 					As regas de re-escrita acima são para o Apache; para exemplos de
 					regras de re-escrita para outros servidores web, veja a
-					<link 
+					<link
                         linkend="zend.controller.router.introduction">documentação do
 					roteador</link>.
                 </para>
@@ -129,15 +129,15 @@ Zend_Controller_Front::run('/path/to/app/controllers');
             <para>
 				Antes de discutir controladores de ação, você deve primeiro
 				entender como as requisições são roterizadas no Zend Framework.
-				Por padrão, o primeiro seguimento de um caminho de um URL 
-				aponta para um controlador, o segundo para uma ação. 
+				Por padrão, o primeiro seguimento de um caminho de um URL
+				aponta para um controlador, o segundo para uma ação.
 				Por exemplo, dado o URL
                 <code>http://framework.zend.com/roadmap/components</code>, o
 				caminho é <code>/roadmap/components</code>, que irá apontar para o
 				controlador <code>roadmap</code> e para a ação
 				<code>components</code>. Se nenhuma ação for informada, a ação
 				<code>index</code> é assumida, e se nenhum controlador for informado,
-				o controlador <code>index</code> é assumido (Seguindo a convenção do 
+				o controlador <code>index</code> é assumido (Seguindo a convenção do
 				Apache que mapeia um <code>DirectoryIndex</code> automaticamente).
             </para>
 
@@ -145,7 +145,7 @@ Zend_Controller_Front::run('/path/to/app/controllers');
 				O expedidor do <code>Zend_Controller</code> toma o
                 valor do controlador e mapeia-o para uma classe.
 				Por padrão, ele pega o nome do controlador, com a primeira
-				letra em maiúsculo, e acrescenta a palavra 
+				letra em maiúsculo, e acrescenta a palavra
 				<code>Controller</code>. Sendo assim, em nosso exemplo acima,
 				o controlador <code>roadmap</code> é mapeado para a classe
 				<code>RoadmapController</code>.
@@ -153,7 +153,7 @@ Zend_Controller_Front::run('/path/to/app/controllers');
 
             <para>
 				Semelhantemente, o valor da ação é mapeado para um método da
-				classe do controlador. Por padrão, o valor é transformado em 
+				classe do controlador. Por padrão, o valor é transformado em
 				letras minúsculas, e a palavra <code>Action</code> é acrescentada.
 				Sendo assim, em nosso exemplo acima, a ação <code>components</code>
 				torna-se <code>componentsAction</code>, e o método final chamado
@@ -183,19 +183,19 @@ class IndexController extends Zend_Controller_Action
             <para>
 				O ajudante de ação <link
                     linkend="zend.controller.actionhelpers.viewrenderer">ViewRenderer</link>
-				 é habilitado por padrão. Isto significa que apenas 
+				 é habilitado por padrão. Isto significa que apenas
 				definindo um método de ação simples e o script de visão correspondente,
 				você terá o seu conteúdo mostrador imediatamente. Por padrão,
 				<code>Zend_View</code> é usado como a camada de Visaulização
 				do MVC. O <code>ViewRenderer</code> faz alguma mágica, e usa
 				o nome do controlador (ex.: <code>index</code>) para determinar
 				qual modelo mostrar. Por padrão, modelos terminam com a
-				extensão <code>.phtml</code>, então isto significa que, 
-				no exemplo acima o modelo <code>index/index.phtml</code> 
+				extensão <code>.phtml</code>, então isto significa que,
+				no exemplo acima o modelo <code>index/index.phtml</code>
 				será mostrado. Adicionalmente, o <code>ViewRenderer</code>
-				automaticamente assume que o diretório <code>views</code> 
-				no mesmo nível que do diretório do controlador será o 
-				diretório base de visualização, e que o atual script de 
+				automaticamente assume que o diretório <code>views</code>
+				no mesmo nível que do diretório do controlador será o
+				diretório base de visualização, e que o atual script de
 				visualização estará no subdiretório <code>views/scripts/</code>,
 				Sendo assim, o modelo mostrado é encontrado em
                 <code>application/views/scripts/index/index.phtml</code>.
@@ -209,7 +209,7 @@ class IndexController extends Zend_Controller_Action
 				Com mensionado <link
                     linkend="zend.controller.quickstart.go.controller"> na seção
 					anterior</link>, scripts de visualização são encontrados em
-			    <code>application/views/scripts/</code>; O script padrão para 
+			    <code>application/views/scripts/</code>; O script padrão para
 				o controlador e ação padrão está em
 				<code>application/views/scripts/index/index.phtml</code>.
 				Crie este arquivo e tecle algum HTML:
@@ -257,10 +257,10 @@ class ErrorController extends Zend_Controller_Action
 
             <para>
 				Assumindo o layout de diretório discutido, este arquivo estará
-				em <code>application/controllers/ErrorController.php</code>. 
+				em <code>application/controllers/ErrorController.php</code>.
 				Você também precisará criar o script de visualização em
 				<code>application/views/scripts/error/error.phtml</code>;
-				o conteúdo do exemplo parecerá com: 
+				o conteúdo do exemplo parecerá com:
             </para>
 
             <programlisting role="php"><![CDATA[
@@ -286,7 +286,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
             <para>
 				Com o seu primeiro controlador e visualizador embaixo do seu cinto,
 				você agora pode disparar o seu navegador e navegar para o site.
-				Assumindo que o seu domínio é <code>example.com</code>, qualquer 
+				Assumindo que o seu domínio é <code>example.com</code>, qualquer
 				dos seguintes URLs irão mostrar a página que acabamos de criar:
             </para>
 

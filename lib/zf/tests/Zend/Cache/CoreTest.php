@@ -21,7 +21,7 @@ require_once 'PHPUnit/Framework/TestCase.php';
  * @package    Zend_Cache
  * @subpackage UnitTests
  */
-class Zend_Cache_CoreTest extends PHPUnit_Framework_TestCase 
+class Zend_Cache_CoreTest extends PHPUnit_Framework_TestCase
 {
     private $_instance;
 
@@ -90,7 +90,7 @@ class Zend_Cache_CoreTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Unknown options are okay and should be silently ignored. Non-string 
+     * Unknown options are okay and should be silently ignored. Non-string
      * options, however, should throw exceptions.
      *
      * @group ZF-5034

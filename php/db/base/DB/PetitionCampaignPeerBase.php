@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version \$Id\$
@@ -29,13 +29,13 @@ use BaseDBPeer;
 
 
 
- 
+
 /**
  * Base peer class mapped to the database table petition_campaign.
  */
 class PetitionCampaignPeerBase extends BaseDBPeer {
 	public static $peerInstance;
-	
+
 	protected function internalInit(){
 		$this->tableName='petition_campaign';
 		$this->objectName='DB\\PetitionCampaign';
@@ -44,7 +44,7 @@ class PetitionCampaignPeerBase extends BaseDBPeer {
 		$this->fieldTypes = array( 'campaign_id' => 'serial',  'site_id' => 'int',  'name' => 'varchar(256)',  'identifier' => 'varchar(256)',  'active' => 'boolean',  'number_signatures' => 'int',  'deleted' => 'boolean',  'collect_address' => 'boolean',  'collect_city' => 'boolean',  'collect_state' => 'boolean',  'collect_zip' => 'boolean',  'collect_country' => 'boolean',  'collect_comments' => 'boolean',  'show_city' => 'boolean',  'show_state' => 'boolean',  'show_zip' => 'boolean',  'show_country' => 'boolean',  'show_comments' => 'boolean',  'thank_you_page' => 'varchar(256)');
 		$this->defaultValues = array( 'active' => 'true',  'number_signatures' => '0',  'deleted' => 'false',  'collect_address' => 'true',  'collect_city' => 'true',  'collect_state' => 'true',  'collect_zip' => 'true',  'collect_country' => 'true',  'collect_comments' => 'true',  'show_city' => 'true',  'show_state' => 'true',  'show_zip' => 'false',  'show_country' => 'true',  'show_comments' => 'false');
 	}
-	
+
 	public static function instance(){
 		if(self::$peerInstance == null){
 			$className = "DB\\PetitionCampaignPeer";

@@ -1,6 +1,6 @@
 <sect3 id="zend.controller.router.routes.standard">
     <title>Zend_Controller_Router_Route</title>
-    
+
     <para>
         <code>Zend_Controller_Router_Route</code> - стандартный маршрут
         фреймворка. Он сочетает в себе легкость использования и гибкость
@@ -8,7 +8,7 @@
         (статических и динамических частей (переменных)), и может быть
         инициализирован со значениями по умолчанию и требованиями к переменным.
     </para>
-    
+
     <para>
         Давайте представим себе некое приложение, в котором нужно разместить
         несколько информационных страниц об авторах. Мы хотим, чтобы адрес
@@ -16,12 +16,12 @@
         на страницу с информацией об авторе с именем "martel". Маршрут для
         обеспечения такой функциональности может выглядеть следующим образом:
     </para>
-    
+
     <programlisting role="php"><![CDATA[
 $route = new Zend_Controller_Router_Route(
-    'author/:username', 
+    'author/:username',
     array(
-        'controller' => 'profile', 
+        'controller' => 'profile',
         'action'     => 'userinfo'
     )
 );
@@ -79,9 +79,9 @@ $values = array(
         методы <code>Zend_Controller_Action::_getParam()</code> или
         <code>Zend_Controller_Request::getParam()</code>.
     </para>
-    
+
     <programlisting role="php"><![CDATA[
-public function userinfoAction() 
+public function userinfoAction()
 {
     $request = $this->getRequest();
     $username = $request->getParam('username');
@@ -98,16 +98,16 @@ public function userinfoAction()
         (пары переменная => значение, определенные в URI). Следующий маршрут
         приближенно воспроизводит поведение маршрута Module:
     </para>
-    
+
     <programlisting role="php"><![CDATA[
 $route = new Zend_Controller_Router_Route(
-    ':module/:controller/:action/*', 
+    ':module/:controller/:action/*',
     array('module' => 'default')
 );
 $router->addRoute('default', $route);
 ]]>
     </programlisting>
-        
+
     <sect4 id="zend.controller.router.routes.standard.variable-defaults">
         <title>Значения переменных по умолчанию</title>
 
@@ -121,7 +121,7 @@ $router->addRoute('default', $route);
 
         <programlisting role="php"><![CDATA[
 $route = new Zend_Controller_Router_Route(
-    'archive/:year', 
+    'archive/:year',
     array('year' => 2006)
 );
 $router->addRoute('archive', $route);
@@ -148,9 +148,9 @@ $router->addRoute('archive', $route);
 
         <programlisting role="php"><![CDATA[
 $route = new Zend_Controller_Router_Route(
-    'archive/:year', 
+    'archive/:year',
     array(
-        'year'       => 2006, 
+        'year'       => 2006,
         'controller' => 'archive',
         'action'     => 'show'
     )
@@ -178,9 +178,9 @@ $router->addRoute('archive', $route);
 
         <programlisting role="php"><![CDATA[
 $route = new Zend_Controller_Router_Route(
-    'archive/:year', 
+    'archive/:year',
     array(
-        'year'       => 2006, 
+        'year'       => 2006,
         'controller' => 'archive',
         'action'     => 'show'
     ),
@@ -200,7 +200,7 @@ $router->addRoute('archive', $route);
             переход к следующему маршруту в цепочке.
         </para>
     </sect4>
-</sect3>        
+</sect3>
 <!--
 vim:se ts=4 sw=4 et:
 -->

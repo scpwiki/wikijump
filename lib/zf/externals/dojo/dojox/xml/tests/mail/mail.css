@@ -1,4 +1,4 @@
-html, body, #main{	
+html, body, #main{
 	width: 100%;	/* make the body expand to fill the visible window */
 	height: 100%;
 	overflow: hidden;	/* erase window level scrollbars */
@@ -8,11 +8,11 @@ html, body, #main{
 }
 
 #banner, #footer {
-background-color: #b7cdee; 
+background-color: #b7cdee;
 color: #333;
-padding:3px; 
+padding:3px;
 }
-#banner { text-align:right; } 
+#banner { text-align:right; }
 
 /* list of messages
 TODO: If i add the rules below as a plain tr/td it seems to mess up accordion, tree, etc. ???
@@ -25,37 +25,37 @@ TODO: If i add the rules below as a plain tr/td it seems to mess up accordion, t
 #listPane tr, #listPane td { cursor: pointer; }
 
 th {
-	background-color: #4f8ce5; 
-	color: #fff; 
+	background-color: #4f8ce5;
+	color: #fff;
 	font-weight:: bold !important;
 	margin:0;
-	padding:3px; 
+	padding:3px;
 	background-image:url('../../themes/soria/images/gradientTopBg.png');
-	background-position:0px -1px; 
+	background-position:0px -1px;
 }
 
-th .arrowNode { position:relative; right:2px; 
+th .arrowNode { position:relative; right:2px;
 	width:16px;
 	height:16px;
-} 
+}
 th.arrowUp .arrowNode {
 	padding-right: 16px;
 	background:transparent url("../../themes/soria/images/arrows.png") no-repeat;
-	background-position:-32px 0px; 
+	background-position:-32px 0px;
 }
 
 th.arrowDown .arrowNode {
 	padding-right: 16px;
 	background:transparent url("../../themes/soria/images/arrows.png") no-repeat;
-	background-position:0px 0px; 
+	background-position:0px 0px;
 }
 
-.demoTable td { padding:3px; } 
+.demoTable td { padding:3px; }
 .demoTable {
-	border-spacing:0; 
-	padding:0; margin:0; 
+	border-spacing:0;
+	padding:0; margin:0;
 	width:98%;
-	
+
 }
 .oddRow {
 	background-color: #f2f5f9;
@@ -80,7 +80,7 @@ th.arrowDown .arrowNode {
 .messageHeader {
 	font:12pt Arial,sans-serif;
 	font-weight:bold;
-	color:#333; 
+	color:#333;
 }
 body .dojoSplitPane {
 	background: #ededff;
@@ -100,11 +100,11 @@ body .dojoSplitPane {
 .mailIconOk,
 .mailIconTrashcanFull {
 	background-image: url('icons.png'); /* mail icons sprite image */
-	background-repeat: no-repeat; 
+	background-repeat: no-repeat;
 	width: 16px;
 	height: 16px;
 	text-align: center;
-	padding-right:4px; 
+	padding-right:4px;
 }
 
 .dj_ie6 .mailIconCancel,
@@ -131,7 +131,7 @@ body .dojoSplitPane {
 .mailIconMailbox { background-position: -154px; }
 .mailIconOk { background-position: -176px; }
 .mailIconTrashcanFull { background-position: -198px; }
-html, body, #main{	
+html, body, #main{
 	width: 100%;	/* make the body expand to fill the visible window */
 	height: 100%;
 	overflow: hidden;	/* erase window level scrollbars */
@@ -141,11 +141,11 @@ html, body, #main{
 }
 
 #banner, #footer {
-background-color: #b7cdee; 
+background-color: #b7cdee;
 color: #333;
-padding:3px; 
+padding:3px;
 }
-#banner { text-align:right; } 
+#banner { text-align:right; }
 
 /* list of messages
 TODO: If i add the rules below as a plain tr/td it seems to mess up accordion, tree, etc. ???
@@ -158,37 +158,37 @@ TODO: If i add the rules below as a plain tr/td it seems to mess up accordion, t
 #listPane tr, #listPane td { cursor: pointer; }
 
 th {
-	background-color: #4f8ce5; 
-	color: #fff; 
+	background-color: #4f8ce5;
+	color: #fff;
 	font-weight:: bold !important;
 	margin:0;
-	padding:3px; 
+	padding:3px;
 	background-image:url('../../themes/soria/images/gradientTopBg.png');
-	background-position:0px -1px; 
+	background-position:0px -1px;
 }
 
-th .arrowNode { position:relative; right:2px; 
+th .arrowNode { position:relative; right:2px;
 	width:16px;
 	height:16px;
-} 
+}
 th.arrowUp .arrowNode {
 	padding-right: 16px;
 	background:transparent url("../../themes/soria/images/arrows.png") no-repeat;
-	background-position:-32px 0px; 
+	background-position:-32px 0px;
 }
 
 th.arrowDown .arrowNode {
 	padding-right: 16px;
 	background:transparent url("../../themes/soria/images/arrows.png") no-repeat;
-	background-position:0px 0px; 
+	background-position:0px 0px;
 }
 
-.demoTable td { padding:3px; } 
+.demoTable td { padding:3px; }
 .demoTable {
-	border-spacing:0; 
-	padding:0; margin:0; 
+	border-spacing:0;
+	padding:0; margin:0;
 	width:98%;
-	
+
 }
 .oddRow {
 	background-color: #f2f5f9;
@@ -213,7 +213,7 @@ th.arrowDown .arrowNode {
 .messageHeader {
 	font:12pt Arial,sans-serif;
 	font-weight:bold;
-	color:#333; 
+	color:#333;
 }
 body .dojoSplitPane {
 	background: #ededff;
@@ -233,11 +233,11 @@ body .dojoSplitPane {
 .mailIconOk,
 .mailIconTrashcanFull {
 	background-image: url('icons.png'); /* mail icons sprite image */
-	background-repeat: no-repeat; 
+	background-repeat: no-repeat;
 	width: 16px;
 	height: 16px;
 	text-align: center;
-	padding-right:4px; 
+	padding-right:4px;
 }
 
 .dj_ie6 .mailIconCancel,

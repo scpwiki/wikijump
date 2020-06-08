@@ -69,7 +69,7 @@ class NewsController extends Zend_Controller_Action
 }
 ]]>
     </programlisting>
-    
+
     <para>
         ここで、<code>listAction()</code>
         の結果を XML 形式でも返せるようにしたくなったとしましょう。
@@ -225,7 +225,7 @@ $this->_helper->contextSwitch()->setAutoJsonSerialization(false);
                 このコールバックを使用して
                 自動 JSON シリアライズが有効な場合に ViewRenderer
                 を無効化しています。</para>
-                
+
                 <para>後処理はアクションの <code>postDispatch()</code>
                 で発生します。これを使用して、任意のロジックを実行することができます。
                 たとえば JSON コンテキストでは、このコールバックを使用して
@@ -762,14 +762,14 @@ class CommentController extends Zend_Controller_Action
     public function viewAction()
     {
         // 単一のコメントを表示します
-        // AjaxContext の場合は comment/view.ajax.phtml 
+        // AjaxContext の場合は comment/view.ajax.phtml
         // を使用します
     }
 
     public function formAction()
     {
         // 新規コメントの追加フォームをレンダリングします
-        // AjaxContext の場合は comment/form.ajax.phtml 
+        // AjaxContext の場合は comment/form.ajax.phtml
         // を使用します
     }
 
@@ -792,7 +792,7 @@ class CommentController extends Zend_Controller_Action
                 '/comment/process/format/json' のように指定します
                 (あるいはクエリ文字列で "?format=json" のようにしてもかまいません)。
             </para>
-                
+
             <para>
                 ライブラリ側で 'X-Requested-With:
                 XmlHttpRequest' ヘッダが設定されていれば、

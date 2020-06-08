@@ -27,7 +27,7 @@
         columns, represented by <code>Zend_Text_Table_Row</code> and
         <code>Zend_Text_Table_Column</code>. When creating a table, you can
         supply an array with options for the table. Those are:
-        
+
         <itemizedlist>
             <listitem>
                 <para>
@@ -93,7 +93,7 @@
         <code>\n</code> character. The second parameter defines the align, which
         is <code>left</code> by default and can be one of the class constants of
         <code>Zend_Text_Table_Column</code>:
-        
+
         <itemizedlist>
             <listitem>
                 <para>
@@ -111,7 +111,7 @@
                 </para>
             </listitem>
         </itemizedlist>
-        
+
         The third parameter is the colspan of the column. For example, when you
         choose "2" as colspan, the column will span over two columns of the table.
         The last parameter defines the encoding of the content, which should be
@@ -124,7 +124,7 @@
         To finally render the table, you can either use the <code>render</code>
         method of the table, or use the magic method <code>__toString</code>
         by doing <code>echo $table;</code> or <code>$tableString = (string) $table</code>.
-    </para>    
+    </para>
     <example id="zend.text.table.example.using">
         <title>Using Zend_Text_Table</title>
         <para>

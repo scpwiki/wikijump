@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id: ListPagesModule.php,v 1.10 2008/05/27 13:27:06 redbeard Exp $
@@ -32,35 +32,35 @@ use DB\OzoneUserPeer;
 use DB\ForumThreadPeer;
 
 class ListPagesModule extends SmartyModule {
-    
+
     public $parameterhash;
-      
+
     protected $processPage = true;
-    
+
     private $_tmpSplitSource;
     private $_tmpSource;
     private $_tmpPage;
-    
+
     private $_vars = array();
-    
+
     private $_pl;
-    
+
     private $_parameterUrlPrefix = null;
 
     public function render($runData) {
         $site = $runData->getTemp("site");
         $pl = $runData->getParameterList();
         $this->_pl = $pl;
-        
+
         $this->_parameterUrlPrefix = $pl->getParameterValue('urlAttrPrefix');
         /*
          * Read all parameters.
          */
-        
+
         $categoryName = $this->_readParameter(array('category', 'categories'), false);
-        
+
         $categoryName = strtolower($categoryName);
-        
+
         $parmHash = md5(serialize($pl->asArrayAll()));
         $this->parameterhash = $parmHash;
     	/* Check if recursive. */
@@ -71,7 +71,7 @@ class ListPagesModule extends SmartyModule {
         }
 
         $valid = true;
-        
+
         if (!$categoryName) {
             /* No category name specified, use the current category! */
             $pageUnixName = $runData->getTemp('pageUnixName');
@@ -85,7 +85,7 @@ class ListPagesModule extends SmartyModule {
                 $categoryName = "_default";
             }
         }
-        
+
         $key = 'listpages_v..' . $site->getUnixName() . '..' . $categoryName . '..' . $parmHash;
 
         $mc = OZONE::$memcache;
@@ -95,18 +95,18 @@ class ListPagesModule extends SmartyModule {
         }
         $cacheTimestamp = $struct['timestamp'];
         $now = time();
-        
+
         // now check lc for ALL categories involved
-        
+
 
         $cats = preg_split('/[,;\s]+?/', $categoryName);
-        
+
         if ($categoryName != '*') {
             foreach ($cats as $cat) {
-                
+
                 $tkey = 'pagecategory_lc..' . $site->getUnixName() . '..' . $cat; // last change timestamp
                 $changeTimestamp = $mc->get($tkey);
-                if ($changeTimestamp && $cacheTimestamp && $changeTimestamp <= $cacheTimestamp) {    //cache valid	
+                if ($changeTimestamp && $cacheTimestamp && $changeTimestamp <= $cacheTimestamp) {    //cache valid
                 } else {
                     $valid = false;
                     if (!$changeTimestamp) {
@@ -129,46 +129,46 @@ class ListPagesModule extends SmartyModule {
                 }
             }
         }
-        
+
         if ($valid) {
             $this->_vars = $struct['vars'];
             return $struct['content'];
         }
-        
+
         $out = parent::render($runData);
-        
+
         // and store the data now
         $struct = array();
         $now = time();
         $struct['timestamp'] = $now;
         $struct['content'] = $out;
         $struct['vars'] = $this->_vars;
-        
+
         $mc->set($key, $struct, 0, 864000);
         return $out;
-    
+
     }
 
     public function build($runData) {
-        
+
         $pl = $runData->getParameterList();
         $site = $runData->getTemp("site");
-        
+
     	$categoryName = $this->_readParameter(array('category', 'categories'), false);
-        
+
         $categoryName = strtolower($categoryName);
-        
+
         $order = $this->_readParameter("order", true);
         $limit = $this->_readParameter("limit", true);
         $perPage = $this->_readParameter("perPage", true);
         $skipCurrent = $this->_readParameter('skipCurrent');
-        
+
         if($skipCurrent && ($skipCurrent == 'yes' || $skipCurrent == 'true')) {
             $skipCurrent = true;
         } else {
             $skipCurrent = false;
         }
-        
+
     	$pageUnixName = $runData->getTemp('pageUnixName');
         if (!$pageUnixName) {
             $pageUnixName = $pl->getParameterValue('page_unix_name'); // from preview
@@ -179,14 +179,14 @@ class ListPagesModule extends SmartyModule {
         if ($categoryName != '*') {
             if (!$categoryName) {
                 /* No category name specified, use the current category! */
-                
+
                 if (strpos($pageUnixName, ":") != false) {
                     $tmp0 = explode(':', $pageUnixName);
                     $categoryName = $tmp0[0];
                 } else {
                     $categoryName = "_default";
                 }
-            
+
             }
             foreach (preg_split('/[,;\s]+?/', $categoryName) as $cn) {
                 $category = CategoryPeer::instance()->selectByName($cn, $site->getSiteId());
@@ -200,13 +200,13 @@ class ListPagesModule extends SmartyModule {
             }
         }
         //if(count($categories) == 0){
-        //	throw new ProcessException(_("The category can not be found."));	
+        //	throw new ProcessException(_("The category can not be found."));
         //}
-        
+
 
 
         // now select pages according to the specified criteria
-        
+
 
         $c = new Criteria();
         $c->add("site_id", $site->getSiteId());
@@ -217,7 +217,7 @@ class ListPagesModule extends SmartyModule {
             }
             $c->addCriteriaAnd($ccat);
         }
-        
+
         $c->add('unix_name', '(^|:)_', '!~');
 
 	/* Handle magic previousBy/nextBy keywords */
@@ -226,7 +226,7 @@ class ListPagesModule extends SmartyModule {
 
 	if ($previousBy || $nextBy) {
 		if ($refPage = $runData->getTemp('page')) {
-			
+
 			$refPageId = $refPage->getPageId();
 			$refPageTitle = $refPage->getTitle() . ' ... ' . $refPage->getUnixName();
 
@@ -239,25 +239,25 @@ class ListPagesModule extends SmartyModule {
 			} elseif ($nextBy == 'title') {
 				$c->add("title || ' ... ' || unix_name", $refPageTitle, '>');
 			}
-			
+
 		} else {
 			$c->add('page_id', 0); // this should be simply never;
 		}
 	}
 
-        
+
         /* Handle tags! */
-        
+
         $tagString = $this->_readParameter(array('tag', 'tags'), true);
 
         if ($tagString) {
             /* Split tags. */
             $tags = preg_split(';[\s,\;]+;', $tagString);
-            
+
             $tagsAny = array();
             $tagsAll = array();
             $tagsNone = array();
-            
+
             foreach ($tags as $t) {
                 if (substr($t, 0, 1) == '+') {
                     $tagsAll[] = substr($t, 1);
@@ -272,12 +272,12 @@ class ListPagesModule extends SmartyModule {
             			$co->addOrderAscending("tag");
             			$tagso = PageTagPeer::instance()->select($co);
             			foreach($tagso as $to){
-            				$tagsAny[] = $to->getTag();	
+            				$tagsAny[] = $to->getTag();
             			}
             			if(count($tagsAny) == 0) {
             			    /*
             			     * If someone uses the '=' tag, the line below guarantees that
-            			     * only pages that DO have tags and share at least one similar tag with the 
+            			     * only pages that DO have tags and share at least one similar tag with the
             			     * current page are listed.
             			     */
             			    $tagsAny[] = '   ';
@@ -295,9 +295,9 @@ class ListPagesModule extends SmartyModule {
             if($tagString == '=') {
                 $skipCurrent = true;
             }
-            
+
             /* Create extra conditions to the SELECT */
-            
+
             /* ANY */
             if (count($tagsAny) > 0) {
                 $t = array();
@@ -305,7 +305,7 @@ class ListPagesModule extends SmartyModule {
                     $t[] = 'tag = \'' . db_escape_string($tag0) . '\'';
                 }
                 $tagQuery = "SELECT count(*) FROM page_tag " . "WHERE page_tag.page_id=page.page_id " . "AND (" . implode(' OR ', $t) . ")";
-                
+
                 $c->add('(' . $tagQuery . ')', 1, '>=');
             }
             /* ALL */
@@ -315,7 +315,7 @@ class ListPagesModule extends SmartyModule {
                     $t[] = 'tag = \'' . db_escape_string($tag0) . '\'';
                 }
                 $tagQuery = "SELECT count(*) FROM page_tag " . "WHERE page_tag.page_id=page.page_id " . "AND (" . implode(' OR ', $t) . ")";
-                
+
                 $c->add('(' . $tagQuery . ')', count($tagsAll));
             }
             /* NONE */
@@ -325,20 +325,20 @@ class ListPagesModule extends SmartyModule {
                     $t[] = 'tag = \'' . db_escape_string($tag0) . '\'';
                 }
                 $tagQuery = "SELECT count(*) FROM page_tag " . "WHERE page_tag.page_id=page.page_id " . "AND (" . implode(' OR ', $t) . ")";
-                
+
                 $c->add('(' . $tagQuery . ')', 0);
             }
-        
+
 
         }
-        
+
         if($skipCurrent && $runData->getTemp('page') && $runData->getTemp('page')->getPageId()) {
             $c->add('page_id', $runData->getTemp('page')->getPageId(), '!=');
         }
         /* Handle date ranges. */
-        
+
         $date = $this->_readParameter("date", true);
-        
+
         $dateA = array();
         if (preg_match(';^[0-9]{4}$;', $date)) {
             $dateA['year'] = $date;
@@ -348,17 +348,17 @@ class ListPagesModule extends SmartyModule {
             $dateA['year'] = $dateS[0];
             $dateA['month'] = $dateS[1];
         }
-        
+
         if (isset($dateA['year'])) {
             $c->add('EXTRACT(YEAR FROM date_created)', $dateA['year']);
         }
-        
+
         if (isset($dateA['month'])) {
             $c->add('EXTRACT(MONTH FROM date_created)', $dateA['month']);
         }
-        
+
         /* Handle date "last X day(s)/week(s)/month(s)" */
-        
+
         $m = array();
         if (preg_match(';^last (?:([1-9][0-9]*) )?(day|week|month)s?$;', $date, $m)) {
         	$dateObj = new ODate();
@@ -369,26 +369,26 @@ class ListPagesModule extends SmartyModule {
         	$dateObj->subtractSeconds($n * $convarray[$unit]);
         	$c->add('date_created', $dateObj, '>');
         }
-        
+
         /* Handle pagination. */
-        
+
         if (!$perPage || !preg_match(';^[0-9]+$;', $perPage)) {
             $perPage = 20;
         }
-        
+
         if ($limit && preg_match(';^[0-9]+$;', $limit)) {
             $c->setLimit($limit); // this limit has no effect on count(*) !!!
         } else {
         	$limit = null;
         }
-        
+
         $pageNo = $pl->getParameterValue(($this->_parameterUrlPrefix ? ($this->_parameterUrlPrefix . '_') : '' ) . "p");
         if ($pageNo == null || !preg_match(';^[0-9]+$;', $pageNo)) {
             $pageNo = 1;
         }
-        
+
         $co = PagePeer::instance()->selectCount($c);
-        
+
         if($limit){
         	$co = min(array($co, $limit));
         }
@@ -409,7 +409,7 @@ class ListPagesModule extends SmartyModule {
         $runData->contextAdd("count", $co);
         $runData->contextAdd("totalPages", $totalPages);
         $runData->contextAdd('parameterUrlPrefix', $this->_parameterUrlPrefix);
-        
+
         /* Pager's base url */
         $url = $_SERVER['REQUEST_URI'];
         if(($url == '' || $url == '/') && isset($pageUnixName)) {
@@ -421,9 +421,9 @@ class ListPagesModule extends SmartyModule {
         }
         $url = preg_replace(';(/'.$pref.'p/[0-9]+)|$;', '/'.$pref.'p/%d', $url, 1);
         $runData->contextAdd("pagerUrl", $url);
-        
+
         switch ($order) {
-            
+
             case 'dateCreatedAsc':
                 $c->addOrderAscending('page_id');
                 break;
@@ -467,65 +467,65 @@ class ListPagesModule extends SmartyModule {
                 $c->addOrderDescending('page_id');
                 break;
         }
-        
+
         $pages = PagePeer::instance()->select($c);
-        
+
         /* Process... */
         $format = $this->_readParameter("module_body");
         if (!$format) {
             $format = "" . "+ %%linked_title%%\n\n" . _("by") . " %%author%% %%date|%O ago (%e %b %Y, %H:%M %Z)%%\n\n" . "%%short%%";
         }
-        
+
         //$wt = new WikiTransformation();
         //$wt->setMode("feed");
         //$template = $wt->processSource($format);
-        
 
-        //$template = preg_replace('/<p\s*>\s*(%%((?:short)|(?:description)|(?:summary)|(?:content)|(?:long)|(?:body)|(?:text))%%)\s*<\/\s*p>/smi', 
+
+        //$template = preg_replace('/<p\s*>\s*(%%((?:short)|(?:description)|(?:summary)|(?:content)|(?:long)|(?:body)|(?:text))%%)\s*<\/\s*p>/smi',
         //			"<div>\\1</div>", $template);
-        
+
 
         //$template = $format;
         $items = array();
-        
+
         $separation = $this->_readParameter("separate");
         if ($separation == 'no' || $separation == 'false') {
             $separation = false;
         } else {
             $separation = true;
         }
-        
+
         foreach ($pages as $page) {
             $this->_tmpPage = $page;
             $title = $page->getTitle();
             $source = $page->getSource();
-            
+
             $title = str_replace(array('[',']'), '', $title);
             $title = str_replace('%%', "\xFD", $title);
-            
+
             $source = str_replace('%%', "\xFD", $source);
-            
+
             $c = new Criteria();
             $c->add('revision_id', $page->getRevisionId());
             $lastRevision = PageRevisionPeer::instance()->selectOne($c);
-            
+
             //$c = new Criteria();
             //$c->add('page_id', $page->getPageId());
             //$c->addOrderAscending('revision_id');
             //$firstRevision = DB_PageRevisionPeer::instance()->selectOne($c);
             $b = $format;
-            
+
             /* A series of substitutions. */
-            
+
             $b = str_replace("\xFD", '', $b);
-            
+
             /* %%title%% and similar */
-            
+
             $b = str_replace('%%title%%', $title, $b);
             $b = preg_replace("/%%((linked_title)|(title_linked))%%/i", preg_quote_replacement('[[[' . $page->getUnixName() . ' | ' . $title . ']]]'), $b);
-            
+
             /* %%author%% */
-            
+
             if($page->getOwnerUserId()){
 	            $user = OzoneUserPeer::instance()->selectByPrimaryKey($page->getOwnerUserId());
 	            if ($user->getUserId() > 0) {
@@ -538,7 +538,7 @@ class ListPagesModule extends SmartyModule {
             }
             $b = str_ireplace("%%author%%", $userString, $b);
             $b = str_ireplace("%%user%%", $userString, $b);
-            
+
             if($lastRevision->getUserId()){
 	            $user = OzoneUserPeer::instance()->selectByPrimaryKey($lastRevision->getUserId());
 	            if ($user->getUserId() > 0) {
@@ -551,71 +551,71 @@ class ListPagesModule extends SmartyModule {
             }
             $b = str_ireplace("%%author_edited%%", $userString, $b);
             $b = str_ireplace("%%user_edited%%", $userString, $b);
-            
-            
+
+
             /* %%date%% */
-            
+
             $b = preg_replace(';%%date(\|.*?)?%%;', '%%date|' . $page->getDateCreated()->getTimestamp() . '\\1%%', $b);
             $b = preg_replace(';%%date_edited(\|.*?)?%%;', '%%date|' . $page->getDateLastEdited()->getTimestamp() . '\\1%%', $b);
-            
+
             /* %%content%% */
-            
+
             $b = preg_replace(';%%((body)|(text)|(long)|(content))%%;i', $source, $b);
-            
+
             /* %%content{n}%% */
-            
+
             /* Split the content first. */
             $this->_tmpSplitSource = preg_split('/^([=]{4,})$/m', $source);
             $this->_tmpSource = $source;
             $b = preg_replace_callback(';%%content{([0-9]+)}%%;', array(
-                $this, 
+                $this,
                 '_handleContentSubstitution'), $b);
-            
+
             /* %%short%% */
-            
+
             $b = preg_replace_callback("/%%((description)|(short)|(summary))%%/i", array(
-                $this, 
+                $this,
                 '_handleSummary'), $b);
-                
+
             $b = preg_replace_callback("/%%first_paragraph%%/i", array(
-                $this, 
+                $this,
                 '_handleFirstParagraph'), $b);
-                
+
             /* %%preview%% */
             $b = preg_replace_callback("/%%preview(?:\(([0-9]+)\))?%%/i", array(
-                $this, 
+                $this,
                 '_handlePreview'), $b);
-            
+
             /* %%rating%% */
             $b = str_ireplace('%%rating%%', $page->getRate(), $b);
-                
+
              /* %%comments%% */
             $b = preg_replace_callback("/%%comments%%/i", array(
                 $this, '_handleComementsCount'), $b);
-                
+
             /* %%page_unix_name%% */
             $b = str_ireplace('%%page_unix_name%%', $page->getUnixName(), $b);
-            
+
             /* %%category%% */
-            
+
             if(strpos( $page->getUnixName(), ":") != false){
-				$tmp0 = explode(':',$page->getUnixName()); 
+				$tmp0 = explode(':',$page->getUnixName());
 				$categoryName00 = $tmp0[0];
 			} else {
 				$categoryName00 = "_default";
 			}
-            
+
 			$b = str_ireplace('%%category%%', $categoryName00, $b);
-			
+
             /* %%link%% */
             $b = str_ireplace('%%link%%', GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'/'.$page->getUnixName(), $b);
-            
+
             /* %%tags%% */
             $b = preg_replace_callback("/%%tags%%/i", array(
                 $this, '_handleTags'), $b);
-            
+
             $b = str_replace("\xFD", '%%', $b);
-            
+
             if ($separation) {
                 $wt = new WikiTransformation();
                 $wt->setMode("list");
@@ -624,7 +624,7 @@ class ListPagesModule extends SmartyModule {
                 $b = "<div class=\"list-pages-item\">\n" . $b . "</div>";
                 //$b = "[[div class=\"list-pages-item\"]]\n".$b."\n[[/div]]";
             }
-            
+
 
             $items[] = trim($b);
         }
@@ -635,7 +635,7 @@ class ListPagesModule extends SmartyModule {
             $wt->setMode("list");
             $glue = "\n";
             $itemsContent = $wt->processSource(($prependLine ? ($prependLine . "\n") : ''). implode($glue, $items) . ($appendLine ? ("\n". $appendLine) : ''));
-            
+
         } else {
             $itemsContent = implode("\n", $items);
         }
@@ -644,23 +644,23 @@ class ListPagesModule extends SmartyModule {
 		 * with a single newline. This allows to create e.g. list of pages by creating a template:
 		 * * %%linked_title%%
 		 */
-        
+
         /* Fix dates. */
         //$dateString = '<span class="odate">'.$thread->getDateStarted()->getTimestamp().'|%e %b %Y, %H:%M %Z|agohover</span>';
         $itemsContent = preg_replace_callback(';%%date\|([0-9]+)(\|.*?)?%%;', array(
             $this, '_formatDate'), $itemsContent);
-        
+
         $runData->contextAdd("items", $items);
         $runData->contextAdd("itemsContent", $itemsContent);
         $runData->contextAdd("details", $details);
         $runData->contextAdd("preview", $preview);
-        
+
         /* Also build an URL for the feed. */
-        
+
         $rssTitle = $this->_readParameter(array('rss', 'rssTitle'));
-        
+
         if($rssTitle !== null) {
-	        
+
 	        $url = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain() . '/feed/pages';
 	        if (count($categoryNames) > 0) {
 	            $url .= '/category/' . urlencode(implode(',', $categoryNames));
@@ -668,7 +668,7 @@ class ListPagesModule extends SmartyModule {
 	        if (isset($tags)) {
 	            $url .= '/tags/' . urlencode(implode(',', $tags));
 	        }
-	        
+
 	        /*
 	         * Ignore date in RSS generation.
 	         */
@@ -676,11 +676,11 @@ class ListPagesModule extends SmartyModule {
 	        if (isset($date)) {
 	            $url .= '/date/' . urlencode($date);
 	        }*/
-	        
+
 	        if ($order) {
 	            $url .= '/order/' . urlencode($order);
 	        }
-	        
+
 	        //$erss = $pl->getParameterValue('rssEmbed');
 	        //if ($erss == 'no' || $erss == 'false') {
 	        //    $erss = false;
@@ -693,7 +693,7 @@ class ListPagesModule extends SmartyModule {
 	        //} else {
 	        //    $srss = true;
 	        //}
-	        
+
 	        //$trss = $pl->getParameterValue('rssTitle');
 	        //if ($trss) {
 	        //    $url .= '/t/' . urlencode($trss);
@@ -722,13 +722,13 @@ class ListPagesModule extends SmartyModule {
 
     private function _handleContentSubstitution($m) {
         $n = $m[1] - 1;
-        
+
         if (isset($this->_tmpSplitSource[$n])) {
             return trim($this->_tmpSplitSource[$n]);
         } else {
             return '';
         }
-    
+
     }
 
     private function _handleSummary($m) {
@@ -748,9 +748,9 @@ class ListPagesModule extends SmartyModule {
             //var_dump($split);
             return trim($split[0]);
         }
-    
+
     }
-    
+
      private function _handleFirstParagraph($m) {
         /* Try to extract the short version. */
         $s = $this->_tmpSource;
@@ -795,17 +795,17 @@ class ListPagesModule extends SmartyModule {
         }
         return implode(' ', $t2);
     }
-    
+
     private function _handlePreview($m) {
     	$page = $this->_tmpPage;
     	$length = 200;
     	if(isset($m[1])){
     		$length = $m[1];
     	}
-    	
+
     	return $page->getPreview($length);
     }
-    
+
     private function _handleComementsCount($m){
     	$page = $this->_tmpPage;
     	$threadId = $page->getThreadId();
@@ -838,10 +838,10 @@ class ListPagesModule extends SmartyModule {
 	    		}
 	    	}
     	}
-    	
+
     	return $val;
     }
-    
+
     public function processPage($out, $runData) {
         $pl = $runData->getParameterList();
         $pl->getParameterValue('t');
@@ -853,7 +853,7 @@ class ListPagesModule extends SmartyModule {
             $out = preg_replace("/<\/head>/", '<link rel="alternate" type="application/rss+xml" title="' . preg_quote_replacement(htmlspecialchars($rssTitle)) . '" href="' . $this->_vars['rssUrl'] . '"/></head>', $out, 1);
         }
         return $out;
-    
+
     }
 
 }

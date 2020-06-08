@@ -41,7 +41,7 @@ class Zend_Controller_Router_Route_Static extends Zend_Controller_Router_Route_A
     public function getVersion() {
         return 1;
     }
-    
+
     /**
      * Instantiates route based on passed Zend_Config structure
      *

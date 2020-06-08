@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,23 +27,23 @@
 use DB\SitePeer;
 
 class NewSiteModule extends SmartyModule {
-	
+
 	public function build($runData){
 		if($runData->getUser() == null){
-			$runData->contextAdd("notLogged", true);	
+			$runData->contextAdd("notLogged", true);
 		}else{
-			
-//			
-//			
+
+//
+//
 		}
 		$pl = $runData->getParameterList();
 		$siteUnixName = WDStringUtils::toUnixName($pl->getParameterValue('address'));
 		$runData->contextAdd('unixName', $siteUnixName);
-		
+
 		$siteName = str_replace('-', ' ', $siteUnixName);
-		$siteName = ucwords($siteName);	
-		$runData->contextAdd('siteName', $siteName);	
-		
+		$siteName = ucwords($siteName);
+		$runData->contextAdd('siteName', $siteName);
+
 		// get template sites
 		$c = new Criteria();
 		$c->add('unix_name', '^template-', '~');
@@ -51,5 +51,5 @@ class NewSiteModule extends SmartyModule {
 		$templates = SitePeer::instance()->select($c);
 		$runData->contextAdd('templates', $templates);
 	}
-	
+
 }

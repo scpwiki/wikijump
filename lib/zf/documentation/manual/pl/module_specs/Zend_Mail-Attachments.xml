@@ -13,9 +13,9 @@
 $mail = new Zend_Mail();
 // tworzymy wiadomość
 $mail->createAttachment($someBinaryString);
-$mail->createAttachment($myImage, 
-                        'image/gif', 
-                        Zend_Mime::DISPOSITION_INLINE, 
+$mail->createAttachment($myImage,
+                        'image/gif',
+                        Zend_Mime::DISPOSITION_INLINE,
                         Zend_Mime::ENCODING_8BIT);
 ]]>
         </programlisting>

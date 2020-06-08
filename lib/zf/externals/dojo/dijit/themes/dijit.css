@@ -12,7 +12,7 @@
 .dijitReset {
 	/* Use this style to null out padding, margin, border in your template elements
 		so that page specific styles don't break them.
-		- Use in all TABLE, TR and TD tags.	
+		- Use in all TABLE, TR and TD tags.
 	*/
 	margin:0;
 	border:0;
@@ -222,7 +222,7 @@
 /****
 		3-element borders:  ( dijitLeft + dijitStretch + dijitRight )
  ****/
-	
+
 .dijitLeft {
 	/* Left part of a 3-element border */
 	background-position:left top;
@@ -288,9 +288,9 @@
 }
 
 /*
-.dijitButtonNode button { 
+.dijitButtonNode button {
 	cursor: pointer;
-} 
+}
 */
 
 .dj_ie .dijitButtonNode {
@@ -298,14 +298,14 @@
 	zoom: 1;
 }
 
-.dj_ie .dijitButtonNode button { 
-	/*  
-		disgusting hack to get rid of spurious padding around button elements 
-		on IE. MSIE is truly the web's boat anchor. 
-	*/ 
+.dj_ie .dijitButtonNode button {
+	/*
+		disgusting hack to get rid of spurious padding around button elements
+		on IE. MSIE is truly the web's boat anchor.
+	*/
 	overflow: visible;
 	cursor: pointer;
-} 
+}
 
 .dijitArrowButton {
 	/* Node that is acting as a arrow button -- drop down (spinner has its own treatment).  Also gets dijitButtonNode */
@@ -379,7 +379,7 @@ table .dijitComboButton .dijitButtonNode {
 	#overflow: hidden; /* #6027, #6067 */
 	width: 15em;	/* need to set default size on outer node since inner nodes say <input style="width:100%"> and <td width=100%>.  user can override */
 	vertical-align: middle;
-	#vertical-align: auto;	
+	#vertical-align: auto;
 }
 
 .dijitTimeTextBox {
@@ -410,7 +410,7 @@ table .dijitComboButton .dijitButtonNode {
 	border-left: solid black 1px;	/* TODO: for RTL mode should be border-right */
 	display:inline;
 	position:static !important;
-	border:0 !important;	
+	border:0 !important;
 	margin:0 !important;
 	vertical-align:top !important;
 	visibility:visible !important;
@@ -811,7 +811,7 @@ body .dijitAlignClient { position: absolute; }
 	overflow: hidden;
 }
 .dj_ie7 .dijitTitlePaneTextNode {
-	display:inline; 
+	display:inline;
 }
 
 /* Color Palette */
@@ -863,7 +863,7 @@ img.dijitColorPaletteUnder {
 	cursor: default;
 	border:2px solid #000;
 	outline:1px solid #dedede;
-	/* -moz-border-radius:0; */	
+	/* -moz-border-radius:0; */
 }
 
 .dijit_a11y .dijitPaletteCell {
@@ -1240,7 +1240,7 @@ img.dijitColorPaletteUnder {
 }
 
 .dijitDialogFixed div.dijitDialogTitleBar {
-	cursor:default; 
+	cursor:default;
 }
 
 .dijitDialogUnderlayWrapper {
@@ -1567,7 +1567,7 @@ img.dijitColorPaletteUnder {
 }
 
 .dijit_a11y .dijitTimePickerItem {
-	border-bottom:1px solid #333;	
+	border-bottom:1px solid #333;
 }
 
 

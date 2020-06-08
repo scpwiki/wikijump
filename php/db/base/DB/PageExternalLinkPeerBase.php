@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version \$Id\$
@@ -29,13 +29,13 @@ use BaseDBPeer;
 
 
 
- 
+
 /**
  * Base peer class mapped to the database table page_external_link.
  */
 class PageExternalLinkPeerBase extends BaseDBPeer {
 	public static $peerInstance;
-	
+
 	protected function internalInit(){
 		$this->tableName='page_external_link';
 		$this->objectName='DB\\PageExternalLink';
@@ -44,7 +44,7 @@ class PageExternalLinkPeerBase extends BaseDBPeer {
 		$this->fieldTypes = array( 'link_id' => 'serial',  'site_id' => 'int',  'page_id' => 'int',  'to_url' => 'varchar(512)',  'pinged' => 'boolean',  'ping_status' => 'varchar(256)',  'date' => 'timestamp');
 		$this->defaultValues = array( 'pinged' => 'false');
 	}
-	
+
 	public static function instance(){
 		if(self::$peerInstance == null){
 			$className = "DB\\PageExternalLinkPeer";

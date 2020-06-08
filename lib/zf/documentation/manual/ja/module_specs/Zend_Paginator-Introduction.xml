@@ -6,10 +6,10 @@
         <code>Zend_Paginator</code> は、
         データのコレクションにページを割り振ったりそれをユーザに表示したりするためのコンポーネントです。
     </para>
-    
+
     <para>
         <code>Zend_Paginator</code> は次のような設計を目指しています。
-        
+
         <itemizedlist>
             <listitem>
                 <para>

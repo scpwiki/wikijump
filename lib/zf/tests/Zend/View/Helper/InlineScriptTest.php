@@ -24,7 +24,7 @@ require_once 'Zend/Registry.php';
  * @package    Zend_View
  * @subpackage UnitTests
  */
-class Zend_View_Helper_InlineScriptTest extends PHPUnit_Framework_TestCase 
+class Zend_View_Helper_InlineScriptTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @var Zend_View_Helper_InlineScript

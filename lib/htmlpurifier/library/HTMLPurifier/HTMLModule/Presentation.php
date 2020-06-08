@@ -14,9 +14,9 @@ require_once 'HTMLPurifier/HTMLModule.php';
  */
 class HTMLPurifier_HTMLModule_Presentation extends HTMLPurifier_HTMLModule
 {
-    
+
     public $name = 'Presentation';
-    
+
     public function __construct() {
         $this->addElement('b',      true, 'Inline', 'Inline', 'Common');
         $this->addElement('big',    true, 'Inline', 'Inline', 'Common');
@@ -27,6 +27,6 @@ class HTMLPurifier_HTMLModule_Presentation extends HTMLPurifier_HTMLModule
         $this->addElement('sup',    true, 'Inline', 'Inline', 'Common');
         $this->addElement('tt',     true, 'Inline', 'Inline', 'Common');
     }
-    
+
 }
 

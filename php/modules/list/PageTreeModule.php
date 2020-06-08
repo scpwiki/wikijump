@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,37 +27,37 @@
 use DB\PagePeer;
 
 class PageTreeModule extends SmartyModule {
-	
+
 	public function build($runData){
-		
+
 		$pl = $runData->getParameterList();
 		$site = $runData->getTemp("site");
-		
+
 		$root = $pl->getParameterValue("root");
 		$showRoot = $pl->getParameterValue("showRoot");
 		if(!$root){
 			$page = $runData->getTemp("page");
 		}else{
-		
+
 			$page = PagePeer::instance()->selectByName($site->getSiteId(), $root);
 		}
 		if(!$page){
 			$runData->setModuleTemplate("Empty");
-			return;	
+			return;
 		}
-		
+
 		$depth = $pl->getParameterValue("depth");
 		if(!$depth || !is_numeric($depth) || $depth<1){
-			$depth = 5;	
+			$depth = 5;
 		}
-		
+
 		$tree = array();
-		
+
 		$c = new Criteria();
 		$c->add("parent_page_id", $page->getPageId());
 		$c->addOrderAscending("COALESCE(title, unix_name)");
 		$children = PagePeer::instance()->select($c);
-		
+
 		$descendants = array();
 		// select next level of children
 		$ch1 = $children;
@@ -74,7 +74,7 @@ class PageTreeModule extends SmartyModule {
 					$ch->setTemp('circular', true);
 					$descendants[$ch->getParentPageId()][] = $ch;
 				}
-				
+
 			}
 			if(count($tch)>0){
 				$q .= implode(',', $tch);
@@ -88,16 +88,16 @@ class PageTreeModule extends SmartyModule {
 			}
 			$d++;
 		}
-			
+
 		$runData->contextAdd("root", $page);
 		$runData->contextAdd("children", $descendants);
-		
+
 		if($showRoot){
 			$runData->contextAdd("showRoot", true);
 		}
 
 	}
-	
+
 	/*
 	private function naturalSort(&$pages){
 		$ref = array();
@@ -105,7 +105,7 @@ class PageTreeModule extends SmartyModule {
 		foreach($pages as $key => $page){
 			$name = $page->getTitleOrUnixName();
 			$ref[$name] = $key;
-			$sor[] = $name;	
+			$sor[] = $name;
 		}
 		natsort($sor);
 		$out = array();

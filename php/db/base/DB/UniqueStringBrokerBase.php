@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version \$Id\$
@@ -29,7 +29,7 @@ use BaseDBObject;
 
 
 
- 
+
 /**
  * Base class mapped to the database table unique_string_broker.
  */
@@ -40,24 +40,24 @@ class UniqueStringBrokerBase extends BaseDBObject {
 		$this->peerName = 'DB\\UniqueStringBrokerPeer';
 		$this->primaryKeyName = '';
 		$this->fieldNames = array( 'last_index' );
-		
+
 		//$this->fieldDefaultValues=
 	}
 
 
-	
-		
-	
-		
+
+
+
+
 	public function getLastIndex() {
 		return $this->getFieldValue('last_index');
 	}
-	
+
 	public function setLastIndex($v1, $raw=false) {
-		$this->setFieldValue('last_index', $v1, $raw); 
+		$this->setFieldValue('last_index', $v1, $raw);
 	}
-	
-		
-	
+
+
+
 
 }

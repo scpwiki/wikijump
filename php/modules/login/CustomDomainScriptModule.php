@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -25,7 +25,7 @@
 
 
 class CustomDomainScriptModule extends SmartyModule {
-	
+
 	public function build($runData){
 		if(!$runData->getUser() && preg_match('/^([a-zA-Z0-9\-]+)\.' . GlobalProperties::$URL_DOMAIN .'$/',$_SERVER["HTTP_HOST"], $matches) !==1){
 			$runData->contextAdd("useCustomDomainScript", true);
@@ -33,5 +33,5 @@ class CustomDomainScriptModule extends SmartyModule {
 			$runData->contextAdd("site", $runData->getTemp("site"));
 		}
 	}
-	
+
 }

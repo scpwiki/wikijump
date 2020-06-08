@@ -80,7 +80,7 @@ public function drawLine($x1, $y1, $x2, $y2);
  * Rysuje prostokąt.
  *
  * Typy wypełnienia:
- * Zend_Pdf_Page::SHAPE_DRAW_FILL_AND_STROKE - wypełnia i obramowuje 
+ * Zend_Pdf_Page::SHAPE_DRAW_FILL_AND_STROKE - wypełnia i obramowuje
  *                                             prostokąt (domyślnie)
  * Zend_Pdf_Page::SHAPE_DRAW_STROKE          - obramowuje prostokąt
  * Zend_Pdf_Page::SHAPE_DRAW_FILL            - wypełnia prostokąt
@@ -91,7 +91,7 @@ public function drawLine($x1, $y1, $x2, $y2);
  * @param float $y2
  * @param integer $fillType
  */
-public function drawRectangle($x1, $y1, $x2, $y2, 
+public function drawRectangle($x1, $y1, $x2, $y2,
                     $fillType = Zend_Pdf_Page::SHAPE_DRAW_FILL_AND_STROKE);
 ]]>
         </programlisting>
@@ -99,9 +99,9 @@ public function drawRectangle($x1, $y1, $x2, $y2,
 /**
  * Rysuje wielokąt.
  *
- * Jeśli $fillType ma wartość Zend_Pdf_Page::SHAPE_DRAW_FILL_AND_STROKE 
- * lub Zend_Pdf_Page::SHAPE_DRAW_FILL, wtedy wielokąt jest automatycznie 
- * zamknięty. Zobacz szczegółową dokumentację tych metod w dokumentacji 
+ * Jeśli $fillType ma wartość Zend_Pdf_Page::SHAPE_DRAW_FILL_AND_STROKE
+ * lub Zend_Pdf_Page::SHAPE_DRAW_FILL, wtedy wielokąt jest automatycznie
+ * zamknięty. Zobacz szczegółową dokumentację tych metod w dokumentacji
  * PDF (sekcja 4.4.2 Path painting Operators, Filling)
  *
  * @param array $x  - array of float (the X co-ordinates of the vertices)
@@ -110,9 +110,9 @@ public function drawRectangle($x1, $y1, $x2, $y2,
  * @param integer $fillMethod
  */
 public function drawPolygon($x, $y,
-                            $fillType = 
+                            $fillType =
                                 Zend_Pdf_Page::SHAPE_DRAW_FILL_AND_STROKE,
-                            $fillMethod = 
+                            $fillMethod =
                                 Zend_Pdf_Page::FILL_METHOD_NON_ZERO_WINDING);
 ]]>
         </programlisting>
@@ -129,11 +129,11 @@ public function drawPolygon($x, $y,
  * drawCircle($x, $y, $radius, $startAngle, $endAngle, $fillType);
  *
  *
- * Nie jest to do końca okrąg, ponieważ PDF obsługuje jedynie 
+ * Nie jest to do końca okrąg, ponieważ PDF obsługuje jedynie
  * kubiczne krzywe Beziera. Ale jest to bardzo dobre przybliżenie.
  * Różni się od realnego okręgu maksymalnie o 0.00026 promienia
- * (przy kątach PI/8, 3*PI/8, 5*PI/8, 7*PI/8, 9*PI/8, 11*PI/8, 
- * 13*PI/8 oraz 15*PI/8). Przy kątach 0, PI/4, PI/2, 3*PI/4, PI, 
+ * (przy kątach PI/8, 3*PI/8, 5*PI/8, 7*PI/8, 9*PI/8, 11*PI/8,
+ * 13*PI/8 oraz 15*PI/8). Przy kątach 0, PI/4, PI/2, 3*PI/4, PI,
  * 5*PI/4, 3*PI/2 oraz 7*PI/4 jest to dokładny okrąg.
  *
  * @param float $x
@@ -143,11 +143,11 @@ public function drawPolygon($x, $y,
  * @param mixed $param5
  * @param mixed $param6
  */
-public function  drawCircle($x, 
-                            $y, 
-                            $radius, 
-                            $param4 = null, 
-                            $param5 = null, 
+public function  drawCircle($x,
+                            $y,
+                            $radius,
+                            $param4 = null,
+                            $param5 = null,
                             $param6 = null);
 ]]>
         </programlisting>
@@ -192,7 +192,7 @@ public function drawEllipse($x1, $y1, $x2, $y2, $param5 = null, $param6 = null, 
  * @param string $text
  * @param float $x
  * @param float $y
- * @param string $charEncoding (opcjonalny) Kodowanie znaków 
+ * @param string $charEncoding (opcjonalny) Kodowanie znaków
  *               tekstu. Domyślnie według ustawień lokalizacji.
  * @throws Zend_Pdf_Exception
  */
@@ -402,10 +402,10 @@ $font = Zend_Pdf_Font::fontWithPath(
         będą osadzone w dokumencie PDF; te które nie mogą, nie będą.
         </para>
         <para>
-        Pliki czcionek mogą być duże, czasem osiągająć dziesiątki megabajtów. 
-        Domyślnie wszystkie osadzane czcionki są kompresowane przy użyciu 
-        schematu kompresji Flate, co powoduje zaoszczędzenie średnio 50% miejsca. 
-        Jeśli z jakiegoś powodu nie chcesz kompresować plików czcionek, możesz 
+        Pliki czcionek mogą być duże, czasem osiągająć dziesiątki megabajtów.
+        Domyślnie wszystkie osadzane czcionki są kompresowane przy użyciu
+        schematu kompresji Flate, co powoduje zaoszczędzenie średnio 50% miejsca.
+        Jeśli z jakiegoś powodu nie chcesz kompresować plików czcionek, możesz
         to zablokować opcją:
         </para>
         <example id="zend.pdf.drawing.using-fonts.example-5">
@@ -435,7 +435,7 @@ $font = Zend_Pdf_Font::fontWithPath(
             </programlisting>
         </example>
     </sect2>
-    
+
     <sect2 id="zend.pdf.drawing.extracting-fonts">
         <title>Począwszy od 1.5, wyciąganie czcionek.</title>
         <para>
@@ -448,7 +448,7 @@ $font = Zend_Pdf_Font::fontWithPath(
             Bez tej funkcjonalności musiałbyś dołączać czcionkę do dokumentu za każdym
             razem gdy go aktualizujesz.
         </para>
-        
+
         <para>
             Obiekty <code>Zend_Pdf</code> oraz <code>Zend_Pdf_Page</code> zapewniają
             specjalne metody do wyciągania czcionek użytych w dokumencie lub stronie:
@@ -466,7 +466,7 @@ $yPosition = 700;
 foreach ($fontList as $font) {
     $page->setFont($font, 15);
     $page->drawText(
-        $font->getFontName(Zend_Pdf_Font::NAME_POSTSCRIPT, 'en', 'UTF-8') . 
+        $font->getFontName(Zend_Pdf_Font::NAME_POSTSCRIPT, 'en', 'UTF-8') .
         ': The quick brown fox jumps over the lazy dog', 100, $yPosition, 'UTF-8');
     $yPosition -= 30;
 }
@@ -491,8 +491,8 @@ $page->setFont($font, $fontSize);
 $page->drawText($text, $x, $y);
 ...
 // Nazwa tej czcionki powinna zostać gdzieś zapisana
-$fontName = $font->getFontName(Zend_Pdf_Font::NAME_POSTSCRIPT, 
-                               'en', 
+$fontName = $font->getFontName(Zend_Pdf_Font::NAME_POSTSCRIPT,
+                               'en',
                                'UTF-8');
 ...
 $pdf->save($docPath);
@@ -550,7 +550,7 @@ for ($charIndex = 0; $charIndex < strlen($text); $charIndex++) {
             </programlisting>
                     </para>
                 </listitem>
-            </itemizedlist> 
+            </itemizedlist>
         </para>
     </sect2>
 
@@ -619,7 +619,7 @@ public function setLineWidth(float $width);
 /**
  * Ustawia ozdobny wzór linii.
  *
- * Wzór jest tablicą liczb zmiennoprzecinkowych: 
+ * Wzór jest tablicą liczb zmiennoprzecinkowych:
  *     array(dlugosc_on, dlugosc_off, dlugosc_on, dlugosc_off, ...)
  * Faza jest przesunięciem od początku linii.
  *
@@ -748,14 +748,14 @@ public function rotate($x, $y, $angle);
         <programlisting role="php"><![CDATA[
 /**
  * Zapisuje stan grafiki danej strony.
- * Zapisuje obecny styl, pozycję, obszar przycinania 
- * oraz ewetualny obrót/translację/skalowanie 
+ * Zapisuje obecny styl, pozycję, obszar przycinania
+ * oraz ewetualny obrót/translację/skalowanie
  * które są zastosowane.
  */
 public function saveGS();
 
 /**
- * Przywraca stan grafiki który był zapisany 
+ * Przywraca stan grafiki który był zapisany
  * ostatnim wywołaniem metody saveGS().
  */
 public function restoreGS();
@@ -793,9 +793,9 @@ public function clipRectangle($x1, $y1, $x2, $y2);
  * @param array $y  - tablica wartości zmiennoprzecinkowych (współrzędne Y)
  * @param integer $fillMethod
  */
-public function clipPolygon($x, 
-                            $y, 
-                            $fillMethod = 
+public function clipPolygon($x,
+                            $y,
+                            $fillMethod =
                                  Zend_Pdf_Page::FILL_METHOD_NON_ZERO_WINDING);
 ]]>
         </programlisting>
@@ -809,10 +809,10 @@ public function clipPolygon($x,
  * @param float $startAngle
  * @param float $endAngle
  */
-public function clipCircle($x, 
-                           $y, 
-                           $radius, 
-                           $startAngle = null, 
+public function clipCircle($x,
+                           $y,
+                           $radius,
+                           $startAngle = null,
                            $endAngle = null);
 ]]>
         </programlisting>
@@ -833,11 +833,11 @@ public function clipCircle($x,
  * @param float $startAngle
  * @param float $endAngle
  */
-public function clipEllipse($x1, 
-                            $y1, 
-                            $x2, 
-                            $y2, 
-                            $startAngle = null, 
+public function clipEllipse($x1,
+                            $y1,
+                            $x2,
+                            $y2,
+                            $startAngle = null,
                             $endAngle = null);
 ]]>
         </programlisting>
@@ -992,7 +992,7 @@ public function getFontSize();
 ]]>
         </programlisting>
     </sect2>
-    
+
     <sect2 id="zend.pdf.drawing.alpha">
         <title>Przezroczystość</title>
         <para>
@@ -1008,7 +1008,7 @@ public function getFontSize();
  * $alpha == 1  - nieprzezroczysty
  *
  * Tryby przezroczystości obsługiwane przez PDF:
- * Normal (default), Multiply, Screen, Overlay, Darken, 
+ * Normal (default), Multiply, Screen, Overlay, Darken,
  * Lighten, ColorDodge, ColorBurn, HardLight,
  * SoftLight, Difference, Exclusion
  *

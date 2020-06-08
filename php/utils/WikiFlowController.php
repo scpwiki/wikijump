@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -31,27 +31,27 @@ class WikiFlowController extends WebFlowController {
 
 	public function process() {
 		global $timeStart;
-		
+
 		// quick fix to prevent recursive RSS access by Wikidot itself.
 		if(strpos($_SERVER['HTTP_USER_AGENT'], 'MagpieRSS') !== false){
 			exit();
 		}
-		
+
 		// initialize logging service
 		$logger = OzoneLogger::instance();
 		$loggerFileOutput = new OzoneLoggerFileOutput();
 		$loggerFileOutput->setLogFileName(WIKIDOT_ROOT."/logs/ozone.log");
 		$logger->addLoggerOutput($loggerFileOutput);
 		$logger->setDebugLevel(GlobalProperties::$LOGGER_LEVEL);
-		
+
 		$logger->debug("request processing started, logger initialized");
 
 		Ozone ::init();
-		
+
 		$runData = new RunData();
 		$runData->init();
 		Ozone :: setRunData($runData);
-		$logger->debug("RunData object created and initialized"); 
+		$logger->debug("RunData object created and initialized");
 
 		// check if site (wiki) exists!
 		$siteHost = $_SERVER["HTTP_HOST"];
@@ -61,32 +61,32 @@ class WikiFlowController extends WebFlowController {
 			$siteUnixName=$matches[1];
 
 			// select site based on the unix name
-			
+
 			// check memcached first!
-			
+
 			$mcKey = 'site..'.$siteUnixName;
-			$site = $memcache->get($mcKey); 
+			$site = $memcache->get($mcKey);
 
 			if(!$site){
 				$c = new Criteria();
 				$c->add("unix_name", $siteUnixName);
 				$c->add("site.deleted", false);
 				$site = SitePeer::instance()->selectOne($c);
-				if($site) {$memcache->set($mcKey, $site, 0, 864000);}	
+				if($site) {$memcache->set($mcKey, $site, 0, 864000);}
 			}
 		} else {
 			// select site based on the custom domain
 			$mcKey = 'site_cd..'.$siteHost;
 			$site = $memcache->get($mcKey);
 
-			if(!$site){	
+			if(!$site){
 				$c = new Criteria();
 				$c->add("custom_domain", $siteHost);
 				$c->add("site.deleted", false);
 				$site = SitePeer::instance()->selectOne($c);
-				if($site) {$memcache->set($mcKey, $site, 0, 3600);}	
+				if($site) {$memcache->set($mcKey, $site, 0, 3600);}
 			}
-			
+
 			if(!$site){
 				// check for redirects
 				$c = new Criteria();
@@ -98,32 +98,32 @@ class WikiFlowController extends WebFlowController {
 					$newUrl = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().$_SERVER['REQUEST_URI'];
 					header("HTTP/1.1 301 Moved Permanently");
 					header("Location: ".$newUrl);
-					exit();	
+					exit();
 				}
 			}
-			
+
 			GlobalProperties::$SESSION_COOKIE_DOMAIN = '.'.$siteHost;
-			
+
 		}
 
 		if(!$site){
 			$content = file_get_contents(WIKIDOT_ROOT."/files/site_not_exists.html");
 			echo $content;
-			return $content;	
-		} 
-		
-		$runData->setTemp("site", $site);	
+			return $content;
+		}
+
+		$runData->setTemp("site", $site);
 		//nasty global thing...
 		$GLOBALS['siteId'] = $site->getSiteId();
 		$GLOBALS['site'] = $site;
-		
+
 		// set language
 		$lang = $site->getLanguage();
 		$runData->setLanguage($lang);
 		$GLOBALS['lang'] = $lang;
-		
+
 		// and for gettext too:
-		
+
 		switch($lang){
 			case 'pl':
 				$glang="pl_PL";
@@ -133,32 +133,32 @@ class WikiFlowController extends WebFlowController {
 				break;
 		}
 
-		putenv("LANG=$glang"); 
-		putenv("LANGUAGE=$glang"); 
+		putenv("LANG=$glang");
+		putenv("LANGUAGE=$glang");
 		setlocale(LC_ALL, $glang.'.UTF-8');
 
 		// Set the text domain as 'messages'
 		$gdomain = 'messages';
-		bindtextdomain($gdomain, WIKIDOT_ROOT.'/locale'); 
+		bindtextdomain($gdomain, WIKIDOT_ROOT.'/locale');
 		textdomain($gdomain);
 
 		$settings = $site->getSettings();
-		// handle SSL 
+		// handle SSL
 		$sslMode = $settings->getSslMode();
 		if($_SERVER['HTTPS']){
 			if(!$sslMode){
 				// not enabled, redirect to http:
 				header("HTTP/1.1 301 Moved Permanently");
 				header("Location: ".GlobalProperties::$HTTP_SCHEMA . "://" . $_SERVER["HTTP_HOST"].$_SERVER['REQUEST_URI']);
-				exit();	
+				exit();
 			}elseif($sslMode == "ssl_only_paranoid"){
 				// use secure authentication cookie
 				// i.e. change authentication scheme
 				GlobalProperties::$SESSION_COOKIE_NAME = "WIKIDOT_SESSION_SECURE_ID";
 				GlobalProperties::$SESSION_COOKIE_SECURE = true;
-				
+
 			}
-			
+
 		}else{
 			// page accessed via http (nonsecure)
 			switch($sslMode){
@@ -169,9 +169,9 @@ class WikiFlowController extends WebFlowController {
 				case 'ssl_only':
 					header("HTTP/1.1 301 Moved Permanently");
 					header("Location: ".'https://'.$_SERVER["HTTP_HOST"].$_SERVER['REQUEST_URI']);
-					exit();	
+					exit();
 					break;
-				
+
 			}
 		}
 
@@ -199,16 +199,16 @@ class WikiFlowController extends WebFlowController {
 	 		//$moduleProcessor->setJavascriptInline(true); // embed associated javascript files in <script> tags
 	 		$moduleProcessor->setCssInline(true);
 	 		$rendered = $moduleProcessor->process($rendered);
-	 		
+
 	 		$jss = $runData->getTemp("jsInclude");
-	 		
+
 	 		$jss = array_unique($jss);
 	 		$incl = '';
 	 		foreach($jss as $js){
-	 			$incl .= '<script type="text/javascript" src="'.$js.'"></script>';	
+	 			$incl .= '<script type="text/javascript" src="'.$js.'"></script>';
 	 		}
 	 		$rendered = preg_replace(';</head>;', $incl.'</head>', $rendered);
-			
+
 		}
 
 		$runData->handleSessionEnd();
@@ -230,12 +230,12 @@ class WikiFlowController extends WebFlowController {
 		if (GlobalProperties::$SEARCH_HIGHLIGHT) {
 			$rendered = Highlighter::highlightIfSuitable($rendered, $_SERVER["REQUEST_URI"], $_SERVER["HTTP_REFERER"]);
 		}
-		
+
 		echo str_replace("%%%CURRENT_TIMESTAMP%%%",time(),$rendered);
-		
+
 		return $rendered;
 	}
-	
+
 	private function _fixHttpsStyles($matches){
 
 	}

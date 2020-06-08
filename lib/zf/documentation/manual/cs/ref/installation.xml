@@ -15,7 +15,7 @@
             <listitem>
                 <para>
                     <ulink url="http://framework.zend.com/download">Stáhnout poslední stabilní verzi.</ulink>
-                    Tato verze, dostupná v <code>.zip</code> nebo <code>.tar.gz</code>, je správná volba pro 
+                    Tato verze, dostupná v <code>.zip</code> nebo <code>.tar.gz</code>, je správná volba pro
                     začátečníky se Zend Frameworkem.
                 </para>
             </listitem>
@@ -30,13 +30,13 @@
             <listitem>
                 <para>
                     Použití <ulink url="http://subversion.tigris.org">Subversion</ulink> (SVN) klienta. Zend Framework
-                    je open source software a Subversion repositář použitý pro jeho vývoj je veřejně přístupný. Zvažte 
+                    je open source software a Subversion repositář použitý pro jeho vývoj je veřejně přístupný. Zvažte
                     využítí SVN pokud už používáte SVN pro vývoj svých aplikací, chcete přispívat zpět do frameworku
                     nebo potřebuje využívat ještě nevydané verze frameworku.
                 </para>
                 <para>
                     <ulink url="http://svnbook.red-bean.com/nightly/en/svn.ref.svn.c.export.html">Exportování</ulink> je
-                    užitečné, pokud potřebuje získat konkrétní revizi frameworku bez <code>.svn</code> adresářů, které 
+                    užitečné, pokud potřebuje získat konkrétní revizi frameworku bez <code>.svn</code> adresářů, které
                     jsou vytvořeny v pracovní kopii.
                 </para>
                 <para>
@@ -75,7 +75,7 @@
 
     <para>
         Protože komponenty Zend Frameworku jsou volně spojeny, mohou být použity jednotlivě, podle potřeby.
-        Každá z následujících kapitol popisuje použití konkrétní komponenty. 
+        Každá z následujících kapitol popisuje použití konkrétní komponenty.
     </para>
 
 </sect1>

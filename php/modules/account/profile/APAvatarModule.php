@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -25,12 +25,12 @@
 
 
 class APAvatarModule extends AccountBaseModule{
-	
+
 	public function build($runData){
-		
+
 		$user = $runData->getUser();
 		$userId = $user->getUserId();
-		
+
 		// check if has an avatar
 		$avatarDir = WIKIDOT_ROOT.'/web/files--common/images/avatars/';
 		$avatarDir .= '' . floor($userId/1000).'/'.$userId;
@@ -41,10 +41,10 @@ class APAvatarModule extends AccountBaseModule{
 			$avatarUri .= '?'.rand(1,10000);
 			$runData->contextAdd("avatarUri", $avatarUri);
 		}else{
-			$hasAvatar = false;	
+			$hasAvatar = false;
 		}
-		
+
 		$runData->contextAdd("hasAvatar", $hasAvatar);
 	}
-	
+
 }

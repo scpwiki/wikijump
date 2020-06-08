@@ -1,6 +1,6 @@
 <sect1 id="zend.feed.consuming-rss">
     <title>Lettura di un feed RSS</title>
-    
+
     <para>
         Leggere un feed RSS è tanto semplice quanto creare un'istanza di un nuovo oggetto <code>Zend_Feed_Rss</code> con l'URL del feed:
     </para>

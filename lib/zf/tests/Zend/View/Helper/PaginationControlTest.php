@@ -10,7 +10,7 @@ require_once 'Zend/View.php';
 require_once 'Zend/Paginator.php';
 require_once 'Zend/View/Helper/PaginationControl.php';
 
-class Zend_View_Helper_PaginationControlTest extends PHPUnit_Framework_TestCase 
+class Zend_View_Helper_PaginationControlTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @var Zend_View_Helper_PaginationControl
@@ -18,7 +18,7 @@ class Zend_View_Helper_PaginationControlTest extends PHPUnit_Framework_TestCase
     private $_viewHelper;
 
     private $_paginator;
-    
+
     /**
      * Runs the test methods of this class.
      *
@@ -44,7 +44,7 @@ class Zend_View_Helper_PaginationControlTest extends PHPUnit_Framework_TestCase
         $view = new Zend_View();
         $view->addBasePath(dirname(__FILE__) . '/_files');
         $view->addHelperPath('Zend/View/Helper/', 'Zend_View_Helper');
-        
+
         $this->_viewHelper = new Zend_View_Helper_PaginationControl();
         $this->_viewHelper->setView($view);
         $this->_paginator = Zend_Paginator::factory(range(1, 101));
@@ -55,7 +55,7 @@ class Zend_View_Helper_PaginationControlTest extends PHPUnit_Framework_TestCase
         unset($this->_viewHelper);
         unset($this->_paginator);
     }
-    
+
     public function testGetsAndSetsView()
     {
         $view   = new Zend_View();
@@ -64,7 +64,7 @@ class Zend_View_Helper_PaginationControlTest extends PHPUnit_Framework_TestCase
         $helper->setView($view);
         $this->assertType('Zend_View_Interface', $helper->view);
     }
-    
+
     public function testGetsAndSetsDefaultViewPartial()
     {
         $this->assertNull(Zend_View_Helper_PaginationControl::getDefaultViewPartial());
@@ -101,11 +101,11 @@ class Zend_View_Helper_PaginationControlTest extends PHPUnit_Framework_TestCase
         $this->assertContains('page count (11) equals pages in range (11)', $output, $output);
 
         Zend_Paginator::setDefaultScrollingStyle('All');
-        $output = $this->_viewHelper->paginationControl($this->_paginator, null, 'testPagination.phtml');        
+        $output = $this->_viewHelper->paginationControl($this->_paginator, null, 'testPagination.phtml');
         $this->assertContains('page count (11) equals pages in range (11)', $output, $output);
-        
+
         Zend_View_Helper_PaginationControl::setDefaultViewPartial('testPagination.phtml');
-        $output = $this->_viewHelper->paginationControl($this->_paginator);        
+        $output = $this->_viewHelper->paginationControl($this->_paginator);
         $this->assertContains('page count (11) equals pages in range (11)', $output, $output);
     }
 

@@ -29,7 +29,7 @@
             класс Zend_Db_Table_Abstract, как описано в <xref
             linkend="zend.db.table.defining" />. Также смотрите описание БД, для
             которой написан приведнный ниже код в
-            <xref linkend="zend.db.adapter.example-database" /> 
+            <xref linkend="zend.db.adapter.example-database" />
         </para>
 
         <para>
@@ -326,7 +326,7 @@ $user1234 = $accountsRowset->current();
 $select = $accountsTable->select()->order('name ASC')
                                   ->limit(3);
 
-$bugsAssignedToUser = $user1234->findDependentRowset('Bugs', 
+$bugsAssignedToUser = $user1234->findDependentRowset('Bugs',
                                                      'Engineer',
                                                      $select);
 ]]>
@@ -577,7 +577,7 @@ $engineer = $bug1->findParentAccountsByEngineer();
 
         <programlisting role="php">
 <![CDATA[
-$row->findManyToManyRowset($table, 
+$row->findManyToManyRowset($table,
                            $intersectionTable,
                            [$rule1,
                                [$rule2,

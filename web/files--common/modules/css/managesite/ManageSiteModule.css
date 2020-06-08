@@ -114,7 +114,7 @@
 #site-manager-menu ul li ul li a{
 	font-size: 97%;
 	padding-left: 2em;
-} 
+}
 
 
 /* theme choice */
@@ -137,12 +137,12 @@ table.sm-theme-table td{
 /* forum layout part */
 
 .sm-fgroup{
-	border: 1px solid #BBB;	
-	
+	border: 1px solid #BBB;
+
 	margin: 0.5em 0;
 }
 .sm-fgroup-name{
-	padding: 0.3em 0.5em;	
+	padding: 0.3em 0.5em;
 	font-size: 130%;
 	font-weight: bold;
 	background-color: #EEE;
@@ -163,12 +163,12 @@ table.sm-theme-table td{
 .sm-fcat-name{
 	font-size: 110%;
 	font-weight: bold;
-	padding: 0.1em 0.5em;	
+	padding: 0.1em 0.5em;
 }
 .sm-fcat-description{
 	padding-left: 30px;
 }
-	
+
 .sm-fcat-info{
 	padding: 0.1em 0.5em;
 	padding-left: 30px;

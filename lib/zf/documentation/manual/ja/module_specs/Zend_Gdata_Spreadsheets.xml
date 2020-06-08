@@ -152,13 +152,13 @@ foreach($rowData as $customEntry) {
 }
 ]]>
             </programlisting>
-            
+
             <para>
               もうひとつの配列である <code>customByName</code>
               を使用すると、エントリのセルに対して名前を指定して直接アクセスできるようになります。
               これは、特定のヘッダにアクセスしたい場合などに便利です。
             </para>
-            
+
             <programlisting role="php"><![CDATA[
 $customEntry = $listFeed->entries[1]->getCustomByName('my_heading');
 echo $customEntry->getColumnName() . " = " . $customEntry->getText();

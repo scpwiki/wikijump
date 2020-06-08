@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<?xml-stylesheet 
+<?xml-stylesheet
  href="http://www.w3.org/2000/08/w3c-synd/style.css" type="text/css"
 ?>
 <rss version="0.91"><channel><title>Planet PHP</title><link>http://planet-php.net</link><description>People blogging about PHP</description><language>en</language><item><title>eZ components in Gentoo Linux - Sebastian Bergmann</title><link>http://www.sebastian-bergmann.de/blog/archives/565-eZ-components-in-Gentoo-Linux.html</link><pubDate>Mon, 23 Jan 2006 16:40:00 +0000</pubDate><description><![CDATA[
@@ -36,7 +36,7 @@ Portage overlays:
  [3] /usr/local/overlay/php/testing
  [4] /usr/local/overlay/php/experimental
  [5] /usr/local/overlay/gentopia
- [6] /usr/local/overlay/xgl</pre> 
+ [6] /usr/local/overlay/xgl</pre>
     ]]></description></item><item><title>PHP Insecurity - Chris Shiflett</title><link>http://shiflett.org/archive/185</link><pubDate>Mon, 23 Jan 2006 16:15:56 +0000</pubDate><description><![CDATA[<p><a href="http://www.greebo.net/">Andrew van der Stock</a> has written a <a href="http://www.greebo.net/?p=320">strong criticism</a> of PHP's insecurity. Andrew is a seasoned security expert and a major contributor to <a href="http://www.owasp.org/">OWASP</a>, and he states:</p>
 <blockquote>After writing PHP forum software for three years now, I've come to the conclusion that it is basically impossible for normal programmers to write secure PHP code. It takes far too much effort.</blockquote>
 <p>He <a href="http://www.greebo.net/?p=320">continues</a>, citing specific areas where he thinks PHP is weak and asserting that "PHP must now mature and take on a proper security architecture."</p>

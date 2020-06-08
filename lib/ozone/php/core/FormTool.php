@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Form
  * @version $Id$
@@ -29,24 +29,24 @@
  *
  */
 class FormTool {
-	
+
 	// should become true after a form is substracted from the http request
 
-	private $formStorage = array();	
-	
+	private $formStorage = array();
+
 	public function hasForms(){}
-	
+
 	public function getForm($name, $formKey=null){
 		if($formKey == null) {$formKey = "_0";} // set default formKey
 		if($this->formStorage["$name"] == null || $this->formStorage["$name"]["$formKey"] == null){
-			return $this->newForm($name, $formKey);	
+			return $this->newForm($name, $formKey);
 		} else {
 			$form = $this->formStorage["$name"]["$formKey"];
 			$form->setRetrieved(true);
 			return $form;
-		}	
+		}
 	}
-	
+
 	public function delForm($formName=null, $formKey=null) {
 		if($formName != null && $formKey != null){
 			unset($this->formStorage["$formName"]["$formKey"]);
@@ -56,18 +56,18 @@ class FormTool {
 		}
 		if($formName == null){
 			//clear all
-			$this->formStorage = array();	
+			$this->formStorage = array();
 		}
 	}
-	
+
 	public function newForm($formName, $formKey="_0") {
-		
+
 		$form = new Form($formName, $formKey);
 		$form->setFormKey($formKey);
 
 		$form->setRetrieved(false);
 		return $form;
-	
+
 	}
 
 	public function processHttpRequest($runData){
@@ -84,33 +84,33 @@ class FormTool {
 			$c->add("key_id", $key);
 			$entry = DB_FormSubmissionKeyPeer::instance()->selectOne($c);
 			if($entry == null){
-				$form->setResubmitted(false);	
+				$form->setResubmitted(false);
 				// insert key into database
 				$entry = new DB_FormSubmissionKey();
 				$entry->setKeyId($key);
 				$entry->setDateSubmitted(new ODate());
 				$entry->save();
 			} else {
-				$form->setResubmitted(true);	
+				$form->setResubmitted(true);
 			}
 			//save form to the storage
 			$this->formStorage["$formName"] = array();
 			$this->formStorage["$formName"]["$formKey"]=$form;
 		}
-		
+
 	}
-	
+
 	/** Returns the number of stored forms */
 	public function formsNumber(){
 		return count($this->formStorage);
 	}
-	
+
 	/** Resets the state of all stored forms to non-validated. */
 	public function resetFormsToNonvalidated(){
 		foreach ($this->formStorage as $forms2){
 			foreach ($forms2 as $form){
 				$form->setValidated(false);
-			}	
+			}
 		}
 	}
 }

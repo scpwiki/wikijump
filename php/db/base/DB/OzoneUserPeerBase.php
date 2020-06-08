@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version \$Id\$
@@ -29,13 +29,13 @@ use BaseDBPeer;
 
 
 
- 
+
 /**
  * Base peer class mapped to the database table ozone_user.
  */
 class OzoneUserPeerBase extends BaseDBPeer {
 	public static $peerInstance;
-	
+
 	protected function internalInit(){
 		$this->tableName='ozone_user';
 		$this->objectName='DB\\OzoneUser';
@@ -44,7 +44,7 @@ class OzoneUserPeerBase extends BaseDBPeer {
 		$this->fieldTypes = array( 'user_id' => 'serial',  'name' => 'varchar(99)',  'nick_name' => 'varchar(70)',  'password' => 'varchar(255)',  'email' => 'varchar(99)',  'unix_name' => 'varchar(99)',  'last_login' => 'timestamp',  'registered_date' => 'timestamp',  'super_admin' => 'boolean',  'super_moderator' => 'boolean',  'language' => 'varchar(10)');
 		$this->defaultValues = array( 'super_admin' => 'false',  'super_moderator' => 'false',  'language' => 'en');
 	}
-	
+
 	public static function instance(){
 		if(self::$peerInstance == null){
 			$className = "DB\\OzoneUserPeer";

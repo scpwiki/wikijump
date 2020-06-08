@@ -7,7 +7,7 @@ namespace DB;
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -20,7 +20,7 @@ namespace DB;
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot_Db
  * @version $Id$
@@ -48,7 +48,7 @@ class Member extends MemberBase {
             }
         }
         return SitePeer::instance()->selectByPrimaryKey($this->getSiteId());
-    
+
     }
 
     public function getUser() {
@@ -65,7 +65,7 @@ class Member extends MemberBase {
             }
         }
         return OzoneUserPeer::instance()->selectByPrimaryKey($this->getUserId());
-    
+
     }
 
 }

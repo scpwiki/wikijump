@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -30,7 +30,7 @@ use DB\WatchedPagePeer;
 use DB\WatchedPage;
 
 class WatchAction extends SmartyAction {
-	
+
 	public function isAllowed($runData){
 		$userId = $runData->getUserId();
 		if($userId == null || $userId <1){
@@ -38,139 +38,139 @@ class WatchAction extends SmartyAction {
 		}
 		return true;
 	}
-	
+
 	public function perform($r){}
-	
+
 	public function watchThreadEvent($runData){
 		$pl = $runData->getParameterList();
-		
+
 		$threadId = $pl->getParameterValue('threadId');
 		if($threadId === null || !is_numeric($threadId)){
-			throw new ProcessException(_("Error selecting thread."), "no_thread");	
+			throw new ProcessException(_("Error selecting thread."), "no_thread");
 		}
-		
+
 		$user = $runData->getUser();
 		if($user == null){
-			throw new WDPermissionException(_("Sorry, you must be logged in to add thread to watched."));	
+			throw new WDPermissionException(_("Sorry, you must be logged in to add thread to watched."));
 		}
-		
+
 		$db = Database::connection();
 		$db->begin();
-		
+
 		// check if you watch it already
-		
+
 		$c = new Criteria();
 		$c->add("user_id", $user->getUserId());
 		$c->add("thread_id", $threadId);
-		
+
 		$t = WatchedForumThreadPeer::instance()->selectOne($c);
-		
+
 		if($t){
-			throw new ProcessException(_("It seems you already watch this thread."), "already_watching");	
+			throw new ProcessException(_("It seems you already watch this thread."), "already_watching");
 		}
-		
+
 		// ok, check how many do you already watch. 10 max ;-)
 		$c = new Criteria();
 		$c->add("user_id", $user->getUserId());
-		
+
 		$count = WatchedForumThreadPeer::instance()->selectCount($c);
 		if($count>9){
-			throw new ProcessException(_("You can not watch more than 10 threads for now."), "max_reached");	
+			throw new ProcessException(_("You can not watch more than 10 threads for now."), "max_reached");
 		}
-		
+
 		// ok, create new watch.
-		
+
 		$watch = new WatchedForumThread();
 		$watch->setUserId($user->getUserId());
 		$watch->setThreadId($threadId);
-		
+
 		$watch->save();
-		
+
 		$db->commit();
-		
+
 	}
-	
+
 	public function removeWatchedThreadEvent($runData){
 		$pl = $runData->getParameterList();
-		
+
 		$threadId = $pl->getParameterValue("threadId");
-		
+
 		if($threadId === null || !is_numeric($threadId)){
 			throw new ProcessException(_("Can not process your request."));
 		}
-		
+
 		$c = new Criteria();
 		$c->add("thread_id", $threadId);
 		$c->add("user_id", $runData->getUserId());
-		
+
 		WatchedForumThreadPeer::instance()->delete($c);
-			
+
 	}
-	
+
 	public function watchPageEvent($runData){
 		$pl = $runData->getParameterList();
-		
+
 		$pageId = $pl->getParameterValue('pageId');
 		if($pageId === null || !is_numeric($pageId)){
-			throw new ProcessException(_("Error selecting the page."), "no_page");	
+			throw new ProcessException(_("Error selecting the page."), "no_page");
 		}
-		
+
 		$user = $runData->getUser();
 		if($user == null){
-			throw new WDPermissionException(_("Sorry, you must be logged in to add the page to watched."));	
+			throw new WDPermissionException(_("Sorry, you must be logged in to add the page to watched."));
 		}
-		
+
 		$db = Database::connection();
 		$db->begin();
-		
+
 		// check if you watch it already
-		
+
 		$c = new Criteria();
 		$c->add("user_id", $user->getUserId());
 		$c->add("page_id", $pageId);
-		
+
 		$t = WatchedPagePeer::instance()->selectOne($c);
-		
+
 		if($t){
-			throw new ProcessException(_("It seems you already watch this page."), "already_watching");	
+			throw new ProcessException(_("It seems you already watch this page."), "already_watching");
 		}
-		
+
 		// ok, check how many do you already watch. 10 max ;-)
 		$c = new Criteria();
 		$c->add("user_id", $user->getUserId());
-		
+
 		$count = WatchedPagePeer::instance()->selectCount($c);
 		if($count>9){
-			throw new ProcessException(_("You can not watch more than 10 pages for now."), "max_reached");	
+			throw new ProcessException(_("You can not watch more than 10 pages for now."), "max_reached");
 		}
-		
+
 		// ok, create new watch.
-		
+
 		$watch = new WatchedPage();
 		$watch->setUserId($user->getUserId());
 		$watch->setPageId($pageId);
-		
+
 		$watch->save();
-		
+
 		$db->commit();
-		
+
 	}
-	
+
 	public function removeWatchedPageEvent($runData){
 		$pl = $runData->getParameterList();
-		
+
 		$pageId = $pl->getParameterValue("pageId");
-		
+
 		if($pageId === null || !is_numeric($pageId)){
 			throw new ProcessException(_("Can not process your request."));
 		}
-		
+
 		$c = new Criteria();
 		$c->add("page_id", $pageId);
 		$c->add("user_id", $runData->getUserId());
-		
+
 		WatchedPagePeer::instance()->delete($c);
-			
+
 	}
-	
+
 }

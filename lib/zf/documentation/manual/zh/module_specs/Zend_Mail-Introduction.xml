@@ -29,7 +29,7 @@ $mail->send();]]>
             </programlisting>
 
         </example>
-    
+
         <note>
             <title>Minimum definitions</title>
             <para>

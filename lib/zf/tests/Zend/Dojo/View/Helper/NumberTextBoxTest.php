@@ -47,7 +47,7 @@ require_once 'Zend/Dojo/View/Helper/Dojo.php';
  * @copyright  Copyright (c) 2005-2008 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
-class Zend_Dojo_View_Helper_NumberTextBoxTest extends PHPUnit_Framework_TestCase 
+class Zend_Dojo_View_Helper_NumberTextBoxTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.
@@ -97,10 +97,10 @@ class Zend_Dojo_View_Helper_NumberTextBoxTest extends PHPUnit_Framework_TestCase
     public function getElement()
     {
         return $this->helper->numberTextBox(
-            'elementId', 
-            '2008-07-07', 
+            'elementId',
+            '2008-07-07',
             array(
-                'required'    => true, 
+                'required'    => true,
                 'constraints' => '{min:-20000,max:20000,places:0}',
             ),
             array()

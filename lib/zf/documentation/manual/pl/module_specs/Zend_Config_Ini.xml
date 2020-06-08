@@ -31,8 +31,8 @@
             tworzenia obiektu <code>Zend_Config_Ini</code>. Na przykład:
             <programlisting role="php"><![CDATA[
 $options['nestSeparator'] = ':';
-$config = new Zend_Config_Ini('/path/to/config.ini', 
-                              'staging', 
+$config = new Zend_Config_Ini('/path/to/config.ini',
+                              'staging',
                               $options);
 ]]>
             </programlisting>
@@ -111,7 +111,7 @@ echo $config->database->params->dbname; // wyświetla "dbname"
                 </row>
                 <row>
                     <entry><code>$options = false</code></entry>
-                    <entry>Tablica opcji. Obsługiwane są poniższe klucze: 
+                    <entry>Tablica opcji. Obsługiwane są poniższe klucze:
                         <itemizedlist>
                             <listitem>
                                 <para>

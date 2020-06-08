@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
@@ -27,13 +27,13 @@
 use DB\PrivateMessagePeer;
 
 class PMSentMessageModule extends AccountBaseModule {
-	
+
 	public function build($runData){
 
 		$userId = $runData->getUserId();
 		$pl = $runData->getParameterList();
 		$messageId = $pl->getParameterValue("message_id");
-		
+
 		$message = PrivateMessagePeer::instance()->selectByPrimaryKey($messageId);
 		if($message->getFromUserId() != $userId){
 			throw new ProcessException(_("Error selecting message."), "no_message");
@@ -48,20 +48,20 @@ class PMSentMessageModule extends AccountBaseModule {
 		$c->add("message_id", $messageId, ">");
 		$c->add("flag", 1);
 		$c->addOrderAscending("message_id");
-		
+
 		$newerMessage = PrivateMessagePeer::instance()->selectOne($c);
-		
+
 		$c = new Criteria();
 		$c->add("from_user_id", $userId);
 		$c->add("message_id", $messageId, "<");
 		$c->add("flag", 1);
 		$c->addOrderDescending("message_id");
-		
+
 		$olderMessage = PrivateMessagePeer::instance()->selectOne($c);
-		
+
 		$runData->contextAdd("newerMessage", $newerMessage);
 		$runData->contextAdd("olderMessage", $olderMessage);
-			
+
 	}
-	
+
 }

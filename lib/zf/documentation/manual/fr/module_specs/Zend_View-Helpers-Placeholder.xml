@@ -22,8 +22,8 @@
         <programlisting role="php"><![CDATA[
 <?php $this->placeholder('foo')->set("Du texte pour plus tard") ?>
 
-<?php 
-    echo $this->placeholder('foo'); 
+<?php
+    echo $this->placeholder('foo');
     // outputs "Du texte pour plus tard"
 ?>
 ]]></programlisting>
@@ -72,15 +72,15 @@
 
         <programlisting role="php"><![CDATA[
 <!-- autre script (plus tard) -->
-<?php 
+<?php
 $this->placeholder('foo')->setPrefix("<ul>\n    <li>")
-                         ->setSeparator("</li><li>\n") 
+                         ->setSeparator("</li><li>\n")
                          ->setIndent(4)
                          ->setPostfix("</li></ul>\n");
 ?>
 
-<?php 
-    echo $this->placeholder('foo'); 
+<?php
+    echo $this->placeholder('foo');
     // affiche une liste non-ordonnée avec une belle indentation
 ?>
 ]]></programlisting>
@@ -134,7 +134,7 @@ echo $foo['bar'];
 
         <programlisting role="php"><![CDATA[
 <!-- Default capture: append -->
-<?php $this->placeholder('foo')->captureStart(); 
+<?php $this->placeholder('foo')->captureStart();
 foreach ($this->data as $datum): ?>
 <div class="foo">
     <h2><?= $datum->title ?></h2>
@@ -148,7 +148,7 @@ foreach ($this->data as $datum): ?>
 
         <programlisting role="php"><![CDATA[
 <!-- Capture to key -->
-<?php $this->placeholder('foo')->captureStart('SET', 'data'); 
+<?php $this->placeholder('foo')->captureStart('SET', 'data');
 foreach ($this->data as $datum): ?>
 <div class="foo">
     <h2><?= $datum->title ?></h2>

@@ -35,9 +35,9 @@
     <title>私のサイト</title>
 </head>
 <body>
-<?php 
+<?php
     // レイアウトヘルパーで使用するコンテンツのキーを取得します
-    echo $this->layout()->content; 
+    echo $this->layout()->content;
 
     // プレースホルダヘルパーで 'foo' キーを取得します
     echo $this->placeholder('Zend_Layout')->foo;
@@ -125,7 +125,7 @@
 Zend_Layout::startMvc();
 ]]>
         </programlisting>
-        
+
         <para>
             <code>startMvc()</code> には、オプションの配列あるいは
             <code>Zend_Config</code> オブジェクトを渡すことができます。
@@ -178,7 +178,7 @@ class FooController extends Zend_Controller_Action
 
         <programlisting role="php"><![CDATA[
 // startMvc() がまだコールされていない場合は null を返します
-$layout = Zend_Layout::getMvcInstance(); 
+$layout = Zend_Layout::getMvcInstance();
 ]]>
         </programlisting>
 
@@ -216,7 +216,7 @@ $layout = Zend_Layout::getMvcInstance();
 </body>
 ]]>
         </programlisting>
-        
+
         <para>
             この機能は、ActionStack <link linkend="zend.controller.actionhelpers.actionstack">
             アクションヘルパー</link> や <link

@@ -31,7 +31,7 @@ class Zend_Gdata_Gbase_SnippetFeedTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->snippetFeed = new Zend_Gdata_Gbase_SnippetFeed( 
+        $this->snippetFeed = new Zend_Gdata_Gbase_SnippetFeed(
                 file_get_contents(dirname(__FILE__) . '/_files/TestDataGbaseSnippetFeedSample1.xml'),
                 true);
     }
@@ -48,7 +48,7 @@ class Zend_Gdata_Gbase_SnippetFeedTest extends PHPUnit_Framework_TestCase
         $doc = new DOMDocument();
         $doc->loadXML($this->snippetFeed->saveXML());
         $newSnippetFeed->transferFromDom($doc->documentElement);
-        
+
         $this->assertEquals(count($newSnippetFeed->entries), 1);
         foreach($newSnippetFeed->entries as $entry)
         {

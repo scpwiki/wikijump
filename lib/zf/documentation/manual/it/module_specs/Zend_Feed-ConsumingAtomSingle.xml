@@ -7,7 +7,7 @@
     </para>
 
     <para>
-        Anche se si legge un singolo elemento, si dispone ancora di un valido oggetto <code>Zend_Feed_Atom</code>, ma verrà creato un "anonimo" feed contenente un solo elemento. 
+        Anche se si legge un singolo elemento, si dispone ancora di un valido oggetto <code>Zend_Feed_Atom</code>, ma verrà creato un "anonimo" feed contenente un solo elemento.
     </para>
 
     <example id="zend.feed.consuming-atom-single-entry.example.atom">

@@ -14,7 +14,7 @@
     </para>
 
     <para>
-        It is this latter point that is salient to the design decisions. 在内部，<code>Zend_View::_run()</code> 做：          
+        It is this latter point that is salient to the design decisions. 在内部，<code>Zend_View::_run()</code> 做：
     </para>
 
     <programlisting role="php"><![CDATA[<?php

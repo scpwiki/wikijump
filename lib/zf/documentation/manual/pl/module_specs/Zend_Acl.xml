@@ -27,8 +27,8 @@
         </itemizedlist>
 
         Przystępnie mówiąc, <emphasis role="strong">role żądają dostępu do zasobów</emphasis>.
-        Na przykład, jeśli obsługujący parking samochodow zażąda dostępu do 
-        samochodu, to ta osoba jest rolą, a samochód jest zasobem, więc dostęp 
+        Na przykład, jeśli obsługujący parking samochodow zażąda dostępu do
+        samochodu, to ta osoba jest rolą, a samochód jest zasobem, więc dostęp
         do samochodu nie musi zostać przyznany każdemu.
     </para>
 
@@ -61,8 +61,8 @@
             domyślna reguła ma być zastosowana do każdego budynku w mieście,
             wystarczy przypisać regułę do miasta, zamiast przypisywać regułę to
             każdego z budynków z osobna. Niektóre z budynków mogą wymagać
-            wyjątków od tej reguły i może być to osiągnięte w łatwy sposób w 
-            Zend_Acl poprzez przypisanie takiej wyjątkowej reguły dla każdego z 
+            wyjątków od tej reguły i może być to osiągnięte w łatwy sposób w
+            Zend_Acl poprzez przypisanie takiej wyjątkowej reguły dla każdego z
             budynków wymagających wyjątku. Zasób może dziedziczyć tylko od
             jednego zasobu rodzica, a ten rodzic może także dziedziczyć tylko od
             jednego zasobu itd.
@@ -271,7 +271,7 @@ $acl->addRole($roleGuest);
 // Grupa staff dzidziczy od grupy guest
 $acl->addRole(new Zend_Acl_Role('staff'), $roleGuest);
 
-/* 
+/*
 alternatywnie, powyższe mogłoby wyglądać tak:
 $acl->addRole(new Zend_Acl_Role('staff'), 'guest');
 */
@@ -300,7 +300,7 @@ $acl->addRole(new Zend_Acl_Role('administrator'));
             zasoby oraz role dziedziczą reguły, które są definiowane dla ich
             przodków.
         </para>
-        
+
         <note>
             <para>
                 W zasadzie Zend_Acl przestrzega danej reguły tylko wtedy, gdy
@@ -326,7 +326,7 @@ $acl->addRole(new Zend_Acl_Role('administrator'));
 // Grupa guest może tylko oglądać zawartość
 $acl->allow($roleGuest, null, 'view');
 
-/* 
+/*
 alternatywnie, powyższe mogłoby wyglądać tak:
 $acl->allow('guest', null, 'view');
 */
@@ -335,7 +335,7 @@ $acl->allow('guest', null, 'view');
 // ale także potrzebuje dodatkowych uprawnień
 $acl->allow('staff', null, array('edit', 'submit', 'revise'));
 
-// Grupa editor dziedziczy uprawnienia view, edit, submit, 
+// Grupa editor dziedziczy uprawnienia view, edit, submit,
 // oraz revise od grupy staff, ale także potrzebuje dodatkowych uprawnień
 $acl->allow('editor', null, array('publish', 'archive', 'delete'));
 
@@ -363,35 +363,35 @@ $acl->allow('administrator');
 
         <programlisting role="php"><![CDATA[
 echo $acl->isAllowed('guest', null, 'view') ?
-     "allowed" : "denied"; 
+     "allowed" : "denied";
 // dozwolone
 
 echo $acl->isAllowed('staff', null, 'publish') ?
-     "allowed" : "denied"; 
+     "allowed" : "denied";
 // zabronione
 
 echo $acl->isAllowed('staff', null, 'revise') ?
-     "allowed" : "denied"; 
+     "allowed" : "denied";
 // dozwolone
 
 echo $acl->isAllowed('editor', null, 'view') ?
-     "allowed" : "denied"; 
+     "allowed" : "denied";
 // dozwolone ponieważ jest dziedziczone od gościa
 
 echo $acl->isAllowed('editor', null, 'update') ?
-     "allowed" : "denied"; 
+     "allowed" : "denied";
 // zabronione ponieważ nie ma reguły dla 'update'
 
 echo $acl->isAllowed('administrator', null, 'view') ?
-     "allowed" : "denied"; 
+     "allowed" : "denied";
 // dozwolone ponieważ administrator ma wszystkie uprawnienia
 
 echo $acl->isAllowed('administrator') ?
-     "allowed" : "denied"; 
+     "allowed" : "denied";
 // dozwolone ponieważ administrator ma wszystkie uprawnienia
 
 echo $acl->isAllowed('administrator', null, 'update') ?
-     "allowed" : "denied"; 
+     "allowed" : "denied";
 // dozwolone ponieważ administrator ma wszystkie uprawnienia]]>
         </programlisting>
 

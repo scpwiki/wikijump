@@ -239,7 +239,7 @@ widgetFactory()
             </para>
 
             <para>
-                Las palabras dentro del nombre de una constante deben separarse por barras bajas (_). Por ejemplo, <code>EMBED_SUPPRESS_EMBED_EXCEPTION</code> está permitido, pero 
+                Las palabras dentro del nombre de una constante deben separarse por barras bajas (_). Por ejemplo, <code>EMBED_SUPPRESS_EMBED_EXCEPTION</code> está permitido, pero
                 <code>EMBED_SUPPRESSEMBEDEXCEPTION</code> no.
             </para>
 

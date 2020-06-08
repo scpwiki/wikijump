@@ -11,7 +11,7 @@ body, html {
 	height:100%;
 	background: #fafafa;
 	overflow: hidden;
-}  
+}
 .wrap {
 	margin: 0;
 	padding: 15px;
@@ -33,7 +33,7 @@ body, html {
 }
 .searchBar p {
 	margin: 0;
-	padding: 2px; 
+	padding: 2px;
 }
 .searchStuff {
 	position: absolute;

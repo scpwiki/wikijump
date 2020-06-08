@@ -7,7 +7,7 @@ smarty_core_load_plugins(array('plugins' => array(array('block', 't', '/var/www/
 <div>
 	<h3><a href="javascript:;"  onclick="OZONE.ajax.requestModule('account/profile/APAboutModule', null, WIKIDOT.modules.AccountModule.callbacks.menuClick)"><?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>About myself<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?></a></h3>
 	<p>
-		<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Tell others more about yourself by providing additional categorized information such as 
+		<?php $this->_tag_stack[] = array('t', array()); smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], null, $this, $_block_repeat=true);while ($_block_repeat) { ob_start(); ?>Tell others more about yourself by providing additional categorized information such as
 		your website address, location or IM presence.<?php $_block_content = ob_get_contents(); ob_end_clean(); echo smarty_block_t($this->_tag_stack[count($this->_tag_stack)-1][1], $_block_content, $this, $_block_repeat=false); }  array_pop($this->_tag_stack); ?>
 	</p>
 </div>

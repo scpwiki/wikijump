@@ -2,7 +2,7 @@
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -15,7 +15,7 @@
  *
  * For more information about licensing visit:
  * http://www.wikidot.org/license
- * 
+ *
  * @category Ozone
  * @package Ozone_Email
  * @version $Id$
@@ -29,7 +29,7 @@
  *
  */
 class OzoneEmail extends SmartyEmail{
-	
+
 	protected $_toAddresses = array();
 
 	public function __construct(){
@@ -44,21 +44,21 @@ class OzoneEmail extends SmartyEmail{
 			$this->setSMTPSecure(GlobalProperties::$DEFAULT_SMTP_SECURE);
 		}
 		$this->setPort(GlobalProperties::$DEFAULT_SMTP_PORT);
-		
+
 		$this->setHostname(GlobalProperties::$DEFAULT_SMTP_HOSTNAME);
 		$this->setFrom(GlobalProperties::$DEFAULT_SMTP_FROM_EMAIL);
 		$this->setFromName(GlobalProperties::$DEFAULT_SMTP_FROM_NAME);
 		$this->setCharSet("UTF-8");
-		$this->setEncoding("quoted-printable"); 
-		
+		$this->setEncoding("quoted-printable");
+
 		if(GlobalProperties::$DEFAULT_SMTP_SENDER){
 			$this->setSender(GlobalProperties::$DEFAULT_SMTP_SENDER);
 		}
 	}
-	
+
 	public function addAddress($address, $name=""){
-		parent::addAddress($address, $name);	
+		parent::addAddress($address, $name);
 		$this->_toAddresses[] = $address;
 	}
-	
+
 }

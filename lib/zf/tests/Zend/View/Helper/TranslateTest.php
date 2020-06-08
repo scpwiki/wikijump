@@ -23,7 +23,7 @@ require_once 'Zend/Translate/Adapter/Array.php';
  * @package    Zend_View
  * @subpackage UnitTests
  */
-class Zend_View_Helper_TranslateTest extends PHPUnit_Framework_TestCase 
+class Zend_View_Helper_TranslateTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @var Zend_View_Helper_Translate

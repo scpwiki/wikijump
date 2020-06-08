@@ -12,7 +12,7 @@ require_once 'Zend/Server/Method/Parameter.php';
 /**
  * Test class for Zend_Server_Method_Parameter
  */
-class Zend_Server_Method_ParameterTest extends PHPUnit_Framework_TestCase 
+class Zend_Server_Method_ParameterTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Runs the test methods of this class.

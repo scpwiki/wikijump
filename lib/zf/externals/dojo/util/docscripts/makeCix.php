@@ -51,14 +51,14 @@ $namespace = $f->appendChild($api);
 
 // iterate through our modified array, and make an XML tree of the data:
 foreach ($out as $ns => $data){
-	
+
 		// each top-level namespace get's it own scope
 		$nsdata = $doc->createElement('scope');
 		$nsdata->setAttribute("ilk","class");
 		$nsdata->setAttribute("name",$ns);
 
 		foreach ($data as $obj => $info){
-			
+
 			$objElm = $doc->createElement('scope');
 			if(!empty($info['type'])){
 
@@ -111,7 +111,7 @@ foreach ($out as $ns => $data){
 			if(!empty($info['summary'])){
 				$objElm->setAttribute("doc",htmlentities($info['summary']));
 			}
-			
+
 			// avoid appending this node if we skipped popoulating it (in the case of nsdata->appendCHild())
 			if($objElm->hasAttribute("name")){
 				$nsdata->appendChild($objElm);
@@ -119,8 +119,8 @@ foreach ($out as $ns => $data){
 		}
 
 		// and dump all the data to this namesapce
-		$namespace->appendChild($nsdata);	
-	
+		$namespace->appendChild($nsdata);
+
 }
 
 // append the APi to the document, and print:
@@ -149,7 +149,7 @@ function dojo_inspect($data,$ns,$doc,$t="scope"){
 			case "classlike" :
 			case "examples" :
 			case "private_parent" :
-			case "description" : 
+			case "description" :
 			case "source" :
 			case "style" :
 				break;
@@ -211,12 +211,12 @@ function dojo_get_contents_cache($namespace, $file, $forceNew = false){
 	// if the file hasn't been change since the last time, skip parsing it
 	$mtime = dojo_get_file_time($namespace, $file);
 	$cfile = "./cache/".md5($namespace.$file).".".$mtime;
-	
+
 	if(!$forceNew && file_exists($cfile)){
 		// read it from the cache:
 		$cache = file_get_contents($cfile);
 		$data = unserialize($cache);
-		
+
 	}else{
 		// parse the file, and save the cached results:
 		$data = @dojo_get_contents($namespace, $file);
@@ -224,7 +224,7 @@ function dojo_get_contents_cache($namespace, $file, $forceNew = false){
 		$fp = fopen($cfile,"w+");
 		fputs($fp,$cache);
 		fclose($fp);
-		
+
 	}
 	return $data;
 
@@ -251,7 +251,7 @@ function expando_dojo($array){
 						case 8 :
 							fprintf("UNCAUGHT! %s", $item); // way tooooo deep.
 							break;
-						case 7 : 
+						case 7 :
 							$l1 = $list[1];
 							$l2 = $list[2];
 							$l3 = $list[3];
@@ -274,7 +274,7 @@ function expando_dojo($array){
 							else
 								$ret[$namespace][$l1][$l2][$l3][$l4][$l5] = array_merge_recursive($data, $ret[$namespace][$l1][$l2][$l3][$l4][$l5]);
 							break;
-						case 5 : 
+						case 5 :
 							$l1 = $list[1];
 							$l2 = $list[2];
 							$l3 = $list[3];
@@ -296,7 +296,7 @@ function expando_dojo($array){
 						case 3 :
 							$l1 = $list[1];
 							$l2 = $list[2];
-							
+
 							if ($ret[$namespace][$l1][$l2] == NULL)
 								$ret[$namespace][$l1][$l2] = $data;
 							else
@@ -309,9 +309,9 @@ function expando_dojo($array){
 					}
 					break;
 			}
-			
+
 		}
-		
+
 	}
 	return $ret;
 }

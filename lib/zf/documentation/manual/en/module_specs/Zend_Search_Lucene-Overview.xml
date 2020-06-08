@@ -22,16 +22,16 @@
                 </listitem>
             </itemizedlist>
 
-            Zend_Search_Lucene was derived from the Apache Lucene project.  The currently (starting from ZF 1.6) supported Lucene index format 
+            Zend_Search_Lucene was derived from the Apache Lucene project.  The currently (starting from ZF 1.6) supported Lucene index format
             versions are 1.4 - 2.3. For more information on Lucene, visit <ulink url="http://lucene.apache.org/java/docs/"/>.
         </para>
         <note>
             <title/>
             <para>
-                Previous Zend_Search_Lucene implementations support the Lucene 1.4 (1.9) - 2.1 index formats. 
+                Previous Zend_Search_Lucene implementations support the Lucene 1.4 (1.9) - 2.1 index formats.
             </para>
             <para>
-                Starting from ZF 1.5 any index created using pre-2.1 index format is automatically upgraded to Lucene 2.1 format 
+                Starting from ZF 1.5 any index created using pre-2.1 index format is automatically upgraded to Lucene 2.1 format
                 after the Zend_Search_Lucene update and will not be compatible with Zend_Search_Lucene implementations included into ZF 1.0.x.
             </para>
         </note>
@@ -318,7 +318,7 @@ $headerLinksArray = $doc->getHeaderLinks();
             Use <code>Zend_Search_Lucene_Document_Html::setExcludeNoFollowLinks($true)</code> to turn on this option.
         </para>
         <para>
-            <code>Zend_Search_Lucene_Document_Html::getExcludeNoFollowLinks()</code> method returns current state of 
+            <code>Zend_Search_Lucene_Document_Html::getExcludeNoFollowLinks()</code> method returns current state of
             "Exclude nofollow links" flag.
         </para>
     </sect2>
@@ -393,7 +393,7 @@ $index->addDocument($doc);
             also have second optional argument. If it's set to true, then body content is also stored within index and can
             be retrieved from the index. By default, the body is tokenized and indexed, but not stored.
         </para>
-    
+
         <para>
             Parsed documents may be augmented by the programmer with any other field:
             <programlisting role="php"><![CDATA[

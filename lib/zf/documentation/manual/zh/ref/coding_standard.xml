@@ -10,13 +10,13 @@
                 本文档提供的代码格式和文档的指南是给参与 Zend Framework 的个人和团队使用的，许多使用 Zend Framework 的开发者
                 也发现编码标准很有用，因为他们的代码风格和 Zend Framework 的代码保持一致。值得注意的是它要求切实努力来全面
                 详细说明编码标准。
-                 
+
                 注：有时候开发者认为在最详细的设计级别上标准的建立比标准所建议的更重要。Zend Framework 编码标准的指南
                 实践上很好地工作于 ZF 项目。你可以根据我们的 <ulink url="http://framework.zend.com/license">license</ulink> 中的条款来修改或使用它们。
             </para>
             <para>
                 ZF 编码标准的话题包括：
-                 
+
                 <itemizedlist>
                     <listitem>
                         <para>PHP File 文件格式</para>
@@ -171,14 +171,14 @@ widgetFactory()]]>
                 对于面向对象编程，实例或静态变量的访问器总是以 "get" 或 "set" 为前缀。在设计模式实现方面，如单态模式（singleton）或工厂模式（factory），
                 方法的名字应当包含模式的名字，这样名字更能描述整个行为。
             </para>
-            
+
             <para>
                 在对象中的方法，声明为 "private" 或 "protected" 的， 名称的首字符必须是一个单个的下划线，这是唯一的下划线在方法名字中的用法。声明为 "public" 的从不包含下划线。
             </para>
 
             <para>
                 全局函数 (如："floating functions") 允许但大多数情况下不鼓励，建议把这类函数封装到静态类里。
-                
+
             </para>
         </sect2>
 
@@ -230,7 +230,7 @@ widgetFactory()]]>
             <title>PHP 代码划分（Demarcation）</title>
 
             <para>
-                PHP 代码总是用完整的标准的 PHP 标签定界： 
+                PHP 代码总是用完整的标准的 PHP 标签定界：
 
                 <programlisting role="php"><![CDATA[<?php
 
@@ -262,7 +262,7 @@ $a = 'Example String';]]>
 
                 <para>
                     当文字字符串包含单引号（apostrophe ）就用双引号括起来，特别在 SQL 语句中有用：
-                    
+
                     <programlisting role="php"><![CDATA[
 $sql = "SELECT `id`, `name` from `people` WHERE `name`='Fred' OR `name`='Susan'";]]>
                     </programlisting>
@@ -298,7 +298,7 @@ $greeting = "Hello ${name}, welcome back!";]]>
 
                 <para>
                     字符串必需用 "." 操作符连接，在它的前后加上空格以提高可读性：
-                        
+
                     <programlisting role="php"><![CDATA[
 $company = 'Zend' . ' ' . 'Technologies';]]>
                     </programlisting>
@@ -378,7 +378,7 @@ $sampleArray = array('firstKey'  => 'firstValue',
                 </para><para>
                     每个 PHP 文件中只有一个类。
                 </para><para>
-                    放另外的代码到类里允许但不鼓励。在这样的文件中，用两行空格来分隔类和其它代码。                    
+                    放另外的代码到类里允许但不鼓励。在这样的文件中，用两行空格来分隔类和其它代码。
                 </para><para>
                     下面是个可接受的类的例子：
 // 459 9506 － 441 9658 下次从这里开始
@@ -421,7 +421,7 @@ class SampleClass
                     在类中的函数必须用 <code>private</code>、 <code>protected</code> 或 <code>public</code> 声明它们的可见性。
                 </para><para>
                     象类一样，花括号从函数名的下一行开始(the "one true brace" form)。
-                </para><para>  
+                </para><para>
                     函数名和括参数的圆括号中间没有空格。
                 </para>
                 <para>
@@ -449,7 +449,7 @@ class Foo
 
                 <para>
                     <emphasis>注：</emphasis> 传址（Pass-by-reference）是在方法声明中允许的唯一的参数传递机制。
-                    
+
                     <programlisting role="php"><![CDATA[
 /**
  * Documentation Block Here
@@ -645,7 +645,7 @@ switch ($numPeople) {
  * LICENSE: 一些 license 信息
  *
  * @copyright  2008 Zend Technologies
- * @license    http://framework.zend.com/license/3_0.txt   BSD License 
+ * @license    http://framework.zend.com/license/3_0.txt   BSD License
  * @version    $Id:$
  * @link       http://framework.zend.com/package/PackageName
  * @since      File available since Release 1.5.0
@@ -681,7 +681,7 @@ switch ($numPeople) {
                 <title> 函数 </title>
 
                 <para>
-                    每个函数，包括对象方法，必须有最少包含下列内容的文档块（docblock）： 
+                    每个函数，包括对象方法，必须有最少包含下列内容的文档块（docblock）：
 
                     <itemizedlist>
                         <listitem><para> 函数的描述 </para></listitem>

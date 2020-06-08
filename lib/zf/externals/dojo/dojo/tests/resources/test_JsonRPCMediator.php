@@ -1,8 +1,8 @@
 <?php
 	require_once("./JSON.php");
-	
+
 	// FIXME: doesn't look like we really need Pear at all
-	// which decreases the testing burden. 
+	// which decreases the testing burden.
 	// Commenting out.the require and the new File() call.
 
 	// NOTE: File.php is installed via Pear using:
