@@ -63,7 +63,7 @@ class ListPagesModule extends SmartyModule {
 
         $parmHash = md5(serialize($pl->asArrayAll()));
         $this->parameterhash = $parmHash;
-    	/* Check if recursive. */
+        /* Check if recursive. */
         foreach($this->_moduleChain as $m){
             if(get_class($m) == 'ListPagesModule'){// && $m->parameterHash == $parmHash){
                 return '<div class="error-block">The ListPages module does not work recursively.</div>';
@@ -110,7 +110,7 @@ class ListPagesModule extends SmartyModule {
                 } else {
                     $valid = false;
                     if (!$changeTimestamp) {
-                        // 	put timestamp
+                        // put timestamp
                         $mc->set($tkey, $now, 0, 864000);
                         $valid = false;
                     }
@@ -123,7 +123,7 @@ class ListPagesModule extends SmartyModule {
             } else {
                 $valid = false;
                 if (!$allPagesTimestamp) {
-                    // 	put timestamp
+                    // put timestamp
                     $mc->set($akey, $now, 0, 864000);
                     $valid = false;
                 }
@@ -154,7 +154,7 @@ class ListPagesModule extends SmartyModule {
         $pl = $runData->getParameterList();
         $site = $runData->getTemp("site");
 
-    	$categoryName = $this->_readParameter(array('category', 'categories'), false);
+        $categoryName = $this->_readParameter(array('category', 'categories'), false);
 
         $categoryName = strtolower($categoryName);
 
@@ -169,10 +169,10 @@ class ListPagesModule extends SmartyModule {
             $skipCurrent = false;
         }
 
-    	$pageUnixName = $runData->getTemp('pageUnixName');
+        $pageUnixName = $runData->getTemp('pageUnixName');
         if (!$pageUnixName) {
             $pageUnixName = $pl->getParameterValue('page_unix_name'); // from preview
-       	}
+        }
 
         $categories = array();
         $categoryNames = array();
@@ -200,7 +200,7 @@ class ListPagesModule extends SmartyModule {
             }
         }
         //if(count($categories) == 0){
-        //	throw new ProcessException(_("The category can not be found."));
+        //    throw new ProcessException(_("The category can not be found."));
         //}
 
 
@@ -220,30 +220,30 @@ class ListPagesModule extends SmartyModule {
 
         $c->add('unix_name', '(^|:)_', '!~');
 
-	/* Handle magic previousBy/nextBy keywords */
-	$previousBy = $this->_readParameter('previousBy', true);
-	$nextBy = $this->_readParameter('nextBy', true);
+    /* Handle magic previousBy/nextBy keywords */
+    $previousBy = $this->_readParameter('previousBy', true);
+    $nextBy = $this->_readParameter('nextBy', true);
 
-	if ($previousBy || $nextBy) {
-		if ($refPage = $runData->getTemp('page')) {
+    if ($previousBy || $nextBy) {
+        if ($refPage = $runData->getTemp('page')) {
 
-			$refPageId = $refPage->getPageId();
-			$refPageTitle = $refPage->getTitle() . ' ... ' . $refPage->getUnixName();
+            $refPageId = $refPage->getPageId();
+            $refPageTitle = $refPage->getTitle() . ' ... ' . $refPage->getUnixName();
 
-			if ($previousBy == 'page_id') {
-				$c->add('page_id', $refPageId, '<');
-			} elseif ($nextBy == 'page_id') {
-				$c->add('page_id', $refPageId, '>');
-			} elseif ($previousBy == 'title') {
-				$c->add("title || ' ... ' || unix_name", $refPageTitle, '<');
-			} elseif ($nextBy == 'title') {
-				$c->add("title || ' ... ' || unix_name", $refPageTitle, '>');
-			}
+            if ($previousBy == 'page_id') {
+                $c->add('page_id', $refPageId, '<');
+            } elseif ($nextBy == 'page_id') {
+                $c->add('page_id', $refPageId, '>');
+            } elseif ($previousBy == 'title') {
+                $c->add("title || ' ... ' || unix_name", $refPageTitle, '<');
+            } elseif ($nextBy == 'title') {
+                $c->add("title || ' ... ' || unix_name", $refPageTitle, '>');
+            }
 
-		} else {
-			$c->add('page_id', 0); // this should be simply never;
-		}
-	}
+        } else {
+            $c->add('page_id', 0); // this should be simply never;
+        }
+    }
 
 
         /* Handle tags! */
@@ -268,20 +268,20 @@ class ListPagesModule extends SmartyModule {
                     if($runData->getTemp('page')){
                         $pageId = $runData->getTemp('page')->getPageId();
                         $co = new Criteria();
-            			$co->add("page_id", $pageId);
-            			$co->addOrderAscending("tag");
-            			$tagso = PageTagPeer::instance()->select($co);
-            			foreach($tagso as $to){
-            				$tagsAny[] = $to->getTag();
-            			}
-            			if(count($tagsAny) == 0) {
-            			    /*
-            			     * If someone uses the '=' tag, the line below guarantees that
-            			     * only pages that DO have tags and share at least one similar tag with the
-            			     * current page are listed.
-            			     */
-            			    $tagsAny[] = '   ';
-            			}
+                        $co->add("page_id", $pageId);
+                        $co->addOrderAscending("tag");
+                        $tagso = PageTagPeer::instance()->select($co);
+                        foreach($tagso as $to){
+                            $tagsAny[] = $to->getTag();
+                        }
+                        if(count($tagsAny) == 0) {
+                            /*
+                             * If someone uses the '=' tag, the line below guarantees that
+                             * only pages that DO have tags and share at least one similar tag with the
+                             * current page are listed.
+                             */
+                            $tagsAny[] = '   ';
+                        }
                     }
                 } else {
                     $tagsAny[] = $t;
@@ -361,13 +361,13 @@ class ListPagesModule extends SmartyModule {
 
         $m = array();
         if (preg_match(';^last (?:([1-9][0-9]*) )?(day|week|month)s?$;', $date, $m)) {
-        	$dateObj = new ODate();
-        	$n = $m[1];
-        	if(!$n) {$n = 1;}
-        	$unit = $m[2];
-        	$convarray = array('day' => 86400, 'week' => 604800, 'month' => 2592000);
-        	$dateObj->subtractSeconds($n * $convarray[$unit]);
-        	$c->add('date_created', $dateObj, '>');
+            $dateObj = new ODate();
+            $n = $m[1];
+            if(!$n) {$n = 1;}
+            $unit = $m[2];
+            $convarray = array('day' => 86400, 'week' => 604800, 'month' => 2592000);
+            $dateObj->subtractSeconds($n * $convarray[$unit]);
+            $c->add('date_created', $dateObj, '>');
         }
 
         /* Handle pagination. */
@@ -379,7 +379,7 @@ class ListPagesModule extends SmartyModule {
         if ($limit && preg_match(';^[0-9]+$;', $limit)) {
             $c->setLimit($limit); // this limit has no effect on count(*) !!!
         } else {
-        	$limit = null;
+            $limit = null;
         }
 
         $pageNo = $pl->getParameterValue(($this->_parameterUrlPrefix ? ($this->_parameterUrlPrefix . '_') : '' ) . "p");
@@ -390,7 +390,7 @@ class ListPagesModule extends SmartyModule {
         $co = PagePeer::instance()->selectCount($c);
 
         if($limit){
-        	$co = min(array($co, $limit));
+            $co = min(array($co, $limit));
         }
 
         $totalPages = ceil($co / $perPage);
@@ -413,11 +413,11 @@ class ListPagesModule extends SmartyModule {
         /* Pager's base url */
         $url = $_SERVER['REQUEST_URI'];
         if(($url == '' || $url == '/') && isset($pageUnixName)) {
-        	$url = '/' . $pageUnixName;
+            $url = '/' . $pageUnixName;
         }
         $pref = '';
         if($this->_parameterUrlPrefix) {
-        	$pref = $this->_parameterUrlPrefix . '_';
+            $pref = $this->_parameterUrlPrefix . '_';
         }
         $url = preg_replace(';(/'.$pref.'p/[0-9]+)|$;', '/'.$pref.'p/%d', $url, 1);
         $runData->contextAdd("pagerUrl", $url);
@@ -440,28 +440,28 @@ class ListPagesModule extends SmartyModule {
                 $c->addOrderAscending("COALESCE(title, unix_name)");
                 break;
             case 'ratingAsc':
-            	$c->addOrderAscending('rate');
-            	break;
+                $c->addOrderAscending('rate');
+                break;
             case 'ratingDesc':
-            	$c->addOrderDescending('rate');
-            	break;
+                $c->addOrderDescending('rate');
+                break;
             /*
             case 'commentsAsc':
-            	$c->addJoin('thread_id', 'forum_thread.thread_id', 'LEFT');
-            	$c->addOrderAscending('number_posts');
-            	break;
+                $c->addJoin('thread_id', 'forum_thread.thread_id', 'LEFT');
+                $c->addOrderAscending('number_posts');
+                break;
             case 'commentsDesc':
-            	$c->addOrderDescending('number_posts');
-            	break;
-			*/
+                $c->addOrderDescending('number_posts');
+                break;
+            */
             case 'pageLengthAsc':
-            	$c->addJoin('source_id', 'page_source.source_id');
-            	$c->addOrderAscending('char_length(page_source.text)');
-            	break;
+                $c->addJoin('source_id', 'page_source.source_id');
+                $c->addOrderAscending('char_length(page_source.text)');
+                break;
             case 'pageLengthDesc':
-            	$c->addJoin('source_id', 'page_source.source_id');
-            	$c->addOrderDescending('char_length(page_source.text)');
-            	break;
+                $c->addJoin('source_id', 'page_source.source_id');
+                $c->addOrderDescending('char_length(page_source.text)');
+                break;
             default:
             case 'dateCreatedDesc':
                 $c->addOrderDescending('page_id');
@@ -482,7 +482,7 @@ class ListPagesModule extends SmartyModule {
 
 
         //$template = preg_replace('/<p\s*>\s*(%%((?:short)|(?:description)|(?:summary)|(?:content)|(?:long)|(?:body)|(?:text))%%)\s*<\/\s*p>/smi',
-        //			"<div>\\1</div>", $template);
+        //            "<div>\\1</div>", $template);
 
 
         //$template = $format;
@@ -527,12 +527,12 @@ class ListPagesModule extends SmartyModule {
             /* %%author%% */
 
             if($page->getOwnerUserId()){
-	            $user = OzoneUserPeer::instance()->selectByPrimaryKey($page->getOwnerUserId());
-	            if ($user->getUserId() > 0) {
-	                $userString = '[[*user ' . $user->getNickName() . ']]';
-	            } else {
-	                $userString = _('Anonymous user');
-	            }
+                $user = OzoneUserPeer::instance()->selectByPrimaryKey($page->getOwnerUserId());
+                if ($user->getUserId() > 0) {
+                    $userString = '[[*user ' . $user->getNickName() . ']]';
+                } else {
+                    $userString = _('Anonymous user');
+                }
             } else {
                 $userString = _('Anonymous user');
             }
@@ -540,12 +540,12 @@ class ListPagesModule extends SmartyModule {
             $b = str_ireplace("%%user%%", $userString, $b);
 
             if($lastRevision->getUserId()){
-	            $user = OzoneUserPeer::instance()->selectByPrimaryKey($lastRevision->getUserId());
-	            if ($user->getUserId() > 0) {
-	                $userString = '[[*user ' . $user->getNickName() . ']]';
-	            } else {
-	                $userString = _('Anonymous user');
-	            }
+                $user = OzoneUserPeer::instance()->selectByPrimaryKey($lastRevision->getUserId());
+                if ($user->getUserId() > 0) {
+                    $userString = '[[*user ' . $user->getNickName() . ']]';
+                } else {
+                    $userString = _('Anonymous user');
+                }
             } else {
                 $userString = _('Anonymous user');
             }
@@ -599,13 +599,13 @@ class ListPagesModule extends SmartyModule {
             /* %%category%% */
 
             if(strpos( $page->getUnixName(), ":") != false){
-				$tmp0 = explode(':',$page->getUnixName());
-				$categoryName00 = $tmp0[0];
-			} else {
-				$categoryName00 = "_default";
-			}
+                $tmp0 = explode(':',$page->getUnixName());
+                $categoryName00 = $tmp0[0];
+            } else {
+                $categoryName00 = "_default";
+            }
 
-			$b = str_ireplace('%%category%%', $categoryName00, $b);
+            $b = str_ireplace('%%category%%', $categoryName00, $b);
 
             /* %%link%% */
             $b = str_ireplace('%%link%%', GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'/'.$page->getUnixName(), $b);
@@ -640,10 +640,10 @@ class ListPagesModule extends SmartyModule {
             $itemsContent = implode("\n", $items);
         }
         /*
-		 * If separation is false, we are not separating the items with double-newlines but rather
-		 * with a single newline. This allows to create e.g. list of pages by creating a template:
-		 * * %%linked_title%%
-		 */
+         * If separation is false, we are not separating the items with double-newlines but rather
+         * with a single newline. This allows to create e.g. list of pages by creating a template:
+         * * %%linked_title%%
+         */
 
         /* Fix dates. */
         //$dateString = '<span class="odate">'.$thread->getDateStarted()->getTimestamp().'|%e %b %Y, %H:%M %Z|agohover</span>';
@@ -661,52 +661,52 @@ class ListPagesModule extends SmartyModule {
 
         if($rssTitle !== null) {
 
-	        $url = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain() . '/feed/pages';
-	        if (count($categoryNames) > 0) {
-	            $url .= '/category/' . urlencode(implode(',', $categoryNames));
-	        }
-	        if (isset($tags)) {
-	            $url .= '/tags/' . urlencode(implode(',', $tags));
-	        }
+            $url = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain() . '/feed/pages';
+            if (count($categoryNames) > 0) {
+                $url .= '/category/' . urlencode(implode(',', $categoryNames));
+            }
+            if (isset($tags)) {
+                $url .= '/tags/' . urlencode(implode(',', $tags));
+            }
 
-	        /*
-	         * Ignore date in RSS generation.
-	         */
-	        /*
-	        if (isset($date)) {
-	            $url .= '/date/' . urlencode($date);
-	        }*/
+            /*
+             * Ignore date in RSS generation.
+             */
+            /*
+            if (isset($date)) {
+                $url .= '/date/' . urlencode($date);
+            }*/
 
-	        if ($order) {
-	            $url .= '/order/' . urlencode($order);
-	        }
+            if ($order) {
+                $url .= '/order/' . urlencode($order);
+            }
 
-	        //$erss = $pl->getParameterValue('rssEmbed');
-	        //if ($erss == 'no' || $erss == 'false') {
-	        //    $erss = false;
-	        //} else {
-	        //    $erss = true;
-	        //}
-	        //$srss = $pl->getParameterValue('rssShow');
-	        //if ($srss == 'no' || $srss == 'false') {
-	        //    $srss = false;
-	        //} else {
-	        //    $srss = true;
-	        //}
+            //$erss = $pl->getParameterValue('rssEmbed');
+            //if ($erss == 'no' || $erss == 'false') {
+            //    $erss = false;
+            //} else {
+            //    $erss = true;
+            //}
+            //$srss = $pl->getParameterValue('rssShow');
+            //if ($srss == 'no' || $srss == 'false') {
+            //    $srss = false;
+            //} else {
+            //    $srss = true;
+            //}
 
-	        //$trss = $pl->getParameterValue('rssTitle');
-	        //if ($trss) {
-	        //    $url .= '/t/' . urlencode($trss);
-	        //}
-	        $url .= '/t/'  . urlencode($rssTitle);
-	        //if ($erss) {
-	            $this->_vars['rssUrl'] = $url;
-	            $this->_vars['rssTitle'] = $rssTitle;
-	        //}
-	        //if ($srss) {
-	            $runData->contextAdd('rssUrl', $url);
-	            $runData->contextAdd('rssTitle', $rssTitle);
-	        //}
+            //$trss = $pl->getParameterValue('rssTitle');
+            //if ($trss) {
+            //    $url .= '/t/' . urlencode($trss);
+            //}
+            $url .= '/t/'  . urlencode($rssTitle);
+            //if ($erss) {
+                $this->_vars['rssUrl'] = $url;
+                $this->_vars['rssTitle'] = $rssTitle;
+            //}
+            //if ($srss) {
+                $runData->contextAdd('rssUrl', $url);
+                $runData->contextAdd('rssTitle', $rssTitle);
+            //}
         }
     }
 
@@ -783,63 +783,63 @@ class ListPagesModule extends SmartyModule {
         }
         $tagTarget = $this->_readParameter('tagTarget', true);
         if($tagTarget){
-        	$t3 = array();
-        	$p = 'tag';
-        	if($this->_parameterUrlPrefix){
-        		$p = $this->_parameterUrlPrefix . '_tag';
-        	}
-        	foreach($t2 as $t){
-        		$t3[] = '[/'.$tagTarget.'/'.$p.'/'.urlencode($t).' '.$t.']';
-        	}
-        	return implode(' ', $t3);
+            $t3 = array();
+            $p = 'tag';
+            if($this->_parameterUrlPrefix){
+                $p = $this->_parameterUrlPrefix . '_tag';
+            }
+            foreach($t2 as $t){
+                $t3[] = '[/'.$tagTarget.'/'.$p.'/'.urlencode($t).' '.$t.']';
+            }
+            return implode(' ', $t3);
         }
         return implode(' ', $t2);
     }
 
     private function _handlePreview($m) {
-    	$page = $this->_tmpPage;
-    	$length = 200;
-    	if(isset($m[1])){
-    		$length = $m[1];
-    	}
+        $page = $this->_tmpPage;
+        $length = 200;
+        if(isset($m[1])){
+            $length = $m[1];
+        }
 
-    	return $page->getPreview($length);
+        return $page->getPreview($length);
     }
 
     private function _handleComementsCount($m){
-    	$page = $this->_tmpPage;
-    	$threadId = $page->getThreadId();
-    	if($threadId) {
-    		$thread = ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
-    	}
-    	if($thread) {
-    		return $thread->getNumberPosts();
-    	}
-    	return 0;
+        $page = $this->_tmpPage;
+        $threadId = $page->getThreadId();
+        if($threadId) {
+            $thread = ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
+        }
+        if($thread) {
+            return $thread->getNumberPosts();
+        }
+        return 0;
     }
 
-	protected function _readParameter($name, $fromUrl = false){
-    	$pl = $this->_pl;
-    	$name = (array) $name;
-    	foreach($name as $n) {
-    		$val = $pl->getParameterValue($n, "MODULE", "AMODULE");
-    		if($val) {
-    			break;
-    		}
-    	}
-    	if($fromUrl && $val == '@URL') {
-    		foreach($name as $n) {
-	    		if($this->_parameterUrlPrefix){
-	    			$n = $this->_parameterUrlPrefix . '_' . $n;
-	    		}
-    			$val = $pl->resolveParameter($n, 'GET');
-	    		if($val) {
-	    			break;
-	    		}
-	    	}
-    	}
+    protected function _readParameter($name, $fromUrl = false){
+        $pl = $this->_pl;
+        $name = (array) $name;
+        foreach($name as $n) {
+            $val = $pl->getParameterValue($n, "MODULE", "AMODULE");
+            if($val) {
+                break;
+            }
+        }
+        if($fromUrl && $val == '@URL') {
+            foreach($name as $n) {
+                if($this->_parameterUrlPrefix){
+                    $n = $this->_parameterUrlPrefix . '_' . $n;
+                }
+                $val = $pl->resolveParameter($n, 'GET');
+                if($val) {
+                    break;
+                }
+            }
+        }
 
-    	return $val;
+        return $val;
     }
 
     public function processPage($out, $runData) {
