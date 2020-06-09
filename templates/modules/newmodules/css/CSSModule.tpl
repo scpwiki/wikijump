@@ -1,0 +1,3 @@
+<style>
+    {$out}
+</style>

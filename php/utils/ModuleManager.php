@@ -70,7 +70,6 @@ class ModuleManager {
 			$stor[$m3[0]] = array('name' => $m3[0], 'template' =>$m3[1], 'permissions' => $m3[2]);
 		}
 		$this->wikiConfig = $stor;
-
 	}
 
 	public function canWikiUseModule($siteName, $moduleName){
