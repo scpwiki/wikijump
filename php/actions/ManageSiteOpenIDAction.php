@@ -75,7 +75,7 @@ class ManageSiteOpenIDAction extends SmartyAction {
 				// not a root page
 				$page = PagePeer::instance()->selectByName($site->getSiteId(), $val['page']);
 				if(!$page){
-					throw new ProcessException(sprintf(_("The page %s can not be found"), $vals['page']));
+					throw new ProcessException(sprintf(_("The page %s cannot be found"), $vals['page']));
 				}
 
 				$pageId = $page->getPageId();

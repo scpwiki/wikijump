@@ -58,7 +58,7 @@ class ForumAction extends SmartyAction {
 		// validate
 		$errors = array();
 		if($title == ''){
-			$errors['title'] = _("Thread title can not be empty.");
+			$errors['title'] = _("Thread title cannot be empty.");
 		}
 		if(strlen8($title)>128){
 			$errors['title'] = _("Thread title should not be longer than 128 characters.");
@@ -69,7 +69,7 @@ class ForumAction extends SmartyAction {
 		if(strlen($source)>200000){
 			$errors['source'] = _("It seems the source is too long.");
 		}elseif($source == ''){
-			$errors['source'] = _("Post body can not be empty.");
+			$errors['source'] = _("Post body cannot be empty.");
 		}
 		if(count($errors)>0){
 			$runData->ajaxResponseAdd("formErrors", $errors);
@@ -194,7 +194,7 @@ class ForumAction extends SmartyAction {
 		if(strlen($source)>200000){
 			$errors['source'] = _("It seems the source is too long.");
 		}elseif($source == ''){
-			$errors['source'] = _("Post body can not be empty.");
+			$errors['source'] = _("Post body cannot be empty.");
 		}
 		if(count($errors)>0){
 			$runData->ajaxResponseAdd("formErrors", $errors);
@@ -329,7 +329,7 @@ class ForumAction extends SmartyAction {
 		if(strlen($source)>200000){
 			$errors['source'] = _("It seems the source is too long.");
 		}elseif($source == ''){
-			$errors['source'] = _("Post body can not be empty.");
+			$errors['source'] = _("Post body cannot be empty.");
 		}
 		if(count($errors)>0){
 			$runData->ajaxResponseAdd("formErrors", $errors);
@@ -360,7 +360,7 @@ class ForumAction extends SmartyAction {
 
 		// check revisions...
 		if( $post->getRevisionId() != $currentRevisionId){
-			throw new ProcessException(_("The post has been changed meanwhile. Sorry, you can not save it. Please reload the page and start editing again with the current revision... :-("), "no_post");
+			throw new ProcessException(_("The post has been changed meanwhile. Sorry, you cannot save it. Please reload the page and start editing again with the current revision... :-("), "no_post");
 		}
 
 		$category = $post->getForumThread()->getCategory();
@@ -521,7 +521,7 @@ class ForumAction extends SmartyAction {
 		// validate
 		$errors = array();
 		if($title == ''){
-			$errors['title'] = _("Thread title can not be empty.");
+			$errors['title'] = _("Thread title cannot be empty.");
 		}
 		if(strlen8($title)>128){
 			$errors['title'] = _("Thread title should not be longer than 128 characters.");
@@ -550,7 +550,7 @@ class ForumAction extends SmartyAction {
 			if(!$rel || strpos($rel->getPermissions(), 'f') == false){
 				$rel = AdminPeer::instance()->selectOne($c);
 				if(!$rel){
-					throw new WDPermissionException(_("Sorry, this thread is blocked. Meta information can not be edited."));
+					throw new WDPermissionException(_("Sorry, this thread is blocked. Meta information cannot be edited."));
 				}
 			}
 		}

@@ -68,7 +68,7 @@ class MailFormAction extends SmartyAction{
 
 			// check if need to validate. any rules?
 
-			// first, if select, can not be empty
+			// first, if select, cannot be empty
 			if($field['type'] == "select"){
 				if(!$value){
 					$errors[$name] = _('Please select an option');

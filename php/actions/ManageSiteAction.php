@@ -171,7 +171,7 @@ class ManageSiteAction extends SmartyAction {
 		}
 		$parentTheme = ThemePeer::instance()->selectByPrimaryKey($parentThemeId);
 		if($parentTheme == null){
-			throw new ProcessException(_("Parent theme can not be found."), "form_error");
+			throw new ProcessException(_("Parent theme cannot be found."), "form_error");
 		}
 
 		if($themeId == null){
@@ -251,7 +251,7 @@ class ManageSiteAction extends SmartyAction {
 		$c->add("site_id", $site->getSiteId());
 		$cats = CategoryPeer::instance()->select($c);
 		if(count($cats)>0){
-			throw new ProcessException(_("This theme can not be deleted because there are still pages that use it. Please check themes assigned to particular categories."), "can_not_delete");
+			throw new ProcessException(_("This theme cannot be deleted because there are still pages that use it. Please check themes assigned to particular categories."), "can_not_delete");
 		}
 		// ok, delete now!
 		ThemePeer::instance()->deleteByPrimaryKey($theme->getThemeId());

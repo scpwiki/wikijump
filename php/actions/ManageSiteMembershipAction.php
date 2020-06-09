@@ -198,20 +198,20 @@ class ManageSiteMembershipAction extends SmartyAction {
 
 		// remember: one can NOT remove the last admin nor himself.
 		if($userId == $runData->getUserId()){
-			throw new ProcessException(_('You can not remove yourself! Use "your account" panel instead.'), "not_yourself");
+			throw new ProcessException(_('You cannot remove yourself! Use "your account" panel instead.'), "not_yourself");
 		}
 
 		$db = Database::connection();
 		$db->begin();
 
-		// check if is admin. can not remove last admin.
+		// check if is admin. cannot remove last admin.
 		$c = new Criteria();
 		$c->add("user_id", $userId);
 		$c->add("site_id", $siteId);
 		$admin = AdminPeer::instance()->selectOne($c);
 
 		if($admin && $admin->getFounder()){
-			throw new ProcessException(_("The founder of the site can not be removed."). "founder_nonremovable");
+			throw new ProcessException(_("The founder of the site cannot be removed."). "founder_nonremovable");
 		}
 
 		if($admin){
@@ -219,7 +219,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 			$c2->add("site_id", $siteId);
 			$acount = AdminPeer::instance()->selectCount($c2);
 			if($acount == 1){ // BUT this meand "yourself"
-				throw new ProcessException(_("You can not remove the last admin."), "last_admin)");
+				throw new ProcessException(_("You cannot remove the last admin."), "last_admin)");
 			}
 		}
 
@@ -434,7 +434,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 		$admin = AdminPeer::instance()->selectOne($c);
 
 		if($admin && $admin->getFounder()){
-			throw new ProcessException(_("The original founder of the site can not be removed."), "founder_nonremovable");
+			throw new ProcessException(_("The original founder of the site cannot be removed."), "founder_nonremovable");
 		}
 
 		if($admin == null){
@@ -446,7 +446,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 
 		if($userId === $runData->getUserId()){
 			$runData->ajaxResponseAdd("status", "not_yourself");
-			$runData->ajaxResponseAdd("message", _("You can not remove yourself from site admins."));
+			$runData->ajaxResponseAdd("message", _("You cannot remove yourself from site admins."));
 			$db->commit();
 			return;
 		}
@@ -456,7 +456,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 		$acount = AdminPeer::instance()->selectCount($c2);
 		if($acount == 1){ // BUT this meand "yourself"
 			$runData->ajaxResponseAdd("status", "last_admin");
-			$runData->ajaxResponseAdd("message", _("You can not remove the last admin."));
+			$runData->ajaxResponseAdd("message", _("You cannot remove the last admin."));
 			$db->commit();
 			return;
 		}
@@ -705,7 +705,7 @@ class ManageSiteMembershipAction extends SmartyAction {
 		}
 
 		if($inv->getAttempts()>=3){
-			throw new ProcessException(_("You can not send more than 3 copies of the invitation."));
+			throw new ProcessException(_("You cannot send more than 3 copies of the invitation."));
 		}
 
 		if($message2 == ""){

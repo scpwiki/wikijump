@@ -55,7 +55,7 @@ class PasswordRecoveryAction extends SmartyAction {
 		$user = OzoneUserPeer::instance()->selectOne($c);
 
 		if($user == null){
-			throw new ProcessException(_("This email can not be found in our database."), "no_email");
+			throw new ProcessException(_("This email cannot be found in our database."), "no_email");
 		}
 
 		// generate code
@@ -74,7 +74,7 @@ class PasswordRecoveryAction extends SmartyAction {
 		$oe->setBodyTemplate('PasswordRecoveryEmail');
 
 		if (!$oe->Send()) {
-			throw new ProcessException(_("The email can not be sent to this address."), "no_email");
+			throw new ProcessException(_("The email cannot be sent to this address."), "no_email");
 		}
 
 		$runData->sessionAdd("revcode", $evcode);

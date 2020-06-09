@@ -617,7 +617,7 @@ class WikiPageAction extends SmartyAction {
 			$c->setForUpdate(true);
 			$page = PagePeer::instance()->selectOne($c);
 			if($page == null) {
-				throw new ProcessException(_("Can not find the page."). "no_page");
+				throw new ProcessException(_("Cannot find the page."). "no_page");
 			}
 		}else {
 			PageEditLockPeer::instance()->deleteOutdatedByPageName($site->getSiteId(), $unixName);
@@ -728,7 +728,7 @@ class WikiPageAction extends SmartyAction {
 			$c->setForUpdate(true);
 			$page = PagePeer::instance()->selectOne($c);
 			if($page == null) {
-				throw new ProcessException(_("Can not find the page."). "no_page");
+				throw new ProcessException(_("Cannot find the page."). "no_page");
 			}
 		}
 		if($page != null && $page->getRevisionId() != $pl->getParameterValue("revision_id")){
@@ -1136,7 +1136,7 @@ class WikiPageAction extends SmartyAction {
 			}
 			// check if not "self"
 			if($pp->getPageId() == $page->getPageId()){
-				throw new ProcessException(_("Can not set parent page to this page."), "loop_error");
+				throw new ProcessException(_("Cannot set parent page to this page."), "loop_error");
 			}
 
 			// check permissions to edit the parent page (???) - it somehow affects

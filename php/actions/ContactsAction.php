@@ -51,7 +51,7 @@ class ContactsAction extends SmartyAction {
 		$user = $runData->getUser();
 
 		if($targetUser == null){
-			throw new ProcessException(_("User can not be found."), "no_user");
+			throw new ProcessException(_("User cannot be found."), "no_user");
 		}
 
 		if($targetUserId == $user->getUserId()){
@@ -76,7 +76,7 @@ class ContactsAction extends SmartyAction {
 		$c->add("user_id", $user->getUserId());
 		$count = ContactPeer::instance()->selectCount($c);
 		if($count>=1000){
-			throw new ProcessException(_("Sorry, at this moment you can not add more than 1000 contacts.", "max_reached"));
+			throw new ProcessException(_("Sorry, at this moment you cannot add more than 1000 contacts.", "max_reached"));
 		}
 
 		//...
