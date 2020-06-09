@@ -197,7 +197,7 @@ class UserInvitationAction extends SmartyAction {
 		}
 
 		if($inv->getAttempts()>=3){
-			throw new ProcessException(_("You can not send more than 3 copies of the invitation."));
+			throw new ProcessException(_("You cannot send more than 3 copies of the invitation."));
 		}
 
 		if($message2 == ""){
