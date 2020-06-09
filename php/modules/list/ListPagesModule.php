@@ -220,30 +220,30 @@ class ListPagesModule extends SmartyModule {
 
         $c->add('unix_name', '(^|:)_', '!~');
 
-    /* Handle magic previousBy/nextBy keywords */
-    $previousBy = $this->_readParameter('previousBy', true);
-    $nextBy = $this->_readParameter('nextBy', true);
+        /* Handle magic previousBy/nextBy keywords */
+        $previousBy = $this->_readParameter('previousBy', true);
+        $nextBy = $this->_readParameter('nextBy', true);
 
-    if ($previousBy || $nextBy) {
-        if ($refPage = $runData->getTemp('page')) {
+        if ($previousBy || $nextBy) {
+            if ($refPage = $runData->getTemp('page')) {
 
-            $refPageId = $refPage->getPageId();
-            $refPageTitle = $refPage->getTitle() . ' ... ' . $refPage->getUnixName();
+                $refPageId = $refPage->getPageId();
+                $refPageTitle = $refPage->getTitle() . ' ... ' . $refPage->getUnixName();
 
-            if ($previousBy == 'page_id') {
-                $c->add('page_id', $refPageId, '<');
-            } elseif ($nextBy == 'page_id') {
-                $c->add('page_id', $refPageId, '>');
-            } elseif ($previousBy == 'title') {
-                $c->add("title || ' ... ' || unix_name", $refPageTitle, '<');
-            } elseif ($nextBy == 'title') {
-                $c->add("title || ' ... ' || unix_name", $refPageTitle, '>');
+                if ($previousBy == 'page_id') {
+                    $c->add('page_id', $refPageId, '<');
+                } elseif ($nextBy == 'page_id') {
+                    $c->add('page_id', $refPageId, '>');
+                } elseif ($previousBy == 'title') {
+                    $c->add("title || ' ... ' || unix_name", $refPageTitle, '<');
+                } elseif ($nextBy == 'title') {
+                    $c->add("title || ' ... ' || unix_name", $refPageTitle, '>');
+                }
+
+            } else {
+                $c->add('page_id', 0); // this should be simply never;
             }
-
-        } else {
-            $c->add('page_id', 0); // this should be simply never;
         }
-    }
 
 
         /* Handle tags! */
@@ -453,7 +453,7 @@ class ListPagesModule extends SmartyModule {
             case 'commentsDesc':
                 $c->addOrderDescending('number_posts');
                 break;
-            */
+             */
             case 'pageLengthAsc':
                 $c->addJoin('source_id', 'page_source.source_id');
                 $c->addOrderAscending('char_length(page_source.text)');
@@ -589,7 +589,7 @@ class ListPagesModule extends SmartyModule {
             /* %%rating%% */
             $b = str_ireplace('%%rating%%', $page->getRate(), $b);
 
-             /* %%comments%% */
+            /* %%comments%% */
             $b = preg_replace_callback("/%%comments%%/i", array(
                 $this, '_handleComementsCount'), $b);
 
@@ -700,12 +700,12 @@ class ListPagesModule extends SmartyModule {
             //}
             $url .= '/t/'  . urlencode($rssTitle);
             //if ($erss) {
-                $this->_vars['rssUrl'] = $url;
-                $this->_vars['rssTitle'] = $rssTitle;
+            $this->_vars['rssUrl'] = $url;
+            $this->_vars['rssTitle'] = $rssTitle;
             //}
             //if ($srss) {
-                $runData->contextAdd('rssUrl', $url);
-                $runData->contextAdd('rssTitle', $rssTitle);
+            $runData->contextAdd('rssUrl', $url);
+            $runData->contextAdd('rssTitle', $rssTitle);
             //}
         }
     }
@@ -737,11 +737,11 @@ class ListPagesModule extends SmartyModule {
         } else {
             /* Try to extract the short version. */
             $s = $this->_tmpSource;
-             /* Strip some blocks first. */
+            /* Strip some blocks first. */
             $s = trim(preg_replace('/^(\+{1,6}) (.*)/m', "\n\n", $s));
-        $s = trim(preg_replace('/^\[\[toc(\s[^\]]+)?\]\]/', "\n\n", $s));
-        $s = trim(preg_replace('/^\[\[\/?div(\s[^\]]+)?\]\]/', "\n\n", $s));
-        $s = trim(preg_replace('/^\[\[\/?module(\s[^\]]+)?\]\]/', "\n\n", $s));
+            $s = trim(preg_replace('/^\[\[toc(\s[^\]]+)?\]\]/', "\n\n", $s));
+            $s = trim(preg_replace('/^\[\[\/?div(\s[^\]]+)?\]\]/', "\n\n", $s));
+            $s = trim(preg_replace('/^\[\[\/?module(\s[^\]]+)?\]\]/', "\n\n", $s));
             /* 1. Try the first paragraph. */
             $m1 = array();
             $split = preg_split(";\n{2,};", $s);
@@ -751,7 +751,7 @@ class ListPagesModule extends SmartyModule {
 
     }
 
-     private function _handleFirstParagraph($m) {
+    private function _handleFirstParagraph($m) {
         /* Try to extract the short version. */
         $s = $this->_tmpSource;
         /* Strip some blocks first. */
