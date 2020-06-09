@@ -80,7 +80,7 @@ class WatchAction extends SmartyAction
 
         $count = WatchedForumThreadPeer::instance()->selectCount($c);
         if ($count>9) {
-            throw new ProcessException(_("You can not watch more than 10 threads for now."), "max_reached");
+            throw new ProcessException(_("You cannot watch more than 10 threads for now."), "max_reached");
         }
 
         // ok, create new watch.
@@ -146,7 +146,7 @@ class WatchAction extends SmartyAction
 
         $count = WatchedPagePeer::instance()->selectCount($c);
         if ($count>9) {
-            throw new ProcessException(_("You can not watch more than 10 pages for now."), "max_reached");
+            throw new ProcessException(_("You cannot watch more than 10 pages for now."), "max_reached");
         }
 
         // ok, create new watch.

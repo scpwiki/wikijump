@@ -56,13 +56,13 @@ class ManageSiteEmailListsAction extends SmartyAction
         $listWhoCanJoin = trim($pl->getParameterValue('whoCanJoin'));
 
         if (strlen($listTitle) > 30) {
-            throw new ProcessException('List title can not be longer than 30 characters');
+            throw new ProcessException('List title cannot be longer than 30 characters');
         }
         if (strlen($listTitle) == 0) {
             throw new ProcessException('Title of the list should be provided.');
         }
         if (strlen($listUnixName) > 30) {
-            throw new ProcessException('Unix name (address) of the list can not be longer than 20 characters');
+            throw new ProcessException('Unix name (address) of the list cannot be longer than 20 characters');
         }
         if (strlen($listUnixName) == 0) {
             throw new ProcessException('Unix name (address) of the list should be provided.');
