@@ -11,7 +11,7 @@ Best regards - {$SERVICE_NAME}
 
 If you have NOT attempted to change your email address associated with
 a Wikidot account or even are not a service user it is possible
-that you have reveived this email because someone else mistyped her/his
+that you have reveived this email because someone else mistyped their
 own email address. If you however suspect any abuse, please contact
 
 

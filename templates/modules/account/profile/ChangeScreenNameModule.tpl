@@ -4,7 +4,7 @@
 	Your current screen name is <strong>{$user->getNickName()|escape}</strong>.
 </p>
 <p>
-	Each Wikidot User can change his/her screen name <strong>twice</strong>. 
+	Each Wikidot User can change their screen name <strong>twice</strong>. 
 	It looks like you have changed yours <strong style="font-size:120%">{$profile->getChangeScreenNameCount()}</strong> time(s).
 </p>
 <p>

@@ -11,7 +11,7 @@
 		
 		<p>
 			It seems you got an invitation from our user {printuser user=$sender image=true} to become
-			a member of his/her Wiki Website <b>{$site->getName()|escape}</b> at <a href="{$HTTP_SCHEMA}://{$site->getDomain()}" target="_blank">{$HTTP_SCHEMA}://{$site->getDomain()}</a>.
+			a member of their Wiki Website <b>{$site->getName()|escape}</b> at <a href="{$HTTP_SCHEMA}://{$site->getDomain()}" target="_blank">{$HTTP_SCHEMA}://{$site->getDomain()}</a>.
 		</p>
 		<p>
 			All you have to do is to accept the invitation and we will instantly add you to members of this Site.

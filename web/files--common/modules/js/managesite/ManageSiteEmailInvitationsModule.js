@@ -62,7 +62,7 @@ WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners = {
 		
 		if(adrs.length==0){
 			var w = new OZONE.dialogs.ErrorDialog();
-			w.content = "No valid recepients have been given. For each person both the email address and his/her name should be given.";
+			w.content = "No valid recepients have been given. For each person both the email address and name should be given.";
 			w.show();
 			return;
 		
