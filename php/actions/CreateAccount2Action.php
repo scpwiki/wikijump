@@ -42,7 +42,7 @@ class CreateAccount2Action extends SmartyAction {
 	public function acceptRulesEvent($runData){
 		$accept = $runData->getParameterList()->getParameterValue("acceptrules");
 		if(!$accept){
-			throw new ProcessException(_("You must accept Terms of Service before proceeding."), "must_accept");
+			throw new ProcessException(_("You must accept the Terms of Service before proceeding."), "must_accept");
 		}
 
 	}
@@ -175,7 +175,7 @@ class CreateAccount2Action extends SmartyAction {
 		$oe->setBodyTemplate('RegistrationEmailVerification');
 
 		if (!$oe->Send()) {
-			throw new ProcessException(_("The email can not be sent to this address."), "email_failed");
+			throw new ProcessException(_("The email cannot be sent to this address."), "email_failed");
 		}
 		$runData->sessionAdd('evcode', $evcode);
 
@@ -207,7 +207,7 @@ class CreateAccount2Action extends SmartyAction {
 		$oe->setBodyTemplate('RegistrationEmailVerification');
 
 		if (!$oe->Send()) {
-			throw new ProcessException(_("The email can not be sent to this address."), "email_failed");
+			throw new ProcessException(_("The email cannot be sent to this address."), "email_failed");
 		}
 		$runData->sessionAdd('evcode', $evcode);
 	}
