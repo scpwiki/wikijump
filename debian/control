@@ -19,7 +19,7 @@ Description: Wikidot is a full blown wiki farm in PHP.
  (both export and import). This (more or less) software
  is used to run the Wikidot service (www.wikidot.com).
  .
- This is experimental and limited package. It will install
+ This is an experimental and limited package. It will install
  the default single-wiki mode Wikidot with default
  settings. You can then convert the installation to
  wiki_farm by editing /usr/lib/wikidot/conf/wikidot.ini
