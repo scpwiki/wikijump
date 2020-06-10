@@ -45,7 +45,7 @@
 class Text_Wiki_Parse_Wikilink extends Text_Wiki_Parse {
 
     public $conf = array (
-    	'ext_chars' => false
+        'ext_chars' => false
     );
 
     /**
@@ -66,19 +66,19 @@ class Text_Wiki_Parse_Wikilink extends Text_Wiki_Parse {
         parent::Text_Wiki_Parse($obj);
 
         if ($this->getConf('ext_chars')) {
-        	// use an extended character set; this should
-        	// allow for umlauts and so on.  taken from the
-        	// Tavi project defaults.php file.
-			$upper = "A-Z\xc0-\xde";
-			$lower = "a-z0-9\xdf-\xfe";
-			$either = "A-Za-z0-9\xc0-\xfe";
-		} else {
-			// the default character set, should be fine
-			// for most purposes.
-			$upper = "A-Z";
-			$lower = "a-z0-9";
-			$either = "A-Za-z0-9";
-		}
+            // use an extended character set; this should
+            // allow for umlauts and so on.  taken from the
+            // Tavi project defaults.php file.
+            $upper = "A-Z\xc0-\xde";
+            $lower = "a-z0-9\xdf-\xfe";
+            $either = "A-Za-z0-9\xc0-\xfe";
+        } else {
+            // the default character set, should be fine
+            // for most purposes.
+            $upper = "A-Z";
+            $lower = "a-z0-9";
+            $either = "A-Za-z0-9";
+        }
 
         // build the regular expression for finding WikiPage names.
         $this->regex =
@@ -119,10 +119,10 @@ class Text_Wiki_Parse_Wikilink extends Text_Wiki_Parse {
 
         // standalone wiki links
         if ($this->getConf('ext_chars')) {
-			$either = "A-Za-z0-9\xc0-\xfe";
-		} else {
-			$either = "A-Za-z0-9";
-		}
+            $either = "A-Za-z0-9\xc0-\xfe";
+        } else {
+            $either = "A-Za-z0-9";
+        }
 
         $tmp_regex = "/(^|[^{$either}\-_]){$this->regex}/";
         $this->wiki->source = preg_replace_callback(

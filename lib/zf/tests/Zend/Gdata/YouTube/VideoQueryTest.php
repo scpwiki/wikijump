@@ -145,13 +145,13 @@ class Zend_Gdata_YouTube_VideoQueryTest extends PHPUnit_Framework_TestCase
     }
 
     public function testSafeSearchParametersInV2() {
-    	$yt = new Zend_Gdata_YouTube();
+        $yt = new Zend_Gdata_YouTube();
         $query = $yt->newVideoQuery();
         $exceptionCaught = false;
         try {
-        	$query->setSafeSearch('invalid');
+            $query->setSafeSearch('invalid');
         } catch (Zend_Gdata_App_InvalidArgumentException $e) {
-        	$exceptionCaught = true;
+            $exceptionCaught = true;
         }
         $this->assertTrue($exceptionCaught, 'Expected Zend_Gdata_App_' .
             'InvalidArgumentException when using invalid value for ' .

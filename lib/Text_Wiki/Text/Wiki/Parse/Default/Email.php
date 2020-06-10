@@ -40,11 +40,11 @@ class Text_Wiki_Parse_Email extends Text_Wiki_Parse {
     *
     */
 
-	public $regex = '[_a-z0-9\-]+(?:\.[_a-z0-9\-]+)*@[a-z0-9\-]+(?:\.[a-z0-9\-]+)+';
+    public $regex = '[_a-z0-9\-]+(?:\.[_a-z0-9\-]+)*@[a-z0-9\-]+(?:\.[a-z0-9\-]+)+';
 
     function parse(){
 
-    	 	// described emails
+             // described emails
         $tmp_regex = '/\[(' . $this->regex . ') (.+?)\]/i';
         $this->wiki->source = preg_replace_callback(
             $tmp_regex,
@@ -52,7 +52,7 @@ class Text_Wiki_Parse_Email extends Text_Wiki_Parse {
             $this->wiki->source
         );
 
-    		// standalone emails
+            // standalone emails
         $tmp_regex = '/' . $this->regex . '/i';
         $this->wiki->source = preg_replace_callback(
             $tmp_regex,
@@ -71,7 +71,7 @@ class Text_Wiki_Parse_Email extends Text_Wiki_Parse {
         return $this->wiki->addToken($this->rule, $options);
     }
 
-	function processDescr(&$matches){
+    function processDescr(&$matches){
         $options = array(
            'email' => $matches[1],
             'text' => $matches[2]

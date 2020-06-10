@@ -907,10 +907,10 @@ class Zend_Cache_Backend_File extends Zend_Cache_Backend implements Zend_Cache_B
         }
         $partsArray = $this->_path($id, true);
         foreach ($partsArray as $part) {
-        	if (!is_dir($part)) {
-            	@mkdir($part, $this->_options['hashed_directory_umask']);
-        	    @chmod($part, $this->_options['hashed_directory_umask']); // see #ZF-320 (this line is required in some configurations)
-        	}
+            if (!is_dir($part)) {
+                @mkdir($part, $this->_options['hashed_directory_umask']);
+                @chmod($part, $this->_options['hashed_directory_umask']); // see #ZF-320 (this line is required in some configurations)
+            }
         }
         return true;
     }

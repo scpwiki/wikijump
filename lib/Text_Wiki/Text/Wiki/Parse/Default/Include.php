@@ -63,75 +63,75 @@ class Text_Wiki_Parse_Include extends Text_Wiki_Parse {
 
     public $regex = '/^\[\[include ([a-zA-Z0-9\s\-:]+?)(\s+.*?)?(?:\]\])$/ims';
 
- 	function parse(){
- 		$level = 0;
- 		do{
- 			$oldSource = $this->wiki->source;
-        	$this->wiki->source = preg_replace_callback(
-	           	$this->regex,
-           		array(&$this, 'process'),
-           		$this->wiki->source
-        	);
-        	$level++;
- 		}while($oldSource != $this->wiki->source && $level<5);
+     function parse(){
+         $level = 0;
+         do{
+             $oldSource = $this->wiki->source;
+            $this->wiki->source = preg_replace_callback(
+                   $this->regex,
+                   array(&$this, 'process'),
+                   $this->wiki->source
+            );
+            $level++;
+         }while($oldSource != $this->wiki->source && $level<5);
 
- 	}
+     }
 
     function process(&$matches)
     {
 
-     	$pageName =  WDStringUtils::toUnixName(trim($matches[1]));
+         $pageName =  WDStringUtils::toUnixName(trim($matches[1]));
 
-     	// get page source (if exists)
+         // get page source (if exists)
 
-     	$runData = Ozone::getRunData();
-     	$site = $runData->getTemp("site");
+         $runData = Ozone::getRunData();
+         $site = $runData->getTemp("site");
 
-    		$page = DB\PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
+            $page = DB\PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
 
-    		if($page == null){
-    			//$output =  $this->wiki->addToken(
-            	//	$this->rule, array('fromIncludeRule' => true, 'type' => 'error', 'pageName' => $pageName)
-        		$output = "\n\n".'[[div class="error-block"]]'."\n".sprintf(_('Page to be included %s can not be found!'),htmlspecialchars($pageName))."\n".'[[/div]]'."\n\n";
+            if($page == null){
+                //$output =  $this->wiki->addToken(
+                //    $this->rule, array('fromIncludeRule' => true, 'type' => 'error', 'pageName' => $pageName)
+                $output = "\n\n".'[[div class="error-block"]]'."\n".sprintf(_('Page to be included %s can not be found!'),htmlspecialchars($pageName))."\n".'[[/div]]'."\n\n";
 
-        		$wiki = $this->wiki;
-        		if($wiki->vars['inclusionsNotExist'] == null){
-					$wiki->vars['inclusionsNotExist'] = array();
-				}
-				$wiki->vars['inclusionsNotExist'][$pageName] = $pageName;
-    		}else {
+                $wiki = $this->wiki;
+                if($wiki->vars['inclusionsNotExist'] == null){
+                    $wiki->vars['inclusionsNotExist'] = array();
+                }
+                $wiki->vars['inclusionsNotExist'][$pageName] = $pageName;
+            }else {
 
-    			$output = $page->getSource();
+                $output = $page->getSource();
 
-    			// prepare entry...
-    			$wiki = $this->wiki;
-    			if($wiki->vars['inclusions'] == null){
-					$wiki->vars['inclusions'] = array();
-				}
-				$wiki->vars['inclusions'][$page->getPageId()] = $page->getPageId();
+                // prepare entry...
+                $wiki = $this->wiki;
+                if($wiki->vars['inclusions'] == null){
+                    $wiki->vars['inclusions'] = array();
+                }
+                $wiki->vars['inclusions'][$page->getPageId()] = $page->getPageId();
 
-    			// preprocess the output too!!!
-    			// missed a few rules so far... TODO!!!
+                // preprocess the output too!!!
+                // missed a few rules so far... TODO!!!
 
-    			//process the output - make substitutions.
+                //process the output - make substitutions.
 
-    			$subs = $matches[2];
-    			if($subs){
-    				$subsArray = explode('|', $subs);
-    				foreach($subsArray as $sub){
-    					if(strpos($sub, '=') !== false){
-    						$pos = strpos($sub,'=');
-    						$var = trim(substr($sub, 0, $pos));
-    						$value = trim(substr($sub, $pos+1));
-    						if($value!='' && $var != '' && preg_match('/^[a-z0-9\-\_]+$/i', $var)){
-    							// substitute!!!
-    							$output = str_replace('{$'.$var.'}', $value, $output);
-    						}
-    					}
-    				}
-    			}
+                $subs = $matches[2];
+                if($subs){
+                    $subsArray = explode('|', $subs);
+                    foreach($subsArray as $sub){
+                        if(strpos($sub, '=') !== false){
+                            $pos = strpos($sub,'=');
+                            $var = trim(substr($sub, 0, $pos));
+                            $value = trim(substr($sub, $pos+1));
+                            if($value!='' && $var != '' && preg_match('/^[a-z0-9\-\_]+$/i', $var)){
+                                // substitute!!!
+                                $output = str_replace('{$'.$var.'}', $value, $output);
+                            }
+                        }
+                    }
+                }
 
-    		}
+            }
         // done, place the script output directly in the source
         return "\n\n".$output."\n\n";
     }

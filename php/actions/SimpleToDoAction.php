@@ -43,15 +43,15 @@ class SimpleToDoAction extends SmartyAction {
         if (!is_numeric($pageId)){
             throw new ProcessException(_("Page does not exist."));
         }
-		$page = PagePeer::instance()->selectByPrimaryKey($pageId);
+        $page = PagePeer::instance()->selectByPrimaryKey($pageId);
 
-		if(!$page) {
-			throw new ProcessException(_("Page does not exist."));
-		}
+        if(!$page) {
+            throw new ProcessException(_("Page does not exist."));
+        }
 
-			// check permissions
-		$category = $page->getCategory();
-		WDPermissionManager::instance()->hasPagePermission('edit', $runData->getUser(), $category, $page);
+            // check permissions
+        $category = $page->getCategory();
+        WDPermissionManager::instance()->hasPagePermission('edit', $runData->getUser(), $category, $page);
 
         $data = $pl->getParameterValue("data");
         $json = new JSONService();

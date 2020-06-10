@@ -60,7 +60,7 @@ class Text_Wiki_Render_Xhtml_Mathinline extends Text_Wiki_Render {
             $renderer->render($content2, $hashcode);
         }
         if (!file_exists($dir . '/' . $imgFile)) {
-            return '<span class="error-inline">' . _('The equation has not been processed correctly. Most prabably it has syntax error(s).') . '	</span>';
+            return '<span class="error-inline">' . _('The equation has not been processed correctly. Most prabably it has syntax error(s).') . '    </span>';
         }
 
         $out = '<img class="math-inline" src="/local--math/inline/' . $imgFile . '" alt="' . htmlentities($content) . '" />';

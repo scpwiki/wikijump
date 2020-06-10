@@ -27,24 +27,24 @@
  * Module placeholder generator for Smarty.
  */
 function smarty_function_module($params, & $smarty) {
-	if($params['name'] == '') {
-		$smarty->trigger_error("module: missing attribute 'name' for the macro");
-		return;
-	}
-	$templateName = $params['name'];
-	$parameters = $params['parameters'];
+    if($params['name'] == '') {
+        $smarty->trigger_error("module: missing attribute 'name' for the macro");
+        return;
+    }
+    $templateName = $params['name'];
+    $parameters = $params['parameters'];
 
-	unset($params['name']);
-	// convert params to string key="value"
-	foreach($params as $key => $value){
-		$parameters.="$key=\"$value\" ";
-	}
+    unset($params['name']);
+    // convert params to string key="value"
+    foreach($params as $key => $value){
+        $parameters.="$key=\"$value\" ";
+    }
 
-	if($parameters!==null){
-		$parmstring = " ".urlencode($parameters)." ";
-	}
-	$d = utf8_encode("\xFE");
-	$out = $d."module \"".$templateName."\" ".$parmstring.$d;
-	return $out;
+    if($parameters!==null){
+        $parmstring = " ".urlencode($parameters)." ";
+    }
+    $d = utf8_encode("\xFE");
+    $out = $d."module \"".$templateName."\" ".$parmstring.$d;
+    return $out;
 
 }

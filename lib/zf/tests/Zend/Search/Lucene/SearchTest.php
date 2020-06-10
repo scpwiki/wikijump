@@ -382,7 +382,7 @@ class Zend_Search_Lucene_SearchTest extends PHPUnit_Framework_TestCase
         // Restore default search field if it wasn't done by previous test because of failure
         Zend_Search_Lucene::setDefaultSearchField(null);
 
-    	$index = Zend_Search_Lucene::open(dirname(__FILE__) . '/_indexSample/_files');
+        $index = Zend_Search_Lucene::open(dirname(__FILE__) . '/_indexSample/_files');
 
         $hits = $index->find('submitting AND wishlists');
         $hit = $hits[0];

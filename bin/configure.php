@@ -39,32 +39,32 @@ chdir(WIKIDOT_ROOT);
 $random = random(64);
 
 foreach ($files as $file) {
-	$src = WIKIDOT_ROOT."$file.orig";
-	$dst = WIKIDOT_ROOT.$file;
-	echo "Processing $file .";
-	$s = file_get_contents($src);
-	echo ".";
-	$s = sed($s, $random);
-	echo ".";
-	file_put_contents($dst, $s);
-	echo ".\n";
+    $src = WIKIDOT_ROOT."$file.orig";
+    $dst = WIKIDOT_ROOT.$file;
+    echo "Processing $file .";
+    $s = file_get_contents($src);
+    echo ".";
+    $s = sed($s, $random);
+    echo ".";
+    file_put_contents($dst, $s);
+    echo ".\n";
 }
 
 function random($length) {
-	$r = "";
-	for ($i = 0; $i < $length; $i++) {
-		$r .= dechex(rand(0, 15));
-	}
-	return $r;
+    $r = "";
+    for ($i = 0; $i < $length; $i++) {
+        $r .= dechex(rand(0, 15));
+    }
+    return $r;
 }
 
 function sed($s, $random) {
-	$s = preg_replace('/%{WIKIDOT:WIKIDOT_ROOT}/', addslashes(WIKIDOT_ROOT), $s);
-	$s = preg_replace('/%{WIKIDOT:URL_HOST}/', addslashes(GlobalProperties::$URL_HOST), $s);
-	$s = preg_replace('/%{WIKIDOT:URL_HOST_PREG}/', addslashes(GlobalProperties::$URL_HOST_PREG), $s);
-	$s = preg_replace('/%{WIKIDOT:URL_DOMAIN}/', addslashes(GlobalProperties::$URL_DOMAIN), $s);
-	$s = preg_replace('/%{WIKIDOT:URL_DOMAIN_PREG}/', addslashes(GlobalProperties::$URL_DOMAIN_PREG), $s);
-	$s = preg_replace('/%{WIKIDOT:HTTP_PORT}/', addslashes(GlobalProperties::$HTTP_PORT), $s);
-	$s = preg_replace('/%{WIKIDOT:RANDOM_STRING}/', $random, $s);
-	return $s;
+    $s = preg_replace('/%{WIKIDOT:WIKIDOT_ROOT}/', addslashes(WIKIDOT_ROOT), $s);
+    $s = preg_replace('/%{WIKIDOT:URL_HOST}/', addslashes(GlobalProperties::$URL_HOST), $s);
+    $s = preg_replace('/%{WIKIDOT:URL_HOST_PREG}/', addslashes(GlobalProperties::$URL_HOST_PREG), $s);
+    $s = preg_replace('/%{WIKIDOT:URL_DOMAIN}/', addslashes(GlobalProperties::$URL_DOMAIN), $s);
+    $s = preg_replace('/%{WIKIDOT:URL_DOMAIN_PREG}/', addslashes(GlobalProperties::$URL_DOMAIN_PREG), $s);
+    $s = preg_replace('/%{WIKIDOT:HTTP_PORT}/', addslashes(GlobalProperties::$HTTP_PORT), $s);
+    $s = preg_replace('/%{WIKIDOT:RANDOM_STRING}/', $random, $s);
+    return $s;
 }

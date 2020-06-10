@@ -31,9 +31,9 @@
  *
  */
 interface OzoneLoggerOutput {
-	/**
-	 * Handles event sent by OzoneLogger.
-	 */
-	public function handleEvent($event);
+    /**
+     * Handles event sent by OzoneLogger.
+     */
+    public function handleEvent($event);
 
 }

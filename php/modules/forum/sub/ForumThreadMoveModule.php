@@ -30,52 +30,52 @@ use DB\ForumCategoryPeer;
 
 class ForumThreadMoveModule extends SmartyModule {
 
-	public function build($runData){
-		$pl = $runData->getParameterList();
+    public function build($runData){
+        $pl = $runData->getParameterList();
 
-		$threadId = $pl->getParameterValue("threadId");
-		$site = $runData->getTemp("site");
+        $threadId = $pl->getParameterValue("threadId");
+        $site = $runData->getTemp("site");
 
-		$db = Database::connection();
-		$db->begin();
+        $db = Database::connection();
+        $db->begin();
 
-		$thread = ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
-		if($thread == null || $thread->getSiteId() !== $site->getSiteId()){
-			throw new ProcessException(_("No thread found... Is it deleted?"), "no_thread");
-		}
+        $thread = ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
+        if($thread == null || $thread->getSiteId() !== $site->getSiteId()){
+            throw new ProcessException(_("No thread found... Is it deleted?"), "no_thread");
+        }
 
-		$category = $thread->getForumCategory();
-		WDPermissionManager::instance()->hasForumPermission('moderate_forum', $runData->getUser(), $category);
+        $category = $thread->getForumCategory();
+        WDPermissionManager::instance()->hasForumPermission('moderate_forum', $runData->getUser(), $category);
 
-		$runData->contextAdd("thread", $thread);
-		$runData->contextAdd("category", $thread->getForumCategory());
+        $runData->contextAdd("thread", $thread);
+        $runData->contextAdd("category", $thread->getForumCategory());
 
-		// and select categories to move into too.
+        // and select categories to move into too.
 
-		$c = new Criteria();
-		$c->add("site_id", $site->getSiteId());
-		$c->addOrderDescending("visible");
-		$c->addOrderAscending("sort_index");
+        $c = new Criteria();
+        $c->add("site_id", $site->getSiteId());
+        $c->addOrderDescending("visible");
+        $c->addOrderAscending("sort_index");
 
-		$groups = ForumGroupPeer::instance()->select($c);
+        $groups = ForumGroupPeer::instance()->select($c);
 
-		$res = array();
+        $res = array();
 
-		foreach($groups as $g){
-			$c = new Criteria();
-			$c->add("group_id", $g->getGroupId());
+        foreach($groups as $g){
+            $c = new Criteria();
+            $c->add("group_id", $g->getGroupId());
 
-			$c->addOrderAscending("sort_index");
+            $c->addOrderAscending("sort_index");
 
-			$categories = ForumCategoryPeer::instance()->select($c);
-			foreach($categories as $cat){
-				$res[] = array('group' => $g, 'category' => $cat);
-			}
-		}
+            $categories = ForumCategoryPeer::instance()->select($c);
+            foreach($categories as $cat){
+                $res[] = array('group' => $g, 'category' => $cat);
+            }
+        }
 
-		$runData->contextAdd("categories", $res);
+        $runData->contextAdd("categories", $res);
 
-		$db->commit();
-	}
+        $db->commit();
+    }
 
 }

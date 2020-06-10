@@ -32,12 +32,12 @@ namespace DB;
  */
 class OpenidEntry extends OpenidEntryBase {
 
-	public function getPageUnixName(){
-		if($this->getPageId()){
-			return PagePeer::instance()->selectByPrimaryKey($this->getPageId())->getUnixName();
-		}else{
-			return null;
-		}
-	}
+    public function getPageUnixName(){
+        if($this->getPageId()){
+            return PagePeer::instance()->selectByPrimaryKey($this->getPageId())->getUnixName();
+        }else{
+            return null;
+        }
+    }
 
 }

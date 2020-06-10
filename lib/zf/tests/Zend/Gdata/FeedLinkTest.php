@@ -138,8 +138,8 @@ class Zend_Gdata_FeedLinkTest extends PHPUnit_Framework_TestCase
         $this->assertEquals("http://schemas.google.com/g/2005#feed", $this->feedLink->rel);
         $this->assertEquals("0", $this->feedLink->countHint);
         $this->assertEquals("true", $this->feedLink->readOnly);
-		$this->assertTrue($this->feedLink->feed instanceof Zend_Gdata_App_Feed);
-		$this->assertEquals("Comments for: Sample Event", $this->feedLink->feed->title->text);
+        $this->assertTrue($this->feedLink->feed instanceof Zend_Gdata_App_Feed);
+        $this->assertEquals("Comments for: Sample Event", $this->feedLink->feed->title->text);
     }
 
 }

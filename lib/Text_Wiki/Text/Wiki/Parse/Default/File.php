@@ -43,15 +43,15 @@ class Text_Wiki_Parse_File extends Text_Wiki_Parse {
     function process(&$matches)
     {
 
-    		$file = trim($matches[1]);
-    		$anchor = trim($matches[2]);
+            $file = trim($matches[1]);
+            $anchor = trim($matches[2]);
 
-      	if($anchor == null || $anchor === ''){
-      		$anchor = $file;
-      	}
+          if($anchor == null || $anchor === ''){
+              $anchor = $file;
+          }
 
-      	$options = array('file' => $file,
-      					 'anchor' => $anchor);
+          $options = array('file' => $file,
+                           'anchor' => $anchor);
         return $this->wiki->addToken($this->rule, $options);
     }
 }

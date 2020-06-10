@@ -116,7 +116,7 @@ class Zend_Search_Lucene_DocumentTest extends PHPUnit_Framework_TestCase
 
     public function testHtmlNoFollowLinks()
     {
-    	$html = '<HTML>'
+        $html = '<HTML>'
                 . '<HEAD><TITLE>Page title</TITLE></HEAD>'
                 . '<BODY>'
                 .   'Document body.'
@@ -140,44 +140,44 @@ class Zend_Search_Lucene_DocumentTest extends PHPUnit_Framework_TestCase
 
     public function testDocx()
     {
-    	if (!class_exists('ZipArchive')) {
-    		$this->markTestSkipped('ZipArchive class (Zip extension) is not loaded');
-    	}
+        if (!class_exists('ZipArchive')) {
+            $this->markTestSkipped('ZipArchive class (Zip extension) is not loaded');
+        }
 
-		$docxDocument = Zend_Search_Lucene_Document_Docx::loadDocxFile(dirname(__FILE__) . '/_openXmlDocuments/test.docx', true);
+        $docxDocument = Zend_Search_Lucene_Document_Docx::loadDocxFile(dirname(__FILE__) . '/_openXmlDocuments/test.docx', true);
 
         $this->assertTrue($docxDocument instanceof Zend_Search_Lucene_Document_Docx);
-		$this->assertEquals($docxDocument->getFieldValue('title'), 'Test document');
-		$this->assertEquals($docxDocument->getFieldValue('description'), 'This is a test document which can be used to demonstrate something.');
-		$this->assertTrue($docxDocument->getFieldValue('body') != '');
+        $this->assertEquals($docxDocument->getFieldValue('title'), 'Test document');
+        $this->assertEquals($docxDocument->getFieldValue('description'), 'This is a test document which can be used to demonstrate something.');
+        $this->assertTrue($docxDocument->getFieldValue('body') != '');
     }
 
     public function testPptx()
     {
-    	if (!class_exists('ZipArchive')) {
-    		$this->markTestSkipped('ZipArchive class (Zip extension) is not loaded');
-    	}
+        if (!class_exists('ZipArchive')) {
+            $this->markTestSkipped('ZipArchive class (Zip extension) is not loaded');
+        }
 
-		$pptxDocument = Zend_Search_Lucene_Document_Pptx::loadPptxFile(dirname(__FILE__) . '/_openXmlDocuments/test.pptx', true);
+        $pptxDocument = Zend_Search_Lucene_Document_Pptx::loadPptxFile(dirname(__FILE__) . '/_openXmlDocuments/test.pptx', true);
 
         $this->assertTrue($pptxDocument instanceof Zend_Search_Lucene_Document_Pptx);
-		$this->assertEquals($pptxDocument->getFieldValue('title'), 'Test document');
-		$this->assertEquals($pptxDocument->getFieldValue('description'), 'This is a test document which can be used to demonstrate something.');
-		$this->assertTrue($pptxDocument->getFieldValue('body') != '');
+        $this->assertEquals($pptxDocument->getFieldValue('title'), 'Test document');
+        $this->assertEquals($pptxDocument->getFieldValue('description'), 'This is a test document which can be used to demonstrate something.');
+        $this->assertTrue($pptxDocument->getFieldValue('body') != '');
     }
 
     public function testXlsx()
     {
-    	if (!class_exists('ZipArchive')) {
-    		$this->markTestSkipped('ZipArchive class (Zip extension) is not loaded');
-    	}
+        if (!class_exists('ZipArchive')) {
+            $this->markTestSkipped('ZipArchive class (Zip extension) is not loaded');
+        }
 
-		$xlsxDocument = Zend_Search_Lucene_Document_Xlsx::loadXlsxFile(dirname(__FILE__) . '/_openXmlDocuments/test.xlsx', true);
+        $xlsxDocument = Zend_Search_Lucene_Document_Xlsx::loadXlsxFile(dirname(__FILE__) . '/_openXmlDocuments/test.xlsx', true);
 
         $this->assertTrue($xlsxDocument instanceof Zend_Search_Lucene_Document_Xlsx);
-		$this->assertEquals($xlsxDocument->getFieldValue('title'), 'Test document');
-		$this->assertEquals($xlsxDocument->getFieldValue('description'), 'This is a test document which can be used to demonstrate something.');
-		$this->assertTrue($xlsxDocument->getFieldValue('body') != '');
-		$this->assertTrue( strpos($xlsxDocument->getFieldValue('body'), 'ipsum') !== false );
+        $this->assertEquals($xlsxDocument->getFieldValue('title'), 'Test document');
+        $this->assertEquals($xlsxDocument->getFieldValue('description'), 'This is a test document which can be used to demonstrate something.');
+        $this->assertTrue($xlsxDocument->getFieldValue('body') != '');
+        $this->assertTrue( strpos($xlsxDocument->getFieldValue('body'), 'ipsum') !== false );
     }
 }

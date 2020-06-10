@@ -28,28 +28,28 @@ use DB\PagePeer;
 
 class AWPagesListModule extends AccountBaseModule {
 
-	public function build($runData){
+    public function build($runData){
 
-		$user = $runData->getUser();
-		$runData->contextAdd("user",$user);
+        $user = $runData->getUser();
+        $runData->contextAdd("user",$user);
 
-		$pl = $runData->getParameterList();
+        $pl = $runData->getParameterList();
 
-		// get watched pages for this user
+        // get watched pages for this user
 
-		$c = new Criteria();
+        $c = new Criteria();
 
-		$q = "SELECT page.* FROM watched_page, page " .
-				"WHERE watched_page.user_id='".$user->getUserId()."' " .
-						"AND watched_page.page_id=page.page_id";
-		$c->setExplicitQuery($q);
+        $q = "SELECT page.* FROM watched_page, page " .
+                "WHERE watched_page.user_id='".$user->getUserId()."' " .
+                        "AND watched_page.page_id=page.page_id";
+        $c->setExplicitQuery($q);
 
-		$pages = PagePeer::instance()->select($c);
+        $pages = PagePeer::instance()->select($c);
 
-		$runData->contextAdd("pages", $pages);
+        $runData->contextAdd("pages", $pages);
 
-		$runData->contextAdd("pagesCount", count($pages));
+        $runData->contextAdd("pagesCount", count($pages));
 
-	}
+    }
 
 }

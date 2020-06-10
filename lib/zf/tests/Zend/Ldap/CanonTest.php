@@ -107,17 +107,17 @@ class Zend_Ldap_CanonTest extends PHPUnit_Framework_TestCase
     }
     public function testDnCanon()
     {
-		$ldap = new Zend_Ldap($this->_options);
-		$name = $ldap->getCanonicalAccountName(TESTS_ZEND_LDAP_ALT_DN, Zend_Ldap::ACCTNAME_FORM_DN);
+        $ldap = new Zend_Ldap($this->_options);
+        $name = $ldap->getCanonicalAccountName(TESTS_ZEND_LDAP_ALT_DN, Zend_Ldap::ACCTNAME_FORM_DN);
     }
     public function testMismatchDomainBind()
     {
         $ldap = new Zend_Ldap($this->_options);
-		try {
-			$ldap->bind('BOGUS\\doesntmatter', 'doesntmatter');
-		} catch (Zend_Ldap_Exception $zle) {
-			$this->assertTrue($zle->getCode() == Zend_Ldap_Exception::LDAP_X_DOMAIN_MISMATCH);
-		}
+        try {
+            $ldap->bind('BOGUS\\doesntmatter', 'doesntmatter');
+        } catch (Zend_Ldap_Exception $zle) {
+            $this->assertTrue($zle->getCode() == Zend_Ldap_Exception::LDAP_X_DOMAIN_MISMATCH);
+        }
     }
     public function testBindCanon()
     {

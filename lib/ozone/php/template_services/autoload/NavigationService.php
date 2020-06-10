@@ -30,19 +30,19 @@
  */
 class NavigationService extends TemplateService {
 
-	protected $serviceName = "navigation";
+    protected $serviceName = "navigation";
 
-	private $navPath;
+    private $navPath;
 
-	function __construct($runData = null){
-			$this->navPath = PathManager::navigationTemplateDir();
+    function __construct($runData = null){
+            $this->navPath = PathManager::navigationTemplateDir();
 
-	}
+    }
 
-	public function render($navigationTemplate){
-		$smarty = Ozone::getSmarty();
+    public function render($navigationTemplate){
+        $smarty = Ozone::getSmarty();
 
-		return 	$smarty->fetch($this->navPath . $navigationTemplate.'.tpl');
-	}
+        return     $smarty->fetch($this->navPath . $navigationTemplate.'.tpl');
+    }
 
 }

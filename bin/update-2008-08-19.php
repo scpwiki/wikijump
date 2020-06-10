@@ -5,49 +5,49 @@ require_once ("../php/setup.php") ;
 
 function addAPage ( $ncat , $unixName , $source , $title ) {
 
-	$now = new ODate ( ) ;
+    $now = new ODate ( ) ;
 
-	$nsource = new DB_PageSource ( ) ;
-	$nsource->setText ( $source ) ;
-	$nsource->save () ;
+    $nsource = new DB_PageSource ( ) ;
+    $nsource->setText ( $source ) ;
+    $nsource->save () ;
 
-	$nmeta = new DB_PageMetadata ( ) ;
-	$nmeta->setTitle ( $title ) ;
-	$nmeta->setUnixName ( $unixName ) ;
+    $nmeta = new DB_PageMetadata ( ) ;
+    $nmeta->setTitle ( $title ) ;
+    $nmeta->setUnixName ( $unixName ) ;
 
-	$nmeta->setOwnerUserId ( 1 ) ;
-	$nmeta->save () ;
+    $nmeta->setOwnerUserId ( 1 ) ;
+    $nmeta->save () ;
 
-	$nrev = new DB_PageRevision ( ) ;
-	$nrev->setSiteId ( 1 ) ;
-	$nrev->setSourceId ( $nsource->getSourceId () ) ;
-	$nrev->setMetadataId ( $nmeta->getMetadataId () ) ;
-	$nrev->setFlagNew ( true ) ;
-	$nrev->setDateLastEdited ( $now ) ;
-	$nrev->setUserId ( 1 ) ;
-	$nrev->obtainPK () ;
+    $nrev = new DB_PageRevision ( ) ;
+    $nrev->setSiteId ( 1 ) ;
+    $nrev->setSourceId ( $nsource->getSourceId () ) ;
+    $nrev->setMetadataId ( $nmeta->getMetadataId () ) ;
+    $nrev->setFlagNew ( true ) ;
+    $nrev->setDateLastEdited ( $now ) ;
+    $nrev->setUserId ( 1 ) ;
+    $nrev->obtainPK () ;
 
-	$npage = new DB_Page ( ) ;
-	$npage->setSiteId ( 1 ) ;
-	$npage->setCategoryId ( $ncat->getCategoryId () ) ;
-	$npage->setRevisionId ( $nrev->getRevisionId () ) ;
-	$npage->setSourceId ( $nsource->getSourceId () ) ;
-	$npage->setMetadataId ( $nmeta->getMetadataId () ) ;
-	$npage->setTitle ( $title ) ;
-	$npage->setUnixName ( $unixName ) ;
-	$npage->setDateLastEdited ( $now ) ;
-	$npage->setDateCreated ( $now ) ;
-	$npage->setLastEditUserId ( 1 ) ;
-	$npage->setOwnerUserId ( 1 ) ;
+    $npage = new DB_Page ( ) ;
+    $npage->setSiteId ( 1 ) ;
+    $npage->setCategoryId ( $ncat->getCategoryId () ) ;
+    $npage->setRevisionId ( $nrev->getRevisionId () ) ;
+    $npage->setSourceId ( $nsource->getSourceId () ) ;
+    $npage->setMetadataId ( $nmeta->getMetadataId () ) ;
+    $npage->setTitle ( $title ) ;
+    $npage->setUnixName ( $unixName ) ;
+    $npage->setDateLastEdited ( $now ) ;
+    $npage->setDateCreated ( $now ) ;
+    $npage->setLastEditUserId ( 1 ) ;
+    $npage->setOwnerUserId ( 1 ) ;
 
-	$npage->save () ;
-	$nrev->setPageId ( $npage->getPageId () ) ;
-	$nrev->save () ;
+    $npage->save () ;
+    $nrev->setPageId ( $npage->getPageId () ) ;
+    $nrev->save () ;
 
-	$ncomp = new DB_PageCompiled ( ) ;
-	$ncomp->setPageId ( $npage->getPageId () ) ;
-	$ncomp->setDateCompiled ( $now ) ;
-	$ncomp->save () ;
+    $ncomp = new DB_PageCompiled ( ) ;
+    $ncomp->setPageId ( $npage->getPageId () ) ;
+    $ncomp->setDateCompiled ( $now ) ;
+    $ncomp->save () ;
 
 }
 
@@ -67,7 +67,7 @@ $c->add("name", "auth");
 $c->add("site_id", 1);
 
 if (DB_CategoryPeer::instance()->selectOne($c)) {
-	die("The auth category already exists!\n\n");
+    die("The auth category already exists!\n\n");
 }
 
 $ncat = DB_CategoryPeer::instance ()->selectByPrimaryKey ( 1 ) ;

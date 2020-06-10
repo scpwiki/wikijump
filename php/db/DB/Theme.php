@@ -34,7 +34,7 @@ use \ProcessException;
  */
 class Theme extends ThemeBase {
 
-	protected $_external;
+    protected $_external;
 
     public function getStyleUrls() {
 
@@ -60,7 +60,7 @@ class Theme extends ThemeBase {
         if ($this->getCustom()) {
             return "/local--theme/" . $this->getUnixName() . "/style.css?" . $this->getRevisionNumber();
         } elseif($this->_external){
-        	return $this->_external;
+            return $this->_external;
         } else {
             return "/common--theme/" . $this->getUnixName() . "/css/style.css?" . $this->getRevisionNumber();
         }
@@ -71,7 +71,7 @@ class Theme extends ThemeBase {
     }
 
     public function setExternalUrl($url){
-    	$this->_external = $url;
+        $this->_external = $url;
     }
 
 }

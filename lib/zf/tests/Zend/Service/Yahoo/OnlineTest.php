@@ -337,13 +337,13 @@ class Zend_Service_Yahoo_OnlineTest extends PHPUnit_Framework_TestCase
      */
     public function testWebSearchRegion()
     {
-    	$this->_yahoo->webSearch('php', array('region' => 'nl'));
-    	try {
-    		$this->_yahoo->webSearch('php', array('region' => 'oops'));
-    		$this->fail('Expected Zend_Service_Exception not thrown');
-    	}catch (Zend_Service_Exception $e) {
-    		$this->assertContains("Invalid value for option 'region': oops", $e->getMessage());
-    	}
+        $this->_yahoo->webSearch('php', array('region' => 'nl'));
+        try {
+            $this->_yahoo->webSearch('php', array('region' => 'oops'));
+            $this->fail('Expected Zend_Service_Exception not thrown');
+        }catch (Zend_Service_Exception $e) {
+            $this->assertContains("Invalid value for option 'region': oops", $e->getMessage());
+        }
     }
 }
 

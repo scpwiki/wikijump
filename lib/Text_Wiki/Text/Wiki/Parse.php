@@ -142,13 +142,13 @@ class Text_Wiki_Parse {
 
     function parse()
     {
-    		if($this->regex){
-        		$this->wiki->source = preg_replace_callback(
-            		$this->regex,
-            		array(&$this, 'process'),
-            		$this->wiki->source
-        		);
-    		}
+            if($this->regex){
+                $this->wiki->source = preg_replace_callback(
+                    $this->regex,
+                    array(&$this, 'process'),
+                    $this->wiki->source
+                );
+            }
     }
 
     /**

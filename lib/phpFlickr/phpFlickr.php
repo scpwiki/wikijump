@@ -145,11 +145,11 @@ class phpFlickr {
         } elseif ($this->cache == 'fs') {
             $file = $this->cache_dir . '/' . $reqhash . '.cache';
             if (file_exists($file)) {
-				if ($this->php_version[0] > 4 || ($this->php_version[0] == 4 && $this->php_version[1] >= 3)) {
-					return file_get_contents($file);
-				} else {
-					return implode('', file($file));
-				}
+                if ($this->php_version[0] > 4 || ($this->php_version[0] == 4 && $this->php_version[1] >= 3)) {
+                    return file_get_contents($file);
+                } else {
+                    return implode('', file($file));
+                }
             }
         }
         return false;
@@ -224,12 +224,12 @@ class phpFlickr {
         if (!empty($this->parsed_response['rsp']['err']) && $this->die_on_error) {
             die("The Flickr API returned error code #" . $this->parsed_response['rsp']['err']['code'] . ": " . $this->parsed_response['rsp']['err']['msg']);
         } elseif (!empty($this->parsed_response['rsp']['err'])) {
-			$this->error_code = $this->parsed_response['rsp']['err']['code'];
-			$this->error_msg = "The Flickr API returned error code #" . $this->parsed_response['rsp']['err']['code'] . ": " . $this->parsed_response['rsp']['err']['msg'];
-			return false;
+            $this->error_code = $this->parsed_response['rsp']['err']['code'];
+            $this->error_msg = "The Flickr API returned error code #" . $this->parsed_response['rsp']['err']['code'] . ": " . $this->parsed_response['rsp']['err']['msg'];
+            return false;
         } else {
-			$this->error_code = false;
-			$this->error_msg = false;
+            $this->error_code = false;
+            $this->error_msg = false;
         }
 
         return $this->parsed_response['rsp'];
@@ -237,21 +237,21 @@ class phpFlickr {
 
     function setService($service)
     {
-		// Sets which service to connect to.  Currently supported services are
-		// "flickr" and "23"
-		if ($service == "23") {
-			$this->service = "23";
-			$this->REST = 'http://www.23hq.com/services/rest/';
-			$this->Upload = 'http://www.23hq.com/services/upload/';
-			$this->Replace = 'http://www.23hq.com/services/replace/';
-		} elseif (strtolower($service) == "flickr") {
-			$this->service = "flickr";
-			$this->REST = 'http://www.flickr.com/services/rest/';
-			$this->Upload = 'http://www.flickr.com/services/upload/';
-			$this->Replace = 'http://www.flickr.com/services/replace/';
-		} else {
-			die ("You have entered a service that does not exist or is not supported at this time.");
-		}
+        // Sets which service to connect to.  Currently supported services are
+        // "flickr" and "23"
+        if ($service == "23") {
+            $this->service = "23";
+            $this->REST = 'http://www.23hq.com/services/rest/';
+            $this->Upload = 'http://www.23hq.com/services/upload/';
+            $this->Replace = 'http://www.23hq.com/services/replace/';
+        } elseif (strtolower($service) == "flickr") {
+            $this->service = "flickr";
+            $this->REST = 'http://www.flickr.com/services/rest/';
+            $this->Upload = 'http://www.flickr.com/services/upload/';
+            $this->Replace = 'http://www.flickr.com/services/replace/';
+        } else {
+            die ("You have entered a service that does not exist or is not supported at this time.");
+        }
     }
 
     function setToken($token)
@@ -268,16 +268,16 @@ class phpFlickr {
 
     function getErrorCode()
     {
-		// Returns the error code of the last call.  If the last call did not
-		// return an error. This will return a false boolean.
-		return $this->error_code;
+        // Returns the error code of the last call.  If the last call did not
+        // return an error. This will return a false boolean.
+        return $this->error_code;
     }
 
     function getErrorMsg()
     {
-		// Returns the error message of the last call.  If the last call did not
-		// return an error. This will return a false boolean.
-		return $this->error_msg;
+        // Returns the error message of the last call.  If the last call did not
+        // return an error. This will return a false boolean.
+        return $this->error_msg;
     }
 
     /* These functions are front ends for the flickr calls */
@@ -288,10 +288,10 @@ class phpFlickr {
         //receives an array (can use the individual photo data returned
         //from an API call) and returns a URL (doesn't mean that the
         //file size exists)
-		if ($this->service == "23") {
-			$url = "http://www.23hq.com/";
-		} else {
-			$url = "http://farm".$photo['farm'].".static.flickr.com/";
+        if ($this->service == "23") {
+            $url = "http://www.23hq.com/";
+        } else {
+            $url = "http://farm".$photo['farm'].".static.flickr.com/";
         }
         if(strtolower($size) == 'original') {
             $url .= $photo['server'] . "/" . $photo['id'] . "_" . $photo['originalsecret'] . "_o" . "." . $photo['originalformat'];
@@ -479,11 +479,11 @@ class phpFlickr {
                 $redirect = $_SERVER['REQUEST_URI'];
             }
             $api_sig = md5($this->secret . "api_key" . $this->api_key . "extra" . $redirect . "perms" . $perms);
-			if ($this->service == "23") {
-				header("Location: http://www.23hq.com/services/auth/?api_key=" . $this->api_key . "&extra=" . $redirect . "&perms=" . $perms . "&api_sig=". $api_sig);
-			} else {
-				header("Location: http://www.flickr.com/services/auth/?api_key=" . $this->api_key . "&extra=" . $redirect . "&perms=" . $perms . "&api_sig=". $api_sig);
-			}
+            if ($this->service == "23") {
+                header("Location: http://www.23hq.com/services/auth/?api_key=" . $this->api_key . "&extra=" . $redirect . "&perms=" . $perms . "&api_sig=". $api_sig);
+            } else {
+                header("Location: http://www.flickr.com/services/auth/?api_key=" . $this->api_key . "&extra=" . $redirect . "&perms=" . $perms . "&api_sig=". $api_sig);
+            }
             exit;
         } else {
             $tmp = $this->die_on_error;
@@ -714,7 +714,7 @@ class phpFlickr {
 
     function groups_pools_getPhotos ($group_id, $tags = NULL, $user_id = NULL, $extras = NULL, $per_page = NULL, $page = NULL)
     {
-		/* http://www.flickr.com/services/api/flickr.groups.pools.getPhotos.html */
+        /* http://www.flickr.com/services/api/flickr.groups.pools.getPhotos.html */
         if (is_array($extras)) {
             $extras = implode(",", $extras);
         }
@@ -737,23 +737,23 @@ class phpFlickr {
         return true;
     }
 
-	function groups_search ($text, $per_page=NULL, $page=NULL)
-	{
-		/* http://www.flickr.com/services/api/flickr.groups.search.html */
-		$this->request("flickr.groups.search", array("text"=>$text,"per_page"=>$per_page,"page"=>$page));
-		$this->parse_response();
-		$result = $this->parsed_response['rsp']['groups'];
-		if (!empty($result['group']['nsid'])) {
-			$tmp = $result['group'];
-			unset($result['group']);
-			$result['group'][] = $tmp;
-		}
-		return $result;
-	}
+    function groups_search ($text, $per_page=NULL, $page=NULL)
+    {
+        /* http://www.flickr.com/services/api/flickr.groups.search.html */
+        $this->request("flickr.groups.search", array("text"=>$text,"per_page"=>$per_page,"page"=>$page));
+        $this->parse_response();
+        $result = $this->parsed_response['rsp']['groups'];
+        if (!empty($result['group']['nsid'])) {
+            $tmp = $result['group'];
+            unset($result['group']);
+            $result['group'][] = $tmp;
+        }
+        return $result;
+    }
 
     /* Interestingness methods */
-	function interestingness_getList($date = NULL, $extras = NULL, $per_page = NULL, $page = NULL)
-	{
+    function interestingness_getList($date = NULL, $extras = NULL, $per_page = NULL, $page = NULL)
+    {
         /* http://www.flickr.com/services/api/flickr.interestingness.getList.html */
         if (is_array($extras)) {
             $extras = implode(",", $extras);

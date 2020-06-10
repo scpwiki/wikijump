@@ -131,8 +131,8 @@ class Zend_Gdata_EntryLinkTest extends PHPUnit_Framework_TestCase
         $this->assertEquals("http://gmail.com/jo/contacts/Jo", $this->entryLink->href);
         $this->assertEquals("via", $this->entryLink->rel);
         $this->assertEquals("true", $this->entryLink->readOnly);
-		$this->assertTrue($this->entryLink->entry instanceof Zend_Gdata_App_Entry);
-		$this->assertEquals("Jo March", $this->entryLink->entry->title->text);
+        $this->assertTrue($this->entryLink->entry instanceof Zend_Gdata_App_Entry);
+        $this->assertEquals("Jo March", $this->entryLink->entry->title->text);
     }
 
 }

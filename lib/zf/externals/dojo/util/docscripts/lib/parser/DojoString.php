@@ -2,17 +2,17 @@
 
 class DojoString
 {
-	private $object = 'DojoString';
+    private $object = 'DojoString';
 
-	private $value = '';
+    private $value = '';
 
-	public function __construct($string){
-    		$this->value = preg_replace('%(^[\'"]|["\']$)%', '', $string);
-  	}
+    public function __construct($string){
+            $this->value = preg_replace('%(^[\'"]|["\']$)%', '', $string);
+      }
 
-  	public function getValue(){
-    		return $this->value;
-  	}
+      public function getValue(){
+            return $this->value;
+      }
 }
 
 ?>

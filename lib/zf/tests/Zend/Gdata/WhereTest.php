@@ -131,8 +131,8 @@ class Zend_Gdata_WhereTest extends PHPUnit_Framework_TestCase
         $this->assertEquals("Joe's Pub", $this->where->valueString);
         $this->assertEquals("http://schemas.google.com/g/2005#event", $this->where->rel);
         $this->assertEquals("1234 Anywhere Ln., New York, NY", $this->where->label);
-		$this->assertTrue($this->where->entryLink instanceof Zend_Gdata_Extension_EntryLink);
-		$this->assertEquals("http://local.example.com/10018/JoesPub", $this->where->entryLink->href);
+        $this->assertTrue($this->where->entryLink instanceof Zend_Gdata_Extension_EntryLink);
+        $this->assertEquals("http://local.example.com/10018/JoesPub", $this->where->entryLink->href);
     }
 
 }

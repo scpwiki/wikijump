@@ -67,7 +67,7 @@ class Zend_Service_TwitterTest extends PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-    	Zend_Service_Abstract::getHttpClient()->setAdapter('Zend_Http_Client_Adapter_Socket');
+        Zend_Service_Abstract::getHttpClient()->setAdapter('Zend_Http_Client_Adapter_Socket');
         $this->twitter = new Zend_Service_Twitter(self::TWITTER_USER, self::TWITTER_PASS);
 
         /*$adapter = new Zend_Http_Client_Adapter_Test();

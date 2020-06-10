@@ -142,9 +142,9 @@ function findNodeWithAttribute($list, $attrName, $attrValue) {
 function mkdirfull($dir) {
     //split by '/' and check if all subsequent parrent directories exist. if not - create them all.
     /* remove duplicated '/', e.g. in /path//subdir */
-	/* and remove trailing slash too. */
-	$dir = preg_replace(';/{2,};', '/', $dir);
-	$dir = preg_replace(';/$;', '', $dir);
+    /* and remove trailing slash too. */
+    $dir = preg_replace(';/{2,};', '/', $dir);
+    $dir = preg_replace(';/$;', '', $dir);
     $splited = explode('/', $dir);
     $n = count($splited);
     $dir0 = '';
@@ -321,19 +321,19 @@ function glue_path() {
  * @param int $ret_val the return status of the executed command
  */
 function exec_time($cmd, $time_limit = null, &$output = null, &$ret_val = null) {
-	if ($time_limit == null) {
-		$out = exec($cmd, $exec_output, $exec_return_val);
-	} else {
-		$prog = escapeshellcmd(OZONE_ROOT . "/bin/timelimit.sh");
-		$time = (int) $time_limit;
-		$newcmd = "$prog $time $cmd";
-		$out = exec($newcmd, $exec_output, $exec_return_val);
-	}
-	if ($output != null) {
-		$output = $exec_output;
-	}
-	if ($ret_val != null) {
-		$ret_val = $exec_return_val;
-	}
-	return $out;
+    if ($time_limit == null) {
+        $out = exec($cmd, $exec_output, $exec_return_val);
+    } else {
+        $prog = escapeshellcmd(OZONE_ROOT . "/bin/timelimit.sh");
+        $time = (int) $time_limit;
+        $newcmd = "$prog $time $cmd";
+        $out = exec($newcmd, $exec_output, $exec_return_val);
+    }
+    if ($output != null) {
+        $output = $exec_output;
+    }
+    if ($ret_val != null) {
+        $ret_val = $exec_return_val;
+    }
+    return $out;
 }

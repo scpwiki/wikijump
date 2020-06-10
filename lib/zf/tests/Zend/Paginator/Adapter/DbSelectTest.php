@@ -105,8 +105,8 @@ class Zend_Paginator_Adapter_DbSelectTest extends PHPUnit_Framework_TestCase
 
         $i = 1;
         foreach ($actual as $item) {
-        	$this->assertEquals($i, $item['number']);
-        	$i++;
+            $this->assertEquals($i, $item['number']);
+            $i++;
         }
     }
 

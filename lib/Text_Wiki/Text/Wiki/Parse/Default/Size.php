@@ -39,7 +39,7 @@ class Text_Wiki_Parse_Size extends Text_Wiki_Parse {
     *
     */
 
-	public $regex = '/\[\[size\s([^\]]+)\]\]((?:(?R)|.)*?)\[\[\/size\]\]/msi';
+    public $regex = '/\[\[size\s([^\]]+)\]\]((?:(?R)|.)*?)\[\[\/size\]\]/msi';
     /**
     *
     * Generates a token entry for the matched text.  Token options are:
@@ -58,34 +58,34 @@ class Text_Wiki_Parse_Size extends Text_Wiki_Parse {
     function process(&$matches)
     {
 
-    		$content =$matches[2];
+            $content =$matches[2];
 
-    		$size = trim($matches[1]);
+            $size = trim($matches[1]);
 
-    		$allowedSizes = array(
-    			'/^[0-9\.]{1,5}(em|px|%)$/',
-    			'/^xx\-small$/',
-			'/^x\-small$/',
-			'/^small$/',
-			'/^medium$/',
-			'/^large$/',
-			'/^x\-large$/',
-			'/^xx\-large$/',
-			'/^smaller$/',
-			'/^larger$/'
-    		);
+            $allowedSizes = array(
+                '/^[0-9\.]{1,5}(em|px|%)$/',
+                '/^xx\-small$/',
+            '/^x\-small$/',
+            '/^small$/',
+            '/^medium$/',
+            '/^large$/',
+            '/^x\-large$/',
+            '/^xx\-large$/',
+            '/^smaller$/',
+            '/^larger$/'
+            );
 
-    		$good = false;
-    		foreach($allowedSizes as $as){
-    			if(preg_match($as, $size)){
-    				$good=true;
-    				break;
-    			}
-    		}
+            $good = false;
+            foreach($allowedSizes as $as){
+                if(preg_match($as, $size)){
+                    $good=true;
+                    break;
+                }
+            }
 
-    		if($good==false){
-    			return $matches[0];
-    		}
+            if($good==false){
+                return $matches[0];
+            }
 
         $options = array('size'=>$size, 'type'=>'start');
 
@@ -100,14 +100,14 @@ class Text_Wiki_Parse_Size extends Text_Wiki_Parse {
     }
 
     function parse(){
-    	$oldSource = $this->wiki->source;
+        $oldSource = $this->wiki->source;
         $this->wiki->source = preg_replace_callback(
-           	$this->regex,
-           	array(&$this, 'process'),
-           	$this->wiki->source
+               $this->regex,
+               array(&$this, 'process'),
+               $this->wiki->source
         );
         if($oldSource != $this->wiki->source){
-        	$this->parse();
+            $this->parse();
         }
     }
 

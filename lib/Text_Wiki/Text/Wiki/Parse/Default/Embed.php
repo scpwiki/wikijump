@@ -38,7 +38,7 @@ class Text_Wiki_Parse_Embed extends Text_Wiki_Parse {
     *
     */
 
-	public $regex = '/\[\[embed(?:audio|video)?\]\](.*?)\[\[\/embed(?:audio|video)?\]\]/msi';
+    public $regex = '/\[\[embed(?:audio|video)?\]\](.*?)\[\[\/embed(?:audio|video)?\]\]/msi';
     /**
     *
     * Generates a token entry for the matched text.  Token options are:
@@ -56,8 +56,8 @@ class Text_Wiki_Parse_Embed extends Text_Wiki_Parse {
 
     function process(&$matches)
     {
-	    	$content =trim($matches[1]);
-		$options = array('content' => $content);
+            $content =trim($matches[1]);
+        $options = array('content' => $content);
 
         return $this->wiki->addToken($this->rule, $options);
 

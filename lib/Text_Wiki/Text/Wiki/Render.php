@@ -180,7 +180,7 @@ class Text_Wiki_Render {
     }
 
     function renderError($message){
-    		return '<div class="error-block">'.$message.'</div>';
+            return '<div class="error-block">'.$message.'</div>';
     }
 
 }

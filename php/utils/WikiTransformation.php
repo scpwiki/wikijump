@@ -36,7 +36,7 @@ ini_set('include_path',ini_get('include_path').':'.WIKIDOT_ROOT.'/lib/Text_Wiki/
 //for SmartyPants
 
 class WikiTransformation {
-	/**
+    /**
      * The array stores all internal links within a page.
      * Each element is an array (page_id, page_unix_name)
      */
@@ -54,96 +54,96 @@ class WikiTransformation {
 
     private $_tmpPage;
 
-	public function __construct($initialize = true){
-		if($initialize){
-			self::$internalLinksExist = array();
-			self::$internalLinksNotExist = array();
-			self::$externalLinks = array();
-			$this->resetWiki();
-		}
-	}
+    public function __construct($initialize = true){
+        if($initialize){
+            self::$internalLinksExist = array();
+            self::$internalLinksNotExist = array();
+            self::$externalLinks = array();
+            $this->resetWiki();
+        }
+    }
 
-	public static function purifyHtml($code){
-		//$code is not a complete page so we need to wrap it!
-		$head = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">  <head>    <title>Just A Wrapper</title><meta http-equiv="content-type" content="text/html;charset=UTF-8"/>  </head> <!--wrapdelimiter--><body>';
-  		$tail=' </body><!--wrapdelimiter--></html>';
+    public static function purifyHtml($code){
+        //$code is not a complete page so we need to wrap it!
+        $head = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">  <head>    <title>Just A Wrapper</title><meta http-equiv="content-type" content="text/html;charset=UTF-8"/>  </head> <!--wrapdelimiter--><body>';
+          $tail=' </body><!--wrapdelimiter--></html>';
 
-		$c = $head.$code.$tail;
-		$config = array('indent' => false,
+        $c = $head.$code.$tail;
+        $config = array('indent' => false,
                'output-xhtml' => TRUE,
                'wrap' => 0);
 
-		$c2 = tidy_parse_string($c, $config, 'UTF8');
+        $c2 = tidy_parse_string($c, $config, 'UTF8');
 
-		$arr = explode("<!--wrapdelimiter-->", $c2);
-		$out=$arr[1];
-		$out = str_replace("<body>", "", $out);
-		$out = str_replace("</body>", "", $out);
-		return $out;
-	}
+        $arr = explode("<!--wrapdelimiter-->", $c2);
+        $out=$arr[1];
+        $out = str_replace("<body>", "", $out);
+        $out = str_replace("</body>", "", $out);
+        return $out;
+    }
 
-	public function processSource($source){
+    public function processSource($source){
 
-		$wiki = $this->wiki;
-	    if(preg_match(';_template$;', $wiki->vars['pageName'])){
-			$wiki->disablerule('separator');
-		}
-		$out = $wiki->transform($source, $this->transformationFormat);
+        $wiki = $this->wiki;
+        if(preg_match(';_template$;', $wiki->vars['pageName'])){
+            $wiki->disablerule('separator');
+        }
+        $out = $wiki->transform($source, $this->transformationFormat);
 
-		$out = $this->purifyHtml($out);
+        $out = $this->purifyHtml($out);
 
-		return $out;
-	}
+        return $out;
+    }
 
-	public function assemblyTemplate($source, $template, $page = null){
-	    /* First check if it is a real "live" template. If not, return the original $source.
-		 * To be recognized as a live template it mast contain either %%content%% or
-		 * %%content{X}%% tags. */
+    public function assemblyTemplate($source, $template, $page = null){
+        /* First check if it is a real "live" template. If not, return the original $source.
+         * To be recognized as a live template it mast contain either %%content%% or
+         * %%content{X}%% tags. */
 
-	    /* Handle ListPages module inside a template -- %%content%% need to be escaped. */
-	    $template = preg_replace_callback(";^\\[\\[module\\s+ListPages(.*?)\n\\[\\[/module\\]\\];ms", array($this, '_assemblyTemplateHandleListPages'), $template);
-	    $template = preg_replace_callback(";^\\[\\[module\\s+NextPage(.*?)\n\\[\\[/module\\]\\];ms", array($this, '_assemblyTemplateHandleListPages'), $template);
-	    $template = preg_replace_callback(";^\\[\\[module\\s+PreviousPage(.*?)\n\\[\\[/module\\]\\];ms", array($this, '_assemblyTemplateHandleListPages'), $template);
-	    $template = preg_replace_callback(";^\\[\\[module\\s+Feed(.*?)\n\\[\\[/module\\]\\];ms", array($this, '_assemblyTemplateHandleListPages'), $template);
-	    $template = preg_replace_callback(";^\\[\\[module\\s+FrontForum(.*?)\n\\[\\[/module\\]\\];ms", array($this, '_assemblyTemplateHandleListPages'), $template);
+        /* Handle ListPages module inside a template -- %%content%% need to be escaped. */
+        $template = preg_replace_callback(";^\\[\\[module\\s+ListPages(.*?)\n\\[\\[/module\\]\\];ms", array($this, '_assemblyTemplateHandleListPages'), $template);
+        $template = preg_replace_callback(";^\\[\\[module\\s+NextPage(.*?)\n\\[\\[/module\\]\\];ms", array($this, '_assemblyTemplateHandleListPages'), $template);
+        $template = preg_replace_callback(";^\\[\\[module\\s+PreviousPage(.*?)\n\\[\\[/module\\]\\];ms", array($this, '_assemblyTemplateHandleListPages'), $template);
+        $template = preg_replace_callback(";^\\[\\[module\\s+Feed(.*?)\n\\[\\[/module\\]\\];ms", array($this, '_assemblyTemplateHandleListPages'), $template);
+        $template = preg_replace_callback(";^\\[\\[module\\s+FrontForum(.*?)\n\\[\\[/module\\]\\];ms", array($this, '_assemblyTemplateHandleListPages'), $template);
 
-	    if(!preg_match(';%%content({[0-9]+})?%%;', $template)) {
-	        return $source;
-	    }
-	    $out = $source;
+        if(!preg_match(';%%content({[0-9]+})?%%;', $template)) {
+            return $source;
+        }
+        $out = $source;
 
-	    $template = preg_replace(';%%content({[0-9]+})?%%;', '%%%\\0%%%', $template);
-	    $template = preg_replace(';(?<!%)%%[a-z0-9\(\)_]+%%(?!%);i', '%%%\\0%%%', $template);
-	    $template = preg_replace(';(?<!%)%%date(\|.*?)?%%(?!%);i', '%%%\\0%%%', $template);
+        $template = preg_replace(';%%content({[0-9]+})?%%;', '%%%\\0%%%', $template);
+        $template = preg_replace(';(?<!%)%%[a-z0-9\(\)_]+%%(?!%);i', '%%%\\0%%%', $template);
+        $template = preg_replace(';(?<!%)%%date(\|.*?)?%%(?!%);i', '%%%\\0%%%', $template);
 
-	    $template = preg_replace(";%\xFA%(content({[0-9]+}))?%\xFA%;", "%%\\1%%", $template);
-	    $template = preg_replace(";%\xFA%([a-z0-9\(\)_]+)%\xFA%;i", '%%\\1%%', $template);
-	    $template = preg_replace(";%\xFA%(date(\|.*?)?)%\xFA%;i", '%%\\1%%', $template);
+        $template = preg_replace(";%\xFA%(content({[0-9]+}))?%\xFA%;", "%%\\1%%", $template);
+        $template = preg_replace(";%\xFA%([a-z0-9\(\)_]+)%\xFA%;i", '%%\\1%%', $template);
+        $template = preg_replace(";%\xFA%(date(\|.*?)?)%\xFA%;i", '%%\\1%%', $template);
 
-		/* Check if has a ===== delimiter. */
-	    $split = preg_split(';^={4,}$;sm', $template);
-	    if(count($split) > 1){
-	        $template = trim($split[0]);
-	    }
+        /* Check if has a ===== delimiter. */
+        $split = preg_split(';^={4,}$;sm', $template);
+        if(count($split) > 1){
+            $template = trim($split[0]);
+        }
 
-	    /* If there is $page, try substituting more tags. */
-	    if($page) {
-	    	$this->_tmpPage = $page;
-	    	$b = $template;
-	    	$title = $page->getTitle();
-	    	$title = str_replace(array('[',']'), '', $title);
+        /* If there is $page, try substituting more tags. */
+        if($page) {
+            $this->_tmpPage = $page;
+            $b = $template;
+            $title = $page->getTitle();
+            $title = str_replace(array('[',']'), '', $title);
             //$title = str_replace('%%', "\xFD", $title);
-	    	$b = str_replace('%%%%%title%%%%%', $title, $b);
+            $b = str_replace('%%%%%title%%%%%', $title, $b);
             $b = preg_replace(";%%%%%((linked_title)|(title_linked))%%%%%;i", preg_quote_replacement('[[[' . $page->getUnixName() . ' | ' . $title . ']]]'), $b);
 
 
             if($page->getOwnerUserId()){
-	            $user = OzoneUserPeer::instance()->selectByPrimaryKey($page->getOwnerUserId());
-	            if ($user->getUserId() > 0) {
-	                $userString = '[[*user ' . $user->getNickName() . ']]';
-	            } else {
-	                $userString = _('Anonymous user');
-	            }
+                $user = OzoneUserPeer::instance()->selectByPrimaryKey($page->getOwnerUserId());
+                if ($user->getUserId() > 0) {
+                    $userString = '[[*user ' . $user->getNickName() . ']]';
+                } else {
+                    $userString = _('Anonymous user');
+                }
             } else {
                 $userString = _('Anonymous user');
             }
@@ -151,12 +151,12 @@ class WikiTransformation {
             $b = str_ireplace("%%%%%user%%%%%", $userString, $b);
 
 //            if($lastRevision->getUserId()){
-//	            $user = DB\OzoneUserPeer::instance()->selectByPrimaryKey($lastRevision->getUserId());
-//	            if ($user->getUserId() > 0) {
-//	                $userString = '[[*user ' . $user->getNickName() . ']]';
-//	            } else {
-//	                $userString = _('Anonymous user');
-//	            }
+//                $user = DB\OzoneUserPeer::instance()->selectByPrimaryKey($lastRevision->getUserId());
+//                if ($user->getUserId() > 0) {
+//                    $userString = '[[*user ' . $user->getNickName() . ']]';
+//                } else {
+//                    $userString = _('Anonymous user');
+//                }
 //            } else {
 //                $userString = _('Anonymous user');
 //            }
@@ -177,16 +177,16 @@ class WikiTransformation {
             $b = str_ireplace('%%%%%page_unix_name%%%%%', $page->getUnixName(), $b);
 
             if(strpos( $page->getUnixName(), ":") != false){
-				$tmp0 = explode(':',$page->getUnixName());
-				$categoryName00 = $tmp0[0];
-			} else {
-				$categoryName00 = "_default";
-			}
+                $tmp0 = explode(':',$page->getUnixName());
+                $categoryName00 = $tmp0[0];
+            } else {
+                $categoryName00 = "_default";
+            }
 
-			$b = str_ireplace('%%%%%category%%%%%', $categoryName00, $b);
+            $b = str_ireplace('%%%%%category%%%%%', $categoryName00, $b);
 
             /* %%link%% */
-			$site = $page->getSite();
+            $site = $page->getSite();
             $b = str_ireplace('%%%%%link%%%%%', GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'/'.$page->getUnixName(), $b);
 
             /* %%tags%% */
@@ -198,19 +198,19 @@ class WikiTransformation {
 
             $template = $b;
             //$template = preg_replace(';(%%%%%([a-z0-9\(\)_]+)%%%%%;i', '%%\\1%%', $template);
-	    }
+        }
 
-	    $out = str_replace('%%%%%content%%%%%', trim($out), $template);
-	    /* Handle split sources. */
-	    $splitSource = preg_split('/^([=]{4,})$/m', $source);
-	    for ($i = 0; $i < count($splitSource); $i++) {
-	        $out = str_replace('%%%%%content{'.($i+1).'}%%%%%', trim($splitSource[$i]), $out);
-	    }
-	    $out = preg_replace(';%%%%%content({[0-9]+})?%%%%%;', '', $out);
-	    return $out;
-	}
+        $out = str_replace('%%%%%content%%%%%', trim($out), $template);
+        /* Handle split sources. */
+        $splitSource = preg_split('/^([=]{4,})$/m', $source);
+        for ($i = 0; $i < count($splitSource); $i++) {
+            $out = str_replace('%%%%%content{'.($i+1).'}%%%%%', trim($splitSource[$i]), $out);
+        }
+        $out = preg_replace(';%%%%%content({[0-9]+})?%%%%%;', '', $out);
+        return $out;
+    }
 
-	private function _formatDate($m) {
+    private function _formatDate($m) {
         if (isset($m[2])) {
             $format = preg_replace(';^\|;', '', $m[2]);
         } else {
@@ -220,19 +220,19 @@ class WikiTransformation {
         return $dateString;
     }
 
-	private function _handleComementsCount($m){
-    	$page = $this->_tmpPage;
-    	$threadId = $page->getThreadId();
-    	if($threadId) {
-    		$thread = ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
-    	}
-    	if($thread) {
-    		return $thread->getNumberPosts();
-    	}
-    	return 0;
+    private function _handleComementsCount($m){
+        $page = $this->_tmpPage;
+        $threadId = $page->getThreadId();
+        if($threadId) {
+            $thread = ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
+        }
+        if($thread) {
+            return $thread->getNumberPosts();
+        }
+        return 0;
     }
 
-	private function _handleTags($m) {
+    private function _handleTags($m) {
         $page = $this->_tmpPage;
         /* Select tags. */
         // get the tags
@@ -250,177 +250,177 @@ class WikiTransformation {
         return implode(' ', $t2);
     }
 
-	private function _assemblyTemplateHandleListPages($m){
-		if(preg_match(';^\[\[module;sm', $m[1])){
-	    	return $m[0];
-	    }else{
-	    	$b = preg_replace(';%%(content({[0-9]+}))?%%;', "%\xFA%\\1%\xFA%", $m[0]);
-	    	$b = preg_replace(';(?<!%)%%([a-z0-9\(\)_]+)%%(?!%);i', "%\xFA%\\1%\xFA%", $b);
-	    	$b = preg_replace(';(?<!%)%%(date(\|.*?)?)%%(?!%);i', "%\xFA%\\1%\xFA%", $b);
-	    	//$b = preg_replace(";%\xFA%(content({[0-9]+}))?%\xFA%;", "%\xFA%\\1%\xFA%", $b);
-	        return $b;
-	    }
-	}
+    private function _assemblyTemplateHandleListPages($m){
+        if(preg_match(';^\[\[module;sm', $m[1])){
+            return $m[0];
+        }else{
+            $b = preg_replace(';%%(content({[0-9]+}))?%%;', "%\xFA%\\1%\xFA%", $m[0]);
+            $b = preg_replace(';(?<!%)%%([a-z0-9\(\)_]+)%%(?!%);i', "%\xFA%\\1%\xFA%", $b);
+            $b = preg_replace(';(?<!%)%%(date(\|.*?)?)%%(?!%);i', "%\xFA%\\1%\xFA%", $b);
+            //$b = preg_replace(";%\xFA%(content({[0-9]+}))?%\xFA%;", "%\xFA%\\1%\xFA%", $b);
+            return $b;
+        }
+    }
 
-	public function setPage($page){
+    public function setPage($page){
 
-		$this->wiki->setRenderConf($this->transformationFormat, 'image', 'base', '/local--files/'.$page->getUnixName().'/');
- 		$this->wiki->setRenderConf($this->transformationFormat, 'file', 'base', '/local--files/'.$page->getUnixName().'/');
- 		$this->wiki->vars['pageName'] = $page->getUnixName();
- 		$this->wiki->vars['pageTitle'] = $page->getTitleOrUnixName();
- 		$this->wiki->vars['page'] = $page;
-		$this->page = $page;
-	}
-	public function setPageUnixName($pageUnixName){
-		$this->wiki->setRenderConf($this->transformationFormat, 'image', 'base', '/local--files/'.$pageUnixName.'/');
-		$this->wiki->setRenderConf($this->transformationFormat, 'file', 'base', '/local--files/'.$pageUnixName.'/');
-		$this->wiki->vars['pageName'] = $pageUnixName;
-		$this->pageUnixName = $pageUnixName;
-	}
+        $this->wiki->setRenderConf($this->transformationFormat, 'image', 'base', '/local--files/'.$page->getUnixName().'/');
+         $this->wiki->setRenderConf($this->transformationFormat, 'file', 'base', '/local--files/'.$page->getUnixName().'/');
+         $this->wiki->vars['pageName'] = $page->getUnixName();
+         $this->wiki->vars['pageTitle'] = $page->getTitleOrUnixName();
+         $this->wiki->vars['page'] = $page;
+        $this->page = $page;
+    }
+    public function setPageUnixName($pageUnixName){
+        $this->wiki->setRenderConf($this->transformationFormat, 'image', 'base', '/local--files/'.$pageUnixName.'/');
+        $this->wiki->setRenderConf($this->transformationFormat, 'file', 'base', '/local--files/'.$pageUnixName.'/');
+        $this->wiki->vars['pageName'] = $pageUnixName;
+        $this->pageUnixName = $pageUnixName;
+    }
 
-	public function resetWiki(){
-		// initialize wiki engine with default values
-		$wiki = new Text_Wiki();
-		$viewUrl = "/%s";
-		$wiki->setRenderConf($this->transformationFormat, 'freelink', 'view_url', $viewUrl);
- 		$wiki->setRenderConf($this->transformationFormat, 'freelink', 'new_url', $viewUrl);
- 		$wiki->setRenderConf($this->transformationFormat, 'url', 'images', false);
+    public function resetWiki(){
+        // initialize wiki engine with default values
+        $wiki = new Text_Wiki();
+        $viewUrl = "/%s";
+        $wiki->setRenderConf($this->transformationFormat, 'freelink', 'view_url', $viewUrl);
+         $wiki->setRenderConf($this->transformationFormat, 'freelink', 'new_url', $viewUrl);
+         $wiki->setRenderConf($this->transformationFormat, 'url', 'images', false);
 
- 		$wiki->setRenderConf($this->transformationFormat, 'freelink', 'new_text', '');
- 		$wiki->setRenderConf($this->transformationFormat, 'freelink', 'css_new', 'newpage');
-		$wiki->setRenderConf($this->transformationFormat, 'table', 'css_table', 'wiki-content-table');
+         $wiki->setRenderConf($this->transformationFormat, 'freelink', 'new_text', '');
+         $wiki->setRenderConf($this->transformationFormat, 'freelink', 'css_new', 'newpage');
+        $wiki->setRenderConf($this->transformationFormat, 'table', 'css_table', 'wiki-content-table');
 
- 		$wiki->setRenderConf($this->transformationFormat, 'freelink', 'exists_callback', 'wikiPageExists');
+         $wiki->setRenderConf($this->transformationFormat, 'freelink', 'exists_callback', 'wikiPageExists');
 
- 		$interWikis = array(
-		    'wikipedia'    => 'http://en.wikipedia.org/wiki/%s',
-		    'wikipedia.pl'    => 'http://pl.wikipedia.org/wiki/%s',
-		    'pl.wikipedia'    => 'http://pl.wikipedia.org/wiki/%s',
-		    'google'    => 'http://www.google.com/search?q=%s',
-		    'dictionary' => 'http://dictionary.reference.com/browse/%s'
-		);
+         $interWikis = array(
+            'wikipedia'    => 'http://en.wikipedia.org/wiki/%s',
+            'wikipedia.pl'    => 'http://pl.wikipedia.org/wiki/%s',
+            'pl.wikipedia'    => 'http://pl.wikipedia.org/wiki/%s',
+            'google'    => 'http://www.google.com/search?q=%s',
+            'dictionary' => 'http://dictionary.reference.com/browse/%s'
+        );
 
-		// configure the interwiki rule
-		$wiki->setRenderConf($this->transformationFormat, 'interwiki', 'sites', $interWikis);
- 		$wiki->setParseConf('interwiki', 'sites', $interWikis);
+        // configure the interwiki rule
+        $wiki->setRenderConf($this->transformationFormat, 'interwiki', 'sites', $interWikis);
+         $wiki->setParseConf('interwiki', 'sites', $interWikis);
 
- 		$wiki->disableRule('wikilink');
- 		$this->wiki = $wiki;
+         $wiki->disableRule('wikilink');
+         $this->wiki = $wiki;
 
-	}
+    }
 
-	public function setMode($mode){
-		$wiki = $this->wiki;
-		switch($mode){
-			case 'post':
-				// disable a few rules
-				$wiki->disableRule("include");
-				$wiki->disableRule("modulepre");
-				$wiki->disableRule("module");
-				$wiki->disableRule("module654");
-				$wiki->disableRule("toc");
-				$wiki->disableRule("Social");
-				$wiki->disableRule("button");
+    public function setMode($mode){
+        $wiki = $this->wiki;
+        switch($mode){
+            case 'post':
+                // disable a few rules
+                $wiki->disableRule("include");
+                $wiki->disableRule("modulepre");
+                $wiki->disableRule("module");
+                $wiki->disableRule("module654");
+                $wiki->disableRule("toc");
+                $wiki->disableRule("Social");
+                $wiki->disableRule("button");
 
-				//configure
+                //configure
 
-				$wiki->setRenderConf($this->transformationFormat, 'heading', 'use_id', false);
-				$wiki->setRenderConf($this->transformationFormat, 'footnote', 'id_prefix', rand(0,1000000).'-');
-				$wiki->setRenderConf($this->transformationFormat, 'bibitem', 'id_prefix', rand(0,1000000).'-');
-				$wiki->setRenderConf($this->transformationFormat, 'math', 'id_prefix', rand(0,1000000).'-');
+                $wiki->setRenderConf($this->transformationFormat, 'heading', 'use_id', false);
+                $wiki->setRenderConf($this->transformationFormat, 'footnote', 'id_prefix', rand(0,1000000).'-');
+                $wiki->setRenderConf($this->transformationFormat, 'bibitem', 'id_prefix', rand(0,1000000).'-');
+                $wiki->setRenderConf($this->transformationFormat, 'math', 'id_prefix', rand(0,1000000).'-');
 
-				$wiki->setRenderConf($this->transformationFormat, 'file', 'no_local', true);
-				$wiki->setRenderConf($this->transformationFormat, 'image', 'no_local', true);
-				$wiki->setRenderConf($this->transformationFormat, 'gallery', 'no_local', true);
-				break;
-			case 'list':
-			    $wiki->setRenderConf($this->transformationFormat, 'heading', 'use_id', false);
-				$wiki->setRenderConf($this->transformationFormat, 'footnote', 'id_prefix', rand(0,1000000).'-');
-				$wiki->setRenderConf($this->transformationFormat, 'bibitem', 'id_prefix', rand(0,1000000).'-');
-				$wiki->setRenderConf($this->transformationFormat, 'math', 'id_prefix', rand(0,1000000).'-');
+                $wiki->setRenderConf($this->transformationFormat, 'file', 'no_local', true);
+                $wiki->setRenderConf($this->transformationFormat, 'image', 'no_local', true);
+                $wiki->setRenderConf($this->transformationFormat, 'gallery', 'no_local', true);
+                break;
+            case 'list':
+                $wiki->setRenderConf($this->transformationFormat, 'heading', 'use_id', false);
+                $wiki->setRenderConf($this->transformationFormat, 'footnote', 'id_prefix', rand(0,1000000).'-');
+                $wiki->setRenderConf($this->transformationFormat, 'bibitem', 'id_prefix', rand(0,1000000).'-');
+                $wiki->setRenderConf($this->transformationFormat, 'math', 'id_prefix', rand(0,1000000).'-');
 
-			    break;
-			case 'pm':
-				// disable a few rules
-				$wiki->disableRule("include");
-				$wiki->disableRule("modulepre");
-				$wiki->disableRule("module");
-				$wiki->disableRule("module654");
-				$wiki->disableRule("toc");
-				$wiki->disableRule("Social");
-				$wiki->disableRule("button");
+                break;
+            case 'pm':
+                // disable a few rules
+                $wiki->disableRule("include");
+                $wiki->disableRule("modulepre");
+                $wiki->disableRule("module");
+                $wiki->disableRule("module654");
+                $wiki->disableRule("toc");
+                $wiki->disableRule("Social");
+                $wiki->disableRule("button");
 
-				//configure
+                //configure
 
-				$wiki->setRenderConf($this->transformationFormat, 'heading', 'use_id', false);
-				$wiki->setRenderConf($this->transformationFormat, 'footnote', 'id_prefix', rand(0,1000000).'-');
-				$wiki->setRenderConf($this->transformationFormat, 'bibitem', 'id_prefix', rand(0,1000000).'-');
-				$wiki->setRenderConf($this->transformationFormat, 'math', 'id_prefix', rand(0,1000000).'-');
+                $wiki->setRenderConf($this->transformationFormat, 'heading', 'use_id', false);
+                $wiki->setRenderConf($this->transformationFormat, 'footnote', 'id_prefix', rand(0,1000000).'-');
+                $wiki->setRenderConf($this->transformationFormat, 'bibitem', 'id_prefix', rand(0,1000000).'-');
+                $wiki->setRenderConf($this->transformationFormat, 'math', 'id_prefix', rand(0,1000000).'-');
 
-				$wiki->setRenderConf($this->transformationFormat, 'file', 'no_local', true);
-				$wiki->setRenderConf($this->transformationFormat, 'image', 'no_local', true);
-				$wiki->setRenderConf($this->transformationFormat, 'gallery', 'no_local', true);
-				break;
+                $wiki->setRenderConf($this->transformationFormat, 'file', 'no_local', true);
+                $wiki->setRenderConf($this->transformationFormat, 'image', 'no_local', true);
+                $wiki->setRenderConf($this->transformationFormat, 'gallery', 'no_local', true);
+                break;
 
-			case 'feed':
-				// disable a few rules
-				$wiki->disableRule("include");
-				$wiki->disableRule("modulepre");
-				$wiki->disableRule("module");
-				$wiki->disableRule("module654");
-				$wiki->disableRule("toc");
+            case 'feed':
+                // disable a few rules
+                $wiki->disableRule("include");
+                $wiki->disableRule("modulepre");
+                $wiki->disableRule("module");
+                $wiki->disableRule("module654");
+                $wiki->disableRule("toc");
 
-				$wiki->disableRule("footnote");
-				$wiki->disableRule("math");
-				$wiki->disableRule("equationreference");
-				$wiki->disableRule("Footnoteitem");
-				$wiki->disableRule("Footnoteblock");
-				$wiki->disableRule("Bibitem");
-				$wiki->disableRule("Bibliography");
-				$wiki->disableRule("Bibcite");
-				$wiki->disableRule("Gallery");
-				$wiki->disableRule("File");
-				$wiki->disableRule("Social");
+                $wiki->disableRule("footnote");
+                $wiki->disableRule("math");
+                $wiki->disableRule("equationreference");
+                $wiki->disableRule("Footnoteitem");
+                $wiki->disableRule("Footnoteblock");
+                $wiki->disableRule("Bibitem");
+                $wiki->disableRule("Bibliography");
+                $wiki->disableRule("Bibcite");
+                $wiki->disableRule("Gallery");
+                $wiki->disableRule("File");
+                $wiki->disableRule("Social");
 
-				// configure
+                // configure
 
-				$wiki->setRenderConf($this->transformationFormat, 'heading', 'use_id', false);
+                $wiki->setRenderConf($this->transformationFormat, 'heading', 'use_id', false);
 
-				$wiki->setRenderConf($this->transformationFormat, 'file', 'no_local', true);
-				$wiki->setRenderConf($this->transformationFormat, 'image', 'no_local', true);
-				$wiki->setRenderConf($this->transformationFormat, 'image', 'post_vars', true);
-				$wiki->setParseConf( 'url', 'post_vars', true);
+                $wiki->setRenderConf($this->transformationFormat, 'file', 'no_local', true);
+                $wiki->setRenderConf($this->transformationFormat, 'image', 'no_local', true);
+                $wiki->setRenderConf($this->transformationFormat, 'image', 'post_vars', true);
+                $wiki->setParseConf( 'url', 'post_vars', true);
 
-				break;
+                break;
 
-			case 'awiki':
-				break;
-			default:
-				throw Exception("Invalid wiki engine mode.");
-				break;
-		}
-	}
+            case 'awiki':
+                break;
+            default:
+                throw Exception("Invalid wiki engine mode.");
+                break;
+        }
+    }
 
-	public function setTransformationFormat($format){
-		$this->transformationFormat = $format;
-		$this->resetWiki();
-	}
+    public function setTransformationFormat($format){
+        $this->transformationFormat = $format;
+        $this->resetWiki();
+    }
 
-	public function processHtml($doc){
-		require_once(WIKIDOT_ROOT."/lib/Text_Antiwiki/Text/Antiwiki.php");
-		// just for text_wiki extend the include_path
-		ini_set('include_path',ini_get('include_path').':'.WIKIDOT_ROOT.'/lib/Text_Antiwiki/');
+    public function processHtml($doc){
+        require_once(WIKIDOT_ROOT."/lib/Text_Antiwiki/Text/Antiwiki.php");
+        // just for text_wiki extend the include_path
+        ini_set('include_path',ini_get('include_path').':'.WIKIDOT_ROOT.'/lib/Text_Antiwiki/');
 
-		// clean the code!!!
-		$doc = $this->purifyHtml($doc);
+        // clean the code!!!
+        $doc = $this->purifyHtml($doc);
 
-		// no extra parameters, just GO GO GO
-		$wiki = new Text_Antiwiki();
-		$out = $wiki->transform($doc, 'Wiki');
+        // no extra parameters, just GO GO GO
+        $wiki = new Text_Antiwiki();
+        $out = $wiki->transform($doc, 'Wiki');
 
-		return $out;
+        return $out;
 
-	}
+    }
 
 }
 
@@ -428,18 +428,18 @@ class WikiTransformation {
 
 function wikiPageExists($pageName){
 
-	if($GLOBALS['site'] == null){
-		$runData = Ozone::getRunData();
-		$siteId = $runData->getTemp("site")->getSiteId();
-	}else{
-		$siteId = $GLOBALS['site']->getSiteId();
-	}
-	$q = "SELECT page_id FROM page WHERE unix_name='".db_escape_string($pageName)."' AND site_id='".db_escape_string($siteId)."' LIMIT 1";
-	$db = Database::connection();
-	$r = $db->query($q);
-	if($row = $r->nextRow()){
-		return $row['page_id'];
-	} else {
-		return false;
-	}
+    if($GLOBALS['site'] == null){
+        $runData = Ozone::getRunData();
+        $siteId = $runData->getTemp("site")->getSiteId();
+    }else{
+        $siteId = $GLOBALS['site']->getSiteId();
+    }
+    $q = "SELECT page_id FROM page WHERE unix_name='".db_escape_string($pageName)."' AND site_id='".db_escape_string($siteId)."' LIMIT 1";
+    $db = Database::connection();
+    $r = $db->query($q);
+    if($row = $r->nextRow()){
+        return $row['page_id'];
+    } else {
+        return false;
+    }
 }

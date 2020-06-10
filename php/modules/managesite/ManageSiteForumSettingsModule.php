@@ -26,13 +26,13 @@
 
 class ManageSiteForumSettingsModule extends ManageSiteBaseModule {
 
-	public function build($runData){
+    public function build($runData){
 
-		$site = $runData->getTemp("site");
+        $site = $runData->getTemp("site");
 
-		//get forum settings
-		$runData->contextAdd("forumSettings", $site->getForumSettings());
+        //get forum settings
+        $runData->contextAdd("forumSettings", $site->getForumSettings());
 
-	}
+    }
 
 }

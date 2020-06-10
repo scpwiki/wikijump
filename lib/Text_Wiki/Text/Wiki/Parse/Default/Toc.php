@@ -92,7 +92,7 @@ class Text_Wiki_Parse_Toc extends Text_Wiki_Parse {
         );
 
         if(strtolower($this->wiki->currentFormat) == 'xhtmleditable'){
-        	return "\n\n$output\n\n";
+            return "\n\n$output\n\n";
         }
 
         foreach ($this->wiki->getTokens('Heading') as $key => $val) {

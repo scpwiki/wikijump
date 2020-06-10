@@ -32,8 +32,8 @@
  */
 class StringHelper {
 
-	public function propertyNameFirstCapitalized($property){
-		return capitalizeFirstLetter(underscoreToLowerCase($property));
-	}
+    public function propertyNameFirstCapitalized($property){
+        return capitalizeFirstLetter(underscoreToLowerCase($property));
+    }
 
 }

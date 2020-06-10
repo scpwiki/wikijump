@@ -37,14 +37,14 @@ class Text_Wiki_Render_Xhtml_Heading extends Text_Wiki_Render {
 
     function token($options)
     {
-    	$collapse = null;
+        $collapse = null;
         static $jsOutput = false;
         // get nice variable names (id, type, level)
         extract($options);
 
         switch($type) {
         case 'start':
-        		$useId = $this->getConf('use_id');
+                $useId = $this->getConf('use_id');
             $css = $this->formatConf(' class="%s"', "css_h$level");
             return '
 <h'.$level.' '.($useId ? 'id="'.$id.'"':'').$css.($collapse !== null ? ' onclick="hideTOC(\''.$id.'\');"' : '').'><span>';

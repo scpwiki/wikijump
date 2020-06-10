@@ -124,8 +124,8 @@ class Zend_Gdata_OriginalEventTest extends PHPUnit_Framework_TestCase
         $this->originalEvent->transferFromXML($this->originalEventText);
         $this->assertEquals("http://www.google.com/calendar/feeds/userID/private/full/123456789", $this->originalEvent->href);
         $this->assertEquals("i8fl1nrv2bl57c1qgr3f0onmgg", $this->originalEvent->id);
-		$this->assertTrue($this->originalEvent->when instanceof Zend_Gdata_Extension_When);
-		$this->assertEquals("2006-03-17T22:00:00.000Z", $this->originalEvent->when->startTime);
+        $this->assertTrue($this->originalEvent->when instanceof Zend_Gdata_Extension_When);
+        $this->assertEquals("2006-03-17T22:00:00.000Z", $this->originalEvent->when->startTime);
     }
 
 }

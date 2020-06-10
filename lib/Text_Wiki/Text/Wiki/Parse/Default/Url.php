@@ -154,13 +154,13 @@ class Text_Wiki_Parse_Url extends Text_Wiki_Parse {
         $postVars = $this->getConf("post_vars");
 
         if($postVars){
-        		// enable %%foo%% variables to act in described links
-        		$tmp_regex = 	'/\[(\*)?(%%[^%]+%%[^ ]*) ([^\]]+)\]/';
-        		$this->wiki->source = preg_replace_callback(
-	            $tmp_regex,
-	            array(&$this, 'processPV'),
-	            $this->wiki->source
-	        );
+                // enable %%foo%% variables to act in described links
+                $tmp_regex =     '/\[(\*)?(%%[^%]+%%[^ ]*) ([^\]]+)\]/';
+                $this->wiki->source = preg_replace_callback(
+                $tmp_regex,
+                array(&$this, 'processPV'),
+                $this->wiki->source
+            );
         }
 
         // -------------------------------------------------------------
@@ -205,7 +205,7 @@ class Text_Wiki_Parse_Url extends Text_Wiki_Parse {
         );
 
         if($matches[2] == '*'){
-        		$options['target']='_blank';
+                $options['target']='_blank';
         }
         // tokenize
         return $matches[1] . $this->wiki->addToken($this->rule, $options) . $matches[6];
@@ -241,7 +241,7 @@ class Text_Wiki_Parse_Url extends Text_Wiki_Parse {
         );
 
         if($matches[1] == '*'){
-        		$options['target']='_blank';
+                $options['target']='_blank';
         }
 
         // tokenize
@@ -258,7 +258,7 @@ class Text_Wiki_Parse_Url extends Text_Wiki_Parse {
         );
 
         if($matches[1] == '*'){
-        		$options['target']='_blank';
+                $options['target']='_blank';
         }
 
         // tokenize

@@ -22,11 +22,11 @@ class Text_Wiki_Render_Xhtml_Iframe extends Text_Wiki_Render {
 
     function token($options){
 
-       	$output = '<iframe ';
-       	foreach($options as $k => $o){
-       		$output .= $k.'="'.htmlspecialchars($o).'" ';
-       	}
-       	$output .='></iframe>';
+           $output = '<iframe ';
+           foreach($options as $k => $o){
+               $output .= $k.'="'.htmlspecialchars($o).'" ';
+           }
+           $output .='></iframe>';
 
         return $output;
     }

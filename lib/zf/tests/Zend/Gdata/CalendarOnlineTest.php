@@ -72,7 +72,7 @@ class Zend_Gdata_CalendarOnlineTest extends PHPUnit_Framework_TestCase
             $recurrence = $event->recurrence;
         }
     }
-	*/
+    */
 
     function getEvent($eventId)
     {

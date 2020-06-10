@@ -8,5 +8,5 @@ use Wikidot\Facade\Exception;
 
 
 class WrongArguments extends Exception {
-	protected $code = 406;
+    protected $code = 406;
 }

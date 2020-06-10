@@ -53,9 +53,9 @@ class Duplicator {
         $db = Database::connection();
         $db->begin();
         /*
-	     * Hopefully attrs contains a set of parameters that determine
-	     * the behoviour of the duplicatior.
-	     */
+         * Hopefully attrs contains a set of parameters that determine
+         * the behoviour of the duplicatior.
+         */
         $nsite = clone ($site);
         $nsite->setNew(true);
         $nsite->setSiteId(null);
@@ -113,20 +113,20 @@ class Duplicator {
         $member->save();
 
         /* Theme(s). */
-		$c = new Criteria();
-		$c->add('site_id', $site->getSiteId());
-		$themes = ThemePeer::instance()->select($c);
-		$themeMap = array();
-		$nthemes = array();
-		foreach($themes as $theme){
-		    $ntheme = clone($theme);
-		    $ntheme->setNew(true);
-		    $ntheme->setSiteId($nsite->getSiteId());
-		    $ntheme->setThemeId(null);
-		    $ntheme->save();
-		    $themeMap[$theme->getThemeId()] = $ntheme->getThemeId();
-		    $nthemes[] = $ntheme;
-		}
+        $c = new Criteria();
+        $c->add('site_id', $site->getSiteId());
+        $themes = ThemePeer::instance()->select($c);
+        $themeMap = array();
+        $nthemes = array();
+        foreach($themes as $theme){
+            $ntheme = clone($theme);
+            $ntheme->setNew(true);
+            $ntheme->setSiteId($nsite->getSiteId());
+            $ntheme->setThemeId(null);
+            $ntheme->save();
+            $themeMap[$theme->getThemeId()] = $ntheme->getThemeId();
+            $nthemes[] = $ntheme;
+        }
         foreach($nthemes as $ntheme){
             if($ntheme->getExtendsThemeId() && isset($themeMap[$ntheme->getExtendsThemeId()])){
                 $ntheme->setExtendsThemeId($themeMap[$ntheme->getExtendsThemeId()]);
@@ -162,76 +162,76 @@ class Duplicator {
 
         /* Index. */
         $ind = Indexer::instance();
-		$c = new Criteria();
-		$c->add("site_id", $site->getSiteId());
-		$pages = PagePeer::instance()->select($c);
-		foreach($pages as $p){
-			$ind->indexPage($p);
-		}
+        $c = new Criteria();
+        $c->add("site_id", $site->getSiteId());
+        $pages = PagePeer::instance()->select($c);
+        foreach($pages as $p){
+            $ind->indexPage($p);
+        }
 
-		/* Handle forum too. */
+        /* Handle forum too. */
 
-		$fs = $site->getForumSettings();
-		if($fs) {
-    		$fs->setNew(true);
-    		$fs->setSiteId($nsite->getSiteId());
-    		$fs->save();
+        $fs = $site->getForumSettings();
+        if($fs) {
+            $fs->setNew(true);
+            $fs->setSiteId($nsite->getSiteId());
+            $fs->save();
 
-    		/* Copy existing structure. */
-    		$c = new Criteria();
-    		$c->add('site_id', $site->getSiteId());
-    		$groups = ForumGroupPeer::instance()->select($c);
+            /* Copy existing structure. */
+            $c = new Criteria();
+            $c->add('site_id', $site->getSiteId());
+            $groups = ForumGroupPeer::instance()->select($c);
 
-    		foreach($groups as $group){
-    		    $ngroup = clone($group);
-        		$ngroup->setNew(true);
-        		$ngroup->setGroupId(null);
-        		$ngroup->setSiteId($nsite->getSiteId());
-        		$ngroup->save();
+            foreach($groups as $group){
+                $ngroup = clone($group);
+                $ngroup->setNew(true);
+                $ngroup->setGroupId(null);
+                $ngroup->setSiteId($nsite->getSiteId());
+                $ngroup->save();
 
-        		$c = new Criteria();
-        		$c->add('group_id', $group->getGroupId());
-        		$categories = ForumCategoryPeer::instance()->select($c);
-        		foreach($categories as $category){
-        		    $ncategory = clone($category);
-        		    $ncategory->setNew(true);
-        		    $ncategory->setCategoryId(null);
-        		    $ncategory->setNumberPosts(0);
-        		    $ncategory->setNumberThreads(0);
-        		    $ncategory->setLastPostId(null);
-        		    $ncategory->setSiteId($nsite->getSiteId());
-        		    $ncategory->setGroupId($ngroup->getGroupId());
-        		    $ncategory->save();
-        		}
-    		}
-		}
+                $c = new Criteria();
+                $c->add('group_id', $group->getGroupId());
+                $categories = ForumCategoryPeer::instance()->select($c);
+                foreach($categories as $category){
+                    $ncategory = clone($category);
+                    $ncategory->setNew(true);
+                    $ncategory->setCategoryId(null);
+                    $ncategory->setNumberPosts(0);
+                    $ncategory->setNumberThreads(0);
+                    $ncategory->setLastPostId(null);
+                    $ncategory->setSiteId($nsite->getSiteId());
+                    $ncategory->setGroupId($ngroup->getGroupId());
+                    $ncategory->save();
+                }
+            }
+        }
 
-		/* Copy ALL files from the filesystem. */
-		$srcDir = WIKIDOT_ROOT."/web/files--sites/".$site->getUnixName();
-		$destDir = WIKIDOT_ROOT."/web/files--sites/".$nsite->getUnixName();
+        /* Copy ALL files from the filesystem. */
+        $srcDir = WIKIDOT_ROOT."/web/files--sites/".$site->getUnixName();
+        $destDir = WIKIDOT_ROOT."/web/files--sites/".$nsite->getUnixName();
 
-		$cmd = 'cp -r '. escapeshellarg($srcDir) . ' ' . escapeshellarg($destDir);
-		exec($cmd);
+        $cmd = 'cp -r '. escapeshellarg($srcDir) . ' ' . escapeshellarg($destDir);
+        exec($cmd);
 
-		/* Copy file objects. */
+        /* Copy file objects. */
 
-		$c = new Criteria();
-		$c->add('site_id', $site->getSiteId());
-		$files = FilePeer::instance()->select($c);
-		foreach($files as $file){
-		    $nfile = clone($file);
-		    $nfile->setSiteId($nsite->getSiteId());
-		    $nfile->setNew(true);
-		    $nfile->setFileId(null);
-		    $nfile->setSiteId($nsite->getSiteId());
-		    /* Map to a new page objects. */
-		    $pageId = $this->pageMap[$file->getPageId()];
-		    $nfile->setPageId($pageId);
-		    $nfile->save();
-		}
+        $c = new Criteria();
+        $c->add('site_id', $site->getSiteId());
+        $files = FilePeer::instance()->select($c);
+        foreach($files as $file){
+            $nfile = clone($file);
+            $nfile->setSiteId($nsite->getSiteId());
+            $nfile->setNew(true);
+            $nfile->setFileId(null);
+            $nfile->setSiteId($nsite->getSiteId());
+            /* Map to a new page objects. */
+            $pageId = $this->pageMap[$file->getPageId()];
+            $nfile->setPageId($pageId);
+            $nfile->save();
+        }
 
-		$db->commit();
-		return $nsite;
+        $db->commit();
+        return $nsite;
     }
 
     /**

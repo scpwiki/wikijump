@@ -26,83 +26,83 @@
 
 class CustomDomainLoginFlowController extends WikidotController {
 
-	static public $controllerUrl = "/domainauth.php";
+    static public $controllerUrl = "/domainauth.php";
 
-	protected function redirectConfirm($url) {
-		$this->redirect(self::$controllerUrl, array("confirm" => "cookie", "url" => $url));
-	}
+    protected function redirectConfirm($url) {
+        $this->redirect(self::$controllerUrl, array("confirm" => "cookie", "url" => $url));
+    }
 
-	protected function cookieError($url) {
-		$url = htmlspecialchars($url);
-		$this->setContentTypeHeader("text/html");
-		echo "<p>Can't proceed, you should accept cookies for this domain.</p>";
-		echo "<p>Then you can go back to $url</p>";
-	}
+    protected function cookieError($url) {
+        $url = htmlspecialchars($url);
+        $this->setContentTypeHeader("text/html");
+        echo "<p>Can't proceed, you should accept cookies for this domain.</p>";
+        echo "<p>Then you can go back to $url</p>";
+    }
 
-	public function process() {
+    public function process() {
 
-		Ozone ::init();
+        Ozone ::init();
 
-		$runData = new RunData();
-		$runData->init();
-		Ozone::setRunData($runData);
+        $runData = new RunData();
+        $runData->init();
+        Ozone::setRunData($runData);
 
-		$url = $_GET["url"];
-		$confirm = isset($_GET["confirm"]);
-		$setie = isset($_GET["setiecookie"]);
-		$siteHost = $_SERVER['HTTP_HOST'];
+        $url = $_GET["url"];
+        $confirm = isset($_GET["confirm"]);
+        $setie = isset($_GET["setiecookie"]);
+        $siteHost = $_SERVER['HTTP_HOST'];
 
-		$site = $this->siteFromHost($siteHost, true, true);
+        $site = $this->siteFromHost($siteHost, true, true);
 
-		if ($setie) {
+        if ($setie) {
 
-			if ($siteHost != GlobalProperties::$URL_DOMAIN) {
-				$this->siteNotExists();
-			}
+            if ($siteHost != GlobalProperties::$URL_DOMAIN) {
+                $this->siteNotExists();
+            }
 
-			$runData->handleSessionStart();
-			if ($runData->getUser()) {
-				setcookie(GlobalProperties::$SESSION_COOKIE_NAME_IE, $runData->getSessionId(), null, '/');
-			} else {
-				setcookie(GlobalProperties::$SESSION_COOKIE_NAME_IE, "ANONYMOUS", null, '/');
-			}
-			$this->redirect($url);
+            $runData->handleSessionStart();
+            if ($runData->getUser()) {
+                setcookie(GlobalProperties::$SESSION_COOKIE_NAME_IE, $runData->getSessionId(), null, '/');
+            } else {
+                setcookie(GlobalProperties::$SESSION_COOKIE_NAME_IE, "ANONYMOUS", null, '/');
+            }
+            $this->redirect($url);
 
-		} else {
+        } else {
 
-			if (! $site) {
-				$this->siteNotExists();
-				return;
-			}
+            if (! $site) {
+                $this->siteNotExists();
+                return;
+            }
 
-			if (! $confirm) {
+            if (! $confirm) {
 
-				$user_id = $_GET["user_id"];
-				$skey =  $_GET["skey"];
+                $user_id = $_GET["user_id"];
+                $skey =  $_GET["skey"];
 
-				$session = $runData->getSessionFromDomainHash($skey, $_SERVER['HTTP_HOST'], $user_id);
+                $session = $runData->getSessionFromDomainHash($skey, $_SERVER['HTTP_HOST'], $user_id);
 
-				if ($session) {
-					setcookie(GlobalProperties::$SESSION_COOKIE_NAME, "_domain_cookie_${user_id}_${skey}", null, '/', GlobalProperties::$SESSION_COOKIE_DOMAIN);
-					$this->redirectConfirm($url);
-				} else {
-					$this->redirect($url);
-				}
+                if ($session) {
+                    setcookie(GlobalProperties::$SESSION_COOKIE_NAME, "_domain_cookie_${user_id}_${skey}", null, '/', GlobalProperties::$SESSION_COOKIE_DOMAIN);
+                    $this->redirectConfirm($url);
+                } else {
+                    $this->redirect($url);
+                }
 
-			} else {
+            } else {
 
-				// checking if cookie exists
+                // checking if cookie exists
 
-				$runData->handleSessionStart();
+                $runData->handleSessionStart();
 
-				if ($runData->getUser()) {
-					$this->redirect($url);
-				} else {
-					$this->cookieError($url);
-				}
-			}
+                if ($runData->getUser()) {
+                    $this->redirect($url);
+                } else {
+                    $this->cookieError($url);
+                }
+            }
 
-		}
+        }
 
-	}
+    }
 }

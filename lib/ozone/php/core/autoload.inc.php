@@ -53,15 +53,15 @@ set_include_path($paths);
  * @param string $className name of the class
  */
 /* spl_autoload_register( function($className) {
-	trigger_error("Autoloading ".$className);
-	$className = str_replace('\\','/', $className);
-	include_once($className.'.php');
-	$class_actual = explode('/',$className);
-	if(! class_exists(end($class_actual)) && ! interface_exists(end($class_actual))) {
-		trigger_error("Class $className not loaded.");
-	}
-	else { trigger_error("Loaded ".end($class_actual)); }
-	return;
+    trigger_error("Autoloading ".$className);
+    $className = str_replace('\\','/', $className);
+    include_once($className.'.php');
+    $class_actual = explode('/',$className);
+    if(! class_exists(end($class_actual)) && ! interface_exists(end($class_actual))) {
+        trigger_error("Class $className not loaded.");
+    }
+    else { trigger_error("Loaded ".end($class_actual)); }
+    return;
 }); */
 
 spl_autoload_register(function ($class) {
@@ -70,12 +70,12 @@ spl_autoload_register(function ($class) {
     }
             $file = str_replace('\\', DIRECTORY_SEPARATOR, $class).'.php';
             if (stream_resolve_include_path($file)) {
-		    require $file;
-		    if(GlobalProperties::$LOGGER_LEVEL == "debug") {
+            require $file;
+            if(GlobalProperties::$LOGGER_LEVEL == "debug") {
                 trigger_error("Loaded $file for $class");
             }
                 return true;
-	    }
-	    trigger_error("Failed to load $file for $class");
+        }
+        trigger_error("Failed to load $file for $class");
             return false;
         });

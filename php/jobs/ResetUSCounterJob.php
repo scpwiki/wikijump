@@ -33,8 +33,8 @@ use resetCounter;
  */
 class ResetUSCounterJob implements SchedulerJob {
 
-	public function run(){
-		UniqueStrings::resetCounter();
-	}
+    public function run(){
+        UniqueStrings::resetCounter();
+    }
 
 }

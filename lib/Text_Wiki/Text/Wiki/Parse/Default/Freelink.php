@@ -77,7 +77,7 @@ class Text_Wiki_Parse_Freelink extends Text_Wiki_Parse {
 //            "()\\]\\]\\]" .                                           // double close-parens
 //            '/';                                                   // END regex
 
-		   $this->regex =
+           $this->regex =
             '/' .                                                   // START regex
             "\\[\\[\\[" .                                               // double open-parens
             "(" .                                                   // START freelink page patter
@@ -126,8 +126,8 @@ class Text_Wiki_Parse_Freelink extends Text_Wiki_Parse {
         $anchor = $matches[2];
 
         if($page[0] == '_'){
-        		$page = substr($page, 1);
-        		$nonbr = true;
+                $page = substr($page, 1);
+                $nonbr = true;
         }
         // check if references to another site too.
         $site = null;
@@ -146,11 +146,11 @@ class Text_Wiki_Parse_Freelink extends Text_Wiki_Parse {
             // no
             $text = $page;
             if(strpos($text, ':') != false){
-				$text = substr($text, strpos($text, ':')+1);
-        	}
+                $text = substr($text, strpos($text, ':')+1);
+            }
         }elseif(trim($text) == '|'){
-        	// get $text from the page title (if exists)
-        	$textFromTitle = true;
+            // get $text from the page title (if exists)
+            $textFromTitle = true;
 
         } else {
             // yes, strip the leading | character
@@ -164,14 +164,14 @@ class Text_Wiki_Parse_Freelink extends Text_Wiki_Parse {
 
         // set the options
         $options = array(
-            'site'	=> $site,
+            'site'    => $site,
             'page'   => $page,
             'text'   => $text,
             'anchor' => $anchor,
             'textFromTitle' => $textFromTitle
         );
         if($nonbr){
-        		$options['nonbr']=true;
+                $options['nonbr']=true;
         }
 
         // return a token placeholder

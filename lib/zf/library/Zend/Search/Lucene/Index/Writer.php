@@ -526,11 +526,11 @@ class Zend_Search_Lucene_Index_Writer
                     // Load segment if necessary
                     if (!isset($this->_segmentInfos[$segName])) {
                         if (PHP_INT_SIZE > 4) {
-                        	// 64-bit system
-                        	$delGen = $delGenHigh << 32  |
-                        	          $delGenLow;
+                            // 64-bit system
+                            $delGen = $delGenHigh << 32  |
+                                      $delGenLow;
                         } else {
-                        	$delGen = $delGenHigh * ((double)0xFFFFFFFF + 1) +
+                            $delGen = $delGenHigh * ((double)0xFFFFFFFF + 1) +
                                          (($delGenLow < 0)? (double)0xFFFFFFFF - (-1 - $delGenLow) : $delGenLow);
                         }
                         if ($isCompoundByte == 0xFF) {

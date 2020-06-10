@@ -32,14 +32,14 @@
  */
 abstract class TemplateService {
 
-	protected $serviceName;
+    protected $serviceName;
 
-	public function serviceName(){
-		return $this->serviceName;
-	}
+    public function serviceName(){
+        return $this->serviceName;
+    }
 
-	public function test(){
-		return "service working";
-	}
+    public function test(){
+        return "service working";
+    }
 
 }

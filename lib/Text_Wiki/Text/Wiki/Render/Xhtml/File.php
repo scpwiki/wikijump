@@ -44,17 +44,17 @@ class Text_Wiki_Render_Xhtml_File extends Text_Wiki_Render {
         $anchor = $options['anchor'];
 
         if (strpos($file, '/') !== false) {
-        		// ok, hardcode the path... sorry.
-        		$file = preg_replace("/^\//", '', $file);
-        		$file = "/local--files/".$file;
+                // ok, hardcode the path... sorry.
+                $file = preg_replace("/^\//", '', $file);
+                $file = "/local--files/".$file;
         }else{
-        		$noLocal = $this->getConf("no_local");
-        		if($noLocal){
-        			return '<span class="error-inline">' .
-        					'Sorry, local files without page name specified not allowed. ' .
-        					'Use [[file <em>pagename</em>/<em>filename</em>]]</span>';
-        		}
-        		$file = $this->getConf('base', '/') . $file;
+                $noLocal = $this->getConf("no_local");
+                if($noLocal){
+                    return '<span class="error-inline">' .
+                            'Sorry, local files without page name specified not allowed. ' .
+                            'Use [[file <em>pagename</em>/<em>filename</em>]]</span>';
+                }
+                $file = $this->getConf('base', '/') . $file;
         }
 
         $output = "<a href=\"$file\">$anchor</a>";

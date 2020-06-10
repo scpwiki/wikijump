@@ -145,7 +145,7 @@ class Zend_Controller_Action_Helper_UrlTest extends PHPUnit_Framework_TestCase
      */
     public function testBaseUrlIsAssembledIntoUrl()
     {
-    	$this->front->setBaseUrl('baseurl');
+        $this->front->setBaseUrl('baseurl');
 
         $request = $this->front->getRequest();
         $request->setModuleName('module')

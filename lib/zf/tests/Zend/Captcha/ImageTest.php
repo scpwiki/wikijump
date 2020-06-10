@@ -174,10 +174,10 @@ class Zend_Captcha_ImageTest extends PHPUnit_Framework_TestCase
     public function testCaptchaHasAlt()
     {
         $html = $this->element->render($this->getView());
-	$this->assertRegexp('|<img[^>]*? alt=""|', $html, "Expected alt= in HTML:\n" . $html);
-	$this->captcha->setImgAlt("Test Image");
+    $this->assertRegexp('|<img[^>]*? alt=""|', $html, "Expected alt= in HTML:\n" . $html);
+    $this->captcha->setImgAlt("Test Image");
         $html = $this->element->render($this->getView());
-	$this->assertRegexp('|<img[^>]*? alt="Test Image"|', $html, "Wrong alt in HTML:\n" . $html);
+    $this->assertRegexp('|<img[^>]*? alt="Test Image"|', $html, "Wrong alt in HTML:\n" . $html);
     }
 
     public function testCaptchaSetSuffix()
@@ -216,7 +216,7 @@ class Zend_Captcha_ImageTest extends PHPUnit_Framework_TestCase
         $this->captcha->setGcFreq(1);
         sleep(2);
         $this->captcha->generate();
-	clearstatcache();
+    clearstatcache();
         $this->assertFalse(file_exists($filename), "File $filename was found even after GC");
     }
 

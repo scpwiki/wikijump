@@ -131,7 +131,7 @@ class Zend_Amf_ResponseTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($mockResponse, $testResponse);
     }
 
-	/**
+    /**
      * PHP float to Amf3 Number
      *
      */
@@ -164,7 +164,7 @@ class Zend_Amf_ResponseTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($mockResponse, $testResponse);
     }
 
-	/**
+    /**
      * PHP DateTime to Amf Date
      *
      */
@@ -445,9 +445,9 @@ class Zend_Amf_ResponseTest extends PHPUnit_Framework_TestCase
     public function testPhpDomDocumentSerializedToAmf3XmlString()
     {
         $sXML = '<root><element><key>a</key><value>b</value></element></root>';
-		$data = new DOMDocument();
-		$data->preserveWhiteSpace = false;
-		$data->loadXML($sXML);
+        $data = new DOMDocument();
+        $data->preserveWhiteSpace = false;
+        $data->loadXML($sXML);
 
 
         // Create an acknowlege message for a response to a RemotingMessage
@@ -483,10 +483,10 @@ class Zend_Amf_ResponseTest extends PHPUnit_Framework_TestCase
     public function testSimpleXmlSerializedToAmf3XmlString()
     {
         $sXML = '<root><element><key>a</key><value>b</value></element></root>';
-		$data = new DOMDocument();
-		$data->preserveWhiteSpace = false;
-		$data->loadXML($sXML);
-		$data = simplexml_import_dom($data);
+        $data = new DOMDocument();
+        $data->preserveWhiteSpace = false;
+        $data->loadXML($sXML);
+        $data = simplexml_import_dom($data);
 
 
         // Create an acknowlege message for a response to a RemotingMessage
@@ -559,7 +559,7 @@ class Zend_Amf_ResponseTest extends PHPUnit_Framework_TestCase
     /**
      * Check to make sure that we can place arrays in arrays.
      *
-     * @group	ZF-4712
+     * @group    ZF-4712
      */
     public function testPhpNestedArraySerializedToAmf0Array()
     {
@@ -617,7 +617,7 @@ class Zend_Amf_ResponseTest extends PHPUnit_Framework_TestCase
 
     }
 
-	/**
+    /**
      * PHP Object to Amf0 Object
      *
      */
@@ -737,7 +737,7 @@ class Zend_Amf_ResponseTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($mockResponse, $testResponse);
     }
 
-	/**
+    /**
      * PHP float to Amf0 Number
      *
      */
@@ -757,7 +757,7 @@ class Zend_Amf_ResponseTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($mockResponse, $testResponse);
     }
 
-	/**
+    /**
      * PHP DateTime to Amf0 date
      *
      */
@@ -818,7 +818,7 @@ class Zend_Amf_ResponseTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($mockResponse, $testResponse);
     }
 
-	/**
+    /**
      * PHP boolean true to Amf0 bool true.
      *
      */

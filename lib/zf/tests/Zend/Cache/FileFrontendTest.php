@@ -39,8 +39,8 @@ class Zend_Cache_FileFrontendTest extends PHPUnit_Framework_TestCase {
             $this->_masterFile2 = $this->_getTmpDirWindows() . DIRECTORY_SEPARATOR . 'zend_cache_master2';
         } else {
             $this->_masterFile = $this->_getTmpDirUnix() . DIRECTORY_SEPARATOR . 'zend_cache_master';
-        	$this->_masterFile1 = $this->_getTmpDirUnix() . DIRECTORY_SEPARATOR . 'zend_cache_master1';
-        	$this->_masterFile2 = $this->_getTmpDirUnix() . DIRECTORY_SEPARATOR . 'zend_cache_master2';
+            $this->_masterFile1 = $this->_getTmpDirUnix() . DIRECTORY_SEPARATOR . 'zend_cache_master1';
+            $this->_masterFile2 = $this->_getTmpDirUnix() . DIRECTORY_SEPARATOR . 'zend_cache_master2';
         }
         if (!$this->_instance1) {
             touch($this->_masterFile, 123455);
@@ -55,8 +55,8 @@ class Zend_Cache_FileFrontendTest extends PHPUnit_Framework_TestCase {
             $this->_instance2->setBackend($this->_backend);
         }
         if (!$this->_instance3) {
-        	touch($this->_masterFile1, 123455);
-        	touch($this->_masterFile2, 123455);
+            touch($this->_masterFile1, 123455);
+            touch($this->_masterFile2, 123455);
             $this->_instance3 = new Zend_Cache_Frontend_File(array('master_files' => array($this->_masterFile1, $this->_masterFile2)));
             $this->_backend = new Zend_Cache_Backend_Test();
             $this->_instance3->setBackend($this->_backend);
@@ -170,7 +170,7 @@ class Zend_Cache_FileFrontendTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('foo', $this->_instance1->load('cache_id'));
     }
 
-	public function testTestCorrectCall4()
+    public function testTestCorrectCall4()
     {
         $this->assertFalse($this->_instance4->test('cache_id'));
     }

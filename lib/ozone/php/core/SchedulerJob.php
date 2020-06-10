@@ -32,6 +32,6 @@
  */
 interface SchedulerJob {
 
-	public function run();
+    public function run();
 
 }

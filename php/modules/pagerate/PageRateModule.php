@@ -28,26 +28,26 @@ use DB\PagePeer;
 
 class PageRateModule extends SmartyModule {
 
-	public function build($runData){
+    public function build($runData){
 
-		$pl = $runData->getParameterList();
-		$pageId = $pl->getParameterValue("pageId");
+        $pl = $runData->getParameterList();
+        $pageId = $pl->getParameterValue("pageId");
 
-		$page = PagePeer::instance()->selectByPrimaryKey($pageId);
-		// todo: check if allowed
+        $page = PagePeer::instance()->selectByPrimaryKey($pageId);
+        // todo: check if allowed
 
-		$runData->contextAdd("pageId", $page->getPageId());
+        $runData->contextAdd("pageId", $page->getPageId());
 
-		$uri = GlobalProperties::$MODULES_CSS_URL.'/pagerate/PageRateWidgetModule.css';
-		$this->extraCss[] = $uri;
+        $uri = GlobalProperties::$MODULES_CSS_URL.'/pagerate/PageRateWidgetModule.css';
+        $this->extraCss[] = $uri;
 
-		$uri = GlobalProperties::$MODULES_JS_URL.'/pagerate/PageRateWidgetModule.js';
-		$this->extraJs[] = $uri;
+        $uri = GlobalProperties::$MODULES_JS_URL.'/pagerate/PageRateWidgetModule.js';
+        $this->extraJs[] = $uri;
 
-		//check if voters visible
-		$category = $page->getCategory();
-		$runData->contextAdd("visibility", $category->getRatingVisible());
+        //check if voters visible
+        $category = $page->getCategory();
+        $runData->contextAdd("visibility", $category->getRatingVisible());
 
-	}
+    }
 
 }

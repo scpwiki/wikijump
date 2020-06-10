@@ -198,11 +198,11 @@ class xml  {
             $ret['_value'] = $item['value'];
         }
         else {
-			if (isset($item['value'])) {
-				$ret = array($item['tag']=> $item['value']);
-			} else {
-				$ret = array($item['tag']=> "");
-			}
+            if (isset($item['value'])) {
+                $ret = array($item['tag']=> $item['value']);
+            } else {
+                $ret = array($item['tag']=> "");
+            }
         }
         break;
     }

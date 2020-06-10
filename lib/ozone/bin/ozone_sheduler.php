@@ -50,13 +50,13 @@ $scheduler->setClassPath($applicationDir."/php/jobs");
 $schedulerFiles = ls($applicationDir."/conf/scheduler", "*-jobs.xml");
 
 foreach ($schedulerFiles as $key => $file) {
-	echo "----------------------------------------\n";
-	echo "processing file $file:\n";
-	echo "----------------------------------------\n";
-	$xml = simplexml_load_file($applicationDir."/conf/scheduler/$file");
+    echo "----------------------------------------\n";
+    echo "processing file $file:\n";
+    echo "----------------------------------------\n";
+    $xml = simplexml_load_file($applicationDir."/conf/scheduler/$file");
 
-	##$database = new DBDatabase($xml);
-	$scheduler->parseConfigXml($xml);
+    ##$database = new DBDatabase($xml);
+    $scheduler->parseConfigXml($xml);
 
 }
 

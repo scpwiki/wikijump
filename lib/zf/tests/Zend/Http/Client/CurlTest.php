@@ -35,12 +35,12 @@ require_once 'SocketTest.php';
  */
 class Zend_Http_Client_CurlTest extends Zend_Http_Client_SocketTest
 {
-	/**
-	 * Configuration array
-	 *
-	 * @var array
-	 */
-	protected $config = array(
-		'adapter'     => 'Zend_Http_Client_Adapter_Curl'
-	);
+    /**
+     * Configuration array
+     *
+     * @var array
+     */
+    protected $config = array(
+        'adapter'     => 'Zend_Http_Client_Adapter_Curl'
+    );
 }

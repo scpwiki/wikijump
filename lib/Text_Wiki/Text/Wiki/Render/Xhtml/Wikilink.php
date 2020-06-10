@@ -70,7 +70,7 @@ class Text_Wiki_Render_Xhtml_Wikilink extends Text_Wiki_Render {
         if (isset($this->conf['exists_callback'])) {
             $callback =& $this->conf['exists_callback'];
         } else {
-        	$callback = false;
+            $callback = false;
         }
 
         if ($callback) {
@@ -88,15 +88,15 @@ class Text_Wiki_Render_Xhtml_Wikilink extends Text_Wiki_Render {
             }
         }
 
-		if($exists && $textFromTitle){
-			// get displayed text from the page title
-			$pageObj = DB_PagePeer::instance()->selectByPrimaryKey($exists);
-			$text = $pageObj->getTitleOrUnixName();
-		}
+        if($exists && $textFromTitle){
+            // get displayed text from the page title
+            $pageObj = DB_PagePeer::instance()->selectByPrimaryKey($exists);
+            $text = $pageObj->getTitleOrUnixName();
+        }
 
-		if(!$exists && $textFromTitle){
-			$text = $page;
-		}
+        if(!$exists && $textFromTitle){
+            $text = $page;
+        }
 
         // convert *after* checking against page names so as not to mess
         // up what the user typed and what we're checking.
@@ -104,21 +104,21 @@ class Text_Wiki_Render_Xhtml_Wikilink extends Text_Wiki_Render {
         $anchor = htmlspecialchars(trim($anchor));
         $text = htmlspecialchars(trim($text));
 
-       	if($nonbr){
-       		$text = str_replace(' ', '&nbsp;', $text);
-       	}
+           if($nonbr){
+               $text = str_replace(' ', '&nbsp;', $text);
+           }
 
         // does the page exist?
         if ($exists) {
 
             // PAGE EXISTS.
-			// store it in the array
+            // store it in the array
 
-			$wiki = $this->wiki;
-			if($wiki->vars['internalLinksExist'] == null){
-				$wiki->vars['internalLinksExist'] = array();
-			}
-			$wiki->vars['internalLinksExist'][$exists]=$exists;
+            $wiki = $this->wiki;
+            if($wiki->vars['internalLinksExist'] == null){
+                $wiki->vars['internalLinksExist'] = array();
+            }
+            $wiki->vars['internalLinksExist'][$exists]=$exists;
 
             // link to the page view, but we have to build
             // the HREF.  we support both the old form where
@@ -139,14 +139,14 @@ class Text_Wiki_Render_Xhtml_Wikilink extends Text_Wiki_Render {
             $output = "<a$css href=\"$href\">$text</a>";
 
         } else {
-        		$wiki = $this->wiki;
-			if($wiki->vars['internalLinksNotExist'] == null){
-				$wiki->vars['internalLinksNotExist'] = array();
-			}
-			$wiki->vars['internalLinksNotExist'][$page] = $page;
+                $wiki = $this->wiki;
+            if($wiki->vars['internalLinksNotExist'] == null){
+                $wiki->vars['internalLinksNotExist'] = array();
+            }
+            $wiki->vars['internalLinksNotExist'][$page] = $page;
 
             // PAGE DOES NOT EXIST.
-			//WikiTransformation::$internalLinksNotExist[$page] = $page; //which is the page unix name!
+            //WikiTransformation::$internalLinksNotExist[$page] = $page; //which is the page unix name!
 
             // link to a create-page url, but only if new_url is set
             $href = $this->getConf('new_url', null);

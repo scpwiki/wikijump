@@ -45,15 +45,15 @@ class Text_Wiki_Parse_Footnote extends Text_Wiki_Parse {
 
     function process(&$matches)
     {
-    		if($this->wiki->vars['footnotes'] == null){
-    			$this->wiki->vars['footnotes'] = array();
-    		}
-    	 	$id = count($this->wiki->vars['footnotes'])+1;
-   	 	//echo "dup[a]"
+            if($this->wiki->vars['footnotes'] == null){
+                $this->wiki->vars['footnotes'] = array();
+            }
+             $id = count($this->wiki->vars['footnotes'])+1;
+            //echo "dup[a]"
 
-	    	$content = trim($matches[1]);
+            $content = trim($matches[1]);
 
-	    $this->wiki->vars['footnotes'][$id-1] = $content;
+        $this->wiki->vars['footnotes'][$id-1] = $content;
         $options = array('id'=>$id);
 
         return $this->wiki->addToken($this->rule, $options);

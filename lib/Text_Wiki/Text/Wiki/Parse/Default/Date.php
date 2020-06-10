@@ -27,7 +27,7 @@ class Text_Wiki_Parse_Date extends Text_Wiki_Parse {
 
 
 
-	public $regex = ';\[\[date\s+([0-9]+)(\s+.*?)?\]\];';
+    public $regex = ';\[\[date\s+([0-9]+)(\s+.*?)?\]\];';
     /**
     *
     * Generates a token entry for the matched text.  Token options are:
@@ -46,15 +46,15 @@ class Text_Wiki_Parse_Date extends Text_Wiki_Parse {
     function process(&$matches)
     {
 
-    	$options = array();
-    	$options['timestamp'] = $matches[1];
+        $options = array();
+        $options['timestamp'] = $matches[1];
 
-    	$attr = $this->getAttrs(trim($matches[2]));
-    	foreach($attr as $key => $a){
-    		$options[$key] = $attr[$key];
-    	}
+        $attr = $this->getAttrs(trim($matches[2]));
+        foreach($attr as $key => $a){
+            $options[$key] = $attr[$key];
+        }
 
-    	$token = $this->wiki->addToken(
+        $token = $this->wiki->addToken(
             $this->rule, $options
         );
 

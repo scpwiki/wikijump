@@ -63,23 +63,23 @@ class Text_Wiki_Parse_Math extends Text_Wiki_Parse {
     function process(&$matches){
 
         if($this->wiki->vars['math_id'] == null){
-    			$this->wiki->vars['math_id'] = 1;
-    	}
-    	$id = $this->wiki->vars['math_id'];
-    	$this->wiki->vars['math_id']++;
+                $this->wiki->vars['math_id'] = 1;
+        }
+        $id = $this->wiki->vars['math_id'];
+        $this->wiki->vars['math_id']++;
 
-	    $label = trim($matches[1]);
-	    $content = trim($matches[3]);
+        $label = trim($matches[1]);
+        $content = trim($matches[3]);
 
-	    if(preg_match(';\include\s*{|\input\s*{;is', $content)){
-	    	throw new ProcessException("Invalid LaTeX expression(s) found.");
-	    }
+        if(preg_match(';\include\s*{|\input\s*{;is', $content)){
+            throw new ProcessException("Invalid LaTeX expression(s) found.");
+        }
 
-	    $args = $this->getAttrs($matches[2]);
-	   	$type = $args['type'];
-	   	if(!$type || !in_array($type, array('equation', 'eqnarray'))){
-	   		$type = 'equation';
-	   	}
+        $args = $this->getAttrs($matches[2]);
+           $type = $args['type'];
+           if(!$type || !in_array($type, array('equation', 'eqnarray'))){
+               $type = 'equation';
+           }
 
         $options = array('label'=>$label, 'content'=>$content, 'id'=>$id, 'type' => $type);
         self::$equationsArray[$label] = $id;

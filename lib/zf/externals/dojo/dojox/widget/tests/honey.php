@@ -17,11 +17,11 @@ if ($fakeDelay) { sleep($fakeDelay); }
 
 print "view num: ".$_SESSION['counter']++;
 while ($dataSent<=$dataSize) {
-	for ($i=0; $i<$blockSize/4; $i++) {
-		print $char;
-	} print "<br />";
-	$dataSent += $blockSize;
-	sleep(1);
+    for ($i=0; $i<$blockSize/4; $i++) {
+        print $char;
+    } print "<br />";
+    $dataSent += $blockSize;
+    sleep(1);
 }
 
 ?>

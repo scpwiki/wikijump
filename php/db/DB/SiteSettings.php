@@ -32,11 +32,11 @@ namespace DB;
  */
 class SiteSettings extends SiteSettingsBase {
 
-	public function save(){
-		$key = "sitesettings..".$this->getSiteId();
-		$mc = \Ozone::$memcache;
-		$s = $mc->delete($key);
-		parent::save();
-	}
+    public function save(){
+        $key = "sitesettings..".$this->getSiteId();
+        $mc = \Ozone::$memcache;
+        $s = $mc->delete($key);
+        parent::save();
+    }
 
 }

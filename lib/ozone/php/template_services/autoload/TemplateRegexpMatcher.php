@@ -30,15 +30,15 @@
  */
 class TemplateRegexpMatcher extends TemplateService{
 
-	private $runData;
-	protected $serviceName = "templateMatcher";
+    private $runData;
+    protected $serviceName = "templateMatcher";
 
-	public function __construct($runData){
-		$this->runData = $runData;
-	}
+    public function __construct($runData){
+        $this->runData = $runData;
+    }
 
-	public function match($pattern){
-		return preg_match("/".$pattern."/", $this->runData->getScreenTemplate());
-	}
+    public function match($pattern){
+        return preg_match("/".$pattern."/", $this->runData->getScreenTemplate());
+    }
 
 }

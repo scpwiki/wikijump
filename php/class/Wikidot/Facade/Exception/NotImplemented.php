@@ -8,5 +8,5 @@ use Wikidot\Facade\Exception;
 
 
 class NotImplemented extends Exception {
-	protected $code = 501;
+    protected $code = 501;
 }

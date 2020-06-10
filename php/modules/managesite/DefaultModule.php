@@ -26,6 +26,6 @@
 
 class DefaultModule extends ManageSiteBaseModule {
 
-	public function build($r){}
+    public function build($r){}
 
 }

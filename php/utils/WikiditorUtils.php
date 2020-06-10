@@ -26,14 +26,14 @@
 
 class WikiditorUtils {
 
-	public static function getPageEditToolbar(){
-		$smarty = OZONE::getSmartyPlain();
+    public static function getPageEditToolbar(){
+        $smarty = OZONE::getSmartyPlain();
 
-		$toolbarTemplateFile = WIKIDOT_ROOT.'/templates/misc/wikiditor/PageEditToolbar.tpl';
+        $toolbarTemplateFile = WIKIDOT_ROOT.'/templates/misc/wikiditor/PageEditToolbar.tpl';
 
-		$out = $smarty->fetch($toolbarTemplateFile);
+        $out = $smarty->fetch($toolbarTemplateFile);
 
-		return $out;
-	}
+        return $out;
+    }
 
 }

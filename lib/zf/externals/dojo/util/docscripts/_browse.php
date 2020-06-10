@@ -22,50 +22,50 @@ $ajaxy = !empty($_REQUEST['ajaxy']);
 ?>
 
 <?php if(!$ajaxy){ ?>
-	<html>
-		<head>
+    <html>
+        <head>
 
-		  <title>API Preview tool | The Dojo Toolkit <title>
+          <title>API Preview tool | The Dojo Toolkit <title>
 
-		  <script type="text/javascript" src="../../dojo/dojo.js" djConfig="parseOnLoad:true"></script>
+          <script type="text/javascript" src="../../dojo/dojo.js" djConfig="parseOnLoad:true"></script>
 
-		  <script type="text/javascript">
-			dojo.require("dijit.layout.BorderContainer");
-			dojo.require("dojox.layout.ExpandoPane");
-			dojo.require("dijit.layout.ContentPane");
-			dojo.require("dijit.layout.TabContainer");
-			dojo.require("dojo.fx.easing");
-			dojo.require("dijit.TitlePane");
-			function tgShow(id){
-			  var identity=document.getElementById(id);
-					if(identity.className=="sho"){ identity.className="nosho";
-					}else{ identity.className="sho"; }
-			}
-			dojo.addOnLoad(function(e){
-				dojo.connect(window,"onclick",function(e){
-					if(e.target && e.target.href){
-						e.preventDefault();
-						dijit.byId('apiPane').setHref(e.target.href + "&ajaxy=true");
-					}
-				});
-			});
-		  </script>
-		  <style type="text/css">
-			@import "../../dijit/themes/soria/soria.css";
-			@import "../../dojox/layout/resources/ExpandoPane.css";
-			@import "../../dojo/resources/dojo.css";
-			body, html { width:100%; height:100%; margin:0; padding:0; }
-			.sho { display:block; }
-			.nosho { display:none; }
-			.topbar li { display:inline; padding:5px; }
-			.pad {
-				padding:20px;
-				padding-top:8px;
-			}
-			</style>
-		  </style>
-		</head>
-	<body class="soria">
+          <script type="text/javascript">
+            dojo.require("dijit.layout.BorderContainer");
+            dojo.require("dojox.layout.ExpandoPane");
+            dojo.require("dijit.layout.ContentPane");
+            dojo.require("dijit.layout.TabContainer");
+            dojo.require("dojo.fx.easing");
+            dojo.require("dijit.TitlePane");
+            function tgShow(id){
+              var identity=document.getElementById(id);
+                    if(identity.className=="sho"){ identity.className="nosho";
+                    }else{ identity.className="sho"; }
+            }
+            dojo.addOnLoad(function(e){
+                dojo.connect(window,"onclick",function(e){
+                    if(e.target && e.target.href){
+                        e.preventDefault();
+                        dijit.byId('apiPane').setHref(e.target.href + "&ajaxy=true");
+                    }
+                });
+            });
+          </script>
+          <style type="text/css">
+            @import "../../dijit/themes/soria/soria.css";
+            @import "../../dojox/layout/resources/ExpandoPane.css";
+            @import "../../dojo/resources/dojo.css";
+            body, html { width:100%; height:100%; margin:0; padding:0; }
+            .sho { display:block; }
+            .nosho { display:none; }
+            .topbar li { display:inline; padding:5px; }
+            .pad {
+                padding:20px;
+                padding-top:8px;
+            }
+            </style>
+          </style>
+        </head>
+    <body class="soria">
 <?php
 
 } // $ajaxy
@@ -205,27 +205,27 @@ if(!empty($_REQUEST['ns'])){
 
 if(!$ajaxy){ ?>
 <div dojoType="dijit.layout.BorderContainer" style="width:100%; height:100%;">q
-	<div dojoType="dojox.layout.ExpandoPane" easeOut="dojo.fx.easing.backIn" easeIn="dojo.fx.easing.backOut" title="Namespaces" region="left" style="width:250px" splitter="true">
-		<div dojoType="dijit.layout.TabContainer" tabPosition="bottom">
-			<?php
-				foreach($trees as $ns => $list){
-					print "<div attachParent=\"true\" dojoType=\"dijit.layout.ContentPane\" title=\"".$ns."\">";
-					print $list;
-					print "</div>";
-				}
-			?>
-		</div>
-	</div>
+    <div dojoType="dojox.layout.ExpandoPane" easeOut="dojo.fx.easing.backIn" easeIn="dojo.fx.easing.backOut" title="Namespaces" region="left" style="width:250px" splitter="true">
+        <div dojoType="dijit.layout.TabContainer" tabPosition="bottom">
+            <?php
+                foreach($trees as $ns => $list){
+                    print "<div attachParent=\"true\" dojoType=\"dijit.layout.ContentPane\" title=\"".$ns."\">";
+                    print $list;
+                    print "</div>";
+                }
+            ?>
+        </div>
+    </div>
     <div dojoType="dijit.layout.TabContainer" closeable="false" region="center">
-		<div dojoType="dijit.layout.ContentPane" id="apiPane" title="Crude API Browser">
-			<div class="pad"><?php echo $print; ?></div>
-		</div>
+        <div dojoType="dijit.layout.ContentPane" id="apiPane" title="Crude API Browser">
+            <div class="pad"><?php echo $print; ?></div>
+        </div>
     </div>
 </div>
 </body>
 </html>
 <?php }else{
-	// we just want the content we parsed
-	echo '<div class="pad">'.$print.'</div>';
+    // we just want the content we parsed
+    echo '<div class="pad">'.$print.'</div>';
 }
 ?>

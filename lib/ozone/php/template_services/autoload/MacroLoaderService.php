@@ -30,20 +30,20 @@
  */
 class MacroLoaderService extends TemplateService {
 
-	protected $serviceName = "macros";
+    protected $serviceName = "macros";
 
-	private $macroPath;
+    private $macroPath;
 
-	function __construct($runData = null){
-			$this->macroPath = PathManager::macroDir();
-	}
+    function __construct($runData = null){
+            $this->macroPath = PathManager::macroDir();
+    }
 
-	public function load($macroSet){
-		$smarty = Ozone::getSmarty();
+    public function load($macroSet){
+        $smarty = Ozone::getSmarty();
 
-		$smarty->fetch($this->macroPath . $macroSet.'.tpl');
+        $smarty->fetch($this->macroPath . $macroSet.'.tpl');
 
-		// should we load it for the plain smarty too?
-	}
+        // should we load it for the plain smarty too?
+    }
 
 }

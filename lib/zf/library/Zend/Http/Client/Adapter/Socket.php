@@ -306,15 +306,15 @@ class Zend_Http_Client_Adapter_Socket implements Zend_Http_Client_Adapter_Interf
 
         // Fallback: just read the response until EOF
         } else {
-        	do {
-        		$buff = @fread($this->socket, 8192);
-        		if ($buff === false || strlen($buff) === 0)
-        		{
-        			break;
-        		} else {
+            do {
+                $buff = @fread($this->socket, 8192);
+                if ($buff === false || strlen($buff) === 0)
+                {
+                    break;
+                } else {
                     $response .= $buff;
-        		}
-        	} while (feof($this->socket) === false);
+                }
+            } while (feof($this->socket) === false);
 
             $this->close();
         }

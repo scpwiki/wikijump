@@ -31,9 +31,9 @@
  */
 abstract class Screen {
 
-	public function isAllowed($runData){
-		return true;
-	}
+    public function isAllowed($runData){
+        return true;
+    }
 
-	abstract function render($runData);
+    abstract function render($runData);
 }

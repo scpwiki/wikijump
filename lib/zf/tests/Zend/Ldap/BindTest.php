@@ -161,7 +161,7 @@ class Zend_Ldap_BindTest extends PHPUnit_Framework_TestCase
         try {
             $ldap->bind($this->_altUsername, 'invalid');
         } catch (Zend_Ldap_Exception $zle) {
-			$message = str_replace("\n", " ", $zle->getMessage());
+            $message = str_replace("\n", " ", $zle->getMessage());
             $this->assertContains('Invalid credentials', $message);
         }
     }
@@ -182,8 +182,8 @@ class Zend_Ldap_BindTest extends PHPUnit_Framework_TestCase
         try {
             $ldap->bind($this->_principalName);
         } catch (Zend_Ldap_Exception $zle) {
-			/* Note that if your server actually allows anonymous binds this test will fail.
-			 */
+            /* Note that if your server actually allows anonymous binds this test will fail.
+             */
             $this->assertContains('Failed to retrieve DN', $zle->getMessage());
         }
     }

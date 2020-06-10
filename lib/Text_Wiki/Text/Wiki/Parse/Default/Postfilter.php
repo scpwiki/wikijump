@@ -46,7 +46,7 @@ class Text_Wiki_Parse_Postfilter extends Text_Wiki_Parse {
     function parse()
     {
 
-    	// fix TOC tags within entries
+        // fix TOC tags within entries
 
         // convert DOS line endings
         $this->wiki->source = str_replace("\r\n", "\n",

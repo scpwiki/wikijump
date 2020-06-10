@@ -236,7 +236,7 @@ abstract class Zend_Db_Table_Row_TestCommon extends Zend_Db_Table_TestSetup
     }
 
     // ZF-2013
-	public function testTableRowOffsetGet()
+    public function testTableRowOffsetGet()
     {
         $table = $this->_table['bugs'];
         $bug_id = $this->_db->foldCase('bug_id');

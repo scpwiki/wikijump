@@ -170,7 +170,7 @@ class Zend_Log_Writer_FirebugTest extends PHPUnit_Framework_TestCase
 
     public function testAdvancedLogging()
     {
-    	$this->markTestSkipped('takes too much resources if whole ZF suite is running.');
+        $this->markTestSkipped('takes too much resources if whole ZF suite is running.');
 
         $message = 'This is a log message!';
         $label = 'Test Label';

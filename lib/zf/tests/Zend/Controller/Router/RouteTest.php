@@ -522,9 +522,9 @@ class Zend_Controller_Router_RouteTest extends PHPUnit_Framework_TestCase
      */
 
     /**
-	 * This test is commented out because performance testing should be done separately from unit
-	 * testing. It will be ported to a performance regression suite when such a suite is available.
-	 */
+     * This test is commented out because performance testing should be done separately from unit
+     * testing. It will be ported to a performance regression suite when such a suite is available.
+     */
 //    public function testRoutePerformance()
 //    {
 //        $count = 10000;

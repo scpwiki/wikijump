@@ -87,37 +87,37 @@ class Text_Wiki_Parse_Typography extends Text_Wiki_Parse {
             'char' => ' ')), $source);
 
         $units = '
-		### Metric units (with prefixes)
-		(?:
-			p |
-			µ | &micro; | &\#0*181; | &\#[xX]0*[Bb]5; |
-			[mcdhkMGT]
-		)?
-		(?:
-			[mgstAKNJWCVFSTHBL]|mol|cd|rad|Hz|Pa|Wb|lm|lx|Bq|Gy|Sv|kat|
-			Ω | Ohm | &Omega; | &\#0*937; | &\#[xX]0*3[Aa]9;
-		)|
-		### Computers units (KB, Kb, TB, Kbps)
-		[kKMGT]?(?:[oBb]|[oBb]ps|flops)|
-		### Money
-		¢ | &cent; | &\#0*162; | &\#[xX]0*[Aa]2; |
-		M?(?:
-			£ | &pound; | &\#0*163; | &\#[xX]0*[Aa]3; |
-			¥ | &yen;   | &\#0*165; | &\#[xX]0*[Aa]5; |
-			€ | &euro;  | &\#0*8364; | &\#[xX]0*20[Aa][Cc]; |
-			$
-		)|
-		### Other units
-		(?: ° | &deg; | &\#0*176; | &\#[xX]0*[Bb]0; ) [CF]? |
-		%|pt|pi|M?px|em|en|gal|lb|[NSEOW]|[NS][EOW]|ha|mbar
-		'; //x
+        ### Metric units (with prefixes)
+        (?:
+            p |
+            µ | &micro; | &\#0*181; | &\#[xX]0*[Bb]5; |
+            [mcdhkMGT]
+        )?
+        (?:
+            [mgstAKNJWCVFSTHBL]|mol|cd|rad|Hz|Pa|Wb|lm|lx|Bq|Gy|Sv|kat|
+            Ω | Ohm | &Omega; | &\#0*937; | &\#[xX]0*3[Aa]9;
+        )|
+        ### Computers units (KB, Kb, TB, Kbps)
+        [kKMGT]?(?:[oBb]|[oBb]ps|flops)|
+        ### Money
+        ¢ | &cent; | &\#0*162; | &\#[xX]0*[Aa]2; |
+        M?(?:
+            £ | &pound; | &\#0*163; | &\#[xX]0*[Aa]3; |
+            ¥ | &yen;   | &\#0*165; | &\#[xX]0*[Aa]5; |
+            € | &euro;  | &\#0*8364; | &\#[xX]0*20[Aa][Cc]; |
+            $
+        )|
+        ### Other units
+        (?: ° | &deg; | &\#0*176; | &\#[xX]0*[Bb]0; ) [CF]? |
+        %|pt|pi|M?px|em|en|gal|lb|[NSEOW]|[NS][EOW]|ha|mbar
+        '; //x
 
 
         $source = preg_replace('/
-			(?:([0-9])[ ]) # Number followed by space.
-			(' . $units . ')     # Unit.
-			(?![a-zA-Z0-9])  # Negative lookahead for other unit characters.
-			/x', "\\1" . $this->wiki->addToken($this->rule, array('char' => ' ')) . "\\2", $source);
+            (?:([0-9])[ ]) # Number followed by space.
+            (' . $units . ')     # Unit.
+            (?![a-zA-Z0-9])  # Negative lookahead for other unit characters.
+            /x', "\\1" . $this->wiki->addToken($this->rule, array('char' => ' ')) . "\\2", $source);
 
         $source = str_replace(array("...", ". . ."), $this->wiki->addToken($this->rule, array(
             'char' => '...')), $source);

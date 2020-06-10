@@ -35,11 +35,11 @@ require_once 'Zend/Cache/Core.php';
 class Zend_Cache_Frontend_File extends Zend_Cache_Core
 {
 
-	/**
-	 * Consts for master_files_mode
-	 */
-	const MODE_AND = 'AND';
-	const MODE_OR  = 'OR';
+    /**
+     * Consts for master_files_mode
+     */
+    const MODE_AND = 'AND';
+    const MODE_OR  = 'OR';
 
     /**
      * Available options
@@ -63,10 +63,10 @@ class Zend_Cache_Frontend_File extends Zend_Cache_Core
      * @var array available options
      */
     protected $_specificOptions = array(
-    	'master_file' => null,
+        'master_file' => null,
         'master_files' => null,
-    	'master_files_mode' => 'OR',
-    	'ignore_missing_master_files' => false
+        'master_files_mode' => 'OR',
+        'ignore_missing_master_files' => false
     );
 
     /**
@@ -108,11 +108,11 @@ class Zend_Cache_Frontend_File extends Zend_Cache_Core
         $this->_masterFile_mtimes = array();
         $i = 0;
         foreach ($masterFiles as $masterFile) {
-        	$this->_masterFile_mtimes[$i] = @filemtime($masterFile);
-        	if ((!($this->_specificOptions['ignore_missing_master_files'])) && (!($this->_masterFile_mtimes[$i]))) {
-        		Zend_Cache::throwException('Unable to read master_file : '.$masterFile);
-        	}
-        	$i++;
+            $this->_masterFile_mtimes[$i] = @filemtime($masterFile);
+            if ((!($this->_specificOptions['ignore_missing_master_files'])) && (!($this->_masterFile_mtimes[$i]))) {
+                Zend_Cache::throwException('Unable to read master_file : '.$masterFile);
+            }
+            $i++;
         }
     }
 
@@ -126,7 +126,7 @@ class Zend_Cache_Frontend_File extends Zend_Cache_Core
      */
     public function setMasterFile($masterFile)
     {
-  		$this->setMasterFiles(array(0 => $masterFile));
+          $this->setMasterFiles(array(0 => $masterFile));
     }
 
     /**
@@ -144,7 +144,7 @@ class Zend_Cache_Frontend_File extends Zend_Cache_Core
         if ($name == 'master_file') {
             $this->setMasterFile($value);
         } else if ($name == 'master_files') {
-        	$this->setMasterFiles($value);
+            $this->setMasterFiles($value);
         } else {
             parent::setOption($name, $value);
         }
@@ -179,27 +179,27 @@ class Zend_Cache_Frontend_File extends Zend_Cache_Core
     {
         $lastModified = parent::test($id);
         if ($lastModified) {
-        	if ($this->_specificOptions['master_files_mode'] == self::MODE_AND) {
-        		// MODE_AND
-        		foreach($this->_masterFile_mtimes as $masterFileMTime) {
-        			if ($masterFileMTime) {
-        				if ($lastModified > $masterFileMTime) {
-        					return $lastModified;
-        				}
-        			}
-        		}
-        	} else {
-        		// MODE_OR
-        		$res = true;
-        		foreach($this->_masterFile_mtimes as $masterFileMTime) {
-        			if ($masterFileMTime) {
-        				if ($lastModified <= $masterFileMTime) {
-        					return false;
-        				}
-        			}
-        		}
-        		return $lastModified;
-        	}
+            if ($this->_specificOptions['master_files_mode'] == self::MODE_AND) {
+                // MODE_AND
+                foreach($this->_masterFile_mtimes as $masterFileMTime) {
+                    if ($masterFileMTime) {
+                        if ($lastModified > $masterFileMTime) {
+                            return $lastModified;
+                        }
+                    }
+                }
+            } else {
+                // MODE_OR
+                $res = true;
+                foreach($this->_masterFile_mtimes as $masterFileMTime) {
+                    if ($masterFileMTime) {
+                        if ($lastModified <= $masterFileMTime) {
+                            return false;
+                        }
+                    }
+                }
+                return $lastModified;
+            }
         }
         return false;
     }

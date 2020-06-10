@@ -6,8 +6,8 @@
 // If you can do it better than me, then you do it.
 
 class CSSModule extends SmartyModule {
-	protected $processPage = true;
-	public $stylesheet = "";
+    protected $processPage = true;
+    public $stylesheet = "";
 
     public function build($runData)
     {
@@ -15,16 +15,16 @@ class CSSModule extends SmartyModule {
 
     public function render($runData)
     {
-	$pl = $runData->getParameterList();
+    $pl = $runData->getParameterList();
         $this->stylesheet = $pl->getParameterValue("module_body");
 
-	//	die(var_dump($this, $runData));
+    //    die(var_dump($this, $runData));
     }
 
     public function processPage($out, $runData)
     {
-	    $out = $out . "<style>".$this->stylesheet."</style>";    
-	    //die(var_dump($this));
-	    return $out;
+        $out = $out . "<style>".$this->stylesheet."</style>";    
+        //die(var_dump($this));
+        return $out;
     }
 }

@@ -375,7 +375,7 @@ class Zend_Gdata_YouTube_VideoEntryTest extends PHPUnit_Framework_TestCase
     }
 
     public function testGetVersionExceptionOnGetRacy() {
-    	$videoEntry = new Zend_Gdata_YouTube_VideoEntry();
+        $videoEntry = new Zend_Gdata_YouTube_VideoEntry();
         $videoEntry->setMajorProtocolVersion(2);
 
         $exceptionCaught = false;
@@ -459,7 +459,7 @@ class Zend_Gdata_YouTube_VideoEntryTest extends PHPUnit_Framework_TestCase
     }
 
     public function testV2SamplePropertiesAreCorrect() {
-    	$this->entry->transferFromXML($this->v2EntryText);
+        $this->entry->transferFromXML($this->v2EntryText);
         $this->entry->setMajorProtocolVersion(2);
         $this->verifyAllV2SamplePropertiesAreCorrect($this->entry);
     }

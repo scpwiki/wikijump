@@ -31,7 +31,7 @@ use processQueue;
 class UpdateLuceneIndexJob implements SchedulerJob {
 
     public function run() {
-    	$lucene = new Lucene();
-    	$lucene->processQueue();
+        $lucene = new Lucene();
+        $lucene->processQueue();
     }
 }

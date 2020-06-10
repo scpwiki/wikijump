@@ -835,18 +835,18 @@ class Zend_Mail_ImapTest extends PHPUnit_Framework_TestCase
     {
         $mail = new Zend_Mail_Storage_Imap($this->_params);
         foreach ($mail as $id => $message) {
-        	$mail->setFlags($id, array());
+            $mail->setFlags($id, array());
         }
-		$this->assertEquals($mail->countMessages(Zend_Mail_Storage::FLAG_SEEN), 0);
-		$this->assertEquals($mail->countMessages(Zend_Mail_Storage::FLAG_ANSWERED), 0);
-		$this->assertEquals($mail->countMessages(Zend_Mail_Storage::FLAG_FLAGGED), 0);
+        $this->assertEquals($mail->countMessages(Zend_Mail_Storage::FLAG_SEEN), 0);
+        $this->assertEquals($mail->countMessages(Zend_Mail_Storage::FLAG_ANSWERED), 0);
+        $this->assertEquals($mail->countMessages(Zend_Mail_Storage::FLAG_FLAGGED), 0);
 
-		$mail->setFlags(1, array(Zend_Mail_Storage::FLAG_SEEN, Zend_Mail_Storage::FLAG_ANSWERED));
-		$mail->setFlags(2, array(Zend_Mail_Storage::FLAG_SEEN));
-		$this->assertEquals($mail->countMessages(Zend_Mail_Storage::FLAG_SEEN), 2);
-		$this->assertEquals($mail->countMessages(Zend_Mail_Storage::FLAG_ANSWERED), 1);
-		$this->assertEquals($mail->countMessages(array(Zend_Mail_Storage::FLAG_SEEN, Zend_Mail_Storage::FLAG_ANSWERED)), 1);
-		$this->assertEquals($mail->countMessages(array(Zend_Mail_Storage::FLAG_SEEN, Zend_Mail_Storage::FLAG_FLAGGED)), 0);
-		$this->assertEquals($mail->countMessages(Zend_Mail_Storage::FLAG_FLAGGED), 0);
+        $mail->setFlags(1, array(Zend_Mail_Storage::FLAG_SEEN, Zend_Mail_Storage::FLAG_ANSWERED));
+        $mail->setFlags(2, array(Zend_Mail_Storage::FLAG_SEEN));
+        $this->assertEquals($mail->countMessages(Zend_Mail_Storage::FLAG_SEEN), 2);
+        $this->assertEquals($mail->countMessages(Zend_Mail_Storage::FLAG_ANSWERED), 1);
+        $this->assertEquals($mail->countMessages(array(Zend_Mail_Storage::FLAG_SEEN, Zend_Mail_Storage::FLAG_ANSWERED)), 1);
+        $this->assertEquals($mail->countMessages(array(Zend_Mail_Storage::FLAG_SEEN, Zend_Mail_Storage::FLAG_FLAGGED)), 0);
+        $this->assertEquals($mail->countMessages(Zend_Mail_Storage::FLAG_FLAGGED), 0);
     }
 }

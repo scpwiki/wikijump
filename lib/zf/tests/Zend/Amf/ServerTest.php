@@ -200,7 +200,7 @@ class Zend_Amf_ServerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals("bar: foo", $responseBody[0]->getData(), var_export($responseBody, 1));
     }
 
-	/**
+    /**
      * Test to make sure that AMF3 basic requests are handled for loading
      * a class.
      * This type of call is sent from NetConnection rather than RemoteObject

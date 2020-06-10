@@ -37,23 +37,23 @@ use handleUser;
  */
 class SendEmailDigestJob implements SchedulerJob {
 
-	public function run(){
+    public function run(){
 
-		$ds = new WDDigestSender();
+        $ds = new WDDigestSender();
 
-		// select users... all at once??? fix this!
-		$c = new Criteria();
-		$c->add("user_id", 0, ">");
-		$c->addOrderAscending("user_id");
+        // select users... all at once??? fix this!
+        $c = new Criteria();
+        $c->add("user_id", 0, ">");
+        $c->addOrderAscending("user_id");
 
-		$users = OzoneUserPeer::instance()->select($c);
+        $users = OzoneUserPeer::instance()->select($c);
 
-		foreach($users as $user){
-			try{
-				$ds->handleUser($user);
-			}catch(Exception $e){}
-		}
+        foreach($users as $user){
+            try{
+                $ds->handleUser($user);
+            }catch(Exception $e){}
+        }
 
-	}
+    }
 
 }

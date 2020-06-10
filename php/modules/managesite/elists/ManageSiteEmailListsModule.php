@@ -28,21 +28,21 @@ use DB\EmailListPeer;
 
 class ManageSiteEmailListsModule extends ManageSiteBaseModule {
 
-	public function build($runData){
-		$site = $runData->getTemp('site');
+    public function build($runData){
+        $site = $runData->getTemp('site');
 
-		// get all email lists.
+        // get all email lists.
 
-		$c = new Criteria();
-		$c->add('site_id', $site->getSiteId());
-		$c->addOrderDescending('special');
-		$c->addOrderAscending('title');
+        $c = new Criteria();
+        $c->add('site_id', $site->getSiteId());
+        $c->addOrderDescending('special');
+        $c->addOrderAscending('title');
 
-		$lists = DB_EmailListPeer::instance()->select($c);
+        $lists = DB_EmailListPeer::instance()->select($c);
 
-		$runData->contextAdd('lists', $lists);
-		$runData->contextAdd('site', $site);
+        $runData->contextAdd('lists', $lists);
+        $runData->contextAdd('site', $site);
 
-	}
+    }
 
 }

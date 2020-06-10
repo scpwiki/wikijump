@@ -80,18 +80,18 @@ class Zend_UriTest extends PHPUnit_Framework_TestCase
 
     public function testSchemeHttp()
     {
-    	$this->_testValidUri('http');
+        $this->_testValidUri('http');
     }
 
     public function testSchemeHttps()
     {
-    	$this->_testValidUri('https');
+        $this->_testValidUri('https');
     }
 
     public function testSchemeMailto()
     {
         $this->markTestIncomplete('Zend_Uri_Mailto is not implemented yet');
-    	$this->_testValidUri('mailto');
+        $this->_testValidUri('mailto');
     }
 
     /**

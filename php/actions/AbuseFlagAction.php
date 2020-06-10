@@ -35,212 +35,212 @@ use DB\AnonymousAbuseFlag;
 
 class AbuseFlagAction extends SmartyAction {
 
-	public function isAllowed($runData){
-		$userId = $runData->getUserId();
-		if($userId == null || $userId <1){
-			throw new WDPermissionException(_("This option is available only to registered (and logged-in) users."));
-		}
-		return true;
-	}
+    public function isAllowed($runData){
+        $userId = $runData->getUserId();
+        if($userId == null || $userId <1){
+            throw new WDPermissionException(_("This option is available only to registered (and logged-in) users."));
+        }
+        return true;
+    }
 
-	public function perform($r){}
+    public function perform($r){}
 
-	public function flagPageEvent($runData){
-		$pl = $runData->getParameterList();
+    public function flagPageEvent($runData){
+        $pl = $runData->getParameterList();
 
-		$path = $pl->getParameterValue("path");
-		$toFlag = $pl->getParameterValue("flag");
-		if($path == null || $path == ''){
-			throw new ProcessException(_("Error processing the request."), "no_path");
-		}
-		$site = $runData->getTemp("site");
+        $path = $pl->getParameterValue("path");
+        $toFlag = $pl->getParameterValue("flag");
+        if($path == null || $path == ''){
+            throw new ProcessException(_("Error processing the request."), "no_path");
+        }
+        $site = $runData->getTemp("site");
 
-		$user = $runData->getUser();
+        $user = $runData->getUser();
 
-		$db = Database::connection();
-		$db->begin();
+        $db = Database::connection();
+        $db->begin();
 
-		if($toFlag){
-			// flag the page
+        if($toFlag){
+            // flag the page
 
-			// check if not flagged already
-			$c = new Criteria();
-			$c->add("user_id", $user->getUserId());
-			$c->add("site_id", $site->getSiteId());
-			$c->add("path", $path);
+            // check if not flagged already
+            $c = new Criteria();
+            $c->add("user_id", $user->getUserId());
+            $c->add("site_id", $site->getSiteId());
+            $c->add("path", $path);
 
-			$flag = PageAbuseFlagPeer::instance()->selectOne($c);
+            $flag = PageAbuseFlagPeer::instance()->selectOne($c);
 
-			if($flag == null){
-				$flag = new PageAbuseFlag();
-				$flag->setUserId($user->getUserId());
-				$flag->setSiteId($site->getSiteId());
-				$flag->setPath($path);
-				$flag->save();
-				EventLogger::instance()->logFlagPage($path);
-			}
-		}else{
-			// unflag
-			$c = new Criteria();
-			$c->add("user_id", $user->getUserId());
-			$c->add("site_id", $site->getSiteId());
-			$c->add("path", $path);
-			PageAbuseFlagPeer::instance()->delete($c);
-			EventLogger::instance()->logUnflagPage($path);
-		}
+            if($flag == null){
+                $flag = new PageAbuseFlag();
+                $flag->setUserId($user->getUserId());
+                $flag->setSiteId($site->getSiteId());
+                $flag->setPath($path);
+                $flag->save();
+                EventLogger::instance()->logFlagPage($path);
+            }
+        }else{
+            // unflag
+            $c = new Criteria();
+            $c->add("user_id", $user->getUserId());
+            $c->add("site_id", $site->getSiteId());
+            $c->add("path", $path);
+            PageAbuseFlagPeer::instance()->delete($c);
+            EventLogger::instance()->logUnflagPage($path);
+        }
 
-		$db->commit();
+        $db->commit();
 
-	}
+    }
 
-	public function flagUserEvent($runData){
-		$pl = $runData->getParameterList();
+    public function flagUserEvent($runData){
+        $pl = $runData->getParameterList();
 
-		$toFlag = $pl->getParameterValue("flag");
+        $toFlag = $pl->getParameterValue("flag");
 
-		$targetUserId = $pl->getParameterValue("targetUserId");
+        $targetUserId = $pl->getParameterValue("targetUserId");
 
-		if($targetUserId == null || $targetUserId == '' || !is_numeric($targetUserId)){
-			throw new ProcessException(_("Error processing the request."), "no_target_user");
-		}
+        if($targetUserId == null || $targetUserId == '' || !is_numeric($targetUserId)){
+            throw new ProcessException(_("Error processing the request."), "no_target_user");
+        }
 
-		$targetUser = OzoneUserPeer::instance()->selectByPrimaryKey($targetUserId);
-		if($targetUser == null){
-			throw new ProcessException(_("Error processing the request."), "no_target_user");
-		}
+        $targetUser = OzoneUserPeer::instance()->selectByPrimaryKey($targetUserId);
+        if($targetUser == null){
+            throw new ProcessException(_("Error processing the request."), "no_target_user");
+        }
 
-		$site = $runData->getTemp("site");
+        $site = $runData->getTemp("site");
 
-		$user = $runData->getUser();
+        $user = $runData->getUser();
 
-		$db = Database::connection();
-		$db->begin();
+        $db = Database::connection();
+        $db->begin();
 
-		if($toFlag){
-			// flag the user
+        if($toFlag){
+            // flag the user
 
-			// check if not flagged already
-			$c = new Criteria();
-			$c->add("user_id", $user->getUserId());
-			$c->add("target_user_id", $targetUser->getUserId());
+            // check if not flagged already
+            $c = new Criteria();
+            $c->add("user_id", $user->getUserId());
+            $c->add("target_user_id", $targetUser->getUserId());
 
-			$flag = UserAbuseFlagPeer::instance()->selectOne($c);
+            $flag = UserAbuseFlagPeer::instance()->selectOne($c);
 
-			if($flag == null){
+            if($flag == null){
 
-				$siteId = $site->getSiteId();
-				// get the host if any
-				$host = $pl->getParameterValue("host");
-				if($host){
+                $siteId = $site->getSiteId();
+                // get the host if any
+                $host = $pl->getParameterValue("host");
+                if($host){
 
-					if(preg_match("/^([a-zA-Z0-9\-]+)\." . GlobalProperties::$URL_DOMAIN_PREG . "$/", $host, $matches)==1){
-						$siteUnixName=$matches[1];
-						$c = new Criteria();
-						$c->add("unix_name", $siteUnixName);
-						$siter = SitePeer::instance()->selectOne($c);
-					} else {
-						$c = new Criteria();
-						$c->add("custom_domain", $host);
-						$siter = SitePeer::instance()->selectOne($c);
-					}
+                    if(preg_match("/^([a-zA-Z0-9\-]+)\." . GlobalProperties::$URL_DOMAIN_PREG . "$/", $host, $matches)==1){
+                        $siteUnixName=$matches[1];
+                        $c = new Criteria();
+                        $c->add("unix_name", $siteUnixName);
+                        $siter = SitePeer::instance()->selectOne($c);
+                    } else {
+                        $c = new Criteria();
+                        $c->add("custom_domain", $host);
+                        $siter = SitePeer::instance()->selectOne($c);
+                    }
 
-					if($siter !== null){
-						$siteId = $siter->getSiteId();
-					}
-				}
+                    if($siter !== null){
+                        $siteId = $siter->getSiteId();
+                    }
+                }
 
-				$flag = new UserAbuseFlag();
-				$flag->setUserId($user->getUserId());
-				$flag->setSiteId($siteId);
-				$flag->setTargetUserId($targetUser->getUserId());
-				$flag->save();
-				EventLogger::instance()->logFlagUser($targetUser);
-			}
-		}else{
-			// unflag
-			$c = new Criteria();
-			$c->add("user_id", $user->getUserId());
-			$c->add("target_user_id", $targetUser->getUserId());
-			UserAbuseFlagPeer::instance()->delete($c);
-			EventLogger::instance()->logUnflagUser($targetUser);
-		}
+                $flag = new UserAbuseFlag();
+                $flag->setUserId($user->getUserId());
+                $flag->setSiteId($siteId);
+                $flag->setTargetUserId($targetUser->getUserId());
+                $flag->save();
+                EventLogger::instance()->logFlagUser($targetUser);
+            }
+        }else{
+            // unflag
+            $c = new Criteria();
+            $c->add("user_id", $user->getUserId());
+            $c->add("target_user_id", $targetUser->getUserId());
+            UserAbuseFlagPeer::instance()->delete($c);
+            EventLogger::instance()->logUnflagUser($targetUser);
+        }
 
-		$db->commit();
+        $db->commit();
 
-	}
+    }
 
-	public function flagAnonymousEvent($runData){
-		$pl = $runData->getParameterList();
+    public function flagAnonymousEvent($runData){
+        $pl = $runData->getParameterList();
 
-		$toFlag = $pl->getParameterValue("flag");
+        $toFlag = $pl->getParameterValue("flag");
 
-		$userString = $pl->getParameterValue("userString");
-		if($userString == null || $userString == '' ){
-			throw new ProcessException(_("Error processing the request."), "no_user_string");
-		}
+        $userString = $pl->getParameterValue("userString");
+        if($userString == null || $userString == '' ){
+            throw new ProcessException(_("Error processing the request."), "no_user_string");
+        }
 
-		// check if userString match the IP pattern
+        // check if userString match the IP pattern
 
-		if(preg_match('/^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(\|[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)?$/', $userString) !==1){
-			throw new ProcessException(_("Error processing the request."), "bad_user_string");
-		}
+        if(preg_match('/^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(\|[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)?$/', $userString) !==1){
+            throw new ProcessException(_("Error processing the request."), "bad_user_string");
+        }
 
-		$site = $runData->getTemp("site");
+        $site = $runData->getTemp("site");
 
-		$user = $runData->getUser();
+        $user = $runData->getUser();
 
-		$db = Database::connection();
-		$db->begin();
+        $db = Database::connection();
+        $db->begin();
 
-		$ips = explode('|',$userString);
+        $ips = explode('|',$userString);
 
-		if($toFlag){
-			$i = 0;
-			foreach($ips as $ip){
+        if($toFlag){
+            $i = 0;
+            foreach($ips as $ip){
 
-				$i++;
-				if(false && preg_match("/^(10\..*)|(172\.16\..*)|(192\.168\..*)|(127\..*)|(169\.254\..*)/", $ip) !=0){
-					continue;
-				}
-				// flag the IP
+                $i++;
+                if(false && preg_match("/^(10\..*)|(172\.16\..*)|(192\.168\..*)|(127\..*)|(169\.254\..*)/", $ip) !=0){
+                    continue;
+                }
+                // flag the IP
 
-				// check if not flagged already
-				$c = new Criteria();
-				$c->add("user_id", $user->getUserId());
-				$c->add("address", $ip);
+                // check if not flagged already
+                $c = new Criteria();
+                $c->add("user_id", $user->getUserId());
+                $c->add("address", $ip);
 
-				$flag = AnonymousAbuseFlagPeer::instance()->selectOne($c);
+                $flag = AnonymousAbuseFlagPeer::instance()->selectOne($c);
 
-				if($flag == null){
+                if($flag == null){
 
-					$siteId = $site->getSiteId();
+                    $siteId = $site->getSiteId();
 
-					$flag = new AnonymousAbuseFlag();
-					$flag->setUserId($user->getUserId());
-					$flag->setSiteId($siteId);
-					$flag->setAddress($ip);
-					if($i == 2){
-						$flag->setProxy(true);
-					}
-					$flag->save();
-				}
-			}
+                    $flag = new AnonymousAbuseFlag();
+                    $flag->setUserId($user->getUserId());
+                    $flag->setSiteId($siteId);
+                    $flag->setAddress($ip);
+                    if($i == 2){
+                        $flag->setProxy(true);
+                    }
+                    $flag->save();
+                }
+            }
 
-			EventLogger::instance()->logFlagAnonymous($userString);
+            EventLogger::instance()->logFlagAnonymous($userString);
 
-		}else{
-			foreach($ips as $ip){
-				// 	unflag
-				$c = new Criteria();
-				$c->add("user_id", $user->getUserId());
-				$c->add("address", $ip);
-				AnonymousAbuseFlagPeer::instance()->delete($c);
-			}
-			EventLogger::instance()->logUnflagAnonymous($userString);
-		}
+        }else{
+            foreach($ips as $ip){
+                //     unflag
+                $c = new Criteria();
+                $c->add("user_id", $user->getUserId());
+                $c->add("address", $ip);
+                AnonymousAbuseFlagPeer::instance()->delete($c);
+            }
+            EventLogger::instance()->logUnflagAnonymous($userString);
+        }
 
-		$db->commit();
+        $db->commit();
 
-	}
+    }
 
 }

@@ -590,8 +590,8 @@ class Zend_Service_Twitter extends Zend_Rest_Client
         }
 
         $data = array(
-            'user'	=> $user,
-            'text'	=> $text,
+            'user'    => $user,
+            'text'    => $text,
         );
 
         $response = $this->restPost($path, $data);

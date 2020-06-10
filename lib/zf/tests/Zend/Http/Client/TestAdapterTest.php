@@ -16,10 +16,10 @@ require_once 'PHPUnit/Framework/TestCase.php';
  */
 class Zend_Http_Client_TestAdapterTest extends PHPUnit_Framework_TestCase
 {
-	public function setUp()
-	{
+    public function setUp()
+    {
         $this->adapter = new Zend_Http_Client_Adapter_Test();
-	}
+    }
 
     public function testSetConfigThrowsOnInvalidConfig()
     {

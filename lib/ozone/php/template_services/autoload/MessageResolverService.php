@@ -30,10 +30,10 @@
  */
 class MessageResolverService extends TemplateService{
 
-	protected $serviceName = "messageService";
+    protected $serviceName = "messageService";
 
-	public function message($key){
-		return MessageResolver::instance()->message($key);
-	}
+    public function message($key){
+        return MessageResolver::instance()->message($key);
+    }
 
 }

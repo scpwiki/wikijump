@@ -50,7 +50,7 @@ class Text_Wiki {
     */
 
     public $rules = array(
-    		'Include',
+            'Include',
         'Prefilter',
         'Delimiter',
        // 'Moduledelimiter',
@@ -62,11 +62,11 @@ class Text_Wiki {
         'Module',
         'Module654',
 
-    	'Iftags',
+        'Iftags',
 
         'Comment',
         'Iframe',
-    	'Date',
+        'Date',
         'Math',
 
         'Concatlines',
@@ -344,17 +344,17 @@ class Text_Wiki {
         'render' => array()
     );
 
-	/**
-	 * Storage for temporary variables.
-	 */
-	public $store = array();
+    /**
+     * Storage for temporary variables.
+     */
+    public $store = array();
 
-	public $vars = array();
+    public $vars = array();
 
-	/**
-	 * Stores format while processing the source.
-	 */
-	public $currentFormat;
+    /**
+     * Stores format while processing the source.
+     */
+    public $currentFormat;
 
     /**
     *
@@ -815,7 +815,7 @@ class Text_Wiki {
 
     function transform($text, $format = 'Xhtml')
     {
-    	$this->currentFormat = $format;
+        $this->currentFormat = $format;
         $this->parse($text);
         $out = $this->render($format);
         $this->currentFormat = null;
@@ -895,7 +895,7 @@ class Text_Wiki {
         // load the format object, or crap out if we can't find it
         $result = $this->loadFormatObj($format);
         if ($this->isError($result)) {
-        	return $result;
+            return $result;
         }
 
         // pre-rendering activity
@@ -957,18 +957,18 @@ class Text_Wiki {
             $output .= $this->formatObj[$format]->post();
         }
 
-		// this is a nasty hack... should be put somewhere else, e.g. Postfilter?
+        // this is a nasty hack... should be put somewhere else, e.g. Postfilter?
 
-		// fix TOC tags within entries
-		$d = utf8_encode("\xFC");
-		$output = preg_replace_callback("/$d$d(.*?)$d$d/s", array($this, 'strip'), $output);
+        // fix TOC tags within entries
+        $d = utf8_encode("\xFC");
+        $output = preg_replace_callback("/$d$d(.*?)$d$d/s", array($this, 'strip'), $output);
 
         // return the rendered source text.
         return $output;
     }
 
     public function strip($matches){
-    	return strip_tags($matches[1]);
+        return strip_tags($matches[1]);
     }
 
     /**
@@ -1124,7 +1124,7 @@ class Text_Wiki {
                 $this->parseObj[$rule] = null;
                 // can't find the class
                 return $this->error(
-                	"Parse rule '$rule' not found"
+                    "Parse rule '$rule' not found"
                 );
             }
 
@@ -1157,7 +1157,7 @@ class Text_Wiki {
             } else {
                 // can't find the class
                 return $this->error(
-                	"Render rule '$rule' in format '$format' not found"
+                    "Render rule '$rule' in format '$format' not found"
                 );
             }
 
@@ -1187,7 +1187,7 @@ class Text_Wiki {
             } else {
                 // can't find the class
                 return $this->error(
-                	"Rendering format class '$class' not found"
+                    "Rendering format class '$class' not found"
                 );
             }
 
@@ -1311,12 +1311,12 @@ class Text_Wiki {
 
     function &error($message)
     {
-    	throw new ProcessException($message);
-    	// FIX?
-    	if (! class_exists('PEAR_Error')) {
-    		include_once 'PEAR.php';
-    	}
-    	return PEAR::throwError($message);
+        throw new ProcessException($message);
+        // FIX?
+        if (! class_exists('PEAR_Error')) {
+            include_once 'PEAR.php';
+        }
+        return PEAR::throwError($message);
     }
 
     /**
@@ -1333,6 +1333,6 @@ class Text_Wiki {
 
     function isError(&$obj)
     {
-    	return is_a($obj, 'PEAR_Error');
+        return is_a($obj, 'PEAR_Error');
     }
 }

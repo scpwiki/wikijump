@@ -64,12 +64,12 @@ if(!is_int($userId) || $userId <=0){
 
 $karmaLevel = false;
 if(GlobalProperties::$USE_MEMCACHE == true){
-	$memcache = new Memcache();
-	$memcache->connect(GlobalProperties::$MEMCACHE_HOST, GlobalProperties::$MEMCACHE_PORT);
+    $memcache = new Memcache();
+    $memcache->connect(GlobalProperties::$MEMCACHE_HOST, GlobalProperties::$MEMCACHE_PORT);
 
-	/* Check memcache for the karma level. */
-	$key = 'user_karma_level..'.$userId;
-	$karmaLevel = $memcache->get($key);
+    /* Check memcache for the karma level. */
+    $key = 'user_karma_level..'.$userId;
+    $karmaLevel = $memcache->get($key);
 }
 if(is_bool($karmaLevel) && !$karmaLevel){
     Database::init();

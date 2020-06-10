@@ -12,23 +12,23 @@ $json = new Services_JSON();
 sleep(3);
 $name = empty($_REQUEST['name'])? "default" : $_REQUEST['name'];
 if(is_array($_FILES)){
-	$ar = array(
-		// lets just pass lots of stuff back and see what we find.
-		// the _FILES aren't coming through in IE6 (maybe 7)
-		'status' => "success",
-		'name' => $name,
-		'request' => $_REQUEST,
-		'postvars' => $_POST,
-		'details' => $_FILES,
-		// and some static subarray just to see
-		'foo' => array('foo'=>"bar")
-	);
+    $ar = array(
+        // lets just pass lots of stuff back and see what we find.
+        // the _FILES aren't coming through in IE6 (maybe 7)
+        'status' => "success",
+        'name' => $name,
+        'request' => $_REQUEST,
+        'postvars' => $_POST,
+        'details' => $_FILES,
+        // and some static subarray just to see
+        'foo' => array('foo'=>"bar")
+    );
 
 }else{
-	$ar = array(
-		'status' => "failed",
-		'details' => ""
-	);
+    $ar = array(
+        'status' => "failed",
+        'details' => ""
+    );
 }
 
 // yeah, seems you have to wrap iframeIO stuff in textareas?

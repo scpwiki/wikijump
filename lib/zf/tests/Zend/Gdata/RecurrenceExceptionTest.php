@@ -118,9 +118,9 @@ class Zend_Gdata_RecurrenceExceptionTest extends PHPUnit_Framework_TestCase
         $this->recurrenceException->transferFromXML($this->recurrenceExceptionText);
         $this->assertEquals("true", $this->recurrenceException->specialized);
         $this->assertTrue($this->recurrenceException->entryLink instanceof Zend_Gdata_Extension_EntryLink);
-		$this->assertEquals("http://www.google.com/calendar/feeds/default/private/full/hj4geu9lpkh3ebk6rvm4k8mhik", $this->recurrenceException->entryLink->href);
+        $this->assertEquals("http://www.google.com/calendar/feeds/default/private/full/hj4geu9lpkh3ebk6rvm4k8mhik", $this->recurrenceException->entryLink->href);
         $this->assertTrue($this->recurrenceException->originalEvent instanceof Zend_Gdata_Extension_OriginalEvent);
-		$this->assertEquals("hj4geu9lpkh3ebk6rvm4k8mhik", $this->recurrenceException->originalEvent->id);
+        $this->assertEquals("hj4geu9lpkh3ebk6rvm4k8mhik", $this->recurrenceException->originalEvent->id);
     }
 
 }

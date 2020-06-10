@@ -171,9 +171,9 @@ class Zend_PaginatorTest extends PHPUnit_Framework_TestCase
     }
 
     // ZF-4607
-	public function testFactoryReturnsDbTableSelectAdapter()
+    public function testFactoryReturnsDbTableSelectAdapter()
     {
-    	$table = new TestTable($this->_adapter);
+        $table = new TestTable($this->_adapter);
 
         $paginator = Zend_Paginator::factory($table->select());
 
@@ -258,7 +258,7 @@ class Zend_PaginatorTest extends PHPUnit_Framework_TestCase
         $loader->clearPaths('prefix5');
     }
 
-	public function testAddsSingleAdapterPrefixPath()
+    public function testAddsSingleAdapterPrefixPath()
     {
         Zend_Paginator::addAdapterPrefixPath('prefix1', 'path1');
         $loader = Zend_Paginator::getAdapterLoader();
@@ -324,16 +324,16 @@ class Zend_PaginatorTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(101, $paginator->getTotalItemCount());
     }
 
-	public function testAddCustomAdapterPathsInConstructor()
+    public function testAddCustomAdapterPathsInConstructor()
     {
-    	$paginator = Zend_Paginator::factory(range(1, 101), Zend_Paginator::INTERNAL_ADAPTER, array('My_Paginator_Adapter' => 'My/Paginator/Adapter'));
+        $paginator = Zend_Paginator::factory(range(1, 101), Zend_Paginator::INTERNAL_ADAPTER, array('My_Paginator_Adapter' => 'My/Paginator/Adapter'));
 
-    	$loader = Zend_Paginator::getAdapterLoader();
+        $loader = Zend_Paginator::getAdapterLoader();
         $paths = $loader->getPaths();
 
         $this->assertEquals(2, count($paths));
         $this->assertEquals(array('Zend_Paginator_Adapter_' => array('Zend/Paginator/Adapter/'),
-        						  'My_Paginator_Adapter_' => array('My/Paginator/Adapter/')), $paths);
+                                  'My_Paginator_Adapter_' => array('My/Paginator/Adapter/')), $paths);
 
         $loader->clearPaths('My_Paginator_Adapter');
     }
@@ -362,7 +362,7 @@ class Zend_PaginatorTest extends PHPUnit_Framework_TestCase
         $loader->clearPaths('prefix7');
         $loader->clearPaths('prefix8');
 
-    	$loader = Zend_Paginator::getAdapterLoader();
+        $loader = Zend_Paginator::getAdapterLoader();
         $paths = $loader->getPaths();
 
         for ($i = 6; $i <= 8; $i++) {
@@ -484,7 +484,7 @@ class Zend_PaginatorTest extends PHPUnit_Framework_TestCase
         $count = 0;
 
         foreach ($items as $item) {
-        	$count++;
+            $count++;
         }
 
         $this->assertEquals(10, $count);
@@ -698,23 +698,23 @@ class Zend_PaginatorTest extends PHPUnit_Framework_TestCase
     public function testClearPageItemCache()
     {
         $this->_paginator->setCurrentPageNumber(1)->getCurrentItems();
-    	$this->_paginator->setCurrentPageNumber(2)->getCurrentItems();
-    	$this->_paginator->setCurrentPageNumber(3)->getCurrentItems();
+        $this->_paginator->setCurrentPageNumber(2)->getCurrentItems();
+        $this->_paginator->setCurrentPageNumber(3)->getCurrentItems();
 
-    	$pageItems = $this->_paginator->getPageItemCache();
+        $pageItems = $this->_paginator->getPageItemCache();
 
-    	$expected = array(
-    	   1 => new ArrayIterator(range(1, 10)),
-    	   2 => new ArrayIterator(range(11, 20)),
-    	   3 => new ArrayIterator(range(21, 30))
-    	);
+        $expected = array(
+           1 => new ArrayIterator(range(1, 10)),
+           2 => new ArrayIterator(range(11, 20)),
+           3 => new ArrayIterator(range(21, 30))
+        );
 
-    	$this->assertEquals($expected, $pageItems);
+        $this->assertEquals($expected, $pageItems);
 
-    	$this->_paginator->clearPageItemCache(2);
-    	$pageItems = $this->_paginator->getPageItemCache();
+        $this->_paginator->clearPageItemCache(2);
+        $pageItems = $this->_paginator->getPageItemCache();
 
-    	$expected = array(
+        $expected = array(
            1 => new ArrayIterator(range(1, 10)),
            3 => new ArrayIterator(range(21, 30))
         );
@@ -765,11 +765,11 @@ class Zend_PaginatorTest extends PHPUnit_Framework_TestCase
 
     public function testToJson()
     {
-    	$this->_paginator->setCurrentPageNumber(1);
+        $this->_paginator->setCurrentPageNumber(1);
 
-    	$json = $this->_paginator->toJson();
+        $json = $this->_paginator->toJson();
 
-    	$expected = '"0":1,"1":2,"2":3,"3":4,"4":5,"5":6,"6":7,"7":8,"8":9,"9":10';
+        $expected = '"0":1,"1":2,"2":3,"3":4,"4":5,"5":6,"6":7,"7":8,"8":9,"9":10';
 
         $this->assertContains($expected, $json);
     }

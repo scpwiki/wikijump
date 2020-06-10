@@ -26,35 +26,35 @@
 
 class AccountWelcomeModule extends AccountBaseModule {
 
-	public function build($runData){
+    public function build($runData){
 
-		$user = $runData->getUser();
-		$runData->contextAdd("user", $user);
+        $user = $runData->getUser();
+        $runData->contextAdd("user", $user);
 
-		$userId = $user->getUserId();
+        $userId = $user->getUserId();
 
-		$tips = array();
+        $tips = array();
 
-		// check if has an avatar
-		$avatarDir = WIKIDOT_ROOT.'/web/files--common/images/avatars/';
-		$avatarDir .= '' . floor($userId/1000).'/'.$userId;
-		$avatarPath = $avatarDir."/a48.png";
-		if(file_exists($avatarPath)){
-			$hasAvatar = true;
-			$avatarUri = '/common--images/avatars/'.floor($userId/1000).'/'.$userId.'/a48.png';
-			$avatarUri .= '?'.rand(1,10000);
-			$runData->contextAdd("avatarUri", $avatarUri);
+        // check if has an avatar
+        $avatarDir = WIKIDOT_ROOT.'/web/files--common/images/avatars/';
+        $avatarDir .= '' . floor($userId/1000).'/'.$userId;
+        $avatarPath = $avatarDir."/a48.png";
+        if(file_exists($avatarPath)){
+            $hasAvatar = true;
+            $avatarUri = '/common--images/avatars/'.floor($userId/1000).'/'.$userId.'/a48.png';
+            $avatarUri .= '?'.rand(1,10000);
+            $runData->contextAdd("avatarUri", $avatarUri);
 
-		}else{
-			$hasAvatar = false;
-			$tips['avatar'] = true;
-		}
+        }else{
+            $hasAvatar = false;
+            $tips['avatar'] = true;
+        }
 
-		$runData->contextAdd("hasAvatar", $hasAvatar);
-		if(count($tips)>0){
-			$runData->contextAdd("tips", $tips);
-		}
+        $runData->contextAdd("hasAvatar", $hasAvatar);
+        if(count($tips)>0){
+            $runData->contextAdd("tips", $tips);
+        }
 
-	}
+    }
 
 }

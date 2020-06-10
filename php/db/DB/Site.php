@@ -79,12 +79,12 @@ class Site extends SiteBase {
     }
 
     public function getLocalFilesPath(){
-    	return WIKIDOT_ROOT . '/web/files--sites/'.$this->getUnixName();
+        return WIKIDOT_ROOT . '/web/files--sites/'.$this->getUnixName();
 
-    	/* optional hashing */
-    	$un = $this->getUnixName();
-    	$p = substr($un,0,1) . '/' . substr($un,0,2) . '/' . $un;
+        /* optional hashing */
+        $un = $this->getUnixName();
+        $p = substr($un,0,1) . '/' . substr($un,0,2) . '/' . $un;
 
-    	return WIKIDOT_ROOT . '/web/files--sites/' . $p;
+        return WIKIDOT_ROOT . '/web/files--sites/' . $p;
     }
 }

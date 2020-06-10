@@ -26,31 +26,31 @@
 
 class FeedScreen extends Screen {
 
-	protected $requiresAuthentication = false;
+    protected $requiresAuthentication = false;
 
-	public function getRequiresAuthentication(){
-		return $this->requiresAuthentication;
-	}
+    public function getRequiresAuthentication(){
+        return $this->requiresAuthentication;
+    }
 
-	public function render($runData){
+    public function render($runData){
 
-		$this->build($runData);
+        $this->build($runData);
 
-		$smarty = Ozone::getSmarty();
+        $smarty = Ozone::getSmarty();
 
-		// put context into context
+        // put context into context
 
-	 	$context = $runData->getContext();
-	 	if($context !== null){
-	 		foreach($context as $key => $value){
-		 		$smarty->assign($key, $value);
-	 		}
-	 	}
+         $context = $runData->getContext();
+         if($context !== null){
+             foreach($context as $key => $value){
+                 $smarty->assign($key, $value);
+             }
+         }
 
-		$templateFile = WIKIDOT_ROOT.'/templates/screens/feed/FeedTemplate.tpl';
-		$out = $smarty->fetch($templateFile);
+        $templateFile = WIKIDOT_ROOT.'/templates/screens/feed/FeedTemplate.tpl';
+        $out = $smarty->fetch($templateFile);
 
-		return $out;
-	}
+        return $out;
+    }
 
 }

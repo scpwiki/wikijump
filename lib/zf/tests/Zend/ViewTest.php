@@ -152,9 +152,9 @@ class Zend_ViewTest extends PHPUnit_Framework_TestCase
                 $path = current($paths[$prefix]);
 
                 if (substr(PHP_OS, 0, 3) != 'WIN') {
-                	$this->assertTrue(Zend_Loader::isReadable($path));
+                    $this->assertTrue(Zend_Loader::isReadable($path));
                 } else {
-                	$this->assertTrue(is_dir($path));
+                    $this->assertTrue(is_dir($path));
                 }
             }
         }

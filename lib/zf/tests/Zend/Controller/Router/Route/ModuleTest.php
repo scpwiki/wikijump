@@ -241,7 +241,7 @@ class Zend_Controller_Router_Route_ModuleTest extends PHPUnit_Framework_TestCase
     public function testAssembleNoActionWithParams()
     {
         $params = array(
-            'foo'		 => 'bar',
+            'foo'         => 'bar',
             'module'     => 'mod',
             'controller' => 'ctrl'
         );
@@ -371,18 +371,18 @@ class Zend_Controller_Router_Route_ModuleTest extends PHPUnit_Framework_TestCase
     {
         $values = $this->route->match('con/act');
 
-    	$url = $this->route->assemble(array('controller' => 'foo', 'action' => 'bar'), true);
+        $url = $this->route->assemble(array('controller' => 'foo', 'action' => 'bar'), true);
 
-		$this->assertSame('foo/bar', $url);
+        $this->assertSame('foo/bar', $url);
     }
 
     public function testAssembleDefaultModuleZF1415()
     {
         $values = $this->route->match('con/act');
 
-    	$url = $this->route->assemble(array('controller' => 'foo', 'action' => 'bar'), false);
+        $url = $this->route->assemble(array('controller' => 'foo', 'action' => 'bar'), false);
 
-		$this->assertSame('foo/bar', $url);
+        $this->assertSame('foo/bar', $url);
     }
 
     public function testAssembleDefaultModuleZF1415_2()

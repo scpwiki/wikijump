@@ -34,8 +34,8 @@ use clean;
  */
 class OutdateDatabaseStorageJob implements SchedulerJob {
 
-	public function run(){
-		DatabaseStorage::instance()->clean();
-	}
+    public function run(){
+        DatabaseStorage::instance()->clean();
+    }
 
 }

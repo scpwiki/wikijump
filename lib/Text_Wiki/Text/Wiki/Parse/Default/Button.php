@@ -39,9 +39,9 @@ class Text_Wiki_Parse_Button extends Text_Wiki_Parse {
         $allowedAttrs = array('text', 'class', 'style');
         $options = array();
         foreach($allowedAttrs as $aa){
-        	if(isset($attr[$aa])){
-        		$options[$aa] = $attr[$aa];
-        	}
+            if(isset($attr[$aa])){
+                $options[$aa] = $attr[$aa];
+            }
         }
 
         $type = str_replace("_", "-", $type);

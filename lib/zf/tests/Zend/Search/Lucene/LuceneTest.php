@@ -24,8 +24,8 @@ require_once 'PHPUnit/Framework/TestCase.php';
  */
 class Zend_Search_Lucene_LuceneTest extends PHPUnit_Framework_TestCase
 {
-	private function _clearDirectory($dirName)
-	{
+    private function _clearDirectory($dirName)
+    {
         // remove files from temporary direcytory
         $dir = opendir($dirName);
         while (($file = readdir($dir)) !== false) {
@@ -34,7 +34,7 @@ class Zend_Search_Lucene_LuceneTest extends PHPUnit_Framework_TestCase
             }
         }
         closedir($dir);
-	}
+    }
 
     public function testCreate()
     {
@@ -219,12 +219,12 @@ class Zend_Search_Lucene_LuceneTest extends PHPUnit_Framework_TestCase
     public function testDelete()
     {
         // Copy index sample into _files directory
-    	$sampleIndexDir = dirname(__FILE__) . '/_indexSample/_files';
+        $sampleIndexDir = dirname(__FILE__) . '/_indexSample/_files';
         $tempIndexDir = dirname(__FILE__) . '/_files';
 
-    	$this->_clearDirectory($tempIndexDir);
+        $this->_clearDirectory($tempIndexDir);
 
-    	$indexDir = opendir($sampleIndexDir);
+        $indexDir = opendir($sampleIndexDir);
         while (($file = readdir($indexDir)) !== false) {
             if (!is_dir($sampleIndexDir . '/' . $file)) {
                 copy($sampleIndexDir . '/' . $file, $tempIndexDir . '/' . $file);
@@ -368,7 +368,7 @@ class Zend_Search_Lucene_LuceneTest extends PHPUnit_Framework_TestCase
         $index->resetTermsStream();
         while ($index->currentTerm() !== null) {
             $terms[] = $index->currentTerm();
-        	$index->nextTerm();
+            $index->nextTerm();
         }
 
         $this->assertEquals(count($terms), 607);
@@ -385,7 +385,7 @@ class Zend_Search_Lucene_LuceneTest extends PHPUnit_Framework_TestCase
 
         while ($index->currentTerm() !== null) {
             $terms[] = $index->currentTerm();
-        	$index->nextTerm();
+            $index->nextTerm();
         }
 
         $this->assertEquals(count($terms), 244);

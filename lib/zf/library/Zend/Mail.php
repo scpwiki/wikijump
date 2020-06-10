@@ -244,25 +244,25 @@ class Zend_Mail extends Zend_Mime_Message
         return $this->_mimeBoundary;
     }
 
-	/**
-	 * Return the encoding of mail headers
-	 *
-	 * @return string
-	 */
-	public function getEncodingOfHeaders()
-	{
-		return $this->_encodingOfHeaders;
-	}
+    /**
+     * Return the encoding of mail headers
+     *
+     * @return string
+     */
+    public function getEncodingOfHeaders()
+    {
+        return $this->_encodingOfHeaders;
+    }
 
-	/**
-	 * Set the encoding of mail headers
-	 *
-	 * @param string $encoding
+    /**
+     * Set the encoding of mail headers
+     *
+     * @param string $encoding
      * @return Zend_Mail Provides fluent interface
-	 *
-	 */
-	public function setEncodingOfHeaders($encoding)
-	{
+     *
+     */
+    public function setEncodingOfHeaders($encoding)
+    {
         $allowed = array(
             Zend_Mime::ENCODING_BASE64,
             Zend_Mime::ENCODING_QUOTEDPRINTABLE
@@ -274,10 +274,10 @@ class Zend_Mail extends Zend_Mime_Message
             require_once 'Zend/Mail/Exception.php';
             throw new Zend_Mail_Exception('Invalid encoding "' . $encoding . '"');
         }
-		$this->_encodingOfHeaders = $encoding;
+        $this->_encodingOfHeaders = $encoding;
 
-		return $this;
-	}
+        return $this;
+    }
 
     /**
      * Sets the text body for the message.
@@ -435,12 +435,12 @@ class Zend_Mail extends Zend_Mime_Message
           $quotedValue = str_replace(array('?', ' ', '_'), array('=3F', '=20', '=5F'), $quotedValue);
           return '=?' . $this->_charset . '?Q?' . $quotedValue . '?=';
       } elseif ($this->_encodingOfHeaders === Zend_Mime::ENCODING_BASE64) {
-      	  return '=?' . $this->_charset . '?B?' . Zend_Mime::encodeBase64($value) . '?=';
+            return '=?' . $this->_charset . '?B?' . Zend_Mime::encodeBase64($value) . '?=';
       } else {
           /**
            * @todo 7Bit and 8Bit is currently handled the same way.
            */
-      	  return $value;
+            return $value;
       }
     }
 
@@ -475,9 +475,9 @@ class Zend_Mail extends Zend_Mime_Message
      */
     protected function _clearHeader($headerName)
     {
-    	if (isset($this->_headers[$headerName])){
-    		unset($this->_headers[$headerName]);
-    	}
+        if (isset($this->_headers[$headerName])){
+            unset($this->_headers[$headerName]);
+        }
     }
 
     /**
@@ -505,7 +505,7 @@ class Zend_Mail extends Zend_Mime_Message
      */
     protected function _addRecipientAndHeader($headerName, $name, $email)
     {
-    	$email = $this->_filterEmail($email);
+        $email = $this->_filterEmail($email);
         $this->_addRecipient($email, ('To' == $headerName) ? true : false);
         if ($name !== '' && $name !== null && $name !== $email) {
             $encodedName = $this->_encodeHeader($name);
@@ -576,10 +576,10 @@ class Zend_Mail extends Zend_Mime_Message
      */
     public function clearRecipients()
     {
-    	$this->_recipients = array();
-    	$this->_to = array();
+        $this->_recipients = array();
+        $this->_to = array();
 
-    	$this->_clearHeader('To');
+        $this->_clearHeader('To');
         $this->_clearHeader('Cc');
         $this->_clearHeader('Bcc');
 
@@ -597,7 +597,7 @@ class Zend_Mail extends Zend_Mime_Message
     public function setFrom($email, $name = null)
     {
         if ($this->_from === null) {
-        	$email = $this->_filterEmail($email);
+            $email = $this->_filterEmail($email);
             $this->_from = $email;
             if ($name !== null && $name !== $email) {
                 $encodedName = $this->_encodeHeader($name);
@@ -638,10 +638,10 @@ class Zend_Mail extends Zend_Mime_Message
      */
     public function clearFrom()
     {
-    	$this->_from = null;
-    	$this->_clearHeader('From');
+        $this->_from = null;
+        $this->_clearHeader('From');
 
-    	return $this;
+        return $this;
     }
 
     /**
@@ -690,10 +690,10 @@ class Zend_Mail extends Zend_Mime_Message
      */
     public function clearReturnPath()
     {
-    	$this->_returnPath = null;
-    	$this->_clearHeader('Return-Path');
+        $this->_returnPath = null;
+        $this->_clearHeader('Return-Path');
 
-    	return $this;
+        return $this;
     }
 
     /**
@@ -736,10 +736,10 @@ class Zend_Mail extends Zend_Mime_Message
      */
     public function clearSubject()
     {
-    	$this->_subject = null;
-    	$this->_clearHeader('Subject');
+        $this->_subject = null;
+        $this->_clearHeader('Subject');
 
-    	return $this;
+        return $this;
     }
 
     /**
@@ -794,10 +794,10 @@ class Zend_Mail extends Zend_Mime_Message
      */
     public function clearDate()
     {
-    	$this->_date = null;
-    	$this->_clearHeader('Date');
+        $this->_date = null;
+        $this->_clearHeader('Date');
 
-    	return $this;
+        return $this;
     }
 
     /**

@@ -1947,17 +1947,17 @@ class Smarty
      * @param callback $function
      * @return string
      */
-	function _get_filter_name($function)
-	{
-		if (is_array($function)) {
-			$_class_name = (is_object($function[0]) ?
-				get_class($function[0]) : $function[0]);
-			return $_class_name . '_' . $function[1];
-		}
-		else {
-			return $function;
-		}
-	}
+    function _get_filter_name($function)
+    {
+        if (is_array($function)) {
+            $_class_name = (is_object($function[0]) ?
+                get_class($function[0]) : $function[0]);
+            return $_class_name . '_' . $function[1];
+        }
+        else {
+            return $function;
+        }
+    }
 
     /**#@-*/
 

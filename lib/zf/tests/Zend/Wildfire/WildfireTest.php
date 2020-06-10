@@ -323,7 +323,7 @@ class Zend_Wildfire_WildfireTest extends PHPUnit_Framework_TestCase
 
     public function testAdvancedLogging()
     {
-    	$this->markTestSkipped('Mark as skipped to avoid ZF unit tests stopping');
+        $this->markTestSkipped('Mark as skipped to avoid ZF unit tests stopping');
 
         $this->_setupWithoutFrontController();
 

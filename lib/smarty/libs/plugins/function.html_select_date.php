@@ -180,7 +180,7 @@ function smarty_function_html_select_date($params, &$smarty)
 
     $field_separator_count = -1;
     if ($display_months) {
-    	$field_separator_count++;
+        $field_separator_count++;
         $month_names = array();
         $month_values = array();
         if(isset($month_empty)) {
@@ -218,7 +218,7 @@ function smarty_function_html_select_date($params, &$smarty)
     }
 
     if ($display_days) {
-    	$field_separator_count++;
+        $field_separator_count++;
         $days = array();
         if (isset($day_empty)) {
             $days[''] = $day_empty;
@@ -254,7 +254,7 @@ function smarty_function_html_select_date($params, &$smarty)
     }
 
     if ($display_years) {
-    	$field_separator_count++;
+        $field_separator_count++;
         if (null !== $field_array){
             $year_name = $field_array . '[' . $prefix . 'Year]';
         } else {

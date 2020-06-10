@@ -122,11 +122,11 @@ class Services_JSON
    /**
     * constructs a new JSON instance
     *
-		//>> SJM2005
-    * @param    string  $encoding 	Strings are input/output in this encoding
-    * @param    int    $encode 	Encode input is expected in this character encoding
-		//<< SJM2005
-		*
+        //>> SJM2005
+    * @param    string  $encoding     Strings are input/output in this encoding
+    * @param    int    $encode     Encode input is expected in this character encoding
+        //<< SJM2005
+        *
     * @param    int     $use    object behavior: when encoding or decoding,
     *                           be loose or strict about object/array usage
     *
@@ -138,11 +138,11 @@ class Services_JSON
     */
     function Services_JSON($encoding = SERVICES_JSON_UTF_8, $use = SERVICES_JSON_STRICT_TYPE)
     {
-			//>> SJM2005
-			$this->encoding = $encoding;
-			//<< SJM2005
+            //>> SJM2005
+            $this->encoding = $encoding;
+            //<< SJM2005
 
-			$this->use = $use;
+            $this->use = $use;
     }
 
    /**
@@ -259,16 +259,16 @@ class Services_JSON
                 return (float) $var;
 
             case 'string':
-								//>> SJM2005
-								if ($this->encoding == SERVICES_JSON_UTF_8)
-									;
-								else if ($this->encoding == SERVICES_JSON_ISO_8859_1)
-									$var = utf8_encode($var);
-								else if (!function_exists('mb_convert_encoding'))
-									die('Requested encoding requires mb_strings extension.');
-								else
-									$var = mb_convert_encoding($var, "utf-8", $this->encoding);
-								//<< SJM2005
+                                //>> SJM2005
+                                if ($this->encoding == SERVICES_JSON_UTF_8)
+                                    ;
+                                else if ($this->encoding == SERVICES_JSON_ISO_8859_1)
+                                    $var = utf8_encode($var);
+                                else if (!function_exists('mb_convert_encoding'))
+                                    die('Requested encoding requires mb_strings extension.');
+                                else
+                                    $var = mb_convert_encoding($var, "utf-8", $this->encoding);
+                                //<< SJM2005
 
                 // STRINGS ARE EXPECTED TO BE IN ASCII OR UTF-8 FORMAT
                 $ascii = '';
@@ -473,7 +473,7 @@ class Services_JSON
     */
     function decode($str)
     {
-				$str = $this->reduce_string($str);
+                $str = $this->reduce_string($str);
 
         switch (strtolower($str)) {
             case 'true':
@@ -543,7 +543,7 @@ class Services_JSON
                                 break;
 
                             case preg_match('/\\\u[0-9A-F]{4}/i', substr($chrs, $c, 6)):
-																//echo ' matching single escaped unicode character from ' . substr($chrs, $c, 6);
+                                                                //echo ' matching single escaped unicode character from ' . substr($chrs, $c, 6);
                                 // single, escaped unicode character
                                 $utf16 = chr(hexdec(substr($chrs, ($c + 2), 2)))
                                        . chr(hexdec(substr($chrs, ($c + 4), 2)));
@@ -594,16 +594,16 @@ class Services_JSON
 
                     }
 
-										//>> SJM2005
-										if ($this->encoding == SERVICES_JSON_UTF_8)
-	                    return $utf8;
-										if ($this->encoding == SERVICES_JSON_ISO_8859_1)
-											return utf8_decode($utf8);
-										else if (!function_exists('mb_convert_encoding'))
-											die('Requested encoding requires mb_strings extension.');
-										else
-											return mb_convert_encoding($utf8, $this->encoding, SERVICES_JSON_UTF_8);
-										//<< SJM2005
+                                        //>> SJM2005
+                                        if ($this->encoding == SERVICES_JSON_UTF_8)
+                        return $utf8;
+                                        if ($this->encoding == SERVICES_JSON_ISO_8859_1)
+                                            return utf8_decode($utf8);
+                                        else if (!function_exists('mb_convert_encoding'))
+                                            die('Requested encoding requires mb_strings extension.');
+                                        else
+                                            return mb_convert_encoding($utf8, $this->encoding, SERVICES_JSON_UTF_8);
+                                        //<< SJM2005
 
                     return $utf8;
 
@@ -692,26 +692,26 @@ class Services_JSON
                             array_push($stk, array('what' => SERVICES_JSON_IN_STR, 'where' => $c, 'delim' => $chrs[$c]));
                             //print("Found start of string at {$c}\n");
 
-												//>> SAO2006
+                                                //>> SAO2006
                         /*} elseif (($chrs{$c} == $top['delim']) &&
                                  ($top['what'] == SERVICES_JSON_IN_STR) &&
                                  (($chrs{$c - 1} != '\\')  ||
-																 ($chrs{$c - 1} == '\\' && $chrs{$c - 2} == '\\'))) {*/
-												} elseif ($chrs[$c] == $top['delim'] &&
-                          		$top['what'] == SERVICES_JSON_IN_STR) {
-														//print("Found potential end of string at {$c}\n");
-														// verify quote is not escaped: it has no or an even number of \\ before it.
-														for ($i=0; ($chrs[$c - ($i+1)] == '\\'); $i++);
-														/*$i = 0;
-														while (	$chrs{$c - ($i+1)} == '\\')
-															$i++;*/
-														//print("Found {$i} \ before delim\n");
-														if ($i % 2 != 0)
-														{
-															//print("delim escaped, not end of string\n");
-															continue;
-														}
-												//>> SAO2006
+                                                                 ($chrs{$c - 1} == '\\' && $chrs{$c - 2} == '\\'))) {*/
+                                                } elseif ($chrs[$c] == $top['delim'] &&
+                                  $top['what'] == SERVICES_JSON_IN_STR) {
+                                                        //print("Found potential end of string at {$c}\n");
+                                                        // verify quote is not escaped: it has no or an even number of \\ before it.
+                                                        for ($i=0; ($chrs[$c - ($i+1)] == '\\'); $i++);
+                                                        /*$i = 0;
+                                                        while (    $chrs{$c - ($i+1)} == '\\')
+                                                            $i++;*/
+                                                        //print("Found {$i} \ before delim\n");
+                                                        if ($i % 2 != 0)
+                                                        {
+                                                            //print("delim escaped, not end of string\n");
+                                                            continue;
+                                                        }
+                                                //>> SAO2006
                             // found a quote, we're in a string, and it's not escaped
                             array_pop($stk);
                             //print("Found end of string at {$c}: ".substr($chrs, $top['where'], (1 + 1 + $c - $top['where']))."\n");
@@ -773,22 +773,22 @@ class Services_JSON
 
 }
 
-	/*function hex($s)
-	{
-		$l = strlen($s);
-		for ($i=0; $i < $l; $i++)
-			//echo '['.(ord($s{$i})).']';
-			echo '['.bin2hex($s{$i}).']';
-	}
+    /*function hex($s)
+    {
+        $l = strlen($s);
+        for ($i=0; $i < $l; $i++)
+            //echo '['.(ord($s{$i})).']';
+            echo '['.bin2hex($s{$i}).']';
+    }
 
-	//$d = '["hello world\\""]';
-	$d = '["\\\\\\"hello world,\\\\\\""]';
-	//$d = '["\\\\", "\\\\"]';
-	hex($d);
-	$test = new Services_JSON();
-	echo('<pre>');
-	print_r($d . "\n");
-	print_r($test->decode($d));
-	echo('</pre>');
-	*/
+    //$d = '["hello world\\""]';
+    $d = '["\\\\\\"hello world,\\\\\\""]';
+    //$d = '["\\\\", "\\\\"]';
+    hex($d);
+    $test = new Services_JSON();
+    echo('<pre>');
+    print_r($d . "\n");
+    print_r($test->decode($d));
+    echo('</pre>');
+    */
 ?>

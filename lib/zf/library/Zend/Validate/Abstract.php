@@ -199,13 +199,13 @@ abstract class Zend_Validate_Abstract implements Zend_Validate_Interface
         }
 
         if (is_object($value)) {
-        	if (!in_array('__toString', get_class_methods($value))) {
-        		$value = get_class($value) . ' object';
-        	} else {
-        		$value = $value->__toString();
-        	}
+            if (!in_array('__toString', get_class_methods($value))) {
+                $value = get_class($value) . ' object';
+            } else {
+                $value = $value->__toString();
+            }
         } else {
-        	$value = (string)$value;
+            $value = (string)$value;
         }
 
         if ($this->getObscureValue()) {

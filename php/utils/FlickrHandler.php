@@ -36,37 +36,37 @@ require(WIKIDOT_ROOT."/lib/phpFlickr/phpFlickr.php");
 
 class FlickrHandler extends phpFlickr {
 
-	 public $cache = true;
+     public $cache = true;
 
-	private static $instance;
+    private static $instance;
 
-	public static function instance(){
-		if(self::$instance == null){
-			// get the flickr key
-			$key = file_get_contents(WIKIDOT_ROOT.'/files/flickr-api-key.txt');
-			self::$instance = new FlickrHandler($key, null, false);
-		}
-		return self::$instance;
-	}
+    public static function instance(){
+        if(self::$instance == null){
+            // get the flickr key
+            $key = file_get_contents(WIKIDOT_ROOT.'/files/flickr-api-key.txt');
+            self::$instance = new FlickrHandler($key, null, false);
+        }
+        return self::$instance;
+    }
 
-	 function enableCache($type, $connection, $cache_expire = 600, $table = 'flickr_cache'){}
+     function enableCache($type, $connection, $cache_expire = 600, $table = 'flickr_cache'){}
 
-	 function getCached ($request){
-	 	$reqhash = md5(serialize($request));
-	 	$key = "phpflickrcache..".$reqhash;
-	 	$mc = Ozone::$memcache;
-		$out = $mc->get($key);
-		if($out != false){
-			return $out;
-		}
-	 	return false;
-	 }
+     function getCached ($request){
+         $reqhash = md5(serialize($request));
+         $key = "phpflickrcache..".$reqhash;
+         $mc = Ozone::$memcache;
+        $out = $mc->get($key);
+        if($out != false){
+            return $out;
+        }
+         return false;
+     }
 
-	 public function cache ($request, $response){
-	 	$reqhash = md5(serialize($request));
-	 	$key = "phpflickrcache..".$reqhash;
-	 	$mc = Ozone::$memcache;
-	 	$mc->set($key, $response, 0, 600);
-	 	return false;
-	 }
+     public function cache ($request, $response){
+         $reqhash = md5(serialize($request));
+         $key = "phpflickrcache..".$reqhash;
+         $mc = Ozone::$memcache;
+         $mc->set($key, $response, 0, 600);
+         return false;
+     }
 }

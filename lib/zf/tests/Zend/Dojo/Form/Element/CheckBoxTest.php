@@ -258,12 +258,12 @@ class Zend_Dojo_Form_Element_CheckBoxTest extends PHPUnit_Framework_TestCase
      */
     public function testCheckedValuesCanBePassedInConstructor()
     {
-    	$element = new Zend_Dojo_Form_Element_CheckBox('myCheckbox',    array(
-			        'checkedValue' => 'checkedVal',
-					'unCheckedValue' => 'UNCHECKED',
-			    ));
-		$element->setView(new Zend_View());
-		$html = $element->render();
+        $element = new Zend_Dojo_Form_Element_CheckBox('myCheckbox',    array(
+                    'checkedValue' => 'checkedVal',
+                    'unCheckedValue' => 'UNCHECKED',
+                ));
+        $element->setView(new Zend_View());
+        $html = $element->render();
         $this->assertContains('value="checkedVal"', $html, $html);
     }
 }

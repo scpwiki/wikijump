@@ -36,9 +36,9 @@ use ODate;
  */
 class PageCompiled extends PageCompiledBase {
 
-	public function outdate(){
-		$dateback = new ODate();
-		$dateback->addSeconds(-1000000);
-		$this->setDateCompiled($dateback);
-	}
+    public function outdate(){
+        $dateback = new ODate();
+        $dateback->addSeconds(-1000000);
+        $this->setDateCompiled($dateback);
+    }
 }

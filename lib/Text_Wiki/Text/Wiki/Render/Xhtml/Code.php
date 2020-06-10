@@ -62,15 +62,15 @@ class Text_Wiki_Render_Xhtml_Code extends Text_Wiki_Render {
         $css_html = $this->formatConf(' class="%s"', 'css_html');
         $css_filename = $this->formatConf(' class="%s"', 'css_filename');
 
-		$text = trim($text);
+        $text = trim($text);
 
         if ($type == 'php') {
-        	 	/*if (substr($text, 0, 5) != '<?php') {
+                 /*if (substr($text, 0, 5) != '<?php') {
                 // PHP code example:
                 // add the PHP tags
                 $text = "<?php\n" . $text . "\n?>"; // <?php
-          	}*/
-        	 	$highlighter = Text_Highlighter::factory('php');
+              }*/
+                 $highlighter = Text_Highlighter::factory('php');
             $text = $highlighter->highlight($text);
         }elseif ($type == 'cpp') {
             $highlighter = Text_Highlighter::factory('cpp');
@@ -109,7 +109,7 @@ class Text_Wiki_Render_Xhtml_Code extends Text_Wiki_Render {
             $highlighter = Text_Highlighter::factory('sql');
             $text = $highlighter->highlight($text);
         }elseif($type=="xml"){
-       	 	$highlighter = Text_Highlighter::factory('xml');
+                $highlighter = Text_Highlighter::factory('xml');
             $text = $highlighter->highlight($text);
         } else {
             // generic code example:
@@ -120,7 +120,7 @@ class Text_Wiki_Render_Xhtml_Code extends Text_Wiki_Render {
             $text = "<pre$css><code$css_code>$text</code></pre>";
         }
 
-		 $text = "<div class=\"code\">".$text."</div>";
+         $text = "<div class=\"code\">".$text."</div>";
 
         if ($css_filename && isset($attr['filename'])) {
             $text = "<div$css_filename>" .

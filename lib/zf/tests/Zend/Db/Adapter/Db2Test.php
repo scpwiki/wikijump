@@ -65,9 +65,9 @@ class Zend_Db_Adapter_Db2Test extends Zend_Db_Adapter_TestCommon
         $this->assertEquals('',                  $desc['product_name']['DEFAULT'], 'Expected default to be empty string');
         $this->assertTrue(                       $desc['product_name']['NULLABLE'], 'Expected product_name to be nullable');
         if (!$this->_db->isI5()) {
-        	$this->assertEquals(0,                   $desc['product_name']['SCALE'], 'Expected scale to be 0');
+            $this->assertEquals(0,                   $desc['product_name']['SCALE'], 'Expected scale to be 0');
         } else {
-        	$this->assertNull(                   $desc['product_name']['SCALE'], 'Expected scale to be 0');
+            $this->assertNull(                   $desc['product_name']['SCALE'], 'Expected scale to be 0');
         }
         $this->assertEquals(0,                   $desc['product_name']['PRECISION'], 'Expected precision to be 0');
         $this->assertFalse(                      $desc['product_name']['PRIMARY'], 'Expected product_name not to be a primary key');
@@ -112,7 +112,7 @@ class Zend_Db_Adapter_Db2Test extends Zend_Db_Adapter_TestCommon
         $dbConnection2 = Zend_Db::factory($this->getDriver(), $this->_util->getParams());
         $dbConnection2->getConnection();
         if ($dbConnection2->isI5()) {
-        	$dbConnection2->query('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');
+            $dbConnection2->query('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');
         } else {
             $dbConnection2->query('SET ISOLATION LEVEL = UR');
         }
@@ -168,7 +168,7 @@ class Zend_Db_Adapter_Db2Test extends Zend_Db_Adapter_TestCommon
         $dbConnection2 = Zend_Db::factory($this->getDriver(), $this->_util->getParams());
         $dbConnection2->getConnection();
         if ($dbConnection2->isI5()) {
-        	$dbConnection2->query('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');
+            $dbConnection2->query('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');
         } else {
             $dbConnection2->query('SET ISOLATION LEVEL = UR');
         }

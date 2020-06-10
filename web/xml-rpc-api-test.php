@@ -5,10 +5,10 @@ require_once('../php/setup.php');
 
 // map errors to exceptions
 function errorHandler($errno, $errstr, $errfile, $errline) {
-	if (error_reporting()) {
-		throw new Exception($errstr); // internal error not to be mapped to fault
-	}
-	return true;
+    if (error_reporting()) {
+        throw new Exception($errstr); // internal error not to be mapped to fault
+    }
+    return true;
 }
 error_reporting(E_ALL & ~E_NOTICE | E_STRICT);
 //set_error_handler('errorHandler', E_ALL & ~E_NOTICE);

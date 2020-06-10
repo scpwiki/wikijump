@@ -29,43 +29,43 @@ use DB\MemberPeer;
 
 class ManageSiteWelcomeModule extends ManageSiteBaseModule {
 
-	public function build($runData){
+    public function build($runData){
 
-		$site = $runData->getTemp("site");
+        $site = $runData->getTemp("site");
 
-		$fsettings = $site->getForumSettings();
+        $fsettings = $site->getForumSettings();
 
-		$tips = array();
+        $tips = array();
 
-		if(!$fsettings){
-			$tips['forum'] = true;
-		}
+        if(!$fsettings){
+            $tips['forum'] = true;
+        }
 
-		// site tags
+        // site tags
 
-		$c = new Criteria();
-		$c->add("site_id", $site->getSiteId());
-		$t = SiteTagPeer::instance()->selectOne($c);
+        $c = new Criteria();
+        $c->add("site_id", $site->getSiteId());
+        $t = SiteTagPeer::instance()->selectOne($c);
 
-		if(!$t){
-			$tips['tags'] = true;
-		}
+        if(!$t){
+            $tips['tags'] = true;
+        }
 
-		// count members... ???
-		$c = new Criteria();
-		$c->add("site_id", $site->getSiteId());
-		$co = MemberPeer::instance()->selectCount($c);
+        // count members... ???
+        $c = new Criteria();
+        $c->add("site_id", $site->getSiteId());
+        $co = MemberPeer::instance()->selectCount($c);
 
-		if($co<4){
-			$tips['invite'] = true;
-		}
+        if($co<4){
+            $tips['invite'] = true;
+        }
 
-		if(count($tips)>0){
-			$runData->contextAdd("tips", $tips);
-		}
+        if(count($tips)>0){
+            $runData->contextAdd("tips", $tips);
+        }
 
-		$runData->contextAdd('site', $site);
+        $runData->contextAdd('site', $site);
 
-	}
+    }
 
 }

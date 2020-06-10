@@ -82,7 +82,7 @@ EOT;
             $out .= <<<EOT
 <script type="text/javascript">
 (function(){
-	var tabView{$options['tabviewId']} = new YAHOO.widget.TabView('wiki-tabview-{$options['tabviewId']}');
+    var tabView{$options['tabviewId']} = new YAHOO.widget.TabView('wiki-tabview-{$options['tabviewId']}');
 })();
 </script>
 EOT;

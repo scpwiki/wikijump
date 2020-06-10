@@ -1,6 +1,6 @@
 <?php
 /**
- * @package 	Zend_Mime
+ * @package     Zend_Mime
  * @subpackage  UnitTests
  */
 
@@ -16,7 +16,7 @@ require_once 'Zend/Mime/Part.php';
 require_once 'PHPUnit/Framework/TestCase.php';
 
 /**
- * @package 	Zend_Mime
+ * @package     Zend_Mime
  * @subpackage  UnitTests
  */
 class Zend_Mime_PartTest extends PHPUnit_Framework_TestCase

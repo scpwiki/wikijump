@@ -39,57 +39,57 @@ class Text_Wiki_Render_Xhtml_Collapsible extends Text_Wiki_Render {
 
     function token($options)
     {
-    		$args = $options['args'];
-    		if($args['folded'] == 'no' || $args['folded'] == 'false'){
-    			$folded = false;
-    		}else{
-    			$folded = true;
-    		}
+            $args = $options['args'];
+            if($args['folded'] == 'no' || $args['folded'] == 'false'){
+                $folded = false;
+            }else{
+                $folded = true;
+            }
 
-    		if($args['show']){
-    			$show = $args['show'];
-    		}else{
-    			$show = "+ show block";
-    		}
+            if($args['show']){
+                $show = $args['show'];
+            }else{
+                $show = "+ show block";
+            }
 
-   			if($args['hide']){
-    			$hide = $args['hide'];
-    		}else{
-    			$hide = "- hide block";
-    		}
+               if($args['hide']){
+                $hide = $args['hide'];
+            }else{
+                $hide = "- hide block";
+            }
 
-    		if($args['hideLocation'] && $args['hideLocation'] == 'bottom'){
-    			$hideLocation = 'bottom';
-    		}elseif($args['hideLocation'] && $args['hideLocation'] == 'both'){
-    			$hideLocation = 'both';
-    		}else{
-    			$hideLocation = 'top';
-    		}
+            if($args['hideLocation'] && $args['hideLocation'] == 'bottom'){
+                $hideLocation = 'bottom';
+            }elseif($args['hideLocation'] && $args['hideLocation'] == 'both'){
+                $hideLocation = 'both';
+            }else{
+                $hideLocation = 'top';
+            }
 
-    		$count = $options['count'];
+            $count = $options['count'];
 
-    		$hideB = '<div><a href="javascript:;" onclick="$(\'collapsible-block-'.$count.'-unfolded\').style.display=\'none\';$(\'collapsible-block-'.$count.'-folded\').style.display=\'block\';">'.htmlspecialchars($hide).'</a></div>';
+            $hideB = '<div><a href="javascript:;" onclick="$(\'collapsible-block-'.$count.'-unfolded\').style.display=\'none\';$(\'collapsible-block-'.$count.'-folded\').style.display=\'block\';">'.htmlspecialchars($hide).'</a></div>';
 
-    	 	if ($options['type'] == 'start') {
+             if ($options['type'] == 'start') {
 
-    	 		$out  = '<div class="collapsible-block">';
-    	 		$out .= '<div id="collapsible-block-'.$count.'-folded" '.((!$folded)?'style="display:none"':'').'>';
-    	 		$out .= '<a href="javascript:;" onclick="$(\'collapsible-block-'.$count.'-folded\').style.display=\'none\';$(\'collapsible-block-'.$count.'-unfolded\').style.display=\'block\'; ">'.htmlspecialchars($show).'</a>';
-    	 		$out .= '</div>';
-    	 		$out .= '<div id="collapsible-block-'.$count.'-unfolded" '.($folded?'style="display:none"':'').'>';
-    	 		if($hideLocation == 'top' || $hideLocation == 'both'){
-    	 			$out .= $hideB;
-    	 		}
-    	 		$out .= '<div id="collapsible-block-'.$count.'-content">';
+                 $out  = '<div class="collapsible-block">';
+                 $out .= '<div id="collapsible-block-'.$count.'-folded" '.((!$folded)?'style="display:none"':'').'>';
+                 $out .= '<a href="javascript:;" onclick="$(\'collapsible-block-'.$count.'-folded\').style.display=\'none\';$(\'collapsible-block-'.$count.'-unfolded\').style.display=\'block\'; ">'.htmlspecialchars($show).'</a>';
+                 $out .= '</div>';
+                 $out .= '<div id="collapsible-block-'.$count.'-unfolded" '.($folded?'style="display:none"':'').'>';
+                 if($hideLocation == 'top' || $hideLocation == 'both'){
+                     $out .= $hideB;
+                 }
+                 $out .= '<div id="collapsible-block-'.$count.'-content">';
 
-            	return $out;
+                return $out;
 
         }
 
         if ($options['type'] == 'end') {
             $out =  "</div>";
             if($hideLocation == 'bottom' || $hideLocation == 'both'){
-            	$out .= $hideB;
+                $out .= $hideB;
             }
             $out .= "</div></div>";
             return $out;

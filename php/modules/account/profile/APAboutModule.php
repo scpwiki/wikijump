@@ -28,12 +28,12 @@ use DB\ProfilePeer;
 
 class APAboutModule extends AccountBaseModule {
 
-	public function build($runData){
+    public function build($runData){
 
-		$userId = $runData->getUserId();
-		$profile = ProfilePeer::instance()->selectByPrimaryKey($userId);
+        $userId = $runData->getUserId();
+        $profile = ProfilePeer::instance()->selectByPrimaryKey($userId);
 
-		$runData->contextAdd("profile", $profile);
-	}
+        $runData->contextAdd("profile", $profile);
+    }
 
 }

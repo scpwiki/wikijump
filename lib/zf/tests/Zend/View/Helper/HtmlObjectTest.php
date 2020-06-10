@@ -87,7 +87,7 @@ class Zend_View_Helper_HtmlObjectTest extends PHPUnit_Framework_TestCase
         foreach ($params as $key => $value) {
             $param = '<param name="' . $key . '" value="' . $value . '">';
 
-        	$this->assertContains($param, $htmlObject);
+            $this->assertContains($param, $htmlObject);
         }
     }
 

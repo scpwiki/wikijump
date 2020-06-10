@@ -98,12 +98,12 @@ class Zend_Service_Yahoo_WebResult extends Zend_Service_Yahoo_Result
         $cacheUrl = $this->_xpath->query('./yh:Cache/yh:Url/text()', $result)->item(0);
         if ($cacheUrl instanceof DOMNode)
         {
-        	$this->CacheUrl = $cacheUrl->data;
+            $this->CacheUrl = $cacheUrl->data;
         }
         $cacheSize = $this->_xpath->query('./yh:Cache/yh:Size/text()', $result)->item(0);
         if ($cacheSize instanceof DOMNode)
         {
-        	$this->CacheSize = (int) $cacheSize->data;
+            $this->CacheSize = (int) $cacheSize->data;
         }
     }
 }

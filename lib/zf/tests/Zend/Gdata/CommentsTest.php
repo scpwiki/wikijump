@@ -118,7 +118,7 @@ class Zend_Gdata_CommentsTest extends PHPUnit_Framework_TestCase
         $this->comments->transferFromXML($this->commentsText);
         $this->assertEquals("http://schemas.google.com/g/2005#reviews", $this->comments->rel);
         $this->assertTrue($this->comments->feedLink instanceof Zend_Gdata_Extension_FeedLink);
-		$this->assertEquals("http://example.com/restaurants/SanFrancisco/432432/reviews", $this->comments->feedLink->href);
+        $this->assertEquals("http://example.com/restaurants/SanFrancisco/432432/reviews", $this->comments->feedLink->href);
     }
 
 }

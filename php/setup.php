@@ -31,23 +31,23 @@ if(!defined('WIKIDOT_SETUP_COMPLETED')){
         date_default_timezone_set('UTC');
     }
 
-	// add settings for error-reporting
-	error_reporting(E_ALL&~E_NOTICE); // hardcode ;-)
+    // add settings for error-reporting
+    error_reporting(E_ALL&~E_NOTICE); // hardcode ;-)
 
-	// determine WIKIDOT_ROOT directory
-	if(!defined('WIKIDOT_ROOT')){
-		define('WIKIDOT_ROOT', dirname(dirname(__FILE__)));
-		define('OZONE_ROOT', WIKIDOT_ROOT.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'ozone');
-	}
+    // determine WIKIDOT_ROOT directory
+    if(!defined('WIKIDOT_ROOT')){
+        define('WIKIDOT_ROOT', dirname(dirname(__FILE__)));
+        define('OZONE_ROOT', WIKIDOT_ROOT.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'ozone');
+    }
 
-	require_once (WIKIDOT_ROOT.DIRECTORY_SEPARATOR."php/utils/GlobalProperties.php");
-	require_once (WIKIDOT_ROOT.DIRECTORY_SEPARATOR."lib/ozone/php/core/functions.php");
-	require_once (WIKIDOT_ROOT.DIRECTORY_SEPARATOR."lib/ozone/php/core/autoload.inc.php");
+    require_once (WIKIDOT_ROOT.DIRECTORY_SEPARATOR."php/utils/GlobalProperties.php");
+    require_once (WIKIDOT_ROOT.DIRECTORY_SEPARATOR."lib/ozone/php/core/functions.php");
+    require_once (WIKIDOT_ROOT.DIRECTORY_SEPARATOR."lib/ozone/php/core/autoload.inc.php");
 
-	if (! GlobalProperties::$WIKI_FARM) {
-		$_SERVER['HTTP_HOST'] = GlobalProperties::$URL_HOST;
-		GlobalProperties::$SESSION_COOKIE_DOMAIN = null;
-	}
+    if (! GlobalProperties::$WIKI_FARM) {
+        $_SERVER['HTTP_HOST'] = GlobalProperties::$URL_HOST;
+        GlobalProperties::$SESSION_COOKIE_DOMAIN = null;
+    }
 
-	define('WIKIDOT_SETUP_COMPLETED', true);
+    define('WIKIDOT_SETUP_COMPLETED', true);
 }

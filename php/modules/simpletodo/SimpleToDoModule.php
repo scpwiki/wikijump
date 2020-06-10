@@ -39,12 +39,12 @@ class SimpleToDoModule extends SmartyModule {
             $page = $runData->getTemp("page");
             if($page){
                 $category = $page->getCategory();//s$runData->getTemp("category");
-			    try{
-			        WDPermissionManager::instance()->hasPagePermission('create', $user, $category);
-			        self::$_canEdit = true;
-			    }catch(Exception $e){}
+                try{
+                    WDPermissionManager::instance()->hasPagePermission('create', $user, $category);
+                    self::$_canEdit = true;
+                }catch(Exception $e){}
 
-			}
+            }
         }
 
         $runData->contextAdd('canEdit', self::$_canEdit);
