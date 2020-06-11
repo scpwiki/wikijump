@@ -26,13 +26,15 @@ readarray -t matching_files < <(ag $find . -l --ignore lib/zf)
 echo "Found ${#matching_files[@]} matching files"
 
 # Get the file with the list of completed files
-changed_files="$(dirname $0)/documented_files"
+changed_files="$(dirname $0)/documented_files.txt"
+touch $changed_files
 echo "Completed files: $changed_files"
 
-for file in ${#matching_files}; do
+for file in ${matching_files[@]}; do
   if ! grep -q $file $changed_files; then
     echo "Opening $file"
-    if $EDITOR +"/$find" $file; then
+    $EDITOR +/$find $file
+    if [ $? -eq 0 ]; then
       echo "Completed $file; adding to list"
       echo $file >> $changed_files
     else
@@ -43,6 +45,6 @@ for file in ${#matching_files}; do
 done
 
 num_matched=${#matching_files[@]}
-num_changed=$(wc -l $changed_files)
+num_changed=$(wc -l < $changed_files)
 
 echo "There are $((num_matched-num_changed)) files remaining."
