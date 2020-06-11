@@ -33,3 +33,5 @@ lib/Text_Wiki/Text/Wiki/Parse/Default/Postfilter.php
 lib/Text_Wiki/Text/Wiki/Parse/Default/Interwiki.php
 lib/Text_Wiki/Text/Wiki/Parse/Default/Include.php
 lib/Text_Wiki/Text/Wiki/Parse/Default/Url.php
+lib/Text_Wiki/Text/Wiki/Parse/Default/Deflist.php
+lib/Text_Wiki/Text/Wiki/Parse/Default/Bibliography.php

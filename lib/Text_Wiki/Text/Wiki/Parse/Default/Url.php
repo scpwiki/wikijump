@@ -164,12 +164,25 @@ class Text_Wiki_Parse_Url extends Text_Wiki_Parse {
         $postVars = $this->getConf("post_vars");
 
         if($postVars){
-        		// enable %%foo%% variables to act in described links
-        		$tmp_regex = '/\[(\*)?(%%[^%]+%%[^ ]*) ([^\]]+)\]/';
-        		$this->wiki->source = preg_replace_callback(
-	            $tmp_regex,
-	            array(&$this, 'processPV'),
-	            $this->wiki->source
+            // enable %%foo%% variables to act in described links
+            # What is this? I haven't seen it before
+            $tmp_regex = '/
+                \[                # Opening bracket
+                (\*)?
+                (
+                    %%            # Opening %%
+                    [^%]+         # Then at least one character not %
+                    %%            # Closing %%
+                    [^\s]*        # Then anything except whitespace
+                )
+                \s                # A whitespace
+                ([^\]]+)          # Match anything up until a closing bracket
+                \]
+                /x';
+            $this->wiki->source = preg_replace_callback(
+                $tmp_regex,
+                array(&$this, 'processPV'),
+                $this->wiki->source
 	        );
         }
 
@@ -180,7 +193,12 @@ class Text_Wiki_Parse_Url extends Text_Wiki_Parse {
 
         // the regular expression for this kind of URL
 
-        $tmp_regex = '/(^|[^A-Za-z])(\*)?(' . $this->regex . ')(.*?)/';
+        $tmp_regex = '/
+            (^|[^A-Za-z])             # Start of line OR not letters
+            (\*)?                     # Any amount of asterisks
+            (' . $this->regex . ')
+            (.*?)                     # Then anything, but as few as possible?
+            /x';
 
         // use the standard callback for inline URLs
         $this->wiki->source = preg_replace_callback(
