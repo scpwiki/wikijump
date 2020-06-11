@@ -74,8 +74,7 @@ class Text_Wiki_Parse_Span extends Text_Wiki_Parse {
 
         $start = $this->wiki->addToken($this->rule, $options);
 
-        $end = $this->wiki->addToken($this->rule, array(
-            'type' => 'end'));
+        $end = $this->wiki->addToken($this->rule, array('type' => 'end'));
 
         return $start . $content . $end;
 
@@ -83,8 +82,8 @@ class Text_Wiki_Parse_Span extends Text_Wiki_Parse {
 
     function parse() {
         $oldSource = $this->wiki->source;
-        $this->wiki->source = preg_replace_callback($this->regex, array(
-            &$this, 'process'), $this->wiki->source);
+        $this->wiki->source = preg_replace_callback($this->regex,
+            array(&$this, 'process'), $this->wiki->source);
         if ($oldSource != $this->wiki->source) {
             $this->parse();
         }

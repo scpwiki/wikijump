@@ -141,7 +141,17 @@ class Text_Wiki_Parse_Url extends Text_Wiki_Parse {
         //
 
         // the regular expression for this kind of URL
-        $tmp_regex = '/\[(\*)?((?:' . $this->regexLiberal . ')|(?:#[a-zA-Z0-9_\-%]*)|(?:\/[^ \\t\\n\"\''.$this->wiki->delim.']*)) ([^\]'.$this->wiki->delim.']+)\]/';
+        $tmp_regex = "/
+            \[(\*)?
+            (
+                (?:".$this->regexLiberal.")
+                |
+                (?:#[a-zA-Z0-9_\-%]*)
+                |
+                (?:\/[^\s\t\n\"'".$this->wiki->delim."]*)
+            )\s
+            ([^\]".$this->wiki->delim."]+)\]
+            /x";
 
         // use a custom callback processing method to generate
         // the replacement text for matches.
@@ -155,7 +165,7 @@ class Text_Wiki_Parse_Url extends Text_Wiki_Parse {
 
         if($postVars){
         		// enable %%foo%% variables to act in described links
-        		$tmp_regex = 	'/\[(\*)?(%%[^%]+%%[^ ]*) ([^\]]+)\]/';
+        		$tmp_regex = '/\[(\*)?(%%[^%]+%%[^ ]*) ([^\]]+)\]/';
         		$this->wiki->source = preg_replace_callback(
 	            $tmp_regex,
 	            array(&$this, 'processPV'),

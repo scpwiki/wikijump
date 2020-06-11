@@ -36,7 +36,7 @@
 
 class Text_Wiki_Parse_Interwiki extends Text_Wiki_Parse {
 
-    // double-colons wont trip up now
+    // double-colons won't trip up now
     public $regex = '([A-Za-z0-9_\.]+):((?!:)[A-Za-z0-9_\/=&~#.:;\-\+]+)';
 
     /**
@@ -53,13 +53,13 @@ class Text_Wiki_Parse_Interwiki extends Text_Wiki_Parse {
     function parse() {
         // standalone interwiki links
         $tmp_regex = '/\[(' . $this->regex . ')\]/';
-        $this->wiki->source = preg_replace_callback($tmp_regex, array(
-            &$this, 'process'), $this->wiki->source);
+        $this->wiki->source = preg_replace_callback(
+            $tmp_regex, array(&$this, 'process'), $this->wiki->source);
 
         // described interwiki links
         $tmp_regex = '/\[' . $this->regex . ' (.+?)\]/';
-        $this->wiki->source = preg_replace_callback($tmp_regex, array(
-            &$this, 'processDescr'), $this->wiki->source);
+        $this->wiki->source = preg_replace_callback(
+            $tmp_regex, array(&$this, 'processDescr'), $this->wiki->source);
 
     }
 

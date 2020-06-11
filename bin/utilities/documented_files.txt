@@ -28,3 +28,8 @@ lib/Text_Wiki/Text/Wiki/Parse/Default/Math.php
 lib/Text_Wiki/Text/Wiki/Parse/Default/Div.php
 lib/Text_Wiki/Text/Wiki/Parse/Default/List.php
 lib/Text_Wiki/Text/Wiki/Parse/Default/Tableadv.php
+lib/Text_Wiki/Text/Wiki/Parse/Default/Span.php
+lib/Text_Wiki/Text/Wiki/Parse/Default/Postfilter.php
+lib/Text_Wiki/Text/Wiki/Parse/Default/Interwiki.php
+lib/Text_Wiki/Text/Wiki/Parse/Default/Include.php
+lib/Text_Wiki/Text/Wiki/Parse/Default/Url.php
