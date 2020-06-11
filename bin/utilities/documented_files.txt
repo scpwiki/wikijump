@@ -3,3 +3,13 @@ lib/ozone/php/template_services/autoload/TemplateRegexpMatcher.php
 lib/ozone/php/core/ModuleProcessor.php
 lib/ozone/php/core/ParameterList.php
 lib/ozone/php/core/OzoneSmartyCompiler.php
+lib/ozone/php/core/JobEntry.php
+lib/ozone/php/core/RunData.php
+lib/ozone/php/core/BaseFormValidator.php
+lib/ozone/php/core/functions.php
+lib/ozone/php/smarty_plugins/prefilter.defmacrohelp.php
+lib/ozone/bin/tsmarty2c.php
+lib/magpierss/rss_parse.inc
+lib/magpierss/rss_utils.inc
+lib/magpierss/extlib/Snoopy.class.inc
+lib/Text_Highlighter/Text/Highlighter/Generator.php

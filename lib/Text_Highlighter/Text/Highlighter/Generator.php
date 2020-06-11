@@ -427,7 +427,7 @@ class Text_Highlighter_Generator extends  XML_Parser
             $this->_error(TEXT_HIGHLIGHTER_EMPTY_RE);
         }
         if (!strlen($text) || $text[0] != '/') {
-            $text = '/' . $text . '/';
+            $text = "/$text/";
         }
         if (!$case) {
             $text .= 'i';
@@ -437,7 +437,7 @@ class Text_Highlighter_Generator extends  XML_Parser
         if ($php_errormsg) {
             $this->_error(TEXT_HIGHLIGHTER_INVALID_RE, $php_errormsg);
         }
-        preg_match ('#^/(.+)/(.*)$#', $text, $m);
+        preg_match (';^/(.+)/(.*)$;', $text, $m);
         if (@$m[2]) {
             $text = '(?' . $m[2] . ')' . $m[1];
         } else {
@@ -459,7 +459,7 @@ class Text_Highlighter_Generator extends  XML_Parser
     function _exportArray($array)
     {
         $array = var_export($array, true);
-        return trim(preg_replace('~^(\s*)~m','        \1\1',$array));
+        return trim(preg_replace('/^(\s*)/m','        \1\1',$array));
     }
 
     // }}}
@@ -471,7 +471,7 @@ class Text_Highlighter_Generator extends  XML_Parser
     */
     function _countSubpatterns($re)
     {
-        preg_match_all('/' . $re . '/', '', $m);
+        preg_match_all("/$re/", '', $m);
         return count($m)-1;
     }
 
@@ -1012,7 +1012,7 @@ class Text_Highlighter_Generator extends  XML_Parser
 CODE;
 
         if ($this->_comment) {
-            $comment = preg_replace('~^~m',' * ',$this->_comment);
+            $comment = preg_replace('/^/m',' * ',$this->_comment);
             $this->_code .= "\n * \n" . $comment;
         }
 
@@ -1082,7 +1082,7 @@ class  Text_Highlighter_{$this->language} extends Text_Highlighter
 CODE;
         $this->_code .= 'public $_language = \'' . strtolower($this->language) . "';\n\n";
         $array = var_export($syntax, true);
-        $array = trim(preg_replace('~^(\s*)~m','        \1\1',$array));
+        $array = trim(preg_replace('/^(\s*)/m','        \1\1',$array));
         //        \$this->_syntax = $array;
         $this->_code .= <<<CODE
     /**
