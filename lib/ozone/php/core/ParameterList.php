@@ -55,7 +55,7 @@ class ParameterList {
 			//initialize GET parameters from the url... because of mod_rewrite
 			$qs =  $_SERVER['QUERY_STRING'];
 			/* Check if there is a "?" char - if so, remove it. */
-			$qs = preg_replace(';\?.*$;', '', $qs);
+			$qs = preg_replace('/\?.*$/', '', $qs);
 			$splited = explode("/",$qs);
 			if(count($splited)>= 1){
 				$this->parameterArray['template'] = $splited[0];
@@ -64,7 +64,7 @@ class ParameterList {
 
 			/* Additionally parse the usual GET parameters. */
 			$uri = $_SERVER['REQUEST_URI'];
-			$uri = preg_replace(';^[^\?]*\?;', '', $uri);
+			$uri = preg_replace('/^[^\?]*\?/', '', $uri);
 			$uriPairs = explode('&', $uri);
 			foreach($uriPairs as $uriPair){
 				$u = explode('=', $uriPair);

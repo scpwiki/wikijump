@@ -40,7 +40,12 @@ class OzoneSmartyCompiler extends Smarty_Compiler {
 
 		foreach ($attrs as $key => $value) {
 			// perhaps this was intended as a static callback?
-			if (preg_match('#^["\']([a-zA-Z_]\w*::[a-zA-Z_]\w*)\((.*)?\)["\']$#', $value, $matches)) {
+            if (preg_match('/
+                ^["\']                         # Quote at start
+                ([a-zA-Z_]\w*::[a-zA-Z_]\w*)   # Two words split by ::
+                \((.*)?\)                      # Anything else, in parens
+                ["\']$                         # Closing quote
+                /x', $value, $matches)) {
 				$arguments = '()';
 				if (isset ($matches[2])) {
 					// strip '".' and '."' from beginning and end
