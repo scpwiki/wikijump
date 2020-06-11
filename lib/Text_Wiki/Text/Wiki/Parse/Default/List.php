@@ -104,7 +104,7 @@ class Text_Wiki_Parse_List extends Text_Wiki_Parse {
         // populate $list with this set of matches. $matches[1] is the
         // text matched as a list set by parse().
         preg_match_all(
-            '=^( {0,})(\*|#) (.*)$=Ums',
+            '/^( {0,})(\*|#) (.*)$/Ums',
             $matches[1],
             $list,
             PREG_SET_ORDER

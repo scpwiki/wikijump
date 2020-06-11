@@ -29,7 +29,22 @@
 
 class Text_Wiki_Parse_Tableadv extends Text_Wiki_Parse {
 
-    public $regex = ";\n\[\[table(\s.*?)?\]\](\s*(?:\[\[row(?:\s[^\]]*)?\]\]\s*(?:\[\[(column|col|cell)(?:\s[^\]]*)?\]\](?:(?R)|.)*?\[\[/(column|col|cell)\]\]\s*)+\[\[/row\]\]\s*)+)\[\[/table\]\]\n;sxi";
+    public $regex = ";
+        \n\[\[table                       # Start a table after a new line
+        (\s.*?)?\]\]                      # Allow parameters on the table
+        (\s*
+            (?:\[\[row                    # Start a row
+                (?:\s[^\]]*)?             # Allow parameters on the row
+                \]\]\s*
+                (?:\[\[(column|col|cell)  # Start a column/cell
+                    (?:\s[^\]]*)?\]\]     # Allow parameters on the column/cell
+                    (?:(?R)|.)*?          # Cell contents: another table, or anything else
+                \[\[/(column|col|cell)    # End the column/cell
+                \]\]\s*)+                 # Allow at least one column/cell
+            \[\[/row\]\]\s*)+             # Allow at least one row
+        )
+        \[\[/table\]\]\n                  # Force a new line after the table
+        ;sxi";
 
     private $_tmpSource = null;
 
@@ -47,32 +62,55 @@ class Text_Wiki_Parse_Tableadv extends Text_Wiki_Parse {
         // look for nested tables - TODO
 
 
-        $content = preg_replace_callback($this->regex, array(&$this,
-            'process'), $content);
+        $content = preg_replace_callback(
+            $this->regex, array(&$this, 'process'), $content);
 
         // look for rows
-        $content = preg_replace_callback(';' . "(?:\n)?" . '\[\[row(\s[^\]]*)?\]\]\s*((\[\[(column|col|cell)(\s[^\]]*)?\]\].*?\[\[/(column|col|cell)\]\]\s*)+)\[\[/row\]\]' . "(?:\n)?" . ';msi', array(
-            $this, '_handleRow'), $content);
+        $content = preg_replace_callback(";
+            (?:\n)?                     # Allow an optional new line
+            \[\[row                     # Start a new row
+            (\s[^\]]*)?                 # Allow parameters on row
+            \]\]\s*
+            (
+                (
+                    \[\[
+                    (column|col|cell)   # Start a new column/cell
+                    (\s[^\]]*)?         # Allow parameters on column/cell
+                    \]\].*?
+                                        # No content is permitted
+                    \[\[/
+                    (column|col|cell)   # Close column/cell
+                    \]\]\s*
+                )+
+            )\[\[/row\]\]               # Close row
+            (?:\n)?                     # Allow an optional new line
+            ;msix",
+            array($this, '_handleRow'), $content);
 
-        $start = $this->wiki->addToken($this->rule, array_merge($options, array(
-            'type' => 'start')));
-        $end = $this->wiki->addToken($this->rule, array(
-            'type' => 'end'));
+        $start = $this->wiki->addToken($this->rule,
+            array_merge($options, array('type' => 'start')));
+        $end = $this->wiki->addToken($this->rule, array('type' => 'end'));
         return "\n\n" . $start . $content . $end . "\n\n";
     }
 
     function parse() {
 
-        $this->wiki->source = preg_replace_callback($this->regex, array(
-            &$this, 'process'), $this->wiki->source);
+        $this->wiki->source = preg_replace_callback(
+            $this->regex, array(&$this, 'process'), $this->wiki->source);
     }
 
     private function _handleRow($matches) {
         $content = $matches[2];
         $attr = $this->getAttrs(trim($matches[1]));
 
-        $content = preg_replace_callback(';' . "(?:\n)?" . '\[\[(?:column|col|cell)(\s[^\]]*)?\]\](.*?)\[\[/(column|col|cell)\]\]' . "(?:\n)?" . ';msi', array(
-            $this, '_handleCell'), $content);
+        $content = preg_replace_callback(";
+            (?:\n)?                                 # Optional new line
+            \[\[(?:column|col|cell)(\s[^\]]*)?\]\]  # Opening column/cell
+                (.*?)                               # Content (anything)
+            \[\[/(column|col|cell)\]\]              # Closing column/cell
+            (?:\n)?                                 # Optional new line
+            ;msix",
+            array($this, '_handleCell'), $content);
         $options = array();
         if ($attr['class']) {
             $options['class'] = $attr['class'];

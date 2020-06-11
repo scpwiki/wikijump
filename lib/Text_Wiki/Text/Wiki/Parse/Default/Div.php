@@ -84,8 +84,8 @@ class Text_Wiki_Parse_Div extends Text_Wiki_Parse {
 
     function parse() {
         $oldSource = $this->wiki->source;
-        $this->wiki->source = preg_replace_callback($this->regex, array(
-            &$this, 'process'), $this->wiki->source);
+        $this->wiki->source = preg_replace_callback(
+            $this->regex, array(&$this, 'process'), $this->wiki->source);
         if ($oldSource != $this->wiki->source) {
             $this->parse();
         }

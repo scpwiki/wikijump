@@ -111,8 +111,8 @@ class Text_Highlighter_Renderer_Html extends Text_Highlighter_Renderer
     {
         // normalize whitespace and tabs
         $str = str_replace("\r\n","\n", $str);
-        // some browsers refuse to display mepty lines
-        $str = preg_replace('~^$~m'," ", $str);
+        // some browsers refuse to display empty lines
+        $str = preg_replace('/^$/m'," ", $str);
         $str = str_replace("\t",str_repeat(' ', $this->_tabsize), $str);
         return rtrim($str);
     }

@@ -71,7 +71,7 @@ class Text_Wiki_Parse_Math extends Text_Wiki_Parse {
 	    $label = trim($matches[1]);
 	    $content = trim($matches[3]);
 
-	    if(preg_match(';\include\s*{|\input\s*{;is', $content)){
+	    if(preg_match('/\include\s*{|\input\s*{/is', $content)){
 	    	throw new ProcessException("Invalid LaTeX expression(s) found.");
 	    }
 
