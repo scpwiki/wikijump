@@ -35,3 +35,12 @@ lib/Text_Wiki/Text/Wiki/Parse/Default/Include.php
 lib/Text_Wiki/Text/Wiki/Parse/Default/Url.php
 lib/Text_Wiki/Text/Wiki/Parse/Default/Deflist.php
 lib/Text_Wiki/Text/Wiki/Parse/Default/Bibliography.php
+lib/Text_Wiki/Text/Wiki/Parse/Default/Email.php
+lib/Text_Wiki/Text/Wiki/Parse/Default/Iftags.php
+lib/Text_Wiki/Text/Wiki/Parse/Default/Wikilink.php
+lib/Text_Wiki/Text/Wiki/Parse/Default/Typography.php
+lib/Text_Wiki/Text/Wiki/Parse/Default/Blockquote.php
+lib/Text_Wiki/Text/Wiki/Parse/Default/Prefilter.php
+lib/Text_Wiki/Text/Wiki/Parse/Default/Footnoteblock.php
+lib/Text_Wiki/Text/Wiki/Parse/Default/Image.php
+lib/Text_Wiki/Text/Wiki/Parse/Default/Size.php

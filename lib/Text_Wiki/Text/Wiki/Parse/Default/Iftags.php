@@ -26,8 +26,18 @@
 class Text_Wiki_Parse_Iftags extends Text_Wiki_Parse {
 
 
-	public $regex = ';\[\[iftags(\s[^\]]*)?\]\]((?:(?R)|.)*?)\[\[/iftags\]\];msi';
-
+    public $regex = '/
+        \[\[iftags(\s[^\]]*)?\]\] # Opening iftags tag including parameters
+        (
+            (?:(?R)|.)            # Contents of the page, including other iftags
+        *?)                       # Non-greedy match to claim next closing tag
+        \[\[/iftags\]\]           # Closing tag
+        /msi';
+    # Note regarding non-greedy match: I'm not sure how a recursive regex match
+    # works entirely, so I've written that it claims the next closing tag.
+    # That's unlikely to be true and definitely not intended behaviour.
+    # Because the ?R is before the . in the OR group, it may be that it
+    # attempts to correctly assign nested iftags modules.
 
     /**
     *
@@ -59,7 +69,7 @@ class Text_Wiki_Parse_Iftags extends Text_Wiki_Parse {
     	$tag0 = $tags0[0];
     	$tags = $page->getTagsAsArray();
 
-    	$tags0 = preg_split(';[, ]+;', trim($matches[1]));
+    	$tags0 = preg_split('/[, ]+/', trim($matches[1]));
 
     	$allTags = array();
     	$noTags = array();

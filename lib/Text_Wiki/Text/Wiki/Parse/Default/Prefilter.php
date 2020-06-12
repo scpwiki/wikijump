@@ -68,7 +68,7 @@ class Text_Wiki_Parse_Prefilter extends Text_Wiki_Parse {
         $this->wiki->source =  "\n".$this->wiki->source . "\n\n";
         // finally, compress all instances of 3 or more newlines
         // down to two newlines.
-        $find = "/(\n[ ]*){3,}/m";
+        $find = "/(\n\s*){3,}/m";
         $replace = "\n\n";
         $this->wiki->source = preg_replace($find, $replace,
             $this->wiki->source);
