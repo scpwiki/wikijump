@@ -188,7 +188,7 @@ class UnixifyString{
 	}
 
 	static public function addTrailingNewline($text){
-		if (!preg_match(";\n$;", $text)) {
+		if (!preg_match("/\n$/", $text)) {
 			$text .= "\n";
 		}
 		return $text;

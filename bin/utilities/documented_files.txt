@@ -152,3 +152,17 @@ php/actions/FileAction.php
 php/class/Wikidot/Form.php
 php/actions/misc/NewPageHelperAction.php
 php/class/Wikidot/Form/Field/PagePath.php
+php/class/Wikidot/Form/Field/WikiBase.php
+php/class/Wikidot/Search/Highlighter.php
+php/class/Wikidot/Search/Lucene.php
+php/class/Wikidot/Facade/Page.php
+php/class/Wikidot/Facade/Base.php
+php/utils/WikidotController.php
+php/utils/CodeblockExtractor.php
+php/utils/MailFormUtils.php
+php/utils/GlobalProperties.php
+php/utils/WDPermissionManager.php
+php/utils/ODiff.php
+php/utils/WikiTransformation.php
+php/utils/Wikidot/Util/UnixifyString.php
+php/utils/Wikidot/Util/Diff.php
