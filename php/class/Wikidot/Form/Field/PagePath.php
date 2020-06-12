@@ -39,7 +39,7 @@ class PagePath extends WikiBase {
                     ^        # Start of text
                     [^[]*    # Anything that is not [
                     \[\[\[   # Three opening brackets
-                    ([^|]*)  # Anything that is not ] (i.e. link location)
+                    ([^|]*)  # Anything that is not | (i.e. link location)
                     ([|]|$)  # Terminate at [, ], or end of text
                     /x',
                     $part, $m)) {
