@@ -40,7 +40,7 @@ class PagePath extends WikiBase {
                     [^[]*    # Anything that is not [
                     \[\[\[   # Three opening brackets
                     ([^|]*)  # Anything that is not | (i.e. link location)
-                    ([|]|$)  # Terminate at [, ], or end of text
+                    ([|]|$)  # Terminate at a | or end of text
                     /x',
                     $part, $m)) {
                     $path[] = WDStringUtils::toUnixName($m[1]);
