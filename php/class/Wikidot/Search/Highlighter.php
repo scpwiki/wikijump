@@ -29,101 +29,101 @@ use Zend_Search_Lucene_Search_QueryParser;
 use DOMDocument;
 use DOMXPath;
 
+class Highlighter
+{
 
+    public static function highlightIfSuitable($html, $request_uri, $referer)
+    {
 
+        if (self::suitable($request_uri) && $query = self::query($referer)) {
+            $queryObj = Zend_Search_Lucene_Search_QueryParser::parse($query);
+            $out = $queryObj->highlightMatches($html);
 
-class Highlighter {
+            if (! $out) {
+                return $html;
+            }
 
-	static public function highlightIfSuitable($html, $request_uri, $referer) {
+            $htmlNice = self::joinHtml($html, $out);
 
-		if (self::suitable($request_uri) && $query = self::query($referer)) {
+            if ($htmlNice) {
+                return $htmlNice;
+            }
+        }
 
-			$queryObj = Zend_Search_Lucene_Search_QueryParser::parse($query);
-			$out = $queryObj->highlightMatches($html);
+        return $html;
+    }
 
-			if (! $out) {
-				return $html;
-			}
+    protected static function query($referer)
+    {
 
-			$htmlNice = self::joinHtml($html, $out);
+        $host = parse_url($referer, PHP_URL_HOST);
+        $path = parse_url($referer, PHP_URL_PATH);
+        $query = parse_url($referer, PHP_URL_QUERY);
 
-			if ($htmlNice) {
-				return $htmlNice;
-			}
-		}
+        $a = array();
+        parse_str($query, $a);
 
-		return $html;
-	}
+        // Google search
+        if ($path == '/search' && isset($a['q'])) {
+            return $a['q'];
+        }
 
-	static protected function query($referer) {
+        // Yahoo search
+        if (preg_match('|^/search;|', $path) && isset($a['p'])) {
+            return $a['p'];
+        }
 
-		$host = parse_url($referer, PHP_URL_HOST);
-		$path = parse_url($referer, PHP_URL_PATH);
-		$query = parse_url($referer, PHP_URL_QUERY);
+        // Wikidot search
+        $a = array();
+        if (preg_match(";/search:(site|all)/(a/[pf]*/)?q/([^/]*)($|/);", $path, $a)) {
+            return $a[3];
+        }
 
-		$a = array();
-		parse_str($query, $a);
+        return null;
+    }
 
-		// Google search
-		if ($path == '/search' && isset($a['q'])) {
-			return $a['q'];
-		}
+    // highlight is not suitable for the main page (/) and search pages themselves
+    protected static function suitable($request_uri)
+    {
 
-		// Yahoo search
-		if (preg_match('|^/search;|', $path) && isset($a['p'])) {
-			return $a['p'];
-		}
+        return ! preg_match(";^/($|search:);", $request_uri);
+    }
 
-		// Wikidot search
-		$a = array();
-		if (preg_match(";/search:(site|all)/(a/[pf]*/)?q/([^/]*)($|/);", $path, $a)) {
-			return $a[3];
-		}
+    protected static function joinHtml($html, $out)
+    {
+        $dom = new DOMDocument();
+        @$dom->loadHTML($out);
 
-		return null;
-	}
+        $x = new DOMXPath($dom);
+        $xa = $x->query('id("main-content")');
+        $out_main = $xa->item(0);
 
-	// highlight is not suitable for the main page (/) and search pages themselves
-	static protected function suitable($request_uri) {
+        if (! $out_main) {
+            return null;
+        }
 
-		return ! preg_match(";^/($|search:);", $request_uri);
+        $dom = new DOMDocument();
+        @$dom->loadHTML($html);
 
-	}
+        $x = new DOMXPath($dom);
+        $xa = $x->query('//div[@id="main-content"]');
+        $main = $xa->item(0);
 
-	static protected function joinHtml($html, $out) {
-		$dom = new DOMDocument();
-		@$dom->loadHTML($out);
+        if (! $main) {
+            return null;
+        }
 
-		$x = new DOMXPath($dom);
-		$xa = $x->query('id("main-content")');
-		$out_main = $xa->item(0);
+        $x = new DOMXPath($dom);
+        $xa = $x->query('//div[@id="content-wrap"]');
+        $wrapper = $xa->item(0);
 
-		if (! $out_main) {
-			return null;
-		}
+        if (! $wrapper) {
+            return null;
+        }
 
-		$dom = new DOMDocument();
-		@$dom->loadHTML($html);
+        $out_main = $dom->importNode($out_main, true);
+        $wrapper->replaceChild($out_main, $main);
 
-		$x = new DOMXPath($dom);
-		$xa = $x->query('//div[@id="main-content"]');
-		$main = $xa->item(0);
-
-		if (! $main) {
-			return null;
-		}
-
-		$x = new DOMXPath($dom);
-		$xa = $x->query('//div[@id="content-wrap"]');
-		$wrapper = $xa->item(0);
-
-		if (! $wrapper) {
-			return null;
-		}
-
-		$out_main = $dom->importNode($out_main, true);
-		$wrapper->replaceChild($out_main, $main);
-
-		return $dom->saveHTML();
-	}
+        return $dom->saveHTML();
+    }
 }

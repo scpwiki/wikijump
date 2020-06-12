@@ -2,7 +2,6 @@
 
 namespace DB;
 
-
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
@@ -31,6 +30,7 @@ namespace DB;
  * Object Model class.
  *
  */
-class FormSubmissionKeyPeer extends FormSubmissionKeyPeerBase {
+class FormSubmissionKeyPeer extends FormSubmissionKeyPeerBase
+{
 
 }

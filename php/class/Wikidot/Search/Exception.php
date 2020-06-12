@@ -27,8 +27,6 @@ namespace Wikidot\Search;
 
 use Exception as Exception;
 
-
-
-
-class Exception extends Exception {
+class Exception extends Exception
+{
 }

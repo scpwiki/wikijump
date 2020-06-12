@@ -2,9 +2,8 @@
 
 namespace DB;
 
-
 //please extend this class
-class UserKarmaPeer extends UserKarmaPeerBase {
+class UserKarmaPeer extends UserKarmaPeerBase
+{
 
 }
-

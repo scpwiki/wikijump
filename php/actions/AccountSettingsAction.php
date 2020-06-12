@@ -29,246 +29,260 @@ use DB\UserSettingsPeer;
 use DB\PrivateUserBlockPeer;
 use DB\PrivateUserBlock;
 
-class AccountSettingsAction extends SmartyAction {
+class AccountSettingsAction extends SmartyAction
+{
 
-	public function isAllowed($runData){
-		$userId = $runData->getUserId();
-		if($userId == null || $userId <1){
-			throw new WDPermissionException(_("Not allowed. You should login first."));
-		}
-		return true;
-	}
+    public function isAllowed($runData)
+    {
+        $userId = $runData->getUserId();
+        if ($userId == null || $userId <1) {
+            throw new WDPermissionException(_("Not allowed. You should login first."));
+        }
+        return true;
+    }
 
-	public function perform($r){}
+    public function perform($r)
+    {
+    }
 
-	public function changePasswordEvent($runData){
-		$pl = $runData->getParameterList();
-		$user = $runData->getUser();
+    public function changePasswordEvent($runData)
+    {
+        $pl = $runData->getParameterList();
+        $user = $runData->getUser();
 
-		$oldPassword = $pl->getParameterValue("old_password");
-		$newPassword1 = ($pl->getParameterValue("new_password1"));
-		$newPassword2 = ($pl->getParameterValue("new_password2"));
+        $oldPassword = $pl->getParameterValue("old_password");
+        $newPassword1 = ($pl->getParameterValue("new_password1"));
+        $newPassword2 = ($pl->getParameterValue("new_password2"));
 
-		if(password_verify($oldPassword, $user->getPassword()) == false){
-			throw new ProcessException(_("Password reset failed: Your current password is incorrect."), "form_error");
-		}
-		if($newPassword1 !== $newPassword2){
-			throw new ProcessException(_("Password reset failed: New passwords do not match."), "form_error");
+        if (password_verify($oldPassword, $user->getPassword()) == false) {
+            throw new ProcessException(_("Password reset failed: Your current password is incorrect."), "form_error");
+        }
+        if ($newPassword1 !== $newPassword2) {
+            throw new ProcessException(_("Password reset failed: New passwords do not match."), "form_error");
+        }
+        if (strlen8($newPassword1)<8) {
+            throw new ProcessException(_("Password reset failed: Minimum password length is 8 characters."), "form_error");
+        }
+        if (strlen8($newPassword1)>256) {
+            throw new ProcessException(_("Password reset failed: Maximum password length is 256 characters to avoid denial of service."), "form_error");
+        }
 
-		}
-		if(strlen8($newPassword1)<8){
-			throw new ProcessException(_("Password reset failed: Minimum password length is 8 characters."), "form_error");
+        // ok, change the password!!!
+        $user->setPassword($newPassword1);
+        $user->save();
+    }
 
-		}
-		if(strlen8($newPassword1)>256){
-			throw new ProcessException(_("Password reset failed: Maximum password length is 256 characters to avoid denial of service."), "form_error");
+    public function changeEmail1Event($runData)
+    {
+        $pl = $runData->getParameterList();
 
-		}
+        $email = $pl->getParameterValue("email", "AMODULE");
 
-		// ok, change the password!!!
-		$user->setPassword($newPassword1);
-		$user->save();
+        if ($email == null || $email == '') {
+            throw new ProcessException(_("Email must be provided."), "no_email");
+        }
 
-	}
+        if (filter_var($email, FILTER_VALIDATE_EMAIL, FILTER_FLAG_EMAIL_UNICODE) == false) {
+            throw new ProcessException(_("Valid email must be provided."), "no_email");
+        }
 
-	public function changeEmail1Event($runData){
-		$pl = $runData->getParameterList();
+        // check for users with the email
+        $c = new Criteria();
+        $c->add("email", $email);
+        $user = OzoneUserPeer::instance()->selectOne($c);
 
-		$email = $pl->getParameterValue("email", "AMODULE");
+        if ($user !== null) {
+            throw new ProcessException(_("An user with this email already exists. Emails must be unique."), "form_error");
+        }
 
-		if($email == null || $email == ''){
-			throw new ProcessException(_("Email must be provided."), "no_email");
-		}
+        // generate code
+        srand((double)microtime()*1000000);
+        $string = md5(rand(0, 9999));
+        $evcode = substr($string, 2, 6);
 
-		if(filter_var($email, FILTER_VALIDATE_EMAIL, FILTER_FLAG_EMAIL_UNICODE) == false){
-			throw new ProcessException(_("Valid email must be provided."), "no_email");
-		}
+        //send a confirmation email to the user.
+        $oe = new OzoneEmail();
+        $oe->addAddress($email);
+        $oe->setSubject(sprintf(_("%s - email address change"), GlobalProperties::$SERVICE_NAME));
+        $oe->contextAdd("user", $runData->getUser());
+        $oe->contextAdd("email", $email);
+        $oe->contextAdd('evcode', $evcode);
 
-		// check for users with the email
-		$c = new Criteria();
-		$c->add("email", $email);
-		$user = OzoneUserPeer::instance()->selectOne($c);
+        $oe->setBodyTemplate('ChangeEmailVerification');
 
-		if($user !== null){
-			throw new ProcessException(_("An user with this email already exists. Emails must be unique."), "form_error");
-		}
+        if (!$oe->Send()) {
+            throw new ProcessException(_("The email can not be sent to this address."), "form_error");
+        }
 
-		// generate code
-		srand((double)microtime()*1000000);
-		$string = md5(rand(0,9999));
-		$evcode = substr($string, 2, 6);
+        $runData->sessionAdd("chevcode", $evcode);
+        $runData->sessionAdd("ch-nemail", $email);
+        $runData->contextAdd("email", $email);
+    }
 
-		//send a confirmation email to the user.
-		$oe = new OzoneEmail();
-		$oe->addAddress($email);
-		$oe->setSubject(sprintf(_("%s - email address change"), GlobalProperties::$SERVICE_NAME));
-		$oe->contextAdd("user", $runData->getUser());
-		$oe->contextAdd("email", $email);
-		$oe->contextAdd('evcode', $evcode);
+    public function changeEmail2Event($runData)
+    {
+        $pl = $runData->getParameterList();
 
-		$oe->setBodyTemplate('ChangeEmailVerification');
+        $evercode = $pl->getParameterValue("evercode");
 
-		if (!$oe->Send()) {
-			throw new ProcessException(_("The email can not be sent to this address."), "form_error");
-		}
+        if ($evercode != $runData->sessionGet("chevcode")) {
+            throw new ProcessException(_("The verification codes do not match."), "form_error");
+        }
+        $email = $runData->sessionGet("ch-nemail");
+        $runData->sessionDel("ch-nemail");
+        $runData->sessionDel("chevcode");
 
-		$runData->sessionAdd("chevcode", $evcode);
-		$runData->sessionAdd("ch-nemail", $email);
-		$runData->contextAdd("email", $email);
-	}
+        $user = $runData->getUser();
+        $user->setName($email);
+        $user->setEmail($email);
+        $user->save();
 
-	public function changeEmail2Event($runData){
-		$pl = $runData->getParameterList();
+        $runData->contextAdd("email", $email);
+    }
 
-		$evercode = $pl->getParameterValue("evercode");
+    public function saveReceiveInvitationsEvent($runData)
+    {
 
-		if($evercode != $runData->sessionGet("chevcode")){
-			throw new ProcessException(_("The verification codes do not match."), "form_error");
-		}
-		$email = $runData->sessionGet("ch-nemail");
-		$runData->sessionDel("ch-nemail");
-		$runData->sessionDel("chevcode");
+        $pl = $runData->getParameterList();
+        $receive = $pl->getParameterValue("receive");
+        if ($receive) {
+            $receive = true;
+        } else {
+            $receive = false;
+        }
+        $us = UserSettingsPeer::instance()->selectByPrimaryKey($runData->getUserId());
+        $us->setReceiveInvitations($receive);
+        $us->save();
+        if (GlobalProperties::$UI_SLEEP) {
+            sleep(1);
+        }
+    }
 
-		$user = $runData->getUser();
-		$user->setName($email);
-		$user->setEmail($email);
-		$user->save();
+    public function saveReceiveMessagesEvent($runData)
+    {
 
-		$runData->contextAdd("email", $email);
+        $pl = $runData->getParameterList();
+        $from = $pl->getParameterValue("from");
 
-	}
+        if ($from !== "a" && $from !== "mf" && $from !=="f" && $from !== "n") {
+            $from = "a";
+        }
 
-	public function saveReceiveInvitationsEvent($runData){
+        $us = UserSettingsPeer::instance()->selectByPrimaryKey($runData->getUserId());
+        $us->setReceivePm($from);
+        $us->save();
+        if (GlobalProperties::$UI_SLEEP) {
+            sleep(1);
+        }
+    }
 
-		$pl = $runData->getParameterList();
-		$receive = $pl->getParameterValue("receive");
-		if($receive){
-			$receive = true;
-		}else{
-			$receive = false;
-		}
-		$us = UserSettingsPeer::instance()->selectByPrimaryKey($runData->getUserId());
-		$us->setReceiveInvitations($receive);
-		$us->save();
-		if (GlobalProperties::$UI_SLEEP) { sleep(1); }
-	}
+    public function blockUserEvent($runData)
+    {
+        $pl = $runData->getParameterList();
+        $userId = $pl->getParameterValue("userId");
 
-	public function saveReceiveMessagesEvent($runData){
+        if ($userId == null || !is_numeric($userId)) {
+            throw new ProcessException(_("Invalid user."), "no_user");
+        }
 
-		$pl = $runData->getParameterList();
-		$from = $pl->getParameterValue("from");
+        $user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+        if ($user == null) {
+            throw new ProcessException(_("Invalid user."), "no_user");
+        }
 
-		if($from !== "a" && $from !== "mf" && $from !=="f" && $from !== "n"){
-			$from = "a";
-		}
+        // check if already blocked
+        $c = new Criteria();
+        $c->add("user_id", $runData->getUserId());
+        $c->add("blocked_user_id", $userId);
+        $b = PrivateUserBlockPeer::instance()->selectOne($c);
+        if ($b) {
+            throw new ProcessException(_("You already block this user."));
+        }
 
-		$us = UserSettingsPeer::instance()->selectByPrimaryKey($runData->getUserId());
-		$us->setReceivePm($from);
-		$us->save();
-		if (GlobalProperties::$UI_SLEEP) { sleep(1); }
-	}
+        // check max
+        $c = new Criteria();
+        $c->add("user_id", $runData->getUserId());
+        $blockCount = PrivateUserBlockPeer::instance()->selectCount($c);
 
-	public function blockUserEvent($runData){
-		$pl = $runData->getParameterList();
-		$userId = $pl->getParameterValue("userId");
+        $maxBlocks = 30;
 
-		if($userId == null || !is_numeric($userId)){
-			throw new ProcessException(_("Invalid user."), "no_user");
-		}
+        if ($blockCount>$maxBlocks) {
+            throw new ProcessException("Sorry, you can only block $maxBlocks users max.", "max_block");
+        }
 
-		$user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
-		if($user == null){
-			throw new ProcessException(_("Invalid user."), "no_user");
-		}
+        if ($userId == $runData->getUserId()) {
+            throw new ProcessException(_("What is the point in blocking yourself? ;-)"), "not_self");
+        }
 
-		// check if already blocked
-		$c = new Criteria();
-		$c->add("user_id", $runData->getUserId());
-		$c->add("blocked_user_id", $userId);
-		$b = PrivateUserBlockPeer::instance()->selectOne($c);
-		if($b){
-			throw new ProcessException(_("You already block this user."));
-		}
+        $block = new PrivateUserBlock();
+        $block->setUserId($runData->getUserId());
+        $block->setBlockedUserId($userId);
+        $block->save();
+    }
 
-		// check max
-		$c = new Criteria();
-		$c->add("user_id", $runData->getUserId());
-		$blockCount = PrivateUserBlockPeer::instance()->selectCount($c);
+    public function deleteBlockEvent($runData)
+    {
+        $pl = $runData->getParameterList();
+        $blockedUserId = $pl->getParameterValue("userId");
+        $userId = $runData->getUserId();
 
-		$maxBlocks = 30;
+        $c = new Criteria();
+        $c->add("user_id", $userId);
+        $c->add("blocked_user_id", $blockedUserId);
 
-		if($blockCount>$maxBlocks){
-			throw new ProcessException("Sorry, you can only block $maxBlocks users max.", "max_block");
-		}
+        PrivateUserBlockPeer::instance()->delete($c);
+    }
 
-		if($userId == $runData->getUserId()){
-			throw new ProcessException(_("What is the point in blocking yourself? ;-)"), "not_self");
-		}
+    public function saveReceiveDigestEvent($runData)
+    {
+        $pl = $runData->getParameterList();
+        $user = $runData->getUser();
 
-		$block = new PrivateUserBlock();
-		$block->setUserId($runData->getUserId());
-		$block->setBlockedUserId($userId);
-		$block->save();
+        $receive = (bool) $pl->getParameterValue("receive");
 
-	}
+        $settings = $user->getSettings();
+        if ($receive != $settings->getReceiveDigest()) {
+            $settings->setReceiveDigest($receive);
+            $settings->save();
+        }
 
-	public function deleteBlockEvent($runData){
-		$pl = $runData->getParameterList();
-		$blockedUserId = $pl->getParameterValue("userId");
-		$userId = $runData->getUserId();
+        if (GlobalProperties::$UI_SLEEP) {
+            sleep(1);
+        }
+    }
 
-		$c = new Criteria();
-		$c->add("user_id", $userId);
-		$c->add("blocked_user_id", $blockedUserId);
+    public function saveReceiveNewsletterEvent($runData)
+    {
+        $pl = $runData->getParameterList();
+        $user = $runData->getUser();
 
-		PrivateUserBlockPeer::instance()->delete($c);
+        $receive = (bool) $pl->getParameterValue("receive");
 
-	}
+        $settings = $user->getSettings();
+        if ($receive != $settings->getReceiveNewsletter()) {
+            $settings->setReceiveNewsletter($receive);
+            $settings->save();
+        }
 
-	public function saveReceiveDigestEvent($runData){
-		$pl = $runData->getParameterList();
-		$user = $runData->getUser();
+        if (GlobalProperties::$UI_SLEEP) {
+            sleep(1);
+        }
+    }
 
-		$receive = (bool) $pl->getParameterValue("receive");
+    public function saveLanguageEvent($runData)
+    {
+        $pl = $runData->getParameterList();
+        $user = $runData->getUser();
 
-		$settings = $user->getSettings();
-		if($receive != $settings->getReceiveDigest()){
-			$settings->setReceiveDigest($receive);
-			$settings->save();
-		}
+        $lang = $pl->getParameterValue("language");
 
-		if (GlobalProperties::$UI_SLEEP) { sleep(1); }
-	}
+        if ($lang !== "pl" && $lang !=="en") {
+            throw new ProcessException(_("Error selecting the language"));
+        }
 
-	public function saveReceiveNewsletterEvent($runData){
-		$pl = $runData->getParameterList();
-		$user = $runData->getUser();
+        $user->setLanguage($lang);
+        $user->save();
 
-		$receive = (bool) $pl->getParameterValue("receive");
-
-		$settings = $user->getSettings();
-		if($receive != $settings->getReceiveNewsletter()){
-			$settings->setReceiveNewsletter($receive);
-			$settings->save();
-		}
-
-		if (GlobalProperties::$UI_SLEEP) { sleep(1); }
-	}
-
-	public function saveLanguageEvent($runData){
-		$pl = $runData->getParameterList();
-		$user = $runData->getUser();
-
-		$lang = $pl->getParameterValue("language");
-
-		if($lang !== "pl" && $lang !=="en"){
-			throw new ProcessException(_("Error selecting the language"));
-		}
-
-		$user->setLanguage($lang);
-		$user->save();
-
-		$runData->ajaxResponseAdd("language", $lang);
-	}
-
+        $runData->ajaxResponseAdd("language", $lang);
+    }
 }

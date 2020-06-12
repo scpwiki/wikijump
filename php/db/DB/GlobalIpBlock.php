@@ -25,11 +25,11 @@
 
 namespace DB;
 
-
 /**
  * Object Model class.
  *
  */
-class GlobalIpBlock extends GlobalIpBlockBase {
+class GlobalIpBlock extends GlobalIpBlockBase
+{
 
 }

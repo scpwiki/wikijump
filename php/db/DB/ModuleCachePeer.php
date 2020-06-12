@@ -4,8 +4,6 @@ namespace DB;
 
 use DB\ModuleCachePeerBase;
 
-
-
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
@@ -34,6 +32,7 @@ use DB\ModuleCachePeerBase;
  * Object Model class.
  *
  */
-class ModuleCachePeer extends ModuleCachePeerBase {
+class ModuleCachePeer extends ModuleCachePeerBase
+{
 
 }

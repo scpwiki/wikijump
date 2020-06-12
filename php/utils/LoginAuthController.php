@@ -26,70 +26,71 @@
 
 use DB\OzoneSessionPeer;
 
-class LoginAuthController extends WebFlowController {
+class LoginAuthController extends WebFlowController
+{
 
-	public static $secretSeed='GdzieDiabelNieMozeTamIE8Posle';
+    public static $secretSeed='GdzieDiabelNieMozeTamIE8Posle';
 
-	public function process() {
+    public function process()
+    {
 
-		Ozone ::init();
+        Ozone ::init();
 
-		$runData = new RunData();
-		$runData->init();
+        $runData = new RunData();
+        $runData->init();
 
-		Ozone::setRunData($runData);
+        Ozone::setRunData($runData);
 
-		/* Get session cookie.*/
+        /* Get session cookie.*/
 
-		$sessionId = $_COOKIE[GlobalProperties::$SESSION_COOKIE_NAME];
-		if(!$sessionId){
-			throw new ProcessException('Please accept cookies in your browser.');
-		}
+        $sessionId = $_COOKIE[GlobalProperties::$SESSION_COOKIE_NAME];
+        if (!$sessionId) {
+            throw new ProcessException('Please accept cookies in your browser.');
+        }
 
-		/* Make sure we are using http: protocol. */
-		if($_SERVER['HTTPS']){
-			throw new ProcessException('This controller should be invoked in the http: mode.');
-		}
+        /* Make sure we are using http: protocol. */
+        if ($_SERVER['HTTPS']) {
+            throw new ProcessException('This controller should be invoked in the http: mode.');
+        }
 
-		$pl = $runData->getParameterList();
-		$sessionHash = $pl->getParameterValue('sessionHash');
+        $pl = $runData->getParameterList();
+        $sessionHash = $pl->getParameterValue('sessionHash');
 
-		/* Select session from the database. */
-		$c = new Criteria();
-		$c->add('session_id', $sessionId);
-		$c->add("md5(session_id || '".self::$secretSeed."')", $sessionHash);
+        /* Select session from the database. */
+        $c = new Criteria();
+        $c->add('session_id', $sessionId);
+        $c->add("md5(session_id || '".self::$secretSeed."')", $sessionHash);
 
-		$session = OzoneSessionPeer::instance()->selectOne($c);
+        $session = OzoneSessionPeer::instance()->selectOne($c);
 
-		if(!$session) {
-			throw new ProcessException('No valid session found.');
-		}
+        if (!$session) {
+            throw new ProcessException('No valid session found.');
+        }
 
-		/* Set IP strings. */
-		/* Assume that the previous ip was obtained using the SSL proto.
-		   If not, this controller should not be invoked at all. */
+        /* Set IP strings. */
+        /* Assume that the previous ip was obtained using the SSL proto.
+           If not, this controller should not be invoked at all. */
 
-		$session->setIpAddressSsl($session->getIpAddress());
-		$session->setIpAddress($runData->createIpString());
+        $session->setIpAddressSsl($session->getIpAddress());
+        $session->setIpAddress($runData->createIpString());
 
-		$session->save();
+        $session->save();
 
-		/* IMPORTANT: Also clear the session cache. */
-		$mc = OZONE::$memcache;
-		$key = 'session..'.$session->getSessionId();
-		$mc->set($key, $session, 0, 600);
+        /* IMPORTANT: Also clear the session cache. */
+        $mc = OZONE::$memcache;
+        $key = 'session..'.$session->getSessionId();
+        $mc->set($key, $session, 0, 600);
 
 
-		/* If everything went well, redirect to the original URL. */
+        /* If everything went well, redirect to the original URL. */
 
-		$url = $pl->getParameterValue('origUrl');
-		if(!$url){
-			$url = GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST;
-		}
+        $url = $pl->getParameterValue('origUrl');
+        if (!$url) {
+            $url = GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST;
+        }
 
-		//echo $url;
-		header('HTTP/1.1 301 Moved Permanently');
-		header("Location: $url");
-	}
-
+        //echo $url;
+        header('HTTP/1.1 301 Moved Permanently');
+        header("Location: $url");
+    }
 }

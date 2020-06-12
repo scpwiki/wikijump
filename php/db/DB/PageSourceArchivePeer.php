@@ -4,8 +4,6 @@ namespace DB;
 
 use DB\PageSourceArchivePeerBase;
 
-
-
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
@@ -34,6 +32,7 @@ use DB\PageSourceArchivePeerBase;
  * Object Model class.
  *
  */
-class PageSourceArchivePeer extends PageSourceArchivePeerBase {
+class PageSourceArchivePeer extends PageSourceArchivePeerBase
+{
 
 }

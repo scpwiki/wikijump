@@ -2,9 +2,8 @@
 
 namespace DB;
 
-
 //please extend this class
-class PageExternalLinkPeer extends PageExternalLinkPeerBase {
+class PageExternalLinkPeer extends PageExternalLinkPeerBase
+{
 
 }
-

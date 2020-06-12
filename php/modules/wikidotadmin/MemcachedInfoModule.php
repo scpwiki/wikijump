@@ -24,12 +24,13 @@
  */
 
 
-class MemcachedInfoModule extends SmartyModule {
+class MemcachedInfoModule extends SmartyModule
+{
 
-	public function build($runData){
-		$mc = Ozone::$memcache;
-		$raw = $mc->getExtendedStats();
-		$runData->contextAdd("raw", $raw);
-	}
-
+    public function build($runData)
+    {
+        $mc = Ozone::$memcache;
+        $raw = $mc->getExtendedStats();
+        $runData->contextAdd("raw", $raw);
+    }
 }

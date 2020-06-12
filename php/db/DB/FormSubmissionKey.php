@@ -25,11 +25,11 @@
 
 namespace DB;
 
-
 /**
  * Object Model class.
  *
  */
-class FormSubmissionKey extends FormSubmissionKeyBase {
+class FormSubmissionKey extends FormSubmissionKeyBase
+{
 
 }

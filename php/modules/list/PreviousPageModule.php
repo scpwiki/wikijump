@@ -26,8 +26,9 @@
 
 require_once(WIKIDOT_ROOT . '/php/modules/list/NextPageModule.php');
 
-class PreviousPageModule extends NextPageModule {
+class PreviousPageModule extends NextPageModule
+{
 
-	protected $orderType = 'Desc';
-	protected $listPagesParam = 'previousBy';
+    protected $orderType = 'Desc';
+    protected $listPagesParam = 'previousBy';
 }

@@ -4,8 +4,6 @@ namespace DB;
 
 use DB\ScreenCachePeerBase;
 
-
-
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
@@ -34,6 +32,7 @@ use DB\ScreenCachePeerBase;
  * Object Model class.
  *
  */
-class ScreenCachePeer extends ScreenCachePeerBase {
+class ScreenCachePeer extends ScreenCachePeerBase
+{
 
 }

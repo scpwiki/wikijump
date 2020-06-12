@@ -3,25 +3,27 @@
 
 namespace Wikidot\Form\Field;
 
-
-
-
-class Base {
+class Base
+{
     protected $field;
 
-    public function __construct($field) {
+    public function __construct($field)
+    {
         $this->field = $field;
     }
 
-    public function renderView() {
+    public function renderView()
+    {
         return '';
     }
 
-    public function renderEdit() {
+    public function renderEdit()
+    {
         return '';
     }
 
-    protected function hvalue() {
+    protected function hvalue()
+    {
         return htmlspecialchars($this->field['value']);
     }
 }

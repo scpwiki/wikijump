@@ -27,13 +27,11 @@ namespace DB;
 
 use DB\IdBrokerBase;
 
-
-
-
 /**
  * Object Model class.
  *
  */
-class IdBroker extends IdBrokerBase {
+class IdBroker extends IdBrokerBase
+{
 
 }

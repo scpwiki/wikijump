@@ -25,257 +25,279 @@
 
 use DB\LogEvent;
 
-class EventLogger {
+class EventLogger
+{
 
-	private static $instance;
+    private static $instance;
 
-	public static function instance(){
-		if(self::$instance == null){
-			self::$instance = new EventLogger();
-		}
-		return self::$instance;
-	}
+    public static function instance()
+    {
+        if (self::$instance == null) {
+            self::$instance = new EventLogger();
+        }
+        return self::$instance;
+    }
 
-	public function logLogin(){
+    public function logLogin()
+    {
 
-		$e = $this->newEvent();
-		$e->setType("LOGIN");
-		$e->setText("User \"".htmlspecialchars($e->getTemp("user")->getNickName())."\" (".$e->getTemp("user")->getName().") logged in.");
-		$e->save();
+        $e = $this->newEvent();
+        $e->setType("LOGIN");
+        $e->setText("User \"".htmlspecialchars($e->getTemp("user")->getNickName())."\" (".$e->getTemp("user")->getName().") logged in.");
+        $e->save();
+    }
 
-	}
+    public function logFailedLogin($email)
+    {
+        $e = $this->newEvent();
+        $e->setType("FAILED_LOGIN");
+        $e->setText("Failed login for username \"$email\"");
+        $e->save();
+    }
 
-	public function logFailedLogin($email){
-		$e = $this->newEvent();
-		$e->setType("FAILED_LOGIN");
-		$e->setText("Failed login for username \"$email\"");
-		$e->save();
-	}
+    public function logLogout()
+    {
+        $e = $this->newEvent();
+        if ($e->getTemp("user") == null) {
+            return;
+        }
+        $e->setType("LOGOUT");
+        $e->setText("User \"".htmlspecialchars($e->getTemp("user")->getNickName())."\" (".$e->getTemp("user")->getName().") logged out.");
+        $e->save();
+    }
 
-	public function logLogout(){
-		$e = $this->newEvent();
-		if($e->getTemp("user") == null){
-			return;
-		}
-		$e->setType("LOGOUT");
-		$e->setText("User \"".htmlspecialchars($e->getTemp("user")->getNickName())."\" (".$e->getTemp("user")->getName().") logged out.");
-		$e->save();
-	}
+    public function logNewPage($page)
+    {
+        $e = $this->newEvent();
+        $site = $e->getTemp("site");
+        $e->setType("PAGE_NEW");
 
-	public function logNewPage($page){
-		$e = $this->newEvent();
-		$site = $e->getTemp("site");
-		$e->setType("PAGE_NEW");
+        $e->setPageId($page->getPageId());
+        $e->setRevisionId($page->getRevisionId());
 
-		$e->setPageId($page->getPageId());
-		$e->setRevisionId($page->getRevisionId());
+        $e->setText('New page "'.htmlspecialchars($page->getUnixName()).'" has been saved on site "'.htmlspecialchars($site->getName()).'".');
+        $e->save();
+    }
 
-		$e->setText('New page "'.htmlspecialchars($page->getUnixName()).'" has been saved on site "'.htmlspecialchars($site->getName()).'".');
-		$e->save();
-	}
+    public function logSavePage($page)
+    {
+        $e = $this->newEvent();
+        $site = $e->getTemp("site");
+        $e->setType("PAGE_EDIT");
 
-	public function logSavePage($page){
-		$e = $this->newEvent();
-		$site = $e->getTemp("site");
-		$e->setType("PAGE_EDIT");
+        $e->setPageId($page->getPageId());
+        $e->setRevisionId($page->getRevisionId());
 
-		$e->setPageId($page->getPageId());
-		$e->setRevisionId($page->getRevisionId());
+        $e->setText('Page "'.htmlspecialchars($page->getUnixName()).'" has been (edited and) saved on site "'.htmlspecialchars($site->getName()).'".');
+        $e->save();
+    }
 
-		$e->setText('Page "'.htmlspecialchars($page->getUnixName()).'" has been (edited and) saved on site "'.htmlspecialchars($site->getName()).'".');
-		$e->save();
-	}
+    public function logPageRename($page, $oldName)
+    {
+        $e = $this->newEvent();
+        $site = $e->getTemp("site");
+        $e->setType("PAGE_RENAME");
 
-	public function logPageRename($page, $oldName){
-		$e = $this->newEvent();
-		$site = $e->getTemp("site");
-		$e->setType("PAGE_RENAME");
+        $e->setPageId($page->getPageId());
+        $e->setRevisionId($page->getRevisionId());
 
-		$e->setPageId($page->getPageId());
-		$e->setRevisionId($page->getRevisionId());
+        $e->setText('Page "'.htmlspecialchars($oldName).'" has been renamed to "'.htmlspecialchars($page->getUnixName()).'" on site "'.htmlspecialchars($site->getName()).'".');
+        $e->save();
+    }
+    public function logPageParentChange($page, $parentPage)
+    {
+        $e = $this->newEvent();
+        $site = $e->getTemp("site");
+        $e->setType("PAGE_PARENT_CHANGE");
 
-		$e->setText('Page "'.htmlspecialchars($oldName).'" has been renamed to "'.htmlspecialchars($page->getUnixName()).'" on site "'.htmlspecialchars($site->getName()).'".');
-		$e->save();
-	}
-	public function logPageParentChange($page, $parentPage){
-		$e = $this->newEvent();
-		$site = $e->getTemp("site");
-		$e->setType("PAGE_PARENT_CHANGE");
+        $e->setPageId($page->getPageId());
+        $e->setRevisionId($page->getRevisionId());
 
-		$e->setPageId($page->getPageId());
-		$e->setRevisionId($page->getRevisionId());
+        $e->setText('Page "'.htmlspecialchars($page->getUnixName()).'" have a new parent: "'.($parentPage?htmlspecialchars($parentPage->getUnixName()):'').'" on site "'.htmlspecialchars($site->getName()).'".');
+        $e->save();
+    }
+    public function logNewThread($thread)
+    {
+        $e = $this->newEvent();
+        $site = $e->getTemp("site");
+        $e->setType("THREAD_NEW");
 
-		$e->setText('Page "'.htmlspecialchars($page->getUnixName()).'" have a new parent: "'.($parentPage?htmlspecialchars($parentPage->getUnixName()):'').'" on site "'.htmlspecialchars($site->getName()).'".');
-		$e->save();
-	}
-	public function logNewThread($thread){
-		$e = $this->newEvent();
-		$site = $e->getTemp("site");
-		$e->setType("THREAD_NEW");
+        $e->setThreadId($thread->getThreadId());
 
-		$e->setThreadId($thread->getThreadId());
+        $e->setText('New thread "'.htmlspecialchars($thread->getTitle()).'" has been created on site "'.htmlspecialchars($site->getName()).'".');
+        $e->save();
+    }
+    public function logNewPost($post)
+    {
+        $e = $this->newEvent();
+        $site = $e->getTemp("site");
+        $e->setType("POST_NEW");
 
-		$e->setText('New thread "'.htmlspecialchars($thread->getTitle()).'" has been created on site "'.htmlspecialchars($site->getName()).'".');
-		$e->save();
-	}
-	public function logNewPost($post){
-		$e = $this->newEvent();
-		$site = $e->getTemp("site");
-		$e->setType("POST_NEW");
+        $e->setPostId($post->getPostId());
+        $e->setThreadId($post->getThreadId());
 
-		$e->setPostId($post->getPostId());
-		$e->setThreadId($post->getThreadId());
+        $e->setText('New post "'.htmlspecialchars($post->getTitle()).'" has been saved on site "'.htmlspecialchars($site->getName()).'".');
+        $e->save();
+    }
 
-		$e->setText('New post "'.htmlspecialchars($post->getTitle()).'" has been saved on site "'.htmlspecialchars($site->getName()).'".');
-		$e->save();
-	}
+    public function logSavePost($post)
+    {
+        $e = $this->newEvent();
+        $site = $e->getTemp("site");
+        $e->setType("POST_SAVE");
 
-	public function logSavePost($post){
-		$e = $this->newEvent();
-		$site = $e->getTemp("site");
-		$e->setType("POST_SAVE");
+        $e->setPostId($post->getPostId());
+        $e->setThreadId($post->getThreadId());
 
-		$e->setPostId($post->getPostId());
-		$e->setThreadId($post->getThreadId());
+        $e->setText('Post "'.htmlspecialchars($post->getTitle()).'" has been (edited and) saved on site "'.htmlspecialchars($site->getName()).'".');
+        $e->save();
+    }
+    public function logSaveThreadMeta($thread)
+    {
+        $e = $this->newEvent();
+        $site = $e->getTemp("site");
+        $e->setType("THREAD_META_SAVE");
 
-		$e->setText('Post "'.htmlspecialchars($post->getTitle()).'" has been (edited and) saved on site "'.htmlspecialchars($site->getName()).'".');
-		$e->save();
-	}
-	public function logSaveThreadMeta($thread){
-		$e = $this->newEvent();
-		$site = $e->getTemp("site");
-		$e->setType("THREAD_META_SAVE");
+        $e->setThreadId($thread->getThreadId());
 
-		$e->setThreadId($thread->getThreadId());
+        $e->setText('Thread "'.htmlspecialchars($thread->getTitle()).'" meta has been changed on site "'.htmlspecialchars($site->getName()).'".');
+        $e->save();
+    }
 
-		$e->setText('Thread "'.htmlspecialchars($thread->getTitle()).'" meta has been changed on site "'.htmlspecialchars($site->getName()).'".');
-		$e->save();
-	}
+    public function logSaveThreadStickness($thread)
+    {
+        $e = $this->newEvent();
+        $site = $e->getTemp("site");
+        $e->setType("THREAD_STICKNESS_SAVE");
 
-	public function logSaveThreadStickness($thread){
-		$e = $this->newEvent();
-		$site = $e->getTemp("site");
-		$e->setType("THREAD_STICKNESS_SAVE");
+        $e->setThreadId($thread->getThreadId());
 
-		$e->setThreadId($thread->getThreadId());
+        $e->setText('Thread "'.htmlspecialchars($thread->getTitle()).'" stickness been changed on site "'.htmlspecialchars($site->getName()).'".');
+        $e->save();
+    }
+    public function logSaveThreadBlock($thread)
+    {
+        $e = $this->newEvent();
+        $site = $e->getTemp("site");
+        $e->setType("THREAD_BLOCK_SAVE");
 
-		$e->setText('Thread "'.htmlspecialchars($thread->getTitle()).'" stickness been changed on site "'.htmlspecialchars($site->getName()).'".');
-		$e->save();
-	}
-	public function logSaveThreadBlock($thread){
-		$e = $this->newEvent();
-		$site = $e->getTemp("site");
-		$e->setType("THREAD_BLOCK_SAVE");
+        $e->setThreadId($thread->getThreadId());
 
-		$e->setThreadId($thread->getThreadId());
+        $e->setText('Thread "'.htmlspecialchars($thread->getTitle()).'" block been changed on site "'.htmlspecialchars($site->getName()).'".');
+        $e->save();
+    }
+    public function logThreadMoved($thread, $category)
+    {
+        $e = $this->newEvent();
+        $site = $e->getTemp("site");
+        $e->setType("THREAD_MOVED");
 
-		$e->setText('Thread "'.htmlspecialchars($thread->getTitle()).'" block been changed on site "'.htmlspecialchars($site->getName()).'".');
-		$e->save();
-	}
-	public function logThreadMoved($thread, $category){
-		$e = $this->newEvent();
-		$site = $e->getTemp("site");
-		$e->setType("THREAD_MOVED");
+        $e->setThreadId($thread->getThreadId());
 
-		$e->setThreadId($thread->getThreadId());
+        $e->setText('Thread "'.htmlspecialchars($thread->getTitle()).'" been moved to category "'.htmlspecialchars($category->getName()).'" on site "'.htmlspecialchars($site->getName()).'".');
+        $e->save();
+    }
 
-		$e->setText('Thread "'.htmlspecialchars($thread->getTitle()).'" been moved to category "'.htmlspecialchars($category->getName()).'" on site "'.htmlspecialchars($site->getName()).'".');
-		$e->save();
-	}
+    public function logPostDelete($thread, $postTitle)
+    {
+        $e = $this->newEvent();
+        $site = $e->getTemp("site");
+        $e->setType("POST_DELETED");
 
-	public function logPostDelete($thread, $postTitle){
-		$e = $this->newEvent();
-		$site = $e->getTemp("site");
-		$e->setType("POST_DELETED");
+        $e->setThreadId($thread->getThreadId());
 
-		$e->setThreadId($thread->getThreadId());
+        $e->setText('Post "'.htmlspecialchars($postTitle).'" has been deleted in thread "'.htmlspecialchars($thread->getTitle()).'" on site "'.htmlspecialchars($site->getName()).'".');
+        $e->save();
+    }
 
-		$e->setText('Post "'.htmlspecialchars($postTitle).'" has been deleted in thread "'.htmlspecialchars($thread->getTitle()).'" on site "'.htmlspecialchars($site->getName()).'".');
-		$e->save();
-	}
+    public function logFlagPage($page)
+    {
+        $e = $this->newEvent();
+        $site = $e->getTemp("site");
+        $e->setType("ABUSE_PAGE_FLAG");
 
-	public function logFlagPage($page){
-		$e = $this->newEvent();
-		$site = $e->getTemp("site");
-		$e->setType("ABUSE_PAGE_FLAG");
+        $e->setText('Path "'.htmlspecialchars($page).'" has been flagged by user "'.htmlspecialchars($e->getTemp("user")->getNickName()).'" on site "'.htmlspecialchars($site->getName()).'".');
+        $e->save();
+    }
 
-		$e->setText('Path "'.htmlspecialchars($page).'" has been flagged by user "'.htmlspecialchars($e->getTemp("user")->getNickName()).'" on site "'.htmlspecialchars($site->getName()).'".');
-		$e->save();
-	}
+    public function logUnflagPage($page)
+    {
+        $e = $this->newEvent();
+        $site = $e->getTemp("site");
+        $e->setType("ABUSE_PAGE_UNFLAG");
 
-	public function logUnflagPage($page){
-		$e = $this->newEvent();
-		$site = $e->getTemp("site");
-		$e->setType("ABUSE_PAGE_UNFLAG");
+        $e->setText('Path "'.htmlspecialchars($page).'" has been unflagged by user "'.htmlspecialchars($e->getTemp("user")->getNickName()).'" on site "'.htmlspecialchars($site->getName()).'".');
+        $e->save();
+    }
 
-		$e->setText('Path "'.htmlspecialchars($page).'" has been unflagged by user "'.htmlspecialchars($e->getTemp("user")->getNickName()).'" on site "'.htmlspecialchars($site->getName()).'".');
-		$e->save();
-	}
+    public function logFlagUser($user)
+    {
+        $e = $this->newEvent();
+        $site = $e->getTemp("site");
+        $e->setType("ABUSE_USER_FLAG");
 
-	public function logFlagUser($user){
-		$e = $this->newEvent();
-		$site = $e->getTemp("site");
-		$e->setType("ABUSE_USER_FLAG");
+        $e->setText('User "'.htmlspecialchars($user->getNickName()).'" has been flagged by user "'.htmlspecialchars($e->getTemp("user")->getNickName()).'" on site "'.htmlspecialchars($site->getName()).'".');
+        $e->save();
+    }
 
-		$e->setText('User "'.htmlspecialchars($user->getNickName()).'" has been flagged by user "'.htmlspecialchars($e->getTemp("user")->getNickName()).'" on site "'.htmlspecialchars($site->getName()).'".');
-		$e->save();
-	}
+    public function logUnflagUser($user)
+    {
+        $e = $this->newEvent();
+        $site = $e->getTemp("site");
+        $e->setType("ABUSE_USER_UNFLAG");
 
-	public function logUnflagUser($user){
-		$e = $this->newEvent();
-		$site = $e->getTemp("site");
-		$e->setType("ABUSE_USER_UNFLAG");
+        $e->setText('User "'.htmlspecialchars($user->getNickName()).'" has been unflagged by user "'.htmlspecialchars($e->getTemp("user")->getNickName()).'" on site "'.htmlspecialchars($site->getName()).'".');
+        $e->save();
+    }
 
-		$e->setText('User "'.htmlspecialchars($user->getNickName()).'" has been unflagged by user "'.htmlspecialchars($e->getTemp("user")->getNickName()).'" on site "'.htmlspecialchars($site->getName()).'".');
-		$e->save();
-	}
+    public function logFlagAnonymous($ipstring)
+    {
+        $e = $this->newEvent();
+        $site = $e->getTemp("site");
+        $e->setType("ABUSE_ANONYMOUS_FLAG");
 
-	public function logFlagAnonymous($ipstring){
-		$e = $this->newEvent();
-		$site = $e->getTemp("site");
-		$e->setType("ABUSE_ANONYMOUS_FLAG");
+        $e->setText('Anonymous user "'.htmlspecialchars($ipstring).'" has been flagged by user "'.htmlspecialchars($e->getTemp("user")->getNickName()).'" on site "'.htmlspecialchars($site->getName()).'".');
+        $e->save();
+    }
+    public function logUnflagAnonymous($ipstring)
+    {
+        $e = $this->newEvent();
+        $site = $e->getTemp("site");
+        $e->setType("ABUSE_ANONYMOUS_UNFLAG");
 
-		$e->setText('Anonymous user "'.htmlspecialchars($ipstring).'" has been flagged by user "'.htmlspecialchars($e->getTemp("user")->getNickName()).'" on site "'.htmlspecialchars($site->getName()).'".');
-		$e->save();
-	}
-	public function logUnflagAnonymous($ipstring){
-		$e = $this->newEvent();
-		$site = $e->getTemp("site");
-		$e->setType("ABUSE_ANONYMOUS_UNFLAG");
+        $e->setText('Anonymous user "'.htmlspecialchars($ipstring).'" has been unflagged by user "'.htmlspecialchars($e->getTemp("user")->getNickName()).'" on site "'.htmlspecialchars($site->getName()).'".');
+        $e->save();
+    }
 
-		$e->setText('Anonymous user "'.htmlspecialchars($ipstring).'" has been unflagged by user "'.htmlspecialchars($e->getTemp("user")->getNickName()).'" on site "'.htmlspecialchars($site->getName()).'".');
-		$e->save();
-	}
+    private function newEvent()
+    {
+        $event = new LogEvent();
+        $event->setDate(new ODate());
 
-	private function newEvent(){
-		$event = new LogEvent();
-		$event->setDate(new ODate());
+        // now to make things easier dig into some global variables and set what is needed
+        $runData = OZONE::getRunData();
 
-		// now to make things easier dig into some global variables and set what is needed
-		$runData = OZONE::getRunData();
+        //site
 
-		//site
+        $site = $runData->getTemp("site");
 
-		$site = $runData->getTemp("site");
+        $event->setSiteId($site->getSiteId());
+        $event->setTemp("site", $site);
 
-		$event->setSiteId($site->getSiteId());
-		$event->setTemp("site", $site);
+        // user_id (if any)
+        $event->setUserId($runData->getUserId());
+        $event->setTemp("user", $runData->getUser());
 
-		// user_id (if any)
-		$event->setUserId($runData->getUserId());
-		$event->setTemp("user", $runData->getUser());
+        //ip address
 
-		//ip address
+        list($ip, $proxy) = explode("|", $runData->createIpString());
+        $event->setIp($ip);
+        $event->setProxy($proxy);
 
-		list($ip, $proxy) = explode("|", $runData->createIpString());
-		$event->setIp($ip);
-		$event->setProxy($proxy);
+        // user agent
 
-		// user agent
+        $event->setUserAgent($_SERVER['HTTP_USER_AGENT']);
 
-		$event->setUserAgent($_SERVER['HTTP_USER_AGENT']);
-
-		return $event;
-	}
-
+        return $event;
+    }
 }

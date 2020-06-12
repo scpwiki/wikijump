@@ -25,11 +25,11 @@
 
 namespace DB;
 
-
 /**
  * Object Model class.
  *
  */
-class SiteTag extends SiteTagBase {
+class SiteTag extends SiteTagBase
+{
 
 }

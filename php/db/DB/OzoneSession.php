@@ -25,11 +25,11 @@
 
 namespace DB;
 
-
 /**
  * Object Model class.
  *
  */
-class OzoneSession extends OzoneSessionBase {
+class OzoneSession extends OzoneSessionBase
+{
 
 }

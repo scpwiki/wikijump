@@ -4,8 +4,6 @@ namespace DB;
 
 use DB\IdBrokerPeerBase;
 
-
-
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
@@ -34,6 +32,7 @@ use DB\IdBrokerPeerBase;
  * Object Model class.
  *
  */
-class IdBrokerPeer extends IdBrokerPeerBase {
+class IdBrokerPeer extends IdBrokerPeerBase
+{
 
 }

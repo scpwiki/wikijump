@@ -2,9 +2,8 @@
 
 namespace DB;
 
-
 //please extend this class
-class UcookiePeer extends UcookiePeerBase {
+class UcookiePeer extends UcookiePeerBase
+{
 
 }
-

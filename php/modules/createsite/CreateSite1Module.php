@@ -24,15 +24,15 @@
  */
 
 
-class CreateSite1Module extends SmartyModule{
+class CreateSite1Module extends SmartyModule
+{
 
-	public function build($runData){
+    public function build($runData)
+    {
 
-		// can create new wiki now!!!
-		$ft = $runData->formTool();
-		$form = $ft->getForm("new_site");
-		$runData->contextAdd("form", $form);
-
-	}
-
+        // can create new wiki now!!!
+        $ft = $runData->formTool();
+        $form = $ft->getForm("new_site");
+        $runData->contextAdd("form", $form);
+    }
 }

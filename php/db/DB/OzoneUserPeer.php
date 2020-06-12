@@ -25,14 +25,15 @@
 
 namespace DB;
 
-
 /**
  * Object Model class.
  *
  */
-class OzoneUserPeer extends OzoneUserPeerBase {
+class OzoneUserPeer extends OzoneUserPeerBase
+{
 
-    public function selectByPrimaryKeyCached($userId) {
+    public function selectByPrimaryKeyCached($userId)
+    {
         $memcache = \Ozone::$memcache;
         $key = 'user..' . $userId;
         $u = $memcache->get($key);
@@ -44,5 +45,4 @@ class OzoneUserPeer extends OzoneUserPeerBase {
             return $u;
         }
     }
-
 }

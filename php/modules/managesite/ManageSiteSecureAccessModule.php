@@ -24,15 +24,16 @@
  */
 
 
-class ManageSiteSecureAccessModule extends ManageSiteBaseModule {
+class ManageSiteSecureAccessModule extends ManageSiteBaseModule
+{
 
-	public function build($runData){
-		$site = $runData->getTemp("site");
-		$settings = $site->getSettings();
+    public function build($runData)
+    {
+        $site = $runData->getTemp("site");
+        $settings = $site->getSettings();
 
-		$secureMode = $settings->getSslMode();
+        $secureMode = $settings->getSslMode();
 
-		$runData->contextAdd("secureMode", $secureMode);
-	}
-
+        $runData->contextAdd("secureMode", $secureMode);
+    }
 }

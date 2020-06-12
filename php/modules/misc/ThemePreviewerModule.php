@@ -27,91 +27,90 @@
 use DB\ThemePeer;
 use DB\Theme;
 
-class ThemePreviewerModule extends SmartyModule {
+class ThemePreviewerModule extends SmartyModule
+{
 
-	protected $processPage = true;
+    protected $processPage = true;
 
-	private $themeId;
-	private $theme;
+    private $themeId;
+    private $theme;
 
-	public function build($runData){
+    public function build($runData)
+    {
 
-		$site = $runData->getTemp("site");
+        $site = $runData->getTemp("site");
 
-		$pl = $runData->getParameterList();
+        $pl = $runData->getParameterList();
 
-		$themeId = $pl->getParameterValue('theme_id');
-		if($themeId === null){
-			$themeUrl = current($_GET); // BAD HACK!!!
-			if($themeUrl){
-				$theme = $this->getExternalTheme($themeUrl);
-			}else{
+        $themeId = $pl->getParameterValue('theme_id');
+        if ($themeId === null) {
+            $themeUrl = current($_GET); // BAD HACK!!!
+            if ($themeUrl) {
+                $theme = $this->getExternalTheme($themeUrl);
+            } else {
+                $page = $runData->getTemp("page");
+                if ($page == null) {
+                    throw new ProcessException(_("Not working in the preview mode. Not a preview mode? So it might be an error."));
+                }
+                $theme = $page->getCategory()->getTheme();
+            }
+        } else {
+            $theme = ThemePeer::instance()->selectByPrimaryKey($themeId);
+        }
 
-				$page = $runData->getTemp("page");
-				if($page == null){
-					throw new ProcessException(_("Not working in the preview mode. Not a preview mode? So it might be an error."));
-				}
-				$theme = $page->getCategory()->getTheme();
-			}
-		}else{
-			$theme = ThemePeer::instance()->selectByPrimaryKey($themeId);
-		}
+        //$this->themeId = $themeId;
 
-		//$this->themeId = $themeId;
+        if ($theme == null || $theme->getAbstract() == true ||
+            ($theme->getCustom ==true && $theme->getSiteId() != $site->getSiteId())) {
+            throw new ProcessException(_("Error selecting theme."));
+        }
 
-		if($theme == null || $theme->getAbstract() == true ||
-			($theme->getCustom ==true && $theme->getSiteId() != $site->getSiteId())){
+        $this->theme = $theme;
 
-			throw new ProcessException(_("Error selecting theme."));
+        $q = "SELECT * from theme WHERE " .
+                "abstract = FALSE  " .
+                "AND (custom = FALSE" .
+                    " OR (custom = TRUE AND site_id='".$site->getSiteId()."' AND site_id !=1)" .
+                ") " .
+                "ORDER BY custom, sort_index, replace(name, '_', '00000000');";
 
-		}
+        $c = new Criteria();
+        $c->setExplicitQuery($q);
+        $themes = ThemePeer::instance()->select($c);
+        $runData->contextAdd("themes", $themes);
 
-		$this->theme = $theme;
+        $runData->contextAdd("currentTheme", $theme);
+        $runData->contextAdd("noUi", $pl->getParameterValue('noUi'));
+    }
 
-		$q = "SELECT * from theme WHERE " .
-				"abstract = FALSE  " .
-				"AND (custom = FALSE" .
-					" OR (custom = TRUE AND site_id='".$site->getSiteId()."' AND site_id !=1)" .
-				") " .
-				"ORDER BY custom, sort_index, replace(name, '_', '00000000');";
+    public function processPage($out, $runData)
+    {
 
-		$c = new Criteria();
-		$c->setExplicitQuery($q);
-		$themes = ThemePeer::instance()->select($c);
-		$runData->contextAdd("themes", $themes);
+        $theme = $this->theme;
+        $t = '';
+        foreach ($theme->getStyleUrls() as $url) {
+            $t .= "@import url($url);\n";
+        }
 
-		$runData->contextAdd("currentTheme", $theme);
-		$runData->contextAdd("noUi", $pl->getParameterValue('noUi'));
+        $out = preg_replace('/(@import url\([^\)]*?style\.css(\?[0-9]+)?\);\s*)+/s', $t, $out, 1);
 
-	}
+        return $out;
+    }
 
-	public function processPage($out, $runData){
-
-		$theme = $this->theme;
-		$t = '';
-		foreach($theme->getStyleUrls() as $url){
-   			$t .= "@import url($url);\n";
-		}
-
-		$out = preg_replace('/(@import url\([^\)]*?style\.css(\?[0-9]+)?\);\s*)+/s', $t, $out, 1);
-
-		return $out;
-	}
-
-	protected function getExternalTheme($url){
-		if(!$url){
-			return null;
-		}
-		$t = new Theme();
-		$t->setExternalUrl($url);
-		/* Get base theme. */
-		$c = new Criteria();
-		$c->add('name', 'Base');
-		$c->add('custom', false);
-		$baseTheme = ThemePeer::instance()->selectOne($c);
-		$t->setExtendsThemeId($baseTheme->getThemeId());
-		$t->setThemeId($baseTheme->getThemeId()); // needed sometime
-		return $t;
-	}
-
+    protected function getExternalTheme($url)
+    {
+        if (!$url) {
+            return null;
+        }
+        $t = new Theme();
+        $t->setExternalUrl($url);
+        /* Get base theme. */
+        $c = new Criteria();
+        $c->add('name', 'Base');
+        $c->add('custom', false);
+        $baseTheme = ThemePeer::instance()->selectOne($c);
+        $t->setExtendsThemeId($baseTheme->getThemeId());
+        $t->setThemeId($baseTheme->getThemeId()); // needed sometime
+        return $t;
+    }
 }
