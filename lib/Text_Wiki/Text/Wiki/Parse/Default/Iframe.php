@@ -59,7 +59,7 @@ class Text_Wiki_Parse_Iframe extends Text_Wiki_Parse {
             ")*" . // end pattern
             "[^ \\t\\n\\/\"{$this->wiki->delim}]*?)";
 
-		$this->regex = ';\[\[iframe\s+('.$urlRegex.')(\s+.*?)?\]\];si';
+		$this->regex = '/\[\[iframe\s+('.$urlRegex.')(\s+.*?)?\]\]/si';
 
 	}
 

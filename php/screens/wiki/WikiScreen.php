@@ -106,9 +106,11 @@ class WikiScreen extends Screen {
 				$out = $cachedPage['content'];
 				if($this->vars['notificationsDialog']){
 
-				$out = preg_replace(';<div id="account-notifications-dummy" style="display:none"></div>;',
-						'<div id="notifications-dialog" style="display:none">'.
-							$this->vars['notificationsDialog'].'</div>', $out, 1);
+                    $out = preg_replace('/
+                        <div id="account-notifications-dummy" style="display:none"><\/div>
+                        /x',
+                        '<div id="notifications-dialog" style="display:none">'.
+                        $this->vars['notificationsDialog'].'</div>', $out, 1);
 				}
 				return $out;
 			} else {
