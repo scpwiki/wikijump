@@ -137,10 +137,20 @@ class ManageSiteAction extends SmartyAction {
 			throw new ProcessException(_("No page found with this name."), "form_error");
 		}
 		$source = $page->getSource();
-		if(preg_match('/\[\[code(?:\s+type="css")?\]\](.*?)\[\[\/code\]\]/si', $source) ==0){
+        if(preg_match('/
+            \[\[code(?:\s+type="css")?\]\]
+            (.*?)
+            \[\[\/code\]\]
+            /six', $source) == 0){
 			throw new ProcessException(_("No code block could be found in the page source."), "form_error");
 		}
-		$code = trim(preg_replace('/.*?\[\[code(?:\s+type="css")?\]\](.*?)\[\[\/code\]\].*/si', "\\1", $source));
+        $code = trim(preg_replace('/
+            .*?
+            \[\[code(?:\s+type="css")?\]\]
+            (.*?)
+            \[\[\/code\]\]
+            .*
+            /six', "\\1", $source));
 		$runData->ajaxResponseAdd("code", $code);
 	}
 

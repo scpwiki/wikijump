@@ -121,7 +121,7 @@ class NewSiteAction extends SmartyAction {
 		$db->begin();
 
 		$templateSite = SitePeer::instance()->selectByPrimaryKey($templateId);
-		if(!preg_match(';^template\-;', $templateSite->getUnixName())){
+		if(!preg_match('/^template\-/', $templateSite->getUnixName())){
 		    throw new ProcessException('Error');
 		}
 

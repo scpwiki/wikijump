@@ -50,7 +50,7 @@ class ManageUsersAction extends SmartyAction {
 		$ids = array();
 		foreach ($params as $param_key => $param_val) {
 			$m = array();
-			if (preg_match(';^nick_name_([new0-9]+)$;', $param_key, $m)) {
+			if (preg_match('/^nick_name_([new0-9]+)$/', $param_key, $m)) {
 				$ids[] = $m[1];
 			}
 		}
