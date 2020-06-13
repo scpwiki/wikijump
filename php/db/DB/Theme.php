@@ -27,16 +27,17 @@ namespace DB;
 
 use \ProcessException;
 
-
 /**
  * Object Model class.
  *
  */
-class Theme extends ThemeBase {
+class Theme extends ThemeBase
+{
 
-	protected $_external;
+    protected $_external;
 
-    public function getStyleUrls() {
+    public function getStyleUrls()
+    {
 
         if ($this->getExtendsThemeId()) {
             // get parent theme
@@ -56,22 +57,24 @@ class Theme extends ThemeBase {
     /**
      * Returns url of the style associated with this theme.
      */
-    public function getStyleUrl() {
+    public function getStyleUrl()
+    {
         if ($this->getCustom()) {
             return "/local--theme/" . $this->getUnixName() . "/style.css?" . $this->getRevisionNumber();
-        } elseif($this->_external){
-        	return $this->_external;
+        } elseif ($this->_external) {
+            return $this->_external;
         } else {
             return "/common--theme/" . $this->getUnixName() . "/css/style.css?" . $this->getRevisionNumber();
         }
     }
 
-    public function getThemePreview() {
+    public function getThemePreview()
+    {
         return ThemePreviewPeer::instance()->selectByPrimaryKey($this->getThemeId());
     }
 
-    public function setExternalUrl($url){
-    	$this->_external = $url;
+    public function setExternalUrl($url)
+    {
+        $this->_external = $url;
     }
-
 }

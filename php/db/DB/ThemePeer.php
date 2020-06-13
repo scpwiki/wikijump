@@ -25,11 +25,11 @@
 
 namespace DB;
 
-
 /**
  * Object Model class.
  *
  */
-class ThemePeer extends ThemePeerBase {
+class ThemePeer extends ThemePeerBase
+{
 
 }

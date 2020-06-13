@@ -25,11 +25,11 @@
 
 namespace DB;
 
-
 /**
  * Object Model class.
  *
  */
-class WatchedForumThread extends WatchedForumThreadBase {
+class WatchedForumThread extends WatchedForumThreadBase
+{
 
 }

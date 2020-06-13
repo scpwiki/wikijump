@@ -27,14 +27,15 @@ namespace DB;
 
 use Criteria;
 
-
 /**
  * Object Model class.
  *
  */
-class PageEditLock extends PageEditLockBase {
+class PageEditLock extends PageEditLockBase
+{
 
-    public function getConflicts() {
+    public function getConflicts()
+    {
         $c = $this->getConflictsCriteria();
         $conflicts = PageEditLockPeer::instance()->select($c);
         if (count($conflicts) == 0) {
@@ -42,15 +43,16 @@ class PageEditLock extends PageEditLockBase {
         } else {
             return $conflicts;
         }
-
     }
 
-    public function deleteConflicts() {
+    public function deleteConflicts()
+    {
         $c = $this->getConflictsCriteria();
         PageEditLockPeer::instance()->delete($c);
     }
 
-    public function getConflictsCriteria() {
+    public function getConflictsCriteria()
+    {
         // get conflicting page locks
 
         // if lock for a new page...
@@ -65,7 +67,6 @@ class PageEditLock extends PageEditLockBase {
                 $c->add("lock_id", $this->getLockId(), "!=");
             }
         } else {
-
             // now if the page exists.
 
             if ($this->getMode() == "page") {
@@ -103,7 +104,8 @@ class PageEditLock extends PageEditLockBase {
         return $c;
     }
 
-    public function getUser() {
+    public function getUser()
+    {
         if ($this->getUserId() == 0) {
             return null;
         }
@@ -120,32 +122,33 @@ class PageEditLock extends PageEditLockBase {
             }
         }
         return OzoneUserPeer::instance()->selectByPrimaryKey($this->getUserId());
-
     }
 
-    public function getUserOrString() {
+    public function getUserOrString()
+    {
         $user = $this->getUser();
         if ($user == null) {
             return $this->getUserString();
         } else {
             return $user;
         }
-
     }
 
     /**
      * Calculate number of seconds this lock will expire.
      */
-    public function getExpireIn() {
+    public function getExpireIn()
+    {
         return $this->getDateLastAccessed()->getTimestamp() + 15 * 60 - time();
     }
 
-    public function getStartedAgo() {
+    public function getStartedAgo()
+    {
         return time() - $this->getDateStarted()->getTimestamp();
     }
 
-    public function getOzoneUser() {
+    public function getOzoneUser()
+    {
         return OzoneUserPeer::instance()->selectByPrimaryKey($this->getUserId());
     }
-
 }

@@ -25,17 +25,17 @@
 
 namespace DB;
 
-
 /**
  * Object Model class.
  *
  */
-class Profile extends ProfileBase {
+class Profile extends ProfileBase
+{
 
-    public function getBirthdayDate($format = null) {
+    public function getBirthdayDate($format = null)
+    {
         if ($this->getBirthdayDay() == null) {
             return null;
-
         }
 
         $day = $this->getBirthdayDay();
@@ -48,5 +48,4 @@ class Profile extends ProfileBase {
         }
         return strftime($format, $date);
     }
-
 }

@@ -3,12 +3,14 @@
 
 namespace Wikidot\Form\Field;
 
-
-class Select extends Base {
-    public function renderView() {
+class Select extends Base
+{
+    public function renderView()
+    {
         return htmlspecialchars($this->field['options'][$this->field['value']]);
     }
-    public function renderEdit() {
+    public function renderEdit()
+    {
         $f = $this->field;
         $output = "<select name=\"field_$f[name]\">";
         foreach ($f['options'] as $name => $option) {

@@ -25,11 +25,11 @@
 
 namespace DB;
 
-
 /**
  * Object Model class.
  *
  */
-class ForumSettings extends ForumSettingsBase {
+class ForumSettings extends ForumSettingsBase
+{
 
 }

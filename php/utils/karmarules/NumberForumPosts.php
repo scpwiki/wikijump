@@ -31,12 +31,14 @@ use DB\ForumPostPeer;
 use instance;
 use selectCount;
 
-class NumberForumPosts implements KarmaRuleInterface {
+class NumberForumPosts implements KarmaRuleInterface
+{
 
-   public function calculate($user){
+    public function calculate($user)
+    {
         $c = new Criteria();
         $c->add('user_id', $user->getUserId());
         $count = ForumPostPeer::instance()->selectCount($c);
         return $count;
-   }
+    }
 }

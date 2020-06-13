@@ -25,14 +25,15 @@
 
 namespace DB;
 
-
 /**
  * Object Model class.
  *
  */
-class UserBlock extends UserBlockBase {
+class UserBlock extends UserBlockBase
+{
 
-    public function getUser() {
+    public function getUser()
+    {
         if (is_array($this->prefetched)) {
             if (in_array('ozone_user', $this->prefetched)) {
                 if (in_array('ozone_user', $this->prefetchedObjects)) {
@@ -46,7 +47,5 @@ class UserBlock extends UserBlockBase {
             }
         }
         return OzoneUserPeer::instance()->selectByPrimaryKey($this->getUserId());
-
     }
-
 }

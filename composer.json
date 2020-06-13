@@ -1,0 +1,6 @@
+{
+    "require": {
+        "ezyang/htmlpurifier": "^4.12",
+        "cerdic/css-tidy": "^1.7"
+    }
+}

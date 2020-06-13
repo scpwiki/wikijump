@@ -32,9 +32,11 @@ use \GlobalProperties;
  * Object Model class.
  *
  */
-class Site extends SiteBase {
+class Site extends SiteBase
+{
 
-    public function getDomain() {
+    public function getDomain()
+    {
         if ($this->getCustomDomain() == null || $this->getCustomDomain() == "") {
             return $this->getUnixName() . "." . GlobalProperties::$URL_DOMAIN;
         } else {
@@ -42,7 +44,8 @@ class Site extends SiteBase {
         }
     }
 
-    public function getSettings() {
+    public function getSettings()
+    {
         $key = "sitesettings.." . $this->getSiteId();
         $mc = \Ozone::$memcache;
         $s = $mc->get($key);
@@ -55,21 +58,23 @@ class Site extends SiteBase {
         return $s;
     }
 
-    public function getSuperSettings() {
+    public function getSuperSettings()
+    {
 
         $s = SiteSuperSettingsPeer::instance()->selectByPrimaryKey($this->getSiteId());
 
         return $s;
-
     }
 
-    public function getForumSettings() {
+    public function getForumSettings()
+    {
         $c = new Criteria();
         $c->add("site_id", $this->getSiteId());
         return ForumSettingsPeer::instance()->selectOne($c);
     }
 
-    public function save() {
+    public function save()
+    {
         $memcache = \Ozone::$memcache;
         $key = 'site..' . $this->getUnixName();
         $memcache->delete($key);
@@ -78,13 +83,14 @@ class Site extends SiteBase {
         parent::save();
     }
 
-    public function getLocalFilesPath(){
-    	return WIKIDOT_ROOT . '/web/files--sites/'.$this->getUnixName();
+    public function getLocalFilesPath()
+    {
+        return WIKIDOT_ROOT . '/web/files--sites/'.$this->getUnixName();
 
-    	/* optional hashing */
-    	$un = $this->getUnixName();
-    	$p = substr($un,0,1) . '/' . substr($un,0,2) . '/' . $un;
+        /* optional hashing */
+        $un = $this->getUnixName();
+        $p = substr($un, 0, 1) . '/' . substr($un, 0, 2) . '/' . $un;
 
-    	return WIKIDOT_ROOT . '/web/files--sites/' . $p;
+        return WIKIDOT_ROOT . '/web/files--sites/' . $p;
     }
 }

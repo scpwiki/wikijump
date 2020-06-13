@@ -27,13 +27,11 @@ namespace DB;
 
 use DB\ForumDivisionBase;
 
-
-
-
 /**
  * Object Model class.
  *
  */
-class ForumDivision extends ForumDivisionBase {
+class ForumDivision extends ForumDivisionBase
+{
 
 }

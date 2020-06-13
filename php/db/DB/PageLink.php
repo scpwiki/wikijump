@@ -25,11 +25,11 @@
 
 namespace DB;
 
-
 /**
  * Object Model class.
  *
  */
-class PageLink extends PageLinkBase {
+class PageLink extends PageLinkBase
+{
 
 }

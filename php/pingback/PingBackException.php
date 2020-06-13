@@ -24,6 +24,7 @@
  */
 
 
-class PingBackException extends Exception {
+class PingBackException extends Exception
+{
 
 }

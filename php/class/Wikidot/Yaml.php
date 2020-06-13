@@ -9,14 +9,14 @@ use Spyc;
 use Wikidot_Yaml_Exception;
 use sfYaml;
 
-
-
 require_once(WIKIDOT_ROOT . "/lib/sfyaml/lib/sfYamlParser.php");
 require_once(WIKIDOT_ROOT . "/lib/sfyaml/lib/sfYaml.php");
 require_once(WIKIDOT_ROOT . "/lib/spyc/spyc.php");
 
-class Yaml {
-	public static function load($string, $forgiving = false) {
+class Yaml
+{
+    public static function load($string, $forgiving = false)
+    {
         if (substr($string, 0, 3) != '---') {
             $string = "---\n$string";
         }
@@ -36,8 +36,9 @@ class Yaml {
             }
             throw new Wikidot_Yaml_Exception("Can't parse the YAML string." . $e->getMessage());
         }
-	}
-    public static function dump($object) {
+    }
+    public static function dump($object)
+    {
         // using the slow (but very compatible) symfony YAML dumper
         $ret = sfYaml::dump($object, 999);
         if (substr($string, 0, 3) == '---') {

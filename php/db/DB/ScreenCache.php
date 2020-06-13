@@ -27,13 +27,11 @@ namespace DB;
 
 use DB\ScreenCacheBase;
 
-
-
-
 /**
  * Object Model class.
  *
  */
-class ScreenCache extends ScreenCacheBase {
+class ScreenCache extends ScreenCacheBase
+{
 
 }

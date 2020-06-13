@@ -26,54 +26,55 @@
 
 use DB\PagePeer;
 
-class RenamePageModule extends SmartyModule {
+class RenamePageModule extends SmartyModule
+{
 
-	public function build($runData){
-		// only check for permissions
-		$pl = $runData->getParameterList();
-		$pageId = $pl->getParameterValue("pageId");
-		$page = PagePeer::instance()->selectByPrimaryKey($pageId);
-		if($page == null || $page->getSiteId() != $runData->getTemp("site")->getSiteId()){
-			throw new ProcessException(_("Error getting page information."), "no_page");
-		}
+    public function build($runData)
+    {
+        // only check for permissions
+        $pl = $runData->getParameterList();
+        $pageId = $pl->getParameterValue("pageId");
+        $page = PagePeer::instance()->selectByPrimaryKey($pageId);
+        if ($page == null || $page->getSiteId() != $runData->getTemp("site")->getSiteId()) {
+            throw new ProcessException(_("Error getting page information."), "no_page");
+        }
 
-		$delete = $pl->getParameterValue("delete");
+        $delete = $pl->getParameterValue("delete");
 
-		$user = $runData->getUser();
+        $user = $runData->getUser();
 
-		if($delete){
-			$newName = 'deleted:'.$page->getUnixName();
-			$runData->contextAdd("delete", true);
-		}else{
-			$newName = $page->getUnixName();
-		}
+        if ($delete) {
+            $newName = 'deleted:'.$page->getUnixName();
+            $runData->contextAdd("delete", true);
+        } else {
+            $newName = $page->getUnixName();
+        }
 
-		$category = $page->getCategory();
-		$runData->contextAdd("page", $page);
+        $category = $page->getCategory();
+        $runData->contextAdd("page", $page);
 
-		$runData->contextAdd("newName", $newName);
+        $runData->contextAdd("newName", $newName);
 
-		// now check for permissions!!!
+        // now check for permissions!!!
 
-		WDPermissionManager::instance()->hasPagePermission('move', $user, $category, $page);
+        WDPermissionManager::instance()->hasPagePermission('move', $user, $category, $page);
 
-		$canDelete = true;
-		try{
-			WDPermissionManager::instance()->hasPagePermission('delete', $user, $category, $page);
-		}catch(Exception $e){
-			$canDelete = false;
-		}
+        $canDelete = true;
+        try {
+            WDPermissionManager::instance()->hasPagePermission('delete', $user, $category, $page);
+        } catch (Exception $e) {
+            $canDelete = false;
+        }
 
-		$runData->contextAdd("canDelete", $canDelete);
+        $runData->contextAdd("canDelete", $canDelete);
 
-		// check if belongs to a special category...
-		$categoryName = $category->getName();
-		if($categoryName == "forum"){
-			$runData->contextAdd("isForum", true);
-		}
-		if($categoryName == "admin"){
-			$runData->contextAdd("isAdmin", true);
-		}
-	}
-
+        // check if belongs to a special category...
+        $categoryName = $category->getName();
+        if ($categoryName == "forum") {
+            $runData->contextAdd("isForum", true);
+        }
+        if ($categoryName == "admin") {
+            $runData->contextAdd("isAdmin", true);
+        }
+    }
 }

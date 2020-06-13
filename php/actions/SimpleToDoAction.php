@@ -28,52 +28,54 @@ use DB\PagePeer;
 use DB\SimpletodoListPeer;
 use DB\SimpletodoList;
 
-class SimpleToDoAction extends SmartyAction {
+class SimpleToDoAction extends SmartyAction
+{
 
-    public function perform($r){
-
+    public function perform($r)
+    {
     }
 
     public $dataArray = array();
 
-    public function saveEvent($runData){
+    public function saveEvent($runData)
+    {
         $site = $runData->getTemp("site");
         $pl = $runData->getParameterList();
         $pageId = $pl->getParameterValue("pageId");
-        if (!is_numeric($pageId)){
+        if (!is_numeric($pageId)) {
             throw new ProcessException(_("Page does not exist."));
         }
-		$page = PagePeer::instance()->selectByPrimaryKey($pageId);
+        $page = PagePeer::instance()->selectByPrimaryKey($pageId);
 
-		if(!$page) {
-			throw new ProcessException(_("Page does not exist."));
-		}
+        if (!$page) {
+            throw new ProcessException(_("Page does not exist."));
+        }
 
-			// check permissions
-		$category = $page->getCategory();
-		WDPermissionManager::instance()->hasPagePermission('edit', $runData->getUser(), $category, $page);
+            // check permissions
+        $category = $page->getCategory();
+        WDPermissionManager::instance()->hasPagePermission('edit', $runData->getUser(), $category, $page);
 
         $data = $pl->getParameterValue("data");
         $json = new JSONService();
         $listData = $json->decode($data);
         //it's time to do some checking
         $listData->label = trim($listData->label);
-        if(!$listData->label){
+        if (!$listData->label) {
             throw new ProcessException(_('The SimpleTodo module must have an id (e.g. id="list1").'));
         }
         $dataArray['label'] = $listData->label;
         $listData->title = trim($listData->title);
-        if(!$listData->title){
+        if (!$listData->title) {
             throw new ProcessException(_('Your title field is empty, please correct that.'));
         }
         $dataArray['title'] = $listData->title ;
-        for($i=0; $i<count($listData->data); $i++){
+        for ($i=0; $i<count($listData->data); $i++) {
             $listData->data[$i]->text = trim($listData->data[$i]->text) ;
             $listData->data[$i]->link = trim($listData->data[$i]->link) ;
-            if (!is_bool($listData->data[$i]->checked)){
+            if (!is_bool($listData->data[$i]->checked)) {
                 throw new ProcessException(_('Something is wrong witch checkbox (it is not a boolean value).'));
             }
-            if (empty($listData->data[$i]->text)){
+            if (empty($listData->data[$i]->text)) {
                 throw new ProcessException(_('One of your text fields is empty, please correct that.'));
             }
             $dataArray['data'][$i]['text'] = $listData->data[$i]->text;
@@ -82,11 +84,11 @@ class SimpleToDoAction extends SmartyAction {
         }
 
         $c = new Criteria();
-        $c->add('label',$listData->label);
+        $c->add('label', $listData->label);
         $c->add('site_id', $site->getSiteId());
         $list = SimpletodoListPeer::instance()->selectOne($c);
 
-        if (!$list){
+        if (!$list) {
             $list = new SimpletodoList();
             $list->setSiteId($site->getSiteId());
             $list->setLabel($dataArray['label']);

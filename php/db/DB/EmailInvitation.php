@@ -25,16 +25,16 @@
 
 namespace DB;
 
-
 /**
  * Object Model class.
  *
  */
-class EmailInvitation extends EmailInvitationBase {
+class EmailInvitation extends EmailInvitationBase
+{
 
-	public function getUser(){
-		$user = OzoneUserPeer::instance()->selectByPrimaryKey($this->getUserId());
-		return $user;
-	}
-
+    public function getUser()
+    {
+        $user = OzoneUserPeer::instance()->selectByPrimaryKey($this->getUserId());
+        return $user;
+    }
 }

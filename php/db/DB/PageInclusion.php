@@ -25,11 +25,11 @@
 
 namespace DB;
 
-
 /**
  * Object Model class.
  *
  */
-class PageInclusion extends PageInclusionBase {
+class PageInclusion extends PageInclusionBase
+{
 
 }

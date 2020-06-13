@@ -24,10 +24,10 @@
  */
 
 
-class EditPetitionCampaignModule extends SmartyModule {
+class EditPetitionCampaignModule extends SmartyModule
+{
 
-	public function build($runData){
-
-	}
-
+    public function build($runData)
+    {
+    }
 }
