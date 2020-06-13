@@ -25,11 +25,11 @@
 
 namespace DB;
 
-
 /**
  * Object Model class.
  *
  */
-class PetitionSignature extends PetitionSignatureBase {
+class PetitionSignature extends PetitionSignatureBase
+{
 
 }

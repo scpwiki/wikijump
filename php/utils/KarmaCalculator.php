@@ -28,37 +28,41 @@ use DB\UserKarmaPeer;
 use DB\UserKarma;
 use DB\OzoneUserPeer;
 
-class KarmaCalculator {
+class KarmaCalculator
+{
 
     protected $_rules = array();
 
 
-    public function __construct(){
+    public function __construct()
+    {
         /* Init rules. */
         $rulesPath  = WIKIDOT_ROOT.'/php/utils/karmarules/';
         $files = ls($rulesPath, '*.php');
-        foreach($files as $f){
+        foreach ($files as $f) {
             require_once($rulesPath.'/'.$f);
             $cn = str_replace('.php', '', basename($f));
             $this->_rules[] = new $cn();
         }
     }
 
-    public function calculate($user){
+    public function calculate($user)
+    {
         $p = 0;
-        foreach($this->_rules as $rule) {
+        foreach ($this->_rules as $rule) {
             $p += $rule->calculate($user);
         }
         return $p;
     }
 
-    public function update($user){
+    public function update($user)
+    {
         $p = $this->calculate($user);
         /* Get the karma object. */
         $c = new Criteria();
         $c->add('user_id', $user->getUserId());
         $karma = UserKarmaPeer::instance()->selectOne($c);
-        if(!$karma){
+        if (!$karma) {
             $karma = new UserKarma();
             $karma->setUserId($user->getUserId());
         }
@@ -66,7 +70,8 @@ class KarmaCalculator {
         $karma->save();
     }
 
-    public function updateLevels(){
+    public function updateLevels()
+    {
 
         /* How many points you need to have to get to a level. */
         $minPointsLevel1 = 30;
@@ -111,7 +116,8 @@ class KarmaCalculator {
         $db->query($q);
     }
 
-    public function updateAll(){
+    public function updateAll()
+    {
         $offset = 0;
         $step = 1000;
         $db = Database::$connection;
@@ -134,5 +140,4 @@ class KarmaCalculator {
         $this->updateLevels();
         $db->commit();
     }
-
 }

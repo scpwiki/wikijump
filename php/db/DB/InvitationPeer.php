@@ -4,8 +4,6 @@ namespace DB;
 
 use DB\InvitationPeerBase;
 
-
-
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
@@ -34,6 +32,7 @@ use DB\InvitationPeerBase;
  * Object Model class.
  *
  */
-class InvitationPeer extends InvitationPeerBase {
+class InvitationPeer extends InvitationPeerBase
+{
 
 }

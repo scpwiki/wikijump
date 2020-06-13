@@ -8,11 +8,11 @@ use Criteria;
 use DB\CategoryPeer;
 use DB\PagePeer;
 
-
-
-class PagePath extends WikiBase {
+class PagePath extends WikiBase
+{
     public $rule = ':^(\[\[\[[^|]]*(|[^]]*)?\]\]\][ /]*)*$:';
-    public function renderEdit() {
+    public function renderEdit()
+    {
         $m = array();
         $path = array();
         $v = $this->field['value'];
@@ -94,7 +94,8 @@ class PagePath extends WikiBase {
             </div>
         */
     }
-    public function selectPagesByParent($categoryId, $parentId) {
+    public function selectPagesByParent($categoryId, $parentId)
+    {
         $c = new Criteria();
         $categoryId = (int) $categoryId;
         $parentId = (int) $parentId;

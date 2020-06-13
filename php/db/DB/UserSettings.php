@@ -25,14 +25,15 @@
 
 namespace DB;
 
-
 /**
  * Object Model class.
  *
  */
-class UserSettings extends UserSettingsBase {
+class UserSettings extends UserSettingsBase
+{
 
-    public function getReceivePm() {
+    public function getReceivePm()
+    {
         return trim(parent::getReceivePm());
     }
 }

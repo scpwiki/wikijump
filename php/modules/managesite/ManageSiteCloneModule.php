@@ -24,13 +24,14 @@
  */
 
 
-class ManageSiteCloneModule extends ManageSiteBaseModule {
+class ManageSiteCloneModule extends ManageSiteBaseModule
+{
 
-	public function build($runData){
+    public function build($runData)
+    {
 
-		$site = $runData->getTemp("site");
+        $site = $runData->getTemp("site");
 
-		$runData->contextAdd("site", $site);
-	}
-
+        $runData->contextAdd("site", $site);
+    }
 }

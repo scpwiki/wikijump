@@ -5,9 +5,10 @@ namespace Wikidot\Form;
 
 use Wikidot\Form;
 
-
-class Renderer extends Form {
-    public function __construct($form) {
+class Renderer extends Form
+{
+    public function __construct($form)
+    {
         $fields = $form->fields;
         $this->presets = $form->presets;
         $this->data = $form->data;

@@ -25,11 +25,11 @@
 
 namespace DB;
 
-
 /**
  * Object Model class.
  *
  */
-class PageMetadata extends PageMetadataBase {
+class PageMetadata extends PageMetadataBase
+{
 
 }

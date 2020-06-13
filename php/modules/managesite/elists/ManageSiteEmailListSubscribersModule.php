@@ -27,42 +27,42 @@
 use DB\EmailListPeer;
 use DB\OzoneUserPeer;
 
-class ManageSiteEmailListSubscribersModule extends ManageSiteBaseModule {
+class ManageSiteEmailListSubscribersModule extends ManageSiteBaseModule
+{
 
-	public function build($runData){
-		$site = $runData->getTemp('site');
-		$pl = $runData->getParameterList();
-		$listId = $pl->getParameterValue("listId");
+    public function build($runData)
+    {
+        $site = $runData->getTemp('site');
+        $pl = $runData->getParameterList();
+        $listId = $pl->getParameterValue("listId");
 
-		$db = Database::connection();
-		$db->begin();
+        $db = Database::connection();
+        $db->begin();
 
-		// get the list
-		$c= new Criteria();
-		$c->add('site_id', $site->getSiteId());
-		$c->add('list_id', $listId);
+        // get the list
+        $c= new Criteria();
+        $c->add('site_id', $site->getSiteId());
+        $c->add('list_id', $listId);
 
-		$list = DB_EmailListPeer::instance()->selectOne($c);
+        $list = DB_EmailListPeer::instance()->selectOne($c);
 
-		if(!$list){
-			throw new ProcessException('The requested list  cannot be found.');
-		}
+        if (!$list) {
+            throw new ProcessException('The requested list  cannot be found.');
+        }
 
-		// get all subscribers
-		$q = "SELECT ozone_user.* FROM email_list_subscriber, ozone_user WHERE ".
-			"email_list_subscriber.list_id = '{$list->getListId()}' AND email_list_subscriber.user_id = ozone_user.user_id " .
-			"ORDER BY ozone_user.nick_name";
+        // get all subscribers
+        $q = "SELECT ozone_user.* FROM email_list_subscriber, ozone_user WHERE ".
+            "email_list_subscriber.list_id = '{$list->getListId()}' AND email_list_subscriber.user_id = ozone_user.user_id " .
+            "ORDER BY ozone_user.nick_name";
 
-		$c = new Criteria();
-		$c->setExplicitQuery($q);
+        $c = new Criteria();
+        $c->setExplicitQuery($q);
 
-		$users = OzoneUserPeer::instance()->select($c);
+        $users = OzoneUserPeer::instance()->select($c);
 
-		$runData->contextAdd('users', $users);
+        $runData->contextAdd('users', $users);
 
-		$runData->contextAdd('list',$list);
-		$runData->contextAdd('site', $site);
-
-	}
-
+        $runData->contextAdd('list', $list);
+        $runData->contextAdd('site', $site);
+    }
 }

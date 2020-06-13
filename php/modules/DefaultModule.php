@@ -24,9 +24,10 @@
  */
 
 
-class DefaultModule extends SmartyModule{
+class DefaultModule extends SmartyModule
+{
 
-	public function build($runData){
-	}
-
+    public function build($runData)
+    {
+    }
 }

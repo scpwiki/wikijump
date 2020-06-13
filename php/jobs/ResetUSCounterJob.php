@@ -31,10 +31,11 @@ use resetCounter;
  * Resets unique strings counters.
  *
  */
-class ResetUSCounterJob implements SchedulerJob {
+class ResetUSCounterJob implements SchedulerJob
+{
 
-	public function run(){
-		UniqueStrings::resetCounter();
-	}
-
+    public function run()
+    {
+        UniqueStrings::resetCounter();
+    }
 }

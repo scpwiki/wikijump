@@ -3,7 +3,6 @@
 
 namespace DB;
 
-
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
@@ -32,9 +31,11 @@ namespace DB;
  * Object Model class.
  *
  */
-class MemberApplication extends MemberApplicationBase {
+class MemberApplication extends MemberApplicationBase
+{
 
-    public function getSite() {
+    public function getSite()
+    {
         if (is_array($this->prefetched)) {
             if (in_array('site', $this->prefetched)) {
                 if (in_array('site', $this->prefetchedObjects)) {
@@ -48,10 +49,10 @@ class MemberApplication extends MemberApplicationBase {
             }
         }
         return SitePeer::instance()->selectByPrimaryKey($this->getSiteId());
-
     }
 
-    public function getUser() {
+    public function getUser()
+    {
         if (is_array($this->prefetched)) {
             if (in_array('ozone_user', $this->prefetched)) {
                 if (in_array('ozone_user', $this->prefetchedObjects)) {
@@ -65,7 +66,5 @@ class MemberApplication extends MemberApplicationBase {
             }
         }
         return OzoneUserPeer::instance()->selectByPrimaryKey($this->getuserId());
-
     }
-
 }

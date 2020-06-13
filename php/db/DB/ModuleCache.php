@@ -27,13 +27,11 @@ namespace DB;
 
 use DB\ModuleCacheBase;
 
-
-
-
 /**
  * Object Model class.
  *
  */
-class ModuleCache extends ModuleCacheBase {
+class ModuleCache extends ModuleCacheBase
+{
 
 }

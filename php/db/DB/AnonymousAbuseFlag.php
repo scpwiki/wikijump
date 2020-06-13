@@ -25,11 +25,11 @@
 
 namespace DB;
 
-
 /**
  * Object Model mapped class.
  *
  */
-class AnonymousAbuseFlag extends AnonymousAbuseFlagBase {
+class AnonymousAbuseFlag extends AnonymousAbuseFlagBase
+{
 
 }

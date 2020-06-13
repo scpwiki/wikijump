@@ -32,13 +32,15 @@ use DB\ContactPeer;
 use instance;
 use selectCount;
 
-class NumberContacts implements KarmaRuleInterface {
+class NumberContacts implements KarmaRuleInterface
+{
 
-   public function calculate($user){
+    public function calculate($user)
+    {
         $c = new Criteria();
         $c->add('user_id', $user->getUserId());
         $c->addOr('target_user_id', $user->getUserId());
         $count = ContactPeer::instance()->selectCount($c);
         return $count;
-   }
+    }
 }

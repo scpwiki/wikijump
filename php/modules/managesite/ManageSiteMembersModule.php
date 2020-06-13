@@ -24,19 +24,19 @@
  */
 
 
-class ManageSiteMembersModule extends ManageSiteBaseModule {
+class ManageSiteMembersModule extends ManageSiteBaseModule
+{
 
-	public function build($runData){
+    public function build($runData)
+    {
 
-		$site = $runData->getTemp("site");
-		// get current settings:
+        $site = $runData->getTemp("site");
+        // get current settings:
 
-		$settings = $site->getSettings();
-		$superSettings = $site->getSuperSettings();
+        $settings = $site->getSettings();
+        $superSettings = $site->getSuperSettings();
 
-		$runData->contextAdd("settings", $settings);
-		$runData->contextAdd("superSettings", $superSettings);
-
-	}
-
+        $runData->contextAdd("settings", $settings);
+        $runData->contextAdd("superSettings", $superSettings);
+    }
 }

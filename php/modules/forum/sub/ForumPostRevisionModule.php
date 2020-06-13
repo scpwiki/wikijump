@@ -26,32 +26,32 @@
 
 use DB\ForumPostRevisionPeer;
 
-class ForumPostRevisionModule extends SmartyModule {
+class ForumPostRevisionModule extends SmartyModule
+{
 
-	public function build($runData){
-		$pl = $runData->getParameterList();
-		$revisionId = $pl->getParameterValue("revisionId");
+    public function build($runData)
+    {
+        $pl = $runData->getParameterList();
+        $revisionId = $pl->getParameterValue("revisionId");
 
-		$site = $runData->getTemp("site");
+        $site = $runData->getTemp("site");
 
-		if($revisionId == null || !is_numeric($revisionId)){
-			throw new ProcessException(_("No revision specified."), "no_post");
-		}
+        if ($revisionId == null || !is_numeric($revisionId)) {
+            throw new ProcessException(_("No revision specified."), "no_post");
+        }
 
-		$revision = ForumPostRevisionPeer::instance()->selectByPrimaryKey($revisionId);
-		if($revision == null){
-			throw new ProcessException(_("No revision specified."), "no_post");
-		}
+        $revision = ForumPostRevisionPeer::instance()->selectByPrimaryKey($revisionId);
+        if ($revision == null) {
+            throw new ProcessException(_("No revision specified."), "no_post");
+        }
 
-		$runData->ajaxResponseAdd("title", $revision->getTitle());
+        $runData->ajaxResponseAdd("title", $revision->getTitle());
 
-		$source = $revision->getText();
-		$wt = new WikiTransformation();
-		$body = $wt->processSource($source);
+        $source = $revision->getText();
+        $wt = new WikiTransformation();
+        $body = $wt->processSource($source);
 
-		$runData->ajaxResponseAdd("content", $body);
-		$runData->ajaxResponseAdd("postId", $revision->getPostId());
-
-	}
-
+        $runData->ajaxResponseAdd("content", $body);
+        $runData->ajaxResponseAdd("postId", $revision->getPostId());
+    }
 }

@@ -4,8 +4,6 @@ namespace DB;
 
 use DB\PageFtsEntryPeerBase;
 
-
-
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
@@ -34,6 +32,7 @@ use DB\PageFtsEntryPeerBase;
  * Object Model class.
  *
  */
-class PageFtsEntryPeer extends PageFtsEntryPeerBase {
+class PageFtsEntryPeer extends PageFtsEntryPeerBase
+{
 
 }

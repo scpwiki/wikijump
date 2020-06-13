@@ -25,18 +25,20 @@
 
 namespace DB;
 
-
 /**
  * Object Model class.
  *
  */
-class StorageItem extends StorageItemBase {
+class StorageItem extends StorageItemBase
+{
 
-    public function setData($data) {
+    public function setData($data)
+    {
         parent::setData(serialize($data));
     }
 
-    public function getData() {
+    public function getData()
+    {
         return unserialize(pg_unescape_bytea(parent::getData()));
     }
 }

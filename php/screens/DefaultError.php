@@ -24,7 +24,9 @@
  */
 
 
-class DefaultError extends SmartyScreen{
-	public function build($runData){}
-
+class DefaultError extends SmartyScreen
+{
+    public function build($runData)
+    {
+    }
 }

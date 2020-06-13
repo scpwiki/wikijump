@@ -29,9 +29,11 @@ use DB\OzoneUserPeer;
 use DB\SitePeer;
 use DB\PagePeer;
 
-class AccountProfileAction extends SmartyAction {
+class AccountProfileAction extends SmartyAction
+{
 
-    public function isAllowed($runData) {
+    public function isAllowed($runData)
+    {
         $userId = $runData->getUserId();
         if ($userId == null || $userId < 1) {
             throw new WDPermissionException(_("Not allowed. You should login first."));
@@ -39,9 +41,12 @@ class AccountProfileAction extends SmartyAction {
         return true;
     }
 
-    public function perform($r) {}
+    public function perform($r)
+    {
+    }
 
-    public function uploadAvatarEvent($runData) {
+    public function uploadAvatarEvent($runData)
+    {
         $status = "ok"; // status variable that will be passed to template
 
         $pl = $runData->getParameterList();
@@ -116,10 +121,10 @@ class AccountProfileAction extends SmartyAction {
         $runData->contextAdd("im16", basename($im16fn));
 
         $runData->contextAdd("status", $status);
-
     }
 
-    public function setAvatarEvent($runData) {
+    public function setAvatarEvent($runData)
+    {
 
         $userId = $runData->getUserId();
 
@@ -138,7 +143,8 @@ class AccountProfileAction extends SmartyAction {
         unlink($tmpDir . '/' . str_replace('.png', '', $im16));
     }
 
-    public function deleteAvatarEvent($runData) {
+    public function deleteAvatarEvent($runData)
+    {
         $userId = $runData->getUserId();
         $avatarDir = WIKIDOT_ROOT . '/web/files--common/images/avatars/';
         $avatarDir .= '' . floor($userId / 1000) . '/' . $userId;
@@ -146,7 +152,8 @@ class AccountProfileAction extends SmartyAction {
         unlink($avatarDir . '/a16.png');
     }
 
-    public function uploadAvatarUriEvent($runData) {
+    public function uploadAvatarUriEvent($runData)
+    {
         $pl = $runData->getParameterList();
         $uri = $pl->getParameterValue("uri");
 
@@ -209,10 +216,10 @@ class AccountProfileAction extends SmartyAction {
 
         $runData->ajaxResponseAdd("im48", basename($im48fn));
         $runData->ajaxResponseAdd("im16", basename($im16fn));
-
     }
 
-    public function saveAboutEvent($runData) {
+    public function saveAboutEvent($runData)
+    {
         $pl = $runData->getParameterList();
         $userId = $runData->getUserId();
         $profile = ProfilePeer::instance()->selectByPrimaryKey($userId);
@@ -267,10 +274,10 @@ class AccountProfileAction extends SmartyAction {
         if (GlobalProperties::$UI_SLEEP) {
             sleep(1);
         }
-
     }
 
-    public function changeScreenNameEvent($runData) {
+    public function changeScreenNameEvent($runData)
+    {
         $user = $runData->getUser();
         $userId = $user->getUserId();
         $profile = $user->getProfile();
@@ -354,5 +361,4 @@ class AccountProfileAction extends SmartyAction {
 
         $db->commit();
     }
-
 }

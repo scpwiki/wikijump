@@ -32,10 +32,11 @@ use clean;
  * Cleans database storage for temporary objects.
  *
  */
-class OutdateDatabaseStorageJob implements SchedulerJob {
+class OutdateDatabaseStorageJob implements SchedulerJob
+{
 
-	public function run(){
-		DatabaseStorage::instance()->clean();
-	}
-
+    public function run()
+    {
+        DatabaseStorage::instance()->clean();
+    }
 }

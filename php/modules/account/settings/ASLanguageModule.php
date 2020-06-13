@@ -24,11 +24,12 @@
  */
 
 
-class ASLanguageModule extends AccountBaseModule {
+class ASLanguageModule extends AccountBaseModule
+{
 
-	public function build($runData){
-		$user = $runData->getUser();
-		$runData->contextAdd("lang", $user->getLanguage());
-	}
-
+    public function build($runData)
+    {
+        $user = $runData->getUser();
+        $runData->contextAdd("lang", $user->getLanguage());
+    }
 }

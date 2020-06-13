@@ -23,7 +23,8 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-function smarty_function_printuser($params, & $smarty) {
-	$user = $params['user'];
-	return WDRenderUtils::renderUser($user, $params);
+function smarty_function_printuser($params, &$smarty)
+{
+    $user = $params['user'];
+    return WDRenderUtils::renderUser($user, $params);
 }

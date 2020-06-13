@@ -25,14 +25,15 @@
 
 namespace DB;
 
-
 /**
  * Object Model class.
  *
  */
-class Moderator extends ModeratorBase {
+class Moderator extends ModeratorBase
+{
 
-    public function getSite() {
+    public function getSite()
+    {
         if (is_array($this->prefetched)) {
             if (in_array('site', $this->prefetched)) {
                 if (in_array('site', $this->prefetchedObjects)) {
@@ -46,10 +47,10 @@ class Moderator extends ModeratorBase {
             }
         }
         return SitePeer::instance()->selectByPrimaryKey($this->getSiteId());
-
     }
 
-    public function getUser() {
+    public function getUser()
+    {
         if (is_array($this->prefetched)) {
             if (in_array('ozone_user', $this->prefetched)) {
                 if (in_array('ozone_user', $this->prefetchedObjects)) {
@@ -63,7 +64,5 @@ class Moderator extends ModeratorBase {
             }
         }
         return OzoneUserPeer::instance()->selectByPrimaryKey($this->getUserId());
-
     }
-
 }

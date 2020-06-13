@@ -25,11 +25,11 @@
 
 namespace DB;
 
-
 /**
  * Object Model class.
  *
  */
-class PageSource extends PageSourceBase {
+class PageSource extends PageSourceBase
+{
 
 }
