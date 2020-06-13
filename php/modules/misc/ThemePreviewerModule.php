@@ -93,7 +93,11 @@ class ThemePreviewerModule extends SmartyModule {
    			$t .= "@import url($url);\n";
 		}
 
-		$out = preg_replace('/(@import url\([^\)]*?style\.css(\?[0-9]+)?\);\s*)+/s', $t, $out, 1);
+        $out = preg_replace('/
+            (@import url\(
+                [^\)]*?style\.css(\?[0-9]+)?  # URL must be style.css
+            \);\s*)+
+            /sx', $t, $out, 1);
 
 		return $out;
 	}

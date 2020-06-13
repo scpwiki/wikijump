@@ -46,9 +46,9 @@ class LoginStatusModule extends Module{
 				$originalUrl = $_SERVER['HTTP_HOST'] . $originalUrl;
 			}
 
-			if(preg_match(';\?origUrl=.*$;', $originalUrl)){
+			if(preg_match('/\?origUrl=.*$/', $originalUrl)){
 				$o = array();
-				parse_str(preg_replace(';^.*?\?;', '', $_SERVER['REQUEST_URI']), $o);
+				parse_str(preg_replace('/^.*?\?/', '', $_SERVER['REQUEST_URI']), $o);
 				$originalUrl = $o['origUrl'];
 			}
 

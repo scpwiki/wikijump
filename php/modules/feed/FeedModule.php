@@ -123,7 +123,18 @@ class FeedModule extends CacheableModule {
 		$template = $wt->processSource($format);
 
 		// fix template
-		$template = preg_replace('/<p\s*>\s*(%%((?:short)|(?:description)|(?:summary)|(?:content)|(?:long)|(?:body))%%)\s*<\/\s*p>/smi',
+        $template = preg_replace('/
+            <p\s*>\s*
+            (%%(
+                (?:short)
+                |(?:description)
+                |(?:summary)
+                |(?:content)
+                |(?:long)
+                |(?:body)
+            )%%)
+            \s*<\/\s*p>
+            /smix',
 					"<div>\\1</div>", $template);
 
 		$fitems = array(); // formatted items

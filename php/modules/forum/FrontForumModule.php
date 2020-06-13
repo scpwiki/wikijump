@@ -175,8 +175,20 @@ class FrontForumModule extends SmartyModule {
 		$wt->setMode("feed");
 		$template = $wt->processSource($format);
 
-		$template = preg_replace('/<p\s*>\s*(%%((?:short)|(?:description)|(?:summary)|(?:content)|(?:long)|(?:body)|(?:text))%%)\s*<\/\s*p>/smi',
-					"<div>\\1</div>", $template);
+        $template = preg_replace('/
+            <p\s*>\s*
+            (%%(
+                (?:short)
+                |(?:description)
+                |(?:summary)
+                |(?:content)
+                |(?:long)
+                |(?:body)
+                |(?:text)
+            )%%)
+            \s*<\/\s*p>
+            /smix',
+                    "<div>\\1</div>", $template);
 
 		$items = array();
 

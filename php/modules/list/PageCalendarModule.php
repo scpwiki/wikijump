@@ -213,7 +213,7 @@ class PageCalendarModule extends SmartyModule {
 
         if ($tagString) {
             /* Split tags. */
-            $tags = preg_split(';[\s,\;]+;', $tagString);
+            $tags = preg_split('/[\s,\;]+/', $tagString);
 
             $tagsAny = array();
             $tagsAll = array();
@@ -347,13 +347,13 @@ class PageCalendarModule extends SmartyModule {
 
 
         $dateA = array();
-        if (preg_match(';^[0-9]{4}$;', $date)) {
+        if (preg_match('/^[0-9]{4}$/', $date)) {
             $dateA['year'] = $date;
             if(isset($postCount[$date])){
             	$postCount[$date]['selected'] = true;
             }
         }
-        if (preg_match(';^[0-9]{4}\.[0-9]{1,2}$;', $date)) {
+        if (preg_match('/^[0-9]{4}\.[0-9]{1,2}$/', $date)) {
             $dateS = explode('.', $date);
             $dateA['year'] = $dateS[0];
             $dateA['month'] = $dateS[1];

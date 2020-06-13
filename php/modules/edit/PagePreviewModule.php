@@ -70,7 +70,7 @@ class PagePreviewModule extends SmartyModule {
 		$category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
 
 		/* Look for the template (if any). */
-		if(!preg_match(';(:|^)_;', $pageUnixName)) {
+		if(!preg_match('/(:|^)_/', $pageUnixName)) {
 		$templatePage = PagePeer::instance()->selectByName($site->getSiteId(),
 		    ($categoryName == '_default' ? '' : $categoryName.':') .'_template');
 
