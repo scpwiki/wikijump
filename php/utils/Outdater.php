@@ -201,7 +201,7 @@ class Outdater {
 		$compiled = PageCompiledPeer::instance()->selectOne($c);
 
 		/* Find out if the category is using any templates. */
-		if(!preg_match(';(:|^)_;', $page->getUnixName())) {
+		if(!preg_match('/(:|^)_/', $page->getUnixName())) {
     		$category = $page->getCategory();
     		$categoryName = $category->getName();
     	    $templatePage = PagePeer::instance()->selectByName($page->getSiteId(),
@@ -811,12 +811,12 @@ class Outdater {
     		} else {
     			$categoryName = "_default";
     		}
-    		if(preg_match(';_template$;', $page)) {
+    		if(preg_match('/_template$/', $page)) {
     		    $site = $GLOBALS['site'];
     		    $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId(), false);
     		    $this->recompileCategory($category);
     		}
-	    } elseif(preg_match(';_template$;', $page->getUnixName())) {
+	    } elseif(preg_match('/_template$/', $page->getUnixName())) {
 	        $category = $page->getCategory();
 	        $this->recompileCategory($category);
         }

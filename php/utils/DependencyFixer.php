@@ -51,8 +51,20 @@ class DependencyFixer {
 		$sourceChanged = false;
 
 		$source = $oldSourceText;
-		$source = preg_replace_callback('/(\[\[\[)([^\]\|]+?)((\s*\|[^\]]*?)?\]\]\])/i',  array(&$this, 'fixLink'), $source);
-		$source = preg_replace_callback('/^\[\[include ([a-zA-Z0-9\s\-]+?)(?:\]\])$/im', array(&$this, 'fixInclusion'), $source);
+        $source = preg_replace_callback('/
+            (\[\[\[)             # Detect freelinks: opening brackets
+            ([^\]\|]+?)          # Link location
+            (
+                (\s*\|[^\]]*?)?  # Pipe to split link then link text (not ])
+            \]\]\])              # Closing brackets
+            /ix',
+            array(&$this, 'fixLink'), $source);
+        $source = preg_replace_callback('/
+            ^
+            \[\[include ([a-zA-Z0-9\s\-]+?)(?:\]\])
+            $
+            /imx',
+            array(&$this, 'fixInclusion'), $source);
 		if($source != $oldSourceText){
 			$page = $this->page;
 			$currentRevision = $page->getCurrentRevision();

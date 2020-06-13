@@ -86,7 +86,7 @@ class WDDigestSender {
 				if($pm && $pm->getFlagNew()){
 					$body = $not->getBody();
 					$body = preg_replace('/<br\/>Preview.*$/sm', '', $body);
-					$body = preg_replace(';You have.*?<br/>;sm', '', $body);
+					$body = preg_replace('/You have.*?<br\/>/sm', '', $body);
 					$not->setBody($body);
 					$nots2[] = $not;
 				}

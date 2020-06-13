@@ -58,7 +58,7 @@ class ModuleManager {
 	    $cont = '';
 	    foreach($fs as $f){
 	        $c = file_get_contents($f);
-	        $c = preg_replace(';^#.*?$;sm', '', $c);
+	        $c = preg_replace('/^#.*?$/sm', '', $c);
 	        $c = trim($c);
 	        $cont .= "\n" . $c;
 	    }

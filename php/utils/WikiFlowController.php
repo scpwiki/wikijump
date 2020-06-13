@@ -207,7 +207,7 @@ class WikiFlowController extends WebFlowController {
 	 		foreach($jss as $js){
 	 			$incl .= '<script type="text/javascript" src="'.$js.'"></script>';
 	 		}
-	 		$rendered = preg_replace(';</head>;', $incl.'</head>', $rendered);
+	 		$rendered = preg_replace('/<\/head>/', $incl.'</head>', $rendered);
 
 		}
 

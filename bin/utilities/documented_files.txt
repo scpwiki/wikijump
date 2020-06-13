@@ -166,3 +166,15 @@ php/utils/ODiff.php
 php/utils/WikiTransformation.php
 php/utils/Wikidot/Util/UnixifyString.php
 php/utils/Wikidot/Util/Diff.php
+php/utils/Outdater.php
+php/utils/WikiFlowController.php
+php/utils/WDStringUtils.php
+php/utils/FeedFlowController.php
+php/utils/ModuleManager.php
+php/utils/AjaxModuleWikiFlowController.php
+php/utils/UploadedFileFlowController.php
+php/utils/DependencyFixer.php
+php/utils/Indexer.php
+php/utils/WDDefaultFlowController.php
+php/utils/WDDigestSender.php
+php/utils/WDEditUtils.php
