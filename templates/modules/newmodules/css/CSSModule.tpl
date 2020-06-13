@@ -1,3 +1,3 @@
 <style>
-    {$out}
+    {$stylesheet}
 </style>
