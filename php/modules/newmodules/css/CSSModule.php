@@ -15,12 +15,28 @@ class CSSModule extends SmartyModule
         $pl = $runData->getParameterList();
         $this->stylesheet = $pl->getParameterValue("module_body");
 
-        $csstidy = new csstidy();
-        $csstidy->set_cfg('preserve_css', true);
-        $csstidy->parse($this->stylesheet);
-        $csstidy->print->formatted();
+        // Thanks dleavitt@StackOverflow.
+        // https://stackoverflow.com/questions/3241616/sanitize-user-defined-css-in-php/5209050#5209050
+        // Instantiate Purifier config and instance.
+        $config = HTMLPurifier_Config::createDefault();
+        $config->set('Filter.ExtractStyleBlocks', TRUE);
+        $purifier = new HTMLPurifier($config);
 
-        $this->stylesheet = $csstidy->print->output_css_plain;
+        // Turn off strict warnings (CSSTidy throws some warnings on PHP 5.2+)
+        $level = error_reporting(E_ALL & ~E_STRICT);
+
+        // Wrap our CSS in style tags and pass to purifier.
+        // we're not actually interested in the html response though
+        $html = $purifier->purify('<style>'.$this->stylesheet.'</style>');
+
+        // Revert error reporting
+        error_reporting($level);
+
+        // The "style" blocks are stored seperately
+        $output_css = $purifier->context->get('StyleBlocks');
+
+        // Get the first style block
+        $this->stylesheet = $output_css[0];
 
         $runData->contextAdd('stylesheet', $this->stylesheet);
     }
