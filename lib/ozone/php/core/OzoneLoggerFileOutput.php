@@ -24,16 +24,6 @@
  */
 
 
-use setLogFileName;
-use logFileName;
-use handleEvent;
-use array_search;
-use sprintf;
-use date;
-use fopen;
-use fwrite;
-use fclose;
-
 /**
  * File output for logger.
  *
