@@ -134,7 +134,7 @@ class ForumCategoryThreadsFeed extends FeedScreen {
                 (<[^>]*\s+)
                 on[a-z]+="[^"]+"
                 ([^>]*>)
-                /si',
+                /six',
                 '\\1 \\2', $content);
 
 			if($thread->getDescription()){

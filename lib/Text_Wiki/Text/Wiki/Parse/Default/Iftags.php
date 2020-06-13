@@ -32,7 +32,7 @@ class Text_Wiki_Parse_Iftags extends Text_Wiki_Parse {
             (?:(?R)|.)            # Contents of the page, including other iftags
         *?)                       # Non-greedy match to claim next closing tag
         \[\[/iftags\]\]           # Closing tag
-        /msi';
+        /msix';
     # Note regarding non-greedy match: I'm not sure how a recursive regex match
     # works entirely, so I've written that it claims the next closing tag.
     # That's unlikely to be true and definitely not intended behaviour.

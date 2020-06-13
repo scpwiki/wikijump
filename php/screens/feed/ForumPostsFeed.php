@@ -133,7 +133,7 @@ class ForumPostsFeed extends FeedScreen {
                 (<[^>]*\s+)
                 on[a-z]+="[^"]+"
                 ([^>]*>)
-                /si',
+                /six',
                 '\\1 \\2', $content);
 
 			// add extra info.
