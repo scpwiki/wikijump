@@ -50,7 +50,16 @@ class Text_Wiki_Parse_Code extends Text_Wiki_Parse {
      *
      */
 
-    public $regex = ';^\[\[code(\s[^\]]*)?\]\]((?:(?R)|.)*?)\[\[/code\]\](\s|$);msi';
+    public $regex = '/
+        ^
+        \[\[
+        code
+        (\s[^\]]*)?     # Parameters of code block
+        \]\]
+        ((?:(?R)|.)*?)  # Contents of code including other code blocks
+        \[\[\/code\]\]  # Closing tag
+        (\s|$)          # One whitespace or EOL
+        /msix';
 
     /**
      *

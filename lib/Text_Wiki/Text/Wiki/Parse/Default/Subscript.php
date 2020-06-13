@@ -45,7 +45,11 @@ class Text_Wiki_Parse_Subscript extends Text_Wiki_Parse {
      *
      */
 
-    public $regex = "/,,([^\s](?:.*[^\s])?),,/U";
+    public $regex = "/
+        ,,
+        ([^\s](?:.*?[^\s])?)  # Match anything that does not start or end with whitespace
+        ,,
+        /x";
 
     /**
      *

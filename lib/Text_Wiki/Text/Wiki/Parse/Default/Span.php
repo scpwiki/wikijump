@@ -40,7 +40,13 @@ class Text_Wiki_Parse_Span extends Text_Wiki_Parse {
      *
      */
 
-    public $regex = '/\[\[span(\s.[^\]]*)?\]\]((?:(?R)|.)*?)\[\[\/span\]\]/msi';
+    public $regex = '/
+        \[\[span
+        (\s.[^\]]*)?    # Parameters
+        \]\]
+        ((?:(?R)|.)*?)  # Contents - nesting is ok
+        \[\[\/span\]\]
+        /msix';
 
     /**
      *

@@ -40,6 +40,7 @@ class Text_Wiki_Parse_Bibitem extends Text_Wiki_Parse {
      * @var string
      *
      */
+    # ??? where is the string???
 
     function process(&$matches) {
         $label = $matches[1];

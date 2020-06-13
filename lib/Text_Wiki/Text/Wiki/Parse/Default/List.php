@@ -51,7 +51,20 @@ class Text_Wiki_Parse_List extends Text_Wiki_Parse {
     *
     */
 
-    public $regex = '/^((\*|#) .*\n)(?!\2 |(?: {1,}((?:\*|#) |\n)))/Usm';
+    public $regex = '/
+        ^
+        (
+            (\*|#)\s             # Asterisk or hash (bullet or number)
+            .*?\n                # Text of list item
+        )
+        (?!
+            \2\s                 # The asterisk/hash as matched before
+            |(?:                 # OR:
+                \s+((?:\*?|#)\s  # Some whitespace then asterisk or hash
+                |\n)             # OR a newline
+            )
+        )
+        /smx';
 
     /**
     *

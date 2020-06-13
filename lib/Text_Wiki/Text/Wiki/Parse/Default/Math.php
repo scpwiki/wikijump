@@ -44,7 +44,19 @@ class Text_Wiki_Parse_Math extends Text_Wiki_Parse {
     *
     */
 
-     public $regex = ';^\[\[math(\s+[a-z0-9_]*?)?((?:\s+[a-z0-9]+="[^"]*"))*\s*\]\]((?:(?R)|.)*?)\n\[\[/math\]\](\s|$);msi';
+    public $regex = '/
+    ^
+    \[\[math               # Start opening tag
+    (\s+[a-z0-9_]*?)?      # Label
+    ((?:\s+
+        [a-z0-9]+="[^"]*"  # Parameters
+    ))*                    # Allow any number of parameters
+    \s*\]\]                # End opening tag
+    ((?:(?R)|.)*?)\n       # Contents - nesting is ok for some reason
+    \[\[\/math\]\]         # Closing tag
+    (\s|$)
+    /msix';
+
     /**
     *
     * Generates a token entry for the matched text.  Token options are:

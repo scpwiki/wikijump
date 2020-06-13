@@ -47,7 +47,13 @@ class Text_Wiki_Parse_Html extends Text_Wiki_Parse {
     *
     */
 
-    public $regex = '/^\<html\>\n(.+)\n\<\/html\>(\s|$)/Umsi';
+    public $regex = '/
+        ^
+        \<html\>\n
+        (.+?)\n
+        \<\/html\>
+        (\s|$)
+        /msix';
 
     /**
     *

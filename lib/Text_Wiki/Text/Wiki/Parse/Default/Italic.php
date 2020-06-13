@@ -48,7 +48,9 @@ class Text_Wiki_Parse_Italic extends Text_Wiki_Parse {
     *
     */
 
-    public $regex = "/''(()|[^'].*)''/U";
+    public $regex = "/
+        ''(()|[^'].*)''
+        /x";
 
     /**
     *
