@@ -9,3 +9,4 @@ ozone-mapfile.php
 /web/files--common/tmp
 /web/files--sites
 /logs/ozone.log
+/vendor
