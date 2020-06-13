@@ -35,8 +35,8 @@ class CSSModule extends SmartyModule
         // The "style" blocks are stored seperately
         $output_css = $purifier->context->get('StyleBlocks');
 
-        // Get the first style block
-        $this->stylesheet = $output_css[0];
+        // Implode all style blocks to a string.
+        $this->stylesheet = implode('',$output_css);
 
         $runData->contextAdd('stylesheet', $this->stylesheet);
     }
