@@ -25,11 +25,11 @@
 
 namespace DB;
 
-
 /**
  * Object Model class.
  *
  */
-class UserAbuseFlag extends UserAbuseFlagBase {
+class UserAbuseFlag extends UserAbuseFlagBase
+{
 
 }

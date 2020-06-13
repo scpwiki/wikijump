@@ -27,13 +27,11 @@ namespace DB;
 
 use DB\UserSecurityQuestionBase;
 
-
-
-
 /**
  * Object Model class.
  *
  */
-class UserSecurityQuestion extends UserSecurityQuestionBase {
+class UserSecurityQuestion extends UserSecurityQuestionBase
+{
 
 }

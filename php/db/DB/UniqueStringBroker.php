@@ -25,11 +25,11 @@
 
 namespace DB;
 
-
 /**
  * Object Model class.
  *
  */
-class UniqueStringBroker extends UniqueStringBrokerBase {
+class UniqueStringBroker extends UniqueStringBrokerBase
+{
 
 }

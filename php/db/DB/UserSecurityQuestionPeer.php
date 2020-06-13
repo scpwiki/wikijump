@@ -4,8 +4,6 @@ namespace DB;
 
 use DB\UserSecurityQuestionPeerBase;
 
-
-
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
@@ -34,6 +32,7 @@ use DB\UserSecurityQuestionPeerBase;
  * Object Model class.
  *
  */
-class UserSecurityQuestionPeer extends UserSecurityQuestionPeerBase {
+class UserSecurityQuestionPeer extends UserSecurityQuestionPeerBase
+{
 
 }

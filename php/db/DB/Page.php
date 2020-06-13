@@ -29,25 +29,27 @@ use Criteria;
 use \ProcessException;
 use Database;
 
-
 /**
  * Object Model class.
  *
  */
-class Page extends PageBase {
+class Page extends PageBase
+{
 
-	protected static $_titleTemplate = array();
+    protected static $_titleTemplate = array();
 
-    public function getSource() {
+    public function getSource()
+    {
         return $this->getCurrentRevision()->getSourceText();
     }
 
-    public function getMetadata() {
+    public function getMetadata()
+    {
         return $this->getCurrentRevision()->getMetadata();
-
     }
 
-    public function getCompiled() {
+    public function getCompiled()
+    {
         $c = new Criteria();
         $c->add("page_id", $this->getPageId());
         $compiled = PageCompiledPeer::instance()->selectOne($c);
@@ -55,22 +57,24 @@ class Page extends PageBase {
             throw new ProcessException("Error getting compiled version of the page.");
         }
         return $compiled;
-
     }
 
-    public function getCurrentRevision() {
+    public function getCurrentRevision()
+    {
         $c = new Criteria();
         $c->add("revision_id", $this->getRevisionId());
         return PageRevisionPeer::instance()->selectOne($c);
     }
 
-    public function outdateCompiled() {
+    public function outdateCompiled()
+    {
         $q = "UPDATE page_compiled SET date_compiled=(now() - interval '1 week') " . "WHERE page_id='" . db_escape_string($this->getPageId()) . "'";
         $db = Database::connection();
         $db->query($q);
     }
 
-    public function getFiles() {
+    public function getFiles()
+    {
         $q = "SELECT * FROM file WHERE page_id='" . $this->getPageId() . "' ORDER BY filename, file_id DESC";
         $c = new Criteria();
         $c->setExplicitQuery($q);
@@ -78,7 +82,8 @@ class Page extends PageBase {
         return FilePeer::instance()->select($c);
     }
 
-    public function getCategoryName() {
+    public function getCategoryName()
+    {
         $unixName = $this->getUnixName();
         if (strpos($unixName, ":") != false) {
             $tmp0 = explode(':', $unixName);
@@ -89,16 +94,17 @@ class Page extends PageBase {
         return $categoryName;
     }
 
-    public function getCategory() {
+    public function getCategory()
+    {
         $categoryId = $this->getCategoryId();
         $siteId = $this->getSiteId();
 
         $category = CategoryPeer::instance()->selectById($categoryId, $siteId);
         return $category;
-
     }
 
-    public function getTitleOrUnixName() {
+    public function getTitleOrUnixName()
+    {
         $title = $this->getTitle();
         if ($title == null || $title === '') {
             $title = ucfirst(str_replace("-", " ", preg_replace("/^[a-z0-9\-]+:/i", '', $this->getUnixName())));
@@ -107,14 +113,15 @@ class Page extends PageBase {
     }
 
     /*
-	 public function getLicenseText(){
-		$category = $this->getCategory();
-		i
-		return DB_LicensePeer::instance()->selectById($category->getLicenseId
-	}
-	*/
+     public function getLicenseText(){
+        $category = $this->getCategory();
+        i
+        return DB_LicensePeer::instance()->selectById($category->getLicenseId
+    }
+    */
 
-    public function getPreview($length = 200) {
+    public function getPreview($length = 200)
+    {
         if (is_array($this->prefetched)) {
             if (in_array('page_compiled', $this->prefetched)) {
                 if (in_array('page_compiled', $this->prefetchedObjects)) {
@@ -150,7 +157,8 @@ class Page extends PageBase {
         return $substr;
     }
 
-    public function getLastEditUserOrString() {
+    public function getLastEditUserOrString()
+    {
         $user = $this->getLastEditUser();
         if ($user == null) {
             return $this->getLastEditUserString();
@@ -159,75 +167,79 @@ class Page extends PageBase {
         }
     }
 
-    public function getLastEditUser() {
+    public function getLastEditUser()
+    {
         if ($this->getLastEditUserId() == 0) {
             return null;
         }
         return OzoneUserPeer::instance()->selectByPrimaryKey($this->getLastEditUserId());
-
     }
 
-    public function getSite() {
+    public function getSite()
+    {
         return SitePeer::instance()->selectByPrimaryKey($this->getSiteId());
     }
 
-    public function getTags(){
-    	$c = new Criteria();
-    	$c->add('page_id', $this->getPageId());
-    	$tags = PageTagPeer::instance()->select($c);
-    	return $tags;
+    public function getTags()
+    {
+        $c = new Criteria();
+        $c->add('page_id', $this->getPageId());
+        $tags = PageTagPeer::instance()->select($c);
+        return $tags;
     }
 
-    public function getTagsAsArray(){
-    	$tags = $this->getTags();
-    	$t = array();
-    	foreach($tags as $ta){
-    		$t[] = $ta->getTag();
-    	}
-    	return $t;
+    public function getTagsAsArray()
+    {
+        $tags = $this->getTags();
+        $t = array();
+        foreach ($tags as $ta) {
+            $t[] = $ta->getTag();
+        }
+        return $t;
     }
 
-    public function getTitle(){
-    	//print_r(count(self::$_titleTemplate));
+    public function getTitle()
+    {
+        //print_r(count(self::$_titleTemplate));
 
-    	$categoryId = $this->getCategoryId();
-    	if($categoryId){
-    		if(!array_key_exists($categoryId, self::$_titleTemplate)) {
-    			/* Check for template. */
-    			$c = new Criteria();
-    			$templateUnixName = '_titletemplate';
-    			if($this->getCategoryName() != '_default'){
-    				$templateUnixName = $this->getCategoryName() . ':' . $templateUnixName;
-    			}
-    			//echo $templateUnixName;
-    			$c->add('unix_name', $templateUnixName);
-    			$c->add('site_id', $this->getSiteId());
-    			$templatePage = PagePeer::instance()->selectOne($c);
-    			if($templatePage) {
-    				$templateSource = $templatePage->getSource();
-    				if(strlen($templateSource) > 0 && strlen($templateSource) < 200 && !strpos($templateSource, "\n")){
-    					self::$_titleTemplate[$categoryId] = $templateSource;
-	    			}else {
-	    				self::$_titleTemplate[$categoryId] = false;
-	    			}
-	    		}else {
-	    			self::$_titleTemplate[$categoryId] = false;
-	    		}
-    		}
-    		$titleTemplate = self::$_titleTemplate[$categoryId];
-    		if($titleTemplate) {
-    			/* Process the template. */
-    			$b = $titleTemplate;
-    			$b = str_replace('%%page_unix_name%%', preg_replace(';^[a-z0-9]+:;', '', $this->getUnixName()), $b);
-    			$b = str_replace('%%title%%', parent::getTitle(), $b);
-    			return $b;
-    		}
-    	}
-    	return parent::getTitle();
+        $categoryId = $this->getCategoryId();
+        if ($categoryId) {
+            if (!array_key_exists($categoryId, self::$_titleTemplate)) {
+                /* Check for template. */
+                $c = new Criteria();
+                $templateUnixName = '_titletemplate';
+                if ($this->getCategoryName() != '_default') {
+                    $templateUnixName = $this->getCategoryName() . ':' . $templateUnixName;
+                }
+                //echo $templateUnixName;
+                $c->add('unix_name', $templateUnixName);
+                $c->add('site_id', $this->getSiteId());
+                $templatePage = PagePeer::instance()->selectOne($c);
+                if ($templatePage) {
+                    $templateSource = $templatePage->getSource();
+                    if (strlen($templateSource) > 0 && strlen($templateSource) < 200 && !strpos($templateSource, "\n")) {
+                        self::$_titleTemplate[$categoryId] = $templateSource;
+                    } else {
+                        self::$_titleTemplate[$categoryId] = false;
+                    }
+                } else {
+                    self::$_titleTemplate[$categoryId] = false;
+                }
+            }
+            $titleTemplate = self::$_titleTemplate[$categoryId];
+            if ($titleTemplate) {
+                /* Process the template. */
+                $b = $titleTemplate;
+                $b = str_replace('%%page_unix_name%%', preg_replace(';^[a-z0-9]+:;', '', $this->getUnixName()), $b);
+                $b = str_replace('%%title%%', parent::getTitle(), $b);
+                return $b;
+            }
+        }
+        return parent::getTitle();
     }
 
-    public function getTitleRaw() {
-    	return parent::getTitle();
+    public function getTitleRaw()
+    {
+        return parent::getTitle();
     }
-
 }

@@ -24,182 +24,180 @@
  */
 
 
-class FlickrGalleryModule extends CacheableModule {
+class FlickrGalleryModule extends CacheableModule
+{
 
-	protected $timeOut = 120;
+    protected $timeOut = 120;
 
-	public function render($runData){
-		if($runData->getAjaxMode()){
-			$this->setIncludeDefaultJs(false);
-		}
-		$out = parent::render($runData);
+    public function render($runData)
+    {
+        if ($runData->getAjaxMode()) {
+            $this->setIncludeDefaultJs(false);
+        }
+        $out = parent::render($runData);
 
-		return $out;
-	}
+        return $out;
+    }
 
-	public function build($runData){
+    public function build($runData)
+    {
 
-		$fh = FlickrHandler::instance();
+        $fh = FlickrHandler::instance();
 
-		// determine mode. if either photosetId or groupName given - enter specific mode.
-		// if not - just search photos.
+        // determine mode. if either photosetId or groupName given - enter specific mode.
+        // if not - just search photos.
 
-		$pl = $runData->getParameterList();
+        $pl = $runData->getParameterList();
 
-		$contentOnly = $pl->getParameterValue("contentOnly");
+        $contentOnly = $pl->getParameterValue("contentOnly");
 
-		$photosetId = $pl->getParameterValue("photosetId");
-		$groupId = $pl->getParameterValue("groupId");
-		$groupUrl = $pl->getParameterValue("groupUrl");
+        $photosetId = $pl->getParameterValue("photosetId");
+        $groupId = $pl->getParameterValue("groupId");
+        $groupUrl = $pl->getParameterValue("groupUrl");
 
-		$pageNumber = $pl->getParameterValue("pageNumber");
-		if($pageNumber === null){
-			$pageNumber = 1;
-		}
+        $pageNumber = $pl->getParameterValue("pageNumber");
+        if ($pageNumber === null) {
+            $pageNumber = 1;
+        }
 
-		$perPage = $pl->getParameterValue("perPage");
-		if($perPage == null || !is_numeric($perPage) || $perPage<1 || $perPage > 100){
-			$perPage = 30;
-		}
-		$size = $pl->getParameterValue("size");
-		if($size == null || ($size != "square" && $size != "small" && $size != "thumbnail" && $size != "medium")){
-			$size = "thumbnail";
-		}
+        $perPage = $pl->getParameterValue("perPage");
+        if ($perPage == null || !is_numeric($perPage) || $perPage<1 || $perPage > 100) {
+            $perPage = 30;
+        }
+        $size = $pl->getParameterValue("size");
+        if ($size == null || ($size != "square" && $size != "small" && $size != "thumbnail" && $size != "medium")) {
+            $size = "thumbnail";
+        }
 
-		$limit = $pl->getParameterValue("limitPages");
-		if(!is_numeric($limit) || $limit<1){
-			$limit = null;
-		}
+        $limit = $pl->getParameterValue("limitPages");
+        if (!is_numeric($limit) || $limit<1) {
+            $limit = null;
+        }
 
-		if($photosetId != null){
+        if ($photosetId != null) {
+            // get photoset info
+            $photoset = $fh->photosets_getInfo($photosetId);
+            if ($photoset == null) {
+                throw new ProcessException(_("Can not fetch photoset data - photoset might not exist or not be public (or other problem)."), "no_photoset");
+            }
 
-			// get photoset info
-			$photoset = $fh->photosets_getInfo($photosetId);
-			if($photoset == null){
-				throw new ProcessException(_("Can not fetch photoset data - photoset might not exist or not be public (or other problem)."), "no_photoset");
-			}
+            // take photos from the photoset!!
+            $result = $fh->photosets_getPhotos($photosetId);
+            $photos = $result['photo'];
 
-			// take photos from the photoset!!
-			$result = $fh->photosets_getPhotos($photosetId);
-			$photos = $result['photo'];
+            $totalPhotos = $photoset['photos'];
 
-			$totalPhotos = $photoset['photos'];
+            // slice to get only page results
+            $photos = array_slice($photos, ($pageNumber-1)*$perPage, $perPage);
 
-			// slice to get only page results
-			$photos = array_slice($photos, ($pageNumber-1)*$perPage , $perPage);
+            $userId = $photoset['owner'];
+            for ($i=0; $i<count($photos); $i++) {
+                $photos[$i]['src'] = $fh->buildPhotoURL($photos[$i], $size);
+                $photos[$i]['href'] = 'http://www.flickr.com/photos/'.$userId.'/'.$photos[$i]['id'];
+            }
+        } elseif ($groupId !== null || $groupUrl != null) {
+            // take photos from a group
+            if ($groupId !== null) {
+                // get group by ID
+                $group = $fh->groups_getInfo($groupId);
+            } else {
+                $group = $fh->urls_lookupGroup($groupUrl);
+                $groupId = $group['id'];
+            }
+            if ($group == null) {
+                throw new ProcessException(_("Can not fetch group data."), "no_group");
+            }
 
-			$userId = $photoset['owner'];
-			for($i=0; $i<count($photos); $i++){
-				$photos[$i]['src'] = $fh->buildPhotoURL($photos[$i], $size);
-				$photos[$i]['href'] = 'http://www.flickr.com/photos/'.$userId.'/'.$photos[$i]['id'];
-			}
+            $result = $fh->groups_pools_getPhotos($groupId, null, null, null, $perPage, $pageNumber);
+            $totalPhotos = $result['total'];
 
-		}elseif($groupId !== null || $groupUrl != null){
-			// take photos from a group
-			if($groupId !== null){
-				// get group by ID
-				$group = $fh->groups_getInfo($groupId);
-			} else {
-				$group = $fh->urls_lookupGroup($groupUrl);
-				$groupId = $group['id'];
-			}
-			if($group == null){
-				throw new ProcessException(_("Can not fetch group data."), "no_group");
-			}
+            $photos = $result['photo'];
+            for ($i=0; $i<count($photos); $i++) {
+                $photos[$i]['src'] = $fh->buildPhotoURL($photos[$i], $size);
+                $photos[$i]['href'] = 'http://www.flickr.com/photos/'.$photos[$i]['owner'].'/'.$photos[$i]['id'];
+            }
+        } else {
+            // just search. woooo.  this is COOOOOL!!!
 
-			$result = $fh->groups_pools_getPhotos($groupId,null, null, null, $perPage, $pageNumber);
-			$totalPhotos = $result['total'];
+            $args = array(); //search parameters
+            $userName = $pl->getParameterValue("userName");
+            if ($userName) {
+                // get user
+                $user = $fh->people_findByUsername($userName);
+                if ($user == null) {
+                    throw new ProcessException(sprintf(_('Sorry, user <em>%s</em> could not be found.'), $userName), "no_user");
+                }
 
-			$photos = $result['photo'];
-			for($i=0; $i<count($photos); $i++){
-				$photos[$i]['src'] = $fh->buildPhotoURL($photos[$i], $size);
-				$photos[$i]['href'] = 'http://www.flickr.com/photos/'.$photos[$i]['owner'].'/'.$photos[$i]['id'];
-			}
+                $args['user_id'] = $user;
+            }
 
-		}else{
-		 	// just search. woooo. 	this is COOOOOL!!!
+            $tags = $pl->getParameterValue("tags");
+            if ($tags) {
+                $args['tags'] = $tags;
+            }
 
-		 	$args = array(); //search parameters
-		 	$userName = $pl->getParameterValue("userName");
-		 	if($userName){
-		 		// get user
-		 		$user = $fh->people_findByUsername($userName);
-		 		if($user == null){
-		 			throw new ProcessException(sprintf(_('Sorry, user <em>%s</em> could not be found.'), $userName), "no_user");
-		 		}
+            $tagMode = $pl->getParameterValue("tagMode");
+            if ($tagMode == "any" || $tagMode == "all") {
+                $args['tag_mode'] = $tagMode;
+            }
 
-		 		$args['user_id'] = $user;
-		 	}
+            $sort = $pl->getParameterValue("sort");
 
-		 	$tags = $pl->getParameterValue("tags");
-		 	if($tags){
-		 		$args['tags'] = $tags;
-		 	}
+            if (count($args) == 0) {
+                $result = $fh->photos_getRecent(null, $perPage, $pageNumber);
+                $photos = $result['photo'];
+                $totalPhotos = $result['total'];
+            } else {
+                // sort does not count.
+                if ($sort && in_array($sort, array("date-posted-asc",
+                            "date-posted-desc",
+                            "date-taken-asc",
+                            "date-taken-desc",
+                            "interestingness-desc",
+                            "interestingness-asc",
+                            "relevance"))) {
+                    $args['sort']=$sort;
+                }
 
-		 	$tagMode = $pl->getParameterValue("tagMode");
-		 	if($tagMode == "any" || $tagMode == "all"){
-		 		$args['tag_mode'] = $tagMode;
-		 	}
+                $args['per_page'] = $perPage;
+                $args['page'] = $pageNumber;
+                $result = $fh->photos_search($args);
+                $photos = $result['photo'];
+                $totalPhotos = $result['total'];
+            }
+            for ($i=0; $i<count($photos); $i++) {
+                $photos[$i]['src'] = $fh->buildPhotoURL($photos[$i], $size);
+                $photos[$i]['href'] = 'http://www.flickr.com/photos/'.$photos[$i]['owner'].'/'.$photos[$i]['id'];
+            }
+        }
 
-		 	$sort = $pl->getParameterValue("sort");
+        // build urls
 
-		 	if(count($args) == 0){
-		 		$result = $fh->photos_getRecent(null, $perPage, $pageNumber);
-		 		$photos = $result['photo'];
-		 		$totalPhotos = $result['total'];
-		 	}else{
+        $pagerData = array();
+        $totalPages = ceil($totalPhotos/$perPage);
+        if ($limit) {
+            $totalPages = min($limit, $totalPages);
+        }
+        $pagerData['total_pages'] = $totalPages;
 
-		 		// sort does not count.
-		 		if($sort && in_array($sort, array("date-posted-asc",
-							"date-posted-desc",
-							"date-taken-asc",
-							"date-taken-desc",
-							"interestingness-desc",
-							"interestingness-asc",
-							"relevance"))){
-					$args['sort']=$sort;
-				}
+        $pagerData['current_page'] = $pageNumber;
 
-			 	$args['per_page'] = $perPage;
-			 	$args['page'] = $pageNumber;
-			 	$result = $fh->photos_search($args );
-			 	$photos = $result['photo'];
-			 	$totalPhotos = $result['total'];
-		 	}
-		 	for($i=0; $i<count($photos); $i++){
-				$photos[$i]['src'] = $fh->buildPhotoURL($photos[$i], $size);
-				$photos[$i]['href'] = 'http://www.flickr.com/photos/'.$photos[$i]['owner'].'/'.$photos[$i]['id'];
-			}
+        $runData->contextAdd("pagerData", $pagerData);
 
-		}
+        $runData->contextAdd("photos", $photos);
+        $runData->contextAdd("size", $size);
 
-		// build urls
+        if ($contentOnly) {
+            $runData->contextAdd("contentOnly", true);
+        }
 
-		$pagerData = array();
-		$totalPages = ceil($totalPhotos/$perPage);
-		if($limit){
-			$totalPages = min($limit, $totalPages);
-		}
-		$pagerData['total_pages'] = $totalPages;
+        $runData->contextAdd("makeHoverTitles", true);//(bool)$pl->getParameterValue("makeHoverTitles"));
+        $runData->contextAdd("disableBrowsing", (bool)$pl->getParameterValue("disableBrowsing"));
 
-		$pagerData['current_page'] = $pageNumber;
-
-		$runData->contextAdd("pagerData", $pagerData);
-
-		$runData->contextAdd("photos", $photos);
-		$runData->contextAdd("size", $size);
-
-		if($contentOnly){
-			$runData->contextAdd("contentOnly", true);
-		}
-
-		$runData->contextAdd("makeHoverTitles", true);//(bool)$pl->getParameterValue("makeHoverTitles"));
-		$runData->contextAdd("disableBrowsing", (bool)$pl->getParameterValue("disableBrowsing"));
-
-		//put parameters into context
-		if(!$runData->getAjaxMode()){
-			$parameters = $pl->getParametersByType("MODULE");
-			$runData->contextAdd("parameters", $parameters);
-		}
-	}
+        //put parameters into context
+        if (!$runData->getAjaxMode()) {
+            $parameters = $pl->getParametersByType("MODULE");
+            $runData->contextAdd("parameters", $parameters);
+        }
+    }
 }

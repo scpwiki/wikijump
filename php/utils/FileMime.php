@@ -26,31 +26,35 @@
 
 
 
-class FileMime {
+class FileMime
+{
 
-	protected $mime = null;
-	protected $contents = "";
+    protected $mime = null;
+    protected $contents = "";
 
-	protected $mimeMap = array(
-		"css"	=> "text/css",
-		"html"	=> "text/html",
-	);
+    protected $mimeMap = array(
+        "css"   => "text/css",
+        "html"  => "text/html",
+    );
 
-	static protected function execFile($params, $file) {
-		$file = escapeshellarg($file);
-		exec("file $params $file", $output, $retval);
-		if ($retval == 0) {
-			return join("\n", $output);
-		} else {
-			return null;
-		}
-	}
+    protected static function execFile($params, $file)
+    {
+        $file = escapeshellarg($file);
+        exec("file $params $file", $output, $retval);
+        if ($retval == 0) {
+            return join("\n", $output);
+        } else {
+            return null;
+        }
+    }
 
-	static public function mime($file) {
-		return self::execFile("-i -b", $file);
-	}
+    public static function mime($file)
+    {
+        return self::execFile("-i -b", $file);
+    }
 
-	static public function description($file) {
-		return self::execFile("-b", $file);
-	}
+    public static function description($file)
+    {
+        return self::execFile("-b", $file);
+    }
 }

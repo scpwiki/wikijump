@@ -24,6 +24,7 @@
  */
 
 
-class PingBackNotAvailableException  extends PingBackException {
+class PingBackNotAvailableException extends PingBackException
+{
 
 }

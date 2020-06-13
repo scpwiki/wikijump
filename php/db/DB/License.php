@@ -25,11 +25,11 @@
 
 namespace DB;
 
-
 /**
  * Object Model class.
  *
  */
-class License extends LicenseBase {
+class License extends LicenseBase
+{
 
 }

@@ -24,8 +24,10 @@
  */
 
 
-class DefaultModule extends AccountBaseModule {
+class DefaultModule extends AccountBaseModule
+{
 
-	public function build($r){}
-
+    public function build($r)
+    {
+    }
 }

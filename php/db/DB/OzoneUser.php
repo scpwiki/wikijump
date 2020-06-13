@@ -27,14 +27,15 @@ namespace DB;
 
 use Criteria;
 
-
 /**
  * Object Model class.
  *
  */
-class OzoneUser extends OzoneUserBase {
+class OzoneUser extends OzoneUserBase
+{
 
-    public function getProfile() {
+    public function getProfile()
+    {
         if (is_array($this->prefetched)) {
             if (in_array('profile', $this->prefetched)) {
                 if (in_array('profile', $this->prefetchedObjects)) {
@@ -50,26 +51,28 @@ class OzoneUser extends OzoneUserBase {
         return ProfilePeer::instance()->selectByPrimaryKey($this->getUserId());
     }
 
-    public function getSettings() {
+    public function getSettings()
+    {
         return UserSettingsPeer::instance()->selectByPrimaryKey($this->getUserId());
     }
 
-    public function getKarmaLevel() {
+    public function getKarmaLevel()
+    {
         $c = new Criteria();
         $c->add('user_id', $this->getUserId());
         $karma = UserKarmaPeer::instance()->selectOne($c);
-        if($karma){
+        if ($karma) {
             return $karma->getLevel();
         } else {
             return 0;
         }
     }
 
-    public function save() {
+    public function save()
+    {
         $memcache = \Ozone::$memcache;
         $key = 'user..' . $this->getUserId();
         $memcache->delete($key);
         parent::save();
     }
-
 }

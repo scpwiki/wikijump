@@ -27,13 +27,11 @@ namespace DB;
 
 use DB\PageCompiledContentBase;
 
-
-
-
 /**
  * Object Model class.
  *
  */
-class PageCompiledContent extends PageCompiledContentBase {
+class PageCompiledContent extends PageCompiledContentBase
+{
 
 }

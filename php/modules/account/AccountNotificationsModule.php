@@ -23,16 +23,17 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-class AccountNotificationsModule extends AccountBaseModule {
+class AccountNotificationsModule extends AccountBaseModule
+{
 
-	public function build($runData){
-		$user = $runData->getUser();
-		$username = $user->getName();
+    public function build($runData)
+    {
+        $user = $runData->getUser();
+        $username = $user->getName();
 
-		$password = $user->getPassword();
+        $password = $user->getPassword();
 
-		$runData->contextAdd("feedUsername", $username);
-		$runData->contextAdd("feedPassword", $password);
-	}
-
+        $runData->contextAdd("feedUsername", $username);
+        $runData->contextAdd("feedPassword", $password);
+    }
 }

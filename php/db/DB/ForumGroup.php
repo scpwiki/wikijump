@@ -25,11 +25,11 @@
 
 namespace DB;
 
-
 /**
  * Object Model class.
  *
  */
-class ForumGroup extends ForumGroupBase {
+class ForumGroup extends ForumGroupBase
+{
 
 }

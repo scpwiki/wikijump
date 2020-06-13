@@ -26,9 +26,11 @@
 
 use DB\ContactPeer;
 
-class AccountContactsModule extends AccountBaseModule {
+class AccountContactsModule extends AccountBaseModule
+{
 
-    public function build($runData) {
+    public function build($runData)
+    {
 
         $user = $runData->getUser();
 
@@ -69,6 +71,5 @@ class AccountContactsModule extends AccountBaseModule {
 
         $maxContacts = 10;
         $runData->contextAdd("maxContacts", $maxContacts);
-
     }
 }

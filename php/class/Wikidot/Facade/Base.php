@@ -17,467 +17,469 @@ use DB\SitePeer;
 use DB\CategoryPeer;
 use DB\PagePeer;
 
+abstract class Base
+{
 
+    /**
+     *
+     * @var string
+     */
+    protected $app = null;
 
-abstract class Base {
+    /**
+     *
+     * @var DB_OzoneUser
+     */
+    protected $performer = null;
 
-	/**
-	 *
-	 * @var string
-	 */
-	protected $app = null;
+    /**
+     *
+     * @var DB_OzoneUser
+     */
+    protected $user = null;
 
-	/**
-	 *
-	 * @var DB_OzoneUser
-	 */
-	protected $performer = null;
+    /**
+     *
+     * @var DB_Site
+     */
+    public $site = null;
 
-	/**
-	 *
-	 * @var DB_OzoneUser
-	 */
-	protected $user = null;
+    /**
+     *
+     * @var DB_Category
+     */
+    protected $category = null;
 
-	/**
-	 *
-	 * @var DB_Site
-	 */
-	public $site = null;
+    /**
+     *
+     * @var DB_Page
+     */
+    protected $page = null;
 
-	/**
-	 *
-	 * @var DB_Category
-	 */
-	protected $category = null;
+    /**
+     *
+     * @var DB_Page
+     */
+    protected $parent_page = null;
 
-	/**
-	 *
-	 * @var DB_Page
-	 */
-	protected $page = null;
+    /**
+     *
+     * @var bool
+     */
+    protected $clear_parent_page = false;
 
-	/**
-	 *
-	 * @var DB_Page
-	 */
-	protected $parent_page = null;
+    /**
+     *
+     * @var string
+     */
+    protected $title = null;
 
-	/**
-	 *
-	 * @var bool
-	 */
-	protected $clear_parent_page = false;
+    /**
+     *
+     * @var string
+     */
+    protected $source = null;
 
-	/**
-	 *
-	 * @var string
-	 */
-	protected $title = null;
+    /**
+     *
+     * @var array
+     */
+    protected $tags = null;
 
-	/**
-	 *
-	 * @var string
-	 */
-	protected $source = null;
+    /**
+     *
+     * @var array
+     */
+    protected $config = array();
 
-	/**
-	 *
-	 * @var array
-	 */
-	protected $tags = null;
+    /**
+     *
+     * @var array
+     */
+    protected $config_keys = array('expose_file_path');
 
-	/**
-	 *
-	 * @var array
-	 */
-	protected $config = array();
+    /**
+     * construct Facade object
+     *
+     * @param $performer DB_OzoneUser
+     * @param $app string application
+     * @param $config array configuration array, keys: expose_file_path: false by default
+     */
+    public function __construct($performer = null, $app = null, $config = null)
+    {
+        $this->performer = $performer;
+        $this->app = $app;
 
-	/**
-	 *
-	 * @var array
-	 */
-	protected $config_keys = array('expose_file_path');
+        if (is_array($config)) {
+            foreach ($this->config_keys as $key) {
+                if (isset($config[$key])) {
+                    $this->config[$key] = $config[$key];
+                } else {
+                    $this->config[$key] = null;
+                }
+            }
+        }
+    }
 
-	/**
-	 * construct Facade object
-	 *
-	 * @param $performer DB_OzoneUser
-	 * @param $app string application
-	 * @param $config array configuration array, keys: expose_file_path: false by default
-	 */
-	public function __construct($performer = null, $app = null, $config = null) {
-		$this->performer = $performer;
-		$this->app = $app;
+    /**
+     * Parse the arguments array and resolve objects from their names.
+     *
+     * @param array $args the argument array
+     * @param array $requiredArgs the required argument array keys
+     * @return array the array of arguments filtered and resolved to native types
+     */
+    protected function parseArgs($args, $requiredArgs = array())
+    {
+        if (! is_array($args)) {
+            throw new Exception\WrongArguments("Argument is not an array");
+        }
 
-		if (is_array($config)) {
-			foreach ($this->config_keys as $key) {
-				if (isset($config[$key])) {
-					$this->config[$key] = $config[$key];
-				} else {
-					$this->config[$key] = null;
-				}
-			}
-		}
-	}
+        // simple types
+        foreach ($args as $key => $value) {
+            switch ($key) {
+                case "performer":
+                    if ($this->performer) {
+                        //throw new Wikidot_Facade_Exception_WrongArguments("Array key performer is for internal use only");
+                    } else {
+                        $this->performer = $this->_parseUser($value);
+                    }
+                    break;
+                case "user":
+                    $this->user = $this->_parseUser($value);
+                    break;
+                case "site":
+                    $this->site = $this->_parseSite($value);
+                    break;
+                case "category":
+                    $this->category = $value;
+                    break;
+                case "page":
+                    $this->page = $value;
+                    break;
+                case "parent_page":
+                    $this->parent_page = $value;
+                    break;
+                case "title":
+                    $this->title = $this->_parseString($value, "title", 128);
+                    break;
+                case "source":
+                    $this->source = $this->_parseString($value, "source", 200000);
+                    break;
+                case "tags":
+                    $this->tags = $this->_parseTags($value, 64, 500);
+                    break;
+                default:
+                    throw new WrongArguments("Invalid argument array key: $key");
+                    break;
+            }
+        }
 
-	/**
-	 * Parse the arguments array and resolve objects from their names.
-	 *
-	 * @param array $args the argument array
-	 * @param array $requiredArgs the required argument array keys
-	 * @return array the array of arguments filtered and resolved to native types
-	 */
-	protected function parseArgs($args, $requiredArgs = array()) {
-		if (! is_array($args)) {
-			throw new Exception\WrongArguments("Argument is not an array");
-		}
+        // more sophisticated ones...
+        if ($this->category) {
+            $this->category = $this->_parseCategory($this->site, $this->category);
+        }
 
-		// simple types
-		foreach ($args as $key => $value) {
-			switch ($key) {
-				case "performer":
-					if ($this->performer) {
-						//throw new Wikidot_Facade_Exception_WrongArguments("Array key performer is for internal use only");
-					} else {
-						$this->performer = $this->_parseUser($value);
-					}
-					break;
-				case "user":
-					$this->user = $this->_parseUser($value);
-					break;
-				case "site":
-					$this->site = $this->_parseSite($value);
-					break;
-				case "category":
-					$this->category = $value;
-					break;
-				case "page":
-					$this->page = $value;
-					break;
-				case "parent_page":
-					$this->parent_page = $value;
-					break;
-				case "title":
-					$this->title = $this->_parseString($value, "title", 128);
-					break;
-				case "source":
-					$this->source = $this->_parseString($value, "source", 200000);
-					break;
-				case "tags":
-					$this->tags = $this->_parseTags($value, 64, 500);
-					break;
-				default:
-					throw new WrongArguments("Invalid argument array key: $key");
-					break;
-			}
-		}
+        if ($this->page) {
+            $this->page = $this->_parsePage($this->site, $this->page);
+        }
 
-		// more sophisticated ones...
-		if ($this->category) {
-			$this->category = $this->_parseCategory($this->site, $this->category);
-		}
+        if ($this->parent_page) {
+            $this->parent_page = $this->_parsePage($this->site, $this->parent_page);
+        }
 
-		if ($this->page) {
-			$this->page = $this->_parsePage($this->site, $this->page);
-		}
+        if ($this->parent_page === "") { // empty string is passed as the parent_page
+            $this->clear_parent_page = true;
+        }
 
-		if ($this->parent_page) {
-			$this->parent_page = $this->_parsePage($this->site, $this->parent_page);
-		}
+        foreach ($requiredArgs as $key) {
+            if (! $this->$key) {
+                throw new WrongArguments("Required argument array key not passed: $key");
+            }
+        }
+    }
 
-		if ($this->parent_page === "") { // empty string is passed as the parent_page
-			$this->clear_parent_page = true;
-		}
+    protected function repr($object, $hint = null)
+    {
+        // first deal with arrays of objects
+        if (is_array($object)) {
+            $array = array();
+            foreach ($object as $item) {
+                $array[] = $this->repr($item, $hint);
+            }
+            return $array;
+        }
 
-		foreach ($requiredArgs as $key) {
-			if (! $this->$key) {
-				throw new WrongArguments("Required argument array key not passed: $key");
-			}
-		}
-	}
+        // page
+        if ($object instanceof Page) {
+            return $this->_reprPage($object, $hint);
+        }
 
-	protected function repr($object, $hint = null) {
-		// first deal with arrays of objects
-		if (is_array($object)) {
-			$array = array();
-			foreach ($object as $item) {
-				$array[] = $this->repr($item, $hint);
-			}
-			return $array;
-		}
+        // category
+        if ($object instanceof Category) {
+            return $this->_reprCategory($object);
+        }
 
-		// page
-		if ($object instanceof Page) {
-			return $this->_reprPage($object, $hint);
-		}
+        // site
+        if ($object instanceof Site) {
+            return $this->_reprSite($object);
+        }
 
-		// category
-		if ($object instanceof Category) {
-			return $this->_reprCategory($object);
-		}
+        // file
+        if ($object instanceof File) {
+            return $this->_reprFile($object);
+        }
 
-		// site
-		if ($object instanceof Site) {
-			return $this->_reprSite($object);
-		}
+        // the result is of none supported types
+        throw new WrongReturnValue("Invalid type of returned value");
+    }
 
-		// file
-		if ($object instanceof File) {
-			return $this->_reprFile($object);
-		}
+    protected function _parseString($value, $key = "", $max_length = null, $trim = true)
+    {
+        if (is_numeric($value)) {
+            $value = "$value";
+        }
+        if (is_string($value)) {
+            if ($trim) {
+                $value= trim($value);
+            }
 
-		// the result is of none supported types
-		throw new WrongReturnValue("Invalid type of returned value");
-	}
+            if ($max_length && strlen8($value) > $max_length) {
+                throw new WrongArguments("Argument $key is too long (> $max_length)");
+            }
 
-	protected function _parseString($value, $key = "", $max_length = null, $trim = true) {
-		if (is_numeric($value)) {
-			$value = "$value";
-		}
-		if (is_string($value)) {
+            return $value;
+        }
+        throw new WrongArguments("Argument $key must be a string");
+    }
 
-			if ($trim) {
-				$value= trim($value);
-			}
+    protected function _parseTags($tags, $max_tag_length = null, $max_total_length = null)
+    {
+        if (is_string($tags)) {
+            $tags = preg_split("/[ ,]+/", trim($tags));
+        }
+        if (! is_array($tags)) {
+            throw new WrongArguments("Invalid tags argument (it must be array or string)");
+        }
+        $tags = array_unique($tags);
+        $total_length = -1;
+        $tags_new = array();
+        foreach ($tags as $tag) {
+            $tag = $this->_parseString($tag, "tag", $max_tag_length);
+            $total_length += strlen8($tag) + 1;
+            $tags_new[] = strtolower($tag);
+        }
+        if ($total_length > $max_total_length) {
+            throw new WrongArguments("Tags are too long (> $max_total_length)");
+        }
+        return $tags_new;
+    }
 
-			if ($max_length && strlen8($value) > $max_length) {
-				throw new WrongArguments("Argument $key is too long (> $max_length)");
-			}
+    protected function _parseUser($user)
+    {
+        if (is_int($user)) { // int = ID
+            $user = OzoneUserPeer::instance()->selectByPrimaryKey($user);
+        }
 
-			return $value;
-		}
-		throw new WrongArguments("Argument $key must be a string");
-	}
+        if (is_string($user)) {
+            $c = new Criteria();
+            $unix_name = WDStringUtils::toUnixName($user);
+            $c->add('unix_name', $unix_name);
+            $user = OzoneUserPeer::instance()->selectOne($c);
+        }
 
-	protected function _parseTags($tags, $max_tag_length = null, $max_total_length = null) {
-		if (is_string($tags)) {
-			$tags = preg_split("/[ ,]+/", trim($tags));
-		}
-		if (! is_array($tags)) {
-			throw new WrongArguments("Invalid tags argument (it must be array or string)");
-		}
-		$tags = array_unique($tags);
-		$total_length = -1;
-		$tags_new = array();
-		foreach ($tags as $tag) {
-			$tag = $this->_parseString($tag, "tag", $max_tag_length);
-			$total_length += strlen8($tag) + 1;
-			$tags_new[] = strtolower($tag);
-		}
-		if ($total_length > $max_total_length) {
-			throw new WrongArguments("Tags are too long (> $max_total_length)");
-		}
-		return $tags_new;
-	}
+        if ($user instanceof OzoneUser) {
+            return $user;
+        }
+        throw new WrongArguments("User does not exist");
+    }
 
-	protected function _parseUser($user) {
-		if (is_int($user)) { // int = ID
-			$user = OzoneUserPeer::instance()->selectByPrimaryKey($user);
-		}
+    protected function _parseSite($site)
+    {
+        if (is_int($site)) { // int = ID
+            $site = SitePeer::instance()->selectByPrimaryKey($site);
+        } elseif (is_string($site)) { // string = name
+            $c = new Criteria();
+            $c->add("unix_name", WDStringUtils::toUnixName($site));
+            $site = SitePeer::instance()->selectOne($c);
+        }
 
-		if (is_string($user)) {
-			$c = new Criteria();
-			$unix_name = WDStringUtils::toUnixName($user);
-			$c->add('unix_name', $unix_name);
-			$user = OzoneUserPeer::instance()->selectOne($c);
-		}
+        if ($site instanceof Site) {
+            return $site;
+        }
 
-		if ($user instanceof OzoneUser) {
-			return $user;
-		}
-		throw new WrongArguments("User does not exist");
-	}
+        throw new WrongArguments("Site does not exist");
+    }
 
-	protected function _parseSite($site) {
-		if (is_int($site)) { // int = ID
+    protected function _parseCategory($site, $category)
+    {
+        if (is_int($category)) { // int = ID
+            $category = SitePeer::instance()->selectByPrimaryKey($category);
+        } elseif (is_string($category)) {
+            if ($site) {
+                $c = new Criteria();
+                $c->add("name", WDStringUtils::toUnixName($category));
+                $c->add("site_id", $site->getSiteId());
+                $category = CategoryPeer::instance()->selectOne($c);
+            }
+        }
 
-			$site = SitePeer::instance()->selectByPrimaryKey($site);
+        if ($category instanceof Category) {
+            return $category;
+        }
+        throw new WrongArguments("Category does not exist");
+    }
 
-		} elseif (is_string($site)) { // string = name
+    protected function _parsePage($site, $page)
+    {
+        if (is_int($page)) { // int = ID
+            $page = PagePeer::instance()->selectByPrimaryKey($page);
+        } elseif (is_string($page)) {
+            if ($site) {
+                $page = preg_replace("/^_default:/", "", $page);
 
-			$c = new Criteria();
-			$c->add("unix_name", WDStringUtils::toUnixName($site));
-			$site = SitePeer::instance()->selectOne($c);
+                $c = new Criteria();
+                $c->add("unix_name", WDStringUtils::toUnixName($page));
+                $c->add("site_id", $site->getSiteId());
+                $page = PagePeer::instance()->selectOne($c);
+            }
+        }
 
-		}
+        if ($page instanceof Page) {
+            return $page;
+        }
+        throw new WrongArguments("Page does not exist");
+    }
 
-		if ($site instanceof Site) {
-			return $site;
-		}
+    /**
+     * string representation of date from ODate
+     *
+     * @param $date ODate
+     * @return string
+     */
+    protected function _reprDate($date)
+    {
+        return $date->getDate();
+    }
 
-		throw new WrongArguments("Site does not exist");
-	}
-
-	protected function _parseCategory($site, $category) {
-		if (is_int($category)) { // int = ID
-
-			$category = SitePeer::instance()->selectByPrimaryKey($category);
-
-		} elseif (is_string($category)) {
-
-			if ($site) {
-				$c = new Criteria();
-				$c->add("name", WDStringUtils::toUnixName($category));
-				$c->add("site_id", $site->getSiteId());
-				$category = CategoryPeer::instance()->selectOne($c);
-			}
-		}
-
-		if ($category instanceof Category) {
-			return $category;
-		}
-		throw new WrongArguments("Category does not exist");
-	}
-
-	protected function _parsePage($site, $page) {
-		if (is_int($page)) { // int = ID
-
-			$page = PagePeer::instance()->selectByPrimaryKey($page);
-
-		} elseif (is_string($page)) {
-
-			if ($site) {
-
-				$page = preg_replace("/^_default:/", "", $page);
-
-				$c = new Criteria();
-				$c->add("unix_name", WDStringUtils::toUnixName($page));
-				$c->add("site_id", $site->getSiteId());
-				$page = PagePeer::instance()->selectOne($c);
-			}
-		}
-
-		if ($page instanceof Page) {
-			return $page;
-		}
-		throw new WrongArguments("Page does not exist");
-	}
-
-	/**
-	 * string representation of date from ODate
-	 *
-	 * @param $date ODate
-	 * @return string
-	 */
-	protected function _reprDate($date) {
-		return $date->getDate();
-	}
-
-	/**
-	 * string representation of compiled page
-	 *
-	 * @param $compiled DB_PageCompiled
-	 * @return string
-	 */
-	protected function _reprPageCompiled($compiled) {
-		$d = utf8_encode("\xFE");
-		$content = $compiled->getText();
+    /**
+     * string representation of compiled page
+     *
+     * @param $compiled DB_PageCompiled
+     * @return string
+     */
+    protected function _reprPageCompiled($compiled)
+    {
+        $d = utf8_encode("\xFE");
+        $content = $compiled->getText();
         $content = preg_replace("/" . $d . "module \"([a-zA-Z0-9\/_]+?)\"(.+?)?" . $d . "/", '', $content);
         // TODO fix links:
-    	//$content = preg_replace(';(<.*?)(src|href)="/([^"]+)"([^>]*>);si', '\\1\\2="http://'.$site->getDomain().'/\\3"\\4', $content);
-		$content = preg_replace(';<script\s+[^>]+>.*?</script>;is', '', $content);
-		$content = preg_replace(';(<[^>]*\s+)on[a-z]+="[^"]+"([^>]*>);si', '\\1 \\2', $content);
-		return $content;
-	}
+        //$content = preg_replace(';(<.*?)(src|href)="/([^"]+)"([^>]*>);si', '\\1\\2="http://'.$site->getDomain().'/\\3"\\4', $content);
+        $content = preg_replace(';<script\s+[^>]+>.*?</script>;is', '', $content);
+        $content = preg_replace(';(<[^>]*\s+)on[a-z]+="[^"]+"([^>]*>);si', '\\1 \\2', $content);
+        return $content;
+    }
 
-	/**
-	 * representation of site
-	 *
-	 * @param $site DB_Site
-	 * @return array
-	 */
-	protected function _reprSite($site) {
-		return array(
-			"name" => $site->getUnixName(),
-			"title" => $site->getName(),
-			"private" => $site->getPrivate(),
-		);
-	}
+    /**
+     * representation of site
+     *
+     * @param $site DB_Site
+     * @return array
+     */
+    protected function _reprSite($site)
+    {
+        return array(
+            "name" => $site->getUnixName(),
+            "title" => $site->getName(),
+            "private" => $site->getPrivate(),
+        );
+    }
 
-	/**
-	 * representation of category
-	 *
-	 * @param $category DB_Category
-	 * @return array
-	 */
-	protected function _reprCategory($category) {
-		return array(
-			"name" => $category->getName(),
-		);
-	}
+    /**
+     * representation of category
+     *
+     * @param $category DB_Category
+     * @return array
+     */
+    protected function _reprCategory($category)
+    {
+        return array(
+            "name" => $category->getName(),
+        );
+    }
 
-	/**
-	 * External representation of a page object
-	 *
-	 * @param DB\Page $page
-	 * @param string $hint
-	 * @return array
-	 */
-	protected function _reprPage($page, $hint) {
-		if ($hint == "meta") {
-			$category = $page->getCategoryName();
-			$name = preg_replace("|^$category:|", "", $page->getUnixName());
-			$tags = $page->getTagsAsArray();
+    /**
+     * External representation of a page object
+     *
+     * @param DB\Page $page
+     * @param string $hint
+     * @return array
+     */
+    protected function _reprPage($page, $hint)
+    {
+        if ($hint == "meta") {
+            $category = $page->getCategoryName();
+            $name = preg_replace("|^$category:|", "", $page->getUnixName());
+            $tags = $page->getTagsAsArray();
 
-			$parent_page_name = null;
-			if ($parent_page_id = $page->getParentPageId()) {
-				if ($parent_page = PagePeer::instance()->selectByPrimaryKey($parent_page_id)) {
-					$parent_page_name = $parent_page->getUnixName();
-				}
-			}
+            $parent_page_name = null;
+            if ($parent_page_id = $page->getParentPageId()) {
+                if ($parent_page = PagePeer::instance()->selectByPrimaryKey($parent_page_id)) {
+                    $parent_page_name = $parent_page->getUnixName();
+                }
+            }
 
-			$user_created_name = null;
-			if ($user_created_id = $page->getOwnerUserId()) {
-				if ($user_created = OzoneUserPeer::instance()->selectByPrimaryKey($user_created_id)) {
-					$user_created_name = $user_created->getNickName();
-				}
-			}
+            $user_created_name = null;
+            if ($user_created_id = $page->getOwnerUserId()) {
+                if ($user_created = OzoneUserPeer::instance()->selectByPrimaryKey($user_created_id)) {
+                    $user_created_name = $user_created->getNickName();
+                }
+            }
 
-			return array(
-				"site" => $page->getSite()->getUnixName(),
-    			"category" => $category,
-				"name" => $name,
-				"full_name" => $page->getUnixName(),
-				"title" => $page->getTitleRaw(),
-				"title_shown" => $page->getTitle(),
-				"title_or_unix_name" => $page->getTitleOrUnixName(),
-				"tag_string" => join(" ", $tags),
-				"tag_array" => $tags,
-				"parent_page" => $parent_page_name,
-				"date_edited" => $this->_reprDate($page->getDateLastEdited()),
-				"user_edited" => $page->getLastEditUserString(),
-				"date_created" => $this->_reprDate($page->getDateCreated()),
-				"user_created" => $user_created_name,
-			);
-		} else {
-			return array(
-				"source" => $page->getSource(),
-				"html" => $this->_reprPageCompiled($page->getCompiled()),
-				"meta" => $this->_reprPage($page, "meta"),
-			);
-		}
-	}
+            return array(
+                "site" => $page->getSite()->getUnixName(),
+                "category" => $category,
+                "name" => $name,
+                "full_name" => $page->getUnixName(),
+                "title" => $page->getTitleRaw(),
+                "title_shown" => $page->getTitle(),
+                "title_or_unix_name" => $page->getTitleOrUnixName(),
+                "tag_string" => join(" ", $tags),
+                "tag_array" => $tags,
+                "parent_page" => $parent_page_name,
+                "date_edited" => $this->_reprDate($page->getDateLastEdited()),
+                "user_edited" => $page->getLastEditUserString(),
+                "date_created" => $this->_reprDate($page->getDateCreated()),
+                "user_created" => $user_created_name,
+            );
+        } else {
+            return array(
+                "source" => $page->getSource(),
+                "html" => $this->_reprPageCompiled($page->getCompiled()),
+                "meta" => $this->_reprPage($page, "meta"),
+            );
+        }
+    }
 
-	/**
-	 * representation of file
-	 *
-	 * @param $file DB_File
-	 * @return array
-	 */
-	protected function _reprFile($file) {
-		$r = array(
-			"url" => $file->getFileURI(),
-			"name" => $file->getFilename(),
-			"mime" => $file->getMimetype(),
-			"description" => $file->getDescription(),
-			"comment" => $file->getComment(),
-			"date_added" => $this->_reprDate($file->getDateAdded()),
-			"size" => $file->getSize(),
-		);
-		if ($this->config['expose_file_path']) {
-			$r['path'] = $file->getFilePath();
-		}
-		return $r;
-	}
+    /**
+     * representation of file
+     *
+     * @param $file DB_File
+     * @return array
+     */
+    protected function _reprFile($file)
+    {
+        $r = array(
+            "url" => $file->getFileURI(),
+            "name" => $file->getFilename(),
+            "mime" => $file->getMimetype(),
+            "description" => $file->getDescription(),
+            "comment" => $file->getComment(),
+            "date_added" => $this->_reprDate($file->getDateAdded()),
+            "size" => $file->getSize(),
+        );
+        if ($this->config['expose_file_path']) {
+            $r['path'] = $file->getFilePath();
+        }
+        return $r;
+    }
 }

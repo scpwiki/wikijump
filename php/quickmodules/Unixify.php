@@ -24,10 +24,10 @@
  */
 
 
-class Unixify extends QuickModule {
+class Unixify extends QuickModule
+{
 
-	public function process($data){
-
-	}
-
+    public function process($data)
+    {
+    }
 }

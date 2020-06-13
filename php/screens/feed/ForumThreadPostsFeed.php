@@ -27,122 +27,124 @@
 use DB\ForumThreadPeer;
 use DB\ForumPostPeer;
 
-class ForumThreadPostsFeed extends FeedScreen {
+class ForumThreadPostsFeed extends FeedScreen
+{
 
-	public function render($runData){
-		$site = $runData->getTemp("site");
-		$pl = $runData->getParameterList();
-		$threadId = $pl->getParameterValue("t");
+    public function render($runData)
+    {
+        $site = $runData->getTemp("site");
+        $pl = $runData->getParameterList();
+        $threadId = $pl->getParameterValue("t");
 
-		$parmHash = md5(serialize($pl->asArray()));
+        $parmHash = md5(serialize($pl->asArray()));
 
-		$key = 'forumthreadposts_f..'.$site->getUnixName().'..'.$threadId.'..'.$parmHash;
-		$tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$threadId; // last change timestamp
-		$akey = 'forumall_lc..'.$site->getUnixName();
+        $key = 'forumthreadposts_f..'.$site->getUnixName().'..'.$threadId.'..'.$parmHash;
+        $tkey = 'forumthread_lc..'.$site->getUnixName().'..'.$threadId; // last change timestamp
+        $akey = 'forumall_lc..'.$site->getUnixName();
 
-		$mc = OZONE::$memcache;
-		$struct = $mc->get($key);
-		$cacheTimestamp = $struct['timestamp'];
-		$changeTimestamp = $mc->get($tkey);
-		$allForumTimestamp = $mc->get($akey);
-		if($struct){
-			// check the times
+        $mc = OZONE::$memcache;
+        $struct = $mc->get($key);
+        $cacheTimestamp = $struct['timestamp'];
+        $changeTimestamp = $mc->get($tkey);
+        $allForumTimestamp = $mc->get($akey);
+        if ($struct) {
+            // check the times
 
-			if($changeTimestamp && $changeTimestamp <= $cacheTimestamp && $allForumTimestamp && $allForumTimestamp <= $cacheTimestamp){
-				return $struct['content'];
-			}
-		}
+            if ($changeTimestamp && $changeTimestamp <= $cacheTimestamp && $allForumTimestamp && $allForumTimestamp <= $cacheTimestamp) {
+                return $struct['content'];
+            }
+        }
 
-		$out = parent::render($runData);
+        $out = parent::render($runData);
 
-		// and store the data now
-		$struct = array();
-		$now = time();
-		$struct['timestamp'] = $now;
-		$struct['content'] = $out;
+        // and store the data now
+        $struct = array();
+        $now = time();
+        $struct['timestamp'] = $now;
+        $struct['content'] = $out;
 
-		$mc->set($key, $struct, 0, 1000);
+        $mc->set($key, $struct, 0, 1000);
 
-		if(!$changeTimestamp){
-			$changeTimestamp = $now;
-			$mc->set($tkey, $changeTimestamp, 0, 1000);
-		}
-		if(!$allForumTimestamp){
-			$allForumTimestamp = $now;
-			$mc->set($akey, $allForumTimestamp, 0, 10000);
-		}
+        if (!$changeTimestamp) {
+            $changeTimestamp = $now;
+            $mc->set($tkey, $changeTimestamp, 0, 1000);
+        }
+        if (!$allForumTimestamp) {
+            $allForumTimestamp = $now;
+            $mc->set($akey, $allForumTimestamp, 0, 10000);
+        }
 
-		return $out;
-	}
+        return $out;
+    }
 
-	public function build($runData){
+    public function build($runData)
+    {
 
-		$site = $runData->getTemp("site");
+        $site = $runData->getTemp("site");
 
-		$pl = $runData->getParameterList();
-		$threadId = $pl->getParameterValue("t");
+        $pl = $runData->getParameterList();
+        $threadId = $pl->getParameterValue("t");
 
-		$thread = ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
-		if($thread == null){
-			throw new ProcessException(_("No such thread."), "no_thread");
-		}
+        $thread = ForumThreadPeer::instance()->selectByPrimaryKey($threadId);
+        if ($thread == null) {
+            throw new ProcessException(_("No such thread."), "no_thread");
+        }
 
-		$page = $thread->getPage();
+        $page = $thread->getPage();
 
-		$channel = array();
-		if($page){
-			$channel['title'] = _('Comments for page').' "'.$page->getTitleOrUnixName().'"';
-		}else{
-			$channel['title'] = $thread->getTitle();
-		}
-		$channel['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/forum/t-".$threadId."/".$thread->getUnixifiedTitle();
+        $channel = array();
+        if ($page) {
+            $channel['title'] = _('Comments for page').' "'.$page->getTitleOrUnixName().'"';
+        } else {
+            $channel['title'] = $thread->getTitle();
+        }
+        $channel['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/forum/t-".$threadId."/".$thread->getUnixifiedTitle();
 
-		$channel['description'] = _("Posts in the discussion thread")." \"".$thread->getTitle()."\"";
-		if($thread->getDescription()){
-			$channel['description'] .=  " - ".$thread->getDescription();
-		}
+        $channel['description'] = _("Posts in the discussion thread")." \"".$thread->getTitle()."\"";
+        if ($thread->getDescription()) {
+            $channel['description'] .=  " - ".$thread->getDescription();
+        }
 
-		$items = array();
+        $items = array();
 
-		$c = new Criteria();
-		$c->add("thread_id", $threadId);
-		$c->add("forum_post.site_id", $site->getSiteId());
-		$c->addJoin("user_id", "ozone_user.user_id");
-		$c->addOrderDescending("post_id");
-		$c->setLimit(20);
-		$posts = ForumPostPeer::instance()->select($c);
+        $c = new Criteria();
+        $c->add("thread_id", $threadId);
+        $c->add("forum_post.site_id", $site->getSiteId());
+        $c->addJoin("user_id", "ozone_user.user_id");
+        $c->addOrderDescending("post_id");
+        $c->setLimit(20);
+        $posts = ForumPostPeer::instance()->select($c);
 
-		foreach($posts as $post){
-			$item = array();
+        foreach ($posts as $post) {
+            $item = array();
 
-			if($post->getTitle() != ''){
-				$item['title'] = $post->getTitle();
-			}else{
-				$item['title'] = "(no title)";
-			}
-			$item['link'] = $channel['link'].'#post-'.$post->getPostId();
-			$item['guid'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/forum/t-".$threadId.'#post-'.$post->getPostId();
-			$item['date'] = date('r', $post->getDatePosted()->getTimestamp());
-			// TODO: replace relative links with absolute links!
-			$content =  $post->getText();
+            if ($post->getTitle() != '') {
+                $item['title'] = $post->getTitle();
+            } else {
+                $item['title'] = "(no title)";
+            }
+            $item['link'] = $channel['link'].'#post-'.$post->getPostId();
+            $item['guid'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain()."/forum/t-".$threadId.'#post-'.$post->getPostId();
+            $item['date'] = date('r', $post->getDatePosted()->getTimestamp());
+            // TODO: replace relative links with absolute links!
+            $content =  $post->getText();
 
-			$content = preg_replace(';(<.*?)(src|href)="/([^"]+)"([^>]*>);si', '\\1\\2="'.GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'/\\3"\\4', $content);
-			$content = preg_replace(';<script\s+[^>]+>.*?</script>;is', '', $content);
-			$content = preg_replace(';(<[^>]*\s+)on[a-z]+="[^"]+"([^>]*>);si', '\\1 \\2', $content);
+            $content = preg_replace(';(<.*?)(src|href)="/([^"]+)"([^>]*>);si', '\\1\\2="'.GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'/\\3"\\4', $content);
+            $content = preg_replace(';<script\s+[^>]+>.*?</script>;is', '', $content);
+            $content = preg_replace(';(<[^>]*\s+)on[a-z]+="[^"]+"([^>]*>);si', '\\1 \\2', $content);
 
-			$item['content'] = $content;
-			if($post->getUserId()>0){
-				$item['authorUserId'] = $post->getUserId();
-				$user = $post->getUser();
-				$item['author']=$user->getNickName();
-			}else{
-				$item['author']=$post->getUserString();
-			}
-			$items[] = $item;
-		}
+            $item['content'] = $content;
+            if ($post->getUserId()>0) {
+                $item['authorUserId'] = $post->getUserId();
+                $user = $post->getUser();
+                $item['author']=$user->getNickName();
+            } else {
+                $item['author']=$post->getUserString();
+            }
+            $items[] = $item;
+        }
 
-		$runData->contextAdd("channel", $channel);
-		$runData->contextAdd("items", $items);
-	}
-
+        $runData->contextAdd("channel", $channel);
+        $runData->contextAdd("items", $items);
+    }
 }

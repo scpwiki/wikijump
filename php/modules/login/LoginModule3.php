@@ -26,34 +26,33 @@
 
 use DB\OzoneUserPeer;
 
-class LoginModule3 extends SmartyModule {
+class LoginModule3 extends SmartyModule
+{
 
-	public function build($runData){
-		$pl = $runData->getParameterList();
+    public function build($runData)
+    {
+        $pl = $runData->getParameterList();
 
-		$backUrl = $pl->getParameterValue('backUrl');
-		$runData->contextAdd('backUrl', $backUrl);
+        $backUrl = $pl->getParameterValue('backUrl');
+        $runData->contextAdd('backUrl', $backUrl);
 
-		// check if reset remebered user
-		$pl = $runData->getParameterList();
+        // check if reset remebered user
+        $pl = $runData->getParameterList();
 
-		if($pl->getParameterValue("reset")){
+        if ($pl->getParameterValue("reset")) {
+            setcookie('welcome', 'dummy', time() - 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
+        } else {
+            // check if a recognized user
 
-			setcookie('welcome', 'dummy', time() - 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
-		}else{
-			// check if a recognized user
+            $userId = $_COOKIE['welcome'];
+            if ($userId && is_numeric($userId) && $userId >0) {
+                $user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
+            }
+            if ($user == null) {
+                setcookie('welcome', 'dummy', time() - 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
+            }
+        }
 
-			$userId = $_COOKIE['welcome'];
-			if($userId && is_numeric($userId) && $userId >0){
-				$user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
-			}
-			if($user == null){
-				setcookie('welcome', 'dummy', time() - 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
-			}
-		}
-
-		$runData->contextAdd("user", $user);
-
-	}
-
+        $runData->contextAdd("user", $user);
+    }
 }
