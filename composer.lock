@@ -1,0 +1,111 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "e3f09cd3282c98e7a479f04616b3674f",
+    "packages": [
+        {
+            "name": "cerdic/css-tidy",
+            "version": "v1.7.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Cerdic/CSSTidy.git",
+                "reference": "47bc70fc6d78a37cb91f9df4518585a9e62b565a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Cerdic/CSSTidy/zipball/47bc70fc6d78a37cb91f9df4518585a9e62b565a",
+                "reference": "47bc70fc6d78a37cb91f9df4518585a9e62b565a",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.4.0 || ^7"
+            },
+            "require-dev": {
+                "pear/text_diff": "^1.2",
+                "simpletest/simpletest": "^1.1"
+            },
+            "bin": [
+                "bin/pcsstidy"
+            ],
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "class.csstidy_optimise.php",
+                    "class.csstidy_print.php",
+                    "class.csstidy.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Cédric MORIN",
+                    "email": "changeme@mailinator.com"
+                }
+            ],
+            "description": "CSSTidy is a CSS minifier",
+            "time": "2019-09-14T17:59:23+00:00"
+        },
+        {
+            "name": "ezyang/htmlpurifier",
+            "version": "v4.12.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ezyang/htmlpurifier.git",
+                "reference": "a617e55bc62a87eec73bd456d146d134ad716f03"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ezyang/htmlpurifier/zipball/a617e55bc62a87eec73bd456d146d134ad716f03",
+                "reference": "a617e55bc62a87eec73bd456d146d134ad716f03",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.2"
+            },
+            "require-dev": {
+                "simpletest/simpletest": "dev-master#72de02a7b80c6bb8864ef9bf66d41d2f58f826bd"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "HTMLPurifier": "library/"
+                },
+                "files": [
+                    "library/HTMLPurifier.composer.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Edward Z. Yang",
+                    "email": "admin@htmlpurifier.org",
+                    "homepage": "http://ezyang.com"
+                }
+            ],
+            "description": "Standards compliant HTML filter written in PHP",
+            "homepage": "http://htmlpurifier.org/",
+            "keywords": [
+                "html"
+            ],
+            "time": "2019-10-28T03:44:26+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "1.1.0"
+}
