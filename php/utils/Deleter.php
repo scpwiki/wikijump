@@ -29,21 +29,24 @@ use DB\SitePeer;
 use DB\PagePeer;
 use DB\CategoryPeer;
 
-class Deleter {
+class Deleter
+{
     private static $instance;
 
     private $vars = array();
 
     private $recurrenceLevel = 0;
 
-    public static function instance() {
+    public static function instance()
+    {
         if (self::$instance == null) {
             self::$instance = new Deleter();
         }
         return self::$instance;
     }
 
-    public function deletePage($page, $site = null) {
+    public function deletePage($page, $site = null)
+    {
         // I hope everything here is within a TRANSACTION!!!
 
         if (!$page) {
@@ -84,7 +87,6 @@ class Deleter {
                     $m = $p->getMetadata();
                     $m->setParentPageId(null);
                     $m->save();
-
                 }
             }
             $descs = array_merge($descs, $pages, $p2);
@@ -115,7 +117,6 @@ class Deleter {
 
         // delete the category if empty
         if ($category->getName() != "_default") {
-
             $c = new Criteria();
             $c->add("category_id", $category->getCategoryId());
             $count = PagePeer::instance()->selectCount($c);
@@ -134,7 +135,8 @@ class Deleter {
     //
     }
 
-    public function deleteSite($site) {
+    public function deleteSite($site)
+    {
         if (!$site) {
             return;
         }

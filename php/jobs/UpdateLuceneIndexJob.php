@@ -28,10 +28,12 @@ use run;
 use Wikidot\Search\Lucene;
 use processQueue;
 
-class UpdateLuceneIndexJob implements SchedulerJob {
+class UpdateLuceneIndexJob implements SchedulerJob
+{
 
-    public function run() {
-    	$lucene = new Lucene();
-    	$lucene->processQueue();
+    public function run()
+    {
+        $lucene = new Lucene();
+        $lucene->processQueue();
     }
 }

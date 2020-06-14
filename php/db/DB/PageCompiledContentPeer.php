@@ -4,8 +4,6 @@ namespace DB;
 
 use DB\PageCompiledContentPeerBase;
 
-
-
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
@@ -34,6 +32,7 @@ use DB\PageCompiledContentPeerBase;
  * Object Model class.
  *
  */
-class PageCompiledContentPeer extends PageCompiledContentPeerBase {
+class PageCompiledContentPeer extends PageCompiledContentPeerBase
+{
 
 }

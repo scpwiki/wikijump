@@ -24,30 +24,33 @@
  */
 
 
-class ManageSiteModule extends ManageSiteBaseModule {
+class ManageSiteModule extends ManageSiteBaseModule
+{
 
-	protected $processPage = true;
+    protected $processPage = true;
 
-	public function build($runData){
+    public function build($runData)
+    {
 
-		$pl = $runData->getParameterList();
-		$start = $pl->getParameterValue("start");
-		if($start){
-			$runData->contextAdd("start", $start);
-		}
+        $pl = $runData->getParameterList();
+        $start = $pl->getParameterValue("start");
+        if ($start) {
+            $runData->contextAdd("start", $start);
+        }
 
-		$site = $runData->getTemp("site");
+        $site = $runData->getTemp("site");
 
-		$runData->contextAdd("site", $site);
+        $runData->contextAdd("site", $site);
 
-		$runData->contextAdd('useCustomDomains', GlobalProperties::$USE_CUSTOM_DOMAINS);
-		$runData->contextAdd('useSsl', GlobalProperties::$USE_SSL);
-	}
+        $runData->contextAdd('useCustomDomains', GlobalProperties::$USE_CUSTOM_DOMAINS);
+        $runData->contextAdd('useSsl', GlobalProperties::$USE_SSL);
+    }
 
-	public function processPage($out, $runData){
+    public function processPage($out, $runData)
+    {
 
-		$out = preg_replace("/<div id=\"page\-title\">(.*?)<\/div>/is","",$out, 1);
+        $out = preg_replace("/<div id=\"page\-title\">(.*?)<\/div>/is", "", $out, 1);
 
-		return $out;
-	}
+        return $out;
+    }
 }

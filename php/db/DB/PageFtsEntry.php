@@ -27,13 +27,11 @@ namespace DB;
 
 use DB\PageFtsEntryBase;
 
-
-
-
 /**
  * Object Model class.
  *
  */
-class PageFtsEntry extends PageFtsEntryBase {
+class PageFtsEntry extends PageFtsEntryBase
+{
 
 }

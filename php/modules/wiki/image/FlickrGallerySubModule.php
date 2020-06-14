@@ -24,6 +24,7 @@
  */
 
 
-class FlickrGallerySubModule extends FlickrGalleryModule {
+class FlickrGallerySubModule extends FlickrGalleryModule
+{
 
 }

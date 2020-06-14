@@ -25,11 +25,11 @@
 
 namespace DB;
 
-
 /**
  * Object Model class.
  *
  */
-class OzoneUserPermissionModifier extends OzoneUserPermissionModifierBase {
+class OzoneUserPermissionModifier extends OzoneUserPermissionModifierBase
+{
 
 }

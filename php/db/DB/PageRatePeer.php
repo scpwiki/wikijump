@@ -4,8 +4,6 @@ namespace DB;
 
 use DB\PageRatePeerBase;
 
-
-
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
@@ -34,6 +32,7 @@ use DB\PageRatePeerBase;
  * Object Model class.
  *
  */
-class PageRatePeer extends PageRatePeerBase {
+class PageRatePeer extends PageRatePeerBase
+{
 
 }

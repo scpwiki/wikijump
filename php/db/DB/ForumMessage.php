@@ -27,13 +27,11 @@ namespace DB;
 
 use DB\ForumMessageBase;
 
-
-
-
 /**
  * Object Model class.
  *
  */
-class ForumMessage extends ForumMessageBase {
+class ForumMessage extends ForumMessageBase
+{
 
 }

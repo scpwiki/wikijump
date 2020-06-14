@@ -3,7 +3,6 @@
 
 namespace DB;
 
-
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
@@ -32,9 +31,11 @@ namespace DB;
  * Object Model class.
  *
  */
-class MembershipLink extends MembershipLinkBase {
+class MembershipLink extends MembershipLinkBase
+{
 
-    public function getTypeDescription() {
+    public function getTypeDescription()
+    {
 
         switch ($this->getType()) {
             case 'INTERNAL_INVITATION':
@@ -45,8 +46,6 @@ class MembershipLink extends MembershipLinkBase {
                 return _("accepted membership application");
             case 'BY_PASSWORD':
                 return _("by password");
-
         }
-
     }
 }

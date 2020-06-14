@@ -25,11 +25,11 @@
 
 namespace DB;
 
-
 /**
  * Object Model class.
  *
  */
-class WatchedPage extends WatchedPageBase {
+class WatchedPage extends WatchedPageBase
+{
 
 }

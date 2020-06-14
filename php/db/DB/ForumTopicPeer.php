@@ -4,8 +4,6 @@ namespace DB;
 
 use DB\ForumTopicPeerBase;
 
-
-
 /**
  * Wikidot - free wiki collaboration software
  * Copyright (c) 2008, Wikidot Inc.
@@ -34,6 +32,7 @@ use DB\ForumTopicPeerBase;
  * Object Model class.
  *
  */
-class ForumTopicPeer extends ForumTopicPeerBase {
+class ForumTopicPeer extends ForumTopicPeerBase
+{
 
 }

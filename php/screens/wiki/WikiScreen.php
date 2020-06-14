@@ -34,380 +34,385 @@ use DB\OpenidEntryPeer;
 use DB\NotificationPeer;
 use DB\PrivateMessagePeer;
 
-class WikiScreen extends Screen {
+class WikiScreen extends Screen
+{
 
-	private $vars = array();
+    private $vars = array();
 
-	public function render($runData){
-		// get site
-		$site = $runData->getTemp("site");
-		$runData->contextAdd("site", $site);
+    public function render($runData)
+    {
+        // get site
+        $site = $runData->getTemp("site");
+        $runData->contextAdd("site", $site);
 
-		$this->handleNotifications($runData);
+        $this->handleNotifications($runData);
 
-		$pl = $runData->getParameterList();
+        $pl = $runData->getParameterList();
 
-		$wikiPage = $pl->getParameterValue("wiki_page");
+        $wikiPage = $pl->getParameterValue("wiki_page");
 
-		$privateAccessGranted = true;
-		// check if the site is private
-		if($site->getPrivate()){
-			$user = $runData->getUser();
-			if($user && !$user->getSuperAdmin() && !$user->getSuperModerator()){
-				// check if member
-				$c = new Criteria();
-				$c->add("site_id", $site->getSiteId());
-				$c->add("user_id", $user->getUserId());
-				$mem = MemberPeer::instance()->selectOne($c);
-				if(!$mem) {
-					// check if a viewer
-					$c = new Criteria();
-					$c->add("site_id", $site->getSiteId());
-					$c->add("user_id", $user->getUserId());
-					$vi = SiteViewerPeer::instance()->selectOne($c);
-					if(!$vi) {
-						$user = null;
-					}
-				}
-			}
-			if($user == null){
-				$wikiPage = $site->getSettings()->getPrivateLandingPage();
-				$privateAccessGranted = false;
-			}
-		}
+        $privateAccessGranted = true;
+        // check if the site is private
+        if ($site->getPrivate()) {
+            $user = $runData->getUser();
+            if ($user && !$user->getSuperAdmin() && !$user->getSuperModerator()) {
+                // check if member
+                $c = new Criteria();
+                $c->add("site_id", $site->getSiteId());
+                $c->add("user_id", $user->getUserId());
+                $mem = MemberPeer::instance()->selectOne($c);
+                if (!$mem) {
+                    // check if a viewer
+                    $c = new Criteria();
+                    $c->add("site_id", $site->getSiteId());
+                    $c->add("user_id", $user->getUserId());
+                    $vi = SiteViewerPeer::instance()->selectOne($c);
+                    if (!$vi) {
+                        $user = null;
+                    }
+                }
+            }
+            if ($user == null) {
+                $wikiPage = $site->getSettings()->getPrivateLandingPage();
+                $privateAccessGranted = false;
+            }
+        }
 
-		if($wikiPage==""){$wikiPage=$site->getDefaultPage();}
-		$wikiPage = WDStringUtils::toUnixName($wikiPage);
-		$runData->setTemp("pageUnixName", $wikiPage);
+        if ($wikiPage=="") {
+            $wikiPage=$site->getDefaultPage();
+        }
+        $wikiPage = WDStringUtils::toUnixName($wikiPage);
+        $runData->setTemp("pageUnixName", $wikiPage);
 
-		$memcache = \Ozone::$memcache;
-		if($runData->getAction() == null
-				&& $runData->getRequestMethod() == "GET"
+        $memcache = \Ozone::$memcache;
+        if ($runData->getAction() == null
+                && $runData->getRequestMethod() == "GET"
 
-				&& $privateAccessGranted
-			){
-			// try to get content from the memorycache server
+                && $privateAccessGranted
+            ) {
+            // try to get content from the memorycache server
 
-			$mcKey = 'page..'.$site->getUnixName().'..'.$wikiPage;
+            $mcKey = 'page..'.$site->getUnixName().'..'.$wikiPage;
 
-			if(strpos( $wikiPage, ":") != false){
-				$tmp0 = explode(':',$wikiPage);
-				$categoryName = $tmp0[0];
-			} else {
-				$categoryName = "_default";
-			}
-			$aKey = 'category_lc..'.$site->getUnixName().'..'.$categoryName;
-			$changeTime = $memcache->get($aKey);
-			$cachedPage = $memcache->get($mcKey);
-			if($cachedPage !== false && $changeTime && $changeTime <= $cachedPage['timestamp']){
-				$runData->setTemp("page", $cachedPage['page']);
-				$GLOBALS['page'] = $cachedPage['page'];
+            if (strpos($wikiPage, ":") != false) {
+                $tmp0 = explode(':', $wikiPage);
+                $categoryName = $tmp0[0];
+            } else {
+                $categoryName = "_default";
+            }
+            $aKey = 'category_lc..'.$site->getUnixName().'..'.$categoryName;
+            $changeTime = $memcache->get($aKey);
+            $cachedPage = $memcache->get($mcKey);
+            if ($cachedPage !== false && $changeTime && $changeTime <= $cachedPage['timestamp']) {
+                $runData->setTemp("page", $cachedPage['page']);
+                $GLOBALS['page'] = $cachedPage['page'];
 
-				$out = $cachedPage['content'];
-				if($this->vars['notificationsDialog']){
-
-                    $out = preg_replace('/
+                $out = $cachedPage['content'];
+                if ($this->vars['notificationsDialog']) {
+                    $out = preg_replace(
+                        '/
                         <div id="account-notifications-dummy" style="display:none"><\/div>
                         /x',
                         '<div id="notifications-dialog" style="display:none">'.
-                        $this->vars['notificationsDialog'].'</div>', $out, 1);
-				}
-				return $out;
-			} else {
-				$storeLater = true;
+                        $this->vars['notificationsDialog'].'</div>',
+                        $out,
+                        1
+                    );
+                }
+                return $out;
+            } else {
+                $storeLater = true;
+            }
+        }
 
-			}
-		}
+        $runData->contextAdd("wikiPageName", $wikiPage);
 
-		$runData->contextAdd("wikiPageName", $wikiPage);
+        $settings = $site->getSettings();
 
-		$settings = $site->getSettings();
+        // get wiki page from the database
+        $page = PagePeer::instance()->selectByName($site->getSiteId(), $wikiPage);
 
-		// get wiki page from the database
-		$page = PagePeer::instance()->selectByName($site->getSiteId(), $wikiPage);
+        if ($page == null) {
+            $runData->contextAdd("pageNotExists", true);
+            // get category based on suggested page name
 
-		if($page == null){
-			$runData->contextAdd("pageNotExists", true);
-			// get category based on suggested page name
+            if (strpos($wikiPage, ":") != false) {
+                $tmp0 = explode(':', $wikiPage);
+                $categoryName = $tmp0[0];
+            } else {
+                $categoryName = "_default";
+            }
+            $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
+            if ($category == null) {
+                $category = CategoryPeer::instance()->selectByName('_default', $site->getSiteId());
+            }
+            $runData->setTemp("category", $category);
+        } else {
+            // page exists!!! wooo!!!
 
-			if(strpos( $wikiPage, ":") != false){
-				$tmp0 = explode(':',$wikiPage);
-				$categoryName = $tmp0[0];
-			} else {
-				$categoryName = "_default";
-			}
-			$category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
-			if($category == null){
-				$category = CategoryPeer::instance()->selectByName('_default', $site->getSiteId());
-			}
-			$runData->setTemp("category", $category);
-		} else{
-			// page exists!!! wooo!!!
+            $runData->setTemp("page", $page);
+            $GLOBALS['page'] = $page;
 
-			$runData->setTemp("page", $page);
-			$GLOBALS['page'] = $page;
+            $compiled = $page->getCompiled();
 
-			$compiled = $page->getCompiled();
+            $runData->contextAdd("wikiPage", $page);
+            $runData->contextAdd("pageContent", $compiled->getText());
 
-			$runData->contextAdd("wikiPage", $page);
-			$runData->contextAdd("pageContent", $compiled->getText());
+            $category = $page->getCategory();
+            $runData->setTemp("category", $category);
 
-			$category = $page->getCategory();
-			$runData->setTemp("category", $category);
+            // show options?
+            $showPageOptions = true;
+            $runData->contextAdd("showPageoptions", $showPageOptions);
 
-			// show options?
-			$showPageOptions = true;
-			$runData->contextAdd("showPageoptions", $showPageOptions);
+            // get the tags
+            $c = new Criteria();
+            $c->add("page_id", $page->getPageId());
+            $c->addOrderAscending("tag");
+            $tags = PageTagPeer::instance()->select($c);
+            $t2 = array();
+            foreach ($tags as $t) {
+                $t2[] = $t->getTag();
+            }
+            $runData->contextAdd("tags", $t2);
 
-			// get the tags
-			$c = new Criteria();
-			$c->add("page_id", $page->getPageId());
-			$c->addOrderAscending("tag");
-			$tags = PageTagPeer::instance()->select($c);
-			$t2 = array();
-			foreach($tags as $t){
-				$t2[] = $t->getTag();
-			}
-			$runData->contextAdd("tags", $t2);
+            // has discussion?
+            if ($page->getThreadId()!== null) {
+                $thread = ForumThreadPeer::instance()->selectByPrimaryKey($page->getThreadId());
+                if ($thread == null) {
+                    $page->setThreadId(null);
+                    $page->save();
+                } else {
+                    $page->setTemp("numberPosts", $thread->getNumberPosts());
+                }
+            }
 
-			// has discussion?
-			if($page->getThreadId()!== null){
-				$thread = ForumThreadPeer::instance()->selectByPrimaryKey($page->getThreadId());
-				if($thread == null){
-					$page->setThreadId(null);
-					$page->save();
-				}else{
-					$page->setTemp("numberPosts", $thread->getNumberPosts());
-				}
-			}
+            // look for parent pages (and prepare breadcrumbs)
+            if ($page->getParentPageId()) {
+                $breadcrumbs = array();
+                $ppage = PagePeer::instance()->selectByPrimaryKey($page->getParentPageId());
+                array_unshift($breadcrumbs, $ppage);
+                $bcount = 0;
+                while ($ppage->getParentPageId() && $bcount<=4) {
+                    $ppage = PagePeer::instance()->selectByPrimaryKey($ppage->getParentPageId());
+                    array_unshift($breadcrumbs, $ppage);
+                    $bcount++;
+                }
+                $runData->contextAdd("breadcrumbs", $breadcrumbs);
+            }
+        }
 
-			// look for parent pages (and prepare breadcrumbs)
-			if($page->getParentPageId()){
-				$breadcrumbs = array();
-				$ppage = PagePeer::instance()->selectByPrimaryKey($page->getParentPageId());
-				array_unshift($breadcrumbs, $ppage);
-				$bcount = 0;
-				while($ppage->getParentPageId() && $bcount<=4){
-					$ppage = PagePeer::instance()->selectByPrimaryKey($ppage->getParentPageId());
-					array_unshift($breadcrumbs, $ppage);
-					$bcount++;
-				}
-				$runData->contextAdd("breadcrumbs", $breadcrumbs);
-			}
-		}
+        $runData->contextAdd("category", $category);
 
-		$runData->contextAdd("category", $category);
+        // GET THEME for the category
 
-		// GET THEME for the category
+        $theme = $category->getTheme();
+        $runData->contextAdd("theme", $theme);
 
-		$theme = $category->getTheme();
-		$runData->contextAdd("theme", $theme);
+        // GET LICENSE for the category
 
-		// GET LICENSE for the category
+        $licenseText = $category->getLicenseText();
+        $runData->contextAdd("licenseText", $licenseText);
 
-		$licenseText = $category->getLicenseText();
-		$runData->contextAdd("licenseText", $licenseText);
+        // show nav elements?
 
-		// show nav elements?
+        if ($privateAccessGranted || !$settings->getHideNavigationUnauthorized()) {
+            if ($theme->getUseSideBar()) {
+                $sideBar1 = $category->getSidePage();
+                if ($sideBar1 !== null) {
+                    $sideBar1Compiled = $sideBar1->getCompiled();
+                    $ccc =  $sideBar1Compiled->getText();
+                    $ccc = preg_replace('/id="[^"]*"/', '', $ccc);
+                    $runData->contextAdd("sideBar1Content", $ccc);
+                }
+            }
+            if ($theme->getUseTopBar()) {
+                $topBar = $category->getTopPage();
+                if ($topBar !== null) {
+                    $topBarCompiled = $topBar->getCompiled();
+                    $ccc =  $topBarCompiled->getText();
+                    $ccc = preg_replace('/id="[^"]*"/', '', $ccc);
+                    $runData->contextAdd("topBarContent", $ccc);
+                }
+            }
+        }
 
-		if($privateAccessGranted || !$settings->getHideNavigationUnauthorized()){
+        // OpenID stuff now !!!
 
-			if($theme->getUseSideBar()){
-				$sideBar1 = $category->getSidePage();
-				if($sideBar1 !== null){
-					$sideBar1Compiled = $sideBar1->getCompiled();
-					$ccc =  $sideBar1Compiled->getText();
-					$ccc = preg_replace('/id="[^"]*"/', '', $ccc);
-					$runData->contextAdd("sideBar1Content",$ccc);
-				}
-			}
-			if($theme->getUseTopBar()){
-				$topBar = $category->getTopPage();
-				if($topBar !== null){
-					$topBarCompiled = $topBar->getCompiled();
-					$ccc =  $topBarCompiled->getText();
-					$ccc = preg_replace('/id="[^"]*"/', '', $ccc);
-					$runData->contextAdd("topBarContent", $ccc);
-				}
-			}
-		}
+        if ($settings->getOpenidEnabled() && $page) {
+            // find a page
+            $c = new Criteria();
+            $c->add("site_id", $site->getSiteId());
 
-		// OpenID stuff now !!!
+            if ($_SERVER['REQUEST_URI'] == "/") {
+                $c->add("page_id", null);
+            } else {
+                $c->add("page_id", $page->getPageId());
+            }
 
-		if($settings->getOpenidEnabled() && $page){
-			// find a page
-			$c = new Criteria();
-			$c->add("site_id", $site->getSiteId());
+            $oentry = OpenidEntryPeer::instance()->selectOne($c);
 
-			if($_SERVER['REQUEST_URI'] == "/"){
-				$c->add("page_id", null);
-			}else{
-				$c->add("page_id", $page->getPageId());
-			}
+            if ($oentry) {
+                $openId = array();
+                $openId['enabled'] = true;
+                $openId['identity'] = $oentry->getUrl();
+                $openId['server'] = $oentry->getServerUrl();
+                $runData->contextAdd("openId", $openId);
+            }
+        }
 
-			$oentry = OpenidEntryPeer::instance()->selectOne($c);
+        // check wether to include a special JS file for custom domains or a special JS file for private files
+        //if (preg_match('/^([a-zA-Z0-9\-]+)\.' . GlobalProperties::$URL_DOMAIN_PREG . '$/',$_SERVER["HTTP_HOST"], $matches) !==1) {
+        //  $runData->contextAdd("useCustomDomainScript", true);
+        //}
 
-			if($oentry){
+        $smarty = Ozone::getSmarty();
 
-				$openId = array();
-				$openId['enabled'] = true;
-				$openId['identity'] = $oentry->getUrl();
-				$openId['server'] = $oentry->getServerUrl();
-				$runData->contextAdd("openId", $openId);
-			}
-		}
+        // put context into context
 
-		// check wether to include a special JS file for custom domains or a special JS file for private files
-		//if (preg_match('/^([a-zA-Z0-9\-]+)\.' . GlobalProperties::$URL_DOMAIN_PREG . '$/',$_SERVER["HTTP_HOST"], $matches) !==1) {
-		//	$runData->contextAdd("useCustomDomainScript", true);
-		//}
+        $context = $runData->getContext();
+        if ($context !== null) {
+            foreach ($context as $key => $value) {
+                $smarty->assign($key, $value);
+            }
+        }
 
-		$smarty = Ozone::getSmarty();
+        $templateFile = PathManager::screenTemplate("wiki/WikiScreen");
+        $screenContent = $smarty->fetch($templateFile);
 
-		// put context into context
+        $smarty->assign("screen_placeholder", $screenContent);
+        $layoutFile = PathManager::layoutTemplate("WikiLayout");
+        $out = $smarty->fetch($layoutFile);
 
-	 	$context = $runData->getContext();
-	 	if($context !== null){
-	 		foreach($context as $key => $value){
-		 		$smarty->assign($key, $value);
-	 		}
-	 	}
+        if ($storeLater) {
+            $now = time();
+            if (!$changeTime) {
+                $memcache->set($aKey, $now, 0, 864000);
+            }
+            $memcache->set($mcKey, array("page" =>$page, "content" => $out, "timestamp" => $now), 0, 864000);
+        }
 
-	 	$templateFile = PathManager::screenTemplate("wiki/WikiScreen");
-	 	$screenContent = $smarty->fetch($templateFile);
+        if ($this->vars['notificationsDialog']) {
+            $out = preg_replace(
+                ';<div id="account-notifications-dummy" style="display:none"></div>;',
+                '<div id="notifications-dialog" style="display:none">'.
+                            $this->vars['notificationsDialog'].'</div>',
+                $out,
+                1
+            );
+        }
 
-	 	$smarty->assign("screen_placeholder", $screenContent);
-	 	$layoutFile = PathManager::layoutTemplate("WikiLayout");
-	 	$out = $smarty->fetch($layoutFile);
+        return $out;
+    }
 
-		if($storeLater){
-			$now = time();
-			if(!$changeTime){
-				$memcache->set($aKey, $now, 0, 864000);
-			}
-			$memcache->set($mcKey, array("page" =>$page, "content" => $out, "timestamp" => $now), 0, 864000);
-		}
+    private function handleNotifications($runData)
+    {
+        // check not earlier than 2 minutes after the previous check
+        $user = $runData->getUser();
+        if ($user == null) {
+            return;
+        }
 
-	 	if($this->vars['notificationsDialog']){
-			$out = preg_replace(';<div id="account-notifications-dummy" style="display:none"></div>;',
-						'<div id="notifications-dialog" style="display:none">'.
-							$this->vars['notificationsDialog'].'</div>', $out, 1);
-		}
+        // get last check date
+        $lastCheck = $_COOKIE['lastncheck'];
+        if ($lastCheck !== null && is_numeric($lastCheck) && time() - $lastCheck < 120) {
+            return;
+        }
 
-	 	return $out;
-	}
+        $cookieResult = setcookie('lastncheck', time(), time() + 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
+        // ok. go get the notifications now.
 
-	private function handleNotifications($runData){
-		// check not earlier than 2 minutes after the previous check
-		$user = $runData->getUser();
-		if($user == null){
-			return;
-		}
+        $c = new Criteria();
+        $c->add("user_id", $user->getUserId());
+        $c->add("notify_online", true);
+        $c->addOrderDescending("notification_id");
 
-		// get last check date
-		$lastCheck = $_COOKIE['lastncheck'];
-		if($lastCheck !== null && is_numeric($lastCheck) && time() - $lastCheck < 120){
-			return;
-		}
+        $nots = NotificationPeer::instance()->select($c);
 
-		$cookieResult = setcookie('lastncheck', time(), time() + 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
-		// ok. go get the notifications now.
+        if (count($nots) == 0) {
+            return;
+        }
 
-		$c = new Criteria();
-		$c->add("user_id", $user->getUserId());
-		$c->add("notify_online", true);
-		$c->addOrderDescending("notification_id");
+        if (count($nots)>0) {
+            $q = "UPDATE notification SET notify_online=FALSE, notify_email=FALSE " .
+                    "WHERE user_id='".$user->getUserId()."' AND " .
+                    "notify_online = TRUE";
+            $db = Database::connection();
+            $db->query($q);
+        }
 
-		$nots = NotificationPeer::instance()->select($c);
+        $nots2 = array();
 
-		if(count($nots) == 0){
-			return;
-		}
+        foreach ($nots as &$not) {
+            if ($not->getType() == "new_private_message") {
+                // check if the message is read or still new
+                $extra = $not->getExtra();
+                $pm = PrivateMessagePeer::instance()->selectByPrimaryKey($extra['message_id']);
+                if ($pm && $pm->getFlagNew()) {
+                    $body = $not->getBody();
+                    $body = preg_replace('/<br\/>Preview.*$/sm', '', $body);
+                    $body = preg_replace(';You have.*?<br/>;sm', '', $body);
+                    $not->setBody($body);
+                    $nots2[] = $not;
+                }
+            } else {
+                $nots2[] = $not;
+            }
+        }
 
-		if(count($nots)>0){
+        if (count($nots2)==0) {
+            return;
+        }
 
-			$q = "UPDATE notification SET notify_online=FALSE, notify_email=FALSE " .
-					"WHERE user_id='".$user->getUserId()."' AND " .
-					"notify_online = TRUE";
-			$db = Database::connection();
-			$db->query($q);
-		}
+        $lang = $user->getLanguage();
 
-		$nots2 = array();
+        switch ($lang) {
+            case 'pl':
+                $glang="pl_PL";
+                $wp = "pl";
+                break;
+            case 'en':
+                $glang="en_US";
+                $wp = "www";
+                break;
+        }
 
-		foreach($nots as &$not){
-			if($not->getType() == "new_private_message"){
+        $runData->setLanguage($lang);
+        putenv("LANG=$glang");
+        putenv("LANGUAGE=$glang");
+        setlocale(LC_ALL, $glang.'.UTF-8');
 
-				// check if the message is read or still new
-				$extra = $not->getExtra();
-				$pm = PrivateMessagePeer::instance()->selectByPrimaryKey($extra['message_id']);
-				if($pm && $pm->getFlagNew()){
-					$body = $not->getBody();
-					$body = preg_replace('/<br\/>Preview.*$/sm', '', $body);
-					$body = preg_replace(';You have.*?<br/>;sm', '', $body);
-					$not->setBody($body);
-					$nots2[] = $not;
-				}
-			}else{
-				$nots2[] = $not;
-			}
+        // get Smarty and render a dialog
+        $smarty = Ozone::getSmartyPlain();
+        $dialogTemplateFile  = PathManager::screenTemplate("NotificationDialog");
 
-		}
+        $count = count($nots2);
+        if ($count>3) {
+            $nots2  = array_slice($nots2, 0, 3);
+            $smarty->assign("more", $count -3);
+        }
+        $smarty->assign("count", $count);
 
-		if(count($nots2)==0){
-			return;
-		}
+        $smarty->assign("notifications", $nots2);
 
-		$lang = $user->getLanguage();
+        $out = $smarty->fetch($dialogTemplateFile);
 
-		switch($lang){
-			case 'pl':
-				$glang="pl_PL";
-				$wp = "pl";
-				break;
-			case 'en':
-				$glang="en_US";
-				$wp = "www";
-				break;
-		}
+        $this->vars['notificationsDialog'] = $out;
 
-		$runData->setLanguage($lang);
-		putenv("LANG=$glang");
-		putenv("LANGUAGE=$glang");
-		setlocale(LC_ALL, $glang.'.UTF-8');
+        $lang = $GLOBALS['lang'];
 
-		// get Smarty and render a dialog
-		$smarty = Ozone::getSmartyPlain();
-		$dialogTemplateFile  = PathManager::screenTemplate("NotificationDialog");
+        switch ($lang) {
+            case 'pl':
+                $glang="pl_PL";
+                break;
+            case 'en':
+                $glang="en_US";
+                break;
+        }
 
-		$count = count($nots2);
-		if($count>3){
-			$nots2	= array_slice($nots2, 0, 3);
-			$smarty->assign("more", $count -3);
-		}
-		$smarty->assign("count", $count);
-
-		$smarty->assign("notifications", $nots2);
-
-		$out = $smarty->fetch($dialogTemplateFile);
-
-		$this->vars['notificationsDialog'] = $out;
-
-		$lang = $GLOBALS['lang'];
-
-		switch($lang){
-			case 'pl':
-				$glang="pl_PL";
-				break;
-			case 'en':
-				$glang="en_US";
-				break;
-		}
-
-		$runData->setLanguage($lang);
-		putenv("LANG=$glang");
-		putenv("LANGUAGE=$glang");
-		setlocale(LC_ALL, $glang.'.UTF-8');
-	}
-
+        $runData->setLanguage($lang);
+        putenv("LANG=$glang");
+        putenv("LANGUAGE=$glang");
+        setlocale(LC_ALL, $glang.'.UTF-8');
+    }
 }

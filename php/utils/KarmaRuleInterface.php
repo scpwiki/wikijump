@@ -26,6 +26,7 @@
 
 
 
-interface KarmaRuleInterface {
+interface KarmaRuleInterface
+{
     public function calculate($user);
 }

@@ -8,9 +8,8 @@ use Criteria;
 use DB\CategoryPeer;
 use DB\PagePeer;
 
-
-
-class PagePath extends WikiBase {
+class PagePath extends WikiBase
+{
     public $rule = '/
         ^
         (
@@ -25,7 +24,8 @@ class PagePath extends WikiBase {
     # for triple-bracket intra-wiki URLs, but that regex there is not correct.
     # I suspect the real logic is defined elsewhere.
     # We will have to investigate whether or not this function is even called.
-    public function renderEdit() {
+    public function renderEdit()
+    {
         $m = array();
         $path = array();
         $v = $this->field['value'];
@@ -35,14 +35,17 @@ class PagePath extends WikiBase {
             $parts = explode(']]]', $v);
             foreach ($parts as $part) {
                 $m = array();
-                if (preg_match('/
+                if (preg_match(
+                    '/
                     ^        # Start of text
                     [^[]*    # Anything that is not [
                     \[\[\[   # Three opening brackets
                     ([^|]*)  # Anything that is not | (i.e. link location)
                     ([|]|$)  # Terminate at a | or end of text
                     /x',
-                    $part, $m)) {
+                    $part,
+                    $m
+                )) {
                     $path[] = WDStringUtils::toUnixName($m[1]);
                 }
             }
@@ -114,7 +117,8 @@ class PagePath extends WikiBase {
             </div>
         */
     }
-    public function selectPagesByParent($categoryId, $parentId) {
+    public function selectPagesByParent($categoryId, $parentId)
+    {
         $c = new Criteria();
         $categoryId = (int) $categoryId;
         $parentId = (int) $parentId;

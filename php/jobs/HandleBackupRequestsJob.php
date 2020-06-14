@@ -46,45 +46,45 @@ use commit;
  * Periodically creates downloadable site backups (on request).
  *
  */
-class HandleBackupRequestsJob implements SchedulerJob {
+class HandleBackupRequestsJob implements SchedulerJob
+{
 
-	public function run(){
+    public function run()
+    {
 
-		// check!
-		$c = new Criteria();
-		$c->add("status", null);
-		$c->addOrderDescending("backup_id");
+        // check!
+        $c = new Criteria();
+        $c->add("status", null);
+        $c->addOrderDescending("backup_id");
 
-		$sb = SiteBackupPeer::instance()->selectOne($c); // select only one!
+        $sb = SiteBackupPeer::instance()->selectOne($c); // select only one!
 
-		if(!$sb){
-			return;
-		}
+        if (!$sb) {
+            return;
+        }
 
-		$db = Database::connection();
-		$sb->setStatus("started");
-		$sb->save();
+        $db = Database::connection();
+        $sb->setStatus("started");
+        $sb->save();
 
-		$db->begin();
+        $db->begin();
 
-		try{
-			$b = new Backuper();
-			$b->setConfig($sb);
-			$b->backup();
+        try {
+            $b = new Backuper();
+            $b->setConfig($sb);
+            $b->backup();
 
-			// check
+            // check
 
-			$sb->setStatus("completed");
-			$sb->setDate(new ODate());
-			$sb->setRand($b->getRand());
+            $sb->setStatus("completed");
+            $sb->setDate(new ODate());
+            $sb->setRand($b->getRand());
 
-			$sb->save();
-		}catch(Exception $e){
-			$sb->setStatus("failed");
-			$sb->save();
-		}
-		$db->commit();
-
-	}
-
+            $sb->save();
+        } catch (Exception $e) {
+            $sb->setStatus("failed");
+            $sb->save();
+        }
+        $db->commit();
+    }
 }

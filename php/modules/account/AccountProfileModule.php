@@ -24,12 +24,13 @@
  */
 
 
-class AccountProfileModule extends AccountBaseModule {
+class AccountProfileModule extends AccountBaseModule
+{
 
-	public function build($runData){
+    public function build($runData)
+    {
 
-		$user = $runData->getUser();
-		$runData->contextAdd("user", $user);
-	}
-
+        $user = $runData->getUser();
+        $runData->contextAdd("user", $user);
+    }
 }
