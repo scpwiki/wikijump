@@ -103,7 +103,7 @@ class RateAction extends SmartyAction
         if($category->getRatingType() === "S") {
             // update page points
             $q = "UPDATE page SET rate=COALESCE((" .
-                "SELECT avg(rate) FROM page_rate_vote WHERE page_id = '" . $page->getPageId() . "'),0) " .
+                "SELECT round(avg(rate),2) FROM page_rate_vote WHERE page_id = '" . $page->getPageId() . "'),0) " .
                 "WHERE page_id='" . $page->getPageId() . "'";
         }
         else {
@@ -117,7 +117,11 @@ class RateAction extends SmartyAction
         $outdater->pageEvent("page_vote", $page);
 
         $db->commit();
-
+        $runData->ajaxResponseAdd("type", $category->getRatingType());
+        $c = new Criteria();
+        $c->add("page_id", $page->getPageId());
+        $v = PageRateVotePeer::instance()->selectOne($c);
+        $runData->ajaxResponseAdd("votes", count($v));
         $runData->ajaxResponseAdd("points", $rpoints);
     }
 
@@ -159,7 +163,7 @@ class RateAction extends SmartyAction
         if($category->getRatingType() === "S") {
             // update page points
             $q = "UPDATE page SET rate=COALESCE((" .
-                "SELECT avg(rate) FROM page_rate_vote WHERE page_id = '" . $page->getPageId() . "'),0) " .
+                "SELECT round(avg(rate),2) FROM page_rate_vote WHERE page_id = '" . $page->getPageId() . "'),0) " .
                 "WHERE page_id='" . $page->getPageId() . "'";
         }
         else {
@@ -173,7 +177,11 @@ class RateAction extends SmartyAction
         $outdater->pageEvent("page_vote", $page);
 
         $db->commit();
-
+        $runData->ajaxResponseAdd("type", $category->getRatingType());
+        $c = new Criteria();
+        $c->add("page_id", $page->getPageId());
+        $v = PageRateVotePeer::instance()->selectOne($c);
+        $runData->ajaxResponseAdd("votes", count($v));
         $runData->ajaxResponseAdd("points", $rpoints);
     }
 
