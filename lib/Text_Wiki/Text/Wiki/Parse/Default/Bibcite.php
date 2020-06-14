@@ -45,7 +45,7 @@ class Text_Wiki_Parse_Bibcite extends Text_Wiki_Parse {
 
     public $regex = '/
         \(\(            # Opening parens
-        bibcite\s       # Declare module + whitespace
+        bibcite\s       # Module name and whitespace
         ([a-z0-9]+)     # Alphanumeric citation
         \)\)            # Closing parens
         /ix';
