@@ -18,7 +18,7 @@
 
 # Find "preg_" OR the regex given as first arg
 default_find="preg_"
-find=${1:-$default_find}
+find=${1:-preg_}
 echo "Finding: $find"
 
 # Find all the files that match the regex
