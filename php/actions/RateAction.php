@@ -48,7 +48,7 @@ class RateAction extends SmartyAction
 
         $points = $pl->getParameterValue("points");
 
-        if ($points != 1 && $points != -1) {
+        if ($points > 5 || $points < -1) {
             throw new ProcessException("Error");
         }
 
@@ -99,10 +99,18 @@ class RateAction extends SmartyAction
 
         $v->save();
 
-        // update page points
-        $q = "UPDATE page SET rate=COALESCE((" .
+        $category = $page->getCategory();
+        if($category->getRatingType() === "S") {
+            // update page points
+            $q = "UPDATE page SET rate=COALESCE((" .
+                "SELECT avg(rate) FROM page_rate_vote WHERE page_id = '" . $page->getPageId() . "'),0) " .
+                "WHERE page_id='" . $page->getPageId() . "'";
+        }
+        else {
+            $q = "UPDATE page SET rate=COALESCE((" .
                 "SELECT sum(rate) FROM page_rate_vote WHERE page_id = '".$page->getPageId()."'),0) " .
                 "WHERE page_id='".$page->getPageId()."'";
+        }
 
         $db->query($q);
         $outdater = new Outdater();
@@ -147,10 +155,18 @@ class RateAction extends SmartyAction
         PageRateVotePeer::instance()->delete($c);
         $rpoints = 0 - $v->getRate();
 
-        // update page points
-        $q = "UPDATE page SET rate=COALESCE((" .
+        $category = $page->getCategory();
+        if($category->getRatingType() === "S") {
+            // update page points
+            $q = "UPDATE page SET rate=COALESCE((" .
+                "SELECT avg(rate) FROM page_rate_vote WHERE page_id = '" . $page->getPageId() . "'),0) " .
+                "WHERE page_id='" . $page->getPageId() . "'";
+        }
+        else {
+            $q = "UPDATE page SET rate=COALESCE((" .
                 "SELECT sum(rate) FROM page_rate_vote WHERE page_id = '".$page->getPageId()."'),0) " .
                 "WHERE page_id='".$page->getPageId()."'";
+        }
 
         $db->query($q);
         $outdater = new Outdater();

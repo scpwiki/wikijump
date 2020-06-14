@@ -14,7 +14,7 @@ WIKIDOT.modules.PageRateWidgetModule.vars={};
 
 WIKIDOT.modules.PageRateWidgetModule.listeners = {
 	rate: function(e, points, force){
-		if(points != 1 && points != -1){ return;}
+		if(points > 5 || points < -1){ return;}
 		
 		var p = new Object();
 		p.action = "RateAction";

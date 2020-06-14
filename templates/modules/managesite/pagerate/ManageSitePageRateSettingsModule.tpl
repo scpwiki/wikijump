@@ -63,7 +63,9 @@
 						<select id="cat235-{$category->getCategoryId()}-t">
 							<option value="P" {if $category->getRatingType() === "P"}selected="selected"{/if}>+ only</option>
 							<option value="M" {if $category->getRatingType() === "M"}selected="selected"{/if}>+/-</option>
-							{*<option value="S" {if $category->getRatingType() === "S"}selected="selected"{/if}>stars</option>*}
+							<option value="Z" {if $category->getRatingType() === "Z"}selected="selected"{/if}>+/0/-</option>
+							<option value="X" {if $category->getRatingType() === "X"}selected="selected"{/if}>+/0</option>
+							<option value="S" {if $category->getRatingType() === "S"}selected="selected"{/if}>1-5 stars</option>
 							
 						</select>
 					</td>
