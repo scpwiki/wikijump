@@ -204,7 +204,15 @@ class Category extends CategoryBase
     public function getRatingType()
     {
         $s = $this->getRatingString();
-        preg_match('/(P|M|S)/', $s, $m);
+        /*
+         * P: Plus Only
+         * M: Plus or Minus
+         * Z: Plus, Zero, or Minus
+         * X: Plus or Zero
+         * S: Stars, 1-5
+         *
+         */
+        preg_match('/(P|M|S|X|Z)/', $s, $m);
         $m = $m[0];
         if (!$m) {
             $m = 'P';
