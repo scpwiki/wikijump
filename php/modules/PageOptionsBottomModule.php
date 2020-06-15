@@ -90,7 +90,7 @@ class PageOptionsBottomModule extends Module
 	<a href="javascript:;" id="edit-button">'._('edit').'</a>';
 
         if ($showRate&&$page) {
-            $otext .=   '<a href="javascript:;" id="pagerate-button">'._('rate').' (<span id="prw54355">'.($page->getRate()>0?'+':''). $page->getRate().'</span>)</a>';
+            $otext .=   '<a href="javascript:;" id="pagerate-button">'._('rate').' (<span id="prw54355">'.($page->getRate() > 0 && $category->getRatingType() != "S" ?'+':''). ($category->getRatingType() == "S" ? $page->getRate() : round($page->getRate())) .'</span>)</a>';
         }
 
         $otext .= '<a href="javascript:;" id="tags-button">'._('tags').'</a>';

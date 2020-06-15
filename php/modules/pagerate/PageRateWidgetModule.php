@@ -26,6 +26,7 @@
 
 use DB\PagePeer;
 use DB\CategoryPeer;
+use DB\PageRateVotePeer;
 
 class PageRateWidgetModule extends SmartyModule
 {
@@ -59,5 +60,16 @@ class PageRateWidgetModule extends SmartyModule
         $type = $category->getRatingType();
         $runData->contextAdd("type", $type);
         $runData->contextAdd("rate", $rate);
+
+        // if the voting is average based (Stars), attach the count of votes for better display in the callback JS
+
+        if($type === "S") {
+            $c = new Criteria();
+            $c->add("page_id", $page->getPageId());
+
+            $rates = PageRateVotePeer::instance()->select($c);
+            $votecount = count($rates);
+            $runData->contextAdd("votes", $votecount);
+        }
     }
 }
