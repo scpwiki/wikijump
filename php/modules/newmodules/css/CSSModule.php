@@ -12,56 +12,32 @@ class CSSModule extends SmartyModule
 
     public function build($runData)
     {
-    }
-
-    public function render($runData)
-    {
         $pl = $runData->getParameterList();
         $this->stylesheet = $pl->getParameterValue("module_body");
 
-        if($runData->getModuleTemplate() == null){return;}
+        // Thanks dleavitt@StackOverflow.
+        // https://stackoverflow.com/questions/3241616/sanitize-user-defined-css-in-php/5209050#5209050
+        // Instantiate Purifier config and instance.
+        $config = HTMLPurifier_Config::createDefault();
+        $config->set('Filter.ExtractStyleBlocks', TRUE);
+        $purifier = new HTMLPurifier($config);
 
-        $this->build($runData);
+        // Turn off strict warnings (CSSTidy throws some warnings on PHP 5.2+)
+        $level = error_reporting(E_ALL & ~E_STRICT);
 
-        $template = $runData->getModuleTemplate();
-        $templateFile  = PathManager::moduleTemplate($template);
-        // render!
+        // Wrap our CSS in style tags and pass to purifier.
+        // we're not actually interested in the html response though
+        $html = $purifier->purify('<style>'.$this->stylesheet.'</style>');
 
-        $smarty = Ozone::getSmartyPlain();
+        // Revert error reporting
+        error_reporting($level);
 
-        $page = $runData->getPage();
-        $smarty->assign("page", $page);
+        // The "style" blocks are stored seperately
+        $output_css = $purifier->context->get('StyleBlocks');
 
-        // put context into context
+        // Implode all style blocks to a string.
+        $this->stylesheet = implode('',$output_css);
 
-        $context = $runData->getContext();
-        if($context !== null){
-            foreach($context as $key => $value){
-                $smarty->assign($key, $value);
-            }
-        }
-
-        // put errorMessages and messages into the smarty's context as well.
-        $dataMessages = $runData->getMessages();
-        $dataErrorMessages = $runData->getErrorMessages();
-        if(count($dataMessages) > 0) {
-            $smarty->assign('data_messages', $dataMessages);
-        }
-
-        if(count($dataErrorMessages) > 0) {
-            $smarty->assign('data_errorMessages', $dataErrorMessages);
-        }
-        $csstidy = new csstidy();
-        $csstidy->set_cfg('preserve_css', true);
-        $csstidy->parse($this->stylesheet);
-        $csstidy->print->formatted();
-
-        $this->stylesheet = $csstidy->print->output_css_plain;
-
-        $smarty->assign('stylesheet', $this->stylesheet);
-        $out = $smarty->fetch($templateFile);
-
-        return $out;
-
+        $runData->contextAdd('stylesheet', $this->stylesheet);
     }
 }
