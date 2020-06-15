@@ -36,9 +36,9 @@ class Text_Wiki_Parse_Bibliography extends Text_Wiki_Parse {
         $regex = '/
             ^                        # Start of line
             \[\[bibliography         # Tag name
-            (\s+[^\]]+)?             # Allow parameters
+            (\s+[^\]]+)?             # Parameters
             \]\]
-            (.*?)                    # Allow contents
+            (.*?)                    # Contents
             \[\[\/bibliography\]\]   # End tag
             [\s]*$                   # Allow whitespace until end of the line
             /smx';
