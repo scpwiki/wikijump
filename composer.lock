@@ -4,8 +4,52 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d8fca7abfdc40abab90082f4d7016b14",
+    "content-hash": "56583016208e24338e90877be5ac05b8",
     "packages": [
+        {
+            "name": "bluesoul/text_highlighter",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pxdnbluesoul/Text_Highlighter.git",
+                "reference": "d370cde02e53cee3d32b8d119bfe805dc8d76d96"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/pxdnbluesoul/Text_Highlighter/zipball/d370cde02e53cee3d32b8d119bfe805dc8d76d96",
+                "reference": "d370cde02e53cee3d32b8d119bfe805dc8d76d96",
+                "shasum": ""
+            },
+            "require": {
+                "pear/pear-core-minimal": "~1.10.0",
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "@stable"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Text": "./"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "include-path": [
+                "./"
+            ],
+            "license": [
+                "PHP-3.01"
+            ],
+            "authors": [
+                {
+                    "name": "bluesoul",
+                    "email": "github@nags.me",
+                    "role": "Lead"
+                }
+            ],
+            "description": "Text_Highlighter with a fix for the [] operator fatal error in PHP >= 7.2. More info available on: http://pear.php.net/package/Text_Highlighter",
+            "time": "2020-06-15T15:54:00+00:00"
+        },
         {
             "name": "cerdic/css-tidy",
             "version": "v1.7.1",
@@ -243,55 +287,6 @@
                 "exception"
             ],
             "time": "2019-12-10T10:24:42+00:00"
-        },
-        {
-            "name": "pear/text_highlighter",
-            "version": "v0.8.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/pear/Text_Highlighter.git",
-                "reference": "2ccac2d9eaf55dc08bbbdb7136c93fb399d0f855"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/pear/Text_Highlighter/zipball/2ccac2d9eaf55dc08bbbdb7136c93fb399d0f855",
-                "reference": "2ccac2d9eaf55dc08bbbdb7136c93fb399d0f855",
-                "shasum": ""
-            },
-            "require": {
-                "pear/pear-core-minimal": "~1.10.0",
-                "php": ">=5.4.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "@stable"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Text": "./"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "include-path": [
-                "./"
-            ],
-            "license": [
-                "PHP-3.01"
-            ],
-            "authors": [
-                {
-                    "name": "Stoyan Stefanov",
-                    "email": "ssttoo@gmail.com",
-                    "role": "Lead"
-                },
-                {
-                    "name": "Andrey Demenev",
-                    "email": "demenev@gmail.com",
-                    "role": "Lead"
-                }
-            ],
-            "description": "More info available on: http://pear.php.net/package/Text_Highlighter",
-            "time": "2018-01-27T08:24:15+00:00"
         }
     ],
     "packages-dev": [],
