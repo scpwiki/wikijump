@@ -35,7 +35,7 @@ class Text_Wiki_Parse_Bibliography extends Text_Wiki_Parse {
     function parse() {
         $regex = '/
             ^                        # Start of line
-            \[\[bibliography         # Start bibliography tag
+            \[\[bibliography         # Tag name
             (\s+[^\]]+)?             # Allow parameters
             \]\]
             (.*?)                    # Allow contents
