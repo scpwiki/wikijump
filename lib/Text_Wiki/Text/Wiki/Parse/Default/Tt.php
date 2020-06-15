@@ -54,9 +54,9 @@ class Text_Wiki_Parse_Tt extends Text_Wiki_Parse {
     */
 
     public $regex = "/
-        {{
-        ({*?.*?}*?)  # Allows }, then text, then }. Sorry, what?
-        }}
+        \{\{
+        (\{*?.*?\}*?)  # Allows }, then text, then }. Sorry, what?
+        \}\}
         /x";
 
     /**
