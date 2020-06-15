@@ -2,6 +2,6 @@
     "require": {
         "ezyang/htmlpurifier": "^4.12",
         "cerdic/css-tidy": "^1.7",
-        "pear/text_highlighter": "^0.8.1"
+        "bluesoul/text_highlighter": "^1.0.0"
     }
 }
