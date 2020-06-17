@@ -53,7 +53,7 @@ class AccountEmailListsModule extends AccountBaseModule
                     "ORDER BY site.name, email_list.title";
             $c->setExplicitQuery($q);
 
-            $lists = DB_EmailListPeer::instance()->select($c);
+            $lists = EmailListPeer::instance()->select($c);
 
             // sorry  for the DIIIIRTY STYLE!!!
             $sites = array();

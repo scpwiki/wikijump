@@ -40,7 +40,7 @@ class ManageSiteEmailListsModule extends ManageSiteBaseModule
         $c->addOrderDescending('special');
         $c->addOrderAscending('title');
 
-        $lists = DB_EmailListPeer::instance()->select($c);
+        $lists = EmailListPeer::instance()->select($c);
 
         $runData->contextAdd('lists', $lists);
         $runData->contextAdd('site', $site);

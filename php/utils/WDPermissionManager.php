@@ -1,5 +1,8 @@
 <?php
+
+use DB\OzoneUser;
 use DB\OzoneUserPeer;
+use DB\Site;
 use DB\SitePeer;
 use DB\AdminPeer;
 use DB\ModeratorPeer;
@@ -764,8 +767,8 @@ class WDPermissionManager
     /**
      * Shecks if a site is public or user is a member of the site
      *
-     * @param $user DB_OzoneUser
-     * @param $site DB_Site
+     * @param $user OzoneUser
+     * @param $site Site
      * @return boolean
      * @throws WDPermissionException
      */

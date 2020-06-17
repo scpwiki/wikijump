@@ -28,6 +28,10 @@
  * Form upload tool.
  *
  */
+
+use DB\FormSubmissionKey;
+use DB\FormSubmissionKeyPeer;
+
 class FormTool {
 
 	// should become true after a form is substracted from the http request
@@ -82,11 +86,11 @@ class FormTool {
 			$key = $parameters['form_submission_key'];
 			$c = new Criteria();
 			$c->add("key_id", $key);
-			$entry = DB_FormSubmissionKeyPeer::instance()->selectOne($c);
+			$entry = FormSubmissionKeyPeer::instance()->selectOne($c);
 			if($entry == null){
 				$form->setResubmitted(false);
 				// insert key into database
-				$entry = new DB_FormSubmissionKey();
+				$entry = new FormSubmissionKey();
 				$entry->setKeyId($key);
 				$entry->setDateSubmitted(new ODate());
 				$entry->save();
