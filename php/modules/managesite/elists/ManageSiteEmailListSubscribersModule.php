@@ -44,7 +44,7 @@ class ManageSiteEmailListSubscribersModule extends ManageSiteBaseModule
         $c->add('site_id', $site->getSiteId());
         $c->add('list_id', $listId);
 
-        $list = DB_EmailListPeer::instance()->selectOne($c);
+        $list = EmailListPeer::instance()->selectOne($c);
 
         if (!$list) {
             throw new ProcessException('The requested list  cannot be found.');

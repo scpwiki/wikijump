@@ -25,6 +25,7 @@
 
 
 use DB\IdBrokerPeer;
+use DB\IdBroker;
 
 /**
  * Database generator.
@@ -122,7 +123,7 @@ class DBGeneratorDatabase {
 				$c->add('table_name', $table->getName());
 				$r = IdBrokerPeer::instance()->selectOne($c);
 				if($r == null){
-					$idbe = new DB_IdBroker();
+					$idbe = new IdBroker();
 					$idbe->setTableName($table->getName());
 					$idbe->setColumnName($pkColumn->getName());
 					$idbe->save();

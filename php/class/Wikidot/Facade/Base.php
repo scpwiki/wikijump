@@ -28,37 +28,37 @@ abstract class Base
 
     /**
      *
-     * @var DB_OzoneUser
+     * @var OzoneUser
      */
     protected $performer = null;
 
     /**
      *
-     * @var DB_OzoneUser
+     * @var OzoneUser
      */
     protected $user = null;
 
     /**
      *
-     * @var DB_Site
+     * @var Site
      */
     public $site = null;
 
     /**
      *
-     * @var DB_Category
+     * @var Category
      */
     protected $category = null;
 
     /**
      *
-     * @var DB_Page
+     * @var Page
      */
     protected $page = null;
 
     /**
      *
-     * @var DB_Page
+     * @var Page
      */
     protected $parent_page = null;
 
@@ -101,7 +101,7 @@ abstract class Base
     /**
      * construct Facade object
      *
-     * @param $performer DB_OzoneUser
+     * @param $performer OzoneUser
      * @param $app string application
      * @param $config array configuration array, keys: expose_file_path: false by default
      */
@@ -364,7 +364,7 @@ abstract class Base
     /**
      * string representation of compiled page
      *
-     * @param $compiled DB_PageCompiled
+     * @param $compiled PageCompiled
      * @return string
      */
     protected function _reprPageCompiled($compiled)
@@ -382,7 +382,7 @@ abstract class Base
     /**
      * representation of site
      *
-     * @param $site DB_Site
+     * @param $site Site
      * @return array
      */
     protected function _reprSite($site)
@@ -397,7 +397,7 @@ abstract class Base
     /**
      * representation of category
      *
-     * @param $category DB_Category
+     * @param $category Category
      * @return array
      */
     protected function _reprCategory($category)
@@ -463,7 +463,7 @@ abstract class Base
     /**
      * representation of file
      *
-     * @param $file DB_File
+     * @param $file File
      * @return array
      */
     protected function _reprFile($file)

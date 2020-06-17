@@ -75,13 +75,13 @@ class ManageSiteEmailListsAction extends SmartyAction
 
         $list = null;
         if ($isNew) {
-            $list = new DB_EmailList();
+            $list = new EmailList();
             $list->setSiteId($siteId);
         } else {
             $c = new Criteria();
             $c->add('list_id', $listId);
             $c->add('site_id', $site->getSiteId());
-            $list = DB_EmailListPeer::instance()->selectOne($c);
+            $list = EmailListPeer::instance()->selectOne($c);
         }
         $list->setTitle($listTitle);
         $list->setUnixName($listUnixName);
@@ -108,7 +108,7 @@ class ManageSiteEmailListsAction extends SmartyAction
 
         $db = Database::connection();
         $db->begin();
-        $list = DB_EmailListPeer::instance()->selectOne($c);
+        $list = EmailListPeer::instance()->selectOne($c);
         if (!$list) {
             throw new ProcessException('The requested list  cannot be found.');
         }
@@ -117,7 +117,7 @@ class ManageSiteEmailListsAction extends SmartyAction
         $c->add('list_id', $listId);
         $c->add('user_id', $userId);
 
-        DB_EmailListSubscriberPeer::instance()->delete($c);
+        EmailListSubscriberPeer::instance()->delete($c);
         $list->calculateSubscriberCount();
         $list->save();
         $db->commit();

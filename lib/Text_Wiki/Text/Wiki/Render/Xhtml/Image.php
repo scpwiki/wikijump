@@ -25,6 +25,9 @@
  * @version    Release: @package_version@
  * @link       http://pear.php.net/package/Text_Wiki
  */
+
+use DB\FilePeer;
+
 class Text_Wiki_Render_Xhtml_Image extends Text_Wiki_Render {
 
     public $conf = array(
@@ -66,7 +69,7 @@ class Text_Wiki_Render_Xhtml_Image extends Text_Wiki_Render {
     		$c->add("mimetype", "^image", "~*");
     		$c->add("has_resized", true);
     		$c->addOrderAscending("filename");
-    		if ($file = DB_FilePeer::instance()->selectOne($c)) {
+    		if ($file = FilePeer::instance()->selectOne($c)) {
     			$src = $file->getFileName();
     			$options['src'] = $src;
     		} else {

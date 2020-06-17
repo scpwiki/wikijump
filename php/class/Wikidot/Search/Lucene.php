@@ -329,7 +329,7 @@ class Lucene
                         $site = SitePeer::instance()->selectOne($c); // make it an object
                     }
                 }
-                if (is_a($site, "DB_Site")) { // object?
+                if (is_a($site, "Site")) { // object?
                     $site = $site->getSiteId(); // get an id
                 }
                 if ($site !== null && is_numeric($site)) { // we have site id finally

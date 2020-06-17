@@ -25,6 +25,9 @@
  * @version    Release: @package_version@
  * @link       http://pear.php.net/package/Text_Wiki
  */
+
+use DB\PagePeer;
+
 class Text_Wiki_Render_Xhtml_Wikilink extends Text_Wiki_Render {
 
     public $conf = array(
@@ -56,7 +59,7 @@ class Text_Wiki_Render_Xhtml_Wikilink extends Text_Wiki_Render {
         extract($options);
         if($site){
 
-            $o = '<a href="http://'.$site.'.'.GlobalProperties::$URL_DOMAIN.'/'.$page.'">';
+            $o = '<a href="'. GlobalProperties::$HTTP_SCHEMA .'://'.$site.'.'.GlobalProperties::$URL_DOMAIN.'/'.$page.'">';
             $o .= $text;
             $o .= '</a>';
             return $o;
@@ -90,7 +93,7 @@ class Text_Wiki_Render_Xhtml_Wikilink extends Text_Wiki_Render {
 
 		if($exists && $textFromTitle){
 			// get displayed text from the page title
-			$pageObj = DB_PagePeer::instance()->selectByPrimaryKey($exists);
+			$pageObj = PagePeer::instance()->selectByPrimaryKey($exists);
 			$text = $pageObj->getTitleOrUnixName();
 		}
 

@@ -24,6 +24,7 @@
  */
 
 
+use DB\Site;
 use DB\SitePeer;
 use DB\MemberPeer;
 
@@ -39,7 +40,7 @@ abstract class WikidotController extends WebFlowController
      * @param string $siteHost the host to check
      * @param bool $customDomains whether to check custom domains
      * @param bool $uploadDomain whether to check upload domains as well
-     * @return DB_Site
+     * @return Site
      */
     protected function siteFromHost($siteHost, $customDomains = false, $uploadDomain = false)
     {
