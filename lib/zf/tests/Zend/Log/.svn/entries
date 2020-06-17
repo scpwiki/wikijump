@@ -1,63 +1,0 @@
-8
-
-dir
-13504
-http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Log
-http://framework.zend.com/svn/framework
-
-
-
-2008-11-14T06:53:07.458047Z
-12637
-ralph
-
-
-svn:special svn:externals svn:needs-lock
-
-
-
-
-
-
-
-
-
-
-
-44c647ce-9c0f-0410-b52a-842ac1e357ba
-
-AllTests.php
-file
-
-
-
-
-2008-12-06T16:40:20.000000Z
-f91cbac0cb741e6770cc08db0475257e
-2008-11-14T06:53:07.458047Z
-12637
-ralph
-has-props
-
-Formatter
-dir
-
-Filter
-dir
-
-LogTest.php
-file
-
-
-
-
-2008-12-06T16:40:20.000000Z
-2c6477abb44bfc9fd013a67b4e7fd17c
-2008-10-20T03:45:18.009873Z
-12022
-mike
-has-props
-
-Writer
-dir
-

@@ -1,130 +1,0 @@
-8
-
-dir
-16215
-http://svn.dojotoolkit.org/src/branches/1.2/dojox/dtl
-http://svn.dojotoolkit.org/src
-
-
-
-2008-10-01T19:44:40.459247Z
-15375
-BryanForbes
-
-
-svn:special svn:externals svn:needs-lock
-
-
-
-
-
-
-
-
-
-
-
-560b804f-0ae3-0310-86f3-f6aa0a117693
-
-render
-dir
-
-Context.js
-file
-
-
-
-
-2008-12-06T16:41:30.000000Z
-d5ec146b172f3b91b6e332f23d64f7e0
-2008-10-01T19:44:40.459247Z
-15375
-BryanForbes
-has-props
-
-html.js
-file
-
-
-
-
-2008-12-06T16:41:30.000000Z
-5a4c6b34533e279daeae4677d0ce55cd
-2008-10-01T19:44:40.459247Z
-15375
-BryanForbes
-has-props
-
-contrib
-dir
-
-utils
-dir
-
-tests
-dir
-
-_base.js
-file
-
-
-
-
-2008-12-06T16:41:30.000000Z
-c0f937bcdead89fee6a27dcef910dd90
-2008-08-10T04:40:54.315207Z
-14797
-pottedmeat
-has-props
-
-filter
-dir
-
-demos
-dir
-
-ext-dojo
-dir
-
-_Templated.js
-file
-
-
-
-
-2008-12-06T16:41:30.000000Z
-4876556a769c17e47248c5eca5b75074
-2008-10-01T19:44:40.459247Z
-15375
-BryanForbes
-has-props
-
-tag
-dir
-
-README
-file
-
-
-
-
-2008-12-06T16:41:30.000000Z
-af98e75d8de4c4e2dfd28c66cd72989f
-2008-02-14T07:46:57.639673Z
-12434
-pottedmeat
-has-props
-
-_HtmlTemplated.js
-file
-
-
-
-
-2008-12-06T16:41:30.000000Z
-63f465329ddcf090cec26e7d13f21460
-2008-08-09T20:54:50.665676Z
-14783
-pottedmeat
-has-props
-

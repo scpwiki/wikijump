@@ -1,55 +1,0 @@
-8
-
-dir
-393
-http://svn.wikidot.org/repos/wikidot1/trunk/web/files--common
-http://svn.wikidot.org/repos
-
-
-
-2008-12-19T13:56:42.326329Z
-377
-quake
-
-
-svn:special svn:externals svn:needs-lock
-
-
-
-
-
-
-
-
-
-
-
-fb797968-1a05-43ef-ab23-0011a79c62e5
-
-tmp
-dir
-
-dialogs
-dir
-
-theme
-dir
-
-html
-dir
-
-images
-dir
-
-editor
-dir
-
-javascript
-dir
-
-modules
-dir
-
-misc
-dir
-

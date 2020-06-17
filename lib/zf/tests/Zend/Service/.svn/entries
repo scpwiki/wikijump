@@ -1,136 +1,0 @@
-8
-
-dir
-13504
-http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Service
-http://framework.zend.com/svn/framework
-
-
-
-2008-12-05T02:19:03.248199Z
-13029
-sidhighwind
-
-
-svn:special svn:externals svn:needs-lock
-
-
-
-
-
-
-
-
-
-
-
-44c647ce-9c0f-0410-b52a-842ac1e357ba
-
-Yahoo
-dir
-
-Delicious
-dir
-
-AllTests.php
-file
-
-
-
-
-2008-12-06T16:40:22.000000Z
-912671a5658430e61513a311a3899926
-2008-11-11T09:34:04.565766Z
-12544
-alexander
-has-props
-
-SlideShare
-dir
-
-AkismetTest.php
-file
-
-
-
-
-2008-12-06T16:40:22.000000Z
-cf1bda50d12ef14f90720411e15f7d6e
-2008-10-15T16:00:56.239481Z
-11973
-matthew
-has-props
-
-Amazon
-dir
-
-SimpyTest.php
-file
-
-
-
-
-2008-12-06T16:40:22.000000Z
-0370d21ddf88fbf887b04eddf7ba5619
-2008-10-15T16:00:56.239481Z
-11973
-matthew
-has-props
-
-TwitterTest.php
-file
-
-
-
-
-2008-12-06T16:40:22.000000Z
-bc41b7a4c39f1acb5069ab7a18f8f1ff
-2008-12-05T02:19:03.248199Z
-13029
-sidhighwind
-has-props
-
-StrikeIron
-dir
-
-ReCaptcha
-dir
-
-Nirvanix
-dir
-
-Audioscrobbler
-dir
-
-Technorati
-dir
-
-SlideShareTest.php
-file
-
-
-
-
-2008-12-06T16:40:22.000000Z
-8ae3af8b1467f4903b7b9351ccf67c73
-2008-10-15T16:00:56.239481Z
-11973
-matthew
-has-props
-
-Flickr
-dir
-
-TwitterSearchTest.php
-file
-
-
-
-
-2008-12-06T16:40:22.000000Z
-f8ca8b7925a2a9e102a1563ed63a4743
-2008-11-10T22:34:23.280826Z
-12534
-matthew
-has-props
-

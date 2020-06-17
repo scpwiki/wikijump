@@ -1,148 +1,0 @@
-8
-
-dir
-16215
-http://svn.dojotoolkit.org/src/branches/1.2/dijit/_editor/nls
-http://svn.dojotoolkit.org/src
-
-
-
-2008-11-11T00:35:44.471279Z
-15638
-peller
-
-
-svn:special svn:externals svn:needs-lock
-
-
-
-
-
-
-
-
-
-
-
-560b804f-0ae3-0310-86f3-f6aa0a117693
-
-zh
-dir
-
-ca
-dir
-
-pt
-dir
-
-da
-dir
-
-tr
-dir
-
-ru
-dir
-
-LinkDialog.js
-file
-
-
-
-
-2008-12-06T16:41:08.000000Z
-d1e194e1da922c4264e3a670a41fd733
-2008-02-10T05:53:48.292084Z
-12335
-peller
-has-props
-
-de
-dir
-
-sv
-dir
-
-ja
-dir
-
-FontChoice.js
-file
-
-
-
-
-2008-12-06T16:41:08.000000Z
-68f254bf4f0a5a0ebb8dfa3ed392f914
-2008-03-07T00:53:22.763692Z
-12939
-peller
-has-props
-
-he
-dir
-
-fi
-dir
-
-nb
-dir
-
-el
-dir
-
-ar
-dir
-
-pt-pt
-dir
-
-cs
-dir
-
-fr
-dir
-
-es
-dir
-
-ko
-dir
-
-nl
-dir
-
-zh-tw
-dir
-
-pl
-dir
-
-th
-dir
-
-it
-dir
-
-hu
-dir
-
-commands.js
-file
-
-
-
-
-2008-12-06T16:41:08.000000Z
-94c27e3bcd09e7933457bc273f688ca2
-2008-10-16T03:20:10.395428Z
-15448
-peller
-has-props
-
-sk
-dir
-
-sl
-dir
-

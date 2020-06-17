@@ -1,63 +1,0 @@
-8
-
-dir
-13504
-http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Controller/views/scripts
-http://framework.zend.com/svn/framework
-
-
-
-2007-12-11T14:29:33.973346Z
-7078
-matthew
-
-
-svn:special svn:externals svn:needs-lock
-
-
-
-
-
-
-
-
-
-
-
-44c647ce-9c0f-0410-b52a-842ac1e357ba
-
-ob.phtml
-file
-
-
-
-
-2008-12-06T16:40:26.000000Z
-7d79fd12af6f3287d250f147205b2bf1
-2007-12-11T14:29:33.973346Z
-7078
-matthew
-has-props
-
-foo-bar
-dir
-
-site.phtml
-file
-
-
-
-
-2008-12-06T16:40:26.000000Z
-8d3ca891326c29dbf7f177693f73c1a9
-2007-06-07T17:08:35.841387Z
-5156
-bkarwin
-has-props
-
-custom
-dir
-
-view
-dir
-

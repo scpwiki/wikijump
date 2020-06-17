@@ -1,465 +1,0 @@
-8
-
-dir
-16215
-http://svn.dojotoolkit.org/src/branches/1.2/dojox
-http://svn.dojotoolkit.org/src
-
-
-
-2008-11-20T09:15:55.526099Z
-15798
-bill
-has-props
-
-svn:special svn:externals svn:needs-lock
-
-
-
-
-
-
-
-
-
-
-
-560b804f-0ae3-0310-86f3-f6aa0a117693
-
-html.js
-file
-
-
-
-
-2008-12-06T16:41:41.000000Z
-6efc29bb48415bd2a09555688acf7ece
-2008-10-01T19:44:40.459247Z
-15375
-BryanForbes
-has-props
-
-image
-dir
-
-xmpp
-dir
-
-secure
-dir
-
-encoding
-dir
-
-presentation.js
-file
-
-
-
-
-2008-12-06T16:41:41.000000Z
-e1028d28d1322db338ad11f82b75c796
-2007-06-23T19:02:22.690591Z
-9267
-dante
-has-props
-
-validate
-dir
-
-color.js
-file
-
-
-
-
-2008-12-06T16:41:41.000000Z
-7c5ec1ab39e4468b74e2c074b88ecb3c
-2007-10-31T08:08:43.623451Z
-11260
-alex
-has-props
-
-dtl.js
-file
-
-
-
-
-2008-12-06T16:41:41.000000Z
-6cfe2ad859cf314940838ccaf2659e38
-2007-10-31T08:08:43.623451Z
-11260
-alex
-has-props
-
-charting
-dir
-
-storage
-dir
-
-validate.js
-file
-
-
-
-
-2008-12-06T16:41:41.000000Z
-aaddd34a4965dd7fbc9a45685fa3746f
-2007-07-12T20:41:46.889107Z
-9618
-dante
-has-props
-
-json
-dir
-
-testing
-dir
-
-fx
-dir
-
-color
-dir
-
-lang
-dir
-
-sketch
-dir
-
-off.js
-file
-
-
-
-
-2008-12-06T16:41:41.000000Z
-f26869906077b3ba8d9fef4b0028e89f
-2007-06-04T12:41:43.727676Z
-8905
-alex
-has-props
-
-robot
-dir
-
-fx.js
-file
-
-
-
-
-2008-12-06T16:41:41.000000Z
-d4670507e4ec0f3aeecaaf3c889a5800
-2007-08-03T03:43:41.399284Z
-9932
-dante
-has-props
-
-collections.js
-file
-
-
-
-
-2008-12-06T16:41:41.000000Z
-84133ce8d42720ec1172acc1af1141c6
-2007-10-31T08:08:43.623451Z
-11260
-alex
-has-props
-
-sketch.js
-file
-
-
-
-
-2008-12-06T16:41:41.000000Z
-8749e57ba6caad1ebaf3b74069e8eaf8
-2008-10-01T19:44:40.459247Z
-15375
-BryanForbes
-has-props
-
-flash
-dir
-
-sql
-dir
-
-analytics.js
-file
-
-
-
-
-2008-12-06T16:41:41.000000Z
-a73ce3458c33a4fd5984be72666b56de
-2008-10-01T19:44:40.459247Z
-15375
-BryanForbes
-has-props
-
-timing.js
-file
-
-
-
-
-2008-12-06T16:41:41.000000Z
-3679d4dd6653202d1caafe7fd020d395
-2007-08-10T14:34:02.572268Z
-10074
-dante
-has-props
-
-string
-dir
-
-flash.js
-file
-
-
-
-
-2008-12-06T16:41:41.000000Z
-d939789d52f5c268c22cc869da92f1a0
-2008-03-10T22:14:53.757066Z
-13009
-BradNeuberg
-has-props
-
-off
-dir
-
-presentation
-dir
-
-collections
-dir
-
-storage.js
-file
-
-
-
-
-2008-12-06T16:41:41.000000Z
-1d348e4525ecbb348e81a87bbbd060dc
-2007-06-04T08:56:20.036817Z
-8893
-alex
-has-props
-
-wire.js
-file
-
-
-
-
-2008-12-06T16:41:41.000000Z
-90082714183a183f697a94641221f54c
-2007-05-29T16:57:27.811965Z
-8800
-jaredj
-has-props
-
-highlight.js
-file
-
-
-
-
-2008-12-06T16:41:41.000000Z
-8b944a48abf901277595bf4430444706
-2007-11-25T23:15:50.879671Z
-11627
-dante
-has-props
-
-widget
-dir
-
-dtl
-dir
-
-gfx
-dir
-
-rpc
-dir
-
-cometd.js
-file
-
-
-
-
-2008-12-06T16:41:41.000000Z
-a50c00fa7db2ec7edc09059801a6f796
-2008-05-27T13:59:38.707159Z
-13809
-gregw
-has-props
-
-gfx3d.js
-file
-
-
-
-
-2008-12-06T16:41:41.000000Z
-7cc8504dbf82a0793d8778d6bd12632e
-2007-09-30T18:20:51.518552Z
-10660
-elazutkin
-has-props
-
-math
-dir
-
-jsonPath.js
-file
-
-
-
-
-2008-12-06T16:41:41.000000Z
-d88d35a394b81569fe47517e15f4e8e9
-2008-10-01T19:44:40.459247Z
-15375
-BryanForbes
-has-props
-
-math.js
-file
-
-
-
-
-2008-12-06T16:41:41.000000Z
-8236b5089204314db2225d41310e97ec
-2007-10-31T08:08:43.623451Z
-11260
-alex
-has-props
-
-html
-dir
-
-wire
-dir
-
-data
-dir
-
-date
-dir
-
-layout
-dir
-
-uuid.js
-file
-
-
-
-
-2008-12-06T16:41:41.000000Z
-b977734a0fa75a3df027e8239807ac7b
-2007-06-21T20:40:26.844448Z
-9240
-skinner
-has-props
-
-LICENSE
-file
-
-
-
-
-2008-12-06T16:41:41.000000Z
-11ab1416e634de9512c8771b59ff9ff3
-2008-01-22T17:20:53.362841Z
-12125
-peller
-has-props
-
-grid
-dir
-
-jsonPath
-dir
-
-editor
-dir
-
-timing
-dir
-
-analytics
-dir
-
-help
-dir
-
-gfx.js
-file
-
-
-
-
-2008-12-06T16:41:41.000000Z
-00b5f03ca7d41a9445b7aea305b2691b
-2008-09-30T21:48:13.613925Z
-15359
-elazutkin
-has-props
-
-xml
-dir
-
-form
-dir
-
-uuid
-dir
-
-av
-dir
-
-highlight
-dir
-
-io
-dir
-
-resources
-dir
-
-sql.js
-file
-
-
-
-
-2008-12-06T16:41:41.000000Z
-6f307539b65bc4e19ee2544c568da891
-2008-07-27T18:28:05.694482Z
-14596
-dante
-has-props
-
-gfx3d
-dir
-
-cometd
-dir
-
-embed
-dir
-

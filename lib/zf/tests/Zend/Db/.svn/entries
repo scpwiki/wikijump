@@ -1,85 +1,0 @@
-8
-
-dir
-13504
-http://framework.zend.com/svn/framework/standard/trunk/tests/Zend/Db
-http://framework.zend.com/svn/framework
-
-
-
-2008-12-22T08:33:55.045393Z
-13420
-doctorrock83
-
-
-svn:special svn:externals svn:needs-lock
-
-
-
-
-
-
-
-
-
-
-
-44c647ce-9c0f-0410-b52a-842ac1e357ba
-
-Select
-dir
-
-SkipTests.php
-file
-
-
-
-
-2008-12-06T16:40:27.000000Z
-71eb8ed0da4ccb95ed909ffd309116ee
-2008-10-18T14:29:41.078580Z
-12004
-mikaelkael
-has-props
-
-Adapter
-dir
-
-AllTests.php
-file
-
-
-
-
-2008-12-06T16:40:27.000000Z
-a5367535933b43c1042a45ee2bde43be
-2008-10-18T14:29:41.078580Z
-12004
-mikaelkael
-has-props
-
-Profiler
-dir
-
-Statement
-dir
-
-TestSetup.php
-file
-
-
-
-
-2008-12-06T16:40:27.000000Z
-513e1a7f83ca4ba335de80a03f352c7e
-2008-10-18T14:29:41.078580Z
-12004
-mikaelkael
-has-props
-
-Table
-dir
-
-TestUtil
-dir
-
