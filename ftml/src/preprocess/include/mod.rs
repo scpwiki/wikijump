@@ -1,5 +1,5 @@
 /*
- * filter/include/mod.rs
+ * preprocess/include/mod.rs
  *
  * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019-2020 Ammon Smith
@@ -29,7 +29,7 @@ use std::ops::Range;
 const MAX_DEPTH: usize = 10;
 
 #[derive(Debug, Clone, Parser)]
-#[grammar = "filter/include.pest"]
+#[grammar = "preprocess/include.pest"]
 struct IncludeParser;
 
 #[derive(Debug, Clone)]

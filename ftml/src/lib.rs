@@ -101,16 +101,16 @@ mod macros;
 pub mod data;
 mod enums;
 mod error;
-mod filter;
 pub mod handle;
 mod info;
 mod parse;
+mod preprocess;
 
 pub use self::error::{Error, RemoteError};
-pub use self::filter::prefilter;
 pub use self::handle::Handle;
 pub use self::info::{PageInfo, PageInfoOwned};
 pub use self::parse::{parse, ImageArguments, Paragraph, SyntaxTree, Word};
+pub use self::preprocess::prefilter;
 
 pub mod prelude {
     pub use super::{data, handle, parse, prefilter};

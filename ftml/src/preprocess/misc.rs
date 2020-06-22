@@ -1,5 +1,5 @@
 /*
- * filter/misc.rs
+ * preprocess/misc.rs
  *
  * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019-2020 Ammon Smith

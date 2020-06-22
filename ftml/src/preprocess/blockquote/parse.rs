@@ -1,5 +1,5 @@
 /*
- * filter/blockquote/parse.rs
+ * preprocess/blockquote/parse.rs
  *
  * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019-2020 Ammon Smith
