@@ -110,7 +110,7 @@ pub use self::error::{Error, RemoteError};
 pub use self::handle::Handle;
 pub use self::info::{PageInfo, PageInfoOwned};
 pub use self::parse::{parse, ImageArguments, Paragraph, SyntaxTree, Word};
-pub use self::preprocess::prefilter;
+pub use self::preprocess::{prefilter, preprocess};
 
 pub mod prelude {
     pub use super::{data, handle, parse, prefilter};

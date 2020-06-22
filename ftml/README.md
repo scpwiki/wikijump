@@ -39,13 +39,10 @@ Add `-- --nocapture` to the end if you want to see test output.
 There are two primary exports, which are the `preprocess` and `parse` functions.
 
 ```rust
-fn preprocess(text: &mut String, includer: &dyn Includer) -> Option<IncludeError>;
+fn preprocess(text: &mut String, includer: &dyn Handle);
 
 fn parse<'a>(text: &'a str) -> SyntaxTree<'a>;
 ```
-
-`IncludeError` is provided to point out which inclusions failed. The passed `text` is
-still modified, with the import replaced with an error message to be rendered.
 
 When performing a parse, you will need to first run `preprocess()`, then run `parse()`
 on the fully expanded text.

@@ -28,6 +28,22 @@ mod test;
 
 use crate::{Handle, Result};
 
+/// Run the preprocessor on the given wikitext, which is modified in-place.
+///
+/// The following modifications are performed:
+/// * Expand instances of `[[include]]`
+/// * Replacing DOS and legacy Mac newlines
+/// * Trimming whitespace lines
+/// * Concatenating lines that end with backslashes
+/// * Convert tabs to four spaces
+/// * Compress groups of 3+ newlines into 2 newlines
+///
+/// This call always succeeds. The return value designates where issues occurred
+/// to allow programmatic determination of where things were not as expected.
+pub fn preprocess(_text: &mut String, _handle: &dyn Handle) {
+    unimplemented!()
+}
+
 /// Transform the text in preparation for parsing.
 ///
 /// Performs the following modifications:
