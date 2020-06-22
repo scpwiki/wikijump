@@ -18,13 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prefilter;
+use super::preprocess;
 use crate::handle::TestHandle;
-use crate::Result;
 
 pub fn test_substitution<F>(filter_name: &str, mut substitute: F, tests: &[(&str, &str)])
 where
-    F: FnMut(&mut String) -> Result<()>,
+    F: FnMut(&mut String),
 {
     let mut string = String::new();
 
@@ -37,12 +36,7 @@ where
             filter_name, input, expected,
         );
 
-        if let Err(err) = substitute(&mut string) {
-            panic!(
-                "Failed to perform {} substitution test string:\n{}\nExpected:\n{}\n-----\nProduced error: {}",
-                filter_name, input, expected, err
-            );
-        }
+        substitute(&mut string);
 
         assert_eq!(
             &string, expected,
@@ -100,7 +94,7 @@ const PREFILTER_TEST_CASES: [(&str, &str); 13] = [
 fn test_prefilter() {
     test_substitution(
         "prefilter",
-        |s| prefilter(s, &TestHandle),
+        |s| preprocess(s, &TestHandle),
         &PREFILTER_TEST_CASES,
     );
 }

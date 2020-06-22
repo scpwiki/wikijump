@@ -66,5 +66,11 @@ const TEST_CASES: [(&str, &str); 11] = [
 fn test_substitute() {
     use super::super::test::test_substitution;
 
-    test_substitution("include", |s| substitute(s, &TestHandle), &TEST_CASES);
+    test_substitution(
+        "include",
+        |s| {
+            substitute(s, &TestHandle);
+        },
+        &TEST_CASES,
+    );
 }

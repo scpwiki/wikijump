@@ -27,7 +27,7 @@
 
 use super::{parse, Rule, WikidotParser};
 use crate::handle::TestHandle;
-use crate::prefilter;
+use crate::preprocess;
 use pest::Parser;
 
 const VALID_INPUT_STRINGS: [&str; 139] = [
@@ -219,7 +219,7 @@ fn test_valid_filter_strings() {
     for string in &VALID_FILTER_STRINGS[..] {
         println!("Running prefilter test on valid string: {:?}", string);
         buffer.push_str(string);
-        prefilter(&mut buffer, &TestHandle).expect("Prefilter shouldn't be failing");
+        preprocess(&mut buffer, &TestHandle);
 
         if let Err(err) = WikidotParser::parse(Rule::page, &buffer) {
             panic!(
