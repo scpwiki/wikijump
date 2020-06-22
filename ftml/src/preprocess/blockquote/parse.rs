@@ -1,7 +1,7 @@
 /*
  * preprocess/blockquote/parse.rs
  *
- * ftml - Convert Wikidot code to HTML
+ * ftml - Library to parse Wikidot code
  * Copyright (C) 2019-2020 Ammon Smith
  *
  * This program is free software: you can redistribute it and/or modify
