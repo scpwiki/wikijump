@@ -40,7 +40,10 @@ class Text_Wiki_Parse_Div extends Text_Wiki_Parse {
      * @var string
      *
      */
-    public $regex = '/(\n)?\[\[div(\s.*?)?\]\] *\n((?:(?R)|.)*?)\[\[\/div\]\] */msi';
+//    public $regex = '/(\n)?\[\[div(\s.*?)?\]\] *\n((?:(?R)|.)*?)\[\[\/div\]\] */msi';
+//    public $regex = '/^\[\[div(\s.*?)\]\]\n((?:(?R)|.)*?)\n\[\[\/div\]\]/msi';
+/*    public $regex = ';^\[\[div(\s\V+)?\]\]((?>[^[]+|(?R)|.)+?)\[\[\/div\]\];ms';*/
+    public $regex = ';\[\[div(\s\V+)?\]\]\n((?>[^[]+|(?R)|.)+?)\[\[\/div\]\];ms';
 
     /**
      *
@@ -58,9 +61,9 @@ class Text_Wiki_Parse_Div extends Text_Wiki_Parse {
      */
 
     function process(&$matches) {
-        $content = $matches[3];
+        $content = $matches[2];
 
-        $attr = $this->getAttrs(trim($matches[2]));
+        $attr = $this->getAttrs(trim($matches[1]));
         $args = array();
         if ($attr['class']) {
             $args['class'] = $attr['class'];
@@ -78,7 +81,7 @@ class Text_Wiki_Parse_Div extends Text_Wiki_Parse {
         $end = $this->wiki->addToken($this->rule, array(
             'type' => 'end'));
 
-        return $matches[1] . $matches[1] . $start . "\n\n" . $content . "\n\n" . $end;
+        return $start . "\n\n" . $content . "\n\n" . $end;
 
     }
 
