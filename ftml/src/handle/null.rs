@@ -20,11 +20,11 @@
 
 use super::prelude::*;
 
-/// RemoteHandle where all included pages are blank.
+/// Handle implementation where all included pages are blank.
 #[derive(Debug, Copy, Clone)]
 pub struct NullHandle;
 
-impl RemoteHandle for NullHandle {
+impl Handle for NullHandle {
     #[inline]
     fn include_page(
         &self,

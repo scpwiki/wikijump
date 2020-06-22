@@ -20,11 +20,11 @@
 
 use super::prelude::*;
 
-/// RemoteHandle where all pages are considered missing.
+/// Handle implementation where all pages are considered missing.
 #[derive(Debug, Copy, Clone)]
 pub struct MissingHandle;
 
-impl RemoteHandle for MissingHandle {
+impl Handle for MissingHandle {
     #[inline]
     fn include_page(
         &self,

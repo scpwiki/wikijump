@@ -24,7 +24,7 @@ use super::prelude::*;
 #[derive(Debug, Copy, Clone)]
 pub struct TestHandle;
 
-impl RemoteHandle for TestHandle {
+impl Handle for TestHandle {
     fn include_page(&self, name: &str, args: &HashMap<&str, &str>) -> RemoteResult<Option<String>> {
         let include = format!("<PAGE '{}' {:?}>", name, args);
 

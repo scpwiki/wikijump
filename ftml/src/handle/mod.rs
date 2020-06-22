@@ -23,7 +23,7 @@ mod null;
 mod test;
 
 mod prelude {
-    pub use super::RemoteHandle;
+    pub use super::Handle;
     pub use crate::data::User;
     pub use crate::{RemoteError, RemoteResult};
     pub use std::collections::HashMap;
@@ -39,7 +39,7 @@ pub use self::test::TestHandle;
 ///
 /// The intent is to allow the implementer to use a locale variable
 /// to determine what copy to use.
-pub trait RemoteHandle {
+pub trait Handle {
     /// Includes the given page, substituting the passed arguments.
     /// Returns `None` if the page doesn't exist.
     fn include_page(&self, name: &str, args: &HashMap<&str, &str>) -> RemoteResult<Option<String>>;
