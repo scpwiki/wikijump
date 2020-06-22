@@ -21,46 +21,13 @@
 #![deny(missing_debug_implementations)]
 #![forbid(unsafe_code)]
 
-//! A library to convert Wikidot text source into HTML.
+//! A library to parse Wikidot text and produce an abstract syntax tree (AST).
 //!
 //! This library aims to be a replacement of Wikidot's Text_Wiki
-//! module, but with the goals of providing more modular integration
-//! and standalone servicing.
-//!
-//! While backwards compatibility with Wikidot code is one of the aims
-//! of this library, there are constructions which are valid in Wikidot
-//! but deliberately invalid in ftml. The total scope of all Wikidot code
-//! that is valid would almost require a parser nearly identical to the one
-//! attempting to be rewritten to cover every edge case, even if supporting
-//! such a case is not very useful or sensible.
-//!
-//! For instance, the following is valid code:
-//! ```text
-//! > [[div class="test"]
-//! > A man, a plan, a canal, Panama.
-//! [[/div]]
-//! ```
-//!
-//! However the actual extent of the blockquote intersects with the div, and
-//! it essentially is the HTML equivalent of
-//! ```text
-//! <div class="outer">
-//!   <p class="inner">
-//!   </div>
-//! </p>
-//! ```
-//!
-//! Which is obviously invalid syntax, and can cause issues.
-//!
-//! Instead the library's parser defines a grammar, which is designed to be
-//! compatible with all common Wikidot constructions, or has extensions for
-//! situations that are not directly supported. This largely-overlapping but
-//! slightly dissimilar specification ("ftml code") aims at being able to
-//! _effectively_ replace Wikidot code with minor human involvement to
-//! replace malformed original sources.
-//!
-//! This crate also provides an executable to convert files from
-//! the command-line. See that file for usage documentation.
+//! parser, which is presently a loose group of regular expressions
+//! (with irregular Perl extensions). The aim is to provide an AST
+//! while also maintaining the flexibility and lax parsing that
+//! Wikidot permits.
 
 extern crate chrono;
 extern crate either;
