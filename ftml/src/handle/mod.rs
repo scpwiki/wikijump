@@ -24,7 +24,6 @@ mod test;
 
 mod prelude {
     pub use super::Handle;
-    pub use crate::data::User;
     pub use crate::{RemoteError, RemoteResult};
     pub use std::collections::HashMap;
 }

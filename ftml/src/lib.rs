@@ -98,7 +98,6 @@ extern crate serde_json;
 #[macro_use]
 mod macros;
 
-pub mod data;
 mod enums;
 mod error;
 pub mod handle;
@@ -110,10 +109,10 @@ pub use self::error::{Error, RemoteError};
 pub use self::handle::Handle;
 pub use self::info::{PageInfo, PageInfoOwned};
 pub use self::parse::{parse, ImageArguments, Paragraph, SyntaxTree, Word};
-pub use self::preprocess::{prefilter, preprocess};
+pub use self::preprocess::preprocess;
 
 pub mod prelude {
-    pub use super::{data, handle, parse, prefilter};
+    pub use super::{handle, parse, preprocess};
     pub use super::{Error, PageInfo, PageInfoOwned, Result, StdResult, SyntaxTree};
 }
 

@@ -18,7 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod blockquote;
 mod include;
 mod misc;
 mod typography;
@@ -26,7 +25,7 @@ mod typography;
 #[cfg(test)]
 mod test;
 
-use crate::{Handle, Result};
+use crate::Handle;
 
 /// Run the preprocessor on the given wikitext, which is modified in-place.
 ///
@@ -44,32 +43,10 @@ pub fn preprocess(_text: &mut String, _handle: &dyn Handle) {
     unimplemented!()
 }
 
-/// Transform the text in preparation for parsing.
-///
-/// Performs the following modifications:
-/// * Insert [[include]] directives
-/// * Replacing DOS and legacy Mac newlines
-/// * Trimming whitespace lines
-/// * Concatenating lines that end with backslashes
-/// * Convert tabs to four spaces
-/// * Compress groups of 3+ newlines into 2 newlines
-/// * Converts quote blocks to nested [[quote]] tags
-/// * Perform typography modifications
-pub fn prefilter(text: &mut String, handle: &dyn Handle) -> Result<()> {
-    include::substitute(text, handle)?;
-    misc::substitute(text)?;
-    blockquote::substitute(text)?;
-    typography::substitute(text)?;
-
-    Ok(())
-}
-
 #[test]
 fn test_fn() {
     type SubstituteFn = fn(&mut String) -> Result<()>;
 
-    // include::substitute() does not match as it requires an Includer
     let _: SubstituteFn = misc::substitute;
-    let _: SubstituteFn = blockquote::substitute;
     let _: SubstituteFn = typography::substitute;
 }
