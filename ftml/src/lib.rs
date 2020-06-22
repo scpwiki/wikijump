@@ -105,25 +105,16 @@ mod filter;
 pub mod handle;
 mod info;
 mod parse;
-mod render;
-
-#[cfg(test)]
-mod test;
 
 pub use self::error::{Error, RemoteError};
 pub use self::filter::prefilter;
 pub use self::handle::RemoteHandle;
 pub use self::info::{PageInfo, PageInfoOwned};
 pub use self::parse::{parse, ImageArguments, Paragraph, SyntaxTree, Word};
-pub use self::render::html;
-pub use self::render::{HtmlRender, Render, TreeRender};
 
 pub mod prelude {
     pub use super::{data, handle, parse, prefilter};
-    pub use super::{
-        Error, HtmlRender, PageInfo, PageInfoOwned, Render, Result, StdResult, SyntaxTree,
-        TreeRender,
-    };
+    pub use super::{Error, PageInfo, PageInfoOwned, Result, StdResult, SyntaxTree};
 }
 
 pub type StdResult<T, E> = std::result::Result<T, E>;

@@ -190,26 +190,6 @@ pub enum ListStyle {
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-pub enum HtmlMetaType {
-    Name,
-    HttpEquiv,
-    Property,
-}
-
-impl HtmlMetaType {
-    pub fn tag_name(self) -> &'static str {
-        use self::HtmlMetaType::*;
-
-        match self {
-            Name => "name",
-            HttpEquiv => "http-equiv",
-            Property => "property",
-        }
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
 pub enum InfoField {
     Title,
     AltTitle,
