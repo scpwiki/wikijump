@@ -1,5 +1,5 @@
 /*
- * preprocess/include/mod.rs
+ * preproc/include/mod.rs
  *
  * ftml - Library to parse Wikidot code
  * Copyright (C) 2019-2020 Ammon Smith
@@ -29,7 +29,7 @@ use std::ops::Range;
 const MAX_DEPTH: usize = 10;
 
 #[derive(Debug, Clone, Parser)]
-#[grammar = "preprocess/include.pest"]
+#[grammar = "preproc/include.pest"]
 struct IncludeParser;
 
 #[derive(Debug, Clone)]

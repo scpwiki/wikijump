@@ -103,13 +103,13 @@ mod error;
 pub mod handle;
 mod info;
 mod parse;
-mod preprocess;
+mod preproc;
 
 pub use self::error::{Error, RemoteError};
 pub use self::handle::Handle;
 pub use self::info::{PageInfo, PageInfoOwned};
 pub use self::parse::{parse, ImageArguments, Paragraph, SyntaxTree, Word};
-pub use self::preprocess::preprocess;
+pub use self::preproc::preprocess;
 
 pub mod prelude {
     pub use super::{handle, parse, preprocess};
