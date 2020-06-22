@@ -1,5 +1,5 @@
 /*
- * handle/test.rs
+ * handle/missing.rs
  *
  * ftml - Convert Wikidot code to HTML
  * Copyright (C) 2019-2020 Ammon Smith
@@ -20,22 +20,39 @@
 
 use super::prelude::*;
 
-/// Test handle for debugging.
+/// RemoteHandle where all pages are considered missing.
 #[derive(Debug, Copy, Clone)]
-pub struct TestHandle;
+pub struct MissingHandle;
 
-impl RemoteHandle for TestHandle {
-    fn include_page(&self, name: &str, args: &HashMap<&str, &str>) -> RemoteResult<Option<String>> {
-        let include = format!("<PAGE '{}' {:?}>", name, args);
-
-        Ok(Some(include))
+impl RemoteHandle for MissingHandle {
+    #[inline]
+    fn include_page(
+        &self,
+        _name: &str,
+        _args: &HashMap<&str, &str>,
+    ) -> RemoteResult<Option<String>> {
+        Ok(None)
     }
 
-    fn include_missing_error(&self, _name: &str) -> String {
-        unreachable!()
+    fn include_missing_error(&self, name: &str) -> String {
+        format!(
+            "
+[[div class=\"error-block\"]]
+Included page \"{}\" does not exist ([[a href=\"/{}/edit\"]]created it now[[/a]])
+[[/div]]
+",
+            name, name
+        )
     }
 
-    fn include_max_depth_error(&self, _max_depth: usize) -> String {
-        unreachable!()
+    fn include_max_depth_error(&self, max_depth: usize) -> String {
+        format!(
+            "
+[[div class=\"error-block\"]]
+Too many nested includes. (Maximum depth is {})
+[[/div]]
+",
+            max_depth
+        )
     }
 }

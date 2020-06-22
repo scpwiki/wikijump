@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod missing;
 mod null;
 mod test;
 
@@ -25,22 +26,27 @@ mod prelude {
     pub use super::RemoteHandle;
     pub use crate::data::User;
     pub use crate::{RemoteError, RemoteResult};
-    pub use std::borrow::Cow;
     pub use std::collections::HashMap;
 }
 
 use self::prelude::*;
 
+pub use self::missing::MissingHandle;
 pub use self::null::NullHandle;
 pub use self::test::TestHandle;
 
+/// Series of methods to help preprocessing of wikitext.
+///
+/// The intent is to allow the implementer to use a locale variable
+/// to determine what copy to use.
 pub trait RemoteHandle {
-    fn get_user_by_name(&self, name: &str) -> RemoteResult<Option<User>>;
-    fn get_user_by_id(&self, id: u64) -> RemoteResult<Option<User>>;
+    /// Includes the given page, substituting the passed arguments.
+    /// Returns `None` if the page doesn't exist.
+    fn include_page(&self, name: &str, args: &HashMap<&str, &str>) -> RemoteResult<Option<String>>;
 
-    fn get_page(
-        &self,
-        name: &str,
-        args: &HashMap<&str, &str>,
-    ) -> RemoteResult<Option<Cow<'static, str>>>;
+    /// Gets a message for designating a missing `[[include]]`.
+    fn include_missing_error(&self, name: &str) -> String;
+
+    /// Gets a message for designating too many layers of nested `[[include]]`s.
+    fn include_max_depth_error(&self, max_depth: usize) -> String;
 }

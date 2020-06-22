@@ -23,9 +23,7 @@ mod test;
 
 use crate::{Error, RemoteHandle, Result};
 use pest::Parser;
-use std::borrow::Cow;
 use std::collections::HashMap;
-use std::fmt::Write;
 use std::ops::Range;
 
 const MAX_DEPTH: usize = 10;
@@ -38,7 +36,7 @@ struct IncludeParser;
 struct IncludeRef {
     range: Range<usize>,
     name: String,
-    resource: Option<Cow<'static, str>>,
+    page: Option<String>,
 }
 
 fn substitute_n(text: &mut String, handle: &dyn RemoteHandle, depth: usize) -> Result<()> {
@@ -98,14 +96,10 @@ fn substitute_n(text: &mut String, handle: &dyn RemoteHandle, depth: usize) -> R
         }
 
         // Fetch included resource
-        let resource = handle.get_page(name, &args)?;
+        let page = handle.include_page(name, &args)?;
         let name = str!(name);
 
-        includes.push(IncludeRef {
-            range,
-            name,
-            resource,
-        });
+        includes.push(IncludeRef { range, name, page });
     }
 
     // Go through in reverse order to not mess up indices.
@@ -117,29 +111,15 @@ fn substitute_n(text: &mut String, handle: &dyn RemoteHandle, depth: usize) -> R
 
     includes.reverse();
     for include in includes {
-        let mut buffer;
-        let IncludeRef {
-            range,
-            name,
-            resource,
-        } = include;
-        let final_resource = if depth >= MAX_DEPTH {
-            buffer = String::new();
-            write_depth_error(&mut buffer);
-            &buffer
+        let IncludeRef { range, name, page } = include;
+
+        let final_page = if depth >= MAX_DEPTH {
+            handle.include_max_depth_error(MAX_DEPTH)
         } else {
-            match resource {
-                Some(ref resource) => resource.as_ref(),
-                None => {
-                    // TODO slug-ify name
-                    buffer = String::new();
-                    write_include_error(&mut buffer, &name);
-                    &buffer
-                }
-            }
+            page.unwrap_or_else(|| handle.include_missing_error(&name))
         };
 
-        text.replace_range(range, final_resource);
+        text.replace_range(range, &final_page);
     }
 
     if included {
@@ -149,28 +129,6 @@ fn substitute_n(text: &mut String, handle: &dyn RemoteHandle, depth: usize) -> R
     // TODO
 
     Ok(())
-}
-
-fn write_depth_error(buffer: &mut String) {
-    buffer.push_str("[[div class=\"error-block\"]]\n");
-    write!(
-        buffer,
-        "Too many nested includes. (Maximum depth is {})",
-        MAX_DEPTH
-    )
-    .unwrap();
-    buffer.push_str("[[/div]]\n");
-}
-
-fn write_include_error(buffer: &mut String, name: &str) {
-    buffer.push_str("[[div class=\"error-block\"]]\n");
-    writeln!(
-        buffer,
-        "Included page \"{}\" does not exist ([[a href=\"/{}/edit\"]]create it now[[/a]])",
-        name, name,
-    )
-    .unwrap();
-    buffer.push_str("[[/div]]\n");
 }
 
 #[inline]

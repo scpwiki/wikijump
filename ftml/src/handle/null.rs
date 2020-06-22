@@ -20,23 +20,30 @@
 
 use super::prelude::*;
 
+/// RemoteHandle where all included pages are blank.
 #[derive(Debug, Copy, Clone)]
 pub struct NullHandle;
 
 impl RemoteHandle for NullHandle {
-    fn get_user_by_name(&self, _name: &str) -> RemoteResult<Option<User>> {
-        Ok(None)
-    }
-
-    fn get_user_by_id(&self, _id: u64) -> RemoteResult<Option<User>> {
-        Ok(None)
-    }
-
-    fn get_page(
+    #[inline]
+    fn include_page(
         &self,
         _name: &str,
         _args: &HashMap<&str, &str>,
-    ) -> RemoteResult<Option<Cow<'static, str>>> {
-        Ok(None)
+    ) -> RemoteResult<Option<String>> {
+        Ok(Some(str!("")))
+    }
+
+    #[inline]
+    fn include_missing_error(&self, name: &str) -> String {
+        // Wikitext is {{name}}, but we need to escape it.
+        // So it's '{{' '{{' '{}' '}}' '}}'
+        // meaning "literal {", "literal {", name, "literal }", "literal }".
+        format!("No such page: '{{{{{}}}}}'", name)
+    }
+
+    #[inline]
+    fn include_max_depth_error(&self, max_depth: usize) -> String {
+        format!("Too many layers of includes: max depth is {}", max_depth)
     }
 }
