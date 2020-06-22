@@ -15,12 +15,6 @@ edition = "2018" # this refers to the Cargo.toml version
 [badges]
 travis-ci = { repository = "Nu-SCPTheme/ftml", branch = "master" }
 
-[workspace]
-members = [
-    ".",
-    "ftml-bin",
-]
-
 [lib]
 name = "ftml"
 
