@@ -32,7 +32,6 @@
 //! to prevent typography from converting the `--` in `[!--` and `--]` into
 //! em dashes.
 
-use crate::Result;
 use regex::{Regex, RegexBuilder};
 
 lazy_static! {
@@ -56,16 +55,25 @@ lazy_static! {
     };
 }
 
-pub fn substitute(text: &mut String) -> Result<()> {
+pub fn substitute(text: &mut String) {
+    // Remove comments
     regex_replace(text, &*COMMENT, "");
+
+    // Replace DOS and Mac newlines
     str_replace(text, "\r\n", "\n");
     str_replace(text, "\r", "\n");
-    regex_replace(text, &*WHITESPACE, "");
-    str_replace(text, "\\\n", "");
-    str_replace(text, "\t", "    ");
-    regex_replace(text, &*COMPRESS_NEWLINES, "\n\n");
 
-    Ok(())
+    // Strip lines with only whitespace
+    regex_replace(text, &*WHITESPACE, "");
+
+    // Join concatenated lines (ending with '\')
+    str_replace(text, "\\\n", "");
+
+    // Tabs to spaces
+    str_replace(text, "\t", "    ");
+
+    // Compress multiple newlines
+    regex_replace(text, &*COMPRESS_NEWLINES, "\n\n");
 }
 
 fn str_replace(text: &mut String, pattern: &str, replacement: &str) {

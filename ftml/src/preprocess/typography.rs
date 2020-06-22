@@ -29,7 +29,6 @@
 //! * << and >> to fancy French angle quotation marks
 //! * ... to an ellipsis
 
-use crate::Result;
 use regex::Regex;
 
 lazy_static! {
@@ -149,7 +148,7 @@ impl Replacer {
     }
 }
 
-pub fn substitute(text: &mut String) -> Result<()> {
+pub fn substitute(text: &mut String) {
     let mut buffer = String::new();
 
     macro_rules! replace {
@@ -169,8 +168,6 @@ pub fn substitute(text: &mut String) -> Result<()> {
 
     // Miscellaneous
     replace!(ELLIPSIS);
-
-    Ok(())
 }
 
 #[cfg(test)]

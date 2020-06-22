@@ -36,16 +36,21 @@ use crate::Handle;
 /// * Concatenating lines that end with backslashes
 /// * Convert tabs to four spaces
 /// * Compress groups of 3+ newlines into 2 newlines
+/// * Wikidot typography transformations
 ///
 /// This call always succeeds. The return value designates where issues occurred
 /// to allow programmatic determination of where things were not as expected.
-pub fn preprocess(_text: &mut String, _handle: &dyn Handle) {
-    unimplemented!()
+pub fn preprocess(text: &mut String, handle: &dyn Handle) {
+    include::substitute(text, handle);
+    misc::substitute(text);
+    typography::substitute(text);
+
+    todo!()
 }
 
 #[test]
 fn test_fn() {
-    type SubstituteFn = fn(&mut String) -> Result<()>;
+    type SubstituteFn = fn(&mut String);
 
     let _: SubstituteFn = misc::substitute;
     let _: SubstituteFn = typography::substitute;
