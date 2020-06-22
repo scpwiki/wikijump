@@ -82,7 +82,7 @@ const PREFILTER_TEST_CASES: [(&str, &str); 13] = [
     ),
     (
         "[[include info:start]]\nApple\nBanana\n[[include info:end]]\n",
-        "<PAGE 'info:start' #0>\nApple\nBanana\n<PAGE 'info:end' #0>",
+        "<PAGE 'info:start' {}>\nApple\nBanana\n<PAGE 'info:end' {}>",
     ),
     (
         "Apple\n[[include component:image-block\n    name = somefile.png |\n    caption=The Thing|\n    width= 200px\n]]\nBanana",

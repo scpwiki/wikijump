@@ -23,14 +23,14 @@ use crate::handle::TestHandle;
 
 const TEST_CASES: [(&str, &str); 11] = [
     ("", ""),
-    ("[[include component:thingy]]", "<PAGE 'component:thingy' #0>"),
+    ("[[include component:thingy]]", "<PAGE 'component:thingy' {}>"),
     (
         "[[include component:image-block\n  name=test.png |\n  caption=SCP-XX\n]]",
-        "<PAGE 'component:image-block' #2>",
+        r#"<PAGE 'component:image-block' {"caption": "SCP-XX", "name": "test.png"}>"#,
     ),
     (
         "apple [[include some-page key=value | key2=value2]] banana",
-        "apple <PAGE 'some-page' #2> banana",
+        r#"apple <PAGE 'some-page' {"key": "value", "key2": "value2"}> banana"#,
     ),
     (
         "A\n[[include first-page\n  name=test |\n  caption=thing |\n]]\nB\n[[include second-page]]\nC",
@@ -38,7 +38,7 @@ const TEST_CASES: [(&str, &str); 11] = [
     ),
     (
         "A\n[[include B]]\nC\n[[include D]]\nE\n[[include F]]\nG\n[[include H]]\nI\n[[include J]]\nK",
-        "A\n<PAGE 'B' #0>\nC\n<PAGE 'D' #0>\nE\n<PAGE 'F' #0>\nG\n<PAGE 'H' #0>\nI\n<PAGE 'J' #0>\nK",
+        "A\n<PAGE 'B' {}>\nC\n<PAGE 'D' {}>\nE\n<PAGE 'F' {}>\nG\n<PAGE 'H' {}>\nI\n<PAGE 'J' {}>\nK",
     ),
     (
         "[[ INCLUDE component:thing \n\n | name = ARG yes amazing thing\n with newline | ]]",
