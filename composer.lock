@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "10f5005e4bfdbb215b8f70d5460a1f74",
+    "content-hash": "4c391821ac8d633c168357a6709e333b",
     "packages": [
         {
             "name": "bluesoul/text_highlighter",
@@ -553,6 +553,45 @@
                 "source": "https://github.com/scpwiki/text_wiki"
             },
             "time": "2020-06-23T22:37:27+00:00"
+        },
+        {
+            "name": "scpwiki/zf",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/scpwiki/zf.git",
+                "reference": "4ed6db16477f47a5db0ec0efe1eaeeb20fc65376"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/scpwiki/zf/zipball/4ed6db16477f47a5db0ec0efe1eaeeb20fc65376",
+                "reference": "4ed6db16477f47a5db0ec0efe1eaeeb20fc65376",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "library/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "bluesoul",
+                    "email": "github@nags.me",
+                    "role": "maintainer"
+                }
+            ],
+            "description": "Legacy version of Zend Framework 1.7.2 for Wikijump use.",
+            "support": {
+                "irc": "irc://irc.synirc.net/site11",
+                "issues": "https://scuttle.atlassian.net/browse/HELP",
+                "source": "https://github.com/scpwiki/zf"
+            },
+            "time": "2020-06-23T22:53:40+00:00"
         },
         {
             "name": "smarty/smarty",

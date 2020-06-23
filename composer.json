@@ -9,6 +9,7 @@
         "scpwiki/phpflickr": "^1.0",
         "scpwiki/phpmailer": "^1.0",
         "smarty/smarty": "2.6.31",
-        "scpwiki/text_wiki": "^1.0"
+        "scpwiki/text_wiki": "^1.0",
+        "scpwiki/zf": "^1.0"
     }
 }
