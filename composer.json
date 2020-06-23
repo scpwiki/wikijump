@@ -6,6 +6,8 @@
         "scpwiki/services_json": "^1.0",
         "scpwiki/magpierss": "^1.0",
         "scpwiki/ozoneframework": "^1.0",
-        "scpwiki/phpflickr": "^1.0"
+        "scpwiki/phpflickr": "^1.0",
+        "scpwiki/phpmailer": "^1.0",
+        "smarty/smarty": "2.6.31"
     }
 }
