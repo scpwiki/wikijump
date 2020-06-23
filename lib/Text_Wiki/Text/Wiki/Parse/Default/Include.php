@@ -61,17 +61,19 @@ class Text_Wiki_Parse_Include extends Text_Wiki_Parse {
     *
     */
 
-    public $regex = '/^\[\[include ([a-zA-Z0-9\s\-:]+?)(\s+.*?)?(?:\]\])$/ims';
+    public $regex = '/
+        ^\[\[include\s         # Declare include module
+        ([a-zA-Z0-9\s\-:]+?)   # Name/location of component
+        (\s+.*?)?              # Parameters
+        (?:\]\])$              # Match but not capture closing tags? Ok
+        /imsx';
 
  	function parse(){
  		$level = 0;
  		do{
  			$oldSource = $this->wiki->source;
         	$this->wiki->source = preg_replace_callback(
-	           	$this->regex,
-           		array(&$this, 'process'),
-           		$this->wiki->source
-        	);
+                $this->regex, array(&$this, 'process'), $this->wiki->source);
         	$level++;
  		}while($oldSource != $this->wiki->source && $level<5);
 

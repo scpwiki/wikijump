@@ -53,7 +53,18 @@ class Text_Wiki_Parse_Image extends Text_Wiki_Parse {
      *
      */
 
-    public $regex = '/(\[\[((?:f)?[<>=])?image\s+)(.+?)(?:\]\])(?:(.*?)\[\[\/image\]\])?/is';
+    public $regex = '/
+        (
+            \[\[             # Start opening image tag
+            ((?:f)?[<>=])?   # Allow f for flickr integration and <, >, =
+            image
+            \s+              # Require a whitespace before parameters
+        )
+        (.+?)                # Parameters
+        (?:\]\])             # End opening image tag
+        (?:(.*?)             # Capture any text inside the image element
+        \[\[\/image\]\])?    # Allow end tag. Content + end tag is not required
+        /isx';
 
     /**
      * The regular expressions used to check ecternal urls
@@ -152,7 +163,8 @@ class Text_Wiki_Parse_Image extends Text_Wiki_Parse {
                     if (!preg_match($this->url, $options['attr']['link'])) {
                         return $matches[0];
                     }
-                } elseif (in_array('Wikilink', $this->wiki->disable)) {    //         return $matches[0]; // Wikilink disabled
+                } elseif (in_array('Wikilink', $this->wiki->disable)) {
+                    // return $matches[0]; // Wikilink disabled
                 }
             }
         }

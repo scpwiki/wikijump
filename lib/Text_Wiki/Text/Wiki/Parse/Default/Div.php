@@ -40,7 +40,14 @@ class Text_Wiki_Parse_Div extends Text_Wiki_Parse {
      * @var string
      *
      */
-    public $regex = '/(\n)?\[\[div(\s.*?)?\]\] *\n((?:(?R)|.)*?)\[\[\/div\]\] */msi';
+    public $regex = '/
+        (\n)?
+        \[\[div(\s.*?)?\]\]  # Declare div and its attributes
+        \s*\n                # Require newline before content
+        ((?:(?R)|.)*?)       # Content - nesting is ok
+        \[\[\/div\]\]        # Closing tag
+        \s*
+        /msix';
 
     /**
      *
@@ -84,8 +91,8 @@ class Text_Wiki_Parse_Div extends Text_Wiki_Parse {
 
     function parse() {
         $oldSource = $this->wiki->source;
-        $this->wiki->source = preg_replace_callback($this->regex, array(
-            &$this, 'process'), $this->wiki->source);
+        $this->wiki->source = preg_replace_callback(
+            $this->regex, array(&$this, 'process'), $this->wiki->source);
         if ($oldSource != $this->wiki->source) {
             $this->parse();
         }

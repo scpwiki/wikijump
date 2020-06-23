@@ -10,7 +10,20 @@ use DB\PagePeer;
 
 class PagePath extends WikiBase
 {
-    public $rule = ':^(\[\[\[[^|]]*(|[^]]*)?\]\]\][ /]*)*$:';
+    public $rule = '/
+        ^
+        (
+            \[\[\[     # Exactly 3 opening brackets
+            [^|]]*     # Not sure. Might be an error here. Escape is needed
+            (|[^]]*)?  # Nothing, or anything that is not a closing bracket?
+            \]\]\]     # Exactly 3 closing brackets
+            [\s\/]*
+        )*$
+        /x';
+    # I get the impression that this is supposed to be Text_Wiki extension
+    # for triple-bracket intra-wiki URLs, but that regex there is not correct.
+    # I suspect the real logic is defined elsewhere.
+    # We will have to investigate whether or not this function is even called.
     public function renderEdit()
     {
         $m = array();
@@ -22,7 +35,17 @@ class PagePath extends WikiBase
             $parts = explode(']]]', $v);
             foreach ($parts as $part) {
                 $m = array();
-                if (preg_match(':^[^[]*\[\[\[([^|]*)([|]|$):', $part, $m)) {
+                if (preg_match(
+                    '/
+                    ^        # Start of text
+                    [^[]*    # Anything that is not [
+                    \[\[\[   # Three opening brackets
+                    ([^|]*)  # Anything that is not | (i.e. link location)
+                    ([|]|$)  # Terminate at a | or end of text
+                    /x',
+                    $part,
+                    $m
+                )) {
                     $path[] = WDStringUtils::toUnixName($m[1]);
                 }
             }

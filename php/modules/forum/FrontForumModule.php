@@ -177,7 +177,19 @@ class FrontForumModule extends SmartyModule
         $template = $wt->processSource($format);
 
         $template = preg_replace(
-            '/<p\s*>\s*(%%((?:short)|(?:description)|(?:summary)|(?:content)|(?:long)|(?:body)|(?:text))%%)\s*<\/\s*p>/smi',
+            '/
+            <p\s*>\s*
+            (%%(
+                (?:short)
+                |(?:description)
+                |(?:summary)
+                |(?:content)
+                |(?:long)
+                |(?:body)
+                |(?:text)
+            )%%)
+            \s*<\/\s*p>
+            /smix',
             "<div>\\1</div>",
             $template
         );

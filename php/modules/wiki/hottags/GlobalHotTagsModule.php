@@ -122,7 +122,7 @@ class GlobalHotTagsModule extends SmartyModule
         // get colors
         if ($maxColor && $minColor) {
             if (!preg_match('/^[0-9]+,[0-9]+,[0-9]+$/', $maxColor)
-                    || !preg_match('/^[0-9]+,[0-9]+,[0-9]+$/', $minColor)) {
+                || !preg_match('/^[0-9]+,[0-9]+,[0-9]+$/', $minColor)) {
                 throw new ProcessException(_('Unsupported color format. ' .
                         'Use "RRR,GGG,BBB" for Red,Green,Blue each within 0-255 range.'));
             }

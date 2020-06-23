@@ -40,7 +40,19 @@ class Text_Wiki_Parse_Modulepre extends Text_Wiki_Parse {
      *
      */
 
-    public $regex = '/^\[\[module654\s([a-z0-9_\-\/]+)(\s+.*?)?\]\](?:(.*?)\[\[\/module\]\])?/ims';
+    public $regex = '/
+        ^                    # Require start of line
+        \[\[module654        # Start opening tag
+        \s
+        ([a-z0-9_\-\/]+)     # Module name, alphanumeric + some chars
+        (\s+.*?)?            # Optional module parameters
+        \]\]                 # End opening tag
+        \s*\n
+        (?:
+            (.*?)            # Content betweent tags - no nesting
+            \[\[\/module\]\] # Closing tag
+        )?                   # The content and end tag is optional
+        /ismx';
 
     /**
      *
@@ -60,6 +72,8 @@ class Text_Wiki_Parse_Modulepre extends Text_Wiki_Parse {
     function process(&$matches) {
 
         return preg_replace('/^\[\[module654/', '[[module', $matches[0]);
+        # Seems to just replace module 654 with standard.
+        # Backwards compatibility maybe?
 
     }
 }

@@ -67,17 +67,24 @@ function do_file($file)
 
 	global $ldq, $rdq, $cmd;
 
+    # Three cheers for variable names obfuscated to the point of illegibility
 	preg_match_all(
-			"/{$ldq}\s*({$cmd})\s*([^{$rdq}]*){$rdq}([^{$ldq}]*){$ldq}\/\\1{$rdq}/",
-			$content,
-			$matches
+        "/{$ldq}\s*({$cmd})\s*([^{$rdq}]*){$rdq}([^{$ldq}]*){$ldq}\/\\1{$rdq}/",
+        $content,
+        $matches
 	);
 
 	for ($i=0; $i < count($matches[0]); $i++) {
 		// TODO: add line number
 		echo "/* $file */\n"; // credit: Mike van Lammeren 2005-02-14
 
-		if (preg_match('/plural\s*=\s*["\']?\s*(.[^\"\']*)\s*["\']?/', $matches[2][$i], $match)) {
+        if (preg_match('/
+                plural\s*=\s*    # plural =
+                ["\']?\s*        # Optional quote
+                (.[^\"\']*)      # Match anything else
+                \s*["\']?        # Another optional quote
+                /x',
+            $matches[2][$i], $match)) {
 			echo 'ngettext("'.fs($matches[3][$i]).'","'.fs($match[1]).'",x);'."\n";
 		} else {
 			echo 'gettext("'.fs($matches[3][$i]).'");'."\n";

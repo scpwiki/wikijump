@@ -49,7 +49,7 @@ class Text_Wiki_Parse_Heading extends Text_Wiki_Parse {
     *
     */
 
-    public $regex = '/^(\+{1,6}) (.*)/m';
+    public $regex = '/^(\+{1,6})\s(.*)/m';
 
     public $conf = array(
         'id_prefix' => 'toc'

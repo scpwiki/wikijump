@@ -503,6 +503,7 @@ class MagpieRSS {
         }
         
         if (!$in_enc) {
+	    # Match an xml element with an encoding attribute
             if (preg_match('/<?xml.*encoding=[\'"](.*?)[\'"].*?>/m', $source, $m)) {
                 $in_enc = strtoupper($m[1]);
                 $this->source_encoding = $in_enc;

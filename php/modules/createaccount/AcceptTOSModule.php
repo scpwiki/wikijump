@@ -60,9 +60,8 @@ class AcceptTOSModule extends SmartyModule
         // get content
         $content = $page->getCompiled()->getText();
 
-        // remove toc ;-)
-        $content = preg_replace(';<table style=".*?id="toc".*?</table>;s', '', $content, 1);
-        $content = preg_replace(';<a ([^>]*)>;s', '<a \\1 target="_blank">', $content);
+        $content = preg_replace('/<table style=".*?id="toc".*?<\/table>/s', '', $content, 1);
+        $content = preg_replace('/<a ([^>]*)>/s', '<a \\1 target="_blank">', $content);
 
         $runData->contextAdd("tosContent", $content);
     }

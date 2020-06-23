@@ -41,7 +41,12 @@ class Text_Wiki_Parse_Comment extends Text_Wiki_Parse {
      *
      */
 
-    public $regex = '/(\n)?\[!\-\-(.*?)\-\-\]/si';
+    public $regex = '/
+        (\n)?    # Optional newline?
+        \[!\-\-  # [!--
+        (.*?)    # Any text - no nesting
+        \-\-\]   # --]
+        /six';
 
     /**
      *

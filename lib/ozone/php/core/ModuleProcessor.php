@@ -58,8 +58,16 @@ class ModuleProcessor {
 	    }
 		$this->level++;
 		// search content for some pattern and call the process...
-		$d = utf8_encode("\xFE");
-		$out = preg_replace_callback("/".$d."module \"([a-zA-Z0-9\/_]+?)\"([^".$d."]+?)?".$d."/", array(&$this, 'renderModule1'), $content);
+        $d = utf8_encode("\xFE");
+        $out = preg_replace_callback("/
+            ${d}
+            module                  # Module declaration
+            \s                      # Whitespace after module declaration
+            \"([a-zA-Z0-9\/_]+?)\"  # Module name, wrapped in quotes
+            ([^${d}]+?)?            # Match anything else up to end
+            ${d}                    # End of module
+            /x",
+        array(&$this, 'renderModule1'), $content);
 
 		// insert css files if necessary
 		if($this->cssInline && count($this->cssInclude) > 0){
@@ -68,7 +76,15 @@ class ModuleProcessor {
 				$cstring .= "@import url($cssin);\n";
 			}
 			// now find a place and insert $cstring!!!
-			$regexp = "/(<style(?:.*?)id=\"internal-style\">)(.*?)(<\/style>)/s";
+            $regexp = "/
+                (
+                    <style(?:.*?)           # Match a style tag
+                    id=\"internal-style\">  # Assert that it has this ID
+                )
+                (.*?)                       # Followed by anything else
+                (<\/style>)                 # Closing tag
+                /sx";
+            # Literally why would you do that this way
 			$replace = "\\1 \n $cstring \n \\2 \\3";
 			$out = preg_replace($regexp, $replace, $out, 1);
 		}

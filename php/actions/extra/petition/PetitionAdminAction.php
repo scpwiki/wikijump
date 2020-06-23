@@ -61,7 +61,7 @@ class PetitionAdminAction extends SmartyAction
         if ($id == "") {
             throw new ProcessException(_("You must provide an identifier for this campaign."), "form_error");
         }
-        if (!preg_match(';^[a-z0-9]+$;i', $id)) {
+        if (!preg_match('/^[a-z0-9]+$/i', $id)) {
             throw new ProcessException(_("The identifier can contain only letters and digits."), "form_error");
         }
         if (strlen8($name)>50) {

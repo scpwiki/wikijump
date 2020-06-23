@@ -114,9 +114,9 @@ class Text_Wiki_Parse_Typography extends Text_Wiki_Parse {
 
 
         $source = preg_replace('/
-			(?:([0-9])[ ]) # Number followed by space.
+			(?:([0-9])[ ])       # Number followed by space.
 			(' . $units . ')     # Unit.
-			(?![a-zA-Z0-9])  # Negative lookahead for other unit characters.
+			(?![a-zA-Z0-9])      # Negative lookahead for other unit characters.
 			/x', "\\1" . $this->wiki->addToken($this->rule, array('char' => ' ')) . "\\2", $source);
 
         $source = str_replace(array("...", ". . ."), $this->wiki->addToken($this->rule, array(

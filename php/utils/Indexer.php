@@ -64,7 +64,11 @@ class Indexer
 
         // kill modules
         $d = utf8_encode("\xFE");
-        $text = preg_replace("/".$d."module \"([a-zA-Z0-9\/_]+?)\"([^".$d."]+?)?".$d."/", "\n", $text);
+        $text = preg_replace("/
+            ${d}module\s            # Declare module
+            \"([a-zA-Z0-9\/_]+?)\"  # Module definition, wrapped in quotes
+            ([^$d]+?)?$d            # Anything else until end of module
+            /x", "\n", $text);
         $ie->setText($text);
         $title = db_escape_string(htmlspecialchars($page->getTitleOrUnixName()));
         $unixName =  db_escape_string(htmlspecialchars($page->getUnixName()));
@@ -123,7 +127,7 @@ class Indexer
 
         $db = Database::connection();
         $v = pg_version($db->getLink());
-        if (!preg_match(';^8\.3;', $v['server'])) {
+        if (!preg_match('/^8\.3/', $v['server'])) {
             $db->query("SELECT set_curcfg('default')");
         }
 
