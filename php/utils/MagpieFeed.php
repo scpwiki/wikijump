@@ -26,11 +26,11 @@
 
 
 
-define("MAGPIE_DIR", WIKIDOT_ROOT."/lib/magpierss/");
+define("MAGPIE_DIR", WIKIDOT_ROOT."/vendor/scpwiki/magpierss/");
 define("MAGPIE_CACHE_ON", false);
 define("MAGPIE_OUTPUT_ENCODING", "UTF-8");
 
-require(WIKIDOT_ROOT."/lib/magpierss/rss_fetch.inc");
+require(WIKIDOT_ROOT."/vendor/scpwiki/magpierss/rss_fetch.inc");
 
 class MagpieFeed
 {

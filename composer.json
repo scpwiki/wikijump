@@ -2,6 +2,8 @@
     "require": {
         "ezyang/htmlpurifier": "^4.12",
         "cerdic/css-tidy": "^1.7",
-        "bluesoul/text_highlighter": "^1.0.0"
+        "bluesoul/text_highlighter": "^1.0.0",
+        "scpwiki/services_json": "^1.0",
+        "scpwiki/magpierss": "^1.0"
     }
 }

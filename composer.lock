@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "56583016208e24338e90877be5ac05b8",
+    "content-hash": "16b6de7d4ec663885cf982aaf3735c8b",
     "packages": [
         {
             "name": "bluesoul/text_highlighter",
@@ -48,6 +48,10 @@
                 }
             ],
             "description": "Text_Highlighter with a fix for the [] operator fatal error in PHP >= 7.2. More info available on: http://pear.php.net/package/Text_Highlighter",
+            "support": {
+                "issues": "https://github.com/pxdnbluesoul/Text_Highlighter/issues",
+                "source": "https://github.com/pxdnbluesoul/Text_Highlighter"
+            },
             "time": "2020-06-15T15:54:00+00:00"
         },
         {
@@ -93,6 +97,10 @@
                 }
             ],
             "description": "CSSTidy is a CSS minifier",
+            "support": {
+                "issues": "https://github.com/Cerdic/CSSTidy/issues",
+                "source": "https://github.com/Cerdic/CSSTidy/tree/master"
+            },
             "time": "2019-09-14T17:59:23+00:00"
         },
         {
@@ -140,6 +148,10 @@
             "keywords": [
                 "html"
             ],
+            "support": {
+                "issues": "https://github.com/ezyang/htmlpurifier/issues",
+                "source": "https://github.com/ezyang/htmlpurifier/tree/master"
+            },
             "time": "2019-10-28T03:44:26+00:00"
         },
         {
@@ -187,6 +199,10 @@
                 }
             ],
             "description": "More info available on: http://pear.php.net/package/Console_Getopt",
+            "support": {
+                "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=Console_Getopt",
+                "source": "https://github.com/pear/Console_Getopt"
+            },
             "time": "2019-11-20T18:27:48+00:00"
         },
         {
@@ -231,6 +247,10 @@
                 }
             ],
             "description": "Minimal set of PEAR core files to be used as composer dependency",
+            "support": {
+                "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=PEAR",
+                "source": "https://github.com/pear/pear-core-minimal"
+            },
             "time": "2019-11-19T19:00:24+00:00"
         },
         {
@@ -286,7 +306,93 @@
             "keywords": [
                 "exception"
             ],
+            "support": {
+                "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=PEAR_Exception",
+                "source": "https://github.com/pear/PEAR_Exception"
+            },
             "time": "2019-12-10T10:24:42+00:00"
+        },
+        {
+            "name": "scpwiki/magpierss",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/scpwiki/magpierss.git",
+                "reference": "08fa4160364f095c92fd6dfed91e4267d0a1a822"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/scpwiki/magpierss/zipball/08fa4160364f095c92fd6dfed91e4267d0a1a822",
+                "reference": "08fa4160364f095c92fd6dfed91e4267d0a1a822",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "rss_cache.inc",
+                    "rss_fetch.inc",
+                    "rss_parse.inc",
+                    "rss_utils.inc",
+                    "extlib/Snoopy.class.inc"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "bluesoul",
+                    "email": "github@nags.me",
+                    "role": "maintainer"
+                }
+            ],
+            "description": "Legacy version of Wikidot's onboard magpierss v0.72.",
+            "support": {
+                "irc": "irc://irc.synirc.net/site11",
+                "issues": "https://scuttle.atlassian.net/browse/HELP",
+                "source": "https://github.com/scpwiki/magpierss"
+            },
+            "time": "2020-06-23T21:26:54+00:00"
+        },
+        {
+            "name": "scpwiki/services_json",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/scpwiki/Services_JSON.git",
+                "reference": "4138001eff629ae6a38c49d88fe9cd2cda9e5692"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/scpwiki/Services_JSON/zipball/4138001eff629ae6a38c49d88fe9cd2cda9e5692",
+                "reference": "4138001eff629ae6a38c49d88fe9cd2cda9e5692",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "JSON.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "bluesoul",
+                    "email": "github@nags.me",
+                    "role": "maintainer"
+                }
+            ],
+            "description": "Legacy version of PEAR/Services_JSON for Wikijump use.",
+            "support": {
+                "irc": "irc://irc.synirc.net/site11",
+                "issues": "https://scuttle.atlassian.net/browse/HELP",
+                "source": "https://github.com/scpwiki/Services_JSON"
+            },
+            "time": "2020-06-23T20:43:43+00:00"
         }
     ],
     "packages-dev": [],
@@ -297,5 +403,5 @@
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
-    "plugin-api-version": "1.1.0"
+    "plugin-api-version": "2.0.0"
 }
