@@ -60,13 +60,7 @@ class CodeblockExtractor
             $source = $page->getSource();
             /* Get code block. */
 
-            $regex = '/
-                ^
-                \[\[code(\s[^\]]*)?\]\]  # Opening tag with parameters
-                ((?:(?R)|.)*?)           # Contents, inlcuding code blocks
-                \[\[\/code\]\]           # Closing tag
-                (\s|$)
-                /msix';
+            $regex = ';^\[\[code(\s\V+)?\]\]((?>[^[]+|(?R)|.)+?)\[\[\/code\]\];ms';
 
             $allMatches = array();
             preg_match_all($regex, $source, $allMatches);

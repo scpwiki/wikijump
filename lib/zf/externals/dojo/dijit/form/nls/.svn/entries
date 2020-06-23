@@ -1,148 +1,0 @@
-8
-
-dir
-16215
-http://svn.dojotoolkit.org/src/branches/1.2/dijit/form/nls
-http://svn.dojotoolkit.org/src
-
-
-
-2008-10-28T18:50:06.416882Z
-15543
-peller
-
-
-svn:special svn:externals svn:needs-lock
-
-
-
-
-
-
-
-
-
-
-
-560b804f-0ae3-0310-86f3-f6aa0a117693
-
-zh
-dir
-
-ComboBox.js
-file
-
-
-
-
-2008-12-06T16:41:12.000000Z
-027dca9ab723cc6a3c3523eb5ddb3a2a
-2007-08-02T18:52:00.317634Z
-9927
-doughays
-has-props
-
-ca
-dir
-
-pt
-dir
-
-da
-dir
-
-tr
-dir
-
-ru
-dir
-
-Textarea.js
-file
-
-
-
-
-2008-12-06T16:41:12.000000Z
-31ac04acf84c6d5e3d1e3bda030c86ab
-2008-04-21T06:35:33.411330Z
-13360
-bill
-has-props
-
-de
-dir
-
-sv
-dir
-
-ja
-dir
-
-he
-dir
-
-fi
-dir
-
-nb
-dir
-
-el
-dir
-
-ar
-dir
-
-pt-pt
-dir
-
-validate.js
-file
-
-
-
-
-2008-12-06T16:41:12.000000Z
-84d55f83da72d917dd10c44c14ee09cc
-2008-02-10T14:54:35.333453Z
-12343
-doughays
-has-props
-
-cs
-dir
-
-fr
-dir
-
-es
-dir
-
-ko
-dir
-
-nl
-dir
-
-zh-tw
-dir
-
-pl
-dir
-
-th
-dir
-
-it
-dir
-
-hu
-dir
-
-sk
-dir
-
-sl
-dir
-

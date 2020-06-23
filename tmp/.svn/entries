@@ -1,46 +1,0 @@
-8
-
-dir
-393
-http://svn.wikidot.org/repos/wikidot1/trunk/tmp
-http://svn.wikidot.org/repos
-
-
-
-2008-12-05T02:28:19.772836Z
-294
-quake
-has-props
-
-svn:special svn:externals svn:needs-lock
-
-
-
-
-
-
-
-
-
-
-
-fb797968-1a05-43ef-ab23-0011a79c62e5
-
-smarty_templates_c
-dir
-
-smarty_cache
-dir
-
-math
-dir
-
-htmlpurifier
-dir
-
-sitebackups
-dir
-
-smarty_macro_templates
-dir
-
