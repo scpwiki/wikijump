@@ -24,8 +24,6 @@
  */
 
 
-require_once PathManager::externalLibFile('JSON/JSON.php');
-
 /**
  * Wrapper class for the JSON service.
  *
