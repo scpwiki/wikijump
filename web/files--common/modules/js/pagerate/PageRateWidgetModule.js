@@ -14,7 +14,7 @@ WIKIDOT.modules.PageRateWidgetModule.vars={};
 
 WIKIDOT.modules.PageRateWidgetModule.listeners = {
 	rate: function(e, points, force){
-		if(points != 1 && points != -1){ return;}
+		if(points > 5 || points < -1){ return;}
 		
 		var p = new Object();
 		p.action = "RateAction";
@@ -54,47 +54,80 @@ WIKIDOT.modules.PageRateWidgetModule.callbacks = {
 		if(!WIKIDOT.utils.handleError(r)) {return;}
 		OZONE.dialog.cleanAll();
 		var el = $("prw54353");
-		if(el){
-			var nu = el.innerHTML;
-			nu = nu.replace(/\+/,'');
-			nu = nu*1  + 1*r.points;
-			if(nu>0){
-				nu = '+'+nu;
+		if(r.type != "S") {
+			if (el) {
+				var nu = el.innerHTML;
+				nu = nu.replace(/\+/, '');
+				nu = nu * 1 + 1 * r.points;
+				if (nu > 0) {
+					nu = '+' + nu;
+				}
 			}
-			
+		}
+		else {
+			var nu = parseFloat(el.innerHTML);
+			var pts = parseFloat(r.points);
+			var votes = parseFloat(r.votes);
+			if(pts < 0) { // Changed vote downward or removed entirely, we can't see which from here.
+				nu = (((votes + 1) * nu) + pts) / (votes);
+			}
+			else {
+				nu = ((votes * nu) + pts) / (votes + 1);
+			}
+
+		}
 			var eff = new fx.Opacity(el, {duration: 200});
 			eff.setOpacity(0);
 			el.innerHTML = nu;
 			eff.custom(0,1);
-		}
 		var el = $("prw54354");
-		if(el){
-			var nu = el.innerHTML;
-			nu = nu.replace(/\+/,'');
-			nu = nu*1  +  1*r.points;
-			if(nu>0){
-				nu = '+'+nu;
+		if(r.type != "S") {
+			if (el) {
+				var nu = el.innerHTML;
+				nu = nu.replace(/\+/, '');
+				nu = nu * 1 + 1 * r.points;
+				if (nu > 0) {
+					nu = '+' + nu;
+				}
 			}
+		}
+		else {
+			if(el) {
+				var nu = el.innerHTML;
+				var pts = r.points;
+				var votes = r.votes;
+				nu = ((votes * nu) + pts) / (votes + 1);
+			}
+		}
 			
 			var eff = new fx.Opacity(el, {duration: 200});
 			eff.setOpacity(0);
 			el.innerHTML = nu;
 			eff.custom(0,1);
-		}
+
 		var el = $("prw54355");
-		if(el){
-			var nu = el.innerHTML;
-			nu = nu.replace(/\+/,'');
-			nu = nu*1  +  1*r.points;
-			if(nu>0){
-				nu = '+'+nu;
+		if(r.type != "S") {
+			if (el) {
+				var nu = el.innerHTML;
+				nu = nu.replace(/\+/, '');
+				nu = nu * 1 + 1 * r.points;
+				if (nu > 0) {
+					nu = '+' + nu;
+				}
 			}
-			
+		}
+		else {
+			if(el) {
+				var nu = el.innerHTML;
+				var pts = r.points;
+				nu = nu.replace(/\+/, '');
+				nu = reduce((nu, pts) => (nu + pts)) / 2;
+			}
+		}
 			var eff = new fx.Opacity(el, {duration: 200});
 			eff.setOpacity(0);
 			el.innerHTML = nu;
 			eff.custom(0,1);
-		}
 	
 	}	
 }

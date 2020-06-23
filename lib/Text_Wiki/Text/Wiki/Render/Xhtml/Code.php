@@ -1,6 +1,4 @@
 <?php
-require_once(WIKIDOT_ROOT."/lib/Text_Highlighter/Text/Highlighter.php");
-ini_set('include_path',ini_get('include_path').':'.WIKIDOT_ROOT.'/lib/Text_Highlighter/');
 
 /**
  * Code rule end renderer for Xhtml

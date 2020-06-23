@@ -48,13 +48,13 @@ class AccountEmailListsFromSiteModule extends AccountBaseModule
                     "ORDER BY email_list.title";
             $c->setExplicitQuery($q);
 
-            $lists = DB_EmailListPeer::instance()->select($c);
+            $lists = EmailListPeer::instance()->select($c);
             // check if subscribed
             foreach ($lists as $list) {
                 $c2 = new Criteria();
                 $c2->add('user_id', $user->getUserId());
                 $c2->add('list_id', $list->getListId());
-                $sub = DB_EmailListSubscriberPeer::instance()->selectOne($c2);
+                $sub = EmailListSubscriberPeer::instance()->selectOne($c2);
                 if ($sub) {
                     $list->setTemp('subscribed', true);
                 }
@@ -66,7 +66,7 @@ class AccountEmailListsFromSiteModule extends AccountBaseModule
                 "ORDER BY email_list.title";
             $c->setExplicitQuery($q);
 
-            $lists = DB_EmailListPeer::instance()->select($c);
+            $lists = EmailListPeer::instance()->select($c);
             foreach ($lists as $list) {
                 $list->setTemp('subscribed', true);
             }

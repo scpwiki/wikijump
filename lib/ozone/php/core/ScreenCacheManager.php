@@ -28,6 +28,10 @@
  * Simple db-based screen cache manager.
  *
  */
+
+use DB\ScreenCache;
+use DB\ScreenCachePeer;
+
 class ScreenCacheManager {
 
 	public static $manager;
@@ -52,7 +56,7 @@ class ScreenCacheManager {
 		$date->subtractSeconds($timeout);
 		$c->add("date_updated", $date, ">");
 
-		$sc = DB_ScreenCachePeer::instance()->selectOne($c);
+		$sc = ScreenCachePeer::instance()->selectOne($c);
 		if($sc != null){
 			return $sc->getContent();
 		}
@@ -72,7 +76,7 @@ class ScreenCacheManager {
 		$date->subtractSeconds($timeout);
 		$c->add("date_updated", $date, ">");
 
-		$sc = DB_ScreenCachePeer::instance()->selectOne($c);
+		$sc = ScreenCachePeer::instance()->selectOne($c);
 		if($sc != null){
 			return $sc->getContent();
 		}
@@ -83,7 +87,7 @@ class ScreenCacheManager {
 		// delete any previous cache content for this request
 		$this->deleteCachedLayout($runData);
 
-		$sc = new DB_ScreenCache();
+		$sc = new ScreenCache();
 		$sc->setTemplate($runData->getScreenTemplate());
 		$sc->setDateUpdated(new ODate());
 		$sc->setType("layout");
@@ -99,7 +103,7 @@ class ScreenCacheManager {
 		// delete any previous cache content for this request
 		$this->deleteCachedScreen($runData);
 
-		$sc = new DB_ScreenCache();
+		$sc = new ScreenCache();
 		$sc->setTemplate($runData->getScreenTemplate());
 		$sc->setDateUpdated(new ODate());
 		$sc->setType("screen");
@@ -119,7 +123,7 @@ class ScreenCacheManager {
 		$c->add("type", "layout");
 		$c->add("user_authenticated", $runData->isUserAuthenticated());
 
-		DB_ScreenCachePeer::instance()->delete($c);
+		ScreenCachePeer::instance()->delete($c);
 	}
 
 	public function deleteCachedScreen($runData){
@@ -129,7 +133,7 @@ class ScreenCacheManager {
 		$c->add("type", "screen");
 		$c->add("user_authenticated", $runData->isUserAuthenticated());
 
-		DB_ScreenCachePeer::instance()->delete($c);
+		ScreenCachePeer::instance()->delete($c);
 	}
 
 	public function clearCache($template=null){

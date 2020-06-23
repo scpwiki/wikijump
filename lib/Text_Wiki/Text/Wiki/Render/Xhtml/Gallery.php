@@ -18,6 +18,9 @@
  * @version    Release: @package_version@
  * @link       http://pear.php.net/package/Text_Wiki
  */
+
+use DB\FilePeer;
+
 class Text_Wiki_Render_Xhtml_Gallery extends Text_Wiki_Render {
 
      public $conf = array(
@@ -201,7 +204,7 @@ class Text_Wiki_Render_Xhtml_Gallery extends Text_Wiki_Render {
     		$c->add("page_id", $page->getPageId());
     		$c->add("mimetype", "^image", "~*");
     		$c->add("has_resized", true);
-    		$files = DB_FilePeer::instance()->select($c);
+    		$files = FilePeer::instance()->select($c);
 
     		if(count($files) == 0){
     			return '<div class="error-block">Sorry, no images found attached ' .
