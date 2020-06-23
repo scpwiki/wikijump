@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b25a4a43e1cab203b36943f544bc5ecc",
+    "content-hash": "10f5005e4bfdbb215b8f70d5460a1f74",
     "packages": [
         {
             "name": "bluesoul/text_highlighter",
@@ -514,6 +514,45 @@
                 "source": "https://github.com/scpwiki/Services_JSON"
             },
             "time": "2020-06-23T20:43:43+00:00"
+        },
+        {
+            "name": "scpwiki/text_wiki",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/scpwiki/text_wiki.git",
+                "reference": "c10e8b2e19f60697d5fa29530d6d02db46dbccba"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/scpwiki/text_wiki/zipball/c10e8b2e19f60697d5fa29530d6d02db46dbccba",
+                "reference": "c10e8b2e19f60697d5fa29530d6d02db46dbccba",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "Text/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "bluesoul",
+                    "email": "github@nags.me",
+                    "role": "maintainer"
+                }
+            ],
+            "description": "The Text_Wiki library used for Wikidot and Wikijump.",
+            "support": {
+                "irc": "irc://irc.synirc.net/site11",
+                "issues": "https://scuttle.atlassian.net/browse/HELP",
+                "source": "https://github.com/scpwiki/text_wiki"
+            },
+            "time": "2020-06-23T22:37:27+00:00"
         },
         {
             "name": "smarty/smarty",

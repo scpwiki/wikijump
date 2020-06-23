@@ -30,10 +30,6 @@ use DB\ForumThreadPeer;
 use DB\PageTagPeer;
 use Text_Antiwiki;
 
-require_once(WIKIDOT_ROOT."/lib/Text_Wiki/Text/Wiki.php");
-// just for text_wiki extend the include_path
-ini_set('include_path', ini_get('include_path').':'.WIKIDOT_ROOT.'/lib/Text_Wiki/');
-//for SmartyPants
 
 class WikiTransformation
 {
