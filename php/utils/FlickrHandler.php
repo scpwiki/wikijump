@@ -32,7 +32,6 @@
  * This program is free software available under the
  * GNU AFFERO GENERAL PUBLIC LICENSE version 3.
  */
-require(WIKIDOT_ROOT."/lib/phpFlickr/phpFlickr.php");
 
 class FlickrHandler extends phpFlickr
 {

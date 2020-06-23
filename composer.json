@@ -5,6 +5,7 @@
         "bluesoul/text_highlighter": "^1.0.0",
         "scpwiki/services_json": "^1.0",
         "scpwiki/magpierss": "^1.0",
-        "scpwiki/ozoneframework": "^1.0"
+        "scpwiki/ozoneframework": "^1.0",
+        "scpwiki/phpflickr": "^1.0"
     }
 }
