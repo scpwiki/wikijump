@@ -36,12 +36,10 @@ if (!defined('WIKIDOT_SETUP_COMPLETED')) {
     // determine WIKIDOT_ROOT directory
     if (!defined('WIKIDOT_ROOT')) {
         define('WIKIDOT_ROOT', dirname(dirname(__FILE__)));
-        define('OZONE_ROOT', WIKIDOT_ROOT.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'ozone');
+        define('OZONE_ROOT', WIKIDOT_ROOT.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'scpwiki'.DIRECTORY_SEPARATOR.'ozone');
     }
 
     require_once(WIKIDOT_ROOT.DIRECTORY_SEPARATOR."php/utils/GlobalProperties.php");
-    require_once(WIKIDOT_ROOT.DIRECTORY_SEPARATOR."lib/ozone/php/core/functions.php");
-    require_once(WIKIDOT_ROOT.DIRECTORY_SEPARATOR."lib/ozone/php/core/autoload.inc.php");
     require_once (WIKIDOT_ROOT.DIRECTORY_SEPARATOR."vendor/autoload.php");
 
     if (! GlobalProperties::$WIKI_FARM) {

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "16b6de7d4ec663885cf982aaf3735c8b",
+    "content-hash": "e7d9509d63bbaad47006503a4741661d",
     "packages": [
         {
             "name": "bluesoul/text_highlighter",
@@ -354,6 +354,45 @@
                 "source": "https://github.com/scpwiki/magpierss"
             },
             "time": "2020-06-23T21:26:54+00:00"
+        },
+        {
+            "name": "scpwiki/ozoneframework",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/scpwiki/ozoneframework.git",
+                "reference": "6fdedcb8a178b8bb8268fcd39f297e2d9086dbd8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/scpwiki/ozoneframework/zipball/6fdedcb8a178b8bb8268fcd39f297e2d9086dbd8",
+                "reference": "6fdedcb8a178b8bb8268fcd39f297e2d9086dbd8",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "php/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "bluesoul",
+                    "email": "github@nags.me",
+                    "role": "maintainer"
+                }
+            ],
+            "description": "Legacy and future builds of the Ozone framework, originally packaged for wikidot.org.",
+            "support": {
+                "irc": "irc://irc.synirc.net/site11",
+                "issues": "https://scuttle.atlassian.net/browse/HELP",
+                "source": "https://github.com/scpwiki/Services_JSON"
+            },
+            "time": "2020-06-23T21:45:51+00:00"
         },
         {
             "name": "scpwiki/services_json",
