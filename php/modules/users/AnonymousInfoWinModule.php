@@ -32,6 +32,7 @@ class AnonymousInfoWinModule extends SmartyModule
         $userString = $runData->getParameterList()->getParameterValue("userString");
 
         // check if matches.
+        # Possibly validates some internal user ID
         if (preg_match("/^((?:[0-9]{1,3}\.){3}[0-9]{0,3})(?:\|((?:[0-9]{1,3}\.){3}[0-9]{0,3}))?$/", $userString) == 0) {
             throw new ProcessException("Bad data");
         }

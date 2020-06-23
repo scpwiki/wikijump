@@ -250,7 +250,7 @@ class ListPagesModule extends SmartyModule
 
         if ($tagString) {
             /* Split tags. */
-            $tags = preg_split(';[\s,\;]+;', $tagString);
+            $tags = preg_split('/[\s,\;]+/', $tagString);
 
             $tagsAny = array();
             $tagsAll = array();
@@ -336,10 +336,10 @@ class ListPagesModule extends SmartyModule
         $date = $this->_readParameter("date", true);
 
         $dateA = array();
-        if (preg_match(';^[0-9]{4}$;', $date)) {
+        if (preg_match('/^[0-9]{4}$/', $date)) {
             $dateA['year'] = $date;
         }
-        if (preg_match(';^[0-9]{4}\.[0-9]{1,2}$;', $date)) {
+        if (preg_match('/^[0-9]{4}\.[0-9]{1,2}$/', $date)) {
             $dateS = explode('.', $date);
             $dateA['year'] = $dateS[0];
             $dateA['month'] = $dateS[1];
@@ -356,7 +356,7 @@ class ListPagesModule extends SmartyModule
         /* Handle date "last X day(s)/week(s)/month(s)" */
 
         $m = array();
-        if (preg_match(';^last (?:([1-9][0-9]*) )?(day|week|month)s?$;', $date, $m)) {
+        if (preg_match('/^last (?:([1-9][0-9]*) )?(day|week|month)s?$/', $date, $m)) {
             $dateObj = new ODate();
             $n = $m[1];
             if (!$n) {
@@ -370,18 +370,18 @@ class ListPagesModule extends SmartyModule
 
         /* Handle pagination. */
 
-        if (!$perPage || !preg_match(';^[0-9]+$;', $perPage)) {
+        if (!$perPage || !preg_match('/^[0-9]+$/', $perPage)) {
             $perPage = 20;
         }
 
-        if ($limit && preg_match(';^[0-9]+$;', $limit)) {
+        if ($limit && preg_match('/^[0-9]+$/', $limit)) {
             $c->setLimit($limit); // this limit has no effect on count(*) !!!
         } else {
             $limit = null;
         }
 
         $pageNo = $pl->getParameterValue(($this->_parameterUrlPrefix ? ($this->_parameterUrlPrefix . '_') : '' ) . "p");
-        if ($pageNo == null || !preg_match(';^[0-9]+$;', $pageNo)) {
+        if ($pageNo == null || !preg_match('/^[0-9]+$/', $pageNo)) {
             $pageNo = 1;
         }
 
@@ -564,7 +564,7 @@ class ListPagesModule extends SmartyModule
             /* Split the content first. */
             $this->_tmpSplitSource = preg_split('/^([=]{4,})$/m', $source);
             $this->_tmpSource = $source;
-            $b = preg_replace_callback(';%%content{([0-9]+)}%%;', array(
+            $b = preg_replace_callback('/%%content{([0-9]+)}%%/', array(
                 $this,
                 '_handleContentSubstitution'), $b);
 
@@ -643,7 +643,7 @@ class ListPagesModule extends SmartyModule
 
         /* Fix dates. */
         //$dateString = '<span class="odate">'.$thread->getDateStarted()->getTimestamp().'|%e %b %Y, %H:%M %Z|agohover</span>';
-        $itemsContent = preg_replace_callback(';%%date\|([0-9]+)(\|.*?)?%%;', array(
+        $itemsContent = preg_replace_callback('/%%date\|([0-9]+)(\|.*?)?%%/', array(
             $this, '_formatDate'), $itemsContent);
 
         $runData->contextAdd("items", $items);
@@ -741,7 +741,7 @@ class ListPagesModule extends SmartyModule
             $s = trim(preg_replace('/^\[\[\/?module(\s[^\]]+)?\]\]/', "\n\n", $s));
             /* 1. Try the first paragraph. */
             $m1 = array();
-            $split = preg_split(";\n{2,};", $s);
+            $split = preg_split("/\n{2,}/", $s);
             //var_dump($split);
             return trim($split[0]);
         }
@@ -758,7 +758,7 @@ class ListPagesModule extends SmartyModule
         $s = trim(preg_replace('/^\[\[\/?module(\s[^\]]+)?\]\]/', "\n\n", $s));
         /* 1. Try the first paragraph. */
         $m1 = array();
-        $split = preg_split(";\n{2,};", $s);
+        $split = preg_split("/\n{2,}/", $s);
         //var_dump($split);
         return trim($split[0]);
     }

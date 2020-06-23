@@ -160,7 +160,7 @@ class PageEditModule extends SmartyModule
 
             if ($templatePage && $form = Form::fromSource($templatePage->getSource())) {
                 $runData->contextAdd("form", new Renderer($form));
-            } elseif (!$templatePage || !preg_match(';^={4,}$;sm', $templatePage->getSource())) {
+            } elseif (!$templatePage || !preg_match('/^={4,}$/sm', $templatePage->getSource())) {
                 $templatesCategory = CategoryPeer::instance()->selectByName("template", $site->getSiteId());
 
                 if ($templatesCategory != null) {
@@ -183,10 +183,10 @@ class PageEditModule extends SmartyModule
             } else {
                 /* Has default template, try to populate the edit box with initial content. */
                 $templateSource = $templatePage->getSource();
-                $split = preg_split(';^={4,}$;sm', $templateSource);
+                $split = preg_split('/^={4,}$/sm', $templateSource);
                 if (count($split) >= 2) {
                     /* Fine, there is some initial content. */
-                    $templateSource = trim(preg_replace(";^.*?\n={4,};s", '', $templateSource));
+                    $templateSource = trim(preg_replace("/^.*?\n={4,}/s", '', $templateSource));
                 } else {
                     $templateSource = '';
                 }

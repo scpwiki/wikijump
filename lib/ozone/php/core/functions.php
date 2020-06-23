@@ -46,14 +46,8 @@ function ls($__dir = "./", $__pattern = "*.*") {
     if (is_dir($__dir))
         if (($__dir_h = @opendir($__dir)) !== FALSE) {
             while (($__file = readdir($__dir_h)) !== FALSE)
-                if (preg_match(
-                        "/^" .
-                                 $__regexp .
-                                 "$/",
-                                $__file))
-                            array_push(
-                                    $__ls,
-                                    $__file);
+                if (preg_match("/^$__regexp$/", $__file))
+                    array_push($__ls, $__file);
 
             closedir($__dir_h);
             sort($__ls, SORT_STRING);
@@ -70,12 +64,8 @@ function lsreg($__dir = "./", $__pattern = ".*") {
     if (is_dir($__dir))
         if (($__dir_h = @opendir($__dir)) !== FALSE) {
             while (($__file = readdir($__dir_h)) !== FALSE)
-                if (preg_match(
-                        $__pattern,
-                        $__file))
-                    array_push(
-                            $__ls,
-                            $__file);
+                if (preg_match($__pattern, $__file))
+                    array_push($__ls, $__file);
 
             closedir($__dir_h);
             sort($__ls, SORT_STRING);
@@ -260,7 +250,7 @@ function ozone_error_handler($code, $message, $file, $line) {
 
 function preg_quote_replacement($string) {
     $out = str_replace('\\', '\\\\', $string);
-    $out = preg_replace(';\$([0-9]);', '\\\\$$1', $out);
+    $out = preg_replace('/\$([0-9])/', '\\\\$$1', $out);
     return $out;
 }
 
@@ -290,20 +280,11 @@ function glue_path() {
     $c = func_get_args();
     $first = true;
     foreach ($c as & $co) {
-        $co = preg_replace(
-                ';[' . preg_quote(
-                        DIRECTORY_SEPARATOR) .
-                         '/]$;',
-                        '',
-                        $co);
+        # Must be at end of string
+        $co = preg_replace(';[' . preg_quote(DIRECTORY_SEPARATOR) . '/]$;', '', $co);
         if (!$first) {
-            $co = preg_replace(
-                    ';^[' .
-                             preg_quote(
-                                    DIRECTORY_SEPARATOR) .
-                             '/];',
-                            '',
-                            $co);
+            # Must be at start of string
+            $co = preg_replace(';^[' . preg_quote( DIRECTORY_SEPARATOR) . '/];', '', $co);
         } else {
             $first = false;
         }

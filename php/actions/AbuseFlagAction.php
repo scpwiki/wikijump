@@ -202,6 +202,7 @@ class AbuseFlagAction extends SmartyAction
             foreach ($ips as $ip) {
                 $i++;
                 if (false && preg_match("/^(10\..*)|(172\.16\..*)|(192\.168\..*)|(127\..*)|(169\.254\..*)/", $ip) !=0) {
+                    # Another file had a process exception thrown here for local ip
                     continue;
                 }
                 // flag the IP

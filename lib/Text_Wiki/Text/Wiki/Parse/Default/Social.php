@@ -40,7 +40,11 @@ class Text_Wiki_Parse_Social extends Text_Wiki_Parse {
     *
     */
 
-    public $regex = '/\[\[social(\s+[^\]]+?)?(?:\]\])/is';
+    public $regex = '/
+        \[\[social
+        (\s+[^\]]+?)?  # Parameters
+        \]\]
+        /isx';
 
     function process(&$matches)
     {

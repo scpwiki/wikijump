@@ -39,7 +39,11 @@ class Text_Wiki_Parse_Size extends Text_Wiki_Parse {
     *
     */
 
-	public $regex = '/\[\[size\s([^\]]+)\]\]((?:(?R)|.)*?)\[\[\/size\]\]/msi';
+    public $regex = '/
+        \[\[size\s([^\]]+)\]\]  # Opening tag including parameters
+        ((?:(?R)|.)*?)          # Any content in between including other sizes
+        \[\[\/size\]\]          # Closing tag
+        /msix';
     /**
     *
     * Generates a token entry for the matched text.  Token options are:
@@ -63,16 +67,16 @@ class Text_Wiki_Parse_Size extends Text_Wiki_Parse {
     		$size = trim($matches[1]);
 
     		$allowedSizes = array(
-    			'/^[0-9\.]{1,5}(em|px|%)$/',
-    			'/^xx\-small$/',
-			'/^x\-small$/',
-			'/^small$/',
-			'/^medium$/',
-			'/^large$/',
-			'/^x\-large$/',
-			'/^xx\-large$/',
-			'/^smaller$/',
-			'/^larger$/'
+                '/^[0-9\.]{1,5}(em|px|%)$/',
+                '/^xx\-small$/',
+                '/^x\-small$/',
+                '/^small$/',
+                '/^medium$/',
+                '/^large$/',
+                '/^x\-large$/',
+                '/^xx\-large$/',
+                '/^smaller$/',
+                '/^larger$/'
     		);
 
     		$good = false;

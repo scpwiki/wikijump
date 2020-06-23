@@ -89,7 +89,7 @@ class WikiTransformation
     {
 
         $wiki = $this->wiki;
-        if (preg_match(';_template$;', $wiki->vars['pageName'])) {
+        if (preg_match('/_template$/', $wiki->vars['pageName'])) {
             $wiki->disablerule('separator');
         }
         $out = $wiki->transform($source, $this->transformationFormat);

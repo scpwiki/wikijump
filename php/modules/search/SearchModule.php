@@ -83,7 +83,7 @@ class SearchModule extends SmartyModule
 
         $v = pg_version($db->getLink());
         $tsprefix = '';
-        if (!preg_match(';^8\.3;', $v['server'])) {
+        if (!preg_match('/^8\.3/', $v['server'])) {
             $db->query("SELECT set_curcfg('default')");
         } else {
             $tsprefix = 'ts_'; // because in postgresql 8.3 functions are ts_rank and ts_header

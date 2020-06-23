@@ -31,7 +31,19 @@ class MailFormUtils
 
     public static function parseFormat($format)
     {
-        preg_match_all("/^#\s+([a-z0-9_\-]+)\s*:?((?:\n(?:\s+\*.*))+)/mi", $format, $matches, PREG_SET_ORDER);
+        preg_match_all(
+            "/
+            ^#\s+                # Start of line, hash, at least one whitespace
+            ([a-z0-9_\-]+)       # At least alphanumeric_- char
+            \s*:?                # Optional whitespace and colon
+            ((?:
+                \n(?:\s+\*.*)    # Newline, whitespace, asterisk, then anything
+            )+)
+            /mix",
+            $format,
+            $matches,
+            PREG_SET_ORDER
+        );
 
         $fields = array();
         foreach ($matches as $f) {
@@ -41,7 +53,12 @@ class MailFormUtils
             $parameters = $f[2];
 
             // ok, should the parameters be parsed? at least some. or all.
-            preg_match_all("/^ \*\s*([a-z0-9\-_]+)\s*:\s*(.*)$/mi", $parameters, $m2, PREG_SET_ORDER);
+            preg_match_all("/
+                ^\s\*\s*
+                ([a-z0-9\-_]+)
+                \s*:\s*(.*)
+                $
+                /mix", $parameters, $m2, PREG_SET_ORDER);
             foreach ($m2 as $parameter) {
                 $field[$parameter[1]] = $parameter[2];
             }

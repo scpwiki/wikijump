@@ -41,7 +41,19 @@ class Text_Wiki_Parse_Module extends Text_Wiki_Parse {
      *
      */
 
-    public $regex = "/^\[\[module\s([a-z0-9_\-\/]+)(\s+.*?)?\]\] *\n(?:(.*?)\[\[\/module\]\])?/ism";
+    public $regex = "/
+        ^                    # Require start of line
+        \[\[module           # Start opening tag
+        \s
+        ([a-z0-9_\-\/]+)     # Module name, alphanumeric + some chars
+        (\s+.*?)?            # Optional module parameters
+        \]\]                 # End opening tag
+        \s*\n
+        (?:
+            (.*?)            # Content betweent tags - no nesting
+            \[\[\/module\]\] # Closing tag
+        )?                   # The content and end tag is optional
+        /ismx";
 
     /**
      *
@@ -74,7 +86,14 @@ class Text_Wiki_Parse_Module extends Text_Wiki_Parse {
         // check if not containing another module!!!
         $con = $matches[0];
 
-        if (preg_match_all('/^\[\[module\s([a-z0-9_\-\/]+)(\s+.*?)?\]\]/smi', $con,$dummy) > 1) {
+        if (preg_match_all('/
+            ^                    # Require start of line
+            \[\[module           # Start opening tag
+            \s
+            ([a-z0-9_\-\/]+)     # Module name, alphanumeric + some chars
+            (\s+.*?)?            # Optional module parameters
+            \]\]                 # End opening tag
+            /smix', $con, $dummy) > 1) {
             return preg_replace('/^\[\[module/', '[[module654', $con);
         }
 

@@ -74,8 +74,7 @@ class Text_Wiki_Parse_Postfilter extends Text_Wiki_Parse {
         // down to two newlines.
         $find = "/(\n[ ]+){3,}/m";
         $replace = "\n\n";
-        $this->wiki->source = preg_replace($find, $replace,
-            $this->wiki->source);
+        $this->wiki->source = preg_replace($find, $replace, $this->wiki->source);
 
         $d = utf8_encode("\xFC");
         $this->wiki->source = str_replace("$d$d", '', $this->wiki->source);

@@ -43,60 +43,23 @@
 
 class Text_Wiki_Parse_Freelink extends Text_Wiki_Parse {
 
-    /**
-    *
-    * Constructor.  We override the Text_Wiki_Parse constructor so we can
-    * explicitly comment each part of the $regex property.
-    *
-    * @access public
-    *
-    * @param object &$obj The calling "parent" Text_Wiki object.
-    *
-    */
-
-    function Text_Wiki_Parse_Freelink(&$obj)
-    {
-
-        parent::Text_Wiki_Parse($obj);
-
-//        $this->regex =
-//            '/' .                                                   // START regex
-//            "\\[\\[\\[" .                                               // double open-parens
-//            "(" .                                                   // START freelink page patter
-//            "[^\\]\\|\\[\#]+" . // 1 or more of just about any character
-//            ")" .                                                   // END  freelink page pattern
-//            "(" .                                                   // START display-name
-//            "\|" .                                                   // a pipe to start the display name
-//            "[^\\]\\|\\[\#]*" . // 1 or more of just about any character
-//            ")?" .                                                   // END display-name pattern 0 or 1
-//            "(" .                                                   // START pattern for named anchors
-//            "\#" .                                                   // a hash mark
-//            "[A-Za-z]" .                                           // 1 alpha
-//            "[-A-Za-z0-9_:.]*" .                                   // 0 or more alpha, digit, underscore
-//            ")?" .                                                   // END named anchors pattern 0 or 1
-//            "()\\]\\]\\]" .                                           // double close-parens
-//            '/';                                                   // END regex
-
-		   $this->regex =
-            '/' .                                                   // START regex
-            "\\[\\[\\[" .                                               // double open-parens
-            "(" .                                                   // START freelink page patter
-            "[^\\]\\|\\[\#]+" . // 1 or more of just about any character
-            ")" .
-            "\s*" .                                                   // END  freelink page pattern
-            "(" .                                                   // START pattern for named anchors
-            "\#" .                                                   // a hash mark
-            "[A-Za-z]" .                                           // 1 alpha
-            "[-A-Za-z0-9_:.]*" .                                   // 0 or more alpha, digit, underscore
-            ")?" .
-            "\s*" .                                                   // END named anchors pattern 0 or 1
-            "(" .                                                   // START display-name
-            "\|" .                                                   // a pipe to start the display name
-            "[^\\]\\|\\[\#]*" . // 1 or more of just about any character
-            ")?" .                                                   // END display-name pattern 0 or 1
-                       "()\\]\\]\\]" .                                           // double close-parens
-            '/';                                                   // END regex
-    }
+    public $regex = "/
+            \[\[\[                 # Opening brackets
+            ([^\[\]\|\#]+)         # Target page name
+            \s*
+            (                      # Match a URL fragment after the page name
+                \#
+                [A-Za-z]           # Require that first letter is alphanumeric
+                [-A-Za-z0-9_:.]*
+            )?                     # URL fragment is optional
+            \s*
+            (
+                \|                 # Pipe to delimit link text
+                [^\]\|\[\#]*       # Link text
+            )?                     # Link text is optional
+            ()                     # Are you kidding me
+            \]\]\]                 # Closing brackets
+        /x";
 
     /**
     *

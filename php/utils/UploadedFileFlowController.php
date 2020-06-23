@@ -171,7 +171,19 @@ class UploadedFileFlowController extends WikidotController
     {
         $m = array();
 
-        if (preg_match(";^code/([^/]+)/?(?:/([0-9]+))?(?:(/r/)(.*))?$;", $fileName, $m)) {
+        if (preg_match(
+            "/
+            ^
+            code\/            # Code namespace
+            ([^\/]+)          # Name of file
+            \/?               # Optional further /
+            (?:\/([0-9]+))?   # Number of which code block to get
+            (?:(\/r\/)(.*))?  # /r/ followed by anything - not sure what for
+            $
+            /x",
+            $fileName,
+            $m
+        )) {
             $pageName = $m[1];
             $number = 1;
             if (isset($m[2])) {

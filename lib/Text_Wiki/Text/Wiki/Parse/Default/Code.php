@@ -50,12 +50,14 @@ class Text_Wiki_Parse_Code extends Text_Wiki_Parse {
      *
      */
 
+
 //        public $regex = ';^\[\[code(\s[^\]]*)?\]\](.*)\[\[\/code\]\](\s|$);msiU';
 //        public $regex = ';^\[\[code(\s[^\]]*)?\]\]((?:(?R)|.)*?)\[\[/code\]\](\s|$);msi';
 //        public $regex = ';^\[\[code(\s[\V]*)?\]\]((?:^(?R)|.)*?)\[\[\/code\]\];msi';
 //        public $regex = ';^\[\[code(\s\V*)?]\]((?:^(?R)|.)*?)\[\[\/code]\];msi';
 //        public $regex = ';^\[\[code(\s\V*)?]\]((?:(?R)|.+?(?=\[\[\/?code]]))*?)\[\[\/code]\];msi';
           public $regex = ';^\[\[code(\s\V+)?\]\]((?>[^[]+|(?R)|.)+?)\[\[\/code\]\];ms';
+
     /**
      *
      * Generates a token entry for the matched text.  Token options are:

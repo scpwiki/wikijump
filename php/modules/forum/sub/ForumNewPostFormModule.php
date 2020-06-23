@@ -105,6 +105,7 @@ class ForumNewPostFormModule extends SmartyModule
             } else {
                 $parentId = $post->getPostId();
             }
+                # If there's a "Re:", make sure there's a space?
                 $title = preg_replace('/^Re:\s?/', '', $post->getTitle());
                 $title = 'Re: '.$title;
         } else {

@@ -46,7 +46,11 @@ class Text_Wiki_Parse_Separator extends Text_Wiki_Parse {
     *
     */
 
-    public $regex = '/^([=]{4,})$/m';
+    public $regex = '/
+        ^
+        ([=]{4,})	# "====", four or more =
+        $
+        /mx';
 
     /**
     *

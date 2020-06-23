@@ -74,7 +74,7 @@ class CodeblockExtractor
                 $params = $allMatches[1][$codeblockNo - 1];
                 $m = array();
                 $type = null;
-                if (preg_match(':type="([^"]+)":', $params, $m)) {
+                if (preg_match('/type="([^"]+)"/', $params, $m)) {
                     $type = strtolower($m[1]);
                 }
                 if (array_key_exists($type, $this->mimeMap)) {

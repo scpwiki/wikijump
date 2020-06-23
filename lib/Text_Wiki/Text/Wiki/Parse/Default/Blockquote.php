@@ -51,7 +51,14 @@ class Text_Wiki_Parse_Blockquote extends Text_Wiki_Parse {
     *
     */
 
-    public $regex = '/\n((\>).*\n)(?!(\>))/Us';
+    public $regex = '/
+        \n           # Start at a newline
+        ((\>).*?\n)  # Match a >, then anything up until a newline
+        (?!(\>))     # Assert that the newline is not followed by a >
+        /sx';
+     # Sorry, what? A line of blockquote //cannot// be followed by another
+     # line? Am I reading that correctly? Then why is the second > captured?
+     # ANSWER: This module doesn't even use this regex. Nice one, Wikidot.
 
     /**
     *
@@ -86,7 +93,12 @@ class Text_Wiki_Parse_Blockquote extends Text_Wiki_Parse {
         // create an array called $list that contains a new set of
         // matches for the various list-item elements.
         preg_match_all(
-            '=^(\>+) (.*\n)=Ums',
+            '/
+            ^
+            (\>+?)   # At least one >
+            \s       # Require exactly one whitespace
+            (.*?\n)  # Include anything else up until a newline
+            /msx',
             $matches[1],
             $list,
             PREG_SET_ORDER

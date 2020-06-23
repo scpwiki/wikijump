@@ -41,7 +41,12 @@ class Text_Wiki_Parse_Footnote extends Text_Wiki_Parse {
     *
     */
 
-    public $regex = ';\s*\[\[footnote\]\](.*?)\[\[/footnote\]\];s';
+    public $regex = '/
+        \s*
+        \[\[footnote\]\]
+        (.*?)
+        \[\[\/footnote\]\]
+        /sx';
 
     function process(&$matches)
     {

@@ -118,9 +118,33 @@ class ForumCategoryThreadsFeed extends FeedScreen
             $post = $thread->getFirstPost();
             $content =  $post->getText();
 
-            $content = preg_replace(';(<.*?)(src|href)="/([^"]+)"([^>]*>);si', '\\1\\2="'.GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'/\\3"\\4', $content);
-            $content = preg_replace(';<script\s+[^>]+>.*?</script>;is', '', $content);
-            $content = preg_replace(';(<[^>]*\s+)on[a-z]+="[^"]+"([^>]*>);si', '\\1 \\2', $content);
+            $content = preg_replace('/
+                (<.*?)       # Opening tag and its name
+                (src|href)   # Attribute selection
+                =
+                "\/([^"]+)"  # Value of attribute
+                ([^>]*>)     # Any other attributes - these must come AFTER src/href
+                /six', '\\1\\2="'.GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain().'/\\3"\\4', $content);
+            # Remove any script elements
+            $content = preg_replace(
+                '/
+                <script\s+[^>]+>
+                .*?
+                <\/script>
+                /isx',
+                '',
+                $content
+            );
+            # Strip out any attribute that starts with "on" from any element
+            $content = preg_replace(
+                '/
+                (<[^>]*\s+)
+                on[a-z]+="[^"]+"
+                ([^>]*>)
+                /six',
+                '\\1 \\2',
+                $content
+            );
 
             if ($thread->getDescription()) {
                 $item['description'] = $thread->getDescription();
