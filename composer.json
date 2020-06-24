@@ -11,7 +11,7 @@
       "role": "maintainer"
     },
     {
-      "name": "Croquembouche",
+      "name": "Ross Williams",
       "email": "rossjrw@gmail.com",
       "role": "maintainer"
     }
@@ -23,5 +23,8 @@
   },
   "autoload": {
     "classmap": ["Text/"]
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.2"
   }
 }
