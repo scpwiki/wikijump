@@ -48,10 +48,6 @@
                 }
             ],
             "description": "Text_Highlighter with a fix for the [] operator fatal error in PHP >= 7.2. More info available on: http://pear.php.net/package/Text_Highlighter",
-            "support": {
-                "issues": "https://github.com/pxdnbluesoul/Text_Highlighter/issues",
-                "source": "https://github.com/pxdnbluesoul/Text_Highlighter"
-            },
             "time": "2020-06-15T15:54:00+00:00"
         },
         {
@@ -97,10 +93,6 @@
                 }
             ],
             "description": "CSSTidy is a CSS minifier",
-            "support": {
-                "issues": "https://github.com/Cerdic/CSSTidy/issues",
-                "source": "https://github.com/Cerdic/CSSTidy/tree/master"
-            },
             "time": "2019-09-14T17:59:23+00:00"
         },
         {
@@ -148,10 +140,6 @@
             "keywords": [
                 "html"
             ],
-            "support": {
-                "issues": "https://github.com/ezyang/htmlpurifier/issues",
-                "source": "https://github.com/ezyang/htmlpurifier/tree/master"
-            },
             "time": "2019-10-28T03:44:26+00:00"
         },
         {
@@ -199,10 +187,6 @@
                 }
             ],
             "description": "More info available on: http://pear.php.net/package/Console_Getopt",
-            "support": {
-                "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=Console_Getopt",
-                "source": "https://github.com/pear/Console_Getopt"
-            },
             "time": "2019-11-20T18:27:48+00:00"
         },
         {
@@ -247,10 +231,6 @@
                 }
             ],
             "description": "Minimal set of PEAR core files to be used as composer dependency",
-            "support": {
-                "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=PEAR",
-                "source": "https://github.com/pear/pear-core-minimal"
-            },
             "time": "2019-11-19T19:00:24+00:00"
         },
         {
@@ -306,10 +286,6 @@
             "keywords": [
                 "exception"
             ],
-            "support": {
-                "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=PEAR_Exception",
-                "source": "https://github.com/pear/PEAR_Exception"
-            },
             "time": "2019-12-10T10:24:42+00:00"
         },
         {
@@ -348,25 +324,20 @@
                 }
             ],
             "description": "Legacy version of Wikidot's onboard magpierss v0.72.",
-            "support": {
-                "irc": "irc://irc.synirc.net/site11",
-                "issues": "https://scuttle.atlassian.net/browse/HELP",
-                "source": "https://github.com/scpwiki/magpierss"
-            },
             "time": "2020-06-23T21:26:54+00:00"
         },
         {
             "name": "scpwiki/ozoneframework",
-            "version": "1.0.0",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/scpwiki/ozoneframework.git",
-                "reference": "6fdedcb8a178b8bb8268fcd39f297e2d9086dbd8"
+                "reference": "a7d4c41866186ce87659b1dde5b208284395912b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/scpwiki/ozoneframework/zipball/6fdedcb8a178b8bb8268fcd39f297e2d9086dbd8",
-                "reference": "6fdedcb8a178b8bb8268fcd39f297e2d9086dbd8",
+                "url": "https://api.github.com/repos/scpwiki/ozoneframework/zipball/a7d4c41866186ce87659b1dde5b208284395912b",
+                "reference": "a7d4c41866186ce87659b1dde5b208284395912b",
                 "shasum": ""
             },
             "type": "library",
@@ -387,12 +358,7 @@
                 }
             ],
             "description": "Legacy and future builds of the Ozone framework, originally packaged for wikidot.org.",
-            "support": {
-                "irc": "irc://irc.synirc.net/site11",
-                "issues": "https://scuttle.atlassian.net/browse/HELP",
-                "source": "https://github.com/scpwiki/Services_JSON"
-            },
-            "time": "2020-06-23T21:45:51+00:00"
+            "time": "2020-06-23T22:22:47+00:00"
         },
         {
             "name": "scpwiki/phpflickr",
@@ -428,11 +394,6 @@
                 }
             ],
             "description": "Legacy version of onboard phpFlickr for Wikijump use.",
-            "support": {
-                "irc": "irc://irc.synirc.net/site11",
-                "issues": "https://scuttle.atlassian.net/browse/HELP",
-                "source": "https://github.com/scpwiki/phpflickr"
-            },
             "time": "2020-06-23T22:01:51+00:00"
         },
         {
@@ -469,11 +430,6 @@
                 }
             ],
             "description": "Legacy version of phpmailer 2.0.0 rc1 for Wikijump use.",
-            "support": {
-                "irc": "irc://irc.synirc.net/site11",
-                "issues": "https://scuttle.atlassian.net/browse/HELP",
-                "source": "https://github.com/scpwiki/phpmailer"
-            },
             "time": "2020-06-23T22:15:22+00:00"
         },
         {
@@ -508,11 +464,6 @@
                 }
             ],
             "description": "Legacy version of PEAR/Services_JSON for Wikijump use.",
-            "support": {
-                "irc": "irc://irc.synirc.net/site11",
-                "issues": "https://scuttle.atlassian.net/browse/HELP",
-                "source": "https://github.com/scpwiki/Services_JSON"
-            },
             "time": "2020-06-23T20:43:43+00:00"
         },
         {
@@ -547,11 +498,6 @@
                 }
             ],
             "description": "The Text_Wiki library used for Wikidot and Wikijump.",
-            "support": {
-                "irc": "irc://irc.synirc.net/site11",
-                "issues": "https://scuttle.atlassian.net/browse/HELP",
-                "source": "https://github.com/scpwiki/text_wiki"
-            },
             "time": "2020-06-23T22:37:27+00:00"
         },
         {
@@ -586,11 +532,6 @@
                 }
             ],
             "description": "Legacy version of Zend Framework 1.7.2 for Wikijump use.",
-            "support": {
-                "irc": "irc://irc.synirc.net/site11",
-                "issues": "https://scuttle.atlassian.net/browse/HELP",
-                "source": "https://github.com/scpwiki/zf"
-            },
             "time": "2020-06-23T22:53:40+00:00"
         },
         {
@@ -642,12 +583,6 @@
             "keywords": [
                 "templating"
             ],
-            "support": {
-                "forum": "http://www.smarty.net/forums/",
-                "irc": "irc://irc.freenode.org/smarty",
-                "issues": "http://code.google.com/p/smarty-php/issues/list",
-                "source": "https://github.com/smarty-php/smarty/tree/Smarty2"
-            },
             "time": "2017-11-03T06:39:13+00:00"
         }
     ],
@@ -659,5 +594,5 @@
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
-    "plugin-api-version": "2.0.0"
+    "plugin-api-version": "1.1.0"
 }
