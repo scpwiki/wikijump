@@ -141,17 +141,17 @@ class Text_Wiki_Parse_Url extends Text_Wiki_Parse {
         //
 
         // the regular expression for this kind of URL
-        $tmp_regex = "/
-            \[(\*)?
-            (
-                (?:".$this->regexLiberal.")
-                |
-                (?:#[a-zA-Z0-9_\-%]*)
-                |
-                (?:\/[^\s\t\n\"'".$this->wiki->delim."]*)
-            )\s
-            ([^\]".$this->wiki->delim."]+)\]
-            /x";
+        $tmp_regex =    "/" . 
+                        "\[(\*)?" . 
+                        "(" . 
+                        "(?:".$this->regexLiberal.")" . 
+                        "|" .
+                        "(?:#[a-zA-Z0-9_\-%]*)" . 
+                        "|" . 
+                        "(?:\/[^\s\t\n\"'".$this->wiki->delim."]*)" . 
+                        ")\s" . 
+                        "([^\]".$this->wiki->delim."]+)\]" . 
+                        "/x";
 
         // use a custom callback processing method to generate
         // the replacement text for matches.
@@ -166,19 +166,19 @@ class Text_Wiki_Parse_Url extends Text_Wiki_Parse {
         if($postVars){
             // enable %%foo%% variables to act in described links
             # What is this? I haven't seen it before
-            $tmp_regex = '/
-                \[                # Opening bracket
-                (\*)?
-                (
-                    %%            # Opening %%
-                    [^%]+         # Then at least one character not %
-                    %%            # Closing %%
-                    [^\s]*        # Then anything except whitespace
-                )
-                \s                # A whitespace
-                ([^\]]+)          # Match anything up until a closing bracket
-                \]
-                /x';
+            $tmp_regex =    '/' . 
+                            '\[' .             # Opening bracket
+                            '(\*)?' . 
+                            '(' . 
+                            '%%' .             # Opening %%
+                            '[^%]+' .          # Then at least one character not %
+                            '%%' .             # Closing %%
+                            '[^\s]*' .         # Then anything except whitespace
+                            ')' . 
+                            '\s' .             # A whitespace
+                            '([^\]]+)' .       # Match anything up until a closing bracket
+                            '\]' . 
+                            '/x';
             $this->wiki->source = preg_replace_callback(
                 $tmp_regex,
                 array(&$this, 'processPV'),
@@ -193,12 +193,12 @@ class Text_Wiki_Parse_Url extends Text_Wiki_Parse {
 
         // the regular expression for this kind of URL
 
-        $tmp_regex = '/
-            (^|[^A-Za-z])             # Start of line OR not letters
-            (\*)?                     # Any amount of asterisks
-            (' . $this->regex . ')
-            (.*?)                     # Then anything, but as few as possible?
-            /x';
+        $tmp_regex =    '/' . 
+                        '(^|[^A-Za-z])' .              # Start of line OR not letters
+                        '(\*)?' .                      # Any amount of asterisks
+                        '(' . $this->regex . ')' . 
+                        '(.*?)' .                      # Then anything, but as few as possible?
+                        '/x';
 
         // use the standard callback for inline URLs
         $this->wiki->source = preg_replace_callback(
