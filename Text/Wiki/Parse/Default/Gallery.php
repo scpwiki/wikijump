@@ -40,12 +40,12 @@ class Text_Wiki_Parse_Gallery extends Text_Wiki_Parse {
      *
      */
 
-    public $regex = "/
-        ^
-        \[\[gallery(\s[^\]]*?)?\]\]
-        (?:((?:\n:\s[^\n]+)+)\n
-        \[\[\/gallery\]\])?
-        /msix";
+    public $regex =     '/' . 
+                        '^' . 
+                        '\[\[gallery(\s[^\]]*?)?\]\]' . 
+                        '(?:((?:\n:\s[^\n]+)+)\n' . 
+                        '\[\[\/gallery\]\])?' . 
+                        '/msix';
 
     /**
      *

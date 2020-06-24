@@ -41,19 +41,19 @@ class Text_Wiki_Parse_Tabview extends Text_Wiki_Parse {
      *
      */
 
-    public $regex = '/
-        ^
-        \[\[(?:tabview|tabs)(\s.*?)?\]\]  # Start tabview with parameters
-        \s*
-        (                                 # Capture all tabs as a single group
-            (?:\[\[tab(\s.*?)?\]\]        # Tab opening tag, with parameters
-            .*?                           # Contents of tab - no nesting
-            \[\[\/tab\]\]                 # Tab closing tag
-            \s*
-            )+                            # Require at least one tab
-        )
-        \[\[\/(?:tabview|tabs)\]\]\s*     # Tabview closing tag
-        /msix';
+    public $regex =     '/' . 
+                        '^' . 
+                        '\[\[(?:tabview|tabs)(\s.*?)?\]\]' .   # Start tabview with parameters
+                        '\s*' . 
+                        '(' .                                  # Capture all tabs as a single group
+                            '(?:\[\[tab(\s.*?)?\]\]' .         # Tab opening tag, with parameters
+                            '.*?' .                            # Contents of tab - no nesting
+                            '\[\[\/tab\]\]' .                  # Tab closing tag
+                            '\s*' . 
+                            ')+' .                             # Require at least one tab
+                        ')' . 
+                        '\[\[\/(?:tabview|tabs)\]\]\s*' .      # Tabview closing tag
+                        '/msix';
 
     private $_startTabToken;
     private $_endTabToken;
@@ -88,20 +88,20 @@ class Text_Wiki_Parse_Tabview extends Text_Wiki_Parse {
         // find tabs
 
 
-        $content = preg_replace_callback('/
-            \[\[tab           # Single tab opening tag
-            (\s+[^\]]+?)?     # Title of tab
-            (                 # Extract parameters
-                (?:\s+
-                [a-z0-9\-_]+
-                =
-                "[^"]+"       # Parameter value is in quotes
-                )+            # At least one parameter, if any are present
-            )?                # Parameters are optional
-            \]\]
-            (.*?)             # Contents of tab - cannot contain [[tab]]
-            \[\[\/tab\]\]\n*  # Tab closing tag
-            /msix',
+        $content = preg_replace_callback(   '/' . 
+                                            '\[\[tab' .            # Single tab opening tag
+                                            '(\s+[^\]]+?)?' .      # Title of tab
+                                            '(' .                  # Extract parameters
+                                                '(?:\s+' . 
+                                                '[a-z0-9\-_]+' . 
+                                                '=' . 
+                                                '"[^"]+"' .        # Parameter value is in quotes
+                                                ')+' .             # At least one parameter, if any are present
+                                            ')?' .                 # Parameters are optional
+                                            '\]\]' . 
+                                            '(.*?)' .              # Contents of tab - cannot contain [[tab]]
+                                            '\[\[\/tab\]\]\n*' .   # Tab closing tag
+                                            '/msix',
             array($this, '_handleTab'), $content);
 
         $options = array('args' => $args, 'type' => 'start',
@@ -133,13 +133,13 @@ class Text_Wiki_Parse_Tabview extends Text_Wiki_Parse {
         $argString = trim($matches[2]);
         // bad hack - I will forgget how it works in a few minutes
         $ff = false;
-        if (preg_match('/
-            ^               # Start of text
-            [a-z0-9\-_]+    # Parameter name
-            =
-            "[^"]+"         # Parameter value in quotes
-            $               # End of text
-            /six',
+        if (preg_match( '/' . 
+                        '^' .                # Start of text
+                        '[a-z0-9\-_]+' .     # Parameter name
+                        '=' . 
+                        '"[^"]+"' .          # Parameter value in quotes
+                        '$' .                # End of text
+                        '/six',
             trim($matches[1]))) {
                 $argString .= ' ' . $matches[1];
                 $ff = true;

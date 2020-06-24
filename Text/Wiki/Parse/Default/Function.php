@@ -30,13 +30,13 @@
 
 class Text_Wiki_Parse_Function extends Text_Wiki_Parse {
 
-    public $regex = '/
-        ^
-        (\<function\>)\n
-        (.+?)\n
-        (\<\/function\>)
-        (\s|$)
-        /msix';
+    public $regex =     '/' . 
+                        '^' . 
+                        '(\<function\>)\n' . 
+                        '(.+?)\n' . 
+                        '(\<\/function\>)' . 
+                        '(\s|$)' . 
+                        '/msix';
 
     function process(&$matches)
     {

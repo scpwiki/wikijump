@@ -42,13 +42,13 @@ class Text_Wiki_Parse_Mathinline extends Text_Wiki_Parse {
     *
     */
 
-    public $regex = '/
-        \[\[
-        \$     # $
-        (.*?)  # Contents
-        \$     # $
-        \]\]
-        /x';
+    public $regex =     '/' . 
+                        '\[\[' . 
+                        '\$' .      # $
+                        '(.*?)' .   # Contents
+                        '\$' .      # $
+                        '\]\]' . 
+                        '/x';
     /**
     *
     * Generates a token entry for the matched text.  Token options are:

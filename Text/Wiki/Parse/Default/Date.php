@@ -27,12 +27,12 @@ class Text_Wiki_Parse_Date extends Text_Wiki_Parse {
 
 
 
-    public $regex = '/
-        \[\[date\s+
-        ([0-9]+)     # A number, for a given time. Required.
-        (\s+.*?)?    # Optional extra parameters (format)
-        \]\]
-        /x';
+    public $regex =     '/' . 
+                        '\[\[date\s+' . 
+                        '([0-9]+)' .      # A number, for a given time. Required.
+                        '(\s+.*?)?' .     # Optional extra parameters (format)
+                        '\]\]' . 
+                        '/x';
     /**
     *
     * Generates a token entry for the matched text.  Token options are:

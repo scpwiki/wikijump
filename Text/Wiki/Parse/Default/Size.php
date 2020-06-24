@@ -39,11 +39,11 @@ class Text_Wiki_Parse_Size extends Text_Wiki_Parse {
     *
     */
 
-    public $regex = '/
-        \[\[size\s([^\]]+)\]\]  # Opening tag including parameters
-        ((?:(?R)|.)*?)          # Any content in between including other sizes
-        \[\[\/size\]\]          # Closing tag
-        /msix';
+    public $regex =     '/' . 
+                        '\[\[size\s([^\]]+)\]\]' .   # Opening tag including parameters
+                        '((?:(?R)|.)*?)' .           # Any content in between including other sizes
+                        '\[\[\/size\]\]' .           # Closing tag
+                        '/msix';
     /**
     *
     * Generates a token entry for the matched text.  Token options are:

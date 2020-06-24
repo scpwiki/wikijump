@@ -38,13 +38,13 @@ class Text_Wiki_Parse_File extends Text_Wiki_Parse {
     *
     */
 
-    public $regex = '/
-        \[\[file
-        \s+
-        (.+?)         # Name of file
-        (?:\|(.+?))?  # Pipe, then link text (optional)
-        \]\]
-        /ix';
+    public $regex =     '/' . 
+                        '\[\[file' . 
+                        '\s+' . 
+                        '(.+?)' .          # Name of file
+                        '(?:\|(.+?))?' .   # Pipe, then link text (optional)
+                        '\]\]' . 
+                        '/ix';
 
     function process(&$matches)
     {

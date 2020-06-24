@@ -28,13 +28,13 @@
  */
 class Text_Wiki_Parse_Button extends Text_Wiki_Parse {
 
-    public $regex = '/
-        \[\[            # Opening brackets
-        button\s+       # Tag name
-        ([a-z0-9\-_]+)  # Button name
-        (?:\s+(.+?))?   # Optional button parameters
-        \]\]            # Closing brackets
-        /isx';
+    public $regex =     '/' . 
+                        '\[\[' .             # Opening brackets
+                        'button\s+' .        # Tag name
+                        '([a-z0-9\-_]+)' .   # Button name
+                        '(?:\s+(.+?))?' .    # Optional button parameters
+                        '\]\]' .             # Closing brackets
+                        '/isx';
 
     function process(&$matches)
     {

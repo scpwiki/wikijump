@@ -43,23 +43,23 @@
 
 class Text_Wiki_Parse_Freelink extends Text_Wiki_Parse {
 
-    public $regex = "/
-            \[\[\[                 # Opening brackets
-            ([^\[\]\|\#]+)         # Target page name
-            \s*
-            (                      # Match a URL fragment after the page name
-                \#
-                [A-Za-z]           # Require that first letter is alphanumeric
-                [-A-Za-z0-9_:.]*
-            )?                     # URL fragment is optional
-            \s*
-            (
-                \|                 # Pipe to delimit link text
-                [^\]\|\[\#]*       # Link text
-            )?                     # Link text is optional
-            ()                     # Are you kidding me
-            \]\]\]                 # Closing brackets
-        /x";
+    public $regex =     '/' . 
+                        '\[\[\[' .                  # Opening brackets
+                        '([^\[\]\|\#]+)' .          # Target page name
+                        '\s*' . 
+                        '(' .                       # Match a URL fragment after the page name
+                        '\#' . 
+                        '[A-Za-z]' .                # Require that first letter is alphanumeric
+                        '[-A-Za-z0-9_:.]*' . 
+                        ')?' .                      # URL fragment is optional
+                        '\s*' . 
+                        '(' . 
+                        '\|' .                      # Pipe to delimit link text
+                        '[^\]\|\[\#]*' .            # Link text
+                        ')?' .                      # Link text is optional
+                        '()' .                      # Are you kidding me
+                        '\]\]\]' .                  # Closing brackets
+                        '/x';
 
     /**
     *

@@ -43,12 +43,12 @@ class Text_Wiki_Parse_Clearfloat extends Text_Wiki_Parse {
      *
      */
 
-    public $regex = '/
-        ^
-        ([~]{4,})  # ~~~~
-        (>|<)?     # Optional directional modifier
-        $
-        /mx';
+    public $regex =     '/' . 
+                        '^' . 
+                        '([~]{4,})' .   # ~~~~
+                        '(>|<)?' .      # Optional directional modifier
+                        '$' . 
+                        '/mx';
 
     /**
      *

@@ -39,14 +39,14 @@ class Text_Wiki_Parse_Divalign extends Text_Wiki_Parse {
      *
      */
 
-    public $regex = '/
-        ^                   # Start of line
-        \[\[(=|<|>|==)\]\]  # Opening tag with variations
-        \n
-        ((?:(?R)|.)*?)      # Contents of tag - nesting is allowed
-        \[\[\/\\1\]\]       # Closing tag that matches opening tag
-        $                   # End of line
-        /msix';
+    public $regex =     '/' . 
+                        '^' .                    # Start of line
+                        '\[\[(=|<|>|==)\]\]' .   # Opening tag with variations
+                        '\n' . 
+                        '((?:(?R)|.)*?)' .       # Contents of tag - nesting is allowed
+                        '\[\[\/\\1\]\]' .        # Closing tag that matches opening tag
+                        '$' .                    # End of line
+                        '/msix';
 
     /**
      *

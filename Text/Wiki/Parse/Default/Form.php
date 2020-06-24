@@ -43,13 +43,13 @@ class Text_Wiki_Parse_Form extends Text_Wiki_Parse {
      *
      */
 
-    public $regex = '/
-        \[\[form\]\]\s*\n
-        (.*)\n              # Anything then a newline
-        ---\s*\n            # Three hyphens (???)
-        (.*)\n              # Anything again
-        \[\[\/form\]\]
-        /isx';
+    public $regex =     '/' . 
+                        '\[\[form\]\]\s*\n' . 
+                        '(.*)\n' .               # Anything then a newline
+                        '---\s*\n' .             # Three hyphens (???)
+                        '(.*)\n' .               # Anything again
+                        '\[\[\/form\]\]' . 
+                        '/isx';
 
     /**
      *

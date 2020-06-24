@@ -40,12 +40,11 @@ class Text_Wiki_Parse_Email extends Text_Wiki_Parse {
     *
     */
 
-    public $regex = '
-        [A-z0-9\-_]+          # At least one alphanumeric, underscore, hyphen
-        (?:\.[_a-z0-9\-]+)*   # Allow a dot so long as it is not the first
-        @[a-z0-9\-]+          # Characters after the @ symbol
-        (?:\.[a-z0-9\-]+)+    # Allow a dot so long as is is not the first
-        ';
+    public $regex =     '[A-z0-9\-_]+' .           # At least one alphanumeric, underscore, hyphen
+                        '(?:\.[_a-z0-9\-]+)*' .    # Allow a dot so long as it is not the first
+                        '@[a-z0-9\-]+' .           # Characters after the @ symbol
+                        '(?:\.[a-z0-9\-]+)+';      # Allow a dot so long as is is not the first
+                        # TODO: Replace this trash, probably with a filter_var statement.
 
     function parse(){
 

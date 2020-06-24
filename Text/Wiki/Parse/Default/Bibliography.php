@@ -33,15 +33,15 @@ class Text_Wiki_Parse_Bibliography extends Text_Wiki_Parse {
     public $regex = null;
 
     function parse() {
-        $regex = '/
-            ^                        # Start of line
-            \[\[bibliography         # Tag name
-            (\s+[^\]]+)?             # Parameters
-            \]\]
-            (.*?)                    # Contents
-            \[\[\/bibliography\]\]   # End tag
-            [\s]*$                   # Allow whitespace until end of the line
-            /smx';
+        $regex =    '/' . 
+                    '^' .                         # Start of line
+                    '\[\[bibliography' .          # Tag name
+                    '(\s+[^\]]+)?' .              # Parameters
+                    '\]\]' . 
+                    '(.*?)' .                     # Contents
+                    '\[\[\/bibliography\]\]' .    # End tag
+                    '[\s]*$' .                    # Allow whitespace until end of the line
+                    '/smx';
         $this->wiki->source = preg_replace_callback($regex,
             array(&$this, 'process'), $this->wiki->source, 1);
     }
@@ -57,15 +57,16 @@ class Text_Wiki_Parse_Bibliography extends Text_Wiki_Parse {
         // parse the "inner" manually inserting delimiters
         $bi = $this->wiki->parseObj['Bibitem'];
 
-        $inside = preg_replace_callback("/
-            ^               # Start of line
-            :\s?            # Colon, then optional whitespace
-            ([a-z0-9]+)     # Lowercase alphanumeric bib item name
-            \s?             # Optional whitespace
-            :\s             # Colon then mandatory whitespace
-            (.*)            # Rest of the line is the item definition
-            $               # End of line
-            /mix",
+        $inside = preg_replace_callback(
+            '/' . 
+            '^' .                # Start of line
+            ':\s?' .             # Colon, then optional whitespace
+            '([a-z0-9]+)' .      # Lowercase alphanumeric bib item name
+            '\s?' .              # Optional whitespace
+            ':\s' .              # Colon then mandatory whitespace
+            '(.*)' .             # Rest of the line is the item definition
+            '$' .                # End of line
+            '/mix',
             array(&$bi, 'process'), $inner);
 
         return "\n" . $this->wiki->addToken($this->rule, array(

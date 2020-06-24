@@ -40,7 +40,7 @@ class Text_Wiki_Parse_Footnoteitem extends Text_Wiki_Parse {
     *
     */
 
-    public $regex = null;
+    public $regex = null;  # wtf?
 
     function process(&$matches)
     {

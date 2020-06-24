@@ -44,18 +44,18 @@ class Text_Wiki_Parse_Math extends Text_Wiki_Parse {
     *
     */
 
-    public $regex = '/
-    ^
-    \[\[math               # Start opening tag
-    (\s+[a-z0-9_]*?)?      # Label
-    ((?:\s+
-        [a-z0-9]+="[^"]*"  # Parameters
-    ))*                    # Allow any number of parameters
-    \s*\]\]                # End opening tag
-    ((?:(?R)|.)*?)\n       # Contents - nesting is ok for some reason
-    \[\[\/math\]\]         # Closing tag
-    (\s|$)
-    /msix';
+    public $regex =     '/' . 
+                        '^' . 
+                        '\[\[math' .                # Start opening tag
+                        '(\s+[a-z0-9_]*?)?' .       # Label
+                        '((?:\s+' . 
+                            '[a-z0-9]+="[^"]*"' .   # Parameters
+                        '))*' .                     # Allow any number of parameters
+                        '\s*\]\]' .                 # End opening tag
+                        '((?:(?R)|.)*?)\n' .        # Contents - nesting is ok for some reason
+                        '\[\[\/math\]\]' .          # Closing tag
+                        '(\s|$)' . 
+                        '/msix';
 
     /**
     *

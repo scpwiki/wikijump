@@ -42,11 +42,11 @@ class Text_Wiki_Parse_Divprefilter extends Text_Wiki_Parse {
     *
     */
 
-    public $regex = '/
-        \[\[\/div\]\]
-        (\s*?)
-        \[\[div
-        /msix';
+    public $regex =     '/' . 
+                        '\[\[\/div\]\]' . 
+                        '(\s*?)' . 
+                        '\[\[div' . 
+                        '/msix';
     /**
     *
     * Generates a token entry for the matched text.  Token options are:

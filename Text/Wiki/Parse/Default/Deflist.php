@@ -54,11 +54,11 @@ class Text_Wiki_Parse_Deflist extends Text_Wiki_Parse {
     *
     */
 
-    public $regex = '/
-        \n
-        ((:\s).*?\n)   # Match colon, whitespace, then text up to newline
-        (?!(:\s|\n))   # Do not match if followed by colon+ws or newline
-        /sx';
+    public $regex = '/' . 
+                    '\n' . 
+                    '((:\s).*?\n)' .    # Match colon, whitespace, then text up to newline
+                    '(?!(:\s|\n))' .    # Do not match if followed by colon+ws or newline
+                    '/sx';
 
     /**
     *

@@ -48,13 +48,13 @@ class Text_Wiki_Parse_Paragraph extends Text_Wiki_Parse {
      */
 
     # Matches some text followed by two newlines
-    public $regex = "/
-        ^     # Start of line
-        .*?   # Anything
-        \n    # A newline
-        \s*?  # Any amount of whitespace, including none
-        \n    # A further newline
-        /mx";
+    public $regex = '/' . 
+                    '^' .      # Start of line
+                    '.*?' .    # Anything
+                    '\n' .     # A newline
+                    '\s*?' .   # Any amount of whitespace, including none
+                    '\n' .     # A further newline
+                    '/mx';
 
     public $conf = array(
         'skip' => array('blockquote', // are we sure about this one?

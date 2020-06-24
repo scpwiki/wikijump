@@ -47,12 +47,12 @@ class Text_Wiki_Parse_Raw extends Text_Wiki_Parse {
      *
      */
 
-    public $regex = "/
-        (?<!@)     # Assert that text is not preceded by @
-        @@
-        (.*?[^@]?)  # Match anything, up to a @
-        @@
-        /x";
+    public $regex =     '/' . 
+                        '(?<!@)' .      # Assert that text is not preceded by @
+                        '@@' . 
+                        '(.*?[^@]?)' .   # Match anything, up to a @
+                        '@@' . 
+                        '/x';
 
     /**
      *

@@ -42,9 +42,9 @@ class Text_Wiki_Parse_Equationreference extends Text_Wiki_Parse {
     *
     */
 
-    public $regex = '/
-        \[\[eref (.*?)\]\]
-        /x';
+    public $regex =     '/' . 
+                        '\[\[eref (.*?)\]\]' . 
+                        '/x';
     /**
     *
     * Generates a token entry for the matched text.  Token options are:
