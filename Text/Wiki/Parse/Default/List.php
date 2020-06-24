@@ -58,7 +58,7 @@ class Text_Wiki_Parse_List extends Text_Wiki_Parse {
             .*?\n                # Text of list item
         )
         (?!
-            \2\s                 # The asterisk/hash as matched before
+            \2\s                 # The asterisk or hash as matched before
             |(?:                 # OR:
                 \s+((?:\*?|#)\s  # Some whitespace then asterisk or hash
                 |\n)             # OR a newline
