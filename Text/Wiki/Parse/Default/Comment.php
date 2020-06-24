@@ -45,7 +45,7 @@ class Text_Wiki_Parse_Comment extends Text_Wiki_Parse {
                         '(\n)?' .     # Optional newline?
                         '\[!\-\-' .   # [!--
                         '(.*?)' .     # Any text - no nesting
-                        '\-\-\]' /    # --]
+                        '\-\-\]' .    # --]
                         '/six';
 
     /**

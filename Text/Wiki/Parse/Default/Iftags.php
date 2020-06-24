@@ -27,11 +27,11 @@ class Text_Wiki_Parse_Iftags extends Text_Wiki_Parse {
 
 
     public $regex = 	'/' . 
-        				'\[\[iftags(\s[^\]]*)?\]\]' .  	# Opening iftags tag including parameters
+        				'\[\[iftags(\s[^\]]*)?\]\]' .  		# Opening iftags tag including parameters
         				'(' . 
-        				'(?:(?R)|.)' . 	            	# Contents of the page, including other iftags
-        				'*?)' .                        	# Non-greedy match to claim next closing tag
-        				'\[\[/iftags\]\]' .            	# Closing tag
+        				'(?:(?R)|.)' . 	            		# Contents of the page, including other iftags
+        				'*?)' .                        		# Non-greedy match to claim next closing tag
+        				'\[\[\/iftags\]\]' .            	# Closing tag
         				'/msix';
     # Note regarding non-greedy match: I'm not sure how a recursive regex match
     # works entirely, so I've written that it claims the next closing tag.
