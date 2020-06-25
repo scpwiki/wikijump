@@ -18,9 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[cfg(test)]
-mod test;
-
 use crate::{Error, Handle, Result};
 use pest::Parser;
 use std::collections::HashMap;
