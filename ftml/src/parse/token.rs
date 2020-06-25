@@ -49,8 +49,11 @@ pub enum Token {
     #[token("---")]
     TripleDash,
 
-    #[token("\n")]
+    #[token("\n", priority = 2)]
     Newline,
+
+    #[regex(r"\s+")]
+    Whitespace,
 
     //
     // Text components
@@ -64,25 +67,25 @@ pub enum Token {
     #[regex(r"(https?|ftp)://[^ \n\|\[\]]+")]
     Url,
 
-    #[regex(r"(f?[<>])|=", ImageAlignment::read, priority = 5)]
+    #[regex(r"(f?[<>])|=", ImageAlignment::read, priority = 3)]
     ImageAlignment(ImageAlignment),
 
     //
     // Formatting
     //
-    #[token("**")]
+    #[token("**", priority = 3)]
     Bold,
 
-    #[token("//")]
+    #[token("//", priority = 3)]
     Italics,
 
-    #[token("__")]
+    #[token("__", priority = 3)]
     Underline,
 
-    #[token("^^")]
+    #[token("^^", priority = 3)]
     Superscript,
 
-    #[token(",,")]
+    #[token(",,", priority = 3)]
     Subscript,
 
     #[token("{{")]
@@ -152,6 +155,27 @@ pub enum Token {
     // Miscellaneous / "error" case
     //
     #[error]
-    #[regex(r".+", priority = 1)]
     Text,
+}
+
+// for testing the function during development
+#[test]
+fn tokens() {
+    use logos::Logos;
+
+    fn print_tokens(text: &str) {
+        let mut lex = Token::lexer(text);
+        let mut tokens = Vec::new();
+
+        while let Some(token) = lex.next() {
+            let range = lex.span();
+            let text = lex.slice();
+            tokens.push((token, range, text));
+        }
+
+        println!("Input: {:?}\nOutput: {:#?}", text, tokens);
+    }
+
+    print_tokens("**Hello** world!");
+    print_tokens("[[>]]\n[[module Rate]]\n[[/>]]");
 }
