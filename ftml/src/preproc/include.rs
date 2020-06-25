@@ -18,85 +18,38 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::{Error, Handle, Result};
-use pest::Parser;
+use crate::{Handle, RemoteResult};
 use std::collections::HashMap;
 use std::ops::Range;
 
 const MAX_DEPTH: usize = 10;
 
-#[derive(Debug, Clone, Parser)]
-#[grammar = "preproc/include.pest"]
-struct IncludeParser;
-
 #[derive(Debug, Clone)]
 struct IncludeRef {
     range: Range<usize>,
     name: String,
-    page: Option<String>,
+    page: RemoteResult<Option<String>>,
 }
 
-fn substitute_depth(text: &mut String, handle: &dyn Handle, depth: usize) -> Result<()> {
-    let pairs = match IncludeParser::parse(Rule::page, text) {
-        Ok(mut pairs) => get_inner_pairs!(pairs),
-        Err(err) => {
-            return Err(Error::Msg(format!(
-                "Include transform parsing error: {}",
-                err
-            )));
-        }
-    };
+fn substitute_depth(text: &mut String, handle: &dyn Handle, depth: usize) {
+    let tokens: Vec<()> = vec![]; // stub
 
     let mut includes = Vec::new();
     let mut args = HashMap::new();
 
-    // Iterate through [[include]]s
-    for pair in pairs {
-        if pair.as_rule() != Rule::include {
-            continue;
-        }
-
-        let range = {
-            let span = pair.as_span();
-            span.start()..span.end()
-        };
-
-        let mut pairs = pair.into_inner();
-        let name = {
-            let pair = pairs.next().expect("Include pairs iterator was empty");
-
-            debug_assert_eq!(pair.as_rule(), Rule::resource);
-
-            pair.as_str()
-        };
-
-        // Parse arguments
-        args.clear();
-        for pair in pairs {
-            debug_assert_eq!(pair.as_rule(), Rule::argument);
-
-            let mut pairs = pair.into_inner();
-
-            let key = pairs
-                .next()
-                .expect("Argument pairs iterator was empty")
-                .as_str()
-                .trim();
-
-            let value = pairs
-                .next()
-                .expect("Argument pairs iterator had only one element")
-                .as_str()
-                .trim();
-
-            args.insert(key, value);
-        }
+    // Iterate through include-tokens
+    for _token in tokens {
+        // stub
+        args.insert("name", "test");
+        let range = 0..0;
+        let name = "page-name";
 
         // Fetch included resource
-        let page = handle.include_page(name, &args)?;
+        let page = handle.include_page(name, &args);
         let name = str!(name);
 
         includes.push(IncludeRef { range, name, page });
+        args.clear();
     }
 
     // Go through in reverse order to not mess up indices.
@@ -104,31 +57,33 @@ fn substitute_depth(text: &mut String, handle: &dyn Handle, depth: usize) -> Res
     // This is playing a bit fast and loose with references since
     // we don't actually have a borrow of the string slice.
 
-    let included = !includes.is_empty();
+    let has_includes = !includes.is_empty();
 
     includes.reverse();
     for include in includes {
         let IncludeRef { range, name, page } = include;
 
         let final_page = if depth >= MAX_DEPTH {
+            // Avoid infinite recursion
             handle.include_max_depth_error(MAX_DEPTH)
         } else {
-            page.unwrap_or_else(|| handle.include_missing_error(&name))
+            match page {
+                Ok(Some(content)) => content,
+                Ok(None) => handle.include_missing_error(&name),
+                Err(error) => error.into(),
+            }
         };
 
         text.replace_range(range, &final_page);
     }
 
-    if included {
-        substitute_n(text, handle, depth + 1)?;
+    // Next level of substitution
+    if has_includes {
+        substitute_depth(text, handle, depth + 1);
     }
-
-    // TODO
-
-    Ok(())
 }
 
 #[inline]
-pub fn substitute(text: &mut String, handle: &dyn Handle) -> Result<()> {
+pub fn substitute(text: &mut String, handle: &dyn Handle) {
     substitute_depth(text, handle, 0)
 }

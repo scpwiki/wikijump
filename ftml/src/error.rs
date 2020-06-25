@@ -66,7 +66,7 @@ impl Into<String> for Error {
 
 // Remote error wrapper
 #[must_use = "should handle errors"]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct RemoteError(String);
 
 impl RemoteError {

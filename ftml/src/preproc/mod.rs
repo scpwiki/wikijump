@@ -44,14 +44,14 @@ pub fn preprocess(text: &mut String, handle: &dyn Handle) {
     include::substitute(text, handle);
     misc::substitute(text);
     typography::substitute(text);
-
-    todo!()
 }
 
 #[test]
 fn test_fn() {
     type SubstituteFn = fn(&mut String);
+    type SubstituteHandleFn = fn(&mut String, &dyn Handle);
 
+    let _: SubstituteHandleFn = include::substitute;
     let _: SubstituteFn = misc::substitute;
     let _: SubstituteFn = typography::substitute;
 }
