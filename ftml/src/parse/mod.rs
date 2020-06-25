@@ -4,7 +4,8 @@
  * ftml - Library to parse Wikidot code
  * Copyright (C) 2019-2020 Ammon Smith
  *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
@@ -17,8 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod object;
+mod parse;
 mod tree;
 
-pub use self::object::parse;
+pub use self::parse::parse;
 pub use self::tree::SyntaxTree;
