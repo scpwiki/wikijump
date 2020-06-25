@@ -36,7 +36,7 @@ struct IncludeRef {
     page: Option<String>,
 }
 
-fn substitute_n(text: &mut String, handle: &dyn Handle, depth: usize) -> Result<()> {
+fn substitute_depth(text: &mut String, handle: &dyn Handle, depth: usize) -> Result<()> {
     let pairs = match IncludeParser::parse(Rule::page, text) {
         Ok(mut pairs) => get_inner_pairs!(pairs),
         Err(err) => {
@@ -130,5 +130,5 @@ fn substitute_n(text: &mut String, handle: &dyn Handle, depth: usize) -> Result<
 
 #[inline]
 pub fn substitute(text: &mut String, handle: &dyn Handle) -> Result<()> {
-    substitute_n(text, handle, 0)
+    substitute_depth(text, handle, 0)
 }
