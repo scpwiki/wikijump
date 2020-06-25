@@ -46,7 +46,7 @@ where
     }
 }
 
-const PREFILTER_TEST_CASES: [(&str, &str); 13] = [
+const PREFILTER_TEST_CASES: [(&str, &str); 11] = [
     ("", ""),
     ("tab\ttest", "tab    test"),
     (
@@ -80,14 +80,7 @@ const PREFILTER_TEST_CASES: [(&str, &str); 13] = [
         " . . . <<I'm not sure about this,>>",
         " … «I'm not sure about this,»",
     ),
-    (
-        "[[include info:start]]\nApple\nBanana\n[[include info:end]]\n",
-        "<PAGE 'info:start' {}>\nApple\nBanana\n<PAGE 'info:end' {}>",
-    ),
-    (
-        "Apple\n[[include component:image-block\n    name = somefile.png |\n    caption=The Thing|\n    width= 200px\n]]\nBanana",
-        "Apple\n<PAGE 'component:image-block' #3>\nBanana",
-    ),
+    // TODO add [[include]] tests
 ];
 
 #[test]

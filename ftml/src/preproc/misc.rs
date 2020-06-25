@@ -77,7 +77,7 @@ pub fn substitute(text: &mut String) {
     // Compress multiple newlines
     regex_replace(text, &*COMPRESS_NEWLINES, "\n\n");
 
-    // Remove trailing and leading newlines
+    // Remove leading and trailing newlines
     regex_replace(text, &*LEADING_NEWLINES, "");
     regex_replace(text, &*TRAILING_NEWLINES, "");
 }
@@ -100,7 +100,7 @@ fn regex_replace(text: &mut String, regex: &Regex, replacement: &str) {
 const TEST_CASES: [(&str, &str); 6] = [
     (
         "\tapple\n\tbanana\tcherry\n",
-        "    apple\n    banana    cherry\n",
+        "    apple\n    banana    cherry",
     ),
     (
         "newlines:\r\n* apple\r* banana\r\ncherry\n\r* durian",
@@ -108,15 +108,15 @@ const TEST_CASES: [(&str, &str); 6] = [
     ),
     (
         "apple\nbanana\n\ncherry\n\n\npineapple\n\n\n\nstrawberry\n\n\n\n\nblueberry\n\n\n\n\n\n",
-        "apple\nbanana\n\ncherry\n\npineapple\n\nstrawberry\n\nblueberry\n",
+        "apple\nbanana\n\ncherry\n\npineapple\n\nstrawberry\n\nblueberry",
     ),
     (
         "apple\rbanana\r\rcherry\r\r\rpineapple\r\r\r\rstrawberry\r\r\r\r\rblueberry\r\r\r\r\r\r",
-        "apple\nbanana\n\ncherry\n\npineapple\n\nstrawberry\n\nblueberry\n",
+        "apple\nbanana\n\ncherry\n\npineapple\n\nstrawberry\n\nblueberry",
     ),
     (
         "concat:\napple banana \\\nCherry\\\nPineapple \\ grape\nblueberry\n",
-        "concat:\napple banana CherryPineapple \\ grape\nblueberry\n",
+        "concat:\napple banana CherryPineapple \\ grape\nblueberry",
     ),
     ("<\n        \n      \n  \n      \n>", "<\n\n>"),
 ];
