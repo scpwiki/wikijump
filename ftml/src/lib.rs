@@ -37,6 +37,9 @@ extern crate lazy_static;
 
 #[macro_use]
 extern crate log;
+
+#[macro_use]
+extern crate logos;
 extern crate percent_encoding;
 extern crate regex;
 
