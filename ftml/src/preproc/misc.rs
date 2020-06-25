@@ -53,6 +53,8 @@ lazy_static! {
             .build()
             .unwrap()
     };
+    static ref LEADING_NEWLINES: Regex = Regex::new(r"^\n+").unwrap();
+    static ref TRAILING_NEWLINES: Regex = Regex::new(r"\n+$").unwrap();
 }
 
 pub fn substitute(text: &mut String) {
@@ -74,6 +76,10 @@ pub fn substitute(text: &mut String) {
 
     // Compress multiple newlines
     regex_replace(text, &*COMPRESS_NEWLINES, "\n\n");
+
+    // Remove trailing and leading newlines
+    regex_replace(text, &*LEADING_NEWLINES, "");
+    regex_replace(text, &*TRAILING_NEWLINES, "");
 }
 
 fn str_replace(text: &mut String, pattern: &str, replacement: &str) {
