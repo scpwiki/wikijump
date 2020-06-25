@@ -19,23 +19,9 @@
  */
 
 use super::SyntaxTree;
-use crate::Result;
-use pest::error::Error as PestError;
-use pest::Parser;
 
-#[derive(Debug, Copy, Clone, Parser)]
-#[grammar = "parse/wikidot.pest"]
-pub struct WikidotParser;
+pub fn parse<'a>(text: &'a str) -> SyntaxTree<'a> {
+    // TODO run through tokens
 
-pub type ParseError = PestError<Rule>;
-
-pub fn parse<'a>(text: &'a str) -> Result<SyntaxTree<'a>> {
-    let page = {
-        // Should return exactly [ Rule::page ]
-        let mut pairs = WikidotParser::parse(Rule::page, text)?;
-        get_inner_pairs!(pairs)
-    };
-
-    let tree = SyntaxTree::from_line_pairs(page)?;
-    Ok(tree)
+    SyntaxTree::new_temp()
 }

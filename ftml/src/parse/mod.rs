@@ -18,8 +18,7 @@
  */
 
 mod object;
-mod string;
 mod tree;
 
-pub use self::object::{parse, ParseError, Rule, WikidotParser};
-pub use self::tree::{ImageArguments, Paragraph, SyntaxTree, Word};
+pub use self::object::parse;
+pub use self::tree::SyntaxTree;

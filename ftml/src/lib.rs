@@ -62,9 +62,6 @@ extern crate tinyvec;
 #[cfg(test)]
 extern crate serde_json;
 
-#[macro_use]
-mod macros;
-
 mod enums;
 mod error;
 pub mod handle;
@@ -75,7 +72,7 @@ mod preproc;
 pub use self::error::{Error, RemoteError};
 pub use self::handle::Handle;
 pub use self::info::{PageInfo, PageInfoOwned};
-pub use self::parse::{parse, ImageArguments, Paragraph, SyntaxTree, Word};
+pub use self::parse::{parse, SyntaxTree};
 pub use self::preproc::preprocess;
 
 pub mod prelude {

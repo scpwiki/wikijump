@@ -18,7 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::parse::ParseError;
 use std::error::Error as StdError;
 use std::ops::Deref;
 use std::str::Utf8Error;
@@ -41,9 +40,6 @@ pub enum Error {
 
     #[error("UTF-8 parsing error: {0}")]
     Utf8(#[from] Utf8Error),
-
-    #[error("parsing error: {0}")]
-    Parse(#[from] ParseError),
 
     #[error("remote error in consumer code: {0}")]
     Remote(#[from] RemoteError),

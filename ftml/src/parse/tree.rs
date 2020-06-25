@@ -1,5 +1,5 @@
 /*
- * parse/tree/misc.rs
+ * parse/tree.rs
  *
  * ftml - Library to parse Wikidot code
  * Copyright (C) 2019-2020 Ammon Smith
@@ -18,20 +18,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+use std::marker::PhantomData;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
-pub struct Tab<'a> {
-    pub name: &'a str,
-    pub contents: Vec<Paragraph<'a>>,
+pub struct SyntaxTree<'a> {
+    _todo: PhantomData<&'a str>,
 }
 
-pub type TableColumn<'a> = Vec<Word<'a>>;
-
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
-pub struct TableRow<'a> {
-    pub title: bool,
-
-    #[serde(borrow)]
-    pub columns: Vec<TableColumn<'a>>,
+impl SyntaxTree<'_> {
+    #[inline]
+    pub fn new_temp() -> Self {
+        SyntaxTree { _todo: PhantomData }
+    }
 }
