@@ -37,6 +37,9 @@ pub enum Token {
     #[token("[[")]
     LeftTag,
 
+    #[token("[[*")]
+    LeftTagSpecial,
+
     #[token("]]")]
     RightTag,
 
