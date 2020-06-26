@@ -182,15 +182,3 @@ impl Token {
         tokens
     }
 }
-
-// for testing the function during development
-#[test]
-fn tokens() {
-    fn print_tokens(text: &str) {
-        let tokens = Token::extract_all(text);
-
-        println!("Input: {:?}\nOutput: {:#?}", text, tokens);
-    }
-
-    print_tokens("some __super__ script");
-}
