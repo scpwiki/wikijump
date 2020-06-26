@@ -193,8 +193,6 @@ fn tokens() {
         println!("Input: {:?}\nOutput: {:#?}", text, tokens);
     }
 
-    print_tokens("**Hello** world!");
     print_tokens("[[>]]\n[[module Rate]]\n[[/>]]");
     print_tokens("##blue|colored text //yay//##\n\n\n^^some __super__script {{text}}^^ ^-^");
-    print_tokens("[[<image apple]]\n[[=image banana]]\n[[f>image cherry]]\n");
 }
