@@ -18,6 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// TODO use enums
+#![allow(dead_code)]
+
 use crate::StdResult;
 use std::convert::TryFrom;
 
