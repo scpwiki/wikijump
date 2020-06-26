@@ -19,8 +19,16 @@
  */
 
 use super::data::ImageAlignment;
+use std::ops::Range;
 
-#[derive(Logos, Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
+pub struct ExtractedToken<'a> {
+    pub token: Token,
+    pub slice: &'a str,
+    pub span: Range<usize>,
+}
+
+#[derive(Logos, Debug, Clone, PartialEq, Eq)]
 pub enum Token {
     //
     // Symbols
@@ -161,20 +169,29 @@ pub enum Token {
     Text,
 }
 
-// for testing the function during development
-#[test]
-fn tokens() {
-    use logos::Logos;
+impl Token {
+    pub fn extract_all<'a>(text: &'a str) -> Vec<ExtractedToken<'a>> {
+        use logos::Logos;
 
-    fn print_tokens(text: &str) {
         let mut lex = Token::lexer(text);
         let mut tokens = Vec::new();
 
         while let Some(token) = lex.next() {
-            let range = lex.span();
-            let text = lex.slice();
-            tokens.push((token, range, text));
+            let slice = lex.slice();
+            let span = lex.span();
+
+            tokens.push(ExtractedToken { token, slice, span });
         }
+
+        tokens
+    }
+}
+
+// for testing the function during development
+#[test]
+fn tokens() {
+    fn print_tokens(text: &str) {
+        let tokens = Token::extract_all(text);
 
         println!("Input: {:?}\nOutput: {:#?}", text, tokens);
     }
