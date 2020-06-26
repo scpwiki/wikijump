@@ -357,16 +357,16 @@
         },
         {
             "name": "scpwiki/ozoneframework",
-            "version": "1.0.2",
+            "version": "1.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/scpwiki/ozoneframework.git",
-                "reference": "3f194eb90ae5954dd2b762148742b2669945d245"
+                "reference": "9d19377ecb6446479c2a2bc419b8661c606ed8f4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/scpwiki/ozoneframework/zipball/3f194eb90ae5954dd2b762148742b2669945d245",
-                "reference": "3f194eb90ae5954dd2b762148742b2669945d245",
+                "url": "https://api.github.com/repos/scpwiki/ozoneframework/zipball/9d19377ecb6446479c2a2bc419b8661c606ed8f4",
+                "reference": "9d19377ecb6446479c2a2bc419b8661c606ed8f4",
                 "shasum": ""
             },
             "type": "library",
@@ -556,16 +556,16 @@
         },
         {
             "name": "scpwiki/text_wiki",
-            "version": "1.0.0",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/scpwiki/text_wiki.git",
-                "reference": "c10e8b2e19f60697d5fa29530d6d02db46dbccba"
+                "reference": "7acd9893c4771a87981e9b2bbebb27e1817d9808"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/scpwiki/text_wiki/zipball/c10e8b2e19f60697d5fa29530d6d02db46dbccba",
-                "reference": "c10e8b2e19f60697d5fa29530d6d02db46dbccba",
+                "url": "https://api.github.com/repos/scpwiki/text_wiki/zipball/7acd9893c4771a87981e9b2bbebb27e1817d9808",
+                "reference": "7acd9893c4771a87981e9b2bbebb27e1817d9808",
                 "shasum": ""
             },
             "type": "library",
