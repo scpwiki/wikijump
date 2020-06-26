@@ -46,7 +46,7 @@ class Captcha extends SmartyScreen
     public function render($runData)
     {
 
-        $this->TtfFolder = WIKIDOT_ROOT.'/lib/bitstream/';
+        $this->TtfFolder = WIKIDOT_ROOT.'/resources/fonts/bitstream/';
 
         $runData->setScreenTemplate(null); // this assures no other output will be generated; templating service will NOT run
         $key = $runData->getParameterList()->getParameterValue("key");

@@ -10,3 +10,4 @@ ozone-mapfile.php
 /web/files--sites
 /logs/ozone.log
 /vendor
+composer.phar

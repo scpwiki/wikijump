@@ -20,7 +20,7 @@
 # generates the .po file for the wikidot project
 
 # prepare from tpl
-./lib/ozone/bin/tsmarty2c.php `find . -name '*.tpl'` > tmp/tmp_locale.c
+./vendor/scpwiki/ozone/bin/tsmarty2c.php `find . -name '*.tpl'` > tmp/tmp_locale.c
 
 # generate pot
 xgettext -p locale/ --from-code=UTF-8 -n  `find . -name '*.php'` tmp/tmp_locale.c
