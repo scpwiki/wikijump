@@ -1,5 +1,5 @@
 /*
- * parse/data.rs
+ * data/mod.rs
  *
  * ftml - Library to parse Wikidot code
  * Copyright (C) 2019-2020 Ammon Smith
@@ -18,33 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO
-#![allow(dead_code)]
+mod image_alignment;
+mod page_info;
 
-use crate::enums::Alignment;
-use regex::Regex;
-
-lazy_static! {
-    static ref IMAGE_ALIGNMENT_REGEX: Regex = Regex::new(r"(f?[<>])|=").unwrap();
-}
-
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub struct ImageAlignment {
-    pub align: Alignment,
-    pub float: bool,
-}
-
-impl ImageAlignment {
-    pub fn parse(text: &str) -> Option<Self> {
-        let (align, float) = match text {
-            "=" => (Alignment::Center, false),
-            "<" => (Alignment::Left, false),
-            ">" => (Alignment::Right, false),
-            "f<" => (Alignment::Left, true),
-            "f>" => (Alignment::Right, true),
-            _ => return None,
-        };
-
-        Some(ImageAlignment { align, float })
-    }
-}
+pub use self::image_alignment::*;
+pub use self::page_info::*;

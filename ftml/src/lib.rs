@@ -61,24 +61,24 @@ extern crate tinyvec;
 #[cfg(test)]
 extern crate serde_json;
 
+pub mod data;
+pub mod handle;
+
 mod enums;
 mod error;
-pub mod handle;
-mod info;
 mod parse;
 mod preproc;
 mod tree;
 
 pub use self::error::{Error, RemoteError};
 pub use self::handle::Handle;
-pub use self::info::{PageInfo, PageInfoOwned};
 pub use self::parse::parse;
 pub use self::preproc::preprocess;
 pub use self::tree::{Element, SyntaxTree};
 
 pub mod prelude {
-    pub use super::{handle, parse, preprocess};
-    pub use super::{Error, PageInfo, PageInfoOwned, Result, StdResult, SyntaxTree};
+    pub use super::{data, handle, parse, preprocess};
+    pub use super::{Error, Result, StdResult, SyntaxTree};
 }
 
 pub type StdResult<T, E> = std::result::Result<T, E>;
