@@ -149,13 +149,13 @@ pub enum Token {
     //
     // Text components
     //
-    #[regex("[A-Za-z0-9]+", priority = 1)]
+    #[regex("[A-Za-z0-9]+")]
     Identifier,
 
-    #[regex(r"[A-Za-z0-9_+\-\.]+@[A-Za-z0-9\-]+\.[A-Za-z0-9\.]+", priority = 1)]
+    #[regex(r"[A-Za-z0-9+\-\.]+@[A-Za-z0-9\-]+\.[A-Za-z0-9\.]+", priority = 1)]
     Email,
 
-    #[regex(r"(https?|ftp)://[^ \n\|\[\]]+", priority = 1)]
+    #[regex(r"(https?|ftp)://[^ \n\|\[\]]+")]
     Url,
 
     //
@@ -192,6 +192,5 @@ fn tokens() {
         println!("Input: {:?}\nOutput: {:#?}", text, tokens);
     }
 
-    print_tokens("[[>]]\n[[module Rate]]\n[[/>]]");
-    print_tokens("##blue|colored text //yay//##\n\n\n^^some __super__script {{text}}^^ ^-^");
+    print_tokens("some __super__ script");
 }
