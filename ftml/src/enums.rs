@@ -20,7 +20,6 @@
 
 use crate::StdResult;
 use std::convert::TryFrom;
-use std::fmt::{self, Display};
 
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum Alignment {
@@ -28,17 +27,6 @@ pub enum Alignment {
     Right,
     Center,
     Justify,
-}
-
-impl Alignment {
-    pub fn style(self) -> &'static str {
-        match self {
-            Alignment::Left => "left",
-            Alignment::Right => "right",
-            Alignment::Center => "center",
-            Alignment::Justify => "justify",
-        }
-    }
 }
 
 impl<'a> TryFrom<&'a str> for Alignment {
@@ -55,29 +43,23 @@ impl<'a> TryFrom<&'a str> for Alignment {
     }
 }
 
-impl Display for Alignment {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.style())
-    }
-}
-
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum AnchorTarget {
+    /// Open the link in a new tab.
+    /// HTML attribute is `_blank`.
     NewTab,
-    Parent,
-    Top,
-    Same,
-}
 
-impl AnchorTarget {
-    pub fn style(self) -> &'static str {
-        match self {
-            AnchorTarget::NewTab => "_blank",
-            AnchorTarget::Parent => "_parent",
-            AnchorTarget::Top => "_top",
-            AnchorTarget::Same => "_self",
-        }
-    }
+    /// Open the link in the parent frame.
+    /// HTML attribute is `_parent`.
+    Parent,
+
+    /// Open the link in the top-most frame.
+    /// HTML attribute is `_top`.
+    Top,
+
+    /// Open the link in the current frame.
+    /// HTML attribute is `_self`.
+    Same,
 }
 
 impl<'a> TryFrom<&'a str> for AnchorTarget {
@@ -98,12 +80,6 @@ impl<'a> TryFrom<&'a str> for AnchorTarget {
         }
 
         Err(())
-    }
-}
-
-impl Display for AnchorTarget {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.style())
     }
 }
 
@@ -158,15 +134,6 @@ impl Into<u8> for HeadingLevel {
             HeadingLevel::Five => 5,
             HeadingLevel::Six => 6,
         }
-    }
-}
-
-impl Display for HeadingLevel {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let level = *self;
-        let value: u8 = level.into();
-
-        write!(f, "h{}", value)
     }
 }
 
