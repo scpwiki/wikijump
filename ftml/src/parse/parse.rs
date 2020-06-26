@@ -19,7 +19,7 @@
  */
 
 use super::token::Token;
-use super::tree::SyntaxTree;
+use crate::SyntaxTree;
 
 pub fn parse<'a>(text: &'a str) -> SyntaxTree<'a> {
     // TODO run through tokens

@@ -67,12 +67,14 @@ pub mod handle;
 mod info;
 mod parse;
 mod preproc;
+mod tree;
 
 pub use self::error::{Error, RemoteError};
 pub use self::handle::Handle;
 pub use self::info::{PageInfo, PageInfoOwned};
-pub use self::parse::{parse, SyntaxTree};
+pub use self::parse::parse;
 pub use self::preproc::preprocess;
+pub use self::tree::{Element, SyntaxTree};
 
 pub mod prelude {
     pub use super::{handle, parse, preprocess};

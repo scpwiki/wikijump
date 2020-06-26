@@ -21,7 +21,5 @@
 pub mod data;
 mod parse;
 mod token;
-mod tree;
 
 pub use self::parse::parse;
-pub use self::tree::SyntaxTree;

@@ -1,5 +1,5 @@
 /*
- * parse/tree.rs
+ * tree/mod.rs
  *
  * ftml - Library to parse Wikidot code
  * Copyright (C) 2019-2020 Ammon Smith
@@ -31,3 +31,6 @@ impl SyntaxTree<'_> {
         SyntaxTree { _todo: PhantomData }
     }
 }
+
+#[derive(Debug, Clone)]
+pub enum Element {}
