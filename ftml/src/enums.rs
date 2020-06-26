@@ -22,8 +22,7 @@ use crate::StdResult;
 use std::convert::TryFrom;
 use std::fmt::{self, Display};
 
-#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum Alignment {
     Left,
     Right,
@@ -62,8 +61,7 @@ impl Display for Alignment {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum AnchorTarget {
     NewTab,
     Parent,
@@ -109,8 +107,7 @@ impl Display for AnchorTarget {
     }
 }
 
-#[derive(Serialize_repr, Deserialize_repr, Debug, Copy, Clone, Hash, PartialEq, Eq)]
-#[repr(u8)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum HeadingLevel {
     One = 1,
     Two = 2,
@@ -173,23 +170,20 @@ impl Display for HeadingLevel {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum LinkText<'a> {
     Text(&'a str),
     Url,
     Article,
 }
 
-#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum ListStyle {
     Bullet,
     Numbered,
 }
 
-#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum InfoField {
     Title,
     AltTitle,

@@ -53,7 +53,7 @@ pub struct PageInfo<'a> {
 
 /// An owned version of [`PageInfo`]. See there for field information.
 /// [`PageInfo`]: ./struct.PageInfo.html
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct PageInfoOwned {
     pub title: String,
     pub alt_title: Option<String>,

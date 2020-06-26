@@ -29,9 +29,6 @@
 //! while also maintaining the flexibility and lax parsing that
 //! Wikidot permits.
 
-extern crate chrono;
-extern crate either;
-
 #[macro_use]
 extern crate lazy_static;
 
@@ -40,26 +37,13 @@ extern crate log;
 
 #[macro_use]
 extern crate logos;
-extern crate percent_encoding;
 extern crate regex;
-
-#[macro_use]
-extern crate serde;
-
-#[macro_use]
-extern crate serde_repr;
 
 #[macro_use]
 extern crate str_macro;
 
 #[macro_use]
 extern crate thiserror;
-
-#[macro_use]
-extern crate tinyvec;
-
-#[cfg(test)]
-extern crate serde_json;
 
 pub mod data;
 pub mod handle;

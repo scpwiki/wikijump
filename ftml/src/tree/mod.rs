@@ -20,7 +20,7 @@
 
 use std::marker::PhantomData;
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct SyntaxTree<'a> {
     _todo: PhantomData<&'a str>,
 }
