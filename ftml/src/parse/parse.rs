@@ -24,6 +24,9 @@ use crate::SyntaxTree;
 pub fn parse<'a>(text: &'a str) -> SyntaxTree<'a> {
     // TODO run through tokens
     let tokens = Token::extract_all(text);
+    // TODO create stack that has `Vec`s, with at least one (the main one)
 
-    SyntaxTree::new_temp()
+    // TODO
+    let elements = Vec::new();
+    SyntaxTree { elements }
 }

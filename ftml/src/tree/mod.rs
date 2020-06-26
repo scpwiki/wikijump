@@ -18,19 +18,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use std::marker::PhantomData;
+type Elements<'a> = Vec<Element<'a>>;
 
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct SyntaxTree<'a> {
-    _todo: PhantomData<&'a str>,
+    pub elements: Vec<Element<'a>>,
 }
 
-impl SyntaxTree<'_> {
-    #[inline]
-    pub fn new_temp() -> Self {
-        SyntaxTree { _todo: PhantomData }
-    }
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Element<'a> {
+    Bold(Elements<'a>),
+    Italics(Elements<'a>),
+    Underline(Elements<'a>),
+    Superscript(Elements<'a>),
+    Subscript(Elements<'a>),
+    Strikethrough(Elements<'a>),
+    Monospace(Elements<'a>),
+    Text(&'a str),
 }
-
-#[derive(Debug, Clone)]
-pub enum Element {}
