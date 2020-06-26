@@ -63,17 +63,8 @@ pub enum Token {
     #[token("\n", priority = 2)]
     Newline,
 
-    #[regex(r"\s+")]
+    #[regex(r"\s+", priority = 1)]
     Whitespace,
-
-    //
-    // Text components
-    //
-    #[regex(r"[A-Za-z0-9_+\-\.]+@[A-Za-z0-9\-]+\.[A-Za-z0-9\.]+")]
-    Email,
-
-    #[regex(r"(https?|ftp)://[^ \n\|\[\]]+")]
-    Url,
 
     //
     // Formatting
@@ -155,6 +146,18 @@ pub enum Token {
 
     #[token("[[/==]]")]
     JustifyAlignClose,
+
+    //
+    // Text components
+    //
+    #[regex("[A-Za-z0-9]+", priority = 1)]
+    Identifier,
+
+    #[regex(r"[A-Za-z0-9_+\-\.]+@[A-Za-z0-9\-]+\.[A-Za-z0-9\.]+", priority = 1)]
+    Email,
+
+    #[regex(r"(https?|ftp)://[^ \n\|\[\]]+", priority = 1)]
+    Url,
 
     //
     // Miscellaneous / "error" case
