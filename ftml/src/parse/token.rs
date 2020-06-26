@@ -18,7 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::data::ImageAlignment;
 use std::ops::Range;
 
 #[derive(Debug, Clone, PartialEq)]

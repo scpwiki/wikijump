@@ -18,10 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::SyntaxTree;
+use super::token::Token;
+use super::tree::SyntaxTree;
 
 pub fn parse<'a>(text: &'a str) -> SyntaxTree<'a> {
     // TODO run through tokens
+    let tokens = Token::extract_all(text);
 
     SyntaxTree::new_temp()
 }
