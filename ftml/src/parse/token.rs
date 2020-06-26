@@ -69,17 +69,11 @@ pub enum Token {
     //
     // Text components
     //
-    #[regex(r"\w+", priority = 2)]
-    Identifier,
-
     #[regex(r"[A-Za-z0-9_+\-\.]+@[A-Za-z0-9\-]+\.[A-Za-z0-9\.]+")]
     Email,
 
     #[regex(r"(https?|ftp)://[^ \n\|\[\]]+")]
     Url,
-
-    #[regex(r"(f?[<>])|=", ImageAlignment::read, priority = 3)]
-    ImageAlignment(ImageAlignment),
 
     //
     // Formatting
@@ -198,4 +192,6 @@ fn tokens() {
 
     print_tokens("**Hello** world!");
     print_tokens("[[>]]\n[[module Rate]]\n[[/>]]");
+    print_tokens("##blue|colored text //yay//##\n\n\n^^some __super__script {{text}}^^ ^-^");
+    print_tokens("[[<image apple]]\n[[=image banana]]\n[[f>image cherry]]\n");
 }

@@ -18,9 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::token::Token;
 use crate::enums::Alignment;
-use logos::Lexer;
+use regex::Regex;
+
+lazy_static! {
+    static ref IMAGE_ALIGNMENT_REGEX: Regex = Regex::new(r"(f?[<>])|=").unwrap();
+}
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct ImageAlignment {
@@ -29,20 +32,14 @@ pub struct ImageAlignment {
 }
 
 impl ImageAlignment {
-    pub fn read(lex: &mut Lexer<Token>) -> Option<Self> {
-        let (align, float) = match lex.slice() {
+    pub fn parse(text: &str) -> Option<Self> {
+        let (align, float) = match text {
             "=" => (Alignment::Center, false),
             "<" => (Alignment::Left, false),
             ">" => (Alignment::Right, false),
             "f<" => (Alignment::Left, true),
             "f>" => (Alignment::Right, true),
-            _ => {
-                warn!(
-                    "Image alignment options didn't match, found '{}'",
-                    lex.slice(),
-                );
-                return None;
-            }
+            _ => return None,
         };
 
         Some(ImageAlignment { align, float })
