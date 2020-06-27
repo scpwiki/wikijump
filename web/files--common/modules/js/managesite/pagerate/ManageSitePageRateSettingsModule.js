@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -20,7 +20,7 @@ WIKIDOT.modules.ManageSitePageRateSettingsModule.listeners ={
 		parms['categories'] = serialized;
 		parms['action'] = "ManageSiteAction";
 		parms['event'] = "savePageRateSettings";
-		
+
 		OZONE.ajax.requestModule("Empty", parms, WIKIDOT.modules.ManageSitePageRateSettingsModule.callbacks.save);
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Saving changes...";
@@ -45,33 +45,33 @@ WIKIDOT.modules.ManageSitePageRateSettingsModule.utils = {
 			// check for the value in the form
 			id = "cat235-"+categories[i].category_id;
 			var ps = '';
-			if($(id+"-e").value=='enabled'){ 
+			if($(id+"-e").value=='enabled'){
 				ps += 'e';
 			}else if($(id+"-e").value=='disabled'){
 				ps += 'd';
 			}
-			
-			if($(id+"-w").value=='r'){ 
+
+			if($(id+"-w").value=='r'){
 				ps += 'r';
 			}else if($(id+"-w").value=='m'){
 				ps += 'm';
 			}
-			
-			if($(id+"-v").value=='v'){ 
+
+			if($(id+"-v").value=='v'){
 				ps += 'v';
 			}else if($(id+"-v").value=='a'){
 				ps += 'a';
 			}
-			
+
 			ps += $(id+"-t").value;
 
 			categories[i].rating = ps;
 		}
 	},
-	
+
 	updateVis: function(categoryId){
 		var id = "cat235-"+categoryId;
-		if($(id+"-e").value=='enabled'){ 
+		if($(id+"-e").value=='enabled'){
 			$(id+"-w").style.visibility="visible";
 			$(id+"-v").style.visibility="visible";
 			$(id+"-t").style.visibility="visible";
@@ -81,7 +81,7 @@ WIKIDOT.modules.ManageSitePageRateSettingsModule.utils = {
 			$(id+"-t").style.visibility="hidden";
 		}
 	}
-	
+
 };
 
 WIKIDOT.modules.ManageSitePageRateSettingsModule.init = function(){

@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -46,9 +46,9 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.listeners = {
 		var w = new OZONE.dialogs.Dialog();
 		w.content = el.innerHTML.replace(/template\-id\-stub\-/g, 'a-');
 		w.show();
-		
+
 	},
-	
+
 	editGroup: function(groupIndex){
 		var el = $("new-group-window");
 		var w = new OZONE.dialogs.Dialog();
@@ -58,9 +58,9 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.listeners = {
 		$("a-group-name").value = group['name'];
 		$("a-gindex").value = groupIndex;
 		$("a-group-description").value = group['description'];
-		
+
 	},
-	
+
 	saveGroup: function(e){
 		var name = $("a-group-name").value;
 		var description =  $("a-group-description").value;
@@ -69,7 +69,7 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.listeners = {
 		if(name.length == 0){
 			errors[errors.length] = "The name should not be empty";
 		}
-		
+
 		if(errors.length >0){
 			// form HAS errors. print them and exit the function
 			$("a-form-error-list").innerHTML = errors.join('<br/>');
@@ -97,17 +97,17 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.listeners = {
 		}
 
 	},
-	
+
 	hideGroup: function(groupIndex){
 		groups[groupIndex]['visible']=false;
 		WIKIDOT.modules.ManageSiteForumLayoutModule.utils.refreshDisplay();
 	},
-	
+
 	showGroup: function(groupIndex){
 		groups[groupIndex]['visible']=true;
 		WIKIDOT.modules.ManageSiteForumLayoutModule.utils.refreshDisplay();
 	},
-	
+
 	deleteGroup: function(groupIndex){
 		// check if not empty
 		if(categories[groupIndex].length > 0){
@@ -121,7 +121,7 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.listeners = {
 			WIKIDOT.modules.ManageSiteForumLayoutModule.utils.refreshDisplay();
 		}
 	},
-	
+
 	deleteCategory: function(groupIndex, categoryIndex){
 		var category =  categories[groupIndex][categoryIndex];
 		if(category['number_threads'] && category['number_threads']>0){
@@ -137,7 +137,7 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.listeners = {
 			WIKIDOT.modules.ManageSiteForumLayoutModule.utils.refreshDisplay();
 		}
 	},
-	
+
 	addCategory: function(groupIndex){
 		// show new group form
 		var el = document.getElementById("new-category-window");
@@ -146,7 +146,7 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.listeners = {
 		w.show();
 		$("a-group-index").value=groupIndex;
 	},
-	
+
 	editCategory: function(groupIndex, categoryIndex){
 		var cat = categories[groupIndex][categoryIndex];
 		var el = $("new-category-window");
@@ -162,19 +162,19 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.listeners = {
 			$("a-gcategory-structure").value = mnl;
 
 	},
-	
+
 	saveCategory: function(e){
 		var name = $("a-gcategory-name").value;
 		var description =  $("a-gcategory-description").value;
 		var groupIndex = $("a-group-index").value;
 		var maxNestLevel = $("a-gcategory-structure").value;
-		
+
 		// validate please...
 		var errors = new Array();
 		if(name.length == 0){
 			errors[errors.length] = "The name should not be empty";
 		}
-		
+
 		if(errors.length >0){
 			// form HAS errors. print them and exit the function
 			$("a-form-gerror-list").innerHTML = errors.join('<br/>');
@@ -188,12 +188,12 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.listeners = {
 			} else {
 				category = categories[groupIndex][categoryIndex];
 			}
-		 
+
 			category['name'] = name;
 			category['description'] = description;
 			if(maxNestLevel == '') maxNestLevel = null;
 			category['max_nest_level'] = maxNestLevel;
-			
+
 			if(categoryIndex == "" || categoryIndex == null){
 				categories[groupIndex].push(category);
 			}
@@ -202,32 +202,32 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.listeners = {
 		}
 
 	},
-	
+
 	moveGroupUp: function(groupIndex){
 		if(groupIndex > 0){
 			var tmp1 = groups[groupIndex-1];
 			groups[groupIndex-1] = groups[groupIndex];
 			groups[groupIndex] = tmp1;
-			
+
 			tmp1 = categories[groupIndex-1];
 			categories[groupIndex-1] = categories[groupIndex];
 			categories[groupIndex] = tmp1;
 			WIKIDOT.modules.ManageSiteForumLayoutModule.utils.refreshDisplay();
 		}
-		
+
 	},
 	moveGroupDown: function(groupIndex){
 		if(groupIndex < groups.length-1){
 			var tmp1 = groups[groupIndex+1];
 			groups[groupIndex+1] = groups[groupIndex];
 			groups[groupIndex] = tmp1;
-			
+
 			tmp1 = categories[groupIndex+1];
 			categories[groupIndex+1] = categories[groupIndex];
 			categories[groupIndex] = tmp1;
 			WIKIDOT.modules.ManageSiteForumLayoutModule.utils.refreshDisplay();
 		}
-		
+
 	},
 	moveCategoryUp: function(groupIndex, categoryIndex){
 		// move within one group or promote to another group...
@@ -237,7 +237,7 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.listeners = {
 			var tmp1 = cats[categoryIndex];
 			cats[categoryIndex] = cats[categoryIndex-1];
 			cats[categoryIndex-1] = tmp1;
-		
+
 		}else{
 			// inter-group
 			if(groupIndex >0){
@@ -255,7 +255,7 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.listeners = {
 			var tmp1 = cats[categoryIndex];
 			cats[categoryIndex] = cats[categoryIndex+1];
 			cats[categoryIndex+1] = tmp1;
-		
+
 		}else{
 			// inter-group
 			if(groupIndex < groups.length - 1){
@@ -282,7 +282,7 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.listeners = {
 		w.content = "Saving forum structure...";
 		w.show();
 	}
-	
+
 }
 
 WIKIDOT.modules.ManageSiteForumLayoutModule.callbacks = {
@@ -297,7 +297,7 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.callbacks = {
 		w.show();
 		OZONE.ajax.requestModule("managesite/ManageSiteGetForumLayoutModule",null,WIKIDOT.modules.ManageSiteForumLayoutModule.callbacks.getLayout);
 	},
-	
+
 	getLayout: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
 		groups = r.groups;
@@ -330,10 +330,10 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.utils = {
 			}
 			inner += '<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteForumLayoutModule.listeners.deleteGroup('+i+')">delete</a> |';
 			inner +='<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteForumLayoutModule.listeners.addCategory('+i+')">add category</a> | ' +
-			
+
 						'<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteForumLayoutModule.listeners.moveGroupUp('+i+')">move up</a> | ' +
 						'<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteForumLayoutModule.listeners.moveGroupDown('+i+')">move down</a></div>';
-					
+
 			// now add all categories...
 			var cats = categories[i];
 			for(var j=0; j<cats.length; j++){
@@ -369,9 +369,9 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.utils = {
 
 WIKIDOT.modules.ManageSiteForumLayoutModule.init = function(){
 	YAHOO.util.Event.addListener("new-group-b", "click", WIKIDOT.modules.ManageSiteForumLayoutModule.listeners.newGroup);
-	
+
 	// get layout:
-	
+
 	OZONE.ajax.requestModule("managesite/ManageSiteGetForumLayoutModule",null,WIKIDOT.modules.ManageSiteForumLayoutModule.callbacks.getLayout);
 
 }

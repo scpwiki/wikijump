@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -22,15 +22,15 @@ WIKIDOT.modules.PMSentModule.listeners = {
 		OZONE.ajax.requestModule("account/pm/PMSentModule", p, WIKIDOT.modules.AccountMessagesModule.callbacks.setActionArea);
 		if(e){	WIKIDOT.modules.AccountMessagesModule.utils.highlightTab(e);}
 	},
-	
+
 	selectAll: function(e){
 		var chs = YAHOO.util.Dom.getElementsByClassName("message-select");
 		for(var i=0; i<chs.length; i++){
 			chs[i].checked=true;
 		}
-		
+
 	},
-	
+
 	removeSelected: function(e){
 		var selected = new Array();
 		var chs = YAHOO.util.Dom.getElementsByClassName("message-select");
@@ -47,7 +47,7 @@ WIKIDOT.modules.PMSentModule.listeners = {
 		p.event = 'removeSelectedSent';
 		p.selected = JSON.stringify(selected);
 		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.PMSentModule.callbacks.removeSelected);
-			
+
 	},
 	removeSentMessage: function(e, messageId){
 		WIKIDOT.modules.PMSentModule.vars.currentMessageId = messageId;
@@ -59,7 +59,7 @@ WIKIDOT.modules.PMSentModule.listeners = {
 		w.focusButton = 'cancel';
 		w.show();
 	},
-	
+
 	removeSentMessage2: function(e, messageId){
 		var p = new Object();
 		p.action = "PMAction";
@@ -78,7 +78,7 @@ WIKIDOT.modules.PMSentModule.callbacks = {
 			var w = new OZONE.dialogs.SuccessBox();
 			w.content = "The message has been removed.";
 			w.show();
-			
+
 			if(r.messageId){
 				setTimeout('WIKIDOT.modules.AccountMessagesModule.listeners.viewSentMessage("'+r.messageId+'")', 1000);
 			}else{
@@ -90,5 +90,5 @@ WIKIDOT.modules.PMSentModule.callbacks = {
 }
 
 WIKIDOT.modules.PMSentModule.init = function(){
-	
+
 }

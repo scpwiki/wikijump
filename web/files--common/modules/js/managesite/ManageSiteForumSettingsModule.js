@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -16,13 +16,13 @@ WIKIDOT.modules.ManageSiteForumSettingsModule.listeners = {
 		var p = new Object();
 		p.action = "ManageSiteForumAction";
 		p.event = "activateForum";
-		
+
 		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.ManageSiteForumSettingsModule.callbacks.activateForum);
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Initializing forum...";
 		w.show();
 	},
-	
+
 	saveNesting: function(e){
 		var nest = $("max-nest-level").value;
 		var p = new Object();
@@ -33,7 +33,7 @@ WIKIDOT.modules.ManageSiteForumSettingsModule.listeners = {
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Saving changes...";
 		w.show();
-	}	
+	}
 }
 
 WIKIDOT.modules.ManageSiteForumSettingsModule.callbacks = {
@@ -49,5 +49,5 @@ WIKIDOT.modules.ManageSiteForumSettingsModule.callbacks = {
 		w.content = "Forum has been activated.";
 		w.show();
 		setTimeout("WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-forum-settings')", 1000);
-	}	
+	}
 }

@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -16,11 +16,11 @@ WIKIDOT.modules.ManagerSiteMembersModule.listeners = {
 		var parms = OZONE.utils.formToArray("sm-mem-form");
 		parms['action'] = "ManageSiteMembershipAction";
 		parms['event'] = "saveMemberPolicy";
-		OZONE.ajax.requestModule("Empty", parms, WIKIDOT.modules.ManagerSiteMembersModule.callbacks.save);	
+		OZONE.ajax.requestModule("Empty", parms, WIKIDOT.modules.ManagerSiteMembersModule.callbacks.save);
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Saving changes...";
 		w.show();
-	
+
 	},
 	cancel: function(e){
 		OZONE.ajax.requestModule("managesite/ManageSiteModule", null, WIKIDOT.modules.ManagerSiteMembersModule.callbacks.cancel)
@@ -36,7 +36,7 @@ WIKIDOT.modules.ManagerSiteMembersModule.callbacks = {
 	cancel: function(response){
 		OZONE.utils.setInnerHTMLContent("site-manager", response.body);
 	}
-	
+
 }
 
 WIKIDOT.modules.ManagerSiteMembersModule.init = function(){
@@ -44,5 +44,5 @@ WIKIDOT.modules.ManagerSiteMembersModule.init = function(){
 	YAHOO.util.Event.addListener("sm-members-save", "click", WIKIDOT.modules.ManagerSiteMembersModule.listeners.save);
 
 }
-	
+
 WIKIDOT.modules.ManagerSiteMembersModule.init();

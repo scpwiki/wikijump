@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -22,7 +22,7 @@ WIKIDOT.modules.PMComposeModule.listeners = {
 		$("user-lookup").value="";
 		WIKIDOT.modules.PMComposeModule.vars.recipientId = null;
 	},
-	
+
 	preview: function(e){
 		var p = new Object();
 		p['source'] = $("editor-textarea").value;
@@ -32,7 +32,7 @@ WIKIDOT.modules.PMComposeModule.listeners = {
 		}
 		OZONE.ajax.requestModule("account/pm/PMPreviewModule", p, WIKIDOT.modules.PMComposeModule.callbacks.preview);
 	},
-	
+
 	saveDraft: function(e){
 		var p = new Object();
 		p['source'] = $("editor-textarea").value;
@@ -44,9 +44,9 @@ WIKIDOT.modules.PMComposeModule.listeners = {
 		p['event'] = "saveDraft";
 		OZONE.ajax.requestModule("Empty", p, WIKIDOT.modules.PMComposeModule.callbacks.saveDraft);
 	},
-	
+
 	send: function(e){
-		
+
 		if(WIKIDOT.modules.PMComposeModule.vars.recipientId == null){
 			// no recipient!
 			var d = new OZONE.dialogs.ErrorDialog()
@@ -54,7 +54,7 @@ WIKIDOT.modules.PMComposeModule.listeners = {
 			d.show();
 			return;
 		}
-		
+
 		var p = new Object();
 		p['source'] = $("editor-textarea").value;
 		p['subject'] = $("pm-subject").value;
@@ -67,11 +67,11 @@ WIKIDOT.modules.PMComposeModule.listeners = {
 		// warning: need to check the context... is it a "reply" or standalone compose?
 		WIKIDOT.Editor.shutDown();
 	},
-	
+
 	showContactsList: function(e){
 		OZONE.ajax.requestModule("account/pm/PMComposeContactsListModule", null, WIKIDOT.modules.PMComposeModule.callbacks.showContactsList);
 	}
-	
+
 }
 
 WIKIDOT.modules.PMComposeModule.callbacks = {
@@ -101,7 +101,7 @@ WIKIDOT.modules.PMComposeModule.callbacks = {
 		var w = new OZONE.dialogs.Dialog();
 		w.content = r.body;
 		w.show();
-		
+
 		// check for sizes
 		var list = $("pm-contacts-list");
 		if(list.offsetHeight>500){
@@ -115,7 +115,7 @@ WIKIDOT.modules.PMComposeModule.callbacks = {
 
 WIKIDOT.modules.PMComposeModule.init = function(){
 	// init autocomplete
-	var dataSource = new YAHOO.widget.DS_XHR("/quickmodule.php", ['users','name', 'user_id']); 
+	var dataSource = new YAHOO.widget.DS_XHR("/quickmodule.php", ['users','name', 'user_id']);
 	dataSource.scriptQueryParam="q";
 	dataSource.scriptQueryAppend = "&module=UserLookupQModule";
 
@@ -129,8 +129,8 @@ WIKIDOT.modules.PMComposeModule.init = function(){
 		var userName = args[1].getElementsByTagName('div').item(0).innerHTML;
 		WIKIDOT.modules.PMComposeModule.utils.selectRecipient(userId, userName);
 	});
-	
-	autoComp.formatResult = function(aResultItem, sQuery) { 
+
+	autoComp.formatResult = function(aResultItem, sQuery) {
 		var name = aResultItem[0];
 		var userId = aResultItem[1];
 		if(name!= null){
@@ -138,9 +138,9 @@ WIKIDOT.modules.PMComposeModule.init = function(){
 		} else {
 			return "";
 		}
-		
-	}	
-	
+
+	}
+
 	if(WIKIDOT.modules.AccountMessagesModule.vars.toUserId){
 		WIKIDOT.modules.PMComposeModule.utils.selectRecipient(WIKIDOT.modules.AccountMessagesModule.vars.toUserId,WIKIDOT.modules.AccountMessagesModule.vars.toUserName);
 		WIKIDOT.modules.AccountMessagesModule.vars.toUserId = null;
@@ -148,7 +148,7 @@ WIKIDOT.modules.PMComposeModule.init = function(){
 	}
 	// init editor
 	WIKIDOT.Editor.init("editor-textarea", "editor-panel");
-	
+
 	YAHOO.util.Event.addListener("pm-compose-cancel-button", "click", WIKIDOT.modules.PMComposeModule.listeners.cancel);
 }
 
@@ -159,14 +159,14 @@ WIKIDOT.modules.PMComposeModule.utils={
 		$("selected-user-div").style.display="block";
 		$("selected-user-rendered").innerHTML = userString;
 		WIKIDOT.modules.PMComposeModule.vars.recipientId = userId;
-		
+
 		// also check for permission
 		var p = new Object();
 		p.userId = userId;
 		p.action = "PMAction";
 		p.event = "checkCan";
 		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.PMComposeModule.callbacks.checkCan);
-	}	
+	}
 }
 
 WIKIDOT.modules.PMComposeModule.init();

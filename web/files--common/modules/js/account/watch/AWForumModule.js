@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -21,7 +21,7 @@ WIKIDOT.modules.AWForumModule.listeners = {
 		$("show-watched-threads-button").style.display="";
 		$("hide-watched-threads-button").style.display="none";
 	},
-	
+
 	removeWatchedThread: function(e, threadId){
 		var p = new Object();
 		p.threadId = threadId;
@@ -38,30 +38,30 @@ WIKIDOT.modules.AWForumModule.listeners = {
 		}
 
 		OZONE.ajax.requestModule("account/watch/AWForumListModule", p, WIKIDOT.modules.AWForumModule.callbacks.updateList);
-	}	
+	}
 }
 
 WIKIDOT.modules.AWForumModule.callbacks = {
 	showWatchedThreads: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}	
+		if(!WIKIDOT.utils.handleError(r)) {return;}
 		var el = $("watched-threads-list");
 		el.innerHTML = r.body;
 		el.style.display = "block";
 		$("hide-watched-threads-button").style.display="";
 		$("show-watched-threads-button").style.display="none";
 	},
-	
+
 	removeWatchedThread: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}	
+		if(!WIKIDOT.utils.handleError(r)) {return;}
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Thread not being watched any more.";
 		w.show();
-		WIKIDOT.modules.AWForumModule.listeners.showWatchedThreads();	
+		WIKIDOT.modules.AWForumModule.listeners.showWatchedThreads();
 		WIKIDOT.modules.AWForumModule.listeners.updateList();
 	},
 	updateList: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
-		
+
 		$("watched-forum-list").innerHTML = r.body;
 		OZONE.utils.formatDates("watched-forum-list");
 	}

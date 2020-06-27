@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -15,18 +15,18 @@ WIKIDOT.modules.CreateAccount2Module.listeners = {
 	cancel: function(e){
 		window.location.href=HTTP_SCHEMA+"://"+window.location.hostname;
 	},
-	
+
 	backClick: function(e){
-		OZONE.ajax.requestModule("createaccount/CreateAccount0Module", null, WIKIDOT.modules.CreateAccount2Module.callbacks.backClick);	
+		OZONE.ajax.requestModule("createaccount/CreateAccount0Module", null, WIKIDOT.modules.CreateAccount2Module.callbacks.backClick);
 	},
-	
+
 	nextClick: function(e){
 		var p = new Object();
 		p.evcode = $("ca-evercode").value;
 		p.action = "CreateAccount2Action";
 		p.event = "finalize";
-		OZONE.ajax.requestModule("Empty", p, WIKIDOT.modules.CreateAccount2Module.callbacks.nextClick);	
-	
+		OZONE.ajax.requestModule("Empty", p, WIKIDOT.modules.CreateAccount2Module.callbacks.nextClick);
+
 	}
 }
 WIKIDOT.modules.CreateAccount2Module.callbacks = {
@@ -61,7 +61,7 @@ WIKIDOT.modules.CreateAccount2Module.callbacks = {
 	}
 
 }
-OZONE.dom.onDomReady(function(){		
+OZONE.dom.onDomReady(function(){
 		// change links to http://...
 		var els = document.getElementsByTagName('a');
 		for(var i=0; i<els.length;i++){

@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -23,16 +23,16 @@ WIKIDOT.modules.ForumThreadMoveModule.listeners = {
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Moving thread...";
 		w.show();
-	}	
+	}
 }
 
 WIKIDOT.modules.ForumThreadMoveModule.callbacks = {
 	move: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}	
+		if(!WIKIDOT.utils.handleError(r)) {return;}
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Thread has been moved.";
 		w.show();
 		setTimeout("window.location.reload()", 1000);
 	}
-		
+
 }

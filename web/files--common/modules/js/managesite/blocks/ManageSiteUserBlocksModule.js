@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -21,10 +21,10 @@ WIKIDOT.modules.ManageSiteUserBlocksModule.listeners = {
 	showAddForm: function(e){
 		if(!WIKIDOT.modules.ManageSiteUserBlocksModule.vars.addFormInited){
 			// init autocomplete now
-			var dataSource = new YAHOO.widget.DS_XHR("/quickmodule.php", ['users','name', 'user_id']); 
+			var dataSource = new YAHOO.widget.DS_XHR("/quickmodule.php", ['users','name', 'user_id']);
 			dataSource.scriptQueryParam="q";
 			dataSource.scriptQueryAppend = "&module=UserLookupQModule";
-		
+
 			var autoComp = new YAHOO.widget.AutoComplete('user-lookup','user-lookup-list', dataSource);
 
 			autoComp.minQueryLength = 2;
@@ -35,8 +35,8 @@ WIKIDOT.modules.ManageSiteUserBlocksModule.listeners = {
 				var userName = args[1].getElementsByTagName('div').item(0).innerHTML;
 				WIKIDOT.modules.ManageSiteUserBlocksModule.listeners.selectUser(userId, userName);
 			});
-			
-			autoComp.formatResult = function(aResultItem, sQuery) { 
+
+			autoComp.formatResult = function(aResultItem, sQuery) {
 				var name = aResultItem[0];
 				var userId = aResultItem[1];
 				if(name!= null){
@@ -44,8 +44,8 @@ WIKIDOT.modules.ManageSiteUserBlocksModule.listeners = {
 				} else {
 					return "";
 				}
-				
-			}	
+
+			}
 			var limiter = new OZONE.forms.lengthLimiter("user-block-reason", "reason-char-left", 200);
 
 			WIKIDOT.modules.ManageSiteUserBlocksModule.vars.addFormInited = true;
@@ -54,14 +54,14 @@ WIKIDOT.modules.ManageSiteUserBlocksModule.listeners = {
 		$("add-block-user-div").style.display = "block";
 		OZONE.visuals.scrollTo("add-block-user-div");
 	},
-	
+
 	cancelAdd: function(e){
 		// resets the forms?
 		$("show-add-block-button").style.display = "block";
 		$("add-block-user-div").style.display = "none";
 		$("user-lookup").value="";
 		WIKIDOT.modules.ManageSiteUserBlocksModule.listeners.changeUser(null);
-		
+
 	},
 	selectUser: function(userId, userName){
 		var userString = WIKIDOT.render.printuser(userId,userName, true);
@@ -76,7 +76,7 @@ WIKIDOT.modules.ManageSiteUserBlocksModule.listeners = {
 		$("user-lookup").value="";
 		WIKIDOT.modules.ManageSiteUserBlocksModule.vars.currentUserId = null;
 	},
-	
+
 	blockUser: function(e){
 		if(WIKIDOT.modules.ManageSiteUserBlocksModule.vars.currentUserId == null){
 			var w = new OZONE.dialogs.ErrorDialog();
@@ -91,7 +91,7 @@ WIKIDOT.modules.ManageSiteUserBlocksModule.listeners = {
 		p.event = "blockUser";
 		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.ManageSiteUserBlocksModule.callbacks.blockUser);
 	},
-	
+
 	deleteBlock: function(e, userId, userName){
 		var w = new OZONE.dialogs.ConfirmationDialog();
 		w.buttons = ['cancel', 'yes, delete block'];
@@ -114,28 +114,28 @@ WIKIDOT.modules.ManageSiteUserBlocksModule.listeners = {
 WIKIDOT.modules.ManageSiteUserBlocksModule.callbacks = {
 	blockUser: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
-		
+
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "User blocked.";
 		w.show();
 		// refresh the screen too
 		setTimeout('WIKIDOT.modules.ManagerSiteModule.utils.loadModule("sm-user-blocks")', 1500);
-		
+
 	},
 	deleteBlock: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
-		
+
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "User block removed.";
 		w.show();
 		// refresh the screen too
 		setTimeout('WIKIDOT.modules.ManagerSiteModule.utils.loadModule("sm-user-blocks")', 1500);
-		
+
 	}
 }
 
 WIKIDOT.modules.ManageSiteUserBlocksModule.init = function(){
-	
+
 }
 
 WIKIDOT.modules.ManageSiteUserBlocksModule.init();

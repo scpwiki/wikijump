@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -50,7 +50,7 @@ WIKIDOT.modules.ManageSiteMembersListModule.listeners = {
 		p.user_id = userId;
 		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.ManageSiteMembersListModule.callbacks.removeUser);
 	},
-	
+
 	removeAndBan: function(userId, userName){
 		WIKIDOT.modules.ManageSiteMembersListModule.vars.currentUserId = userId;
 		var w = new OZONE.dialogs.ConfirmationDialog();
@@ -75,16 +75,16 @@ WIKIDOT.modules.ManageSiteMembersListModule.listeners = {
 WIKIDOT.modules.ManageSiteMembersListModule.callbacks = {
 	removeUser: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
-		
+
 		var w = new OZONE.dialogs.SuccessDialog();
 		w.content = "The user has been removed.";
 		w.show();
-		
+
 		WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-members-list');
 	},
 	toModerators: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
-		
+
 		var w = new OZONE.dialogs.SuccessDialog();
 		w.content = "The user <strong>"+r.userName+"</strong> has been added to moderators.<br/>" +
 				"Now please go to the list of moderators and set new permissions.";
@@ -92,19 +92,19 @@ WIKIDOT.modules.ManageSiteMembersListModule.callbacks = {
 	},
 	toAdmins: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
-		
+
 		var w = new OZONE.dialogs.SuccessDialog();
 		w.content = "The user <strong>"+r.userName+"</strong> has been added to site administrators.";
 		w.show();
-		
+
 	},
 	removeAndBan: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
-		
+
 		var w = new OZONE.dialogs.SuccessDialog();
 		w.content = "The user has been removed and banned.";
 		w.show();
-		
+
 		WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-members-list');
 	}
 }

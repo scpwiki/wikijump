@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -12,7 +12,7 @@
 WIKIDOT.modules.SignPetitionModule = {};
 
 WIKIDOT.modules.SignPetitionModule.listeners = {
-	
+
 	sign: function(e){
 		var p = OZONE.utils.formToArray("sign-petition-form");
 		p.action = "extra/petition/PetitionAction";
@@ -20,7 +20,7 @@ WIKIDOT.modules.SignPetitionModule.listeners = {
 		p.petitionUrl = WIKIREQUEST.info.pageUnixName;
 		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.SignPetitionModule.callbacks.sign );
 	},
-	
+
 	confirmSignature: function(e, campaignId, hash){
 		var p = new Object();
 		p.action = "extra/petition/PetitionAction";
@@ -28,9 +28,9 @@ WIKIDOT.modules.SignPetitionModule.listeners = {
 		p.hash = hash;
 		p.campaignId = campaignId;
 		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.SignPetitionModule.callbacks.confirmSignature);
-		
+
 	},
-	
+
 	cancelSignature: function(e, campaignId, hash){
 		var p = new Object();
 		p.action = "extra/petition/PetitionAction";
@@ -38,7 +38,7 @@ WIKIDOT.modules.SignPetitionModule.listeners = {
 		p.hash = hash;
 		p.campaignId = campaignId;
 		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.SignPetitionModule.callbacks.confirmSignature);
-		
+
 	}
 }
 
@@ -49,12 +49,12 @@ WIKIDOT.modules.SignPetitionModule.callbacks = {
 		for(var i=0; i<trs.length; i++){
 			YAHOO.util.Dom.removeClass(trs[i],'invalid-value-row');
 		}
-		
+
 		if(r.status == 'form_errors'){
 			$("sign-petition-error-box").innerHTML = r.message;
 			$("sign-petition-error-box").style.display="block";
 			var errors = r.errors;
-			
+
 			for(var n in errors){
 				var row = $('sign-petition-row'+'-'+n);
 				YAHOO.util.Dom.addClass(row,'invalid-value-row');
@@ -64,11 +64,11 @@ WIKIDOT.modules.SignPetitionModule.callbacks = {
 			OZONE.dialog.cleanAll();
 			return;
 		}
-		if(!WIKIDOT.utils.handleError(r)) {return;}	
-		
+		if(!WIKIDOT.utils.handleError(r)) {return;}
+
 		$("sign-petition-box").innerHTML = r.body;
 	},
-	
+
 	confirmSignature: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
 		alert(r.thankYouPage);
@@ -78,7 +78,7 @@ WIKIDOT.modules.SignPetitionModule.callbacks = {
 			$("sign-petition-box").innerHTML = r.body;
 		}
 	}
-	
+
 }
 
 WIKIDOT.modules.SignPetitionModule.init = function(){

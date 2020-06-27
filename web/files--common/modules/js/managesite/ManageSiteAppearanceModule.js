@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -12,7 +12,7 @@
 WIKIDOT.modules.ManagerSiteAppearanceModule = {};
 
 WIKIDOT.modules.ManagerSiteAppearanceModule.vars = {
-	
+
 }
 
 WIKIDOT.modules.ManagerSiteAppearanceModule.listeners = {
@@ -60,12 +60,12 @@ WIKIDOT.modules.ManagerSiteAppearanceModule.listeners = {
 		//if(category['theme_external_url']){
 			$('sm-appearance-external-url').value = category['theme_external_url'];
 		//}
-		
+
 		$("sm-appearance-theme-id").value=category['theme_id'];
 		WIKIDOT.modules.ManagerSiteAppearanceModule.utils.updateThemePreview();
-	
+
 	},
-	
+
 	indClick: function(e){
 		var categoryId = $("sm-appearance-cats").value;
 		var category = WIKIDOT.modules.ManagerSiteModule.utils.getCategoryById(categoryId);
@@ -76,7 +76,7 @@ WIKIDOT.modules.ManagerSiteAppearanceModule.listeners = {
 		}else{
 			$("sm-appearance-theme").style.display = "";
 			category['theme_default'] = false;
-			
+
 			var ez = $("sm-appearance-variants-"+category['theme_id']);
 				if(ez){
 					ez.style.display = "block";
@@ -86,11 +86,11 @@ WIKIDOT.modules.ManagerSiteAppearanceModule.listeners = {
 						$("sm-appearance-variants-select-"+category['theme_id']).value=category['theme_id'];
 					}
 				}
-				
+
 		}
 		WIKIDOT.modules.ManagerSiteAppearanceModule.utils.updateThemePreview();
 	},
-	
+
 	themeChange: function(e){
 		// save changes to the array
 		var categoryId = $("sm-appearance-cats").value;
@@ -101,7 +101,7 @@ WIKIDOT.modules.ManagerSiteAppearanceModule.listeners = {
 		WIKIDOT.modules.ManagerSiteAppearanceModule.utils.hideVariants();
 		var ez = $("sm-appearance-variants-"+$("sm-appearance-theme-id").value);
 		category['variant_theme_id'] = null;
-	
+
 		if(ez){
 			//alert('variant');
 			ez.style.display = "block";
@@ -121,7 +121,7 @@ WIKIDOT.modules.ManagerSiteAppearanceModule.listeners = {
 		//}
 		WIKIDOT.modules.ManagerSiteAppearanceModule.utils.updateThemePreview();
 	},
-	
+
 	variantChange: function(e){
 		var categoryId = $("sm-appearance-cats").value;
 		var category = WIKIDOT.modules.ManagerSiteModule.utils.getCategoryById(categoryId);
@@ -129,11 +129,11 @@ WIKIDOT.modules.ManagerSiteAppearanceModule.listeners = {
 		var variantThemeId = $("sm-appearance-variants-select-"+themeId).value;
 		category['variant_theme_id'] = variantThemeId;
 	},
-	
+
 	cancel: function(e){
 		WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-welcome');
 	},
-	
+
 	save: function(e){
 		// ok, do it the easy way: serialize categories using the JSON method
 		var categories = WIKIDOT.modules.ManagerSiteModule.vars.categories;
@@ -148,22 +148,22 @@ WIKIDOT.modules.ManagerSiteAppearanceModule.listeners = {
 		w.show();
 		OZONE.ajax.requestModule("Empty", parms, WIKIDOT.modules.ManagerSiteAppearanceModule.callbacks.save);
 	}
-	
+
 }
 
 WIKIDOT.modules.ManagerSiteAppearanceModule.callbacks = {
 	cancel: function(response){
 		OZONE.utils.setInnerHTMLContent("site-manager", response.body);
 	},
-	
+
 	save: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
-		
+
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Changes have been saved";
 		w.show();
 	}
-	
+
 }
 
 WIKIDOT.modules.ManagerSiteAppearanceModule.utils = {
@@ -179,7 +179,7 @@ WIKIDOT.modules.ManagerSiteAppearanceModule.utils = {
 		} else {
 			themeId = $("sm-appearance-theme-id").value;
 		}
-		
+
 		// hide all previews first
 		var prs = $("sm-appearance-theme-preview").childNodes;
 		for(var i=0; i<prs.length; i++){
@@ -207,10 +207,10 @@ WIKIDOT.modules.ManagerSiteAppearanceModule.init = function(){
 	YAHOO.util.Event.addListener("sm-appearance-theme-id", "change", WIKIDOT.modules.ManagerSiteAppearanceModule.listeners.themeChange);
 	YAHOO.util.Event.addListener("sm-appearance-external-url", "change", WIKIDOT.modules.ManagerSiteAppearanceModule.listeners.themeChange);
 	YAHOO.util.Event.addListener("sm-appearance-noind", "click", WIKIDOT.modules.ManagerSiteAppearanceModule.listeners.indClick);
-	
+
 	YAHOO.util.Event.addListener("sm-appearance-cancel", "click", WIKIDOT.modules.ManagerSiteAppearanceModule.listeners.cancel);
 	YAHOO.util.Event.addListener("sm-appearance-save", "click", WIKIDOT.modules.ManagerSiteAppearanceModule.listeners.save);
-	
+
 	// init categories info
 	WIKIDOT.modules.ManagerSiteAppearanceModule.listeners.categoryChange(null);
 }

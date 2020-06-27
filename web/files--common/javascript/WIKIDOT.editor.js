@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -28,8 +28,8 @@ WIKIDOT.Editor.init = function(editElementId, toolbarPanelId){
 	YAHOO.util.Event.addListener(this.editElementId, "keypress", WIKIDOT.Editor.keyboardListener);
 	YAHOO.util.Event.addListener(this.editElementId, "keydown", function(){WIKIDOT.Editor.lastKeyCode = null;});
 	YAHOO.util.Event.addListener(this.editElementId, "keyup", WIKIDOT.Editor.codeAssist.listener);
-	
-	
+
+
 	var durl;
 	switch(OZONE.lang){
 		case 'pl':
@@ -38,18 +38,18 @@ WIKIDOT.Editor.init = function(editElementId, toolbarPanelId){
 		default:
 			durl = "/common--editor/dialogs.html";
 	}
-	
+
 	//also read and add dialogs data
 	YAHOO.util.Connect.asyncRequest('GET', durl , WIKIDOT.Editor.initCallback, null);
-	
+
 	// init newline character
-	
+
 	OZONE.loc.addMessage("cancel", "anuluj", "pl");
 	OZONE.loc.addMessage("insert code", "wstaw kod", "pl");
 	OZONE.loc.addMessage("Image wizard", "Magik wstawiania obrazu", "pl");
 	OZONE.loc.addMessage("Table wizard", "Magik tabeli", "pl");
-	
-	
+
+
 }
 
 WIKIDOT.Editor.shutDown = function(){
@@ -67,68 +67,68 @@ WIKIDOT.Editor.initCallback = {
 		div.id = "wd-ed-dialogs";
 		div.innerHTML = content;
 		div.style.display = "none";
-		
+
 		var body = document.getElementsByTagName('body').item(0);
 		body.appendChild(div);
 		var etoolbar = $("wd-ed-toolbar");
 		var panel = $(WIKIDOT.Editor.toolbarPanelId);
 		if(panel){
-			
+
 			panel.innerHTML = OZONE.utils.olang(etoolbar.innerHTML);
 			var as = panel.getElementsByTagName('a');
 			OZONE.dialog.hovertip.makeTip(as, {style: {width: 'auto'}, delay: 200});
 			WIKIDOT.page.fixers.fixMenu(panel);
 		}
-	}, 
-  	failure: function(o) {alert("failure error code\n823468008623487666624")} 
+	},
+  	failure: function(o) {alert("failure error code\n823468008623487666624")}
 }
 
 /* buttons listeners */
 WIKIDOT.Editor.buttons = {
 	bold: function(e){
-		WIKIDOT.Editor.utils.insertTags("**","**", "bold text", 
+		WIKIDOT.Editor.utils.insertTags("**","**", "bold text",
 										WIKIDOT.Editor.utils.trimSelection);
 	},
 	italic: function(e){
-		WIKIDOT.Editor.utils.insertTags("//","//", "italic text", 
+		WIKIDOT.Editor.utils.insertTags("//","//", "italic text",
 										WIKIDOT.Editor.utils.trimSelection);
 	},
 	underline: function(e){
-		WIKIDOT.Editor.utils.insertTags("__","__", "underline text", 
+		WIKIDOT.Editor.utils.insertTags("__","__", "underline text",
 										WIKIDOT.Editor.utils.trimSelection);
 	},
 	strikethrough: function(e){
-		WIKIDOT.Editor.utils.insertTags("--","--", "strikethrough text", 
+		WIKIDOT.Editor.utils.insertTags("--","--", "strikethrough text",
 										WIKIDOT.Editor.utils.trimSelection);
 	},
 	teletype: function(e){
-		WIKIDOT.Editor.utils.insertTags("{{","}}", "teletype text", 
+		WIKIDOT.Editor.utils.insertTags("{{","}}", "teletype text",
 										WIKIDOT.Editor.utils.trimSelection);
 	},
 	superscript: function(e){
-		WIKIDOT.Editor.utils.insertTags("^^","^^", "superscript", 
+		WIKIDOT.Editor.utils.insertTags("^^","^^", "superscript",
 										WIKIDOT.Editor.utils.trimSelection);
 	},
 	subscript: function(e){
-		WIKIDOT.Editor.utils.insertTags(",,",",,", "subscript", 
+		WIKIDOT.Editor.utils.insertTags(",,",",,", "subscript",
 										WIKIDOT.Editor.utils.trimSelection);
 	},
 	raw: function(e){
-		WIKIDOT.Editor.utils.insertTags("@@","@@", "raw text", 
+		WIKIDOT.Editor.utils.insertTags("@@","@@", "raw text",
 										WIKIDOT.Editor.utils.trimSelection);
 	},
-	
+
 	heading: function(e,level){
 		var pluses='';
 		for(var i=0; i<level; i++){pluses+="+";}
-		WIKIDOT.Editor.utils.insertTags(pluses+" ","", "heading level "+level, 
+		WIKIDOT.Editor.utils.insertTags(pluses+" ","", "heading level "+level,
 										WIKIDOT.Editor.utils.trimSelection,
 										WIKIDOT.Editor.utils.endWith2NewLine,
 										WIKIDOT.Editor.utils.startWith2NewLine);
 	},
-	
+
 	quote: function(e){
-		WIKIDOT.Editor.utils.insertTags("> ","", "quoted text", 
+		WIKIDOT.Editor.utils.insertTags("> ","", "quoted text",
 										WIKIDOT.Editor.utils.processQuoteText,
 										WIKIDOT.Editor.utils.endWithAtLeast1NewLine,
 										WIKIDOT.Editor.utils.startWithAtLeast1NewLine);
@@ -148,93 +148,93 @@ WIKIDOT.Editor.buttons = {
 										WIKIDOT.Editor.utils.startWithAtLeast1NewLine);
 	},
 	uri: function(e){
-		WIKIDOT.Editor.utils.insertTags("[http://www.example.com ","]", "describe link", 
+		WIKIDOT.Editor.utils.insertTags("[http://www.example.com ","]", "describe link",
 										WIKIDOT.Editor.utils.trimSelection);
 	},
 	pageLink: function(e){
-		WIKIDOT.Editor.utils.insertTags("[[[","]]]", "page name", 
+		WIKIDOT.Editor.utils.insertTags("[[[","]]]", "page name",
 										WIKIDOT.Editor.utils.trimSelection);
 	},
 	math: function(e){
-		WIKIDOT.Editor.utils.insertTags("[[math]]"+INSERT_NEWLINE,INSERT_NEWLINE+"[[/math]]", "insert LaTeX equation here", 
+		WIKIDOT.Editor.utils.insertTags("[[math]]"+INSERT_NEWLINE,INSERT_NEWLINE+"[[/math]]", "insert LaTeX equation here",
 										WIKIDOT.Editor.utils.trimSelection,
 										WIKIDOT.Editor.utils.endWithAtLeast2NewLine,
 										WIKIDOT.Editor.utils.startWithAtLeast2NewLine);
 	},
 	numberedList: function(e){
-		WIKIDOT.Editor.utils.insertTags("# ","", "list item", 
+		WIKIDOT.Editor.utils.insertTags("# ","", "list item",
 										WIKIDOT.Editor.utils.processNumberedList,
 										WIKIDOT.Editor.utils.endWithAtLeast1NewLine,
 										WIKIDOT.Editor.utils.startWithAtLeast1NewLine);
 	},
 	bulletedList: function(e){
-		WIKIDOT.Editor.utils.insertTags("* ","", "list item", 
+		WIKIDOT.Editor.utils.insertTags("* ","", "list item",
 										WIKIDOT.Editor.utils.processBulletedList,
 										WIKIDOT.Editor.utils.endWithAtLeast1NewLine,
 										WIKIDOT.Editor.utils.startWithAtLeast1NewLine);
 	},
 	definitionList: function(e){
-		WIKIDOT.Editor.utils.insertTags(": "," : definition", "item", 
+		WIKIDOT.Editor.utils.insertTags(": "," : definition", "item",
 										WIKIDOT.Editor.utils.processBulletedList,
 										WIKIDOT.Editor.utils.endWithAtLeast1NewLine,
 										WIKIDOT.Editor.utils.startWithAtLeast1NewLine);
 	},
-	
+
 	increaseListIndent: function(e){
 		WIKIDOT.Editor.utils.insertText('',WIKIDOT.Editor.utils.increaseListIndent);
-		
+
 	},
 	decreaseListIndent: function(e){
 		WIKIDOT.Editor.utils.insertText('',WIKIDOT.Editor.utils.decreaseListIndent);
-		
+
 	},
 	footnote: function(e){
-		WIKIDOT.Editor.utils.insertTags("[[footnote]] "," [[/footnote]]", "footnote text", 
+		WIKIDOT.Editor.utils.insertTags("[[footnote]] "," [[/footnote]]", "footnote text",
 										WIKIDOT.Editor.utils.trimSelection);
 	},
 	inlineMath: function(e){
-		WIKIDOT.Editor.utils.insertTags("[[$ "," $]]", "insert LaTeX equation here", 
+		WIKIDOT.Editor.utils.insertTags("[[$ "," $]]", "insert LaTeX equation here",
 										WIKIDOT.Editor.utils.trimSelection);
 	},
 	code: function(e){
-		WIKIDOT.Editor.utils.insertTags("[[code]]"+INSERT_NEWLINE,INSERT_NEWLINE+"[[/code]]", "insert the code here", 
+		WIKIDOT.Editor.utils.insertTags("[[code]]"+INSERT_NEWLINE,INSERT_NEWLINE+"[[/code]]", "insert the code here",
 										WIKIDOT.Editor.utils.trimSelection,
 										WIKIDOT.Editor.utils.endWithAtLeast2NewLine,
 										WIKIDOT.Editor.utils.startWithAtLeast2NewLine);
 	},
 	video: function(e){
-		WIKIDOT.Editor.utils.insertTags("[[embedvideo]]"+INSERT_NEWLINE,INSERT_NEWLINE+"[[/embedvideo]]", "paste the html for the video here (Google Video, YouTube, Revver, Dailymotion)", 
+		WIKIDOT.Editor.utils.insertTags("[[embedvideo]]"+INSERT_NEWLINE,INSERT_NEWLINE+"[[/embedvideo]]", "paste the html for the video here (Google Video, YouTube, Revver, Dailymotion)",
 										WIKIDOT.Editor.utils.trimSelection,
 										WIKIDOT.Editor.utils.endWithAtLeast2NewLine,
 										WIKIDOT.Editor.utils.startWithAtLeast2NewLine);
 	},
 	audio: function(e){
-		WIKIDOT.Editor.utils.insertTags("[[embedaudio]]"+INSERT_NEWLINE,INSERT_NEWLINE+"[[/embedaudio]]", "paste the html for the audio here (odeo)", 
+		WIKIDOT.Editor.utils.insertTags("[[embedaudio]]"+INSERT_NEWLINE,INSERT_NEWLINE+"[[/embedaudio]]", "paste the html for the audio here (odeo)",
 										WIKIDOT.Editor.utils.trimSelection,
 										WIKIDOT.Editor.utils.endWithAtLeast2NewLine,
 										WIKIDOT.Editor.utils.startWithAtLeast2NewLine);
 	},
 	image: function(e){
-		WIKIDOT.Editor.utils.insertTags("[[image ","]]", "source", 
+		WIKIDOT.Editor.utils.insertTags("[[image ","]]", "source",
 										WIKIDOT.Editor.utils.trimSelection);
 	},
 	div: function(e){
-		WIKIDOT.Editor.utils.insertTags("[[div]]"+INSERT_NEWLINE,INSERT_NEWLINE+"[[/div]]", "block contents", 
+		WIKIDOT.Editor.utils.insertTags("[[div]]"+INSERT_NEWLINE,INSERT_NEWLINE+"[[/div]]", "block contents",
 										WIKIDOT.Editor.utils.trimSelection,
 										WIKIDOT.Editor.utils.endWithAtLeast2NewLine,
 										WIKIDOT.Editor.utils.startWithAtLeast2NewLine);
 	},
 	bibliography: function(e){
-		WIKIDOT.Editor.utils.insertTags("[[bibliography]]"+INSERT_NEWLINE+": "," : full source reference"+INSERT_NEWLINE+"[[/bibliography]]", "label", 
+		WIKIDOT.Editor.utils.insertTags("[[bibliography]]"+INSERT_NEWLINE+": "," : full source reference"+INSERT_NEWLINE+"[[/bibliography]]", "label",
 										WIKIDOT.Editor.utils.trimSelection,
 										WIKIDOT.Editor.utils.endWithAtLeast2NewLine,
 										WIKIDOT.Editor.utils.startWithAtLeast2NewLine);
 	},
 	bibliographycitation: function(e){
-		WIKIDOT.Editor.utils.insertTags("[((bibcite ","))]", "label", 
+		WIKIDOT.Editor.utils.insertTags("[((bibcite ","))]", "label",
 										WIKIDOT.Editor.utils.trimSelection);
 	},
-	
+
 	imageWizard: function(e){
 		WIKIDOT.Editor.currentPos = WIKIDOT.Editor.ranger.getSelectionRange()[0];
 		// open a dialog...
@@ -247,7 +247,7 @@ WIKIDOT.Editor.buttons = {
 		d.content = $("wd-ed-imagewizard-dialog").innerHTML.replace(/\-template/g, "");
 		d.show();
 		WIKIDOT.Editor.imageWizard.updateSourceBlock();
-		
+
 	},
 	tableWizard: function(e){
 		WIKIDOT.Editor.currentPos = WIKIDOT.Editor.ranger.getSelectionRange()[0];
@@ -259,7 +259,7 @@ WIKIDOT.Editor.buttons = {
 		d.addButtonListener("insert code", WIKIDOT.Editor.listeners.tableWizardInsert);
 		d.content = $("wd-ed-tablewizard-dialog").innerHTML.replace(/\-template/g, '');
 		d.show();
-		
+
 	},
 	uriWizard: function(e){
 		WIKIDOT.Editor.currentPos = WIKIDOT.Editor.ranger.getSelectionRange()[0];
@@ -271,7 +271,7 @@ WIKIDOT.Editor.buttons = {
 		d.addButtonListener("insert code", WIKIDOT.Editor.listeners.uriWizardInsert);
 		d.content = $("wd-ed-uriwizard-dialog").innerHTML.replace(/\-template/g, '');
 		d.show();
-		
+
 	},
 	pageLinkWizard: function(e){
 		WIKIDOT.Editor.currentPos = WIKIDOT.Editor.ranger.getSelectionRange()[0];
@@ -283,12 +283,12 @@ WIKIDOT.Editor.buttons = {
 		d.content=$("wd-ed-pagelinkwizard-dialog").innerHTML.replace(/\-template/g, "");
 		d.show();
 		// attach the autocomplete thing
-		var myDataSource = new YAHOO.widget.DS_XHR("/quickmodule.php", ['pages', 'unix_name', 'title']); 
+		var myDataSource = new YAHOO.widget.DS_XHR("/quickmodule.php", ['pages', 'unix_name', 'title']);
 		myDataSource.scriptQueryParam="q";
 		myDataSource.scriptQueryAppend = "s="+WIKIREQUEST.info.siteId+"&module=PageLookupQModule&title=yes";
 
 		var myAutoComp = new YAHOO.widget.AutoComplete("wd-ed-pagelinkwizard-page","autocomplete3432", myDataSource);
-		myAutoComp.formatResult = function(aResultItem, sQuery) { 
+		myAutoComp.formatResult = function(aResultItem, sQuery) {
 			var title = aResultItem[1];
 			var unixName = aResultItem[0];
 			if(unixName!= null){
@@ -296,13 +296,13 @@ WIKIDOT.Editor.buttons = {
 			} else {
 				return "";
 			}
-	
+
 		}
 		myAutoComp.minQueryLength = 2;
 		myAutoComp.queryDelay = 0.5;
 		myAutoComp.forceSelection = false;
 		myAutoComp.autoHighlight = false;
-		
+
 	},
 	codeWizard: function(e){
 		WIKIDOT.Editor.currentPos = WIKIDOT.Editor.ranger.getSelectionRange()[0];
@@ -332,7 +332,7 @@ WIKIDOT.Editor.buttons = {
 			var w = new OZONE.dialogs.ErrorDialog();
 			w.content = "Sorry, no labelled equations found.";
 			w.show();
-			return;	
+			return;
 		}
 		var inn='';
 		if(refs.length==0){
@@ -382,20 +382,20 @@ WIKIDOT.Editor.imageWizard.updateSourceBlock = function(e){
 	$("wd-ed-imagewizard-byfile").style.display="none";
 	$("wd-ed-imagewizard-byflickr").style.display="none";
 	$("wd-ed-imagewizard-checkresult").innerHTML="";
-	
+
 	if($("342type1").checked == true){
 		source = "uri";
 		$("wd-ed-imagewizard-byuri").style.display="block";
-		
+
 	}else if($("342type2").checked == true){
 		source = "file";
 		$("wd-ed-imagewizard-byfile").style.display="block";
-		
+
 		WIKIDOT.Editor.imageWizard.updateAttachements();
 	}else if($("342type3").checked == true){
 		source = "flickr";
 		$("wd-ed-imagewizard-byflickr").style.display="block";
-		
+
 	}
 	WIKIDOT.Editor.imageWizard.source = source;
 }
@@ -436,12 +436,12 @@ WIKIDOT.Editor.imageWizard.checkFlickrImage = function(e){
 		res.innerHTML = '<p style="color: red">Not a valid input for the flickr.com image.</p>';
 		return;
 	}
-	
+
 	p['flickr_id'] = flickrId;
-	
+
 	OZONE.ajax.requestModule("editor/FlickrCheckModule", p, WIKIDOT.Editor.imageWizard.checkFlickrImageCallback);
-	
-	
+
+
 }
 WIKIDOT.Editor.imageWizard.checkFlickrImageCallback = function(r){
 	var res = $("wd-ed-imagewizard-checkresult");
@@ -494,20 +494,20 @@ WIKIDOT.Editor.imageWizard.insertCode = function(e){
 		}
 		source = 'flickr:'+flickrId;
 		if(secret){ source+='_'+secret;}
-	
+
 	}
-	
+
 	// check if size
 	var size ='';
 	var el = $("wd-ed-imagewizard-size");
 	if(el){
 		size = el.value;
 	}
-	
+
 	if(size !=''){
 		size=' size="'+size+'"';
 	}
-	
+
 	var position = $("wd-ed-imagewizard-position").value.replace(/l/,'<').replace(/r/, '>').replace(/c/,'=');
 	var code = '[['+position+'image '+source+size+']]';
 	WIKIDOT.Editor.ranger.setSelectionRange(WIKIDOT.Editor.currentPos, WIKIDOT.Editor.currentPos);
@@ -519,28 +519,28 @@ WIKIDOT.Editor.imageWizard.insertCode = function(e){
  */
 WIKIDOT.Editor.listeners = {
 	tableWizardInsert: function(e){
-		
+
 		var rows = $("wd-ed-tablewizard-rows").value;
 		var columns = $("wd-ed-tablewizard-columns").value;
 		var headers = $("wd-ed-tablewizard-headers").checked;
-		
+
 		// prepare code to be inserted
 		var out='';
 		for(var i = 0; i<rows; i++){
 			out+=INSERT_NEWLINE+'||';
 			for(var j=0; j<columns; j++){
-				if(i==0 && headers){ 
+				if(i==0 && headers){
 					out+="~ header ||";
 				}else {
 					out+=" cell-content ||";
 				}
 			}
-				
+
 		}
 
 		// insert it!
 		WIKIDOT.Editor.ranger.setSelectionRange(WIKIDOT.Editor.currentPos, WIKIDOT.Editor.currentPos);
-		
+
 		WIKIDOT.Editor.utils.insertText(out,WIKIDOT.Editor.utils.endWithAtLeast1NewLine,
 										WIKIDOT.Editor.utils.startWithAtLeast2NewLine);
 
@@ -550,7 +550,7 @@ WIKIDOT.Editor.listeners = {
 		var uri = $("wd-ed-uriwizard-uri").value;
 		var anchor = $("wd-ed-uriwizard-anchor").value;
 		var newwindow = $("wd-ed-uriwizard-newwindow").checked;
-		
+
 		var out='';
 		if(anchor == null || anchor == ''){
 			if(newwindow){
@@ -571,17 +571,17 @@ WIKIDOT.Editor.listeners = {
 	pageLinkWizardInsert: function(e){
 		var pageName = $("wd-ed-pagelinkwizard-page").value;
 		var anchor = $("wd-ed-pagelinkwizard-anchor").value;
-		
+
 		var out = '[[['+pageName;
 		if(anchor != null && anchor != ''){
-			out += ' |' +anchor; 
+			out += ' |' +anchor;
 		}
 		out += ']]]';
 		WIKIDOT.Editor.ranger.setSelectionRange(WIKIDOT.Editor.currentPos, WIKIDOT.Editor.currentPos);
 		WIKIDOT.Editor.utils.insertText(out);
-		OZONE.dialog.cleanAll();	
+		OZONE.dialog.cleanAll();
 	},
-	
+
 	codeWizardInsert: function(e){
 		var type = $("wd-ed-codewizard-type").value;
 		var openTag = '[[code';
@@ -590,10 +590,10 @@ WIKIDOT.Editor.listeners = {
 		}
 		openTag += "]]"+INSERT_NEWLINE;
 		var closeTag = INSERT_NEWLINE+"[[/code]]";
-	
+
 		WIKIDOT.Editor.ranger.setSelectionRange(WIKIDOT.Editor.currentPos, WIKIDOT.Editor.currentPos);
-		
-		WIKIDOT.Editor.utils.insertTags(openTag,closeTag, "insert the code here", 
+
+		WIKIDOT.Editor.utils.insertTags(openTag,closeTag, "insert the code here",
 										WIKIDOT.Editor.utils.trimSelection,
 										WIKIDOT.Editor.utils.endWithAtLeast2NewLine,
 										WIKIDOT.Editor.utils.startWithAtLeast2NewLine);
@@ -617,7 +617,7 @@ WIKIDOT.Editor.keyboardListener = function(e){
 	if(!listener) {listener = WIKIDOT.Editor.keyCodes[keyCode];}
 	if(listener){
 		YAHOO.util.Event.preventDefault(e);
-		listener.call(null, e); 
+		listener.call(null, e);
 	}
 
 }
@@ -627,14 +627,14 @@ WIKIDOT.Editor.codeAssist.listener = function(e){
 	if(keyCode != 13){
 		return;
 	}
-	
+
 	// need to insert the "\n" manually here and stop event propagation
-	
-	
+
+
 	// perform a number of checks if one should insert anything interesting...
-	
+
 	// check for a list item first
-	
+
 	WIKIDOT.Editor.utils.insertText("",WIKIDOT.Editor.codeAssist.rules.listEnd);//,
 	WIKIDOT.Editor.utils.insertText("",WIKIDOT.Editor.codeAssist.rules.list);//,
 	WIKIDOT.Editor.utils.insertText("",WIKIDOT.Editor.codeAssist.rules.listNested);//,
@@ -643,7 +643,7 @@ WIKIDOT.Editor.codeAssist.listener = function(e){
 	WIKIDOT.Editor.utils.insertText("",WIKIDOT.Editor.codeAssist.rules.definitionList);//,
 	WIKIDOT.Editor.utils.insertText("",WIKIDOT.Editor.codeAssist.rules.keepIndent);
 	WIKIDOT.Editor.utils.insertText("",WIKIDOT.Editor.codeAssist.rules.indentEnd);
-	 
+
 }
 WIKIDOT.Editor.codeAssist.rules = {}
 
@@ -662,7 +662,7 @@ WIKIDOT.Editor.codeAssist.rules.listNested = function(text){
 	/* this is different from list because requires one more line before
 	 * check if previous line has anything to do with lists, i.e.
 	 * 1. check if previous line starts with #|*
-	 * 
+	 *
 	 */
 	text = text.replace(/(\r?\n *[\*#]\s.+\r?\n( *)([\*#])\s.*?\r?\n)$/, "$1$2$3 ");
 	return text;
@@ -687,7 +687,7 @@ WIKIDOT.Editor.codeAssist.rules.indentEnd = function(text){
  * the name of the block in a variable
  */
 WIKIDOT.Editor.codeAssist.rules.completeBlock = function(){
-	
+
 	var field = $(WIKIDOT.Editor.editElementId);
 	var scrollTop = field.scrollTop;
 	var ranger = WIKIDOT.Editor.ranger;
@@ -702,7 +702,7 @@ WIKIDOT.Editor.codeAssist.rules.completeBlock = function(){
 	field.scrollTop = scrollTop;
 }
 WIKIDOT.Editor.codeAssist.rules.completeBlockPost = function(text){
-	
+
 }
 
 WIKIDOT.Editor.keys = new Object();
@@ -717,18 +717,18 @@ WIKIDOT.Editor.keyCodes[9] = function(e){
 		}
 
 WIKIDOT.Editor.utils = {};
-	
-WIKIDOT.Editor.utils.insertTags = function(openTag, closeTag, sampleText, 
+
+WIKIDOT.Editor.utils.insertTags = function(openTag, closeTag, sampleText,
 										processSelection, processBefore, processAfter, dontSelectSampleText){
-	
+
 	var myField = $(WIKIDOT.Editor.editElementId);
 	myField.focus();
 	var ranger = WIKIDOT.Editor.ranger;
 	ranger.trimSelection();
 	var range = ranger.getSelectionRange();
-	
+
 	var scrollTop = myField.scrollTop;
-	
+
 	var beforeText = myField.value.substring(0, range[0]);
 	if(processBefore){
 		beforeText = processBefore.call(null, beforeText);
@@ -736,14 +736,14 @@ WIKIDOT.Editor.utils.insertTags = function(openTag, closeTag, sampleText,
 	var afterText =  myField.value.substring(range[1], myField.value.length);
 	if(processAfter){
 		afterText = processAfter.call(null, afterText);
-	}	
-	
+	}
+
 	if (range[0] != range[1]) {
 		var selectionText = myField.value.substring(range[0], range[1]);
 		if(processSelection){
 			selectionText = processSelection.call(null, selectionText);
 		}
-			
+
 		myField.value = beforeText
 		              + openTag
 		              + selectionText
@@ -754,13 +754,13 @@ WIKIDOT.Editor.utils.insertTags = function(openTag, closeTag, sampleText,
 	}else {
 		myField.value = beforeText
 		              + openTag
-		              + sampleText 
+		              + sampleText
 		              + closeTag
 		              + afterText;
 		if(!dontSelectSampleText){
 			var startPos = beforeText.length + openTag.length
 			var endPos = startPos + sampleText.length
-			ranger.setSelectionRange(startPos, endPos);	
+			ranger.setSelectionRange(startPos, endPos);
 		} else {
 			// just position the cursor after the text
 			var cursorPos = myField.value.length - afterText.length;
@@ -769,24 +769,24 @@ WIKIDOT.Editor.utils.insertTags = function(openTag, closeTag, sampleText,
 	}
 	myField.focus();
 	myField.scrollTop = scrollTop;
-		
-	
-	
-	
-	
+
+
+
+
+
 }
 
 WIKIDOT.Editor.utils.insertText = function(text, processBefore, processAfter){
-	
-	WIKIDOT.Editor.utils.insertTags('','', text, 
+
+	WIKIDOT.Editor.utils.insertTags('','', text,
 										null, processBefore, processAfter, true);
 	return;
-	//WIKIDOT.Editor.utils.insertTags("", "", text, 
+	//WIKIDOT.Editor.utils.insertTags("", "", text,
 	var myField = $(WIKIDOT.Editor.editElementId);
 	var ranger = WIKIDOT.Editor.ranger;
 	var range = ranger.getSelectionRange();
 	var scrollTop = myField.scrollTop;
-	
+
 	var beforeText = myField.value.substring(0, range[0]);
 	if(processBefore){
 		beforeText = processBefore.call(null, beforeText);
@@ -794,25 +794,25 @@ WIKIDOT.Editor.utils.insertText = function(text, processBefore, processAfter){
 	var afterText =  myField.value.substring(range[1], myField.value.length);
 	if(processAfter){
 		afterText = processAfter.call(null, afterText);
-	}	
-	
+	}
+
 	myField.value = beforeText
 	              + text
 	              + afterText;
 	var cursorPos = beforeText.length;//myField.value.length - afterText.length;
 	ranger.setSelectionRange(cursorPos, cursorPos);
-	
+
 	myField.focus();
 	myField.scrollTop = scrollTop;
-	
-	
-	
+
+
+
 }
 
 WIKIDOT.Editor.utils.trimSelection = function(string){
 	return string.replace(/^\s+/, '').replace(/\s+$/, '');
 }
-/** 
+/**
  * Checks if a string ends with a newline and of no, adds it.
  */
 WIKIDOT.Editor.utils.endWithNewLine = function(string){
@@ -895,7 +895,7 @@ element.selectionEnd = element.selectionStart + range.text.length;
 }
 
 from: http://the-stickman.com/web-development/javascript/finding-selection-cursor-%20position-in-a-textarea-in-internet-explorer/
-* 
+*
  */
 
 /**
@@ -920,7 +920,7 @@ TextElementProxyUtil.prototype.detectBrowser = function(){
 			INSERT_NEWLINE = "\r\n";
 		}
 	}
-	
+
 }
 
 TextElementProxyUtil.prototype.getCursorPosition = function(){
@@ -937,21 +937,21 @@ TextElementProxyUtil.prototype.getSelectionRange = function(){
 	if(this.browserType == "gecko"){
 		startPos = this.field.selectionStart;
 		endPos = this.field.selectionEnd;
-	}		
+	}
 	if(this.browserType == "ie"){
 		if( document.selection ){
- 			
+
  			var range = document.selection.createRange();
 			var storedRange = range.duplicate();
 			storedRange.moveToElementText(this.field);
 			storedRange.setEndPoint( 'StartToStart', range );
 			startPos = this.field.value.length - storedRange.text.length;
 			endPos = startPos+range.text.length;
-			
+
 		}
 	}
 	if(this.browserType == "rest"){
-			
+
 	}
 	this.field.focus();
 	return [startPos, endPos];
@@ -961,9 +961,9 @@ TextElementProxyUtil.prototype.setSelectionRange = function(startPos, endPos){
 	this.field.focus();
 	if(this.browserType == "gecko"){
 		this.field.setSelectionRange(startPos, endPos);
-	}		
+	}
 	if(this.browserType == "ie"){
-		// fix position: Windows based "new lines" (\r\n) are counted as 2 characters, 
+		// fix position: Windows based "new lines" (\r\n) are counted as 2 characters,
 		// but not when it comes to positioning the cursor!!!
 		var beforeText = this.field.value.substring(0, startPos);
 		var selText = this.field.value.substring(startPos, endPos);
@@ -973,10 +973,10 @@ TextElementProxyUtil.prototype.setSelectionRange = function(startPos, endPos){
 	    range.collapse(true);
 	    range.moveEnd('character', endPos);
 	    range.moveStart('character', startPos);
-	    range.select(); 
+	    range.select();
 	}
 	if(this.browserType == "rest"){
-		
+
 	}
 	this.field.focus();
 }
@@ -990,5 +990,5 @@ TextElementProxyUtil.prototype.trimSelection = function(){
 	var trimLeft = selectionText.length - selectionText.replace(/^\s+/,"").length;
 	var trimRight = selectionText.length - selectionText.replace(/\s+$/,"").length;
 	this.setSelectionRange(range[0]+trimLeft, range[1]-trimRight);
-	
+
 }

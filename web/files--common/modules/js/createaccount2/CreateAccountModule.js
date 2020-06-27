@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -17,17 +17,17 @@ WIKIDOT.modules.CreateAccountModule.listeners = {
 	cancel: function(e){
 		window.location.href = HTTP_SCHEMA+"://"+window.location.hostname;
 	},
-	
+
 	nextClick: function(e){
-		
+
 		WIKIDOT.modules.CreateAccountModule.vars.formData = OZONE.utils.formToArray("createaccount-form0");
-		
+
 		var p = OZONE.utils.formToArray("createaccount-form0");
-		
+
 		p.action = "CreateAccount2Action";
 		p.event = "step0";
-		OZONE.ajax.requestModule("createaccount/CreateAccount2Module", p, WIKIDOT.modules.CreateAccountModule.callbacks.nextClick);	
-	
+		OZONE.ajax.requestModule("createaccount/CreateAccount2Module", p, WIKIDOT.modules.CreateAccountModule.callbacks.nextClick);
+
 	}
 }
 WIKIDOT.modules.CreateAccountModule.callbacks = {
@@ -35,14 +35,14 @@ WIKIDOT.modules.CreateAccountModule.callbacks = {
 		if(r.status=="form_errors"){
 			var inner = "The data you have submitted contains following errors:" +
 					"<ul>";
-			
+
 			var errors = r.formErrors;
 			for(var i in errors){
 				inner += "<li>"+errors[i]+"</li>";
 			}
-					
+
 			inner += "</ul>";
-			
+
 			$("ca-reg0-errors").style.display = "block";
 			$("ca-reg0-errors").innerHTML = inner;
 			return;
@@ -53,7 +53,7 @@ WIKIDOT.modules.CreateAccountModule.callbacks = {
 			return;
 		}
 		window.location.href='/auth:newaccount2';
-	}	
+	}
 
 }
 
@@ -73,7 +73,7 @@ WIKIDOT.modules.CreateAccountModule.init = function(){
 		}
 		document.forms.caform['tos'].checked=true;
 	}
-	OZONE.dom.onDomReady(function(){		
+	OZONE.dom.onDomReady(function(){
 		// change links to http://...
 		var els = document.getElementsByTagName('a');
 		for(var i=0; i<els.length;i++){

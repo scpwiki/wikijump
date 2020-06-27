@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -38,7 +38,7 @@ WIKIDOT.modules.ManageSiteModeratorsModule.listeners = {
 		p.moderatorId = moderatorId;
 		OZONE.ajax.requestModule("managesite/ManageSiteModeratorPermissionsModule", p, WIKIDOT.modules.ManageSiteModeratorsModule.callbacks.moderatorPermissions);
 	},
-	
+
 	cancelPermissions: function(e, moderatorId){
 		var el = $("mod-permissions-"+moderatorId);
 		el.style.display="none";
@@ -65,13 +65,13 @@ WIKIDOT.modules.ManageSiteModeratorsModule.callbacks = {
 		WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-moderators');
 	},
 	moderatorPermissions: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}	
+		if(!WIKIDOT.utils.handleError(r)) {return;}
 		$("mod-permissions-"+r.moderatorId).innerHTML = r.body;
 		$("mod-permissions-"+r.moderatorId).style.display = "block";
-	
+
 	},
 	savePermissions: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}	
+		if(!WIKIDOT.utils.handleError(r)) {return;}
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Moderator permissions saved.";
 		w.show();

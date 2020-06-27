@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -21,9 +21,9 @@ WIKIDOT.modules.FlickrGalleryModules.listeners = {
 			box = box.parentNode;
 		}while(box && !YAHOO.util.Dom.hasClass(box, 'flickr-gallery-box'));
 		WIKIDOT.modules.FlickrGalleryModules.vars.destinationBox = box;
-		
+
 		var p = new Object();
-		
+
 		// get original parameters
 		var ps = YAHOO.util.Dom.getElementsByClassName("flickr-gallery-parameter", 'li', box);
 		for(var i=0; i<ps.length; i++){
@@ -32,10 +32,10 @@ WIKIDOT.modules.FlickrGalleryModules.listeners = {
 		}
 		p.pageNumber = pageNumber;
 		p.contentOnly = true;
-		
+
 		OZONE.ajax.requestModule("wiki/image/FlickrGalleryModule", p, WIKIDOT.modules.FlickrGalleryModules.callbacks.loadPage);
 	},
-	
+
 	showPhoto: function(e, photoId){
 		YAHOO.util.Event.stopEvent(e);
 		p = new Object();
@@ -55,12 +55,12 @@ WIKIDOT.modules.FlickrGalleryModules.listeners = {
 				currentElement = i;
 			}
 		}
-		
+
 		WIKIDOT.modules.FlickrGalleryModules.vars.currentElement = currentElement;
 		WIKIDOT.modules.FlickrGalleryModules.vars.galleryList = galleryList;
 
 	},
-	
+
 	showPreviousPhoto: function(e){
 		var ce = WIKIDOT.modules.FlickrGalleryModules.vars.currentElement;
 		var gl = WIKIDOT.modules.FlickrGalleryModules.vars.galleryList;
@@ -75,7 +75,7 @@ WIKIDOT.modules.FlickrGalleryModules.listeners = {
 			WIKIDOT.modules.FlickrGalleryModules.listeners.showPhoto(e, gl[ce+1]);
 		}
 	}
-	
+
 }
 
 WIKIDOT.modules.FlickrGalleryModules.callbacks = {
@@ -86,10 +86,10 @@ WIKIDOT.modules.FlickrGalleryModules.callbacks = {
 		var els = box.getElementsByTagName('img');//YAHOO.util.Dom.getElementsByClassName('gallery-item', 'div', boxes[i]);
 		OZONE.dialog.hovertip.makeTip(els, {style: {width: 'auto'}, noCursorHelp: true, delay: 50});
 	},
-	
+
 	showPhoto: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
-		
+
 		// if window already there...
 		var photowindow = YAHOO.util.Dom.getElementsByClassName('photowindow', 'div', 'odialog-container')[0];
 		if(photowindow){
@@ -103,14 +103,14 @@ WIKIDOT.modules.FlickrGalleryModules.callbacks = {
 			eff.custom(0,1);
 			OZONE.dialog.factory.boxcontainer().centerContent();
 		}else{
-		
+
 			var w = new OZONE.dialogs.Dialog();
 			w.content = r.body;
 			w.clickOutsideToClose = true;
 			w.smooth = true;
 			w.show();
 		}
-		
+
 		// show arrows?
 		var ce = WIKIDOT.modules.FlickrGalleryModules.vars.currentElement;
 		var gl = WIKIDOT.modules.FlickrGalleryModules.vars.galleryList;
@@ -124,13 +124,13 @@ WIKIDOT.modules.FlickrGalleryModules.callbacks = {
 		}else{
 			$("photo-nav-next").style.visibility="visible";
 		}
-		
+
 	}
-	
+
 }
 
 WIKIDOT.modules.FlickrGalleryModules.init = function(){
-	
+
 	OZONE.dom.onDomReady(function(){
 		var boxes = YAHOO.util.Dom.getElementsByClassName('flickr-gallery-box', 'div');
 		for(var i = 0; i<boxes.length; i++){

@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -21,9 +21,9 @@ WIKIDOT.modules.AccountDeletedSitesModule.listeners = {
 		$("as-restore-site-box").style.display = 'block';
 		WIKIDOT.modules.AccountDeletedSitesModule.vars.siteId = siteId;
 		OZONE.visuals.scrollTo($("as-restore-site-box"));
-		
+
 	},
-	
+
 	restore: function(e){
 		var p = new Object();
 		p.siteId = WIKIDOT.modules.AccountDeletedSitesModule.vars.siteId;
@@ -43,7 +43,7 @@ WIKIDOT.modules.AccountDeletedSitesModule.callbacks = {
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "The site has been restored.";
 		w.show();
-		
+
 		setTimeout('window.location.href="'+HTTP_SCHEMA+"://"+r.unixName+'.'+URL_DOMAIN+'"', 500);
 	}
 }

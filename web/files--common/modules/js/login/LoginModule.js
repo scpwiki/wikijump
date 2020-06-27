@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -14,7 +14,7 @@ WIKIDOT.modules.LoginModule = {};
 WIKIDOT.modules.LoginModule.listeners = {
 	loginClick: function(e){
 		YAHOO.util.Event.stopEvent(e);
-		
+
 		var p = OZONE.utils.formToArray("login-form");
 		// pre-check:
 		var welcome = OZONE.utils.getCookie('welcome');
@@ -27,26 +27,26 @@ WIKIDOT.modules.LoginModule.listeners = {
 		}
 		if(welcome){
 			p['welcome'] = welcome;
-			
+
 		}
-		
-		
+
+
 		p.action = "Login2Action";
 		p.event = "login";
 		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.LoginModule.callbacks.loginClick);
 	},
-	
+
 	switchUser: function(e){
 		setCookie('welcome', null, -100000, '/', '.'+URL_DOMAIN);
 		setCookie('welcome', null, -100000, '/');
 		window.location.reload();
 	},
-	
+
 	cancel: function(e){
 		var url = getQueryString('origUrl', HTTP_SCHEMA+"://"+URL_HOST);
 		window.location.href = url;
 	},
-	
+
 	namePress: function(e){
 		var chcode = YAHOO.util.Event.getCharCode(e);
 		if((chcode == 13 || chcode == 9) && $('login-form-name').value.length>0 ){
@@ -64,7 +64,7 @@ WIKIDOT.modules.LoginModule.callbacks = {
 			$("loginerror").style.display = "block";
 			return;
 		}
-		
+
 		if(!WIKIDOT.utils.handleError(r)) {return;}
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Logging in...";
@@ -76,7 +76,7 @@ WIKIDOT.modules.LoginModule.callbacks = {
 			window.location.href=HTTP_SCHEMA+"://"+window.location.host;
 		}
 	},
-	
+
 	cancel: function(r){
 		window.location.href=HTTP_SCHEMA+"://"+window.location.host;
 	}
@@ -89,8 +89,8 @@ WIKIDOT.modules.LoginModule.init = function(){
 	}else{
 		$('login-form-password').focus();
 	}
-	
-	OZONE.dom.onDomReady(function(){		
+
+	OZONE.dom.onDomReady(function(){
 		// change links to http://...
 		var els = document.getElementsByTagName('a');
 		for(var i=0; i<els.length;i++){
@@ -111,7 +111,7 @@ function getQueryString(key, default_)
     return default_;
   else
     return decodeURIComponent(qs[1]);
-} 
+}
 
 
 function setCookie( name, value, expires, path, domain, secure) {
@@ -121,9 +121,9 @@ function setCookie( name, value, expires, path, domain, secure) {
 		expires = expires * 1000 * 60 * 60 * 24;
 	}
 	var expires_date = new Date( today.getTime() + (expires) );
-	
+
 	var ck = name+'='+escape( value ) +
-	
+
 	( ( expires ) ? ';expires='+expires_date.toGMTString() : '' ) + //expires.toGMTString()
 	( ( path ) ? ';path=' + path : '' ) +
 	( ( domain ) ? ';domain=' + domain : '' ) +

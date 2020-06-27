@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -25,7 +25,7 @@ WIKIDOT.modules.AccountApplicationsModule.listeners = {
 		w.addButtonListener('yes, remove', WIKIDOT.modules.AccountApplicationsModule.listeners.remove2);
 		w.show();
 	},
-	
+
 	remove2: function(e,siteId0, siteName0){
 		if(typeof(siteId0) != 'number'){
 			var siteId = WIKIDOT.modules.AccountApplicationsModule.vars.currentSiteId;
@@ -43,11 +43,11 @@ WIKIDOT.modules.AccountApplicationsModule.listeners = {
 WIKIDOT.modules.AccountApplicationsModule.callbacks = {
 	remove: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
-		
+
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "The application has been removed.";
 		w.show();
 		WIKIDOT.modules.AccountModule.utils.loadModule('am-applications');
-		
-	}	
+
+	}
 }

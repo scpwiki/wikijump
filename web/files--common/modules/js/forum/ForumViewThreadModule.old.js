@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -41,13 +41,13 @@ WIKIDOT.modules.ForumViewThreadModule.listeners = {
 		}
 		if(WIKIDOT.modules.ForumViewThreadModule.vars.editActive){
 			// it means an active post edit is somewhere...
-			
+
 			var t2 = new OZONE.dialogs.Dialog();
 			t2.content='<h1>New post form already open</h1>' +
 					'<p>It seems that you already are writing a new post or reply. ' +
 					' Before starting a new edit please close (cancel or save) ' +
 					'your active one.</p>';
-					
+
 			t2.buttons = [ "go to active edit", "close"];
 			t2.title=" ";
 			t2.clickOutsideToClose = true;
@@ -74,9 +74,9 @@ WIKIDOT.modules.ForumViewThreadModule.listeners = {
 		} else {
 			var postContainer = $("fpc-"+postId);
 			var post = $("post-"+postId);
-			OZONE.dom.insertAfter(postContainer,formDiv,post);	
+			OZONE.dom.insertAfter(postContainer,formDiv,post);
 		}
-		
+
 		// save current parent id:
 		if(parentId){
 			WIKIDOT.modules.ForumViewThreadModule.vars.fakedParent = true;
@@ -86,28 +86,28 @@ WIKIDOT.modules.ForumViewThreadModule.listeners = {
 			WIKIDOT.modules.ForumViewThreadModule.vars.fakedParent = false;
 		}
 		WIKIDOT.modules.ForumViewThreadModule.vars.editActive = true;
-		
+
 		// init editor
 		WIKIDOT.Editor.init("p-np-text", "p-np-editor-panel");
-		
+
 		setTimeout('OZONE.visuals.scrollTo("new-post-form-container")', 300);
 	},
-	
+
 	reply: function(postId){
 		// locate a place to put edit box...
 		var postContainer = $("fpc-"+postId);
 		var post = $("post-"+postId);
 		var editNode = document.createElement('div');
-		
+
 		var formInner = $("new-post-t").innerHTML;
 		formInner = formInner.replace(/id="/g, 'id="p-');
-		
+
 		editNode.innerHTML = "dupa";
-		OZONE.dom.insertAfter(postContainer,editNode,post);	
-		
+		OZONE.dom.insertAfter(postContainer,editNode,post);
+
 		OZONE.visuals.scrollTo(editNode);
 	},
-	
+
 	cancel: function(e){
 		// remove form
 		var formDiv = $('new-post-form-container');
@@ -115,15 +115,15 @@ WIKIDOT.modules.ForumViewThreadModule.listeners = {
 		document.getElementById("new-post-button").style.display="";
 		WIKIDOT.modules.ForumViewThreadModule.vars.currentParentId = null;
 		WIKIDOT.modules.ForumViewThreadModule.vars.editActive = false;
-		
+
 		WIKIDOT.Editor.shutDown();
-		
+
 	},
 	preview: function(e){
-		
-		var p = OZONE.utils.formToArray("p-new-post-form");	
+
+		var p = OZONE.utils.formToArray("p-new-post-form");
 		OZONE.ajax.requestModule("forum/ForumPreviewPostModule", p, WIKIDOT.modules.ForumViewThreadModule.callbacks.preview);
-		
+
 	},
 	closePreview: function(e){
 		var previewContainer = document.getElementById("p-new-post-preview-div");
@@ -131,7 +131,7 @@ WIKIDOT.modules.ForumViewThreadModule.listeners = {
 		OZONE.visuals.scrollTo("new-post-form-container");
 	},
 	save: function(e){
-		var p = OZONE.utils.formToArray("p-new-post-form");	
+		var p = OZONE.utils.formToArray("p-new-post-form");
 		p['action'] = "ForumAction";
 		p['event'] = "savePost";
 		if(WIKIDOT.modules.ForumViewThreadModule.vars.currentParentId){
@@ -139,21 +139,21 @@ WIKIDOT.modules.ForumViewThreadModule.listeners = {
 		}
 		OZONE.ajax.requestModule("Empty", p, WIKIDOT.modules.ForumViewThreadModule.callbacks.save);
 	},
-	
+
 	togglePostOptions: function(event,postId){
 		var oDiv = $("fpoptions-"+postId);
 		if(oDiv.style.display != "block"){
 			var inner = $("post-options").innerHTML;
 			inner = inner.replace(/%POST_ID%/, postId);
 			oDiv.innerHTML = inner;
-			
+
 			// modify permalink...
 			var els = oDiv.getElementsByTagName('a');
 			for(var i=0; i<els.length; i++){
 				if(els[i].innerHTML == 'permalink'){
 					els[i].href=document.getElementById("fpermalink-template").innerHTML+postId;
 				}
-				
+
 			}
 			var ofx = new fx.Opacity(oDiv.id,{duration:200});
 			ofx.setOpacity(0);
@@ -167,20 +167,20 @@ WIKIDOT.modules.ForumViewThreadModule.listeners = {
 	},
 	togglePostFold: function(event,postId){
 		fDiv = $("post-"+postId); // leave it global... nasty.
-		
+
 		var ofx = new fx.Opacity(fDiv,{duration: 200, onComplete: function(){
 			if(fDiv.className.indexOf(' post-folded')>=0){
 				fDiv.className = fDiv.className.replace(/ post\-folded/,'');
 			} else {
-				fDiv.className += ' post-folded';	
+				fDiv.className += ' post-folded';
 			}
-			
+
 			var ofx = new fx.Opacity(fDiv,{duration: 200});
 			ofx.setOpacity(0);
 			ofx.custom(0,1)
 		}});
 		ofx.custom(1,0);
-		
+
 	},
 	permanentLink: function(postId){
 		var t2 = new OZONE.dialogs.SmallInfoBox();
@@ -189,7 +189,7 @@ WIKIDOT.modules.ForumViewThreadModule.listeners = {
 		t2.buttons = ["close"];
 		t2.title=" ";
 		t2.clickOutsideToClose = true;
-		
+
 		t2.addButtonListener("close", t2.close);
 		t2.show();
 	},
@@ -197,7 +197,7 @@ WIKIDOT.modules.ForumViewThreadModule.listeners = {
 		if(WIKIDOT.modules.ForumViewThreadModule.vars.editActive){
 			OZONE.dialog.cleanAll();
 			OZONE.visuals.scrollTo('new-post-form-container');
-		}	
+		}
 	},
 	editClick: function(e, postId){
 		// check if edit is not active somewhere
@@ -215,9 +215,9 @@ WIKIDOT.modules.ForumViewThreadModule.listeners = {
 }
 
 WIKIDOT.modules.ForumViewThreadModule.callbacks = {
-	
+
 	newPost: function(r){
-		
+
 	},
 	preview: function(r){
 		var previewContainer = document.getElementById("p-new-post-preview-div");
@@ -230,20 +230,20 @@ WIKIDOT.modules.ForumViewThreadModule.callbacks = {
 		previewContainer.getElementsByTagName('div').item(divNum).innerHTML=r.body;
 		previewContainer.style.visibility="hidden";
 		previewContainer.style.display="block";
-		
+
 		// a trick. scroll first FAST and...
 		previewContainer.style.visibility="visible";
-		OZONE.visuals.scrollTo("p-new-post-preview-div");		
+		OZONE.visuals.scrollTo("p-new-post-preview-div");
 	},
 	save: function(r){
-		
+
 		//if successfull - reload page?
 		window.location.hash ="post-"+r.postId;
-		
+
 		window.location.reload();
 		setTimeout('alert("reloaded ;-)")', 1000);
 	}
-	
+
 }
 
 WIKIDOT.modules.ForumViewThreadModule.init = function(){

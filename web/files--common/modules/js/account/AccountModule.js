@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -32,7 +32,7 @@ WIKIDOT.modules.AccountModule.listeners = {
 				eff.custom(1,0);
 				tz = target;
 				setTimeout('YAHOO.util.Dom.removeClass(tz,"selected")', 200);
-				
+
 			}else{
 				YAHOO.util.Dom.addClass(target,"selected");
 				var eff = new fx.Opacity(list, {duration: 200});
@@ -41,11 +41,11 @@ WIKIDOT.modules.AccountModule.listeners = {
 			}
 		}
 	},
-	
+
 	editProfile: function(e){
-		
+
 	}
-}	
+}
 
 WIKIDOT.modules.AccountModule.callbacks = {
 	menuClick: function(r){
@@ -66,12 +66,12 @@ WIKIDOT.modules.AccountModule.utils = {
 			YAHOO.util.Dom.addClass(id, "active");
 			OZONE.ajax.requestModule(module, null, WIKIDOT.modules.AccountModule.callbacks.menuClick,
 				null, {clearRequestQueue: true});
-			
+
 			// make sure the parent is unfolded (if is a list)
 			var p = $(id).parentNode.parentNode.parentNode;
-			
+
 			var list = p.getElementsByTagName("ul").item(0);
-			
+
 			if(list && p.tagName.toLowerCase() == 'li' && !YAHOO.util.Dom.hasClass(p,"selected")){
 				// unfold
 				YAHOO.util.Dom.addClass(p,"selected");
@@ -79,14 +79,14 @@ WIKIDOT.modules.AccountModule.utils = {
 				eff.setOpacity(0);
 				eff.custom(0,1);
 			}
-		}	
-	}	
+		}
+	}
 }
 
 WIKIDOT.modules.AccountModule.init = function(){
 
-	YAHOO.util.Event.addListener("account-side", "click", WIKIDOT.modules.AccountModule.listeners.clickMenu);	
-	
+	YAHOO.util.Event.addListener("account-side", "click", WIKIDOT.modules.AccountModule.listeners.clickMenu);
+
 	var mm = new Object();
 	mm['am-welcome'] = "account/AccountWelcomeModule";
 	mm['am-messages'] = "account/AccountMessagesModule";
@@ -107,23 +107,23 @@ WIKIDOT.modules.AccountModule.init = function(){
 	mm['am-watched-feed'] = "account/watch/AWFeedModule";
 	mm['am-wiki-newsletters'] = "account/membership/AccountWikiNewslettersModule";
 	mm['am-deletedsites'] = "account/membership/AccountDeletedSitesModule";
-	
+
 	WIKIDOT.modules.AccountModule.mapping = mm;
-	
-	OZONE.dom.onDomReady(function(){	
+
+	OZONE.dom.onDomReady(function(){
 		if(!$("account-area")){
 			return;
 		}
-		
+
 		var startPage = "am-welcome";
 		if(window.accountStartPage){
 			startPage = 'am-'+accountStartPage;
 		}
 		// on DOM complete!!!
-	
+
 		WIKIDOT.modules.AccountModule.utils.loadModule(startPage);
 	}, "dummy-ondomready-block");
-	
+
 }
 
 WIKIDOT.modules.AccountModule.init();

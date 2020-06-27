@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -34,14 +34,14 @@ WIKIDOT.page.listeners = {
 		}
 		OZONE.ajax.requestModule("edit/PageEditModule",parms,WIKIDOT.page.callbacks.editClick);
 	},
-	
+
 	append: function(e){
 		var parms = new Object();
 		parms['page_id']=WIKIREQUEST.info.pageId;
 		parms['mode']='append';
 		OZONE.ajax.requestModule("edit/PageEditModule",parms,WIKIDOT.page.callbacks.editClick);
 	},
-	
+
 	editSection: function(e){
 		var sectionNumber = this.id.replace(/edit\-section\-b\-/,'');
 		var parms = new Object();
@@ -50,26 +50,26 @@ WIKIDOT.page.listeners = {
 		parms['section'] = sectionNumber;
 		OZONE.ajax.requestModule("edit/PageEditModule",parms,WIKIDOT.page.callbacks.editClick);
 	},
-		
+
 	historyClick: function(e){
 		var parms = new Object();
 		parms['page_id']=WIKIREQUEST.info.pageId;
 		OZONE.ajax.requestModule("history/PageHistoryModule",parms,WIKIDOT.page.callbacks.historyClick);
 	},
-	
+
 	filesClick: function(e){
 		var parms = new Object();
 		parms['page_id']=WIKIREQUEST.info.pageId;
 		OZONE.ajax.requestModule("files/PageFilesModule",parms,WIKIDOT.page.callbacks.filesClick);
-		
+
 	},
 	blockClick: function(e){
 		var parms = new Object();
 		parms['page_id']=WIKIREQUEST.info.pageId;
 		OZONE.ajax.requestModule("pageblock/PageBlockModule",parms,WIKIDOT.page.callbacks.blockClick);
-		
+
 	},
-	
+
 	moreOptionsClick: function(e){
 		// make fx or not? ;-)
 		if(!$("page-options-bottom")){return;}
@@ -82,7 +82,7 @@ WIKIDOT.page.listeners = {
 		YAHOO.util.Event.addListener("more-options-button", "click", WIKIDOT.page.listeners.lessOptionsClick);
 		OZONE.visuals.scrollTo('page-options-bottom');
 	},
-	
+
 	lessOptionsClick: function(e){
 		if(!$("page-options-bottom-2")){return;}
 		var ofx = new fx.Opacity("page-options-bottom-2",{duration:200});
@@ -92,14 +92,14 @@ WIKIDOT.page.listeners = {
 		YAHOO.util.Event.removeListener("more-options-button", "click", WIKIDOT.page.listeners.lessOptionsClick);
 		YAHOO.util.Event.addListener("more-options-button", "click", WIKIDOT.page.listeners.moreOptionsClick);
 	},
-	
+
 	logoutClick: function(e){
 		var p = new Object();
 		p.action = "LoginAction";
 		p.event = "logout";
 		OZONE.ajax.requestModule(null,p,WIKIDOT.page.callbacks.logoutClick);
 	},
-	
+
 	loginClick2: function(e, resetRemember){
 		// start the shader
 		var shader = OZONE.dialog.factory.shader();
@@ -114,20 +114,20 @@ WIKIDOT.page.listeners = {
 		url += '/categoryId/'+WIKIREQUEST.info.categoryId;
 		url += '/themeId/'+WIKIREQUEST.info.themeId;
 		url += '/url/'+ encodeURIComponent(encodeURIComponent(window.location.href));
-		
+
 		sIfr.src=url;
 		sIfr.scrolling="no";
-		
+
 		sIfr.frameBorder=0;
 		sIfr.style.height = YAHOO.util.Dom.getClientHeight()+"px";
-		
-		
-		
-		
+
+
+
+
 		body.appendChild(sIfr);
-		
+
 	},
-	
+
 	loginClick: function(e, resetRemember){
 		var url = HTTP_SCHEMA+"://"+URL_HOST+'/auth:login?origUrl=' + encodeURIComponent(window.location.href);
 		window.location.href = url;
@@ -135,27 +135,27 @@ WIKIDOT.page.listeners = {
 		//var p = new Object();
 		//if(resetRemember){ p.reset = "yes"; }
 		//OZONE.ajax.requestModule("login/LoginModule2", p, WIKIDOT.page.callbacks.loginClick);
-		
+
 	},
-	
+
 	loginClick0: function(e, resetRemember){
 		var p = new Object();
 		if(resetRemember){ p.reset = "yes"; }
 		OZONE.ajax.requestModule("login/LoginModule", p, WIKIDOT.page.callbacks.loginClick);
 	},
-	
+
 	createAccount: function(e){
 		var url = HTTP_SCHEMA+"://"+URL_HOST+'/auth:newaccount?origUrl=' + encodeURIComponent(window.location.href);
 		window.location.href = url;
 		return;
 		//OZONE.ajax.requestModule("createaccount/CreateAccountModule", null, WIKIDOT.page.callbacks.createAccount);
 	},
-	
+
 	toggleEditSections: function(e){
 		if(WIKIDOT.page.vars.editSectionsActive == false){
-			
+
 			// check if it is possible to edit sections.
-			
+
 			var pc = $("page-content");
 			var children = pc.childNodes;
 			var headings = new Array();
@@ -165,7 +165,7 @@ WIKIDOT.page.listeners = {
 					headings.push(children[i]);
 				}
 			}
-			
+
 			if(headings.length == 0){
 				//alert("no isolated sections to edit")
 				var w = new OZONE.dialogs.ErrorDialog();
@@ -173,7 +173,7 @@ WIKIDOT.page.listeners = {
 				w.show();
 				return;
 			}
-			
+
 			// count all headings in the page-content
 			var allSum = 0;
 			var hTypes = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
@@ -189,12 +189,12 @@ WIKIDOT.page.listeners = {
 				alert("It seems that headings do not have a valid structure...");
 				return;
 			}
-			
+
 			var editButtons = new Array();
 			for(var i=0; i<headings.length; i++){
 				var edit = document.createElement("a");
 				edit.innerHTML="edit";
-				edit.href="javascript:;"; 
+				edit.href="javascript:;";
 				edit.className = "edit-section-button";
 				edit.id="edit-section-b-"+headings[i].id.replace(/toc/,'');
 				YAHOO.util.Event.addListener(edit, "click", WIKIDOT.page.listeners.editSection );
@@ -216,19 +216,19 @@ WIKIDOT.page.listeners = {
 			return;
 		}
 	},
-	
+
 	editTags: function(e){
 		var p = new Object();
 		p['pageId'] =  WIKIREQUEST.info.pageId;
 		OZONE.ajax.requestModule("pagetags/PageTagsModule", p, WIKIDOT.page.callbacks.editTags);
-		
+
 	},
-	
+
 	siteTools: function(e){
 		OZONE.ajax.requestModule("sitetools/SiteToolsModule", null, WIKIDOT.page.callbacks.siteTools);
-		
+
 	},
-	
+
 	backlinksClick: function(e){
 		var pageId = WIKIREQUEST.info.pageId;
 		var parms = new Object();
@@ -241,7 +241,7 @@ WIKIDOT.page.listeners = {
 		parms['page_id'] = pageId;
 		OZONE.ajax.requestModule("viewsource/ViewSourceModule",parms,WIKIDOT.page.callbacks.viewSourceClick);
 	},
-	
+
 	closeActionArea: function(e){
 		var a = $("action-area");
 		if(a){
@@ -252,7 +252,7 @@ WIKIDOT.page.listeners = {
 			setTimeout('$("action-area").innerHTML = "";$("action-area").style.display = "none"',200);
 		}
 	},
-	
+
 	userInfo: function(userId){
 		var p = new Object();
 		p['user_id'] = userId;
@@ -263,35 +263,35 @@ WIKIDOT.page.listeners = {
 		p.userString = userString;
 		OZONE.ajax.requestModule("users/AnonymousInfoWinModule", p, WIKIDOT.page.callbacks.userInfo);
 	},
-	
+
 	renamePage: function(e){
 		var p = new Object();
 		p['pageId'] =  WIKIREQUEST.info.pageId;
 		OZONE.ajax.requestModule("rename/RenamePageModule", p, WIKIDOT.page.callbacks.renamePage);
-		
+
 	},
 	deletePage: function(e){
 		var p = new Object();
 		p['pageId'] =  WIKIREQUEST.info.pageId;
 		p['delete'] = "yes";
 		OZONE.ajax.requestModule("rename/RenamePageModule", p, WIKIDOT.page.callbacks.renamePage);
-		
+
 	},
 	createPageDiscussion: function(e){
 		var p = new Object();
 		p['page_id'] =  WIKIREQUEST.info.pageId;
 		p['action'] = "ForumAction";
 		p['event'] = "createPageDiscussionThread";
-		OZONE.ajax.requestModule("Empty", p, WIKIDOT.page.callbacks.createPageDiscussion);	
+		OZONE.ajax.requestModule("Empty", p, WIKIDOT.page.callbacks.createPageDiscussion);
 	},
-	
+
 	flagPageObjectionable: function(e){
 		var p = new Object();
 		p.path = window.location.pathname;
 		OZONE.ajax.requestModule('report/FlagPageModule', p, WIKIDOT.page.callbacks.flagPageObjectionable);
 	},
 	pageBugReport: function(e){
-		
+
 		OZONE.ajax.requestModule('report/BugReportModule', null, WIKIDOT.page.callbacks.pageBugReport);
 	},
 	pageRate: function(e){
@@ -301,17 +301,17 @@ WIKIDOT.page.listeners = {
 		var p = new Object();
 		p['page_id']=WIKIREQUEST.info.pageId;
 		OZONE.ajax.requestModule("parent/ParentPageModule",p,WIKIDOT.page.callbacks.parentClick);
-		
+
 	},
 	passwordRecoveryClick: function(e){
 		OZONE.ajax.requestModule("passwordrecovery/PasswordRecoveryModule", null, WIKIDOT.page.callbacks.passwordRecovery);
 	},
-	
+
 	foldToc: function(e){
 		var eff = new fx.Opacity($("toc-list"), {duration: 200, onComplete: function(){
 			$("toc-list").style.display = "none";
 			var as = $("toc-action-bar").getElementsByTagName('a');
-			as[0].style.display = "none"; 
+			as[0].style.display = "none";
 			as[1].style.display = '';
 		}});
 		eff.custom(1,0);
@@ -325,7 +325,7 @@ WIKIDOT.page.listeners = {
 		as[1].style.display = "none";
 		as[0].style.display = '';
 	},
-	
+
 	search: function(e){
 		var query = $("search-top-box-input").value;
 		// escape query
@@ -334,41 +334,41 @@ WIKIDOT.page.listeners = {
 		window.location.href=url;
 		YAHOO.util.Event.preventDefault(e);
 	},
-	
+
 	printClick: function(e){
 		// open a new window...
 		var url = '/printer--friendly/'+window.location.pathname;
 		var newwindow = window.open(url, "_blank",'location=no,menubar=yes,titlebar=no,resizable=yes,scrollbars=yes,width=' + (screen.width*0.8) + ',height=' +
 			(screen.height*0.8) + ',top='+ (screen.height*0.1) +',left='+(screen.width*0.1));
-		return newwindow;	
-	
+		return newwindow;
+
 	}
-	
+
 }
 
 WIKIDOT.page.callbacks = {
 	filesClick: function(response){
 		if(!WIKIDOT.utils.handleError(response)) {return;}
-		OZONE.utils.setInnerHTMLContent('action-area', response.body);	
+		OZONE.utils.setInnerHTMLContent('action-area', response.body);
 		$("action-area").style.display = "block";
 		WIKIDOT.page.utils.addCloseToActionArea();
 		setTimeout("OZONE.visuals.scrollTo('action-area')", 200);
 	},
-	
+
 	editClick: function(response){
 		if(!WIKIDOT.utils.handleError(response)) {return;}
-		
+
 		if(WIKIDOT.page.vars.newPage == true){
 			$('page-content').innerHTML='';
 		}
-		
+
 		if(WIKIDOT.page.vars.editSectionsActive){
 			WIKIDOT.page.listeners.toggleEditSections();
 		}
-		
+
 		// init
-		editMode = response.mode;		
-		
+		editMode = response.mode;
+
 		if(response.locked == true){
 			// the page has a lock!
 			WIKIDOT.page.vars.locked = true;
@@ -397,9 +397,9 @@ WIKIDOT.page.callbacks = {
 			WIKIDOT.page.vars.editlock.secret = response['lock_secret'];
 			WIKIDOT.page.vars.editlock.revisionId = response['page_revision_id'];
 			WIKIDOT.page.vars.editlock.timeLeft = response.timeLeft;
-			
+
 		}
-		
+
 		if(editMode == 'section'){
 			if(response.section == null){
 				alert('Section edit error. Section does not exist');
@@ -407,7 +407,7 @@ WIKIDOT.page.callbacks = {
 			}
 			WIKIDOT.page.vars.editlock.rangeStart = response.rangeStart;
 			WIKIDOT.page.vars.editlock.rangeEnd = response.rangeEnd;
-			
+
 			// insert new div before the heading...
 			var headingId = 'toc'+response.section;
 			var heading = $(headingId);
@@ -425,7 +425,7 @@ WIKIDOT.page.callbacks = {
 				ns0 = ns;
 				ns = ns.nextSibling;
 				aDiv.appendChild(ns0);
-			}	
+			}
 			//also move action area below that div.
 			if(ns){
 				pc.insertBefore($('action-area'),ns);
@@ -433,15 +433,15 @@ WIKIDOT.page.callbacks = {
 				pc.appendChild($('action-area'));
 			}
 		}
-		
-		
-		
+
+
+
 		OZONE.utils.setInnerHTMLContent('action-area', response.body);
 		$("action-area").style.display = "block";
 		setTimeout("OZONE.visuals.scrollTo('action-area')", 200);
 		WIKIDOT.page.vars.ctrle.disable();
 	},
-	
+
 	historyClick: function(response){
 		if(!WIKIDOT.utils.handleError(response)) {return;}
 		OZONE.utils.setInnerHTMLContent('action-area', response.body);
@@ -452,7 +452,7 @@ WIKIDOT.page.callbacks = {
 		if(!WIKIDOT.utils.handleError(r)) {return;}
 		window.location.reload();
 	},
-	
+
 	passwordRecovery: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
 		WIKIDOT.vars.rsakey = r.key;
@@ -461,14 +461,14 @@ WIKIDOT.page.callbacks = {
 		w.content = r.body;
 		w.show();
 	},
-	
+
 	createAccount: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
 		var w = new OZONE.dialogs.Dialog();
 		w.content = r.body;
 		w.show();
 	},
-	
+
 	backlinksClick: function(response){
 		if(!WIKIDOT.utils.handleError(response)) {return;}
 		OZONE.utils.setInnerHTMLContent('action-area', response.body);
@@ -483,17 +483,17 @@ WIKIDOT.page.callbacks = {
 		WIKIDOT.page.utils.addCloseToActionArea();
 		setTimeout("OZONE.visuals.scrollTo('action-area')", 300);
 	},
-	
+
 	userInfo: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
-		
+
 		var w = new OZONE.dialogs.Dialog();
 		w.content = r.body;
 		w.clickOutsideToClose = true;
 		w.show();
-		
+
 	},
-	
+
 	renamePage: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
 		$('action-area').innerHTML = r.body;
@@ -555,19 +555,19 @@ WIKIDOT.page.callbacks = {
 		w.content = r.body;
 		w.show();
 	}
-	
+
 }
 
 WIKIDOT.page.utils = {
 	scrollToReference: function(elementId){
 		OZONE.visuals.scrollTo(elementId, {blink: true});
 	},
-	
+
 	addCloseToActionArea: function(){
 		var cl = document.createElement("a");
 		cl.innerHTML="close";
 		cl.href="javascript:;";
-		cl.className = "action-area-close"; 
+		cl.className = "action-area-close";
 		var aa = $("action-area");
 		if (aa.firstChild){
 			aa.insertBefore(cl,aa.firstChild);
@@ -576,18 +576,18 @@ WIKIDOT.page.utils = {
 		}
 		YAHOO.util.Event.addListener(cl, "click", WIKIDOT.page.listeners.closeActionArea);
 	},
-	
+
 	openHelpPop: function(topicName){
 		// TODO: De-Wikidot.com-ize - change
 		var newwindow = window.open("http://test.wikidot.com/default--screen/HelpPop/topic/"+topicName, "_blank",'location=no,menubar=no,titlebar=no,resizable=yes,scrollbars=yes,width=' + (screen.width*0.8) + ',height=' +
 			(screen.height*0.8) + ',top='+ (screen.height*0.1) +',left='+(screen.width*0.1));
 		return newwindow;
-		
+
 	}
 }
 
 WIKIDOT.page.fixers = {
-	/** 
+	/**
 	 * Fix math references to show hover equations.
 	 */
 	 fixMathRef: function(){
@@ -603,11 +603,11 @@ WIKIDOT.page.fixers = {
 					var image = equation.getElementsByTagName('img').item(0).cloneNode(true);
 					var text = '<b>Equation ('+id+')</b><br/><img style="margin: 1em" src="'+image.src+'"/><br/>' +
 							'<span style="font-size: 90%">(click to scroll to the equation)</span>';
-					OZONE.dialog.hovertip.makeTip(eref, {text: text, valign:'center', 
+					OZONE.dialog.hovertip.makeTip(eref, {text: text, valign:'center',
 						style: {width: 'auto', backgroundColor: 'white'}});
-					
+
 		 		}
-		 	
+
 		 	}
 		}
 	 },
@@ -617,16 +617,16 @@ WIKIDOT.page.fixers = {
 	 		var fref = frefs[i];
 	 		var id=fref.id.replace(/^footnoteref\-/,'');
 	 		var footnote = $("footnote-"+id);
-	 	
+
 	 		var content = footnote.innerHTML.replace(/<a.*?<\/a>\. /,'');
-	
+
 	 		var text = '<b>Footnote '+id+'.</b><br/>' + '<div style="margin: 0.5em 0">'+content+'</div>' +
 						'<span style="font-size: 90%">(click to scroll to footnotes)</span>';
 			OZONE.dialog.hovertip.makeTip(fref, {text: text, valign:'center', smartWidthLimit: 0.7,
 					style: {width: 'auto', backgroundColor: 'white'}});
 	 	}
 	 },
-	 
+
 	 fixBibRef: function(root){
 	 	var brefs = YAHOO.util.Dom.getElementsByClassName("bibcite", "a", root);
 	 	for(var i=0; i<brefs.length; i++){
@@ -637,9 +637,9 @@ WIKIDOT.page.fixers = {
 	 		var text = '<b>Reference '+id+'.</b><br/>' + '<div style="margin: 0.5em 0">'+content+'</div>' +
 						'<span style="font-size: 90%">(click to scroll to bibliography)</span>';
 			OZONE.dialog.hovertip.makeTip(bref, {text: text, valign:'center', smartWidthLimit: 0.7,
-					style: {width: 'auto', backgroundColor: 'white'}});		
+					style: {width: 'auto', backgroundColor: 'white'}});
 	 	}
-	 	
+
 	 },
 	 fixDates: function(){
 	 	OZONE.utils.formatDates();
@@ -659,9 +659,9 @@ WIKIDOT.page.fixers = {
 				YAHOO.util.Dom.removeClass(this,"sfhover");
 			});
 		}
-	 	
+
 	 },
-	 
+
 	 fixEmails: function(root){
 	 	var els = YAHOO.util.Dom.getElementsByClassName("wiki-email", "span",root);
 	 	var el;
@@ -688,9 +688,9 @@ WIKIDOT.page.fixers = {
 	 		}
 	 	}
 	 },
-	 
+
 	 fixFoldableMenus: function(root){
-	 	
+
 	 	var rootElement = $(root);
 	 	if(!rootElement){
 	 		return;
@@ -723,22 +723,22 @@ WIKIDOT.page.fixers = {
 	 					var a = document.createElement('a');
 	 					parnt.insertBefore(a, tnode);
 	 					a.appendChild(tnode);
-	 					a.href="javascript:;";		
+	 					a.href="javascript:;";
 	 				}
 				}
 	 		}
-	 		
+
 	 		// check if there is any active page here.. if so - unfold the list somehow
 	 		var as = divs[i].getElementsByTagName('a');
 	 		var loc = window.location.pathname;
-	 		
+
 	 		for(var j=0; j<as.length; j++){
-	 			
+
 	 			var href = as[j].href.replace(/^[a-z]*:\/\/[^\/]+\/([^\/]+).*/, '/$1');
 	 			if(href == loc){
 	 				var parnt = as[j].parentNode;
 	 				while(parnt &&!YAHOO.util.Dom.hasClass(parnt, 'foldable-list-container')){
-	 					
+
 	 					if(parnt.tagName == 'LI' && YAHOO.util.Dom.hasClass(parnt,"folded")){
 	 						YAHOO.util.Dom.replaceClass(parnt, "folded", "unfolded");
 	 						var ul = parnt.getElementsByTagName('ul')[0];
@@ -750,12 +750,12 @@ WIKIDOT.page.fixers = {
 	 		}
 	 		// attach a listener too
 	 		YAHOO.util.Event.addListener(divs[i], "click", WIKIDOT.page.fixers._foldableMenuToggle);
-	 		
+
 	 	}
-	 
-	 	
+
+
 	 },
-	 
+
 	 _foldableMenuToggle: function(event){
 	 	var li;
 	 	li = YAHOO.util.Event.getTarget(event, true);
@@ -768,8 +768,8 @@ WIKIDOT.page.fixers = {
 	 	if(!(YAHOO.util.Dom.hasClass(li, "folded") || YAHOO.util.Dom.hasClass(li, "unfolded"))){
 	 		return;
 	 	}
-	 	
-	 
+
+
 	 	if(YAHOO.util.Dom.hasClass(li, "folded")){
 	 		// unfold
 	 		YAHOO.util.Dom.replaceClass(li, "folded", "unfolded");
@@ -781,11 +781,11 @@ WIKIDOT.page.fixers = {
 	 		// fold
 	 		YAHOO.util.Dom.replaceClass(li, "unfolded", "folded");
 	 		var ul = li.getElementsByTagName('ul')[0];
-	 		
+
 	 		ul.style.display = 'none';
 	 	}
 	 },
-	 /** 
+	 /**
 	  * Inserts A elements into LI elements if not present.
 	  */
 	 fixMenuList: function(rootElement){
@@ -800,16 +800,16 @@ WIKIDOT.page.fixers = {
 	 			var a = document.createElement('a');
 	 			lis[i].insertBefore(a, tnode);
 	 			a.appendChild(tnode);
-	 			a.href="javascript:;";		
+	 			a.href="javascript:;";
 	 		}
 	 	}
 	 }
-	
+
 }
 
 WIKIDOT.page.vars = {
 	editSectionsActive: false
-	
+
 }
 
 WIKIDOT.page.account = {};
@@ -818,7 +818,7 @@ WIKIDOT.page.account.shower = function(e){
 	var ao = $("account-options");
 	if(!ao.eff){
 		ao.eff = new fx.Opacity(ao, {duration:200});
-		
+
 	}
 	ao.eff.setOpacity(0);
 	ao.style.display="block";
@@ -848,20 +848,20 @@ WIKIDOT.page.init = function(){
 	YAHOO.util.Event.addListener("print-button", "click", WIKIDOT.page.listeners.printClick);
 	YAHOO.util.Event.addListener("site-tools-button", "click", WIKIDOT.page.listeners.siteTools);
 	YAHOO.util.Event.addListener("more-options-button", "click", WIKIDOT.page.listeners.moreOptionsClick);
-	
+
 	YAHOO.util.Event.addListener("edit-append-button", "click", WIKIDOT.page.listeners.append);
 	YAHOO.util.Event.addListener("edit-sections-button", "click", WIKIDOT.page.listeners.toggleEditSections);
 	YAHOO.util.Event.addListener("backlinks-button", "click", WIKIDOT.page.listeners.backlinksClick);
 	YAHOO.util.Event.addListener("parent-page-button", "click", WIKIDOT.page.listeners.parentClick);
-	
+
 	YAHOO.util.Event.addListener("view-source-button", "click", WIKIDOT.page.listeners.viewSourceClick);
 	YAHOO.util.Event.addListener("page-block-button", "click", WIKIDOT.page.listeners.blockClick);
 	YAHOO.util.Event.addListener("rename-move-button", "click", WIKIDOT.page.listeners.renamePage);
 	YAHOO.util.Event.addListener("delete-button", "click", WIKIDOT.page.listeners.deletePage);
-	
+
 	YAHOO.util.Event.addListener("search-top-box-form", "submit", WIKIDOT.page.listeners.search);
-	
-	
+
+
 	OZONE.dom.onDomReady(function(){
 		OZONE.dialog.hovertip.dominit("html-body", {delay: 700, valign: 'center'});
 		WIKIDOT.page.fixers.fixMenuList("top-bar");
@@ -872,7 +872,7 @@ WIKIDOT.page.init = function(){
 		WIKIDOT.page.fixers.fixDates($("html-body"));
 		WIKIDOT.page.fixers.fixEmails($("page-content"));
 		WIKIDOT.render.fixAvatarHover();
-		
+
 		var accountButton = $("account-topbutton");
 		if(accountButton){
 			YAHOO.util.Event.addListener(accountButton, "mousedown", WIKIDOT.page.account.shower);
@@ -880,7 +880,7 @@ WIKIDOT.page.init = function(){
 		}
 			WIKIDOT.page.fixers.fixMenu("top-bar");
 			WIKIDOT.page.fixers.fixMenu("side-bar");
-		
+
 		OZONE.visuals.initScroll();
 		var not = $("notifications-dialog");
 		if(not != null){
@@ -889,16 +889,16 @@ WIKIDOT.page.init = function(){
 			w.show();
 			setTimeout("OZONE.dialog.factory.boxcontainer().centerContent();", 1000);
 		}
-		
+
 		// check if to start page editing now
 		var path = window.location.pathname;
 		if(path.match(/^\/[a-z0-9\-:]+\/edit\/true/)){
 			WIKIDOT.page.listeners.editClick();
 				// force use the template
-				
+
 		}
 		// check if need highlighting
-		/* 
+		/*
 		var path = window.location.pathname;
 		if(path.match(/^\/[^\/]+.*?\/highlight\/([^\/]+)(\/|$)/)){
 			var htext = path.replace(/^\/[^\/]+.*?\/highlight\/([^\/]+)(\/|$)/, "$1");
@@ -907,23 +907,23 @@ WIKIDOT.page.init = function(){
 			OZONE.visuals.highlightText('page-title', htext);
 		}
 		*/
-		
-		
+
+
 	}, "dummy-ondomready-block");
-	
+
 	OZONE.loc.addMessage("close window", "zamknij okno", "pl");
 	OZONE.loc.addMessage("close message", "zamknij wiadomość", "pl");
 	OZONE.loc.addMessage("Error", "Blad", "pl");
 	OZONE.loc.addMessage("Oooops!", "Ups!", "pl");
 	OZONE.loc.addMessage("Permission error", "Błąd uprawnień", "pl");
-	
+
 	var ldates = {
 		ago: "temu", day: "dzień", days: "dni", hours: "godziny", hour: "godzina", minutes: "minuty", minute: "minuta", seconds: 'sekundy', second: 'sekunda'
 	}
 
 	OZONE.loc.addMessages(ldates, "pl");
-	
-	
+
+
 	// attache ctrl+e for editing
 	// handle ctrl+s
 	var ctrle = new YAHOO.util.KeyListener(document, {keys:69, ctrl:true}, function(type,e){

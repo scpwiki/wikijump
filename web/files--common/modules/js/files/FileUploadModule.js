@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -28,7 +28,7 @@ WIKIDOT.modules.PageUploadModule.listeners = {
 		}
 		$('_upload_iframe').src='/common--misc/blank.html';
 	},
-	
+
 	uploadStart: function(e){
 		var t2 = new OZONE.dialogs.WaitBox();
 		t2.content='Uploading file... Please wait...';
@@ -38,7 +38,7 @@ WIKIDOT.modules.PageUploadModule.listeners = {
 		$("file-action-area").innerHTML="";
 		YAHOO.util.Event.stopEvent(e);
 	},
-	
+
 	checkFileExists: function(e){
 		if($("upload-userfile").value == ''){
 			return;
@@ -49,14 +49,14 @@ WIKIDOT.modules.PageUploadModule.listeners = {
 		} else{
 			p.filename = $("upload-userfile").value;
 		}
-		
+
 		p.action = 'FileAction';
 		p.event = 'checkFileExists';
 		p.pageId = WIKIREQUEST.info.pageId;
 		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.PageUploadModule.callbacks.checkFileExists);
 		YAHOO.util.Event.stopEvent(e);
 	},
-	
+
 	forceOverwrite: function(e){
 		var i = document.createElement('input');
 		i.type='hidden';
@@ -80,7 +80,7 @@ WIKIDOT.modules.PageUploadModule.callbacks = {
 			// just submit the form now!
 			$("file-upload-form").submit();
 			WIKIDOT.modules.PageUploadModule.listeners.uploadStart(null);
-			
+
 		}
 	}
 }
@@ -92,7 +92,7 @@ WIKIDOT.modules.PageUploadModule.init = function(){
 	$("file-upload-form-page-id").value=WIKIREQUEST.info.pageId;
 	YAHOO.util.Event.addListener("file-upload-form", "submit", WIKIDOT.modules.PageUploadModule.listeners.uploadStart);
 	var limiter = new OZONE.forms.lengthLimiter("file-comments", "file-comments-charleft", 100);
-	
+
 }
 
 WIKIDOT.modules.PageUploadModule.init();

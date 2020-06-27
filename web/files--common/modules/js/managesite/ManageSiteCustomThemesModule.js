@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -24,28 +24,28 @@ WIKIDOT.modules.ManageSiteCustomThemesModule.listeners = {
 		}
 		WIKIDOT.modules.ManageSiteCustomThemesModule.vars.editThemeId = themeId;
 		OZONE.ajax.requestModule("managesite/ManageSiteEditCustomThemeModule", p, WIKIDOT.modules.ManageSiteCustomThemesModule.callbacks.editTheme);
-		
+
 	},
-	
+
 	importCss: function(e){
 		var p = new Object();
 		p.pageName = $("sm-cssimport-input").value;
 		if(p.pageName == ''){
 			$("cssimport-error").innerHTML = "In order to import CSS you should first " +
 					"give a non-empty page name.";
-			$("cssimport-error").style.display = "block";	
-			return;	
+			$("cssimport-error").style.display = "block";
+			return;
 		}
 		p.action = "ManageSiteAction";
 		p.event = "importCss";
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.ManageSiteCustomThemesModule.callbacks.importCss);	
-	
+		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.ManageSiteCustomThemesModule.callbacks.importCss);
+
 	},
-	
+
 	cancelEditTheme: function(e){
 		$("edit-theme-box").innerHTML = "";
 	},
-	
+
 	saveTheme: function(e){
 		var p = OZONE.utils.formToArray("sm-edit-theme-form");
 		p.action = "ManageSiteAction";
@@ -74,7 +74,7 @@ WIKIDOT.modules.ManageSiteCustomThemesModule.listeners = {
 		if(themeId){p['themeId'] = themeId;}
 		p.action = "ManageSiteAction";
 		p.event = "customThemeDelete";
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.ManageSiteCustomThemesModule.callbacks.deleteTheme);	
+		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.ManageSiteCustomThemesModule.callbacks.deleteTheme);
 	}
 }
 
@@ -82,15 +82,15 @@ WIKIDOT.modules.ManageSiteCustomThemesModule.callbacks = {
 	editTheme: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
 		$("edit-theme-box").innerHTML = r.body;
-		
+
 		// attach autocomplete
 		// attach the autocomplete thing
-		var myDataSource = new YAHOO.widget.DS_XHR("/quickmodule.php", ['pages', 'unix_name', 'title']); 
+		var myDataSource = new YAHOO.widget.DS_XHR("/quickmodule.php", ['pages', 'unix_name', 'title']);
 		myDataSource.scriptQueryParam="q";
 		myDataSource.scriptQueryAppend = "s="+WIKIREQUEST.info.siteId+"&module=PageLookupQModule";
-	
+
 		var myAutoComp = new YAHOO.widget.AutoComplete("sm-cssimport-input","sm-cssimport-input-list", myDataSource);
-		myAutoComp.formatResult = function(aResultItem, sQuery) { 
+		myAutoComp.formatResult = function(aResultItem, sQuery) {
 			var title = aResultItem[1];
 			var unixName = aResultItem[0];
 			if(unixName!= null){
@@ -102,7 +102,7 @@ WIKIDOT.modules.ManageSiteCustomThemesModule.callbacks = {
 		myAutoComp.minQueryLength = 2;
 		myAutoComp.queryDelay = 0.5;
 	},
-	
+
 	importCss: function(r){
 		if(r.status == "form_error"){
 			$("cssimport-error").innerHTML = r.message;
@@ -127,9 +127,9 @@ WIKIDOT.modules.ManageSiteCustomThemesModule.callbacks = {
 		w.content = "Theme saved.";
 		w.show();
 		setTimeout('WIKIDOT.modules.ManagerSiteModule.utils.loadModule("sm-customthemes")', 1000);
-		
+
 	},
-	
+
 	deleteTheme: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
 		WIKIDOT.modules.ManagerSiteModule.utils.loadModule("sm-customthemes");

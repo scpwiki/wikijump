@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -13,7 +13,7 @@ WIKIDOT.modules.ForumCommentsModule = {};
 
 WIKIDOT.modules.ForumCommentsModule.listeners = {
 	showComments: function(e){
-		// if "thread-container" is filled with data - just show it. 
+		// if "thread-container" is filled with data - just show it.
 		// if not - make an ajax request for the content
 		var tc = $("thread-container");
 		if(tc.innerHTML.match(/^[\s\n\r]*$/)){
@@ -27,7 +27,7 @@ WIKIDOT.modules.ForumCommentsModule.listeners = {
 			$("comments-options-shown").style.display="block";
 		}
 	},
-	
+
 	hideComments: function(e){
 		var tc = $("thread-container");
 		tc.style.display="none";
@@ -38,14 +38,14 @@ WIKIDOT.modules.ForumCommentsModule.listeners = {
 
 WIKIDOT.modules.ForumCommentsModule.callbacks = {
 	showComments: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}	
-		
+		if(!WIKIDOT.utils.handleError(r)) {return;}
+
 		var tc = $("thread-container");
 		OZONE.utils.setInnerHTMLContent(tc, r.body);
 		tc.style.display="block";
 		$("comments-options-hidden").style.display="none";
 		$("comments-options-shown").style.display="block";
-		
+
 		WIKIDOT.forumThreadId = r.threadId;
-	}	
+	}
 }

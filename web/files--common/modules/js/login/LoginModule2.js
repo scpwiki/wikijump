@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -15,7 +15,7 @@ function logininit(){
 		setTimeout("logininit()", 500);
 		return;
 	}
-	
+
 	var url=window.location.protocol+'//'+URL_HOST+'/default_flow.php?login__LoginIframeScreen';
 	if(YAHOO.env.ua.ie > 0){
 		url = '/default_flow.php?login__LoginIframeScreen';

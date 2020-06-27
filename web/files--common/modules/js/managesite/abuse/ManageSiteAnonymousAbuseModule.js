@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -24,7 +24,7 @@ WIKIDOT.modules.ManageSiteAnonymousAbuseModule.listeners = {
 		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.ManageSiteAnonymousAbuseModule.callbacks.clear);
 	},
 	blockIp: function(e, address){
-		
+
 		WIKIDOT.modules.ManageSiteAnonymousAbuseModule.vars.currentIP = address;
 		var w = new OZONE.dialogs.ConfirmationDialog();
 		w.content = $("ban-ip-dialog").innerHTML.replace(/%%IP%%/, address);
@@ -36,12 +36,12 @@ WIKIDOT.modules.ManageSiteAnonymousAbuseModule.listeners = {
 	blockIp2: function(e){
 		var p = new Object();
 		p.ips = WIKIDOT.modules.ManageSiteAnonymousAbuseModule.vars.currentIP;
-		
+
 		p.action = "ManageSiteBlockAction";
 		p.event = "blockIp";
 		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.ManageSiteAnonymousAbuseModule.callbacks.blockIp);
 	}
-	
+
 }
 
 WIKIDOT.modules.ManageSiteAnonymousAbuseModule.callbacks = {
@@ -50,7 +50,7 @@ WIKIDOT.modules.ManageSiteAnonymousAbuseModule.callbacks = {
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Flags cleared";
 		w.show();
-		
+
 	},
 	blockIp: function(r){
 		if(r.status !== 'ok'){
@@ -62,10 +62,10 @@ WIKIDOT.modules.ManageSiteAnonymousAbuseModule.callbacks = {
 			w.show();
 			return;
 		}
-		
+
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "The IP address added to the block list.";
 		w.show();
-		
+
 	}
 }

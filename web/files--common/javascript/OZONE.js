@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -16,7 +16,7 @@ OZONE.ajax = {
 	_callbackArray: new Array(),
 	_callbackArrayIndex: 0,
 	_javascriptLoadLock: false,
-	
+
 	/**
 	 * arg - extra parameter passed to the callback as a second parameter
 	 */
@@ -29,16 +29,16 @@ OZONE.ajax = {
 			moduleName = "Empty";
 		}
 		parameters["moduleName"] = moduleName;
-	
+
 		if(options && options.clearRequestQueue){
 			OZONE.ajax._callbackArray = new Array();
 		}
-	
+
 		var callbackIndex = OZONE.ajax._callbackArrayIndex++;
 		OZONE.ajax._callbackArray[callbackIndex] = {callback: callback, arg: arg};
-		
+
 		parameters['callbackIndex'] = callbackIndex;
-		
+
 		// add token information
 		var token = OZONE.utils.getCookie("wikidot_token7");
 		if(token == null){
@@ -49,14 +49,14 @@ OZONE.ajax = {
 					"in your browser if you have this option disabled " +
 					"and reload the page.");
 			OZONE.visuals.cursorClear();
-			return;		
+			return;
 		}
 		parameters['wikidot_token7'] = token;
-		
+
 		var postdata = OZONE.utils.arrayToPostData(parameters);
 		var internalCallback = OZONE.ajax.requestModuleCallback;
 		YAHOO.util.Connect.asyncRequest('POST','/ajax-module-connector.php',internalCallback,postdata);
-		
+
 	},
 
 	parseResponse: function(jsonResponse){
@@ -64,15 +64,15 @@ OZONE.ajax = {
         if(!res){
         	alert(jsonResponse.replace(/\r?\n/g,' '));
         }
-		
+
 		return res;
 	},
-	
+
 	requestModuleCallback: {
 		success: function(rObj){
 			// process response
 			var response = OZONE.ajax.parseResponse(rObj.responseText);
-			
+
 			if(response.status=='wrong_token7'){
 				// TODO: De-Wikidot.com-ize - change
 				alert('wikidot.com security error:\n\n' +
@@ -84,11 +84,11 @@ OZONE.ajax = {
 				OZONE.visuals.cursorClear();
 				return;
 			}
-			
+
 			var callbackIndex = response.callbackIndex;
 			if(callbackIndex == null){
 				OZONE.visuals.cursorClear();
-				OZONE.dialog.cleanAll();	
+				OZONE.dialog.cleanAll();
 			}
 			if(!OZONE.ajax._callbackArray[callbackIndex]){
 				return;
@@ -99,13 +99,13 @@ OZONE.ajax = {
 			}
 			var arg = OZONE.ajax._callbackArray[callbackIndex]['arg'];
 			// call callback
-			
+
 			if(arg != null){
 				callback(response, arg);
 			}else{
 				callback(response);
 			}
-			
+
 			// attach javascript (if any)
 			if(response.jsInclude != null){
 				for(var index=0; index<response.jsInclude.length; index++) {
@@ -113,7 +113,7 @@ OZONE.ajax = {
 				}
 			}
 			if(response.cssInclude != null){
-				
+
 				for(var index=0; index<response.cssInclude.length; index++) {
 					OZONE.utils.addStyleUrl(response.cssInclude[index]);
 				}
@@ -126,10 +126,10 @@ OZONE.ajax = {
 
 			OZONE.visuals.cursorClear();
 			OZONE.dialog.cleanAll();
-		}	
-	
+		}
+
 	},
-	
+
 	requestQuickModule: function(moduleName, parameters, callback){
 		if(parameters==null){
 			parameters = new Object();
@@ -137,16 +137,16 @@ OZONE.ajax = {
 		if(moduleName == null || moduleName == ""){
 			alert('Quick module name empty.');
 		}
-	
+
 		var callbackIndex = OZONE.ajax._callbackArrayIndex++;
 		OZONE.ajax._callbackArray[callbackIndex] = callback;
-		
+
 		parameters['callbackIndex'] = callbackIndex;
-		
+
 		var postdata = JSON.stringify(parameters);
 		var internalCallback = OZONE.ajax.requestQuickModuleCallback;
 		YAHOO.util.Connect.asyncRequest('POST','/quickmodule.php?module='+moduleName,internalCallback,postdata);
-		
+
 	},
 
 	parseResponse: function(jsonResponse){
@@ -154,10 +154,10 @@ OZONE.ajax = {
         if(!res){
         		alert(jsonResponse.replace(/\r?\n/g,' '));
         }
-		
+
 		return res;
 	},
-	
+
 	requestQuickModuleCallback: {
 		success: function(rObj){
 			// process response
@@ -169,13 +169,13 @@ OZONE.ajax = {
 		failure: function(rObj){
 			alert("The ajax request failed. Please check your internet connection or\n" +
 					"report a bug if the error repeats during your work.");
-		}	
-	
+		}
+
 	}
-	
-	
+
+
 }
-  
+
 
 OZONE.utils = {
 	formToArray: function(form){
@@ -204,33 +204,33 @@ OZONE.utils = {
 
 	arrayToPostData: function(ar){
 		if(ar == null) {return null;}
-		
+
 		var varsString = "";
 		var value;
 		for(key in ar){
 			value  = encodeURIComponent(ar[key]);
 		 	varsString += '&' + key + '=' + value;
-		 	
+
 		}
 		if (varsString.length > 0) {
         		varsString = varsString.substring(1); // chomp initial '&'
       	}
-      	
+
       	//try with json... TODO!
 		 return varsString;
 	},
 
 	addJavascriptUrl: function(url, onLoadListener, noReload){
-		if(OZONE.utils._javascripLoadLock 
-			&& (new Date()).getTime() < OZONE.utils._javascripLoadLock + 2000){	
+		if(OZONE.utils._javascripLoadLock
+			&& (new Date()).getTime() < OZONE.utils._javascripLoadLock + 2000){
 			setTimeout(function(){
 				OZONE.utils.addJavascriptUrl(url, onLoadListener, noReload);
 			}, 50);
 			return;
 		}
-		
+
 		OZONE.utils._javascripLoadLock = false;
-		
+
 		var head = document.getElementsByTagName("head").item(0);
 	 	var scripts=head.getElementsByTagName("script");
 	 	for(i=0;i<scripts.length;i++){
@@ -239,7 +239,7 @@ OZONE.utils = {
 				if(noReload){
 					if(onLoadListener){
 						onLoadListener();
-					}	
+					}
 					return;
 				}
 	 			head.removeChild(scripts[i]);
@@ -271,7 +271,7 @@ OZONE.utils = {
 	   	}
 		head.appendChild(mys);
 	},
-	
+
 	addStyleUrl: function(url, onLoadListener, noReload){
 		var head = document.getElementsByTagName("head").item(0);
 		var styles=head.getElementsByTagName("link");
@@ -280,13 +280,13 @@ OZONE.utils = {
 				if(noReload){
 					if(onLoadListener){
 						onLoadListener();
-					}	
+					}
 					return;
 				}
 	 			head.removeChild(styles[i]);
 	 		};
 	 	}
-		
+
 		var mys = document.createElement('link');
 		mys.rel="stylesheet";
 		mys.type = "text/css";
@@ -296,31 +296,31 @@ OZONE.utils = {
 	   	}
 		head.appendChild(mys);
 	},
-	
+
 	setInnerHTMLContent: function(elementId, content){
 		var el = $(elementId);
 		if(el){
-			el.innerHTML = content;	
+			el.innerHTML = content;
 			OZONE.utils.formatDates(el);
-			OZONE.dialog.hovertip.dominit(el);	
+			OZONE.dialog.hovertip.dominit(el);
 		}
 	},
-	
+
 	disableEnterKey: function(e){
-		
+
 		     var key;
-		
+
 			// disable for textareas!
 			var tg = (e.target) ? e.target : e.srcElement;
 			if(tg.tagName == "TEXTAREA"){
 				return true;
 			}
-			
+
 		     if(window.event)
 		          key = window.event.keyCode;     //IE
 		     else
 		          key = e.which;     //firefox
-		
+
 		     if(key == 13)
 		          return false;
 		     else
@@ -338,7 +338,7 @@ OZONE.utils = {
 		}
 		return text.split("&gt;").join(">").split("&lt;").join("<").split("&amp;").join("&");
 	},
-	
+
 	formatDates: function(topElement){
 		var monthNames =new Array('January','February','March','April','May','June','July','August','September','October','November','December');
 		var monthNamesShort =new Array('Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec');
@@ -346,7 +346,7 @@ OZONE.utils = {
 		var dayNamesShort = new Array('Sun','Mon','Tue','Wed','Thu','Fri','Sat');
 		topElement = $(topElement);
 		var dstring="";
-		var dates = YAHOO.util.Dom.getElementsByClassName('odate', 'span', topElement);	
+		var dates = YAHOO.util.Dom.getElementsByClassName('odate', 'span', topElement);
 		for(i = 0; i<dates.length; i++){
 			var	inner = dates[i].innerHTML;
 			if(inner.match(/^[0-9]+$/)){
@@ -362,17 +362,17 @@ OZONE.utils = {
 				var format = inner.replace(/^[0-9]+\s*\|\s*(.*?)(?:\|(.*))?$/, "$1");
 				var options = inner.replace(/^[0-9]+\s*\|\s*(.*?)(?:\|(.*))?$/, "$2");
 				dates[i].timestamp = timestamp;
-				
+
 			//	alert(options)
 				var date = new Date();
 				date.setTime(timestamp*1000);
 				dstring = format;
-				
+
 				dstring = dstring.replace(/%r/g, "%I:%M:%S %p");
 				dstring = dstring.replace(/%R/g, "%H:%M");
 				dstring = dstring.replace(/%T/g, "%H:%M:%S");
 				dstring = dstring.replace(/%D/g, "%m/%d/%y");
-				
+
 				// %a for abbreviated weekday name
 				dstring = dstring.replace(/%a/g, dayNamesShort[date.getDay()]);
 				// %A for full weekday name
@@ -400,7 +400,7 @@ OZONE.utils = {
 				// %M for minutes
 				dstring = dstring.replace(/%M/g, (minute < 10) ? '0' + minute : minute);
 				dstring = dstring.replace(/%p/g, (hours < 12) ? 'AM' : 'PM');
-				
+
 				var seconds = date.getSeconds();
 				dstring = dstring.replace(/%S/g, (seconds < 10) ? '0' + seconds : seconds);
 				var y = date.getYear();
@@ -408,7 +408,7 @@ OZONE.utils = {
 				dstring = dstring.replace(/%y/g, y.substring(y.length-2));
 				var yc = date.getFullYear();
 				dstring = dstring.replace(/%Y/g, yc);
-				
+
 				if(dstring.match(/%z/i)){
 					var zone;
 					// try to get zone from locale date string
@@ -418,7 +418,7 @@ OZONE.utils = {
 						zoneoffset = -zoneoffset/60;
 						zoneoffset = ((zoneoffset < 10) ? '0' + zoneoffset : zoneoffset) + '00';
 						zone = (zoneoffset>0)? '+'+zoneoffset: '-'+zoneoffset;
-						
+
 					}
 					dstring = dstring.replace(/%z/ig, zone);
 				}
@@ -427,7 +427,7 @@ OZONE.utils = {
 					var secAgo = OZONE.request.timestamp - timestamp;
 					secAgo += Math.floor(((new Date()).getTime() - OZONE.request.date.getTime())*0.001);
 					var agoString = OZONE.utils.calculateDateAgo(secAgo);
-					
+
 					dstring = dstring.replace(/%O/, agoString);
 					if(options.match(/agohover/)){
 						var hovertext = agoString+' ago';
@@ -448,44 +448,44 @@ OZONE.utils = {
 			}
 		}
 	},
-	
+
 	calculateDateAgo: function(secAgo){
 		var agoString;
 		if(secAgo >= 60*60*24){
 			var days = Math.floor(secAgo/(60*60*24));
-			agoString = ''+days+' '+((days)>1?ogettext('days'):ogettext('day')); 
+			agoString = ''+days+' '+((days)>1?ogettext('days'):ogettext('day'));
 		} else if(secAgo >= 60*60){
 			var hours = Math.floor(secAgo/(60*60));
-			agoString = ''+hours+' '+((hours)>1?ogettext('hours'):ogettext('hour')); 
+			agoString = ''+hours+' '+((hours)>1?ogettext('hours'):ogettext('hour'));
 		} else if(secAgo >= 60){
 			var minutes = Math.floor(secAgo/60);
-			agoString = ''+minutes+' '+((minutes)>1?ogettext('minutes'):ogettext('minute')); 
+			agoString = ''+minutes+' '+((minutes)>1?ogettext('minutes'):ogettext('minute'));
 		}else{
 			if(secAgo == 0) {secAgo++;}
-			agoString = ''+secAgo+' '+((secAgo)>1?ogettext('seconds'):ogettext('second')); 
+			agoString = ''+secAgo+' '+((secAgo)>1?ogettext('seconds'):ogettext('second'));
 		}
 		return agoString
 	},
-	
+
 	formatDatesOld: function(topElementId){
-		if(topElementId == null){	
-			var dates = document.getElementsByTagName("odate");	
+		if(topElementId == null){
+			var dates = document.getElementsByTagName("odate");
 		} else {
 			var el = $(topElementId);
-			var dates = el.getElementsByTagName("odate");	
+			var dates = el.getElementsByTagName("odate");
 		}
-		for(i = 0; i<dates.length; i++){	
+		for(i = 0; i<dates.length; i++){
 			// TODO: make it better ;-)
 			var	timestamp = dates[i].innerHTML;
 			var date = new Date();
 			date.setTime(timestamp*1000);
 			var dstring = date.toLocaleString();
 			dates[i].innerHTML = dstring;
-		}	
-		
-		
+		}
+
+
 	},
-	
+
 	/**
 	 * This is tricky. Loads desired url with parameters but the parameters
 	 * are contained in the POST body.
@@ -511,14 +511,14 @@ OZONE.utils = {
 	getCookie: function(cookieName){
 		if (document.cookie.length>0){
 			var c_start = document.cookie.indexOf(cookieName + "=");
-		  	if (c_start!=-1){ 
-			    c_start=c_start + cookieName.length+1 
+		  	if (c_start!=-1){
+			    c_start=c_start + cookieName.length+1
 			    var c_end=document.cookie.indexOf(";",c_start);
 			    if (c_end==-1){
 			    		c_end=document.cookie.length;
 			    }
 		    		return unescape(document.cookie.substring(c_start,c_end));
-		    } 
+		    }
 		  }
 		return null;
 	},
@@ -533,9 +533,9 @@ OZONE.utils = {
 			if(res){
 				return res[1];
 			}
-		}); 
+		});
 	}
-	
+
 }
 
 OZONE.lang = "en"; // default language
@@ -587,18 +587,18 @@ OZONE.visuals = {
 		var body = document.getElementsByTagName("body")[0];
 		YAHOO.util.Dom.removeClass(body, "wait");
 	},
-	
+
 	scrollTo: function(elementId, options){
 		OZONE.visuals.scrollToCenter(elementId,options);
-	
+
 	},
-	
+
 	/**
 	 * Vertically scrolls to the element in a way that the element is now in the CENTER
 	 * of the page.
 	 */
 	scrollToCenter: function(element, options){
-		
+
 		var myEffect = new fx.ScrollCenter({duration: 200, transition: fx.sineOut});
 		myEffect.scrollTo(element);
 		if(options != null && options.blink==true){
@@ -628,7 +628,7 @@ OZONE.visuals = {
 		}
 		return y;
 	},
-	
+
 	bodyHeight: function(){
 		var x,y;
 			var test1 = document.body.scrollHeight;
@@ -643,9 +643,9 @@ OZONE.visuals = {
 				return document.body.offsetHeight;
 			}
 	},
-	
+
 	initScroll: function(){
-		
+
 		if(window.location.hash!= null && window.location.href!=''){
 			var id = window.location.hash.replace(/#/, '');
 			if(id!=null && id!='' && $(id)){
@@ -653,7 +653,7 @@ OZONE.visuals = {
 			}
 		}
 	},
-	
+
 	/** TODO later.*/
 	highlightText: function(root, text){
 		// split the text by space (if any)
@@ -669,18 +669,18 @@ OZONE.visuals = {
 
 		root = $(root);
 		if(!root){return;}
-		
+
 		// recurrence first
 		if (root.hasChildNodes){
 			var chn = root.childNodes;
 			for (var i=chn.length-1; i>=0;i--) {
-				
+
 				OZONE.visuals.highlightText(chn[i], text);
 			}
 		}
 		if(root.nodeType == 3){ // text node
 			// purify text a bit
-			
+
 			var reg = new RegExp(text, "gi");
 			if(root.nodeValue.match(reg)){
 				var contArray = (' '+root.nodeValue+' ').split(reg);
@@ -710,11 +710,11 @@ OZONE.forms.lengthLimiter = function(textElement, countElement, limit){
 	this.textElement = $(textElement);
 	this.countElement = $(countElement);
 	this.limit = limit;
-	
-	
+
+
 	YAHOO.util.Event.addListener(this.textElement, "keyup", this.keyListener, this, true);
 	this.keyListener();
-	
+
 }
 OZONE.forms.lengthLimiter.prototype.keyListener = function(e){
 		// get number of characters...
@@ -737,12 +737,12 @@ OZONE.dom = {
 			parentNode.appendChild(node);
 		}
 	},
-	
+
 	onDomReady: function(f, el, doc){
 		if(!doc){
 			doc = document;
 		}
-		if(typeof doc.getElementsByTagName != 'undefined' 
+		if(typeof doc.getElementsByTagName != 'undefined'
 				&& (doc.getElementsByTagName('body')[0] != null || doc.body != null)
 				&& (typeof el != 'string' || $(el))){
 			if(typeof f == 'function'){f();}
@@ -757,11 +757,11 @@ OZONE.dom = {
 			}else{
 				fid = f;
 			}
-			
+
 			var call = 'OZONE.dom.onDomReady('+fid;
 			if(typeof el == 'string'){call+=',"'+el+'"';}
 			call+=')';
-			
+
 			setTimeout(call, 200);
 		}
 	}

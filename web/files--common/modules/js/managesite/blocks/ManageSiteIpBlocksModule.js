@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -27,14 +27,14 @@ WIKIDOT.modules.ManageSiteIpBlocksModule.listeners = {
 		$("add-block-div").style.display = "block";
 		OZONE.visuals.scrollTo("add-block-div");
 	},
-	
+
 	cancelAdd: function(e){
 		// resets the forms?
 		$("show-add-block-button").style.display = "block";
 		$("add-block-div").style.display = "none";
 		$("ip-errors").style.display = "none";
 	},
-	
+
 	blockIp: function(e){
 		var p = new Object();
 		p.ips = $("block-ips").value;
@@ -49,7 +49,7 @@ WIKIDOT.modules.ManageSiteIpBlocksModule.listeners = {
 		p.event = "blockIp";
 		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.ManageSiteIpBlocksModule.callbacks.blockIp);
 	},
-	
+
 	deleteBlock: function(e, blockId, ip){
 		var w = new OZONE.dialogs.ConfirmationDialog();
 		w.buttons = ['cancel', 'yes, delete block'];
@@ -58,7 +58,7 @@ WIKIDOT.modules.ManageSiteIpBlocksModule.listeners = {
 		w.content = "Are you sure you want to remove the block for the IP <strong>"+ip+"</strong>?";
 		w.show();
 		WIKIDOT.modules.ManageSiteIpBlocksModule.vars.dCurrentBlockId = blockId;
-		
+
 	},
 	deleteBlock2: function(e){
 		var blockId = WIKIDOT.modules.ManageSiteIpBlocksModule.vars.dCurrentBlockId;
@@ -79,28 +79,28 @@ WIKIDOT.modules.ManageSiteIpBlocksModule.callbacks = {
 			return;
 		}
 		if(!WIKIDOT.utils.handleError(r)) {return;}
-		
+
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "IP(s) added to the block list.";
 		w.show();
 		// refresh the screen too
 		setTimeout('WIKIDOT.modules.ManagerSiteModule.utils.loadModule("sm-ip-blocks")', 1500);
-		
+
 	},
 	deleteBlock: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
-		
+
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "IP block removed.";
 		w.show();
 		// refresh the screen too
 		setTimeout('WIKIDOT.modules.ManagerSiteModule.utils.loadModule("sm-ip-blocks")', 1500);
-		
+
 	}
 }
 
 WIKIDOT.modules.ManageSiteIpBlocksModule.init = function(){
-	
+
 }
 
 WIKIDOT.modules.ManageSiteIpBlocksModule.init();
