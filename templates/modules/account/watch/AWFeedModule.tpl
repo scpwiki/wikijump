@@ -3,7 +3,7 @@
 <p>
 	To receive changes to the watched pages and new posts in watched forum threads
 	directly to your feed reader please use the following feeds:
-	
+
 <p style="text-align: center">
 	<a href="{$HTTP_SCHEMA}://{$URL_HOST}/feed/watched/page-changes.xml">{$HTTP_SCHEMA}://{$URL_HOST}/feed/watched/page-changes.xml</a>
 	<br/>

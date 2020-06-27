@@ -38,7 +38,7 @@
 	<hr/>
 	<div id="editor-panel" class="wd-editor-toolbar-panel"></div>
 	<div><textarea id="editor-textarea" cols="40" rows="15" style="width: 95%">{$body|escape}</textarea></div>
-	
+
 	<div class="change-textarea-size">
 		<a href="javascript:;" onclick="WIKIDOT.utils.changeTextareaRowNo('editor-textarea',-5)">-</a>
 		<a href="javascript:;" onclick="WIKIDOT.utils.changeTextareaRowNo('editor-textarea',5)">+</a>

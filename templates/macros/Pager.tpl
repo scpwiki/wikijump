@@ -18,15 +18,15 @@
 			{assign var=pages value=$totalPages}
 		{else}
 			{assign var=pages value=$knownPages}
-		{/if} 	
-			
+		{/if}
+
 		{if $currentPage != 1}
 			{assign var="topage" value=$currentPage-1}
 				<a href="javascript:;" onclick="{$gofunction($topage)}"
 						>&laquo;</a>
 				</td>
 		{/if}
-	
+
 		{if $currentPage > 3}
 			<a href="{$golink->copy()->addParameter("page_number", 1)}">1</a>
 		{/if}
@@ -37,57 +37,57 @@
 			<a href="{$golink->copy()->addParameter("page_number", 3)}">3</a>
 		{/if}
 		{if $currentPage  > 6}
-			...	
+			...
 		{/if}
 		{if $currentPage-2 >= 1}
 			{assign var="topage" value=$currentPage-2}
 			<a href="{$golink->copy()->addParameter("page_number", $topage)}">{$currentPage-2}</a>
 		{/if}
-	
+
 		{if ($currentPage-1) >= 1}
 			{assign var="topage" value=$currentPage-1}
 			<a href="{$golink->copy()->addParameter("page_number", $topage)}">{$currentPage-1}</a>
 		{/if}
 		<a class="current" href="{$golink->copy()->addParameter("page_number", $currentPage)}">{$currentPage}</a>
-	
+
 		{if $currentPage+1 <= $pages}
 			{assign var="topage" value=$currentPage+1}
 			<a href="{$golink->copy()->addParameter("page_number", $topage)}">{$currentPage+1}</a>
 		{/if}
-	
+
 		{if $currentPage+2 <= $pages}
 			{assign var="topage" value=$currentPage+2}
 			<a href="{$golink->copy()->addParameter("page_number", $topage)}">{$currentPage+2}</a>
 		{/if}
-	
+
 		{if $currentPage  < $pages-5}
 			...
 		{/if}
-	
+
 		{if $currentPage  == $pages-5}
 			{assign var="topage" value=$tpages-2}
 			<a href="{$golink->copy()->addParameter("page_number", $topage)}">{$pages-2}</a>
 		{/if}
-	
+
 		{if $currentPage < $pages-3}
 			{assign var="topage" value=$pages-1}
 			<a href="{$golink->copy()->addParameter("page_number", $topage)}">{$pages-1}</a>
 		{/if}
-				
+
 		{if $knownPages != null}
 			...
 		{/if}
-	
+
 		{if $currentPage < $pages-2}
 			<a href="{$golink->copy()->addParameter("page_number", $pages)}">{$pages}</a>
 		{/if}
-		
-			
+
+
 		{if $currentPage != $pages}
 			{assign var="topage" value=$currentPage+1}
 			<a href="{$golink->copy()->addParameter("page_number", $topage)}"
 			>&raquo;</a>
-			
+
 		{/if}
 
 	{/if}

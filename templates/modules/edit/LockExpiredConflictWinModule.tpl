@@ -10,12 +10,12 @@
 		</p>
 		<p>
 			{t}It is recommended that you cancel your edit session and wait until the lock is released.
-			However if you are sure the imposed lock(s) can be safely deleted you 
+			However if you are sure the imposed lock(s) can be safely deleted you
 			can forcibly recreate your lock by deleting conflicting locks.{/t}
 		</p>
 		{foreach from=$locks item=lock}
 		<p>
-			{t}Locked by{/t}: {printuser user=$lock->getUserOrString() image="true"}<br/> 
+			{t}Locked by{/t}: {printuser user=$lock->getUserOrString() image="true"}<br/>
 			{t}Lock mode{/t}: {$lock->getMode()|escape}<br/>
 			{t}Started editing{/t}: <span class="odate">{$lock->getDateStarted()->getTimestamp()}</span> ({$lock->getStartedAgo()} {t}seconds ago{/t})<br/>
 			{t}Lock will expire in{/t}: {$lock->getExpireIn()} {t}seconds (if user remains inactive){/t}</br>
@@ -26,4 +26,4 @@
 			<a href="javascript:;" onclick="WIKIDOT.modules.PageEditModule.listeners.forceLockIntercept(event)">{t}forcibly recreate lock{/t}</a>
 		</div>
 	</div>
-</div>	
+</div>

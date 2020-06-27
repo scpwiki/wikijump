@@ -30,6 +30,6 @@
 {/if}
 
 <p>
-	To watch a new forum thread simply open this thread in the browser, click on "+ more options" 
+	To watch a new forum thread simply open this thread in the browser, click on "+ more options"
 	link under thread summary and click "add to watched".
 </p>

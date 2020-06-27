@@ -11,11 +11,11 @@
 		</p>
 		<p>
 			{t}It is recommended that you now see the "diff" changes of your current edit,
-				wait until the other lock expires or is released and edit the page source 
+				wait until the other lock expires or is released and edit the page source
 				and insert your changes again.{/t}
 		</p>
 		<div class="button-bar">
 			<a href="javascript:;" onclick="OZONE.dialog.cleanAll()">{t}close this window{/t}</a>
 		</div>
 	</div>
-</div>		
+</div>

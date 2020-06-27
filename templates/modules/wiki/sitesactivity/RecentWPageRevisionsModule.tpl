@@ -34,5 +34,5 @@
 			</div>
 		{/foreach}
 	{/if}
-	
+
 </div>

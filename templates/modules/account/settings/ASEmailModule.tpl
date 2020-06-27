@@ -1,7 +1,7 @@
 <h1><a href="javascript:;" onclick="WIKIDOT.modules.AccountModule.utils.loadModule('am-settings')">Account settings</a> / Email address</h1>
 
 <p id="ch-el01">
-	Your current email address is: <strong>{$email}</strong>. 
+	Your current email address is: <strong>{$email}</strong>.
 </p>
 
 

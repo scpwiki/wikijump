@@ -1,7 +1,7 @@
 <div id="new-site-box">
 	{if $notLogged}
 		<h3>We are almost ready to create a new site for you{if $unixName} at <span style="text-decoration: underline">{$unixName}.{$URL_DOMAIN}</span>{/if}...</h3>
-		
+
 		<p>
 			{t 1=$SERVICE_NAME}However you would need to have a valid user account at %1 so that we could identify you in the future.{/t}
 		</p>
@@ -12,7 +12,7 @@
 						<a href="javascript:;" onclick="WIKIDOT.page.listeners.loginClick(event)"
 							>{t}Log in{/t}</a>
 					</div>
-					<p>	
+					<p>
 						{t}if you already have a Wikidot account{/t}
 					</p>
 				</td>
@@ -29,10 +29,10 @@
 		</table>
 
 	{else}
-		
-		
+
+
 		<div class="error-block" id="new-site-form-errors" style="display: none"></div>
-		
+
 		<form id="new-site-form">
 			<table class="form">
 				<tr>
@@ -76,7 +76,7 @@
 						<input type="radio" name="language" value="en" id="new-site-lang-en"> <label for="new-site-lang-en">{t}English{/t}</label>
 						&nbsp;&nbsp;&nbsp;&nbsp;
 						<input type="radio" name="language" value="pl" id="new-site-lang-pl"> <label for="new-site-lang-pl">{t}Polish{/t}</label>
-					
+
 					</td>
 				</tr>*}
 				<tr>
@@ -101,7 +101,7 @@
 							{t}If you check this, the site is visible only to its members.{/t}
 						</div>
 					</td>
-					
+
 				</tr>
 			{*	<tr>
 					<td>
@@ -125,17 +125,17 @@
 						<br/>
 						{t 1=$URL_HOST}I have read and agree to the <a href="{$HTTP_SCHEMA}://%1/legal:terms-of-service"
 						target="_blank">Terms of Service</a>.{/t}
-						
+
 					</td>
-					
+
 				</tr>
 			</table>
 			<div class="buttons">
 				<input type="button" value="{t}Get a new wiki{/t}" onclick="WIKIDOT.modules.NewSiteModule.listeners.next3(event)"/>
 			</div>
 		</form>
-		
-		
-		
+
+
+
 	{/if}
 </div>

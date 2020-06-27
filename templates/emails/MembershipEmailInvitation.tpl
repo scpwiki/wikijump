@@ -14,12 +14,12 @@ created at {$SERVICE_NAME} and located at the address
 {$HTTP_SCHEMA}://{$site->getDomain()|escape}.
 {if $message!=""}
 
-{$message|wordwrap}{/if}	
+{$message|wordwrap}{/if}
 
 Signing up is easy and takes less than a minute. If you already have
 an account at {$SERVICE_NAME},
 you will be able to join the mentioned
-Site. 
+Site.
 
 To proceed or learn more click the follow link:
 {$HTTP_SCHEMA}://{$URL_HOST}/invitation/hash/{$hash}

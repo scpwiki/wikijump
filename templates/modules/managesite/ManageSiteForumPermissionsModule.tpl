@@ -65,7 +65,7 @@
 				<td>
 					&nbsp;
 				</td>
-				
+
 			</tr>
 			<tr>
 				<td>
@@ -83,7 +83,7 @@
 				<td>
 					&nbsp;
 				</td>
-				
+
 			</tr>
 			<tr>
 				<td>
@@ -101,11 +101,11 @@
 				<td>
 					<input class="checkbox" type="checkbox" name="e-o" id="sm-e-o"/>
 				</td>
-				
+
 			</tr>
 			{*<tr>
 				<td>
-					split threads 
+					split threads
 				</td>
 				<td>
 					<input class="checkbox" type="checkbox" name="s-a" id="sm-s-a"/>
@@ -119,11 +119,11 @@
 				<td>
 					<input class="checkbox" type="checkbox" name="s-o" id="sm-s-o"/>
 				</td>
-				
+
 			</tr>*}
-			
+
 		</table>
-		
+
 	</form>
 </div>
 <form>

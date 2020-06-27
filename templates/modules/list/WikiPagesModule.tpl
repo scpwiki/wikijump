@@ -10,7 +10,7 @@
 						</td>
 						<td class="last-mod-by">
 							{printuser user=$page->getLastEditUserOrString()}
-						</td>	
+						</td>
 						<td class="revision-no">
 							({if $page->getRevisionNumber() == 0}new{else}rev. {$page->getRevisionNumber()}{/if})
 						</td>
@@ -30,13 +30,13 @@
 				</div>
 			{/if}
 		</div>
-	
+
 	{*	<div class="pages-list-item">
 			{if $details}
-				
+
 				<div class="last-mod-by">
 					{printuser user=$page->getLastEditUserOrString()}
-				</div>	
+				</div>
 				<div class="revision-no">
 					({if $page->getRevisionNumber() == 0}new{else}rev. {$page->getRevisionNumber()}{/if})
 				</div>

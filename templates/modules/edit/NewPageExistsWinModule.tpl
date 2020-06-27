@@ -8,11 +8,11 @@
 		<p>
 			{t}It seems that the page you want to create already exists.{/t}
 		</p>
-		
+
 		<div class="button-bar">
-			<a href="javascript:;" onclick="window.location.reload()">{t}see the page{/t}</a>, 
+			<a href="javascript:;" onclick="window.location.reload()">{t}see the page{/t}</a>,
 			<a href="javascript:;" onclick="OZONE.dialog.cleanAll()">{t}close window{/t}</a>
-			
+
 		</div>
 	</div>
-</div>			
+</div>

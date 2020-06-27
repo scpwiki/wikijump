@@ -8,7 +8,7 @@
 
 {else}
 	<div>
-		
+
 		<form id="edit-page-form"{if $form} class="edit-with-form"{/if}>
 			<input type="hidden" name="page_id" value="{$pageId|escape}"/>
 			{if $mode=="page" || ($newPage && $templates)}
@@ -19,7 +19,7 @@
 								{t}Title of the page{/t}:
 							</td>
 							<td>
-								<input class="text" id="edit-page-title" name="title" type="text" value="{$title|escape}" size="35" maxlength="128" 
+								<input class="text" id="edit-page-title" name="title" type="text" value="{$title|escape}" size="35" maxlength="128"
 									style="font-weight: bold; font-size: 130%;"/>
 							</td>
 						</tr>
@@ -32,7 +32,7 @@
 							<td>
 								<select name="theme" id="page-templates" onchange="WIKIDOT.modules.PageEditModule.listeners.templateChange(event)">
 									<option value=""  style="padding: 0 1em">no template (blank page)</option>
-									{foreach from=$templates item=template}	
+									{foreach from=$templates item=template}
 										<option value="{$template->getPageId()}"  style="padding: 0 1em" {if $template->getPageId() == $templateId}selected="selected"{/if}>{$template->getTitle()|escape}</option>
 									{/foreach}
 								</select>
@@ -64,7 +64,7 @@
                     {t}Need help? Check the{/t} <a href="{$URL_DOCS}" target="_blank">{t}documentation{/t}</a>.
                 </div>
             {/if}
-		
+
 			<table style="padding: 2px 0; border: none;">
 				<tr>
 					<td style="border: none; padding: 0 5px;">
@@ -87,19 +87,19 @@
 					</td>
 				</tr>
 			</table>
-			
+
 			{if $anonymousString}
 				<div class="note-block">
 					<h3>{t}Anonymous edit!{/t}</h3>
 					<p>
-						{t}You are editing this page content as an anonymous user. 
+						{t}You are editing this page content as an anonymous user.
 						Please remember that in such a case your IP address will be revealed to public
 						and the changes will be signed by the following identity:{/t}<br/>
 						{printuser user=$anonymousString image="true"}
 					</p>
 				</div>
 			{/if}
-			
+
 			<div class="buttons alignleft">
 				<input type="button" name="cancel" id="edit-cancel-button" value="{t}cancel{/t}" onclick="WIKIDOT.modules.PageEditModule.listeners.cancel(event)"/>
 				{if !$newPage && $mode != "append"}<input type="button" name="diff" id="edit-diff-button" value="{t}view diff{/t}" onclick="WIKIDOT.modules.PageEditModule.listeners.viewDiff(event)"/>{/if}
@@ -108,12 +108,12 @@
 				<input type="button" name="save" id="edit-save-button"  value="{t}save{/t}" onclick="WIKIDOT.modules.PageEditModule.listeners.save(event)"/>
 			</div>
 		</form>
-	
-	
+
+
 	</div>
-	
+
 	<div id="view-diff-div"></div>
-	
+
 	<div id="preview-message" style="display: none">
 		<div class="preview-message">
 			{t}This is a preview only!!!{/t}<br/>

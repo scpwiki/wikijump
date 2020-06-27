@@ -5,7 +5,7 @@
 				<a href="javascript:;" onclick="WIKIREQUEST.createAccountSkipCongrats=true;WIKIDOT.page.listeners.loginClick(event)"
 					>{t}log in{/t}</a>
 			</div>
-			<p>	
+			<p>
 				{t 1=$SERVICE_NAME}if you already have a user account at %1{/t}
 			</p>
 		</td>

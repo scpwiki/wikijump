@@ -5,12 +5,12 @@
 	<div class="content">
 		<img style="float:right; padding: 2px 8px; background-color: #FFF;" src="/common--images/avatars/default/a48.png" alt="" />
 		<h1>{t}Anonymous user{/t}</h1>
-		
+
 		<ul>
 			<li>
 				{t}IP address{/t}: <strong>{$ip}</strong> {if $privateIp}(<span id="private-range-help">{t}from a private IP range{/t} [?]</span>){/if}
 			</li>
-			
+
 			{if $proxy}
 				<li>
 					{t}Proxy server{/t}: <strong>{$proxy}</strong>  <span id="proxy-help">[?]</span>
@@ -27,7 +27,7 @@
 	<div class="button-bar">
 		<a href="javascript:;" onclick="OZONE.dialog.cleanAll()">{t}close window{/t}</a>
 	</div>
-	
+
 	<div id="private-range-help-hovertip" style="display:none">
 		{t}Private IP addresses are used mainly in local networks and are not visible
 		(not routeable) from public internet nodes.<br/>
@@ -40,7 +40,7 @@
 		{t}WWW Proxy.{/t}
 	</div>
 	{/if}
-	
+
 	<div id="auser-abuse-report-button-hovertip" style="display:none">
 		{t}Notify aministrators/moderators about an abusive user.{/t}
 	</div>

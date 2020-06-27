@@ -24,11 +24,11 @@
 				<div>
 					previously located at: {$HTTP_SCHEMA}://{$site->getUnixName()|regex_replace:"/\.\.del\.\..*$/":""}.{$URL_DOMAIN}
 				</div>
-				
+
 			</div>
 		{/foreach}
 	</div>
-	
+
 
 {else}
 	{t}You have no deleted sites. To delete any site of yours you could go to the Site Manager of a given site and look under <em>Extreme Actions</em> menu.{/t}
@@ -36,14 +36,14 @@
 
 <div id="as-restore-site-box" style="display:none">
 	<h1>Restore site <em id="as-restore-site-name"></em></h1>
-	
+
 	<p>
 		Great, you are ready to restore this previously deleted wiki. The site should look like and work exactly as before deleting it.
 	</p>
 	<p>
 		You could also set a new URL address for this recevered site.
 	</p>
-	
+
 	<form onsubmit="return false;">
 		<table class="form">
 			<tr>

@@ -3,11 +3,11 @@
 <p>
 	Below you can choose a theme for your site. You can select individual theme for each
 	of page categories.
-</p>	
+</p>
 
 <div id="sm-appearance-form-div">
 	<form id="sm-appearance-form">
-		
+
 		<table class="sm-theme-table">
 			<tr>
 				<td>
@@ -22,9 +22,9 @@
 					<table>
 						<tr>
 							<td style="padding-right: 2em;">
-					
-					
-					
+
+
+
 						<h3>{t}Choose a built-in theme{/t}:</h3>
 						<select name="theme" id="sm-appearance-theme-id">
 							{foreach from=$themes item=theme}
@@ -70,12 +70,12 @@
 				</td>
 			</tr>
 		</table>
-		
-	
-		
+
+
+
 		<div id="sm-appearance-theme-preview" style="overflow: hidden;">
 			<h2>{t}Theme details{/t}:</h2>
-			
+
 			{foreach from=$themes item=theme}
 				{assign var=preview value=$theme->getThemePreview()}
 				{if $preview}

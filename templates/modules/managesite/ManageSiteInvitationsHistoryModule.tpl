@@ -3,11 +3,11 @@
 {if $invitations}
 
 	<p>
-		<a id="sm-invhist-showadminonly" href="javascript:;" 
+		<a id="sm-invhist-showadminonly" href="javascript:;"
 			onclick="WIKIDOT.modules.ManageSiteInvitationsHistoryModule.listeners.showAdminOnly(event)"
-			{if !$showAll}style="font-weight: bold"{/if}>sent by Admins only</a> 
-		| 
-		<a id="sm-invhist-showall" 
+			{if !$showAll}style="font-weight: bold"{/if}>sent by Admins only</a>
+		|
+		<a id="sm-invhist-showall"
 		onclick="WIKIDOT.modules.ManageSiteInvitationsHistoryModule.listeners.showAll(event)"
 		href="javascript:;" {if $showAll}style="font-weight: bold"{/if}>all</a>
 	</p>
@@ -27,7 +27,7 @@
 			</th>
 			<th>
 				{t}Action{/t}
-			</th>	
+			</th>
 		</tr>
 	{foreach from=$invitations item=invitation}
 		<tr>
@@ -51,7 +51,7 @@
 				{elseif !$invitation->getDelivered()}
 					{t}delivery failed{/t}
 				{else}
-					{t}not joined (yet?){/t}	
+					{t}not joined (yet?){/t}
 				{/if}
 			</td>
 			<td>
@@ -63,29 +63,29 @@
 					{if $invitation->getAttempts()<3}<a href="javascript:;"
 					onclick="WIKIDOT.modules.ManageSiteInvitationsHistoryModule.listeners.resendInvitation(event, {$invitation->getInvitationId()},'{$invitation->getName()|escape}', '{$invitation->getEmail()|escape}')"
 					>{t}resend{/t}</a> | {/if}
-					
+
 					<a href="javascript:;"
 						onclick="WIKIDOT.modules.ManageSiteInvitationsHistoryModule.listeners.deleteInvitation(event, {$invitation->getInvitationId()}, '{$invitation->getEmail()|escape}')">{t}delete{/t}</a>
 				{/if}
 			</td>
 		</tr>
 	{/foreach}
-	
+
 	</table>
-	
+
 	<p>
 		You can resend (remind) the invitation 2 times max. Please do not abuse this.
 	</p>
-	
+
 	<div id="resend-invitations-form" style="display: none">
 		<h2>Resend invitation to <span id="resend-invitations-to"></span></h2>
-		
+
 		<p>
 			You can write a few words here if you wish:
 		</p>
 		<form>
 			<textarea id="resend-invitations-message" cols="20" rows="5" style="width: 95%">Hi, I just want to remind you about the invitation I have sent you some time ago.</textarea>
-		
+
 			<p>
 				Original message (with the invitation link) will be included too.
 			</p>

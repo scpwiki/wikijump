@@ -30,7 +30,7 @@
 <h2>Override</h2>
 
 <p>
-	Any option you provide below will override the copied property of the existing Site. Of course, 
+	Any option you provide below will override the copied property of the existing Site. Of course,
 	a unique web address (unix name) needs to be provided.
 </p>
 
@@ -88,7 +88,7 @@
 				<div class="sub">
 					{t}If you check this, the site is visible only to its members.{/t}
 				</div>
-			</td>		
+			</td>
 		</tr>
 	</table>
 	<div class="buttons">

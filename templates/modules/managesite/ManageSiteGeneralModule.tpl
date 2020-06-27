@@ -60,7 +60,7 @@
 				</div>
 			</td>
 		</tr>
-		
+
 	</table>
 	<div class="buttons">
 		<input type="button" value="{t}cancel{/t}" id="sm-general-cancel"/>

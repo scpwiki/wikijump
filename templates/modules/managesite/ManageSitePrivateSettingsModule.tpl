@@ -62,12 +62,12 @@
 						<input type="text" id="user-lookup" size="30" class="autocomplete-input text"/>
 						<div id="user-lookup-list" class="autocomplete-list"></div>
 					</div>
-				</div>	
+				</div>
 				<div class="sub">
 					Specify users that will be granted access to the Site <br/>
 					without having to become Site Members.<br/>
 					Type the user name and hit enter.
-				</div>	
+				</div>
 			</td>
 		</tr>
 		<tr>
@@ -78,7 +78,7 @@
 		</tr>
 	</table>
 	<div style="text-align: center" id="extra-viewers-display-list"></div>
-	
+
 	<div class="buttons">
 		<input type="button" value="{t}cancel{/t}" onclick="WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-welcome')"/>
 		<input type="button" value="{t}save{/t}" onclick="WIKIDOT.modules.ManageSitePrivateSettingsModule.listeners.save(event)"/>
@@ -87,13 +87,13 @@
 
 <h2>{t}Tips{/t}</h2>
 <p>
-	{t}The landing page for unauthorized visitors should at least explain why the site is private 
+	{t}The landing page for unauthorized visitors should at least explain why the site is private
 	and how to get access to it. But this is of course up to you.{/t}
 </p>
 <p>
 	You can better manage the style and look of the welcome page for unauthorized visitors by
-	creating a welcome page	in a different category 
-	(e.g. <tt>unauthorized:welcome</tt>) and disable nav elements for it in the 
+	creating a welcome page	in a different category
+	(e.g. <tt>unauthorized:welcome</tt>) and disable nav elements for it in the
 	Appearance menu.
 </p>
 <p>
@@ -110,7 +110,7 @@
 	</li>
 	<li>
 		Prepare your "landing page" so that it accepts either users' applications for membership
-		(module MembershipApply) or enables becoming a member by providing a secret password (module 
+		(module MembershipApply) or enables becoming a member by providing a secret password (module
 		MembershipByPassword - see <a href="{$URL_DOCS}">documentation</a>).
 	</li>
 </ul>

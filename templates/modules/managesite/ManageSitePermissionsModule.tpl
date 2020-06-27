@@ -1,11 +1,11 @@
 <h1>{t}Permissions{/t}</h1>
 
 <p>
-	{t}Permissions are one of the most important settings for your Site. You can determine 
+	{t}Permissions are one of the most important settings for your Site. You can determine
 	who can edit contents of your pages and alter the structure of the Site.{/t}
 </p>
 <p>
-	{t}It is up to you to choose who can modify the contents of the Site: 
+	{t}It is up to you to choose who can modify the contents of the Site:
 	anyone, selected people only or just you as the maintainer of the Site.{/t}
 </p>
 
@@ -54,7 +54,7 @@
 			{*
 			<tr>
 				<td>
-					view 
+					view
 				</td>
 				<td>
 					<input class="checkbox" type="checkbox" name="v-a" id="sm-v-a"/>
@@ -68,7 +68,7 @@
 				<td>
 					<input class="checkbox" type="checkbox" name="v-o" id="sm-v-o"/>
 				</td>
-				
+
 			</tr>
 			*}
 			<tr>
@@ -87,7 +87,7 @@
 				<td>
 					<input class="checkbox" type="checkbox" name="e-o" id="sm-e-o"/>
 				</td>
-				
+
 			</tr>
 			<tr>
 				<td>
@@ -105,7 +105,7 @@
 				<td>
 					&nbsp; {*<input class="checkbox" type="checkbox" name="c-o"  id=/>*}
 				</td>
-				
+
 			</tr>
 			<tr>
 				<td>
@@ -123,7 +123,7 @@
 				<td>
 					<input class="checkbox" type="checkbox" name="m-o" id="sm-m-o"/>
 				</td>
-				
+
 			</tr>
 			<tr>
 				<td>
@@ -141,7 +141,7 @@
 				<td>
 					<input class="checkbox" type="checkbox" name="d-o" id="sm-d-o"/>
 				</td>
-				
+
 			</tr>
 			<tr>
 				<td>
@@ -159,7 +159,7 @@
 				<td>
 					<input class="checkbox" type="checkbox" name="a-o" id="sm-a-o"/>
 				</td>
-				
+
 			</tr>
 			<tr>
 				<td>
@@ -177,7 +177,7 @@
 				<td>
 					<input class="checkbox" type="checkbox" name="r-o" id="sm-r-o"/>
 				</td>
-				
+
 			</tr>
 			<tr>
 				<td>
@@ -195,7 +195,7 @@
 				<td>
 					<input class="checkbox" type="checkbox" name="z-o" id="sm-z-o"/>
 				</td>
-				
+
 			</tr>
 			<tr>
 				<td>
@@ -213,10 +213,10 @@
 				<td>
 					<input class="checkbox" type="checkbox" name="o-o" id="sm-o-o"/>
 				</td>
-				
+
 			</tr>
 		</table>
-		
+
 	</form>
 </div>
 <form>
@@ -232,7 +232,7 @@
 	automatically have all the rights within the site.{/t}
 </p>
 <p>
-	{t}"Page creators/owners" modifier can add extra control and and is suplementary to other options. 
+	{t}"Page creators/owners" modifier can add extra control and and is suplementary to other options.
 	E.g. it is possible to deny edit permissions in general but allow only to the author that
 	has created the page.{/t}
 </p>

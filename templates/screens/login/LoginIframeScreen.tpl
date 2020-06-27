@@ -6,11 +6,11 @@
 
 
 <script type="text/javascript">
-	
+
 	WIKIDOT.vars.rsakey = "{$key}";
 	WIKIDOT.vars.loginSeed = "{$seed}";
 	WIKIDOT.vars.backUrl = "{$url}";
-	
+
 	{literal}
 	function createCookie(name,value,days) {
 		if (days) {
@@ -22,6 +22,6 @@
 		document.cookie = name+"="+value+expires+"; path=/";
 	}
 	{/literal}
-	
-		
+
+
 </script>

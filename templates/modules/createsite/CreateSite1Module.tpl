@@ -6,10 +6,10 @@ hello
 
 {macro name="formtablestart" title="confirm new site info..."}
 
-{macro name="formrow1c" form=$form fieldname="name"} 
+{macro name="formrow1c" form=$form fieldname="name"}
 {macro name="formrow1c" form=$form fieldname="unixname"}
 {macro name="formrow1c" form=$form fieldname="subtitle"}
-{macro name="formrow1c" form=$form fieldname="description"}   
+{macro name="formrow1c" form=$form fieldname="description"}
 
 {macro name="formrow1c" form=$form fieldname="licence"}
 

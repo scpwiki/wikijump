@@ -5,7 +5,7 @@
 		{else}
 			<a href="javascript:;" onclick="WIKIDOT.modules.MostActiveSitesModule.listeners.changeTime(event, '24h')"> 24 {t}hours{/t}</a>
 		{/if}
-		| 
+		|
 		{if $range=='7days'}
 			7 {t}days{/t}
 		{else}
@@ -31,7 +31,7 @@
 						<a href="{$HTTP_SCHEMA}://{$r.site->getDomain()}">{$r.site->getName()|escape}</a>
 					</td>
 					<td style="text-align: right">
-						{$r.number_changes} 
+						{$r.number_changes}
 					</td>
 				</tr>
 			{/foreach}

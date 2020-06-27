@@ -4,11 +4,11 @@
 	</div>
 	<div class="content">
 		<h1>{t}The page has been moved but...{/t}</h1>
-		
+
 		<p>
-			{t}... there are a few dependencies left.{/t} 
+			{t}... there are a few dependencies left.{/t}
 		</p>
-		
+
 		{if $pages}
 			<h2>{t}Backlinks{/t}</h2>
 			<ul>
@@ -19,7 +19,7 @@
 				{/foreach}
 			</ul>
 		{/if}
-		
+
 		{if $pagesI}
 			<h2>{t}Inclusions{/t}</h2>
 			<ul>
@@ -31,7 +31,7 @@
 			</ul>
 		{/if}
 		<p>
-			{t}These pages were not fixed because the fixer algorithm could not fix them, they were 
+			{t}These pages were not fixed because the fixer algorithm could not fix them, they were
 			edit-locked by another user or you just have not checked them to be fixed.{/t}
 		</p>
 		<p>
@@ -41,4 +41,4 @@
 			<a href="javascript:;" onclick="window.location.href='/'+WIKIDOT.modules.RenamePageModule.vars.newName;">{t}close window{/t}</a>
 		</div>
 	</div>
-</div>			
+</div>

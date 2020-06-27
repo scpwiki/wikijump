@@ -32,7 +32,7 @@
 						<a href="javascript:;" onclick="WIKIDOT.page.listeners.loginClick(event)"
 							>{t}log in{/t}</a>
 					</div>
-					<p>	
+					<p>
 						{t 1=$SERVICE_NAME}if you already have an account at %1{/t}
 					</p>
 				</td>

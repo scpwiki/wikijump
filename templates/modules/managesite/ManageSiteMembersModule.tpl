@@ -7,7 +7,7 @@
 </p>
 
 <p>
-	{t}The settings apply to the modules <tt>[[module&nbsp;MembershipApply]]</tt> and 
+	{t}The settings apply to the modules <tt>[[module&nbsp;MembershipApply]]</tt> and
 	<tt>[[module&nbsp;MembershipByPassword]]</tt> that are by default located at page
 	<a href="/system:join" target="_blank"><tt>system:join</tt></a> (which you
 	are encouraged to customize).{/t}
@@ -19,7 +19,7 @@
 
 <form id="sm-mem-form">
 	<h2>{t}Applying for membership{/t}</h2>
-	{t}	
+	{t}
 	<p>
 		You can allow other users of {$SERVICE_NAME} to apply for membership by filling a form provided
 		by the module
@@ -52,7 +52,7 @@
 		<div class="code"><pre>[[module MembershipByPassword]]</pre></div>
 	<p>
 		Just enter the password below and let your friends know it somehow. If you want anyone
-		to apply, just publish your password on the same page where users are supposed to 
+		to apply, just publish your password on the same page where users are supposed to
 		enter it.
 	</p>
 	{/t}

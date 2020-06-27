@@ -11,7 +11,7 @@
 {macro name="pm" message=$message from=true}
 
 <div id="inbox-message-options">
-	<a href="javascript:;" onclick="WIKIDOT.modules.AccountMessagesModule.listeners.replyInboxMessage(event, {$message->getMessageId()})">{t}reply{/t}</a> 	
+	<a href="javascript:;" onclick="WIKIDOT.modules.AccountMessagesModule.listeners.replyInboxMessage(event, {$message->getMessageId()})">{t}reply{/t}</a>
 	| <a href="javascript:;" onclick="WIKIDOT.modules.PMInboxModule.listeners.removeInboxMessage(event, {$message->getMessageId()})">{t}delete message{/t}</a>
 </div>
 

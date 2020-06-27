@@ -1,4 +1,4 @@
-<!DOCTYPE html 
+<!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="{$site->getLanguage()}" lang="{$site->getLanguage()}">
@@ -6,21 +6,21 @@
 <head>
  	<title>{$site->getName()}{if $wikiPage && $wikiPage->getTitle()}: {$wikiPage->getTitle()|escape}{/if}</title>
  	<script type="text/javascript" src="/common--javascript/json.js"></script>
- 	
+
  	<script type="text/javascript" src="/common--javascript/yahooui/yahoo-min.js"></script>
  	<script type="text/javascript" src="/common--javascript/yahooui/connection-min.js"></script>
  	<script type="text/javascript" src="/common--javascript/yahooui/event-min.js"></script>
  	<script type="text/javascript" src="/common--javascript/yahooui/dom-min.js"></script>
  	<script type="text/javascript" src="/common--javascript/yahooui/dragdrop-min.js"></script>
  	<script type="text/javascript" src="/common--javascript/yahooui/autocomplete-min.js"></script>
- 	
+
  	<script type="text/javascript" src="/common--javascript/moofx/prototype.lite.js"></script>
  	<script type="text/javascript" src="/common--javascript/moofx/moo.fx.js"></script>
 	<script type="text/javascript" src="/common--javascript/moofx/moo.fx.pack.js"></script>
  	<script type="text/javascript" src="/common--javascript/OZONE.js"></script>
- 
+
  	<script type="text/javascript" src="/common--javascript/dialog/OZONE.dialog.js"></script>
- 	
+
  	<script  type="text/javascript">
  		// global request information
  		{literal}
@@ -39,23 +39,23 @@
  		{/if}
 // 		window.onload = WikidotInit();
  	</script>
- 	
+
  	<meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
     <meta http-equiv="content-language" content="{$site->getLanguage()}"/>
- 	
- 	
+
+
  	<script type="text/javascript" src="/common--javascript/WIKIDOT.js"></script>
  	<script type="text/javascript" src="/common--javascript/WIKIDOT.page.js"></script>
- 
+
  	<script type="text/javascript" src="/common--javascript/printview.js"></script>
- 	
+
    	<style type="text/css" id="internal-style">
-   		
+
    		{foreach from=$theme->getStyleUrls() item=file}
    			@import url({$file});
    		{/foreach}
    		@import url(/common--theme/base/css/print.css?0);
-   		
+
     </style>
     <style type="text/css" media="print">
 	    @import url(/common--theme/base/css/print2.css?0);
@@ -109,7 +109,7 @@
 				</tr>
 			</table>
 		</div>
-	
+
 	  	<div id="print-head">
 		  	{t}Site{/t}: <b>{$site->getName()|escape}</b> at {$HTTP_SCHEMA}://{$site->getDomain()}
 		  	<br/>
@@ -123,11 +123,11 @@
 					{$wikiPage->getTitle()|escape}
 				</div>
 				{/if}
-				
+
 				<div id="page-content">
 					{$screen_placeholder}
 				</div>
-				
+
 				<div id="page-info" >
 					{t}page revision{/t}: {$wikiPage->getRevisionNumber()}, {t}last edited{/t}: <span class="odate">{$wikiPage->getDateLastEdited()->getTimestamp()}|%e %b %Y, %H:%M %Z (%O ago)</span>
 				</div>
@@ -136,20 +136,20 @@
 		</div>
 
  		<hr/>
- 		
+
  		<div id="license-area" class="license-area">
  			{$licenseText|replace:'%%UNLESS%%':'Unless stated otherwise Content of this page is licensed under'}
 		</div>
-		
+
 		<hr/>
-		
+
 		<div id="print-footer">
 			Part of {$SERVICE_NAME|escape} &#8212; Powered by Wikidot
 		</div>
  	</div>
- 	
+
  	<div style="display:none" id="dummy-ondomready-block"></div>
-	
+
   </body>
 
 </html>

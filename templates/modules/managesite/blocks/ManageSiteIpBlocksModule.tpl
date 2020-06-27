@@ -53,7 +53,7 @@
 		for several reasons and might affect innocent users while not being effective against some vandals.
 		Just use with caution.
 	</p>
-	</div>	
+	</div>
 	<div id="ip-errors" class="error-block" style="display: none"></div>
 	<table class="form">
 		<tr>

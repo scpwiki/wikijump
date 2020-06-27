@@ -1,7 +1,7 @@
 <h1>Secure Access (SSL/TLS)</h1>
 
 <p>
-	Configure secure access via <b>HTTP<span style="color: red;">S</span></b>:// connection. 
+	Configure secure access via <b>HTTP<span style="color: red;">S</span></b>:// connection.
 	If you care about privacy and security - you should.
 </p>
 
@@ -23,7 +23,7 @@
 	<div class="buttons">
 		<input type="button" value="{t}cancel{/t}" onclick="WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-welcome')"/>
 		<input type="button" value="{t}save{/t}" onclick="WIKIDOT.modules.ManageSiteSecureAccessModule.listeners.save(event)"/>
-		
+
 	</div>
 </form>
 
@@ -34,7 +34,7 @@
 </p>
 
 <p>
-	<b>NOTE:</b> The embedded code (via <tt>[[embed]]...[[/embed]]</tt> tags) may sometimes 
+	<b>NOTE:</b> The embedded code (via <tt>[[embed]]...[[/embed]]</tt> tags) may sometimes
 	produce a warning of <em>non-secure elements</em> or <em>partially encrypted content</em>
 	in the page if you are using SSL. This warning can also be triggered when you include other elements
 	(like images, iframes) from non-encrypted sources (urls starting with http://, not http<b>s</b>://).

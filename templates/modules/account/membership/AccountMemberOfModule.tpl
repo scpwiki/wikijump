@@ -21,7 +21,7 @@
 						{$site->getDescription()|escape}
 					</div>
 				{/if}
-				
+
 			</div>
 		{/foreach}
 	</div>

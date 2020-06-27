@@ -1,17 +1,17 @@
-<div id="login-window" class="owindow" 
+<div id="login-window" class="owindow"
 	style="width: 100%; position: static; margin:0; padding:0; border: none;">
 	<div class="content" style="width: auto; position: static; margin:0; padding:0; border: none;">
 		<h2 id="login-head">{t}Login{/t}</h2>
 		<div class="error-block" id="loginerror" style="display: none"></div>
 		<form id="login-form" action="/common--misc/blank.html" method="post"
-			{*onsubmit="WIKIDOT.modules.LoginModule3.listeners.loginClick(event);"*}>		
-			<div style="text-align: center">			
+			{*onsubmit="WIKIDOT.modules.LoginModule3.listeners.loginClick(event);"*}>
+			<div style="text-align: center">
 				{if $user}
 					{t}Hello{/t}, <span style="font-size:130%; font-weight: bold">{$user->getNickName()|escape}</span>
 					{*<input name="loginName" type="hidden" size="25" id="login-form-name" value="{$user->getName()|escape}"/>*}
 					<br/>
 					<br/>
-				{else}			
+				{else}
 					{t}Email{/t}
 					<br/>
 					<input class="text" name="loginName" type="text" size="25" id="login-form-name"/>
@@ -27,7 +27,7 @@
 					<br/><br/>
 				{/if}
 				<label for="login-form-keeplogged"><strong>{t}Do not timeout my session{/t}</strong></label>
-				<input class="checkbox" name="keepLogged" type="checkbox" 
+				<input class="checkbox" name="keepLogged" type="checkbox"
 					id="login-form-keeplogged"/> <span id="keep-logged-info">[?]</span>
 				<br/>
 				<label for="login-form-bindip">{t}Bind session to my IP{/t}</label>
@@ -42,11 +42,11 @@
 				<input type="button" class="button" onclick="top.location.href='{$backUrl}'" value="{t}cancel{/t}"/>
 			</p>
 		</form>
-							 	
-		
+
+
 		<div id="keep-logged-info-hovertip">
-			{t}Select this option and you will not be automatically logged-out after 30 minutes 
-			of inactivity.{/t} 
+			{t}Select this option and you will not be automatically logged-out after 30 minutes
+			of inactivity.{/t}
 		</div>
 		<div id="bind-ip-info-hovertip">
 			{t}In order to increase security it is advised to bind the session to the IP address of the computer you use.

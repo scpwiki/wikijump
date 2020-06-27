@@ -4,7 +4,7 @@
 <table class="form">
 	<tr>
 		<td>
-			{t}File name{/t}: 
+			{t}File name{/t}:
 		</td>
 		<td>
 			<strong>{$file->getFilename()|escape}</strong>
@@ -12,7 +12,7 @@
 	</tr>
 	<tr>
 		<td>
-			{t}Current page{/t}: 
+			{t}Current page{/t}:
 		</td>
 		<td>
 			{$page->getUnixName()|escape}
@@ -20,7 +20,7 @@
 	</tr>
 	<tr>
 		<td>
-			{t}Destination page{/t}: 
+			{t}Destination page{/t}:
 		</td>
 		<td>
 			{$destinationPage->getUnixName()|escape}
@@ -29,7 +29,7 @@
 </table>
 
 {if $hasPermission}
-	<p> 
+	<p>
 		{t}Unfortunately the file named{/t} {$file->getFilename()|escape} {t}already exists as an attachment
 		to page{/t} {$destinationPage->getUnixName()|escape}. {t}Do you want to overwrite it?{/t}
 	</p>
@@ -42,7 +42,7 @@
 {else}
 	<p>
 		{t}Unfortunately the file named{/t} {$file->getFilename()|escape} {t}already exists as an attachment
-		to page{/t} {$destinationPage->getUnixName()|escape}. {t}You have no 
+		to page{/t} {$destinationPage->getUnixName()|escape}. {t}You have no
 		permission to overwrite/delete files on this page.{/t}
 	</p>
 	</div>

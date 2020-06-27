@@ -2,9 +2,9 @@
 
 <p>
 	{t}The information below is optional but might help.{/t}
-</p>	
+</p>
 <p>
-	 {t}Note: Each item entered here will be visible to the public. 
+	 {t}Note: Each item entered here will be visible to the public.
 	 Please do not enter any information you do not want to disclose.{/t}
 </p>
 
@@ -23,7 +23,7 @@
 					<input class="radio" name="gender" type="radio" value="" {if $profile->getGender() == ""}checked="checked"{/if}/> {t}do not tell{/t}
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td>{t}Birthday{/t}:</td>
 				<td>
@@ -32,7 +32,7 @@
 						<option value="1" {if $profile->getBirthdayDay() == 1}selected="selected"{/if}>1st</option>
 						<option value="2" {if $profile->getBirthdayDay() == 2}selected="selected"{/if}>2nd</option>
 						<option value="3" {if $profile->getBirthdayDay() == 3}selected="selected"{/if}>3rd</option>
-						
+
 						<option value="4" {if $profile->getBirthdayDay() == 4}selected="selected"{/if}>4th</option>
 						<option value="5" {if $profile->getBirthdayDay() == 5}selected="selected"{/if}>5th</option>
 						<option value="6" {if $profile->getBirthdayDay() == 6}selected="selected"{/if}>6th</option>
@@ -42,7 +42,7 @@
 						<option value="10" {if $profile->getBirthdayDay() == 10}selected="selected"{/if}>10th</option>
 						<option value="11" {if $profile->getBirthdayDay() == 11}selected="selected"{/if}>11th</option>
 						<option value="12" {if $profile->getBirthdayDay() == 12}selected="selected"{/if}>12th</option>
-						
+
 						<option value="13" {if $profile->getBirthdayDay() == 13}selected="selected"{/if}>13th</option>
 						<option value="14" {if $profile->getBirthdayDay() == 14}selected="selected"{/if}>14th</option>
 						<option value="15" {if $profile->getBirthdayDay() == 15}selected="selected"{/if}>15th</option>
@@ -52,7 +52,7 @@
 						<option value="19" {if $profile->getBirthdayDay() == 19}selected="selected"{/if}>19th</option>
 						<option value="20" {if $profile->getBirthdayDay() == 20}selected="selected"{/if}>20th</option>
 						<option value="21" {if $profile->getBirthdayDay() == 21}selected="selected"{/if}>21st</option>
-						
+
 						<option value="22" {if $profile->getBirthdayDay() == 22}selected="selected"{/if}>22nd</option>
 						<option value="23" {if $profile->getBirthdayDay() == 23}selected="selected"{/if}>23rd</option>
 						<option value="24" {if $profile->getBirthdayDay() == 24}selected="selected"{/if}>24th</option>
@@ -62,10 +62,10 @@
 						<option value="28" {if $profile->getBirthdayDay() == 28}selected="selected"{/if}>28th</option>
 						<option value="29" {if $profile->getBirthdayDay() == 29}selected="selected"{/if}>29th</option>
 						<option value="30" {if $profile->getBirthdayDay() == 30}selected="selected"{/if}>30th</option>
-						
+
 						<option value="31" {if $profile->getBirthdayDay() == 31}selected="selected"{/if}>31st</option>
 					</select>
-					
+
 					<select name="birthday_month"><option value="0">{t}Month{/t}</option>
 						<option value="1" {if $profile->getBirthdayMonth() == 1}selected="selected"{/if}>{t}Jan{/t}</option>
 						<option value="2" {if $profile->getBirthdayMonth() == 2}selected="selected"{/if}>{t}Feb{/t}</option>
@@ -73,7 +73,7 @@
 						<option value="4" {if $profile->getBirthdayMonth() == 4}selected="selected"{/if}>{t}Apr{/t}</option>
 						<option value="5" {if $profile->getBirthdayMonth() == 5}selected="selected"{/if}>{t}May{/t}</option>
 						<option value="6" {if $profile->getBirthdayMonth() == 6}selected="selected"{/if}>{t}Jun{/t}</option>
-						
+
 						<option value="7" {if $profile->getBirthdayMonth() == 7}selected="selected"{/if}>{t}Jul{/t}</option>
 						<option value="8" {if $profile->getBirthdayMonth() == 8}selected="selected"{/if}>{t}Aug{/t}</option>
 						<option value="9" {if $profile->getBirthdayMonth() == 9}selected="selected"{/if}>{t}Sep{/t}</option>
@@ -96,9 +96,9 @@
 				</td>
 			</tr>
 		</table>
-		
+
 		<h2>{t}My online presence{/t}</h2>
-		
+
 		<table class="form">
 			<tr>
 				<td>
@@ -131,7 +131,7 @@
 							</td>
 							<td style="width: 5em">&nbsp;</td>
 							<td>
-							
+
 								Jabber IM:<br/>
 								<input class="text" type="text" name="im_jabber" size="20" value="{$profile->getImJabber()|escape}"/>
 								<br/>
@@ -146,9 +146,9 @@
 				</td>
 			</tr>
 		</table>
-	
+
 		<h2>{t}My offline presence{/t}</h2>
-		
+
 		<table class="form">
 			<tr>
 				<td>	{t}Location{/t}:</td>
@@ -159,7 +159,7 @@
 					</div>
 				</td>
 			</tr>
-					
+
 		</table>
 		<div class="buttons">
 			<input type="button" value="{t}cancel{/t}" onclick="WIKIDOT.modules.AccountModule.utils.loadModule('am-profile')"/>

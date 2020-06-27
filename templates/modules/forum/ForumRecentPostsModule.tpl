@@ -3,7 +3,7 @@
 		<table class="form">
 			<tr>
 				<td>
-					{t}From categories{/t}: 
+					{t}From categories{/t}:
 				</td>
 				<td>
 					<select id="recent-posts-category">

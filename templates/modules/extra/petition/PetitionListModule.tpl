@@ -27,7 +27,7 @@
 			{if $campaign->getCollectComments() && $campaign->getShowComments() && $sig->getComments()}
 				<br/>Comments: {$sig->getComments()|escape|nl2br}
 			{/if}
-			
+
 		</li>
 	{/foreach}
 </ul>

@@ -1,9 +1,9 @@
 {loadmacro set="Forms"}
-		
+
 		<div class="error-block" id="ca-reg0-errors" style="display: none"></div>
-		
+
 		<form name="caform" action="dummy.html" method="get" onkeypress="return OZONE.utils.disableEnterKey(event)" id="createaccount-form0" onsubmit="return false">
-			<table class="form"> 
+			<table class="form">
 				<tr>
 					<td>
 						{t}Your screen name{/t}:
@@ -31,10 +31,10 @@
 						<input type="radio" name="language" value="en" id="new-site-lang-en"> <label for="new-site-lang-en">{t}English{/t}</label>
 						&nbsp;&nbsp;&nbsp;&nbsp;
 						<input type="radio" name="language" value="pl" id="new-site-lang-pl"> <label for="new-site-lang-pl">{t}Polish{/t}</label>
-					
+
 					</td>
 				</tr>
-				
+
 		{*	</table>
 			<h2>Account access password </h2>
 			<table  class="form">	*}
@@ -77,16 +77,16 @@
 					</td>
 					<td>
 						<input type="checkbox" name="tos" class="checkbox">
-						
+
 						<!-- TODO: De-Wikidot.com-ize - change -->
 						{t 1=$URL_HOST}I have read and agree to the <a href="{$HTTP_SCHEMA}://%1/legal:terms-of-service"
 						target="_blank">Terms of Service</a>.{/t}
-						
+
 					</td>
-					
+
 				</tr>
 			</table>
-		
+
 		{*DEBUG: evcode: {$evcode}*}
 
 	<div class="buttons">

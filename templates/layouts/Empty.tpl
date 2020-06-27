@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html 
+<!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="pl" lang="pl">
 
-{$page->addStyleSheet("base.css")} 
+{$page->addStyleSheet("base.css")}
 
-{$page->addJavaScript("base.js")} 
-{$page->addJavaScript("contextmenu.js")} 
+{$page->addJavaScript("base.js")}
+{$page->addJavaScript("contextmenu.js")}
 {$page->addJavaScript("infobox-photoinfo1.js")}
 {$page->addHttpEquiv("content-type", "text/html;charset=UTF-8")}
 

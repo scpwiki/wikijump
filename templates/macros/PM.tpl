@@ -47,7 +47,7 @@
 				{/if}
 			</table>
 		</div>
-	
+
 		<div class="body">
 			{$message->getBody()}
 		</div>

@@ -3,14 +3,14 @@
 	{t}Current site storage size{/t}: {$totalSiteSize} {t}used of total{/t} {$totalSiteAllowedSize}, {$availableSiteSize} {t}still free{/t}
 </p>
 <p>
-	{t}Max upload size{/t}: {$maxUploadString} 
+	{t}Max upload size{/t}: {$maxUploadString}
 </p>
 
 
-<form id="file-upload-form" enctype="multipart/form-data" 
+<form id="file-upload-form" enctype="multipart/form-data"
 	action="/default--flow/files__UploadTarget" target="_upload_iframe" method="POST">
 	<div style="text-align: center">
-	
+
 		<input type="hidden" name="action" value="FileAction"/>
 		<input type="hidden" name="event" value="uploadFile"/>
 		<input type="hidden" name="page_id" id="file-upload-form-page-id" value=""/>

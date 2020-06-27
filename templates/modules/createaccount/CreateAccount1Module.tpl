@@ -6,9 +6,9 @@
 	</div>
 	<div class="content">
 		<h1>{t}Confirm your data{/t}</h1>
-		
+
 		<div class="error-block" id="ca-error-block" style="display: none"></div>
-		
+
 		<table class="form">
 			<tr>
 				<td>
@@ -35,15 +35,15 @@
 				</td>
 			</tr>
 		</table>
-	</div>	
-			
+	</div>
+
 	<div class="button-bar">
 		<a href="javascript:;"  onclick="WIKIDOT.modules.CreateAccountModule.listeners.cancel(event)">{t}cancel{/t}</a>
 		<a href="javascript:;" onclick="WIKIDOT.modules.CreateAccount1Module.listeners.backClick(event)">{t}back{/t}</a>
 		<a href="javascript:;" onclick="WIKIDOT.modules.CreateAccount1Module.listeners.nextClick(event)">{t}next{/t}</a>
 	</div>
-	
+
 </div>
 
 
- 
+

@@ -5,7 +5,7 @@
 	<div class="content">
 		<h1>{t 1=$SERVICE_NAME}Create an account at %1{/t}</h1>
 		<p>
-			{t escape=no}You are about to create a new account that will give you access to 
+			{t escape=no}You are about to create a new account that will give you access to
 			dozens of wiki sites within the wikidot sites cluster as well as a
 			possibility to create your very own sites.{/t}
 		</p>
@@ -19,7 +19,7 @@
 			<li><strong>Email address verification</strong> - an email with a secret verification code will be sent
 				to your email address to verify that it belongs to you,
 			</li>
-			<li><strong>Enjoy the new possibilities</strong> - join sites, create new sites and communities etc.</li> 
+			<li><strong>Enjoy the new possibilities</strong> - join sites, create new sites and communities etc.</li>
 		</ul>{/t}
 	</div>
 	<div class="button-bar">

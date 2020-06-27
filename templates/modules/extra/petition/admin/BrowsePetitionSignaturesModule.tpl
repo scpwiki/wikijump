@@ -3,7 +3,7 @@
 </h3>
 {if $signatures}
 	<div style="overflow: auto">
-		
+
 		<table id="petition-admin-browse-table" class="form grid">
 			<tr>
 				<th>
@@ -26,34 +26,34 @@
 				{if $campaign->getCollectCity()}
 					<th>
 						City
-					</th>	
+					</th>
 				{/if}
 				{if $campaign->getCollectState()}
 					<th>
 						State
-					</th>	
+					</th>
 				{/if}
 				{if $campaign->getCollectZip()}
 					<th>
 						Zip
-					</th>	
+					</th>
 				{/if}
 				{if $campaign->getCollectCountry()}
 					<th>
 						Country
-					</th>	
+					</th>
 				{/if}
 				<th>
 					Date
-				</th>	
+				</th>
 				{if $campaign->getCollectComments()}
 					<th>
 						Comments
-					</th>	
-				{/if}	
+					</th>
+				{/if}
 			</tr>
-		
-		
+
+
 			{foreach from=$signatures item=sig}
 				<tr>
 					<td>
@@ -81,22 +81,22 @@
 					{if $campaign->getCollectCity()}
 						<td>
 							{$sig->getCity()|escape}
-						</td>	
+						</td>
 					{/if}
 					{if $campaign->getCollectState()}
 						<td>
 							{$sig->getState()|escape}
-						</td>	
+						</td>
 					{/if}
 					{if $campaign->getCollectZip()}
 						<td>
 							{$sig->getZip()|escape}
-						</td>	
+						</td>
 					{/if}
 					{if $campaign->getCollectCountry()}
 						<td>
 							{$sig->getCountry()|escape}
-						</td>	
+						</td>
 					{/if}
 					<td>
 						<span class="odate">{$sig->getDate()->getTimestamp()}|%e&nbsp;%b&nbsp;%Y,&nbsp;%H:%M&nbsp;%Z|agohover</span>
@@ -108,18 +108,18 @@
 									{$sig->getComments()|escape|nl2br}
 								</div>
 							{/if}
-						</td>	
-					{/if}	
+						</td>
+					{/if}
 				</tr>
 			{/foreach}
-	
+
 		</table>
 	</div>
-	
+
 	<p>
-		<a href="javascript:;" onclick="WIKIDOT.modules.PetitionAdminModule.listeners.selectAllSignatures(event)">select all</a> 
+		<a href="javascript:;" onclick="WIKIDOT.modules.PetitionAdminModule.listeners.selectAllSignatures(event)">select all</a>
 		|
-		<a href="javascript:;" onclick="WIKIDOT.modules.PetitionAdminModule.listeners.deselectAllSignatures(event)">select none</a> 
+		<a href="javascript:;" onclick="WIKIDOT.modules.PetitionAdminModule.listeners.deselectAllSignatures(event)">select none</a>
 	</p>
 	<p>
 		With selected: <a href="javascript:;"  onclick="WIKIDOT.modules.PetitionAdminModule.listeners.removeSelectedSignatures(event, {$campaign->getCampaignId()})">remove</a>

@@ -28,7 +28,7 @@
 			{t}File size{/t}:
 		</td>
 		<td>
-			{$file->getSizeString()} {if $file->getSize()>1024}({$file->getSize()} Bytes){/if} 
+			{$file->getSizeString()} {if $file->getSize()>1024}({$file->getSize()} Bytes){/if}
 		</td>
 	</tr>
 	<tr>

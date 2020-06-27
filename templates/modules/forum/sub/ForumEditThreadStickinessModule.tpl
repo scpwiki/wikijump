@@ -1,6 +1,6 @@
 <h2>{t}Edit thread stickness{/t}</h2>
 <p>
-	{t}If a thread is "sticky" - it remains on top of the threads list in the 
+	{t}If a thread is "sticky" - it remains on top of the threads list in the
 	forum category view. This feature is recommended for threads of
 	exceptional importance.{/t}
 </p>

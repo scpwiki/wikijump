@@ -1,7 +1,7 @@
 <div id="sign-petition-box">
 	<div class="error-block" id="sign-petition-error-box" style="display:none"></div>
 	{if $confirmationMode}
-	
+
 		<p>
 			{t}Please confirm your signature as detailed below{/t}:
 		</p>
@@ -98,13 +98,13 @@
 			<div class="buttons">
 				<input type="button" value="{t}cancel{/t}"  onclick="WIKIDOT.modules.SignPetitionModule.listeners.cancelSignature(event, {$campaign->getCampaignId()}, '{$signature->getConfirmationHash()}')"/>
 				<input type="button" value="{t}confirm{/t}" onclick="WIKIDOT.modules.SignPetitionModule.listeners.confirmSignature(event, {$campaign->getCampaignId()}, '{$signature->getConfirmationHash()}')"/>
-			</div>	
-		</form>	
-		
-		
-	
+			</div>
+		</form>
+
+
+
 	{else}
-	
+
 		<form id="sign-petition-form" onsubmit="YAHOO.util.Event.stopEvent(event)" target="dummy.html" action="POST">
 			<input type="hidden" name="campaignId" value="{$campaign->getCampaignId()}"/>
 			<table class="form">
@@ -180,7 +180,7 @@
 						</td>
 						<td>
 							<div class="field-error-message"></div>
-							
+
 							<select name="country">
 								<option value="  " selected="selected">(please select a country)</option>
 								{*<option value="--">none</option>*}
@@ -188,7 +188,7 @@
 									<option value="{$code}">{$country}</option>
 								{/foreach}
 							</select>
-							
+
 							{*<input name="country" type="text" class="text" value="" size="30"/>*}
 						</td>
 					</tr>

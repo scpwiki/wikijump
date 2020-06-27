@@ -12,7 +12,7 @@
 		{assign var=site value=$invitation->getSite()}
 		<table class="form alignleft">
 			<tr>
-				<td>	
+				<td>
 					{t}Site{/t}:
 				</td>
 				<td>
@@ -42,7 +42,7 @@
 				{t}Decide{/t}:
 			</td>
 			<td>
-				<a href="javascript:;" onclick="WIKIDOT.modules.AccountInvitationsModule.listeners.acceptInvitation(event, {$invitation->getInvitationId()})">{t}accept invitation{/t}</a> 
+				<a href="javascript:;" onclick="WIKIDOT.modules.AccountInvitationsModule.listeners.acceptInvitation(event, {$invitation->getInvitationId()})">{t}accept invitation{/t}</a>
 				{t}or{/t}
 				<a href="javascript:;" onclick="WIKIDOT.modules.AccountInvitationsModule.listeners.throwAwayInvitation(event, {$invitation->getInvitationId()})">{t}throw away{/t}</a>
 			</td>

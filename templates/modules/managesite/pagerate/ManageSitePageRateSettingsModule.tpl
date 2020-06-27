@@ -2,12 +2,12 @@
 
 <p>
 	{t}Page ratings are not only a way to enable Users to vote on high/low quality content
-	but also can be used to organize contests, competitions etc. 
+	but also can be used to organize contests, competitions etc.
 	Anyway - the feature has to be enabled first.{/t}
 </p>
 <p>
-	{t}This is a "per category" setting which means you can have rating enabled only for a 
-	subclass of your Site. If a category setting reads "default" it means a value from the 
+	{t}This is a "per category" setting which means you can have rating enabled only for a
+	subclass of your Site. If a category setting reads "default" it means a value from the
 	"_default" category is being inherited.{/t}
 </p>
 
@@ -38,7 +38,7 @@
 					<td>
 						{$category->getName()|escape}
 					</td>
-					<td>						
+					<td>
 						<select id="cat235-{$category->getCategoryId()}-e" onchange="WIKIDOT.modules.ManageSitePageRateSettingsModule.utils.updateVis({$category->getCategoryId()})">
 							{if $category->getName() != '_default'}
 								<option value="default"  {if $category->getRatingEnabled() === null}selected="selected"{/if}>{t}default{/t}</option>
@@ -66,14 +66,14 @@
 							<option value="Z" {if $category->getRatingType() === "Z"}selected="selected"{/if}>+/0/-</option>
 							<option value="X" {if $category->getRatingType() === "X"}selected="selected"{/if}>+/0</option>
 							<option value="S" {if $category->getRatingType() === "S"}selected="selected"{/if}>1-5 stars</option>
-							
+
 						</select>
 					</td>
 				</tr>
 			{/foreach}
 		</table>
 	</div>
-	
+
 	<div class="buttons">
 		<input type="button" value="{t}cancel{/t}" onclick="WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-welcome')"/>
 		<input type="button" value="{t}save{/t}" onclick="WIKIDOT.modules.ManageSitePageRateSettingsModule.listeners.save(event)"/>

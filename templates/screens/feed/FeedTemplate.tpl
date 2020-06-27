@@ -8,7 +8,7 @@
 		{if $channel.language}<language>{$channel.language|escape}</language>{/if}
 		<copyright>{$channel.copyright|escape}</copyright>
 		<lastBuildDate>{$channel.lastBuildDate|escape}</lastBuildDate>
-		
+
 		{foreach from=$items item=item}
 			<item>
 				<guid>{$item.guid|escape}</guid>

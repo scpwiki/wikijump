@@ -1,7 +1,7 @@
 <h1>Blocked users</h1>
 
 <p>
-	As an administrator of the site you can block certain users from modyfying 
+	As an administrator of the site you can block certain users from modyfying
 	contents of the site. Such users will only be able to view contents of the site
 	but not to alter it in any way.
 </p>
@@ -20,7 +20,7 @@
 				{if $block->getReason() && $block->getReason() != ''}
 				<br/>reason: {$block->getReason()|escape}
 				{/if}
-			
+
 			</li>
 		{/foreach}
 	</ul>
@@ -42,7 +42,7 @@ there are no blocked users.
 			<td>
 				<div id="select-user-div">
 					<div class="sub">
-						type the wikidot user name below 
+						type the wikidot user name below
 					</div>
 					<div class="autocomplete-container" style="width: 20em; padding-top: 3px;">
 						<input type="text" id="user-lookup" size="30" class="autocomplete-input text"/>
@@ -66,8 +66,8 @@ there are no blocked users.
 			</td>
 		</tr>
 	</table>
-	
-	
+
+
 	<div class="buttons">
 		<input type="button" value="cancel" onclick="WIKIDOT.modules.ManageSiteUserBlocksModule.listeners.cancelAdd(event)"/>
 		<input type="button" value="block user" onclick="WIKIDOT.modules.ManageSiteUserBlocksModule.listeners.blockUser(event)"/>

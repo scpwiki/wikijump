@@ -5,7 +5,7 @@
 	{pager jsfunction="WIKIDOT.modules.FlickrGalleryModules.listeners.loadPage(event,#)" total=$pagerData.total_pages known=$pagerData.known_pages current=$pagerData.current_page}
 	{if !$photos}
 		Sorry, no photos.
-	{else}	
+	{else}
 		<div class="gallery-box">
 			{foreach from=$photos item=photo}
 				<div class="gallery-item {$size}">
@@ -29,7 +29,7 @@
 				<li class="flickr-gallery-parameter">{$key} ::: {$value|escape}</li>
 			{/foreach}
 		</ul>
-		
+
 	{/if}
 </div>
 {/if}

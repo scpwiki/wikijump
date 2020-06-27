@@ -5,13 +5,13 @@
 		{else}
 			<a href="javascript:;" onclick="WIKIDOT.modules.MostActiveForumsModule.listeners.changeTime(event, '24h')"> 24 {t}hours{/t}</a>
 		{/if}
-		| 
+		|
 		{if $range=='7days'}
 			7 {t}days{/t}
 		{else}
 			<a href="javascript:;" onclick="WIKIDOT.modules.MostActiveForumsModule.listeners.changeTime(event, '7d')"> 7 {t}days{/t}</a>
 		{/if}
-		| 
+		|
 		{if $range=='month'}
 			{t}month{/t}
 		{else}
@@ -31,7 +31,7 @@
 						<a href="{$HTTP_SCHEMA}://{$r.site->getDomain()}">{$r.site->getName()|escape}</a>
 					</td>
 					<td style="text-align: right">
-						{$r.number_posts} 
+						{$r.number_posts}
 					</td>
 				</tr>
 			{/foreach}

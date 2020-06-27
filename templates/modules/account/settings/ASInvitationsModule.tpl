@@ -2,13 +2,13 @@
 
 <p>
 	Site administrators can send individual invitations to other users
-	to participate in a particular users community. 
+	to participate in a particular users community.
 	If you want to be able to receive such invitations - check the checkbox.
 	If not - uncheck it and the invitations will be blocked for you.
 </p>
 
 <form >
-	<table class="form">	
+	<table class="form">
 		<tr>
 			<td>
 				I want to receive invitations:

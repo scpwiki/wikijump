@@ -4,15 +4,15 @@
 	It is <u>very</u> important to clarify the copyright and ownership issues for your site.
 	We highly recomment setting an open "<a href="http://en.wikipedia.org/wiki/Copyleft"
 	target="_blank">copyleft</a>" license that allows making the
-	Content more or less free to copy, modify and use. 
+	Content more or less free to copy, modify and use.
 </p>
 <p>
 	This is particularly important when your Site is created and edited collaboratively.
 </p>
 <p>
 	Read more about <a href="http://creativecommons.org/about/licenses/meet-the-licenses"
-	target="_blank">Creative Commons licenses</a>, use a <a href="http://creativecommons.org/license/" 
-	target="_blank">wizard</a> to select the proper license or just visit 
+	target="_blank">Creative Commons licenses</a>, use a <a href="http://creativecommons.org/license/"
+	target="_blank">wizard</a> to select the proper license or just visit
 	<a href="http://creativecommons.org/" target="_blank">Creative Commons</a>.
 </p>
 
@@ -43,7 +43,7 @@
 					{t}Choose the license{/t}:
 				</td>
 				<td>
-				
+
 					<select id="sm-license-lic">
 						{foreach from=$licenses item=license}
 							<option value="{$license->getLicenseId()}">{$license->getName()|escape}</option>
@@ -68,13 +68,13 @@
 					</td>
 				</tr>
 			</table>
-		</div>	
+		</div>
 	</div>
 	<div class="buttons">
 		<input type="button" value="{t}cancel{/t}" id="sm-license-cancel"/>
 		<input type="button" value="{t}save changes{/t}" id="sm-license-save"/>
 	</div>
-	
+
 </div>
 
 <div id="sm-license-preview" style="margin-bottom:2em">

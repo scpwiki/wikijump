@@ -26,7 +26,7 @@
 			<div class="note-block">
 				<h3>{t}Anonymous edit!{/t}</h3>
 				<p>
-					{t}You are editing a forum post as an anonymous user. 
+					{t}You are editing a forum post as an anonymous user.
 					Please remember that in such a case your IP address will be revealed to public
 					and your contribution will be signed by the following identity:{/t}<br/>
 					{printuser user=$anonymousString image="true"}
@@ -38,6 +38,6 @@
 			<input type="button" value="{t}preview{/t}" id="np-preview" onclick="WIKIDOT.modules.ForumNewPostFormModule.listeners.preview(event)"/>
 			<input type="button" value="{t}post it!{/t}" id="np-post" onclick="WIKIDOT.modules.ForumNewPostFormModule.listeners.save(event)"/>
 		</div>
-			
+
 	</form>
-</div>	
+</div>

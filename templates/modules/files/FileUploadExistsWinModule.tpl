@@ -3,7 +3,7 @@
 <h1>{t}File exists{/t}</h1>
 
 {if $hasPermission}
-<p> 
+<p>
 	{t}Unfortunately the file named{/t} {$file->getFilename()|escape} {t}already exists as an attachment
 	to page{/t} {$destinationPage->getTitleOrUnixName()|escape}. {t}Do you want to overwrite it?{/t}
 </p>
@@ -15,7 +15,7 @@
 {else}
 <p>
 	{t}Unfortunately the file named{/t} {$file->getFilename()|escape} {t}already exists as an attachment
-	to page{/t} {$destinationPage->getTitleOrUnixName()|escape}. {t}You have no 
+	to page{/t} {$destinationPage->getTitleOrUnixName()|escape}. {t}You have no
 	permission to overwrite/delete files on this page.{/t}
 </p>
 </div>
