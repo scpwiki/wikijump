@@ -23,16 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-/*
- * Wikidot version 1
- *
- * Copyright 2008 by Wikidot Inc.
- *
- * This program is free software available under the
- * GNU AFFERO GENERAL PUBLIC LICENSE version 3.
- */
-
 class FlickrHandler extends phpFlickr
 {
 
