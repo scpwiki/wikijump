@@ -50,7 +50,7 @@ impl State {
             "token" => extract.token,
             "slice" => extract.slice,
             "span-start" => extract.span.start,
-            "span-end" => extract.span.end,
+            "span-stop" => extract.span.end,
         );
 
         // Modify stack based on new token

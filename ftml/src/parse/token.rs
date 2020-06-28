@@ -188,7 +188,7 @@ impl Token {
                 "token" => token,
                 "slice" => slice,
                 "span-start" => span.start,
-                "span-end" => span.end,
+                "span-stop" => span.end,
             );
 
             tokens.push(ExtractedToken { token, slice, span });
