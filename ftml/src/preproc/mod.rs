@@ -41,6 +41,8 @@ use crate::Handle;
 /// This call always succeeds. The return value designates where issues occurred
 /// to allow programmatic determination of where things were not as expected.
 pub fn preprocess(log: &slog::Logger, text: &mut String, handle: &dyn Handle) {
+    let log = &log.new(slog_o!("function" => "preprocess", "text" => str!(text)));
+
     include::substitute(log, text, handle);
     misc::substitute(log, text);
     typography::substitute(log, text);
