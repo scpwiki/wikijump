@@ -18,17 +18,18 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod stack;
 mod token;
 
-use crate::SyntaxTree;
+use self::stack::Stack;
 use self::token::Token;
+use crate::tree::SyntaxTree;
 
 pub fn parse<'a>(text: &'a str) -> SyntaxTree<'a> {
     // TODO run through tokens
     let tokens = Token::extract_all(text);
-    // TODO create stack that has `Vec`s, with at least one (the main one)
+    let mut stack = Stack::new();
 
     // TODO
-    let elements = Vec::new();
-    SyntaxTree { elements }
+    stack.into_syntax_tree()
 }

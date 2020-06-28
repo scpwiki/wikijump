@@ -47,22 +47,22 @@ extern crate thiserror;
 
 pub mod data;
 pub mod handle;
+pub mod tree;
 
 mod enums;
 mod error;
 mod parse;
 mod preproc;
-mod tree;
 
 pub use self::error::{Error, RemoteError};
 pub use self::handle::Handle;
 pub use self::parse::parse;
 pub use self::preproc::preprocess;
-pub use self::tree::{Element, SyntaxTree};
 
 pub mod prelude {
+    pub use super::tree::{Element, Elements, SyntaxTree};
     pub use super::{data, handle, parse, preprocess};
-    pub use super::{Error, Result, StdResult, SyntaxTree};
+    pub use super::{Error, Result, StdResult};
 }
 
 pub type StdResult<T, E> = std::result::Result<T, E>;

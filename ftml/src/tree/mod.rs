@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-type Elements<'a> = Vec<Element<'a>>;
+pub type Elements<'a> = Vec<Element<'a>>;
 
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct SyntaxTree<'a> {
