@@ -21,8 +21,9 @@
 use super::stack::Stack;
 use super::token::{ExtractedToken, Token};
 use crate::tree::Element;
+use strum_macros::IntoStaticStr;
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum State {
     /// Regular text state, not inside anything.
     Normal,
@@ -35,7 +36,23 @@ pub enum State {
 }
 
 impl State {
-    pub fn consume<'r, 'a>(&mut self, stack: &'r mut Stack<'a>, extract: ExtractedToken<'a>) {
+    pub fn consume<'r, 'a>(
+        &mut self,
+        log: &slog::Logger,
+        stack: &'r mut Stack<'a>,
+        extract: ExtractedToken<'a>,
+    ) {
+        debug!(
+            log,
+            "Running state consume for '{:?}' (token: {:?})",
+            *self, extract;
+            "state" => *self,
+            "token" => extract.token,
+            "slice" => extract.slice,
+            "span-start" => extract.span.start,
+            "span-end" => extract.span.end,
+        );
+
         // Modify stack based on new token
         let new_state = match *self {
             State::Normal => consume_normal(stack, extract),
@@ -45,6 +62,11 @@ impl State {
 
         // Set new state
         *self = new_state;
+    }
+
+    #[inline]
+    fn name(self) -> &'static str {
+        self.into()
     }
 }
 
@@ -72,4 +94,15 @@ fn consume_tag_special<'a>(stack: &mut Stack<'a>, extract: ExtractedToken<'a>) -
     let ExtractedToken { token, slice, span } = extract;
 
     todo!()
+}
+
+impl slog::Value for State {
+    fn serialize(
+        &self,
+        record: &slog::Record,
+        key: slog::Key,
+        serializer: &mut dyn slog::Serializer,
+    ) -> slog::Result {
+        serializer.emit_str(key, self.name())
+    }
 }

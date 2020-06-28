@@ -38,7 +38,7 @@ pub fn parse<'a>(log: &Logger, text: &'a str) -> SyntaxTree<'a> {
     let mut state = State::Normal;
 
     for extract in extracted {
-        state.consume(&mut stack, extract);
+        state.consume(log, &mut stack, extract);
     }
 
     // TODO
@@ -50,5 +50,4 @@ fn ast() {
     let logger = crate::build_logger();
     let text = "test lol";
     let tree = parse(&logger, text);
-    println!("Input: {:?}\nOutput: {:#?}", text, tree);
 }
