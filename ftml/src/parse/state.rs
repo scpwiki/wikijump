@@ -52,7 +52,7 @@ fn consume_normal<'a>(stack: &mut Stack<'a>, extract: ExtractedToken<'a>) -> Sta
     let ExtractedToken { token, slice, span } = extract;
 
     match token {
-        Token::Text => {
+        Token::Identifier | Token::Text | Token::Whitespace => {
             stack.append(Element::Text(slice));
             State::Normal
         }
