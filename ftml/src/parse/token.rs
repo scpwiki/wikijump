@@ -53,6 +53,9 @@ pub enum Token {
     #[token("[[#")]
     LeftAnchor,
 
+    #[token("=")]
+    Equals,
+
     #[token("--")]
     DoubleDash,
 
