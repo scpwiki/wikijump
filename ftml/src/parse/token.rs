@@ -206,7 +206,7 @@ impl Token {
 impl slog::Value for Token {
     fn serialize(
         &self,
-        record: &slog::Record,
+        _: &slog::Record,
         key: slog::Key,
         serializer: &mut dyn slog::Serializer,
     ) -> slog::Result {
