@@ -21,7 +21,6 @@
 // TODO use enums
 #![allow(dead_code)]
 
-use crate::StdResult;
 use std::convert::TryFrom;
 
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -35,7 +34,7 @@ pub enum Alignment {
 impl<'a> TryFrom<&'a str> for Alignment {
     type Error = ();
 
-    fn try_from(value: &'a str) -> StdResult<Self, Self::Error> {
+    fn try_from(value: &'a str) -> Result<Self, Self::Error> {
         match value {
             "<" => Ok(Alignment::Left),
             ">" => Ok(Alignment::Right),
@@ -68,7 +67,7 @@ pub enum AnchorTarget {
 impl<'a> TryFrom<&'a str> for AnchorTarget {
     type Error = ();
 
-    fn try_from(value: &'a str) -> StdResult<Self, Self::Error> {
+    fn try_from(value: &'a str) -> Result<Self, Self::Error> {
         const ANCHOR_TARGET_VALUES: [(&str, &str, AnchorTarget); 4] = [
             ("blank", "_blank", AnchorTarget::NewTab),
             ("parent", "_parent", AnchorTarget::Parent),
@@ -99,7 +98,7 @@ pub enum HeadingLevel {
 impl TryFrom<usize> for HeadingLevel {
     type Error = ();
 
-    fn try_from(value: usize) -> StdResult<Self, Self::Error> {
+    fn try_from(value: usize) -> Result<Self, Self::Error> {
         match value {
             1 => Ok(HeadingLevel::One),
             2 => Ok(HeadingLevel::Two),
@@ -114,7 +113,7 @@ impl TryFrom<usize> for HeadingLevel {
 impl TryFrom<u8> for HeadingLevel {
     type Error = ();
 
-    fn try_from(value: u8) -> StdResult<Self, Self::Error> {
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
         match value {
             1 => Ok(HeadingLevel::One),
             2 => Ok(HeadingLevel::Two),

@@ -30,7 +30,7 @@ impl Handle for NullHandle {
         &self,
         _name: &str,
         _args: &HashMap<&str, &str>,
-    ) -> RemoteResult<Option<String>> {
+    ) -> Result<Option<String>, String> {
         Ok(Some(str!("")))
     }
 

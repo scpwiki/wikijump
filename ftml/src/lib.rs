@@ -55,11 +55,9 @@ pub mod handle;
 pub mod tree;
 
 mod enums;
-mod error;
 mod parse;
 mod preproc;
 
-pub use self::error::{Error, RemoteError};
 pub use self::handle::Handle;
 pub use self::parse::parse;
 pub use self::preproc::preprocess;
@@ -67,7 +65,6 @@ pub use self::preproc::preprocess;
 pub mod prelude {
     pub use super::tree::{Element, Elements, SyntaxTree};
     pub use super::{data, handle, parse, preprocess};
-    pub use super::{Error, Result, StdResult};
 }
 
 #[cfg(test)]
@@ -81,7 +78,3 @@ fn build_logger() -> slog::Logger {
         .build()
         .expect("Unable to initialize logger")
 }
-
-pub type StdResult<T, E> = std::result::Result<T, E>;
-pub type Result<T> = StdResult<T, Error>;
-pub type RemoteResult<T> = StdResult<T, RemoteError>;

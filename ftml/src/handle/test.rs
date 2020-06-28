@@ -25,7 +25,11 @@ use super::prelude::*;
 pub struct TestHandle;
 
 impl Handle for TestHandle {
-    fn include_page(&self, name: &str, args: &HashMap<&str, &str>) -> RemoteResult<Option<String>> {
+    fn include_page(
+        &self,
+        name: &str,
+        args: &HashMap<&str, &str>,
+    ) -> Result<Option<String>, String> {
         let include = format!("<PAGE '{}' {:?}>", name, args);
 
         Ok(Some(include))

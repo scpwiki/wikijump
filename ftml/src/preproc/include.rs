@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::{Handle, RemoteResult};
+use crate::Handle;
 use std::collections::HashMap;
 use std::ops::Range;
 
@@ -28,7 +28,7 @@ const MAX_DEPTH: usize = 10;
 struct IncludeRef {
     range: Range<usize>,
     name: String,
-    page: RemoteResult<Option<String>>,
+    page: Result<Option<String>, String>,
 }
 
 fn substitute_depth(log: &slog::Logger, text: &mut String, handle: &dyn Handle, depth: usize) {

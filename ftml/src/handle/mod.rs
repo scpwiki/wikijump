@@ -24,7 +24,6 @@ mod test;
 
 mod prelude {
     pub use super::Handle;
-    pub use crate::{RemoteError, RemoteResult};
     pub use std::collections::HashMap;
 }
 
@@ -42,7 +41,11 @@ pub trait Handle {
     /// Includes the given page, substituting the passed arguments.
     /// Returns `None` if the page doesn't exist.
     /// If an error occurs, then wikitext to be rendered is returned.
-    fn include_page(&self, name: &str, args: &HashMap<&str, &str>) -> RemoteResult<Option<String>>;
+    fn include_page(
+        &self,
+        name: &str,
+        args: &HashMap<&str, &str>,
+    ) -> Result<Option<String>, String>;
 
     /// Gets a message for designating a missing `[[include]]`.
     fn include_missing_error(&self, name: &str) -> String;
