@@ -32,6 +32,8 @@ struct IncludeRef {
 }
 
 fn substitute_depth(log: &slog::Logger, text: &mut String, handle: &dyn Handle, depth: usize) {
+    info!(log, "Substituting include blocks"; "text" => &*text, "depth" => depth);
+
     let tokens: Vec<()> = vec![]; // stub
 
     let mut includes = Vec::new();
@@ -39,12 +41,21 @@ fn substitute_depth(log: &slog::Logger, text: &mut String, handle: &dyn Handle, 
 
     // Iterate through include-tokens
     for _token in tokens {
+        info!(log, "TODO: iterate through include-tokens");
         // stub
         args.insert("name", "test");
         let range = 0..0;
         let name = "page-name";
 
         // Fetch included resource
+        debug!(
+            log,
+            "Fetching included page '{}'", name;
+            "text" => &*text,
+            "argument-count" => args.len(),
+            "depth" => depth,
+        );
+
         let page = handle.include_page(name, &args);
         let name = str!(name);
 
@@ -65,8 +76,22 @@ fn substitute_depth(log: &slog::Logger, text: &mut String, handle: &dyn Handle, 
 
         let final_page = if depth >= MAX_DEPTH {
             // Avoid infinite recursion
+            warn!(
+                log,
+                "Page exceeds maximum page include depth";
+                "name" => name,
+                "depth" => depth,
+                "max-depth" => MAX_DEPTH,
+            );
             handle.include_max_depth_error(MAX_DEPTH)
         } else {
+            debug!(
+                log,
+                "Replacing include with fetched page result";
+                "page-exists" => page.as_ref().unwrap_or(&None).is_some(),
+                "error" => page.is_err(),
+            );
+
             match page {
                 Ok(Some(content)) => content,
                 Ok(None) => handle.include_missing_error(&name),
@@ -79,6 +104,7 @@ fn substitute_depth(log: &slog::Logger, text: &mut String, handle: &dyn Handle, 
 
     // Next level of substitution
     if has_includes {
+        trace!(log, "Resultant content has includes, going to next level");
         substitute_depth(log, text, handle, depth + 1);
     }
 }

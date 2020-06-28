@@ -100,6 +100,14 @@ impl Replacer {
                 pattern,
                 replacement,
             } => {
+                trace!(
+                    log,
+                    "Running static string replacement";
+                    "type" => "string",
+                    "pattern" => pattern,
+                    "replacement" => replacement,
+                );
+
                 while let Some(idx) = text.find(pattern) {
                     let range = idx..idx + pattern.len();
                     text.replace_range(range, replacement);
@@ -109,6 +117,14 @@ impl Replacer {
                 ref regex,
                 replacement,
             } => {
+                trace!(
+                    log,
+                    "Running regular expression replacement";
+                    "type" => "regex",
+                    "pattern" => regex.as_str(),
+                    "replacement" => replacement,
+                );
+
                 while let Some(capture) = regex.captures(text) {
                     let mtch = capture
                         .get(0)
@@ -123,6 +139,15 @@ impl Replacer {
                 begin,
                 end,
             } => {
+                trace!(
+                    log,
+                    "Running regular expression capture replacement";
+                    "type" => "surround",
+                    "pattern" => regex.as_str(),
+                    "begin" => begin,
+                    "end" => end,
+                );
+
                 while let Some(capture) = regex.captures(text) {
                     let mtch = capture
                         .get(1)
@@ -150,6 +175,8 @@ impl Replacer {
 
 pub fn substitute(log: &slog::Logger, text: &mut String) {
     let mut buffer = String::new();
+
+    debug!(log, "Performing typography substitutions"; "text" => &*text);
 
     macro_rules! replace {
         ($replacer:expr) => {

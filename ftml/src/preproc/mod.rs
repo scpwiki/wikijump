@@ -46,6 +46,8 @@ pub fn preprocess(log: &slog::Logger, text: &mut String, handle: &dyn Handle) {
     include::substitute(log, text, handle);
     misc::substitute(log, text);
     typography::substitute(log, text);
+
+    debug!(log, "Finished preprocessing of text"; "text" => &*text);
 }
 
 #[test]
