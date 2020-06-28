@@ -44,8 +44,8 @@ impl State {
     ) {
         debug!(
             log,
-            "Running state consume for '{:?}' (token: {:?})",
-            *self, extract;
+            "Running state consume for {:?}",
+            *self;
             "state" => *self,
             "token" => extract.token,
             "slice" => extract.slice,
