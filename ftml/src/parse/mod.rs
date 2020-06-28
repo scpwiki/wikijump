@@ -19,18 +19,21 @@
  */
 
 mod stack;
+mod state;
 mod token;
 
 use self::stack::Stack;
-use self::token::{ExtractedToken, Token};
+use self::state::State;
+use self::token::Token;
 use crate::tree::SyntaxTree;
 
 pub fn parse<'a>(text: &'a str) -> SyntaxTree<'a> {
-    let tokens = Token::extract_all(text);
+    let extracted = Token::extract_all(text);
     let mut stack = Stack::new();
+    let mut state = State::Normal;
 
-    for ExtractedToken { token, slice, span } in tokens {
-        todo!()
+    for extract in extracted {
+        state.consume(&mut stack, extract);
     }
 
     // TODO
