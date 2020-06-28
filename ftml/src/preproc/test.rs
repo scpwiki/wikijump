@@ -32,16 +32,13 @@ where
         string.clear();
         string.push_str(input);
 
-        println!(
-            "Testing {} substitution:\nInput:    {:?}\nExpected: {:?}\n",
-            filter_name, input, expected,
-        );
+        info!(log, "Testing {} substitution", filter_name; "input" => input, "expected" => expected);
 
         substitute(&log, &mut string);
 
         assert_eq!(
             &string, expected,
-            "\nOutput of {} substitution test didn't match",
+            "Output of {} substitution test didn't match",
             filter_name,
         );
     }
