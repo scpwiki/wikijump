@@ -26,9 +26,14 @@ use self::stack::Stack;
 use self::state::State;
 use self::token::Token;
 use crate::tree::SyntaxTree;
+use slog::Logger;
 
-pub fn parse<'a>(text: &'a str) -> SyntaxTree<'a> {
-    let extracted = Token::extract_all(text);
+pub fn parse<'a>(log: &Logger, text: &'a str) -> SyntaxTree<'a> {
+    let log = log.new(slog_o!("function" => "parse", "text" => str!(text)));
+
+    info!(log, "Running parser on text");
+
+    let extracted = Token::extract_all(&log, text);
     let mut stack = Stack::new();
     let mut state = State::Normal;
 

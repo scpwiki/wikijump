@@ -33,17 +33,22 @@
 extern crate lazy_static;
 
 #[macro_use]
-extern crate log;
-
-#[macro_use]
 extern crate logos;
 extern crate regex;
 
 #[macro_use]
+extern crate slog;
+
+#[macro_use]
 extern crate str_macro;
+extern crate strum;
+extern crate strum_macros;
 
 #[macro_use]
 extern crate thiserror;
+
+#[cfg(test)]
+extern crate sloggers;
 
 pub mod data;
 pub mod handle;
@@ -63,6 +68,19 @@ pub mod prelude {
     pub use super::tree::{Element, Elements, SyntaxTree};
     pub use super::{data, handle, parse, preprocess};
     pub use super::{Error, Result, StdResult};
+}
+
+#[cfg(test)]
+fn build_logger() -> slog::Logger {
+    use sloggers::terminal::TerminalLoggerBuilder;
+    use sloggers::types::Severity;
+    use sloggers::Build;
+
+    TerminalLoggerBuilder::new()
+        .level(Severity::Trace)
+        .channel_size(1)
+        .build()
+        .expect("Unable to initialize logger")
 }
 
 pub type StdResult<T, E> = std::result::Result<T, E>;

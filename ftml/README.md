@@ -36,12 +36,13 @@ $ cargo test
 Add `-- --nocapture` to the end if you want to see test output.
 
 ### Usage
-There are two primary exports, which are the `preprocess` and `parse` functions.
+There are two primary exports, which are the `preprocess` and `parse` functions.  
+The library uses `slog` for structured logging, and an instance of the logger must be passed for each call.
 
 ```rust
-fn preprocess(text: &mut String, includer: &dyn Handle);
+fn preprocess(log: &slog::Logger, text: &mut String, includer: &dyn Handle);
 
-fn parse<'a>(text: &'a str) -> SyntaxTree<'a>;
+fn parse<'a>(log: &slog::Logger, text: &'a str) -> SyntaxTree<'a>;
 ```
 
 When performing a parse, you will need to first run `preprocess()`, then run `parse()`

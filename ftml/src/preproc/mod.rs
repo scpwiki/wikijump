@@ -40,7 +40,7 @@ use crate::Handle;
 ///
 /// This call always succeeds. The return value designates where issues occurred
 /// to allow programmatic determination of where things were not as expected.
-pub fn preprocess(text: &mut String, handle: &dyn Handle) {
+pub fn preprocess(log: &slog::Logger, text: &mut String, handle: &dyn Handle) {
     include::substitute(text, handle);
     misc::substitute(text);
     typography::substitute(text);

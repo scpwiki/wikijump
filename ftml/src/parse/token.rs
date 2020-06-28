@@ -19,6 +19,7 @@
  */
 
 use std::ops::Range;
+use strum_macros::IntoStaticStr;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct ExtractedToken<'a> {
@@ -27,7 +28,7 @@ pub struct ExtractedToken<'a> {
     pub span: Range<usize>,
 }
 
-#[derive(Logos, Debug, Clone, PartialEq, Eq)]
+#[derive(Logos, IntoStaticStr, Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Token {
     //
     // Symbols
@@ -169,8 +170,10 @@ pub enum Token {
 }
 
 impl Token {
-    pub fn extract_all<'a>(text: &'a str) -> Vec<ExtractedToken<'a>> {
+    pub fn extract_all<'a>(logger: &slog::Logger, text: &'a str) -> Vec<ExtractedToken<'a>> {
         use logos::Logos;
+
+        debug!(logger, "Running lexer on input");
 
         let mut lex = Token::lexer(text);
         let mut tokens = Vec::new();
@@ -179,9 +182,34 @@ impl Token {
             let slice = lex.slice();
             let span = lex.span();
 
+            trace!(
+                logger,
+                "Extracted token from lexer";
+                "token" => token,
+                "slice" => slice,
+                "span-start" => span.start,
+                "span-end" => span.end,
+            );
+
             tokens.push(ExtractedToken { token, slice, span });
         }
 
         tokens
+    }
+
+    #[inline]
+    pub fn name(self) -> &'static str {
+        self.into()
+    }
+}
+
+impl slog::Value for Token {
+    fn serialize(
+        &self,
+        record: &slog::Record,
+        key: slog::Key,
+        serializer: &mut dyn slog::Serializer,
+    ) -> slog::Result {
+        serializer.emit_str(key, self.name())
     }
 }
