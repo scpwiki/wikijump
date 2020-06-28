@@ -84,13 +84,13 @@ fn consume_normal<'a>(stack: &mut Stack<'a>, extract: ExtractedToken<'a>) -> Sta
     }
 }
 
-fn consume_tag<'a>(_stack: &mut Stack<'a>, _extract: ExtractedToken<'a>) -> State {
+fn consume_tag<'a>(_stack: &mut Stack<'a>, extract: ExtractedToken<'a>) -> State {
     let ExtractedToken { token, slice, span } = extract;
 
     todo!()
 }
 
-fn consume_tag_special<'a>(_stack: &mut Stack<'a>, _extract: ExtractedToken<'a>) -> State {
+fn consume_tag_special<'a>(_stack: &mut Stack<'a>, extract: ExtractedToken<'a>) -> State {
     let ExtractedToken { token, slice, span } = extract;
 
     todo!()
