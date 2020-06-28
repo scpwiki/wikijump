@@ -22,13 +22,16 @@ mod stack;
 mod token;
 
 use self::stack::Stack;
-use self::token::Token;
+use self::token::{ExtractedToken, Token};
 use crate::tree::SyntaxTree;
 
 pub fn parse<'a>(text: &'a str) -> SyntaxTree<'a> {
-    // TODO run through tokens
     let tokens = Token::extract_all(text);
     let mut stack = Stack::new();
+
+    for ExtractedToken { token, slice, span } in tokens {
+        todo!()
+    }
 
     // TODO
     stack.into_syntax_tree()

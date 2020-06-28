@@ -18,12 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::tree::{Element, Elements, SyntaxTree};
+use crate::tree::{Element, ElementContainer, ElementContainerType, Elements, SyntaxTree};
 
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct Stack<'a> {
     elements: Elements<'a>,
-    stack: Vec<Elements<'a>>,
+    stack: Vec<(ElementContainerType, Elements<'a>)>,
 }
 
 impl<'a> Stack<'a> {
@@ -32,16 +32,18 @@ impl<'a> Stack<'a> {
         Stack::default()
     }
 
-    /// Add a new layer on the stack.
-    pub fn push(&mut self) {
-        self.stack.push(Vec::new());
+    /// Add a new layer on the stack with the given container type.
+    pub fn push(&mut self, etype: ElementContainerType) {
+        self.stack.push((etype, Vec::new()));
     }
 
     /// Pop off the current element list off the stack.
     /// Returns `None` if the stack is empty.
     /// That is, there is only the base element list for the entire document.
-    pub fn pop(&mut self) -> Option<Elements<'a>> {
-        self.stack.pop()
+    pub fn pop(&mut self) -> Option<ElementContainer<'a>> {
+        self.stack
+            .pop()
+            .map(|(etype, elements)| ElementContainer { etype, elements })
     }
 
     /// Appends an element to the current element list.
@@ -51,7 +53,15 @@ impl<'a> Stack<'a> {
 
     /// Get the current, highest-level element list on the stack.
     pub fn current(&mut self) -> &mut Elements<'a> {
-        self.stack.last_mut().unwrap_or(&mut self.elements)
+        match self.stack.last_mut() {
+            Some((_, elements)) => elements,
+            None => &mut self.elements,
+        }
+    }
+
+    /// Get the current element list type, if one exists.
+    pub fn current_type(&self) -> Option<ElementContainerType> {
+        self.stack.last().map(|(etype, _)| *etype)
     }
 
     /// Destructs the stack and returns the base element list.
