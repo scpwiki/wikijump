@@ -26,7 +26,6 @@ slog = "2.5"
 str-macro = "0.1"
 strum = "0.18"
 strum_macros = "0.18"
-thiserror = "1"
 tinyvec = "1"
 
 [dev-dependencies]

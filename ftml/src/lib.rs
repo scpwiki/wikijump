@@ -44,9 +44,6 @@ extern crate str_macro;
 extern crate strum;
 extern crate strum_macros;
 
-#[macro_use]
-extern crate thiserror;
-
 #[cfg(test)]
 extern crate sloggers;
 
