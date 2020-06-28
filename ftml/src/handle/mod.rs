@@ -18,9 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod debug;
 mod missing;
 mod null;
-mod test;
 
 mod prelude {
     pub use super::Handle;
@@ -29,9 +29,9 @@ mod prelude {
 
 use self::prelude::*;
 
+pub use self::debug::DebugHandle;
 pub use self::missing::MissingHandle;
 pub use self::null::NullHandle;
-pub use self::test::TestHandle;
 
 /// Series of methods to help preprocessing of wikitext.
 ///

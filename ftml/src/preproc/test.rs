@@ -19,7 +19,7 @@
  */
 
 use super::preprocess;
-use crate::handle::TestHandle;
+use crate::handle::DebugHandle;
 
 pub fn test_substitution<F>(filter_name: &str, mut substitute: F, tests: &[(&str, &str)])
 where
@@ -88,7 +88,7 @@ const PREFILTER_TEST_CASES: [(&str, &str); 11] = [
 fn test_prefilter() {
     test_substitution(
         "prefilter",
-        |log, text| preprocess(log, text, &TestHandle),
+        |log, text| preprocess(log, text, &DebugHandle),
         &PREFILTER_TEST_CASES,
     );
 }

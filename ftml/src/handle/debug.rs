@@ -1,5 +1,5 @@
 /*
- * handle/test.rs
+ * handle/debug.rs
  *
  * ftml - Library to parse Wikidot code
  * Copyright (C) 2019-2020 Ammon Smith
@@ -22,9 +22,9 @@ use super::prelude::*;
 
 /// Test handle for debugging.
 #[derive(Debug, Copy, Clone)]
-pub struct TestHandle;
+pub struct DebugHandle;
 
-impl Handle for TestHandle {
+impl Handle for DebugHandle {
     fn include_page(
         &self,
         name: &str,
