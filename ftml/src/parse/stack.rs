@@ -64,18 +64,10 @@ impl<'a> Stack<'a> {
         self.stack.last().map(|(etype, _)| *etype)
     }
 
-    /// Destructs the stack and returns the base element list.
-    /// If there is existing stack context it is appended naively to the element list.
-    fn into_elements(self) -> Elements<'a> {
-        let Stack { elements, stack } = self;
-        // TODO
-
-        elements
-    }
-
     /// Collapses the stack and converts it into the final abstract syntax tree (AST).
     pub fn into_syntax_tree(self) -> SyntaxTree<'a> {
-        let elements = self.into_elements();
+        let Stack { elements, stack } = self;
+        // TODO
 
         SyntaxTree { elements }
     }
