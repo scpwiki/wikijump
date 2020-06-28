@@ -31,6 +31,7 @@ pub struct ElementContainer<'a> {
 
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum ElementContainerType {
+    Paragraph,
     Bold,
     Italics,
     Underline,

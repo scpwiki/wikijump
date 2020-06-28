@@ -26,4 +26,5 @@ pub type Elements<'a> = Vec<Element<'a>>;
 pub enum Element<'a> {
     Container(ElementContainer<'a>),
     Text(&'a str),
+    LineBreak,
 }
