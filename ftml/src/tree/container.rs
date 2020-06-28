@@ -1,5 +1,5 @@
 /*
- * tree/mod.rs
+ * tree/container.rs
  *
  * ftml - Library to parse Wikidot code
  * Copyright (C) 2019-2020 Ammon Smith
@@ -18,13 +18,25 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod container;
-mod element;
+use super::Elements;
+use crate::enums::HeadingLevel;
 
-pub use self::container::*;
-pub use self::element::*;
+/// Representation of syntax elements which wrap other elements.
 
-#[derive(Debug, Default, Clone, PartialEq, Eq)]
-pub struct SyntaxTree<'a> {
-    pub elements: Vec<Element<'a>>,
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ElementContainer<'a> {
+    pub etype: ElementContainerType,
+    pub elements: Elements<'a>,
+}
+
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum ElementContainerType {
+    Bold,
+    Italics,
+    Underline,
+    Superscript,
+    Subscript,
+    Strikethrough,
+    Monospace,
+    Header(HeadingLevel),
 }
