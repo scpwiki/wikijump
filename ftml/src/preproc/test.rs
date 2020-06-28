@@ -23,9 +23,10 @@ use crate::handle::TestHandle;
 
 pub fn test_substitution<F>(filter_name: &str, mut substitute: F, tests: &[(&str, &str)])
 where
-    F: FnMut(&mut String),
+    F: FnMut(&slog::Logger, &mut String),
 {
     let mut string = String::new();
+    let log = crate::build_logger();
 
     for (input, expected) in tests {
         string.clear();
@@ -36,7 +37,7 @@ where
             filter_name, input, expected,
         );
 
-        substitute(&mut string);
+        substitute(&log, &mut string);
 
         assert_eq!(
             &string, expected,
@@ -87,7 +88,7 @@ const PREFILTER_TEST_CASES: [(&str, &str); 11] = [
 fn test_prefilter() {
     test_substitution(
         "prefilter",
-        |s| preprocess(s, &TestHandle),
+        |log, text| preprocess(log, text, &TestHandle),
         &PREFILTER_TEST_CASES,
     );
 }

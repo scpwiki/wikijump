@@ -57,7 +57,7 @@ lazy_static! {
     static ref TRAILING_NEWLINES: Regex = Regex::new(r"\n+$").unwrap();
 }
 
-pub fn substitute(text: &mut String) {
+pub fn substitute(log: &slog::Logger, text: &mut String) {
     // Remove comments
     regex_replace(text, &*COMMENT, "");
 

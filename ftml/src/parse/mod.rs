@@ -44,3 +44,11 @@ pub fn parse<'a>(log: &Logger, text: &'a str) -> SyntaxTree<'a> {
     // TODO
     stack.into_syntax_tree()
 }
+
+#[test]
+fn ast() {
+    let logger = crate::build_logger();
+    let text = "test lol";
+    let tree = parse(&logger, text);
+    println!("Input: {:?}\nOutput: {:#?}", text, tree);
+}

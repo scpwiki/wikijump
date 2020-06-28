@@ -41,15 +41,15 @@ use crate::Handle;
 /// This call always succeeds. The return value designates where issues occurred
 /// to allow programmatic determination of where things were not as expected.
 pub fn preprocess(log: &slog::Logger, text: &mut String, handle: &dyn Handle) {
-    include::substitute(text, handle);
-    misc::substitute(text);
-    typography::substitute(text);
+    include::substitute(log, text, handle);
+    misc::substitute(log, text);
+    typography::substitute(log, text);
 }
 
 #[test]
 fn test_fn() {
-    type SubstituteFn = fn(&mut String);
-    type SubstituteHandleFn = fn(&mut String, &dyn Handle);
+    type SubstituteFn = fn(&slog::Logger, &mut String);
+    type SubstituteHandleFn = fn(&slog::Logger, &mut String, &dyn Handle);
 
     let _: SubstituteHandleFn = include::substitute;
     let _: SubstituteFn = misc::substitute;

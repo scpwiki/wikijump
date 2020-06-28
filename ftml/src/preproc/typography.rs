@@ -92,7 +92,7 @@ pub enum Replacer {
 }
 
 impl Replacer {
-    fn replace(&self, text: &mut String, buffer: &mut String) {
+    fn replace(&self, log: &slog::Logger, text: &mut String, buffer: &mut String) {
         use self::Replacer::*;
 
         match *self {
@@ -148,12 +148,12 @@ impl Replacer {
     }
 }
 
-pub fn substitute(text: &mut String) {
+pub fn substitute(log: &slog::Logger, text: &mut String) {
     let mut buffer = String::new();
 
     macro_rules! replace {
         ($replacer:expr) => {
-            $replacer.replace(text, &mut buffer)
+            $replacer.replace(log, text, &mut buffer)
         };
     }
 

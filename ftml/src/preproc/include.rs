@@ -31,7 +31,7 @@ struct IncludeRef {
     page: RemoteResult<Option<String>>,
 }
 
-fn substitute_depth(text: &mut String, handle: &dyn Handle, depth: usize) {
+fn substitute_depth(log: &slog::Logger, text: &mut String, handle: &dyn Handle, depth: usize) {
     let tokens: Vec<()> = vec![]; // stub
 
     let mut includes = Vec::new();
@@ -79,11 +79,11 @@ fn substitute_depth(text: &mut String, handle: &dyn Handle, depth: usize) {
 
     // Next level of substitution
     if has_includes {
-        substitute_depth(text, handle, depth + 1);
+        substitute_depth(log, text, handle, depth + 1);
     }
 }
 
 #[inline]
-pub fn substitute(text: &mut String, handle: &dyn Handle) {
-    substitute_depth(text, handle, 0)
+pub fn substitute(log: &slog::Logger, text: &mut String, handle: &dyn Handle) {
+    substitute_depth(log, text, handle, 0)
 }
