@@ -78,7 +78,6 @@ fn build_logger() -> slog::Logger {
 
     TerminalLoggerBuilder::new()
         .level(Severity::Trace)
-        .channel_size(1)
         .build()
         .expect("Unable to initialize logger")
 }
