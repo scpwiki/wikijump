@@ -128,7 +128,7 @@ class Indexer
         $db = Database::connection();
         $v = pg_version($db->getLink());
         if (!preg_match('/^8\.3/', $v['server'])) {
-            $db->query("SELECT set_curcfg('default')");
+            // $db->query("SELECT set_curcfg('default')");  # This is related to tsearch2 which is no longer available.
         }
 
         $ie->setVector("setweight( to_tsvector('$title'), 'C') || setweight( to_tsvector('$description'), 'C') || to_tsvector('".db_escape_string($text)."')", true);

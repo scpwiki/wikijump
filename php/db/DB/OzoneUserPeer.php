@@ -41,7 +41,7 @@ class OzoneUserPeer extends OzoneUserPeerBase
             return $u;
         } else {
             $u = $this->selectByPrimaryKey($userId);
-            $memcache->set($key, $u, 864000);
+            $memcache->set($key, $u, 0, 864000);
             return $u;
         }
     }

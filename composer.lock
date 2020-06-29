@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "56583016208e24338e90877be5ac05b8",
+    "content-hash": "674c207d3f27ea7ac464affefd1cbaed",
     "packages": [
         {
             "name": "bluesoul/text_highlighter",
@@ -48,6 +48,10 @@
                 }
             ],
             "description": "Text_Highlighter with a fix for the [] operator fatal error in PHP >= 7.2. More info available on: http://pear.php.net/package/Text_Highlighter",
+            "support": {
+                "issues": "https://github.com/pxdnbluesoul/Text_Highlighter/issues",
+                "source": "https://github.com/pxdnbluesoul/Text_Highlighter"
+            },
             "time": "2020-06-15T15:54:00+00:00"
         },
         {
@@ -93,6 +97,10 @@
                 }
             ],
             "description": "CSSTidy is a CSS minifier",
+            "support": {
+                "issues": "https://github.com/Cerdic/CSSTidy/issues",
+                "source": "https://github.com/Cerdic/CSSTidy/tree/master"
+            },
             "time": "2019-09-14T17:59:23+00:00"
         },
         {
@@ -140,6 +148,10 @@
             "keywords": [
                 "html"
             ],
+            "support": {
+                "issues": "https://github.com/ezyang/htmlpurifier/issues",
+                "source": "https://github.com/ezyang/htmlpurifier/tree/master"
+            },
             "time": "2019-10-28T03:44:26+00:00"
         },
         {
@@ -187,6 +199,10 @@
                 }
             ],
             "description": "More info available on: http://pear.php.net/package/Console_Getopt",
+            "support": {
+                "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=Console_Getopt",
+                "source": "https://github.com/pear/Console_Getopt"
+            },
             "time": "2019-11-20T18:27:48+00:00"
         },
         {
@@ -231,6 +247,10 @@
                 }
             ],
             "description": "Minimal set of PEAR core files to be used as composer dependency",
+            "support": {
+                "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=PEAR",
+                "source": "https://github.com/pear/pear-core-minimal"
+            },
             "time": "2019-11-19T19:00:24+00:00"
         },
         {
@@ -286,7 +306,331 @@
             "keywords": [
                 "exception"
             ],
+            "support": {
+                "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=PEAR_Exception",
+                "source": "https://github.com/pear/PEAR_Exception"
+            },
             "time": "2019-12-10T10:24:42+00:00"
+        },
+        {
+            "name": "scpwiki/magpierss",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/scpwiki/magpierss.git",
+                "reference": "08fa4160364f095c92fd6dfed91e4267d0a1a822"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/scpwiki/magpierss/zipball/08fa4160364f095c92fd6dfed91e4267d0a1a822",
+                "reference": "08fa4160364f095c92fd6dfed91e4267d0a1a822",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "rss_cache.inc",
+                    "rss_fetch.inc",
+                    "rss_parse.inc",
+                    "rss_utils.inc",
+                    "extlib/Snoopy.class.inc"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "bluesoul",
+                    "email": "github@nags.me",
+                    "role": "maintainer"
+                }
+            ],
+            "description": "Legacy version of Wikidot's onboard magpierss v0.72.",
+            "support": {
+                "irc": "irc://irc.synirc.net/site11",
+                "issues": "https://scuttle.atlassian.net/browse/HELP",
+                "source": "https://github.com/scpwiki/magpierss"
+            },
+            "time": "2020-06-23T21:26:54+00:00"
+        },
+        {
+            "name": "scpwiki/ozoneframework",
+            "version": "1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/scpwiki/ozoneframework.git",
+                "reference": "9d19377ecb6446479c2a2bc419b8661c606ed8f4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/scpwiki/ozoneframework/zipball/9d19377ecb6446479c2a2bc419b8661c606ed8f4",
+                "reference": "9d19377ecb6446479c2a2bc419b8661c606ed8f4",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "php/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "bluesoul",
+                    "email": "github@nags.me",
+                    "role": "maintainer"
+                }
+            ],
+            "description": "Legacy and future builds of the Ozone framework, originally packaged for wikidot.org.",
+            "support": {
+                "irc": "irc://irc.synirc.net/site11",
+                "issues": "https://scuttle.atlassian.net/browse/HELP",
+                "source": "https://github.com/scpwiki/Services_JSON"
+            },
+            "time": "2020-06-24T00:29:52+00:00"
+        },
+        {
+            "name": "scpwiki/phpflickr",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/scpwiki/phpflickr.git",
+                "reference": "bc809c6365c2fb8dde6b6d8e7c81d554b2a34ed8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/scpwiki/phpflickr/zipball/bc809c6365c2fb8dde6b6d8e7c81d554b2a34ed8",
+                "reference": "bc809c6365c2fb8dde6b6d8e7c81d554b2a34ed8",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "phpFlickr.php",
+                    "xml.php",
+                    "xml_saxy_parser.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "bluesoul",
+                    "email": "github@nags.me",
+                    "role": "maintainer"
+                }
+            ],
+            "description": "Legacy version of onboard phpFlickr for Wikijump use.",
+            "support": {
+                "irc": "irc://irc.synirc.net/site11",
+                "issues": "https://scuttle.atlassian.net/browse/HELP",
+                "source": "https://github.com/scpwiki/phpflickr"
+            },
+            "time": "2020-06-23T22:01:51+00:00"
+        },
+        {
+            "name": "scpwiki/phpmailer",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/scpwiki/phpmailer.git",
+                "reference": "8a1b6d6f243327ad574a023bb2f0bfe462df8469"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/scpwiki/phpmailer/zipball/8a1b6d6f243327ad574a023bb2f0bfe462df8469",
+                "reference": "8a1b6d6f243327ad574a023bb2f0bfe462df8469",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "class.phpmailer.php",
+                    "class.pop3.php",
+                    "class.smtp.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "bluesoul",
+                    "email": "github@nags.me",
+                    "role": "maintainer"
+                }
+            ],
+            "description": "Legacy version of phpmailer 2.0.0 rc1 for Wikijump use.",
+            "support": {
+                "irc": "irc://irc.synirc.net/site11",
+                "issues": "https://scuttle.atlassian.net/browse/HELP",
+                "source": "https://github.com/scpwiki/phpmailer"
+            },
+            "time": "2020-06-23T22:15:22+00:00"
+        },
+        {
+            "name": "scpwiki/services_json",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/scpwiki/Services_JSON.git",
+                "reference": "4138001eff629ae6a38c49d88fe9cd2cda9e5692"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/scpwiki/Services_JSON/zipball/4138001eff629ae6a38c49d88fe9cd2cda9e5692",
+                "reference": "4138001eff629ae6a38c49d88fe9cd2cda9e5692",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "JSON.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "bluesoul",
+                    "email": "github@nags.me",
+                    "role": "maintainer"
+                }
+            ],
+            "description": "Legacy version of PEAR/Services_JSON for Wikijump use.",
+            "support": {
+                "irc": "irc://irc.synirc.net/site11",
+                "issues": "https://scuttle.atlassian.net/browse/HELP",
+                "source": "https://github.com/scpwiki/Services_JSON"
+            },
+            "time": "2020-06-23T20:43:43+00:00"
+        },
+        {
+            "name": "scpwiki/smarty",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/scpwiki/smarty.git",
+                "reference": "6d87412f2d25f54ef240467f6d98a68012972cdd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/scpwiki/smarty/zipball/6d87412f2d25f54ef240467f6d98a68012972cdd",
+                "reference": "6d87412f2d25f54ef240467f6d98a68012972cdd",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "libs/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "bluesoul",
+                    "email": "github@nags.me",
+                    "role": "maintainer"
+                }
+            ],
+            "description": "Fork of smarty/smarty with PHP5 dereferencing support.",
+            "support": {
+                "irc": "irc://irc.synirc.net/site11",
+                "issues": "https://scuttle.atlassian.net/browse/HELP",
+                "source": "https://github.com/scpwiki/smarty"
+            },
+            "time": "2020-06-24T01:56:53+00:00"
+        },
+        {
+            "name": "scpwiki/text_wiki",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/scpwiki/text_wiki.git",
+                "reference": "7acd9893c4771a87981e9b2bbebb27e1817d9808"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/scpwiki/text_wiki/zipball/7acd9893c4771a87981e9b2bbebb27e1817d9808",
+                "reference": "7acd9893c4771a87981e9b2bbebb27e1817d9808",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "Text/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "bluesoul",
+                    "email": "github@nags.me",
+                    "role": "maintainer"
+                }
+            ],
+            "description": "The Text_Wiki library used for Wikidot and Wikijump.",
+            "support": {
+                "irc": "irc://irc.synirc.net/site11",
+                "issues": "https://scuttle.atlassian.net/browse/HELP",
+                "source": "https://github.com/scpwiki/text_wiki"
+            },
+            "time": "2020-06-23T22:37:27+00:00"
+        },
+        {
+            "name": "scpwiki/zf",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/scpwiki/zf.git",
+                "reference": "4ed6db16477f47a5db0ec0efe1eaeeb20fc65376"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/scpwiki/zf/zipball/4ed6db16477f47a5db0ec0efe1eaeeb20fc65376",
+                "reference": "4ed6db16477f47a5db0ec0efe1eaeeb20fc65376",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "library/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "bluesoul",
+                    "email": "github@nags.me",
+                    "role": "maintainer"
+                }
+            ],
+            "description": "Legacy version of Zend Framework 1.7.2 for Wikijump use.",
+            "support": {
+                "irc": "irc://irc.synirc.net/site11",
+                "issues": "https://scuttle.atlassian.net/browse/HELP",
+                "source": "https://github.com/scpwiki/zf"
+            },
+            "time": "2020-06-23T22:53:40+00:00"
         }
     ],
     "packages-dev": [],
@@ -297,5 +641,5 @@
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
-    "plugin-api-version": "1.1.0"
+    "plugin-api-version": "2.0.0"
 }
