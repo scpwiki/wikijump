@@ -41,6 +41,8 @@ pub fn parse<'a>(log: &Logger, text: &'a str) -> SyntaxTree<'a> {
         state.consume(log, &mut stack, extract);
     }
 
+    debug!(log, "Finished running parser, converting stack into AST");
+
     // TODO
     stack.into_syntax_tree()
 }
