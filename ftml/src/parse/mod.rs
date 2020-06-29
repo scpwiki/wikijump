@@ -52,4 +52,5 @@ fn ast() {
     let logger = crate::build_logger();
     let text = "some test string";
     let tree = parse(&logger, text);
+    println!("Tree: {:#?}", tree);
 }
