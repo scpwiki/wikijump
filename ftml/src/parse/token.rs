@@ -63,7 +63,7 @@ pub enum Token {
     #[token("---")]
     TripleDash,
 
-    #[token("\n", priority = 2)]
+    #[regex(r"\n\n?", priority = 2)]
     Newline,
 
     #[regex(r"\s+", priority = 1)]
