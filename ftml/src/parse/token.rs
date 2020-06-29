@@ -63,8 +63,11 @@ pub enum Token {
     #[token("---")]
     TripleDash,
 
-    #[regex(r"\n\n?", priority = 2)]
-    Newline,
+    #[token("\n", priority = 2)]
+    LineBreak,
+
+    #[token("\n\n", priority = 3)]
+    ParagraphBreak,
 
     #[regex(r"\s+", priority = 1)]
     Whitespace,
