@@ -19,7 +19,7 @@ class CSSModule extends SmartyModule
         // https://stackoverflow.com/questions/3241616/sanitize-user-defined-css-in-php/5209050#5209050
         // Instantiate Purifier config and instance.
         $config = HTMLPurifier_Config::createDefault();
-        $config->set('Filter.ExtractStyleBlocks', TRUE);
+        $config->set('Filter.ExtractStyleBlocks', true);
         $purifier = new HTMLPurifier($config);
 
         // Turn off strict warnings (CSSTidy throws some warnings on PHP 5.2+)
@@ -36,7 +36,7 @@ class CSSModule extends SmartyModule
         $output_css = $purifier->context->get('StyleBlocks');
 
         // Implode all style blocks to a string.
-        $this->stylesheet = implode('',$output_css);
+        $this->stylesheet = implode('', $output_css);
 
         $runData->contextAdd('stylesheet', $this->stylesheet);
     }

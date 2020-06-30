@@ -40,8 +40,8 @@ if (!defined('WIKIDOT_SETUP_COMPLETED')) {
     }
 
     require_once(WIKIDOT_ROOT.DIRECTORY_SEPARATOR."php/utils/GlobalProperties.php");
-    require_once (WIKIDOT_ROOT.DIRECTORY_SEPARATOR."vendor/autoload.php");
-    require_once(WIKIDOT_ROOT.DIRECTORY_SEPARATOR."vendor/scpwiki/ozoneframework/php/core/functions.php");	
+    require_once(WIKIDOT_ROOT.DIRECTORY_SEPARATOR."vendor/autoload.php");
+    require_once(WIKIDOT_ROOT.DIRECTORY_SEPARATOR."vendor/scpwiki/ozoneframework/php/core/functions.php");
     require_once(WIKIDOT_ROOT.DIRECTORY_SEPARATOR."vendor/scpwiki/ozoneframework/php/core/autoload.inc.php");
 
     if (! GlobalProperties::$WIKI_FARM) {

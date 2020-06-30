@@ -100,13 +100,12 @@ class RateAction extends SmartyAction
         $v->save();
 
         $category = $page->getCategory();
-        if($category->getRatingType() === "S") {
+        if ($category->getRatingType() === "S") {
             // update page points
             $q = "UPDATE page SET rate=COALESCE((" .
                 "SELECT round(avg(rate),2) FROM page_rate_vote WHERE page_id = '" . $page->getPageId() . "'),0) " .
                 "WHERE page_id='" . $page->getPageId() . "'";
-        }
-        else {
+        } else {
             $q = "UPDATE page SET rate=COALESCE((" .
                 "SELECT sum(rate) FROM page_rate_vote WHERE page_id = '".$page->getPageId()."'),0) " .
                 "WHERE page_id='".$page->getPageId()."'";
@@ -160,13 +159,12 @@ class RateAction extends SmartyAction
         $rpoints = 0 - $v->getRate();
 
         $category = $page->getCategory();
-        if($category->getRatingType() === "S") {
+        if ($category->getRatingType() === "S") {
             // update page points
             $q = "UPDATE page SET rate=COALESCE((" .
                 "SELECT round(avg(rate),2) FROM page_rate_vote WHERE page_id = '" . $page->getPageId() . "'),0) " .
                 "WHERE page_id='" . $page->getPageId() . "'";
-        }
-        else {
+        } else {
             $q = "UPDATE page SET rate=COALESCE((" .
                 "SELECT sum(rate) FROM page_rate_vote WHERE page_id = '".$page->getPageId()."'),0) " .
                 "WHERE page_id='".$page->getPageId()."'";
