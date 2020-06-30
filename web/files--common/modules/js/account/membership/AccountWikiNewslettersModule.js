@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -16,18 +16,18 @@ WIKIDOT.modules.AccountWikiNewslettersModule.listeners = {
 		var inps = YAHOO.util.Dom.getElementsByClassName("receive-newsletter", "input", "receive-wiki-newsletters-form");
 		for(var i=0; i<inps.length; i++){
 			inps[i].checked = value;
-		}		
+		}
 	},
-	
+
 	saveDefault: function(e){
 		var p = new Object();
-		p.action = 
+		p.action =
 	}
 
 }
 
 WIKIDOT.modules.AccountWikiNewslettersModule.callbacks = {
 	saveDefault: function(r){
-		
-	}	
+
+	}
 }

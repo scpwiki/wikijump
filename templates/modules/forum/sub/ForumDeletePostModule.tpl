@@ -1,6 +1,6 @@
 <div id="delete-post-{$post->getPostId()}" class="action-area">
 	<h1>{t}Delete forum post{/t}</h1>
-	
+
 	<p>
 		{t}Are you sure you want to delete the above post? There is no way to recover deleted posts.{/t}
 	</p>

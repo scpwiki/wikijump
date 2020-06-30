@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -27,7 +27,7 @@ WIKIDOT.modules.WhoInvitedModule.listeners = {
 		p.userId = userId;
 		OZONE.ajax.requestModule("wiki/invitations/WhoInvitedResultsModule", p, WIKIDOT.modules.WhoInvitedModule.callbacks.lookUp);
 		YAHOO.util.Event.preventDefault(e);
-	}	
+	}
 
 }
 
@@ -42,23 +42,23 @@ WIKIDOT.modules.WhoInvitedModule.callbacks = {
 WIKIDOT.modules.WhoInvitedModule.init = function(){
 	OZONE.dom.onDomReady(function(){
 		// init autocomplete now
-		var dataSource = new YAHOO.widget.DS_XHR("/quickmodule.php", ['users','name', 'user_id']); 
+		var dataSource = new YAHOO.widget.DS_XHR("/quickmodule.php", ['users','name', 'user_id']);
 		dataSource.scriptQueryParam="q";
 		dataSource.scriptQueryAppend = "&module=MemberLookupQModule&siteId="+WIKIREQUEST.info.siteId;
-		
+
 		var autoComp = new YAHOO.widget.AutoComplete('user-lookup','user-lookup-list', dataSource);
-			
+
 		autoComp.itemSelectEvent.subscribe(function(sType, args){
 			var userId = args[1].getElementsByTagName('div').item(0).id.replace(/.*?([0-9]+)$/,"$1");
 			var userName = args[1].getElementsByTagName('div').item(0).innerHTML;
 			WIKIDOT.modules.WhoInvitedModule.vars.currentUserId = userId;
 		});
-			
+
 		autoComp.minQueryLength = 2;
 		autoComp.queryDelay = 0.5;
 		autoComp.forceSelection = true;
 
-		autoComp.formatResult = function(aResultItem, sQuery) { 
+		autoComp.formatResult = function(aResultItem, sQuery) {
 			var name = aResultItem[0];
 			var userId = aResultItem[1];
 			if(name!= null){
@@ -66,8 +66,8 @@ WIKIDOT.modules.WhoInvitedModule.init = function(){
 			} else {
 				return "";
 			}
-				
-		}	
+
+		}
 	}, "dummy-ondomready-block");
 }
 

@@ -4,7 +4,7 @@
 <table class="form">
 	<tr>
 		<td>
-			{t}Current name{/t}: 
+			{t}Current name{/t}:
 		</td>
 		<td>
 			{$file->getFilename()|escape}
@@ -12,7 +12,7 @@
 	</tr>
 	<tr>
 		<td>
-			{t}New name{/t}: 
+			{t}New name{/t}:
 		</td>
 		<td>
 			{$newFile->getFilename()|escape}
@@ -21,7 +21,7 @@
 </table>
 
 {if $hasPermission}
-<p> 
+<p>
 	{t}Unfortunately the file named{/t} {$newFile->getFilename()|escape} {t}already exists{/t}. {t}Do you want
 	to overwrite it?{/t}
 </p>
@@ -33,7 +33,7 @@
 </div>
 {else}
 <p>
-	{t}Unfortunately the file named{/t} {$newFile->getFilename()|escape} {t}already exists{/t}. {t}You have no 
+	{t}Unfortunately the file named{/t} {$newFile->getFilename()|escape} {t}already exists{/t}. {t}You have no
 	permission to overwrite/delete files on this page.{/t}
 </p>
 </div>
@@ -41,4 +41,4 @@
 	<a href="javascript:;" onclick="OZONE.dialog.cleanAll()">{t}close message{/t}</a>
 </div>
 {/if}
-		
+

@@ -26,7 +26,7 @@
 	</div>
 	<ul>
 		<li><a href="javascript:;" id="am-welcome">{t}Welcome{/t}!</a></li>
-		
+
 		<li><a href="javascript:;" id="am-messages" >{t}Private messages{/t}</a></li>
 		<li><a href="javascript:;" id="am-notifications">{t}Notifications{/t}</a></li>
 	</ul>
@@ -46,10 +46,10 @@
 	</ul>
 	<hr/>
 	<ul>
-		
-		
-		
-		
+
+
+
+
 		<li><a href="javascript:;">{t escape=no}Sites &amp; membership{/t}</a>
 			<ul>
 				<li><a href="javascript:;" id="am-memberof">{t}Member of{/t}</a></li>
@@ -62,7 +62,7 @@
 				{if $enableLists}<li><a href="javascript:;" id="am-email-lists">{t}Email lists{/t}</a></li>{/if}
 			</ul>
 		</li>
-		
+
 	</ul>
 	<hr/>
 	<ul>

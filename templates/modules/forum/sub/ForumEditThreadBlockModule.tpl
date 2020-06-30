@@ -1,6 +1,6 @@
 <h2>{t}Block posting to this thread{/t}</h2>
 <p>
-	{t}If enabled - regular users will not be able to post new messages to 
+	{t}If enabled - regular users will not be able to post new messages to
 	this thread, but Administrators and Forum Moderators will still be allowed.{/t}
 </p>
 

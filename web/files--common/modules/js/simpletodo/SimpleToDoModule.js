@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -20,14 +20,14 @@ WIKIDOT.modules.SimpleToDoModule.callbacks = {
 		p.event = "save";
 		OZONE.ajax.requestModule(null,p,WIKIDOT.modules.SimpleToDoModule.callbacks.saveCallback);
 	},
-	
+
 	saveCallback: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
 	}
 }
 
 WIKIDOT.modules.SimpleToDoModule.listeners = {
-	
+
 	clickCheckBoxToChangeState: function(e){
 		if (WIKIDOT.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
 			var checkBoxState ;
@@ -38,7 +38,7 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 			else if (e.srcElement) checkBoxElement = e.srcElement
 			if (checkBoxElement.nodeType == 3)
 			checkBoxElement = checkBoxElement.parentNode;
-			
+
 			if(checkBoxElement.checked == true)	{
 				checkBoxState = true ;
 			} else {
@@ -50,7 +50,7 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 			alert('You do not have permissions to edit list.');
 		}
 	},
-			
+
 	clickTitleToEdit: function(e){
 		if (WIKIDOT.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
 			var myDocument = document ;
@@ -59,15 +59,15 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 			if (e.target) titleElement = e.target
 			else if (e.srcElement) titleElement = e.srcElement
 			if (titleElement.nodeType == 3)
-			titleElement = titleElement.parentNode;		
-			YAHOO.util.Event.removeListener(titleElement,"click",WIKIDOT.modules.SimpleToDoModule.listeners.clickTitleToEdit)	;					
+			titleElement = titleElement.parentNode;
+			YAHOO.util.Event.removeListener(titleElement,"click",WIKIDOT.modules.SimpleToDoModule.listeners.clickTitleToEdit)	;
 			var newTitleTextField = myDocument.createElement("input") ;
 			newTitleTextField.type = "text";
 			newTitleTextField.value = titleElement.firstChild.nodeValue;
 			newTitleTextField.oldValue = titleElement.firstChild.nodeValue;
 			YAHOO.util.Event.addListener(newTitleTextField,"blur",WIKIDOT.modules.SimpleToDoModule.listeners.onblurSaveTitle);
 			var oldTitleContentNode = titleElement.firstChild;
-			YAHOO.util.Event.addListener(newTitleTextField,"keypress",WIKIDOT.modules.SimpleToDoModule.listeners.onKeyPressSaveTitle); 			
+			YAHOO.util.Event.addListener(newTitleTextField,"keypress",WIKIDOT.modules.SimpleToDoModule.listeners.onKeyPressSaveTitle);
 			YAHOO.util.Dom.addClass(newTitleTextField,"text");
 			titleElement.removeChild(oldTitleContentNode);
 			titleElement.appendChild(newTitleTextField);
@@ -78,7 +78,7 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 	},
 
 	onblurSaveTitle: function(e) {
-		if (WIKIDOT.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){		
+		if (WIKIDOT.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
 			var myDocument = document ;
 			var titleElement ;
 			if (!e) var e = window.event
@@ -94,48 +94,48 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 				var titleDefaultText = myDocument.getElementById("simpletodo-data-title");
 				var pTitleElement=titleElement.parentNode ;
 				if (titleElement.oldValue != titleElement.value){
-					
+
 					if (titleElement.value != ""){
-						
-						var newTextNode = myDocument.createTextNode(titleElement.value); 
-						
+
+						var newTextNode = myDocument.createTextNode(titleElement.value);
+
 					} else {
-						
+
 						var newTextNode = myDocument.createTextNode(titleDefaultText.innerHTML);
-						
+
 					}
 					pTitleElement.removeChild(titleElement);
 					pTitleElement.appendChild(newTextNode);
 					//AJAX REQUEST
 					var dataToSave = WIKIDOT.modules.SimpleToDoModule.utils.getDataToSerialize(pTitleElement,myDocument);
 					WIKIDOT.modules.SimpleToDoModule.callbacks.save(dataToSave);
-					
+
 				} else {
-					
+
 					if (titleElement.value != ""){
-						
-						var newTextNode = myDocument.createTextNode(titleElement.value); 
-						
+
+						var newTextNode = myDocument.createTextNode(titleElement.value);
+
 					} else {
-						
+
 						var newTextNode = myDocument.createTextNode(titleDefaultText.innerHTML);
-						
+
 					}
 					pTitleElement.removeChild(titleElement);
-					pTitleElement.appendChild(newTextNode);					
-					
+					pTitleElement.appendChild(newTextNode);
+
 				}
 			}
 		}
 	},
-	
+
 	clickToEditTask: function(e){
 		if (WIKIDOT.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
 			var myDocument = document ;
 			if (!e) var e = window.event
 			if (e.target) var taskElement = e.target
 			else if (e.srcElement) var taskElement = e.srcElement
-	
+
 			if (taskElement.nodeName == "SPAN"){
 				YAHOO.util.DragDropMgr.lock();
 				var parentElement = taskElement.parentNode ;
@@ -143,10 +143,10 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 				newToDoTextField.type = "text";
 				YAHOO.util.Event.addListener(newToDoTextField, 'blur',WIKIDOT.modules.SimpleToDoModule.listeners.onblurSaveTask);
 				newToDoTextField.value = taskElement.firstChild.nodeValue;
-				newToDoTextField.oldValue = taskElement.firstChild.nodeValue; 
+				newToDoTextField.oldValue = taskElement.firstChild.nodeValue;
 			    YAHOO.util.Dom.addClass(taskElement.parentNode.parentNode.parentNode,"edit");
-				var pTaskElement = taskElement.firstChild ; 			
-				var width = pTaskElement.parentNode.offsetWidth ; 
+				var pTaskElement = taskElement.firstChild ;
+				var width = pTaskElement.parentNode.offsetWidth ;
 				parentElement.removeChild(taskElement);
 				parentElement.appendChild(newToDoTextField);
 				YAHOO.util.Dom.addClass(newToDoTextField,"text");
@@ -159,7 +159,7 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 			}
 		}
 	},
-	
+
 	onblurSaveTask: function(e){
 		if (WIKIDOT.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
 			var myDocument = document ;
@@ -168,7 +168,7 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 			if (e.target) taskElement = e.target
 			else if (e.srcElement) taskElement = e.srcElement
 			if (taskElement.nodeType == 3)
-			taskElement = taskElement.parentNode;		
+			taskElement = taskElement.parentNode;
 			var parentElement = taskElement.parentNode ;
 			var optionsElement  = parentElement.getElementsByTagName("span");
 			YAHOO.util.Dom.removeClass(taskElement.parentNode.parentNode.parentNode,"edit");
@@ -179,7 +179,7 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 				var pTaskElement=taskElement.parentNode ;
 				if (taskElement.oldValue != taskElement.value){
 					if (taskElement.value != ""){
-						var newTextNode = myDocument.createTextNode(taskElement.value); 
+						var newTextNode = myDocument.createTextNode(taskElement.value);
 					} else {
 						var newTextNode = myDocument.createTextNode(taskDefaultText.innerHTML) ;
 					}
@@ -192,9 +192,9 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 					var dataToSave = WIKIDOT.modules.SimpleToDoModule.utils.getDataToSerialize(pTaskElement,myDocument);
 					WIKIDOT.modules.SimpleToDoModule.callbacks.save(dataToSave);
 				} else {
-					
+
 					if (taskElement.value != ""){
-						var newTextNode = myDocument.createTextNode(taskElement.value); 
+						var newTextNode = myDocument.createTextNode(taskElement.value);
 					} else {
 						var newTextNode = myDocument.createTextNode(taskDefaultText.innerHTML) ;
 					}
@@ -203,14 +203,14 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 					YAHOO.util.Dom.addClass(newSpanNode,"text");
 					pTaskElement.removeChild(taskElement);
 					pTaskElement.appendChild(newSpanNode);
-					
+
 				}
 			}
-			
+
 			YAHOO.util.DragDropMgr.unlock();
 		}
 	},
-	
+
 	clickToRemoveTask: function(e){
 		if (WIKIDOT.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
 			var myDocument = document ;
@@ -219,7 +219,7 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 			if (e.target) taskElement = e.target
 			else if (e.srcElement) taskElement = e.srcElement
 			if (taskElement.nodeType == 3)
-			taskElement = taskElement.parentNode; 
+			taskElement = taskElement.parentNode;
 			var itemToRemove = WIKIDOT.modules.SimpleToDoModule.utils.getDirectParentNodeByName("div",taskElement) ;
 			var parentElement =itemToRemove.parentNode ;
 			parentElement.removeChild(itemToRemove);
@@ -228,7 +228,7 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 			WIKIDOT.modules.SimpleToDoModule.callbacks.save(dataToSave);
 		}
 	},
-	
+
 	clickToAddTask : function(e,parentId){
 		if (WIKIDOT.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
 			var myDocument = document ;
@@ -236,8 +236,8 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 			if (!e) var e = window.event
 			if (e.target) taskElement = e.target
 			else if (e.srcElement) taskElement = e.srcElement
-			if (taskElement.nodeType == 3) 
-			taskElement = taskElement.parentNode;	
+			if (taskElement.nodeType == 3)
+			taskElement = taskElement.parentNode;
 			var itemToAdd = WIKIDOT.modules.SimpleToDoModule.utils.createToDoItem(myDocument);
 			YAHOO.util.Dom.generateId(itemToAdd,"simpletodo-task");
 			var topElement = myDocument.getElementById(parentId.toString());
@@ -246,7 +246,7 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 			new WIKIDOT.modules.SimpleToDoModule.DD.DDList(itemToAdd.id.toString());
 		}
 	},
-	
+
 	onKeyPressSaveTask: function(e){
 		if (WIKIDOT.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
 			if (e.keyCode == 13){
@@ -256,7 +256,7 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 				if (e.target) taskElement = e.target
 				else if (e.srcElement) taskElement = e.srcElement
 				if (taskElement.nodeType == 3)
-				taskElement = taskElement.parentNode;		
+				taskElement = taskElement.parentNode;
 				var parentElement = taskElement.parentNode ;
 				var optionsElement  = parentElement.getElementsByTagName("span");
 				YAHOO.util.Dom.removeClass(taskElement.parentNode.parentNode.parentNode,"edit");
@@ -267,7 +267,7 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 					var pTaskElement=taskElement.parentNode ;
 					if (taskElement.oldValue != taskElement.value){
 						if (taskElement.value != ""){
-							var newTextNode = myDocument.createTextNode(taskElement.value); 
+							var newTextNode = myDocument.createTextNode(taskElement.value);
 						} else {
 							var newTextNode = myDocument.createTextNode(taskDefaultText.innerHTML) ;
 						}
@@ -280,9 +280,9 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 						var dataToSave = WIKIDOT.modules.SimpleToDoModule.utils.getDataToSerialize(pTaskElement,myDocument);
 						WIKIDOT.modules.SimpleToDoModule.callbacks.save(dataToSave);
 					} else {
-						
+
 						if (taskElement.value != ""){
-							var newTextNode = myDocument.createTextNode(taskElement.value); 
+							var newTextNode = myDocument.createTextNode(taskElement.value);
 						} else {
 							var newTextNode = myDocument.createTextNode(taskDefaultText.innerHTML) ;
 						}
@@ -291,15 +291,15 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 						YAHOO.util.Dom.addClass(newSpanNode,"text");
 						pTaskElement.removeChild(taskElement);
 						pTaskElement.appendChild(newSpanNode);
-						
+
 					}
 				}
-				
+
 				YAHOO.util.DragDropMgr.unlock();
 			}
 		}
 	},
-	
+
 	onKeyPressSaveTitle: function(e){
 		if (WIKIDOT.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
 			if (e.keyCode == 13){
@@ -318,42 +318,42 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 					var titleDefaultText = myDocument.getElementById("simpletodo-data-title");
 					var pTitleElement=titleElement.parentNode ;
 					if (titleElement.oldValue != titleElement.value){
-						
+
 						if (titleElement.value != ""){
-							
-							var newTextNode = myDocument.createTextNode(titleElement.value); 
-							
+
+							var newTextNode = myDocument.createTextNode(titleElement.value);
+
 						} else {
-							
+
 							var newTextNode = myDocument.createTextNode(titleDefaultText.innerHTML);
-							
+
 						}
 						pTitleElement.removeChild(titleElement);
 						pTitleElement.appendChild(newTextNode);
 						//AJAX REQUEST
 						var dataToSave = WIKIDOT.modules.SimpleToDoModule.utils.getDataToSerialize(pTitleElement,myDocument);
 						WIKIDOT.modules.SimpleToDoModule.callbacks.save(dataToSave);
-						
+
 					} else {
-						
+
 						if (titleElement.value != ""){
-							
-							var newTextNode = myDocument.createTextNode(titleElement.value); 
-							
+
+							var newTextNode = myDocument.createTextNode(titleElement.value);
+
 						} else {
-							
+
 							var newTextNode = myDocument.createTextNode(titleDefaultText.innerHTML);
-							
+
 						}
 						pTitleElement.removeChild(titleElement);
-						pTitleElement.appendChild(newTextNode);					
-						
+						pTitleElement.appendChild(newTextNode);
+
 					}
-				}	
+				}
 			}
 		}
 	},
-	
+
 	clickToEditLink: function (e){
 		if (WIKIDOT.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
 			var myDocument = document ;
@@ -366,7 +366,7 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 			//tu bede sprawdzal czy link byl wczesniej ustawiony na jakas konkretna wartosc a jezeli tak
 			//to przy edycji bedzie ta wartosc  pojawiac sie w inpucie
 			var parentElement = linkEl.parentNode.parentNode ; //to ma byc task i jest :-)
-			var linkElement = WIKIDOT.modules.SimpleToDoModule.utils.createLinkField(myDocument) ; //tu juz dodawalem event :-)		
+			var linkElement = WIKIDOT.modules.SimpleToDoModule.utils.createLinkField(myDocument) ; //tu juz dodawalem event :-)
 			var linkToFollow = parentElement.getElementsByTagName("a");
 			var linkElementSpans = linkElement.getElementsByTagName("span");
 			if (linkToFollow[0].href.match(/^http/)){	//bo teaz sa 4 elemeny a
@@ -378,15 +378,15 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 			linkInput.item(0).focus();
 			YAHOO.util.DragDropMgr.lock();
 			/*
-			 * 
+			 *
 			 * Teraz troche bajzlu // to jest ten AUTOCOMPLEATER
 			 */
-			var myDataSource = new YAHOO.widget.DS_XHR("/quickmodule.php", ['pages', 'unix_name', 'title']); 
+			var myDataSource = new YAHOO.widget.DS_XHR("/quickmodule.php", ['pages', 'unix_name', 'title']);
 			myDataSource.scriptQueryParam="q";
 			myDataSource.scriptQueryAppend = "s="+WIKIREQUEST.info.siteId+"&module=PageLookupQModule";
-		
+
 			var myAutoComp = new YAHOO.widget.AutoComplete("link-page-name","link-page-name-list", myDataSource);
-			myAutoComp.formatResult = function(aResultItem, sQuery) { 
+			myAutoComp.formatResult = function(aResultItem, sQuery) {
 			var title = aResultItem[1];
 			var unixName = aResultItem[0];
 			if(unixName!= null){
@@ -397,17 +397,17 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 			}
 			myAutoComp.minQueryLength = 2;
 			myAutoComp.queryDelay = 0.5;
-	
+
 			/*
-			 * 
+			 *
 			 * KOniec bajzlu
-			 * 
-			 * 
+			 *
+			 *
 			 */
-	
+
 		}
 	},
-	
+
 	onblurSaveLink: function (e){
 		if (WIKIDOT.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
 			var myDocument = document ;
@@ -439,7 +439,7 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 			WIKIDOT.modules.SimpleToDoModule.callbacks.save(dataToSave);
 		}
 	},
-	
+
 	onKeyPressSaveLink: function (e){
 		if (WIKIDOT.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
 			if (e.keyCode == 13){
@@ -478,19 +478,19 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 
 /*
  * Inicjalizacja poszczegolnych itemow z listy Pierwsze wywolanie
- * 
+ *
  */
 
 /*
- * 
- * 
- * 
+ *
+ *
+ *
  * DRAG AND DROP IMPLEMENTATION USING YAHOO UI
  * SOME CHANGES ARE NEEDED
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
  */
  WIKIDOT.modules.SimpleToDoModule.DD = {};
 
@@ -514,17 +514,17 @@ OZONE.dom.onDomReady(function(){
 
    	};
 	var myContainer = null; // LogReader will create markup from scratch
-			
+
 /**
- * 
+ *
  * INIT INIT INIT INIT INIT INIT
- * 
- * 
+ *
+ *
  */
-(function(){  //Init 
+(function(){  //Init
 	WIKIDOT.modules.SimpleToDoModule.utils.editPermission = document.getElementById("simpletodo-data-edit-permission");
 	var arrayOfLists = YAHOO.util.Dom.getElementsByClassName("simpletodo-box");
-	var arrayOfItems ;	
+	var arrayOfItems ;
 	var t ;
 	for (var i=0; i < arrayOfLists.length; i++){
 		t = YAHOO.util.Dom.getElementsByClassName("title",null,arrayOfLists[i]);
@@ -532,16 +532,16 @@ OZONE.dom.onDomReady(function(){
 		arrayOfItems = YAHOO.util.Dom.getElementsByClassName("task","div",arrayOfLists[i]) ;
 		YAHOO.util.Dom.generateId(arrayOfItems,"simpletodo-task");
 		for (var j=0; j < arrayOfItems.length; j++){
-			var checkBox = YAHOO.util.Dom.getElementsByClassName("checkbox","input",arrayOfItems[j]) ;	
+			var checkBox = YAHOO.util.Dom.getElementsByClassName("checkbox","input",arrayOfItems[j]) ;
 			var text = arrayOfItems[j].getElementsByTagName("span");
 			var anchor = arrayOfItems[j].getElementsByTagName("a");
 			YAHOO.util.Event.addListener(checkBox[0],"click",WIKIDOT.modules.SimpleToDoModule.listeners.clickCheckBoxToChangeState);
 			YAHOO.util.Event.addListener(text[1],"click",WIKIDOT.modules.SimpleToDoModule.listeners.clickToEditTask);
 			YAHOO.util.Event.addListener(anchor[2],"click",WIKIDOT.modules.SimpleToDoModule.listeners.clickToRemoveTask);
 			YAHOO.util.Event.addListener(anchor[1],"click",WIKIDOT.modules.SimpleToDoModule.listeners.clickToEditLink);
-			
+
 		}
-		
+
 	}
 	WIKIDOT.modules.SimpleToDoModule.utils.ieHoverFix("simpletodo-sub-box");
 	if (WIKIDOT.modules.SimpleToDoModule.utils.editPermission.innerHTML == "false") {
@@ -566,15 +566,15 @@ WIKIDOT.modules.SimpleToDoModule.DD.DDApp = {
     init: function() {
 		var arrayOfLists = YAHOO.util.Dom.getElementsByClassName("simpletodo-sub-box");
         var i,j;
-        
+
         for (i=0;i<arrayOfLists.length;i=i+1) {
             new YAHOO.util.DDTarget(""+arrayOfLists[i].id);
        		var items = YAHOO.util.Dom.getElementsByClassName("task","div",arrayOfLists[i]);
             for (j=0; j < items.length; j++){
             	new WIKIDOT.modules.SimpleToDoModule.DD.DDList(""+items[j].id);
             }
-            
-        }      
+
+        }
     }
 
 };
@@ -584,13 +584,13 @@ WIKIDOT.modules.SimpleToDoModule.DD.DDApp = {
 //////////////////////////////////////////////////////////////////////////////
 
 WIKIDOT.modules.SimpleToDoModule.DD.DDList = function(id, sGroup, config) {
-	
+
     WIKIDOT.modules.SimpleToDoModule.DD.DDList.superclass.constructor.call(this, id, sGroup, config);
     var el = this.getDragEl();
     Dom.setStyle(el, "opacity", 0.67); // The proxy is slightly transparent
     this.goingUp = false;
     this.lastY = 0;
-    
+
 };
 
 YAHOO.extend(WIKIDOT.modules.SimpleToDoModule.DD.DDList, YAHOO.util.DDProxy, {
@@ -617,14 +617,14 @@ YAHOO.extend(WIKIDOT.modules.SimpleToDoModule.DD.DDList, YAHOO.util.DDProxy, {
         var proxy = this.getDragEl();
         // Show the proxy element and animate it to the src element's location
         Dom.setStyle(proxy, "visibility", "");
-        var a = new YAHOO.util.Motion( 
-            proxy, { 
-                points: { 
+        var a = new YAHOO.util.Motion(
+            proxy, {
+                points: {
                     to: Dom.getXY(srcEl)
                 }
-            }, 
-            0.2, 
-            YAHOO.util.Easing.easeOut 
+            },
+            0.2,
+            YAHOO.util.Easing.easeOut
         )
         var proxyid = proxy.id;
         var thisid = this.id;
@@ -635,7 +635,7 @@ YAHOO.extend(WIKIDOT.modules.SimpleToDoModule.DD.DDList, YAHOO.util.DDProxy, {
 			var dataToSave = WIKIDOT.modules.SimpleToDoModule.utils.getDataToSerialize(WIKIDOT.modules.SimpleToDoModule.utils.oldDragElementList,document);
 			WIKIDOT.modules.SimpleToDoModule.callbacks.save(dataToSave);
 		}
-		
+
         // Hide the proxy and show the source element when finished with the animation
         a.onComplete.subscribe(function() {
         		Dom.setStyle(option[0],"visibility","");
@@ -653,13 +653,13 @@ YAHOO.extend(WIKIDOT.modules.SimpleToDoModule.DD.DDList, YAHOO.util.DDProxy, {
         // If there is one drop interaction, the div was dropped either on the list,
         // or it was dropped on the current location of the source element.
         if (DDM.interactionInfo.drop.length === 1) {
-			
+
             // The position of the cursor at the time of the drop (YAHOO.util.Point)
-            var pt = DDM.interactionInfo.point; 
+            var pt = DDM.interactionInfo.point;
 
             // The region occupied by the source element at the time of the drop
-            var region = DDM.interactionInfo.sourceRegion; 
-			
+            var region = DDM.interactionInfo.sourceRegion;
+
             // Check to see if we are over the source element's location.  We will
             // append to the bottom of the list once we are sure it was a drop in
             // the negative space (the area of the list without any list items)
@@ -689,12 +689,12 @@ YAHOO.extend(WIKIDOT.modules.SimpleToDoModule.DD.DDList, YAHOO.util.DDProxy, {
     },
 
     onDragOver: function(e, id) {
-    
+
         var srcEl = this.getEl();
         var destEl = Dom.get(id);
         // We are only concerned with div items, we ignore the dragover
         // notifications for the list.
-        
+
         if (destEl.nodeName.toLowerCase() == "div" && Dom.hasClass(destEl,"task")) {
             var orig_p = srcEl.parentNode;
             var p = destEl.parentNode;
@@ -717,47 +717,47 @@ Event.onDOMReady(WIKIDOT.modules.SimpleToDoModule.DD.DDApp.init, WIKIDOT.modules
 
 WIKIDOT.modules.SimpleToDoModule.utils = {
 	newDragElement: undefined ,
-	
+
 	oldDragElement: undefined ,
-	
+
 	newDragElementList: undefined ,
-	
+
 	oldDragElementList: undefined ,
-	
+
 	linkCounter: 0 ,
-	
+
 	editPermission: undefined ,
-	
+
 	getDirectParentNodeByName: function (parentName, startEl){
 		var walker  = startEl.parentNode ;
 		while (walker && ( walker.nodeName.toLowerCase() != parentName.toLowerCase())){
 			walker = walker.parentNode ;
 		}
 		return walker ;
-	
+
 	},
-	
+
 	ieHoverFix: function (rootClass) { //musze dodac cie przy inicjalizacji i przy dodawaniu nowych elementow :-)
 		if (navigator.appName.indexOf("Microsoft") != -1 || navigator.appVersion.indexOf("6.") != -1) {
 			var r = YAHOO.util.Dom.getElementsByClassName(rootClass,"div"); //TO JEST TERAZ TABLICA
   			if(r == null){return;}
-  			
+
   			for (var j=0; j < r.length; j++){
-  				
+
   				var item = YAHOO.util.Dom.getElementsByClassName("task","div",r[j]);
-  				
+
   				for (var k=0; k<item.length; k++){
-  					
+
   					YAHOO.util.Event.addListener(item[k],"mouseover",function(e){YAHOO.util.Dom.addClass(this,"iehover");});
   					YAHOO.util.Event.addListener(item[k],"mouseout",function(e){YAHOO.util.Dom.removeClass(this,"iehover");});
   				}
-  				
+
   			}
-  			
+
  			return;
-		}		
+		}
   	},
-  	
+
   	createToDoItem: function (doc) {
 		var myDocument = doc ;
 		//Creating nesesary elements
@@ -813,11 +813,11 @@ WIKIDOT.modules.SimpleToDoModule.utils = {
 		newItemDivElement.appendChild(newItemSpanElement2);
 		newItemDivElement.appendChild(newItemSpanElement4); //tu wstawilem follow linka przed menu z opcjami
 		newItemDivElement.appendChild(newItemSpanElement3);
-		
+
 		return newItemDivElement;
 
 	},
-	
+
 	createLinkField: function (doc) {
 		var myDocument = doc ;
 		var newItemDivElement = myDocument.createElement("div"); //content wrap
@@ -846,13 +846,13 @@ WIKIDOT.modules.SimpleToDoModule.utils = {
 		newItemDivElement.appendChild(newSpanElement1);
 		newItemDivElement.appendChild(newSpanElement2);
 		newItemDivElement.appendChild(newSpanElement3);
-		
+
 		return newItemDivElement;
-		
+
 	},
-	
+
 	getDataToSerialize: function(subElement,doc){
-	
+
 		var walker = subElement ;
 		var myDocument = doc ;
 		var _data = new Array() ;
@@ -875,11 +875,11 @@ WIKIDOT.modules.SimpleToDoModule.utils = {
 				}
 				return {title: _title[0].innerHTML, data:_data, "label":_label[0].innerHTML} ;
 			} else {
-				walker = walker.parentNode ;	
+				walker = walker.parentNode ;
 			}
-		}			
+		}
 	},
-	
+
 	getCheckBoxValue: function(checkBox){
 		if (checkBox.nodeName.toLowerCase() == "input"){
 			if (checkBox.checked == true){
@@ -889,17 +889,17 @@ WIKIDOT.modules.SimpleToDoModule.utils = {
 			}
 		}
 	},
-	
+
 	getParentElementOfSpecifiedClass: function(parentClassName,parentName,startEl,doc){
 		var walker  = startEl.parentNode ;
-		
+
 		while ((walker["class"]!=parentClassName) && ( walker.nodeName.toLowerCase() != parentName.toLowerCase())){
-			
+
 			walker = walker.parentNode ;
-			
+
 		}
-		
+
 		return walker ;
 	}
-	
+
 } ;

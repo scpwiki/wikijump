@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -15,11 +15,11 @@ WIKIDOT.modules.CreateAccount0Module.listeners = {
 	cancelClick: function(e){
 		OZONE.dialog.cleanAll();
 	},
-	
+
 	nextClick: function(e){
-		
+
 		WIKIDOT.modules.CreateAccountModule.vars.formData = OZONE.utils.formToArray("createaccount-form0");
-		
+
 		var p = OZONE.utils.formToArray("createaccount-form0");
 		//crypt some data please... ;-)
 		var rsa = new RSAKey();
@@ -29,8 +29,8 @@ WIKIDOT.modules.CreateAccount0Module.listeners = {
 		p['password2'] = linebrk(hex2b64(rsa.encrypt('__'+p['password2'])),64);
 		p.action = "CreateAccountAction";
 		p.event = "step0";
-		OZONE.ajax.requestModule("createaccount/CreateAccount2Module", p, WIKIDOT.modules.CreateAccount0Module.callbacks.nextClick);	
-	
+		OZONE.ajax.requestModule("createaccount/CreateAccount2Module", p, WIKIDOT.modules.CreateAccount0Module.callbacks.nextClick);
+
 	}
 }
 WIKIDOT.modules.CreateAccount0Module.callbacks = {
@@ -38,14 +38,14 @@ WIKIDOT.modules.CreateAccount0Module.callbacks = {
 		if(r.status=="form_errors"){
 			var inner = "The data you have submitted contains following errors:" +
 					"<ul>";
-			
+
 			var errors = r.formErrors;
 			for(var i in errors){
 				inner += "<li>"+errors[i]+"</li>";
 			}
-					
+
 			inner += "</ul>";
-			
+
 			$("ca-reg0-errors").style.display = "block";
 			$("ca-reg0-errors").innerHTML = inner;
 			OZONE.dialog.factory.boxcontainer().centerContent();
@@ -61,7 +61,7 @@ WIKIDOT.modules.CreateAccount0Module.callbacks = {
 		var w = new OZONE.dialogs.Dialog();
 		w.content = r.body;
 		w.show();
-	}	
+	}
 
 }
 

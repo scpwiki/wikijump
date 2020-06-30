@@ -1,17 +1,17 @@
 <div class="owindow" style="width: 55em;">
 	<div class="title">
 		{t}Secure login{/t}
-	</div>	
+	</div>
 	<div class="content">
 		<table style="width: 95%;" >
 			<tr>
 				<td style="width: 50%; text-align: center;  padding: 10px;">
-					
-					
+
+
 					<iframe src="/common--misc/blank.html"
 						id="login-iframe"
 						scrolling="no" frameBorder="0"></iframe>
-					
+
 					<div style="font-size: 90%; text-align: center;">
 						<a href="javascript:;" onclick="WIKIDOT.page.listeners.passwordRecoveryClick(event)">{t}forgotten password?{/t}</a>
 						|
@@ -29,8 +29,8 @@
 					<p style="text-align: center; font-weight: bold">
 						{t}This login form is secure.{/t} <span id="secure-login-info">[?]</span>
 					</p>
-					
-						
+
+
 		 		</td>
 		 	</tr>
 		</table>
@@ -40,8 +40,8 @@
 			<br/>
 			{t}Anyway - it is quite impossible for anyone not authorized to intercept your password.{/t}
 		</div>
-		
+
 	</div>
 
-	
+
 </div>

@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -17,11 +17,11 @@ WIKIDOT.modules.APAvatarModule.vars = {
 }
 
 WIKIDOT.modules.APAvatarModule.listeners = {
-	
+
 	startUpload: function(e){
 		$("upload-wait").style.display = "block";
 	},
-	
+
 	uploaded: function(status, im48, im16){
 		if(status != "ok"){
 			var er = new OZONE.dialogs.ErrorDialog();
@@ -34,7 +34,7 @@ WIKIDOT.modules.APAvatarModule.listeners = {
 		var path = '/common--tmp/avatars-upload/';
 		$("avatar-preview-large").src = path+im48;
 		$("avatar-preview-small").src = path+im16;
-		
+
 		WIKIDOT.modules.APAvatarModule.vars.im16 = im16;
 		WIKIDOT.modules.APAvatarModule.vars.im48 = im48;
 		$("avatar-preview").style.display="block";
@@ -42,7 +42,7 @@ WIKIDOT.modules.APAvatarModule.listeners = {
 		$("uri-upload-div").style.display='none';
 		$("upload-wait").style.display = "none";
 	},
-	
+
 	useIt: function(e){
 		// sets the avatar permanently
 		if(!WIKIDOT.modules.APAvatarModule.vars.im16){return;}
@@ -51,7 +51,7 @@ WIKIDOT.modules.APAvatarModule.listeners = {
 		p['im16'] = WIKIDOT.modules.APAvatarModule.vars.im16;
 		p['action'] = 'AccountProfileAction';
 		p['event'] = "setAvatar";
-		OZONE.ajax.requestModule("Empty", p, WIKIDOT.modules.APAvatarModule.callbacks.useIt);	
+		OZONE.ajax.requestModule("Empty", p, WIKIDOT.modules.APAvatarModule.callbacks.useIt);
 	},
 	reset: function(e){
 		$('avatar-choice1').style.display='';
@@ -62,15 +62,15 @@ WIKIDOT.modules.APAvatarModule.listeners = {
 		WIKIDOT.modules.APAvatarModule.vars.im16 = null;
 		WIKIDOT.modules.APAvatarModule.vars.im48 = null;
 		YAHOO.util.Event.stopEvent(e);
-		
+
 	},
 	deleteAvatar: function(e){
 		var p = new Object();
 		p['action'] = 'AccountProfileAction';
 		p['event'] = "deleteAvatar";
-		OZONE.ajax.requestModule("Empty", p, WIKIDOT.modules.APAvatarModule.callbacks.deleteAvatar);	
+		OZONE.ajax.requestModule("Empty", p, WIKIDOT.modules.APAvatarModule.callbacks.deleteAvatar);
 	},
-	
+
 	uploadUri: function(e){
 		var uri = $("upload-uri").value;
 		if(!uri.match(/^(http[s]?:\/\/)|(ftp:\/\/)[a-zA-Z0-9\-]+\/.*/)){
@@ -78,14 +78,14 @@ WIKIDOT.modules.APAvatarModule.listeners = {
 			er.content = "This is not a valid URI address.";
 			er.show();
 			return;
-		}	
+		}
 		$("upload-wait").style.display = "block";
 		var p = new Object();
 		p['action'] = 'AccountProfileAction';
 		p['event'] = "uploadAvatarUri";
 		p['uri'] = uri;
-		OZONE.ajax.requestModule("Empty", p, WIKIDOT.modules.APAvatarModule.callbacks.uploadUri);	
-	
+		OZONE.ajax.requestModule("Empty", p, WIKIDOT.modules.APAvatarModule.callbacks.uploadUri);
+
 	}
 }
 
@@ -103,7 +103,7 @@ WIKIDOT.modules.APAvatarModule.callbacks = {
 		w.content = "Your buddy icon has been changed!";
 		w.show();
 		setTimeout('OZONE.ajax.requestModule("account/profile/APAvatarModule", null, WIKIDOT.modules.AccountModule.callbacks.menuClick)', 1500);
-		
+
 	},
 	deleteAvatar: function(r){
 		// simply reload this module.
@@ -117,11 +117,11 @@ WIKIDOT.modules.APAvatarModule.callbacks = {
 			return;
 		}
 		WIKIDOT.modules.APAvatarModule.listeners.uploaded(r.status, r.im48,r.im16);
-		
+
 	}
 }
 
 WIKIDOT.modules.APAvatarModule.init = function(){
-	
+
 }
 WIKIDOT.modules.APAvatarModule.init();

@@ -1,9 +1,9 @@
 {if !$withoutBox}<div class="petition-admin-module-box" id="petition-admin-module-box">{/if}
 <h1>{t}Administer your petition campaigns{/t}</h1>
-	
+
 	{if $campaigns}
 		{* print petitions *}
-		
+
 		<table class="campaign-list form grid">
 			<tr>
 				<th>
@@ -32,7 +32,7 @@
 				</tr>
 			{/foreach}
 		</table>
-	
+
 	{else}
 		<p>
 			{t}You have no petition campaigns defined.{/t}
@@ -41,10 +41,10 @@
 	<p>
 		<a href="javascript:;" onclick="WIKIDOT.modules.PetitionAdminModule.listeners.newCampaignClick(event)">+ {t}create a new campaign{/t}</a>
 	</p>
-	
+
 	<div id="petition-new-campain-box" style="display: none">
 		<h2>{t}Create a new camaign{/t}</h2>
-		
+
 		<form id="petition-new-campain-form">
 			<div class="error-block" id="petition-new-campaign-error-box" style="display: none"></div>
 			<table class="form">
@@ -70,13 +70,13 @@
 					</td>
 				</tr>
 			</table>
-			
+
 			<div class="buttons">
 				<input type="button" value="{t}cancel{/t}" onclick="WIKIDOT.modules.PetitionAdminModule.listeners.cancelNewCampaignClick(event)"/>
 				<input type="button" value="{t}create{/t}" onclick="WIKIDOT.modules.PetitionAdminModule.listeners.createCampaign(event)" />
-				
+
 			</div>
 		</form>
-	
+
 	</div>
 {if !$withoutBox}</div>{/if}

@@ -3,7 +3,7 @@
 <table class="form">
 	<tr>
 		<td>
-			{t}File name{/t}: 
+			{t}File name{/t}:
 		</td>
 		<td>
 			<strong>{$file->getFilename()|escape}</strong>
@@ -11,7 +11,7 @@
 	</tr>
 	<tr>
 		<td>
-			{t}Current page{/t}: 
+			{t}Current page{/t}:
 		</td>
 		<td>
 			{$page->getUnixName()}
@@ -19,7 +19,7 @@
 	</tr>
 	<tr>
 		<td>
-			{t}Destination page{/t}: 
+			{t}Destination page{/t}:
 		</td>
 		<td>
 			<div id="file-move-page-div" class="autocomplete-container">

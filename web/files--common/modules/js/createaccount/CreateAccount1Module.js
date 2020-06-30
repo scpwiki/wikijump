@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -15,17 +15,17 @@ WIKIDOT.modules.CreateAccount1Module.listeners = {
 	cancelClick: function(e){
 		OZONE.dialog.cleanAll();
 	},
-	
+
 	backClick: function(e){
-		OZONE.ajax.requestModule("createaccount/CreateAccount0Module", null, WIKIDOT.modules.CreateAccount1Module.callbacks.backClick);	
+		OZONE.ajax.requestModule("createaccount/CreateAccount0Module", null, WIKIDOT.modules.CreateAccount1Module.callbacks.backClick);
 	},
-	
+
 	nextClick: function(e){
 		var p = new Object();
 		p.action = "CreateAccountAction";
 		p.event = "sendEmailVer";
-		OZONE.ajax.requestModule("createaccount/CreateAccount2Module", p, WIKIDOT.modules.CreateAccount1Module.callbacks.nextClick);	
-	
+		OZONE.ajax.requestModule("createaccount/CreateAccount2Module", p, WIKIDOT.modules.CreateAccount1Module.callbacks.nextClick);
+
 	}
 }
 WIKIDOT.modules.CreateAccount1Module.callbacks = {
@@ -57,8 +57,8 @@ WIKIDOT.modules.CreateAccount1Module.init = function(){
 		window.location.reload();
 	}
 	$("ca-field-name").innerHTML = p['name'];
-	$("ca-field-email").innerHTML = p['email'];	
-	
+	$("ca-field-email").innerHTML = p['email'];
+
 }
 WIKIDOT.modules.CreateAccount1Module.init();
 

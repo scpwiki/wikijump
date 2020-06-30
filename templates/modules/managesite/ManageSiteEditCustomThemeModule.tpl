@@ -23,19 +23,19 @@
 				<div class="sub">
 					Choose <em>Base</em> to create as much as possible from scratch.
 				</div>
-			</td>		
+			</td>
 		</tr>
 		<tr>
 			<td colspan="2">
 				<p>CSS code:</p>
 				<textarea id="sm-csscode" name="code" rows="15" cols="50" style="width: 100%">{$code|escape}</textarea>
-				
+
 			</td>
 		</tr>
 		<tr>
 			<td colspan="2">
 				<p>
-					You can also edit the code on one of the wiki pages. This is 
+					You can also edit the code on one of the wiki pages. This is
 					recommended.<br/>
 					Enter the page name below to import the CSS code.
 				</p>
@@ -49,9 +49,9 @@
 					<br/>
 					<input class="button" type="button" value="import" onclick="WIKIDOT.modules.ManageSiteCustomThemesModule.listeners.importCss(event)"/>
 				</div>
-					
-				
-				
+
+
+
 			</td>
 		</tr>
 		<tr>
@@ -83,7 +83,7 @@
 <h2>Notes:</h2>
 <ul>
 	<li>
-		The import feature will look for the first occurence of <tt>[[code]]...[[/code]]</tt> block 
+		The import feature will look for the first occurence of <tt>[[code]]...[[/code]]</tt> block
 		(or <tt>[[code type="css"]]...[[/code]]</tt>) and will copy its content.
 	</li>
 	<li>

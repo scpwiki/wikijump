@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -15,7 +15,7 @@ WIKIDOT.modules.PageRateWidgetModule.vars={};
 WIKIDOT.modules.PageRateWidgetModule.listeners = {
 	rate: function(e, points, force){
 		if(points > 5 || points < -1){ return;}
-		
+
 		var p = new Object();
 		p.action = "RateAction";
 		p.event = "ratePage";
@@ -24,33 +24,33 @@ WIKIDOT.modules.PageRateWidgetModule.listeners = {
 			p.force = "yes";
 		}
 		p.pageId = WIKIREQUEST.info.pageId;
-		
+
 		WIKIDOT.modules.PageRateWidgetModule.vars.points = points;
 
 		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.PageRateWidgetModule.callbacks.rate);
-		
+
 	},
-	
+
 	cancelVote: function(e){
 		var p = new Object();
 		p.action = "RateAction";
 		p.event = "cancelVote";
 		p.pageId = WIKIREQUEST.info.pageId;
-		
+
 		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.PageRateWidgetModule.callbacks.rate);
 	}
 }
 
 WIKIDOT.modules.PageRateWidgetModule.callbacks = {
 	rate: function(r){
-		
+
 		if(r.status == 'already_voted'){
 			var w = new OZONE.dialogs.Dialog();
 			w.content = r.body;
 			w.show();
 			return;
 		}
-		
+
 		if(!WIKIDOT.utils.handleError(r)) {return;}
 		OZONE.dialog.cleanAll();
 		var el = $("prw54353");
@@ -99,7 +99,7 @@ WIKIDOT.modules.PageRateWidgetModule.callbacks = {
 				nu = ((votes * nu) + pts) / (votes + 1);
 			}
 		}
-			
+
 			var eff = new fx.Opacity(el, {duration: 200});
 			eff.setOpacity(0);
 			el.innerHTML = nu;
@@ -128,12 +128,12 @@ WIKIDOT.modules.PageRateWidgetModule.callbacks = {
 			eff.setOpacity(0);
 			el.innerHTML = nu;
 			eff.custom(0,1);
-	
-	}	
+
+	}
 }
 
 WIKIDOT.modules.PageRateWidgetModule.init = function(){
-	OZONE.dom.onDomReady(function(){		
+	OZONE.dom.onDomReady(function(){
 		if($("membership-by-apply-text")){
 			// if a rating is already displayed - rather copy the value.
 			var el = $("prw54355");
@@ -146,7 +146,7 @@ WIKIDOT.modules.PageRateWidgetModule.init = function(){
 			}
 		}
 	}, "dummy-ondomready-block");
-	
+
 }
 
 WIKIDOT.modules.PageRateWidgetModule.init();

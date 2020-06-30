@@ -12,6 +12,6 @@
 	<p>
 		<a href="javascript:;" onclick="WIKIDOT.modules.PageRateModule.listeners.showWho(event, {$pageId})">{t}look who rated this page{/t}</a>
 	</p>
-	
+
 	<div id="who-rated-page-area"></div>
 {/if}

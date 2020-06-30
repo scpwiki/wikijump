@@ -26,7 +26,7 @@
 	</tr>
 	{assign var=count value=0}
 	{foreach from=$revisions item=pr}
-	
+
 	<tr id="revision-row-{$pr->getRevisionId()}">
 		<td>{$pr->getRevisionNumber()}.</td>
 		<td style="width: 5em" >
@@ -45,13 +45,13 @@
 		 	{/if}
 		 	{if $pr->getFlagRename()}
 		 		<span class="spantip" title="{t}page renamed/moved{/t}">R</span>
-		 	{/if}  
+		 	{/if}
 		 	{if $pr->getFlagFile()}
 		 		<span class="spantip" title="{t}file/attachment action{/t}">F</span>
-		 	{/if}  
+		 	{/if}
 		 	{if $pr->getFlagMeta()}
 		 		<span class="spantip" title="{t}meta data changed{/t}">M</span>
-		 	{/if} 
+		 	{/if}
 		</td>
 		<td style="width: 5em" class="optionstd">
 			 <a title="{t}view page revision{/t}" href="javascript:;" onclick="showVersion({$pr->getRevisionId()})">V</a>

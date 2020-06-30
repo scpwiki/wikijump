@@ -2,7 +2,7 @@
 
 <p>
 	Below is the list of all notifications related to your account.
-</p>	
+</p>
 
 {*<div id="notifications-area"><div class="wait-block">please wait...</div></div>*}
 <div id="notifications-area">
@@ -13,7 +13,7 @@
 <h2>Notifications via RSS feed</h2>
 
 <p>
-	Notifications related to this site are also available via a password-protected 
+	Notifications related to this site are also available via a password-protected
 	RSS 2.0 feed:
 </p>
 <p style="text-align: center">

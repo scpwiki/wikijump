@@ -13,7 +13,7 @@
 					<td>
 						<div class="field-error-message"></div>
 						{if !$field.type || $field.type == 'text'}
-							<input name="{$field.name}" class="text" type="text" 
+							<input name="{$field.name}" class="text" type="text"
 								{if $field.default}value="{$field.default|escape}"{/if}
 								{if $field.size}size="{$field.size}"{else}size="30"{/if}
 								{if $field.rules.maxLength}maxlength="{$field.rules.maxLength|escape}"{/if}

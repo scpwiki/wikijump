@@ -8,7 +8,7 @@
 		<a href="/forum/start">Forum</a>
 		&raquo;
 		<a href="/forum/c-{$category->getCategoryId()}/{$category->getUnixifiedName()|escape}">{$category->getName()|escape}</a>
-		&raquo; 
+		&raquo;
 		{t}new thread{/t}
 	</div>
 	<div class="description">
@@ -33,7 +33,7 @@
 
 <div>
 	<form id="new-thread-form" action="" onsubmit="return false;">
-		
+
 		<input type="hidden" name="category_id" value="{$category->getCategoryId()}"/>
 		<table class="form" style="margin: 1em 0">
 			<tr>
@@ -56,10 +56,10 @@
 				</td>
 			</tr>
 		</table>
-		
+
 		<div id="post-edit-panel" class="wd-editor-toolbar-panel"></div>
 		<div><textarea id="post-edit" name="source"  rows="10" style="width: 95%;"></textarea></div>
-		
+
 		<div class="change-textarea-size">
 			<a href="javascript:;" onclick="WIKIDOT.utils.changeTextareaRowNo('post-edit',-5)">-</a>
 			<a href="javascript:;" onclick="WIKIDOT.utils.changeTextareaRowNo('post-edit',5)">+</a>
@@ -71,7 +71,7 @@
 			<div class="note-block">
 				<h3>Anonymous edit!</h3>
 				<p>
-					You are starting a new forum discussion thread as an anonymous user. 
+					You are starting a new forum discussion thread as an anonymous user.
 					Please remember that in such a case your IP address will be revealed to public
 					and your contribution will be signed by the following identity:<br/>
 					{printuser user=$anonymousString image="true"}

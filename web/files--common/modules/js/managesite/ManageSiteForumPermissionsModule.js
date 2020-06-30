@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -46,19 +46,19 @@ WIKIDOT.modules.ManageSiteForumPermissionsModule.listeners = {
 				$("sm-perms-table").style.display = "block";
 				pstring = category['permissions'];
 			}
-			
+
 		}
-		
+
 		WIKIDOT.modules.ManageSiteForumPermissionsModule.utils.decodePermissions(pstring);
 		return;
 		WIKIDOT.modules.ManageSitePermissionsModule.utils.updateThemePreview();
-	
+
 	}	,
-	
+
 	indClick: function(e){
 		var categoryId = $("sm-perms-cats").value;
 		if(categoryId == "") return; // should not be
-		
+
 		var category = WIKIDOT.modules.ManagerSiteModule.utils.getCategoryById(categoryId);
 
 		if($("sm-perms-noin").checked == true){
@@ -69,7 +69,7 @@ WIKIDOT.modules.ManageSiteForumPermissionsModule.listeners = {
 			category['permissions'] = WIKIDOT.modules.ManageSiteForumPermissionsModule.vars.defaultPermissions;
 		}
 	},
-	
+
 	permissionChange: function(e){
 
 		// fix permissions first (difficult?)
@@ -85,12 +85,12 @@ WIKIDOT.modules.ManageSiteForumPermissionsModule.listeners = {
 			var category = WIKIDOT.modules.ManagerSiteModule.utils.getCategoryById(categoryId);
 			category['permissions'] = pstring;
 		}
-		
+
 	},
 	cancel: function(e){
 		WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-welcome');
 	},
-	
+
 	save: function(e){
 		// ok, do it the easy way: serialize categories using the JSON method
 		var categories = WIKIDOT.modules.ManagerSiteModule.vars.categories;
@@ -112,10 +112,10 @@ WIKIDOT.modules.ManageSiteForumPermissionsModule.callbacks = {
 		if(!WIKIDOT.utils.handleError(r)) {return;}
 		OZONE.utils.setInnerHTMLContent("site-manager", r.body);
 	},
-	
+
 	save: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
-		
+
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Permissions have been saved.";
 		w.show();
@@ -125,14 +125,14 @@ WIKIDOT.modules.ManageSiteForumPermissionsModule.callbacks = {
 WIKIDOT.modules.ManageSiteForumPermissionsModule.utils = {
 	encodePermissions: function(){
 		var farray = OZONE.utils.formToArray("sm-perms-form");
-		
+
 		// now traverse the form...
 		var users = WIKIDOT.modules.ManageSiteForumPermissionsModule.vars.users;
 		var permissions =  WIKIDOT.modules.ManageSiteForumPermissionsModule.vars.permissions;
 		var i,j;
 		var out=''; // output
 		var tag;
-		
+
 		for(i=0; i<permissions.length; i++){
 			if(i>0){out +=";";}
 			out += permissions[i]+':';
@@ -146,15 +146,15 @@ WIKIDOT.modules.ManageSiteForumPermissionsModule.utils = {
 		}
 		return out;
 	},
-	
+
 	decodePermissions: function(pstring){
-		
+
 		var activName;
 		var activPerms;
 		var activUser;
 		var tag;
 		var el;
-		
+
 		var form = document.getElementById("sm-perms-form");
 		// clear the table
 		var users = WIKIDOT.modules.ManageSiteForumPermissionsModule.vars.users;
@@ -171,7 +171,7 @@ WIKIDOT.modules.ManageSiteForumPermissionsModule.utils = {
 			}
 		}
 		if(pstring != null && pstring != ''){
-			
+
 			var activs = pstring.split(';');
 			for(i=0; i<activs.length; i++){
 				var activs2 = activs[i].split(':');
@@ -187,14 +187,14 @@ WIKIDOT.modules.ManageSiteForumPermissionsModule.utils = {
 			}
 		}
 	},
-	
+
 	fixPermissions: function(id){
 		// an ugly way...
-		
+
 		var tag, el2,el;
-		
+
 		var el = $(id);
-		
+
 		var tsplit = id.split("-");
 		var activ = tsplit[1];
 		var user = tsplit[2];
@@ -234,7 +234,7 @@ WIKIDOT.modules.ManageSiteForumPermissionsModule.utils = {
 				el2 = document.getElementById(tag);
 				if(el2){el2.checked = false;}
 			}
-		
+
 		}
 
 	}
@@ -247,7 +247,7 @@ WIKIDOT.modules.ManageSiteForumPermissionsModule.init = function(){
 	YAHOO.util.Event.addListener("sm-perms-form", "click",  WIKIDOT.modules.ManageSiteForumPermissionsModule.listeners.permissionChange);
 	YAHOO.util.Event.addListener("sm-perms-cancel", "click", WIKIDOT.modules.ManageSiteForumPermissionsModule.listeners.cancel);
 	YAHOO.util.Event.addListener("sm-perms-save", "click", WIKIDOT.modules.ManageSiteForumPermissionsModule.listeners.save);
-	
+
 	WIKIDOT.modules.ManageSiteForumPermissionsModule.listeners.categoryChange(null);
 }
 WIKIDOT.modules.ManageSiteForumPermissionsModule.init();

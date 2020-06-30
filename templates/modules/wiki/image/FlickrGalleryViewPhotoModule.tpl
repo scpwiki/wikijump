@@ -16,13 +16,13 @@
 			</td>
 		</tr>
 	</table>
-	
+
 	{if $photo.description}
 		<div class="description">
 			{$photo.description |escape}
 		</div>
 	{/if}
-	
+
 	<div class="hostedby">
 		This image is hosted by <strong><a href="http://flickr.com">Flickr</a></strong>.
 		Click <a href="{$photoUrl}">here</a> for the original image.

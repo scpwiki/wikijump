@@ -50,8 +50,8 @@
 				</td>
 			</tr>
 		</table>
-	
-	
+
+
 		<div class="buttons">
 			<input type="button" value="{t}cancel{/t}" onclick="WIKIDOT.modules.AccountContactsModule.listeners.cancelAdd(event)"/>
 			<input type="button" value="{t}add to contacts{/t}" onclick="WIKIDOT.modules.AccountContactsModule.listeners.addContact(event)"/>

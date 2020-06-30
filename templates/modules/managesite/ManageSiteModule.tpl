@@ -78,7 +78,7 @@
 		<ul>
 			<li><a href="javascript:;" id="sm-openid">OpenID</a></li>
 		</ul>
-		
+
 		<hr/>
 
 		<ul>

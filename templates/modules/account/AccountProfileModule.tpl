@@ -3,7 +3,7 @@
 <div>
 	<h3><a href="javascript:;"  onclick="OZONE.ajax.requestModule('account/profile/APAboutModule', null, WIKIDOT.modules.AccountModule.callbacks.menuClick)">{t}About myself{/t}</a></h3>
 	<p>
-		{t}Tell others more about yourself by providing additional categorized information such as 
+		{t}Tell others more about yourself by providing additional categorized information such as
 		your website address, location or IM presence.{/t}
 	</p>
 </div>

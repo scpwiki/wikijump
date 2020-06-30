@@ -21,7 +21,7 @@
 		{if $autoincrement}
 			<input type="hidden" name="autoincrement" value="true"/>
 		{/if}
-		
+
 	</form>
 </div>
 {if $formatError}

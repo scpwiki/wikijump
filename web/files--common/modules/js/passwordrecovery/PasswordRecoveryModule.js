@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -18,10 +18,10 @@ WIKIDOT.modules.PasswordRecoveryModule.listeners = {
 		p.event = "cancel";
 		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.PasswordRecoveryModule.callbacks.cancel);
 	},
-	
+
 	next1: function(e){
 		var email = $("recovery-email-value").value;
-		
+
 		if(email == null || email == ''){
 			$("recovery-error").innerHTML = "Email must be provided.";
 			$("recovery-error").style.display="block";
@@ -32,10 +32,10 @@ WIKIDOT.modules.PasswordRecoveryModule.listeners = {
 			$("recovery-error").style.display="block";
 			return;
 		}
-		
+
 		var rsa = new RSAKey();
 		rsa.setPublic(WIKIDOT.vars.rsakey, "10001");
-		
+
 		var p = new Object();
 		//p.email = linebrk(hex2b64(rsa.encrypt('__'+email)),64);
 		p.email = email;
@@ -43,19 +43,19 @@ WIKIDOT.modules.PasswordRecoveryModule.listeners = {
 		p.event = "step1";
 		OZONE.ajax.requestModule("passwordrecovery/PasswordRecovery2Module", p, WIKIDOT.modules.PasswordRecoveryModule.callbacks.next1);
 	}	,
-	
+
 	next2: function(e){
-		
+
 		var p = OZONE.utils.formToArray("pr-form");
 		p.action = "PasswordRecoveryAction";
 		p.event = "step2";
-		
+
 		if(p.password != p.password2){
 			$("recovery-error").innerHTML = "The passwords are not identical.";
 			$("recovery-error").style.display="block";
 			return;
 		}
-		
+
 		//crypt
 		var rsa = new RSAKey();
 		rsa.setPublic(WIKIDOT.vars.rsakey, "10001");
@@ -78,13 +78,13 @@ WIKIDOT.modules.PasswordRecoveryModule.callbacks = {
 			return;
 		}
 		if(!WIKIDOT.utils.handleError(r)) {return;}
-		
+
 		// ok?
-		
+
 		var w = new OZONE.dialogs.Dialog();
 		w.content = r.body;
 		w.show();
-		
+
 	},
 	next2: function(r){
 		if(r.status == 'form_error'){

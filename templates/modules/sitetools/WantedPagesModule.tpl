@@ -21,7 +21,7 @@
 					<a href="/{$page->getUnixName()}">{$page->getTitleOrUnixName()|escape}</a><br/>
 				{/foreach}
 			</td>
-			<td>	
+			<td>
 				<a href="/{$name|escape}" class="newpage">{$name|escape}</a>
 			</td>
 		</tr>

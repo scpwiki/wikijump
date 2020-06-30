@@ -6,7 +6,7 @@
 		{ltext lang="en"}
 		<h1>Adding <em>{$user->getNickName()|escape}</em> as a contact</h1>
 		<p>
-			Are you sure you want to add {printuser user=$user image=true} 
+			Are you sure you want to add {printuser user=$user image=true}
 			as your new contact?
 		</p>
 		<p>
@@ -17,7 +17,7 @@
 		{ltext lang="pl"}
 		<h1>Dodać użytkownika<em>{$user->getNickName()|escape}</em> jako kontakt?</h1>
 		<p>
-			Jesteś pewien, że chcesz dodać użytkownika {printuser user=$user image=true} 
+			Jesteś pewien, że chcesz dodać użytkownika {printuser user=$user image=true}
 			do swojej listy kontaktów?
 		</p>
 		<p>

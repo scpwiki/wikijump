@@ -1,6 +1,6 @@
 {**
 * Renders the whole row of the form.
-* @param string $form name of the form as defined in the xml conf file 
+* @param string $form name of the form as defined in the xml conf file
 * @param string $fieldname name of the field
 * @param string $idr - id of the row
 * @param string $style
@@ -9,9 +9,9 @@
 	<tr {if $idr} id="{$idr}" {/if} {if $form->isValid($fieldname) == false}class="of-errorrow"{/if} {if $style}style="{$style}"{/if}>
 		<td class="of-left">
 			{if $form->getExtraAttribute($fieldname, "required") == "true"}
-				<span style="color: red; font-family: verdana, Helvetica, sans-serif; font-weight: boldest; vertical-align: -2px;">*</span> 
+				<span style="color: red; font-family: verdana, Helvetica, sans-serif; font-weight: boldest; vertical-align: -2px;">*</span>
 			{/if}
-			{$form->getFieldTitle("$fieldname")} 
+			{$form->getFieldTitle("$fieldname")}
 		</td>
 		<td class="of-right">
 			{macro name="formfield" form=$form fieldname=$fieldname}
@@ -21,13 +21,13 @@
 {/defmacro}
 
 {**
-* @param string $form 
+* @param string $form
 * @param string $fieldname
 *}
 {defmacro name="formfield"}
 {assign var="fieldType" value=$form->getFieldType($fieldname)}
 			{if $fieldType=='text' || $fieldType=='password'}
-			<input name="{$form->getFieldLabel($fieldname)}" 
+			<input name="{$form->getFieldLabel($fieldname)}"
 				{$form->renderingString($fieldname)}
 				{if $form->getFieldType($fieldname) == 'checkbox'}
 					{if $form->getFieldValue($fieldname) == true}checked="checked"{/if}
@@ -38,7 +38,7 @@
 				/>
 			{/if}
 			{if $fieldType == 'checkbox'}
-				<input name="{$form->getFieldLabel($fieldname)}" 
+				<input name="{$form->getFieldLabel($fieldname)}"
 				{$form->renderingString($fieldname)}
 				{if $form->getFieldValue($fieldname) == true}checked="checked"{/if}
 				{if $id} id="{$id}" {/if}
@@ -50,7 +50,7 @@
 				{if $id} id="{$id}" {/if}
 				>
 				{* options follow! *}
-				{if $form->getSelectValueListName($fieldname) != null && $form->getSelectValueListName($fieldname) != ''}	
+				{if $form->getSelectValueListName($fieldname) != null && $form->getSelectValueListName($fieldname) != ''}
 					{assign var=listName value=$form->getSelectValueListName($fieldname)}
 					{assign var="vals" value=$serviceManager->getService("ListResolver")->getValuesArray($listName) }
 				{/if}
@@ -58,21 +58,21 @@
 					{assign var=listName value=$form->getSelectValueTableName($fieldname)}
 					{assign var="vals" value=$serviceManager->getService("ListResolver")->getValuesArrayFromTable($listName) }
 				{/if}
-				
-				{if $form->getFieldValue($fieldname) == '' || $form->getFieldValue($fieldname) == null} 
+
+				{if $form->getFieldValue($fieldname) == '' || $form->getFieldValue($fieldname) == null}
 					{assign var="pleaseselectval" value=$serviceManager->getService("ListResolver")->getPleaseSelectValue($listName) }
 					{if $pleaseselectval!=null}<option value=" " selected="selected">{$pleaseselectval}</option>{/if}
-				{/if} 
+				{/if}
 				{foreach from=$vals key=key item=item}
 					<option value="{$key}"
 					{if $form->getFieldValue($fieldname) == $key && $form->getFieldValue($fieldname) != null}selected="selected"{/if}
 					>{$item}</option>
 				{/foreach}
-				
+
 			</select>
 			{/if}
 			{if $fieldType == 'textarea'}
-				<textarea name="{$form->getFieldLabel($fieldname)}" 
+				<textarea name="{$form->getFieldLabel($fieldname)}"
 					{$form->renderingString($fieldname)}
 					{if $id!=null} id="{$id}" {/if}
 					>{$form->getFieldValue($fieldname)|escape}</textarea>
@@ -80,11 +80,11 @@
 			{if $fieldType=='file'}
 			{* max upload size *}
 			{if $form->getUploadMaxSize($fieldname)!= null}
-				<input type="hidden" name="MAX_FILE_SIZE" 
-					value="{$form->getUploadMaxSize($fieldname)}" 
+				<input type="hidden" name="MAX_FILE_SIZE"
+					value="{$form->getUploadMaxSize($fieldname)}"
 				/>
 			{/if}
-			<input name="{$form->getFieldLabel($fieldname)}" 
+			<input name="{$form->getFieldLabel($fieldname)}"
 				{$form->renderingString($fieldname)}
 {*				value="{$form->getFieldValue($fieldname)|escape}"*}
 			/>
@@ -100,7 +100,7 @@
 						{$form->getHelpText($fieldname)}
 					</div>
 			{/if}
-			
+
 			{* subtitle follows *}
 			{if $form->getFieldSubTitle("$fieldname") != ''}
 				<br/>
@@ -175,7 +175,7 @@
 {defmacro name="formtablestart"}
 	<div style="text-align: center"> <!-- because IE sucks -->
 	<table class="formtable" {if $id}id="{$id}"{/if}>
-	
+
 	{if $title!=''}
 		<tr>
 			<td colspan="2" style="padding-top: 0.4em">
@@ -207,7 +207,7 @@
 {defmacro name="formrowlist1"}
 	<tr>
 		<td>
-			{$form->getFieldTitle("$fieldname")} 
+			{$form->getFieldTitle("$fieldname")}
 		</td>
 		<td>
 			{assign var="fieldType" value=$form->getFieldType($fieldname)}
@@ -234,7 +234,7 @@
 	{if $submit_label == null}{assign var="submit_label" value="&nbsp;&nbsp; dalej &nbsp;&nbsp;"}{/if}
 	{if $submit_event == null}{assign var="submit_name" value="submit"}
 		{else}{assign var="submit_name" value="event_$submit_event"}{/if}
-	
+
 	<tr class="formbuttons">
 		<td colspan="2">
 			<center>
@@ -262,7 +262,7 @@
 						{foreach from=$form->getErrorMessages() item=mess}
 							<li>{$mess}</li>
 						{/foreach}
-					</ul>	
+					</ul>
 				</div>
 			</div>
 		{/if}
@@ -288,14 +288,14 @@
 			</div>
 		{/if}
 	{/foreach}
-{/strip}	
+{/strip}
 
 {/defmacro}
 
 {defmacro name="formrow1c"}
 	<tr>
 		<td class="of-left">
-			{$form->getFieldTitle("$fieldname")} 
+			{$form->getFieldTitle("$fieldname")}
 		</td>
 		<td class="of-right">
 			{assign var="fieldType" value=$form->getFieldType($fieldname)}

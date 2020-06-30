@@ -7,11 +7,11 @@
 				<option {if $theme->getThemeId()==$currentTheme->getThemeId()}selected="selected"{/if} value="{$theme->getThemeId()}">{$theme->getName()|escape}</option>
 			{/foreach}
 		</select>
-		
+
 		{*
 		<input type="button" class="button" value="change theme" onclick="window.location.href=window.location.href.replace(/(\/theme_id\/[0-9]+)|$/, '/theme_id/'+$('themePreviewerSelect').value);"/>
 		*}
-		
+
 	</form>
 </div>
 {/if}

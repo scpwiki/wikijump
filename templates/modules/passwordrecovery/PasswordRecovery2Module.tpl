@@ -2,15 +2,15 @@
 	<div class="title">
 		Password recovery
 	</div>
-	
+
 	<div class="content">
 		<h1>Email verification</h1>
-		
+
 		<p>
 			Now check your email address ({$email|escape}) for the letter from {$SERVICE_NAME}. Copy the
 			verification code from the letter into the form below. Please also set a new password.
 		</p>
-		
+
 		<div class="error-block" id="recovery-error" style="display: none"></div>
 		<form id="pr-form">
 			<table class="form">
@@ -59,5 +59,5 @@
 			<a href="javascript:;" onclick="WIKIDOT.modules.PasswordRecoveryModule.listeners.next2(event);">continue</a>
 		</div>
 	</form>
-	
+
 </div>

@@ -35,7 +35,7 @@
 		<tr>
 			<td>
 				{t}301 redirects{/t}:
-			</td>	
+			</td>
 			<td>
 				{*
 				<input style="margin: 3px 0;" class="text" id="sm-domain-redirect-1" value="{$redirects[0]}" type="text" value="" size="40" maxlength="50"/>
@@ -51,7 +51,7 @@
 					{if $redirects}
 						{foreach from=$redirects item=redirect}
 							<div>
-								<input style="margin: 3px 0;" class="text"  value="{$redirect}" type="text" value="" size="40" maxlength="50"/> 
+								<input style="margin: 3px 0;" class="text"  value="{$redirect}" type="text" value="" size="40" maxlength="50"/>
 								<a href="javascript:;" onclick="WIKIDOT.modules.ManagerSiteDomainModule.listeners.removeRedirect(event)">remove</a>
 							</div>
 						{/foreach}
@@ -59,7 +59,7 @@
 						<div>
 							<input style="margin: 3px 0;" class="text"  value="" type="text" value="" size="40" maxlength="50"/>
 							<a href="javascript:;" onclick="WIKIDOT.modules.ManagerSiteDomainModule.listeners.removeRedirect(event)">remove</a>
-						</div>	
+						</div>
 					{/if}
 				</div>
 				<a href="javascript:;" onclick="WIKIDOT.modules.ManagerSiteDomainModule.listeners.addRedirect(event)">+ add more</a>
@@ -68,7 +68,7 @@
 					<a href="javascript:;" onclick="WIKIDOT.modules.ManagerSiteDomainModule.listeners.removeRedirect(event)">remove</a>
 				</div>
 			</td>
-			
+
 		</tr>
 	</table>
 	<div class="buttons">
@@ -88,18 +88,18 @@
 		You should own (or have administrative access to) the domain you want to use,
 	</li>
 	<li>
-		You should point your nameservers (via "control panel" if your provider gives you one - 
+		You should point your nameservers (via "control panel" if your provider gives you one -
 		look for advanced DNS settings -  or
 		by any other means) to resolve your domain to servers of {$SERVICE_NAME}. This should be done
 		by setting a <b>CNAME record</b> to "<b>{$URL_DOMAIN}</b>" value.
 	</li>
 	<li>
-		Very often one has to wait (depends on your provider or DNS settings) for the changes 
+		Very often one has to wait (depends on your provider or DNS settings) for the changes
 		to propagate over the internet.
 	</li>
 	<li>
 		Exactly the same procedure should be applied for the redirected domains (URLs) to
-		be handled by Wikidot.com servers. 
+		be handled by Wikidot.com servers.
 	</li>
 	<li>Sometimes your might be forced to provide the IP address
 		of the Wikidot.com server. In such a case use <b>{$IP_HOST}</b>.

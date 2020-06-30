@@ -17,7 +17,7 @@
 				<select id="as-language-select">
 					<option value="en" {if $lang=="en"}selected="selected"{/if}>{t}English{/t}</option>
 					<option value="pl" {if $lang=="pl"}selected="selected"{/if}>{t}Polish{/t}</option>
-				</select>	
+				</select>
 			</td>
 		</tr>
 	</table>

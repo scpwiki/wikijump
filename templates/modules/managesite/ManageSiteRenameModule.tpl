@@ -6,9 +6,9 @@
 </p>
 <p>
 	Please note however that this might confuse your users since they will not be able to access this wiki with the old web address.
-</p>	
-<p>	
-	This action is available only to the person who actually 
+</p>
+<p>
+	This action is available only to the person who actually
 	started the Site (the founder).
 </p>
 <p>
@@ -34,5 +34,5 @@
 {else}
 	<div class="error-block">
 		Sorry, this option is available only to the founder of this site - {printuser user=$founder image=true}
-	</div>	
+	</div>
 {/if}

@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -30,12 +30,12 @@ WIKIDOT.modules.InviteMembersModule.listeners = {
 		}
 		$("invitation-addresses").appendChild(clone);
 	},
-	
+
 	removeRecipient: function(e){
 		// get the parrent "table" element
 		var el = YAHOO.util.Event.getTarget(e);
 		while(el && el.tagName.toLowerCase() != "table"){
-			el = el.parentNode;	
+			el = el.parentNode;
 		}
 		if(el){
 			el.parentNode.removeChild(el);
@@ -52,22 +52,22 @@ WIKIDOT.modules.InviteMembersModule.listeners = {
 		for(var i=0; i<adrs.length; i++){
 			frmt.push(adrs[i][1]+' <' + adrs[i][0]+'>');
 		}
-		
+
 		$("recipients-list-formatted").innerHTML = OZONE.utils.escapeHtml(frmt.join(', '));
 	},
-	
+
 	send: function(e){
 		WIKIDOT.modules.InviteMembersModule.utils.updateAddresses(null);
 		var adrs = WIKIDOT.modules.InviteMembersModule.vars.addresses;
-		
+
 		if(adrs.length==0){
 			var w = new OZONE.dialogs.ErrorDialog();
 			w.content = "No valid recepients have been given. For each person both the email address and name should be given.";
 			w.show();
 			return;
-		
+
 		}
-		
+
 		// check for invalid records
 		var invalids = YAHOO.util.Dom.getElementsByClassName('invalid', 'input',$("invitation-addresses"));
 		if(invalids.length>0){
@@ -84,7 +84,7 @@ WIKIDOT.modules.InviteMembersModule.listeners = {
 		p.action = 'wiki/UserInvitationAction';
 		p.message = $("inv-message").value;
 		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.InviteMembersModule.callbacks.send);
-			
+
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Sending invitations...";
 		w.show();
@@ -92,12 +92,12 @@ WIKIDOT.modules.InviteMembersModule.listeners = {
 	showBulkAdd: function(e){
 		$("invitation-addresses-bulk-box").style.display = "block";
 		OZONE.visuals.scrollTo($("invitation-addresses-bulk-box"));
-		
+
 	},
 	cancelBulkAdd: function(e){
 		$("invitation-addresses-bulk-box").style.display = "none";
 	},
-	
+
 	processBulkAdd: function(e){
 		var text = $("invitation-addresses-bulk-text").value;
 		var entries = text.split(/[\n,]+/);
@@ -127,7 +127,7 @@ WIKIDOT.modules.InviteMembersModule.listeners = {
 			inpts[2].checked = value;
 		}
 	},
-	
+
 	tidyList: function(e){
 		// remove empty elements, remove duplicates, add a few empty at the end
 		var tbls = $("invitation-addresses").getElementsByTagName("table");
@@ -149,19 +149,19 @@ WIKIDOT.modules.InviteMembersModule.listeners = {
 			}
 			emails.push(email);
 		}
-		
+
 		for(var i=0; i<toRemove.length; i++){
 			if(toRemove[i].parentNode){
 				toRemove[i].parentNode.removeChild(toRemove[i]);
 			}
 		}
-		
+
 		WIKIDOT.modules.InviteMembersModule.listeners.updateTo(null);
-		
+
 		WIKIDOT.modules.InviteMembersModule.listeners.moreRecipients();
 		WIKIDOT.modules.InviteMembersModule.listeners.moreRecipients();
 	},
-	
+
 	viewHistory: function(e){
 		OZONE.ajax.requestModule("wiki/invitations/SentMemberInvitationsModule", null, WIKIDOT.modules.InviteMembersModule.callbacks.viewHistory);
 	}
@@ -171,15 +171,15 @@ WIKIDOT.modules.InviteMembersModule.listeners = {
 WIKIDOT.modules.InviteMembersModule.callbacks = {
 	send: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
-		
+
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Invitations have been saved";
 		w.show();
-		
+
 		WIKIDOT.modules.InviteMembersModule.listeners.viewHistory();
-		
+
 	},
-	
+
 	viewHistory: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
 		$("invite-members-module-box").innerHTML = r.body;
@@ -213,12 +213,12 @@ WIKIDOT.modules.InviteMembersModule.utils = {
 		}
 		WIKIDOT.modules.InviteMembersModule.vars.addresses = adrs;
 	},
-	
+
 	reload: function(){
 		OZONE.ajax.requestModule("wiki/invitations/InviteMembersModule",null,
 			WIKIDOT.modules.InviteMembersModule.utils.reloadCallback);
 	},
-	
+
 	reloadCallback: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
 		$("invite-members-module-box").innerHTML = r.body;

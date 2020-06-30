@@ -20,14 +20,14 @@
 		<li><a href="{$HTTP_SCHEMA}://{$URL_HOST}/account:you/start/messages/composeto/{$user->getUserId()}">{t}Write PM{/t}</a></li>
 		<li><a href="javascript:;" onclick="WIKIDOT.modules.UserInfoModule.listeners.addContact(event,{$userId})">{t}Add to contacts{/t}</a></li>
 	</ul>
-	
+
 	<br/><br/><br/>
 	<ul>
 		<li><a href="javascript:;" style="color: #AAD" onclick="WIKIDOT.modules.UserInfoModule.listeners.flagUser(event,{$userId})">{t}flag user as abusive{/t}</a></li>
 	</ul>
-	
-	
-	
+
+
+
 </div>
 {/strip}
 <div id="user-info-area">

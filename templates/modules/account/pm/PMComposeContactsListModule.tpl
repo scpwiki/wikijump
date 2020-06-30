@@ -4,16 +4,16 @@
 	</div>
 	<div class="content">
 		<h1>{t}Choose the recipient from your contacts{/t}</h1>
-		
+
 		<div id="pm-contacts-list" style="width: 60%;">
 			{if $contacts}
 				<ul style="list-style: none">
 					{foreach from=$contacts item=contact}
 						{assign var=user value=$contact->getTargetUser()}
 						<li>
-							<span class="printuser"><img class="small" src="{$contact->getTemp("avatarUri")}"/> 
+							<span class="printuser"><img class="small" src="{$contact->getTemp("avatarUri")}"/>
 							<a href="javascript:;" onclick="OZONE.dialog.cleanAll();WIKIDOT.modules.PMComposeModule.utils.selectRecipient({$user->getUserId()}, '{$user->getNickName()|escape}');" >{$user->getNickName()|escape}</a>
-						</li>				
+						</li>
 					{/foreach}
 				</ul>
 			{else}

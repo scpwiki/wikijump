@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -18,11 +18,11 @@ WIKIDOT.modules.ParentPageModule.listeners = {
 		p.event = 'setParentPage';
 		p.parentName = $("parent-page-name").value;
 		p.pageId = WIKIREQUEST.info.pageId;
-		
+
 		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.ParentPageModule.callbacks.setParent);
 		YAHOO.util.Event.stopEvent(e);
 	}
-	
+
 }
 
 WIKIDOT.modules.ParentPageModule.callbacks = {
@@ -38,18 +38,18 @@ WIKIDOT.modules.ParentPageModule.callbacks = {
 		} else{
 			if(!WIKIDOT.utils.handleError(r)) {return;}
 		}
-	}	
+	}
 
 }
 
 WIKIDOT.modules.ParentPageModule.init = function(){
 	// attach the autocomplete thing
-	var myDataSource = new YAHOO.widget.DS_XHR("/quickmodule.php", ['pages', 'unix_name', 'title']); 
+	var myDataSource = new YAHOO.widget.DS_XHR("/quickmodule.php", ['pages', 'unix_name', 'title']);
 	myDataSource.scriptQueryParam="q";
 	myDataSource.scriptQueryAppend = "s="+WIKIREQUEST.info.siteId+"&module=PageLookupQModule";
 
 	var myAutoComp = new YAHOO.widget.AutoComplete("parent-page-name","parent-page-name-list", myDataSource);
-	myAutoComp.formatResult = function(aResultItem, sQuery) { 
+	myAutoComp.formatResult = function(aResultItem, sQuery) {
 		var title = aResultItem[1];
 		var unixName = aResultItem[0];
 		if(unixName!= null){
@@ -60,7 +60,7 @@ WIKIDOT.modules.ParentPageModule.init = function(){
 	}
 	myAutoComp.minQueryLength = 2;
 	myAutoComp.queryDelay = 0.5;
-	
+
 }
 
 WIKIDOT.modules.ParentPageModule.init();

@@ -1,6 +1,6 @@
 <h1>{t}Block this page{/t}</h1>
 <p>
-	{t}When the page is blocked only Site Administrators and Moderators with enough 
+	{t}When the page is blocked only Site Administrators and Moderators with enough
 	privileges can edit and modify it. This is sometimes useful e.g. for the starting page.{/t}
 </p>
 

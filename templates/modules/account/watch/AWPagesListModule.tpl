@@ -30,6 +30,6 @@
 {/if}
 
 <p>
-	To watch a new page simply open this page in the browser, click on "history" 
+	To watch a new page simply open this page in the browser, click on "history"
 	option and "add to watched".
 </p>

@@ -2,7 +2,7 @@
 <?php
 /**
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -20,7 +20,7 @@
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
- * @copyright Copyright (c) 2008, Wikidot Inc.
+ * @copyright Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 

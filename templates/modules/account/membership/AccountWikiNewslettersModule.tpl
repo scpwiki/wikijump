@@ -9,7 +9,7 @@
 <h2>Default policy</h2>
 
 <p>
-	When you join a new Wiki - do you want to receive related newsletter? This describes 
+	When you join a new Wiki - do you want to receive related newsletter? This describes
 	the default behaviour. Most users want to keep this option enabled.
 </p>
 
@@ -20,7 +20,7 @@
 				{t}Receive newsletters by default?{/t}
 			</td>
 			<td>
-				<input type="checkbox" class="checkbox" 
+				<input type="checkbox" class="checkbox"
 					id="sm-receive-newsletters-default"
 					{if $defaultNewsletter}checked="checked"{/if}/>
 			</td>
@@ -44,7 +44,7 @@
 				<th>
 					Wiki
 				</th>
-				<th> 
+				<th>
 					{t}receive newsletters?{/t}
 				</th>
 			</tr>
@@ -72,11 +72,11 @@
 				</td>
 			</tr>
 		</table>
-		
+
 		<div class="buttons">
 			<input type="button" value="cancel" onclick="WIKIDOT.modules.AccountModule.utils.loadModule('am-settings')"/>
 			<input type="button" value="save" />
-		</div>	
+		</div>
 	</form>
 {else}
 	<p>

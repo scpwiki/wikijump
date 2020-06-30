@@ -3,19 +3,19 @@
 <div>
 {foreach from=$memberships item=membership}
 	{assign var=user value=$membership->getUser()}
-	{printuser user=$user image="yes"} 
-	
+	{printuser user=$user image="yes"}
+
 	<div style="padding-left: 20px">
 		member since:  <span class="odate">{$membership->getDateJoined()->getTimestamp()}|%e %b %Y, %H:%M %Z|agohover</span>
 		(<a href="javascript:;" onclick="if($('mem-options-{$user->getUserId()}').style.display=='none') $('mem-options-{$user->getUserId()}').style.display = 'block'; else $('mem-options-{$user->getUserId()}').style.display = 'none';">options</a>)
-		
+
 		<div id="mem-options-{$user->getUserId()}" style="display: none">
-			
+
 			<a href="javascript:;" onclick="removeUser({$user->getUserId()}, '{$user->getNickName()}')">remove</a>
 			| <a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteMembersListModule.listeners.removeAndBan({$user->getUserId()}, '{$user->getNickName()}')">remove &amp; ban</a>
 			| <a href="javascript:;" onclick="toModerators({$user->getUserId()})">to moderators</a>
 			| <a href="javascript:;" onclick="toAdmins({$user->getUserId()}, '{$user->getNickName()}')">to admins</a>
-			
+
 		</div>
 	</div>
 {/foreach}

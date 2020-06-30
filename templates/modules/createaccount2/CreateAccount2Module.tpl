@@ -17,14 +17,14 @@
 			window.location.href = url;
 		}, 2000);
 	}
-	
+
 	</script>
 	{/literal}
 
 {else}
 
 	{loadmacro set="Forms"}
-	<form id="reg2" action="dummy" method="post" onkeypress="return OZONE.utils.disableEnterKey(event)">	
+	<form id="reg2" action="dummy" method="post" onkeypress="return OZONE.utils.disableEnterKey(event)">
 		<div class="error-block" id="ca-error-block" style="display: none"></div>
 		<table class="form">
 			<tr>
@@ -36,11 +36,11 @@
 				</td>
 			</tr>
 		</table>
-		
+
 		{*<p>
 			{$evcode}
 		</p>*}
-			
+
 		<div class="buttons">
 			<input type="button" class="button" onclick="WIKIDOT.modules.CreateAccount2Module.listeners.cancel(event)" value="{t}cancel{/t}"/>
 			<input type="button" class="button" onclick="WIKIDOT.modules.CreateAccount2Module.listeners.nextClick(event)" value="{t}next{/t}"/>

@@ -6,12 +6,12 @@
 		<h1>			{t}You have already rated this page {/t}
 			<b>{if $rate != 0}{$rate|round|string_format:"%+d"}{else}{$rate|round}{/if}</b>.
 		</h1>
-		
+
 		{if $rate == $points}
 			<p>
 				{t}You can cancel your vote by clicking on the x button.{/t}
 			</p>
-		{else}	
+		{else}
 			<p>
 				{t}Would you like to change your vote to {/t}
 				<b>{if $points != 0}{$points|string_format:"%+d"}{else}{$points}{/if}</b>?

@@ -21,7 +21,7 @@
 								{if $canEdit}
 									<a href="javascript:;" class="icon3"><span>Edit Link</span></a>
 									<a href="javascript:;" class="icon2"><span>Remove</span></a>
-								{/if}				
+								{/if}
 							</span>
 						</div>
 						<div class="task">
@@ -36,16 +36,16 @@
 							</span>
 							<span class="options">
 								{if $canEdit}
-									<a href="javascript:;" class="icon3"><span>Edit Link</span></a>	
+									<a href="javascript:;" class="icon3"><span>Edit Link</span></a>
 									<a href="javascript:;" class="icon2"><span>Remove</span></a>
-								{/if}	
+								{/if}
 							</span>
-						</div>	
+						</div>
 					{else}
 						{foreach from=$data item=itemData}
 						<div class="task">
-							<span class="checkbox">				
-								<input type="checkbox" class="checkbox" {if $itemData->checked}checked="checked"{/if} {if !$canEdit}disabled="disabled"{/if}/>	
+							<span class="checkbox">
+								<input type="checkbox" class="checkbox" {if $itemData->checked}checked="checked"{/if} {if !$canEdit}disabled="disabled"{/if}/>
 							</span>
 							<span>
 								<span class="text">{$itemData->text|escape}</span>
@@ -65,15 +65,15 @@
 									<a href="javascript:;" class="icon2"><span>Remove</span></a>
 								{/if}
 							</span>
-						</div>	
+						</div>
 						{/foreach}
-					{/if}		
+					{/if}
 				</div>
 			</td>
 		</tr>
 	</table>
 	<div class="bottom-options">
-		{if $canEdit}	
+		{if $canEdit}
 			<a href="javascript:;" id="simpletodo-add-task-anchor{$listCounter}" onclick="WIKIDOT.modules.SimpleToDoModule.listeners.clickToAddTask(event,'simpletodo_{$listCounter}')"><img src="/common--images/todo/list-add.png"/>Add Item</a>
 		{/if}
 	</div>

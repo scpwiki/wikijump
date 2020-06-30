@@ -19,7 +19,7 @@
 					</div>
 				{/if}
 			</div>
-			
+
 		{/foreach}
 	</div>
 {else}

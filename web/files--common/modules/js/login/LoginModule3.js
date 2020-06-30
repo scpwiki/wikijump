@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -27,12 +27,12 @@ WIKIDOT.modules.LoginModule3.listeners = {
 		}
 		if(welcome){
 			p['welcome'] = welcome;
-			
+
 		}
-		
+
 		$("login-buttons").style.display="none";
 		$("login-progress").style.display="block";
-		
+
 		var rsa = new RSAKey();
 		rsa.setPublic(WIKIDOT.vars.rsakey, "10001");
 		p['name'] = linebrk(hex2b64(rsa.encrypt(WIKIDOT.vars.loginSeed+p['loginName'])),64);
@@ -43,15 +43,15 @@ WIKIDOT.modules.LoginModule3.listeners = {
 		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.LoginModule3.callbacks.loginClick);
 
 	},
-	
+
 	cancel: function(e){
 		var p = new Object();
 		p.action = "LoginAction";
 		p.event = "loginCancel";
 		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.LoginModule3.callbacks.cancel);
-		
+
 	},
-	
+
 	namePress: function(e){
 		var chcode = YAHOO.util.Event.getCharCode(e);
 		if((chcode == 13) && $('login-form-name').value.length>0 ){
@@ -68,16 +68,16 @@ WIKIDOT.modules.LoginModule3.callbacks = {
 			$("login-head").style.display = "none";
 			$("loginerror").innerHTML=r.message;
 			$("loginerror").style.display = "block";
-			
+
 			$("login-buttons").style.display="block";
 			$("login-progress").style.display="none";
 			return;
-		} 
+		}
 		if(!WIKIDOT.utils.handleError(r)) {return;}
 		setTimeout('top.location.href="'+WIKIDOT.vars.backUrl+'"', 1000);
-		
+
 	},
-	
+
 	cancel: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
 		OZONE.dialog.cleanAll();

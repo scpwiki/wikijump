@@ -8,7 +8,7 @@
 				<td>
 					{printuser user=$user image=true}
 				</td>
-				<td style="padding-left: 5em">	
+				<td style="padding-left: 5em">
 					{$user->getName()|escape}
 				</td>
 				</td>

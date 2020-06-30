@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -12,7 +12,7 @@
 WIKIDOT.modules.UserInfoModule = {};
 
 WIKIDOT.modules.UserInfoModule.vars = {};
- 
+
 WIKIDOT.modules.UserInfoModule.listeners = {
   	tabClick: function(e){
   		// delete "active" state from all other elements
@@ -21,8 +21,8 @@ WIKIDOT.modules.UserInfoModule.listeners = {
   		for(var i=0; i<as.length; i++){
   			if(as[i].className == 'active'){
   				as[i].className = '';
-  			}	
-  		
+  			}
+
   		}
   		this.className="active";
   		var moduleName = WIKIDOT.modules.UserInfoModule.vars.modulesMapping[this.id];
@@ -30,16 +30,16 @@ WIKIDOT.modules.UserInfoModule.listeners = {
 		parms['user_id'] = USERINFO.userId;
 		OZONE.ajax.requestModule(moduleName, parms, WIKIDOT.modules.UserInfoModule.callbacks.tabClick);
   	},
-  	
+
   	flagUser: function(e, userId){
 		OZONE.ajax.requestModule('report/FlagUserModule', {targetUserId: userId}, WIKIDOT.modules.UserInfoModule.callbacks.flagUser);
-		
+
 	},
-	
+
 	addContact: function(e, userId){
 		OZONE.ajax.requestModule('userinfo/UserAddToContactsModule', {userId: userId}, WIKIDOT.modules.UserInfoModule.callbacks.addContact);
 	}
-  
+
 }
 
 WIKIDOT.modules.UserInfoModule.callbacks = {
@@ -53,22 +53,22 @@ WIKIDOT.modules.UserInfoModule.callbacks = {
 		if(!WIKIDOT.utils.handleError(r)) {return;}
 		var w = new OZONE.dialogs.Dialog();
 		w.content = r.body;
-		w.show();		
+		w.show();
 	}	,
-	
+
 	addContact: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
 		var w = new OZONE.dialogs.Dialog();
 		w.content = r.body;
-		w.show();	
+		w.show();
 	}
-	
+
 }
 
 WIKIDOT.modules.UserInfoModule.init = function(){
 	var tabIds = ['ui-profile-b', 'ui-member-b', 'ui-admin-b', 'ui-contrib-b', 'ui-posts-b', 'ui-moderator-b'];
 	YAHOO.util.Event.addListener(tabIds, "click", WIKIDOT.modules.UserInfoModule.listeners.tabClick);
-	
+
 	var mm = new Array();
 	mm['ui-profile-b'] = "userinfo/UserInfoProfileModule";
 	mm['ui-member-b'] = "userinfo/UserInfoMemberOfModule";
@@ -78,7 +78,7 @@ WIKIDOT.modules.UserInfoModule.init = function(){
 	mm['ui-posts-b'] = "userinfo/UserRecentPostsModule";
 	// etc...
 	WIKIDOT.modules.UserInfoModule.vars.modulesMapping = mm;
-	
+
 }
 
 WIKIDOT.modules.UserInfoModule.init();

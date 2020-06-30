@@ -8,7 +8,7 @@
 	</div>
 {else}
 	<p>
-		{t}It seems you have no tags attached to pages. To attach a tag simply click on the <em>tags</em> 
+		{t}It seems you have no tags attached to pages. To attach a tag simply click on the <em>tags</em>
 		button at the bottom of any page.{/t}
 	</p>
 {/if}

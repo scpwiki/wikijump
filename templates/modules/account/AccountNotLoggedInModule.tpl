@@ -8,7 +8,7 @@
 						<a href="javascript:;" onclick="WIKIDOT.page.listeners.loginClick(event)"
 							>{t}Log in{/t}</a>
 					</div>
-					<p>	
+					<p>
 						{t}if you already have a Wikidot account{/t}
 					</p>
 				</td>

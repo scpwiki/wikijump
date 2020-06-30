@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -14,13 +14,13 @@ WIKIDOT.modules.PageHistoryModule = {};
 WIKIDOT.modules.PageHistoryModule.vars = {};
 
 WIKIDOT.modules.PageHistoryModule.listeners = {
-	
+
 	updateList: function(e){
 		var p = new Object();
 		p['page'] = 1;
 		p['perpage'] = $("h-perpage").value;
 		p['page_id'] = WIKIREQUEST.info.pageId;
-		
+
 		// which revisions...
 		var o = new Object();
 		if($("rev-type-all").checked) o.all = true;
@@ -29,16 +29,16 @@ WIKIDOT.modules.PageHistoryModule.listeners = {
 		if($("rev-type-move").checked) o.move = true;
 		if($("rev-type-files").checked) o.files = true;
 		if($("rev-type-meta").checked) o.meta = true;
-		
+
 		p['options'] = JSON.stringify(o);
-		
+
 		WIKIDOT.modules.PageHistoryModule.vars.params = p; // for pagination
-		
+
 		OZONE.ajax.requestModule("history/PageRevisionListModule", p, WIKIDOT.modules.PageHistoryModule.callbacks.updateList);
 	},
-	
+
 	compareClick: function(e){
-		
+
 		var form1 = $("history-form-1");
 		var radios = form1.getElementsByTagName('input');
 		for (i=0;i<radios.length;i++){
@@ -58,19 +58,19 @@ WIKIDOT.modules.PageHistoryModule.listeners = {
 		parms['show_type'] = 'inline';
 		OZONE.ajax.requestModule("history/PageDiffModule",parms,WIKIDOT.modules.PageHistoryModule.callbacks.compareClick);
 	},
-	
+
 	closeActionArea: function(e){
 		var a = $("history-subarea");
 		a.innerHTML = "";
 		a.style.display="none";
-		
-	}, 
-	
+
+	},
+
 	revert: function(e, revisionId){
-		
+
 		var id = "revision-row-"+revisionId;
 		var revisionNumber = $(id).getElementsByTagName('td')[0].innerHTML;
-		
+
 		//show a confirm dialog first
 		var w = new OZONE.dialogs.ConfirmationDialog();
 		w.content = "<h1>Revert page revision?</h1><p>Are you sure you want to revert page version to " +
@@ -85,7 +85,7 @@ WIKIDOT.modules.PageHistoryModule.listeners = {
 		w.show();
 		WIKIDOT.modules.PageHistoryModule.vars.revertRevisionId = revisionId;
 	},
-	
+
 	revert2: function(e, force){
 		var p = new Object();
 		p['pageId'] =  WIKIREQUEST.info.pageId;
@@ -96,25 +96,25 @@ WIKIDOT.modules.PageHistoryModule.listeners = {
 			p['force'] = "yes";
 		}
 		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.PageHistoryModule.callbacks.revert);
-		
+
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Reverting page version...";
 		w.show();
-		
+
 	},
 	watchPage: function(e){
 		var p = new Object();
 		p.pageId = WIKIREQUEST.info.pageId;
 		p.action = "WatchAction";
 		p.event = "watchPage";
-		
+
 		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.PageHistoryModule.callbacks.watchPage);
 	}
-		
+
 }
 
 WIKIDOT.modules.PageHistoryModule.callbacks = {
-	
+
 	updateList: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
 		$("revision-list").innerHTML = r.body;
@@ -136,7 +136,7 @@ WIKIDOT.modules.PageHistoryModule.callbacks = {
 		OZONE.utils.formatDates("revision-list");
 
 	},
-	
+
 	compareClick: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
 		OZONE.utils.setInnerHTMLContent('history-subarea', r.body);
@@ -146,17 +146,17 @@ WIKIDOT.modules.PageHistoryModule.callbacks = {
 		setTimeout("OZONE.visuals.scrollTo('history-subarea')", 100);
 		OZONE.utils.formatDates('history-subarea');
 	},
-	
+
 	showVersionClick: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
-		
+
 		$('page-content').innerHTML = r.body;
 		OZONE.utils.formatDates('page-content');
 		var el = $('page-title');
 		if(el){el.innerHTML = r.title;}
 		setTimeout("OZONE.visuals.scrollTo('header')", 50);
 	},
-	
+
 	showSource: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
 		OZONE.utils.setInnerHTMLContent("history-subarea", r.body);
@@ -165,26 +165,26 @@ WIKIDOT.modules.PageHistoryModule.callbacks = {
 		WIKIDOT.modules.PageHistoryModule.utils.addCloseToActionArea();
 		//newwindow = window.open(null, "_blank",'location=no,menubar=no,titlebar=no,resizable=yes,scrollbars=yes,width=' + (screen.width*0.8) + ',height=' +
 	},
-	
+
 	revert: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
-		
+
 		if(r.locks == true){
 			var w = new OZONE.dialogs.Dialog();
 			w.content = r.body;
 			w.show();
 			return;
 		}
-		
+
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Page content has been reverted.";
 		w.show();
 		setTimeout('window.location.href="/'+WIKIREQUEST.info.requestPageName+'"',1000);
-		
+
 	},
 	watchPage: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}	
-		
+		if(!WIKIDOT.utils.handleError(r)) {return;}
+
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Page added to watched.";
 		w.show();
@@ -197,7 +197,7 @@ WIKIDOT.modules.PageHistoryModule.utils = {
 		var cl = document.createElement("a");
 		cl.innerHTML="close";
 		cl.href="javascript:;";
-		cl.className = "action-area-close"; 
+		cl.className = "action-area-close";
 		var aa = $("history-subarea");
 		if (aa.firstChild){
 			aa.insertBefore(cl,aa.firstChild);
@@ -230,7 +230,7 @@ function showSource(revisionId){
  * Make the selected revision the current one.
  */
 function revertTo(revisionId){
-	confirm("revision???");		
+	confirm("revision???");
 
 }
 
@@ -238,7 +238,7 @@ function updatePagedList(pageNo){
 	var p = WIKIDOT.modules.PageHistoryModule.vars.params;
 	p['page'] = pageNo;
 	OZONE.ajax.requestModule("history/PageRevisionListModule", p, WIKIDOT.modules.PageHistoryModule.callbacks.updatePageList);
-	
+
 }
 
 // bind!

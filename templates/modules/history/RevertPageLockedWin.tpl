@@ -7,10 +7,10 @@
 		<p>
 			{t}It seems that the page is currently being edited by another user(s):{/t}
 		</p>
-		
+
 		{foreach from=$locks item=lock}
 			<p>
-				{t}Locked by{/t}: {printuser user=$lock->getUserOrString() image="true"}<br/> 
+				{t}Locked by{/t}: {printuser user=$lock->getUserOrString() image="true"}<br/>
 				{t}Lock mode{/t}: {$lock->getMode()|escape}<br/>
 				{t}Started editing{/t}: <span class="odate">{$lock->getDateStarted()->getTimestamp()}</span> ({$lock->getStartedAgo()} {t}seconds ago{/t})<br/>
 				{t}Lock will expire in{/t}: {$lock->getExpireIn()} {t}seconds (if user remains inactive){/t}</br>
@@ -27,4 +27,4 @@
 			<a  href="javascript:;" onclick="WIKIDOT.modules.PageHistoryModule.listeners.revert2(event,true)">{t}remove lock(s) and proceed{/t}</a>
 		</div>
 	</div>
-</div>			
+</div>

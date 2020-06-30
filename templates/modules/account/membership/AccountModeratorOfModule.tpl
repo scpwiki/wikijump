@@ -21,16 +21,16 @@
 						{$site->getDescription()|escape}
 					</div>
 				{/if}
-				
+
 			</div>
 		{/foreach}
 	</div>
-	
+
 {else}
 	{t}Currently you are not a moderator of any site :-({/t}
 {/if}
 
 <div id="moderator-resign-dialog" style="display: none">
-	{t}Are you sure you want to resign from being a site moderator of 
+	{t}Are you sure you want to resign from being a site moderator of
 	<strong>%%SITE_NAME%%</strong>?{/t}
-</div>	
+</div>

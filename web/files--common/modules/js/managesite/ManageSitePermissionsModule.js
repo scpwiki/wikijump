@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -24,7 +24,7 @@ WIKIDOT.modules.ManagerSitePermissionsModule.vars = {
 				   'd', // delete pages
 				   'a', // attach files
 				   'r', // rename files
-				   'z', // replace/move/delete files 
+				   'z', // replace/move/delete files
 				   'o'  // show page options to...
 				   ]
 }
@@ -57,9 +57,9 @@ WIKIDOT.modules.ManagerSitePermissionsModule.listeners = {
 		WIKIDOT.modules.ManagerSitePermissionsModule.utils.decodePermissions(pstring);
 		return;
 		WIKIDOT.modules.ManagerSitePermissionsModule.utils.updateThemePreview();
-	
+
 	},
-	
+
 	indClick: function(e){
 		var categoryId = $("sm-perms-cats").value;
 		var category = WIKIDOT.modules.ManagerSiteModule.utils.getCategoryById(categoryId);
@@ -72,9 +72,9 @@ WIKIDOT.modules.ManagerSitePermissionsModule.listeners = {
 			category['permissions_default'] = false;
 		}
 	},
-	
+
 	permissionChange: function(e){
-		
+
 		// save changes to the array
 		var categoryId = $("sm-perms-cats").value;
 		var category = WIKIDOT.modules.ManagerSiteModule.utils.getCategoryById(categoryId);
@@ -87,11 +87,11 @@ WIKIDOT.modules.ManagerSitePermissionsModule.listeners = {
 		category['permissions'] = pstring;
 
 	},
-	
+
 	cancel: function(e){
 		WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-welcome');
 	},
-	
+
 	save: function(e){
 		// ok, do it the easy way: serialize categories using the JSON method
 		var categories = WIKIDOT.modules.ManagerSiteModule.vars.categories;
@@ -105,22 +105,22 @@ WIKIDOT.modules.ManagerSitePermissionsModule.listeners = {
 		w.content = "Saving permissions...";
 		w.show();
 	}
-	
+
 }
 
 WIKIDOT.modules.ManagerSitePermissionsModule.callbacks = {
 	cancel: function(response){
 		OZONE.utils.setInnerHTMLContent("site-manager", response.body);
 	},
-	
+
 	save: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
-		
+
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Permissions have been saved.";
 		w.show();
 	}
-	
+
 }
 
 WIKIDOT.modules.ManagerSitePermissionsModule.utils = {
@@ -145,15 +145,15 @@ WIKIDOT.modules.ManagerSitePermissionsModule.utils = {
 		}
 		return out;
 	},
-	
+
 	decodePermissions: function(pstring){
-		
+
 		var activName;
 		var activPerms;
 		var activUser;
 		var tag;
 		var el;
-		
+
 		var form = document.getElementById("sm-perms-form");
 		// clear the table
 		var users = WIKIDOT.modules.ManagerSitePermissionsModule.vars.users;
@@ -170,7 +170,7 @@ WIKIDOT.modules.ManagerSitePermissionsModule.utils = {
 			}
 		}
 		if(pstring != null && pstring != ''){
-			
+
 			var activs = pstring.split(';');
 			for(i=0; i<activs.length; i++){
 				var activs2 = activs[i].split(':');
@@ -186,11 +186,11 @@ WIKIDOT.modules.ManagerSitePermissionsModule.utils = {
 			}
 		}
 	},
-	
+
 	fixPermissions: function(id){
 		// an ugly way...
 		var el = $(id);
-		
+
 		var tsplit = id.split("-");
 		var activ = tsplit[1];
 		var user = tsplit[2];
@@ -230,9 +230,9 @@ WIKIDOT.modules.ManagerSitePermissionsModule.utils = {
 				el2 = document.getElementById(tag);
 				if(el2){el2.checked = false;}
 			}
-		
+
 		}
-		
+
 		/*
 		var users = WIKIDOT.modules.ManagerSitePermissionsModule.vars.users;
 		var permissions =  WIKIDOT.modules.ManagerSitePermissionsModule.vars.permissions;

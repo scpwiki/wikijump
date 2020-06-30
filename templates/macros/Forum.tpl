@@ -39,7 +39,7 @@
 						{t}in discussion{/t} <a href="/forum/c-{$category->getCategoryId()}/{$category->getUnixifiedName()|escape}">{$category->getForumGroup()->getName()|escape} / {$category->getName()|escape}</a> &raquo;
 						<a href="/forum/t-{$thread->getThreadId()}/{$thread->getUnixifiedTitle()}">{$thread->getTitle()|escape}</a>
 					{/if}
-					{if $linkBackSite}					
+					{if $linkBackSite}
 						<br/>
 						on site <a href="{$HTTP_SCHEMA}://{$site->getDomain()}">{$site->getName()|escape}</a><br/>
 						in discussion: <a href="{$HTTP_SCHEMA}://{$site->getDomain()}/forum/t-{$thread->getThreadId()}/{$thread->getUnixifiedTitle()}">{$thread->getTitle()|escape}</a>
@@ -57,13 +57,13 @@
 				</div>
 				<div class="revisions" style="display: none"></div>
 			{/if}
-		
+
 			{if true||$reply||$options}
 			<div class="options">
-				
+
 				{* put reply or not... *}
 				{if  $reply}
-					<strong><a href="javascript:;" onclick="postReply(event,{$post->getPostId()})">{t}reply{/t}</a></strong> 
+					<strong><a href="javascript:;" onclick="postReply(event,{$post->getPostId()})">{t}reply{/t}</a></strong>
 				{/if}
 				{if $reply&&$options}
 					|
@@ -73,7 +73,7 @@
 				{/if}
 			</div>
 			{/if}
-						
+
 			<div id="post-options-{$post->getPostId()}" class="options" style="display: none">
 			</div>
 		</div>
@@ -81,7 +81,7 @@
 			{if $headOptions}
 				<a class="options" href="javascript:;" onclick="togglePostFold(event,{$post->getPostId()})">{t}unfold{/t}</a>
 			{/if}
-			<a class="title" href="javascript:;" {if $headOptions}onclick="togglePostFold(event,{$post->getPostId()})"{/if}>{$post->getTitle()|escape}</a> {t}by{/t} {printuser user=$post->getUserOrString() image=true}, <span class="odate">{$post->getDatePosted()->getTimestamp()}|%e %b %Y, %H:%M %Z|agohover</span>		
+			<a class="title" href="javascript:;" {if $headOptions}onclick="togglePostFold(event,{$post->getPostId()})"{/if}>{$post->getTitle()|escape}</a> {t}by{/t} {printuser user=$post->getUserOrString() image=true}, <span class="odate">{$post->getDatePosted()->getTimestamp()}|%e %b %Y, %H:%M %Z|agohover</span>
 		</div>
 	</div>
 {/defmacro}

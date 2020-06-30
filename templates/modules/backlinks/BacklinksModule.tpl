@@ -49,7 +49,7 @@
 	{ltext lang="pl"}
 		Żadne strony bezpośrednio nie włączają tej strony.
 	{/ltext}
-	
+
 {/if}
 
 {if $pages || $pagesI}

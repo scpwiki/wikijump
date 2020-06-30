@@ -19,7 +19,7 @@
  * @category Wikidot
  * @package Wikidot
  * @version $Id$
- * @copyright Copyright (c) 2008, Wikidot Inc.
+ * @copyright Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 

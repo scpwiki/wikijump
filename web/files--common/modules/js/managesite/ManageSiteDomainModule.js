@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -12,10 +12,10 @@
 WIKIDOT.modules.ManagerSiteDomainModule = {};
 
 WIKIDOT.modules.ManagerSiteDomainModule.listeners = {
-	
+
 	save: function(e){
 		var domain = $("sm-domain-field").value;
-		
+
 		var redirects = new Array();
 		var container = $("sm-redirects-box");
 		// count them!
@@ -31,7 +31,7 @@ WIKIDOT.modules.ManagerSiteDomainModule.listeners = {
 			}
 			redirects.push(redirUrl);
 		}
-		
+
 		var redirectsString = redirects.join(';');
 
 		var p = new Object();
@@ -39,23 +39,23 @@ WIKIDOT.modules.ManagerSiteDomainModule.listeners = {
 		p.domain = domain;
 		p['action'] = "ManageSiteAction";
 		p['event'] = "saveDomain";
-		OZONE.ajax.requestModule("Empty", p, WIKIDOT.modules.ManagerSiteDomainModule.callbacks.save);	
+		OZONE.ajax.requestModule("Empty", p, WIKIDOT.modules.ManagerSiteDomainModule.callbacks.save);
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Saving changes...";
 		w.show();
 		YAHOO.util.Event.preventDefault(e);
-	
+
 	},
 	cancel: function(e){
-		WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-welcome');	
+		WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-welcome');
 	},
 	clear: function(e){
 		$("sm-domain-field").value="";
 		$("sm-redirects-box").innerHTML = '';
 		WIKIDOT.modules.ManagerSiteDomainModule.listeners.addRedirect(e);
-		
+
 	},
-	
+
 	addRedirect: function(e){
 		var container = $("sm-redirects-box");
 		// count them!
@@ -68,15 +68,15 @@ WIKIDOT.modules.ManagerSiteDomainModule.listeners = {
 		var div = document.createElement('div');
 		div.innerHTML = inn;
 		container.appendChild(div);
-		
+
 	},
 	/**
-	 * 
+	 *
 	 * @param {Event} e
 	 */
 	removeRedirect: function(e){
 		var el = YAHOO.util.Event.getTarget(e);
-		
+
 		var div = null;
 		while(el && el.tagName && el.tagName.toLowerCase() != 'div'){
 			el = el.parentNode;
@@ -109,7 +109,7 @@ WIKIDOT.modules.ManagerSiteDomainModule.init = function(){
 	YAHOO.util.Event.addListener("sm-domain-clear", "click", WIKIDOT.modules.ManagerSiteDomainModule.listeners.clear);
 	YAHOO.util.Event.addListener("sm-domain-save", "click", WIKIDOT.modules.ManagerSiteDomainModule.listeners.save);
 	YAHOO.util.Event.addListener("sm-domain-form", "submit", WIKIDOT.modules.ManagerSiteDomainModule.listeners.save);
-	
+
 }
 
 WIKIDOT.modules.ManagerSiteDomainModule.init();

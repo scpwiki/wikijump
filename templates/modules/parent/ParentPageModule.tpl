@@ -5,7 +5,7 @@
 	Choose the parent page (one-level-above) for this one.{/t}
 </p>
 <p>
-	{t}If you do not want <a href="http://en.wikipedia.org/wiki/Breadcrumb_%28navigation%29" 
+	{t}If you do not want <a href="http://en.wikipedia.org/wiki/Breadcrumb_%28navigation%29"
 	target="_blank">breadcrumbs navigation</a> for this page - just leave the field below blank.{/t}
 </p>
 

@@ -4,7 +4,7 @@
 				<td>
 					{t}Revision no.{/t}:
 				</td>
-				<td>	
+				<td>
 					{$revision->getRevisionNumber()}
 				</td>
 			</tr>
@@ -24,7 +24,7 @@
 				<td>
 					{t}Page name{/t}:
 				</td>
-				<td>	
+				<td>
 					{$metadata->getUnixName()}
 				</td>
 			</tr>

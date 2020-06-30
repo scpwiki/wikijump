@@ -7,7 +7,7 @@
 	own computer.{/t}
 </p>
 <p>
-	{t}The backup option at the moment has a few limitations: you can not restore from it automatically, 
+	{t}The backup option at the moment has a few limitations: you can not restore from it automatically,
 	it does not include all page revisions, only current (latest), it does not include forum discussion or page comments.{/t}
 </p>
 
@@ -66,9 +66,9 @@
 					</p>
 				</td>
 			</tr>
-		{/if}	
+		{/if}
 	</table>
-	
+
 	{if $backup && ($backup->getStatus() == "" || $backup->getStatus() == "started")}
 		<p style="text-align: center;">
 			<a href="javascript:;" onclick="WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-backup');">{t}refresh status{/t}</a>
@@ -79,8 +79,8 @@
 			</p>
 		{/if}
 	{/if}
-	
-	
+
+
 {else}
 	<p>
 		{t}No backup is available for download.{/t}
@@ -95,7 +95,7 @@
 	<h2>{t}Create a backup{/t}</h2>
 
 	<form id="backup-form">
-	
+
 		<table class="form">
 			<tr>
 				<td>
@@ -113,8 +113,8 @@
 					<input name="backupFiles" type="checkbox" class="checkbox" checked="checked"/>
 				</td>
 			</tr>
-		</table>	
-	
+		</table>
+
 		<div class="buttons">
 			<input type="button" onclick="$('create-backup-form').style.display='none'" value="{t}cancel{/t}"/>
 			<input type="button" value="{t}create backup{/t}" onclick="WIKIDOT.modules.ManageSiteBackupModule.listeners.requestBackup(event)"/>

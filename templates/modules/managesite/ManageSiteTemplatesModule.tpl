@@ -1,7 +1,7 @@
 <h1>Templates</h1>
 
 <p>
-	Templates are a convenient way to keep you Site Content well organized and consistent. 
+	Templates are a convenient way to keep you Site Content well organized and consistent.
 	Below you can assign default page skeletons/templates (pages from the <em>template:</em> category)
 	to new created pages in particular categories.
 </p>
@@ -24,7 +24,7 @@
 			<td>
 				<select name="theme" id="sm-templates-list" size="10">
 					<option value=""  style="padding: 0 1em">no default template</option>
-					{foreach from=$templates item=template}					
+					{foreach from=$templates item=template}
 						<option value="{$template->getPageId()}"  style="padding: 0 1em">{$template->getTitle()|escape}</option>
 					{/foreach}
 				</select>
@@ -36,7 +36,7 @@
 		<input type="button" value="cancel" id="sm-templates-cancel"/>
 		<input type="button" value="save changes" id="sm-templates-save"/>
 	</div>
-	
+
 	<div id="sm-template-preview">
 		<h1>Template preview:</h1>
 		{foreach from=$templates item=template}

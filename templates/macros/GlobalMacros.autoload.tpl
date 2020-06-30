@@ -56,10 +56,10 @@
 {assign var=knownPages value=$pagerData->getKnownPages()}
 {assign var=totalPages value=$pagerData->getTotalPages()}
 {if $totalPages > 1 || $knownPages>1}
-<table class="pager" 
+<table class="pager"
 	{if $style}
 		style="{$style}"
-	{/if}	
+	{/if}
 >
 	<tr>
 		<td>
@@ -69,9 +69,9 @@
 				{assign var=pages value=$totalPages}
 			{else}
 				{assign var=pages value=$knownPages}
-			{/if} 
+			{/if}
 		</td>
-		
+
 		{if $currentPage != 1}
 			{assign var="topage" value=$currentPage-1}
 			<td>
@@ -92,7 +92,7 @@
 				<a href="{$golink->copy()->addParameter("page_number", 3)}">3</a>
 			{/if}
 			{if $currentPage  > 6}
-				...	
+				...
 			{/if}
 
 			{if $currentPage-2 >= 1}
@@ -130,7 +130,7 @@
 				{assign var="topage" value=$pages-1}
 				<a href="{$golink->copy()->addParameter("page_number", $topage)}">{$pages-1}</a>
 			{/if}
-			
+
 			{if $knownPages != null}
 				...
 			{/if}
@@ -139,7 +139,7 @@
 				<a href="{$golink->copy()->addParameter("page_number", $pages)}">{$pages}</a>
 			{/if}
 		</td>
-		
+
 		{if $currentPage != $pages}
 			<td>
 				{assign var="topage" value=$currentPage+1}

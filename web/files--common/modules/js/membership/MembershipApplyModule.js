@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -17,13 +17,13 @@ WIKIDOT.modules.MembershipApplyModule.listeners = {
 		parms['action'] = "MembershipApplyAction";
 		parms['event'] = "apply";
 		OZONE.ajax.requestModule("membership/MembershipApplySuccessModule", parms, WIKIDOT.modules.MembershipApplyModule.callbacks.apply);
-	}	
+	}
 }
 
 WIKIDOT.modules.MembershipApplyModule.callbacks = {
 	apply: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}	
-		
+		if(!WIKIDOT.utils.handleError(r)) {return;}
+
 		var w = new OZONE.dialogs.SuccessDialog();
 		w.content = "Your application has been sent and now awaits to be processed by " +
 				"the site administrators.";
@@ -31,12 +31,12 @@ WIKIDOT.modules.MembershipApplyModule.callbacks = {
 		w.show();
 
 		// check if any errors:
-	}	
-	
+	}
+
 }
 
 WIKIDOT.modules.MembershipApplyModule.init = function(){
-	OZONE.dom.onDomReady(function(){		
+	OZONE.dom.onDomReady(function(){
 		if($("membership-by-apply-text")){
 			YAHOO.util.Event.addListener("mba-apply", "click", WIKIDOT.modules.MembershipApplyModule.listeners.apply);
 			var limiter = new OZONE.forms.lengthLimiter("membership-by-apply-text", "membership-by-apply-text-left", 200);

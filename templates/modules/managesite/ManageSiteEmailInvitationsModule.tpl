@@ -28,14 +28,14 @@
 			Name &lt;email@example.com&gt;, Another Name &lt;email2@example.com&gt;<br/>
 			The algorithm should also handle other formats - just try!<br/>
 			Separate entries by a coma or newline.<br/>
-			The adresses you enter here will be <b>added</b> to the list below when you click "process".			
+			The adresses you enter here will be <b>added</b> to the list below when you click "process".
 		</div>
 		<div class="buttons">
 			<input type="button" value="cancel" class="button" onclick="WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.cancelBulkAdd(event)"/>
 			<input type="button" value="process" class="button" onclick="WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.processBulkAdd(event)"/>
 		</div>
 	</form>
-	
+
 	<hr/>
 </div>
 
@@ -43,10 +43,10 @@
 	<form id="file-upload-form" enctype="multipart/form-data" action="/default--flow/managesite__ContactUploadTarget" target="_upload_iframe" method="POST"
 		onsubmit="WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.startUpload(event)"
 	>
-	
+
 		<input type="hidden" name="action" value="ManageSiteMembershipAction"/>
 		<input type="hidden" name="event" value="uploadContactsForInvitations"/>
-		
+
 		<table class="form">
 			<tr>
 				<td>
@@ -54,7 +54,7 @@
 				</td>
 				<td>
 					<input name="contactfile" type="file" size="30"/>
-					
+
 				</td>
 			</tr>
 			<tr>
@@ -78,16 +78,16 @@
 
 <form>
 	<div id="invitation-addresses"></div>
-	
-	
+
+
 	<p style="text-align: right; padding-right: 20%;">
 		to contacts: <a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.setAllToContacts(event, true)">all</a> | <a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.setAllToContacts(event, false)">none</a>
 	</p>
 	<p style="text-align: center;">
 		<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.moreRecipients(event)">{t}add more recipients{/t}</a>
 	</p>
-	
-	
+
+
 	<p>
 		If you want the invited users to become your contacts and vice versa
 		(i.e. add them to your list of contacts and add yourself to their lists) - toggle the "to contacts"
@@ -96,14 +96,14 @@
 	<p>
 		You can not send more than <b>200</b> invitations at once.
 	</p>
-	
+
 	<h2>{t}What to tell them?{/t}</h2>
-	
+
 	<p>
 		This is the message your recipient(s) will receive. Please do not use any formatting
-		(wiki nor HTML) within your (optional) message. 
+		(wiki nor HTML) within your (optional) message.
 	</p>
-	
+
 	<hr/>
 	<p>
 		<b>{t}To{/t}:</b> <span id="recipients-list-formatted" style="color: #009900;"></span>
@@ -114,13 +114,13 @@
 	<p>
 		<b>{t}Subject{/t}:</b> [{$SERVICE_NAME}] {$user->getNickName()|escape} invites you to join!
 	</p>
-	
+
 	<p>
 		Hello <em>name of the recipient</em>,
 	</p>
 	<p>
 		{$user->getNickName()|escape} {if $profile->getRealName()}({$profile->getRealName()|escape}){/if}
-		would like to invite you to join members of the wiki website 
+		would like to invite you to join members of the wiki website
 		"{$site->getName()|escape}" created at {$SERVICE_NAME} and
 		located at the address {$HTTP_SCHEMA}://{$site->getDomain()|escape}.
 	</p>
@@ -129,7 +129,7 @@
 	<p>
 		Signing up is easy and takes less than a minute. If you already have an account
 		at {$SERVICE_NAME},
-		you will be able to join the mentioned Site. 
+		you will be able to join the mentioned Site.
 		To proceed or learn more click the follow link:<br/>
 		<em>(generated link will be placed here)</em>
 	</p>
@@ -139,7 +139,7 @@
 	<p>
 		{$user->getNickName()|escape} {if $profile->getRealName()}({$profile->getRealName()|escape}){/if}
 	</p>
-	
+
 	<div class="buttons">
 		<input type="button" value="{t}cancel{/t}" onclick="WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-welcome')"/>
 		<input type="button" value="{t}send invitations{/t}" onclick="WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.send(event)"/>
@@ -171,6 +171,6 @@
 			<td style="vertical-align: middle">
 				<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.removeRecipient(event)">{t}remove{/t}</a>
 			</td>
-		</tr>	
+		</tr>
 	</table>
 </div>

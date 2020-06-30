@@ -21,11 +21,11 @@
 						{$site->getDescription()|escape}
 					</div>
 				{/if}
-				
+
 			</div>
 		{/foreach}
 	</div>
-	
+
 
 {else}
 	{t}Currently you are not an administrator of any site :-({/t}
@@ -35,4 +35,4 @@
 <div id="admin-resign-dialog" style="display: none">
 	{t}Are you sure you want to resign from being a site administrator of{/t}
 	<strong>%%SITE_NAME%%</strong>?
-</div>	
+</div>

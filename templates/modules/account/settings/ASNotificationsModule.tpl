@@ -56,7 +56,7 @@
 		</tr>
 
 	</table>
-	
+
 	<div class="buttons">
 		<input type="button" value="cancel" onclick="WIKIDOT.modules.AccountModule.utils.loadModule('am-settings')"/>
 		<input type="button" value="save" onclick="WIKIDOT.modules.ASNotificationsModule.listeners.save(event)"/>
@@ -64,7 +64,7 @@
 </form>
 *}
 <p>
-	Currently there are no options to configure what type of notifications 
+	Currently there are no options to configure what type of notifications
 	fall into which notification channel - this will be developed later.
 </p>
 
@@ -99,7 +99,7 @@
 
 <h2>{$SERVICE_NAME} Newsletter</h2>
 <p>
-	From time to time we send a newsletter that cover the most important changes in the 
+	From time to time we send a newsletter that cover the most important changes in the
 	{$SERVICE_NAME} Services. We certainly do not send anything that would be considered "spam".
 	It is highly recommended to accept our Newsletter.
 </p>
@@ -122,7 +122,7 @@
 <h2>Notifications via RSS feed</h2>
 
 <p>
-	Notifications related to your account are also available via a personalized 
+	Notifications related to your account are also available via a personalized
 	RSS 2.0 feed:
 </p>
 <p style="text-align: center">

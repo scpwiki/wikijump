@@ -3,7 +3,7 @@
 {if $memberships}
 	<div class="sites-list">
 		{foreach from=$memberships item=membership}
-		
+
 			{assign var=site value=$membership->getSite()}
 			<div class="site-list-item">
 				<div class="name">
@@ -20,7 +20,7 @@
 					</div>
 				{/if}
 			</div>
-		
+
 		{/foreach}
 	</div>
 {else}

@@ -5,32 +5,32 @@
 </p>
 <blockquote>
 	<p>
-		OpenID is an open, decentralized, free framework for user-centric digital 
+		OpenID is an open, decentralized, free framework for user-centric digital
 		identity.
 	</p>
 	<p>
-		OpenID starts with the concept that anyone can identify themselves on the 
+		OpenID starts with the concept that anyone can identify themselves on the
 		Internet the same way websites do-with a URI (also called a URL or web address).
-		Since URIs are at the very core of Web architecture, they provide a solid 
+		Since URIs are at the very core of Web architecture, they provide a solid
 		foundation for user-centric identity.
-	</p>	
+	</p>
 </blockquote>
 
 <p>
 	This is a testing feature and we assume that you already know how OpenID works and how it can be used.
 	At Wikidot we are working towards providing true OpenID server and accepting OpenID
-	logins, but at the moment we thoght it would be cool to allow you to use your 
+	logins, but at the moment we thoght it would be cool to allow you to use your
 	Wiki URL as an OpenID login.
 </p>
 
 <p>
-	How it works? You must already have a OpenID account at one of the identiy providers 
-	(see below). When you try to log into any OpenID-enabled services, your 
+	How it works? You must already have a OpenID account at one of the identiy providers
+	(see below). When you try to log into any OpenID-enabled services, your
 	Wikidot Wiki will simply redirect (delegate) to your id provider.
 </p>
 
 <form>
-	
+
 	<table class="form">
 		<tr>
 			<td>
@@ -40,7 +40,7 @@
 				<input id="sm-openid-enable" type="checkbox" {if $enabled}checked="checked"{/if}/>
 			</td>
 		</tr>
-	</table>	
+	</table>
 </form>
 
 <hr/>
@@ -79,9 +79,9 @@
 					URL of the identity:
 				</td>
 				<td>
-					http://<input name="identityUrl" id="sm-openid-urlid-0" class="text" 
-								type="text" size="34" maxlength="70" 
-								value="{if $openIdRoot && $openIdRoot->getUrl()}{$openIdRoot->getUrl()|replace:"http://":""}{/if}"   
+					http://<input name="identityUrl" id="sm-openid-urlid-0" class="text"
+								type="text" size="34" maxlength="70"
+								value="{if $openIdRoot && $openIdRoot->getUrl()}{$openIdRoot->getUrl()|replace:"http://":""}{/if}"
 								onchange="WIKIDOT.modules.ManageSiteOpenIDModule.listeners.onIdentityChange(event, 0)"
 							/>
 				</td>
@@ -91,17 +91,17 @@
 					URL of the server:
 				</td>
 				<td>
-					<input name="serverUrl" id="sm-openid-urlserver-0" 
-						class="text" type="text" size="40" maxlength="70" 
+					<input name="serverUrl" id="sm-openid-urlserver-0"
+						class="text" type="text" size="40" maxlength="70"
 						value="{if $openIdRoot && $openIdRoot->getServerUrl()}{$openIdRoot->getServerUrl()}{else}http://{/if}"
-						
+
 					/>
 				</td>
 			</tr>
 		</table>
 	</form>
 </div>
-	
+
 <div id="sm-openid-idblock">
 	{assign var=count value=1}
 	{foreach from=$openIds  item=oo}
@@ -114,16 +114,16 @@
 						</td>
 						<td>
 							<div class="autocomplete-container" style="width: 20em">
-								<input name="page" type="text" id="sm-openid-p-{$count}" class="autocomplete-input text" name="default_page" size="10" 
-								value="{$oo->getPageUnixName()}" 
+								<input name="page" type="text" id="sm-openid-p-{$count}" class="autocomplete-input text" name="default_page" size="10"
+								value="{$oo->getPageUnixName()}"
 								onchange="$('sm-openid-effp-{$count}').innerHTML=(this.value)"/>
 								<div id="sm-openid-p-list-{$count}" class="autocomplete-list"></div>
 							</div>
 							<div class="sub">
-								
+
 							</div>
 						</td>
-					</tr>	
+					</tr>
 					<tr>
 						<td>
 							Effective URL:
@@ -147,9 +147,9 @@
 							URL of the identity:
 						</td>
 						<td>
-							http://<input name="identityUrl" id="sm-openid-urlid-{$count}" 
-							class="text" type="text" size="34" maxlength="70" 
-							value="{$oo->getUrl()|replace:"http://":""}" 
+							http://<input name="identityUrl" id="sm-openid-urlid-{$count}"
+							class="text" type="text" size="34" maxlength="70"
+							value="{$oo->getUrl()|replace:"http://":""}"
 							onchange="WIKIDOT.modules.ManageSiteOpenIDModule.listeners.onIdentityChange(event, {$count})"/>
 						</td>
 					</tr>
@@ -158,8 +158,8 @@
 							URL of the server:
 						</td>
 						<td>
-							<input name="serverUrl" id="sm-openid-urlserver-{$count}" 
-							class="text" type="text" size="40" maxlength="70" 
+							<input name="serverUrl" id="sm-openid-urlserver-{$count}"
+							class="text" type="text" size="40" maxlength="70"
 							value="{$oo->getServerUrl()}"/>
 						</td>
 					</tr>
@@ -180,7 +180,7 @@
 <div style="text-align: center">
 	<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteOpenIDModule.listeners.addEntry(event)">+ Add another entry</a>
 </div>
-	
+
 <div id="sm-openid-templateform" style="display: none;">
 	<form id="sm-openid-form-RAND">
 		<table class="form"  style="margin: 1em auto 1em 0;">
@@ -194,10 +194,10 @@
 						<div id="sm-openid-p-list-RAND" class="autocomplete-list"></div>
 					</div>
 					<div class="sub">
-						
+
 					</div>
 				</td>
-			</tr>	
+			</tr>
 			<tr>
 				<td>
 					Effective URL:
@@ -259,5 +259,5 @@
 <ul>
 	<li><a href="http://www.myopenid.com">myopenid.com</a></li>
 </ul>
-	
-		
+
+

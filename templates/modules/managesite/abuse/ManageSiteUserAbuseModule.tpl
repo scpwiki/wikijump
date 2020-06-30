@@ -16,7 +16,7 @@
 		{foreach from=$reps item=rep}
 			<tr>
 				<td>
-					{printuser user=$rep.user image="true"} 
+					{printuser user=$rep.user image="true"}
 				</td>
 				<td>
 					{$rep.rank}
@@ -60,7 +60,7 @@
 <div style="display: none" id="ban-user-dialog">
 	<h1>Ban user?</h1>
 	<p>
-		Are you sure you want to ban (block) user <b>%%USER_NAME%%</b> 
+		Are you sure you want to ban (block) user <b>%%USER_NAME%%</b>
 		from accessing the site in the future?
 	</p>
 </div>

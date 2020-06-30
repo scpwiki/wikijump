@@ -1,5 +1,5 @@
 Wikidot - free wiki collaboration software
-Copyright (c) 2008 by Wikidot Inc.
+Copyright (c) 2008-2020 by Wikidot Inc., SCP Wiki Technical Team
 
 Wikidot (version 1) software  is available under the GNU AFFERO GENERAL
 PUBLIC LICENSE Version 3 (see below). For information about

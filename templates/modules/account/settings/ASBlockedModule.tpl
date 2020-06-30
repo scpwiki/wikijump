@@ -14,9 +14,9 @@
 		{foreach from=$blocks item=block}
 			<li style="margin: 0.2em 0">
 				{printuser user=$block->getBlockedUser() image="true"}
-				
+
 				(<a href="javascript:;" onclick="WIKIDOT.modules.ASBlockedModule.listeners.deleteBlock(event, {$block->getBlockedUserId()}, '{$block->getBlockedUser()->getNickName()|escape}')">delete block</a>)
-				
+
 			</li>
 		{/foreach}
 	</ul>
@@ -48,8 +48,8 @@ there are no blocked users.
 				</td>
 			</tr>
 		</table>
-	
-	
+
+
 		<div class="buttons">
 			<input type="button" value="cancel" onclick="WIKIDOT.modules.ASBlockedModule.listeners.cancelAdd(event)"/>
 			<input type="button" value="block user" onclick="WIKIDOT.modules.ASBlockedModule.listeners.blockUser(event)"/>

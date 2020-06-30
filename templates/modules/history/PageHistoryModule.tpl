@@ -6,12 +6,12 @@
 
 <form id="history-form-1">
 	<table class="form">
-		
+
 		<tr>
 			<td>
 				{t}Show page changes{/t}:
 			</td>
-			<td>	
+			<td>
 				<input class="checkbox" type="checkbox" id="rev-type-all" checked="checked"/>&nbsp;{t}ALL{/t}<br/>
 				<input class="checkbox" type="checkbox" id="rev-type-source"/>&nbsp;{t}source changes{/t}<br/>
 				<input class="checkbox" type="checkbox" id="rev-type-title"/>&nbsp;{t}title{/t}<br/>
@@ -38,9 +38,9 @@
 	<div class="buttons">
 		<input type="button" value="{t}update list{/t}" onclick="WIKIDOT.modules.PageHistoryModule.listeners.updateList(event)"/>
 	</div>
-	
-	<input class="button" type="button" name="compare" id="history-compare-button" value="{t}compare versions{/t}"/> 
-	
+
+	<input class="button" type="button" name="compare" id="history-compare-button" value="{t}compare versions{/t}"/>
+
 	<div id="revision-list">
 		loading revision list...
 	</div>

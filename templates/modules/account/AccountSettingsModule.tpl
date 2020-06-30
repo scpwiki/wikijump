@@ -4,7 +4,7 @@
 <div>
 	<h3><a href="javascript:;" onclick="OZONE.ajax.requestModule('account/settings/ASEmailModule', null, WIKIDOT.modules.AccountModule.callbacks.menuClick)">{t}My email address{/t}</a></h3>
 	<p>
-		{t}Your primary email address is now{/t}: {$user->getEmail()|escape}. 
+		{t}Your primary email address is now{/t}: {$user->getEmail()|escape}.
 	</p>
 </div>
 

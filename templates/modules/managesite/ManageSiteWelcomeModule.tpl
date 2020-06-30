@@ -2,14 +2,14 @@
 
 <p>
 	{t}This is the administrative panel for your Site.{/t}
-	
+
 	{t escape=no}But remember: <b>With Great Power Comes Great Responsibility</b>.{/t}
 </p>
 
 {if $tips}
 
 	<h2>{t}A few tips for your Site{/t}</h2>
-	
+
 	<ul>
 		{if $tips.forum}
 			<li>
@@ -22,24 +22,24 @@
 			<li>
 				<strong>Use site tags</strong><br/>
 				If your Site already has some interesting content you should describe your Site by appropriate Tags
-				- it will be easier to find for others. Go to 
+				- it will be easier to find for others. Go to
 				<a href="javascript:;" onclick="WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-general')">General settings</a>.
 			</li>
 		{/if}
 		{if $tips.invite}
 			<li>
 				<strong>{t}Invite your friends or coworkers!{/t}</strong><br/>
-				{t}It is easy to invite new people to join your site as members 
-				(if you need members at all). 
+				{t}It is easy to invite new people to join your site as members
+				(if you need members at all).
 				You can just send them emails with special invitations.{/t}<br/>
 				<a href="javascript:;" onclick="WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-email-invitations')">{t}Send email invitations now!{/t}</a>.
 			</li>
 			<li>
-				Or even better - <a href="javascript:;" onclick="WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-users-email-invitations')">you can allow your members to invite their friends</a> if you want the 
+				Or even better - <a href="javascript:;" onclick="WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-users-email-invitations')">you can allow your members to invite their friends</a> if you want the
 				community to grow quickly!
 			</li>
 		{/if}
-		
+
 	</ul>
 
 {/if}

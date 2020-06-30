@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -18,7 +18,7 @@ OZONE.dialog.cleanAll = function(options){
 	if(!options || typeof(options.timeout) != "number"){
 		timeout = 200;
 	}else{ timeout = options.timeout; }
-	
+
 	setTimeout('OZONE.dialog.factory.boxcontainer().hide()', timeout);
 	setTimeout('OZONE.dialog.factory.shader().hide()', timeout);
 }
@@ -40,16 +40,16 @@ OZONE.dialog.factory = {
 OZONE.dialog.factory.stock = {};
 
 OZONE.dialog.shader = function(){
-	
-	
-	
+
+
+
 	this.color = null;
 	this.cssClass = null;
-	
+
 	this.setColor = function(color){
 		this.color = color;
 	}
-	
+
 	this.show = function(){
 		var sDiv = document.getElementById("odialog-shader");
 		if(sDiv != null){
@@ -71,9 +71,9 @@ OZONE.dialog.shader = function(){
 		} else{
 			sDiv.className = "odialog-shader";
 		}
-		
+
 		// extra iframe for stupid browsers
-		
+
 		if(window.navigator.userAgent.match(/msie/i)){
 			var sIfr = document.createElement('iframe');
 			sIfr.id="odialog-shader-iframe";
@@ -82,14 +82,14 @@ OZONE.dialog.shader = function(){
 			sIfr.frameBorder=0;
 			sIfr.className='odialog-shader-iframe';
 			sIfr.style.height = height+"px";
-		
+
 			body.appendChild(sIfr);
 	//		alert('iframe');
 		}
 		body.appendChild(sDiv);
-	
-	
-		
+
+
+
 	}
 	this.hide = function(){
 		var body = document.getElementsByTagName('body').item(0);
@@ -101,16 +101,16 @@ OZONE.dialog.shader = function(){
 		if(sIfr != null){
 			body.removeChild(sIfr);
 		}
-	}		
+	}
 
 }
 
 OZONE.dialog.boxcontainer2 = function(){
-	
+
 	this.mDiv = null;
 	this.cDiv = null;
-	
-	
+
+
 	this.init = function(){
 		//alert("init");
 		var el = $("odialog-container");
@@ -124,7 +124,7 @@ OZONE.dialog.boxcontainer2 = function(){
 		}
 		el.style.display = "block";
 	}
-	
+
 	this.setContent = function (content){
 		this.clearContent();
 		//alert(typeof content);
@@ -138,11 +138,11 @@ OZONE.dialog.boxcontainer2 = function(){
 		OZONE.dialog.hovertip.dominit(this.mDiv,{delay: 300});
 		var cDiv = this.mDiv.getElementsByTagName('div').item(0);
 		cDiv.style.visibility = "hidden";
-		this.cDiv = cDiv;	
+		this.cDiv = cDiv;
 		this.mDiv.style.display="block";
 		// center by default
 		this.centerContent();
-		
+
 	//	this.effect = new fx.Height(cDiv, {duration: 300});
 	//	cDiv.style.height = "0px";
 //		this.effect = new fx.Opacity(cDiv, {duration: 300});
@@ -153,7 +153,7 @@ OZONE.dialog.boxcontainer2 = function(){
 			cDiv.id = "owindow-1";
 		//}
 		//alert(this.cDiv.id);
-		
+
 		//var tDiv = cDiv.getElementsByTagName('div').item(0);
 		//if(tDiv && tDiv.className == "title"){
 		//	tDiv.id="handle-1";
@@ -188,12 +188,12 @@ OZONE.dialog.boxcontainer2 = function(){
 			}
 		}
 	}
-	
+
 	this.clearContent = function(){
 		this.cDiv = null;
 		this.mDiv.innerHTML = "";
 	}
-	
+
 	this.centerContent = function(){
 		//alert("centering");
 		var cDiv = this.cDiv;
@@ -201,22 +201,22 @@ OZONE.dialog.boxcontainer2 = function(){
 		var width = cDiv.offsetWidth;
 		var vpHeight = YAHOO.util.Dom.getClientHeight();
 		var vpWidth = YAHOO.util.Dom.getClientWidth();
-		
+
 		var posX = Math.max((vpWidth - width)*0.5,0);
 		var posY = Math.max(OZONE.visuals.scrollOffsetY() + (vpHeight - height)*0.5,0);
-		
+
 		YAHOO.util.Dom.setXY(cDiv, [posX, posY]);
-		
-		
+
+
 	}
-	
+
 	this.setContentObject = function(object){
 		this.mDiv.appendChild(object);
 	}
-	
+
 	this.showContent = function (options){
 		this.mDiv.style.display="block";
-		
+
 		if(options && options.smooth == true){
 			var ef = new fx.Opacity(this.cDiv, {duration: 300});
 			ef.setOpacity(0);
@@ -225,15 +225,15 @@ OZONE.dialog.boxcontainer2 = function(){
 		}else{
 			this.cDiv.style.visibility = "visible";
 		}
-		
-		
+
+
 	},
-	
+
 	this.hideContent = function(){
 		//this.effect.custom(1,0);
 		this.cDiv.style.visibility = "hidden";
 	}
-	
+
 	this.hide = function(options){
 		if(options && options.smooth == true){
 			var ef = new fx.Opacity(this.cDiv, {duration: 300});
@@ -245,26 +245,26 @@ OZONE.dialog.boxcontainer2 = function(){
 		// ???
 		$("odialog-container").style.display = "none";
 	}
-	
+
 	this.clickOutsideToHide = function(val){
 		// atach a listener to shader...
 		YAHOO.util.Event.addListener("odialog-shader", "click",OZONE.dialog.cleanAll);
 	}
-	
+
 	this.changeContent = function (content){
 		this.setContent(content);
 		this.showContent();
 	}
-	
+
 	this.init();
 }
 
 OZONE.dialog.hovertip = {
-	
+
 	container: null,
 	bindings: new Array(),
-	
-	
+
+
 	init: function(){
 		var el = $('odialog-hovertips');
 		if(!el){
@@ -283,10 +283,10 @@ OZONE.dialog.hovertip = {
 			//el.innerHTML = "hovertips - test";
 		}
 	},
-	
-	
+
+
 	makeTip: function(element, options){
-		
+
 		if( typeof element != "string" && element.length > 0){
 //			alert(element.id+' '+element.length+ typeof element);
 			// iterate over elements
@@ -294,25 +294,25 @@ OZONE.dialog.hovertip = {
 				OZONE.dialog.hovertip.makeTip(element[i],options);
 			}
 		}
-		
+
 		// options can be: text (text) or context element id (context)
 		OZONE.dialog.hovertip.init(); // just for sure
-		var body = document.getElementsByTagName('body').item(0); 
+		var body = document.getElementsByTagName('body').item(0);
 		var el = $(element);
 		if(!el){return;}
 		if(el.hovertip){return;}
 		var tipEl;
-			
+
 		if(options && options.context){
 			tipEl = $(options.context);
 			// move to 'odialog-hovertips'
 			if(!tipEl){ return;} // return if not valid element
-			
+
 		}else if(options && options.text){
 			// create a new div
 			tipEl = document.createElement('div');
 			tipEl.innerHTML = '<div class="content">'+options.text+'</div>';
-			
+
 		}else{
 			// init from the "title" attribute
 			var title;
@@ -324,15 +324,15 @@ OZONE.dialog.hovertip = {
 					}
 				}
 			}
-		
+
 			if(!title){
 				return;
 			}
 			tipEl = document.createElement('div');
 			tipEl.innerHTML = '<div class="content">'+title+'</div>';
-		
+
 		}
-		
+
 		// check for the "hovertip" class
 		if(!tipEl.className.match(/hovertip/)){
 			tipEl.className = 'hovertip '+tipEl.className;
@@ -345,7 +345,7 @@ OZONE.dialog.hovertip = {
 				tipEl.style[key] = options.style[key];
 			}
 		}
-		
+
 		// fix if not "content" div inside.
 		var subDivs = tipEl.getElementsByTagName('div');
 		var hasContent = false;
@@ -355,25 +355,25 @@ OZONE.dialog.hovertip = {
 			}
 		}
 		if(!hasContent){tipEl.innerHTML = '<div class="content">'+tipEl.innerHTML+'</div>';}
-		
-		
+
+
 		// make sure some properties are set properly
 		el.hovertip = tipEl;
 		var eff = new fx.Opacity(el.hovertip, {duration:300})	;
 		el.hovertipEffect = eff;
-		
+
 		tipEl.style.position = "absolute";
 		tipEl.style.display = "none";
 
 		// for debugging
 		tipEl.style.border = "1px solid black";
-		
+
 		if(el.tagName.toLowerCase() != 'a' && (!options || !options.noCursorHelp)){
 			el.style.cursor = "help";
 		}
 		// moving along...
 		$('odialog-hovertips').appendChild(tipEl);
-		
+
 		// somehow make a binding now
 		OZONE.dialog.hovertip.bindings.push([el, tipEl]);
 
@@ -382,10 +382,10 @@ OZONE.dialog.hovertip = {
 		YAHOO.util.Event.addListener(el, "mouseover",OZONE.dialog.hovertip._mouseover);
 		return;
 	},
-	
+
 	_mouseover: function(e){
 		var el = YAHOO.util.Event.getTarget(e);
-		
+
 		var tipEl = el.hovertip;//tipBin[1];
 		tipEl.style.visibility = "hidden";
 		tipEl.style.opacity=0;
@@ -394,32 +394,32 @@ OZONE.dialog.hovertip = {
 		var options = el.hovertipOptions;
 		var eff = el.hovertipEffect;
 		// position to (0,0) to avoid glitches
-		YAHOO.util.Dom.setXY(el.hovertip, [0, 0]);	
+		YAHOO.util.Dom.setXY(el.hovertip, [0, 0]);
 		//eff.setOpacity(0);
 		//return;
 		// trigger mousemove too!
 		OZONE.dialog.hovertip._mousemove(e);
-		
+
 		if(options && options.delay){
 			OZONE.dialog.tmpeff = eff;
-			
+
 			setTimeout('if(OZONE.dialog.tmpeff.el.style.opacity==0)OZONE.dialog.tmpeff.custom(0,1)', options.delay);
 		} else {
-			
+
 			eff.custom(0,1);
 		}
-		
+
 	},
-	
+
 	_mousemove: function(e){
-		
+
 		// get the element
 		var el = YAHOO.util.Event.getTarget(e);
-	
+
 		var tipEl = el.hovertip;//tipBin[1];
 		//tipEl.style.visibility = "hidden";
 		// position and display the tip
-		
+
 		// get mouse position
 		var posx = 0;
 		var posy = 0;
@@ -436,18 +436,18 @@ OZONE.dialog.hovertip = {
 		}
 //		alert(posx+" "+posy);
 		// position the tipEl
-			
+
 		// now calculate where to position the tip box
-//		alert(tipEl.offsetWidth);		
+//		alert(tipEl.offsetWidth);
 
 		// get viewport size
 		var vHeight = YAHOO.util.Dom.getViewportHeight();
 		var vWidth = YAHOO.util.Dom.getViewportWidth();
 		var tipElHeight = tipEl.offsetHeight;
 		var tipElWidth = tipEl.offsetWidth;
-		
+
 		var border = 20; // border (whitearea) size
-		
+
 		if(el.hovertipOptions && el.hovertipOptions.smartWidthLimit){
 //			alert('smart');
 			var vlimit = el.hovertipOptions.smartWidthLimit;
@@ -455,13 +455,13 @@ OZONE.dialog.hovertip = {
 				tipEl.style.width = vlimit * vWidth+'px';
 			}
 		}
-		
+
 		// not to go outsite right/bottom border
-		// assume sizes are considerably smaller than the 
+		// assume sizes are considerably smaller than the
 		// viewport size!
 		if(el.hovertipOptions && el.hovertipOptions.valign){
 			switch(el.hovertipOptions.valign){
-				case 'center': 
+				case 'center':
 					if(vHeight - e.clientY < tipElHeight + 2*border && e.clientY > tipElHeight + 1.5*border){
 						posy -= tipElHeight + 1.5*border;
 					}
@@ -480,21 +480,21 @@ OZONE.dialog.hovertip = {
 			posx +=border;
 			posy +=border;
 		}
-		YAHOO.util.Dom.setXY(tipEl, [posx, posy]);	
-	
-	
-		
+		YAHOO.util.Dom.setXY(tipEl, [posx, posy]);
+
+
+
 	},
-	
+
 	_mouseout: function(e){
 		// just hide it!
 		var el = YAHOO.util.Event.getTarget(e);
-		
+
 		var tipEl = el.hovertip;
 		tipEl.style.display = "none";
-		
+
 	},
-	
+
 	dominit: function(topEl, options){
 		// parse the DOM tree and find pairs:
 		// someid, someid-hovertip
@@ -524,7 +524,7 @@ OZONE.dialog.hovertip = {
 			}
 		}
 	},
-	
+
 	hideAll: function(){
 		var cont = $('odialog-hovertips');
 		if(cont){
@@ -536,20 +536,20 @@ OZONE.dialog.hovertip = {
 			}
 		}
 	}
-	
-	
+
+
 }
 
 /**
  *  ready to use components
  */
 OZONE.dialogs = {}
-	
+
 OZONE.dialogs.Base = function(){}
 
 OZONE.dialogs.Base.prototype = {
-	
-	
+
+
 	initialize: function(){
 		this.templateBase = '/common--dialogs/';
 		this.template = '';
@@ -566,17 +566,17 @@ OZONE.dialogs.Base.prototype = {
 		this.fixODate = true;
 		this.style = new Object();
 	},
-	
+
 	/**
 	 * e.g. ['cancel','OK', 'next', 'no', 'yes'] etc.
 	 */
 	setButtons: function(arrasy){
-		
+
 	},
 	addButtonListener: function(buttonLabel, eventListener, oScope){
 		this.buttonListeners[buttonLabel] = eventListener;
 	},
-	
+
 	show: function(){
 		var windowDiv = document.createElement('div');
 		this.windowDiv = windowDiv;
@@ -586,7 +586,7 @@ OZONE.dialogs.Base.prototype = {
 			windowDiv.style[styleProperty] = this.style[styleProperty];
 		//	alert(styleProperty);
 		}
-		
+
 		// in there is a div class="content" - just place it inside, do not render
 		var tmpdiv = document.createElement('div');
 		tmpdiv.innerHTML = this.content;
@@ -596,7 +596,7 @@ OZONE.dialogs.Base.prototype = {
 		}else if(YAHOO.util.Dom.getElementsByClassName("content", "div", tmpdiv).length==1){
 			windowDiv.innerHTML = tmpdiv.innerHTML;
 		}else{
-		
+
 			if(this.title != null){
 				var titleDiv = document.createElement('div');
 				titleDiv.className = 'title';
@@ -610,11 +610,11 @@ OZONE.dialogs.Base.prototype = {
 				OZONE.utils.formatDates(contentDiv);
 			}
 			windowDiv.appendChild(contentDiv);
-			
+
 			if(this.buttons.length>0){
 				var buttonBar =  document.createElement('div');
 				buttonBar.className ='button-bar';
-				for(var j=0; j<this.buttons.length; j++){	
+				for(var j=0; j<this.buttons.length; j++){
 					var blabel = this.buttons[j];
 					var button = document.createElement('a');
 					//button.type="button";
@@ -647,9 +647,9 @@ OZONE.dialogs.Base.prototype = {
 			this.buttonObjects[this.focusButton].focus();
 			// hack to make Opera not select the innerhtml
 			// ??????????
-			
+
 		}
-		
+
 	},
 
 	hide: function(){
@@ -665,7 +665,7 @@ OZONE.dialogs.Base.prototype = {
 		this.hide();
 		OZONE.dialog.cleanAll({timeout: 200});
 	}
-	
+
 }
 
 OZONE.dialogs.SmallInfoBox  = Class.create();
@@ -768,13 +768,13 @@ OZONE.dialogs.Dialog.prototype = Object.extend(new OZONE.dialogs.Base(), {
 
 
 function exinfo2(){
-	
+
 	this.show = function(){
 		var shader = OZONE.dialog.factory.shader();
 		shader.show();
 		var container = OZONE.dialog.factory.boxcontainer();
-		
-		
+
+
 		//container.show();
 		container.setContent('<div class="box444">DUPA</div>');
 		container.showContent();
@@ -786,7 +786,7 @@ function listener1(){
 	var shader = new OZONE.dialog.shader();
 //	shader.color="black";
 	shader.show();
-	
+
 }
 
 function listener2(){
@@ -795,7 +795,7 @@ function listener2(){
 }
 
 function testdialog(){
-	//alert('te');	
+	//alert('te');
 	var bd = new OZONE.dialogs.Base();
 	bd.template = 'Warning';
 //	bd.title="to jest warning!!!";

@@ -3,7 +3,7 @@
 <table class="form">
 	<tr>
 		<td>
-			{t}Current name{/t}: 
+			{t}Current name{/t}:
 		</td>
 		<td>
 			{$file->getFilename()|escape}
@@ -11,7 +11,7 @@
 	</tr>
 	<tr>
 		<td>
-			{t}New name{/t}: 
+			{t}New name{/t}:
 		</td>
 		<td>
 			<input class="text" type="text" id="file-rename-name" size="30"/>
@@ -19,4 +19,4 @@
 	</tr>
 </table>
 
-		
+

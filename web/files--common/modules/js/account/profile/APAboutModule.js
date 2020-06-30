@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -38,7 +38,7 @@ WIKIDOT.modules.APAboutModule.listeners = {
 WIKIDOT.modules.APAboutModule.callbacks = {
 	save: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
-		
+
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Your profile information has been saved.";
 		w.show();
@@ -47,7 +47,7 @@ WIKIDOT.modules.APAboutModule.callbacks = {
 }
 
 WIKIDOT.modules.APAboutModule.init = function(){
-	YAHOO.util.Event.addListener("about-textarea", "keyup", WIKIDOT.modules.APAboutModule.listeners.aboutChange);	
+	YAHOO.util.Event.addListener("about-textarea", "keyup", WIKIDOT.modules.APAboutModule.listeners.aboutChange);
 	WIKIDOT.modules.APAboutModule.listeners.aboutChange();
 }
 

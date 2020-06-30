@@ -3,7 +3,7 @@
 {ltext lang="en"}
 <p>
 	Tags are a nice way to organize content in your Site. You can apply multiple tags (labels) to each
-	of your pages. You can learn more what a tag is reading Wikipedia entries for  
+	of your pages. You can learn more what a tag is reading Wikipedia entries for
 	<a href="http://en.wikipedia.org/wiki/Tags" target="_blank">Tags</a> and
 	<a href="http://en.wikipedia.org/wiki/Tag_cloud" target="_blank">Tag cloud</a>.
 </p>

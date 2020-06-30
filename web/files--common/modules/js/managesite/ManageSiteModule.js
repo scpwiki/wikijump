@@ -1,8 +1,8 @@
 /*
  * Wikidot - free wiki collaboration software
- * Copyright (c) 2008, Wikidot Inc.
- * 
- * Code licensed under the GNU Affero General Public 
+ * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
+ *
+ * Code licensed under the GNU Affero General Public
  * License version 3 or later.
  *
  * For more information about licensing visit:
@@ -38,7 +38,7 @@ WIKIDOT.modules.ManagerSiteModule.listeners = {
 				eff.custom(1,0);
 				tz = target;
 				setTimeout('YAHOO.util.Dom.removeClass(tz,"selected")', 200);
-				
+
 			}else{
 				YAHOO.util.Dom.addClass(target,"selected");
 				var eff = new fx.Opacity(list, {duration: 200});
@@ -53,14 +53,14 @@ WIKIDOT.modules.ManagerSiteModule.listeners = {
 WIKIDOT.modules.ManagerSiteModule.callbacks = {
 	menuClick: function(r){
 		if(!WIKIDOT.utils.handleError(r)) {return;}
-		
+
 		OZONE.utils.setInnerHTMLContent("sm-action-area", r.body);
 		OZONE.utils.formatDates("sm-action-area");
 		if(r.categories != null){
 			WIKIDOT.modules.ManagerSiteModule.vars.categories = r.categories;
 		}
 
-	}	
+	}
 
 }
 
@@ -71,7 +71,7 @@ WIKIDOT.modules.ManagerSiteModule.utils = {
 			if(categories[i]['category_id'] == categoryId){
 				return categories[i];
 			}
-		}	
+		}
 	},
 	getCategoryByName: function(name){
 		var categories = WIKIDOT.modules.ManagerSiteModule.vars.categories;
@@ -79,9 +79,9 @@ WIKIDOT.modules.ManagerSiteModule.utils = {
 			if(categories[i]['name'] == name){
 				return categories[i];
 			}
-		}	
+		}
 	},
-	
+
 	loadModule: function(id, options){
 		var mm = WIKIDOT.modules.ManagerSiteModule.vars.modulesMapping;
 		var module = mm[id];
@@ -93,12 +93,12 @@ WIKIDOT.modules.ManagerSiteModule.utils = {
 			YAHOO.util.Dom.addClass(id, "active");
 			OZONE.ajax.requestModule(module, options, WIKIDOT.modules.ManagerSiteModule.callbacks.menuClick,
 				null, {clearRequestQueue: true});
-			
+
 			// make sure the parent is unfolded (if is a list)
 			var p = $(id).parentNode.parentNode.parentNode;
-			
+
 			var list = p.getElementsByTagName("ul").item(0);
-			
+
 			if(list && p.tagName.toLowerCase() == 'li' && !YAHOO.util.Dom.hasClass(p,"selected")){
 				// unfold
 				YAHOO.util.Dom.addClass(p,"selected");
@@ -108,16 +108,16 @@ WIKIDOT.modules.ManagerSiteModule.utils = {
 			}
 		}
 
-	}			
+	}
 
 }
 
 WIKIDOT.modules.ManagerSiteModule.init = function(){
-	var tabIds = ["sm-general", "sm-appearance", "sm-license", "sm-permissions", 
-	"sm-files", "sm-members", "sm-admins", "sm-admins-invite", "sm-navigation", 
+	var tabIds = ["sm-general", "sm-appearance", "sm-license", "sm-permissions",
+	"sm-files", "sm-members", "sm-admins", "sm-admins-invite", "sm-navigation",
 	"sm-ma", "sm-members-list", "sm-members-invite", "sm-forum-settings", "sm-forum-layout",
 	"sm-forum-perm", "sm-forum-perpage",  "sm-templates", "sm-user-blocks", "sm-ip-blocks"];
-	
+
 	var mm = new Object();
 	mm['sm-welcome'] = "managesite/ManageSiteWelcomeModule";
 	mm['sm-general'] = "managesite/ManageSiteGeneralModule";
@@ -162,20 +162,20 @@ WIKIDOT.modules.ManagerSiteModule.init = function(){
 	mm['sm-clonesite'] = "managesite/ManageSiteCloneModule";
 	// etc...
 	WIKIDOT.modules.ManagerSiteModule.vars.modulesMapping = mm;
-	
-	YAHOO.util.Event.addListener("site-manager-menu", "click", WIKIDOT.modules.ManagerSiteModule.listeners.clickMenu);	
-	
-	OZONE.dom.onDomReady(function(){	
+
+	YAHOO.util.Event.addListener("site-manager-menu", "click", WIKIDOT.modules.ManagerSiteModule.listeners.clickMenu);
+
+	OZONE.dom.onDomReady(function(){
 		var startPage = "sm-welcome";
 		if(window.smStartPage){
 			startPage = 'sm-' + smStartPage;
 		}
-		
+
 		// on DOM complete!!!
-		
+
 		WIKIDOT.modules.ManagerSiteModule.utils.loadModule(startPage);
 	}, "dummy-ondomready-block");
-	
+
 }
 
 WIKIDOT.modules.ManagerSiteModule.init();

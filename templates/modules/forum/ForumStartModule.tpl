@@ -10,7 +10,7 @@
 					{$group->getDescription()|escape}
 				</div>
 			</div>
-		
+
 			{assign var=groupId value=$group->getGroupId()}
 			{assign var=categories value=$catarray[$groupId]}
 			<div >

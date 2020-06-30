@@ -1,4 +1,4 @@
-  
+
 	{if $messages != null}
 	<div style="text-align: center">
 	<table class="successmess">
@@ -15,4 +15,4 @@
 	</table>
 	</div>
 	{/if}
- 
+

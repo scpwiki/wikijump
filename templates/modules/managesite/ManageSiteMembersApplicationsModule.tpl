@@ -2,7 +2,7 @@
 {if $applications}
 	{foreach from=$applications item=application}
 		{assign var=user value=$application->getUser()}
-		<h3>Membership application from {printuser user=$user image=true}</h3> 
+		<h3>Membership application from {printuser user=$user image=true}</h3>
 		<table class="form alignleft">
 			{if $application->getComment() != ''}
 				<tr>
@@ -19,7 +19,7 @@
 					Options:
 				</td>
 				<td>
-					<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteMembersApplicationsModule.listeners.accept(event, {$user->getUserId()}, '{$user->getNickName()}', 'accept')">accept</a> 
+					<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteMembersApplicationsModule.listeners.accept(event, {$user->getUserId()}, '{$user->getNickName()}', 'accept')">accept</a>
 					or <a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteMembersApplicationsModule.listeners.accept(event, {$user->getUserId()}, '{$user->getNickName()}', 'decline')">decline</a>
 				</td>
 			</tr>

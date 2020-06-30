@@ -1,7 +1,7 @@
 <h1><a href="javascript:;" onclick="WIKIDOT.modules.AccountModule.utils.loadModule('am-settings')">Account settings</a> / Receiving messages</h1>
 
 <p>
-	One of the features of Wikidot is the possibility to send <em>private messages</em>, i.e. 
+	One of the features of Wikidot is the possibility to send <em>private messages</em>, i.e.
 	direct messages between registered users. It is advised to enable private messages
 	but you have a few options here (leave boxes unchecked to block all messages):
 </p>
@@ -17,7 +17,7 @@
 				<input class="radio" type="radio" name="from" value="mf" {if $from == 'mf'}checked="checked"{/if}/> members of the sites I am also a member of + contacts<br/>
 				<input class="radio" type="radio" name="from" value="f" {if $from == 'f'}checked="checked"{/if}/> your contacts only<br/>
 				<input class="radio" type="radio" name="from" value="n" {if $from == 'n'}checked="checked"{/if}/> nobody (not recommended)
-				
+
 			</td>
 		</tr>
 	</table>
@@ -25,7 +25,7 @@
 		<input type="button" value="cancel" onclick="WIKIDOT.modules.AccountModule.utils.loadModule('am-settings')"/>
 		<input type="button" value="save" onclick="WIKIDOT.modules.ASMessagesModule.listeners.save(event)"/>
 	</div>
-	
+
 </form>
 
 <p>

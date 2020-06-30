@@ -7,7 +7,7 @@
 <table class="pm-list">
 	<tr class="headers">
 		<td>&nbsp;</td>
-		
+
 		<td>
 			{t}Subject{/t}
 		</td>
@@ -21,12 +21,12 @@
 			&nbsp;
 		</td>
 	</tr>
-	
+
 	{foreach from=$messages item=message}
 		<tr>
 			<td>&nbsp;</td>
 			<td class="subject">
-				<a href="javascript:;" 
+				<a href="javascript:;"
 				{if $message->getFlagNew()} style="font-weight: bold"{/if}
 				onclick="WIKIDOT.modules.AccountMessagesModule.listeners.viewInboxMessage({$message->getMessageId()})">{$message->getSubject()|escape}</a>
 			</td>
@@ -38,13 +38,13 @@
 			</td>
 			<td>
 				<input class="message-select" type="checkbox" id="message-check-{$message->getMessageId()}"/>
-			</td>		
+			</td>
 		</tr>
 	{/foreach}
-	
+
 	<!-- options -->
 	{if $messages}
-		<tr>	
+		<tr>
 			<td colspan="4"  style="padding: 1em 2em 0 0; text-align: right;">
 				<a href="javascript:;" onclick="WIKIDOT.modules.PMInboxModule.listeners.removeSelected(event)">{t}remove selected{/t}</a>
 			</td>

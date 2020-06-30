@@ -3,7 +3,7 @@
 {if $tips}
 
 	<h2>{t}A few tips just for you{/t}:</h2>
-	
+
 	<ul>
 		{if $tips.avatar}
 			<li>
@@ -24,7 +24,7 @@
 <ul>
 	<li><a href="/new-site">Get a new wiki</a></li>
 	<li><a href="{$HTTP_SCHEMA}://{$URL_HOST}">Go to main page</a></li>
-	
+
 </ul>
 
 

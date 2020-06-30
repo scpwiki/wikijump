@@ -18,7 +18,7 @@
 		<div class="title">
 			New forum group
 		</div>
-		<div class="content">	
+		<div class="content">
 			<h1>Create a new forum group</h1>
 			<p>
 				A category group is a collection of forum categories and the
@@ -46,7 +46,7 @@
 						<textarea name="group-description" id="template-id-stub-group-description" cols="50" rows="3"></textarea>
 					</td>
 				</tr>
-			</table>			
+			</table>
 			<input type="hidden" id="template-id-stub-gindex"/>
 		</div>
 		<div class="button-bar">
@@ -54,8 +54,8 @@
 			<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteForumLayoutModule.listeners.saveGroup(event)">save</a>
 		</div>
 	</div>
-	
-	
+
+
 
 </div>
 
@@ -64,7 +64,7 @@
 		<div class="title">
 			Forum category
 		</div>
-		<div class="content">	
+		<div class="content">
 			<h1>%%ACTION_TYPE%%  forum category</h1>
 			<div style="color: red; display: none" id="template-id-stub-form-gerror-container">
 				Please correct the following errors:
@@ -90,7 +90,7 @@
 				</tr>
 				<tr>
 					<td>
-						Posts structure - max nesting level: 
+						Posts structure - max nesting level:
 					</td>
 					<td>
 						<select name="gcategory-structure" id="template-id-stub-gcategory-structure">
@@ -112,7 +112,7 @@
 			</table>
 						<input type="hidden" id="template-id-stub-group-index"/>
 						<input type="hidden" id="template-id-stub-category-index"/>
-			
+
 		</div>
 		<div class="button-bar">
 			<a href="javascript:;"  onclick="OZONE.dialog.cleanAll()">cancel</a>

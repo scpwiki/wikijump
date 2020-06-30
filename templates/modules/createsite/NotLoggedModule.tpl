@@ -2,14 +2,14 @@
 	<tr>
 		<td>
 			<h2>Already our member?</h2>
-			
+
 			<div id="loginerror"></div>
-			
+
 			<form id="loginForm" action="" method="" >
 			your email
 			<br/>
 			<input name="name" type="text"
-					
+
 				  size="20"
 				/>
 			<br/><br/>
@@ -18,16 +18,16 @@
 			<input name="password"  type="password"
 					  size="20"
 				/>
-				
+
 			<br/><br/>
 			keep me logged in
 			<input name="login_user_0keepLogged" type="checkbox"
-				
+
 			/>
 			<br/>
 			<input type="button" name="login" value="login" onclick="submitLogin()"/>
 			<form id="loginForm" action="{$link->setTemplate("LoginRedirect")->setSecure(true)}" method="post" >
-	
+
 
 
 

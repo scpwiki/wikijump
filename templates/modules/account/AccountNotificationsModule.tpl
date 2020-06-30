@@ -2,7 +2,7 @@
 
 <p>
 	{t}Below is the list of all notifications related to your account.{/t}
-</p>	
+</p>
 
 <div id="notifications-area">
 	{module name="account/AccountNotificationsListModule"}
