@@ -45,6 +45,7 @@ class GlobalProperties
     public static $HTTP_PORT;
 
     // security settings
+    public static $ALLOW_ANY_HTTP;
     public static $USE_SSL;
     public static $HTTP_SCHEMA;
     public static $SECRET;
@@ -191,6 +192,7 @@ class GlobalProperties
 
         // security settings
         self::$SECRET                   = self::fromIni("security", "secret", self::fromFile('secret'));
+        self::$ALLOW_ANY_HTTP           = self::fromIni("security", "allow_http", false);
         self::$USE_SSL                  = self::fromIni("security", "ssl", false);
         self::$HTTP_SCHEMA              = self::fromIni("security", "schema", "http");
         self::$SECRET_DOMAIN_LOGIN      = self::fromIni("security", "secret_login", self::$SECRET . "_custom_domain_login");
