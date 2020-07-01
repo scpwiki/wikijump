@@ -41,6 +41,7 @@ impl State {
         log: &slog::Logger,
         stack: &'r mut Stack<'a>,
         extract: &ExtractedToken<'a>,
+        next: &[ExtractedToken<'a>],
     ) {
         debug!(
             log,
@@ -56,8 +57,7 @@ impl State {
         // Modify stack based on new token
         let new_state = match *self {
             State::Normal => consume_normal(stack, extract),
-            State::Tag => consume_tag(stack, extract),
-            State::TagSpecial => consume_tag_special(stack, extract),
+            _ => todo!(),
         };
 
         // Set new state
@@ -82,18 +82,6 @@ fn consume_normal<'a>(stack: &mut Stack<'a>, extract: &ExtractedToken<'a>) -> St
         Token::LeftTagSpecial => State::TagSpecial,
         _ => todo!(),
     }
-}
-
-fn consume_tag<'a>(_stack: &mut Stack<'a>, extract: &ExtractedToken<'a>) -> State {
-    let ExtractedToken { token, slice, span } = extract;
-
-    todo!()
-}
-
-fn consume_tag_special<'a>(_stack: &mut Stack<'a>, extract: &ExtractedToken<'a>) -> State {
-    let ExtractedToken { token, slice, span } = extract;
-
-    todo!()
 }
 
 impl slog::Value for State {

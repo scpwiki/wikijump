@@ -34,12 +34,14 @@ pub fn parse<'a>(log: &Logger, text: &'a str) -> SyntaxTree<'a> {
 
     info!(log, "Running parser on text");
 
-    let extracted = Token::extract_all(log, text);
+    let extracted = &Token::extract_all(log, text);
     let mut stack = Stack::new();
     let mut state = State::Normal;
 
-    for extract in &extracted {
-        state.consume(log, &mut stack, extract);
+    for (i, extract) in extracted.iter().enumerate() {
+        let next = &extracted[i+1..];
+
+        state.consume(log, &mut stack, extract, next);
     }
 
     debug!(log, "Finished running parser, converting stack into AST");
