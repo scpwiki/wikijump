@@ -38,7 +38,7 @@ pub fn parse<'a>(log: &Logger, text: &'a str) -> SyntaxTree<'a> {
     let mut stack = Stack::new();
     let mut state = State::Normal;
 
-    for extract in extracted {
+    for extract in &extracted {
         state.consume(log, &mut stack, extract);
     }
 

@@ -40,7 +40,7 @@ impl State {
         &mut self,
         log: &slog::Logger,
         stack: &'r mut Stack<'a>,
-        extract: ExtractedToken<'a>,
+        extract: &ExtractedToken<'a>,
     ) {
         debug!(
             log,
@@ -70,7 +70,7 @@ impl State {
     }
 }
 
-fn consume_normal<'a>(stack: &mut Stack<'a>, extract: ExtractedToken<'a>) -> State {
+fn consume_normal<'a>(stack: &mut Stack<'a>, extract: &ExtractedToken<'a>) -> State {
     let ExtractedToken { token, slice, span } = extract;
 
     match token {
@@ -84,13 +84,13 @@ fn consume_normal<'a>(stack: &mut Stack<'a>, extract: ExtractedToken<'a>) -> Sta
     }
 }
 
-fn consume_tag<'a>(_stack: &mut Stack<'a>, extract: ExtractedToken<'a>) -> State {
+fn consume_tag<'a>(_stack: &mut Stack<'a>, extract: &ExtractedToken<'a>) -> State {
     let ExtractedToken { token, slice, span } = extract;
 
     todo!()
 }
 
-fn consume_tag_special<'a>(_stack: &mut Stack<'a>, extract: ExtractedToken<'a>) -> State {
+fn consume_tag_special<'a>(_stack: &mut Stack<'a>, extract: &ExtractedToken<'a>) -> State {
     let ExtractedToken { token, slice, span } = extract;
 
     todo!()
