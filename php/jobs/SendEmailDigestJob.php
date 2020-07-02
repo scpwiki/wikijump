@@ -23,14 +23,7 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-use run;
-use add;
-use addOrderAscending;
 use DB\OzoneUserPeer;
-use instance;
-use select;
-use handleUser;
 
 /**
  * Sends email digest with unread notifications (if a user accepts this)
