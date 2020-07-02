@@ -26,8 +26,6 @@
 
 use DB\EmailList;
 use DB\EmailListPeer;
-use Excepion;
-use ProcessExcepion;
 use DB\EmailListSubscriberPeer;
 
 class ManageSiteEmailListsAction extends SmartyAction
@@ -89,8 +87,8 @@ class ManageSiteEmailListsAction extends SmartyAction
 
         try {
             $list->save();
-        } catch (Excepion $e) {
-            throw new ProcessExcepion("List cannot be saved.");
+        } catch (Exception $e) {
+            throw new ProcessException("List cannot be saved.");
         }
         $db->commit();
     }

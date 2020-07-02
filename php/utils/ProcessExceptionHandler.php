@@ -23,9 +23,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-use WBPermissionException;
-
 /**
  * This class is responsible for handling exceptions which are thrown
  * when processing modules/screens.
@@ -61,7 +58,7 @@ class ProcessExceptionHandler
         if ($exception instanceof ProcessException) {
             $runData->ajaxResponseAdd("message", $exception->getMessage());
             $runData->ajaxResponseAdd("status", $exception->getStatus());
-        } elseif ($exception instanceof WBPermissionException) {
+        } elseif ($exception instanceof WDPermissionException) {
         } else {
             $runData->ajaxResponseAdd("message", "An error occured when processing your request.");
             $runData->ajaxResponseAdd("status", "not_ok");
