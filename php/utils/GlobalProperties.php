@@ -54,6 +54,7 @@ class GlobalProperties
     public static $URL_UPLOAD_DOMAIN;
     public static $RESTRICT_HTML;
     public static $SECRET_MANAGE_SUPERADMIN;
+    public static $SECRET_LOGIN_SEED;
 
     // database settings
     public static $DATABASE_SERVER;
@@ -200,6 +201,7 @@ class GlobalProperties
         self::$URL_UPLOAD_DOMAIN        = self::fromIni("security", "upload_domain", "wd.files." . self::$URL_DOMAIN);
         self::$RESTRICT_HTML            = self::fromIni("security", "upload_restrict_html", true);
         self::$SECRET_MANAGE_SUPERADMIN = self::fromIni("security", "secret_manage_superadmin", md5(self::$SECRET . '_super_admin'));
+        self::$SECRET_LOGIN_SEED        = self::fromIni("security", "secret_login_seed", md5(self::$SECRET . '_login'));
 
         // database settings
         self::$DATABASE_USER            = self::fromIni("db", "user");            // no default!

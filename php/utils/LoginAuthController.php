@@ -29,7 +29,9 @@ use DB\OzoneSessionPeer;
 class LoginAuthController extends WebFlowController
 {
 
-    public static $secretSeed='GdzieDiabelNieMozeTamIE8Posle';
+    public static function getSecretSeed() {
+        return GlobalProperties::$SECRET_LOGIN_SEED;
+    }
 
     public function process()
     {
@@ -59,7 +61,7 @@ class LoginAuthController extends WebFlowController
         /* Select session from the database. */
         $c = new Criteria();
         $c->add('session_id', $sessionId);
-        $c->add("md5(session_id || '".self::$secretSeed."')", $sessionHash);
+        $c->add("md5(session_id || '".self::getSecretSeed()."')", $sessionHash);
 
         $session = OzoneSessionPeer::instance()->selectOne($c);
 
