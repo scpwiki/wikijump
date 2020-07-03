@@ -16,8 +16,10 @@
 			{if $useCustomDomains}
 				<li><a href="javascript:;" id="sm-domain">{t}Custom domain{/t}</a></li>
 			{/if}
+			{if $allowHttp}
 			{if $useSsl}
 				<li><a href="javascript:;" id="sm-ssl">{t}Secure access (SSL/TLS){/t}</a></li>
+			{/if}
 			{/if}
 			<li><a href="javascript:;">{t}Appearance{/t}</a>
 				<ul>

@@ -35,5 +35,6 @@ class ManageSiteSecureAccessModule extends ManageSiteBaseModule
         $secureMode = $settings->getSslMode();
 
         $runData->contextAdd("secureMode", $secureMode);
+        $runData->contextAdd("allowHttp", GlobalProperties::$ALLOW_ANY_HTTP);
     }
 }
