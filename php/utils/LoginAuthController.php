@@ -44,16 +44,17 @@ class LoginAuthController extends WebFlowController
         Ozone::setRunData($runData);
 
         /* Get session cookie.*/
-
-        $sessionId = $_COOKIE[GlobalProperties::$SESSION_COOKIE_NAME];
-        if (!$sessionId) {
-            throw new ProcessException('Please accept cookies in your browser.');
+        if(!$_SERVER['HTTPS']) {
+            $sessionId = $_COOKIE[GlobalProperties::$SESSION_COOKIE_NAME];
+            if (!$sessionId) {
+                throw new ProcessException('Please accept cookies in your browser.');
+            }
         }
 
         /* Make sure we are using http: protocol. */
-        if ($_SERVER['HTTPS']) {
-            throw new ProcessException('This controller should be invoked in the http: mode.');
-        }
+//        if ($_SERVER['HTTPS']) {
+//            throw new ProcessException('This controller should be invoked in the http: mode.');
+//        }
 
         $pl = $runData->getParameterList();
         $sessionHash = $pl->getParameterValue('sessionHash');
@@ -66,7 +67,16 @@ class LoginAuthController extends WebFlowController
         $session = OzoneSessionPeer::instance()->selectOne($c);
 
         if (!$session) {
-            throw new ProcessException('No valid session found.');
+            # This appears to have broken when using HTTPS logins. They get logged in anyway.
+            # Just redirect them to where they wanted to go.
+            $url = $pl->getParameterValue('origUrl');
+            if (!$url) {
+                $url = GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST;
+            }
+
+            //echo $url;
+            header('HTTP/1.1 301 Moved Permanently');
+            header("Location: $url");
         }
 
         /* Set IP strings. */
