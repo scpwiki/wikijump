@@ -319,7 +319,7 @@ class WikiScreen extends Screen
             return;
         }
 
-        $cookieResult = setcookie('lastncheck', time(), time() + 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
+        setsecurecookie('lastncheck', time(), time() + 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
         // ok. go get the notifications now.
 
         $c = new Criteria();

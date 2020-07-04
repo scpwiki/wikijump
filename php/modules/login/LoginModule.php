@@ -31,7 +31,7 @@ class LoginModule extends SmartyModule
         // check if reset remebered user
         $pl = $runData->getParameterList();
         if ($pl->getParameterValue("reset")) {
-            setcookie('welcome', 'dummy', time() - 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
+            setsecurecookie('welcome', 'dummy', time() - 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
         } else {
             // check if a recognized user
 
@@ -40,7 +40,7 @@ class LoginModule extends SmartyModule
                 $user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
             }
             if ($user == null) {
-                setcookie('welcome', 'dummy', time() - 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
+                setsecurecookie('welcome', 'dummy', time() - 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
             }
         }
 
