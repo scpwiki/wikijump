@@ -92,6 +92,7 @@ class GlobalProperties
     // session settings
     public static $SESSION_TIMEOUT;
     public static $SESSION_COOKIE_NAME;
+    public static $SESSION_COOKIE_NAME_SSL;
     public static $SESSION_COOKIE_SECURE;
     public static $SESSION_COOKIE_NAME_IE;
 
@@ -239,6 +240,7 @@ class GlobalProperties
         // session settings
         self::$SESSION_TIMEOUT          = self::fromIni("session", "timeout", 3600);
         self::$SESSION_COOKIE_NAME      = self::fromIni("session", "cookie_name", "WIKIDOT_SESSION_ID");
+        self::$SESSION_COOKIE_NAME_SSL  = self::fromIni("session", "cookie_name_ssl", self::$SESSION_COOKIE_NAME."_SECURE");
         self::$SESSION_COOKIE_SECURE    = self::fromIni("session", "cookie_ssl", false);
         self::$SESSION_COOKIE_NAME_IE   = self::fromIni("session", "ie_cookie_name", self::$SESSION_COOKIE_NAME . "_IE");
 

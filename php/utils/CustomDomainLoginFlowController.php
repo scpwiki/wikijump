@@ -83,7 +83,12 @@ class CustomDomainLoginFlowController extends WikidotController
                 $session = $runData->getSessionFromDomainHash($skey, $_SERVER['HTTP_HOST'], $user_id);
 
                 if ($session) {
-                    setsecurecookie(GlobalProperties::$SESSION_COOKIE_NAME, "_domain_cookie_${user_id}_${skey}", 0, '/', GlobalProperties::$SESSION_COOKIE_DOMAIN);
+                    if(GlobalProperties::$SESSION_COOKIE_SECURE == true) {
+                        setsecurecookie(GlobalProperties::$SESSION_COOKIE_NAME_SSL, "_domain_cookie_${user_id}_${skey}", 0, '/', GlobalProperties::$SESSION_COOKIE_DOMAIN);
+                    }
+                    else {
+                        setsecurecookie(GlobalProperties::$SESSION_COOKIE_NAME, "_domain_cookie_${user_id}_${skey}", 0, '/', GlobalProperties::$SESSION_COOKIE_DOMAIN);
+                    }
                     $this->redirectConfirm($url);
                 } else {
                     $this->redirect($url);
