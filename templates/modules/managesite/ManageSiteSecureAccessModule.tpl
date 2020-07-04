@@ -29,7 +29,7 @@
 </form>
 
 <p>
-	The secure mode (SSL/TSL via HTTPS) basically means that the whole
+	The secure mode (SSL/TSL via HTTPS) means that the whole
 	connection between your web browser and your Wiki Site is encrypted. No chance someone
 	could intercept your transmission. This is very useful for private (non-public) sites.
 </p>
