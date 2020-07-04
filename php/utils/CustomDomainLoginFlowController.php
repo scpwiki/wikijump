@@ -97,12 +97,7 @@ class CustomDomainLoginFlowController extends WikidotController
                 // checking if cookie exists
 
                 $runData->handleSessionStart();
-
-                if ($runData->getUser()) {
-                    $this->redirect($url);
-                } else {
-                    $this->cookieError($url);
-                }
+                $this->redirect($url);
             }
         }
     }
