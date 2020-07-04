@@ -239,7 +239,7 @@ class UploadedFileFlowController extends WikidotController
         Ozone::setRunData($runData);
 
         $siteHost = $_SERVER['HTTP_HOST'];
-        $site = $this->siteFromHost($siteHost, false, true);
+        $site = $this->siteFromHost($siteHost, true, true);
 
         if (! $site) {
             $this->siteNotExists();
