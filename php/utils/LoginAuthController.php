@@ -100,7 +100,6 @@ class LoginAuthController extends WebFlowController
             $url = GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST;
         }
 
-        //echo $url;
         header('HTTP/1.1 301 Moved Permanently');
         header("Location: $url");
     }
