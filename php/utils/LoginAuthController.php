@@ -44,17 +44,15 @@ class LoginAuthController extends WebFlowController
         Ozone::setRunData($runData);
 
         /* Get session cookie.*/
-        if(!$_SERVER['HTTPS']) {
-            $sessionId = $_COOKIE[GlobalProperties::$SESSION_COOKIE_NAME];
-            if (!$sessionId) {
-                throw new ProcessException('Please accept cookies in your browser.');
-            }
+        if(GlobalProperties::$SESSION_COOKIE_SECURE == true) {
+            $sessionId = $_COOKIE[GlobalProperties::$SESSION_COOKIE_NAME_SSL];
         }
-
-        /* Make sure we are using http: protocol. */
-//        if ($_SERVER['HTTPS']) {
-//            throw new ProcessException('This controller should be invoked in the http: mode.');
-//        }
+        else {
+            $sessionId = $_COOKIE[GlobalProperties::$SESSION_COOKIE_NAME];
+        }
+            if(!$sessionId) {
+                throw new ProcessException('Please accept cookies in your browser. (secure)');
+            }
 
         $pl = $runData->getParameterList();
         $sessionHash = $pl->getParameterValue('sessionHash');
@@ -77,13 +75,14 @@ class LoginAuthController extends WebFlowController
             //echo $url;
             header('HTTP/1.1 301 Moved Permanently');
             header("Location: $url");
+            return;
         }
 
         /* Set IP strings. */
         /* Assume that the previous ip was obtained using the SSL proto.
            If not, this controller should not be invoked at all. */
 
-        $session->setIpAddressSsl($session->getIpAddress());
+        $session->setIpAddressSsl($runData->createIpString());
         $session->setIpAddress($runData->createIpString());
 
         $session->save();

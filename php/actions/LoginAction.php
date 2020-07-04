@@ -77,7 +77,7 @@ class LoginAction extends SmartyAction
                     $session->setCheckIp(true);
                 }
 
-                setcookie("welcome", $user->getUserId(), time() + 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
+                setsecurecookie("welcome", $user->getUserId(), time() + 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
 
                 // log event
                 EventLogger::instance()->logLogin();

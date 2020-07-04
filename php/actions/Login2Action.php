@@ -99,8 +99,8 @@ class Login2Action extends SmartyAction
             $runData->ajaxResponseAdd('originalUrl', $originalUrl);
         }
 
-            setcookie("welcome", $user->getUserId(), time() + 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
-            setcookie(GlobalProperties::$SESSION_COOKIE_NAME_IE, $runData->getSessionId(), null, "/");
+            setsecurecookie("welcome", $user->getUserId(), time() + 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
+            setsecurecookie(GlobalProperties::$SESSION_COOKIE_NAME_IE, $runData->getSessionId(), time() + 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
 
             // log event
             EventLogger::instance()->logLogin();
