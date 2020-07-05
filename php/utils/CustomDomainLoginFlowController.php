@@ -65,9 +65,9 @@ class CustomDomainLoginFlowController extends WikidotController
 
             $runData->handleSessionStart();
             if ($runData->getUser()) {
-                setcookie(GlobalProperties::$SESSION_COOKIE_NAME_IE, $runData->getSessionId(), null, '/');
+                setsecurecookie(GlobalProperties::$SESSION_COOKIE_NAME_IE, $runData->getSessionId(), 0, '/', GlobalProperties::$SESSION_COOKIE_DOMAIN);
             } else {
-                setcookie(GlobalProperties::$SESSION_COOKIE_NAME_IE, "ANONYMOUS", null, '/');
+                setsecurecookie(GlobalProperties::$SESSION_COOKIE_NAME_IE, "ANONYMOUS", 0, '/', GlobalProperties::$SESSION_COOKIE_DOMAIN);
             }
             $this->redirect($url);
         } else {
@@ -83,7 +83,12 @@ class CustomDomainLoginFlowController extends WikidotController
                 $session = $runData->getSessionFromDomainHash($skey, $_SERVER['HTTP_HOST'], $user_id);
 
                 if ($session) {
-                    setcookie(GlobalProperties::$SESSION_COOKIE_NAME, "_domain_cookie_${user_id}_${skey}", null, '/', GlobalProperties::$SESSION_COOKIE_DOMAIN);
+                    if(GlobalProperties::$SESSION_COOKIE_SECURE == true) {
+                        setsecurecookie(GlobalProperties::$SESSION_COOKIE_NAME_SSL, "_domain_cookie_${user_id}_${skey}", 0, '/', GlobalProperties::$SESSION_COOKIE_DOMAIN);
+                    }
+                    else {
+                        setsecurecookie(GlobalProperties::$SESSION_COOKIE_NAME, "_domain_cookie_${user_id}_${skey}", 0, '/', GlobalProperties::$SESSION_COOKIE_DOMAIN);
+                    }
                     $this->redirectConfirm($url);
                 } else {
                     $this->redirect($url);
@@ -92,12 +97,7 @@ class CustomDomainLoginFlowController extends WikidotController
                 // checking if cookie exists
 
                 $runData->handleSessionStart();
-
-                if ($runData->getUser()) {
-                    $this->redirect($url);
-                } else {
-                    $this->cookieError($url);
-                }
+                $this->redirect($url);
             }
         }
     }

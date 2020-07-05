@@ -159,7 +159,7 @@ class WikiFlowController extends WebFlowController
             } elseif ($sslMode == "ssl_only_paranoid") {
                 // use secure authentication cookie
                 // i.e. change authentication scheme
-                GlobalProperties::$SESSION_COOKIE_NAME = "WIKIDOT_SESSION_SECURE_ID";
+                GlobalProperties::$SESSION_COOKIE_NAME = GlobalProperties::$SESSION_COOKIE_NAME_SSL;
                 GlobalProperties::$SESSION_COOKIE_SECURE = true;
             }
         } else {

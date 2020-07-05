@@ -138,7 +138,17 @@ class SiteSettingsBase extends BaseDBObject
 
     public function getSslMode()
     {
-        return $this->getFieldValue('ssl_mode');
+        /**
+         * We are deprecating any usage of insecure HTTP.
+         * The `allow_http` flag in wikidot.ini should only be set to true for local dev purposes.
+         * If you do so, SSL is controlled on a per-site basis in the site_settings table.
+         * The only difference between `ssl_only` and `ssl_only_paranoid` is the latter forces a secure cookie.
+         * This may be removed entirely in a future release.
+         */
+        if(\GlobalProperties::$ALLOW_ANY_HTTP == true) {
+            return $this->getFieldValue('ssl_mode');
+        }
+        return "ssl_only_paranoid";
     }
 
     public function setSslMode($v1, $raw = false)

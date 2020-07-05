@@ -23,15 +23,7 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-use run;
-use add;
-use false;
-use currentDateUTC;
-use subtractSeconds;
 use DB\OzoneSessionPeer;
-use instance;
-use delete;
 
 /**
  * Removes old (expired) sessions from the database.

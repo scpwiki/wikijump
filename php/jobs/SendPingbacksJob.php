@@ -23,26 +23,7 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  */
 
-
-use run;
-use init;
-use _selectLink;
-use _ping;
-use subtractSeconds;
-use DB\escape_string;
-use getDate;
-use setExplicitQuery;
 use DB\PageExternalLinkPeer;
-use instance;
-use selectOne;
-use setPinged;
-use true;
-use setPingStatus;
-use save;
-use buildPageUrl;
-use getToUrl;
-use ping;
-use getMessage;
 
 /**
  * Sends pingbacks.

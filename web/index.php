@@ -31,7 +31,11 @@ header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // Date in the past
 
 try {
     // set anti-session-riding token
-    setcookie("wikidot_token7", md5(rand(0, 10000)), null, '/');
+    setsecurecookie("wikidot_token7", md5(rand(0, 10000)), 0, '/', GlobalProperties::$SESSION_COOKIE_DOMAIN);
+    // If this is coming from a custom domain, set a token7 so they can work with the admin panel if needed.
+    if($_SERVER['HTTP_HOST'] != GlobalProperties::$URL_HOST) {
+        setsecurecookie("wikidot_token7", md5(rand(0, 10000)), 0, '/', '.'.$_SERVER['HTTP_HOST']);
+    }
     $controller = new WikiFlowController();
     $out = $controller->process();
 } catch (OzoneDatabaseException $e) {

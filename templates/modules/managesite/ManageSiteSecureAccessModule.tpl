@@ -1,3 +1,4 @@
+{if $allowHttp}
 <h1>Secure Access (SSL/TLS)</h1>
 
 <p>
@@ -28,7 +29,7 @@
 </form>
 
 <p>
-	The secure mode (SSL/TSL via HTTPS) basicly mean that the whole
+	The secure mode (SSL/TSL via HTTPS) means that the whole
 	connection between your web browser and your Wiki Site is encrypted. No chance someone
 	could intercept your transmission. This is very useful for private (non-public) sites.
 </p>
@@ -42,3 +43,4 @@
 <p style="font-size: 120%; font-weight: bold;">
 	In case of troubles - please contact <a href="mailto:{$SUPPORT_EMAIL}">{$SUPPORT_EMAIL}</a>.
 </p>
+{/if}

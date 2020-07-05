@@ -45,6 +45,7 @@ class GlobalProperties
     public static $HTTP_PORT;
 
     // security settings
+    public static $ALLOW_ANY_HTTP;
     public static $USE_SSL;
     public static $HTTP_SCHEMA;
     public static $SECRET;
@@ -53,6 +54,7 @@ class GlobalProperties
     public static $URL_UPLOAD_DOMAIN;
     public static $RESTRICT_HTML;
     public static $SECRET_MANAGE_SUPERADMIN;
+    public static $SECRET_LOGIN_SEED;
 
     // database settings
     public static $DATABASE_SERVER;
@@ -90,6 +92,7 @@ class GlobalProperties
     // session settings
     public static $SESSION_TIMEOUT;
     public static $SESSION_COOKIE_NAME;
+    public static $SESSION_COOKIE_NAME_SSL;
     public static $SESSION_COOKIE_SECURE;
     public static $SESSION_COOKIE_NAME_IE;
 
@@ -191,6 +194,7 @@ class GlobalProperties
 
         // security settings
         self::$SECRET                   = self::fromIni("security", "secret", self::fromFile('secret'));
+        self::$ALLOW_ANY_HTTP           = self::fromIni("security", "allow_http", false);
         self::$USE_SSL                  = self::fromIni("security", "ssl", false);
         self::$HTTP_SCHEMA              = self::fromIni("security", "schema", "http");
         self::$SECRET_DOMAIN_LOGIN      = self::fromIni("security", "secret_login", self::$SECRET . "_custom_domain_login");
@@ -198,6 +202,7 @@ class GlobalProperties
         self::$URL_UPLOAD_DOMAIN        = self::fromIni("security", "upload_domain", "wd.files." . self::$URL_DOMAIN);
         self::$RESTRICT_HTML            = self::fromIni("security", "upload_restrict_html", true);
         self::$SECRET_MANAGE_SUPERADMIN = self::fromIni("security", "secret_manage_superadmin", md5(self::$SECRET . '_super_admin'));
+        self::$SECRET_LOGIN_SEED        = self::fromIni("security", "secret_login_seed", md5(self::$SECRET . '_login'));
 
         // database settings
         self::$DATABASE_USER            = self::fromIni("db", "user");            // no default!
@@ -235,6 +240,7 @@ class GlobalProperties
         // session settings
         self::$SESSION_TIMEOUT          = self::fromIni("session", "timeout", 3600);
         self::$SESSION_COOKIE_NAME      = self::fromIni("session", "cookie_name", "WIKIDOT_SESSION_ID");
+        self::$SESSION_COOKIE_NAME_SSL  = self::fromIni("session", "cookie_name_ssl", self::$SESSION_COOKIE_NAME."_SECURE");
         self::$SESSION_COOKIE_SECURE    = self::fromIni("session", "cookie_ssl", false);
         self::$SESSION_COOKIE_NAME_IE   = self::fromIni("session", "ie_cookie_name", self::$SESSION_COOKIE_NAME . "_IE");
 

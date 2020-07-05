@@ -87,7 +87,7 @@ class Login2Action extends SmartyAction
             /* If the request is over https:, we should also use loginauth.php script to set non-ssl ip address. */
 
         if ($_SERVER['HTTPS']) {
-            $sessionHash = md5($session->getSessionId() . LoginAuthController::$secretSeed);
+            $sessionHash = md5($session->getSessionId() . LoginAuthController::getSecretSeed());
             $parms = array('sessionHash' => $sessionHash);
             if ($originalUrl) {
                 $parms['origUrl'] = $originalUrl;
@@ -99,8 +99,8 @@ class Login2Action extends SmartyAction
             $runData->ajaxResponseAdd('originalUrl', $originalUrl);
         }
 
-            setcookie("welcome", $user->getUserId(), time() + 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
-            setcookie(GlobalProperties::$SESSION_COOKIE_NAME_IE, $runData->getSessionId(), null, "/");
+            setsecurecookie("welcome", $user->getUserId(), time() + 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
+            setsecurecookie(GlobalProperties::$SESSION_COOKIE_NAME_IE, $runData->getSessionId(), time() + 10000000, "/", GlobalProperties::$SESSION_COOKIE_DOMAIN);
 
             // log event
             EventLogger::instance()->logLogin();

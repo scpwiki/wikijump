@@ -29,7 +29,9 @@ use DB\OzoneSessionPeer;
 class LoginAuthController extends WebFlowController
 {
 
-    public static $secretSeed='GdzieDiabelNieMozeTamIE8Posle';
+    public static function getSecretSeed() {
+        return GlobalProperties::$SECRET_LOGIN_SEED;
+    }
 
     public function process()
     {
@@ -42,16 +44,15 @@ class LoginAuthController extends WebFlowController
         Ozone::setRunData($runData);
 
         /* Get session cookie.*/
-
-        $sessionId = $_COOKIE[GlobalProperties::$SESSION_COOKIE_NAME];
-        if (!$sessionId) {
-            throw new ProcessException('Please accept cookies in your browser.');
+        if(GlobalProperties::$SESSION_COOKIE_SECURE == true) {
+            $sessionId = $_COOKIE[GlobalProperties::$SESSION_COOKIE_NAME_SSL];
         }
-
-        /* Make sure we are using http: protocol. */
-        if ($_SERVER['HTTPS']) {
-            throw new ProcessException('This controller should be invoked in the http: mode.');
+        else {
+            $sessionId = $_COOKIE[GlobalProperties::$SESSION_COOKIE_NAME];
         }
+            if(!$sessionId) {
+                throw new ProcessException('Please accept cookies in your browser. (secure)');
+            }
 
         $pl = $runData->getParameterList();
         $sessionHash = $pl->getParameterValue('sessionHash');
@@ -59,19 +60,29 @@ class LoginAuthController extends WebFlowController
         /* Select session from the database. */
         $c = new Criteria();
         $c->add('session_id', $sessionId);
-        $c->add("md5(session_id || '".self::$secretSeed."')", $sessionHash);
+        $c->add("md5(session_id || '".self::getSecretSeed()."')", $sessionHash);
 
         $session = OzoneSessionPeer::instance()->selectOne($c);
 
         if (!$session) {
-            throw new ProcessException('No valid session found.');
+            # This appears to have broken when using HTTPS logins. They get logged in anyway.
+            # Just redirect them to where they wanted to go.
+            $url = $pl->getParameterValue('origUrl');
+            if (!$url) {
+                $url = GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST;
+            }
+
+            //echo $url;
+            header('HTTP/1.1 301 Moved Permanently');
+            header("Location: $url");
+            return;
         }
 
         /* Set IP strings. */
         /* Assume that the previous ip was obtained using the SSL proto.
            If not, this controller should not be invoked at all. */
 
-        $session->setIpAddressSsl($session->getIpAddress());
+        $session->setIpAddressSsl($runData->createIpString());
         $session->setIpAddress($runData->createIpString());
 
         $session->save();
@@ -89,7 +100,6 @@ class LoginAuthController extends WebFlowController
             $url = GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST;
         }
 
-        //echo $url;
         header('HTTP/1.1 301 Moved Permanently');
         header("Location: $url");
     }
