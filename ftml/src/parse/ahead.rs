@@ -28,7 +28,7 @@
 
 use super::stack::Stack;
 use super::token::{ExtractedToken, Token};
-use crate::tree::Element;
+use crate::tree::{Element, ElementContainerType};
 
 /// Main function which takes the current stack and upcoming tokens to attempt to match against it.
 pub fn consume<'r, 'a>(
@@ -48,14 +48,47 @@ pub fn consume<'r, 'a>(
     );
 
     match token {
+        /* Plain text */
         Token::Identifier | Token::Text | Token::Whitespace => {
             stack.append(Element::Text(slice));
         }
+        /* Formatting */
+        Token::Bold => stack.push(ElementContainerType::Bold),
+        Token::Italics => stack.push(ElementContainerType::Italics),
+        Token::Underline => stack.push(ElementContainerType::Underline),
+        Token::Superscript => stack.push(ElementContainerType::Superscript),
+        Token::Subscript => stack.push(ElementContainerType::Subscript),
+        /* Special formatting */
+        Token::Color => try_color(),
+        Token::LeftMonospace => stack.push(ElementContainerType::Monospace),
+        Token::RightMonospace => {
+            // idk, pop off monospace from the stack?
+            // TODO
+            todo!()
+        }
+        Token::Raw => try_raw(false),
+        Token::LeftRaw => try_raw(true),
+        Token::DoubleDash => try_strikethrough(),
+        /* Blocks */
         Token::LeftTag => try_block(),
         Token::LeftTagSpecial => try_special_block(),
+        /* Other (TODO) */
         _ => todo!(),
     }
 
+    todo!()
+}
+
+fn try_strikethrough() {
+    // looks for another Token::DoubleDash without spaces or whatever, otherwise just an em dash
+    todo!()
+}
+
+fn try_color() {
+    todo!()
+}
+
+fn try_raw(alternate: bool) {
     todo!()
 }
 
