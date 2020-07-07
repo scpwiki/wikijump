@@ -87,6 +87,13 @@ upload_domain = specialfilessite.com
 ; the only way to be safe is setting upload_domain
 upload_restrict_html = true
 
+;;;;;
+; API Keys for other services
+
+[keys]
+; flickr API key: https://www.flickr.com/services/api/misc.api_keys.html
+flickr = "asdf1234"
+
 
 ;;;;
 ; database settings

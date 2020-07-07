@@ -34,7 +34,7 @@ class FlickrHandler extends phpFlickr
     {
         if (self::$instance == null) {
             // get the flickr key
-            $key = file_get_contents(WIKIDOT_ROOT.'/files/flickr-api-key.txt');
+            $key = GlobalProperties::$FLICKR_API_KEY;
             self::$instance = new FlickrHandler($key, null, false);
         }
         return self::$instance;

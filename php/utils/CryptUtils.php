@@ -26,8 +26,8 @@
 
 class CryptUtils
 {
-    private static $keyFile = 'files/key.pem';
-    private static $publicFile = 'files/public.pem';
+    private static $keyFile = 'conf/ssl/key.pem';
+    private static $publicFile = 'conf/ssl/public.pem';
 
     public static function generateSeed($length = 10)
     {
@@ -107,7 +107,7 @@ class CryptUtils
 
     public static function modulus()
     {
-        $m = file_get_contents(WIKIDOT_ROOT.'/files/modulus.pem');
+        $m = file_get_contents(WIKIDOT_ROOT.'/conf/ssl/modulus.pem');
         return trim($m);
     }
 }

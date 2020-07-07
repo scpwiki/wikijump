@@ -112,7 +112,7 @@ class WikiFlowController extends WebFlowController
         }
 
         if (!$site) {
-            $content = file_get_contents(WIKIDOT_ROOT."/files/site_not_exists.html");
+            $content = file_get_contents(WIKIDOT_ROOT."/resources/views/site_not_exists.html");
             echo $content;
             return $content;
         }
