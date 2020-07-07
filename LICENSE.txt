@@ -1,7 +1,10 @@
-Wikidot - free wiki collaboration software
-Copyright (c) 2008-2020 by Wikidot Inc., SCP Wiki Technical Team
+Wikijump - Free Wiki Software
+Copyright 2020, Wikijump Team
 
-Wikidot (version 1) software  is available under the GNU AFFERO GENERAL
+Based on Wikidot - free wiki collaboration software
+Copyright (c) 2008 by Wikidot Inc.
+
+Wikijump is available under the GNU AFFERO GENERAL
 PUBLIC LICENSE Version 3 (see below). For information about
 licensing of included parts and packages copyrighted by other authors
 please see the copyright notices within individual packages or files.
@@ -15,9 +18,6 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU Affero General Public License for more details.
-
-For more information about licensing visit:
-http://www.wikidot.com/license
 
 -----------------------------------------------------------------------
 
