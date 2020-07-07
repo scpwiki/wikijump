@@ -20,11 +20,10 @@
 
 mod ahead;
 mod stack;
-mod state;
 mod token;
 
+use self::ahead::consume;
 use self::stack::Stack;
-use self::state::State;
 use self::token::Token;
 use crate::tree::SyntaxTree;
 use slog::Logger;
@@ -36,12 +35,11 @@ pub fn parse<'a>(log: &Logger, text: &'a str) -> SyntaxTree<'a> {
 
     let extracted = &Token::extract_all(log, text);
     let mut stack = Stack::new();
-    let mut state = State::Normal;
 
     for (i, extract) in extracted.iter().enumerate() {
-        let next = &extracted[i+1..];
+        let next = &extracted[i + 1..];
 
-        state.consume(log, &mut stack, extract, next);
+        consume(log, &mut stack, extract, next);
     }
 
     debug!(log, "Finished running parser, converting stack into AST");

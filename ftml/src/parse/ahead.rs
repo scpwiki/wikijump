@@ -28,22 +28,41 @@
 
 use super::stack::Stack;
 use super::token::{ExtractedToken, Token};
+use crate::tree::Element;
 
 /// Main function which takes the current stack and upcoming tokens to attempt to match against it.
 pub fn consume<'r, 'a>(
-    &mut self,
     log: &slog::Logger,
     stack: &'r mut Stack<'a>,
     extract: &ExtractedToken<'a>,
     next: &[ExtractedToken<'a>],
 ) {
+    let ExtractedToken { token, slice, span } = extract;
+
     debug!(
         log,
         "Attempting to consume tokens in different look-aheads";
-        "token" => extract.token,
+        "token" => token,
         "next-len" => next.len(),
         "stack-len" => stack.len(),
     );
 
+    match token {
+        Token::Identifier | Token::Text | Token::Whitespace => {
+            stack.append(Element::Text(slice));
+        }
+        Token::LeftTag => try_block(),
+        Token::LeftTagSpecial => try_special_block(),
+        _ => todo!(),
+    }
+
+    todo!()
+}
+
+fn try_block() {
+    todo!()
+}
+
+fn try_special_block() {
     todo!()
 }
