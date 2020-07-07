@@ -26,4 +26,24 @@
 //! The parser is not disambiguous because any string of tokens can be interpreted
 //! as raw text as a fallback, which is how Wikidot does it.
 
-// TODO
+use super::stack::Stack;
+use super::token::{ExtractedToken, Token};
+
+/// Main function which takes the current stack and upcoming tokens to attempt to match against it.
+pub fn consume<'r, 'a>(
+    &mut self,
+    log: &slog::Logger,
+    stack: &'r mut Stack<'a>,
+    extract: &ExtractedToken<'a>,
+    next: &[ExtractedToken<'a>],
+) {
+    debug!(
+        log,
+        "Attempting to consume tokens in different look-aheads";
+        "token" => extract.token,
+        "next-len" => next.len(),
+        "stack-len" => stack.len(),
+    );
+
+    todo!()
+}
