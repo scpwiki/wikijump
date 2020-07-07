@@ -64,6 +64,11 @@ impl<'a> Stack<'a> {
         self.stack.last().map(|(etype, _)| *etype)
     }
 
+    /// Gets the current length of the stack.
+    pub fn len(&self) -> usize {
+        self.stack.len()
+    }
+
     /// Collapses the stack and converts it into the final abstract syntax tree (AST).
     pub fn into_syntax_tree(self) -> SyntaxTree<'a> {
         let Stack { elements, stack } = self;
