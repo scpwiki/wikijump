@@ -18,13 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::ElementContainer;
+use super::Container;
 
 pub type Elements<'a> = Vec<Element<'a>>;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Element<'a> {
-    Container(ElementContainer<'a>),
+    Container(Container<'a>),
     Text(&'a str),
     LineBreak,
 }

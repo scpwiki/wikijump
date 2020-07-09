@@ -28,7 +28,7 @@
 
 use super::stack::Stack;
 use super::token::{ExtractedToken, Token};
-use crate::tree::{Element, ElementContainerType};
+use crate::tree::{ContainerType, Element};
 
 /// Main function which takes the current stack and upcoming tokens to attempt to match against it.
 pub fn consume<'r, 'a>(
@@ -53,14 +53,14 @@ pub fn consume<'r, 'a>(
             stack.append(Element::Text(slice));
         }
         /* Formatting */
-        Token::Bold => stack.push(ElementContainerType::Bold),
-        Token::Italics => stack.push(ElementContainerType::Italics),
-        Token::Underline => stack.push(ElementContainerType::Underline),
-        Token::Superscript => stack.push(ElementContainerType::Superscript),
-        Token::Subscript => stack.push(ElementContainerType::Subscript),
+        Token::Bold => stack.push(ContainerType::Bold),
+        Token::Italics => stack.push(ContainerType::Italics),
+        Token::Underline => stack.push(ContainerType::Underline),
+        Token::Superscript => stack.push(ContainerType::Superscript),
+        Token::Subscript => stack.push(ContainerType::Subscript),
         /* Special formatting */
         Token::Color => try_color(),
-        Token::LeftMonospace => stack.push(ElementContainerType::Monospace),
+        Token::LeftMonospace => stack.push(ContainerType::Monospace),
         Token::RightMonospace => {
             // idk, pop off monospace from the stack?
             // TODO

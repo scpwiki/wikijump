@@ -18,13 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::tree::{Element, ElementContainer, ElementContainerType, Elements, SyntaxTree};
+use crate::tree::{Container, ContainerType, Element, Elements, SyntaxTree};
 
 #[derive(Debug, Clone)]
 pub struct Stack<'l, 'e> {
     log: &'l slog::Logger,
     elements: Elements<'e>,
-    stack: Vec<(ElementContainerType, Elements<'e>)>,
+    stack: Vec<(ContainerType, Elements<'e>)>,
 }
 
 impl<'l, 'e> Stack<'l, 'e> {
@@ -38,7 +38,7 @@ impl<'l, 'e> Stack<'l, 'e> {
     }
 
     /// Add a new layer on the stack with the given container type.
-    pub fn push(&mut self, etype: ElementContainerType) {
+    pub fn push(&mut self, etype: ContainerType) {
         debug!(
             self.log,
             "Adding new layer to the stack with type {}",
@@ -53,7 +53,7 @@ impl<'l, 'e> Stack<'l, 'e> {
     /// Pop off the current element list off the stack.
     /// Returns `None` if the stack is empty.
     /// That is, there is only the base element list for the entire document.
-    pub fn pop(&mut self) -> Option<ElementContainer<'e>> {
+    pub fn pop(&mut self) -> Option<Container<'e>> {
         debug!(
             self.log,
             "Removing the last layer off of the stack";
@@ -62,7 +62,7 @@ impl<'l, 'e> Stack<'l, 'e> {
 
         self.stack
             .pop()
-            .map(|(etype, elements)| ElementContainer { etype, elements })
+            .map(|(etype, elements)| Container { etype, elements })
     }
 
     /// Appends an element to the current element list.
@@ -88,7 +88,7 @@ impl<'l, 'e> Stack<'l, 'e> {
 
     /// Get the current element list type, if one exists.
     #[inline]
-    pub fn current_type(&self) -> Option<ElementContainerType> {
+    pub fn current_type(&self) -> Option<ContainerType> {
         self.stack.last().map(|(etype, _)| *etype)
     }
 

@@ -25,13 +25,13 @@ use strum_macros::IntoStaticStr;
 /// Representation of syntax elements which wrap other elements.
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ElementContainer<'a> {
-    pub etype: ElementContainerType,
+pub struct Container<'a> {
+    pub etype: ContainerType,
     pub elements: Elements<'a>,
 }
 
 #[derive(IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub enum ElementContainerType {
+pub enum ContainerType {
     Paragraph,
     Bold,
     Italics,
@@ -43,14 +43,14 @@ pub enum ElementContainerType {
     Header(HeadingLevel),
 }
 
-impl ElementContainerType {
+impl ContainerType {
     #[inline]
     pub fn name(self) -> &'static str {
         self.into()
     }
 }
 
-impl slog::Value for ElementContainerType {
+impl slog::Value for ContainerType {
     fn serialize(
         &self,
         _: &slog::Record,
