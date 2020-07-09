@@ -20,16 +20,19 @@
 
 use crate::tree::{Element, ElementContainer, ElementContainerType, Elements, SyntaxTree};
 
-#[derive(Debug, Default, Clone, PartialEq, Eq)]
-pub struct Stack<'a> {
-    elements: Elements<'a>,
-    stack: Vec<(ElementContainerType, Elements<'a>)>,
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Stack<'e> {
+    elements: Elements<'e>,
+    stack: Vec<(ElementContainerType, Elements<'e>)>,
 }
 
-impl<'a> Stack<'a> {
+impl<'e> Stack<'e> {
     #[inline]
     pub fn new() -> Self {
-        Stack::default()
+        Stack {
+            elements: Vec::new(),
+            stack: Vec::new(),
+        }
     }
 
     /// Add a new layer on the stack with the given container type.
@@ -40,19 +43,19 @@ impl<'a> Stack<'a> {
     /// Pop off the current element list off the stack.
     /// Returns `None` if the stack is empty.
     /// That is, there is only the base element list for the entire document.
-    pub fn pop(&mut self) -> Option<ElementContainer<'a>> {
+    pub fn pop(&mut self) -> Option<ElementContainer<'e>> {
         self.stack
             .pop()
             .map(|(etype, elements)| ElementContainer { etype, elements })
     }
 
     /// Appends an element to the current element list.
-    pub fn append(&mut self, element: Element<'a>) {
+    pub fn append(&mut self, element: Element<'e>) {
         self.current().push(element);
     }
 
     /// Get the current, highest-level element list on the stack.
-    pub fn current(&mut self) -> &mut Elements<'a> {
+    pub fn current(&mut self) -> &mut Elements<'e> {
         match self.stack.last_mut() {
             Some((_, elements)) => elements,
             None => &mut self.elements,
@@ -70,7 +73,7 @@ impl<'a> Stack<'a> {
     }
 
     /// Collapses the stack and converts it into the final abstract syntax tree (AST).
-    pub fn into_syntax_tree(self) -> SyntaxTree<'a> {
+    pub fn into_syntax_tree(self) -> SyntaxTree<'e> {
         let Stack { elements, stack } = self;
         // TODO
 
