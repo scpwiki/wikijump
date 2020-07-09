@@ -20,16 +20,18 @@
 
 use crate::tree::{Element, ElementContainer, ElementContainerType, Elements, SyntaxTree};
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Stack<'e> {
+#[derive(Debug, Clone)]
+pub struct Stack<'l, 'e> {
+    log: &'l slog::Logger,
     elements: Elements<'e>,
     stack: Vec<(ElementContainerType, Elements<'e>)>,
 }
 
-impl<'e> Stack<'e> {
+impl<'l, 'e> Stack<'l, 'e> {
     #[inline]
-    pub fn new() -> Self {
+    pub fn new(log: &'l slog::Logger) -> Self {
         Stack {
+            log,
             elements: Vec::new(),
             stack: Vec::new(),
         }
@@ -74,9 +76,21 @@ impl<'e> Stack<'e> {
 
     /// Collapses the stack and converts it into the final abstract syntax tree (AST).
     pub fn into_syntax_tree(self) -> SyntaxTree<'e> {
-        let Stack { elements, stack } = self;
+        let Stack {
+            log,
+            elements,
+            stack,
+        } = self;
         // TODO
 
         SyntaxTree { elements }
     }
 }
+
+impl PartialEq for Stack<'_, '_> {
+    fn eq(&self, other: &Stack) -> bool {
+        self.elements == other.elements && self.stack == other.stack
+    }
+}
+
+impl Eq for Stack<'_, '_> {}

@@ -33,7 +33,7 @@ use crate::tree::{Element, ElementContainerType};
 /// Main function which takes the current stack and upcoming tokens to attempt to match against it.
 pub fn consume<'r, 'a>(
     log: &slog::Logger,
-    stack: &'r mut Stack<'a>,
+    stack: &'r mut Stack<'_, 'a>,
     extract: &ExtractedToken<'a>,
     next: &[ExtractedToken<'a>],
 ) {
