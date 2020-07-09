@@ -20,6 +20,7 @@
 
 use super::Elements;
 use crate::enums::HeadingLevel;
+use strum_macros::IntoStaticStr;
 
 /// Representation of syntax elements which wrap other elements.
 
@@ -29,7 +30,7 @@ pub struct ElementContainer<'a> {
     pub elements: Elements<'a>,
 }
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum ElementContainerType {
     Paragraph,
     Bold,
@@ -40,4 +41,22 @@ pub enum ElementContainerType {
     Strikethrough,
     Monospace,
     Header(HeadingLevel),
+}
+
+impl ElementContainerType {
+    #[inline]
+    pub fn name(self) -> &'static str {
+        self.into()
+    }
+}
+
+impl slog::Value for ElementContainerType {
+    fn serialize(
+        &self,
+        _: &slog::Record,
+        key: slog::Key,
+        serializer: &mut dyn slog::Serializer,
+    ) -> slog::Result {
+        serializer.emit_str(key, self.name())
+    }
 }

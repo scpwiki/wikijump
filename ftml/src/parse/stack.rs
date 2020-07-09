@@ -39,6 +39,14 @@ impl<'l, 'e> Stack<'l, 'e> {
 
     /// Add a new layer on the stack with the given container type.
     pub fn push(&mut self, etype: ElementContainerType) {
+        debug!(
+            self.log,
+            "Adding new layer to the stack with type {}",
+            etype.name();
+            "function" => "push",
+            "type" => etype,
+        );
+
         self.stack.push((etype, Vec::new()));
     }
 
@@ -46,6 +54,12 @@ impl<'l, 'e> Stack<'l, 'e> {
     /// Returns `None` if the stack is empty.
     /// That is, there is only the base element list for the entire document.
     pub fn pop(&mut self) -> Option<ElementContainer<'e>> {
+        debug!(
+            self.log,
+            "Removing the last layer off of the stack";
+            "function" => "pop",
+        );
+
         self.stack
             .pop()
             .map(|(etype, elements)| ElementContainer { etype, elements })
@@ -53,10 +67,18 @@ impl<'l, 'e> Stack<'l, 'e> {
 
     /// Appends an element to the current element list.
     pub fn append(&mut self, element: Element<'e>) {
+        debug!(
+            self.log,
+            "Pushing new element to stack: {:?}",
+            element;
+            "function" => "append",
+        );
+
         self.current().push(element);
     }
 
     /// Get the current, highest-level element list on the stack.
+    #[inline]
     pub fn current(&mut self) -> &mut Elements<'e> {
         match self.stack.last_mut() {
             Some((_, elements)) => elements,
@@ -65,11 +87,13 @@ impl<'l, 'e> Stack<'l, 'e> {
     }
 
     /// Get the current element list type, if one exists.
+    #[inline]
     pub fn current_type(&self) -> Option<ElementContainerType> {
         self.stack.last().map(|(etype, _)| *etype)
     }
 
     /// Gets the current length of the stack.
+    #[inline]
     pub fn len(&self) -> usize {
         self.stack.len()
     }
@@ -88,6 +112,7 @@ impl<'l, 'e> Stack<'l, 'e> {
 }
 
 impl PartialEq for Stack<'_, '_> {
+    #[inline]
     fn eq(&self, other: &Stack) -> bool {
         self.elements == other.elements && self.stack == other.stack
     }
