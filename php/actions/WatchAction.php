@@ -101,7 +101,7 @@ class WatchAction extends SmartyAction
         $threadId = $pl->getParameterValue("threadId");
 
         if ($threadId === null || !is_numeric($threadId)) {
-            throw new ProcessException(_("Can not process your request."));
+            throw new ProcessException(_("Cannot process your request."));
         }
 
         $c = new Criteria();
@@ -167,7 +167,7 @@ class WatchAction extends SmartyAction
         $pageId = $pl->getParameterValue("pageId");
 
         if ($pageId === null || !is_numeric($pageId)) {
-            throw new ProcessException(_("Can not process your request."));
+            throw new ProcessException(_("Cannot process your request."));
         }
 
         $c = new Criteria();
