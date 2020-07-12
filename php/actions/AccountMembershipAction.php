@@ -92,7 +92,7 @@ class AccountMembershipAction extends SmartyAction
         $invitation = MemberInvitationPeer::instance()->selectByPrimaryKey($invitationId);
         $site = SitePeer::instance()->selectByPrimaryKey($invitation->getSiteId());
         if ($invitation == null || $invitation->getUserId() != $userId || $site == null) {
-            throw new ProcessException(_("Invitation can not be found."), "no_invitation");
+            throw new ProcessException(_("Invitation cannot be found."), "no_invitation");
         }
 
         if ($site->getPrivate()) {
@@ -152,7 +152,7 @@ class AccountMembershipAction extends SmartyAction
         $invitation = MemberInvitationPeer::instance()->selectByPrimaryKey($invitationId);
         $site = SitePeer::instance()->selectByPrimaryKey($invitation->getSiteId());
         if ($invitation == null || $invitation->getUserId() != $userId || $site == null) {
-            throw new ProcessException(_("Invitation can not be found."), "no_invitation");
+            throw new ProcessException(_("Invitation cannot be found."), "no_invitation");
         }
 
         $c = new Criteria();
@@ -182,7 +182,7 @@ class AccountMembershipAction extends SmartyAction
         $admin =  AdminPeer::instance()->selectOne($c);
 
         if ($admin && $admin->getFounder()) {
-            throw new ProcessException(_("You have founded this site - sorry, you can not resign."), "founder_nonremovable");
+            throw new ProcessException(_("You have founded this site - sorry, you cannot resign."), "founder_nonremovable");
         }
 
         if ($admin) {
@@ -192,7 +192,7 @@ class AccountMembershipAction extends SmartyAction
             $acount = AdminPeer::instance()->selectCount($c2);
             if ($acount == 1) {
                 $runData->ajaxResponseAdd("status", "last_admin");
-                $runData->ajaxResponseAdd("message", _("You can not simply resign - you are the last admin of this site!"));
+                $runData->ajaxResponseAdd("message", _("You cannot simply resign - you are the last admin of this site!"));
                 $db->commit();
                 return;
             }
@@ -222,16 +222,16 @@ class AccountMembershipAction extends SmartyAction
         $admin = AdminPeer::instance()->selectOne($c);
 
         if ($admin && $admin->getFounder()) {
-            throw new ProcessException(_("You have founded this site - sorry, you can not resign."), "founder_nonremovable");
+            throw new ProcessException(_("You have founded this site - sorry, you cannot resign."), "founder_nonremovable");
         }
 
-        // you can not resign if you are the last admin...
+        // you cannot resign if you are the last admin...
         $c2 = new Criteria();
         $c2->add("site_id", $siteId);
         $acount = AdminPeer::instance()->selectCount($c2);
         if ($acount == 1) {
             $runData->ajaxResponseAdd("status", "last_admin");
-            $runData->ajaxResponseAdd("message", _("You can not simply resign - you are the last admin of this site!"));
+            $runData->ajaxResponseAdd("message", _("You cannot simply resign - you are the last admin of this site!"));
             $db->commit();
             return;
         }
