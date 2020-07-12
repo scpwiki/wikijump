@@ -219,7 +219,7 @@ class CreateAccountAction extends SmartyAction
         $oe->setBodyTemplate('RegistrationEmailVerification');
 
         if (!$oe->Send()) {
-            throw new ProcessException(_("The email can not be sent to this address."), "email_failed");
+            throw new ProcessException(_("The email cannot be sent to this address."), "email_failed");
         }
         $runData->sessionAdd('evcode', $evcode);
     }
@@ -251,7 +251,7 @@ class CreateAccountAction extends SmartyAction
         $oe->setBodyTemplate('RegistrationEmailVerification');
 
         if (!$oe->Send()) {
-            throw new ProcessException(_("The email can not be sent to this address."), "email_failed");
+            throw new ProcessException(_("The email cannot be sent to this address."), "email_failed");
         }
         $runData->sessionAdd('evcode', $evcode);
     }
