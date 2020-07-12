@@ -33,7 +33,6 @@ use DB\MemberApplicationPeer;
 use DB\AdminPeer;
 use DB\ModeratorPeer;
 
-class AccountMembershipAction extends SmartyAction
 {
 
     public static $forbiddenUnixNames = array(
