@@ -211,7 +211,7 @@ class AccountSettingsAction extends SmartyAction
         }
 
         if ($userId == $runData->getUserId()) {
-            throw new ProcessException(_("What is the point in blocking yourself? ;-)"), "not_self");
+            throw new ProcessException(_("What is the point in blocking yourself?"), "not_self");
         }
 
         $block = new PrivateUserBlock();

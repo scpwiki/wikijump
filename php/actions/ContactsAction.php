@@ -60,7 +60,7 @@ class ContactsAction extends SmartyAction
         }
 
         if ($targetUserId == $user->getUserId()) {
-            throw new ProcessException(_("Is there any point in adding yourself to your contact list? ;-)"), "not_yourself");
+            throw new ProcessException(_("Is there any point in adding yourself to your contact list?"), "not_yourself");
         }
 
         $db = Database::connection();

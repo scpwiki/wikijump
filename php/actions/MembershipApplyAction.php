@@ -53,7 +53,7 @@ class MembershipApplyAction extends SmartyAction
 
         $user = $runData->getUser();
         if ($user == null) {
-            throw new ProcessException(_("Sorry, you are not logged in. Anonymous users cannot apply ;-)"));
+            throw new ProcessException(_("Sorry, you are not logged in. Anonymous users cannot apply."));
         }
         // check for permissions
             WDPermissionManager::instance()->hasPermission("become_member", $user, $site);
@@ -122,7 +122,7 @@ class MembershipApplyAction extends SmartyAction
 
         $user = $runData->getUser();
         if ($user == null) {
-            throw new ProcessException(_("Sorry, you are not logged in. Anonymous users cannot apply ;-)"));
+            throw new ProcessException(_("Sorry, you are not logged in. Anonymous users cannot apply."));
         }
         // check for permissions
         WDPermissionManager::instance()->hasPermission("become_member", $user, $site);
@@ -219,7 +219,7 @@ class MembershipApplyAction extends SmartyAction
         $mem = MemberPeer::instance()->selectOne($c);
 
         if ($mem) {
-            throw new ProcessException(_("It seems you already are a member of this site! Congratulations anyway ;-)"));
+            throw new ProcessException(_("It seems you already are a member of this site! Congratulations anyway."));
         }
 
         // check if not > max _members
