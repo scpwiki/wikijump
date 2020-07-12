@@ -210,7 +210,7 @@ class ManageSiteMembershipAction extends SmartyAction
         $site =$runData->getTemp("site");
         $siteId = $site->getSiteId();
 
-        // remember: one can NOT remove the last admin nor himself.
+        // remember: one CANNOT remove the last admin nor himself.
         if ($userId == $runData->getUserId()) {
             throw new ProcessException(_('You cannot remove yourself! Use "your account" panel instead.'), "not_yourself");
         }
