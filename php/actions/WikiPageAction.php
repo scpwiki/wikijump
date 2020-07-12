@@ -1133,7 +1133,7 @@ class WikiPageAction extends SmartyAction
             }
             // check if not "self"
             if ($pp->getPageId() == $page->getPageId()) {
-                throw new ProcessException(_("Can not set parent page to this page."), "loop_error");
+                throw new ProcessException(_("Cannot set parent page to this page."), "loop_error");
             }
 
             // check permissions to edit the parent page (???) - it somehow affects
