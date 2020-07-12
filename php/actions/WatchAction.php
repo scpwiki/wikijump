@@ -80,7 +80,7 @@ class WatchAction extends SmartyAction
 
         $count = WatchedForumThreadPeer::instance()->selectCount($c);
         if ($count>9) {
-            throw new ProcessException(_("You can not watch more than 10 threads for now."), "max_reached");
+            throw new ProcessException(_("You cannot watch more than 10 threads for now."), "max_reached");
         }
 
         // ok, create new watch.
@@ -101,7 +101,7 @@ class WatchAction extends SmartyAction
         $threadId = $pl->getParameterValue("threadId");
 
         if ($threadId === null || !is_numeric($threadId)) {
-            throw new ProcessException(_("Can not process your request."));
+            throw new ProcessException(_("Cannot process your request."));
         }
 
         $c = new Criteria();
@@ -146,7 +146,7 @@ class WatchAction extends SmartyAction
 
         $count = WatchedPagePeer::instance()->selectCount($c);
         if ($count>9) {
-            throw new ProcessException(_("You can not watch more than 10 pages for now."), "max_reached");
+            throw new ProcessException(_("You cannot watch more than 10 pages for now."), "max_reached");
         }
 
         // ok, create new watch.
@@ -167,7 +167,7 @@ class WatchAction extends SmartyAction
         $pageId = $pl->getParameterValue("pageId");
 
         if ($pageId === null || !is_numeric($pageId)) {
-            throw new ProcessException(_("Can not process your request."));
+            throw new ProcessException(_("Cannot process your request."));
         }
 
         $c = new Criteria();

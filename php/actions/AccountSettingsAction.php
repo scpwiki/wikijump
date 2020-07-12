@@ -111,7 +111,7 @@ class AccountSettingsAction extends SmartyAction
         $oe->setBodyTemplate('ChangeEmailVerification');
 
         if (!$oe->Send()) {
-            throw new ProcessException(_("The email can not be sent to this address."), "form_error");
+            throw new ProcessException(_("The email cannot be sent to this address."), "form_error");
         }
 
         $runData->sessionAdd("chevcode", $evcode);
@@ -211,7 +211,7 @@ class AccountSettingsAction extends SmartyAction
         }
 
         if ($userId == $runData->getUserId()) {
-            throw new ProcessException(_("What is the point in blocking yourself? ;-)"), "not_self");
+            throw new ProcessException(_("What is the point in blocking yourself?"), "not_self");
         }
 
         $block = new PrivateUserBlock();
