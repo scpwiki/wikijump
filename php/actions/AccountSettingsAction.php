@@ -111,7 +111,7 @@ class AccountSettingsAction extends SmartyAction
         $oe->setBodyTemplate('ChangeEmailVerification');
 
         if (!$oe->Send()) {
-            throw new ProcessException(_("The email can not be sent to this address."), "form_error");
+            throw new ProcessException(_("The email cannot be sent to this address."), "form_error");
         }
 
         $runData->sessionAdd("chevcode", $evcode);
