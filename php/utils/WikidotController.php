@@ -102,7 +102,7 @@ abstract class WikidotController extends WebFlowController
 
     protected function siteNotExists()
     {
-        $this->serveFile(WIKIDOT_ROOT."/files/site_not_exists.html", "text/html");
+        $this->serveFile(WIKIDOT_ROOT."/resources/views/site_not_exists.html", "text/html");
     }
 
     protected function isBuggyIeDamnYouBastard()
@@ -116,7 +116,7 @@ abstract class WikidotController extends WebFlowController
 
     protected function fileNotExists()
     {
-        $this->serveFile(WIKIDOT_ROOT."/files/file_not_exists.html", "text/html");
+        $this->serveFile(WIKIDOT_ROOT."/resources/views/file_not_exists.html", "text/html");
     }
 
     private function calculateEtag($path)

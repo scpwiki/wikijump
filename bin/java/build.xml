@@ -4,7 +4,7 @@
               To include a user specific buildfile here, simply create one in the same
               directory with the processing instruction <?eclipse.ant.import?>
               as the first entry and export the buildfile again. -->
-<project basedir="." default="jar" name="wikidotIndexer">
+<project basedir="" default="jar" name="wikidotIndexer">
     <property environment="env"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
@@ -19,8 +19,8 @@
         <pathelement location="/usr/share/java/lucene-similarity-2.2.0.jar"/>
     </path>
     <target name="init">
-        <copy includeemptydirs="false" todir=".">
-            <fileset dir="." excludes="**/*.launch, **/*.java"/>
+        <copy includeemptydirs="false" todir="">
+            <fileset dir="" excludes="**/*.launch, **/*.java"/>
         </copy>
     </target>
     <target name="clean">

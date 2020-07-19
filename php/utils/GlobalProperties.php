@@ -116,6 +116,9 @@ class GlobalProperties
     public static $XSENDFILE_USE;
     public static $XSENDFILE_HEADER;
 
+    // third-party keys
+    public static $FLICKR_API_KEY;
+
     // non-configurable properties
     public static $DATABASE_TYPE;
     public static $DATABASE_USE_PERSISTENT_CONNECTIONS;
@@ -263,6 +266,8 @@ class GlobalProperties
         self::$MODULES_CSS_URL          = self::fromIni("misc", "modules_css_url", "/common--modules/css");
         self::$XSENDFILE_USE            = self::fromIni("misc", "xsendfile", false);
         self::$XSENDFILE_HEADER         = self::fromIni("misc", "xsendfile_header", "X-LIGHTTPD-send-file");
+
+        self::$FLICKR_API_KEY           = self::fromIni("keys", "flickr", "");
 
         // non-configurable properties
         self::$DATABASE_TYPE            = "pgsql";

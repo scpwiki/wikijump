@@ -1,10 +1,8 @@
 .idea/
-mapfile.php
-namespacer.phar
 files/public.pem
 files/modulus.pem
+conf/ssl/*.pem
 conf/wikidot.ini
-ozone-mapfile.php
 /tmp
 /web/files--common/tmp
 /web/files--sites
