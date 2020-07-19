@@ -9,7 +9,7 @@ class APAvatarModule extends AccountBaseModule
         $userId = $user->getUserId();
 
         // check if has an avatar
-        $avatarDir = WIKIDOT_ROOT.'/web/files--common/images/avatars/';
+        $avatarDir = WIKIJUMP_ROOT.'/web/files--common/images/avatars/';
         $avatarDir .= '' . floor($userId/1000).'/'.$userId;
         $avatarPath = $avatarDir."/a48.png";
         if (file_exists($avatarPath)) {

@@ -20,7 +20,7 @@
 				<tr>
 					<td>
 						<a href="javascript:;"
-							onclick="WIKIDOT.modules.PetitionAdminModule.listeners.viewCampaignClick(event, {$campaign->getCampaignId()})"
+							onclick="Wikijump.modules.PetitionAdminModule.listeners.viewCampaignClick(event, {$campaign->getCampaignId()})"
 						>{$campaign->getName()|escape}</a>
 					</td>
 					<td>
@@ -39,7 +39,7 @@
 		</p>
 	{/if}
 	<p>
-		<a href="javascript:;" onclick="WIKIDOT.modules.PetitionAdminModule.listeners.newCampaignClick(event)">+ {t}create a new campaign{/t}</a>
+		<a href="javascript:;" onclick="Wikijump.modules.PetitionAdminModule.listeners.newCampaignClick(event)">+ {t}create a new campaign{/t}</a>
 	</p>
 
 	<div id="petition-new-campain-box" style="display: none">
@@ -72,8 +72,8 @@
 			</table>
 
 			<div class="buttons">
-				<input type="button" value="{t}cancel{/t}" onclick="WIKIDOT.modules.PetitionAdminModule.listeners.cancelNewCampaignClick(event)"/>
-				<input type="button" value="{t}create{/t}" onclick="WIKIDOT.modules.PetitionAdminModule.listeners.createCampaign(event)" />
+				<input type="button" value="{t}cancel{/t}" onclick="Wikijump.modules.PetitionAdminModule.listeners.cancelNewCampaignClick(event)"/>
+				<input type="button" value="{t}create{/t}" onclick="Wikijump.modules.PetitionAdminModule.listeners.createCampaign(event)" />
 
 			</div>
 		</form>

@@ -22,7 +22,7 @@
 		</tr>
 	</table>
 	<div class="buttons">
-		<input type="button" value="save" onclick="WIKIDOT.modules.ManageSiteLetUsersInviteModule.listeners.save(event)"/>
+		<input type="button" value="save" onclick="Wikijump.modules.ManageSiteLetUsersInviteModule.listeners.save(event)"/>
 	</div>
 </form>
 

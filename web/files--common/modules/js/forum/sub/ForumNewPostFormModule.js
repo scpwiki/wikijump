@@ -1,20 +1,11 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.ForumNewPostFormModule = {};
 
-WIKIDOT.modules.ForumNewPostFormModule.listeners = {
+Wikijump.modules.ForumNewPostFormModule = {};
+
+Wikijump.modules.ForumNewPostFormModule.listeners = {
 	preview: function(e){
 		var p = OZONE.utils.formToArray("new-post-form");
-		OZONE.ajax.requestModule("forum/ForumPreviewPostModule", p, WIKIDOT.modules.ForumNewPostFormModule.callbacks.preview);
+		OZONE.ajax.requestModule("forum/ForumPreviewPostModule", p, Wikijump.modules.ForumNewPostFormModule.callbacks.preview);
 	},
 	cancel: function(e){
 		// remove form
@@ -22,7 +13,7 @@ WIKIDOT.modules.ForumNewPostFormModule.listeners = {
 		formDiv.parentNode.removeChild(formDiv);
 		$("new-post-button").style.display="";
 
-		WIKIDOT.Editor.shutDown();
+		Wikijump.Editor.shutDown();
 	},
 	closePreview: function(e){
 		$("new-post-preview-div").style.display = "none";
@@ -36,15 +27,15 @@ WIKIDOT.modules.ForumNewPostFormModule.listeners = {
 		w.content = "Posting now...";
 		w.show();
 
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.ForumNewPostFormModule.callbacks.save);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.ForumNewPostFormModule.callbacks.save);
 
 	}
 }
 
-WIKIDOT.modules.ForumNewPostFormModule.callbacks = {
+Wikijump.modules.ForumNewPostFormModule.callbacks = {
 	preview: function(r){
 
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		var previewContainer = $("new-post-preview-div");
 
@@ -73,7 +64,7 @@ WIKIDOT.modules.ForumNewPostFormModule.callbacks = {
 			w.show();
 			return;
 		}
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Your post has been saved.";

@@ -1,7 +1,7 @@
 
 <div class="error-block" id="loginerror" style="display: none"></div>
 <form id="login-form" action="common--html/dummy.html" method="post"
-	onsubmit="WIKIDOT.modules.LoginModule.listeners.loginClick(event)">
+	onsubmit="Wikijump.modules.LoginModule.listeners.loginClick(event)">
 
 	{if $user}
 		{t}Hello{/t}, <span style="font-size:130%; font-weight: bold">{$user->getNickName()|escape}</span>
@@ -19,7 +19,7 @@
 	<br/><br/>
 	{if $user}
 		Not {$user->getNickName()|escape}?<br/>
-		<a href="javascript:;" style="font-size: 85%" onclick="WIKIDOT.modules.LoginModule.listeners.switchUser(event)">{t}Log in as a different user{/t}</a>.
+		<a href="javascript:;" style="font-size: 85%" onclick="Wikijump.modules.LoginModule.listeners.switchUser(event)">{t}Log in as a different user{/t}</a>.
 		<br/><br/>
 	{/if}
 
@@ -37,14 +37,14 @@
 
 	<hr/>
 	<p>
-		<a href="javascript:;" onclick="WIKIDOT.page.listeners.passwordRecoveryClick(event)">{t}Forgot your password?{/t}</a>
+		<a href="javascript:;" onclick="Wikijump.page.listeners.passwordRecoveryClick(event)">{t}Forgot your password?{/t}</a>
 	</p>
 	<hr/>
 	<p>
 		<a href="/auth:newaccount">{t}No account yet? Get one!{/t}</a>
 	</p>
 	<div class="buttons" >
-		<input type="button" onclick="WIKIDOT.modules.LoginModule.listeners.cancel(event)" value="{t}cancel{/t}"/>
+		<input type="button" onclick="Wikijump.modules.LoginModule.listeners.cancel(event)" value="{t}cancel{/t}"/>
 		<input type="submit" value="{t}login{/t}" style="font-weight: bold"/>
 	</div>
 	<div id="keep-logged-info-hovertip">

@@ -1,27 +1,18 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.RecentWPageRevisionsModule = {};
 
-WIKIDOT.modules.RecentWPageRevisionsModule.vars = {};
+Wikijump.modules.RecentWPageRevisionsModule = {};
 
-WIKIDOT.modules.RecentWPageRevisionsModule.listeners = {
+Wikijump.modules.RecentWPageRevisionsModule.vars = {};
+
+Wikijump.modules.RecentWPageRevisionsModule.listeners = {
 	update: function(){
-		OZONE.ajax.requestModule('wiki/sitesactivity/RecentWPageRevisionsModule', null, WIKIDOT.modules.RecentWPageRevisionsModule.callbacks.update);
+		OZONE.ajax.requestModule('wiki/sitesactivity/RecentWPageRevisionsModule', null, Wikijump.modules.RecentWPageRevisionsModule.callbacks.update);
 	}
 }
 
-WIKIDOT.modules.RecentWPageRevisionsModule.callbacks = {
+Wikijump.modules.RecentWPageRevisionsModule.callbacks = {
 	update: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var body = r.body.replace(/<div[^>]*>/, '').replace(/<\/div>\s*$/, '');
 
 		if(body != $("recent-w-page-revisions").innerHTML){
@@ -34,8 +25,8 @@ WIKIDOT.modules.RecentWPageRevisionsModule.callbacks = {
 	}
 }
 
-WIKIDOT.modules.RecentWPageRevisionsModule.init = function(){
-	setTimeout('WIKIDOT.modules.RecentWPageRevisionsModule.listeners.update()', 20000);
+Wikijump.modules.RecentWPageRevisionsModule.init = function(){
+	setTimeout('Wikijump.modules.RecentWPageRevisionsModule.listeners.update()', 20000);
 }
 
-//WIKIDOT.modules.RecentWPageRevisionsModule.init();
+//Wikijump.modules.RecentWPageRevisionsModule.init();

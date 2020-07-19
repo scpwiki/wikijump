@@ -40,7 +40,7 @@ class LoginIframeScreen extends SmartyScreen
 
         // Set the text domain as 'messages'
         $gdomain = 'messages';
-        bindtextdomain($gdomain, WIKIDOT_ROOT.'/locale');
+        bindtextdomain($gdomain, WIKIJUMP_ROOT.'/locale');
         textdomain($gdomain);
 
         $themeId = $pl->getParameterValue('themeId');

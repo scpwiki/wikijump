@@ -1,19 +1,10 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.PageHistoryModule = {};
 
-WIKIDOT.modules.PageHistoryModule.vars = {};
+Wikijump.modules.PageHistoryModule = {};
 
-WIKIDOT.modules.PageHistoryModule.listeners = {
+Wikijump.modules.PageHistoryModule.vars = {};
+
+Wikijump.modules.PageHistoryModule.listeners = {
 
 	updateList: function(e){
 		var p = new Object();
@@ -32,9 +23,9 @@ WIKIDOT.modules.PageHistoryModule.listeners = {
 
 		p['options'] = JSON.stringify(o);
 
-		WIKIDOT.modules.PageHistoryModule.vars.params = p; // for pagination
+		Wikijump.modules.PageHistoryModule.vars.params = p; // for pagination
 
-		OZONE.ajax.requestModule("history/PageRevisionListModule", p, WIKIDOT.modules.PageHistoryModule.callbacks.updateList);
+		OZONE.ajax.requestModule("history/PageRevisionListModule", p, Wikijump.modules.PageHistoryModule.callbacks.updateList);
 	},
 
 	compareClick: function(e){
@@ -56,7 +47,7 @@ WIKIDOT.modules.PageHistoryModule.listeners = {
 		parms['from_revision_id']=selected_from;
 		parms['to_revision_id']=selected_to;
 		parms['show_type'] = 'inline';
-		OZONE.ajax.requestModule("history/PageDiffModule",parms,WIKIDOT.modules.PageHistoryModule.callbacks.compareClick);
+		OZONE.ajax.requestModule("history/PageDiffModule",parms,Wikijump.modules.PageHistoryModule.callbacks.compareClick);
 	},
 
 	closeActionArea: function(e){
@@ -81,21 +72,21 @@ WIKIDOT.modules.PageHistoryModule.listeners = {
 				"the revision "+revisionNumber+" will be copied.</p>";
 		w.buttons = ["cancel", "yes, revert"];
 		w.addButtonListener("cancel", w.close);
-		w.addButtonListener("yes, revert", WIKIDOT.modules.PageHistoryModule.listeners.revert2);
+		w.addButtonListener("yes, revert", Wikijump.modules.PageHistoryModule.listeners.revert2);
 		w.show();
-		WIKIDOT.modules.PageHistoryModule.vars.revertRevisionId = revisionId;
+		Wikijump.modules.PageHistoryModule.vars.revertRevisionId = revisionId;
 	},
 
 	revert2: function(e, force){
 		var p = new Object();
 		p['pageId'] =  WIKIREQUEST.info.pageId;
-		p['revisionId'] = WIKIDOT.modules.PageHistoryModule.vars.revertRevisionId;
+		p['revisionId'] = Wikijump.modules.PageHistoryModule.vars.revertRevisionId;
 		p['action'] = "WikiPageAction";
 		p['event'] = "revert";
 		if(force == true){
 			p['force'] = "yes";
 		}
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.PageHistoryModule.callbacks.revert);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.PageHistoryModule.callbacks.revert);
 
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Reverting page version...";
@@ -108,15 +99,15 @@ WIKIDOT.modules.PageHistoryModule.listeners = {
 		p.action = "WatchAction";
 		p.event = "watchPage";
 
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.PageHistoryModule.callbacks.watchPage);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.PageHistoryModule.callbacks.watchPage);
 	}
 
 }
 
-WIKIDOT.modules.PageHistoryModule.callbacks = {
+Wikijump.modules.PageHistoryModule.callbacks = {
 
 	updateList: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		$("revision-list").innerHTML = r.body;
 		setTimeout("OZONE.visuals.scrollTo('action-area')", 100);
 		OZONE.dialog.hovertip.makeTip($('action-area').getElementsByTagName('a'),
@@ -127,7 +118,7 @@ WIKIDOT.modules.PageHistoryModule.callbacks = {
 
 	},
 	updatePageList: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		$("revision-list").innerHTML = r.body;
 		OZONE.dialog.hovertip.makeTip($('action-area').getElementsByTagName('a'),
 				{style: {width: 'auto'}});
@@ -138,9 +129,9 @@ WIKIDOT.modules.PageHistoryModule.callbacks = {
 	},
 
 	compareClick: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		OZONE.utils.setInnerHTMLContent('history-subarea', r.body);
-		WIKIDOT.modules.PageHistoryModule.utils.addCloseToActionArea();
+		Wikijump.modules.PageHistoryModule.utils.addCloseToActionArea();
 		area = $('history-subarea');
 		area.style.display="block";
 		setTimeout("OZONE.visuals.scrollTo('history-subarea')", 100);
@@ -148,7 +139,7 @@ WIKIDOT.modules.PageHistoryModule.callbacks = {
 	},
 
 	showVersionClick: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		$('page-content').innerHTML = r.body;
 		OZONE.utils.formatDates('page-content');
@@ -158,16 +149,16 @@ WIKIDOT.modules.PageHistoryModule.callbacks = {
 	},
 
 	showSource: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		OZONE.utils.setInnerHTMLContent("history-subarea", r.body);
 		$("history-subarea").style.display="block";
 		setTimeout("OZONE.visuals.scrollTo('history-subarea')", 100);
-		WIKIDOT.modules.PageHistoryModule.utils.addCloseToActionArea();
+		Wikijump.modules.PageHistoryModule.utils.addCloseToActionArea();
 		//newwindow = window.open(null, "_blank",'location=no,menubar=no,titlebar=no,resizable=yes,scrollbars=yes,width=' + (screen.width*0.8) + ',height=' +
 	},
 
 	revert: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		if(r.locks == true){
 			var w = new OZONE.dialogs.Dialog();
@@ -183,7 +174,7 @@ WIKIDOT.modules.PageHistoryModule.callbacks = {
 
 	},
 	watchPage: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Page added to watched.";
@@ -192,7 +183,7 @@ WIKIDOT.modules.PageHistoryModule.callbacks = {
 
 }
 
-WIKIDOT.modules.PageHistoryModule.utils = {
+Wikijump.modules.PageHistoryModule.utils = {
 	addCloseToActionArea: function(){
 		var cl = document.createElement("a");
 		cl.innerHTML="close";
@@ -204,7 +195,7 @@ WIKIDOT.modules.PageHistoryModule.utils = {
 		}else{
 			aa.appendChild(cl);
 		}
-		YAHOO.util.Event.addListener(cl, "click", WIKIDOT.modules.PageHistoryModule.listeners.closeActionArea);
+		YAHOO.util.Event.addListener(cl, "click", Wikijump.modules.PageHistoryModule.listeners.closeActionArea);
 	}
 }
 
@@ -212,7 +203,7 @@ WIKIDOT.modules.PageHistoryModule.utils = {
 function showVersion(revisionId){
 	var parms = new Object();
 	parms['revision_id'] = revisionId;
-	OZONE.ajax.requestModule("history/PageVersionModule",parms,WIKIDOT.modules.PageHistoryModule.callbacks.showVersionClick);
+	OZONE.ajax.requestModule("history/PageVersionModule",parms,Wikijump.modules.PageHistoryModule.callbacks.showVersionClick);
 }
 
 /**
@@ -223,7 +214,7 @@ function showSource(revisionId){
 
 	var parms = new Array();
 	parms['revision_id'] = revisionId;
-	OZONE.ajax.requestModule("history/PageSourceModule",parms,WIKIDOT.modules.PageHistoryModule.callbacks.showSource);
+	OZONE.ajax.requestModule("history/PageSourceModule",parms,Wikijump.modules.PageHistoryModule.callbacks.showSource);
 }
 
 /**
@@ -235,12 +226,12 @@ function revertTo(revisionId){
 }
 
 function updatePagedList(pageNo){
-	var p = WIKIDOT.modules.PageHistoryModule.vars.params;
+	var p = Wikijump.modules.PageHistoryModule.vars.params;
 	p['page'] = pageNo;
-	OZONE.ajax.requestModule("history/PageRevisionListModule", p, WIKIDOT.modules.PageHistoryModule.callbacks.updatePageList);
+	OZONE.ajax.requestModule("history/PageRevisionListModule", p, Wikijump.modules.PageHistoryModule.callbacks.updatePageList);
 
 }
 
 // bind!
-YAHOO.util.Event.addListener("history-compare-button", "click", WIKIDOT.modules.PageHistoryModule.listeners.compareClick);
-WIKIDOT.modules.PageHistoryModule.listeners.updateList(null);
+YAHOO.util.Event.addListener("history-compare-button", "click", Wikijump.modules.PageHistoryModule.listeners.compareClick);
+Wikijump.modules.PageHistoryModule.listeners.updateList(null);

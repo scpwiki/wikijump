@@ -15,7 +15,7 @@
 {/if}
 {if $rsaKey}
 	<script type="text/javascript">
-		WIKIDOT.vars.rsakey = "{$rsaKey}";
+		Wikijump.vars.rsakey = "{$rsaKey}";
 	</script>
 {/if}
 {strip}

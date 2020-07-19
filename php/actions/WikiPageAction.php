@@ -1,5 +1,5 @@
 <?php
-use Wikidot\Yaml;
+use Wikijump\Yaml;
 use DB\PageEditLockPeer;
 use DB\CategoryPeer;
 use DB\PagePeer;
@@ -984,9 +984,9 @@ class WikiPageAction extends SmartyAction
         // index page
 
         // move files too
-        $oldDir = WIKIDOT_ROOT."/web/files--sites/".
+        $oldDir = WIKIJUMP_ROOT."/web/files--sites/".
             $site->getUnixName()."/files/".$oldName;
-        $newDir =  WIKIDOT_ROOT."/web/files--sites/".
+        $newDir =  WIKIJUMP_ROOT."/web/files--sites/".
             $site->getUnixName()."/files/".$newName;
 
         if (file_exists($oldDir)) {
@@ -995,9 +995,9 @@ class WikiPageAction extends SmartyAction
             }
         }
 
-        $oldRDir = WIKIDOT_ROOT."/web/files--sites/".
+        $oldRDir = WIKIJUMP_ROOT."/web/files--sites/".
                 $site->getUnixName()."/resized-images/".$oldName;
-        $newRDir = WIKIDOT_ROOT."/web/files--sites/".
+        $newRDir = WIKIJUMP_ROOT."/web/files--sites/".
                 $site->getUnixName()."/resized-images/".$newName;
 
         if (file_exists($oldRDir)) {

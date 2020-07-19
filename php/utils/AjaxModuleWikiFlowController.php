@@ -13,7 +13,7 @@ class AjaxModuleWikiFlowController extends WebFlowController
         // initialize logging service
         $logger = OzoneLogger::instance();
         $loggerFileOutput = new OzoneLoggerFileOutput();
-        $loggerFileOutput->setLogFileName(WIKIDOT_ROOT."/logs/ozone.log");
+        $loggerFileOutput->setLogFileName(WIKIJUMP_ROOT."/logs/ozone.log");
         $logger->addLoggerOutput($loggerFileOutput);
         $logger->setDebugLevel(GlobalProperties::$LOGGER_LEVEL);
 
@@ -35,11 +35,11 @@ class AjaxModuleWikiFlowController extends WebFlowController
 
         try {
             // check security token
-            if ($_COOKIE['wikidot_token7'] == null || $_COOKIE['wikidot_token7'] !== $runData->getParameterList()->getParameterValue('wikidot_token7', 'AMODULE')) {
+            if ($_COOKIE['wikijump_token7'] == null || $_COOKIE['wikijump_token7'] !== $runData->getParameterList()->getParameterValue('wikijump_token7', 'AMODULE')) {
                 throw new ProcessException("no", "wrong_token7");
             }
             //remove token from parameter list!!!
-            $runData->getParameterList()->delParameter('wikidot_token7');
+            $runData->getParameterList()->delParameter('wikijump_token7');
 
             $callbackIndex = $runData->getParameterList()->getParameterValue('callbackIndex');
             $runData->getParameterList()->delParameter('callbackIndex');
@@ -112,7 +112,7 @@ class AjaxModuleWikiFlowController extends WebFlowController
 
             // Set the text domain as 'messages'
             $gdomain = 'messages';
-            bindtextdomain($gdomain, WIKIDOT_ROOT.'/locale');
+            bindtextdomain($gdomain, WIKIJUMP_ROOT.'/locale');
             textdomain($gdomain);
 
             $settings = $site->getSettings();
@@ -295,7 +295,7 @@ class AjaxModuleWikiFlowController extends WebFlowController
         if ($template != null && $template != "Empty") {
             $jsInclude = $runData->getTemp("jsInclude");
             if ($module->getIncludeDefaultJs()) {
-                $file = WIKIDOT_ROOT.'/'.GlobalProperties::$MODULES_JS_PATH.'/'.$template.'.js';
+                $file = WIKIJUMP_ROOT.'/'.GlobalProperties::$MODULES_JS_PATH.'/'.$template.'.js';
                 if (file_exists($file)) {
                     $url =  GlobalProperties::$MODULES_JS_URL.'/'.$template.'.js';
                     $incl = $url;
@@ -306,7 +306,7 @@ class AjaxModuleWikiFlowController extends WebFlowController
 
             $cssInclude = $runData->getTemp("cssInclude");
             if ($module->getIncludeDefaultCss()) {
-                $file = WIKIDOT_ROOT.'/'.GlobalProperties::$MODULES_CSS_PATH.'/'.$template.'.css';
+                $file = WIKIJUMP_ROOT.'/'.GlobalProperties::$MODULES_CSS_PATH.'/'.$template.'.css';
                 if (file_exists($file)) {
                     $url =  GlobalProperties::$MODULES_CSS_URL.'/'.$template.'.css';
                     $incl = $url;

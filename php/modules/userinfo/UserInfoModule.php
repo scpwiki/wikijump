@@ -40,7 +40,7 @@ class UserInfoModule extends SmartyLocalizedModule
         // get the referring page too in case one wants to
         // flag an abusive user. than we set site_id of the flag
         // to the site which the user comes from if
-        // this is a wikidot site.
+        // this is a Wikijump site.
 
         $referer = $_SERVER['HTTP_REFERER'];
 

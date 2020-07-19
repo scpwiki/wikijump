@@ -5,7 +5,7 @@ use DB\PageTagPeer;
 
 //use Text_Antiwiki;  # What is this? I can't even find "text_antiwiki on google.
 
-//require_once(WIKIDOT_ROOT."/vendor/scpwiki/text_wiki/Text/Wiki.php");
+//require_once(WIKIJUMP_ROOT."/vendor/scpwiki/text_wiki/Text/Wiki.php");
 class WikiTransformation
 {
     /**
@@ -392,15 +392,15 @@ class WikiTransformation
 
     public function processHtml($doc)
     {
-        // require_once(WIKIDOT_ROOT."/lib/Text_Antiwiki/Text/Antiwiki.php");  # ???
+        // require_once(WIKIJUMP_ROOT."/lib/Text_Antiwiki/Text/Antiwiki.php");  # ???
         // just for text_wiki extend the include_path
-        ini_set('include_path', ini_get('include_path').':'.WIKIDOT_ROOT.'/lib/Text_Antiwiki/');
+        ini_set('include_path', ini_get('include_path').':'.WIKIJUMP_ROOT.'/lib/Text_Antiwiki/');
 
         // clean the code!!!
         $doc = $this->purifyHtml($doc);
 
         // no extra parameters, just GO GO GO
-        // $wiki = new Text_Antiwiki();  # Is this supposed to convert Html to wikidot markup?
+        // $wiki = new Text_Antiwiki();  # Is this supposed to convert Html to wikijump markup?
         $out = $wiki->transform($doc, 'Wiki');
 
         return $out;

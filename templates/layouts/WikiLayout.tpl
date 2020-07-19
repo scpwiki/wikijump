@@ -36,7 +36,7 @@
  		{/if}
  		WIKIREQUEST.info.lang = "{$site->getLanguage()}";
  		OZONE.lang = "{$site->getLanguage()}";
-// 		window.onload = WikidotInit();
+// 		window.onload = WikijumpInit();
 		var HTTP_SCHEMA = '{$HTTP_SCHEMA}';
 		var URL_HOST = '{$URL_HOST}';
 		var URL_DOMAIN = '{$URL_DOMAIN}';
@@ -50,9 +50,9 @@
  	<meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
     <meta http-equiv="content-language" content="{$site->getLanguage()}"/>
 
- 	<script type="text/javascript" src="/common--javascript/WIKIDOT.js"></script>
- 	<script type="text/javascript" src="/common--javascript/WIKIDOT.page.js"></script>
- 	<script type="text/javascript" src="/common--javascript/WIKIDOT.editor.js"></script>
+ 	<script type="text/javascript" src="/common--javascript/Wikijump.js"></script>
+ 	<script type="text/javascript" src="/common--javascript/Wikijump.page.js"></script>
+ 	<script type="text/javascript" src="/common--javascript/Wikijump.editor.js"></script>
 
    	<style type="text/css" id="internal-style">
 
@@ -156,25 +156,25 @@
 				- it will affect all the hosted wikis *}
 	 		<div id="footer">
 	 			<div class="options">
-		 			<a href="{$URL_DOCS}" id="wikidot-help-button">
+		 			<a href="{$URL_DOCS}" id="wikijump-help-button">
 			 			{t}help{/t}
 			 		</a>
 		 			{*|
-			 		<a href="http://www.wikidot.com/legal:terms-of-service"   id="wikidot-tos-button">
+			 		<a href="http://www.wikijump.com/legal:terms-of-service"   id="wikijump-tos-button">
 			 			{t}terms of service{/t}
 			 		</a>
 		 			|
-			 		<a href="http://www.wikidot.com/legal:privacy-policy"   id="wikidot-privacy-button">
+			 		<a href="http://www.wikijump.com/legal:privacy-policy"   id="wikijump-privacy-button">
 			 			{t}privacy{/t}
 			 		</a>*}
 		 			|
 			 		<a href="javascript:;" id="bug-report-button"
-			 			onclick="WIKIDOT.page.listeners.pageBugReport(event)">
+			 			onclick="Wikijump.page.listeners.pageBugReport(event)">
 			 			{t}report a bug{/t}
 			 		</a>
 		 			|
 			 		<a href="javascript:;" id="abuse-report-button"
-			 			onclick="WIKIDOT.page.listeners.flagPageObjectionable(event)">
+			 			onclick="Wikijump.page.listeners.flagPageObjectionable(event)">
 			 			{t}flag as objectionable{/t}
 			 		</a>
 
@@ -183,7 +183,7 @@
 	 				Part of <a href="{$HTTP_SCHEMA}://{$URL_HOST}">{$SERVICE_NAME|escape}</a>
 	 				&#8212;
 				{/if}
- 				Powered by <a href="https://github.com/scpwiki/wikidot">Wikidork</a>
+ 				Powered by <a href="https://github.com/scpwiki/wikijump">Wikijump</a>
 	 		</div>
 	 		{if $licenseText!=""}
 		 		<div id="license-area" class="license-area">

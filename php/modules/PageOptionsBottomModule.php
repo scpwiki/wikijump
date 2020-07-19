@@ -75,7 +75,7 @@ class PageOptionsBottomModule extends Module
                 $no = $page->getTemp("numberPosts");
                 $otext.='<a href="/forum/t-'.$threadId.'/'.$pageUnixName.'"  id="discuss-button">'._('discuss').' ('.$no.')</a>';
             } else {
-                $otext.='<a href="javascript:;" id="discuss-button" onclick="WIKIDOT.page.listeners.createPageDiscussion(event)">'._('discuss').'</a> ';
+                $otext.='<a href="javascript:;" id="discuss-button" onclick="Wikijump.page.listeners.createPageDiscussion(event)">'._('discuss').'</a> ';
             }
         }
 

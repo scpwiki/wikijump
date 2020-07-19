@@ -54,7 +54,7 @@ class CreateAccount2Action extends SmartyAction
             //handle forbidden names
             $unixName = WDStringUtils::toUnixName($name);
 
-            $forbiddenUnixNames = explode("\n", file_get_contents(WIKIDOT_ROOT.'/conf/forbidden_user_names.conf'));
+            $forbiddenUnixNames = explode("\n", file_get_contents(WIKIJUMP_ROOT.'/conf/forbidden_user_names.conf'));
             foreach ($forbiddenUnixNames as $f) {
                 if (preg_match($f, $unixName) >0) {
                     $errors['name'] = _('Account creation failed: Username is blocked from registration.');

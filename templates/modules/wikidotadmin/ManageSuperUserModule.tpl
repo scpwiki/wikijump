@@ -1,5 +1,5 @@
 {if $user}
-	<form action="javascript:;" onsubmit="WIKIDOT.ManageSuperUserModule.save(this);">
+	<form action="javascript:;" onsubmit="Wikijump.ManageSuperUserModule.save(this);">
 		<input name="key" type="hidden" value="{$key}"/>
 		<table>
 			<tr>

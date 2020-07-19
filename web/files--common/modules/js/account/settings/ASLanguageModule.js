@@ -1,17 +1,8 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.ASLanguageModule = {};
 
-WIKIDOT.modules.ASLanguageModule.listeners = {
+Wikijump.modules.ASLanguageModule = {};
+
+Wikijump.modules.ASLanguageModule.listeners = {
 	save: function(e){
 		var lang = $("as-language-select").value;
 		var p = new Object();
@@ -25,13 +16,13 @@ WIKIDOT.modules.ASLanguageModule.listeners = {
 		w.content = "Saving changes...";
 		w.show();
 
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.ASLanguageModule.callbacks.save);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.ASLanguageModule.callbacks.save);
 	}
 }
 
-WIKIDOT.modules.ASLanguageModule.callbacks = {
+Wikijump.modules.ASLanguageModule.callbacks = {
 	save: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Changes saved";

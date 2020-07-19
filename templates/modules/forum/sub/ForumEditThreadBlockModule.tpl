@@ -7,7 +7,7 @@
 {*
 <p style="text-align: center">
 	<input type="checkbox" id="thread-block-checkbox" {if $thread->getBlocked()}checked="checked"{/if}/> thread blocked
-	<input type="button" value="save" onclick="WIKIDOT.modules.ForumEditThreadBlockModule.listeners.save(event)"/>
+	<input type="button" value="save" onclick="Wikijump.modules.ForumEditThreadBlockModule.listeners.save(event)"/>
 	<input type="button" value="cancel" onclick="$('thread-action-area').style.display='none'"/>
 </p>
 *}
@@ -25,6 +25,6 @@
 	</table>
 	<div class="buttons">
 		<input type="button" value="{t}cancel{/t}" onclick="$('thread-action-area').style.display='none'"/>
-		<input type="button" value="{t}save{/t}" onclick="WIKIDOT.modules.ForumEditThreadBlockModule.listeners.save(event)"/>
+		<input type="button" value="{t}save{/t}" onclick="Wikijump.modules.ForumEditThreadBlockModule.listeners.save(event)"/>
 		</div>
 </form>

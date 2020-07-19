@@ -25,7 +25,7 @@ class FeedScreen extends Screen
             }
         }
 
-        $templateFile = WIKIDOT_ROOT.'/templates/screens/feed/FeedTemplate.tpl';
+        $templateFile = WIKIJUMP_ROOT.'/templates/screens/feed/FeedTemplate.tpl';
         $out = $smarty->fetch($templateFile);
 
         return $out;

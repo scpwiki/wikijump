@@ -1,17 +1,8 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.LoginModule = {};
 
-WIKIDOT.modules.LoginModule.listeners = {
+Wikijump.modules.LoginModule = {};
+
+Wikijump.modules.LoginModule.listeners = {
 	loginClick: function(e){
 		parms = OZONE.utils.formToArray("login-form");
 		// pre-check:
@@ -21,11 +12,11 @@ WIKIDOT.modules.LoginModule.listeners = {
 			return false;
 		}
 
-		OZONE.ajax.requestModule("login/QuickLoginModule", parms, WIKIDOT.modules.LoginModule.callbacks.loginClick);
+		OZONE.ajax.requestModule("login/QuickLoginModule", parms, Wikijump.modules.LoginModule.callbacks.loginClick);
 	}
 }
 
-WIKIDOT.modules.LoginModule.callbacks = {
+Wikijump.modules.LoginModule.callbacks = {
 	loginClick: function(response){
 		if(response.loginValid == false){
 			document.getElementById("loginerror").innerHTML=response.errorMessage;

@@ -53,7 +53,7 @@
 		</table>
 		<div class="buttons">
 			{*<input type="reset" value="clear form"/>*}
-			<input type="button" value="send" onclick="WIKIDOT.modules.MailFormModule.listeners.send(event, '{$rand}')"/>
+			<input type="button" value="send" onclick="Wikijump.modules.MailFormModule.listeners.send(event, '{$rand}')"/>
 		</div>
 	</form>
 	<div id="mailformdef-{$rand}" style="display: none;">

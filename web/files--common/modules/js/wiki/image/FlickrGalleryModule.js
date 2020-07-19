@@ -1,26 +1,17 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.FlickrGalleryModules = {};
 
-WIKIDOT.modules.FlickrGalleryModules.vars = {};
+Wikijump.modules.FlickrGalleryModules = {};
 
-WIKIDOT.modules.FlickrGalleryModules.listeners = {
+Wikijump.modules.FlickrGalleryModules.vars = {};
+
+Wikijump.modules.FlickrGalleryModules.listeners = {
 	loadPage: function(event,pageNumber){
 		// get gallery box
 		var box = YAHOO.util.Event.getTarget(event);
 		do{
 			box = box.parentNode;
 		}while(box && !YAHOO.util.Dom.hasClass(box, 'flickr-gallery-box'));
-		WIKIDOT.modules.FlickrGalleryModules.vars.destinationBox = box;
+		Wikijump.modules.FlickrGalleryModules.vars.destinationBox = box;
 
 		var p = new Object();
 
@@ -33,14 +24,14 @@ WIKIDOT.modules.FlickrGalleryModules.listeners = {
 		p.pageNumber = pageNumber;
 		p.contentOnly = true;
 
-		OZONE.ajax.requestModule("wiki/image/FlickrGalleryModule", p, WIKIDOT.modules.FlickrGalleryModules.callbacks.loadPage);
+		OZONE.ajax.requestModule("wiki/image/FlickrGalleryModule", p, Wikijump.modules.FlickrGalleryModules.callbacks.loadPage);
 	},
 
 	showPhoto: function(e, photoId){
 		YAHOO.util.Event.stopEvent(e);
 		p = new Object();
 		p.photoId = photoId;
-		OZONE.ajax.requestModule("wiki/image/FlickrGalleryViewPhotoModule", p, WIKIDOT.modules.FlickrGalleryModules.callbacks.showPhoto);
+		OZONE.ajax.requestModule("wiki/image/FlickrGalleryViewPhotoModule", p, Wikijump.modules.FlickrGalleryModules.callbacks.showPhoto);
 		var box = YAHOO.util.Event.getTarget(e);
 		do{
 			box = box.parentNode;
@@ -56,39 +47,39 @@ WIKIDOT.modules.FlickrGalleryModules.listeners = {
 			}
 		}
 
-		WIKIDOT.modules.FlickrGalleryModules.vars.currentElement = currentElement;
-		WIKIDOT.modules.FlickrGalleryModules.vars.galleryList = galleryList;
+		Wikijump.modules.FlickrGalleryModules.vars.currentElement = currentElement;
+		Wikijump.modules.FlickrGalleryModules.vars.galleryList = galleryList;
 
 	},
 
 	showPreviousPhoto: function(e){
-		var ce = WIKIDOT.modules.FlickrGalleryModules.vars.currentElement;
-		var gl = WIKIDOT.modules.FlickrGalleryModules.vars.galleryList;
+		var ce = Wikijump.modules.FlickrGalleryModules.vars.currentElement;
+		var gl = Wikijump.modules.FlickrGalleryModules.vars.galleryList;
 		if(ce>0){
-			WIKIDOT.modules.FlickrGalleryModules.listeners.showPhoto(e, gl[ce-1]);
+			Wikijump.modules.FlickrGalleryModules.listeners.showPhoto(e, gl[ce-1]);
 		}
 	},
 	showNextPhoto: function(e){
-		var ce = WIKIDOT.modules.FlickrGalleryModules.vars.currentElement;
-		var gl = WIKIDOT.modules.FlickrGalleryModules.vars.galleryList;
+		var ce = Wikijump.modules.FlickrGalleryModules.vars.currentElement;
+		var gl = Wikijump.modules.FlickrGalleryModules.vars.galleryList;
 		if(ce<gl.length-1){
-			WIKIDOT.modules.FlickrGalleryModules.listeners.showPhoto(e, gl[ce+1]);
+			Wikijump.modules.FlickrGalleryModules.listeners.showPhoto(e, gl[ce+1]);
 		}
 	}
 
 }
 
-WIKIDOT.modules.FlickrGalleryModules.callbacks = {
+Wikijump.modules.FlickrGalleryModules.callbacks = {
 	loadPage: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
-		var box = WIKIDOT.modules.FlickrGalleryModules.vars.destinationBox;
+		if(!Wikijump.utils.handleError(r)) {return;}
+		var box = Wikijump.modules.FlickrGalleryModules.vars.destinationBox;
 		box.getElementsByTagName('div')[0].innerHTML = r.body;
 		var els = box.getElementsByTagName('img');//YAHOO.util.Dom.getElementsByClassName('gallery-item', 'div', boxes[i]);
 		OZONE.dialog.hovertip.makeTip(els, {style: {width: 'auto'}, noCursorHelp: true, delay: 50});
 	},
 
 	showPhoto: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		// if window already there...
 		var photowindow = YAHOO.util.Dom.getElementsByClassName('photowindow', 'div', 'odialog-container')[0];
@@ -112,8 +103,8 @@ WIKIDOT.modules.FlickrGalleryModules.callbacks = {
 		}
 
 		// show arrows?
-		var ce = WIKIDOT.modules.FlickrGalleryModules.vars.currentElement;
-		var gl = WIKIDOT.modules.FlickrGalleryModules.vars.galleryList;
+		var ce = Wikijump.modules.FlickrGalleryModules.vars.currentElement;
+		var gl = Wikijump.modules.FlickrGalleryModules.vars.galleryList;
 		if(ce == 0){
 			$("photo-nav-prev").style.visibility="hidden";
 		}else{
@@ -129,7 +120,7 @@ WIKIDOT.modules.FlickrGalleryModules.callbacks = {
 
 }
 
-WIKIDOT.modules.FlickrGalleryModules.init = function(){
+Wikijump.modules.FlickrGalleryModules.init = function(){
 
 	OZONE.dom.onDomReady(function(){
 		var boxes = YAHOO.util.Dom.getElementsByClassName('flickr-gallery-box', 'div');
@@ -142,4 +133,4 @@ WIKIDOT.modules.FlickrGalleryModules.init = function(){
 	}, "dummy-ondomready-block");
 }
 
-WIKIDOT.modules.FlickrGalleryModules.init();
+Wikijump.modules.FlickrGalleryModules.init();

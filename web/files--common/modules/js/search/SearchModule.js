@@ -1,17 +1,8 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.SearchModule = {};
 
-WIKIDOT.modules.SearchModule.listeners = {
+Wikijump.modules.SearchModule = {};
+
+Wikijump.modules.SearchModule.listeners = {
 	search: function(e){
 		var f = OZONE.utils.formToArray("search-form");
 		var query = f['query'];
@@ -28,8 +19,8 @@ WIKIDOT.modules.SearchModule.listeners = {
 	}
 }
 
-WIKIDOT.modules.SearchModule.init = function(){
-	YAHOO.util.Event.addListener("search-form", "submit", WIKIDOT.modules.SearchModule.listeners.search);
+Wikijump.modules.SearchModule.init = function(){
+	YAHOO.util.Event.addListener("search-form", "submit", Wikijump.modules.SearchModule.listeners.search);
 }
 
-WIKIDOT.modules.SearchModule.init();
+Wikijump.modules.SearchModule.init();

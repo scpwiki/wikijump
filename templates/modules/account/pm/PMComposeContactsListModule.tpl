@@ -12,7 +12,7 @@
 						{assign var=user value=$contact->getTargetUser()}
 						<li>
 							<span class="printuser"><img class="small" src="{$contact->getTemp("avatarUri")}"/>
-							<a href="javascript:;" onclick="OZONE.dialog.cleanAll();WIKIDOT.modules.PMComposeModule.utils.selectRecipient({$user->getUserId()}, '{$user->getNickName()|escape}');" >{$user->getNickName()|escape}</a>
+							<a href="javascript:;" onclick="OZONE.dialog.cleanAll();Wikijump.modules.PMComposeModule.utils.selectRecipient({$user->getUserId()}, '{$user->getNickName()|escape}');" >{$user->getNickName()|escape}</a>
 						</li>
 					{/foreach}
 				</ul>

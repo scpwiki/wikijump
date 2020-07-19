@@ -67,14 +67,14 @@
 			{/foreach}
 			<tr>
 				<td colspan="2" style="text-align: right">
-					<a href="javascript:;" onclick="WIKIDOT.modules.ASWikiNewslettersModule.listeners.checkAll(event, true)">check all</a>
-					| <a href="javascript:;" onclick="WIKIDOT.modules.ASWikiNewslettersModule.listeners.checkAll(event, false)">uncheck all</a>
+					<a href="javascript:;" onclick="Wikijump.modules.ASWikiNewslettersModule.listeners.checkAll(event, true)">check all</a>
+					| <a href="javascript:;" onclick="Wikijump.modules.ASWikiNewslettersModule.listeners.checkAll(event, false)">uncheck all</a>
 				</td>
 			</tr>
 		</table>
 
 		<div class="buttons">
-			<input type="button" value="cancel" onclick="WIKIDOT.modules.AccountModule.utils.loadModule('am-settings')"/>
+			<input type="button" value="cancel" onclick="Wikijump.modules.AccountModule.utils.loadModule('am-settings')"/>
 			<input type="button" value="save" />
 		</div>
 	</form>

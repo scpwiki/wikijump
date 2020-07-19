@@ -1,11 +1,5 @@
 <?php
 
-
- * @version $Id: lucene_search.php,v 1.8 2008/12/19 02:13:08 redbeard Exp $
- * @copyright Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
- */
-
 require_once ("../php/setup.php");
 
 if (! isset($argv[1])) {
@@ -22,7 +16,7 @@ if (isset($argv[2]) && $argv[2] == 'java') {
 	GlobalProperties::$SEARCH_USE_JAVA = false;
 }
 
-$lucene = new Wikidot_Search_Lucene();
+$lucene = new Wikijump\Search\Lucene();
 $hits = $lucene->rawQuery($argv[1]);
 
 $i = 0;

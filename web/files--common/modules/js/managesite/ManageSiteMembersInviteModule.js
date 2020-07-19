@@ -1,19 +1,10 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.ManagerSiteMembersInviteModule = {};
 
-WIKIDOT.modules.ManagerSiteMembersInviteModule.vars = {};
+Wikijump.modules.ManagerSiteMembersInviteModule = {};
 
-WIKIDOT.modules.ManagerSiteMembersInviteModule.listeners = {
+Wikijump.modules.ManagerSiteMembersInviteModule.vars = {};
+
+Wikijump.modules.ManagerSiteMembersInviteModule.listeners = {
 
 	searchClick: function(e){
 		var query = $("sm-mi-search-f").value;
@@ -24,23 +15,23 @@ WIKIDOT.modules.ManagerSiteMembersInviteModule.listeners = {
 		}
 		var parms = new Object();
 		parms['query'] = query;
-		OZONE.ajax.requestModule("users/UserSearchModule", parms, WIKIDOT.modules.ManagerSiteMembersInviteModule.callbacks.searchClick);
+		OZONE.ajax.requestModule("users/UserSearchModule", parms, Wikijump.modules.ManagerSiteMembersInviteModule.callbacks.searchClick);
 
 	},
 
 	inviteMember: function(e){
 		// display a nice dialog box...
 		var userId = this.id.replace("invite-member-b-", '');
-		var userName = WIKIDOT.modules.ManagerSiteMembersInviteModule.vars.userNames[userId];
-		WIKIDOT.modules.ManagerSiteMembersInviteModule.vars.userId = userId;
+		var userName = Wikijump.modules.ManagerSiteMembersInviteModule.vars.userNames[userId];
+		Wikijump.modules.ManagerSiteMembersInviteModule.vars.userId = userId;
 
 		var w = new OZONE.dialogs.Dialog();
 		var reg = new RegExp('template-id-stub','g');
 		w.content = $("sm-tmp-not").innerHTML.replace(reg, 's').replace(/%%USERNAME%%/g,userName);
 		w.show()
 
-		YAHOO.util.Event.addListener("s-cancel", "click", WIKIDOT.modules.ManagerSiteMembersInviteModule.listeners.cancelInvitation);
-		YAHOO.util.Event.addListener("s-send", "click", WIKIDOT.modules.ManagerSiteMembersInviteModule.listeners.inviteMember2);
+		YAHOO.util.Event.addListener("s-cancel", "click", Wikijump.modules.ManagerSiteMembersInviteModule.listeners.cancelInvitation);
+		YAHOO.util.Event.addListener("s-send", "click", Wikijump.modules.ManagerSiteMembersInviteModule.listeners.inviteMember2);
 		var limiter = new OZONE.forms.lengthLimiter("s-text", "s-charleft", 200);
 
 	},
@@ -55,20 +46,20 @@ WIKIDOT.modules.ManagerSiteMembersInviteModule.listeners = {
 		var parms = new Array();
 		parms['action'] = 'ManageSiteMembershipAction';
 		parms['event'] = "inviteMember";
-		parms['user_id'] = WIKIDOT.modules.ManagerSiteMembersInviteModule.vars.userId;
+		parms['user_id'] = Wikijump.modules.ManagerSiteMembersInviteModule.vars.userId;
 		parms['text'] = $("s-text").value;
-		OZONE.ajax.requestModule("Empty", parms, WIKIDOT.modules.ManagerSiteMembersInviteModule.callbacks.inviteMember);
+		OZONE.ajax.requestModule("Empty", parms, Wikijump.modules.ManagerSiteMembersInviteModule.callbacks.inviteMember);
 	}
 
 }
 
-WIKIDOT.modules.ManagerSiteMembersInviteModule.callbacks = {
+Wikijump.modules.ManagerSiteMembersInviteModule.callbacks = {
 
 	searchClick:	 function(response){
-		if(!WIKIDOT.utils.handleError(response)) {return;}
+		if(!Wikijump.utils.handleError(response)) {return;}
 
 		OZONE.utils.setInnerHTMLContent("sm-mi-search-r", response.body);
-		WIKIDOT.modules.ManagerSiteMembersInviteModule.vars.searchCount = response.count;
+		Wikijump.modules.ManagerSiteMembersInviteModule.vars.searchCount = response.count;
 
 		// now modify the fields to include "add as member"
 
@@ -78,15 +69,15 @@ WIKIDOT.modules.ManagerSiteMembersInviteModule.callbacks = {
 			var	divid = "found-user-"+userIds[i];
 			el = $(divid);
 			el.innerHTML += '(<a href="javascript:;" id="invite-member-b-'+userIds[i]+'">invite</a>)';
-			YAHOO.util.Event.addListener("invite-member-b-"+userIds[i], "click", WIKIDOT.modules.ManagerSiteMembersInviteModule.listeners.inviteMember);
+			YAHOO.util.Event.addListener("invite-member-b-"+userIds[i], "click", Wikijump.modules.ManagerSiteMembersInviteModule.listeners.inviteMember);
 		}
 
-		WIKIDOT.modules.ManagerSiteMembersInviteModule.vars.userNames = response.userNames;
+		Wikijump.modules.ManagerSiteMembersInviteModule.vars.userNames = response.userNames;
 
 	},
 
 	inviteMember: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "The invitation has been sent";
@@ -96,10 +87,10 @@ WIKIDOT.modules.ManagerSiteMembersInviteModule.callbacks = {
 
 }
 
-WIKIDOT.modules.ManagerSiteMembersInviteModule.init = function(){
-	YAHOO.util.Event.addListener("sm-mi-search-b", "click",WIKIDOT.modules.ManagerSiteMembersInviteModule.listeners.searchClick);
-	YAHOO.util.Event.addListener("sm-search-user", "submit",WIKIDOT.modules.ManagerSiteMembersInviteModule.listeners.searchClick);
+Wikijump.modules.ManagerSiteMembersInviteModule.init = function(){
+	YAHOO.util.Event.addListener("sm-mi-search-b", "click",Wikijump.modules.ManagerSiteMembersInviteModule.listeners.searchClick);
+	YAHOO.util.Event.addListener("sm-search-user", "submit",Wikijump.modules.ManagerSiteMembersInviteModule.listeners.searchClick);
 
 }
 
-WIKIDOT.modules.ManagerSiteMembersInviteModule.init();
+Wikijump.modules.ManagerSiteMembersInviteModule.init();

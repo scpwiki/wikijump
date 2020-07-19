@@ -1,17 +1,8 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.WikiCategoriesModule = {};
 
-WIKIDOT.modules.WikiCategoriesModule.listeners = {
+Wikijump.modules.WikiCategoriesModule = {};
+
+Wikijump.modules.WikiCategoriesModule.listeners = {
 	toggleListPages: function(event, categoryId){
 		var ldId = 'category-pages-'+categoryId;
 		var d = $(ldId);
@@ -24,7 +15,7 @@ WIKIDOT.modules.WikiCategoriesModule.listeners = {
 				p.category_id = categoryId;
 				d.style.display = "block";
 				d.innerHTML = '<div class="wait-block">loading page list...</div>';
-				OZONE.ajax.requestModule('list/WikiCategoriesPageListModule', p, WIKIDOT.modules.WikiCategoriesModule.callbacks.listPages);
+				OZONE.ajax.requestModule('list/WikiCategoriesPageListModule', p, Wikijump.modules.WikiCategoriesModule.callbacks.listPages);
 			}else{
 				d.style.display = "block";
 			}
@@ -33,7 +24,7 @@ WIKIDOT.modules.WikiCategoriesModule.listeners = {
 	}
 }
 
-WIKIDOT.modules.WikiCategoriesModule.callbacks = {
+Wikijump.modules.WikiCategoriesModule.callbacks = {
 	listPages: function(r){
 		var ldId = 'category-pages-'+r.categoryId;
 		var d = $(ldId);

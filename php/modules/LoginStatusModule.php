@@ -36,7 +36,7 @@ class LoginStatusModule extends Module
             $out  = '<a href="' . $url_prefix . '/auth:newaccount?origUrl='.urlencode(GlobalProperties::$HTTP_SCHEMA.'://').urlencode($originalUrl).'">'._('create account').'</a> '._('or') . ' ';
             $out .= '<a href="' . $url_prefix . '/auth:login?origUrl='.urlencode(GlobalProperties::$HTTP_SCHEMA.'://').urlencode($originalUrl).'">'._('login').'</a> ';
 
-            //$out = '<a href="javascript:;" onclick="WIKIDOT.page.listeners.createAccount(event)">'._('create account').'</a> '._('or').' <a href="javascript:;" onclick="WIKIDOT.page.listeners.loginClick(event)">'._('login').'</a>';
+            //$out = '<a href="javascript:;" onclick="Wikijump.page.listeners.createAccount(event)">'._('create account').'</a> '._('or').' <a href="javascript:;" onclick="Wikijump.page.listeners.loginClick(event)">'._('login').'</a>';
         } else {
             $lang = $user->getLanguage();
 
@@ -54,7 +54,7 @@ class LoginStatusModule extends Module
             setlocale(LC_ALL, $glang.'.UTF-8');
 
             $userId = $user->getUserId();
-            $linkInner = 'href="' . $url_prefix . '/user:info/'.$user->getUnixName().'" onclick="WIKIDOT.page.listeners.userInfo('.$user->getUserId().'); return false;" ';
+            $linkInner = 'href="' . $url_prefix . '/user:info/'.$user->getUnixName().'" onclick="Wikijump.page.listeners.userInfo('.$user->getUserId().'); return false;" ';
 
             $out = '<span class="printuser"><a '.$linkInner.'><img class="small" src="/common--images/avatars/'.floor($userId/1000).'/'.$userId.'/a16.png" alt="avatar"';
             /* karma: */
@@ -72,7 +72,7 @@ class LoginStatusModule extends Module
                     '<li><a href="' . $url_prefix . '/account:you/start/notifications">'._('notifications').'</a></li>'.
                     '<li><a href="' . $url_prefix . '/account:you/start/watched-changes">'._('watched pages').'</a></li>'.
                     '<li><a href="' . $url_prefix . '/account:you/start/watched-forum">'._('watched discussions').'</a></li>'.
-                    '<li><a href="javascript:;" onclick="WIKIDOT.page.listeners.logoutClick(event)">'._('logout').'</a></li>' .
+                    '<li><a href="javascript:;" onclick="Wikijump.page.listeners.logoutClick(event)">'._('logout').'</a></li>' .
                     '</ul></div>';
 
             // back the language!

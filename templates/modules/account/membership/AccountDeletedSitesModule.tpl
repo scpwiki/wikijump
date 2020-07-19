@@ -6,7 +6,7 @@
 			<div class="site-list-item">
 				{assign var=site value=$admin->getSite()}
 				<div class="options">
-					{t}options{/t}: <a href="javascript:;" onclick="WIKIDOT.modules.AccountDeletedSitesModule.listeners.clickRestore(event,{$site->getSiteId()})">{t}restore{/t}</a>
+					{t}options{/t}: <a href="javascript:;" onclick="Wikijump.modules.AccountDeletedSitesModule.listeners.clickRestore(event,{$site->getSiteId()})">{t}restore{/t}</a>
 				</div>
 				<div class="name">
 					{$site->getName()|escape}
@@ -57,7 +57,7 @@
 		</table>
 		<div class="buttons">
 			<input type="button" value="cancel" onclick="$('as-restore-site-box').style.display='none'"/>
-			<input type="button" value="restore" onclick="WIKIDOT.modules.AccountDeletedSitesModule.listeners.restore(event)"/>
+			<input type="button" value="restore" onclick="Wikijump.modules.AccountDeletedSitesModule.listeners.restore(event)"/>
 		</div>
 	</form>
 </div>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:wikidot="http://wikidot.org/rss-namespace">
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:wikijump="http://wikijump.org/rss-namespace">
 
 	<channel>
 		<title>{$channel.title|escape}</title>
@@ -16,8 +16,8 @@
 				<link>{$item.link|escape}</link>
 				<description>{$item.description|escape}</description>
 				<pubDate>{$item.date|escape}</pubDate>
-				{if $item.author}<wikidot:authorName>{$item.author|escape}</wikidot:authorName>{/if}
-				{if $item.authorUserId}<wikidot:authorUserId>{$item.authorUserId|escape}</wikidot:authorUserId>{/if}
+				{if $item.author}<wikijump:authorName>{$item.author|escape}</wikijump:authorName>{/if}
+				{if $item.authorUserId}<wikijump:authorUserId>{$item.authorUserId|escape}</wikijump:authorUserId>{/if}
 				{if $item.content}<content:encoded>
 					<![CDATA[
 						{$item.content|strip}

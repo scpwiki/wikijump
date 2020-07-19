@@ -1,4 +1,4 @@
-<h1><a href="javascript:;" onclick="WIKIDOT.modules.AccountModule.utils.loadModule('am-settings')">Account settings</a> / Change password</h1>
+<h1><a href="javascript:;" onclick="Wikijump.modules.AccountModule.utils.loadModule('am-settings')">Account settings</a> / Change password</h1>
 
 <p>
 	Below is the form to change your password. Please keep your password private and do not reveal it to
@@ -33,7 +33,7 @@
 		</tr>
 	</table>
 	<div class="buttons">
-		<input type="button" value="cancel" onclick="WIKIDOT.modules.AccountModule.utils.loadModule('am-settings')"/>
-		<input type="button" value="change" onclick="WIKIDOT.modules.ASPasswordModule.listeners.save(event)"/>
+		<input type="button" value="cancel" onclick="Wikijump.modules.AccountModule.utils.loadModule('am-settings')"/>
+		<input type="button" value="change" onclick="Wikijump.modules.ASPasswordModule.listeners.save(event)"/>
 	</div>
 </form>

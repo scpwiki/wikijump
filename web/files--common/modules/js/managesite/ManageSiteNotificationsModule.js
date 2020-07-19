@@ -1,37 +1,28 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.ManageSiteNotificationsModule = {};
 
-WIKIDOT.modules.ManageSiteNotificationsModule.listeners = {
+Wikijump.modules.ManageSiteNotificationsModule = {};
+
+Wikijump.modules.ManageSiteNotificationsModule.listeners = {
 	loadList: function(e, pageNo){
 		var p = null;
 		if(pageNo){p = {page: pageNo}};
-		OZONE.ajax.requestModule("managesite/ManageSiteNotificationsListModule", p, WIKIDOT.modules.ManageSiteNotificationsModule.callbacks.loadList);
+		OZONE.ajax.requestModule("managesite/ManageSiteNotificationsListModule", p, Wikijump.modules.ManageSiteNotificationsModule.callbacks.loadList);
 	}
 }
 
-WIKIDOT.modules.ManageSiteNotificationsModule.callbacks = {
+Wikijump.modules.ManageSiteNotificationsModule.callbacks = {
 	loadList: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		$("notifications-area").innerHTML = r.body;
 		OZONE.utils.formatDates($("notifications-area"));
 	}
 }
 
-WIKIDOT.modules.ManageSiteNotificationsModule.init = function(){
+Wikijump.modules.ManageSiteNotificationsModule.init = function(){
 	loadList(1);
 }
 
 function loadList(pageNo){
 }
 
-WIKIDOT.modules.ManageSiteNotificationsModule.init();
+Wikijump.modules.ManageSiteNotificationsModule.init();

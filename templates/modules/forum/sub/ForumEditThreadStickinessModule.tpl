@@ -8,7 +8,7 @@
 {*
 <p style="text-align: center">
 	<input type="checkbox" id="thread-sticky-checkbox" {if $thread->getSticky() == true}checked="checked"{/if}/> has sticky state
-	<input type="button" value="save" onclick="WIKIDOT.modules.ForumEditThreadStickinessModule.listeners.save(event)"/>
+	<input type="button" value="save" onclick="Wikijump.modules.ForumEditThreadStickinessModule.listeners.save(event)"/>
 	<input type="button" value="cancel" onclick="$('thread-action-area').style.display='none'"/>
 </p>
 *}
@@ -26,6 +26,6 @@
 	</table>
 	<div class="buttons">
 			<input type="button" value="{t}cancel{/t}" onclick="$('thread-action-area').style.display='none'"/>
-			<input type="button" value="{t}save{/t}" onclick="WIKIDOT.modules.ForumEditThreadStickinessModule.listeners.save(event)"/>
+			<input type="button" value="{t}save{/t}" onclick="Wikijump.modules.ForumEditThreadStickinessModule.listeners.save(event)"/>
 	</div>
 </form>

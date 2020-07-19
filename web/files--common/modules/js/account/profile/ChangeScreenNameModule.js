@@ -1,23 +1,14 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.ChangeScreenNameModule = {};
 
-WIKIDOT.modules.ChangeScreenNameModule.listeners = {
+Wikijump.modules.ChangeScreenNameModule = {};
+
+Wikijump.modules.ChangeScreenNameModule.listeners = {
 	save: function(e){
 		var p = {};
 		p['action'] = "AccountProfileAction";
 		p['event'] = "changeScreenName";
 		p.screenName = $("ap-screen-name-input").value;
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.ChangeScreenNameModule.callbacks.save);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.ChangeScreenNameModule.callbacks.save);
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Changing the screen name...";
 		w.show();
@@ -25,15 +16,15 @@ WIKIDOT.modules.ChangeScreenNameModule.listeners = {
 	}
 }
 
-WIKIDOT.modules.ChangeScreenNameModule.callbacks = {
+Wikijump.modules.ChangeScreenNameModule.callbacks = {
 	save: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Your screen name has been changed!";
 		w.show();
 
-		OZONE.ajax.requestModule('account/profile/ChangeScreenNameModule', null, WIKIDOT.modules.AccountModule.callbacks.menuClick);
+		OZONE.ajax.requestModule('account/profile/ChangeScreenNameModule', null, Wikijump.modules.AccountModule.callbacks.menuClick);
 
 	}
 }

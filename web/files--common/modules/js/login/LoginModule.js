@@ -1,17 +1,8 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.LoginModule = {};
 
-WIKIDOT.modules.LoginModule.listeners = {
+Wikijump.modules.LoginModule = {};
+
+Wikijump.modules.LoginModule.listeners = {
 	loginClick: function(e){
 		YAHOO.util.Event.stopEvent(e);
 
@@ -33,7 +24,7 @@ WIKIDOT.modules.LoginModule.listeners = {
 
 		p.action = "Login2Action";
 		p.event = "login";
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.LoginModule.callbacks.loginClick);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.LoginModule.callbacks.loginClick);
 	},
 
 	switchUser: function(e){
@@ -57,7 +48,7 @@ WIKIDOT.modules.LoginModule.listeners = {
 
 }
 
-WIKIDOT.modules.LoginModule.callbacks = {
+Wikijump.modules.LoginModule.callbacks = {
 	loginClick: function(r){
 		if(r.status == 'login_invalid'){
 			$("loginerror").innerHTML=r.message;
@@ -65,7 +56,7 @@ WIKIDOT.modules.LoginModule.callbacks = {
 			return;
 		}
 
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Logging in...";
 		w.show();
@@ -82,10 +73,10 @@ WIKIDOT.modules.LoginModule.callbacks = {
 	}
 }
 
-WIKIDOT.modules.LoginModule.init = function(){
+Wikijump.modules.LoginModule.init = function(){
 	if($('login-form-name')){
 		$('login-form-name').focus();
-		YAHOO.util.Event.addListener($('login-form-name'), 'keypress', WIKIDOT.modules.LoginModule.listeners.namePress);
+		YAHOO.util.Event.addListener($('login-form-name'), 'keypress', Wikijump.modules.LoginModule.listeners.namePress);
 	}else{
 		$('login-form-password').focus();
 	}
@@ -99,7 +90,7 @@ WIKIDOT.modules.LoginModule.init = function(){
 	}, "dummy-ondomready-block");
 }
 
-setTimeout(function(){WIKIDOT.modules.LoginModule.init();}, 100);
+setTimeout(function(){Wikijump.modules.LoginModule.init();}, 100);
 
 function getQueryString(key, default_)
 {

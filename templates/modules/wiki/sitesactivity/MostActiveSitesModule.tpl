@@ -3,19 +3,19 @@
 		{if $range=='24h'}
 			24 {t}hours{/t}
 		{else}
-			<a href="javascript:;" onclick="WIKIDOT.modules.MostActiveSitesModule.listeners.changeTime(event, '24h')"> 24 {t}hours{/t}</a>
+			<a href="javascript:;" onclick="Wikijump.modules.MostActiveSitesModule.listeners.changeTime(event, '24h')"> 24 {t}hours{/t}</a>
 		{/if}
 		|
 		{if $range=='7days'}
 			7 {t}days{/t}
 		{else}
-			<a href="javascript:;" onclick="WIKIDOT.modules.MostActiveSitesModule.listeners.changeTime(event, '7d')"> 7 {t}days{/t}</a>
+			<a href="javascript:;" onclick="Wikijump.modules.MostActiveSitesModule.listeners.changeTime(event, '7d')"> 7 {t}days{/t}</a>
 		{/if}
 		|
 		{if $range=='month'}
 			{t}month{/t}
 		{else}
-			<a href="javascript:;" onclick="WIKIDOT.modules.MostActiveSitesModule.listeners.changeTime(event, 'month')"> {t}month{/t}</a>
+			<a href="javascript:;" onclick="Wikijump.modules.MostActiveSitesModule.listeners.changeTime(event, 'month')"> {t}month{/t}</a>
 		{/if}
 	</div>
 

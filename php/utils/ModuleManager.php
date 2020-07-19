@@ -33,7 +33,7 @@ class ModuleManager
     private function loadWikiConfig()
     {
         /* find all files with module configs */
-        $fs = glob(WIKIDOT_ROOT.'/conf/wiki_modules/*.conf');
+        $fs = glob(WIKIJUMP_ROOT.'/conf/wiki_modules/*.conf');
         $cont = '';
         foreach ($fs as $f) {
             $c = file_get_contents($f);

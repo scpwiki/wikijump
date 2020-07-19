@@ -20,8 +20,8 @@
 		{/foreach}
 		<tr>
 			<td colspan="2" style="text-align: right">
-				<a href="javascript:;" onclick="WIKIDOT.modules.RenamePageModule.listeners.selectAll(event)">{t}select all{/t}</a>
-				|  <a href="javascript:;" onclick="WIKIDOT.modules.RenamePageModule.listeners.unselectAll(event)">{t}unselect all{/t}</a>
+				<a href="javascript:;" onclick="Wikijump.modules.RenamePageModule.listeners.selectAll(event)">{t}select all{/t}</a>
+				|  <a href="javascript:;" onclick="Wikijump.modules.RenamePageModule.listeners.unselectAll(event)">{t}unselect all{/t}</a>
 			</td>
 		</tr>
 	</table>

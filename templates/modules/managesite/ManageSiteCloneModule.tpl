@@ -45,7 +45,7 @@
 			<td>
 				<input class="text" type="text" id="new-site-name" name="name" size="30" value="{$site->getName()|escape}" />
 				<div class="sub">
-					{t}Appears on the top-left corner of your Wikidot site.{/t}
+					{t}Appears on the top-left corner of your Wikijump site.{/t}
 				</div>
 			</td>
 		</tr>
@@ -92,8 +92,8 @@
 		</tr>
 	</table>
 	<div class="buttons">
-		<input type="button" value="{t}Cancel{/t}" onclick="WIKIDOT.modules.ManageSiteCloneModule.listeners.cancel(event)"/>
-		<input type="button" value="{t}Clone this Site{/t}" onclick="WIKIDOT.modules.ManageSiteCloneModule.listeners.cloneSite(event)"/>
+		<input type="button" value="{t}Cancel{/t}" onclick="Wikijump.modules.ManageSiteCloneModule.listeners.cancel(event)"/>
+		<input type="button" value="{t}Clone this Site{/t}" onclick="Wikijump.modules.ManageSiteCloneModule.listeners.cloneSite(event)"/>
 	</div>
 </form>
 

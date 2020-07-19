@@ -8,8 +8,8 @@
 
 		<p>
 			{t 1=$SERVICE_NAME}And welcome to %1! Now, as a registered member,
-			you can explore dozens of great Wikidot features, unleash your
-			creativity or efficiently use Wikidot.{/t}
+			you can explore dozens of great Wikijump features, unleash your
+			creativity or efficiently use Wikijump.{/t}
 		</p>
 
 		<h2>{t}Where to go now?{/t}</h2>

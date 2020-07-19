@@ -3,6 +3,7 @@ files/public.pem
 files/modulus.pem
 conf/ssl/*.pem
 conf/wikidot.ini
+conf/wikijump.ini
 /tmp
 /web/files--common/tmp
 /web/files--sites

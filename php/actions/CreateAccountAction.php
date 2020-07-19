@@ -21,6 +21,7 @@ class CreateAccountAction extends SmartyAction
         '/^dev$/',
         '/^blog$/',
         '/wikidot/',
+        '/wikijump/',
         '/^pro$/',
         '/^mail$/',
         '/michalfrackowiak/',
@@ -93,7 +94,7 @@ class CreateAccountAction extends SmartyAction
             //handle forbidden names
             $unixName = WDStringUtils::toUnixName($name);
 
-            $forbiddenUnixNames = explode("\n", file_get_contents(WIKIDOT_ROOT.'/conf/forbidden_user_names.conf'));
+            $forbiddenUnixNames = explode("\n", file_get_contents(WIKIJUMP_ROOT.'/conf/forbidden_user_names.conf'));
             foreach ($forbiddenUnixNames as $f) {
                 if (preg_match($f, $unixName) >0) {
                     $errors['name'] = _('For some reason this name is not allowed or is reserved for future use.');

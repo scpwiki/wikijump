@@ -6,13 +6,13 @@
 	<table style="margin: 0 auto; width: 100%;">
 		<tr>
 			<td>
-				<a id="photo-nav-prev" href="javascript:;" onclick="WIKIDOT.modules.FlickrGalleryModules.listeners.showPreviousPhoto(event)">«</a>
+				<a id="photo-nav-prev" href="javascript:;" onclick="Wikijump.modules.FlickrGalleryModules.listeners.showPreviousPhoto(event)">«</a>
 			</td>
 			<td>
 				<img class="flickrphoto" src="{$photoSrc}" width="{$dimensions.width}" height="{$dimensions.height}"/>
 			</td>
 			<td>
-				<a id="photo-nav-next" href="javascript:;" onclick="WIKIDOT.modules.FlickrGalleryModules.listeners.showNextPhoto(event)">»</a>
+				<a id="photo-nav-next" href="javascript:;" onclick="Wikijump.modules.FlickrGalleryModules.listeners.showNextPhoto(event)">»</a>
 			</td>
 		</tr>
 	</table>

@@ -2,7 +2,7 @@
 	<tr>
 		<td style="text-align: center; padding: 1em">
 			<div style="font-size: 180%; font-weight: bold;">
-				<a href="javascript:;" onclick="WIKIREQUEST.createAccountSkipCongrats=true;WIKIDOT.page.listeners.loginClick(event)"
+				<a href="javascript:;" onclick="WIKIREQUEST.createAccountSkipCongrats=true;Wikijump.page.listeners.loginClick(event)"
 					>{t}log in{/t}</a>
 			</div>
 			<p>
@@ -14,7 +14,7 @@
 		</td>
 		<td style="text-align: center; padding: 1em">
 			<div style="font-size: 180%; font-weight: bold;">
-				<a href="javascript:;"  onclick="WIKIREQUEST.createAccountSkipCongrats=true; WIKIDOT.page.listeners.createAccount(event)"
+				<a href="javascript:;"  onclick="WIKIREQUEST.createAccountSkipCongrats=true; Wikijump.page.listeners.createAccount(event)"
 					>{t}create a new account{/t}</a>
 			</div>
 			<p>

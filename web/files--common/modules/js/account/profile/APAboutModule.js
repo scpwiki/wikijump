@@ -1,17 +1,8 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.APAboutModule = {};
 
-WIKIDOT.modules.APAboutModule.listeners = {
+Wikijump.modules.APAboutModule = {};
+
+Wikijump.modules.APAboutModule.listeners = {
 	aboutChange: function(e){
 		// get number of characters...
 		var chars = $("about-textarea").value.replace(/\r\n/, "\n").length;
@@ -28,16 +19,16 @@ WIKIDOT.modules.APAboutModule.listeners = {
 		var p = OZONE.utils.formToArray("about-form");
 		p['action'] = "AccountProfileAction";
 		p['event'] = "saveAbout";
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.APAboutModule.callbacks.save);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.APAboutModule.callbacks.save);
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Saving profile information...";
 		w.show();
 	}
 }
 
-WIKIDOT.modules.APAboutModule.callbacks = {
+Wikijump.modules.APAboutModule.callbacks = {
 	save: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Your profile information has been saved.";
@@ -46,9 +37,9 @@ WIKIDOT.modules.APAboutModule.callbacks = {
 	}
 }
 
-WIKIDOT.modules.APAboutModule.init = function(){
-	YAHOO.util.Event.addListener("about-textarea", "keyup", WIKIDOT.modules.APAboutModule.listeners.aboutChange);
-	WIKIDOT.modules.APAboutModule.listeners.aboutChange();
+Wikijump.modules.APAboutModule.init = function(){
+	YAHOO.util.Event.addListener("about-textarea", "keyup", Wikijump.modules.APAboutModule.listeners.aboutChange);
+	Wikijump.modules.APAboutModule.listeners.aboutChange();
 }
 
-WIKIDOT.modules.APAboutModule.init();
+Wikijump.modules.APAboutModule.init();

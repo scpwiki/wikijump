@@ -11,7 +11,7 @@ class WDDefaultFlowController extends WebFlowController
         // initialize logging service
         $logger = OzoneLogger::instance();
         $loggerFileOutput = new OzoneLoggerFileOutput();
-        $loggerFileOutput->setLogFileName(WIKIDOT_ROOT."/logs/ozone.log");
+        $loggerFileOutput->setLogFileName(WIKIJUMP_ROOT."/logs/ozone.log");
         $logger->addLoggerOutput($loggerFileOutput);
         $logger->setDebugLevel(GlobalProperties::$LOGGER_LEVEL);
 
@@ -92,7 +92,7 @@ class WDDefaultFlowController extends WebFlowController
 
             // Set the text domain as 'messages'
             $gdomain = 'messages';
-            bindtextdomain($gdomain, WIKIDOT_ROOT.'/locale');
+            bindtextdomain($gdomain, WIKIJUMP_ROOT.'/locale');
             textdomain($gdomain);
 
             $settings = $site->getSettings();
@@ -106,7 +106,7 @@ class WDDefaultFlowController extends WebFlowController
             } elseif ($sslMode == "ssl_only_paranoid") {
                 // use secure authentication cookie
                 // i.e. change authentication scheme
-                GlobalProperties::$SESSION_COOKIE_NAME = "WIKIDOT_SESSION_SECURE_ID";
+                GlobalProperties::$SESSION_COOKIE_NAME = "WIKIJUMP_SESSION_SECURE_ID";
                 GlobalProperties::$SESSION_COOKIE_SECURE = true;
             }
         } else {

@@ -6,7 +6,7 @@
 			<div class="site-list-item">
 				{assign var=site value=$admin->getSite()}
 				<div class="options">
-					{t}options{/t}: <a href="javascript:;" onclick="WIKIDOT.modules.AccountAdminOfModule.listeners.resign(event,{$site->getSiteId()}, '{$site->getName()|escape}')">{t}resign{/t}</a>
+					{t}options{/t}: <a href="javascript:;" onclick="Wikijump.modules.AccountAdminOfModule.listeners.resign(event,{$site->getSiteId()}, '{$site->getName()|escape}')">{t}resign{/t}</a>
 				</div>
 				<div class="name">
 					<a href="{$HTTP_SCHEMA}://{$site->getDomain()}">{$site->getName()|escape}</a>

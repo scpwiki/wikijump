@@ -1,44 +1,33 @@
-/*
- *
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.ManageSiteAdminsModule = {};
+Wikijump.modules.ManageSiteAdminsModule = {};
 
-WIKIDOT.modules.ManageSiteAdminsModule.vars = {
+Wikijump.modules.ManageSiteAdminsModule.vars = {
 	currentUserId: null
 }
 
 removeAdmin = function(userId, userName){
-	WIKIDOT.modules.ManageSiteAdminsModule.vars.currentUserId = userId;
+	Wikijump.modules.ManageSiteAdminsModule.vars.currentUserId = userId;
 	var w = new OZONE.dialogs.ConfirmationDialog();
 	w.content = $("remove-admin-dialog").innerHTML.replace(/%%USER_NAME%%/, userName);
 	w.buttons = ['cancel', 'yes, remove'];
 	w.addButtonListener('cancel', w.close);
-	w.addButtonListener('yes, remove', WIKIDOT.modules.ManageSiteAdminsModule.listeners.removeAdmin2);
+	w.addButtonListener('yes, remove', Wikijump.modules.ManageSiteAdminsModule.listeners.removeAdmin2);
 	w.show();
 }
 
-WIKIDOT.modules.ManageSiteAdminsModule.listeners = {
+Wikijump.modules.ManageSiteAdminsModule.listeners = {
 	removeAdmin2: function(e){
-		var userId = WIKIDOT.modules.ManageSiteAdminsModule.vars.currentUserId;
+		var userId = Wikijump.modules.ManageSiteAdminsModule.vars.currentUserId;
 		var p = new Object();
 		p.action = 'ManageSiteMembershipAction';
 		p.event = 'removeAdmin';
 		p.user_id = userId;
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.ManageSiteAdminsModule.callbacks.removeAdmin);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.ManageSiteAdminsModule.callbacks.removeAdmin);
 	}
 
 }
 
-WIKIDOT.modules.ManageSiteAdminsModule.callbacks = {
+Wikijump.modules.ManageSiteAdminsModule.callbacks = {
 	removeAdmin: function(r){
 		if(r.status == 'ok'){
 			var w = new OZONE.dialogs.SuccessDialog();
@@ -49,6 +38,6 @@ WIKIDOT.modules.ManageSiteAdminsModule.callbacks = {
 			w.content = r.message;
 			w.show();
 		}
-		WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-admins');
+		Wikijump.modules.ManagerSiteModule.utils.loadModule('sm-admins');
 	}
 }

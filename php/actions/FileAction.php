@@ -1,12 +1,5 @@
 <?php
 
-
- * @version $Id: FileAction.php,v 1.18 2008/11/17 09:41:25 quake Exp $
- * @copyright Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
- */
-
-
 use DB\PagePeer;
 use DB\FilePeer;
 use DB\File;

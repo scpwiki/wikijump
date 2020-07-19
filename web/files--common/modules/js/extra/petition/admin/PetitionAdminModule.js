@@ -1,21 +1,12 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.PetitionAdminModule = {};
 
-WIKIDOT.modules.PetitionAdminModule.vars = {
+Wikijump.modules.PetitionAdminModule = {};
+
+Wikijump.modules.PetitionAdminModule.vars = {
 	currentViewTab: 'overview'
 }
 
-WIKIDOT.modules.PetitionAdminModule.listeners = {
+Wikijump.modules.PetitionAdminModule.listeners = {
 	newCampaignClick: function(e){
 		$('petition-new-campain-box').style.display = 'block';
 		OZONE.visuals.scrollTo('petition-new-campain-box');
@@ -34,19 +25,19 @@ WIKIDOT.modules.PetitionAdminModule.listeners = {
 		p.action = "extra/petition/PetitionAdminAction";
 		p.event = "createCampaign";
 
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.PetitionAdminModule.callbacks.createCampaign);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.PetitionAdminModule.callbacks.createCampaign);
 	},
 	viewCampaignClick: function(e, campaignId){
 		var p = new Object();
 		p.campaignId = campaignId;
-		OZONE.ajax.requestModule("extra/petition/admin/ViewPetitionCampaignModule", p, WIKIDOT.modules.PetitionAdminModule.callbacks.viewCampaign);
+		OZONE.ajax.requestModule("extra/petition/admin/ViewPetitionCampaignModule", p, Wikijump.modules.PetitionAdminModule.callbacks.viewCampaign);
 		setTimeout('OZONE.visuals.scrollTo("petition-admin-module-box");', 300);
 	},
 
 	viewList: function(e){
 		var p = new Object();
 		p.withoutBox = true;
-		OZONE.ajax.requestModule("extra/petition/admin/PetitionAdminModule", p, WIKIDOT.modules.PetitionAdminModule.callbacks.updateMainBox);
+		OZONE.ajax.requestModule("extra/petition/admin/PetitionAdminModule", p, Wikijump.modules.PetitionAdminModule.callbacks.updateMainBox);
 	},
 
 	suspendCampaign: function(e, campaignId){
@@ -54,14 +45,14 @@ WIKIDOT.modules.PetitionAdminModule.listeners = {
 		p.action="extra/petition/PetitionAdminAction";
 		p.event="suspendCampaign";
 		p.campaignId = campaignId;
-		OZONE.ajax.requestModule("extra/petition/admin/ViewPetitionCampaignModule", p, WIKIDOT.modules.PetitionAdminModule.callbacks.updateMainBox);
+		OZONE.ajax.requestModule("extra/petition/admin/ViewPetitionCampaignModule", p, Wikijump.modules.PetitionAdminModule.callbacks.updateMainBox);
 	},
 	resumeCampaign: function(e, campaignId){
 		var p = new Object();
 		p.action="extra/petition/PetitionAdminAction";
 		p.event="resumeCampaign";
 		p.campaignId = campaignId;
-		OZONE.ajax.requestModule("extra/petition/admin/ViewPetitionCampaignModule", p, WIKIDOT.modules.PetitionAdminModule.callbacks.updateMainBox);
+		OZONE.ajax.requestModule("extra/petition/admin/ViewPetitionCampaignModule", p, Wikijump.modules.PetitionAdminModule.callbacks.updateMainBox);
 	},
 
 	deleteCampaign: function(e, campaignId){
@@ -72,7 +63,7 @@ WIKIDOT.modules.PetitionAdminModule.listeners = {
 			p.action="extra/petition/PetitionAdminAction";
 			p.event="deleteCampaign";
 			p.campaignId = campaignId;
-			OZONE.ajax.requestModule("extra/petition/admin/PetitionAdminModule", p, WIKIDOT.modules.PetitionAdminModule.callbacks.updateMainBox);
+			OZONE.ajax.requestModule("extra/petition/admin/PetitionAdminModule", p, Wikijump.modules.PetitionAdminModule.callbacks.updateMainBox);
 
 		}
 	},
@@ -86,7 +77,7 @@ WIKIDOT.modules.PetitionAdminModule.listeners = {
 		$("petition-admin-view-browse").style.display = "block";
 		$("petition-admin-view-download").style.display = "none";
 
-		OZONE.ajax.requestModule("extra/petition/admin/BrowsePetitionSignaturesModule", {campaignId: campaignId},WIKIDOT.modules.PetitionAdminModule.callbacks.browseTabClick);
+		OZONE.ajax.requestModule("extra/petition/admin/BrowsePetitionSignaturesModule", {campaignId: campaignId},Wikijump.modules.PetitionAdminModule.callbacks.browseTabClick);
 
 	},
 	downloadTabClick: function(e, campaignId){
@@ -104,7 +95,7 @@ WIKIDOT.modules.PetitionAdminModule.listeners = {
 		p.action="extra/petition/PetitionAdminAction";
 		p.event="saveCollect";
 		p.campaignId = campaignId;
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.PetitionAdminModule.callbacks.saveCollectSettings);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.PetitionAdminModule.callbacks.saveCollectSettings);
 
 	},
 
@@ -147,13 +138,13 @@ WIKIDOT.modules.PetitionAdminModule.listeners = {
 		p.ids = ids.join(',');
 		p.campaignId = campaignId;
 
-		OZONE.ajax.requestModule("extra/petition/admin/BrowsePetitionSignaturesModule", p,WIKIDOT.modules.PetitionAdminModule.callbacks.browseTabClick);
+		OZONE.ajax.requestModule("extra/petition/admin/BrowsePetitionSignaturesModule", p,Wikijump.modules.PetitionAdminModule.callbacks.browseTabClick);
 
 	}
 
 }
 
-WIKIDOT.modules.PetitionAdminModule.callbacks = {
+Wikijump.modules.PetitionAdminModule.callbacks = {
 	createCampaign: function(r){
 		if(r.status == "form_error"){
 			var ebox = $("petition-new-campaign-error-box");
@@ -161,32 +152,32 @@ WIKIDOT.modules.PetitionAdminModule.callbacks = {
 			ebox.innerHTML = r.message;
 			return;
 		}
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
-		WIKIDOT.modules.PetitionAdminModule.listeners.viewCampaignClick(null, r.campaignId)
+		Wikijump.modules.PetitionAdminModule.listeners.viewCampaignClick(null, r.campaignId)
 
 	},
 
 	updateMainBox: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		$("petition-admin-module-box").innerHTML = r.body;
 
 	},
 
 	browseTabClick: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		$("petition-admin-view-browse").innerHTML = r.body;
 		OZONE.utils.formatDates($("petition-admin-view-browse"));
 	},
 	saveCollectSettings: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Settings saved";
 		w.show();
 	},
 
 	viewCampaign: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		$("petition-admin-module-box").innerHTML = r.body;
 
 		var myDataSource = new YAHOO.widget.DS_XHR("/quickmodule.php", ['pages', 'unix_name', 'title']);

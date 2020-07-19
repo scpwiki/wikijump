@@ -1,17 +1,8 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.ParentPageModule = {};
 
-WIKIDOT.modules.ParentPageModule.listeners = {
+Wikijump.modules.ParentPageModule = {};
+
+Wikijump.modules.ParentPageModule.listeners = {
 	setParent: function(e){
 		var p = new Object();
 		p.action = 'WikiPageAction';
@@ -19,13 +10,13 @@ WIKIDOT.modules.ParentPageModule.listeners = {
 		p.parentName = $("parent-page-name").value;
 		p.pageId = WIKIREQUEST.info.pageId;
 
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.ParentPageModule.callbacks.setParent);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.ParentPageModule.callbacks.setParent);
 		YAHOO.util.Event.stopEvent(e);
 	}
 
 }
 
-WIKIDOT.modules.ParentPageModule.callbacks = {
+Wikijump.modules.ParentPageModule.callbacks = {
 	setParent: function(r){
 		if(r.status == 'ok'){
 			var w = new OZONE.dialogs.SuccessBox();
@@ -36,13 +27,13 @@ WIKIDOT.modules.ParentPageModule.callbacks = {
 			$("parent-set-error").style.display = "block";
 			$("parent-set-error").innerHTML = r.message;
 		} else{
-			if(!WIKIDOT.utils.handleError(r)) {return;}
+			if(!Wikijump.utils.handleError(r)) {return;}
 		}
 	}
 
 }
 
-WIKIDOT.modules.ParentPageModule.init = function(){
+Wikijump.modules.ParentPageModule.init = function(){
 	// attach the autocomplete thing
 	var myDataSource = new YAHOO.widget.DS_XHR("/quickmodule.php", ['pages', 'unix_name', 'title']);
 	myDataSource.scriptQueryParam="q";
@@ -63,4 +54,4 @@ WIKIDOT.modules.ParentPageModule.init = function(){
 
 }
 
-WIKIDOT.modules.ParentPageModule.init();
+Wikijump.modules.ParentPageModule.init();

@@ -28,7 +28,7 @@
 <input type="hidden" id="file-rename-name" value="{$newFile->getFilename()|escape}"/>
 </div>
 <div class="button-bar">
-	<a href="javascript:;" onclick="WIKIDOT.modules.PageFilesModule.listeners.renameFile2(event, true)">{t}overwrite{/t}</a>
+	<a href="javascript:;" onclick="Wikijump.modules.PageFilesModule.listeners.renameFile2(event, true)">{t}overwrite{/t}</a>
 	<a href="javascript:;" onclick="OZONE.dialog.cleanAll()">{t}cancel{/t}</a>
 </div>
 {else}

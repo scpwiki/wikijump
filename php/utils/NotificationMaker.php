@@ -37,7 +37,7 @@ class NotificationMaker
         $extra['subject'] = $message->getSubject();
         $extra['preview'] = $message->getPreview();
 
-        //$extra['urls'] = array(   array('read the message','http://www.wikidot.com/account:you/start/messages/inboxmessage/'.$message->getMessageId()),
+        //$extra['urls'] = array(   array('read the message','https://www.wikijump.com/account:you/start/messages/inboxmessage/'.$message->getMessageId()),
 
         /*
          * format for urls is:
@@ -156,7 +156,7 @@ class NotificationMaker
         $not->setType("membership_application_accepted");
 
         //$body = 'Your membership application to the site <a href="http://'.$site->getDomain().'">"'.htmlspecialchars($site->getName()).'"</a> has been accepted. ' .
-        //$urls = array(    array('your applications', "http://www.wikidot.com/account:you/start/applications"),
+        //$urls = array(    array('your applications', "https://www.wikijump.com/account:you/start/applications"),
         $extra['site_id'] = $site->getSiteId();
         $extra['site_name'] = $site->getName();
         $extra['site_domain'] = $site->getDomain();
@@ -171,7 +171,7 @@ class NotificationMaker
         $not->setUserId($user->getUserId());
         $not->setType("membership_application_declined");
 
-        //$urls = array(    array('your applications', "http://www.wikidot.com/account:you/start/applications"),
+        //$urls = array(    array('your applications', "https://www.wikijump.com/account:you/start/applications"),
         $extra['site_id'] = $site->getSiteId();
         $extra['site_name'] = $site->getName();
         $extra['site_domain'] = $site->getDomain();

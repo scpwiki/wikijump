@@ -6,7 +6,7 @@ require ('../php/setup.php');
 
 $logger = OzoneLogger::instance();
 $loggerFileOutput = new OzoneLoggerFileOutput();
-$loggerFileOutput->setLogFileName(WIKIDOT_ROOT."/logs/jobs.log");
+$loggerFileOutput->setLogFileName(WIKIJUMP_ROOT."/logs/jobs.log");
 $logger->addLoggerOutput($loggerFileOutput);
 $logger->setDebugLevel("debug");
 
@@ -20,13 +20,13 @@ Ozone::setRunData($runData);
 
 // Set the text domain as 'messages'
 $gdomain = 'messages';
-bindtextdomain($gdomain, WIKIDOT_ROOT.'/locale');
+bindtextdomain($gdomain, WIKIJUMP_ROOT.'/locale');
 textdomain($gdomain);
 
 
 $jobName = $argv[1];
 
-$classFile = WIKIDOT_ROOT.'/php/jobs/'.$jobName.'.php';
+$classFile = WIKIJUMP_ROOT.'/php/jobs/'.$jobName.'.php';
 
 require_once $classFile;
 

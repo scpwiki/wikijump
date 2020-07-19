@@ -14,8 +14,8 @@
 	{/if}
 	<form>
 		<div class="buttons">
-			<input type="button" value="{t}cancel{/t}" onclick="WIKIDOT.modules.ForumDeletePostModule.listeners.cancel(event, {$post->getPostId()})"/>
-			<input type="button" value="{t}delete{/t}!" onclick="WIKIDOT.modules.ForumDeletePostModule.listeners.deletePost(event, {$post->getPostId()})"/>
+			<input type="button" value="{t}cancel{/t}" onclick="Wikijump.modules.ForumDeletePostModule.listeners.cancel(event, {$post->getPostId()})"/>
+			<input type="button" value="{t}delete{/t}!" onclick="Wikijump.modules.ForumDeletePostModule.listeners.deletePost(event, {$post->getPostId()})"/>
 		</div>
 	</form>
 </div>

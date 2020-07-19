@@ -12,7 +12,7 @@ class FeedFlowController extends WebFlowController
         // initialize logging service
         $logger = OzoneLogger::instance();
         $loggerFileOutput = new OzoneLoggerFileOutput();
-        $loggerFileOutput->setLogFileName(WIKIDOT_ROOT."/logs/ozone.log");
+        $loggerFileOutput->setLogFileName(WIKIJUMP_ROOT."/logs/ozone.log");
         $logger->addLoggerOutput($loggerFileOutput);
         $logger->setDebugLevel(GlobalProperties::$LOGGER_LEVEL);
 
@@ -61,7 +61,7 @@ class FeedFlowController extends WebFlowController
         }
 
         if ($site == null) {
-            $content = file_get_contents(WIKIDOT_ROOT."/resources/views/site_not_exists.html");
+            $content = file_get_contents(WIKIJUMP_ROOT."/resources/views/site_not_exists.html");
             echo $content;
             return $content;
         }

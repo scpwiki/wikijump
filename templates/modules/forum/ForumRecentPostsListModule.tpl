@@ -1,7 +1,7 @@
 {loadmacro set="Forum"}
 
 
-{pager jsfunction="WIKIDOT.modules.ForumRecentPostsModule.listeners.updateList" total=$pagerData.totalPages known=$pagerData.knownPages current=$pagerData.currentPage}
+{pager jsfunction="Wikijump.modules.ForumRecentPostsModule.listeners.updateList" total=$pagerData.totalPages known=$pagerData.knownPages current=$pagerData.currentPage}
 
 
 <div class="thread-container">

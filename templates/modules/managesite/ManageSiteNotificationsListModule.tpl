@@ -1,5 +1,5 @@
 <div style="text-align:center">
-{pager jsfunction="WIKIDOT.modules.ManageSiteNotificationsModule.listeners.loadList(event,#)" total=$pagerData.total_pages known=$pagerData.known_pages current=$pagerData.current_page}
+{pager jsfunction="Wikijump.modules.ManageSiteNotificationsModule.listeners.loadList(event,#)" total=$pagerData.total_pages known=$pagerData.known_pages current=$pagerData.current_page}
 </div>
 
 {if $notificationsCount>0}

@@ -1,9 +1,9 @@
 <div id="invite-members-module-box">
 	<p style="text-align: right">
-		<a href="javascript:;" onclick="WIKIDOT.modules.InviteMembersModule.listeners.viewHistory(event)">view the invitations you have sent</a>
+		<a href="javascript:;" onclick="Wikijump.modules.InviteMembersModule.listeners.viewHistory(event)">view the invitations you have sent</a>
 	</p>
 	<p>
-		<a href="javascript:;" onclick="WIKIDOT.modules.InviteMembersModule.listeners.showBulkAdd(event)">+ bulk invitations</a>
+		<a href="javascript:;" onclick="Wikijump.modules.InviteMembersModule.listeners.showBulkAdd(event)">+ bulk invitations</a>
 	</p>
 
 	<div id="invitation-addresses-bulk-box" style="display: none">
@@ -17,8 +17,8 @@
 				The adresses you enter here will be <b>added</b> to the list below when you click "process".
 			</div>
 			<div class="buttons">
-				<input type="button" value="cancel" class="button" onclick="WIKIDOT.modules.InviteMembersModule.listeners.cancelBulkAdd(event)"/>
-				<input type="button" value="process" class="button" onclick="WIKIDOT.modules.InviteMembersModule.listeners.processBulkAdd(event)"/>
+				<input type="button" value="cancel" class="button" onclick="Wikijump.modules.InviteMembersModule.listeners.cancelBulkAdd(event)"/>
+				<input type="button" value="process" class="button" onclick="Wikijump.modules.InviteMembersModule.listeners.processBulkAdd(event)"/>
 			</div>
 		</form>
 
@@ -32,10 +32,10 @@
 
 
 		<p style="text-align: right; padding-right: 20%;">
-			to contacts: <a href="javascript:;" onclick="WIKIDOT.modules.InviteMembersModule.listeners.setAllToContacts(event, true)">all</a> | <a href="javascript:;" onclick="WIKIDOT.modules.InviteMembersModule.listeners.setAllToContacts(event, false)">none</a>
+			to contacts: <a href="javascript:;" onclick="Wikijump.modules.InviteMembersModule.listeners.setAllToContacts(event, true)">all</a> | <a href="javascript:;" onclick="Wikijump.modules.InviteMembersModule.listeners.setAllToContacts(event, false)">none</a>
 		</p>
 		<p style="text-align: center;">
-			<a href="javascript:;" onclick="WIKIDOT.modules.InviteMembersModule.listeners.moreRecipients(event)">{t}add more recipients{/t}</a>
+			<a href="javascript:;" onclick="Wikijump.modules.InviteMembersModule.listeners.moreRecipients(event)">{t}add more recipients{/t}</a>
 		</p>
 
 
@@ -90,8 +90,8 @@
 		</p>
 
 		<div class="buttons">
-			<input type="button" value="{t}cancel{/t}" onclick="WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-welcome')"/>
-			<input type="button" value="{t}send invitations{/t}" onclick="WIKIDOT.modules.InviteMembersModule.listeners.send(event)"/>
+			<input type="button" value="{t}cancel{/t}" onclick="Wikijump.modules.ManagerSiteModule.utils.loadModule('sm-welcome')"/>
+			<input type="button" value="{t}send invitations{/t}" onclick="Wikijump.modules.InviteMembersModule.listeners.send(event)"/>
 		</div>
 
 	</form>
@@ -103,13 +103,13 @@
 					<div class="sub">
 						{t}Name (required){/t}:
 					</div>
-					<input type="text" class="text" size="20" onchange="WIKIDOT.modules.InviteMembersModule.listeners.updateTo(event)"/>
+					<input type="text" class="text" size="20" onchange="Wikijump.modules.InviteMembersModule.listeners.updateTo(event)"/>
 				</td>
 				<td>
 					<div class="sub">
 						{t}Email address{/t}:
 					</div>
-					<input type="text" class="text" size="20" onchange="WIKIDOT.modules.InviteMembersModule.listeners.updateTo(event)"/>
+					<input type="text" class="text" size="20" onchange="Wikijump.modules.InviteMembersModule.listeners.updateTo(event)"/>
 				</td>
 				<td >
 					<div class="sub">
@@ -118,7 +118,7 @@
 					<input type="checkbox" checked="checked"/>
 				</td>
 				<td style="vertical-align: middle">
-					<a href="javascript:;" onclick="WIKIDOT.modules.InviteMembersModule.listeners.removeRecipient(event)">{t}remove{/t}</a>
+					<a href="javascript:;" onclick="Wikijump.modules.InviteMembersModule.listeners.removeRecipient(event)">{t}remove{/t}</a>
 				</td>
 			</tr>
 		</table>

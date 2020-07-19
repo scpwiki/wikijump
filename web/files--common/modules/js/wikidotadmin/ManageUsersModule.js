@@ -1,4 +1,4 @@
-WIKIDOT.ManageUsersModule = {
+Wikijump.ManageUsersModule = {
 		
 	'save': function(form) {
 

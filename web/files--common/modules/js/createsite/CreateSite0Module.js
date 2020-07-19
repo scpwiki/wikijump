@@ -1,24 +1,15 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.CreateSite0Module = {};
 
-WIKIDOT.modules.CreateSite0Module.listeners = {
+Wikijump.modules.CreateSite0Module = {};
+
+Wikijump.modules.CreateSite0Module.listeners = {
 	cancelClick: function(e){
 		window.location.href="/";
 	},
 
 	nextClick: function(e){
 		params = OZONE.utils.formToArray('new-site1');
-		OZONE.ajax.requestModule("createsite/CreateSite1Module", params, WIKIDOT.modules.CreateSite0Module.callbacks.nextClick);
+		OZONE.ajax.requestModule("createsite/CreateSite1Module", params, Wikijump.modules.CreateSite0Module.callbacks.nextClick);
 
 	},
 
@@ -32,7 +23,7 @@ WIKIDOT.modules.CreateSite0Module.listeners = {
 		}
 	}
 }
-WIKIDOT.modules.CreateSite0Module.callbacks = {
+Wikijump.modules.CreateSite0Module.callbacks = {
 	nextClick: function(response){
 		OZONE.utils.setInnerHTMLContent("create-site-area", response.body);
 
@@ -40,6 +31,6 @@ WIKIDOT.modules.CreateSite0Module.callbacks = {
 
 }
 
-YAHOO.util.Event.addListener("licence-select", "change", WIKIDOT.modules.CreateSite0Module.listeners.licenceSelect);
+YAHOO.util.Event.addListener("licence-select", "change", Wikijump.modules.CreateSite0Module.listeners.licenceSelect);
 
-WIKIDOT.modules.CreateSite0Module.listeners.licenceSelect(null); // to initialize
+Wikijump.modules.CreateSite0Module.listeners.licenceSelect(null); // to initialize

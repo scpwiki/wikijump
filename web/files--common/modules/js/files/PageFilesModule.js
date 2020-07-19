@@ -1,29 +1,20 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.PageFilesModule = {};
 
-WIKIDOT.modules.PageFilesModule.vars = {
+Wikijump.modules.PageFilesModule = {};
+
+Wikijump.modules.PageFilesModule.vars = {
 	fileIdOptions: null, // file id for which options are active.
 	fileName: null
 }
 
-WIKIDOT.modules.PageFilesModule.listeners = {
+Wikijump.modules.PageFilesModule.listeners = {
 
 	fileManager: function(e){
-		OZONE.ajax.requestModule("files/manager/FileManagerModule",{pageId:WIKIREQUEST.info.pageId} ,WIKIDOT.modules.PageFilesModule.callbacks.showUploadClick);
+		OZONE.ajax.requestModule("files/manager/FileManagerModule",{pageId:WIKIREQUEST.info.pageId} ,Wikijump.modules.PageFilesModule.callbacks.showUploadClick);
 	},
 
 	showUploadClick: function(e){
-		OZONE.ajax.requestModule("files/FileUploadModule",{pageId:WIKIREQUEST.info.pageId} ,WIKIDOT.modules.PageFilesModule.callbacks.showUploadClick);
+		OZONE.ajax.requestModule("files/FileUploadModule",{pageId:WIKIREQUEST.info.pageId} ,Wikijump.modules.PageFilesModule.callbacks.showUploadClick);
 	},
 
 	fileMoreInfo: function(e, fileId){
@@ -31,19 +22,19 @@ WIKIDOT.modules.PageFilesModule.listeners = {
 
 		var p = new Object();
 		p['file_id'] = fileId;
-		OZONE.ajax.requestModule("files/FileInformationWinModule", p, WIKIDOT.modules.PageFilesModule.callbacks.fileMoreInfo);
+		OZONE.ajax.requestModule("files/FileInformationWinModule", p, Wikijump.modules.PageFilesModule.callbacks.fileMoreInfo);
 
 	},
 	renameFile: function(e){
-		var fileId = WIKIDOT.modules.PageFilesModule.vars.fileIdOptions;
+		var fileId = Wikijump.modules.PageFilesModule.vars.fileIdOptions;
 		if(fileId == null){return;}
 		var p = new Object();
 		p['file_id'] = fileId;
-		OZONE.ajax.requestModule("files/FileRenameWinModule", p, WIKIDOT.modules.PageFilesModule.callbacks.renameFile);
+		OZONE.ajax.requestModule("files/FileRenameWinModule", p, Wikijump.modules.PageFilesModule.callbacks.renameFile);
 
 	},
 	renameFile2: function(e, force){
-		var fileId = WIKIDOT.modules.PageFilesModule.vars.fileIdOptions;
+		var fileId = Wikijump.modules.PageFilesModule.vars.fileIdOptions;
 		if(fileId == null){return;}
 		var p = new Object();
 		p['file_id'] = fileId;
@@ -53,19 +44,19 @@ WIKIDOT.modules.PageFilesModule.listeners = {
 		if(force == true){
 			p['force'] = true;
 		}
-		OZONE.ajax.requestModule("Empty", p, WIKIDOT.modules.PageFilesModule.callbacks.renameFile2);
+		OZONE.ajax.requestModule("Empty", p, Wikijump.modules.PageFilesModule.callbacks.renameFile2);
 
 	},
 	moveFile: function(e){
-		var fileId = WIKIDOT.modules.PageFilesModule.vars.fileIdOptions;
+		var fileId = Wikijump.modules.PageFilesModule.vars.fileIdOptions;
 		if(fileId == null){return;}
 		var p = new Object();
 		p['file_id'] = fileId;
-		OZONE.ajax.requestModule("files/FileMoveWinModule", p, WIKIDOT.modules.PageFilesModule.callbacks.moveFile);
+		OZONE.ajax.requestModule("files/FileMoveWinModule", p, Wikijump.modules.PageFilesModule.callbacks.moveFile);
 
 	},
 	moveFile2: function(e, force){
-		var fileId = WIKIDOT.modules.PageFilesModule.vars.fileIdOptions;
+		var fileId = Wikijump.modules.PageFilesModule.vars.fileIdOptions;
 		if(fileId == null){return;}
 		var p = new Object();
 		p['file_id'] = fileId;
@@ -75,38 +66,38 @@ WIKIDOT.modules.PageFilesModule.listeners = {
 		if(force == true){
 			p['force'] = true;
 		}
-		OZONE.ajax.requestModule("Empty", p, WIKIDOT.modules.PageFilesModule.callbacks.moveFile2);
+		OZONE.ajax.requestModule("Empty", p, Wikijump.modules.PageFilesModule.callbacks.moveFile2);
 	},
 
 	deleteFile: function(e){
-		var fileName = $("file-row-"+WIKIDOT.modules.PageFilesModule.vars.fileIdOptions).getElementsByTagName("td")[0].getElementsByTagName("a")[0].innerHTML;
+		var fileName = $("file-row-"+Wikijump.modules.PageFilesModule.vars.fileIdOptions).getElementsByTagName("td")[0].getElementsByTagName("a")[0].innerHTML;
 		var w = new OZONE.dialogs.ConfirmationDialog();
 		w.content = "<h1>Delete file <em>"+fileName+"</em></h1> Are you sure you want to delete this file?";
 		w.buttons = ['no, cancel', 'yes, delete'];
 		w.addButtonListener('no, cancel', w.close);
-		w.addButtonListener('yes, delete', WIKIDOT.modules.PageFilesModule.listeners.deleteFile2);
+		w.addButtonListener('yes, delete', Wikijump.modules.PageFilesModule.listeners.deleteFile2);
 		w.show();
 	},
 	deleteFile2: function(e){
-		var fileId = WIKIDOT.modules.PageFilesModule.vars.fileIdOptions;
+		var fileId = Wikijump.modules.PageFilesModule.vars.fileIdOptions;
 		if(fileId == null){return;}
 		var p = new Object();
 		p['file_id'] = fileId;
 		p['action'] = "FileAction";
 		p['event'] = 'deleteFile';
-		OZONE.ajax.requestModule("Empty", p, WIKIDOT.modules.PageFilesModule.callbacks.deleteFile2);
+		OZONE.ajax.requestModule("Empty", p, Wikijump.modules.PageFilesModule.callbacks.deleteFile2);
 
 	}
 }
 
-WIKIDOT.modules.PageFilesModule.callbacks = {
+Wikijump.modules.PageFilesModule.callbacks = {
 	showUploadClick: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		OZONE.utils.setInnerHTMLContent('file-action-area', r.body);
 		setTimeout("OZONE.visuals.scrollTo('file-action-area')", 100);
 	}	,
 	fileMoreInfo: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var t2 = new OZONE.dialogs.Dialog();
 		t2.title = "File information";
 		t2.content=r.body	;
@@ -119,7 +110,7 @@ WIKIDOT.modules.PageFilesModule.callbacks = {
 		t2.show();
 	},
 	renameFile: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		var t2 = new OZONE.dialogs.Dialog();
 		t2.title = "Rename file";
@@ -127,7 +118,7 @@ WIKIDOT.modules.PageFilesModule.callbacks = {
 		t2.buttons = ["cancel", "rename"];
 
 		t2.addButtonListener("cancel", t2.close);
-		t2.addButtonListener("rename", WIKIDOT.modules.PageFilesModule.listeners.renameFile2);
+		t2.addButtonListener("rename", Wikijump.modules.PageFilesModule.listeners.renameFile2);
 		t2.show();
 
 	},
@@ -137,7 +128,7 @@ WIKIDOT.modules.PageFilesModule.callbacks = {
 			var t2 = new OZONE.dialogs.SuccessBox();
 			t2.content="The file has been renamed!"	;
 			t2.show();
-			setTimeout('OZONE.dialog.cleanAll();WIKIDOT.page.listeners.filesClick(null)', 1000);
+			setTimeout('OZONE.dialog.cleanAll();Wikijump.page.listeners.filesClick(null)', 1000);
 		}else if(r.status == "file_exists"){
 			var t2 = new OZONE.dialogs.Dialog();
 			t2.title = "Rename file";
@@ -147,7 +138,7 @@ WIKIDOT.modules.PageFilesModule.callbacks = {
 			$("rename-error-block").style.display="block";
 			$("rename-error-block").innerHTML=r.message;
 		}else{
-			if(!WIKIDOT.utils.handleError(r)) {return;}
+			if(!Wikijump.utils.handleError(r)) {return;}
 
 		}
 	},
@@ -159,7 +150,7 @@ WIKIDOT.modules.PageFilesModule.callbacks = {
 			t2.title="Move file";
 
 			t2.addButtonListener("cancel", t2.close);
-			t2.addButtonListener("move", WIKIDOT.modules.PageFilesModule.listeners.moveFile2);
+			t2.addButtonListener("move", Wikijump.modules.PageFilesModule.listeners.moveFile2);
 			t2.show();
 
 			// attach the autocomplete thing
@@ -182,7 +173,7 @@ WIKIDOT.modules.PageFilesModule.callbacks = {
 			myAutoComp.queryDelay = 0.5;
 			myAutoComp.forceSelection = false;
 		}else{
-			if(!WIKIDOT.utils.handleError(r)) {return;}
+			if(!Wikijump.utils.handleError(r)) {return;}
 		}
 	},
 
@@ -191,7 +182,7 @@ WIKIDOT.modules.PageFilesModule.callbacks = {
 			var t2 = new OZONE.dialogs.SuccessBox();
 			t2.content="The file has been moved!"	;
 			t2.show();
-			setTimeout('OZONE.dialog.cleanAll();WIKIDOT.page.listeners.filesClick(null)', 1000);
+			setTimeout('OZONE.dialog.cleanAll();Wikijump.page.listeners.filesClick(null)', 1000);
 		}else if(r.status == "file_exists"){
 			var t2 = new OZONE.dialogs.Dialog();
 			t2.title = "Move file";
@@ -201,7 +192,7 @@ WIKIDOT.modules.PageFilesModule.callbacks = {
 			$("file-move-error").innerHTML = r.message;
 			$("file-move-error").style.display ="block";
 		} else {
-			if(!WIKIDOT.utils.handleError(r)) {return;}
+			if(!Wikijump.utils.handleError(r)) {return;}
 		}
 	},
 	deleteFile2: function(r){
@@ -209,9 +200,9 @@ WIKIDOT.modules.PageFilesModule.callbacks = {
 			var t2 = new OZONE.dialogs.SuccessBox();
 			t2.content="The file has beed deleted!";
 			t2.show();
-			setTimeout('OZONE.dialog.cleanAll();WIKIDOT.page.listeners.filesClick(null)', 1000);
+			setTimeout('OZONE.dialog.cleanAll();Wikijump.page.listeners.filesClick(null)', 1000);
 		}else{
-			if(!WIKIDOT.utils.handleError(r)) {return;}
+			if(!Wikijump.utils.handleError(r)) {return;}
 		}
 	}
 }
@@ -225,12 +216,12 @@ toggleFileOptions = function(fileId){
 		var eff = new fx.Opacity(t, {duration: 200});
 		eff.custom(1,0);
 		setTimeout('$("'+trido+'").parentNode.removeChild($("'+trido+'"))', 300);
-		WIKIDOT.modules.PageFilesModule.vars.fileIdOptions = null;
+		Wikijump.modules.PageFilesModule.vars.fileIdOptions = null;
 
 	}else {
 
-		if(WIKIDOT.modules.PageFilesModule.vars.fileIdOptions && WIKIDOT.modules.PageFilesModule.vars.fileIdOptions != fileId){
-			toggleFileOptions(WIKIDOT.modules.PageFilesModule.vars.fileIdOptions);
+		if(Wikijump.modules.PageFilesModule.vars.fileIdOptions && Wikijump.modules.PageFilesModule.vars.fileIdOptions != fileId){
+			toggleFileOptions(Wikijump.modules.PageFilesModule.vars.fileIdOptions);
 		}
 
 		var optionsContent = $("file-options-template").innerHTML;
@@ -249,10 +240,10 @@ toggleFileOptions = function(fileId){
 		eff.setOpacity(0);
 		OZONE.dom.insertAfter(trf.parentNode, row, trf);
 		eff.custom(0,1);
-		WIKIDOT.modules.PageFilesModule.vars.fileIdOptions = fileId;
+		Wikijump.modules.PageFilesModule.vars.fileIdOptions = fileId;
 	}
 
 }
 
-YAHOO.util.Event.addListener("show-upload-button", "click", WIKIDOT.modules.PageFilesModule.listeners.showUploadClick);
-WIKIDOT.utils.formatDates("action-area");
+YAHOO.util.Event.addListener("show-upload-button", "click", Wikijump.modules.PageFilesModule.listeners.showUploadClick);
+Wikijump.utils.formatDates("action-area");

@@ -8,7 +8,7 @@ class SignPetitionModule extends SmartyModule
     public function build($runData)
     {
 
-        require(WIKIDOT_ROOT.'/php/unclassified/country_codes.php');
+        require(WIKIJUMP_ROOT.'/php/unclassified/country_codes.php');
         $runData->contextAdd("coutryCodes", $iso3166_country_codes);
 
         $site = $runData->getTemp("site");

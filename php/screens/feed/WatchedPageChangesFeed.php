@@ -59,7 +59,7 @@ class WatchedPageChangesFeed extends FeedScreen
 
         $revisions = PageRevisionPeer::instance()->select($c);
 
-        $channel['title'] = _('Wikidot.com watched pages changes for user').' "'.$user->getNickName().'"';
+        $channel['title'] = _('Wikijump.com watched pages changes for user').' "'.$user->getNickName().'"';
         $channel['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST . "/account:you/start/watched-changes";
 
         $items = array();

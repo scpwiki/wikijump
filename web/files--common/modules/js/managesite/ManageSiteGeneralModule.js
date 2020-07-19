@@ -1,34 +1,25 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.ManagerSiteGeneralModule = {};
 
-WIKIDOT.modules.ManagerSiteGeneralModule.listeners = {
+Wikijump.modules.ManagerSiteGeneralModule = {};
+
+Wikijump.modules.ManagerSiteGeneralModule.listeners = {
 
 	save: function(e){
 		var parms = OZONE.utils.formToArray("sm-general-form");
 		parms['action'] = "ManageSiteAction";
 		parms['event'] = "saveGeneral";
-		OZONE.ajax.requestModule("Empty", parms, WIKIDOT.modules.ManagerSiteGeneralModule.callbacks.save);
+		OZONE.ajax.requestModule("Empty", parms, Wikijump.modules.ManagerSiteGeneralModule.callbacks.save);
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Saving changes...";
 		w.show();
 
 	},
 	cancel: function(e){
-		WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-welcome');
+		Wikijump.modules.ManagerSiteModule.utils.loadModule('sm-welcome');
 	}
 }
 
-WIKIDOT.modules.ManagerSiteGeneralModule.callbacks = {
+Wikijump.modules.ManagerSiteGeneralModule.callbacks = {
 	save: function(r){
 		if(r.status=="form_errors"){
 			OZONE.dialog.cleanAll();
@@ -44,21 +35,21 @@ WIKIDOT.modules.ManagerSiteGeneralModule.callbacks = {
 			$("sm-general-errorblock").style.display="block";
 			return;
 		}
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		$("sm-general-errorblock").style.display="none";
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content ="Changes saved.";
 		w.show();
 	},
 	cancel: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		OZONE.utils.setInnerHTMLContent("site-manager", r.body);
 	}
 }
 
-WIKIDOT.modules.ManagerSiteGeneralModule.init = function(){
-	YAHOO.util.Event.addListener("sm-general-cancel", "click", WIKIDOT.modules.ManagerSiteGeneralModule.listeners.cancel);
-	YAHOO.util.Event.addListener("sm-general-save", "click", WIKIDOT.modules.ManagerSiteGeneralModule.listeners.save);
+Wikijump.modules.ManagerSiteGeneralModule.init = function(){
+	YAHOO.util.Event.addListener("sm-general-cancel", "click", Wikijump.modules.ManagerSiteGeneralModule.listeners.cancel);
+	YAHOO.util.Event.addListener("sm-general-save", "click", Wikijump.modules.ManagerSiteGeneralModule.listeners.save);
 	var limiter = new OZONE.forms.lengthLimiter("site-description-field", "site-description-field-left", 300);
 
 	// attach the autocomplete thing
@@ -83,4 +74,4 @@ WIKIDOT.modules.ManagerSiteGeneralModule.init = function(){
 
 }
 
-WIKIDOT.modules.ManagerSiteGeneralModule.init();
+Wikijump.modules.ManagerSiteGeneralModule.init();

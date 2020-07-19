@@ -63,7 +63,7 @@ if(is_bool($karmaLevel) && !$karmaLevel){
     }
 }
 
-$imgPath = WIKIDOT_ROOT.'/web/files--common/theme/base/images/karma/';
+$imgPath = WIKIJUMP_ROOT.'/web/files--common/theme/base/images/karma/';
 
 $imgPath = $imgPath . 'karma_'. $karmaLevel . '.png';
 

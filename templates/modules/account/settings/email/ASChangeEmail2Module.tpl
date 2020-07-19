@@ -10,7 +10,7 @@
 		</td>
 		<td>
 			<input class="text" type="text"  maxlength="50" size="25" name="everode" id="ch-evercode"/>
-			<input class="button" type="button" value="continue" onclick="WIKIDOT.modules.ASEmailModule.listeners.next2(event)"/>
+			<input class="button" type="button" value="continue" onclick="Wikijump.modules.ASEmailModule.listeners.next2(event)"/>
 		</td>
 	</tr>
 </table>

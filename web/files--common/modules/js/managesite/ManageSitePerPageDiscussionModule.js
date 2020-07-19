@@ -1,44 +1,35 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.ManageSitePerPageDiscussionModule = {};
 
-WIKIDOT.modules.ManageSitePerPageDiscussionModule.listeners ={
+Wikijump.modules.ManageSitePerPageDiscussionModule = {};
+
+Wikijump.modules.ManageSitePerPageDiscussionModule.listeners ={
 	save: function(e){
-		WIKIDOT.modules.ManageSitePerPageDiscussionModule.utils.updateFromForm();
-		var categories = WIKIDOT.modules.ManagerSiteModule.vars.categories;
+		Wikijump.modules.ManageSitePerPageDiscussionModule.utils.updateFromForm();
+		var categories = Wikijump.modules.ManagerSiteModule.vars.categories;
 		var serialized = JSON.stringify(categories);
 		var parms = new Object();
 		parms['categories'] = serialized;
 		parms['action'] = "ManageSiteForumAction";
 		parms['event'] = "savePerPageDiscussion";
-		OZONE.ajax.requestModule("Empty", parms, WIKIDOT.modules.ManageSitePerPageDiscussionModule.callbacks.save);
+		OZONE.ajax.requestModule("Empty", parms, Wikijump.modules.ManageSitePerPageDiscussionModule.callbacks.save);
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Saving changes...";
 		w.show();
 	}
 };
 
-WIKIDOT.modules.ManageSitePerPageDiscussionModule.callbacks = {
+Wikijump.modules.ManageSitePerPageDiscussionModule.callbacks = {
 	save: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Changes saved";
 		w.show();
 	}
 };
 
-WIKIDOT.modules.ManageSitePerPageDiscussionModule.utils = {
+Wikijump.modules.ManageSitePerPageDiscussionModule.utils = {
 	updateFromForm: function(){
-		var categories = WIKIDOT.modules.ManagerSiteModule.vars.categories;
+		var categories = Wikijump.modules.ManagerSiteModule.vars.categories;
 		var id;
 		for(var i=0; i<categories.length; i++){
 			// check for the value in the form

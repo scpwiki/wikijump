@@ -30,7 +30,7 @@
 	</table>
 	<div class="buttons">
 		<input type="button" value="{t}cancel{/t}" onclick="$('thread-action-area').style.display='none'"/>
-		<input type="button" value="{t}save{/t}" onclick="WIKIDOT.modules.ForumEditThreadMetaModule.listeners.save(event)"/>
+		<input type="button" value="{t}save{/t}" onclick="Wikijump.modules.ForumEditThreadMetaModule.listeners.save(event)"/>
 	</div>
 
 </form>

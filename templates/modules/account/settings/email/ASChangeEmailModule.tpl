@@ -11,7 +11,7 @@
 		</td>
 		<td>
 			<input class="text" type="text"  maxlength="50" size="25" name="email" id="ch-email"/>
-			<input class="button" type="button" value="change" onclick="WIKIDOT.modules.ASEmailModule.listeners.next1(event)"/>
+			<input class="button" type="button" value="change" onclick="Wikijump.modules.ASEmailModule.listeners.next1(event)"/>
 		</td>
 	</tr>
 </table>

@@ -1,7 +1,7 @@
-<h1><a href="javascript:;" onclick="WIKIDOT.modules.AccountModule.utils.loadModule('am-settings')">Account settings</a> / Receiving messages</h1>
+<h1><a href="javascript:;" onclick="Wikijump.modules.AccountModule.utils.loadModule('am-settings')">Account settings</a> / Receiving messages</h1>
 
 <p>
-	One of the features of Wikidot is the possibility to send <em>private messages</em>, i.e.
+	One of the features of Wikijump is the possibility to send <em>private messages</em>, i.e.
 	direct messages between registered users. It is advised to enable private messages
 	but you have a few options here (leave boxes unchecked to block all messages):
 </p>
@@ -22,8 +22,8 @@
 		</tr>
 	</table>
 	<div class="buttons">
-		<input type="button" value="cancel" onclick="WIKIDOT.modules.AccountModule.utils.loadModule('am-settings')"/>
-		<input type="button" value="save" onclick="WIKIDOT.modules.ASMessagesModule.listeners.save(event)"/>
+		<input type="button" value="cancel" onclick="Wikijump.modules.AccountModule.utils.loadModule('am-settings')"/>
+		<input type="button" value="save" onclick="Wikijump.modules.ASMessagesModule.listeners.save(event)"/>
 	</div>
 
 </form>

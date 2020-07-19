@@ -1,35 +1,26 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.SimpleToDoModule= {} ;
 
-WIKIDOT.modules.SimpleToDoModule.callbacks = {
+Wikijump.modules.SimpleToDoModule= {} ;
+
+Wikijump.modules.SimpleToDoModule.callbacks = {
 	save: function(data) {
 		var serializedData = JSON.stringify(data);
 		var p = {data:serializedData} ;
 		p.pageId = WIKIREQUEST.info.pageId;
 		p.action = "SimpleToDoAction";
 		p.event = "save";
-		OZONE.ajax.requestModule(null,p,WIKIDOT.modules.SimpleToDoModule.callbacks.saveCallback);
+		OZONE.ajax.requestModule(null,p,Wikijump.modules.SimpleToDoModule.callbacks.saveCallback);
 	},
 
 	saveCallback: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 	}
 }
 
-WIKIDOT.modules.SimpleToDoModule.listeners = {
+Wikijump.modules.SimpleToDoModule.listeners = {
 
 	clickCheckBoxToChangeState: function(e){
-		if (WIKIDOT.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
+		if (Wikijump.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
 			var checkBoxState ;
 			var myDocument = document ;
 			var checkBoxElement ;
@@ -44,15 +35,15 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 			} else {
 				checkBoxState = false ;
 			}
-			var dataToSave = WIKIDOT.modules.SimpleToDoModule.utils.getDataToSerialize(checkBoxElement,myDocument);
-			WIKIDOT.modules.SimpleToDoModule.callbacks.save(dataToSave);
+			var dataToSave = Wikijump.modules.SimpleToDoModule.utils.getDataToSerialize(checkBoxElement,myDocument);
+			Wikijump.modules.SimpleToDoModule.callbacks.save(dataToSave);
 		} else {
 			alert('You do not have permissions to edit list.');
 		}
 	},
 
 	clickTitleToEdit: function(e){
-		if (WIKIDOT.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
+		if (Wikijump.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
 			var myDocument = document ;
 			var titleElement ;
 			if (!e) var e = window.event
@@ -60,14 +51,14 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 			else if (e.srcElement) titleElement = e.srcElement
 			if (titleElement.nodeType == 3)
 			titleElement = titleElement.parentNode;
-			YAHOO.util.Event.removeListener(titleElement,"click",WIKIDOT.modules.SimpleToDoModule.listeners.clickTitleToEdit)	;
+			YAHOO.util.Event.removeListener(titleElement,"click",Wikijump.modules.SimpleToDoModule.listeners.clickTitleToEdit)	;
 			var newTitleTextField = myDocument.createElement("input") ;
 			newTitleTextField.type = "text";
 			newTitleTextField.value = titleElement.firstChild.nodeValue;
 			newTitleTextField.oldValue = titleElement.firstChild.nodeValue;
-			YAHOO.util.Event.addListener(newTitleTextField,"blur",WIKIDOT.modules.SimpleToDoModule.listeners.onblurSaveTitle);
+			YAHOO.util.Event.addListener(newTitleTextField,"blur",Wikijump.modules.SimpleToDoModule.listeners.onblurSaveTitle);
 			var oldTitleContentNode = titleElement.firstChild;
-			YAHOO.util.Event.addListener(newTitleTextField,"keypress",WIKIDOT.modules.SimpleToDoModule.listeners.onKeyPressSaveTitle);
+			YAHOO.util.Event.addListener(newTitleTextField,"keypress",Wikijump.modules.SimpleToDoModule.listeners.onKeyPressSaveTitle);
 			YAHOO.util.Dom.addClass(newTitleTextField,"text");
 			titleElement.removeChild(oldTitleContentNode);
 			titleElement.appendChild(newTitleTextField);
@@ -78,7 +69,7 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 	},
 
 	onblurSaveTitle: function(e) {
-		if (WIKIDOT.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
+		if (Wikijump.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
 			var myDocument = document ;
 			var titleElement ;
 			if (!e) var e = window.event
@@ -86,8 +77,8 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 			else if (e.srcElement) titleElement = e.srcElement
 			if (titleElement.nodeType == 3)
 			titleElement = titleElement.parentNode;
-			YAHOO.util.Event.removeListener(titleElement.parentNode,"blur",WIKIDOT.modules.SimpleToDoModule.listeners.onblurSaveTitle);
-			YAHOO.util.Event.addListener(titleElement.parentNode,"click",WIKIDOT.modules.SimpleToDoModule.listeners.clickTitleToEdit);
+			YAHOO.util.Event.removeListener(titleElement.parentNode,"blur",Wikijump.modules.SimpleToDoModule.listeners.onblurSaveTitle);
+			YAHOO.util.Event.addListener(titleElement.parentNode,"click",Wikijump.modules.SimpleToDoModule.listeners.clickTitleToEdit);
 			if (titleElement.nodeName == "INPUT"){
 				titleElement.value = titleElement.value.replace(/^\s+/,'');
 				titleElement.value = titleElement.value.replace(/\s+$/,'');
@@ -107,8 +98,8 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 					pTitleElement.removeChild(titleElement);
 					pTitleElement.appendChild(newTextNode);
 					//AJAX REQUEST
-					var dataToSave = WIKIDOT.modules.SimpleToDoModule.utils.getDataToSerialize(pTitleElement,myDocument);
-					WIKIDOT.modules.SimpleToDoModule.callbacks.save(dataToSave);
+					var dataToSave = Wikijump.modules.SimpleToDoModule.utils.getDataToSerialize(pTitleElement,myDocument);
+					Wikijump.modules.SimpleToDoModule.callbacks.save(dataToSave);
 
 				} else {
 
@@ -130,7 +121,7 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 	},
 
 	clickToEditTask: function(e){
-		if (WIKIDOT.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
+		if (Wikijump.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
 			var myDocument = document ;
 			if (!e) var e = window.event
 			if (e.target) var taskElement = e.target
@@ -141,7 +132,7 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 				var parentElement = taskElement.parentNode ;
 				var newToDoTextField = myDocument.createElement("input");
 				newToDoTextField.type = "text";
-				YAHOO.util.Event.addListener(newToDoTextField, 'blur',WIKIDOT.modules.SimpleToDoModule.listeners.onblurSaveTask);
+				YAHOO.util.Event.addListener(newToDoTextField, 'blur',Wikijump.modules.SimpleToDoModule.listeners.onblurSaveTask);
 				newToDoTextField.value = taskElement.firstChild.nodeValue;
 				newToDoTextField.oldValue = taskElement.firstChild.nodeValue;
 			    YAHOO.util.Dom.addClass(taskElement.parentNode.parentNode.parentNode,"edit");
@@ -150,7 +141,7 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 				parentElement.removeChild(taskElement);
 				parentElement.appendChild(newToDoTextField);
 				YAHOO.util.Dom.addClass(newToDoTextField,"text");
-				YAHOO.util.Event.addListener(newToDoTextField,"keypress",WIKIDOT.modules.SimpleToDoModule.listeners.onKeyPressSaveTask);
+				YAHOO.util.Event.addListener(newToDoTextField,"keypress",Wikijump.modules.SimpleToDoModule.listeners.onKeyPressSaveTask);
 				newToDoTextField.style.width = (Math.max(width,100))+"px" ;
 				newToDoTextField.focus() ;
 				//dirty hack firefox bug workaround
@@ -161,7 +152,7 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 	},
 
 	onblurSaveTask: function(e){
-		if (WIKIDOT.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
+		if (Wikijump.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
 			var myDocument = document ;
 			var taskElement ;
 			if (!e) var e = window.event
@@ -189,8 +180,8 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 					pTaskElement.removeChild(taskElement);
 					pTaskElement.appendChild(newSpanNode);
 					//AJAX REQUEST
-					var dataToSave = WIKIDOT.modules.SimpleToDoModule.utils.getDataToSerialize(pTaskElement,myDocument);
-					WIKIDOT.modules.SimpleToDoModule.callbacks.save(dataToSave);
+					var dataToSave = Wikijump.modules.SimpleToDoModule.utils.getDataToSerialize(pTaskElement,myDocument);
+					Wikijump.modules.SimpleToDoModule.callbacks.save(dataToSave);
 				} else {
 
 					if (taskElement.value != ""){
@@ -212,7 +203,7 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 	},
 
 	clickToRemoveTask: function(e){
-		if (WIKIDOT.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
+		if (Wikijump.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
 			var myDocument = document ;
 			var taskElement ;
 			if (!e) var e = window.event
@@ -220,17 +211,17 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 			else if (e.srcElement) taskElement = e.srcElement
 			if (taskElement.nodeType == 3)
 			taskElement = taskElement.parentNode;
-			var itemToRemove = WIKIDOT.modules.SimpleToDoModule.utils.getDirectParentNodeByName("div",taskElement) ;
+			var itemToRemove = Wikijump.modules.SimpleToDoModule.utils.getDirectParentNodeByName("div",taskElement) ;
 			var parentElement =itemToRemove.parentNode ;
 			parentElement.removeChild(itemToRemove);
 			//AJAX REQUEST
-			var dataToSave = WIKIDOT.modules.SimpleToDoModule.utils.getDataToSerialize(parentElement,myDocument);
-			WIKIDOT.modules.SimpleToDoModule.callbacks.save(dataToSave);
+			var dataToSave = Wikijump.modules.SimpleToDoModule.utils.getDataToSerialize(parentElement,myDocument);
+			Wikijump.modules.SimpleToDoModule.callbacks.save(dataToSave);
 		}
 	},
 
 	clickToAddTask : function(e,parentId){
-		if (WIKIDOT.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
+		if (Wikijump.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
 			var myDocument = document ;
 			var taskElement ;
 			if (!e) var e = window.event
@@ -238,17 +229,17 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 			else if (e.srcElement) taskElement = e.srcElement
 			if (taskElement.nodeType == 3)
 			taskElement = taskElement.parentNode;
-			var itemToAdd = WIKIDOT.modules.SimpleToDoModule.utils.createToDoItem(myDocument);
+			var itemToAdd = Wikijump.modules.SimpleToDoModule.utils.createToDoItem(myDocument);
 			YAHOO.util.Dom.generateId(itemToAdd,"simpletodo-task");
 			var topElement = myDocument.getElementById(parentId.toString());
 			var parentElement = YAHOO.util.Dom.getElementsByClassName("simpletodo-sub-box","div",topElement);
 			parentElement[0].appendChild(itemToAdd);
-			new WIKIDOT.modules.SimpleToDoModule.DD.DDList(itemToAdd.id.toString());
+			new Wikijump.modules.SimpleToDoModule.DD.DDList(itemToAdd.id.toString());
 		}
 	},
 
 	onKeyPressSaveTask: function(e){
-		if (WIKIDOT.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
+		if (Wikijump.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
 			if (e.keyCode == 13){
 				var myDocument = document ;
 				var taskElement ;
@@ -277,8 +268,8 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 						pTaskElement.removeChild(taskElement);
 						pTaskElement.appendChild(newSpanNode);
 						//AJAX REQUEST
-						var dataToSave = WIKIDOT.modules.SimpleToDoModule.utils.getDataToSerialize(pTaskElement,myDocument);
-						WIKIDOT.modules.SimpleToDoModule.callbacks.save(dataToSave);
+						var dataToSave = Wikijump.modules.SimpleToDoModule.utils.getDataToSerialize(pTaskElement,myDocument);
+						Wikijump.modules.SimpleToDoModule.callbacks.save(dataToSave);
 					} else {
 
 						if (taskElement.value != ""){
@@ -301,7 +292,7 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 	},
 
 	onKeyPressSaveTitle: function(e){
-		if (WIKIDOT.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
+		if (Wikijump.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
 			if (e.keyCode == 13){
 				var myDocument = document ;
 				var titleElement ;
@@ -310,8 +301,8 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 				else if (e.srcElement) titleElement = e.srcElement
 				if (titleElement.nodeType == 3)
 				titleElement = titleElement.parentNode;
-				YAHOO.util.Event.removeListener(titleElement.parentNode,"blur",WIKIDOT.modules.SimpleToDoModule.listeners.onblurSaveTitle);
-				YAHOO.util.Event.addListener(titleElement.parentNode,"click",WIKIDOT.modules.SimpleToDoModule.listeners.clickTitleToEdit);
+				YAHOO.util.Event.removeListener(titleElement.parentNode,"blur",Wikijump.modules.SimpleToDoModule.listeners.onblurSaveTitle);
+				YAHOO.util.Event.addListener(titleElement.parentNode,"click",Wikijump.modules.SimpleToDoModule.listeners.clickTitleToEdit);
 				if (titleElement.nodeName == "INPUT"){
 					titleElement.value = titleElement.value.replace(/^\s+/,'');
 					titleElement.value = titleElement.value.replace(/\s+$/,'');
@@ -331,8 +322,8 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 						pTitleElement.removeChild(titleElement);
 						pTitleElement.appendChild(newTextNode);
 						//AJAX REQUEST
-						var dataToSave = WIKIDOT.modules.SimpleToDoModule.utils.getDataToSerialize(pTitleElement,myDocument);
-						WIKIDOT.modules.SimpleToDoModule.callbacks.save(dataToSave);
+						var dataToSave = Wikijump.modules.SimpleToDoModule.utils.getDataToSerialize(pTitleElement,myDocument);
+						Wikijump.modules.SimpleToDoModule.callbacks.save(dataToSave);
 
 					} else {
 
@@ -355,7 +346,7 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 	},
 
 	clickToEditLink: function (e){
-		if (WIKIDOT.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
+		if (Wikijump.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
 			var myDocument = document ;
 			var linkEl ;
 			if (!e) var e = window.event
@@ -366,7 +357,7 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 			//tu bede sprawdzal czy link byl wczesniej ustawiony na jakas konkretna wartosc a jezeli tak
 			//to przy edycji bedzie ta wartosc  pojawiac sie w inpucie
 			var parentElement = linkEl.parentNode.parentNode ; //to ma byc task i jest :-)
-			var linkElement = WIKIDOT.modules.SimpleToDoModule.utils.createLinkField(myDocument) ; //tu juz dodawalem event :-)
+			var linkElement = Wikijump.modules.SimpleToDoModule.utils.createLinkField(myDocument) ; //tu juz dodawalem event :-)
 			var linkToFollow = parentElement.getElementsByTagName("a");
 			var linkElementSpans = linkElement.getElementsByTagName("span");
 			if (linkToFollow[0].href.match(/^http/)){	//bo teaz sa 4 elemeny a
@@ -409,7 +400,7 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 	},
 
 	onblurSaveLink: function (e){
-		if (WIKIDOT.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
+		if (Wikijump.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
 			var myDocument = document ;
 			var linkEl ;
 			if (!e) var e = window.event
@@ -417,8 +408,8 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 			else if (e.srcElement) linkEl = e.srcElement
 			if (linkEl.nodeType == 3)
 			linkEl = linkEl.parentNode;
-			var linkBox = WIKIDOT.modules.SimpleToDoModule.utils.getDirectParentNodeByName("div",linkEl) ;
-			var taskBox = WIKIDOT.modules.SimpleToDoModule.utils.getDirectParentNodeByName("div",linkBox) ;
+			var linkBox = Wikijump.modules.SimpleToDoModule.utils.getDirectParentNodeByName("div",linkEl) ;
+			var taskBox = Wikijump.modules.SimpleToDoModule.utils.getDirectParentNodeByName("div",linkBox) ;
 			var linkBoxSpans = linkBox.getElementsByTagName("span")	;
 			var taskBoxSpans = YAHOO.util.Dom.getElementsByClassName("follow-link","span",taskBox);
 			var taskBoxAnchors = taskBoxSpans[0].getElementsByTagName("a");
@@ -435,13 +426,13 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 			taskBox.removeChild(linkBox);
 			YAHOO.util.DragDropMgr.unlock();
 			//AJAX REQUEST
-			var dataToSave = WIKIDOT.modules.SimpleToDoModule.utils.getDataToSerialize(taskBox,myDocument);
-			WIKIDOT.modules.SimpleToDoModule.callbacks.save(dataToSave);
+			var dataToSave = Wikijump.modules.SimpleToDoModule.utils.getDataToSerialize(taskBox,myDocument);
+			Wikijump.modules.SimpleToDoModule.callbacks.save(dataToSave);
 		}
 	},
 
 	onKeyPressSaveLink: function (e){
-		if (WIKIDOT.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
+		if (Wikijump.modules.SimpleToDoModule.utils.editPermission.innerHTML == "true"){
 			if (e.keyCode == 13){
 				var myDocument = document ;
 				var linkEl ;
@@ -450,8 +441,8 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 				else if (e.srcElement) linkEl = e.srcElement
 				if (linkEl.nodeType == 3)
 				linkEl = linkEl.parentNode;
-				var linkBox = WIKIDOT.modules.SimpleToDoModule.utils.getDirectParentNodeByName("div",linkEl) ;
-				var taskBox = WIKIDOT.modules.SimpleToDoModule.utils.getDirectParentNodeByName("div",linkBox) ;
+				var linkBox = Wikijump.modules.SimpleToDoModule.utils.getDirectParentNodeByName("div",linkEl) ;
+				var taskBox = Wikijump.modules.SimpleToDoModule.utils.getDirectParentNodeByName("div",linkBox) ;
 				var linkBoxSpans = linkBox.getElementsByTagName("span")	;
 				var taskBoxSpans = YAHOO.util.Dom.getElementsByClassName("follow-link","span",taskBox);
 				var taskBoxAnchors = taskBoxSpans[0].getElementsByTagName("a");
@@ -468,8 +459,8 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
 				taskBox.removeChild(linkBox);
 				YAHOO.util.DragDropMgr.unlock();
 				//AJAX REQUEST
-				var dataToSave = WIKIDOT.modules.SimpleToDoModule.utils.getDataToSerialize(taskBox,myDocument);
-				WIKIDOT.modules.SimpleToDoModule.callbacks.save(dataToSave);
+				var dataToSave = Wikijump.modules.SimpleToDoModule.utils.getDataToSerialize(taskBox,myDocument);
+				Wikijump.modules.SimpleToDoModule.callbacks.save(dataToSave);
 			}
 
 		}
@@ -492,7 +483,7 @@ WIKIDOT.modules.SimpleToDoModule.listeners = {
  *
  *
  */
- WIKIDOT.modules.SimpleToDoModule.DD = {};
+ Wikijump.modules.SimpleToDoModule.DD = {};
 
 OZONE.dom.onDomReady(function(){
 
@@ -522,29 +513,29 @@ OZONE.dom.onDomReady(function(){
  *
  */
 (function(){  //Init
-	WIKIDOT.modules.SimpleToDoModule.utils.editPermission = document.getElementById("simpletodo-data-edit-permission");
+	Wikijump.modules.SimpleToDoModule.utils.editPermission = document.getElementById("simpletodo-data-edit-permission");
 	var arrayOfLists = YAHOO.util.Dom.getElementsByClassName("simpletodo-box");
 	var arrayOfItems ;
 	var t ;
 	for (var i=0; i < arrayOfLists.length; i++){
 		t = YAHOO.util.Dom.getElementsByClassName("title",null,arrayOfLists[i]);
-		YAHOO.util.Event.addListener(t[0],"click",WIKIDOT.modules.SimpleToDoModule.listeners.clickTitleToEdit);
+		YAHOO.util.Event.addListener(t[0],"click",Wikijump.modules.SimpleToDoModule.listeners.clickTitleToEdit);
 		arrayOfItems = YAHOO.util.Dom.getElementsByClassName("task","div",arrayOfLists[i]) ;
 		YAHOO.util.Dom.generateId(arrayOfItems,"simpletodo-task");
 		for (var j=0; j < arrayOfItems.length; j++){
 			var checkBox = YAHOO.util.Dom.getElementsByClassName("checkbox","input",arrayOfItems[j]) ;
 			var text = arrayOfItems[j].getElementsByTagName("span");
 			var anchor = arrayOfItems[j].getElementsByTagName("a");
-			YAHOO.util.Event.addListener(checkBox[0],"click",WIKIDOT.modules.SimpleToDoModule.listeners.clickCheckBoxToChangeState);
-			YAHOO.util.Event.addListener(text[1],"click",WIKIDOT.modules.SimpleToDoModule.listeners.clickToEditTask);
-			YAHOO.util.Event.addListener(anchor[2],"click",WIKIDOT.modules.SimpleToDoModule.listeners.clickToRemoveTask);
-			YAHOO.util.Event.addListener(anchor[1],"click",WIKIDOT.modules.SimpleToDoModule.listeners.clickToEditLink);
+			YAHOO.util.Event.addListener(checkBox[0],"click",Wikijump.modules.SimpleToDoModule.listeners.clickCheckBoxToChangeState);
+			YAHOO.util.Event.addListener(text[1],"click",Wikijump.modules.SimpleToDoModule.listeners.clickToEditTask);
+			YAHOO.util.Event.addListener(anchor[2],"click",Wikijump.modules.SimpleToDoModule.listeners.clickToRemoveTask);
+			YAHOO.util.Event.addListener(anchor[1],"click",Wikijump.modules.SimpleToDoModule.listeners.clickToEditLink);
 
 		}
 
 	}
-	WIKIDOT.modules.SimpleToDoModule.utils.ieHoverFix("simpletodo-sub-box");
-	if (WIKIDOT.modules.SimpleToDoModule.utils.editPermission.innerHTML == "false") {
+	Wikijump.modules.SimpleToDoModule.utils.ieHoverFix("simpletodo-sub-box");
+	if (Wikijump.modules.SimpleToDoModule.utils.editPermission.innerHTML == "false") {
 		YAHOO.util.DragDropMgr.lock()
 	}
 }
@@ -562,7 +553,7 @@ var DDM = YAHOO.util.DragDropMgr;
 //////////////////////////////////////////////////////////////////////////////
 // example app
 //////////////////////////////////////////////////////////////////////////////
-WIKIDOT.modules.SimpleToDoModule.DD.DDApp = {
+Wikijump.modules.SimpleToDoModule.DD.DDApp = {
     init: function() {
 		var arrayOfLists = YAHOO.util.Dom.getElementsByClassName("simpletodo-sub-box");
         var i,j;
@@ -571,7 +562,7 @@ WIKIDOT.modules.SimpleToDoModule.DD.DDApp = {
             new YAHOO.util.DDTarget(""+arrayOfLists[i].id);
        		var items = YAHOO.util.Dom.getElementsByClassName("task","div",arrayOfLists[i]);
             for (j=0; j < items.length; j++){
-            	new WIKIDOT.modules.SimpleToDoModule.DD.DDList(""+items[j].id);
+            	new Wikijump.modules.SimpleToDoModule.DD.DDList(""+items[j].id);
             }
 
         }
@@ -583,9 +574,9 @@ WIKIDOT.modules.SimpleToDoModule.DD.DDApp = {
 // custom drag and drop implementation
 //////////////////////////////////////////////////////////////////////////////
 
-WIKIDOT.modules.SimpleToDoModule.DD.DDList = function(id, sGroup, config) {
+Wikijump.modules.SimpleToDoModule.DD.DDList = function(id, sGroup, config) {
 
-    WIKIDOT.modules.SimpleToDoModule.DD.DDList.superclass.constructor.call(this, id, sGroup, config);
+    Wikijump.modules.SimpleToDoModule.DD.DDList.superclass.constructor.call(this, id, sGroup, config);
     var el = this.getDragEl();
     Dom.setStyle(el, "opacity", 0.67); // The proxy is slightly transparent
     this.goingUp = false;
@@ -593,13 +584,13 @@ WIKIDOT.modules.SimpleToDoModule.DD.DDList = function(id, sGroup, config) {
 
 };
 
-YAHOO.extend(WIKIDOT.modules.SimpleToDoModule.DD.DDList, YAHOO.util.DDProxy, {
+YAHOO.extend(Wikijump.modules.SimpleToDoModule.DD.DDList, YAHOO.util.DDProxy, {
 
     startDrag: function(x, y) {
         var dragEl = this.getDragEl();
         var clickEl = this.getEl();
-        WIKIDOT.modules.SimpleToDoModule.utils.oldDragElement = clickEl ;
-   		WIKIDOT.modules.SimpleToDoModule.utils.oldDragElementList = WIKIDOT.modules.SimpleToDoModule.utils.getParentElementOfSpecifiedClass("task","div",clickEl,document);
+        Wikijump.modules.SimpleToDoModule.utils.oldDragElement = clickEl ;
+   		Wikijump.modules.SimpleToDoModule.utils.oldDragElementList = Wikijump.modules.SimpleToDoModule.utils.getParentElementOfSpecifiedClass("task","div",clickEl,document);
         var option = Dom.getElementsByClassName("options","span",clickEl);
         var followLink = Dom.getElementsByClassName("follow-link","span",clickEl);
         Dom.setStyle(clickEl, "visibility", "hidden");   //tu jest zaslaniany element z listy ktory zostaje tak na prawde w miejscu
@@ -630,10 +621,10 @@ YAHOO.extend(WIKIDOT.modules.SimpleToDoModule.DD.DDList, YAHOO.util.DDProxy, {
         var thisid = this.id;
         var option = Dom.getElementsByClassName("options","span",thisid);
         var followLink = Dom.getElementsByClassName("follow-link","span",thisid);
-        WIKIDOT.modules.SimpleToDoModule.utils.newDragElementList = WIKIDOT.modules.SimpleToDoModule.utils.getParentElementOfSpecifiedClass("task","div",srcEl,document);
-		if (WIKIDOT.modules.SimpleToDoModule.utils.newDragElementList.id != WIKIDOT.modules.SimpleToDoModule.utils.oldDragElementList.id ){
-			var dataToSave = WIKIDOT.modules.SimpleToDoModule.utils.getDataToSerialize(WIKIDOT.modules.SimpleToDoModule.utils.oldDragElementList,document);
-			WIKIDOT.modules.SimpleToDoModule.callbacks.save(dataToSave);
+        Wikijump.modules.SimpleToDoModule.utils.newDragElementList = Wikijump.modules.SimpleToDoModule.utils.getParentElementOfSpecifiedClass("task","div",srcEl,document);
+		if (Wikijump.modules.SimpleToDoModule.utils.newDragElementList.id != Wikijump.modules.SimpleToDoModule.utils.oldDragElementList.id ){
+			var dataToSave = Wikijump.modules.SimpleToDoModule.utils.getDataToSerialize(Wikijump.modules.SimpleToDoModule.utils.oldDragElementList,document);
+			Wikijump.modules.SimpleToDoModule.callbacks.save(dataToSave);
 		}
 
         // Hide the proxy and show the source element when finished with the animation
@@ -644,8 +635,8 @@ YAHOO.extend(WIKIDOT.modules.SimpleToDoModule.DD.DDList, YAHOO.util.DDProxy, {
                 Dom.setStyle(thisid, "visibility", "");
             });
         a.animate();
-        var dataToSave = WIKIDOT.modules.SimpleToDoModule.utils.getDataToSerialize(srcEl,document);
-		WIKIDOT.modules.SimpleToDoModule.callbacks.save(dataToSave);
+        var dataToSave = Wikijump.modules.SimpleToDoModule.utils.getDataToSerialize(srcEl,document);
+		Wikijump.modules.SimpleToDoModule.callbacks.save(dataToSave);
     },
 
     onDragDrop: function(e, id) {
@@ -710,12 +701,12 @@ YAHOO.extend(WIKIDOT.modules.SimpleToDoModule.DD.DDList, YAHOO.util.DDProxy, {
     }
 });
 
-Event.onDOMReady(WIKIDOT.modules.SimpleToDoModule.DD.DDApp.init, WIKIDOT.modules.SimpleToDoModule.DD.DDApp, true);
+Event.onDOMReady(Wikijump.modules.SimpleToDoModule.DD.DDApp.init, Wikijump.modules.SimpleToDoModule.DD.DDApp, true);
 })();
 
 }, "dummy-ondomready-block");
 
-WIKIDOT.modules.SimpleToDoModule.utils = {
+Wikijump.modules.SimpleToDoModule.utils = {
 	newDragElement: undefined ,
 
 	oldDragElement: undefined ,
@@ -786,7 +777,7 @@ WIKIDOT.modules.SimpleToDoModule.utils = {
 		YAHOO.util.Dom.addClass(newItemSpanElement1, "checkbox");
 		YAHOO.util.Dom.addClass(newItemSpanElement2_1, "text");
 		YAHOO.util.Dom.addClass(newItemSpanElement4,"follow-link");
-		YAHOO.util.Event.addListener(newItemAnchorElement,"click",WIKIDOT.modules.SimpleToDoModule.listeners.clickToRemoveTask);
+		YAHOO.util.Event.addListener(newItemAnchorElement,"click",Wikijump.modules.SimpleToDoModule.listeners.clickToRemoveTask);
 		//wrzucam spany dla anchorow wewnatrz nich
 		newItemAnchorElement.appendChild(newItemAnchorSpanElement);
 		newItemAnchorElement2.appendChild(newItemAnchorSpanElement2);
@@ -798,8 +789,8 @@ WIKIDOT.modules.SimpleToDoModule.utils = {
 		newItemAnchorElement2.href = "javascript:;";
 		newItemAnchorElement3.href = "javascript:;";
 		newItemCheckBoxElement.setAttribute("type","checkbox");
-		YAHOO.util.Event.addListener(newItemSpanElement2,"click",WIKIDOT.modules.SimpleToDoModule.listeners.clickToEditTask);
-		YAHOO.util.Event.addListener(newItemAnchorElement2,"click",WIKIDOT.modules.SimpleToDoModule.listeners.clickToEditLink);
+		YAHOO.util.Event.addListener(newItemSpanElement2,"click",Wikijump.modules.SimpleToDoModule.listeners.clickToEditTask);
+		YAHOO.util.Event.addListener(newItemAnchorElement2,"click",Wikijump.modules.SimpleToDoModule.listeners.clickToEditLink);
      	YAHOO.util.Event.addListener(newItemDivElement,"mouseover",function(e){YAHOO.util.Dom.addClass(this,"iehover");});
   		YAHOO.util.Event.addListener(newItemDivElement,"mouseout",function(e){YAHOO.util.Dom.removeClass(this,"iehover");});
 		//Starting to building element from scratch
@@ -839,8 +830,8 @@ WIKIDOT.modules.SimpleToDoModule.utils = {
 		YAHOO.util.Dom.addClass(newSpanElement3, "text");
 		YAHOO.util.Dom.addClass(newTextInputElement, "autocomplete-input"); //do auto podpowiedzi
 		YAHOO.util.Dom.addClass(newTextInputElement,"text");
-		YAHOO.util.Event.addListener(newTextInputElement,"blur",WIKIDOT.modules.SimpleToDoModule.listeners.onblurSaveLink);
-		YAHOO.util.Event.addListener(newTextInputElement,"keypress",WIKIDOT.modules.SimpleToDoModule.listeners.onKeyPressSaveLink);
+		YAHOO.util.Event.addListener(newTextInputElement,"blur",Wikijump.modules.SimpleToDoModule.listeners.onblurSaveLink);
+		YAHOO.util.Event.addListener(newTextInputElement,"keypress",Wikijump.modules.SimpleToDoModule.listeners.onKeyPressSaveLink);
 		newSpanElement2.appendChild(newTextInputElement);
 		newSpanElement2.appendChild(newAutoCompleteDivElement);
 		newItemDivElement.appendChild(newSpanElement1);
@@ -866,7 +857,7 @@ WIKIDOT.modules.SimpleToDoModule.utils = {
 					var spans = tasks[i].getElementsByTagName("span");
 					var _text = spans[1].firstChild.innerHTML ;
 					var _link = spans[3].firstChild.href ;
-					var _checked = WIKIDOT.modules.SimpleToDoModule.utils.getCheckBoxValue(spans[0].firstChild) ; //tu trzeba funkji ktora to sprawdzi :-)
+					var _checked = Wikijump.modules.SimpleToDoModule.utils.getCheckBoxValue(spans[0].firstChild) ; //tu trzeba funkji ktora to sprawdzi :-)
 					if(_link != "javascript:;" && _link != ''){
 						_data[i] = {text: _text, link: _link, checked:_checked};
 					} else {

@@ -1,5 +1,5 @@
 <?php
-namespace Wikidot\Util;
+namespace Wikijump\Util;
 
 use InvalidArgumentException;
 

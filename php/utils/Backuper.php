@@ -28,7 +28,7 @@ class Backuper
 
         // prepare working directory
 
-        $wdir = WIKIDOT_ROOT.'/tmp/sitebackups/'.$site->getUnixName().'/work';
+        $wdir = WIKIJUMP_ROOT.'/tmp/sitebackups/'.$site->getUnixName().'/work';
         @exec('rm -r '.$wdir.' &> /dev/null');
         mkdirfull($wdir);
 
@@ -67,7 +67,7 @@ class Backuper
                 }
             }   */
 
-            $path0 = WIKIDOT_ROOT.'/web/files--sites/'.$site->getUnixName().'/files/';
+            $path0 = WIKIJUMP_ROOT.'/web/files--sites/'.$site->getUnixName().'/files/';
             $cmd = "cp -r ".$path0.'*'.' '.$wdir.'/files/'.' &> /dev/null';
 
             @exec($cmd);
@@ -87,9 +87,9 @@ class Backuper
             throw new ProcessException("Error creating backup.");
         }
         // dest dir
-        @exec('rm -r '.WIKIDOT_ROOT.'/web/files--sites/'.$site->getUnixName().'/backup/'.' &> /dev/null');
+        @exec('rm -r '.WIKIJUMP_ROOT.'/web/files--sites/'.$site->getUnixName().'/backup/'.' &> /dev/null');
         $rand = md5(rand(10000, 99999).time());
-        $ddir = WIKIDOT_ROOT.'/web/files--sites/'.$site->getUnixName().'/backup/'.$rand.'/';
+        $ddir = WIKIJUMP_ROOT.'/web/files--sites/'.$site->getUnixName().'/backup/'.$rand.'/';
         mkdirfull($ddir);
 
         copy($zipfile, $ddir.'backup.zip');

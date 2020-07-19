@@ -182,8 +182,8 @@ class Duplicator
         }
 
         /* Copy ALL files from the filesystem. */
-        $srcDir = WIKIDOT_ROOT."/web/files--sites/".$site->getUnixName();
-        $destDir = WIKIDOT_ROOT."/web/files--sites/".$nsite->getUnixName();
+        $srcDir = WIKIJUMP_ROOT."/web/files--sites/".$site->getUnixName();
+        $destDir = WIKIJUMP_ROOT."/web/files--sites/".$nsite->getUnixName();
 
         $cmd = 'cp -r '. escapeshellarg($srcDir) . ' ' . escapeshellarg($destDir);
         exec($cmd);

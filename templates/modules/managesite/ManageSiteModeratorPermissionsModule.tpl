@@ -35,6 +35,6 @@
 </form>
 
 <div class="buttons">
-	<input type="button" value="close" onclick="WIKIDOT.modules.ManageSiteModeratorsModule.listeners.cancelPermissions(event, {$moderator->getModeratorId()})"/>
-	<input type="button" value="save" onclick="WIKIDOT.modules.ManageSiteModeratorsModule.listeners.savePermissions(event, {$moderator->getModeratorId()})"/>
+	<input type="button" value="close" onclick="Wikijump.modules.ManageSiteModeratorsModule.listeners.cancelPermissions(event, {$moderator->getModeratorId()})"/>
+	<input type="button" value="save" onclick="Wikijump.modules.ManageSiteModeratorsModule.listeners.savePermissions(event, {$moderator->getModeratorId()})"/>
 </div>

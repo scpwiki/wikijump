@@ -39,7 +39,7 @@
 						{$category->getName()|escape}
 					</td>
 					<td>
-						<select id="cat235-{$category->getCategoryId()}-e" onchange="WIKIDOT.modules.ManageSitePageRateSettingsModule.utils.updateVis({$category->getCategoryId()})">
+						<select id="cat235-{$category->getCategoryId()}-e" onchange="Wikijump.modules.ManageSitePageRateSettingsModule.utils.updateVis({$category->getCategoryId()})">
 							{if $category->getName() != '_default'}
 								<option value="default"  {if $category->getRatingEnabled() === null}selected="selected"{/if}>{t}default{/t}</option>
 							{/if}
@@ -75,7 +75,7 @@
 	</div>
 
 	<div class="buttons">
-		<input type="button" value="{t}cancel{/t}" onclick="WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-welcome')"/>
-		<input type="button" value="{t}save{/t}" onclick="WIKIDOT.modules.ManageSitePageRateSettingsModule.listeners.save(event)"/>
+		<input type="button" value="{t}cancel{/t}" onclick="Wikijump.modules.ManagerSiteModule.utils.loadModule('sm-welcome')"/>
+		<input type="button" value="{t}save{/t}" onclick="Wikijump.modules.ManageSitePageRateSettingsModule.listeners.save(event)"/>
 	</div>
 </form>

@@ -13,7 +13,7 @@ class PetitionAction extends SmartyAction
     public function signEvent($runData)
     {
 
-        require(WIKIDOT_ROOT.'/php/unclassified/country_codes.php');
+        require(WIKIJUMP_ROOT.'/php/unclassified/country_codes.php');
 
         $site = $runData->getTemp("site");
         $pl = $runData->getParameterList();

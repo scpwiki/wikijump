@@ -12,7 +12,7 @@ class KarmaCalculator
     public function __construct()
     {
         /* Init rules. */
-        $rulesPath  = WIKIDOT_ROOT.'/php/utils/karmarules/';
+        $rulesPath  = WIKIJUMP_ROOT.'/php/utils/karmarules/';
         $files = ls($rulesPath, '*.php');
         foreach ($files as $f) {
             require_once($rulesPath.'/'.$f);

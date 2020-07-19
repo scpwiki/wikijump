@@ -49,12 +49,12 @@
 
 		<div style="margin-top: 10px">
 		<div style="float:right">
-			<a  href="javascript:;" 	onclick="WIKIDOT.modules.UserInfoWinModule.listeners.flagUser(event, {$user->getUserId()})">{t}flag user as abusive{/t}</a>
+			<a  href="javascript:;" 	onclick="Wikijump.modules.UserInfoWinModule.listeners.flagUser(event, {$user->getUserId()})">{t}flag user as abusive{/t}</a>
 			<span id="user-abuse-report-button">[?]</span>
 		</div>
 		<a href="{$HTTP_SCHEMA}://{$URL_HOST}/user:info/{$user->getUnixName()}">{t}profile page{/t}</a>
 		| <a href="{$HTTP_SCHEMA}://{$URL_HOST}/account:you/start/messages/composeto/{$user->getUserId()}">{t}write private message{/t}</a>
-		| <a href="javascript:;" onclick="WIKIDOT.modules.UserInfoWinModule.listeners.addContact(event,{$user->getUserId()})">{t}to contacts{/t}</a>
+		| <a href="javascript:;" onclick="Wikijump.modules.UserInfoWinModule.listeners.addContact(event,{$user->getUserId()})">{t}to contacts{/t}</a>
 		</div>
 	</div>
 	<div class="button-bar">

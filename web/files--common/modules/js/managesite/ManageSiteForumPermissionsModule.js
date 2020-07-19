@@ -1,19 +1,10 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.ManageSiteForumPermissionsModule = {};
 
-WIKIDOT.modules.ManageSiteForumPermissionsModule.vars = {
+Wikijump.modules.ManageSiteForumPermissionsModule = {};
+
+Wikijump.modules.ManageSiteForumPermissionsModule.vars = {
 	users: ['a', // anonymous
-			 'r', // registered at wikidot
+			 'r', // registered at Wikijump
 			 'm', // member of the site
 			 'o'	  // author of the post
 			 ],
@@ -24,7 +15,7 @@ WIKIDOT.modules.ManageSiteForumPermissionsModule.vars = {
 				   ]
 }
 
-WIKIDOT.modules.ManageSiteForumPermissionsModule.listeners = {
+Wikijump.modules.ManageSiteForumPermissionsModule.listeners = {
 	categoryChange: function(e){
 		// update permissions info
 		var categoryId = $("sm-perms-cats").value;
@@ -33,14 +24,14 @@ WIKIDOT.modules.ManageSiteForumPermissionsModule.listeners = {
 			// default permissions
 			$("sm-perms-noind").style.display = "none";
 			$("sm-perms-table").style.display = "";
-			pstring = WIKIDOT.modules.ManageSiteForumPermissionsModule.vars.defaultPermissions;
+			pstring = Wikijump.modules.ManageSiteForumPermissionsModule.vars.defaultPermissions;
 		} else {
 			$("sm-perms-noind").style.display = "block";
-			var category = WIKIDOT.modules.ManagerSiteModule.utils.getCategoryById(categoryId);
+			var category = Wikijump.modules.ManagerSiteModule.utils.getCategoryById(categoryId);
 			if(category['permissions'] == null){
 				$("sm-perms-noin").checked=true;
 				$("sm-perms-table").style.display = "none";
-				pstring = WIKIDOT.modules.ManageSiteForumPermissionsModule.vars.defaultPermissions;
+				pstring = Wikijump.modules.ManageSiteForumPermissionsModule.vars.defaultPermissions;
 			} else {
 				$("sm-perms-noin").checked=false;
 				$("sm-perms-table").style.display = "block";
@@ -49,9 +40,9 @@ WIKIDOT.modules.ManageSiteForumPermissionsModule.listeners = {
 
 		}
 
-		WIKIDOT.modules.ManageSiteForumPermissionsModule.utils.decodePermissions(pstring);
+		Wikijump.modules.ManageSiteForumPermissionsModule.utils.decodePermissions(pstring);
 		return;
-		WIKIDOT.modules.ManageSitePermissionsModule.utils.updateThemePreview();
+		Wikijump.modules.ManageSitePermissionsModule.utils.updateThemePreview();
 
 	}	,
 
@@ -59,14 +50,14 @@ WIKIDOT.modules.ManageSiteForumPermissionsModule.listeners = {
 		var categoryId = $("sm-perms-cats").value;
 		if(categoryId == "") return; // should not be
 
-		var category = WIKIDOT.modules.ManagerSiteModule.utils.getCategoryById(categoryId);
+		var category = Wikijump.modules.ManagerSiteModule.utils.getCategoryById(categoryId);
 
 		if($("sm-perms-noin").checked == true){
 			$("sm-perms-table").style.display = "none";
 			category['permissions'] = null;
 		}else{
 			$("sm-perms-table").style.display = "";
-			category['permissions'] = WIKIDOT.modules.ManageSiteForumPermissionsModule.vars.defaultPermissions;
+			category['permissions'] = Wikijump.modules.ManageSiteForumPermissionsModule.vars.defaultPermissions;
 		}
 	},
 
@@ -74,47 +65,47 @@ WIKIDOT.modules.ManageSiteForumPermissionsModule.listeners = {
 
 		// fix permissions first (difficult?)
 		var target = YAHOO.util.Event.getTarget(e);
-		 WIKIDOT.modules.ManageSiteForumPermissionsModule.utils.fixPermissions(target.id);
+		 Wikijump.modules.ManageSiteForumPermissionsModule.utils.fixPermissions(target.id);
 		// encode permissions and save
-		var pstring = WIKIDOT.modules.ManageSiteForumPermissionsModule.utils.encodePermissions();
+		var pstring = Wikijump.modules.ManageSiteForumPermissionsModule.utils.encodePermissions();
 		// save changes to the array
 		var categoryId = $("sm-perms-cats").value;
 		if(categoryId == ''){
-			WIKIDOT.modules.ManageSiteForumPermissionsModule.vars.defaultPermissions = pstring;
+			Wikijump.modules.ManageSiteForumPermissionsModule.vars.defaultPermissions = pstring;
 		} else {
-			var category = WIKIDOT.modules.ManagerSiteModule.utils.getCategoryById(categoryId);
+			var category = Wikijump.modules.ManagerSiteModule.utils.getCategoryById(categoryId);
 			category['permissions'] = pstring;
 		}
 
 	},
 	cancel: function(e){
-		WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-welcome');
+		Wikijump.modules.ManagerSiteModule.utils.loadModule('sm-welcome');
 	},
 
 	save: function(e){
 		// ok, do it the easy way: serialize categories using the JSON method
-		var categories = WIKIDOT.modules.ManagerSiteModule.vars.categories;
+		var categories = Wikijump.modules.ManagerSiteModule.vars.categories;
 		var serialized = JSON.stringify(categories);
 		var parms = new Object();
 		parms['categories'] = serialized;
-		parms['default_permissions'] = WIKIDOT.modules.ManageSiteForumPermissionsModule.vars.defaultPermissions;
+		parms['default_permissions'] = Wikijump.modules.ManageSiteForumPermissionsModule.vars.defaultPermissions;
 		parms['action'] = "ManageSiteForumAction";
 		parms['event'] = "saveForumPermissions";
-		OZONE.ajax.requestModule("Empty", parms, WIKIDOT.modules.ManageSiteForumPermissionsModule.callbacks.save);
+		OZONE.ajax.requestModule("Empty", parms, Wikijump.modules.ManageSiteForumPermissionsModule.callbacks.save);
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Saving permissions...";
 		w.show();
 	}
 }
 
-WIKIDOT.modules.ManageSiteForumPermissionsModule.callbacks = {
+Wikijump.modules.ManageSiteForumPermissionsModule.callbacks = {
 	cancel: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		OZONE.utils.setInnerHTMLContent("site-manager", r.body);
 	},
 
 	save: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Permissions have been saved.";
@@ -122,13 +113,13 @@ WIKIDOT.modules.ManageSiteForumPermissionsModule.callbacks = {
 	}
 }
 
-WIKIDOT.modules.ManageSiteForumPermissionsModule.utils = {
+Wikijump.modules.ManageSiteForumPermissionsModule.utils = {
 	encodePermissions: function(){
 		var farray = OZONE.utils.formToArray("sm-perms-form");
 
 		// now traverse the form...
-		var users = WIKIDOT.modules.ManageSiteForumPermissionsModule.vars.users;
-		var permissions =  WIKIDOT.modules.ManageSiteForumPermissionsModule.vars.permissions;
+		var users = Wikijump.modules.ManageSiteForumPermissionsModule.vars.users;
+		var permissions =  Wikijump.modules.ManageSiteForumPermissionsModule.vars.permissions;
 		var i,j;
 		var out=''; // output
 		var tag;
@@ -157,8 +148,8 @@ WIKIDOT.modules.ManageSiteForumPermissionsModule.utils = {
 
 		var form = document.getElementById("sm-perms-form");
 		// clear the table
-		var users = WIKIDOT.modules.ManageSiteForumPermissionsModule.vars.users;
-		var permissions =  WIKIDOT.modules.ManageSiteForumPermissionsModule.vars.permissions;
+		var users = Wikijump.modules.ManageSiteForumPermissionsModule.vars.users;
+		var permissions =  Wikijump.modules.ManageSiteForumPermissionsModule.vars.permissions;
 		var i,j;
 		var out='';
 		for(i=0; i<permissions.length; i++){
@@ -240,14 +231,14 @@ WIKIDOT.modules.ManageSiteForumPermissionsModule.utils = {
 	}
 }
 
-WIKIDOT.modules.ManageSiteForumPermissionsModule.init = function(){
-	YAHOO.util.Event.addListener("sm-perms-cats", "change", WIKIDOT.modules.ManageSiteForumPermissionsModule.listeners.categoryChange);
-	WIKIDOT.modules.ManageSiteForumPermissionsModule.vars.defaultPermissions = $("default-forum-permissions").value;
-	YAHOO.util.Event.addListener("sm-perms-noind", "click", WIKIDOT.modules.ManageSiteForumPermissionsModule.listeners.indClick);
-	YAHOO.util.Event.addListener("sm-perms-form", "click",  WIKIDOT.modules.ManageSiteForumPermissionsModule.listeners.permissionChange);
-	YAHOO.util.Event.addListener("sm-perms-cancel", "click", WIKIDOT.modules.ManageSiteForumPermissionsModule.listeners.cancel);
-	YAHOO.util.Event.addListener("sm-perms-save", "click", WIKIDOT.modules.ManageSiteForumPermissionsModule.listeners.save);
+Wikijump.modules.ManageSiteForumPermissionsModule.init = function(){
+	YAHOO.util.Event.addListener("sm-perms-cats", "change", Wikijump.modules.ManageSiteForumPermissionsModule.listeners.categoryChange);
+	Wikijump.modules.ManageSiteForumPermissionsModule.vars.defaultPermissions = $("default-forum-permissions").value;
+	YAHOO.util.Event.addListener("sm-perms-noind", "click", Wikijump.modules.ManageSiteForumPermissionsModule.listeners.indClick);
+	YAHOO.util.Event.addListener("sm-perms-form", "click",  Wikijump.modules.ManageSiteForumPermissionsModule.listeners.permissionChange);
+	YAHOO.util.Event.addListener("sm-perms-cancel", "click", Wikijump.modules.ManageSiteForumPermissionsModule.listeners.cancel);
+	YAHOO.util.Event.addListener("sm-perms-save", "click", Wikijump.modules.ManageSiteForumPermissionsModule.listeners.save);
 
-	WIKIDOT.modules.ManageSiteForumPermissionsModule.listeners.categoryChange(null);
+	Wikijump.modules.ManageSiteForumPermissionsModule.listeners.categoryChange(null);
 }
-WIKIDOT.modules.ManageSiteForumPermissionsModule.init();
+Wikijump.modules.ManageSiteForumPermissionsModule.init();

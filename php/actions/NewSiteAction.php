@@ -56,7 +56,7 @@ class NewSiteAction extends SmartyAction
 
             if (!$runData->getUser()->getSuperAdmin()) {
                 //  handle forbidden names
-                $forbiddenUnixNames = explode("\n", file_get_contents(WIKIDOT_ROOT.'/conf/forbidden_site_names.conf'));
+                $forbiddenUnixNames = explode("\n", file_get_contents(WIKIJUMP_ROOT.'/conf/forbidden_site_names.conf'));
                 foreach ($forbiddenUnixNames as $f) {
                     if (preg_match($f, $unixName) >0) {
                         $errors['unixname'] = _('For some reason this web address is not allowed or is reserved for future use.');
@@ -116,7 +116,7 @@ class NewSiteAction extends SmartyAction
 
         if ($private) {
             // change file flag too
-            $flagDir = WIKIDOT_ROOT.'/web/files--sites/'.$site->getUnixName().'/flags';
+            $flagDir = WIKIJUMP_ROOT.'/web/files--sites/'.$site->getUnixName().'/flags';
             $flagFile = $flagDir.'/private';
             mkdirfull($flagDir); //just to make sure
 

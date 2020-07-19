@@ -1,17 +1,8 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.ASInvitationsModule = {};
 
-WIKIDOT.modules.ASInvitationsModule.listeners = {
+Wikijump.modules.ASInvitationsModule = {};
+
+Wikijump.modules.ASInvitationsModule.listeners = {
 	save: function(e){
 		var val = $("receive-invitations-ch").checked;
 		var p = new Object();
@@ -20,16 +11,16 @@ WIKIDOT.modules.ASInvitationsModule.listeners = {
 		}
 		p.action = "AccountSettingsAction";
 		p.event = "saveReceiveInvitations";
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.ASInvitationsModule.callbacks.save);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.ASInvitationsModule.callbacks.save);
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Saving preferences...";
 		w.show();
 	}
 }
 
-WIKIDOT.modules.ASInvitationsModule.callbacks = {
+Wikijump.modules.ASInvitationsModule.callbacks = {
 	save: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Preferences saved."	;
 		w.show();

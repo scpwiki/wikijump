@@ -1,7 +1,7 @@
-<h1><a href="javascript:;" onclick="WIKIDOT.modules.AccountModule.utils.loadModule('am-profile')">{t}Your profile{/t}</a> / {t}Buddy icon{/t}</h1>
+<h1><a href="javascript:;" onclick="Wikijump.modules.AccountModule.utils.loadModule('am-profile')">{t}Your profile{/t}</a> / {t}Buddy icon{/t}</h1>
 
 <p>
-	{t}The buddy icon (also known as 'avatar') is a small image that represents you on this Wikidot installation.
+	{t}The buddy icon (also known as 'avatar') is a small image that represents you on this Wikijump installation.
 	To be more precise - the buddy icon appears near users' screen names wherever possible as you have probably
 	noticed.{/t}
 </p>
@@ -11,7 +11,7 @@
 	<table style="margin: 0 auto;"><tr>
 		<td><img src="{$avatarUri}" alt="" style="border: 1px solid #444;"/></td>
 		<td>
-			<input class="button" type="button" value="{t}delete{/t}?" onclick="WIKIDOT.modules.APAvatarModule.listeners.deleteAvatar(event)"/>
+			<input class="button" type="button" value="{t}delete{/t}?" onclick="Wikijump.modules.APAvatarModule.listeners.deleteAvatar(event)"/>
 		</td>
 	</tr></table>
 </p>
@@ -33,7 +33,7 @@
 <div id="file-upload-div"  style="display: none">
 	<form id="file-upload-form" enctype="multipart/form-data"
 		action="/default--flow/account__AvatarUploadTarget" target="_upload_iframe" method="POST"
-		onsubmit="WIKIDOT.modules.APAvatarModule.listeners.startUpload(event)"
+		onsubmit="Wikijump.modules.APAvatarModule.listeners.startUpload(event)"
 		>
 		<input type="hidden" name="action" value="AccountProfileAction"/>
 		<input type="hidden" name="event" value="uploadAvatar"/>
@@ -53,7 +53,7 @@
 		</table>
 
 		<div class="buttons">
-		   	<input class="button" type="button" value="{t}cancel{/t}" onclick="WIKIDOT.modules.APAvatarModule.listeners.reset(event)"/>
+		   	<input class="button" type="button" value="{t}cancel{/t}" onclick="Wikijump.modules.APAvatarModule.listeners.reset(event)"/>
 		   	<input class="button" type="submit" value="{t}upload file{/t}" />
 		</div>
 	</form>
@@ -75,8 +75,8 @@
 			</tr>
 		</table>
 		<div class="buttons">
-			<input class="button" type="button" value="{t}cancel{/t}" onclick="WIKIDOT.modules.APAvatarModule.listeners.reset(event)"/>
-			<input class="button" type="button" value="{t}get it{/t}" onclick="WIKIDOT.modules.APAvatarModule.listeners.uploadUri(event)"/>
+			<input class="button" type="button" value="{t}cancel{/t}" onclick="Wikijump.modules.APAvatarModule.listeners.reset(event)"/>
+			<input class="button" type="button" value="{t}get it{/t}" onclick="Wikijump.modules.APAvatarModule.listeners.uploadUri(event)"/>
 		</div>
 	</form>
 </div>
@@ -102,8 +102,8 @@
 	<p>
 		{t}Do you want to use this image as your buddy icon?{/t}
 		<div class="buttons">
-			<input type="button" value="{t}no, never mind{/t}" onclick="WIKIDOT.modules.APAvatarModule.listeners.reset(event)"/>
-			<input type="button" value="{t}use it!{/t}" onclick="WIKIDOT.modules.APAvatarModule.listeners.useIt(event)"/>
+			<input type="button" value="{t}no, never mind{/t}" onclick="Wikijump.modules.APAvatarModule.listeners.reset(event)"/>
+			<input type="button" value="{t}use it!{/t}" onclick="Wikijump.modules.APAvatarModule.listeners.useIt(event)"/>
 
 	</p>
 </div>

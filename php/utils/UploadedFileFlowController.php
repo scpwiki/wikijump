@@ -1,13 +1,6 @@
 <?php
 
-
- * @version $Id: UploadedFileFlowController.php,v 1.9 2008/08/28 12:01:29 redbeard Exp $
- * @copyright Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
- */
-
-
-class UploadedFileFlowController extends WikidotController
+class UploadedFileFlowController extends WikijumpController
 {
 
     /**
@@ -277,7 +270,7 @@ class UploadedFileFlowController extends WikidotController
                 }
             }
         } else {
-            /* NOT UPLOAD DOMAIN, so it's *.wikidot.com or a custom domain */
+            /* NOT UPLOAD DOMAIN, so it's *.wikijump.com or a custom domain */
 
             if ($this->publicArea($site, $file)) {
                 $url = $this->buildURL($site, GlobalProperties::$URL_UPLOAD_DOMAIN, $file);

@@ -52,9 +52,9 @@
 			</td>
 			<td>
 				{if $application->getStatus() == 'pending'}
-					<a href="javascript:;" onclick="WIKIDOT.modules.AccountApplicationsModule.listeners.remove(event, {$site->getSiteId()}, '{$site->getName()|escape}')">{t}remove application{/t}</a>
+					<a href="javascript:;" onclick="Wikijump.modules.AccountApplicationsModule.listeners.remove(event, {$site->getSiteId()}, '{$site->getName()|escape}')">{t}remove application{/t}</a>
 				{else}
-					<a href="javascript:;" onclick="WIKIDOT.modules.AccountApplicationsModule.listeners.remove2(event, {$site->getSiteId()}, '{$site->getName()|escape}')">{t}remove application{/t}</a>
+					<a href="javascript:;" onclick="Wikijump.modules.AccountApplicationsModule.listeners.remove2(event, {$site->getSiteId()}, '{$site->getName()|escape}')">{t}remove application{/t}</a>
 				{/if}
 			</td>
 		</tr>

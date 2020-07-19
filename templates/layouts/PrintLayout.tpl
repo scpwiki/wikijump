@@ -37,15 +37,15 @@
  		WIKIREQUEST.info.pageUnixName = "{$wikiPage->getUnixName()}";
  		WIKIREQUEST.info.pageId = {$wikiPage->getPageId()};
  		{/if}
-// 		window.onload = WikidotInit();
+// 		window.onload = WikijumpInit();
  	</script>
 
  	<meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
     <meta http-equiv="content-language" content="{$site->getLanguage()}"/>
 
 
- 	<script type="text/javascript" src="/common--javascript/WIKIDOT.js"></script>
- 	<script type="text/javascript" src="/common--javascript/WIKIDOT.page.js"></script>
+ 	<script type="text/javascript" src="/common--javascript/Wikijump.js"></script>
+ 	<script type="text/javascript" src="/common--javascript/Wikijump.page.js"></script>
 
  	<script type="text/javascript" src="/common--javascript/printview.js"></script>
 
@@ -72,12 +72,12 @@
 						{t}Base font size{/t}:
 					</td>
 					<td>
-						<a href="javascript:;" onclick="WIKIDOT.printview.listeners.changeFontSize(event, '6pt')">6pt</a>
-						| <a href="javascript:;" onclick="WIKIDOT.printview.listeners.changeFontSize(event, '8pt')">8pt</a>
-						| <a href="javascript:;" onclick="WIKIDOT.printview.listeners.changeFontSize(event, '10pt')">10pt</a>
-						| <a href="javascript:;" onclick="WIKIDOT.printview.listeners.changeFontSize(event, '12pt')">12pt</a>
-						| <a href="javascript:;" onclick="WIKIDOT.printview.listeners.changeFontSize(event, '14pt')">14pt</a>
-						| <a href="javascript:;" onclick="WIKIDOT.printview.listeners.changeFontSize(event, '16pt')">16pt</a>
+						<a href="javascript:;" onclick="Wikijump.printview.listeners.changeFontSize(event, '6pt')">6pt</a>
+						| <a href="javascript:;" onclick="Wikijump.printview.listeners.changeFontSize(event, '8pt')">8pt</a>
+						| <a href="javascript:;" onclick="Wikijump.printview.listeners.changeFontSize(event, '10pt')">10pt</a>
+						| <a href="javascript:;" onclick="Wikijump.printview.listeners.changeFontSize(event, '12pt')">12pt</a>
+						| <a href="javascript:;" onclick="Wikijump.printview.listeners.changeFontSize(event, '14pt')">14pt</a>
+						| <a href="javascript:;" onclick="Wikijump.printview.listeners.changeFontSize(event, '16pt')">16pt</a>
 					</td>
 				</tr>
 				<tr>
@@ -85,11 +85,11 @@
 						{t}Body font{/t}:
 					</td>
 					<td>
-						<a href="javascript:;" onclick="WIKIDOT.printview.listeners.changeFontFamily(event,'original')">{t}original{/t}</a>
-						| <a href="javascript:;" onclick="WIKIDOT.printview.listeners.changeFontFamily(event,'Georgia')">Georgia</a>
-						| <a href="javascript:;" onclick="WIKIDOT.printview.listeners.changeFontFamily(event,'roman')">Times New Roman</a>
-						| <a href="javascript:;" onclick="WIKIDOT.printview.listeners.changeFontFamily(event,'Serif')">Serif (generic)</a>
-						| <a href="javascript:;" onclick="WIKIDOT.printview.listeners.changeFontFamily(event,'Arial, Helvetica')">Arial/Helvetica</a>
+						<a href="javascript:;" onclick="Wikijump.printview.listeners.changeFontFamily(event,'original')">{t}original{/t}</a>
+						| <a href="javascript:;" onclick="Wikijump.printview.listeners.changeFontFamily(event,'Georgia')">Georgia</a>
+						| <a href="javascript:;" onclick="Wikijump.printview.listeners.changeFontFamily(event,'roman')">Times New Roman</a>
+						| <a href="javascript:;" onclick="Wikijump.printview.listeners.changeFontFamily(event,'Serif')">Serif (generic)</a>
+						| <a href="javascript:;" onclick="Wikijump.printview.listeners.changeFontFamily(event,'Arial, Helvetica')">Arial/Helvetica</a>
 					</td>
 				</tr>
 				<tr>
@@ -97,7 +97,7 @@
 						{t}Source info{/t}:
 					</td>
 					<td>
-						<a href="javascript:;" onclick="WIKIDOT.printview.listeners.toggleSourceInfo(event)">{t}toggle visibility{/t}</a>
+						<a href="javascript:;" onclick="Wikijump.printview.listeners.toggleSourceInfo(event)">{t}toggle visibility{/t}</a>
 					</td>
 				</tr>
 				<tr>
@@ -144,7 +144,7 @@
 		<hr/>
 
 		<div id="print-footer">
-			Part of {$SERVICE_NAME|escape} &#8212; Powered by Wikidot
+			Part of {$SERVICE_NAME|escape} &#8212; Powered by Wikijump
 		</div>
  	</div>
 

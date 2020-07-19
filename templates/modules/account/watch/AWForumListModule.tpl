@@ -1,5 +1,5 @@
 
-{pager jsfunction="WIKIDOT.modules.AWForumModule.listeners.updateList(event,#)" total=$pagerData.totalPages known=$pagerData.knownPages current=$pagerData.currentPage}
+{pager jsfunction="Wikijump.modules.AWForumModule.listeners.updateList(event,#)" total=$pagerData.totalPages known=$pagerData.knownPages current=$pagerData.currentPage}
 
 {loadmacro set="Forum"}
 

@@ -22,8 +22,8 @@
 		</tr>
 	</table>
 	<div class="buttons">
-		<input type="button" value="{t}cancel{/t}" onclick="WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-welcome')"/>
-		<input type="button" value="{t}save{/t}" onclick="WIKIDOT.modules.ManageSiteSecureAccessModule.listeners.save(event)"/>
+		<input type="button" value="{t}cancel{/t}" onclick="Wikijump.modules.ManagerSiteModule.utils.loadModule('sm-welcome')"/>
+		<input type="button" value="{t}save{/t}" onclick="Wikijump.modules.ManageSiteSecureAccessModule.listeners.save(event)"/>
 
 	</div>
 </form>

@@ -42,8 +42,8 @@
 	    		</tr>
 	    	</table>
 	    <div class="buttons">
-		    <input type="button" value="{t}cancel{/t}" onclick="WIKIDOT.modules.PageUploadModule.listeners.uploadCancel(event)"/>
-		    <input type="button" value="{t}upload file!{/t}" onclick="WIKIDOT.modules.PageUploadModule.listeners.checkFileExists(event)"/>
+		    <input type="button" value="{t}cancel{/t}" onclick="Wikijump.modules.PageUploadModule.listeners.uploadCancel(event)"/>
+		    <input type="button" value="{t}upload file!{/t}" onclick="Wikijump.modules.PageUploadModule.listeners.checkFileExists(event)"/>
 		</div>
     </div>
 </form>

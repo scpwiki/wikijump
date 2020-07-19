@@ -37,7 +37,7 @@
 
 		<div class="button-bar">
 			<a href="javascript:;" onclick="OZONE.dialog.cleanAll()">cancel</a>
-			<a href="javascript:;" onclick="WIKIDOT.modules.PasswordRecoveryModule.listeners.next1(event);">continue</a>
+			<a href="javascript:;" onclick="Wikijump.modules.PasswordRecoveryModule.listeners.next1(event);">continue</a>
 		</div>
 	</form>
 

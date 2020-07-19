@@ -21,8 +21,8 @@
     <meta http-equiv="content-language" content="en"/>
 
 
- 	<script type="text/javascript" src="/common--javascript/WIKIDOT.js"></script>
- 	<script type="text/javascript" src="/common--javascript/WIKIDOT.page.js"></script>
+ 	<script type="text/javascript" src="/common--javascript/Wikijump.js"></script>
+ 	<script type="text/javascript" src="/common--javascript/Wikijump.page.js"></script>
 
    	<style type="text/css">
        	@import url(/common--css/themes/simple/base.css);
@@ -42,7 +42,7 @@
 		</div>
 
  		<div id="footer" style="clear: both">
-			Powered by Wikidot.org
+			Powered by Wikijump
  		</div>
  	</div>
   </body>

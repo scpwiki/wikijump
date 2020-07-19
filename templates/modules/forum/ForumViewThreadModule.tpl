@@ -45,16 +45,16 @@
 	</div>
 
 	<div class="options">
-		<a href="javascript:;" onclick="WIKIDOT.modules.ForumViewThreadModule.listeners.unfoldAll(event)">{t}unfold all{/t}</a>
-		| <a href="javascript:;" onclick="WIKIDOT.modules.ForumViewThreadModule.listeners.foldAll(event)">{t}fold all{/t}</a>
-		| <a href="javascript:;" id="thread-toggle-options" onclick="WIKIDOT.modules.ForumViewThreadModule.listeners.toggleThreadOptions(event)"> +{t}more options{/t}</a>
+		<a href="javascript:;" onclick="Wikijump.modules.ForumViewThreadModule.listeners.unfoldAll(event)">{t}unfold all{/t}</a>
+		| <a href="javascript:;" onclick="Wikijump.modules.ForumViewThreadModule.listeners.foldAll(event)">{t}fold all{/t}</a>
+		| <a href="javascript:;" id="thread-toggle-options" onclick="Wikijump.modules.ForumViewThreadModule.listeners.toggleThreadOptions(event)"> +{t}more options{/t}</a>
 	</div>
 	<div id="thread-options-2" class="options" style="display: none">
-		{if !$wpage}<a href="javascript:;" onclick="WIKIDOT.modules.ForumViewThreadModule.listeners.editThreadMeta(event)">{t escape=no}edit title &amp; description{/t}</a>
-		| <a href="javascript:;" onclick="WIKIDOT.modules.ForumViewThreadModule.listeners.editThreadStickiness(event)">{t}stickness{/t}</a>
-		| {/if}<a href="javascript:;" onclick="WIKIDOT.modules.ForumViewThreadModule.listeners.editThreadBlock(event)">{t}posting block{/t}</a>
-		| <a href="javascript:;" onclick="WIKIDOT.modules.ForumViewThreadModule.listeners.moveThread(event)">{t}move thread{/t}</a>
-		| <a href="javascript:;" onclick="WIKIDOT.modules.ForumViewThreadModule.listeners.watchThread(event)">{t}add to watched{/t}</a>
+		{if !$wpage}<a href="javascript:;" onclick="Wikijump.modules.ForumViewThreadModule.listeners.editThreadMeta(event)">{t escape=no}edit title &amp; description{/t}</a>
+		| <a href="javascript:;" onclick="Wikijump.modules.ForumViewThreadModule.listeners.editThreadStickiness(event)">{t}stickness{/t}</a>
+		| {/if}<a href="javascript:;" onclick="Wikijump.modules.ForumViewThreadModule.listeners.editThreadBlock(event)">{t}posting block{/t}</a>
+		| <a href="javascript:;" onclick="Wikijump.modules.ForumViewThreadModule.listeners.moveThread(event)">{t}move thread{/t}</a>
+		| <a href="javascript:;" onclick="Wikijump.modules.ForumViewThreadModule.listeners.watchThread(event)">{t}add to watched{/t}</a>
 	</div>
 
 	<div id="thread-action-area" class="action-area" style="display: none"></div>
@@ -98,18 +98,18 @@
 	</div>
 
 	<div class="new-post">
-		<a href="javascript:;" id="new-post-button" onclick="WIKIDOT.modules.ForumViewThreadModule.listeners.newPost(event,null)">{t}new post{/t}</a>
+		<a href="javascript:;" id="new-post-button" onclick="Wikijump.modules.ForumViewThreadModule.listeners.newPost(event,null)">{t}new post{/t}</a>
 	</div>
 
 	<div style="display:none" id="post-options-template">
-			<a href="javascript:;" onclick="WIKIDOT.modules.ForumViewThreadModule.listeners.showPermalink(event,'%POST_ID%')">{t}permanent link{/t}</a> |
-			<a href="javascript:;" onclick="WIKIDOT.modules.ForumViewThreadModule.listeners.editPost(event,'%POST_ID%')">{t}edit{/t}</a> |
-			<a href="javascript:;" onclick="WIKIDOT.modules.ForumViewThreadModule.listeners.deletePost(event,'%POST_ID%')">{t}delete{/t}</a>
+			<a href="javascript:;" onclick="Wikijump.modules.ForumViewThreadModule.listeners.showPermalink(event,'%POST_ID%')">{t}permanent link{/t}</a> |
+			<a href="javascript:;" onclick="Wikijump.modules.ForumViewThreadModule.listeners.editPost(event,'%POST_ID%')">{t}edit{/t}</a> |
+			<a href="javascript:;" onclick="Wikijump.modules.ForumViewThreadModule.listeners.deletePost(event,'%POST_ID%')">{t}delete{/t}</a>
 	</div>
 
 	<div style="display:none" id="post-options-permalink-template">{$tUrl}#post-</div>
 </div>
 
 <script type="text/javascript">
-	WIKIDOT.forumThreadId = {$thread->getThreadId()};
+	Wikijump.forumThreadId = {$thread->getThreadId()};
 </script>

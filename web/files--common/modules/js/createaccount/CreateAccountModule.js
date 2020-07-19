@@ -1,43 +1,34 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.CreateAccountModule = {};
 
-WIKIDOT.modules.CreateAccountModule.vars = {};
+Wikijump.modules.CreateAccountModule = {};
 
-WIKIDOT.modules.CreateAccountModule.listeners = {
+Wikijump.modules.CreateAccountModule.vars = {};
+
+Wikijump.modules.CreateAccountModule.listeners = {
 	createClick: function(e){
-		OZONE.ajax.requestModule("createaccount/CreateAccount0Module", null,WIKIDOT.modules.CreateAccountModule.callbacks.createClick );
+		OZONE.ajax.requestModule("createaccount/CreateAccount0Module", null,Wikijump.modules.CreateAccountModule.callbacks.createClick );
 	},
 	cancel: function(e){
 		var p = new Object();
 		p.action = "CreateAccountAction";
 		p.event = "cancel";
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.CreateAccountModule.callbacks.cancel);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.CreateAccountModule.callbacks.cancel);
 	}
 }
 
-WIKIDOT.modules.CreateAccountModule.callbacks = {
+Wikijump.modules.CreateAccountModule.callbacks = {
 	createClick: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var w = new OZONE.dialogs.Dialog();
 		w.content = r.body;
 		w.show();
 
 		// store seed and key
-		WIKIDOT.modules.CreateAccountModule.vars.rsakey = r.key;
+		Wikijump.modules.CreateAccountModule.vars.rsakey = r.key;
 
 	},
 	cancel: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		OZONE.dialog.cleanAll();
 	}
 }

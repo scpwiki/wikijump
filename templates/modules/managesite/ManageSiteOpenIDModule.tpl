@@ -18,7 +18,7 @@
 
 <p>
 	This is a testing feature and we assume that you already know how OpenID works and how it can be used.
-	At Wikidot we are working towards providing true OpenID server and accepting OpenID
+	At Wikijump we are working towards providing true OpenID server and accepting OpenID
 	logins, but at the moment we thoght it would be cool to allow you to use your
 	Wiki URL as an OpenID login.
 </p>
@@ -26,7 +26,7 @@
 <p>
 	How it works? You must already have a OpenID account at one of the identiy providers
 	(see below). When you try to log into any OpenID-enabled services, your
-	Wikidot Wiki will simply redirect (delegate) to your id provider.
+	Wikijump Wiki will simply redirect (delegate) to your id provider.
 </p>
 
 <form>
@@ -82,7 +82,7 @@
 					http://<input name="identityUrl" id="sm-openid-urlid-0" class="text"
 								type="text" size="34" maxlength="70"
 								value="{if $openIdRoot && $openIdRoot->getUrl()}{$openIdRoot->getUrl()|replace:"http://":""}{/if}"
-								onchange="WIKIDOT.modules.ManageSiteOpenIDModule.listeners.onIdentityChange(event, 0)"
+								onchange="Wikijump.modules.ManageSiteOpenIDModule.listeners.onIdentityChange(event, 0)"
 							/>
 				</td>
 			</tr>
@@ -150,7 +150,7 @@
 							http://<input name="identityUrl" id="sm-openid-urlid-{$count}"
 							class="text" type="text" size="34" maxlength="70"
 							value="{$oo->getUrl()|replace:"http://":""}"
-							onchange="WIKIDOT.modules.ManageSiteOpenIDModule.listeners.onIdentityChange(event, {$count})"/>
+							onchange="Wikijump.modules.ManageSiteOpenIDModule.listeners.onIdentityChange(event, {$count})"/>
 						</td>
 					</tr>
 					<tr>
@@ -168,7 +168,7 @@
 							Action:
 						</td>
 						<td>
-							<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteOpenIDModule.listeners.deleteEntry(event, {$count})">delete entry</a>
+							<a href="javascript:;" onclick="Wikijump.modules.ManageSiteOpenIDModule.listeners.deleteEntry(event, {$count})">delete entry</a>
 						</td>
 					</tr>
 				</table>
@@ -178,7 +178,7 @@
 	{/foreach}
 </div>
 <div style="text-align: center">
-	<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteOpenIDModule.listeners.addEntry(event)">+ Add another entry</a>
+	<a href="javascript:;" onclick="Wikijump.modules.ManageSiteOpenIDModule.listeners.addEntry(event)">+ Add another entry</a>
 </div>
 
 <div id="sm-openid-templateform" style="display: none;">
@@ -221,7 +221,7 @@
 					URL of the identity:
 				</td>
 				<td>
-					http://<input name="identityUrl" id="sm-openid-urlid-RAND" class="text" type="text" size="34" maxlength="70" value="" onchange="WIKIDOT.modules.ManageSiteOpenIDModule.listeners.onIdentityChange(event, RAND)"/>
+					http://<input name="identityUrl" id="sm-openid-urlid-RAND" class="text" type="text" size="34" maxlength="70" value="" onchange="Wikijump.modules.ManageSiteOpenIDModule.listeners.onIdentityChange(event, RAND)"/>
 				</td>
 			</tr>
 			<tr>
@@ -237,7 +237,7 @@
 					Action:
 				</td>
 				<td>
-					<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteOpenIDModule.listeners.deleteEntry(event, RAND)">delete entry</a>
+					<a href="javascript:;" onclick="Wikijump.modules.ManageSiteOpenIDModule.listeners.deleteEntry(event, RAND)">delete entry</a>
 				</td>
 			</tr>
 		</table>
@@ -245,8 +245,8 @@
 </div>
 
 <div class="buttons">
-	<input type="button" value="{t}cancel{/t}" onclick="WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-welcome')"/>
-	<input type="button" value="{t}save{/t}" onclick="WIKIDOT.modules.ManageSiteOpenIDModule.listeners.save(event)"/>
+	<input type="button" value="{t}cancel{/t}" onclick="Wikijump.modules.ManagerSiteModule.utils.loadModule('sm-welcome')"/>
+	<input type="button" value="{t}save{/t}" onclick="Wikijump.modules.ManageSiteOpenIDModule.listeners.save(event)"/>
 </div>
 
 <div id="sm-openid-patterns" style="display: none;">

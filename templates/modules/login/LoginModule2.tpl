@@ -13,9 +13,9 @@
 						scrolling="no" frameBorder="0"></iframe>
 
 					<div style="font-size: 90%; text-align: center;">
-						<a href="javascript:;" onclick="WIKIDOT.page.listeners.passwordRecoveryClick(event)">{t}forgotten password?{/t}</a>
+						<a href="javascript:;" onclick="Wikijump.page.listeners.passwordRecoveryClick(event)">{t}forgotten password?{/t}</a>
 						|
-						<a href="javascript:;" onclick="WIKIDOT.page.listeners.createAccount(event)">{t}no account yet?{/t}</a>
+						<a href="javascript:;" onclick="Wikijump.page.listeners.createAccount(event)">{t}no account yet?{/t}</a>
 					</div>
 				</td>
 				<td style="padding: 10px; border-left: 1px solid #999">

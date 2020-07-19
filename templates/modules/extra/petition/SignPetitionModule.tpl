@@ -96,8 +96,8 @@
 			{/if}
 			</table>
 			<div class="buttons">
-				<input type="button" value="{t}cancel{/t}"  onclick="WIKIDOT.modules.SignPetitionModule.listeners.cancelSignature(event, {$campaign->getCampaignId()}, '{$signature->getConfirmationHash()}')"/>
-				<input type="button" value="{t}confirm{/t}" onclick="WIKIDOT.modules.SignPetitionModule.listeners.confirmSignature(event, {$campaign->getCampaignId()}, '{$signature->getConfirmationHash()}')"/>
+				<input type="button" value="{t}cancel{/t}"  onclick="Wikijump.modules.SignPetitionModule.listeners.cancelSignature(event, {$campaign->getCampaignId()}, '{$signature->getConfirmationHash()}')"/>
+				<input type="button" value="{t}confirm{/t}" onclick="Wikijump.modules.SignPetitionModule.listeners.confirmSignature(event, {$campaign->getCampaignId()}, '{$signature->getConfirmationHash()}')"/>
 			</div>
 		</form>
 
@@ -218,7 +218,7 @@
 				{/if}
 			</table>
 			<div class="buttons">
-				<input type="button" value="{t}sign the petition{/t}" onclick="WIKIDOT.modules.SignPetitionModule.listeners.sign(event)"/>
+				<input type="button" value="{t}sign the petition{/t}" onclick="Wikijump.modules.SignPetitionModule.listeners.sign(event)"/>
 			</div>
 		</form>
 	{/if}

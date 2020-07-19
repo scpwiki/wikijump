@@ -1,27 +1,18 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.ManagerSiteLicenseModule = {};
 
-WIKIDOT.modules.ManagerSiteLicenseModule.vars = {
+Wikijump.modules.ManagerSiteLicenseModule = {};
+
+Wikijump.modules.ManagerSiteLicenseModule.vars = {
 	currentCategory: null,
 	limiter: null
 }
 
-WIKIDOT.modules.ManagerSiteLicenseModule.listeners = {
+Wikijump.modules.ManagerSiteLicenseModule.listeners = {
 	categoryChange: function(e){
 		// update license info
 		var categoryId = document.getElementById("sm-license-cats").value;
-		var category = WIKIDOT.modules.ManagerSiteModule.utils.getCategoryById(categoryId);
-		WIKIDOT.modules.ManagerSiteLicenseModule.vars.currentCategory = category;
+		var category = Wikijump.modules.ManagerSiteModule.utils.getCategoryById(categoryId);
+		Wikijump.modules.ManagerSiteLicenseModule.vars.currentCategory = category;
 		// check if has a individual license
 		if(category['name'] == "_default"){
 			document.getElementById("sm-license-noind").style.display = "none";
@@ -38,13 +29,13 @@ WIKIDOT.modules.ManagerSiteLicenseModule.listeners = {
 		}
 
 		$("sm-license-lic").value=category['license_id'];
-		WIKIDOT.modules.ManagerSiteLicenseModule.utils.updateLicensePreview();
+		Wikijump.modules.ManagerSiteLicenseModule.utils.updateLicensePreview();
 
 	},
 
 	indClick: function(e){
 		var categoryId = $("sm-license-cats").value;
-		var category = WIKIDOT.modules.ManagerSiteModule.utils.getCategoryById(categoryId);
+		var category = Wikijump.modules.ManagerSiteModule.utils.getCategoryById(categoryId);
 
 		if($("sm-license-noin").checked == true){
 			$("sm-license-list").style.display = "none";
@@ -53,19 +44,19 @@ WIKIDOT.modules.ManagerSiteLicenseModule.listeners = {
 			$("sm-license-list").style.display = "";
 			category['license_default'] = false;
 		}
-		WIKIDOT.modules.ManagerSiteLicenseModule.utils.updateLicensePreview();
+		Wikijump.modules.ManagerSiteLicenseModule.utils.updateLicensePreview();
 	},
 
 	licenseChange: function(e){
 		// save changes to the array
 		var categoryId = document.getElementById("sm-license-cats").value;
-		var category = WIKIDOT.modules.ManagerSiteModule.utils.getCategoryById(categoryId);
+		var category = Wikijump.modules.ManagerSiteModule.utils.getCategoryById(categoryId);
 		category['license_id'] = this.value;
-		WIKIDOT.modules.ManagerSiteLicenseModule.utils.updateLicensePreview();
+		Wikijump.modules.ManagerSiteLicenseModule.utils.updateLicensePreview();
 	},
 
 	otherDescriptionChange: function(e){
-		var category = WIKIDOT.modules.ManagerSiteLicenseModule.vars.currentCategory;
+		var category = Wikijump.modules.ManagerSiteLicenseModule.vars.currentCategory;
 		var text = $("sm-other-license-text").value;
 		category['license_other'] = text;
 
@@ -86,18 +77,18 @@ WIKIDOT.modules.ManagerSiteLicenseModule.listeners = {
 	},
 
 	cancel: function(e){
-		WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-welcome');
+		Wikijump.modules.ManagerSiteModule.utils.loadModule('sm-welcome');
 	},
 
 	save: function(e){
 		// ok, do it the easy way: serialize categories using the JSON method
-		var categories = WIKIDOT.modules.ManagerSiteModule.vars.categories;
+		var categories = Wikijump.modules.ManagerSiteModule.vars.categories;
 		var serialized = JSON.stringify(categories);
 		var parms = new Object();
 		parms['categories'] = serialized;
 		parms['action'] = "ManageSiteAction";
 		parms['event'] = "saveLicense";
-		OZONE.ajax.requestModule("Empty", parms, WIKIDOT.modules.ManagerSiteLicenseModule.callbacks.save);
+		OZONE.ajax.requestModule("Empty", parms, Wikijump.modules.ManagerSiteLicenseModule.callbacks.save);
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Saving changes...";
 		w.show();
@@ -105,13 +96,13 @@ WIKIDOT.modules.ManagerSiteLicenseModule.listeners = {
 
 }
 
-WIKIDOT.modules.ManagerSiteLicenseModule.callbacks = {
+Wikijump.modules.ManagerSiteLicenseModule.callbacks = {
 	cancel: function(response){
 		OZONE.utils.setInnerHTMLContent("site-manager", response.body);
 	},
 
 	save: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Changes have been saved";
@@ -120,15 +111,15 @@ WIKIDOT.modules.ManagerSiteLicenseModule.callbacks = {
 
 }
 
-WIKIDOT.modules.ManagerSiteLicenseModule.utils = {
+Wikijump.modules.ManagerSiteLicenseModule.utils = {
 	updateLicensePreview: function(){
 		// apart from just updating the preview also show/hide extra textarea
 		// for custom licenses
 		var licenseId;
-		var category = WIKIDOT.modules.ManagerSiteLicenseModule.vars.currentCategory;
+		var category = Wikijump.modules.ManagerSiteLicenseModule.vars.currentCategory;
 		if($("sm-license-noin").checked == true && category['name'] != "_default"){
 			// get theme_id for the category _default
-			var defCategory = WIKIDOT.modules.ManagerSiteModule.utils.getCategoryByName("_default");
+			var defCategory = Wikijump.modules.ManagerSiteModule.utils.getCategoryByName("_default");
 			licenseId = defCategory['license_id'];
 		} else {
 			licenseId = $("sm-license-lic").value;
@@ -142,11 +133,11 @@ WIKIDOT.modules.ManagerSiteLicenseModule.utils = {
 			if(category['name'] == '_default' || $("sm-license-noin").checked == false){
 				$("sm-other-license-text").value = category['license_other'];
 			}else{
-				var defCategory = WIKIDOT.modules.ManagerSiteModule.utils.getCategoryByName("_default");
+				var defCategory = Wikijump.modules.ManagerSiteModule.utils.getCategoryByName("_default");
 				$("sm-other-license-text").value =  defCategory['license_other'];
 			}
-			WIKIDOT.modules.ManagerSiteLicenseModule.listeners.otherDescriptionChange();
-			WIKIDOT.modules.ManagerSiteLicenseModule.vars.limiter.keyListener(null);
+			Wikijump.modules.ManagerSiteLicenseModule.listeners.otherDescriptionChange();
+			Wikijump.modules.ManagerSiteLicenseModule.vars.limiter.keyListener(null);
 		} else {
 			$("sm-other-license").style.display="none";
 		}
@@ -164,12 +155,12 @@ WIKIDOT.modules.ManagerSiteLicenseModule.utils = {
 
 		return;
 		var categoryId = $("sm-license-cats").value;
-		var category = WIKIDOT.modules.ManagerSiteModule.utils.getCategoryById(categoryId);
+		var category = Wikijump.modules.ManagerSiteModule.utils.getCategoryById(categoryId);
 
 		// get current license_id
 		if($("sm-license-noin").checked == true && category['name'] != "_default"){
 			// get license_id for the category _default
-			defCategory = WIKIDOT.modules.ManagerSiteModule.utils.getCategoryByName("_default");
+			defCategory = Wikijump.modules.ManagerSiteModule.utils.getCategoryByName("_default");
 			licenseId = defCategory['license_id'];
 		} else {
 			licenseId = $("sm-license-lic").value;
@@ -178,22 +169,22 @@ WIKIDOT.modules.ManagerSiteLicenseModule.utils = {
 	}
 }
 
-WIKIDOT.modules.ManagerSiteLicenseModule.init = function(){
+Wikijump.modules.ManagerSiteLicenseModule.init = function(){
 
-	YAHOO.util.Event.addListener("sm-license-cats", "change", WIKIDOT.modules.ManagerSiteLicenseModule.listeners.categoryChange);
-	YAHOO.util.Event.addListener("sm-license-lic", "change", WIKIDOT.modules.ManagerSiteLicenseModule.listeners.licenseChange);
-	YAHOO.util.Event.addListener("sm-license-noind", "click", WIKIDOT.modules.ManagerSiteLicenseModule.listeners.indClick);
-	YAHOO.util.Event.addListener("sm-other-license-text", "keyup", WIKIDOT.modules.ManagerSiteLicenseModule.listeners.otherDescriptionChange);
+	YAHOO.util.Event.addListener("sm-license-cats", "change", Wikijump.modules.ManagerSiteLicenseModule.listeners.categoryChange);
+	YAHOO.util.Event.addListener("sm-license-lic", "change", Wikijump.modules.ManagerSiteLicenseModule.listeners.licenseChange);
+	YAHOO.util.Event.addListener("sm-license-noind", "click", Wikijump.modules.ManagerSiteLicenseModule.listeners.indClick);
+	YAHOO.util.Event.addListener("sm-other-license-text", "keyup", Wikijump.modules.ManagerSiteLicenseModule.listeners.otherDescriptionChange);
 
-	YAHOO.util.Event.addListener("sm-license-cancel", "click", WIKIDOT.modules.ManagerSiteLicenseModule.listeners.cancel);
-	YAHOO.util.Event.addListener("sm-license-save", "click", WIKIDOT.modules.ManagerSiteLicenseModule.listeners.save);
+	YAHOO.util.Event.addListener("sm-license-cancel", "click", Wikijump.modules.ManagerSiteLicenseModule.listeners.cancel);
+	YAHOO.util.Event.addListener("sm-license-save", "click", Wikijump.modules.ManagerSiteLicenseModule.listeners.save);
 	// init categories info
 
 	var limiter = new OZONE.forms.lengthLimiter("sm-other-license-text", "sm-other-license-text-left", 300);
-	WIKIDOT.modules.ManagerSiteLicenseModule.vars.limiter = limiter;
+	Wikijump.modules.ManagerSiteLicenseModule.vars.limiter = limiter;
 
-	WIKIDOT.modules.ManagerSiteLicenseModule.listeners.categoryChange(null);
+	Wikijump.modules.ManagerSiteLicenseModule.listeners.categoryChange(null);
 
 }
 
-WIKIDOT.modules.ManagerSiteLicenseModule.init();
+Wikijump.modules.ManagerSiteLicenseModule.init();

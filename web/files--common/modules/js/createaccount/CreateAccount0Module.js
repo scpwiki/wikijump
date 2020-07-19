@@ -1,39 +1,30 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.CreateAccount0Module = {};
 
-WIKIDOT.modules.CreateAccount0Module.listeners = {
+Wikijump.modules.CreateAccount0Module = {};
+
+Wikijump.modules.CreateAccount0Module.listeners = {
 	cancelClick: function(e){
 		OZONE.dialog.cleanAll();
 	},
 
 	nextClick: function(e){
 
-		WIKIDOT.modules.CreateAccountModule.vars.formData = OZONE.utils.formToArray("createaccount-form0");
+		Wikijump.modules.CreateAccountModule.vars.formData = OZONE.utils.formToArray("createaccount-form0");
 
 		var p = OZONE.utils.formToArray("createaccount-form0");
 		//crypt some data please... ;-)
 		var rsa = new RSAKey();
-		rsa.setPublic(WIKIDOT.modules.CreateAccountModule.vars.rsakey, "10001");
+		rsa.setPublic(Wikijump.modules.CreateAccountModule.vars.rsakey, "10001");
 		p['email'] = linebrk(hex2b64(rsa.encrypt('__'+p['email'])),64);
 		p['password'] = linebrk(hex2b64(rsa.encrypt('__'+p['password'])),64);
 		p['password2'] = linebrk(hex2b64(rsa.encrypt('__'+p['password2'])),64);
 		p.action = "CreateAccountAction";
 		p.event = "step0";
-		OZONE.ajax.requestModule("createaccount/CreateAccount2Module", p, WIKIDOT.modules.CreateAccount0Module.callbacks.nextClick);
+		OZONE.ajax.requestModule("createaccount/CreateAccount2Module", p, Wikijump.modules.CreateAccount0Module.callbacks.nextClick);
 
 	}
 }
-WIKIDOT.modules.CreateAccount0Module.callbacks = {
+Wikijump.modules.CreateAccount0Module.callbacks = {
 	nextClick: function(r){
 		if(r.status=="form_errors"){
 			var inner = "The data you have submitted contains following errors:" +
@@ -57,7 +48,7 @@ WIKIDOT.modules.CreateAccount0Module.callbacks = {
 			OZONE.dialog.factory.boxcontainer().centerContent();
 			return;
 		}
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var w = new OZONE.dialogs.Dialog();
 		w.content = r.body;
 		w.show();
@@ -65,10 +56,10 @@ WIKIDOT.modules.CreateAccount0Module.callbacks = {
 
 }
 
-WIKIDOT.modules.CreateAccount0Module.init = function(){
+Wikijump.modules.CreateAccount0Module.init = function(){
 	// 	if form data already exists - fill the forms
-	if(WIKIDOT.modules.CreateAccountModule.vars.formData != null){
-		p = WIKIDOT.modules.CreateAccountModule.vars.formData;
+	if(Wikijump.modules.CreateAccountModule.vars.formData != null){
+		p = Wikijump.modules.CreateAccountModule.vars.formData;
 		document.forms.caform['name'].value=p['name'];
 		document.forms.caform['password'].value=p['password'];
 		document.forms.caform['password2'].value=p['password2'];
@@ -83,4 +74,4 @@ WIKIDOT.modules.CreateAccount0Module.init = function(){
 	}
 }
 
-WIKIDOT.modules.CreateAccount0Module.init();
+Wikijump.modules.CreateAccount0Module.init();

@@ -118,7 +118,7 @@ class SiteSettingsBase extends BaseDBObject
     {
         /**
          * We are deprecating any usage of insecure HTTP.
-         * The `allow_http` flag in wikidot.ini should only be set to true for local dev purposes.
+         * The `allow_http` flag in wikijump.ini should only be set to true for local dev purposes.
          * If you do so, SSL is controlled on a per-site basis in the site_settings table.
          * The only difference between `ssl_only` and `ssl_only_paranoid` is the latter forces a secure cookie.
          * This may be removed entirely in a future release.

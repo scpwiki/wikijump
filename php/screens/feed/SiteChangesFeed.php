@@ -34,7 +34,7 @@ class SiteChangesFeed extends FeedScreen
 
         $revisions = PageRevisionPeer::instance()->select($c);
 
-        $channel['title'] = _('Recent page changes from site').' "'.htmlspecialchars($site->getName()).'" (a Wikidot site)';
+        $channel['title'] = _('Recent page changes from site').' "'.htmlspecialchars($site->getName()).'" (a Wikijump site)';
         $channel['link'] = GlobalProperties::$HTTP_SCHEMA . "://" . $site->getDomain();
 
         $items = array();

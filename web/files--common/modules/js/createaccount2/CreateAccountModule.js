@@ -1,36 +1,27 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.CreateAccountModule = {};
 
-WIKIDOT.modules.CreateAccountModule.vars = {};
+Wikijump.modules.CreateAccountModule = {};
 
-WIKIDOT.modules.CreateAccountModule.listeners = {
+Wikijump.modules.CreateAccountModule.vars = {};
+
+Wikijump.modules.CreateAccountModule.listeners = {
 	cancel: function(e){
 		window.location.href = HTTP_SCHEMA+"://"+window.location.hostname;
 	},
 
 	nextClick: function(e){
 
-		WIKIDOT.modules.CreateAccountModule.vars.formData = OZONE.utils.formToArray("createaccount-form0");
+		Wikijump.modules.CreateAccountModule.vars.formData = OZONE.utils.formToArray("createaccount-form0");
 
 		var p = OZONE.utils.formToArray("createaccount-form0");
 
 		p.action = "CreateAccount2Action";
 		p.event = "step0";
-		OZONE.ajax.requestModule("createaccount/CreateAccount2Module", p, WIKIDOT.modules.CreateAccountModule.callbacks.nextClick);
+		OZONE.ajax.requestModule("createaccount/CreateAccount2Module", p, Wikijump.modules.CreateAccountModule.callbacks.nextClick);
 
 	}
 }
-WIKIDOT.modules.CreateAccountModule.callbacks = {
+Wikijump.modules.CreateAccountModule.callbacks = {
 	nextClick: function(r){
 		if(r.status=="form_errors"){
 			var inner = "The data you have submitted contains following errors:" +
@@ -57,10 +48,10 @@ WIKIDOT.modules.CreateAccountModule.callbacks = {
 
 }
 
-WIKIDOT.modules.CreateAccountModule.init = function(){
+Wikijump.modules.CreateAccountModule.init = function(){
 	// 	if form data already exists - fill the forms
-	if(WIKIDOT.modules.CreateAccountModule.vars.formData != null){
-		p = WIKIDOT.modules.CreateAccountModule.vars.formData;
+	if(Wikijump.modules.CreateAccountModule.vars.formData != null){
+		p = Wikijump.modules.CreateAccountModule.vars.formData;
 		document.forms.caform['name'].value=p['name'];
 		document.forms.caform['password'].value=p['password'];
 		document.forms.caform['password2'].value=p['password2'];
@@ -82,4 +73,4 @@ WIKIDOT.modules.CreateAccountModule.init = function(){
 	}, "dummy-ondomready-block");
 }
 
-WIKIDOT.modules.CreateAccountModule.init();
+Wikijump.modules.CreateAccountModule.init();

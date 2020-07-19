@@ -23,7 +23,7 @@
 			<a href="javascript:;" onclick="OZONE.dialog.cleanAll();">{t}close window{/t}</a>
 		{else}
 			<a href="javascript:;" onclick="OZONE.dialog.cleanAll();">{t}Cancel{/t}</a>
-			<a href="javascript:;" onclick="WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, {$points}, true)">Rerate</a>
+			<a href="javascript:;" onclick="Wikijump.modules.PageRateWidgetModule.listeners.rate(event, {$points}, true)">Rerate</a>
 		{/if}
 	</div>
 </div>

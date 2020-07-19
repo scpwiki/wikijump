@@ -53,7 +53,7 @@
 				<div class="changes">
 					{t}last edited on{/t} <span class="odate">{$post->getDateLastEdited()->getTimestamp()}|%e %b %Y, %H:%M %Z|agohover</span>
 					{t}by{/t} {printuser user=$post->getEditedUserOrString()}
-					<a href="javascript:;" onclick="WIKIDOT.modules.ForumViewThreadModule.listeners.showHistory(event,{$post->getPostId()})">+ {t}show more{/t}</a>
+					<a href="javascript:;" onclick="Wikijump.modules.ForumViewThreadModule.listeners.showHistory(event,{$post->getPostId()})">+ {t}show more{/t}</a>
 				</div>
 				<div class="revisions" style="display: none"></div>
 			{/if}

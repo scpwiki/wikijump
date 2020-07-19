@@ -1,45 +1,36 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.AccountDeletedSitesModule = {};
 
-WIKIDOT.modules.AccountDeletedSitesModule.vars = {};
+Wikijump.modules.AccountDeletedSitesModule = {};
 
-WIKIDOT.modules.AccountDeletedSitesModule.listeners = {
+Wikijump.modules.AccountDeletedSitesModule.vars = {};
+
+Wikijump.modules.AccountDeletedSitesModule.listeners = {
 	clickRestore: function(e, siteId){
-		var sitesData = WIKIDOT.modules.AccountDeletedSitesModule.vars.sitesData;
+		var sitesData = Wikijump.modules.AccountDeletedSitesModule.vars.sitesData;
 		$("as-restore-site-name").innerHTML = sitesData[siteId]['name'];
 		$("as-restore-site-unixname").value = sitesData[siteId]['unix_name'];
 		$("as-restore-site-box").style.display = 'block';
-		WIKIDOT.modules.AccountDeletedSitesModule.vars.siteId = siteId;
+		Wikijump.modules.AccountDeletedSitesModule.vars.siteId = siteId;
 		OZONE.visuals.scrollTo($("as-restore-site-box"));
 
 	},
 
 	restore: function(e){
 		var p = new Object();
-		p.siteId = WIKIDOT.modules.AccountDeletedSitesModule.vars.siteId;
+		p.siteId = Wikijump.modules.AccountDeletedSitesModule.vars.siteId;
 		p.unixName = $("as-restore-site-unixname").value;
 		p.action = 'AccountMembershipAction';
 		p.event = 'restoreSite';
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.AccountDeletedSitesModule.callbacks.restore);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.AccountDeletedSitesModule.callbacks.restore);
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Restoring the site...";
 		w.show();
 	}
 }
 
-WIKIDOT.modules.AccountDeletedSitesModule.callbacks = {
+Wikijump.modules.AccountDeletedSitesModule.callbacks = {
 	restore: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "The site has been restored.";
 		w.show();
@@ -48,9 +39,9 @@ WIKIDOT.modules.AccountDeletedSitesModule.callbacks = {
 	}
 }
 
-WIKIDOT.modules.AccountDeletedSitesModule.init = function(){
-	WIKIDOT.modules.AccountDeletedSitesModule.vars.sitesData = JSON.parse(OZONE.utils.unescapeHtml($("as-restore-site-data").innerHTML));
+Wikijump.modules.AccountDeletedSitesModule.init = function(){
+	Wikijump.modules.AccountDeletedSitesModule.vars.sitesData = JSON.parse(OZONE.utils.unescapeHtml($("as-restore-site-data").innerHTML));
 
 }
 
-WIKIDOT.modules.AccountDeletedSitesModule.init();
+Wikijump.modules.AccountDeletedSitesModule.init();

@@ -19,7 +19,7 @@ class ManageSiteBackupModule extends ManageSiteBaseModule
         if ($sb) {
             if ($sb->getStatus() == "completed") {
                 // get backup file size
-                $path = WIKIDOT_ROOT.'/web/files--sites/'.$site->getUnixName().'/backup/'.$sb->getRand().'/backup.zip';
+                $path = WIKIJUMP_ROOT.'/web/files--sites/'.$site->getUnixName().'/backup/'.$sb->getRand().'/backup.zip';
                 // check if file exists
                 if (!file_exists($path)) {
                     // in case something failed

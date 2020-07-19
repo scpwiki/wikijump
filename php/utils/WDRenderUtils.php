@@ -9,7 +9,7 @@ class WDRenderUtils
             return null;
         }
         if (is_string($user)) {
-            $linkInner = 'href="javascript:;"  onclick="WIKIDOT.page.listeners.anonymousUserInfo(\''.$user.'\'); return false;" ';
+            $linkInner = 'href="javascript:;"  onclick="Wikijump.page.listeners.anonymousUserInfo(\''.$user.'\'); return false;" ';
             //  ok, this is just "anonymous info". print it!
             $out = '<span class="printuser anonymous">';
             if ($params['image'] != null) {
@@ -42,7 +42,7 @@ class WDRenderUtils
         }
 
         $out = '<span class="'.$class.'">';
-        $linkInner = 'href="'.GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST . '/user:info/'.$user->getUnixName().'" onclick="WIKIDOT.page.listeners.userInfo('.$user->getUserId().'); return false;" ';
+        $linkInner = 'href="'.GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST . '/user:info/'.$user->getUnixName().'" onclick="Wikijump.page.listeners.userInfo('.$user->getUserId().'); return false;" ';
         if ($params['image'] != null) {
             $image = $params['image'];
             // handle sizes...

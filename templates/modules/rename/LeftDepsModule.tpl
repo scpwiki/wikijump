@@ -38,7 +38,7 @@
 			{t}If you think they should be fixed - please do it by manually editing them.{/t}
 		</p>
 		<div class="button-bar">
-			<a href="javascript:;" onclick="window.location.href='/'+WIKIDOT.modules.RenamePageModule.vars.newName;">{t}close window{/t}</a>
+			<a href="javascript:;" onclick="window.location.href='/'+Wikijump.modules.RenamePageModule.vars.newName;">{t}close window{/t}</a>
 		</div>
 	</div>
 </div>

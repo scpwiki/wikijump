@@ -10,7 +10,7 @@
 </div>
 <div class="button-bar">
 	<a href="javascript:;" onclick="OZONE.dialog.cleanAll()">{t}cancel{/t}</a>
-	<a href="javascript:;" onclick="WIKIDOT.modules.PageUploadModule.listeners.forceOverwrite(event)">{t}overwrite{/t}</a>
+	<a href="javascript:;" onclick="Wikijump.modules.PageUploadModule.listeners.forceOverwrite(event)">{t}overwrite{/t}</a>
 </div>
 {else}
 <p>

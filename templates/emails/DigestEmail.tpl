@@ -1,6 +1,6 @@
 Hi, {$user->getNickName()|escape}!
 
-{if $count==1}There is one notification{else}There are {$count} notifications{/if} related to your Wikidot account:
+{if $count==1}There is one notification{else}There are {$count} notifications{/if} related to your Wikijump account:
 To view the full list of notifications visit:
 {$HTTP_SCHEMA}://{$URL_HOST}/account:you/start/notifications
 {foreach from=$notifications item=notification}

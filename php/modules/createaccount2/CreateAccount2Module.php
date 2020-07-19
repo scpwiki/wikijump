@@ -42,7 +42,7 @@ class CreateAccount2Module extends SmartyModule
                 }
 
                 /* Complete the registration. */
-                require_once(WIKIDOT_ROOT . '/php/actions/CreateAccount2Action.php');
+                require_once(WIKIJUMP_ROOT . '/php/actions/CreateAccount2Action.php');
                 $action = new CreateAccount2Action();
                 $action->finalizeEvent($runData, true);
 

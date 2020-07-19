@@ -22,7 +22,7 @@ class File extends FileBase
     {
         $page = PagePeer::instance()->selectByPrimaryKey($this->getPageId());
         $site = SitePeer::instance()->selectByPrimaryKey($this->getSiteId());
-        return WIKIDOT_ROOT."/web/files--sites/".
+        return WIKIJUMP_ROOT."/web/files--sites/".
             $site->getUnixName()."/files/".$page->getUnixName().'/'.$this->getFilename();
     }
 
@@ -30,7 +30,7 @@ class File extends FileBase
     {
         $page = PagePeer::instance()->selectByPrimaryKey($this->getPageId());
         $site = SitePeer::instance()->selectByPrimaryKey($this->getSiteId());
-        return WIKIDOT_ROOT."/web/files--sites/".
+        return WIKIJUMP_ROOT."/web/files--sites/".
                         $site->getUnixName()."/resized-images/".$page->getUnixName().
                         '/'.$this->getFilename();
     }

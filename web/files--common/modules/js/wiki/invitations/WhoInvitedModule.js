@@ -1,23 +1,14 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.WhoInvitedModule = {}
 
-WIKIDOT.modules.WhoInvitedModule.vars = {
+Wikijump.modules.WhoInvitedModule = {}
+
+Wikijump.modules.WhoInvitedModule.vars = {
 	currentUserId: null
 }
 
-WIKIDOT.modules.WhoInvitedModule.listeners = {
+Wikijump.modules.WhoInvitedModule.listeners = {
 	lookUp: function(e){
-		var userId = WIKIDOT.modules.WhoInvitedModule.vars.currentUserId;
+		var userId = Wikijump.modules.WhoInvitedModule.vars.currentUserId;
 		if(userId == null){
 			alert("No member has been selected yet.");
 			YAHOO.util.Event.preventDefault(e);
@@ -25,21 +16,21 @@ WIKIDOT.modules.WhoInvitedModule.listeners = {
 		}
 		var p = new Object();
 		p.userId = userId;
-		OZONE.ajax.requestModule("wiki/invitations/WhoInvitedResultsModule", p, WIKIDOT.modules.WhoInvitedModule.callbacks.lookUp);
+		OZONE.ajax.requestModule("wiki/invitations/WhoInvitedResultsModule", p, Wikijump.modules.WhoInvitedModule.callbacks.lookUp);
 		YAHOO.util.Event.preventDefault(e);
 	}
 
 }
 
-WIKIDOT.modules.WhoInvitedModule.callbacks = {
+Wikijump.modules.WhoInvitedModule.callbacks = {
 	lookUp: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		$("who-invited-results-box").innerHTML = r.body;
 	}
 
 }
 
-WIKIDOT.modules.WhoInvitedModule.init = function(){
+Wikijump.modules.WhoInvitedModule.init = function(){
 	OZONE.dom.onDomReady(function(){
 		// init autocomplete now
 		var dataSource = new YAHOO.widget.DS_XHR("/quickmodule.php", ['users','name', 'user_id']);
@@ -51,7 +42,7 @@ WIKIDOT.modules.WhoInvitedModule.init = function(){
 		autoComp.itemSelectEvent.subscribe(function(sType, args){
 			var userId = args[1].getElementsByTagName('div').item(0).id.replace(/.*?([0-9]+)$/,"$1");
 			var userName = args[1].getElementsByTagName('div').item(0).innerHTML;
-			WIKIDOT.modules.WhoInvitedModule.vars.currentUserId = userId;
+			Wikijump.modules.WhoInvitedModule.vars.currentUserId = userId;
 		});
 
 		autoComp.minQueryLength = 2;
@@ -71,4 +62,4 @@ WIKIDOT.modules.WhoInvitedModule.init = function(){
 	}, "dummy-ondomready-block");
 }
 
-WIKIDOT.modules.WhoInvitedModule.init();
+Wikijump.modules.WhoInvitedModule.init();

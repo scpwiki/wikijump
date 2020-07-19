@@ -29,8 +29,8 @@
 		</p>
 		<div class="button-bar">
 			<a href="javascript:;" onclick="OZONE.dialog.cleanAll()">{t}cancel{/t}</a>
-			<a id="edit-recheck-lock" href="javascript:;" onclick="WIKIDOT.page.listeners.editClick(event)">{t}check again{/t}</a>
-			<a id="edit-force-remove-lock" href="javascript:;" onclick="WIKIDOT.modules.PageEditModule.listeners.forcePageEditLockRemove(event)">{t}force lock removal{/t}</a>
+			<a id="edit-recheck-lock" href="javascript:;" onclick="Wikijump.page.listeners.editClick(event)">{t}check again{/t}</a>
+			<a id="edit-force-remove-lock" href="javascript:;" onclick="Wikijump.modules.PageEditModule.listeners.forcePageEditLockRemove(event)">{t}force lock removal{/t}</a>
 		</div>
 	</div>
 </div>

@@ -7,9 +7,9 @@
 
 <script type="text/javascript">
 
-	WIKIDOT.vars.rsakey = "{$key}";
-	WIKIDOT.vars.loginSeed = "{$seed}";
-	WIKIDOT.vars.backUrl = "{$url}";
+	Wikijump.vars.rsakey = "{$key}";
+	Wikijump.vars.loginSeed = "{$seed}";
+	Wikijump.vars.backUrl = "{$url}";
 
 	{literal}
 	function createCookie(name,value,days) {

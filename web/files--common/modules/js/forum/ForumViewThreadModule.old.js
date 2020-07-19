@@ -1,27 +1,18 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
+
 
 togglePostOptions = function(event,postId){
-	WIKIDOT.modules.ForumViewThreadModule.listeners.togglePostOptions(event,postId);
+	Wikijump.modules.ForumViewThreadModule.listeners.togglePostOptions(event,postId);
 }
 togglePostFold = function(event,postId){
-	WIKIDOT.modules.ForumViewThreadModule.listeners.togglePostFold(event,postId);
+	Wikijump.modules.ForumViewThreadModule.listeners.togglePostFold(event,postId);
 }
 reply = function(postId, parentId){
-	WIKIDOT.modules.ForumViewThreadModule.listeners.newPost(postId, parentId);
+	Wikijump.modules.ForumViewThreadModule.listeners.newPost(postId, parentId);
 }
 
-WIKIDOT.modules.ForumViewThreadModule = {}
+Wikijump.modules.ForumViewThreadModule = {}
 
-WIKIDOT.modules.ForumViewThreadModule.vars = {
+Wikijump.modules.ForumViewThreadModule.vars = {
 	currentParentId: null, //id of the current parrent post
 	clickedReplyPostId: null, // which post has been clicked with reply
 	fakedParent: false, // if clicked != parent
@@ -29,17 +20,17 @@ WIKIDOT.modules.ForumViewThreadModule.vars = {
 	currentEditPostId: null
 }
 
-WIKIDOT.modules.ForumViewThreadModule.listeners = {
+Wikijump.modules.ForumViewThreadModule.listeners = {
 	newPost: function(postId, parentId){
-		if(WIKIDOT.Editor.editElementId){
+		if(Wikijump.Editor.editElementId){
 			var w = new OZONE.dialogs.ErrorDialog();
 			w.content="You have an active editor somewhere already and it is not" +
 					" possible to edit multiple elemnts at once.<br/><br/>" +
-					'(<a href="javascript:;" onclick="OZONE.visuals.scrollTo(\''+WIKIDOT.Editor.editElementId+'\');OZONE.dialog.cleanAll()">scroll to active editor</a>)';
+					'(<a href="javascript:;" onclick="OZONE.visuals.scrollTo(\''+Wikijump.Editor.editElementId+'\');OZONE.dialog.cleanAll()">scroll to active editor</a>)';
 			w.show();
 			return;
 		}
-		if(WIKIDOT.modules.ForumViewThreadModule.vars.editActive){
+		if(Wikijump.modules.ForumViewThreadModule.vars.editActive){
 			// it means an active post edit is somewhere...
 
 			var t2 = new OZONE.dialogs.Dialog();
@@ -51,7 +42,7 @@ WIKIDOT.modules.ForumViewThreadModule.listeners = {
 			t2.buttons = [ "go to active edit", "close"];
 			t2.title=" ";
 			t2.clickOutsideToClose = true;
-			t2.addButtonListener("go to active edit", WIKIDOT.modules.ForumViewThreadModule.listeners.goToActiveEdit);
+			t2.addButtonListener("go to active edit", Wikijump.modules.ForumViewThreadModule.listeners.goToActiveEdit);
 			t2.addButtonListener("close", t2.close);
 			t2.show();
 			return;
@@ -79,16 +70,16 @@ WIKIDOT.modules.ForumViewThreadModule.listeners = {
 
 		// save current parent id:
 		if(parentId){
-			WIKIDOT.modules.ForumViewThreadModule.vars.fakedParent = true;
-			WIKIDOT.modules.ForumViewThreadModule.vars.currentParentId = parentId;
+			Wikijump.modules.ForumViewThreadModule.vars.fakedParent = true;
+			Wikijump.modules.ForumViewThreadModule.vars.currentParentId = parentId;
 		}else{
-			WIKIDOT.modules.ForumViewThreadModule.vars.currentParentId = postId;
-			WIKIDOT.modules.ForumViewThreadModule.vars.fakedParent = false;
+			Wikijump.modules.ForumViewThreadModule.vars.currentParentId = postId;
+			Wikijump.modules.ForumViewThreadModule.vars.fakedParent = false;
 		}
-		WIKIDOT.modules.ForumViewThreadModule.vars.editActive = true;
+		Wikijump.modules.ForumViewThreadModule.vars.editActive = true;
 
 		// init editor
-		WIKIDOT.Editor.init("p-np-text", "p-np-editor-panel");
+		Wikijump.Editor.init("p-np-text", "p-np-editor-panel");
 
 		setTimeout('OZONE.visuals.scrollTo("new-post-form-container")', 300);
 	},
@@ -113,16 +104,16 @@ WIKIDOT.modules.ForumViewThreadModule.listeners = {
 		var formDiv = $('new-post-form-container');
 		formDiv.parentNode.removeChild(formDiv);
 		document.getElementById("new-post-button").style.display="";
-		WIKIDOT.modules.ForumViewThreadModule.vars.currentParentId = null;
-		WIKIDOT.modules.ForumViewThreadModule.vars.editActive = false;
+		Wikijump.modules.ForumViewThreadModule.vars.currentParentId = null;
+		Wikijump.modules.ForumViewThreadModule.vars.editActive = false;
 
-		WIKIDOT.Editor.shutDown();
+		Wikijump.Editor.shutDown();
 
 	},
 	preview: function(e){
 
 		var p = OZONE.utils.formToArray("p-new-post-form");
-		OZONE.ajax.requestModule("forum/ForumPreviewPostModule", p, WIKIDOT.modules.ForumViewThreadModule.callbacks.preview);
+		OZONE.ajax.requestModule("forum/ForumPreviewPostModule", p, Wikijump.modules.ForumViewThreadModule.callbacks.preview);
 
 	},
 	closePreview: function(e){
@@ -134,10 +125,10 @@ WIKIDOT.modules.ForumViewThreadModule.listeners = {
 		var p = OZONE.utils.formToArray("p-new-post-form");
 		p['action'] = "ForumAction";
 		p['event'] = "savePost";
-		if(WIKIDOT.modules.ForumViewThreadModule.vars.currentParentId){
-			p['parent_post_id'] = WIKIDOT.modules.ForumViewThreadModule.vars.currentParentId;
+		if(Wikijump.modules.ForumViewThreadModule.vars.currentParentId){
+			p['parent_post_id'] = Wikijump.modules.ForumViewThreadModule.vars.currentParentId;
 		}
-		OZONE.ajax.requestModule("Empty", p, WIKIDOT.modules.ForumViewThreadModule.callbacks.save);
+		OZONE.ajax.requestModule("Empty", p, Wikijump.modules.ForumViewThreadModule.callbacks.save);
 	},
 
 	togglePostOptions: function(event,postId){
@@ -185,7 +176,7 @@ WIKIDOT.modules.ForumViewThreadModule.listeners = {
 	permanentLink: function(postId){
 		var t2 = new OZONE.dialogs.SmallInfoBox();
 		t2.content='<h1>Permanent link</h1><p>Permanent link for this post is:</p>' +
-				'<p><strong>'+HTTP_SCHEMA+"://"+WIKIREQUEST.info.domain+'/forum:thread/t/'+WIKIDOT.forumThreadId+'#post-'+postId+'</strong></p>'	;
+				'<p><strong>'+HTTP_SCHEMA+"://"+WIKIREQUEST.info.domain+'/forum:thread/t/'+Wikijump.forumThreadId+'#post-'+postId+'</strong></p>'	;
 		t2.buttons = ["close"];
 		t2.title=" ";
 		t2.clickOutsideToClose = true;
@@ -194,27 +185,27 @@ WIKIDOT.modules.ForumViewThreadModule.listeners = {
 		t2.show();
 	},
 	goToActiveEdit: function(e){
-		if(WIKIDOT.modules.ForumViewThreadModule.vars.editActive){
+		if(Wikijump.modules.ForumViewThreadModule.vars.editActive){
 			OZONE.dialog.cleanAll();
 			OZONE.visuals.scrollTo('new-post-form-container');
 		}
 	},
 	editClick: function(e, postId){
 		// check if edit is not active somewhere
-		if(WIKIDOT.Editor.editElementId){
+		if(Wikijump.Editor.editElementId){
 			var w = new OZONE.dialogs.ErrorDialog();
 			w.content="You have an active editor somewhere already and it is not" +
 					" possible to edit multiple elemnts at once.<br/><br/>" +
-					'(<a href="javascript:;" onclick="OZONE.visuals.scrollTo(\''+WIKIDOT.Editor.editElementId+'\');OZONE.dialog.cleanAll()">scroll to active editor</a>)';
+					'(<a href="javascript:;" onclick="OZONE.visuals.scrollTo(\''+Wikijump.Editor.editElementId+'\');OZONE.dialog.cleanAll()">scroll to active editor</a>)';
 			w.show();
 			return;
 		}
 		// ok, insert edit box below the edited post
-		WIKIDOT.modules.ForumViewThreadModule.vars.currentEditPostId = postId;
+		Wikijump.modules.ForumViewThreadModule.vars.currentEditPostId = postId;
 	}
 }
 
-WIKIDOT.modules.ForumViewThreadModule.callbacks = {
+Wikijump.modules.ForumViewThreadModule.callbacks = {
 
 	newPost: function(r){
 
@@ -222,7 +213,7 @@ WIKIDOT.modules.ForumViewThreadModule.callbacks = {
 	preview: function(r){
 		var previewContainer = document.getElementById("p-new-post-preview-div");
 		var divNum;
-		if(WIKIDOT.modules.ForumViewThreadModule.vars.fakedParent){
+		if(Wikijump.modules.ForumViewThreadModule.vars.fakedParent){
 			divNum = 1;
 		}else{
 			divNum = 0;
@@ -246,8 +237,8 @@ WIKIDOT.modules.ForumViewThreadModule.callbacks = {
 
 }
 
-WIKIDOT.modules.ForumViewThreadModule.init = function(){
+Wikijump.modules.ForumViewThreadModule.init = function(){
 	OZONE.utils.formatDates();
 }
 
-WIKIDOT.modules.ForumViewThreadModule.init();
+Wikijump.modules.ForumViewThreadModule.init();

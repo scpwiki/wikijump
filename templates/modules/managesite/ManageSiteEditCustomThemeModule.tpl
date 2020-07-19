@@ -47,7 +47,7 @@
 						<div id="sm-cssimport-input-list" class="autocomplete-list"></div>
 					</div>
 					<br/>
-					<input class="button" type="button" value="import" onclick="WIKIDOT.modules.ManageSiteCustomThemesModule.listeners.importCss(event)"/>
+					<input class="button" type="button" value="import" onclick="Wikijump.modules.ManageSiteCustomThemesModule.listeners.importCss(event)"/>
 				</div>
 
 
@@ -75,8 +75,8 @@
 		</tr>
 	</table>
 	<div class="buttons">
-		<input type="button" value="cancel" onclick="WIKIDOT.modules.ManageSiteCustomThemesModule.listeners.cancelEditTheme(event)"/>
-		<input type="button" value="save theme"  onclick="WIKIDOT.modules.ManageSiteCustomThemesModule.listeners.saveTheme(event)"/>
+		<input type="button" value="cancel" onclick="Wikijump.modules.ManageSiteCustomThemesModule.listeners.cancelEditTheme(event)"/>
+		<input type="button" value="save theme"  onclick="Wikijump.modules.ManageSiteCustomThemesModule.listeners.saveTheme(event)"/>
 	</div>
 </form>
 

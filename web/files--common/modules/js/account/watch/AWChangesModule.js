@@ -1,19 +1,10 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.AWChangesModule = {};
 
-WIKIDOT.modules.AWChangesModule.listeners = {
+Wikijump.modules.AWChangesModule = {};
+
+Wikijump.modules.AWChangesModule.listeners = {
 	showWatchedPages: function(e){
-		OZONE.ajax.requestModule("/account/watch/AWPagesListModule", null, WIKIDOT.modules.AWChangesModule.callbacks.showWatchedPages);
+		OZONE.ajax.requestModule("/account/watch/AWPagesListModule", null, Wikijump.modules.AWChangesModule.callbacks.showWatchedPages);
 	},
 	hideWatchedPages: function(e){
 		$("watched-pages-list").innerHTML="";
@@ -27,7 +18,7 @@ WIKIDOT.modules.AWChangesModule.listeners = {
 		p.pageId = pageId;
 		p.action = "WatchAction";
 		p.event = "removeWatchedPage";
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.AWChangesModule.callbacks.removeWatchedPage);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.AWChangesModule.callbacks.removeWatchedPage);
 	},
 	updateList: function(event,pageNo){
 		var p = new Object();
@@ -37,13 +28,13 @@ WIKIDOT.modules.AWChangesModule.listeners = {
 			p.page = 1;
 		}
 
-		OZONE.ajax.requestModule("account/watch/AWChangesListModule", p, WIKIDOT.modules.AWChangesModule.callbacks.updateList);
+		OZONE.ajax.requestModule("account/watch/AWChangesListModule", p, Wikijump.modules.AWChangesModule.callbacks.updateList);
 	}
 }
 
-WIKIDOT.modules.AWChangesModule.callbacks = {
+Wikijump.modules.AWChangesModule.callbacks = {
 	showWatchedPages: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var el = $("watched-pages-list");
 		el.innerHTML = r.body;
 		el.style.display = "block";
@@ -52,15 +43,15 @@ WIKIDOT.modules.AWChangesModule.callbacks = {
 	},
 
 	removeWatchedPage: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Page not being watched any more.";
 		w.show();
-		WIKIDOT.modules.AWChangesModule.listeners.showWatchedPages();
-		WIKIDOT.modules.AWChangesModule.listeners.updateList();
+		Wikijump.modules.AWChangesModule.listeners.showWatchedPages();
+		Wikijump.modules.AWChangesModule.listeners.updateList();
 	},
 	updateList: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		$("watched-changes-list").innerHTML = r.body;
 		OZONE.utils.formatDates("watched-changes-list");
@@ -70,10 +61,10 @@ WIKIDOT.modules.AWChangesModule.callbacks = {
 
 }
 
-WIKIDOT.modules.AWChangesModule.init = function(){
+Wikijump.modules.AWChangesModule.init = function(){
 		OZONE.utils.formatDates("watched-changes-list");
 		OZONE.dialog.hovertip.makeTip($("watched-changes-list").getElementsByTagName('span'),
 				{style: {width: 'auto'}});
 }
 
-WIKIDOT.modules.AWChangesModule.init();
+Wikijump.modules.AWChangesModule.init();

@@ -55,8 +55,8 @@
 		</ul>
 
 		<div class="button-bar">
-			<a href="javascript:;" onclick="WIKIDOT.modules.PasswordRecoveryModule.listeners.cancel(event)">cancel</a>
-			<a href="javascript:;" onclick="WIKIDOT.modules.PasswordRecoveryModule.listeners.next2(event);">continue</a>
+			<a href="javascript:;" onclick="Wikijump.modules.PasswordRecoveryModule.listeners.cancel(event)">cancel</a>
+			<a href="javascript:;" onclick="Wikijump.modules.PasswordRecoveryModule.listeners.next2(event);">continue</a>
 		</div>
 	</form>
 

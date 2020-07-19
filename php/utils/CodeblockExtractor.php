@@ -1,16 +1,8 @@
 <?php
 
-
- * @version $Id: CodeblockExtractor.php,v 1.2 2008/08/05 21:00:26 quake Exp $
- * @copyright Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
- */
-
-
-
 use DB\PagePeer;
-use Wikidot\Form;
-use Wikidot\Template;
+use Wikijump\Form;
+use Wikijump\Template;
 
 class CodeblockExtractor
 {
@@ -98,7 +90,7 @@ class CodeblockExtractor
         // form definition is the YAML document before the first "---"
         $form_def = array_shift($template_parts);
 
-        // Wikidot (DTL) template is the rest
+        // Wikijump (DTL) template is the rest
         $template = trim(implode("\n---\n", $template_parts));
 
         $form = Form::fromYaml($form_def);

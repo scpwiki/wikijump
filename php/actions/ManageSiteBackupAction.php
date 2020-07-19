@@ -49,6 +49,6 @@ class ManageSiteBackupAction extends SmartyAction
         $c->add("site_id", $site->getSiteId());
         SiteBackupPeer::instance()->delete($c);
 
-        @exec('rm -r '.WIKIDOT_ROOT.'/web/files--sites/'.$site->getUnixName().'/backup');
+        @exec('rm -r '.WIKIJUMP_ROOT.'/web/files--sites/'.$site->getUnixName().'/backup');
     }
 }

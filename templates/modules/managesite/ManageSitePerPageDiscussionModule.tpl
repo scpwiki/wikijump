@@ -35,7 +35,7 @@
 	</div>
 
 	<div class="buttons">
-		<input type="button" value="cancel" onclick="WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-welcome')"/>
-		<input type="button" value="save" onclick="WIKIDOT.modules.ManageSitePerPageDiscussionModule.listeners.save(event)"/>
+		<input type="button" value="cancel" onclick="Wikijump.modules.ManagerSiteModule.utils.loadModule('sm-welcome')"/>
+		<input type="button" value="save" onclick="Wikijump.modules.ManageSitePerPageDiscussionModule.listeners.save(event)"/>
 	</div>
 </form>

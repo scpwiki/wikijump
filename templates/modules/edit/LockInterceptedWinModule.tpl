@@ -45,7 +45,7 @@
 				content loss, please use lock interception only when necessary.{/t}
 			</p>
 			<div class="button-bar">
-				<a href="javascript:;" onclick="WIKIDOT.modules.PageEditModule.listeners.forceLockIntercept(event)">{t}force lock aquire{/t}</a>
+				<a href="javascript:;" onclick="Wikijump.modules.PageEditModule.listeners.forceLockIntercept(event)">{t}force lock aquire{/t}</a>
 				<a href="javascript:;" onclick="OZONE.dialog.cleanAll()">{t}close this window{/t}</a>
 			</div>
 

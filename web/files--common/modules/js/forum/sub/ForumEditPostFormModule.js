@@ -1,27 +1,18 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.ForumEditPostFormModule = {};
 
-WIKIDOT.modules.ForumEditPostFormModule.listeners = {
+Wikijump.modules.ForumEditPostFormModule = {};
+
+Wikijump.modules.ForumEditPostFormModule.listeners = {
 	preview: function(e){
 		var p = OZONE.utils.formToArray("edit-post-form");
-		OZONE.ajax.requestModule("forum/ForumPreviewPostModule", p, WIKIDOT.modules.ForumEditPostFormModule.callbacks.preview);
+		OZONE.ajax.requestModule("forum/ForumPreviewPostModule", p, Wikijump.modules.ForumEditPostFormModule.callbacks.preview);
 	},
 	cancel: function(e){
 		// remove form
 		var formDiv = $('edit-post-form-container');
 		formDiv.parentNode.removeChild(formDiv);
 
-		WIKIDOT.Editor.shutDown();
+		Wikijump.Editor.shutDown();
 	},
 	closePreview: function(e){
 		$("edit-post-preview-div").style.display = "none";
@@ -34,13 +25,13 @@ WIKIDOT.modules.ForumEditPostFormModule.listeners = {
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Saving changes...";
 		w.show();
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.ForumEditPostFormModule.callbacks.save);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.ForumEditPostFormModule.callbacks.save);
 	}
 }
 
-WIKIDOT.modules.ForumEditPostFormModule.callbacks = {
+Wikijump.modules.ForumEditPostFormModule.callbacks = {
 	preview: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		var previewContainer = document.getElementById("edit-post-preview-div");
 		var divNum;
@@ -69,7 +60,7 @@ WIKIDOT.modules.ForumEditPostFormModule.callbacks = {
 			w.show();
 			return;
 		}
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Your changes have been saved.";

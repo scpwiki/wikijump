@@ -1,4 +1,4 @@
-<h1><a href="javascript:;" onclick="WIKIDOT.modules.AccountModule.utils.loadModule('am-settings')">Account settings</a> / Blocked users</h1>
+<h1><a href="javascript:;" onclick="Wikijump.modules.AccountModule.utils.loadModule('am-settings')">Account settings</a> / Blocked users</h1>
 
 <p>
 	You can maintain a private list of blocked users. Users from the list
@@ -15,7 +15,7 @@
 			<li style="margin: 0.2em 0">
 				{printuser user=$block->getBlockedUser() image="true"}
 
-				(<a href="javascript:;" onclick="WIKIDOT.modules.ASBlockedModule.listeners.deleteBlock(event, {$block->getBlockedUserId()}, '{$block->getBlockedUser()->getNickName()|escape}')">delete block</a>)
+				(<a href="javascript:;" onclick="Wikijump.modules.ASBlockedModule.listeners.deleteBlock(event, {$block->getBlockedUserId()}, '{$block->getBlockedUser()->getNickName()|escape}')">delete block</a>)
 
 			</li>
 		{/foreach}
@@ -24,7 +24,7 @@
 there are no blocked users.
 {/if}
 <div id="show-add-block-button">
-	<a href="javascript:;" onclick="WIKIDOT.modules.ASBlockedModule.listeners.showAddForm(event)">+ add user to blocklist</a>
+	<a href="javascript:;" onclick="Wikijump.modules.ASBlockedModule.listeners.showAddForm(event)">+ add user to blocklist</a>
 </div>
 
 <div id="add-block-user-div" style="display: none">
@@ -43,7 +43,7 @@ there are no blocked users.
 						</div>
 					</div>
 					<div id="selected-user-div" style="display: none">
-						<span id="selected-user-rendered"></span> (<a href="javascript:;" onclick="WIKIDOT.modules.ASBlockedModule.listeners.changeUser(event)">change</a>)
+						<span id="selected-user-rendered"></span> (<a href="javascript:;" onclick="Wikijump.modules.ASBlockedModule.listeners.changeUser(event)">change</a>)
 					</div>
 				</td>
 			</tr>
@@ -51,8 +51,8 @@ there are no blocked users.
 
 
 		<div class="buttons">
-			<input type="button" value="cancel" onclick="WIKIDOT.modules.ASBlockedModule.listeners.cancelAdd(event)"/>
-			<input type="button" value="block user" onclick="WIKIDOT.modules.ASBlockedModule.listeners.blockUser(event)"/>
+			<input type="button" value="cancel" onclick="Wikijump.modules.ASBlockedModule.listeners.cancelAdd(event)"/>
+			<input type="button" value="block user" onclick="Wikijump.modules.ASBlockedModule.listeners.blockUser(event)"/>
 		</div>
 	</form>
 </div>

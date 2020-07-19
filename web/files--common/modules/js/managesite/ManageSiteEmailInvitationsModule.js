@@ -1,19 +1,10 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.ManageSiteEmailInvitationsModule = {};
 
-WIKIDOT.modules.ManageSiteEmailInvitationsModule.vars = {};
+Wikijump.modules.ManageSiteEmailInvitationsModule = {};
 
-WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners = {
+Wikijump.modules.ManageSiteEmailInvitationsModule.vars = {};
+
+Wikijump.modules.ManageSiteEmailInvitationsModule.listeners = {
 	moreRecipients: function(e, rname, email){
 		if(false && $("invitation-addresses").getElementsByTagName("table").length > 200){
 			var w = new OZONE.dialogs.ErrorDialog();
@@ -40,12 +31,12 @@ WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners = {
 		if(el){
 			el.parentNode.removeChild(el);
 		}
-		WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.updateTo();
+		Wikijump.modules.ManageSiteEmailInvitationsModule.listeners.updateTo();
 	},
 
 	updateTo: function(e){
-		WIKIDOT.modules.ManageSiteEmailInvitationsModule.utils.updateAddresses(null);
-		var adrs = WIKIDOT.modules.ManageSiteEmailInvitationsModule.vars.addresses;
+		Wikijump.modules.ManageSiteEmailInvitationsModule.utils.updateAddresses(null);
+		var adrs = Wikijump.modules.ManageSiteEmailInvitationsModule.vars.addresses;
 		if(!adrs) {return;}
 		var frmt = new Array();
 
@@ -57,8 +48,8 @@ WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners = {
 	},
 
 	send: function(e){
-		WIKIDOT.modules.ManageSiteEmailInvitationsModule.utils.updateAddresses(null);
-		var adrs = WIKIDOT.modules.ManageSiteEmailInvitationsModule.vars.addresses;
+		Wikijump.modules.ManageSiteEmailInvitationsModule.utils.updateAddresses(null);
+		var adrs = Wikijump.modules.ManageSiteEmailInvitationsModule.vars.addresses;
 
 		if(adrs.length==0){
 			var w = new OZONE.dialogs.ErrorDialog();
@@ -83,7 +74,7 @@ WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners = {
 		p.event = 'sendEmailInvitations';
 		p.action = 'ManageSiteMembershipAction';
 		p.message = $("inv-message").value;
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.ManageSiteEmailInvitationsModule.callbacks.send);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.ManageSiteEmailInvitationsModule.callbacks.send);
 
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Sending invitations...";
@@ -113,12 +104,12 @@ WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners = {
 				rname = rname.replace(/ +/g, ' ');
 				rname = rname.replace(/^ +/, ' ');
 				rname = rname.replace(/ +$/, ' ');
-				WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.moreRecipients(null, rname, email);
+				Wikijump.modules.ManageSiteEmailInvitationsModule.listeners.moreRecipients(null, rname, email);
 			}
 		}
 		$("invitation-addresses-bulk-box").style.display = "none";
 		$("invitation-addresses-bulk-text").value = '';
-		WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.tidyList(null);
+		Wikijump.modules.ManageSiteEmailInvitationsModule.listeners.tidyList(null);
 	},
 
 	showUpload: function(e){
@@ -166,10 +157,10 @@ WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners = {
 			}
 		}
 
-		WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.updateTo(null);
+		Wikijump.modules.ManageSiteEmailInvitationsModule.listeners.updateTo(null);
 
-		WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.moreRecipients();
-		WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.moreRecipients();
+		Wikijump.modules.ManageSiteEmailInvitationsModule.listeners.moreRecipients();
+		Wikijump.modules.ManageSiteEmailInvitationsModule.listeners.moreRecipients();
 	},
 
 	startUpload: function(e){},
@@ -185,31 +176,31 @@ WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners = {
 		var ads = JSON.parse(addr);
 
 		for(var i=0;i<ads.length; i++){
-			WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.moreRecipients(null, ads[i]['name'], ads[i]['email']);
+			Wikijump.modules.ManageSiteEmailInvitationsModule.listeners.moreRecipients(null, ads[i]['name'], ads[i]['email']);
 		}
 
 		$("invitation-addresses-upload-box").style.display = "none";
 
-		WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.tidyList(null);
+		Wikijump.modules.ManageSiteEmailInvitationsModule.listeners.tidyList(null);
 
 	}
 }
 
-WIKIDOT.modules.ManageSiteEmailInvitationsModule.callbacks = {
+Wikijump.modules.ManageSiteEmailInvitationsModule.callbacks = {
 	send: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Invitations have been saved";
 		w.show();
 
-		window.setTimeout("WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-invitations-history');OZONE.visuals.scrollTo('header');", 1000);
+		window.setTimeout("Wikijump.modules.ManagerSiteModule.utils.loadModule('sm-invitations-history');OZONE.visuals.scrollTo('header');", 1000);
 
 	}
 
 }
 
-WIKIDOT.modules.ManageSiteEmailInvitationsModule.utils = {
+Wikijump.modules.ManageSiteEmailInvitationsModule.utils = {
 	updateAddresses: function(e){
 		// manually create a list of addresses
 		var adrs = new Array();
@@ -233,14 +224,14 @@ WIKIDOT.modules.ManageSiteEmailInvitationsModule.utils = {
 				YAHOO.util.Dom.removeClass(inpts[0], 'invalid');
 			}
 		}
-		WIKIDOT.modules.ManageSiteEmailInvitationsModule.vars.addresses = adrs;
+		Wikijump.modules.ManageSiteEmailInvitationsModule.vars.addresses = adrs;
 	}
 }
 
-WIKIDOT.modules.ManageSiteEmailInvitationsModule.init = function(){
-	WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.moreRecipients();
-	WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.moreRecipients();
-	WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.moreRecipients();
+Wikijump.modules.ManageSiteEmailInvitationsModule.init = function(){
+	Wikijump.modules.ManageSiteEmailInvitationsModule.listeners.moreRecipients();
+	Wikijump.modules.ManageSiteEmailInvitationsModule.listeners.moreRecipients();
+	Wikijump.modules.ManageSiteEmailInvitationsModule.listeners.moreRecipients();
 }
 
-WIKIDOT.modules.ManageSiteEmailInvitationsModule.init();
+Wikijump.modules.ManageSiteEmailInvitationsModule.init();

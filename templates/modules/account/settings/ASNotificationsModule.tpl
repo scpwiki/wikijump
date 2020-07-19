@@ -1,4 +1,4 @@
-<h1><a href="javascript:;" onclick="WIKIDOT.modules.AccountModule.utils.loadModule('am-settings')">Account settings</a> / Notifications</h1>
+<h1><a href="javascript:;" onclick="Wikijump.modules.AccountModule.utils.loadModule('am-settings')">Account settings</a> / Notifications</h1>
 
 <p>
 	When an event important to you takes place
@@ -58,8 +58,8 @@
 	</table>
 
 	<div class="buttons">
-		<input type="button" value="cancel" onclick="WIKIDOT.modules.AccountModule.utils.loadModule('am-settings')"/>
-		<input type="button" value="save" onclick="WIKIDOT.modules.ASNotificationsModule.listeners.save(event)"/>
+		<input type="button" value="cancel" onclick="Wikijump.modules.AccountModule.utils.loadModule('am-settings')"/>
+		<input type="button" value="save" onclick="Wikijump.modules.ASNotificationsModule.listeners.save(event)"/>
 	</div>
 </form>
 *}
@@ -73,7 +73,7 @@
 <p>
 	From time to time a pop-up window with the new notifications appears to inform you about
 	events related to your account. This happens only when you are logged in and browse
-	any of the Wikidot Sites.
+	any of the Wikijump Sites.
 </p>
 
 <h2>Email notifications</h2>
@@ -91,7 +91,7 @@
 			<input type="checkbox" class="checkbox" id="as-receive-digest" {if $settings->getReceiveDigest()}checked="checked"{/if}/>
 		</td>
 		<td>
-			<input type="button" class="button" value="apply setting" onclick="WIKIDOT.modules.ASNotificationsModule.listeners.saveReceiveDigest(event)"/>
+			<input type="button" class="button" value="apply setting" onclick="Wikijump.modules.ASNotificationsModule.listeners.saveReceiveDigest(event)"/>
 		</td>
 	</tr>
 
@@ -107,13 +107,13 @@
 <table class="form">
 	<tr>
 		<td>
-			Receive Wikidot Newsletter?
+			Receive Wikijump Newsletter?
 		</td>
 		<td>
 			<input type="checkbox" class="checkbox" id="as-receive-newsletter"  {if $settings->getReceiveNewsletter()}checked="checked"{/if}/>
 		</td>
 		<td>
-			<input type="button" class="button" value="apply setting" onclick="WIKIDOT.modules.ASNotificationsModule.listeners.saveReceiveNewsletter(event)"/>
+			<input type="button" class="button" value="apply setting" onclick="Wikijump.modules.ASNotificationsModule.listeners.saveReceiveNewsletter(event)"/>
 		</td>
 	</tr>
 

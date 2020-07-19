@@ -69,7 +69,7 @@ class AccountProfileAction extends SmartyAction
         }
 
         // new temporary files for 48 and 16 images
-        $dir = WIKIDOT_ROOT . '/web/files--common/tmp/avatars-upload';
+        $dir = WIKIJUMP_ROOT . '/web/files--common/tmp/avatars-upload';
 
         $im48fn = tempnam($dir, "av") . ".png";
         $im16fn = tempnam($dir, "av") . ".png";
@@ -107,11 +107,11 @@ class AccountProfileAction extends SmartyAction
         $im48 = $pl->getParameterValue("im48");
         $im16 = $pl->getParameterValue("im16");
 
-        $avatarDir = WIKIDOT_ROOT . '/web/files--common/images/avatars/';
+        $avatarDir = WIKIJUMP_ROOT . '/web/files--common/images/avatars/';
         $avatarDir .= '' . floor($userId / 1000) . '/' . $userId;
 
         mkdirfull($avatarDir);
-        $tmpDir = WIKIDOT_ROOT . '/web/files--common/tmp/avatars-upload';
+        $tmpDir = WIKIJUMP_ROOT . '/web/files--common/tmp/avatars-upload';
         rename($tmpDir . '/' . $im48, $avatarDir . '/a48.png');
         rename($tmpDir . '/' . $im16, $avatarDir . '/a16.png');
         unlink($tmpDir . '/' . str_replace('.png', '', $im48));
@@ -121,7 +121,7 @@ class AccountProfileAction extends SmartyAction
     public function deleteAvatarEvent($runData)
     {
         $userId = $runData->getUserId();
-        $avatarDir = WIKIDOT_ROOT . '/web/files--common/images/avatars/';
+        $avatarDir = WIKIJUMP_ROOT . '/web/files--common/images/avatars/';
         $avatarDir .= '' . floor($userId / 1000) . '/' . $userId;
         unlink($avatarDir . '/a48.png');
         unlink($avatarDir . '/a16.png');
@@ -142,7 +142,7 @@ class AccountProfileAction extends SmartyAction
             $runData->ajaxResponseAdd("status", "fetch_failed");
             return;
         }
-        $dir = WIKIDOT_ROOT . '/web/files--common/tmp/avatars-upload';
+        $dir = WIKIJUMP_ROOT . '/web/files--common/tmp/avatars-upload';
         $tmpname = tempnam($dir, "uriup");
 
         file_put_contents($tmpname, $fileContent);
@@ -287,7 +287,7 @@ class AccountProfileAction extends SmartyAction
         //handle forbidden names
         $unixName = WDStringUtils::toUnixName($name);
 
-        $forbiddenUnixNames = explode("\n", file_get_contents(WIKIDOT_ROOT . '/conf/forbidden_user_names.conf'));
+        $forbiddenUnixNames = explode("\n", file_get_contents(WIKIJUMP_ROOT . '/conf/forbidden_user_names.conf'));
         foreach ($forbiddenUnixNames as $f) {
             if (preg_match($f, $unixName) > 0) {
                 throw new ProcessException(_('For some reason this name is not allowed or is reserved for future use.'));

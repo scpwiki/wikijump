@@ -1,5 +1,5 @@
 <?php
-use Wikidot\Search\Lucene;
+use Wikijump\Search\Lucene;
 
 class UpdateLuceneIndexJob implements SchedulerJob
 {

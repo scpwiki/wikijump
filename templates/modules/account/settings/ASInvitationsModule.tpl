@@ -1,4 +1,4 @@
-<h1><a href="javascript:;" onclick="WIKIDOT.modules.AccountModule.utils.loadModule('am-settings')">Account settings</a> / Receiving invitations</h1>
+<h1><a href="javascript:;" onclick="Wikijump.modules.AccountModule.utils.loadModule('am-settings')">Account settings</a> / Receiving invitations</h1>
 
 <p>
 	Site administrators can send individual invitations to other users
@@ -19,7 +19,7 @@
 		</tr>
 	</table>
 	<div class="buttons">
-		<input type="button" value="cancel" onclick="WIKIDOT.modules.AccountModule.utils.loadModule('am-settings')"/>
-		<input type="button" value="save" onclick="WIKIDOT.modules.ASInvitationsModule.listeners.save(event)"/>
+		<input type="button" value="cancel" onclick="Wikijump.modules.AccountModule.utils.loadModule('am-settings')"/>
+		<input type="button" value="save" onclick="Wikijump.modules.ASInvitationsModule.listeners.save(event)"/>
 	</div>
 </form>

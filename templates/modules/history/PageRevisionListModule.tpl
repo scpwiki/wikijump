@@ -57,7 +57,7 @@
 			 <a title="{t}view page revision{/t}" href="javascript:;" onclick="showVersion({$pr->getRevisionId()})">V</a>
 			 <a title="{t}view source of the revision{/t}" href="javascript:;" onclick="showSource({$pr->getRevisionId()})">S</a>
 			 {if ($pr->getFlagNew() || $pr->getFlagText() || $pr->getFlagTitle()) && $page->getRevisionId() != $pr->getRevisionId() } {*&& $currentRevision->getSourceId() != $pr->getSourceId()}*}
-			 	<a title="{t}revert to revision{/t}" href="javascript:;" onclick="WIKIDOT.modules.PageHistoryModule.listeners.revert(event,{$pr->getRevisionId()})">R</a>
+			 	<a title="{t}revert to revision{/t}" href="javascript:;" onclick="Wikijump.modules.PageHistoryModule.listeners.revert(event,{$pr->getRevisionId()})">R</a>
 			 {/if}
 		</td>
 		<td style="width: 15em">{printuser user=$pr->getUserOrString() image="true"}</td>

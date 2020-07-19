@@ -1,7 +1,7 @@
 <?php
-namespace Wikidot\Util;
+namespace Wikijump\Util;
 
-use Wikidot\Util\Diff as WikidotUtilDiff;
+use Wikijump\Util\Diff as WikijumpUtilDiff;
 
 /**
  * A set of methods handling diff operations.
@@ -32,8 +32,8 @@ class Diff
 
 #       or the diff command:
 #
-        $file_from = tempnam(WIKIDOT_ROOT . '/tmp', 'diff-');
-        $file_to = tempnam(WIKIDOT_ROOT . '/tmp', 'diff-');
+        $file_from = tempnam(WIKIJUMP_ROOT . '/tmp', 'diff-');
+        $file_to = tempnam(WIKIJUMP_ROOT . '/tmp', 'diff-');
         file_put_contents($file_from, $fromString);
         file_put_contents($file_to, $toString);
 
@@ -124,7 +124,7 @@ class Diff
         $output = array();
 
         // make a diff with the FULL output included too.
-        $diff = WikidotUtilDiff::generateStringDiff($fromString, $toString, count(explode("\n", $toString)));
+        $diff = WikijumpUtilDiff::generateStringDiff($fromString, $toString, count(explode("\n", $toString)));
 
         $diffs2 = explode("\n", $diff);
         $diffs = array();

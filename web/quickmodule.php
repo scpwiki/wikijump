@@ -18,7 +18,7 @@ if ($data != null && $data !== '') {
 $moduleName = $_GET['module'];
 // check if exists
 
-$modulePath = WIKIDOT_ROOT . "/php/quickmodules/" . $moduleName . ".php";
+$modulePath = WIKIJUMP_ROOT . "/php/quickmodules/" . $moduleName . ".php";
 if (file_exists($modulePath)) {
     require_once ($modulePath);
 

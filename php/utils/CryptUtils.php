@@ -18,7 +18,7 @@ class CryptUtils
 
     public static function rsaGenerateModulus()
     {
-        $keyFile = WIKIDOT_ROOT.'/'.self::$keyFile;
+        $keyFile = WIKIJUMP_ROOT.'/'.self::$keyFile;
         $keyFile = escapeshellarg($keyFile);
         $cmd = 'openssl rsa -in '.$keyFile.' -noout -modulus';
         $modulus =  exec($cmd);
@@ -28,7 +28,7 @@ class CryptUtils
 
     public static function rsaDecrypt($text)
     {
-        $keyFile = WIKIDOT_ROOT.'/'.self::$keyFile;
+        $keyFile = WIKIJUMP_ROOT.'/'.self::$keyFile;
         $keyFile = escapeshellarg($keyFile);
         $cmd = 'openssl base64 -d | openssl rsautl -inkey '.$keyFile.' -decrypt';
         $descriptorspec = array(
@@ -55,7 +55,7 @@ class CryptUtils
 
     public static function rsaEncrypt($text)
     {
-        $keyFile = WIKIDOT_ROOT.'/'.self::$publicFile;
+        $keyFile = WIKIJUMP_ROOT.'/'.self::$publicFile;
         $keyFile = escapeshellarg($keyFile);
         $cmd = 'openssl rsautl -pubin -inkey '.$keyFile.' -encrypt | openssl base64 -e';
         $descriptorspec = array(
@@ -82,7 +82,7 @@ class CryptUtils
 
     public static function modulus()
     {
-        $m = file_get_contents(WIKIDOT_ROOT.'/conf/ssl/modulus.pem');
+        $m = file_get_contents(WIKIJUMP_ROOT.'/conf/ssl/modulus.pem');
         return trim($m);
     }
 }

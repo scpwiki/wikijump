@@ -88,7 +88,7 @@
 					<td>
 						<input type="checkbox" name="tos" class="checkbox">
 
-						<!-- TODO: De-Wikidot.com-ize - change -->
+						<!-- TODO: De-Wikijump.com-ize - change -->
 						{t 1=$URL_HOST}I have read and agree to the <a href="{$HTTP_SCHEMA}://%1/legal:terms-of-service"
 						target="_blank">Terms of Service</a>.{/t}
 
@@ -111,8 +111,8 @@
 
 	</div>
 	<div class="button-bar">
-		<a href="javascript:;"  onclick="WIKIDOT.modules.CreateAccountModule.listeners.cancel(event)">{t}cancel{/t}</a>
-		<a href="javascript:;" onclick="WIKIDOT.modules.CreateAccount0Module.listeners.nextClick(event)">{t}next{/t}</a>
+		<a href="javascript:;"  onclick="Wikijump.modules.CreateAccountModule.listeners.cancel(event)">{t}cancel{/t}</a>
+		<a href="javascript:;" onclick="Wikijump.modules.CreateAccount0Module.listeners.nextClick(event)">{t}next{/t}</a>
 	</div>
 </div>
 

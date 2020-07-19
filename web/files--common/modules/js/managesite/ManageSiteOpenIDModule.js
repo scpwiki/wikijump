@@ -1,29 +1,20 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.ManageSiteOpenIDModule = {}
 
-WIKIDOT.modules.ManageSiteOpenIDModule.vars = {
+Wikijump.modules.ManageSiteOpenIDModule = {}
+
+Wikijump.modules.ManageSiteOpenIDModule.vars = {
 	randoms: new Object(),
 	services: null
 }
 
-WIKIDOT.modules.ManageSiteOpenIDModule.listeners = {
+Wikijump.modules.ManageSiteOpenIDModule.listeners = {
 	addEntry: function(e){
 		var cont = $("sm-openid-templateform").innerHTML;
 		var rand;
 		do{
 			rand = Math.ceil(Math.random()*10000)+1000;
-		}while(WIKIDOT.modules.ManageSiteOpenIDModule.vars.randoms[rand] == true);
-		WIKIDOT.modules.ManageSiteOpenIDModule.vars.randoms[rand] = true;
+		}while(Wikijump.modules.ManageSiteOpenIDModule.vars.randoms[rand] == true);
+		Wikijump.modules.ManageSiteOpenIDModule.vars.randoms[rand] = true;
 
 		cont = cont.replace(/RAND/g, rand);
 
@@ -69,7 +60,7 @@ WIKIDOT.modules.ManageSiteOpenIDModule.listeners = {
 		var serverInput = $("sm-openid-urlserver-"+id);
 
 		// check if URL matches any of the patterns...
-		var os = WIKIDOT.modules.ManageSiteOpenIDModule.vars.services;
+		var os = Wikijump.modules.ManageSiteOpenIDModule.vars.services;
 		var pattern = null;
 		var server = null;
 		var reg = null;
@@ -99,7 +90,7 @@ WIKIDOT.modules.ManageSiteOpenIDModule.listeners = {
 		}
 
 		p.vals = JSON.stringify(vals);
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.ManageSiteOpenIDModule.callbacks.save);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.ManageSiteOpenIDModule.callbacks.save);
 
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Saving changes...";
@@ -108,18 +99,18 @@ WIKIDOT.modules.ManageSiteOpenIDModule.listeners = {
 
 }
 
-WIKIDOT.modules.ManageSiteOpenIDModule.callbacks = {
+Wikijump.modules.ManageSiteOpenIDModule.callbacks = {
 	save: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Changes saved";
 		w.show();
 	}
 }
-WIKIDOT.modules.ManageSiteOpenIDModule.init = function(){
+Wikijump.modules.ManageSiteOpenIDModule.init = function(){
 	var os = $("sm-openid-patterns").innerHTML;
 
-	WIKIDOT.modules.ManageSiteOpenIDModule.vars.services = JSON.parse(os);
+	Wikijump.modules.ManageSiteOpenIDModule.vars.services = JSON.parse(os);
 }
 
-WIKIDOT.modules.ManageSiteOpenIDModule.init();
+Wikijump.modules.ManageSiteOpenIDModule.init();

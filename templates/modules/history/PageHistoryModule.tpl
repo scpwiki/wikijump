@@ -1,7 +1,7 @@
 <h1>{t}Page history of changes{/t}</h1>
 
 <div style="float:right">
-	<a href="javascript:;" onclick="WIKIDOT.modules.PageHistoryModule.listeners.watchPage(event)">{t}add to watched{/t}</a>
+	<a href="javascript:;" onclick="Wikijump.modules.PageHistoryModule.listeners.watchPage(event)">{t}add to watched{/t}</a>
 </div>
 
 <form id="history-form-1">
@@ -36,7 +36,7 @@
 		</tr>
 	</table>
 	<div class="buttons">
-		<input type="button" value="{t}update list{/t}" onclick="WIKIDOT.modules.PageHistoryModule.listeners.updateList(event)"/>
+		<input type="button" value="{t}update list{/t}" onclick="Wikijump.modules.PageHistoryModule.listeners.updateList(event)"/>
 	</div>
 
 	<input class="button" type="button" name="compare" id="history-compare-button" value="{t}compare versions{/t}"/>

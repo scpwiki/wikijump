@@ -1,23 +1,14 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.AccountMessagesModule = {
+
+Wikijump.modules.AccountMessagesModule = {
 	vars: {}
 };
 
-WIKIDOT.modules.AccountMessagesModule.listeners = {
+Wikijump.modules.AccountMessagesModule.listeners = {
 	inbox: function(e, pageNo){
 		var p = null;
 		if(pageNo){p = {page: pageNo}};
-		OZONE.ajax.requestModule("account/pm/PMInboxModule", p, WIKIDOT.modules.AccountMessagesModule.callbacks.setActionArea);
+		OZONE.ajax.requestModule("account/pm/PMInboxModule", p, Wikijump.modules.AccountMessagesModule.callbacks.setActionArea);
 		var tp = $("account-top-tabs");
 		var as = tp.getElementsByTagName('a');
 		for(var i=0; i<as.length; i++){
@@ -32,7 +23,7 @@ WIKIDOT.modules.AccountMessagesModule.listeners = {
 	sent: function(e, pageNo){
 		var p = null;
 		if(pageNo){p = {page: pageNo}};
-		OZONE.ajax.requestModule("account/pm/PMSentModule", p, WIKIDOT.modules.AccountMessagesModule.callbacks.setActionArea);
+		OZONE.ajax.requestModule("account/pm/PMSentModule", p, Wikijump.modules.AccountMessagesModule.callbacks.setActionArea);
 		var tp = $("account-top-tabs");
 		var as = tp.getElementsByTagName('a');
 		for(var i=0; i<as.length; i++){
@@ -44,7 +35,7 @@ WIKIDOT.modules.AccountMessagesModule.listeners = {
 	drafts: function(e, pageNo){
 		var p = null;
 		if(pageNo){p = {page: pageNo}};
-		OZONE.ajax.requestModule("account/pm/PMDraftsModule", p, WIKIDOT.modules.AccountMessagesModule.callbacks.setActionArea);
+		OZONE.ajax.requestModule("account/pm/PMDraftsModule", p, Wikijump.modules.AccountMessagesModule.callbacks.setActionArea);
 		var tp = $("account-top-tabs");
 		var as = tp.getElementsByTagName('a');
 		for(var i=0; i<as.length; i++){
@@ -59,7 +50,7 @@ WIKIDOT.modules.AccountMessagesModule.listeners = {
 		if(userId != null){
 			p['toUserId'] = userId;
 		}
-		OZONE.ajax.requestModule("account/pm/PMComposeModule", p, WIKIDOT.modules.AccountMessagesModule.callbacks.compose);
+		OZONE.ajax.requestModule("account/pm/PMComposeModule", p, Wikijump.modules.AccountMessagesModule.callbacks.compose);
 		var tp = $("account-top-tabs");
 		var as = tp.getElementsByTagName('a');
 		for(var i=0; i<as.length; i++){
@@ -68,20 +59,20 @@ WIKIDOT.modules.AccountMessagesModule.listeners = {
 		var curr = as.item(3);
 		YAHOO.util.Dom.addClass(curr, "active");
 
-		YAHOO.util.Event.addListener("pm-compose-cancel-button", "click", WIKIDOT.modules.AccountMessagesModule.listeners.inbox);
+		YAHOO.util.Event.addListener("pm-compose-cancel-button", "click", Wikijump.modules.AccountMessagesModule.listeners.inbox);
 	},
 
 	viewInboxMessage: function(messageId){
 		var p = new Object();
 		p['message_id'] = messageId;
-		OZONE.ajax.requestModule("account/pm/PMInboxMessageModule", p, WIKIDOT.modules.AccountMessagesModule.callbacks.setActionArea);
+		OZONE.ajax.requestModule("account/pm/PMInboxMessageModule", p, Wikijump.modules.AccountMessagesModule.callbacks.setActionArea);
 	},
 	replyInboxMessage: function(e, messageId){
 		var p = new Object();
 		if(messageId){
 			p.replyMessageId = messageId;
 		}
-		OZONE.ajax.requestModule("account/pm/PMComposeModule", p, WIKIDOT.modules.AccountMessagesModule.callbacks.replyInboxMessage);
+		OZONE.ajax.requestModule("account/pm/PMComposeModule", p, Wikijump.modules.AccountMessagesModule.callbacks.replyInboxMessage);
 
 	},
 
@@ -96,12 +87,12 @@ WIKIDOT.modules.AccountMessagesModule.listeners = {
 	viewSentMessage: function(messageId){
 		var p = new Object();
 		p['message_id'] = messageId;
-		OZONE.ajax.requestModule("account/pm/PMSentMessageModule", p, WIKIDOT.modules.AccountMessagesModule.callbacks.setActionArea);
+		OZONE.ajax.requestModule("account/pm/PMSentMessageModule", p, Wikijump.modules.AccountMessagesModule.callbacks.setActionArea);
 	},
 	viewDraftsMessage: function(messageId){
 		var p = new Object();
 		p['message_id'] = messageId;
-		OZONE.ajax.requestModule("account/pm/PMDraftsMessageModule", p, WIKIDOT.modules.AccountMessagesModule.callbacks.setActionArea);
+		OZONE.ajax.requestModule("account/pm/PMDraftsMessageModule", p, Wikijump.modules.AccountMessagesModule.callbacks.setActionArea);
 	},
 	cancelCompose: function(e){
 
@@ -109,37 +100,37 @@ WIKIDOT.modules.AccountMessagesModule.listeners = {
 
 }
 
-WIKIDOT.modules.AccountMessagesModule.callbacks = {
+Wikijump.modules.AccountMessagesModule.callbacks = {
 	setActionArea: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		$("pm-action-area").innerHTML = r.body;
 		// format dates
 		OZONE.utils.formatDates($("pm-action-area"));
-		WIKIDOT.page.fixers.fixEmails($("pm-action-area"));
+		Wikijump.page.fixers.fixEmails($("pm-action-area"));
 
 	},
 	compose: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		$("pm-action-area").innerHTML = r.body;
 		// format dates
 		OZONE.utils.formatDates($("pm-action-area"));
 		if(r.toUserId){
-			WIKIDOT.modules.AccountMessagesModule.vars.toUserId = r.toUserId;
-			WIKIDOT.modules.AccountMessagesModule.vars.toUserName = r.toUserName;
+			Wikijump.modules.AccountMessagesModule.vars.toUserId = r.toUserId;
+			Wikijump.modules.AccountMessagesModule.vars.toUserName = r.toUserName;
 		}else{
-			WIKIDOT.modules.AccountMessagesModule.vars.toUserId = null;
-			WIKIDOT.modules.AccountMessagesModule.vars.toUserName = null;
+			Wikijump.modules.AccountMessagesModule.vars.toUserId = null;
+			Wikijump.modules.AccountMessagesModule.vars.toUserName = null;
 		}
 
 	},
 	replyInboxMessage: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		if(r.toUserId){
-			WIKIDOT.modules.AccountMessagesModule.vars.toUserId = r.toUserId;
-			WIKIDOT.modules.AccountMessagesModule.vars.toUserName = r.toUserName;
+			Wikijump.modules.AccountMessagesModule.vars.toUserId = r.toUserId;
+			Wikijump.modules.AccountMessagesModule.vars.toUserName = r.toUserName;
 		}else{
-			WIKIDOT.modules.AccountMessagesModule.vars.toUserId = null;
-			WIKIDOT.modules.AccountMessagesModule.vars.toUserName = null;
+			Wikijump.modules.AccountMessagesModule.vars.toUserId = null;
+			Wikijump.modules.AccountMessagesModule.vars.toUserName = null;
 		}
 		$("pm-reply-area").innerHTML = r.body;
 		setTimeout('OZONE.visuals.scrollTo($("pm-reply-area"))', 200);
@@ -149,12 +140,12 @@ WIKIDOT.modules.AccountMessagesModule.callbacks = {
 			nav1.style.display = "none";
 		}
 
-		YAHOO.util.Event.addListener("pm-compose-cancel-button", "click", WIKIDOT.modules.AccountMessagesModule.listeners.cancelReplyInboxMessage);
+		YAHOO.util.Event.addListener("pm-compose-cancel-button", "click", Wikijump.modules.AccountMessagesModule.listeners.cancelReplyInboxMessage);
 	}
 
 }
 
-WIKIDOT.modules.AccountMessagesModule.utils = {
+Wikijump.modules.AccountMessagesModule.utils = {
 	highlightTab: function(e){
 		// dehighlight all tabs
 		var tp = $("account-top-tabs");
@@ -170,25 +161,25 @@ WIKIDOT.modules.AccountMessagesModule.utils = {
 }
 
 function inboxPage(pageNo){
-	WIKIDOT.modules.AccountMessagesModule.listeners.inbox(null, pageNo);
+	Wikijump.modules.AccountMessagesModule.listeners.inbox(null, pageNo);
 }
 
 function sentPage(pageNo){
-	WIKIDOT.modules.AccountMessagesModule.listeners.sent(null, pageNo);
+	Wikijump.modules.AccountMessagesModule.listeners.sent(null, pageNo);
 }
 function draftsPage(pageNo){
-	WIKIDOT.modules.AccountMessagesModule.listeners.drafts(null, pageNo);
+	Wikijump.modules.AccountMessagesModule.listeners.drafts(null, pageNo);
 }
 
-WIKIDOT.modules.AccountMessagesModule.init = function(){
+Wikijump.modules.AccountMessagesModule.init = function(){
 	if(window.composeTo){
-		WIKIDOT.modules.AccountMessagesModule.listeners.compose(null,window.composeTo);
+		Wikijump.modules.AccountMessagesModule.listeners.compose(null,window.composeTo);
 		// attach cancel listener ???
 	}else if(window.inboxMessage){
-		WIKIDOT.modules.AccountMessagesModule.listeners.viewInboxMessage(window.inboxMessage);
+		Wikijump.modules.AccountMessagesModule.listeners.viewInboxMessage(window.inboxMessage);
 	}else{
 		inboxPage();
 	}
 }
 
-WIKIDOT.modules.AccountMessagesModule.init();
+Wikijump.modules.AccountMessagesModule.init();

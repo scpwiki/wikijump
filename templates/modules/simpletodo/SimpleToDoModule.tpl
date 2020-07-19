@@ -74,7 +74,7 @@
 	</table>
 	<div class="bottom-options">
 		{if $canEdit}
-			<a href="javascript:;" id="simpletodo-add-task-anchor{$listCounter}" onclick="WIKIDOT.modules.SimpleToDoModule.listeners.clickToAddTask(event,'simpletodo_{$listCounter}')"><img src="/common--images/todo/list-add.png"/>Add Item</a>
+			<a href="javascript:;" id="simpletodo-add-task-anchor{$listCounter}" onclick="Wikijump.modules.SimpleToDoModule.listeners.clickToAddTask(event,'simpletodo_{$listCounter}')"><img src="/common--images/todo/list-add.png"/>Add Item</a>
 		{/if}
 	</div>
 	<div class="label">{$label}</div>

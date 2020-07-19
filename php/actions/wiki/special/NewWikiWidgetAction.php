@@ -34,7 +34,7 @@ class NewWikiWidgetAction extends SmartyAction
 
         if (!$runData->getUser() || !$runData->getUser()->getSuperAdmin()) {
             //  handle forbidden names
-            $forbiddenUnixNames = explode("\n", file_get_contents(WIKIDOT_ROOT.'/conf/forbidden_site_names.conf'));
+            $forbiddenUnixNames = explode("\n", file_get_contents(WIKIJUMP_ROOT.'/conf/forbidden_site_names.conf'));
             foreach ($forbiddenUnixNames as $f) {
                 if (preg_match($f, $unixName) >0) {
                     throw new ProcessException(_('For some reason this web address is not allowed or is reserved for future use.'));

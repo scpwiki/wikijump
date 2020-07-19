@@ -6,7 +6,7 @@
 			<div class="site-list-item">
 				{assign var=site value=$member->getSite()}
 				<div class="options">
-					{t}options{/t}: <a href="javascript:;" onclick="WIKIDOT.modules.AccountMemberOfModule.listeners.signOff(event, [{$site->getSiteId()}, '{$site->getName()}'])">{t}sign off{/t}</a>
+					{t}options{/t}: <a href="javascript:;" onclick="Wikijump.modules.AccountMemberOfModule.listeners.signOff(event, [{$site->getSiteId()}, '{$site->getName()}'])">{t}sign off{/t}</a>
 				</div>
 				<div class="name">
 					<a href="{$HTTP_SCHEMA}://{$site->getDomain()}">{$site->getName()|escape}</a>

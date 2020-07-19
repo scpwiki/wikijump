@@ -1,6 +1,6 @@
 <?php
 use DB\SitePeer;
-use Wikidot\Search\Highlighter;
+use Wikijump\Search\Highlighter;
 
 class WikiFlowController extends WebFlowController
 {
@@ -9,7 +9,7 @@ class WikiFlowController extends WebFlowController
     {
         global $timeStart;
 
-        // quick fix to prevent recursive RSS access by Wikidot itself.
+        // quick fix to prevent recursive RSS access by Wikijump itself.
         if (strpos($_SERVER['HTTP_USER_AGENT'], 'MagpieRSS') !== false) {
             exit();
         }
@@ -17,7 +17,7 @@ class WikiFlowController extends WebFlowController
         // initialize logging service
         $logger = OzoneLogger::instance();
         $loggerFileOutput = new OzoneLoggerFileOutput();
-        $loggerFileOutput->setLogFileName(WIKIDOT_ROOT."/logs/ozone.log");
+        $loggerFileOutput->setLogFileName(WIKIJUMP_ROOT."/logs/ozone.log");
         $logger->addLoggerOutput($loggerFileOutput);
         $logger->setDebugLevel(GlobalProperties::$LOGGER_LEVEL);
 
@@ -87,7 +87,7 @@ class WikiFlowController extends WebFlowController
         }
 
         if (!$site) {
-            $content = file_get_contents(WIKIDOT_ROOT."/resources/views/site_not_exists.html");
+            $content = file_get_contents(WIKIJUMP_ROOT."/resources/views/site_not_exists.html");
             echo $content;
             return $content;
         }
@@ -119,7 +119,7 @@ class WikiFlowController extends WebFlowController
 
         // Set the text domain as 'messages'
         $gdomain = 'messages';
-        bindtextdomain($gdomain, WIKIDOT_ROOT.'/locale');
+        bindtextdomain($gdomain, WIKIJUMP_ROOT.'/locale');
         textdomain($gdomain);
 
         $settings = $site->getSettings();

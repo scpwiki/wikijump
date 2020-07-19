@@ -2,8 +2,8 @@
 use DB\PagePeer;
 use DB\CategoryPeer;
 use DB\PageEditLock;
-use Wikidot\Form;
-use Wikidot\Form\Renderer;
+use Wikijump\Form;
+use Wikijump\Form\Renderer;
 use DB\PageEditLockPeer;
 
 class PageEditModule extends SmartyModule

@@ -30,7 +30,7 @@ class ManageSiteEditCustomThemeModule extends ManageSiteBaseModule
                 throw new ProcessException(_("Error selecting theme."), "wrong_theme");
             }
             $runData->contextAdd("theme", $theme);
-            $dir = WIKIDOT_ROOT."/web/files--sites/".$site->getUnixName()."/theme/".$theme->getUnixName();
+            $dir = WIKIJUMP_ROOT."/web/files--sites/".$site->getUnixName()."/theme/".$theme->getUnixName();
             $code = file_get_contents($dir."/style.css");
             $runData->contextAdd("code", $code);
         }

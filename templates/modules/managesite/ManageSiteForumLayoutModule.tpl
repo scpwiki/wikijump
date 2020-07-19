@@ -6,8 +6,8 @@
 
 <form>
 	<div class="buttons">
-		<input type="button" value="cancel" onclick="WIKIDOT.modules.ManageSiteForumLayoutModule.listeners.cancel(event)"/>
-		<input type="button" value="save" onclick="WIKIDOT.modules.ManageSiteForumLayoutModule.listeners.save(event)"/>
+		<input type="button" value="cancel" onclick="Wikijump.modules.ManageSiteForumLayoutModule.listeners.cancel(event)"/>
+		<input type="button" value="save" onclick="Wikijump.modules.ManageSiteForumLayoutModule.listeners.save(event)"/>
 	</div>
 </form>
 
@@ -51,7 +51,7 @@
 		</div>
 		<div class="button-bar">
 			<a href="javascript:;" onclick="OZONE.dialog.cleanAll()">cancel</a>
-			<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteForumLayoutModule.listeners.saveGroup(event)">save</a>
+			<a href="javascript:;" onclick="Wikijump.modules.ManageSiteForumLayoutModule.listeners.saveGroup(event)">save</a>
 		</div>
 	</div>
 
@@ -116,7 +116,7 @@
 		</div>
 		<div class="button-bar">
 			<a href="javascript:;"  onclick="OZONE.dialog.cleanAll()">cancel</a>
-			<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteForumLayoutModule.listeners.saveCategory(event)">save</a>
+			<a href="javascript:;" onclick="Wikijump.modules.ManageSiteForumLayoutModule.listeners.saveCategory(event)">save</a>
 		</div>
 	</div>
 </div>

@@ -9,7 +9,7 @@
 				<img id="wd-ed-imagewizard-byfile-preview" src="" alt=""/>
 			</td>
 			<td>
-				<select  class="select" size="4" id="wd-ed-imagewizard-byfile-filename" onchange="WIKIDOT.Editor.imageWizard.attachementSelect(event)">
+				<select  class="select" size="4" id="wd-ed-imagewizard-byfile-filename" onchange="Wikijump.Editor.imageWizard.attachementSelect(event)">
 					{foreach from=$files item=file}
 						<option value="{$file->getFilename()|escape}">{$file->getFilename()|escape}</option>
 					{/foreach}

@@ -5,7 +5,7 @@ class GlobalPropertiesException extends Exception
 }
 
 /**
- * The Wikidot GlobalProperties class is used to parse
+ * The Wikijump GlobalProperties class is used to parse
  * the ini file and access any settings and properties
  *
  */
@@ -127,7 +127,7 @@ class GlobalProperties
             $value = self::$iniConfig[$section][$key];
         } else {
             if ($default === null) {
-                throw new GlobalPropertiesException("You should set '$key' value in '$section' section in wikidot.ini file.");
+                throw new GlobalPropertiesException("You should set '$key' value in '$section' section in wikijump.ini file.");
             } else {
                 $value = $default;
             }
@@ -137,7 +137,7 @@ class GlobalProperties
 
     protected static function fromFile($file)
     {
-        if ($fp = @fopen(WIKIDOT_ROOT . '/conf/' . $file, 'r')) {
+        if ($fp = @fopen(WIKIJUMP_ROOT . '/conf/' . $file, 'r')) {
             $s = fread($fp, 4096);
             fclose($fp);
         } else {
@@ -147,14 +147,14 @@ class GlobalProperties
     }
 
     /**
-     * read wikidot.ini file
+     * read wikijump.ini file
      * set some default values
      * calculate other values
      */
     public static function init()
     {
 
-        self::$iniConfig = parse_ini_file(WIKIDOT_ROOT . "/conf/wikidot.ini", true);
+        self::$iniConfig = parse_ini_file(WIKIJUMP_ROOT . "/conf/wikijump.ini", true);
 
         // main settings
         self::$WIKI_FARM                = self::fromIni("main", "wiki_farm", false);
@@ -163,11 +163,11 @@ class GlobalProperties
         if (self::$WIKI_FARM) {
             self::$SERVICE_NAME         = self::fromIni("main", "service");     //no default
             self::$LOGIN_DOMAIN         = self::fromIni("main", "login_domain", "www.");
-            self::$URL_DOMAIN           = self::fromIni("main", "domain", "singlewiki.wikidot.dev");
+            self::$URL_DOMAIN           = self::fromIni("main", "domain", "singlewiki.wikijump.dev");
             self::$URL_HOST             = self::fromIni("main", "main_wiki", "www." . self::$URL_DOMAIN);
         } else {
             self::$SERVICE_NAME         = "";
-            self::$URL_DOMAIN           = self::fromIni("main", "domain", "singlewiki.wikidot.dev");
+            self::$URL_DOMAIN           = self::fromIni("main", "domain", "singlewiki.wikijump.dev");
             self::$URL_HOST             = self::fromIni("main", "main_wiki", "www." . self::$URL_DOMAIN);
         }
 
@@ -191,9 +191,9 @@ class GlobalProperties
         self::$DATABASE_PORT            = self::fromIni("db", "port", "5432");
 
         // search settings
-        self::$SEARCH_LUCENE_INDEX      = self::fromIni("search", "lucene_index", WIKIDOT_ROOT . "/tmp/lucene_index");
-        self::$SEARCH_LUCENE_QUEUE      = self::fromIni("search", "lucene_queue", WIKIDOT_ROOT . "/tmp/lucene_queue");
-        self::$SEARCH_LUCENE_LOCK       = self::fromIni("search", "lucene_lock", WIKIDOT_ROOT . "/tmp/lucene_lock");
+        self::$SEARCH_LUCENE_INDEX      = self::fromIni("search", "lucene_index", WIKIJUMP_ROOT . "/tmp/lucene_index");
+        self::$SEARCH_LUCENE_QUEUE      = self::fromIni("search", "lucene_queue", WIKIJUMP_ROOT . "/tmp/lucene_queue");
+        self::$SEARCH_LUCENE_LOCK       = self::fromIni("search", "lucene_lock", WIKIJUMP_ROOT . "/tmp/lucene_lock");
         self::$SEARCH_HIGHLIGHT         = self::fromIni("search", "highlight", false);
         self::$SEARCH_USE_JAVA          = self::fromIni("search", "use_java", false);
 
@@ -218,7 +218,7 @@ class GlobalProperties
 
         // session settings
         self::$SESSION_TIMEOUT          = self::fromIni("session", "timeout", 3600);
-        self::$SESSION_COOKIE_NAME      = self::fromIni("session", "cookie_name", "WIKIDOT_SESSION_ID");
+        self::$SESSION_COOKIE_NAME      = self::fromIni("session", "cookie_name", "WIKIJUMP_SESSION_ID");
         self::$SESSION_COOKIE_NAME_SSL  = self::fromIni("session", "cookie_name_ssl", self::$SESSION_COOKIE_NAME."_SECURE");
         self::$SESSION_COOKIE_SECURE    = self::fromIni("session", "cookie_ssl", false);
         self::$SESSION_COOKIE_NAME_IE   = self::fromIni("session", "ie_cookie_name", self::$SESSION_COOKIE_NAME . "_IE");
@@ -229,11 +229,11 @@ class GlobalProperties
 
         // log settings
         self::$LOGGER_LEVEL             = self::fromIni("log", "level", "fatal");
-        self::$LOGGER_FILE              = self::fromIni("log", "file", "wikidot.log"); // TODO: use this setting
+        self::$LOGGER_FILE              = self::fromIni("log", "file", "wikijump.log"); // TODO: use this setting
 
         // other settings
         self::$CACHE_FILES_FOR          = self::fromIni("misc", "cache_files_for", 0);
-        self::$URL_DOCS                 = self::fromIni("misc", "doc_url", "http://www.wikidot.org/doc");
+        self::$URL_DOCS                 = self::fromIni("misc", "doc_url", "http://www.wikijump.org/doc");
         self::$IP_HOST                  = self::fromIni("misc", "ip", "127.0.0.1");
         self::$USE_CUSTOM_DOMAINS       = self::fromIni("misc", "custom_domains", false);
         self::$MODULES_JS_PATH          = self::fromIni("misc", "modules_js_path", "web/files--common/modules/js");

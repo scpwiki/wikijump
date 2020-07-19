@@ -1,12 +1,5 @@
 <?php
 
-
- * @version $Id: UploadedFileFlowController.php,v 1.5 2008/08/01 14:00:27 quake Exp $
- * @copyright Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
- */
-
-
 use DB\OzoneSessionPeer;
 
 class LoginAuthController extends WebFlowController

@@ -1,19 +1,10 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.InviteMembersModule = {};
 
-WIKIDOT.modules.InviteMembersModule.vars = {};
+Wikijump.modules.InviteMembersModule = {};
 
-WIKIDOT.modules.InviteMembersModule.listeners = {
+Wikijump.modules.InviteMembersModule.vars = {};
+
+Wikijump.modules.InviteMembersModule.listeners = {
 	moreRecipients: function(e, rname, email){
 		if($("invitation-addresses").getElementsByTagName("table").length > 20){
 			var w = new OZONE.dialogs.ErrorDialog();
@@ -40,12 +31,12 @@ WIKIDOT.modules.InviteMembersModule.listeners = {
 		if(el){
 			el.parentNode.removeChild(el);
 		}
-		WIKIDOT.modules.InviteMembersModule.listeners.updateTo();
+		Wikijump.modules.InviteMembersModule.listeners.updateTo();
 	},
 
 	updateTo: function(e){
-		WIKIDOT.modules.InviteMembersModule.utils.updateAddresses(null);
-		var adrs = WIKIDOT.modules.InviteMembersModule.vars.addresses;
+		Wikijump.modules.InviteMembersModule.utils.updateAddresses(null);
+		var adrs = Wikijump.modules.InviteMembersModule.vars.addresses;
 		if(!adrs) {return;}
 		var frmt = new Array();
 
@@ -57,8 +48,8 @@ WIKIDOT.modules.InviteMembersModule.listeners = {
 	},
 
 	send: function(e){
-		WIKIDOT.modules.InviteMembersModule.utils.updateAddresses(null);
-		var adrs = WIKIDOT.modules.InviteMembersModule.vars.addresses;
+		Wikijump.modules.InviteMembersModule.utils.updateAddresses(null);
+		var adrs = Wikijump.modules.InviteMembersModule.vars.addresses;
 
 		if(adrs.length==0){
 			var w = new OZONE.dialogs.ErrorDialog();
@@ -83,7 +74,7 @@ WIKIDOT.modules.InviteMembersModule.listeners = {
 		p.event = 'sendEmailInvitations';
 		p.action = 'wiki/UserInvitationAction';
 		p.message = $("inv-message").value;
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.InviteMembersModule.callbacks.send);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.InviteMembersModule.callbacks.send);
 
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Sending invitations...";
@@ -112,12 +103,12 @@ WIKIDOT.modules.InviteMembersModule.listeners = {
 				rname = rname.replace(/ +/g, ' ');
 				rname = rname.replace(/^ +/, ' ');
 				rname = rname.replace(/ +$/, ' ');
-				WIKIDOT.modules.InviteMembersModule.listeners.moreRecipients(null, rname, email);
+				Wikijump.modules.InviteMembersModule.listeners.moreRecipients(null, rname, email);
 			}
 		}
 		$("invitation-addresses-bulk-box").style.display = "none";
 		$("invitation-addresses-bulk-text").value = '';
-		WIKIDOT.modules.InviteMembersModule.listeners.tidyList(null);
+		Wikijump.modules.InviteMembersModule.listeners.tidyList(null);
 	},
 
 	setAllToContacts: function(e, value){
@@ -156,38 +147,38 @@ WIKIDOT.modules.InviteMembersModule.listeners = {
 			}
 		}
 
-		WIKIDOT.modules.InviteMembersModule.listeners.updateTo(null);
+		Wikijump.modules.InviteMembersModule.listeners.updateTo(null);
 
-		WIKIDOT.modules.InviteMembersModule.listeners.moreRecipients();
-		WIKIDOT.modules.InviteMembersModule.listeners.moreRecipients();
+		Wikijump.modules.InviteMembersModule.listeners.moreRecipients();
+		Wikijump.modules.InviteMembersModule.listeners.moreRecipients();
 	},
 
 	viewHistory: function(e){
-		OZONE.ajax.requestModule("wiki/invitations/SentMemberInvitationsModule", null, WIKIDOT.modules.InviteMembersModule.callbacks.viewHistory);
+		OZONE.ajax.requestModule("wiki/invitations/SentMemberInvitationsModule", null, Wikijump.modules.InviteMembersModule.callbacks.viewHistory);
 	}
 
 }
 
-WIKIDOT.modules.InviteMembersModule.callbacks = {
+Wikijump.modules.InviteMembersModule.callbacks = {
 	send: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Invitations have been saved";
 		w.show();
 
-		WIKIDOT.modules.InviteMembersModule.listeners.viewHistory();
+		Wikijump.modules.InviteMembersModule.listeners.viewHistory();
 
 	},
 
 	viewHistory: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		$("invite-members-module-box").innerHTML = r.body;
 	}
 
 }
 
-WIKIDOT.modules.InviteMembersModule.utils = {
+Wikijump.modules.InviteMembersModule.utils = {
 	updateAddresses: function(e){
 		// manually create a list of addresses
 		var adrs = new Array();
@@ -211,28 +202,28 @@ WIKIDOT.modules.InviteMembersModule.utils = {
 				YAHOO.util.Dom.removeClass(inpts[0], 'invalid');
 			}
 		}
-		WIKIDOT.modules.InviteMembersModule.vars.addresses = adrs;
+		Wikijump.modules.InviteMembersModule.vars.addresses = adrs;
 	},
 
 	reload: function(){
 		OZONE.ajax.requestModule("wiki/invitations/InviteMembersModule",null,
-			WIKIDOT.modules.InviteMembersModule.utils.reloadCallback);
+			Wikijump.modules.InviteMembersModule.utils.reloadCallback);
 	},
 
 	reloadCallback: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		$("invite-members-module-box").innerHTML = r.body;
 	}
 }
 
-WIKIDOT.modules.InviteMembersModule.init = function(){
+Wikijump.modules.InviteMembersModule.init = function(){
 	OZONE.dom.onDomReady(function(){
 		if($("invite-members-module-box")){
-			WIKIDOT.modules.InviteMembersModule.listeners.moreRecipients();
-			WIKIDOT.modules.InviteMembersModule.listeners.moreRecipients();
-			WIKIDOT.modules.InviteMembersModule.listeners.moreRecipients();
+			Wikijump.modules.InviteMembersModule.listeners.moreRecipients();
+			Wikijump.modules.InviteMembersModule.listeners.moreRecipients();
+			Wikijump.modules.InviteMembersModule.listeners.moreRecipients();
 		}
 	}, "dummy-ondomready-block");
 }
 
-WIKIDOT.modules.InviteMembersModule.init();
+Wikijump.modules.InviteMembersModule.init();

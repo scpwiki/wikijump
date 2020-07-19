@@ -1,4 +1,4 @@
-<form action="javascript:;" onsubmit="WIKIDOT.ManageUsersModule.save(this);">
+<form action="javascript:;" onsubmit="Wikijump.ManageUsersModule.save(this);">
 	<table>
 		{foreach from=$users item=user}
 			<tr>
