@@ -10,7 +10,7 @@ class LoginStatusModule extends Module
         $user = $runData->getUser();
 
         if (GlobalProperties::$WIKI_FARM) {
-            $url_prefix = GlobalProperties::$HTTP_SCHEMA.'://' . GlobalProperties::$LOGIN_DOMAIN . GlobalProperties::$URL_DOMAIN;
+            $url_prefix = GlobalProperties::$HTTP_SCHEMA.'://' . GlobalProperties::$URL_HOST;
         } else {
             $url_prefix = '';
         }
