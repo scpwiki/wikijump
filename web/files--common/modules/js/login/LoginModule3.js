@@ -1,17 +1,8 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.LoginModule3 = {};
 
-WIKIDOT.modules.LoginModule3.listeners = {
+Wikijump.modules.LoginModule3 = {};
+
+Wikijump.modules.LoginModule3.listeners = {
 	loginClick: function(e){
 
 		YAHOO.util.Event.preventDefault(e);
@@ -34,13 +25,13 @@ WIKIDOT.modules.LoginModule3.listeners = {
 		$("login-progress").style.display="block";
 
 		var rsa = new RSAKey();
-		rsa.setPublic(WIKIDOT.vars.rsakey, "10001");
-		p['name'] = linebrk(hex2b64(rsa.encrypt(WIKIDOT.vars.loginSeed+p['loginName'])),64);
-		p['password'] = linebrk(hex2b64(rsa.encrypt(WIKIDOT.vars.loginSeed+p['password'])),64);
+		rsa.setPublic(Wikijump.vars.rsakey, "10001");
+		p['name'] = linebrk(hex2b64(rsa.encrypt(Wikijump.vars.loginSeed+p['loginName'])),64);
+		p['password'] = linebrk(hex2b64(rsa.encrypt(Wikijump.vars.loginSeed+p['password'])),64);
 
 		p.action = "LoginAction";
 		p.event = "login";
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.LoginModule3.callbacks.loginClick);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.LoginModule3.callbacks.loginClick);
 
 	},
 
@@ -48,7 +39,7 @@ WIKIDOT.modules.LoginModule3.listeners = {
 		var p = new Object();
 		p.action = "LoginAction";
 		p.event = "loginCancel";
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.LoginModule3.callbacks.cancel);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.LoginModule3.callbacks.cancel);
 
 	},
 
@@ -62,7 +53,7 @@ WIKIDOT.modules.LoginModule3.listeners = {
 
 }
 
-WIKIDOT.modules.LoginModule3.callbacks = {
+Wikijump.modules.LoginModule3.callbacks = {
 	loginClick: function(r){
 		if(r.status == 'login_invalid'){
 			$("login-head").style.display = "none";
@@ -73,25 +64,25 @@ WIKIDOT.modules.LoginModule3.callbacks = {
 			$("login-progress").style.display="none";
 			return;
 		}
-		if(!WIKIDOT.utils.handleError(r)) {return;}
-		setTimeout('top.location.href="'+WIKIDOT.vars.backUrl+'"', 1000);
+		if(!Wikijump.utils.handleError(r)) {return;}
+		setTimeout('top.location.href="'+Wikijump.vars.backUrl+'"', 1000);
 
 	},
 
 	cancel: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		OZONE.dialog.cleanAll();
 	}
 }
 
-WIKIDOT.modules.LoginModule3.init = function(){
+Wikijump.modules.LoginModule3.init = function(){
 	if($('login-form-name') &&$('login-form-name').type=="text"){
 		$('login-form-name').focus();
-		YAHOO.util.Event.addListener($('login-form-name'), 'keypress', WIKIDOT.modules.LoginModule3.listeners.namePress);
+		YAHOO.util.Event.addListener($('login-form-name'), 'keypress', Wikijump.modules.LoginModule3.listeners.namePress);
 	}else{
 		$('login-form-password').focus();
 	}
-	YAHOO.util.Event.addListener("login-form", 'submit', WIKIDOT.modules.LoginModule3.listeners.loginClick);
+	YAHOO.util.Event.addListener("login-form", 'submit', Wikijump.modules.LoginModule3.listeners.loginClick);
 }
 
-WIKIDOT.modules.LoginModule3.init();
+Wikijump.modules.LoginModule3.init();

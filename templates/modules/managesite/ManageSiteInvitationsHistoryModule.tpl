@@ -4,11 +4,11 @@
 
 	<p>
 		<a id="sm-invhist-showadminonly" href="javascript:;"
-			onclick="WIKIDOT.modules.ManageSiteInvitationsHistoryModule.listeners.showAdminOnly(event)"
+			onclick="Wikijump.modules.ManageSiteInvitationsHistoryModule.listeners.showAdminOnly(event)"
 			{if !$showAll}style="font-weight: bold"{/if}>sent by Admins only</a>
 		|
 		<a id="sm-invhist-showall"
-		onclick="WIKIDOT.modules.ManageSiteInvitationsHistoryModule.listeners.showAll(event)"
+		onclick="Wikijump.modules.ManageSiteInvitationsHistoryModule.listeners.showAll(event)"
 		href="javascript:;" {if $showAll}style="font-weight: bold"{/if}>all</a>
 	</p>
 	<table class="grid form" style="font-size: 87%" id="invitations-history-table">
@@ -58,14 +58,14 @@
 				{if $invitation->getAccepted()}
 				{elseif !$invitation->getDelivered()}
 					<a href="javascript:;"
-						onclick="WIKIDOT.modules.ManageSiteInvitationsHistoryModule.listeners.deleteInvitation(event, {$invitation->getInvitationId()}, '{$invitation->getEmail()|escape}')">{t}delete{/t}</a>
+						onclick="Wikijump.modules.ManageSiteInvitationsHistoryModule.listeners.deleteInvitation(event, {$invitation->getInvitationId()}, '{$invitation->getEmail()|escape}')">{t}delete{/t}</a>
 				{else}
 					{if $invitation->getAttempts()<3}<a href="javascript:;"
-					onclick="WIKIDOT.modules.ManageSiteInvitationsHistoryModule.listeners.resendInvitation(event, {$invitation->getInvitationId()},'{$invitation->getName()|escape}', '{$invitation->getEmail()|escape}')"
+					onclick="Wikijump.modules.ManageSiteInvitationsHistoryModule.listeners.resendInvitation(event, {$invitation->getInvitationId()},'{$invitation->getName()|escape}', '{$invitation->getEmail()|escape}')"
 					>{t}resend{/t}</a> | {/if}
 
 					<a href="javascript:;"
-						onclick="WIKIDOT.modules.ManageSiteInvitationsHistoryModule.listeners.deleteInvitation(event, {$invitation->getInvitationId()}, '{$invitation->getEmail()|escape}')">{t}delete{/t}</a>
+						onclick="Wikijump.modules.ManageSiteInvitationsHistoryModule.listeners.deleteInvitation(event, {$invitation->getInvitationId()}, '{$invitation->getEmail()|escape}')">{t}delete{/t}</a>
 				{/if}
 			</td>
 		</tr>
@@ -91,12 +91,12 @@
 			</p>
 			<div class="buttons">
 				<input type="button" value="{t}cancel{/t}" onclick="$('resend-invitations-form').style.display = 'none'"/>
-				<input type="button" value="{t}send reminder{/t}" onclick="WIKIDOT.modules.ManageSiteInvitationsHistoryModule.listeners.resendInvitation2(event)"/>
+				<input type="button" value="{t}send reminder{/t}" onclick="Wikijump.modules.ManageSiteInvitationsHistoryModule.listeners.resendInvitation2(event)"/>
 			</div>
 		</form>
 	</div>
 {/if}
 
 <p style="font-weight: bold; text-align: center;">
-	<a href="javascript:;" onclick="WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-email-invitations');">send more invitations</a>
+	<a href="javascript:;" onclick="Wikijump.modules.ManagerSiteModule.utils.loadModule('sm-email-invitations');">send more invitations</a>
 </p>

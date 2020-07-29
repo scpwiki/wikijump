@@ -20,7 +20,7 @@
 					| <a href="{$HTTP_SCHEMA}://{$site->getDomain()}/forum/t-{$thread->getThreadId()}/{$thread->getUnixifiedTitle()|escape}">{$thread->getTitle()|escape}</a>
 				</td>
 				<td>
-					| <a href="javascript:;" onclick="WIKIDOT.modules.AWForumModule.listeners.removeWatchedThread(event, {$thread->getThreadId()})">remove</a>
+					| <a href="javascript:;" onclick="Wikijump.modules.AWForumModule.listeners.removeWatchedThread(event, {$thread->getThreadId()})">remove</a>
 				</td>
 			</tr>
 		{/foreach}

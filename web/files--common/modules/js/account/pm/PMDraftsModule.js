@@ -1,26 +1,17 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.PMDraftsModule = {};
 
-WIKIDOT.modules.PMDraftsModule.vars = {
+Wikijump.modules.PMDraftsModule = {};
+
+Wikijump.modules.PMDraftsModule.vars = {
 	currentMessageId: null
 }
 
-WIKIDOT.modules.PMDraftsModule.listeners = {
+Wikijump.modules.PMDraftsModule.listeners = {
 	loadList: function(e, pageNo){
 		var p = null;
 		if(pageNo){p = {page: pageNo}};
-		OZONE.ajax.requestModule("account/pm/PMDraftsModule", p, WIKIDOT.modules.AccountMessagesModule.callbacks.setActionArea);
-		if(e){	WIKIDOT.modules.AccountMessagesModule.utils.highlightTab(e);}
+		OZONE.ajax.requestModule("account/pm/PMDraftsModule", p, Wikijump.modules.AccountMessagesModule.callbacks.setActionArea);
+		if(e){	Wikijump.modules.AccountMessagesModule.utils.highlightTab(e);}
 	},
 
 	selectAll: function(e){
@@ -46,16 +37,16 @@ WIKIDOT.modules.PMDraftsModule.listeners = {
 		p.action = "PMAction";
 		p.event = 'removeSelectedDrafts';
 		p.selected = JSON.stringify(selected);
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.PMDraftsModule.callbacks.removeSelected);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.PMDraftsModule.callbacks.removeSelected);
 
 	},
 	removeDraftsMessage: function(e, messageId){
-		WIKIDOT.modules.PMDraftsModule.vars.currentMessageId = messageId;
+		Wikijump.modules.PMDraftsModule.vars.currentMessageId = messageId;
 		var w = new OZONE.dialogs.ConfirmationDialog();
 		w.content = "Are sure you want to remove this message?";
 		w.buttons = ['cancel', 'remove message'];
 		w.addButtonListener('cancel', w.close);
-		w.addButtonListener('remove message', WIKIDOT.modules.PMDraftsModule.listeners.removeDraftsMessage2);
+		w.addButtonListener('remove message', Wikijump.modules.PMDraftsModule.listeners.removeDraftsMessage2);
 		w.focusButton = 'cancel';
 		w.show();
 	},
@@ -64,22 +55,22 @@ WIKIDOT.modules.PMDraftsModule.listeners = {
 		var p = new Object();
 		p.action = "PMAction";
 		p.event = 'removeDraftsMessage';
-		p.message_id = WIKIDOT.modules.PMDraftsModule.vars.currentMessageId;
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.PMDraftsModule.callbacks.removeDraftsMessage);
+		p.message_id = Wikijump.modules.PMDraftsModule.vars.currentMessageId;
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.PMDraftsModule.callbacks.removeDraftsMessage);
 	},
 	editDraftMessage: function(e, messageId){
 		var p = new Object();
 		if(messageId){
 			p.continueMessageId = messageId;
 		}
-		OZONE.ajax.requestModule("account/pm/PMComposeModule", p, WIKIDOT.modules.PMDraftsModule.callbacks.editDraftMessage);
+		OZONE.ajax.requestModule("account/pm/PMComposeModule", p, Wikijump.modules.PMDraftsModule.callbacks.editDraftMessage);
 
 	}
 }
 
-WIKIDOT.modules.PMDraftsModule.callbacks = {
+Wikijump.modules.PMDraftsModule.callbacks = {
 	removeSelected: function(r){
-		WIKIDOT.modules.PMDraftsModule.listeners.loadList(null, 1);
+		Wikijump.modules.PMDraftsModule.listeners.loadList(null, 1);
 	},
 	removeDraftsMessage: function(r){
 		if(r.status == 'ok'){
@@ -88,7 +79,7 @@ WIKIDOT.modules.PMDraftsModule.callbacks = {
 			w.show();
 
 			if(r.messageId){
-				setTimeout('WIKIDOT.modules.AccountMessagesModule.listeners.viewDraftsMessage("'+r.messageId+'")', 1000);
+				setTimeout('Wikijump.modules.AccountMessagesModule.listeners.viewDraftsMessage("'+r.messageId+'")', 1000);
 			}else{
 				// return to inbox view
 				setTimeout('draftsPage(1)');
@@ -96,13 +87,13 @@ WIKIDOT.modules.PMDraftsModule.callbacks = {
 		}
 	},
 	editDraftMessage: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		if(r.toUserId){
-			WIKIDOT.modules.AccountMessagesModule.vars.toUserId = r.toUserId;
-			WIKIDOT.modules.AccountMessagesModule.vars.toUserName = r.toUserName;
+			Wikijump.modules.AccountMessagesModule.vars.toUserId = r.toUserId;
+			Wikijump.modules.AccountMessagesModule.vars.toUserName = r.toUserName;
 		}else{
-			WIKIDOT.modules.AccountMessagesModule.vars.toUserId = null;
-			WIKIDOT.modules.AccountMessagesModule.vars.toUserName = null;
+			Wikijump.modules.AccountMessagesModule.vars.toUserId = null;
+			Wikijump.modules.AccountMessagesModule.vars.toUserName = null;
 		}
 		$("pm-action-area").innerHTML = r.body;
 		// format dates
@@ -116,10 +107,10 @@ WIKIDOT.modules.PMDraftsModule.callbacks = {
 		var curr = as.item(3);
 		YAHOO.util.Dom.addClass(curr, "active");
 
-		YAHOO.util.Event.addListener("pm-compose-cancel-button", "click", WIKIDOT.modules.AccountMessagesModule.listeners.drafts);
+		YAHOO.util.Event.addListener("pm-compose-cancel-button", "click", Wikijump.modules.AccountMessagesModule.listeners.drafts);
 	}
 }
 
-WIKIDOT.modules.PMDraftsModule.init = function(){
+Wikijump.modules.PMDraftsModule.init = function(){
 
 }

@@ -1,17 +1,8 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.printview = {};
 
-WIKIDOT.printview.listeners = {
+Wikijump.printview = {};
+
+Wikijump.printview.listeners = {
 
 	toggleSourceInfo: function(e){
 		var el = $("print-head");
@@ -33,27 +24,27 @@ WIKIDOT.printview.listeners = {
 			family = '"Times New Roman", Times, serif';
 		}
 		if(family == 'original'){
-			family = WIKIDOT.printview.ff;
+			family = Wikijump.printview.ff;
 		}
 		//alert(family);
 		body.style.fontFamily = family;
 	},
 	changeFontFamilyOriginal: function(e){
 		var body = $("html-body");
-		body.style.fontFamily = WIKIDOT.printview.ff;
+		body.style.fontFamily = Wikijump.printview.ff;
 
 	}
 
 
 }
 
-WIKIDOT.printview.init = function(){
+Wikijump.printview.init = function(){
 	// store original font family
 	OZONE.dom.onDomReady(function(){
 		var body = $("html-body");
-		WIKIDOT.printview.ff = 	body.style.fontFamily;
+		Wikijump.printview.ff = 	body.style.fontFamily;
 //		alert(body.style.fontFamily+' asd');
 	}, "dummy-ondomready-block");
 }
 
-WIKIDOT.printview.init();
+Wikijump.printview.init();

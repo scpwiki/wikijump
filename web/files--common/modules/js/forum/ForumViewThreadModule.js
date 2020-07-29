@@ -1,21 +1,12 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.ForumViewThreadModule = {};
 
-WIKIDOT.modules.ForumViewThreadModule.vars = {
+Wikijump.modules.ForumViewThreadModule = {};
+
+Wikijump.modules.ForumViewThreadModule.vars = {
 
 }
 
-WIKIDOT.modules.ForumViewThreadModule.listeners = {
+Wikijump.modules.ForumViewThreadModule.listeners = {
 	togglePostFold: function(e, postId){
 		fDiv = $("post-"+postId); // leave it global... nasty.
 
@@ -95,11 +86,11 @@ WIKIDOT.modules.ForumViewThreadModule.listeners = {
 	},
 
 	newPost: function(e, postId){
-		if(WIKIDOT.Editor.editElementId){
+		if(Wikijump.Editor.editElementId){
 			var w = new OZONE.dialogs.ErrorDialog();
 			w.content="You have an active editor somewhere already and it is not" +
 					" possible to edit multiple elemnts at once.<br/><br/>" +
-					'(<a href="javascript:;" onclick="OZONE.visuals.scrollTo(\''+WIKIDOT.Editor.editElementId+'\');OZONE.dialog.cleanAll()">scroll to active editor</a>)';
+					'(<a href="javascript:;" onclick="OZONE.visuals.scrollTo(\''+Wikijump.Editor.editElementId+'\');OZONE.dialog.cleanAll()">scroll to active editor</a>)';
 			w.show();
 			return;
 		}
@@ -107,28 +98,28 @@ WIKIDOT.modules.ForumViewThreadModule.listeners = {
 		// postId is an optional postId to reply to.
 		var p = new Object();
 		p.postId = postId;
-		p.threadId = WIKIDOT.forumThreadId;
-		OZONE.ajax.requestModule('forum/sub/ForumNewPostFormModule', p, WIKIDOT.modules.ForumViewThreadModule.callbacks.newPost);
+		p.threadId = Wikijump.forumThreadId;
+		OZONE.ajax.requestModule('forum/sub/ForumNewPostFormModule', p, Wikijump.modules.ForumViewThreadModule.callbacks.newPost);
 	},
 	editPost: function(e, postId){
-		if(WIKIDOT.Editor.editElementId){
+		if(Wikijump.Editor.editElementId){
 			var w = new OZONE.dialogs.ErrorDialog();
 			w.content="You have an active editor somewhere already and it is not" +
 					" possible to edit multiple elemnts at once.<br/><br/>" +
-					'(<a href="javascript:;" onclick="OZONE.visuals.scrollTo(\''+WIKIDOT.Editor.editElementId+'\');OZONE.dialog.cleanAll()">scroll to active editor</a>)';
+					'(<a href="javascript:;" onclick="OZONE.visuals.scrollTo(\''+Wikijump.Editor.editElementId+'\');OZONE.dialog.cleanAll()">scroll to active editor</a>)';
 			w.show();
 			return;
 		}
 		var p = new Object();
 		p.postId = postId;
-		p.threadId = WIKIDOT.forumThreadId;
-		OZONE.ajax.requestModule('forum/sub/ForumEditPostFormModule', p, WIKIDOT.modules.ForumViewThreadModule.callbacks.editPost);
+		p.threadId = Wikijump.forumThreadId;
+		OZONE.ajax.requestModule('forum/sub/ForumEditPostFormModule', p, Wikijump.modules.ForumViewThreadModule.callbacks.editPost);
 
 	},
 
 	deletePost: function(e, postId){
 
-		OZONE.ajax.requestModule("forum/sub/ForumDeletePostModule", {postId: postId}, WIKIDOT.modules.ForumViewThreadModule.callbacks.deletePost);
+		OZONE.ajax.requestModule("forum/sub/ForumDeletePostModule", {postId: postId}, Wikijump.modules.ForumViewThreadModule.callbacks.deletePost);
 
 	},
 
@@ -147,7 +138,7 @@ WIKIDOT.modules.ForumViewThreadModule.listeners = {
 	showHistory: function(e, postId){
 		var p = new Object();
 		p.postId = postId;
-		OZONE.ajax.requestModule("forum/sub/ForumPostRevisionsModule", p, WIKIDOT.modules.ForumViewThreadModule.callbacks.showHistory);
+		OZONE.ajax.requestModule("forum/sub/ForumPostRevisionsModule", p, Wikijump.modules.ForumViewThreadModule.callbacks.showHistory);
 	},
 	hideHistory: function(e, postId){
 		var postDiv = $("post-"+postId);
@@ -159,7 +150,7 @@ WIKIDOT.modules.ForumViewThreadModule.listeners = {
 	showRevision: function(e, revisionId){
 		var p = new Object();
 		p.revisionId = revisionId;
-		OZONE.ajax.requestModule("forum/sub/ForumPostRevisionModule", p, WIKIDOT.modules.ForumViewThreadModule.callbacks.showRevision);
+		OZONE.ajax.requestModule("forum/sub/ForumPostRevisionModule", p, Wikijump.modules.ForumViewThreadModule.callbacks.showRevision);
 		// clear active
 
 		var t = YAHOO.util.Event.getTarget(e);
@@ -179,39 +170,39 @@ WIKIDOT.modules.ForumViewThreadModule.listeners = {
 	},
 	editThreadMeta: function(e){
 		var p = new Object();
-		p.threadId = WIKIDOT.forumThreadId;
-		OZONE.ajax.requestModule("forum/sub/ForumEditThreadMetaModule", p, WIKIDOT.modules.ForumViewThreadModule.callbacks.editThreadMeta);
+		p.threadId = Wikijump.forumThreadId;
+		OZONE.ajax.requestModule("forum/sub/ForumEditThreadMetaModule", p, Wikijump.modules.ForumViewThreadModule.callbacks.editThreadMeta);
 	},
 	editThreadStickiness: function(e){
 		var p = new Object();
-		p.threadId = WIKIDOT.forumThreadId;
-		OZONE.ajax.requestModule("forum/sub/ForumEditThreadStickinessModule", p, WIKIDOT.modules.ForumViewThreadModule.callbacks.editThreadStickiness);
+		p.threadId = Wikijump.forumThreadId;
+		OZONE.ajax.requestModule("forum/sub/ForumEditThreadStickinessModule", p, Wikijump.modules.ForumViewThreadModule.callbacks.editThreadStickiness);
 	},
 	editThreadBlock: function(e){
 		var p = new Object();
-		p.threadId = WIKIDOT.forumThreadId;
-		OZONE.ajax.requestModule("forum/sub/ForumEditThreadBlockModule", p, WIKIDOT.modules.ForumViewThreadModule.callbacks.editThreadBlock);
+		p.threadId = Wikijump.forumThreadId;
+		OZONE.ajax.requestModule("forum/sub/ForumEditThreadBlockModule", p, Wikijump.modules.ForumViewThreadModule.callbacks.editThreadBlock);
 	},
 	moveThread: function(e){
 		var p = new Object();
-		p.threadId = WIKIDOT.forumThreadId;
-		OZONE.ajax.requestModule("forum/sub/ForumThreadMoveModule", p, WIKIDOT.modules.ForumViewThreadModule.callbacks.moveThread);
+		p.threadId = Wikijump.forumThreadId;
+		OZONE.ajax.requestModule("forum/sub/ForumThreadMoveModule", p, Wikijump.modules.ForumViewThreadModule.callbacks.moveThread);
 	},
 
 	watchThread: function(e){
 		var p = new Object();
-		p.threadId = WIKIDOT.forumThreadId;
+		p.threadId = Wikijump.forumThreadId;
 		p.action = "WatchAction";
 		p.event = "watchThread";
 
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.ForumViewThreadModule.callbacks.watchThread);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.ForumViewThreadModule.callbacks.watchThread);
 	}
 
 }
 
-WIKIDOT.modules.ForumViewThreadModule.callbacks = {
+Wikijump.modules.ForumViewThreadModule.callbacks = {
 	newPost: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		// proceed
 		var parentId = r.parentId;
 
@@ -237,12 +228,12 @@ WIKIDOT.modules.ForumViewThreadModule.callbacks = {
 		}
 
 		// init editor
-		WIKIDOT.Editor.init("np-text", "np-editor-panel");
+		Wikijump.Editor.init("np-text", "np-editor-panel");
 
 		setTimeout('OZONE.visuals.scrollTo("new-post-form-container")', 300);
 	},
 	editPost: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var formDiv = document.createElement('div')
 		formDiv.id="edit-post-form-container";
 		formDiv.innerHTML = r.body;
@@ -251,12 +242,12 @@ WIKIDOT.modules.ForumViewThreadModule.callbacks = {
 		var post = $("post-"+r.postId);
 		OZONE.dom.insertAfter(postContainer,formDiv,post);
 
-		WIKIDOT.Editor.init("np-text", "np-editor-panel");
+		Wikijump.Editor.init("np-text", "np-editor-panel");
 		setTimeout('OZONE.visuals.scrollTo("edit-post-form-container")', 300);
 	},
 
 	showHistory: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		var postDiv = $("post-"+r.postId);
 		var revDiv = YAHOO.util.Dom.getElementsByClassName('revisions', 'div', postDiv)[0];
@@ -269,7 +260,7 @@ WIKIDOT.modules.ForumViewThreadModule.callbacks = {
 
 	},
 	showRevision: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		var postId = r.postId;
 		$("post-content-"+postId).innerHTML = r.content;
@@ -278,7 +269,7 @@ WIKIDOT.modules.ForumViewThreadModule.callbacks = {
 	},
 
 	deletePost: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var po = $("post-"+r.postId);
 		var co = $("fpc-"+r.postId);
 		YAHOO.util.Dom.addClass(co, "fordelete");
@@ -291,32 +282,32 @@ WIKIDOT.modules.ForumViewThreadModule.callbacks = {
 	},
 
 	editThreadMeta: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var el = $("thread-action-area");
 		el.style.display = "block";
 		el.innerHTML = r.body;
 		var limiter = new OZONE.forms.lengthLimiter("thread-description", "desc-charleft", 1000);
 	},
 	editThreadStickiness: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var el = $("thread-action-area");
 		el.style.display = "block";
 		el.innerHTML = r.body;
 	},
 	editThreadBlock: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var el = $("thread-action-area");
 		el.style.display = "block";
 		el.innerHTML = r.body;
 	},
 	moveThread: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var el = $("thread-action-area");
 		el.style.display = "block";
 		el.innerHTML = r.body;
 	},
 	watchThread: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Thead added to watched.";
@@ -328,11 +319,11 @@ WIKIDOT.modules.ForumViewThreadModule.callbacks = {
 // shortcut functions versions
 
 togglePostOptions = function(e, postId){
-	WIKIDOT.modules.ForumViewThreadModule.listeners.togglePostOptions(e, postId);
+	Wikijump.modules.ForumViewThreadModule.listeners.togglePostOptions(e, postId);
 }
 togglePostFold = function(e, postId){
-	WIKIDOT.modules.ForumViewThreadModule.listeners.togglePostFold(e, postId);
+	Wikijump.modules.ForumViewThreadModule.listeners.togglePostFold(e, postId);
 }
 postReply = function(e, postId){
-	WIKIDOT.modules.ForumViewThreadModule.listeners.newPost(e, postId);
+	Wikijump.modules.ForumViewThreadModule.listeners.newPost(e, postId);
 }

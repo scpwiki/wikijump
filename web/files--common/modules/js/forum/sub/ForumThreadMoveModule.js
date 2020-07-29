@@ -1,34 +1,25 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.ForumThreadMoveModule = {};
 
-WIKIDOT.modules.ForumThreadMoveModule.listeners = {
+Wikijump.modules.ForumThreadMoveModule = {};
+
+Wikijump.modules.ForumThreadMoveModule.listeners = {
 	move: function(e){
 		var categoryId = $("move-thread-category").value;
 		var p = new Object();
 		p.categoryId = categoryId;
-		p.threadId = WIKIDOT.forumThreadId;
+		p.threadId = Wikijump.forumThreadId;
 		p.action = 'ForumAction';
 		p.event = 'moveThread';
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.ForumThreadMoveModule.callbacks.move);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.ForumThreadMoveModule.callbacks.move);
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Moving thread...";
 		w.show();
 	}
 }
 
-WIKIDOT.modules.ForumThreadMoveModule.callbacks = {
+Wikijump.modules.ForumThreadMoveModule.callbacks = {
 	move: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Thread has been moved.";
 		w.show();

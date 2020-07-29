@@ -1,28 +1,4 @@
 <?php
-/**
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- *
- * @category Wikidot
- * @package Wikidot_Web
- * @version $Id$
- * @copyright Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
- */
-
 require ('../php/setup.php');
 
 // to avoid caching
@@ -31,18 +7,18 @@ header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // Date in the past
 
 try {
     // set anti-session-riding token
-    setsecurecookie("wikidot_token7", md5(rand(0, 10000)), 0, '/', GlobalProperties::$SESSION_COOKIE_DOMAIN);
+    setsecurecookie("wikijump_token7", md5(rand(0, 10000)), 0, '/', GlobalProperties::$SESSION_COOKIE_DOMAIN);
     // If this is coming from a custom domain, set a token7 so they can work with the admin panel if needed.
     if($_SERVER['HTTP_HOST'] != GlobalProperties::$URL_HOST) {
-        setsecurecookie("wikidot_token7", md5(rand(0, 10000)), 0, '/', '.'.$_SERVER['HTTP_HOST']);
+        setsecurecookie("wikijump_token7", md5(rand(0, 10000)), 0, '/', '.'.$_SERVER['HTTP_HOST']);
     }
     $controller = new WikiFlowController();
     $out = $controller->process();
 } catch (OzoneDatabaseException $e) {
 	echo "<html><head><title>Database Error</title></head><body>";
 	echo "<h1>Database error</h1>";
-	echo "<p>Make sure PostgreSQL server is running and accepts connection for credentials stored in " . WIKIDOT_ROOT . "/conf/wikidot.ini</p>";
-	echo "<p>If you haven't configured Wikidot database yet, consult the INSTALL file.</p>";
+	echo "<p>Make sure PostgreSQL server is running and accepts connection for credentials stored in " . WIKIJUMP_ROOT . "/conf/wikijump.ini</p>";
+	echo "<p>If you haven't configured Wikijump database yet, consult the INSTALL file.</p>";
 	echo "<hr/>";
 	echo "<p>Below is the original error:<br/>{$e->getMessage()}</p>";
 	echo "</body></html>";

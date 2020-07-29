@@ -16,14 +16,14 @@ set_error_handler('errorHandler', E_ALL & ~E_NOTICE);
 
 // construct facade objects
 $server = new Zend_XmlRpc_Server();
-$server->setClass(new Wikidot_Facade_User(), 'user');
-$server->setClass(new Wikidot_Facade_Site(), 'site');
-$server->setClass(new Wikidot_Facade_Page(), 'page');
-$server->setClass(new Wikidot_Facade_Forum(), 'forum');
+$server->setClass(new Wikijump\Facade_User(), 'user');
+$server->setClass(new Wikijump\Facade_Site(), 'site');
+$server->setClass(new Wikijump\Facade_Page(), 'page');
+$server->setClass(new Wikijump\Facade_Forum(), 'forum');
 Zend_XmlRpc_Server_Cache::save('/tmp/xmlrpcapi.cache', $server);
 
-// map Wikidot_Facade_Exception to XML-RPC faults
-Zend_XmlRpc_Server_Fault::attachFaultException('Wikidot_Facade_Exception');
+// map Wikijump\Facade_Exception to XML-RPC faults
+Zend_XmlRpc_Server_Fault::attachFaultException('Wikijump\Facade\Exception');
 Zend_XmlRpc_Server_Fault::attachFaultException('WDPermissionException');
 
 // run XML-RPC server

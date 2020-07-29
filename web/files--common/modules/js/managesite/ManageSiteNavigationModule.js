@@ -1,26 +1,17 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.ManagerSiteNavigationModule = {};
 
-WIKIDOT.modules.ManagerSiteNavigationModule.vars = {
+Wikijump.modules.ManagerSiteNavigationModule = {};
+
+Wikijump.modules.ManagerSiteNavigationModule.vars = {
 	currentCategory: null
 }
 
-WIKIDOT.modules.ManagerSiteNavigationModule.listeners = {
+Wikijump.modules.ManagerSiteNavigationModule.listeners = {
 	categoryChange: function(e){
 		// update nav info
 		var categoryId = document.getElementById("sm-nav-cats").value;
-		var category = WIKIDOT.modules.ManagerSiteModule.utils.getCategoryById(categoryId);
-		WIKIDOT.modules.ManagerSiteNavigationModule.vars.currentCategory = category;
+		var category = Wikijump.modules.ManagerSiteModule.utils.getCategoryById(categoryId);
+		Wikijump.modules.ManagerSiteNavigationModule.vars.currentCategory = category;
 		// check if has a individual nav
 		if(category['name'] == "_default"){
 			$("sm-nav-noind").style.display = "none";
@@ -36,13 +27,13 @@ WIKIDOT.modules.ManagerSiteNavigationModule.listeners = {
 			}
 		}
 
-		WIKIDOT.modules.ManagerSiteNavigationModule.utils.updateNavigationPreview();
+		Wikijump.modules.ManagerSiteNavigationModule.utils.updateNavigationPreview();
 
 	},
 
 	indClick: function(e){
 		var categoryId = document.getElementById("sm-nav-cats").value;
-		var category = WIKIDOT.modules.ManagerSiteModule.utils.getCategoryById(categoryId);
+		var category = Wikijump.modules.ManagerSiteModule.utils.getCategoryById(categoryId);
 
 		if($("sm-nav-noin").checked == true){
 			$("sm-nav-list").style.display = "none";
@@ -51,32 +42,32 @@ WIKIDOT.modules.ManagerSiteNavigationModule.listeners = {
 			$("sm-nav-list").style.display = "";
 			category['nav_default'] = false;
 		}
-		WIKIDOT.modules.ManagerSiteNavigationModule.utils.updateNavigationPreview();
+		Wikijump.modules.ManagerSiteNavigationModule.utils.updateNavigationPreview();
 	},
 
 	navChange: function(e){
 		// save changes to the array
-		var category = WIKIDOT.modules.ManagerSiteNavigationModule.vars.currentCategory;
+		var category = Wikijump.modules.ManagerSiteNavigationModule.vars.currentCategory;
 		var topBar = document.getElementById("sm-nav-top-bar").value;
 		var sideBar =  document.getElementById("sm-nav-side-bar").value;
 		category["top_bar_page_name"] = topBar;
 		category["side_bar_page_name"] = sideBar;
-		WIKIDOT.modules.ManagerSiteNavigationModule.utils.updateNavigationPreview();
+		Wikijump.modules.ManagerSiteNavigationModule.utils.updateNavigationPreview();
 	},
 
 	cancel: function(e){
-		WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-welcome');
+		Wikijump.modules.ManagerSiteModule.utils.loadModule('sm-welcome');
 	},
 
 	save: function(e){
 		// ok, do it the easy way: serialize categories using the JSON method
-		var categories = WIKIDOT.modules.ManagerSiteModule.vars.categories;
+		var categories = Wikijump.modules.ManagerSiteModule.vars.categories;
 		var serialized = JSON.stringify(categories);
 		var parms = new Object();
 		parms['categories'] = serialized;
 		parms['action'] = "ManageSiteAction";
 		parms['event'] = "saveNavigation";
-		OZONE.ajax.requestModule("Empty", parms, WIKIDOT.modules.ManagerSiteNavigationModule.callbacks.save);
+		OZONE.ajax.requestModule("Empty", parms, Wikijump.modules.ManagerSiteNavigationModule.callbacks.save);
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Saving changes...";
 		w.show();
@@ -84,13 +75,13 @@ WIKIDOT.modules.ManagerSiteNavigationModule.listeners = {
 
 }
 
-WIKIDOT.modules.ManagerSiteNavigationModule.callbacks = {
+Wikijump.modules.ManagerSiteNavigationModule.callbacks = {
 	cancel: function(response){
 		OZONE.utils.setInnerHTMLContent("site-manager", response.body);
 	},
 
 	save: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Changes have been saved";
@@ -99,28 +90,28 @@ WIKIDOT.modules.ManagerSiteNavigationModule.callbacks = {
 
 }
 
-WIKIDOT.modules.ManagerSiteNavigationModule.utils = {
+Wikijump.modules.ManagerSiteNavigationModule.utils = {
 	updateNavigationPreview: function(){
 		// apart from just updating the preview also show/hide extra textarea
 		// for custom navs
-		var category = WIKIDOT.modules.ManagerSiteNavigationModule.vars.currentCategory;
+		var category = Wikijump.modules.ManagerSiteNavigationModule.vars.currentCategory;
 		document.getElementById("sm-nav-top-bar").value = category['top_bar_page_name'];
 		document.getElementById("sm-nav-side-bar").value = category['side_bar_page_name'];
 	}
 }
 
-WIKIDOT.modules.ManagerSiteNavigationModule.init = function(){
-	YAHOO.util.Event.addListener("sm-nav-cats", "change", WIKIDOT.modules.ManagerSiteNavigationModule.listeners.categoryChange);
+Wikijump.modules.ManagerSiteNavigationModule.init = function(){
+	YAHOO.util.Event.addListener("sm-nav-cats", "change", Wikijump.modules.ManagerSiteNavigationModule.listeners.categoryChange);
 
-	YAHOO.util.Event.addListener("sm-nav-noind", "click", WIKIDOT.modules.ManagerSiteNavigationModule.listeners.indClick);
+	YAHOO.util.Event.addListener("sm-nav-noind", "click", Wikijump.modules.ManagerSiteNavigationModule.listeners.indClick);
 
 	var ids = ["sm-nav-top-bar", "sm-nav-side-bar"];
-	YAHOO.util.Event.addListener(ids, 'keyup',  WIKIDOT.modules.ManagerSiteNavigationModule.listeners.navChange);
+	YAHOO.util.Event.addListener(ids, 'keyup',  Wikijump.modules.ManagerSiteNavigationModule.listeners.navChange);
 
-	YAHOO.util.Event.addListener("sm-nav-cancel", "click", WIKIDOT.modules.ManagerSiteNavigationModule.listeners.cancel);
-	YAHOO.util.Event.addListener("sm-nav-save", "click", WIKIDOT.modules.ManagerSiteNavigationModule.listeners.save);
+	YAHOO.util.Event.addListener("sm-nav-cancel", "click", Wikijump.modules.ManagerSiteNavigationModule.listeners.cancel);
+	YAHOO.util.Event.addListener("sm-nav-save", "click", Wikijump.modules.ManagerSiteNavigationModule.listeners.save);
 	// init categories info
-	WIKIDOT.modules.ManagerSiteNavigationModule.listeners.categoryChange(null);
+	Wikijump.modules.ManagerSiteNavigationModule.listeners.categoryChange(null);
 
 	// attach the autocomplete thing
 	var myDataSource = new YAHOO.widget.DS_XHR("/quickmodule.php", ['pages', 'unix_name', 'title']);
@@ -159,4 +150,4 @@ WIKIDOT.modules.ManagerSiteNavigationModule.init = function(){
 	myAutoComp2.queryDelay = 0.5;
 }
 
-WIKIDOT.modules.ManagerSiteNavigationModule.init();
+Wikijump.modules.ManagerSiteNavigationModule.init();

@@ -15,8 +15,8 @@
 			is editing the page now.{/t}
 		</p>
 		<div class="button-bar">
-			<a href="javascript:;" onclick="WIKIDOT.modules.PageEditModule.listeners.confirmExpiration(event)">{t}cancel{/t}</a>
-			<a href="javascript:;" onclick="WIKIDOT.modules.PageEditModule.listeners.recreateExpiredLock(event)">{t}try to recreate lock{/t}</a>
+			<a href="javascript:;" onclick="Wikijump.modules.PageEditModule.listeners.confirmExpiration(event)">{t}cancel{/t}</a>
+			<a href="javascript:;" onclick="Wikijump.modules.PageEditModule.listeners.recreateExpiredLock(event)">{t}try to recreate lock{/t}</a>
 		</div>
 	</div>
 </div>

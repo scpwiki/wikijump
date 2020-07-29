@@ -6,7 +6,7 @@
 		</p>
 		<div class="buttons">
 			<input type="button" value="Yes, I want to delete this site!"
-			onclick="WIKIDOT.modules.ManagerSiteDeleteModule.listeners.deleteSite2(event)"
+			onclick="Wikijump.modules.ManagerSiteDeleteModule.listeners.deleteSite2(event)"
 			/>
 		</div>
 	</div>

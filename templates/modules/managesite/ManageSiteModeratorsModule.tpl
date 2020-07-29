@@ -6,9 +6,9 @@
 
 		<div>
 		<div style="position: absolute; margin-left: 20em">
-			<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteModeratorsModule.listeners.moderatorPermissions(event, {$moderator->getModeratorId()})" >manage permissions</a>
+			<a href="javascript:;" onclick="Wikijump.modules.ManageSiteModeratorsModule.listeners.moderatorPermissions(event, {$moderator->getModeratorId()})" >manage permissions</a>
 
-			| <a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteModeratorsModule.listeners.removeModerator(event,{$user->getUserId()}, '{$user->getNickName()}')">remove from moderators</a>
+			| <a href="javascript:;" onclick="Wikijump.modules.ManageSiteModeratorsModule.listeners.removeModerator(event,{$user->getUserId()}, '{$user->getNickName()}')">remove from moderators</a>
 		</div>
 		{printuser user=$user image="yes"}
 		<div id="mod-permissions-{$moderator->getModeratorId()}" style="display: none"></div>

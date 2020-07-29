@@ -1,40 +1,31 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.ManagerSiteAdminsInviteModule = {};
 
-WIKIDOT.modules.ManagerSiteAdminsInviteModule.vars = {};
+Wikijump.modules.ManagerSiteAdminsInviteModule = {};
 
-WIKIDOT.modules.ManagerSiteAdminsInviteModule.listeners = {
+Wikijump.modules.ManagerSiteAdminsInviteModule.vars = {};
+
+Wikijump.modules.ManagerSiteAdminsInviteModule.listeners = {
 
 	searchClick: function(e){
 		var query = document.getElementById("sm-ad-search-f").value;
 		var parms = new Array();
 		parms['query'] = query;
-		OZONE.ajax.requestModule("users/UserSearchModule", parms, WIKIDOT.modules.ManagerSiteAdminsInviteModule.callbacks.searchClick);
+		OZONE.ajax.requestModule("users/UserSearchModule", parms, Wikijump.modules.ManagerSiteAdminsInviteModule.callbacks.searchClick);
 	},
 
 	inviteAdmin: function(e){
 		// display a nice dialog box...
 		var userId = this.id.replace("invite-admin-b-", '');
-		var userName = WIKIDOT.modules.ManagerSiteAdminsInviteModule.vars.userNames[userId];
-		WIKIDOT.modules.ManagerSiteAdminsInviteModule.vars.userId = userId;
+		var userName = Wikijump.modules.ManagerSiteAdminsInviteModule.vars.userNames[userId];
+		Wikijump.modules.ManagerSiteAdminsInviteModule.vars.userId = userId;
 		var shader = OZONE.dialog.factory.shader();
 		var container = OZONE.dialog.factory.boxcontainer();
 
 		shader.show();
 		container.setContent(document.getElementById("sm-tmp-not").innerHTML.replace(/id="/g, 'id="s').replace(/%%USERNAME%%/g,userName));
 		container.showContent();
-		YAHOO.util.Event.addListener("s-cancel", "click", WIKIDOT.modules.ManagerSiteAdminsInviteModule.listeners.cancelInvitation);
-		YAHOO.util.Event.addListener("s-send", "click", WIKIDOT.modules.ManagerSiteAdminsInviteModule.listeners.inviteAdmin2);
+		YAHOO.util.Event.addListener("s-cancel", "click", Wikijump.modules.ManagerSiteAdminsInviteModule.listeners.cancelInvitation);
+		YAHOO.util.Event.addListener("s-send", "click", Wikijump.modules.ManagerSiteAdminsInviteModule.listeners.inviteAdmin2);
 
 	},
 
@@ -48,17 +39,17 @@ WIKIDOT.modules.ManagerSiteAdminsInviteModule.listeners = {
 		var parms = new Array();
 		parms['action'] = 'ManageSiteAction';
 		parms['event'] = "inviteAdmin";
-		parms['user_id'] = WIKIDOT.modules.ManagerSiteAdminsInviteModule.vars.userId;
-		OZONE.ajax.requestModule("Empty", parms, WIKIDOT.modules.ManagerSiteAdminsInviteModule.callbacks.inviteAdmin);
+		parms['user_id'] = Wikijump.modules.ManagerSiteAdminsInviteModule.vars.userId;
+		OZONE.ajax.requestModule("Empty", parms, Wikijump.modules.ManagerSiteAdminsInviteModule.callbacks.inviteAdmin);
 	}
 
 }
 
-WIKIDOT.modules.ManagerSiteAdminsInviteModule.callbacks = {
+Wikijump.modules.ManagerSiteAdminsInviteModule.callbacks = {
 
 	searchClick:	 function(response){
 		OZONE.utils.setInnerHTMLContent("sm-ad-search-r", response.body);
-		WIKIDOT.modules.ManagerSiteAdminsInviteModule.vars.searchCount = response.count;
+		Wikijump.modules.ManagerSiteAdminsInviteModule.vars.searchCount = response.count;
 
 		// now modify the fields to include "add as admin"
 		var userIds = response.userIds;
@@ -67,10 +58,10 @@ WIKIDOT.modules.ManagerSiteAdminsInviteModule.callbacks = {
 			var	divid = "found-user-"+userIds[i];
 			el = document.getElementById(divid);
 			el.innerHTML += '(<a href="javascript:;" id="invite-admin-b-'+userIds[i]+'">invite</a>)';
-			YAHOO.util.Event.addListener("invite-admin-b-"+userIds[i], "click", WIKIDOT.modules.ManagerSiteAdminsInviteModule.listeners.inviteAdmin);
+			YAHOO.util.Event.addListener("invite-admin-b-"+userIds[i], "click", Wikijump.modules.ManagerSiteAdminsInviteModule.listeners.inviteAdmin);
 		}
 
-		WIKIDOT.modules.ManagerSiteAdminsInviteModule.vars.userNames = response.userNames;
+		Wikijump.modules.ManagerSiteAdminsInviteModule.vars.userNames = response.userNames;
 
 	},
 
@@ -87,8 +78,8 @@ WIKIDOT.modules.ManagerSiteAdminsInviteModule.callbacks = {
 
 }
 
-WIKIDOT.modules.ManagerSiteAdminsInviteModule.init = function(){
-	YAHOO.util.Event.addListener("sm-ad-search-b", "click",WIKIDOT.modules.ManagerSiteAdminsInviteModule.listeners.searchClick);
+Wikijump.modules.ManagerSiteAdminsInviteModule.init = function(){
+	YAHOO.util.Event.addListener("sm-ad-search-b", "click",Wikijump.modules.ManagerSiteAdminsInviteModule.listeners.searchClick);
 }
 
-WIKIDOT.modules.ManagerSiteAdminsInviteModule.init();
+Wikijump.modules.ManagerSiteAdminsInviteModule.init();

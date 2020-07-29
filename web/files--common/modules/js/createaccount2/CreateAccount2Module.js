@@ -1,23 +1,14 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.CreateAccount2Module = {};
 
-WIKIDOT.modules.CreateAccount2Module.listeners = {
+Wikijump.modules.CreateAccount2Module = {};
+
+Wikijump.modules.CreateAccount2Module.listeners = {
 	cancel: function(e){
 		window.location.href=HTTP_SCHEMA+"://"+window.location.hostname;
 	},
 
 	backClick: function(e){
-		OZONE.ajax.requestModule("createaccount/CreateAccount0Module", null, WIKIDOT.modules.CreateAccount2Module.callbacks.backClick);
+		OZONE.ajax.requestModule("createaccount/CreateAccount0Module", null, Wikijump.modules.CreateAccount2Module.callbacks.backClick);
 	},
 
 	nextClick: function(e){
@@ -25,18 +16,18 @@ WIKIDOT.modules.CreateAccount2Module.listeners = {
 		p.evcode = $("ca-evercode").value;
 		p.action = "CreateAccount2Action";
 		p.event = "finalize";
-		OZONE.ajax.requestModule("Empty", p, WIKIDOT.modules.CreateAccount2Module.callbacks.nextClick);
+		OZONE.ajax.requestModule("Empty", p, Wikijump.modules.CreateAccount2Module.callbacks.nextClick);
 
 	}
 }
-WIKIDOT.modules.CreateAccount2Module.callbacks = {
+Wikijump.modules.CreateAccount2Module.callbacks = {
 	nextClick: function(r){
 		if(r.status == "invalid_code"){
 			$("ca-error-block").innerHTML = r.message;
 			$("ca-error-block").style.display = "block";
 			return;
 		}
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var t2 = new OZONE.dialogs.SuccessBox(); t2.timeout=10000; t2.content="New account created!";t2.show();
 		var originalUrl = r.originalUrl;
 		if(r.originalUrlForce){
@@ -54,7 +45,7 @@ WIKIDOT.modules.CreateAccount2Module.callbacks = {
 		}
 	},
 	backClick: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var w = new OZONE.dialogs.Dialog();
 		w.content = r.body;
 		w.show();
@@ -68,4 +59,4 @@ OZONE.dom.onDomReady(function(){
 			els[i].href = els[i].href.replace(/^https/, 'http');
 		}
 	}, "dummy-ondomready-block");
-//YAHOO.util.Event.addListener("next-click", "click", WIKIDOT.modules.AcceptTOSModule.listeners.nextClick);
+//YAHOO.util.Event.addListener("next-click", "click", Wikijump.modules.AcceptTOSModule.listeners.nextClick);

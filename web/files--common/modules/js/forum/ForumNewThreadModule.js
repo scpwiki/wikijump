@@ -1,23 +1,14 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.ForumNewThreadModule = {};
 
-WIKIDOT.modules.ForumNewThreadModule.listeners = {
+Wikijump.modules.ForumNewThreadModule = {};
+
+Wikijump.modules.ForumNewThreadModule.listeners = {
 	cancel: function(e){
-		window.location.href=WIKIDOT.cancelurl;
+		window.location.href=Wikijump.cancelurl;
 	},
 	preview: function(e){
 		var p = OZONE.utils.formToArray("new-thread-form");
-		OZONE.ajax.requestModule("forum/ForumPreviewPostModule", p, WIKIDOT.modules.ForumNewThreadModule.callbacks.preview);
+		OZONE.ajax.requestModule("forum/ForumPreviewPostModule", p, Wikijump.modules.ForumNewThreadModule.callbacks.preview);
 	},
 	post: function(e){
 		var p = OZONE.utils.formToArray("new-thread-form");
@@ -26,13 +17,13 @@ WIKIDOT.modules.ForumNewThreadModule.listeners = {
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Creating new thread...";
 		w.show();
-		OZONE.ajax.requestModule("Empty", p, WIKIDOT.modules.ForumNewThreadModule.callbacks.post);
+		OZONE.ajax.requestModule("Empty", p, Wikijump.modules.ForumNewThreadModule.callbacks.post);
 	}
 }
 
-WIKIDOT.modules.ForumNewThreadModule.callbacks = {
+Wikijump.modules.ForumNewThreadModule.callbacks = {
 	preview: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		$("message-preview-wrapper").style.display="block";
 		OZONE.utils.setInnerHTMLContent("message-preview", r.body);
 		OZONE.visuals.scrollTo("message-preview");
@@ -52,7 +43,7 @@ WIKIDOT.modules.ForumNewThreadModule.callbacks = {
 			$("new-thread-error").style.display="block";
 			return;
 		}
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Thread has been created.";
 		w.show();
@@ -63,15 +54,15 @@ WIKIDOT.modules.ForumNewThreadModule.callbacks = {
 	}
 }
 
-WIKIDOT.modules.ForumNewThreadModule.init = function(){
-	YAHOO.util.Event.addListener("ntf-cancel", "click", WIKIDOT.modules.ForumNewThreadModule.listeners.cancel);
-	YAHOO.util.Event.addListener("ntf-preview", "click", WIKIDOT.modules.ForumNewThreadModule.listeners.preview);
-	YAHOO.util.Event.addListener("ntf-post", "click", WIKIDOT.modules.ForumNewThreadModule.listeners.post);
+Wikijump.modules.ForumNewThreadModule.init = function(){
+	YAHOO.util.Event.addListener("ntf-cancel", "click", Wikijump.modules.ForumNewThreadModule.listeners.cancel);
+	YAHOO.util.Event.addListener("ntf-preview", "click", Wikijump.modules.ForumNewThreadModule.listeners.preview);
+	YAHOO.util.Event.addListener("ntf-post", "click", Wikijump.modules.ForumNewThreadModule.listeners.post);
 
 	OZONE.dom.onDomReady(function(){
-		WIKIDOT.Editor.init("post-edit", "post-edit-panel");
+		Wikijump.Editor.init("post-edit", "post-edit-panel");
 		var limiter = new OZONE.forms.lengthLimiter("thread-description", "desc-charleft", 1000);
 	}, "dummy-ondomready-block");
 }
 
-WIKIDOT.modules.ForumNewThreadModule.init();
+Wikijump.modules.ForumNewThreadModule.init();

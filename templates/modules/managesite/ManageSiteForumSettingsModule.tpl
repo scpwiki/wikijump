@@ -36,7 +36,7 @@
 				<option value="9" {if $forumSettings->getMaxNestLevel() == 9}selected="selected"{/if}>9</option>
 				<option value="10" {if $forumSettings->getMaxNestLevel() == 10}selected="selected"{/if}>10</option>
 			</select>
-			<input class="button" type="button" value="save nesting" onclick="WIKIDOT.modules.ManageSiteForumSettingsModule.listeners.saveNesting()"/>
+			<input class="button" type="button" value="save nesting" onclick="Wikijump.modules.ManageSiteForumSettingsModule.listeners.saveNesting()"/>
 
 	</div>
 
@@ -76,8 +76,8 @@ forum:recent-posts</pre></code>
 * [[[forum:recent-posts | Recent posts]]]</pre>
 	</div>
 	<p>
-		<!-- TODO: De-Wikidot.com-ize - change -->
-		For a complete guide on starting a forum look at this <a href="http://community.wikidot.com/howto:forum-step-by-step" target="_blank">Step-by-step Howto</a>.
+		<!-- TODO: De-Wikijump.com-ize - change -->
+		For a complete guide on starting a forum look at this <a href="http://community.wikijump.com/howto:forum-step-by-step" target="_blank">Step-by-step Howto</a>.
 	</p>
 {else}
 
@@ -85,17 +85,17 @@ forum:recent-posts</pre></code>
 
 	<p>
 		In order to use forum (and per-page discussions) you must initialize the forum structures in
-		your wikidot site. When you decide to use the forum additional pages will be created
+		your Wikijump site. When you decide to use the forum additional pages will be created
 		for you automatically. After that you will be able to create forum categories
 		structure, set permissions etc.
 	</p>
 	<div class="buttons">
-		<input type="button" value="activate forum now" onclick="WIKIDOT.modules.ManageSiteForumSettingsModule.listeners.activateForum(event)"/>
+		<input type="button" value="activate forum now" onclick="Wikijump.modules.ManageSiteForumSettingsModule.listeners.activateForum(event)"/>
 	</div>
 
 	<p>
-		<!-- TODO: De-Wikidot.com-ize - change -->
-		For a complete guide on starting a forum look at this <a href="http://community.wikidot.com/howto:forum-step-by-step" target="_blank">Step-by-step Howto</a>.
+		<!-- TODO: De-Wikijump.com-ize - change -->
+		For a complete guide on starting a forum look at this <a href="http://community.wikijump.com/howto:forum-step-by-step" target="_blank">Step-by-step Howto</a>.
 	</p>
 
 {/if}

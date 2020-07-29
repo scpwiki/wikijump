@@ -23,8 +23,8 @@
 		</p>
 		<div class="button-bar">
 			<a href="javascript:;" onclick="OZONE.dialog.cleanAll()">{t}cancel{/t}</a>
-			<a  href="javascript:;" onclick="WIKIDOT.modules.RenamePageModule.listeners.rename(event)">{t}try again{/t}</a>
-			<a  href="javascript:;" onclick="WIKIDOT.modules.RenamePageModule.listeners.renameForce(event)">{t}remove lock(s) and proceed{/t}</a>
+			<a  href="javascript:;" onclick="Wikijump.modules.RenamePageModule.listeners.rename(event)">{t}try again{/t}</a>
+			<a  href="javascript:;" onclick="Wikijump.modules.RenamePageModule.listeners.renameForce(event)">{t}remove lock(s) and proceed{/t}</a>
 		</div>
 	</div>
 </div>

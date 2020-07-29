@@ -1,29 +1,5 @@
 <?php
-/**
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- *
- * @category Wikidot
- * @package Wikidot
- * @version $Id$
- * @copyright Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
- */
-
-if (!defined('WIKIDOT_SETUP_COMPLETED')) {
+if (!defined('WIKIJUMP_SETUP_COMPLETED')) {
     // assume that computer's clock runs in UTC
     putenv("TZ=UTC");
     if (function_exists('date_default_timezone_set')) {
@@ -33,21 +9,21 @@ if (!defined('WIKIDOT_SETUP_COMPLETED')) {
     // add settings for error-reporting
     error_reporting(E_ALL&~E_NOTICE); // hardcode ;-)
 
-    // determine WIKIDOT_ROOT directory
-    if (!defined('WIKIDOT_ROOT')) {
-        define('WIKIDOT_ROOT', dirname(dirname(__FILE__)));
-        define('OZONE_ROOT', WIKIDOT_ROOT.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'scpwiki'.DIRECTORY_SEPARATOR.'ozoneframework');
+    // determine WIKIJUMP_ROOT directory
+    if (!defined('WIKIJUMP_ROOT')) {
+        define('WIKIJUMP_ROOT', dirname(dirname(__FILE__)));
+        define('OZONE_ROOT', WIKIJUMP_ROOT.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'scpwiki'.DIRECTORY_SEPARATOR.'ozoneframework');
     }
 
-    require_once(WIKIDOT_ROOT.DIRECTORY_SEPARATOR."php/utils/GlobalProperties.php");
-    require_once(WIKIDOT_ROOT.DIRECTORY_SEPARATOR."vendor/autoload.php");
-    require_once(WIKIDOT_ROOT.DIRECTORY_SEPARATOR."vendor/scpwiki/ozoneframework/php/core/functions.php");
-    require_once(WIKIDOT_ROOT.DIRECTORY_SEPARATOR."vendor/scpwiki/ozoneframework/php/core/autoload.inc.php");
+    require_once(WIKIJUMP_ROOT.DIRECTORY_SEPARATOR."php/utils/GlobalProperties.php");
+    require_once(WIKIJUMP_ROOT.DIRECTORY_SEPARATOR."vendor/autoload.php");
+    require_once(WIKIJUMP_ROOT.DIRECTORY_SEPARATOR."vendor/scpwiki/ozoneframework/php/core/functions.php");
+    require_once(WIKIJUMP_ROOT.DIRECTORY_SEPARATOR."vendor/scpwiki/ozoneframework/php/core/autoload.inc.php");
 
     if (! GlobalProperties::$WIKI_FARM) {
         $_SERVER['HTTP_HOST'] = GlobalProperties::$URL_HOST;
         GlobalProperties::$SESSION_COOKIE_DOMAIN = null;
     }
 
-    define('WIKIDOT_SETUP_COMPLETED', true);
+    define('WIKIJUMP_SETUP_COMPLETED', true);
 }

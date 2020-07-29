@@ -4,7 +4,7 @@
 		<h2 id="login-head">{t}Login{/t}</h2>
 		<div class="error-block" id="loginerror" style="display: none"></div>
 		<form id="login-form" action="/common--misc/blank.html" method="post"
-			{*onsubmit="WIKIDOT.modules.LoginModule3.listeners.loginClick(event);"*}>
+			{*onsubmit="Wikijump.modules.LoginModule3.listeners.loginClick(event);"*}>
 			<div style="text-align: center">
 				{if $user}
 					{t}Hello{/t}, <span style="font-size:130%; font-weight: bold">{$user->getNickName()|escape}</span>

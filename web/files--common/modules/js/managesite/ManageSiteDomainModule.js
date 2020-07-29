@@ -1,17 +1,8 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.ManagerSiteDomainModule = {};
 
-WIKIDOT.modules.ManagerSiteDomainModule.listeners = {
+Wikijump.modules.ManagerSiteDomainModule = {};
+
+Wikijump.modules.ManagerSiteDomainModule.listeners = {
 
 	save: function(e){
 		var domain = $("sm-domain-field").value;
@@ -39,7 +30,7 @@ WIKIDOT.modules.ManagerSiteDomainModule.listeners = {
 		p.domain = domain;
 		p['action'] = "ManageSiteAction";
 		p['event'] = "saveDomain";
-		OZONE.ajax.requestModule("Empty", p, WIKIDOT.modules.ManagerSiteDomainModule.callbacks.save);
+		OZONE.ajax.requestModule("Empty", p, Wikijump.modules.ManagerSiteDomainModule.callbacks.save);
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Saving changes...";
 		w.show();
@@ -47,12 +38,12 @@ WIKIDOT.modules.ManagerSiteDomainModule.listeners = {
 
 	},
 	cancel: function(e){
-		WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-welcome');
+		Wikijump.modules.ManagerSiteModule.utils.loadModule('sm-welcome');
 	},
 	clear: function(e){
 		$("sm-domain-field").value="";
 		$("sm-redirects-box").innerHTML = '';
-		WIKIDOT.modules.ManagerSiteDomainModule.listeners.addRedirect(e);
+		Wikijump.modules.ManagerSiteDomainModule.listeners.addRedirect(e);
 
 	},
 
@@ -86,30 +77,30 @@ WIKIDOT.modules.ManagerSiteDomainModule.listeners = {
 	}
 }
 
-WIKIDOT.modules.ManagerSiteDomainModule.callbacks = {
+Wikijump.modules.ManagerSiteDomainModule.callbacks = {
 	save: function(r){
 		if(r.status=="form_errors"){
 			$("sm-domain-errorblock").innerHTML = r.message;
 			$("sm-domain-errorblock").style.display="block";
 			return;
 		}
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content ="Changes saved.";
 		w.show();
 	},
 	cancel: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		OZONE.utils.setInnerHTMLContent("site-manager", r.body);
 	}
 }
 
-WIKIDOT.modules.ManagerSiteDomainModule.init = function(){
-	YAHOO.util.Event.addListener("sm-domain-cancel", "click", WIKIDOT.modules.ManagerSiteDomainModule.listeners.cancel);
-	YAHOO.util.Event.addListener("sm-domain-clear", "click", WIKIDOT.modules.ManagerSiteDomainModule.listeners.clear);
-	YAHOO.util.Event.addListener("sm-domain-save", "click", WIKIDOT.modules.ManagerSiteDomainModule.listeners.save);
-	YAHOO.util.Event.addListener("sm-domain-form", "submit", WIKIDOT.modules.ManagerSiteDomainModule.listeners.save);
+Wikijump.modules.ManagerSiteDomainModule.init = function(){
+	YAHOO.util.Event.addListener("sm-domain-cancel", "click", Wikijump.modules.ManagerSiteDomainModule.listeners.cancel);
+	YAHOO.util.Event.addListener("sm-domain-clear", "click", Wikijump.modules.ManagerSiteDomainModule.listeners.clear);
+	YAHOO.util.Event.addListener("sm-domain-save", "click", Wikijump.modules.ManagerSiteDomainModule.listeners.save);
+	YAHOO.util.Event.addListener("sm-domain-form", "submit", Wikijump.modules.ManagerSiteDomainModule.listeners.save);
 
 }
 
-WIKIDOT.modules.ManagerSiteDomainModule.init();
+Wikijump.modules.ManagerSiteDomainModule.init();

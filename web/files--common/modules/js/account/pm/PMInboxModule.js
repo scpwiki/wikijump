@@ -1,26 +1,17 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.PMInboxModule = {};
 
-WIKIDOT.modules.PMInboxModule.vars = {
+Wikijump.modules.PMInboxModule = {};
+
+Wikijump.modules.PMInboxModule.vars = {
 	currentMessageId: null
 }
 
-WIKIDOT.modules.PMInboxModule.listeners = {
+Wikijump.modules.PMInboxModule.listeners = {
 	loadList: function(e, pageNo){
 		var p = null;
 		if(pageNo){p = {page: pageNo}};
-		OZONE.ajax.requestModule("account/pm/PMInboxModule", p, WIKIDOT.modules.AccountMessagesModule.callbacks.setActionArea);
-		if(e){	WIKIDOT.modules.AccountMessagesModule.utils.highlightTab(e);}
+		OZONE.ajax.requestModule("account/pm/PMInboxModule", p, Wikijump.modules.AccountMessagesModule.callbacks.setActionArea);
+		if(e){	Wikijump.modules.AccountMessagesModule.utils.highlightTab(e);}
 	},
 
 	selectAll: function(e){
@@ -46,16 +37,16 @@ WIKIDOT.modules.PMInboxModule.listeners = {
 		p.action = "PMAction";
 		p.event = 'removeSelectedInbox';
 		p.selected = JSON.stringify(selected);
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.PMInboxModule.callbacks.removeSelected);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.PMInboxModule.callbacks.removeSelected);
 
 	},
 	removeInboxMessage: function(e, messageId){
-		WIKIDOT.modules.PMInboxModule.vars.currentMessageId = messageId;
+		Wikijump.modules.PMInboxModule.vars.currentMessageId = messageId;
 		var w = new OZONE.dialogs.ConfirmationDialog();
 		w.content = "Are sure you want to remove this message?";
 		w.buttons = ['cancel', 'remove message'];
 		w.addButtonListener('cancel', w.close);
-		w.addButtonListener('remove message', WIKIDOT.modules.PMInboxModule.listeners.removeInboxMessage2);
+		w.addButtonListener('remove message', Wikijump.modules.PMInboxModule.listeners.removeInboxMessage2);
 		w.focusButton = 'cancel';
 		w.show();
 	},
@@ -64,14 +55,14 @@ WIKIDOT.modules.PMInboxModule.listeners = {
 		var p = new Object();
 		p.action = "PMAction";
 		p.event = 'removeInboxMessage';
-		p.message_id = WIKIDOT.modules.PMInboxModule.vars.currentMessageId;
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.PMInboxModule.callbacks.removeInboxMessage);
+		p.message_id = Wikijump.modules.PMInboxModule.vars.currentMessageId;
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.PMInboxModule.callbacks.removeInboxMessage);
 	}
 }
 
-WIKIDOT.modules.PMInboxModule.callbacks = {
+Wikijump.modules.PMInboxModule.callbacks = {
 	removeSelected: function(r){
-		WIKIDOT.modules.PMInboxModule.listeners.loadList(null, 1);
+		Wikijump.modules.PMInboxModule.listeners.loadList(null, 1);
 	},
 	removeInboxMessage: function(r){
 		if(r.status == 'ok'){
@@ -80,7 +71,7 @@ WIKIDOT.modules.PMInboxModule.callbacks = {
 			w.show();
 
 			if(r.messageId){
-				setTimeout('WIKIDOT.modules.AccountMessagesModule.listeners.viewInboxMessage("'+r.messageId+'")', 1000);
+				setTimeout('Wikijump.modules.AccountMessagesModule.listeners.viewInboxMessage("'+r.messageId+'")', 1000);
 			}else{
 				// return to inbox view
 				setTimeout('inboxPage(1)');
@@ -89,6 +80,6 @@ WIKIDOT.modules.PMInboxModule.callbacks = {
 	}
 }
 
-WIKIDOT.modules.PMInboxModule.init = function(){
+Wikijump.modules.PMInboxModule.init = function(){
 
 }

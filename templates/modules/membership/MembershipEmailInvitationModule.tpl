@@ -19,7 +19,7 @@
 
 		{if $user}
 			<p style="padding: 1em; font-size: 180%; text-align: center;font-weight: bold;line-spacing: 120%;">
-				<a href="javascript:;" onclick="WIKIDOT.modules.MembershipEmailInvitationModule.listeners.accept(event, '{$hash}')">accept invitation</a>
+				<a href="javascript:;" onclick="Wikijump.modules.MembershipEmailInvitationModule.listeners.accept(event, '{$hash}')">accept invitation</a>
 			</p>
 		{else}
 			<p>
@@ -29,7 +29,7 @@
 				<tr>
 					<td style="text-align: center; padding: 1em">
 						<div style="font-size: 180%; font-weight: bold;">
-							<a href="javascript:;" onclick="WIKIREQUEST.createAccountSkipCongrats=true;WIKIDOT.page.listeners.loginClick(event)"
+							<a href="javascript:;" onclick="WIKIREQUEST.createAccountSkipCongrats=true;Wikijump.page.listeners.loginClick(event)"
 								>{t}log in{/t}</a>
 						</div>
 						<p>
@@ -41,7 +41,7 @@
 					</td>
 					<td style="text-align: center; padding: 1em">
 						<div style="font-size: 180%; font-weight: bold;">
-							<a href="javascript:;"  onclick="WIKIREQUEST.createAccountSkipCongrats=true; WIKIDOT.page.listeners.createAccount(event)"
+							<a href="javascript:;"  onclick="WIKIREQUEST.createAccountSkipCongrats=true; Wikijump.page.listeners.createAccount(event)"
 								>{t}create a new account{/t}</a>
 						</div>
 					</td>

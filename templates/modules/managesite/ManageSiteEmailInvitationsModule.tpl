@@ -14,9 +14,9 @@
 <h2>{t}Whom do you want to invite?{/t}</h2>
 
 <p>
-	<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.showBulkAdd(event)">+ bulk invitations</a>
+	<a href="javascript:;" onclick="Wikijump.modules.ManageSiteEmailInvitationsModule.listeners.showBulkAdd(event)">+ bulk invitations</a>
 	<br/>
-	<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.showUpload(event)">+ upload a file with contacts</a>
+	<a href="javascript:;" onclick="Wikijump.modules.ManageSiteEmailInvitationsModule.listeners.showUpload(event)">+ upload a file with contacts</a>
 </p>
 
 
@@ -31,8 +31,8 @@
 			The adresses you enter here will be <b>added</b> to the list below when you click "process".
 		</div>
 		<div class="buttons">
-			<input type="button" value="cancel" class="button" onclick="WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.cancelBulkAdd(event)"/>
-			<input type="button" value="process" class="button" onclick="WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.processBulkAdd(event)"/>
+			<input type="button" value="cancel" class="button" onclick="Wikijump.modules.ManageSiteEmailInvitationsModule.listeners.cancelBulkAdd(event)"/>
+			<input type="button" value="process" class="button" onclick="Wikijump.modules.ManageSiteEmailInvitationsModule.listeners.processBulkAdd(event)"/>
 		</div>
 	</form>
 
@@ -41,7 +41,7 @@
 
 <div id="invitation-addresses-upload-box" style="display: none">
 	<form id="file-upload-form" enctype="multipart/form-data" action="/default--flow/managesite__ContactUploadTarget" target="_upload_iframe" method="POST"
-		onsubmit="WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.startUpload(event)"
+		onsubmit="Wikijump.modules.ManageSiteEmailInvitationsModule.listeners.startUpload(event)"
 	>
 
 		<input type="hidden" name="action" value="ManageSiteMembershipAction"/>
@@ -68,7 +68,7 @@
 			</tr>
 		</table>
 		<div class="buttons">
-			<input type="button" value="cancel" class="button" onclick="WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.cancelUpload(event)"/>
+			<input type="button" value="cancel" class="button" onclick="Wikijump.modules.ManageSiteEmailInvitationsModule.listeners.cancelUpload(event)"/>
 			<input type="submit" value="upload" class="button"/>
 		</div>
 	</form>
@@ -81,10 +81,10 @@
 
 
 	<p style="text-align: right; padding-right: 20%;">
-		to contacts: <a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.setAllToContacts(event, true)">all</a> | <a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.setAllToContacts(event, false)">none</a>
+		to contacts: <a href="javascript:;" onclick="Wikijump.modules.ManageSiteEmailInvitationsModule.listeners.setAllToContacts(event, true)">all</a> | <a href="javascript:;" onclick="Wikijump.modules.ManageSiteEmailInvitationsModule.listeners.setAllToContacts(event, false)">none</a>
 	</p>
 	<p style="text-align: center;">
-		<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.moreRecipients(event)">{t}add more recipients{/t}</a>
+		<a href="javascript:;" onclick="Wikijump.modules.ManageSiteEmailInvitationsModule.listeners.moreRecipients(event)">{t}add more recipients{/t}</a>
 	</p>
 
 
@@ -141,8 +141,8 @@
 	</p>
 
 	<div class="buttons">
-		<input type="button" value="{t}cancel{/t}" onclick="WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-welcome')"/>
-		<input type="button" value="{t}send invitations{/t}" onclick="WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.send(event)"/>
+		<input type="button" value="{t}cancel{/t}" onclick="Wikijump.modules.ManagerSiteModule.utils.loadModule('sm-welcome')"/>
+		<input type="button" value="{t}send invitations{/t}" onclick="Wikijump.modules.ManageSiteEmailInvitationsModule.listeners.send(event)"/>
 	</div>
 
 </form>
@@ -154,13 +154,13 @@
 				<div class="sub">
 					{t}Name (required){/t}:
 				</div>
-				<input type="text" class="text" size="20" onchange="WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.updateTo(event)"/>
+				<input type="text" class="text" size="20" onchange="Wikijump.modules.ManageSiteEmailInvitationsModule.listeners.updateTo(event)"/>
 			</td>
 			<td>
 				<div class="sub">
 					{t}Email address{/t}:
 				</div>
-				<input type="text" class="text" size="20" onchange="WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.updateTo(event)"/>
+				<input type="text" class="text" size="20" onchange="Wikijump.modules.ManageSiteEmailInvitationsModule.listeners.updateTo(event)"/>
 			</td>
 			<td >
 				<div class="sub">
@@ -169,7 +169,7 @@
 				<input type="checkbox" checked="checked"/>
 			</td>
 			<td style="vertical-align: middle">
-				<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteEmailInvitationsModule.listeners.removeRecipient(event)">{t}remove{/t}</a>
+				<a href="javascript:;" onclick="Wikijump.modules.ManageSiteEmailInvitationsModule.listeners.removeRecipient(event)">{t}remove{/t}</a>
 			</td>
 		</tr>
 	</table>

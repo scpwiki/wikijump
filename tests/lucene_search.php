@@ -1,27 +1,4 @@
 <?php
-/**
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- *
- * @category Wikidot
- * @package Wikidot_Web
- * @version $Id: lucene_search.php,v 1.8 2008/12/19 02:13:08 redbeard Exp $
- * @copyright Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
- */
 
 require_once ("../php/setup.php");
 
@@ -39,7 +16,7 @@ if (isset($argv[2]) && $argv[2] == 'java') {
 	GlobalProperties::$SEARCH_USE_JAVA = false;
 }
 
-$lucene = new Wikidot_Search_Lucene();
+$lucene = new Wikijump\Search\Lucene();
 $hits = $lucene->rawQuery($argv[1]);
 
 $i = 0;

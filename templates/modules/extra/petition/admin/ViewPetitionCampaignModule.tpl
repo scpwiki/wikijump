@@ -1,8 +1,8 @@
-<a href="javascript:;" onclick="WIKIDOT.modules.PetitionAdminModule.listeners.viewList(event)">back to the campaign list</a>
+<a href="javascript:;" onclick="Wikijump.modules.PetitionAdminModule.listeners.viewList(event)">back to the campaign list</a>
 {if $campaignsCount>1}
 	|
 	{t}choose another campaign{/t}:
-	<select onchange="WIKIDOT.modules.PetitionAdminModule.listeners.viewCampaignClick(event, this.value)">
+	<select onchange="Wikijump.modules.PetitionAdminModule.listeners.viewCampaignClick(event, this.value)">
 		{foreach from=$campaigns item=camp}
 			<option value={$camp->getCampaignId()}
 				{if $campaign->getCampaignId() == $camp->getCampaignId()}
@@ -18,26 +18,26 @@
 	<p style="text-align: center" id="petition-admin-tab-overview">
 		{t}overview{/t}
 		|
-		<a href="javascript:;" onclick="WIKIDOT.modules.PetitionAdminModule.listeners.browseTabClick(event,  {$campaign->getCampaignId()})"
+		<a href="javascript:;" onclick="Wikijump.modules.PetitionAdminModule.listeners.browseTabClick(event,  {$campaign->getCampaignId()})"
 		>{t}browse signatures{/t}</a>
 		|
-		<a href="javascript:;" onclick="WIKIDOT.modules.PetitionAdminModule.listeners.downloadTabClick(event,  {$campaign->getCampaignId()})"
+		<a href="javascript:;" onclick="Wikijump.modules.PetitionAdminModule.listeners.downloadTabClick(event,  {$campaign->getCampaignId()})"
 		>{t}download data{/t}</a>
 	</p>
 	<p style="text-align: center;display: none" id="petition-admin-tab-browse" >
-		<a href="javascript:;" onclick="WIKIDOT.modules.PetitionAdminModule.listeners.viewCampaignClick(event,{$campaign->getCampaignId()})"
+		<a href="javascript:;" onclick="Wikijump.modules.PetitionAdminModule.listeners.viewCampaignClick(event,{$campaign->getCampaignId()})"
 		>{t}overview{/t}</a>
 		|
 		{t}browse signatures{/t}
 		|
-		<a href="javascript:;" onclick="WIKIDOT.modules.PetitionAdminModule.listeners.downloadTabClick(event,  {$campaign->getCampaignId()})"
+		<a href="javascript:;" onclick="Wikijump.modules.PetitionAdminModule.listeners.downloadTabClick(event,  {$campaign->getCampaignId()})"
 		>{t}download data{/t}</a>
 	</p>
 	<p style="text-align: center;display: none" id="petition-admin-tab-download" >
-		<a href="javascript:;" onclick="WIKIDOT.modules.PetitionAdminModule.listeners.viewCampaignClick(event,{$campaign->getCampaignId()})"
+		<a href="javascript:;" onclick="Wikijump.modules.PetitionAdminModule.listeners.viewCampaignClick(event,{$campaign->getCampaignId()})"
 		>{t}overview{/t}</a>
 		|
-		<a href="javascript:;" onclick="WIKIDOT.modules.PetitionAdminModule.listeners.browseTabClick(event,  {$campaign->getCampaignId()})"
+		<a href="javascript:;" onclick="Wikijump.modules.PetitionAdminModule.listeners.browseTabClick(event,  {$campaign->getCampaignId()})"
 		>{t}browse signatures{/t}</a>
 		|
 		{t}download data{/t}
@@ -51,13 +51,13 @@
 			<strong>active</strong>
 			|
 			<a href="javascript:;"
-				onclick="WIKIDOT.modules.PetitionAdminModule.listeners.suspendCampaign(event, {$campaign->getCampaignId()})"
+				onclick="Wikijump.modules.PetitionAdminModule.listeners.suspendCampaign(event, {$campaign->getCampaignId()})"
 			>{t}suspend this campaign{/t}</a>
 		{else}
 			<strong>{t}suspended{/t}</strong>
 			|
 			<a href="javascript:;"
-				onclick="WIKIDOT.modules.PetitionAdminModule.listeners.resumeCampaign(event, {$campaign->getCampaignId()})"
+				onclick="Wikijump.modules.PetitionAdminModule.listeners.resumeCampaign(event, {$campaign->getCampaignId()})"
 			>{t}resume this campaign{/t}</a>
 		{/if}
 		<br/>
@@ -67,7 +67,7 @@
 	<p>
 		{t}More actions{/t}:
 		<a href="javascript:;"
-				onclick="WIKIDOT.modules.PetitionAdminModule.listeners.deleteCampaign(event, {$campaign->getCampaignId()})"
+				onclick="Wikijump.modules.PetitionAdminModule.listeners.deleteCampaign(event, {$campaign->getCampaignId()})"
 		>{t}delete campaign{/t}</a>
 	</p>
 
@@ -219,7 +219,7 @@
 		</table>
 		<div class="buttons">
 			<input type="button" value="save settings"
-			onclick="WIKIDOT.modules.PetitionAdminModule.listeners.saveCollectSettings(event, {$campaign->getCampaignId()})" />
+			onclick="Wikijump.modules.PetitionAdminModule.listeners.saveCollectSettings(event, {$campaign->getCampaignId()})" />
 		</div>
 	</form>
 

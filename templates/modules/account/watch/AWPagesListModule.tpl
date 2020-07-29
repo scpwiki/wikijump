@@ -20,7 +20,7 @@
 					| <a href="{$HTTP_SCHEMA}://{$site->getDomain()}/{$page->getUnixName()}">{$page->getTitle()|escape}</a>
 				</td>
 				<td>
-					| <a href="javascript:;" onclick="WIKIDOT.modules.AWChangesModule.listeners.removeWatchedPage(event, {$page->getPageId()})">remove</a>
+					| <a href="javascript:;" onclick="Wikijump.modules.AWChangesModule.listeners.removeWatchedPage(event, {$page->getPageId()})">remove</a>
 				</td>
 			</tr>
 		{/foreach}

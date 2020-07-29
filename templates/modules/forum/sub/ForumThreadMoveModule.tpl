@@ -29,6 +29,6 @@
 	</table>
 	<div class="buttons">
 		<input type="button" value="{t}cancel{/t}" onclick="$('thread-action-area').style.display='none'"/>
-		<input type="button" value="{t}save{/t}" onclick="WIKIDOT.modules.ForumThreadMoveModule.listeners.move(event)"/>
+		<input type="button" value="{t}save{/t}" onclick="Wikijump.modules.ForumThreadMoveModule.listeners.move(event)"/>
 	</div>
 </form>

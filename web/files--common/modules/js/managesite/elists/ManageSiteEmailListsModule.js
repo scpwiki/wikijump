@@ -1,25 +1,16 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.ManageSiteEmailListsModule = {};
 
-WIKIDOT.modules.ManageSiteEmailListsModule.vars = {
+Wikijump.modules.ManageSiteEmailListsModule = {};
+
+Wikijump.modules.ManageSiteEmailListsModule.vars = {
 	curretStatus: null,
 	currentContainer: null,
 	currentListId: null
 }
 
-WIKIDOT.modules.ManageSiteEmailListsModule.listeners = {
+Wikijump.modules.ManageSiteEmailListsModule.listeners = {
 	clickNewList: function(e){
-		if(WIKIDOT.modules.ManageSiteEmailListsModule.vars.currentStatus){
+		if(Wikijump.modules.ManageSiteEmailListsModule.vars.currentStatus){
 			return;
 		}
 		var form = $('elist-form-template');
@@ -30,24 +21,24 @@ WIKIDOT.modules.ManageSiteEmailListsModule.listeners = {
 		form2.id="elist-new-list-form";
 		aa.appendChild(form2);
 		$("elist-add-new-button").style.display="none";
-		WIKIDOT.modules.ManageSiteEmailListsModule.vars.currentStatus = 'new';
+		Wikijump.modules.ManageSiteEmailListsModule.vars.currentStatus = 'new';
 
-		YAHOO.util.Event.addListener(form2, 'submit', WIKIDOT.modules.ManageSiteEmailListsModule.listeners.saveList);
+		YAHOO.util.Event.addListener(form2, 'submit', Wikijump.modules.ManageSiteEmailListsModule.listeners.saveList);
 
 	},
 
 	closeEditList: function(e){
-		if(WIKIDOT.modules.ManageSiteEmailListsModule.vars.currentStatus == 'edit'){
-			var c = WIKIDOT.modules.ManageSiteEmailListsModule.vars.currentContainer;
+		if(Wikijump.modules.ManageSiteEmailListsModule.vars.currentStatus == 'edit'){
+			var c = Wikijump.modules.ManageSiteEmailListsModule.vars.currentContainer;
 			c.parentNode.removeChild(c);
 
 		}
-		if(WIKIDOT.modules.ManageSiteEmailListsModule.vars.currentStatus == 'new'){
+		if(Wikijump.modules.ManageSiteEmailListsModule.vars.currentStatus == 'new'){
 			var aa = $('elist-action-area');
 			aa.innerHTML = '';
 			$("elist-add-new-button").style.display="block";
 		}
-		WIKIDOT.modules.ManageSiteEmailListsModule.vars = {
+		Wikijump.modules.ManageSiteEmailListsModule.vars = {
 			curretStatus: null,
 			currentContainer: null,
 			currentListId: null
@@ -59,7 +50,7 @@ WIKIDOT.modules.ManageSiteEmailListsModule.listeners = {
 	},
 
 	editList: function(e, listId){
-		if(WIKIDOT.modules.ManageSiteEmailListsModule.vars.currentStatus){
+		if(Wikijump.modules.ManageSiteEmailListsModule.vars.currentStatus){
 			return;
 		}
 		var row = $('elist-row-'+listId);
@@ -89,16 +80,16 @@ WIKIDOT.modules.ManageSiteEmailListsModule.listeners = {
 
 		OZONE.dom.insertAfter(row.parentNode, tr, row);
 
-		WIKIDOT.modules.ManageSiteEmailListsModule.vars.currentStatus = 'edit';
-		WIKIDOT.modules.ManageSiteEmailListsModule.vars.currentContainer = tr;
-		WIKIDOT.modules.ManageSiteEmailListsModule.vars.currentListId = listId;
+		Wikijump.modules.ManageSiteEmailListsModule.vars.currentStatus = 'edit';
+		Wikijump.modules.ManageSiteEmailListsModule.vars.currentContainer = tr;
+		Wikijump.modules.ManageSiteEmailListsModule.vars.currentListId = listId;
 
-		YAHOO.util.Event.addListener(form2, 'submit', WIKIDOT.modules.ManageSiteEmailListsModule.listeners.saveList);
+		YAHOO.util.Event.addListener(form2, 'submit', Wikijump.modules.ManageSiteEmailListsModule.listeners.saveList);
 
 	},
 
 	embedInfo: function(e, listId){
-		WIKIDOT.modules.ManageSiteEmailListsModule.listeners.closeEmbedInfo();
+		Wikijump.modules.ManageSiteEmailListsModule.listeners.closeEmbedInfo();
 		var row = $('elist-row-'+listId);
 		// add container
 		var tr = document.createElement('tr');
@@ -126,24 +117,24 @@ WIKIDOT.modules.ManageSiteEmailListsModule.listeners = {
 	saveList: function(e){
 		var form = this;
 		var p = OZONE.utils.formToArray(form);
-		if(WIKIDOT.modules.ManageSiteEmailListsModule.vars.currentListId){
-			p.listId = WIKIDOT.modules.ManageSiteEmailListsModule.vars.currentListId;
+		if(Wikijump.modules.ManageSiteEmailListsModule.vars.currentListId){
+			p.listId = Wikijump.modules.ManageSiteEmailListsModule.vars.currentListId;
 		}
 		p.action = 'ManageSiteEmailListsAction';
 		p.event  = 'saveList';
 
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.ManageSiteEmailListsModule.callbacks.saveList);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.ManageSiteEmailListsModule.callbacks.saveList);
 
 	},
 
 	showSubscribers: function(event, listId){
 		var p = {};
 		p.listId = listId;
-		OZONE.ajax.requestModule("managesite/elists/ManageSiteEmailListSubscribersModule", p, WIKIDOT.modules.ManageSiteEmailListsModule.callbacks.showSubscribers);
+		OZONE.ajax.requestModule("managesite/elists/ManageSiteEmailListSubscribersModule", p, Wikijump.modules.ManageSiteEmailListsModule.callbacks.showSubscribers);
 	},
 
 	reloadMain: function(event){
-		WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-email-lists');
+		Wikijump.modules.ManagerSiteModule.utils.loadModule('sm-email-lists');
 	},
 
 	removeSubscriber: function(e, userId, listId){
@@ -152,19 +143,19 @@ WIKIDOT.modules.ManageSiteEmailListsModule.listeners = {
 		p.listId = listId;
 		p.action = 'ManageSiteEmailListsAction';
 		p.event  = 'unsubscribe';
-		OZONE.ajax.requestModule("managesite/elists/ManageSiteEmailListSubscribersModule", p, WIKIDOT.modules.ManageSiteEmailListsModule.callbacks.showSubscribers);
+		OZONE.ajax.requestModule("managesite/elists/ManageSiteEmailListSubscribersModule", p, Wikijump.modules.ManageSiteEmailListsModule.callbacks.showSubscribers);
 	}
 
 }
-WIKIDOT.modules.ManageSiteEmailListsModule.callbacks = {
+Wikijump.modules.ManageSiteEmailListsModule.callbacks = {
 	saveList: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
-		WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-email-lists');
+		Wikijump.modules.ManagerSiteModule.utils.loadModule('sm-email-lists');
 	},
 
 	showSubscribers: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		$("sm-action-area").innerHTML = r.body;
 	}
 }

@@ -29,8 +29,8 @@
 				</td>
 
 				<td>
-					| <a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteAnonymousAbuseModule.listeners.clear(event, '{$rep.address}' {if $rep.proxy == "t"},'proxy'{/if} )">clear flags</a>
-					| <a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteAnonymousAbuseModule.listeners.blockIp(event, '{$rep.address}')" >ban</a>
+					| <a href="javascript:;" onclick="Wikijump.modules.ManageSiteAnonymousAbuseModule.listeners.clear(event, '{$rep.address}' {if $rep.proxy == "t"},'proxy'{/if} )">clear flags</a>
+					| <a href="javascript:;" onclick="Wikijump.modules.ManageSiteAnonymousAbuseModule.listeners.blockIp(event, '{$rep.address}')" >ban</a>
 				</td>
 			</tr>
 		{/foreach}

@@ -23,7 +23,7 @@
 		{/foreach}
 		<div class="button-bar">
 			<a href="javascript:;" onclick="window.location.reload()">{t}cancel{/t}</a>
-			<a href="javascript:;"  onclick="WIKIDOT.modules.PageEditModule.listeners.forcePageEditLockRemove(event)">{t}try to intercept the lock{/t}</a>,
+			<a href="javascript:;"  onclick="Wikijump.modules.PageEditModule.listeners.forcePageEditLockRemove(event)">{t}try to intercept the lock{/t}</a>,
 		</div>
 	</div>
 </div>

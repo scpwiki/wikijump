@@ -1,4 +1,4 @@
-<h1><a href="javascript:;" onclick="WIKIDOT.modules.AccountModule.utils.loadModule('am-settings')">{t}Account settings{/t}</a> / {t}Language settings{/t}</h1>
+<h1><a href="javascript:;" onclick="Wikijump.modules.AccountModule.utils.loadModule('am-settings')">{t}Account settings{/t}</a> / {t}Language settings{/t}</h1>
 
 <p>
 	{t escape=no}Now it is possible to choose your preferred language. This setting will affect the language
@@ -22,7 +22,7 @@
 		</tr>
 	</table>
 	<div class="buttons">
-		<input type="button" value="{t}cancel{/t}" onclick="WIKIDOT.modules.AccountModule.utils.loadModule('am-settings')"/>
-		<input type="button" value="{t}save{/t}" onclick="WIKIDOT.modules.ASLanguageModule.listeners.save(event)"/>
+		<input type="button" value="{t}cancel{/t}" onclick="Wikijump.modules.AccountModule.utils.loadModule('am-settings')"/>
+		<input type="button" value="{t}save{/t}" onclick="Wikijump.modules.ASLanguageModule.listeners.save(event)"/>
 	</div>
 </form>

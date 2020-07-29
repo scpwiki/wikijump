@@ -1,7 +1,7 @@
 <div id="sent-member-invitations-box">
 
 	<p style="text-align: right">
-		<a href="javascript:;" onclick="WIKIDOT.modules.SentMemberInvitationsModule.listeners.sendMore(event)">send more invitations</a>
+		<a href="javascript:;" onclick="Wikijump.modules.SentMemberInvitationsModule.listeners.sendMore(event)">send more invitations</a>
 	</p>
 
 	{if $invitations}
@@ -47,14 +47,14 @@
 					{if $invitation->getAccepted()}
 					{elseif !$invitation->getDelivered()}
 						<a href="javascript:;"
-							onclick="WIKIDOT.modules.SentMemberInvitationsModule.listeners.deleteInvitation(event, {$invitation->getInvitationId()}, '{$invitation->getEmail()|escape}')">{t}delete{/t}</a>
+							onclick="Wikijump.modules.SentMemberInvitationsModule.listeners.deleteInvitation(event, {$invitation->getInvitationId()}, '{$invitation->getEmail()|escape}')">{t}delete{/t}</a>
 					{else}
 						{if $invitation->getAttempts()<3}<a href="javascript:;"
-						onclick="WIKIDOT.modules.SentMemberInvitationsModule.listeners.resendInvitation(event, {$invitation->getInvitationId()},'{$invitation->getName()|escape}', '{$invitation->getEmail()|escape}')"
+						onclick="Wikijump.modules.SentMemberInvitationsModule.listeners.resendInvitation(event, {$invitation->getInvitationId()},'{$invitation->getName()|escape}', '{$invitation->getEmail()|escape}')"
 						>{t}resend{/t}</a> | {/if}
 
 						<a href="javascript:;"
-							onclick="WIKIDOT.modules.SentMemberInvitationsModule.listeners.deleteInvitation(event, {$invitation->getInvitationId()}, '{$invitation->getEmail()|escape}')">{t}delete{/t}</a>
+							onclick="Wikijump.modules.SentMemberInvitationsModule.listeners.deleteInvitation(event, {$invitation->getInvitationId()}, '{$invitation->getEmail()|escape}')">{t}delete{/t}</a>
 					{/if}
 				</td>
 			</tr>
@@ -80,7 +80,7 @@
 				</p>
 				<div class="buttons">
 					<input type="button" value="{t}cancel{/t}" onclick="$('resend-invitations-form').style.display = 'none'"/>
-					<input type="button" value="{t}send reminder{/t}" onclick="WIKIDOT.modules.SentMemberInvitationsModule.listeners.resendInvitation2(event)"/>
+					<input type="button" value="{t}send reminder{/t}" onclick="Wikijump.modules.SentMemberInvitationsModule.listeners.resendInvitation2(event)"/>
 				</div>
 			</form>
 		</div>

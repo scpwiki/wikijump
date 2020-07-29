@@ -27,7 +27,7 @@
 			<td>&nbsp;</td>
 			<td class="subject">
 				<a href="javascript:;"
-				onclick="WIKIDOT.modules.AccountMessagesModule.listeners.viewSentMessage({$message->getMessageId()})">{$message->getSubject()|escape}</a>
+				onclick="Wikijump.modules.AccountMessagesModule.listeners.viewSentMessage({$message->getMessageId()})">{$message->getSubject()|escape}</a>
 			</td>
 			<td>
 				{printuser user=$message->getToUser() image=true}
@@ -45,10 +45,10 @@
 	{if $messages}
 		<tr>
 			<td colspan="4"  style="padding: 1em 2em 0 0; text-align: right;">
-				<a href="javascript:;" onclick="WIKIDOT.modules.PMSentModule.listeners.removeSelected(event)">{t}remove selected{/t}</a>
+				<a href="javascript:;" onclick="Wikijump.modules.PMSentModule.listeners.removeSelected(event)">{t}remove selected{/t}</a>
 			</td>
 			<td  style="padding-top: 1em">
-				[<a href="javascript:;" onclick="WIKIDOT.modules.PMSentModule.listeners.selectAll(event)">{t}select all{/t}</a>]
+				[<a href="javascript:;" onclick="Wikijump.modules.PMSentModule.listeners.selectAll(event)">{t}select all{/t}</a>]
 			</td>
 		</tr>
 	{/if}

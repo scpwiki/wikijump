@@ -11,7 +11,7 @@
 			your email and the new password!
 		</p>
 		<p style="text-align: center; font-size: 130%; font-weight: bold">
-			<a href="javascript:;" onclick="WIKIDOT.page.listeners.loginClick(event)">Log in!</a>
+			<a href="javascript:;" onclick="Wikijump.page.listeners.loginClick(event)">Log in!</a>
 		</p>
 
 

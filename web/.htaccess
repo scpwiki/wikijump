@@ -2,12 +2,12 @@
 RewriteEngine on
 
 # fix when someone uses a www prefix when it is not needed
-RewriteCond 	%{HTTP_HOST}			^www\.([a-zA-Z0-9\-]+)\.mywikidot\.com
-RewriteRule 	^(.*)					http://%1\.mywikidot\.com/$1 [R=301,L]
+RewriteCond 	%{HTTP_HOST}			^www\.([a-zA-Z0-9\-]+)\.mywikijump\.com
+RewriteRule 	^(.*)					http://%1\.mywikijump\.com/$1 [R=301,L]
 
 # redirect domain to main wiki
-RewriteCond 	%{HTTP_HOST}			^mywikidot\.com
-RewriteRule 	^(.*)					http://www\.mywikidot\.com/$1 [R=301,L]
+RewriteCond 	%{HTTP_HOST}			^mywikijump\.com
+RewriteRule 	^(.*)					http://www\.mywikijump\.com/$1 [R=301,L]
 
 RewriteRule 	^common--(.+)$ 			files--common/$1 [L]
 
@@ -15,21 +15,21 @@ RewriteRule 	^common--(.+)$ 			files--common/$1 [L]
 ##################
 # handle files for private sites
 
-RewriteCond 	%{HTTP_HOST}  			(^[a-zA-Z0-9\-]+)\.mywikidot\.com$
-RewriteCond 	/var/www/wikidot/web/files--sites/%1/flags/private -f
+RewriteCond 	%{HTTP_HOST}  			(^[a-zA-Z0-9\-]+)\.mywikijump\.com$
+RewriteCond 	/var/www/wikijump/web/files--sites/%1/flags/private -f
 RewriteRule 	^local--files/(.+)$ 	private_file_filter.php?$1 [L]
 
-RewriteCond 	%{HTTP_HOST}  			!(^[a-zA-Z0-9\-]+)\.mywikidot\.com$
-RewriteCond 	/var/www/wikidot/web/%{HTTP_HOST}/flags/private -f
+RewriteCond 	%{HTTP_HOST}  			!(^[a-zA-Z0-9\-]+)\.mywikijump\.com$
+RewriteCond 	/var/www/jumpidot/web/%{HTTP_HOST}/flags/private -f
 RewriteRule 	^local--files/(.+)$ 	private_file_filter.php?$1 [L]
 ##################
 
 # handle local static requests hosts
-RewriteCond 	%{HTTP_HOST}  			(^[a-zA-Z0-9\-]+)\.mywikidot\.com$
+RewriteCond 	%{HTTP_HOST}  			(^[a-zA-Z0-9\-]+)\.mywikijump\.com$
 RewriteRule 	^local--(.+)$ 			files--sites/%1/$1 [L]
 
 
-RewriteCond 	%{HTTP_HOST}  			!(^[a-zA-Z0-9\-]+)\.mywikidot\.com$
+RewriteCond 	%{HTTP_HOST}  			!(^[a-zA-Z0-9\-]+)\.mywikijump\.com$
 RewriteRule 	^local--(.+)$ 			custom--domains/%{HTTP_HOST}/$1 [L]
 
 
@@ -50,7 +50,7 @@ RewriteRule 	^feed/site\-changes\.xml$				feed.php?feed__SiteChangesFeed [L]
 RewriteRule 	^feed/pages/(.*)(\.xml)?$				feed.php?feed__PagesFeed/$1 [L]
 
 ## private feed
-RewriteCond 	%{HTTP_HOST} ^www\.mywikidot\.com$
+RewriteCond 	%{HTTP_HOST} ^www\.mywikijump\.com$
 RewriteRule 	^feed/account/notifications.xml$		feed.php?feed__AccountNotificationsFeed [L]
 
 ## site admin feed
@@ -58,7 +58,7 @@ RewriteRule 	^feed/account/notifications.xml$		feed.php?feed__AccountNotificatio
 RewriteRule 	^feed/admin\.xml$						feed.php?feed__AdminNotificationsFeed [L]
 
 ## watched changes feed
-RewriteCond 	%{HTTP_HOST} ^www\.mywikidot\.com$
+RewriteCond 	%{HTTP_HOST} ^www\.mywikijump\.com$
 RewriteRule 	^feed/watched/page-changes.xml$			feed.php?feed__WatchedPageChangesFeed [L]
 RewriteRule 	^feed/watched/forum-posts.xml$			feed.php?feed__WatchedForumPostsFeed [L]
 

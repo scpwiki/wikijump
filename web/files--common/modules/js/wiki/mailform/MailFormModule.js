@@ -1,19 +1,10 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.MailFormModule = {};
 
-WIKIDOT.modules.MailFormModule.vars = {};
+Wikijump.modules.MailFormModule = {};
 
-WIKIDOT.modules.MailFormModule.listeners = {
+Wikijump.modules.MailFormModule.vars = {};
+
+Wikijump.modules.MailFormModule.listeners = {
 	send: function(e, formRand){
 		var form = $('mailform-'+formRand);
 
@@ -23,18 +14,18 @@ WIKIDOT.modules.MailFormModule.listeners = {
 		p.action = 'wiki/MailFormAction';
 		p.event = 'sendForm';
 		p.formdef = $("mailformdef-"+formRand).innerHTML;
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.MailFormModule.callbacks.send);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.MailFormModule.callbacks.send);
 
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Sending the form...";
 		w.show();
-		WIKIDOT.modules.MailFormModule.vars.rand = formRand;
+		Wikijump.modules.MailFormModule.vars.rand = formRand;
 	}
 }
 
-WIKIDOT.modules.MailFormModule.callbacks = {
+Wikijump.modules.MailFormModule.callbacks = {
 	send: function(r){
-		var rand = WIKIDOT.modules.MailFormModule.vars.rand;
+		var rand = Wikijump.modules.MailFormModule.vars.rand;
 		// remove 'invalid...' class
 		var form = $('mailform-'+rand);
 		var trs = form.getElementsByTagName('tr');
@@ -54,7 +45,7 @@ WIKIDOT.modules.MailFormModule.callbacks = {
 			OZONE.dialog.cleanAll();
 			return;
 		}
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "The form has been sent. Thank you!";

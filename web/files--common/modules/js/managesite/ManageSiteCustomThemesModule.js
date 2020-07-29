@@ -1,29 +1,20 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.ManageSiteCustomThemesModule = {};
 
-WIKIDOT.modules.ManageSiteCustomThemesModule.vars = {
+Wikijump.modules.ManageSiteCustomThemesModule = {};
+
+Wikijump.modules.ManageSiteCustomThemesModule.vars = {
 	currentThemeId1: null,
 	editThemeId: null
 }
 
-WIKIDOT.modules.ManageSiteCustomThemesModule.listeners = {
+Wikijump.modules.ManageSiteCustomThemesModule.listeners = {
 	editTheme: function(e, themeId){
 		var p = new Object();
 		if(themeId){
 			p['themeId'] = themeId;
 		}
-		WIKIDOT.modules.ManageSiteCustomThemesModule.vars.editThemeId = themeId;
-		OZONE.ajax.requestModule("managesite/ManageSiteEditCustomThemeModule", p, WIKIDOT.modules.ManageSiteCustomThemesModule.callbacks.editTheme);
+		Wikijump.modules.ManageSiteCustomThemesModule.vars.editThemeId = themeId;
+		OZONE.ajax.requestModule("managesite/ManageSiteEditCustomThemeModule", p, Wikijump.modules.ManageSiteCustomThemesModule.callbacks.editTheme);
 
 	},
 
@@ -38,7 +29,7 @@ WIKIDOT.modules.ManageSiteCustomThemesModule.listeners = {
 		}
 		p.action = "ManageSiteAction";
 		p.event = "importCss";
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.ManageSiteCustomThemesModule.callbacks.importCss);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.ManageSiteCustomThemesModule.callbacks.importCss);
 
 	},
 
@@ -50,22 +41,22 @@ WIKIDOT.modules.ManageSiteCustomThemesModule.listeners = {
 		var p = OZONE.utils.formToArray("sm-edit-theme-form");
 		p.action = "ManageSiteAction";
 		p.event = "customThemeSave";
-		if(WIKIDOT.modules.ManageSiteCustomThemesModule.vars.editThemeId){
-			p.themeId = WIKIDOT.modules.ManageSiteCustomThemesModule.vars.editThemeId;
+		if(Wikijump.modules.ManageSiteCustomThemesModule.vars.editThemeId){
+			p.themeId = Wikijump.modules.ManageSiteCustomThemesModule.vars.editThemeId;
 		}
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.ManageSiteCustomThemesModule.callbacks.saveTheme);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.ManageSiteCustomThemesModule.callbacks.saveTheme);
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Saving theme...";
 		w.show();
 	},
 	deleteTheme: function(e, themeId){
-		WIKIDOT.modules.ManageSiteCustomThemesModule.vars.currentThemeId1 = themeId;
+		Wikijump.modules.ManageSiteCustomThemesModule.vars.currentThemeId1 = themeId;
 		var w = new OZONE.dialogs.ConfirmationDialog();
 		w.content = "Are you sure you want to delete this theme?";
 		w.buttons = ["cancel", "yes, delete"];
 		w.addButtonListener("cancel", w.close);
 		w.addButtonListener("yes, delete", function(e){
-			WIKIDOT.modules.ManageSiteCustomThemesModule.listeners.deleteTheme2(e, WIKIDOT.modules.ManageSiteCustomThemesModule.vars.currentThemeId1);
+			Wikijump.modules.ManageSiteCustomThemesModule.listeners.deleteTheme2(e, Wikijump.modules.ManageSiteCustomThemesModule.vars.currentThemeId1);
 		});
 		w.show();
 	},
@@ -74,13 +65,13 @@ WIKIDOT.modules.ManageSiteCustomThemesModule.listeners = {
 		if(themeId){p['themeId'] = themeId;}
 		p.action = "ManageSiteAction";
 		p.event = "customThemeDelete";
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.ManageSiteCustomThemesModule.callbacks.deleteTheme);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.ManageSiteCustomThemesModule.callbacks.deleteTheme);
 	}
 }
 
-WIKIDOT.modules.ManageSiteCustomThemesModule.callbacks = {
+Wikijump.modules.ManageSiteCustomThemesModule.callbacks = {
 	editTheme: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		$("edit-theme-box").innerHTML = r.body;
 
 		// attach autocomplete
@@ -110,7 +101,7 @@ WIKIDOT.modules.ManageSiteCustomThemesModule.callbacks = {
 			return;
 		}
 		$("cssimport-error").style.display = "none";
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		$("sm-csscode").value=r.code;
 	},
 	saveTheme: function(r){
@@ -122,17 +113,17 @@ WIKIDOT.modules.ManageSiteCustomThemesModule.callbacks = {
 			return;
 		}
 		$("edit-theme-error").style.display = "none";
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Theme saved.";
 		w.show();
-		setTimeout('WIKIDOT.modules.ManagerSiteModule.utils.loadModule("sm-customthemes")', 1000);
+		setTimeout('Wikijump.modules.ManagerSiteModule.utils.loadModule("sm-customthemes")', 1000);
 
 	},
 
 	deleteTheme: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
-		WIKIDOT.modules.ManagerSiteModule.utils.loadModule("sm-customthemes");
+		if(!Wikijump.utils.handleError(r)) {return;}
+		Wikijump.modules.ManagerSiteModule.utils.loadModule("sm-customthemes");
 		OZONE.dialog.cleanAll();
 	}
 }

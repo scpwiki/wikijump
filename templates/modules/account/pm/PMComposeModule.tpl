@@ -14,10 +14,10 @@
 			</td>
 			<td>
 				<div id="selected-user-div" style="display: none">
-					<span id="selected-user-rendered"></span> (<a href="javascript:;" onclick="WIKIDOT.modules.PMComposeModule.listeners.changeRecipient(event)">{t}change recipient{/t}</a>)
+					<span id="selected-user-rendered"></span> (<a href="javascript:;" onclick="Wikijump.modules.PMComposeModule.listeners.changeRecipient(event)">{t}change recipient{/t}</a>)
 				</div>
 				<div id="select-user-div">
-					{t}Type the Wikidot User name below or{/t} <a href="javascript:;" onclick="WIKIDOT.modules.PMComposeModule.listeners.showContactsList(event)">{t}select from your contacts{/t}</a>  <br/>
+					{t}Type the Wikijump User name below or{/t} <a href="javascript:;" onclick="Wikijump.modules.PMComposeModule.listeners.showContactsList(event)">{t}select from your contacts{/t}</a>  <br/>
 					<div class="autocomplete-container" style="width: 20em; padding-top: 3px;">
 						<input type="text" id="user-lookup" size="30" class="autocomplete-input text"/>
 						<div id="user-lookup-list" class="autocomplete-list"></div>
@@ -40,17 +40,17 @@
 	<div><textarea id="editor-textarea" cols="40" rows="15" style="width: 95%">{$body|escape}</textarea></div>
 
 	<div class="change-textarea-size">
-		<a href="javascript:;" onclick="WIKIDOT.utils.changeTextareaRowNo('editor-textarea',-5)">-</a>
-		<a href="javascript:;" onclick="WIKIDOT.utils.changeTextareaRowNo('editor-textarea',5)">+</a>
+		<a href="javascript:;" onclick="Wikijump.utils.changeTextareaRowNo('editor-textarea',-5)">-</a>
+		<a href="javascript:;" onclick="Wikijump.utils.changeTextareaRowNo('editor-textarea',5)">+</a>
 	</div>
 	<div class="edit-help-34">
 		{t}Need help? Check the{/t} <a href="{$URL_DOCS}" target="_blank">{t}documentation{/t}</a>.
 	</div>
 	<div class="buttons alignleft">
 		<input type="button" value="{t}cancel{/t}" id="pm-compose-cancel-button"/>
-		<input type="button" value="{t}save as draft{/t}" onclick="WIKIDOT.modules.PMComposeModule.listeners.saveDraft(event)"/>
-		<input type="button" value="{t}preview{/t}" onclick="WIKIDOT.modules.PMComposeModule.listeners.preview(event)"/>
-		<input type="button" value="{t}send!{/t}" onclick="WIKIDOT.modules.PMComposeModule.listeners.send(event)"/>
+		<input type="button" value="{t}save as draft{/t}" onclick="Wikijump.modules.PMComposeModule.listeners.saveDraft(event)"/>
+		<input type="button" value="{t}preview{/t}" onclick="Wikijump.modules.PMComposeModule.listeners.preview(event)"/>
+		<input type="button" value="{t}send!{/t}" onclick="Wikijump.modules.PMComposeModule.listeners.send(event)"/>
 	</div>
 </form>
 

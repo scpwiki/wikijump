@@ -62,7 +62,7 @@
 				<td colspan="2">
 					<p style="text-align: center;">
 						<a href="/local--backup/{$backup->getRand()}/backup.zip">download the ZIPped backup</a>
-						| <a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteBackupModule.listeners.deleteBackup(event)">delete backup</a>
+						| <a href="javascript:;" onclick="Wikijump.modules.ManageSiteBackupModule.listeners.deleteBackup(event)">delete backup</a>
 					</p>
 				</td>
 			</tr>
@@ -71,7 +71,7 @@
 
 	{if $backup && ($backup->getStatus() == "" || $backup->getStatus() == "started")}
 		<p style="text-align: center;">
-			<a href="javascript:;" onclick="WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-backup');">{t}refresh status{/t}</a>
+			<a href="javascript:;" onclick="Wikijump.modules.ManagerSiteModule.utils.loadModule('sm-backup');">{t}refresh status{/t}</a>
 		</p>
 		{if $backup->getStatus() == ""}
 			<p style="text-align: center;">
@@ -117,7 +117,7 @@
 
 		<div class="buttons">
 			<input type="button" onclick="$('create-backup-form').style.display='none'" value="{t}cancel{/t}"/>
-			<input type="button" value="{t}create backup{/t}" onclick="WIKIDOT.modules.ManageSiteBackupModule.listeners.requestBackup(event)"/>
+			<input type="button" value="{t}create backup{/t}" onclick="Wikijump.modules.ManageSiteBackupModule.listeners.requestBackup(event)"/>
 		</div>
 	</form>
 

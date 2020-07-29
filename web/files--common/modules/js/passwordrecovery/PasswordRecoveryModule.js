@@ -1,22 +1,13 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.PasswordRecoveryModule = {};
 
-WIKIDOT.modules.PasswordRecoveryModule.listeners = {
+Wikijump.modules.PasswordRecoveryModule = {};
+
+Wikijump.modules.PasswordRecoveryModule.listeners = {
 	cancel: function(e){
 		var p = new Object();
 		p.action = "PasswordRecoveryAction";
 		p.event = "cancel";
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.PasswordRecoveryModule.callbacks.cancel);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.PasswordRecoveryModule.callbacks.cancel);
 	},
 
 	next1: function(e){
@@ -34,14 +25,14 @@ WIKIDOT.modules.PasswordRecoveryModule.listeners = {
 		}
 
 		var rsa = new RSAKey();
-		rsa.setPublic(WIKIDOT.vars.rsakey, "10001");
+		rsa.setPublic(Wikijump.vars.rsakey, "10001");
 
 		var p = new Object();
 		//p.email = linebrk(hex2b64(rsa.encrypt('__'+email)),64);
 		p.email = email;
 		p.action = "PasswordRecoveryAction";
 		p.event = "step1";
-		OZONE.ajax.requestModule("passwordrecovery/PasswordRecovery2Module", p, WIKIDOT.modules.PasswordRecoveryModule.callbacks.next1);
+		OZONE.ajax.requestModule("passwordrecovery/PasswordRecovery2Module", p, Wikijump.modules.PasswordRecoveryModule.callbacks.next1);
 	}	,
 
 	next2: function(e){
@@ -58,17 +49,17 @@ WIKIDOT.modules.PasswordRecoveryModule.listeners = {
 
 		//crypt
 		var rsa = new RSAKey();
-		rsa.setPublic(WIKIDOT.vars.rsakey, "10001");
+		rsa.setPublic(Wikijump.vars.rsakey, "10001");
 		// p.password = linebrk(hex2b64(rsa.encrypt('__'+p.password)),64);
 		// p.password2 = linebrk(hex2b64(rsa.encrypt('__'+p.password2)),64);
 
-		OZONE.ajax.requestModule("passwordrecovery/PasswordRecovery3Module", p, WIKIDOT.modules.PasswordRecoveryModule.callbacks.next2);
+		OZONE.ajax.requestModule("passwordrecovery/PasswordRecovery3Module", p, Wikijump.modules.PasswordRecoveryModule.callbacks.next2);
 	}
 }
 
-WIKIDOT.modules.PasswordRecoveryModule.callbacks = {
+Wikijump.modules.PasswordRecoveryModule.callbacks = {
 	cancel: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		OZONE.dialog.cleanAll();
 	},
 	next1: function(r){
@@ -77,7 +68,7 @@ WIKIDOT.modules.PasswordRecoveryModule.callbacks = {
 			$("recovery-error").style.display="block";
 			return;
 		}
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		// ok?
 
@@ -92,7 +83,7 @@ WIKIDOT.modules.PasswordRecoveryModule.callbacks = {
 			$("recovery-error").style.display="block";
 			return;
 		}
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var w = new OZONE.dialogs.Dialog();
 		w.content = r.body;
 		w.show();

@@ -1,43 +1,34 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.ManageSiteCloneModule = {};
 
-WIKIDOT.modules.ManageSiteCloneModule.vars = {
+Wikijump.modules.ManageSiteCloneModule = {};
+
+Wikijump.modules.ManageSiteCloneModule.vars = {
 	unixname: null
 }
 
-WIKIDOT.modules.ManageSiteCloneModule.listeners = {
+Wikijump.modules.ManageSiteCloneModule.listeners = {
 
 	cloneSite: function(e){
 		var p = OZONE.utils.formToArray($("clone-site-form"));
 		p.action = "ManageSiteCloneAction";
 		p.event = "cloneSite";
-		OZONE.ajax.requestModule("managesite/ManageSiteClone2Module", p, WIKIDOT.modules.ManageSiteCloneModule.callbacks.cloneSite);
+		OZONE.ajax.requestModule("managesite/ManageSiteClone2Module", p, Wikijump.modules.ManageSiteCloneModule.callbacks.cloneSite);
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Cloning site...";
 		w.show();
-		WIKIDOT.modules.ManageSiteCloneModule.vars.unixname = p.unixname;
+		Wikijump.modules.ManageSiteCloneModule.vars.unixname = p.unixname;
 
 	},
 	cancel: function(e){
-		WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-welcome');
+		Wikijump.modules.ManagerSiteModule.utils.loadModule('sm-welcome');
 	},
 
 	goToTheSite: function(e){
-		window.location.href = HTTP_SCHEMA+"://"+WIKIDOT.modules.ManageSiteCloneModule.vars.unixname+"."+URL_DOMAIN;
+		window.location.href = HTTP_SCHEMA+"://"+Wikijump.modules.ManageSiteCloneModule.vars.unixname+"."+URL_DOMAIN;
 	}
 }
 
-WIKIDOT.modules.ManageSiteCloneModule.callbacks = {
+Wikijump.modules.ManageSiteCloneModule.callbacks = {
 	cloneSite: function(r){
 		if(r.status=="form_errors"){
 			OZONE.dialog.cleanAll();
@@ -53,7 +44,7 @@ WIKIDOT.modules.ManageSiteCloneModule.callbacks = {
 			$("clone-site-form-errors").style.display="block";
 			return;
 		}
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		$("clone-site-form-errors").innerHTML = '';
 		$("sm-clone-block").innerHTML = r.body;
 
@@ -61,8 +52,8 @@ WIKIDOT.modules.ManageSiteCloneModule.callbacks = {
 	}
 }
 
-WIKIDOT.modules.ManageSiteCloneModule.init = function(){
+Wikijump.modules.ManageSiteCloneModule.init = function(){
 
 }
 
-WIKIDOT.modules.ManageSiteCloneModule.init();
+Wikijump.modules.ManageSiteCloneModule.init();

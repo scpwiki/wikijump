@@ -2,7 +2,7 @@
 <div class="flickr-gallery-box {if $makeHoverTitles}makeHoverTitles{/if}">
 	<div>
 {/if}
-	{pager jsfunction="WIKIDOT.modules.FlickrGalleryModules.listeners.loadPage(event,#)" total=$pagerData.total_pages known=$pagerData.known_pages current=$pagerData.current_page}
+	{pager jsfunction="Wikijump.modules.FlickrGalleryModules.listeners.loadPage(event,#)" total=$pagerData.total_pages known=$pagerData.known_pages current=$pagerData.current_page}
 	{if !$photos}
 		Sorry, no photos.
 	{else}
@@ -10,7 +10,7 @@
 			{foreach from=$photos item=photo}
 				<div class="gallery-item {$size}">
 					<table style="margin:0;padding:0"><tr><td  style="margin:0;padding:0">
-						<a  href="{$photo.href}" {if !$disableBrowsing}onclick="WIKIDOT.modules.FlickrGalleryModules.listeners.showPhoto(event, '{$photo.id}');"{/if}><img title="{$photo.title|escape}" src="{$photo.src}" alt="{$photo.title}"/></a>
+						<a  href="{$photo.href}" {if !$disableBrowsing}onclick="Wikijump.modules.FlickrGalleryModules.listeners.showPhoto(event, '{$photo.id}');"{/if}><img title="{$photo.title|escape}" src="{$photo.src}" alt="{$photo.title}"/></a>
 					</td></tr></table>
 				</div>
 			{/foreach}

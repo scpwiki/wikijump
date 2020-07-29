@@ -6,7 +6,7 @@
 		<h1>{t 1=$SERVICE_NAME}Create an account at %1{/t}</h1>
 		<p>
 			{t escape=no}You are about to create a new account that will give you access to
-			dozens of wiki sites within the wikidot sites cluster as well as a
+			dozens of wiki sites within the Wikijump sites cluster as well as a
 			possibility to create your very own sites.{/t}
 		</p>
 		<p>
@@ -26,7 +26,7 @@
 		{*<input type="button" name="cancel" value="cancel" id="create-account-cancel"/>
 		<input type="button" name="next" value="next" id="create-account-button"/>*}
 		<a href="javascript:;" onclick="OZONE.dialog.cleanAll()">{t}cancel{/t}</a>
-		<a href="javascript:;" onclick="WIKIDOT.modules.CreateAccountModule.listeners.createClick(event)">{t}next{/t}</a>
+		<a href="javascript:;" onclick="Wikijump.modules.CreateAccountModule.listeners.createClick(event)">{t}next{/t}</a>
 	</div>
 </div>
 

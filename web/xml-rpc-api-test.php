@@ -16,5 +16,5 @@ ini_set("display_errors", true);
 
 $user = DB\OzoneUserPeer::instance()->selectByPrimaryKey(1);
 
-$page = new Wikidot_Facade_Page($user);
+$page = new Wikijump\Facade_Page($user);
 print_r($page->files(array("site" => "www", "page" => "start")));

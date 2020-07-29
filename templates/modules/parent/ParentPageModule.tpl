@@ -13,7 +13,7 @@
 <div id="parent-set-error" class="error-block" style="display: none"></div>
 
 
-<form onsubmit="WIKIDOT.modules.ParentPageModule.listeners.setParent(event)">
+<form onsubmit="Wikijump.modules.ParentPageModule.listeners.setParent(event)">
 	<table class="form">
 		<tr>
 			<td>
@@ -28,7 +28,7 @@
 		</tr>
 	</table>
 	<div class="buttons">
-		<input type="button" value="{t}cancel{/t}" onclick="WIKIDOT.page.listeners.closeActionArea(event)"/>
+		<input type="button" value="{t}cancel{/t}" onclick="Wikijump.page.listeners.closeActionArea(event)"/>
 		<input type="button" value="{t}clear parent{/t}" onclick="$('parent-page-name').value=''; return false;"/>
 		<input type="submit" value="{t}save parent page{/t}"/>
 	</div>

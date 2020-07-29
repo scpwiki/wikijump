@@ -1,29 +1,4 @@
 <?php
-/**
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- *
- * @category Wikidot
- * @package Wikidot
- * @version $Id$
- * @copyright Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
- */
-
-
 class LoginStatusModule extends Module
 {
 
@@ -35,7 +10,7 @@ class LoginStatusModule extends Module
         $user = $runData->getUser();
 
         if (GlobalProperties::$WIKI_FARM) {
-            $url_prefix = GlobalProperties::$HTTP_SCHEMA.'://' . GlobalProperties::$LOGIN_DOMAIN . GlobalProperties::$URL_DOMAIN;
+            $url_prefix = GlobalProperties::$HTTP_SCHEMA.'://' . GlobalProperties::$URL_HOST;
         } else {
             $url_prefix = '';
         }
@@ -61,7 +36,7 @@ class LoginStatusModule extends Module
             $out  = '<a href="' . $url_prefix . '/auth:newaccount?origUrl='.urlencode(GlobalProperties::$HTTP_SCHEMA.'://').urlencode($originalUrl).'">'._('create account').'</a> '._('or') . ' ';
             $out .= '<a href="' . $url_prefix . '/auth:login?origUrl='.urlencode(GlobalProperties::$HTTP_SCHEMA.'://').urlencode($originalUrl).'">'._('login').'</a> ';
 
-            //$out = '<a href="javascript:;" onclick="WIKIDOT.page.listeners.createAccount(event)">'._('create account').'</a> '._('or').' <a href="javascript:;" onclick="WIKIDOT.page.listeners.loginClick(event)">'._('login').'</a>';
+            //$out = '<a href="javascript:;" onclick="Wikijump.page.listeners.createAccount(event)">'._('create account').'</a> '._('or').' <a href="javascript:;" onclick="Wikijump.page.listeners.loginClick(event)">'._('login').'</a>';
         } else {
             $lang = $user->getLanguage();
 
@@ -79,7 +54,7 @@ class LoginStatusModule extends Module
             setlocale(LC_ALL, $glang.'.UTF-8');
 
             $userId = $user->getUserId();
-            $linkInner = 'href="' . $url_prefix . '/user:info/'.$user->getUnixName().'" onclick="WIKIDOT.page.listeners.userInfo('.$user->getUserId().'); return false;" ';
+            $linkInner = 'href="' . $url_prefix . '/user:info/'.$user->getUnixName().'" onclick="Wikijump.page.listeners.userInfo('.$user->getUserId().'); return false;" ';
 
             $out = '<span class="printuser"><a '.$linkInner.'><img class="small" src="/common--images/avatars/'.floor($userId/1000).'/'.$userId.'/a16.png" alt="avatar"';
             /* karma: */
@@ -97,7 +72,7 @@ class LoginStatusModule extends Module
                     '<li><a href="' . $url_prefix . '/account:you/start/notifications">'._('notifications').'</a></li>'.
                     '<li><a href="' . $url_prefix . '/account:you/start/watched-changes">'._('watched pages').'</a></li>'.
                     '<li><a href="' . $url_prefix . '/account:you/start/watched-forum">'._('watched discussions').'</a></li>'.
-                    '<li><a href="javascript:;" onclick="WIKIDOT.page.listeners.logoutClick(event)">'._('logout').'</a></li>' .
+                    '<li><a href="javascript:;" onclick="Wikijump.page.listeners.logoutClick(event)">'._('logout').'</a></li>' .
                     '</ul></div>';
 
             // back the language!

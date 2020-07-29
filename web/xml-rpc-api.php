@@ -1,28 +1,4 @@
 <?php
-/**
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- *
- * @category Wikidot
- * @package Wikidot_Web
- * @version $Id$
- * @copyright Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
- */
-
 chdir(dirname(__FILE__));
 require_once('../php/setup.php');
 
@@ -45,10 +21,10 @@ if (isset($_SERVER['PHP_AUTH_USER'])) {
 }
 
 if (! $user) {
-    header('WWW-Authenticate: Basic realm="Wikidot API. Please supply application name (as user) and API key (as password)."');
+    header('WWW-Authenticate: Basic realm="Wikijump API. Please supply application name (as user) and API key (as password)."');
 	header('HTTP/1.1 401 Unauthorized');
 	header('Content-type: text/plain');
-	echo "This is Wikidot XML-RPC API\n\n";
+	echo "This is Wikijump XML-RPC API\n\n";
 	echo "You need to use this endpoint URL with HTTP Authorization.\n\n";
 	echo " * user should be set to the name of your program/library\n";
 	echo " * password should be set to the user's API key\n\n";
@@ -60,13 +36,13 @@ if (! $user) {
 
 // construct facade objects
 $server = new Zend_XmlRpc_Server();
-$server->setClass(new Wikidot_Facade_Site($user, $app), 'site');
-$server->setClass(new Wikidot_Facade_Page($user, $app), 'page');
-$server->setClass(new Wikidot_Facade_Forum($user, $app), 'forum');
-$server->setClass(new Wikidot_Facade_User($user, $app), 'user');
+$server->setClass(new Wikijump\Facade_Site($user, $app), 'site');
+$server->setClass(new Wikijump\Facade_Page($user, $app), 'page');
+$server->setClass(new Wikijump\Facade_Forum($user, $app), 'forum');
+$server->setClass(new Wikijump\Facade_User($user, $app), 'user');
 
-// map Wikidot_Facade_Exception to XML-RPC faults
-Zend_XmlRpc_Server_Fault::attachFaultException('Wikidot_Facade_Exception');
+// map Wikijump\Facade\Exception to XML-RPC faults
+Zend_XmlRpc_Server_Fault::attachFaultException('Wikijump\Facade\Exception');
 Zend_XmlRpc_Server_Fault::attachFaultException('WDPermissionException');
 
 // run XML-RPC server

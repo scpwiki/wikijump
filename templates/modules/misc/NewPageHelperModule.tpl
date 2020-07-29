@@ -1,6 +1,6 @@
 
 <div class="new-page-box" style="text-align: center; margin: 1em 0">
-	<form action="dummy.html" method="get" onsubmit="WIKIDOT.modules.NewPageHelperModule.listeners.create(event)">
+	<form action="dummy.html" method="get" onsubmit="Wikijump.modules.NewPageHelperModule.listeners.create(event)">
 		<input class="text" name="pageName" type="text" size="{$size|escape}" maxlength="60" style="margin: 1px"/>{if $templates}
 		<select name="template" style="margin: 1px">
 			<option value="" selected="selected">-- {t}Select a template{/t} --</option>

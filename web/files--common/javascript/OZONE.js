@@ -1,13 +1,4 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
+
 
 var OZONE = function(){}
 
@@ -40,7 +31,7 @@ OZONE.ajax = {
 		parameters['callbackIndex'] = callbackIndex;
 
 		// add token information
-		var token = OZONE.utils.getCookie("wikidot_token7");
+		var token = OZONE.utils.getCookie("wikijump_token7");
 		if(token == null){
 			alert("Error processing the request.\n\n" +
 					"You have no valid security token which is required to prevent " +
@@ -51,7 +42,7 @@ OZONE.ajax = {
 			OZONE.visuals.cursorClear();
 			return;
 		}
-		parameters['wikidot_token7'] = token;
+		parameters['wikijump_token7'] = token;
 
 		var postdata = OZONE.utils.arrayToPostData(parameters);
 		var internalCallback = OZONE.ajax.requestModuleCallback;
@@ -74,13 +65,13 @@ OZONE.ajax = {
 			var response = OZONE.ajax.parseResponse(rObj.responseText);
 
 			if(response.status=='wrong_token7'){
-				// TODO: De-Wikidot.com-ize - change
-				alert('wikidot.com security error:\n\n' +
+				// TODO: De-Wikijump.com-ize - change
+				alert('Wikijump security error:\n\n' +
 						'Your authentication token in the request is not valid. ' +
 						'Please enable cookies in your browser and try to repeat the action.\n\n' +
-						'If you see this message on the page not associated with the wikidot.com ' +
-						'wiki hosting it probably means an indentity theft attempt or ' +
-						'improper use of wikidot.com service.');
+						'If you see this message on the page not associated with the Wikijump ' +
+						'wiki hosting it probably means an identity theft attempt or ' +
+						'improper use of Wikijump service.');
 				OZONE.visuals.cursorClear();
 				return;
 			}

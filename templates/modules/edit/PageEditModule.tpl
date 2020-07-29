@@ -30,7 +30,7 @@
 								{t}Initial content{/t}:
 							</td>
 							<td>
-								<select name="theme" id="page-templates" onchange="WIKIDOT.modules.PageEditModule.listeners.templateChange(event)">
+								<select name="theme" id="page-templates" onchange="Wikijump.modules.PageEditModule.listeners.templateChange(event)">
 									<option value=""  style="padding: 0 1em">no template (blank page)</option>
 									{foreach from=$templates item=template}
 										<option value="{$template->getPageId()}"  style="padding: 0 1em" {if $template->getPageId() == $templateId}selected="selected"{/if}>{$template->getTitle()|escape}</option>
@@ -57,8 +57,8 @@
                     <textarea id="edit-page-textarea" name="source" rows="20" cols="40" style="width: 95%;">{$source|escape}</textarea>
                 </div>
                 <div class="change-textarea-size">
-                    <a href="javascript:;" onclick="WIKIDOT.utils.changeTextareaRowNo('edit-page-textarea',-5)">-</a>
-                    <a href="javascript:;" onclick="WIKIDOT.utils.changeTextareaRowNo('edit-page-textarea',5)">+</a>
+                    <a href="javascript:;" onclick="Wikijump.utils.changeTextareaRowNo('edit-page-textarea',-5)">-</a>
+                    <a href="javascript:;" onclick="Wikijump.utils.changeTextareaRowNo('edit-page-textarea',5)">+</a>
                 </div>
                 <div class="edit-help-34">
                     {t}Need help? Check the{/t} <a href="{$URL_DOCS}" target="_blank">{t}documentation{/t}</a>.
@@ -101,11 +101,11 @@
 			{/if}
 
 			<div class="buttons alignleft">
-				<input type="button" name="cancel" id="edit-cancel-button" value="{t}cancel{/t}" onclick="WIKIDOT.modules.PageEditModule.listeners.cancel(event)"/>
-				{if !$newPage && $mode != "append"}<input type="button" name="diff" id="edit-diff-button" value="{t}view diff{/t}" onclick="WIKIDOT.modules.PageEditModule.listeners.viewDiff(event)"/>{/if}
-				<input type="button" name="preview" id="edit-preview-button" value="{t}preview{/t}" onclick="WIKIDOT.modules.PageEditModule.listeners.preview(event)"/>
-				{if !$newPage && $mode =="page"}<input type="button" name="save-continue" id="edit-save-continue-button"  value="{t escape=no}save &amp; continue{/t}" onclick="WIKIDOT.modules.PageEditModule.listeners.saveAndContinue(event)"/>{/if}
-				<input type="button" name="save" id="edit-save-button"  value="{t}save{/t}" onclick="WIKIDOT.modules.PageEditModule.listeners.save(event)"/>
+				<input type="button" name="cancel" id="edit-cancel-button" value="{t}cancel{/t}" onclick="Wikijump.modules.PageEditModule.listeners.cancel(event)"/>
+				{if !$newPage && $mode != "append"}<input type="button" name="diff" id="edit-diff-button" value="{t}view diff{/t}" onclick="Wikijump.modules.PageEditModule.listeners.viewDiff(event)"/>{/if}
+				<input type="button" name="preview" id="edit-preview-button" value="{t}preview{/t}" onclick="Wikijump.modules.PageEditModule.listeners.preview(event)"/>
+				{if !$newPage && $mode =="page"}<input type="button" name="save-continue" id="edit-save-continue-button"  value="{t escape=no}save &amp; continue{/t}" onclick="Wikijump.modules.PageEditModule.listeners.saveAndContinue(event)"/>{/if}
+				<input type="button" name="save" id="edit-save-button"  value="{t}save{/t}" onclick="Wikijump.modules.PageEditModule.listeners.save(event)"/>
 			</div>
 		</form>
 

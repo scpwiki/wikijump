@@ -1,4 +1,4 @@
-<form action="dummy" id="who-invited-form" onsubmit="WIKIDOT.modules.WhoInvitedModule.listeners.lookUp(event)">
+<form action="dummy" id="who-invited-form" onsubmit="Wikijump.modules.WhoInvitedModule.listeners.lookUp(event)">
 	<table class="form">
 		<tr>
 			<td>

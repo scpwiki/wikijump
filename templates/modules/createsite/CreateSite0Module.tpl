@@ -28,8 +28,8 @@
 {macro name="formtablehr"}
 <tr class="buttons">
 		<td colspan="2">
-				<input type="button" name="cancel" value="cancel" onclick="WIKIDOT.modules.CreateSite0Module.listeners.cancelClick(event)"/>
-				<input type="button" name="next" value="next &rarr;" onclick="WIKIDOT.modules.CreateSite0Module.listeners.nextClick(event)"/>
+				<input type="button" name="cancel" value="cancel" onclick="Wikijump.modules.CreateSite0Module.listeners.cancelClick(event)"/>
+				<input type="button" name="next" value="next &rarr;" onclick="Wikijump.modules.CreateSite0Module.listeners.nextClick(event)"/>
 		</td>
 
 	</tr>

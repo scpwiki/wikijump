@@ -1,4 +1,4 @@
-<h1><a href="javascript:;" onclick="WIKIDOT.modules.AccountModule.utils.loadModule('am-profile')">{t}My profile{/t}</a> / {t}About myself{/t}</h1>
+<h1><a href="javascript:;" onclick="Wikijump.modules.AccountModule.utils.loadModule('am-profile')">{t}My profile{/t}</a> / {t}About myself{/t}</h1>
 
 <p>
 	{t}The information below is optional but might help.{/t}
@@ -162,8 +162,8 @@
 
 		</table>
 		<div class="buttons">
-			<input type="button" value="{t}cancel{/t}" onclick="WIKIDOT.modules.AccountModule.utils.loadModule('am-profile')"/>
-			<input type="button" value="{t}save{/t}" onclick="WIKIDOT.modules.APAboutModule.listeners.save(event)"/>
+			<input type="button" value="{t}cancel{/t}" onclick="Wikijump.modules.AccountModule.utils.loadModule('am-profile')"/>
+			<input type="button" value="{t}save{/t}" onclick="Wikijump.modules.APAboutModule.listeners.save(event)"/>
 		</div>
 	</form>
 </div>

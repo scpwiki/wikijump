@@ -44,7 +44,7 @@
 			</tr>
 		</table>
 		<div class="buttons">
-			<input class="button" type="button" value="{t}update list{/t}" onclick="WIKIDOT.modules.SiteChangesModule.listeners.updateList(null)"/>
+			<input class="button" type="button" value="{t}update list{/t}" onclick="Wikijump.modules.SiteChangesModule.listeners.updateList(null)"/>
 		</div>
 	</form>
 	<div class="changes-list" id="site-changes-list">

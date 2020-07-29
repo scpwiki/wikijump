@@ -85,6 +85,6 @@
 <h2>{t}Other ways of getting new members{/t}</h2>
 
 <ul>
-	<li><a href="javascript:;" onclick="WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-members-invite')">{t}Invite existing Wikidot.com users{/t}</a></li>
-	<li><b><a href="javascript:;" onclick="WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-email-invitations')">{t}Invite new people by email{/t}</a></b></li>
+	<li><a href="javascript:;" onclick="Wikijump.modules.ManagerSiteModule.utils.loadModule('sm-members-invite')">{t}Invite existing Wikijump users{/t}</a></li>
+	<li><b><a href="javascript:;" onclick="Wikijump.modules.ManagerSiteModule.utils.loadModule('sm-email-invitations')">{t}Invite new people by email{/t}</a></b></li>
 </ul>

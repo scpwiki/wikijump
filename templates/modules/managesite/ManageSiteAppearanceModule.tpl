@@ -38,7 +38,7 @@
 										<br/><br/>{t}Available theme variants{/t}:
 										<br/><br/>
 										<select name="variants" id="sm-appearance-variants-select-{$variantId}"
-											onclick="WIKIDOT.modules.ManagerSiteAppearanceModule.listeners.variantChange(event)">
+											onclick="Wikijump.modules.ManagerSiteAppearanceModule.listeners.variantChange(event)">
 											{foreach from=$variants item=variant}
 												<option value="{$variantId}">{t}Default{/t}</option>
 												<option value="{$variant->getThemeId()}">{$variant->getName()|escape}</option>
@@ -56,10 +56,6 @@
 									Pass the exact URL to the location of the CSS file:
 								</p>
 								<input type="text" class="text" size="36" id="sm-appearance-external-url" name="sm-appearance-external-url"/>
-								<p>
-									Visit <a href="http://themes.wikidot.com">themes.wikidot.com</a> for the central repository of
-									user-submitted themes.
-								</p>
 							</td>
 						</tr>
 					</table>

@@ -1,30 +1,4 @@
 <?php
-/**
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- *
- * @category Wikidot
- * @package Wikidot
- * @version $Id$
- * @copyright Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
- */
-
-
-
 use DB\SitePeer;
 use DB\PagePeer;
 
@@ -54,7 +28,7 @@ class Backuper
 
         // prepare working directory
 
-        $wdir = WIKIDOT_ROOT.'/tmp/sitebackups/'.$site->getUnixName().'/work';
+        $wdir = WIKIJUMP_ROOT.'/tmp/sitebackups/'.$site->getUnixName().'/work';
         @exec('rm -r '.$wdir.' &> /dev/null');
         mkdirfull($wdir);
 
@@ -93,7 +67,7 @@ class Backuper
                 }
             }   */
 
-            $path0 = WIKIDOT_ROOT.'/web/files--sites/'.$site->getUnixName().'/files/';
+            $path0 = WIKIJUMP_ROOT.'/web/files--sites/'.$site->getUnixName().'/files/';
             $cmd = "cp -r ".$path0.'*'.' '.$wdir.'/files/'.' &> /dev/null';
 
             @exec($cmd);
@@ -113,9 +87,9 @@ class Backuper
             throw new ProcessException("Error creating backup.");
         }
         // dest dir
-        @exec('rm -r '.WIKIDOT_ROOT.'/web/files--sites/'.$site->getUnixName().'/backup/'.' &> /dev/null');
+        @exec('rm -r '.WIKIJUMP_ROOT.'/web/files--sites/'.$site->getUnixName().'/backup/'.' &> /dev/null');
         $rand = md5(rand(10000, 99999).time());
-        $ddir = WIKIDOT_ROOT.'/web/files--sites/'.$site->getUnixName().'/backup/'.$rand.'/';
+        $ddir = WIKIJUMP_ROOT.'/web/files--sites/'.$site->getUnixName().'/backup/'.$rand.'/';
         mkdirfull($ddir);
 
         copy($zipfile, $ddir.'backup.zip');

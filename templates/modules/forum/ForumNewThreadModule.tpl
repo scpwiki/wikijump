@@ -1,5 +1,5 @@
 <script type="text/javascript">
-	WIKIDOT.cancelurl = '/forum/c-{$category->getCategoryId()}/{$category->getUnixifiedName()}';
+	Wikijump.cancelurl = '/forum/c-{$category->getCategoryId()}/{$category->getUnixifiedName()}';
 </script>
 
 <div class="forum-new-thread-box">
@@ -61,8 +61,8 @@
 		<div><textarea id="post-edit" name="source"  rows="10" style="width: 95%;"></textarea></div>
 
 		<div class="change-textarea-size">
-			<a href="javascript:;" onclick="WIKIDOT.utils.changeTextareaRowNo('post-edit',-5)">-</a>
-			<a href="javascript:;" onclick="WIKIDOT.utils.changeTextareaRowNo('post-edit',5)">+</a>
+			<a href="javascript:;" onclick="Wikijump.utils.changeTextareaRowNo('post-edit',-5)">-</a>
+			<a href="javascript:;" onclick="Wikijump.utils.changeTextareaRowNo('post-edit',5)">+</a>
 		</div>
 		<div class="edit-help-34">
 			{t escape=no}Need help? Check the <a href="{$URL_DOCS}" target="_blank">documentation</a>.{/t}

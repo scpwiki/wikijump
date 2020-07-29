@@ -1,10 +1,10 @@
-<h1><a href="javascript:;" onclick="WIKIDOT.modules.AccountModule.utils.loadModule('am-profile')">{t}Your profile{/t}</a> / {t}Change screen name{/t}</h1>
+<h1><a href="javascript:;" onclick="Wikijump.modules.AccountModule.utils.loadModule('am-profile')">{t}Your profile{/t}</a> / {t}Change screen name{/t}</h1>
 
 <p>
 	Your current screen name is <strong>{$user->getNickName()|escape}</strong>.
 </p>
 <p>
-	Each Wikidot User can change their screen name <strong>twice</strong>.
+	Each Wikijump User can change their screen name <strong>twice</strong>.
 	It looks like you have changed yours <strong style="font-size:120%">{$profile->getChangeScreenNameCount()}</strong> time(s).
 </p>
 <p>
@@ -17,7 +17,7 @@
 		any such change could confuse people - make sure you are not playing hide and seek
 	</li>
 	<li>
-		at Wikidot we use extensive content caching, so the result of such change will not be visible
+		at Wikijump we use extensive content caching, so the result of such change will not be visible
 		immediately everywhere. At places like forums, your old screen name could be visible for a
 		few more days.
 	</li>
@@ -27,7 +27,7 @@
 		O.K., you have been warned. <span style="color: #900">Proceed only if you really need it!</span>
 	</p>
 
-	<form action="javascript:;" method="get" onsubmit="WIKIDOT.modules.ChangeScreenNameModule.listeners.save(event)">
+	<form action="javascript:;" method="get" onsubmit="Wikijump.modules.ChangeScreenNameModule.listeners.save(event)">
 		<div style="text-align: center">
 			Your new screen name:
 			<input type="text" class="text" size="20" id="ap-screen-name-input"/>
@@ -36,7 +36,7 @@
 	</form>
 
 	<p>
-		After you change your screen name you might want to <a style="font-weight: bold; font-size: 120%;" href="javascript:;" onclick="WIKIDOT.page.listeners.logoutClick(event)">log out</a>
+		After you change your screen name you might want to <a style="font-weight: bold; font-size: 120%;" href="javascript:;" onclick="Wikijump.page.listeners.logoutClick(event)">log out</a>
 		and log in again.
 	</p>
 {else}

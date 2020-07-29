@@ -14,7 +14,7 @@
 				{printuser user=$block->getUser() image="true"}
 				<br/>
 				<div style="position: absolute; margin-left: 30em">
-					<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteUserBlocksModule.listeners.deleteBlock(event, {$block->getUserId()}, '{$block->getUser()->getNickName()|escape}')">delete block</a>
+					<a href="javascript:;" onclick="Wikijump.modules.ManageSiteUserBlocksModule.listeners.deleteBlock(event, {$block->getUserId()}, '{$block->getUser()->getNickName()|escape}')">delete block</a>
 				</div>
 				blocked on: <span class="odate">{$block->getDateBlocked()->getTimestamp()}|%e %b %Y, %H:%M %Z|agohover</span>
 				{if $block->getReason() && $block->getReason() != ''}
@@ -28,7 +28,7 @@
 there are no blocked users.
 {/if}
 <div id="show-add-block-button">
-	<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteUserBlocksModule.listeners.showAddForm(event)">+ add user to blocklist</a>
+	<a href="javascript:;" onclick="Wikijump.modules.ManageSiteUserBlocksModule.listeners.showAddForm(event)">+ add user to blocklist</a>
 </div>
 
 <div id="add-block-user-div" style="display: none">
@@ -42,7 +42,7 @@ there are no blocked users.
 			<td>
 				<div id="select-user-div">
 					<div class="sub">
-						type the wikidot user name below
+						type the Wikijump user name below
 					</div>
 					<div class="autocomplete-container" style="width: 20em; padding-top: 3px;">
 						<input type="text" id="user-lookup" size="30" class="autocomplete-input text"/>
@@ -50,7 +50,7 @@ there are no blocked users.
 					</div>
 				</div>
 				<div id="selected-user-div" style="display: none">
-					<span id="selected-user-rendered"></span> (<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteUserBlocksModule.listeners.changeUser(event)">change</a>)
+					<span id="selected-user-rendered"></span> (<a href="javascript:;" onclick="Wikijump.modules.ManageSiteUserBlocksModule.listeners.changeUser(event)">change</a>)
 				</div>
 			</td>
 		</tr>
@@ -69,7 +69,7 @@ there are no blocked users.
 
 
 	<div class="buttons">
-		<input type="button" value="cancel" onclick="WIKIDOT.modules.ManageSiteUserBlocksModule.listeners.cancelAdd(event)"/>
-		<input type="button" value="block user" onclick="WIKIDOT.modules.ManageSiteUserBlocksModule.listeners.blockUser(event)"/>
+		<input type="button" value="cancel" onclick="Wikijump.modules.ManageSiteUserBlocksModule.listeners.cancelAdd(event)"/>
+		<input type="button" value="block user" onclick="Wikijump.modules.ManageSiteUserBlocksModule.listeners.blockUser(event)"/>
 	</div>
 </div>

@@ -4,12 +4,12 @@
               To include a user specific buildfile here, simply create one in the same
               directory with the processing instruction <?eclipse.ant.import?>
               as the first entry and export the buildfile again. -->
-<project basedir="" default="jar" name="wikidotIndexer">
+<project basedir="" default="jar" name="wikijumpIndexer">
     <property environment="env"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
-    <path id="wikidotIndexer.classpath">
+    <path id="wikijumpIndexer.classpath">
         <pathelement location="/usr/share/java/lucene-core-2.2.0.jar"/>
         <pathelement location="/usr/share/java/lucene-analyzers-2.2.0.jar"/>
         <pathelement location="/usr/share/java/lucene-memory-2.2.0.jar"/>
@@ -32,27 +32,27 @@
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" destdir="." source="${source}" target="${target}">
             <src path="."/>
-            <classpath refid="wikidotIndexer.classpath"/>
+            <classpath refid="wikijumpIndexer.classpath"/>
         </javac>
     </target>
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
-    <target name="wikidotIndexer">
-        <java classname="wikidotIndexer" failonerror="true" fork="yes">
-            <classpath refid="wikidotIndexer.classpath"/>
+    <target name="wikijumpIndexer">
+        <java classname="wikijumpIndexer" failonerror="true" fork="yes">
+            <classpath refid="wikijumpIndexer.classpath"/>
         </java>
     </target>
-    <target name="WikidotIndexer">
-        <java classname="WikidotIndexer" failonerror="true" fork="yes">
-            <classpath refid="wikidotIndexer.classpath"/>
+    <target name="WikijumpIndexer">
+        <java classname="WikijumpIndexer" failonerror="true" fork="yes">
+            <classpath refid="wikijumpIndexer.classpath"/>
         </java>
     </target>
     <!--this file was created by Eclipse Runnable JAR Export Wizard-->
     <!--ANT 1.7 is required                                        -->
     <target name="jar" depends="build">
-        <jar destfile="../bin/wikidotIndexer.jar" filesetmanifest="mergewithoutmain">
+        <jar destfile="../bin/wikijumpIndexer.jar" filesetmanifest="mergewithoutmain">
             <manifest>
                 <attribute name="Built-By" value="${user.name}"/>
-                <attribute name="Main-Class" value="WikidotIndexer"/>
+                <attribute name="Main-Class" value="WikijumpIndexer"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
             <fileset dir="."/>

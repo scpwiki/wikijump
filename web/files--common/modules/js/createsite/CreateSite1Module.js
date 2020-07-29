@@ -1,17 +1,8 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.CreateSite1Module = {};
 
-WIKIDOT.modules.CreateSite1Module.listeners = {
+Wikijump.modules.CreateSite1Module = {};
+
+Wikijump.modules.CreateSite1Module.listeners = {
 	cancelClick: function(e){
 		window.location.href="/";
 	},
@@ -20,17 +11,17 @@ WIKIDOT.modules.CreateSite1Module.listeners = {
 		parms = new Array();
 		parms['action']='CreateSiteAction';
 		parms['event']='finalize';
-		OZONE.ajax.requestModule("createsite/CreateSite2Module", parms, WIKIDOT.modules.CreateSite1Module.callbacks.nextClick);
+		OZONE.ajax.requestModule("createsite/CreateSite2Module", parms, Wikijump.modules.CreateSite1Module.callbacks.nextClick);
 
 	},
 
 	backClick: function(e){
-		OZONE.ajax.requestModule("createsite/CreateSite0Module", null, WIKIDOT.modules.CreateSite1Module.callbacks.backClick);
+		OZONE.ajax.requestModule("createsite/CreateSite0Module", null, Wikijump.modules.CreateSite1Module.callbacks.backClick);
 
 	}
 
 }
-WIKIDOT.modules.CreateSite1Module.callbacks = {
+Wikijump.modules.CreateSite1Module.callbacks = {
 	nextClick: function(response){
 		OZONE.utils.setInnerHTMLContent("create-site-area", response.body);
 

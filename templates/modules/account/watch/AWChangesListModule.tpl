@@ -1,6 +1,6 @@
 {if $revisions}
 
-	{pager jsfunction="WIKIDOT.modules.AWChangesModule.listeners.updateList(event,#)" total=$pagerData.totalPages known=$pagerData.knownPages current=$pagerData.currentPage}
+	{pager jsfunction="Wikijump.modules.AWChangesModule.listeners.updateList(event,#)" total=$pagerData.totalPages known=$pagerData.knownPages current=$pagerData.currentPage}
 
 
 	{foreach from=$revisions item=revision}
@@ -57,7 +57,7 @@
 	{/foreach}
 
 	{if $revisionsCount > 10}
-		{pager jsfunction="WIKIDOT.modules.UserChangesModule.listeners.updateList" total=$pagerData.totalPages known=$pagerData.knownPages current=$pagerData.currentPage}
+		{pager jsfunction="Wikijump.modules.UserChangesModule.listeners.updateList" total=$pagerData.totalPages known=$pagerData.knownPages current=$pagerData.currentPage}
 	{/if}
 {else}
 	Sorry, no revisions matching your criteria.

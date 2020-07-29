@@ -1,4 +1,4 @@
-<a href="javascript:;" onclick="WIKIDOT.modules.ForumViewThreadModule.listeners.hideHistory(event, {$post->getPostId()})">- {t}hide{/t}</a>
+<a href="javascript:;" onclick="Wikijump.modules.ForumViewThreadModule.listeners.hideHistory(event, {$post->getPostId()})">- {t}hide{/t}</a>
 
 <div class="title">{t}Post revisions{/t}</div>
 {assign var=first value=true}
@@ -12,7 +12,7 @@
 				<span class="odate">{$revision->getDate()->getTimestamp()}|%e %b %Y, %H:%M %Z|agohover</span>
 			</td>
 			<td>
-				| <a href="javascript:;" onclick="WIKIDOT.modules.ForumViewThreadModule.listeners.showRevision(event, {$revision->getRevisionId()})">{t}show revision{/t}</a>
+				| <a href="javascript:;" onclick="Wikijump.modules.ForumViewThreadModule.listeners.showRevision(event, {$revision->getRevisionId()})">{t}show revision{/t}</a>
 			</td>
 		</tr>
 	{/foreach}

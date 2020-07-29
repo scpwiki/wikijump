@@ -1,26 +1,17 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.CreateAccountModule = {};
 
-WIKIDOT.CreateAccountModule.listeners = {
+Wikijump.CreateAccountModule = {};
+
+Wikijump.CreateAccountModule.listeners = {
 	createClick: function(e){
-		OZONE.ajax.requestModule("createaccount/AcceptTOSModule", null,WIKIDOT.CreateAccountModule.callbacks.createClick );
+		OZONE.ajax.requestModule("createaccount/AcceptTOSModule", null,Wikijump.CreateAccountModule.callbacks.createClick );
 	}
 }
 
-WIKIDOT.CreateAccountModule.callbacks = {
+Wikijump.CreateAccountModule.callbacks = {
 	createClick: function(response){
 		OZONE.utils.setInnerHTMLContent("create-account-area", response.body);
 	}
 }
 
-YAHOO.util.Event.addListener("create-account-button", "click", WIKIDOT.CreateAccountModule.listeners.createClick);;
+YAHOO.util.Event.addListener("create-account-button", "click", Wikijump.CreateAccountModule.listeners.createClick);;

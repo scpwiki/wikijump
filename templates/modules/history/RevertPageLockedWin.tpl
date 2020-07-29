@@ -23,8 +23,8 @@
 		</p>
 		<div class="button-bar">
 			<a href="javascript:;" onclick="OZONE.dialog.cleanAll()">{t}cancel{/t}</a>
-			<a  href="javascript:;" onclick="WIKIDOT.modules.PageHistoryModule.listeners.revert2(event)">{t}try again{/t}</a>
-			<a  href="javascript:;" onclick="WIKIDOT.modules.PageHistoryModule.listeners.revert2(event,true)">{t}remove lock(s) and proceed{/t}</a>
+			<a  href="javascript:;" onclick="Wikijump.modules.PageHistoryModule.listeners.revert2(event)">{t}try again{/t}</a>
+			<a  href="javascript:;" onclick="Wikijump.modules.PageHistoryModule.listeners.revert2(event,true)">{t}remove lock(s) and proceed{/t}</a>
 		</div>
 	</div>
 </div>

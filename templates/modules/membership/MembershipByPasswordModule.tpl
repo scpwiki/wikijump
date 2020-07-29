@@ -18,7 +18,7 @@
 		</tr>
 	</table>
 	<div class="buttons">
-		<input id="mbp-apply" type="button" value="{t}apply!{/t}" onclick="WIKIDOT.modules.MembershipByPasswordModule.listeners.apply(event)"/>
+		<input id="mbp-apply" type="button" value="{t}apply!{/t}" onclick="Wikijump.modules.MembershipByPasswordModule.listeners.apply(event)"/>
 	</div>
 </form>
 {else}
@@ -30,7 +30,7 @@
 			<tr>
 				<td style="text-align: center; padding: 1em">
 					<div style="font-size: 180%; font-weight: bold;">
-						<a href="javascript:;" onclick="WIKIDOT.page.listeners.loginClick(event)"
+						<a href="javascript:;" onclick="Wikijump.page.listeners.loginClick(event)"
 							>{t}log in{/t}</a>
 					</div>
 					<p>
@@ -42,7 +42,7 @@
 				</td>
 				<td style="text-align: center; padding: 1em">
 					<div style="font-size: 180%; font-weight: bold;">
-						<a href="javascript:;"  onclick="WIKIDOT.page.listeners.createAccount(event)"
+						<a href="javascript:;"  onclick="Wikijump.page.listeners.createAccount(event)"
 							>{t}create a new account{/t}</a>
 					</div>
 				</td>

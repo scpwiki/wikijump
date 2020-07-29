@@ -9,11 +9,11 @@
 			<tr>
 				<td style="text-align: center; padding: 1em">
 					<div style="font-size: 180%; font-weight: bold;">
-						<a href="javascript:;" onclick="WIKIDOT.page.listeners.loginClick(event)"
+						<a href="javascript:;" onclick="Wikijump.page.listeners.loginClick(event)"
 							>{t}Log in{/t}</a>
 					</div>
 					<p>
-						{t}if you already have a Wikidot account{/t}
+						{t}if you already have a Wikijump account{/t}
 					</p>
 				</td>
 				<td style="padding: 1em; font-size: 140%">
@@ -21,7 +21,7 @@
 				</td>
 				<td style="text-align: center; padding: 1em">
 					<div style="font-size: 180%; font-weight: bold;">
-						<a href="javascript:;"  onclick="WIKIREQUEST.createAccountSkipCongrats=true;WIKIDOT.page.listeners.createAccount(event)"
+						<a href="javascript:;"  onclick="WIKIREQUEST.createAccountSkipCongrats=true;Wikijump.page.listeners.createAccount(event)"
 							>{t}Get a new account{/t}</a>
 					</div>
 				</td>
@@ -42,7 +42,7 @@
 					<td>
 						<input class="text" type="text" id="new-site-name" name="name" size="30" value="{$siteName|escape}" />
 						<div class="sub">
-							{t}Appears on the top-left corner of your Wikidot site.{/t}
+							{t}Appears on the top-left corner of your Wikijump site.{/t}
 						</div>
 					</td>
 				</tr>
@@ -131,7 +131,7 @@
 				</tr>
 			</table>
 			<div class="buttons">
-				<input type="button" value="{t}Get a new wiki{/t}" onclick="WIKIDOT.modules.NewSiteModule.listeners.next3(event)"/>
+				<input type="button" value="{t}Get a new wiki{/t}" onclick="Wikijump.modules.NewSiteModule.listeners.next3(event)"/>
 			</div>
 		</form>
 

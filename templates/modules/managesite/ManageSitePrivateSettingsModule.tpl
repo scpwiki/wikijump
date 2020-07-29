@@ -80,8 +80,8 @@
 	<div style="text-align: center" id="extra-viewers-display-list"></div>
 
 	<div class="buttons">
-		<input type="button" value="{t}cancel{/t}" onclick="WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-welcome')"/>
-		<input type="button" value="{t}save{/t}" onclick="WIKIDOT.modules.ManageSitePrivateSettingsModule.listeners.save(event)"/>
+		<input type="button" value="{t}cancel{/t}" onclick="Wikijump.modules.ManagerSiteModule.utils.loadModule('sm-welcome')"/>
+		<input type="button" value="{t}save{/t}" onclick="Wikijump.modules.ManageSitePrivateSettingsModule.listeners.save(event)"/>
 	</div>
 </form>
 
@@ -101,11 +101,11 @@
 </p>
 <ul>
 	<li>
-		<a href="javascript:;" onclick="WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-email-invitations')">{t}Send email invitations{/t}</a>
+		<a href="javascript:;" onclick="Wikijump.modules.ManagerSiteModule.utils.loadModule('sm-email-invitations')">{t}Send email invitations{/t}</a>
 		- does not matter if they already have an account at {$SERVICE_NAME} or not,
 	</li>
 	<li>
-		<a href="javascript:;" onclick="WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-members-invite')">{t}Invite Wikidot.com users{/t}</a>
+		<a href="javascript:;" onclick="Wikijump.modules.ManagerSiteModule.utils.loadModule('sm-members-invite')">{t}Invite Wikijump users{/t}</a>
 		by sending them an "internal" invitation,
 	</li>
 	<li>

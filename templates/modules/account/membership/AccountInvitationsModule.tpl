@@ -42,9 +42,9 @@
 				{t}Decide{/t}:
 			</td>
 			<td>
-				<a href="javascript:;" onclick="WIKIDOT.modules.AccountInvitationsModule.listeners.acceptInvitation(event, {$invitation->getInvitationId()})">{t}accept invitation{/t}</a>
+				<a href="javascript:;" onclick="Wikijump.modules.AccountInvitationsModule.listeners.acceptInvitation(event, {$invitation->getInvitationId()})">{t}accept invitation{/t}</a>
 				{t}or{/t}
-				<a href="javascript:;" onclick="WIKIDOT.modules.AccountInvitationsModule.listeners.throwAwayInvitation(event, {$invitation->getInvitationId()})">{t}throw away{/t}</a>
+				<a href="javascript:;" onclick="Wikijump.modules.AccountInvitationsModule.listeners.throwAwayInvitation(event, {$invitation->getInvitationId()})">{t}throw away{/t}</a>
 			</td>
 		</tr>
 	</table>

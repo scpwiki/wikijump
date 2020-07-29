@@ -1,23 +1,14 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.PageUploadModule = {}
 
-WIKIDOT.modules.PageUploadModule.listeners = {
+Wikijump.modules.PageUploadModule = {}
+
+Wikijump.modules.PageUploadModule.listeners = {
 	fileUploaded: function(fileStatus, message){
 		if(fileStatus == "ok"){
 			var t2 = new OZONE.dialogs.SuccessBox();
 			t2.content="File succesfully uploaded!"	;
 			t2.show();
-			setTimeout('OZONE.dialog.cleanAll();WIKIDOT.page.listeners.filesClick(null)', 2000);
+			setTimeout('OZONE.dialog.cleanAll();Wikijump.page.listeners.filesClick(null)', 2000);
 		}else{
 			var t3 = new OZONE.dialogs.ErrorDialog();
 			if(!message || message ==''){
@@ -53,7 +44,7 @@ WIKIDOT.modules.PageUploadModule.listeners = {
 		p.action = 'FileAction';
 		p.event = 'checkFileExists';
 		p.pageId = WIKIREQUEST.info.pageId;
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.PageUploadModule.callbacks.checkFileExists);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.PageUploadModule.callbacks.checkFileExists);
 		YAHOO.util.Event.stopEvent(e);
 	},
 
@@ -64,13 +55,13 @@ WIKIDOT.modules.PageUploadModule.listeners = {
 		i.value='true';
 		$("file-upload-form").appendChild(i);
 		$("file-upload-form").submit();
-		WIKIDOT.modules.PageUploadModule.listeners.uploadStart(null);
+		Wikijump.modules.PageUploadModule.listeners.uploadStart(null);
 	}
 }
 
-WIKIDOT.modules.PageUploadModule.callbacks = {
+Wikijump.modules.PageUploadModule.callbacks = {
 	checkFileExists: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		if(r.exists == true){
 			var w = new OZONE.dialogs.Dialog();
 			w.title = "File exists";
@@ -79,7 +70,7 @@ WIKIDOT.modules.PageUploadModule.callbacks = {
 		}else{
 			// just submit the form now!
 			$("file-upload-form").submit();
-			WIKIDOT.modules.PageUploadModule.listeners.uploadStart(null);
+			Wikijump.modules.PageUploadModule.listeners.uploadStart(null);
 
 		}
 	}
@@ -88,11 +79,11 @@ WIKIDOT.modules.PageUploadModule.callbacks = {
 function test(text){
 	alert(text);
 }
-WIKIDOT.modules.PageUploadModule.init = function(){
+Wikijump.modules.PageUploadModule.init = function(){
 	$("file-upload-form-page-id").value=WIKIREQUEST.info.pageId;
-	YAHOO.util.Event.addListener("file-upload-form", "submit", WIKIDOT.modules.PageUploadModule.listeners.uploadStart);
+	YAHOO.util.Event.addListener("file-upload-form", "submit", Wikijump.modules.PageUploadModule.listeners.uploadStart);
 	var limiter = new OZONE.forms.lengthLimiter("file-comments", "file-comments-charleft", 100);
 
 }
 
-WIKIDOT.modules.PageUploadModule.init();
+Wikijump.modules.PageUploadModule.init();

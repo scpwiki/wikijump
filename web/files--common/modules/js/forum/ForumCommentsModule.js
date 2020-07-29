@@ -1,17 +1,8 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.ForumCommentsModule = {};
 
-WIKIDOT.modules.ForumCommentsModule.listeners = {
+Wikijump.modules.ForumCommentsModule = {};
+
+Wikijump.modules.ForumCommentsModule.listeners = {
 	showComments: function(e){
 		// if "thread-container" is filled with data - just show it.
 		// if not - make an ajax request for the content
@@ -20,7 +11,7 @@ WIKIDOT.modules.ForumCommentsModule.listeners = {
 			tc.innerHTML = '<div class="wait-block">Loading comments...</div>';
 			var p = new Object();
 			p.pageId = WIKIREQUEST.info.pageId;
-			OZONE.ajax.requestModule("forum/ForumCommentsListModule", p, WIKIDOT.modules.ForumCommentsModule.callbacks.showComments);
+			OZONE.ajax.requestModule("forum/ForumCommentsListModule", p, Wikijump.modules.ForumCommentsModule.callbacks.showComments);
 		}else{
 			tc.style.display="block";
 			$("comments-options-hidden").style.display="none";
@@ -36,9 +27,9 @@ WIKIDOT.modules.ForumCommentsModule.listeners = {
 	}
 }
 
-WIKIDOT.modules.ForumCommentsModule.callbacks = {
+Wikijump.modules.ForumCommentsModule.callbacks = {
 	showComments: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		var tc = $("thread-container");
 		OZONE.utils.setInnerHTMLContent(tc, r.body);
@@ -46,6 +37,6 @@ WIKIDOT.modules.ForumCommentsModule.callbacks = {
 		$("comments-options-hidden").style.display="none";
 		$("comments-options-shown").style.display="block";
 
-		WIKIDOT.forumThreadId = r.threadId;
+		Wikijump.forumThreadId = r.threadId;
 	}
 }

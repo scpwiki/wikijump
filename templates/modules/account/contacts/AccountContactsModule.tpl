@@ -15,7 +15,7 @@
 				</td>
 				</td>
 				<td style="padding-left: 10em">
-					<a href="javascript:;" onclick="WIKIDOT.modules.AccountContactsModule.listeners.removeContact(event, {$user->getUserId()})">{t}remove{/t}</a>
+					<a href="javascript:;" onclick="Wikijump.modules.AccountContactsModule.listeners.removeContact(event, {$user->getUserId()})">{t}remove{/t}</a>
 				</td>
 			</tr>
 		{/foreach}
@@ -26,7 +26,7 @@
 
 
 <p id="show-add-contact-button">
-	<a href="javascript:;" onclick="WIKIDOT.modules.AccountContactsModule.listeners.showAddForm(event)">+ {t}add a user to contacts{/t}</a>
+	<a href="javascript:;" onclick="Wikijump.modules.AccountContactsModule.listeners.showAddForm(event)">+ {t}add a user to contacts{/t}</a>
 </p>
 
 <div id="add-contact-user-div" style="display: none">
@@ -45,7 +45,7 @@
 						</div>
 					</div>
 					<div id="selected-user-div" style="display: none">
-						<span id="selected-user-rendered"></span> (<a href="javascript:;" onclick="WIKIDOT.modules.AccountContactsModule.listeners.changeUser(event)">{t}change{/t}</a>)
+						<span id="selected-user-rendered"></span> (<a href="javascript:;" onclick="Wikijump.modules.AccountContactsModule.listeners.changeUser(event)">{t}change{/t}</a>)
 					</div>
 				</td>
 			</tr>
@@ -53,8 +53,8 @@
 
 
 		<div class="buttons">
-			<input type="button" value="{t}cancel{/t}" onclick="WIKIDOT.modules.AccountContactsModule.listeners.cancelAdd(event)"/>
-			<input type="button" value="{t}add to contacts{/t}" onclick="WIKIDOT.modules.AccountContactsModule.listeners.addContact(event)"/>
+			<input type="button" value="{t}cancel{/t}" onclick="Wikijump.modules.AccountContactsModule.listeners.cancelAdd(event)"/>
+			<input type="button" value="{t}add to contacts{/t}" onclick="Wikijump.modules.AccountContactsModule.listeners.addContact(event)"/>
 		</div>
 	</form>
 </div>
@@ -63,7 +63,7 @@
 	{$countBack} {t}users have you in their contacts lists.{/t}
 {if $countBack>0}
 	<br/>
-	<a href="javascript:;" onclick="WIKIDOT.modules.AccountContactsModule.listeners.showBack(event)">+ {t}show these users{/t}</a>
+	<a href="javascript:;" onclick="Wikijump.modules.AccountContactsModule.listeners.showBack(event)">+ {t}show these users{/t}</a>
 {/if}
 </p>
 

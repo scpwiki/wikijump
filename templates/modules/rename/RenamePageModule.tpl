@@ -73,14 +73,14 @@
 		it or by including it. Click below to see what pages depend on this one.{/t}
 	</p>
 	<p>
-		<a id="rename-show-backlinks" href="javascript:;" onclick="WIKIDOT.modules.RenamePageModule.listeners.showBacklinks(event)">+ {t}show dependencies{/t}</a>
-		<a id="rename-hide-backlinks" style="display:none" href="javascript:;" onclick="WIKIDOT.modules.RenamePageModule.listeners.hideBacklinks(event)">- {t}hide dependencies{/t}</a>
+		<a id="rename-show-backlinks" href="javascript:;" onclick="Wikijump.modules.RenamePageModule.listeners.showBacklinks(event)">+ {t}show dependencies{/t}</a>
+		<a id="rename-hide-backlinks" style="display:none" href="javascript:;" onclick="Wikijump.modules.RenamePageModule.listeners.hideBacklinks(event)">- {t}hide dependencies{/t}</a>
 	</p>
 
 	<div id="rename-backlinks-box" style="display:none"></div>
 
 	<div id="rename-error-block" class="error-block" style="display: none"></div>
-	<form onsubmit="WIKIDOT.modules.RenamePageModule.listeners.rename(event); return false;">
+	<form onsubmit="Wikijump.modules.RenamePageModule.listeners.rename(event); return false;">
 		<table class="form">
 			<tr>
 				<td>
@@ -100,8 +100,8 @@
 			</tr>
 		</table>
 		<div class="buttons">
-			<input type="button" value="{t}cancel{/t}" onclick="WIKIDOT.page.listeners.closeActionArea(event)"/>
-			<input type="button" value="{t}rename/move{/t}" onclick="WIKIDOT.modules.RenamePageModule.listeners.rename(event)"/>
+			<input type="button" value="{t}cancel{/t}" onclick="Wikijump.page.listeners.closeActionArea(event)"/>
+			<input type="button" value="{t}rename/move{/t}" onclick="Wikijump.modules.RenamePageModule.listeners.rename(event)"/>
 		</div>
 	</form>
 </div>
@@ -113,8 +113,8 @@
 	</p>
 	<form>
 		<div class="buttons">
-			<input type="button" value="{t}cancel{/t}" onclick="WIKIDOT.page.listeners.closeActionArea(event)"/>
-			<input type="button" value="{t}delete{/t}" onclick="WIKIDOT.modules.RenamePageModule.listeners.deletePage(event)"/>
+			<input type="button" value="{t}cancel{/t}" onclick="Wikijump.page.listeners.closeActionArea(event)"/>
+			<input type="button" value="{t}delete{/t}" onclick="Wikijump.modules.RenamePageModule.listeners.deletePage(event)"/>
 		</div>
 	</form>
 </div>

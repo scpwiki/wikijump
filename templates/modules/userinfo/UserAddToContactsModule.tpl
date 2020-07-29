@@ -27,6 +27,6 @@
 	</div>
 	<div class="button-bar">
 		<a href="javascript:;" onclick="OZONE.dialog.cleanAll()">{t}cancel{/t}</a>
-		<a href="javascript:;" onclick="WIKIDOT.modules.UserAddToContacts.listeners.addContact(event, {$user->getUserId()})">{t}yes, add please!{/t}</a>
+		<a href="javascript:;" onclick="Wikijump.modules.UserAddToContacts.listeners.addContact(event, {$user->getUserId()})">{t}yes, add please!{/t}</a>
 	</div>
 </div>

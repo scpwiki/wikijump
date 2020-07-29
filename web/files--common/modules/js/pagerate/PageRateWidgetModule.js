@@ -1,18 +1,9 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.PageRateWidgetModule = {};
-WIKIDOT.modules.PageRateWidgetModule.vars={};
 
-WIKIDOT.modules.PageRateWidgetModule.listeners = {
+Wikijump.modules.PageRateWidgetModule = {};
+Wikijump.modules.PageRateWidgetModule.vars={};
+
+Wikijump.modules.PageRateWidgetModule.listeners = {
 	rate: function(e, points, force){
 		if(points > 5 || points < -1){ return;}
 
@@ -25,9 +16,9 @@ WIKIDOT.modules.PageRateWidgetModule.listeners = {
 		}
 		p.pageId = WIKIREQUEST.info.pageId;
 
-		WIKIDOT.modules.PageRateWidgetModule.vars.points = points;
+		Wikijump.modules.PageRateWidgetModule.vars.points = points;
 
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.PageRateWidgetModule.callbacks.rate);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.PageRateWidgetModule.callbacks.rate);
 
 	},
 
@@ -37,11 +28,11 @@ WIKIDOT.modules.PageRateWidgetModule.listeners = {
 		p.event = "cancelVote";
 		p.pageId = WIKIREQUEST.info.pageId;
 
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.PageRateWidgetModule.callbacks.rate);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.PageRateWidgetModule.callbacks.rate);
 	}
 }
 
-WIKIDOT.modules.PageRateWidgetModule.callbacks = {
+Wikijump.modules.PageRateWidgetModule.callbacks = {
 	rate: function(r){
 
 		if(r.status == 'already_voted'){
@@ -51,7 +42,7 @@ WIKIDOT.modules.PageRateWidgetModule.callbacks = {
 			return;
 		}
 
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		OZONE.dialog.cleanAll();
 		var el = $("prw54353");
 		if(r.type != "S") {
@@ -132,7 +123,7 @@ WIKIDOT.modules.PageRateWidgetModule.callbacks = {
 	}
 }
 
-WIKIDOT.modules.PageRateWidgetModule.init = function(){
+Wikijump.modules.PageRateWidgetModule.init = function(){
 	OZONE.dom.onDomReady(function(){
 		if($("membership-by-apply-text")){
 			// if a rating is already displayed - rather copy the value.
@@ -149,4 +140,4 @@ WIKIDOT.modules.PageRateWidgetModule.init = function(){
 
 }
 
-WIKIDOT.modules.PageRateWidgetModule.init();
+Wikijump.modules.PageRateWidgetModule.init();

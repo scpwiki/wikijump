@@ -28,7 +28,7 @@
 					<odate>{$file->getDateAdded()->getTimestamp()}</wbdate>
 				</td>*}
 				<td>
-					<a href="javascript:;" onclick="WIKIDOT.modules.PageFilesModule.listeners.fileMoreInfo(event, {$file->getFileId()})">info</a>
+					<a href="javascript:;" onclick="Wikijump.modules.PageFilesModule.listeners.fileMoreInfo(event, {$file->getFileId()})">info</a>
 					|
 					<a href="javascript:;" onclick="toggleFileOptions({$file->getFileId()})">{t}options{/t}</a>
 				</td>
@@ -48,13 +48,13 @@
 
 <div style="margin-top:1em">
 <a href="javascript:;" id="show-upload-button">{t}upload new file{/t}</a>
-| <a href="javascript:;" onclick="WIKIDOT.modules.PageFilesModule.listeners.fileManager(event)">{t}file manager{/t}</a>
+| <a href="javascript:;" onclick="Wikijump.modules.PageFilesModule.listeners.fileManager(event)">{t}file manager{/t}</a>
 </div>
 <div id="file-action-area">
 </div>
 
 <div style="display: none" id="file-options-template">
-<a href="javascript:;" onclick="WIKIDOT.modules.PageFilesModule.listeners.renameFile(event)">{t}rename{/t}</a> |
-<a href="javascript:;" onclick="WIKIDOT.modules.PageFilesModule.listeners.moveFile(event)">{t}move{/t}</a> |
-<a href="javascript:;" onclick="WIKIDOT.modules.PageFilesModule.listeners.deleteFile(event)">{t}delete{/t}</a>
+<a href="javascript:;" onclick="Wikijump.modules.PageFilesModule.listeners.renameFile(event)">{t}rename{/t}</a> |
+<a href="javascript:;" onclick="Wikijump.modules.PageFilesModule.listeners.moveFile(event)">{t}move{/t}</a> |
+<a href="javascript:;" onclick="Wikijump.modules.PageFilesModule.listeners.deleteFile(event)">{t}delete{/t}</a>
 </div>

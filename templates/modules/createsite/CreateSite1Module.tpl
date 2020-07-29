@@ -17,9 +17,9 @@ hello
 {macro name="formtablehr"}
 <tr class="buttons">
 		<td colspan="2">
-				<input type="button" name="event_stopRegistration" value="cancel" onclick="WIKIDOT.modules.CreateSite1Module.listeners.cancelClick(event)"/>
-				<input type="button" name="event_correct" value="&larr; correct" onclick="WIKIDOT.modules.CreateSite1Module.listeners.backClick(event)"/>
-				<input type="button" name="event_sendEmailVer" value="create site!" onclick="WIKIDOT.modules.CreateSite1Module.listeners.nextClick(event)"/>
+				<input type="button" name="event_stopRegistration" value="cancel" onclick="Wikijump.modules.CreateSite1Module.listeners.cancelClick(event)"/>
+				<input type="button" name="event_correct" value="&larr; correct" onclick="Wikijump.modules.CreateSite1Module.listeners.backClick(event)"/>
+				<input type="button" name="event_sendEmailVer" value="create site!" onclick="Wikijump.modules.CreateSite1Module.listeners.nextClick(event)"/>
 		</td>
 	</tr>
 {macro name="formtableend"}

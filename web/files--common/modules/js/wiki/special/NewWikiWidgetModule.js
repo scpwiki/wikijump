@@ -1,17 +1,8 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.NewWikiWidgetModule = {}
 
-WIKIDOT.modules.NewWikiWidgetModule.listeners = {
+Wikijump.modules.NewWikiWidgetModule = {}
+
+Wikijump.modules.NewWikiWidgetModule.listeners = {
 	submit: function(event){
 		if(YAHOO.util.Dom.hasClass("new-wiki-widget-site-name", 'empty')){
 			var w = new OZONE.dialogs.ErrorDialog();
@@ -32,13 +23,13 @@ WIKIDOT.modules.NewWikiWidgetModule.listeners = {
 		p.action = 'wiki/special/NewWikiWidgetAction';
 		p.event = 'newWiki';
 		p.siteName = siteName;
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.NewWikiWidgetModule.callbacks.submitCallback);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.NewWikiWidgetModule.callbacks.submitCallback);
 	}
 }
 
-WIKIDOT.modules.NewWikiWidgetModule.callbacks = {
+Wikijump.modules.NewWikiWidgetModule.callbacks = {
 	submitCallback: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		// seems fine.
 		window.location.href='/new-site/address/'+r.unixName;
 	}

@@ -1,23 +1,14 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.CreateAccount2Module = {};
 
-WIKIDOT.modules.CreateAccount2Module.listeners = {
+Wikijump.modules.CreateAccount2Module = {};
+
+Wikijump.modules.CreateAccount2Module.listeners = {
 	cancelClick: function(e){
 		window.location.href="/";
 	},
 
 	backClick: function(e){
-		OZONE.ajax.requestModule("createaccount/CreateAccount0Module", null, WIKIDOT.modules.CreateAccount2Module.callbacks.backClick);
+		OZONE.ajax.requestModule("createaccount/CreateAccount0Module", null, Wikijump.modules.CreateAccount2Module.callbacks.backClick);
 	},
 
 	nextClick: function(e){
@@ -25,11 +16,11 @@ WIKIDOT.modules.CreateAccount2Module.listeners = {
 		p.evcode = $("ca-evercode").value;
 		p.action = "CreateAccountAction";
 		p.event = "finalize";
-		OZONE.ajax.requestModule("createaccount/CreateAccount3Module", p, WIKIDOT.modules.CreateAccount2Module.callbacks.nextClick);
+		OZONE.ajax.requestModule("createaccount/CreateAccount3Module", p, Wikijump.modules.CreateAccount2Module.callbacks.nextClick);
 
 	}
 }
-WIKIDOT.modules.CreateAccount2Module.callbacks = {
+Wikijump.modules.CreateAccount2Module.callbacks = {
 	nextClick: function(r){
 		if(r.status == "invalid_code"){
 			$("ca-error-block").innerHTML = r.message;
@@ -37,7 +28,7 @@ WIKIDOT.modules.CreateAccount2Module.callbacks = {
 			OZONE.dialog.factory.boxcontainer().centerContent();
 			return;
 		}
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		if(!WIKIREQUEST.createAccountSkipCongrats){
 			var w = new OZONE.dialogs.Dialog();
@@ -48,7 +39,7 @@ WIKIDOT.modules.CreateAccount2Module.callbacks = {
 		}
 	},
 	backClick: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var w = new OZONE.dialogs.Dialog();
 		w.content = r.body;
 		w.show();
@@ -56,4 +47,4 @@ WIKIDOT.modules.CreateAccount2Module.callbacks = {
 
 }
 
-//YAHOO.util.Event.addListener("next-click", "click", WIKIDOT.modules.AcceptTOSModule.listeners.nextClick);
+//YAHOO.util.Event.addListener("next-click", "click", Wikijump.modules.AcceptTOSModule.listeners.nextClick);

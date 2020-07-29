@@ -1,17 +1,8 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.NewPageHelperModule = {};
 
-WIKIDOT.modules.NewPageHelperModule.listeners = {
+Wikijump.modules.NewPageHelperModule = {};
+
+Wikijump.modules.NewPageHelperModule.listeners = {
 	create: function(e){
 		YAHOO.util.Event.stopEvent(e);
 		var f = YAHOO.util.Event.getTarget(e);
@@ -29,14 +20,14 @@ WIKIDOT.modules.NewPageHelperModule.listeners = {
 		var p = OZONE.utils.formToArray(f);
 		p.action = 'misc/NewPageHelperAction';
 		p.event = 'createNewPage';
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.NewPageHelperModule.callbacks.create);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.NewPageHelperModule.callbacks.create);
 		return false;
 	}
 }
 
-WIKIDOT.modules.NewPageHelperModule.callbacks = {
+Wikijump.modules.NewPageHelperModule.callbacks = {
 	create: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		// go to page and edit it!
 		var href =  "/"+r.unixName+'/edit/true';

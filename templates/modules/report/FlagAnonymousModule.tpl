@@ -18,7 +18,7 @@
 		{/if}
 	</ul>
 	<p>
-		violates Wikidot.com
+		violates Wikijump
 		<a href="{$HTTP_SCHEMA}://{$URL_HOST}/legal:terms-of-service" target="_blank">Terms of Service</a>
 		of {$SERVICE_NAME},
 		posts objectionable content, may offend by their actions etc., you can
@@ -35,11 +35,11 @@
 	<p id="flag-user-options-flag" style="text-align: center; {if $flagged}display: none;{/if} ">
 		<span style="color: #4B4; font-size: 150%; border: 1px solid #000; padding: 3px; margin: 5px;">this user is OK</span>
 		<a style="color: #CCC; font-size: 150%; border: 1px solid #DDD; padding: 3px; margin: 5px; text-decoration: none;" href="javascript:;"
-		onclick="WIKIDOT.modules.FlagAnonymousModule.listeners.setFlag(event, '{$userString}', true)">this user is abusive</a>
+		onclick="Wikijump.modules.FlagAnonymousModule.listeners.setFlag(event, '{$userString}', true)">this user is abusive</a>
 	</p>
 	<p id="flag-user-options-unflag" style="text-align: center;{if !$flagged}display: none;{/if}">
 		<a style="color: #CCC; font-size: 150%; border: 1px solid #DDD; padding: 3px; margin: 5px; text-decoration: none;" href="javascript:;"
-		onclick="WIKIDOT.modules.FlagAnonymousModule.listeners.setFlag(event,'{$userString}', false)">this user is OK</a>
+		onclick="Wikijump.modules.FlagAnonymousModule.listeners.setFlag(event,'{$userString}', false)">this user is OK</a>
 		<span style="color: #B44;font-size: 150%; border: 1px solid #000; padding: 3px; margin: 5px;">this user is abusive</span>
 	</p>
 

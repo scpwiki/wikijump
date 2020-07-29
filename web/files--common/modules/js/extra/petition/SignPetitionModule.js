@@ -1,24 +1,15 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.SignPetitionModule = {};
 
-WIKIDOT.modules.SignPetitionModule.listeners = {
+Wikijump.modules.SignPetitionModule = {};
+
+Wikijump.modules.SignPetitionModule.listeners = {
 
 	sign: function(e){
 		var p = OZONE.utils.formToArray("sign-petition-form");
 		p.action = "extra/petition/PetitionAction";
 		p.event = "sign";
 		p.petitionUrl = WIKIREQUEST.info.pageUnixName;
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.SignPetitionModule.callbacks.sign );
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.SignPetitionModule.callbacks.sign );
 	},
 
 	confirmSignature: function(e, campaignId, hash){
@@ -27,7 +18,7 @@ WIKIDOT.modules.SignPetitionModule.listeners = {
 		p.event = "confirm";
 		p.hash = hash;
 		p.campaignId = campaignId;
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.SignPetitionModule.callbacks.confirmSignature);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.SignPetitionModule.callbacks.confirmSignature);
 
 	},
 
@@ -37,12 +28,12 @@ WIKIDOT.modules.SignPetitionModule.listeners = {
 		p.event = "cancel";
 		p.hash = hash;
 		p.campaignId = campaignId;
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.SignPetitionModule.callbacks.confirmSignature);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.SignPetitionModule.callbacks.confirmSignature);
 
 	}
 }
 
-WIKIDOT.modules.SignPetitionModule.callbacks = {
+Wikijump.modules.SignPetitionModule.callbacks = {
 	sign: function(r){
 		var form = $('sign-petition-form');
 		var trs = form.getElementsByTagName('tr');
@@ -64,13 +55,13 @@ WIKIDOT.modules.SignPetitionModule.callbacks = {
 			OZONE.dialog.cleanAll();
 			return;
 		}
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		$("sign-petition-box").innerHTML = r.body;
 	},
 
 	confirmSignature: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		alert(r.thankYouPage);
 		if(r.thankYouPage){
 			window.location.href='/'+r.thankYouPage;
@@ -81,7 +72,7 @@ WIKIDOT.modules.SignPetitionModule.callbacks = {
 
 }
 
-WIKIDOT.modules.SignPetitionModule.init = function(){
+Wikijump.modules.SignPetitionModule.init = function(){
 	if(window.location.pathname.match(/\/confirm\//)){
 		OZONE.dom.onDomReady(function(){
 			setTimeout('OZONE.visuals.scrollTo("sign-petition-box");', 100);
@@ -89,4 +80,4 @@ WIKIDOT.modules.SignPetitionModule.init = function(){
 	}
 }
 
-WIKIDOT.modules.SignPetitionModule.init();
+Wikijump.modules.SignPetitionModule.init();

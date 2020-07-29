@@ -28,7 +28,7 @@
 			</tr>
 		</table>
 		<div class="buttons">
-			<input type="button" value="change URL" onclick="WIKIDOT.modules.ManagerSiteRenameModule.listeners.renameSite(event)"/>
+			<input type="button" value="change URL" onclick="Wikijump.modules.ManagerSiteRenameModule.listeners.renameSite(event)"/>
 		</div>
 	</form>
 {else}

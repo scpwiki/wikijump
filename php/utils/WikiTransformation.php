@@ -1,37 +1,11 @@
 <?php
-/**
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- *
- * @category Wikidot
- * @package Wikidot
- * @version $Id$
- * @copyright Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
- */
-
-
-
 use DB\OzoneUserPeer;
 use DB\ForumThreadPeer;
 use DB\PageTagPeer;
 
 //use Text_Antiwiki;  # What is this? I can't even find "text_antiwiki on google.
 
-//require_once(WIKIDOT_ROOT."/vendor/scpwiki/text_wiki/Text/Wiki.php");
+//require_once(WIKIJUMP_ROOT."/vendor/scpwiki/text_wiki/Text/Wiki.php");
 class WikiTransformation
 {
     /**
@@ -418,15 +392,15 @@ class WikiTransformation
 
     public function processHtml($doc)
     {
-        // require_once(WIKIDOT_ROOT."/lib/Text_Antiwiki/Text/Antiwiki.php");  # ???
+        // require_once(WIKIJUMP_ROOT."/lib/Text_Antiwiki/Text/Antiwiki.php");  # ???
         // just for text_wiki extend the include_path
-        ini_set('include_path', ini_get('include_path').':'.WIKIDOT_ROOT.'/lib/Text_Antiwiki/');
+        ini_set('include_path', ini_get('include_path').':'.WIKIJUMP_ROOT.'/lib/Text_Antiwiki/');
 
         // clean the code!!!
         $doc = $this->purifyHtml($doc);
 
         // no extra parameters, just GO GO GO
-        // $wiki = new Text_Antiwiki();  # Is this supposed to convert Html to wikidot markup?
+        // $wiki = new Text_Antiwiki();  # Is this supposed to convert Html to wikijump markup?
         $out = $wiki->transform($doc, 'Wiki');
 
         return $out;

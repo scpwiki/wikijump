@@ -1,31 +1,4 @@
 <?php
-/**
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- *
- * @category Wikidot
- * @package Wikidot
- * @version $Id$
- * @copyright Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
- */
-
-
-
-
 class WDRenderUtils
 {
 
@@ -36,7 +9,7 @@ class WDRenderUtils
             return null;
         }
         if (is_string($user)) {
-            $linkInner = 'href="javascript:;"  onclick="WIKIDOT.page.listeners.anonymousUserInfo(\''.$user.'\'); return false;" ';
+            $linkInner = 'href="javascript:;"  onclick="Wikijump.page.listeners.anonymousUserInfo(\''.$user.'\'); return false;" ';
             //  ok, this is just "anonymous info". print it!
             $out = '<span class="printuser anonymous">';
             if ($params['image'] != null) {
@@ -69,7 +42,7 @@ class WDRenderUtils
         }
 
         $out = '<span class="'.$class.'">';
-        $linkInner = 'href="'.GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST . '/user:info/'.$user->getUnixName().'" onclick="WIKIDOT.page.listeners.userInfo('.$user->getUserId().'); return false;" ';
+        $linkInner = 'href="'.GlobalProperties::$HTTP_SCHEMA . "://" . GlobalProperties::$URL_HOST . '/user:info/'.$user->getUnixName().'" onclick="Wikijump.page.listeners.userInfo('.$user->getUserId().'); return false;" ';
         if ($params['image'] != null) {
             $image = $params['image'];
             // handle sizes...

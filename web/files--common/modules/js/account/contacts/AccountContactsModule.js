@@ -1,21 +1,12 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.AccountContactsModule = {};
 
-WIKIDOT.modules.AccountContactsModule.vars = {};
+Wikijump.modules.AccountContactsModule = {};
 
-WIKIDOT.modules.AccountContactsModule.listeners = {
+Wikijump.modules.AccountContactsModule.vars = {};
+
+Wikijump.modules.AccountContactsModule.listeners = {
 	showAddForm: function(e){
-		if(!WIKIDOT.modules.AccountContactsModule.vars.addFormInited){
+		if(!Wikijump.modules.AccountContactsModule.vars.addFormInited){
 			// init autocomplete now
 			var dataSource = new YAHOO.widget.DS_XHR("/quickmodule.php", ['users','name', 'user_id']);
 			dataSource.scriptQueryParam="q";
@@ -29,7 +20,7 @@ WIKIDOT.modules.AccountContactsModule.listeners = {
 			autoComp.itemSelectEvent.subscribe(function(sType, args){
 				var userId = args[1].getElementsByTagName('div').item(0).id.replace(/.*?([0-9]+)$/,"$1");
 				var userName = args[1].getElementsByTagName('div').item(0).innerHTML;
-				WIKIDOT.modules.AccountContactsModule.listeners.selectUser(userId, userName);
+				Wikijump.modules.AccountContactsModule.listeners.selectUser(userId, userName);
 			});
 
 			autoComp.formatResult = function(aResultItem, sQuery) {
@@ -43,7 +34,7 @@ WIKIDOT.modules.AccountContactsModule.listeners = {
 
 			}
 
-			WIKIDOT.modules.AccountContactsModule.vars.addFormInited = true;
+			Wikijump.modules.AccountContactsModule.vars.addFormInited = true;
 		}
 		$("show-add-contact-button").style.display = "none";
 		$("add-contact-user-div").style.display = "block";
@@ -54,36 +45,36 @@ WIKIDOT.modules.AccountContactsModule.listeners = {
 		$("show-add-contact-button").style.display = "block";
 		$("add-contact-user-div").style.display = "none";
 		$("user-lookup").value="";
-		WIKIDOT.modules.AccountContactsModule.listeners.changeUser(null);
+		Wikijump.modules.AccountContactsModule.listeners.changeUser(null);
 
 	},
 	selectUser: function(userId, userName){
-		var userString = WIKIDOT.render.printuser(userId,userName, true);
+		var userString = Wikijump.render.printuser(userId,userName, true);
 		$("select-user-div").style.display="none";
 		$("selected-user-div").style.display="block";
 		$("selected-user-rendered").innerHTML = userString;
-		WIKIDOT.modules.AccountContactsModule.vars.currentUserId = userId;
+		Wikijump.modules.AccountContactsModule.vars.currentUserId = userId;
 	},
 	changeUser: function(e){
 		$("select-user-div").style.display="block";
 		$("selected-user-div").style.display="none";
 		$("user-lookup").value="";
-		WIKIDOT.modules.AccountContactsModule.vars.currentUserId = null;
+		Wikijump.modules.AccountContactsModule.vars.currentUserId = null;
 	},
 
 	addContact: function(e){
-		if(WIKIDOT.modules.AccountContactsModule.vars.currentUserId == null){
+		if(Wikijump.modules.AccountContactsModule.vars.currentUserId == null){
 			var w = new OZONE.dialogs.ErrorDialog();
 			w.content = "You must select a valid user to add.";
 			w.show();
 			return;
 		}
 		var p = new Object();
-		OZONE.ajax.requestModule('userinfo/UserAddToContactsModule', {userId: WIKIDOT.modules.AccountContactsModule.vars.currentUserId}, WIKIDOT.modules.AccountContactsModule.callbacks.addContact);
+		OZONE.ajax.requestModule('userinfo/UserAddToContactsModule', {userId: Wikijump.modules.AccountContactsModule.vars.currentUserId}, Wikijump.modules.AccountContactsModule.callbacks.addContact);
 	},
 
 	showBack: function(e){
-		OZONE.ajax.requestModule("account/contacts/AccountBackContactsModule", null, WIKIDOT.modules.AccountContactsModule.callbacks.showBack);
+		OZONE.ajax.requestModule("account/contacts/AccountBackContactsModule", null, Wikijump.modules.AccountContactsModule.callbacks.showBack);
 	},
 
 	removeContact: function(e, userId){
@@ -91,30 +82,30 @@ WIKIDOT.modules.AccountContactsModule.listeners = {
 		p.action = "ContactsAction";
 		p.event = "removeContact";
 		p.userId = userId;
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.AccountContactsModule.callbacks.removeContact);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.AccountContactsModule.callbacks.removeContact);
 	},
 
 	refresh: function(e){
-		WIKIDOT.modules.AccountModule.utils.loadModule("am-contacts");
+		Wikijump.modules.AccountModule.utils.loadModule("am-contacts");
 	}
 }
 
-WIKIDOT.modules.AccountContactsModule.callbacks = {
+Wikijump.modules.AccountContactsModule.callbacks = {
 	showBack: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		$("back-contacts-list").innerHTML = r.body;
 	},
 	addContact: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var w = new OZONE.dialogs.Dialog();
 		w.content = r.body;
 		w.show();
 	},
 	removeContact: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "User removed from contacts";
 		w.show();
-		WIKIDOT.modules.AccountContactsModule.listeners.refresh();
+		Wikijump.modules.AccountContactsModule.listeners.refresh();
 	}
 }

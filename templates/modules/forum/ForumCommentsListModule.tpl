@@ -37,15 +37,15 @@
 {/foreach}
 
 
-<a href="javascript:;" id="new-post-button" onclick="WIKIDOT.modules.ForumViewThreadModule.listeners.newPost(event,null)">{t}Add a new comment{/t}</a>
+<a href="javascript:;" id="new-post-button" onclick="Wikijump.modules.ForumViewThreadModule.listeners.newPost(event,null)">{t}Add a new comment{/t}</a>
 
 
 <div style="display:none" id="post-options-template">
-	<a href="javascript:;" onclick="WIKIDOT.modules.ForumViewThreadModule.listeners.showPermalink(event,'%POST_ID%')">{t}permanent link{/t}</a> |
-			<a href="javascript:;" onclick="WIKIDOT.modules.ForumViewThreadModule.listeners.editPost(event,'%POST_ID%')">{t}edit{/t}</a> |
-			<a href="javascript:;" onclick="WIKIDOT.modules.ForumViewThreadModule.listeners.deletePost(event,'%POST_ID%')">{t}delete{/t}</a>
+	<a href="javascript:;" onclick="Wikijump.modules.ForumViewThreadModule.listeners.showPermalink(event,'%POST_ID%')">{t}permanent link{/t}</a> |
+			<a href="javascript:;" onclick="Wikijump.modules.ForumViewThreadModule.listeners.editPost(event,'%POST_ID%')">{t}edit{/t}</a> |
+			<a href="javascript:;" onclick="Wikijump.modules.ForumViewThreadModule.listeners.deletePost(event,'%POST_ID%')">{t}delete{/t}</a>
 </div>
 
 <script type="text/javascript">
-	WIKIDOT.forumThreadId = {$thread->getThreadId()};
+	Wikijump.forumThreadId = {$thread->getThreadId()};
 </script>

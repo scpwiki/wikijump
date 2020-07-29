@@ -1,17 +1,8 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.ASEmailModule = {};
 
-WIKIDOT.modules.ASEmailModule.listeners = {
+Wikijump.modules.ASEmailModule = {};
+
+Wikijump.modules.ASEmailModule.listeners = {
 	next1: function(e){
 		var email = $("ch-email").value;
 
@@ -30,7 +21,7 @@ WIKIDOT.modules.ASEmailModule.listeners = {
 		p.email = email;
 		p.action = "AccountSettingsAction";
 		p.event = "changeEmail1";
-		OZONE.ajax.requestModule("account/settings/email/ASChangeEmail2Module", p, WIKIDOT.modules.ASEmailModule.callbacks.next1);
+		OZONE.ajax.requestModule("account/settings/email/ASChangeEmail2Module", p, Wikijump.modules.ASEmailModule.callbacks.next1);
 
 	},
 
@@ -41,19 +32,19 @@ WIKIDOT.modules.ASEmailModule.listeners = {
 		p.action = "AccountSettingsAction";
 		p.event = "changeEmail2";
 		p.evercode = evcode;
-		OZONE.ajax.requestModule("account/settings/email/ASChangeEmail3Module", p, WIKIDOT.modules.ASEmailModule.callbacks.next2);
+		OZONE.ajax.requestModule("account/settings/email/ASChangeEmail3Module", p, Wikijump.modules.ASEmailModule.callbacks.next2);
 
 	}
 }
 
-WIKIDOT.modules.ASEmailModule.callbacks = {
+Wikijump.modules.ASEmailModule.callbacks = {
 	next1: function(r){
 		if(r.status == "form_error"){
 			$("email-change-error").innerHTML = r.message;
 			$("email-change-error").style.display="block";
 			return;
 		}
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		$("email-change-area").innerHTML = r.body;
 	},
@@ -64,7 +55,7 @@ WIKIDOT.modules.ASEmailModule.callbacks = {
 			$("email-change-error").style.display="block";
 			return;
 		}
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		$("email-change-area").innerHTML = r.body;
 		$("ech-note").style.display = "none";
 		$("ch-el01").style.display = "none";

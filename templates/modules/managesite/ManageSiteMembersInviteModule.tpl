@@ -2,7 +2,7 @@
 
 <p>
 	You can easily invite new members to this Site. Use this option if you want
-	to invite a particular User (must already have a Wikidot account).
+	to invite a particular User (must already have a Wikijump account).
 	Do not send "spam invitations".
 </p>
 <p>

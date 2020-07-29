@@ -117,11 +117,11 @@
 	</div>
 
 	<p>
-		<a href="javascript:;" onclick="WIKIDOT.modules.PetitionAdminModule.listeners.selectAllSignatures(event)">select all</a>
+		<a href="javascript:;" onclick="Wikijump.modules.PetitionAdminModule.listeners.selectAllSignatures(event)">select all</a>
 		|
-		<a href="javascript:;" onclick="WIKIDOT.modules.PetitionAdminModule.listeners.deselectAllSignatures(event)">select none</a>
+		<a href="javascript:;" onclick="Wikijump.modules.PetitionAdminModule.listeners.deselectAllSignatures(event)">select none</a>
 	</p>
 	<p>
-		With selected: <a href="javascript:;"  onclick="WIKIDOT.modules.PetitionAdminModule.listeners.removeSelectedSignatures(event, {$campaign->getCampaignId()})">remove</a>
+		With selected: <a href="javascript:;"  onclick="Wikijump.modules.PetitionAdminModule.listeners.removeSelectedSignatures(event, {$campaign->getCampaignId()})">remove</a>
 	</p>
 {/if}

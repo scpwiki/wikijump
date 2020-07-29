@@ -29,5 +29,5 @@
 </div>
 <div class="button-bar">
 	<a href="javascript:;" onclick="OZONE.dialog.cleanAll()">cancel</a>
-	<a href="javascript:;" onclick="WIKIDOT.modules.UserAbuseReportModule.listeners.sendReport(event)">send report</a>
+	<a href="javascript:;" onclick="Wikijump.modules.UserAbuseReportModule.listeners.sendReport(event)">send report</a>
 </div>

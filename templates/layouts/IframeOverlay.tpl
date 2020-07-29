@@ -24,16 +24,16 @@
  		WIKIREQUEST.info.lang = '{$site->getLanguage()}';
  		WIKIREQUEST.info.lang = "{$site->getLanguage()}";
  		OZONE.lang = "{$site->getLanguage()}";
-// 		window.onload = WikidotInit();
+// 		window.onload = WikijumpInit();
  	</script>
 
  	<meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
     <meta http-equiv="content-language" content="{$site->getLanguage()}"/>
 
 
- 	<script type="text/javascript" src="/common--javascript/WIKIDOT.js"></script>
- 	<script type="text/javascript" src="/common--javascript/WIKIDOT.page.js"></script>
- 	<script type="text/javascript" src="/common--javascript/WIKIDOT.editor.js"></script>
+ 	<script type="text/javascript" src="/common--javascript/Wikijump.js"></script>
+ 	<script type="text/javascript" src="/common--javascript/Wikijump.page.js"></script>
+ 	<script type="text/javascript" src="/common--javascript/Wikijump.editor.js"></script>
  	<script type="text/javascript" src="/common--javascript/crypto/rsa.js"></script>
 
  	{if $useCustomDomainScript}

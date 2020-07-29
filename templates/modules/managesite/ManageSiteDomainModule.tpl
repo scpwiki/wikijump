@@ -52,20 +52,20 @@
 						{foreach from=$redirects item=redirect}
 							<div>
 								<input style="margin: 3px 0;" class="text"  value="{$redirect}" type="text" value="" size="40" maxlength="50"/>
-								<a href="javascript:;" onclick="WIKIDOT.modules.ManagerSiteDomainModule.listeners.removeRedirect(event)">remove</a>
+								<a href="javascript:;" onclick="Wikijump.modules.ManagerSiteDomainModule.listeners.removeRedirect(event)">remove</a>
 							</div>
 						{/foreach}
 					{else}
 						<div>
 							<input style="margin: 3px 0;" class="text"  value="" type="text" value="" size="40" maxlength="50"/>
-							<a href="javascript:;" onclick="WIKIDOT.modules.ManagerSiteDomainModule.listeners.removeRedirect(event)">remove</a>
+							<a href="javascript:;" onclick="Wikijump.modules.ManagerSiteDomainModule.listeners.removeRedirect(event)">remove</a>
 						</div>
 					{/if}
 				</div>
-				<a href="javascript:;" onclick="WIKIDOT.modules.ManagerSiteDomainModule.listeners.addRedirect(event)">+ add more</a>
+				<a href="javascript:;" onclick="Wikijump.modules.ManagerSiteDomainModule.listeners.addRedirect(event)">+ add more</a>
 				<div id="sm-redirect-template" style="display:none">
 					<input style="margin: 3px 0;" class="text"  value="" type="text" value="" size="40" maxlength="50"/>
-					<a href="javascript:;" onclick="WIKIDOT.modules.ManagerSiteDomainModule.listeners.removeRedirect(event)">remove</a>
+					<a href="javascript:;" onclick="Wikijump.modules.ManagerSiteDomainModule.listeners.removeRedirect(event)">remove</a>
 				</div>
 			</td>
 
@@ -99,10 +99,10 @@
 	</li>
 	<li>
 		Exactly the same procedure should be applied for the redirected domains (URLs) to
-		be handled by Wikidot.com servers.
+		be handled by Wikijump servers.
 	</li>
 	<li>Sometimes your might be forced to provide the IP address
-		of the Wikidot.com server. In such a case use <b>{$IP_HOST}</b>.
+		of the Wikijump server. In such a case use <b>{$IP_HOST}</b>.
 	</li>
 </ul>
 

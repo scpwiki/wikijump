@@ -1,17 +1,8 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.PageTagsModule = {};
 
-WIKIDOT.modules.PageTagsModule.listeners = {
+Wikijump.modules.PageTagsModule = {};
+
+Wikijump.modules.PageTagsModule.listeners = {
 	save: function(e){
 		var p = new Object();
 		p.tags = $("page-tags-input").value;
@@ -22,13 +13,13 @@ WIKIDOT.modules.PageTagsModule.listeners = {
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Saving tags...";
 		w.show();
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.PageTagsModule.callbacks.save);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.PageTagsModule.callbacks.save);
 		YAHOO.util.Event.stopEvent(e);
 	}
 
 }
 
-WIKIDOT.modules.PageTagsModule.callbacks = {
+Wikijump.modules.PageTagsModule.callbacks = {
 	save: function(r){
 
 		if(r.status == "form_errors"){
@@ -37,7 +28,7 @@ WIKIDOT.modules.PageTagsModule.callbacks = {
 			return;
 		}
 		$("page-tags-errors").style.display = "none";
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Tags saved!";

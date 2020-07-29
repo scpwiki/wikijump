@@ -1,7 +1,7 @@
 <div id="edit-post-preview-div" style="display: none">
 	<h1>{t}Preview{/t}:</h1>
 	<div></div>
-		<a href="javascript:;" onclick="WIKIDOT.modules.ForumEditPostFormModule.listeners.closePreview(event)">{t}close preview{/t}</a>
+		<a href="javascript:;" onclick="Wikijump.modules.ForumEditPostFormModule.listeners.closePreview(event)">{t}close preview{/t}</a>
 </div>
 
 <div id="edit-post-div">
@@ -13,8 +13,8 @@
 		<div id="np-editor-panel" class="wd-editor-toolbar-panel"></div>
 		<div><textarea id="np-text" name="source" rows="10" cols="50" style="width: 95%;">{$post->getRevision()->getText()|escape}</textarea></div>
 		<div class="change-textarea-size">
-			<a href="javascript:;" onclick="WIKIDOT.utils.changeTextareaRowNo('np-text',-5)">-</a>
-			<a href="javascript:;" onclick="WIKIDOT.utils.changeTextareaRowNo('np-text',5)">+</a>
+			<a href="javascript:;" onclick="Wikijump.utils.changeTextareaRowNo('np-text',-5)">-</a>
+			<a href="javascript:;" onclick="Wikijump.utils.changeTextareaRowNo('np-text',5)">+</a>
 		</div>
 		<div class="edit-help-34">
 			{t}Need help? Check the{/t} <a href="{$URL_DOCS}" target="_blank">{t}documentation{/t}</a>.
@@ -31,9 +31,9 @@
 			</div>
 		{/if}
 		<div class="buttons alignleft">
-			<input type="button" value="{t}cancel{/t}" id="np-cancel" onclick="WIKIDOT.modules.ForumEditPostFormModule.listeners.cancel(event)"/>
-			<input type="button" value="{t}preview{/t}" id="np-preview" onclick="WIKIDOT.modules.ForumEditPostFormModule.listeners.preview(event)"/>
-			<input type="button" value="{t}save changes{/t}" id="np-post" onclick="WIKIDOT.modules.ForumEditPostFormModule.listeners.save(event)"/>
+			<input type="button" value="{t}cancel{/t}" id="np-cancel" onclick="Wikijump.modules.ForumEditPostFormModule.listeners.cancel(event)"/>
+			<input type="button" value="{t}preview{/t}" id="np-preview" onclick="Wikijump.modules.ForumEditPostFormModule.listeners.preview(event)"/>
+			<input type="button" value="{t}save changes{/t}" id="np-post" onclick="Wikijump.modules.ForumEditPostFormModule.listeners.save(event)"/>
 		</div>
 
 	</form>

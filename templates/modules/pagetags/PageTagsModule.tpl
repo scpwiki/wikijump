@@ -16,7 +16,7 @@
 {/ltext}
 
 <div class="error-block" id="page-tags-errors" style="display: none"></div>
-<form action="dummy" onsubmit="WIKIDOT.modules.PageTagsModule.listeners.save(event)">
+<form action="dummy" onsubmit="Wikijump.modules.PageTagsModule.listeners.save(event)">
 	<table class="form">
 		<tr>
 			<td>
@@ -32,7 +32,7 @@
 	</table>
 </form>
 <div class="buttons">
-	<input type="button" value="{t}close{/t}" onclick="WIKIDOT.page.listeners.closeActionArea(event)"/>
+	<input type="button" value="{t}close{/t}" onclick="Wikijump.page.listeners.closeActionArea(event)"/>
 	<input type="button" value="{t}clear{/t}" onclick="$('page-tags-input').value=''"/>
-	<input type="button" value="{t}save tags{/t}" onclick="WIKIDOT.modules.PageTagsModule.listeners.save(event)"/>
+	<input type="button" value="{t}save tags{/t}" onclick="Wikijump.modules.PageTagsModule.listeners.save(event)"/>
 </div>

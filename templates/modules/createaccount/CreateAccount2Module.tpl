@@ -47,9 +47,9 @@
 
 		</div>
 		<div class="button-bar">
-			<a href="javascript:;" onclick="WIKIDOT.modules.CreateAccountModule.listeners.cancel(event)">{t}cancel{/t}</a>
-			<a href="javascript:;" onclick="WIKIDOT.modules.CreateAccount2Module.listeners.backClick(event)">{t}back{/t}</a>
-			<a href="javascript:;" onclick="WIKIDOT.modules.CreateAccount2Module.listeners.nextClick(event)">{t}next{/t}</a>
+			<a href="javascript:;" onclick="Wikijump.modules.CreateAccountModule.listeners.cancel(event)">{t}cancel{/t}</a>
+			<a href="javascript:;" onclick="Wikijump.modules.CreateAccount2Module.listeners.backClick(event)">{t}back{/t}</a>
+			<a href="javascript:;" onclick="Wikijump.modules.CreateAccount2Module.listeners.nextClick(event)">{t}next{/t}</a>
 		</div>
 	</form>
 </div>

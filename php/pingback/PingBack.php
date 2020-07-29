@@ -1,29 +1,4 @@
 <?php
-/**
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- *
- * @category Wikidot
- * @package Wikidot_Web
- * @version $Id$
- * @copyright Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
- */
-
-
 require_once('Zend/Http/Client.php');
 require_once('Zend/XmlRpc/Client.php');
 require_once('Zend/XmlRpc/Client/FaultException.php');
@@ -31,7 +6,7 @@ require_once('Zend/Http/Client/Adapter/Exception.php');
 require_once('Zend/Http/Response.php');
 
 /**
- * The Wikidot PingBack class.
+ * The Wikijump PingBack class.
  *
  * Use it, to ping external services, and process other services ping requests
  * using PingBackServer as a frontend to this
@@ -74,15 +49,15 @@ class PingBack
     /**
      * Constructs the PingBack object.
      *
-     * @throws PingBackException if the Wikidot URI is wrong
+     * @throws PingBackException if the Wikijump URI is wrong
      * @param string $externalURI external URI
-     * @param string $wikidotURI Wikidot URI
+     * @param string $wikijumpURI Wikijump URI
      */
-    public function __construct($externalURI, $wikidotURI)
+    public function __construct($externalURI, $wikijumpURI)
     {
 
-        if ($this->isValidWikidotURI($wikidotURI)) {
-            $this->wikidotURI = $wikidotURI;
+        if ($this->isValidWikijumpURI($wikijumpURI)) {
+            $this->wikijumpURI = $wikijumpURI;
         } else {
             throw new PingBackException("The specified target URI cannot be used as a target", 33);
         }
@@ -90,7 +65,7 @@ class PingBack
     }
 
     /**
-     * Pingback from Wikidot page (source URI) to external page (target URI)
+     * Pingback from Wikijump page (source URI) to external page (target URI)
      *
      * @throws PingBackException if pinging is not successfull
      * @throws PingBackNotAvailableException when the target is not PingBack enabled
@@ -101,7 +76,7 @@ class PingBack
         try {
             $rpc = new Zend_XmlRpc_Client($this->getExternalPingBackURI());
             $srv = $rpc->getProxy('pingback');
-            return $srv->ping($this->wikidotURI, $this->externalURI);
+            return $srv->ping($this->wikijumpURI, $this->externalURI);
         } catch (Zend_Http_Client_Adapter_Exception $e) {
             throw new PingBackException("HTTP Error: " . $e->getMessage());
         } catch (Zend_Http_Client_Exception $e) {
@@ -116,16 +91,16 @@ class PingBack
     }
 
     /**
-     * Processes a pingback from external page (source URI) to Wikidot page (target URI)
+     * Processes a pingback from external page (source URI) to Wikijump page (target URI)
      *
      * Returns an array containing to keys: 'title' (with value of the page title)
-     * and 'context' which contains the context in which the link to Wikidot page appears
+     * and 'context' which contains the context in which the link to Wikijump page appears
      *
      * If some error apears the exception thrown should in most cases have the error code set
      * Error codes for the PingBack are listed here: http://hixie.ch/specs/pingback/pingback#TOC3
      *
      * @throws PingBackException in case of errors
-     * @return array array of title and the context of the link to Wikidot page
+     * @return array array of title and the context of the link to Wikijump page
      */
     public function pong()
     {
@@ -134,19 +109,19 @@ class PingBack
         $ret['title'] = $this->getExternalTitle();
         $ret['context'] = $this->getExternalContext();
         $ret['extrnalURI'] = $this->externalURI;
-        $ret['wikidotURI'] = $this->wikidotURI;
+        $ret['wikijumpURI'] = $this->wikijumpURI;
         return $ret;
     }
 
     /**
-     * Wikidot URI. When pinging Wikidot, or pinging from a Wikidot site, this must be a Wikidot page URI
+     * Wikijump URI. When pinging Wikijump, or pinging from a Wikijump site, this must be a Wikijump page URI
      *
      * @var string
      */
-    private $wikidotURI = null;
+    private $wikijumpURI = null;
 
     /**
-     * External URI. When pinging Wikidot, or pinging from a Wikidot site, this must be the other page URI
+     * External URI. When pinging Wikijump, or pinging from a Wikijump site, this must be the other page URI
      *
      * @var string
      */
@@ -196,12 +171,12 @@ class PingBack
     }
 
     /**
-     * Checks whether the supplied URI is a valid Wikidot URI
+     * Checks whether the supplied URI is a valid Wikijump URI
      *
      * @param string $uri
-     * @return bool true if the URI is a valid Wikidot URI
+     * @return bool true if the URI is a valid Wikijump URI
      */
-    private function isValidWikidotURI($uri)
+    private function isValidWikijumpURI($uri)
     {
         /* TODO: validate */
         return true;
@@ -234,7 +209,7 @@ class PingBack
     }
 
     /**
-     * Gets the context in which the link to Wikidot page appears on the external site
+     * Gets the context in which the link to Wikijump page appears on the external site
      *
      * @return string HTML with context of the page -- all tags are stripped, but the <a href> to us
      */
@@ -243,7 +218,7 @@ class PingBack
 
         $xml = $this->getExternalPageDomAsSimpleXml();
 
-        $href = htmlspecialchars($this->wikidotURI);
+        $href = htmlspecialchars($this->wikijumpURI);
         $path = "//body//a[@href=\"$href\"][1]";
         $link = $this->xpath1($xml, $path);
 

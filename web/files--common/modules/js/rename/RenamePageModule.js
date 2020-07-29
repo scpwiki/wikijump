@@ -1,19 +1,10 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.RenamePageModule = {};
 
-WIKIDOT.modules.RenamePageModule.vars = {};
+Wikijump.modules.RenamePageModule = {};
 
-WIKIDOT.modules.RenamePageModule.listeners = {
+Wikijump.modules.RenamePageModule.vars = {};
+
+Wikijump.modules.RenamePageModule.listeners = {
 	rename: function(e){
 		var p = new Object();
 		p['action'] = 'WikiPageAction';
@@ -33,7 +24,7 @@ WIKIDOT.modules.RenamePageModule.listeners = {
 			p['fixdeps'] = fixdeps.join(',');
 		}
 
-		OZONE.ajax.requestModule("Empty", p, WIKIDOT.modules.RenamePageModule.callbacks.rename);
+		OZONE.ajax.requestModule("Empty", p, Wikijump.modules.RenamePageModule.callbacks.rename);
 
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Renaming/moving page...";
@@ -61,13 +52,13 @@ WIKIDOT.modules.RenamePageModule.listeners = {
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Renaming/moving page...";
 		w.show();
-		OZONE.ajax.requestModule("Empty", p, WIKIDOT.modules.RenamePageModule.callbacks.rename);
+		OZONE.ajax.requestModule("Empty", p, Wikijump.modules.RenamePageModule.callbacks.rename);
 	},
 	showBacklinks: function(e){
 		var pageId = WIKIREQUEST.info.pageId;
 		var parms = new Object();
 		parms['page_id'] = pageId;
-		OZONE.ajax.requestModule("rename/RenameBacklinksModule",parms,WIKIDOT.modules.RenamePageModule.callbacks.showBacklinks);
+		OZONE.ajax.requestModule("rename/RenameBacklinksModule",parms,Wikijump.modules.RenamePageModule.callbacks.showBacklinks);
 	},
 	hideBacklinks: function(e){
 
@@ -102,7 +93,7 @@ WIKIDOT.modules.RenamePageModule.listeners = {
 			return;
 		}
 
-		OZONE.ajax.requestModule("Empty", p, WIKIDOT.modules.RenamePageModule.callbacks.deletePage);
+		OZONE.ajax.requestModule("Empty", p, Wikijump.modules.RenamePageModule.callbacks.deletePage);
 
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Deleting page...";
@@ -110,7 +101,7 @@ WIKIDOT.modules.RenamePageModule.listeners = {
 	}
 }
 
-WIKIDOT.modules.RenamePageModule.callbacks = {
+Wikijump.modules.RenamePageModule.callbacks = {
 	rename: function(r){
 		if(r.status == "page_exists" || r.status == 'not_allowed' || r.status == "no_new_name"){
 			$("rename-error-block").style.display="block";
@@ -118,7 +109,7 @@ WIKIDOT.modules.RenamePageModule.callbacks = {
 			OZONE.dialog.cleanAll();
 			return;
 		}
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		if(r.locks){
 			var w = new OZONE.dialogs.Dialog();
@@ -128,7 +119,7 @@ WIKIDOT.modules.RenamePageModule.callbacks = {
 		}
 
 		if(r.leftDeps){
-			WIKIDOT.modules.RenamePageModule.vars.newName = r.newName;
+			Wikijump.modules.RenamePageModule.vars.newName = r.newName;
 			var w = new OZONE.dialogs.Dialog();
 			w.content = r.body;
 			w.show();
@@ -142,7 +133,7 @@ WIKIDOT.modules.RenamePageModule.callbacks = {
 
 	},
 	showBacklinks: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		OZONE.utils.setInnerHTMLContent('rename-backlinks-box', r.body);
 		$("rename-backlinks-box").style.display = "block";
 		$("rename-show-backlinks").style.display="none";
@@ -150,7 +141,7 @@ WIKIDOT.modules.RenamePageModule.callbacks = {
 	},
 
 	deletePage: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var t2 = new OZONE.dialogs.SuccessBox();
 		t2.content="The page has been deleted!";
 		t2.show();

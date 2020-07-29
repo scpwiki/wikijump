@@ -1,30 +1,21 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.NewSiteModule = {};
 
-WIKIDOT.modules.NewSiteModule.listeners = {
+Wikijump.modules.NewSiteModule = {};
+
+Wikijump.modules.NewSiteModule.listeners = {
 	next1: function(e){
-		OZONE.ajax.requestModule("newsite/NewSite1Module", null, WIKIDOT.modules.NewSiteModule.callbacks.next1);
+		OZONE.ajax.requestModule("newsite/NewSite1Module", null, Wikijump.modules.NewSiteModule.callbacks.next1);
 	},
 
 	next2: function(e){
-		OZONE.ajax.requestModule("newsite/NewSite2Module", null, WIKIDOT.modules.NewSiteModule.callbacks.next2);
+		OZONE.ajax.requestModule("newsite/NewSite2Module", null, Wikijump.modules.NewSiteModule.callbacks.next2);
 	},
 
 	next3: function(e){
 		var p = OZONE.utils.formToArray($("new-site-form"));
 		p.action = "NewSiteAction";
 		p.event = "createSite";
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.NewSiteModule.callbacks.next3);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.NewSiteModule.callbacks.next3);
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Creating site...";
 		w.show();
@@ -32,13 +23,13 @@ WIKIDOT.modules.NewSiteModule.listeners = {
 
 }
 
-WIKIDOT.modules.NewSiteModule.callbacks = {
+Wikijump.modules.NewSiteModule.callbacks = {
 	next1: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		$("new-site-box").innerHTML = r.body;
 	},
 	next2: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		$("new-site-box").innerHTML = r.body;
 		var limiter = new OZONE.forms.lengthLimiter("site-description-field", "site-description-field-left", 300);
 
@@ -58,7 +49,7 @@ WIKIDOT.modules.NewSiteModule.callbacks = {
 			$("new-site-form-errors").style.display="block";
 			return;
 		}
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "New site successfuly created!";
 		w.show();

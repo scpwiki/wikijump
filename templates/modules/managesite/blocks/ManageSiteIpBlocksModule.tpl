@@ -13,7 +13,7 @@
 				<span style="font-size: 110%; font-weight: bold">{$block->getIp()|escape}</span>
 				<br/>
 				<div style="position: absolute; margin-left: 30em">
-					<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteIpBlocksModule.listeners.deleteBlock(event, {$block->getBlockId()}, '{$block->getIp()|escape}')">delete block</a>
+					<a href="javascript:;" onclick="Wikijump.modules.ManageSiteIpBlocksModule.listeners.deleteBlock(event, {$block->getBlockId()}, '{$block->getIp()|escape}')">delete block</a>
 				</div>
 				blocked on: <span class="odate">{$block->getDateBlocked()->getTimestamp()}|%e %b %Y, %H:%M %Z|agohover</span>
 				{if $block->getReason() && $block->getReason() != ''}
@@ -27,7 +27,7 @@
 {/if}
 
 <div id="show-add-block-button">
-	<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteIpBlocksModule.listeners.showAddForm(event)">+add new IP block</a>
+	<a href="javascript:;" onclick="Wikijump.modules.ManageSiteIpBlocksModule.listeners.showAddForm(event)">+add new IP block</a>
 </div>
 
 <div id="add-block-div" style="display: none">
@@ -77,8 +77,8 @@
 		</tr>
 	</table>
 	<div class="buttons">
-		<input type="button" value="cancel" onclick="WIKIDOT.modules.ManageSiteIpBlocksModule.listeners.cancelAdd(event)"/>
-		<input type="button" value="block" onclick="WIKIDOT.modules.ManageSiteIpBlocksModule.listeners.blockIp(event)"/>
+		<input type="button" value="cancel" onclick="Wikijump.modules.ManageSiteIpBlocksModule.listeners.cancelAdd(event)"/>
+		<input type="button" value="block" onclick="Wikijump.modules.ManageSiteIpBlocksModule.listeners.blockIp(event)"/>
 	</div>
 	<p>
 		Note: The added block will affect both www proxies and client IP addresses.

@@ -1,29 +1,4 @@
 <?php
-/**
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- *
- * @category Wikidot
- * @package Wikidot
- * @version $Id$
- * @copyright Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
- */
-
-
 use DB\SitePeer;
 use DB\MemberPeer;
 use DB\SiteViewerPeer;
@@ -38,7 +13,7 @@ class AjaxModuleWikiFlowController extends WebFlowController
         // initialize logging service
         $logger = OzoneLogger::instance();
         $loggerFileOutput = new OzoneLoggerFileOutput();
-        $loggerFileOutput->setLogFileName(WIKIDOT_ROOT."/logs/ozone.log");
+        $loggerFileOutput->setLogFileName(WIKIJUMP_ROOT."/logs/ozone.log");
         $logger->addLoggerOutput($loggerFileOutput);
         $logger->setDebugLevel(GlobalProperties::$LOGGER_LEVEL);
 
@@ -60,11 +35,11 @@ class AjaxModuleWikiFlowController extends WebFlowController
 
         try {
             // check security token
-            if ($_COOKIE['wikidot_token7'] == null || $_COOKIE['wikidot_token7'] !== $runData->getParameterList()->getParameterValue('wikidot_token7', 'AMODULE')) {
+            if ($_COOKIE['wikijump_token7'] == null || $_COOKIE['wikijump_token7'] !== $runData->getParameterList()->getParameterValue('wikijump_token7', 'AMODULE')) {
                 throw new ProcessException("no", "wrong_token7");
             }
             //remove token from parameter list!!!
-            $runData->getParameterList()->delParameter('wikidot_token7');
+            $runData->getParameterList()->delParameter('wikijump_token7');
 
             $callbackIndex = $runData->getParameterList()->getParameterValue('callbackIndex');
             $runData->getParameterList()->delParameter('callbackIndex');
@@ -137,7 +112,7 @@ class AjaxModuleWikiFlowController extends WebFlowController
 
             // Set the text domain as 'messages'
             $gdomain = 'messages';
-            bindtextdomain($gdomain, WIKIDOT_ROOT.'/locale');
+            bindtextdomain($gdomain, WIKIJUMP_ROOT.'/locale');
             textdomain($gdomain);
 
             $settings = $site->getSettings();
@@ -320,7 +295,7 @@ class AjaxModuleWikiFlowController extends WebFlowController
         if ($template != null && $template != "Empty") {
             $jsInclude = $runData->getTemp("jsInclude");
             if ($module->getIncludeDefaultJs()) {
-                $file = WIKIDOT_ROOT.'/'.GlobalProperties::$MODULES_JS_PATH.'/'.$template.'.js';
+                $file = WIKIJUMP_ROOT.'/'.GlobalProperties::$MODULES_JS_PATH.'/'.$template.'.js';
                 if (file_exists($file)) {
                     $url =  GlobalProperties::$MODULES_JS_URL.'/'.$template.'.js';
                     $incl = $url;
@@ -331,7 +306,7 @@ class AjaxModuleWikiFlowController extends WebFlowController
 
             $cssInclude = $runData->getTemp("cssInclude");
             if ($module->getIncludeDefaultCss()) {
-                $file = WIKIDOT_ROOT.'/'.GlobalProperties::$MODULES_CSS_PATH.'/'.$template.'.css';
+                $file = WIKIJUMP_ROOT.'/'.GlobalProperties::$MODULES_CSS_PATH.'/'.$template.'.css';
                 if (file_exists($file)) {
                     $url =  GlobalProperties::$MODULES_CSS_URL.'/'.$template.'.css';
                     $incl = $url;

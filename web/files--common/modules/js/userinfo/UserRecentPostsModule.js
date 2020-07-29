@@ -1,17 +1,8 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.UserRecentPostsModule = {};
 
-WIKIDOT.modules.UserRecentPostsModule.listeners = {
+Wikijump.modules.UserRecentPostsModule = {};
+
+Wikijump.modules.UserRecentPostsModule.listeners = {
 	updateList: function(pageNo){
 		var p = new Object();
 		if(pageNo != null){
@@ -22,15 +13,15 @@ WIKIDOT.modules.UserRecentPostsModule.listeners = {
 
 		p.userId = USERINFO.userId;
 
-		//WIKIDOT.modules.PageHistoryModule.vars.params = p; // for pagination
+		//Wikijump.modules.PageHistoryModule.vars.params = p; // for pagination
 
-		OZONE.ajax.requestModule("userinfo/UserRecentPostsListModule", p, WIKIDOT.modules.UserRecentPostsModule.callbacks.updateList);
+		OZONE.ajax.requestModule("userinfo/UserRecentPostsListModule", p, Wikijump.modules.UserRecentPostsModule.callbacks.updateList);
 	}
 }
 
-WIKIDOT.modules.UserRecentPostsModule.callbacks = {
+Wikijump.modules.UserRecentPostsModule.callbacks = {
 	updateList: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		$("forum-recent-posts-list").innerHTML = r.body;
 		OZONE.utils.formatDates("forum-recent-posts-list");
@@ -39,8 +30,8 @@ WIKIDOT.modules.UserRecentPostsModule.callbacks = {
 
 }
 
-WIKIDOT.modules.UserRecentPostsModule.init = function(){
+Wikijump.modules.UserRecentPostsModule.init = function(){
 
 }
 
-WIKIDOT.modules.UserRecentPostsModule.init();
+Wikijump.modules.UserRecentPostsModule.init();

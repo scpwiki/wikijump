@@ -17,8 +17,8 @@
 		</tr>
 	</table>
 	<div class="buttons">
-		<input type="button" value="{t}cancel{/t}" onclick="WIKIDOT.page.listeners.closeActionArea(event)"/>
-		<input type="button" value="{t}save{/t}" onclick="WIKIDOT.modules.PageBlockModule.listeners.save(event)"/>
+		<input type="button" value="{t}cancel{/t}" onclick="Wikijump.page.listeners.closeActionArea(event)"/>
+		<input type="button" value="{t}save{/t}" onclick="Wikijump.modules.PageBlockModule.listeners.save(event)"/>
 		</div>
 </form>
 

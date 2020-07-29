@@ -1,17 +1,8 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.ManageSitePrivateSettingsModule = {};
 
-WIKIDOT.modules.ManageSitePrivateSettingsModule.listeners ={
+Wikijump.modules.ManageSitePrivateSettingsModule = {};
+
+Wikijump.modules.ManageSitePrivateSettingsModule.listeners ={
 	save: function(e){
 		var p = OZONE.utils.formToArray("sm-private-form");
 
@@ -26,23 +17,23 @@ WIKIDOT.modules.ManageSitePrivateSettingsModule.listeners ={
 		p.viewers = uss.join(',');
 		p.action = "ManageSiteAction";
 		p.event = "savePrivateSettings";
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.ManageSitePrivateSettingsModule.callbacks.save);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.ManageSitePrivateSettingsModule.callbacks.save);
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Saving changes...";
 		w.show();
 	}
 };
 
-WIKIDOT.modules.ManageSitePrivateSettingsModule.callbacks = {
+Wikijump.modules.ManageSitePrivateSettingsModule.callbacks = {
 	save: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Changes saved";
 		w.show();
 	}
 };
 
-WIKIDOT.modules.ManageSitePrivateSettingsModule.utils = {
+Wikijump.modules.ManageSitePrivateSettingsModule.utils = {
 	addViewer: function(userId, userName){
 		var cont = $("viewers-list-div");
 		var vid = "viewer-entry-"+userId;
@@ -53,7 +44,7 @@ WIKIDOT.modules.ManageSitePrivateSettingsModule.utils = {
 			di.id = vid;
 			di.innerHTML = userName;
 			cont.appendChild(di);
-			WIKIDOT.modules.ManageSitePrivateSettingsModule.utils.updateViewers();
+			Wikijump.modules.ManageSitePrivateSettingsModule.utils.updateViewers();
 		}
 		$("user-lookup").value='';
 	},
@@ -64,7 +55,7 @@ WIKIDOT.modules.ManageSitePrivateSettingsModule.utils = {
 
 		if($(vid)){
 			cont.removeChild($(vid));
-			WIKIDOT.modules.ManageSitePrivateSettingsModule.utils.updateViewers();
+			Wikijump.modules.ManageSitePrivateSettingsModule.utils.updateViewers();
 		}
 	},
 
@@ -75,8 +66,8 @@ WIKIDOT.modules.ManageSitePrivateSettingsModule.utils = {
 		var uss = new Array();
 		for(var i=0; i<ents.length;i++){
 			var userId = ents[i].id.replace(/.*?([0-9]+)$/,"$1");
-			var str = WIKIDOT.render.printuser(userId,ents[i].innerHTML, true);
-			str += '(<a href="javascript:;" title="remove from the list" onclick="WIKIDOT.modules.ManageSitePrivateSettingsModule.utils.removeUser('+userId+')">x</a>)';
+			var str = Wikijump.render.printuser(userId,ents[i].innerHTML, true);
+			str += '(<a href="javascript:;" title="remove from the list" onclick="Wikijump.modules.ManageSitePrivateSettingsModule.utils.removeUser('+userId+')">x</a>)';
 			uss.push(str);
 		}
 		if(uss.length == 0){
@@ -88,7 +79,7 @@ WIKIDOT.modules.ManageSitePrivateSettingsModule.utils = {
 
 };
 
-WIKIDOT.modules.ManageSitePrivateSettingsModule.init = function(){
+Wikijump.modules.ManageSitePrivateSettingsModule.init = function(){
 	// attach the autocomplete thing
 	var myDataSource = new YAHOO.widget.DS_XHR("/quickmodule.php", ['pages', 'unix_name', 'title']);
 	myDataSource.scriptQueryParam="q";
@@ -122,7 +113,7 @@ WIKIDOT.modules.ManageSitePrivateSettingsModule.init = function(){
 	autoComp.itemSelectEvent.subscribe(function(sType, args){
 		var userId = args[1].getElementsByTagName('div').item(0).id.replace(/.*?([0-9]+)$/,"$1");
 		var userName = args[1].getElementsByTagName('div').item(0).innerHTML;
-		WIKIDOT.modules.ManageSitePrivateSettingsModule.utils.addViewer(userId, userName);
+		Wikijump.modules.ManageSitePrivateSettingsModule.utils.addViewer(userId, userName);
 	});
 
 	autoComp.formatResult = function(aResultItem, sQuery) {
@@ -136,7 +127,7 @@ WIKIDOT.modules.ManageSitePrivateSettingsModule.init = function(){
 
 	}
 
-	WIKIDOT.modules.ManageSitePrivateSettingsModule.utils.updateViewers();
+	Wikijump.modules.ManageSitePrivateSettingsModule.utils.updateViewers();
 }
 
-WIKIDOT.modules.ManageSitePrivateSettingsModule.init();
+Wikijump.modules.ManageSitePrivateSettingsModule.init();

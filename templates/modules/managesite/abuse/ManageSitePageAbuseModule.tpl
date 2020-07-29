@@ -21,7 +21,7 @@
 					{$rep.rank}
 				</td>
 				<td>
-					| <a href="javascript:;" onclick="WIKIDOT.modules.ManageSitePageAbuseModule.listeners.clear(event, '{$rep.path}')">clear flags</a>
+					| <a href="javascript:;" onclick="Wikijump.modules.ManageSitePageAbuseModule.listeners.clear(event, '{$rep.path}')">clear flags</a>
 				</td>
 			</tr>
 		{/foreach}

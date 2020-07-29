@@ -1,35 +1,11 @@
 <?php
-/**
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- *
- * @category Wikidot
- * @package Wikidot_Web
- * @version $Id$
- * @copyright Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
- */
-
 class GlobalPropertiesException extends Exception
 {
 
 }
 
 /**
- * The Wikidot GlobalProperties class is used to parse
+ * The Wikijump GlobalProperties class is used to parse
  * the ini file and access any settings and properties
  *
  */
@@ -39,10 +15,8 @@ class GlobalProperties
     // main settings
     public static $SERVICE_NAME;
     public static $URL_DOMAIN;
-    public static $LOGIN_DOMAIN;
     public static $URL_HOST;
     public static $WIKI_FARM;
-    public static $HTTP_PORT;
 
     // security settings
     public static $ALLOW_ANY_HTTP;
@@ -151,7 +125,7 @@ class GlobalProperties
             $value = self::$iniConfig[$section][$key];
         } else {
             if ($default === null) {
-                throw new GlobalPropertiesException("You should set '$key' value in '$section' section in wikidot.ini file.");
+                throw new GlobalPropertiesException("You should set '$key' value in '$section' section in wikijump.ini file.");
             } else {
                 $value = $default;
             }
@@ -161,7 +135,7 @@ class GlobalProperties
 
     protected static function fromFile($file)
     {
-        if ($fp = @fopen(WIKIDOT_ROOT . '/conf/' . $file, 'r')) {
+        if ($fp = @fopen(WIKIJUMP_ROOT . '/conf/' . $file, 'r')) {
             $s = fread($fp, 4096);
             fclose($fp);
         } else {
@@ -171,53 +145,51 @@ class GlobalProperties
     }
 
     /**
-     * read wikidot.ini file
+     * read wikijump.ini file
      * set some default values
      * calculate other values
      */
     public static function init()
     {
 
-        self::$iniConfig = parse_ini_file(WIKIDOT_ROOT . "/conf/wikidot.ini", true);
+        self::$iniConfig = parse_ini_file(WIKIJUMP_ROOT . "/conf/wikijump.ini", true);
 
         // main settings
-        self::$WIKI_FARM                = self::fromIni("main", "wiki_farm", false);
-        self::$HTTP_PORT                = self::fromIni("main", "port", 8080);
+        self::$WIKI_FARM                = self::fromIni("main", "wiki_farm", true);
 
         if (self::$WIKI_FARM) {
-            self::$SERVICE_NAME         = self::fromIni("main", "service");     //no default
-            self::$LOGIN_DOMAIN         = self::fromIni("main", "login_domain", "www.");
-            self::$URL_DOMAIN           = self::fromIni("main", "domain", "singlewiki.wikidot.dev");
+            self::$SERVICE_NAME         = self::fromIni("main", "service", "Wikijump");
+            self::$URL_DOMAIN           = self::fromIni("main", "domain", "wikijump.com");
             self::$URL_HOST             = self::fromIni("main", "main_wiki", "www." . self::$URL_DOMAIN);
         } else {
-            self::$SERVICE_NAME         = "";
-            self::$URL_DOMAIN           = self::fromIni("main", "domain", "singlewiki.wikidot.dev");
+            self::$SERVICE_NAME         = self::fromIni("main", "service", "Wikijump");
+            self::$URL_DOMAIN           = self::fromIni("main", "domain", "wikijump.com");
             self::$URL_HOST             = self::fromIni("main", "main_wiki", "www." . self::$URL_DOMAIN);
         }
 
         // security settings
-        self::$SECRET                   = self::fromIni("security", "secret", self::fromFile('secret'));
+        self::$SECRET                   = self::fromIni("security", "secret", md5('secret'));
         self::$ALLOW_ANY_HTTP           = self::fromIni("security", "allow_http", false);
         self::$USE_SSL                  = self::fromIni("security", "ssl", false);
-        self::$HTTP_SCHEMA              = self::fromIni("security", "schema", "http");
+        self::$HTTP_SCHEMA              = self::fromIni("security", "schema", "https");
         self::$SECRET_DOMAIN_LOGIN      = self::fromIni("security", "secret_login", self::$SECRET . "_custom_domain_login");
-        self::$USE_UPLOAD_DOMAIN        = self::fromIni("security", "upload_separate_domain", false);
-        self::$URL_UPLOAD_DOMAIN        = self::fromIni("security", "upload_domain", "wd.files." . self::$URL_DOMAIN);
+        self::$USE_UPLOAD_DOMAIN        = self::fromIni("security", "upload_separate_domain", true);
+        self::$URL_UPLOAD_DOMAIN        = self::fromIni("security", "upload_domain", "files." . self::$URL_DOMAIN);
         self::$RESTRICT_HTML            = self::fromIni("security", "upload_restrict_html", true);
         self::$SECRET_MANAGE_SUPERADMIN = self::fromIni("security", "secret_manage_superadmin", md5(self::$SECRET . '_super_admin'));
         self::$SECRET_LOGIN_SEED        = self::fromIni("security", "secret_login_seed", md5(self::$SECRET . '_login'));
 
         // database settings
-        self::$DATABASE_USER            = self::fromIni("db", "user");            // no default!
-        self::$DATABASE_PASSWORD        = self::fromIni("db", "password");        // no default!
-        self::$DATABASE_NAME            = self::fromIni("db", "database");        // no default!
+        self::$DATABASE_USER            = self::fromIni("db", "user", "postgres");            // no default!
+        self::$DATABASE_PASSWORD        = self::fromIni("db", "password", "postgres");        // no default!
+        self::$DATABASE_NAME            = self::fromIni("db", "database", "postgres");        // no default!
         self::$DATABASE_SERVER          = self::fromIni("db", "host", "127.0.0.1");
         self::$DATABASE_PORT            = self::fromIni("db", "port", "5432");
 
         // search settings
-        self::$SEARCH_LUCENE_INDEX      = self::fromIni("search", "lucene_index", WIKIDOT_ROOT . "/tmp/lucene_index");
-        self::$SEARCH_LUCENE_QUEUE      = self::fromIni("search", "lucene_queue", WIKIDOT_ROOT . "/tmp/lucene_queue");
-        self::$SEARCH_LUCENE_LOCK       = self::fromIni("search", "lucene_lock", WIKIDOT_ROOT . "/tmp/lucene_lock");
+        self::$SEARCH_LUCENE_INDEX      = self::fromIni("search", "lucene_index", WIKIJUMP_ROOT . "/tmp/lucene_index");
+        self::$SEARCH_LUCENE_QUEUE      = self::fromIni("search", "lucene_queue", WIKIJUMP_ROOT . "/tmp/lucene_queue");
+        self::$SEARCH_LUCENE_LOCK       = self::fromIni("search", "lucene_lock", WIKIJUMP_ROOT . "/tmp/lucene_lock");
         self::$SEARCH_HIGHLIGHT         = self::fromIni("search", "highlight", false);
         self::$SEARCH_USE_JAVA          = self::fromIni("search", "use_java", false);
 
@@ -226,25 +198,25 @@ class GlobalProperties
         self::$DEFAULT_SMTP_SECURE      = self::fromIni("mail", "ssl", false) ? "ssl" : "";
         self::$DEFAULT_SMTP_PORT        = self::fromIni("mail", "port", (self::$DEFAULT_SMTP_SECURE == "ssl") ? 465 : 25);
         self::$DEFAULT_SMTP_USER        = self::fromIni("mail", "user", "admin");
-        self::$DEFAULT_SMTP_PASSWORD    = self::fromIni("mail", "password", "");
+        self::$DEFAULT_SMTP_PASSWORD    = self::fromIni("mail", "password", "password");
         self::$DEFAULT_SMTP_AUTH        = self::fromIni("mail", "auth", false);
-        self::$DEFAULT_SMTP_HOSTNAME    = self::fromIni("mail", "hostname", self::$DEFAULT_SMTP_HOST);
-        self::$DEFAULT_SMTP_FROM_EMAIL  = self::fromIni("mail", "from_mail", (strstr(self::$DEFAULT_SMTP_USER, "@")) ? self::$DEFAULT_SMTP_USER : self::$DEFAULT_SMTP_USER . "@" . self::$DEFAULT_SMTP_HOSTNAME);
-        self::$DEFAULT_SMTP_FROM_NAME   = self::fromIni("mail", "from_name", self::$SERVICE_NAME . " Mailer");
-        self::$DEFAULT_SMTP_REPLY_TO    = self::fromIni("mail", "reply_to", "no-reply@" . self::$DEFAULT_SMTP_HOSTNAME);
+        self::$DEFAULT_SMTP_HOSTNAME    = self::fromIni("mail", "hostname", "mail" . self::$URL_DOMAIN);
+        self::$DEFAULT_SMTP_FROM_EMAIL  = self::fromIni("mail", "from_mail", "no-reply@" . self::$DEFAULT_SMTP_HOSTNAME);
+        self::$DEFAULT_SMTP_FROM_NAME   = self::fromIni("mail", "from_name", self::$SERVICE_NAME);
+        self::$DEFAULT_SMTP_REPLY_TO    = self::fromIni("mail", "reply_to", self::$DEFAULT_SMTP_FROM_EMAIL);
         self::$DEFAULT_SMTP_SENDER      = self::fromIni("mail", "sender", self::$DEFAULT_SMTP_FROM_EMAIL);
-        self::$SUPPORT_EMAIL            = self::fromIni("mail", "support", self::$DEFAULT_SMTP_FROM_EMAIL);
+        self::$SUPPORT_EMAIL            = self::fromIni("mail", "support", "support@" . self::$DEFAULT_SMTP_HOSTNAME);
 
         // memcache settings
-        self::$USE_MEMCACHE             = self::fromIni("memcached", "enable", false);
+        self::$USE_MEMCACHE             = self::fromIni("memcached", "enable", true);
         self::$MEMCACHE_HOST            = self::fromIni("memcached", "host", "127.0.0.1");
         self::$MEMCACHE_PORT            = self::fromIni("memcached", "port", 11211);
 
         // session settings
         self::$SESSION_TIMEOUT          = self::fromIni("session", "timeout", 3600);
-        self::$SESSION_COOKIE_NAME      = self::fromIni("session", "cookie_name", "WIKIDOT_SESSION_ID");
+        self::$SESSION_COOKIE_NAME      = self::fromIni("session", "cookie_name", "WIKIJUMP_SESSION_ID");
         self::$SESSION_COOKIE_NAME_SSL  = self::fromIni("session", "cookie_name_ssl", self::$SESSION_COOKIE_NAME."_SECURE");
-        self::$SESSION_COOKIE_SECURE    = self::fromIni("session", "cookie_ssl", false);
+        self::$SESSION_COOKIE_SECURE    = self::fromIni("session", "cookie_ssl", true);
         self::$SESSION_COOKIE_NAME_IE   = self::fromIni("session", "ie_cookie_name", self::$SESSION_COOKIE_NAME . "_IE");
 
         // ui settings
@@ -252,14 +224,14 @@ class GlobalProperties
         self::$DEFAULT_LANGUAGE         = self::fromIni("ui", "language", "en");
 
         // log settings
-        self::$LOGGER_LEVEL             = self::fromIni("log", "level", "fatal");
-        self::$LOGGER_FILE              = self::fromIni("log", "file", "wikidot.log"); // TODO: use this setting
+        self::$LOGGER_LEVEL             = self::fromIni("log", "level", "error");
+        self::$LOGGER_FILE              = self::fromIni("log", "file", "wikijump.log"); // TODO: use this setting
 
         // other settings
         self::$CACHE_FILES_FOR          = self::fromIni("misc", "cache_files_for", 0);
-        self::$URL_DOCS                 = self::fromIni("misc", "doc_url", "http://www.wikidot.org/doc");
+        self::$URL_DOCS                 = self::fromIni("misc", "doc_url", self::$HTTP_SCHEMA. "://" . self::$URL_HOST . "/doc");
         self::$IP_HOST                  = self::fromIni("misc", "ip", "127.0.0.1");
-        self::$USE_CUSTOM_DOMAINS       = self::fromIni("misc", "custom_domains", false);
+        self::$USE_CUSTOM_DOMAINS       = self::fromIni("misc", "custom_domains", true);
         self::$MODULES_JS_PATH          = self::fromIni("misc", "modules_js_path", "web/files--common/modules/js");
         self::$MODULES_JS_URL           = self::fromIni("misc", "modules_js_url", "/common--modules/js");
         self::$MODULES_CSS_PATH         = self::fromIni("misc", "modules_css_path", "web/files--common/modules/css");

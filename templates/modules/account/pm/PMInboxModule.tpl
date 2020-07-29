@@ -28,7 +28,7 @@
 			<td class="subject">
 				<a href="javascript:;"
 				{if $message->getFlagNew()} style="font-weight: bold"{/if}
-				onclick="WIKIDOT.modules.AccountMessagesModule.listeners.viewInboxMessage({$message->getMessageId()})">{$message->getSubject()|escape}</a>
+				onclick="Wikijump.modules.AccountMessagesModule.listeners.viewInboxMessage({$message->getMessageId()})">{$message->getSubject()|escape}</a>
 			</td>
 			<td>
 				{printuser user=$message->getFromUser() image=true}
@@ -46,10 +46,10 @@
 	{if $messages}
 		<tr>
 			<td colspan="4"  style="padding: 1em 2em 0 0; text-align: right;">
-				<a href="javascript:;" onclick="WIKIDOT.modules.PMInboxModule.listeners.removeSelected(event)">{t}remove selected{/t}</a>
+				<a href="javascript:;" onclick="Wikijump.modules.PMInboxModule.listeners.removeSelected(event)">{t}remove selected{/t}</a>
 			</td>
 			<td  style="padding-top: 1em">
-				[<a href="javascript:;" onclick="WIKIDOT.modules.PMInboxModule.listeners.selectAll(event)">{t}select all{/t}</a>]
+				[<a href="javascript:;" onclick="Wikijump.modules.PMInboxModule.listeners.selectAll(event)">{t}select all{/t}</a>]
 			</td>
 		</tr>
 	{/if}

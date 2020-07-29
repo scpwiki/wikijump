@@ -1,13 +1,4 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
+
 
 // ok, make some things global here:
 
@@ -35,11 +26,11 @@ var deletedCategories = new Array();
 
 var defaultNestingLevel;
 
-WIKIDOT.modules.ManageSiteForumLayoutModule = {};
+Wikijump.modules.ManageSiteForumLayoutModule = {};
 
-WIKIDOT.modules.ManageSiteForumLayoutModule.vars = {};
+Wikijump.modules.ManageSiteForumLayoutModule.vars = {};
 
-WIKIDOT.modules.ManageSiteForumLayoutModule.listeners = {
+Wikijump.modules.ManageSiteForumLayoutModule.listeners = {
 	newGroup: function(e){
 		// show new group form
 		var el = $("new-group-window");
@@ -92,7 +83,7 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.listeners = {
 			}else{
 				groups[gIndex] = group;
 			}
-			WIKIDOT.modules.ManageSiteForumLayoutModule.utils.refreshDisplay();
+			Wikijump.modules.ManageSiteForumLayoutModule.utils.refreshDisplay();
 			OZONE.dialog.cleanAll();
 		}
 
@@ -100,12 +91,12 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.listeners = {
 
 	hideGroup: function(groupIndex){
 		groups[groupIndex]['visible']=false;
-		WIKIDOT.modules.ManageSiteForumLayoutModule.utils.refreshDisplay();
+		Wikijump.modules.ManageSiteForumLayoutModule.utils.refreshDisplay();
 	},
 
 	showGroup: function(groupIndex){
 		groups[groupIndex]['visible']=true;
-		WIKIDOT.modules.ManageSiteForumLayoutModule.utils.refreshDisplay();
+		Wikijump.modules.ManageSiteForumLayoutModule.utils.refreshDisplay();
 	},
 
 	deleteGroup: function(groupIndex){
@@ -118,7 +109,7 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.listeners = {
 			deletedGroups.push(groups[groupIndex]);
 			groups.splice(groupIndex,1);
 			categories.splice(groupIndex,1);
-			WIKIDOT.modules.ManageSiteForumLayoutModule.utils.refreshDisplay();
+			Wikijump.modules.ManageSiteForumLayoutModule.utils.refreshDisplay();
 		}
 	},
 
@@ -134,7 +125,7 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.listeners = {
 				deletedCategories.push(category['category_id']);
 			}
 			categories[groupIndex].splice(categoryIndex,1);
-			WIKIDOT.modules.ManageSiteForumLayoutModule.utils.refreshDisplay();
+			Wikijump.modules.ManageSiteForumLayoutModule.utils.refreshDisplay();
 		}
 	},
 
@@ -197,7 +188,7 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.listeners = {
 			if(categoryIndex == "" || categoryIndex == null){
 				categories[groupIndex].push(category);
 			}
-			WIKIDOT.modules.ManageSiteForumLayoutModule.utils.refreshDisplay();
+			Wikijump.modules.ManageSiteForumLayoutModule.utils.refreshDisplay();
 			OZONE.dialog.cleanAll();
 		}
 
@@ -212,7 +203,7 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.listeners = {
 			tmp1 = categories[groupIndex-1];
 			categories[groupIndex-1] = categories[groupIndex];
 			categories[groupIndex] = tmp1;
-			WIKIDOT.modules.ManageSiteForumLayoutModule.utils.refreshDisplay();
+			Wikijump.modules.ManageSiteForumLayoutModule.utils.refreshDisplay();
 		}
 
 	},
@@ -225,7 +216,7 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.listeners = {
 			tmp1 = categories[groupIndex+1];
 			categories[groupIndex+1] = categories[groupIndex];
 			categories[groupIndex] = tmp1;
-			WIKIDOT.modules.ManageSiteForumLayoutModule.utils.refreshDisplay();
+			Wikijump.modules.ManageSiteForumLayoutModule.utils.refreshDisplay();
 		}
 
 	},
@@ -245,7 +236,7 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.listeners = {
 				categories[groupIndex-1].push(cat);
 			}
 		}
-		WIKIDOT.modules.ManageSiteForumLayoutModule.utils.refreshDisplay();
+		Wikijump.modules.ManageSiteForumLayoutModule.utils.refreshDisplay();
 	},
 	moveCategoryDown: function(groupIndex, categoryIndex){
 		// move within one group or promote to another group...
@@ -263,11 +254,11 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.listeners = {
 				categories[groupIndex+1].splice(0,0,cat);
 			}
 		}
-		WIKIDOT.modules.ManageSiteForumLayoutModule.utils.refreshDisplay();
+		Wikijump.modules.ManageSiteForumLayoutModule.utils.refreshDisplay();
 	},
 	cancel: function(e){
-		WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-welcome');
-//		OZONE.ajax.requestModule("managesite/ManageSiteModule", null, WIKIDOT.modules.ManageSiteForumLayoutModule.callbacks.cancel)
+		Wikijump.modules.ManagerSiteModule.utils.loadModule('sm-welcome');
+//		OZONE.ajax.requestModule("managesite/ManageSiteModule", null, Wikijump.modules.ManageSiteForumLayoutModule.callbacks.cancel)
 	},
 	save: function(e){
 		var p = new Object();
@@ -277,7 +268,7 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.listeners = {
 		p['categories'] = JSON.stringify(categories);
 		p['deleted_groups'] = JSON.stringify(deletedGroups);
 		p['deleted_categories'] = JSON.stringify(deletedCategories);
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.ManageSiteForumLayoutModule.callbacks.save);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.ManageSiteForumLayoutModule.callbacks.save);
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Saving forum structure...";
 		w.show();
@@ -285,29 +276,29 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.listeners = {
 
 }
 
-WIKIDOT.modules.ManageSiteForumLayoutModule.callbacks = {
+Wikijump.modules.ManageSiteForumLayoutModule.callbacks = {
 	cancel: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		OZONE.utils.setInnerHTMLContent("site-manager", r.body);
 	},
 	save: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		var w = new OZONE.dialogs.SuccessBox();
 		w.content = "Structure saved.";
 		w.show();
-		OZONE.ajax.requestModule("managesite/ManageSiteGetForumLayoutModule",null,WIKIDOT.modules.ManageSiteForumLayoutModule.callbacks.getLayout);
+		OZONE.ajax.requestModule("managesite/ManageSiteGetForumLayoutModule",null,Wikijump.modules.ManageSiteForumLayoutModule.callbacks.getLayout);
 	},
 
 	getLayout: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 		groups = r.groups;
 		categories = r.categories;
 		defaultNestingLevel = r.defaultNesting;
-		WIKIDOT.modules.ManageSiteForumLayoutModule.utils.refreshDisplay();
+		Wikijump.modules.ManageSiteForumLayoutModule.utils.refreshDisplay();
 	}
 }
 
-WIKIDOT.modules.ManageSiteForumLayoutModule.utils = {
+Wikijump.modules.ManageSiteForumLayoutModule.utils = {
 	refreshDisplay: function(){
 		var div = document.getElementById("layout-show-area");
 		var inner = "";
@@ -322,17 +313,17 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.utils = {
 			inner +='</div>' +
 					'<div class="sm-fgroup-description">'+OZONE.utils.escapeHtml(group['description'])+'</div>' +
 					'<div class="sm-fgroup-options">' +
-						'<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteForumLayoutModule.listeners.editGroup('+i+')">edit</a> |';
+						'<a href="javascript:;" onclick="Wikijump.modules.ManageSiteForumLayoutModule.listeners.editGroup('+i+')">edit</a> |';
 			if(!group['visible']){
-				inner += '<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteForumLayoutModule.listeners.showGroup('+i+')">show</a> | ';
+				inner += '<a href="javascript:;" onclick="Wikijump.modules.ManageSiteForumLayoutModule.listeners.showGroup('+i+')">show</a> | ';
 			} else {
-				inner += '<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteForumLayoutModule.listeners.hideGroup('+i+')">hide</a> | ';
+				inner += '<a href="javascript:;" onclick="Wikijump.modules.ManageSiteForumLayoutModule.listeners.hideGroup('+i+')">hide</a> | ';
 			}
-			inner += '<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteForumLayoutModule.listeners.deleteGroup('+i+')">delete</a> |';
-			inner +='<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteForumLayoutModule.listeners.addCategory('+i+')">add category</a> | ' +
+			inner += '<a href="javascript:;" onclick="Wikijump.modules.ManageSiteForumLayoutModule.listeners.deleteGroup('+i+')">delete</a> |';
+			inner +='<a href="javascript:;" onclick="Wikijump.modules.ManageSiteForumLayoutModule.listeners.addCategory('+i+')">add category</a> | ' +
 
-						'<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteForumLayoutModule.listeners.moveGroupUp('+i+')">move up</a> | ' +
-						'<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteForumLayoutModule.listeners.moveGroupDown('+i+')">move down</a></div>';
+						'<a href="javascript:;" onclick="Wikijump.modules.ManageSiteForumLayoutModule.listeners.moveGroupUp('+i+')">move up</a> | ' +
+						'<a href="javascript:;" onclick="Wikijump.modules.ManageSiteForumLayoutModule.listeners.moveGroupDown('+i+')">move down</a></div>';
 
 			// now add all categories...
 			var cats = categories[i];
@@ -355,10 +346,10 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.utils = {
 				inner += "<br/>";
 				inner +=	'</div>' +
 						'<div class="sm-fcat-options">' +
-						'<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteForumLayoutModule.listeners.editCategory('+i+','+j+')">edit</a> | ' +
-						'<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteForumLayoutModule.listeners.deleteCategory('+i+','+j+')">delete</a> | ' +
-						'<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteForumLayoutModule.listeners.moveCategoryUp('+i+','+j+')">move up</a> | ' +
-						'<a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteForumLayoutModule.listeners.moveCategoryDown('+i+','+j+')">move down</a></div>' +
+						'<a href="javascript:;" onclick="Wikijump.modules.ManageSiteForumLayoutModule.listeners.editCategory('+i+','+j+')">edit</a> | ' +
+						'<a href="javascript:;" onclick="Wikijump.modules.ManageSiteForumLayoutModule.listeners.deleteCategory('+i+','+j+')">delete</a> | ' +
+						'<a href="javascript:;" onclick="Wikijump.modules.ManageSiteForumLayoutModule.listeners.moveCategoryUp('+i+','+j+')">move up</a> | ' +
+						'<a href="javascript:;" onclick="Wikijump.modules.ManageSiteForumLayoutModule.listeners.moveCategoryDown('+i+','+j+')">move down</a></div>' +
 						'</div>';
 			}
 			inner+='</div>'; //close sm-fgroup div
@@ -367,13 +358,13 @@ WIKIDOT.modules.ManageSiteForumLayoutModule.utils = {
 	}
 }
 
-WIKIDOT.modules.ManageSiteForumLayoutModule.init = function(){
-	YAHOO.util.Event.addListener("new-group-b", "click", WIKIDOT.modules.ManageSiteForumLayoutModule.listeners.newGroup);
+Wikijump.modules.ManageSiteForumLayoutModule.init = function(){
+	YAHOO.util.Event.addListener("new-group-b", "click", Wikijump.modules.ManageSiteForumLayoutModule.listeners.newGroup);
 
 	// get layout:
 
-	OZONE.ajax.requestModule("managesite/ManageSiteGetForumLayoutModule",null,WIKIDOT.modules.ManageSiteForumLayoutModule.callbacks.getLayout);
+	OZONE.ajax.requestModule("managesite/ManageSiteGetForumLayoutModule",null,Wikijump.modules.ManageSiteForumLayoutModule.callbacks.getLayout);
 
 }
 
-WIKIDOT.modules.ManageSiteForumLayoutModule.init();
+Wikijump.modules.ManageSiteForumLayoutModule.init();

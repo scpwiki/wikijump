@@ -1,5 +1,5 @@
 <div class="new-wiki-widget-box">
-	<form  action="javascript:;" method="get" onsubmit="WIKIDOT.modules.NewWikiWidgetModule.listeners.submit(event)">
+	<form  action="javascript:;" method="get" onsubmit="Wikijump.modules.NewWikiWidgetModule.listeners.submit(event)">
 		<table>
 			<tr>
 				<td>
@@ -9,7 +9,7 @@
 					.{$URL_DOMAIN}
 				</td>
 				<td>
-					<a href="javascript:;" onclick="WIKIDOT.modules.NewWikiWidgetModule.listeners.submit(event)">get it now!</a>
+					<a href="javascript:;" onclick="Wikijump.modules.NewWikiWidgetModule.listeners.submit(event)">get it now!</a>
 				</td>
 			</tr>
 		</table>

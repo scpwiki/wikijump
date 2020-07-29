@@ -1,17 +1,8 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.UserChangesModule = {};
 
-WIKIDOT.modules.UserChangesModule.listeners = {
+Wikijump.modules.UserChangesModule = {};
+
+Wikijump.modules.UserChangesModule.listeners = {
 	updateList: function(pageNo){
 		var p = new Object();
 		if(pageNo != null){
@@ -35,15 +26,15 @@ WIKIDOT.modules.UserChangesModule.listeners = {
 
 		p.options = JSON.stringify(o);
 
-		//WIKIDOT.modules.PageHistoryModule.vars.params = p; // for pagination
+		//Wikijump.modules.PageHistoryModule.vars.params = p; // for pagination
 
-		OZONE.ajax.requestModule("userinfo/UserChangesListModule", p, WIKIDOT.modules.UserChangesModule.callbacks.updateList);
+		OZONE.ajax.requestModule("userinfo/UserChangesListModule", p, Wikijump.modules.UserChangesModule.callbacks.updateList);
 	}
 }
 
-WIKIDOT.modules.UserChangesModule.callbacks = {
+Wikijump.modules.UserChangesModule.callbacks = {
 	updateList: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		$("site-changes-list").innerHTML = r.body;
 		OZONE.utils.formatDates("site-changes-list");
@@ -53,7 +44,7 @@ WIKIDOT.modules.UserChangesModule.callbacks = {
 
 }
 
-WIKIDOT.modules.UserChangesModule.init = function(){
+Wikijump.modules.UserChangesModule.init = function(){
 	OZONE.dom.onDomReady(function(){
 		OZONE.utils.formatDates("site-changes-list");
 		OZONE.dialog.hovertip.makeTip($("site-changes-list").getElementsByTagName('span'),
@@ -61,4 +52,4 @@ WIKIDOT.modules.UserChangesModule.init = function(){
 	}, "dummy-ondomready-block");
 }
 
-WIKIDOT.modules.UserChangesModule.init();
+Wikijump.modules.UserChangesModule.init();

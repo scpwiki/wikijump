@@ -1,26 +1,17 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.ManagerSiteModule = {};
 
-WIKIDOT.modules.ManagerSiteModule.vars = {
+Wikijump.modules.ManagerSiteModule = {};
+
+Wikijump.modules.ManagerSiteModule.vars = {
 	modulesMapping: new Object(),
 	currentId: null
 
 }
 
-WIKIDOT.modules.ManagerSiteModule.listeners = {
+Wikijump.modules.ManagerSiteModule.listeners = {
 	tabClick: function(e){
-		moduleName = WIKIDOT.modules.ManagerSiteModule.vars.modulesMapping[this.id];
-		OZONE.ajax.requestModule(moduleName, null, WIKIDOT.modules.ManagerSiteModule.callbacks.tabClick);
+		moduleName = Wikijump.modules.ManagerSiteModule.vars.modulesMapping[this.id];
+		OZONE.ajax.requestModule(moduleName, null, Wikijump.modules.ManagerSiteModule.callbacks.tabClick);
 	},
 	clickMenu: function(e){
 		var target = YAHOO.util.Event.getTarget(e);
@@ -29,7 +20,7 @@ WIKIDOT.modules.ManagerSiteModule.listeners = {
 		var list = target.getElementsByTagName("ul").item(0);
 		if(!list){
 			// means this is the link somewhere... at least should be.
-			WIKIDOT.modules.ManagerSiteModule.utils.loadModule(id);
+			Wikijump.modules.ManagerSiteModule.utils.loadModule(id);
 		} else{
 			if(target.tagName.toLowerCase() != 'li') {return;}
 			// toggle "selected" class
@@ -50,23 +41,23 @@ WIKIDOT.modules.ManagerSiteModule.listeners = {
 
 }
 
-WIKIDOT.modules.ManagerSiteModule.callbacks = {
+Wikijump.modules.ManagerSiteModule.callbacks = {
 	menuClick: function(r){
-		if(!WIKIDOT.utils.handleError(r)) {return;}
+		if(!Wikijump.utils.handleError(r)) {return;}
 
 		OZONE.utils.setInnerHTMLContent("sm-action-area", r.body);
 		OZONE.utils.formatDates("sm-action-area");
 		if(r.categories != null){
-			WIKIDOT.modules.ManagerSiteModule.vars.categories = r.categories;
+			Wikijump.modules.ManagerSiteModule.vars.categories = r.categories;
 		}
 
 	}
 
 }
 
-WIKIDOT.modules.ManagerSiteModule.utils = {
+Wikijump.modules.ManagerSiteModule.utils = {
 	getCategoryById: function(categoryId){
-		var categories = WIKIDOT.modules.ManagerSiteModule.vars.categories;
+		var categories = Wikijump.modules.ManagerSiteModule.vars.categories;
 		for(i=0; i<categories.length; i++){
 			if(categories[i]['category_id'] == categoryId){
 				return categories[i];
@@ -74,7 +65,7 @@ WIKIDOT.modules.ManagerSiteModule.utils = {
 		}
 	},
 	getCategoryByName: function(name){
-		var categories = WIKIDOT.modules.ManagerSiteModule.vars.categories;
+		var categories = Wikijump.modules.ManagerSiteModule.vars.categories;
 		for(i=0; i<categories.length; i++){
 			if(categories[i]['name'] == name){
 				return categories[i];
@@ -83,15 +74,15 @@ WIKIDOT.modules.ManagerSiteModule.utils = {
 	},
 
 	loadModule: function(id, options){
-		var mm = WIKIDOT.modules.ManagerSiteModule.vars.modulesMapping;
+		var mm = Wikijump.modules.ManagerSiteModule.vars.modulesMapping;
 		var module = mm[id];
 		if(module){
 			// toggle current
-			var currentId = WIKIDOT.modules.ManagerSiteModule.vars.currentId;
+			var currentId = Wikijump.modules.ManagerSiteModule.vars.currentId;
 			if(currentId) {YAHOO.util.Dom.removeClass(currentId, "active");}
-			WIKIDOT.modules.ManagerSiteModule.vars.currentId = id;
+			Wikijump.modules.ManagerSiteModule.vars.currentId = id;
 			YAHOO.util.Dom.addClass(id, "active");
-			OZONE.ajax.requestModule(module, options, WIKIDOT.modules.ManagerSiteModule.callbacks.menuClick,
+			OZONE.ajax.requestModule(module, options, Wikijump.modules.ManagerSiteModule.callbacks.menuClick,
 				null, {clearRequestQueue: true});
 
 			// make sure the parent is unfolded (if is a list)
@@ -112,7 +103,7 @@ WIKIDOT.modules.ManagerSiteModule.utils = {
 
 }
 
-WIKIDOT.modules.ManagerSiteModule.init = function(){
+Wikijump.modules.ManagerSiteModule.init = function(){
 	var tabIds = ["sm-general", "sm-appearance", "sm-license", "sm-permissions",
 	"sm-files", "sm-members", "sm-admins", "sm-admins-invite", "sm-navigation",
 	"sm-ma", "sm-members-list", "sm-members-invite", "sm-forum-settings", "sm-forum-layout",
@@ -161,9 +152,9 @@ WIKIDOT.modules.ManagerSiteModule.init = function(){
 	mm['sm-email-lists'] = "managesite/elists/ManageSiteEmailListsModule";
 	mm['sm-clonesite'] = "managesite/ManageSiteCloneModule";
 	// etc...
-	WIKIDOT.modules.ManagerSiteModule.vars.modulesMapping = mm;
+	Wikijump.modules.ManagerSiteModule.vars.modulesMapping = mm;
 
-	YAHOO.util.Event.addListener("site-manager-menu", "click", WIKIDOT.modules.ManagerSiteModule.listeners.clickMenu);
+	YAHOO.util.Event.addListener("site-manager-menu", "click", Wikijump.modules.ManagerSiteModule.listeners.clickMenu);
 
 	OZONE.dom.onDomReady(function(){
 		var startPage = "sm-welcome";
@@ -173,9 +164,9 @@ WIKIDOT.modules.ManagerSiteModule.init = function(){
 
 		// on DOM complete!!!
 
-		WIKIDOT.modules.ManagerSiteModule.utils.loadModule(startPage);
+		Wikijump.modules.ManagerSiteModule.utils.loadModule(startPage);
 	}, "dummy-ondomready-block");
 
 }
 
-WIKIDOT.modules.ManagerSiteModule.init();
+Wikijump.modules.ManagerSiteModule.init();

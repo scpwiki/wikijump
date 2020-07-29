@@ -1,29 +1,4 @@
 <?php
-/**
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- *
- * @category Wikidot
- * @package Wikidot
- * @version $Id$
- * @copyright Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
- */
-
-
 class CryptUtils
 {
     private static $keyFile = 'conf/ssl/key.pem';
@@ -43,7 +18,7 @@ class CryptUtils
 
     public static function rsaGenerateModulus()
     {
-        $keyFile = WIKIDOT_ROOT.'/'.self::$keyFile;
+        $keyFile = WIKIJUMP_ROOT.'/'.self::$keyFile;
         $keyFile = escapeshellarg($keyFile);
         $cmd = 'openssl rsa -in '.$keyFile.' -noout -modulus';
         $modulus =  exec($cmd);
@@ -53,7 +28,7 @@ class CryptUtils
 
     public static function rsaDecrypt($text)
     {
-        $keyFile = WIKIDOT_ROOT.'/'.self::$keyFile;
+        $keyFile = WIKIJUMP_ROOT.'/'.self::$keyFile;
         $keyFile = escapeshellarg($keyFile);
         $cmd = 'openssl base64 -d | openssl rsautl -inkey '.$keyFile.' -decrypt';
         $descriptorspec = array(
@@ -80,7 +55,7 @@ class CryptUtils
 
     public static function rsaEncrypt($text)
     {
-        $keyFile = WIKIDOT_ROOT.'/'.self::$publicFile;
+        $keyFile = WIKIJUMP_ROOT.'/'.self::$publicFile;
         $keyFile = escapeshellarg($keyFile);
         $cmd = 'openssl rsautl -pubin -inkey '.$keyFile.' -encrypt | openssl base64 -e';
         $descriptorspec = array(
@@ -107,7 +82,7 @@ class CryptUtils
 
     public static function modulus()
     {
-        $m = file_get_contents(WIKIDOT_ROOT.'/conf/ssl/modulus.pem');
+        $m = file_get_contents(WIKIJUMP_ROOT.'/conf/ssl/modulus.pem');
         return trim($m);
     }
 }

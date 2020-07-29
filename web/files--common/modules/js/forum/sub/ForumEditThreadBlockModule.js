@@ -1,33 +1,24 @@
-/*
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * Code licensed under the GNU Affero General Public
- * License version 3 or later.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- */
 
-WIKIDOT.modules.ForumEditThreadBlockModule = {}
 
-WIKIDOT.modules.ForumEditThreadBlockModule.listeners = {
+Wikijump.modules.ForumEditThreadBlockModule = {}
+
+Wikijump.modules.ForumEditThreadBlockModule.listeners = {
 	save: function(e){
 		var p = new Object();
-		p.threadId = WIKIDOT.forumThreadId;
+		p.threadId = Wikijump.forumThreadId;
 		if($("thread-block-checkbox").checked){
 			p.block = true;
 		}
 		p.action = 'ForumAction';
 		p.event = 'saveBlock';
-		OZONE.ajax.requestModule(null, p, WIKIDOT.modules.ForumEditThreadBlockModule.callbacks.save);
+		OZONE.ajax.requestModule(null, p, Wikijump.modules.ForumEditThreadBlockModule.callbacks.save);
 		var w = new OZONE.dialogs.WaitBox();
 		w.content = "Saving changes...";
 		w.show();
 	}
 }
 
-WIKIDOT.modules.ForumEditThreadBlockModule.callbacks = {
+Wikijump.modules.ForumEditThreadBlockModule.callbacks = {
 	save: function(r){
 		if(r.status != 'ok'){
 			var w = new OZONE.dialogs.ErrorDialog();	w.content = r.message; w.show();	return;

@@ -20,11 +20,11 @@
 	<p id="flag-page-options-flag" style="text-align: center; {if $flagged}display: none;{/if} ">
 		<span style="color: #4B4; font-size: 150%; border: 1px solid #000; padding: 3px; margin: 5px;">{t}this page is OK{/t}</span>
 		<a style="color: #CCC; font-size: 150%; border: 1px solid #DDD; padding: 3px; margin: 5px; text-decoration: none;" href="javascript:;"
-		onclick="WIKIDOT.modules.FlagPageModule.listeners.setFlag(event, true)">{t}this page is objectionable{/t}</a>
+		onclick="Wikijump.modules.FlagPageModule.listeners.setFlag(event, true)">{t}this page is objectionable{/t}</a>
 	</p>
 	<p id="flag-page-options-unflag" style="text-align: center;{if !$flagged}display: none;{/if}">
 		<a style="color: #CCC; font-size: 150%; border: 1px solid #DDD; padding: 3px; margin: 5px; text-decoration: none;" href="javascript:;"
-		onclick="WIKIDOT.modules.FlagPageModule.listeners.setFlag(event, false)">{t}this page is OK{/t}</a>
+		onclick="Wikijump.modules.FlagPageModule.listeners.setFlag(event, false)">{t}this page is OK{/t}</a>
 		<span style="color: #B44;font-size: 150%; border: 1px solid #000; padding: 3px; margin: 5px;">{t}this page is objectionable{/t}</span>
 	</p>
 

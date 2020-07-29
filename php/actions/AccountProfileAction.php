@@ -1,29 +1,4 @@
 <?php
-/**
- * Wikidot - free wiki collaboration software
- * Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * For more information about licensing visit:
- * http://www.wikidot.org/license
- *
- * @category Wikidot
- * @package Wikidot
- * @version $Id$
- * @copyright Copyright (c) 2008-2020, Wikidot Inc., SCP Wiki Technical Team
- * @license http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
- */
-
-
 use DB\ProfilePeer;
 use DB\OzoneUserPeer;
 use DB\SitePeer;
@@ -94,7 +69,7 @@ class AccountProfileAction extends SmartyAction
         }
 
         // new temporary files for 48 and 16 images
-        $dir = WIKIDOT_ROOT . '/web/files--common/tmp/avatars-upload';
+        $dir = WIKIJUMP_ROOT . '/web/files--common/tmp/avatars-upload';
 
         $im48fn = tempnam($dir, "av") . ".png";
         $im16fn = tempnam($dir, "av") . ".png";
@@ -132,11 +107,11 @@ class AccountProfileAction extends SmartyAction
         $im48 = $pl->getParameterValue("im48");
         $im16 = $pl->getParameterValue("im16");
 
-        $avatarDir = WIKIDOT_ROOT . '/web/files--common/images/avatars/';
+        $avatarDir = WIKIJUMP_ROOT . '/web/files--common/images/avatars/';
         $avatarDir .= '' . floor($userId / 1000) . '/' . $userId;
 
         mkdirfull($avatarDir);
-        $tmpDir = WIKIDOT_ROOT . '/web/files--common/tmp/avatars-upload';
+        $tmpDir = WIKIJUMP_ROOT . '/web/files--common/tmp/avatars-upload';
         rename($tmpDir . '/' . $im48, $avatarDir . '/a48.png');
         rename($tmpDir . '/' . $im16, $avatarDir . '/a16.png');
         unlink($tmpDir . '/' . str_replace('.png', '', $im48));
@@ -146,7 +121,7 @@ class AccountProfileAction extends SmartyAction
     public function deleteAvatarEvent($runData)
     {
         $userId = $runData->getUserId();
-        $avatarDir = WIKIDOT_ROOT . '/web/files--common/images/avatars/';
+        $avatarDir = WIKIJUMP_ROOT . '/web/files--common/images/avatars/';
         $avatarDir .= '' . floor($userId / 1000) . '/' . $userId;
         unlink($avatarDir . '/a48.png');
         unlink($avatarDir . '/a16.png');
@@ -167,7 +142,7 @@ class AccountProfileAction extends SmartyAction
             $runData->ajaxResponseAdd("status", "fetch_failed");
             return;
         }
-        $dir = WIKIDOT_ROOT . '/web/files--common/tmp/avatars-upload';
+        $dir = WIKIJUMP_ROOT . '/web/files--common/tmp/avatars-upload';
         $tmpname = tempnam($dir, "uriup");
 
         file_put_contents($tmpname, $fileContent);
@@ -312,7 +287,7 @@ class AccountProfileAction extends SmartyAction
         //handle forbidden names
         $unixName = WDStringUtils::toUnixName($name);
 
-        $forbiddenUnixNames = explode("\n", file_get_contents(WIKIDOT_ROOT . '/conf/forbidden_user_names.conf'));
+        $forbiddenUnixNames = explode("\n", file_get_contents(WIKIJUMP_ROOT . '/conf/forbidden_user_names.conf'));
         foreach ($forbiddenUnixNames as $f) {
             if (preg_match($f, $unixName) > 0) {
                 throw new ProcessException(_('For some reason this name is not allowed or is reserved for future use.'));

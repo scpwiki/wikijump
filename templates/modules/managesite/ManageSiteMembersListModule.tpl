@@ -12,7 +12,7 @@
 		<div id="mem-options-{$user->getUserId()}" style="display: none">
 
 			<a href="javascript:;" onclick="removeUser({$user->getUserId()}, '{$user->getNickName()}')">remove</a>
-			| <a href="javascript:;" onclick="WIKIDOT.modules.ManageSiteMembersListModule.listeners.removeAndBan({$user->getUserId()}, '{$user->getNickName()}')">remove &amp; ban</a>
+			| <a href="javascript:;" onclick="Wikijump.modules.ManageSiteMembersListModule.listeners.removeAndBan({$user->getUserId()}, '{$user->getNickName()}')">remove &amp; ban</a>
 			| <a href="javascript:;" onclick="toModerators({$user->getUserId()})">to moderators</a>
 			| <a href="javascript:;" onclick="toAdmins({$user->getUserId()}, '{$user->getNickName()}')">to admins</a>
 

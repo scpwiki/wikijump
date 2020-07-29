@@ -10,7 +10,7 @@
 </p>
 
 <p>
-	We highly discourage anyone from deleting a website at Wikidot especially if:
+	We highly discourage anyone from deleting a website at Wikijump especially if:
 </p>
 <ul>
 	<li>
@@ -26,7 +26,7 @@
 
 <p>
 	You might also consider hiding the site from public by making it
-	<a href="javascript:;" onclick="WIKIDOT.modules.ManagerSiteModule.utils.loadModule('sm-private')">private</a>;
+	<a href="javascript:;" onclick="Wikijump.modules.ManagerSiteModule.utils.loadModule('sm-private')">private</a>;
 </p>
 
 {if $allowed}
@@ -38,7 +38,7 @@
 		<form>
 			<div class="buttons">
 				<input type="button" value="I want to delete this site"
-				onclick="WIKIDOT.modules.ManagerSiteDeleteModule.listeners.deleteSite(event)"/>
+				onclick="Wikijump.modules.ManagerSiteDeleteModule.listeners.deleteSite(event)"/>
 			</div>
 		</form>
 	</div>
