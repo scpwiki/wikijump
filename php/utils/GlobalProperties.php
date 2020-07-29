@@ -180,9 +180,9 @@ class GlobalProperties
         self::$SECRET_LOGIN_SEED        = self::fromIni("security", "secret_login_seed", md5(self::$SECRET . '_login'));
 
         // database settings
-        self::$DATABASE_USER            = self::fromIni("db", "postgres");            // no default!
-        self::$DATABASE_PASSWORD        = self::fromIni("db", "postgres");        // no default!
-        self::$DATABASE_NAME            = self::fromIni("db", "postgres");        // no default!
+        self::$DATABASE_USER            = self::fromIni("db", "user", "postgres");            // no default!
+        self::$DATABASE_PASSWORD        = self::fromIni("db", "password", "postgres");        // no default!
+        self::$DATABASE_NAME            = self::fromIni("db", "database", "postgres");        // no default!
         self::$DATABASE_SERVER          = self::fromIni("db", "host", "127.0.0.1");
         self::$DATABASE_PORT            = self::fromIni("db", "port", "5432");
 
