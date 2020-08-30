@@ -28,7 +28,7 @@ pub struct ExtractedToken<'a> {
     pub span: Range<usize>,
 }
 
-#[derive(Logos, IntoStaticStr, Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Enum, Logos, IntoStaticStr, Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Token {
     //
     // Symbols

@@ -26,17 +26,22 @@
 //! The parser is not disambiguous because any string of tokens can be interpreted
 //! as raw text as a fallback, which is how Wikidot does it.
 
-use super::stack::Stack;
+use super::rule::{Rule, RuleResult};
 use super::token::{ExtractedToken, Token};
-use crate::tree::{ContainerType, Element};
+use enum_map::EnumMap;
 
-/// Main function which takes the current stack and upcoming tokens to attempt to match against it.
-pub fn consume<'r, 'a>(
+lazy_static! {
+    static ref PATTERN_MAP: EnumMap<Token, Vec<Rule<'static>>> = {
+        enum_map! {}
+    };
+}
+
+/// Main function that consumes tokens to produce a single element, then returns.
+pub fn consume<'a>(
     log: &slog::Logger,
-    stack: &'r mut Stack<'_, 'a>,
     extract: &ExtractedToken<'a>,
     next: &[ExtractedToken<'a>],
-) {
+) -> RuleResult<'a> {
     let ExtractedToken { token, slice, span } = extract;
 
     debug!(
@@ -44,58 +49,9 @@ pub fn consume<'r, 'a>(
         "Attempting to consume tokens in different look-aheads";
         "token" => token,
         "next-len" => next.len(),
-        "stack-len" => stack.len(),
     );
 
-    match token {
-        /* Plain text */
-        Token::Identifier | Token::Text | Token::Whitespace => {
-            stack.append(Element::Text(slice));
-        }
-        /* Formatting */
-        Token::Bold => stack.push(ContainerType::Bold),
-        Token::Italics => stack.push(ContainerType::Italics),
-        Token::Underline => stack.push(ContainerType::Underline),
-        Token::Superscript => stack.push(ContainerType::Superscript),
-        Token::Subscript => stack.push(ContainerType::Subscript),
-        /* Special formatting */
-        Token::Color => try_color(),
-        Token::LeftMonospace => stack.push(ContainerType::Monospace),
-        Token::RightMonospace => {
-            // idk, pop off monospace from the stack?
-            // TODO
-            todo!()
-        }
-        Token::Raw => try_raw(false),
-        Token::LeftRaw => try_raw(true),
-        Token::DoubleDash => try_strikethrough(),
-        /* Blocks */
-        Token::LeftTag => try_block(),
-        Token::LeftTagSpecial => try_special_block(),
-        /* Other (TODO) */
-        _ => todo!(),
-    }
+    // TODO match on token, get pattern attempts
 
-    todo!()
-}
-
-fn try_strikethrough() {
-    // looks for another Token::DoubleDash without spaces or whatever, otherwise just an em dash
-    todo!()
-}
-
-fn try_color() {
-    todo!()
-}
-
-fn try_raw(alternate: bool) {
-    todo!()
-}
-
-fn try_block() {
-    todo!()
-}
-
-fn try_special_block() {
     todo!()
 }

@@ -19,11 +19,12 @@
  */
 
 mod ahead;
+mod rule;
 mod stack;
 mod token;
 
 use self::ahead::consume;
-use self::stack::Stack;
+use self::rule::{Rule, RuleResult};
 use self::token::Token;
 use crate::tree::SyntaxTree;
 use slog::Logger;
@@ -33,19 +34,31 @@ pub fn parse<'a>(log: &Logger, text: &'a str) -> SyntaxTree<'a> {
 
     info!(log, "Running parser on text");
 
-    let extracted = &Token::extract_all(log, text);
-    let mut stack = Stack::new(log);
+    let tokens = Token::extract_all(log, text);
+    let mut tokens = tokens.as_slice();
+    let mut elements = Vec::new();
 
-    for (i, extract) in extracted.iter().enumerate() {
-        let next = &extracted[i + 1..];
+    while !tokens.is_empty() {
+        // Consume tokens to get next element
+        let RuleResult { offset, element } = {
+            let (extracted, next) = tokens.split_first().expect("Tokens list is empty");
 
-        consume(log, &mut stack, extract, next);
+            consume(log, extracted, next)
+        };
+
+        // We need to consume at least one token, otherwise this loops forever.
+        // Returning a 0 is definitely a bug.
+        assert_ne!(offset, 0, "Returned token offset was zero");
+
+        // Update state
+        tokens = &tokens[offset..];
+        elements.push(element);
     }
 
-    debug!(log, "Finished running parser, converting stack into AST");
+    debug!(log, "Finished running parser, returning gathered elements");
 
     // TODO
-    stack.into_syntax_tree()
+    SyntaxTree { elements }
 }
 
 #[test]
