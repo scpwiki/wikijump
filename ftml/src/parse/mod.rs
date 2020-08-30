@@ -18,12 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod ahead;
+mod consume;
 mod rule;
 mod stack;
 mod token;
 
-use self::ahead::consume;
+use self::consume::consume;
 use self::rule::{Rule, RuleResult};
 use self::token::Token;
 use crate::tree::SyntaxTree;

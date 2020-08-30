@@ -1,5 +1,5 @@
 /*
- * parse/rule.rs
+ * parse/rule/mod.rs
  *
  * ftml - Library to parse Wikidot code
  * Copyright (C) 2019-2020 Ammon Smith
