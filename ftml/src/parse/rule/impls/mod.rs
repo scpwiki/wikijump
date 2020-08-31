@@ -1,5 +1,5 @@
 /*
- * parse/rule/mod.rs
+ * parse/rule/impls/mod.rs
  *
  * ftml - Library to parse Wikidot code
  * Copyright (C) 2019-2020 Ammon Smith
@@ -18,10 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod impls;
-mod mapping;
-mod object;
-
-pub use self::impls::*;
-pub use self::mapping::{rules_for_token, RULE_MAP};
-pub use self::object::{Rule, RuleResult, TryConsumeFn};
+mod prelude {
+    pub use crate::parse::rule::{Rule, RuleResult, TryConsumeFn};
+    pub use crate::parse::token::ExtractedToken;
+}
