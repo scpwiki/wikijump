@@ -35,10 +35,12 @@ pub fn consume<'a>(
     extract: &ExtractedToken<'a>,
     next: &[ExtractedToken<'a>],
 ) -> RuleResult<'a> {
+    let ExtractedToken { token, .. } = extract;
+
     debug!(
         log,
         "Attempting to consume tokens in different look-aheads";
-        "token" => extract.token,
+        "token" => token,
         "next-len" => next.len(),
     );
 
@@ -47,7 +49,7 @@ pub fn consume<'a>(
             log,
             "Trying rule '{}' look-ahead",
             rule.name();
-            "token" => extract.token,
+            "token" => token,
             "rule" => rule,
         );
 
@@ -56,15 +58,13 @@ pub fn consume<'a>(
                 log,
                 "Rule '{}' matched, returning generated result",
                 rule.name();
-                "token" => extract.token,
+                "token" => token,
                 "rule" => rule,
             );
 
             return result;
         }
     }
-
-    // TODO match on token, get pattern attempts
 
     todo!()
 }
