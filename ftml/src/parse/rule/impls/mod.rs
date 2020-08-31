@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Private preludes for modules
 macro_rules! make_rule {
     ($name:expr, $try_consume:expr) => {
         Rule {
@@ -27,10 +28,13 @@ macro_rules! make_rule {
     };
 }
 
-mod text;
-
 mod prelude {
     pub use crate::parse::rule::{Rule, RuleResult, TryConsumeFn};
     pub use crate::parse::token::ExtractedToken;
     pub use crate::tree::Element;
 }
+
+// Implementations, re-exported
+mod text;
+
+pub use self::text::RULE_TEXT;

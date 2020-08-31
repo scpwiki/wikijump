@@ -77,7 +77,7 @@ lazy_static! {
             Token::Url => vec![],
 
             // Fallback
-            Token::Text => vec![],
+            Token::Text => vec![RULE_TEXT],
         }
     };
 }
