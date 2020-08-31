@@ -26,7 +26,7 @@
 //! The parser is not disambiguous because any string of tokens can be interpreted
 //! as raw text as a fallback, which is how Wikidot does it.
 
-use super::rule::{Rule, RuleResult};
+use super::rule::{rules_for_token, Rule, RuleResult};
 use super::token::{ExtractedToken, Token};
 
 /// Main function that consumes tokens to produce a single element, then returns.
@@ -35,14 +35,24 @@ pub fn consume<'a>(
     extract: &ExtractedToken<'a>,
     next: &[ExtractedToken<'a>],
 ) -> RuleResult<'a> {
-    let ExtractedToken { token, slice, span } = extract;
-
     debug!(
         log,
         "Attempting to consume tokens in different look-aheads";
-        "token" => token,
+        "token" => extract.token,
         "next-len" => next.len(),
     );
+
+    for rule in rules_for_token(extract) {
+        debug!(
+            log,
+            "Trying rule '{}' look-ahead",
+            rule.name();
+            "token" => extract.token,
+            "rule" => rule,
+        );
+
+        if let Some(result) = rule.try_consume(log, extract, next) {}
+    }
 
     // TODO match on token, get pattern attempts
 

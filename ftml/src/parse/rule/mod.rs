@@ -21,5 +21,5 @@
 mod mapping;
 mod object;
 
-pub use self::mapping::RULE_MAP;
+pub use self::mapping::{rules_for_token, RULE_MAP};
 pub use self::object::{Rule, RuleResult, TryConsumeFn};

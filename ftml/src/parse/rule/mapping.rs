@@ -19,7 +19,7 @@
  */
 
 use super::Rule;
-use crate::parse::token::Token;
+use crate::parse::token::{ExtractedToken, Token};
 use enum_map::EnumMap;
 
 lazy_static! {
@@ -80,4 +80,9 @@ lazy_static! {
             Token::Text => vec![],
         }
     };
+}
+
+#[inline]
+pub fn rules_for_token<'a>(extract: &'a ExtractedToken) -> &'a [Rule] {
+    &RULE_MAP[extract.token]
 }
