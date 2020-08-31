@@ -72,7 +72,7 @@ lazy_static! {
             Token::JustifyAlignClose => vec![],
 
             // Text components
-            Token::Identifier => vec![],
+            Token::Identifier => vec![RULE_TEXT],
             Token::Email => vec![],
             Token::Url => vec![],
 
