@@ -40,7 +40,7 @@ pub fn consume<'a>(
 
     debug!(
         log,
-        "Attempting to consume tokens in different look-aheads";
+        "Looking for valid rules";
         "token" => token,
         "next-len" => next.len(),
     );
