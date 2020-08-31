@@ -30,7 +30,6 @@ fn try_consume<'a>(
     trace!(log, "Checking if the horizontal rule ends with a newline");
 
     let mut offset = 0;
-
     for ExtractedToken { token, .. } in next {
         offset += 1;
 
