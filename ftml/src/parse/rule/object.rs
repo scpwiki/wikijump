@@ -30,8 +30,13 @@ pub struct Rule {
 
 impl Rule {
     #[inline]
+    pub fn name(self) -> &'static str {
+        self.name
+    }
+
+    #[inline]
     pub fn try_consume<'a>(
-        &self,
+        self,
         log: &slog::Logger,
         extract: &ExtractedToken<'a>,
         next: &[ExtractedToken<'a>],
@@ -48,6 +53,17 @@ impl Debug for Rule {
             .field("name", &self.name)
             .field("try_consume_fn", &"<fn pointer>")
             .finish()
+    }
+}
+
+impl slog::Value for Rule {
+    fn serialize(
+        &self,
+        _: &slog::Record,
+        key: slog::Key,
+        serializer: &mut dyn slog::Serializer,
+    ) -> slog::Result {
+        serializer.emit_str(key, self.name())
     }
 }
 
