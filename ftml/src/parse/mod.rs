@@ -41,7 +41,9 @@ pub fn parse<'a>(log: &Logger, text: &'a str) -> SyntaxTree<'a> {
     while !tokens.is_empty() {
         // Consume tokens to get next element
         let RuleResult { offset, element } = {
-            let (extracted, next) = tokens.split_first().expect("Tokens list is empty");
+            let (extracted, next) = tokens
+                .split_first() //
+                .expect("Tokens list is empty");
 
             consume(log, extracted, next)
         };
