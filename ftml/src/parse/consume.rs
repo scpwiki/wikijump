@@ -37,42 +37,25 @@ pub fn consume<'a>(
     next: &[ExtractedToken<'a>],
 ) -> RuleResult<'a> {
     let ExtractedToken { token, slice, .. } = extract;
-
-    debug!(
-        log,
-        "Looking for valid rules";
-        "token" => token,
+    let log = &log.new(slog_o!(
+        "token" => str!(token.name()),
+        "slice" => str!(slice),
         "next-len" => next.len(),
-    );
+    ));
+
+    debug!(log, "Looking for valid rules");
 
     for rule in rules_for_token(extract) {
-        debug!(
-            log,
-            "Trying rule '{}' look-ahead",
-            rule.name();
-            "token" => token,
-            "rule" => rule,
-        );
+        debug!(log, "Trying rule look ahead"; "rule" => rule);
 
         if let Some(result) = rule.try_consume(log, extract, next) {
-            debug!(
-                log,
-                "Rule '{}' matched, returning generated result",
-                rule.name();
-                "token" => token,
-                "rule" => rule,
-            );
+            debug!(log, "Rule matched, returning generated result"; "rule" => rule);
 
             return result;
         }
     }
 
-    debug!(
-        log,
-        "All rules exhausted, using generic text fallback";
-        "token" => token,
-        "slice" => slice,
-    );
+    debug!(log, "All rules exhausted, using generic text fallback");
 
     // Convert this token to text
     RuleResult {
