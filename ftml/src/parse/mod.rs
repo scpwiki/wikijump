@@ -48,9 +48,13 @@ pub fn parse<'a>(log: &Logger, text: &'a str) -> SyntaxTree<'a> {
             consume(log, extracted, next)
         };
 
-        // We need to consume at least one token, otherwise this loops forever.
-        // Returning a 0 is definitely a bug.
-        assert_ne!(offset, 0, "Returned token offset was zero");
+        assert!(tokens.len() >= offset, "Attempted to consume more tokens than exist");
+
+        if tokens.len() > 1 {
+            // We need to consume at least one token, otherwise this loops forever.
+            // Returning a 0 is a bug if this isn't the end of input.
+            assert_ne!(offset, 0, "Returned token offset was zero");
+        }
 
         // Update state
         tokens = &tokens[offset..];
