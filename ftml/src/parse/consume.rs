@@ -28,6 +28,7 @@
 
 use super::rule::{rules_for_token, RuleResult};
 use super::token::ExtractedToken;
+use crate::tree::Element;
 
 /// Main function that consumes tokens to produce a single element, then returns.
 pub fn consume<'a>(
@@ -35,7 +36,7 @@ pub fn consume<'a>(
     extract: &ExtractedToken<'a>,
     next: &[ExtractedToken<'a>],
 ) -> RuleResult<'a> {
-    let ExtractedToken { token, .. } = extract;
+    let ExtractedToken { token, slice, .. } = extract;
 
     debug!(
         log,
@@ -66,5 +67,15 @@ pub fn consume<'a>(
         }
     }
 
-    todo!()
+    debug!(
+        log,
+        "All rules exhausted, using generic text fallback";
+        "token" => token,
+        "slice" => slice,
+    );
+
+    RuleResult {
+        offset: 1,
+        element: Element::Text(slice),
+    }
 }
