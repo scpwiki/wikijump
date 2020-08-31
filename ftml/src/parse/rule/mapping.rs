@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::Rule;
+use super::{impls::*, Rule};
 use crate::parse::token::{ExtractedToken, Token};
 use enum_map::EnumMap;
 
