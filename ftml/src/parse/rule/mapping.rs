@@ -74,7 +74,7 @@ lazy_static! {
             // Text components
             Token::Identifier => vec![RULE_TEXT],
             Token::Email => vec![RULE_EMAIL],
-            Token::Url => vec![],
+            Token::Url => vec![RULE_URL],
 
             // Fallback
             Token::Text => vec![RULE_TEXT],
