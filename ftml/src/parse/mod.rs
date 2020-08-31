@@ -24,7 +24,7 @@ mod stack;
 mod token;
 
 use self::consume::consume;
-use self::rule::{Rule, RuleResult};
+use self::rule::RuleResult;
 use self::token::Token;
 use crate::tree::SyntaxTree;
 use slog::Logger;
