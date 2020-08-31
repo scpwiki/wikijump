@@ -18,9 +18,71 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::parse::token::ExtractedToken;
+use crate::tree::Element;
+use std::fmt::{self, Debug};
+
 mod impls;
 mod mapping;
-mod object;
 
 pub use self::mapping::{rules_for_token, RULE_MAP};
-pub use self::object::{Rule, RuleResult, TryConsumeFn};
+
+/// Defines a rule that can possibly match tokens and return an `Element`.
+#[derive(Copy, Clone)]
+pub struct Rule {
+    name: &'static str,
+    try_consume_fn: TryConsumeFn,
+}
+
+impl Rule {
+    #[inline]
+    pub fn name(self) -> &'static str {
+        self.name
+    }
+
+    #[inline]
+    pub fn try_consume<'a>(
+        self,
+        log: &slog::Logger,
+        extract: &ExtractedToken<'a>,
+        next: &[ExtractedToken<'a>],
+    ) -> Option<RuleResult<'a>> {
+        info!(log, "Trying to consume for parse rule '{}'", self.name);
+
+        (self.try_consume_fn)(log, extract, next)
+    }
+}
+
+impl Debug for Rule {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("Rule")
+            .field("name", &self.name)
+            .field("try_consume_fn", &"<fn pointer>")
+            .finish()
+    }
+}
+
+impl slog::Value for Rule {
+    fn serialize(
+        &self,
+        _: &slog::Record,
+        key: slog::Key,
+        serializer: &mut dyn slog::Serializer,
+    ) -> slog::Result {
+        serializer.emit_str(key, self.name())
+    }
+}
+
+/// Result type: gives the number of consumed tokens and the resultant element.
+#[derive(Debug, Clone)]
+pub struct RuleResult<'a> {
+    pub offset: usize,
+    pub element: Element<'a>,
+}
+
+/// The function type for actually trying to consume tokens
+pub type TryConsumeFn = for<'a> fn(
+    log: &slog::Logger,
+    extract: &ExtractedToken<'a>,
+    next: &[ExtractedToken<'a>],
+) -> Option<RuleResult<'a>>;

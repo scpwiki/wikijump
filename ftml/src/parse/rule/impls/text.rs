@@ -22,7 +22,7 @@ use super::prelude::*;
 
 pub const RULE_TEXT: Rule = make_rule!("text", try_consume);
 
-fn try_consume(
+fn try_consume<'a>(
     log: &slog::Logger,
     extract: &ExtractedToken<'a>,
     _next: &[ExtractedToken<'a>],

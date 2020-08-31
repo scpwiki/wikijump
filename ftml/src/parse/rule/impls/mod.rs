@@ -18,17 +18,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+macro_rules! make_rule {
+    ($name:expr, $try_consume:expr) => {
+        Rule {
+            name: $name,
+            try_consume_fn: $try_consume,
+        }
+    };
+}
+
+mod text;
+
 mod prelude {
     pub use crate::parse::rule::{Rule, RuleResult, TryConsumeFn};
     pub use crate::parse::token::ExtractedToken;
     pub use crate::tree::Element;
-
-    macro_rules! make_rule {
-        ($name:expr, $try_consume:expr) => {
-            Rule {
-                name: $name,
-                try_consume_fn: $try_consume,
-            }
-        };
-    }
 }
