@@ -1,5 +1,5 @@
 /*
- * parse/rule/impls/mod.rs
+ * parse/rule/impls/em_dash.rs
  *
  * ftml - Library to parse Wikidot code
  * Copyright (C) 2019-2020 Ammon Smith
@@ -18,33 +18,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Private preludes for modules
-macro_rules! make_rule {
-    ($name:expr, $try_consume:expr) => {
-        Rule {
-            name: $name,
-            try_consume_fn: $try_consume,
-        }
-    };
+use super::prelude::*;
+
+pub const RULE_EM_DASH: Rule = make_rule!("em-dash", try_consume);
+
+fn try_consume<'a>(
+    log: &slog::Logger,
+    _extract: &ExtractedToken<'a>,
+    _next: &[ExtractedToken<'a>],
+) -> Option<RuleResult<'a>> {
+    trace!(log, "Consuming token as generic text");
+
+    Some(RuleResult {
+        offset: 1,
+        element: Element::Text("\u{2014}"),
+    })
 }
-
-mod prelude {
-    pub use crate::parse::rule::{Rule, RuleResult, TryConsumeFn};
-    pub use crate::parse::token::{ExtractedToken, Token};
-    pub use crate::tree::Element;
-}
-
-// Implementations, re-exported
-mod em_dash;
-mod email;
-mod hr;
-mod strikethrough;
-mod text;
-mod url;
-
-pub use self::em_dash::RULE_EM_DASH;
-pub use self::email::RULE_EMAIL;
-pub use self::hr::RULE_HORIZONTAL_RULE;
-pub use self::strikethrough::RULE_STRIKETHROUGH;
-pub use self::text::RULE_TEXT;
-pub use self::url::RULE_URL;

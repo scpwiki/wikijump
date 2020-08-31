@@ -1,5 +1,5 @@
 /*
- * parse/rule/impls/url.rs
+ * parse/rule/impls/hr.rs
  *
  * ftml - Library to parse Wikidot code
  * Copyright (C) 2019-2020 Ammon Smith
@@ -20,22 +20,32 @@
 
 use super::prelude::*;
 
-pub const RULE_URL: Rule = make_rule!("url", try_consume);
+pub const RULE_HORIZONTAL_RULE: Rule = make_rule!("horizontal-rule", try_consume);
 
 fn try_consume<'a>(
     log: &slog::Logger,
-    extract: &ExtractedToken<'a>,
-    _next: &[ExtractedToken<'a>],
+    _extract: &ExtractedToken<'a>,
+    next: &[ExtractedToken<'a>],
 ) -> Option<RuleResult<'a>> {
-    let ExtractedToken { slice, .. } = extract;
+    trace!(log, "Checking if the horizontal rule ends with a newline");
 
-    trace!(log, "Consuming token as a plain URL link");
+    let mut offset = 0;
+
+    for ExtractedToken { token, .. } in next {
+        offset += 1;
+
+        match token {
+            // Allow whitespace up until the line break
+            Token::Whitespace => continue,
+            Token::LineBreak => break,
+
+            // If it's anything else, it's invalid
+            _ => return None,
+        }
+    }
 
     Some(RuleResult {
-        offset: 1,
-        element: Element::Link {
-            label: None,
-            url: slice,
-        },
+        offset,
+        element: Element::HorizontalRule,
     })
 }
