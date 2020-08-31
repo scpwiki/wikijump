@@ -28,67 +28,6 @@
 
 use super::rule::{Rule, RuleResult};
 use super::token::{ExtractedToken, Token};
-use enum_map::EnumMap;
-
-lazy_static! {
-    static ref PATTERN_MAP: EnumMap<Token, Vec<Rule>> = {
-        enum_map! {
-            // Symbols
-            Token::LeftBracket => vec![],
-            Token::RightBracket => vec![],
-            Token::Pipe => vec![],
-            Token::LeftTag => vec![],
-            Token::LeftTagSpecial => vec![],
-            Token::RightTag => vec![],
-            Token::LeftAnchor => vec![],
-            Token::Equals => vec![],
-            Token::DoubleDash => vec![],
-            Token::TripleDash => vec![],
-            Token::LineBreak => vec![],
-            Token::ParagraphBreak => vec![],
-            Token::Whitespace => vec![],
-            Token::Bold => vec![],
-            Token::Italics => vec![],
-            Token::Underline => vec![],
-            Token::Superscript => vec![],
-            Token::Subscript => vec![],
-            Token::LeftMonospace => vec![],
-            Token::RightMonospace => vec![],
-            Token::Color => vec![],
-
-            // Formatting
-            Token::Raw => vec![],
-            Token::LeftRaw => vec![],
-            Token::RightRaw => vec![],
-
-            // Links
-            Token::LeftLink => vec![],
-            Token::RightLink => vec![],
-
-            // Tables
-            Token::TableColumn => vec![],
-            Token::TableColumnTitle => vec![],
-
-            // Alignment
-            Token::RightAlignOpen => vec![],
-            Token::RightAlignClose => vec![],
-            Token::LeftAlignOpen => vec![],
-            Token::LeftAlignClose => vec![],
-            Token::CenterAlignOpen => vec![],
-            Token::CenterAlignClose => vec![],
-            Token::JustifyAlignOpen => vec![],
-            Token::JustifyAlignClose => vec![],
-
-            // Text components
-            Token::Identifier => vec![],
-            Token::Email => vec![],
-            Token::Url => vec![],
-
-            // Fallback
-            Token::Text => vec![],
-        }
-    };
-}
 
 /// Main function that consumes tokens to produce a single element, then returns.
 pub fn consume<'a>(
