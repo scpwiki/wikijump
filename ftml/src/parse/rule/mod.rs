@@ -23,14 +23,14 @@ use crate::tree::Element;
 use std::fmt::{self, Debug};
 
 #[derive(Copy, Clone)]
-pub struct Rule<'a> {
+pub struct Rule {
     name: &'static str,
-    try_consume_fn: TryConsumeFn<'a>,
+    try_consume_fn: TryConsumeFn,
 }
 
-impl<'a> Rule<'a> {
+impl Rule {
     #[inline]
-    pub fn try_consume(
+    pub fn try_consume<'a>(
         &self,
         log: &slog::Logger,
         extract: &ExtractedToken<'a>,
@@ -42,7 +42,7 @@ impl<'a> Rule<'a> {
     }
 }
 
-impl Debug for Rule<'_> {
+impl Debug for Rule {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("Rule")
             .field("name", &self.name)
@@ -57,7 +57,7 @@ pub struct RuleResult<'a> {
     pub element: Element<'a>,
 }
 
-pub type TryConsumeFn<'a> = fn(
+pub type TryConsumeFn = for<'a> fn(
     log: &slog::Logger,
     extract: &ExtractedToken<'a>,
     next: &[ExtractedToken<'a>],

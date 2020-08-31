@@ -31,8 +31,11 @@ use super::token::{ExtractedToken, Token};
 use enum_map::EnumMap;
 
 lazy_static! {
-    static ref PATTERN_MAP: EnumMap<Token, Vec<Rule<'static>>> = {
-        enum_map! {}
+    static ref PATTERN_MAP: EnumMap<Token, Vec<Rule>> = {
+        enum_map! {
+            LeftBracket => vec![
+            ],
+        }
     };
 }
 
