@@ -27,6 +27,9 @@ use enum_map::EnumMap;
 //       It will fall back to the text anyways, this communicates
 //       intent better.
 
+// TODO: Actually, we need to convert ending tokens into lookbacks
+//       at current stack / context to try and end ongoing containers.
+
 lazy_static! {
     pub static ref RULE_MAP: EnumMap<Token, Vec<Rule>> = {
         enum_map! {
