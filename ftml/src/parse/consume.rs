@@ -74,6 +74,7 @@ pub fn consume<'a>(
         "slice" => slice,
     );
 
+    // Convert this token to text
     RuleResult {
         offset: 1,
         element: Element::Text(slice),
