@@ -27,7 +27,7 @@ fn try_consume<'a>(
     _extract: &ExtractedToken<'a>,
     _next: &[ExtractedToken<'a>],
 ) -> Option<RuleResult<'a>> {
-    trace!(log, "Consuming token as generic text");
+    trace!(log, "Producing em dash as element");
 
     Some(RuleResult {
         offset: 1,
