@@ -48,7 +48,10 @@ pub fn parse<'a>(log: &Logger, text: &'a str) -> SyntaxTree<'a> {
             consume(log, extracted, next)
         };
 
-        assert!(tokens.len() >= offset, "Attempted to consume more tokens than exist");
+        assert!(
+            tokens.len() >= offset,
+            "Attempted to consume more tokens than exist",
+        );
 
         if tokens.len() > 1 {
             // We need to consume at least one token, otherwise this loops forever.
