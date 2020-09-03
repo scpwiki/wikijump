@@ -68,6 +68,22 @@ impl<'l, 'e> Stack<'l, 'e> {
             .map(|(etype, elements)| Container { etype, elements })
     }
 
+    /// Pops the latest (i.e. nearest to the top of the stack) list of the given type off the stack.
+    ///
+    /// This will usually be the top item (i.e. the same as `pop()`), but is not necessarily
+    /// there, allowing the intersecting syntactical constructions Wikidot permits.
+    ///
+    /// It returns `None` if no such `ContainerType` is found in the stack, or if it's empty.
+    pub fn pop_type(&mut self, etype: ContainerType) -> () {
+        debug!(
+            self.log,
+            "Removing the layer of the given type off of the stack";
+            "function" => "pop_type",
+        );
+
+        // TODO
+    }
+
     /// Appends an element to the current element list.
     pub fn append(&mut self, element: Element<'e>) {
         debug!(
