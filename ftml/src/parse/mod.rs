@@ -46,7 +46,7 @@ pub fn parse<'a>(log: &Logger, text: &'a str) -> SyntaxTree<'a> {
                 .split_first() //
                 .expect("Tokens list is empty");
 
-            consume(log, extracted, next)
+            consume(log, &mut stack, extracted, next)
         };
 
         assert!(
