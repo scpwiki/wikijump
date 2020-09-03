@@ -74,14 +74,30 @@ impl<'l, 'e> Stack<'l, 'e> {
     /// there, allowing the intersecting syntactical constructions Wikidot permits.
     ///
     /// It returns `None` if no such `ContainerType` is found in the stack, or if it's empty.
-    pub fn pop_type(&mut self, etype: ContainerType) -> () {
+    pub fn pop_type(&mut self, ctype: ContainerType) -> Option<Container<'e>> {
         debug!(
             self.log,
             "Removing the layer of the given type off of the stack";
             "function" => "pop_type",
         );
 
-        // TODO
+        // Find the index of the matching container
+        let mut found_idx = None;
+        for (rev_idx, &(etype, _)) in self.stack.iter().rev().enumerate() {
+            let idx = self.stack.len() - rev_idx - 1;
+
+            if etype == ctype {
+                found_idx = Some(idx);
+                break;
+            }
+        }
+
+        // Pop off the item and return it
+        found_idx.map(|idx| {
+            let (etype, elements) = self.stack.remove(idx);
+
+            Container { etype, elements }
+        })
     }
 
     /// Appends an element to the current element list.
