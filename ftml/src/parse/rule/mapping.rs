@@ -44,7 +44,7 @@ lazy_static! {
             Token::Equals => vec![RULE_TEXT],
             Token::DoubleDash => vec![RULE_STRIKETHROUGH, RULE_EM_DASH],
             Token::TripleDash => vec![RULE_HORIZONTAL_RULE],
-            Token::LineBreak => vec![],
+            Token::LineBreak => vec![RULE_LINE_BREAK],
             Token::ParagraphBreak => vec![],
             Token::Whitespace => vec![RULE_TEXT],
             Token::Bold => vec![],

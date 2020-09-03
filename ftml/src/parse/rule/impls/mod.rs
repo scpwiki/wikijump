@@ -38,6 +38,7 @@ mod prelude {
 mod em_dash;
 mod email;
 mod hr;
+mod line_break;
 mod strikethrough;
 mod text;
 mod url;
@@ -45,6 +46,7 @@ mod url;
 pub use self::em_dash::RULE_EM_DASH;
 pub use self::email::RULE_EMAIL;
 pub use self::hr::RULE_HORIZONTAL_RULE;
+pub use self::line_break::RULE_LINE_BREAK;
 pub use self::strikethrough::RULE_STRIKETHROUGH;
 pub use self::text::RULE_TEXT;
 pub use self::url::RULE_URL;
