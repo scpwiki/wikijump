@@ -32,6 +32,5 @@ pub enum Element<'a> {
         url: &'a str,
     },
     LineBreak,
-    ParagraphBreak,
     HorizontalRule,
 }

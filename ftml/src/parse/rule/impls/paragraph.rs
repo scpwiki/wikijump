@@ -29,8 +29,10 @@ fn try_consume<'a>(
 ) -> Option<RuleResult<'a>> {
     trace!(log, "Adding paragraph break");
 
+    // TODO: start element wrapping
+
     Some(RuleResult {
         offset: 1,
-        element: Element::ParagraphBreak,
+        element: todo!(),
     })
 }
