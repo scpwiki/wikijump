@@ -136,11 +136,11 @@ impl<'l, 'e> Stack<'l, 'e> {
     /// Collapses the stack and converts it into the final abstract syntax tree (AST).
     pub fn into_syntax_tree(self) -> SyntaxTree<'e> {
         let Stack {
-            log,
+            log: _,
             elements,
             stack,
         } = self;
-        // TODO
+        // TODO collapse remaining items in stack
 
         SyntaxTree { elements }
     }
