@@ -25,6 +25,7 @@ mod token;
 
 use self::consume::consume;
 use self::rule::RuleResult;
+use self::stack::Stack;
 use self::token::Token;
 use crate::tree::SyntaxTree;
 use slog::Logger;
@@ -36,7 +37,7 @@ pub fn parse<'a>(log: &Logger, text: &'a str) -> SyntaxTree<'a> {
 
     let tokens = Token::extract_all(log, text);
     let mut tokens = tokens.as_slice();
-    let mut elements = Vec::new();
+    let mut stack = Stack::new(log);
 
     while !tokens.is_empty() {
         // Consume tokens to get next element
@@ -61,13 +62,11 @@ pub fn parse<'a>(log: &Logger, text: &'a str) -> SyntaxTree<'a> {
 
         // Update state
         tokens = &tokens[offset..];
-        elements.push(element);
+        stack.append(element);
     }
 
     debug!(log, "Finished running parser, returning gathered elements");
-
-    // TODO
-    SyntaxTree { elements }
+    stack.into_syntax_tree()
 }
 
 #[test]
