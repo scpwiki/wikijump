@@ -1,0 +1,22 @@
+{
+  "name": "wikijump",
+  "version": "1.0.0",
+  "description": "",
+  "main": "web/common--files/index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scpwiki/wikijump.git"
+  },
+  "author": "Wikijump Team",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/scpwiki/wikijump/issues"
+  },
+  "homepage": "https://github.com/scpwiki/wikijump#readme"
+}
