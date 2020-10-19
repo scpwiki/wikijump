@@ -10,4 +10,4 @@ conf/wikijump.ini
 /logs/ozone.log
 /vendor
 composer.phar
-node_modules
+node_modules/
