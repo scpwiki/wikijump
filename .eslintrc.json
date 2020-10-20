@@ -22,6 +22,7 @@
       "warn", { "argsIgnorePattern": "^_" }
     ],
     "@typescript-eslint/no-non-null-assertion": "off",
-    "quotes": "off"
+    "quotes": "off",
+    "semi": ["warn", "always"]
   }
 }
