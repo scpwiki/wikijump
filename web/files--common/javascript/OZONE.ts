@@ -30,7 +30,7 @@ const OZONE = {
 
   ajax: {
 
-    _callbackArray: [] as any[],
+    _callbackArray: [] as unknown[],
     _callbackArrayIndex: 0,
 
     // The time of the most recent JS lock, or false if there is none.
@@ -43,10 +43,10 @@ const OZONE = {
     requestModule: function (
       moduleName: string,
       parameters: RequestModuleParameters,
-      callback: (parameters: any) => any,
-      arg: any,
+      callback: (parameters: unknown) => unknown,
+      arg: unknown,
       options: RequestModuleOptions
-    ): any {
+    ): unknown {
       /**
        * ??
        *
@@ -154,9 +154,9 @@ const OZONE = {
     },
 
     requestQuickModule: function (
-      moduleName: any,
-      parameters: any,
-      callback: any
+      moduleName: unknown,
+      parameters: unknown,
+      callback: unknown
     ): void {
       /**
        * ?? (unused)
