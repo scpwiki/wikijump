@@ -2,7 +2,13 @@ import { stringify } from "query-string";
 
 /* global YAHOO, fx */
 
-const ogettext = function (mid: string): string {
+export const ogettext = function (mid: string): string {
+  /**
+   * Rudimentary localisation function. Searches registered messages for a
+   * translations in the OZONE object's language.
+   *
+   * @param mid: The string to translate.
+   */
   return OZONE.loc.getMessage(mid, OZONE.lang);
 };
 
