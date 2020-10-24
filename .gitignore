@@ -6,6 +6,7 @@ conf/wikidot.ini
 conf/wikijump.ini
 /tmp
 /web/files--common/tmp
+/web/files--common/javascript/dist/
 /web/files--sites
 /logs/ozone.log
 /vendor
