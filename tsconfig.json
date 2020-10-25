@@ -1,27 +1,28 @@
 {
-  "compilerOptions": {
-    "baseUrl": ".",
-    "outDir": "./web/files--common/javascript/dist/",
-    "noImplicitAny": true,
-    "module": "esnext",
-    "target": "esnext",
-    "strict": true,
-    "importHelpers": true,
-    "esModuleInterop": true,
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "lib": [
-      "es2020",
-      "dom"
+    "compilerOptions": {
+        "baseUrl": ".",
+        "outDir": "./web/files--common/javascript/dist/",
+        "noImplicitAny": true,
+        "module": "esnext",
+        "target": "esnext",
+        "strict": true,
+        "importHelpers": true,
+        "esModuleInterop": true,
+        "moduleResolution": "node",
+        "allowSyntheticDefaultImports": true,
+        "lib": [
+            "es2020",
+            "dom",
+            "dom.iterable"
+        ],
+        "paths": {
+            "@/*": ["web/files--common/*"]
+        }
+    },
+    "include": [
+        "web/files--common/**/*.ts"
     ],
-    "paths": {
-      "@/*": ["web/files--common/*"]
-    }
-  },
-  "include": [
-    "src/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+    "exclude": [
+        "node_modules"
+    ]
 }
