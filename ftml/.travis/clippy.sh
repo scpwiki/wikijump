@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eu
 
-version="nightly-2020-01-02"
+version="nightly-2020-10-25"
 toolchain="$version-x86_64-unknown-linux-gnu"
 
 if [[ $TRAVIS_OS_NAME != linux ]]; then
