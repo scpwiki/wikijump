@@ -8,7 +8,6 @@ conf/wikijump.ini
 /web/files--common/tmp
 /web/files--common/javascript/dist/
 /web/files--sites
-/logs/ozone.log
 /vendor
 composer.phar
 node_modules/
