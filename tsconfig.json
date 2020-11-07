@@ -10,8 +10,9 @@
         "esModuleInterop": true,
         "moduleResolution": "node",
         "allowSyntheticDefaultImports": true,
+        "types": [],
         "lib": [
-            "es2020",
+            "esnext",
             "dom",
             "dom.iterable"
         ],

@@ -1,28 +1,28 @@
 {
-  "env": {
-    "browser": true,
-    "es6": true
-  },
-  "extends": [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typescript-eslint/recommended"
-  ],
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "ecmaVersion": 11,
-    "parser": "@typescript-eslint/parser",
-    "sourceType": "module"
-  },
-  "plugins": [
-    "@typescript-eslint"
-  ],
-  "rules": {
-    "@typescript-eslint/no-unused-vars": [
-      "warn", { "argsIgnorePattern": "^_" }
+    "env": {
+        "browser": true,
+        "es11": true
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended"
     ],
-    "@typescript-eslint/no-non-null-assertion": "off",
-    "quotes": "off",
-    "semi": ["warn", "always"]
-  }
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": 2020,
+        "parser": "@typescript-eslint/parser",
+        "sourceType": "module"
+    },
+    "plugins": [
+        "@typescript-eslint"
+    ],
+    "rules": {
+        "@typescript-eslint/no-unused-vars": [
+            "warn", { "argsIgnorePattern": "^_" }
+        ],
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "quotes": "off",
+        "semi": ["warn", "always"]
+    }
 }
