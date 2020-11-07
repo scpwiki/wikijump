@@ -1,56 +1,64 @@
-export const ogettext = function (mid: string): string {
+import OZONE from ".";
+
+export type Language = "en" | "pl"
+
+export const ogettext = function (messageId: string): string {
   /**
    * Rudimentary localisation function. Searches registered messages for a
    * translations in the OZONE object's language.
    *
-   * @param mid: The string to translate.
+   * @param messageId: The string to translate.
    */
-  return OZONE.loc.getMessage(mid, OZONE.lang);
+  return OZONE.loc.getMessage(messageId, OZONE.lang);
 };
 
 export const loc = {
-  // TODO What is loc? Localisation messages?
-  messages: {},
-  addMessages: function (mlist, lang) {
+  // messages is the internal story of localisation strings
+  messages: {} as Record<Language, Record<string, string>>,
+  addMessages: function (
+    messageList: Record<string, string>,
+    lang: Language
+  ): void {
     /**
-     * ??
+     * Shortcut for storing multiple localisation strings from an object.
      *
-     * @param mlist: ??
-     * @param lang: ??
+     * @param messageList: An object with message ID keys and localisation
+     * string values.
+     * @param lang: The language of the values.
      */
-    if (!OZONE.loc.messages[lang]) {
+    // If the language doesn't exist, add it
+    if (!(lang in OZONE.loc.messages)) {
       OZONE.loc.messages[lang] = {};
     }
-    for (const i in mlist) {
-      OZONE.loc.messages[lang][i] = mlist[i];
-    }
+    Object.entries(messageList).forEach(([messageID, messageTranslation]) => {
+      OZONE.loc.messages[lang][messageID] = messageTranslation;
+    });
   },
-  addMessage: function (mid, mtr, lang) {
+  addMessage: function (
+    messageId: string,
+    messageTranslation: string,
+    lang: Language
+  ): void {
     /**
-     * ??
+     * Store a localisation string.
      *
-     * @param mid: ??
-     * @param mtr: ??
-     * @param lang: ??
+     * @param messageId: The ID of the localisation string to store.
+     * @param messageTranslation: The localisation string.
+     * @param lang: The language of the localisation string.
      */
-    if (!OZONE.loc.messages[lang]) {
+    if (!(lang in OZONE.loc.messages)) {
       OZONE.loc.messages[lang] = {};
     }
-    OZONE.loc.messages[lang][mid] = mtr;
+    OZONE.loc.messages[lang][messageId] = messageTranslation;
   },
-  getMessage: function (mid, lang) {
+  getMessage: function (messageId: string, lang: Language): string {
     /**
-     * ??
+     * Retrieve a localisation string.
      *
-     * @param mid: ??
-     * @param lang: ??
+     * @param messageId: The ID of the localisation string to retrieve.
+     * @param lang: The language of the wanted localisation string.
      */
-    if (OZONE.loc.messages[lang]) {
-      if (OZONE.loc.messages[lang][mid]) {
-        return OZONE.loc.messages[lang][mid];
-      }
-    }
-    // fall back to default
-    return mid;
+    // Use the message ID as default if the lang/message doesn't exist
+    return OZONE.loc.messages[lang]?.[messageId] ?? messageId;
   }
 };

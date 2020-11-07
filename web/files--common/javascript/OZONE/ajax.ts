@@ -1,31 +1,33 @@
+import OZONE from ".";
+import YAHOO from "@/javascript/yahooui/types";
+
 type RequestModuleParameters = {
+  // TODO Add more values as we discover them
   action?: 'FileAction'
   event?: 'checkFileExists'
   moduleName?: string
   pageId?: number
   callbackIndex?: number
-  wikijump_token7?: string
+  wikijump_token7?: string /* eslint-disable-line camelcase */
 }
 
 type RequestModuleOptions = {
   clearRequestQueue: boolean
 }
-//
+
 // XXX Temporary until we deprecate Yahoo UI
 type YahooResponse = {
+  // TODO Work out what else should be here
   status: number
   statusText: string
   responseText: string
 }
+type YahooCallback = (response: YahooResponse, arg?: unknown) => void
 
 export const ajax = {
 
-  _callbackArray: [] as unknown[],
+  _callbackArray: [] as { callback: YahooCallback, arg: unknown }[],
   _callbackArrayIndex: 0,
-
-  // The time of the most recent JS lock, or false if there is none.
-  // TODO Make this just a straight-up number.
-  _javascriptLoadLock: false,
 
   /**
    * arg - extra parameter passed to the callback as a second parameter
@@ -33,7 +35,7 @@ export const ajax = {
   requestModule: function (
     moduleName: string,
     parameters: RequestModuleParameters,
-    callback: (parameters: unknown) => unknown,
+    callback: YahooCallback,
     arg: unknown,
     options: RequestModuleOptions
   ): unknown {
@@ -57,12 +59,12 @@ export const ajax = {
     parameters.moduleName = moduleName;
 
     if (options && options.clearRequestQueue) {
-      OZONE.ajax._callbackArray = [];
+      ajax._callbackArray = [];
     }
 
     // TODO The callbackIndex can probably be refactored out
-    const callbackIndex = OZONE.ajax._callbackArrayIndex++;
-    OZONE.ajax._callbackArray[callbackIndex] = {
+    const callbackIndex = ajax._callbackArrayIndex++;
+    ajax._callbackArray[callbackIndex] = {
       callback: callback,
       arg: arg
     };
@@ -81,7 +83,7 @@ export const ajax = {
     YAHOO.util.Connect.asyncRequest(
       'POST',
       '/ajax-module-connector.php',
-      OZONE.ajax.requestModuleCallback,
+      ajax.requestModuleCallback,
       OZONE.utils.arrayToPostData(parameters)
     );
   },
@@ -90,6 +92,7 @@ export const ajax = {
     success: function (responseObject: YahooResponse): void {
       // Response comes from yahooui/connection.js/createResponseObject
       // TODO What is the type of the returned JSON?
+      // XXX This is an implicit any - why no error?
       const response = JSON.parse(responseObject.responseText);
 
       if (response.status === 'wrong_token7') {
@@ -104,30 +107,31 @@ export const ajax = {
         OZONE.visuals.cursorClear();
         OZONE.dialog.cleanAll();
       }
-      if (!OZONE.ajax._callbackArray[callbackIndex]) {
+      if (!ajax._callbackArray[callbackIndex]) {
         return;
       }
-      const callback = OZONE.ajax._callbackArray[callbackIndex].callback;
+      const callback = ajax._callbackArray[callbackIndex].callback;
       if (!callback) {
         alert('internal: callback error');
       }
-      const arg = OZONE.ajax._callbackArray[callbackIndex].arg;
+      const arg = ajax._callbackArray[callbackIndex].arg;
       // call callback
 
-      if (arg != null) {
+      if (arg !== null) {
         callback(response, arg);
       } else {
         callback(response);
       }
 
       // attach javascript (if any)
+      // XXX Where do jsInclude and cssInclude come from? Where are they set?
       if (response.jsInclude != null) {
-        response.jsInclude.forEach(jsUrl => {
+        response.jsInclude.forEach((jsUrl: string) => {
           OZONE.utils.addJavascriptUrl(jsUrl);
         });
       }
       if (response.cssInclude != null) {
-        response.cssInclude.forEach(cssUrl => {
+        response.cssInclude.forEach((cssUrl: string) => {
           OZONE.utils.addStyleUrl(cssUrl);
         });
       }
@@ -141,50 +145,54 @@ export const ajax = {
       OZONE.dialog.cleanAll();
     }
 
-  },
-
-  requestQuickModule: function (
-    moduleName: unknown,
-    parameters: unknown,
-    callback: unknown
-  ): void {
-    /**
-     * ?? (unused)
-     *
-     * @param moduleName: ??
-     * @param parameters: ??
-     * @param callback: ??
-     */
-    if (parameters === null) {
-      parameters = {};
-    }
-    if (moduleName === null || moduleName === '') {
-      alert('Quick module name empty.');
-    }
-
-    const callbackIndex = OZONE.ajax._callbackArrayIndex++;
-    OZONE.ajax._callbackArray[callbackIndex] = callback;
-
-    parameters.callbackIndex = callbackIndex;
-
-    const postdata = JSON.stringify(parameters);
-    const internalCallback = OZONE.ajax.requestQuickModuleCallback;
-    YAHOO.util.Connect.asyncRequest('POST', '/quickmodule.php?module=' + moduleName, internalCallback, postdata);
-  },
-
-  requestQuickModuleCallback: {
-    /**
-     * ?? (unused)
-     */
-    success: function (responseObject: YahooResponse): void {
-      // process response
-      const response = JSON.parse(responseObject.responseText);
-      const callbackIndex = response.callbackIndex;
-      const callback = OZONE.ajax._callbackArray[callbackIndex];
-      callback(response);
-    },
-    failure: function (_responseObject: YahooResponse): void {
-      alert('The ajax request failed. Please check your internet connection or\nreport a bug if the error repeats during your work.');
-    }
   }
+
+  // XXX While the concept of a quickmodule does appear in the codebase, it is
+  // confined to the PHP, and the following two methods are unused. They are
+  // not type-safe (and, because they are unused, not worth refactoring) so I
+  // have commented them out.
+  // requestQuickModule: function (
+  //   moduleName: unknown,
+  //   parameters: unknown,
+  //   callback: (response: YahooResponse) => void
+  // ): void {
+  //   /**
+  //    * ?? (unused)
+  //    *
+  //    * @param moduleName: ??
+  //    * @param parameters: ??
+  //    * @param callback: ??
+  //    */
+  //   if (parameters === null) {
+  //     parameters = {};
+  //   }
+  //   if (moduleName === null || moduleName === '') {
+  //     alert('Quick module name empty.');
+  //   }
+
+  //   const callbackIndex = ajax._callbackArrayIndex++;
+  //   ajax._callbackArray[callbackIndex] = callback;
+
+  //   parameters.callbackIndex = callbackIndex;
+
+  //   const postdata = JSON.stringify(parameters);
+  //   const internalCallback = ajax.requestQuickModuleCallback;
+  //   YAHOO.util.Connect.asyncRequest('POST', '/quickmodule.php?module=' + moduleName, internalCallback, postdata);
+  // },
+
+  // requestQuickModuleCallback: {
+  //   /**
+  //    * ?? (unused)
+  //    */
+  //   success: function (responseObject: YahooResponse): void {
+  //     // process response
+  //     const response = JSON.parse(responseObject.responseText);
+  //     const callbackIndex = response.callbackIndex;
+  //     const callback = ajax._callbackArray[callbackIndex];
+  //     callback(response);
+  //   },
+  //   failure: function (_responseObject: YahooResponse): void {
+  //     alert('The ajax request failed. Please check your internet connection or\nreport a bug if the error repeats during your work.');
+  //   }
+  // }
 };

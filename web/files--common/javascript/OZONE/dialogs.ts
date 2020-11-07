@@ -1,4 +1,8 @@
-import { ogettext } from "../OZONE";
+import CSS from "csstype";
+
+import OZONE from ".";
+import { ogettext } from "./loc";
+import YAHOO from "@/javascript/yahooui/types";
 
 /**
  * Ready-to-use dialog components.
@@ -9,7 +13,7 @@ class Base {
   template: string
   title: null | string
   buttons: string[]
-  buttonObjects: HTMLAnchorElement[]
+  buttonObjects: { [buttonLabel: string]: HTMLAnchorElement }
   clickOutsideToClose: boolean
   smooth: boolean
   focusButton: null | string
@@ -18,7 +22,7 @@ class Base {
   content: string
   dialogElement: null | HTMLDivElement
   fixODate: boolean
-  style: Partial<CSSStyleDeclaration> // XXX Is this right?
+  style: CSS.Properties
 
   constructor () {
     // ?? (unused)
@@ -48,25 +52,16 @@ class Base {
     // The element for the dialog itself
     this.dialogElement = null;
     // Container for button elements
-    this.buttonObjects = [];
+    this.buttonObjects = {};
   }
 
-  setButtons (arrasy): void {
-    /**
-     * ?? (unused)
-     *
-     * @param arrasy: ??
-     */
-  }
-
-  // TODO Make function that adds both buttons and --listeners-- callbacks at
+  // TODO Make a function that adds both buttons and callbacks at
   // once, because this method is stupid
-  // Oh hey I guess that's what setButtons was going to be for
 
   addButtonListener (
     buttonLabel: string,
     eventListener: () => void,
-    oScope?: unknown
+    _oScope?: unknown
   ): void {
     /**
      * Attaches a callback to a button.
@@ -89,9 +84,8 @@ class Base {
     let dialogElement = document.createElement('div');
     this.dialogElement = dialogElement;
     dialogElement.className = `owindow ${this.windowClass}`;
-    for (const styleProperty in this.style) {
-      dialogElement.style[styleProperty] = this.style[styleProperty];
-    }
+    // Iterate over the style and attach them to the element
+    Object.assign(dialogElement.style, this.style);
 
     // in there is a div class="content" - just place it inside, do not render
     // Construct a temporary element to analyse the content as HTML
@@ -167,6 +161,7 @@ class Base {
      * If smooth is set, fades out the dialog, otherwise does nothing.
      */
     if (this.smooth === true) {
+      // @ts-expect-error Need to find a new animations library
       const ef = new fx.Opacity(this.dialogElement, { duration: 100 });
       ef.custom(1, 0);
     }

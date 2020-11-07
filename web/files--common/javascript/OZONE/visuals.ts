@@ -1,3 +1,7 @@
+import OZONE from ".";
+import YAHOO from "@/javascript/yahooui/types";
+import fx from "@/javascript/moofx/types";
+
 export const visuals = {
   cursorWait: function (): void {
     /**
@@ -57,7 +61,7 @@ export const visuals = {
     /**
      * Gets the vertical scroll offset.
      */
-    return window.scrollY
+    return window.scrollY;
   },
 
   bodyHeight: function (): number {
@@ -83,65 +87,8 @@ export const visuals = {
      */
     if (window.location.hash != null && window.location.href !== '') {
       const id = window.location.hash.replace(/#/, '');
-      if (id != null && id !== '' && $(id)) {
+      if (id !== null && id !== '' && document.getElementById(id) !== null) {
         OZONE.visuals.scrollTo(id, { blink: true });
-      }
-    }
-  },
-
-  /** TODO later. */
-  highlightText: function (rootElementId: string, text: string): void {
-    /**
-     * ??
-     *
-     * @param rootElementId: The ID of the element to ??
-     * @param text: ??
-     */
-    // split the text by space (if any)
-    if (text.indexOf(' ') !== -1) {
-      const tarray = text.split(/ +/);
-      tarray.forEach(t => {
-        if (!t.match(/^-/)) {
-          OZONE.visuals.highlightText(rootElementId, t);
-        }
-      });
-      return;
-    }
-
-    const rootElement = document.getElementById(rootElementId);
-    if (rootElement === null) {
-      return;
-    }
-
-    // recurrence first
-    if (rootElement.hasChildNodes) {
-      Array.from(rootElement.childNodes).forEach(childNode => {
-        // XXX The old $ function had pass-through for objects so this no
-        // longer works - needs a workaround
-        OZONE.visuals.highlightText(childNode, text);
-      });
-    }
-    if (rootElement.nodeType === 3) { // text node
-      // purify text a bit
-
-      const reg = new RegExp(text, 'gi');
-      if (rootElement.nodeValue.match(reg)) {
-        const contArray = (' ' + rootElement.nodeValue + ' ').split(reg);
-        const p = rootElement.parentNode;
-        for (let i = 0; i < contArray.length; i++) {
-          if (i !== 0) {
-            const span = document.createElement('span');
-            span.className = 'search-highlight';
-            span.appendChild(document.createTextNode(text));
-            p.insertBefore(span, rootElement);
-          }
-          const z = document.createTextNode(contArray[i]);
-          if (i !== contArray.length - 1) {
-            p.insertBefore(z, rootElement);
-          } else {
-            p.replaceChild(z, rootElement);
-          }
-        }
       }
     }
   }

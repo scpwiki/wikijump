@@ -1,3 +1,5 @@
+import OZONE from ".";
+
 export const dom = {
   insertAfter: function (
     parentNode: Node,

@@ -1,6 +1,14 @@
 import { stringify } from "query-string";
 
+import OZONE from ".";
+import { ogettext } from "./loc";
+import { HovertipElement } from "./dialog";
+import YAHOO from "@/javascript/yahooui/types";
+
 export const utils = {
+  // The time of the most recent JS lock. 0 means no lock currently set.
+  _javascriptLoadLock: 0,
+
   formToArray: function (formId: string): Record<string, string> {
     /**
      * Takes a form on the page by ID and returns its data as an object.
@@ -11,7 +19,8 @@ export const utils = {
      */
     const form = document.getElementById(formId);
     if (form === null) {
-      return;
+      // XXX Throw error?
+      return {};
     }
 
     // Type guard functions to narrow down what the element is
@@ -23,14 +32,14 @@ export const utils = {
     };
 
     // process different form elements (traverse)
-    const values = {};
+    const values: { [name: string]: string } = {};
     Array.from(form.children).forEach(element => {
       if (isTextarea(element)) {
         values[element.name] = element.value;
       }
       if (isInput(element)) {
         const type = element.getAttribute('type');
-        if (['text', 'hidden', 'password'].includes(type)) {
+        if (type === 'text' || type === 'hidden' || type === 'password') {
           values[element.name] = element.value;
         }
         if (type === 'checkbox' && element.checked === true) {
@@ -44,13 +53,17 @@ export const utils = {
     return values;
   },
 
-  arrayToPostData: function (data: Record<string, string|number>): string {
+  arrayToPostData: function (
+    data: { [parameter: string]: string | number | undefined } | null
+  ): string | null {
     /**
      * Generates a URL query string from an object.
      *
      * @param data: The object from which to make a string.
      */
-    if (data === null) { return null; }
+    if (data === null) {
+      return null;
+    }
     return stringify(data);
   },
 
@@ -71,20 +84,20 @@ export const utils = {
     // If there is a JS loading lock, wait until it has expired plus two
     // seconds
     if (
-      OZONE.ajax._javascriptLoadLock &&
-      (new Date()).getTime() < OZONE.ajax._javascriptLoadLock + 2000
+      utils._javascriptLoadLock &&
+      (new Date()).getTime() < utils._javascriptLoadLock + 2000
     ) {
       setTimeout(
-        () => OZONE.utils.addJavascriptUrl(url, onLoadCallback, noReload), 50
+        () => utils.addJavascriptUrl(url, onLoadCallback, noReload), 50
       );
       return;
     }
 
     // Unset the lock
-    OZONE.ajax._javascriptLoadLock = false;
+    utils._javascriptLoadLock = 0;
 
     // Check if this script is already present
-    const head = document.getElementsByTagName('head').item(0);
+    const head = document.getElementsByTagName('head')[0];
     Array.from(head.getElementsByTagName('script')).forEach(script => {
       if (script.getAttribute('src') === url) {
         // If we have been asked not to reload the script, do nothing
@@ -100,7 +113,7 @@ export const utils = {
     });
 
     // Add the script to the page
-    OZONE.ajax._javascriptLoadLock = (new Date()).getTime();
+    utils._javascriptLoadLock = (new Date()).getTime();
     const newScriptElement = document.createElement('script');
     newScriptElement.setAttribute('type', 'text/javascript');
     newScriptElement.setAttribute('src', url);
@@ -108,7 +121,7 @@ export const utils = {
     // When the new element has finished loading, unset the lock and fire the
     // callback
     YAHOO.util.Event.addListener(newScriptElement, 'load', function () {
-      OZONE.ajax._javascriptLoadLock = false;
+      utils._javascriptLoadLock = 0;
       if (onLoadCallback) {
         onLoadCallback();
       }
@@ -130,7 +143,7 @@ export const utils = {
      * @param noReload: If the script is already present on the page, ignore
      * it; otherwise, remove and re-add it (unused)
      */
-    const head = document.getElementsByTagName('head').item(0);
+    const head = document.getElementsByTagName('head')[0];
     Array.from(head.getElementsByTagName('link')).forEach(link => {
       if (
         link.type === 'text/css' &&
@@ -171,7 +184,7 @@ export const utils = {
     const element = document.getElementById(elementId);
     if (element !== null) {
       element.innerHTML = content;
-      OZONE.utils.formatDates(elementId);
+      utils.formatDates(elementId);
       OZONE.dialog.hovertip.dominit(element);
     }
   },
@@ -214,7 +227,7 @@ export const utils = {
       .replace(/&gt;/g, '>');
   },
 
-  formatDates: function (topElementId: string): void {
+  formatDates: function (topElementOrId: string | HTMLElement): void {
     /**
      * Within the element of ID topElementId, format all spans with class
      * 'odate' to contain text representing the date.
@@ -226,8 +239,8 @@ export const utils = {
      * date-formatting modules do not appear to use percent-encoded dates. It
      * would be nice to deprecate that, if possible.
      *
-     * @param topElementId: The ID of element whose children should be
-     * searched for span.odate
+     * @param topElementOrId: The element whose children should be
+     * searched for span.odate, or its ID.
      */
     const monthNames = [
       'January', 'February', 'March', 'April', 'May', 'June',
@@ -243,11 +256,23 @@ export const utils = {
     ];
     const dayNamesShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-    const topElement = document.getElementById(topElementId);
+    // Irritatingly, either an ID or an element can be passed to this function
+    let topElement: HTMLElement;
+    if (typeof topElementOrId === 'string') {
+      const el = document.getElementById(topElementOrId);
+      if (el === null) {
+        // XXX Throw error
+        return;
+      }
+      topElement = el;
+    } else {
+      topElement = topElementOrId;
+    }
+
     const dateElements = topElement.querySelectorAll('span.odate');
 
     (Array.from(dateElements) as HTMLElement[]).forEach(dateElement => {
-      let dateString: string;
+      let dateString = "";
       // The inner text contains timestamp to replace
       const inner = dateElement.innerHTML;
       // If the inner text is just a number, that is the timestamp
@@ -263,9 +288,6 @@ export const utils = {
         const timestamp = parseInt(inner.replace(/^([0-9]+)\s*\|.*/, '$1'));
         const format = inner.replace(/^[0-9]+\s*\|\s*(.*?)(?:\|(.*))?$/, '$1');
         const options = inner.replace(/^[0-9]+\s*\|\s*(.*?)(?:\|(.*))?$/, '$2');
-
-        // XXX This isn't valid, but it might be referred to somewhere:
-        dateElement.timestamp = timestamp;
 
         const date = new Date();
         date.setTime(timestamp * 1000);
@@ -320,26 +342,35 @@ export const utils = {
             // that instead
             let zoneoffset = date.getTimezoneOffset();
             zoneoffset = -zoneoffset / 60;
-            zoneoffset = ((zoneoffset < 10) ? '0' + zoneoffset : zoneoffset) + '00';
-            zone = (zoneoffset > 0) ? '+' + zoneoffset : '-' + zoneoffset;
+            zone = `${zoneoffset > 0 ? "+" : "-"}${zoneoffset < 10 ? "0" : ""}${zoneoffset}`;
           }
           dateString = dateString.replace(/%z/ig, zone);
         }
         if (dateString.match(/%O/) || options.match(/agohover/)) {
           // time ago
-          const secAgo = OZONE.request.timestamp - timestamp;
-          secAgo += Math.floor(((new Date()).getTime() - OZONE.request.date.getTime()) * 0.001);
+          let secAgo = OZONE.request.timestamp - timestamp;
+          secAgo += Math.floor(
+            ((new Date()).getTime() - OZONE.request.date.getTime()) / 1000
+          );
           const agoString = OZONE.utils.calculateDateAgo(secAgo);
 
           dateString = dateString.replace(/%O/, agoString);
           if (options.match(/agohover/)) {
-            const hovertext = agoString + ' ago';
-            OZONE.dialog.hovertip.makeTip(dateElement, { text: hovertext, style: { width: 'auto' } });
-            YAHOO.util.Event.addListener(dateElement, 'mouseover', function (_event) {
-              let secAgo = OZONE.request.timestamp - this.timestamp;
-              secAgo += Math.floor(((new Date()).getTime() - OZONE.request.date.getTime()) * 0.001);
-              const agoString = OZONE.utils.calculateDateAgo(secAgo);
-              this.hovertip.getElementsByTagName('div').item(0).innerHTML = agoString + ' ' + ogettext('ago');
+            // TODO Localisation
+            const hovertext = `${agoString} ago`;
+            OZONE.dialog.hovertip.makeTip(
+              dateElement, { text: hovertext, style: { width: 'auto' } }
+            );
+            // dateElement is now a HovertipElement
+            YAHOO.util.Event.addListener(dateElement, 'mouseover', function (
+              this: HovertipElement,
+              _event: Event
+            ) {
+              // Yahoo sets this to the scope element (dateElement)
+              if (this.hovertip) {
+                // XXX Shouldn't be necessary when hovertip isn't optional
+                this.hovertip.getElementsByTagName('div')[0].innerHTML = `${agoString} ${ogettext('ago')}`;
+              }
             });
           }
         }
@@ -349,7 +380,7 @@ export const utils = {
         dateElement.style.visibility = 'visible';
         dateElement.style.display = 'inline';
       }
-    })
+    });
   },
 
   calculateDateAgo: function (secAgo: number): string {
@@ -376,13 +407,13 @@ export const utils = {
     return agoString;
   },
 
-  /**
-   * This is tricky. Loads desired url with parameters but the parameters
-   * are contained in the POST body.
-   */
-  loadPage: function (url, parameters) {
+  loadPage: function (url: string, parameters: Record<string, string>): void {
     /**
      * ?? (unused)
+     *
+     * Wikidot comment:
+     * This is tricky. Loads desired url with parameters but the parameters
+     * are contained in the POST body.
      *
      * @param url: ??
      * @param parameters: ??
@@ -401,7 +432,7 @@ export const utils = {
     form.method = 'post';
     form.display = 'none';
     form.target = '_self';
-    document.getElementsByTagName('body').item(0).appendChild(form);
+    document.getElementsByTagName('body')[0].appendChild(form);
     form.submit();
   },
 
@@ -425,12 +456,14 @@ export const utils = {
     return null;
   },
 
-  /**
-   * Filter all substrings of form e.g. [[olang en:sdadsd|pl:asdadad|]]
-   */
   olang: function (text: string): string {
     /**
      * ??
+     * Seems to be used for rudimentary localisation.
+     * That's at least three competing localisation systems I've seen now.
+     * XXX Unify them
+     *
+     * Filter all substrings of form e.g. [[olang en:sdadsd|pl:asdadad|]]
      *
      * @param text: ??
      */
@@ -441,6 +474,7 @@ export const utils = {
       if (res) {
         return res[1];
       }
+      return str;
     });
   }
 };
