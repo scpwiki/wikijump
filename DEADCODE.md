@@ -36,24 +36,40 @@ If possible, add to this log in the same commit in which the code is removed.
 * Why it was removed: It was unused.
 
 ## JS: `Wikijump.utils.changeTextareaRowNo`
-* Where it was: [Wikijump.js](https://github.com/scpwiki/wikijump/blob/439c92376f04adaf73af87e2f53edabced8ca90f/web/files--common/javascript/Wikijump.ts#L14)
+* Where it was: [Wikijump.js](https://github.com/scpwiki/wikijump/blob/439c92376f04adaf73af87e2f53edabced8ca90f/web/files--common/javascript/Wikijump.js#L14)
 * What it did: Increased the height of a textarea by a number of lines.
 * Why it was removed: It was unused.
 
 ## JS: `Wikijump.visuals`
-* Where it was: [Wikijump.js](https://github.com/scpwiki/wikijump/blob/439c92376f04adaf73af87e2f53edabced8ca90f/web/files--common/javascript/Wikijump.ts#L22)
+* Where it was: [Wikijump.js](https://github.com/scpwiki/wikijump/blob/439c92376f04adaf73af87e2f53edabced8ca90f/web/files--common/javascript/Wikijump.js#L22)
 * What it did: Contained a bunch of methods controlling the display of a
   "center-message" object. I believe this was a precursor to `OZONE.dialog`.
 * Why it was removed: The object and all the methods in it were unused.
 
 ## JS: `Wikijump.utils.changeTextareaRowNo`
-* Where it was: [Wikijump.js](https://github.com/scpwiki/wikijump/blob/439c92376f04adaf73af87e2f53edabced8ca90f/web/files--common/javascript/Wikijump.ts#L83)
+* Where it was: [Wikijump.js](https://github.com/scpwiki/wikijump/blob/439c92376f04adaf73af87e2f53edabced8ca90f/web/files--common/javascript/Wikijump.js#L83)
 * What it did: Formatted dates within an element. Looks like it was a precursor
   to `OZONE.utils.formatDates`.
 * Why it was removed: It was unused.
 
 ## JS: `Wikijump.render.fixAvatarHover`
-* Where it was: [Wikijump.js](https://github.com/scpwiki/wikijump/blob/439c92376f04adaf73af87e2f53edabced8ca90f/web/files--common/javascript/Wikijump.ts#L83)
+* Where it was: [Wikijump.js](https://github.com/scpwiki/wikijump/blob/439c92376f04adaf73af87e2f53edabced8ca90f/web/files--common/javascript/Wikijump.js#L130)
 * What it did: Controlled the avatar popup when a user's pic is hovered.
 * Why it was removed:
   [WDBUGS-224](https://scuttle.atlassian.net/browse/WDBUGS-224)
+
+## JS: `Wikijump.page.utils.scrollToReference`
+* Where it was: [Wikijump.page.js](https://github.com/scpwiki/wikijump/blob/439c92376f04adaf73af87e2f53edabced8ca90f/web/files--common/javascript/Wikijump.page.js#L553)
+* What it did: Alias for `OZONE.visuals.scrollTo`.
+* Why it was removed: It was unused.
+
+## JS: `Wikijump.page.utils.openHelpPop`
+* Where it was: [Wikijump.page.js](https://github.com/scpwiki/wikijump/blob/439c92376f04adaf73af87e2f53edabced8ca90f/web/files--common/javascript/Wikijump.page.js#L571)
+* What it did: Absolutely no idea. Opened a "HelpPop" page on an external wiki.
+  Present in upstream, but doesn't do anything when called.
+* Why it was removed: It was unused.
+
+## JS: `Wikijump.page.listeners.loginClick0`
+* Where it was: [Wikijump.page.js](https://github.com/scpwiki/wikijump/blob/439c92376f04adaf73af87e2f53edabced8ca90f/web/files--common/javascript/Wikijump.page.js#L132)
+* What it did: Unsure. May have been an older version of `loginClick`.
+* Why it was removed: Unused; referenced a nonexistent callback.

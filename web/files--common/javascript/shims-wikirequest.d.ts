@@ -11,7 +11,7 @@ declare module "wikirequest" {
       requestPageName: string
       lang: string
       pageUnixName?: string
-      pageId?: number
+      pageId?: number | null
     }
   };
 }

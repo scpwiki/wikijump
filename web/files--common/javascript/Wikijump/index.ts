@@ -14,7 +14,10 @@ const Wikijump = {
   modules: {},
 
   // Stores login-related variables
-  vars: {}
+  vars: {
+    rsakey: null as unknown,
+    loginSeed: null as unknown
+  }
 };
 
 export default Wikijump;

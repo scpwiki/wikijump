@@ -1,5 +1,5 @@
 import OZONE from ".";
-import YAHOO from "@/javascript/yahooui/types";
+import YAHOO, { YahooResponse, YahooCallback } from "@/javascript/yahooui/types";
 
 type RequestModuleParameters = {
   // TODO Add more values as we discover them
@@ -15,15 +15,6 @@ type RequestModuleOptions = {
   clearRequestQueue: boolean
 }
 
-// XXX Temporary until we deprecate Yahoo UI
-type YahooResponse = {
-  // TODO Work out what else should be here
-  status: number
-  statusText: string
-  responseText: string
-}
-type YahooCallback = (response: YahooResponse, arg?: unknown) => void
-
 export const ajax = {
 
   _callbackArray: [] as { callback: YahooCallback, arg: unknown }[],
@@ -33,11 +24,11 @@ export const ajax = {
    * arg - extra parameter passed to the callback as a second parameter
    */
   requestModule: function (
-    moduleName: string,
+    moduleName: string | null,
     parameters: RequestModuleParameters,
     callback: YahooCallback,
-    arg: unknown,
-    options: RequestModuleOptions
+    arg?: unknown,
+    options?: RequestModuleOptions
   ): unknown {
     /**
      * ??
@@ -45,6 +36,7 @@ export const ajax = {
      * @param moduleName: The name of the module being requested, or null if
      * some condition (??)
      * @param parameters: Parameters to pass to the callback.
+     * Looks like they're attached to runData.
      * @param callback: ??
      * @param arg: Extra parameter passed to the callback
      * @param options: ??
