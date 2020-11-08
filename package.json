@@ -17,6 +17,7 @@
         "@typescript-eslint/eslint-plugin": "^4.4.1",
         "@typescript-eslint/parser": "^4.4.1",
         "clean-webpack-plugin": "^3.0.0",
+        "compress-tag": "^2.0.0",
         "csstype": "^3.0.4",
         "eslint": "^7.13.0",
         "lodash": "^4.17.20",
