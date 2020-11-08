@@ -2,7 +2,7 @@
 // WikiLayout template.
 
 declare module "wikirequest" {
-  interface WikiRequest {
+  const WIKIREQUEST: {
     info: {
       domain: string
       siteId: number
@@ -13,5 +13,5 @@ declare module "wikirequest" {
       pageUnixName?: string
       pageId?: number
     }
-  }
+  };
 }
