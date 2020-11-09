@@ -72,7 +72,7 @@ pub fn parse<'a>(log: &Logger, text: &'a str) -> SyntaxTree<'a> {
 #[test]
 fn ast() {
     let logger = crate::build_logger();
-    let text = "some test string";
+    let text = "--apple-- banana";
     let tree = parse(&logger, text);
     println!("Tree: {:#?}", tree);
 }
