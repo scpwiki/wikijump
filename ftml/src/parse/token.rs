@@ -263,4 +263,20 @@ fn test_tokens() {
             },
         ],
     );
+
+    test!(
+        "--doubleDash",
+        vec![
+            ExtractedToken {
+                token: Token::DoubleDash,
+                slice: "--",
+                span: 0..2,
+            },
+            ExtractedToken {
+                token: Token::Identifier,
+                slice: "doubleDash",
+                span: 2..12,
+            },
+        ],
+    );
 }
