@@ -17,9 +17,7 @@
  	<script type="text/javascript" src="/common--javascript/moofx/prototype.lite.js"></script>
  	<script type="text/javascript" src="/common--javascript/moofx/moo.fx.js"></script>
 	<script type="text/javascript" src="/common--javascript/moofx/moo.fx.pack.js"></script>
- 	<script type="text/javascript" src="/common--javascript/OZONE.js"></script>
-
- 	<script type="text/javascript" src="/common--javascript/dialog/OZONE.dialog.js"></script>
+ 	<script type="text/javascript" src="/common--dist/bundle.js"></script>
 
  	<script  type="text/javascript">
  		// global request information
@@ -43,9 +41,6 @@
  	<meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
     <meta http-equiv="content-language" content="{$site->getLanguage()}"/>
 
-
- 	<script type="text/javascript" src="/common--javascript/Wikijump.js"></script>
- 	<script type="text/javascript" src="/common--javascript/Wikijump.page.js"></script>
 
  	<script type="text/javascript" src="/common--javascript/printview.js"></script>
 
