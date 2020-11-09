@@ -1,0 +1,22 @@
+{
+  "name": "scpwiki/ozoneframework",
+  "description": "Legacy and future builds of the Ozone framework, originally packaged for wikidot.org.",
+  "type": "library",
+  "minimum-stability": "dev",
+  "license": "AGPL-3.0-or-later",
+  "authors": [
+    {
+      "name": "bluesoul",
+      "email": "github@nags.me",
+      "role": "maintainer"
+    }
+  ],
+  "support": {
+    "irc": "irc://irc.synirc.net/site11",
+    "issues": "https://scuttle.atlassian.net/browse/HELP",
+    "source": "https://github.com/scpwiki/ozoneframework"
+  },
+  "autoload": {
+    "classmap": ["php/"]
+  }
+}

@@ -1,0 +1,45 @@
+/* UI */
+
+
+
+
+
+
+
+
+body#wde-body {
+	background-color: #FFFFFF;
+	padding: 1em;
+}
+
+.wdeVisualAid {
+	border: 1px dashed #BBBBBB;
+}
+
+.wde-spellchecker-badword {
+	/*background: url('../images/wline.gif') repeat-x bottom left;
+	bo2rder-bottom: 1px dashed red;*/
+	background-color: yellow;
+	cursor: default;
+}
+
+.wde-el-anchor {
+	width: 12px;
+	line-height: 6px;
+	overflow: hidden;
+	padding-left: 12px;
+	background-image: url(/common--wikiditor/images/anchor_symbol.gif);
+	background-position: bottom;
+	background-repeat: no-repeat;
+}
+
+.wde-el-wiki-toc{
+	margin: 1em 0;
+}
+.wde-el-wiki-toc span{
+	padding: 0 1em;
+	border: 1px solid #BBB;
+	background-color: #BFB;
+	font-weight: bold;
+
+}

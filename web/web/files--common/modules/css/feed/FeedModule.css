@@ -1,0 +1,7 @@
+.feed-item{
+	margin: 1em 0;
+}
+
+.feed-item .title {
+	font-weight: bold;
+}

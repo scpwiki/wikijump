@@ -1,0 +1,22 @@
+{
+  "name": "scpwiki/Services_JSON",
+  "description": "Legacy version of PEAR/Services_JSON for Wikijump use.",
+  "type": "library",
+  "minimum-stability": "dev",
+  "license": "BSD-2-Clause",
+  "authors": [
+    {
+      "name": "bluesoul",
+      "email": "github@nags.me",
+      "role": "maintainer"
+    }
+  ],
+  "support": {
+    "irc": "irc://irc.synirc.net/site11",
+    "issues": "https://scuttle.atlassian.net/browse/HELP",
+    "source": "https://github.com/scpwiki/Services_JSON"
+  },
+  "autoload": {
+    "classmap": ["JSON.php"]
+  }
+}

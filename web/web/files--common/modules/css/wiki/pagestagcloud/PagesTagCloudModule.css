@@ -1,0 +1,14 @@
+div.pages-tag-cloud-box {
+	/*border: 1px solid #BBD;*/
+	padding: 0 1px;
+	/*font-size: 3em;*/
+	overflow: hidden;
+
+}
+
+
+
+div.pages-tag-cloud-box a.tag{
+	text-decoration: none;
+	padding: 0 0.3em;
+}
