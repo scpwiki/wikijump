@@ -1,8 +1,9 @@
 import CSS from "csstype";
 
 import OZONE from ".";
-import YAHOO from "@/javascript/yahooui/types";
-import fx from "@/javascript/moofx/types";
+
+declare const YAHOO: any;
+declare const fx: any;
 
 /**
  * Backend for dialog boxes and hovertips.

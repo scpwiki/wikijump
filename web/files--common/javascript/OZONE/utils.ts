@@ -3,7 +3,8 @@ import { stringify } from "query-string";
 import OZONE from ".";
 import { ogettext } from "./loc";
 import { HovertipElement } from "./dialog";
-import YAHOO from "@/javascript/yahooui/types";
+
+declare const YAHOO: any;
 
 export const utils = {
   // The time of the most recent JS lock. 0 means no lock currently set.

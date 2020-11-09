@@ -1,9 +1,12 @@
 import Wikijump from ".";
 import OZONE from "@/javascript/OZONE";
 import { RequestModuleParameters } from "@/javascript/OZONE/ajax";
-import YAHOO, { YahooResponse } from "@/javascript/yahooui/types";
-import fx from "@/javascript/moofx/types";
-import { WIKIREQUEST } from "wikirequest";
+import { Wikirequest } from "wikirequest";
+
+declare const YAHOO: any;
+declare type YahooResponse = any;
+declare const fx: any;
+declare const WIKIREQUEST: Wikirequest;
 
 // TODO These are externally defined somewhere - where?
 const HTTP_SCHEMA = "https";

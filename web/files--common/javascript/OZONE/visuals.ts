@@ -1,6 +1,7 @@
 import OZONE from ".";
-import YAHOO from "@/javascript/yahooui/types";
-import fx from "@/javascript/moofx/types";
+
+declare const YAHOO: any;
+declare const fx: any;
 
 export const visuals = {
   cursorWait: function (): void {

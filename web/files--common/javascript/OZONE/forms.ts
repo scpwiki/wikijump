@@ -1,4 +1,4 @@
-import YAHOO from "@/javascript/yahooui/types";
+declare const YAHOO: any;
 
 export const forms = {
   lengthLimiter: class {

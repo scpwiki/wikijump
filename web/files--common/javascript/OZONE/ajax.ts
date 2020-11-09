@@ -1,5 +1,8 @@
 import OZONE from ".";
-import YAHOO, { YahooResponse, YahooCallback } from "@/javascript/yahooui/types";
+
+declare const YAHOO: any;
+declare type YahooResponse = any;
+declare type YahooCallback = (response: any, arg?: unknown) => void
 
 // XXX Trying to type the module parameters is an exercise in futility - they
 // will be attached to runData, from which parameters will be taken in

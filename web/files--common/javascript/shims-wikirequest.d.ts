@@ -2,7 +2,7 @@
 // WikiLayout template.
 
 declare module "wikirequest" {
-  const WIKIREQUEST: {
+  type Wikirequest = {
     info: {
       domain: string
       siteId: number

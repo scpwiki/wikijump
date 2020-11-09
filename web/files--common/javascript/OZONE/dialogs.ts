@@ -2,7 +2,8 @@ import CSS from "csstype";
 
 import OZONE from ".";
 import { ogettext } from "./loc";
-import YAHOO from "@/javascript/yahooui/types";
+
+declare const YAHOO: any;
 
 /**
  * Ready-to-use dialog components.
