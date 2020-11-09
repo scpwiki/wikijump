@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "baseUrl": ".",
-        "outDir": "./web/files--common/javascript/dist/",
+        "outDir": "./web/files--common/dist/",
         "noImplicitAny": true,
         "module": "esnext",
         "target": "esnext",

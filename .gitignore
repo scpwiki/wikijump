@@ -6,7 +6,7 @@ conf/wikidot.ini
 conf/wikijump.ini
 /tmp
 /web/files--common/tmp
-/web/files--common/javascript/dist/
+/web/files--common/dist/
 /web/files--sites
 /vendor
 composer.phar

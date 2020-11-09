@@ -5,7 +5,7 @@ module.exports = {
   entry: './web/files--common/javascript/index.ts',
   output: {
     filename: 'bundle.js',
-    path: path.resolve(__dirname, 'web/files--common/javascript/dist'),
+    path: path.resolve(__dirname, 'web/files--common/dist'),
     libraryTarget: 'window'
   },
   devtool: "source-map",
