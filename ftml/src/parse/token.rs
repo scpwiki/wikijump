@@ -216,3 +216,27 @@ impl slog::Value for Token {
         serializer.emit_str(key, self.name())
     }
 }
+
+#[test]
+fn test_tokens() {
+    let logger = crate::build_logger();
+
+    macro_rules! test {
+        ($input:expr, $expected:expr) => {{
+            let result = Token::extract_all(&logger, $input);
+            assert_eq!(
+                result, $expected,
+                "Extracted tokens from lexer did not match expected",
+            );
+        }};
+    }
+
+    test!(
+        "text",
+        vec![ExtractedToken {
+            token: Token::Identifier,
+            slice: "text",
+            span: 0..4,
+        }]
+    );
+}
