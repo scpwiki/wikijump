@@ -222,14 +222,17 @@ fn test_tokens() {
     let logger = crate::build_logger();
 
     macro_rules! test {
-        ($input:expr, $expected:expr) => {{
+        ($input:expr, $expected:expr,) => {{
             let result = Token::extract_all(&logger, $input);
+
             assert_eq!(
                 result, $expected,
-                "Extracted tokens from lexer did not match expected",
+                "Extracted tokens (left) from lexer did not match expected (right)",
             );
         }};
     }
+
+    // Test cases:
 
     test!(
         "text",
@@ -237,6 +240,27 @@ fn test_tokens() {
             token: Token::Identifier,
             slice: "text",
             span: 0..4,
-        }]
+        }],
+    );
+
+    test!(
+        "-- doubleDash",
+        vec![
+            ExtractedToken {
+                token: Token::DoubleDash,
+                slice: "--",
+                span: 0..2,
+            },
+            ExtractedToken {
+                token: Token::Whitespace,
+                slice: " ",
+                span: 2..3,
+            },
+            ExtractedToken {
+                token: Token::Identifier,
+                slice: "doubleDash",
+                span: 3..13,
+            },
+        ],
     );
 }
