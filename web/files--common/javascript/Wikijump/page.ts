@@ -965,5 +965,3 @@ export const page = {
     Wikijump.page.vars.ctrle = ctrle;
   }
 };
-
-Wikijump.page.init();

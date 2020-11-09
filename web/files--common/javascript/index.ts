@@ -1,3 +1,6 @@
 import Wikijump from "@/javascript/Wikijump";
+import OZONE from "@/javascript/OZONE";
 
-export default Wikijump;
+Wikijump.page.init();
+
+export { Wikijump, OZONE };
