@@ -73,3 +73,11 @@ If possible, add to this log in the same commit in which the code is removed.
 * Where it was: [Wikijump.page.js](https://github.com/scpwiki/wikijump/blob/439c92376f04adaf73af87e2f53edabced8ca90f/web/files--common/javascript/Wikijump.page.js#L132)
 * What it did: Unsure. May have been an older version of `loginClick`.
 * Why it was removed: Unused; referenced a nonexistent callback.
+
+## JS: `OZONE.ajax.requestQuickModule`
+* Where it was: [OZONE.js](https://github.com/scpwiki/wikijump/blob/439c92376f04adaf73af87e2f53edabced8ca90f/web/files--common/javascript/OZONE.js#L124)
+* What it did: Requested a "quickmodule" as opposed to a regular module.
+  Made requests to `quickmodule.php`.  No indication what the difference
+  between the two is.
+* Why it was removed: It was unused, although the concept of a quick module
+  appears on the PHP side of the codebase.

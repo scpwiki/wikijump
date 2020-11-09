@@ -137,55 +137,5 @@ export const ajax = {
       OZONE.visuals.cursorClear();
       OZONE.dialog.cleanAll();
     }
-
   }
-
-  // XXX While the concept of a quickmodule does appear in the codebase, it is
-  // confined to the PHP, and the following two methods are unused. They are
-  // not type-safe (and, because they are unused, not worth refactoring) so I
-  // have commented them out.
-  // requestQuickModule: function (
-  //   moduleName: unknown,
-  //   parameters: unknown,
-  //   callback: (response: YahooResponse) => void
-  // ): void {
-  //   /**
-  //    * ?? (unused)
-  //    *
-  //    * @param moduleName: ??
-  //    * @param parameters: ??
-  //    * @param callback: ??
-  //    */
-  //   if (parameters === null) {
-  //     parameters = {};
-  //   }
-  //   if (moduleName === null || moduleName === '') {
-  //     alert('Quick module name empty.');
-  //   }
-
-  //   const callbackIndex = ajax._callbackArrayIndex++;
-  //   ajax._callbackArray[callbackIndex] = callback;
-
-  //   parameters.callbackIndex = callbackIndex;
-
-  //   const postdata = JSON.stringify(parameters);
-  //   const internalCallback = ajax.requestQuickModuleCallback;
-  //   YAHOO.util.Connect.asyncRequest('POST', '/quickmodule.php?module=' + moduleName, internalCallback, postdata);
-  // },
-
-  // requestQuickModuleCallback: {
-  //   /**
-  //    * ?? (unused)
-  //    */
-  //   success: function (responseObject: YahooResponse): void {
-  //     // process response
-  //     const response = JSON.parse(responseObject.responseText);
-  //     const callbackIndex = response.callbackIndex;
-  //     const callback = ajax._callbackArray[callbackIndex];
-  //     callback(response);
-  //   },
-  //   failure: function (_responseObject: YahooResponse): void {
-  //     alert('The ajax request failed. Please check your internet connection or\nreport a bug if the error repeats during your work.');
-  //   }
-  // }
 };
