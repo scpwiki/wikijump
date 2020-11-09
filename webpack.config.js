@@ -4,8 +4,9 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 module.exports = {
   entry: './web/files--common/javascript/index.ts',
   output: {
-    filename: 'bundle.[contenthash].js',
-    path: path.resolve(__dirname, 'web/files--common/javascript/dist')
+    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'web/files--common/javascript/dist'),
+    libraryTarget: 'window'
   },
   devtool: "source-map",
   module: {
