@@ -1,5 +1,6 @@
 import Wikijump from ".";
 import OZONE from "@/javascript/OZONE";
+import { RequestModuleParameters } from "@/javascript/OZONE/ajax";
 import YAHOO, { YahooResponse } from "@/javascript/yahooui/types";
 import fx from "@/javascript/moofx/types";
 import { WIKIREQUEST } from "wikirequest";
@@ -7,14 +8,6 @@ import { WIKIREQUEST } from "wikirequest";
 // TODO These are externally defined somewhere - where?
 const HTTP_SCHEMA = "https";
 const URL_HOST = "wikijump.test";
-
-// XXX Trying to type the module parameters is an exercise in futility - they
-// will be attached to runData, from which parameters will be taken in
-// AjaxModuleWikiFlowController, and remaining parameters will go directly to
-// the module, where there is no parameter standardisation
-type RequestModuleParameters = {
-  [key: string]: string | number | null | undefined
-}
 
 type EditLock = {
   id: unknown

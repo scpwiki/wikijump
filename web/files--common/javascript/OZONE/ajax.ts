@@ -1,14 +1,12 @@
 import OZONE from ".";
 import YAHOO, { YahooResponse, YahooCallback } from "@/javascript/yahooui/types";
 
-type RequestModuleParameters = {
-  // TODO Add more values as we discover them
-  action?: 'FileAction'
-  event?: 'checkFileExists'
-  moduleName?: string
-  pageId?: number
-  callbackIndex?: number
-  wikijump_token7?: string /* eslint-disable-line camelcase */
+// XXX Trying to type the module parameters is an exercise in futility - they
+// will be attached to runData, from which parameters will be taken in
+// AjaxModuleWikiFlowController, and remaining parameters will go directly to
+// the module, where there is no parameter standardisation
+export type RequestModuleParameters = {
+  [key: string]: string | number | null | undefined
 }
 
 type RequestModuleOptions = {
