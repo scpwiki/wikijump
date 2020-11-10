@@ -1,7 +1,7 @@
 .idea/
 files/public.pem
 files/modulus.pem
-conf/ssl/*.pem
+*.pem
 conf/wikidot.ini
 conf/wikijump.ini
 /tmp
