@@ -1,1 +1,12 @@
+# Keys and secrets
+files/public.pem
+files/modulus.pem
 *.pem
+
+# Editor files
+.idea/
+.*.swp
+
+# Miscellaneous
+*.bak
+*~
