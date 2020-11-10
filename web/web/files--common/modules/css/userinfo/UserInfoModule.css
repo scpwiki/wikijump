@@ -1,0 +1,64 @@
+#user-info-side{
+	width: 16em;
+	padding: 0 0em;
+	float: left;
+	padding-right: 20px;
+	border-right: 1px solid #AAA;
+}
+
+#user-info-side hr{
+	height: 1px;
+	border: none;
+	color: #DDD;
+	background-color: #DDD;
+	margin: 2px;
+}
+
+#user-info-side .head{
+	font-family: "trebuchet ms",verdana, arial;
+	color: #005;
+	font-size: 140%;
+	padding: 5px 10px;
+	border-bottom: 1px solid #88B;
+	margin-bottom: 10px;
+}
+
+#user-info-side ul{
+	display: block;
+	padding: 0; margin: 0;
+	list-style: none;
+}
+
+#user-info-side li{
+	display: block;
+	padding: 0; margin: 0;
+}
+#user-info-side li a{
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	position: relative; left: 0px; right: 0px;
+	display: block;
+	padding: 2px 10px;
+}
+
+
+#user-info-side li a.active{
+	background-color: #DDD;
+}
+
+
+#user-info-area{
+	margin-left: 19em;
+
+}
+
+/* usefull... */
+
+.profile-box{
+	border: 1px solid #777;
+	padding: 10px;
+}
+
+#ui-profile-included{
+
+}

@@ -1,0 +1,270 @@
+
+h1, h2, h3, div {
+	margin: 0;
+}
+
+#container-wrap {
+	background: url(../images/body_bg.png) repeat-y center center #37c;
+}
+
+#content-wrap, #header {
+	width: 720px;
+	margin: 0 auto;
+}
+
+#header {
+	background: url(../images/header_bg.jpg) no-repeat 0 22px;
+	height: 173px;
+	margin-bottom: 20px;
+}
+
+#header h1 {
+	top: auto;
+	bottom: 60px;
+	position: absolute;
+	padding: 10px 15px;
+	background: transparent;
+}
+
+#header h1 a {
+	color: #fff;
+	background: transparent;
+	font-size: 170%;
+	letter-spacing: 2px;
+	opacity: 0.8;
+}
+
+#header h2 {
+	top: 87px;
+	position: absolute;
+	padding: 10px 19px;
+	color: #137;
+	font-weight: bold;
+	letter-spacing: 1px;
+	font-size: 115%;
+	background: transparent;
+}
+
+#search-top-box input.button {
+	display: none;
+}
+
+#search-top-box-input {
+	text-align: right;
+}
+
+#login-status {
+	top: 1px;
+}
+
+#top-bar {
+	right: auto;
+	left: 0;
+}
+
+#search-top-box {
+	top: auto;
+	bottom: 10px;
+	opacity: 0.6;
+}
+
+#top-bar {
+	top: auto;
+	bottom: 3px;
+}
+
+#top-bar a {
+	color: #fff;
+	font-size: 120%;
+	font-weight: bold;
+}
+
+#top-bar a:hover {
+	text-decoration: none;
+	background: transparent;
+}
+
+#top-bar ul li a {
+	padding-bottom: 7px;
+}
+
+#top-bar ul li ul {
+	width: auto;
+	border-style: solid;
+	border-color: #ddd #777 #777 #ddd;
+	background-color: #fff;
+	padding: 0;
+	margin: 0;
+	opacity: 0.85;
+	-moz-border-radius-bottomleft: 7px;
+	-webkit-border-bottom-left-radius: 7px;
+	-moz-border-radius-bottomright: 7px;
+	-webkit-border-bottom-right-radius: 7px;
+}
+
+#top-bar ul li ul li {
+	padding: 0;
+	margin: 0;
+	list-style-position: outside;
+}
+
+#top-bar ul li ul li a {
+	color: #222;
+	background: transparent;
+	opacity: 1;
+}
+
+#top-bar ul li ul a:hover {
+	background: #9be;
+	color: #fff;
+}
+
+#side-bar {
+	float: right;
+	background: #ddd url(../images/side_bottom.png) no-repeat bottom;
+	margin: 12px 0 15px 15px;
+	width: 200px;
+	padding: 0 10px 12px;
+	z-index: 10;
+	position: relative;
+}
+
+ul, ol, li, #side-bar ul {
+	list-style-position: inside;
+	padding: 0;
+}
+
+#page-content li > ul, #page-content li > ol {
+	padding-left: 20px;
+}
+
+#main-content {
+	margin-left: 0;
+	margin-top: -9px;
+	padding: 0 0 10px;
+}
+
+#content-wrap {
+	background: url(../images/side_top.png) no-repeat 498px 0;
+	padding: 0 2px;
+	width: 716px;
+}
+
+a {
+	opacity: 0.7;
+}
+
+a:hover {
+	opacity: 1;
+	background-color: transparent;
+}
+
+h1 a, h2 a, h3 a {
+	text-decoration: none;
+}
+
+#page-title, h1, h2, h3 {
+	border: none;
+	padding: 3px 5px 3px 0;
+	color: #137;
+	margin: 0;
+}
+
+div > #page-title,
+#page-content > h1, #page-content > .list-pages-box > .list-pages-item > h1,
+#page-content > h2, #page-content > .list-pages-box > .list-pages-item > h2,
+#page-content > h3, #page-content > .list-pages-box > .list-pages-item > h3
+{
+	padding-left: 17px;
+	background: url(../images/h_bg.png) repeat-y left center;
+}
+
+#page-content div, #page-content ul, #page-content ol, #page-content p {
+	padding: 0 5px 0 0;
+	color: #333;
+	margin: 0.8em 0;
+}
+
+#page-content div div {
+	padding: 0;
+	margin: 0;
+}
+
+#page-content > div, #page-content > .list-pages-box > .list-pages-item > div,
+#page-content > ul,  #page-content > .list-pages-box > .list-pages-item > ul,
+#page-content > ol,  #page-content > .list-pages-box > .list-pages-item > ol,
+#page-content > p,   #page-content > .list-pages-box > .list-pages-item > p
+{
+	background: url(../images/p_bg.png) repeat-y left center;
+	padding-left: 20px;
+	color: #333;
+}
+
+#page-content > .list-pages-box {
+	background: transparent;
+	padding: 0;
+	margin: 0;
+}
+
+#page-content > .list-pages-box > .list-pages-item > div.blog-date {
+	text-transform: uppercase;
+	font-size: 85%;
+	letter-spacing: 1px;
+	font-weight: bold;
+	color: #666;
+	background: transparent;
+	margin: 0;
+	padding-top: 0;
+	padding-bottom: 0;
+
+}
+
+#page-content > .list-pages-box > .list-pages-item {
+	margin-bottom: 50px;
+}
+
+#footer {
+	padding-top: 20px;
+}
+
+#footer {
+	background: #37c;
+	width: auto;
+	padding: 20px 10px 2px;
+	margin: 0;
+	color: #fff;
+	font-size: 85%;
+}
+
+#footer a {
+	color: #fff;
+}
+
+#license-area {
+	width: 100%;
+	margin: 0;
+	background: #fff;
+	color: #333;
+	font-size: 85%;
+}
+
+#new-post-form, #action-area {
+	clear: both;
+}
+
+#page-content div {
+	position: relative; /* just to add hasLayout on IE6 to them */
+}
+
+#np-editor-panel ul {
+	margin: 0;
+}
+
+#site-manager-menu {
+	z-index: 10;
+	margin-right: 20px;
+}
+
+#page-content .yui-nav li {
+	margin: 0;
+}

@@ -1,0 +1,59 @@
+/* style purificator for the printer-friendly version */
+
+body{
+	font-size: 12pt;
+/*	font-family: Georgia;*/
+	background-image: none;
+	background-color: white;
+	color: black;
+	min-width: 0;
+}
+
+#container{
+	margin: 0 10px;
+	padding: 0;
+	background: none;
+	min-width: 0;
+}
+
+#container-wrap{
+	margin: 0;padding: 0;
+	background: none;
+	min-width: 0;
+}
+
+#page-content {
+	margin: 0;
+	padding: 0;
+}
+
+#content-wrap {
+	margin: 0;
+}
+
+#main-content{
+	margin: 10px 0;
+	padding: 0;
+}
+
+#print-head{
+	text-align: right;
+}
+
+#print-footer{
+	text-align: center;
+	font-weight: bold;
+}
+
+#license-area{
+	color: #000;
+	font-size: 85%;
+}
+
+#print-options{
+	font-size: 14px;
+	font-family: Verdana, Arial, Helvetica;
+	padding: 5px;
+	border-bottom: 3px solid #444;
+	margin-bottom: 15px;
+}

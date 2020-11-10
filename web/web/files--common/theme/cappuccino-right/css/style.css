@@ -1,0 +1,16 @@
+/* CAPPUCINO STYLE - side bar on right */
+
+
+
+#side-bar{
+	float: right;
+	margin:0 0 0 1em;
+}
+
+
+#main-content{
+	margin-left: 0;
+	margin-right: 16em;
+	padding: 0 1em;
+}
+
