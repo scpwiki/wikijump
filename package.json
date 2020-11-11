@@ -19,6 +19,12 @@
             "@babel/preset-typescript"
         ]
     },
+    "jest": {
+        "moduleFileExtensions": ["js", "ts"],
+        "moduleNameMapper": {
+            "^@/(.*)$": "<rootDir>/web/files--common/$1"
+        }
+    },
     "devDependencies": {
         "@babel/core": "^7.12.3",
         "@babel/preset-env": "^7.12.1",
