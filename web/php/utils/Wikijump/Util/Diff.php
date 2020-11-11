@@ -1,7 +1,7 @@
 <?php
 namespace Wikijump\Util;
 
-use Wikijump\Util\Diff as WikijumpUtilDiff;
+use \WDStringUtils;
 
 /**
  * A set of methods handling diff operations.
@@ -64,8 +64,8 @@ class Diff
     public static function generateStringDiff($fromString, $toString, $contextLines = 1, $minimal = true)
     {
         // fix "no new line at the end" problem.
-        $fromString = UnixifyString::addTrailingNewline($fromString);
-        $toString = UnixifyString::addTrailingNewline($toString);
+        $fromString = WDStringUtils::addTrailingNewline($fromString);
+        $toString = WDStringUtils::addTrailingNewline($toString);
 
         return self::unifiedDiff($fromString, $toString, $contextLines, $minimal);
     }
@@ -81,8 +81,8 @@ class Diff
     public static function patchString($string, $patch, $reverse = false)
     {
         // fix "no new line at the end" problem.
-        $string = UnixifyString::addTrailingNewline($string);
-        $patch = UnixifyString::addTrailingNewline($patch);
+        $string = WDStringUtils::addTrailingNewline($string);
+        $patch = WDStringUtils::addTrailingNewline($patch);
 
         if ($reverse == false) {
             $flags = XDIFF_PATCH_NORMAL;

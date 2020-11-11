@@ -162,12 +162,4 @@ class UnixifyString
 
         return $text;
     }
-
-    public static function addTrailingNewline($text)
-    {
-        if (!preg_match("/\n$/", $text)) {
-            $text .= "\n";
-        }
-        return $text;
-    }
 }
