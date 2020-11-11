@@ -9,7 +9,7 @@ resource "aws_vpc" "wikijump_vpc" {
 # Subnets
 
 resource "aws_subnet" "elb_subnet" {
-    vpc_cidr_block          = aws_vpc.wikijump_vpc.id
+    vpc_id          = aws_vpc.wikijump_vpc.id
     cidr_block              = var.elb_subnet
     map_public_ip_on_launch = true
     
@@ -17,17 +17,17 @@ resource "aws_subnet" "elb_subnet" {
 }
 
 resource "aws_subnet" "container_subnet" {
-    vpc_cidr_block  = aws_vpc.wikijump_vpc.id
+    vpc_id  = aws_vpc.wikijump_vpc.id
     cidr_block      = var.container_subnet
 }
 
 resource "aws_subnet" "database_subnet" {
-    vpc_cidr_block  = aws_vpc.wikijump_vpc.id
+    vpc_id  = aws_vpc.wikijump_vpc.id
     cidr_block      = var.database_subnet
 }
 
 resource "aws_subnet" "cache_subnet" {
-    vpc_cidr_block  = aws_vpc.wikijump_vpc.id
+    vpc_id  = aws_vpc.wikijump_vpc.id
     cidr_block      = var.cache_subnet
 }
 

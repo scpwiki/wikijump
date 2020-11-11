@@ -14,7 +14,7 @@ resource "aws_ecs_service" "wikijump" {
 resource "aws_ecs_task_definition" "wikijump_task" {
     family  = "wikijump-${var.environment}-family"
     container_definitions   = file("task-definitions/wikijump.json")
-    requires_compatibilities    = "FARGATE"
+    requires_compatibilities    = ["FARGATE"]
     cpu                         = 256  # 1024 = 1 vCPU
     memory                      = 512  # MiB
 }
@@ -22,5 +22,5 @@ resource "aws_ecs_task_definition" "wikijump_task" {
 resource "aws_ecs_cluster" "wikijump_ecs_cluster" {
   name                  = "wikijump-${var.environment}"
   # Using Spot as a cost-saving measure for now. This will end up being dependent on environment.
-  capacity_providers    = "FARGATE_SPOT"
+  capacity_providers    = ["FARGATE_SPOT"]
 }
