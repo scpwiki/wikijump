@@ -1,0 +1,23 @@
+name: Test JavaScript
+on:
+  # Run this on push to master
+  push:
+    branches:
+      - master
+  # Run this on push to PRs made against master
+  pull_request:
+    branches:
+      - master
+  # [Monorepo] Only run this if there are changes to web
+  # paths:
+  #   - "web/**"
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install
+        run: npm install
+      - name: Test
+        run: npm run test
