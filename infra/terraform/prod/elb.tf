@@ -38,9 +38,13 @@ resource "aws_lb_listener" "elb_listener" {
     port                    = 80
     default_action {
         type                = forward
-        target_group_arn    = aws_lb_target_group.elb_target_group.arn
-        stickiness {
-            enabled         = false
+        forward {
+            target_group    {
+                arn    = aws_lb_target_group.elb_target_group.arn
+            }
+            stickiness {
+                enabled         = false
+            }
         }
     }
 }
