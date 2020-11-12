@@ -11,7 +11,7 @@ resource "aws_route53_record" "primary_record" {
   name    = var.web_domain
   type    = "A"
   ttl     = "300"
-  records = [aws_eip.wikijump_elb.public_ip]
+  records = [aws_eip.elb_eip.public_ip]
 }
 
 resource "aws_route53_record" "primary_wildcard" {
@@ -27,7 +27,7 @@ resource "aws_route53_record" "files_record" {
   name    = var.files_domain
   type    = "A"
   ttl     = "300"
-  records = [aws_eip.wikijump_elb.public_ip]
+  records = [aws_eip.elb_eip.public_ip]
 }
 
 resource "aws_route53_record" "files_wildcard" {
