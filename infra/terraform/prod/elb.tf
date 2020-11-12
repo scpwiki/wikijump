@@ -1,7 +1,7 @@
 # ELB
 
 resource "aws_lb" "wikijump_elb" {
-    name                        = "wikijump_public_elb_${var.environment}"
+    name                        = "wikijump-public-elb-${var.environment}"
     internal                    = false
     load_balancer_type          = "application"
     security_groups             = [aws_security_group.elb_sg.id]
@@ -22,7 +22,7 @@ resource "aws_lb" "wikijump_elb" {
 }
 
 resource "aws_lb_target_group" "elb_target_group" {
-    name        = "wikijump_tg_80_${var.environment}"
+    name        = "wikijump-tg-80-${var.environment}"
     port        = 80
     protocol    = "HTTP"
     vpc_id      = aws_vpc.wikijump_vpc.id
@@ -58,7 +58,7 @@ resource "aws_lb_listener_rule" "cloudfront_header_check" {
     condition {
         http_header {
         http_header_name    = "X-CLOUDFRONT-WIKIJUMP-AUTH"
-        values              = var.cf_auth_token
+        values              = [var.cf_auth_token]
         }
     }
 }
@@ -76,6 +76,11 @@ resource "aws_lb_listener_rule" "fallback" {
         } 
     }
 
+    condition {
+        path_pattern {
+        values              = ["*"]
+        }
+    }
 }
 
 # Security Group
