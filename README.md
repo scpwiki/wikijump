@@ -6,7 +6,7 @@ It aims to significantly refactor legacy code, remove misfeatures and dead code,
 This project is being developed by the SCP Wiki's [Technical Team](http://05command.wikidot.com/technical-staff-main) as part of Project Foundation.
 Issues are tracked on our [JIRA](https://scuttle.atlassian.net/browse/WDBUGS).
 
-Questions, comments or suggestions can be suggested in the [Feature Requests forum](http://www.scpwiki.com/forum/c-3335630/feature-requests), or in [`#site11` on SkipIRC](http://www.scpwiki.com/chat-guide).
+Questions and comments can be posted in our [General Information forum](http://scp-wiki.wikidot.com/forum/c-3335628/general-information), or in [`#site11` on SkipIRC](http://www.scpwiki.com/chat-guide).
 
 ### Getting Started
 
