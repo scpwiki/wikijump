@@ -3738,7 +3738,7 @@ COPY ip_block (block_id, site_id, ip, flag_proxy, reason, date_blocked) FROM std
 -- Data for Name: license; Type: TABLE DATA; Schema: public; Owner: wd
 --
 
-COPY public.license (license_id, name, description, sort) FROM stdin;
+COPY license (license_id, name, description, sort) FROM stdin;
 1	Creative Commons Attribution-ShareAlike 4.0 License (recommended)	%%UNLESS%% <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 License</a>	1
 2	Creative Commons Attribution 4.0 License	%%UNLESS%% <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 License</a>	2
 3	Creative Commons Attribution-NoDerivs 4.0 License	%%UNLESS%% <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/">Creative Commons Attribution-NoDerivs 4.0 License</a>	3
