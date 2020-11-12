@@ -14,4 +14,4 @@ We don't have a lot of documentation here yet. See [development.md](docs/develop
 
 ### License
 
-This code is available under the same license as Wikidot, the [GNU Affero General Public License 3.0](https://www.gnu.org/licenses/agpl-3.0.en.html) (AGPL 3.0).
+Wikijump is available under the same license as Wikidot, the [GNU Affero General Public License 3.0](https://www.gnu.org/licenses/agpl-3.0.en.html) (AGPL 3.0).
