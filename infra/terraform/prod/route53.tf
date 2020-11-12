@@ -10,7 +10,6 @@ resource "aws_route53_record" "primary_record" {
   zone_id = aws_route53_zone.primary.zone_id
   name    = var.web_domain
   type    = "A"
-  ttl     = "300"
   alias {
     name    = aws_cloudfront_distribution.wikijump_cf_distro.domain_name
     zone_id = aws_cloudfront_distribution.wikijump_cf_distro.hosted_zone_id
@@ -33,7 +32,6 @@ resource "aws_route53_record" "files_record" {
   zone_id = aws_route53_zone.files.zone_id
   name    = var.files_domain
   type    = "A"
-  ttl     = "300"
   alias {
     name    = aws_cloudfront_distribution.wikijump_cf_distro.domain_name
     zone_id = aws_cloudfront_distribution.wikijump_cf_distro.hosted_zone_id
