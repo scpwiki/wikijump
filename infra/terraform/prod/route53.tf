@@ -11,7 +11,13 @@ resource "aws_route53_record" "primary_record" {
   name    = var.web_domain
   type    = "A"
   ttl     = "300"
-  records = [aws_eip.elb_eip.public_ip]
+  alias {
+    name    = aws_cloudfront_distribution.wikijump_cf_distro.domain_name
+    zone_id = aws_cloudfront_distribution.wikijump_cf_distro.hosted_zone_id
+    evaluate_target_health  = true
+  }
+
+  allow_overwrite = true
 }
 
 resource "aws_route53_record" "primary_wildcard" {
@@ -20,6 +26,7 @@ resource "aws_route53_record" "primary_wildcard" {
   type    = "CNAME"
   ttl     = "300"
   records = [var.web_domain]
+  allow_overwrite = true
 }
 
 resource "aws_route53_record" "files_record" {
@@ -27,7 +34,12 @@ resource "aws_route53_record" "files_record" {
   name    = var.files_domain
   type    = "A"
   ttl     = "300"
-  records = [aws_eip.elb_eip.public_ip]
+  alias {
+    name    = aws_cloudfront_distribution.wikijump_cf_distro.domain_name
+    zone_id = aws_cloudfront_distribution.wikijump_cf_distro.hosted_zone_id
+    evaluate_target_health  = true
+  }
+  allow_overwrite = true
 }
 
 resource "aws_route53_record" "files_wildcard" {
@@ -36,4 +48,5 @@ resource "aws_route53_record" "files_wildcard" {
   type    = "CNAME"
   ttl     = "300"
   records = [var.files_domain]
+  allow_overwrite = true
 }
