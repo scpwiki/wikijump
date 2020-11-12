@@ -12,4 +12,4 @@ This code is available under the same license as Wikidot, the [GNU Affero Genera
 
 ### Getting Started
 
-We don't have a lot of documentation here yet. See [development.md](docs/development.md) for information on running a local instance of Wikijump.
+We don't have a lot of documentation here yet. See [development.md](docs/development.md) and [install.md](docs/install.md) for information on running a local instance of Wikijump.
