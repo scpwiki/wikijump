@@ -6,16 +6,20 @@ on:
       - master
   # Run this on push to PRs, regardless of branch
   pull_request:
-  # [Monorepo] Only run this if there are changes to web
-  # paths:
-  #   - "web/**"
+  # Only run this if there are changes to the web subrepo
+  paths:
+    - "web/**"
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      working-directory: ./web
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Install
+        working-directory: ${{env.working-directory}}
         run: npm install
       - name: Test
+        working-directory: ${{env.working-directory}}
         run: npm run test
