@@ -3756,6 +3756,7 @@ COPY public.license (license_id, name, description, sort) FROM stdin;
 15	Standard copyright (not recommended)	\N	1000
 \.
 
+
 --
 -- Data for Name: log_event; Type: TABLE DATA; Schema: public; Owner: wd
 --
