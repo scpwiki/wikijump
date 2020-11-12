@@ -1,0 +1,13 @@
+[
+    {
+      "name": "first",
+      "image": "${var.aws_ecr_repository.wikijump_ecr.repository_url}/wikijump:stable",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 80,
+          "hostPort": 80
+        }
+      ]
+    }
+]

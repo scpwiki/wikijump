@@ -1,13 +1,12 @@
-.idea/
+# Keys and secrets
 files/public.pem
 files/modulus.pem
-conf/ssl/*.pem
-conf/wikidot.ini
-conf/wikijump.ini
-/tmp
-/web/files--common/tmp
-/web/files--common/dist/
-/web/files--sites
-/vendor
-composer.phar
-node_modules/
+*.pem
+
+# Editor files
+.idea/
+.*.swp
+
+# Miscellaneous
+*.bak
+*~

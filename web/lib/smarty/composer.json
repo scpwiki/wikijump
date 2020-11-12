@@ -1,0 +1,22 @@
+{
+  "name": "scpwiki/smarty",
+  "description": "Fork of smarty/smarty with PHP5 dereferencing support.",
+  "type": "library",
+  "minimum-stability": "dev",
+  "license": "LGPL-2.1-or-later",
+  "authors": [
+    {
+      "name": "bluesoul",
+      "email": "github@nags.me",
+      "role": "maintainer"
+    }
+  ],
+  "support": {
+    "irc": "irc://irc.synirc.net/site11",
+    "issues": "https://scuttle.atlassian.net/browse/HELP",
+    "source": "https://github.com/scpwiki/smarty"
+  },
+  "autoload": {
+    "classmap": ["libs/"]
+  }
+}

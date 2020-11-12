@@ -1,0 +1,22 @@
+{
+  "name": "scpwiki/magpierss",
+  "description": "Legacy version of Wikidot's onboard magpierss v0.72.",
+  "type": "library",
+  "minimum-stability": "dev",
+  "license": "LGPL-2.1-or-later",
+  "authors": [
+    {
+      "name": "bluesoul",
+      "email": "github@nags.me",
+      "role": "maintainer"
+    }
+  ],
+  "support": {
+    "irc": "irc://irc.synirc.net/site11",
+    "issues": "https://scuttle.atlassian.net/browse/HELP",
+    "source": "https://github.com/scpwiki/magpierss"
+  },
+  "autoload": {
+    "classmap": ["rss_cache.inc", "rss_fetch.inc", "rss_parse.inc", "rss_utils.inc", "extlib/Snoopy.class.inc"]
+  }
+}

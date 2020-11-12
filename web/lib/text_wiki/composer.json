@@ -1,0 +1,22 @@
+{
+  "name": "scpwiki/text_wiki",
+  "description": "The Text_Wiki library used for Wikidot and Wikijump.",
+  "type": "library",
+  "minimum-stability": "dev",
+  "license": "LGPL-2.1-or-later",
+  "authors": [
+    {
+      "name": "bluesoul",
+      "email": "github@nags.me",
+      "role": "maintainer"
+    }
+  ],
+  "support": {
+    "irc": "irc://irc.synirc.net/site11",
+    "issues": "https://scuttle.atlassian.net/browse/HELP",
+    "source": "https://github.com/scpwiki/text_wiki"
+  },
+  "autoload": {
+    "classmap": ["Text/"]
+  }
+}
