@@ -36,7 +36,7 @@ extern crate enum_map;
 extern crate lazy_static;
 
 #[macro_use]
-extern crate logos;
+extern crate pest;
 extern crate regex;
 
 #[macro_use]
