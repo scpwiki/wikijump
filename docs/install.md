@@ -1,7 +1,6 @@
 # Installation
 
-Installation is currently handled via the wikijump-infra repo, documentation to
-follow.
+(incomplete)
 
 ## Installing dependencies
 
