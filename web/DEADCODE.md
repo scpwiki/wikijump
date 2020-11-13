@@ -58,7 +58,7 @@ If possible, add to this log in the same commit in which the code is removed.
   "center-message" object. I believe this was a precursor to `OZONE.dialog`.
 * Why it was removed: The object and all the methods in it were unused.
 
-## JS: `Wikijump.utils.changeTextareaRowNo`
+## JS: `Wikijump.utils.formatDates`
 * Where it was: [Wikijump.js](https://github.com/scpwiki/wikijump/blob/439c92376f04adaf73af87e2f53edabced8ca90f/web/files--common/javascript/Wikijump.js#L83)
 * What it did: Formatted dates within an element. Looks like it was a precursor
   to `OZONE.utils.formatDates`.
