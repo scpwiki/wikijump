@@ -119,15 +119,15 @@ RUN scripts/setup-postgres.sh
 # Install configuration files
 
 RUN cp -av "./etc/nginx" "/etc"
-RUN cp -av "./var/www/wikijump/conf/wikijump.ini" "${WIKIJUMP_DIR}/conf/wikijump.ini"
+RUN cp -av "./var/www/wikijump/conf/wikijump.ini" "${WIKIJUMP_DIR}/web/conf/wikijump.ini"
 RUN cp -av "./etc/php/${PHP_VERSION}/cgi/conf.d/"* "/etc/php/${PHP_VERSION}/cgi"
 RUN cp -av "./etc/php/${PHP_VERSION}/cgi/conf.d/"* "/etc/php/${PHP_VERSION}/fpm"
 
 # Inject values in the wikijump.ini configuration file
 
-RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" "${WIKIJUMP_DIR}/conf/wikijump.ini"
-RUN sed -i "s/MAINWIKI/${WWW_DOMAIN}/g" "${WIKIJUMP_DIR}/conf/wikijump.ini"
-RUN sed -i "s/FILEDOMAIN/${FILES_DOMAIN}/g" "${WIKIJUMP_DIR}/conf/wikijump.ini"
+RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" "${WIKIJUMP_DIR}/web/conf/wikijump.ini"
+RUN sed -i "s/MAINWIKI/${WWW_DOMAIN}/g" "${WIKIJUMP_DIR}/web/conf/wikijump.ini"
+RUN sed -i "s/FILEDOMAIN/${FILES_DOMAIN}/g" "${WIKIJUMP_DIR}/web/conf/wikijump.ini"
 
 # Update nginx configuration to point to the wikijump directory
 
@@ -140,7 +140,7 @@ RUN rm -f /etc/nginx/sites-enabled/default
 
 # Run composer installation
 
-WORKDIR "${WIKIJUMP_DIR}"
+WORKDIR "${WIKIJUMP_DIR}/web"
 RUN composer install
 
 # Clean up
