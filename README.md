@@ -18,6 +18,6 @@ If you would like to offer to volunteer some of your time to Wikijump developmen
 
 We don't have a lot of documentation here yet. See [development.md](docs/development.md) and [install.md](docs/install.md) for information on running a local instance of Wikijump.
 
-### License
+## License
 
 Wikijump is available under the same license as Wikidot, the [GNU Affero General Public License 3.0](https://www.gnu.org/licenses/agpl-3.0.en.html) (AGPL 3.0).
