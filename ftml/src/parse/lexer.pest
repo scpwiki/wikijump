@@ -1,0 +1,192 @@
+//
+// parse/lexer.pest
+//
+// ftml - Library to parse Wikidot code
+// Copyright (C) 2019-2020 Ammon Smith
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <http://www.gnu.org/licenses/>.
+//
+
+// Despite being a parser generator, we're using pest here only to produce tokens,
+// using this as a lexer.
+//
+// The original pest grammar was exhaustive, but because this is a formal grammar,
+// it would error as opposed to performing fallback logic.
+
+// Meta {{{
+
+// Complete input from start to finish
+document = _{ SOI ~ token+ ~ EOI }
+
+// An individual token
+// Order determines priority (earlier = higher)
+token = _{
+    raw |
+    left_raw |
+    right_raw |
+
+    identifier |
+    email |
+    url |
+    string |
+
+    open_right_align |
+    open_left_align |
+    open_center_align |
+    open_justify_align |
+    close_right_align |
+    close_left_align |
+    close_center_align |
+    close_justify_align |
+
+    left_link |
+    left_tag_anchor |
+    left_tag_star |
+    left_tag |
+    right_link |
+    right_tag_end |
+    right_tag |
+
+    triple_dash |
+    double_dash |
+    pipe |
+    equals |
+    quote |
+
+    bold |
+    italics |
+    underline |
+    superscript |
+    subscript |
+    color |
+    left_monospace |
+    right_monospace |
+
+    table_column_title |
+    table_column |
+
+    line_break |
+    paragraph_break |
+    space |
+
+    other
+}
+
+// }}}
+
+// Text {{{
+
+identifier = { (ASCII_ALPHANUMERIC | ASCII_DIGIT)+ }
+
+email = {
+    (ASCII_ALPHANUMERIC | "-" | ".")+ ~
+    "@" ~
+    (ASCII_ALPHANUMERIC | "-")+ ~
+    "." ~
+    (ASCII_ALPHANUMERIC | ".")+
+}
+
+url = {
+    (("http" ~ "s"?) | "ftp") ~
+    "://" ~
+    !(NEWLINE | " " | "|" | "[" | "]")+
+}
+
+// }}}
+
+// Symbols {{{
+
+raw = { "@@" }
+left_raw = { "@<" }
+right_raw = { ">@" }
+
+left_tag = { "[[" }
+left_tag_anchor = { "[[#" }
+left_tag_star = { "[[*" }
+left_link = { "[[[" }
+right_tag = { "]]" }
+right_tag_end = { "/]]" }
+right_link = { "]]]" }
+
+triple_dash = { "-"{3,} }
+double_dash = { "-"{2} }
+pipe = { "|" }
+equals = { "=" }
+quote = { ">"+ ~ " "? }
+
+// }}}
+
+// Formatting {{{
+
+bold = { "**" }
+italics = { "//" }
+underline = { "__" }
+superscript = { "^^" }
+subscript = { ",," }
+color = { "##" }
+left_monospace = { "{{" }
+right_monospace = { "}}" }
+
+// }}}
+
+// Tables {{{
+
+table_column = { "||" }
+table_column_title = { "||~" }
+
+// }}}
+
+// Alignment {{{
+
+open_right_align = { "[[>]]" }
+close_right_align = { "[[/>]]" }
+
+open_left_align = { "[[<]]" }
+close_left_align = { "[[/<]]" }
+
+open_center_align = { "[[=]]" }
+close_center_align = { "[[/=]]" }
+
+open_justify_align = { "[[==]]" }
+close_justify_align = { "[[/==]]" }
+
+// }}}
+
+// String {{{
+
+char = {
+    (!(NEWLINE | "\"" | "\\") ~ ANY) |
+    "\\" ~ ("\"" | "\\" | "r" | "n" | "t" | "0" | "'")
+}
+
+string = { "\"" ~ char* ~ "\"" }
+
+// }}}
+
+// Misc {{{
+
+line_break = { NEWLINE }
+paragraph_break = { NEWLINE{2,} }
+space = { " " | "\t" }
+
+// To be consolidated in code
+//
+// this way pest matches ANY lazily, permitting other rules,
+// as opposed to greedily, where the first unusual token will
+// turn the rest of the input into a big "other"
+other = { ANY }
+
+// }}}
+
+// vim: set fdm=marker foldlevel=0:
