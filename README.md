@@ -8,7 +8,7 @@ Issues are tracked on our [JIRA](https://scuttle.atlassian.net/browse/WDBUGS).
 
 Questions and comments can be posted in our [General Information forum](http://scp-wiki.wikidot.com/forum/c-3335628/general-information), or in [`#site11` on SkipIRC](http://www.scpwiki.com/chat-guide).
 
-### Getting Started
+### Development
 
 We don't have a lot of documentation here yet. See [development.md](docs/development.md) and [install.md](docs/install.md) for information on running a local instance of Wikijump.
 
