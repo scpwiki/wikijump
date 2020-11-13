@@ -37,6 +37,7 @@ RUN apt install -y \
 	'html2text' \
 	'imagemagick' \
 	'memcached' \
+	'nodejs' \
 	'nginx' \
 	'openssl' \
 	"${PHP}" \
@@ -143,6 +144,11 @@ RUN rm -f /etc/nginx/sites-enabled/default
 
 WORKDIR "${WIKIJUMP_DIR}"
 RUN composer install
+
+# Run node installation + compilation
+
+RUN npm install
+RUN npm run build
 
 # Clean up
 
