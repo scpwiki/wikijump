@@ -81,6 +81,12 @@ WORKDIR /var/www
 
 RUN git clone "${WIKIJUMP_REPO}" "${WIKIJUMP_REPO_DIR}"
 RUN mkdir -p "${WIKIJUMP_REPO_DIR}/web/tmp/smarty_templates_c"
+RUN mkdir -p "${WIKIJUMP_REPO_DIR}/web/tmp/lucene_index"
+RUN mkdir -p "${WIKIJUMP_REPO_DIR}/web/tmp/math"
+RUN mkdir -p "${WIKIJUMP_REPO_DIR}/web/tmp/sitebackups"
+RUN mkdir -p "${WIKIJUMP_REPO_DIR}/web/tmp/smarty_cache"
+RUN mkdir -p "${WIKIJUMP_REPO_DIR}/web/tmp/smarty_macro_templates"
+RUN mkdir -p "${WIKIJUMP_REPO_DIR}/web/tmp/htmlpurifier"
 RUN chmod -R 777 "${WIKIJUMP_REPO_DIR}/web/tmp/smarty_templates_c"
 
 # Generate OpenSSL key
@@ -136,6 +142,7 @@ RUN rm -f /etc/nginx/sites-enabled/default
 # Run composer installation
 
 WORKDIR "${WIKIJUMP_DIR}/web"
+RUN rm -f composer.lock
 RUN composer install
 
 # Clean up
