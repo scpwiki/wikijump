@@ -87,6 +87,8 @@ RUN sed -i "s/%PHP%/${PHP}/g" /app/services.sh
 WORKDIR /var/www
 
 RUN git clone "${WIKIJUMP_REPO}" "${WIKIJUMP_REPO_DIR}"
+RUN mkdir -p "${WIKIJUMP_REPO_DIR}/web/tmp/smarty_templates_c"
+RUN chmod -R 777 "${WIKIJUMP_REPO_DIR}/web/tmp/smarty_templates_c"
 
 # Generate OpenSSL key
 # See https://stackoverflow.com/a/41366949
