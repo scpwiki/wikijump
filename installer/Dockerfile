@@ -87,7 +87,7 @@ RUN mkdir -p "${WIKIJUMP_REPO_DIR}/web/tmp/sitebackups"
 RUN mkdir -p "${WIKIJUMP_REPO_DIR}/web/tmp/smarty_cache"
 RUN mkdir -p "${WIKIJUMP_REPO_DIR}/web/tmp/smarty_macro_templates"
 RUN mkdir -p "${WIKIJUMP_REPO_DIR}/web/tmp/htmlpurifier"
-RUN chmod -R 777 "${WIKIJUMP_REPO_DIR}/web/tmp/smarty_templates_c"
+#RUN chmod -R 777 "${WIKIJUMP_REPO_DIR}/web/tmp/smarty_templates_c"
 
 # Generate OpenSSL key
 # See https://stackoverflow.com/a/41366949
@@ -144,7 +144,8 @@ RUN rm -f /etc/nginx/sites-enabled/default
 WORKDIR "${WIKIJUMP_DIR}/web"
 RUN rm -f composer.lock
 RUN composer install
-
+RUN chown -R www-data:www-data .
+#RUN chmod -R 777 vendor/ezyang/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer
 # Clean up
 
 RUN rm -rf /src
