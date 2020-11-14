@@ -10,3 +10,7 @@ composer.phar
 /tmp
 /web/files--common/tmp
 /web/files--sites
+
+# Lock Files
+composer.lock
+package-lock.json
