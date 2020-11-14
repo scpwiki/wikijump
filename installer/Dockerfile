@@ -63,13 +63,6 @@ RUN apt install -y \
 COPY scripts/*.sh ./scripts/
 RUN bash scripts/install-xdiff.sh
 
-# Enable systemd services
-
-RUN systemctl enable "postgresql.service"
-RUN systemctl enable "nginx.service"
-RUN systemctl enable "memcached.service"
-RUN systemctl enable "${PHP}-fpm.service"
-
 # Upload files
 
 COPY etc ./etc
