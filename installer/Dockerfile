@@ -11,6 +11,8 @@ EXPOSE 80 443
 
 ARG WIKIJUMP_REPO="https://github.com/scpwiki/wikijump.git"
 ARG WIKIJUMP_REPO_DIR="wikijump"
+ARG WIKIJUMP_REPO_BRANCH="master"
+
 ARG MAIN_DOMAIN="wikijump.test"
 ARG FILES_DOMAIN="wjfiles.test"
 
@@ -81,7 +83,7 @@ RUN sed -i "s/%PHP%/${PHP}/g" /app/services.sh
 
 WORKDIR /var/www
 
-RUN git clone "${WIKIJUMP_REPO}" "${WIKIJUMP_REPO_DIR}"
+RUN git clone --branch "${WIKIJUMP_REPO_BRANCH}" "${WIKIJUMP_REPO}" "${WIKIJUMP_REPO_DIR}"
 RUN mkdir -p "${WIKIJUMP_REPO_DIR}/web/tmp/smarty_templates_c"
 RUN mkdir -p "${WIKIJUMP_REPO_DIR}/web/tmp/lucene_index"
 RUN mkdir -p "${WIKIJUMP_REPO_DIR}/web/tmp/math"
