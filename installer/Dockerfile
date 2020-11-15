@@ -37,8 +37,9 @@ RUN apt install -y \
 	'html2text' \
 	'imagemagick' \
 	'memcached' \
-	'nodejs' \
 	'nginx' \
+	'nodejs' \
+	'npm' \
 	'openssl' \
 	"${PHP}" \
 	"${PHP}-cgi" \
