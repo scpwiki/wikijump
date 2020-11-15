@@ -1,9 +1,9 @@
 <?php
-define("MAGPIE_DIR", WIKIJUMP_ROOT."/vendor/scpwiki/magpierss/");
+define("MAGPIE_DIR", WIKIJUMP_ROOT."/lib/magpierss/");
 define("MAGPIE_CACHE_ON", false);
 define("MAGPIE_OUTPUT_ENCODING", "UTF-8");
 
-require(WIKIJUMP_ROOT."/vendor/scpwiki/magpierss/rss_fetch.inc");
+require(WIKIJUMP_ROOT."/lib/magpierss/rss_fetch.inc");
 
 class MagpieFeed
 {
