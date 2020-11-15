@@ -54,7 +54,7 @@ You will need Docker installed and running:
     <td>
       <p><pre># apt install docker</pre></p>
       <p>Install <a href="https://docs.docker.com/docker-for-windows/install-windows-home">Docker Desktop</a>, which you'll be using as the Docker daemon, and leave it running in the background.</p>
-      <p>If at any point you hit an error along the lines of "<code>failed to solve with frontend dockerfile.v0</code>", edit <code>~/.docker/config.json</code> and change "credsStore" to "credStore".</p>
+      <p>If at any point you hit an error along the lines of "<code>"docker-credential-desktop.exe": executable file not found in $PATH</code>", edit <code>~/.docker/config.json</code> and change "credsStore" to "credStore".</p>
     </td>
   </tr></tbody>
 </table>
