@@ -64,13 +64,6 @@ RUN apt install -y \
 COPY scripts/*.sh ./scripts/
 RUN bash scripts/install-xdiff.sh
 
-# Enable systemd services
-
-RUN systemctl enable "postgresql.service"
-RUN systemctl enable "nginx.service"
-RUN systemctl enable "memcached.service"
-RUN systemctl enable "${PHP}-fpm.service"
-
 # Upload files
 
 COPY etc ./etc
@@ -88,7 +81,13 @@ RUN sed -i "s/%PHP%/${PHP}/g" /app/services.sh
 WORKDIR /var/www
 
 RUN git clone "${WIKIJUMP_REPO}" "${WIKIJUMP_REPO_DIR}"
-RUN chmod -R 777 "${WIKIJUMP_REPO_DIR}/tmp/smarty_templates_c"
+RUN mkdir -p "${WIKIJUMP_REPO_DIR}/web/tmp/smarty_templates_c"
+RUN mkdir -p "${WIKIJUMP_REPO_DIR}/web/tmp/lucene_index"
+RUN mkdir -p "${WIKIJUMP_REPO_DIR}/web/tmp/math"
+RUN mkdir -p "${WIKIJUMP_REPO_DIR}/web/tmp/sitebackups"
+RUN mkdir -p "${WIKIJUMP_REPO_DIR}/web/tmp/smarty_cache"
+RUN mkdir -p "${WIKIJUMP_REPO_DIR}/web/tmp/smarty_macro_templates"
+RUN mkdir -p "${WIKIJUMP_REPO_DIR}/web/tmp/htmlpurifier"
 
 # Generate OpenSSL key
 # See https://stackoverflow.com/a/41366949
@@ -121,15 +120,15 @@ RUN scripts/setup-postgres.sh
 # Install configuration files
 
 RUN cp -av "./etc/nginx" "/etc"
-RUN cp -av "./var/www/wikijump/conf/wikijump.ini" "${WIKIJUMP_DIR}/conf/wikijump.ini"
+RUN cp -av "./var/www/wikijump/conf/wikijump.ini" "${WIKIJUMP_DIR}/web/conf/wikijump.ini"
 RUN cp -av "./etc/php/${PHP_VERSION}/cgi/conf.d/"* "/etc/php/${PHP_VERSION}/cgi"
 RUN cp -av "./etc/php/${PHP_VERSION}/cgi/conf.d/"* "/etc/php/${PHP_VERSION}/fpm"
 
 # Inject values in the wikijump.ini configuration file
 
-RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" "${WIKIJUMP_DIR}/conf/wikijump.ini"
-RUN sed -i "s/MAINWIKI/${WWW_DOMAIN}/g" "${WIKIJUMP_DIR}/conf/wikijump.ini"
-RUN sed -i "s/FILEDOMAIN/${FILES_DOMAIN}/g" "${WIKIJUMP_DIR}/conf/wikijump.ini"
+RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" "${WIKIJUMP_DIR}/web/conf/wikijump.ini"
+RUN sed -i "s/MAINWIKI/${WWW_DOMAIN}/g" "${WIKIJUMP_DIR}/web/conf/wikijump.ini"
+RUN sed -i "s/FILEDOMAIN/${FILES_DOMAIN}/g" "${WIKIJUMP_DIR}/web/conf/wikijump.ini"
 
 # Update nginx configuration to point to the wikijump directory
 
@@ -142,7 +141,8 @@ RUN rm -f /etc/nginx/sites-enabled/default
 
 # Run composer installation
 
-WORKDIR "${WIKIJUMP_DIR}"
+WORKDIR "${WIKIJUMP_DIR}/web"
+RUN rm -f composer.lock
 RUN composer install
 
 # Run node installation + compilation
@@ -150,6 +150,7 @@ RUN composer install
 RUN npm install
 RUN npm run build
 
+RUN chown -R www-data:www-data .
 # Clean up
 
 RUN rm -rf /src

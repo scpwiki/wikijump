@@ -46,7 +46,7 @@ server {
         #
         # include snippets/snakeoil.conf;
 
-        root /var/www/wikijump/web;
+        root /var/www/wikijump/web/web;
 
         # Add index.php to the list if you are using PHP
         index index.php;
