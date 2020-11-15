@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  cache:
+    image: memcached:1.6
+  database:
+    build:
+      context: ./postgres
+    image: scpwiki/postgres:latest
+  nginx:
+    build:
+      context: ./nginx
+    image: scpwiki/nginx:latest
+  wikijump:
+    build:
+      context: ./wikijump
+    image: scpwiki/wikijump:latest
