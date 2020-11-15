@@ -12,5 +12,5 @@ COPY setup.sh ./
 
 # Setup database
 RUN gunzip ingest.sql.gz
-RUN sed -i "s/FILEDOMAIN/${FILES_DOMAIN}/g" ingest.sql
+RUN sed -i "s/FILEDOMAIN/${files_domain}/g" ingest.sql
 RUN ./setup.sh
