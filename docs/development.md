@@ -43,6 +43,8 @@ The recommended way to install Wikijump is via Docker. Docker is a container sys
 
 You will need Docker installed and running:
 
+https://github.com/rossjrw/dotfiles/blob/3c5445abb138b735cc3caf61f070c9125fa87d2f/.profile#L28
+
 <table>
   <thead><tr><th>Ubuntu / Ubuntu VM</th><th>Windows via WSL2</th></tr></thead>
   <tbody valign="top"><tr>
@@ -54,7 +56,7 @@ You will need Docker installed and running:
     <td>
       <p><pre># apt install docker</pre></p>
       <p>Install <a href="https://docs.docker.com/docker-for-windows/install-windows-home">Docker Desktop</a>, which you'll be using as the Docker daemon, and leave it running in the background.</p>
-      <p>If at any point you hit an error along the lines of "<code>"docker-credential-desktop.exe": executable file not found in $PATH</code>", edit <code>~/.docker/config.json</code> and change "credsStore" to "credStore".</p>
+      <p>If you have set <code>appendWindowsPath=false</code> in your WSL config, then you may hit an error along the lines of <code>"docker-credential-desktop.exe": executable file not found in $PATH</code>. In this case you should either add <code>/mnt/c/Program\ Files/Docker/Docker/resources/bin</code> to your PATH, or <a href="https://github.com/rossjrw/dotfiles/blob/3c5445abb138b735cc3caf61f070c9125fa87d2f/.profile#L28">create a symlink</a> in a directory that is in your PATH already.</p>
     </td>
   </tr></tbody>
 </table>
