@@ -2,4 +2,4 @@
 set -eux
 
 service postgresql start
-su postgres -c 'psql < postgres-ingest.sql'
+su postgres -c 'psql < ingest.sql'
