@@ -23,6 +23,13 @@
         ],
         "@typescript-eslint/no-non-null-assertion": "off",
         "quotes": "off",
-        "semi": ["warn", "always"]
+        "semi": "off",
+        "@typescript-eslint/semi": ["warn", "always"],
+        "@typescript-eslint/member-delimiter-style": [
+            "warn", {
+                "multiline": { "delimiter": "semi" },
+                "singleline": { "delimiter": "semi" }
+            }
+        ]
     }
 }

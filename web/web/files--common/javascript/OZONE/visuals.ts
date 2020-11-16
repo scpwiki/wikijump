@@ -23,8 +23,8 @@ export const visuals = {
   scrollTo: function (
     elementId: string,
     options?: {
-      blink?: boolean
-      alterHref?: boolean
+      blink?: boolean;
+      alterHref?: boolean;
     }
   ): void {
     /**
@@ -36,8 +36,8 @@ export const visuals = {
   scrollToCenter: function (
     elementId: string,
     options?: {
-      blink?: boolean
-      alterHref?: boolean
+      blink?: boolean;
+      alterHref?: boolean;
     }
   ): void {
     /**

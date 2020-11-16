@@ -10,20 +10,20 @@ declare const YAHOO: any;
  */
 
 class Base {
-  templateBase: string
-  template: string
-  title: null | string
-  buttons: string[]
-  buttonObjects: { [buttonLabel: string]: HTMLAnchorElement }
-  clickOutsideToClose: boolean
-  smooth: boolean
-  focusButton: null | string
-  buttonListeners: { [buttonLabel: string]: () => void }
-  windowClass: string
-  content: string
-  dialogElement: null | HTMLDivElement
-  fixODate: boolean
-  style: CSS.Properties
+  templateBase: string;
+  template: string;
+  title: null | string;
+  buttons: string[];
+  buttonObjects: { [buttonLabel: string]: HTMLAnchorElement };
+  clickOutsideToClose: boolean;
+  smooth: boolean;
+  focusButton: null | string;
+  buttonListeners: { [buttonLabel: string]: () => void };
+  windowClass: string;
+  content: string;
+  dialogElement: null | HTMLDivElement;
+  fixODate: boolean;
+  style: CSS.Properties;
 
   constructor () {
     // ?? (unused)
@@ -209,7 +209,7 @@ class SuccessBox extends Base {
    * Unlike SuccessDialog, does not require the user's attention; the box will
    * disappear automatically.
    */
-  timeout: number
+  timeout: number;
 
   constructor () {
     super();

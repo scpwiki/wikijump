@@ -16,21 +16,21 @@ declare const fx: any;
 // The hovertips code features elements with hovertip-related properties
 // attached.
 type HovertipOptions = {
-  context?: string
-  text?: string
-  style?: CSS.Properties
-  noCursorHelp?: boolean
-  delay?: number
-  smartWidthLimit?: number
-  valign?: 'center'
-}
+  context?: string;
+  text?: string;
+  style?: CSS.Properties;
+  noCursorHelp?: boolean;
+  delay?: number;
+  smartWidthLimit?: number;
+  valign?: 'center';
+};
 
 export type HovertipElement = HTMLElement & {
   // TODO hovertip property should not be optional (?)
-  hovertip?: HTMLElement
-  hovertipOptions?: HovertipOptions
-  hovertipEffect?: unknown
-}
+  hovertip?: HTMLElement;
+  hovertipOptions?: HovertipOptions;
+  hovertipEffect?: unknown;
+};
 
 // Storage for an effect (??)
 const tempEffect: null | unknown = null;
@@ -51,8 +51,8 @@ class Shader {
   /**
    * The shader that covers most of the screen during dialog presentation.
    */
-  color: null | string
-  cssClass: null | string
+  color: null | string;
+  cssClass: null | string;
 
   constructor () {
     this.color = null;
@@ -136,8 +136,8 @@ class BoxContainer {
    * these assertions are not necessarily correct, but fixing them would be
    * outside the scope of this refactor.
    */
-  containerElement: null | HTMLElement
-  dialogElement: null | HTMLElement
+  containerElement: null | HTMLElement;
+  dialogElement: null | HTMLElement;
 
   constructor () {
     this.containerElement = null;

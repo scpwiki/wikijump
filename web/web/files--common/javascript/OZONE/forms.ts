@@ -16,9 +16,9 @@ export const forms = {
      * representing the number of characters remaining.
      * @param limit: The character limit on the text box.
      */
-    textElement: HTMLInputElement | HTMLTextAreaElement
-    countElement: HTMLElement
-    limit: number
+    textElement: HTMLInputElement | HTMLTextAreaElement;
+    countElement: HTMLElement;
+    limit: number;
 
     constructor (
       textElementId: string,

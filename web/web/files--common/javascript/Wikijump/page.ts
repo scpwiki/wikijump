@@ -13,13 +13,13 @@ const HTTP_SCHEMA = "https";
 const URL_HOST = "wikijump.test";
 
 type EditLock = {
-  id: unknown
-  secret: unknown
-  revisionId: unknown
-  timeLeft: unknown
-  rangeStart?: unknown
-  rangeEnd?: unknown
-}
+  id: unknown;
+  secret: unknown;
+  revisionId: unknown;
+  timeLeft: unknown;
+  rangeStart?: unknown;
+  rangeEnd?: unknown;
+};
 
 export const page = {
   vars: {

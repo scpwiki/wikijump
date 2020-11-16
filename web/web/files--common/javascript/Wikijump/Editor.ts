@@ -16,8 +16,8 @@ let INSERT_NEWLINE = "\n";
  * Abstraction proxy for handling textarea range, cursor position etc.
  */
 class TextElementProxyUtil {
-  field: HTMLTextAreaElement
-  browserType: 'gecko' | 'ie' | null
+  field: HTMLTextAreaElement;
+  browserType: 'gecko' | 'ie' | null;
 
   constructor (fieldId: string) {
     this.field = document.getElementById(fieldId) as HTMLTextAreaElement;

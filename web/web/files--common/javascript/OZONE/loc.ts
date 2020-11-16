@@ -1,6 +1,6 @@
 import OZONE from ".";
 
-export type Language = "en" | "pl"
+export type Language = "en" | "pl";
 
 export const ogettext = function (messageId: string): string {
   /**

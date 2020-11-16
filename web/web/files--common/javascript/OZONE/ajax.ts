@@ -2,23 +2,23 @@ import OZONE from ".";
 
 declare const YAHOO: any;
 declare type YahooResponse = any;
-declare type YahooCallback = (response: any, arg?: unknown) => void
+declare type YahooCallback = (response: any, arg?: unknown) => void;
 
 // XXX Trying to type the module parameters is an exercise in futility - they
 // will be attached to runData, from which parameters will be taken in
 // AjaxModuleWikiFlowController, and remaining parameters will go directly to
 // the module, where there is no parameter standardisation
 export type RequestModuleParameters = {
-  [key: string]: string | number | null | undefined
-}
+  [key: string]: string | number | null | undefined;
+};
 
 type RequestModuleOptions = {
-  clearRequestQueue: boolean
-}
+  clearRequestQueue: boolean;
+};
 
 export const ajax = {
 
-  _callbackArray: [] as { callback: YahooCallback, arg: unknown }[],
+  _callbackArray: [] as { callback: YahooCallback; arg: unknown }[],
   _callbackArrayIndex: 0,
 
   /**

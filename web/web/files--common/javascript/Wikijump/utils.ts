@@ -3,7 +3,7 @@ import { ogettext } from "@/javascript/OZONE/loc";
 
 export const utils = {
   handleError: function (
-    response: { status: string, message: string }
+    response: { status: string; message: string }
   ): boolean {
     /**
      * Detects whether or not an AJAX response contained an error and, if there
