@@ -9,12 +9,9 @@ services:
         files_domain: 'wjfiles.test'
     environment:
       - POSTGRES_PASSWORD=wikijump-postgres
-    image: scpwiki/postgres:latest
   nginx:
     build:
       context: ./nginx
-    image: scpwiki/nginx:latest
   wikijump:
     build:
       context: ./wikijump
-    image: scpwiki/wikijump:latest
