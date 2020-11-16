@@ -9,10 +9,19 @@ RUN mkdir /src
 WORKDIR /src
 
 # Copy sources
-COPY ingest.sql.gz ./
-COPY setup.sh ./
+COPY seed.sql.gz ./
+COPY seed.sh ./
 
-# Setup database
-RUN gunzip ingest.sql.gz
-RUN sed -i "s/FILEDOMAIN/${files_domain}/g" ingest.sql
-RUN ./setup.sh
+# Create cluster
+RUN pg_createcluster -u postgres 12 main
+
+# Seed database
+RUN ./seed.sh
+
+# Clean up
+WORKDIR /etc/postgresql
+RUN rm -rf /src
+
+# Main process
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD ["postgres"]
