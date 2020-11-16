@@ -20,7 +20,7 @@ If possible, add to this log in the same commit in which the code is removed.
 * Why it was removed: It was unused.
 
 ## JS: `OZONE.visuals.highlightText`
-* Relevant Issues: [WJ-236](https://scuttle.atlassian.net/browse/WJ-236)
+* Relevant Issues: [WJ-250](https://scuttle.atlassian.net/browse/WJ-250)
 * Where it was: [OZONE.js](https://github.com/scpwiki/wikijump/blob/439c92376f04adaf73af87e2f53edabced8ca90f/web/files--common/javascript/OZONE.js#L649)
 * What it did: It was intended to highlight text in a page that matched a
   search result. It would have taken search terms from the URL path, probably
@@ -31,14 +31,14 @@ If possible, add to this log in the same commit in which the code is removed.
   gymnastics, and I don't think the feature is desirable in the first place.
 
 ## JS: `OZONE.dialogs.setButtons`
-* Relevant Issues: [WJ-236](https://scuttle.atlassian.net/browse/WJ-236)
+* Relevant Issues: [WJ-250](https://scuttle.atlassian.net/browse/WJ-250)
 * Where it was: [OZONE.dialogs.js](https://github.com/scpwiki/wikijump/blob/439c92376f04adaf73af87e2f53edabced8ca90f/web/files--common/javascript/dialog/OZONE.dialog.js#L564)
 * What it did: Nothing. It would have been used to add multiple buttons to a
   pop-up dialogue. It will probably be re-added at some point.
 * Why it was removed: It was an empty, unused function.
 
 ## JS: `OZONE.dialog.stock`
-* Relevant Issues: [WJ-236](https://scuttle.atlassian.net/browse/WJ-236)
+* Relevant Issues: [WJ-250](https://scuttle.atlassian.net/browse/WJ-250)
 * Where it was: [OZONE.dialogs.js](https://github.com/scpwiki/wikijump/blob/439c92376f04adaf73af87e2f53edabced8ca90f/web/files--common/javascript/dialog/OZONE.dialog.js#L564)
 * What it did: A comment indicated that it was supposed to be an array of
   onscreen objects such as dialogue boxes and shaders. However, it is unused in
@@ -46,59 +46,59 @@ If possible, add to this log in the same commit in which the code is removed.
 * Why it was removed: It was unused.
 
 ## JS: `OZONE.dialog.boxcontainer2.attachDD`
-* Relevant Issues: [WJ-236](https://scuttle.atlassian.net/browse/WJ-236)
+* Relevant Issues: [WJ-250](https://scuttle.atlassian.net/browse/WJ-250)
 * Where it was: [OZONE.dialogs.js](https://github.com/scpwiki/wikijump/blob/439c92376f04adaf73af87e2f53edabced8ca90f/web/files--common/javascript/dialog/OZONE.dialog.js#L167)
 * What it did: Unsure. Something to do with enabling drag-and-drop on dialogue
   boxes. Unclear whether or not it worked as intended.
 * Why it was removed: It was unused.
 
 ## JS: `Wikijump.utils.changeTextareaRowNo`
-* Relevant Issues: [WJ-236](https://scuttle.atlassian.net/browse/WJ-236)
+* Relevant Issues: [WJ-250](https://scuttle.atlassian.net/browse/WJ-250)
 * Where it was: [Wikijump.js](https://github.com/scpwiki/wikijump/blob/439c92376f04adaf73af87e2f53edabced8ca90f/web/files--common/javascript/Wikijump.js#L14)
 * What it did: Increased the height of a textarea by a number of lines.
 * Why it was removed: It was unused.
 
 ## JS: `Wikijump.visuals`
-* Relevant Issues: [WJ-236](https://scuttle.atlassian.net/browse/WJ-236)
+* Relevant Issues: [WJ-250](https://scuttle.atlassian.net/browse/WJ-250)
 * Where it was: [Wikijump.js](https://github.com/scpwiki/wikijump/blob/439c92376f04adaf73af87e2f53edabced8ca90f/web/files--common/javascript/Wikijump.js#L22)
 * What it did: Contained a bunch of methods controlling the display of a
   "center-message" object. I believe this was a precursor to `OZONE.dialog`.
 * Why it was removed: The object and all the methods in it were unused.
 
 ## JS: `Wikijump.utils.formatDates`
-* Relevant Issues: [WJ-236](https://scuttle.atlassian.net/browse/WJ-236)
+* Relevant Issues: [WJ-250](https://scuttle.atlassian.net/browse/WJ-250)
 * Where it was: [Wikijump.js](https://github.com/scpwiki/wikijump/blob/439c92376f04adaf73af87e2f53edabced8ca90f/web/files--common/javascript/Wikijump.js#L83)
 * What it did: Formatted dates within an element. Looks like it was a precursor
   to `OZONE.utils.formatDates`.
 * Why it was removed: It was unused.
 
 ## JS: `Wikijump.render.fixAvatarHover`
-* Relevant Issues: [WJ-236](https://scuttle.atlassian.net/browse/WJ-236)
+* Relevant Issues: [WJ-250](https://scuttle.atlassian.net/browse/WJ-250)
 * Where it was: [Wikijump.js](https://github.com/scpwiki/wikijump/blob/439c92376f04adaf73af87e2f53edabced8ca90f/web/files--common/javascript/Wikijump.js#L130)
 * What it did: Controlled the avatar popup when a user's pic is hovered.
 * Why it was removed: [WJ-224](https://scuttle.atlassian.net/browse/WJ-224)
 
 ## JS: `Wikijump.page.utils.scrollToReference`
-* Relevant Issues: [WJ-236](https://scuttle.atlassian.net/browse/WJ-236)
+* Relevant Issues: [WJ-250](https://scuttle.atlassian.net/browse/WJ-250)
 * Where it was: [Wikijump.page.js](https://github.com/scpwiki/wikijump/blob/439c92376f04adaf73af87e2f53edabced8ca90f/web/files--common/javascript/Wikijump.page.js#L553)
 * What it did: Alias for `OZONE.visuals.scrollTo`.
 * Why it was removed: It was unused.
 
 ## JS: `Wikijump.page.utils.openHelpPop`
-* Relevant Issues: [WJ-236](https://scuttle.atlassian.net/browse/WJ-236)
+* Relevant Issues: [WJ-250](https://scuttle.atlassian.net/browse/WJ-250)
 * Where it was: [Wikijump.page.js](https://github.com/scpwiki/wikijump/blob/439c92376f04adaf73af87e2f53edabced8ca90f/web/files--common/javascript/Wikijump.page.js#L571)
 * What it did: Absolutely no idea. Opened a "HelpPop" page on an external wiki.
   Present in upstream, but doesn't do anything when called.
 * Why it was removed: It was unused.
 
 ## JS: `Wikijump.page.listeners.loginClick0`
-* Relevant Issues: [WJ-236](https://scuttle.atlassian.net/browse/WJ-236)
+* Relevant Issues: [WJ-250](https://scuttle.atlassian.net/browse/WJ-250)
 * Where it was: [Wikijump.page.js](https://github.com/scpwiki/wikijump/blob/439c92376f04adaf73af87e2f53edabced8ca90f/web/files--common/javascript/Wikijump.page.js#L132)
 * What it did: Unsure. May have been an older version of `loginClick`.
 * Why it was removed: Unused; referenced a nonexistent callback.
 
 ## JS: `OZONE.ajax.requestQuickModule`
-* Relevant Issues: [WJ-236](https://scuttle.atlassian.net/browse/WJ-236)
+* Relevant Issues: [WJ-250](https://scuttle.atlassian.net/browse/WJ-250)
 * Where it was: [OZONE.js](https://github.com/scpwiki/wikijump/blob/439c92376f04adaf73af87e2f53edabced8ca90f/web/files--common/javascript/OZONE.js#L124)
 * What it did: Requested a "quickmodule" as opposed to a regular module.
   Made requests to `quickmodule.php`.  No indication what the difference
