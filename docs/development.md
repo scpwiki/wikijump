@@ -43,8 +43,6 @@ The recommended way to install Wikijump is via Docker. Docker is a container sys
 
 You will need Docker installed and running:
 
-https://github.com/rossjrw/dotfiles/blob/3c5445abb138b735cc3caf61f070c9125fa87d2f/.profile#L28
-
 <table>
   <thead><tr><th>Ubuntu / Ubuntu VM</th><th>Windows via WSL2</th></tr></thead>
   <tbody valign="top"><tr>
