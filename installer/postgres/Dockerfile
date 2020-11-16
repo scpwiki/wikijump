@@ -10,7 +10,7 @@ WORKDIR /src
 
 # Copy sources
 COPY ingest.sql.gz ./
-COPY setup.sh setup.sql ./
+COPY setup.sh ./
 
 # Setup database
 RUN gunzip ingest.sql.gz
