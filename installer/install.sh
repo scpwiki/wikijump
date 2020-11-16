@@ -45,6 +45,7 @@ sudo apt install -y \
 	html2text \
 	imagemagick \
 	memcached \
+	nodejs \
 	nginx \
 	php7.4 \
 	php7.4-cgi \
@@ -173,6 +174,8 @@ esac
 # Deploy web
 cd "/var/www/$repodir"
 sudo composer install
+npm install
+npm run build
 
 # Modify permissions for temp folders
 sudo chmod -R 777 tmp/smarty_templates_c

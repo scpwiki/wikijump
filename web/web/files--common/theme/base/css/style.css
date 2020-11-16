@@ -834,6 +834,7 @@ table.page-files .options{
 	padding: 1px;
 }
 
+/* TODO Remove avatar hover code (WJ-224) */
 a.avatar-hover,  a.avatar-hover:hover {
 	background: none;
 	background-image: url(../images/background/opacity2.png);

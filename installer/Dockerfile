@@ -40,6 +40,8 @@ RUN apt install -y \
 	'imagemagick' \
 	'memcached' \
 	'nginx' \
+	'nodejs' \
+	'npm' \
 	'openssl' \
 	"${PHP}" \
 	"${PHP}-cgi" \
@@ -145,6 +147,12 @@ RUN rm -f /etc/nginx/sites-enabled/default
 WORKDIR "${WIKIJUMP_DIR}/web"
 RUN rm -f composer.lock
 RUN composer install
+
+# Run node installation + compilation
+
+RUN npm install
+RUN npm run build
+
 RUN chown -R www-data:www-data .
 # Clean up
 
