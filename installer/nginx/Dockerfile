@@ -31,7 +31,7 @@ RUN install -D -m644 cert.pem /usr/local/nginx/conf/cert.pem
 RUN install -D -m644 cert.key /usr/local/nginx/conf/cert.key
 
 # Install configuration files
-RUN cp -av "./etc/nginx" "/etc"
+RUN cp -av ./etc/nginx /etc
 
 # TODO
 
