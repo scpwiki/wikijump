@@ -4,11 +4,12 @@ on:
   push:
     branches:
       - master
+    paths:
+      - "web/**"
   # Run this on push to PRs, regardless of branch
   pull_request:
-  # Only run this if there are changes to the web subrepo
-  paths:
-    - "web/**"
+    paths:
+      - "web/**"
 jobs:
   test:
     runs-on: ubuntu-latest
