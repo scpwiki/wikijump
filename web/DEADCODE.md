@@ -2,7 +2,8 @@
 
 Whenever code that was present in base Wikidot is removed from the repository,
 make a note of it here. Record where it was, what it did, and why it was
-removed.
+removed. See [WJ-218](https://scuttle.atlassian.net/browse/WJ-218) for more
+details.
 
 If possible, add to this log in the same commit in which the code is removed.
 
