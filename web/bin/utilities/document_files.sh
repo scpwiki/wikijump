@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# This is a script to help automate WDBUGS-141 (Regex documentation).
+# This is a script to help automate WJ-141 (Regex documentation).
 
 # This script:
   # 1. Finds all files containing a regex function (preg_*)
