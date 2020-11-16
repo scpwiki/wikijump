@@ -38,7 +38,7 @@ class WDRenderUtils
 
         $class = "printuser";
         if ($params['image'] && $params['image'] !== 'small') {
-            // TODO Remove avatar hover
+            // TODO Remove avatar hover (WJ-224)
             $class .= " avatarhover";
         }
 
