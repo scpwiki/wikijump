@@ -2,6 +2,9 @@
 # we can replace this Dockerfile with just a postgres:12-alpine image
 FROM postgres:12
 
+EXPOSE 5432
+
+# Build variables
 ARG FILES_DOMAIN
 
 # Preparation
@@ -23,6 +26,5 @@ WORKDIR /etc/postgresql
 RUN rm -rf /src
 
 # Main process
-EXPOSE 5432
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["postgres"]
