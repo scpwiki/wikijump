@@ -7,13 +7,8 @@ pg_createcluster -u postgres 12 main
 # Start service
 service postgresql start
 
-# Create postgres database
-createdb \
-	--echo
-	--encoding='UTF-8' \
-	--owner=wikijump \
-	wikijump \
-	'Wikijump system database'
+# Set up database
+su postgres -c 'psql < setup.sql'
 
-# Ingest database seed
+# Ingest initial schema
 su postgres -c 'psql < ingest.sql'
