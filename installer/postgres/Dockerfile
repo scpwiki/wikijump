@@ -1,3 +1,5 @@
+# NOTE: when we migrate in-app instead of docker,
+# we can replace this Dockerfile with just a postgres:12-alpine image
 FROM postgres:12
 
 EXPOSE 5432
