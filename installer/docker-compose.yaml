@@ -5,11 +5,11 @@ services:
   database:
     build:
       context: ./postgres
-    image: scpwiki/postgres:latest
-    args:
-      files_domain: 'wjfiles.test'
+      args:
+        files_domain: 'wjfiles.test'
     environment:
       - POSTGRES_PASSWORD=wikijump-postgres
+    image: scpwiki/postgres:latest
   nginx:
     build:
       context: ./nginx
