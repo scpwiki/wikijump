@@ -30,7 +30,7 @@ export const ajax = {
     callback: YahooCallback,
     arg?: unknown,
     options?: RequestModuleOptions
-  ): unknown {
+  ): void {
     /**
      * ??
      *
