@@ -3,8 +3,8 @@ FROM nginx:1.19.4-alpine
 EXPOSE 80 443
 
 # Build variables
-ARG MAIN_DOMAIN
-ARG FILES_DOMAIN
+ARG MAIN_DOMAIN="wikijump.test"
+ARG FILES_DOMAIN="wjfiles.test"
 
 # Preparation
 RUN mkdir /src

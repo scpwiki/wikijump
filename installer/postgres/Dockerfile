@@ -5,7 +5,7 @@ FROM postgres:12
 EXPOSE 5432
 
 # Build variables
-ARG FILES_DOMAIN
+ARG FILES_DOMAIN="wjfiles.test"
 
 # Preparation
 RUN mkdir /src

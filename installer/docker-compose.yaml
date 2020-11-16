@@ -5,16 +5,11 @@ services:
   database:
     build:
       context: ./postgres
-      args:
-        FILES_DOMAIN: 'wjfiles.test'
     environment:
       - POSTGRES_PASSWORD=wikijump-postgres
   nginx:
     build:
       context: ./nginx
-      args:
-        MAIN_DOMAIN: 'wikijump.test'
-        FILES_DOMAIN: 'wjfiles.test'
   wikijump:
     build:
       context: ./wikijump
