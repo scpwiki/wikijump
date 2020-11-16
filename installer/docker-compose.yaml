@@ -8,6 +8,8 @@ services:
     image: scpwiki/postgres:latest
     args:
       files_domain: 'wjfiles.test'
+    environment:
+      - POSTGRES_PASSWORD=wikijump-postgres
   nginx:
     build:
       context: ./nginx
