@@ -57,10 +57,7 @@ export const ajax = {
 
     // TODO The callbackIndex can probably be refactored out
     const callbackIndex = ajax._callbackArrayIndex++;
-    ajax._callbackArray[callbackIndex] = {
-      callback: callback,
-      arg: arg
-    };
+    ajax._callbackArray[callbackIndex] = { callback, arg };
 
     parameters.callbackIndex = callbackIndex;
 
