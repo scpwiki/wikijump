@@ -6,6 +6,11 @@ EXPOSE 5432
 
 # Build variables
 ARG FILES_DOMAIN="wjfiles.test"
+ARG POSTGRES_PASSWORD="wikijump-postgres"
+ARG PGDATA="/var/lib/postgresql/data"
+
+ENV POSTGRES_CLUSTER="main"
+ENV POSTGRES_VERSION="12"
 
 # Preparation
 RUN mkdir /src
@@ -15,10 +20,18 @@ WORKDIR /src
 COPY seed.sql.gz ./
 COPY setup.sh ./
 
-# Create cluster
-RUN pg_createcluster -u postgres 12 main
+# Install scripts
+RUN mkdir /app
+COPY run.sh /app
+
+# Setup database
+RUN echo "${POSTGRES_PASSWORD}" > /src/postgres-passwd
+
+USER postgres
+RUN pg_createcluster --user postgres --locale en_US.utf8 "${POSTGRES_VERSION}" "${POSTGRES_CLUSTER}"
 
 # Seed database
+USER root
 RUN ./setup.sh
 
 # Clean up
@@ -26,5 +39,4 @@ WORKDIR /etc/postgresql
 RUN rm -rf /src
 
 # Main process
-ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["postgres"]
+CMD ["/app/run.sh"]

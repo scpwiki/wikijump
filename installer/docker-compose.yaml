@@ -5,8 +5,6 @@ services:
   database:
     build:
       context: ./postgres
-    environment:
-      - POSTGRES_PASSWORD=wikijump-postgres
   nginx:
     build:
       context: ./nginx
