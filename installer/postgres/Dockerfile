@@ -13,13 +13,13 @@ WORKDIR /src
 
 # Copy sources
 COPY seed.sql.gz ./
-COPY seed.sh ./
+COPY setup.sh ./
 
 # Create cluster
 RUN pg_createcluster -u postgres 12 main
 
 # Seed database
-RUN ./seed.sh
+RUN ./setup.sh
 
 # Clean up
 WORKDIR /etc/postgresql
