@@ -42,7 +42,7 @@ You will also need to add a line for any wiki that you create, e.g. `127.0.0.1 m
 
 ## Installation
 
-The `installer` folder has everything you need to run a local Wikijump install either in a container or on metal or a VM.
+The `install` folder has everything you need to run a local Wikijump install either in a container or on metal or a VM.
 
 ### Installation via [Docker](https://www.docker.com/) locally
 
