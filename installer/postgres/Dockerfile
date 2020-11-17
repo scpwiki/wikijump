@@ -24,6 +24,9 @@ COPY setup.sh ./
 RUN mkdir /app
 COPY run.sh /app
 
+# Create system user
+RUN useradd wikijump --shell /bin/bash
+
 # Setup database
 RUN echo "${POSTGRES_PASSWORD}" > /src/postgres-passwd
 
