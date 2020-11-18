@@ -5,7 +5,7 @@ ARG WIKIJUMP_REPO="https://github.com/scpwiki/wikijump.git"
 ARG WIKIJUMP_REPO_DIR="wikijump"
 ARG WIKIJUMP_REPO_BRANCH="master"
 
-ARG PHP_VERSION="7.4"
+ENV PHP_VERSION="7.4"
 ARG XDIFF_VERSION="libxdiff-0.23"
 
 ARG MAIN_DOMAIN="wikijump.test"
@@ -46,6 +46,10 @@ RUN apt install -y \
 	"${PHP}-xdebug" \
 	"${PHP}-xml" \
 	'postgresql-client'
+
+# Install scripts
+RUN mkdir /app
+COPY run.sh /app
 
 # Install xdiff
 COPY install-xdiff.sh ./
@@ -94,4 +98,5 @@ WORKDIR /var/www
 RUN chown -R www-data:www-data .
 RUN rm -rf /src
 
-# TODO
+# Main process
+CMD ["/app/run.sh"]
