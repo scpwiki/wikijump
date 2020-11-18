@@ -1,6 +1,6 @@
 FROM nginx:1.19.4-alpine
 
-EXPOSE 80 443
+EXPOSE 80
 
 # Build variables
 ARG MAIN_DOMAIN="wikijump.test"
