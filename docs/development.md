@@ -22,13 +22,20 @@ You will need edit your system's HOSTS file so that when you navigate to https:/
 Add the following lines to your HOSTS file:
 
 ```
-127.0.0.1 localhost
-127.0.0.1 wikijump.test
-127.0.0.1 www.wikijump.test
-127.0.0.1 profiles.wikijump.test
-127.0.0.1 template-en.wikijump.test
-127.0.0.1 wjfiles.test
-127.0.0.1 www.wjfiles.test
+127.0.0.1          wikijump.test               Wikijump
+127.0.0.1          www.wikijump.test           Wikijump
+127.0.0.1          wjfiles.test                Wikijump
+127.0.0.1          profiles.wikijump.test      Wikijump
+127.0.0.1          template-en.wikijump.test   Wikijump
+127.0.0.1          sandbox.wikijump.test       Wikijump
+127.0.0.1          scp-wiki.wikijump.test      Wikijump
+::1                wikijump.test               Wikijump
+::1                www.wikijump.test           Wikijump
+::1                wjfiles.test                Wikijump
+::1                profiles.wikijump.test      Wikijump
+::1                template-en.wikijump.test   Wikijump
+::1                sandbox.wikijump.test       Wikijump
+::1                scp-wiki.wikijump.test      Wikijump
 ```
 
 You will also need to add a line for any wiki that you create, e.g. `127.0.0.1 my-new-wiki.wikijump.test`.
