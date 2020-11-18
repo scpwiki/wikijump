@@ -144,7 +144,7 @@ class Zend_TimeSync_Ntp extends Zend_TimeSync_Protocol
      * This will return an array with binary data listing:
      *
      * @return array
-     * @throws Zend_TimeSync_Exception When timeserver can not be connected
+     * @throws Zend_TimeSync_Exception When timeserver cannot be connected
      */
     protected function _read()
     {

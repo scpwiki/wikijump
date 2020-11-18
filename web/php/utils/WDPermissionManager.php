@@ -194,7 +194,7 @@ class WDPermissionManager
 
             case 'account':
                 if (!$user) {
-                    $message = _("You can not access your account while not being logged in...");
+                    $message = _("You cannot access your account while not being logged in...");
                 }
                 break;
             case 'become_member':

@@ -155,7 +155,7 @@ class Zend_Loader
      * Note from ZF-2900:
      * If you use custom error handler, please check whether return value
      *  from error_reporting() is zero or not.
-     * At mark of fopen() can not suppress warning if the handler is used.
+     * At mark of fopen() cannot suppress warning if the handler is used.
      *
      * @param string   $filename
      * @return boolean

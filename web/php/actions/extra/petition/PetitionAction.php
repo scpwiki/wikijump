@@ -30,7 +30,7 @@ class PetitionAction extends SmartyAction
         $camp = PetitionCampaignPeer::instance()->selectOne($c);
 
         if (!$camp) {
-            throw new ProcessException(_("The campaign can not be found."));
+            throw new ProcessException(_("The campaign cannot be found."));
         }
 
         if (!$camp->getActive()) {
@@ -197,7 +197,7 @@ class PetitionAction extends SmartyAction
         $oe->setBodyTemplate('wiki/petition/PetitionConfirmation');
 
         if (!$oe->Send()) {
-            throw new ProcessException(_("Confirmation email can not be delivered to the specified address."));
+            throw new ProcessException(_("Confirmation email cannot be delivered to the specified address."));
         }
 
         $pet->setConfirmationHash($hash);
@@ -229,7 +229,7 @@ class PetitionAction extends SmartyAction
         $camp = PetitionCampaignPeer::instance()->selectOne($c);
 
         if (!$camp) {
-            throw new ProcessException(_("The campaign can not be found."));
+            throw new ProcessException(_("The campaign cannot be found."));
         }
 
         if (!$camp->getActive()) {
@@ -242,7 +242,7 @@ class PetitionAction extends SmartyAction
         $pet = PetitionSignaturePeer::instance()->selectOne($c);
 
         if (!$pet) {
-            throw new ProcessException(_("The petition signature can not be found."));
+            throw new ProcessException(_("The petition signature cannot be found."));
         }
         if ($pet->getConfirmed()) {
             throw new ProcessException(_("This signature has been already confirmed."));
@@ -286,7 +286,7 @@ class PetitionAction extends SmartyAction
         $camp = PetitionCampaignPeer::instance()->selectOne($c);
 
         if (!$camp) {
-            throw new ProcessException(_("The campaign can not be found."));
+            throw new ProcessException(_("The campaign cannot be found."));
         }
 
         $c = new Criteria();
@@ -296,7 +296,7 @@ class PetitionAction extends SmartyAction
         $pet = PetitionSignaturePeer::instance()->selectOne($c);
 
         if (!$pet) {
-            throw new ProcessException(_("The petition signature can not be found."));
+            throw new ProcessException(_("The petition signature cannot be found."));
         }
 
         PetitionSignaturePeer::instance()->deleteByPrimaryKey($pet->getSignatureId());

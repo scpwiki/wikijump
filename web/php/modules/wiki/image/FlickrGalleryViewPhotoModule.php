@@ -14,7 +14,7 @@ class FlickrGalleryViewPhotoModule extends CacheableModule
         $photo = $flickr->photos_getInfo($photoId, $secret);
         if ($photo == null) {
             $runData->contextAdd("nophoto", true);
-            throw new ProcessException(_("The photo can not be loaded."));
+            throw new ProcessException(_("The photo cannot be loaded."));
         }
 
         $sizes = $flickr->photos_getSizes($photoId);

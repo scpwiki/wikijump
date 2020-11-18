@@ -45,7 +45,7 @@
 			checkboxes above.
 		</p>
 		<p>
-			You can not send more than <b>20</b> invitations at once.
+			You cannot send more than <b>20</b> invitations at once.
 		</p>
 		<h2>{t}What to tell them?{/t}</h2>
 

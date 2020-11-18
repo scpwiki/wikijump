@@ -232,7 +232,7 @@ class PagesTagCloudModule extends SmartyModule
         if ($categoryName) {
             $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
             if ($category == null) {
-                throw new ProcessException(sprintf(_('Category "%s" can not be found.'), $categoryName));
+                throw new ProcessException(sprintf(_('Category "%s" cannot be found.'), $categoryName));
             }
         }
 

@@ -122,7 +122,7 @@ class FrontForumFeed extends FeedScreen
         // get page
         $page = PagePeer::instance()->selectByPrimaryKey($feed->getPageId());
         if (!$page) {
-            throw new ProcessException(_("Page can not be found."), "no_page");
+            throw new ProcessException(_("Page cannot be found."), "no_page");
         }
 
         foreach ($cats as $categoryId) {

@@ -22,7 +22,7 @@ class UserAddToContactsModule extends SmartyLocalizedModule
         $targetUser = OzoneUserPeer::instance()->selectByPrimaryKey($targetUserId);
 
         if ($targetUser == null) {
-            throw new ProcessException(_("User can not be found."), "no_user");
+            throw new ProcessException(_("User cannot be found."), "no_user");
         }
 
         // check how many contacts so far...

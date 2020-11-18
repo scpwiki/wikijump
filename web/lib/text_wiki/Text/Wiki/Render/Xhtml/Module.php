@@ -41,7 +41,7 @@ class Text_Wiki_Render_Xhtml_Module extends Text_Wiki_Render {
         // check if the site is allowed to use this module
 	$mm = ModuleManager::instance();
         if ($mm->canWikiUseModule($siteName, $moduleName) == false) {
-            return $this->renderError(sprintf(_("Module <em>%s</em> does not exist or can not be used within this site."), $moduleName));
+            return $this->renderError(sprintf(_("Module <em>%s</em> does not exist or cannot be used within this site."), $moduleName));
         }
 
         $attr = $options['attr'];

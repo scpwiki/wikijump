@@ -43,7 +43,7 @@ class FeedModule extends CacheableModule
                     }
                     $itemArray = array_merge($itemArray, $items);
                 } catch (Exception $e) {
-                    throw new ProcessException(sprintf(_('Error processing the feed "%s". The feed can not be accessed or contains errors. '), $url), "feed_failed");
+                    throw new ProcessException(sprintf(_('Error processing the feed "%s". The feed cannot be accessed or contains errors. '), $url), "feed_failed");
                 }
             }
 
@@ -69,7 +69,7 @@ class FeedModule extends CacheableModule
                 //TODO: check if $src is a valid address?
                 $rss = $mrss->fetch($src);
             } catch (Exception $e) {
-                throw new ProcessException(sprintf(_('Error processing the feed "%s". The feed can not be accessed or contains errors. '), $src), "feed_failed");
+                throw new ProcessException(sprintf(_('Error processing the feed "%s". The feed cannot be accessed or contains errors. '), $src), "feed_failed");
             }
 
             $items= $rss->items;

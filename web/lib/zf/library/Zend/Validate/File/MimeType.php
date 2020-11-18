@@ -48,7 +48,7 @@ class Zend_Validate_File_MimeType extends Zend_Validate_Abstract
     protected $_messageTemplates = array(
         self::FALSE_TYPE   => "The file '%value%' has a false mimetype of '%type%'",
         self::NOT_DETECTED => "The mimetype of file '%value%' could not been detected",
-        self::NOT_READABLE => "The file '%value%' can not be read"
+        self::NOT_READABLE => "The file '%value%' cannot be read"
     );
 
     /**
@@ -128,7 +128,7 @@ class Zend_Validate_File_MimeType extends Zend_Validate_Abstract
             $this->_magicfile = null;
         } else if (!is_readable($file)) {
             require_once 'Zend/Validate/Exception.php';
-            throw new Zend_Validate_Exception('The given magicfile can not be read');
+            throw new Zend_Validate_Exception('The given magicfile cannot be read');
         } else {
             $this->_magicfile = (string) $file;
         }

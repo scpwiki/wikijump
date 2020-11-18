@@ -7,7 +7,7 @@
 	own computer.{/t}
 </p>
 <p>
-	{t}The backup option at the moment has a few limitations: you can not restore from it automatically,
+	{t}The backup option at the moment has a few limitations: you cannot restore from it automatically,
 	it does not include all page revisions, only current (latest), it does not include forum discussion or page comments.{/t}
 </p>
 

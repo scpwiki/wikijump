@@ -96,7 +96,7 @@ class PetitionAdminAction extends SmartyAction
         $camp = PetitionCampaignPeer::instance()->selectOne($c);
 
         if (!$camp) {
-            throw new ProcessException(_("The campaign can not be found."));
+            throw new ProcessException(_("The campaign cannot be found."));
         }
 
         $camp->setActive(false);
@@ -117,7 +117,7 @@ class PetitionAdminAction extends SmartyAction
         $camp = PetitionCampaignPeer::instance()->selectOne($c);
 
         if (!$camp) {
-            throw new ProcessException(_("The campaign can not be found."));
+            throw new ProcessException(_("The campaign cannot be found."));
         }
 
         $camp->setActive(true);
@@ -138,7 +138,7 @@ class PetitionAdminAction extends SmartyAction
         $camp = PetitionCampaignPeer::instance()->selectOne($c);
 
         if (!$camp) {
-            throw new ProcessException(_("The campaign can not be found."));
+            throw new ProcessException(_("The campaign cannot be found."));
         }
 
         $camp->setDeleted(true);
@@ -161,7 +161,7 @@ class PetitionAdminAction extends SmartyAction
         $camp = PetitionCampaignPeer::instance()->selectOne($c);
 
         if (!$camp) {
-            throw new ProcessException(_("The campaign can not be found."));
+            throw new ProcessException(_("The campaign cannot be found."));
         }
 
         // so, what to collect and show?
@@ -226,7 +226,7 @@ class PetitionAdminAction extends SmartyAction
         $camp = PetitionCampaignPeer::instance()->selectOne($c);
 
         if (!$camp) {
-            throw new ProcessException(_("The campaign can not be found."));
+            throw new ProcessException(_("The campaign cannot be found."));
         }
 
         $ids = explode(',', $ids);

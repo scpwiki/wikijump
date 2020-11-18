@@ -55,7 +55,7 @@ abstract class BaseDBViewObject {
 		if ($row != null) {
 			$this->populate($row);
 		} else {
-			throw new OzoneException("The view object ".$this->tableName." can not be initialized as 'empty' object");
+			throw new OzoneException("The view object ".$this->tableName." cannot be initialized as 'empty' object");
 		}
 
 	}

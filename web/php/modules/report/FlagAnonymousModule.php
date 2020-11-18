@@ -59,7 +59,7 @@ class FlagAnonymousModule extends SmartyModule
         }
 
         if (!$valid1) {
-            throw new ProcessException(_("IP address of the user belongs to a private subnet. Sorry, such an address can not be flagged."));
+            throw new ProcessException(_("IP address of the user belongs to a private subnet. Sorry, such an address cannot be flagged."));
         }
 
         if ($flagged) {

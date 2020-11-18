@@ -11,13 +11,13 @@ class ViewSourceModule extends SmartyModule
         $raw = $runData->getParameterList()->getParameterValue("raw");
 
         if (!$pageId || !is_numeric($pageId)) {
-            throw new ProcessException(_("The page can not be found or does not exist."), "no_page");
+            throw new ProcessException(_("The page cannot be found or does not exist."), "no_page");
         }
 
         $page = PagePeer::instance()->selectByPrimaryKey($pageId);
 
         if (!$page || $page->getSiteId() !== $site->getSiteId()) {
-            throw new ProcessException(_("The page can not be found or does not exist."), "no_page");
+            throw new ProcessException(_("The page cannot be found or does not exist."), "no_page");
         }
 
         $source = $page->getCurrentRevision()->getSourceText();

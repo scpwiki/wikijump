@@ -125,7 +125,7 @@ class Zend_Pdf
      * Standard document properties: Title (must be set for PDF/X documents), Author,
      * Subject, Keywords (comma separated list), Creator (the name of the application,
      * that created document, if it was converted from other format), Trapped (must be
-     * true, false or null, can not be null for PDF/X documents)
+     * true, false or null, cannot be null for PDF/X documents)
      *
      * @var array
      */

@@ -49,7 +49,7 @@
 		</table>
 	{else}
 		<div class="error-block">
-			{t}You can not apply.{/t}<br/>
+			{t}You cannot apply.{/t}<br/>
 			{if $reason=="not_enabled"}
 				{t}Membership via application is not enabled for this site.{/t}
 			{/if}

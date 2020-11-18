@@ -50,7 +50,7 @@
 		</table>
 	{else}
 		<div class="error-block">
-			You can not apply.<br/>
+			You cannot apply.<br/>
 			{if $reason=="not_enabled"}
 				{t}Membership via password is not enabled for this site.{/t}
 			{/if}

@@ -23,7 +23,7 @@ class WikiPagesModule extends CacheableModule
         if ($categoryName !== null) {
             $category = CategoryPeer::instance()->selectByName($categoryName, $site->getSiteId());
             if ($category == null) {
-                throw new ProcessException(_("The category can not be found."));
+                throw new ProcessException(_("The category cannot be found."));
             }
         }
 

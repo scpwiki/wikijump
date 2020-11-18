@@ -27,7 +27,7 @@ class SignPetitionModule extends SmartyModule
         $camp = PetitionCampaignPeer::instance()->selectOne($c);
 
         if (!$camp) {
-            throw new ProcessException(_("The campaign can not be found."));
+            throw new ProcessException(_("The campaign cannot be found."));
         }
 
         if (!$camp->getActive()) {
@@ -56,7 +56,7 @@ class SignPetitionModule extends SmartyModule
             $pet = PetitionSignaturePeer::instance()->selectOne($c);
 
             if (!$pet) {
-                throw new ProcessException(_("The petition signature can not be found."));
+                throw new ProcessException(_("The petition signature cannot be found."));
             }
             if ($pet->getConfirmed()) {
                 throw new ProcessException(_("This signature has been already confirmed."));

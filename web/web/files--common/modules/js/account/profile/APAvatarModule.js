@@ -16,10 +16,10 @@ Wikijump.modules.APAvatarModule.listeners = {
 	uploaded: function(status, im48, im16){
 		if(status != "ok"){
 			var er = new OZONE.dialogs.ErrorDialog();
-			er.content = "The uploaded file can not be used as a buddy icon.<br/>" +
+			er.content = "The uploaded file cannot be used as a buddy icon.<br/>" +
 					"Please upload a valid .png, .jpg or .gif image.";
 			er.show();
-//			alert("The uploaded file can not be used as a buddy icon.\n" +
+//			alert("The uploaded file cannot be used as a buddy icon.\n" +
 			return;
 		}
 		var path = '/common--tmp/avatars-upload/';
@@ -103,7 +103,7 @@ Wikijump.modules.APAvatarModule.callbacks = {
 	uploadUri: function(r){
 		if(r.status != "ok"){
 			var er = new OZONE.dialogs.ErrorDialog();
-			er.content = "This image can not be used as your buddy icon. ("+r.status+")";
+			er.content = "This image cannot be used as your buddy icon. ("+r.status+")";
 			er.show();
 			return;
 		}

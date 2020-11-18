@@ -9,7 +9,7 @@ class PageHistoryModule extends SmartyModule
         $pageId = $runData->getParameterList()->getParameterValue("page_id");
 
         if (!$pageId || !is_numeric($pageId)) {
-            throw new ProcessException(_("The page can not be found or does not exist."), "no_page");
+            throw new ProcessException(_("The page cannot be found or does not exist."), "no_page");
         }
 
         $c = new Criteria();

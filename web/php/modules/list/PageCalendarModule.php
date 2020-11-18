@@ -161,7 +161,7 @@ class PageCalendarModule extends SmartyModule
             }
         }
         //if(count($categories) == 0){
-        //  throw new ProcessException(_("The category can not be found."));
+        //  throw new ProcessException(_("The category cannot be found."));
         //}
 
 
