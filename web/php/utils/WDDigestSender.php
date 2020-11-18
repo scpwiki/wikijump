@@ -84,7 +84,7 @@ class WDDigestSender
         $oe->setBodyTemplate('DigestEmail');
 
         if (!$oe->send()) {
-            throw new ProcessException("The email can not be sent to address ".$user->getName(), "email_failed");
+            throw new ProcessException("The email cannot be sent to address ".$user->getName(), "email_failed");
         }
 
         $db->commit();

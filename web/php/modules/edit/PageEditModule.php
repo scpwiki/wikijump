@@ -47,7 +47,7 @@ class PageEditModule extends SmartyModule
             $unixName = WDStringUtils::toUnixName($unixName); // purify! (for sure)
 
             if (!$unixName) {
-                throw new ProcessException(_("The page can not be found or does not exist."), "no_page");
+                throw new ProcessException(_("The page cannot be found or does not exist."), "no_page");
             }
 
             $page = PagePeer::instance()->selectByName($site->getSiteId(), $unixName);
@@ -176,12 +176,12 @@ class PageEditModule extends SmartyModule
         // now if editing an existing page...
 
         if (!$pageId || !is_numeric($pageId)) {
-            throw new ProcessException(_("The page can not be found or does not exist."), "no_page");
+            throw new ProcessException(_("The page cannot be found or does not exist."), "no_page");
         }
 
         $page = PagePeer::instance()->selectByPrimaryKey($pageId);
         if (!$page || $page->getSiteId() !== $site->getSiteId()) {
-            throw new ProcessException(_("The page can not be found or does not exist."), "no_page");
+            throw new ProcessException(_("The page cannot be found or does not exist."), "no_page");
         }
 
         $category = $page->getCategory();

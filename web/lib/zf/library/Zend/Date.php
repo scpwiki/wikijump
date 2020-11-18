@@ -4565,7 +4565,7 @@ class Zend_Date extends Zend_Date_DateObject
                 $parsed['year'] = self::getFullYear($parsed['year']);
             }
         } catch (Zend_Locale_Exception $e) {
-            // Date can not be parsed
+            // Date cannot be parsed
             return false;
         }
 

@@ -23,7 +23,7 @@ class Backuper
 
         $site = SitePeer::instance()->selectByPrimaryKey($this->siteId);
         if (!$site) {
-            throw new ProcessException(_("Site can not be found"));
+            throw new ProcessException(_("Site cannot be found"));
         }
 
         // prepare working directory

@@ -360,7 +360,7 @@ class Zend_Feed_Builder_Header extends ArrayObject
              * @see Zend_Feed_Builder_Exception
              */
             require_once 'Zend/Feed/Builder/Exception.php';
-            throw new Zend_Feed_Builder_Exception("you can not have more than 24 rows in the skipHours property");
+            throw new Zend_Feed_Builder_Exception("you cannot have more than 24 rows in the skipHours property");
         }
         foreach ($hours as $hour) {
             if ($hour < 0 || $hour > 23) {
@@ -390,7 +390,7 @@ class Zend_Feed_Builder_Header extends ArrayObject
              * @see Zend_Feed_Builder_Exception
              */
             require_once 'Zend/Feed/Builder/Exception.php';
-            throw new Zend_Feed_Builder_Exception("you can not have more than 7 days in the skipDays property");
+            throw new Zend_Feed_Builder_Exception("you cannot have more than 7 days in the skipDays property");
         }
         $valid = array('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday');
         foreach ($days as $day) {

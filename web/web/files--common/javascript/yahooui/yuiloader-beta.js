@@ -11,7 +11,7 @@ version: 2.3.1
  * and yahoo-dom-event.js), and will automatically use these when
  * appropriate in order to minimize the number of http connections
  * required to load all of the dependencies.
- * 
+ *
  * @module yuiloader
  * @namespace YAHOO.util
  */
@@ -23,7 +23,7 @@ version: 2.3.1
  *      version management, automatic sandboxing
  */
 (function() {
- 
+
     // Define YAHOO_config if it doesn't exist.  Only relevant if YAHOO is not
     // already on the page
     if (typeof YAHOO_config === "undefined") {
@@ -264,7 +264,7 @@ version: 2.3.1
         }
     }
 }
- , 
+ ,
 
         // Simple utils since we can't count on YAHOO.lang being available.
         ObjectUtil: {
@@ -287,7 +287,7 @@ version: 2.3.1
             merge: function() {
                 var o={}, a=arguments, i, j;
                 for (i=0; i<a.length; i=i+1) {
-                    
+
                     for (j in a[i]) {
                         o[j] = a[i][j];
                     }
@@ -351,10 +351,10 @@ version: 2.3.1
 
         finishInit: function(yahooref) {
 
-            // YAHOO has been loaded either in this window or passed 
-            // from the sandbox routine.  Set up local references 
+            // YAHOO has been loaded either in this window or passed
+            // from the sandbox routine.  Set up local references
             // to the loader and module metadata in the YAHOO object
-            // in question so additional modules can be loaded. 
+            // in question so additional modules can be loaded.
 
             yahooref = yahooref || YAHOO;
 
@@ -384,7 +384,7 @@ version: 2.3.1
          */
         init: function() {
 
-            var c = YAHOO_config, o = c.load, 
+            var c = YAHOO_config, o = c.load,
                 y_loaded = (typeof YAHOO !== "undefined" && YAHOO.env);
 
 
@@ -429,7 +429,7 @@ version: 2.3.1
                             o.onLoadComplete(loader);
                         }
 
-                        
+
                     };
 
                 // If no load was requested, we must load YAHOO
@@ -521,7 +521,7 @@ version: 2.3.1
         this.rollups = null;
 
         /**
-         * Whether or not to load optional dependencies for 
+         * Whether or not to load optional dependencies for
          * the requested modules
          * @property loadOptional
          * @type boolean
@@ -539,7 +539,7 @@ version: 2.3.1
         this.sorted = [];
 
         /**
-         * Set when beginning to compute the dependency tree. 
+         * Set when beginning to compute the dependency tree.
          * Composed of what YAHOO reports to be loaded combined
          * with what has been loaded by the tool
          * @propery loaded
@@ -576,7 +576,7 @@ version: 2.3.1
          *      // The default skin, which is automatically applied if not
          *      // overriden by a component-specific skin definition.
          *      // Change this in to apply a different skin globally
-         *      defaultSkin: 'sam', 
+         *      defaultSkin: 'sam',
          *
          *      // This is combined with the loader base property to get
          *      // the default root directory for a skin. ex:
@@ -602,7 +602,7 @@ version: 2.3.1
          *   </code>
          *   @property skin
          */
-        this.skin = o.skin || YUI.ObjectUtil.clone(YUI.info.skin); 
+        this.skin = o.skin || YUI.ObjectUtil.clone(YUI.info.skin);
 
 
         if (o.require) {
@@ -615,20 +615,20 @@ version: 2.3.1
     YUI.YUILoader.prototype = {
 
         FILTERS: {
-            RAW: { 
-                'searchExp': "-min\\.js", 
+            RAW: {
+                'searchExp': "-min\\.js",
                 'replaceStr': ".js"
             },
-            DEBUG: { 
-                'searchExp': "-min\\.js", 
+            DEBUG: {
+                'searchExp': "-min\\.js",
                 'replaceStr': "-debug.js"
             }
         },
 
         SKIN_PREFIX: "skin-",
 
-        /** Add a new module to the component metadata.  The javascript 
-         * component must also use YAHOO.register to notify the loader 
+        /** Add a new module to the component metadata.  The javascript
+         * component must also use YAHOO.register to notify the loader
          * when it has been loaded, or a verifier function must be
          * provided
          * <dl>
@@ -645,7 +645,7 @@ version: 2.3.1
          * </dl>
          * @method addModule
          * @param o An object containing the module data
-         * @return {boolean} true if the module was added, false if 
+         * @return {boolean} true if the module was added, false if
          * the object passed in did not provide all required attributes
          */
         addModule: function(o) {
@@ -766,7 +766,7 @@ version: 2.3.1
         },
 
         /**
-         * Calculates the dependency tree, the result is stored in the sorted 
+         * Calculates the dependency tree, the result is stored in the sorted
          * property
          * @method calculate
          * @param o optional options object
@@ -798,8 +798,8 @@ version: 2.3.1
         _setup: function(o) {
 
             o = o || {};
-            this.loaded = YUI.ObjectUtil.clone(this.inserted); 
-            
+            this.loaded = YUI.ObjectUtil.clone(this.inserted);
+
             if (!this.sandbox && typeof YAHOO !== "undefined" && YAHOO.env) {
                 this.loaded = YUI.ObjectUtil.merge(this.loaded, YAHOO.env.modules);
             }
@@ -818,11 +818,11 @@ version: 2.3.1
                 }
             }
         },
-        
+
 
         /**
-         * Inspects the required modules list looking for additional 
-         * dependencies.  Expands the required list to include all 
+         * Inspects the required modules list looking for additional
+         * dependencies.  Expands the required list to include all
          * required modules.  Called by calculate()
          * @method _explode
          * @private
@@ -871,7 +871,7 @@ version: 2.3.1
 
         /**
          * Returns the skin module name for the specified skin name.  If a
-         * module name is supplied, the returned skin module name is 
+         * module name is supplied, the returned skin module name is
          * specific to the module passed in.
          * @method formatSkin
          * @param skin {string} the name of the skin
@@ -886,22 +886,22 @@ version: 2.3.1
 
             return s;
         },
-        
+
         /**
          * Reverses <code>formatSkin</code>, providing the skin name and
          * module name if the string matches the pattern for skins.
          * @method parseSkin
          * @param mod {string} the module name to parse
-         * @return {skin: string, module: string} the parsed skin name 
+         * @return {skin: string, module: string} the parsed skin name
          * and module name, or null if the supplied string does not match
          * the skin pattern
          */
         parseSkin: function(mod) {
-            
+
             if (mod.indexOf(this.SKIN_PREFIX) === 0) {
                 var a = mod.split("-");
                 return {skin: a[1], module: a[2]};
-            } 
+            }
 
             return null;
         },
@@ -935,7 +935,7 @@ version: 2.3.1
                 var rolled = false;
 
                 // go through the rollup candidates
-                for (i in rollups) { 
+                for (i in rollups) {
 
                     // there can be only one
                     if (!r[i] && !this.loaded[i]) {
@@ -962,7 +962,7 @@ version: 2.3.1
 
                         } else {
 
-                            // require all modules to trigger a rollup (using the 
+                            // require all modules to trigger a rollup (using the
                             // threshold value has not proved worthwhile)
                             for (j=0;j<s.length;j=j+1) {
 
@@ -1012,7 +1012,7 @@ version: 2.3.1
             for (i in r) {
 
                 // remove if already loaded
-                if (i in this.loaded) { 
+                if (i in this.loaded) {
                     delete r[i];
 
                 // remove anything this module supersedes
@@ -1048,7 +1048,7 @@ version: 2.3.1
                 }
             }
         },
-        
+
         /**
          * Sorts the dependency tree.  The last step of calculate()
          * @method _sort
@@ -1090,11 +1090,11 @@ version: 2.3.1
             }
 
             // pointer to the first unsorted item
-            var p=0; 
+            var p=0;
 
             // keep going until we make a pass without moving anything
             for (;;) {
-               
+
                 var l=s.length, a, b, j, k, moved=false;
 
                 // start the loop after items that are already sorted
@@ -1112,7 +1112,7 @@ version: 2.3.1
                             // extract the dependency so we can move it up
                             b = s.splice(k, 1);
 
-                            // insert the dependency above the item that 
+                            // insert the dependency above the item that
                             // requires it
                             s.splice(j, 0, b[0]);
 
@@ -1130,7 +1130,7 @@ version: 2.3.1
                     }
                 }
 
-                // when we make it here and moved is false, we are 
+                // when we make it here and moved is false, we are
                 // finished sorting
                 if (!moved) {
                     break;
@@ -1142,8 +1142,8 @@ version: 2.3.1
         },
 
         /**
-         * inserts the requested modules and their dependencies.  
-         * <code>type</code> can be "js" or "css".  Both script and 
+         * inserts the requested modules and their dependencies.
+         * <code>type</code> can be "js" or "css".  Both script and
          * css are inserted if type is not provided.
          * @method insert
          * @param callback {Function} a function to execute when the load
@@ -1239,7 +1239,7 @@ version: 2.3.1
             if (mname && mname !== this.loading) {
                 return;
             }
-            
+
             var s=this.sorted, len=s.length, i, m, url;
 
             for (i=0; i<len; i=i+1) {
@@ -1276,12 +1276,12 @@ version: 2.3.1
                     if (m.type === "css") {
 
                         url = m.fullpath || this._url(m.path);
-                        
+
                         this.insertCss(url);
                         this.inserted[s[i]] = true;
 
                     // Scripts must be loaded in order, so we wait for the
-                    // notification from YAHOO or a verifier function to 
+                    // notification from YAHOO or a verifier function to
                     // process the next script
                     } else {
 
@@ -1339,12 +1339,12 @@ version: 2.3.1
          * @private
          */
         _url: function(path) {
-            
+
             var u = this.base || "", f=this.filter;
             u = u + path;
 
             if (f) {
-                // console.log("filter: " + f + ", " + f.searchExp + 
+                // console.log("filter: " + f + ", " + f.searchExp +
                 // ", " + f.replaceStr);
                 u = u.replace(new RegExp(f.searchExp), f.replaceStr);
             }
@@ -1387,11 +1387,11 @@ version: 2.3.1
             n.rel = "stylesheet";
             h.appendChild(n);
         },
-       
+
         /*
          * Interns the script for the requested modules.  The callback is
          * provided a reference to the sandboxed YAHOO object.  This only
-         * applies to the script: css can not be sandboxed.  Not implemented.
+         * applies to the script: css cannot be sandboxed.  Not implemented.
          * @method sandbox
          * @param callback {Function} the callback to exectued when the load is
          *        complete.

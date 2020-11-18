@@ -103,7 +103,7 @@ Wikijump.modules.ManageSiteForumLayoutModule.listeners = {
 		// check if not empty
 		if(categories[groupIndex].length > 0){
 			var w = new OZONE.dialogs.ErrorDialog();
-			w.content = "A non-empty forum group can not be deleted.";
+			w.content = "A non-empty forum group cannot be deleted.";
 			w.show();
 		} else {
 			deletedGroups.push(groups[groupIndex]);
@@ -117,7 +117,7 @@ Wikijump.modules.ManageSiteForumLayoutModule.listeners = {
 		var category =  categories[groupIndex][categoryIndex];
 		if(category['number_threads'] && category['number_threads']>0){
 			var w = new OZONE.dialogs.ErrorDialog();
-			w.content = "A non-empty category can not be deleted. Consider rather moving the category " +
+			w.content = "A non-empty category cannot be deleted. Consider rather moving the category " +
 					"to a hidden group.";
 			w.show();
 		}else{

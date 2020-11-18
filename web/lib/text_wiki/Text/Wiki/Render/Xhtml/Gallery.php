@@ -124,7 +124,7 @@ class Text_Wiki_Render_Xhtml_Gallery extends Text_Wiki_Render {
 		            		if($noLocal){
 	    						return '<div class="error-block">' .
 						    				'Error fetching local image (: '.$row.').' .
-						    				'Sorry, can not load files attached to this page in this mode. ' .
+						    				'Sorry, cannot load files attached to this page in this mode. ' .
 						    				'You should specify source page for each local image.</div>';
 						    	}
 		            		$osrc = "/local--files/".$this->wiki->vars['pageName'] .'/'. $src;
@@ -188,7 +188,7 @@ class Text_Wiki_Render_Xhtml_Gallery extends Text_Wiki_Render {
         $noLocal = $this->getConf("no_local");
 	   	if($noLocal){
 	    		return '<div class="error-block">' .
-	    				'Sorry, can not load files attached to the page in this mode. ' .
+	    				'Sorry, cannot load files attached to the page in this mode. ' .
 	    				'You should specify sources for each image.</div>';
 	    	}
 

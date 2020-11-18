@@ -150,7 +150,7 @@ class Zend_Locale_Math_PhpMath extends Zend_Locale_Math
 
         if (empty($op2)) {
             require_once 'Zend/Locale/Math/Exception.php';
-            throw new Zend_Locale_Math_Exception("can not divide by zero", $op1, $op2, null);
+            throw new Zend_Locale_Math_Exception("cannot divide by zero", $op1, $op2, null);
         }
         if (empty($op1)) {
             $op1 = 0;
@@ -236,7 +236,7 @@ class Zend_Locale_Math_PhpMath extends Zend_Locale_Math
     {
         if ($scale > 9) {
             require_once 'Zend/Locale/Math/Exception.php';
-            throw new Zend_Locale_Math_Exception("can not scale to precision $scale", $scale, null, null);
+            throw new Zend_Locale_Math_Exception("cannot scale to precision $scale", $scale, null, null);
         }
         self::$defaultScale     = $scale;
         self::$defaultPrecision = pow(10, -$scale);

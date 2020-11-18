@@ -47,7 +47,7 @@ class Zend_Validate_File_IsImage extends Zend_Validate_File_MimeType
     protected $_messageTemplates = array(
         self::FALSE_TYPE   => "The file '%value%' is no image, '%type%' detected",
         self::NOT_DETECTED => "The mimetype of file '%value%' has not been detected",
-        self::NOT_READABLE => "The file '%value%' can not be read"
+        self::NOT_READABLE => "The file '%value%' cannot be read"
     );
 
     /**

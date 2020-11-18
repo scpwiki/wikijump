@@ -26,7 +26,7 @@ class BrowsePetitionSignaturesModule extends SmartyModule
         $camp = PetitionCampaignPeer::instance()->selectOne($c);
 
         if (!$camp) {
-            throw new ProcessException(_("The campaign can not be found."));
+            throw new ProcessException(_("The campaign cannot be found."));
         }
 
         // get signatures!

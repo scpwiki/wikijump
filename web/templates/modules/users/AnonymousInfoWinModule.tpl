@@ -33,7 +33,7 @@
 		(not routeable) from public internet nodes.<br/>
 		If you see an IP address from a private range here it means a user is using a www proxy
 		for web browsing.<br/>
-		You can not rely on a private IP address for unique computer identification.{/t}
+		You cannot rely on a private IP address for unique computer identification.{/t}
 	</div>
 	{if $proxy}
 	<div id="proxy-help-hovertip" style="display:none">

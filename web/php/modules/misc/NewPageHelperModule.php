@@ -29,7 +29,7 @@ class NewPageHelperModule extends SmartyModule
                 }
                 $page = PagePeer::instance()->selectByName($site->getSiteId(), $t);
                 if ($page == null) {
-                    throw new ProcessException(sprintf(_('Template "%s" can not be found.'), $t), "no_template");
+                    throw new ProcessException(sprintf(_('Template "%s" cannot be found.'), $t), "no_template");
                 }
                 $tp[] = $page;
             }

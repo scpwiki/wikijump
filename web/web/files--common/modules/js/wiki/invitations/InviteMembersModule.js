@@ -8,7 +8,7 @@ Wikijump.modules.InviteMembersModule.listeners = {
 	moreRecipients: function(e, rname, email){
 		if($("invitation-addresses").getElementsByTagName("table").length > 20){
 			var w = new OZONE.dialogs.ErrorDialog();
-			w.content = "Sorry, you can not send more than 20 invitations at once.";
+			w.content = "Sorry, you cannot send more than 20 invitations at once.";
 			w.show();
 			return;
 		}

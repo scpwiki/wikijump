@@ -48,7 +48,7 @@ class Text_Wiki_Render_Xhtml_User extends Text_Wiki_Render {
         $user = DB\OzoneUserPeer::instance()->selectOne($c);
 
         if ($user == null) {
-            return '<span class="error-inline">' . sprintf(_('User <em>%s</em> can not be found.'), $userName) . '</span>';
+            return '<span class="error-inline">' . sprintf(_('User <em>%s</em> cannot be found.'), $userName) . '</span>';
         } else {
             $o = array();
             if ($options['image']) {

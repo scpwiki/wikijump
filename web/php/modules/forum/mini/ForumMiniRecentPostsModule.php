@@ -23,7 +23,7 @@ class ForumMiniRecentPostsModule extends CacheableModule
         if ($categoryId !== null) {
             $category = ForumCategoryPeer::instance()->selectByPrimaryKey($categoryId);
             if ($category == null || $category->getSiteId() != $site->getSiteId()) {
-                throw new ProcessException(_("The category can not be found."));
+                throw new ProcessException(_("The category cannot be found."));
             }
         }
 

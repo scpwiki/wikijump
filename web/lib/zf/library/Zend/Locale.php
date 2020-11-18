@@ -283,7 +283,7 @@ class Zend_Locale
                 self::$_default = array($locale[0] => $quality);
             } else {
                 require_once 'Zend/Locale/Exception.php';
-                throw new Zend_Locale_Exception("Unknown locale '" . (string) $locale . "' can not be set as default!");
+                throw new Zend_Locale_Exception("Unknown locale '" . (string) $locale . "' cannot be set as default!");
             }
         }
     }

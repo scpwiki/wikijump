@@ -10,11 +10,11 @@ class PageFilesModule extends SmartyModule
 
         $pageId = $runData->getParameterList()->getParameterValue("page_id");
         if (!$pageId || !is_numeric($pageId)) {
-            throw new ProcessException(_("The page can not be found or does not exist."), "no_page");
+            throw new ProcessException(_("The page cannot be found or does not exist."), "no_page");
         }
         $page = PagePeer::instance()->selectByPrimaryKey($pageId);
         if (!$page || $page->getSiteId() !== $site->getSiteId()) {
-            throw new ProcessException(_("The page can not be found or does not exist."), "no_page");
+            throw new ProcessException(_("The page cannot be found or does not exist."), "no_page");
         }
         $files = $page->getFiles();
 
