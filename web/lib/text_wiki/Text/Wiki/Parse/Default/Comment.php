@@ -41,7 +41,7 @@ class Text_Wiki_Parse_Comment extends Text_Wiki_Parse {
      *
      */
 
-    public $regex =     '/' . 
+    public $regex =     '/' .
                         '(\n)?' .     # Optional newline?
                         '\[!\-\-' .   # [!--
                         '(.*?)' .     # Any text - no nesting

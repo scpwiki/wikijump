@@ -49,14 +49,14 @@ class Text_Wiki_Parse_Toc extends Text_Wiki_Parse {
     *
     */
 
-    public $regex =     '/' . 
+    public $regex =     '/' .
                         '^' .          # Start of line
                         '(?:\n*)' .    # Allow any number of newlines (why)
-                        '\[\[' . 
+                        '\[\[' .
                         '(f[<>])?' .   # Float direction - f> or f<
-                        'toc' . 
+                        'toc' .
                         '(\s.*)?' .    # Parameters
-                        '\]\]' . 
+                        '\]\]' .
                         '(\n)*' .      # Allow any number of newlines
                         '/mx';
     # The newlines capture may interfere with a [[newlines]] module

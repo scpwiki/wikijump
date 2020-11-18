@@ -42,8 +42,8 @@ class Text_Wiki_Parse_Equationreference extends Text_Wiki_Parse {
     *
     */
 
-    public $regex =     '/' . 
-                        '\[\[eref (.*?)\]\]' . 
+    public $regex =     '/' .
+                        '\[\[eref (.*?)\]\]' .
                         '/x';
     /**
     *

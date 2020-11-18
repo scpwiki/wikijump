@@ -1,15 +1,15 @@
 <?php
 /**
  * Auto-generated class. RUBY syntax highlighting
- * 
- * 
- * FIXME:  While this construction : s.split /z/i 
+ *
+ *
+ * FIXME:  While this construction : s.split /z/i
  * is valid, regular expression is not recognized as such
  * (/ folowing an identifier or number is not recognized as
  * start of RE), making highlighting improper
- * 
+ *
  * %q(a (nested) string) does not get highlighted correctly
- *    
+ *
  *
  * PHP version 4 and 5
  *
@@ -24,7 +24,7 @@
  * @link       http://pear.php.net/package/Text_Highlighter
  * @category   Text
  * @package    Text_Highlighter
- * @version    generated from: : ruby.xml,v 1.1 2007/06/03 02:35:28 ssttoo Exp 
+ * @version    generated from: : ruby.xml,v 1.1 2007/06/03 02:35:28 ssttoo Exp
  * @author Andrey Demenev <demenev@gmail.com>
  *
  */
@@ -86,7 +86,7 @@ class  Text_Highlighter_RUBY extends Text_Highlighter
             9 => '/((?i)\\\\.)/',
         );
         $this->_counts = array (
-            -1 => 
+            -1 =>
             array (
                 0 => 0,
                 1 => 0,
@@ -107,47 +107,26 @@ class  Text_Highlighter_RUBY extends Text_Highlighter
                 16 => 0,
                 17 => 0,
             ),
-            0 => 
+            0 =>
             array (
             ),
-            1 => 
-            array (
-                0 => 0,
-            ),
-            2 => 
+            1 =>
             array (
                 0 => 0,
             ),
-            3 => 
+            2 =>
             array (
                 0 => 0,
             ),
-            4 => 
+            3 =>
             array (
                 0 => 0,
             ),
-            5 => 
+            4 =>
             array (
                 0 => 0,
-                1 => 0,
-                2 => 1,
-                3 => 0,
-                4 => 1,
-                5 => 1,
-                6 => 0,
-                7 => 0,
-                8 => 0,
-                9 => 0,
-                10 => 5,
-                11 => 2,
-                12 => 0,
-                13 => 0,
-                14 => 0,
-                15 => 0,
-                16 => 0,
-                17 => 0,
             ),
-            6 => 
+            5 =>
             array (
                 0 => 0,
                 1 => 0,
@@ -168,21 +147,42 @@ class  Text_Highlighter_RUBY extends Text_Highlighter
                 16 => 0,
                 17 => 0,
             ),
-            7 => 
+            6 =>
+            array (
+                0 => 0,
+                1 => 0,
+                2 => 1,
+                3 => 0,
+                4 => 1,
+                5 => 1,
+                6 => 0,
+                7 => 0,
+                8 => 0,
+                9 => 0,
+                10 => 5,
+                11 => 2,
+                12 => 0,
+                13 => 0,
+                14 => 0,
+                15 => 0,
+                16 => 0,
+                17 => 0,
+            ),
+            7 =>
             array (
                 0 => 0,
             ),
-            8 => 
+            8 =>
             array (
                 0 => 0,
             ),
-            9 => 
+            9 =>
             array (
                 0 => 0,
             ),
         );
         $this->_delim = array (
-            -1 => 
+            -1 =>
             array (
                 0 => 'reserved',
                 1 => 'quotes',
@@ -203,26 +203,26 @@ class  Text_Highlighter_RUBY extends Text_Highlighter
                 16 => 'comment',
                 17 => 'quotes',
             ),
-            0 => 
+            0 =>
             array (
             ),
-            1 => 
-            array (
-                0 => '',
-            ),
-            2 => 
+            1 =>
             array (
                 0 => '',
             ),
-            3 => 
+            2 =>
             array (
                 0 => '',
             ),
-            4 => 
+            3 =>
             array (
                 0 => '',
             ),
-            5 => 
+            4 =>
+            array (
+                0 => '',
+            ),
+            5 =>
             array (
                 0 => 'reserved',
                 1 => 'quotes',
@@ -243,7 +243,7 @@ class  Text_Highlighter_RUBY extends Text_Highlighter
                 16 => 'comment',
                 17 => 'quotes',
             ),
-            6 => 
+            6 =>
             array (
                 0 => 'reserved',
                 1 => 'quotes',
@@ -264,21 +264,21 @@ class  Text_Highlighter_RUBY extends Text_Highlighter
                 16 => 'comment',
                 17 => 'quotes',
             ),
-            7 => 
+            7 =>
             array (
                 0 => '',
             ),
-            8 => 
+            8 =>
             array (
                 0 => '',
             ),
-            9 => 
+            9 =>
             array (
                 0 => '',
             ),
         );
         $this->_inner = array (
-            -1 => 
+            -1 =>
             array (
                 0 => 'comment',
                 1 => 'string',
@@ -299,26 +299,26 @@ class  Text_Highlighter_RUBY extends Text_Highlighter
                 16 => 'comment',
                 17 => 'string',
             ),
-            0 => 
+            0 =>
             array (
             ),
-            1 => 
-            array (
-                0 => 'special',
-            ),
-            2 => 
+            1 =>
             array (
                 0 => 'special',
             ),
-            3 => 
+            2 =>
             array (
                 0 => 'special',
             ),
-            4 => 
+            3 =>
             array (
                 0 => 'special',
             ),
-            5 => 
+            4 =>
+            array (
+                0 => 'special',
+            ),
+            5 =>
             array (
                 0 => 'comment',
                 1 => 'string',
@@ -339,7 +339,7 @@ class  Text_Highlighter_RUBY extends Text_Highlighter
                 16 => 'comment',
                 17 => 'string',
             ),
-            6 => 
+            6 =>
             array (
                 0 => 'comment',
                 1 => 'string',
@@ -360,15 +360,15 @@ class  Text_Highlighter_RUBY extends Text_Highlighter
                 16 => 'comment',
                 17 => 'string',
             ),
-            7 => 
+            7 =>
             array (
                 0 => 'inlinedoc',
             ),
-            8 => 
+            8 =>
             array (
                 0 => 'inlinedoc',
             ),
-            9 => 
+            9 =>
             array (
                 0 => 'special',
             ),
@@ -386,7 +386,7 @@ class  Text_Highlighter_RUBY extends Text_Highlighter
             9 => '/(?i)\\/[iomx]*/',
         );
         $this->_states = array (
-            -1 => 
+            -1 =>
             array (
                 0 => 0,
                 1 => 1,
@@ -407,26 +407,26 @@ class  Text_Highlighter_RUBY extends Text_Highlighter
                 16 => 8,
                 17 => 9,
             ),
-            0 => 
+            0 =>
             array (
             ),
-            1 => 
-            array (
-                0 => -1,
-            ),
-            2 => 
+            1 =>
             array (
                 0 => -1,
             ),
-            3 => 
+            2 =>
             array (
                 0 => -1,
             ),
-            4 => 
+            3 =>
             array (
                 0 => -1,
             ),
-            5 => 
+            4 =>
+            array (
+                0 => -1,
+            ),
+            5 =>
             array (
                 0 => 0,
                 1 => 1,
@@ -447,7 +447,7 @@ class  Text_Highlighter_RUBY extends Text_Highlighter
                 16 => 8,
                 17 => 9,
             ),
-            6 => 
+            6 =>
             array (
                 0 => 0,
                 1 => 1,
@@ -468,222 +468,201 @@ class  Text_Highlighter_RUBY extends Text_Highlighter
                 16 => 8,
                 17 => 9,
             ),
-            7 => 
+            7 =>
             array (
                 0 => -1,
             ),
-            8 => 
+            8 =>
             array (
                 0 => -1,
             ),
-            9 => 
+            9 =>
             array (
                 0 => -1,
             ),
         );
         $this->_keywords = array (
-            -1 => 
+            -1 =>
             array (
                 0 => -1,
                 1 => -1,
                 2 => -1,
                 3 => -1,
                 4 => -1,
-                5 => 
+                5 =>
                 array (
                 ),
-                6 => 
+                6 =>
                 array (
                 ),
                 7 => -1,
                 8 => -1,
-                9 => 
+                9 =>
                 array (
                     'reserved' => '/^(__FILE__|require|and|def|end|in|or|self|unless|__LINE__|begin|defined?|ensure|module|redo|super|until|BEGIN|break|do|false|next|rescue|then|when|END|case|else|for|nil|retry|true|while|alias|module_function|private|public|protected|attr_reader|attr_writer|attr_accessor|class|elsif|if|not|return|undef|yield)$/',
                 ),
-                10 => 
+                10 =>
                 array (
                 ),
-                11 => 
+                11 =>
                 array (
                 ),
-                12 => 
+                12 =>
                 array (
                 ),
-                13 => 
+                13 =>
                 array (
                 ),
-                14 => 
+                14 =>
                 array (
                 ),
                 15 => -1,
                 16 => -1,
                 17 => -1,
             ),
-            0 => 
+            0 =>
             array (
             ),
-            1 => 
+            1 =>
             array (
-                0 => 
+                0 =>
                 array (
                 ),
             ),
-            2 => 
+            2 =>
             array (
-                0 => 
+                0 =>
                 array (
                 ),
             ),
-            3 => 
+            3 =>
             array (
-                0 => 
+                0 =>
                 array (
                 ),
             ),
-            4 => 
+            4 =>
             array (
-                0 => 
+                0 =>
                 array (
                 ),
             ),
-            5 => 
+            5 =>
             array (
                 0 => -1,
                 1 => -1,
                 2 => -1,
                 3 => -1,
                 4 => -1,
-                5 => 
+                5 =>
                 array (
                 ),
-                6 => 
+                6 =>
                 array (
                 ),
                 7 => -1,
                 8 => -1,
-                9 => 
+                9 =>
                 array (
                     'reserved' => '/^(__FILE__|require|and|def|end|in|or|self|unless|__LINE__|begin|defined?|ensure|module|redo|super|until|BEGIN|break|do|false|next|rescue|then|when|END|case|else|for|nil|retry|true|while|alias|module_function|private|public|protected|attr_reader|attr_writer|attr_accessor|class|elsif|if|not|return|undef|yield)$/',
                 ),
-                10 => 
+                10 =>
                 array (
                 ),
-                11 => 
+                11 =>
                 array (
                 ),
-                12 => 
+                12 =>
                 array (
                 ),
-                13 => 
+                13 =>
                 array (
                 ),
-                14 => 
+                14 =>
                 array (
                 ),
                 15 => -1,
                 16 => -1,
                 17 => -1,
             ),
-            6 => 
+            6 =>
             array (
                 0 => -1,
                 1 => -1,
                 2 => -1,
                 3 => -1,
                 4 => -1,
-                5 => 
+                5 =>
                 array (
                 ),
-                6 => 
+                6 =>
                 array (
                 ),
                 7 => -1,
                 8 => -1,
-                9 => 
+                9 =>
                 array (
                     'reserved' => '/^(__FILE__|require|and|def|end|in|or|self|unless|__LINE__|begin|defined?|ensure|module|redo|super|until|BEGIN|break|do|false|next|rescue|then|when|END|case|else|for|nil|retry|true|while|alias|module_function|private|public|protected|attr_reader|attr_writer|attr_accessor|class|elsif|if|not|return|undef|yield)$/',
                 ),
-                10 => 
+                10 =>
                 array (
                 ),
-                11 => 
+                11 =>
                 array (
                 ),
-                12 => 
+                12 =>
                 array (
                 ),
-                13 => 
+                13 =>
                 array (
                 ),
-                14 => 
+                14 =>
                 array (
                 ),
                 15 => -1,
                 16 => -1,
                 17 => -1,
             ),
-            7 => 
+            7 =>
             array (
-                0 => 
+                0 =>
                 array (
                 ),
             ),
-            8 => 
+            8 =>
             array (
-                0 => 
+                0 =>
                 array (
                 ),
             ),
-            9 => 
+            9 =>
             array (
-                0 => 
+                0 =>
                 array (
                 ),
             ),
         );
         $this->_parts = array (
-            0 => 
+            0 =>
             array (
             ),
-            1 => 
-            array (
-                0 => NULL,
-            ),
-            2 => 
+            1 =>
             array (
                 0 => NULL,
             ),
-            3 => 
+            2 =>
             array (
                 0 => NULL,
             ),
-            4 => 
+            3 =>
             array (
                 0 => NULL,
             ),
-            5 => 
+            4 =>
             array (
                 0 => NULL,
-                1 => NULL,
-                2 => NULL,
-                3 => NULL,
-                4 => NULL,
-                5 => NULL,
-                6 => NULL,
-                7 => NULL,
-                8 => NULL,
-                9 => NULL,
-                10 => NULL,
-                11 => NULL,
-                12 => NULL,
-                13 => NULL,
-                14 => NULL,
-                15 => NULL,
-                16 => NULL,
-                17 => NULL,
             ),
-            6 => 
+            5 =>
             array (
                 0 => NULL,
                 1 => NULL,
@@ -704,21 +683,42 @@ class  Text_Highlighter_RUBY extends Text_Highlighter
                 16 => NULL,
                 17 => NULL,
             ),
-            7 => 
+            6 =>
+            array (
+                0 => NULL,
+                1 => NULL,
+                2 => NULL,
+                3 => NULL,
+                4 => NULL,
+                5 => NULL,
+                6 => NULL,
+                7 => NULL,
+                8 => NULL,
+                9 => NULL,
+                10 => NULL,
+                11 => NULL,
+                12 => NULL,
+                13 => NULL,
+                14 => NULL,
+                15 => NULL,
+                16 => NULL,
+                17 => NULL,
+            ),
+            7 =>
             array (
                 0 => NULL,
             ),
-            8 => 
+            8 =>
             array (
                 0 => NULL,
             ),
-            9 => 
+            9 =>
             array (
                 0 => NULL,
             ),
         );
         $this->_subst = array (
-            -1 => 
+            -1 =>
             array (
                 0 => false,
                 1 => false,
@@ -739,47 +739,26 @@ class  Text_Highlighter_RUBY extends Text_Highlighter
                 16 => false,
                 17 => false,
             ),
-            0 => 
+            0 =>
             array (
             ),
-            1 => 
-            array (
-                0 => false,
-            ),
-            2 => 
+            1 =>
             array (
                 0 => false,
             ),
-            3 => 
+            2 =>
             array (
                 0 => false,
             ),
-            4 => 
+            3 =>
             array (
                 0 => false,
             ),
-            5 => 
+            4 =>
             array (
                 0 => false,
-                1 => false,
-                2 => true,
-                3 => false,
-                4 => true,
-                5 => false,
-                6 => false,
-                7 => false,
-                8 => false,
-                9 => false,
-                10 => false,
-                11 => false,
-                12 => false,
-                13 => false,
-                14 => false,
-                15 => false,
-                16 => false,
-                17 => false,
             ),
-            6 => 
+            5 =>
             array (
                 0 => false,
                 1 => false,
@@ -800,15 +779,36 @@ class  Text_Highlighter_RUBY extends Text_Highlighter
                 16 => false,
                 17 => false,
             ),
-            7 => 
+            6 =>
+            array (
+                0 => false,
+                1 => false,
+                2 => true,
+                3 => false,
+                4 => true,
+                5 => false,
+                6 => false,
+                7 => false,
+                8 => false,
+                9 => false,
+                10 => false,
+                11 => false,
+                12 => false,
+                13 => false,
+                14 => false,
+                15 => false,
+                16 => false,
+                17 => false,
+            ),
+            7 =>
             array (
                 0 => false,
             ),
-            8 => 
+            8 =>
             array (
                 0 => false,
             ),
-            9 => 
+            9 =>
             array (
                 0 => false,
             ),
@@ -821,5 +821,5 @@ class  Text_Highlighter_RUBY extends Text_Highlighter
         $this->_defClass = 'code';
         $this->_checkDefines();
     }
-    
+
 }

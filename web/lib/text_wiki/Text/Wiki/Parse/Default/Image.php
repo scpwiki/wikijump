@@ -53,13 +53,13 @@ class Text_Wiki_Parse_Image extends Text_Wiki_Parse {
      *
      */
 
-    public $regex =     '/' . 
-                        '(' . 
+    public $regex =     '/' .
+                        '(' .
                         '\[\[' .                  # Start opening image tag
                         '((?:f)?[<>=])?' .        # Allow f for flickr integration and <, >, =
-                        'image' . 
+                        'image' .
                         '\s+' .                   # Require a whitespace before parameters
-                        ')' . 
+                        ')' .
                         '(.+?)' .                 # Parameters
                         '(?:\]\])' .              # End opening image tag
                         '(?:(.*?)' .              # Capture any text inside the image element

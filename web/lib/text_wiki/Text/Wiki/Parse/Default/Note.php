@@ -40,11 +40,11 @@ class Text_Wiki_Parse_Note extends Text_Wiki_Parse {
      *
      */
 
-    public $regex =     '/' . 
-                        '(\n)?' . 
-                        '\[\[note\]\]\n' . 
+    public $regex =     '/' .
+                        '(\n)?' .
+                        '\[\[note\]\]\n' .
                         '(.*?)' .             # Contents of note - no nesting
-                        '\[\[\/note\]\]' . 
+                        '\[\[\/note\]\]' .
                         '/msix';
 
     /**

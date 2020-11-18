@@ -43,17 +43,17 @@
 
 class Text_Wiki_Parse_Freelink extends Text_Wiki_Parse {
 
-    public $regex =     '/' . 
+    public $regex =     '/' .
                         '\[\[\[' .                  # Opening brackets
                         '([^\[\]\|\#]+)' .          # Target page name
-                        '\s*' . 
+                        '\s*' .
                         '(' .                       # Match a URL fragment after the page name
-                        '\#' . 
+                        '\#' .
                         '[A-Za-z]' .                # Require that first letter is alphanumeric
-                        '[-A-Za-z0-9_:.]*' . 
+                        '[-A-Za-z0-9_:.]*' .
                         ')?' .                      # URL fragment is optional
-                        '\s*' . 
-                        '(' . 
+                        '\s*' .
+                        '(' .
                         '\|' .                      # Pipe to delimit link text
                         '[^\]\|\[\#]*' .            # Link text
                         ')?' .                      # Link text is optional

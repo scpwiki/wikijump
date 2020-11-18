@@ -42,12 +42,12 @@ class Text_Wiki_Parse_Mathinline extends Text_Wiki_Parse {
     *
     */
 
-    public $regex =     '/' . 
-                        '\[\[' . 
+    public $regex =     '/' .
+                        '\[\[' .
                         '\$' .      # $
                         '(.*?)' .   # Contents
                         '\$' .      # $
-                        '\]\]' . 
+                        '\]\]' .
                         '/x';
     /**
     *

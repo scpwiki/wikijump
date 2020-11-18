@@ -29,20 +29,20 @@
 
 class Text_Wiki_Parse_Tableadv extends Text_Wiki_Parse {
 
-    public $regex =     ';' . 
+    public $regex =     ';' .
                         '\n\[\[table' .                        # Start a table after a new line
                         '(\s.*?)?\]\]' .                       # Allow parameters on the table
-                        '(\s*' . 
+                        '(\s*' .
                             '(?:\[\[row' .                     # Start a row
                                 '(?:\s[^\]]*)?' .              # Allow parameters on the row
-                                '\]\]\s*' . 
+                                '\]\]\s*' .
                                 '(?:\[\[(column|col|cell)' .   # Start a column or cell
                                     '(?:\s[^\]]*)?\]\]' .      # Allow parameters on the column or cell
                                     '(?:(?R)|.)*?' .           # Cell contents: another table, or anything else
                                 '\[\[/(column|col|cell)' .     # End the column or cell
                                 '\]\]\s*)+' .                  # Allow at least one column or cell
                             '\[\[/row\]\]\s*)+' .              # Allow at least one row
-                        ')' . 
+                        ')' .
                         '\[\[/table\]\]\n' .                   # Force a new line after the table
                         ';sxi';
 
@@ -66,22 +66,22 @@ class Text_Wiki_Parse_Tableadv extends Text_Wiki_Parse {
             $this->regex, array(&$this, 'process'), $content);
 
         // look for rows
-        $content = preg_replace_callback(   ';' . 
+        $content = preg_replace_callback(   ';' .
                                             '(?:\n)?' .                      # Allow an optional new line
                                             '\[\[row' .                      # Start a new row
                                             '(\s[^\]]*)?' .                  # Allow parameters on row
-                                            '\]\]\s*' . 
-                                            '(' . 
-                                                '(' . 
-                                                    '\[\[' . 
+                                            '\]\]\s*' .
+                                            '(' .
+                                                '(' .
+                                                    '\[\[' .
                                                     '(column|col|cell)' .    # Start a new column or cell
                                                     '(\s[^\]]*)?' .          # Allow parameters on column or cell
-                                                    '\]\].*?' . 
+                                                    '\]\].*?' .
                                                     '' .                  # No content is permitted
-                                                    '\[\[/' . 
+                                                    '\[\[/' .
                                                     '(column|col|cell)' .    # Close column or cell
-                                                    '\]\]\s*' . 
-                                                ')+' . 
+                                                    '\]\]\s*' .
+                                                ')+' .
                                             ')\[\[/row\]\]' .                # Close row
                                             '(?:\n)?' .                      # Allow an optional new line
                                             ';msix',
@@ -103,7 +103,7 @@ class Text_Wiki_Parse_Tableadv extends Text_Wiki_Parse {
         $content = $matches[2];
         $attr = $this->getAttrs(trim($matches[1]));
 
-        $content = preg_replace_callback(   ';' . 
+        $content = preg_replace_callback(   ';' .
                                             '(?:\n)?' .                                  # Optional new line
                                             '\[\[(?:column|col|cell)(\s[^\]]*)?\]\]' .   # Opening column or cell
                                                 '(.*?)' .                                # Content (anything)

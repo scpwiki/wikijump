@@ -49,12 +49,12 @@ class Text_Wiki_Parse_Table extends Text_Wiki_Parse {
     *
     */
 
-    public $regex =     '/' . 
-                        '\n' . 
-                        '(' . 
+    public $regex =     '/' .
+                        '\n' .
+                        '(' .
                             '(\|\|)' .   # ||
                             '.*?' .      # Contents of rest of row
-                        ')' . 
+                        ')' .
                         '(\n)' .         # Newline
                         '(?!(\|\|))' .   # Assert that the newline is not followed by ||
                         '/sx';

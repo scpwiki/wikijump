@@ -39,10 +39,10 @@ class Text_Wiki_Parse_Divalign extends Text_Wiki_Parse {
      *
      */
 
-    public $regex =     '/' . 
+    public $regex =     '/' .
                         '^' .                    # Start of line
                         '\[\[(=|<|>|==)\]\]' .   # Opening tag with variations
-                        '\n' . 
+                        '\n' .
                         '((?:(?R)|.)*?)' .       # Contents of tag - nesting is allowed
                         '\[\[\/\\1\]\]' .        # Closing tag that matches opening tag
                         '$' .                    # End of line

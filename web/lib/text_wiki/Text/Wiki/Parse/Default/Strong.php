@@ -51,10 +51,10 @@ class Text_Wiki_Parse_Strong extends Text_Wiki_Parse {
      *
      */
 
-    public $regex =     '/' . 
-                        '\*\*' . 
+    public $regex =     '/' .
+                        '\*\*' .
                         '([^\s\n](?:.*?[^\s\n])?)' .   # Match anything that does not start or end with whitespace
-                        '\*\*' . 
+                        '\*\*' .
                         '/x';
 
     /**

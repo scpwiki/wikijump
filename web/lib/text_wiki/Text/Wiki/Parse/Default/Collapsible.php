@@ -43,14 +43,14 @@ class Text_Wiki_Parse_Collapsible extends Text_Wiki_Parse {
      *
      */
 
-    public $regex =     '/' . 
+    public $regex =     '/' .
                         '(\n)?' .         # Start with an optional newline?
-                        '\[\[' . 
+                        '\[\[' .
                         'collapsible' .
                         '(\s.*?)?' .       # Parameters of collapsbile
-                        '\]\]' . 
+                        '\]\]' .
                         '(.*?)' .          # Contents of collapsible - no nesting
-                        '\[\[\/collapsible\]\]\s*' . 
+                        '\[\[\/collapsible\]\]\s*' .
                         '/msix';
 
     /**

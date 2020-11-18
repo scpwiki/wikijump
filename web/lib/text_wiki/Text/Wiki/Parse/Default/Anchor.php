@@ -45,7 +45,7 @@ class Text_Wiki_Parse_Anchor extends Text_Wiki_Parse {
      * @var string
      *
      */
-    public $regex =     '/' . 
+    public $regex =     '/' .
                         '(\[\[\#\s)' .             # Two brackets, then hash
                         '([-_A-Za-z0-9.%]+?)' .   # Contents of anchor
                         '(\]\])' .                # Closing brackets

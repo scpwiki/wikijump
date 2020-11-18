@@ -28,7 +28,7 @@
  */
 class Text_Wiki_Parse_Button extends Text_Wiki_Parse {
 
-    public $regex =     '/' . 
+    public $regex =     '/' .
                         '\[\[' .             # Opening brackets
                         'button\s+' .        # Tag name
                         '([a-z0-9\-_]+)' .   # Button name
