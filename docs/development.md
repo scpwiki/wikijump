@@ -104,7 +104,7 @@ $ docker rmi [ID]      # Remove the image with this ID
 
 ### Installation via Docker from the Docker Hub
 
-Instead of building Wikijump locally, you can also pull the `latest` image from the Docker Hub:
+Instead of building Wikijump locally, you can also pull the `latest` image from the Docker Hub, though bear in mind it may not be up to date the repository:
 
 ```bash
 $ docker create --name wj --publish 80:80 --publish 443:443 -it -d scpwiki/wikijump:latest
