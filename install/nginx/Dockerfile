@@ -10,6 +10,9 @@ ARG FILES_DOMAIN="wjfiles.test"
 RUN mkdir /src
 WORKDIR /src
 
+# Install dependencies
+RUN apk add --update openssl
+
 # Copy sources
 COPY etc ./etc
 
@@ -25,6 +28,8 @@ RUN openssl req \
 	-out cert.crt \
 	-subj "/CN=${MAIN_DOMAIN}" \
 	-addext "subjectAltName=DNS:${FILES_DOMAIN},DNS:*.${MAIN_DOMAIN},DNS:*.${FILES_DOMAIN}"
+
+RUN cat cert.crt cert.key > cert.pem
 
 # Deploy generated key
 RUN install -D -m644 cert.pem /usr/local/nginx/conf/cert.pem
