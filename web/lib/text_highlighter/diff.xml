@@ -38,7 +38,7 @@
 
          <region name="fedNew" start="/^a(\d+)(\s\d+)?$/m" end="/^(\.)$/m" innerClass="string" delimClass="code"/>
          <region name="fedChg" start="/^c(\d+)(\s\d+)?$/m" end="/^(\.)$/m" innerClass="inlinedoc" delimClass="code"/>
-         <block name="fedDel" match="/^d(\d+)(\s\d+)?$/m" 
+         <block name="fedDel" match="/^d(\d+)(\s\d+)?$/m"
                 innerClass="code"/>
 
 

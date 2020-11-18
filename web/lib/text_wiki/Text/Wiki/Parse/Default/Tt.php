@@ -53,10 +53,10 @@ class Text_Wiki_Parse_Tt extends Text_Wiki_Parse {
     *
     */
 
-    public $regex =     '/' . 
-                        '\{\{' . 
+    public $regex =     '/' .
+                        '\{\{' .
                         '(\{*?.*?\}*?)' .   # Allows }, then text, then }. Sorry, what?
-                        '\}\}' . 
+                        '\}\}' .
                         '/x';
 
     /**

@@ -38,12 +38,12 @@ class Text_Wiki_Parse_User extends Text_Wiki_Parse {
      *
      */
 
-    public $regex =     '/' . 
-                        '\[\[' . 
+    public $regex =     '/' .
+                        '\[\[' .
                         '(\*)?' .      # Optional asterisk
-                        'user\s' . 
+                        'user\s' .
                         '([^\]]+)' .   # Parameters (e.g. user name)
-                        '\]\]' . 
+                        '\]\]' .
                         '/ix';
 
     function process(&$matches) {

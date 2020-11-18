@@ -51,9 +51,9 @@ class Text_Wiki_Parse_Bold extends Text_Wiki_Parse {
     *
     */
 
-    public $regex =     "/" . 
+    public $regex =     "/" .
                         "'''" .             # Opening triple single-quotes
-                        "(" . 
+                        "(" .
                         "()" .              # Nothing (captured, for some reason)
                         "|[^'].*?)" .       # OR any text that doesn't start with a single quote
                         "'''" .             # Closing triple single-quotes

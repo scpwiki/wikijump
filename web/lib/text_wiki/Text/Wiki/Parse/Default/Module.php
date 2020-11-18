@@ -41,15 +41,15 @@ class Text_Wiki_Parse_Module extends Text_Wiki_Parse {
      *
      */
 
-    public $regex =     '/' . 
+    public $regex =     '/' .
                         '^' .                     # Require start of line
                         '\[\[module' .            # Start opening tag
-                        '\s' . 
+                        '\s' .
                         '([a-z0-9_\-\/]+)' .      # Module name, alphanumeric + some chars
                         '(\s+.*?)?' .             # Optional module parameters
                         '\]\]' .                  # End opening tag
-                        '\s*\n' . 
-                        '(?:' . 
+                        '\s*\n' .
+                        '(?:' .
                             '(.*?)' .             # Content betweent tags - no nesting
                             '\[\[\/module\]\]' .  # Closing tag
                         ')?' .                    # The content and end tag is optional
@@ -87,10 +87,10 @@ class Text_Wiki_Parse_Module extends Text_Wiki_Parse {
         $con = $matches[0];
 
         if (preg_match_all(
-                            '/' . 
+                            '/' .
                             '^' .                     # Require start of line
                             '\[\[module' .            # Start opening tag
-                            '\s' . 
+                            '\s' .
                             '([a-z0-9_\-\/]+)' .      # Module name, alphanumeric + some chars
                             '(\s+.*?)?' .             # Optional module parameters
                             '\]\]' .                  # End opening tag

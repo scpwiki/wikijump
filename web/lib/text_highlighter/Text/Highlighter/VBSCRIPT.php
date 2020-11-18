@@ -1,6 +1,6 @@
 <?php
 /**
- * Auto-generated class. VBSCRIPT syntax highlighting 
+ * Auto-generated class. VBSCRIPT syntax highlighting
  *
  * PHP version 4 and 5
  *
@@ -70,7 +70,7 @@ class  Text_Highlighter_VBSCRIPT extends Text_Highlighter
             2 => '/((?i)((https?|ftp):\\/\\/[\\w\\?\\.\\-\\&=\\/%+]+)|(^|[\\s,!?])www\\.\\w+\\.\\w+[\\w\\?\\.\\&=\\/%+]*)|((?i)\\w+[\\.\\w\\-]+@(\\w+[\\.\\w\\-])+)|((?i)\\b(note|fixme):)|((?i)\\$\\w+:.+\\$)/',
         );
         $this->_counts = array (
-            -1 => 
+            -1 =>
             array (
                 0 => 0,
                 1 => 0,
@@ -79,7 +79,7 @@ class  Text_Highlighter_VBSCRIPT extends Text_Highlighter
                 4 => 0,
                 5 => 0,
             ),
-            0 => 
+            0 =>
             array (
                 0 => 0,
                 1 => 0,
@@ -88,10 +88,10 @@ class  Text_Highlighter_VBSCRIPT extends Text_Highlighter
                 4 => 0,
                 5 => 0,
             ),
-            1 => 
+            1 =>
             array (
             ),
-            2 => 
+            2 =>
             array (
                 0 => 3,
                 1 => 1,
@@ -100,7 +100,7 @@ class  Text_Highlighter_VBSCRIPT extends Text_Highlighter
             ),
         );
         $this->_delim = array (
-            -1 => 
+            -1 =>
             array (
                 0 => 'brackets',
                 1 => 'quotes',
@@ -109,7 +109,7 @@ class  Text_Highlighter_VBSCRIPT extends Text_Highlighter
                 4 => '',
                 5 => '',
             ),
-            0 => 
+            0 =>
             array (
                 0 => 'brackets',
                 1 => 'quotes',
@@ -118,10 +118,10 @@ class  Text_Highlighter_VBSCRIPT extends Text_Highlighter
                 4 => '',
                 5 => '',
             ),
-            1 => 
+            1 =>
             array (
             ),
-            2 => 
+            2 =>
             array (
                 0 => '',
                 1 => '',
@@ -130,7 +130,7 @@ class  Text_Highlighter_VBSCRIPT extends Text_Highlighter
             ),
         );
         $this->_inner = array (
-            -1 => 
+            -1 =>
             array (
                 0 => 'code',
                 1 => 'string',
@@ -139,7 +139,7 @@ class  Text_Highlighter_VBSCRIPT extends Text_Highlighter
                 4 => 'number',
                 5 => 'identifier',
             ),
-            0 => 
+            0 =>
             array (
                 0 => 'code',
                 1 => 'string',
@@ -148,10 +148,10 @@ class  Text_Highlighter_VBSCRIPT extends Text_Highlighter
                 4 => 'number',
                 5 => 'identifier',
             ),
-            1 => 
+            1 =>
             array (
             ),
-            2 => 
+            2 =>
             array (
                 0 => 'url',
                 1 => 'url',
@@ -165,7 +165,7 @@ class  Text_Highlighter_VBSCRIPT extends Text_Highlighter
             2 => '/(?mi)$/',
         );
         $this->_states = array (
-            -1 => 
+            -1 =>
             array (
                 0 => 0,
                 1 => 1,
@@ -174,7 +174,7 @@ class  Text_Highlighter_VBSCRIPT extends Text_Highlighter
                 4 => -1,
                 5 => -1,
             ),
-            0 => 
+            0 =>
             array (
                 0 => 0,
                 1 => 1,
@@ -183,10 +183,10 @@ class  Text_Highlighter_VBSCRIPT extends Text_Highlighter
                 4 => -1,
                 5 => -1,
             ),
-            1 => 
+            1 =>
             array (
             ),
-            2 => 
+            2 =>
             array (
                 0 => -1,
                 1 => -1,
@@ -195,18 +195,18 @@ class  Text_Highlighter_VBSCRIPT extends Text_Highlighter
             ),
         );
         $this->_keywords = array (
-            -1 => 
+            -1 =>
             array (
                 0 => -1,
                 1 => -1,
                 2 => -1,
-                3 => 
+                3 =>
                 array (
                 ),
-                4 => 
+                4 =>
                 array (
                 ),
-                5 => 
+                5 =>
                 array (
                     'constants' => '/^((?i)vbblack|vbred|vbgreen|vbyellow|vbblue|vbmagenta|vbcyan|vbwhite|vbbinarycompare|vbtextcompare|vbsunday|vbmonday|vbtuesday|vbwednesday|vbthursday|vbfriday|vbsaturday|vbusesystemdayofweek|vbfirstjan1|vbfirstfourdays|vbfirstfullweek|vbgeneraldate|vblongdate|vbshortdate|vblongtime|vbshorttime|vbobjecterror|vbokonly|vbokcancel|vbabortretryignore|vbyesnocancel|vbyesno|vbretrycancel|vbcritical|vbquestion|vbexclamation|vbinformation|vbdefaultbutton1|vbdefaultbutton2|vbdefaultbutton3|vbdefaultbutton4|vbapplicationmodal|vbsystemmodal|vbok|vbcancel|vbabort|vbretry|vbignore|vbyes|vbno|vbcr|vbcrlf|vbformfeed|vblf|vbnewline|vbnullchar|vbnullstring|vbtab|vbverticaltab|vbusedefault|vbtrue|vbfalse|vbempty|vbnull|vbinteger|vblong|vbsingle|vbdouble|vbcurrency|vbdate|vbstring|vbobject|vberror|vbboolean|vbvariant|vbdataobject|vbdecimal|vbbyte|vbarray)$/',
                     'functions' => '/^((?i)abs|array|asc|atn|cbool|cbyte|ccur|cdate|cdbl|chr|cint|clng|cos|createobject|csng|cstr|date|dateadd|datediff|datepart|dateserial|datevalue|day|escape|eval|exp|filter|formatcurrency|formatdatetime|formatnumber|formatpercent|getlocale|getobject|getref|hex|hour|inputbox|instr|instrrev|int|fix|isarray|isdate|isempty|isnull|isnumeric|isobject|join|lbound|lcase|left|len|loadpicture|log|ltrim|rtrim|trim|mid|minute|month|monthname|msgbox|now|oct|replace|rgb|right|rnd|round|scriptengine|scriptenginebuildversion|scriptenginemajorversion|scriptengineminorversion|second|setlocale|sgn|sin|space|split|sqr|strcomp|string|strreverse|tan|time|timer|timeserial|timevalue|typename|ubound|ucase|unescape|vartype|weekday|weekdayname|year)$/',
@@ -214,18 +214,18 @@ class  Text_Highlighter_VBSCRIPT extends Text_Highlighter
                     'reserved' => '/^((?i)empty|false|nothing|null|true|and|eqv|imp|is|mod|not|or|xor|call|class|end|const|public|private|dim|do|while|until|exit|loop|erase|execute|executeglobal|for|each|in|to|step|next|function|default|if|then|else|elseif|on|error|resume|goto|option|explicit|property|get|let|set|randomize|redim|preserve|select|case|stop|sub|wend|with)$/',
                 ),
             ),
-            0 => 
+            0 =>
             array (
                 0 => -1,
                 1 => -1,
                 2 => -1,
-                3 => 
+                3 =>
                 array (
                 ),
-                4 => 
+                4 =>
                 array (
                 ),
-                5 => 
+                5 =>
                 array (
                     'constants' => '/^((?i)vbblack|vbred|vbgreen|vbyellow|vbblue|vbmagenta|vbcyan|vbwhite|vbbinarycompare|vbtextcompare|vbsunday|vbmonday|vbtuesday|vbwednesday|vbthursday|vbfriday|vbsaturday|vbusesystemdayofweek|vbfirstjan1|vbfirstfourdays|vbfirstfullweek|vbgeneraldate|vblongdate|vbshortdate|vblongtime|vbshorttime|vbobjecterror|vbokonly|vbokcancel|vbabortretryignore|vbyesnocancel|vbyesno|vbretrycancel|vbcritical|vbquestion|vbexclamation|vbinformation|vbdefaultbutton1|vbdefaultbutton2|vbdefaultbutton3|vbdefaultbutton4|vbapplicationmodal|vbsystemmodal|vbok|vbcancel|vbabort|vbretry|vbignore|vbyes|vbno|vbcr|vbcrlf|vbformfeed|vblf|vbnewline|vbnullchar|vbnullstring|vbtab|vbverticaltab|vbusedefault|vbtrue|vbfalse|vbempty|vbnull|vbinteger|vblong|vbsingle|vbdouble|vbcurrency|vbdate|vbstring|vbobject|vberror|vbboolean|vbvariant|vbdataobject|vbdecimal|vbbyte|vbarray)$/',
                     'functions' => '/^((?i)abs|array|asc|atn|cbool|cbyte|ccur|cdate|cdbl|chr|cint|clng|cos|createobject|csng|cstr|date|dateadd|datediff|datepart|dateserial|datevalue|day|escape|eval|exp|filter|formatcurrency|formatdatetime|formatnumber|formatpercent|getlocale|getobject|getref|hex|hour|inputbox|instr|instrrev|int|fix|isarray|isdate|isempty|isnull|isnumeric|isobject|join|lbound|lcase|left|len|loadpicture|log|ltrim|rtrim|trim|mid|minute|month|monthname|msgbox|now|oct|replace|rgb|right|rnd|round|scriptengine|scriptenginebuildversion|scriptenginemajorversion|scriptengineminorversion|second|setlocale|sgn|sin|space|split|sqr|strcomp|string|strreverse|tan|time|timer|timeserial|timevalue|typename|ubound|ucase|unescape|vartype|weekday|weekdayname|year)$/',
@@ -233,27 +233,27 @@ class  Text_Highlighter_VBSCRIPT extends Text_Highlighter
                     'reserved' => '/^((?i)empty|false|nothing|null|true|and|eqv|imp|is|mod|not|or|xor|call|class|end|const|public|private|dim|do|while|until|exit|loop|erase|execute|executeglobal|for|each|in|to|step|next|function|default|if|then|else|elseif|on|error|resume|goto|option|explicit|property|get|let|set|randomize|redim|preserve|select|case|stop|sub|wend|with)$/',
                 ),
             ),
-            1 => 
+            1 =>
             array (
             ),
-            2 => 
+            2 =>
             array (
-                0 => 
+                0 =>
                 array (
                 ),
-                1 => 
+                1 =>
                 array (
                 ),
-                2 => 
+                2 =>
                 array (
                 ),
-                3 => 
+                3 =>
                 array (
                 ),
             ),
         );
         $this->_parts = array (
-            0 => 
+            0 =>
             array (
                 0 => NULL,
                 1 => NULL,
@@ -262,10 +262,10 @@ class  Text_Highlighter_VBSCRIPT extends Text_Highlighter
                 4 => NULL,
                 5 => NULL,
             ),
-            1 => 
+            1 =>
             array (
             ),
-            2 => 
+            2 =>
             array (
                 0 => NULL,
                 1 => NULL,
@@ -274,7 +274,7 @@ class  Text_Highlighter_VBSCRIPT extends Text_Highlighter
             ),
         );
         $this->_subst = array (
-            -1 => 
+            -1 =>
             array (
                 0 => false,
                 1 => false,
@@ -283,7 +283,7 @@ class  Text_Highlighter_VBSCRIPT extends Text_Highlighter
                 4 => false,
                 5 => false,
             ),
-            0 => 
+            0 =>
             array (
                 0 => false,
                 1 => false,
@@ -292,10 +292,10 @@ class  Text_Highlighter_VBSCRIPT extends Text_Highlighter
                 4 => false,
                 5 => false,
             ),
-            1 => 
+            1 =>
             array (
             ),
-            2 => 
+            2 =>
             array (
                 0 => false,
                 1 => false,
@@ -314,5 +314,5 @@ class  Text_Highlighter_VBSCRIPT extends Text_Highlighter
         $this->_defClass = 'code';
         $this->_checkDefines();
     }
-    
+
 }

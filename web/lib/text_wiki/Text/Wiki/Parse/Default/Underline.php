@@ -51,10 +51,10 @@ class Text_Wiki_Parse_Underline extends Text_Wiki_Parse {
      *
      */
 
-    public $regex =     '/' . 
-                        '__' . 
+    public $regex =     '/' .
+                        '__' .
                         '([^\s](?:.*?[^\s])?)' .   # Match anything so long as it does not start or end with whitespace
-                        '__' . 
+                        '__' .
                         '/x';
 
     /**

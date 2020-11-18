@@ -33,11 +33,11 @@ class Text_Wiki_Parse_Bibliography extends Text_Wiki_Parse {
     public $regex = null;
 
     function parse() {
-        $regex =    '/' . 
+        $regex =    '/' .
                     '^' .                         # Start of line
                     '\[\[bibliography' .          # Tag name
                     '(\s+[^\]]+)?' .              # Parameters
-                    '\]\]' . 
+                    '\]\]' .
                     '(.*?)' .                     # Contents
                     '\[\[\/bibliography\]\]' .    # End tag
                     '[\s]*$' .                    # Allow whitespace until end of the line
@@ -58,7 +58,7 @@ class Text_Wiki_Parse_Bibliography extends Text_Wiki_Parse {
         $bi = $this->wiki->parseObj['Bibitem'];
 
         $inside = preg_replace_callback(
-            '/' . 
+            '/' .
             '^' .                # Start of line
             ':\s?' .             # Colon, then optional whitespace
             '([a-z0-9]+)' .      # Lowercase alphanumeric bib item name

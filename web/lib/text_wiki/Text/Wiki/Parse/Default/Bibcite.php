@@ -43,7 +43,7 @@ class Text_Wiki_Parse_Bibcite extends Text_Wiki_Parse {
      *
      */
 
-    public $regex =     '/' . 
+    public $regex =     '/' .
                         '\(\(' .             # Opening parens
                         'bibcite\s' .        # Module name and whitespace
                         '([a-z0-9]+)' .      # Alphanumeric citation

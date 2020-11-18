@@ -39,7 +39,7 @@ class Text_Wiki_Parse_Size extends Text_Wiki_Parse {
     *
     */
 
-    public $regex =     '/' . 
+    public $regex =     '/' .
                         '\[\[size\s([^\]]+)\]\]' .   # Opening tag including parameters
                         '((?:(?R)|.)*?)' .           # Any content in between including other sizes
                         '\[\[\/size\]\]' .           # Closing tag

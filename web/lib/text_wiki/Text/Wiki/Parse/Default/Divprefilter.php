@@ -42,10 +42,10 @@ class Text_Wiki_Parse_Divprefilter extends Text_Wiki_Parse {
     *
     */
 
-    public $regex =     '/' . 
-                        '\[\[\/div\]\]' . 
-                        '(\s*?)' . 
-                        '\[\[div' . 
+    public $regex =     '/' .
+                        '\[\[\/div\]\]' .
+                        '(\s*?)' .
+                        '\[\[div' .
                         '/msix';
     /**
     *

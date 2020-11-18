@@ -48,7 +48,7 @@ class Text_Wiki_Parse_Newline extends Text_Wiki_Parse {
     * @see parse()
     *
     */
-    public $regex =     '/' . 
+    public $regex =     '/' .
                         '([^\n])' .   # Match any character that is not a newline
                         '\n' .        # Then a newline
                         '(?!\n)' .    # ...so long as it is not followed by another newline

@@ -50,12 +50,12 @@ class Text_Wiki_Parse_Emphasis extends Text_Wiki_Parse {
     *
     */
 
-    public $regex =     "/" . 
+    public $regex =     "/" .
                         "\/\/" .                # //
-                        "(" . 
+                        "(" .
                         "[^\s]" .               # Italic text cannot start with whitespace
                         "(?:.*?[^\s])?" .       # Anything that does not end in whitespace
-                        ")" . 
+                        ")" .
                         "\/\/" .                # //
                         "/x";
 

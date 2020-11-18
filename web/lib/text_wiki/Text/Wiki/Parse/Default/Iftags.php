@@ -26,9 +26,9 @@
 class Text_Wiki_Parse_Iftags extends Text_Wiki_Parse {
 
 
-    public $regex = 	'/' . 
+    public $regex = 	'/' .
         				'\[\[iftags(\s[^\]]*)?\]\]' .  		# Opening iftags tag including parameters
-        				'(' . 
+        				'(' .
         				'(?:(?R)|.)' . 	            		# Contents of the page, including other iftags
         				'*?)' .                        		# Non-greedy match to claim next closing tag
         				'\[\[\/iftags\]\]' .            	# Closing tag

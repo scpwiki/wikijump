@@ -87,8 +87,8 @@
 
   <block name="float" match="(\d*\.\d+)|(\d+\.\d*)" innerClass="number" contained="yes"/>
 
-  <block name="exponent" 
-         match="((\d+|((\d*\.\d+)|(\d+\.\d*)))[eE][+-]?\d+)" 
+  <block name="exponent"
+         match="((\d+|((\d*\.\d+)|(\d+\.\d*)))[eE][+-]?\d+)"
          innerClass="number" contained="yes"/>
 
   <block name="phpdoc" match="\s@\w+\s" innerClass="inlinedoc" contained="yes">
@@ -100,17 +100,17 @@
     <onlyin region="mlcomment"/>
     <onlyin region="comment"/>
   </block>
-  
+
   <block name="email" match="\w+[\.\w\-]+@(\w+[\.\w\-])+" innerClass="url" contained="yes">
     <onlyin region="mlcomment"/>
     <onlyin region="comment"/>
   </block>
-  
+
   <block name="note" match="\bnote:" innerClass="inlinedoc" contained="yes">
     <onlyin region="mlcomment"/>
     <onlyin region="comment"/>
   </block>
-  
+
 
   <block name="cvstag" match="\$\w+\s*:.*\$" innerClass="inlinedoc" contained="yes">
     <onlyin region="mlcomment"/>
@@ -120,7 +120,7 @@
   <keywords name="constants" inherits="identifier" innerClass="reserved" case = "yes">
     <keyword match="DIRECTORY_SEPARATOR"/>
     <keyword match="PATH_SEPARATOR"/>
-  </keywords> 
+  </keywords>
 
   <keywords name="reserved" inherits="identifier" innerClass="reserved">
     <keyword match="echo"/>
@@ -189,6 +189,6 @@
     <keyword match="and"/>
     <keyword match="or"/>
     <keyword match="xor"/>
-  </keywords> 
+  </keywords>
 
 </highlight>

@@ -50,8 +50,8 @@
   <block name="integer" match="\d\d*|\b0\b" innerClass="number" />
   <block name="octinteger" match="0[0-7]+" innerClass="number" />
   <block name="float" match="(\d*\.\d+)|(\d+\.\d*)" innerClass="number" />
-  <block name="exponent" 
-         match="((\d+|((\d*\.\d+)|(\d+\.\d*)))[eE][+-]?\d+)" 
+  <block name="exponent"
+         match="((\d+|((\d*\.\d+)|(\d+\.\d*)))[eE][+-]?\d+)"
          innerClass="number" />
 
   <block name="javadoc" match="\s@\w+\s" innerClass="inlinedoc" contained="yes">
@@ -63,17 +63,17 @@
     <onlyin region="mlcomment"/>
     <onlyin region="comment"/>
   </block>
-  
+
   <block name="email" match="\w+[\.\w\-]+@(\w+[\.\w\-])+" innerClass="url" contained="yes">
     <onlyin region="mlcomment"/>
     <onlyin region="comment"/>
   </block>
-  
+
   <block name="note" match="\bnote:" innerClass="inlinedoc" contained="yes">
     <onlyin region="mlcomment"/>
     <onlyin region="comment"/>
   </block>
-  
+
 
   <block name="cvstag" match="\$\w+\s*:.*\$" innerClass="inlinedoc" contained="yes">
     <onlyin region="mlcomment"/>
@@ -93,7 +93,7 @@
 	<keyword match="short" />
 	<keyword match="static" />
 	<keyword match="void" />
-  </keywords> 
+  </keywords>
 
   <keywords name="reserved" inherits="identifier" innerClass="reserved" case="yes">
     <keyword match="import"/>
@@ -135,7 +135,7 @@
 	<keyword match="try" />
 	<keyword match="volatile" />
 	<keyword match="while" />
-  </keywords> 
+  </keywords>
 
   <keywords name="builtin" inherits="identifier" innerClass="builtin" case = "yes" ifdef="java.builtins">
 	<keyword match="AbstractAction" />
@@ -494,7 +494,7 @@
 	<keyword match="Certificate" />
 	<keyword match="Certificate" />
 	<keyword match="Certificate" />
-	
+
 	<keyword match="CertificateEncodingException" />
 	<keyword match="CertificateEncodingException" />
 	<keyword match="CertificateException" />
@@ -508,7 +508,7 @@
 	<keyword match="CertificateParsingException" />
 	<keyword match="CertificateParsingException" />
 	<keyword match="CertPath" />
-	
+
 	<keyword match="CertPathBuilder" />
 	<keyword match="CertPathBuilderException" />
 	<keyword match="CertPathBuilderResult" />
@@ -530,8 +530,8 @@
 	<keyword match="ChannelBinding" />
 	<keyword match="Channels" />
 	<keyword match="Character" />
-	
-	
+
+
 	<keyword match="CharacterCodingException" />
 	<keyword match="CharacterData" />
 	<keyword match="CharacterIterator" />
@@ -637,7 +637,7 @@
 	<keyword match="CompositeView" />
 	<keyword match="CompoundBorder" />
 	<keyword match="CompoundControl" />
-	
+
 	<keyword match="CompoundEdit" />
 	<keyword match="CompoundName" />
 	<keyword match="Compression" />
@@ -671,7 +671,7 @@
 	<keyword match="ContextualRenderedImageFactory" />
 	<keyword match="Control" />
 	<keyword match="Control" />
-	
+
 	<keyword match="ControlFactory" />
 	<keyword match="ControllerEventListener" />
 	<keyword match="ConvolveOp" />
@@ -685,11 +685,11 @@
 	<keyword match="CRLSelector" />
 	<keyword match="CropImageFilter" />
 	<keyword match="CSS" />
-	
+
 	<keyword match="CTX_RESTRICT_SCOPE" />
 	<keyword match="CubicCurve2D" />
-	
-	
+
+
 	<keyword match="Currency" />
 	<keyword match="Current" />
 	<keyword match="Current" />
@@ -725,7 +725,7 @@
 	<keyword match="DataInputStream" />
 	<keyword match="DataInputStream" />
 	<keyword match="DataLine" />
-	
+
 	<keyword match="DataOutput" />
 	<keyword match="DataOutputStream" />
 	<keyword match="DataOutputStream" />
@@ -734,7 +734,7 @@
 	<keyword match="Date" />
 	<keyword match="Date" />
 	<keyword match="DateFormat" />
-	
+
 	<keyword match="DateFormatSymbols" />
 	<keyword match="DateFormatter" />
 	<keyword match="DateTimeAtCompleted" />
@@ -753,24 +753,24 @@
 	<keyword match="DefaultComboBoxModel" />
 	<keyword match="DefaultDesktopManager" />
 	<keyword match="DefaultEditorKit" />
-	
-	
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
+
+
 	<keyword match="DefaultFocusManager" />
 	<keyword match="DefaultFocusTraversalPolicy" />
 	<keyword match="DefaultFormatter" />
 	<keyword match="DefaultFormatterFactory" />
 	<keyword match="DefaultHandler" />
 	<keyword match="DefaultHighlighter" />
-	
+
 	<keyword match="DefaultKeyboardFocusManager" />
 	<keyword match="DefaultListCellRenderer" />
-	
+
 	<keyword match="DefaultListModel" />
 	<keyword match="DefaultListSelectionModel" />
 	<keyword match="DefaultMenuLayout" />
@@ -779,10 +779,10 @@
 	<keyword match="DefaultPersistenceDelegate" />
 	<keyword match="DefaultSingleSelectionModel" />
 	<keyword match="DefaultStyledDocument" />
-	
-	
+
+
 	<keyword match="DefaultTableCellRenderer" />
-	
+
 	<keyword match="DefaultTableColumnModel" />
 	<keyword match="DefaultTableModel" />
 	<keyword match="DefaultTextUI" />
@@ -828,30 +828,30 @@
 	<keyword match="DirectoryManager" />
 	<keyword match="DirObjectFactory" />
 	<keyword match="DirStateFactory" />
-	
+
 	<keyword match="DisplayMode" />
 	<keyword match="DnDConstants" />
 	<keyword match="Doc" />
 	<keyword match="DocAttribute" />
 	<keyword match="DocAttributeSet" />
 	<keyword match="DocFlavor" />
-	
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
+
 	<keyword match="DocPrintJob" />
 	<keyword match="Document" />
 	<keyword match="Document" />
 	<keyword match="DocumentBuilder" />
 	<keyword match="DocumentBuilderFactory" />
 	<keyword match="DocumentEvent" />
-	
-	
+
+
 	<keyword match="DocumentFilter" />
-	
+
 	<keyword match="DocumentFragment" />
 	<keyword match="DocumentHandler" />
 	<keyword match="DocumentListener" />
@@ -886,7 +886,7 @@
 	<keyword match="DriverManager" />
 	<keyword match="DriverPropertyInfo" />
 	<keyword match="DropTarget" />
-	
+
 	<keyword match="DropTargetAdapter" />
 	<keyword match="DropTargetContext" />
 	<keyword match="DropTargetDragEvent" />
@@ -954,8 +954,8 @@
 	<keyword match="Element" />
 	<keyword match="ElementIterator" />
 	<keyword match="Ellipse2D" />
-	
-	
+
+
 	<keyword match="EmptyBorder" />
 	<keyword match="EmptyStackException" />
 	<keyword match="EncodedKeySpec" />
@@ -968,7 +968,7 @@
 	<keyword match="EntityReference" />
 	<keyword match="EntityResolver" />
 	<keyword match="EnumControl" />
-	
+
 	<keyword match="Enumeration" />
 	<keyword match="EnumSyntax" />
 	<keyword match="Environment" />
@@ -1014,7 +1014,7 @@
 	<keyword match="FileCacheImageInputStream" />
 	<keyword match="FileCacheImageOutputStream" />
 	<keyword match="FileChannel" />
-	
+
 	<keyword match="FileChooserUI" />
 	<keyword match="FileDescriptor" />
 	<keyword match="FileDialog" />
@@ -1051,13 +1051,13 @@
 	<keyword match="Float" />
 	<keyword match="FloatBuffer" />
 	<keyword match="FloatControl" />
-	
+
 	<keyword match="FloatHolder" />
 	<keyword match="FloatSeqHelper" />
 	<keyword match="FloatSeqHolder" />
 	<keyword match="FlowLayout" />
 	<keyword match="FlowView" />
-	
+
 	<keyword match="FocusAdapter" />
 	<keyword match="FocusEvent" />
 	<keyword match="FocusListener" />
@@ -1069,7 +1069,7 @@
 	<keyword match="FontRenderContext" />
 	<keyword match="FontUIResource" />
 	<keyword match="Format" />
-	
+
 	<keyword match="FormatConversionProvider" />
 	<keyword match="FormatMismatch" />
 	<keyword match="FormatMismatchHelper" />
@@ -1089,7 +1089,7 @@
 	<keyword match="GlyphMetrics" />
 	<keyword match="GlyphVector" />
 	<keyword match="GlyphView" />
-	
+
 	<keyword match="GradientPaint" />
 	<keyword match="GraphicAttribute" />
 	<keyword match="Graphics" />
@@ -1132,28 +1132,28 @@
 	<keyword match="HierarchyEvent" />
 	<keyword match="HierarchyListener" />
 	<keyword match="Highlighter" />
-	
-	
+
+
 	<keyword match="HostnameVerifier" />
 	<keyword match="HTML" />
-	
-	
-	
+
+
+
 	<keyword match="HTMLDocument" />
-	
+
 	<keyword match="HTMLEditorKit" />
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
 	<keyword match="HTMLFrameHyperlinkEvent" />
 	<keyword match="HTMLWriter" />
 	<keyword match="HttpsURLConnection" />
 	<keyword match="HttpURLConnection" />
 	<keyword match="HyperlinkEvent" />
-	
+
 	<keyword match="HyperlinkListener" />
 	<keyword match="ICC_ColorSpace" />
 	<keyword match="ICC_Profile" />
@@ -1382,18 +1382,18 @@
 	<keyword match="JCheckBoxMenuItem" />
 	<keyword match="JColorChooser" />
 	<keyword match="JComboBox" />
-	
+
 	<keyword match="JComponent" />
 	<keyword match="JDesktopPane" />
 	<keyword match="JDialog" />
 	<keyword match="JEditorPane" />
 	<keyword match="JFileChooser" />
 	<keyword match="JFormattedTextField" />
-	
-	
+
+
 	<keyword match="JFrame" />
 	<keyword match="JInternalFrame" />
-	
+
 	<keyword match="JLabel" />
 	<keyword match="JLayeredPane" />
 	<keyword match="JList" />
@@ -1401,11 +1401,11 @@
 	<keyword match="JMenuBar" />
 	<keyword match="JMenuItem" />
 	<keyword match="JobAttributes" />
-	
-	
-	
-	
-	
+
+
+
+
+
 	<keyword match="JobHoldUntil" />
 	<keyword match="JobImpressions" />
 	<keyword match="JobImpressionsCompleted" />
@@ -1433,7 +1433,7 @@
 	<keyword match="JPEGImageWriteParam" />
 	<keyword match="JPEGQTable" />
 	<keyword match="JPopupMenu" />
-	
+
 	<keyword match="JProgressBar" />
 	<keyword match="JRadioButton" />
 	<keyword match="JRadioButtonMenuItem" />
@@ -1443,27 +1443,27 @@
 	<keyword match="JSeparator" />
 	<keyword match="JSlider" />
 	<keyword match="JSpinner" />
-	
-	
-	
-	
+
+
+
+
 	<keyword match="JSplitPane" />
 	<keyword match="JTabbedPane" />
 	<keyword match="JTable" />
 	<keyword match="JTableHeader" />
 	<keyword match="JTextArea" />
 	<keyword match="JTextComponent" />
-	
+
 	<keyword match="JTextField" />
 	<keyword match="JTextPane" />
 	<keyword match="JToggleButton" />
-	
+
 	<keyword match="JToolBar" />
-	
+
 	<keyword match="JToolTip" />
 	<keyword match="JTree" />
-	
-	
+
+
 	<keyword match="JViewport" />
 	<keyword match="JWindow" />
 	<keyword match="KerberosKey" />
@@ -1503,7 +1503,7 @@
 	<keyword match="LanguageCallback" />
 	<keyword match="LastOwnerException" />
 	<keyword match="LayeredHighlighter" />
-	
+
 	<keyword match="LayoutFocusTraversalPolicy" />
 	<keyword match="LayoutManager" />
 	<keyword match="LayoutManager2" />
@@ -1520,14 +1520,14 @@
 	<keyword match="LifespanPolicyValue" />
 	<keyword match="LimitExceededException" />
 	<keyword match="Line" />
-	
+
 	<keyword match="Line2D" />
-	
-	
+
+
 	<keyword match="LineBorder" />
 	<keyword match="LineBreakMeasurer" />
 	<keyword match="LineEvent" />
-	
+
 	<keyword match="LineListener" />
 	<keyword match="LineMetrics" />
 	<keyword match="LineNumberInputStream" />
@@ -1586,7 +1586,7 @@
 	<keyword match="ManagerFactoryParameters" />
 	<keyword match="Manifest" />
 	<keyword match="Map" />
-	
+
 	<keyword match="MappedByteBuffer" />
 	<keyword match="MARSHAL" />
 	<keyword match="MarshalException" />
@@ -1599,11 +1599,11 @@
 	<keyword match="MediaName" />
 	<keyword match="MediaPrintableArea" />
 	<keyword match="MediaSize" />
-	
-	
-	
-	
-	
+
+
+
+
+
 	<keyword match="MediaSizeName" />
 	<keyword match="MediaTracker" />
 	<keyword match="MediaTray" />
@@ -1631,41 +1631,41 @@
 	<keyword match="MessageDigest" />
 	<keyword match="MessageDigestSpi" />
 	<keyword match="MessageFormat" />
-	
+
 	<keyword match="MessageProp" />
 	<keyword match="MetaEventListener" />
 	<keyword match="MetalBorders" />
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	<keyword match="MetalButtonUI" />
 	<keyword match="MetalCheckBoxIcon" />
 	<keyword match="MetalCheckBoxUI" />
 	<keyword match="MetalComboBoxButton" />
 	<keyword match="MetalComboBoxEditor" />
-	
+
 	<keyword match="MetalComboBoxIcon" />
 	<keyword match="MetalComboBoxUI" />
 	<keyword match="MetalDesktopIconUI" />
 	<keyword match="MetalFileChooserUI" />
 	<keyword match="MetalIconFactory" />
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
 	<keyword match="MetalInternalFrameTitlePane" />
 	<keyword match="MetalInternalFrameUI" />
 	<keyword match="MetalLabelUI" />
@@ -1692,7 +1692,7 @@
 	<keyword match="MethodDescriptor" />
 	<keyword match="MidiChannel" />
 	<keyword match="MidiDevice" />
-	
+
 	<keyword match="MidiDeviceProvider" />
 	<keyword match="MidiEvent" />
 	<keyword match="MidiFileFormat" />
@@ -1705,7 +1705,7 @@
 	<keyword match="MinimalHTMLWriter" />
 	<keyword match="MissingResourceException" />
 	<keyword match="Mixer" />
-	
+
 	<keyword match="MixerProvider" />
 	<keyword match="ModificationItem" />
 	<keyword match="Modifier" />
@@ -1804,7 +1804,7 @@
 	<keyword match="NamingManager" />
 	<keyword match="NamingSecurityException" />
 	<keyword match="NavigationFilter" />
-	
+
 	<keyword match="NegativeArraySizeException" />
 	<keyword match="NetPermission" />
 	<keyword match="NetworkInterface" />
@@ -1860,7 +1860,7 @@
 	<keyword match="NullPointerException" />
 	<keyword match="Number" />
 	<keyword match="NumberFormat" />
-	
+
 	<keyword match="NumberFormatException" />
 	<keyword match="NumberFormatter" />
 	<keyword match="NumberOfDocuments" />
@@ -1884,13 +1884,13 @@
 	<keyword match="ObjectImpl" />
 	<keyword match="ObjectInput" />
 	<keyword match="ObjectInputStream" />
-	
+
 	<keyword match="ObjectInputValidation" />
 	<keyword match="ObjectNotActive" />
 	<keyword match="ObjectNotActiveHelper" />
 	<keyword match="ObjectOutput" />
 	<keyword match="ObjectOutputStream" />
-	
+
 	<keyword match="ObjectStreamClass" />
 	<keyword match="ObjectStreamConstants" />
 	<keyword match="ObjectStreamException" />
@@ -1930,11 +1930,11 @@
 	<keyword match="PackedColorModel" />
 	<keyword match="Pageable" />
 	<keyword match="PageAttributes" />
-	
-	
-	
-	
-	
+
+
+
+
+
 	<keyword match="PageFormat" />
 	<keyword match="PageRanges" />
 	<keyword match="PagesPerMinute" />
@@ -1982,8 +1982,8 @@
 	<keyword match="PersistenceDelegate" />
 	<keyword match="PhantomReference" />
 	<keyword match="Pipe" />
-	
-	
+
+
 	<keyword match="PipedInputStream" />
 	<keyword match="PipedOutputStream" />
 	<keyword match="PipedReader" />
@@ -2005,8 +2005,8 @@
 	<keyword match="POAOperations" />
 	<keyword match="Point" />
 	<keyword match="Point2D" />
-	
-	
+
+
 	<keyword match="Policy" />
 	<keyword match="Policy" />
 	<keyword match="Policy" />
@@ -2033,12 +2033,12 @@
 	<keyword match="PopupMenuListener" />
 	<keyword match="PopupMenuUI" />
 	<keyword match="Port" />
-	
+
 	<keyword match="PortableRemoteObject" />
 	<keyword match="PortableRemoteObjectDelegate" />
 	<keyword match="PortUnreachableException" />
 	<keyword match="Position" />
-	
+
 	<keyword match="PreferenceChangeEvent" />
 	<keyword match="PreferenceChangeListener" />
 	<keyword match="Preferences" />
@@ -2125,8 +2125,8 @@
 	<keyword match="PushbackInputStream" />
 	<keyword match="PushbackReader" />
 	<keyword match="QuadCurve2D" />
-	
-	
+
+
 	<keyword match="QueuedJobCount" />
 	<keyword match="Random" />
 	<keyword match="RandomAccess" />
@@ -2142,8 +2142,8 @@
 	<keyword match="Receiver" />
 	<keyword match="Rectangle" />
 	<keyword match="Rectangle2D" />
-	
-	
+
+
 	<keyword match="RectangularShape" />
 	<keyword match="Ref" />
 	<keyword match="RefAddr" />
@@ -2175,7 +2175,7 @@
 	<keyword match="RenderedImageFactory" />
 	<keyword match="Renderer" />
 	<keyword match="RenderingHints" />
-	
+
 	<keyword match="RepaintManager" />
 	<keyword match="ReplicateScaleFilter" />
 	<keyword match="RepositoryIdHelper" />
@@ -2210,8 +2210,8 @@
 	<keyword match="RootPaneContainer" />
 	<keyword match="RootPaneUI" />
 	<keyword match="RoundRectangle2D" />
-	
-	
+
+
 	<keyword match="RowMapper" />
 	<keyword match="RowSet" />
 	<keyword match="RowSetEvent" />
@@ -2259,7 +2259,7 @@
 	<keyword match="ScrollPaneAdjustable" />
 	<keyword match="ScrollPaneConstants" />
 	<keyword match="ScrollPaneLayout" />
-	
+
 	<keyword match="ScrollPaneUI" />
 	<keyword match="SealedObject" />
 	<keyword match="SearchControls" />
@@ -2284,7 +2284,7 @@
 	<keyword match="Sequence" />
 	<keyword match="SequenceInputStream" />
 	<keyword match="Sequencer" />
-	
+
 	<keyword match="Serializable" />
 	<keyword match="SerializablePermission" />
 	<keyword match="Servant" />
@@ -2334,7 +2334,7 @@
 	<keyword match="ServiceInformationHolder" />
 	<keyword match="ServicePermission" />
 	<keyword match="ServiceRegistry" />
-	
+
 	<keyword match="ServiceUI" />
 	<keyword match="ServiceUIFactory" />
 	<keyword match="ServiceUnavailableException" />
@@ -2407,7 +2407,7 @@
 	<keyword match="SplitPaneUI" />
 	<keyword match="Spring" />
 	<keyword match="SpringLayout" />
-	
+
 	<keyword match="SQLData" />
 	<keyword match="SQLException" />
 	<keyword match="SQLInput" />
@@ -2476,24 +2476,24 @@
 	<keyword match="StubNotFoundException" />
 	<keyword match="Style" />
 	<keyword match="StyleConstants" />
-	
-	
-	
-	
+
+
+
+
 	<keyword match="StyleContext" />
 	<keyword match="StyledDocument" />
 	<keyword match="StyledEditorKit" />
-	
-	
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
+
+
 	<keyword match="StyleSheet" />
-	
-	
+
+
 	<keyword match="Subject" />
 	<keyword match="SubjectDomainCombiner" />
 	<keyword match="SUCCESSFUL" />
@@ -2556,7 +2556,7 @@
 	<keyword match="TextHitInfo" />
 	<keyword match="TextInputCallback" />
 	<keyword match="TextLayout" />
-	
+
 	<keyword match="TextListener" />
 	<keyword match="TextMeasurer" />
 	<keyword match="TextOutputCallback" />
@@ -2636,12 +2636,12 @@
 	<keyword match="Types" />
 	<keyword match="UID" />
 	<keyword match="UIDefaults" />
-	
-	
-	
-	
+
+
+
+
 	<keyword match="UIManager" />
-	
+
 	<keyword match="UIResource" />
 	<keyword match="ULongLongSeqHelper" />
 	<keyword match="ULongLongSeqHolder" />

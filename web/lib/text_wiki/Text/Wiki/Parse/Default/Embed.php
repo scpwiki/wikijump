@@ -38,10 +38,10 @@ class Text_Wiki_Parse_Embed extends Text_Wiki_Parse {
     *
     */
 
-    public $regex =     '/' . 
-                        '\[\[embed(?:audio|video)?\]\]' . 
-                        '(.*?)' . 
-                        '\[\[\/embed(?:audio|video)?\]\]' . 
+    public $regex =     '/' .
+                        '\[\[embed(?:audio|video)?\]\]' .
+                        '(.*?)' .
+                        '\[\[\/embed(?:audio|video)?\]\]' .
                         '/msix';
     /**
     *

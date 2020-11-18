@@ -48,7 +48,7 @@ class Text_Wiki_Parse_Paragraph extends Text_Wiki_Parse {
      */
 
     # Matches some text followed by two newlines
-    public $regex = '/' . 
+    public $regex = '/' .
                     '^' .      # Start of line
                     '.*?' .    # Anything
                     '\n' .     # A newline
