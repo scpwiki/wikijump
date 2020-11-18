@@ -76,16 +76,12 @@ $ docker build . -t scpwiki/wikijump:local --no-cache
 Then load that image into a container, which is a VM that runs only the image you created:
 
 ```bash
-$ docker create --name wj --publish 80:80 --publish 443:443 -it -d scpwiki/wikijump:local
+$ docker run --name wj --publish 80:80 --publish 443:443 -it -d scpwiki/wikijump:local
 ```
 
-The container is already running, but to start the services inside it that run Wikijump you will need to send a start command:
+This both creates a container for the image, and starts it. `docker run` is a shorthand for `docker create` and `docker start`.
 
-```bash
-$ docker start wj
-```
-
-Then navigate to https://www.wikijump.test in your browser.
+Finally, navigate to https://www.wikijump.test in your browser.
 
 -----
 
@@ -94,6 +90,8 @@ To stop Wikijump:
 ```bash
 $ docker stop wj
 ```
+
+Note that this will only stop the process inside the container -- it won't destroy the container itself.
 
 It's useful to keep track of existing Docker images and containers, and destroy them when you no longer need them, so you don't waste space rebuilding the same image over and over. If you are using Docker Desktop, you can manage containers and images from the GUI. Otherwise, on command line:
 
