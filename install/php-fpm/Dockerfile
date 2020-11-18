@@ -54,7 +54,7 @@ RUN bash install-xdiff.sh
 # Clone the Wikijump repository
 WORKDIR /var/www
 RUN git clone \
-    --bare \
+    --depth 10 \
     --branch "${WIKIJUMP_REPO_BRANCH}" \
     "${WIKIJUMP_REPO}" "${WIKIJUMP_REPO_DIR}"
 
