@@ -40,5 +40,4 @@ WORKDIR /var/www
 RUN rm -rf /src
 
 # Main process
-ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]
