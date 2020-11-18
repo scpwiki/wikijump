@@ -112,11 +112,11 @@ $ docker run --name wj --publish 80:80 --publish 443:443 -it -d scpwiki/wikijump
 
 ### Installation via script
 
-You can install to your local system using `install.sh`. This pollutes your system with dependencies and will be difficult to undo. This method is not recommended. It may require tinkering depending on your exact platform and environment.
+You can install to your local system using `legacy/install.sh`. This pollutes your system with dependencies and will be difficult to undo. This method is not recommended. It may require tinkering depending on your exact platform and environment.
 
 ## Configuration
 
-If you installed Wikijump directly to your machine with `install.sh`, you can edit the Wikijump config at any point. If you installed Wikijump via Docker, you will need to enter the container to edit the config:
+If you installed Wikijump directly to your machine with `legacy/install.sh`, you can edit the Wikijump config at any point. If you installed Wikijump via Docker, you will need to enter the container to edit the config:
 
 ```
 $ docker exec -it wj bash
