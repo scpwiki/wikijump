@@ -26,7 +26,7 @@ server {
         #
         listen 443 ssl;
         listen [::]:443 ssl;
-	keepalive_timeout   70;
+        keepalive_timeout   70;
 
         ssl_protocols       TLSv1 TLSv1.1 TLSv1.2;
         ssl_ciphers         AES128-SHA:AES256-SHA:RC4-SHA:DES-CBC3-SHA:RC4-MD5;
@@ -59,26 +59,26 @@ server {
         rewrite ^/a48.png /files--common/images/avatars/default/a48.png break;
         rewrite ^/forum/start(.*)$ /index.php?wiki__WikiScreen/wiki_page/forum:start$1 break;
         rewrite ^/forum/t-([0-9]+)(/.*)?$ /index.php?wiki__WikiScreen/wiki_page/forum:thread/t/$1$2 break;
-	rewrite ^/forum/c-([0-9]+)(/.*)?$ /index.php?wiki__WikiScreen/wiki_page/forum:category/c/$1$2 break;
-	rewrite ^/feed/forum/t\-([0-9]+)\.xml$ /feed.php?feed__ForumThreadPostsFeed/t/$1 break;
-	rewrite ^/feed/forum/ct\-([0-9]+)\.xml$ /feed.php?feed__ForumCategoryThreadsFeed/c/$1$2 break;
-	rewrite ^/feed/forum/cp\-([0-9]+)\.xml$ /feed.php?feed__ForumCategoryPostsFeed/c/$1$2 break;
-	rewrite ^/feed/forum/posts\.xml$ /feed.php?feed__ForumPostsFeed break;
-	rewrite ^/feed/forum/threads\.xml$ /feed.php?feed__ForumThreadsFeed break;
-	rewrite ^/feed/page/comments\-([0-9]+)\.xml$ /feed.php?feed__PageCommentsFeed/p/$1 break;
-	rewrite ^/feed/front/([a-z\-:]+)/([0-9a-zA-Z\-]+)\.xml$ /feed.php?feed__FrontForumFeed/page/$1/label/$2 break;
-	rewrite ^/feed/site\-changes\.xml$ /feed.php?feed__SiteChangesFeed break;
-	rewrite ^/feed/admin\.xml$ /feed.php?feed__AdminNotificationsFeed break;
-	rewrite ^/robots.txt$ /robots.php break;
-	rewrite ^/sitemap.xml$ /sitemap.php break;
-	rewrite ^/printer--friendly/+forum/start(.*)$ /index.php?PrinterFriendly/wiki_page/forum:start$1 break;
-	rewrite ^/printer--friendly/+forum/t-([0-9]+)(/.*)?$ /index.php?PrinterFriendly/wiki_page/forum:thread/t/$1$2 break;
-	rewrite ^/printer--friendly/+forum/c-([0-9]+)(/.*)?$ /index.php?PrinterFriendly/wiki_page/forum:category/c/$1$2 break;
-	rewrite ^/printer--friendly/(.*)$ /index.php?PrinterFriendly/wiki_page/$1 break;
-	rewrite ^/default--screen/(.*)$ /index.php?$1 break;
-	rewrite ^/local--([^/]+/.*)$ /local.php?$1 break;
-	rewrite ^/([a-z0-9\-]+)/code(?:(/[0-9]+))?$ /local.php?code/$1$2 break;
-	rewrite ^/(.*)\.php$ /$1.php break;
+        rewrite ^/forum/c-([0-9]+)(/.*)?$ /index.php?wiki__WikiScreen/wiki_page/forum:category/c/$1$2 break;
+        rewrite ^/feed/forum/t\-([0-9]+)\.xml$ /feed.php?feed__ForumThreadPostsFeed/t/$1 break;
+        rewrite ^/feed/forum/ct\-([0-9]+)\.xml$ /feed.php?feed__ForumCategoryThreadsFeed/c/$1$2 break;
+        rewrite ^/feed/forum/cp\-([0-9]+)\.xml$ /feed.php?feed__ForumCategoryPostsFeed/c/$1$2 break;
+        rewrite ^/feed/forum/posts\.xml$ /feed.php?feed__ForumPostsFeed break;
+        rewrite ^/feed/forum/threads\.xml$ /feed.php?feed__ForumThreadsFeed break;
+        rewrite ^/feed/page/comments\-([0-9]+)\.xml$ /feed.php?feed__PageCommentsFeed/p/$1 break;
+        rewrite ^/feed/front/([a-z\-:]+)/([0-9a-zA-Z\-]+)\.xml$ /feed.php?feed__FrontForumFeed/page/$1/label/$2 break;
+        rewrite ^/feed/site\-changes\.xml$ /feed.php?feed__SiteChangesFeed break;
+        rewrite ^/feed/admin\.xml$ /feed.php?feed__AdminNotificationsFeed break;
+        rewrite ^/robots.txt$ /robots.php break;
+        rewrite ^/sitemap.xml$ /sitemap.php break;
+        rewrite ^/printer--friendly/+forum/start(.*)$ /index.php?PrinterFriendly/wiki_page/forum:start$1 break;
+        rewrite ^/printer--friendly/+forum/t-([0-9]+)(/.*)?$ /index.php?PrinterFriendly/wiki_page/forum:thread/t/$1$2 break;
+        rewrite ^/printer--friendly/+forum/c-([0-9]+)(/.*)?$ /index.php?PrinterFriendly/wiki_page/forum:category/c/$1$2 break;
+        rewrite ^/printer--friendly/(.*)$ /index.php?PrinterFriendly/wiki_page/$1 break;
+        rewrite ^/default--screen/(.*)$ /index.php?$1 break;
+        rewrite ^/local--([^/]+/.*)$ /local.php?$1 break;
+        rewrite ^/([a-z0-9\-]+)/code(?:(/[0-9]+))?$ /local.php?code/$1$2 break;
+        rewrite ^/(.*)\.php$ /$1.php break;
         # pass PHP scripts to FastCGI server
 
 location ~ \.php$ {
