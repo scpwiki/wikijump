@@ -12,6 +12,14 @@ services:
       restart: always
       volumes:
         - db:/var/lib/postgresql
+  php-fpm:
+    build:
+      context: ./php-fpm
+    restart: always
+    depends_on:
+      - database
+    volumes:
+      - app:/var/www/wikijump
   nginx:
     build:
       context: ./nginx
@@ -23,14 +31,6 @@ services:
       - php-fpm
     ports:
       - 80:80
-  php-fpm:
-    build:
-      context: ./php-fpm
-    restart: always
-    depends_on:
-      - database
-    volumes:
-      - app:/var/www/wikijump
 
 volumes:
   app:
