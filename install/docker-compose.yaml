@@ -15,6 +15,6 @@ services:
       args:
         MAIN_DOMAIN: 'wikijump.test'
         FILES_DOMAIN: 'wjfiles.test'
-  wikijump:
+  php-fpm:
     build:
-      context: ./wikijump
+      context: ./php-fpm
