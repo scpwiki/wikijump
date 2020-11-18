@@ -16,6 +16,9 @@ services:
   php-fpm:
     build:
       context: ./php-fpm
+      args:
+        MAIN_DOMAIN: 'wikijump.test'
+        FILES_DOMAIN: 'wjfiles.test'
     restart: always
     depends_on:
       - database

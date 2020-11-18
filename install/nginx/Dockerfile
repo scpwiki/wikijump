@@ -38,6 +38,10 @@ RUN install -D -m644 cert.key /usr/local/nginx/conf/cert.key
 # Install configuration files
 RUN cp -av ./etc/nginx /etc
 
+# Enable wikijump site in nginx
+RUN ln -sf ../sites-available/wikijump /etc/nginx/sites-enabled
+RUN rm -f /etc/nginx/sites-enabled/default
+
 # TODO
 
 # Clean up
