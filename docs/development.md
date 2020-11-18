@@ -81,7 +81,7 @@ $ docker run --name wj --publish 80:80 --publish 443:443 -it -d scpwiki/wikijump
 
 This both creates a container for the image, and starts it. `docker run` is a shorthand for `docker create` and `docker start`.
 
-Finally, navigate to https://www.wikijump.test in your browser.
+Finally, navigate to https://www.wikijump.test in your browser. Your browser will probably complain that the site is insecure, citing that the page has a self-signed certificate. During local development, this is to be expected.
 
 -----
 
