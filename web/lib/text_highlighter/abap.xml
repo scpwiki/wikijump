@@ -22,11 +22,11 @@
   <region name="sqbrackets" delimClass="brackets" innerClass="code" start="\[" end="\]">
     <contains all="yes"/>
   </region>
-  
+
   <region name="comment" start="^\*|&quot;" end="/$/m" innerClass="comment">
     <contains all="no"/>
   </region>
-  
+
   <region name="strsingle" delimClass="quotes" innerClass="string" start="'" end="'" />
 
   <block name="identifier" match="[a-zA-Z_]\w*" innerClass="identifier" contained="yes"/>
@@ -39,7 +39,7 @@
 
   <block name="float" match="(\d*\.\d+)|(\d+\.\d*)" innerClass="number" contained="yes"/>
 
-  
+
   <block name="identifier" match="[a-z_\-]\w*" innerClass="identifier" case="no"/>
 
   <keywords name="sy" inherits="identifier" innerClass="reserved">
@@ -399,7 +399,7 @@
     <keyword match="SYST-DATLO"/>
     <keyword match="SYST-TIMLO"/>
     <keyword match="SYST-ZONLO"/>
-  </keywords> 
+  </keywords>
 
 
   <keywords name="reserved" inherits="identifier" innerClass="reserved">
@@ -782,9 +782,9 @@
     <keyword match="XSTRING"/>
     <keyword match="Z"/>
     <keyword match="ZONE"/>
-  </keywords> 
-  
-  
+  </keywords>
+
+
   <keywords name="constants" inherits="identifier" innerClass="reserved">
     <keyword match="INITIAL"/>
     <keyword match="NULL"/>
@@ -798,5 +798,5 @@
     <keyword match="COL_NEGATIVE"/>
     <keyword match="COL_GROUP"/>
   </keywords>
-  
+
 </highlight>

@@ -9,20 +9,20 @@
 
   <default innerClass="code" />
 
-  <region name="strsingle3" delimClass="quotes" innerClass="string" 
+  <region name="strsingle3" delimClass="quotes" innerClass="string"
           start="'''" end="'''" />
 
-  <region name="strdouble3" delimClass="quotes" innerClass="string" 
+  <region name="strdouble3" delimClass="quotes" innerClass="string"
           start="&quot;&quot;&quot;" end="&quot;&quot;&quot;">
   </region>
 
-  <region name="strdouble" delimClass="quotes" innerClass="string" 
+  <region name="strdouble" delimClass="quotes" innerClass="string"
           start="&quot;" end="&quot;" >
   </region>
-  
-  <region name="strsingle" delimClass="quotes" innerClass="string" 
+
+  <region name="strsingle" delimClass="quotes" innerClass="string"
           start="'" end="'" />
-  
+
   <region name="brackets" delimClass="brackets" innerClass="code" start="\(" end="\)" >
     <contains all="yes"/>
   </region>
@@ -42,8 +42,8 @@
 
   <block name="identifier" match="[a-z_]\w*" innerClass="identifier" />
 
-  <block name="exponent" 
-         match="((\d+|((\d*\.\d+)|(\d+\.\d*)))[eE][+-]?\d+)" 
+  <block name="exponent"
+         match="((\d+|((\d*\.\d+)|(\d+\.\d*)))[eE][+-]?\d+)"
          innerClass="number" />
 
   <block name="imaginary" match="((\d*\.\d+)|(\d+\.\d*)|(\d+))j" innerClass="number"/>
@@ -56,7 +56,7 @@
 
   <block name="octinteger" match="0[0-7]+l?" innerClass="number" />
 
-  <block name="comment" innerClass="comment" 
+  <block name="comment" innerClass="comment"
           match="#.+" />
 
   <keywords name="reserved" inherits="identifier" innerClass="reserved" case = "yes">
@@ -144,8 +144,8 @@
 
   </keywords>
 
-  <keywords name="builtin" inherits="possiblefunction" 
-            innerClass="builtin" otherwise="identifier" case = "yes"> 
+  <keywords name="builtin" inherits="possiblefunction"
+            innerClass="builtin" otherwise="identifier" case = "yes">
     <keyword match="__import__"/>
 
     <keyword match="abs"/>
@@ -222,7 +222,7 @@
     <keyword match="vars"/>
     <keyword match="xrange"/>
     <keyword match="zip"/>
-    
+
   </keywords>
 
 </highlight>

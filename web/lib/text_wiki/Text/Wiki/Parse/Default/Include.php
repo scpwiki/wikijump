@@ -61,7 +61,7 @@ class Text_Wiki_Parse_Include extends Text_Wiki_Parse {
     *
     */
 
-    public $regex = 	'/' . 
+    public $regex = 	'/' .
         				'^\[\[include\s' .          # Declare include module
         				'([a-zA-Z0-9\s\-:]+?)' .    # Name or location of component
         				'(\s+.*?)?' .               # Parameters

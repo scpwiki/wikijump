@@ -8,7 +8,7 @@
     <author name="Andrey Demenev" email="demenev@gmail.com"/>
   </authors>
 
-  <comment>This highlighter is EXPERIMENTAL, so that it may work incorrectly. 
+  <comment>This highlighter is EXPERIMENTAL, so that it may work incorrectly.
 Most rules were created by Mariusz Jakubowski, and extended by me.
 My  knowledge  of  Perl  is  poor,  and  Perl  syntax  seems  too
 complicated to me.</comment>
@@ -22,8 +22,8 @@ complicated to me.</comment>
 
   <region name="pod" innerClass="comment" start="/^=\w+/m" end="/^=cut[^\n]*/m" startBOL="yes" endBOL="yes"/>
 
-  <!-- 
-  brackets 
+  <!--
+  brackets
   -->
   <region name="block" delimClass="brackets" innerClass="code" start="\{" end="\}">
     <contains all="yes"/>
@@ -37,17 +37,17 @@ complicated to me.</comment>
     <contains all="yes"/>
   </region>
 
-  <!-- 
-  use smth 
+  <!--
+  use smth
   -->
   <block name="usestatement" match="(use)\s+([\w:]*)" innerClass="special">
    <partClass index="1" innerClass="reserved" />
    <partClass index="2" innerClass="special" />
   </block>
-  
+
   <block name="packagereference" match="[&amp; ](\w{2,}::)+\w{2,}" innerClass="special"/>
 
-  <region name="q-w-q-statement" 
+  <region name="q-w-q-statement"
     start="/\b(q[wq]\s*((\{)|(\()|(\[)|(\&lt;)|([\W\S])))(?=(.*)((?(3)\})(?(4)\))(?(5)\])(?(6)\&gt;)(?(7)\7)))/Us"
     end="%b2%"
     innerClass="string" delimClass="quotes" remember="yes">
@@ -58,20 +58,20 @@ complicated to me.</comment>
 
   </region>
 
-  <region name="qstatement" 
+  <region name="qstatement"
     start="/\b(q\s*((\{)|(\()|(\[)|(\&lt;)|([\W\S])))(?=(.*)((?(3)\})(?(4)\))(?(5)\])(?(6)\&gt;)(?(7)\7)))/Us"
     end="%b2%"
     innerClass="string" delimClass="quotes" remember="yes">
 
   </region>
 
-  <!-- 
-  comments 
+  <!--
+  comments
   -->
   <block name="comment" match="#.*" innerClass="comment" />
-  
-  
-  <!-- 
+
+
+  <!--
   regexpr
   FIXME: this should be rewrited
   -->
@@ -83,26 +83,26 @@ complicated to me.</comment>
    <partClass index="6" innerClass="string" />
    <partClass index="8" innerClass="quotes" />
   </block>
-  
+
   <block name="dblregexprver2" match="/(m) ([|#~`!@$%^&amp;*-+=\\;:'&quot;,.\/?])  ((\\.|[^\\])*?) (\2[ecgimosx]*)/x" innerClass="string">
    <partClass index="1" innerClass="quotes" />
    <partClass index="2" innerClass="quotes" />
    <partClass index="3" innerClass="string" />
    <partClass index="5" innerClass="quotes" />
   </block>
-  
+
 
   <region name="regexp" start=" \/" end="\/[cgimosx]*" innerClass="string" delimClass="quotes" case="yes">
     <contains block="reescaped"/>
-  </region> 
-  
+  </region>
+
   <block name="reescaped" match="\\\/" innerClass="string" contained="yes">
     <onlyin region="regexp"/>
-  </block> 
-  
-  <!-- 
-  variables 
-  FIXME: @{...} 
+  </block>
+
+  <!--
+  variables
+  FIXME: @{...}
   -->
   <block name="bracketsvars" match="([a-z1-9_]+)(\s*=>)" innerClass="string" contained="yes" case="no">
     <partClass index="1" innerClass="string" />
@@ -111,7 +111,7 @@ complicated to me.</comment>
   </block>
 
   <block name="specialvar" match="\$#?[1-9'`@!]" innerClass="var"/>
-  
+
   <block name="var" match="(\$#?|[@%*])([a-z1-9_]+::)*([a-z1-9_]+|\^(?-i)[A-Z]?(?i))" innerClass="var" case="no"/>
   <block name="containedvar" match="\$([a-z1-9_]+|\^(?-i)[A-Z]?(?i))" innerClass="var" case="no"/>
 
@@ -126,7 +126,7 @@ complicated to me.</comment>
 
   <block name="curlyvar" match="[\$@%]#?\{[a-z1-9]+\}" innerClass="var" case="no"/>
 
-  <!-- 
+  <!--
   quotes
   -->
   <region name="exec" delimClass="quotes" innerClass="string" start="`" end="`">
@@ -153,34 +153,34 @@ complicated to me.</comment>
     <onlyin region="strdouble"/>
     <onlyin region="q-w-q-statement"/>
   </block>
- 
-  <!-- logical op. 
+
+  <!-- logical op.
   <block name="logic" match="\|\||&amp;&amp;" innerClass="reserved" contained="yes"/>-->
- 
-  <!-- 
-  identifiers 
+
+  <!--
+  identifiers
   -->
   <block name="identifier" match="[a-z_]\w*" innerClass="identifier" case="no"/>
 
-  <!-- 
-  numbers 
+  <!--
+  numbers
   -->
   <block name="number" match="\d*\.?\d+" innerClass="number"/>
 
-  <!-- 
-  http://www.perldoc.com/perl5.6/pod/perlfunc.html 
-  Alphabetical Listing of Perl Functions 
+  <!--
+  http://www.perldoc.com/perl5.6/pod/perlfunc.html
+  Alphabetical Listing of Perl Functions
   -->
   <keywords name="reserved" inherits="identifier" innerClass="reserved" case = "yes">
       <keyword match="abs"/>
       <keyword match="accept"/>
       <keyword match="alarm"/>
       <keyword match="atan2"/>
-      
+
       <keyword match="bind"/>
       <keyword match="binmode"/>
       <keyword match="bless"/>
-      
+
       <keyword match="caller"/>
       <keyword match="chdir"/>
       <keyword match="chmod"/>
@@ -203,7 +203,7 @@ complicated to me.</comment>
       <keyword match="die"/>
       <keyword match="do"/>
       <keyword match="dump"/>
-      
+
       <keyword match="each"/>
       <keyword match="endgrent"/>
       <keyword match="endhostent"/>
@@ -217,14 +217,14 @@ complicated to me.</comment>
       <keyword match="exists"/>
       <keyword match="exit"/>
       <keyword match="exp"/>
-      
+
       <keyword match="fcntl"/>
       <keyword match="fileno"/>
       <keyword match="flock"/>
       <keyword match="fork"/>
       <keyword match="format"/>
       <keyword match="formline"/>
-      
+
       <keyword match="getc"/>
       <keyword match="getgrent"/>
       <keyword match="getgrgid"/>
@@ -255,19 +255,19 @@ complicated to me.</comment>
       <keyword match="gmtime"/>
       <keyword match="goto"/>
       <keyword match="grep"/>
-      
+
       <keyword match="hex"/>
-      
+
       <keyword match="import"/>
       <keyword match="index"/>
       <keyword match="int"/>
       <keyword match="ioctl"/>
-      
+
       <keyword match="join"/>
-      
+
       <keyword match="keys"/>
       <keyword match="kill"/>
-      
+
       <keyword match="last"/>
       <keyword match="lc"/>
       <keyword match="lcfirst"/>
@@ -279,7 +279,7 @@ complicated to me.</comment>
       <keyword match="lock"/>
       <keyword match="log"/>
       <keyword match="lstat"/>
-      
+
       <!--<keyword match="m"/>-->
       <keyword match="map"/>
       <keyword match="mkdir"/>
@@ -288,16 +288,16 @@ complicated to me.</comment>
       <keyword match="msgrcv"/>
       <keyword match="msgsnd"/>
       <keyword match="my"/>
-      
+
       <keyword match="next"/>
       <keyword match="no"/>
-      
+
       <keyword match="oct"/>
       <keyword match="open"/>
       <keyword match="opendir"/>
       <keyword match="ord"/>
       <keyword match="our"/>
-      
+
       <keyword match="pack"/>
       <keyword match="package"/>
       <keyword match="pipe"/>
@@ -307,14 +307,14 @@ complicated to me.</comment>
       <keyword match="printf"/>
       <keyword match="prototype"/>
       <keyword match="push"/>
-      
+
       <!--<keyword match="q"/>
       <keyword match="qq"/>
       <keyword match="qr"/>-->
       <keyword match="quotemeta"/>
       <!--<keyword match="qw"/>
       <keyword match="qx"/>-->
-      
+
       <keyword match="rand"/>
       <keyword match="read"/>
       <keyword match="readdir"/>
@@ -332,7 +332,7 @@ complicated to me.</comment>
       <keyword match="rewinddir"/>
       <keyword match="rindex"/>
       <keyword match="rmdir"/>
-      
+
       <!--<keyword match="s"/>-->
       <keyword match="scalar"/>
       <keyword match="seek"/>
@@ -378,7 +378,7 @@ complicated to me.</comment>
       <keyword match="sysseek"/>
       <keyword match="system"/>
       <keyword match="syswrite"/>
-      
+
       <keyword match="tell"/>
       <keyword match="telldir"/>
       <keyword match="tie"/>
@@ -387,7 +387,7 @@ complicated to me.</comment>
       <keyword match="times"/>
       <!--<keyword match="tr"/>-->
       <keyword match="truncate"/>
-      
+
       <keyword match="uc"/>
       <keyword match="ucfirst"/>
       <keyword match="umask"/>
@@ -398,42 +398,42 @@ complicated to me.</comment>
       <keyword match="untie"/>
       <keyword match="use"/>
       <keyword match="utime"/>
-      
+
       <keyword match="values"/>
       <keyword match="vec"/>
-      
+
       <keyword match="wait"/>
       <keyword match="waitpid"/>
       <keyword match="wantarray"/>
       <keyword match="warn"/>
       <keyword match="write"/>
-      
-      <keyword match="y"/> 
-  </keywords> 
+
+      <keyword match="y"/>
+  </keywords>
 
   <keywords name="missingreserved" inherits="identifier" innerClass="reserved" case = "yes">
-      <keyword match="new"/> 
-  </keywords> 
+      <keyword match="new"/>
+  </keywords>
 
 
   <keywords name="flowcontrol" inherits="identifier" innerClass="reserved" case = "yes">
-      <keyword match="if"/> 
-      <keyword match="else"/> 
-      <keyword match="elsif"/> 
-      <keyword match="while"/> 
-      <keyword match="unless"/> 
-      <keyword match="for"/> 
-      <keyword match="foreach"/> 
-      <keyword match="until"/> 
-      <keyword match="do"/> 
-      <keyword match="continue"/> 
-      <keyword match="not"/> 
-      <keyword match="or"/> 
-      <keyword match="and"/> 
-      <keyword match="eq"/> 
-      <keyword match="ne"/> 
-      <keyword match="gt"/> 
-      <keyword match="lt"/> 
-  </keywords> 
+      <keyword match="if"/>
+      <keyword match="else"/>
+      <keyword match="elsif"/>
+      <keyword match="while"/>
+      <keyword match="unless"/>
+      <keyword match="for"/>
+      <keyword match="foreach"/>
+      <keyword match="until"/>
+      <keyword match="do"/>
+      <keyword match="continue"/>
+      <keyword match="not"/>
+      <keyword match="or"/>
+      <keyword match="and"/>
+      <keyword match="eq"/>
+      <keyword match="ne"/>
+      <keyword match="gt"/>
+      <keyword match="lt"/>
+  </keywords>
 
 </highlight>
