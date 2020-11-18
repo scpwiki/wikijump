@@ -68,7 +68,9 @@ RUN mkdir -p "${WIKIJUMP_REPO_DIR}/web/tmp/htmlpurifier"
 
 # Install configuration files
 COPY etc ./
-RUN cp -av "./var/www/wikijump/conf/wikijump.ini" "${WIKIJUMP_DIR}/web/conf/wikijump.ini"
+COPY wikijump.ini ./
+
+RUN install -D -m644 "./wikijump.ini" "${WIKIJUMP_DIR}/web/conf/wikijump.ini"
 RUN cp -av "./etc/php/${PHP_VERSION}/cgi/conf.d/"* "/etc/php/${PHP_VERSION}/cgi"
 RUN cp -av "./etc/php/${PHP_VERSION}/cgi/conf.d/"* "/etc/php/${PHP_VERSION}/fpm"
 
