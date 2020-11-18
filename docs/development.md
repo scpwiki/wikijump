@@ -68,14 +68,14 @@ You will need Docker installed and running:
 
 The first step is to build the Docker image, which is a single source of information for Docker to use in a container later:
 
-```bash
+```
 $ cd installer
 $ docker build . -t scpwiki/wikijump:local --no-cache
 ```
 
 Then load that image into a container, which is a VM that runs only the image you created:
 
-```bash
+```
 $ docker run --name wj --publish 80:80 --publish 443:443 -it -d scpwiki/wikijump:local
 ```
 
@@ -87,7 +87,7 @@ Finally, navigate to https://www.wikijump.test in your browser. Your browser wil
 
 To stop Wikijump:
 
-```bash
+```
 $ docker stop wj
 ```
 
@@ -95,7 +95,7 @@ Note that this will only stop the process inside the container -- it won't destr
 
 It's useful to keep track of existing Docker images and containers, and destroy them when you no longer need them, so you don't waste space rebuilding the same image over and over. If you are using Docker Desktop, you can manage containers and images from the GUI. Otherwise, on command line:
 
-```bash
+```
 $ docker container ls  # List containers
 $ docker rm [ID]       # Destroy the container with this ID
 $ docker images        # List images
@@ -106,7 +106,7 @@ $ docker rmi [ID]      # Remove the image with this ID
 
 Instead of building Wikijump locally, you can also pull the `latest` image from the Docker Hub, though bear in mind it may not be up to date the repository:
 
-```bash
+```
 $ docker create --name wj --publish 80:80 --publish 443:443 -it -d scpwiki/wikijump:latest
 ```
 
@@ -118,7 +118,7 @@ You can install to your local system using `install.sh`. This pollutes your syst
 
 If you installed Wikijump directly to your machine with `install.sh`, you can edit the Wikijump config at any point. If you installed Wikijump via Docker, you will need to enter the container to edit the config:
 
-```bash
+```
 $ docker exec -it wj bash
 ```
 
@@ -130,12 +130,12 @@ After editing the Wikijump config, you may need to restart nginx.
 
 On Linux with systemd:
 
-```bash
+```
 # systemctl restart nginx
 ```
 
 On Linux with sysv-init, Windows via WSL2, or from within a Docker container:
 
-```bash
+```
 # service nginx restart
 ```
