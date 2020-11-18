@@ -1,0 +1,22 @@
+{
+  "name": "scpwiki/phpflickr",
+  "description": "Legacy version of onboard phpFlickr for Wikijump use.",
+  "type": "library",
+  "minimum-stability": "dev",
+  "license": "GPL-3.0-or-later",
+  "authors": [
+    {
+      "name": "bluesoul",
+      "email": "github@nags.me",
+      "role": "maintainer"
+    }
+  ],
+  "support": {
+    "irc": "irc://irc.synirc.net/site11",
+    "issues": "https://scuttle.atlassian.net/browse/HELP",
+    "source": "https://github.com/scpwiki/phpflickr"
+  },
+  "autoload": {
+    "classmap": ["phpFlickr.php", "xml.php", "xml_saxy_parser.php"]
+  }
+}

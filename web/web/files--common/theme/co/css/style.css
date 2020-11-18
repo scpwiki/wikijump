@@ -1,0 +1,217 @@
+/* from:
+http://www.openwebdesign.org/viewdesign.phtml?id=3187&referer=%2Fbrowse.php
+*/
+
+/* Global Properties */
+body {
+	margin: 0px;
+	background-color: #E7E9DC;
+	font-size: 80%;
+	font-family: Arial, Helvetica;
+}
+a {
+	color: #4E4F43;
+}
+a:hover {
+	color: #2D2E2A;
+	background-color: transparent;
+	text-decoration: none;
+}
+
+/* Top mini-navigation */
+#top-bar {
+	background-color: #4D5C63;
+	/*padding: 2px 100px 2px 30%; */
+	padding: 0;margin:0;
+	border-bottom: 2px solid #2A343D;
+	color: #E7E9DC;
+	left: 0; right:0;
+	width: 100%;
+}
+
+#top-bar ul{
+	padding: 2px 100px 2px 30%;
+}
+
+#top-bar  a, #top-bar li ul li a {
+	color: #E7E9DC;
+	text-decoration: none;
+	background-color:#4D5C63;
+}
+#top-bar a:hover, #top-bar li ul li a:hover {
+	text-decoration: underline;
+	background-color:#4D5C63;
+}
+
+
+
+/* Banner */
+#header {
+	background-color: #172028;
+	background-image: url(../images/banner.gif);
+	background-repeat: repeat-y;
+	border-bottom: 2px solid #2A343D;
+	/*padding-top: 5px;
+	padding-bottom: 5px;
+	padding-left: 75px;*/
+	height: 7em;
+}
+#header h1 {
+	font-family: trebuchet ms;
+	color: #E7E9DC;
+	font-weight: normal;
+	font-size: 220%;
+	margin: 0px 75px;
+}
+#header h1 a,#header h1 a:hover{
+	color: #E7E9DC;
+	background-color: transparent;
+}
+#header h2{
+	color: #dcdcdc;
+	font-size: 130%;
+	margin: 5px 75px;
+}
+
+#header #login-status, #login-status a {
+	color: #EEE;
+	font-weight:bold;
+}
+#account-options a,#account-options, a#account-topbutton{
+	color: #333;
+	font-weight: normal;
+}
+
+/* The entire left column */
+#side-bar {
+	width: 20%;
+	float: left;
+	background-color: #C7C9B8;
+	border-right: 1px solid #BBBEAB;
+	border-bottom: 1px solid #BBBEAB;
+	color: #4E4F43;
+	padding: 0.5em;
+	margin:0;
+}
+/* The links on the left side */
+
+#side-bar ul{
+	display: block;
+	padding: 0;
+	list-style: none;
+}
+#side-bar ul li{
+	margin: 0;
+	display:block;
+}
+
+#side-bar li a {
+	margin: 0;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	display: block;
+	padding-left: 1em;
+	border-bottom: 1px solid #BBBEAB;
+	border-top: 1px solid #D2D3C6;
+	color: #1E2B31;
+	text-decoration: none;
+}
+#side-bar li a:hover {
+	background-color: #D1D3C3;
+}
+/* The headings on the left */
+#side-bar h1 {
+	font-size: 140%;
+	margin: 0px;
+	padding-left: 0.5em;
+	margin-top: 3px;
+	margin-bottom: 0px;
+}
+/* Left paragraph text */
+#side-bar p {
+	padding: 5px;
+	margin: 0px;
+	margin-bottom: 3px;
+	margin: 0px;
+}
+/* The entire center column */
+
+
+
+/*
+#content-wrap{
+	overflow: hidden;
+}
+*/
+#main-content {
+	margin-left: 22%;
+
+	color: #4E4F43;
+}
+/* Center column headers */
+#main-content h1 {
+
+	font-size: 175%;
+	/*color: #3D3E37;*/
+	color: 4E4F43;
+}
+
+
+
+/* Footer */
+#footer {
+	background-color: #4D5C63;
+	padding-top: 3px;
+	padding-bottom: 3px;
+	border-top: 2px solid #2A343D;
+	color: #E7E9DC;
+	text-align: left;
+
+}
+#footer p {
+	padding-right: 100px;
+	margin: 0px;
+}
+#footer a {
+	color: #E7E9DC;
+}
+#footer a:hover {
+	border-bottom: 0px;
+}
+
+
+
+
+.page-options-bottom a, a.action-area-close{
+	color: #242;
+	background-color: #fdfcf6;
+	text-decoration: none;
+}
+
+
+
+.forum-group table{
+	background-color: #fdfcf6;
+}
+
+.forum-category-box table{
+	background-color: #fdfcf6;
+}
+
+.thread-container .post .options a{
+	color: #4E4F43;
+}
+
+.thread-container .post  .long  .changes a {
+	color: #4E4F43;
+}
+.thread-container .post  .short  .options{
+	color: #4E4F43;
+}
+.thread-container .post .head{
+	background-color: #C7C9B8;
+	color:  #4E4F43;
+}
+.thread-container .post .body {
+	color:  #4E4F43;
+}

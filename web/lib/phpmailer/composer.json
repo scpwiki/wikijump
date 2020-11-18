@@ -1,0 +1,22 @@
+{
+  "name": "scpwiki/phpmailer",
+  "description": "Legacy version of phpmailer 2.0.0 rc1 for Wikijump use.",
+  "type": "library",
+  "minimum-stability": "dev",
+  "license": "LGPL-3.0-or-later",
+  "authors": [
+    {
+      "name": "bluesoul",
+      "email": "github@nags.me",
+      "role": "maintainer"
+    }
+  ],
+  "support": {
+    "irc": "irc://irc.synirc.net/site11",
+    "issues": "https://scuttle.atlassian.net/browse/HELP",
+    "source": "https://github.com/scpwiki/phpmailer"
+  },
+  "autoload": {
+    "classmap": ["class.phpmailer.php", "class.pop3.php", "class.smtp.php"]
+  }
+}

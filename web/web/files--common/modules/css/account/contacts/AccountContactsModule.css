@@ -1,0 +1,7 @@
+table.contact-list-table{
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+table.contact-list-table tr:hover{
+	background-color: #F4F4F4;
+}

@@ -1,0 +1,21 @@
+language: php
+sudo: false
+php:
+  - 7.0
+  - 7.1
+  - 7.2
+  - 7.3
+  - 7.4
+script:
+  - pear list
+  - pear channel-update pear.php.net
+  - pear upgrade --force pear/pear-1.10.1
+  - pear list
+  - pear install --force package.xml
+  - pear list
+  - pear package
+  - pear package-validate
+  - pear install --force *.tgz
+  - pear list
+  - composer install
+  - ./vendor/bin/phpunit -c phpunit.xml.dist

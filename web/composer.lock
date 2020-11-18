@@ -1,0 +1,122 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "e3f09cd3282c98e7a479f04616b3674f",
+    "packages": [
+        {
+            "name": "cerdic/css-tidy",
+            "version": "v1.7.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Cerdic/CSSTidy.git",
+                "reference": "919411b2c16ab985f7c61e0d9bb6c35d080f6cf6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Cerdic/CSSTidy/zipball/919411b2c16ab985f7c61e0d9bb6c35d080f6cf6",
+                "reference": "919411b2c16ab985f7c61e0d9bb6c35d080f6cf6",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.4.0 || ^7"
+            },
+            "require-dev": {
+                "pear/text_diff": "^1.2",
+                "simpletest/simpletest": "^1.1"
+            },
+            "bin": [
+                "bin/pcsstidy"
+            ],
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "class.csstidy_optimise.php",
+                    "class.csstidy_print.php",
+                    "class.csstidy.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Cédric MORIN",
+                    "email": "changeme@mailinator.com"
+                }
+            ],
+            "description": "CSSTidy is a CSS minifier",
+            "support": {
+                "issues": "https://github.com/Cerdic/CSSTidy/issues",
+                "source": "https://github.com/Cerdic/CSSTidy/tree/v1.7.3"
+            },
+            "time": "2020-11-03T13:08:18+00:00"
+        },
+        {
+            "name": "ezyang/htmlpurifier",
+            "version": "v4.13.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ezyang/htmlpurifier.git",
+                "reference": "08e27c97e4c6ed02f37c5b2b20488046c8d90d75"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ezyang/htmlpurifier/zipball/08e27c97e4c6ed02f37c5b2b20488046c8d90d75",
+                "reference": "08e27c97e4c6ed02f37c5b2b20488046c8d90d75",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.2"
+            },
+            "require-dev": {
+                "simpletest/simpletest": "dev-master#72de02a7b80c6bb8864ef9bf66d41d2f58f826bd"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "HTMLPurifier": "library/"
+                },
+                "files": [
+                    "library/HTMLPurifier.composer.php"
+                ],
+                "exclude-from-classmap": [
+                    "/library/HTMLPurifier/Language/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Edward Z. Yang",
+                    "email": "admin@htmlpurifier.org",
+                    "homepage": "http://ezyang.com"
+                }
+            ],
+            "description": "Standards compliant HTML filter written in PHP",
+            "homepage": "http://htmlpurifier.org/",
+            "keywords": [
+                "html"
+            ],
+            "support": {
+                "issues": "https://github.com/ezyang/htmlpurifier/issues",
+                "source": "https://github.com/ezyang/htmlpurifier/tree/master"
+            },
+            "time": "2020-06-29T00:56:53+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "1.1.0"
+}

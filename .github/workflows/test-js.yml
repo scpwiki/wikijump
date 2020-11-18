@@ -1,0 +1,26 @@
+name: JS tests
+on:
+  # Run this on push to master
+  push:
+    branches:
+      - master
+    paths:
+      - "web/**"
+  # Run this on push to PRs, regardless of branch
+  pull_request:
+    paths:
+      - "web/**"
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      working-directory: ./web
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install
+        working-directory: ${{env.working-directory}}
+        run: npm install
+      - name: Test
+        working-directory: ${{env.working-directory}}
+        run: npm run test
