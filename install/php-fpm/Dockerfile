@@ -67,7 +67,8 @@ RUN mkdir -p "${WIKIJUMP_REPO_DIR}/web/tmp/smarty_macro_templates"
 RUN mkdir -p "${WIKIJUMP_REPO_DIR}/web/tmp/htmlpurifier"
 
 # Install configuration files
-COPY etc ./
+WORKDIR /src
+COPY etc ./etc
 COPY wikijump.ini ./
 
 RUN install -D -m644 "./wikijump.ini" "${WIKIJUMP_DIR}/web/conf/wikijump.ini"
