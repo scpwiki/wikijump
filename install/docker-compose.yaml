@@ -3,6 +3,7 @@ version: '3.8'
 services:
   cache:
     image: memcached:1.6-alpine
+    restart: always
   database:
     build:
       context: ./postgres
