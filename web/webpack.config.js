@@ -11,18 +11,12 @@ module.exports = {
   devtool: "source-map",
   module: {
     rules: [
-      {
-        test: /\.tsx?$/,
-        use: 'ts-loader',
-        exclude: /node_modules/
-      }
+      { test: /\.tsx?$/, use: 'ts-loader', exclude: /node_modules/ }
     ]
   },
   resolve: {
     extensions: ['.ts', '.js'],
-    alias: {
-      '@': path.resolve(__dirname, 'web/files--common')
-    }
+    alias: { '@': path.resolve(__dirname, 'web/files--common') }
   },
   plugins: [
     new CleanWebpackPlugin()
