@@ -25,7 +25,6 @@ WORKDIR /src
 COPY setup-memcached.sh ./
 
 COPY etc/nginx/* /etc/nginx/
-COPY web /var/www/wikijump/web
 COPY wikijump.ini /var/www/wikijump/web/conf/wikijump.ini
 
 # Enable wikijump site in nginx
@@ -73,7 +72,7 @@ RUN mkdir -p \
     "${WIKIJUMP_REPO_DIR}/web/tmp/sitebackups" \
     "${WIKIJUMP_REPO_DIR}/web/tmp/smarty_cache" \
     "${WIKIJUMP_REPO_DIR}/web/tmp/smarty_macro_templates" \
-    "${WIKIJUMP_REPO_DIR}/web/tmp/htmlpurifier" \
+    "${WIKIJUMP_REPO_DIR}/web/tmp/htmlpurifier"
 
 # Run composer install to install the dependencies
 RUN composer install \
