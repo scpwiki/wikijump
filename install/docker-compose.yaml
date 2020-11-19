@@ -10,7 +10,7 @@ services:
       args:
         FILES_DOMAIN: 'wjfiles.test'
         POSTGRES_PASSWORD: 'wikijump-postgres'
-      restart: always
+    restart: always
   php-fpm:
     build:
       context: ./php-fpm
