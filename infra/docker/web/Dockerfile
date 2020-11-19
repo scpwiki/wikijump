@@ -13,7 +13,10 @@ RUN apk add --update --no-cache \
     libgd \
     imagemagick \
     html2text \
-    nginx
+    nginx \
+    freetype \
+    postgresql \
+    tidyhtml
 
 # Install PHP Extensions not already present in alpine release
 # RUN docker-php-ext-install -j$(nproc) \
