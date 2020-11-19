@@ -34,8 +34,18 @@ phpize
 make "-j$cores"
 make install
 
+# Install memcache
+pecl install --nobuild memcache
+cd "$(pecl config-get temp_dir)/memcache"
+
+phpize
+
+./configure
+make "-j$cores"
+make install
+
 # Enable PHP extensions and clean up
-docker-php-ext-enable igbinary memcached
+docker-php-ext-enable igbinary memcached memcache
 apk del .memcached-deps .phpize-deps
 docker-php-ext-install \
 	"-j$cores" \
