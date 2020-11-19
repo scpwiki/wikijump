@@ -11,18 +11,9 @@ RUN ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime
 # Install Libraries
 RUN apk add --update --no-cache \
     libgd \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
     imagemagick \
-    nodejs \
-    npm \
     html2text \
-    nginx \
-    libmemcached-libs \
-    zlib \
-    postgresql-dev \
-    tidyhtml-dev
+    nginx
 
 # Install PHP Extensions not already present in alpine release
 # RUN docker-php-ext-install -j$(nproc) \
@@ -35,7 +26,13 @@ RUN apk add --update --no-cache \
 RUN set -xe && \
     cd /tmp/ && \
     apk add --no-cache --update --virtual .phpize-deps $PHPIZE_DEPS && \
-    apk add --no-cache --update --virtual .memcached-deps zlib-dev libmemcached-dev cyrus-sasl-dev && \
+    apk add --no-cache --update --virtual .memcached-deps zlib-dev libmemcached-dev cyrus-sasl-dev libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \ 
+    postgresql-dev \
+    libmemcached-libs \
+    zlib \
+    tidyhtml-dev && \
 # Install igbinary (memcached's deps)
     pecl install igbinary && \
 # Install memcached
@@ -51,12 +48,12 @@ RUN set -xe && \
 # Enable PHP extensions
     docker-php-ext-enable igbinary memcached && \
     rm -rf /tmp/* && \
-    apk del .memcached-deps .phpize-deps && \
     docker-php-ext-install -j$(nproc) \
     opcache \
     pgsql \
     tidy \
-    gd
+    gd && \
+    apk del .memcached-deps .phpize-deps
 
 # Copy PHP config - let's see if we actually need xdiff and if so can we include it as an artifact or docker layer
 
@@ -91,8 +88,11 @@ RUN mkdir -p tmp/smarty_templates_c && \
 RUN composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
 # Run NPM
-RUN npm install && \
-    npm run build
+RUN apk add --no-cache --update --virtual .node nodejs npm && \
+    npm install && \
+    npm run build && \
+    rm -rf ./node_modules/* && \
+    apk del .node
 
 # Run nginx, let the upstream ENTRYPOINT handle running php-fpm
 CMD nginx
