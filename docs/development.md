@@ -66,32 +66,33 @@ You will need Docker installed and running:
   </tr></tbody>
 </table>
 
-The first step is to build the Docker image, which is a single source of information for Docker to use in a container later:
+Then install [Docker Compose](https://docs.docker.com/compose/).
+
+Once those are configured, you can use the provided `docker-compose.yaml` file to get the containers started. The following will build all the images, and then run new containers with the prefix `wikijump`:
 
 ```
 $ cd install
-$ docker build . -t scpwiki/wikijump:local --no-cache
+$ docker-compose -p wikijump up
 ```
 
-Then load that image into a container, which is a VM that runs only the image you created:
-
-```
-$ docker run --name wj --publish 80:80 --publish 443:443 -it -d scpwiki/wikijump:local
-```
-
-This both creates a container for the image, and starts it. `docker run` is a shorthand for `docker create` and `docker start`.
-
-Finally, navigate to https://www.wikijump.test in your browser. Your browser will probably complain that the site is insecure, citing that the page has a self-signed certificate. During local development, this is to be expected.
+When running, navigate to https://www.wikijump.test/ in your browser. This will contain the containerized Wikijump installation.
+Your browser will probably complain that the site is insecure, citing that the page has a self-signed certificate. During local development, this is unfortunate but expected.
 
 -----
 
-To stop Wikijump:
+If you want to stop the containers, use the following:
 
 ```
-$ docker stop wj
+$ docker-compose -p wikijump stop
 ```
 
-Note that this will only stop the process inside the container -- it won't destroy the container itself.
+(Or interrupt the running `docker-compose` process with Ctrl+C)
+
+If you want to delete the containers, you can completely bring down the deployment:
+
+```
+$ docker-compose -p wikijump down
+```
 
 It's useful to keep track of existing Docker images and containers, and destroy them when you no longer need them, so you don't waste space rebuilding the same image over and over. If you are using Docker Desktop, you can manage containers and images from the GUI. Otherwise, on command line:
 
