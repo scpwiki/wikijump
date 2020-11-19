@@ -3,6 +3,10 @@ FROM php:7.4-fpm-alpine
 EXPOSE 80
 
 # Build variables
+ARG WIKIJUMP_REPO="https://github.com/scpwiki/wikijump.git"
+ARG WIKIJUMP_REPO_DIR="wikijump"
+ARG WIKIJUMP_REPO_BRANCH="master"
+
 ARG MAIN_DOMAIN="wikijump.test"
 ARG FILES_DOMAIN="wjfiles.test"
 
@@ -32,6 +36,7 @@ RUN apk add --update --no-cache \
     imagemagick \
     nodejs \
     npm \
+    git \
     html2text \
     nginx \
     libmemcached-libs \
@@ -44,8 +49,6 @@ RUN /src/setup-memcached.sh
 
 # TODO - let's see if we actually need xdiff and if so can we include it as an artifact or docker layer
 
-WORKDIR /var/www/wikijump/web
-
 # Install nginx config files
 COPY etc/nginx/* /etc/nginx/
 
@@ -55,23 +58,27 @@ RUN rm -f /etc/nginx/sites-enabled/default
 
 # Install the Wikijump repository
 WORKDIR /var/www
-COPY web /var/www
+RUN git clone \
+    --depth 10 \
+    --branch "${WIKIJUMP_REPO_BRANCH}" \
+    "${WIKIJUMP_REPO}" "${WIKIJUMP_REPO_DIR}"
 
+WORKDIR "${WIKIJUMP_DIR}"
 RUN mkdir -p \
-    /var/www/web/tmp/smarty_templates_c \
-    /var/www/web/tmp/lucene_index \
-    /var/www/web/tmp/math \
-    /var/www/web/tmp/sitebackups \
-    /var/www/web/tmp/smarty_cache \
-    /var/www/web/tmp/smarty_macro_templates \
-    /var/www/web/tmp/htmlpurifier
+    web/tmp/smarty_templates_c \
+    web/tmp/lucene_index \
+    web/tmp/math \
+    web/tmp/sitebackups \
+    web/tmp/smarty_cache \
+    web/tmp/smarty_macro_templates \
+    web/tmp/htmlpurifier
 
 # Inject values in the wikijump.ini configuration file
-COPY wikijump.ini /var/www/web/conf/wikijump.ini
+COPY wikijump.ini web/conf/wikijump.ini
 
-RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" "${WIKIJUMP_DIR}/web/conf/wikijump.ini"
-RUN sed -i "s/MAINWIKI/${WWW_DOMAIN}/g" "${WIKIJUMP_DIR}/web/conf/wikijump.ini"
-RUN sed -i "s/FILEDOMAIN/${FILES_DOMAIN}/g" "${WIKIJUMP_DIR}/web/conf/wikijump.ini"
+RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" web/conf/wikijump.ini
+RUN sed -i "s/MAINWIKI/${WWW_DOMAIN}/g" web/conf/wikijump.ini
+RUN sed -i "s/FILEDOMAIN/${FILES_DOMAIN}/g" web/conf/wikijump.ini
 
 # Run composer install to install the dependencies
 RUN composer install \
