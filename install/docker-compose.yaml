@@ -19,6 +19,9 @@ services:
         FILES_DOMAIN: 'wjfiles.test'
     ports:
       - '80:80'
+    links:
+      - cache
+      - database
     restart: always
     depends_on:
       - cache
