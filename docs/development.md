@@ -42,7 +42,7 @@ You will also need to add a line for any wiki that you create, e.g. `127.0.0.1 m
 
 ## Installation
 
-The `installer` folder has everything you need to run a local Wikijump install either in a container or on metal or a VM.
+The `install` folder has everything you need to run a local Wikijump install either in a container or on metal or a VM.
 
 ### Installation via [Docker](https://www.docker.com/) locally
 
@@ -66,32 +66,33 @@ You will need Docker installed and running:
   </tr></tbody>
 </table>
 
-The first step is to build the Docker image, which is a single source of information for Docker to use in a container later:
+Then install [Docker Compose](https://docs.docker.com/compose/).
+
+Once those are configured, you can use the provided `docker-compose.yaml` file to get the containers started. The following will build all the images, and then run new containers with the prefix `wikijump`:
 
 ```
-$ cd installer
-$ docker build . -t scpwiki/wikijump:local --no-cache
+$ cd install
+$ docker-compose -p wikijump up
 ```
 
-Then load that image into a container, which is a VM that runs only the image you created:
-
-```
-$ docker run --name wj --publish 80:80 --publish 443:443 -it -d scpwiki/wikijump:local
-```
-
-This both creates a container for the image, and starts it. `docker run` is a shorthand for `docker create` and `docker start`.
-
-Finally, navigate to https://www.wikijump.test in your browser. Your browser will probably complain that the site is insecure, citing that the page has a self-signed certificate. During local development, this is to be expected.
+When running, navigate to https://www.wikijump.test/ in your browser. This will contain the containerized Wikijump installation.
+Your browser will probably complain that the site is insecure, citing that the page has a self-signed certificate. During local development, this is unfortunate but expected.
 
 -----
 
-To stop Wikijump:
+If you want to stop the containers, use the following:
 
 ```
-$ docker stop wj
+$ docker-compose -p wikijump stop
 ```
 
-Note that this will only stop the process inside the container -- it won't destroy the container itself.
+(Or interrupt the running `docker-compose` process with Ctrl+C)
+
+If you want to delete the containers, you can completely bring down the deployment:
+
+```
+$ docker-compose -p wikijump down
+```
 
 It's useful to keep track of existing Docker images and containers, and destroy them when you no longer need them, so you don't waste space rebuilding the same image over and over. If you are using Docker Desktop, you can manage containers and images from the GUI. Otherwise, on command line:
 
@@ -102,21 +103,13 @@ $ docker images        # List images
 $ docker rmi [ID]      # Remove the image with this ID
 ```
 
-### Installation via Docker from the Docker Hub
-
-Instead of building Wikijump locally, you can also pull the `latest` image from the Docker Hub, though bear in mind it may not be up to date with the repository:
-
-```
-$ docker run --name wj --publish 80:80 --publish 443:443 -it -d scpwiki/wikijump:latest
-```
-
 ### Installation via script
 
-You can install to your local system using `install.sh`. This pollutes your system with dependencies and will be difficult to undo. This method is not recommended. It may require tinkering depending on your exact platform and environment.
+You can install to your local system using `legacy/install.sh`. This pollutes your system with dependencies and will be difficult to undo. This method is not recommended. It may require tinkering depending on your exact platform and environment.
 
 ## Configuration
 
-If you installed Wikijump directly to your machine with `install.sh`, you can edit the Wikijump config at any point. If you installed Wikijump via Docker, you will need to enter the container to edit the config:
+If you installed Wikijump directly to your machine with `legacy/install.sh`, you can edit the Wikijump config at any point. If you installed Wikijump via Docker, you will need to enter the container to edit the config:
 
 ```
 $ docker exec -it wj bash

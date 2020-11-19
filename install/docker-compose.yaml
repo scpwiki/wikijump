@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  cache:
+    image: memcached:1.6-alpine
+    restart: always
+  database:
+    build:
+      context: ./postgres
+      args:
+        FILES_DOMAIN: 'wjfiles.test'
+        POSTGRES_PASSWORD: 'wikijump-postgres'
+    restart: always
+  php-fpm:
+    build:
+      context: ./php-fpm
+      args:
+        MAIN_DOMAIN: 'wikijump.test'
+        FILES_DOMAIN: 'wjfiles.test'
+    ports:
+      - '80:80'
+    links:
+      - cache
+      - database
+    restart: always
+    depends_on:
+      - cache
+      - database
