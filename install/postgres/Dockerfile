@@ -33,6 +33,9 @@ RUN echo "${POSTGRES_PASSWORD}" > /src/postgres-passwd
 USER postgres
 RUN pg_createcluster --user postgres --locale en_US.utf8 "${POSTGRES_VERSION}" "${POSTGRES_CLUSTER}"
 
+# Install postgres auth configuration
+COPY pg_hba.conf "/etc/postgresql/${POSTGRES_VERSION}/${POSTGRES_CLUSTER}/pg_hba.conf"
+
 # Seed database
 USER root
 RUN ./setup.sh
