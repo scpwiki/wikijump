@@ -26,26 +26,26 @@ WORKDIR /src
 # Install packages
 RUN apt update
 RUN apt install -y \
-	'composer' \
-	'git' \
-	'html2text' \
-	'imagemagick' \
-	'nodejs' \
-	'npm' \
-	"${PHP}" \
-	"${PHP}-cgi" \
-	"${PHP}-cli" \
-	"${PHP}-common" \
-	"${PHP}-dev" \
-	"${PHP}-fpm" \
-	"${PHP}-gd" \
-	"${PHP}-memcache" \
-	"${PHP}-memcached" \
-	"${PHP}-pgsql" \
-	"${PHP}-tidy" \
-	"${PHP}-xdebug" \
-	"${PHP}-xml" \
-	'postgresql-client'
+    'composer' \
+    'git' \
+    'html2text' \
+    'imagemagick' \
+    'nodejs' \
+    'npm' \
+    "${PHP}" \
+    "${PHP}-cgi" \
+    "${PHP}-cli" \
+    "${PHP}-common" \
+    "${PHP}-dev" \
+    "${PHP}-fpm" \
+    "${PHP}-gd" \
+    "${PHP}-memcache" \
+    "${PHP}-memcached" \
+    "${PHP}-pgsql" \
+    "${PHP}-tidy" \
+    "${PHP}-xdebug" \
+    "${PHP}-xml" \
+    'postgresql-client'
 
 # Install scripts
 RUN mkdir /app

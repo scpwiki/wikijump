@@ -17,6 +17,8 @@ services:
       args:
         MAIN_DOMAIN: 'wikijump.test'
         FILES_DOMAIN: 'wjfiles.test'
+    ports:
+      - '80:80'
     restart: always
     depends_on:
       - cache
