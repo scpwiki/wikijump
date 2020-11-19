@@ -16,7 +16,7 @@ WORKDIR /src
 # Copy sources
 COPY setup-memcached.sh ./
 
-COPY etc/nginx/* /etc/nginx
+COPY etc/nginx/* /etc/nginx/
 COPY web /var/www/wikijump/web
 COPY wikijump.ini /var/www/wikijump/web/conf/wikijump.ini
 
