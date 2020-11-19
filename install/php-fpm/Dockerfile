@@ -20,10 +20,6 @@ WORKDIR /src
 # Copy scripts
 COPY setup-memcached.sh ./
 
-# Enable wikijump site in nginx
-RUN ln -sf /etc/nginx/sites-available/wikijump /etc/nginx/sites-enabled
-RUN rm -f /etc/nginx/sites-enabled/default
-
 # Install composer from the official image
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
@@ -52,6 +48,10 @@ WORKDIR /var/www/wikijump/web
 
 # Install nginx config files
 COPY etc/nginx/* /etc/nginx/
+
+# Enable wikijump site in nginx
+RUN ln -sf /etc/nginx/sites-available/wikijump /etc/nginx/sites-enabled
+RUN rm -f /etc/nginx/sites-enabled/default
 
 # Install the Wikijump repository
 WORKDIR /var/www
