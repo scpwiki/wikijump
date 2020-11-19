@@ -69,7 +69,7 @@ You will need Docker installed and running:
 The first step is to build the Docker image, which is a single source of information for Docker to use in a container later:
 
 ```
-$ cd installer
+$ cd install
 $ docker build . -t scpwiki/wikijump:local --no-cache
 ```
 
