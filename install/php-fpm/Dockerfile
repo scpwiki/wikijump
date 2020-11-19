@@ -3,8 +3,16 @@ FROM php:7.4-fpm-alpine
 EXPOSE 80
 
 # Build variables
+ARG WIKIJUMP_REPO="https://github.com/scpwiki/wikijump.git"
+ARG WIKIJUMP_REPO_DIR="wikijump"
+ARG WIKIJUMP_REPO_BRANCH="master"
+
 ARG MAIN_DOMAIN="wikijump.test"
 ARG FILES_DOMAIN="wjfiles.test"
+
+# Derived variables
+ARG WWW_DOMAIN="www.${MAIN_DOMAIN}"
+ARG WIKIJUMP_DIR="/var/www/${WIKIJUMP_REPO_DIR}"
 
 # Configure timezone
 RUN ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime
@@ -36,6 +44,7 @@ RUN apk add --update --no-cache \
     imagemagick \
     nodejs \
     npm \
+    git \
     html2text \
     nginx \
     libmemcached-libs \
@@ -50,14 +59,21 @@ RUN /src/setup-memcached.sh
 
 WORKDIR /var/www/wikijump/web
 
-# Make temp dirs
-RUN mkdir -p tmp/smarty_templates_c && \
-    mkdir -p tmp/lucene_index && \
-    mkdir -p tmp/math && \
-    mkdir -p tmp/sitebackups && \
-    mkdir -p tmp/smarty_cache && \
-    mkdir -p tmp/smarty_macro_templates && \
-    mkdir -p tmp/htmlpurifier
+# Clone the Wikijump repository
+WORKDIR /var/www
+RUN git clone \
+    --depth 10 \
+    --branch "${WIKIJUMP_REPO_BRANCH}" \
+    "${WIKIJUMP_REPO}" "${WIKIJUMP_REPO_DIR}"
+
+RUN mkdir -p \
+    "${WIKIJUMP_REPO_DIR}/web/tmp/smarty_templates_c" \
+    "${WIKIJUMP_REPO_DIR}/web/tmp/lucene_index" \
+    "${WIKIJUMP_REPO_DIR}/web/tmp/math" \
+    "${WIKIJUMP_REPO_DIR}/web/tmp/sitebackups" \
+    "${WIKIJUMP_REPO_DIR}/web/tmp/smarty_cache" \
+    "${WIKIJUMP_REPO_DIR}/web/tmp/smarty_macro_templates" \
+    "${WIKIJUMP_REPO_DIR}/web/tmp/htmlpurifier" \
 
 # Run composer install to install the dependencies
 RUN composer install \
