@@ -5,7 +5,8 @@
         "test": "tests"
     },
     "scripts": {
-        "build": "webpack --config webpack.config.js --mode development",
+        "build": "webpack --config conf/webpack.dev.js",
+        "build-prod": "webpack --config conf/webpack.prod.js",
         "test": "jest"
     },
     "repository": {
