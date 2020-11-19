@@ -1,4 +1,8 @@
-# Wikijump
+<p align="center">
+  <img width="500"
+       src="https://github.com/scpwiki/wikijump/blob/develop/assets/logo.min.svg"
+       alt="Wikijump">
+</p>
 
 Wikijump is the [SCP Wiki](http://www.scpwiki.com)'s fork of the unmaintained [Wikidot](https://github.com/gabrys/wikidot).
 It aims to significantly refactor legacy code, remove misfeatures and dead code, and implement new useful features and bugfixes that current users of Wikidot need today.
