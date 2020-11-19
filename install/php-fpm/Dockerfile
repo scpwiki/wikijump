@@ -97,4 +97,4 @@ RUN rm -rf /src
 
 # Main process
 # Let the upstream ENTRYPOINT handle running php-fpm
-CMD ["nginx"]
+CMD ["nginx", "-g", "daemon off;"]
