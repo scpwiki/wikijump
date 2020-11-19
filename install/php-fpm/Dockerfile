@@ -55,8 +55,7 @@ RUN rm -f /etc/nginx/sites-enabled/default
 
 # Install the Wikijump repository
 WORKDIR /var/www
-COPY ../../web /var/www
-COPY wikijump.ini /var/www/web/conf/wikijump.ini
+COPY web /var/www
 
 RUN mkdir -p \
     /var/www/web/tmp/smarty_templates_c \
@@ -66,6 +65,13 @@ RUN mkdir -p \
     /var/www/web/tmp/smarty_cache \
     /var/www/web/tmp/smarty_macro_templates \
     /var/www/web/tmp/htmlpurifier
+
+# Inject values in the wikijump.ini configuration file
+COPY wikijump.ini /var/www/web/conf/wikijump.ini
+
+RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" "${WIKIJUMP_DIR}/web/conf/wikijump.ini"
+RUN sed -i "s/MAINWIKI/${WWW_DOMAIN}/g" "${WIKIJUMP_DIR}/web/conf/wikijump.ini"
+RUN sed -i "s/FILEDOMAIN/${FILES_DOMAIN}/g" "${WIKIJUMP_DIR}/web/conf/wikijump.ini"
 
 # Run composer install to install the dependencies
 RUN composer install \

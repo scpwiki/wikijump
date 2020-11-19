@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 set -eux
 
 # Variables
@@ -11,6 +11,11 @@ apk add \
 	--virtual \
 		.phpize-deps \
 		$PHPIZE_DEPS \
+
+apk add \
+	--no-cache \
+	--update \
+	--virtual \
 		.memcached-deps \
 		zlib-dev \
 		libmemcached-dev \
@@ -34,7 +39,7 @@ docker-php-ext-enable igbinary memcached
 apk del .memcached-deps .phpize-deps
 docker-php-ext-install \
 	"-j$cores" \
-		opcache
-		pgsql
-		tidy
+		opcache \
+		pgsql \
+		tidy \
 		gd
