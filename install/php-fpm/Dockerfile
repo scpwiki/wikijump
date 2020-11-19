@@ -3,10 +3,6 @@ FROM php:7.4-fpm-alpine
 EXPOSE 80
 
 # Build variables
-ARG WIKIJUMP_REPO="https://github.com/scpwiki/wikijump.git"
-ARG WIKIJUMP_REPO_DIR="wikijump"
-ARG WIKIJUMP_REPO_BRANCH="master"
-
 ARG MAIN_DOMAIN="wikijump.test"
 ARG FILES_DOMAIN="wjfiles.test"
 
@@ -21,11 +17,8 @@ RUN ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime
 RUN mkdir /src
 WORKDIR /src
 
-# Copy sources
+# Copy scripts
 COPY setup-memcached.sh ./
-
-COPY etc/nginx/* /etc/nginx/
-COPY wikijump.ini /var/www/wikijump/web/conf/wikijump.ini
 
 # Enable wikijump site in nginx
 RUN ln -sf /etc/nginx/sites-available/wikijump /etc/nginx/sites-enabled
@@ -43,7 +36,6 @@ RUN apk add --update --no-cache \
     imagemagick \
     nodejs \
     npm \
-    git \
     html2text \
     nginx \
     libmemcached-libs \
@@ -58,21 +50,22 @@ RUN /src/setup-memcached.sh
 
 WORKDIR /var/www/wikijump/web
 
-# Clone the Wikijump repository
+# Install nginx config files
+COPY etc/nginx/* /etc/nginx/
+
+# Install the Wikijump repository
 WORKDIR /var/www
-RUN git clone \
-    --depth 10 \
-    --branch "${WIKIJUMP_REPO_BRANCH}" \
-    "${WIKIJUMP_REPO}" "${WIKIJUMP_REPO_DIR}"
+COPY ../../web /var/www
+COPY wikijump.ini /var/www/web/conf/wikijump.ini
 
 RUN mkdir -p \
-    "${WIKIJUMP_REPO_DIR}/web/tmp/smarty_templates_c" \
-    "${WIKIJUMP_REPO_DIR}/web/tmp/lucene_index" \
-    "${WIKIJUMP_REPO_DIR}/web/tmp/math" \
-    "${WIKIJUMP_REPO_DIR}/web/tmp/sitebackups" \
-    "${WIKIJUMP_REPO_DIR}/web/tmp/smarty_cache" \
-    "${WIKIJUMP_REPO_DIR}/web/tmp/smarty_macro_templates" \
-    "${WIKIJUMP_REPO_DIR}/web/tmp/htmlpurifier"
+    /var/www/web/tmp/smarty_templates_c \
+    /var/www/web/tmp/lucene_index \
+    /var/www/web/tmp/math \
+    /var/www/web/tmp/sitebackups \
+    /var/www/web/tmp/smarty_cache \
+    /var/www/web/tmp/smarty_macro_templates \
+    /var/www/web/tmp/htmlpurifier
 
 # Run composer install to install the dependencies
 RUN composer install \
