@@ -63,22 +63,22 @@ RUN git clone \
     --branch "${WIKIJUMP_REPO_BRANCH}" \
     "${WIKIJUMP_REPO}" "${WIKIJUMP_REPO_DIR}"
 
-WORKDIR "${WIKIJUMP_DIR}"
+WORKDIR "${WIKIJUMP_DIR}/web"
 RUN mkdir -p \
-    web/tmp/smarty_templates_c \
-    web/tmp/lucene_index \
-    web/tmp/math \
-    web/tmp/sitebackups \
-    web/tmp/smarty_cache \
-    web/tmp/smarty_macro_templates \
-    web/tmp/htmlpurifier
+    tmp/smarty_templates_c \
+    tmp/lucene_index \
+    tmp/math \
+    tmp/sitebackups \
+    tmp/smarty_cache \
+    tmp/smarty_macro_templates \
+    tmp/htmlpurifier
 
 # Inject values in the wikijump.ini configuration file
-COPY wikijump.ini web/conf/wikijump.ini
+COPY wikijump.ini conf/wikijump.ini
 
-RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" web/conf/wikijump.ini
-RUN sed -i "s/MAINWIKI/${WWW_DOMAIN}/g" web/conf/wikijump.ini
-RUN sed -i "s/FILEDOMAIN/${FILES_DOMAIN}/g" web/conf/wikijump.ini
+RUN sed -i "s/BASEDOMAIN/${MAIN_DOMAIN}/g" conf/wikijump.ini
+RUN sed -i "s/MAINWIKI/${WWW_DOMAIN}/g" conf/wikijump.ini
+RUN sed -i "s/FILEDOMAIN/${FILES_DOMAIN}/g" conf/wikijump.ini
 
 # Run composer install to install the dependencies
 RUN composer install \
