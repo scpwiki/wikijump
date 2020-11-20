@@ -4,12 +4,12 @@ on:
   push:
     branches:
       - master
-    paths:
-      - "web/**"
+    # paths:
+    #   - "web/**"
   # Run this on push to PRs, regardless of branch
   pull_request:
-    paths:
-      - "web/**"
+    # paths:
+    #   - "web/**"
 jobs:
   test:
     runs-on: ubuntu-latest
