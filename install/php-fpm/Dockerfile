@@ -44,7 +44,8 @@ RUN apk add --update --no-cache \
     libmemcached-libs \
     zlib \
     postgresql-dev \
-    tidyhtml-dev
+    tidyhtml-dev \
+    gettext-dev
 
 # Memcached PHP lib
 RUN /src/setup-memcached.sh
