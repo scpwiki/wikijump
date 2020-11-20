@@ -21,9 +21,14 @@ resource "aws_subnet" "container_subnet" {
     cidr_block      = var.container_subnet
 }
 
-resource "aws_subnet" "database_subnet" {
+resource "aws_subnet" "database_subnet_a" {
     vpc_id  = aws_vpc.wikijump_vpc.id
-    cidr_block      = var.database_subnet
+    cidr_block      = var.database_subnet_a
+}
+
+resource "aws_subnet" "database_subnet_b" {
+    vpc_id  = aws_vpc.wikijump_vpc.id
+    cidr_block      = var.database_subnet_b
 }
 
 resource "aws_subnet" "cache_subnet" {

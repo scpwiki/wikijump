@@ -7,7 +7,8 @@ files_domain        = "wjfiles.dev"
 vpc_cidr_block      = "10.106.0.0/16"
 elb_subnet          = "10.106.0.0/24"
 container_subnet    = "10.106.10.0/24"
-database_subnet     = "10.106.20.0/24"
+database_subnet_a   = "10.106.20.0/24"
+database_subnet_b   = "10.106.25.0/24"
 cache_subnet        = "10.106.30.0/24"
 
 # Cloudfront/ELB

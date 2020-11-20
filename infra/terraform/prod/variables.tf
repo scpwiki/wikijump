@@ -22,7 +22,11 @@ variable "container_subnet" {
     type    = string
 }
 
-variable "database_subnet" {
+variable "database_subnet_a" {
+    type    = string
+}
+
+variable "database_subnet_b" {
     type    = string
 }
 
