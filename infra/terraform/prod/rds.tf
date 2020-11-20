@@ -18,5 +18,5 @@ resource "aws_rds_cluster" "wikijump_aurora" {
 
 resource "aws_db_subnet_group" "wikijump_aurora_subnet" {
   name       = "wikijump-aurora-${var.environment}"
-  subnet_ids = [aws_subnet.database_subnet.id]
+  subnet_ids = [aws_subnet.database_subnet_a.id, aws_subnet.database_subnet_b.id]
 }
