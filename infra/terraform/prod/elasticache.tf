@@ -14,11 +14,6 @@ resource "aws_elasticache_subnet_group" "cache_subnet" {
   subnet_ids = [aws_subnet.cache_subnet.id]
 }
 
-resource "aws_elasticache_security_group" "elasticache_sg" {
-  name                 = "wikijump-elasticache-${var.environment}"
-  security_group_names = [aws_security_group.elasticache_sg.name]
-}
-
 resource "aws_security_group" "elasticache_sg" {
     name            = "elasticache_sg_${var.environment}"
     description     = "Allow 11211 inbound"

@@ -1,7 +1,7 @@
 [
     {
       "name": "first",
-      "image": "${var.aws_ecr_repository.wikijump_ecr.repository_url}/wikijump:stable",
+      "image": "${var.aws_ecr_repository.wikijump_ecr.repository_url}/wikijump:${var.environment}",
       "essential": true,
       "portMappings": [
         {

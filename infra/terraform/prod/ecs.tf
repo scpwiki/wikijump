@@ -9,6 +9,7 @@ resource "aws_ecs_service" "wikijump" {
         container_name      = "wikijump"
         container_port      = 80
     }
+    depends_on = [aws_ecs_cluster.wikijump_ecs_cluster]
 }
 
 resource "aws_ecs_task_definition" "wikijump_task" {

@@ -7,7 +7,6 @@ resource "aws_lb" "wikijump_elb" {
     security_groups             = [aws_security_group.elb_sg.id]
     subnet_mapping {
         subnet_id               = aws_subnet.elb_subnet.id
-        allocation_id           = aws_eip.elb_eip.id
     }
     
     # Enable this once stable.
