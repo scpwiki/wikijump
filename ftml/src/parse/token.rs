@@ -18,8 +18,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use pest::error::Error as PestError;
+use pest::Parser;
 use std::ops::Range;
 use strum_macros::IntoStaticStr;
+
+#[derive(Debug, Copy, Clone, Parser)]
+#[grammar = "parse/lexer.pest"]
+struct TokenLexer;
+
+type LexerError = PestError<Rule>;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct ExtractedToken<'a> {
@@ -102,6 +110,15 @@ pub enum Token {
 impl Token {
     pub fn extract_all<'a>(logger: &slog::Logger, text: &'a str) -> Vec<ExtractedToken<'a>> {
         debug!(logger, "Running lexer on input");
+
+        let pairs = match TokenLexer::parse(Rule::document, text) {
+            Ok(pairs) => pairs,
+            Err(error) => {
+                error!(logger, "TODO: error on pest lex, {}", error);
+
+                panic!("TODO: error on pest lex");
+            }
+        };
 
         todo!()
     }
