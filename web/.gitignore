@@ -9,6 +9,7 @@ composer.phar
 
 # Temporary or Data
 /tmp
+/coverage
 /web/files--common/tmp
 /web/files--sites
 
