@@ -98,6 +98,7 @@ RUN npm install && \
 
 # Cleanup
 RUN rm -rf /src
+RUN chown -R www-data:www-data .
 
 # Main process
 # Let the upstream ENTRYPOINT handle running php-fpm
