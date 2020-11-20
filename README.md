@@ -9,7 +9,7 @@
          alt="JS tests status">
   </a>
   <a href="https://codecov.io/gh/scpwiki/wikijump">
-    <img src="https://codecov.io/gh/scpwiki/wikijump/branch/master/graph/badge.svg?token=RDH6943FHE"
+    <img src="https://codecov.io/gh/scpwiki/wikijump/branch/develop/graph/badge.svg?token=RDH6943FHE"
          alt="Codecov report">
   </a>
 </p>
