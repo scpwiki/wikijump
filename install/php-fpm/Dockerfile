@@ -44,7 +44,8 @@ RUN apk add --update --no-cache \
     libmemcached-libs \
     zlib \
     postgresql-dev \
-    tidyhtml-dev
+    tidyhtml-dev \
+    gettext-dev
 
 # Memcached PHP lib
 RUN /src/setup-memcached.sh
@@ -97,6 +98,7 @@ RUN npm install && \
 
 # Cleanup
 RUN rm -rf /src
+RUN chown -R www-data:www-data .
 
 # Main process
 # Let the upstream ENTRYPOINT handle running php-fpm

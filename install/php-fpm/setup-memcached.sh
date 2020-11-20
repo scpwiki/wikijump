@@ -52,4 +52,5 @@ docker-php-ext-install \
 		opcache \
 		pgsql \
 		tidy \
-		gd
+		gd \
+		gettext

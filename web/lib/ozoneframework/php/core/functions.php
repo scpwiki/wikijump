@@ -306,7 +306,7 @@ function setsecurecookie(string $key, $value, int $expires, string $path, string
                 'expires' => $expires,
                 'path' => $path,
                 'domain' => $domain,
-                'samesite' => 'None'
+                'samesite' => 'Lax' // Default behavior for insecure connections, still works in Firefox.
             ]);
             return;
         }
