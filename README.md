@@ -3,6 +3,16 @@
        src="https://github.com/scpwiki/wikijump/blob/develop/assets/logo.min.svg"
        alt="Wikijump">
 </p>
+<p align="center">
+  <a href="https://github.com/scpwiki/wikijump/actions?query=workflow%3A%22JS+tests%22">
+    <img src="https://github.com/scpwiki/wikijump/workflows/JS%20tests/badge.svg"
+         alt="JS tests status">
+  </a>
+  <a href="https://codecov.io/gh/scpwiki/wikijump">
+    <img src="https://codecov.io/gh/scpwiki/wikijump/branch/master/graph/badge.svg?token=RDH6943FHE"
+         alt="Codecov report">
+  </a>
+</p>
 
 Wikijump is the [SCP Wiki](http://www.scpwiki.com)'s fork of the unmaintained [Wikidot](https://github.com/gabrys/wikidot).
 It aims to significantly refactor legacy code, remove misfeatures and dead code, and implement new useful features and bugfixes that current users of Wikidot need today.
