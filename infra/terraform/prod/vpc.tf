@@ -45,3 +45,10 @@ resource "aws_internet_gateway" "wikijump_igw" {
 # Routes
 
 # # TODO: Add as needed and as will improve security posture.
+
+# Elastic IPs	
+
+resource "aws_eip" "elb_eip" {	
+    vpc         = true	
+    depends_on  = [aws_internet_gateway.wikijump_igw]	
+} 

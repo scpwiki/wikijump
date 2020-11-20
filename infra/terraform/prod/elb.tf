@@ -3,10 +3,11 @@
 resource "aws_lb" "wikijump_elb" {
     name                        = "wikijump-public-elb-${var.environment}"
     internal                    = false
-    load_balancer_type          = "application"
+    load_balancer_type          = "network"
     security_groups             = [aws_security_group.elb_sg.id]
     subnet_mapping {
         subnet_id               = aws_subnet.elb_subnet.id
+        allocation_id           = aws_eip.elb_eip.id
     }
     
     # Enable this once stable.
