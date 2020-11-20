@@ -6,7 +6,6 @@ EXPOSE 5432
 
 # Build variables
 ARG FILES_DOMAIN="wjfiles.test"
-ARG POSTGRES_PASSWORD="wikijump-postgres"
 ARG PGDATA="/var/lib/postgresql/data"
 
 ENV POSTGRES_CLUSTER="main"
@@ -28,10 +27,11 @@ COPY run.sh /app
 RUN useradd wikijump --create-home --shell /bin/bash
 
 # Setup database
-RUN echo "${POSTGRES_PASSWORD}" > /src/postgres-passwd
-
 USER postgres
 RUN pg_createcluster --user postgres --locale en_US.utf8 "${POSTGRES_VERSION}" "${POSTGRES_CLUSTER}"
+
+# Install postgres auth configuration
+COPY pg_hba.conf "/etc/postgresql/${POSTGRES_VERSION}/${POSTGRES_CLUSTER}/pg_hba.conf"
 
 # Seed database
 USER root
