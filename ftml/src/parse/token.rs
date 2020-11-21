@@ -265,11 +265,17 @@ fn test_tokens() {
             info!(&logger, "Testing tokens!"; "input" => $input);
 
             let result = Token::extract_all(&logger, $input);
+            let expected: Vec<ExtractedToken> = $expected;
 
-            assert_eq!(
-                result, $expected,
-                "Extracted tokens (left) from lexer did not match expected (right)",
-            );
+            // Manually implement "assert_eq!" here so we can use full, {:#?} formatting
+
+            if result != expected {
+                panic!(
+                    "Extracted tokens from lexer do not match expected!\n\nExpected: {:#?}\nActual: {:#?}",
+                    result,
+                    expected,
+                );
+            }
         }};
     }
 
