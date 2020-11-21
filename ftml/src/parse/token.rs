@@ -19,8 +19,8 @@
  */
 
 use pest::error::Error as PestError;
-use pest::Parser;
 use pest::iterators::Pair;
+use pest::Parser;
 use std::ops::Range;
 use strum_macros::IntoStaticStr;
 
@@ -120,7 +120,9 @@ impl Token {
             Ok(pairs) => {
                 info!(logger, "Lexer produced pairs for processing");
 
-                pairs.filter_map(|pair| Token::convert_pair(logger, pair)).collect()
+                pairs
+                    .filter_map(|pair| Token::convert_pair(logger, pair))
+                    .collect()
             }
             Err(error) => {
                 error!(logger, "Error while lexing input in pest: {}", error);
@@ -161,11 +163,7 @@ impl Token {
         );
 
         let span = start..end;
-        Some(ExtractedToken {
-            token,
-            slice,
-            span,
-        })
+        Some(ExtractedToken { token, slice, span })
     }
 
     /// Mapping of a pest `Rule` to its corresponding `Token` enum.
@@ -230,7 +228,9 @@ impl Token {
             Rule::EOI => return None,
 
             // Invalid
-            Rule::char | Rule::document | Rule::token => panic!("Received invalid pest rule: {:?}", rule),
+            Rule::char | Rule::document | Rule::token => {
+                panic!("Received invalid pest rule: {:?}", rule)
+            }
         };
 
         Some(token)
