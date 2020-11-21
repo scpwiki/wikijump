@@ -52,7 +52,7 @@ token = _{
 
     left_link |
     left_tag_anchor |
-    left_tag_star |
+    left_tag_special |
     left_tag |
     left_bracket |
     right_link |
@@ -116,7 +116,7 @@ right_raw = { ">@" }
 left_bracket = { "[" }
 left_tag = { "[[" }
 left_tag_anchor = { "[[#" }
-left_tag_star = { "[[*" }
+left_tag_special = { "[[*" }
 left_link = { "[[[" }
 right_bracket = { "]" }
 right_tag = { "]]" }

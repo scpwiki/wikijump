@@ -50,6 +50,7 @@ pub enum Token {
     RightTag,
     LeftAnchor,
     Equals,
+    Quote,
     DoubleDash,
     TripleDash,
     LineBreak,
@@ -171,7 +172,57 @@ impl Token {
             Rule::left_bracket => Token::LeftBracket,
             Rule::right_bracket => Token::RightBracket,
             Rule::pipe => Token::Pipe,
-            _ => todo!(),
+            Rule::left_tag => Token::LeftTag,
+            Rule::left_tag_special => Token::LeftTagSpecial,
+            Rule::right_tag => Token::RightTag,
+            Rule::equals => Token::Equals,
+            Rule::quote => Token::Quote,
+            Rule::double_dash => Token::DoubleDash,
+            Rule::triple_dash => Token::TripleDash,
+            Rule::line_break => Token::LineBreak,
+            Rule::paragraph_break => Token::ParagraphBreak,
+
+            // Formatting
+            Rule::bold => Token::Bold,
+            Rule::italics => Token::Italics,
+            Rule::underline => Token::Underline,
+            Rule::superscript => Token::Superscript,
+            Rule::subscript => Token::Subscript,
+            Rule::left_monospace => Token::LeftMonospace,
+            Rule::right_monospace => Token::RightMonospace,
+            Rule::raw => Token::Raw,
+            Rule::left_raw => Token::LeftRaw,
+            Rule::right_raw => Token::RightRaw,
+
+            // Links
+            Rule::left_link => Token::LeftLink,
+            Rule::right_link => Token::RightLink,
+
+            // Tables
+            Rule::table_column => Token::TableColumn,
+            Rule::table_column_title => Token::TableColumnTitle,
+
+            // Alignment
+            Rule::open_right_align => Token::RightAlignOpen,
+            Rule::open_left_align => Token::LeftAlignOpen,
+            Rule::open_center_align => Token::CenterAlignOpen,
+            Rule::open_justify_align => Token::JustifyAlignOpen,
+            Rule::close_right_align => Token::RightAlignClose,
+            Rule::close_left_align => Token::LeftAlignClose,
+            Rule::close_center_align => Token::CenterAlignClose,
+            Rule::close_justify_align => Token::JustifyAlignClose,
+
+            // Text components
+            Rule::identifier => Token::Identifier,
+            Rule::email => Token::Email,
+            Rule::url => Token::Url,
+
+            // Other
+            Rule::other => Token::Other,
+            Rule::EOI => return None,
+
+            // Invalid
+            Rule::document | Rule::token => panic!("Received invalid pest rule: {:?}", rule),
         };
 
         Some(token)
