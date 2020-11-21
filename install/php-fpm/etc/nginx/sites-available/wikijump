@@ -98,6 +98,7 @@ location ~ \.php$ {
                 # as directory, then fall back to displaying a 404.
                 try_files $uri $uri/ /index.php?$args;
         }
+
         # deny access to .htaccess files, if Apache's document root
         # concurs with nginx's one
         #

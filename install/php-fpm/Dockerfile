@@ -52,14 +52,6 @@ RUN /src/setup-memcached.sh
 
 # TODO - let's see if we actually need xdiff and if so can we include it as an artifact or docker layer
 
-# Install nginx config files
-COPY etc/nginx/ /etc/nginx/
-
-# Enable wikijump site in nginx
-RUN mkdir /etc/nginx/sites-enabled && \
-    cp /etc/nginx/sites-available/wikijump /etc/nginx/sites-enabled/wikijump && \
-    rm -f /etc/nginx/sites-enabled/default
-
 # Install the Wikijump repository
 WORKDIR /var/www
 RUN git clone \
@@ -99,6 +91,16 @@ RUN npm install && \
 # Cleanup
 RUN rm -rf /src
 RUN chown -R www-data:www-data .
+
+# Install nginx config files
+COPY etc/nginx/ /etc/nginx/
+
+# Enable wikijump site in nginx
+RUN mkdir /etc/nginx/sites-enabled && \
+    cp /etc/nginx/sites-available/wikijump /etc/nginx/sites-enabled/wikijump && \
+    rm -f /etc/nginx/sites-enabled/default
+
+RUN mv .env.example .env && php artisan key:generate
 
 # Main process
 # Let the upstream ENTRYPOINT handle running php-fpm
