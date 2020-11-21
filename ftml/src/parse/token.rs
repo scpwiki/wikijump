@@ -44,11 +44,13 @@ pub enum Token {
     //
     LeftBracket,
     RightBracket,
-    Pipe,
     LeftTag,
+    LeftTagAnchor,
     LeftTagSpecial,
     RightTag,
+    RightTagEnd,
     LeftAnchor,
+    Pipe,
     Equals,
     Quote,
     DoubleDash,
@@ -102,6 +104,7 @@ pub enum Token {
     Identifier,
     Email,
     Url,
+    String,
 
     //
     // Catch-all case
@@ -171,10 +174,13 @@ impl Token {
             // Symbols
             Rule::left_bracket => Token::LeftBracket,
             Rule::right_bracket => Token::RightBracket,
-            Rule::pipe => Token::Pipe,
             Rule::left_tag => Token::LeftTag,
+            Rule::left_tag_anchor => Token::LeftTagAnchor,
             Rule::left_tag_special => Token::LeftTagSpecial,
             Rule::right_tag => Token::RightTag,
+            Rule::right_tag_end => Token::RightTagEnd,
+            Rule::color => Token::Color,
+            Rule::pipe => Token::Pipe,
             Rule::equals => Token::Equals,
             Rule::quote => Token::Quote,
             Rule::double_dash => Token::DoubleDash,
@@ -216,13 +222,14 @@ impl Token {
             Rule::identifier => Token::Identifier,
             Rule::email => Token::Email,
             Rule::url => Token::Url,
+            Rule::string => Token::String,
 
             // Other
             Rule::other => Token::Other,
             Rule::EOI => return None,
 
             // Invalid
-            Rule::document | Rule::token => panic!("Received invalid pest rule: {:?}", rule),
+            Rule::char | Rule::document | Rule::token => panic!("Received invalid pest rule: {:?}", rule),
         };
 
         Some(token)

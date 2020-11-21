@@ -36,17 +36,22 @@ lazy_static! {
             // Symbols
             Token::LeftBracket => vec![],
             Token::RightBracket => vec![],
-            Token::Pipe => vec![RULE_TEXT],
             Token::LeftTag => vec![],
+            Token::LeftTagAnchor => vec![],
             Token::LeftTagSpecial => vec![],
             Token::RightTag => vec![],
+            Token::RightTagEnd => vec![],
             Token::LeftAnchor => vec![],
-            Token::Equals => vec![RULE_TEXT],
+            Token::Pipe => vec![RULE_TEXT],
+            Token::Equals => vec![],
+            Token::Quote => vec![],
             Token::DoubleDash => vec![RULE_STRIKETHROUGH, RULE_EM_DASH],
             Token::TripleDash => vec![RULE_HORIZONTAL_RULE],
             Token::LineBreak => vec![RULE_LINE_BREAK],
             Token::ParagraphBreak => vec![RULE_PARAGRAPH_BREAK],
             Token::Whitespace => vec![RULE_TEXT],
+
+            // Formatting
             Token::Bold => vec![],
             Token::Italics => vec![],
             Token::Underline => vec![],
@@ -55,8 +60,6 @@ lazy_static! {
             Token::LeftMonospace => vec![],
             Token::RightMonospace => vec![],
             Token::Color => vec![],
-
-            // Formatting
             Token::Raw => vec![],
             Token::LeftRaw => vec![],
             Token::RightRaw => vec![],
@@ -83,6 +86,7 @@ lazy_static! {
             Token::Identifier => vec![RULE_TEXT],
             Token::Email => vec![RULE_EMAIL],
             Token::Url => vec![RULE_URL],
+            Token::String => vec![],
 
             // Fallback
             Token::Other => vec![RULE_TEXT],
