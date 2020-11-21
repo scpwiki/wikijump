@@ -20,6 +20,7 @@
 
 use pest::error::Error as PestError;
 use pest::Parser;
+use pest::iterators::Pair;
 use std::ops::Range;
 use strum_macros::IntoStaticStr;
 
@@ -115,19 +116,7 @@ impl Token {
             Ok(pairs) => {
                 info!(logger, "Lexer produced pairs for processing");
 
-                for pair in pairs {
-                    debug!(
-                        logger,
-                        "Converting pair '{:?}' into token", pair.as_rule();
-                        "slice" => pair.as_str(),
-                        "span-start" => pair.as_span().start(),
-                        "span-end" => pair.as_span().end(),
-                    );
-
-                    println!("rule: {:?}, slice: {:?}", pair.as_rule(), pair.as_str());
-                }
-
-                todo!()
+                pairs.filter_map(|pair| Token::convert_pair(logger, pair)).collect()
             }
             Err(error) => {
                 error!(logger, "Error while lexing input in pest: {}", error);
@@ -142,6 +131,50 @@ impl Token {
                 }]
             }
         }
+    }
+
+    /// Converts a single `Pair` from pest into its corresponding `ExtractedToken`.
+    fn convert_pair<'a>(logger: &slog::Logger, pair: Pair<'a, Rule>) -> Option<ExtractedToken<'a>> {
+        let rule = pair.as_rule();
+        let slice = pair.as_str();
+        let start = pair.as_span().start();
+        let end = pair.as_span().end();
+
+        // Get matching Token, if any.
+        // (Returns if we're skipping this Pair)
+        let token = match Token::get_from_rule(rule) {
+            Some(token) => token,
+            None => return None,
+        };
+
+        debug!(
+            logger,
+            "Converting pair '{:?}' into token", rule;
+            "token" => token.name(),
+            "slice" => pair.as_str(),
+            "span-start" => start,
+            "span-end" => end,
+        );
+
+        let span = start..end;
+        Some(ExtractedToken {
+            token,
+            slice,
+            span,
+        })
+    }
+
+    /// Mapping of a pest `Rule` to its corresponding `Token` enum.
+    fn get_from_rule(rule: Rule) -> Option<Token> {
+        let token = match rule {
+            // Symbols
+            Rule::left_bracket => Token::LeftBracket,
+            Rule::right_bracket => Token::RightBracket,
+            Rule::pipe => Token::Pipe,
+            _ => todo!(),
+        };
+
+        Some(token)
     }
 
     #[inline]
