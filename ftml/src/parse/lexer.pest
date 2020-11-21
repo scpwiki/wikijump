@@ -27,7 +27,7 @@
 // Meta {{{
 
 // Complete input from start to finish
-document = _{ SOI ~ token+ ~ EOI }
+document = _{ SOI ~ token* ~ EOI }
 
 // An individual token
 // Order determines priority (earlier = higher)
