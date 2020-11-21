@@ -49,6 +49,9 @@ extern crate strum;
 extern crate strum_macros;
 
 #[cfg(test)]
+extern crate slog_bunyan;
+
+#[cfg(test)]
 extern crate sloggers;
 
 pub mod data;
@@ -69,7 +72,14 @@ pub mod prelude {
 }
 
 #[cfg(test)]
+#[inline]
 fn build_logger() -> slog::Logger {
+    build_console_logger()
+}
+
+#[cfg(test)]
+#[allow(dead_code)]
+fn build_console_logger() -> slog::Logger {
     use sloggers::terminal::TerminalLoggerBuilder;
     use sloggers::types::Severity;
     use sloggers::Build;
@@ -78,4 +88,26 @@ fn build_logger() -> slog::Logger {
         .level(Severity::Trace)
         .build()
         .expect("Unable to initialize logger")
+}
+
+#[cfg(test)]
+#[allow(dead_code)]
+fn build_json_logger() -> slog::Logger {
+    use slog::Drain;
+    use std::sync::Mutex;
+    use std::io;
+
+    // For writing to a file:
+    // + .add_default_keys()
+    // + .set_pretty(false)
+    let drain = slog_bunyan::with_name("ftml", io::stdout())
+        .set_newlines(true)
+        .set_pretty(true)
+        .set_flush(true)
+        .build();
+
+    slog::Logger::root(
+        Mutex::new(drain).fuse(),
+        o!("env" => "test"),
+    )
 }
