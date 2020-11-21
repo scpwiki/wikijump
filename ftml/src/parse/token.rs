@@ -359,4 +359,65 @@ fn test_tokens() {
             },
         ],
     );
+
+    test!(
+        r#"[[> unsure = "malformed \string"#,
+        vec![
+            ExtractedToken {
+                token: Token::LeftTag,
+                slice: "[[",
+                span: 0..2,
+            },
+            ExtractedToken {
+                token: Token::Quote,
+                slice: "> ",
+                span: 2..4,
+            },
+            ExtractedToken {
+                token: Token::Identifier,
+                slice: "unsure",
+                span: 4..10,
+            },
+            ExtractedToken {
+                token: Token::Whitespace,
+                slice: " ",
+                span: 10..11,
+            },
+            ExtractedToken {
+                token: Token::Equals,
+                slice: "=",
+                span: 11..12,
+            },
+            ExtractedToken {
+                token: Token::Whitespace,
+                slice: " ",
+                span: 12..13,
+            },
+            ExtractedToken {
+                token: Token::Other,
+                slice: "\"",
+                span: 13..14,
+            },
+            ExtractedToken {
+                token: Token::Identifier,
+                slice: "malformed",
+                span: 14..23,
+            },
+            ExtractedToken {
+                token: Token::Whitespace,
+                slice: " ",
+                span: 23..24,
+            },
+            ExtractedToken {
+                token: Token::Other,
+                slice: "\\",
+                span: 24..25,
+            },
+            ExtractedToken {
+                token: Token::Identifier,
+                slice: "string",
+                span: 25..31,
+            },
+        ],
+    );
 }
