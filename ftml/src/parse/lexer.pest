@@ -32,15 +32,20 @@ document = _{ SOI ~ token* ~ EOI }
 // An individual token
 // Order determines priority (earlier = higher)
 token = _{
+    // Raw should have the highest priority
     raw |
     left_raw |
     right_raw |
 
+    // Text-like
     identifier |
     email |
     url |
     string |
 
+    // Alignment
+    //
+    // Ahead of the more generic bracket rules
     open_right_align |
     open_left_align |
     open_center_align |
@@ -50,6 +55,12 @@ token = _{
     close_center_align |
     close_justify_align |
 
+    // Special case to handle those pesky "[[[[" and "]]]]"s
+    // These are [[[ triple links surrounded by constant [ brackets.
+    (left_bracket ~ left_link) |
+    (right_link ~ right_bracket) |
+
+    // Brackets
     left_link |
     left_tag_anchor |
     left_tag_special |
@@ -60,12 +71,14 @@ token = _{
     right_tag |
     right_bracket |
 
+    // Singular symbols
     triple_dash |
     double_dash |
     pipe |
     equals |
     quote |
 
+    // Formatting
     bold |
     italics |
     underline |
@@ -75,13 +88,16 @@ token = _{
     left_monospace |
     right_monospace |
 
+    // Tables
     table_column_title |
     table_column |
 
+    // Whitespace
     line_break |
     paragraph_break |
     space |
 
+    // Generic fallback after all other rules have been tried
     other
 }
 
