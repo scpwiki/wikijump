@@ -169,11 +169,11 @@ return [
         /*
          * Application Service Providers...
          */
-        App\Providers\AppServiceProvider::class,
-        App\Providers\AuthServiceProvider::class,
-        // App\Providers\BroadcastServiceProvider::class,
-        App\Providers\EventServiceProvider::class,
-        App\Providers\RouteServiceProvider::class,
+        Wikijump\Providers\AppServiceProvider::class,
+        Wikijump\Providers\AuthServiceProvider::class,
+        // Wikijump\Providers\BroadcastServiceProvider::class,
+        Wikijump\Providers\EventServiceProvider::class,
+        Wikijump\Providers\RouteServiceProvider::class,
 
     ],
 
