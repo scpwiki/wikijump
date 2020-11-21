@@ -258,7 +258,10 @@ fn test_tokens() {
     let logger = crate::build_logger();
 
     macro_rules! test {
-        ($input:expr, $expected:expr,) => {{
+        ($input:expr, $expected:expr,) => {
+            test!($input, $expected)
+        };
+        ($input:expr, $expected:expr) => {{
             info!(&logger, "Testing tokens!"; "input" => $input);
 
             let result = Token::extract_all(&logger, $input);
@@ -271,6 +274,8 @@ fn test_tokens() {
     }
 
     // Test cases:
+
+    test!("", vec![]);
 
     test!(
         "text",
