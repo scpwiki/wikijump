@@ -420,4 +420,35 @@ fn test_tokens() {
             },
         ],
     );
+
+    test!(
+        "[[[[quadLinkTest]]]]",
+        vec![
+            ExtractedToken {
+                token: Token::LeftBracket,
+                slice: "[",
+                span: 0..1,
+            },
+            ExtractedToken {
+                token: Token::LeftLink,
+                slice: "[[[",
+                span: 1..4,
+            },
+            ExtractedToken {
+                token: Token::Identifier,
+                slice: "quadLinkTest",
+                span: 4..16,
+            },
+            ExtractedToken {
+                token: Token::RightLink,
+                slice: "]]]",
+                span: 16..19,
+            },
+            ExtractedToken {
+                token: Token::RightBracket,
+                slice: "]",
+                span: 19..20,
+            },
+        ],
+    );
 }
