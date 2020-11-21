@@ -13,7 +13,7 @@ class SocialBookmarksModule extends SmartyModule
     'blinklist' => array(
         'name' => 'BlinkList',
         'favicon' => 'blinklist.png',
-        'url' => 'http://www.blinklist.com/index.php?Action=Blink/addblink.php&amp;Description=&amp;Url=PERMALINK&amp;Title=TITLE',
+        'url' => 'http://www.blinklist.com/laravel.php?Action=Blink/addblink.php&amp;Description=&amp;Url=PERMALINK&amp;Title=TITLE',
     ),
 
     'blogmarks' => array(

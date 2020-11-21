@@ -520,7 +520,7 @@ class Zend_Controller_Front
      * determining PATH_INFO, etc. Examples:
      * - /admin
      * - /myapp
-     * - /subdir/index.php
+     * - /subdir/laravel.php
      *
      * Note that the URL should not include the full URI. Do not use:
      * - http://example.com/admin

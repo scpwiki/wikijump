@@ -86,7 +86,10 @@ location ~ \.php$ {
             include snippets/fastcgi-php.conf;
             fastcgi_pass 127.0.0.1:9000;
 }
+        # Hand off marked routes to Laravel
+        rewrite ^/wikijump/(.*)$ /laravel.php?$1 break;
 
+        # Fallback Route
         rewrite ^/(.*)$ /index.php?wiki__WikiScreen/wiki_page/$1? break;
 
 

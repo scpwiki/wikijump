@@ -435,12 +435,12 @@ class Zend_Controller_Request_Http extends Zend_Controller_Request_Abstract
      * E.g.:
      * - /admin
      * - /myapp
-     * - /subdir/index.php
+     * - /subdir/laravel.php
      *
      * Do not use the full URI when providing the base. The following are
      * examples of what not to use:
      * - http://example.com/admin (should be just /admin)
-     * - http://example.com/subdir/index.php (should be just /subdir/index.php)
+     * - http://example.com/subdir/index.php (should be just /subdir/laravel.php)
      *
      * If no $baseUrl is provided, attempts to determine the base URL from the
      * environment, using SCRIPT_FILENAME, SCRIPT_NAME, PHP_SELF, and

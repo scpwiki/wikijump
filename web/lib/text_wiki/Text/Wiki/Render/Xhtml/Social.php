@@ -31,7 +31,7 @@ class Text_Wiki_Render_Xhtml_Social extends Text_Wiki_Render {
 
         'blinklist' => Array('name' => 'BlinkList',
             'favicon' => 'blinklist.png',
-            'url' => 'http://www.blinklist.com/index.php?Action=Blink/addblink.php&amp;Description=&amp;Url=PERMALINK&amp;Title=TITLE'),
+            'url' => 'http://www.blinklist.com/laravel.php?Action=Blink/addblink.php&amp;Description=&amp;Url=PERMALINK&amp;Title=TITLE'),
 
         'blogmarks' => Array('name' => 'blogmarks',
             'favicon' => 'blogmarks.png',
