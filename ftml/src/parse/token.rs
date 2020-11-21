@@ -187,6 +187,7 @@ impl Token {
             Rule::triple_dash => Token::TripleDash,
             Rule::line_break => Token::LineBreak,
             Rule::paragraph_break => Token::ParagraphBreak,
+            Rule::space => Token::Whitespace,
 
             // Formatting
             Rule::bold => Token::Bold,
