@@ -315,4 +315,35 @@ fn test_tokens() {
             },
         ],
     );
+
+    test!(
+        "__[[*user }}",
+        vec![
+            ExtractedToken {
+                token: Token::Underline,
+                slice: "__",
+                span: 0..2,
+            },
+            ExtractedToken {
+                token: Token::LeftTagSpecial,
+                slice: "[[*",
+                span: 2..5,
+            },
+            ExtractedToken {
+                token: Token::Identifier,
+                slice: "user",
+                span: 5..9,
+            },
+            ExtractedToken {
+                token: Token::Whitespace,
+                slice: " ",
+                span: 9..10,
+            },
+            ExtractedToken {
+                token: Token::RightMonospace,
+                slice: "}}",
+                span: 10..12,
+            },
+        ],
+    );
 }
