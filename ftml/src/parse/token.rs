@@ -113,7 +113,19 @@ impl Token {
 
         match TokenLexer::parse(Rule::document, text) {
             Ok(pairs) => {
-                debug!(logger, "Lexer produced pairs for processing");
+                info!(logger, "Lexer produced pairs for processing");
+
+                for pair in pairs {
+                    debug!(
+                        logger,
+                        "Converting pair '{:?}' into token", pair.as_rule();
+                        "slice" => pair.as_str(),
+                        "span-start" => pair.as_span().start(),
+                        "span-end" => pair.as_span().end(),
+                    );
+
+                    println!("rule: {:?}, slice: {:?}", pair.as_rule(), pair.as_str());
+                }
 
                 todo!()
             }
