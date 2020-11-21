@@ -111,16 +111,25 @@ impl Token {
     pub fn extract_all<'a>(logger: &slog::Logger, text: &'a str) -> Vec<ExtractedToken<'a>> {
         debug!(logger, "Running lexer on input");
 
-        let pairs = match TokenLexer::parse(Rule::document, text) {
-            Ok(pairs) => pairs,
-            Err(error) => {
-                error!(logger, "TODO: error on pest lex, {}", error);
+        match TokenLexer::parse(Rule::document, text) {
+            Ok(pairs) => {
+                debug!(logger, "Lexer produced pairs for processing");
 
-                panic!("TODO: error on pest lex");
+                todo!()
             }
-        };
+            Err(error) => {
+                error!(logger, "Error while lexing input in pest: {}", error);
 
-        todo!()
+                // TODO better handling lol
+                // Return all of the input as one big raw text
+
+                vec![ExtractedToken {
+                    token: Token::Other,
+                    slice: text,
+                    span: 0..text.len(),
+                }]
+            }
+        }
     }
 
     #[inline]
