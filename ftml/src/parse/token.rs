@@ -259,6 +259,8 @@ fn test_tokens() {
 
     macro_rules! test {
         ($input:expr, $expected:expr,) => {{
+            info!(&logger, "Testing tokens!"; "input" => $input);
+
             let result = Token::extract_all(&logger, $input);
 
             assert_eq!(
