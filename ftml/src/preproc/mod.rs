@@ -51,7 +51,7 @@ pub fn preprocess(log: &slog::Logger, text: &mut String, handle: &dyn Handle) {
 }
 
 #[test]
-fn test_fn() {
+fn fn_type() {
     type SubstituteFn = fn(&slog::Logger, &mut String);
     type SubstituteHandleFn = fn(&slog::Logger, &mut String, &dyn Handle);
 

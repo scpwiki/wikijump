@@ -82,7 +82,7 @@ const PREFILTER_TEST_CASES: [(&str, &str); 11] = [
 ];
 
 #[test]
-fn test_prefilter() {
+fn prefilter() {
     test_substitution(
         "prefilter",
         |log, text| preprocess(log, text, &DebugHandle),

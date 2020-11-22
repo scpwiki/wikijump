@@ -94,8 +94,8 @@ fn build_console_logger() -> slog::Logger {
 #[allow(dead_code)]
 fn build_json_logger() -> slog::Logger {
     use slog::Drain;
-    use std::sync::Mutex;
     use std::io;
+    use std::sync::Mutex;
 
     // For writing to a file:
     // + .add_default_keys()
@@ -106,8 +106,5 @@ fn build_json_logger() -> slog::Logger {
         .set_flush(true)
         .build();
 
-    slog::Logger::root(
-        Mutex::new(drain).fuse(),
-        o!("env" => "test"),
-    )
+    slog::Logger::root(Mutex::new(drain).fuse(), o!("env" => "test"))
 }

@@ -218,7 +218,7 @@ const TEST_CASES: [(&str, &str); 4] = [
 ];
 
 #[test]
-fn test_regexes() {
+fn regexes() {
     let _ = &*SINGLE_QUOTES;
     let _ = &*DOUBLE_QUOTES;
     let _ = &*LOW_DOUBLE_QUOTES;

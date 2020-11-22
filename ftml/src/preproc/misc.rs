@@ -140,7 +140,7 @@ const TEST_CASES: [(&str, &str); 6] = [
 ];
 
 #[test]
-fn test_regexes() {
+fn regexes() {
     let _ = &*WHITESPACE;
     let _ = &*COMPRESS_NEWLINES;
 }

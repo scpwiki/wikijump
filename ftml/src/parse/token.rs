@@ -254,7 +254,7 @@ impl slog::Value for Token {
 }
 
 #[test]
-fn test_tokens() {
+fn tokens() {
     let logger = crate::build_logger();
 
     macro_rules! test {
