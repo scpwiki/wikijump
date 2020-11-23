@@ -1,4 +1,4 @@
-root = true
+root = false
 
 [*]
 charset = utf-8
