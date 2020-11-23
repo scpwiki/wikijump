@@ -100,10 +100,10 @@ RUN mkdir /etc/nginx/sites-enabled && \
     cp /etc/nginx/sites-available/wikijump /etc/nginx/sites-enabled/wikijump && \
     rm -f /etc/nginx/sites-enabled/default
 
-RUN mv .env.example .env && php artisan key:generate
+RUN install -m 400 -o www-data -g www-data .env.example .env && php artisan key:generate
 
 # Main process
 # Let the upstream ENTRYPOINT handle running php-fpm
 ADD ./entrypoint.sh /usr/local/bin/
 CMD ["nginx", "-g", "daemon off;"]
-ENTRYPOINT ["sh","/usr/local/bin/entrypoint.sh"]
+ENTRYPOINT ["sh", "/usr/local/bin/entrypoint.sh"]
