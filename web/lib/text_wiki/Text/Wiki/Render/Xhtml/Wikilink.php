@@ -32,7 +32,7 @@ class Text_Wiki_Render_Xhtml_Wikilink extends Text_Wiki_Render {
 
     public $conf = array(
         'pages' => array(), // set to null or false to turn off page checks
-        'view_url' => 'http://example.com/index.php?page=%s',
+        'view_url' => 'http://example.com/laravel.php?page=%s',
         'new_url'  => 'http://example.com/new.php?page=%s',
         'new_text' => '?',
         'new_text_pos' => 'after', // 'before', 'after', or null/false

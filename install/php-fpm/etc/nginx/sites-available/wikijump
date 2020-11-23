@@ -86,7 +86,10 @@ location ~ \.php$ {
             include snippets/fastcgi-php.conf;
             fastcgi_pass 127.0.0.1:9000;
 }
+        # Hand off marked routes to Laravel
+        rewrite ^/wikijump/(.*)$ /laravel.php?$1 break;
 
+        # Fallback Route
         rewrite ^/(.*)$ /index.php?wiki__WikiScreen/wiki_page/$1? break;
 
 
@@ -95,6 +98,7 @@ location ~ \.php$ {
                 # as directory, then fall back to displaying a 404.
                 try_files $uri $uri/ /index.php?$args;
         }
+
         # deny access to .htaccess files, if Apache's document root
         # concurs with nginx's one
         #
