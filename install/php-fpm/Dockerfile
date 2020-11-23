@@ -7,7 +7,7 @@ EXPOSE 80
 # Build variables
 ARG WIKIJUMP_REPO="https://github.com/scpwiki/wikijump.git"
 ARG WIKIJUMP_REPO_DIR="wikijump"
-ARG WIKIJUMP_REPO_BRANCH="master"
+ARG WIKIJUMP_REPO_BRANCH="develop"
 
 ARG MAIN_DOMAIN="wikijump.test"
 ARG FILES_DOMAIN="wjfiles.test"
@@ -100,7 +100,7 @@ RUN mkdir /etc/nginx/sites-enabled && \
     cp /etc/nginx/sites-available/wikijump /etc/nginx/sites-enabled/wikijump && \
     rm -f /etc/nginx/sites-enabled/default
 
-RUN install -m 400 -o www-data -g www-data .env.example .env && php artisan key:generate
+RUN ls -alh && install -m 400 -o www-data -g www-data .env.example .env && php artisan key:generate
 
 # Main process
 # Let the upstream ENTRYPOINT handle running php-fpm
