@@ -7,7 +7,7 @@ EXPOSE 80
 # Build variables
 ARG WIKIJUMP_REPO="https://github.com/scpwiki/wikijump.git"
 ARG WIKIJUMP_REPO_DIR="wikijump"
-ARG WIKIJUMP_REPO_BRANCH="master"
+ARG WIKIJUMP_REPO_BRANCH="develop"
 
 ARG MAIN_DOMAIN="wikijump.test"
 ARG FILES_DOMAIN="wjfiles.test"
