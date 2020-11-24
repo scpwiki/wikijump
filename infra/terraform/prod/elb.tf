@@ -27,8 +27,6 @@ resource "aws_lb_target_group" "elb_target_group_80" {
     vpc_id      = aws_vpc.wikijump_vpc.id
     health_check {
         enabled = true
-        path    = "/heartbeat.php"
-        matcher = "200"
     }
 }
 
@@ -39,8 +37,6 @@ resource "aws_lb_target_group" "elb_target_group_443" {
     vpc_id      = aws_vpc.wikijump_vpc.id
     health_check {
         enabled = true
-        path    = "/heartbeat.php"
-        matcher = "200"
     }
 }
 
