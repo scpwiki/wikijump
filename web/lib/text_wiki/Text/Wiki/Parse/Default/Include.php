@@ -93,7 +93,7 @@ class Text_Wiki_Parse_Include extends Text_Wiki_Parse {
 
 			if($page == null){
 				$pageNameHtml = htmlspecialchars($pageName);
-				$message = sprintf(_('Included page "%s" does not exist (<a href="/%s/edit/true">create it now</a>)
+				$message = sprintf(_('Included page "%s" does not exist ([/%s/edit/true create it now])
 '), $pageNameHtml, $pageNameHtml));
 				$output = "\n\n".'[[div class="error-block"]]'."\n".$message."\n".'[[/div]]'."\n\n";
 
