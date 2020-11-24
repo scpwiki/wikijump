@@ -16,8 +16,6 @@ services:
       args:
         MAIN_DOMAIN: 'wikijump.test'
         FILES_DOMAIN: 'wjfiles.test'
-    ports:
-      - '80:80'
     links:
       - cache
       - database
@@ -25,3 +23,26 @@ services:
     depends_on:
       - cache
       - database
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.php-fpm.tls=true
+      - traefik.http.routers.php-fpm.rule=Method(`GET`,`POST`,`HEAD`,`PUT`,`PATCH`,`DELETE`)  # Poor man's default route
+  reverse-proxy:
+    image: traefik:v2.3
+    command: 
+      - --providers.docker
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entryPoint.to=web-secure
+      - --entrypoints.web.http.redirections.entryPoint.scheme=https
+      - --entrypoints.web.http.redirections.entrypoint.permanent=true
+      - --entrypoints.web-secure.address=:443
+    ports:
+      - "80:80"
+      - "443:443"
+    links:
+      - php-fpm
+    depends_on:
+      - php-fpm
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock:ro
