@@ -60,54 +60,54 @@ resource "aws_lb_listener" "elb_listener_443" {
     }
 }
 
-resource "aws_lb_listener_rule" "cloudfront_forward_80" {
-    listener_arn            = aws_lb_listener.elb_listener_80.arn
-    priority                = 100
+# resource "aws_lb_listener_rule" "cloudfront_forward_80" {
+#     listener_arn            = aws_lb_listener.elb_listener_80.arn
+#     priority                = 100
 
-    action {
-        type                = "forward"
-        target_group_arn    = aws_lb_target_group.elb_target_group_80.arn
-    }
+#     action {
+#         type                = "forward"
+#         target_group_arn    = aws_lb_target_group.elb_target_group_80.arn
+#     }
 
-    condition {
-        source_ip {
-          values            = ["0.0.0.0/0","::/0"]
-        }
-    }
-}
+#     condition {
+#         source_ip {
+#           values            = ["0.0.0.0/0","::/0"]
+#         }
+#     }
+# }
 
-resource "aws_lb_listener_rule" "cloudfront_forward_443" {
-    listener_arn            = aws_lb_listener.elb_listener_443.arn
-    priority                = 200
+# resource "aws_lb_listener_rule" "cloudfront_forward_443" {
+#     listener_arn            = aws_lb_listener.elb_listener_443.arn
+#     priority                = 200
 
-    action {
-        type                = "forward"
-        target_group_arn    = aws_lb_target_group.elb_target_group_443.arn
-    }
+#     action {
+#         type                = "forward"
+#         target_group_arn    = aws_lb_target_group.elb_target_group_443.arn
+#     }
 
-    condition {
-        source_ip {
-          values            = ["0.0.0.0/0","::/0"]
-        }
-    }
-}
+#     condition {
+#         source_ip {
+#           values            = ["0.0.0.0/0","::/0"]
+#         }
+#     }
+# }
 
-resource "aws_lb_listener_rule" "fallback" {
-    listener_arn            = aws_lb_listener.elb_listener_80.arn
-    priority                = 999
+# resource "aws_lb_listener_rule" "fallback" {
+#     listener_arn            = aws_lb_listener.elb_listener_80.arn
+#     priority                = 999
 
-    action {
-        type                = "fixed-response"
-        fixed_response {
-            content_type    = "text/plain"
-            message_body    = "CloudFront Token Missing"
-            status_code     = "400"
-        }
-    }
+#     action {
+#         type                = "fixed-response"
+#         fixed_response {
+#             content_type    = "text/plain"
+#             message_body    = "CloudFront Token Missing"
+#             status_code     = "400"
+#         }
+#     }
 
-    condition {
-        path_pattern {
-        values              = ["*"]
-        }
-    }
-}
+#     condition {
+#         path_pattern {
+#         values              = ["*"]
+#         }
+#     }
+# }
