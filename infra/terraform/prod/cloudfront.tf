@@ -69,6 +69,26 @@ resource "aws_cloudfront_distribution" "wikijump_cf_distro" {
     viewer_protocol_policy = "redirect-to-https"
   }
 
+   default_cache_behavior {
+    allowed_methods         = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cached_methods          = ["GET", "HEAD"]
+    target_origin_id        = "wikijump_elb"
+
+    forwarded_values {
+      query_string          = true
+
+      cookies {
+        forward             = "all"
+      }
+    }
+
+    viewer_protocol_policy  = "redirect-to-https"
+    min_ttl                 = 0
+    default_ttl             = 60
+    compress                = true
+    max_ttl                 = 60
+    }
+
     viewer_certificate {
         acm_certificate_arn = aws_acm_certificate.cf_wildcard_cert.arn
   }
