@@ -94,7 +94,8 @@ class Text_Wiki_Parse_Include extends Text_Wiki_Parse {
     		if($page == null){
     			//$output =  $this->wiki->addToken(
             	//	$this->rule, array('fromIncludeRule' => true, 'type' => 'error', 'pageName' => $pageName)
-        		$output = "\n\n".'[[div class="error-block"]]'."\n".sprintf(_('Page to be included %s cannot be found!'),htmlspecialchars($pageName))."\n".'[[/div]]'."\n\n";
+				$message = sprintf(_('Page to be included %s cannot be found!'),htmlspecialchars($pageName));
+				$output = "\n\n".'[[div class="error-block"]]'."\n".$message."\n".'[[/div]]'."\n\n";
 
         		$wiki = $this->wiki;
         		if($wiki->vars['inclusionsNotExist'] == null){
