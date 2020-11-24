@@ -105,6 +105,11 @@ pub enum Token {
     String,
 
     //
+    // Miscellaneous
+    //
+    InputEnd,
+
+    //
     // Catch-all case
     //
     Other,
@@ -223,7 +228,7 @@ impl Token {
 
             // Other
             Rule::other => Token::Other,
-            Rule::EOI => return None,
+            Rule::EOI => Token::InputEnd,
 
             // Invalid
             Rule::char | Rule::document | Rule::token => {
