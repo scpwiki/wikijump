@@ -36,11 +36,18 @@ impl<T> ParseResult<T> {
         }
     }
 
-    pub fn err<I: Into<Vec<ParseError>>>(value: T, errors: I) -> Self {
+    pub fn err<I>(value: T, errors: I) -> Self
+    where
+        I: Into<Vec<ParseError>>,
+    {
         ParseResult {
             value,
             errors: errors.into(),
         }
+    }
+
+    pub fn append(&mut self, error: ParseError) {
+        self.errors.push(error);
     }
 }
 
