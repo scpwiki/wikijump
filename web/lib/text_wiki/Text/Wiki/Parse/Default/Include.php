@@ -92,8 +92,6 @@ class Text_Wiki_Parse_Include extends Text_Wiki_Parse {
     		$page = DB\PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
 
 			if($page == null){
-				//$output =  $this->wiki->addToken(
-				//	$this->rule, array('fromIncludeRule' => true, 'type' => 'error', 'pageName' => $pageName)
 				$pageNameHtml = htmlspecialchars($pageName);
 				$message = sprintf(_('Included page "%s" does not exist (<a href="/%s/edit/true">create it now</a>)
 '), $pageNameHtml, $pageNameHtml));
