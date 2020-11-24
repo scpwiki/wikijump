@@ -46,9 +46,7 @@ resource "aws_lb_listener" "elb_listener_80" {
     protocol                = "TCP"
     default_action {
         type                = "forward"
-        forward {
-            target_group_arn = aws_lb_target_group.elb_target_group_80.arn
-        }
+        target_group_arn = aws_lb_target_group.elb_target_group_80.arn
     }
 }
 
@@ -58,9 +56,7 @@ resource "aws_lb_listener" "elb_listener_443" {
     protocol                = "TCP"
     default_action {
         type                = "forward"
-        forward {
-            target_group_arn = aws_lb_target_group.elb_target_group_443.arn
-        }
+        target_group_arn = aws_lb_target_group.elb_target_group_443.arn
     }
 }
 
