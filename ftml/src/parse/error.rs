@@ -49,6 +49,13 @@ impl<T> ParseResult<T> {
     pub fn append(&mut self, error: ParseError) {
         self.errors.push(error);
     }
+
+    pub fn join<U>(&mut self, other: ParseResult<U>) -> U {
+        let ParseResult { value, mut errors } = other;
+
+        self.errors.append(&mut errors);
+        value
+    }
 }
 
 impl<T> Default for ParseResult<T>
