@@ -262,8 +262,17 @@ fn tokens() {
         ($input:expr, $expected:expr) => {{
             info!(&logger, "Testing tokens!"; "input" => $input);
 
-            let result = Token::extract_all(&logger, $input);
             let expected: Vec<ExtractedToken> = $expected;
+            let result = {
+                let mut result = Token::extract_all(&logger, $input);
+
+                let last = result.pop().expect("No final element in resultant tokens");
+
+                assert_eq!(last.token, Token::InputEnd, "Final token wasn't Token::InputEnd");
+                assert_eq!(last.slice, "", "Final slice wasn't an empty string");
+
+                result
+            };
 
             // Manually implement "assert_eq!" here so we can use full, {:#?} formatting
 
