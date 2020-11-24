@@ -26,7 +26,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.php-fpm.tls=true
-      - traefik.http.routers.php-fpm.rule=Method(`GET`,`POST`,`PUT`,`PATCH`,`DELETE`)  # Poor man's default route
+      - traefik.http.routers.php-fpm.rule=Method(`GET`,`POST`,`HEAD`,`PUT`,`PATCH`,`DELETE`)  # Poor man's default route
   reverse-proxy:
     image: traefik:v2.3
     command: 
