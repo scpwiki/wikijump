@@ -20,6 +20,7 @@
 
 use super::Token;
 use std::ops::Range;
+use std::borrow::{Borrow, BorrowMut};
 use strum_macros::IntoStaticStr;
 
 #[derive(Debug)]
@@ -81,6 +82,20 @@ where
             value: self.value.clone(),
             errors: self.errors.clone(),
         }
+    }
+}
+
+impl<T> Borrow<T> for ParseResult<T> {
+    #[inline]
+    fn borrow(&self) -> &T {
+        &self.value
+    }
+}
+
+impl<T> BorrowMut<T> for ParseResult<T> {
+    #[inline]
+    fn borrow_mut(&mut self) -> &mut T {
+        &mut self.value
     }
 }
 
