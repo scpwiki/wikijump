@@ -18,7 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use pest::error::Error as PestError;
 use pest::iterators::Pair;
 use pest::Parser;
 use std::ops::Range;

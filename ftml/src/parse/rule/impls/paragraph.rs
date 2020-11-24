@@ -31,8 +31,5 @@ fn try_consume<'a>(
 
     // TODO: start element wrapping
 
-    Some(RuleResult {
-        offset: 1,
-        element: todo!(),
-    })
+    todo!()
 }
