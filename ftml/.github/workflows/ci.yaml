@@ -15,11 +15,11 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release --all-features
+          args: --all-features --release
       - uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --release --all-features -- --nocapture --test-threads 1
+          args: --all-features -- --nocapture --test-threads 1
   clippy_lint:
     name: Lint
     runs-on: ubuntu-latest
