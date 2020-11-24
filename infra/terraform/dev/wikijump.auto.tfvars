@@ -2,6 +2,7 @@
 environment         = "dev"
 web_domain          = "wikijump.dev"
 files_domain        = "wjfiles.dev"
+region              = "us-east-2"
 
 # VPC
 vpc_cidr_block      = "10.106.0.0/16"
