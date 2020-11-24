@@ -1,0 +1,30 @@
+name: docker-build-push
+
+on:
+  push:
+    branches:
+      - develop
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Login to ECR
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ secrets.ECR_REPOSITORY }}
+          username: ${{ secrets.DOCKER_PUSH_KEY }}
+          password: ${{ secrets.DOCKER_PUSH_SECRET }}
+      -
+        name: Checkout code, build, push
+        uses: actions/checkout@v2
+        run: |
+          cd $GITHUB_WORKSPACE
+          export AWS_ACCESS_KEY_ID=${{ secrets.DOCKER_PUSH_KEY }}
+          export AWS_SECRET_ACCESS_KEY=secrets.DOCKER_PUSH_SECRET
+          export AWS_DEFAULT_REGION=us-east-2
+          docker context create ecs githubactions --from-env
+          docker context use githubactions
+          docker-compose -f install/docker-compose.dev.yaml build
+          docker-compose -f install/docker-compose.dev.yaml push
+          docker-compose -f install/docker-compose.dev.yaml up
