@@ -144,17 +144,14 @@ impl Token {
 
     /// Converts a single `Pair` from pest into its corresponding `ExtractedToken`.
     fn convert_pair<'a>(logger: &slog::Logger, pair: Pair<'a, Rule>) -> Option<ExtractedToken<'a>> {
+        // Extract values from the Pair
         let rule = pair.as_rule();
         let slice = pair.as_str();
         let start = pair.as_span().start();
         let end = pair.as_span().end();
 
-        // Get matching Token, if any.
-        // (Returns if we're skipping this Pair)
-        let token = match Token::get_from_rule(rule) {
-            Some(token) => token,
-            None => return None,
-        };
+        // Get matching Token.
+        let token = Token::get_from_rule(rule);
 
         debug!(
             logger,
@@ -170,8 +167,8 @@ impl Token {
     }
 
     /// Mapping of a pest `Rule` to its corresponding `Token` enum.
-    fn get_from_rule(rule: Rule) -> Option<Token> {
-        let token = match rule {
+    fn get_from_rule(rule: Rule) -> Token {
+        match rule {
             // Symbols
             Rule::left_bracket => Token::LeftBracket,
             Rule::right_bracket => Token::RightBracket,
@@ -234,9 +231,7 @@ impl Token {
             Rule::char | Rule::document | Rule::token => {
                 panic!("Received invalid pest rule: {:?}", rule)
             }
-        };
-
-        Some(token)
+        }
     }
 
     #[inline]

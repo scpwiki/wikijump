@@ -88,6 +88,9 @@ lazy_static! {
             Token::Url => vec![RULE_URL],
             Token::String => vec![],
 
+            // Miscellaneous
+            Token::InputEnd => vec![RULE_NULL],
+
             // Fallback
             Token::Other => vec![RULE_TEXT],
         }
