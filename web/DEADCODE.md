@@ -105,3 +105,9 @@ If possible, add to this log in the same commit in which the code is removed.
   between the two is.
 * Why it was removed: It was unused, although the concept of a quick module
   appears on the PHP side of the codebase.
+
+## PHP: `lib/ozoneframework/php/code/ListResolver.php`
+* Relevant Issues: [WJ-189](https://scuttle.atlassian.net/browse/WJ-189)
+* Where it was: `lib/ozoneframework/php/code/ListResolver.php`
+* What it did: Strictly less than `lib/ozoneframework/php/template_services/ondemand/ListResolver.php` which was the intended file and Class to use.
+* Why it was removed: The two files occupied the same namespace and caused Composer to complain when dumping the autoloader.
