@@ -28,6 +28,7 @@ pub struct ParseResult<T> {
 }
 
 impl<T> ParseResult<T> {
+    #[inline]
     pub fn ok(value: T) -> Self {
         ParseResult {
             value,
@@ -35,6 +36,7 @@ impl<T> ParseResult<T> {
         }
     }
 
+    #[inline]
     pub fn new<I>(value: T, errors: I) -> Self
     where
         I: Into<Vec<ParseError>>,
@@ -45,6 +47,7 @@ impl<T> ParseResult<T> {
         }
     }
 
+    #[inline]
     pub fn append_err(&mut self, error: ParseError) {
         self.errors.push(error);
     }
@@ -58,6 +61,7 @@ impl<T> ParseResult<T> {
 }
 
 impl<U> ParseResult<Vec<U>> {
+    #[inline]
     pub fn push(&mut self, item: U) {
         self.value.push(item);
     }
