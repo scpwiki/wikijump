@@ -59,16 +59,9 @@ impl<T> ParseResult<T> {
     }
 }
 
-impl<T> Default for ParseResult<T>
-where
-    T: Default,
-{
-    #[inline]
-    fn default() -> Self {
-        ParseResult {
-            value: T::default(),
-            errors: Vec::new(),
-        }
+impl<U> ParseResult<Vec<U>> {
+    pub fn push(&mut self, item: U) {
+        self.value.push(item);
     }
 }
 
@@ -85,6 +78,19 @@ where
     }
 }
 
+impl<T> Default for ParseResult<T>
+where
+    T: Default,
+{
+    #[inline]
+    fn default() -> Self {
+        ParseResult {
+            value: T::default(),
+            errors: Vec::new(),
+        }
+    }
+}
+
 impl<T> Borrow<T> for ParseResult<T> {
     #[inline]
     fn borrow(&self) -> &T {
@@ -96,6 +102,15 @@ impl<T> BorrowMut<T> for ParseResult<T> {
     #[inline]
     fn borrow_mut(&mut self) -> &mut T {
         &mut self.value
+    }
+}
+
+impl<T> Into<(T, Vec<ParseError>)> for ParseResult<T> {
+    #[inline]
+    fn into(self) -> (T, Vec<ParseError>) {
+        let ParseResult { value, errors } = self;
+
+        (value, errors)
     }
 }
 
