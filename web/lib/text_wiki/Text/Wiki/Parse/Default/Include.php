@@ -91,10 +91,11 @@ class Text_Wiki_Parse_Include extends Text_Wiki_Parse {
 
     		$page = DB\PagePeer::instance()->selectByName($site->getSiteId(), $pageName);
 
-    		if($page == null){
-    			//$output =  $this->wiki->addToken(
-            	//	$this->rule, array('fromIncludeRule' => true, 'type' => 'error', 'pageName' => $pageName)
-        		$output = "\n\n".'[[div class="error-block"]]'."\n".sprintf(_('Page to be included %s cannot be found!'),htmlspecialchars($pageName))."\n".'[[/div]]'."\n\n";
+			if($page == null){
+				$pageNameHtml = htmlspecialchars($pageName);
+				$message = sprintf(_('Included page "%s" does not exist ([/%s/edit/true create it now])
+'), $pageNameHtml, $pageNameHtml));
+				$output = "\n\n".'[[div class="error-block"]]'."\n".$message."\n".'[[/div]]'."\n\n";
 
         		$wiki = $this->wiki;
         		if($wiki->vars['inclusionsNotExist'] == null){
