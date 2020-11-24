@@ -28,8 +28,6 @@ use strum_macros::IntoStaticStr;
 #[grammar = "parse/lexer.pest"]
 struct TokenLexer;
 
-type LexerError = PestError<Rule>;
-
 #[derive(Debug, Clone, PartialEq)]
 pub struct ExtractedToken<'a> {
     pub token: Token,
