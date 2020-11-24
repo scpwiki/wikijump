@@ -6,7 +6,7 @@ resource "aws_elasticache_cluster" "wikijump_cache" {
   parameter_group_name = "default.memcached1.5"
   port                 = 11211
   subnet_group_name    = aws_elasticache_subnet_group.cache_subnet.name
-  security_group_names = [aws_security_group.elasticache_sg.name]
+  security_group_ids   = [aws_security_group.elasticache_sg.id]
 }
 
 resource "aws_elasticache_subnet_group" "cache_subnet" {

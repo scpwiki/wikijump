@@ -49,3 +49,8 @@ variable "cache_ec2_size" {
 variable "rds_master_password" {
     type    = string
 }
+
+variable "region" {
+    type    = string
+}
+

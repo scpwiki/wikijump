@@ -11,8 +11,8 @@ resource "aws_route53_record" "primary_record" {
   name    = var.web_domain
   type    = "A"
   alias {
-    name    = aws_cloudfront_distribution.wikijump_cf_distro.domain_name
-    zone_id = aws_cloudfront_distribution.wikijump_cf_distro.hosted_zone_id
+    name    = aws_lb.wikijump_elb.dns_name
+    zone_id = aws_lb.wikijump_elb.zone_id
     evaluate_target_health  = true
   }
 
