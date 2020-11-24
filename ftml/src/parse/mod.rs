@@ -20,6 +20,7 @@
 
 mod consume;
 mod error;
+mod result;
 mod rule;
 mod token;
 
@@ -28,7 +29,8 @@ use self::rule::RuleResult;
 use crate::tree::SyntaxTree;
 use slog::Logger;
 
-pub use self::error::{ParseError, ParseErrorKind, ParseResult};
+pub use self::error::{ParseError, ParseErrorKind};
+pub use self::result::ParseResult;
 pub use self::token::Token;
 
 pub fn parse<'a>(log: &Logger, text: &'a str) -> ParseResult<SyntaxTree<'a>> {
