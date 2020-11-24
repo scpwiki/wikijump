@@ -8,7 +8,7 @@ resource "aws_lb" "wikijump_elb" {
         subnet_id               = aws_subnet.elb_subnet.id
         allocation_id           = aws_eip.elb_eip.id
     }
-    ip_address_type = "dualstack"
+    # ip_address_type = "dualstack"
     # Enable this once stable.
     enable_deletion_protection  = false
 
