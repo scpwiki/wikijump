@@ -19,6 +19,7 @@
  */
 
 mod consume;
+mod error;
 mod rule;
 mod stack;
 mod token;
@@ -26,11 +27,13 @@ mod token;
 use self::consume::consume;
 use self::rule::RuleResult;
 use self::stack::Stack;
-use self::token::Token;
 use crate::tree::SyntaxTree;
 use slog::Logger;
 
-pub fn parse<'a>(log: &Logger, text: &'a str) -> SyntaxTree<'a> {
+pub use self::error::{ParseError, ParseErrorKind, ParseResult};
+pub use self::token::Token;
+
+pub fn parse<'a>(log: &Logger, text: &'a str) -> ParseResult<SyntaxTree<'a>> {
     let log = &log.new(slog_o!("function" => "parse", "text" => str!(text)));
 
     info!(log, "Running parser on text");
@@ -66,7 +69,7 @@ pub fn parse<'a>(log: &Logger, text: &'a str) -> SyntaxTree<'a> {
     }
 
     debug!(log, "Finished running parser, returning gathered elements");
-    stack.into_syntax_tree()
+    ParseResult::ok(stack.into_syntax_tree())
 }
 
 #[test]
