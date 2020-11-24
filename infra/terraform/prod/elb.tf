@@ -52,7 +52,7 @@ resource "aws_lb_listener" "elb_listener_80" {
         type                = "forward"
         forward {
             target_group    {
-                arn    = aws_lb_target_group.elb_target_group.arn
+                arn    = aws_lb_target_group.elb_target_group_80.arn
             }
         }
     }
@@ -66,7 +66,7 @@ resource "aws_lb_listener" "elb_listener_443" {
         type                = "forward"
         forward {
             target_group    {
-                arn    = aws_lb_target_group.elb_target_group.arn
+                arn    = aws_lb_target_group.elb_target_group_443.arn
             }
         }
     }
@@ -105,7 +105,7 @@ resource "aws_lb_listener_rule" "cloudfront_forward_443" {
 }
 
 resource "aws_lb_listener_rule" "fallback" {
-    listener_arn            = aws_lb_listener.elb_listener.arn
+    listener_arn            = aws_lb_listener.elb_listener_80.arn
     priority                = 999
 
     action {
