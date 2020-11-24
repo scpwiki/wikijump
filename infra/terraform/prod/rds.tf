@@ -14,6 +14,7 @@ resource "aws_rds_cluster" "wikijump_aurora" {
   db_subnet_group_name  = aws_db_subnet_group.wikijump_aurora_subnet.name
   master_username = "aurora"
   master_password = var.rds_master_password
+  skip_final_snapshot  = true
 }
 
 resource "aws_db_subnet_group" "wikijump_aurora_subnet" {
