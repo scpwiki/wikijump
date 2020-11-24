@@ -27,14 +27,12 @@
 //! as raw text as a fallback, which is how Wikidot does it.
 
 use super::rule::{rules_for_token, RuleResult};
-use super::stack::Stack;
 use super::token::ExtractedToken;
 use crate::tree::Element;
 
 /// Main function that consumes tokens to produce a single element, then returns.
 pub fn consume<'a>(
     log: &slog::Logger,
-    _stack: &mut Stack,
     extract: &ExtractedToken<'a>,
     next: &[ExtractedToken<'a>],
 ) -> RuleResult<'a> {

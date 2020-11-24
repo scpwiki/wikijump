@@ -19,8 +19,8 @@
  */
 
 use super::Token;
-use std::ops::Range;
 use std::borrow::{Borrow, BorrowMut};
+use std::ops::Range;
 use strum_macros::IntoStaticStr;
 
 #[derive(Debug)]

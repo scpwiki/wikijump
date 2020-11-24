@@ -21,12 +21,10 @@
 mod consume;
 mod error;
 mod rule;
-mod stack;
 mod token;
 
 use self::consume::consume;
 use self::rule::RuleResult;
-use self::stack::Stack;
 use crate::tree::SyntaxTree;
 use slog::Logger;
 
@@ -40,7 +38,7 @@ pub fn parse<'a>(log: &Logger, text: &'a str) -> ParseResult<SyntaxTree<'a>> {
 
     let tokens = Token::extract_all(log, text);
     let mut tokens = tokens.as_slice();
-    let mut stack = Stack::new(log);
+    let mut result = ParseResult::default();
 
     while !tokens.is_empty() {
         // Consume tokens to get next element
@@ -49,7 +47,7 @@ pub fn parse<'a>(log: &Logger, text: &'a str) -> ParseResult<SyntaxTree<'a>> {
                 .split_first() //
                 .expect("Tokens list is empty");
 
-            consume(log, &mut stack, extracted, next)
+            consume(log, extracted, next)
         };
 
         assert!(
@@ -65,11 +63,11 @@ pub fn parse<'a>(log: &Logger, text: &'a str) -> ParseResult<SyntaxTree<'a>> {
 
         // Update state
         tokens = &tokens[offset..];
-        stack.append(element);
+        result.push(element);
     }
 
     debug!(log, "Finished running parser, returning gathered elements");
-    ParseResult::ok(stack.into_syntax_tree())
+    SyntaxTree::from_element_result(result)
 }
 
 #[test]

@@ -63,7 +63,7 @@ mod parse;
 mod preproc;
 
 pub use self::handle::Handle;
-pub use self::parse::{ParseError, ParseErrorKind, ParseResult, parse};
+pub use self::parse::{parse, ParseError, ParseErrorKind, ParseResult};
 pub use self::preproc::preprocess;
 
 pub mod prelude {

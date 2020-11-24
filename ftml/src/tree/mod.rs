@@ -24,7 +24,17 @@ mod element;
 pub use self::container::*;
 pub use self::element::*;
 
+use crate::ParseResult;
+
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct SyntaxTree<'a> {
     pub elements: Vec<Element<'a>>,
+}
+
+impl<'a> SyntaxTree<'a> {
+    pub fn from_element_result(result: ParseResult<Vec<Element<'a>>>) -> ParseResult<Self> {
+        let (elements, errors) = result.into();
+
+        ParseResult::new(SyntaxTree { elements }, errors)
+    }
 }
