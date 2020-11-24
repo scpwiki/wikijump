@@ -34,7 +34,7 @@ pub struct SyntaxTree<'a> {
 impl<'a> SyntaxTree<'a> {
     pub fn from_element_result(result: ParseResult<Vec<Element<'a>>>) -> ParseResult<Self> {
         let (elements, errors) = result.into();
-
-        ParseResult::new(SyntaxTree { elements }, errors)
+        let tree = SyntaxTree { elements };
+        ParseResult::new(tree, errors)
     }
 }
