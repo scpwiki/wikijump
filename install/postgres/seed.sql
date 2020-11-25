@@ -5831,7 +5831,7 @@ COPY public.site (site_id, name, subtitle, unix_name, description, language, dat
 2	Template site (en)	Default template wiki	template-en		en	\N	\N	t	start	f	f
 4	template-blog		template-blog	\N	en	2008-12-06 17:49:31	\N	t	start	f	f
 5	bluesoul's hacky PHP crap	And traveling circus	bluesoul		en	2020-06-02 22:15:23	\N	t	start	f	f
-1	Wikijump	Fighting Ozone Pollution	www		en	\N	next.scpfoundation.wiki	t	start	f	f
+1	Wikijump	Fighting Ozone Pollution	www	Wikijump host site	en	\N	\N	t	start	f	f
 6	SCP Foundation		scp-wiki	\N	en	2020-06-06 18:59:55	\N	t	start	f	f
 7	[object Object]		0	\N	en	2020-06-08 03:06:18	\N	t	start	f	f
 8	croq		croq	\N	en	2020-06-11 16:17:16	\N	t	start	f	f
