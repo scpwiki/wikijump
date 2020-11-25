@@ -4405,7 +4405,7 @@ COPY public.page (page_id, site_id, category_id, parent_page_id, revision_id, so
 20	2	12	\N	21	21	20	0	\N	system:page-tags	2008-01-29 01:03:43	2008-01-29 01:03:43	1	\N	\N	1	f	0
 21	2	12	\N	22	22	21	0	List All Pages	system:list-all-pages	2008-01-29 01:04:52	2008-01-29 01:04:52	1	\N	\N	1	f	0
 24	1	16	\N	25	25	24	0	Search All Wikis	search:all	2008-01-29 01:09:17	2008-01-29 01:09:17	1	\N	\N	1	f	0
-73	1	1	\N	102	101	79	0	MyWikidot Info	mywikidot-info	2009-01-04 19:46:55	2009-01-04 19:46:55	1	\N	\N	1	f	0
+73	1	1	\N	102	101	79	0	My Wikijump Info	wikijump-info	2009-01-04 19:46:55	2009-01-04 19:46:55	1	\N	\N	1	f	0
 27	2	17	\N	31	30	28	0	Forum Categories	forum:start	2008-01-29 01:40:23	2008-01-29 01:40:23	1	\N	\N	1	f	0
 28	2	17	\N	32	31	29	0	Forum Category	forum:category	2008-01-29 01:40:59	2008-01-29 01:40:59	1	\N	\N	1	f	0
 29	2	17	\N	33	32	30	0	Forum Thread	forum:thread	2008-01-29 01:41:32	2008-01-29 01:41:32	1	\N	\N	1	f	0
