@@ -30,6 +30,6 @@ jobs:
           docker context create ecs --help
           docker context create ecs githubactions --from-env
           docker context use githubactions
-          docker-compose -f install/docker-compose.dev.yaml build
-          docker-compose -f install/docker-compose.dev.yaml push
-          docker-compose -f install/docker-compose.dev.yaml up
+          docker compose -f install/docker-compose.aws-dev.yaml build
+          docker compose -f install/docker-compose.aws-dev.yaml push
+          docker compose -f install/docker-compose.aws-dev.yaml up
