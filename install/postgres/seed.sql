@@ -3966,29 +3966,7 @@ COPY public.file (file_id, page_id, site_id, filename, mimetype, description, de
 18	76	1	FB-icon.png	image/png; charset=binary	PNG image data, 30 x 30, 8-bit/color RGBA, non-interlaced	PNG image data		4462	2020-06-02 22:50:43	1	\N	f
 19	76	1	expand.png	image/png; charset=binary	PNG image data, 13 x 13, 8-bit/color RGBA, non-interlaced	PNG image data		283	2020-06-02 22:50:51	1	\N	f
 20	76	1	DA-icon.png	image/png; charset=binary	PNG image data, 30 x 30, 8-bit/color RGBA, non-interlaced	PNG image data		1851	2020-06-02 22:51:07	1	\N	f
-21	94	5	Twitter-icon.png	image/png; charset=binary	PNG image data, 30 x 30, 8-bit/color RGBA, non-interlaced	PNG image data		4364	2020-06-02 22:55:46	1	\N	f
-22	94	5	Tumblr-icon.png	image/png; charset=binary	PNG image data, 30 x 30, 8-bit/color RGBA, non-interlaced	PNG image data		4478	2020-06-02 22:55:53	1	\N	f
-23	94	5	tumblr2.png	image/png; charset=binary	PNG image data, 30 x 30, 8-bit colormap, non-interlaced	PNG image data		1665	2020-06-02 22:56:00	1	\N	f
-24	94	5	series.png	image/png; charset=binary	PNG image data, 13 x 13, 8-bit/color RGBA, non-interlaced	PNG image data		257	2020-06-02 22:56:07	1	\N	f
-25	94	5	Reddit-icon.png	image/png; charset=binary	PNG image data, 30 x 30, 8-bit/color RGBA, non-interlaced	PNG image data		4492	2020-06-02 22:56:19	1	\N	f
-26	94	5	paypal.jpg	image/jpeg; charset=binary	JPEG image data, JFIF standard 1.02, aspect ratio, density 100x100, segment length 16, baseline, precision 8, 174x153, components 3	JPEG image data		17351	2020-06-02 22:56:34	1	\N	f
-27	94	5	main.png	image/png; charset=binary	PNG image data, 13 x 13, 8-bit/color RGBA, non-interlaced	PNG image data		242	2020-06-02 22:56:42	1	\N	f
-28	94	5	icon-Twitter-2020.png	image/png; charset=binary	PNG image data, 30 x 30, 8-bit/color RGBA, non-interlaced	PNG image data		1567	2020-06-02 22:56:50	1	\N	f
-29	94	5	icon-Tumblr-2020.png	image/png; charset=binary	PNG image data, 30 x 30, 8-bit/color RGBA, non-interlaced	PNG image data		1537	2020-06-02 22:57:04	1	\N	f
-30	94	5	icon-Reddit-2020.png	image/png; charset=binary	PNG image data, 30 x 30, 8-bit/color RGBA, non-interlaced	PNG image data		1619	2020-06-02 22:57:11	1	\N	f
-31	94	5	icon-Instagram-2020.png	image/png; charset=binary	PNG image data, 30 x 30, 8-bit/color RGBA, non-interlaced	PNG image data		1984	2020-06-02 22:57:18	1	\N	f
-32	94	5	icon-Facebook-2020.png	image/png; charset=binary	PNG image data, 30 x 30, 8-bit/color RGBA, non-interlaced	PNG image data		1546	2020-06-02 22:57:26	1	\N	f
-33	94	5	icon-DeviantArt-2020.png	image/png; charset=binary	PNG image data, 30 x 30, 8-bit/color RGBA, non-interlaced	PNG image data		1524	2020-06-02 22:57:38	1	\N	f
-34	94	5	home.png	image/png; charset=binary	PNG image data, 13 x 13, 8-bit/color RGBA, non-interlaced	PNG image data		251	2020-06-02 22:57:48	1	\N	f
-35	94	5	help.png	image/png; charset=binary	PNG image data, 13 x 13, 8-bit/color RGBA, non-interlaced	PNG image data		289	2020-06-02 22:57:57	1	\N	f
-36	94	5	forum.png	image/png; charset=binary	PNG image data, 13 x 13, 8-bit/color RGBA, non-interlaced	PNG image data		253	2020-06-02 22:58:05	1	\N	f
-37	94	5	FB-icon.png	image/png; charset=binary	PNG image data, 30 x 30, 8-bit/color RGBA, non-interlaced	PNG image data		4462	2020-06-02 22:58:15	1	\N	f
-38	94	5	expand.png	image/png; charset=binary	PNG image data, 13 x 13, 8-bit/color RGBA, non-interlaced	PNG image data		283	2020-06-02 22:58:23	1	\N	f
-39	94	5	default.png	image/png; charset=binary	PNG image data, 13 x 13, 8-bit/color RGBA, non-interlaced	PNG image data		197	2020-06-02 22:58:34	1	\N	f
-40	94	5	DA-icon.png	image/png; charset=binary	PNG image data, 30 x 30, 8-bit/color RGBA, non-interlaced	PNG image data		1851	2020-06-02 22:58:44	1	\N	f
-41	94	5	blank.png	image/png; charset=binary	PNG image data, 13 x 13, 8-bit/color RGBA, non-interlaced	PNG image data		122	2020-06-02 22:58:51	1	\N	f
-42	94	5	black.png	image/png; charset=binary	PNG image data, 1 x 1, 8-bit/color RGB, non-interlaced	PNG image data		119	2020-06-02 22:59:00	1	\N	f
-43	76	1	forum.png	image/png; charset=binary	PNG image data, 13 x 13, 8-bit/color RGBA, non-interlaced	PNG image data		253	2020-06-02 23:09:26	1	\N	f
+21	76	1	forum.png	image/png; charset=binary	PNG image data, 13 x 13, 8-bit/color RGBA, non-interlaced	PNG image data		253	2020-06-02 23:09:26	1	\N	f
 \.
 
 
