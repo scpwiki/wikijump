@@ -16,8 +16,10 @@ jobs:
           username: ${{ secrets.DOCKER_PUSH_KEY }}
           password: ${{ secrets.DOCKER_PUSH_SECRET }}
       -
-        name: Checkout code, build, push
+        name: Checkout
         uses: actions/checkout@v2
+      -
+        name: Build and push
         run: |
           cd $GITHUB_WORKSPACE
           export AWS_ACCESS_KEY_ID=${{ secrets.DOCKER_PUSH_KEY }}
