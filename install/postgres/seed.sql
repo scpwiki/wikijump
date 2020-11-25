@@ -5830,11 +5830,6 @@ COPY public.site (site_id, name, subtitle, unix_name, description, language, dat
 1	Wikijump	Fighting Ozone Pollution	www	Wikijump host site	en	\N	\N	t	start	f	f
 2	Template site (en)	Default template wiki	template-en		en	\N	\N	t	start	f	f
 3	User profiles	\N	profiles	\N	en	\N	\N	t	start	f	f
-4	template-blog		template-blog	\N	en	2008-12-06 17:49:31	\N	t	start	f	f
-5	bluesoul's hacky PHP crap	And traveling circus	bluesoul		en	2020-06-02 22:15:23	\N	t	start	f	f
-6	SCP Foundation		scp-wiki	\N	en	2020-06-06 18:59:55	\N	t	start	f	f
-7	[object Object]		0	\N	en	2020-06-08 03:06:18	\N	t	start	f	f
-8	croq		croq	\N	en	2020-06-11 16:17:16	\N	t	start	f	f
 \.
 
 
@@ -5934,8 +5929,8 @@ COPY public.theme (theme_id, name, unix_name, abstract, extends_theme_id, varian
 24	Bloo	bloo	f	1	\N	f	\N	t	t	0	\N	0
 25	Bloo - no side bar	bloo-no-side-bar	f	24	24	f	\N	f	t	0	\N	0
 26	Basic	basic	f	1	\N	f	\N	t	t	0	\N	0
-28	BHL	bhl	f	1	\N	t	5	t	t	0		3
-27	Sigma9	sigma9	f	1	\N	t	1	t	t	0		2
+28	Black Highlighter	bhl	f	1	\N	t	5	t	t	0		0
+27	Sigma-9	sigma9	f	1	\N	t	1	t	t	0		0
 \.
 
 
