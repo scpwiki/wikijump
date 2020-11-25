@@ -4405,22 +4405,16 @@ COPY public.page (page_id, site_id, category_id, parent_page_id, revision_id, so
 20	2	12	\N	21	21	20	0	\N	system:page-tags	2008-01-29 01:03:43	2008-01-29 01:03:43	1	\N	\N	1	f	0
 21	2	12	\N	22	22	21	0	List All Pages	system:list-all-pages	2008-01-29 01:04:52	2008-01-29 01:04:52	1	\N	\N	1	f	0
 24	1	16	\N	25	25	24	0	Search All Wikis	search:all	2008-01-29 01:09:17	2008-01-29 01:09:17	1	\N	\N	1	f	0
-73	1	1	\N	102	101	79	0	My Wikijump Info	wikijump-info	2009-01-04 19:46:55	2009-01-04 19:46:55	1	\N	\N	1	f	0
 27	2	17	\N	31	30	28	0	Forum Categories	forum:start	2008-01-29 01:40:23	2008-01-29 01:40:23	1	\N	\N	1	f	0
 28	2	17	\N	32	31	29	0	Forum Category	forum:category	2008-01-29 01:40:59	2008-01-29 01:40:59	1	\N	\N	1	f	0
 29	2	17	\N	33	32	30	0	Forum Thread	forum:thread	2008-01-29 01:41:32	2008-01-29 01:41:32	1	\N	\N	1	f	0
 30	2	17	\N	34	33	31	0	New Forum Thread	forum:new-thread	2008-01-29 01:42:10	2008-01-29 01:42:10	1	\N	\N	1	f	0
 31	2	17	\N	35	34	32	0	Recent Forum Posts	forum:recent-posts	2008-01-29 01:42:42	2008-01-29 01:42:42	1	\N	\N	1	f	0
-74	2	6	\N	103	102	80	0	Top	nav:top	2009-01-04 19:49:22	2009-01-04 19:49:22	1	\N	\N	1	f	0
 33	2	18	\N	37	36	34	0	Template	profile:template	2008-01-29 23:30:18	2008-01-29 23:30:18	1	\N	\N	1	f	0
 36	2	2	\N	40	39	37	0	Congratulations, welcome to your new wiki!	start	2008-01-30 08:43:22	2008-01-30 08:43:22	1	\N	\N	1	f	0
 37	1	19	\N	42	41	38	0	List of all wikis	system-all:all-sites	2008-01-30 08:54:56	2008-01-30 08:54:56	1	\N	\N	1	f	0
-75	2	2	\N	104	103	81	0	How To Edit Pages - Quickstart	how-to-edit-pages	2009-01-04 19:50:30	2009-01-04 19:50:30	1	\N	\N	1	f	0
 39	1	19	\N	46	45	41	0	Search	system-all:search	2008-01-30 09:07:05	2008-01-30 09:07:05	1	\N	\N	1	f	0
-77	1	19	\N	106	105	83	0	List wikis by tags	system-all:sites-by-tags	2009-01-04 19:52:44	2009-01-04 19:52:44	1	\N	\N	1	f	0
-78	1	19	\N	108	107	84	0	Activity across all wikis	system-all:activity	2009-01-04 19:54:26	2009-01-04 19:54:26	1	\N	\N	1	f	0
 41	1	1	\N	51	50	45	0	What Is A Wiki	what-is-a-wiki	2008-01-30 16:11:56	2008-01-30 16:11:56	1	\N	\N	1	f	0
-79	1	16	\N	109	108	85	0	Search Users	search:users	2009-01-04 19:55:43	2009-01-04 19:55:43	1	\N	\N	1	f	0
 42	1	1	\N	53	52	46	0	How To Edit Pages	how-to-edit-pages	2008-01-30 16:12:48	2008-01-30 16:12:48	1	\N	\N	1	f	0
 43	1	20	\N	54	53	47	0	Wiki Members	system:members	2008-01-30 16:13:32	2008-01-30 16:13:32	1	\N	\N	1	f	0
 44	1	20	\N	55	54	48	0	How to join this wiki?	system:join	2008-01-30 16:14:13	2008-01-30 16:14:13	1	\N	\N	1	f	0
@@ -4432,13 +4426,19 @@ COPY public.page (page_id, site_id, category_id, parent_page_id, revision_id, so
 50	1	21	\N	61	60	54	0	Create account - step 1	auth:newaccount	2008-08-19 16:25:58	2008-08-19 16:25:58	1	\N	\N	1	f	0
 51	1	21	\N	62	61	55	0	Create account - step 2	auth:newaccount2	2008-08-19 16:25:58	2008-08-19 16:25:58	1	\N	\N	1	f	0
 52	1	21	\N	63	62	56	0	Create account - step 3	auth:newaccount3	2008-08-19 16:25:58	2008-08-19 16:25:58	1	\N	\N	1	f	0
-80	1	16	\N	110	109	86	0	Search This Wiki	search:site	2009-01-04 19:56:53	2009-01-04 19:56:53	1	\N	\N	1	f	0
 69	1	15	\N	223	170	75	4	Top	nav:top	2009-01-04 17:54:21	2020-06-06 18:51:56	1	\N	\N	1	f	0
+72	1	1	\N	288	242	78	10	Welcome to your Wikijump Custom Installation!	start	2009-01-04 19:40:27	2020-06-09 02:22:09	1	\N	\N	1	f	0
+73	1	1	\N	102	101	79	0	My Wikijump Info	wikijump-info	2009-01-04 19:46:55	2009-01-04 19:46:55	1	\N	\N	1	f	0
+74	2	6	\N	103	102	80	0	Top	nav:top	2009-01-04 19:49:22	2009-01-04 19:49:22	1	\N	\N	1	f	0
+75	2	2	\N	104	103	81	0	How To Edit Pages - Quickstart	how-to-edit-pages	2009-01-04 19:50:30	2009-01-04 19:50:30	1	\N	\N	1	f	0
 76	1	15	\N	224	167	82	23	Side	nav:side	2009-01-04 19:51:32	2020-06-06 18:52:18	1	\N	\N	1	f	0
+77	1	19	\N	106	105	83	0	List wikis by tags	system-all:sites-by-tags	2009-01-04 19:52:44	2009-01-04 19:52:44	1	\N	\N	1	f	0
+78	1	19	\N	108	107	84	0	Activity across all wikis	system-all:activity	2009-01-04 19:54:26	2009-01-04 19:54:26	1	\N	\N	1	f	0
+79	1	16	\N	109	108	85	0	Search Users	search:users	2009-01-04 19:55:43	2009-01-04 19:55:43	1	\N	\N	1	f	0
+80	1	16	\N	110	109	86	0	Search This Wiki	search:site	2009-01-04 19:56:53	2009-01-04 19:56:53	1	\N	\N	1	f	0
 87	1	27	\N	145	146	93	0	Theme	component:theme	2020-06-02 20:46:38	2020-06-02 20:46:38	1	\N	\N	1	f	0
 88	2	28	\N	146	147	94	0	Profile	template:profile	2020-06-02 21:35:30	2020-06-02 21:35:30	1	\N	\N	1	f	0
 89	1	29	\N	147	148	95	0	Template	profile:template	2020-06-02 21:38:10	2020-06-02 21:38:10	1	\N	\N	1	f	0
-72	1	1	\N	288	242	78	10	Welcome to your Wikijump Custom Installation!	start	2009-01-04 19:40:27	2020-06-09 02:22:09	1	\N	\N	1	f	0
 \.
 
 
