@@ -4434,44 +4434,12 @@ COPY public.page (page_id, site_id, category_id, parent_page_id, revision_id, so
 51	1	21	\N	62	61	55	0	Create account - step 2	auth:newaccount2	2008-08-19 16:25:58	2008-08-19 16:25:58	1	\N	\N	1	f	0
 52	1	21	\N	63	62	56	0	Create account - step 3	auth:newaccount3	2008-08-19 16:25:58	2008-08-19 16:25:58	1	\N	\N	1	f	0
 80	1	16	\N	110	109	86	0	Search This Wiki	search:site	2009-01-04 19:56:53	2009-01-04 19:56:53	1	\N	\N	1	f	0
-55	4	23	\N	68	67	59	0	Wiki Search	search:site	2008-12-06 17:49:32	2008-12-06 17:49:32	1	\N	\N	1	f	0
-56	4	24	\N	69	68	60	0	What Is A Wiki Site	what-is-a-wiki-site	2008-12-06 17:49:32	2008-12-06 17:49:32	1	\N	\N	1	f	0
-58	4	24	\N	71	70	62	0	How To Edit Pages - Quickstart	how-to-edit-pages	2008-12-06 17:49:32	2008-12-06 17:49:32	1	\N	\N	1	f	0
-59	4	25	\N	72	71	63	0	\N	admin:manage	2008-12-06 17:49:32	2008-12-06 17:49:32	1	\N	\N	1	f	0
-60	4	26	\N	73	72	64	0	Join This Wiki	system:join	2008-12-06 17:49:32	2008-12-06 17:49:32	1	\N	\N	1	f	0
-61	4	26	\N	74	73	65	0	Page Tags List	system:page-tags-list	2008-12-06 17:49:32	2008-12-06 17:49:32	1	\N	\N	1	f	0
-62	4	26	\N	75	74	66	0	Recent Changes	system:recent-changes	2008-12-06 17:49:32	2008-12-06 17:49:32	1	\N	\N	1	f	0
-63	4	26	\N	76	75	67	0	Members	system:members	2008-12-06 17:49:32	2008-12-06 17:49:32	1	\N	\N	1	f	0
-64	4	26	\N	77	76	68	0	\N	system:page-tags	2008-12-06 17:49:32	2008-12-06 17:49:32	1	\N	\N	1	f	0
-65	4	26	\N	78	77	69	0	List All Pages	system:list-all-pages	2008-12-06 17:49:32	2008-12-06 17:49:32	1	\N	\N	1	f	0
-54	4	22	\N	79	78	58	1	Top	nav:top	2008-12-06 17:49:32	2008-12-06 17:51:20	1	\N	\N	1	f	0
-53	4	22	\N	87	86	57	1	Side	nav:side	2008-12-06 17:49:32	2008-12-08 01:27:34	1	\N	\N	1	f	0
-57	4	24	\N	88	87	61	1	Congratulations, welcome to your new wiki!	start	2008-12-06 17:49:32	2008-12-08 01:33:53	1	\N	\N	1	f	0
-110	6	38	\N	225	183	116	0	Side	nav:side	2020-06-06 18:59:55	2020-06-06 18:59:55	1	\N	\N	1	f	0
-68	4	24	\N	90	89	73	1	MyBlog	blogstart	2008-12-08 01:34:49	2008-12-08 01:35:29	1	\N	\N	1	f	0
 131	1	1	132	310	264	139	15	not_a_seagull's Proposal	not-a-seagull-proposal	2020-06-08 02:26:02	2020-06-11 00:11:54	1	\N	\N	7	f	0
-154	8	53	\N	311	265	164	0	Side	nav:side	2020-06-11 16:17:16	2020-06-11 16:17:16	9	\N	\N	9	f	0
-155	8	53	\N	312	266	165	0	Top	nav:top	2020-06-11 16:17:16	2020-06-11 16:17:16	9	\N	\N	9	f	0
-156	8	54	\N	313	267	166	0	Wiki Search	search:site	2020-06-11 16:17:16	2020-06-11 16:17:16	9	\N	\N	9	f	0
-157	8	55	\N	314	268	167	0	What Is A Wiki Site	what-is-a-wiki-site	2020-06-11 16:17:16	2020-06-11 16:17:16	9	\N	\N	9	f	0
 139	3	8	\N	328	282	149	1	Profile	profile:stormbreath	2020-06-08 03:06:02	2020-06-11 20:23:07	10	\N	\N	10	f	0
 86	1	1	\N	117	118	92	0	Bluesoul2	bluesoul2	2020-06-02 14:46:19	2020-06-02 14:46:19	1	\N	\N	1	f	0
-94	5	32	\N	212	171	100	23	Side	nav:side	2020-06-02 22:15:23	2020-06-02 22:59:00	1	\N	\N	6	f	0
-95	5	32	\N	213	172	101	1	Top	nav:top	2020-06-02 22:15:24	2020-06-02 22:59:32	1	\N	\N	6	f	0
 109	3	8	\N	221	179	115	0	Profile	profile:tsatpwtcotttadc	2020-06-03 06:22:03	2020-06-03 06:22:03	8	\N	\N	8	f	0
 69	1	15	\N	223	170	75	4	Top	nav:top	2009-01-04 17:54:21	2020-06-06 18:51:56	1	\N	\N	1	f	0
 76	1	15	\N	224	167	82	23	Side	nav:side	2009-01-04 19:51:32	2020-06-06 18:52:18	1	\N	\N	1	f	0
-111	6	38	\N	226	184	117	0	Top	nav:top	2020-06-06 18:59:55	2020-06-06 18:59:55	1	\N	\N	1	f	0
-112	6	39	\N	227	185	118	0	Wiki Search	search:site	2020-06-06 18:59:55	2020-06-06 18:59:55	1	\N	\N	1	f	0
-113	6	40	\N	228	186	119	0	What Is A Wiki Site	what-is-a-wiki-site	2020-06-06 18:59:55	2020-06-06 18:59:55	1	\N	\N	1	f	0
-114	6	40	\N	229	187	120	0	Congratulations, welcome to your new wiki!	start	2020-06-06 18:59:55	2020-06-06 18:59:55	1	\N	\N	1	f	0
-115	6	40	\N	230	188	121	0	How To Edit Pages - Quickstart	how-to-edit-pages	2020-06-06 18:59:55	2020-06-06 18:59:55	1	\N	\N	1	f	0
-116	6	41	\N	231	189	122	0	\N	admin:manage	2020-06-06 18:59:55	2020-06-06 18:59:55	1	\N	\N	1	f	0
-117	6	42	\N	232	190	123	0	Join This Wiki	system:join	2020-06-06 18:59:55	2020-06-06 18:59:55	1	\N	\N	1	f	0
-118	6	42	\N	233	191	124	0	Page Tags List	system:page-tags-list	2020-06-06 18:59:55	2020-06-06 18:59:55	1	\N	\N	1	f	0
-119	6	42	\N	234	192	125	0	Recent Changes	system:recent-changes	2020-06-06 18:59:55	2020-06-06 18:59:55	1	\N	\N	1	f	0
-120	6	42	\N	235	193	126	0	Members	system:members	2020-06-06 18:59:55	2020-06-06 18:59:55	1	\N	\N	1	f	0
-121	6	42	\N	236	194	127	0	\N	system:page-tags	2020-06-06 18:59:55	2020-06-06 18:59:55	1	\N	\N	1	f	0
 87	1	27	\N	145	146	93	0	Theme	component:theme	2020-06-02 20:46:38	2020-06-02 20:46:38	1	\N	\N	1	f	0
 88	2	28	\N	146	147	94	0	Profile	template:profile	2020-06-02 21:35:30	2020-06-02 21:35:30	1	\N	\N	1	f	0
 89	1	29	\N	147	148	95	0	Template	profile:template	2020-06-02 21:38:10	2020-06-02 21:38:10	1	\N	\N	1	f	0
@@ -4479,20 +4447,6 @@ COPY public.page (page_id, site_id, category_id, parent_page_id, revision_id, so
 91	3	31	\N	149	150	97	0	Profile	template:profile	2020-06-02 22:02:25	2020-06-02 22:02:25	1	\N	\N	1	f	0
 92	3	8	\N	150	151	98	0	Profile	profile:bluesoul	2020-06-02 22:03:20	2020-06-02 22:03:20	5	\N	\N	5	f	0
 93	3	8	\N	151	152	99	0	Profile	profile:bluesoul2	2020-06-02 22:11:30	2020-06-02 22:11:30	6	\N	\N	6	f	0
-122	6	42	\N	237	195	128	0	List All Pages	system:list-all-pages	2020-06-06 18:59:55	2020-06-06 18:59:55	1	\N	\N	1	f	0
-96	5	33	\N	154	155	102	0	Wiki Search	search:site	2020-06-02 22:15:24	2020-06-02 22:15:24	6	\N	\N	6	f	0
-97	5	34	\N	155	156	103	0	What Is A Wiki Site	what-is-a-wiki-site	2020-06-02 22:15:24	2020-06-02 22:15:24	6	\N	\N	6	f	0
-98	5	34	\N	156	157	104	0	Congratulations, welcome to your new wiki!	start	2020-06-02 22:15:24	2020-06-02 22:15:24	6	\N	\N	6	f	0
-99	5	34	\N	157	158	105	0	How To Edit Pages - Quickstart	how-to-edit-pages	2020-06-02 22:15:24	2020-06-02 22:15:24	6	\N	\N	6	f	0
-100	5	35	\N	158	159	106	0	\N	admin:manage	2020-06-02 22:15:24	2020-06-02 22:15:24	6	\N	\N	6	f	0
-101	5	36	\N	159	160	107	0	Join This Wiki	system:join	2020-06-02 22:15:24	2020-06-02 22:15:24	6	\N	\N	6	f	0
-102	5	36	\N	160	161	108	0	Page Tags List	system:page-tags-list	2020-06-02 22:15:24	2020-06-02 22:15:24	6	\N	\N	6	f	0
-103	5	36	\N	161	162	109	0	Recent Changes	system:recent-changes	2020-06-02 22:15:24	2020-06-02 22:15:24	6	\N	\N	6	f	0
-104	5	36	\N	162	163	110	0	Members	system:members	2020-06-02 22:15:24	2020-06-02 22:15:24	6	\N	\N	6	f	0
-105	5	36	\N	163	164	111	0	\N	system:page-tags	2020-06-02 22:15:24	2020-06-02 22:15:24	6	\N	\N	6	f	0
-106	5	36	\N	164	165	112	0	List All Pages	system:list-all-pages	2020-06-02 22:15:24	2020-06-02 22:15:24	6	\N	\N	6	f	0
-107	5	37	\N	165	166	113	0	Profile	template:profile	2020-06-02 22:15:24	2020-06-02 22:15:24	6	\N	\N	6	f	0
-123	6	43	\N	238	196	129	0	Profile	template:profile	2020-06-06 18:59:55	2020-06-06 18:59:55	1	\N	\N	1	f	0
 124	1	1	\N	240	198	130	0	New Pages Feed	new-pages-feed	2020-06-07 23:32:02	2020-06-07 23:32:02	7	\N	\N	7	f	0
 125	1	1	\N	241	199	131	0	Lowest Rated Pages	lowest-rated-pages	2020-06-08 02:01:07	2020-06-08 02:01:07	7	\N	\N	7	f	0
 126	1	1	\N	242	200	132	0	_template	_template	2020-06-08 02:10:26	2020-06-08 02:10:26	7	\N	\N	7	f	0
@@ -4509,23 +4463,6 @@ COPY public.page (page_id, site_id, category_id, parent_page_id, revision_id, so
 138	3	8	\N	260	214	148	0	Profile	profile:croquembouche	2020-06-08 03:04:20	2020-06-08 03:04:20	9	\N	\N	9	f	0
 72	1	1	\N	288	242	78	10	Welcome to your MyWikidot Custom Installation!	start	2009-01-04 19:40:27	2020-06-09 02:22:09	1	\N	\N	1	f	0
 85	1	1	\N	298	252	91	27	Bluesoul	bluesoul	2020-06-02 02:37:49	2020-06-10 22:28:48	1	\N	\N	1	f	0
-159	8	55	\N	316	270	169	0	How To Edit Pages - Quickstart	how-to-edit-pages	2020-06-11 16:17:16	2020-06-11 16:17:16	9	\N	\N	9	f	0
-146	7	50	\N	268	222	156	0	\N	admin:manage	2020-06-08 03:06:18	2020-06-08 03:06:18	9	\N	\N	9	f	0
-160	8	56	\N	317	271	170	0	\N	admin:manage	2020-06-11 16:17:16	2020-06-11 16:17:16	9	\N	\N	9	f	0
-161	8	57	\N	318	272	171	0	Join This Wiki	system:join	2020-06-11 16:17:16	2020-06-11 16:17:16	9	\N	\N	9	f	0
-162	8	57	\N	319	273	172	0	Page Tags List	system:page-tags-list	2020-06-11 16:17:16	2020-06-11 16:17:16	9	\N	\N	9	f	0
-163	8	57	\N	320	274	173	0	Recent Changes	system:recent-changes	2020-06-11 16:17:16	2020-06-11 16:17:16	9	\N	\N	9	f	0
-164	8	57	\N	321	275	174	0	Members	system:members	2020-06-11 16:17:16	2020-06-11 16:17:16	9	\N	\N	9	f	0
-165	8	57	\N	322	276	175	0	\N	system:page-tags	2020-06-11 16:17:16	2020-06-11 16:17:16	9	\N	\N	9	f	0
-166	8	57	\N	323	277	176	0	List All Pages	system:list-all-pages	2020-06-11 16:17:16	2020-06-11 16:17:16	9	\N	\N	9	f	0
-167	8	58	\N	324	278	177	0	Profile	template:profile	2020-06-11 16:17:16	2020-06-11 16:17:16	9	\N	\N	9	f	0
-168	8	55	\N	327	281	178	1	All Wikis	all-wikis	2020-06-11 16:18:12	2020-06-11 16:18:22	9	\N	\N	9	f	0
-169	8	59	\N	333	287	179	0	Forum Categories	forum:start	2020-06-12 07:28:32	2020-06-12 07:28:32	9	\N	\N	9	f	0
-170	8	59	\N	334	288	180	0	Forum Category	forum:category	2020-06-12 07:28:32	2020-06-12 07:28:32	9	\N	\N	9	f	0
-171	8	59	\N	335	289	181	0	Forum Thread	forum:thread	2020-06-12 07:28:32	2020-06-12 07:28:32	9	\N	\N	9	f	0
-172	8	59	\N	336	290	182	0	New Forum Thread	forum:new-thread	2020-06-12 07:28:32	2020-06-12 07:28:32	9	\N	\N	9	f	0
-173	8	59	\N	337	291	183	0	Recent Forum Posts	forum:recent-posts	2020-06-12 07:28:32	2020-06-12 07:28:32	9	\N	\N	9	f	0
-158	8	55	\N	340	294	168	8	Congratulations, welcome to your new wiki!	start	2020-06-11 16:17:16	2020-06-12 10:36:37	9	\N	1	9	f	0
 \.
 
 
