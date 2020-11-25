@@ -5740,30 +5740,6 @@ COPY public.page_source (source_id, text) FROM stdin;
 --
 
 COPY public.page_tag (tag_id, site_id, page_id, tag) FROM stdin;
-2	1	128	theme
-3	1	131	001-proposal
-4	1	131	_all-a-dream
-5	1	131	_cc
-6	1	131	daevite
-7	1	131	historical
-8	1	131	humanoid
-9	1	131	jam-con2019
-10	1	131	k-class-scenario
-11	1	131	keter
-12	1	131	meta
-13	1	131	meteorological
-14	1	131	narrative
-15	1	131	reclamation
-16	1	131	scp
-17	1	131	sphere
-18	1	131	transfiguration
-19	1	130	001-proposal
-20	1	130	esoteric-class
-21	1	130	interactive
-22	1	130	scp
-23	1	136	template
-24	1	135	template
-25	1	137	template
 \.
 
 
