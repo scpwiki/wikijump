@@ -27,8 +27,8 @@ jobs:
           export AWS_SECRET_ACCESS_KEY=${{ secrets.DOCKER_PUSH_SECRET }}
           export AWS_DEFAULT_REGION=us-east-2
           curl -L https://raw.githubusercontent.com/docker/compose-cli/main/scripts/install/install_linux.sh | sh
-          curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          chmod +x /usr/local/bin/docker-compose
+          sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
           docker context create ecs githubactions --from-env
           docker context use githubactions
           docker-compose -f install/docker-compose.aws-dev.yaml build
