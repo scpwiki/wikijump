@@ -4448,9 +4448,6 @@ COPY public.page_external_link (link_id, site_id, page_id, to_url, pinged, ping_
 --
 
 COPY public.page_inclusion (inclusion_id, including_page_id, included_page_id, included_page_name, site_id) FROM stdin;
-2	128	\N	component:image-block	1
-3	133	\N	snippets:redirect	1
-4	134	\N	snippets:redirect	1
 \.
 
 
