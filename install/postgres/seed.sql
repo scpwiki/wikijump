@@ -4416,7 +4416,6 @@ COPY public.page (page_id, site_id, category_id, parent_page_id, revision_id, so
 36	2	2	\N	40	39	37	0	Congratulations, welcome to your new wiki!	start	2008-01-30 08:43:22	2008-01-30 08:43:22	1	\N	\N	1	f	0
 37	1	19	\N	42	41	38	0	List of all wikis	system-all:all-sites	2008-01-30 08:54:56	2008-01-30 08:54:56	1	\N	\N	1	f	0
 75	2	2	\N	104	103	81	0	How To Edit Pages - Quickstart	how-to-edit-pages	2009-01-04 19:50:30	2009-01-04 19:50:30	1	\N	\N	1	f	0
-108	3	8	\N	220	178	114	0	Profile	profile:aismallard	2020-06-03 05:34:53	2020-06-03 05:34:53	7	\N	\N	7	f	0
 39	1	19	\N	46	45	41	0	Search	system-all:search	2008-01-30 09:07:05	2008-01-30 09:07:05	1	\N	\N	1	f	0
 77	1	19	\N	106	105	83	0	List wikis by tags	system-all:sites-by-tags	2009-01-04 19:52:44	2009-01-04 19:52:44	1	\N	\N	1	f	0
 78	1	19	\N	108	107	84	0	Activity across all wikis	system-all:activity	2009-01-04 19:54:26	2009-01-04 19:54:26	1	\N	\N	1	f	0
@@ -4434,35 +4433,12 @@ COPY public.page (page_id, site_id, category_id, parent_page_id, revision_id, so
 51	1	21	\N	62	61	55	0	Create account - step 2	auth:newaccount2	2008-08-19 16:25:58	2008-08-19 16:25:58	1	\N	\N	1	f	0
 52	1	21	\N	63	62	56	0	Create account - step 3	auth:newaccount3	2008-08-19 16:25:58	2008-08-19 16:25:58	1	\N	\N	1	f	0
 80	1	16	\N	110	109	86	0	Search This Wiki	search:site	2009-01-04 19:56:53	2009-01-04 19:56:53	1	\N	\N	1	f	0
-131	1	1	132	310	264	139	15	not_a_seagull's Proposal	not-a-seagull-proposal	2020-06-08 02:26:02	2020-06-11 00:11:54	1	\N	\N	7	f	0
-139	3	8	\N	328	282	149	1	Profile	profile:stormbreath	2020-06-08 03:06:02	2020-06-11 20:23:07	10	\N	\N	10	f	0
-86	1	1	\N	117	118	92	0	Bluesoul2	bluesoul2	2020-06-02 14:46:19	2020-06-02 14:46:19	1	\N	\N	1	f	0
-109	3	8	\N	221	179	115	0	Profile	profile:tsatpwtcotttadc	2020-06-03 06:22:03	2020-06-03 06:22:03	8	\N	\N	8	f	0
 69	1	15	\N	223	170	75	4	Top	nav:top	2009-01-04 17:54:21	2020-06-06 18:51:56	1	\N	\N	1	f	0
 76	1	15	\N	224	167	82	23	Side	nav:side	2009-01-04 19:51:32	2020-06-06 18:52:18	1	\N	\N	1	f	0
 87	1	27	\N	145	146	93	0	Theme	component:theme	2020-06-02 20:46:38	2020-06-02 20:46:38	1	\N	\N	1	f	0
 88	2	28	\N	146	147	94	0	Profile	template:profile	2020-06-02 21:35:30	2020-06-02 21:35:30	1	\N	\N	1	f	0
 89	1	29	\N	147	148	95	0	Template	profile:template	2020-06-02 21:38:10	2020-06-02 21:38:10	1	\N	\N	1	f	0
-90	1	30	\N	148	149	96	0	Profile	template:profile	2020-06-02 21:38:36	2020-06-02 21:38:36	1	\N	\N	1	f	0
-91	3	31	\N	149	150	97	0	Profile	template:profile	2020-06-02 22:02:25	2020-06-02 22:02:25	1	\N	\N	1	f	0
-92	3	8	\N	150	151	98	0	Profile	profile:bluesoul	2020-06-02 22:03:20	2020-06-02 22:03:20	5	\N	\N	5	f	0
-93	3	8	\N	151	152	99	0	Profile	profile:bluesoul2	2020-06-02 22:11:30	2020-06-02 22:11:30	6	\N	\N	6	f	0
-124	1	1	\N	240	198	130	0	New Pages Feed	new-pages-feed	2020-06-07 23:32:02	2020-06-07 23:32:02	7	\N	\N	7	f	0
-125	1	1	\N	241	199	131	0	Lowest Rated Pages	lowest-rated-pages	2020-06-08 02:01:07	2020-06-08 02:01:07	7	\N	\N	7	f	0
-126	1	1	\N	242	200	132	0	_template	_template	2020-06-08 02:10:26	2020-06-08 02:10:26	7	\N	\N	7	f	0
-127	1	1	\N	244	202	133	1	_404	_404	2020-06-08 02:15:43	2020-06-08 02:15:55	7	\N	\N	7	f	0
-128	1	44	\N	245	203	134	0	Black Highlighter Theme	theme:black-highlighter-theme	2020-06-08 02:20:33	2020-06-08 02:20:33	7	\N	\N	7	f	0
-129	1	44	\N	246	204	135	0	_404	theme:_404	2020-06-08 02:24:08	2020-06-08 02:24:08	7	\N	\N	7	f	0
-132	1	1	\N	249	207	138	0	SCP-001	scp-001	2020-06-08 02:37:38	2020-06-08 02:37:38	7	\N	\N	7	f	0
-130	1	1	132	252	208	136	2	Pedantique's Proposal	pedantique-s-proposal	2020-06-08 02:25:22	2020-06-08 02:38:20	7	\N	\N	7	f	0
-133	1	45	\N	253	209	141	0	Random SCP	random:random-scp	2020-06-08 02:51:34	2020-06-08 02:51:34	7	\N	\N	7	f	0
-134	1	45	\N	254	210	142	0	Random Tale	random:random-tale	2020-06-08 02:51:56	2020-06-08 02:51:56	7	\N	\N	7	f	0
-135	1	46	\N	255	211	143	0	info:start	info:start	2020-06-08 02:53:31	2020-06-08 02:53:31	7	\N	\N	7	f	0
-136	1	46	\N	258	212	146	2	info:more	info:more	2020-06-08 02:53:57	2020-06-08 02:54:40	7	\N	\N	7	f	0
-137	1	46	\N	259	213	147	0	info:end	info:end	2020-06-08 02:54:59	2020-06-08 02:54:59	7	\N	\N	7	f	0
-138	3	8	\N	260	214	148	0	Profile	profile:croquembouche	2020-06-08 03:04:20	2020-06-08 03:04:20	9	\N	\N	9	f	0
-72	1	1	\N	288	242	78	10	Welcome to your MyWikidot Custom Installation!	start	2009-01-04 19:40:27	2020-06-09 02:22:09	1	\N	\N	1	f	0
-85	1	1	\N	298	252	91	27	Bluesoul	bluesoul	2020-06-02 02:37:49	2020-06-10 22:28:48	1	\N	\N	1	f	0
+72	1	1	\N	288	242	78	10	Welcome to your Wikijump Custom Installation!	start	2009-01-04 19:40:27	2020-06-09 02:22:09	1	\N	\N	1	f	0
 \.
 
 
