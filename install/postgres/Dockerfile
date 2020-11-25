@@ -16,8 +16,7 @@ RUN mkdir /src
 WORKDIR /src
 
 # Copy sources
-COPY seed.sql.gz ./
-COPY setup.sh ./
+COPY seed.sql setup.sh ./
 
 # Install scripts
 RUN mkdir /app
