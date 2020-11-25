@@ -396,7 +396,8 @@ export const page = {
       }
 
       // init
-      const editMode = response.mode;
+      //@ts-expect-error Shouldn't need to attach to window
+      window.editMode = response.mode;
 
       if (response.locked) {
         // the page has a lock!
@@ -429,7 +430,8 @@ export const page = {
         };
       }
 
-      if (editMode === 'section') {
+      // @ts-expect-error Shouldn't be attached to window
+      if (window.editMode === 'section') {
         if (response.section == null) {
           alert('Section edit error. Section does not exist');
           return;
