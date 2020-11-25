@@ -4615,11 +4615,7 @@ COPY public.page_metadata (metadata_id, parent_page_id, title, unix_name, owner_
 133	\N	_404	_404	7
 134	\N	Black Highlighter Theme	theme:black-highlighter-theme	7
 135	\N	_404	theme:_404	7
-136	\N	Pedantique's Proposal	pedantique-s-proposal	7
-137	\N	not_a_seagull's Proposal	not-a-seagull-proposal	7
 138	\N	SCP-001	scp-001	7
-139	132	not_a_seagull's Proposal	not-a-seagull-proposal	7
-140	132	Pedantique's Proposal	pedantique-s-proposal	7
 141	\N	Random SCP	random:random-scp	7
 142	\N	Random Tale	random:random-tale	7
 143	\N	info:start	info:start	7
