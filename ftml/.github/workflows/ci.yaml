@@ -1,5 +1,9 @@
 on:
-  - push
+  push:
+    paths:
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'src/**'
 
 name: Rust CI
 
