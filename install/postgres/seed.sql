@@ -4240,8 +4240,6 @@ COPY public.license (license_id, name, description, sort) FROM stdin;
 --
 
 COPY public.log_event (event_id, date, user_id, ip, proxy, type, site_id, page_id, revision_id, thread_id, post_id, user_agent, text) FROM stdin;
-129	2009-01-04 20:04:25	1	127.0.0.1	\N	LOGIN	1	\N	\N	\N	\N	Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.5) Gecko/2008121621 Ubuntu/8.04 (hardy) Firefox/3.0.5	User "Admin" (admin@wikidot) logged in.
-130	2009-01-04 20:04:31	1	127.0.0.1	\N	LOGOUT	1	\N	\N	\N	\N	Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.5) Gecko/2008121621 Ubuntu/8.04 (hardy) Firefox/3.0.5	User "Admin" (admin@wikidot) logged out.
 \.
 
 
@@ -4265,9 +4263,6 @@ COPY public.member (member_id, site_id, user_id, date_joined, allow_newsletter) 
 --
 
 COPY public.member_application (application_id, site_id, user_id, status, date, comment, reply) FROM stdin;
-1	5	5	pending	2020-06-02 22:35:59	asdf	\N
-2	1	7	accepted	2020-06-03 05:43:02	I will follow the rules of the SCP wiki, respect community members, and remember the resources in the Guide Hub and forum guidelines.\n\n23yo	
-3	1	10	accepted	2020-06-08 03:15:53	https://i.imgur.com/LSZO6Yb.jpg	
 \.
 
 
@@ -4284,8 +4279,6 @@ COPY public.member_invitation (invitation_id, site_id, user_id, by_user_id, date
 --
 
 COPY public.membership_link (link_id, site_id, by_user_id, user_id, date, type) FROM stdin;
-1	1	1	7	2020-06-07 23:26:52	APPLICATION_ACCEPTED
-2	1	1	10	2020-06-09 02:24:02	APPLICATION_ACCEPTED
 \.
 
 
@@ -4302,8 +4295,6 @@ COPY public.moderator (moderator_id, site_id, user_id, permissions) FROM stdin;
 --
 
 COPY public.notification (notification_id, user_id, body, type, viewed, date, extra, notify_online, notify_feed, notify_email) FROM stdin;
-1	7	\N	membership_application_accepted	f	2020-06-07 23:26:52	\\x613a333a7b733a373a22736974655f6964223b733a313a2231223b733a393a22736974655f6e616d65223b733a31323a2257696b69646f74204e657874223b733a31313a22736974655f646f6d61696e223b733a32313a227363702d77696b692e626c7565736f756c2e6e6574223b7d	f	f	f
-2	10	\N	membership_application_accepted	f	2020-06-09 02:24:02	\\x613a333a7b733a373a22736974655f6964223b733a313a2231223b733a393a22736974655f6e616d65223b733a31323a2257696b69646f74204e657874223b733a31313a22736974655f646f6d61696e223b733a32333a226e6578742e736370666f756e646174696f6e2e77696b69223b7d	f	f	f
 \.
 
 
