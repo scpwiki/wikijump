@@ -4360,7 +4360,7 @@ COPY public.ozone_session (session_id, started, last_accessed, ip_address, check
 COPY public.ozone_user (user_id, name, nick_name, password, email, unix_name, last_login, registered_date, super_admin, super_moderator, language) FROM stdin;
 -1	Automatic	Automatic	\N	automatic@wikidot	automatic	\N	\N	f	f	en
 0	Anonymous	Anonymous	\N	anonymous@wikidot	anonymous	\N	\N	f	f	en
-1	admin@wikidot	Admin	$2y$11$lqdZZxU8FYqV2LJNaCQTGeI4V9dW/.cPd.DXpx4geF99bhzzpqQMy	admin@wikidot	admin	2020-06-09 00:56:29	\N	t	f	en
+1	Administrator	Admin	\N	admin@wikidot	admin	\N	\N	t	f	en
 \.
 
 
