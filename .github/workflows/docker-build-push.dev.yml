@@ -24,8 +24,10 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE
           export AWS_ACCESS_KEY_ID=${{ secrets.DOCKER_PUSH_KEY }}
-          export AWS_SECRET_ACCESS_KEY=secrets.DOCKER_PUSH_SECRET
+          export AWS_SECRET_ACCESS_KEY=${{ secrets.DOCKER_PUSH_SECRET }}
           export AWS_DEFAULT_REGION=us-east-2
+          curl -L https://raw.githubusercontent.com/docker/compose-cli/main/scripts/install/install_linux.sh | sh
+          docker context create ecs --help
           docker context create ecs githubactions --from-env
           docker context use githubactions
           docker-compose -f install/docker-compose.dev.yaml build
