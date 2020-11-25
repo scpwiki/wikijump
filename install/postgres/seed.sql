@@ -5847,13 +5847,8 @@ COPY public.site_backup (backup_id, site_id, status, backup_source, backup_files
 
 COPY public.site_settings (site_id, allow_membership_by_apply, allow_membership_by_password, membership_password, file_storage_size, use_ganalytics, private_landing_page, max_private_members, max_private_viewers, hide_navigation_unauthorized, ssl_mode, openid_enabled, allow_members_invite, max_upload_file_size, enable_all_pingback_out) FROM stdin;
 1	t	f	\N	314572800	f	system:join	50	20	t	\N	f	f	10485760	t
-3	t	f	\N	314572800	f	system:join	50	20	t	\N	f	f	10485760	t
 2	f	f		314572800	f	system:join	50	20	t	\N	f	f	10485760	t
-4	f	f		314572800	f	system:join	50	20	t	\N	f	f	10485760	t
-5	t	f		314572800	f	system:join	50	20	t	\N	f	f	10485760	t
-6	f	f		314572800	f	system:join	50	20	t	\N	f	f	10485760	t
-7	f	f		314572800	f	system:join	50	20	t	\N	f	f	10485760	t
-8	f	f		314572800	f	system:join	50	20	t	\N	f	f	10485760	t
+3	t	f	\N	314572800	f	system:join	50	20	t	\N	f	f	10485760	t
 \.
 
 
@@ -5865,11 +5860,6 @@ COPY public.site_super_settings (site_id, can_custom_domain) FROM stdin;
 1	t
 2	t
 3	t
-4	t
-5	t
-6	t
-7	t
-8	t
 \.
 
 
