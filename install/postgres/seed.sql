@@ -1,5 +1,5 @@
 --
--- PostgreSQL database cluster dump
+-- PostgreSQL database cluster dump {{{
 --
 
 SET default_transaction_read_only = off;
@@ -19,7 +19,7 @@ ALTER ROLE wikijump WITH INHERIT CREATEDB LOGIN REPLICATION NOBYPASSRLS PASSWORD
 --
 
 --
--- Database "template1" dump
+-- Database "template1" dump {{{
 --
 
 \connect template1
@@ -43,11 +43,11 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- PostgreSQL database dump complete
+-- PostgreSQL database dump complete }}}
 --
 
 --
--- Database "postgres" dump
+-- Database "postgres" dump {{{
 --
 
 \connect postgres
@@ -715,7 +715,11 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- PostgreSQL database dump complete
+-- PostgreSQL database dump complete }}}
+--
+
+--
+-- Database "wikijump" dump {{{
 --
 
 --
@@ -8879,10 +8883,11 @@ GRANT ALL ON SCHEMA public TO wikijump;
 
 
 --
--- PostgreSQL database dump complete
+-- PostgreSQL database dump complete }}}
 --
 
 --
--- PostgreSQL database cluster dump complete
+-- PostgreSQL database cluster dump complete }}}
 --
 
+-- vim: set fdm=marker foldlevel=1:
