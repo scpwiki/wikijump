@@ -3827,7 +3827,7 @@ COPY public.anonymous_abuse_flag (flag_id, user_id, address, proxy, site_id, sit
 -- Data for Name: category; Type: TABLE DATA; Schema: public; Owner: wikijump
 --
 
-COPY category (category_id, site_id, name, theme_default, theme_id, permissions_default, permissions, license_default, license_id, license_other, nav_default, top_bar_page_name, side_bar_page_name, template_id, per_page_discussion, per_page_discussion_default, rating, category_template_id, theme_external_url, enable_pingback_out, enable_pingback_in) FROM stdin;
+COPY public.category (category_id, site_id, name, theme_default, theme_id, permissions_default, permissions, license_default, license_id, license_other, nav_default, top_bar_page_name, side_bar_page_name, template_id, per_page_discussion, per_page_discussion_default, rating, category_template_id, theme_external_url, enable_pingback_out, enable_pingback_in) FROM stdin;
 6	2	nav	t	20	t	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N	t	f
 7	3	_default	t	20	f	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	f	1	\N	f	nav:top	nav:side	\N	\N	t	\N	\N	\N	t	f
 9	3	admin	f	21	t	v:arm;e:;c:;m:;d:;a:;r:;z:;o:	t	1	\N	t	nav:top	nav:side	\N	\N	t	\N	\N	\N	t	f
@@ -4747,7 +4747,7 @@ COPY public.theme (theme_id, name, unix_name, abstract, extends_theme_id, varian
 24	Bloo	bloo	f	1	\N	f	\N	t	t	0	\N	0
 25	Bloo - no side bar	bloo-no-side-bar	f	24	24	f	\N	f	t	0	\N	0
 26	Basic	basic	f	1	\N	f	\N	t	t	0	\N	0
-28	Black Highlighter	bhl	f	1	\N	t	5	t	t	0		0
+28	Black Highlighter	bhl	f	1	\N	t	1	t	t	0		0
 27	Sigma-9	sigma9	f	1	\N	t	1	t	t	0		0
 \.
 
