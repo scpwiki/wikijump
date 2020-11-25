@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - terraform-do-the-thing
 jobs:
   build:
     runs-on: ubuntu-latest
