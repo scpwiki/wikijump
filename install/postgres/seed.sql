@@ -102,9 +102,9 @@ ALTER DOMAIN ts2.gtsvector OWNER TO postgres;
 --
 
 CREATE TYPE ts2.statinfo AS (
-	word text,
-	ndoc integer,
-	nentry integer
+    word text,
+    ndoc integer,
+    nentry integer
 );
 
 
@@ -115,8 +115,8 @@ ALTER TYPE ts2.statinfo OWNER TO postgres;
 --
 
 CREATE TYPE ts2.tokenout AS (
-	tokid integer,
-	token text
+    tokid integer,
+    token text
 );
 
 
@@ -127,9 +127,9 @@ ALTER TYPE ts2.tokenout OWNER TO postgres;
 --
 
 CREATE TYPE ts2.tokentype AS (
-	tokid integer,
-	alias text,
-	descr text
+    tokid integer,
+    alias text,
+    descr text
 );
 
 
@@ -140,12 +140,12 @@ ALTER TYPE ts2.tokentype OWNER TO postgres;
 --
 
 CREATE TYPE ts2.tsdebug AS (
-	ts_name text,
-	tok_type text,
-	description text,
-	token text,
-	dict_name text[],
-	tsvector tsvector
+    ts_name text,
+    tok_type text,
+    description text,
+    token text,
+    dict_name text[],
+    tsvector tsvector
 );
 
 
