@@ -111,3 +111,26 @@ If possible, add to this log in the same commit in which the code is removed.
 * Where it was: `lib/ozoneframework/php/code/ListResolver.php`
 * What it did: Strictly less than `lib/ozoneframework/php/template_services/ondemand/ListResolver.php` which was the intended file and Class to use.
 * Why it was removed: The two files occupied the same namespace and caused Composer to complain when dumping the autoloader.
+
+## JS: `Wikijump.CreateAccountModule`
+* Relevant Issues: [WJ-250](https://scuttle.atlassian.net/browse/WJ-250)
+* Where it was: [CreateAccountModule.js](https://github.com/scpwiki/wikijump/blob/3f2efdaf889a03e797cc14e6cc875c08ab35d4f2/web/web/files--common/modules/js/CreateAccountModule.js)
+* What it did: An old account creation module.
+* Why it was removed: It was [unused](https://github.com/scpwiki/wikijump/pull/34#issuecomment-724658469),
+  attached to the wrong object and deprecated in favour of
+  `createaccount2/CreateAccountModule`.
+
+## JS: `Wikijump.CreateSiteModule`
+* Relevant Issues: [WJ-250](https://scuttle.atlassian.net/browse/WJ-250)
+* Where it was: [CreateSiteModule.js](https://github.com/scpwiki/wikijump/blob/3f2efdaf889a03e797cc14e6cc875c08ab35d4f2/web/web/files--common/modules/js/CreateSiteModule.js)
+* What it did: An old account creation module.
+* Why it was removed: It was [unused](https://github.com/scpwiki/wikijump/pull/34#issuecomment-724658469),
+  attached to the wrong object and deprecated in favour of
+  `newsite/NewSiteModule`.
+
+## JS: `Wikijump.modules.LoginModule` (previous version)
+* Relevant Issues: [WJ-250](https://scuttle.atlassian.net/browse/WJ-250)
+* Where it was: [LoginModule.js](https://github.com/scpwiki/wikijump/blob/3f2efdaf889a03e797cc14e6cc875c08ab35d4f2/web/web/files--common/modules/js/LoginModule.js)
+* What it did: An old login module.
+* Why it was removed: It was unused and deprecated in favour of
+  `login/LoginModule`.
