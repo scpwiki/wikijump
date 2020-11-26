@@ -228,7 +228,7 @@ export const utils = {
       .replace(/&gt;/g, '>');
   },
 
-  formatDates: function (topElementOrId: string | HTMLElement): void {
+  formatDates: function (topElementOrId?: string | HTMLElement): void {
     /**
      * Within the element of ID topElementId, format all spans with class
      * 'odate' to contain text representing the date.
@@ -241,7 +241,8 @@ export const utils = {
      * would be nice to deprecate that, if possible.
      *
      * @param topElementOrId: The element whose children should be
-     * searched for span.odate, or its ID.
+     * searched for span.odate, or its ID. If not provided, the whole document
+     * is searched.
      */
     const monthNames = [
       'January', 'February', 'March', 'April', 'May', 'June',
@@ -257,20 +258,21 @@ export const utils = {
     ];
     const dayNamesShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-    // Irritatingly, either an ID or an element can be passed to this function
-    let topElement: HTMLElement;
-    if (typeof topElementOrId === 'string') {
-      const el = document.getElementById(topElementOrId);
-      if (el === null) {
-        // XXX Throw error
-        return;
-      }
-      topElement = el;
+    let dateElements: NodeListOf<HTMLSpanElement>;
+    if (topElementOrId === undefined) {
+      dateElements = document.querySelectorAll<HTMLSpanElement>('span.odate');
     } else {
-      topElement = topElementOrId;
+        if (typeof topElementOrId === 'string') {
+          const topElement = document.getElementById(topElementOrId);
+          if (topElement === null) {
+            // TODO Throw error
+            return;
+          }
+          dateElements = topElement.querySelectorAll<HTMLSpanElement>('span.odate');
+        } else {
+          dateElements = topElementOrId.querySelectorAll<HTMLSpanElement>('span.odate');
+        }
     }
-
-    const dateElements = topElement.querySelectorAll('span.odate');
 
     (Array.from(dateElements) as HTMLElement[]).forEach(dateElement => {
       let dateString = "";
