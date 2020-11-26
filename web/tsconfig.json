@@ -10,23 +10,14 @@
         "esModuleInterop": true,
         "moduleResolution": "node",
         "allowSyntheticDefaultImports": true,
-        "types": [
-            "jest"
-        ],
-        "lib": [
-            "esnext",
-            "dom",
-            "dom.iterable"
-        ],
+        "types": [ "jest" ],
+        "lib": [ "esnext", "dom", "dom.iterable" ],
         "paths": {
-            "@/*": ["web/files--common/*"]
+            "@/*": ["web/files--common/*"],
+            "@Modules": ["web/files--common/modules/js"],
+            "@Modules/*": ["web/files--common/modules/js/*"]
         }
     },
-    "include": [
-        "web/files--common/**/*.ts",
-        "tests/js/**/*.ts"
-    ],
-    "exclude": [
-        "node_modules"
-    ]
+    "include": [ "web/files--common/**/*.ts", "tests/js/**/*.ts" ],
+    "exclude": [ "node_modules" ]
 }

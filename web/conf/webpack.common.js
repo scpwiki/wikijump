@@ -16,9 +16,10 @@ module.exports = {
   },
   resolve: {
     extensions: ['.ts', '.js'],
-    alias: { '@': path.resolve(__dirname, '../web/files--common') }
+    alias: {
+      '@': path.resolve(__dirname, '../web/files--common'),
+      '@Modules': path.resolve(__dirname, '../web/files--common/modules/js')
+    }
   },
-  plugins: [
-    new CleanWebpackPlugin()
-  ]
+  plugins: [ new CleanWebpackPlugin() ]
 };
