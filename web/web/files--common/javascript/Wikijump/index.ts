@@ -3,15 +3,15 @@ import { page } from "./page";
 import { render } from "./render";
 import { utils } from "./utils";
 
+import { modules } from "@Modules"
+
 const Wikijump = {
   Editor,
   page,
   render,
   utils,
 
-  // Module store: when a module is loaded it will be registered to this
-  // object
-  modules: {},
+  modules,
 
   // Stores login-related variables
   vars: {
