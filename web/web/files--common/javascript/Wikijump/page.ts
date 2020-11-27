@@ -8,9 +8,9 @@ declare type YahooResponse = any;
 declare const fx: any;
 declare const WIKIREQUEST: Wikirequest;
 
-// TODO These are externally defined somewhere - where?
-const HTTP_SCHEMA = "https";
-const URL_HOST = "wikijump.test";
+// Defined in WikiLayout.tpl
+declare const HTTP_SCHEMA: string;
+declare const URL_HOST: string;
 
 type EditLock = {
   id: unknown;
