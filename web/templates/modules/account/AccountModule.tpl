@@ -1,6 +1,6 @@
 {if $start}
 <script type="text/javascript">
-	accountStartPage = "{$start}";
+	accountStartPage = "am-{$start}";
 </script>
 {/if}
 {if $composeTo}

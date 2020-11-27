@@ -134,3 +134,30 @@ If possible, add to this log in the same commit in which the code is removed.
 * What it did: An old login module.
 * Why it was removed: It was unused and deprecated in favour of
   `login/LoginModule`.
+
+## JS: `Wikijump.modules.AccountMessagesModule.listeners.cancelCompose`
+* Relevant Issues: [WJ-250](https://scuttle.atlassian.net/browse/WJ-250)
+* Where it was: [account/AccountMessagesModule.js](https://github.com/scpwiki/wikijump/blob/3f2efdaf889a03e797cc14e6cc875c08ab35d4f2/web/web/files--common/modules/js/account/AccountMessagesModule.js)
+* What it did: Presumably would have done something when cancelling composing a
+  message.
+* Why it was removed: It was an unused, empty method.
+
+## JS: `Wikijump.modules.AccountModule.listeners.editProfile`
+* Relevant Issues: [WJ-250](https://scuttle.atlassian.net/browse/WJ-250)
+* Where it was: [account/AccountModule.js](https://github.com/scpwiki/wikijump/blob/3f2efdaf889a03e797cc14e6cc875c08ab35d4f2/web/web/files--common/modules/js/account/AccountModule.js)
+* What it did: Presumably would have done something when editing your account
+  profile.
+* Why it was removed: It was an unused, empty method.
+
+## JS: `loadList`
+* Relevant Issues: [WJ-250](https://scuttle.atlassian.net/browse/WJ-250)
+* Where it was: [account/AccountNotificationsModule.js](https://github.com/scpwiki/wikijump/blob/3f2efdaf889a03e797cc14e6cc875c08ab35d4f2/web/web/files--common/modules/js/account/AccountNotificationsModule.js), [managesite/ManageSiteNotificationsModule.js](https://github.com/scpwiki/wikijump/blob/3f2efdaf889a03e797cc14e6cc875c08ab35d4f2/web/web/files--common/modules/js/managesite/ManageSiteNotificationsModule.js)
+* What it did: Unsure.
+* Why it was removed: They were globally-defined, conflicting, but thankfully
+  both empty methods.
+
+## JS: `Wikijump.modules.AccountWikiNewslettersModule.[lisenters/callbacks].saveDefault`
+* Relevant Issues: [WJ-250](https://scuttle.atlassian.net/browse/WJ-250)
+* Where it was: [account/membership/AccountWikiNewslettersModule.js](https://github.com/scpwiki/wikijump/blob/3f2efdaf889a03e797cc14e6cc875c08ab35d4f2/web/web/files--common/modules/js/account/membership/AccountWikiNewslettersModule.js)
+* What it did: Nothing. Clearly unfinished, had syntax errors.
+* Why it was removed: Unfinished and unused.
