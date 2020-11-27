@@ -55,7 +55,7 @@ export const utils = {
   },
 
   arrayToPostData: function (
-    data: { [parameter: string]: string | number | undefined | null } | null
+    data: { [parameter: string]: string | number | undefined | null | boolean } | null
   ): string | null {
     /**
      * Generates a URL query string from an object.
