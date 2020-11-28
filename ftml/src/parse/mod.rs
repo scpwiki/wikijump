@@ -26,6 +26,7 @@ mod token;
 
 use self::consume::consume;
 use self::rule::{Consumption, ConsumptionResult};
+use crate::parse::token::ExtractedToken;
 use crate::tree::SyntaxTree;
 use slog::Logger;
 
@@ -33,13 +34,25 @@ pub use self::error::{ParseError, ParseErrorKind};
 pub use self::result::ParseResult;
 pub use self::token::Token;
 
-pub fn parse<'a>(log: &Logger, text: &'a str) -> ParseResult<SyntaxTree<'a>> {
-    let log = &log.new(slog_o!("function" => "parse", "text" => str!(text)));
+pub fn tokenize<'t>(log: &Logger, text: &'t str) -> Vec<ExtractedToken<'t>> {
+    let log = &log.new(slog_o!("function" => "tokenize", "text" => str!(text)));
 
-    info!(log, "Running parser on text");
+    info!(log, "Running lexer on text");
 
-    let tokens = Token::extract_all(log, text);
-    let mut tokens = tokens.as_slice();
+    Token::extract_all(log, text)
+}
+
+pub fn parse<'r, 't>(
+    log: &Logger,
+    mut tokens: &'r [ExtractedToken<'t>],
+) -> ParseResult<SyntaxTree<'t>>
+where
+    'r: 't,
+{
+    let log = &log.new(slog_o!("function" => "parse", "tokens-len" => tokens.len()));
+
+    info!(log, "Running parser on tokens");
+
     let mut output = ParseResult::default();
 
     while !tokens.is_empty() {

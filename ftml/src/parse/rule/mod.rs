@@ -77,8 +77,8 @@ impl slog::Value for Rule {
 /// Result of attempting to consume tokens in a parse rule.
 #[derive(Debug, Clone)]
 pub struct Consumption<'t, 'r> {
-    result: ConsumptionResult<'t, 'r>,
-    error: Option<ParseError>,
+    pub result: ConsumptionResult<'t, 'r>,
+    pub error: Option<ParseError>,
 }
 
 impl<'t, 'r> Consumption<'t, 'r> {
@@ -120,7 +120,10 @@ impl<'t, 'r> Consumption<'t, 'r> {
 }
 
 #[derive(Debug, Clone)]
-pub enum ConsumptionResult<'t, 'r> {
+pub enum ConsumptionResult<'t, 'r>
+where
+    'r: 't,
+{
     Success {
         element: Element<'t>,
         remaining: &'r [ExtractedToken<'t>],

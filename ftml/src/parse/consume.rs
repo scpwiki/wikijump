@@ -30,6 +30,7 @@ use super::rule::{impls::RULE_FALLBACK, rules_for_token, Consumption};
 use super::token::ExtractedToken;
 use super::{ParseError, ParseErrorKind};
 use crate::tree::Element;
+use std::ops::Range;
 
 /// Main function that consumes tokens to produce a single element, then returns.
 pub fn consume<'t, 'r>(
@@ -63,7 +64,7 @@ pub fn consume<'t, 'r>(
     let error = ParseError::new(
         extract.token,
         RULE_FALLBACK,
-        extract.span,
+        Range::clone(&extract.span),
         ParseErrorKind::NoRulesMatch,
     );
 

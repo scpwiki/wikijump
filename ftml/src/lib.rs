@@ -63,12 +63,12 @@ mod parse;
 mod preproc;
 
 pub use self::handle::Handle;
-pub use self::parse::{parse, ParseError, ParseErrorKind, ParseResult};
+pub use self::parse::{parse, tokenize, ParseError, ParseErrorKind, ParseResult};
 pub use self::preproc::preprocess;
 
 pub mod prelude {
     pub use super::tree::{Element, Elements, SyntaxTree};
-    pub use super::{data, handle, parse, preprocess};
+    pub use super::{data, handle, parse, preprocess, tokenize};
 }
 
 #[cfg(test)]
