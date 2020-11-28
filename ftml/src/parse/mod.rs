@@ -26,13 +26,12 @@ mod token;
 
 use self::consume::consume;
 use self::rule::{Consumption, ConsumptionResult};
-use crate::parse::token::ExtractedToken;
 use crate::tree::SyntaxTree;
 use slog::Logger;
 
 pub use self::error::{ParseError, ParseErrorKind};
 pub use self::result::ParseResult;
-pub use self::token::Token;
+pub use self::token::{ExtractedToken, Token};
 
 pub fn tokenize<'t>(log: &Logger, text: &'t str) -> Vec<ExtractedToken<'t>> {
     let log = &log.new(slog_o!("function" => "tokenize", "text" => str!(text)));
