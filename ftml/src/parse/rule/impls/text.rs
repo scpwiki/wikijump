@@ -1,5 +1,5 @@
 /*
- * parse/rule/impls/mod.rs
+ * parse/rule/impls/text.rs
  *
  * ftml - Library to parse Wikidot code
  * Copyright (C) 2019-2020 Ammon Smith
@@ -18,16 +18,23 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO
+use super::prelude::*;
 
-mod prelude {
-    pub use crate::parse::rule::{Consumption, Rule, TryConsumeFn};
-    pub use crate::parse::token::ExtractedToken;
-    pub use crate::tree::Element;
+pub const RULE_TEXT: Rule = Rule {
+    name: "text",
+    try_consume_fn,
+};
+
+fn try_consume_fn<'t, 'r>(
+    log: &slog::Logger,
+    extract: &'r ExtractedToken<'t>,
+    remaining: &'r [ExtractedToken<'t>],
+) -> Consumption<'t, 'r> {
+    trace!(log, "Consuming token as plain text element");
+
+    Consumption::ok(
+        Element::Text(extract.slice),
+        remaining,
+    )
 }
 
-mod fallback;
-mod text;
-
-pub use self::fallback::RULE_FALLBACK;
-pub use self::text::RULE_TEXT;
