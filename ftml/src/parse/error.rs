@@ -42,6 +42,26 @@ impl ParseError {
             kind,
         }
     }
+
+    #[inline]
+    pub fn token(&self) -> Token {
+        self.token
+    }
+
+    #[inline]
+    pub fn rule(&self) -> &'static str {
+        self.rule
+    }
+
+    #[inline]
+    pub fn span(&self) -> Range<usize> {
+        Range::clone(&self.span)
+    }
+
+    #[inline]
+    pub fn kind(&self) -> ParseErrorKind {
+        self.kind
+    }
 }
 
 #[derive(IntoStaticStr, Debug, Copy, Clone)]

@@ -54,7 +54,7 @@ pub fn parse<'a>(log: &Logger, text: &'a str) -> ParseResult<SyntaxTree<'a>> {
 
         match result {
             ConsumptionResult::Success { element, remaining } => {
-                //TODO log
+                debug!(log, "Tokens successfully consumed to produce element");
 
                 // Update remaining tokens
                 //
@@ -67,12 +67,21 @@ pub fn parse<'a>(log: &Logger, text: &'a str) -> ParseResult<SyntaxTree<'a>> {
                 output.push(element);
             }
             ConsumptionResult::Failure => {
-                //TODO log
+                debug!(log, "Tokens unsuccessfully consumed, no element");
             }
         }
 
         if let Some(error) = error {
-            //TODO log
+            info!(
+                log,
+                "Received error during token consumption";
+                "error-token" => error.token(),
+                "error-rule" => error.rule(),
+                "error-span-start" => error.span().start,
+                "error-span-end" => error.span().end,
+                "error-kind" => error.kind().name(),
+            );
+
             output.append_err(error);
         }
     }
