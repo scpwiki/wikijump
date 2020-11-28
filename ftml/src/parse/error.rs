@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::Token;
+use super::{rule::Rule, Token};
 use std::ops::Range;
 use strum_macros::IntoStaticStr;
 
@@ -27,12 +27,30 @@ pub struct ParseError {
     token: Token,
     rule: &'static str,
     span: Range<usize>,
-    error: ParseErrorKind,
+    kind: ParseErrorKind,
+}
+
+impl ParseError {
+    #[inline]
+    pub fn new(token: Token, rule: Rule, span: Range<usize>, kind: ParseErrorKind) -> Self {
+        let rule = rule.name();
+
+        ParseError {
+            token,
+            rule,
+            span,
+            kind,
+        }
+    }
 }
 
 #[derive(IntoStaticStr, Debug, Copy, Clone)]
 pub enum ParseErrorKind {
+    /// The self-enforced recursion limit has been passed, giving up.
     RecursionDepthExceeded,
+
+    /// No rules match for these tokens, returning as plain text.
+    NoRulesMatch,
 }
 
 impl ParseErrorKind {

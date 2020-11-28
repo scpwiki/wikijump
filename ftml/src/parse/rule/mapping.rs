@@ -42,14 +42,14 @@ lazy_static! {
             Token::RightTag => vec![],
             Token::RightTagEnd => vec![],
             Token::LeftAnchor => vec![],
-            Token::Pipe => vec![RULE_TEXT],
+            Token::Pipe => vec![],
             Token::Equals => vec![],
             Token::Quote => vec![],
-            Token::DoubleDash => vec![RULE_STRIKETHROUGH, RULE_EM_DASH],
-            Token::TripleDash => vec![RULE_HORIZONTAL_RULE],
-            Token::LineBreak => vec![RULE_LINE_BREAK],
-            Token::ParagraphBreak => vec![RULE_PARAGRAPH_BREAK],
-            Token::Whitespace => vec![RULE_TEXT],
+            Token::DoubleDash => vec![],
+            Token::TripleDash => vec![],
+            Token::LineBreak => vec![],
+            Token::ParagraphBreak => vec![],
+            Token::Whitespace => vec![],
 
             // Formatting
             Token::Bold => vec![],
@@ -83,16 +83,16 @@ lazy_static! {
             Token::JustifyAlignClose => vec![],
 
             // Text components
-            Token::Identifier => vec![RULE_TEXT],
-            Token::Email => vec![RULE_EMAIL],
-            Token::Url => vec![RULE_URL],
+            Token::Identifier => vec![],
+            Token::Email => vec![],
+            Token::Url => vec![],
             Token::String => vec![],
 
             // Miscellaneous
-            Token::InputEnd => vec![RULE_NULL],
+            Token::InputEnd => vec![],
 
             // Fallback
-            Token::Other => vec![RULE_TEXT],
+            Token::Other => vec![],
         }
     };
 }

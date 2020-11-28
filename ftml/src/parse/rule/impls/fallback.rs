@@ -1,5 +1,5 @@
 /*
- * parse/rule/impls/strikethrough.rs
+ * parse/rule/impls/fallback.rs
  *
  * ftml - Library to parse Wikidot code
  * Copyright (C) 2019-2020 Ammon Smith
@@ -20,14 +20,15 @@
 
 use super::prelude::*;
 
-pub const RULE_STRIKETHROUGH: Rule = make_rule!("strikethrough", try_consume);
+pub const RULE_FALLBACK: Rule = Rule {
+    name: "fallback",
+    try_consume_fn,
+};
 
-fn try_consume<'a>(
-    log: &slog::Logger,
-    _extract: &ExtractedToken<'a>,
-    _next: &[ExtractedToken<'a>],
-) -> Option<RuleResult<'a>> {
-    trace!(log, "Attempting to create container for strikethrough");
-
-    todo!()
+fn try_consume_fn<'t, 'r>(
+    _: &slog::Logger,
+    _: &'r ExtractedToken<'t>,
+    _: &'r [ExtractedToken<'t>],
+) -> Consumption<'t, 'r> {
+    panic!("Manual fallback rule should not be executed directly!")
 }

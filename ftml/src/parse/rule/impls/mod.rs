@@ -18,39 +18,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Private preludes for modules
-macro_rules! make_rule {
-    ($name:expr, $try_consume:expr) => {
-        Rule {
-            name: $name,
-            try_consume_fn: $try_consume,
-        }
-    };
-}
+// TODO
 
 mod prelude {
-    pub use crate::parse::rule::{Rule, RuleResult, TryConsumeFn};
-    pub use crate::parse::token::{ExtractedToken, Token};
+    pub use crate::parse::rule::{Consumption, Rule, TryConsumeFn};
+    pub use crate::parse::token::ExtractedToken;
     pub use crate::tree::Element;
 }
 
-// Implementations, re-exported
-mod em_dash;
-mod email;
-mod hr;
-mod newline;
-mod null;
-mod paragraph;
-mod strikethrough;
-mod text;
-mod url;
+mod fallback;
 
-pub use self::em_dash::RULE_EM_DASH;
-pub use self::email::RULE_EMAIL;
-pub use self::hr::RULE_HORIZONTAL_RULE;
-pub use self::newline::RULE_LINE_BREAK;
-pub use self::null::RULE_NULL;
-pub use self::paragraph::RULE_PARAGRAPH_BREAK;
-pub use self::strikethrough::RULE_STRIKETHROUGH;
-pub use self::text::RULE_TEXT;
-pub use self::url::RULE_URL;
+pub use self::fallback::RULE_FALLBACK;

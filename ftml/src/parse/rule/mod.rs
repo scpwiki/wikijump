@@ -18,11 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::ParseError;
 use crate::parse::token::ExtractedToken;
 use crate::tree::Element;
 use std::fmt::{self, Debug};
 
-mod impls;
+pub mod impls;
 mod mapping;
 
 pub use self::mapping::{rules_for_token, RULE_MAP};
@@ -41,15 +42,15 @@ impl Rule {
     }
 
     #[inline]
-    pub fn try_consume<'a>(
+    pub fn try_consume<'t, 'r>(
         self,
         log: &slog::Logger,
-        extract: &ExtractedToken<'a>,
-        next: &[ExtractedToken<'a>],
-    ) -> Option<RuleResult<'a>> {
+        extract: &'r ExtractedToken<'t>,
+        remaining: &'r [ExtractedToken<'t>],
+    ) -> Consumption<'r, 't> {
         info!(log, "Trying to consume for parse rule '{}'", self.name);
 
-        (self.try_consume_fn)(log, extract, next)
+        (self.try_consume_fn)(log, extract, remaining)
     }
 }
 
@@ -73,16 +74,63 @@ impl slog::Value for Rule {
     }
 }
 
-/// Result type: gives the number of consumed tokens and the resultant element.
+/// Result of attempting to consume tokens in a parse rule.
 #[derive(Debug, Clone)]
-pub struct RuleResult<'a> {
-    pub offset: usize,
-    pub element: Element<'a>,
+pub struct Consumption<'t, 'r> {
+    result: ConsumptionResult<'t, 'r>,
+    error: Option<ParseError>,
+}
+
+impl<'t, 'r> Consumption<'t, 'r> {
+    #[inline]
+    pub fn ok(element: Element<'t>, remaining: &'r [ExtractedToken<'t>]) -> Self {
+        Consumption {
+            result: ConsumptionResult::Success { element, remaining },
+            error: None,
+        }
+    }
+
+    #[inline]
+    pub fn warn(
+        element: Element<'t>,
+        remaining: &'r [ExtractedToken<'t>],
+        error: ParseError,
+    ) -> Self {
+        Consumption {
+            result: ConsumptionResult::Success { element, remaining },
+            error: Some(error),
+        }
+    }
+
+    #[inline]
+    pub fn err(error: ParseError) -> Self {
+        Consumption {
+            result: ConsumptionResult::Failure,
+            error: Some(error),
+        }
+    }
+
+    #[inline]
+    pub fn is_success(&self) -> bool {
+        match self.result {
+            ConsumptionResult::Success { .. } => true,
+            ConsumptionResult::Failure => false,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub enum ConsumptionResult<'t, 'r> {
+    Success {
+        element: Element<'t>,
+        remaining: &'r [ExtractedToken<'t>],
+    },
+    Failure,
 }
 
 /// The function type for actually trying to consume tokens
-pub type TryConsumeFn = for<'a> fn(
+pub type TryConsumeFn = for<'t, 'r> fn(
     log: &slog::Logger,
-    extract: &ExtractedToken<'a>,
-    next: &[ExtractedToken<'a>],
-) -> Option<RuleResult<'a>>;
+    extract: &'r ExtractedToken<'t>,
+    remaining: &'r [ExtractedToken<'t>],
+) -> Consumption<'t, 'r>;

@@ -26,21 +26,22 @@
 //! The parser is not disambiguous because any string of tokens can be interpreted
 //! as raw text as a fallback, which is how Wikidot does it.
 
-use super::rule::{rules_for_token, RuleResult};
+use super::rule::{impls::RULE_FALLBACK, rules_for_token, Consumption};
 use super::token::ExtractedToken;
+use super::{ParseError, ParseErrorKind};
 use crate::tree::Element;
 
 /// Main function that consumes tokens to produce a single element, then returns.
-pub fn consume<'a>(
+pub fn consume<'t, 'r>(
     log: &slog::Logger,
-    extract: &ExtractedToken<'a>,
-    next: &[ExtractedToken<'a>],
-) -> RuleResult<'a> {
+    extract: &'r ExtractedToken<'t>,
+    remaining: &'r [ExtractedToken<'t>],
+) -> Consumption<'t, 'r> {
     let ExtractedToken { token, slice, .. } = extract;
     let log = &log.new(slog_o!(
         "token" => str!(token.name()),
         "slice" => str!(slice),
-        "next-len" => next.len(),
+        "remaining-len" => remaining.len(),
     ));
 
     debug!(log, "Looking for valid rules");
@@ -48,18 +49,23 @@ pub fn consume<'a>(
     for rule in rules_for_token(extract) {
         debug!(log, "Trying rule look ahead"; "rule" => rule);
 
-        if let Some(result) = rule.try_consume(log, extract, next) {
+        let consumption = rule.try_consume(log, extract, remaining);
+        if consumption.is_success() {
             debug!(log, "Rule matched, returning generated result"; "rule" => rule);
 
-            return result;
+            return consumption;
         }
     }
 
     debug!(log, "All rules exhausted, using generic text fallback");
 
-    // Convert this token to text
-    RuleResult {
-        offset: 1,
-        element: Element::Text(slice),
-    }
+    let element = Element::Text(slice);
+    let error = ParseError::new(
+        extract.token,
+        RULE_FALLBACK,
+        extract.span,
+        ParseErrorKind::NoRulesMatch,
+    );
+
+    Consumption::warn(element, remaining, error)
 }

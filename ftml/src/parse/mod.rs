@@ -25,7 +25,7 @@ mod rule;
 mod token;
 
 use self::consume::consume;
-use self::rule::RuleResult;
+use self::rule::{Consumption, ConsumptionResult};
 use crate::tree::SyntaxTree;
 use slog::Logger;
 
@@ -40,11 +40,11 @@ pub fn parse<'a>(log: &Logger, text: &'a str) -> ParseResult<SyntaxTree<'a>> {
 
     let tokens = Token::extract_all(log, text);
     let mut tokens = tokens.as_slice();
-    let mut result = ParseResult::default();
+    let mut output = ParseResult::default();
 
     while !tokens.is_empty() {
         // Consume tokens to get next element
-        let RuleResult { offset, element } = {
+        let Consumption { result, error } = {
             let (extracted, next) = tokens
                 .split_first() //
                 .expect("Tokens list is empty");
@@ -52,24 +52,33 @@ pub fn parse<'a>(log: &Logger, text: &'a str) -> ParseResult<SyntaxTree<'a>> {
             consume(log, extracted, next)
         };
 
-        assert!(
-            tokens.len() >= offset,
-            "Attempted to consume more tokens than exist",
-        );
+        match result {
+            ConsumptionResult::Success { element, remaining } => {
+                //TODO log
 
-        if tokens.len() > 1 {
-            // We need to consume at least one token, otherwise this loops forever.
-            // Returning a 0 is a bug if this isn't the end of input.
-            assert_ne!(offset, 0, "Returned token offset was zero");
+                // Update remaining tokens
+                //
+                // The new value is a subslice of tokens,
+                // equivalent to &tokens[offset..] but without
+                // needing to assert bounds.
+                tokens = remaining;
+
+                // Add the new element to the list
+                output.push(element);
+            }
+            ConsumptionResult::Failure => {
+                //TODO log
+            }
         }
 
-        // Update state
-        tokens = &tokens[offset..];
-        result.push(element);
+        if let Some(error) = error {
+            //TODO log
+            output.append_err(error);
+        }
     }
 
     debug!(log, "Finished running parser, returning gathered elements");
-    SyntaxTree::from_element_result(result)
+    SyntaxTree::from_element_result(output)
 }
 
 #[test]
