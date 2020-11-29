@@ -197,7 +197,7 @@ string = { "\"" ~ char* ~ "\"" }
 
 line_break = { NEWLINE }
 paragraph_break = { NEWLINE{2,} }
-space = { " " | "\t" }
+space = { (" " | "\t")+ }
 
 // To be consolidated in code
 //
