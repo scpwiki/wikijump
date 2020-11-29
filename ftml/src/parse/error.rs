@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::{rule::Rule, Token};
+use super::{rule::Rule, ExtractedToken, Token};
 use std::ops::Range;
 use strum_macros::IntoStaticStr;
 
@@ -32,7 +32,9 @@ pub struct ParseError {
 
 impl ParseError {
     #[inline]
-    pub fn new(token: Token, rule: Rule, span: Range<usize>, kind: ParseErrorKind) -> Self {
+    pub fn new(kind: ParseErrorKind, rule: Rule, extract: &ExtractedToken) -> Self {
+        let token = extract.token;
+        let span = Range::clone(&extract.span);
         let rule = rule.name();
 
         ParseError {

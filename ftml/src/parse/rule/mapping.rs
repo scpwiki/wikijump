@@ -44,7 +44,7 @@ lazy_static! {
             Token::Whitespace => vec![],
 
             // Formatting
-            Token::Bold => vec![],
+            Token::Bold => vec![RULE_BOLD],
             Token::Italics => vec![],
             Token::Underline => vec![],
             Token::Superscript => vec![],

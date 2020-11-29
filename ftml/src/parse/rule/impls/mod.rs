@@ -18,18 +18,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO
-
 mod prelude {
-    pub use crate::parse::rule::{Consumption, Rule, TryConsumeFn};
-    pub use crate::parse::token::ExtractedToken;
-    pub use crate::tree::Element;
+    pub use crate::parse::consume::consume;
+    pub use crate::parse::error::{ParseError, ParseErrorKind};
+    pub use crate::parse::rule::{Consumption, ConsumptionResult, Rule, TryConsumeFn};
+    pub use crate::parse::token::{ExtractedToken, Token};
+    pub use crate::tree::{Container, ContainerType, Element};
 }
 
+// TODO
+
+mod bold;
 mod fallback;
 mod null;
 mod text;
 
+pub use self::bold::RULE_BOLD;
 pub use self::fallback::RULE_FALLBACK;
 pub use self::null::RULE_NULL;
 pub use self::text::RULE_TEXT;

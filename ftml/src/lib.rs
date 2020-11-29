@@ -67,7 +67,7 @@ pub use self::parse::{
 pub use self::preproc::preprocess;
 
 pub mod prelude {
-    pub use super::tree::{Element, Elements, SyntaxTree};
+    pub use super::tree::{Element, SyntaxTree};
     pub use super::{data, parse, preprocess, tokenize};
 }
 

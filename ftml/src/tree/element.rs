@@ -20,8 +20,6 @@
 
 use super::Container;
 
-pub type Elements<'a> = Vec<Element<'a>>;
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Element<'a> {
     Container(Container<'a>),

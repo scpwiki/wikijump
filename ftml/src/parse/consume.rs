@@ -30,7 +30,6 @@ use super::rule::{impls::RULE_FALLBACK, rules_for_token, Consumption};
 use super::token::ExtractedToken;
 use super::{ParseError, ParseErrorKind};
 use crate::tree::Element;
-use std::ops::Range;
 
 /// Main function that consumes tokens to produce a single element, then returns.
 pub fn consume<'t, 'r>(
@@ -61,12 +60,7 @@ pub fn consume<'t, 'r>(
     debug!(log, "All rules exhausted, using generic text fallback");
 
     let element = Element::Text(slice);
-    let error = ParseError::new(
-        extract.token,
-        RULE_FALLBACK,
-        Range::clone(&extract.span),
-        ParseErrorKind::NoRulesMatch,
-    );
+    let error = ParseError::new(ParseErrorKind::NoRulesMatch, RULE_FALLBACK, extract);
 
     Consumption::warn(element, remaining, error)
 }

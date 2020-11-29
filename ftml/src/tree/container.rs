@@ -18,16 +18,42 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::Elements;
 use crate::enums::HeadingLevel;
+use crate::tree::Element;
 use strum_macros::IntoStaticStr;
 
 /// Representation of syntax elements which wrap other elements.
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Container<'a> {
-    pub etype: ContainerType,
-    pub elements: Elements<'a>,
+    etype: ContainerType,
+    elements: Vec<Element<'a>>,
+}
+
+impl<'a> Container<'a> {
+    #[inline]
+    pub fn new(etype: ContainerType, elements: Vec<Element<'a>>) -> Self {
+        Container { etype, elements }
+    }
+
+    #[inline]
+    pub fn etype(&self) -> ContainerType {
+        self.etype
+    }
+
+    #[inline]
+    pub fn elements(&self) -> &[Element<'a>] {
+        &self.elements
+    }
+}
+
+impl<'a> Into<Vec<Element<'a>>> for Container<'a> {
+    #[inline]
+    fn into(self) -> Vec<Element<'a>> {
+        let Container { elements, .. } = self;
+
+        elements
+    }
 }
 
 #[derive(IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq)]
