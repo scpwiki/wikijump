@@ -41,7 +41,7 @@ lazy_static! {
             Token::TripleDash => vec![],
             Token::LineBreak => vec![],
             Token::ParagraphBreak => vec![],
-            Token::Whitespace => vec![],
+            Token::Whitespace => vec![RULE_TEXT],
 
             // Formatting
             Token::Bold => vec![RULE_BOLD],
@@ -75,7 +75,7 @@ lazy_static! {
             Token::JustifyAlignClose => vec![],
 
             // Text components
-            Token::Identifier => vec![],
+            Token::Identifier => vec![RULE_TEXT],
             Token::Email => vec![RULE_EMAIL],
             Token::Url => vec![RULE_URL],
             Token::String => vec![],
