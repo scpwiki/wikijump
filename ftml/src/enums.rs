@@ -155,7 +155,6 @@ pub enum ListStyle {
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum InfoField {
     Title,
-    AltTitle,
     Header,
     SubHeader,
 }
