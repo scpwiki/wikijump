@@ -127,10 +127,10 @@ impl Token {
                     .collect()
             }
             Err(error) => {
-                error!(logger, "Error while lexing input in pest: {}", error);
-
-                // TODO better handling lol
                 // Return all of the input as one big raw text
+                // and log this as an error, since it shouldn't be happening
+
+                error!(logger, "Error while lexing input in pest: {}", error);
 
                 vec![ExtractedToken {
                     token: Token::Other,
