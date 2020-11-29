@@ -24,28 +24,6 @@
 use std::convert::TryFrom;
 
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub enum Alignment {
-    Left,
-    Right,
-    Center,
-    Justify,
-}
-
-impl<'a> TryFrom<&'a str> for Alignment {
-    type Error = ();
-
-    fn try_from(value: &'a str) -> Result<Self, Self::Error> {
-        match value {
-            "<" => Ok(Alignment::Left),
-            ">" => Ok(Alignment::Right),
-            "=" => Ok(Alignment::Center),
-            "==" => Ok(Alignment::Justify),
-            _ => Err(()),
-        }
-    }
-}
-
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum AnchorTarget {
     /// Open the link in a new tab.
     /// HTML attribute is `_blank`.

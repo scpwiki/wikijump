@@ -21,11 +21,33 @@
 // TODO
 #![allow(dead_code)]
 
-use crate::enums::Alignment;
 use regex::Regex;
+use std::convert::TryFrom;
 
 lazy_static! {
     static ref IMAGE_ALIGNMENT_REGEX: Regex = Regex::new(r"(f?[<>])|=").unwrap();
+}
+
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum Alignment {
+    Left,
+    Right,
+    Center,
+    Justify,
+}
+
+impl<'a> TryFrom<&'a str> for Alignment {
+    type Error = ();
+
+    fn try_from(value: &'a str) -> Result<Self, Self::Error> {
+        match value {
+            "<" => Ok(Alignment::Left),
+            ">" => Ok(Alignment::Right),
+            "=" => Ok(Alignment::Center),
+            "==" => Ok(Alignment::Justify),
+            _ => Err(()),
+        }
+    }
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
