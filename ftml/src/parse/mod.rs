@@ -105,7 +105,7 @@ where
 #[test]
 fn ast() {
     let logger = crate::build_logger();
-    let text = "test string";
+    let text = "**test** string";
     let tokens = tokenize(&logger, text);
     let tree = parse(&logger, &tokens);
     println!("Tree: {:#?}", tree);
