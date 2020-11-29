@@ -78,7 +78,25 @@ const PREFILTER_TEST_CASES: [(&str, &str); 11] = [
         " . . . <<I'm not sure about this,>>",
         " … «I'm not sure about this,»",
     ),
-    // TODO add [[include]] tests
+];
+
+const INCLUDE_TEST_CASES: [(&str, &str); 7] = [
+    ("", ""),
+    ("[[include page]]", "<PAGE 'page' {}>"),
+    (
+        "[[include theme:sigma-9]]\nPage content",
+        "<PAGE 'theme:sigma-9' {}>",
+    ),
+    (
+        "apple\n[[include info:start]]\nbanana\n[[include info:end]]\ncherry",
+        "apple\n<PAGE 'info:start'>\nbanana\n<PAGE 'info:end'>\ncherry",
+    ),
+    (
+        "[[include component:image-block\n|name=filename.jpeg\n|caption=SCP-XXXX\n|width=30%\n]]",
+        "<PAGE 'component:image-block' {..}",
+    ),
+    ("[[include xyz | a = 1 | b = 2 ]]", "<PAGE 'xyz' {..}>"),
+    ("[[include xyz a = 1 | b = 2 | ]]", "<PAGE 'xyz' {..}>"),
 ];
 
 #[test]
@@ -87,5 +105,14 @@ fn prefilter() {
         "prefilter",
         |log, text| preprocess(log, text, &DebugHandle),
         &PREFILTER_TEST_CASES,
+    );
+}
+
+#[test]
+fn include() {
+    test_substitution(
+        "include",
+        |log, text| preprocess(log, text, &DebugHandle),
+        &INCLUDE_TEST_CASES,
     );
 }
