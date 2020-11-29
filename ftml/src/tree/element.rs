@@ -22,14 +22,45 @@ use super::Container;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Element<'a> {
+    /// An element which contains other elements within it.
+    ///
+    /// Examples would include bold, italics, divs, etc.
     Container(Container<'a>),
+
+    /// An element only containing text.
+    ///
+    /// Should be formatted like typical body text.
     Text(&'a str),
+
+    /// An element indicating an email.
+    ///
+    /// Whether this should become a clickable href link or just text
+    /// is up to the render implementation.
     Email(&'a str),
+
+    /// An element linking to a different page.
+    ///
+    /// The "url" field is either a page name (relative URL) or full URL.
+    /// The "label" field is an optional field denoting what the link should
+    /// display. If `None`, use the link's value itself, that is, `label.unwrap_or(url)`.
     Link {
         label: Option<&'a str>,
         url: &'a str,
     },
+
+    /// A newline or line break.
+    ///
+    /// This calls for a newline in the final output, such as `<br>` in HTML.
     LineBreak,
+
+    /// A horizontal rule.
     HorizontalRule,
+
+    /// A null element.
+    ///
+    /// The element equivalent of a no-op instruction. No action should be taken,
+    /// and it should be skipped over.
+    ///
+    /// This shouldn't appear in final `SyntaxTree`s.
     Null,
 }
