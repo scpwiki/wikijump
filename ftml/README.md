@@ -42,13 +42,30 @@ $ cargo test
 Add `-- --nocapture` to the end if you want to see test output.
 
 ### Usage
-There are two primary exports, which are the `preprocess` and `parse` functions.  
-The library uses `slog` for structured logging, and an instance of the logger must be passed for each call.
+There are three exported functions, which correspond to each of the main steps in the wikitext process.
+
+First is `preprocess`, which will perform Wikidot substitutions on the text. It takes a `&dyn Handle` as it also expands `[[include]]`d components for their actual text.
+
+Second is `tokenize`, which takes the input string and returns a list of extracted tokens from it, all borrowing from it.
+
+Then, borrowing a slice of said tokens, `parse` consumes them and produces a `SyntaxTree` representing the full structure of the parsed wikitext.
 
 ```rust
-fn preprocess(log: &slog::Logger, text: &mut String, includer: &dyn Handle);
+fn preprocess(
+    log: &slog::Logger,
+    text: &mut String,
+    includer: &dyn Handle,
+)
 
-fn parse<'a>(log: &slog::Logger, text: &'a str) -> SyntaxTree<'a>;
+fn tokenize<'t>(
+    log: &slog::Logger,
+    text: &'t str,
+) -> Vec<ExtractedToken<'t>>
+
+fn parse<'r, 't>(
+    log: &slog::Logger,
+    mut tokens: &'r [ExtractedToken<'t>],
+) -> ParseResult<SyntaxTree<'t>>
 ```
 
 When performing a parse, you will need to first run `preprocess()`, then run `parse()`
