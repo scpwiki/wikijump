@@ -69,6 +69,9 @@ pub enum ParseErrorKind {
     /// The self-enforced recursion limit has been passed, giving up.
     RecursionDepthExceeded,
 
+    /// Attempting to match this rule failed, falling back to try an alternate.
+    RuleFailed,
+
     /// No rules match for these tokens, returning as plain text.
     NoRulesMatch,
 }
