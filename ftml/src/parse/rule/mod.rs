@@ -117,6 +117,11 @@ impl<'t, 'r> Consumption<'t, 'r> {
             ConsumptionResult::Failure => false,
         }
     }
+
+    #[inline]
+    pub fn is_error(&self) -> bool {
+        !self.is_success()
+    }
 }
 
 #[derive(Debug, Clone)]
