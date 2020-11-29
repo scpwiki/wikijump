@@ -1,5 +1,5 @@
 /*
- * parse/rule/impls/mod.rs
+ * parse/rule/impls/url.rs
  *
  * ftml - Library to parse Wikidot code
  * Copyright (C) 2019-2020 Ammon Smith
@@ -18,24 +18,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod prelude {
-    pub use crate::parse::consume::consume;
-    pub use crate::parse::error::{ParseError, ParseErrorKind};
-    pub use crate::parse::rule::{Consumption, ConsumptionResult, Rule, TryConsumeFn};
-    pub use crate::parse::token::{ExtractedToken, Token};
-    pub use crate::tree::{Container, ContainerType, Element};
+use super::prelude::*;
+
+pub const RULE_URL: Rule = Rule {
+    name: "url",
+    try_consume_fn,
+};
+
+fn try_consume_fn<'t, 'r>(
+    log: &slog::Logger,
+    extract: &'r ExtractedToken<'t>,
+    remaining: &'r [ExtractedToken<'t>],
+) -> Consumption<'t, 'r> {
+    trace!(log, "Consuming token as a URL");
+
+    let element = Element::Link {
+        label: None,
+        url: extract.slice,
+    };
+
+    Consumption::ok(element, remaining)
 }
-
-// TODO
-
-mod bold;
-mod fallback;
-mod null;
-mod text;
-mod url;
-
-pub use self::bold::RULE_BOLD;
-pub use self::fallback::RULE_FALLBACK;
-pub use self::null::RULE_NULL;
-pub use self::text::RULE_TEXT;
-pub use self::url::RULE_URL;
