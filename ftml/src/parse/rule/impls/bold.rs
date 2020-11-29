@@ -34,7 +34,7 @@ fn try_consume_fn<'t, 'r>(
 ) -> Consumption<'t, 'r> {
     debug_assert_eq!(extract.token, Token::Bold, "Current token is not bold");
 
-    trace!(log, "Trying to consume tokens until we find ending bold");
+    debug!(log, "Trying to consume tokens until we find ending bold");
 
     let mut elements = Vec::new();
     while let Some((new_extract, new_remaining)) = remaining.split_first() {

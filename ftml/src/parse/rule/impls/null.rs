@@ -30,7 +30,7 @@ fn try_consume_fn<'t, 'r>(
     _extract: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
 ) -> Consumption<'t, 'r> {
-    trace!(log, "Consuming token and outputting null element");
+    debug!(log, "Consuming token and outputting null element");
 
     Consumption::ok(Element::Null, remaining)
 }

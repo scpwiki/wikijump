@@ -30,7 +30,7 @@ fn try_consume_fn<'t, 'r>(
     extract: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
 ) -> Consumption<'t, 'r> {
-    trace!(log, "Consuming token as an email");
+    debug!(log, "Consuming token as an email");
 
     Consumption::ok(Element::Email(extract.slice), remaining)
 }

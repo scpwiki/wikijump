@@ -30,7 +30,7 @@ fn try_consume_fn<'t, 'r>(
     extract: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
 ) -> Consumption<'t, 'r> {
-    trace!(log, "Consuming token as plain text element");
+    debug!(log, "Consuming token as plain text element");
 
     Consumption::ok(Element::Text(extract.slice), remaining)
 }

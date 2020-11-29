@@ -30,7 +30,7 @@ fn try_consume_fn<'t, 'r>(
     extract: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
 ) -> Consumption<'t, 'r> {
-    trace!(log, "Consuming token as a URL");
+    debug!(log, "Consuming token as a URL");
 
     let element = Element::Link {
         label: None,
