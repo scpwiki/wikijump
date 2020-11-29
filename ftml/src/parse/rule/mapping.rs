@@ -22,14 +22,6 @@ use super::{impls::*, Rule};
 use crate::parse::token::{ExtractedToken, Token};
 use enum_map::EnumMap;
 
-// NOTE: Empty rule lists mean that it's an invalid token.
-//       For instance, such as a ']]]' with no opening tag.
-//       It will fall back to the text anyways, this communicates
-//       intent better.
-
-// TODO: Actually, we need to convert ending tokens into lookbacks
-//       at current stack / context to try and end ongoing containers.
-
 lazy_static! {
     pub static ref RULE_MAP: EnumMap<Token, Vec<Rule>> = {
         enum_map! {
