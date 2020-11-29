@@ -44,7 +44,7 @@ Add `-- --nocapture` to the end if you want to see test output.
 ### Usage
 There are three exported functions, which correspond to each of the main steps in the wikitext process.
 
-First is `preprocess`, which will perform Wikidot substitutions on the text. It takes a `&dyn Handle` as it also expands `[[include]]`d components for their actual text.
+First is `preprocess`, which will perform Wikidot's various minor text substitutions.
 
 Second is `tokenize`, which takes the input string and returns a list of extracted tokens from it, all borrowing from it.
 
@@ -54,7 +54,6 @@ Then, borrowing a slice of said tokens, `parse` consumes them and produces a `Sy
 fn preprocess(
     log: &slog::Logger,
     text: &mut String,
-    includer: &dyn Handle,
 )
 
 fn tokenize<'t>(

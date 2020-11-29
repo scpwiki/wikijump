@@ -25,8 +25,6 @@ mod typography;
 #[cfg(test)]
 mod test;
 
-use crate::Handle;
-
 /// Run the preprocessor on the given wikitext, which is modified in-place.
 ///
 /// The following modifications are performed:
@@ -40,10 +38,9 @@ use crate::Handle;
 ///
 /// This call always succeeds. The return value designates where issues occurred
 /// to allow programmatic determination of where things were not as expected.
-pub fn preprocess(log: &slog::Logger, text: &mut String, handle: &dyn Handle) {
+pub fn preprocess(log: &slog::Logger, text: &mut String) {
     let log = &log.new(slog_o!("function" => "preprocess", "text" => str!(text)));
 
-    include::substitute(log, text, handle);
     misc::substitute(log, text);
     typography::substitute(log, text);
 
@@ -53,9 +50,7 @@ pub fn preprocess(log: &slog::Logger, text: &mut String, handle: &dyn Handle) {
 #[test]
 fn fn_type() {
     type SubstituteFn = fn(&slog::Logger, &mut String);
-    type SubstituteHandleFn = fn(&slog::Logger, &mut String, &dyn Handle);
 
-    let _: SubstituteHandleFn = include::substitute;
     let _: SubstituteFn = misc::substitute;
     let _: SubstituteFn = typography::substitute;
 }

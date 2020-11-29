@@ -19,7 +19,6 @@
  */
 
 use super::preprocess;
-use crate::handle::DebugHandle;
 
 pub fn test_substitution<F>(filter_name: &str, mut substitute: F, tests: &[(&str, &str)])
 where
@@ -103,7 +102,7 @@ const INCLUDE_TEST_CASES: [(&str, &str); 7] = [
 fn prefilter() {
     test_substitution(
         "prefilter",
-        |log, text| preprocess(log, text, &DebugHandle),
+        |log, text| preprocess(log, text),
         &PREFILTER_TEST_CASES,
     );
 }
@@ -115,7 +114,7 @@ fn include() {
 
     test_substitution(
         "include",
-        |log, text| preprocess(log, text, &DebugHandle),
+        |log, text| preprocess(log, text),
         &INCLUDE_TEST_CASES,
     );
 }

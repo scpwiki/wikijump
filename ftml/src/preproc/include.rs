@@ -18,7 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::Handle;
+// TODO remove when we figure out what to do with includes
+#![allow(dead_code)]
+
 use std::collections::HashMap;
 use std::ops::Range;
 
@@ -51,7 +53,7 @@ struct IncludeRef {
     page: Result<Option<String>, String>,
 }
 
-fn substitute_depth(log: &slog::Logger, text: &mut String, handle: &dyn Handle, depth: usize) {
+fn substitute_depth(log: &slog::Logger, text: &mut String, depth: usize) {
     info!(log, "Substituting include blocks"; "text" => &*text, "depth" => depth);
 
     let tokens: Vec<()> = vec![]; // stub
@@ -76,7 +78,7 @@ fn substitute_depth(log: &slog::Logger, text: &mut String, handle: &dyn Handle, 
             "depth" => depth,
         );
 
-        let page = handle.include_page(name, &args);
+        let page = Ok(Some(str!())); /* include_page(name, &args) */
         let name = str!(name);
 
         includes.push(IncludeRef { range, name, page });
@@ -103,7 +105,8 @@ fn substitute_depth(log: &slog::Logger, text: &mut String, handle: &dyn Handle, 
                 "depth" => depth,
                 "max-depth" => MAX_DEPTH,
             );
-            handle.include_max_depth_error(MAX_DEPTH)
+
+            str!() /* include_max_depth_error(MAX_DEPTH) */
         } else {
             debug!(
                 log,
@@ -114,7 +117,7 @@ fn substitute_depth(log: &slog::Logger, text: &mut String, handle: &dyn Handle, 
 
             match page {
                 Ok(Some(content)) => content,
-                Ok(None) => handle.include_missing_error(&name),
+                Ok(None) => str!() /* include_missing_error(&name) */,
                 Err(error) => error,
             }
         };
@@ -125,11 +128,11 @@ fn substitute_depth(log: &slog::Logger, text: &mut String, handle: &dyn Handle, 
     // Next level of substitution
     if has_includes {
         trace!(log, "Resultant content has includes, going to next level");
-        substitute_depth(log, text, handle, depth + 1);
+        substitute_depth(log, text, depth + 1);
     }
 }
 
 #[inline]
-pub fn substitute(log: &slog::Logger, text: &mut String, handle: &dyn Handle) {
-    substitute_depth(log, text, handle, 0)
+pub fn substitute(log: &slog::Logger, text: &mut String) {
+    substitute_depth(log, text, 0)
 }

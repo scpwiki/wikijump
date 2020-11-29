@@ -55,14 +55,12 @@ extern crate slog_bunyan;
 extern crate sloggers;
 
 pub mod data;
-pub mod handle;
 pub mod tree;
 
 mod enums;
 mod parse;
 mod preproc;
 
-pub use self::handle::Handle;
 pub use self::parse::{
     parse, tokenize, ExtractedToken, ParseError, ParseErrorKind, ParseResult, Token,
 };
@@ -70,7 +68,7 @@ pub use self::preproc::preprocess;
 
 pub mod prelude {
     pub use super::tree::{Element, Elements, SyntaxTree};
-    pub use super::{data, handle, parse, preprocess, tokenize};
+    pub use super::{data, parse, preprocess, tokenize};
 }
 
 #[cfg(test)]
