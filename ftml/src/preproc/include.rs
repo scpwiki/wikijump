@@ -24,6 +24,26 @@ use std::ops::Range;
 
 const MAX_DEPTH: usize = 10;
 
+// Current pest parser grammar are in src/preproc/include.pest
+//
+// Big TODO note, since includes are kind of roadblocked and annoying:
+//
+// What do we do about include parsing?
+// We need to properly respect the prioritization list,
+// for relevant elements this is (in order):
+// * Raw      - @@ / @< >@
+// * Comments - [!-- --]
+// * Includes - [[include]]
+//
+// Which is kind of difficult to do with the current token-based system.
+// Either we need a two-pass parsing system, where the first one is
+// raw and comment-aware too (but doesn't act on them), or includes
+// are handled at the regular parsing level, and inserted as a string of tokens.
+// Which breaks the current (terrible but clever) hacks like [!--{$opt}
+//
+// All of these minor implementation details in wikitext means the only "true"
+// implementation is a pure replica of Wikidot's terrible code. This sucks lol
+
 #[derive(Debug, Clone)]
 struct IncludeRef {
     range: Range<usize>,
