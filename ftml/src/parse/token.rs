@@ -123,7 +123,7 @@ impl Token {
                 info!(logger, "Lexer produced pairs for processing");
 
                 pairs
-                    .filter_map(|pair| Token::convert_pair(logger, pair))
+                    .map(|pair| Token::convert_pair(logger, pair))
                     .collect()
             }
             Err(error) => {
@@ -142,7 +142,7 @@ impl Token {
     }
 
     /// Converts a single `Pair` from pest into its corresponding `ExtractedToken`.
-    fn convert_pair<'a>(logger: &slog::Logger, pair: Pair<'a, Rule>) -> Option<ExtractedToken<'a>> {
+    fn convert_pair<'a>(logger: &slog::Logger, pair: Pair<'a, Rule>) -> ExtractedToken<'a> {
         // Extract values from the Pair
         let rule = pair.as_rule();
         let slice = pair.as_str();
@@ -162,7 +162,7 @@ impl Token {
         );
 
         let span = start..end;
-        Some(ExtractedToken { token, slice, span })
+        ExtractedToken { token, slice, span }
     }
 
     /// Mapping of a pest `Rule` to its corresponding `Token` enum.
