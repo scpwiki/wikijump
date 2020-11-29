@@ -117,7 +117,7 @@ fn substitute_depth(log: &slog::Logger, text: &mut String, depth: usize) {
 
             match page {
                 Ok(Some(content)) => content,
-                Ok(None) => str!() /* include_missing_error(&name) */,
+                Ok(None) => str!(), /* include_missing_error(&name) */
                 Err(error) => error,
             }
         };
