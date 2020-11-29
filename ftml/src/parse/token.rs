@@ -52,6 +52,10 @@ pub enum Token {
     Quote,
     DoubleDash,
     TripleDash,
+
+    //
+    // Whitespace
+    //
     LineBreak,
     ParagraphBreak,
     Whitespace,
@@ -182,6 +186,8 @@ impl Token {
             Rule::quote => Token::Quote,
             Rule::double_dash => Token::DoubleDash,
             Rule::triple_dash => Token::TripleDash,
+
+            // Whitespace
             Rule::line_break => Token::LineBreak,
             Rule::paragraph_break => Token::ParagraphBreak,
             Rule::space => Token::Whitespace,
@@ -230,6 +236,13 @@ impl Token {
             Rule::char | Rule::document | Rule::token => {
                 panic!("Received invalid pest rule: {:?}", rule)
             }
+        }
+    }
+
+    pub fn is_whitespace(self) -> bool {
+        match self {
+            Token::LineBreak | Token::ParagraphBreak | Token::Whitespace | Token::InputEnd => true,
+            _ => false,
         }
     }
 
