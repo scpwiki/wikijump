@@ -41,6 +41,9 @@ extern crate pest_derive;
 extern crate regex;
 
 #[macro_use]
+extern crate serde;
+
+#[macro_use]
 extern crate slog;
 
 #[macro_use]

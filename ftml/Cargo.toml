@@ -24,6 +24,7 @@ lazy_static = "1"
 pest = "2"
 pest_derive = "2"
 regex = "1"
+serde = { version = "1", features = ["derive"] }
 slog = "2.5"
 str-macro = "0.1"
 strum = "0.20"

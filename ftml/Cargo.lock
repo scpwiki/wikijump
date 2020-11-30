@@ -254,6 +254,7 @@ dependencies = [
  "pest",
  "pest_derive",
  "regex",
+ "serde",
  "slog",
  "slog-bunyan",
  "sloggers",
