@@ -54,6 +54,7 @@ pub enum Token {
     Pipe,
     Equals,
     Quote,
+    Heading,
     DoubleDash,
     TripleDash,
 

@@ -77,6 +77,7 @@ token = _{
     pipe |
     equals |
     quote |
+    heading |
 
     // Formatting
     bold |
@@ -143,6 +144,7 @@ double_dash = { "-"{2} }
 pipe = { "|" }
 equals = { "=" }
 quote = { ">"+ ~ " "? }
+heading = { "+"{1,6} }
 
 // }}}
 
