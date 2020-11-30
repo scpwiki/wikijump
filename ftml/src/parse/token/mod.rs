@@ -51,12 +51,12 @@ pub enum Token {
     RightTag,
     RightTagEnd,
     LeftAnchor,
+    DoubleDash,
+    TripleDash,
     Pipe,
     Equals,
     Quote,
     Heading,
-    DoubleDash,
-    TripleDash,
 
     //
     // Whitespace
@@ -186,11 +186,11 @@ impl Token {
             Rule::right_tag => Token::RightTag,
             Rule::right_tag_end => Token::RightTagEnd,
             Rule::color => Token::Color,
+            Rule::double_dash => Token::DoubleDash,
+            Rule::triple_dash => Token::TripleDash,
             Rule::pipe => Token::Pipe,
             Rule::equals => Token::Equals,
             Rule::quote => Token::Quote,
-            Rule::double_dash => Token::DoubleDash,
-            Rule::triple_dash => Token::TripleDash,
 
             // Whitespace
             Rule::line_break => Token::LineBreak,
