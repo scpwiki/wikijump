@@ -191,6 +191,7 @@ impl Token {
             Rule::pipe => Token::Pipe,
             Rule::equals => Token::Equals,
             Rule::quote => Token::Quote,
+            Rule::heading => Token::Heading,
 
             // Whitespace
             Rule::line_break => Token::LineBreak,
