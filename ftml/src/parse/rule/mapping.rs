@@ -39,7 +39,7 @@ lazy_static! {
             Token::Quote => vec![],
             Token::DoubleDash => vec![],
             Token::TripleDash => vec![],
-            Token::LineBreak => vec![],
+            Token::LineBreak => vec![RULE_LINE_BREAK],
             Token::ParagraphBreak => vec![],
             Token::Whitespace => vec![RULE_TEXT],
 
