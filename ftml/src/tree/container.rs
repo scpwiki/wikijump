@@ -27,7 +27,9 @@ use strum_macros::IntoStaticStr;
 #[derive(Serialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub struct Container<'a> {
+    #[serde(rename = "type")]
     etype: ContainerType,
+
     elements: Vec<Element<'a>>,
 }
 
