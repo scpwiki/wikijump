@@ -19,10 +19,9 @@
  */
 
 use super::ParseError;
-use serde::{Serialize, Serializer};
 use std::borrow::{Borrow, BorrowMut};
 
-#[derive(Debug)]
+#[derive(Serialize, Debug)]
 pub struct ParseResult<T> {
     value: T,
     errors: Vec<ParseError>,
@@ -125,23 +124,5 @@ impl<T> Into<(T, Vec<ParseError>)> for ParseResult<T> {
         let ParseResult { value, errors } = self;
 
         (value, errors)
-    }
-}
-
-impl<T> Serialize for ParseResult<T>
-where
-    T: Serialize,
-{
-    #[inline]
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        use serde::ser::SerializeStruct;
-
-        let mut obj = serializer.serialize_struct("ParseResult", 2)?;
-        obj.serialize_field("value", &self.value)?;
-        obj.serialize_field("errors", &self.errors)?;
-        obj.end()
     }
 }
