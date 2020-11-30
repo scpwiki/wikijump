@@ -68,13 +68,11 @@ pub fn try_container<'t, 'r>(
     invalid_tokens: &[Token],
     invalid_token_pairs: &[(Token, Token)],
 ) -> Consumption<'t, 'r> {
-    info!(
-        log,
-        "Trying to consume tokens to produce container for {:?}",
-        rule;
-        "rule" => rule.name(),
-        "token" => extract.token,
-        "slice" => extract.slice,
+    // Log try_container() call
+    let log = &log.new(slog_o!(
+        "rule" => str!(rule.name()),
+        "token" => str!(extract.token.name()),
+        "slice" => str!(extract.slice),
         "span-start" => extract.span.start,
         "span-end" => extract.span.end,
         "remaining-len" => remaining.len(),
@@ -82,8 +80,11 @@ pub fn try_container<'t, 'r>(
         "close-token" => close_token,
         "invalid-tokens-len" => invalid_tokens.len(),
         "invalid-token-pairs-len" => invalid_token_pairs.len(),
-    );
+    ));
 
+    info!(log, "Trying to consume tokens to produce container for {:?}", rule);
+
+    // Ensure that we're on the right opening token
     assert_eq!(
         extract.token, open_token,
         "Current token does not match opener",
