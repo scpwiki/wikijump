@@ -36,10 +36,8 @@ fn try_consume_fn<'t, 'r>(
         log,
         extract,
         remaining,
-        RULE_BOLD,
-        ContainerType::Bold,
-        Token::Bold,
-        Token::Bold,
+        (RULE_BOLD, ContainerType::Bold),
+        (Token::Bold, Token::Bold),
         &[Token::ParagraphBreak, Token::InputEnd],
         &[
             (Token::Bold, Token::Whitespace),

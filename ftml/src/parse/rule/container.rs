@@ -65,10 +65,8 @@ pub fn try_container<'t, 'r>(
     log: &slog::Logger,
     extract: &'r ExtractedToken<'t>,
     mut remaining: &'r [ExtractedToken<'t>],
-    rule: Rule,
-    container_type: ContainerType,
-    open_token: Token,
-    close_token: Token,
+    (rule, container_type): (Rule, ContainerType),
+    (open_token, close_token): (Token, Token),
     invalid_tokens: &[Token],
     invalid_token_pairs: &[(Token, Token)],
 ) -> Consumption<'t, 'r> {
