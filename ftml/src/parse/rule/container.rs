@@ -68,15 +68,16 @@ pub fn try_container<'t, 'r>(
     invalid_tokens: &[Token],
     invalid_token_pairs: &[(Token, Token)],
 ) -> Consumption<'t, 'r> {
-    debug!(
+    info!(
         log,
         "Trying to consume tokens to produce container for {:?}",
         rule;
         "rule" => rule.name(),
-        "extract-token" => extract.token,
-        "extract-slice" => extract.slice,
-        "extract-span-start" => extract.span.start,
-        "extract-span-end" => extract.span.end,
+        "token" => extract.token,
+        "slice" => extract.slice,
+        "span-start" => extract.span.start,
+        "span-end" => extract.span.end,
+        "remaining-len" => remaining.len(),
         "open-token" => open_token,
         "close-token" => close_token,
         "invalid-tokens-len" => invalid_tokens.len(),

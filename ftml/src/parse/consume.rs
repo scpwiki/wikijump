@@ -49,7 +49,7 @@ pub fn consume<'t, 'r>(
     debug!(log, "Looking for valid rules");
 
     for rule in rules_for_token(extract) {
-        debug!(log, "Trying rule look ahead"; "rule" => rule);
+        info!(log, "Trying rule consumption for tokens"; "rule" => rule);
 
         let consumption = rule.try_consume(log, extract, remaining);
         if consumption.is_success() {
@@ -57,6 +57,8 @@ pub fn consume<'t, 'r>(
 
             return consumption;
         }
+
+        // Discard invalid consumption
     }
 
     debug!(log, "All rules exhausted, using generic text fallback");
