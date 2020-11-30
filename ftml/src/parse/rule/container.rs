@@ -40,6 +40,10 @@ use crate::tree::{Container, ContainerType, Element};
 /// The rule we're parsing for:
 /// * `rule`
 ///
+/// The kind of container we're building:
+/// Must match the parse rule.
+/// * `container_type`
+///
 /// The tokens we expect at the opening and ending of this container:
 /// This will perform an assertion that the current token matches the opening type.
 /// * `open_token`
@@ -63,6 +67,7 @@ pub fn try_container<'t, 'r>(
     extract: &'r ExtractedToken<'t>,
     mut remaining: &'r [ExtractedToken<'t>],
     rule: Rule,
+    container_type: ContainerType,
     open_token: Token,
     close_token: Token,
     invalid_tokens: &[Token],
@@ -70,6 +75,7 @@ pub fn try_container<'t, 'r>(
 ) -> Consumption<'t, 'r> {
     // Log try_container() call
     let log = &log.new(slog_o!(
+        "container-type" => str!(container_type.name()),
         "rule" => str!(rule.name()),
         "token" => str!(extract.token.name()),
         "slice" => str!(extract.slice),
