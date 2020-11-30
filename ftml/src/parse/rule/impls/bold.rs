@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO once this is implemented, genericize into a helper function
-
 use super::prelude::*;
 
 pub const RULE_BOLD: Rule = Rule {

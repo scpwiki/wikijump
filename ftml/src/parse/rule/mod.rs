@@ -21,8 +21,10 @@
 use super::ParseError;
 use crate::parse::token::ExtractedToken;
 use crate::tree::Element;
+use self::container::try_container;
 use std::fmt::{self, Debug};
 
+mod container;
 mod mapping;
 
 pub mod impls;
