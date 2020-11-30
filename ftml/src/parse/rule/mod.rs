@@ -18,10 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use self::container::try_container;
 use super::ParseError;
 use crate::parse::token::ExtractedToken;
 use crate::tree::Element;
-use self::container::try_container;
 use std::fmt::{self, Debug};
 
 mod container;
