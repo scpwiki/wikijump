@@ -23,8 +23,9 @@ use crate::parse::token::ExtractedToken;
 use crate::tree::Element;
 use std::fmt::{self, Debug};
 
-pub mod impls;
 mod mapping;
+
+pub mod impls;
 
 pub use self::mapping::{rules_for_token, RULE_MAP};
 
