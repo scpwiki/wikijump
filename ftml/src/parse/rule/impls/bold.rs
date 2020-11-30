@@ -80,7 +80,7 @@ fn try_consume_fn<'t, 'r>(
             }
 
             // Cases where we should abort
-            Token::LineBreak | Token::InputEnd => {
+            Token::ParagraphBreak | Token::InputEnd => {
                 trace!(log, "Found invalid token, failing rule");
 
                 return Consumption::err(ParseError::new(
