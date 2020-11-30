@@ -64,3 +64,17 @@ pub enum Element<'a> {
     /// This shouldn't appear in final `SyntaxTree`s.
     Null,
 }
+
+impl Element<'_> {
+    pub fn name(&self) -> &'static str {
+        match self {
+            Element::Container(container) => container.etype().name(),
+            Element::Text(_) => "Text",
+            Element::Email(_) => "Email",
+            Element::Link { .. } => "Link",
+            Element::LineBreak => "LineBreak",
+            Element::HorizontalRule => "HorizontalRule",
+            Element::Null => "Null",
+        }
+    }
+}
