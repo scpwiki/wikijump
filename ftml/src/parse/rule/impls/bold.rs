@@ -37,9 +37,35 @@ fn try_consume_fn<'t, 'r>(
     debug!(log, "Trying to consume tokens until we find ending bold");
 
     let mut elements = Vec::new();
+    let mut last_token = extract.token;
+
     while let Some((new_extract, new_remaining)) = remaining.split_first() {
-        // Update token slice
+        // Check token against special cases
+        match (last_token, new_extract.token) {
+            (Token::Bold, Token::Whitespace) | (Token::Whitespace, Token::Bold) => {
+                trace!(
+                    log,
+                    "Found invalid token combination, failing rule";
+                    "prev-token" => last_token,
+                    "this-token" => new_extract.token,
+                );
+
+                return Consumption::err(ParseError::new(
+                    ParseErrorKind::RuleFailed,
+                    RULE_BOLD,
+                    new_extract,
+                ));
+            }
+
+            _ => (),
+        }
+
+        // Update state
+        //
+        // - remaining is updated in case we return here
+        // - last_token shouldn't be used under here
         remaining = new_remaining;
+        last_token = new_extract.token;
 
         // Check token for how to proceed
         match new_extract.token {
