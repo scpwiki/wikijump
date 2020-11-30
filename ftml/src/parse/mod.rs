@@ -107,10 +107,10 @@ fn ast() {
     let logger = crate::build_logger();
     let text = "**test** string";
     let tokens = tokenize(&logger, text);
-    let (tree, errors) = parse(&logger, &tokens).into();
-    println!("{:#?}", tree);
-    println!("Errors: {:#?}", errors);
+    let result = parse(&logger, &tokens);
+    println!("{:#?}", result.value());
+    println!("Errors: {:#?}", result.errors());
 
-    let json = serde_json::to_string_pretty(&tree).unwrap();
+    let json = serde_json::to_string_pretty(&result).unwrap();
     println!("JSON:\n{}", json);
 }
