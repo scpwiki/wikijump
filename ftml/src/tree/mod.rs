@@ -27,6 +27,7 @@ pub use self::element::*;
 use crate::ParseResult;
 
 #[derive(Serialize, Debug, Default, Clone, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
 pub struct SyntaxTree<'a> {
     pub elements: Vec<Element<'a>>,
 }

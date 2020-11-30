@@ -25,6 +25,7 @@ use strum_macros::IntoStaticStr;
 /// Representation of syntax elements which wrap other elements.
 
 #[derive(Serialize, Debug, Clone, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
 pub struct Container<'a> {
     etype: ContainerType,
     elements: Vec<Element<'a>>,
@@ -57,6 +58,7 @@ impl<'a> Into<Vec<Element<'a>>> for Container<'a> {
 }
 
 #[derive(Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
 pub enum ContainerType {
     Paragraph,
     Bold,

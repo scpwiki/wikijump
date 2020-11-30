@@ -38,6 +38,7 @@ pub struct ExtractedToken<'a> {
 }
 
 #[derive(Serialize, Deserialize, Enum, IntoStaticStr, Debug, Copy, Clone, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
 pub enum Token {
     //
     // Symbols

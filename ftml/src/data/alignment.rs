@@ -29,6 +29,7 @@ lazy_static! {
 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
 pub enum Alignment {
     Left,
     Right,
@@ -51,6 +52,7 @@ impl<'a> TryFrom<&'a str> for Alignment {
 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
 pub struct ImageAlignment {
     pub align: Alignment,
     pub float: bool,

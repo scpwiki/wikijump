@@ -20,6 +20,7 @@
 
 /// Metadata information on the article being rendered.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[serde(rename_all = "kebab-case")]
 pub struct PageInfo<'a> {
     /// The title of this page.
     ///
@@ -54,6 +55,7 @@ pub struct PageInfo<'a> {
 /// An owned version of [`PageInfo`]. See there for field information.
 /// [`PageInfo`]: ./struct.PageInfo.html
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[serde(rename_all = "kebab-case")]
 pub struct PageInfoOwned {
     pub title: String,
     pub alt_title: Option<String>,

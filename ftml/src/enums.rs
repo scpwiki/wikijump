@@ -24,6 +24,7 @@
 use std::convert::TryFrom;
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
 pub enum AnchorTarget {
     /// Open the link in a new tab.
     /// HTML attribute is `_blank`.
@@ -64,6 +65,7 @@ impl<'a> TryFrom<&'a str> for AnchorTarget {
 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
 pub enum HeadingLevel {
     One = 1,
     Two = 2,
@@ -118,6 +120,7 @@ impl Into<u8> for HeadingLevel {
 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
 pub enum LinkText<'a> {
     Text(&'a str),
     Url,
@@ -125,12 +128,14 @@ pub enum LinkText<'a> {
 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
 pub enum ListStyle {
     Bullet,
     Numbered,
 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
 pub enum InfoField {
     Title,
     Header,
