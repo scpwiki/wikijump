@@ -98,7 +98,7 @@ where
         }
     }
 
-    debug!(log, "Finished running parser, returning gathered elements");
+    info!(log, "Finished running parser, returning gathered elements");
     SyntaxTree::from_element_result(output)
 }
 
