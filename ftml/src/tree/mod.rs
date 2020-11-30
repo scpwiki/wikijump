@@ -26,7 +26,7 @@ pub use self::element::*;
 
 use crate::ParseResult;
 
-#[derive(Debug, Default, Clone, PartialEq, Eq)]
+#[derive(Serialize, Debug, Default, Clone, PartialEq, Eq)]
 pub struct SyntaxTree<'a> {
     pub elements: Vec<Element<'a>>,
 }

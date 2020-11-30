@@ -22,7 +22,7 @@ use super::{rule::Rule, ExtractedToken, Token};
 use std::ops::Range;
 use strum_macros::IntoStaticStr;
 
-#[derive(Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ParseError {
     token: Token,
     rule: &'static str,
@@ -66,7 +66,7 @@ impl ParseError {
     }
 }
 
-#[derive(IntoStaticStr, Debug, Copy, Clone)]
+#[derive(Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone)]
 pub enum ParseErrorKind {
     /// The self-enforced recursion limit has been passed, giving up.
     RecursionDepthExceeded,

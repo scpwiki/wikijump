@@ -28,7 +28,7 @@ lazy_static! {
     static ref IMAGE_ALIGNMENT_REGEX: Regex = Regex::new(r"(f?[<>])|=").unwrap();
 }
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum Alignment {
     Left,
     Right,
@@ -50,7 +50,7 @@ impl<'a> TryFrom<&'a str> for Alignment {
     }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
 pub struct ImageAlignment {
     pub align: Alignment,
     pub float: bool,

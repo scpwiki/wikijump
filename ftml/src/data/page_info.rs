@@ -19,7 +19,7 @@
  */
 
 /// Metadata information on the article being rendered.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct PageInfo<'a> {
     /// The title of this page.
     ///
@@ -53,7 +53,7 @@ pub struct PageInfo<'a> {
 
 /// An owned version of [`PageInfo`]. See there for field information.
 /// [`PageInfo`]: ./struct.PageInfo.html
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct PageInfoOwned {
     pub title: String,
     pub alt_title: Option<String>,

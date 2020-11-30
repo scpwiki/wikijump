@@ -20,7 +20,7 @@
 
 use super::Container;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Serialize, Debug, Clone, PartialEq, Eq)]
 pub enum Element<'a> {
     /// An element which contains other elements within it.
     ///

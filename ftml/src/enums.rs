@@ -23,7 +23,7 @@
 
 use std::convert::TryFrom;
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum AnchorTarget {
     /// Open the link in a new tab.
     /// HTML attribute is `_blank`.
@@ -63,7 +63,7 @@ impl<'a> TryFrom<&'a str> for AnchorTarget {
     }
 }
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum HeadingLevel {
     One = 1,
     Two = 2,
@@ -117,20 +117,20 @@ impl Into<u8> for HeadingLevel {
     }
 }
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum LinkText<'a> {
     Text(&'a str),
     Url,
     Article,
 }
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum ListStyle {
     Bullet,
     Numbered,
 }
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum InfoField {
     Title,
     Header,
