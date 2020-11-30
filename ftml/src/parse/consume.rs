@@ -37,10 +37,12 @@ pub fn consume<'t, 'r>(
     extract: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
 ) -> Consumption<'t, 'r> {
-    let ExtractedToken { token, slice, .. } = extract;
+    let ExtractedToken { token, slice, span } = extract;
     let log = &log.new(slog_o!(
         "token" => str!(token.name()),
         "slice" => str!(slice),
+        "span-start" => span.start,
+        "span-end" => span.end,
         "remaining-len" => remaining.len(),
     ));
 
