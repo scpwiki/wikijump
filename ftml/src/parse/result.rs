@@ -59,6 +59,17 @@ impl<T> ParseResult<T> {
         self.errors.append(&mut errors);
         value
     }
+
+    // Getters
+    #[inline]
+    pub fn value(&self) -> &T {
+        &self.value
+    }
+
+    #[inline]
+    pub fn errors(&self) -> &[ParseError] {
+        &self.errors
+    }
 }
 
 impl<U> ParseResult<Vec<U>> {
