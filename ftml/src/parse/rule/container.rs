@@ -19,10 +19,9 @@
  */
 
 /// Helper code to parse tokens out to generate recursive containers.
-
 use crate::parse::consume::consume;
 use crate::parse::error::{ParseError, ParseErrorKind};
-use crate::parse::rule::{Consumption, ConsumptionResult, Rule, TryConsumeFn};
+use crate::parse::rule::{Consumption, ConsumptionResult, Rule};
 use crate::parse::token::{ExtractedToken, Token};
 use crate::tree::{Container, ContainerType, Element};
 
@@ -88,7 +87,10 @@ pub fn try_container<'t, 'r>(
         "invalid-token-pairs-len" => invalid_token_pairs.len(),
     ));
 
-    info!(log, "Trying to consume tokens to produce container for {:?}", rule);
+    info!(
+        log,
+        "Trying to consume tokens to produce container for {:?}", rule,
+    );
 
     // Ensure that we're on the right opening token
     assert_eq!(
@@ -96,5 +98,113 @@ pub fn try_container<'t, 'r>(
         "Current token does not match opener",
     );
 
-    todo!()
+    // Begin building up the child elements
+    let mut elements = Vec::new();
+    let mut prev_token = extract.token;
+
+    while let Some((new_extract, new_remaining)) = remaining.split_first() {
+        let current_token = new_extract.token;
+
+        // Check previous and current tokens
+        let pair = &(prev_token, current_token);
+        if invalid_token_pairs.contains(&pair) {
+            debug!(
+                log,
+                "Found invalid (previous, current) token combination, failing rule";
+                "prev-token" => prev_token,
+                "current-token" => current_token,
+            );
+
+            return Consumption::err(ParseError::new(
+                ParseErrorKind::RuleFailed,
+                rule,
+                new_extract,
+            ));
+        }
+
+        // Update the state variables
+        //
+        // * "remaining" is updated in case we return
+        // * "prev_token" is updated as it's only checked above
+        remaining = new_remaining;
+        prev_token = current_token;
+
+        // "last_token" should *not* be used underneath here.
+        // To enforce this, we shadow the variable name:
+        #[allow(unused_variables)]
+        let prev_token = ();
+
+        // Check current token to decide how to proceed.
+        //
+        // * End the container, return elements
+        // * Fail the container, invalid token
+        // * Continue the container, consume to make a new element
+
+        // See if the container has ended
+        if current_token == close_token {
+            debug!(
+                log,
+                "Found ending token, returning collected elements";
+                "elements-len" => elements.len(),
+            );
+
+            let container = Container::new(container_type, elements);
+            let element = Element::Container(container);
+
+            return Consumption::ok(element, remaining);
+        }
+
+        // See if the container should be aborted
+        if invalid_tokens.contains(&current_token) {
+            debug!(
+                log,
+                "Found invalid token, aborting container attempt";
+                "token" => current_token,
+                "elements-len" => elements.len(),
+            );
+
+            return Consumption::err(ParseError::new(
+                ParseErrorKind::RuleFailed,
+                rule,
+                new_extract,
+            ));
+        }
+
+        // Consume tokens to produce a new element
+        let consumption = consume(log, new_extract, new_remaining);
+        match consumption.result {
+            ConsumptionResult::Success {
+                element,
+                remaining: new_remaining,
+            } => {
+                debug!(
+                    log,
+                    "Adding newly produced element from token consumption";
+                    "element" => element.name(),
+                    "remaining-len" => new_remaining.len(),
+                );
+
+                // Add new element to container
+                elements.push(element);
+
+                // Update token pointer
+                remaining = new_remaining;
+            }
+
+            ConsumptionResult::Failure => {
+                debug!(
+                    log,
+                    "Failed to produce token from consumption, bubbling up error",
+                );
+
+                return consumption;
+            }
+        }
+    }
+
+    // If we've exhausted tokens but didn't find an ending token, we must abort.
+    //
+    // I don't think this will be terribly common, given that Token::InputEnd exists
+    // and terminates all token lists, but this logic needs to be here anyways.
+    Consumption::err(ParseError::new(ParseErrorKind::RuleFailed, rule, extract))
 }

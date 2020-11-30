@@ -28,90 +28,22 @@ pub const RULE_BOLD: Rule = Rule {
 fn try_consume_fn<'t, 'r>(
     log: &slog::Logger,
     extract: &'r ExtractedToken<'t>,
-    mut remaining: &'r [ExtractedToken<'t>],
+    remaining: &'r [ExtractedToken<'t>],
 ) -> Consumption<'t, 'r> {
-    debug_assert_eq!(extract.token, Token::Bold, "Current token is not bold");
+    debug!(log, "Trying to create bold container");
 
-    debug!(log, "Trying to consume tokens until we find ending bold");
-
-    let mut elements = Vec::new();
-    let mut last_token = extract.token;
-
-    while let Some((new_extract, new_remaining)) = remaining.split_first() {
-        // Check token against special cases
-        match (last_token, new_extract.token) {
-            (Token::Bold, Token::Whitespace) | (Token::Whitespace, Token::Bold) => {
-                trace!(
-                    log,
-                    "Found invalid token combination, failing rule";
-                    "prev-token" => last_token,
-                    "this-token" => new_extract.token,
-                );
-
-                return Consumption::err(ParseError::new(
-                    ParseErrorKind::RuleFailed,
-                    RULE_BOLD,
-                    new_extract,
-                ));
-            }
-
-            _ => (),
-        }
-
-        // Update state
-        //
-        // - remaining is updated in case we return here
-        // - last_token shouldn't be used under here
-        remaining = new_remaining;
-        last_token = new_extract.token;
-
-        // Check token for how to proceed
-        match new_extract.token {
-            // End of bold, send result
-            Token::Bold => {
-                trace!(log, "Found ending bold, returning collected elements"; "elements-len" => elements.len());
-
-                let container = Container::new(ContainerType::Bold, elements);
-                let element = Element::Container(container);
-
-                return Consumption::ok(element, remaining);
-            }
-
-            // Cases where we should abort
-            Token::ParagraphBreak | Token::InputEnd => {
-                trace!(log, "Found invalid token, failing rule");
-
-                return Consumption::err(ParseError::new(
-                    ParseErrorKind::RuleFailed,
-                    RULE_BOLD,
-                    new_extract,
-                ));
-            }
-
-            // Other, attempt to consume separately
-            _ => {
-                let consumption = consume(log, new_extract, new_remaining);
-                match consumption.result {
-                    ConsumptionResult::Success {
-                        element,
-                        remaining: new_remaining,
-                    } => {
-                        trace!(log, "Adding new element from token consumption attempt");
-                        elements.push(element);
-                        remaining = new_remaining;
-                    }
-                    ConsumptionResult::Failure => {
-                        trace!(log, "Bubbling up error from token consumption attempt");
-                        return consumption;
-                    }
-                }
-            }
-        }
-    }
-
-    Consumption::err(ParseError::new(
-        ParseErrorKind::RuleFailed,
-        RULE_BOLD,
+    try_container(
+        log,
         extract,
-    ))
+        remaining,
+        RULE_BOLD,
+        ContainerType::Bold,
+        Token::Bold,
+        Token::Bold,
+        &[Token::ParagraphBreak, Token::InputEnd],
+        &[
+            (Token::Bold, Token::Whitespace),
+            (Token::Whitespace, Token::Bold),
+        ],
+    )
 }
