@@ -21,7 +21,7 @@
 use super::Container;
 
 #[derive(Serialize, Debug, Clone, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
+#[serde(rename_all = "kebab-case", tag = "variant", content = "data")]
 pub enum Element<'a> {
     /// An element which contains other elements within it.
     ///
