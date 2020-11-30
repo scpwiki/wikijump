@@ -242,11 +242,12 @@ impl Token {
         }
     }
 
+    #[inline]
     pub fn is_whitespace(self) -> bool {
-        match self {
-            Token::LineBreak | Token::ParagraphBreak | Token::Whitespace | Token::InputEnd => true,
-            _ => false,
-        }
+        matches!(
+            self,
+            Token::LineBreak | Token::ParagraphBreak | Token::Whitespace,
+        )
     }
 
     #[inline]
