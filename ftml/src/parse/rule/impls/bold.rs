@@ -54,7 +54,7 @@ fn try_consume_fn<'t, 'r>(
             }
 
             // Cases where we should abort
-            Token::InputEnd => {
+            Token::LineBreak | Token::InputEnd => {
                 trace!(log, "Found invalid token, failing rule");
 
                 return Consumption::err(ParseError::new(
