@@ -43,6 +43,9 @@ extern crate regex;
 #[macro_use]
 extern crate serde;
 
+#[cfg(test)]
+extern crate serde_json;
+
 #[macro_use]
 extern crate slog;
 
