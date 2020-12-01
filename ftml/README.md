@@ -31,8 +31,10 @@ $ cargo build --release
 You can use this as a dependency by adding the following to your `Cargo.toml`:
 
 ```toml
-ftml = { git = "https://github.com/NuSCP-Theme/ftml", branch = "next" }
+ftml = { git = "https://github.com/NuSCP-Theme/ftml", branch = "master" }
 ```
+
+The normal package on crates.io is, currently, not being regularly updated.
 
 ### Testing
 ```sh
