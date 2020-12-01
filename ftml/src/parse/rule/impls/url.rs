@@ -33,8 +33,8 @@ fn try_consume_fn<'t, 'r>(
     debug!(log, "Consuming token as a URL");
 
     let element = Element::Link {
-        label: None,
         url: extract.slice,
+        label: None,
     };
 
     Consumption::ok(element, remaining)
