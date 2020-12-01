@@ -127,7 +127,7 @@ pub fn try_container<'t, 'r>(
         remaining = new_remaining;
         prev_token = current_token;
 
-        // "last_token" should *not* be used underneath here.
+        // "prev_token" should *not* be used underneath here.
         // To enforce this, we shadow the variable name:
         #[allow(unused_variables)]
         let prev_token = ();
