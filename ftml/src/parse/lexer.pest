@@ -37,6 +37,10 @@ token = _{
     left_raw |
     right_raw |
 
+    // Comments
+    left_comment |
+    right_comment |
+
     // Text-like
     identifier |
     email |
@@ -128,6 +132,9 @@ url = {
 raw = { "@@" }
 left_raw = { "@<" }
 right_raw = { ">@" }
+
+left_comment = { "[!--" }
+right_comment = { "--]" }
 
 left_bracket = { "[" }
 left_tag = { "[[" }

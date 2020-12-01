@@ -115,6 +115,8 @@ pub enum Token {
     //
     // Miscellaneous
     //
+    LeftComment,
+    RightComment,
     InputEnd,
 
     //
@@ -178,6 +180,8 @@ impl Token {
     fn get_from_rule(rule: Rule) -> Token {
         match rule {
             // Symbols
+            Rule::left_comment => Token::LeftComment,
+            Rule::right_comment => Token::RightComment,
             Rule::left_bracket => Token::LeftBracket,
             Rule::right_bracket => Token::RightBracket,
             Rule::left_tag => Token::LeftTag,
