@@ -30,7 +30,6 @@ mod test;
 use self::consume::consume;
 use self::rule::{Consumption, ConsumptionResult};
 use crate::tree::SyntaxTree;
-use slog::Logger;
 
 pub use self::error::{ParseError, ParseErrorKind};
 pub use self::result::ParseResult;
@@ -45,7 +44,7 @@ pub fn tokenize<'t>(log: &Logger, text: &'t str) -> Vec<ExtractedToken<'t>> {
 }
 
 pub fn parse<'r, 't>(
-    log: &Logger,
+    log: &slog::Logger,
     mut tokens: &'r [ExtractedToken<'t>],
 ) -> ParseResult<SyntaxTree<'t>>
 where
