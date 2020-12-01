@@ -26,7 +26,7 @@ use crate::enums::AnchorTarget;
 pub enum Element<'a> {
     /// An element which contains other elements within it.
     ///
-    /// Examples would include bold, italics, divs, etc.
+    /// Examples would include italics, paragraphs, divs, etc.
     Container(Container<'a>),
 
     /// An element only containing text.
