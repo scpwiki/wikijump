@@ -143,10 +143,13 @@ impl Replacer {
                 );
 
                 while let Some(capture) = regex.captures(text) {
-                    let mtch = capture
-                        .get(0)
-                        .expect("Regular expression lacks a full match");
-                    let range = mtch.start()..mtch.end();
+                    let range = {
+                        let mtch = capture
+                            .get(0)
+                            .expect("Regular expression lacks a full match");
+
+                        mtch.start()..mtch.end()
+                    };
 
                     text.replace_range(range, replacement);
                 }
