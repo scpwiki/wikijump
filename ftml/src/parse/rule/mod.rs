@@ -50,7 +50,7 @@ impl Rule {
         extract: &'r ExtractedToken<'t>,
         remaining: &'r [ExtractedToken<'t>],
     ) -> Consumption<'r, 't> {
-        info!(log, "Trying to consume for parse rule '{}'", self.name);
+        info!(log, "Trying to consume for parse rule"; "name" => self.name);
 
         (self.try_consume_fn)(log, extract, remaining)
     }
