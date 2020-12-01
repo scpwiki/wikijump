@@ -16,6 +16,7 @@ edition = "2018" # this refers to the Cargo.toml version
 name = "ftml"
 
 [dependencies]
+cfg-if = "1"
 enum-map = "0.6"
 lazy_static = "1"
 pest = "2"

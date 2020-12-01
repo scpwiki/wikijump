@@ -30,6 +30,9 @@
 //! Wikidot permits.
 
 #[macro_use]
+extern crate cfg_if;
+
+#[macro_use]
 extern crate enum_map;
 
 #[macro_use]
@@ -43,9 +46,6 @@ extern crate regex;
 #[macro_use]
 extern crate serde;
 
-#[cfg(test)]
-extern crate serde_json;
-
 #[macro_use]
 extern crate slog;
 
@@ -54,11 +54,13 @@ extern crate str_macro;
 extern crate strum;
 extern crate strum_macros;
 
-#[cfg(test)]
-extern crate slog_bunyan;
-
-#[cfg(test)]
-extern crate sloggers;
+cfg_if! {
+    if #[cfg(test)] {
+        extern crate serde_json;
+        extern crate slog_bunyan;
+        extern crate sloggers;
+    }
+}
 
 pub mod data;
 pub mod tree;
