@@ -1,5 +1,5 @@
 /*
- * preproc/misc.rs
+ * preproc/whitespace.rs
  *
  * ftml - Library to parse Wikidot code
  * Copyright (C) 2019-2020 Ammon Smith
@@ -123,7 +123,6 @@ const TEST_CASES: [(&str, &str); 6] = [
 #[test]
 fn regexes() {
     let _ = &*WHITESPACE;
-    let _ = &*COMPRESS_NEWLINES;
 }
 
 #[test]

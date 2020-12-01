@@ -133,9 +133,7 @@ impl Token {
             Ok(pairs) => {
                 info!(log, "Lexer produced pairs for processing");
 
-                pairs
-                    .map(|pair| Token::convert_pair(log, pair))
-                    .collect()
+                pairs.map(|pair| Token::convert_pair(log, pair)).collect()
             }
             Err(error) => {
                 // Return all of the input as one big raw text
