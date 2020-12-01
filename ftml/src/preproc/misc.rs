@@ -20,7 +20,6 @@
 
 //! This performs the various miscellaneous substitutions that Wikidot does
 //! in preparation for its parsing and handling processes. These are:
-//! * Remove Wikidot comments
 //! * Replacing DOS and legacy Mac newlines
 //! * Trimming whitespace lines
 //! * Concatenating lines that end with backslashes
@@ -35,12 +34,6 @@
 use regex::{Regex, RegexBuilder};
 
 lazy_static! {
-    static ref COMMENT: Regex = {
-        RegexBuilder::new(r"\[!--.*--\]")
-            .dot_matches_new_line(true)
-            .build()
-            .unwrap()
-    };
     static ref WHITESPACE: Regex = {
         RegexBuilder::new(r"^\s+$")
             .multi_line(true)
@@ -58,9 +51,6 @@ lazy_static! {
 }
 
 pub fn substitute(log: &slog::Logger, text: &mut String) {
-    // Remove comments
-    regex_replace(log, text, &*COMMENT, "");
-
     // Replace DOS and Mac newlines
     str_replace(log, text, "\r\n", "\n");
     str_replace(log, text, "\r", "\n");
