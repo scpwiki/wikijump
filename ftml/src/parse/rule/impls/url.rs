@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::enums::AnchorTarget;
+use crate::enums::{AnchorTarget, LinkLabel};
 
 pub const RULE_URL: Rule = Rule {
     name: "url",
@@ -35,7 +35,7 @@ fn try_consume_fn<'t, 'r>(
 
     let element = Element::Link {
         url: extract.slice,
-        label: None,
+        label: LinkLabel::Url,
         anchor: AnchorTarget::Same,
     };
 

@@ -19,7 +19,7 @@
  */
 
 use super::Container;
-use crate::enums::AnchorTarget;
+use crate::enums::{AnchorTarget, LinkLabel};
 
 #[derive(Serialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case", tag = "variant", content = "data")]
@@ -48,7 +48,7 @@ pub enum Element<'a> {
     /// The "url" field is either a page name (relative URL) or full URL.
     Link {
         url: &'a str,
-        label: Option<&'a str>,
+        label: LinkLabel<'a>,
         anchor: AnchorTarget,
     },
 
