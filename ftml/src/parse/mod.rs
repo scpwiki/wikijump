@@ -104,10 +104,10 @@ where
 
 #[test]
 fn ast() {
-    let logger = crate::build_logger();
+    let log = crate::build_logger();
     let text = "apple [!-- banana --] cherry";
-    let tokens = tokenize(&logger, text);
-    let result = parse(&logger, &tokens);
+    let tokens = tokenize(&log, text);
+    let result = parse(&log, &tokens);
     println!("{:#?}", result.value());
     println!("Errors: {:#?}", result.errors());
 

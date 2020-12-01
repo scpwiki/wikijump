@@ -22,18 +22,18 @@ use super::*;
 
 #[test]
 fn tokens() {
-    let logger = crate::build_logger();
+    let log = crate::build_logger();
 
     macro_rules! test {
         ($input:expr, $expected:expr,) => {
             test!($input, $expected)
         };
         ($input:expr, $expected:expr) => {{
-            info!(&logger, "Testing tokens!"; "input" => $input);
+            info!(&log, "Testing tokens!"; "input" => $input);
 
             let expected: Vec<ExtractedToken> = $expected;
             let result = {
-                let mut result = Token::extract_all(&logger, $input);
+                let mut result = Token::extract_all(&log, $input);
 
                 let last = result.pop().expect("No final element in resultant tokens");
 

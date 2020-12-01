@@ -126,22 +126,22 @@ pub enum Token {
 }
 
 impl Token {
-    pub fn extract_all<'a>(logger: &slog::Logger, text: &'a str) -> Vec<ExtractedToken<'a>> {
-        debug!(logger, "Running lexer on input");
+    pub fn extract_all<'a>(log: &slog::Logger, text: &'a str) -> Vec<ExtractedToken<'a>> {
+        debug!(log, "Running lexer on input");
 
         match TokenLexer::parse(Rule::document, text) {
             Ok(pairs) => {
-                info!(logger, "Lexer produced pairs for processing");
+                info!(log, "Lexer produced pairs for processing");
 
                 pairs
-                    .map(|pair| Token::convert_pair(logger, pair))
+                    .map(|pair| Token::convert_pair(log, pair))
                     .collect()
             }
             Err(error) => {
                 // Return all of the input as one big raw text
                 // and log this as an error, since it shouldn't be happening
 
-                error!(logger, "Error while lexing input in pest: {}", error);
+                error!(log, "Error while lexing input in pest: {}", error);
 
                 vec![ExtractedToken {
                     token: Token::Other,
@@ -153,7 +153,7 @@ impl Token {
     }
 
     /// Converts a single `Pair` from pest into its corresponding `ExtractedToken`.
-    fn convert_pair<'a>(logger: &slog::Logger, pair: Pair<'a, Rule>) -> ExtractedToken<'a> {
+    fn convert_pair<'a>(log: &slog::Logger, pair: Pair<'a, Rule>) -> ExtractedToken<'a> {
         // Extract values from the Pair
         let rule = pair.as_rule();
         let slice = pair.as_str();
@@ -164,7 +164,7 @@ impl Token {
         let token = Token::get_from_rule(rule);
 
         debug!(
-            logger,
+            log,
             "Converting pair '{:?}' into token", rule;
             "token" => token.name(),
             "slice" => pair.as_str(),
