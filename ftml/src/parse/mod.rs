@@ -35,14 +35,6 @@ pub use self::error::{ParseError, ParseErrorKind};
 pub use self::result::ParseResult;
 pub use self::token::{ExtractedToken, Token};
 
-pub fn tokenize<'t>(log: &Logger, text: &'t str) -> Vec<ExtractedToken<'t>> {
-    let log = &log.new(slog_o!("function" => "tokenize", "text" => str!(text)));
-
-    info!(log, "Running lexer on text");
-
-    Token::extract_all(log, text)
-}
-
 pub fn parse<'r, 't>(
     log: &slog::Logger,
     mut tokens: &'r [ExtractedToken<'t>],
