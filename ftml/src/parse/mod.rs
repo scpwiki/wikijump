@@ -20,6 +20,7 @@
 
 mod consume;
 mod error;
+mod join;
 mod result;
 mod rule;
 mod token;
@@ -28,6 +29,7 @@ mod token;
 mod test;
 
 use self::consume::consume;
+use self::join::join_strings;
 use self::rule::{Consumption, ConsumptionResult};
 use crate::token::Tokenization;
 use crate::tree::SyntaxTree;
