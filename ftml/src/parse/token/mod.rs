@@ -26,7 +26,7 @@ use pest::Parser;
 use std::ops::Range;
 use strum_macros::IntoStaticStr;
 
-#[derive(Debug, Copy, Clone, Parser)]
+#[derive(Parser, Debug)]
 #[grammar = "parse/lexer.pest"]
 struct TokenLexer;
 
