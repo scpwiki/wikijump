@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::enums::AnchorTarget;
 
 pub const RULE_URL: Rule = Rule {
     name: "url",
@@ -35,6 +36,7 @@ fn try_consume_fn<'t, 'r>(
     let element = Element::Link {
         url: extract.slice,
         label: None,
+        anchor: AnchorTarget::Same,
     };
 
     Consumption::ok(element, remaining)

@@ -19,6 +19,7 @@
  */
 
 use super::Container;
+use crate::enums::AnchorTarget;
 
 #[derive(Serialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case", tag = "variant", content = "data")]
@@ -48,6 +49,7 @@ pub enum Element<'a> {
     Link {
         url: &'a str,
         label: Option<&'a str>,
+        anchor: AnchorTarget,
     },
 
     /// A newline or line break.
