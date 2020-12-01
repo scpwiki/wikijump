@@ -23,12 +23,13 @@
 use crate::{ExtractedToken, Token};
 
 /// Take an input string and produce a list of tokens for consumption by the parser.
-pub fn tokenize<'t>(log: &slog::Logger, text: &'t str) -> Vec<ExtractedToken<'t>> {
+pub fn tokenize<'t>(log: &slog::Logger, text: &'t str) -> Tokenization<'t> {
     let log = &log.new(slog_o!("function" => "tokenize", "text" => str!(text)));
 
     info!(log, "Running lexer on text");
+    let tokens = Token::extract_all(log, text);
 
-    Token::extract_all(log, text)
+    Tokenization { tokens, text }
 }
 
 /// Output of `tokenize()` to be consumed by `parse()`.
@@ -38,12 +39,12 @@ pub fn tokenize<'t>(log: &slog::Logger, text: &'t str) -> Vec<ExtractedToken<'t>
 /// text operations (such as joining raw token slices) that would not
 /// be possible otherwise.
 ///
-/// Because it is internal, we can be sure that the passed `input` definitely
+/// Because it is internal, we can be sure that the passed `text` definitely
 /// corresponds to the `tokens` produces by lexing.
 #[derive(Debug)]
 pub struct Tokenization<'t> {
     tokens: Vec<ExtractedToken<'t>>,
-    input: &'t str,
+    text: &'t str,
 }
 
 impl<'t> Tokenization<'t> {
@@ -53,8 +54,8 @@ impl<'t> Tokenization<'t> {
     }
 
     #[inline]
-    pub fn input(&self) -> &'t str {
-        self.input
+    pub fn text(&self) -> &'t str {
+        self.text
     }
 }
 
