@@ -34,7 +34,7 @@ use crate::tree::{Container, ContainerType, Element};
 /// Normal arguments (from `try_consume_fn`):
 /// Obviously, the logger instance, and the current and upcoming tokens.
 /// * `log`
-/// * `extract`
+/// * `extracted`
 /// * `remaining`
 ///
 /// The rule we're parsing for:
@@ -64,7 +64,7 @@ use crate::tree::{Container, ContainerType, Element};
 /// next rule in the list, or the text fallback.
 pub fn try_container<'t, 'r>(
     log: &slog::Logger,
-    extract: &'r ExtractedToken<'t>,
+    extracted: &'r ExtractedToken<'t>,
     mut remaining: &'r [ExtractedToken<'t>],
     (rule, container_type): (Rule, ContainerType),
     (open_token, close_token): (Token, Token),
@@ -75,10 +75,10 @@ pub fn try_container<'t, 'r>(
     let log = &log.new(slog_o!(
         "container-type" => str!(container_type.name()),
         "rule" => str!(rule.name()),
-        "token" => str!(extract.token.name()),
-        "slice" => str!(extract.slice),
-        "span-start" => extract.span.start,
-        "span-end" => extract.span.end,
+        "token" => str!(extracted.token.name()),
+        "slice" => str!(extracted.slice),
+        "span-start" => extracted.span.start,
+        "span-end" => extracted.span.end,
         "remaining-len" => remaining.len(),
         "open-token" => open_token,
         "close-token" => close_token,
@@ -93,16 +93,16 @@ pub fn try_container<'t, 'r>(
 
     // Ensure that we're on the right opening token
     assert_eq!(
-        extract.token, open_token,
+        extracted.token, open_token,
         "Current token does not match opener",
     );
 
     // Begin building up the child elements
     let mut elements = Vec::new();
-    let mut prev_token = extract.token;
+    let mut prev_token = extracted.token;
 
-    while let Some((new_extract, new_remaining)) = remaining.split_first() {
-        let current_token = new_extract.token;
+    while let Some((new_extracted, new_remaining)) = remaining.split_first() {
+        let current_token = new_extracted.token;
 
         // Check previous and current tokens
         let pair = &(prev_token, current_token);
@@ -117,7 +117,7 @@ pub fn try_container<'t, 'r>(
             return Consumption::err(ParseError::new(
                 ParseErrorKind::RuleFailed,
                 rule,
-                new_extract,
+                new_extracted,
             ));
         }
 
@@ -165,12 +165,12 @@ pub fn try_container<'t, 'r>(
             return Consumption::err(ParseError::new(
                 ParseErrorKind::RuleFailed,
                 rule,
-                new_extract,
+                new_extracted,
             ));
         }
 
         // Consume tokens to produce a new element
-        let consumption = consume(log, new_extract, new_remaining);
+        let consumption = consume(log, new_extracted, new_remaining);
         match consumption.result {
             ConsumptionResult::Success {
                 element,
@@ -205,5 +205,5 @@ pub fn try_container<'t, 'r>(
     //
     // I don't think this will be terribly common, given that Token::InputEnd exists
     // and terminates all token lists, but this logic needs to be here anyways.
-    Consumption::err(ParseError::new(ParseErrorKind::RuleFailed, rule, extract))
+    Consumption::err(ParseError::new(ParseErrorKind::RuleFailed, rule, extracted))
 }

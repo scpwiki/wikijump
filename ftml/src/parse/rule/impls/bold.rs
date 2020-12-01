@@ -27,14 +27,14 @@ pub const RULE_BOLD: Rule = Rule {
 
 fn try_consume_fn<'t, 'r>(
     log: &slog::Logger,
-    extract: &'r ExtractedToken<'t>,
+    extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
 ) -> Consumption<'t, 'r> {
     debug!(log, "Trying to create bold container");
 
     try_container(
         log,
-        extract,
+        extracted,
         remaining,
         (RULE_BOLD, ContainerType::Bold),
         (Token::Bold, Token::Bold),

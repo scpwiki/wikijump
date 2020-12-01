@@ -27,7 +27,7 @@ pub const RULE_NULL: Rule = Rule {
 
 fn try_consume_fn<'t, 'r>(
     log: &slog::Logger,
-    _extract: &'r ExtractedToken<'t>,
+    _extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
 ) -> Consumption<'t, 'r> {
     debug!(log, "Consuming token and outputting null element");

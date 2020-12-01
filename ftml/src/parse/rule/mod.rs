@@ -141,6 +141,6 @@ where
 /// The function type for actually trying to consume tokens
 pub type TryConsumeFn = for<'t, 'r> fn(
     log: &slog::Logger,
-    extract: &'r ExtractedToken<'t>,
+    extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
 ) -> Consumption<'t, 'r>;

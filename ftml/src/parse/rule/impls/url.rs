@@ -28,13 +28,13 @@ pub const RULE_URL: Rule = Rule {
 
 fn try_consume_fn<'t, 'r>(
     log: &slog::Logger,
-    extract: &'r ExtractedToken<'t>,
+    extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
 ) -> Consumption<'t, 'r> {
     debug!(log, "Consuming token as a URL");
 
     let element = Element::Link {
-        url: extract.slice,
+        url: extracted.slice,
         label: LinkLabel::Url,
         anchor: AnchorTarget::Same,
     };

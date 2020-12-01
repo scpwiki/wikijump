@@ -27,19 +27,19 @@ pub const RULE_COMMENT: Rule = Rule {
 
 fn try_consume_fn<'t, 'r>(
     log: &slog::Logger,
-    extract: &'r ExtractedToken<'t>,
+    extracted: &'r ExtractedToken<'t>,
     mut remaining: &'r [ExtractedToken<'t>],
 ) -> Consumption<'t, 'r> {
     debug!(log, "Consuming tokens until end of comment");
 
     assert_eq!(
-        extract.token,
+        extracted.token,
         Token::LeftComment,
         "Current token isn't a LeftComment",
     );
 
-    while let Some((new_extract, new_remaining)) = remaining.split_first() {
-        let ExtractedToken { token, span, slice } = new_extract;
+    while let Some((new_extracted, new_remaining)) = remaining.split_first() {
+        let ExtractedToken { token, span, slice } = new_extracted;
         debug!(
             log,
             "Received token inside comment";
@@ -65,7 +65,7 @@ fn try_consume_fn<'t, 'r>(
                 return Consumption::err(ParseError::new(
                     ParseErrorKind::RuleFailed,
                     RULE_COMMENT,
-                    new_extract,
+                    new_extracted,
                 ));
             }
 

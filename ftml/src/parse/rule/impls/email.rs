@@ -27,10 +27,10 @@ pub const RULE_EMAIL: Rule = Rule {
 
 fn try_consume_fn<'t, 'r>(
     log: &slog::Logger,
-    extract: &'r ExtractedToken<'t>,
+    extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
 ) -> Consumption<'t, 'r> {
     debug!(log, "Consuming token as an email");
 
-    Consumption::ok(Element::Email(extract.slice), remaining)
+    Consumption::ok(Element::Email(extracted.slice), remaining)
 }

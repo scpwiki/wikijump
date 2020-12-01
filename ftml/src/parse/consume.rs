@@ -34,10 +34,10 @@ use crate::tree::Element;
 /// Main function that consumes tokens to produce a single element, then returns.
 pub fn consume<'t, 'r>(
     log: &slog::Logger,
-    extract: &'r ExtractedToken<'t>,
+    extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
 ) -> Consumption<'t, 'r> {
-    let ExtractedToken { token, slice, span } = extract;
+    let ExtractedToken { token, slice, span } = extracted;
     let log = &log.new(slog_o!(
         "token" => str!(token.name()),
         "slice" => str!(slice),
@@ -48,10 +48,10 @@ pub fn consume<'t, 'r>(
 
     debug!(log, "Looking for valid rules");
 
-    for rule in rules_for_token(extract) {
+    for rule in rules_for_token(extracted) {
         info!(log, "Trying rule consumption for tokens"; "rule" => rule);
 
-        let consumption = rule.try_consume(log, extract, remaining);
+        let consumption = rule.try_consume(log, extracted, remaining);
         if consumption.is_success() {
             debug!(log, "Rule matched, returning generated result"; "rule" => rule);
 
@@ -64,7 +64,7 @@ pub fn consume<'t, 'r>(
     debug!(log, "All rules exhausted, using generic text fallback");
 
     let element = Element::Text(slice);
-    let error = ParseError::new(ParseErrorKind::NoRulesMatch, RULE_FALLBACK, extract);
+    let error = ParseError::new(ParseErrorKind::NoRulesMatch, RULE_FALLBACK, extracted);
 
     Consumption::warn(element, remaining, error)
 }
