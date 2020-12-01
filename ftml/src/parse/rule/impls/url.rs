@@ -30,7 +30,7 @@ fn try_consume_fn<'t, 'r>(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
-    _full_text: &'r str,
+    _full_text: &'t str,
 ) -> Consumption<'t, 'r> {
     debug!(log, "Consuming token as a URL");
 

@@ -36,7 +36,7 @@ pub fn consume<'t, 'r>(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
-    full_text: &'r str,
+    full_text: &'t str,
 ) -> Consumption<'t, 'r> {
     let ExtractedToken { token, slice, span } = extracted;
     let log = &log.new(slog_o!(
