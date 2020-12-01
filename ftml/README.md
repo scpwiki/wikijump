@@ -98,7 +98,7 @@ fn tokenize<'t>(
 
 fn parse<'r, 't>(
     log: &slog::Logger,
-    tokens: Tokenization<'t>,
+    tokenization: Tokenization<'t>,
 ) -> ParseResult<SyntaxTree<'t>>;
 ```
 
