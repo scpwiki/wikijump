@@ -56,17 +56,17 @@ Then, borrowing a slice of said tokens, `parse` consumes them and produces a `Sy
 fn preprocess(
     log: &slog::Logger,
     text: &mut String,
-)
+);
 
 fn tokenize<'t>(
     log: &slog::Logger,
     text: &'t str,
-) -> Vec<ExtractedToken<'t>>
+) -> Vec<ExtractedToken<'t>>;
 
 fn parse<'r, 't>(
     log: &slog::Logger,
     mut tokens: &'r [ExtractedToken<'t>],
-) -> ParseResult<SyntaxTree<'t>>
+) -> ParseResult<SyntaxTree<'t>>;
 ```
 
 When performing a parse, you will need to first run `preprocess()`, then run `parse()`
