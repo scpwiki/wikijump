@@ -65,9 +65,40 @@ fn tokenize<'t>(
 
 fn parse<'r, 't>(
     log: &slog::Logger,
-    mut tokens: &'r [ExtractedToken<'t>],
+    tokens: &'r [ExtractedToken<'t>],
 ) -> ParseResult<SyntaxTree<'t>>;
 ```
 
 When performing a parse, you will need to first run `preprocess()`, then run `parse()`
-on the fully expanded text.
+on the fully expanded text:
+
+Consider the lifetimes of each of the artifacts being generated, should you want to
+store the results in a `struct`.
+
+```rust
+// Generate slog logger.
+//
+// See https://docs.rs/slog/2.7.0/slog/ for crate information.
+// You will need a drain to produce an instance, as that's where
+// journalled messages are outputted to.
+let log = slog::Logger::root(/* drain */);
+
+// Perform preprocess substitions
+let mut text = str!("**some** test <<string?>>");
+ftml::preprocess(&log, &mut text);
+
+// Generate token from input text
+let tokens = ftml::tokenize(&log, &text);
+
+// Parse the token list to produce an AST.
+//
+// Note that this produces a `ParseResult<SyntaxTree>`, which records the
+// parsing errors in addition to the final result.
+let result = ftml::parse(&log, &tokens);
+
+// Here we extract the tree separately from the error list.
+//
+// Now we have the final AST, as well as all the issues that
+// occurred during the parsing process.
+let (tree, errors) = result.into();
+```
