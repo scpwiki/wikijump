@@ -122,9 +122,20 @@ impl Into<u8> for HeadingLevel {
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum LinkLabel<'a> {
+    /// Custom text link label.
+    ///
+    /// Can be set to any arbitrary value of the input text's choosing.
     Text(&'a str),
+
+    /// URL-mirroring link label.
+    ///
+    /// The label for this link is the same as the URL it targets.
     Url,
-    Article,
+
+    /// Article title-based link label.
+    ///
+    /// The label for this link is whatever the page's title is.
+    Page,
 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
