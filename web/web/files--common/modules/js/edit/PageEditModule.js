@@ -569,7 +569,7 @@ Wikijump.modules.PageEditModule.utils = {
 
 Wikijump.modules.PageEditModule.init = function(){
 	if(Wikijump.page.vars.locked == true){
-		Wikijump.utils.formatDates();
+		OZONE.utils.formatDates();
 
 	} else {
 

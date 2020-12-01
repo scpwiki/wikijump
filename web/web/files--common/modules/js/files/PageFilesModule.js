@@ -246,4 +246,4 @@ toggleFileOptions = function(fileId){
 }
 
 YAHOO.util.Event.addListener("show-upload-button", "click", Wikijump.modules.PageFilesModule.listeners.showUploadClick);
-Wikijump.utils.formatDates("action-area");
+OZONE.utils.formatDates("action-area");
