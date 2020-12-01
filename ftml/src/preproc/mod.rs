@@ -33,7 +33,6 @@ mod test;
 /// * Trimming whitespace lines
 /// * Concatenating lines that end with backslashes
 /// * Convert tabs to four spaces
-/// * Compress groups of 3+ newlines into 2 newlines
 /// * Wikidot typography transformations
 ///
 /// This call always succeeds. The return value designates where issues occurred

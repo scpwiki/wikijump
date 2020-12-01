@@ -40,12 +40,6 @@ lazy_static! {
             .build()
             .unwrap()
     };
-    static ref COMPRESS_NEWLINES: Regex = {
-        RegexBuilder::new(r"(?:\n\s*){3,}")
-            .multi_line(true)
-            .build()
-            .unwrap()
-    };
     static ref LEADING_NEWLINES: Regex = Regex::new(r"^\n+").unwrap();
     static ref TRAILING_NEWLINES: Regex = Regex::new(r"\n+$").unwrap();
 }
@@ -63,9 +57,6 @@ pub fn substitute(log: &slog::Logger, text: &mut String) {
 
     // Tabs to spaces
     str_replace(log, text, "\t", "    ");
-
-    // Compress multiple newlines
-    regex_replace(log, text, &*COMPRESS_NEWLINES, "\n\n");
 
     // Remove leading and trailing newlines
     regex_replace(log, text, &*LEADING_NEWLINES, "");
