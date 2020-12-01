@@ -33,7 +33,7 @@ fn tokens() {
 
             let expected: Vec<ExtractedToken> = $expected;
             let result = {
-                let mut result = Token::extract_all(&log, $input);
+                let mut result = crate::tokenize(&log, $input);
 
                 let last = result.pop().expect("No final element in resultant tokens");
 

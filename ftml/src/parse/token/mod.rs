@@ -126,7 +126,7 @@ pub enum Token {
 }
 
 impl Token {
-    pub fn extract_all<'a>(log: &slog::Logger, text: &'a str) -> Vec<ExtractedToken<'a>> {
+    pub(crate) fn extract_all<'a>(log: &slog::Logger, text: &'a str) -> Vec<ExtractedToken<'a>> {
         debug!(log, "Running lexer on input");
 
         match TokenLexer::parse(Rule::document, text) {
