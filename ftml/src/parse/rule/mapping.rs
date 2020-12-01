@@ -46,7 +46,7 @@ lazy_static! {
 
             // Formatting
             Token::Bold => vec![RULE_BOLD],
-            Token::Italics => vec![],
+            Token::Italics => vec![RULE_ITALICS],
             Token::Underline => vec![],
             Token::Superscript => vec![],
             Token::Subscript => vec![],
