@@ -18,7 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// Helper code to parse tokens out to generate recursive containers.
+//! Helper code to parse tokens out to generate recursive containers.
+
 use crate::parse::consume::consume;
 use crate::parse::error::{ParseError, ParseErrorKind};
 use crate::parse::rule::{Consumption, ConsumptionResult, Rule};
