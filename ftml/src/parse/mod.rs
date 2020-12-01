@@ -36,6 +36,11 @@ pub use self::error::{ParseError, ParseErrorKind};
 pub use self::result::ParseResult;
 pub use self::token::{ExtractedToken, Token};
 
+/// Parse through the given tokens and produce an AST.
+///
+/// This requires a `Tokenization` struct produced by `tokenize()`,
+/// and will return `SyntaxTree<'t>`, wrapped in `ParseResult`
+/// to capture any parsing errors.
 pub fn parse<'r, 't>(
     log: &slog::Logger,
     tokenization: &'r Tokenization<'t>,
