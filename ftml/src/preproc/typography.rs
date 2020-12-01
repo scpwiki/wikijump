@@ -74,16 +74,33 @@ lazy_static! {
     };
 }
 
+/// Helper struct to easily perform string replacements.
 #[derive(Debug)]
 pub enum Replacer {
+    /// Replaces one static string for another static string.
     StrReplace {
         pattern: &'static str,
         replacement: &'static str,
     },
+
+    /// Replaces any text matching the regular expression with the static string.
+    /// The entire match is used, any capture groups are ignored.
     RegexReplace {
         regex: Regex,
         replacement: &'static str,
     },
+
+    /// Takes text matching the regular expression, and replaces the exterior.
+    ///
+    /// The regular expression must return the content to be preserved in
+    /// capture group 1, and surrounds it with the `begin` and `end` strings.
+    ///
+    /// For instance, say:
+    /// * `regex` matched `[% (.+) %]`
+    /// * `begin` was `<(`
+    /// * `end` was `)>`
+    ///
+    /// Then input string `[% wikidork %]` would become `<(wikidork)>`.
     RegexSurround {
         regex: Regex,
         begin: &'static str,
