@@ -29,6 +29,7 @@ fn try_consume_fn<'t, 'r>(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
     mut remaining: &'r [ExtractedToken<'t>],
+    _full_text: &'r str,
 ) -> Consumption<'t, 'r> {
     debug!(log, "Consuming tokens until end of comment");
 

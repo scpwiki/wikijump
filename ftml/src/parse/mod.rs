@@ -29,8 +29,8 @@ mod test;
 
 use self::consume::consume;
 use self::rule::{Consumption, ConsumptionResult};
-use crate::tree::SyntaxTree;
 use crate::token::Tokenization;
+use crate::tree::SyntaxTree;
 
 pub use self::error::{ParseError, ParseErrorKind};
 pub use self::result::ParseResult;
@@ -51,7 +51,7 @@ where
     // Extract arguments and setup state
     let mut output = ParseResult::default();
     let mut tokens = tokenization.tokens();
-    let input = tokenization.text();
+    let full_text = tokenization.text();
 
     // Logging setup
     let log = &log.new(slog_o!("function" => "parse", "tokens-len" => tokens.len()));
@@ -65,7 +65,7 @@ where
                 .split_first() //
                 .expect("Tokens list is empty");
 
-            consume(log, extracted, remaining)
+            consume(log, extracted, remaining, full_text)
         };
 
         match result {

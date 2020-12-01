@@ -29,6 +29,7 @@ fn try_consume_fn<'t, 'r>(
     log: &slog::Logger,
     _extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
+    _full_text: &'r str,
 ) -> Consumption<'t, 'r> {
     debug!(log, "Consuming token and outputting null element");
 
