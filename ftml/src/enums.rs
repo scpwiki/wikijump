@@ -121,7 +121,7 @@ impl Into<u8> for HeadingLevel {
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-pub enum LinkText<'a> {
+pub enum LinkLabel<'a> {
     Text(&'a str),
     Url,
     Article,
