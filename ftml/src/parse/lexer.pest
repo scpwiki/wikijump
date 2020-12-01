@@ -98,8 +98,8 @@ token = _{
     table_column |
 
     // Whitespace
-    line_break |
     paragraph_break |
+    line_break |
     space |
 
     // Generic fallback after all other rules have been tried
