@@ -64,7 +64,7 @@ pub fn substitute(log: &slog::Logger, text: &mut String) {
 }
 
 fn str_replace(log: &slog::Logger, text: &mut String, pattern: &str, replacement: &str) {
-    trace!(
+    debug!(
         log,
         "Replacing miscellaneous static string";
         "type" => "string",
@@ -80,7 +80,7 @@ fn str_replace(log: &slog::Logger, text: &mut String, pattern: &str, replacement
 }
 
 fn regex_replace(log: &slog::Logger, text: &mut String, regex: &Regex, replacement: &str) {
-    trace!(
+    debug!(
         log,
         "Replacing miscellaneous regular expression";
         "type" => "regex",

@@ -100,7 +100,7 @@ impl Replacer {
                 pattern,
                 replacement,
             } => {
-                trace!(
+                debug!(
                     log,
                     "Running static string replacement";
                     "type" => "string",
@@ -117,7 +117,7 @@ impl Replacer {
                 ref regex,
                 replacement,
             } => {
-                trace!(
+                debug!(
                     log,
                     "Running regular expression replacement";
                     "type" => "regex",
@@ -139,7 +139,7 @@ impl Replacer {
                 begin,
                 end,
             } => {
-                trace!(
+                debug!(
                     log,
                     "Running regular expression capture replacement";
                     "type" => "surround",
