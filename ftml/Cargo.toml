@@ -6,14 +6,11 @@ readme = "README.md"
 license = "AGPL-3.0-or-later"
 keywords = ["wikidot", "ftml", "parsing", "rendering", "html"]
 categories = []
-exclude = [".gitignore", ".travis.yml"]
+exclude = [".gitignore", ".github"]
 
 version = "0.2.20"
 authors = ["Ammon Smith <ammon.i.smith@gmail.com>"]
 edition = "2018" # this refers to the Cargo.toml version
-
-[badges]
-travis-ci = { repository = "Nu-SCPTheme/ftml", branch = "master" }
 
 [lib]
 name = "ftml"
