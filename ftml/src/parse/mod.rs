@@ -24,6 +24,9 @@ mod result;
 mod rule;
 mod token;
 
+#[cfg(test)]
+mod test;
+
 use self::consume::consume;
 use self::rule::{Consumption, ConsumptionResult};
 use crate::tree::SyntaxTree;
