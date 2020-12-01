@@ -22,7 +22,7 @@ use super::{rule::Rule, ExtractedToken, Token};
 use std::ops::Range;
 use strum_macros::IntoStaticStr;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 #[serde(rename_all = "kebab-case")]
 pub struct ParseError {
     token: Token,
@@ -67,7 +67,7 @@ impl ParseError {
     }
 }
 
-#[derive(Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone)]
+#[derive(Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum ParseErrorKind {
     /// The self-enforced recursion limit has been passed, giving up.
