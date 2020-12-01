@@ -34,6 +34,13 @@ pub enum Element<'a> {
     /// Should be formatted like typical body text.
     Text(&'a str),
 
+    /// Raw text.
+    ///
+    /// This should be formatted exactly as listed.
+    /// For instance, spaces being rendered to HTML should
+    /// produce a `&nbsp;`.
+    Raw(&'a str),
+
     /// An element indicating an email.
     ///
     /// Whether this should become a clickable href link or just text
@@ -74,6 +81,7 @@ impl Element<'_> {
         match self {
             Element::Container(container) => container.etype().name(),
             Element::Text(_) => "Text",
+            Element::Raw(_) => "Raw",
             Element::Email(_) => "Email",
             Element::Link { .. } => "Link",
             Element::LineBreak => "LineBreak",
