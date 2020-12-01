@@ -27,8 +27,6 @@ mod prelude {
     pub use crate::tree::{Container, ContainerType, Element};
 }
 
-// TODO add remaining rules
-
 mod bold;
 mod email;
 mod fallback;
