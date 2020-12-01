@@ -105,16 +105,3 @@ where
     info!(log, "Finished running parser, returning gathered elements");
     SyntaxTree::from_element_result(output)
 }
-
-#[test]
-fn ast() {
-    let log = crate::build_logger();
-    let text = "**apple //banana//** cherry";
-    let tokens = crate::tokenize(&log, text);
-    let result = crate::parse(&log, &tokens);
-    println!("{:#?}", result.value());
-    println!("Errors: {:#?}", result.errors());
-
-    let json = serde_json::to_string_pretty(&result).unwrap();
-    println!("JSON:\n{}", json);
-}

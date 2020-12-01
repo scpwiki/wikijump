@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::tree::SyntaxTree;
+use crate::tree::{Container, ContainerType, Element, SyntaxTree};
 
 #[test]
 fn ast() {
@@ -59,9 +59,33 @@ fn ast() {
         }};
     }
 
+    macro_rules! container {
+        ($type:tt, $elements:expr) => {
+            Element::Container(Container::new(ContainerType::$type, $elements))
+        };
+    }
+
+    test!("", vec![], vec![]);
+
+    test!("abc", vec![Element::Text("abc")], vec![]);
+
     test!(
-        "",
+        "**bold** text",
+        vec![
+            container!(Bold, vec![Element::Text("bold")]),
+            Element::Text(" "),
+            Element::Text("text"),
+        ],
         vec![],
+    );
+
+    test!(
+        "//italics// text",
+        vec![
+            container!(Italics, vec![Element::Text("italics")]),
+            Element::Text(" "),
+            Element::Text("text"),
+        ],
         vec![],
     );
 }
