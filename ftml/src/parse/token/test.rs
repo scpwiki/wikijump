@@ -33,14 +33,15 @@ fn tokens() {
 
             let expected: Vec<ExtractedToken> = $expected;
             let result = {
-                let mut result = crate::tokenize(&log, $input);
+                let tokenization = crate::tokenize(&log, $input);
+                let mut tokens: Vec<ExtractedToken> = tokenization.into();
 
-                let last = result.pop().expect("No final element in resultant tokens");
+                let last = tokens.pop().expect("No final element in resultant tokens");
 
                 assert_eq!(last.token, Token::InputEnd, "Final token wasn't Token::InputEnd");
                 assert_eq!(last.slice, "", "Final slice wasn't an empty string");
 
-                result
+                tokens
             };
 
             // Manually implement "assert_eq!" here so we can use full, {:#?} formatting
