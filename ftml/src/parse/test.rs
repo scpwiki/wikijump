@@ -217,6 +217,12 @@ fn ast() {
     );
 
     test!(
+        "@<>@",
+        vec![Element::Raw(vec![])],
+        vec![],
+    );
+
+    test!(
         "@@raw @< >@ content@@",
         vec![Element::Raw(vec![
             "raw", " ", "@<", " ", ">@", " ", "content",
