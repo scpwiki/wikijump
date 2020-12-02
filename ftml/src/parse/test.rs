@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::parse::{ParseError, ParseErrorKind, Token};
 use crate::tree::{Container, ContainerType, Element, SyntaxTree};
 
 #[test]
@@ -80,6 +81,22 @@ fn ast() {
             Element::Text("text"),
         ],
         vec![],
+    );
+
+    test!(
+        "**fail bold",
+        vec![
+            Element::Text("**"),
+            Element::Text("fail"),
+            Element::Text(" "),
+            Element::Text("bold"),
+        ],
+        vec![ParseError::new_raw(
+            Token::Bold,
+            "fallback",
+            0..2,
+            ParseErrorKind::NoRulesMatch,
+        )],
     );
 
     test!(

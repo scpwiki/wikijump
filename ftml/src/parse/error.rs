@@ -46,6 +46,23 @@ impl ParseError {
         }
     }
 
+    /// Raw `ParseError` constructor for tests.
+    #[inline]
+    #[cfg(test)]
+    pub(crate) fn new_raw(
+        token: Token,
+        rule: &'static str,
+        span: Range<usize>,
+        kind: ParseErrorKind,
+    ) -> Self {
+        ParseError {
+            token,
+            rule,
+            span,
+            kind,
+        }
+    }
+
     #[inline]
     pub fn token(&self) -> Token {
         self.token
