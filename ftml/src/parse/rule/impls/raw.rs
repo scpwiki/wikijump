@@ -94,7 +94,10 @@ fn try_consume_fn<'t, 'r>(
             (_, Token::Raw) => {
                 debug!(log, "Found single-element raw, returning");
 
-                return Consumption::ok(Element::Raw(vec![next_extracted_1.slice]), &remaining[2..]);
+                return Consumption::ok(
+                    Element::Raw(vec![next_extracted_1.slice]),
+                    &remaining[2..],
+                );
             }
 
             // Other, proceed with rule logic
@@ -121,11 +124,16 @@ fn try_consume_fn<'t, 'r>(
 
         // Check token
         match token {
-            // Hit the end of the raw, return
-            ending_token => {
-                trace!(log, "Reached end of raw, returning");
+            // Possibly hit end of raw. If not, continue.
+            Token::RightRaw | Token::Raw => {
+                // If block is inside match rule for clarity
+                if *token == ending_token {
+                    trace!(log, "Reached end of raw, returning");
 
-                return Consumption::ok(Element::Raw(slices), new_remaining);
+                    return Consumption::ok(Element::Raw(slices), new_remaining);
+                }
+
+                trace!(log, "Wasn't end of raw, continuing");
             }
 
             // Hit a newline, abort
@@ -150,15 +158,14 @@ fn try_consume_fn<'t, 'r>(
                 ));
             }
 
-            // Consume any other comment
-            _ => {
-                trace!(log, "Appending present token to raw");
-
-                // Append slice and update pointer
-                slices.push(slice);
-                remaining = new_remaining;
-            }
+            // No special handling, append to slices like normal
+            _ => (),
         }
+
+        trace!(log, "Appending present token to raw");
+        // Append slice and update pointer
+        slices.push(slice);
+        remaining = new_remaining;
     }
 
     panic!("Reached end of input without encountering a Token::InputEnd");
