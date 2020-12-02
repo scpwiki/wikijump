@@ -94,11 +94,11 @@ fn preprocess(
 fn tokenize<'t>(
     log: &slog::Logger,
     text: &'t str,
-) -> Tokenization<'t>;
+) -> Vec<ExtractedToken<'t>>;
 
 fn parse<'r, 't>(
     log: &slog::Logger,
-    tokenization: Tokenization<'t>,
+    tokens: &'r [ExtractedToken<'t>],
 ) -> ParseResult<SyntaxTree<'t>>;
 ```
 

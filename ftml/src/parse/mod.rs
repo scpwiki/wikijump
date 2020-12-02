@@ -50,9 +50,7 @@ pub fn tokenize<'t>(log: &slog::Logger, text: &'t str) -> Vec<ExtractedToken<'t>
 
 /// Parse through the given tokens and produce an AST.
 ///
-/// This requires a `Tokenization` struct produced by `tokenize()`,
-/// and will return `SyntaxTree<'t>`, wrapped in `ParseResult`
-/// to capture any parsing errors.
+/// This takes a list of `ExtractedToken` items produced by `tokenize()`.
 pub fn parse<'r, 't>(
     log: &slog::Logger,
     mut tokens: &'r [ExtractedToken<'t>],
