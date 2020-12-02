@@ -34,7 +34,18 @@ pub struct SyntaxTree<'t> {
 
 impl<'t> SyntaxTree<'t> {
     pub(crate) fn from_element_result(result: ParseResult<Vec<Element<'t>>>) -> ParseResult<Self> {
-        let (elements, errors) = result.into();
+        // Extract values from result
+        let (mut elements, errors) = result.into();
+
+        // Remove trailing null element
+        // This is added because Token::InputEnd is converted into this.
+        {
+            let last = elements.pop();
+
+            assert_eq!(last, Some(Element::Null), "Last element wasn't null!");
+        }
+
+        // Create final SyntaxTree result
         let tree = SyntaxTree { elements };
         ParseResult::new(tree, errors)
     }
