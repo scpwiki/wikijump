@@ -34,6 +34,7 @@ mod fallback;
 mod italics;
 mod line_break;
 mod null;
+mod raw;
 mod text;
 mod url;
 
@@ -44,5 +45,6 @@ pub use self::fallback::RULE_FALLBACK;
 pub use self::italics::RULE_ITALICS;
 pub use self::line_break::RULE_LINE_BREAK;
 pub use self::null::RULE_NULL;
+pub use self::raw::RULE_RAW;
 pub use self::text::RULE_TEXT;
 pub use self::url::RULE_URL;
