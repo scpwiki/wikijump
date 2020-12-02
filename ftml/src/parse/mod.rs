@@ -20,7 +20,6 @@
 
 mod consume;
 mod error;
-mod join;
 mod result;
 mod rule;
 mod token;
@@ -29,7 +28,6 @@ mod token;
 mod test;
 
 use self::consume::consume;
-use self::join::join_strings;
 use self::rule::{Consumption, ConsumptionResult};
 use crate::token::Tokenization;
 use crate::tree::SyntaxTree;
@@ -53,7 +51,6 @@ where
     // Extract arguments and setup state
     let mut output = ParseResult::default();
     let mut tokens = tokenization.tokens();
-    let full_text = tokenization.text();
 
     // Logging setup
     let log = &log.new(slog_o!("function" => "parse", "tokens-len" => tokens.len()));
