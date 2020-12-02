@@ -589,9 +589,9 @@ dependencies = [
 
 [[package]]
 name = "slog"
-version = "2.5.2"
+version = "2.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1cc9c640a4adbfbcc11ffb95efe5aa7af7309e002adab54b185507dbf2377b99"
+checksum = "8347046d4ebd943127157b94d63abb990fcf729dc4e9978927fdf4ac3c998d06"
 
 [[package]]
 name = "slog-async"
@@ -719,9 +719,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "1.0.52"
+version = "1.0.53"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6c1e438504729046a5cfae47f97c30d6d083c7d91d94603efdae3477fc070d4c"
+checksum = "8833e20724c24de12bbaba5ad230ea61c3eafb05b881c7c9d3cfe8638b187e68"
 dependencies = [
  "proc-macro2",
  "quote",
