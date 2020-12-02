@@ -1,5 +1,5 @@
 <script type="text/javascript">
-	Wikijump.cancelurl = '/forum/c-{$category->getCategoryId()}/{$category->getUnixifiedName()}';
+	Wikijump.modules.ForumNewThreadModule.vars.cancelurl = '/forum/c-{$category->getCategoryId()}/{$category->getUnixifiedName()}';
 </script>
 
 <div class="forum-new-thread-box">

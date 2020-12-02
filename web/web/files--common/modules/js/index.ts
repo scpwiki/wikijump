@@ -1,3 +1,14 @@
+import { ForumCommentsModule } from "./forum/ForumCommentsModule";
+import { ForumViewThreadModule } from "./forum/ForumViewThreadModule";
+import { ForumRecentPostsModule } from "./forum/ForumRecentPostsModule";
+import { ForumEditThreadStickinessModule } from "./forum/sub/ForumEditThreadStickinessModule";
+import { ForumEditThreadBlockModule } from "./forum/sub/ForumEditThreadBlockModule";
+import { ForumNewPostFormModule } from "./forum/sub/ForumNewPostFormModule";
+import { ForumEditPostFormModule } from "./forum/sub/ForumEditPostFormModule";
+import { ForumThreadMoveModule } from "./forum/sub/ForumThreadMoveModule";
+import { ForumDeletePostModule } from "./forum/sub/ForumDeletePostModule";
+import { ForumEditThreadMetaModule } from "./forum/sub/ForumEditThreadMetaModule";
+import { ForumNewThreadModule } from "./forum/ForumNewThreadModule";
 import { AccountApplicationsModule } from "./account/membership/AccountApplicationsModule";
 import { AccountAdminOfModule } from "./account/membership/AccountAdminOfModule";
 import { AccountWikiNewslettersModule } from "./account/membership/AccountWikiNewslettersModule";
@@ -27,6 +38,7 @@ import { AWForumModule } from "./account/watch/AWForumModule";
 import { AWChangesModule } from "./account/watch/AWChangesModule";
 
 export const modules = {
+  /* Account */
   AccountModule,
   AccountMessagesModule,
   AccountApplicationsModule,
@@ -54,4 +66,17 @@ export const modules = {
   PMSentModule,
   AWForumModule,
   AWChangesModule,
+
+  /* Forum */
+  ForumCommentsModule,
+  ForumViewThreadModule,
+  ForumRecentPostsModule,
+  ForumEditThreadStickinessModule,
+  ForumEditThreadBlockModule,
+  ForumNewPostFormModule,
+  ForumEditPostFormModule,
+  ForumThreadMoveModule,
+  ForumDeletePostModule,
+  ForumEditThreadMetaModule,
+  ForumNewThreadModule,
 };
