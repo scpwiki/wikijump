@@ -241,6 +241,55 @@ fn ast() {
         vec![Element::Raw(vec!["raw", " ", "@@", " ", "content"])],
         vec![],
     );
+
+    test!(
+        "interrupted @@\n@@",
+        vec![
+            Element::Text("interrupted"),
+            Element::Text(" "),
+            Element::Text("@@"),
+            Element::LineBreak,
+            Element::Text("@@"),
+        ],
+        vec![
+            // From interrupted raw
+            ParseError::new_raw(
+                Token::Raw, //
+                "fallback",
+                12..14,
+                ParseErrorKind::NoRulesMatch,
+            ),
+            // Trying the ending raw as an opener
+            ParseError::new_raw(
+                Token::Raw, //
+                "fallback",
+                15..17,
+                ParseErrorKind::NoRulesMatch,
+            ),
+        ],
+    );
+
+    test!(
+        "interrupted @<\n>@",
+        vec![
+            Element::Text("interrupted"),
+            Element::Text(" "),
+            Element::Text("@<"),
+            Element::LineBreak,
+            Element::Text(">@"),
+        ],
+        vec![
+            // From interrupted raw
+            ParseError::new_raw(
+                Token::LeftRaw,
+                "fallback",
+                12..14,
+                ParseErrorKind::NoRulesMatch,
+            ),
+            // Trying the ending raw as an opener
+            ParseError::new_raw(Token::Raw, "fallback", 15..17, ParseErrorKind::NoRulesMatch,),
+        ],
+    );
 }
 
 #[test]
