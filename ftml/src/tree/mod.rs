@@ -34,13 +34,7 @@ pub struct SyntaxTree<'t> {
 
 impl<'t> SyntaxTree<'t> {
     pub(crate) fn from_element_result(result: ParseResult<Vec<Element<'t>>>) -> ParseResult<Self> {
-        // Extract values from result
-        let (mut elements, errors) = result.into();
-
-        // Remove null elements
-        elements.retain(|e| e != &Element::Null);
-
-        // Create final SyntaxTree result
+        let (elements, errors) = result.into();
         let tree = SyntaxTree { elements };
         ParseResult::new(tree, errors)
     }

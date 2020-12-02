@@ -71,8 +71,6 @@ pub enum Element<'a> {
     ///
     /// The element equivalent of a no-op instruction. No action should be taken,
     /// and it should be skipped over.
-    ///
-    /// This shouldn't appear in final `SyntaxTree`s.
     Null,
 }
 
