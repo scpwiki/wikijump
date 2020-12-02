@@ -54,15 +54,15 @@ fn try_consume_fn<'t, 'r>(
 
         let next_extracted_1 = &remaining[0];
         let next_extracted_2 = &remaining[1];
-        let new_remaining = &remaining[2..];
 
         // Determine which case they fall under
         match (next_extracted_1.token, next_extracted_2.token) {
             // "@@@@@@" -> Element::Raw("@@")
-            (Token::Raw, Token::Raw) => return Consumption::ok(Element::Raw("@@"), new_remaining),
+            (Token::Raw, Token::Raw) => return Consumption::ok(Element::Raw("@@"), &remaining[2..]),
 
             // "@@@@" -> Element::Raw("")
-            (Token::Raw, _) => return Consumption::ok(Element::Raw(""), new_remaining),
+            // Only consumes two tokens.
+            (Token::Raw, _) => return Consumption::ok(Element::Raw(""), &remaining[1..]),
 
             // "@@ <invalid> @@" -> Abort
             (Token::LineBreak, Token::Raw) | (Token::ParagraphBreak, Token::Raw) => {
@@ -75,7 +75,7 @@ fn try_consume_fn<'t, 'r>(
 
             // "@@ <something> @@" -> Element::Raw(token)
             (_, Token::Raw) => {
-                return Consumption::ok(Element::Raw(next_extracted_1.slice), new_remaining)
+                return Consumption::ok(Element::Raw(next_extracted_1.slice), &remaining[2..])
             }
 
             // Other, proceed with rule logic
