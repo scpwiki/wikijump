@@ -53,8 +53,8 @@ lazy_static! {
             Token::LeftMonospace => vec![],
             Token::RightMonospace => vec![],
             Token::Color => vec![],
-            Token::Raw => vec![],
-            Token::LeftRaw => vec![],
+            Token::Raw => vec![RULE_RAW],
+            Token::LeftRaw => vec![RULE_RAW],
             Token::RightRaw => vec![],
 
             // Links
