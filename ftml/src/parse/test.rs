@@ -190,6 +190,12 @@ fn ast() {
 
     test!("@@@@@@", vec![Element::Raw(vec!["@@"])], vec![]);
 
+    // This one's kind of dumb, since it interprets it as empty raw (@@@@)
+    // followed by a literal at-sign (@).
+    //
+    // But it has the inteded output, so I don't care too much, to be honest...
+    test!("@@@@@", vec![Element::Raw(vec![]), Element::Text("@")], vec![]);
+
     test!(
         "test @@@@ string",
         vec![
