@@ -94,7 +94,7 @@ fn try_consume_fn<'t, 'r>(
                 return Consumption::ok(Element::Raw(vec![]), &remaining[1..]);
             }
 
-            // "@@ <invalid> @@" -> Abort
+            // "@@ \n @@" -> Abort
             (Token::LineBreak, Token::Raw) | (Token::ParagraphBreak, Token::Raw) => {
                 debug!(log, "Found interrupted raw, aborting");
 
