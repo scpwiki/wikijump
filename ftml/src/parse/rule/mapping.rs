@@ -23,6 +23,14 @@ use crate::parse::token::{ExtractedToken, Token};
 use enum_map::EnumMap;
 
 lazy_static! {
+    /// Mapping of all tokens to the rules they possibly correspond with.
+    ///
+    /// This is the first tokens that could consistute the given rule,
+    /// in order of precedence.
+    ///
+    /// An empty list means that this is a special token that shouldn't be used
+    /// in this manner. It will of course fall back to interpreting this token
+    /// as text, but will also produce an error for the user.
     pub static ref RULE_MAP: EnumMap<Token, Vec<Rule>> = {
         enum_map! {
             // Symbols
