@@ -39,7 +39,7 @@ pub enum Element<'a> {
     /// This should be formatted exactly as listed.
     /// For instance, spaces being rendered to HTML should
     /// produce a `&nbsp;`.
-    Raw(&'a str),
+    Raw(Vec<&'a str>),
 
     /// An element indicating an email.
     ///

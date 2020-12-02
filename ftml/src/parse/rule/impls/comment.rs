@@ -53,14 +53,14 @@ fn try_consume_fn<'t, 'r>(
         match token {
             // Hit the end of the comment, return
             Token::RightComment => {
-                trace!(log, "Reached end of comment, finishing comment.");
+                trace!(log, "Reached end of comment, returning");
 
                 return Consumption::ok(Element::Null, new_remaining);
             }
 
             // Hit the end of the input, abort
             Token::InputEnd => {
-                trace!(log, "Reached end of input, aborting comment.");
+                trace!(log, "Reached end of input, aborting");
 
                 return Consumption::err(ParseError::new(
                     ParseErrorKind::EndOfInput,
@@ -69,7 +69,7 @@ fn try_consume_fn<'t, 'r>(
                 ));
             }
 
-            // Consume any other comment
+            // Consume any other token
             _ => {
                 trace!(log, "Token inside comment received. Discarding.");
 

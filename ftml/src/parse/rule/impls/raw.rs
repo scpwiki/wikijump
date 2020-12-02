@@ -47,7 +47,10 @@ fn try_consume_fn<'t, 'r>(
 
         // Get next two tokens. If they don't exist, exit early
         if remaining.len() < 2 {
-            debug!(log, "Insufficient tokens remaining for raw parsing, aborting");
+            debug!(
+                log,
+                "Insufficient tokens remaining for raw parsing, aborting"
+            );
 
             return Consumption::err(ParseError::new(
                 ParseErrorKind::EndOfInput,
@@ -65,7 +68,7 @@ fn try_consume_fn<'t, 'r>(
             (Token::Raw, Token::Raw) => {
                 debug!(log, "Found meta-raw (\"@@@@@@\"), returning");
 
-                return Consumption::ok(Element::Raw("@@"), &remaining[2..]);
+                return Consumption::ok(Element::Raw(vec!["@@"]), &remaining[2..]);
             }
 
             // "@@@@" -> Element::Raw("")
@@ -73,7 +76,7 @@ fn try_consume_fn<'t, 'r>(
             (Token::Raw, _) => {
                 debug!(log, "Found empty raw (\"@@@@\"), returning");
 
-                return Consumption::ok(Element::Raw(""), &remaining[1..]);
+                return Consumption::ok(Element::Raw(vec![""]), &remaining[1..]);
             }
 
             // "@@ <invalid> @@" -> Abort
@@ -84,14 +87,14 @@ fn try_consume_fn<'t, 'r>(
                     ParseErrorKind::RuleFailed,
                     RULE_RAW,
                     next_extracted_1,
-                ))
+                ));
             }
 
             // "@@ <something> @@" -> Element::Raw(token)
             (_, Token::Raw) => {
                 debug!(log, "Found single-element raw, returning");
 
-                return Consumption::ok(Element::Raw(next_extracted_1.slice), &remaining[2..])
+                return Consumption::ok(Element::Raw(vec![next_extracted_1.slice]), &remaining[2..]);
             }
 
             // Other, proceed with rule logic
@@ -99,13 +102,11 @@ fn try_consume_fn<'t, 'r>(
         }
     }
 
-    //TODO:
-    //four cases needed here:
-    // Raw Raw !Raw -> Element::Raw("")
-    // Raw Raw Raw -> Element::Raw("@@")
-    //
-    // Raw ... Raw -> Element::Raw(" ... ")
-    // LeftRaw ... RightRaw -> Element::Raw(" ... ")
+    // Handle the other cases, which are:
+    // * "@@ <tokens> @@"
+    // * "@< <tokens> >@"
+
+    let mut slices = Vec::new();
 
     while let Some((new_extracted, new_remaining)) = remaining.split_first() {
         let ExtractedToken { token, span, slice } = new_extracted;
@@ -120,16 +121,16 @@ fn try_consume_fn<'t, 'r>(
 
         // Check token
         match token {
-            // Hit the end of the comment, return
-            Token::RightComment => {
-                trace!(log, "Reached end of comment, finishing comment.");
+            // Hit the end of the raw, return
+            ending_token => {
+                trace!(log, "Reached end of raw, returning");
 
-                return Consumption::ok(Element::Null, new_remaining);
+                return Consumption::ok(Element::Raw(slices), new_remaining);
             }
 
-            // Hit the end of the input, abort
-            Token::InputEnd => {
-                trace!(log, "Reached end of input, aborting comment.");
+            // Hit a newline, abort
+            Token::LineBreak | Token::ParagraphBreak => {
+                trace!(log, "Reached newline, aborting");
 
                 return Consumption::err(ParseError::new(
                     ParseErrorKind::RuleFailed,
@@ -138,11 +139,23 @@ fn try_consume_fn<'t, 'r>(
                 ));
             }
 
+            // Hit the end of the input, abort
+            Token::InputEnd => {
+                trace!(log, "Reached end of input, aborting");
+
+                return Consumption::err(ParseError::new(
+                    ParseErrorKind::EndOfInput,
+                    RULE_RAW,
+                    new_extracted,
+                ));
+            }
+
             // Consume any other comment
             _ => {
-                trace!(log, "Token inside comment received. Discarding.");
+                trace!(log, "Appending present token to raw");
 
-                // Update pointer
+                // Append slice and update pointer
+                slices.push(slice);
                 remaining = new_remaining;
             }
         }
