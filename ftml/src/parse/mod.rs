@@ -105,5 +105,5 @@ where
     }
 
     info!(log, "Finished running parser, returning gathered elements");
-    SyntaxTree::from_element_result(output, full_text)
+    SyntaxTree::from_element_result(output, tokeni)
 }
