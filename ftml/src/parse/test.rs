@@ -147,6 +147,40 @@ fn ast() {
         ],
         vec![],
     );
+
+    test!(
+        "fail [!-- comment",
+        vec![
+            Element::Text("fail"),
+            Element::Text(" "),
+            Element::Text("[!--"),
+            Element::Text(" "),
+            Element::Text("comment"),
+        ],
+        vec![ParseError::new_raw(
+            Token::LeftComment,
+            "fallback",
+            5..9,
+            ParseErrorKind::NoRulesMatch,
+        )],
+    );
+
+    test!(
+        "fail --] comment",
+        vec![
+            Element::Text("fail"),
+            Element::Text(" "),
+            Element::Text("--]"),
+            Element::Text(" "),
+            Element::Text("comment"),
+        ],
+        vec![ParseError::new_raw(
+            Token::RightComment,
+            "fallback",
+            5..8,
+            ParseErrorKind::NoRulesMatch,
+        )],
+    );
 }
 
 #[test]
