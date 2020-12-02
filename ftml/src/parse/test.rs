@@ -45,6 +45,9 @@ fn ast() {
             let (tree, errors) = result.into();
             let SyntaxTree { elements } = tree;
 
+            println!("Actual elements: {:#?}", elements);
+            println!("Actual errors: {:#?}", errors);
+
             assert_eq!(
                 elements,
                 expected_elements,
@@ -85,6 +88,29 @@ fn ast() {
             container!(Italics, vec![Element::Text("italics")]),
             Element::Text(" "),
             Element::Text("text"),
+        ],
+        vec![],
+    );
+
+    test!(
+        "single [!-- stuff here --] comment",
+        vec![
+            Element::Text("single"),
+            Element::Text(" "),
+            Element::Text(" "),
+            Element::Text("comment"),
+        ],
+        vec![],
+    );
+
+    test!(
+        "multiline\n[!-- stuff \n here --]\n comment",
+        vec![
+            Element::Text("multiline"),
+            Element::LineBreak,
+            Element::LineBreak,
+            Element::Text(" "),
+            Element::Text("comment"),
         ],
         vec![],
     );
