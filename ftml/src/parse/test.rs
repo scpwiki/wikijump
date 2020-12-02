@@ -181,6 +181,60 @@ fn ast() {
             ParseErrorKind::NoRulesMatch,
         )],
     );
+
+    test!("@@@@", vec![Element::Raw(vec![])], vec![]);
+
+    test!("@@@@@@", vec![Element::Raw(vec!["@@"])], vec![]);
+
+    test!(
+        "test @@@@ string",
+        vec![
+            Element::Text("test"),
+            Element::Text(" "),
+            Element::Raw(vec![]),
+            Element::Text(" "),
+            Element::Text("string"),
+        ],
+        vec![],
+    );
+
+    test!(
+        "test @@@@@@ string",
+        vec![
+            Element::Text("test"),
+            Element::Text(" "),
+            Element::Raw(vec!["@@"]),
+            Element::Text(" "),
+            Element::Text("string"),
+        ],
+        vec![],
+    );
+
+    test!(
+        "@@raw @< >@ content@@",
+        vec![Element::Raw(vec![
+            "raw", " ", "@<", " ", ">@", " ", "content",
+        ])],
+        vec![],
+    );
+
+    test!(
+        "not @@**@@ bold",
+        vec![
+            Element::Text("not"),
+            Element::Text(" "),
+            Element::Raw(vec!["**"],),
+            Element::Text(" "),
+            Element::Text("bold"),
+        ],
+        vec![],
+    );
+
+    test!(
+        "@<raw @@ content>@",
+        vec![Element::Raw(vec!["raw", " ", "@@", " ", "content"])],
+        vec![],
+    );
 }
 
 #[test]
