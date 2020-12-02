@@ -71,7 +71,11 @@ fn ast() {
 
     test!("", vec![], vec![]);
 
+    test!(" ", vec![Element::Text(" ")], vec![]);
+
     test!("abc", vec![Element::Text("abc")], vec![]);
+
+    test!("\n", vec![Element::LineBreak], vec![]);
 
     test!(
         "**bold** text",
