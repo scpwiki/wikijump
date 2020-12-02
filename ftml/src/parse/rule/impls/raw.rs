@@ -43,8 +43,12 @@ fn try_consume_fn<'t, 'r>(
     // * Raw Raw !Raw -> Element::Raw("")
     // * Raw Raw  Raw -> Element::Raw("@@")
     if ending_token == Token::Raw {
+        trace!(log, "First token is '@@', checking for special cases");
+
         // Get next two tokens. If they don't exist, exit early
         if remaining.len() < 2 {
+            debug!(log, "Insufficient tokens remaining for raw parsing, aborting");
+
             return Consumption::err(ParseError::new(
                 ParseErrorKind::EndOfInput,
                 RULE_RAW,
@@ -58,14 +62,24 @@ fn try_consume_fn<'t, 'r>(
         // Determine which case they fall under
         match (next_extracted_1.token, next_extracted_2.token) {
             // "@@@@@@" -> Element::Raw("@@")
-            (Token::Raw, Token::Raw) => return Consumption::ok(Element::Raw("@@"), &remaining[2..]),
+            (Token::Raw, Token::Raw) => {
+                debug!(log, "Found meta-raw (\"@@@@@@\"), returning");
+
+                return Consumption::ok(Element::Raw("@@"), &remaining[2..]);
+            }
 
             // "@@@@" -> Element::Raw("")
             // Only consumes two tokens.
-            (Token::Raw, _) => return Consumption::ok(Element::Raw(""), &remaining[1..]),
+            (Token::Raw, _) => {
+                debug!(log, "Found empty raw (\"@@@@\"), returning");
+
+                return Consumption::ok(Element::Raw(""), &remaining[1..]);
+            }
 
             // "@@ <invalid> @@" -> Abort
             (Token::LineBreak, Token::Raw) | (Token::ParagraphBreak, Token::Raw) => {
+                debug!(log, "Found interrupted raw, aborting");
+
                 return Consumption::err(ParseError::new(
                     ParseErrorKind::RuleFailed,
                     RULE_RAW,
@@ -75,6 +89,8 @@ fn try_consume_fn<'t, 'r>(
 
             // "@@ <something> @@" -> Element::Raw(token)
             (_, Token::Raw) => {
+                debug!(log, "Found single-element raw, returning");
+
                 return Consumption::ok(Element::Raw(next_extracted_1.slice), &remaining[2..])
             }
 
