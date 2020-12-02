@@ -71,6 +71,19 @@ fn try_consume_fn<'t, 'r>(
                 return Consumption::ok(Element::Raw(vec!["@@"]), &remaining[2..]);
             }
 
+            // "@@@@@" -> Element::Raw("@")
+            // This case is strange since the lexer returns Raw Raw Other (@@ @@ @)
+            // So we capture this and return the intended output
+            (Token::Raw, Token::Other) => {
+                if next_extracted_2.slice == "@" {
+                    debug!(log, "Found single-raw (\"@@@@@\"), returning");
+                    return Consumption::ok(Element::Raw(vec!["@"]), &remaining[2..]);
+                } else {
+                    debug!(log, "Found empty raw (\"@@@@\"), followed by other text");
+                    return Consumption::ok(Element::Raw(vec![""]), &remaining[1..]);
+                }
+            }
+
             // "@@@@" -> Element::Raw("")
             // Only consumes two tokens.
             (Token::Raw, _) => {
