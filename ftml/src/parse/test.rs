@@ -216,11 +216,7 @@ fn ast() {
         vec![],
     );
 
-    test!(
-        "@<>@",
-        vec![Element::Raw(vec![])],
-        vec![],
-    );
+    test!("@<>@", vec![Element::Raw(vec![])], vec![],);
 
     test!(
         "@@raw @< >@ content@@",
@@ -293,7 +289,12 @@ fn ast() {
                 ParseErrorKind::NoRulesMatch,
             ),
             // Trying the ending raw as an opener
-            ParseError::new_raw(Token::RightRaw, "fallback", 15..17, ParseErrorKind::NoRulesMatch),
+            ParseError::new_raw(
+                Token::RightRaw,
+                "fallback",
+                15..17,
+                ParseErrorKind::NoRulesMatch,
+            ),
         ],
     );
 }
