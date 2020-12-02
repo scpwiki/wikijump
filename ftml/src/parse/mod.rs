@@ -29,7 +29,6 @@ mod test;
 
 use self::consume::consume;
 use self::rule::{Consumption, ConsumptionResult};
-use crate::token::Tokenization;
 use crate::tree::SyntaxTree;
 
 pub use self::error::{ParseError, ParseErrorKind};
@@ -43,20 +42,18 @@ pub use self::token::{ExtractedToken, Token};
 /// to capture any parsing errors.
 pub fn parse<'r, 't>(
     log: &slog::Logger,
-    tokenization: &'r Tokenization<'t>,
+    mut tokens: &'r [ExtractedToken<'t>],
 ) -> ParseResult<SyntaxTree<'t>>
 where
     'r: 't,
 {
-    // Extract arguments and setup state
-    let mut output = ParseResult::default();
-    let mut tokens = tokenization.tokens();
-
     // Logging setup
     let log = &log.new(slog_o!("function" => "parse", "tokens-len" => tokens.len()));
     info!(log, "Running parser on tokens");
 
     // Run through tokens until finished
+    let mut output = ParseResult::default();
+
     while !tokens.is_empty() {
         // Consume tokens to produce the next element
         let Consumption { result, error } = {
