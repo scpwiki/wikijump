@@ -134,6 +134,7 @@ fn ast() {
         vec![
             Element::Text("single"),
             Element::Text(" "),
+            Element::Null,
             Element::Text(" "),
             Element::Text("comment"),
         ],
@@ -145,6 +146,7 @@ fn ast() {
         vec![
             Element::Text("multiline"),
             Element::LineBreak,
+            Element::Null,
             Element::LineBreak,
             Element::Text(" "),
             Element::Text("comment"),
