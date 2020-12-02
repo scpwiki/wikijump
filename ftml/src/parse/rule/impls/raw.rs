@@ -178,6 +178,7 @@ fn try_consume_fn<'t, 'r>(
         }
 
         trace!(log, "Appending present token to raw");
+
         // Append slice and update pointer
         slices.push(slice);
         remaining = new_remaining;
