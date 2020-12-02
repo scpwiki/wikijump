@@ -293,7 +293,7 @@ fn ast() {
                 ParseErrorKind::NoRulesMatch,
             ),
             // Trying the ending raw as an opener
-            ParseError::new_raw(Token::Raw, "fallback", 15..17, ParseErrorKind::NoRulesMatch,),
+            ParseError::new_raw(Token::RightRaw, "fallback", 15..17, ParseErrorKind::NoRulesMatch),
         ],
     );
 }
