@@ -34,64 +34,64 @@ lazy_static! {
     pub static ref RULE_MAP: EnumMap<Token, Vec<Rule>> = {
         enum_map! {
             // Symbols
-            Token::LeftBracket => vec![],
-            Token::RightBracket => vec![],
-            Token::LeftTag => vec![],
-            Token::LeftTagAnchor => vec![],
-            Token::LeftTagSpecial => vec![],
-            Token::RightTag => vec![],
-            Token::RightTagEnd => vec![],
-            Token::LeftAnchor => vec![],
-            Token::DoubleDash => vec![],
-            Token::TripleDash => vec![],
-            Token::Pipe => vec![],
-            Token::Equals => vec![],
-            Token::Quote => vec![],
-            Token::Heading => vec![],
+            Token::LeftBracket => vec![RULE_TODO], // TODO
+            Token::RightBracket => vec![RULE_TODO], // TODO
+            Token::LeftTag => vec![RULE_TODO], // TODO
+            Token::LeftTagAnchor => vec![RULE_TODO], // TODO
+            Token::LeftTagSpecial => vec![RULE_TODO], // TODO
+            Token::RightTag => vec![RULE_TODO], // TODO
+            Token::RightTagEnd => vec![RULE_TODO], // TODO
+            Token::LeftAnchor => vec![RULE_TODO], // TODO
+            Token::DoubleDash => vec![RULE_TODO], // TODO
+            Token::TripleDash => vec![RULE_TODO], // TODO
+            Token::Pipe => vec![RULE_TODO], // TODO
+            Token::Equals => vec![RULE_TODO], // TODO
+            Token::Quote => vec![RULE_TODO], // TODO
+            Token::Heading => vec![RULE_TODO], // TODO
             Token::LineBreak => vec![RULE_LINE_BREAK],
-            Token::ParagraphBreak => vec![],
+            Token::ParagraphBreak => vec![RULE_TODO], // TODO
             Token::Whitespace => vec![RULE_TEXT],
 
             // Formatting
             Token::Bold => vec![RULE_BOLD],
             Token::Italics => vec![RULE_ITALICS],
-            Token::Underline => vec![],
-            Token::Superscript => vec![],
-            Token::Subscript => vec![],
-            Token::LeftMonospace => vec![],
-            Token::RightMonospace => vec![],
-            Token::Color => vec![],
+            Token::Underline => vec![RULE_TODO], // TODO
+            Token::Superscript => vec![RULE_TODO], // TODO
+            Token::Subscript => vec![RULE_TODO], // TODO
+            Token::LeftMonospace => vec![RULE_TODO], // TODO
+            Token::RightMonospace => vec![RULE_TODO], // TODO
+            Token::Color => vec![RULE_TODO], // TODO
             Token::Raw => vec![RULE_RAW],
             Token::LeftRaw => vec![RULE_RAW],
-            Token::RightRaw => vec![],
+            Token::RightRaw => vec![RULE_TODO], // TODO
 
             // Links
-            Token::LeftLink => vec![],
-            Token::RightLink => vec![],
+            Token::LeftLink => vec![RULE_TODO], // TODO
+            Token::RightLink => vec![RULE_TODO], // TODO
 
             // Tables
-            Token::TableColumn => vec![],
-            Token::TableColumnTitle => vec![],
+            Token::TableColumn => vec![RULE_TODO], // TODO
+            Token::TableColumnTitle => vec![RULE_TODO], // TODO
 
             // Alignment
-            Token::RightAlignOpen => vec![],
-            Token::RightAlignClose => vec![],
-            Token::LeftAlignOpen => vec![],
-            Token::LeftAlignClose => vec![],
-            Token::CenterAlignOpen => vec![],
-            Token::CenterAlignClose => vec![],
-            Token::JustifyAlignOpen => vec![],
-            Token::JustifyAlignClose => vec![],
+            Token::RightAlignOpen => vec![RULE_TODO], // TODO
+            Token::RightAlignClose => vec![RULE_TODO], // TODO
+            Token::LeftAlignOpen => vec![RULE_TODO], // TODO
+            Token::LeftAlignClose => vec![RULE_TODO], // TODO
+            Token::CenterAlignOpen => vec![RULE_TODO], // TODO
+            Token::CenterAlignClose => vec![RULE_TODO], // TODO
+            Token::JustifyAlignOpen => vec![RULE_TODO], // TODO
+            Token::JustifyAlignClose => vec![RULE_TODO], // TODO
 
             // Text components
             Token::Identifier => vec![RULE_TEXT],
             Token::Email => vec![RULE_EMAIL],
             Token::Url => vec![RULE_URL],
-            Token::String => vec![],
+            Token::String => vec![RULE_TODO], // TODO
 
             // Miscellaneous
             Token::LeftComment => vec![RULE_COMMENT],
-            Token::RightComment => vec![],
+            Token::RightComment => vec![RULE_TODO], // TODO
             Token::InputEnd => vec![RULE_NULL],
 
             // Fallback
