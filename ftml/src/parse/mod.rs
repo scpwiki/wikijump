@@ -37,7 +37,12 @@ pub use self::token::{ExtractedToken, Token};
 
 /// Take an input string and produce a list of tokens for consumption by the parser.
 pub fn tokenize<'t>(log: &slog::Logger, text: &'t str) -> Vec<ExtractedToken<'t>> {
-    let log = &log.new(slog_o!("function" => "tokenize", "text" => str!(text)));
+    let log = &log.new(slog_o!(
+        "filename" => slog_filename!(),
+        "lineno" => slog_lineno!(),
+        "function" => "tokenize",
+        "text" => str!(text),
+    ));
 
     info!(log, "Running lexer on text");
     Token::extract_all(log, text)
@@ -56,7 +61,13 @@ where
     'r: 't,
 {
     // Logging setup
-    let log = &log.new(slog_o!("function" => "parse", "tokens-len" => tokens.len()));
+    let log = &log.new(slog_o!(
+        "filename" => slog_filename!(),
+        "lineno" => slog_lineno!(),
+        "function" => "parse",
+        "tokens-len" => tokens.len(),
+    ));
+
     info!(log, "Running parser on tokens");
 
     // Run through tokens until finished

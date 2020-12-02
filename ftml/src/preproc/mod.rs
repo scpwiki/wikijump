@@ -37,7 +37,12 @@ mod test;
 /// This call always succeeds. The return value designates where issues occurred
 /// to allow programmatic determination of where things were not as expected.
 pub fn preprocess(log: &slog::Logger, text: &mut String) {
-    let log = &log.new(slog_o!("function" => "preprocess", "text" => str!(text)));
+    let log = &log.new(slog_o!(
+        "filename" => slog_filename!(),
+        "lineno" => slog_lineno!(),
+        "function" => "preprocess",
+        "text" => str!(text),
+    ));
 
     whitespace::substitute(log, text);
     typography::substitute(log, text);
