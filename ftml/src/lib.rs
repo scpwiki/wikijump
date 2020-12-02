@@ -72,7 +72,7 @@ mod token;
 
 pub use self::parse::{parse, ExtractedToken, ParseError, ParseErrorKind, ParseResult, Token};
 pub use self::preproc::preprocess;
-pub use self::token::{tokenize, Tokenization};
+pub use self::token::tokenize;
 
 pub mod prelude {
     pub use super::tree::{Element, SyntaxTree};
