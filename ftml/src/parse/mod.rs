@@ -67,7 +67,7 @@ where
                 .split_first() //
                 .expect("Tokens list is empty");
 
-            consume(log, extracted, remaining, full_text)
+            consume(log, extracted, remaining)
         };
 
         match result {
@@ -105,5 +105,5 @@ where
     }
 
     info!(log, "Finished running parser, returning gathered elements");
-    SyntaxTree::from_element_result(output)
+    SyntaxTree::from_element_result(output, full_text)
 }

@@ -32,11 +32,10 @@ use crate::tree::{Container, ContainerType, Element};
 /// which are explained below.
 ///
 /// Normal arguments (from `try_consume_fn`):
-/// Obviously, the logger instance, the current and upcoming tokens, and the original wikitext.
+/// Obviously, the logger instance, and the current and upcoming tokens.
 /// * `log`
 /// * `extracted`
 /// * `remaining`
-/// * `text
 ///
 /// The rule we're parsing for:
 /// * `rule`
@@ -67,7 +66,6 @@ pub fn try_container<'t, 'r>(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
     mut remaining: &'r [ExtractedToken<'t>],
-    text: &'r str,
     (rule, container_type): (Rule, ContainerType),
     (open_token, close_token): (Token, Token),
     invalid_tokens: &[Token],
@@ -172,7 +170,7 @@ pub fn try_container<'t, 'r>(
         }
 
         // Consume tokens to produce a new element
-        let consumption = consume(log, new_extracted, new_remaining, text);
+        let consumption = consume(log, new_extracted, new_remaining);
         match consumption.result {
             ConsumptionResult::Success {
                 element,

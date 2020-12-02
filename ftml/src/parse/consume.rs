@@ -36,7 +36,6 @@ pub fn consume<'t, 'r>(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
-    full_text: &'t str,
 ) -> Consumption<'t, 'r> {
     let ExtractedToken { token, slice, span } = extracted;
     let log = &log.new(slog_o!(
@@ -52,7 +51,7 @@ pub fn consume<'t, 'r>(
     for rule in rules_for_token(extracted) {
         info!(log, "Trying rule consumption for tokens"; "rule" => rule);
 
-        let consumption = rule.try_consume(log, extracted, remaining, full_text);
+        let consumption = rule.try_consume(log, extracted, remaining);
         if consumption.is_success() {
             debug!(log, "Rule matched, returning generated result"; "rule" => rule);
 
