@@ -76,7 +76,7 @@ fn try_consume_fn<'t, 'r>(
             (Token::Raw, _) => {
                 debug!(log, "Found empty raw (\"@@@@\"), returning");
 
-                return Consumption::ok(Element::Raw(vec![""]), &remaining[1..]);
+                return Consumption::ok(Element::Raw(vec![]), &remaining[1..]);
             }
 
             // "@@ <invalid> @@" -> Abort
