@@ -62,12 +62,15 @@ cfg_if! {
     }
 }
 
-pub mod data;
-pub mod tree;
+#[macro_use]
+mod log;
 
 mod enums;
 mod parse;
 mod preproc;
+
+pub mod data;
+pub mod tree;
 
 pub use self::parse::{
     parse, tokenize, ExtractedToken, ParseError, ParseErrorKind, ParseResult, Token,
