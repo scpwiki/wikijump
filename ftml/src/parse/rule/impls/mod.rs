@@ -36,6 +36,7 @@ mod line_break;
 mod null;
 mod raw;
 mod text;
+mod todo;
 mod url;
 
 pub use self::bold::RULE_BOLD;
@@ -47,4 +48,5 @@ pub use self::line_break::RULE_LINE_BREAK;
 pub use self::null::RULE_NULL;
 pub use self::raw::RULE_RAW;
 pub use self::text::RULE_TEXT;
+pub use self::todo::RULE_TODO;
 pub use self::url::RULE_URL;
