@@ -34,8 +34,8 @@ lazy_static! {
     pub static ref RULE_MAP: EnumMap<Token, Vec<Rule>> = {
         enum_map! {
             // Symbols
-            Token::LeftBracket => vec![RULE_TODO], // TODO
-            Token::RightBracket => vec![],
+            Token::LeftBracket => vec![RULE_TODO, RULE_TEXT], // TODO
+            Token::RightBracket => vec![RULE_TEXT],
             Token::LeftTag => vec![RULE_TODO], // TODO
             Token::LeftTagAnchor => vec![RULE_TODO], // TODO
             Token::LeftTagSpecial => vec![RULE_TODO], // TODO
@@ -44,10 +44,10 @@ lazy_static! {
             Token::LeftAnchor => vec![RULE_TODO], // TODO
             Token::DoubleDash => vec![RULE_TODO], // TODO
             Token::TripleDash => vec![RULE_TODO], // TODO
-            Token::Pipe => vec![RULE_TODO], // TODO
-            Token::Equals => vec![RULE_TODO], // TODO
+            Token::Pipe => vec![RULE_TEXT],
+            Token::Equals => vec![RULE_TODO, RULE_TEXT], // TODO
             Token::Quote => vec![RULE_TODO], // TODO
-            Token::Heading => vec![RULE_TODO], // TODO
+            Token::Heading => vec![RULE_TODO, RULE_TEXT], // TODO
             Token::LineBreak => vec![RULE_LINE_BREAK],
             Token::ParagraphBreak => vec![RULE_TODO], // TODO
             Token::Whitespace => vec![RULE_TEXT],
@@ -87,7 +87,7 @@ lazy_static! {
             Token::Identifier => vec![RULE_TEXT],
             Token::Email => vec![RULE_EMAIL],
             Token::Url => vec![RULE_URL],
-            Token::String => vec![RULE_TODO], // TODO
+            Token::String => vec![RULE_TEXT],
 
             // Miscellaneous
             Token::LeftComment => vec![RULE_COMMENT],
