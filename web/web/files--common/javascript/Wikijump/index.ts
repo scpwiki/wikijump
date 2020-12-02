@@ -3,7 +3,7 @@ import { page } from "./page";
 import { render } from "./render";
 import { utils } from "./utils";
 
-import { modules } from "@Modules"
+import { modules } from "@Modules";
 
 const Wikijump = {
   Editor,
@@ -16,7 +16,10 @@ const Wikijump = {
   // Stores login-related variables
   vars: {
     rsakey: null as unknown,
-    loginSeed: null as unknown
+    loginSeed: null as unknown,
+
+    // https://github.com/scpwiki/wikijump/pull/78#issuecomment-736901677
+    forumThreadId: null as null | number
   }
 };
 
