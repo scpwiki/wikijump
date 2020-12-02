@@ -110,6 +110,22 @@ fn ast() {
     );
 
     test!(
+        "//fail italics",
+        vec![
+            Element::Text("//"),
+            Element::Text("fail"),
+            Element::Text(" "),
+            Element::Text("italics"),
+        ],
+        vec![ParseError::new_raw(
+            Token::Italics,
+            "fallback",
+            0..2,
+            ParseErrorKind::NoRulesMatch,
+        )],
+    );
+
+    test!(
         "single [!-- stuff here --] comment",
         vec![
             Element::Text("single"),
