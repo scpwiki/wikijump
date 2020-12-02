@@ -63,7 +63,7 @@ fn try_consume_fn<'t, 'r>(
                 trace!(log, "Reached end of input, aborting comment.");
 
                 return Consumption::err(ParseError::new(
-                    ParseErrorKind::RuleFailed,
+                    ParseErrorKind::EndOfInput,
                     RULE_COMMENT,
                     new_extracted,
                 ));

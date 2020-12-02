@@ -39,6 +39,42 @@ fn try_consume_fn<'t, 'r>(
         _ => panic!("Current token is not a starting raw"),
     };
 
+    // Check for two special cases:
+    // * Raw Raw !Raw -> Element::Raw("")
+    // * Raw Raw  Raw -> Element::Raw("@@")
+    if ending_token == Token::Raw {
+        // Get next two tokens. If they don't exist, exit early
+        if remaining.len() < 2 {
+            return Consumption::err(ParseError::new(
+                ParseErrorKind::EndOfInput,
+                RULE_RAW,
+                extracted,
+            ));
+        }
+
+        let next_token_1 = remaining[0].token;
+        let next_token_2 = remaining[1].token;
+        let new_remaining = &remaining[2..];
+
+        // Determine which case they fall under
+        match (next_token_1, next_token_2) {
+            // "@@@@@@" -> Element::Raw("@@")
+            (Token::Raw, Token::Raw) => (),
+
+            // "@@@@" -> Element::Raw("")
+            (Token::Raw, _) => (),
+
+            // "@@ <invalid> @@" -> Abort
+            (Token::LineBreak, Token::Raw) | (Token::ParagraphBreak, Token::Raw) => (),
+
+            // "@@ <something> @@" -> Element::Raw(token)
+            (_, Token::Raw) => (),
+
+            // Other, proceed with rule logic
+            (_, _) => (),
+        }
+    }
+
     //TODO:
     //four cases needed here:
     // Raw Raw !Raw -> Element::Raw("")

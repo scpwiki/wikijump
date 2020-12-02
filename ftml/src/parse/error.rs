@@ -76,6 +76,9 @@ pub enum ParseErrorKind {
     /// Attempting to match this rule failed, falling back to try an alternate.
     RuleFailed,
 
+    /// Attempting to process this rule failed because the end of input was reached.
+    EndOfInput,
+
     /// No rules match for these tokens, returning as plain text.
     NoRulesMatch,
 }
