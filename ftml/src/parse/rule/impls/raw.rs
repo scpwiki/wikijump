@@ -39,9 +39,11 @@ fn try_consume_fn<'t, 'r>(
         _ => panic!("Current token is not a starting raw"),
     };
 
-    // Check for two special cases:
+    // Check for four special cases:
+    // * Raw Raw  "@" -> Element::Raw("@")
     // * Raw Raw !Raw -> Element::Raw("")
     // * Raw Raw  Raw -> Element::Raw("@@")
+    // * Raw ??   Raw -> Element::Raw(slice)
     if ending_token == Token::Raw {
         trace!(log, "First token is '@@', checking for special cases");
 
