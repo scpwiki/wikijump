@@ -52,23 +52,31 @@ fn try_consume_fn<'t, 'r>(
             ));
         }
 
-        let next_token_1 = remaining[0].token;
-        let next_token_2 = remaining[1].token;
+        let next_extracted_1 = &remaining[0];
+        let next_extracted_2 = &remaining[1];
         let new_remaining = &remaining[2..];
 
         // Determine which case they fall under
-        match (next_token_1, next_token_2) {
+        match (next_extracted_1.token, next_extracted_2.token) {
             // "@@@@@@" -> Element::Raw("@@")
-            (Token::Raw, Token::Raw) => (),
+            (Token::Raw, Token::Raw) => return Consumption::ok(Element::Raw("@@"), new_remaining),
 
             // "@@@@" -> Element::Raw("")
-            (Token::Raw, _) => (),
+            (Token::Raw, _) => return Consumption::ok(Element::Raw(""), new_remaining),
 
             // "@@ <invalid> @@" -> Abort
-            (Token::LineBreak, Token::Raw) | (Token::ParagraphBreak, Token::Raw) => (),
+            (Token::LineBreak, Token::Raw) | (Token::ParagraphBreak, Token::Raw) => {
+                return Consumption::err(ParseError::new(
+                    ParseErrorKind::RuleFailed,
+                    RULE_RAW,
+                    next_extracted_1,
+                ))
+            }
 
             // "@@ <something> @@" -> Element::Raw(token)
-            (_, Token::Raw) => (),
+            (_, Token::Raw) => {
+                return Consumption::ok(Element::Raw(next_extracted_1.slice), new_remaining)
+            }
 
             // Other, proceed with rule logic
             (_, _) => (),
