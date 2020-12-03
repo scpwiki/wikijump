@@ -28,6 +28,7 @@ mod prelude {
 }
 
 mod bold;
+mod color;
 mod comment;
 mod email;
 mod fallback;
@@ -40,6 +41,7 @@ mod todo;
 mod url;
 
 pub use self::bold::RULE_BOLD;
+pub use self::color::RULE_COLOR;
 pub use self::comment::RULE_COMMENT;
 pub use self::email::RULE_EMAIL;
 pub use self::fallback::RULE_FALLBACK;
