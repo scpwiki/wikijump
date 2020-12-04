@@ -26,16 +26,16 @@ use strum_macros::IntoStaticStr;
 
 #[derive(Serialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-pub struct Container<'a> {
+pub struct Container<'t> {
     #[serde(rename = "type")]
-    etype: ContainerType,
+    etype: ContainerType<'t>,
 
-    elements: Vec<Element<'a>>,
+    elements: Vec<Element<'t>>,
 }
 
-impl<'a> Container<'a> {
+impl<'t> Container<'t> {
     #[inline]
-    pub fn new(etype: ContainerType, elements: Vec<Element<'a>>) -> Self {
+    pub fn new(etype: ContainerType<'t>, elements: Vec<Element<'t>>) -> Self {
         Container { etype, elements }
     }
 
@@ -45,14 +45,14 @@ impl<'a> Container<'a> {
     }
 
     #[inline]
-    pub fn elements(&self) -> &[Element<'a>] {
+    pub fn elements(&self) -> &[Element<'t>] {
         &self.elements
     }
 }
 
-impl<'a> Into<Vec<Element<'a>>> for Container<'a> {
+impl<'t> Into<Vec<Element<'t>>> for Container<'t> {
     #[inline]
-    fn into(self) -> Vec<Element<'a>> {
+    fn into(self) -> Vec<Element<'t>> {
         let Container { elements, .. } = self;
 
         elements
@@ -61,7 +61,7 @@ impl<'a> Into<Vec<Element<'a>>> for Container<'a> {
 
 #[derive(Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-pub enum ContainerType {
+pub enum ContainerType<'t> {
     Paragraph,
     Bold,
     Italics,
@@ -70,17 +70,18 @@ pub enum ContainerType {
     Subscript,
     Strikethrough,
     Monospace,
+    Color(&'t str),
     Header(HeadingLevel),
 }
 
-impl ContainerType {
+impl ContainerType<'_> {
     #[inline]
     pub fn name(self) -> &'static str {
         self.into()
     }
 }
 
-impl slog::Value for ContainerType {
+impl slog::Value for ContainerType<'_> {
     fn serialize(
         &self,
         _: &slog::Record,

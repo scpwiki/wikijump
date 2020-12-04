@@ -23,29 +23,29 @@ use crate::enums::{AnchorTarget, LinkLabel};
 
 #[derive(Serialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case", tag = "element", content = "data")]
-pub enum Element<'a> {
+pub enum Element<'t> {
     /// An element which contains other elements within it.
     ///
     /// Examples would include italics, paragraphs, divs, etc.
-    Container(Container<'a>),
+    Container(Container<'t>),
 
     /// An element only containing text.
     ///
     /// Should be formatted like typical body text.
-    Text(&'a str),
+    Text(&'t str),
 
     /// Raw text.
     ///
     /// This should be formatted exactly as listed.
     /// For instance, spaces being rendered to HTML should
     /// produce a `&nbsp;`.
-    Raw(Vec<&'a str>),
+    Raw(Vec<&'t str>),
 
     /// An element indicating an email.
     ///
     /// Whether this should become a clickable href link or just text
     /// is up to the render implementation.
-    Email(&'a str),
+    Email(&'t str),
 
     /// An element linking to a different page.
     ///
@@ -54,8 +54,8 @@ pub enum Element<'a> {
     ///
     /// The "url" field is either a page name (relative URL) or full URL.
     Link {
-        url: &'a str,
-        label: LinkLabel<'a>,
+        url: &'t str,
+        label: LinkLabel<'t>,
         anchor: AnchorTarget,
     },
 
