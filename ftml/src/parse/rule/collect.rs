@@ -35,5 +35,20 @@ pub fn collect_until<'t, 'r>(
     invalid_tokens: &[Token],
     invalid_token_pairs: &[(Token, Token)],
 ) -> Consumption<'t, 'r> {
+    // Log collect_until() call
+    let log = &log.new(slog_o!(
+        "rule" => str!(rule.name()),
+        "token" => str!(extracted.token.name()),
+        "slice" => str!(extracted.slice),
+        "span-start" => extracted.span.start,
+        "span-end" => extracted.span.end,
+        "remaining-len" => remaining.len(),
+        "close-tokens" => format!("{:?}", close_tokens),
+        "invalid-tokens-len" => format!("{:?}", invalid_tokens),
+        "invalid-token-pairs-len" => format!("{:?}", invalid_token_pairs),
+    ));
+
+    info!(log, "Trying to collect tokens for rule {:?}", rule);
+
     todo!()
 }
