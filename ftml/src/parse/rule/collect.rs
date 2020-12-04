@@ -164,18 +164,18 @@ where
         let consumption = process(log, new_extracted, new_remaining);
         match consumption.result {
             GenericConsumptionResult::Success {
-                element,
+                item,
                 remaining: new_remaining,
             } => {
                 debug!(
                     log,
                     "Adding newly produced item from token consumption";
-                    "item" => format!("{:?}", element),
+                    "item" => format!("{:?}", item),
                     "remaining-len" => new_remaining.len(),
                 );
 
                 // Append new item
-                collected.push(element);
+                collected.push(item);
 
                 // Update token pointer
                 remaining = new_remaining;

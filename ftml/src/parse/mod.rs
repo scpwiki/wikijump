@@ -82,7 +82,7 @@ where
         };
 
         match result {
-            ConsumptionResult::Success { element, remaining } => {
+            ConsumptionResult::Success { item, remaining } => {
                 debug!(log, "Tokens successfully consumed to produce element");
 
                 // Update remaining tokens
@@ -93,7 +93,7 @@ where
                 tokens = remaining;
 
                 // Add the new element to the list
-                output.push(element);
+                output.push(item);
             }
             ConsumptionResult::Failure => {
                 debug!(log, "Tokens unsuccessfully consumed, no element");

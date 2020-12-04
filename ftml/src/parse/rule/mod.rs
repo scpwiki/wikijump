@@ -89,17 +89,17 @@ where
     T: 't,
 {
     #[inline]
-    pub fn ok(element: T, remaining: &'r [ExtractedToken<'t>]) -> Self {
+    pub fn ok(item: T, remaining: &'r [ExtractedToken<'t>]) -> Self {
         GenericConsumption {
-            result: GenericConsumptionResult::Success { element, remaining },
+            result: GenericConsumptionResult::Success { item, remaining },
             error: None,
         }
     }
 
     #[inline]
-    pub fn warn(element: T, remaining: &'r [ExtractedToken<'t>], error: ParseError) -> Self {
+    pub fn warn(item: T, remaining: &'r [ExtractedToken<'t>], error: ParseError) -> Self {
         GenericConsumption {
-            result: GenericConsumptionResult::Success { element, remaining },
+            result: GenericConsumptionResult::Success { item, remaining },
             error: Some(error),
         }
     }
@@ -131,9 +131,9 @@ where
     {
         let GenericConsumption { result, error } = self;
         let result = match result {
-            GenericConsumptionResult::Success { element, remaining } => {
+            GenericConsumptionResult::Success { item, remaining } => {
                 GenericConsumptionResult::Success {
-                    element: f(element),
+                    item: f(item),
                     remaining,
                 }
             }
@@ -151,7 +151,7 @@ where
     'r: 't,
 {
     Success {
-        element: T,
+        item: T,
         remaining: &'r [ExtractedToken<'t>],
     },
     Failure,
