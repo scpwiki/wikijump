@@ -18,7 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use self::collect::collect_until;
 use super::ParseError;
 use crate::parse::token::ExtractedToken;
 use crate::tree::Element;

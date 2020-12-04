@@ -21,7 +21,8 @@
 //! Helper code to parse tokens out to generate recursive containers.
 
 use crate::parse::consume::consume;
-use crate::parse::rule::{collect_until, Consumption, Rule};
+use crate::parse::rule::collect::collect_until;
+use crate::parse::rule::{Consumption, Rule};
 use crate::parse::token::{ExtractedToken, Token};
 use crate::tree::{Container, ContainerType, Element};
 
