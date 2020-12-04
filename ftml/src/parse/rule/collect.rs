@@ -23,11 +23,41 @@ use crate::parse::rule::{GenericConsumption, GenericConsumptionResult, Rule};
 use crate::parse::token::{ExtractedToken, Token};
 use std::fmt::Debug;
 
-/// Generic function to parse through tokens until conditions are met.
+/// Generic function to parse upcoming tokens until conditions are met.
 ///
-/// This is even more generic than `try_container`, as it doesn't produce
-/// a specific sub-element when done. It's more designed to remove the boilerplate
-/// of extracted token iteration by providing common notions and abilities.
+/// Each handled token can then processed in some manner, in accordance
+/// to the passed closure.
+///
+/// The conditions for how to consume tokens are passed as arguments,
+/// which are explained below.
+///
+/// Normal arguments (from `try_consume_fn`):
+/// Obviously, the logger instance, and the current and upcoming tokens.
+/// * `log`
+/// * `extracted`
+/// * `remaining`
+///
+/// The rule we're parsing for:
+/// * `rule`
+///
+/// The tokens we should end iteration on:
+/// If one of these is the current token, we will return a consumption success.
+/// * `close_tokens`
+///
+/// The tokens we should abort on:
+/// If one of these is the current token, we will return a consumption failure.
+/// * `invalid_tokens`
+///
+/// The token pairs we should abort on:
+/// Each of these is a tuple in the form `(previous_token, current_token)`,
+/// if they ever are found adjacent during parsing, we will return a consumption failure.
+/// * `invalid_token_pairs`
+///
+/// This will proceed until a closing token is found, at which point the completed
+/// list of items will be returned, or until an abort is found.
+///
+/// If the latter occurs, a `ParseError` is handed back and the parent will attempt the
+/// next rule in the list, or the text fallback.
 pub fn collect_until<'t, 'r, F, T>(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,

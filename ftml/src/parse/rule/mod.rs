@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use self::collect::collect_until;
 use super::ParseError;
 use crate::parse::token::ExtractedToken;
 use crate::tree::Element;
@@ -122,6 +123,24 @@ where
     #[inline]
     pub fn is_error(&self) -> bool {
         !self.is_success()
+    }
+
+    pub fn map<F, U>(self, f: F) -> GenericConsumption<'t, 'r, U>
+    where
+        F: FnOnce(T) -> U,
+    {
+        let GenericConsumption { result, error } = self;
+        let result = match result {
+            GenericConsumptionResult::Success { element, remaining } => {
+                GenericConsumptionResult::Success {
+                    element: f(element),
+                    remaining,
+                }
+            }
+            GenericConsumptionResult::Failure => GenericConsumptionResult::Failure,
+        };
+
+        GenericConsumption { result, error }
     }
 }
 
