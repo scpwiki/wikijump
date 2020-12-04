@@ -193,7 +193,7 @@ pub fn try_container<'t, 'r>(
             ConsumptionResult::Failure => {
                 debug!(
                     log,
-                    "Failed to produce token from consumption, bubbling up error",
+                    "Failed to produce item from consumption, bubbling up error",
                 );
 
                 return consumption;
@@ -205,5 +205,5 @@ pub fn try_container<'t, 'r>(
     //
     // I don't think this will be terribly common, given that Token::InputEnd exists
     // and terminates all token lists, but this logic needs to be here anyways.
-    Consumption::err(ParseError::new(ParseErrorKind::RuleFailed, rule, extracted))
+    Consumption::err(ParseError::new(ParseErrorKind::EndOfInput, rule, extracted))
 }
