@@ -23,6 +23,7 @@ use crate::parse::token::ExtractedToken;
 use crate::tree::Element;
 use std::fmt::{self, Debug};
 
+mod collect;
 mod container;
 mod mapping;
 
