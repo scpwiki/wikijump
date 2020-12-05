@@ -47,9 +47,11 @@ use crate::tree::{Container, ContainerType, Element};
 /// * `close_token`
 pub fn try_container<'t, 'r>(
     log: &slog::Logger,
-    extracted: &'r ExtractedToken<'t>,
-    remaining: &'r [ExtractedToken<'t>],
-    full_text: FullText<'t>,
+    (extracted, remaining, full_text): (
+        &'r ExtractedToken<'t>,
+        &'r [ExtractedToken<'t>],
+        FullText<'t>,
+    ),
     (rule, container_type): (Rule, ContainerType<'t>),
     (open_token, close_token): (Token, Token),
     invalid_tokens: &[Token],
@@ -75,9 +77,7 @@ pub fn try_container<'t, 'r>(
     // Actually iterate and collect
     let consumption = collect_until(
         log,
-        extracted,
-        remaining,
-        full_text,
+        (extracted, remaining, full_text),
         rule,
         &[close_token],
         invalid_tokens,

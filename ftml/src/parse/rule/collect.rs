@@ -37,6 +37,7 @@ use std::fmt::Debug;
 /// * `log`
 /// * `extracted`
 /// * `remaining`
+/// * `full_text`
 ///
 /// The rule we're parsing for:
 /// * `rule`
@@ -61,9 +62,11 @@ use std::fmt::Debug;
 /// next rule in the list, or the text fallback.
 pub fn collect_until<'t, 'r, F, T>(
     log: &slog::Logger,
-    extracted: &'r ExtractedToken<'t>,
-    mut remaining: &'r [ExtractedToken<'t>],
-    full_text: FullText<'t>,
+    (extracted, mut remaining, full_text): (
+        &'r ExtractedToken<'t>,
+        &'r [ExtractedToken<'t>],
+        FullText<'t>,
+    ),
     rule: Rule,
     close_tokens: &[Token],
     invalid_tokens: &[Token],

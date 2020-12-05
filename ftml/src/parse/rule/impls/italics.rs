@@ -35,9 +35,7 @@ fn try_consume_fn<'t, 'r>(
 
     try_container(
         log,
-        extracted,
-        remaining,
-        full_text,
+        (extracted, remaining, full_text),
         (RULE_ITALICS, ContainerType::Italics),
         (Token::Italics, Token::Italics),
         &[Token::ParagraphBreak, Token::InputEnd],
