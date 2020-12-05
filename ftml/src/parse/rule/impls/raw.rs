@@ -196,7 +196,7 @@ fn try_consume_fn<'t, 'r>(
         trace!(log, "Appending present token to raw");
 
         // Update last token and slice.
-        end = extracted;
+        end = new_extracted;
         remaining = new_remaining;
     }
 
