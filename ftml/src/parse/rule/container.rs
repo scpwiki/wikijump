@@ -21,7 +21,7 @@
 //! Helper code to parse tokens out to generate recursive containers.
 
 use crate::parse::consume::consume;
-use crate::parse::rule::collect::collect_until;
+use crate::parse::rule::collect::try_collect;
 use crate::parse::rule::{Consumption, Rule};
 use crate::parse::token::{ExtractedToken, Token};
 use crate::text::FullText;
@@ -29,7 +29,7 @@ use crate::tree::{Container, ContainerType, Element};
 
 /// Generic function to consume tokens into a container.
 ///
-/// This is a subset of the functionality provided by `collect_until`,
+/// This is a subset of the functionality provided by `try_collect`,
 /// as it builds `Container`s specifically rather, but still permits
 /// passing arguments to specify behavior and reduce boilerplate.
 ///
@@ -75,7 +75,7 @@ pub fn try_container<'t, 'r>(
     );
 
     // Actually iterate and collect
-    let consumption = collect_until(
+    let consumption = try_collect(
         log,
         (extracted, remaining, full_text),
         rule,
