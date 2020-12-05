@@ -81,7 +81,7 @@ There are three exported functions, which correspond to each of the main steps i
 
 First is `preprocess`, which will perform Wikidot's various minor text substitutions.
 
-Second is `tokenize`, which takes the input string and returns a wrapper type. This type contains both the list of extracted tokens (borrow-able with `.tokens()`, or own-able with `.into()`), and the original input string. This is used as the input for `parse`.
+Second is `tokenize`, which takes the input string and returns a wrapper type. This can be `.into()`-ed into a `Vec<ExtractedToken<'t>>` should you want the token extractions it produced. This is used as the input for `parse`.
 
 Then, borrowing a slice of said tokens, `parse` consumes them and produces a `SyntaxTree` representing the full structure of the parsed wikitext.
 
@@ -94,11 +94,11 @@ fn preprocess(
 fn tokenize<'t>(
     log: &slog::Logger,
     text: &'t str,
-) -> Vec<ExtractedToken<'t>>;
+) -> Tokenization<'t>;
 
 fn parse<'r, 't>(
     log: &slog::Logger,
-    tokens: &'r [ExtractedToken<'t>],
+    tokenization: &'r Tokenization<'t>,
 ) -> ParseResult<SyntaxTree<'t>>;
 ```
 
