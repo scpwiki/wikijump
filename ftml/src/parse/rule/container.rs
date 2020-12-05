@@ -86,10 +86,5 @@ pub fn try_container<'t, 'r>(
     );
 
     // Package into a container
-    consumption.map(|elements| {
-        let container = Container::new(container_type, elements);
-        let element = Element::Container(container);
-
-        element
-    })
+    consumption.map(|elements| Element::Container(Container::new(container_type, elements)))
 }
