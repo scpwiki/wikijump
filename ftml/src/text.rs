@@ -42,14 +42,26 @@ impl<'t> FullText<'t> {
     /// If the ending token does not come after the first, or if
     /// the slices specified are out of range for the string (unlikely),
     /// this function will panic.
-    pub fn slice(&self, start_token: &ExtractedToken, end_token: &ExtractedToken) -> &'t str {
+    pub fn slice(
+        &self,
+        log: &slog::Logger,
+        start_token: &ExtractedToken,
+        end_token: &ExtractedToken,
+    ) -> &'t str {
         let start = start_token.span.start;
         let end = end_token.span.end;
+
+        debug!(
+            log,
+            "Extracting slice from full text";
+            "start" => start,
+            "end" => end,
+        );
 
         if start > end {
             panic!(
                 "Starting index is later than the ending index: {} > {}",
-                start, end
+                start, end,
             );
         }
 
