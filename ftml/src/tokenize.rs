@@ -27,6 +27,18 @@ pub struct Tokenization<'t> {
     full_text: FullText<'t>,
 }
 
+impl<'t> Tokenization<'t> {
+    #[inline]
+    pub(crate) fn tokens<'r>(&'r self) -> &'r [ExtractedToken<'t>] {
+        &self.tokens
+    }
+
+    #[inline]
+    pub(crate) fn full_text(&self) -> FullText<'t> {
+        self.full_text
+    }
+}
+
 impl<'t> Into<Vec<ExtractedToken<'t>>> for Tokenization<'t> {
     #[inline]
     fn into(self) -> Vec<ExtractedToken<'t>> {
