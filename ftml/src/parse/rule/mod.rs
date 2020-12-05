@@ -20,6 +20,7 @@
 
 use super::ParseError;
 use crate::parse::token::ExtractedToken;
+use crate::text::FullText;
 use crate::tree::Element;
 use std::fmt::{self, Debug};
 
@@ -50,10 +51,11 @@ impl Rule {
         log: &slog::Logger,
         extract: &'r ExtractedToken<'t>,
         remaining: &'r [ExtractedToken<'t>],
+        full_text: FullText<'t>,
     ) -> Consumption<'r, 't> {
         info!(log, "Trying to consume for parse rule"; "name" => self.name);
 
-        (self.try_consume_fn)(log, extract, remaining)
+        (self.try_consume_fn)(log, extract, remaining, full_text)
     }
 }
 
@@ -164,4 +166,5 @@ pub type TryConsumeFn = for<'t, 'r> fn(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
+    full_text: FullText<'t>,
 ) -> Consumption<'t, 'r>;

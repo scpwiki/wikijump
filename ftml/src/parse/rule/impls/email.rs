@@ -29,6 +29,7 @@ fn try_consume_fn<'t, 'r>(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
+    _full_text: FullText<'t>,
 ) -> Consumption<'t, 'r> {
     debug!(log, "Consuming token as an email");
 

@@ -30,6 +30,7 @@ fn try_consume_fn<'t, 'r>(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
     _: &'r [ExtractedToken<'t>],
+    _: FullText<'t>,
 ) -> Consumption<'t, 'r> {
     error!(log, "Encountered unimplemented rule! Returning error");
 

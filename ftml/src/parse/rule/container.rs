@@ -24,6 +24,7 @@ use crate::parse::consume::consume;
 use crate::parse::rule::collect::collect_until;
 use crate::parse::rule::{Consumption, Rule};
 use crate::parse::token::{ExtractedToken, Token};
+use crate::text::FullText;
 use crate::tree::{Container, ContainerType, Element};
 
 /// Generic function to consume tokens into a container.
@@ -48,6 +49,7 @@ pub fn try_container<'t, 'r>(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
+    full_text: FullText<'t>,
     (rule, container_type): (Rule, ContainerType<'t>),
     (open_token, close_token): (Token, Token),
     invalid_tokens: &[Token],
@@ -75,6 +77,7 @@ pub fn try_container<'t, 'r>(
         log,
         extracted,
         remaining,
+        full_text,
         rule,
         &[close_token],
         invalid_tokens,

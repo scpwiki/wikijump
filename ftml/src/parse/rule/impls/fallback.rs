@@ -37,6 +37,7 @@ fn try_consume_fn<'t, 'r>(
     _: &slog::Logger,
     _: &'r ExtractedToken<'t>,
     _: &'r [ExtractedToken<'t>],
+    _: FullText<'t>,
 ) -> Consumption<'t, 'r> {
     panic!("Manual fallback rule should not be executed directly!")
 }

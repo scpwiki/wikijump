@@ -29,6 +29,7 @@
 use super::rule::{impls::RULE_FALLBACK, rules_for_token, Consumption};
 use super::token::ExtractedToken;
 use super::{ParseError, ParseErrorKind};
+use crate::text::FullText;
 use crate::tree::Element;
 
 /// Main function that consumes tokens to produce a single element, then returns.
@@ -36,6 +37,7 @@ pub fn consume<'t, 'r>(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
+    full_text: FullText<'t>,
 ) -> Consumption<'t, 'r> {
     let ExtractedToken { token, slice, span } = extracted;
     let log = &log.new(slog_o!(
@@ -51,7 +53,7 @@ pub fn consume<'t, 'r>(
     for rule in rules_for_token(extracted) {
         info!(log, "Trying rule consumption for tokens"; "rule" => rule);
 
-        let consumption = rule.try_consume(log, extracted, remaining);
+        let consumption = rule.try_consume(log, extracted, remaining, full_text);
         if consumption.is_success() {
             debug!(log, "Rule matched, returning generated result"; "rule" => rule);
 

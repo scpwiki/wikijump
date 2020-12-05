@@ -21,6 +21,7 @@
 use crate::parse::error::{ParseError, ParseErrorKind};
 use crate::parse::rule::{GenericConsumption, GenericConsumptionResult, Rule};
 use crate::parse::token::{ExtractedToken, Token};
+use crate::text::FullText;
 use std::fmt::Debug;
 
 /// Generic function to parse upcoming tokens until conditions are met.
@@ -62,6 +63,7 @@ pub fn collect_until<'t, 'r, F, T>(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
     mut remaining: &'r [ExtractedToken<'t>],
+    full_text: FullText<'t>,
     rule: Rule,
     close_tokens: &[Token],
     invalid_tokens: &[Token],
@@ -73,6 +75,7 @@ where
         &slog::Logger,
         &'r ExtractedToken<'t>,
         &'r [ExtractedToken<'t>],
+        FullText<'t>,
     ) -> GenericConsumption<'r, 't, T>,
     T: Debug,
 {
@@ -161,7 +164,7 @@ where
         }
 
         // Process token(s).
-        let consumption = process(log, new_extracted, new_remaining);
+        let consumption = process(log, new_extracted, new_remaining, full_text);
         match consumption.result {
             GenericConsumptionResult::Success {
                 item,

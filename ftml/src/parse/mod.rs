@@ -69,7 +69,7 @@ where
                 .split_first() //
                 .expect("Tokens list is empty");
 
-            consume(log, extracted, remaining)
+            consume(log, extracted, remaining, full_text)
         };
 
         match result {
