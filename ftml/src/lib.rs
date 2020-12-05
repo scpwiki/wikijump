@@ -68,6 +68,7 @@ mod log;
 mod enums;
 mod parse;
 mod preproc;
+mod text;
 
 pub mod data;
 pub mod tree;
