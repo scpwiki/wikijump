@@ -188,18 +188,18 @@ fn ast() {
         )],
     );
 
-    test!("@@@@", vec![Element::Raw(vec![])], vec![]);
+    test!("@@@@", vec![Element::Raw("")], vec![]);
 
-    test!("@@@@@", vec![Element::Raw(vec!["@"])], vec![]);
+    test!("@@@@@", vec![Element::Raw("@")], vec![]);
 
-    test!("@@@@@@", vec![Element::Raw(vec!["@@"])], vec![]);
+    test!("@@@@@@", vec![Element::Raw("@@")], vec![]);
 
     test!(
         "test @@@@ string",
         vec![
             Element::Text("test"),
             Element::Text(" "),
-            Element::Raw(vec![]),
+            Element::Raw(""),
             Element::Text(" "),
             Element::Text("string"),
         ],
@@ -211,20 +211,18 @@ fn ast() {
         vec![
             Element::Text("test"),
             Element::Text(" "),
-            Element::Raw(vec!["@@"]),
+            Element::Raw("@@"),
             Element::Text(" "),
             Element::Text("string"),
         ],
         vec![],
     );
 
-    test!("@<>@", vec![Element::Raw(vec![])], vec![],);
+    test!("@<>@", vec![Element::Raw("")], vec![],);
 
     test!(
         "@@raw @< >@ content@@",
-        vec![Element::Raw(vec![
-            "raw", " ", "@<", " ", ">@", " ", "content",
-        ])],
+        vec![Element::Raw("raw @< >@ content")],
         vec![],
     );
 
@@ -233,7 +231,7 @@ fn ast() {
         vec![
             Element::Text("not"),
             Element::Text(" "),
-            Element::Raw(vec!["**"],),
+            Element::Raw("**",),
             Element::Text(" "),
             Element::Text("bold"),
         ],
@@ -242,7 +240,7 @@ fn ast() {
 
     test!(
         "@<raw @@ content>@",
-        vec![Element::Raw(vec!["raw", " ", "@@", " ", "content"])],
+        vec![Element::Raw("raw @@ content")],
         vec![],
     );
 
