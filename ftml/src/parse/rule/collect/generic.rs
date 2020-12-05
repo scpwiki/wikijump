@@ -1,5 +1,5 @@
 /*
- * parse/rule/collect.rs
+ * parse/rule/collect/generic.rs
  *
  * ftml - Library to parse Wikidot code
  * Copyright (C) 2019-2020 Ammon Smith
@@ -18,10 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::parse::error::{ParseError, ParseErrorKind};
-use crate::parse::rule::{GenericConsumption, GenericConsumptionResult, Rule};
-use crate::parse::token::{ExtractedToken, Token};
-use crate::text::FullText;
+use super::prelude::*;
 use std::fmt::Debug;
 
 /// Generic function to parse upcoming tokens until conditions are met.

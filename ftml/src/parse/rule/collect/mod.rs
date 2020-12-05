@@ -1,5 +1,5 @@
 /*
- * parse/rule/impls/mod.rs
+ * parse/rule/collect/mod.rs
  *
  * ftml - Library to parse Wikidot code
  * Copyright (C) 2019-2020 Ammon Smith
@@ -18,38 +18,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+//! Module which contains functions to iterate through tokens and output according to rules.
+//!
+//! The main function here is `try_collect()`, which is a generic procedure to perform
+//! some action over tokens, finishing or abortion when it reaches certain tokens.
+
 mod prelude {
+    pub use super::try_collect;
     pub use crate::parse::consume::consume;
     pub use crate::parse::error::{ParseError, ParseErrorKind};
-    pub use crate::parse::rule::collect::*;
-    pub use crate::parse::rule::{Consumption, ConsumptionResult, Rule, TryConsumeFn};
+    pub use crate::parse::rule::{Consumption, GenericConsumption, GenericConsumptionResult, Rule};
     pub use crate::parse::token::{ExtractedToken, Token};
     pub use crate::text::FullText;
-    pub use crate::tree::{Container, ContainerType, Element};
 }
 
-mod bold;
-mod color;
-mod comment;
-mod email;
-mod fallback;
-mod italics;
-mod line_break;
-mod null;
-mod raw;
-mod text;
-mod todo;
-mod url;
+mod container;
+mod generic;
 
-pub use self::bold::RULE_BOLD;
-pub use self::color::RULE_COLOR;
-pub use self::comment::RULE_COMMENT;
-pub use self::email::RULE_EMAIL;
-pub use self::fallback::RULE_FALLBACK;
-pub use self::italics::RULE_ITALICS;
-pub use self::line_break::RULE_LINE_BREAK;
-pub use self::null::RULE_NULL;
-pub use self::raw::RULE_RAW;
-pub use self::text::RULE_TEXT;
-pub use self::todo::RULE_TODO;
-pub use self::url::RULE_URL;
+pub use self::container::try_container;
+pub use self::generic::try_collect;
