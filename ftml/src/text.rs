@@ -47,7 +47,10 @@ impl<'t> FullText<'t> {
         let end = end_token.span.end;
 
         if start > end {
-            panic!("Starting index is later than the ending index: {} > {}", start, end);
+            panic!(
+                "Starting index is later than the ending index: {} > {}",
+                start, end
+            );
         }
 
         &self.text[start..end]

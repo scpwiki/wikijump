@@ -35,19 +35,6 @@ pub use self::error::{ParseError, ParseErrorKind};
 pub use self::result::ParseResult;
 pub use self::token::{ExtractedToken, Token};
 
-/// Take an input string and produce a list of tokens for consumption by the parser.
-pub fn tokenize<'t>(log: &slog::Logger, text: &'t str) -> Vec<ExtractedToken<'t>> {
-    let log = &log.new(slog_o!(
-        "filename" => slog_filename!(),
-        "lineno" => slog_lineno!(),
-        "function" => "tokenize",
-        "text" => str!(text),
-    ));
-
-    info!(log, "Running lexer on text");
-    Token::extract_all(log, text)
-}
-
 /// Parse through the given tokens and produce an AST.
 ///
 /// This takes a list of `ExtractedToken` items produced by `tokenize()`.
