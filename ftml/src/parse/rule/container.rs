@@ -48,7 +48,7 @@ pub fn try_container<'t, 'r>(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
-    (rule, container_type): (Rule, ContainerType),
+    (rule, container_type): (Rule, ContainerType<'t>),
     (open_token, close_token): (Token, Token),
     invalid_tokens: &[Token],
     invalid_token_pairs: &[(Token, Token)],
