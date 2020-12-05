@@ -152,7 +152,14 @@ fn try_consume_fn<'t, 'r>(
                 if *token == ending_token {
                     trace!(log, "Reached end of raw, returning");
 
-                    let slice = full_text.slice(log, start, end);
+                    let slice = if start == end {
+                        /* Empty raw */
+                        ""
+                    } else {
+                        /* Gather slice from spans */
+                        full_text.slice(log, start, end)
+                    };
+
                     let element = Element::Raw(slice);
                     return Consumption::ok(element, new_remaining);
                 }
