@@ -53,14 +53,7 @@ fn try_consume_fn<'t, 'r>(
     );
 
     // Return if failure
-    let (color, remaining, mut all_errors) = match consumption {
-        GenericConsumption::Failure { error } => return GenericConsumption::err(error),
-        GenericConsumption::Success {
-            item,
-            remaining,
-            errors,
-        } => (item, remaining, errors),
-    };
+    let (color, remaining, mut all_errors) = try_consume!(consumption);
 
     debug!(
         log,
@@ -79,18 +72,11 @@ fn try_consume_fn<'t, 'r>(
     );
 
     // Append errors, or return if failure
-    match consumption {
-        GenericConsumption::Failure { error } => GenericConsumption::err(error),
-        GenericConsumption::Success {
-            item,
-            remaining,
-            mut errors,
-        } => {
-            // Add on other errors
-            all_errors.append(&mut errors);
+    let (item, remaining, mut errors) = try_consume!(consumption);
 
-            // Return consumption
-            GenericConsumption::warn(item, remaining, all_errors)
-        }
-    }
+    // Add on new errors
+    all_errors.append(&mut errors);
+
+    // Return result
+    GenericConsumption::warn(item, remaining, all_errors)
 }
