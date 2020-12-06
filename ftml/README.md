@@ -42,6 +42,9 @@ $ cargo test
 ```
 
 Add `-- --nocapture` to the end if you want to see test output.
+If you wish to see the logging output, you can change `crate::build_logger()`
+to use a different logger creation implementation. Or you can modify the test
+you're inspecting to use a different logger.
 
 ### Philosophy
 Wikitext is similar to Markdown and dissimilar to C in that the grammar is loose.
