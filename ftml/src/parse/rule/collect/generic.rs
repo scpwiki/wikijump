@@ -95,6 +95,7 @@ where
     info!(log, "Trying to collect tokens for rule {:?}", rule);
 
     let mut collected = Vec::new();
+    let mut all_errors = Vec::new();
     let mut prev_token = extracted.token;
 
     while let Some((new_extracted, new_remaining)) = remaining.split_first() {
@@ -144,7 +145,7 @@ where
                 "collected" => format!("{:?}", collected),
             );
 
-            return GenericConsumption::ok(collected, remaining);
+            return GenericConsumption::warn(collected, remaining, all_errors);
         }
 
         // See if the container should be aborted
@@ -182,6 +183,9 @@ where
 
                 // Update token pointer
                 remaining = new_remaining;
+
+                // Append new errors
+                all_errors.extend_from_slice(&errors)
             }
 
             GenericConsumption::Failure { error } => {
