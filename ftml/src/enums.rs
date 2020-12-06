@@ -146,17 +146,31 @@ pub enum LinkLabel<'a> {
     Page,
 }
 
-#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum ListStyle {
     Bullet,
     Numbered,
 }
 
-#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+impl ListStyle {
+    #[inline]
+    pub fn name(self) -> &'static str {
+        self.into()
+    }
+}
+
+#[derive(Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum InfoField {
     Title,
     Header,
     SubHeader,
+}
+
+impl InfoField {
+    #[inline]
+    pub fn name(self) -> &'static str {
+        self.into()
+    }
 }
