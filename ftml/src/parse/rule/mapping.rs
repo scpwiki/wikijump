@@ -44,6 +44,9 @@ lazy_static! {
             Token::LeftAnchor => vec![RULE_TODO], // TODO
             Token::DoubleDash => vec![RULE_TODO], // TODO
             Token::TripleDash => vec![RULE_TODO], // TODO
+            Token::ClearFloat => vec![RULE_TODO], // TODO
+            Token::ClearFloatLeft => vec![RULE_TODO], // TODO
+            Token::ClearFloatRight => vec![RULE_TODO], // TODO
             Token::Pipe => vec![RULE_TEXT],
             Token::Equals => vec![RULE_TODO, RULE_TEXT], // TODO
             Token::Quote => vec![RULE_TODO], // TODO
