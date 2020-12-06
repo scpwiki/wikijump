@@ -59,7 +59,7 @@ lazy_static! {
             Token::Bold => vec![RULE_BOLD],
             Token::Italics => vec![RULE_ITALICS],
             Token::Underline => vec![RULE_UNDERLINE],
-            Token::Superscript => vec![RULE_TODO], // TODO
+            Token::Superscript => vec![RULE_SUPERSCRIPT],
             Token::Subscript => vec![RULE_TODO], // TODO
             Token::LeftMonospace => vec![RULE_TODO], // TODO
             Token::RightMonospace => vec![],
