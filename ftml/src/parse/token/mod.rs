@@ -259,14 +259,6 @@ impl Token {
     }
 
     #[inline]
-    pub fn is_whitespace(self) -> bool {
-        matches!(
-            self,
-            Token::LineBreak | Token::ParagraphBreak | Token::Whitespace,
-        )
-    }
-
-    #[inline]
     pub fn name(self) -> &'static str {
         self.into()
     }
