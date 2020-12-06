@@ -93,6 +93,12 @@ fn build_logger() -> slog::Logger {
 
 #[cfg(test)]
 #[allow(dead_code)]
+fn build_null_logger() -> slog::Logger {
+    slog::Logger::root(slog::Discard, o!())
+}
+
+#[cfg(test)]
+#[allow(dead_code)]
 fn build_console_logger() -> slog::Logger {
     use sloggers::terminal::TerminalLoggerBuilder;
     use sloggers::types::Severity;
