@@ -108,11 +108,11 @@ where
     }
 
     #[inline]
-    pub fn warn(item: T, remaining: &'r [ExtractedToken<'t>], error: ParseError) -> Self {
+    pub fn warn(item: T, remaining: &'r [ExtractedToken<'t>], error: Option<ParseError>) -> Self {
         GenericConsumption::Success {
             item,
             remaining,
-            error: Some(error),
+            error,
         }
     }
 

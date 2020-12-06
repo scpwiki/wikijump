@@ -175,7 +175,10 @@ where
                     "Adding newly produced item from token consumption";
                     "item" => format!("{:?}", item),
                     "remaining-len" => new_remaining.len(),
+                    "has-error" => error.is_some(),
                 );
+
+                let error2 = &error;
 
                 // Append new item
                 collected.push(item);

@@ -68,5 +68,5 @@ pub fn consume<'t, 'r>(
     let element = Element::Text(slice);
     let error = ParseError::new(ParseErrorKind::NoRulesMatch, RULE_FALLBACK, extracted);
 
-    Consumption::warn(element, remaining, error)
+    Consumption::warn(element, remaining, Some(error))
 }
