@@ -64,8 +64,23 @@ fn ast() {
     }
 
     macro_rules! container {
+        // For plain enum container types
         ($type:tt, $elements:expr) => {
-            Element::Container(Container::new(ContainerType::$type, $elements))
+            container!(ContainerType::$type; $elements)
+        };
+
+        // For container types with added data
+        ($type:expr; $elements:expr) => {
+            Element::Container(Container::new($type, $elements))
+        };
+
+        // Comma variants
+        ($type:tt, $elements:expr,) => {
+            container!($type, $elements)
+        };
+
+        ($type:expr; $elements:expr,) => {
+            container!($type; $elements)
         };
     }
 
@@ -296,6 +311,19 @@ fn ast() {
                 ParseErrorKind::NoRulesMatch,
             ),
         ],
+    );
+
+    test!(
+        "##blue|text here",
+        vec![container!(
+            ContainerType::Color("blue");
+            vec![
+                Element::Text("text"),
+                Element::Text(" "),
+                Element::Text("here"),
+            ],
+        )],
+        vec![],
     );
 }
 
