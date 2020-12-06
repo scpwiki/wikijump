@@ -76,6 +76,7 @@ token = _{
     right_bracket |
 
     // Singular symbols
+    clear_float |
     triple_dash |
     double_dash |
     pipe |
@@ -146,6 +147,7 @@ right_tag = { "]]" }
 right_tag_end = { "/]]" }
 right_link = { "]]]" }
 
+clear_float = { "~"{4,} ~ ("<" | ">")? }
 triple_dash = { "-"{3,} }
 double_dash = { "-"{2} }
 pipe = { "|" }
