@@ -31,6 +31,7 @@ mod prelude {
 mod bold;
 mod color;
 mod comment;
+mod dash;
 mod email;
 mod fallback;
 mod italics;
@@ -49,6 +50,7 @@ mod url;
 pub use self::bold::RULE_BOLD;
 pub use self::color::RULE_COLOR;
 pub use self::comment::RULE_COMMENT;
+pub use self::dash::RULE_DASH;
 pub use self::email::RULE_EMAIL;
 pub use self::fallback::RULE_FALLBACK;
 pub use self::italics::RULE_ITALICS;
