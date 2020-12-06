@@ -24,16 +24,18 @@
 //! some action over tokens, finishing or abortion when it reaches certain tokens.
 
 mod prelude {
-    pub use super::try_collect;
     pub use crate::parse::consume::consume;
     pub use crate::parse::error::{ParseError, ParseErrorKind};
     pub use crate::parse::rule::{Consumption, GenericConsumption, GenericConsumptionResult, Rule};
     pub use crate::parse::token::{ExtractedToken, Token};
     pub use crate::text::FullText;
+    pub use super::try_collect;
 }
 
 mod container;
 mod generic;
+mod merge;
 
 pub use self::container::try_container;
 pub use self::generic::try_collect;
+pub use self::merge::try_merge;
