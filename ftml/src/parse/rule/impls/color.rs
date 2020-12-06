@@ -43,7 +43,7 @@ fn try_consume_fn<'t, 'r>(
     // ## [color-style] | [text to be colored] ##
 
     // Gather the color name until the separator
-    let GenericConsumption { result, error } = try_merge(
+    let consumption = try_merge(
         log,
         (extracted, remaining, full_text),
         RULE_COLOR,
@@ -52,12 +52,24 @@ fn try_consume_fn<'t, 'r>(
         &[],
     );
 
-    let (color, remaining) = match result {
-        GenericConsumptionResult::Success { item, remaining } => (item, remaining),
-        GenericConsumptionResult::Failure => return GenericConsumption::err(error.unwrap()),
+    // Return if failure
+    let (color, remaining, error) = match consumption {
+        GenericConsumption::Failure { error } => return GenericConsumption::err(error),
+        GenericConsumption::Success {
+            item,
+            remaining,
+            error,
+        } => (item, remaining, error),
     };
 
-    debug!(log, "Retrieved color descriptor, now building container"; "color" => color);
+    let error2 = &error;
+
+    debug!(
+        log,
+        "Retrieved color descriptor, now building container";
+        "color" => color,
+        "has-error" => error.is_some(),
+    );
 
     // Build color container
     try_container(

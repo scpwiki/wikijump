@@ -28,7 +28,7 @@ mod token;
 mod test;
 
 use self::consume::consume;
-use self::rule::{Consumption, ConsumptionResult};
+use self::rule::Consumption;
 use crate::tokenize::Tokenization;
 use crate::tree::SyntaxTree;
 
@@ -47,9 +47,9 @@ where
     'r: 't,
 {
     // Set up variables
+    let mut output = ParseResult::default();
     let mut tokens = tokenization.tokens();
     let full_text = tokenization.full_text();
-    let mut output = ParseResult::default();
 
     // Logging setup
     let log = &log.new(slog_o!(
@@ -64,7 +64,7 @@ where
 
     while !tokens.is_empty() {
         // Consume tokens to produce the next element
-        let Consumption { result, error } = {
+        let consumption = {
             let (extracted, remaining) = tokens
                 .split_first() //
                 .expect("Tokens list is empty");
@@ -72,8 +72,12 @@ where
             consume(log, extracted, remaining, full_text)
         };
 
-        match result {
-            ConsumptionResult::Success { item, remaining } => {
+        let error = match consumption {
+            Consumption::Success {
+                item,
+                remaining,
+                error,
+            } => {
                 debug!(log, "Tokens successfully consumed to produce element");
 
                 // Update remaining tokens
@@ -85,11 +89,17 @@ where
 
                 // Add the new element to the list
                 output.push(item);
+
+                // Return the error, if any
+                error
             }
-            ConsumptionResult::Failure => {
+            Consumption::Failure { error } => {
                 debug!(log, "Tokens unsuccessfully consumed, no element");
+
+                // Return the error
+                Some(error)
             }
-        }
+        };
 
         if let Some(error) = error {
             info!(

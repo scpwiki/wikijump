@@ -79,9 +79,19 @@ impl slog::Value for Rule {
 }
 
 #[derive(Debug, Clone)]
-pub struct GenericConsumption<'t, 'r, T> {
-    pub result: GenericConsumptionResult<'t, 'r, T>,
-    pub error: Option<ParseError>,
+pub enum GenericConsumption<'t, 'r, T>
+where
+    T: 't,
+    'r: 't,
+{
+    Success {
+        item: T,
+        remaining: &'r [ExtractedToken<'t>],
+        error: Option<ParseError>,
+    },
+    Failure {
+        error: ParseError,
+    },
 }
 
 impl<'t, 'r, T> GenericConsumption<'t, 'r, T>
@@ -90,75 +100,68 @@ where
 {
     #[inline]
     pub fn ok(item: T, remaining: &'r [ExtractedToken<'t>]) -> Self {
-        GenericConsumption {
-            result: GenericConsumptionResult::Success { item, remaining },
+        GenericConsumption::Success {
+            item,
+            remaining,
             error: None,
         }
     }
 
     #[inline]
     pub fn warn(item: T, remaining: &'r [ExtractedToken<'t>], error: ParseError) -> Self {
-        GenericConsumption {
-            result: GenericConsumptionResult::Success { item, remaining },
+        GenericConsumption::Success {
+            item,
+            remaining,
             error: Some(error),
         }
     }
 
     #[inline]
     pub fn err(error: ParseError) -> Self {
-        GenericConsumption {
-            result: GenericConsumptionResult::Failure,
-            error: Some(error),
-        }
+        GenericConsumption::Failure { error }
     }
 
     #[inline]
     pub fn is_success(&self) -> bool {
-        match self.result {
-            GenericConsumptionResult::Success { .. } => true,
-            GenericConsumptionResult::Failure => false,
+        match self {
+            GenericConsumption::Success { .. } => true,
+            GenericConsumption::Failure { .. } => false,
         }
     }
 
     #[inline]
-    pub fn is_error(&self) -> bool {
-        !self.is_success()
+    pub fn error(&self) -> Option<&ParseError> {
+        match self {
+            GenericConsumption::Success { error, .. } => error.as_ref(),
+            GenericConsumption::Failure { error } => Some(error),
+        }
     }
 
+    #[inline]
     pub fn map<F, U>(self, f: F) -> GenericConsumption<'t, 'r, U>
     where
         F: FnOnce(T) -> U,
     {
-        let GenericConsumption { result, error } = self;
-        let result = match result {
-            GenericConsumptionResult::Success { item, remaining } => {
-                GenericConsumptionResult::Success {
-                    item: f(item),
+        match self {
+            GenericConsumption::Failure { error } => GenericConsumption::Failure { error },
+            GenericConsumption::Success {
+                item,
+                remaining,
+                error,
+            } => {
+                let item = f(item);
+
+                GenericConsumption::Success {
+                    item,
                     remaining,
+                    error,
                 }
             }
-            GenericConsumptionResult::Failure => GenericConsumptionResult::Failure,
-        };
-
-        GenericConsumption { result, error }
+        }
     }
 }
 
-#[derive(Debug, Clone)]
-pub enum GenericConsumptionResult<'t, 'r, T>
-where
-    T: 't,
-    'r: 't,
-{
-    Success {
-        item: T,
-        remaining: &'r [ExtractedToken<'t>],
-    },
-    Failure,
-}
-
 pub type Consumption<'t, 'r> = GenericConsumption<'t, 'r, Element<'t>>;
-pub type ConsumptionResult<'t, 'r> = GenericConsumptionResult<'t, 'r, Element<'t>>;
 
 /// The function type for actually trying to consume tokens
 pub type TryConsumeFn = for<'t, 'r> fn(

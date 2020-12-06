@@ -164,11 +164,11 @@ where
         }
 
         // Process token(s).
-        let consumption = process(log, new_extracted, new_remaining, full_text);
-        match consumption.result {
-            GenericConsumptionResult::Success {
+        match process(log, new_extracted, new_remaining, full_text) {
+            GenericConsumption::Success {
                 item,
                 remaining: new_remaining,
+                error,
             } => {
                 debug!(
                     log,
@@ -184,17 +184,13 @@ where
                 remaining = new_remaining;
             }
 
-            GenericConsumptionResult::Failure => {
+            GenericConsumption::Failure { error } => {
                 debug!(
                     log,
                     "Failed to produce item from consumption, bubbling up error",
                 );
 
-                return GenericConsumption::err(
-                    consumption
-                        .error
-                        .expect("Token consumption attemption did not produce an error"),
-                );
+                return GenericConsumption::err(error);
             }
         }
     }

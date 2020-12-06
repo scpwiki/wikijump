@@ -71,7 +71,7 @@ pub fn try_container<'t, 'r>(
         "Current token does not match opener",
     );
 
-    // Actually iterate and collect
+    // Iterate and consume all the tokens
     let consumption = try_collect(
         log,
         (extracted, remaining, full_text),
