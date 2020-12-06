@@ -48,8 +48,8 @@ impl<T> ParseResult<T> {
     }
 
     #[inline]
-    pub fn append_err(&mut self, error: ParseError) {
-        self.errors.push(error);
+    pub fn extend_errors(&mut self, errors: &[ParseError]) {
+        self.errors.extend_from_slice(errors);
     }
 
     pub fn join<U>(&mut self, other: ParseResult<U>) -> U {

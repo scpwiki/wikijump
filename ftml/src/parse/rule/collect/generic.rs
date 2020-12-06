@@ -168,17 +168,14 @@ where
             GenericConsumption::Success {
                 item,
                 remaining: new_remaining,
-                error,
+                errors,
             } => {
                 debug!(
                     log,
                     "Adding newly produced item from token consumption";
                     "item" => format!("{:?}", item),
                     "remaining-len" => new_remaining.len(),
-                    "has-error" => error.is_some(),
                 );
-
-                let error2 = &error;
 
                 // Append new item
                 collected.push(item);

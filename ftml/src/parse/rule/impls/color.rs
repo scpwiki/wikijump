@@ -53,22 +53,19 @@ fn try_consume_fn<'t, 'r>(
     );
 
     // Return if failure
-    let (color, remaining, error) = match consumption {
+    let (color, remaining, errors) = match consumption {
         GenericConsumption::Failure { error } => return GenericConsumption::err(error),
         GenericConsumption::Success {
             item,
             remaining,
-            error,
-        } => (item, remaining, error),
+            errors,
+        } => (item, remaining, errors),
     };
-
-    let error2 = &error;
 
     debug!(
         log,
         "Retrieved color descriptor, now building container";
         "color" => color,
-        "has-error" => error.is_some(),
     );
 
     // Build color container

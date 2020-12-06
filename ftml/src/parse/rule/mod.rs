@@ -87,7 +87,7 @@ where
     Success {
         item: T,
         remaining: &'r [ExtractedToken<'t>],
-        error: Option<ParseError>,
+        errors: Vec<ParseError>,
     },
     Failure {
         error: ParseError,
@@ -103,16 +103,16 @@ where
         GenericConsumption::Success {
             item,
             remaining,
-            error: None,
+            errors: Vec::new(),
         }
     }
 
     #[inline]
-    pub fn warn(item: T, remaining: &'r [ExtractedToken<'t>], error: Option<ParseError>) -> Self {
+    pub fn warn(item: T, remaining: &'r [ExtractedToken<'t>], errors: Vec<ParseError>) -> Self {
         GenericConsumption::Success {
             item,
             remaining,
-            error,
+            errors,
         }
     }
 
@@ -130,14 +130,6 @@ where
     }
 
     #[inline]
-    pub fn error(&self) -> Option<&ParseError> {
-        match self {
-            GenericConsumption::Success { error, .. } => error.as_ref(),
-            GenericConsumption::Failure { error } => Some(error),
-        }
-    }
-
-    #[inline]
     pub fn map<F, U>(self, f: F) -> GenericConsumption<'t, 'r, U>
     where
         F: FnOnce(T) -> U,
@@ -147,14 +139,14 @@ where
             GenericConsumption::Success {
                 item,
                 remaining,
-                error,
+                errors,
             } => {
                 let item = f(item);
 
                 GenericConsumption::Success {
                     item,
                     remaining,
-                    error,
+                    errors,
                 }
             }
         }

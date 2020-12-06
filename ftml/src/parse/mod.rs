@@ -72,11 +72,11 @@ where
             consume(log, extracted, remaining, full_text)
         };
 
-        let error = match consumption {
+        match consumption {
             Consumption::Success {
                 item,
                 remaining,
-                error,
+                errors,
             } => {
                 debug!(log, "Tokens successfully consumed to produce element");
 
@@ -90,30 +90,24 @@ where
                 // Add the new element to the list
                 output.push(item);
 
-                // Return the error, if any
-                error
+                // Append errors
+                output.extend_errors(&errors);
             }
             Consumption::Failure { error } => {
-                debug!(log, "Tokens unsuccessfully consumed, no element");
+                info!(
+                    log,
+                    "Token consumption failed, returned error";
+                    "error-token" => error.token(),
+                    "error-rule" => error.rule(),
+                    "error-span-start" => error.span().start,
+                    "error-span-end" => error.span().end,
+                    "error-kind" => error.kind().name(),
+                );
 
-                // Return the error
-                Some(error)
+                // Append the error
+                output.extend_errors(&[error]);
             }
         };
-
-        if let Some(error) = error {
-            info!(
-                log,
-                "Received error during token consumption";
-                "error-token" => error.token(),
-                "error-rule" => error.rule(),
-                "error-span-start" => error.span().start,
-                "error-span-end" => error.span().end,
-                "error-kind" => error.kind().name(),
-            );
-
-            output.append_err(error);
-        }
     }
 
     info!(log, "Finished running parser, returning gathered elements");
