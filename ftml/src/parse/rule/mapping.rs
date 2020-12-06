@@ -42,7 +42,7 @@ lazy_static! {
             Token::RightTag => vec![],
             Token::RightTagEnd => vec![],
             Token::LeftAnchor => vec![RULE_TODO], // TODO
-            Token::DoubleDash => vec![RULE_TODO], // TODO
+            Token::DoubleDash => vec![RULE_STRIKETHROUGH, RULE_TODO], // TODO
             Token::TripleDash => vec![RULE_TODO], // TODO
             Token::ClearFloat => vec![RULE_TODO], // TODO
             Token::ClearFloatLeft => vec![RULE_TODO], // TODO
