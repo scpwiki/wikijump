@@ -88,7 +88,7 @@ pub mod prelude {
 #[cfg(test)]
 #[inline]
 fn build_logger() -> slog::Logger {
-    build_console_logger()
+    build_null_logger()
 }
 
 #[cfg(test)]
