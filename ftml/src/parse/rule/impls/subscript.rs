@@ -1,5 +1,5 @@
 /*
- * parse/rule/impls/superscript.rs
+ * parse/rule/impls/subscript.rs
  *
  * ftml - Library to parse Wikidot code
  * Copyright (C) 2019-2020 Ammon Smith
@@ -20,8 +20,8 @@
 
 use super::prelude::*;
 
-pub const RULE_SUPERSCRIPT: Rule = Rule {
-    name: "superscript",
+pub const RULE_SUBSCRIPT: Rule = Rule {
+    name: "subscript",
     try_consume_fn,
 };
 
@@ -31,17 +31,17 @@ fn try_consume_fn<'t, 'r>(
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
 ) -> Consumption<'t, 'r> {
-    debug!(log, "Trying to create superscript container");
+    debug!(log, "Trying to create subscript container");
 
     try_container(
         log,
         (extracted, remaining, full_text),
-        (RULE_SUPERSCRIPT, ContainerType::Superscript),
-        (Token::Superscript, Token::Superscript),
+        (RULE_SUBSCRIPT, ContainerType::Subscript),
+        (Token::Subscript, Token::Subscript),
         &[Token::ParagraphBreak, Token::InputEnd],
         &[
-            (Token::Superscript, Token::Whitespace),
-            (Token::Whitespace, Token::Superscript),
+            (Token::Subscript, Token::Whitespace),
+            (Token::Whitespace, Token::Subscript),
         ],
     )
 }
