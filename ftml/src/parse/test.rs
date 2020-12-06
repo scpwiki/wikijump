@@ -171,6 +171,123 @@ fn ast() {
     );
 
     test!(
+        "^^super^^ script",
+        vec![
+            container!(Superscript, vec![Element::Text("super")]),
+            Element::Text(" "),
+            Element::Text("script"),
+        ],
+        vec![],
+    );
+
+    test!(
+        "^^fail superscript",
+        vec![
+            Element::Text("^^"),
+            Element::Text("fail"),
+            Element::Text(" "),
+            Element::Text("superscript"),
+        ],
+        vec![ParseError::new_raw(
+            Token::Superscript,
+            "fallback",
+            0..2,
+            ParseErrorKind::NoRulesMatch,
+        )],
+    );
+
+    test!(
+        ",,sub,, script",
+        vec![
+            container!(Subscript, vec![Element::Text("sub")]),
+            Element::Text(" "),
+            Element::Text("script"),
+        ],
+        vec![],
+    );
+
+    test!(
+        ",,fail subscript",
+        vec![
+            Element::Text(",,"),
+            Element::Text("fail"),
+            Element::Text(" "),
+            Element::Text("subscript"),
+        ],
+        vec![ParseError::new_raw(
+            Token::Subscript,
+            "fallback",
+            0..2,
+            ParseErrorKind::NoRulesMatch,
+        )],
+    );
+
+    test!(
+        "{{mono}} space",
+        vec![
+            container!(Monospace, vec![Element::Text("mono")]),
+            Element::Text(" "),
+            Element::Text("space"),
+        ],
+        vec![],
+    );
+
+    test!(
+        "{{fail monospace",
+        vec![
+            Element::Text("{{"),
+            Element::Text("fail"),
+            Element::Text(" "),
+            Element::Text("monospace"),
+        ],
+        vec![ParseError::new_raw(
+            Token::LeftMonospace,
+            "fallback",
+            0..2,
+            ParseErrorKind::NoRulesMatch,
+        )],
+    );
+
+    test!(
+        "}}fail monospace",
+        vec![
+            Element::Text("}}"),
+            Element::Text("fail"),
+            Element::Text(" "),
+            Element::Text("monospace"),
+        ],
+        vec![ParseError::new_raw(
+            Token::RightMonospace,
+            "fallback",
+            0..2,
+            ParseErrorKind::NoRulesMatch,
+        )],
+    );
+
+    test!(
+        "--strike-- through",
+        vec![
+            container!(Strikethrough, vec![Element::Text("strike")]),
+            Element::Text(" "),
+            Element::Text("through"),
+        ],
+        vec![],
+    );
+
+    test!(
+        "--fallback em dash",
+        vec![
+            Element::Text("\u{2014}"), // em dash
+            Element::Text("fallback"),
+            Element::Text(" "),
+            Element::Text("em"),
+            Element::Text(" "),
+            Element::Text("dash"),
+        ],
+        vec![],
+    );
+
+    test!(
         "single [!-- stuff here --] comment",
         vec![
             Element::Text("single"),
