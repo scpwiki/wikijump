@@ -325,6 +325,64 @@ fn ast() {
         )],
         vec![],
     );
+
+    test!(
+        "###ccc|css color!##",
+        vec![container!(
+            ContainerType::Color("#ccc");
+            vec![
+                Element::Text("css"),
+                Element::Text(" "),
+                Element::Text("color"),
+                Element::Text("!"),
+            ],
+        )],
+        vec![],
+    );
+
+    test!(
+        "##not color",
+        vec![
+            Element::Text("##"),
+            Element::Text("not"),
+            Element::Text(" "),
+            Element::Text("color"),
+        ],
+        vec![
+            ParseError::new_raw(
+                Token::Color,
+                "fallback",
+                0..2,
+                ParseErrorKind::NoRulesMatch,
+            ),
+        ],
+    );
+
+    test!(
+        "##invalid\n|text##",
+        vec![
+            Element::Text("##"),
+            Element::Text("invalid"),
+            Element::LineBreak,
+            Element::Text("|"),
+            Element::Text("text"),
+            Element::Text("##"),
+        ],
+        vec![
+            ParseError::new_raw(
+                Token::Color,
+                "fallback",
+                0..2,
+                ParseErrorKind::NoRulesMatch,
+            ),
+            ParseError::new_raw(
+                Token::Color,
+                "fallback",
+                15..17,
+                ParseErrorKind::NoRulesMatch,
+            ),
+        ],
+    );
 }
 
 #[test]
