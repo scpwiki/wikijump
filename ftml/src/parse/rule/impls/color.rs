@@ -61,6 +61,18 @@ fn try_consume_fn<'t, 'r>(
         "color" => color,
     );
 
+    // Extract next token to resume parsing
+    let (extracted, remaining) = match remaining.split_first() {
+        Some(split) => split,
+        None => {
+            return Consumption::err(ParseError::new(
+                ParseErrorKind::EndOfInput,
+                RULE_COLOR,
+                extracted,
+            ))
+        }
+    };
+
     // Build color container
     let consumption = try_container(
         log,
