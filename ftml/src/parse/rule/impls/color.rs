@@ -53,7 +53,7 @@ fn try_consume_fn<'t, 'r>(
     );
 
     // Return if failure
-    let (color, remaining, errors) = match consumption {
+    let (color, remaining, mut all_errors) = match consumption {
         GenericConsumption::Failure { error } => return GenericConsumption::err(error),
         GenericConsumption::Success {
             item,
@@ -69,12 +69,28 @@ fn try_consume_fn<'t, 'r>(
     );
 
     // Build color container
-    try_container(
+    let consumption = try_container(
         log,
         (extracted, remaining, full_text),
         (RULE_COLOR, ContainerType::Color(color)),
         (Token::Pipe, Token::Color),
         &[Token::ParagraphBreak, Token::InputEnd],
         &[],
-    )
+    );
+
+    // Append errors, or return if failure
+    match consumption {
+        GenericConsumption::Failure { error } => GenericConsumption::err(error),
+        GenericConsumption::Success {
+            item,
+            remaining,
+            mut errors,
+        } => {
+            // Add on other errors
+            all_errors.append(&mut errors);
+
+            // Return consumption
+            GenericConsumption::warn(item, remaining, all_errors)
+        }
+    }
 }
