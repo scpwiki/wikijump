@@ -43,36 +43,29 @@ fn try_consume_fn<'t, 'r>(
     // ## [color-style] | [text to be colored] ##
 
     // Gather the color name until the separator
-    let _color = {
-        try_merge(
-            log,
-            (extracted, remaining, full_text),
-            RULE_COLOR,
-            &[Token::Pipe],
-            &[Token::ParagraphBreak, Token::LineBreak, Token::InputEnd],
-            &[],
-        )
+    let GenericConsumption { result, error } = try_merge(
+        log,
+        (extracted, remaining, full_text),
+        RULE_COLOR,
+        &[Token::Pipe],
+        &[Token::ParagraphBreak, Token::LineBreak, Token::InputEnd],
+        &[],
+    );
+
+    let (color, remaining) = match result {
+        GenericConsumptionResult::Success { item, remaining } => (item, remaining),
+        GenericConsumptionResult::Failure => return GenericConsumption::err(error.unwrap()),
     };
 
-    todo!()
-}
+    debug!(log, "Retrieved color descriptor, now building container"; "color" => color);
 
-/*
-pub fn collect_until<'t, 'r, F, T>(
-    log: &slog::Logger,
-    extracted: &'r ExtractedToken<'t>,
-    mut remaining: &'r [ExtractedToken<'t>],
-    rule: Rule,
-    close_tokens: &[Token],
-    invalid_tokens: &[Token],
-    invalid_token_pairs: &[(Token, Token)],
-    mut process: F,
-) -> GenericConsumption<'r, 't, Vec<T>>
-where
-    F: FnMut(
-        &slog::Logger,
-        &'r ExtractedToken<'t>,
-        &'r [ExtractedToken<'t>],
-    ) -> GenericConsumption<'r, 't, T>,
-    T: Debug,
-*/
+    // Build color container
+    try_container(
+        log,
+        (extracted, remaining, full_text),
+        (RULE_COLOR, ContainerType::Color(color)),
+        (Token::Pipe, Token::Color),
+        &[Token::ParagraphBreak, Token::InputEnd],
+        &[],
+    )
+}

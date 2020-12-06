@@ -22,7 +22,10 @@ mod prelude {
     pub use crate::parse::consume::consume;
     pub use crate::parse::error::{ParseError, ParseErrorKind};
     pub use crate::parse::rule::collect::*;
-    pub use crate::parse::rule::{Consumption, ConsumptionResult, Rule, TryConsumeFn};
+    pub use crate::parse::rule::{
+        Consumption, ConsumptionResult, GenericConsumption, GenericConsumptionResult, Rule,
+        TryConsumeFn,
+    };
     pub use crate::parse::token::{ExtractedToken, Token};
     pub use crate::text::FullText;
     pub use crate::tree::{Container, ContainerType, Element};
