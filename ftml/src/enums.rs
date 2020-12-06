@@ -22,8 +22,9 @@
 #![allow(dead_code)]
 
 use std::convert::TryFrom;
+use strum_macros::IntoStaticStr;
 
-#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum AnchorTarget {
     /// Open the link in a new tab.
@@ -41,6 +42,13 @@ pub enum AnchorTarget {
     /// Open the link in the current frame.
     /// HTML attribute is `_self`.
     Same,
+}
+
+impl AnchorTarget {
+    #[inline]
+    pub fn name(self) -> &'static str {
+        self.into()
+    }
 }
 
 impl<'a> TryFrom<&'a str> for AnchorTarget {
