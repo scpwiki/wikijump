@@ -348,14 +348,12 @@ fn ast() {
             Element::Text(" "),
             Element::Text("color"),
         ],
-        vec![
-            ParseError::new_raw(
-                Token::Color,
-                "fallback",
-                0..2,
-                ParseErrorKind::NoRulesMatch,
-            ),
-        ],
+        vec![ParseError::new_raw(
+            Token::Color,
+            "fallback",
+            0..2,
+            ParseErrorKind::NoRulesMatch,
+        )],
     );
 
     test!(
@@ -370,7 +368,7 @@ fn ast() {
         ],
         vec![
             ParseError::new_raw(
-                Token::Color,
+                Token::Color, //
                 "fallback",
                 0..2,
                 ParseErrorKind::NoRulesMatch,
