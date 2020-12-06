@@ -35,6 +35,7 @@ mod email;
 mod fallback;
 mod italics;
 mod line_break;
+mod monospace;
 mod null;
 mod raw;
 mod subscript;
