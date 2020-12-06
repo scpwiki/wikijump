@@ -145,6 +145,32 @@ fn ast() {
     );
 
     test!(
+        "__underline__ text",
+        vec![
+            container!(Underline, vec![Element::Text("underline")]),
+            Element::Text(" "),
+            Element::Text("text"),
+        ],
+        vec![],
+    );
+
+    test!(
+        "__fail underline",
+        vec![
+            Element::Text("__"),
+            Element::Text("fail"),
+            Element::Text(" "),
+            Element::Text("underline"),
+        ],
+        vec![ParseError::new_raw(
+            Token::Underline,
+            "fallback",
+            0..2,
+            ParseErrorKind::NoRulesMatch,
+        )],
+    );
+
+    test!(
         "single [!-- stuff here --] comment",
         vec![
             Element::Text("single"),
