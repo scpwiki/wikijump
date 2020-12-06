@@ -89,6 +89,7 @@ pub enum Token {
     // Links
     //
     LeftLink,
+    LeftLinkSpecial,
     RightLink,
 
     //
@@ -225,6 +226,7 @@ impl Token {
 
             // Links
             Rule::left_link => Token::LeftLink,
+            Rule::left_link_special => Token::LeftLinkSpecial,
             Rule::right_link => Token::RightLink,
 
             // Tables

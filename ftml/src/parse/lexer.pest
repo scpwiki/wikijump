@@ -65,6 +65,7 @@ token = _{
     (right_link ~ right_bracket) |
 
     // Brackets
+    left_link_special |
     left_link |
     left_tag_anchor |
     left_tag_special |
@@ -144,6 +145,7 @@ left_tag = { "[[" }
 left_tag_anchor = { "[[#" }
 left_tag_special = { "[[*" }
 left_link = { "[[[" }
+left_link_special = { "[[[*" }
 right_bracket = { "]" }
 right_tag = { "]]" }
 right_tag_end = { "/]]" }
