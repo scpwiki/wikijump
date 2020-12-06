@@ -38,9 +38,12 @@ pub fn try_merge<'t, 'r>(
     invalid_token_pairs: &[(Token, Token)],
 ) -> GenericConsumption<'t, 'r, &'t str> {
     // Log try_merge() call
-    info!(log, "Trying to consume tokens to merge into a single string");
+    info!(
+        log,
+        "Trying to consume tokens to merge into a single string",
+    );
 
-    let tokens = try_collect(
+    let GenericConsumption { result, error } = try_collect(
         log,
         (extracted, remaining, full_text),
         rule,
@@ -54,7 +57,31 @@ pub fn try_merge<'t, 'r>(
         },
     );
 
-    println!("tokens {:#?}", tokens);
+    match result {
+        GenericConsumptionResult::Success {
+            item: tokens,
+            remaining,
+        } => {
+            let slice = match (tokens.first(), tokens.last()) {
+                // Get first and last tokens for string slice
+                (Some(first), Some(end)) => full_text.slice(log, first, end),
 
-    todo!()
+                // Empty list of tokens, resultant slice must be empty
+                (None, None) => "",
+
+                // Impossible case, they should both be None if empty, Some(_) otherwise
+                _ => unreachable!(),
+            };
+
+            GenericConsumption::ok(slice, remaining)
+        }
+        GenericConsumptionResult::Failure => {
+            debug!(
+                log,
+                "Collecting tokens for string merge failed, bubbling up",
+            );
+
+            GenericConsumption::err(error.expect("No ParseError in consumption failure case"))
+        }
+    }
 }

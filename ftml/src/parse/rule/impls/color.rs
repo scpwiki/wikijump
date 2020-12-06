@@ -29,26 +29,50 @@ fn try_consume_fn<'t, 'r>(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
-    _full_text: FullText<'t>,
+    full_text: FullText<'t>,
 ) -> Consumption<'t, 'r> {
     debug!(log, "Trying to create color container");
 
-    assert_eq!(extracted.token, Token::Color, "Current token isn't '##'");
+    assert_eq!(
+        extracted.token,
+        Token::Color,
+        "Current token isn't color marker",
+    );
 
-    /*
-    try_container(
-        log,
-        extracted,
-        remaining,
-        (RULE_BOLD, ContainerType::Bold),
-        (Token::Bold, Token::Bold),
-        &[Token::ParagraphBreak, Token::InputEnd],
-        &[
-            (Token::Bold, Token::Whitespace),
-            (Token::Whitespace, Token::Bold),
-        ],
-    )
-    */
+    // The pattern for color is:
+    // ## [color-style] | [text to be colored] ##
+
+    // Gather the color name until the separator
+    let _color = {
+        try_merge(
+            log,
+            (extracted, remaining, full_text),
+            RULE_COLOR,
+            &[Token::Pipe],
+            &[Token::ParagraphBreak, Token::LineBreak, Token::InputEnd],
+            &[],
+        )
+    };
 
     todo!()
 }
+
+/*
+pub fn collect_until<'t, 'r, F, T>(
+    log: &slog::Logger,
+    extracted: &'r ExtractedToken<'t>,
+    mut remaining: &'r [ExtractedToken<'t>],
+    rule: Rule,
+    close_tokens: &[Token],
+    invalid_tokens: &[Token],
+    invalid_token_pairs: &[(Token, Token)],
+    mut process: F,
+) -> GenericConsumption<'r, 't, Vec<T>>
+where
+    F: FnMut(
+        &slog::Logger,
+        &'r ExtractedToken<'t>,
+        &'r [ExtractedToken<'t>],
+    ) -> GenericConsumption<'r, 't, T>,
+    T: Debug,
+*/
