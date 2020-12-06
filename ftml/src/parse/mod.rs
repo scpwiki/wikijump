@@ -18,14 +18,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#[macro_use]
+mod macros;
+
+#[cfg(test)]
+mod test;
+
 mod consume;
 mod error;
 mod result;
 mod rule;
 mod token;
-
-#[cfg(test)]
-mod test;
 
 use self::consume::consume;
 use self::rule::Consumption;
