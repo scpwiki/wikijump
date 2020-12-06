@@ -24,12 +24,16 @@
 
 macro_rules! slog_filename {
     () => {
-        slog::PushFnValue(|r: &slog::Record, ser: slog::PushFnValueSerializer| ser.emit(r.file()))
+        slog::PushFnValue(|r: &slog::Record, ser: slog::PushFnValueSerializer| {
+            ser.emit(r.file())
+        })
     };
 }
 
 macro_rules! slog_lineno {
     () => {
-        slog::PushFnValue(|r: &slog::Record, ser: slog::PushFnValueSerializer| ser.emit(r.line()))
+        slog::PushFnValue(|r: &slog::Record, ser: slog::PushFnValueSerializer| {
+            ser.emit(r.line())
+        })
     };
 }

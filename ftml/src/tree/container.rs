@@ -59,7 +59,9 @@ impl<'t> Into<Vec<Element<'t>>> for Container<'t> {
     }
 }
 
-#[derive(Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(
+    Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq,
+)]
 #[serde(rename_all = "kebab-case")]
 pub enum ContainerType<'t> {
     Paragraph,

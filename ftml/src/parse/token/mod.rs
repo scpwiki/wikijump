@@ -37,7 +37,9 @@ pub struct ExtractedToken<'a> {
     pub span: Range<usize>,
 }
 
-#[derive(Serialize, Deserialize, Enum, IntoStaticStr, Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(
+    Serialize, Deserialize, Enum, IntoStaticStr, Debug, Copy, Clone, PartialEq, Eq,
+)]
 #[serde(rename_all = "kebab-case")]
 pub enum Token {
     //
@@ -129,7 +131,10 @@ pub enum Token {
 }
 
 impl Token {
-    pub(crate) fn extract_all<'a>(log: &slog::Logger, text: &'a str) -> Vec<ExtractedToken<'a>> {
+    pub(crate) fn extract_all<'a>(
+        log: &slog::Logger,
+        text: &'a str,
+    ) -> Vec<ExtractedToken<'a>> {
         debug!(log, "Running lexer on input");
 
         match TokenLexer::parse(Rule::document, text) {

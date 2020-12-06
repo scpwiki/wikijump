@@ -74,7 +74,9 @@ mod tokenize;
 pub mod data;
 pub mod tree;
 
-pub use self::parse::{parse, ExtractedToken, ParseError, ParseErrorKind, ParseResult, Token};
+pub use self::parse::{
+    parse, ExtractedToken, ParseError, ParseErrorKind, ParseResult, Token,
+};
 pub use self::preproc::preprocess;
 pub use self::tokenize::{tokenize, Tokenization};
 

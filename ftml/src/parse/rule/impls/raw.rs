@@ -110,7 +110,10 @@ fn try_consume_fn<'t, 'r>(
             (_, Token::Raw) => {
                 debug!(log, "Found single-element raw, returning");
 
-                return Consumption::ok(Element::Raw(next_extracted_1.slice), &remaining[2..]);
+                return Consumption::ok(
+                    Element::Raw(next_extracted_1.slice),
+                    &remaining[2..],
+                );
             }
 
             // Other, proceed with rule logic

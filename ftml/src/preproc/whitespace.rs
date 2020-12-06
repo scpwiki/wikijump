@@ -79,7 +79,12 @@ fn str_replace(log: &slog::Logger, text: &mut String, pattern: &str, replacement
     }
 }
 
-fn regex_replace(log: &slog::Logger, text: &mut String, regex: &Regex, replacement: &str) {
+fn regex_replace(
+    log: &slog::Logger,
+    text: &mut String,
+    regex: &Regex,
+    replacement: &str,
+) {
     debug!(
         log,
         "Replacing miscellaneous regular expression";

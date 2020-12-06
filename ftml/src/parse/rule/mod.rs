@@ -108,7 +108,11 @@ where
     }
 
     #[inline]
-    pub fn warn(item: T, remaining: &'r [ExtractedToken<'t>], errors: Vec<ParseError>) -> Self {
+    pub fn warn(
+        item: T,
+        remaining: &'r [ExtractedToken<'t>],
+        errors: Vec<ParseError>,
+    ) -> Self {
         GenericConsumption::Success {
             item,
             remaining,
@@ -135,7 +139,9 @@ where
         F: FnOnce(T) -> U,
     {
         match self {
-            GenericConsumption::Failure { error } => GenericConsumption::Failure { error },
+            GenericConsumption::Failure { error } => {
+                GenericConsumption::Failure { error }
+            }
             GenericConsumption::Success {
                 item,
                 remaining,

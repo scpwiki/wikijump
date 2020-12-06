@@ -24,7 +24,9 @@
 macro_rules! try_consume {
     ($consumption:expr) => {
         match $consumption {
-            GenericConsumption::Failure { error } => return GenericConsumption::err(error),
+            GenericConsumption::Failure { error } => {
+                return GenericConsumption::err(error)
+            }
             GenericConsumption::Success {
                 item,
                 remaining,
