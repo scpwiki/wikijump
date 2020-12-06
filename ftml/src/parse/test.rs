@@ -314,7 +314,7 @@ fn ast() {
     );
 
     test!(
-        "##blue|text here",
+        "##blue|text here##",
         vec![container!(
             ContainerType::Color("blue");
             vec![
