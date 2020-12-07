@@ -86,27 +86,6 @@ fn ast() {
     }
 
     test!(
-        "^^super^^ script",
-        vec![
-            container!(Superscript, vec![text!("super")]),
-            text!(" "),
-            text!("script"),
-        ],
-        vec![],
-    );
-
-    test!(
-        "^^fail superscript",
-        vec![text!("^^"), text!("fail"), text!(" "), text!("superscript")],
-        vec![ParseError::new_raw(
-            Token::Superscript,
-            "fallback",
-            0..2,
-            ParseErrorKind::NoRulesMatch,
-        )],
-    );
-
-    test!(
         ",,sub,, script",
         vec![
             container!(Subscript, vec![text!("sub")]),

@@ -1,0 +1,31 @@
+{
+    "input": "^^fail superscript",
+    "tree": {
+        "elements": [
+            {
+                "element": "text",
+                "data": "^^"
+            },
+            {
+                "element": "text",
+                "data": "fail"
+            },
+            {
+                "element": "text",
+                "data": " "
+            },
+            {
+                "element": "text",
+                "data": "superscript"
+            }
+        ]
+    },
+    "errors": [
+        {
+            "token": "superscript",
+            "rule": "fallback",
+            "span": [0, 2],
+            "kind": "no-rules-match"
+        }
+    ]
+}

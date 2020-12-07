@@ -1,0 +1,29 @@
+{
+    "input": "^^superscript^^ text",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "superscript",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "superscript"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "text",
+                "data": " "
+            },
+            {
+                "element": "text",
+                "data": "text"
+            }
+        ]
+    },
+    "errors": [
+    ]
+}
