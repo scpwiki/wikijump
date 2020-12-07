@@ -65,61 +65,6 @@ fn ast() {
     }
 
     test!(
-        "##blue|text here##",
-        vec![Element::Color {
-            color: cow!("blue"),
-            elements: vec![text!("text"), text!(" "), text!("here")],
-        }],
-        vec![],
-    );
-
-    test!(
-        "###ccc|css color!##",
-        vec![Element::Color {
-            color: cow!("#ccc"),
-            elements: vec![text!("css"), text!(" "), text!("color"), text!("!")],
-        }],
-        vec![],
-    );
-
-    test!(
-        "##not color",
-        vec![text!("##"), text!("not"), text!(" "), text!("color")],
-        vec![ParseError::new_raw(
-            Token::Color,
-            "fallback",
-            0..2,
-            ParseErrorKind::NoRulesMatch,
-        )],
-    );
-
-    test!(
-        "##invalid\n|text##",
-        vec![
-            text!("##"),
-            text!("invalid"),
-            Element::LineBreak,
-            text!("|"),
-            text!("text"),
-            text!("##"),
-        ],
-        vec![
-            ParseError::new_raw(
-                Token::Color, //
-                "fallback",
-                0..2,
-                ParseErrorKind::NoRulesMatch,
-            ),
-            ParseError::new_raw(
-                Token::Color,
-                "fallback",
-                15..17,
-                ParseErrorKind::NoRulesMatch,
-            ),
-        ],
-    );
-
-    test!(
         "[https://example.com/ Some link!]",
         vec![Element::Link {
             url: cow!("https://example.com/"),

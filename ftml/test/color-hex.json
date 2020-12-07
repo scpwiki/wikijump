@@ -1,0 +1,33 @@
+{
+    "input": "###ccc|CSS color!##",
+    "tree": {
+        "elements": [
+            {
+                "element": "color",
+                "data": {
+                    "color": "#ccc",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "CSS"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "color"
+                        },
+                        {
+                            "element": "text",
+                            "data": "!"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "errors": [
+    ]
+}

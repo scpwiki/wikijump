@@ -1,0 +1,29 @@
+{
+    "input": "##blue|Text Here##",
+    "tree": {
+        "elements": [
+            {
+                "element": "color",
+                "data": {
+                    "color": "blue",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "Text"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Here"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "errors": [
+    ]
+}
