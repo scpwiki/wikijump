@@ -33,30 +33,22 @@ pub const RULE_LINK_TAB: Rule = Rule {
 
 fn link<'t, 'r>(
     log: &slog::Logger,
-    _: &'r ExtractedToken<'t>,
+    extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
 ) -> Consumption<'t, 'r> {
     trace!(log, "Trying to create a bare link (regular)");
-
-    let (extracted, remaining) = remaining
-        .split_first()
-        .expect("On link token but there are no futher extractions");
 
     try_consume_link(log, extracted, remaining, full_text, AnchorTarget::Same)
 }
 
 fn link_new_tab<'t, 'r>(
     log: &slog::Logger,
-    _: &'r ExtractedToken<'t>,
+    extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
 ) -> Consumption<'t, 'r> {
     trace!(log, "Trying to create a bare link (new tab)");
-
-    let (extracted, remaining) = remaining
-        .split_first()
-        .expect("On link token but there are no futher extractions");
 
     try_consume_link(log, extracted, remaining, full_text, AnchorTarget::NewTab)
 }
