@@ -63,64 +63,6 @@ fn ast() {
             );
         }};
     }
-
-    test!(
-        "[https://example.com/ Some link!]",
-        vec![Element::Link {
-            url: cow!("https://example.com/"),
-            label: LinkLabel::Text(cow!("Some link!")),
-            anchor: AnchorTarget::Same,
-        }],
-        vec![],
-    );
-
-    test!(
-        "[*http://scp-sandbox-3.wikidot.com/system:recent-changes Sandbox: Recent Changes ]",
-        vec![Element::Link {
-            url: cow!("http://scp-sandbox-3.wikidot.com/system:recent-changes"),
-            label: LinkLabel::Text(cow!("Sandbox: Recent Changes")),
-            anchor: AnchorTarget::NewTab,
-        }],
-        vec![],
-    );
-
-    test!(
-        "[ not a link ]",
-        vec![
-            text!("["),
-            text!(" "),
-            text!("not"),
-            text!(" "),
-            text!("a"),
-            text!(" "),
-            text!("link"),
-            text!(" "),
-            text!("]"),
-        ],
-        // No errors, because bare "[" is considered text
-        vec![],
-    );
-
-    test!(
-        "[* not a link ]",
-        vec![
-            text!("[*"),
-            text!(" "),
-            text!("not"),
-            text!(" "),
-            text!("a"),
-            text!(" "),
-            text!("link"),
-            text!(" "),
-            text!("]"),
-        ],
-        vec![ParseError::new_raw(
-            Token::LeftBracketSpecial,
-            "fallback",
-            0..2,
-            ParseErrorKind::NoRulesMatch,
-        )],
-    );
 }
 
 #[test]

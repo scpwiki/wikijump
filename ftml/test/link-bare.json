@@ -1,0 +1,23 @@
+{
+    "input": "[https://example.com/ Some link]!",
+    "tree": {
+        "elements": [
+            {
+                "element": "link",
+                "data": {
+                    "url": "https://example.com/",
+                    "label": {
+                        "text": "Some link"
+                    },
+                    "anchor": "same"
+                }
+            },
+            {
+                "element": "text",
+                "data": "!"
+            }
+        ]
+    },
+    "errors": [
+    ]
+}
