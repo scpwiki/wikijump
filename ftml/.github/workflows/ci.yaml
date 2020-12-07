@@ -4,6 +4,7 @@ on:
       - 'Cargo.toml'
       - 'Cargo.lock'
       - 'src/**'
+      - 'test/*'
       - '.github/workflows/*'
 
 name: Rust CI
