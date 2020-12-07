@@ -87,30 +87,25 @@ fn ast() {
 
     test!("", vec![], vec![]);
 
-    test!(" ", vec![Element::Text(" ")], vec![]);
+    test!(" ", vec![text!(" ")], vec![]);
 
-    test!("abc", vec![Element::Text("abc")], vec![]);
+    test!("abc", vec![text!("abc")], vec![]);
 
     test!("\n", vec![Element::LineBreak], vec![]);
 
     test!(
         "**bold** text",
         vec![
-            container!(Bold, vec![Element::Text("bold")]),
-            Element::Text(" "),
-            Element::Text("text"),
+            container!(Bold, vec![text!("bold")]),
+            text!(" "),
+            text!("text"),
         ],
         vec![],
     );
 
     test!(
         "**fail bold",
-        vec![
-            Element::Text("**"),
-            Element::Text("fail"),
-            Element::Text(" "),
-            Element::Text("bold"),
-        ],
+        vec![text!("**"), text!("fail"), text!(" "), text!("bold")],
         vec![ParseError::new_raw(
             Token::Bold,
             "fallback",
@@ -122,21 +117,16 @@ fn ast() {
     test!(
         "//italics// text",
         vec![
-            container!(Italics, vec![Element::Text("italics")]),
-            Element::Text(" "),
-            Element::Text("text"),
+            container!(Italics, vec![text!("italics")]),
+            text!(" "),
+            text!("text"),
         ],
         vec![],
     );
 
     test!(
         "//fail italics",
-        vec![
-            Element::Text("//"),
-            Element::Text("fail"),
-            Element::Text(" "),
-            Element::Text("italics"),
-        ],
+        vec![text!("//"), text!("fail"), text!(" "), text!("italics")],
         vec![ParseError::new_raw(
             Token::Italics,
             "fallback",
@@ -148,21 +138,16 @@ fn ast() {
     test!(
         "__underline__ text",
         vec![
-            container!(Underline, vec![Element::Text("underline")]),
-            Element::Text(" "),
-            Element::Text("text"),
+            container!(Underline, vec![text!("underline")]),
+            text!(" "),
+            text!("text"),
         ],
         vec![],
     );
 
     test!(
         "__fail underline",
-        vec![
-            Element::Text("__"),
-            Element::Text("fail"),
-            Element::Text(" "),
-            Element::Text("underline"),
-        ],
+        vec![text!("__"), text!("fail"), text!(" "), text!("underline")],
         vec![ParseError::new_raw(
             Token::Underline,
             "fallback",
@@ -174,21 +159,16 @@ fn ast() {
     test!(
         "^^super^^ script",
         vec![
-            container!(Superscript, vec![Element::Text("super")]),
-            Element::Text(" "),
-            Element::Text("script"),
+            container!(Superscript, vec![text!("super")]),
+            text!(" "),
+            text!("script"),
         ],
         vec![],
     );
 
     test!(
         "^^fail superscript",
-        vec![
-            Element::Text("^^"),
-            Element::Text("fail"),
-            Element::Text(" "),
-            Element::Text("superscript"),
-        ],
+        vec![text!("^^"), text!("fail"), text!(" "), text!("superscript")],
         vec![ParseError::new_raw(
             Token::Superscript,
             "fallback",
@@ -200,21 +180,16 @@ fn ast() {
     test!(
         ",,sub,, script",
         vec![
-            container!(Subscript, vec![Element::Text("sub")]),
-            Element::Text(" "),
-            Element::Text("script"),
+            container!(Subscript, vec![text!("sub")]),
+            text!(" "),
+            text!("script"),
         ],
         vec![],
     );
 
     test!(
         ",,fail subscript",
-        vec![
-            Element::Text(",,"),
-            Element::Text("fail"),
-            Element::Text(" "),
-            Element::Text("subscript"),
-        ],
+        vec![text!(",,"), text!("fail"), text!(" "), text!("subscript")],
         vec![ParseError::new_raw(
             Token::Subscript,
             "fallback",
@@ -226,21 +201,16 @@ fn ast() {
     test!(
         "{{mono}} space",
         vec![
-            container!(Monospace, vec![Element::Text("mono")]),
-            Element::Text(" "),
-            Element::Text("space"),
+            container!(Monospace, vec![text!("mono")]),
+            text!(" "),
+            text!("space"),
         ],
         vec![],
     );
 
     test!(
         "{{fail monospace",
-        vec![
-            Element::Text("{{"),
-            Element::Text("fail"),
-            Element::Text(" "),
-            Element::Text("monospace"),
-        ],
+        vec![text!("{{"), text!("fail"), text!(" "), text!("monospace")],
         vec![ParseError::new_raw(
             Token::LeftMonospace,
             "fallback",
@@ -251,12 +221,7 @@ fn ast() {
 
     test!(
         "}}fail monospace",
-        vec![
-            Element::Text("}}"),
-            Element::Text("fail"),
-            Element::Text(" "),
-            Element::Text("monospace"),
-        ],
+        vec![text!("}}"), text!("fail"), text!(" "), text!("monospace")],
         vec![ParseError::new_raw(
             Token::RightMonospace,
             "fallback",
@@ -268,9 +233,9 @@ fn ast() {
     test!(
         "--strike-- through",
         vec![
-            container!(Strikethrough, vec![Element::Text("strike")]),
-            Element::Text(" "),
-            Element::Text("through"),
+            container!(Strikethrough, vec![text!("strike")]),
+            text!(" "),
+            text!("through"),
         ],
         vec![],
     );
@@ -278,12 +243,12 @@ fn ast() {
     test!(
         "--fallback em dash",
         vec![
-            Element::Text("\u{2014}"), // em dash
-            Element::Text("fallback"),
-            Element::Text(" "),
-            Element::Text("em"),
-            Element::Text(" "),
-            Element::Text("dash"),
+            text!("\u{2014}"), // em dash
+            text!("fallback"),
+            text!(" "),
+            text!("em"),
+            text!(" "),
+            text!("dash"),
         ],
         vec![],
     );
@@ -291,11 +256,11 @@ fn ast() {
     test!(
         "single [!-- stuff here --] comment",
         vec![
-            Element::Text("single"),
-            Element::Text(" "),
+            text!("single"),
+            text!(" "),
             Element::Null,
-            Element::Text(" "),
-            Element::Text("comment"),
+            text!(" "),
+            text!("comment"),
         ],
         vec![],
     );
@@ -303,12 +268,12 @@ fn ast() {
     test!(
         "multiline\n[!-- stuff \n here --]\n comment",
         vec![
-            Element::Text("multiline"),
+            text!("multiline"),
             Element::LineBreak,
             Element::Null,
             Element::LineBreak,
-            Element::Text(" "),
-            Element::Text("comment"),
+            text!(" "),
+            text!("comment"),
         ],
         vec![],
     );
@@ -316,11 +281,11 @@ fn ast() {
     test!(
         "fail [!-- comment",
         vec![
-            Element::Text("fail"),
-            Element::Text(" "),
-            Element::Text("[!--"),
-            Element::Text(" "),
-            Element::Text("comment"),
+            text!("fail"),
+            text!(" "),
+            text!("[!--"),
+            text!(" "),
+            text!("comment"),
         ],
         vec![ParseError::new_raw(
             Token::LeftComment,
@@ -333,11 +298,11 @@ fn ast() {
     test!(
         "fail --] comment",
         vec![
-            Element::Text("fail"),
-            Element::Text(" "),
-            Element::Text("--]"),
-            Element::Text(" "),
-            Element::Text("comment"),
+            text!("fail"),
+            text!(" "),
+            text!("--]"),
+            text!(" "),
+            text!("comment"),
         ],
         vec![ParseError::new_raw(
             Token::RightComment,
@@ -347,20 +312,20 @@ fn ast() {
         )],
     );
 
-    test!("@@@@", vec![Element::Raw("")], vec![]);
+    test!("@@@@", vec![Element::Raw(cow!(""))], vec![]);
 
-    test!("@@@@@", vec![Element::Raw("@")], vec![]);
+    test!("@@@@@", vec![Element::Raw(cow!("@"))], vec![]);
 
-    test!("@@@@@@", vec![Element::Raw("@@")], vec![]);
+    test!("@@@@@@", vec![Element::Raw(cow!("@@"))], vec![]);
 
     test!(
         "test @@@@ string",
         vec![
-            Element::Text("test"),
-            Element::Text(" "),
-            Element::Raw(""),
-            Element::Text(" "),
-            Element::Text("string"),
+            text!("test"),
+            text!(" "),
+            Element::Raw(cow!("")),
+            text!(" "),
+            text!("string"),
         ],
         vec![],
     );
@@ -368,49 +333,49 @@ fn ast() {
     test!(
         "test @@@@@@ string",
         vec![
-            Element::Text("test"),
-            Element::Text(" "),
-            Element::Raw("@@"),
-            Element::Text(" "),
-            Element::Text("string"),
+            text!("test"),
+            text!(" "),
+            Element::Raw(cow!("@@")),
+            text!(" "),
+            text!("string"),
         ],
         vec![],
     );
 
-    test!("@<>@", vec![Element::Raw("")], vec![],);
+    test!("@<>@", vec![Element::Raw(cow!(""))], vec![]);
 
     test!(
         "@@raw @< >@ content@@",
-        vec![Element::Raw("raw @< >@ content")],
+        vec![Element::Raw(cow!("raw @< >@ content"))],
         vec![],
     );
 
     test!(
         "not @@**@@ bold",
         vec![
-            Element::Text("not"),
-            Element::Text(" "),
-            Element::Raw("**",),
-            Element::Text(" "),
-            Element::Text("bold"),
+            text!("not"),
+            text!(" "),
+            Element::Raw(cow!("**")),
+            text!(" "),
+            text!("bold"),
         ],
         vec![],
     );
 
     test!(
         "@<raw @@ content>@",
-        vec![Element::Raw("raw @@ content")],
+        vec![Element::Raw(cow!("raw @@ content"))],
         vec![],
     );
 
     test!(
         "interrupted @@\n@@",
         vec![
-            Element::Text("interrupted"),
-            Element::Text(" "),
-            Element::Text("@@"),
+            text!("interrupted"),
+            text!(" "),
+            text!("@@"),
             Element::LineBreak,
-            Element::Text("@@"),
+            text!("@@"),
         ],
         vec![
             // From interrupted raw
@@ -433,11 +398,11 @@ fn ast() {
     test!(
         "interrupted @<\n>@",
         vec![
-            Element::Text("interrupted"),
-            Element::Text(" "),
-            Element::Text("@<"),
+            text!("interrupted"),
+            text!(" "),
+            text!("@<"),
             Element::LineBreak,
-            Element::Text(">@"),
+            text!(">@"),
         ],
         vec![
             // From interrupted raw
@@ -460,12 +425,8 @@ fn ast() {
     test!(
         "##blue|text here##",
         vec![Element::Color {
-            color: "blue",
-            elements: vec![
-                Element::Text("text"),
-                Element::Text(" "),
-                Element::Text("here"),
-            ],
+            color: cow!("blue"),
+            elements: vec![text!("text"), text!(" "), text!("here")],
         }],
         vec![],
     );
@@ -473,25 +434,15 @@ fn ast() {
     test!(
         "###ccc|css color!##",
         vec![Element::Color {
-            color: "#ccc",
-            elements: vec![
-                Element::Text("css"),
-                Element::Text(" "),
-                Element::Text("color"),
-                Element::Text("!"),
-            ],
+            color: cow!("#ccc"),
+            elements: vec![text!("css"), text!(" "), text!("color"), text!("!")],
         }],
         vec![],
     );
 
     test!(
         "##not color",
-        vec![
-            Element::Text("##"),
-            Element::Text("not"),
-            Element::Text(" "),
-            Element::Text("color"),
-        ],
+        vec![text!("##"), text!("not"), text!(" "), text!("color")],
         vec![ParseError::new_raw(
             Token::Color,
             "fallback",
@@ -503,12 +454,12 @@ fn ast() {
     test!(
         "##invalid\n|text##",
         vec![
-            Element::Text("##"),
-            Element::Text("invalid"),
+            text!("##"),
+            text!("invalid"),
             Element::LineBreak,
-            Element::Text("|"),
-            Element::Text("text"),
-            Element::Text("##"),
+            text!("|"),
+            text!("text"),
+            text!("##"),
         ],
         vec![
             ParseError::new_raw(
@@ -529,8 +480,8 @@ fn ast() {
     test!(
         "[https://example.com/ Some link!]",
         vec![Element::Link {
-            url: "https://example.com/",
-            label: LinkLabel::Text("Some link!"),
+            url: cow!("https://example.com/"),
+            label: LinkLabel::Text(cow!("Some link!")),
             anchor: AnchorTarget::Same,
         }],
         vec![],
@@ -539,8 +490,8 @@ fn ast() {
     test!(
         "[*http://scp-sandbox-3.wikidot.com/system:recent-changes Sandbox: Recent Changes ]",
         vec![Element::Link {
-            url: "http://scp-sandbox-3.wikidot.com/system:recent-changes",
-            label: LinkLabel::Text("Sandbox: Recent Changes"),
+            url: cow!("http://scp-sandbox-3.wikidot.com/system:recent-changes"),
+            label: LinkLabel::Text(cow!("Sandbox: Recent Changes")),
             anchor: AnchorTarget::NewTab,
         }],
         vec![],
@@ -549,15 +500,15 @@ fn ast() {
     test!(
         "[ not a link ]",
         vec![
-            Element::Text("["),
-            Element::Text(" "),
-            Element::Text("not"),
-            Element::Text(" "),
-            Element::Text("a"),
-            Element::Text(" "),
-            Element::Text("link"),
-            Element::Text(" "),
-            Element::Text("]"),
+            text!("["),
+            text!(" "),
+            text!("not"),
+            text!(" "),
+            text!("a"),
+            text!(" "),
+            text!("link"),
+            text!(" "),
+            text!("]"),
         ],
         // No errors, because bare "[" is considered text
         vec![],
@@ -566,15 +517,15 @@ fn ast() {
     test!(
         "[* not a link ]",
         vec![
-            Element::Text("[*"),
-            Element::Text(" "),
-            Element::Text("not"),
-            Element::Text(" "),
-            Element::Text("a"),
-            Element::Text(" "),
-            Element::Text("link"),
-            Element::Text(" "),
-            Element::Text("]"),
+            text!("[*"),
+            text!(" "),
+            text!("not"),
+            text!(" "),
+            text!("a"),
+            text!(" "),
+            text!("link"),
+            text!(" "),
+            text!("]"),
         ],
         vec![ParseError::new_raw(
             Token::LeftBracketSpecial,
