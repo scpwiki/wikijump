@@ -86,27 +86,6 @@ fn ast() {
     }
 
     test!(
-        "//italics// text",
-        vec![
-            container!(Italics, vec![text!("italics")]),
-            text!(" "),
-            text!("text"),
-        ],
-        vec![],
-    );
-
-    test!(
-        "//fail italics",
-        vec![text!("//"), text!("fail"), text!(" "), text!("italics")],
-        vec![ParseError::new_raw(
-            Token::Italics,
-            "fallback",
-            0..2,
-            ParseErrorKind::NoRulesMatch,
-        )],
-    );
-
-    test!(
         "__underline__ text",
         vec![
             container!(Underline, vec![text!("underline")]),

@@ -1,0 +1,29 @@
+{
+    "input": "//italics// text",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "italics",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "italics"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "text",
+                "data": " "
+            },
+            {
+                "element": "text",
+                "data": "text"
+            }
+        ]
+    },
+    "errors": [
+    ]
+}
