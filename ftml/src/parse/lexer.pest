@@ -141,6 +141,7 @@ left_comment = { "[!--" }
 right_comment = { "--]" }
 
 left_bracket = { "[" }
+left_bracket_special = { "[*" }
 left_tag = { "[[" }
 left_tag_anchor = { "[[#" }
 left_tag_special = { "[[*" }
