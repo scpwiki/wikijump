@@ -18,53 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::enums::{AnchorTarget, LinkLabel};
-use crate::parse::{ParseError, ParseErrorKind, Token};
-use crate::tree::{Element, SyntaxTree};
-
-#[test]
-fn ast() {
-    let log = crate::build_logger();
-
-    macro_rules! test {
-        ($text:expr, $elements:expr, $errors:expr,) => {
-            test!($text, $elements, $errors)
-        };
-
-        ($text:expr, $elements:expr, $errors:expr) => {{
-            let text = $text;
-            let expected_elements = $elements;
-            let expected_errors = $errors;
-
-            println!("Testing parsing! input: {:?}", text);
-            println!("Expected elements: {:#?}", expected_elements);
-            println!("Expected errors: {:#?}", expected_errors);
-
-            info!(&log, "Testing AST parsing!"; "text" => text);
-
-            let tokens = crate::tokenize(&log, text);
-            let result = crate::parse(&log, &tokens);
-            let (tree, errors) = result.into();
-            let SyntaxTree { elements } = tree;
-
-            println!("Actual elements: {:#?}", elements);
-            println!("Actual errors: {:#?}", errors);
-
-            assert_eq!(
-                elements,
-                expected_elements,
-                "Resultant elements (left) did not match expected (right)",
-            );
-
-            assert_eq!(
-                errors,
-                expected_errors,
-                "Resultant error list (left) did not match expected (right)",
-            );
-        }};
-    }
-}
-
 #[test]
 fn json() {
     let log = crate::build_logger();
