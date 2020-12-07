@@ -102,7 +102,7 @@ fn try_consume_link<'t, 'r>(
 
     debug!(
         log,
-        "Retrieved URL for link, now building element";
+        "Retrieved URL for link, now fetching label";
         "url" => url,
     );
 
@@ -119,13 +119,18 @@ fn try_consume_link<'t, 'r>(
     // Append errors, or return if failure
     let (label, remaining, mut errors) = try_consume!(consumption);
 
-    trace!(log, "Trimming label"; "label" => label);
+    debug!(
+        log,
+        "Retrieved label for link, now build element";
+        "label" => label,
+    );
 
     // Add on new errors
     all_errors.append(&mut errors);
 
     // Build link element
-    let label = LinkLabel::Text(label);
+    // Also trims link label
+    let label = LinkLabel::Text(label.trim());
     let element = Element::Link { url, label, anchor };
 
     // Return result
