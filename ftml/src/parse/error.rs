@@ -19,6 +19,7 @@
  */
 
 use super::{rule::Rule, ExtractedToken, Token};
+use std::borrow::Cow;
 use std::ops::Range;
 use strum_macros::IntoStaticStr;
 
@@ -26,7 +27,7 @@ use strum_macros::IntoStaticStr;
 #[serde(rename_all = "kebab-case")]
 pub struct ParseError {
     token: Token,
-    rule: &'static str,
+    rule: Cow<'static, str>,
     span: Range<usize>,
     kind: ParseErrorKind,
 }
@@ -36,7 +37,7 @@ impl ParseError {
     pub fn new(kind: ParseErrorKind, rule: Rule, extracted: &ExtractedToken) -> Self {
         let token = extracted.token;
         let span = Range::clone(&extracted.span);
-        let rule = rule.name();
+        let rule = cow!(rule.name());
 
         ParseError {
             token,
@@ -55,6 +56,8 @@ impl ParseError {
         span: Range<usize>,
         kind: ParseErrorKind,
     ) -> Self {
+        let rule = cow!(rule);
+
         ParseError {
             token,
             rule,
@@ -69,8 +72,8 @@ impl ParseError {
     }
 
     #[inline]
-    pub fn rule(&self) -> &'static str {
-        self.rule
+    pub fn rule(&self) -> &str {
+        &self.rule
     }
 
     #[inline]

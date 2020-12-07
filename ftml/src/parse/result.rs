@@ -21,7 +21,7 @@
 use super::ParseError;
 use std::borrow::{Borrow, BorrowMut};
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct ParseResult<T> {
     value: T,
     errors: Vec<ParseError>,
