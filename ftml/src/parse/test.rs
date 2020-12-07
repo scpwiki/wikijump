@@ -86,38 +86,6 @@ fn ast() {
     }
 
     test!(
-        "{{mono}} space",
-        vec![
-            container!(Monospace, vec![text!("mono")]),
-            text!(" "),
-            text!("space"),
-        ],
-        vec![],
-    );
-
-    test!(
-        "{{fail monospace",
-        vec![text!("{{"), text!("fail"), text!(" "), text!("monospace")],
-        vec![ParseError::new_raw(
-            Token::LeftMonospace,
-            "fallback",
-            0..2,
-            ParseErrorKind::NoRulesMatch,
-        )],
-    );
-
-    test!(
-        "}}fail monospace",
-        vec![text!("}}"), text!("fail"), text!(" "), text!("monospace")],
-        vec![ParseError::new_raw(
-            Token::RightMonospace,
-            "fallback",
-            0..2,
-            ParseErrorKind::NoRulesMatch,
-        )],
-    );
-
-    test!(
         "--strike-- through",
         vec![
             container!(Strikethrough, vec![text!("strike")]),
