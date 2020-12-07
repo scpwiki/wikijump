@@ -22,7 +22,7 @@ use super::Container;
 use crate::enums::{AnchorTarget, LinkLabel};
 use std::borrow::Cow;
 
-#[derive(Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case", tag = "element", content = "data")]
 pub enum Element<'t> {
     /// Generic element that contains other elements within it.

@@ -24,7 +24,7 @@ use strum_macros::IntoStaticStr;
 
 /// Representation of syntax elements which wrap other elements.
 
-#[derive(Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub struct Container<'t> {
     #[serde(rename = "type")]
