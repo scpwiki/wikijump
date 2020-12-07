@@ -80,10 +80,7 @@ fn try_consume_fn<'t, 'r>(
     all_errors.append(&mut errors);
 
     // Return result
-    let element = Element::Color {
-        color,
-        elements,
-    };
+    let element = Element::Color { color, elements };
 
     Consumption::warn(element, remaining, all_errors)
 }

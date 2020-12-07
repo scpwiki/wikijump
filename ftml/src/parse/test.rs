@@ -459,28 +459,28 @@ fn ast() {
 
     test!(
         "##blue|text here##",
-        vec![container!(
-            ContainerType::Color("blue");
-            vec![
+        vec![Element::Color {
+            color: "blue",
+            elements: vec![
                 Element::Text("text"),
                 Element::Text(" "),
                 Element::Text("here"),
             ],
-        )],
+        }],
         vec![],
     );
 
     test!(
         "###ccc|css color!##",
-        vec![container!(
-            ContainerType::Color("#ccc");
-            vec![
+        vec![Element::Color {
+            color: "#ccc",
+            elements: vec![
                 Element::Text("css"),
                 Element::Text(" "),
                 Element::Text("color"),
                 Element::Text("!"),
             ],
-        )],
+        }],
         vec![],
     );
 
