@@ -86,27 +86,6 @@ fn ast() {
     }
 
     test!(
-        ",,sub,, script",
-        vec![
-            container!(Subscript, vec![text!("sub")]),
-            text!(" "),
-            text!("script"),
-        ],
-        vec![],
-    );
-
-    test!(
-        ",,fail subscript",
-        vec![text!(",,"), text!("fail"), text!(" "), text!("subscript")],
-        vec![ParseError::new_raw(
-            Token::Subscript,
-            "fallback",
-            0..2,
-            ParseErrorKind::NoRulesMatch,
-        )],
-    );
-
-    test!(
         "{{mono}} space",
         vec![
             container!(Monospace, vec![text!("mono")]),

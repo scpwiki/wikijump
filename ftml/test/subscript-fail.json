@@ -1,0 +1,31 @@
+{
+    "input": ",,Fail Subscript",
+    "tree": {
+        "elements": [
+            {
+                "element": "text",
+                "data": ",,"
+            },
+            {
+                "element": "text",
+                "data": "Fail"
+            },
+            {
+                "element": "text",
+                "data": " "
+            },
+            {
+                "element": "text",
+                "data": "Subscript"
+            }
+        ]
+    },
+    "errors": [
+        {
+            "token": "subscript",
+            "rule": "fallback",
+            "span": [0, 2],
+            "kind": "no-rules-match"
+        }
+    ]
+}
