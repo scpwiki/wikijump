@@ -39,7 +39,14 @@ fn link<'t, 'r>(
 ) -> Consumption<'t, 'r> {
     trace!(log, "Trying to create a bare link (regular)");
 
-    try_consume_link(log, extracted, remaining, full_text, AnchorTarget::Same)
+    try_consume_link(
+        log,
+        extracted,
+        remaining,
+        full_text,
+        RULE_LINK,
+        AnchorTarget::Same,
+    )
 }
 
 fn link_new_tab<'t, 'r>(
@@ -50,7 +57,14 @@ fn link_new_tab<'t, 'r>(
 ) -> Consumption<'t, 'r> {
     trace!(log, "Trying to create a bare link (new tab)");
 
-    try_consume_link(log, extracted, remaining, full_text, AnchorTarget::NewTab)
+    try_consume_link(
+        log,
+        extracted,
+        remaining,
+        full_text,
+        RULE_LINK_TAB,
+        AnchorTarget::NewTab,
+    )
 }
 
 fn try_consume_link<'t, 'r>(
@@ -58,9 +72,23 @@ fn try_consume_link<'t, 'r>(
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
+    rule: Rule,
     target: AnchorTarget,
 ) -> Consumption<'t, 'r> {
     debug!(log, "Trying to create a bare link"; "target" => target.name());
+
+    // Gather path for link
+    let consumption = try_merge(
+        log,
+        (extracted, remaining, full_text),
+        rule,
+        &[Token::Whitespace],
+        &[Token::ParagraphBreak, Token::LineBreak, Token::InputEnd],
+        &[],
+    );
+
+    // Return if failure
+    let (url, new_remaining, mut all_errors) = try_consume!(consumption);
 
     todo!()
 }
