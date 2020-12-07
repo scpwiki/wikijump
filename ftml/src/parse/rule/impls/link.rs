@@ -88,12 +88,8 @@ fn try_consume_link<'t, 'r>(
     );
 
     // Return if failure, and get last token for try_merge()
-    let (url, extracted, remaining, mut all_errors) = {
-        let (url, new_remaining, all_errors) = try_consume!(consumption);
-        let extracted = last_before_slice(remaining, new_remaining);
-
-        (url, extracted, remaining, all_errors)
-    };
+    let (url, extracted, remaining, mut all_errors) =
+        try_consume_last!(remaining, consumption);
 
     debug!(
         log,

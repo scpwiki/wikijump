@@ -53,12 +53,8 @@ fn try_consume_fn<'t, 'r>(
     );
 
     // Return if failure, and get last token for try_container()
-    let (color, extracted, remaining, mut all_errors) = {
-        let (color, new_remaining, all_errors) = try_consume!(consumption);
-        let extracted = last_before_slice(remaining, new_remaining);
-
-        (color, extracted, remaining, all_errors)
-    };
+    let (color, extracted, remaining, mut all_errors) =
+        try_consume_last!(remaining, consumption);
 
     debug!(
         log,
