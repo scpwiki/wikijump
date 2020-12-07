@@ -26,7 +26,7 @@ pub const RULE_LINK: Rule = Rule {
     try_consume_fn: link,
 };
 
-pub const RULE_LINK_TAB: Rule = Rule {
+pub const RULE_LINK_NEW_TAB: Rule = Rule {
     name: "link",
     try_consume_fn: link_new_tab,
 };
@@ -62,7 +62,7 @@ fn link_new_tab<'t, 'r>(
         extracted,
         remaining,
         full_text,
-        RULE_LINK_TAB,
+        RULE_LINK_NEW_TAB,
         AnchorTarget::NewTab,
     )
 }
