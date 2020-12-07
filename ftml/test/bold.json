@@ -1,0 +1,29 @@
+{
+    "input": "**bold** text",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "bold",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "bold"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "text",
+                "data": " "
+            },
+            {
+                "element": "text",
+                "data": "text"
+            }
+        ]
+    },
+    "errors": [
+    ]
+}

@@ -86,27 +86,6 @@ fn ast() {
     }
 
     test!(
-        "**bold** text",
-        vec![
-            container!(Bold, vec![text!("bold")]),
-            text!(" "),
-            text!("text"),
-        ],
-        vec![],
-    );
-
-    test!(
-        "**fail bold",
-        vec![text!("**"), text!("fail"), text!(" "), text!("bold")],
-        vec![ParseError::new_raw(
-            Token::Bold,
-            "fallback",
-            0..2,
-            ParseErrorKind::NoRulesMatch,
-        )],
-    );
-
-    test!(
         "//italics// text",
         vec![
             container!(Italics, vec![text!("italics")]),
