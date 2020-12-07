@@ -96,5 +96,11 @@ fn try_consume_link<'t, 'r>(
         new_remaining,
     );
 
+    debug!(
+        log,
+        "Retrieved URL for link, now building element";
+        "url" => url,
+    );
+
     todo!()
 }
