@@ -42,9 +42,9 @@ token = _{
     right_comment |
 
     // Text-like
+    url |
     identifier |
     email |
-    url |
     string |
 
     // Alignment
