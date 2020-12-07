@@ -20,7 +20,7 @@
 
 use crate::enums::{AnchorTarget, LinkLabel};
 use crate::parse::{ParseError, ParseErrorKind, Token};
-use crate::tree::{Container, ContainerType, Element, SyntaxTree};
+use crate::tree::{Element, SyntaxTree};
 
 #[test]
 fn ast() {
@@ -62,27 +62,6 @@ fn ast() {
                 "Resultant error list (left) did not match expected (right)",
             );
         }};
-    }
-
-    macro_rules! container {
-        // For plain enum container types
-        ($type:tt, $elements:expr) => {
-            container!(ContainerType::$type; $elements)
-        };
-
-        // For container types with added data
-        ($type:expr; $elements:expr) => {
-            Element::Container(Container::new($type, $elements))
-        };
-
-        // Comma variants
-        ($type:tt, $elements:expr,) => {
-            container!($type, $elements)
-        };
-
-        ($type:expr; $elements:expr,) => {
-            container!($type; $elements)
-        };
     }
 
     test!("@@@@", vec![Element::Raw(cow!(""))], vec![]);
