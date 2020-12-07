@@ -110,17 +110,7 @@ fn try_consume_link<'t, 'r>(
     // Append errors, or return if failure
     let (label, remaining, mut errors) = try_consume!(consumption);
 
-    // Trim URL and label strings
-    let (url, label) = {
-        trace!(
-            log,
-            "Trimming URL and label strings";
-            "url" => url,
-            "label" => label,
-        );
-
-        (url.trim(), label.trim())
-    };
+    trace!(log, "Trimming label"; "label" => label);
 
     // Add on new errors
     all_errors.append(&mut errors);
