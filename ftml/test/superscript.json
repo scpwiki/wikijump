@@ -1,5 +1,5 @@
 {
-    "input": "^^superscript^^ text",
+    "input": "^^Superscript^^ Text",
     "tree": {
         "elements": [
             {
@@ -9,7 +9,7 @@
                     "elements": [
                         {
                             "element": "text",
-                            "data": "superscript"
+                            "data": "Superscript"
                         }
                     ]
                 }
@@ -20,7 +20,7 @@
             },
             {
                 "element": "text",
-                "data": "text"
+                "data": "Text"
             }
         ]
     },

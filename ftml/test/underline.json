@@ -1,5 +1,5 @@
 {
-    "input": "__underline__ text",
+    "input": "__Underline__ Text",
     "tree": {
         "elements": [
             {
@@ -9,7 +9,7 @@
                     "elements": [
                         {
                             "element": "text",
-                            "data": "underline"
+                            "data": "Underline"
                         }
                     ]
                 }
@@ -20,7 +20,7 @@
             },
             {
                 "element": "text",
-                "data": "text"
+                "data": "Text"
             }
         ]
     },

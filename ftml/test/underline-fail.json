@@ -1,5 +1,5 @@
 {
-    "input": "__fail underline",
+    "input": "__Fail Underline",
     "tree": {
         "elements": [
             {
@@ -8,7 +8,7 @@
             },
             {
                 "element": "text",
-                "data": "fail"
+                "data": "Fail"
             },
             {
                 "element": "text",
@@ -16,7 +16,7 @@
             },
             {
                 "element": "text",
-                "data": "underline"
+                "data": "Underline"
             }
         ]
     },

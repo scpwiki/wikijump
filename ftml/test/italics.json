@@ -1,5 +1,5 @@
 {
-    "input": "//italics// text",
+    "input": "//Italics// Text",
     "tree": {
         "elements": [
             {
@@ -9,7 +9,7 @@
                     "elements": [
                         {
                             "element": "text",
-                            "data": "italics"
+                            "data": "Italics"
                         }
                     ]
                 }
@@ -20,7 +20,7 @@
             },
             {
                 "element": "text",
-                "data": "text"
+                "data": "Text"
             }
         ]
     },
