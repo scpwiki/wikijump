@@ -26,7 +26,7 @@ use std::ptr;
 /// where the previous token to the `remaining` pointer is needed.
 ///
 /// For instance:
-/// ```rust
+/// ```text
 /// let items = vec![4, 6, 0, 3, 1, 7];
 /// let first = &items[1..]; /* [6, 0, 3, 1, 7] */
 /// let second = &items[3..]; /* [3, 1, 7] */
@@ -59,4 +59,43 @@ pub fn last_before_slice<'a, T>(mut first: &'a [T], second: &'a [T]) -> &'a T {
     }
 
     last.expect("Both slices were equal, no previous item")
+}
+
+#[test]
+fn last_slice() {
+    {
+        let items = vec![4, 6, 0, 3, 1, 7];
+        let first = &items[1..];
+        let second = &items[3..];
+
+        assert_eq!(first, &[6, 0, 3, 1, 7]);
+        assert_eq!(second, &[3, 1, 7]);
+
+        let result = last_before_slice(first, second);
+        assert_eq!(*result, 0);
+    }
+
+    {
+        let items = vec!['a', 'b', 'c', 'd', 'e'];
+        let first = &items[3..]; /* [d, e] */
+        let second = &items[4..]; /* [e] */
+
+        assert_eq!(first, &['d', 'e']);
+        assert_eq!(second, &['e']);
+
+        let result = last_before_slice(first, second);
+        assert_eq!(*result, 'd');
+    }
+
+    {
+        let items = vec![1, 2, 3];
+        let first = &items[..];
+        let second = &items[1..];
+
+        assert_eq!(first, &[1, 2, 3]);
+        assert_eq!(second, &[2, 3]);
+
+        let result = last_before_slice(first, second);
+        assert_eq!(*result, 1);
+    }
 }
