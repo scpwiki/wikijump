@@ -102,7 +102,7 @@ fn ast() {
     let entries = fs::read_dir(&*TEST_DIRECTORY) //
         .expect("Unable to read directory");
 
-    let tests = entries.filter_map(|entry| {
+    let tests_iter = entries.filter_map(|entry| {
         let entry = entry.expect("Unable to read directory entry");
         let ftype = entry.file_type().expect("Unable to get file type");
         if !ftype.is_file() {
@@ -124,6 +124,10 @@ fn ast() {
 
         Some(Test::load(&path, &stem))
     });
+
+    // Sort tests by name
+    let mut tests: Vec<Test> = tests_iter.collect();
+    tests.sort_by(|a, b| (a.name).cmp(&b.name));
 
     // Run tests
     println!("Running tests:");
