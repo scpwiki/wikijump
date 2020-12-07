@@ -24,7 +24,9 @@
 use std::convert::TryFrom;
 use strum_macros::IntoStaticStr;
 
-#[derive(Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(
+    Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq,
+)]
 #[serde(rename_all = "kebab-case")]
 pub enum AnchorTarget {
     /// Open the link in a new tab.
@@ -146,7 +148,9 @@ pub enum LinkLabel<'a> {
     Page,
 }
 
-#[derive(Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(
+    Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq,
+)]
 #[serde(rename_all = "kebab-case")]
 pub enum ListStyle {
     Bullet,
@@ -160,7 +164,9 @@ impl ListStyle {
     }
 }
 
-#[derive(Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(
+    Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq,
+)]
 #[serde(rename_all = "kebab-case")]
 pub enum InfoField {
     Title,
