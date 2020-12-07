@@ -86,29 +86,6 @@ fn ast() {
     }
 
     test!(
-        "--strike-- through",
-        vec![
-            container!(Strikethrough, vec![text!("strike")]),
-            text!(" "),
-            text!("through"),
-        ],
-        vec![],
-    );
-
-    test!(
-        "--fallback em dash",
-        vec![
-            text!("\u{2014}"), // em dash
-            text!("fallback"),
-            text!(" "),
-            text!("em"),
-            text!(" "),
-            text!("dash"),
-        ],
-        vec![],
-    );
-
-    test!(
         "single [!-- stuff here --] comment",
         vec![
             text!("single"),

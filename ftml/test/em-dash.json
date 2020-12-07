@@ -1,0 +1,29 @@
+{
+    "input": "Em -- Dash",
+    "tree": {
+        "elements": [
+            {
+                "element": "text",
+                "data": "Em"
+            },
+            {
+                "element": "text",
+                "data": " "
+            },
+            {
+                "element": "text",
+                "data": "\u2014"
+            },
+            {
+                "element": "text",
+                "data": " "
+            },
+            {
+                "element": "text",
+                "data": "Dash"
+            }
+        ]
+    },
+    "errors": [
+    ]
+}

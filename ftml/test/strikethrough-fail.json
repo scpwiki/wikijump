@@ -1,0 +1,25 @@
+{
+    "input": "--Fail Strikethrough",
+    "tree": {
+        "elements": [
+            {
+                "element": "text",
+                "data": "\u2014"
+            },
+            {
+                "element": "text",
+                "data": "Fail"
+            },
+            {
+                "element": "text",
+                "data": " "
+            },
+            {
+                "element": "text",
+                "data": "Strikethrough"
+            }
+        ]
+    },
+    "errors": [
+    ]
+}

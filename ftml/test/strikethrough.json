@@ -1,0 +1,29 @@
+{
+    "input": "--Strikethrough-- Text",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "strikethrough",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "Strikethrough"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "text",
+                "data": " "
+            },
+            {
+                "element": "text",
+                "data": "Text"
+            }
+        ]
+    },
+    "errors": [
+    ]
+}
