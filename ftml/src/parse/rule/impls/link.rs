@@ -91,6 +91,15 @@ fn try_consume_link<'t, 'r>(
     let (url, extracted, remaining, mut all_errors) =
         try_consume_last!(remaining, consumption);
 
+    // If url is an empty string, parsing should fail, there's nothing here
+    if url == "" {
+        return Consumption::err(ParseError::new(
+            ParseErrorKind::RuleFailed,
+            rule,
+            extracted,
+        ));
+    }
+
     debug!(
         log,
         "Retrieved URL for link, now building element";
