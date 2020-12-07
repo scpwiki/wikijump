@@ -90,6 +90,7 @@ impl Element<'_> {
             Element::Raw(_) => "Raw",
             Element::Email(_) => "Email",
             Element::Link { .. } => "Link",
+            Element::Color { .. } => "Color",
             Element::LineBreak => "LineBreak",
             Element::HorizontalRule => "HorizontalRule",
             Element::Null => "Null",

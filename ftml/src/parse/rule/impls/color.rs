@@ -63,21 +63,27 @@ fn try_consume_fn<'t, 'r>(
     );
 
     // Build color container
-    let consumption = try_container(
+    let consumption = try_collect(
         log,
         (extracted, remaining, full_text),
-        (RULE_COLOR, ContainerType::Color(color)),
-        (Token::Pipe, Token::Color),
+        RULE_COLOR,
+        &[Token::Color],
         &[Token::ParagraphBreak, Token::InputEnd],
         &[],
+        consume,
     );
 
     // Append errors, or return if failure
-    let (item, remaining, mut errors) = try_consume!(consumption);
+    let (elements, remaining, mut errors) = try_consume!(consumption);
 
     // Add on new errors
     all_errors.append(&mut errors);
 
     // Return result
-    GenericConsumption::warn(item, remaining, all_errors)
+    let element = Element::Color {
+        color,
+        elements,
+    };
+
+    Consumption::warn(element, remaining, all_errors)
 }
