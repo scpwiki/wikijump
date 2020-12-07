@@ -126,6 +126,7 @@ fn ast() {
     });
 
     // Run tests
+    println!("Running tests:");
     for test in tests {
         test.run(&log);
     }
