@@ -49,7 +49,7 @@ pub fn try_container<'t, 'r>(
         &'r [ExtractedToken<'t>],
         FullText<'t>,
     ),
-    (rule, container_type): (Rule, ContainerType<'t>),
+    (rule, container_type): (Rule, ContainerType),
     (open_token, close_token): (Token, Token),
     invalid_tokens: &[Token],
     invalid_token_pairs: &[(Token, Token)],

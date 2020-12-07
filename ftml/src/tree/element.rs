@@ -24,7 +24,7 @@ use crate::enums::{AnchorTarget, LinkLabel};
 #[derive(Serialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case", tag = "element", content = "data")]
 pub enum Element<'t> {
-    /// An element which contains other elements within it.
+    /// Generic element that contains other elements within it.
     ///
     /// Examples would include italics, paragraphs, divs, etc.
     Container(Container<'t>),
@@ -57,6 +57,14 @@ pub enum Element<'t> {
         url: &'t str,
         label: LinkLabel<'t>,
         anchor: AnchorTarget,
+    },
+
+    /// Element containing colored text.
+    ///
+    /// The CSS designation of the color is specified, followed by the elements contained within.
+    Color {
+        color: &'t str,
+        elements: Vec<Element<'t>>,
     },
 
     /// A newline or line break.

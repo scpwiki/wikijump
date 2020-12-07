@@ -28,14 +28,14 @@ use strum_macros::IntoStaticStr;
 #[serde(rename_all = "kebab-case")]
 pub struct Container<'t> {
     #[serde(rename = "type")]
-    etype: ContainerType<'t>,
+    etype: ContainerType,
 
     elements: Vec<Element<'t>>,
 }
 
 impl<'t> Container<'t> {
     #[inline]
-    pub fn new(etype: ContainerType<'t>, elements: Vec<Element<'t>>) -> Self {
+    pub fn new(etype: ContainerType, elements: Vec<Element<'t>>) -> Self {
         Container { etype, elements }
     }
 
@@ -63,7 +63,7 @@ impl<'t> Into<Vec<Element<'t>>> for Container<'t> {
     Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq,
 )]
 #[serde(rename_all = "kebab-case")]
-pub enum ContainerType<'t> {
+pub enum ContainerType {
     Paragraph,
     Bold,
     Italics,
@@ -72,18 +72,17 @@ pub enum ContainerType<'t> {
     Subscript,
     Strikethrough,
     Monospace,
-    Color(&'t str),
     Header(HeadingLevel),
 }
 
-impl ContainerType<'_> {
+impl ContainerType {
     #[inline]
     pub fn name(self) -> &'static str {
         self.into()
     }
 }
 
-impl slog::Value for ContainerType<'_> {
+impl slog::Value for ContainerType {
     fn serialize(
         &self,
         _: &slog::Record,
