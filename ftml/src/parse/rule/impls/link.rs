@@ -87,12 +87,13 @@ fn try_consume_link<'t, 'r>(
         &[],
     );
 
-    // Return if failure
-    let (url, new_remaining, mut all_errors) = try_consume!(consumption);
+    // Return if failure, and get last token for try_merge()
+    let (url, extracted, remaining, mut all_errors) = {
+        let (url, new_remaining, all_errors) = try_consume!(consumption);
+        let extracted = last_before_slice(remaining, new_remaining);
 
-    // Get last token so try_container() can match starting on it
-    let (extracted, remaining) =
-        (last_before_slice(remaining, new_remaining), new_remaining);
+        (url, extracted, remaining, all_errors)
+    };
 
     debug!(
         log,
