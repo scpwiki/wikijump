@@ -1,0 +1,93 @@
+{
+    "input": "`~!@#$%^&*()-=+[]{}\\|",
+    "tree": {
+        "elements": [
+            {
+                "element": "text",
+                "data": "`"
+            },
+            {
+                "element": "text",
+                "data": "~"
+            },
+            {
+                "element": "text",
+                "data": "!"
+            },
+            {
+                "element": "text",
+                "data": "@"
+            },
+            {
+                "element": "text",
+                "data": "#"
+            },
+            {
+                "element": "text",
+                "data": "$"
+            },
+            {
+                "element": "text",
+                "data": "%"
+            },
+            {
+                "element": "text",
+                "data": "^"
+            },
+            {
+                "element": "text",
+                "data": "&"
+            },
+            {
+                "element": "text",
+                "data": "*"
+            },
+            {
+                "element": "text",
+                "data": "("
+            },
+            {
+                "element": "text",
+                "data": ")"
+            },
+            {
+                "element": "text",
+                "data": "-"
+            },
+            {
+                "element": "text",
+                "data": "="
+            },
+            {
+                "element": "text",
+                "data": "+"
+            },
+            {
+                "element": "text",
+                "data": "["
+            },
+            {
+                "element": "text",
+                "data": "]"
+            },
+            {
+                "element": "text",
+                "data": "{"
+            },
+            {
+                "element": "text",
+                "data": "}"
+            },
+            {
+                "element": "text",
+                "data": "\\"
+            },
+            {
+                "element": "text",
+                "data": "|"
+            }
+        ]
+    },
+    "errors": [
+    ]
+}
