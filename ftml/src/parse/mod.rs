@@ -21,9 +21,6 @@
 #[macro_use]
 mod macros;
 
-#[cfg(test)]
-mod test;
-
 mod consume;
 mod error;
 mod result;
