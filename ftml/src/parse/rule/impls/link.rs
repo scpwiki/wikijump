@@ -92,7 +92,7 @@ fn try_consume_link<'t, 'r>(
         try_consume_last!(remaining, consumption);
 
     // If url is an empty string, parsing should fail, there's nothing here
-    if url == "" {
+    if url.is_empty() {
         return Consumption::err(ParseError::new(
             ParseErrorKind::RuleFailed,
             rule,
