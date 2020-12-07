@@ -70,6 +70,7 @@ token = _{
     left_tag_anchor |
     left_tag_special |
     left_tag |
+    left_bracket_special |
     left_bracket |
     right_link |
     right_tag_end |
