@@ -62,6 +62,9 @@ cfg_if! {
     }
 }
 
+#[cfg(test)]
+mod test;
+
 #[macro_use]
 mod log;
 
