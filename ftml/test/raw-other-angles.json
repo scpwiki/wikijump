@@ -1,0 +1,13 @@
+{
+    "input": "@@raw @< >@ content@@",
+    "tree": {
+        "elements": [
+            {
+                "element": "raw",
+                "data": "raw @< >@ content"
+            }
+        ]
+    },
+    "errors": [
+    ]
+}

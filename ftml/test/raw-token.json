@@ -1,0 +1,29 @@
+{
+    "input": "not @@**@@ bold",
+    "tree": {
+        "elements": [
+            {
+                "element": "text",
+                "data": "not"
+            },
+            {
+                "element": "text",
+                "data": " "
+            },
+            {
+                "element": "raw",
+                "data": "**"
+            },
+            {
+                "element": "text",
+                "data": " "
+            },
+            {
+                "element": "text",
+                "data": "bold"
+            }
+        ]
+    },
+    "errors": [
+    ]
+}

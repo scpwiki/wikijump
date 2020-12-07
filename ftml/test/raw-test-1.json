@@ -1,0 +1,29 @@
+{
+    "input": "Test @@@@@ String",
+    "tree": {
+        "elements": [
+            {
+                "element": "text",
+                "data": "Test"
+            },
+            {
+                "element": "text",
+                "data": " "
+            },
+            {
+                "element": "raw",
+                "data": "@"
+            },
+            {
+                "element": "text",
+                "data": " "
+            },
+            {
+                "element": "text",
+                "data": "String"
+            }
+        ]
+    },
+    "errors": [
+    ]
+}
