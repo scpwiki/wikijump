@@ -1,0 +1,29 @@
+{
+    "input": "__underline__ text",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "underline",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "underline"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "text",
+                "data": " "
+            },
+            {
+                "element": "text",
+                "data": "text"
+            }
+        ]
+    },
+    "errors": [
+    ]
+}

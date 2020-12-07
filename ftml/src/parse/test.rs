@@ -86,27 +86,6 @@ fn ast() {
     }
 
     test!(
-        "__underline__ text",
-        vec![
-            container!(Underline, vec![text!("underline")]),
-            text!(" "),
-            text!("text"),
-        ],
-        vec![],
-    );
-
-    test!(
-        "__fail underline",
-        vec![text!("__"), text!("fail"), text!(" "), text!("underline")],
-        vec![ParseError::new_raw(
-            Token::Underline,
-            "fallback",
-            0..2,
-            ParseErrorKind::NoRulesMatch,
-        )],
-    );
-
-    test!(
         "^^super^^ script",
         vec![
             container!(Superscript, vec![text!("super")]),
