@@ -41,6 +41,7 @@ macro_rules! file_name {
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Test<'a> {
+    #[serde(skip_serializing)]
     name: String,
     input: String,
     tree: SyntaxTree<'a>,
@@ -48,11 +49,15 @@ struct Test<'a> {
 }
 
 impl Test<'_> {
-    pub fn load(path: &Path) -> Self {
+    pub fn load(path: &Path, name: &str) -> Self {
         assert!(path.is_absolute());
 
         let mut file = File::open(path).expect("Unable to open file");
-        serde_json::from_reader(&mut file).expect("Unable to parse JSON")
+        let mut test: Self =
+            serde_json::from_reader(&mut file).expect("Unable to parse JSON");
+
+        test.name = str!(name);
+        test
     }
 
     pub fn run(&self, log: &slog::Logger) {
@@ -106,14 +111,18 @@ fn ast() {
         }
 
         let path = entry.path();
-        let ext = path.extension().expect("Unable to get file extension");
+        let stem = path
+            .file_stem()
+            .expect("Unable to get file stem")
+            .to_string_lossy();
 
+        let ext = path.extension().expect("Unable to get file extension");
         if ext != "json" {
             println!("Skipping non-JSON file {}", file_name!(entry));
             return None;
         }
 
-        Some(Test::load(&path))
+        Some(Test::load(&path, &stem))
     });
 
     // Run tests
