@@ -34,5 +34,5 @@ fn try_consume_fn<'t, 'r>(
     debug!(log, "Consuming token to create an em dash");
 
     // — - EM DASH
-    Consumption::ok(Element::Text("\u{2014}"), remaining)
+    Consumption::ok(text!("\u{2014}"), remaining)
 }

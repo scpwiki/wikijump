@@ -35,7 +35,7 @@ fn try_consume_fn<'t, 'r>(
     debug!(log, "Consuming token as a URL");
 
     let element = Element::Link {
-        url: extracted.slice,
+        url: cow!(extracted.slice),
         label: LinkLabel::Url,
         anchor: AnchorTarget::Same,
     };

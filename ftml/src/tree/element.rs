@@ -20,6 +20,7 @@
 
 use super::Container;
 use crate::enums::{AnchorTarget, LinkLabel};
+use std::borrow::Cow;
 
 #[derive(Serialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case", tag = "element", content = "data")]
@@ -32,20 +33,20 @@ pub enum Element<'t> {
     /// An element only containing text.
     ///
     /// Should be formatted like typical body text.
-    Text(&'t str),
+    Text(Cow<'t, str>),
 
     /// Raw text.
     ///
     /// This should be formatted exactly as listed.
     /// For instance, spaces being rendered to HTML should
     /// produce a `&nbsp;`.
-    Raw(&'t str),
+    Raw(Cow<'t, str>),
 
     /// An element indicating an email.
     ///
     /// Whether this should become a clickable href link or just text
     /// is up to the render implementation.
-    Email(&'t str),
+    Email(Cow<'t, str>),
 
     /// An element linking to a different page.
     ///
@@ -54,7 +55,7 @@ pub enum Element<'t> {
     ///
     /// The "url" field is either a page name (relative URL) or full URL.
     Link {
-        url: &'t str,
+        url: Cow<'t, str>,
         label: LinkLabel<'t>,
         anchor: AnchorTarget,
     },
@@ -63,7 +64,7 @@ pub enum Element<'t> {
     ///
     /// The CSS designation of the color is specified, followed by the elements contained within.
     Color {
-        color: &'t str,
+        color: Cow<'t, str>,
         elements: Vec<Element<'t>>,
     },
 

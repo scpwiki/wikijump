@@ -33,5 +33,5 @@ fn try_consume_fn<'t, 'r>(
 ) -> Consumption<'t, 'r> {
     debug!(log, "Consuming token as plain text element");
 
-    Consumption::ok(Element::Text(extracted.slice), remaining)
+    Consumption::ok(text!(extracted.slice), remaining)
 }

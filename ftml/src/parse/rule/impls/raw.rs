@@ -20,6 +20,12 @@
 
 use super::prelude::*;
 
+macro_rules! raw {
+    ($value:expr) => {
+        Element::Raw(cow!($value))
+    };
+}
+
 pub const RULE_RAW: Rule = Rule {
     name: "raw",
     try_consume_fn,
@@ -71,7 +77,7 @@ fn try_consume_fn<'t, 'r>(
             (Token::Raw, Token::Raw) => {
                 debug!(log, "Found meta-raw (\"@@@@@@\"), returning");
 
-                return Consumption::ok(Element::Raw("@@"), &remaining[2..]);
+                return Consumption::ok(raw!("@@"), &remaining[2..]);
             }
 
             // "@@@@@" -> Element::Raw("@")
@@ -80,10 +86,10 @@ fn try_consume_fn<'t, 'r>(
             (Token::Raw, Token::Other) => {
                 if next_extracted_2.slice == "@" {
                     debug!(log, "Found single-raw (\"@@@@@\"), returning");
-                    return Consumption::ok(Element::Raw("@"), &remaining[2..]);
+                    return Consumption::ok(raw!("@"), &remaining[2..]);
                 } else {
                     debug!(log, "Found empty raw (\"@@@@\"), followed by other text");
-                    return Consumption::ok(Element::Raw(""), &remaining[1..]);
+                    return Consumption::ok(raw!(""), &remaining[1..]);
                 }
             }
 
@@ -92,7 +98,7 @@ fn try_consume_fn<'t, 'r>(
             (Token::Raw, _) => {
                 debug!(log, "Found empty raw (\"@@@@\"), returning");
 
-                return Consumption::ok(Element::Raw(""), &remaining[1..]);
+                return Consumption::ok(raw!(""), &remaining[1..]);
             }
 
             // "@@ \n @@" -> Abort
@@ -110,10 +116,7 @@ fn try_consume_fn<'t, 'r>(
             (_, Token::Raw) => {
                 debug!(log, "Found single-element raw, returning");
 
-                return Consumption::ok(
-                    Element::Raw(next_extracted_1.slice),
-                    &remaining[2..],
-                );
+                return Consumption::ok(raw!(next_extracted_1.slice), &remaining[2..]);
             }
 
             // Other, proceed with rule logic
@@ -163,7 +166,7 @@ fn try_consume_fn<'t, 'r>(
                         full_text.slice(log, start, end)
                     };
 
-                    let element = Element::Raw(slice);
+                    let element = Element::Raw(cow!(slice));
                     return Consumption::ok(element, new_remaining);
                 }
 

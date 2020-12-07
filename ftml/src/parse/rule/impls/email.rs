@@ -33,5 +33,5 @@ fn try_consume_fn<'t, 'r>(
 ) -> Consumption<'t, 'r> {
     debug!(log, "Consuming token as an email");
 
-    Consumption::ok(Element::Email(extracted.slice), remaining)
+    Consumption::ok(Element::Email(cow!(extracted.slice)), remaining)
 }

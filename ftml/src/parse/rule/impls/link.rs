@@ -131,7 +131,11 @@ fn try_consume_link<'t, 'r>(
     // Build link element
     // Also trims link label
     let label = LinkLabel::Text(label.trim());
-    let element = Element::Link { url, label, anchor };
+    let element = Element::Link {
+        url: cow!(url),
+        label,
+        anchor,
+    };
 
     // Return result
     Consumption::warn(element, remaining, all_errors)
