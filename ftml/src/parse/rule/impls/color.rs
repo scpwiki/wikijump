@@ -55,22 +55,11 @@ fn try_consume_fn<'t, 'r>(
     // Return if failure
     let (color, new_remaining, mut all_errors) = try_consume!(consumption);
 
-    // Get last token as the current, "extracted" value.
-    // try_container() expects the first token to be signifier, not content
-    // In this case, it would be the "|" between color and contents.
-    //
-    // So we look for the pipe token. Kind of hacky, better than producing
-    // a fake ExtractedToken or adding conditional logic to try_container().
-    let (extracted, remaining) = {
-        // Find the Token::Pipe from the old token pointer.
-        // It must exist, as we've already crossed it.
-        let extracted = remaining
-            .iter()
-            .find(|e| e.token == Token::Pipe)
-            .expect("Pipe not found after try_merge() succeeded");
-
-        (extracted, new_remaining)
-    };
+    // Get last token so try_container() can match starting on it
+    let (extracted, remaining) = (
+        last_before_slice(remaining, new_remaining),
+        new_remaining,
+    );
 
     debug!(
         log,
