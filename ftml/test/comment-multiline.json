@@ -1,0 +1,28 @@
+{
+    "input": "Multiline [!-- stuff \n here --] Comment",
+    "tree": {
+        "elements": [
+            {
+                "element": "text",
+                "data": "Multiline"
+            },
+            {
+                "element": "text",
+                "data": " "
+            },
+            {
+                "element": "null"
+            },
+            {
+                "element": "text",
+                "data": " "
+            },
+            {
+                "element": "text",
+                "data": "Comment"
+            }
+        ]
+    },
+    "errors": [
+    ]
+}

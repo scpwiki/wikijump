@@ -1,0 +1,28 @@
+{
+    "input": "Single [!-- stuff here --] Comment",
+    "tree": {
+        "elements": [
+            {
+                "element": "text",
+                "data": "Single"
+            },
+            {
+                "element": "text",
+                "data": " "
+            },
+            {
+                "element": "null"
+            },
+            {
+                "element": "text",
+                "data": " "
+            },
+            {
+                "element": "text",
+                "data": "Comment"
+            }
+        ]
+    },
+    "errors": [
+    ]
+}

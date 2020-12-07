@@ -85,65 +85,6 @@ fn ast() {
         };
     }
 
-    test!(
-        "single [!-- stuff here --] comment",
-        vec![
-            text!("single"),
-            text!(" "),
-            Element::Null,
-            text!(" "),
-            text!("comment"),
-        ],
-        vec![],
-    );
-
-    test!(
-        "multiline\n[!-- stuff \n here --]\n comment",
-        vec![
-            text!("multiline"),
-            Element::LineBreak,
-            Element::Null,
-            Element::LineBreak,
-            text!(" "),
-            text!("comment"),
-        ],
-        vec![],
-    );
-
-    test!(
-        "fail [!-- comment",
-        vec![
-            text!("fail"),
-            text!(" "),
-            text!("[!--"),
-            text!(" "),
-            text!("comment"),
-        ],
-        vec![ParseError::new_raw(
-            Token::LeftComment,
-            "fallback",
-            5..9,
-            ParseErrorKind::NoRulesMatch,
-        )],
-    );
-
-    test!(
-        "fail --] comment",
-        vec![
-            text!("fail"),
-            text!(" "),
-            text!("--]"),
-            text!(" "),
-            text!("comment"),
-        ],
-        vec![ParseError::new_raw(
-            Token::RightComment,
-            "fallback",
-            5..8,
-            ParseErrorKind::NoRulesMatch,
-        )],
-    );
-
     test!("@@@@", vec![Element::Raw(cow!(""))], vec![]);
 
     test!("@@@@@", vec![Element::Raw(cow!("@"))], vec![]);
