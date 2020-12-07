@@ -41,7 +41,7 @@ macro_rules! file_name {
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Test<'a> {
-    #[serde(skip_serializing)]
+    #[serde(skip)]
     name: String,
     input: String,
     tree: SyntaxTree<'a>,
