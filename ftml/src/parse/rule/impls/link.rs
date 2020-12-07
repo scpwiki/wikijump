@@ -90,5 +90,11 @@ fn try_consume_link<'t, 'r>(
     // Return if failure
     let (url, new_remaining, mut all_errors) = try_consume!(consumption);
 
+    // Get last token so try_container() can match starting on it
+    let (extracted, remaining) = (
+        last_before_slice(remaining, new_remaining),
+        new_remaining,
+    );
+
     todo!()
 }
