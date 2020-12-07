@@ -545,6 +545,44 @@ fn ast() {
         }],
         vec![],
     );
+
+    test!(
+        "[ not a link ]",
+        vec![
+            Element::Text("["),
+            Element::Text(" "),
+            Element::Text("not"),
+            Element::Text(" "),
+            Element::Text("a"),
+            Element::Text(" "),
+            Element::Text("link"),
+            Element::Text(" "),
+            Element::Text("]"),
+        ],
+        // No errors, because bare "[" is considered text
+        vec![],
+    );
+
+    test!(
+        "[* not a link ]",
+        vec![
+            Element::Text("[*"),
+            Element::Text(" "),
+            Element::Text("not"),
+            Element::Text(" "),
+            Element::Text("a"),
+            Element::Text(" "),
+            Element::Text("link"),
+            Element::Text(" "),
+            Element::Text("]"),
+        ],
+        vec![ParseError::new_raw(
+            Token::LeftBracketSpecial,
+            "fallback",
+            0..2,
+            ParseErrorKind::NoRulesMatch,
+        )],
+    );
 }
 
 #[test]
