@@ -91,10 +91,8 @@ fn try_consume_link<'t, 'r>(
     let (url, new_remaining, mut all_errors) = try_consume!(consumption);
 
     // Get last token so try_container() can match starting on it
-    let (extracted, remaining) = (
-        last_before_slice(remaining, new_remaining),
-        new_remaining,
-    );
+    let (extracted, remaining) =
+        (last_before_slice(remaining, new_remaining), new_remaining);
 
     debug!(
         log,
@@ -120,11 +118,7 @@ fn try_consume_link<'t, 'r>(
 
     // Build link element
     let label = LinkLabel::Text(label);
-    let element = Element::Link {
-        url,
-        label,
-        anchor,
-    };
+    let element = Element::Link { url, label, anchor };
 
     // Return result
     Consumption::warn(element, remaining, all_errors)
