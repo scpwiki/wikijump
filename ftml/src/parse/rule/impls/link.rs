@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::enums::AnchorTarget;
+use crate::enums::{AnchorTarget, LinkLabel};
 
 pub const RULE_LINK: Rule = Rule {
     name: "link",
@@ -73,9 +73,9 @@ fn try_consume_link<'t, 'r>(
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
     rule: Rule,
-    target: AnchorTarget,
+    anchor: AnchorTarget,
 ) -> Consumption<'t, 'r> {
-    debug!(log, "Trying to create a bare link"; "target" => target.name());
+    debug!(log, "Trying to create a bare link"; "anchor" => anchor.name());
 
     // Gather path for link
     let consumption = try_merge(
@@ -102,5 +102,30 @@ fn try_consume_link<'t, 'r>(
         "url" => url,
     );
 
-    todo!()
+    // Gather label for link
+    let consumption = try_merge(
+        log,
+        (extracted, remaining, full_text),
+        rule,
+        &[Token::RightBracket],
+        &[Token::ParagraphBreak, Token::LineBreak, Token::InputEnd],
+        &[],
+    );
+
+    // Append errors, or return if failure
+    let (label, remaining, mut errors) = try_consume!(consumption);
+
+    // Add on new errors
+    all_errors.append(&mut errors);
+
+    // Build link element
+    let label = LinkLabel::Text(label);
+    let element = Element::Link {
+        url,
+        label,
+        anchor,
+    };
+
+    // Return result
+    Consumption::warn(element, remaining, all_errors)
 }
