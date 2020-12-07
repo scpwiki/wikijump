@@ -21,6 +21,7 @@
 // TODO use enums
 #![allow(dead_code)]
 
+use std::borrow::Cow;
 use std::convert::TryFrom;
 use strum_macros::IntoStaticStr;
 
@@ -129,13 +130,13 @@ impl Into<u8> for HeadingLevel {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum LinkLabel<'a> {
     /// Custom text link label.
     ///
     /// Can be set to any arbitrary value of the input text's choosing.
-    Text(&'a str),
+    Text(Cow<'a, str>),
 
     /// URL-mirroring link label.
     ///

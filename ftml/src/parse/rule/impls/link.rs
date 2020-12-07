@@ -125,15 +125,17 @@ fn try_consume_link<'t, 'r>(
         "label" => label,
     );
 
+    // Trimming label
+    let label = label.trim();
+
     // Add on new errors
     all_errors.append(&mut errors);
 
     // Build link element
     // Also trims link label
-    let label = LinkLabel::Text(label.trim());
     let element = Element::Link {
         url: cow!(url),
-        label,
+        label: LinkLabel::Text(cow!(label)),
         anchor,
     };
 
