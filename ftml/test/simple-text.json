@@ -1,0 +1,13 @@
+{
+    "input": "abc",
+    "tree": {
+        "elements": [
+            {
+                "element": "text",
+                "data": "abc"
+            }
+        ]
+    },
+    "errors": [
+    ]
+}

@@ -1,0 +1,12 @@
+{
+    "input": "\n",
+    "tree": {
+        "elements": [
+            {
+                "element": "line-break"
+            }
+        ]
+    },
+    "errors": [
+    ]
+}

@@ -85,14 +85,6 @@ fn ast() {
         };
     }
 
-    test!("", vec![], vec![]);
-
-    test!(" ", vec![text!(" ")], vec![]);
-
-    test!("abc", vec![text!("abc")], vec![]);
-
-    test!("\n", vec![Element::LineBreak], vec![]);
-
     test!(
         "**bold** text",
         vec![
