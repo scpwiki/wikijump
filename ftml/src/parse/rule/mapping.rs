@@ -34,7 +34,8 @@ lazy_static! {
     pub static ref RULE_MAP: EnumMap<Token, Vec<Rule>> = {
         enum_map! {
             // Symbols
-            Token::LeftBracket => vec![RULE_TODO, RULE_TEXT], // TODO
+            Token::LeftBracket => vec![RULE_LINK, RULE_TEXT],
+            Token::LeftBracketSpecial => vec![RULE_LINK_NEW_TAB],
             Token::RightBracket => vec![RULE_TEXT],
             Token::LeftTag => vec![RULE_TODO], // TODO
             Token::LeftTagAnchor => vec![RULE_TODO], // TODO
