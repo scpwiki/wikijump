@@ -154,11 +154,7 @@ fn try_consume_link<'t, 'r>(
 }
 
 fn url_valid(url: &str) -> bool {
-    const PROTOCOLS: [&str; 3] = [
-        "http://",
-        "https://",
-        "ftp://",
-    ];
+    const PROTOCOLS: [&str; 3] = ["http://", "https://", "ftp://"];
 
     // If url is an empty string
     if url.is_empty() {
