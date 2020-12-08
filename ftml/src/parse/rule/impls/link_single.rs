@@ -22,12 +22,12 @@ use super::prelude::*;
 use crate::enums::{AnchorTarget, LinkLabel};
 
 pub const RULE_LINK_SINGLE: Rule = Rule {
-    name: "link",
+    name: "link-single",
     try_consume_fn: link,
 };
 
 pub const RULE_LINK_SINGLE_NEW_TAB: Rule = Rule {
-    name: "link",
+    name: "link-single-new-tab",
     try_consume_fn: link_new_tab,
 };
 
