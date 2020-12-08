@@ -1,0 +1,45 @@
+{
+    "input": "[[[|some-page]]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "text",
+                "data": "[[["
+            },
+            {
+                "element": "text",
+                "data": "|"
+            },
+            {
+                "element": "text",
+                "data": "some"
+            },
+            {
+                "element": "text",
+                "data": "-"
+            },
+            {
+                "element": "text",
+                "data": "page"
+            },
+            {
+                "element": "text",
+                "data": "]]]"
+            }
+        ]
+    },
+    "errors": [
+        {
+            "token": "left-link",
+            "rule": "fallback",
+            "span": [0, 3],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "right-link",
+            "rule": "fallback",
+            "span": [13, 16],
+            "kind": "no-rules-match"
+        }
+    ]
+}

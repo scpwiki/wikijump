@@ -1,0 +1,17 @@
+{
+    "input": "[[[SCP-001]]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "link",
+                "data": {
+                    "url": "SCP-001",
+                    "label": "url",
+                    "anchor": "same"
+                }
+            }
+        ]
+    },
+    "errors": [
+    ]
+}

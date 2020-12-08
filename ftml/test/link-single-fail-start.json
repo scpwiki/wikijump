@@ -1,0 +1,17 @@
+{
+    "input": "[page",
+    "tree": {
+        "elements": [
+            {
+                "element": "text",
+                "data": "["
+            },
+            {
+                "element": "text",
+                "data": "page"
+            }
+        ]
+    },
+    "errors": [
+    ]
+}

@@ -1,0 +1,19 @@
+{
+    "input": "[/page Some page]",
+    "tree": {
+        "elements": [
+            {
+                "element": "link",
+                "data": {
+                    "url": "/page",
+                    "label": {
+                        "text": "Some page"
+                    },
+                    "anchor": "same"
+                }
+            }
+        ]
+    },
+    "errors": [
+    ]
+}
