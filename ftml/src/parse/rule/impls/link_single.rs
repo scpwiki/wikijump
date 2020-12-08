@@ -18,6 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+//! Rules for single-bracket links.
+//!
+//! Wikidot, in its infinite wisdom, has two means for designating links.
+//! This method allows any URL, either opening in a new tab or not.
+//! Its syntax is `[https://example.com/ Label text]`.
+
 use super::prelude::*;
 use crate::enums::{AnchorTarget, LinkLabel};
 
