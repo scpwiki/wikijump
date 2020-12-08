@@ -21,12 +21,12 @@
 use super::prelude::*;
 use crate::enums::{AnchorTarget, LinkLabel};
 
-pub const RULE_LINK: Rule = Rule {
+pub const RULE_LINK_SINGLE: Rule = Rule {
     name: "link",
     try_consume_fn: link,
 };
 
-pub const RULE_LINK_NEW_TAB: Rule = Rule {
+pub const RULE_LINK_SINGLE_NEW_TAB: Rule = Rule {
     name: "link",
     try_consume_fn: link_new_tab,
 };
@@ -44,7 +44,7 @@ fn link<'t, 'r>(
         extracted,
         remaining,
         full_text,
-        RULE_LINK,
+        RULE_LINK_SINGLE,
         AnchorTarget::Same,
     )
 }
@@ -62,7 +62,7 @@ fn link_new_tab<'t, 'r>(
         extracted,
         remaining,
         full_text,
-        RULE_LINK_NEW_TAB,
+        RULE_LINK_SINGLE_NEW_TAB,
         AnchorTarget::NewTab,
     )
 }

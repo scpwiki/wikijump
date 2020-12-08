@@ -56,7 +56,7 @@ pub use self::email::RULE_EMAIL;
 pub use self::fallback::RULE_FALLBACK;
 pub use self::italics::RULE_ITALICS;
 pub use self::line_break::RULE_LINE_BREAK;
-pub use self::link_single::{RULE_LINK, RULE_LINK_NEW_TAB};
+pub use self::link_single::{RULE_LINK_SINGLE, RULE_LINK_SINGLE_NEW_TAB};
 pub use self::monospace::RULE_MONOSPACE;
 pub use self::null::RULE_NULL;
 pub use self::raw::RULE_RAW;
