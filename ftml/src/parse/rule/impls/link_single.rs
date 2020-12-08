@@ -1,5 +1,5 @@
 /*
- * parse/rule/impls/link.rs
+ * parse/rule/impls/link_single.rs
  *
  * ftml - Library to parse Wikidot code
  * Copyright (C) 2019-2020 Ammon Smith
