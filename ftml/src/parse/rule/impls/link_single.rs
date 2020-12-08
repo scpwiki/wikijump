@@ -83,7 +83,7 @@ fn try_consume_link<'t, 'r>(
         (extracted, remaining, full_text),
         rule,
         &[Token::Whitespace],
-        &[Token::ParagraphBreak, Token::LineBreak, Token::InputEnd],
+        &[Token::RightBracket, Token::ParagraphBreak, Token::LineBreak, Token::InputEnd],
         &[],
     );
 
