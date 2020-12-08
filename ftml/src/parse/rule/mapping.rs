@@ -71,8 +71,8 @@ lazy_static! {
             Token::RightRaw => vec![],
 
             // Links
-            Token::LeftLink => vec![RULE_TODO], // TODO
-            Token::LeftLinkSpecial => vec![RULE_TODO], // TODO
+            Token::LeftLink => vec![RULE_LINK_TRIPLE],
+            Token::LeftLinkSpecial => vec![RULE_LINK_TRIPLE_NEW_TAB],
             Token::RightLink => vec![],
 
             // Tables
