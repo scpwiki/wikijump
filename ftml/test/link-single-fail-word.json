@@ -1,0 +1,22 @@
+{
+    "input": "[REDACTED]",
+    "tree": {
+        "elements": [
+            {
+                "element": "text",
+                "data": "["
+            },
+            {
+                "element": "text",
+                "data": "REDACTED"
+            },
+            {
+                "element": "text",
+                "data": "]"
+            }
+        ]
+    },
+    "errors": [
+    ]
+}
+
