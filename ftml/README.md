@@ -82,6 +82,12 @@ These errors are returned to the caller to provide information on where the proc
 producing the fallback render. This provides the both of best worlds: errors to assist with wikitext
 debugging, but also not hard-failing rendering in case of any error.
 
+### Naming
+"Foundation Text Markup Language" (ftml) is named for the file extension representing in-universe
+SCP Foundation formatting as mentioned in [Kate McTiriss's Proposal](http://www.scpwiki.com/kate-mctiriss-s-proposal).
+While the expanded form of the initialism is never explicitly stated, it is clearly implied given the
+name similarity to HTML.
+
 ### Usage
 There are three exported functions, which correspond to each of the main steps in the wikitext process.
 
