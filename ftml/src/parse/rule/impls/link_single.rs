@@ -37,7 +37,7 @@ fn link<'t, 'r>(
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
 ) -> Consumption<'t, 'r> {
-    trace!(log, "Trying to create a bare link (regular)");
+    trace!(log, "Trying to create a single-bracket link (regular)");
 
     try_consume_link(
         log,
@@ -55,7 +55,7 @@ fn link_new_tab<'t, 'r>(
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
 ) -> Consumption<'t, 'r> {
-    trace!(log, "Trying to create a bare link (new tab)");
+    trace!(log, "Trying to create a single-bracket link (new tab)");
 
     try_consume_link(
         log,
@@ -75,7 +75,7 @@ fn try_consume_link<'t, 'r>(
     rule: Rule,
     anchor: AnchorTarget,
 ) -> Consumption<'t, 'r> {
-    debug!(log, "Trying to create a bare link"; "anchor" => anchor.name());
+    debug!(log, "Trying to create a single-bracket link"; "anchor" => anchor.name());
 
     // Gather path for link
     let consumption = try_merge(
