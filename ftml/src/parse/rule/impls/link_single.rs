@@ -103,8 +103,7 @@ fn try_consume_link<'t, 'r>(
     let (url, extracted, remaining, mut all_errors) =
         try_consume_last!(remaining, consumption);
 
-    // If url is an empty string, parsing should fail, there's nothing here
-    if url.is_empty() {
+    if !url_valid(url) {
         return Consumption::err(ParseError::new(
             ParseErrorKind::RuleFailed,
             rule,
@@ -152,4 +151,31 @@ fn try_consume_link<'t, 'r>(
 
     // Return result
     Consumption::warn(element, remaining, all_errors)
+}
+
+fn url_valid(url: &str) -> bool {
+    const PROTOCOLS: [&str; 3] = [
+        "http://",
+        "https://",
+        "ftp://",
+    ];
+
+    // If url is an empty string
+    if url.is_empty() {
+        return false;
+    }
+
+    // If it's a relative link
+    if url.starts_with('/') {
+        return true;
+    }
+
+    // If it's a URL
+    for protocol in &PROTOCOLS {
+        if url.starts_with(protocol) {
+            return true;
+        }
+    }
+
+    false
 }
