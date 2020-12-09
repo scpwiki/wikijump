@@ -76,7 +76,7 @@ where
             Consumption::Success {
                 item,
                 remaining,
-                errors,
+                mut errors,
             } => {
                 debug!(log, "Tokens successfully consumed to produce element");
 
@@ -91,7 +91,7 @@ where
                 output.push(item);
 
                 // Append errors
-                output.extend_errors(&errors);
+                output.append_errors(&mut errors);
             }
             Consumption::Failure { error } => {
                 info!(
@@ -105,7 +105,7 @@ where
                 );
 
                 // Append the error
-                output.extend_errors(&[error]);
+                output.append_error(error);
             }
         };
     }
