@@ -25,16 +25,30 @@ pub use self::container::*;
 pub use self::element::*;
 
 use crate::ParseResult;
+use std::borrow::Cow;
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub struct SyntaxTree<'t> {
+    /// The list of elements that compose this tree.
+    ///
+    /// Note that each `Element<'t>` can contain other elements within it,
+    /// and these as well, etc. This structure composes the depth of the
+    /// syntax tree.
     pub elements: Vec<Element<'t>>,
+
+    /// The list of CSS styles added in this page, in order.
+    ///
+    /// How the renderer decides to consume these is up to the implementation,
+    /// however the recommendation is to combine them all into one large style
+    /// rule list.
+    pub styles: Vec<Cow<'t, str>>,
 }
 
 impl<'t> SyntaxTree<'t> {
     pub(crate) fn from_element_result(
         result: ParseResult<Vec<Element<'t>>>,
+        styles: Vec<Cow<'t, str>>,
     ) -> ParseResult<Self> {
         // Extract values from result
         let (mut elements, errors) = result.into();
@@ -48,7 +62,7 @@ impl<'t> SyntaxTree<'t> {
         }
 
         // Create final SyntaxTree result
-        let tree = SyntaxTree { elements };
+        let tree = SyntaxTree { elements, styles };
         ParseResult::new(tree, errors)
     }
 }

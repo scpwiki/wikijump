@@ -117,5 +117,5 @@ where
     }
 
     info!(log, "Finished running parser, returning gathered elements");
-    SyntaxTree::from_element_result(output)
+    SyntaxTree::from_element_result(output, styles)
 }
