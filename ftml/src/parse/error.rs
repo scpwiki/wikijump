@@ -23,6 +23,29 @@ use std::borrow::Cow;
 use std::ops::Range;
 use strum_macros::IntoStaticStr;
 
+/// Exceptions that occurred during parsing
+///
+/// This is distinct from `ParseError` in that it is
+/// an internal structure meant to catch exceptional
+/// outputs.
+///
+/// These are primarily errors, but are not necessarily such.
+/// For instance, CSS styles are not present in the syntax tree
+/// like regular elements, and instead must be bubbled up
+/// to the top level.
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) enum ParseException<'t> {
+    Error(ParseError),
+    Style(Cow<'t, str>),
+}
+
+/// An error that occurred during parsing.
+///
+/// These refer to circumstances where a rule was attempted, but did not
+/// succeed due to an issue with the syntax.
+///
+/// However, as outlined by the crate's philosophy, no parsing error is fatal.
+/// Instead a fallback rules is applied and parsing continues.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 #[serde(rename_all = "kebab-case")]
 pub struct ParseError {
