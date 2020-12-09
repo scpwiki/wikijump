@@ -30,6 +30,7 @@ use super::rule::{impls::RULE_FALLBACK, rules_for_token, Consumption};
 use super::token::ExtractedToken;
 use super::{ParseError, ParseErrorKind};
 use crate::text::FullText;
+use std::mem;
 
 /// Main function that consumes tokens to produce a single element, then returns.
 pub fn consume<'t, 'r>(
@@ -60,6 +61,7 @@ pub fn consume<'t, 'r>(
         }
 
         // Discard invalid consumption
+        mem::drop(consumption);
     }
 
     debug!(log, "All rules exhausted, using generic text fallback");
