@@ -12,6 +12,8 @@
                     "anchor": "same"
                 }
             }
+        ],
+        "styles": [
         ]
     },
     "errors": [

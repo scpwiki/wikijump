@@ -18,6 +18,8 @@
                 "element": "text",
                 "data": "apple"
             }
+        ],
+        "styles": [
         ]
     },
     "errors": [

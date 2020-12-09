@@ -22,6 +22,8 @@
                 "element": "text",
                 "data": "String"
             }
+        ],
+        "styles": [
         ]
     },
     "errors": [

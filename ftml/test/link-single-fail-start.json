@@ -10,6 +10,8 @@
                 "element": "text",
                 "data": "page"
             }
+        ],
+        "styles": [
         ]
     },
     "errors": [

@@ -21,6 +21,8 @@
                 "element": "text",
                 "data": "Comment"
             }
+        ],
+        "styles": [
         ]
     },
     "errors": [
