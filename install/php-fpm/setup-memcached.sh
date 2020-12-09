@@ -35,7 +35,7 @@ make "-j$cores"
 make install
 
 # Install memcache
-pecl install --nobuild memcache
+pecl install --nobuild memcache-4.0.5.2
 cd "$(pecl config-get temp_dir)/memcache"
 
 phpize
