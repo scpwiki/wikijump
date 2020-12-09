@@ -28,7 +28,7 @@
 
 use super::rule::{impls::RULE_FALLBACK, rules_for_token, Consumption};
 use super::token::ExtractedToken;
-use super::{ParseError, ParseErrorKind};
+use super::{ParseError, ParseErrorKind, ParseException};
 use crate::text::FullText;
 use std::mem;
 
@@ -68,5 +68,5 @@ pub fn consume<'t, 'r>(
 
     let error = ParseError::new(ParseErrorKind::NoRulesMatch, RULE_FALLBACK, extracted);
 
-    Consumption::warn(text!(slice), remaining, vec![error])
+    Consumption::warn(text!(slice), remaining, vec![ParseException::Error(error)])
 }

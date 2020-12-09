@@ -52,11 +52,6 @@ impl<T> ParseResult<T> {
         self.errors.push(error);
     }
 
-    #[inline]
-    pub fn append_errors(&mut self, errors: &mut Vec<ParseError>) {
-        self.errors.append(errors);
-    }
-
     pub fn join<U>(&mut self, other: ParseResult<U>) -> U {
         let ParseResult { value, mut errors } = other;
 

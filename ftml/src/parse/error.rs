@@ -34,7 +34,7 @@ use strum_macros::IntoStaticStr;
 /// like regular elements, and instead must be bubbled up
 /// to the top level.
 #[derive(Debug, Clone, PartialEq)]
-pub(crate) enum ParseException<'t> {
+pub enum ParseException<'t> {
     Error(ParseError),
     Style(Cow<'t, str>),
 }

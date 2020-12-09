@@ -32,7 +32,7 @@ use self::rule::Consumption;
 use crate::tokenize::Tokenization;
 use crate::tree::SyntaxTree;
 
-pub use self::error::{ParseError, ParseErrorKind};
+pub use self::error::{ParseError, ParseErrorKind, ParseException};
 pub use self::result::ParseResult;
 pub use self::token::{ExtractedToken, Token};
 
@@ -48,6 +48,7 @@ where
 {
     // Set up variables
     let mut output = ParseResult::default();
+    let mut styles = Vec::new();
     let mut tokens = tokenization.tokens();
     let full_text = tokenization.full_text();
 
@@ -76,7 +77,7 @@ where
             Consumption::Success {
                 item,
                 remaining,
-                mut errors,
+                exceptions,
             } => {
                 debug!(log, "Tokens successfully consumed to produce element");
 
@@ -90,8 +91,13 @@ where
                 // Add the new element to the list
                 output.push(item);
 
-                // Append errors
-                output.append_errors(&mut errors);
+                // Process exceptions
+                for exception in exceptions {
+                    match exception {
+                        ParseException::Error(error) => output.append_error(error),
+                        ParseException::Style(style) => styles.push(style),
+                    }
+                }
             }
             Consumption::Failure { error } => {
                 info!(

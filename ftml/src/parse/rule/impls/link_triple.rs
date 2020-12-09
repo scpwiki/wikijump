@@ -99,7 +99,8 @@ fn try_consume_link<'t, 'r>(
     );
 
     // Return if failure, get ready for second part
-    let (url, extracted, remaining, errors) = try_consume_last!(remaining, consumption);
+    let (url, extracted, remaining, exceptions) =
+        try_consume_last!(remaining, consumption);
 
     // Trim text
     let url = url.trim();
@@ -116,13 +117,13 @@ fn try_consume_link<'t, 'r>(
     // Determine what token we ended on, i.e. which [[[ variant it is.
     match extracted.token {
         // [[[name]]] type links
-        Token::RightLink => build_same(log, remaining, errors, url, anchor),
+        Token::RightLink => build_same(log, remaining, exceptions, url, anchor),
 
         // [[[url|label]]] type links
         Token::Pipe => build_separate(
             log,
             (extracted, remaining, full_text),
-            errors,
+            exceptions,
             rule,
             url,
             anchor,
@@ -138,7 +139,7 @@ fn try_consume_link<'t, 'r>(
 fn build_same<'t, 'r>(
     log: &slog::Logger,
     remaining: &'r [ExtractedToken<'t>],
-    errors: Vec<ParseError>,
+    errors: Vec<ParseException<'t>>,
     url: &'t str,
     anchor: AnchorTarget,
 ) -> Consumption<'r, 't> {
@@ -166,7 +167,7 @@ fn build_separate<'t, 'r>(
         &'r [ExtractedToken<'t>],
         FullText<'t>,
     ),
-    mut all_errors: Vec<ParseError>,
+    mut all_exc: Vec<ParseException<'t>>,
     rule: Rule,
     url: &'t str,
     anchor: AnchorTarget,
@@ -188,7 +189,7 @@ fn build_separate<'t, 'r>(
     );
 
     // Append errors, or return if failure
-    let (label, remaining, mut errors) = try_consume!(consumption);
+    let (label, remaining, mut exceptions) = try_consume!(consumption);
 
     debug!(
         log,
@@ -207,8 +208,8 @@ fn build_separate<'t, 'r>(
         LinkLabel::Text(cow!(label))
     };
 
-    // Add on new errors
-    all_errors.append(&mut errors);
+    // Add on new exceptions
+    all_exc.append(&mut exceptions);
 
     // Build link element
     let element = Element::Link {
@@ -218,5 +219,5 @@ fn build_separate<'t, 'r>(
     };
 
     // Return result
-    Consumption::warn(element, remaining, all_errors)
+    Consumption::warn(element, remaining, all_exc)
 }

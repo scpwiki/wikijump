@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::ParseError;
+use super::{ParseError, ParseException};
 use crate::parse::token::ExtractedToken;
 use crate::text::FullText;
 use crate::tree::Element;
@@ -87,7 +87,7 @@ where
     Success {
         item: T,
         remaining: &'r [ExtractedToken<'t>],
-        errors: Vec<ParseError>,
+        exceptions: Vec<ParseException<'t>>,
     },
     Failure {
         error: ParseError,
@@ -103,7 +103,7 @@ where
         GenericConsumption::Success {
             item,
             remaining,
-            errors: Vec::new(),
+            exceptions: Vec::new(),
         }
     }
 
@@ -111,12 +111,12 @@ where
     pub fn warn(
         item: T,
         remaining: &'r [ExtractedToken<'t>],
-        errors: Vec<ParseError>,
+        exceptions: Vec<ParseException<'t>>,
     ) -> Self {
         GenericConsumption::Success {
             item,
             remaining,
-            errors,
+            exceptions,
         }
     }
 
@@ -145,14 +145,14 @@ where
             GenericConsumption::Success {
                 item,
                 remaining,
-                errors,
+                exceptions,
             } => {
                 let item = f(item);
 
                 GenericConsumption::Success {
                     item,
                     remaining,
-                    errors,
+                    exceptions,
                 }
             }
         }

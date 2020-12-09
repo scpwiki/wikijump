@@ -30,8 +30,8 @@ macro_rules! try_consume {
             GenericConsumption::Success {
                 item,
                 remaining,
-                errors,
-            } => (item, remaining, errors),
+                exceptions,
+            } => (item, remaining, exceptions),
         }
     };
 }
