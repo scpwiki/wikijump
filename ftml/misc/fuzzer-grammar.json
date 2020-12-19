@@ -64,8 +64,9 @@
     ],
 
     "<url>": [["<url-protocol>", "://", "<url-chars>"]],
-    "<url-protocol>": [["http", "https", "ftp"]],
-    "<url-chars>": [["<alphanum>"], ["<symbol>"]],
+    "<url-protocol>": [["http"], ["https"], ["ftp"]],
+    "<url-chars>": [["<url-char>"], ["<url-char>", "<url-chars>"]],
+    "<url-char>": [["<alphanum>"], ["<symbol>"]],
 
     "<string>": [["\"", "<string-chars>", "\""]],
     "<string-chars>": [[], ["<string-char>"], ["<string-char>", "<string-chars>"]],
