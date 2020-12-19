@@ -93,7 +93,7 @@ Wikijump.modules.ForumViewThreadModule.listeners = {
 		var formInner = $("new-post-t").innerHTML;
 		formInner = formInner.replace(/id="/g, 'id="p-');
 
-		editNode.innerHTML = "dupa";
+		editNode.innerHTML = "";
 		OZONE.dom.insertAfter(postContainer,editNode,post);
 
 		OZONE.visuals.scrollTo(editNode);
