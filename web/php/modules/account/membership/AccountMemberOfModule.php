@@ -9,7 +9,7 @@ class AccountMemberOfModule extends AccountBaseModule
 
         $userId = $runData->getUserId();
 
-        // get all membership - criteria with join ;-) wooo!
+        // get all membership - criteria with join - wooo!
         $c = new Criteria();
         $c->add("user_id", $userId);
         $c->addJoin("site_id", "site.site_id");

@@ -232,7 +232,7 @@ Wikijump.modules.ForumViewThreadModule.callbacks = {
 		window.location.hash ="post-"+r.postId;
 
 		window.location.reload();
-		setTimeout('alert("reloaded ;-)")', 1000);
+		setTimeout('alert("reloaded")', 1000);
 	}
 
 }

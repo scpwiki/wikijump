@@ -10,7 +10,7 @@ class AccountApplicationsModule extends AccountBaseModule
         // get applications by a user
         $userId = $runData->getUserId();
 
-        // get all applications - criteria with join ;-) wooo!
+        // get all applications - criteria with join - wooo!
         $c = new Criteria();
         $c->add("user_id", $userId);
         $c->addJoin("site_id", "site.site_id");

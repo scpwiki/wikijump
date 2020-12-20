@@ -41,7 +41,7 @@ Wikijump.modules.PMComposeModule.listeners = {
 		if(Wikijump.modules.PMComposeModule.vars.recipientId == null){
 			// no recipient!
 			var d = new OZONE.dialogs.ErrorDialog()
-			d.content = "The recipient of the message should be chosen ;-)";
+			d.content = "You must choose a recipient for this message.";
 			d.show();
 			return;
 		}

@@ -7,7 +7,7 @@ if (!defined('WIKIJUMP_SETUP_COMPLETED')) {
     }
 
     // add settings for error-reporting
-    error_reporting(E_ALL&~E_NOTICE); // hardcode ;-)
+    error_reporting(E_ALL&~E_NOTICE); // hardcode
 
     // determine WIKIJUMP_ROOT directory
     if (!defined('WIKIJUMP_ROOT')) {

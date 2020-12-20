@@ -49,7 +49,7 @@ class WatchAction extends SmartyAction
             throw new ProcessException(_("It seems you already watch this thread."), "already_watching");
         }
 
-        // ok, check how many do you already watch. 10 max ;-)
+        // ok, check how many do you already watch. 10 max
         $c = new Criteria();
         $c->add("user_id", $user->getUserId());
 
@@ -115,7 +115,7 @@ class WatchAction extends SmartyAction
             throw new ProcessException(_("It seems you already watch this page."), "already_watching");
         }
 
-        // ok, check how many do you already watch. 10 max ;-)
+        // ok, check how many do you already watch. 10 max
         $c = new Criteria();
         $c->add("user_id", $user->getUserId());
 

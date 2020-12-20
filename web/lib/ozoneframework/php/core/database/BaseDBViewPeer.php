@@ -150,9 +150,8 @@ abstract class BaseDBViewPeer {
 		$db = Database::connection();
 		// assemble a query string.
 		// if exactQuery is specified - no problem. just run it. responsibility is on
-		// the user ;-)
+		// the user
 		if($criteria->getExplicitQuery() != null){
-
 			return $criteria->getExplicitQuery();
 		}
 		// ok - otherwise now we should counstruct the query

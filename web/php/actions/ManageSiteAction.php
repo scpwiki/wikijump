@@ -51,7 +51,7 @@ class ManageSiteAction extends SmartyAction
             $categoryId = $category['category_id'];
             $c = new Criteria();
             $c->add("category_id", $categoryId);
-            $c->add("site_id", $siteId); // for sure ;-)
+            $c->add("site_id", $siteId); // for sure
             $dCategory = CategoryPeer::instance()->selectOne($c);
 
             // now compare
@@ -274,7 +274,7 @@ class ManageSiteAction extends SmartyAction
             $categoryId = $category['category_id'];
             $c = new Criteria();
             $c->add("category_id", $categoryId);
-            $c->add("site_id", $siteId); // for sure ;-)
+            $c->add("site_id", $siteId);
             $dCategory = CategoryPeer::instance()->selectOne($c);
             if ($dCategory == null) {
                 throw new ProcessException(_("Error saving changes - one of the categories could not be found."), "no_category");
@@ -316,7 +316,7 @@ class ManageSiteAction extends SmartyAction
             $categoryId = $category['category_id'];
             $c = new Criteria();
             $c->add("category_id", $categoryId);
-            $c->add("site_id", $siteId); // for sure ;-)
+            $c->add("site_id", $siteId);
             $dCategory = CategoryPeer::instance()->selectOne($c);
             if ($dCategory == null) {
                 throw new ProcessException("Invalid category.");
@@ -375,7 +375,7 @@ class ManageSiteAction extends SmartyAction
             $categoryId = $category['category_id'];
             $c = new Criteria();
             $c->add("category_id", $categoryId);
-            $c->add("site_id", $siteId); // for sure ;-)
+            $c->add("site_id", $siteId);
             $dCategory = CategoryPeer::instance()->selectOne($c);
 
             // now compare
@@ -484,7 +484,7 @@ class ManageSiteAction extends SmartyAction
 
         if ($changed) {
             $site->save();
-            // outdate cache for sure ;-)
+            // outdate cache for sure
             $outdater = new Outdater();
             $outdater->siteEvent("sitewide_change");
         }
@@ -674,7 +674,7 @@ class ManageSiteAction extends SmartyAction
             $c = new Criteria();
             $c->add("category_id", $categoryId);
 
-            $c->add("site_id", $siteId); // for sure ;-)
+            $c->add("site_id", $siteId);
             $dCategory = CategoryPeer::instance()->selectOne($c);
 
             // now compare
@@ -730,7 +730,7 @@ class ManageSiteAction extends SmartyAction
             $categoryId = $category['category_id'];
             $c = new Criteria();
             $c->add("category_id", $categoryId);
-            $c->add("site_id", $siteId); // for sure ;-)
+            $c->add("site_id", $siteId);
             $dCategory = CategoryPeer::instance()->selectOne($c);
 
             // now compare

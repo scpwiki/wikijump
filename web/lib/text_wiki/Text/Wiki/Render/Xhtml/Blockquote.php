@@ -48,7 +48,7 @@ class Text_Wiki_Render_Xhtml_Blockquote extends Text_Wiki_Render {
         $level = $options['level'];
 
         // set up indenting so that the results look nice; we do this
-        // in two steps to avoid str_pad mathematics.  ;-)
+        // in two steps to avoid str_pad mathematics.
         $pad = str_pad('', $level, "\t");
         $pad = str_replace("\t", '    ', $pad);
 

@@ -12,7 +12,7 @@ class BacklinksModule extends SmartyModule
             throw new ProcessException(_("The page cannot be found or does not exist."), "no_page");
         }
 
-        // create a very custom query ;-)
+        // create a very custom query
         $c = new Criteria();
         $q = "SELECT page_id, title, unix_name FROM page_link, page " .
                 "WHERE page_link.to_page_id='".db_escape_string($pageId)."' " .

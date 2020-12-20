@@ -36,12 +36,12 @@ abstract class CacheableModule extends SmartyModule
         }
 
         if ($timeOut != null && $timeOut > 0) {
-            // cacheable ;-)
+            // cacheable
             $parmSubKey = md5(serialize($pl->asArray()));
 
             $mcKey = 'module..'.$site->getSiteId().'..'.get_class($this).'..'.$parmSubKey;
 
-            // get the content ;-)
+            // get the content
             $mc = Ozone::$memcache;
             $out = $mc->get($mcKey);
             if ($out != false) {

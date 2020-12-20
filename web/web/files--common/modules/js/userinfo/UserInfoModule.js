@@ -36,7 +36,7 @@ Wikijump.modules.UserInfoModule.listeners = {
 Wikijump.modules.UserInfoModule.callbacks = {
 	tabClick: function(response){
 		if(!Wikijump.utils.handleError(response)) {return;}
-		// experimental fade-out ;-)
+		// experimental fade-out
 		OZONE.utils.setInnerHTMLContent("user-info-area", response.body);
 		OZONE.utils.formatDates("user-info-area");
 	},

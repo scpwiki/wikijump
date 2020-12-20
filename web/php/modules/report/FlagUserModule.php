@@ -32,7 +32,7 @@ class FlagUserModule extends SmartyModule
         $user = $runData->getUser();
 
         if ($targetUser->getUserId() === $user->getUserId()) {
-            throw new ProcessException(_("Sorry, event with the extreme level of self-criticism you cannot flag yourself as an abusive user ;-)"), "not_yourself");
+            throw new ProcessException(_("You cannot flag yourself as an abusive user."), "not_yourself");
         }
 
         // check if flagged already

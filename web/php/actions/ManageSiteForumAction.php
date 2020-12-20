@@ -352,7 +352,7 @@ class ManageSiteForumAction
             $categoryId = $category['category_id'];
             $c = new Criteria();
             $c->add("category_id", $categoryId);
-            $c->add("site_id", $siteId); // for sure ;-)
+            $c->add("site_id", $siteId); // for sure
             $dCategory = CategoryPeer::instance()->selectOne($c);
 
             // now compare
