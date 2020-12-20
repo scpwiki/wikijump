@@ -86,7 +86,7 @@ pub enum Element<'t> {
 impl Element<'_> {
     pub fn name(&self) -> &'static str {
         match self {
-            Element::Container(container) => container.etype().name(),
+            Element::Container(container) => container.ctype().name(),
             Element::Text(_) => "Text",
             Element::Raw(_) => "Raw",
             Element::Email(_) => "Email",
