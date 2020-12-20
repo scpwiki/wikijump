@@ -25,10 +25,12 @@ mod consume;
 mod error;
 mod result;
 mod rule;
+mod stack;
 mod token;
 
 use self::consume::consume;
 use self::rule::Consumption;
+use self::stack::ParseStack;
 use crate::tokenize::Tokenization;
 use crate::tree::SyntaxTree;
 
@@ -47,8 +49,7 @@ where
     'r: 't,
 {
     // Set up variables
-    let mut output = ParseResult::default();
-    let mut styles = Vec::new();
+    let mut stack = ParseStack::new();
     let mut tokens = tokenization.tokens();
     let full_text = tokenization.full_text();
 
@@ -89,13 +90,13 @@ where
                 tokens = remaining;
 
                 // Add the new element to the list
-                output.push(item);
+                stack.push_element(item);
 
                 // Process exceptions
                 for exception in exceptions {
                     match exception {
-                        ParseException::Error(error) => output.append_error(error),
-                        ParseException::Style(style) => styles.push(style),
+                        ParseException::Error(error) => stack.push_error(error),
+                        ParseException::Style(style) => stack.push_style(style),
                     }
                 }
             }
@@ -111,11 +112,11 @@ where
                 );
 
                 // Append the error
-                output.append_error(error);
+                stack.push_error(error);
             }
         };
     }
 
     info!(log, "Finished running parser, returning gathered elements");
-    SyntaxTree::from_element_result(output, styles)
+    stack.into_syntax_tree()
 }
