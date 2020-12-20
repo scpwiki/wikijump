@@ -5,38 +5,46 @@
             {
                 "element": "container",
                 "data": {
-                    "type": "bold",
+                    "type": "paragraph",
                     "elements": [
                         {
-                            "element": "text",
-                            "data": "Apple"
+                            "element": "container",
+                            "data": {
+                                "type": "bold",
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Apple"
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": " "
+                                    },
+                                    {
+                                        "element": "container",
+                                        "data": {
+                                            "type": "italics",
+                                            "elements": [
+                                                {
+                                                    "element": "text",
+                                                    "data": "Banana"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
                         },
                         {
                             "element": "text",
                             "data": " "
                         },
                         {
-                            "element": "container",
-                            "data": {
-                                "type": "italics",
-                                "elements": [
-                                    {
-                                        "element": "text",
-                                        "data": "Banana"
-                                    }
-                                ]
-                            }
+                            "element": "text",
+                            "data": "Cherry"
                         }
                     ]
                 }
-            },
-            {
-                "element": "text",
-                "data": " "
-            },
-            {
-                "element": "text",
-                "data": "Cherry"
             }
         ],
         "styles": [

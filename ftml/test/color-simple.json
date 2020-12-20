@@ -3,21 +3,29 @@
     "tree": {
         "elements": [
             {
-                "element": "color",
+                "element": "container",
                 "data": {
-                    "color": "blue",
+                    "type": "paragraph",
                     "elements": [
                         {
-                            "element": "text",
-                            "data": "Text"
-                        },
-                        {
-                            "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
-                            "data": "Here"
+                            "element": "color",
+                            "data": {
+                                "color": "blue",
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Text"
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": " "
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": "Here"
+                                    }
+                                ]
+                            }
                         }
                     ]
                 }

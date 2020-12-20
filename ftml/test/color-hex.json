@@ -3,25 +3,33 @@
     "tree": {
         "elements": [
             {
-                "element": "color",
+                "element": "container",
                 "data": {
-                    "color": "#ccc",
+                    "type": "paragraph",
                     "elements": [
                         {
-                            "element": "text",
-                            "data": "CSS"
-                        },
-                        {
-                            "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
-                            "data": "color"
-                        },
-                        {
-                            "element": "text",
-                            "data": "!"
+                            "element": "color",
+                            "data": {
+                                "color": "#ccc",
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "CSS"
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": " "
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": "color"
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": "!"
+                                    }
+                                ]
+                            }
                         }
                     ]
                 }
