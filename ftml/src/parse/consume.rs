@@ -66,7 +66,11 @@ pub fn consume<'t, 'r>(
 
     debug!(log, "All rules exhausted, using generic text fallback");
 
-    let error = ParseError::new(ParseErrorKind::NoRulesMatch, RULE_FALLBACK, extracted);
+    let error = ParseException::Error(ParseError::new(
+        ParseErrorKind::NoRulesMatch,
+        RULE_FALLBACK,
+        extracted,
+    ));
 
-    Consumption::warn(text!(slice), remaining, vec![ParseException::Error(error)])
+    Consumption::warn(text!(slice), remaining, vec![error])
 }
