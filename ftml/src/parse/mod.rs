@@ -71,6 +71,12 @@ where
                 .split_first() //
                 .expect("Tokens list is empty");
 
+            // Avoid an unnecessary Token::Null and just exit
+            if extracted.token == Token::InputEnd {
+                break;
+            }
+
+            // Produce consumption from this token pointer
             consume(log, extracted, remaining, full_text)
         };
 
