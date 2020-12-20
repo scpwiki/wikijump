@@ -117,7 +117,7 @@
 >>13	string	>\0		%s resource data
 #  Some saved game files start with "TADS2 save/g\n\r\032\0", a little-endian
 #  2-byte length N, the N-char name of the game file *without* a NUL (darn!),
-# "TADS2 save\n\r\032\0" and the interpreter version. 
+# "TADS2 save\n\r\032\0" and the interpreter version.
 0	string	TADS2\ save/g	TADS
 >12	belong	!0x0A0D1A00	saved game data, CORRUPTED
 >12	belong	 0x0A0D1A00
@@ -186,7 +186,7 @@
 #------------------------------------------------------------------------------
 # amanda:  file(1) magic for amanda file format
 #
-0	string	AMANDA:\ 		AMANDA 
+0	string	AMANDA:\ 		AMANDA
 >8	string	TAPESTART\ DATE		tape header file,
 >>23	string	X
 >>>25	string	>\ 			Unused %s
@@ -204,7 +204,7 @@
 0	belong		0x000003e7	AmigaOS object/library data
 #
 0	beshort		0xe310		Amiga Workbench
->2	beshort		1		
+>2	beshort		1
 >>48	byte		1		disk icon
 >>48	byte		2		drawer icon
 >>48	byte		3		tool icon
@@ -242,7 +242,7 @@
 0	string/c	@database	AmigaGuide file
 
 # Amiga disk types
-# 
+#
 0	string		RDSK		Rigid Disk Block
 >160	string		x		on %.24s
 0	string		DOS\0		Amiga DOS disk
@@ -581,8 +581,8 @@
 # MPA, M1A
 # updated by Joerg Jenderek
 # GRR the original test are too common for many DOS files, so test 32 <= kbits <= 448
-0	beshort&0xFFFE		0xFFFE	
->2	ubyte&0xF0	>0x0F		
+0	beshort&0xFFFE		0xFFFE
+>2	ubyte&0xF0	>0x0F
 >>2	ubyte&0xF0	<0xE1		MPEG ADTS, layer I, v1
 # rate
 >>>2      byte&0xF0       0x10           \b,  32 kBits
@@ -652,9 +652,9 @@
 
 # MP2, M2A
 0       beshort&0xFFFE  0xFFF4         MPEG ADTS, layer II, v2
-# rate 
+# rate
 >2      byte&0xF0       0x10           \b,   8 kBits
->2      byte&0xF0       0x20           \b,  16 kBits 
+>2      byte&0xF0       0x20           \b,  16 kBits
 >2      byte&0xF0       0x30           \b,  24 kBits
 >2      byte&0xF0       0x40           \b,  32 kBits
 >2      byte&0xF0       0x50           \b,  40 kBits
@@ -720,7 +720,7 @@
 
 # MP3, M25A
 0       beshort&0xFFFE  0xFFE2         MPEG ADTS, layer III,  v2.5
-# rate  
+# rate
 >2      byte&0xF0       0x10           \b,   8 kBits
 >2      byte&0xF0       0x20           \b,  16 kBits
 >2      byte&0xF0       0x30           \b,  24 kBits
@@ -1055,7 +1055,7 @@
 #>2     leshort         x       \b, first line number %d
 
 # ORCA/EZ assembler:
-# 
+#
 # This will not identify ORCA/M source files, since those have
 # some sort of date code instead of the two zero bytes at 6 and 7
 # XXX Conflicts with ELF
@@ -1094,18 +1094,18 @@
 # From Johan Gade.
 # These entries are disabled for now until we fix the following issues.
 #
-# Note there might be some problems with the "VAX COFF executable" 
-# entry. Note this entry should be placed before the mac filesystem section, 
+# Note there might be some problems with the "VAX COFF executable"
+# entry. Note this entry should be placed before the mac filesystem section,
 # particularly the "Apple Partition data" entry.
 #
-# The intended meaning of these tests is, that the file is only of the 
+# The intended meaning of these tests is, that the file is only of the
 # specified type if both of the lines are correct - i.e. if the first
 # line matches and the second doesn't then it is not of that type.
 #
 #0	long	0x7801730d
 #>4	long	0x62626060	UDIF read-only zlib-compressed image (UDZO)
 #
-# Note that this entry is recognized correctly by the "Apple Partition 
+# Note that this entry is recognized correctly by the "Apple Partition
 # data" entry - however since this entry is more specific - this
 # information seems to be more useful.
 #0	long	0x45520200
@@ -1392,11 +1392,11 @@
 # MS Compress
 4	string	\x88\xf0\x27 MS Compress archive data
 # updated by Joerg Jenderek
->9	string	\0		
->>0	string	KWAJ		
+>9	string	\0
+>>0	string	KWAJ
 >>>7	string	\321\003	MS Compress archive data
 >>>>14	ulong	>0		\b, original size: %ld bytes
->>>>18		ubyte	>0x65  	
+>>>>18		ubyte	>0x65
 >>>>>18		string	x    	\b, was %.8s
 >>>>>(10.b-4)	string	x    	\b.%.3s
 # MP3 (archiver, not lossy audio compression)
@@ -1668,7 +1668,7 @@
 >20	byte		x		- header level %d
 # taken from idarc [JW]
 2   string      -lZ         PUT archive data
-2   string      -lz         LZS archive data 
+2   string      -lz         LZS archive data
 2   string      -sw1-       Swag archive data
 
 # RAR archiver (Greg Roelofs, newt@uchicago.edu)
@@ -1773,7 +1773,7 @@
 10	string		#\ This\ is\ a\ shell\ archive	shell archive text
 
 #
-# LBR. NB: May conflict with the questionable 
+# LBR. NB: May conflict with the questionable
 #          "binary Computer Graphics Metafile" format.
 #
 0       string  \0\ \ \ \ \ \ \ \ \ \ \ \0\0    LBR archive data
@@ -1789,10 +1789,10 @@
 # From Rafael Laboissiere <rafael@laboissiere.net>
 # The Project Revision Control System (see
 # http://prcs.sourceforge.net) generates a packaged project
-# file which is recognized by the following entry: 
+# file which is recognized by the following entry:
 0	leshort		0xeb81	PRCS packaged project
 
-# Microsoft cabinets 
+# Microsoft cabinets
 # by David Necas (Yeti) <yeti@physics.muni.cz>
 #0	string	MSCF\0\0\0\0	Microsoft cabinet file data,
 #>25	byte	x		v%d
@@ -1800,7 +1800,7 @@
 # MPi: All CABs have version 1.3, so this is pointless.
 # Better magic in debian-additions.
 
-# GTKtalog catalogs 
+# GTKtalog catalogs
 # by David Necas (Yeti) <yeti@physics.muni.cz>
 4	string	gtktalog\ 	GTKtalog catalog data,
 >13	string	3		version 3
@@ -1954,7 +1954,7 @@
 #>18	beshort		&00040000	and MAU hardware required
 #>22	beshort		>0		- version %ld
 #
-# core file for 3b2 
+# core file for 3b2
 0	string		\000\004\036\212\200	3b2 core file
 >364	string		>\0		of '%s'
 
@@ -2676,7 +2676,7 @@
 # DGN is the default file extension of Microstation/Intergraph CAD files.
 # CIT is the proprietary raster format (similar to TIFF) used to attach
 # raster underlays to Microstation DGN (vector) drawings.
-# 
+#
 # http://www.wotsit.org/search.asp
 # http://filext.com/detaillist.php?extdetail=DGN
 # http://filext.com/detaillist.php?extdetail=CIT
@@ -2726,7 +2726,7 @@
 >0x02	byte	0xfe
 >>0x04	beshort	0x1800		CIT raster CAD
 0	string	AC1012		AutoDesk AutoCAD R13
-0	string	AC1014		AutoDesk AutoCAD R14 
+0	string	AC1014		AutoDesk AutoCAD R14
 0	string	AC1015		AutoDesk AutoCAD R2000
 #------------------------------------------------------------------------------
 # Cafe Babes unite!
@@ -2735,8 +2735,8 @@
 # must be performed in the same "magic" sequence to get both right.  The long
 # at offset 4 in a mach-O fat file tells the number of architectures; the short at
 # offset 4 in a Java bytecode file is the JVM minor version and the
-# short at offset 6 is the JVM major version.  Since there are only 
-# only 18 labeled Mach-O architectures at current, and the first released 
+# short at offset 6 is the JVM major version.  Since there are only
+# only 18 labeled Mach-O architectures at current, and the first released
 # Java class format was version 43.0, we can safely choose any number
 # between 18 and 39 to test the number of architectures against
 # (and use as a hack). Let's not use 18, because the Mach-O people
@@ -2763,7 +2763,7 @@
 #0	string		/*		C or REXX program text
 #0	string		//		C++ program text
 
-# From: Mikhail Teterin <mi@aldan.algebra.com> 
+# From: Mikhail Teterin <mi@aldan.algebra.com>
 0	string		cscope		cscope reference data
 >7	string		x		version %.2s
 # We skip the path here, because it is often long (so file will
@@ -2933,7 +2933,7 @@
 #
 # XXX - what's the "!" stuff:
 #
-# >18	short		!074000,000000	C1 R1 
+# >18	short		!074000,000000	C1 R1
 # >18	short		!074000,004000	C2 R1
 # >18	short		!074000,010000	C3 R1
 # >18	short		!074000,074000	TEST
@@ -2941,7 +2941,7 @@
 # I shall assume it's ANDing the field with the first value and
 # comparing it with the second, and rewrite it as:
 #
-# >18	short&074000	000000		C1 R1 
+# >18	short&074000	000000		C1 R1
 # >18	short&074000	004000		C2 R1
 # >18	short&074000	010000		C3 R1
 # >18	short&074000	074000		TEST
@@ -2963,7 +2963,7 @@
 >12	long		>0		not stripped
 >22	short		>0		- version %ld
 0	short		0577		CLIPPER COFF executable
->18	short&074000	000000		C1 R1 
+>18	short&074000	000000		C1 R1
 >18	short&074000	004000		C2 R1
 >18	short&074000	010000		C3 R1
 >18	short&074000	074000		TEST
@@ -3274,7 +3274,7 @@
 >4	belong		0x090A0C0D	best compression
 
 # 7-zip archiver, from Thomas Klausner (wiz@danbala.tuwien.ac.at)
-# http://www.7-zip.org or DOC/7zFormat.txt 
+# http://www.7-zip.org or DOC/7zFormat.txt
 #
 0	string		7z\274\257\047\034	7-zip archive data,
 >6	byte		x			version %d
@@ -3420,7 +3420,7 @@
 #------------------------------------------------------------------------------
 # msx: file(1) magic for MSX game cartridge dumps
 # Too simple - MPi
-#0 beshort 0x4142 MSX game cartridge dump 
+#0 beshort 0x4142 MSX game cartridge dump
 
 #------------------------------------------------------------------------------
 # Sony Playstation executables (Adam Sjoegren <asjo@diku.dk>) :
@@ -3653,7 +3653,7 @@
 # From Max Bowsher.
 12	long	0x00040988	Berkeley DB
 >16	long	>0		(Log, version %d, native byte-order)
-12	belong	0x00040988	Berkeley DB 
+12	belong	0x00040988	Berkeley DB
 >16	belong	>0		(Log, version %d, big-endian)
 12	lelong	0x00040988	Berkeley DB
 >16	lelong	>0		(Log, version %d, little-endian)
@@ -3673,92 +3673,92 @@
 # XXX: Weak magic.
 # Alex Ott <ott@jet.msk.su>
 ## Paradox file formats
-#2	  leshort	0x0800	Paradox 
-#>0x39	  byte		3	v. 3.0 
-#>0x39	  byte		4	v. 3.5 
-#>0x39	  byte		9	v. 4.x 
-#>0x39	  byte		10	v. 5.x 
-#>0x39	  byte		11	v. 5.x 
-#>0x39	  byte		12	v. 7.x 
-#>>0x04	  byte		0	indexed .DB data file 
-#>>0x04	  byte		1	primary index .PX file 
-#>>0x04	  byte		2	non-indexed .DB data file 
-#>>0x04	  byte		3	non-incrementing secondary index .Xnn file 
-#>>0x04	  byte		4	secondary index .Ynn file 
-#>>0x04	  byte		5	incrementing secondary index .Xnn file 
-#>>0x04	  byte		6	non-incrementing secondary index .XGn file 
-#>>0x04	  byte		7	secondary index .YGn file 
-#>>>0x04	  byte		8	incrementing secondary index .XGn file 
+#2	  leshort	0x0800	Paradox
+#>0x39	  byte		3	v. 3.0
+#>0x39	  byte		4	v. 3.5
+#>0x39	  byte		9	v. 4.x
+#>0x39	  byte		10	v. 5.x
+#>0x39	  byte		11	v. 5.x
+#>0x39	  byte		12	v. 7.x
+#>>0x04	  byte		0	indexed .DB data file
+#>>0x04	  byte		1	primary index .PX file
+#>>0x04	  byte		2	non-indexed .DB data file
+#>>0x04	  byte		3	non-incrementing secondary index .Xnn file
+#>>0x04	  byte		4	secondary index .Ynn file
+#>>0x04	  byte		5	incrementing secondary index .Xnn file
+#>>0x04	  byte		6	non-incrementing secondary index .XGn file
+#>>0x04	  byte		7	secondary index .YGn file
+#>>>0x04	  byte		8	incrementing secondary index .XGn file
 ## XBase database files
-#0      byte       0x02	
+#0      byte       0x02
 #>8     leshort	  >0
-#>>12   leshort    0	FoxBase 
+#>>12   leshort    0	FoxBase
 #>>>0x04	lelong		0		(no records)
 #>>>0x04	lelong		>0		(%ld records)
 #
-#0      byte       0x03	
+#0      byte       0x03
 #>8     leshort	  >0
-#>>12   leshort    0	FoxBase+, FoxPro, dBaseIII+, dBaseIV, no memo 
+#>>12   leshort    0	FoxBase+, FoxPro, dBaseIII+, dBaseIV, no memo
 #>>>0x04	lelong		0		(no records)
 #>>>0x04	lelong		>0		(%ld records)
 #
-#0      byte       0x04	
+#0      byte       0x04
 #>8     leshort	  >0
-#>>12   leshort    0	dBASE IV no memo file 
+#>>12   leshort    0	dBASE IV no memo file
 #>>>0x04	lelong		0		(no records)
 #>>>0x04	lelong		>0		(%ld records)
 #
-#0      byte       0x05	
+#0      byte       0x05
 #>8     leshort	  >0
-#>>12   leshort    0	dBASE V no memo file 
+#>>12   leshort    0	dBASE V no memo file
 #>>>0x04	lelong		0		(no records)
 #>>>0x04	lelong		>0		(%ld records)
 #
 #0      byte       0x30
 #>8     leshort	  >0
-#>>12   leshort    0	Visual FoxPro 
+#>>12   leshort    0	Visual FoxPro
 #>>>0x04	lelong		0		(no records)
 #>>>0x04	lelong		>0		(%ld records)
 #
 #0      byte       0x43
 #>8     leshort	  >0
-#>>12   leshort    0	FlagShip with memo var size 
+#>>12   leshort    0	FlagShip with memo var size
 #>>>0x04	lelong		0		(no records)
 #>>>0x04	lelong		>0		(%ld records)
 #
 #0      byte       0x7b
 #>8     leshort	  >0
-#>>12   leshort    0	dBASEIV with memo 
+#>>12   leshort    0	dBASEIV with memo
 #>>>0x04	lelong		0		(no records)
 #>>>0x04	lelong		>0		(%ld records)
 #
-#0      byte       0x83	
+#0      byte       0x83
 #>8     leshort	  >0
-#>>12   leshort    0	FoxBase+, dBaseIII+ with memo 
+#>>12   leshort    0	FoxBase+, dBaseIII+ with memo
 #>>>0x04	lelong		0		(no records)
 #>>>0x04	lelong		>0		(%ld records)
 #
 #0      byte       0x8b
 #>8     leshort	  >0
-#>>12   leshort    0	dBaseIV with memo 
+#>>12   leshort    0	dBaseIV with memo
 #>>>0x04	lelong		0		(no records)
 #>>>0x04	lelong		>0		(%ld records)
 #
-#0      byte       0x8e	
+#0      byte       0x8e
 #>8     leshort	  >0
-#>>12   leshort    0	dBaseIV with SQL Table 
+#>>12   leshort    0	dBaseIV with SQL Table
 #>>>0x04	lelong		0		(no records)
 #>>>0x04	lelong		>0		(%ld records)
 #
 #0      byte       0xb3
 #>8     leshort	  >0
-#>>12   leshort    0	FlagShip with .dbt memo 
+#>>12   leshort    0	FlagShip with .dbt memo
 #>>>0x04	lelong		0		(no records)
 #>>>0x04	lelong		>0		(%ld records)
 #
 #0      byte       0xf5
 #>8     leshort	  >0
-#>>12   leshort    0	FoxPro with memo 
+#>>12   leshort    0	FoxPro with memo
 #>>>0x04	lelong		0		(no records)
 #>>>0x04	lelong		>0		(%ld records)
 #
@@ -4011,7 +4011,7 @@
 >0	leshort	7		end of medium (for floppy).
 
 #------------------------------------------------------------------------------
-# T602 editor documents 
+# T602 editor documents
 # by David Necas <yeti@physics.muni.cz>
 0	string	@CT\ 	T602 document data,
 >4	string	0	Kamenicky
@@ -4019,7 +4019,7 @@
 >4	string	2	KOI8-CS
 >4	string	>2	unknown encoding
 
-# Vi IMproved Encrypted file 
+# Vi IMproved Encrypted file
 # by David Necas <yeti@physics.muni.cz>
 0	string	VimCrypt~	Vim encrypted file data
 # Vi IMproved Swap file
@@ -4091,7 +4091,7 @@
 >>>>48  lelong&0xf0000000	0x30000000	MIPS-IV
 >>>>48  lelong&0xf0000000	0x40000000	MIPS-V
 >>>>48  lelong&0xf0000000	0x60000000	MIPS32
->>>>48  lelong&0xf0000000	0x70000000	MIPS64 
+>>>>48  lelong&0xf0000000	0x70000000	MIPS64
 >>>>48  lelong&0xf0000000	0x80000000	MIPS32 rel2
 >>>>48  lelong&0xf0000000	0x90000000	MIPS64 rel2
 >>18	leshort		9		Amdahl - invalid byte order,
@@ -4216,7 +4216,7 @@
 >>>>48	belong&0xf0000000	0x30000000	MIPS-IV
 >>>>48	belong&0xf0000000	0x40000000	MIPS-V
 >>>>48	belong&0xf0000000	0x60000000	MIPS32
->>>>48	belong&0xf0000000	0x70000000	MIPS64 
+>>>>48	belong&0xf0000000	0x70000000	MIPS64
 >>>>48	belong&0xf0000000	0x80000000	MIPS32 rel2
 >>>>48	belong&0xf0000000	0x90000000	MIPS64 rel2
 >>18	beshort		9		Amdahl,
@@ -4381,7 +4381,7 @@
 0	string	\366\366\366\366	PC formatted floppy with no filesystem
 # Sun disk labels
 # From /usr/include/sun/dklabel.h:
-0774	beshort		0xdabe		
+0774	beshort		0xdabe
 # modified by Joerg Jenderek, because original test
 # succeeds for Cabinet archive dao360.dl_ with negative blocks
 >0770	long		>0		Sun disk label
@@ -4406,23 +4406,23 @@
 # (http://btmgr.sourceforge.net/docs/user-guide-3.html)
 0		string	SBMBAKUP_	Smart Boot Manager backup file
 >9		string	x		\b, version %-5.5s
->>14		string	=_		
+>>14		string	=_
 >>>15		string	x		%-.1s
 >>>>16		string	=_		\b.
 >>>>>17		string	x		\b%-.1s
 >>>>>>18	string	=_		\b.
 >>>>>>>19	string	x		\b%-.1s
->>>22		ubyte	0		
+>>>22		ubyte	0
 >>>>21		ubyte	x		\b, from drive 0x%x
->>>22		ubyte	>0		
+>>>22		ubyte	>0
 >>>>21		string	x		\b, from drive %s
 
 # Joerg Jenderek
 # DOS Emulator image is 128 byte, null right padded header + harddisc image
-0	string	DOSEMU\0			
->0x27E	leshort	0xAA55			
+0	string	DOSEMU\0
+>0x27E	leshort	0xAA55
 #offset is 128
->>19	ubyte	128			
+>>19	ubyte	128
 >>>(19.b-1)	ubyte	0x0	DOS Emulator image
 >>>>7	ulelong	>0		\b, %u heads
 >>>>11	ulelong	>0		\b, %d sectors/track
@@ -4433,68 +4433,68 @@
 # J\xf6rg Jenderek <joerg dot jenderek at web dot de>
 >0x8C	string	Invalid\ partition\ table	\b, MS-DOS MBR
 # dr-dos with some upper-, lowercase variants
->0x9D	string	Invalid\ partition\ table$	
->>181	string	No\ Operating\ System$		
+>0x9D	string	Invalid\ partition\ table$
+>>181	string	No\ Operating\ System$
 >>>201	string	Operating\ System\ load\ error$	\b, DR-DOS MBR, Version 7.01 to 7.03
->0x9D	string	Invalid\ partition\ table$	
->>181	string	No\ operating\ system$		
+>0x9D	string	Invalid\ partition\ table$
+>>181	string	No\ operating\ system$
 >>>201	string	Operating\ system\ load\ error$	\b, DR-DOS MBR, Version 7.01 to 7.03
->342	string	Invalid\ partition\ table$	
->>366	string	No\ operating\ system$		
+>342	string	Invalid\ partition\ table$
+>>366	string	No\ operating\ system$
 >>>386	string	Operating\ system\ load\ error$	\b, DR-DOS MBR, version 7.01 to 7.03
->295	string	NEWLDR\0				
->>302	string	Bad\ PT\ $				
->>>310	string	No\ OS\ $				
->>>>317	string	OS\ load\ err$				
->>>>>329	string	Moved\ or\ missing\ IBMBIO.LDR\n\r	
->>>>>>358	string	Press\ any\ key\ to\ continue.\n\r$	
->>>>>>>387	string	Copyright\ (c)\ 1984,1998	
+>295	string	NEWLDR\0
+>>302	string	Bad\ PT\ $
+>>>310	string	No\ OS\ $
+>>>>317	string	OS\ load\ err$
+>>>>>329	string	Moved\ or\ missing\ IBMBIO.LDR\n\r
+>>>>>>358	string	Press\ any\ key\ to\ continue.\n\r$
+>>>>>>>387	string	Copyright\ (c)\ 1984,1998
 >>>>>>>>411	string	Caldera\ Inc.\0		\b, DR-DOS MBR (IBMBIO.LDR)
 >0x10F	string	Ung\201ltige\ Partitionstabelle	\b, MS-DOS MBR, german version 4.10.1998, 4.10.2222
 >>0x1B8	ubelong	>0				\b, Serial 0x%-.4x
 >0x8B	string	Ung\201ltige\ Partitionstabelle	\b, MS-DOS MBR, german version 5.00 to 4.00.950
->271	string	Invalid\ partition\ table\0		
->>295	string	Error\ loading\ operating\ system\0	
+>271	string	Invalid\ partition\ table\0
+>>295	string	Error\ loading\ operating\ system\0
 >>>326	string	Missing\ operating\ system\0		\b, mbr
 #
->139	string	Invalid\ partition\ table\0		
->>163	string	Error\ loading\ operating\ system\0	
+>139	string	Invalid\ partition\ table\0
+>>163	string	Error\ loading\ operating\ system\0
 >>>194	string	Missing\ operating\ system\0		\b, Microsoft Windows XP mbr
 # http://www.heise.de/ct/05/09/006/ page 184
 #HKEY_LOCAL_MACHINE\SYSTEM\MountedDevices\DosDevices\?:=Serial4Bytes+8Bytes
 >>>>0x1B8	ulelong	>0				\b,Serial 0x%-.4x
->300	string	Invalid\ partition\ table\0	
+>300	string	Invalid\ partition\ table\0
 >>324	string	Error\ loading\ operating\ system\0
 >>>355	string	Missing\ operating\ system\0		\b, Microsoft Windows XP MBR
-#??>>>389	string	Invalid\ system\ disk		
+#??>>>389	string	Invalid\ system\ disk
 >>>>0x1B8	ulelong	>0				\b, Serial 0x%-.4x
 >300	string	Ung\201ltige\ Partitionstabelle
 #split string to avoid error: String too long
->>328	string	Fehler\ beim\ Laden\ 	
->>>346	string	des\ Betriebssystems	
+>>328	string	Fehler\ beim\ Laden\
+>>>346	string	des\ Betriebssystems
 >>>>366	string	Betriebssystem\ nicht\ vorhanden	\b, Microsoft Windows XP MBR (german)
 >>>>>0x1B8	ulelong	>0				\b, Serial 0x%-.4x
 >0x145	string	Default:\ F				\b, FREE-DOS MBR
->64	string	no\ active\ partition\ found	
+>64	string	no\ active\ partition\ found
 >>96	string	read\ error\ while\ reading\ drive	\b, FREE-DOS Beta 0.9 MBR
->271	string	Operating\ system\ loading 		
+>271	string	Operating\ system\ loading
 >>296	string	error\r					\b, SYSLINUX MBR (2.10)
 # http://www.acronis.de/
->362	string	MBR\ Error\ \0\r			
->>376	string	ress\ any\ key\ to\ 			
+>362	string	MBR\ Error\ \0\r
+>>376	string	ress\ any\ key\ to\
 >>>392	string	boot\ from\ floppy...\0			\b, Acronis MBR
 # added by Joerg Jenderek
 # http://www.visopsys.org/
 # http://partitionlogic.org.uk/
->309	string	No\ bootable\ partition\ found\r	
+>309	string	No\ bootable\ partition\ found\r
 >>339	string	I/O\ Error\ reading\ boot\ sector\r	\b, Visopsys MBR
->349	string	No\ bootable\ partition\ found\r	
+>349	string	No\ bootable\ partition\ found\r
 >>379	string	I/O\ Error\ reading\ boot\ sector\r	\b, simple Visopsys MBR
 # bootloader, bootmanager
->0x40	string	SBML				
+>0x40	string	SBML
 # label with 11 characters of FAT 12 bit filesystem
->>43	string	SMART\ BTMGR			
->>>430	string	SBMK\ Bad!\r			
+>>43	string	SMART\ BTMGR
+>>>430	string	SBMK\ Bad!\r
 >>>>3	string	SBM				\b, Smart Boot Manager
 >>>>>6	string	>\0                             \b, version %s
 >382	string	XOSLLOADXCF			\b, eXtended Operating System Loader
@@ -4505,10 +4505,10 @@
 # variables according to grub-0.97/stage1/stage1.S or
 # http://www.gnu.org/software/grub/manual/grub.html#Embedded-data
 # usual values are marked with comments to get only informations of strange GRUB loaders
->0		ulelong		0x009048EB	
->>0x41		ubyte		<2		
+>0		ulelong		0x009048EB
+>>0x41		ubyte		<2
 >>>0x3E		ubyte		>2		\b; GRand Unified Bootloader
-# 0x3 for 0.5.95,0.93,0.94,0.96 0x4 for 1.90 
+# 0x3 for 0.5.95,0.93,0.94,0.96 0x4 for 1.90
 >>>>0x3E	ubyte		x		\b, stage1 version 0x%x
 #If it is 0xFF, use a drive passed by BIOS
 >>>>0x40	ubyte		<0xFF		\b, boot drive 0x%x
@@ -4533,34 +4533,34 @@
 >>>>391		string	Geom\0Hard\ Disk\0Read\0\ Error\0
 >>>>>385	string	GRUB\ \0		\b, GRUB version 0.97
 #unkown version
->>>343		string	Geom\0Read\0\ Error\0	
+>>>343		string	Geom\0Read\0\ Error\0
 >>>>321		string	Loading\ stage1.5	\b, GRUB version x.y
 >>>380		string	Geom\0Hard\ Disk\0Read\0\ Error\0
 >>>>374		string	GRUB\ \0		\b, GRUB version n.m
 # http://syslinux.zytor.com/
->478	string	Boot\ failed\r			
+>478	string	Boot\ failed\r
 >>495	string	LDLINUX\ SYS			\b, SYSLINUX bootloader (1.62)
->480	string	Boot\ failed\r			
+>480	string	Boot\ failed\r
 >>495	string	LDLINUX\ SYS			\b, SYSLINUX bootloader (2.06 or 2.11)
 >484	string	Boot\ error\r			\b, SYSLINUX bootloader (3.11)
 >395	string	chksum\0\ ERROR!\0		\b, Gujin bootloader
 # http://www.bcdwb.de/bcdw/index_e.htm
->3	string	BCDL				
+>3	string	BCDL
 >>498	string	BCDL\ \ \ \ BIN			\b, Bootable CD Loader (1.50Z)
 # mbr partion table entries
 # OEM-ID not Microsoft,SYSLINUX,or MTOOLs
->3			string		!MS	
+>3			string		!MS
 >>3			string		!SYSLINUX
 >>>3			string		!MTOOL
 # not FAT (32 bit)
->>>>82			string		!FAT32	
+>>>>82			string		!FAT32
 #not IO.SYS
 >>>>>472		string		!IO\ \ \ \ \ \ SYS
 #not Linux kernel
->>>>>>514		string		!HdrS		
+>>>>>>514		string		!HdrS
 # active flag 0 or 0x80 and type > 0
->>>>>>>446		ubyte		<0x81	
->>>>>>>>446		ubyte&0x7F	0	
+>>>>>>>446		ubyte		<0x81
+>>>>>>>>446		ubyte&0x7F	0
 >>>>>>>>>>>450		ubyte		>0	\b; partition 1: ID=0x%x
 >>>>>>>>>>446		ubyte		0x80	\b, active
 >>>>>>>>>>447		ubyte		x	\b, starthead %u
@@ -4569,8 +4569,8 @@
 >>>>>>>>>>454		ulelong		x	\b, startsector %u
 >>>>>>>>>>458		ulelong		x	\b, %u sectors
 #
->>>>>>>462		ubyte		<0x81	
->>>>>>>>462		ubyte&0x7F	0		
+>>>>>>>462		ubyte		<0x81
+>>>>>>>>462		ubyte&0x7F	0
 >>>>>>>>>466		ubyte		>0	\b; partition 2: ID=0x%x
 >>>>>>>>>>462		ubyte		0x80	\b, active
 >>>>>>>>>>463		ubyte		x	\b, starthead %u
@@ -4579,8 +4579,8 @@
 >>>>>>>>>>470		ulelong		x	\b, startsector %u
 >>>>>>>>>>474		ulelong		x	\b, %u sectors
 #
->>>>>>>478		ubyte		<0x81		
->>>>>>>>478		ubyte&0x7F	0		
+>>>>>>>478		ubyte		<0x81
+>>>>>>>>478		ubyte&0x7F	0
 >>>>>>>>>482		ubyte		>0	\b; partition 3: ID=0x%x
 >>>>>>>>>>478		ubyte		0x80	\b, active
 >>>>>>>>>>479		ubyte		x	\b, starthead %u
@@ -4590,8 +4590,8 @@
 >>>>>>>>>>486		ulelong		x	\b, startsector %u
 >>>>>>>>>>490		ulelong		x	\b, %u sectors
 #
->>>>>>>494		ubyte		<0x81	
->>>>>>>>494		ubyte&0x7F	0		
+>>>>>>>494		ubyte		<0x81
+>>>>>>>>494		ubyte&0x7F	0
 >>>>>>>>>498		ubyte		>0	\b; partition 4: ID=0x%x
 >>>>>>>>>>494		ubyte		0x80	\b, active
 >>>>>>>>>>495		ubyte		x	\b, starthead %u
@@ -4603,413 +4603,413 @@
 # http://www.acronis.de/
 #FAT label=ACRONIS\ SZ
 #OEM-ID=BOOTWIZ0
->442	string	Non-system\ disk,\ 	
+>442	string	Non-system\ disk,\
 >>459	string	press\ any\ key...\x7\0		\b, Acronis Startup Recovery Loader
 # DOS names like F11.SYS are 8 right space padded bytes+3 bytes
->>>477		ubyte&0xDF	>0		
+>>>477		ubyte&0xDF	>0
 >>>>477		string		x 		\b %-.3s
->>>>>480	ubyte&0xDF	>0		
+>>>>>480	ubyte&0xDF	>0
 >>>>>>480	string		x 		\b%-.5s
->>>>485		ubyte&0xDF	>0		
+>>>>485		ubyte&0xDF	>0
 >>>>>485	string		x 		\b.%-.3s
 #
->185	string	FDBOOT\ Version\ 			
->>204	string	\rNo\ Systemdisk.\ 			
->>>220	string	Booting\ from\ harddisk.\n\r		
->>>245	string	Cannot\ load\ from\ harddisk.\n\r	
->>>>273 string	Insert\ Systemdisk\ 			
+>185	string	FDBOOT\ Version\
+>>204	string	\rNo\ Systemdisk.\
+>>>220	string	Booting\ from\ harddisk.\n\r
+>>>245	string	Cannot\ load\ from\ harddisk.\n\r
+>>>>273 string	Insert\ Systemdisk\
 >>>>>291 string and\ press\ any\ key.\n\r		\b, FDBOOT harddisk Bootloader
 >>>>>>200 string	>\0                             \b, version %-3s
->242	string	Bootsector\ from\ C.H.\ Hochst\204	
->>278	string	No\ Systemdisk.\ 			
->>>293	string	Booting\ from\ harddisk.\n\r		
->>>441	string	Cannot\ load\ from\ harddisk.\n\r	
->>>>469 string	Insert\ Systemdisk\ 			
+>242	string	Bootsector\ from\ C.H.\ Hochst\204
+>>278	string	No\ Systemdisk.\
+>>>293	string	Booting\ from\ harddisk.\n\r
+>>>441	string	Cannot\ load\ from\ harddisk.\n\r
+>>>>469 string	Insert\ Systemdisk\
 >>>>>487 string and\ press\ any\ key.\n\r		\b, WinImage harddisk Bootloader
 >>>>>>209 string	>\0                             \b, version %-4.4s
->(1.b+2)	ubyte		0xe			
->>(1.b+3)	ubyte		0x1f			
->>>(1.b+4)	ubyte		0xbe			
->>>>(1.b+5)	ubyte		0x77			
->>>>(1.b+6)	ubyte		0x7c			
->>>>>(1.b+7)	ubyte		0xac			
->>>>>>(1.b+8)	ubyte		0x22			
->>>>>>>(1.b+9)	ubyte		0xc0			
->>>>>>>>(1.b+10)	ubyte	0x74			
->>>>>>>>>(1.b+11)	ubyte	0xb			
->>>>>>>>>>(1.b+12)	ubyte	0x56			
+>(1.b+2)	ubyte		0xe
+>>(1.b+3)	ubyte		0x1f
+>>>(1.b+4)	ubyte		0xbe
+>>>>(1.b+5)	ubyte		0x77
+>>>>(1.b+6)	ubyte		0x7c
+>>>>>(1.b+7)	ubyte		0xac
+>>>>>>(1.b+8)	ubyte		0x22
+>>>>>>>(1.b+9)	ubyte		0xc0
+>>>>>>>>(1.b+10)	ubyte	0x74
+>>>>>>>>>(1.b+11)	ubyte	0xb
+>>>>>>>>>>(1.b+12)	ubyte	0x56
 >>>>>>>>>>(1.b+13)	ubyte	0xb4			\b, mkdosfs boot message display
->103	string	This\ is\ not\ a\ bootable\ disk.\ 	
->>132	string	Please\ insert\ a\ bootable\ 		
->>>157	string	floppy\ and\r\n				
+>103	string	This\ is\ not\ a\ bootable\ disk.\
+>>132	string	Please\ insert\ a\ bootable\
+>>>157	string	floppy\ and\r\n
 >>>>169	string	press\ any\ key\ to\ try\ again...\r	\b, FREE-DOS message display
 #
->66	string	Solaris\ Boot\ Sector    		
->>99	string	Incomplete\ MDBoot\ load.		
+>66	string	Solaris\ Boot\ Sector
+>>99	string	Incomplete\ MDBoot\ load.
 >>>89	string	Version 				\b, Sun Solaris Bootloader
 >>>>97	byte	x					version %c
 #
->408	string	OS/2\ !!\ SYS01475\r\0			
->>429	string	OS/2\ !!\ SYS02025\r\0			
->>>450	string	OS/2\ !!\ SYS02027\r\0			
+>408	string	OS/2\ !!\ SYS01475\r\0
+>>429	string	OS/2\ !!\ SYS02025\r\0
+>>>450	string	OS/2\ !!\ SYS02027\r\0
 >>>469	string	OS2BOOT\ \ \ \ 				\b, IBM OS/2 Warp bootloader
 #
->409	string	OS/2\ !!\ SYS01475\r\0			
->>430	string	OS/2\ !!\ SYS02025\r\0			
->>>451	string	OS/2\ !!\ SYS02027\r\0			
+>409	string	OS/2\ !!\ SYS01475\r\0
+>>430	string	OS/2\ !!\ SYS02025\r\0
+>>>451	string	OS/2\ !!\ SYS02027\r\0
 >>>470	string	OS2BOOT\ \ \ \ 				\b, IBM OS/2 Warp Bootloader
->112		string	This\ disk\ is\ not\ bootable\r			
->>142		string	If\ you\ wish\ to\ make\ it\ bootable		
->>>176		string	run\ the\ DOS\ program\ SYS\  			
->>>200		string	after\ the\r					
->>>>216		string	system\ has\ been\ loaded\r\n			
->>>>>242	string	Please\ insert\ a\ DOS\ diskette\ 		
->>>>>271	string	into\r\n\ the\ drive\ and\ 			
+>112		string	This\ disk\ is\ not\ bootable\r
+>>142		string	If\ you\ wish\ to\ make\ it\ bootable
+>>>176		string	run\ the\ DOS\ program\ SYS\
+>>>200		string	after\ the\r
+>>>>216		string	system\ has\ been\ loaded\r\n
+>>>>>242	string	Please\ insert\ a\ DOS\ diskette\
+>>>>>271	string	into\r\n\ the\ drive\ and\
 >>>>>>292	string	strike\ any\ key...\0		\b, IBM OS/2 Warp message display
 # XP
->430	string	NTLDR\ is\ missing\xFF\r\n		
->>449	string	Disk\ error\xFF\r\n			
+>430	string	NTLDR\ is\ missing\xFF\r\n
+>>449	string	Disk\ error\xFF\r\n
 >>>462	string	Press\ any\ key\ to\ restart\r		\b, Microsoft Windows XP Bootloader
 # DOS names like NTLDR,CMLDR,$LDR$ are 8 right space padded bytes+3 bytes
->>>>417		ubyte&0xDF	>0			
+>>>>417		ubyte&0xDF	>0
 >>>>>417	string		x			%-.5s
->>>>>>422	ubyte&0xDF	>0			
+>>>>>>422	ubyte&0xDF	>0
 >>>>>>>422	string		x 			\b%-.3s
->>>>>425	ubyte&0xDF	>0			
+>>>>>425	ubyte&0xDF	>0
 >>>>>>425	string		>\ 			\b.%-.3s
 #
->>>>371		ubyte		>0x20			
->>>>>368	ubyte&0xDF	>0			
+>>>>371		ubyte		>0x20
+>>>>>368	ubyte&0xDF	>0
 >>>>>>368	string		x 			%-.5s
->>>>>>>373	ubyte&0xDF	>0			
+>>>>>>>373	ubyte&0xDF	>0
 >>>>>>>>373	string		x 			\b%-.3s
->>>>>>376	ubyte&0xDF	>0			
+>>>>>>376	ubyte&0xDF	>0
 >>>>>>>376	string		x 			\b.%-.3s
 #
->430	string	NTLDR\ nicht\ gefunden\xFF\r\n		
->>453	string	Datentr\204gerfehler\xFF\r\n		
+>430	string	NTLDR\ nicht\ gefunden\xFF\r\n
+>>453	string	Datentr\204gerfehler\xFF\r\n
 >>>473	string	Neustart\ mit\ beliebiger\ Taste\r	\b, Microsoft Windows XP Bootloader (german)
->>>>417		ubyte&0xDF	>0			
+>>>>417		ubyte&0xDF	>0
 >>>>>417	string		x			%-.5s
->>>>>>422	ubyte&0xDF	>0			
+>>>>>>422	ubyte&0xDF	>0
 >>>>>>>422	string		x 			\b%-.3s
->>>>>425	ubyte&0xDF	>0			
+>>>>>425	ubyte&0xDF	>0
 >>>>>>425	string		>\ 			\b.%-.3s
 # offset variant
->>>>379	string	\0					
->>>>>368	ubyte&0xDF	>0			
+>>>>379	string	\0
+>>>>>368	ubyte&0xDF	>0
 >>>>>>368	string		x 			%-.5s
->>>>>>>373	ubyte&0xDF	>0			
+>>>>>>>373	ubyte&0xDF	>0
 >>>>>>>>373	string		x 			\b%-.3s
 #
->430	string	NTLDR\ fehlt\xFF\r\n			
->>444	string	Datentr\204gerfehler\xFF\r\n		
+>430	string	NTLDR\ fehlt\xFF\r\n
+>>444	string	Datentr\204gerfehler\xFF\r\n
 >>>464	string	Neustart\ mit\ beliebiger\ Taste\r	\b, Microsoft Windows XP Bootloader (2.german)
->>>>417		ubyte&0xDF	>0			
+>>>>417		ubyte&0xDF	>0
 >>>>>417	string		x			%-.5s
->>>>>>422	ubyte&0xDF	>0			
+>>>>>>422	ubyte&0xDF	>0
 >>>>>>>422	string		x 			\b%-.3s
->>>>>425	ubyte&0xDF	>0			
+>>>>>425	ubyte&0xDF	>0
 >>>>>>425	string		>\ 			\b.%-.3s
 # variant
->>>>371		ubyte		>0x20			
->>>>>368	ubyte&0xDF	>0			
+>>>>371		ubyte		>0x20
+>>>>>368	ubyte&0xDF	>0
 >>>>>>368	string		x 			%-.5s
->>>>>>>373	ubyte&0xDF	>0			
+>>>>>>>373	ubyte&0xDF	>0
 >>>>>>>>373	string		x 			\b%-.3s
->>>>>>376	ubyte&0xDF	>0			
+>>>>>>376	ubyte&0xDF	>0
 >>>>>>>376	string		x 			\b.%-.3s
 #
->430	string	NTLDR\ fehlt\xFF\r\n			
->>444	string	Medienfehler\xFF\r\n			
+>430	string	NTLDR\ fehlt\xFF\r\n
+>>444	string	Medienfehler\xFF\r\n
 >>>459	string	Neustart:\ Taste\ dr\201cken\r		\b, Microsoft Windows XP Bootloader (3.german)
->>>>371		ubyte		>0x20			
->>>>>368	ubyte&0xDF	>0			
+>>>>371		ubyte		>0x20
+>>>>>368	ubyte&0xDF	>0
 >>>>>>368	string		x 			%-.5s
->>>>>>>373	ubyte&0xDF	>0			
+>>>>>>>373	ubyte&0xDF	>0
 >>>>>>>>373	string		x 			\b%-.3s
->>>>>>376	ubyte&0xDF	>0			
+>>>>>>376	ubyte&0xDF	>0
 >>>>>>>376	string		x 			\b.%-.3s
 # variant
->>>>417		ubyte&0xDF	>0			
+>>>>417		ubyte&0xDF	>0
 >>>>>417	string		x			%-.5s
->>>>>>422	ubyte&0xDF	>0			
+>>>>>>422	ubyte&0xDF	>0
 >>>>>>>422	string		x 			\b%-.3s
->>>>>425	ubyte&0xDF	>0			
+>>>>>425	ubyte&0xDF	>0
 >>>>>>425	string		>\ 			\b.%-.3s
 #
->430	string	Datentr\204ger\ entfernen\xFF\r\n	
->>454	string	Medienfehler\xFF\r\n			
+>430	string	Datentr\204ger\ entfernen\xFF\r\n
+>>454	string	Medienfehler\xFF\r\n
 >>>469	string	Neustart:\ Taste\ dr\201cken\r		\b, Microsoft Windows XP Bootloader (4.german)
->>>>368		ubyte&0xDF	>0			
+>>>>368		ubyte&0xDF	>0
 >>>>>368	string		x 			%-.5s
->>>>>>373	ubyte&0xDF	>0			
+>>>>>>373	ubyte&0xDF	>0
 >>>>>>>373	string		x 			\b%-.3s
->>>>>376	ubyte&0xDF	>0			
+>>>>>376	ubyte&0xDF	>0
 >>>>>>376	string		x 			\b.%-.3s
-#>3	string	NTFS\ \ \ \ 				
->389	string	Fehler\ beim\ Lesen\ 
+#>3	string	NTFS\ \ \ \
+>389	string	Fehler\ beim\ Lesen\
 >>407	string	des\ Datentr\204gers
->>>426	string	NTLDR\ fehlt				
+>>>426	string	NTLDR\ fehlt
 >>>>440	string	NTLDR\ ist\ komprimiert
 >>>>>464 string	Neustart\ mit\ Strg+Alt+Entf\r		\b, Microsoft Windows XP Bootloader NTFS (german)
-#>3	string	NTFS\ \ \ \ 				
+#>3	string	NTFS\ \ \ \
 >313	string	A\ disk\ read\ error\ occurred.\r
->>345	string	A\ kernel\ file\ is\ missing\ 	
->>>370	string	from\ the\ disk.\r		
->>>>484	string	NTLDR\ is\ compressed		
->>>>>429 string	Insert\ a\ system\ diskette\ 	
+>>345	string	A\ kernel\ file\ is\ missing\
+>>>370	string	from\ the\ disk.\r
+>>>>484	string	NTLDR\ is\ compressed
+>>>>>429 string	Insert\ a\ system\ diskette\
 >>>>>>454 string and\ restart\r\nthe\ system.\r		\b, Microsoft Windows XP Bootloader NTFS
 # DOS loader variants different languages,offsets
 >472	ubyte&0xDF	>0
->>389	string	Invalid\ system\ disk\xFF\r\n		
->>>411	string	Disk\ I/O\ error			
->>>>428	string	Replace\ the\ disk,\ and\ 		
+>>389	string	Invalid\ system\ disk\xFF\r\n
+>>>411	string	Disk\ I/O\ error
+>>>>428	string	Replace\ the\ disk,\ and\
 >>>>>455 string	press\ any\ key				\b, Microsoft Windows 98 Bootloader
 #IO.SYS
->>>>>>472	ubyte&0xDF	>0			
+>>>>>>472	ubyte&0xDF	>0
 >>>>>>>472	string		x 			\b %-.2s
->>>>>>>>474	ubyte&0xDF	>0			
+>>>>>>>>474	ubyte&0xDF	>0
 >>>>>>>>>474	string		x 			\b%-.5s
->>>>>>>>>>479	ubyte&0xDF	>0			
+>>>>>>>>>>479	ubyte&0xDF	>0
 >>>>>>>>>>>479 string		x 			\b%-.1s
->>>>>>>480	ubyte&0xDF	>0			
+>>>>>>>480	ubyte&0xDF	>0
 >>>>>>>>480	string		x 			\b.%-.3s
 #MSDOS.SYS
 >>>>>>>483	ubyte&0xDF	>0			\b+
 >>>>>>>>483	string		x 			\b%-.5s
->>>>>>>>>488	ubyte&0xDF	>0			
+>>>>>>>>>488	ubyte&0xDF	>0
 >>>>>>>>>>488	string		x 			\b%-.3s
->>>>>>>>491	ubyte&0xDF	>0			
+>>>>>>>>491	ubyte&0xDF	>0
 >>>>>>>>>491	string		x 			\b.%-.3s
 #
->>390	string	Invalid\ system\ disk\xFF\r\n		
->>>412	string	Disk\ I/O\ error\xFF\r\n		
->>>>429	string	Replace\ the\ disk,\ and\ 		
+>>390	string	Invalid\ system\ disk\xFF\r\n
+>>>412	string	Disk\ I/O\ error\xFF\r\n
+>>>>429	string	Replace\ the\ disk,\ and\
 >>>>>451 string	then\ press\ any\ key\r			\b, Microsoft Windows 98 Bootloader
->>388	string	Ungueltiges\ System\ \xFF\r\n		
->>>410	string	E/A-Fehler\ \ \ \ \xFF\r\n		
->>>>427	string	Datentraeger\ wechseln\ und\ 		
+>>388	string	Ungueltiges\ System\ \xFF\r\n
+>>>410	string	E/A-Fehler\ \ \ \ \xFF\r\n
+>>>>427	string	Datentraeger\ wechseln\ und\
 >>>>>453 string	Taste\ druecken\r			\b, Microsoft Windows 95/98/ME Bootloader (german)
 #WINBOOT.SYS only not spaces (0xDF)
->>>>>>497	ubyte&0xDF	>0			
+>>>>>>497	ubyte&0xDF	>0
 >>>>>>>497	string		x 			%-.5s
->>>>>>>>502	ubyte&0xDF	>0			
+>>>>>>>>502	ubyte&0xDF	>0
 >>>>>>>>>502	string		x 			\b%-.1s
->>>>>>>>>>503	ubyte&0xDF	>0			
+>>>>>>>>>>503	ubyte&0xDF	>0
 >>>>>>>>>>>503	string		x 			\b%-.1s
->>>>>>>>>>>>504	ubyte&0xDF	>0			
+>>>>>>>>>>>>504	ubyte&0xDF	>0
 >>>>>>>>>>>>>504 string		x 			\b%-.1s
->>>>>>505	ubyte&0xDF	>0			
+>>>>>>505	ubyte&0xDF	>0
 >>>>>>>505	string		x 			\b.%-.3s
 #IO.SYS
 >>>>>>472	ubyte&0xDF	>0			or
 >>>>>>>472	string		x 			\b %-.2s
->>>>>>>>474	ubyte&0xDF	>0			
+>>>>>>>>474	ubyte&0xDF	>0
 >>>>>>>>>474	string		x 			\b%-.5s
->>>>>>>>>>479	ubyte&0xDF	>0			
+>>>>>>>>>>479	ubyte&0xDF	>0
 >>>>>>>>>>>479 string		x 			\b%-.1s
->>>>>>>480	ubyte&0xDF	>0			
+>>>>>>>480	ubyte&0xDF	>0
 >>>>>>>>480	string		x 			\b.%-.3s
 #MSDOS.SYS
 >>>>>>>483	ubyte&0xDF	>0			\b+
 >>>>>>>>483	string		x 			\b%-.5s
->>>>>>>>>488	ubyte&0xDF	>0			
+>>>>>>>>>488	ubyte&0xDF	>0
 >>>>>>>>>>488	string		x 			\b%-.3s
->>>>>>>>491	ubyte&0xDF	>0			
+>>>>>>>>491	ubyte&0xDF	>0
 >>>>>>>>>491	string		x 			\b.%-.3s
 #
->>390	string	Ungueltiges\ System\ \xFF\r\n		
->>>412	string	E/A-Fehler\ \ \ \ \xFF\r\n		
->>>>429	string	Datentraeger\ wechseln\ und\ 		
+>>390	string	Ungueltiges\ System\ \xFF\r\n
+>>>412	string	E/A-Fehler\ \ \ \ \xFF\r\n
+>>>>429	string	Datentraeger\ wechseln\ und\
 >>>>>455 string	Taste\ druecken\r			\b, Microsoft Windows 95/98/ME Bootloader (German)
 #WINBOOT.SYS only not spaces (0xDF)
->>>>>>497	ubyte&0xDF	>0			
+>>>>>>497	ubyte&0xDF	>0
 >>>>>>>497	string		x 			%-.7s
->>>>>>>>504	ubyte&0xDF	>0			
+>>>>>>>>504	ubyte&0xDF	>0
 >>>>>>>>>504	string		x 			\b%-.1s
->>>>>>505	ubyte&0xDF	>0			
+>>>>>>505	ubyte&0xDF	>0
 >>>>>>>505	string		x 			\b.%-.3s
 #IO.SYS
 >>>>>>472	ubyte&0xDF	>0			or
 >>>>>>>472	string		x 			\b %-.2s
->>>>>>>>474	ubyte&0xDF	>0			
+>>>>>>>>474	ubyte&0xDF	>0
 >>>>>>>>>474	string		x 			\b%-.6s
->>>>>>>480	ubyte&0xDF	>0			
+>>>>>>>480	ubyte&0xDF	>0
 >>>>>>>>480	string		x 			\b.%-.3s
 #MSDOS.SYS
 >>>>>>>483	ubyte&0xDF	>0			\b+
 >>>>>>>>483	string		x 			\b%-.5s
->>>>>>>>>488	ubyte&0xDF	>0			
+>>>>>>>>>488	ubyte&0xDF	>0
 >>>>>>>>>>488	string		x 			\b%-.3s
->>>>>>>>491	ubyte&0xDF	>0			
+>>>>>>>>491	ubyte&0xDF	>0
 >>>>>>>>>491	string		x 			\b.%-.3s
 #
->>389	string	Ungueltiges\ System\ \xFF\r\n		
->>>411	string	E/A-Fehler\ \ \ \ \xFF\r\n		
->>>>428	string	Datentraeger\ wechseln\ und\ 		
+>>389	string	Ungueltiges\ System\ \xFF\r\n
+>>>411	string	E/A-Fehler\ \ \ \ \xFF\r\n
+>>>>428	string	Datentraeger\ wechseln\ und\
 >>>>>454 string	Taste\ druecken\r			\b, Microsoft Windows 95/98/ME Bootloader (GERMAN)
 # DOS names like IO.SYS,WINBOOT.SYS,MSDOS.SYS,WINBOOT.INI are 8 right space padded bytes+3 bytes
 >>>>>>472	string		x 			%-.2s
->>>>>>>474	ubyte&0xDF	>0			
+>>>>>>>474	ubyte&0xDF	>0
 >>>>>>>>474	string		x 			\b%-.5s
->>>>>>>>479	ubyte&0xDF	>0			
+>>>>>>>>479	ubyte&0xDF	>0
 >>>>>>>>>479	string		x 			\b%-.1s
->>>>>>480	ubyte&0xDF	>0			
+>>>>>>480	ubyte&0xDF	>0
 >>>>>>>480	string		x 			\b.%-.3s
 >>>>>>483	ubyte&0xDF	>0			\b+
 >>>>>>>483	string		x 			\b%-.5s
->>>>>>>488	ubyte&0xDF	>0			
+>>>>>>>488	ubyte&0xDF	>0
 >>>>>>>>488	string		x 			\b%-.2s
->>>>>>>>490	ubyte&0xDF	>0			
+>>>>>>>>490	ubyte&0xDF	>0
 >>>>>>>>>490	string		x 			\b%-.1s
->>>>>>>491	ubyte&0xDF	>0			
+>>>>>>>491	ubyte&0xDF	>0
 >>>>>>>>491	string		x 			\b.%-.3s
 >479	ubyte&0xDF	>0
->>416	string	Kein\ System\ oder\ 			
->>>433	string	Laufwerksfehler				
+>>416	string	Kein\ System\ oder\
+>>>433	string	Laufwerksfehler
 >>>>450	string	Wechseln\ und\ Taste\ dr\201cken	\b, Microsoft DOS Bootloader (german)
 #IO.SYS
 >>>>>479	string		x 			\b %-.2s
->>>>>>481	ubyte&0xDF	>0			
+>>>>>>481	ubyte&0xDF	>0
 >>>>>>>481	string		x 			\b%-.6s
->>>>>487	ubyte&0xDF	>0			
+>>>>>487	ubyte&0xDF	>0
 >>>>>>487	string		x 			\b.%-.3s
 #MSDOS.SYS
 >>>>>>490	ubyte&0xDF	>0			\b+
 >>>>>>>490	string		x 			\b%-.5s
->>>>>>>>495	ubyte&0xDF	>0			
+>>>>>>>>495	ubyte&0xDF	>0
 >>>>>>>>>495	string		x 			\b%-.3s
->>>>>>>498	ubyte&0xDF	>0			
+>>>>>>>498	ubyte&0xDF	>0
 >>>>>>>>498	string		x 			\b.%-.3s
 #
 >486	ubyte&0xDF	>0
->>416	string	Non-System\ disk\ or\ 			
->>>435	string	disk\ error\r				
->>>>447	string	Replace\ and\ press\ any\ key\ 		
+>>416	string	Non-System\ disk\ or\
+>>>435	string	disk\ error\r
+>>>>447	string	Replace\ and\ press\ any\ key\
 >>>>>473 string	when\ ready\r				\b, Microsoft DOS Bootloader
->480	ubyte&0xDF	>0			
->>393	string	Non-System\ disk\ or\ 			
->>>412	string	disk\ error\r				
->>>>424	string	Replace\ and\ press\ any\ key\ 		
+>480	ubyte&0xDF	>0
+>>393	string	Non-System\ disk\ or\
+>>>412	string	disk\ error\r
+>>>>424	string	Replace\ and\ press\ any\ key\
 >>>>>450 string	when\ ready\r				\b, Microsoft DOS bootloader
 #IO.SYS
 >>>>>480	string		x 			\b %-.2s
->>>>>>482	ubyte&0xDF	>0			
+>>>>>>482	ubyte&0xDF	>0
 >>>>>>>48	string		x 			\b%-.6s
->>>>>488	ubyte&0xDF	>0			
+>>>>>488	ubyte&0xDF	>0
 >>>>>>488	string		x 			\b.%-.3s
 #MSDOS.SYS
 >>>>>>491	ubyte&0xDF	>0			\b+
 >>>>>>>491	string		x 			\b%-.5s
->>>>>>>>496	ubyte&0xDF	>0			
+>>>>>>>>496	ubyte&0xDF	>0
 >>>>>>>>>496	string		x 			\b%-.3s
->>>>>>>499	ubyte&0xDF	>0			
+>>>>>>>499	ubyte&0xDF	>0
 >>>>>>>>499	string		x 			\b.%-.3s
-#>43	string	\224R-LOADER\ \ SYS			=label					
+#>43	string	\224R-LOADER\ \ SYS			=label
 >54	string	SYS
 >>324	string	VASKK
 >>>495	string	NEWLDR\0				\b, DR-DOS Bootloader (LOADER.SYS)
 #
->70	string	IBMBIO\ \ COM				
->>472	string	Cannot\ load\ DOS!\ 			
+>70	string	IBMBIO\ \ COM
+>>472	string	Cannot\ load\ DOS!\
 >>>489	string	Any\ key\ to\ retry			\b, DR-DOS Bootloader
->>471	string	Cannot\ load\ DOS\ 			
+>>471	string	Cannot\ load\ DOS\
 >>487	string	press\ key\ to\ retry			\b, Open-DOS Bootloader
->444	string	KERNEL\ \ SYS					
+>444	string	KERNEL\ \ SYS
 >>314	string	BOOT\ error!				\b, FREE-DOS Bootloader
->499	string	KERNEL\ \ SYS				
+>499	string	KERNEL\ \ SYS
 >>305	string	BOOT\ err!\0				\b, Free-DOS Bootloader
->449	string	KERNEL\ \ SYS				
+>449	string	KERNEL\ \ SYS
 >>319	string	BOOT\ error!				\b, FREE-DOS 0.5 Bootloader
->125	string	Loading\ FreeDOS...\r			
+>125	string	Loading\ FreeDOS...\r
 >>311	string	BOOT\ error!\r				\b, FREE-DOS bootloader
->>>441		ubyte&0xDF	>0			
+>>>441		ubyte&0xDF	>0
 >>>>441		string		x 			\b %-.6s
->>>>>447	ubyte&0xDF	>0			
+>>>>>447	ubyte&0xDF	>0
 >>>>>>447	string		x 			\b%-.1s
->>>>>>>448	ubyte&0xDF	>0			
+>>>>>>>448	ubyte&0xDF	>0
 >>>>>>>>448	string		x 			\b%-.1s
->>>>449		ubyte&0xDF	>0			
+>>>>449		ubyte&0xDF	>0
 >>>>>449	string		x 			\b.%-.3s
->124	string	FreeDOS\0				
+>124	string	FreeDOS\0
 >>331	string	\ err\0					\b, FREE-DOS BETa 0.9 Bootloader
 # DOS names like KERNEL.SYS,KERNEL16.SYS,KERNEL32.SYS,METAKERN.SYS are 8 right space padded bytes+3 bytes
->>>497		ubyte&0xDF	>0			
+>>>497		ubyte&0xDF	>0
 >>>>497		string		x 			\b %-.6s
->>>>>503	ubyte&0xDF	>0			
+>>>>>503	ubyte&0xDF	>0
 >>>>>>503	string		x 			\b%-.1s
->>>>>>>504	ubyte&0xDF	>0			
+>>>>>>>504	ubyte&0xDF	>0
 >>>>>>>>504	string		x 			\b%-.1s
->>>>505		ubyte&0xDF	>0			
+>>>>505		ubyte&0xDF	>0
 >>>>>505	string		x 			\b.%-.3s
 >>333	string	\ err\0					\b, FREE-DOS BEta 0.9 Bootloader
->>>497		ubyte&0xDF	>0			
+>>>497		ubyte&0xDF	>0
 >>>>497		string		x 			\b %-.6s
->>>>>503	ubyte&0xDF	>0			
+>>>>>503	ubyte&0xDF	>0
 >>>>>>503	string		x 			\b%-.1s
->>>>>>>504	ubyte&0xDF	>0			
+>>>>>>>504	ubyte&0xDF	>0
 >>>>>>>>504	string		x 			\b%-.1s
->>>>505		ubyte&0xDF	>0			
+>>>>505		ubyte&0xDF	>0
 >>>>>505	string		x 			\b.%-.3s
 >>334	string	\ err\0					\b, FREE-DOS Beta 0.9 Bootloader
->>>497		ubyte&0xDF	>0			
+>>>497		ubyte&0xDF	>0
 >>>>497		string		x 			\b %-.6s
->>>>>503	ubyte&0xDF	>0			
+>>>>>503	ubyte&0xDF	>0
 >>>>>>503	string		x 			\b%-.1s
->>>>>>>504	ubyte&0xDF	>0			
+>>>>>>>504	ubyte&0xDF	>0
 >>>>>>>>504	string		x 			\b%-.1s
->>>>505		ubyte&0xDF	>0			
+>>>>505		ubyte&0xDF	>0
 >>>>>505	string		x 			\b.%-.3s
->336	string	Error!\ 				
+>336	string	Error!\
 >>343	string	Hit\ a\ key\ to\ reboot.		\b, FREE-DOS Beta 0.9sr1 Bootloader
->>>497		ubyte&0xDF	>0			
+>>>497		ubyte&0xDF	>0
 >>>>497		string		x 			\b %-.6s
->>>>>503	ubyte&0xDF	>0			
+>>>>>503	ubyte&0xDF	>0
 >>>>>>503	string		x 			\b%-.1s
->>>>>>>504	ubyte&0xDF	>0			
+>>>>>>>504	ubyte&0xDF	>0
 >>>>>>>>504	string		x 			\b%-.1s
->>>>505		ubyte&0xDF	>0			
+>>>>505		ubyte&0xDF	>0
 >>>>>505	string		x 			\b.%-.3s
 # added by Joerg Jenderek
 # http://www.visopsys.org/
 # http://partitionlogic.org.uk/
 # OEM-ID=Visopsys
->478		ulelong	0					
->>(1.b+326)	string	I/O\ Error\ reading\ 			
->>>(1.b+344)	string	Visopsys\ loader\r			
+>478		ulelong	0
+>>(1.b+326)	string	I/O\ Error\ reading\
+>>>(1.b+344)	string	Visopsys\ loader\r
 >>>>(1.b+361)	string	Press\ any\ key\ to\ continue.\r	\b, Visopsys loader
 # http://alexfru.chat.ru/epm.html#bootprog
->494	ubyte	>0x4D					
->>495	string	>E					
->>>495	string	<S					
+>494	ubyte	>0x4D
+>>495	string	>E
+>>>495	string	<S
 #OEM-ID is not reliable
->>>>3	string	BootProg				
+>>>>3	string	BootProg
 # It just looks for a program file name at the root directory
 # and loads corresponding file with following execution.
 # DOS names like STARTUP.BIN,STARTUPC.COM,STARTUPE.EXE are 8 right space padded bytes+3 bytes
 >>>>499			ubyte&0xDF	>0		\b, COM/EXE Bootloader
 >>>>>499		string		x 		\b %-.1s
->>>>>>500		ubyte&0xDF	>0		
+>>>>>>500		ubyte&0xDF	>0
 >>>>>>>500		string		x 		\b%-.1s
->>>>>>>>501		ubyte&0xDF	>0		
+>>>>>>>>501		ubyte&0xDF	>0
 >>>>>>>>>501		string		x 		\b%-.1s
->>>>>>>>>>502		ubyte&0xDF	>0		
+>>>>>>>>>>502		ubyte&0xDF	>0
 >>>>>>>>>>>502		string		x 		\b%-.1s
->>>>>>>>>>>>503		ubyte&0xDF	>0		
+>>>>>>>>>>>>503		ubyte&0xDF	>0
 >>>>>>>>>>>>>503	string		x 		\b%-.1s
->>>>>>>>>>>>>>504	ubyte&0xDF	>0		
+>>>>>>>>>>>>>>504	ubyte&0xDF	>0
 >>>>>>>>>>>>>>>504	string		x 		\b%-.1s
->>>>>>>>>>>>>>>>505	ubyte&0xDF	>0		
+>>>>>>>>>>>>>>>>505	ubyte&0xDF	>0
 >>>>>>>>>>>>>>>>>505	string		x 		\b%-.1s
->>>>>>>>>>>>>>>>>>506	ubyte&0xDF	>0		
+>>>>>>>>>>>>>>>>>>506	ubyte&0xDF	>0
 >>>>>>>>>>>>>>>>>>>506	string		x 		\b%-.1s
 #name extension
 >>>>>507		ubyte&0xDF	>0		\b.
 >>>>>>507		string		x 		\b%-.1s
->>>>>>>508		ubyte&0xDF	>0		
+>>>>>>>508		ubyte&0xDF	>0
 >>>>>>>>508		string		x 		\b%-.1s
->>>>>>>>>509		ubyte&0xDF	>0		
+>>>>>>>>>509		ubyte&0xDF	>0
 >>>>>>>>>>509		string		x 		\b%-.1s
 #If the boot sector fails to read any other sector,
 #it prints a very short message ("RE") to the screen and hangs the computer.
@@ -5018,36 +5018,36 @@
 >>>>>492		string		RENF		\b, FAT (12 bit)
 >>>>>495		string		RENF		\b, FAT (16 bit)
 # http://alexfru.chat.ru/epm.html#bootprog
->494	ubyte	>0x4D					
->>495	string	>E					
->>>495	string	<S					
+>494	ubyte	>0x4D
+>>495	string	>E
+>>>495	string	<S
 #OEM-ID is not reliable
->>>>3	string	BootProg				
+>>>>3	string	BootProg
 # It just looks for a program file name at the root directory
 # and loads corresponding file with following execution.
 # DOS names like STARTUP.BIN,STARTUPC.COM,STARTUPE.EXE are 8 right space padded bytes+3 bytes
 >>>>499			ubyte&0xDF	>0		\b, COM/EXE Bootloader
 >>>>>499		string		x 		\b %-.1s
->>>>>>500		ubyte&0xDF	>0		
+>>>>>>500		ubyte&0xDF	>0
 >>>>>>>500		string		x 		\b%-.1s
->>>>>>>>501		ubyte&0xDF	>0		
+>>>>>>>>501		ubyte&0xDF	>0
 >>>>>>>>>501		string		x 		\b%-.1s
->>>>>>>>>>502		ubyte&0xDF	>0		
+>>>>>>>>>>502		ubyte&0xDF	>0
 >>>>>>>>>>>502		string		x 		\b%-.1s
->>>>>>>>>>>>503		ubyte&0xDF	>0		
+>>>>>>>>>>>>503		ubyte&0xDF	>0
 >>>>>>>>>>>>>503	string		x 		\b%-.1s
->>>>>>>>>>>>>>504	ubyte&0xDF	>0		
+>>>>>>>>>>>>>>504	ubyte&0xDF	>0
 >>>>>>>>>>>>>>>504	string		x 		\b%-.1s
->>>>>>>>>>>>>>>>505	ubyte&0xDF	>0		
+>>>>>>>>>>>>>>>>505	ubyte&0xDF	>0
 >>>>>>>>>>>>>>>>>505	string		x 		\b%-.1s
->>>>>>>>>>>>>>>>>>506	ubyte&0xDF	>0		
+>>>>>>>>>>>>>>>>>>506	ubyte&0xDF	>0
 >>>>>>>>>>>>>>>>>>>506	string		x 		\b%-.1s
 #name extension
 >>>>>507		ubyte&0xDF	>0		\b.
 >>>>>>507		string		x 		\b%-.1s
->>>>>>>508		ubyte&0xDF	>0		
+>>>>>>>508		ubyte&0xDF	>0
 >>>>>>>>508		string		x 		\b%-.1s
->>>>>>>>>509		ubyte&0xDF	>0		
+>>>>>>>>>509		ubyte&0xDF	>0
 >>>>>>>>>>509		string		x 		\b%-.1s
 #If the boot sector fails to read any other sector,
 #it prints a very short message ("RE") to the screen and hangs the computer.
@@ -5057,23 +5057,23 @@
 >>>>>495		string		RENF		\b, FAT (16 bit)
 # loader end
 # Joerg Jenderek
->446	ubyte	0			
->>450	ubyte	>0			
->>>482	ubyte	0			
->>>>498	ubyte	0			
+>446	ubyte	0
+>>450	ubyte	>0
+>>>482	ubyte	0
+>>>>498	ubyte	0
 >>>>466	ubyte	0x05			\b, extended partition table
 >>>>466	ubyte	0x0F			\b, extended partition table (LBA)
->>>>466	ubyte	0x0			\b, extended partition table (last)	
+>>>>466	ubyte	0x0			\b, extended partition table (last)
 # JuMP short     bootcodeoffset NOP assembler instructions will usually be EB xx 90
 # older drives may use E9 xx xx
->0		lelong&0x009000EB	0x009000EB 
->0		lelong&0x000000E9	0x000000E9 
+>0		lelong&0x009000EB	0x009000EB
+>0		lelong&0x000000E9	0x000000E9
 >>1		ubyte			>37	\b, code offset 0x%x
 # mtools-3.9.8/msdos.h
 # usual values are marked with comments to get only informations of strange FAT systems
 # valid sectorsize are from 32 to 2048
->>>11		uleshort	<2049	
->>>>11		uleshort	>31	
+>>>11		uleshort	<2049
+>>>>11		uleshort	>31
 >>>>>3		string		>\0		\b, OEM-ID "%8.8s"
 >>>>>11		uleshort	>512		\b, Bytes/sector %u
 #>>>>>11	uleshort	=512		\b, Bytes/sector %u=512 (usual)
@@ -5091,7 +5091,7 @@
 >>>>>16		ubyte		>0
 >>>>>17		uleshort	>0		\b, root entries %u
 #>>>>>17	uleshort	=0		\b, root entries %u=0 (usual Fat32)
->>>>>19		uleshort	>0		\b, sectors %u (volumes <=32 MB) 
+>>>>>19		uleshort	>0		\b, sectors %u (volumes <=32 MB)
 #>>>>>19	uleshort	=0		\b, sectors %u=0 (usual Fat32)
 >>>>>21		ubyte		>0xF0		\b, Media descriptor 0x%x
 #>>>>>21	ubyte		=0xF0		\b, Media descriptor 0x%x (usual floppy)
@@ -5103,9 +5103,9 @@
 >>>>>26		ubyte		=1		\b, heads %u
 >>>>>28		ulelong		>0		\b, hidden sectors %u
 #>>>>>28	ulelong		=0		\b, hidden sectors %u (usual floppy)
->>>>>32		ulelong		>0		\b, sectors %u (volumes > 32 MB) 
-#>>>>>32	ulelong		=0		\b, sectors %u (volumes > 32 MB) 
-# FAT<32 specific 
+>>>>>32		ulelong		>0		\b, sectors %u (volumes > 32 MB)
+#>>>>>32	ulelong		=0		\b, sectors %u (volumes > 32 MB)
+# FAT<32 specific
 # NOT le FAT3=NOT 3TAF=0xCCABBEB9
 >>>>>82		ulelong&0xCCABBEB9	>0
 >>>>>>36	ubyte		>0x80		\b, physical drive 0x%x
@@ -5138,12 +5138,12 @@
 #>>>>>>48	uleshort	=1		\b, infoSector %u (usual)
 >>>>>>48	uleshort	<1		\b, infoSector %u
 >>>>>>50	uleshort	>6		\b, Backup boot sector %u
-#>>>>>>50	uleshort	=6		\b, Backup boot sector %u (usual) 
+#>>>>>>50	uleshort	=6		\b, Backup boot sector %u (usual)
 >>>>>>50	uleshort	<6		\b, Backup boot sector %u
 >>>>>>54	ulelong		>0		\b, reserved1 0x%x
 >>>>>>58	ulelong		>0		\b, reserved2 0x%x
 >>>>>>62	ulelong		>0		\b, reserved3 0x%x
-# same structure as FAT1X 
+# same structure as FAT1X
 >>>>>>64	ubyte		>0x80		\b, physical drive 0x%x
 #>>>>>>64	ubyte		=0x80		\b, physical drive 0x%x=80 (usual harddisk)
 >>>>>>64	ubyte&0x7F	>0		\b, physical drive 0x%x
@@ -5158,7 +5158,7 @@
 >>>>>>71	string		=NO\ NAME	\b, unlabeled
 ### FATs end
 >0x200	lelong	0x82564557		\b, BSD disklabel
-# FATX 
+# FATX
 0		string		FATX		FATX filesystem data
 
 
@@ -5190,14 +5190,14 @@
 # grub-1.94/kern/i386/pc/startup.S
 # http://www.gnu.org/software/grub/manual/grub.html#Embedded-data
 # usual values are marked with comments to get only informations of strange GRUB loaders
-0x200	uleshort		0x70EA		
+0x200	uleshort		0x70EA
 # found only version 3.{1,2}
->0x206		ubeshort	>0x0300		
+>0x206		ubeshort	>0x0300
 # GRUB version (0.5.)95,0.93,0.94,0.96,0.97 > "00"
->>0x212 	ubyte		>0x29		
->>>0x213 	ubyte		>0x29		
+>>0x212 	ubyte		>0x29
+>>>0x213 	ubyte		>0x29
 # not iso9660_stage1_5
-#>>>0	ulelong&0x00BE5652	0x00BE5652	
+#>>>0	ulelong&0x00BE5652	0x00BE5652
 >>>>0x213 	ubyte		>0x29		GRand Unified Bootloader
 # config_file for stage1_5 is 0xffffffff + default "/boot/grub/stage2"
 >>>>0x217 	ubyte		0xFF		stage1_5
@@ -5209,7 +5209,7 @@
 #>>>>0x208	ulelong		=0xffffff	\b, %u (default)
 >>>>0x208	ulelong		>0xffffff	\b, installed partition %u
 # GRUB 0.5.95 unofficial
->>>>0x20C	ulelong&0x2E300000 0x2E300000	
+>>>>0x20C	ulelong&0x2E300000 0x2E300000
 # 0=stage2	1=ffs	2=e2fs	3=fat	4=minix	5=reiserfs
 >>>>>0x20C	ubyte		x		\b, identifier 0x%x
 #>>>>>0x20D	ubyte		=0		\b, LBA flag 0x%x (default)
@@ -5217,17 +5217,17 @@
 # GRUB version as string
 >>>>>0x20E 	string		>\0		\b, GRUB version %-s
 # for stage1_5 is 0xffffffff + config_file "/boot/grub/stage2" default
->>>>>>0x215 	ulong		0xffffffff	
+>>>>>>0x215 	ulong		0xffffffff
 >>>>>>>0x219 	string		>\0		\b, configuration file %-s
->>>>>>0x215 	ulong		!0xffffffff	
+>>>>>>0x215 	ulong		!0xffffffff
 >>>>>>>0x215 	string		>\0		\b, configuration file %-s
 # newer GRUB versions
->>>>0x20C	ulelong&0x2E300000 !0x2E300000	
+>>>>0x20C	ulelong&0x2E300000 !0x2E300000
 ##>>>>>0x20C	ulelong		=0		\b, saved entry %d (usual)
 >>>>>0x20C	ulelong		>0		\b, saved entry %d
 # for 1.94 contains kernel image size
 # for 0.93,0.94,0.96,0.97
-# 0=stage2	1=ffs	2=e2fs	3=fat	4=minix	5=reiserfs	6=vstafs	7=jfs	8=xfs	9=iso9660	a=ufs2	
+# 0=stage2	1=ffs	2=e2fs	3=fat	4=minix	5=reiserfs	6=vstafs	7=jfs	8=xfs	9=iso9660	a=ufs2
 >>>>>0x210	ubyte		x		\b, identifier 0x%x
 # The flag for LBA forcing is in most cases 0
 #>>>>>0x211	ubyte		=0		\b, LBA flag 0x%x (default)
@@ -5235,9 +5235,9 @@
 # GRUB version as string
 >>>>>0x212 	string		>\0		\b, GRUB version %-s
 # for stage1_5 is 0xffffffff + config_file "/boot/grub/stage2" default
->>>>>0x217 	ulong		0xffffffff	
+>>>>>0x217 	ulong		0xffffffff
 >>>>>>0x21b 	string		>\0		\b, configuration file %-s
->>>>>0x217 	ulong		!0xffffffff	
+>>>>>0x217 	ulong		!0xffffffff
 >>>>>>0x217 	string		>\0		\b, configuration file %-s
 
 9564	lelong		0x00011954	Unix Fast File system [v1] (little-endian),
@@ -5419,7 +5419,7 @@
 #     FE     250K       8-inch, 1-sided, single-density
 #     FD     500K       8-inch, 2-sided, single-density
 #     FE     1.2 MB     8-inch, 2-sided, double-density
-#     F8     -----      Fixed disk 
+#     F8     -----      Fixed disk
 #
 #     FC     xxxK       Apricot 70x1x9 boot disk.
 #
@@ -5548,7 +5548,7 @@
 0	string		td\000		floppy image data (TeleDisk)
 
 # AFS Dump Magic
-# From: Ty Sarna <tsarna@sarna.org> 
+# From: Ty Sarna <tsarna@sarna.org>
 0       string                  \x01\xb3\xa1\x13\x22    AFS Dump
 >&0     belong                  x                       (v%d)
 >>&0    byte                    0x76
@@ -5678,10 +5678,10 @@
 0	string		\012\001\001\000Copyright\ (c)\ 199	Adobe Multiple Master font
 
 # Opentype font data from Avi Bercovich
-0	string		OTTO		OpenType font data 
+0	string		OTTO		OpenType font data
 
-# Gürkan Sengün <gurkan@linuks.mine.nu>, www.linuks.mine.nu 
-0	string		SplineFontDB:	Spline Font Database 
+# Gürkan Sengün <gurkan@linuks.mine.nu>, www.linuks.mine.nu
+0	string		SplineFontDB:	Spline Font Database
 >14	string		x		version %s
 
 #------------------------------------------------------------------------------
@@ -5894,11 +5894,11 @@
 #>>>>10	byte		11		\b12-
 #>>>>9	ubyte		>0		\b%02d)
 # ftp://ftp.f-prot.com/pub/sign2.zip
-#0	ubyte		0x62		
-#>1	ubyte		0xF5		
-#>>2	ubyte		0x1		
-#>>>3	ubyte		0x1		
-#>>>>4	ubyte		0x0e		
+#0	ubyte		0x62
+#>1	ubyte		0xF5
+#>>2	ubyte		0x1
+#>>>3	ubyte		0x1
+#>>>>4	ubyte		0x0e
 #>>>>>13		ubyte	>0		fsav virus signatures
 #>>>>>>11	ubyte	x		size 0x%02x
 #>>>>>>12	ubyte	x		\b%02x
@@ -5909,16 +5909,16 @@
 # .cvd files start with a 512 bytes colon separated header
 # ClamAV-VDB:buildDate:version:signaturesNumbers:functionalityLevelRequired:MD5:Signature:builder:buildTime
 # + gzipped tarball files
-0	string		ClamAV-VDB:	
+0	string		ClamAV-VDB:
 >11	string		>\0		Clam AntiVirus database %-.23s
->>34	string		:		
->>>35	regex		[^:]+		\b, version 
+>>34	string		:
+>>>35	regex		[^:]+		\b, version
 >>>>35		string		x 	\b%-.1s
->>>>>36		string 		!:	
+>>>>>36		string 		!:
 >>>>>>36	string		x 	\b%-.1s
->>>>>>>37	string		!:	
+>>>>>>>37	string		!:
 >>>>>>>>37	string		x 	\b%-.1s
->>>>>>>>>38	string		!:	
+>>>>>>>>>38	string		!:
 >>>>>>>>>>38	string		x 	\b%-.1s
 >>>>512	string		\037\213	\b, gzipped
 >>>>769	string		ustar\0		\b, tared
@@ -5977,7 +5977,7 @@
 
 #0       string  -1\x0a  Quake I demo
 #>30     string  x        version %.4s
-#>61     string  x        level %s       
+#>61     string  x        level %s
 
 #0       string  5\x0a   Quake I save
 
@@ -6198,7 +6198,7 @@
 # they will ordinarily reported as "compressed", but at least -z helps
 39      string          =<gmr:Workbook           Gnumeric spreadsheet
 
-# From: James Youngman <jay@gnu.org> 
+# From: James Youngman <jay@gnu.org>
 # gnu find magic
 0	string	\0LOCATE	GNU findutils locate database data
 >7	string	>\0		\b, format %s
@@ -6233,10 +6233,10 @@
 #file format 1
 >3	string		1		v.1, MCRYPT S2K, SERPENT crypt, SHA-256 hash, ZLib lvl.9
 #file format 2
->3	string		2		v.2, MCRYPT S2K, 
+>3	string		2		v.2, MCRYPT S2K,
 >>8	byte&0x70	0x00		RIJNDAEL-128 crypt,
 >>8	byte&0x70	0x10		SERPENT crypt,
->>8	byte&0x70	0x20		TWOFISH crypt, 
+>>8	byte&0x70	0x20		TWOFISH crypt,
 >>8	byte&0x70	0x30		CAST-256 crypt,
 >>8	byte&0x70	0x40		SAFER+ crypt,
 >>8	byte&0x70	0x50		LOKI97 crypt,
@@ -6251,10 +6251,10 @@
 >>8	byte&0x03	0x02		lvl.6
 >>8	byte&0x03	0x03		lvl.9
 #file format 3
->3	string		3		v.3, OpenPGP S2K, 
+>3	string		3		v.3, OpenPGP S2K,
 >>8	byte&0x70	0x00		RIJNDAEL-128 crypt,
 >>8	byte&0x70	0x10		SERPENT crypt,
->>8	byte&0x70	0x20		TWOFISH crypt, 
+>>8	byte&0x70	0x20		TWOFISH crypt,
 >>8	byte&0x70	0x30		CAST-256 crypt,
 >>8	byte&0x70	0x40		SAFER+ crypt,
 >>8	byte&0x70	0x50		LOKI97 crypt,
@@ -6736,22 +6736,22 @@
 # What the heck *is* "USS/370"?
 # AIX 4.1's "/etc/magic" has
 #
-#	0	short		0535		370 sysV executable 
+#	0	short		0535		370 sysV executable
 #	>12	long		>0		not stripped
 #	>22	short		>0		- version %d
 #	>30	long		>0		- 5.2 format
-#	0	short		0530		370 sysV pure executable 
+#	0	short		0530		370 sysV pure executable
 #	>12	long		>0		not stripped
 #	>22	short		>0		- version %d
 #	>30	long		>0		- 5.2 format
 #
 # instead of the "USS/370" versions of the same magic numbers.
 #
-0	beshort		0537		370 XA sysV executable 
+0	beshort		0537		370 XA sysV executable
 >12	belong		>0		not stripped
 >22	beshort		>0		- version %d
 >30	belong		>0		- 5.2 format
-0	beshort		0532		370 XA sysV pure executable 
+0	beshort		0532		370 XA sysV pure executable
 >12	belong		>0		not stripped
 >22	beshort		>0		- version %d
 >30	belong		>0		- 5.2 format
@@ -7567,85 +7567,85 @@
 # is possible. And both endians are possible...
 # The combinations included below are from real-world JPEGs.
 # Little-endian
->>12	string		II		
+>>12	string		II
 # IFD 0 Entry #5:
->>>70	leshort		0x8769          
+>>>70	leshort		0x8769
 # EXIF IFD Entry #1:
->>>>(78.l+14)	leshort	0x9000		
+>>>>(78.l+14)	leshort	0x9000
 >>>>>(78.l+23)	byte	x		%c
 >>>>>(78.l+24)	byte	x		\b.%c
 >>>>>(78.l+25)	byte	!0x30		\b%c
 # IFD 0 Entry #9:
->>>118	leshort		0x8769          
+>>>118	leshort		0x8769
 # EXIF IFD Entry #3:
->>>>(126.l+38)	leshort	0x9000		
+>>>>(126.l+38)	leshort	0x9000
 >>>>>(126.l+47)	byte	x		%c
 >>>>>(126.l+48)	byte	x		\b.%c
 >>>>>(126.l+49)	byte	!0x30		\b%c
 # IFD 0 Entry #10
->>>130	leshort		0x8769          
+>>>130	leshort		0x8769
 # EXIF IFD Entry #3:
->>>>(138.l+38)	leshort	0x9000		
+>>>>(138.l+38)	leshort	0x9000
 >>>>>(138.l+47)	byte	x		%c
 >>>>>(138.l+48)	byte	x		\b.%c
 >>>>>(138.l+49)	byte	!0x30		\b%c
 # EXIF IFD Entry #4:
->>>>(138.l+50)	leshort	0x9000		
+>>>>(138.l+50)	leshort	0x9000
 >>>>>(138.l+59)	byte	x		%c
 >>>>>(138.l+60)	byte	x		\b.%c
 >>>>>(138.l+61)	byte	!0x30		\b%c
 # EXIF IFD Entry #5:
->>>>(138.l+62)	leshort	0x9000		
+>>>>(138.l+62)	leshort	0x9000
 >>>>>(138.l+71)	byte	x		%c
 >>>>>(138.l+72)	byte	x		\b.%c
 >>>>>(138.l+73)	byte	!0x30		\b%c
 # IFD 0 Entry #11
->>>142	leshort		0x8769          
+>>>142	leshort		0x8769
 # EXIF IFD Entry #3:
->>>>(150.l+38)	leshort	0x9000		
+>>>>(150.l+38)	leshort	0x9000
 >>>>>(150.l+47)	byte	x		%c
 >>>>>(150.l+48)	byte	x		\b.%c
 >>>>>(150.l+49)	byte	!0x30		\b%c
 # EXIF IFD Entry #4:
->>>>(150.l+50)	leshort	0x9000		
+>>>>(150.l+50)	leshort	0x9000
 >>>>>(150.l+59)	byte	x		%c
 >>>>>(150.l+60)	byte	x		\b.%c
 >>>>>(150.l+61)	byte	!0x30		\b%c
 # EXIF IFD Entry #5:
->>>>(150.l+62)	leshort	0x9000		
+>>>>(150.l+62)	leshort	0x9000
 >>>>>(150.l+71)	byte	x		%c
 >>>>>(150.l+72)	byte	x		\b.%c
 >>>>>(150.l+73)	byte	!0x30		\b%c
 # Big-endian
->>12	string		MM		
+>>12	string		MM
 # IFD 0 Entry #9:
->>>118	beshort		0x8769          
+>>>118	beshort		0x8769
 # EXIF IFD Entry #1:
->>>>(126.L+14)	beshort	0x9000		
+>>>>(126.L+14)	beshort	0x9000
 >>>>>(126.L+23)	byte	x		%c
 >>>>>(126.L+24)	byte	x		\b.%c
 >>>>>(126.L+25)	byte	!0x30		\b%c
 # EXIF IFD Entry #3:
->>>>(126.L+38)	beshort	0x9000		
+>>>>(126.L+38)	beshort	0x9000
 >>>>>(126.L+47)	byte	x		%c
 >>>>>(126.L+48)	byte	x		\b.%c
 >>>>>(126.L+49)	byte	!0x30		\b%c
 # IFD 0 Entry #10
->>>130	beshort		0x8769          
+>>>130	beshort		0x8769
 # EXIF IFD Entry #3:
->>>>(138.L+38)	beshort	0x9000		
+>>>>(138.L+38)	beshort	0x9000
 >>>>>(138.L+47)	byte	x		%c
 >>>>>(138.L+48)	byte	x		\b.%c
 >>>>>(138.L+49)	byte	!0x30		\b%c
 # EXIF IFD Entry #5:
->>>>(138.L+62)	beshort	0x9000		
+>>>>(138.L+62)	beshort	0x9000
 >>>>>(138.L+71)	byte	x		%c
 >>>>>(138.L+72)	byte	x		\b.%c
 >>>>>(138.L+73)	byte	!0x30		\b%c
 # IFD 0 Entry #11
->>>142	beshort		0x8769          
+>>>142	beshort		0x8769
 # EXIF IFD Entry #4:
->>>>(150.L+50)	beshort	0x9000		
+>>>>(150.L+50)	beshort	0x9000
 >>>>>(150.L+59)	byte	x		%c
 >>>>>(150.L+60)	byte	x		\b.%c
 >>>>>(150.L+61)	byte	!0x30		\b%c
@@ -7782,7 +7782,7 @@
 4086	string		SWAPSPACE2	Linux/i386 swap file (new style)
 >0x400	long		x		%d (4K pages)
 >0x404	long		x		size %d pages
->>4086	string		SWAPSPACE2	
+>>4086	string		SWAPSPACE2
 >>>1052	string		>\0		Label %s
 # ECOFF magic for OSF/1 and Linux (only tested under Linux though)
 #
@@ -7879,7 +7879,7 @@
 ############################################################################
 # Linux 8086 executable
 0	lelong&0xFF0000FF 0xC30000E9	Linux-Dev86 executable, headerless
->5	string		.		
+>5	string		.
 >>4	string		>\0		\b, libc version %s
 
 0	lelong&0xFF00FFFF 0x4000301	Linux-8086 executable
@@ -7893,7 +7893,7 @@
 >2	byte&0x40	!0		\b, A_PURE
 >2	byte&0x80	!0		\b, A_TOVLY
 >28     long            !0              \b, not stripped
->37	string		.		
+>37	string		.
 >>36	string		>\0		\b, libc version %s
 
 # 0	lelong&0xFF00FFFF 0x10000301	ld86 I80386 executable
@@ -7919,7 +7919,7 @@
 >24	lelong	x			%d symbols
 >28	lelong	x			%d ocons
 
-# Linux Logical Volume Manager (LVM) 
+# Linux Logical Volume Manager (LVM)
 # Emmanuel VARAGNAT <emmanuel.varagnat@guzu.net>
 #
 # System ID, UUID and volume group name are 128 bytes long
@@ -7983,7 +7983,7 @@
 # various lisp types, from Daniel Quinlan (quinlan@yggdrasil.com)
 
 # updated by Joerg Jenderek
-0	string	;;			
+0	string	;;
 # windows INF files often begin with semicolon and use CRLF as line end
 # lisp files are mainly created on unix system with LF as line end
 >2	search/2048	!\r		Lisp/Scheme program text
@@ -8002,8 +8002,8 @@
 # Emacs 19+ - ver. recognition added by Ian Springer
 # Also applies to XEmacs 19+ .elc files; could tell them apart if we had regexp
 # support or similar - Chris Chittleborough <cchittleborough@yahoo.com.au>
-0	string	;ELC			
->4	byte	>19			
+0	string	;ELC
+>4	byte	>19
 >4	byte    <32			Emacs/XEmacs v%d byte-compiled Lisp data
 
 # Files produced by CLISP Common Lisp From: Bruno Haible <haible@ilog.fr>
@@ -8015,7 +8015,7 @@
 0	long	0xDE120495		GNU-format message catalog data
 0	long	0x950412DE		GNU-format message catalog data
 
-#.com and .bin for MIT scheme 
+#.com and .bin for MIT scheme
 0	string	\372\372\372\372	MIT scheme (library?)
 
 # From: David Allouche <david@allouche.net>
@@ -8238,9 +8238,9 @@
 # the assumption that 65-72 will all be ASCII (0x20-0x7F), that 73 will
 # have bits 1 (changed), 2 (busy), 3 (bozo), and 6 (invisible) unset,
 # and that 74 will be 0.  So something like
-# 
+#
 # 71 	belong&0x80804EFF 0x00000000 	Macintosh MacBinary data
-# 
+#
 # >73	byte&0x01	0x01		\b, inited
 # >73	byte&0x02	0x02		\b, changed
 # >73	byte&0x04	0x04		\b, busy
@@ -8383,7 +8383,7 @@
 >0x9C   string          INDEX           data file index
 >0x9C   string          VIEW            data view
 
-# spss magic for SPSS system and portable files, 
+# spss magic for SPSS system and portable files,
 #	 from Bruce Foster (bef@nwu.edu).
 
 0	long		0xc1e2c3c9	SPSS Portable File
@@ -8399,7 +8399,7 @@
 # entries depend on the data arithmetic added after v.35
 # There's also some Pascal strings in here, ditto...
 
-# The boot block signature, according to IM:Files, is 
+# The boot block signature, according to IM:Files, is
 # "for HFS volumes, this field always contains the value 0x4C4B."
 # But if this is true for MFS or HFS+ volumes, I don't know.
 # Alternatively, the boot block is supposed to be zeroed if it's
@@ -8448,22 +8448,22 @@
 >&42	belong			x		number of blocks: %d,
 >&46	belong			x		free blocks: %d
 
-# I don't think this is really necessary since it doesn't do much and 
+# I don't think this is really necessary since it doesn't do much and
 # anything with a valid driver descriptor will also have a valid
 # partition map
 #0		beshort		0x4552		Apple Device Driver data
 #>&24		beshort		=1		\b, MacOS
 
-# Is that the partition type a cstring or a pstring? Well, IM says "strings 
-# shorter than 32 bytes must be terminated with NULL" so I'll treat it as a 
-# cstring. Of course, partitions can contain more than four entries, but 
+# Is that the partition type a cstring or a pstring? Well, IM says "strings
+# shorter than 32 bytes must be terminated with NULL" so I'll treat it as a
+# cstring. Of course, partitions can contain more than four entries, but
 # what're you gonna do?
 0x200		beshort		0x504D		Apple Partition data
 >0x2		beshort		x		(block size: %d):
 >0x230		string		x		first type: %s,
 >0x210		string		x		name: %s,
 >0x254		belong		x		number of blocks: %d,
->0x400		beshort		0x504D		
+>0x400		beshort		0x504D
 >>0x430		string		x		second type: %s,
 >>0x410		string		x		name: %s,
 >>0x454		belong		x		number of blocks: %d,
@@ -8471,11 +8471,11 @@
 >>>0x630	string		x		third type: %s,
 >>>0x610	string		x		name: %s,
 >>>0x654	belong		x		number of blocks: %d,
->>0x800		beshort		0x504D		
+>>0x800		beshort		0x504D
 >>>0x830	string		x		fourth type: %s,
 >>>0x810	string		x		name: %s,
 >>>0x854	belong		x		number of blocks: %d,
->>>0xa00	beshort		0x504D		
+>>>0xa00	beshort		0x504D
 >>>>0xa30	string		x		fifth type: %s,
 >>>>0xa10	string		x		name: %s,
 >>>>0xa54	belong		x		number of blocks: %d
@@ -8489,15 +8489,15 @@
 >0x230		string		x		first type: %s,
 >0x210		string		x		name: %s,
 >0x254		belong		x		number of blocks: %d,
->0x400		beshort		0x504D		
+>0x400		beshort		0x504D
 >>0x430		string		x		second type: %s,
 >>0x410		string		x		name: %s,
 >>0x454		belong		x		number of blocks: %d,
->>0x800		beshort		0x504D		
+>>0x800		beshort		0x504D
 >>>0x830	string		x		third type: %s,
 >>>0x810	string		x		name: %s,
 >>>0x854	belong		x		number of blocks: %d,
->>>0xa00	beshort		0x504D		
+>>>0xa00	beshort		0x504D
 >>>>0xa30	string		x		fourth type: %s,
 >>>>0xa10	string		x		name: %s,
 >>>>0xa54	belong		x		number of blocks: %d
@@ -8568,7 +8568,7 @@
 # no magic for these :-(
 # they are compiled indexes for maple files
 
-# .hdb 
+# .hdb
 0	string	\000\004\000\000	Maple help database
 
 # .mhp
@@ -8595,7 +8595,7 @@
 # from byte 4 it is either 'nul E' or 'soh R'
 # I think 'nul E' means a file that was saved as  a different name
 # a sort of revision marking
-# 'soh R' means new 
+# 'soh R' means new
 >4	string	\000\105	An old revision
 >4	string	\001\122	The latest save
 
@@ -8654,7 +8654,7 @@
 
 #0	string	(*This\ is\ a\ Mathematica\ binary\ dump\ file.\ It\ can\ be\ loaded\ with\ Get.*)	Mathematica binary file
 0	string	(*This\ is\ a\ Mathematica\ binary\ 	Mathematica binary file
-#>71	string \000\010\010\010\010\000\000\000\000\000\000\010\100\010\000\000\000	
+#>71	string \000\010\010\010\010\000\000\000\000\000\000\010\100\010\000\000\000
 # >71... is optional
 >88	string	>\0	from %s
 
@@ -8664,7 +8664,7 @@
 0	string	MMAPBF\000\001\000\000\000\203\000\001\000	Mathematica PBF (fonts I think)
 
 # .ml files  These are menu resources I think
-# these start with "[0-9][0-9][0-9]\ A~[0-9][0-9][0-9]\ 
+# these start with "[0-9][0-9][0-9]\ A~[0-9][0-9][0-9]\
 # how to put that into a magic rule?
 4	string	\ A~	MAthematica .ml file
 
@@ -8736,7 +8736,7 @@
 #------------------------------------------------------------------------------
 # mime:  file(1) magic for MIME encoded files
 #
-0	string		Content-Type:\ 
+0	string		Content-Type:\
 >14	string		>\0		%s
 0	string		Content-Type:
 >13	string		>\0		%s
@@ -9069,7 +9069,7 @@
 
 # .BAT files (Daniel Quinlan, quinlan@yggdrasil.com)
 # updated by Joerg Jenderek
-0	string	@			
+0	string	@
 >1	string/cB	\ echo\ off	MS-DOS batch file text
 >1	string/cB	echo\ off	MS-DOS batch file text
 >1	string/cB	rem\ 		MS-DOS batch file text
@@ -9136,7 +9136,7 @@
 >>>(&0.l+(4)) string MSCF \b, WinHKI CAB self-extracting archive
 
 >0x18  leshort >0x3f
->>(0x3c.l) string PE\0\0 PE 
+>>(0x3c.l) string PE\0\0 PE
 # hooray, there's a DOS extender using the PE format, with a valid PE
 # executable inside (which just prints a message and exits if run in win)
 >>>(8.s*16) string 32STUB for MS-DOS, 32rtm DOS extender
@@ -9265,7 +9265,7 @@
 >>(8.s*16)	string		go32stub for MS-DOS, DJGPP go32 DOS extender
 >>(8.s*16)	string		emx
 >>>&1		string		x for DOS, Win or OS/2, emx %s
->>&(&0x42.l-3)	byte		x 
+>>&(&0x42.l-3)	byte		x
 >>>&0x26	string		UPX \b, UPX compressed
 # and yet another guess: small .text, and after large .data is unusal, could be 32lite
 >>&0x2c		search/0xa0	.text
@@ -9301,8 +9301,8 @@
 >28      string WWP\           \b, WWPACK compressed
 
 # skip to the end of the exe
->(4.s*512)	long	x 
->>&(2.s-517)	byte	x 
+>(4.s*512)	long	x
+>>&(2.s-517)	byte	x
 >>>&0	string		PK\3\4 \b, ZIP self-extracting archive
 >>>&0	string		Rar! \b, RAR self-extracting archive
 >>>&0	string		=!\x11 \b, AIN 2.x self-extracting archive
@@ -9337,24 +9337,24 @@
 >6	string		SFX\ of\ LHarc	(%s)
 0	belong	0xffffffff		DOS executable (device driver)
 #CMD640X2.SYS
->10	string	>\x23			
->>10	string	!\x2e			
->>>17	string	<\x5B			
+>10	string	>\x23
+>>10	string	!\x2e
+>>>17	string	<\x5B
 >>>>10	string	x			\b, name: %.8s
 #UDMA.SYS KEYB.SYS CMD640X2.SYS
->10	string	<\x41			
->>12	string	>\x40			
->>>10	string	!$			
+>10	string	<\x41
+>>12	string	>\x40
+>>>10	string	!$
 >>>>12	string	x			\b, name: %.8s
 #BTCDROM.SYS ASPICD.SYS
->22	string	>\x40			
->>22	string	<\x5B			
->>>23	string	<\x5B			
+>22	string	>\x40
+>>22	string	<\x5B
+>>>23	string	<\x5B
 >>>>22	string	x			\b, name: %.8s
 #ATAPICD.SYS
->76	string	\0			
->>77	string	>\x40			
->>>77	string	<\x5B			
+>76	string	\0
+>>77	string	>\x40
+>>>77	string	<\x5B
 >>>>77	string	x			\b, name: %.8s
 #0	byte		0x8c		DOS executable (COM)
 # 0xeb conflicts with "sequent" magic
@@ -9371,8 +9371,8 @@
 # (32-bit COMBOOT) programs *.C32 contain 32-bit code and run in flat-memory 32-bit protected mode
 # start with assembler instructions mov eax,21cd4cffh
 >1	lelong          0x21cd4cff	(32-bit COMBOOT)
-0	string	\x81\xfc		
->4	string	\x77\x02\xcd\x20\xb9	
+0	string	\x81\xfc
+>4	string	\x77\x02\xcd\x20\xb9
 >>36	string	UPX! 			FREE-DOS executable (COM), UPX compressed
 252	string Must\ have\ DOS\ version	DR-DOS executable (COM)
 # GRR search is not working
@@ -9384,10 +9384,10 @@
 #IFMEMDSK.cOM ASSIGN.cOM COMP.cOM
 5	string	\xcd\x21		COM executable for DOS
 #DELTMP.COm HASFAT32.cOM
-7	string	\xcd\x21		
+7	string	\xcd\x21
 >0	byte	!0xb8			COM executable for DOS
 #COMP.cOM MORE.COm
-10	string	\xcd\x21		
+10	string	\xcd\x21
 >5	string	!\xcd\x21		COM executable for DOS
 #comecho.com
 13	string	\xcd\x21		COM executable for DOS
@@ -9523,13 +9523,13 @@
 
 
 # .chr files
-0	string	PK\010\010BGI	Borland font 
+0	string	PK\010\010BGI	Borland font
 >4	string	>\0	%s
 # then there is a copyright notice
 
 
 # .bgi files
-0	string	pk\010\010BGI	Borland device 
+0	string	pk\010\010BGI	Borland device
 >4	string	>\0	%s
 # then there is a copyright notice
 
@@ -9571,7 +9571,7 @@
 >0x04	lelong		>0		(%ld records)
 0	leshort		0x0006		DBase 3 index file
 0	string		PMCC		Windows 3.x .GRP file
-1	string		RDC-meg		MegaDots 
+1	string		RDC-meg		MegaDots
 >8	byte		>0x2F		version %c
 >9	byte		>0x2F		\b.%c file
 0	lelong		0x4C
@@ -9587,7 +9587,7 @@
 >>>20	long		>0		TIFF starts at byte %d
 >>>>24	long		>0		length %d
 
-# TNEF magic From "Joomy" <joomy@se-ed.net> 
+# TNEF magic From "Joomy" <joomy@se-ed.net>
 0	leshort		0x223e9f78	TNEF
 
 # HtmlHelp files (.chm)
@@ -9646,7 +9646,7 @@
 
 
 # Windows Enhanced Metafile (EMF)
-# See msdn.microsoft.com/archive/en-us/dnargdi/html/msdn_enhmeta.asp 
+# See msdn.microsoft.com/archive/en-us/dnargdi/html/msdn_enhmeta.asp
 # for further information. Note that "0 lelong 1" should be true i.e.
 # the first double word in the file should be 1. With the extended
 # syntax available by some file commands you could write:
@@ -9654,11 +9654,11 @@
 # &40 ulelong 0x464D4520 Windows Enhanced Metafile (EMF) image data
 #40	ulelong 0x464D4520	Windows Enhanced Metafile (EMF) image data
 #>44	ulelong x		version 0x%x.
-# If the description has a length greater than zero, it exists and is 
+# If the description has a length greater than zero, it exists and is
 # found at offset (*64).
 #>64	ulelong >0		Description available at offset 0x%x
 #>>60	ulelong	>0		(length 0x%x)
-# Note it would be better to print out the description, which is found 
+# Note it would be better to print out the description, which is found
 # as below. Unfortunately the following only prints out the first couple
 # of characters instead of all the "description length"
 # number of characters -- indicated by the ulelong at offset 60.
@@ -9710,7 +9710,7 @@
 # msvc:  file(1) magic for msvc
 # "H. Nanosecond" <aldomel@ix.netcom.com>
 # Microsoft visual C
-# 
+#
 # I have version 1.0
 
 # .aps
@@ -9734,9 +9734,9 @@
 0	string	DTJPCH0\000\022\103\006\200	Microsoft Visual C .pch
 
 # .pdb
-# too long 0	string	Microsoft\ C/C++\ program\ database\ 
+# too long 0	string	Microsoft\ C/C++\ program\ database\
 0	string	Microsoft\ C/C++\ 	MSVC program database
->18	string	program\ database\ 	
+>18	string	program\ database\
 >33	string	>\0	ver %s
 
 #.sbr
@@ -9761,15 +9761,15 @@
 #
 0		string		//!Mup		Mup music publication program input text
 >6		string		-Arkkra		(Arkkra)
->>13		string		-		
->>>16		string		.		
+>>13		string		-
+>>>16		string		.
 >>>>14		string		x		\b, need V%.4s
->>>15		string		.		
+>>>15		string		.
 >>>>14		string		x		\b, need V%.3s
->6		string		-		
->>9		string		.		
+>6		string		-
+>>9		string		.
 >>>7		string		x		\b, need V%.4s
->>8		string		.		
+>>8		string		.
 >>>7		string		x		\b, need V%.3s
 
 #-----------------------------------------------------------------------------
@@ -9855,7 +9855,7 @@
 >16	belong			>0		not stripped
 
 0	belong&0377777777	041400413	a.out NetBSD/i386 demand paged
->0	byte			&0x80		
+>0	byte			&0x80
 >>20	lelong			<4096		shared library
 >>20	lelong			=4096		dynamically linked executable
 >>20	lelong			>4096		dynamically linked executable
@@ -9877,7 +9877,7 @@
 >32	lelong			!0		(signal %d)
 
 0	belong&0377777777	041600413	a.out NetBSD/m68k demand paged
->0	byte			&0x80		
+>0	byte			&0x80
 >>20	belong			<8192		shared library
 >>20	belong			=8192		dynamically linked executable
 >>20	belong			>8192		dynamically linked executable
@@ -9899,7 +9899,7 @@
 >32	belong			!0		(signal %d)
 
 0	belong&0377777777	042000413	a.out NetBSD/m68k4k demand paged
->0	byte			&0x80		
+>0	byte			&0x80
 >>20	belong			<4096		shared library
 >>20	belong			=4096		dynamically linked executable
 >>20	belong			>4096		dynamically linked executable
@@ -9921,7 +9921,7 @@
 >32	belong			!0		(signal %d)
 
 0	belong&0377777777	042200413	a.out NetBSD/ns32532 demand paged
->0	byte			&0x80		
+>0	byte			&0x80
 >>20	lelong			<4096		shared library
 >>20	lelong			=4096		dynamically linked executable
 >>20	lelong			>4096		dynamically linked executable
@@ -9946,7 +9946,7 @@
 >12	string			>\0		from '%s'
 
 0	belong&0377777777	042400413	a.out NetBSD/sparc demand paged
->0	byte			&0x80		
+>0	byte			&0x80
 >>20	belong			<8192		shared library
 >>20	belong			=8192		dynamically linked executable
 >>20	belong			>8192		dynamically linked executable
@@ -9968,7 +9968,7 @@
 >32	belong			!0		(signal %d)
 
 0	belong&0377777777	042600413	a.out NetBSD/pmax demand paged
->0	byte			&0x80		
+>0	byte			&0x80
 >>20	lelong			<4096		shared library
 >>20	lelong			=4096		dynamically linked executable
 >>20	lelong			>4096		dynamically linked executable
@@ -9990,7 +9990,7 @@
 >32	lelong			!0		(signal %d)
 
 0	belong&0377777777	043000413	a.out NetBSD/vax 1k demand paged
->0	byte			&0x80		
+>0	byte			&0x80
 >>20	lelong			<4096		shared library
 >>20	lelong			=4096		dynamically linked executable
 >>20	lelong			>4096		dynamically linked executable
@@ -10012,7 +10012,7 @@
 >32	lelong			!0		(signal %d)
 
 0	belong&0377777777	045400413	a.out NetBSD/vax 4k demand paged
->0	byte			&0x80		
+>0	byte			&0x80
 >>20	lelong			<4096		shared library
 >>20	lelong			=4096		dynamically linked executable
 >>20	lelong			>4096		dynamically linked executable
@@ -10034,7 +10034,7 @@
 >32	lelong			!0		(signal %d)
 
 # NetBSD/alpha does not support (and has never supported) a.out objects,
-# so no rules are provided for them.  NetBSD/alpha ELF objects are 
+# so no rules are provided for them.  NetBSD/alpha ELF objects are
 # dealt with in "elf".
 0	lelong		0x00070185		ECOFF NetBSD/alpha binary
 >10	leshort		0x0001			not stripped
@@ -10044,7 +10044,7 @@
 >32	lelong			!0		(signal %d)
 
 0	belong&0377777777	043400413	a.out NetBSD/mips demand paged
->0	byte			&0x80		
+>0	byte			&0x80
 >>20	belong			<8192		shared library
 >>20	belong			=8192		dynamically linked executable
 >>20	belong			>8192		dynamically linked executable
@@ -10104,8 +10104,8 @@
 # .snm Caches
 0	string		#\ Netscape\ folder\ cache	Netscape folder cache
 0	string	\000\036\204\220\000	Netscape folder cache
-# .n2p 
-# Net 2 Phone 
+# .n2p
+# Net 2 Phone
 #0	string	123\130\071\066\061\071\071\071\060\070\061\060\061\063\060
 0	string	SX961999	Net2phone
 
@@ -10131,7 +10131,7 @@
 #------------------------------------------------------------------------------
 # nitpicker:  file(1) magic for Flowfiles.
 # From: Christian Jachmann <C.Jachmann@gmx.net> http://www.nitpicker.de
-0	string	NPFF	NItpicker Flow File 
+0	string	NPFF	NItpicker Flow File
 >4	byte	x	V%d.
 >5	byte	x	%d
 >6	bedate	x	started: %s
@@ -10279,7 +10279,7 @@
 #>5	string	>\			(Local file) <%s>
 
 # >>>>> OS/2 INF/HLP <<<<<  (source: Daniel Dissett ddissett@netcom.com)
-# Carl Hauser (chauser.parc@xerox.com) and 
+# Carl Hauser (chauser.parc@xerox.com) and
 # Marcus Groeber (marcusg@ph-cip.uni-koeln.de)
 # list the following header format in inf02a.doc:
 #
@@ -10289,11 +10289,11 @@
 #                      //  bit 0: set if INF style file
 #                      //  bit 4: set if HLP style file
 #                      // patching this byte allows reading HLP files
-#                      // using the VIEW command, while help files 
+#                      // using the VIEW command, while help files
 #                      // seem to work with INF settings here as well.
 #  int16 hdrsize;      // total size of header
 #  int16 unknown2;     // unknown purpose
-# 
+#
 0   string  HSP\x01\x9b\x00 OS/2 INF
 >107 string >0                      (%s)
 0   string  HSP\x10\x9b\x00     OS/2 HLP
@@ -10359,7 +10359,7 @@
 #
 # THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
 # IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-# OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  
+# OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
 # IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
 # SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
 # PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
@@ -10724,18 +10724,18 @@
 # HP Printer Job Language
 0	string		\033%-12345X@PJL	HP Printer Job Language data
 # HP Printer Job Language
-# The header found on Win95 HP plot files is the "Silliest Thing possible" 
+# The header found on Win95 HP plot files is the "Silliest Thing possible"
 # (TM)
 # Every driver puts the language at some random position, with random case
 # (LANGUAGE and Language)
 # For example the LaserJet 5L driver puts the "PJL ENTER LANGUAGE" in line 10
 # From: Uwe Bonnes <bon@elektron.ikp.physik.th-darmstadt.de>
-# 
+#
 0	string		\033%-12345X@PJL	HP Printer Job Language data
->&0	string		>\0			%s			
->>&0	string		>\0			%s			
->>>&0	string		>\0			%s		
->>>>&0	string		>\0			%s		
+>&0	string		>\0			%s
+>>&0	string		>\0			%s
+>>>&0	string		>\0			%s
+>>>>&0	string		>\0			%s
 #>15	string		\ ENTER\ LANGUAGE\ =
 #>31	string		PostScript		PostScript
 
@@ -10798,15 +10798,15 @@
 
 #------------------------------------------------------------------------------
 # HP LaserJet 1000 series downloadable firmware file
-0	string	\xbe\xefABCDEFGH	HP LaserJet 1000 series downloadable firmware   
+0	string	\xbe\xefABCDEFGH	HP LaserJet 1000 series downloadable firmware
 
 # From: Paolo <oopla@users.sf.net>
-# Epson ESC/Page, ESC/PageColor 
+# Epson ESC/Page, ESC/PageColor
 0	string	\x1b\x01@EJL	Epson ESC/Page language printer data
 
 #------------------------------------------------------------------------------
 # project:  file(1) magic for Project management
-# 
+#
 # Magic strings for ftnchek project files. Alexander Mai
 0	string	FTNCHEK_\ P	project file for ftnchek
 >10	string	1		version 2.7
@@ -10938,7 +10938,7 @@
 >>18	leshort		x		\b, %d entries
 # RIFF Device Independent Bitmap format
 >8	string		RDIB		\b, device-independent bitmap
->>16	string		BM		
+>>16	string		BM
 >>>30	leshort		12		\b, OS/2 1.x format
 >>>>34	leshort		x		\b, %d x
 >>>>36	leshort		x		%d
@@ -11096,7 +11096,7 @@
 >8	string		sfbk		SoundFont/Bank
 # MPEG-1 wrapped in a RIFF, apparently
 >8      string          CDXA            \b, wrapped MPEG-1 (CDXA)
->8	string		4XMV		\b, 4X Movie file 
+>8	string		4XMV		\b, 4X Movie file
 
 #
 # XXX - some of the below may only appear in little-endian form.
@@ -11111,7 +11111,7 @@
 >>18	beshort		x		\b, %d entries
 # RIFF Device Independent Bitmap format
 >8	string		RDIB		\b, device-independent bitmap
->>16	string		BM		
+>>16	string		BM
 >>>30	beshort		12		\b, OS/2 1.x format
 >>>>34	beshort		x		\b, %d x
 >>>>36	beshort		x		%d
@@ -11201,7 +11201,7 @@
 # Maybe we should just switch everybody from SCCS to RCS!
 # Further, you can't just say '\001h0', because the five-digit number
 # is a checksum that could (presumably) have any leading digit,
-# and we don't have regular expression matching yet. 
+# and we don't have regular expression matching yet.
 # Hence the following official kludge:
 8	string		\001s\ 			SCCS archive data
 
@@ -11210,7 +11210,7 @@
 #
 # XXX - byte order?
 #
-0	byte	046	  Sendmail frozen configuration 
+0	byte	046	  Sendmail frozen configuration
 >16	string	>\0	  - version %s
 0	short	0x271c	  Sendmail frozen configuration
 >16	string	>\0	  - version %s
@@ -11274,7 +11274,7 @@
 >20	belong	0				log volume #0
 >20	belong	>0				log volume #%ld
 >24	string	>\0				host: %s
-0	string	PCPFolio			PCP 
+0	string	PCPFolio			PCP
 >9	string	Version:			Archive Folio
 >18	string	>\0				(V.%s)
 0	string	#pmchart			PCP pmchart view
@@ -11289,7 +11289,7 @@
 0	string	#pmdahotproc			PCP pmdahotproc config
 >13	string	Version
 >21	string	>\0				(V%-3.3s)
-0	string	PcPh				PCP Help 
+0	string	PcPh				PCP Help
 >4	string	1				Index
 >4	string	2				Text
 >5	string	>\0				(V.%1.1s)
@@ -11364,7 +11364,7 @@
 #------------------------------------------------------------------------
 # file(1) magic for sharc files
 #
-# SHARC DSP, MIDI SysEx and RiscOS filetype definitions added by 
+# SHARC DSP, MIDI SysEx and RiscOS filetype definitions added by
 # FutureGroove Music (dsp@futuregroove.de)
 
 #------------------------------------------------------------------------
@@ -11446,7 +11446,7 @@
 >5	regex	[0-9.]+				%s
 
 #------------------------------------------------------------------------------
-# Sketch Drawings: http://sketch.sourceforge.net/ 
+# Sketch Drawings: http://sketch.sourceforge.net/
 # From: Edwin Mons <e@ik.nu>
 0	string	##Sketch	Sketch document text
 
@@ -11784,7 +11784,7 @@
 >>3	byte	x		.%d
 
 #------------------------------------------------------------------------------
-# scientific:  file(1) magic for scientific formats 
+# scientific:  file(1) magic for scientific formats
 #
 # From: Joe Krahn <krahn@niehs.nih.gov>
 
@@ -11948,7 +11948,7 @@
 0	string		 	\376bin		MySQL replication log
 
 #------------------------------------------------------------------------------
-# iRiver H Series database file 
+# iRiver H Series database file
 # From Ken Guest <ken@linux.ie>
 # As observed from iRivNavi.iDB and unencoded firmware
 #
@@ -12107,7 +12107,7 @@
 #------------------------------------------------------------------------
 # sysex: file(1) magic for MIDI sysex files
 #
-# 
+#
 0	byte			0xF0		SysEx File -
 
 # North American Group
@@ -12358,7 +12358,7 @@
 >1	belong&0xffffff00	0x00011d00	Nemesys
 >1	belong&0xffffff00	0x00011e00	DBX
 >1	belong&0xffffff00	0x00011f00	Syndyne
->1	belong&0xffffff00	0x00012000	Bitheadz	
+>1	belong&0xffffff00	0x00012000	Bitheadz
 >1	belong&0xffffff00	0x00012100	Cakewalk
 >1	belong&0xffffff00	0x00012200	Staccato
 >1	belong&0xffffff00	0x00012300	National Semicon.
@@ -13066,7 +13066,7 @@
 # -----------------------------------------------------------
 # VMware specific files (deducted from version 1.1 and log file entries)
 # Anthon van der Neut (anthon@mnt.org)
-0	belong	0x4d52564e	VMware nvram 
+0	belong	0x4d52564e	VMware nvram
 
 #------------------------------------------------------------------------------
 # vorbis:  file(1) magic for Ogg/Vorbis files
@@ -13133,7 +13133,7 @@
 # in a different place, so we must use an indirect offset.
 >>>(84.b+85)		string		\x03vorbis
 >>>>(84.b+96)		string/c	Xiphophorus\ libVorbis\ I	\b, created by: Xiphophorus libVorbis I
->>>>>(84.b+120)		string		>00000000	
+>>>>>(84.b+120)		string		>00000000
 # Map to beta version numbers:
 >>>>>>(84.b+120)	string		<20000508	(<beta1, prepublic)
 >>>>>>(84.b+120)	string		20000508	(1.0 beta 1 or beta 2)
@@ -13155,7 +13155,7 @@
 >>>>>>(84.b+120)	string		>20011231	(pre-1.0 CVS)
 # For the 1.0 release, Xiphophorus is replaced by Xiph.Org
 >>>>(84.b+96)		string/c	Xiph.Org\ libVorbis\ I	\b, created by: Xiph.Org libVorbis I
->>>>>(84.b+117)		string		>00000000	
+>>>>>(84.b+117)		string		>00000000
 >>>>>>(84.b+117)	string		<20020717	(pre-1.0 CVS)
 >>>>>>(84.b+117)	string		20020717	(1.0)
 >>>>>>(84.b+117)	string		20030909	(1.0.1)
@@ -13355,8 +13355,8 @@
 >0x1c	byte		&0x9		286
 >0x1c	byte		&0xa		386
 >0x1f	byte		<0x040		small model
->0x1f	byte		=0x048		large model	
->0x1f	byte		=0x049		huge model 
+>0x1f	byte		=0x048		large model
+>0x1f	byte		=0x049		huge model
 >0x1e	leshort		&0x1		executable
 >0x1e	leshort		^0x1		object file
 >0x1e	leshort		&0x40		Large Text
@@ -13424,7 +13424,7 @@
 #------------------------------------------------------------------------------
 # xwindows:  file(1) magic for various X/Window system file formats.
 
-# Compiled X Keymap 
+# Compiled X Keymap
 # XKM (compiled X keymap) files (including version and byte ordering)
 1	string	mkx				Compiled XKB Keymap: lsb,
 >0	byte	>0				version %d
