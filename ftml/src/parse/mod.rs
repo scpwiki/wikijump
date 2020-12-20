@@ -75,7 +75,7 @@ where
                 // Avoid an unnecessary Token::Null and just exit
                 Token::InputEnd => break,
 
-                // If we've hit a paragraph break, then finish the current progress.
+                // If we've hit a paragraph break, then finish the current paragraph.
                 Token::ParagraphBreak => {
                     stack.end_paragraph();
                     tokens = remaining;

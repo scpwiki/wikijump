@@ -64,17 +64,24 @@ impl<'t> ParseStack<'t> {
         self.errors.push(error);
     }
 
-    pub fn end_paragraph(&mut self) {
+    pub fn build_paragraph(&mut self) -> Option<Element<'t>> {
         // Don't create empty paragraphs
         if self.current.is_empty() {
-            return;
+            return None;
         }
 
-        // Pull out gathered elements so far, then make a new paragraph container
+        // Pull out gathered elements, then make a new paragraph container
         let elements = mem::replace(&mut self.current, Vec::new());
         let container = Container::new(ContainerType::Paragraph, elements);
-        let paragraph = Element::Container(container);
-        self.finished.push(paragraph);
+        let element = Element::Container(container);
+
+        Some(element)
+    }
+
+    pub fn end_paragraph(&mut self) {
+        if let Some(paragraph) = self.build_paragraph() {
+            self.finished.push(paragraph);
+        }
     }
 
     #[cold]
