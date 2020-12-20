@@ -76,6 +76,11 @@ where
                 break;
             }
 
+            // If we've hit a paragraph break, then finish the current progress.
+            if extracted.token == Token::ParagraphBreak {
+                stack.end_paragraph();
+            }
+
             // Produce consumption from this token pointer
             consume(log, extracted, remaining, full_text)
         };
