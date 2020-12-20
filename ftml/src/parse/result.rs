@@ -20,6 +20,7 @@
 
 use super::ParseError;
 use std::borrow::{Borrow, BorrowMut};
+use std::mem;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ParseResult<T> {
@@ -68,6 +69,16 @@ impl<T> ParseResult<T> {
     #[inline]
     pub fn errors(&self) -> &[ParseError] {
         &self.errors
+    }
+}
+
+impl<T> ParseResult<T>
+where
+    T: Default,
+{
+    #[inline]
+    pub fn swap(&mut self) -> T {
+        mem::replace(&mut self.value, T::default())
     }
 }
 
