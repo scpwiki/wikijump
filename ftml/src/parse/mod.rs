@@ -71,18 +71,20 @@ where
                 .split_first() //
                 .expect("Tokens list is empty");
 
-            // Avoid an unnecessary Token::Null and just exit
-            if extracted.token == Token::InputEnd {
-                break;
-            }
+            match extracted.token {
+                // Avoid an unnecessary Token::Null and just exit
+                Token::InputEnd => break,
 
-            // If we've hit a paragraph break, then finish the current progress.
-            if extracted.token == Token::ParagraphBreak {
-                stack.end_paragraph();
-            }
+                // If we've hit a paragraph break, then finish the current progress.
+                Token::ParagraphBreak => {
+                    stack.end_paragraph();
+                    tokens = remaining;
+                    continue;
+                }
 
-            // Produce consumption from this token pointer
-            consume(log, extracted, remaining, full_text)
+                // Produce consumption from this token pointer
+                _ => consume(log, extracted, remaining, full_text),
+            }
         };
 
         match consumption {
