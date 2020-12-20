@@ -65,6 +65,12 @@ impl<'t> ParseStack<'t> {
     }
 
     pub fn end_paragraph(&mut self) {
+        // Don't create empty paragraphs
+        if self.current.is_empty() {
+            return;
+        }
+
+        // Pull out gathered elements so far, then make a new paragraph container
         let elements = mem::replace(&mut self.current, Vec::new());
         let container = Container::new(ContainerType::Paragraph, elements);
         let paragraph = Element::Container(container);
