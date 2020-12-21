@@ -82,21 +82,34 @@ impl Test<'_> {
         let result = crate::parse(log, &tokens);
         let (tree, errors) = result.into();
 
+        fn json<T>(object: &T) -> String
+        where
+            T: serde::Serialize,
+        {
+            let mut output = serde_json::to_string_pretty(object)
+                .expect("Unable to serialize JSON to stdout");
+
+            output.insert_str(0, "Generated JSON: ");
+            output
+        }
+
         if tree != self.tree {
             panic!(
-                "Running test '{}' failed! AST did not match:\nExpected: {:#?}\nActual: {:#?}",
+                "Running test '{}' failed! AST did not match:\nExpected: {:#?}\nActual: {:#?}\n{}",
                 self.name,
                 self.tree,
                 tree,
+                json(&tree),
             );
         }
 
         if errors != self.errors {
             panic!(
-                "Running test '{}' failed! Errors did not match:\nExpected: {:#?}\nActual: {:#?}",
+                "Running test '{}' failed! Errors did not match:\nExpected: {:#?}\nActual: {:#?}\n{}",
                 self.name,
                 self.errors,
                 errors,
+                json(&errors),
             );
         }
     }
