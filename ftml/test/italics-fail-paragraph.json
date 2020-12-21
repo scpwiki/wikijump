@@ -1,0 +1,55 @@
+{
+    "input": "//Fail\n\nItalics//",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "//"
+                        },
+                        {
+                            "element": "text",
+                            "data": "Fail"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "Italics"
+                        },
+                        {
+                            "element": "text",
+                            "data": "//"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "errors": [
+        {
+            "token": "italics",
+            "rule": "fallback",
+            "span": [0, 2],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "italics",
+            "rule": "fallback",
+            "span": [12, 14],
+            "kind": "no-rules-match"
+        }
+    ]
+}
