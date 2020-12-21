@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::tree::Element;
 
 pub fn try_paragraph<'t, 'r>(
     log: &slog::Logger,
@@ -32,5 +33,22 @@ pub fn try_paragraph<'t, 'r>(
     invalid_tokens: &[Token],
     invalid_token_pairs: &[(Token, Token)],
 ) -> Consumption<'t, 'r> {
+    // Log try_paragraph() call
+    info!(
+        log,
+        "Trying to consume tokens to produce paragraph for {:?}", rule,
+    );
+
+    // Iterate and consume the tokens into multiple elements
+    let _consumption: GenericConsumption<'t, 'r, Vec<Element<'t>>> = try_collect(
+        log,
+        (extracted, remaining, full_text),
+        rule,
+        close_tokens,
+        invalid_tokens,
+        invalid_token_pairs,
+        |_log, _extracted, _remaining, _full_text| todo!(),
+    );
+
     todo!()
 }
