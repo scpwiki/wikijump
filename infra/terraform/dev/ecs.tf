@@ -58,10 +58,6 @@ resource "aws_ecs_service" "wikijump" {
     container_name   = "reverse-proxy"
     container_port   = 443
   }
-  network_configuration {
-    subnets          = [aws_subnet.container_subnet.id]
-    assign_public_ip = true
-  }
 }
 
 
