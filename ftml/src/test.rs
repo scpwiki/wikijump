@@ -52,9 +52,17 @@ impl Test<'_> {
     pub fn load(path: &Path, name: &str) -> Self {
         assert!(path.is_absolute());
 
-        let mut file = File::open(path).expect("Unable to open file");
-        let mut test: Self =
-            serde_json::from_reader(&mut file).expect("Unable to parse JSON");
+        let mut file = match File::open(path) {
+            Ok(file) => file,
+            Err(error) => panic!("Unable to open file '{}': {}", path.display(), error),
+        };
+
+        let mut test: Self = match serde_json::from_reader(&mut file) {
+            Ok(test) => test,
+            Err(error) => {
+                panic!("Unable to parse JSON file '{}': {}", path.display(), error)
+            }
+        };
 
         test.name = str!(name);
         test
