@@ -22,18 +22,6 @@ variable "container_subnet" {
   type = string
 }
 
-variable "database_subnet_a" {
-  type = string
-}
-
-variable "database_subnet_b" {
-  type = string
-}
-
-variable "cache_subnet" {
-  type = string
-}
-
 variable "cf_auth_token" {
   type = string
 }
