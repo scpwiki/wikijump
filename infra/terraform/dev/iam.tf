@@ -7,7 +7,7 @@ resource "aws_iam_role" "execution" {
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy_attach" {
-  role       = aws_iam_role.execution[0].name
+  role       = aws_iam_role.execution.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
@@ -22,7 +22,7 @@ resource "aws_iam_role" "task" {
 
 resource "aws_iam_role_policy" "log_agent" {
   name   = "wj-${var.environment}-log-permissions"
-  role   = aws_iam_role.task[0].id
+  role   = aws_iam_role.task.id
   policy = data.aws_iam_policy_document.task_permissions.json
 }
 
