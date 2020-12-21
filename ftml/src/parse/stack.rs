@@ -126,6 +126,8 @@ impl<'l, 't> ParseStack<'l, 't> {
     pub fn into_syntax_tree(mut self) -> ParseResult<SyntaxTree<'t>> {
         self.end_paragraph();
 
+        debug!(self.log, "Converting parse stack into syntax tree");
+
         let ParseStack {
             log: _,
             current: _,
