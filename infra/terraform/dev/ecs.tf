@@ -29,7 +29,7 @@ resource "aws_ecs_task_definition" "wikijump_task" {
   family                   = "wikijump-${var.environment}-ec2"
   container_definitions    = file("task-definitions/dev-ec2.json")
   requires_compatibilities = ["EC2"]
-  network_mode             = "awsvpc"
+  network_mode             = "bridge"
   execution_role_arn       = aws_iam_role.execution.arn
   task_role_arn            = aws_iam_role.task.arn
   volume {
