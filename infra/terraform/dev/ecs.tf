@@ -30,6 +30,18 @@ resource "aws_ecs_task_definition" "wikijump_task" {
   container_definitions    = file("task-definitions/dev-ec2.json")
   requires_compatibilities = ["EC2"]
   network_mode             = "awsvpc"
+  volume {
+    name = "docker-socket"
+    host_path = "/var/run/docker.sock"
+  }
+  volume {
+    name = "letsencrypt"
+
+    efs_volume_configuration {
+      file_system_id = aws_efs_file_system.traefik_efs.id
+      root_directory = "/letsencrypt"
+    }
+  }
 }
 
 

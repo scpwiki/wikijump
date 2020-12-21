@@ -1,7 +1,4 @@
-[{
-    "taskDefinition": {
-        "taskDefinitionArn": "arn:aws:ecs:us-east-2:026642728050:task-definition/dev-ec2:7",
-        "containerDefinitions": [
+[
             {
                 "name": "cache",
                 "image": "026642728050.dkr.ecr.us-east-2.amazonaws.com/wikijump/memcached:latest",
@@ -117,62 +114,4 @@
                 ],
                 "readonlyRootFilesystem": false
             }
-        ],
-        "family": "dev-ec2",
-        "taskRoleArn": "arn:aws:iam::026642728050:role/ecsTaskExecutionRole",
-        "executionRoleArn": "arn:aws:iam::026642728050:role/ecsTaskExecutionRole",
-        "networkMode": "bridge",
-        "revision": 7,
-        "volumes": [
-            {
-                "name": "docker-socket",
-                "host": {
-                    "sourcePath": "/var/run/docker.sock"
-                }
-            },
-            {
-                "name": "letsencrypt",
-                "host": {
-                    "sourcePath": "/letsencrypt"
-                }
-            }
-        ],
-        "status": "ACTIVE",
-        "requiresAttributes": [
-            {
-                "name": "com.amazonaws.ecs.capability.docker-remote-api.1.24"
-            },
-            {
-                "name": "com.amazonaws.ecs.capability.ecr-auth"
-            },
-            {
-                "name": "com.amazonaws.ecs.capability.docker-remote-api.1.21"
-            },
-            {
-                "name": "com.amazonaws.ecs.capability.task-iam-role"
-            },
-            {
-                "name": "ecs.capability.container-health-check"
-            },
-            {
-                "name": "ecs.capability.container-ordering"
-            },
-            {
-                "name": "ecs.capability.execution-role-ecr-pull"
-            },
-            {
-                "name": "ecs.capability.secrets.ssm.environment-variables"
-            },
-            {
-                "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
-            }
-        ],
-        "placementConstraints": [],
-        "compatibilities": [
-            "EC2"
-        ],
-        "requiresCompatibilities": [
-            "EC2"
         ]
-    }
-}]
