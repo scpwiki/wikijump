@@ -35,7 +35,11 @@ pub struct Container<'t> {
 
 impl<'t> Container<'t> {
     #[inline]
-    pub fn new(ctype: ContainerType, elements: Vec<Element<'t>>) -> Self {
+    pub fn new(ctype: ContainerType, mut elements: Vec<Element<'t>>) -> Self {
+        // Prune out null elements
+        elements.retain(|element| element != &Element::Null);
+
+        // Build object
         Container { ctype, elements }
     }
 
