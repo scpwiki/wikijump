@@ -40,7 +40,7 @@ pub fn try_paragraph<'t, 'r>(
     );
 
     // Iterate and consume the tokens into multiple elements
-    let mut stack = ParseStack::new();
+    let mut stack = ParseStack::new(log);
 
     let consumption = try_collect(
         log,

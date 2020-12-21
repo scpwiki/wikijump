@@ -23,8 +23,11 @@ use crate::tree::{Container, ContainerType, Element, SyntaxTree};
 use std::borrow::Cow;
 use std::mem;
 
-#[derive(Serialize, Deserialize, Debug, Default)]
-pub struct ParseStack<'t> {
+#[derive(Debug)]
+pub struct ParseStack<'l, 't> {
+    /// The `slog::Logger` instance used for logging stack operations.
+    log: &'l slog::Logger,
+
     /// Elements being accumulated in the current paragraph.
     current: Vec<Element<'t>>,
 
@@ -38,30 +41,65 @@ pub struct ParseStack<'t> {
     errors: Vec<ParseError>,
 }
 
-impl<'t> ParseStack<'t> {
+impl<'l, 't> ParseStack<'l, 't> {
     #[inline]
-    pub fn new() -> Self {
-        ParseStack::default()
+    pub fn new(log: &'l slog::Logger) -> Self {
+        ParseStack {
+            log,
+            current: Vec::new(),
+            finished: Vec::new(),
+            styles: Vec::new(),
+            errors: Vec::new(),
+        }
     }
 
     #[inline]
     pub fn push_element(&mut self, element: Element<'t>) {
+        debug!(
+            self.log,
+            "Pushing element to stack";
+            "element" => element.name(),
+        );
+
         self.current.push(element);
     }
 
     #[inline]
     pub fn push_style(&mut self, style: Cow<'t, str>) {
+        debug!(
+            self.log,
+            "Pushing style to stack";
+            "style" => style.as_ref(),
+        );
+
         self.styles.push(style);
     }
 
     #[inline]
     pub fn push_error(&mut self, error: ParseError) {
+        debug!(
+            self.log,
+            "Pushing error to stack";
+            "error" => error.kind().name(),
+        );
+
         self.errors.push(error);
     }
 
     pub fn build_paragraph(&mut self) -> Option<Element<'t>> {
+        debug!(
+            self.log,
+            "Building paragraph from current stack state";
+            "current-len" => self.current.len(),
+        );
+
         // Don't create empty paragraphs
         if self.current.is_empty() {
+            trace!(
+                self.log,
+                "No paragraph created, no pending elements in stack",
+            );
+
             return None;
         }
 
@@ -74,6 +112,11 @@ impl<'t> ParseStack<'t> {
     }
 
     pub fn end_paragraph(&mut self) {
+        debug!(
+            self.log,
+            "Ending the current paragraph to push as a completed element",
+        );
+
         if let Some(paragraph) = self.build_paragraph() {
             self.finished.push(paragraph);
         }
@@ -84,6 +127,7 @@ impl<'t> ParseStack<'t> {
         self.end_paragraph();
 
         let ParseStack {
+            log: _,
             current: _,
             finished: elements,
             styles,

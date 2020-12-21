@@ -49,7 +49,7 @@ where
     'r: 't,
 {
     // Set up variables
-    let mut stack = ParseStack::new();
+    let mut stack = ParseStack::new(log);
     let mut tokens = tokenization.tokens();
     let full_text = tokenization.full_text();
 
