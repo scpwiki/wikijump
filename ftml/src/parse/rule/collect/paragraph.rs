@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::tree::Element;
+use crate::parse::ParseStack;
 
 pub fn try_paragraph<'t, 'r>(
     log: &slog::Logger,
@@ -40,14 +40,24 @@ pub fn try_paragraph<'t, 'r>(
     );
 
     // Iterate and consume the tokens into multiple elements
-    let _consumption: GenericConsumption<'t, 'r, Vec<Element<'t>>> = try_collect(
+    let mut stack = ParseStack::new();
+
+    let consumption = try_collect(
         log,
         (extracted, remaining, full_text),
         rule,
         close_tokens,
         invalid_tokens,
         invalid_token_pairs,
-        |_log, _extracted, _remaining, _full_text| todo!(),
+        |log, extracted, remaining, _| {
+            todo!();
+
+            // We are collecting everything in ParseStack,
+            // so we return unit consumption so the gathered Vec<_>
+            // doesn't actually allocate, but we can still output
+            // something success as required for try_collect().
+            GenericConsumption::ok((), remaining)
+        },
     );
 
     todo!()
