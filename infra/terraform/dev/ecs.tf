@@ -3,10 +3,9 @@ module "ecs_cluster" {
   cluster_name = "wikijump-dev"
   spot         = true
   instance_types = {
-    "t3.medium"  = 1,
-    "t3a.medium" = 1
+    "t3.medium"  = 1
   }
-  target_capacity = 100
+  target_capacity = 1
 
   // subnets with ALB and bastion host e.g..
   trusted_cidr_blocks = [
