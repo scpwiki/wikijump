@@ -1,56 +1,56 @@
 variable "environment" {
-    type    = string
+  type = string
 }
 
 variable "web_domain" {
-    type    = string
+  type = string
 }
 
 variable "files_domain" {
-    type    = string
+  type = string
 }
 
 variable "vpc_cidr_block" {
-    type    = string
+  type = string
 }
 
 variable "elb_subnet" {
-    type    = string
+  type = string
 }
 
 variable "container_subnet" {
-    type    = string
+  type = string
 }
 
 variable "database_subnet_a" {
-    type    = string
+  type = string
 }
 
 variable "database_subnet_b" {
-    type    = string
+  type = string
 }
 
 variable "cache_subnet" {
-    type    = string
+  type = string
 }
 
 variable "cf_auth_token" {
-    type    = string
+  type = string
 }
 
 variable "cache_num_nodes" {
-    type    = number
+  type = number
 }
 
 variable "cache_ec2_size" {
-    type    = string
+  type = string
 }
 
 variable "rds_master_password" {
-    type    = string
+  type = string
 }
 
 variable "region" {
-    type    = string
+  type = string
 }
 

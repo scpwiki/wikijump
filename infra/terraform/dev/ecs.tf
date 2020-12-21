@@ -1,7 +1,7 @@
 module "ecs_cluster" {
-  source              = "github.com/jetbrains-infra/terraform-aws-ecs-cluster?ref=v0.4.8" // see https://github.com/jetbrains-infra/terraform-aws-ecs-cluster/releases
-  cluster_name        = "wikijump-dev"
-  spot                = true
+  source       = "github.com/jetbrains-infra/terraform-aws-ecs-cluster?ref=v0.4.8" // see https://github.com/jetbrains-infra/terraform-aws-ecs-cluster/releases
+  cluster_name = "wikijump-dev"
+  spot         = true
   instance_types = {
     "t3.medium"  = 1,
     "t3a.medium" = 1
@@ -14,40 +14,40 @@ module "ecs_cluster" {
     var.container_subnet
   ]
 
-  subnets_ids         = [
+  subnets_ids = [
     aws_subnet.container_subnet.id
   ]
 
   tags = {
-    Stack = "Dev",
+    Stack     = "Dev",
     Terraform = "true"
   }
 }
 
 
 resource "aws_ecs_task_definition" "wikijump_task" {
-    family  = "wikijump-${var.environment}-ec2"
-    container_definitions   = file("task-definitions/dev-ec2.json")
-    requires_compatibilities    = ["EC2"]
-    network_mode = "awsvpc"
+  family                   = "wikijump-${var.environment}-ec2"
+  container_definitions    = file("task-definitions/dev-ec2.json")
+  requires_compatibilities = ["EC2"]
+  network_mode             = "awsvpc"
 }
 
 
 resource "aws_ecs_service" "wikijump" {
-    name    = "wikijump-${var.environment}"
-    cluster = module.ecs_cluster.id
-    task_definition = aws_ecs_task_definition.wikijump_task.arn
-    desired_count   = 1  # This will be a var as we grow
-    force_new_deployment = true
-    load_balancer {
-        target_group_arn    = aws_lb_target_group.elb_target_group_443.arn
-        container_name      = "reverse-proxy"
-        container_port      = 443
-    }
-    network_configuration {
-        subnets = [aws_subnet.container_subnet.id]
-        assign_public_ip = true
-    }
+  name                 = "wikijump-${var.environment}"
+  cluster              = module.ecs_cluster.id
+  task_definition      = aws_ecs_task_definition.wikijump_task.arn
+  desired_count        = 1 # This will be a var as we grow
+  force_new_deployment = true
+  load_balancer {
+    target_group_arn = aws_lb_target_group.elb_target_group_443.arn
+    container_name   = "reverse-proxy"
+    container_port   = 443
+  }
+  network_configuration {
+    subnets          = [aws_subnet.container_subnet.id]
+    assign_public_ip = true
+  }
 }
 
 
