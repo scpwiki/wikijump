@@ -47,7 +47,7 @@ resource "aws_ecs_task_definition" "wikijump_task" {
 
 
 resource "aws_ecs_service" "wikijump" {
-  name                 = "wikijump-${var.environment}"
+  name                 = "wikijump-${var.environment}-svc"
   cluster              = module.ecs_cluster.id
   task_definition      = aws_ecs_task_definition.wikijump_task.arn
   desired_count        = 1 # This will be a var as we grow
