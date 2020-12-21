@@ -50,11 +50,6 @@ impl<'t> ParseStack<'t> {
     }
 
     #[inline]
-    pub fn push_finished(&mut self, element: Element<'t>) {
-        self.finished.push(element);
-    }
-
-    #[inline]
     pub fn push_style(&mut self, style: Cow<'t, str>) {
         self.styles.push(style);
     }
