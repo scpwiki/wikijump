@@ -3,11 +3,19 @@
     "tree": {
         "elements": [
             {
-                "element": "link",
+                "element": "container",
                 "data": {
-                    "url": "SCP-001",
-                    "label": "url",
-                    "anchor": "new-tab"
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "link",
+                            "data": {
+                                "url": "SCP-001",
+                                "label": "url",
+                                "anchor": "new-tab"
+                            }
+                        }
+                    ]
                 }
             }
         ],

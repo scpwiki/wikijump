@@ -3,28 +3,36 @@
     "tree": {
         "elements": [
             {
-                "element": "text",
-                "data": "[[[*"
-            },
-            {
-                "element": "text",
-                "data": "|"
-            },
-            {
-                "element": "text",
-                "data": "some"
-            },
-            {
-                "element": "text",
-                "data": "-"
-            },
-            {
-                "element": "text",
-                "data": "page"
-            },
-            {
-                "element": "text",
-                "data": "]]]"
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "[[[*"
+                        },
+                        {
+                            "element": "text",
+                            "data": "|"
+                        },
+                        {
+                            "element": "text",
+                            "data": "some"
+                        },
+                        {
+                            "element": "text",
+                            "data": "-"
+                        },
+                        {
+                            "element": "text",
+                            "data": "page"
+                        },
+                        {
+                            "element": "text",
+                            "data": "]]]"
+                        }
+                    ]
+                }
             }
         ],
         "styles": [

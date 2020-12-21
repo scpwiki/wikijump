@@ -5,22 +5,30 @@
             {
                 "element": "container",
                 "data": {
-                    "type": "underline",
+                    "type": "paragraph",
                     "elements": [
                         {
+                            "element": "container",
+                            "data": {
+                                "type": "underline",
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Underline"
+                                    }
+                                ]
+                            }
+                        },
+                        {
                             "element": "text",
-                            "data": "Underline"
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Text"
                         }
                     ]
                 }
-            },
-            {
-                "element": "text",
-                "data": " "
-            },
-            {
-                "element": "text",
-                "data": "Text"
             }
         ],
         "styles": [

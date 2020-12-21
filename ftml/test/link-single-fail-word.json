@@ -3,16 +3,24 @@
     "tree": {
         "elements": [
             {
-                "element": "text",
-                "data": "["
-            },
-            {
-                "element": "text",
-                "data": "REDACTED"
-            },
-            {
-                "element": "text",
-                "data": "]"
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "["
+                        },
+                        {
+                            "element": "text",
+                            "data": "REDACTED"
+                        },
+                        {
+                            "element": "text",
+                            "data": "]"
+                        }
+                    ]
+                }
             }
         ],
         "styles": [

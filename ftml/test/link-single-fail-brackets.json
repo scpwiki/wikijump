@@ -3,40 +3,48 @@
     "tree": {
         "elements": [
             {
-                "element": "text",
-                "data": "["
-            },
-            {
-                "element": "text",
-                "data": " "
-            },
-            {
-                "element": "text",
-                "data": "not"
-            },
-            {
-                "element": "text",
-                "data": " "
-            },
-            {
-                "element": "text",
-                "data": "a"
-            },
-            {
-                "element": "text",
-                "data": " "
-            },
-            {
-                "element": "text",
-                "data": "link"
-            },
-            {
-                "element": "text",
-                "data": " "
-            },
-            {
-                "element": "text",
-                "data": "]"
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "["
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "not"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "a"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "link"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "]"
+                        }
+                    ]
+                }
             }
         ],
         "styles": [

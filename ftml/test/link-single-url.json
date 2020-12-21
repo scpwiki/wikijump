@@ -3,13 +3,21 @@
     "tree": {
         "elements": [
             {
-                "element": "link",
+                "element": "container",
                 "data": {
-                    "url": "/page",
-                    "label": {
-                        "text": "Some page"
-                    },
-                    "anchor": "same"
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "link",
+                            "data": {
+                                "url": "/page",
+                                "label": {
+                                    "text": "Some page"
+                                },
+                                "anchor": "same"
+                            }
+                        }
+                    ]
                 }
             }
         ],

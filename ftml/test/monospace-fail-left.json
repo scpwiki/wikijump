@@ -3,20 +3,28 @@
     "tree": {
         "elements": [
             {
-                "element": "text",
-                "data": "{{"
-            },
-            {
-                "element": "text",
-                "data": "Fail"
-            },
-            {
-                "element": "text",
-                "data": " "
-            },
-            {
-                "element": "text",
-                "data": "Monospace"
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "{{"
+                        },
+                        {
+                            "element": "text",
+                            "data": "Fail"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Monospace"
+                        }
+                    ]
+                }
             }
         ],
         "styles": [

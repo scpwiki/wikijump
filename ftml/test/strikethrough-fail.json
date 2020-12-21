@@ -3,20 +3,28 @@
     "tree": {
         "elements": [
             {
-                "element": "text",
-                "data": "\u2014"
-            },
-            {
-                "element": "text",
-                "data": "Fail"
-            },
-            {
-                "element": "text",
-                "data": " "
-            },
-            {
-                "element": "text",
-                "data": "Strikethrough"
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "\u2014"
+                        },
+                        {
+                            "element": "text",
+                            "data": "Fail"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Strikethrough"
+                        }
+                    ]
+                }
             }
         ],
         "styles": [

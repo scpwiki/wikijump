@@ -25,7 +25,7 @@
                     "elements": [
                         {
                             "element": "text",
-                            "data": "Italics"
+                            "data": "Underline"
                         },
                         {
                             "element": "text",
@@ -48,7 +48,7 @@
         {
             "token": "underline",
             "rule": "fallback",
-            "span": [12, 14],
+            "span": [17, 19],
             "kind": "no-rules-match"
         }
     ]

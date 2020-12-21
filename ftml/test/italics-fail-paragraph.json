@@ -48,7 +48,7 @@
         {
             "token": "italics",
             "rule": "fallback",
-            "span": [12, 14],
+            "span": [15, 17],
             "kind": "no-rules-match"
         }
     ]

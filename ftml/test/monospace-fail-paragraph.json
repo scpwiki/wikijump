@@ -48,7 +48,7 @@
         {
             "token": "right-monospace",
             "rule": "fallback",
-            "span": [12, 14],
+            "span": [17, 19],
             "kind": "no-rules-match"
         }
     ]

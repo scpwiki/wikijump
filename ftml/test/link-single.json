@@ -3,18 +3,26 @@
     "tree": {
         "elements": [
             {
-                "element": "link",
+                "element": "container",
                 "data": {
-                    "url": "https://example.com/",
-                    "label": {
-                        "text": "Some link"
-                    },
-                    "anchor": "same"
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "link",
+                            "data": {
+                                "url": "https://example.com/",
+                                "label": {
+                                    "text": "Some link"
+                                },
+                                "anchor": "same"
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": "!"
+                        }
+                    ]
                 }
-            },
-            {
-                "element": "text",
-                "data": "!"
             }
         ],
         "styles": [

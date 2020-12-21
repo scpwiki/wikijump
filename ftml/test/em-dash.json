@@ -3,24 +3,32 @@
     "tree": {
         "elements": [
             {
-                "element": "text",
-                "data": "Em"
-            },
-            {
-                "element": "text",
-                "data": " "
-            },
-            {
-                "element": "text",
-                "data": "\u2014"
-            },
-            {
-                "element": "text",
-                "data": " "
-            },
-            {
-                "element": "text",
-                "data": "Dash"
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "Em"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "\u2014"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Dash"
+                        }
+                    ]
+                }
             }
         ],
         "styles": [

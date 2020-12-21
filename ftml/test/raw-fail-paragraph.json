@@ -48,7 +48,7 @@
         {
             "token": "raw",
             "rule": "fallback",
-            "span": [12, 14],
+            "span": [11, 13],
             "kind": "no-rules-match"
         }
     ]

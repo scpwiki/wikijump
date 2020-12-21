@@ -3,8 +3,16 @@
     "tree": {
         "elements": [
             {
-                "element": "raw",
-                "data": "raw @< >@ content"
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "raw",
+                            "data": "raw @< >@ content"
+                        }
+                    ]
+                }
             }
         ],
         "styles": [
