@@ -30,8 +30,10 @@ resource "aws_ecs_task_definition" "wikijump_task" {
   container_definitions    = file("task-definitions/dev-ec2.json")
   requires_compatibilities = ["EC2"]
   network_mode             = "awsvpc"
+  execution_role_arn       = aws_iam_role.execution[0].arn
+  task_role_arn            = aws_iam_role.task[0].arn
   volume {
-    name = "docker-socket"
+    name      = "docker-socket"
     host_path = "/var/run/docker.sock"
   }
   volume {
