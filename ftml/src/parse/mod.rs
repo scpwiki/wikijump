@@ -29,9 +29,12 @@ mod rule;
 mod stack;
 mod token;
 
+use self::consume::consume;
 use self::paragraph::gather_paragraphs;
+use self::rule::{Consumption, GenericConsumption};
 use self::stack::ParseStack;
 use crate::tokenize::Tokenization;
+use crate::tree::Element;
 use crate::tree::SyntaxTree;
 
 pub use self::error::{ParseError, ParseErrorKind, ParseException};
@@ -49,7 +52,7 @@ where
     'r: 't,
 {
     // Set up variables
-    let tokens = tokenization.tokens();
+    let mut tokens = tokenization.tokens();
     let full_text = tokenization.full_text();
 
     // Logging setup
@@ -62,13 +65,80 @@ where
 
     // Run through tokens until finished
     info!(log, "Running parser on tokens");
-    let stack = {
+    let mut stack = ParseStack::new(log);
+
+    while !tokens.is_empty() {
         let (extracted, remaining) = tokens
             .split_first() //
             .expect("Tokens list is empty");
 
-        gather_paragraphs(log, &extracted, remaining, full_text)
-    };
+        // Consume tokens to produce the next element
+        let consumption = match extracted.token {
+            // Avoid an unnecessary Token::Null and just exit
+            Token::InputEnd => {
+                debug!(log, "Hit the end of input, terminating token iteration");
+                break;
+            }
+
+            // If we've hit a paragraph break, then finish the current paragraph.
+            Token::ParagraphBreak => {
+                debug!(
+                    log,
+                    "Hit a paragraph break, creating a new paragraph container",
+                );
+                stack.end_paragraph();
+                continue;
+            }
+
+            // Produce consumption from this token pointer
+            _ => {
+                debug!(log, "Trying to consume tokens to produce element");
+                consume(log, &extracted, remaining, full_text)
+            }
+        };
+
+        match consumption {
+            Consumption::Success {
+                item,
+                remaining,
+                exceptions,
+            } => {
+                debug!(log, "Tokens successfully consumed to produce element");
+
+                // Update remaining tokens
+                //
+                // The new value is a subslice of tokens,
+                // equivalent to &tokens[offset..] but without
+                // needing to assert bounds.
+                tokens = remaining;
+
+                // Add the new element to the list
+                stack.push_element(item);
+
+                // Process exceptions
+                for exception in exceptions {
+                    match exception {
+                        ParseException::Error(error) => stack.push_error(error),
+                        ParseException::Style(style) => stack.push_style(style),
+                    }
+                }
+            }
+            Consumption::Failure { error } => {
+                info!(
+                    log,
+                    "Token consumption failed, returned error";
+                    "error-token" => error.token(),
+                    "error-rule" => error.rule(),
+                    "error-span-start" => error.span().start,
+                    "error-span-end" => error.span().end,
+                    "error-kind" => error.kind().name(),
+                );
+
+                // Append the error
+                stack.push_error(error);
+            }
+        };
+    }
 
     info!(log, "Finished running parser, returning gathered elements");
     stack.into_syntax_tree()
