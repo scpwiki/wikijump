@@ -34,7 +34,7 @@ class CategoryPeer extends CategoryPeerBase
                 $c->add("name", $name);
                 $c->add("site_id", $siteId);
                 $cat = $this->selectOne($c);
-                $memcache->set($key, $cat, 0, 864000); // 10 days ;-)
+                $memcache->set($key, $cat, 0, 864000); // 10 days
                 return $cat;
             }
         } else {

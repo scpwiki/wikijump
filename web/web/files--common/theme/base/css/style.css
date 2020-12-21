@@ -557,7 +557,7 @@ code {
 .math-equation{
 	text-align: center;
 	padding: 0.5em 0;
-	height: 1%; /* for IE to blink ;-) */
+	height: 1%; /* for IE to blink */
 }
 .equation-number{
 	float: right;
@@ -603,7 +603,7 @@ a.footnoteref{
 }
 
 .bibitem{
-	height: 1%; /* for IE to blink ;-) */
+	height: 1%; /* for IE to blink */
 }
 
 a.bibcite{

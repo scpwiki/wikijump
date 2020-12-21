@@ -38,7 +38,7 @@ class OzoneLogger {
 	 * Sets the debug level for the logger. Possible levels are: "error", "warning",
 	 * "info", "debug" in the stated order. The "debug" level provides the most ferbose
 	 * output that includes all error, warning, info and debug messages. "Info" level provides
-	 * output only for error, warning and info. Get it? ;-)
+	 * output only for error, warning and info. Get it?
 	 * @param string $debugLevel
 	 */
 	public function setDebugLevel($debugLevel){

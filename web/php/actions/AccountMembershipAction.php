@@ -81,7 +81,7 @@ class AccountMembershipAction extends SmartyAction
                 throw new ProcessException(sprintf(_('Sorry, at the moment max %d member limit apply for private Wikis. The Site would have to be upgraded to allow more members.'), $maxMembers));
             }
         }
-        // all ok... ;-)
+        // all ok...
 
         $db = Database::connection();
         $db->begin();

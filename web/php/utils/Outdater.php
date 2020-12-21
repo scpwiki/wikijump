@@ -656,7 +656,7 @@ class Outdater
         $tkey = 'forumcategory_lc..'.$site->getUnixName().'..'.$thread->getCategoryId();
         $mc->set($tkey, $now, 0, 1000);
 
-        // outdate whole forum ;-)    (affects the main view)
+        // outdate whole forum (affects the main view)
 
         $tkey = 'forumstart_lc..'.$site->getUnixName();
         $mc->set($tkey, $now, 0, 1000);
@@ -683,7 +683,7 @@ class Outdater
         $tkey = 'forumcategory_lc..'.$site->getUnixName().'..'.$thread->getCategoryId();
         $mc->set($tkey, $now, 0, 1000);
 
-        // outdate whole forum ;-)    (affects the main view)
+        // outdate whole forum (affects the main view)
         $tkey = 'forumstart_lc..'.$site->getUnixName();
         $mc->set($tkey, $now, 0, 1000);
     }

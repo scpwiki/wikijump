@@ -8,7 +8,7 @@ class RenameBacklinksModule extends SmartyModule
 
         $pageId = $runData->getParameterList()->getParameterValue("page_id");
 
-        // create a very custom query ;-)
+        // create a very custom query
         $c = new Criteria();
         $q = "SELECT page_id, title, unix_name FROM page_link, page " .
                 "WHERE page_link.to_page_id='".db_escape_string($pageId)."' " .

@@ -746,6 +746,4 @@ Wikijump.modules.PageEditModule.init = function(){
 	}
 }
 
-// WHY??? ;-)
 setTimeout("Wikijump.modules.PageEditModule.init()", 10);
-

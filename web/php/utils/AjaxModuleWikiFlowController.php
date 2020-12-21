@@ -316,7 +316,7 @@ class AjaxModuleWikiFlowController extends WebFlowController
             $rVars['cssInclude'] = $cssInclude;
         }
 
-        // specify (copy) jscallback. ugly, right? ;-)
+        // specify (copy) jscallback. ugly, right?
         $rVars['callbackIndex'] = $callbackIndex;
 
         $json = new JSONService();

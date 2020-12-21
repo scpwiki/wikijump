@@ -24,5 +24,5 @@
  * @link       http://pear.php.net/package/Text_Wiki
  */
 class Text_Wiki_Render_Xhtml_Freelink extends Text_Wiki_Render_Xhtml_Wikilink {
-    // renders identically to wikilinks, only the parsing is different :-)
+    // renders identically to wikilinks, only the parsing is different
 }

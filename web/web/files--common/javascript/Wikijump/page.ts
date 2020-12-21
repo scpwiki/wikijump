@@ -100,7 +100,7 @@ export const page = {
     },
 
     moreOptionsClick: function (_event: Event): void {
-      // make fx or not? ;-)
+      // make fx or not?
       if (!document.getElementById("page-options-bottom")) { return; }
       const ofx = new fx.Opacity("page-options-bottom-2", { duration: 200 });
       ofx.setOpacity(0);
@@ -873,7 +873,7 @@ export const page = {
     }
   },
 
-  /* initialize a few things ;-) */
+  /* initialize a few things */
   init: function (): void {
     YAHOO.util.Event.addListener("edit-button", "click", Wikijump.page.listeners.editClick);
     YAHOO.util.Event.addListener("pagerate-button", "click", Wikijump.page.listeners.pageRate);

@@ -80,7 +80,7 @@ class Duplicator
         $admin = new Admin();
         $admin->setSiteId($nsite->getSiteId());
         $admin->setUserId($owner->getUserId());
-        $admin->setFounder(true); // will be nonremovable ;-)
+        $admin->setFounder(true); // will be nonremovable
         $admin->save();
         $member = new Member();
         $member->setSiteId($nsite->getSiteId());
@@ -235,7 +235,7 @@ class Duplicator
             $admin = new Admin();
             $admin->setSiteId($nsite->getSiteId());
             $admin->setUserId($owner->getUserId());
-            $admin->setFounder(true); // will be nonremovable ;-)
+            $admin->setFounder(true); // will be nonremovable
             $admin->save();
             $member = new Member();
             $member->setSiteId($nsite->getSiteId());
@@ -429,7 +429,7 @@ class Duplicator
             $admin = new Admin();
             $admin->setSiteId($nsite->getSiteId());
             $admin->setUserId($owner->getUserId());
-            $admin->setFounder(true); // will be nonremovable ;-)
+            $admin->setFounder(true); // will be nonremovable
             $admin->save();
             $member = new Member();
             $member->setSiteId($nsite->getSiteId());

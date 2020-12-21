@@ -27,7 +27,7 @@
 	{/foreach}
 {else}
 	<p>
-		Sorry, no applications. Not a single soul wants to join this Site... ;-)
+		There are currently no applications for this site.
 	</p>
 {/if}
 

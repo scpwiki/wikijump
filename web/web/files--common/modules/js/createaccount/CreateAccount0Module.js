@@ -12,7 +12,7 @@ Wikijump.modules.CreateAccount0Module.listeners = {
 		Wikijump.modules.CreateAccountModule.vars.formData = OZONE.utils.formToArray("createaccount-form0");
 
 		var p = OZONE.utils.formToArray("createaccount-form0");
-		//crypt some data please... ;-)
+		//crypt some data please...
 		var rsa = new RSAKey();
 		rsa.setPublic(Wikijump.modules.CreateAccountModule.vars.rsakey, "10001");
 		p['email'] = linebrk(hex2b64(rsa.encrypt('__'+p['email'])),64);
