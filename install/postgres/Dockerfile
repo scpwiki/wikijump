@@ -5,6 +5,7 @@ FROM postgres:12
 EXPOSE 5432
 
 # Build variables
+ARG FILES_DOMAIN="wjfiles.test"
 ARG PGDATA="/var/lib/postgresql/data"
 
 ENV POSTGRES_CLUSTER="main"

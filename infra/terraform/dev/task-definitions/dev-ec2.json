@@ -1,0 +1,178 @@
+[{
+    "taskDefinition": {
+        "taskDefinitionArn": "arn:aws:ecs:us-east-2:026642728050:task-definition/dev-ec2:7",
+        "containerDefinitions": [
+            {
+                "name": "cache",
+                "image": "026642728050.dkr.ecr.us-east-2.amazonaws.com/wikijump/memcached:latest",
+                "cpu": 0,
+                "memoryReservation": 512,
+                "portMappings": [],
+                "essential": true,
+                "environment": [],
+                "mountPoints": [],
+                "volumesFrom": []
+            },
+            {
+                "name": "database",
+                "image": "026642728050.dkr.ecr.us-east-2.amazonaws.com/wikijump/postgres:latest",
+                "cpu": 0,
+                "memoryReservation": 2048,
+                "portMappings": [],
+                "essential": true,
+                "environment": [],
+                "mountPoints": [],
+                "volumesFrom": []
+            },
+            {
+                "name": "php-fpm",
+                "image": "026642728050.dkr.ecr.us-east-2.amazonaws.com/wikijump/php-fpm:latest",
+                "cpu": 0,
+                "memoryReservation": 768,
+                "links": [
+                    "cache:cache",
+                    "database:database"
+                ],
+                "portMappings": [],
+                "essential": true,
+                "environment": [],
+                "mountPoints": [],
+                "volumesFrom": [],
+                "secrets": [
+                    {
+                        "name": "URL_DOMAIN",
+                        "valueFrom": "wikijump-dev-URL_DOMAIN"
+                    },
+                    {
+                        "name": "URL_UPLOAD_DOMAIN",
+                        "valueFrom": "wikijump-dev-URL_UPLOAD_DOMAIN"
+                    }
+                ],
+                "dockerLabels": {
+                    "traefik.enable": "true",
+                    "traefik.http.routers.php-fpm.rule": "Host(`wikijump.dev`,`www.wikijump.dev`,`wjfiles.dev`,`www.wjfiles.dev`)",
+                    "traefik.http.routers.php-fpm.tls": "true",
+                    "traefik.http.routers.php-fpm.tls.certresolver": "mytlschallenge"
+                },
+                "healthCheck": {
+                    "command": [
+                        "CMD-SHELL",
+                        "curl -f http://localhost || exit 1"
+                    ],
+                    "interval": 30,
+                    "timeout": 5,
+                    "retries": 3
+                }
+            },
+            {
+                "name": "reverse-proxy",
+                "image": "026642728050.dkr.ecr.us-east-2.amazonaws.com/wikijump/traefik:latest",
+                "cpu": 0,
+                "memoryReservation": 512,
+                "links": [
+                    "php-fpm:php-fpm"
+                ],
+                "portMappings": [
+                    {
+                        "containerPort": 80,
+                        "hostPort": 80,
+                        "protocol": "tcp"
+                    },
+                    {
+                        "containerPort": 443,
+                        "hostPort": 443,
+                        "protocol": "tcp"
+                    }
+                ],
+                "essential": true,
+                "command": [
+                    "--providers.docker",
+                    "--entrypoints.web.address=:80",
+                    "--entrypoints.web.http.redirections.entryPoint.to=web-secure",
+                    "--entrypoints.web.http.redirections.entryPoint.scheme=https",
+                    "--entrypoints.web.http.redirections.entrypoint.permanent=true",
+                    "--entrypoints.web-secure.address=:443",
+                    "--certificatesresolvers.mytlschallenge.acme.tlschallenge=true",
+                    "--certificatesresolvers.mytlschallenge.acme.email=info@wikijump.com",
+                    "--certificatesresolvers.mytlschallenge.acme.storage=/letsencrypt/acme.json"
+                ],
+                "environment": [],
+                "mountPoints": [
+                    {
+                        "sourceVolume": "docker-socket",
+                        "containerPath": "/var/run/docker.sock",
+                        "readOnly": true
+                    },
+                    {
+                        "sourceVolume": "letsencrypt",
+                        "containerPath": "/letsencrypt"
+                    }
+                ],
+                "volumesFrom": [],
+                "dependsOn": [
+                    {
+                        "containerName": "php-fpm",
+                        "condition": "HEALTHY"
+                    }
+                ],
+                "readonlyRootFilesystem": false
+            }
+        ],
+        "family": "dev-ec2",
+        "taskRoleArn": "arn:aws:iam::026642728050:role/ecsTaskExecutionRole",
+        "executionRoleArn": "arn:aws:iam::026642728050:role/ecsTaskExecutionRole",
+        "networkMode": "bridge",
+        "revision": 7,
+        "volumes": [
+            {
+                "name": "docker-socket",
+                "host": {
+                    "sourcePath": "/var/run/docker.sock"
+                }
+            },
+            {
+                "name": "letsencrypt",
+                "host": {
+                    "sourcePath": "/letsencrypt"
+                }
+            }
+        ],
+        "status": "ACTIVE",
+        "requiresAttributes": [
+            {
+                "name": "com.amazonaws.ecs.capability.docker-remote-api.1.24"
+            },
+            {
+                "name": "com.amazonaws.ecs.capability.ecr-auth"
+            },
+            {
+                "name": "com.amazonaws.ecs.capability.docker-remote-api.1.21"
+            },
+            {
+                "name": "com.amazonaws.ecs.capability.task-iam-role"
+            },
+            {
+                "name": "ecs.capability.container-health-check"
+            },
+            {
+                "name": "ecs.capability.container-ordering"
+            },
+            {
+                "name": "ecs.capability.execution-role-ecr-pull"
+            },
+            {
+                "name": "ecs.capability.secrets.ssm.environment-variables"
+            },
+            {
+                "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+            }
+        ],
+        "placementConstraints": [],
+        "compatibilities": [
+            "EC2"
+        ],
+        "requiresCompatibilities": [
+            "EC2"
+        ]
+    }
+}]

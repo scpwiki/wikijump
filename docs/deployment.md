@@ -15,5 +15,10 @@ Deployment was designed to need a minimal amount of work done in advance, but th
 1. You will need [Terraform](https://www.terraform.io) as well as a place to store Terraform state files. We use Terraform Cloud which is free for teams of up to 5 users, but you can also do things like storing the state files in S3.
 2. You will need to make an IAM user for Terraform to use to create and update everything. A JSON file for the IAM Policy is forthcoming.
 3. You will need to make an IAM user for your CI/CD (GitHub Actions for us) to use to push Docker iamges. A JSON file for the IAM policy is forthcoming.
-4. You will need to create the Elastic Container Registry that your images will go in. This is to solve a chicken-and-egg problem where GitHub Actions needs to push updated images to a registry that doesn't exist yet. I would suggest enabling KMS Encryption and Scan On Push, and disabling Tag Immutability.
-5. You will need to store some secrets in GitHub Actions. Obviously, this is just guidance, if you're using something else for CI/CD you'll be doing the same sort of thing. Ours has ECR_REPOSITORY, DOCKER_PUSH_KEY, and DOCKER_PUSH_SECRET.
+4. You will need to create several Elastic Container Registry Repositories that your images will go in. This is to solve a chicken-and-egg problem where GitHub Actions needs to push updated images to a repository that doesn't exist yet. I would suggest enabling KMS Encryption and Scan On Push, and disabling Tag Immutability on all repositories. One registry is plenty, and it will be expected to have `wikijump/traefik`, `wikijump/memcached`, `wikijump/postgres`, and `wikijump/php-fpm` as repositories.
+
+## Instructions
+
+A couple of things need to happen in order for things to build correctly.
+1. Run the terraform deployment. This will generate most of the infrastructure for you not counting the container piece.
+2. You need to export some ARNs to your CI/CD tool: 

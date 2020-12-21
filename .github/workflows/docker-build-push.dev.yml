@@ -20,17 +20,23 @@ jobs:
         name: Checkout
         uses: actions/checkout@v2
       -
-        name: Build and push
+        name: Build
         run: |
           cd $GITHUB_WORKSPACE
+          docker-compose -f install/docker-compose.aws-dev.yaml build
+      -
+        name: Push
+        run: |
           export AWS_ACCESS_KEY_ID=${{ secrets.DOCKER_PUSH_KEY }}
           export AWS_SECRET_ACCESS_KEY=${{ secrets.DOCKER_PUSH_SECRET }}
           export AWS_DEFAULT_REGION=us-east-2
+          docker context create ecs githubactions --from-env
+          docker context use githubactions
+          docker-compose -f install/docker-compose.aws-dev.yaml push
+      -
+        name: Up
+        run: |
           curl -L https://raw.githubusercontent.com/docker/compose-cli/main/scripts/install/install_linux.sh | sh
           sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
-          docker context create ecs githubactions --from-env
-          docker context use githubactions
-          docker-compose -f install/docker-compose.aws-dev.yaml build
-          docker-compose -f install/docker-compose.aws-dev.yaml push
-          docker-compose -f install/docker-compose.aws-dev.yaml up
+          docker compose -f install/docker-compose.aws-dev.yaml up

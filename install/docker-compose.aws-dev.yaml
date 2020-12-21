@@ -2,13 +2,15 @@ version: '3.8'
 
 services:
   cache:
-    image: memcached:1.6-alpine
+    build:
+      context: ./cache
+    image: wikijump/memcached
     restart: always
   database:
     build:
       context: ./postgres
     restart: always
-    image: database:develop
+    image: wikijump/postgres
   php-fpm:
     build:
       context: ./php-fpm
@@ -26,9 +28,11 @@ services:
       - traefik.enable=true
       - traefik.http.routers.php-fpm.tls=true
       - traefik.http.routers.php-fpm.rule=Method(`GET`,`POST`,`HEAD`,`PUT`,`PATCH`,`DELETE`)  # Poor man's default route
-    image: php-fpm:develop
+    image: wikijump/php-fpm
   reverse-proxy:
-    image: traefik:v2.3
+    build:
+      context: ./traefik
+    image: wikijump/traefik
     command:
       - --providers.docker
       - --entrypoints.web.address=:80
@@ -51,6 +55,6 @@ volumes:
   certstore:
     external: true
     name: traefik-certstore-dev
-x-aws-vpc: tbd, terraform
-x-aws-cluster: tbd, terraform
-x-aws-loadalancer: tbd, terraform
+# x-aws-vpc: tbd, terraform
+# x-aws-cluster: tbd, terraform
+# x-aws-loadalancer: tbd, terraform
