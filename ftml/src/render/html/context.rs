@@ -128,13 +128,12 @@ impl<'i, 'h> HtmlContext<'i, 'h> {
     }
 }
 
-impl<'i, 'h> Into<HtmlOutput<'i>> for HtmlContext<'i, 'h> {
-    fn into(self) -> HtmlOutput<'i> {
+impl<'i, 'h> Into<HtmlOutput> for HtmlContext<'i, 'h> {
+    fn into(self) -> HtmlOutput {
         let HtmlContext {
             html,
             style,
             meta,
-            info,
             ..
         } = self;
 
@@ -142,7 +141,6 @@ impl<'i, 'h> Into<HtmlOutput<'i>> for HtmlContext<'i, 'h> {
             html,
             style,
             meta,
-            info,
         }
     }
 }

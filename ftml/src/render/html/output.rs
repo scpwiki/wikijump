@@ -19,12 +19,10 @@
  */
 
 use super::meta::HtmlMeta;
-use crate::data::PageInfo;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct HtmlOutput<'i> {
+pub struct HtmlOutput {
     pub html: String,
     pub style: String,
     pub meta: Vec<HtmlMeta>,
-    pub info: PageInfo<'i>,
 }
