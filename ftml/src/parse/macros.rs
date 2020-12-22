@@ -54,21 +54,3 @@ macro_rules! try_consume_last {
         (item, extracted, new_remaining, errors)
     }};
 }
-
-/// Alias for `Cow::Borrowed` that isn't quite as long.
-macro_rules! cow {
-    ($value:expr) => {{
-        use std::borrow::Cow;
-
-        Cow::Borrowed($value)
-    }};
-}
-
-/// Alias for `Element::Text` from a string slice.
-macro_rules! text {
-    ($value:expr) => {{
-        use crate::tree::Element;
-
-        Element::Text(cow!($value))
-    }};
-}

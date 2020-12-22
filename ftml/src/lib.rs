@@ -68,6 +68,9 @@ mod test;
 #[macro_use]
 mod log;
 
+#[macro_use]
+mod macros;
+
 mod enums;
 mod parse;
 mod preproc;
