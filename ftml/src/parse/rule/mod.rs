@@ -18,11 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::{ParseError, ParseException};
-use crate::parse::consume::{Consumption, GenericConsumption};
+use crate::parse::consume::Consumption;
 use crate::parse::token::ExtractedToken;
 use crate::text::FullText;
-use crate::tree::Element;
 use std::fmt::{self, Debug};
 
 mod collect;

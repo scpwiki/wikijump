@@ -18,12 +18,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::consume::{consume, Consumption, GenericConsumption};
+use super::consume::{consume, Consumption};
 use super::stack::ParseStack;
 use super::token::{ExtractedToken, Token};
 use super::ParseException;
 use crate::text::FullText;
-use crate::tree::Element;
 
 /// Function to iterate over tokens to produce elements in paragraphs.
 ///

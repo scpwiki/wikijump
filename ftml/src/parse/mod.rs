@@ -29,11 +29,9 @@ mod rule;
 mod stack;
 mod token;
 
-use self::consume::{consume, Consumption, GenericConsumption};
 use self::paragraph::gather_paragraphs;
 use self::stack::ParseStack;
 use crate::tokenize::Tokenization;
-use crate::tree::Element;
 use crate::tree::SyntaxTree;
 
 pub use self::error::{ParseError, ParseErrorKind, ParseException};
@@ -62,7 +60,7 @@ where
         "tokens-len" => tokens.len(),
     ));
 
-    // Run through tokens until finished
+    // At the top level, we gather elements into paragraphs
     info!(log, "Running parser on tokens");
     let stack = gather_paragraphs(log, tokens, full_text);
 
