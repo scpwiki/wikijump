@@ -29,6 +29,7 @@
 use super::rule::{impls::RULE_FALLBACK, rules_for_token};
 use super::token::ExtractedToken;
 use super::{ParseError, ParseErrorKind, ParseException};
+use crate::parse::rule::Rule;
 use crate::text::FullText;
 use crate::tree::Element;
 use std::{mem, ptr};
@@ -57,7 +58,7 @@ pub fn consume<'t, 'r>(
         let consumption = rule.try_consume(log, extracted, remaining, full_text);
         if consumption.is_success() {
             // Sanity check: ensure that the token pointer was bumped
-            check_consumption(&consumption, remaining);
+            check_consumption(log, &consumption, remaining, *rule);
 
             debug!(log, "Rule matched, returning generated result"; "rule" => rule);
             return consumption;
@@ -88,13 +89,16 @@ pub fn consume<'t, 'r>(
 }
 
 fn check_consumption<'r, 't, T>(
+    log: &slog::Logger,
     consumption: &GenericConsumption<'r, 't, T>,
     orig_remaining: &'r [ExtractedToken<'t>],
+    rule: Rule,
 ) {
     if let GenericConsumption::Success { remaining, .. } = consumption {
         if ptr::eq(*remaining, orig_remaining) {
             // The pointers are the same, this will infinitely loop
-            panic!("Updated token pointer the same as input, this function will infinitely loop!");
+            error!(log, "Fatal: token pointer was not updated!"; "rule" => rule);
+            panic!("Fatal: token pointer the same, will infinitely loop! Rule: {}", rule.name());
         }
     }
 }
