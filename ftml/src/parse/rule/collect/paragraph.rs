@@ -21,8 +21,10 @@
 use super::prelude::*;
 use crate::parse::gather_paragraphs;
 use crate::parse::upcoming::UpcomingTokens;
-use crate::tree::{Container, ContainerType, Element};
+use crate::tree::Element;
 
+// TODO remove when used by an element
+#[allow(dead_code)]
 pub fn try_paragraph<'t, 'r>(
     log: &slog::Logger,
     (extracted, remaining, full_text): (
@@ -41,6 +43,6 @@ pub fn try_paragraph<'t, 'r>(
     );
 
     // Iterate and consume the tokens into multiple elements
-    let mut tokens = UpcomingTokens::from((extracted, remaining));
+    let tokens = UpcomingTokens::from((extracted, remaining));
     gather_paragraphs(log, tokens, full_text, rule, close_tokens, invalid_tokens)
 }
