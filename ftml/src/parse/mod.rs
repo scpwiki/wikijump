@@ -65,8 +65,9 @@ where
     // At the top level, we gather elements into paragraphs
     info!(log, "Running parser on tokens");
     let mut tokens = UpcomingTokens::from(tokens);
-    let stack = gather_paragraphs(log, tokens, full_text, RULE_PAGE, &[], &[]);
+    let consumption = gather_paragraphs(log, tokens, full_text, RULE_PAGE, &[], &[]);
 
     info!(log, "Finished running parser, returning gathered elements");
-    stack.into_syntax_tree()
+    let (elements, errors, styles) = ((), (), ()); // TODO extract from consumption
+    SyntaxTree::from_element_result(elements, errors, styles)
 }

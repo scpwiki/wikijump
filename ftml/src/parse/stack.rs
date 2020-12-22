@@ -18,9 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::{ExtractedToken, ParseError, ParseException, ParseResult};
+use super::{ExtractedToken, ParseError, ParseException};
 use crate::parse::consume::GenericConsumption;
-use crate::tree::{Container, ContainerType, Element, SyntaxTree};
+use crate::tree::{Container, ContainerType, Element};
 use std::borrow::Cow;
 use std::mem;
 
@@ -35,11 +35,8 @@ pub struct ParagraphStack<'l, 't> {
     /// Previous elements created, to be outputted in the final `SyntaxTree`.
     finished: Vec<Element<'t>>,
 
-    /// Gathered CSS styles, to be outputted in the final `SyntaxTree`.
-    styles: Vec<Cow<'t, str>>,
-
-    /// All errors generated during parsing so far.
-    errors: Vec<ParseError>,
+    /// Gathered exceptions from paragraph parsing.
+    exceptions: Vec<ParseException<'t>>,
 }
 
 impl<'l, 't> ParagraphStack<'l, 't> {
@@ -49,8 +46,7 @@ impl<'l, 't> ParagraphStack<'l, 't> {
             log,
             current: Vec::new(),
             finished: Vec::new(),
-            styles: Vec::new(),
-            errors: Vec::new(),
+            exceptions: Vec::new(),
         }
     }
 
@@ -73,7 +69,7 @@ impl<'l, 't> ParagraphStack<'l, 't> {
             "style" => style.as_ref(),
         );
 
-        self.styles.push(style);
+        self.exceptions.push(ParseException::Style(style));
     }
 
     #[inline]
@@ -84,7 +80,7 @@ impl<'l, 't> ParagraphStack<'l, 't> {
             "error" => error.kind().name(),
         );
 
-        self.errors.push(error);
+        self.exceptions.push(ParseException::Error(error));
     }
 
     pub fn build_paragraph(&mut self) -> Option<Element<'t>> {
@@ -123,49 +119,24 @@ impl<'l, 't> ParagraphStack<'l, 't> {
         }
     }
 
-    pub fn into_elements_and_exceptions<'r>(
+    pub fn into_consumption<'r>(
         mut self,
-    ) -> (Vec<Element<'t>>, Vec<ParseException<'t>>) {
-        self.end_paragraph();
-
+        remaining: &'r [ExtractedToken<'t>],
+    ) -> GenericConsumption<'r, 't, Vec<Element<'t>>> {
         debug!(
             self.log,
-            "Converting paragraph parse stack into elements for consumption",
+            "Converting paragraph parse stack into consumption",
         );
 
-        let ParagraphStack {
-            log: _,
-            current: _,
-            finished: elements,
-            styles,
-            errors,
-        } = self;
-
-        // Collect separate styles and errors into the consumption exception format
-        let exceptions = {
-            let mut exceptions = Vec::new();
-            exceptions.extend(styles.iter().map(ParseException::Style));
-            exceptions.extend(errors.iter().map(ParseException::Error));
-            exceptions
-        };
-
-        (elements, exceptions)
-    }
-
-    #[cold]
-    pub fn into_syntax_tree(mut self) -> ParseResult<SyntaxTree<'t>> {
         self.end_paragraph();
 
-        debug!(self.log, "Converting parse stack into syntax tree");
-
         let ParagraphStack {
             log: _,
             current: _,
             finished: elements,
-            styles,
-            errors,
+            exceptions,
         } = self;
 
-        SyntaxTree::from_element_result(elements, errors, styles)
+        GenericConsumption::warn(elements, remaining, exceptions)
     }
 }

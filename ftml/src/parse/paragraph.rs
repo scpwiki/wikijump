@@ -92,7 +92,7 @@ where
                     "token" => token,
                 );
 
-                return GenericConsumption::ok(stack, tokens.slice());
+                return stack.into_consumption(tokens.slice());
             }
 
             // Ending the paragraph prematurely due to an error
@@ -160,5 +160,5 @@ where
         }
     }
 
-    GenericConsumption::ok(stack, tokens.slice())
+    stack.into_consumption(tokens.slice())
 }

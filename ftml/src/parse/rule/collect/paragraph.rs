@@ -42,37 +42,5 @@ pub fn try_paragraph<'t, 'r>(
 
     // Iterate and consume the tokens into multiple elements
     let mut tokens = UpcomingTokens::from((extracted, remaining));
-    //gather_paragraphs(log, tokens, full_text, rule, close_tokens, invalid_tokens)
-
-    // Collapse the ParseStack into a paragraph
-    match stack.build_paragraph() {
-        Some(paragraph) => {
-            debug!(
-                log,
-                "Finished building paragraph, returning successful consumption",
-            );
-
-            Consumption::ok(paragraph, tokens.slice())
-        }
-        None => {
-            debug!(
-                log,
-                "Attempt at building paragraph yielded no child elements",
-            );
-
-            if allow_empty {
-                // Build empty paragraph element to return in consumption success
-                let container = Container::new(ContainerType::Paragraph, Vec::new());
-                let paragraph = Element::Container(container);
-
-                Consumption::ok(paragraph, tokens.slice())
-            } else {
-                Consumption::err(ParseError::new(
-                    ParseErrorKind::EmptyParagraph,
-                    rule,
-                    extracted,
-                ))
-            }
-        }
-    }
+    gather_paragraphs(log, tokens, full_text, rule, close_tokens, invalid_tokens)
 }
