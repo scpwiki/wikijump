@@ -44,7 +44,15 @@ pub fn try_paragraph<'t, 'r>(
 
     // Iterate and consume the tokens into multiple elements
     let mut tokens = UpcomingTokens::from((extracted, remaining));
-    let mut stack = gather_paragraphs(log, &mut tokens, full_text);
+    let mut stack = gather_paragraphs(
+        log,
+        &mut tokens,
+        full_text,
+        rule,
+        close_tokens,
+        invalid_tokens,
+        invalid_token_pairs,
+    );
 
     // Collapse the ParseStack into a paragraph
     match stack.build_paragraph() {

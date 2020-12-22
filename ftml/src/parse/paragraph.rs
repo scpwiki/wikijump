@@ -19,6 +19,7 @@
  */
 
 use super::consume::{consume, Consumption};
+use super::rule::Rule;
 use super::stack::ParseStack;
 use super::token::Token;
 use super::upcoming::UpcomingTokens;
@@ -40,6 +41,10 @@ pub fn gather_paragraphs<'l, 'r, 't>(
     log: &'l slog::Logger,
     tokens: &mut UpcomingTokens<'r, 't>,
     full_text: FullText<'t>,
+    rule: Rule,
+    close_tokens: &[Token],
+    invalid_tokens: &[Token],
+    invalid_token_pairs: &[(Token, Token)],
 ) -> ParseStack<'l, 't>
 where
     'r: 't,
