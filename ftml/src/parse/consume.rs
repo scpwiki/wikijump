@@ -29,10 +29,9 @@
 use super::rule::{impls::RULE_FALLBACK, rules_for_token};
 use super::token::ExtractedToken;
 use super::{ParseError, ParseErrorKind, ParseException};
-use crate::parse::rule::Rule;
 use crate::text::FullText;
 use crate::tree::Element;
-use std::{mem, ptr};
+use std::mem;
 
 /// Main function that consumes tokens to produce a single element, then returns.
 pub fn consume<'t, 'r>(
@@ -57,10 +56,8 @@ pub fn consume<'t, 'r>(
 
         let consumption = rule.try_consume(log, extracted, remaining, full_text);
         if consumption.is_success() {
-            // Sanity check: ensure that the token pointer was bumped
-            check_consumption(log, &consumption, remaining, *rule);
-
             debug!(log, "Rule matched, returning generated result"; "rule" => rule);
+
             return consumption;
         }
 
@@ -70,37 +67,13 @@ pub fn consume<'t, 'r>(
 
     debug!(log, "All rules exhausted, using generic text fallback");
 
-    // Asserts that there is at least one more element
-    // Since we always end token slices with Token::InputEnd,
-    // this should not be empty.
-    //
-    // The fallback rule can't apply here since it has an
-    // unconditional handler (RULE_NULL).
-    let new_remaining = &remaining[1..];
-
-    // Fallback consumption with warning
     let error = ParseException::Error(ParseError::new(
         ParseErrorKind::NoRulesMatch,
         RULE_FALLBACK,
         extracted,
     ));
 
-    Consumption::warn(text!(slice), new_remaining, vec![error])
-}
-
-fn check_consumption<'r, 't, T>(
-    log: &slog::Logger,
-    consumption: &GenericConsumption<'r, 't, T>,
-    orig_remaining: &'r [ExtractedToken<'t>],
-    rule: Rule,
-) {
-    if let GenericConsumption::Success { remaining, .. } = consumption {
-        if ptr::eq(*remaining, orig_remaining) {
-            // The pointers are the same, this will infinitely loop
-            error!(log, "Fatal: token pointer was not updated!"; "rule" => rule);
-            panic!("Fatal: token pointer the same, will infinitely loop! Rule: {}", rule.name());
-        }
-    }
+    Consumption::warn(text!(slice), remaining, vec![error])
 }
 
 #[derive(Debug, Clone)]
