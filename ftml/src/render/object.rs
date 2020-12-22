@@ -18,5 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::tree::SyntaxTree;
+
 pub trait Render {
+    fn render(&self, tree: &SyntaxTree) -> String;
 }
