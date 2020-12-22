@@ -59,8 +59,35 @@ impl Render for JsonRender {
 #[test]
 fn json() {
     // Expected outputs
-    const PRETTY_OUTPUT: &str = "";
-    const COMPACT_OUTPUT: &str = "";
+    const PRETTY_OUTPUT: &str = r#"{
+  "elements": [
+    {
+      "element": "text",
+      "data": "apple"
+    },
+    {
+      "element": "text",
+      "data": " "
+    },
+    {
+      "element": "container",
+      "data": {
+        "type": "bold",
+        "elements": [
+          {
+            "element": "text",
+            "data": "banana"
+          }
+        ]
+      }
+    }
+  ],
+  "styles": [
+    "span.hidden-text { display: none; }"
+  ]
+}"#;
+
+    const COMPACT_OUTPUT: &str = "{\"elements\":[{\"element\":\"text\",\"data\":\"apple\"},{\"element\":\"text\",\"data\":\" \"},{\"element\":\"container\",\"data\":{\"type\":\"bold\",\"elements\":[{\"element\":\"text\",\"data\":\"banana\"}]}}],\"styles\":[\"span.hidden-text { display: none; }\"]}";
 
     // Syntax tree construction
     let elements = vec![
