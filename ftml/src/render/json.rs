@@ -46,7 +46,13 @@ impl JsonRender {
 impl Render for JsonRender {
     #[inline]
     fn render(&self, tree: &SyntaxTree) -> String {
-        todo!()
+        let writer = if self.pretty {
+            serde_json::to_string_pretty
+        } else {
+            serde_json::to_string
+        };
+
+        writer(tree).expect("Unable to serialize JSON")
     }
 }
 
