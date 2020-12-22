@@ -12,7 +12,7 @@ module "cache" {
         options = {
             "awslogs-group" = "ecs/cache"
             "awslogs-region" = "us-east-2"
-            "awslogs-stream-prefix" = ""
+            "awslogs-stream-prefix" = "ecs"
         }
     }
 }
@@ -31,7 +31,7 @@ module "database" {
         options = {
             "awslogs-group" = "ecs/database"
             "awslogs-region" = "us-east-2"
-            "awslogs-stream-prefix" = ""
+            "awslogs-stream-prefix" = "ecs"
         }
     }
 }
@@ -50,7 +50,7 @@ module "php-fpm" {
         options = {
             "awslogs-group" = "ecs/php-fpm"
             "awslogs-region" = "us-east-2"
-            "awslogs-stream-prefix" = ""
+            "awslogs-stream-prefix" = "ecs"
         }
     }
 
@@ -97,7 +97,7 @@ module "reverse-proxy" {
         options = {
             "awslogs-group" = "ecs/traefik"
             "awslogs-region" = "us-east-2"
-            "awslogs-stream-prefix" = ""
+            "awslogs-stream-prefix" = "ecs"
         }
     }
 
