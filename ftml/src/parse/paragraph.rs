@@ -34,10 +34,48 @@ pub fn gather_paragraphs<'l, 'r, 't>(
     log: &'l slog::Logger,
     mut tokens: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
-) -> ParseStack<'l, 't> {
+) -> ParseStack<'l, 't>
+where
+    'r: 't,
+{
     info!(log, "Gathering paragraphs until ending");
 
-    todo!()
+    let mut stack = ParseStack::new(log);
+
+    while !tokens.is_empty() {
+        let (extracted, remaining) = tokens
+            .split_first() //
+            .expect("Tokens list is empty");
+
+        // Consume tokens to produce the next element
+        let consumption = match extracted.token {
+            // Avoid an unnecessary Token::Null and just exit
+            Token::InputEnd => {
+                debug!(log, "Hit the end of input, terminating token iteration");
+                break;
+            }
+
+            // If we've hit a paragraph break, then finish the current paragraph.
+            Token::ParagraphBreak => {
+                debug!(
+                    log,
+                    "Hit a paragraph break, creating a new paragraph container",
+                );
+                stack.end_paragraph();
+                continue;
+            }
+
+            // Produce consumption from this token pointer
+            _ => {
+                debug!(log, "Trying to consume tokens to produce element");
+                consume(log, &extracted, remaining, full_text)
+            }
+        };
+
+        process_consumption(log, consumption, &mut stack, &mut tokens);
+    }
+
+    stack
 }
 
 pub fn process_consumption<'l, 'r, 't>(
@@ -45,7 +83,9 @@ pub fn process_consumption<'l, 'r, 't>(
     consumption: Consumption<'r, 't>,
     stack: &mut ParseStack<'l, 't>,
     tokens: &mut &'r [ExtractedToken<'t>],
-) {
+) where
+    'r: 't,
+{
     match consumption {
         Consumption::Success {
             item,
