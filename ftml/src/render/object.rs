@@ -20,6 +20,20 @@
 
 use crate::tree::SyntaxTree;
 
+/// Abstract trait for any ftml renderer.
+///
+/// Any structure implementing this trait represents a renderer,
+/// with whatever state it needs to perform a rendering of the
+/// inputted abstract syntax tree.
+///
+/// Rendering requires `&mut` access, so for a renderer with no
+/// persistent configuration or state, the object should be a unit
+/// struct to allow any consumer to render as they wish.
 pub trait Render {
-    fn render(&self, tree: &SyntaxTree) -> String;
+    /// Render an abstract syntax tree into a string.
+    ///
+    /// This is the main method of the trait, causing this
+    /// renderer instance to perform whatever operations
+    /// it requires to produce the output string.
+    fn render(&mut self, tree: &SyntaxTree) -> String;
 }
