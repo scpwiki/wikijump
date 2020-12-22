@@ -58,5 +58,5 @@ variable "instance_type" {
     type = string
 }
 
-variable "user_data"{}
+variable "user_data" {}
 
