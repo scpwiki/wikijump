@@ -29,6 +29,7 @@ resource "aws_lb_target_group" "elb_target_group_80" {
   health_check {
     enabled = true
     port    = 8081
+    path    = "/ping"
   }
 }
 
@@ -41,6 +42,7 @@ resource "aws_lb_target_group" "elb_target_group_443" {
   health_check {
     enabled = true
     port    = 8081
+    path    = "/ping"
   }
 }
 
