@@ -1,5 +1,5 @@
 /*
- * render/mod.rs
+ * render/null.rs
  *
  * ftml - Library to parse Wikidot code
  * Copyright (C) 2019-2020 Ammon Smith
@@ -18,13 +18,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod prelude {
-    pub use crate::tree::{Container, Element, SyntaxTree};
-    pub use super::Render;
+//! A trivial renderer.
+//!
+//! This implementation of `Render` will consume any input syntax tree
+//! and produce an empty string as output.
+
+use super::prelude::*;
+
+#[derive(Debug)]
+pub struct NullRender;
+
+impl Render for NullRender {
+    #[inline]
+    fn render(&mut self, _tree: &SyntaxTree) -> String {
+        str!("")
+    }
 }
-
-mod null;
-mod object;
-
-pub use self::null::NullRender;
-pub use self::object::Render;
