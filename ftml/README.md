@@ -206,4 +206,5 @@ For instance:
 }
 ```
 
-This should hopefully help with understanding how these structures are represented, permitting library consumers not written in Rust to interpret the data. For a full list of the fields of all elements, see the rustdoc.
+This should hopefully help with understanding how these structures are represented, permitting library consumers not written in Rust to interpret the data.
+For a full list of the fields of all elements, see the rustdoc. Particular files of interest are [`src/tree/element.rs`](https://github.com/Nu-SCPTheme/ftml/blob/master/src/tree/element.rs) and [`src/tree/container.rs`](https://github.com/Nu-SCPTheme/ftml/blob/master/src/tree/container.rs).
