@@ -45,6 +45,7 @@ extern crate regex;
 
 #[macro_use]
 extern crate serde;
+extern crate serde_json;
 
 #[macro_use]
 extern crate slog;
@@ -56,7 +57,6 @@ extern crate strum_macros;
 
 cfg_if! {
     if #[cfg(test)] {
-        extern crate serde_json;
         extern crate slog_bunyan;
         extern crate sloggers;
     }
