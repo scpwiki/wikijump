@@ -18,6 +18,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod prelude {
+    pub use crate::tree::{Container, Element, SyntaxTree};
+    pub use super::Render;
+}
+
 mod object;
 
 pub use self::object::Render;
