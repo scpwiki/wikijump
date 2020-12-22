@@ -95,6 +95,7 @@ impl ParseError {
 #[serde(rename_all = "kebab-case")]
 pub enum ParseErrorKind {
     /// The self-enforced recursion limit has been passed, giving up.
+    #[allow(dead_code)]
     RecursionDepthExceeded,
 
     /// Attempting to match this rule failed, falling back to try an alternate.
