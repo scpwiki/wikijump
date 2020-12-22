@@ -123,7 +123,9 @@
                     "--entrypoints.web-secure.address=:443",
                     "--certificatesresolvers.mytlschallenge.acme.tlschallenge=true",
                     "--certificatesresolvers.mytlschallenge.acme.email=info@wikijump.com",
-                    "--certificatesresolvers.mytlschallenge.acme.storage=/letsencrypt/acme.json"
+                    "--certificatesresolvers.mytlschallenge.acme.storage=/letsencrypt/acme.json",
+                    "--ping.entrypoint=ping",
+                    "--entrypoints.ping.address=:8080"
                 ],
                 "environment": [],
                 "mountPoints": [
