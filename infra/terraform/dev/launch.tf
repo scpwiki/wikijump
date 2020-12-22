@@ -48,7 +48,24 @@ resource "aws_security_group_rule" "ingress" {
   to_port           = 0
   protocol          = "-1"
   cidr_blocks       = [var.container_subnet, var.elb_subnet]
-  self              = true
+  security_group_id = aws_security_group.ecs_nodes.id
+  type              = "ingress"
+}
+
+resource "aws_security_group_rule" "http" {
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.ecs_nodes.id
+  type              = "ingress"
+}
+
+resource "aws_security_group_rule" "https" {
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.ecs_nodes.id
   type              = "ingress"
 }
@@ -58,6 +75,23 @@ resource "aws_security_group_rule" "egress" {
   to_port           = 0
   protocol          = "-1"
   cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.ecs_nodes.id
+  type              = "egress"
+}
+
+resource "aws_security_group_rule" "ingress_self" {
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  self              = true
+  security_group_id = aws_security_group.ecs_nodes.id
+  type              = "ingress"
+}
+
+resource "aws_security_group_rule" "egress_self" {
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
   self              = true
   security_group_id = aws_security_group.ecs_nodes.id
   type              = "egress"
