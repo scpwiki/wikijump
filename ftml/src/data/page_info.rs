@@ -24,6 +24,11 @@ use std::borrow::Cow;
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 #[serde(rename_all = "kebab-case")]
 pub struct PageInfo<'a> {
+    /// The slug for this page.
+    ///
+    /// That is, the page component of the URL.
+    pub slug: Cow<'a, str>,
+
     /// The title of this page.
     ///
     /// For SCPs this is "SCP-XXXX".
