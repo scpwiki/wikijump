@@ -24,4 +24,4 @@ cache_ec2_size  = "cache.t3.micro"
 # rds_master_password   = (stored in TF cloud)
 
 instance_type = ["t3.medium"]
-user_data = []
+user_data     = []
