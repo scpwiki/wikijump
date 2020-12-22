@@ -30,7 +30,7 @@ mod stack;
 mod token;
 
 use self::consume::{consume, Consumption, GenericConsumption};
-use self::paragraph::{gather_paragraphs, process_consumption};
+use self::paragraph::gather_paragraphs;
 use self::stack::ParseStack;
 use crate::tokenize::Tokenization;
 use crate::tree::Element;
