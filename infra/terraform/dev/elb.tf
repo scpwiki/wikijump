@@ -28,7 +28,7 @@ resource "aws_lb_target_group" "elb_target_group_80" {
   target_type = "instance"
   health_check {
     enabled = true
-    port    = 8080
+    port    = 8081
   }
 }
 
@@ -40,7 +40,7 @@ resource "aws_lb_target_group" "elb_target_group_443" {
   target_type = "instance"
   health_check {
     enabled = true
-    port    = 8080
+    port    = 8081
   }
 }
 

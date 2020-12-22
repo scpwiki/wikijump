@@ -111,6 +111,11 @@
                         "containerPort": 443,
                         "hostPort": 443,
                         "protocol": "tcp"
+                    },
+                    {
+                        "containerPort": 8081,
+                        "hostPort": 8081,
+                        "protocol": "tcp"
                     }
                 ],
                 "essential": true,
@@ -125,7 +130,7 @@
                     "--certificatesresolvers.mytlschallenge.acme.email=info@wikijump.com",
                     "--certificatesresolvers.mytlschallenge.acme.storage=/letsencrypt/acme.json",
                     "--ping.entrypoint=ping",
-                    "--entrypoints.ping.address=:8080"
+                    "--entrypoints.ping.address=:8081"
                 ],
                 "environment": [],
                 "mountPoints": [
