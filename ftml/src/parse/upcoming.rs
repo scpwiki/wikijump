@@ -36,6 +36,7 @@ pub enum UpcomingTokens<'r, 't> {
 }
 
 impl<'r, 't> UpcomingTokens<'r, 't> {
+    /// Get the next pair of `(current_token, next_tokens)`.
     pub fn split(&self) -> Option<(Token<'r, 't>, TokenSlice<'r, 't>)> {
         match self {
             UpcomingTokens::All { tokens } => tokens.split_first(),
@@ -43,6 +44,17 @@ impl<'r, 't> UpcomingTokens<'r, 't> {
                 extracted,
                 remaining,
             } => Some((extracted, remaining)),
+        }
+    }
+
+    /// Get the remaining tokens slice, for adjusting the pointer.
+    pub fn slice(&self) -> TokenSlice<'r, 't> {
+        match self {
+            UpcomingTokens::All { tokens } => tokens,
+            UpcomingTokens::Split {
+                extracted: _,
+                remaining,
+            } => remaining,
         }
     }
 }

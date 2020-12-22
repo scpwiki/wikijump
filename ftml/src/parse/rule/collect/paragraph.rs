@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::parse::ParseStack;
+use crate::parse::{gather_paragraphs, ParseStack};
 
 pub fn try_paragraph<'t, 'r>(
     log: &slog::Logger,
@@ -40,25 +40,14 @@ pub fn try_paragraph<'t, 'r>(
     );
 
     // Iterate and consume the tokens into multiple elements
-    let mut stack = ParseStack::new(log);
+    let mut tokens = (extracted, remaining).into();
+    let mut stack = gather_paragraphs(log, &mut tokens, full_text);
 
-    let consumption = try_collect(
-        log,
-        (extracted, remaining, full_text),
-        rule,
-        close_tokens,
-        invalid_tokens,
-        invalid_token_pairs,
-        |log, extracted, remaining, _| {
-            todo!();
+    // Collapse the ParseStack into a paragraph
+    let paragraph = match stack.build_paragraph() {
+        Some(element) => element,
+        None => return todo!(),
+    };
 
-            // We are collecting everything in ParseStack,
-            // so we return unit consumption so the gathered Vec<_>
-            // doesn't actually allocate, but we can still output
-            // something success as required for try_collect().
-            GenericConsumption::ok((), remaining)
-        },
-    );
-
-    todo!()
+    Consumption::ok(paragraph, tokens.slice())
 }

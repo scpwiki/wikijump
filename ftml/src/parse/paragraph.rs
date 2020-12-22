@@ -38,7 +38,7 @@ use crate::text::FullText;
 /// See the `UpcomingTokens` enum for more information.
 pub fn gather_paragraphs<'l, 'r, 't>(
     log: &'l slog::Logger,
-    mut tokens: UpcomingTokens<'r, 't>,
+    tokens: &mut UpcomingTokens<'r, 't>,
     full_text: FullText<'t>,
 ) -> ParseStack<'l, 't>
 where
@@ -87,7 +87,7 @@ where
                 // The new value is a subslice of tokens,
                 // equivalent to &tokens[offset..] but without
                 // needing to assert bounds.
-                tokens = remaining.into();
+                *tokens = remaining.into();
 
                 // Add the new element to the list
                 stack.push_element(item);
