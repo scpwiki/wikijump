@@ -82,7 +82,7 @@ pub use self::parse::{
     parse, ExtractedToken, ParseError, ParseErrorKind, ParseResult, Token,
 };
 pub use self::preproc::preprocess;
-pub use self::render::Render;
+pub use self::render::*;
 pub use self::tokenize::{tokenize, Tokenization};
 
 pub mod prelude {
