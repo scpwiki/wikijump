@@ -30,7 +30,7 @@ mod stack;
 mod token;
 
 use self::consume::consume;
-use self::paragraph::gather_paragraphs;
+use self::paragraph::process_consumption;
 use self::rule::{Consumption, GenericConsumption};
 use self::stack::ParseStack;
 use crate::tokenize::Tokenization;
@@ -97,47 +97,7 @@ where
             }
         };
 
-        match consumption {
-            Consumption::Success {
-                item,
-                remaining,
-                exceptions,
-            } => {
-                debug!(log, "Tokens successfully consumed to produce element");
-
-                // Update remaining tokens
-                //
-                // The new value is a subslice of tokens,
-                // equivalent to &tokens[offset..] but without
-                // needing to assert bounds.
-                tokens = remaining;
-
-                // Add the new element to the list
-                stack.push_element(item);
-
-                // Process exceptions
-                for exception in exceptions {
-                    match exception {
-                        ParseException::Error(error) => stack.push_error(error),
-                        ParseException::Style(style) => stack.push_style(style),
-                    }
-                }
-            }
-            Consumption::Failure { error } => {
-                info!(
-                    log,
-                    "Token consumption failed, returned error";
-                    "error-token" => error.token(),
-                    "error-rule" => error.rule(),
-                    "error-span-start" => error.span().start,
-                    "error-span-end" => error.span().end,
-                    "error-kind" => error.kind().name(),
-                );
-
-                // Append the error
-                stack.push_error(error);
-            }
-        };
+        process_consumption(log, consumption, &mut stack, &mut tokens);
     }
 
     info!(log, "Finished running parser, returning gathered elements");
