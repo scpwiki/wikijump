@@ -102,9 +102,9 @@ where
     }
 }
 
-fn extract_exceptions<'t>(
-    exceptions: Vec<ParseException<'t>>,
-) -> (Vec<ParseError>, Vec<Cow<'t, str>>) {
+fn extract_exceptions(
+    exceptions: Vec<ParseException>,
+) -> (Vec<ParseError>, Vec<Cow<str>>) {
     let mut errors = Vec::new();
     let mut styles = Vec::new();
 
