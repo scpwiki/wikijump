@@ -1,5 +1,5 @@
 /*
- * render/mod.rs
+ * render/html/test.rs
  *
  * ftml - Library to parse Wikidot code
  * Copyright (C) 2019-2020 Ammon Smith
@@ -18,19 +18,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod prelude {
-    pub use super::Render;
-    pub use crate::tree::{Container, ContainerType, Element, SyntaxTree};
+use super::prelude::*;
+use super::HtmlRender;
+
+#[test]
+fn html() {
+    let result = SyntaxTree::from_element_result(vec![], vec![], vec![]);
+    let (tree, _) = result.into();
+    let output = HtmlRender.render(&tree);
+
+    // TODO
+    let _ = output;
 }
-
-mod debug;
-mod html;
-mod json;
-mod null;
-mod object;
-
-pub use self::debug::DebugRender;
-pub use self::html::HtmlRender;
-pub use self::json::JsonRender;
-pub use self::null::NullRender;
-pub use self::object::Render;
