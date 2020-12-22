@@ -41,12 +41,12 @@ resource "aws_route_table" "public_route" {
   }
 }
 
-resourse "aws_route_table_association" "pub_elb" {
+resource "aws_route_table_association" "pub_elb" {
   subnet_id      = aws_subnet.elb_subnet.id
   route_table_id = aws_route_table.public_route.id
 }
 
-resourse "aws_route_table_association" "pub_container" {
+resource "aws_route_table_association" "pub_container" {
   subnet_id      = aws_subnet.container_subnet.id
   route_table_id = aws_route_table.public_route.id
 }
