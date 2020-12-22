@@ -29,9 +29,8 @@ mod rule;
 mod stack;
 mod token;
 
-use self::consume::consume;
-use self::paragraph::process_consumption;
-use self::rule::{Consumption, GenericConsumption};
+use self::consume::{consume, Consumption, GenericConsumption};
+use self::paragraph::{gather_paragraphs, process_consumption};
 use self::stack::ParseStack;
 use crate::tokenize::Tokenization;
 use crate::tree::Element;
@@ -65,6 +64,7 @@ where
 
     // Run through tokens until finished
     info!(log, "Running parser on tokens");
+
     let mut stack = ParseStack::new(log);
 
     while !tokens.is_empty() {

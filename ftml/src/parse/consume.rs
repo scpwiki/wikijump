@@ -26,10 +26,11 @@
 //! The parser is not disambiguous because any string of tokens can be interpreted
 //! as raw text as a fallback, which is how Wikidot does it.
 
-use super::rule::{impls::RULE_FALLBACK, rules_for_token, Consumption};
+use super::rule::{impls::RULE_FALLBACK, rules_for_token};
 use super::token::ExtractedToken;
 use super::{ParseError, ParseErrorKind, ParseException};
 use crate::text::FullText;
+use crate::tree::Element;
 use std::mem;
 
 /// Main function that consumes tokens to produce a single element, then returns.
@@ -74,3 +75,86 @@ pub fn consume<'t, 'r>(
 
     Consumption::warn(text!(slice), remaining, vec![error])
 }
+
+#[derive(Debug, Clone)]
+pub enum GenericConsumption<'t, 'r, T>
+where
+    T: 't,
+    'r: 't,
+{
+    Success {
+        item: T,
+        remaining: &'r [ExtractedToken<'t>],
+        exceptions: Vec<ParseException<'t>>,
+    },
+    Failure {
+        error: ParseError,
+    },
+}
+
+impl<'t, 'r, T> GenericConsumption<'t, 'r, T>
+where
+    T: 't,
+{
+    #[inline]
+    pub fn ok(item: T, remaining: &'r [ExtractedToken<'t>]) -> Self {
+        GenericConsumption::Success {
+            item,
+            remaining,
+            exceptions: Vec::new(),
+        }
+    }
+
+    #[inline]
+    pub fn warn(
+        item: T,
+        remaining: &'r [ExtractedToken<'t>],
+        exceptions: Vec<ParseException<'t>>,
+    ) -> Self {
+        GenericConsumption::Success {
+            item,
+            remaining,
+            exceptions,
+        }
+    }
+
+    #[inline]
+    pub fn err(error: ParseError) -> Self {
+        GenericConsumption::Failure { error }
+    }
+
+    #[inline]
+    pub fn is_success(&self) -> bool {
+        match self {
+            GenericConsumption::Success { .. } => true,
+            GenericConsumption::Failure { .. } => false,
+        }
+    }
+
+    #[inline]
+    pub fn map<F, U>(self, f: F) -> GenericConsumption<'t, 'r, U>
+    where
+        F: FnOnce(T) -> U,
+    {
+        match self {
+            GenericConsumption::Failure { error } => {
+                GenericConsumption::Failure { error }
+            }
+            GenericConsumption::Success {
+                item,
+                remaining,
+                exceptions,
+            } => {
+                let item = f(item);
+
+                GenericConsumption::Success {
+                    item,
+                    remaining,
+                    exceptions,
+                }
+            }
+        }
+    }
+}
+
+pub type Consumption<'t, 'r> = GenericConsumption<'t, 'r, Element<'t>>;

@@ -18,8 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::consume::consume;
-use super::rule::{Consumption, GenericConsumption};
+use super::consume::{consume, Consumption, GenericConsumption};
 use super::stack::ParseStack;
 use super::token::{ExtractedToken, Token};
 use super::ParseException;

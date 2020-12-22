@@ -19,6 +19,7 @@
  */
 
 use super::{ParseError, ParseException};
+use crate::parse::consume::{Consumption, GenericConsumption};
 use crate::parse::token::ExtractedToken;
 use crate::text::FullText;
 use crate::tree::Element;
@@ -77,89 +78,6 @@ impl slog::Value for Rule {
         serializer.emit_str(key, self.name())
     }
 }
-
-#[derive(Debug, Clone)]
-pub enum GenericConsumption<'t, 'r, T>
-where
-    T: 't,
-    'r: 't,
-{
-    Success {
-        item: T,
-        remaining: &'r [ExtractedToken<'t>],
-        exceptions: Vec<ParseException<'t>>,
-    },
-    Failure {
-        error: ParseError,
-    },
-}
-
-impl<'t, 'r, T> GenericConsumption<'t, 'r, T>
-where
-    T: 't,
-{
-    #[inline]
-    pub fn ok(item: T, remaining: &'r [ExtractedToken<'t>]) -> Self {
-        GenericConsumption::Success {
-            item,
-            remaining,
-            exceptions: Vec::new(),
-        }
-    }
-
-    #[inline]
-    pub fn warn(
-        item: T,
-        remaining: &'r [ExtractedToken<'t>],
-        exceptions: Vec<ParseException<'t>>,
-    ) -> Self {
-        GenericConsumption::Success {
-            item,
-            remaining,
-            exceptions,
-        }
-    }
-
-    #[inline]
-    pub fn err(error: ParseError) -> Self {
-        GenericConsumption::Failure { error }
-    }
-
-    #[inline]
-    pub fn is_success(&self) -> bool {
-        match self {
-            GenericConsumption::Success { .. } => true,
-            GenericConsumption::Failure { .. } => false,
-        }
-    }
-
-    #[inline]
-    pub fn map<F, U>(self, f: F) -> GenericConsumption<'t, 'r, U>
-    where
-        F: FnOnce(T) -> U,
-    {
-        match self {
-            GenericConsumption::Failure { error } => {
-                GenericConsumption::Failure { error }
-            }
-            GenericConsumption::Success {
-                item,
-                remaining,
-                exceptions,
-            } => {
-                let item = f(item);
-
-                GenericConsumption::Success {
-                    item,
-                    remaining,
-                    exceptions,
-                }
-            }
-        }
-    }
-}
-
-pub type Consumption<'t, 'r> = GenericConsumption<'t, 'r, Element<'t>>;
 
 /// The function type for actually trying to consume tokens
 pub type TryConsumeFn = for<'t, 'r> fn(
