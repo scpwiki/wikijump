@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::parse::{gather_paragraphs, ParseStack};
+use crate::parse::gather_paragraphs;
 use crate::tree::{Container, ContainerType, Element};
 
 pub fn try_paragraph<'t, 'r>(

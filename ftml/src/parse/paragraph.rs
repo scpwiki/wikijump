@@ -20,7 +20,7 @@
 
 use super::consume::{consume, Consumption};
 use super::stack::ParseStack;
-use super::token::{ExtractedToken, Token};
+use super::token::Token;
 use super::upcoming::UpcomingTokens;
 use super::ParseException;
 use crate::text::FullText;

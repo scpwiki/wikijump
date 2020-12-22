@@ -31,7 +31,6 @@ mod token;
 mod upcoming;
 
 use self::paragraph::gather_paragraphs;
-use self::stack::ParseStack;
 use crate::tokenize::Tokenization;
 use crate::tree::SyntaxTree;
 
