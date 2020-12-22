@@ -66,9 +66,11 @@ resource "aws_iam_instance_profile" "ecs_node" {
   role = aws_iam_role.ec2_instance_role.name
 }
 
-resource "aws_iam_role" "ec2_instance_role" {
-  #   assume_role_policy = data.aws_iam_policy_document.ec2_instance_assume_role_policy.json
-  assume_role_policy = <<POLICY
+resource "aws_iam_policy" "ecs_iam_instance" {
+  name        = "wikijump-ec2-iam-policy-${var.environment}"
+  description = "IAM Instance Policy for ECS EC2s"
+
+  policy = <<POLICY
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -95,13 +97,6 @@ resource "aws_iam_role" "ec2_instance_role" {
         },
         {
             "Effect": "Allow",
-            "Principal": {
-                "Service": "ec2.amazonaws.com"
-            },
-            "Action": "sts:AssumeRole"
-        },
-        {
-            "Effect": "Allow",
             "Action": [
                 "ssm:GetParametersByPath",
                 "ssm:GetParameters",
@@ -112,16 +107,25 @@ resource "aws_iam_role" "ec2_instance_role" {
     ]
 }
 POLICY
+}
+
+resource "aws_iam_role" "ec2_instance_role" {
+  assume_role_policy = data.aws_iam_policy_document.ec2_instance_assume_role_policy.json
   name               = "wikijump-ec2-role-dev"
 }
 
-# data "aws_iam_policy_document" "ec2_instance_assume_role_policy" {
-#   statement {
-#     actions = ["sts:AssumeRole"]
+data "aws_iam_policy_document" "ec2_instance_assume_role_policy" {
+  statement {
+    actions = ["sts:AssumeRole"]
 
-#     principals {
-#       type        = "Service"
-#       identifiers = ["ec2.amazonaws.com"]
-#     }
-#   }
-# }
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "ec2_iam" {
+  role       = aws_iam_role.ec2_instance_role.name
+  policy_arn = aws_iam_policy.ecs_iam_instance.arn
+}
