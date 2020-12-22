@@ -21,6 +21,7 @@
 use super::consume::{consume, Consumption};
 use super::stack::ParseStack;
 use super::token::{ExtractedToken, Token};
+use super::upcoming::UpcomingTokens;
 use super::ParseException;
 use crate::text::FullText;
 
@@ -29,9 +30,15 @@ use crate::text::FullText;
 /// Originally in `parse()`, but was moved out to allow paragraph
 /// extraction deeper in code, such as in the `try_paragraph`
 /// collection helper.
+///
+/// Allows the caller to either pass in a full token list
+/// (such as `parse()` starting at the beginning) or split
+/// (such as `try_consume()`, in the middle of parsing).
+///
+/// See the `UpcomingTokens` enum for more information.
 pub fn gather_paragraphs<'l, 'r, 't>(
     log: &'l slog::Logger,
-    mut tokens: &'r [ExtractedToken<'t>],
+    mut tokens: UpcomingTokens<'r, 't>,
     full_text: FullText<'t>,
 ) -> ParseStack<'l, 't>
 where
@@ -41,11 +48,7 @@ where
 
     let mut stack = ParseStack::new(log);
 
-    while !tokens.is_empty() {
-        let (extracted, remaining) = tokens
-            .split_first() //
-            .expect("Tokens list is empty");
-
+    while let Some((extracted, remaining)) = tokens.split() {
         // Consume tokens to produce the next element
         let consumption = match extracted.token {
             // Avoid an unnecessary Token::Null and just exit
@@ -84,7 +87,7 @@ where
                 // The new value is a subslice of tokens,
                 // equivalent to &tokens[offset..] but without
                 // needing to assert bounds.
-                tokens = remaining;
+                tokens = remaining.into();
 
                 // Add the new element to the list
                 stack.push_element(item);
