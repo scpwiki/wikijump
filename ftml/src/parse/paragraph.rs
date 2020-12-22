@@ -20,7 +20,7 @@
 
 use super::consume::{consume, Consumption, GenericConsumption};
 use super::rule::Rule;
-use super::stack::ParseStack;
+use super::stack::ParagraphStack;
 use super::token::Token;
 use super::upcoming::UpcomingTokens;
 use super::{ParseError, ParseErrorKind, ParseException};
@@ -44,13 +44,13 @@ pub fn gather_paragraphs<'l, 'r, 't>(
     rule: Rule,
     close_tokens: &[Token],
     invalid_tokens: &[Token],
-) -> GenericConsumption<'r, 't, ParseStack<'l, 't>>
+) -> GenericConsumption<'r, 't, ParagraphStack<'l, 't>>
 where
     'r: 't,
 {
     info!(log, "Gathering paragraphs until ending");
 
-    let mut stack = ParseStack::new(log);
+    let mut stack = ParagraphStack::new(log);
 
     while let Some((extracted, remaining)) = tokens.split() {
         // Consume tokens to produce the next element
@@ -65,7 +65,7 @@ where
                     debug!(log, "Hit the end of input, producing error");
 
                     return GenericConsumption::err(ParseError::new(
-                        ParseErrorKind::InputEnd,
+                        ParseErrorKind::EndOfInput,
                         rule,
                         extracted,
                     ));
@@ -102,7 +102,7 @@ where
                     "token" => token,
                 );
 
-                return Consumption::err(ParseError::new(
+                return GenericConsumption::err(ParseError::new(
                     ParseErrorKind::RuleFailed,
                     rule,
                     extracted,

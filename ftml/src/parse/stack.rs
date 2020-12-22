@@ -24,7 +24,7 @@ use std::borrow::Cow;
 use std::mem;
 
 #[derive(Debug)]
-pub struct ParseStack<'l, 't> {
+pub struct ParagraphStack<'l, 't> {
     /// The `slog::Logger` instance used for logging stack operations.
     log: &'l slog::Logger,
 
@@ -41,10 +41,10 @@ pub struct ParseStack<'l, 't> {
     errors: Vec<ParseError>,
 }
 
-impl<'l, 't> ParseStack<'l, 't> {
+impl<'l, 't> ParagraphStack<'l, 't> {
     #[inline]
     pub fn new(log: &'l slog::Logger) -> Self {
-        ParseStack {
+        ParagraphStack {
             log,
             current: Vec::new(),
             finished: Vec::new(),
@@ -128,7 +128,7 @@ impl<'l, 't> ParseStack<'l, 't> {
 
         debug!(self.log, "Converting parse stack into syntax tree");
 
-        let ParseStack {
+        let ParagraphStack {
             log: _,
             current: _,
             finished: elements,
