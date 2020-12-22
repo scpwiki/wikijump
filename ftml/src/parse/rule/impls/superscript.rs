@@ -38,7 +38,7 @@ fn try_consume_fn<'r, 't>(
         (extracted, remaining, full_text),
         (RULE_SUPERSCRIPT, ContainerType::Superscript),
         (Token::Superscript, Token::Superscript),
-        &[Token::ParagraphBreak, Token::InputEnd],
+        &[Token::ParagraphBreak],
         &[
             (Token::Superscript, Token::Whitespace),
             (Token::Whitespace, Token::Superscript),

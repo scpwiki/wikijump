@@ -94,7 +94,7 @@ fn try_consume_link<'r, 't>(
         (extracted, remaining, full_text),
         rule,
         &[Token::Pipe, Token::RightLink],
-        &[Token::ParagraphBreak, Token::LineBreak, Token::InputEnd],
+        &[Token::ParagraphBreak, Token::LineBreak],
         &[],
     );
 
@@ -184,7 +184,7 @@ fn build_separate<'r, 't>(
         (extracted, remaining, full_text),
         rule,
         &[Token::RightLink],
-        &[Token::ParagraphBreak, Token::LineBreak, Token::InputEnd],
+        &[Token::ParagraphBreak, Token::LineBreak],
         &[],
     );
 

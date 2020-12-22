@@ -79,6 +79,12 @@ where
     ) -> GenericConsumption<'r, 't, T>,
     T: Debug,
 {
+    /// Tokens are always considered invalid, and will fail the rule.
+    ///
+    /// This behaves as if all of these tokens are present in the
+    /// `invalid_tokens` parameter.
+    const ALWAYS_INVALID: &[Token] = &[Token::InputEnd];
+
     // Log collect_until() call
     let log = &log.new(slog_o!(
         "rule" => str!(rule.name()),
@@ -149,7 +155,9 @@ where
         }
 
         // See if the container should be aborted
-        if invalid_tokens.contains(&current_token) {
+        if invalid_tokens.contains(&current_token)
+            || ALWAYS_INVALID.contains(&current_token)
+        {
             debug!(
                 log,
                 "Found invalid token, aborting container attempt";

@@ -38,7 +38,7 @@ fn try_consume_fn<'r, 't>(
         (extracted, remaining, full_text),
         (RULE_ITALICS, ContainerType::Italics),
         (Token::Italics, Token::Italics),
-        &[Token::ParagraphBreak, Token::InputEnd],
+        &[Token::ParagraphBreak],
         &[
             (Token::Italics, Token::Whitespace),
             (Token::Whitespace, Token::Italics),

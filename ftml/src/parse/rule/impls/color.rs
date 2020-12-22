@@ -48,7 +48,7 @@ fn try_consume_fn<'r, 't>(
         (extracted, remaining, full_text),
         RULE_COLOR,
         &[Token::Pipe],
-        &[Token::ParagraphBreak, Token::LineBreak, Token::InputEnd],
+        &[Token::ParagraphBreak, Token::LineBreak],
         &[],
     );
 
@@ -68,7 +68,7 @@ fn try_consume_fn<'r, 't>(
         (extracted, remaining, full_text),
         RULE_COLOR,
         &[Token::Color],
-        &[Token::ParagraphBreak, Token::InputEnd],
+        &[Token::ParagraphBreak],
         &[],
         consume,
     );

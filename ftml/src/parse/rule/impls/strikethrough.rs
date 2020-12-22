@@ -38,7 +38,7 @@ fn try_consume_fn<'r, 't>(
         (extracted, remaining, full_text),
         (RULE_STRIKETHROUGH, ContainerType::Strikethrough),
         (Token::DoubleDash, Token::DoubleDash),
-        &[Token::ParagraphBreak, Token::InputEnd],
+        &[Token::ParagraphBreak],
         &[
             (Token::DoubleDash, Token::Whitespace),
             (Token::Whitespace, Token::DoubleDash),

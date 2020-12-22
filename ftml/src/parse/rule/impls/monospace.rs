@@ -38,7 +38,7 @@ fn try_consume_fn<'r, 't>(
         (extracted, remaining, full_text),
         (RULE_MONOSPACE, ContainerType::Monospace),
         (Token::LeftMonospace, Token::RightMonospace),
-        &[Token::ParagraphBreak, Token::InputEnd],
+        &[Token::ParagraphBreak],
         &[
             (Token::LeftMonospace, Token::Whitespace),
             (Token::Whitespace, Token::RightMonospace),
