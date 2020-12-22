@@ -80,7 +80,13 @@ where
                     "Hit a paragraph break, creating a new paragraph container",
                 );
 
+                // Paragraph break -- end the paragraph and start a new one!
                 stack.end_paragraph();
+
+                // We must manually bump up this pointer because
+                // we 'continue' here, skipping the usual consumption check.
+                tokens.update(remaining);
+
                 continue;
             }
 
