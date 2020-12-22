@@ -26,6 +26,7 @@ resource "aws_ecs_capacity_provider" "asg" {
 
 resource "aws_autoscaling_group" "ecs_nodes" {
   name_prefix           = "CLUSTER_NODES_"
+  desired_capacity      = 1
   max_size              = 1
   min_size              = 1
   vpc_zone_identifier   = [aws_subnet.container_subnet.id]
@@ -41,12 +42,9 @@ resource "aws_autoscaling_group" "ecs_nodes" {
         version            = "$Latest"
       }
 
-      dynamic "override" {
-        for_each = var.instance_type
-        content {
-          instance_type     = override.key
-          weighted_capacity = 1
-        }
+      override {
+        instance_type     = var.instance_type
+        weighted_capacity = 1
       }
     }
   }
@@ -54,6 +52,8 @@ resource "aws_autoscaling_group" "ecs_nodes" {
   lifecycle {
     create_before_destroy = true
   }
+
+  depends_on = ["aws_launch_template.node"]
 }
 
 resource "aws_ecs_task_definition" "wikijump_task" {

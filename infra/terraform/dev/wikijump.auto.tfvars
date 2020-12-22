@@ -23,5 +23,5 @@ cache_ec2_size  = "cache.t3.micro"
 # You should pull this value from some secret manager, whether that's Vault, SSM Parameter Store, or Terraform Cloud's Sensitive variable storage.
 # rds_master_password   = (stored in TF cloud)
 
-instance_type = ["t3.medium"]
+instance_type = "t3.medium"
 user_data     = [""]

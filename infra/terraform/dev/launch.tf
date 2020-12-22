@@ -28,7 +28,7 @@ data "aws_ssm_parameter" "ecs_ami" {
 resource "aws_launch_template" "node" {
   name_prefix            = "ecs_node_"
   image_id               = data.aws_ssm_parameter.ecs_ami.value
-  instance_type          = "t3.medium"
+  instance_type          = var.instance_type
   vpc_security_group_ids = [aws_security_group.ecs_nodes.id]
   user_data              = data.template_cloudinit_config.config.rendered
   update_default_version = true
