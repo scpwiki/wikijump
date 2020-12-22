@@ -28,7 +28,7 @@ resource "aws_autoscaling_group" "ecs_nodes" {
   name_prefix           = "CLUSTER_NODES_"
   max_size              = 1
   min_size              = 1
-  vpc_zone_identifier   = aws_subnet.container_subnet.id
+  vpc_zone_identifier   = [aws_subnet.container_subnet.id]
   protect_from_scale_in = false
 
   mixed_instances_policy {
