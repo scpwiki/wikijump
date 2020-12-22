@@ -71,8 +71,12 @@ resource "aws_ecs_task_definition" "wikijump_task" {
     name = "letsencrypt"
 
     efs_volume_configuration {
-      file_system_id = aws_efs_file_system.traefik_efs.id
-      root_directory = "/letsencrypt"
+      file_system_id     = aws_efs_file_system.traefik_efs.id
+      transit_encryption = "ENABLED"
+      root_directory     = "/letsencrypt"
+      authorization_config {
+        access_point_id = aws_efs_access_point.access.id
+      }
     }
   }
 }

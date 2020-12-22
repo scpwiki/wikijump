@@ -4,6 +4,14 @@
                 "image": "026642728050.dkr.ecr.us-east-2.amazonaws.com/wikijump/memcached:latest",
                 "cpu": 0,
                 "memoryReservation": 512,
+                "logConfiguration": {
+                    "logDriver": "awslogs",
+                    "options": {
+                      "awslogs-group": "ecs/cache",
+                      "awslogs-region": "us-east-2",
+                      "awslogs-stream-prefix": "ecs"
+                    }
+                  },
                 "portMappings": [],
                 "essential": true,
                 "environment": [],
@@ -15,6 +23,14 @@
                 "image": "026642728050.dkr.ecr.us-east-2.amazonaws.com/wikijump/postgres:latest",
                 "cpu": 0,
                 "memoryReservation": 2048,
+                "logConfiguration": {
+                    "logDriver": "awslogs",
+                    "options": {
+                      "awslogs-group": "ecs/database",
+                      "awslogs-region": "us-east-2",
+                      "awslogs-stream-prefix": "ecs"
+                    }
+                  },
                 "portMappings": [],
                 "essential": true,
                 "environment": [],
@@ -26,6 +42,14 @@
                 "image": "026642728050.dkr.ecr.us-east-2.amazonaws.com/wikijump/php-fpm:latest",
                 "cpu": 0,
                 "memoryReservation": 768,
+                "logConfiguration": {
+                    "logDriver": "awslogs",
+                    "options": {
+                      "awslogs-group": "ecs/php-fpm",
+                      "awslogs-region": "us-east-2",
+                      "awslogs-stream-prefix": "ecs"
+                    }
+                  },
                 "links": [
                     "cache:cache",
                     "database:database"
@@ -66,6 +90,14 @@
                 "image": "026642728050.dkr.ecr.us-east-2.amazonaws.com/wikijump/traefik:latest",
                 "cpu": 0,
                 "memoryReservation": 512,
+                "logConfiguration": {
+                    "logDriver": "awslogs",
+                    "options": {
+                      "awslogs-group": "ecs/traefik",
+                      "awslogs-region": "us-east-2",
+                      "awslogs-stream-prefix": "ecs"
+                    }
+                  },
                 "links": [
                     "php-fpm:php-fpm"
                 ],
