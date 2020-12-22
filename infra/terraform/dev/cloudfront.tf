@@ -18,13 +18,13 @@ resource "aws_cloudfront_distribution" "wikijump_cf_distro" {
     }
   }
 
-  origin {
-    domain_name = aws_s3_bucket.wikijump_assets.bucket_regional_domain_name
-    origin_id   = "wikijump_s3"
-    s3_origin_config {
-      origin_access_identity = aws_cloudfront_origin_access_identity.s3_oai.cloudfront_access_identity_path
-    }
-  }
+#   origin {
+#     domain_name = aws_s3_bucket.wikijump_assets.bucket_regional_domain_name
+#     origin_id   = "wikijump_s3"
+#     s3_origin_config {
+#       origin_access_identity = aws_cloudfront_origin_access_identity.s3_oai.cloudfront_access_identity_path
+#     }
+#   }
 
   restrictions {
     geo_restriction {
@@ -36,7 +36,7 @@ resource "aws_cloudfront_distribution" "wikijump_cf_distro" {
     path_pattern     = "/local--files/*"
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
     cached_methods   = ["GET", "HEAD", "OPTIONS"]
-    target_origin_id = "wikijump_s3"
+    target_origin_id = "wikijump_elb" # this should be s3
 
     forwarded_values {
       query_string = false
