@@ -21,7 +21,7 @@ module "database" {
     source="github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.46.0"
 
     container_name = "database"
-    container_image = aws_ecr_repository.db_ecr.repository_url
+    container_image = "${aws_ecr_repository.db_ecr.repository_url}:develop"
     container_memory = 2048
     container_cpu = 256
     essential = true
@@ -40,7 +40,7 @@ module "php-fpm" {
     source="github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.46.0"
 
     container_name = "php-fpm"
-    container_image = aws_ecr_repository.web_ecr.repository_url
+    container_image = "${aws_ecr_repository.web_ecr.repository_url}:develop"
     container_memory = 768
     container_cpu = 1024
     essential = true
@@ -138,7 +138,7 @@ module "reverse-proxy" {
         {
             sourceVolume = "docker-socket"
             containerPath = "/var/run/docker.sock"
-            readOnly = true
+            readOnly = "true"
         },
         {
             sourceVolume = "letsencrypt"
