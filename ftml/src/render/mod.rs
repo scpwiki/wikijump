@@ -23,8 +23,10 @@ mod prelude {
     pub use crate::tree::{Container, Element, SyntaxTree};
 }
 
+mod json;
 mod null;
 mod object;
 
+pub use self::json::JsonRender;
 pub use self::null::NullRender;
 pub use self::object::Render;
