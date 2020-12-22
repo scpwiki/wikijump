@@ -13,16 +13,16 @@ resource "aws_subnet" "elb_subnet" {
   vpc_id                  = aws_vpc.wikijump_vpc.id
   cidr_block              = var.elb_subnet
   map_public_ip_on_launch = true
-
-  depends_on = [aws_internet_gateway.wikijump_igw]
+  availability_zone       = "${var.region}a"
+  depends_on              = [aws_internet_gateway.wikijump_igw]
 }
 
 resource "aws_subnet" "container_subnet" {
   vpc_id                  = aws_vpc.wikijump_vpc.id
   cidr_block              = var.container_subnet
   map_public_ip_on_launch = true
-
-  depends_on = [aws_internet_gateway.wikijump_igw]
+  availability_zone       = "${var.region}a"
+  depends_on              = [aws_internet_gateway.wikijump_igw]
 }
 
 # Gateways
