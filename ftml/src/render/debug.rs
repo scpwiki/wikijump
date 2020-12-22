@@ -26,6 +26,8 @@ use super::prelude::*;
 pub struct DebugRender;
 
 impl Render for DebugRender {
+    type Output = String;
+
     #[inline]
     fn render(&self, tree: &SyntaxTree) -> String {
         format!("{:#?}", tree)

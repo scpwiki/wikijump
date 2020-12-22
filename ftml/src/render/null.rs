@@ -21,7 +21,7 @@
 //! A trivial renderer.
 //!
 //! This implementation of `Render` will consume any input syntax tree
-//! and produce an empty string as output.
+//! and produce a unit value as output.
 
 use super::prelude::*;
 
@@ -29,9 +29,11 @@ use super::prelude::*;
 pub struct NullRender;
 
 impl Render for NullRender {
+    type Output = ();
+
     #[inline]
-    fn render(&self, _tree: &SyntaxTree) -> String {
-        str!("")
+    fn render(&self, _tree: &SyntaxTree) -> () {
+        ()
     }
 }
 
@@ -41,5 +43,5 @@ fn null() {
     let (tree, _) = result.into();
     let output = NullRender.render(&tree);
 
-    assert_eq!(output, "", "Null render didn't produce an empty string");
+    assert_eq!(output, (), "Null render didn't produce the unit type");
 }

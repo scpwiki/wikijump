@@ -44,6 +44,8 @@ impl JsonRender {
 }
 
 impl Render for JsonRender {
+    type Output = String;
+
     fn render(&self, tree: &SyntaxTree) -> String {
         let writer = if self.pretty {
             serde_json::to_string_pretty

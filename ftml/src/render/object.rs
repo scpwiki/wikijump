@@ -26,10 +26,18 @@ use crate::tree::SyntaxTree;
 /// with whatever state it needs to perform a rendering of the
 /// inputted abstract syntax tree.
 pub trait Render {
-    /// Render an abstract syntax tree into a string.
+    /// The type outputted by this renderer.
+    ///
+    /// Typically this would be a string of some kind,
+    /// however more complex renderers may opt to return
+    /// types with more information or structure than that,
+    /// if they wish.
+    type Output;
+
+    /// Render an abstract syntax tree into its output type.
     ///
     /// This is the main method of the trait, causing this
     /// renderer instance to perform whatever operations
     /// it requires to produce the output string.
-    fn render(&self, tree: &SyntaxTree) -> String;
+    fn render(&self, tree: &SyntaxTree) -> Self::Output;
 }

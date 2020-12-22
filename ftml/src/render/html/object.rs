@@ -18,15 +18,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::output::HtmlOutput;
 use super::prelude::*;
 
 #[derive(Debug)]
 pub struct HtmlRender;
 
 impl Render for HtmlRender {
-    fn render(&self, _tree: &SyntaxTree) -> String {
-        // TODO
+    type Output = HtmlOutput;
 
-        str!("not implemented")
+    fn render(&self, _tree: &SyntaxTree) -> HtmlOutput {
+        todo!()
     }
 }
