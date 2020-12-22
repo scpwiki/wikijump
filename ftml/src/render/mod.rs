@@ -19,8 +19,8 @@
  */
 
 mod prelude {
-    pub use crate::tree::{Container, Element, SyntaxTree};
     pub use super::Render;
+    pub use crate::tree::{Container, Element, SyntaxTree};
 }
 
 mod null;

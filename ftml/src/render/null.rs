@@ -34,3 +34,12 @@ impl Render for NullRender {
         str!("")
     }
 }
+
+#[test]
+fn null() {
+    let result = SyntaxTree::from_element_result(vec![], vec![], vec![]);
+    let (tree, _) = result.into();
+    let output = NullRender.render(&tree);
+
+    assert_eq!(output, "", "Null render didn't produce an empty string");
+}
