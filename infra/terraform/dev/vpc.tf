@@ -32,7 +32,24 @@ resource "aws_internet_gateway" "wikijump_igw" {
 
 # Routes
 
-# # TODO: Add as needed and as will improve security posture.
+resource "aws_route_table" "public_route" {
+  vpc_id = aws_vpc.wikijump_vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.wikijump_igw.id
+  }
+}
+
+resourse "aws_route_table_association" "pub_elb" {
+  subnet_id      = aws_subnet.elb_subnet.id
+  route_table_id = aws_route_table.public_route.id
+}
+
+resourse "aws_route_table_association" "pub_container" {
+  subnet_id      = aws_subnet.container_subnet.id
+  route_table_id = aws_route_table.public_route.id
+}
 
 # Elastic IPs
 

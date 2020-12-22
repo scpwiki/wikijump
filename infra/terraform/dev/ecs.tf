@@ -53,7 +53,7 @@ resource "aws_autoscaling_group" "ecs_nodes" {
     create_before_destroy = true
   }
 
-  depends_on = ["aws_launch_template.node"]
+  depends_on = [aws_launch_template.node]
 }
 
 resource "aws_ecs_task_definition" "wikijump_task" {

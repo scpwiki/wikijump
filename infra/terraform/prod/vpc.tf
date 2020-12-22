@@ -46,7 +46,7 @@ resource "aws_internet_gateway" "wikijump_igw" {
 
 # Routes
 
-# # TODO: Add as needed and as will improve security posture.
+
 
 # Elastic IPs
 
