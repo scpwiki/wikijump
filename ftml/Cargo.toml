@@ -23,6 +23,7 @@ pest = "2"
 pest_derive = "2"
 regex = "1"
 serde = { version = "1", features = ["derive"] }
+serde_json = "1"
 slog = "2.5"
 str-macro = "0.1"
 strum = "0.20"
@@ -30,6 +31,5 @@ strum_macros = "0.20"
 tinyvec = "1"
 
 [dev-dependencies]
-serde_json = "1"
 sloggers = "1"
 slog-bunyan = "2"
