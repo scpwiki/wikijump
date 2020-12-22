@@ -30,11 +30,13 @@ mod stack;
 mod token;
 mod upcoming;
 
+use self::consume::GenericConsumption;
 use self::paragraph::gather_paragraphs;
-use self::rule::{impls::RULE_PAGE, Rule};
+use self::rule::impls::RULE_PAGE;
 use self::upcoming::UpcomingTokens;
 use crate::tokenize::Tokenization;
 use crate::tree::SyntaxTree;
+use std::borrow::Cow;
 
 pub use self::error::{ParseError, ParseErrorKind, ParseException};
 pub use self::result::ParseResult;
@@ -64,10 +66,54 @@ where
 
     // At the top level, we gather elements into paragraphs
     info!(log, "Running parser on tokens");
-    let mut tokens = UpcomingTokens::from(tokens);
+    let tokens = UpcomingTokens::from(tokens);
     let consumption = gather_paragraphs(log, tokens, full_text, RULE_PAGE, &[], &[]);
 
-    info!(log, "Finished running parser, returning gathered elements");
-    let (elements, errors, styles) = ((), (), ()); // TODO extract from consumption
-    SyntaxTree::from_element_result(elements, errors, styles)
+    debug!(log, "Finished paragraph gathering, matching on consumption");
+    match consumption {
+        GenericConsumption::Success {
+            item: elements,
+            remaining: _,
+            exceptions,
+        } => {
+            let (errors, styles) = extract_exceptions(exceptions);
+
+            info!(
+                log,
+                "Finished parsing, producing final syntax tree";
+                "errors-len" => errors.len(),
+                "styles-len" => styles.len(),
+            );
+
+            SyntaxTree::from_element_result(elements, errors, styles)
+        }
+        GenericConsumption::Failure { error } => {
+            // This path is only reachable if invalid_tokens is non-empty.
+            // As this is the highest-level, we do not have any premature ending tokens,
+            // but rather keep going until the end of the input.
+            //
+            // Thus this path should not be reached.
+
+            panic!(
+                "Got parse error from highest-level paragraph gather: {:#?}",
+                error,
+            );
+        }
+    }
+}
+
+fn extract_exceptions<'t>(
+    exceptions: Vec<ParseException<'t>>,
+) -> (Vec<ParseError>, Vec<Cow<'t, str>>) {
+    let mut errors = Vec::new();
+    let mut styles = Vec::new();
+
+    for exception in exceptions {
+        match exception {
+            ParseException::Error(error) => errors.push(error),
+            ParseException::Style(style) => styles.push(style),
+        }
+    }
+
+    (errors, styles)
 }
