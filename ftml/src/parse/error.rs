@@ -101,6 +101,9 @@ pub enum ParseErrorKind {
     /// Attempting to match this rule failed, falling back to try an alternate.
     RuleFailed,
 
+    /// This rule requires an internal paragraph which is non-empty.
+    EmptyParagraph,
+
     /// Attempting to process this rule failed because the end of input was reached.
     EndOfInput,
 
