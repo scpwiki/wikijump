@@ -93,6 +93,11 @@ resource "aws_ecs_service" "wikijump" {
     container_name   = "reverse-proxy"
     container_port   = 443
   }
+  load_balancer {
+    target_group_arn = aws_lb_target_group.elb_target_group_80.arn
+    container_name   = "reverse-proxy"
+    container_port   = 80
+  }
 }
 
 
