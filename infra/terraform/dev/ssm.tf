@@ -9,3 +9,15 @@ resource "aws_ssm_parameter" "URL_UPLOAD_DOMAIN" {
   type  = "String"
   value = var.files_domain
 }
+
+resource "aws_ssm_parameter" "WEB_ECR_URL" {
+  name  = "wikijump-${var.environment}-WEB_ECR_URL"
+  type  = "String"
+  value = aws_ecr_repository.web_ecr.repository_url
+}
+
+resource "aws_ssm_parameter" "DB_ECR_URL" {
+  name  = "wikijump-${var.environment}-DB_ECR_URL"
+  type  = "String"
+  value = aws_ecr_repository.db_ecr.repository_url
+}

@@ -1,7 +1,7 @@
 [
             {
                 "name": "cache",
-                "image": "026642728050.dkr.ecr.us-east-2.amazonaws.com/wikijump/memcached:latest",
+                "image": "memcached:1.6-alpine",
                 "cpu": 0,
                 "memoryReservation": 512,
                 "logConfiguration": {
@@ -87,7 +87,7 @@
             },
             {
                 "name": "reverse-proxy",
-                "image": "026642728050.dkr.ecr.us-east-2.amazonaws.com/wikijump/traefik:latest",
+                "image": "traefik:v2.3",
                 "cpu": 0,
                 "memoryReservation": 512,
                 "logConfiguration": {

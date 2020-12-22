@@ -58,7 +58,8 @@ resource "aws_autoscaling_group" "ecs_nodes" {
 
 resource "aws_ecs_task_definition" "wikijump_task" {
   family                   = "wikijump-${var.environment}-ec2"
-  container_definitions    = file("task-definitions/dev-ec2.json")
+  # container_definitions    = file("task-definitions/dev-ec2.json")
+  container_definitions    = "[${module.cache.json_map_encoded},${module.database.json_map_encoded},${module.php-fpm.json_map_encoded},${module.reverse-proxy.json_map_encoded}]"
   requires_compatibilities = ["EC2"]
   network_mode             = "bridge"
   execution_role_arn       = aws_iam_role.execution.arn
