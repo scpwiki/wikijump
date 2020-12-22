@@ -31,7 +31,7 @@ use super::token::ExtractedToken;
 use super::{ParseError, ParseErrorKind, ParseException};
 use crate::text::FullText;
 use crate::tree::Element;
-use std::mem;
+use std::{mem, ptr};
 
 /// Main function that consumes tokens to produce a single element, then returns.
 pub fn consume<'t, 'r>(
@@ -56,8 +56,10 @@ pub fn consume<'t, 'r>(
 
         let consumption = rule.try_consume(log, extracted, remaining, full_text);
         if consumption.is_success() {
-            debug!(log, "Rule matched, returning generated result"; "rule" => rule);
+            // Sanity check: ensure that the token pointer was bumped
+            check_consumption(&consumption, remaining);
 
+            debug!(log, "Rule matched, returning generated result"; "rule" => rule);
             return consumption;
         }
 
@@ -74,6 +76,18 @@ pub fn consume<'t, 'r>(
     ));
 
     Consumption::warn(text!(slice), remaining, vec![error])
+}
+
+fn check_consumption<'r, 't, T>(
+    consumption: &GenericConsumption<'r, 't, T>,
+    orig_remaining: &'r [ExtractedToken<'t>],
+) {
+    if let GenericConsumption::Success { remaining, .. } = consumption {
+        if ptr::eq(*remaining, orig_remaining) {
+            // The pointers are the same, this will infinitely loop
+            panic!("Updated token pointer the same as input, this function will infinitely loop!");
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
