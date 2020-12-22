@@ -87,7 +87,7 @@ where
                 // The new value is a subslice of tokens,
                 // equivalent to &tokens[offset..] but without
                 // needing to assert bounds.
-                *tokens = remaining.into();
+                tokens.update(remaining);
 
                 // Add the new element to the list
                 stack.push_element(item);

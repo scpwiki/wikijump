@@ -57,6 +57,16 @@ impl<'r, 't> UpcomingTokens<'r, 't> {
             } => remaining,
         }
     }
+
+    /// Update the token pointer to be the specified value.
+    ///
+    /// Useful when iterating over tokens for parsing.
+    ///
+    /// The caller must ensure that the slice given is a subslice
+    /// of the original slice held in this structure.
+    pub fn update(&mut self, tokens: TokenSlice<'r, 't>) {
+        *self = UpcomingTokens::All { tokens };
+    }
 }
 
 impl<'r, 't> From<TokenSlice<'r, 't>> for UpcomingTokens<'r, 't> {
