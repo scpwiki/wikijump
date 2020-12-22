@@ -96,3 +96,7 @@ variable "ecs_traefik_image" {
 variable "letsencrypt_email" {
   type = string
 }
+
+variable "redeploy_ecs_on_tf_apply" {
+  type = bool
+}

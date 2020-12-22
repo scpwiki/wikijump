@@ -89,7 +89,7 @@ resource "aws_ecs_service" "wikijump" {
   cluster              = aws_ecs_cluster.wikijump-ecs.id
   task_definition      = aws_ecs_task_definition.wikijump_task.arn
   desired_count        = 1 # This will be a var as we grow
-  force_new_deployment = true
+  force_new_deployment = var.redeploy_ecs_on_tf_apply
   load_balancer {
     target_group_arn = aws_lb_target_group.elb_target_group_443.arn
     container_name   = "reverse-proxy"
