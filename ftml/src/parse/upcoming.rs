@@ -20,19 +20,22 @@
 
 use super::token::ExtractedToken;
 
+type Token<'r, 't> = &'r ExtractedToken<'t>;
+type TokenSlice<'r, 't> = &'r [ExtractedToken<'t>];
+
 #[derive(Debug, Copy, Clone)]
 pub enum UpcomingTokens<'r, 't> {
     All {
-        tokens: &'r [ExtractedToken<'t>],
+        tokens: TokenSlice<'r, 't>,
     },
     Split {
-        extracted: &'r ExtractedToken<'t>,
-        remaining: &'r [ExtractedToken<'t>],
+        extracted: Token<'r, 't>,
+        remaining: TokenSlice<'r, 't>,
     },
 }
 
 impl<'r, 't> UpcomingTokens<'r, 't> {
-    pub fn split(&self) -> Option<(&'r ExtractedToken<'t>, &'r [ExtractedToken<'t>])> {
+    pub fn split(&self) -> Option<(Token<'r, 't>, TokenSlice<'r, 't>)> {
         match self {
             UpcomingTokens::All { tokens } => tokens.split_first(),
             UpcomingTokens::Split {
@@ -50,20 +53,16 @@ impl<'r, 't> UpcomingTokens<'r, 't> {
     }
 }
 
-impl<'r, 't> From<&'r [ExtractedToken<'t>]> for UpcomingTokens<'r, 't> {
+impl<'r, 't> From<TokenSlice<'r, 't>> for UpcomingTokens<'r, 't> {
     #[inline]
     fn from(tokens: &'r [ExtractedToken<'t>]) -> Self {
         UpcomingTokens::All { tokens }
     }
 }
 
-impl<'r, 't> From<(&'r ExtractedToken<'t>, &'r [ExtractedToken<'t>])>
-    for UpcomingTokens<'r, 't>
-{
+impl<'r, 't> From<(Token<'r, 't>, TokenSlice<'r, 't>)> for UpcomingTokens<'r, 't> {
     #[inline]
-    fn from(
-        (extracted, remaining): (&'r ExtractedToken<'t>, &'r [ExtractedToken<'t>]),
-    ) -> Self {
+    fn from((extracted, remaining): (Token<'r, 't>, TokenSlice<'r, 't>)) -> Self {
         UpcomingTokens::Split {
             extracted,
             remaining,
