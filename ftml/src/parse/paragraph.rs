@@ -18,12 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::consume::{consume, Consumption};
+use super::consume::{consume, Consumption, GenericConsumption};
 use super::rule::Rule;
 use super::stack::ParseStack;
 use super::token::Token;
 use super::upcoming::UpcomingTokens;
-use super::ParseException;
+use super::{ParseError, ParseErrorKind, ParseException};
 use crate::text::FullText;
 
 /// Function to iterate over tokens to produce elements in paragraphs.
@@ -39,13 +39,12 @@ use crate::text::FullText;
 /// See the `UpcomingTokens` enum for more information.
 pub fn gather_paragraphs<'l, 'r, 't>(
     log: &'l slog::Logger,
-    tokens: &mut UpcomingTokens<'r, 't>,
+    mut tokens: UpcomingTokens<'r, 't>,
     full_text: FullText<'t>,
     rule: Rule,
     close_tokens: &[Token],
     invalid_tokens: &[Token],
-    invalid_token_pairs: &[(Token, Token)],
-) -> ParseStack<'l, 't>
+) -> GenericConsumption<'r, 't, ParseStack<'l, 't>>
 where
     'r: 't,
 {
@@ -58,18 +57,56 @@ where
         let consumption = match extracted.token {
             // Avoid an unnecessary Token::Null and just exit
             Token::InputEnd => {
-                debug!(log, "Hit the end of input, terminating token iteration");
-                break;
+                if close_tokens.is_empty() {
+                    debug!(log, "Hit the end of input, terminating token iteration");
+
+                    break;
+                } else {
+                    debug!(log, "Hit the end of input, producing error");
+
+                    return GenericConsumption::err(ParseError::new(
+                        ParseErrorKind::InputEnd,
+                        rule,
+                        extracted,
+                    ));
+                }
             }
 
-            // If we've hit a paragraph break, then finish the current paragraph.
+            // If we've hit a paragraph break, then finish the current paragraph
             Token::ParagraphBreak => {
                 debug!(
                     log,
                     "Hit a paragraph break, creating a new paragraph container",
                 );
+
                 stack.end_paragraph();
                 continue;
+            }
+
+            // Ending the paragraph prematurely due to the element ending
+            token if close_tokens.contains(&token) => {
+                debug!(
+                    log,
+                    "Hit closing token, returning consumption success";
+                    "token" => token,
+                );
+
+                return GenericConsumption::ok(stack, tokens.slice());
+            }
+
+            // Ending the paragraph prematurely due to an error
+            token if invalid_tokens.contains(&token) => {
+                debug!(
+                    log,
+                    "Hit failure token, returning consumption failure";
+                    "token" => token,
+                );
+
+                return Consumption::err(ParseError::new(
+                    ParseErrorKind::RuleFailed,
+                    rule,
+                    extracted,
+                ));
             }
 
             // Produce consumption from this token pointer
@@ -122,5 +159,5 @@ where
         }
     }
 
-    stack
+    GenericConsumption::ok(stack, tokens.slice())
 }
