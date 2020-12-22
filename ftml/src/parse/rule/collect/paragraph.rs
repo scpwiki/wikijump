@@ -25,7 +25,7 @@ use crate::tree::Element;
 
 // TODO remove when used by an element
 #[allow(dead_code)]
-pub fn try_paragraph<'t, 'r>(
+pub fn try_paragraph<'r, 't>(
     log: &slog::Logger,
     (extracted, remaining, full_text): (
         &'r ExtractedToken<'t>,
@@ -35,7 +35,7 @@ pub fn try_paragraph<'t, 'r>(
     rule: Rule,
     close_tokens: &[Token],
     invalid_tokens: &[Token],
-) -> GenericConsumption<'t, 'r, Vec<Element<'t>>> {
+) -> GenericConsumption<'r, 't, Vec<Element<'t>>> {
     // Log try_paragraph() call
     info!(
         log,

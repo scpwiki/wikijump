@@ -25,7 +25,7 @@ use super::prelude::*;
 /// This is a subset of the functionality provided by `try_collect`,
 /// as it specifically gathers all the extracted tokens into a string slice,
 /// rather than considering them as special elements.
-pub fn try_merge<'t, 'r>(
+pub fn try_merge<'r, 't>(
     log: &slog::Logger,
     (extracted, remaining, full_text): (
         &'r ExtractedToken<'t>,
@@ -36,7 +36,7 @@ pub fn try_merge<'t, 'r>(
     close_tokens: &[Token],
     invalid_tokens: &[Token],
     invalid_token_pairs: &[(Token, Token)],
-) -> GenericConsumption<'t, 'r, &'t str> {
+) -> GenericConsumption<'r, 't, &'t str> {
     // Log try_merge() call
     info!(
         log,

@@ -26,12 +26,12 @@ pub const RULE_TODO: Rule = Rule {
     try_consume_fn,
 };
 
-fn try_consume_fn<'t, 'r>(
+fn try_consume_fn<'r, 't>(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
     _: &'r [ExtractedToken<'t>],
     _: FullText<'t>,
-) -> Consumption<'t, 'r> {
+) -> Consumption<'r, 't> {
     error!(log, "Encountered unimplemented rule! Returning error");
 
     Consumption::err(ParseError::new(

@@ -26,12 +26,12 @@ pub const RULE_URL: Rule = Rule {
     try_consume_fn,
 };
 
-fn try_consume_fn<'t, 'r>(
+fn try_consume_fn<'r, 't>(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     _full_text: FullText<'t>,
-) -> Consumption<'t, 'r> {
+) -> Consumption<'r, 't> {
     debug!(log, "Consuming token as a URL");
 
     let element = Element::Link {

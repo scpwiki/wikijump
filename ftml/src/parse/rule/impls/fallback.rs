@@ -33,11 +33,11 @@ pub const RULE_FALLBACK: Rule = Rule {
 ///
 /// See the end of the `consume()` function in `parse/consume.rs` for
 /// where the fallback action is performed.
-fn try_consume_fn<'t, 'r>(
+fn try_consume_fn<'r, 't>(
     _: &slog::Logger,
     _: &'r ExtractedToken<'t>,
     _: &'r [ExtractedToken<'t>],
     _: FullText<'t>,
-) -> Consumption<'t, 'r> {
+) -> Consumption<'r, 't> {
     panic!("Manual fallback rule should not be executed directly!")
 }

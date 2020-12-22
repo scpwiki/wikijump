@@ -42,7 +42,7 @@ use crate::tree::{Container, ContainerType, Element};
 /// This will perform an assertion that the current token matches the opening type.
 /// * `open_token`
 /// * `close_token`
-pub fn try_container<'t, 'r>(
+pub fn try_container<'r, 't>(
     log: &slog::Logger,
     (extracted, remaining, full_text): (
         &'r ExtractedToken<'t>,
@@ -53,7 +53,7 @@ pub fn try_container<'t, 'r>(
     (open_token, close_token): (Token, Token),
     invalid_tokens: &[Token],
     invalid_token_pairs: &[(Token, Token)],
-) -> Consumption<'t, 'r> {
+) -> Consumption<'r, 't> {
     // Log try_container() call
     let log = &log.new(slog_o!(
         "container-type" => str!(container_type.name()),

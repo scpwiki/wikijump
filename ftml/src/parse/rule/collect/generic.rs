@@ -57,7 +57,7 @@ use std::fmt::Debug;
 ///
 /// If the latter occurs, a `ParseError` is handed back and the parent will attempt the
 /// next rule in the list, or the text fallback.
-pub fn try_collect<'t, 'r, F, T>(
+pub fn try_collect<'r, 't, F, T>(
     log: &slog::Logger,
     (extracted, mut remaining, full_text): (
         &'r ExtractedToken<'t>,

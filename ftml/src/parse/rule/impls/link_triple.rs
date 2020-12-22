@@ -41,12 +41,12 @@ pub const RULE_LINK_TRIPLE_NEW_TAB: Rule = Rule {
     try_consume_fn: link_new_tab,
 };
 
-fn link<'t, 'r>(
+fn link<'r, 't>(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
-) -> Consumption<'t, 'r> {
+) -> Consumption<'r, 't> {
     trace!(log, "Trying to create a triple-bracket link (regular)");
 
     try_consume_link(
@@ -59,12 +59,12 @@ fn link<'t, 'r>(
     )
 }
 
-fn link_new_tab<'t, 'r>(
+fn link_new_tab<'r, 't>(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
-) -> Consumption<'t, 'r> {
+) -> Consumption<'r, 't> {
     trace!(log, "Trying to create a triple-bracket link (new tab)");
 
     try_consume_link(
@@ -78,14 +78,14 @@ fn link_new_tab<'t, 'r>(
 }
 
 /// Build a triple-bracket link with the given anchor.
-fn try_consume_link<'t, 'r>(
+fn try_consume_link<'r, 't>(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
     rule: Rule,
     anchor: AnchorTarget,
-) -> Consumption<'t, 'r> {
+) -> Consumption<'r, 't> {
     debug!(log, "Trying to create a triple-bracket link"; "anchor" => anchor.name());
 
     // Gather path for link
@@ -136,7 +136,7 @@ fn try_consume_link<'t, 'r>(
 
 /// Helper to build link with the same URL and label.
 /// e.g. `[[[name]]]`
-fn build_same<'t, 'r>(
+fn build_same<'r, 't>(
     log: &slog::Logger,
     remaining: &'r [ExtractedToken<'t>],
     errors: Vec<ParseException<'t>>,
@@ -160,7 +160,7 @@ fn build_same<'t, 'r>(
 
 /// Helper to build link with separate URL and label.
 /// e.g. `[[[page|label]]]`, or `[[[page|]]]`
-fn build_separate<'t, 'r>(
+fn build_separate<'r, 't>(
     log: &slog::Logger,
     (extracted, remaining, full_text): (
         &'r ExtractedToken<'t>,

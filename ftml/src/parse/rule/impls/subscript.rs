@@ -25,12 +25,12 @@ pub const RULE_SUBSCRIPT: Rule = Rule {
     try_consume_fn,
 };
 
-fn try_consume_fn<'t, 'r>(
+fn try_consume_fn<'r, 't>(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
-) -> Consumption<'t, 'r> {
+) -> Consumption<'r, 't> {
     debug!(log, "Trying to create subscript container");
 
     try_container(

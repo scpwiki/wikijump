@@ -44,7 +44,7 @@ impl Rule {
     }
 
     #[inline]
-    pub fn try_consume<'t, 'r>(
+    pub fn try_consume<'r, 't>(
         self,
         log: &slog::Logger,
         extract: &'r ExtractedToken<'t>,
@@ -78,9 +78,9 @@ impl slog::Value for Rule {
 }
 
 /// The function type for actually trying to consume tokens
-pub type TryConsumeFn = for<'t, 'r> fn(
+pub type TryConsumeFn = for<'r, 't> fn(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
-) -> Consumption<'t, 'r>;
+) -> Consumption<'r, 't>;

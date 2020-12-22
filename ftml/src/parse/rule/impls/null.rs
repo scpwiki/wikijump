@@ -25,12 +25,12 @@ pub const RULE_NULL: Rule = Rule {
     try_consume_fn,
 };
 
-fn try_consume_fn<'t, 'r>(
+fn try_consume_fn<'r, 't>(
     log: &slog::Logger,
     _extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     _full_text: FullText<'t>,
-) -> Consumption<'t, 'r> {
+) -> Consumption<'r, 't> {
     debug!(log, "Consuming token and outputting null element");
 
     Consumption::ok(Element::Null, remaining)

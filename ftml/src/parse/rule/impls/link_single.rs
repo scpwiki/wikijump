@@ -37,12 +37,12 @@ pub const RULE_LINK_SINGLE_NEW_TAB: Rule = Rule {
     try_consume_fn: link_new_tab,
 };
 
-fn link<'t, 'r>(
+fn link<'r, 't>(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
-) -> Consumption<'t, 'r> {
+) -> Consumption<'r, 't> {
     trace!(log, "Trying to create a single-bracket link (regular)");
 
     try_consume_link(
@@ -55,12 +55,12 @@ fn link<'t, 'r>(
     )
 }
 
-fn link_new_tab<'t, 'r>(
+fn link_new_tab<'r, 't>(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
-) -> Consumption<'t, 'r> {
+) -> Consumption<'r, 't> {
     trace!(log, "Trying to create a single-bracket link (new tab)");
 
     try_consume_link(
@@ -74,14 +74,14 @@ fn link_new_tab<'t, 'r>(
 }
 
 /// Build a single-bracket link with the given anchor.
-fn try_consume_link<'t, 'r>(
+fn try_consume_link<'r, 't>(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
     rule: Rule,
     anchor: AnchorTarget,
-) -> Consumption<'t, 'r> {
+) -> Consumption<'r, 't> {
     debug!(log, "Trying to create a single-bracket link"; "anchor" => anchor.name());
 
     // Gather path for link

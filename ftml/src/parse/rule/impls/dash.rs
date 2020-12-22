@@ -25,12 +25,12 @@ pub const RULE_DASH: Rule = Rule {
     try_consume_fn,
 };
 
-fn try_consume_fn<'t, 'r>(
+fn try_consume_fn<'r, 't>(
     log: &slog::Logger,
     _extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     _full_text: FullText<'t>,
-) -> Consumption<'t, 'r> {
+) -> Consumption<'r, 't> {
     debug!(log, "Consuming token to create an em dash");
 
     // — - EM DASH

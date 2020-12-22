@@ -34,12 +34,12 @@ use crate::tree::Element;
 use std::mem;
 
 /// Main function that consumes tokens to produce a single element, then returns.
-pub fn consume<'t, 'r>(
+pub fn consume<'r, 't>(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
-) -> Consumption<'t, 'r> {
+) -> Consumption<'r, 't> {
     let ExtractedToken { token, slice, span } = extracted;
     let log = &log.new(slog_o!(
         "token" => str!(token.name()),
@@ -77,7 +77,7 @@ pub fn consume<'t, 'r>(
 }
 
 #[derive(Debug, Clone)]
-pub enum GenericConsumption<'t, 'r, T>
+pub enum GenericConsumption<'r, 't, T>
 where
     T: 't,
     'r: 't,
@@ -92,7 +92,7 @@ where
     },
 }
 
-impl<'t, 'r, T> GenericConsumption<'t, 'r, T>
+impl<'r, 't, T> GenericConsumption<'r, 't, T>
 where
     T: 't,
 {
@@ -132,7 +132,7 @@ where
     }
 
     #[inline]
-    pub fn map<F, U>(self, f: F) -> GenericConsumption<'t, 'r, U>
+    pub fn map<F, U>(self, f: F) -> GenericConsumption<'r, 't, U>
     where
         F: FnOnce(T) -> U,
     {
@@ -157,4 +157,4 @@ where
     }
 }
 
-pub type Consumption<'t, 'r> = GenericConsumption<'t, 'r, Element<'t>>;
+pub type Consumption<'r, 't> = GenericConsumption<'r, 't, Element<'t>>;

@@ -31,12 +31,12 @@ pub const RULE_RAW: Rule = Rule {
     try_consume_fn,
 };
 
-fn try_consume_fn<'t, 'r>(
+fn try_consume_fn<'r, 't>(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
     mut remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
-) -> Consumption<'t, 'r> {
+) -> Consumption<'r, 't> {
     debug!(log, "Consuming tokens until end of raw");
 
     // Are we in a @@..@@ type raw, or a @<..>@ type?
