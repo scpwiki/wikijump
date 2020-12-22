@@ -138,7 +138,6 @@ module "reverse-proxy" {
         {
             sourceVolume = "docker-socket"
             containerPath = "/var/run/docker.sock"
-            readOnly = "true"
         },
         {
             sourceVolume = "letsencrypt"
