@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::parse::gather_paragraphs;
+use crate::parse::upcoming::UpcomingTokens;
 use crate::tree::{Container, ContainerType, Element};
 
 pub fn try_paragraph<'t, 'r>(
@@ -42,7 +43,7 @@ pub fn try_paragraph<'t, 'r>(
     );
 
     // Iterate and consume the tokens into multiple elements
-    let mut tokens = (extracted, remaining).into();
+    let mut tokens = UpcomingTokens::from((extracted, remaining));
     let mut stack = gather_paragraphs(log, &mut tokens, full_text);
 
     // Collapse the ParseStack into a paragraph

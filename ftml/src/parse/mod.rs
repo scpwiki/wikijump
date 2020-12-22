@@ -31,6 +31,7 @@ mod token;
 mod upcoming;
 
 use self::paragraph::gather_paragraphs;
+use self::upcoming::UpcomingTokens;
 use crate::tokenize::Tokenization;
 use crate::tree::SyntaxTree;
 
@@ -62,7 +63,7 @@ where
 
     // At the top level, we gather elements into paragraphs
     info!(log, "Running parser on tokens");
-    let mut tokens = tokens.into();
+    let mut tokens = UpcomingTokens::from(tokens);
     let stack = gather_paragraphs(log, &mut tokens, full_text);
 
     info!(log, "Finished running parser, returning gathered elements");
