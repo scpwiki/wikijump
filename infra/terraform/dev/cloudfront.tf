@@ -1,3 +1,7 @@
+resource "aws_cloudfront_origin_access_identity" "s3_oai" {
+  comment = "CF to S3"
+}
+
 resource "aws_cloudfront_distribution" "wikijump_cf_distro" {
   enabled             = true
   is_ipv6_enabled     = true
@@ -15,8 +19,11 @@ resource "aws_cloudfront_distribution" "wikijump_cf_distro" {
   }
 
   origin {
-    domain_name = aws_s3_bucket.wikijump_assets.bucket_domain_name
+    domain_name = aws_s3_bucket.wikijump_assets.bucket_regional_domain_name
     origin_id   = "wikijump_s3"
+    s3_origin_config {
+      origin_access_identity = aws_cloudfront_origin_access_identity.s3_oai.cloudfront_access_identity_path
+    }
   }
 
   restrictions {
