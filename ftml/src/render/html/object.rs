@@ -24,7 +24,7 @@ use super::prelude::*;
 pub struct HtmlRender;
 
 impl Render for HtmlRender {
-    fn render(&self, tree: &SyntaxTree) -> String {
+    fn render(&self, _tree: &SyntaxTree) -> String {
         // TODO
 
         str!("not implemented")
