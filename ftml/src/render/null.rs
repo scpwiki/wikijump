@@ -30,7 +30,7 @@ pub struct NullRender;
 
 impl Render for NullRender {
     #[inline]
-    fn render(&mut self, _tree: &SyntaxTree) -> String {
+    fn render(&self, _tree: &SyntaxTree) -> String {
         str!("")
     }
 }
