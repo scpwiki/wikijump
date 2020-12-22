@@ -20,6 +20,7 @@
 
 use super::token::ExtractedToken;
 
+// Local type aliases to make this module less messy.
 type Token<'r, 't> = &'r ExtractedToken<'t>;
 type TokenSlice<'r, 't> = &'r [ExtractedToken<'t>];
 
@@ -42,13 +43,6 @@ impl<'r, 't> UpcomingTokens<'r, 't> {
                 extracted,
                 remaining,
             } => Some((extracted, remaining)),
-        }
-    }
-
-    pub fn is_empty(&self) -> bool {
-        match self {
-            UpcomingTokens::All { tokens } => tokens.is_empty(),
-            UpcomingTokens::Split { .. } => false,
         }
     }
 }
