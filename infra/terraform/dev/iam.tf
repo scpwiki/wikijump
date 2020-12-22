@@ -11,6 +11,33 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy_attach
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy_attach" {
+  role       = aws_iam_role.execution.name
+  policy_arn = aws_iam_policy.parameter_store_access.arn
+}
+
+resource "aws_iam_policy" "parameter_store_access" {
+  name        = "wikijump-ssm-policy-${var.environment}"
+  description = "Access Parameter Store"
+
+  policy = <<POLICY
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ssm:GetParametersByPath",
+                "ssm:GetParameters",
+                "ssm:GetParameter"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+POLICY
+}
+
 
 #####
 # IAM - Task role, basic. Append policies to this role for S3, DynamoDB etc.
