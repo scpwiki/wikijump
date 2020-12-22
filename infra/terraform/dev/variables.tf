@@ -43,7 +43,7 @@ variable "region" {
 }
 
 variable "instance_type" {
-    type = string
+    type = list(string)
 }
 
 variable "user_data" {}
