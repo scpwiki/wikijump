@@ -1,5 +1,5 @@
 /*
- * render/html/mod.rs
+ * render/html/output.rs
  *
  * ftml - Library to parse Wikidot code
  * Copyright (C) 2019-2020 Ammon Smith
@@ -18,22 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[cfg(test)]
-mod test;
+use super::meta::HtmlMeta;
+use crate::data::PageInfo;
 
-#[macro_use]
-mod macros;
-
-mod builder;
-mod context;
-mod escape;
-mod meta;
-mod object;
-mod output;
-mod render;
-
-use super::prelude;
-
-pub use self::meta::{HtmlMeta, HtmlMetaType};
-pub use self::object::HtmlRender;
-pub use self::output::HtmlOutput;
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct HtmlOutput<'i> {
+    pub html: String,
+    pub style: String,
+    pub meta: Vec<HtmlMeta>,
+    pub info: PageInfo<'i>,
+}

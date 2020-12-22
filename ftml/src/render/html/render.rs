@@ -1,5 +1,5 @@
 /*
- * render/html/mod.rs
+ * render/html/render.rs
  *
  * ftml - Library to parse Wikidot code
  * Copyright (C) 2019-2020 Ammon Smith
@@ -18,22 +18,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[cfg(test)]
-mod test;
+use super::context::HtmlContext;
 
-#[macro_use]
-mod macros;
+pub trait ElementRender {
+    fn render(&self, ctx: &mut HtmlContext);
+}
 
-mod builder;
-mod context;
-mod escape;
-mod meta;
-mod object;
-mod output;
-mod render;
-
-use super::prelude;
-
-pub use self::meta::{HtmlMeta, HtmlMetaType};
-pub use self::object::HtmlRender;
-pub use self::output::HtmlOutput;
+impl ElementRender for &'_ str {
+    fn render(&self, ctx: &mut HtmlContext) {
+        ctx.push_escaped(self);
+    }
+}

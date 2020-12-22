@@ -1,5 +1,5 @@
 /*
- * render/html/mod.rs
+ * render/html/macros.rs
  *
  * ftml - Library to parse Wikidot code
  * Copyright (C) 2019-2020 Ammon Smith
@@ -18,22 +18,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[cfg(test)]
-mod test;
+/// Like `std::write()`, except it asserts the writing succeeded.
+///
+/// This is done because the only failure mode for writing to a `String`
+/// would be insufficient memory, which would cause an abort anyways.
+macro_rules! str_write {
+    ($dest:expr, $($arg:tt)*) => {{
+        use std::fmt::Write;
 
-#[macro_use]
-mod macros;
-
-mod builder;
-mod context;
-mod escape;
-mod meta;
-mod object;
-mod output;
-mod render;
-
-use super::prelude;
-
-pub use self::meta::{HtmlMeta, HtmlMetaType};
-pub use self::object::HtmlRender;
-pub use self::output::HtmlOutput;
+        write!($dest, $($arg)*).expect("Writing to string failed");
+    }};
+}

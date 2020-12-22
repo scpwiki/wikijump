@@ -25,6 +25,8 @@ pub struct HtmlRender;
 
 impl Render for HtmlRender {
     fn render(&self, tree: &SyntaxTree) -> String {
-        todo!()
+        // TODO
+
+        str!("not implemented")
     }
 }

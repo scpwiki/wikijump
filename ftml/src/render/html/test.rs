@@ -27,6 +27,8 @@ fn html() {
     let (tree, _) = result.into();
     let output = HtmlRender.render(&tree);
 
-    // TODO
-    let _ = output;
+    assert_eq!(
+        output, "not implemented",
+        "Stubbed HTML render didn't produce the proper value",
+    );
 }
