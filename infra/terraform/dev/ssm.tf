@@ -21,3 +21,7 @@ resource "aws_ssm_parameter" "DB_ECR_URL" {
   type  = "String"
   value = aws_ecr_repository.db_ecr.repository_url
 }
+
+data "aws_ssm_parameter" "ecs_ami" {
+  name = "/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id"
+}

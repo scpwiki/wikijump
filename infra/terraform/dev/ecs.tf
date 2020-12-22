@@ -8,22 +8,6 @@ resource "aws_ecs_cluster" "wikijump-ecs" {
   }
 }
 
-resource "aws_ecs_capacity_provider" "asg" {
-  name = aws_autoscaling_group.ecs_nodes.name
-
-  auto_scaling_group_provider {
-    auto_scaling_group_arn         = aws_autoscaling_group.ecs_nodes.arn
-    managed_termination_protection = "DISABLED"
-
-    managed_scaling {
-      maximum_scaling_step_size = 1
-      minimum_scaling_step_size = 1
-      status                    = "ENABLED"
-      target_capacity           = 1
-    }
-  }
-}
-
 resource "aws_autoscaling_group" "ecs_nodes" {
   name_prefix           = "CLUSTER_NODES_"
   desired_capacity      = 1
@@ -56,8 +40,25 @@ resource "aws_autoscaling_group" "ecs_nodes" {
   depends_on = [aws_launch_template.node]
 }
 
+
+resource "aws_ecs_capacity_provider" "asg" {
+  name = aws_autoscaling_group.ecs_nodes.name
+
+  auto_scaling_group_provider {
+    auto_scaling_group_arn         = aws_autoscaling_group.ecs_nodes.arn
+    managed_termination_protection = "DISABLED"
+
+    managed_scaling {
+      maximum_scaling_step_size = 1
+      minimum_scaling_step_size = 1
+      status                    = "ENABLED"
+      target_capacity           = 1
+    }
+  }
+}
+
 resource "aws_ecs_task_definition" "wikijump_task" {
-  family                   = "wikijump-${var.environment}-ec2"
+  family = "wikijump-${var.environment}-ec2"
   # container_definitions    = file("task-definitions/dev-ec2.json")
   container_definitions    = "[${module.cache.json_map_encoded},${module.database.json_map_encoded},${module.php-fpm.json_map_encoded},${module.reverse-proxy.json_map_encoded}]"
   requires_compatibilities = ["EC2"]

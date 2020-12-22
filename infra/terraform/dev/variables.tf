@@ -26,25 +26,73 @@ variable "cf_auth_token" {
   type = string
 }
 
-variable "cache_num_nodes" {
-  type = number
-}
-
-variable "cache_ec2_size" {
-  type = string
-}
-
-variable "rds_master_password" {
-  type = string
-}
-
 variable "region" {
   type = string
 }
 
 variable "instance_type" {
+  type    = string
+  default = "t3.medium"
+}
+
+variable "user_data" {
+  type    = list(string)
+  default = [""]
+}
+
+variable "availability_zone" {
+  type    = string
+  default = "a"
+}
+
+variable "ecs_cache_memory" {
+  type    = number
+  default = 512
+}
+
+variable "ecs_cache_cpu" {
+  type    = number
+  default = 256
+}
+
+variable "ecs_cache_image" {
   type = string
 }
 
-variable "user_data" {}
+variable "ecs_db_memory" {
+  type    = number
+  default = 2048
+}
 
+variable "ecs_db_cpu" {
+  type    = number
+  default = 256
+}
+
+variable "ecs_php_memory" {
+  type    = number
+  default = 768
+}
+
+variable "ecs_php_cpu" {
+  type    = number
+  default = 1024
+}
+
+variable "ecs_traefik_memory" {
+  type    = number
+  default = 512
+}
+
+variable "ecs_traefik_cpu" {
+  type    = number
+  default = 512
+}
+
+variable "ecs_traefik_image" {
+  type = string
+}
+
+variable "letsencrypt_email" {
+  type = string
+}

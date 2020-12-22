@@ -1,109 +1,109 @@
 module "cache" {
-    source="github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.46.0"
+  source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.46.0"
 
-    container_name = "cache"
-    container_image = "memcached:1.6-alpine"
-    container_memory = 512
-    container_cpu = 256
-    essential = true
+  container_name   = "cache"
+  container_image  = var.ecs_cache_image
+  container_memory = var.ecs_cache_memory
+  container_cpu    = var.ecs_cache_cpu
+  essential        = true
 
-    log_configuration = {
-        logDriver = "awslogs"
-        options = {
-            "awslogs-group" = "ecs/cache"
-            "awslogs-region" = "us-east-2"
-            "awslogs-stream-prefix" = "ecs"
-        }
+  log_configuration = {
+    logDriver = "awslogs"
+    options = {
+      "awslogs-group"         = "ecs/cache-${var.environment}"
+      "awslogs-region"        = "${var.region}"
+      "awslogs-stream-prefix" = "ecs"
     }
+  }
 }
 
 module "database" {
-    source="github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.46.0"
+  source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.46.0"
 
-    container_name = "database"
-    container_image = "${aws_ecr_repository.db_ecr.repository_url}:develop"
-    container_memory = 2048
-    container_cpu = 256
-    essential = true
+  container_name   = "database"
+  container_image  = "${aws_ecr_repository.db_ecr.repository_url}:develop"
+  container_memory = var.ecs_db_memory
+  container_cpu    = var.ecs_db_cpu
+  essential        = true
 
-    log_configuration = {
-        logDriver = "awslogs"
-        options = {
-            "awslogs-group" = "ecs/database"
-            "awslogs-region" = "us-east-2"
-            "awslogs-stream-prefix" = "ecs"
-        }
+  log_configuration = {
+    logDriver = "awslogs"
+    options = {
+      "awslogs-group"         = "ecs/database-${var.environment}"
+      "awslogs-region"        = "${var.region}"
+      "awslogs-stream-prefix" = "ecs"
     }
+  }
 }
 
 module "php-fpm" {
-    source="github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.46.0"
+  source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.46.0"
 
-    container_name = "php-fpm"
-    container_image = "${aws_ecr_repository.web_ecr.repository_url}:develop"
-    container_memory = 768
-    container_cpu = 1024
-    essential = true
+  container_name   = "php-fpm"
+  container_image  = "${aws_ecr_repository.web_ecr.repository_url}:develop"
+  container_memory = var.ecs_php_memory
+  container_cpu    = var.ecs_php_cpu
+  essential        = true
 
-    log_configuration = {
-        logDriver = "awslogs"
-        options = {
-            "awslogs-group" = "ecs/php-fpm"
-            "awslogs-region" = "us-east-2"
-            "awslogs-stream-prefix" = "ecs"
-        }
+  log_configuration = {
+    logDriver = "awslogs"
+    options = {
+      "awslogs-group"         = "ecs/php-fpm-${var.environment}"
+      "awslogs-region"        = "${var.region}"
+      "awslogs-stream-prefix" = "ecs"
     }
+  }
 
-    links = ["cache:cache", "database:database"]
+  links = ["cache:cache", "database:database"]
 
-    secrets = [
-        {
-            name = "URL_DOMAIN"
-            valueFrom = "wikijump-dev-URL_DOMAIN"
-        },
-        {
-            name = "URL_UPLOAD_DOMAIN"
-            valueFrom = "wikijump-dev-URL_UPLOAD_DOMAIN"
-        }
-    ]
-
-    docker_labels = {
-        "traefik.enable" = "true"
-        "traefik.http.routers.php-fpm.rule" = "Host(`wikijump.dev`,`www.wikijump.dev`,`wjfiles.dev`,`www.wjfiles.dev`)"
-        "traefik.http.routers.php-fpm.tls" = "true"
-        "traefik.http.routers.php-fpm.tls.certresolver" = "mytlschallenge"
+  secrets = [
+    {
+      name      = "URL_DOMAIN"
+      valueFrom = "wikijump-dev-URL_DOMAIN"
+    },
+    {
+      name      = "URL_UPLOAD_DOMAIN"
+      valueFrom = "wikijump-dev-URL_UPLOAD_DOMAIN"
     }
+  ]
 
-    healthcheck = {
-        command = ["CMD-SHELL", "curl -f http://localhost || exit 1"]
-        interval = 30
-        timeout = 5
-        retries = 3
-        startPeriod = 15
-    }
+  docker_labels = {
+    "traefik.enable"                                = "true"
+    "traefik.http.routers.php-fpm.rule"             = "Host(`${var.web_domain}`,`www.${var.web_domain}`,`${var.files_domain}`,`www.${var.files_domain}`)"
+    "traefik.http.routers.php-fpm.tls"              = "true"
+    "traefik.http.routers.php-fpm.tls.certresolver" = "mytlschallenge"
+  }
+
+  healthcheck = {
+    command     = ["CMD-SHELL", "curl -f http://localhost || exit 1"]
+    interval    = 30
+    timeout     = 5
+    retries     = 3
+    startPeriod = 15
+  }
 }
 
 module "reverse-proxy" {
-    source="github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.46.0"
+  source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.46.0"
 
-    container_name = "reverse-proxy"
-    container_image = "traefik:v2.3"
-    container_memory = 512
-    container_cpu = 512
-    essential = true
+  container_name   = "reverse-proxy"
+  container_image  = var.ecs_traefik_image
+  container_memory = var.ecs_traefik_memory
+  container_cpu    = var.ecs_traefik_cpu
+  essential        = true
 
-    log_configuration = {
-        logDriver = "awslogs"
-        options = {
-            "awslogs-group" = "ecs/traefik"
-            "awslogs-region" = "us-east-2"
-            "awslogs-stream-prefix" = "ecs"
-        }
+  log_configuration = {
+    logDriver = "awslogs"
+    options = {
+      "awslogs-group"         = "ecs/traefik-${var.environment}"
+      "awslogs-region"        = "${var.region}"
+      "awslogs-stream-prefix" = "ecs"
     }
+  }
 
-    links = ["php-fpm:php-fpm"]
+  links = ["php-fpm:php-fpm"]
 
-    port_mappings = [
+  port_mappings = [
     {
       containerPort = 8081
       hostPort      = 8081
@@ -121,36 +121,36 @@ module "reverse-proxy" {
     }
   ]
 
-    command = [
-                    "--providers.docker",
-                    "--entrypoints.web.address=:80",
-                    "--entrypoints.web.http.redirections.entryPoint.to=web-secure",
-                    "--entrypoints.web.http.redirections.entryPoint.scheme=https",
-                    "--entrypoints.web.http.redirections.entrypoint.permanent=true",
-                    "--entrypoints.web-secure.address=:443",
-                    "--certificatesresolvers.mytlschallenge.acme.tlschallenge=true",
-                    "--certificatesresolvers.mytlschallenge.acme.email=info@wikijump.com",
-                    "--certificatesresolvers.mytlschallenge.acme.storage=/letsencrypt/acme.json",
-                    "--ping.entrypoint=ping",
-                    "--entrypoints.ping.address=:8081"
-                ]
-    mount_points = [
-        {
-            sourceVolume = "docker-socket"
-            containerPath = "/var/run/docker.sock"
-        },
-        {
-            sourceVolume = "letsencrypt"
-            containerPath = "/letsencrypt"
-        }
-    ]
+  command = [
+    "--providers.docker",
+    "--entrypoints.web.address=:80",
+    "--entrypoints.web.http.redirections.entryPoint.to=web-secure",
+    "--entrypoints.web.http.redirections.entryPoint.scheme=https",
+    "--entrypoints.web.http.redirections.entrypoint.permanent=true",
+    "--entrypoints.web-secure.address=:443",
+    "--certificatesresolvers.mytlschallenge.acme.tlschallenge=true",
+    "--certificatesresolvers.mytlschallenge.acme.email=${var.letsencrypt_email}",
+    "--certificatesresolvers.mytlschallenge.acme.storage=/letsencrypt/acme.json",
+    "--ping.entrypoint=ping",
+    "--entrypoints.ping.address=:8081"
+  ]
+  mount_points = [
+    {
+      sourceVolume  = "docker-socket"
+      containerPath = "/var/run/docker.sock"
+    },
+    {
+      sourceVolume  = "letsencrypt"
+      containerPath = "/letsencrypt"
+    }
+  ]
 
-    container_depends_on = [
-        {
-            containerName = "php-fpm"
-            condition = "HEALTHY"
-        }
-    ]
+  container_depends_on = [
+    {
+      containerName = "php-fpm"
+      condition     = "HEALTHY"
+    }
+  ]
 }
 
 output "cache_json" {
