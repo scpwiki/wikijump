@@ -69,13 +69,22 @@ pub fn consume<'t, 'r>(
 
     debug!(log, "All rules exhausted, using generic text fallback");
 
+    // Asserts that there is at least one more element
+    // Since we always end token slices with Token::InputEnd,
+    // this should not be empty.
+    //
+    // The fallback rule can't apply here since it has an
+    // unconditional handler (RULE_NULL).
+    let new_remaining = &remaining[1..];
+
+    // Fallback consumption with warning
     let error = ParseException::Error(ParseError::new(
         ParseErrorKind::NoRulesMatch,
         RULE_FALLBACK,
         extracted,
     ));
 
-    Consumption::warn(text!(slice), remaining, vec![error])
+    Consumption::warn(text!(slice), new_remaining, vec![error])
 }
 
 fn check_consumption<'r, 't, T>(
