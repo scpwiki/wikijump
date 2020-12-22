@@ -30,11 +30,10 @@ pub fn try_paragraph<'t, 'r>(
         &'r [ExtractedToken<'t>],
         FullText<'t>,
     ),
-    allow_empty: bool,
     rule: Rule,
     close_tokens: &[Token],
     invalid_tokens: &[Token],
-) -> Consumption<'t, 'r> {
+) -> GenericConsumption<'t, 'r, Vec<Element<'t>>> {
     // Log try_paragraph() call
     info!(
         log,
@@ -43,8 +42,7 @@ pub fn try_paragraph<'t, 'r>(
 
     // Iterate and consume the tokens into multiple elements
     let mut tokens = UpcomingTokens::from((extracted, remaining));
-    let mut stack =
-        gather_paragraphs(log, tokens, full_text, rule, close_tokens, invalid_tokens);
+    //gather_paragraphs(log, tokens, full_text, rule, close_tokens, invalid_tokens)
 
     // Collapse the ParseStack into a paragraph
     match stack.build_paragraph() {

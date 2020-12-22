@@ -25,6 +25,7 @@ use super::token::Token;
 use super::upcoming::UpcomingTokens;
 use super::{ParseError, ParseErrorKind, ParseException};
 use crate::text::FullText;
+use crate::tree::Element;
 
 /// Function to iterate over tokens to produce elements in paragraphs.
 ///
@@ -44,7 +45,7 @@ pub fn gather_paragraphs<'l, 'r, 't>(
     rule: Rule,
     close_tokens: &[Token],
     invalid_tokens: &[Token],
-) -> GenericConsumption<'r, 't, ParagraphStack<'l, 't>>
+) -> GenericConsumption<'r, 't, Vec<Element<'t>>>
 where
     'r: 't,
 {

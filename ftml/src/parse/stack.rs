@@ -18,7 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::{ParseError, ParseResult};
+use super::{ExtractedToken, ParseError, ParseException, ParseResult};
+use crate::parse::consume::GenericConsumption;
 use crate::tree::{Container, ContainerType, Element, SyntaxTree};
 use std::borrow::Cow;
 use std::mem;
@@ -120,6 +121,35 @@ impl<'l, 't> ParagraphStack<'l, 't> {
         if let Some(paragraph) = self.build_paragraph() {
             self.finished.push(paragraph);
         }
+    }
+
+    pub fn into_elements_and_exceptions<'r>(
+        mut self,
+    ) -> (Vec<Element<'t>>, Vec<ParseException<'t>>) {
+        self.end_paragraph();
+
+        debug!(
+            self.log,
+            "Converting paragraph parse stack into elements for consumption",
+        );
+
+        let ParagraphStack {
+            log: _,
+            current: _,
+            finished: elements,
+            styles,
+            errors,
+        } = self;
+
+        // Collect separate styles and errors into the consumption exception format
+        let exceptions = {
+            let mut exceptions = Vec::new();
+            exceptions.extend(styles.iter().map(ParseException::Style));
+            exceptions.extend(errors.iter().map(ParseException::Error));
+            exceptions
+        };
+
+        (elements, exceptions)
     }
 
     #[cold]
