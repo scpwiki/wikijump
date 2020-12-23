@@ -55,4 +55,6 @@ fn main() {
     let log = logger::build(config.log_level);
 
     info::print(&log, config.address);
+
+    todo!()
 }
