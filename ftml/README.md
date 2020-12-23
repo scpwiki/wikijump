@@ -48,7 +48,7 @@ you're inspecting to use a different logger.
 
 ### Philosophy
 
-See [`Philosophy.md`](Philosophy).
+See [`Philosophy.md`](Philosophy.md).
 
 ### Naming
 "Foundation Text Markup Language" (ftml) is named for the file extension representing in-universe
@@ -118,7 +118,7 @@ let (tree, errors) = result.into();
 
 ### JSON Serialization
 
-See [`Serialization.md`](Serialization).
+See [`Serialization.md`](Serialization.md).
 
 ### Server
 If you wish to build the `ftml-server` subcrate, use the following:
