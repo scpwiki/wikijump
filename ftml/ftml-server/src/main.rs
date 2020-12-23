@@ -44,8 +44,6 @@ extern crate sloggers;
 
 #[macro_use]
 extern crate str_macro;
-
-#[macro_use]
 extern crate tokio;
 extern crate users;
 extern crate warp;
@@ -65,11 +63,29 @@ async fn main() {
     info::print(&log, config.address);
 
     let routes = {
-        let ping = warp::path("ping").map(|| "Pong!");
-        let version = warp::path("version").map(|| &**info::VERSION);
-        let wikidot = warp::path("wikidot").map(|| ";-)");
+        let misc = {
+            let ping = warp::path("ping").map(|| "Pong!");
+            let version = warp::path("version").map(|| &**info::VERSION);
+            let wikidot = warp::path("wikidot").map(|| ";-)");
 
-        warp::any().and(ping.or(version).or(wikidot))
+            ping.or(version).or(wikidot)
+        };
+
+        let log_middleware = warp::log::custom(move |info| {
+            debug!(
+                log,
+                "Received web request {}",
+                info.path();
+                "path" => info.path(),
+                "address" => info.remote_addr(),
+                "method" => info.method().as_str(),
+                "referer" => info.referer(),
+                "user-agent" => info.user_agent(),
+                "host" => info.host(),
+            );
+        });
+
+        warp::any().and(misc).with(log_middleware)
     };
 
     warp::serve(routes).run(config.address).await;
