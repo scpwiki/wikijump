@@ -37,7 +37,11 @@ mod render;
 pub use self::meta::{HtmlMeta, HtmlMetaType};
 pub use self::output::HtmlOutput;
 
-use super::prelude::*;
+#[cfg(test)]
+use super::prelude;
+
+use super::super::Render;
+use crate::tree::SyntaxTree;
 
 #[derive(Debug)]
 pub struct HtmlRender;
