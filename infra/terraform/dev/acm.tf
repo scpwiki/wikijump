@@ -8,4 +8,8 @@ resource "aws_acm_certificate" "cf_wildcard_cert" {
   lifecycle {
     create_before_destroy = true
   }
+
+  # We hardcode us-east-1 here because CloudFront will look for this cert in us-east-1.
+  # See: https://docs.aws.amazon.com/acm/latest/userguide/acm-regions.html
+  provider = aws.us-east-1
 }

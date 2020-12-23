@@ -6,25 +6,43 @@ resource "aws_cloudfront_distribution" "wikijump_cf_distro" {
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.php"
+  depends_on          = [aws_s3_bucket.wikijump_assets]
 
-  aliases = [var.files_domain]
+  aliases = [var.files_domain, "*.${var.files_domain}"]
 
   origin {
     domain_name = aws_lb.wikijump_elb.dns_name
-    origin_id   = "wikijump_elb"
+    origin_id   = aws_lb.wikijump_elb.dns_name
     custom_header {
       name  = "X-CLOUDFRONT-WIKIJUMP-AUTH"
       value = var.cf_auth_token
     }
+
+    custom_origin_config {
+        http_port = 80
+        https_post = 443
+        origin_protocol_policy = "https-only"
+        origin_ssl_protocols = ["TLSv1.2"]
+        origin_keepalive_timeout = 15
+        origin_read_timeout = 30
+    }
   }
 
-#   origin {
-#     domain_name = aws_s3_bucket.wikijump_assets.bucket_regional_domain_name
-#     origin_id   = "wikijump_s3"
-#     s3_origin_config {
-#       origin_access_identity = aws_cloudfront_origin_access_identity.s3_oai.cloudfront_access_identity_path
-#     }
-#   }
+  origin {
+    domain_name = aws_s3_bucket.wikijump_assets.bucket_domain_name
+    origin_id   = aws_s3_bucket.wikijump_assets.bucket_domain_name
+    s3_origin_config {
+      origin_access_identity = aws_cloudfront_origin_access_identity.s3_oai.cloudfront_access_identity_path
+    }
+    custom_origin_config {
+        http_port = 80
+        https_post = 443
+        origin_protocol_policy = "http-only"
+        origin_ssl_protocols = ["TLSv1.2"]
+        origin_keepalive_timeout = 15
+        origin_read_timeout = 30
+    }
+  }
 
   restrictions {
     geo_restriction {
@@ -33,10 +51,10 @@ resource "aws_cloudfront_distribution" "wikijump_cf_distro" {
   }
 
   ordered_cache_behavior {
-    path_pattern     = "/local--files/*"
+    path_pattern     = "local--files/*"
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
     cached_methods   = ["GET", "HEAD", "OPTIONS"]
-    target_origin_id = "wikijump_elb" # this should be s3
+    target_origin_id = aws_s3_bucket.wikijump_assets.bucket_domain_name
 
     forwarded_values {
       query_string = false
@@ -56,10 +74,10 @@ resource "aws_cloudfront_distribution" "wikijump_cf_distro" {
 
   # Cache behavior with precedence 1
   ordered_cache_behavior {
-    path_pattern     = "/local--code/*"
+    path_pattern     = "local--code/*"
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "wikijump_elb"
+    target_origin_id = aws_lb.wikijump_elb.dns_name
 
     forwarded_values {
       query_string = false
@@ -79,10 +97,11 @@ resource "aws_cloudfront_distribution" "wikijump_cf_distro" {
   default_cache_behavior {
     allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "wikijump_elb"
+    target_origin_id = aws_lb.wikijump_elb.dns_name
 
     forwarded_values {
       query_string = true
+      headers = true
 
       cookies {
         forward = "all"
@@ -91,9 +110,9 @@ resource "aws_cloudfront_distribution" "wikijump_cf_distro" {
 
     viewer_protocol_policy = "redirect-to-https"
     min_ttl                = 0
-    default_ttl            = 60
+    default_ttl            = 300
     compress               = true
-    max_ttl                = 60
+    max_ttl                = 86400
   }
 
   viewer_certificate {
