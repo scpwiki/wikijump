@@ -23,7 +23,7 @@ use super::rule::Rule;
 use super::stack::ParagraphStack;
 use super::token::Token;
 use super::upcoming::UpcomingTokens;
-use super::{ParseError, ParseErrorKind, ParseException};
+use super::{ParseError, ParseErrorKind};
 use crate::text::FullText;
 use crate::tree::Element;
 

@@ -21,7 +21,6 @@
 use super::{ExtractedToken, ParseError, ParseException};
 use crate::parse::consume::GenericConsumption;
 use crate::tree::{Container, ContainerType, Element};
-use std::borrow::Cow;
 use std::mem;
 
 #[derive(Debug)]
