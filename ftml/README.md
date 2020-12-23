@@ -56,8 +56,7 @@ $ cargo build -p ftml-server --release
 $ cargo run -p ftml-server
 ```
 
-This will produce an HTTP server (port 3865 by default) which a REST client can
-query to perform ftml operations.
+This will produce an HTTP server which a REST client can query to perform ftml operations.
 
 It currently has the following routes:
 
