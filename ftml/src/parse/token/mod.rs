@@ -30,7 +30,7 @@ use strum_macros::IntoStaticStr;
 #[grammar = "parse/lexer.pest"]
 struct TokenLexer;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Serialize, Debug, Clone, PartialEq)]
 pub struct ExtractedToken<'a> {
     pub token: Token,
     pub slice: &'a str,
