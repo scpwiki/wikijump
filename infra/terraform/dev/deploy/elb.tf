@@ -15,9 +15,15 @@ resource "aws_lb" "wikijump_elb" {
   access_logs {
     bucket = aws_s3_bucket.elb_logs.bucket
     prefix = var.environment
-    # Logging is currently OFF
     enabled = true
   }
+}
+
+module "aws_logs" {
+  source         = "trussworks/logs/aws"
+  s3_bucket_name = aws_s3_bucket.elb_logs.id
+  default_allow  = false
+  allow_elb      = true
 }
 
 resource "aws_lb_target_group" "elb_target_group_80" {
