@@ -23,15 +23,26 @@ use warp::{Filter, Rejection, Reply};
 
 const CONTENT_LENGTH_LIMIT: u64 = 12 * 1024 * 1024 * 1024; /* 12 MiB */
 
+// Helper struct
+#[derive(Deserialize, Debug)]
+struct TextInput {
+    text: String,
+}
+
+// Routes
+
 fn preproc(
     log: slog::Logger,
 ) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     warp::post()
         .and(warp::path("preprocess"))
-        .and(warp::path::param::<String>())
         .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
-        .map(move |mut text| {
+        .and(warp::body::json())
+        .map(move |input| {
+            let TextInput { mut text } = input;
+
             ftml::preprocess(&log, &mut text);
+
             text
         })
 }
@@ -73,6 +84,8 @@ fn misc() -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
 
     ping.or(version).or(wikidot)
 }
+
+// Collect the routes
 
 pub fn build(
     log: slog::Logger,
