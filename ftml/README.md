@@ -61,19 +61,26 @@ query to perform ftml operations.
 
 It currently has the following routes:
 
+Note that input text are really simple JSON objects in the following form:
+```json
+{
+    "text": "<your input string"
+}
+```
+
 | Method | Route | Input | Output | Description |
 |--------|-------|-------|--------|-------------|
 | Any | `/ping` | None | `String` | See if you're able to connect to the server. |
 | Any | `/version` | None | `String` | Outputs what version of ftml is being run. |
-| `POST` | `/preprocess` | `{"text": <input string>}` | `String` | Runs the preprocessor on the given input string. |
-| `POST` | `/tokenize` | `{ "text": <input string> }` | `Vec<ExtractedToken>` | Runs the tokenizer on the input string and returns the extracted tokens. |
-| `POST` | `/tokenize/only` | `{ "text": <input string> }` | `Vec<ExtractedToken>` | Same as above, but the preprocessor is not run first. |
-| `POST` | `/parse` | `{ "text": <input string> }` | `ParseResult<SyntaxTree>` | Runs the parser on the input string and returns the abstract syntax tree. |
-| `POST` | `/parse/only` | `{ "text": <input string> }` | `ParseResult<SyntaxTree>` | Same as above, but the preprocessor is not run first. |
-| `POST` | `/render/html` | `{ "text": <input string> }` | `ParseResult<HtmlOutput>` | Performs the full rendering process, from preprocessing, tokenization, parsing, and then rendering. |
-| `POST` | `/render/html/only` | `{ "text": <input string> }` | `ParseResult<HtmlOutput>` | Same as above, but the preprocessor is not run first. |
-| `POST` | `/render/debug` | `{ "text": <input string> }` | `ParseResult<String>` | Performs rendering, as above, but uses `ftml::DebugRender`. |
-| `POST` | `/render/debug/only` | `{ "text": <input string> }` | `ParseResult<String>` | Same as above, but the preprocessor is not run first. |
+| `POST` | `/preprocess` | Text | `String` | Runs the preprocessor on the given input string. |
+| `POST` | `/tokenize` | Text | `Vec<ExtractedToken>` | Runs the tokenizer on the input string and returns the extracted tokens. |
+| `POST` | `/tokenize/only` | Text | `Vec<ExtractedToken>` | Same as above, but the preprocessor is not run first. |
+| `POST` | `/parse` | Text | `ParseResult<SyntaxTree>` | Runs the parser on the input string and returns the abstract syntax tree. |
+| `POST` | `/parse/only` | Text | `ParseResult<SyntaxTree>` | Same as above, but the preprocessor is not run first. |
+| `POST` | `/render/html` | Text | `ParseResult<HtmlOutput>` | Performs the full rendering process, from preprocessing, tokenization, parsing, and then rendering. |
+| `POST` | `/render/html/only` | Text | `ParseResult<HtmlOutput>` | Same as above, but the preprocessor is not run first. |
+| `POST` | `/render/debug` | Text | `ParseResult<String>` | Performs rendering, as above, but uses `ftml::DebugRender`. |
+| `POST` | `/render/debug/only` | Text | `ParseResult<String>` | Same as above, but the preprocessor is not run first. |
 
 For typical applications the only relevant route would be `POST /render/html`.
 The others are provided to expose library internals, such as extracted tokens,
