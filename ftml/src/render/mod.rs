@@ -27,10 +27,32 @@ mod debug;
 mod html;
 mod json;
 mod null;
-mod object;
 
 pub use self::debug::DebugRender;
 pub use self::html::HtmlRender;
 pub use self::json::JsonRender;
 pub use self::null::NullRender;
-pub use self::object::Render;
+
+use crate::tree::SyntaxTree;
+
+/// Abstract trait for any ftml renderer.
+///
+/// Any structure implementing this trait represents a renderer,
+/// with whatever state it needs to perform a rendering of the
+/// inputted abstract syntax tree.
+pub trait Render {
+    /// The type outputted by this renderer.
+    ///
+    /// Typically this would be a string of some kind,
+    /// however more complex renderers may opt to return
+    /// types with more information or structure than that,
+    /// if they wish.
+    type Output;
+
+    /// Render an abstract syntax tree into its output type.
+    ///
+    /// This is the main method of the trait, causing this
+    /// renderer instance to perform whatever operations
+    /// it requires to produce the output string.
+    fn render(&self, tree: &SyntaxTree) -> Self::Output;
+}

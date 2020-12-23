@@ -31,12 +31,21 @@ mod builder;
 mod context;
 mod escape;
 mod meta;
-mod object;
 mod output;
 mod render;
 
-use super::prelude;
-
 pub use self::meta::{HtmlMeta, HtmlMetaType};
-pub use self::object::HtmlRender;
 pub use self::output::HtmlOutput;
+
+use super::prelude::*;
+
+#[derive(Debug)]
+pub struct HtmlRender;
+
+impl Render for HtmlRender {
+    type Output = HtmlOutput;
+
+    fn render(&self, _tree: &SyntaxTree) -> HtmlOutput {
+        todo!()
+    }
+}
