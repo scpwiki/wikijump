@@ -23,12 +23,17 @@ use slog::Drain;
 use sloggers::terminal::TerminalLoggerBuilder;
 use sloggers::types::Severity;
 use sloggers::Build;
-use std::fs::File;
+use std::fs::OpenOptions;
 use std::path::Path;
 use std::sync::Mutex;
 
 pub fn build(log_file: &Path, log_level: Severity) -> slog::Logger {
-    let json_file = File::create(log_file).expect("Unable to create log file");
+    let json_file = OpenOptions::new()
+        .append(true)
+        .truncate(false)
+        .create(true)
+        .open(log_file)
+        .expect("Unable to create log file");
 
     let json_drain = slog_bunyan::with_name("ftml", json_file)
         .add_default_keys()
