@@ -53,7 +53,9 @@ fn tokenize(
     let factory = |preprocess| {
         let log = log.clone();
 
-        move |mut text| {
+        move |input| {
+            let TextInput { mut text } = input;
+
             if preprocess {
                 ftml::preprocess(&log, &mut text);
             }
@@ -65,13 +67,13 @@ fn tokenize(
     };
 
     let regular = warp::path("tokenize")
-        .and(warp::path::param::<String>())
         .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
+        .and(warp::body::json())
         .map(factory(true));
 
     let no_tokens = warp::path!("tokenize" / "only")
-        .and(warp::path::param::<String>())
         .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
+        .and(warp::body::json())
         .map(factory(false));
 
     regular.or(no_tokens)
