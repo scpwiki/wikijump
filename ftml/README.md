@@ -36,6 +36,15 @@ ftml = { git = "https://github.com/NuSCP-Theme/ftml", branch = "master" }
 
 The normal package on crates.io is, currently, not being regularly updated.
 
+If you wish to build the `ftml-server` subcrate, use the following:
+Note that it was primarily designed for UNIX-like platforms, but with
+some minor changes could be modified to work on Windows.
+
+```sh
+$ cargo build -p ftml-server --release
+$ cargo run -p ftml-server
+```
+
 ### Testing
 ```sh
 $ cargo test
