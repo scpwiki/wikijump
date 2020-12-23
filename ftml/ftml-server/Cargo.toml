@@ -14,6 +14,15 @@ edition = "2018" # this refers to the Cargo.toml version
 
 [dependencies]
 ftml = { path = ".." }
+hostname = "0.3"
+lazy_static = "1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+slog = "2.7"
+slog-bunyan = "2"
+sloggers = "1"
+users = "0.11"
 warp = "0.2"
+
+[build-dependencies]
+built = { version = "0.4", features = ["chrono", "git2"] }

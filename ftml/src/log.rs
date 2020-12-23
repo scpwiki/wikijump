@@ -68,9 +68,6 @@ mod loggers {
         use std::io;
         use std::sync::Mutex;
 
-        // For writing to a file:
-        // + .add_default_keys()
-        // + .set_pretty(false)
         let drain = slog_bunyan::with_name("ftml", io::stdout())
             .set_newlines(true)
             .set_pretty(true)

@@ -29,8 +29,22 @@
 extern crate ftml;
 
 #[macro_use]
+extern crate lazy_static;
+
+#[macro_use]
 extern crate serde;
 extern crate serde_json;
+
+#[macro_use]
+extern crate slog;
+extern crate users;
 extern crate warp;
 
-fn main() {}
+mod info;
+mod log;
+
+use self::log::build_logger;
+
+fn main() {
+    let log = build_logger();
+}
