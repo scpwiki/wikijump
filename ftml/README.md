@@ -63,7 +63,7 @@ It currently has the following routes:
 
 | Method | Route | Input | Output | Description |
 |--------|-------|-------|--------|-------------|
-| Any | `/ping` | None | String | Sees if you're able to connect to the server. |
+| Any | `/ping` | None | String | See if you're able to connect to the server. |
 | Any | `/version` | None | String | Outputs what version of ftml is being run. |
 | `POST` | `/preprocess` | `{ "text": <input string> }` | `String` | Runs the preprocessor on the given input string. |
 | `POST` | `/tokenize` | `{ "text": <input string> }` | `Vec<ExtractedToken>` | Runs the tokenizer on the input string and returns the extracted tokens. |
