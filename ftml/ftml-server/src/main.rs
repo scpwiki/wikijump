@@ -64,17 +64,13 @@ async fn main() {
 
     info::print(&log, config.address);
 
-    /*
     let routes = {
         let ping = warp::path("ping").map(|| "Pong!");
-        let version = warp::path("version").map(|| info::VERSION);
+        let version = warp::path("version").map(|| &**info::VERSION);
         let wikidot = warp::path("wikidot").map(|| ";-)");
 
         warp::any().and(ping.or(version).or(wikidot))
     };
-    */
-
-    let routes = warp::any().map(|| "hello world!");
 
     warp::serve(routes).run(config.address).await;
 }
