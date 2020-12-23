@@ -6,7 +6,7 @@ resource "aws_cloudfront_distribution" "wikijump_cf_distro" {
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.php"
-  depends_on          = [aws_s3_bucket.wikijump_assets]
+  depends_on          = [aws_s3_bucket.wikijump_assets, aws_acm_certificate.cf_wildcard_cert]
 
   aliases = [var.files_domain, "*.${var.files_domain}"]
 
