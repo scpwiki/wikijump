@@ -86,6 +86,29 @@ For typical applications the only relevant route would be `POST /render/html`.
 The others are provided to expose library internals, such as extracted tokens,
 if they are desired.
 
+Its usage message (produced by adding `-- --help` to the above `cargo run` invocation)
+is reproduced below:
+
+```
+ftml ftml-server v0.3.1 [8a42fccd]
+Wikijump Team
+REST server to parse and render Wikidot text
+
+USAGE:
+    ftml-server [FLAGS] [OPTIONS]
+
+FLAGS:
+    -h, --help         Prints help information
+        --info-only    Print information then exit
+    -4, --ipv4         Only host the server on IPv4
+    -V, --version      Prints version information
+
+OPTIONS:
+    -l, --log-file <FILE>      The log file to write formatted entries to [default: ftml.log]
+    -L, --log-level <LEVEL>    Log level to be use when running the server [default: debug]
+    -p, --port <PORT>          The port to be used by the server [default: 3865]
+```
+
 ### Philosophy
 Wikitext is similar to Markdown and dissimilar to C in that the grammar is loose.
 Any invalid token combinations are rendered as-is, rather than producing a fatal parsing
