@@ -27,9 +27,8 @@ mod build {
 }
 
 pub use self::build::{
-    BUILT_TIME_UTC, CFG_ENV, CFG_OS, CFG_TARGET_ARCH, CI_PLATFORM,
-    DEBUG, GIT_COMMIT_HASH, PKG_LICENSE, PKG_NAME, PKG_REPOSITORY, PKG_VERSION,
-    RUSTC_VERSION,
+    BUILT_TIME_UTC, CFG_ENV, CFG_OS, CFG_TARGET_ARCH, CI_PLATFORM, DEBUG,
+    GIT_COMMIT_HASH, PKG_LICENSE, PKG_NAME, PKG_REPOSITORY, PKG_VERSION, RUSTC_VERSION,
 };
 
 lazy_static! {
@@ -84,7 +83,7 @@ pub fn print(log: &slog::Logger, address: SocketAddr) {
     let groupname = to_str!(users::get_effective_groupname());
     let uid = users::get_effective_uid();
     let gid = users::get_effective_gid();
-    let host = address.ip().to_string();
+    let host = address.ip();
     let port = address.port();
 
     // Print intro
@@ -100,7 +99,8 @@ pub fn print(log: &slog::Logger, address: SocketAddr) {
     println!("Repository: {}", PKG_REPOSITORY);
     println!();
     println!("Running as {}:{} ({}:{})", username, groupname, uid, gid);
-    println!("Hosted at {} on port {}", host, port);
+    println!("Serving on port {}", port);
+    println!();
 
     // Log all of this
     info!(
@@ -115,7 +115,7 @@ pub fn print(log: &slog::Logger, address: SocketAddr) {
         "running-as-groupname" => groupname,
         "running-as-uid" => uid,
         "running-as-gid" => gid,
-        "host" => host,
+        "host" => str!(host),
         "port" => port,
     );
 }
