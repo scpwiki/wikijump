@@ -31,6 +31,7 @@ use super::token::ExtractedToken;
 use super::{ParseError, ParseErrorKind, ParseException};
 use crate::text::FullText;
 use crate::tree::Element;
+use std::mem;
 
 /// Main function that consumes tokens to produce a single element, then returns.
 pub fn consume<'r, 't>(
@@ -58,6 +59,13 @@ pub fn consume<'r, 't>(
         let consumption = rule.try_consume(log, extracted, remaining, full_text);
         if consumption.is_success() {
             debug!(log, "Rule matched, returning generated result"; "rule" => rule);
+
+            // Explicitly drop exceptions
+            //
+            // We're returning the successful consumption
+            // so these are going to be dropped as a previously
+            // unsuccessful attempts.
+            mem::drop(all_exceptions);
 
             return consumption;
         }
