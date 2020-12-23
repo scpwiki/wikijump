@@ -64,4 +64,4 @@ mod loggers {
 }
 
 #[cfg(test)]
-pub use self::loggers::{build_console_logger, build_logger, build_null_logger };
+pub use self::loggers::{build_console_logger, build_logger, build_null_logger};
