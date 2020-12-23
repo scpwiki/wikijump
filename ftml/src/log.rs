@@ -37,3 +37,51 @@ macro_rules! slog_lineno {
         })
     };
 }
+
+#[cfg(test)]
+mod loggers {
+    #[inline]
+    fn build_logger() -> slog::Logger {
+        build_null_logger()
+    }
+
+    #[allow(dead_code)]
+    fn build_null_logger() -> slog::Logger {
+        slog::Logger::root(slog::Discard, o!())
+    }
+
+    #[allow(dead_code)]
+    fn build_console_logger() -> slog::Logger {
+        use sloggers::terminal::TerminalLoggerBuilder;
+        use sloggers::types::Severity;
+        use sloggers::Build;
+
+        TerminalLoggerBuilder::new()
+            .level(Severity::Trace)
+            .build()
+            .expect("Unable to initialize logger")
+    }
+
+    #[allow(dead_code)]
+    fn build_json_logger() -> slog::Logger {
+        use slog::Drain;
+        use std::io;
+        use std::sync::Mutex;
+
+        // For writing to a file:
+        // + .add_default_keys()
+        // + .set_pretty(false)
+        let drain = slog_bunyan::with_name("ftml", io::stdout())
+            .set_newlines(true)
+            .set_pretty(true)
+            .set_flush(true)
+            .build();
+
+        slog::Logger::root(Mutex::new(drain).fuse(), o!("env" => "test"))
+    }
+}
+
+#[cfg(test)]
+pub use self::loggers::{
+    build_console_logger, build_json_logger, build_logger, build_null_logger,
+};
