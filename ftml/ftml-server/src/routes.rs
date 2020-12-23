@@ -29,6 +29,7 @@ fn preproc(
     warp::post()
         .and(warp::path("preproc"))
         .and(warp::path::param::<String>())
+        .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
         .map(move |mut text| {
             ftml::preprocess(&log, &mut text);
             text
@@ -54,10 +55,12 @@ fn tokenize(
 
     let regular = warp::path("tokenize")
         .and(warp::path::param::<String>())
+        .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
         .map(factory(true));
 
     let no_tokens = warp::path!("tokenize" / "only")
         .and(warp::path::param::<String>())
+        .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
         .map(factory(false));
 
     regular.or(no_tokens)
@@ -94,8 +97,9 @@ pub fn build(
     let preproc = preproc(log.clone());
     let misc = misc();
 
+    let routes = preproc.or(misc);
+
     warp::any()
-        .and(preproc.or(misc))
-        .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
+        .and(routes)
         .with(log_middleware)
 }
