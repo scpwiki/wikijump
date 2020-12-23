@@ -38,15 +38,29 @@ fn preproc(
 fn tokenize(
     log: slog::Logger,
 ) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
-    warp::post()
-        .and(warp::path("tokenize"))
-        .and(warp::path::param::<String>())
-        .map(move |mut text| {
-            ftml::preprocess(&log, &mut text);
+    let factory = |preprocess| {
+        let log = log.clone();
+
+        move |mut text| {
+            if preprocess {
+                ftml::preprocess(&log, &mut text);
+            }
+
             let result = ftml::tokenize(&log, &text);
             let tokens = result.tokens();
             warp::reply::json(&tokens)
-        })
+        }
+    };
+
+    let regular = warp::path("tokenize")
+        .and(warp::path::param::<String>())
+        .map(factory(true));
+
+    let no_tokens = warp::path!("tokenize" / "only")
+        .and(warp::path::param::<String>())
+        .map(factory(false));
+
+    regular.or(no_tokens)
 }
 
 fn misc() -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
