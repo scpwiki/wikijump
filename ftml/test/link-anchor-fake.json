@@ -1,0 +1,29 @@
+{
+    "input": "[# Fake link]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "link",
+                            "data": {
+                                "url": "javascript:;",
+                                "label": {
+                                    "text": "Fake link"
+                                },
+                                "anchor": "same"
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "errors": [
+    ]
+}

@@ -1,0 +1,33 @@
+{
+    "input": "[#apple Some link]?",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "link",
+                            "data": {
+                                "url": "#apple",
+                                "label": {
+                                    "text": "Some link"
+                                },
+                                "anchor": "same"
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": "?"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "errors": [
+    ]
+}
