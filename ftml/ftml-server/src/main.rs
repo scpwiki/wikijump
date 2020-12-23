@@ -51,63 +51,18 @@ extern crate warp;
 mod config;
 mod info;
 mod logger;
+mod routes;
 
 use self::config::Config;
-use warp::Filter;
-
-const CONTENT_LENGTH_LIMIT: u64 = 12 * 1024 * 1024 * 1024; /* 12 MiB */
 
 #[tokio::main]
 async fn main() {
     let config = Config::parse_args();
-    let logger = logger::build(&config.log_file, config.log_level);
+    let log = logger::build(&config.log_file, config.log_level);
 
-    info::print(&logger, config.address);
+    info::print(&log, config.address);
 
-    let routes = {
-        let log = logger.clone();
-        let preproc = {
-            warp::post()
-                .and(warp::path("preproc"))
-                .and(warp::path::param::<String>())
-                .map(move |mut text| {
-                    ftml::preprocess(&log, &mut text);
-                    text
-                })
-        };
-
-        let misc = {
-            let ping = warp::path("ping").map(|| "Pong!");
-            let version = warp::path("version").map(|| &**info::VERSION);
-            let wikidot = warp::path("wikidot").map(|| ";-)");
-
-            ping.or(version).or(wikidot)
-        };
-
-        let log_middleware = {
-            let log = logger.clone();
-
-            warp::log::custom(move |info| {
-                debug!(
-                    &log,
-                    "Received web request {}",
-                    info.path();
-                    "path" => info.path(),
-                    "address" => info.remote_addr(),
-                    "method" => info.method().as_str(),
-                    "referer" => info.referer(),
-                    "user-agent" => info.user_agent(),
-                    "host" => info.host(),
-                );
-            })
-        };
-
-        warp::any()
-            //.and(preproc)
-            .and(misc)
-            .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
-            .with(log_middleware)
-    };
-
-    warp::serve(routes).run(config.address).await;
+    warp::serve(routes::build(log))
+        .run(config.address) //
+        .await;
 }

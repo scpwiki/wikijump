@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::{info, logger};
+use crate::{info, logger};
 use clap::{App, Arg};
 use sloggers::types::Severity;
 use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr};
