@@ -89,14 +89,14 @@ pub fn print(log: &slog::Logger, address: SocketAddr) {
     // Print intro
     println!("{}", *VERSION);
     println!();
+    println!("License: {}", PKG_LICENSE);
+    println!("Repository: {}", PKG_REPOSITORY);
+    println!();
     println!("Compiled:");
     println!("  - {}", compile_env);
     println!("  - on {}", BUILT_TIME_UTC);
     println!("  - by {}", RUSTC_VERSION);
     println!("  - for {}", *TARGET_TRIPLET);
-    println!();
-    println!("License: {}", PKG_LICENSE);
-    println!("Repository: {}", PKG_REPOSITORY);
     println!();
     println!("Running as {}:{} ({}:{})", username, groupname, uid, gid);
     println!("Serving on port {}", port);
