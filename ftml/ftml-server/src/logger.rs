@@ -28,8 +28,7 @@ use std::path::Path;
 use std::sync::Mutex;
 
 pub fn build(log_file: &Path, log_level: Severity) -> slog::Logger {
-    let json_file = File::create(log_file)
-        .expect("Unable to create log file");
+    let json_file = File::create(log_file).expect("Unable to create log file");
 
     let json_drain = slog_bunyan::with_name("ftml", json_file)
         .add_default_keys()

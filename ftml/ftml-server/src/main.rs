@@ -41,6 +41,12 @@ extern crate serde_json;
 extern crate slog;
 extern crate slog_bunyan;
 extern crate sloggers;
+
+#[macro_use]
+extern crate str_macro;
+
+#[macro_use]
+extern crate tokio;
 extern crate users;
 extern crate warp;
 
@@ -49,12 +55,26 @@ mod info;
 mod logger;
 
 use self::config::Config;
+use warp::Filter;
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let config = Config::parse_args();
     let log = logger::build(&config.log_file, config.log_level);
 
     info::print(&log, config.address);
 
-    todo!()
+    /*
+    let routes = {
+        let ping = warp::path("ping").map(|| "Pong!");
+        let version = warp::path("version").map(|| info::VERSION);
+        let wikidot = warp::path("wikidot").map(|| ";-)");
+
+        warp::any().and(ping.or(version).or(wikidot))
+    };
+    */
+
+    let routes = warp::any().map(|| "hello world!");
+
+    warp::serve(routes).run(config.address).await;
 }

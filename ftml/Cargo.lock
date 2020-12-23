@@ -425,6 +425,8 @@ dependencies = [
  "slog",
  "slog-bunyan",
  "sloggers",
+ "str-macro",
+ "tokio",
  "users",
  "warp",
 ]
@@ -1714,6 +1716,18 @@ dependencies = [
  "mio",
  "pin-project-lite 0.1.11",
  "slab",
+ "tokio-macros",
+]
+
+[[package]]
+name = "tokio-macros"
+version = "0.2.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e44da00bfc73a25f814cd8d7e57a68a5c31b74b3152a0a1d1f590c97ed06265a"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
