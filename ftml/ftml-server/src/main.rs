@@ -55,14 +55,27 @@ mod logger;
 use self::config::Config;
 use warp::Filter;
 
+const CONTENT_LENGTH_LIMIT: u64 = 12 * 1024 * 1024 * 1024; /* 12 MiB */
+
 #[tokio::main]
 async fn main() {
     let config = Config::parse_args();
-    let log = logger::build(&config.log_file, config.log_level);
+    let logger = logger::build(&config.log_file, config.log_level);
 
-    info::print(&log, config.address);
+    info::print(&logger, config.address);
 
     let routes = {
+        let log = logger.clone();
+        let preproc = {
+            warp::post()
+                .and(warp::path("preproc"))
+                .and(warp::path::param::<String>())
+                .map(move |mut text| {
+                    ftml::preprocess(&log, &mut text);
+                    text
+                })
+        };
+
         let misc = {
             let ping = warp::path("ping").map(|| "Pong!");
             let version = warp::path("version").map(|| &**info::VERSION);
@@ -71,21 +84,29 @@ async fn main() {
             ping.or(version).or(wikidot)
         };
 
-        let log_middleware = warp::log::custom(move |info| {
-            debug!(
-                log,
-                "Received web request {}",
-                info.path();
-                "path" => info.path(),
-                "address" => info.remote_addr(),
-                "method" => info.method().as_str(),
-                "referer" => info.referer(),
-                "user-agent" => info.user_agent(),
-                "host" => info.host(),
-            );
-        });
+        let log_middleware = {
+            let log = logger.clone();
 
-        warp::any().and(misc).with(log_middleware)
+            warp::log::custom(move |info| {
+                debug!(
+                    &log,
+                    "Received web request {}",
+                    info.path();
+                    "path" => info.path(),
+                    "address" => info.remote_addr(),
+                    "method" => info.method().as_str(),
+                    "referer" => info.referer(),
+                    "user-agent" => info.user_agent(),
+                    "host" => info.host(),
+                );
+            })
+        };
+
+        warp::any()
+            //.and(preproc)
+            .and(misc)
+            .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
+            .with(log_middleware)
     };
 
     warp::serve(routes).run(config.address).await;
