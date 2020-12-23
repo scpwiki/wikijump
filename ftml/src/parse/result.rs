@@ -29,14 +29,6 @@ pub struct ParseResult<T> {
 
 impl<T> ParseResult<T> {
     #[inline]
-    pub fn ok(value: T) -> Self {
-        ParseResult {
-            value,
-            errors: Vec::new(),
-        }
-    }
-
-    #[inline]
     pub fn new<I>(value: T, errors: I) -> Self
     where
         I: Into<Vec<ParseError>>,
@@ -45,18 +37,6 @@ impl<T> ParseResult<T> {
             value,
             errors: errors.into(),
         }
-    }
-
-    #[inline]
-    pub fn append_error(&mut self, error: ParseError) {
-        self.errors.push(error);
-    }
-
-    pub fn join<U>(&mut self, other: ParseResult<U>) -> U {
-        let ParseResult { value, mut errors } = other;
-
-        self.errors.append(&mut errors);
-        value
     }
 
     // Getters
