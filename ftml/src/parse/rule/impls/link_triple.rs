@@ -30,9 +30,6 @@
 
 use super::prelude::*;
 use crate::enums::{AnchorTarget, LinkLabel};
-use regex::Regex;
-use std::borrow::Cow;
-use wikidot_normalize::normalize;
 
 pub const RULE_LINK_TRIPLE: Rule = Rule {
     name: "link-triple",
@@ -153,7 +150,7 @@ fn build_same<'r, 't>(
     );
 
     let element = Element::Link {
-        url: normalize_slug(url),
+        url: cow!(url),
         label: LinkLabel::Url,
         anchor,
     };
@@ -216,38 +213,11 @@ fn build_separate<'r, 't>(
 
     // Build link element
     let element = Element::Link {
-        url: normalize_slug(url),
+        url: cow!(url),
         label,
         anchor,
     };
 
     // Return result
     Consumption::warn(element, remaining, all_exc)
-}
-
-/// Helper to normalize slugs.
-///
-/// Will first do a simple check for typical normalized slugs before
-/// attempting normalization, to save an allocation.
-///
-/// Checks if it's only lowercase alphanumeric, with no leading or trailing dashes.
-/// Also permits a leading underscore.
-///
-/// This check is *not* an exhaustive "is normalized" function, it will have false
-/// positives and unnecessarily normalize. The goal is to avoid unnecessary processing
-/// in *most* cases.
-fn normalize_slug(slug: &str) -> Cow<str> {
-    lazy_static! {
-        static ref IS_NORMAL: Regex = Regex::new(r"^_?[a-z0-9]+(-[a-z0-9]+)*$").unwrap();
-    }
-
-    // If it's simply verifiable as normalized, return as-is
-    if IS_NORMAL.is_match(slug) {
-        Cow::Borrowed(slug)
-    } else {
-        // Otherwise allocate for normalization
-        let mut slug = str!(slug);
-        normalize(&mut slug);
-        Cow::Owned(slug)
-    }
 }
