@@ -37,7 +37,7 @@ fn preproc(
 }
 
 fn tokenize(
-    log: slog::Logger,
+    log: &slog::Logger,
 ) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     let factory = |preprocess| {
         let log = log.clone();
@@ -95,9 +95,10 @@ pub fn build(
     };
 
     let preproc = preproc(log.clone());
+    let tokenize = tokenize(&log);
     let misc = misc();
 
-    let routes = preproc.or(misc);
+    let routes = preproc.or(tokenize).or(misc);
 
     warp::any()
         .and(routes)
