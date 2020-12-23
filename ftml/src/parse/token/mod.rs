@@ -46,10 +46,10 @@ pub enum Token {
     // Symbols
     //
     LeftBracket,
+    LeftBracketAnchor,
     LeftBracketSpecial,
     RightBracket,
     LeftTag,
-    LeftTagAnchor,
     LeftTagSpecial,
     RightTag,
     RightTagEnd,
@@ -192,10 +192,10 @@ impl Token {
             Rule::left_comment => Token::LeftComment,
             Rule::right_comment => Token::RightComment,
             Rule::left_bracket => Token::LeftBracket,
+            Rule::left_bracket_anchor => Token::LeftBracketAnchor,
             Rule::left_bracket_special => Token::LeftBracketSpecial,
             Rule::right_bracket => Token::RightBracket,
             Rule::left_tag => Token::LeftTag,
-            Rule::left_tag_anchor => Token::LeftTagAnchor,
             Rule::left_tag_special => Token::LeftTagSpecial,
             Rule::right_tag => Token::RightTag,
             Rule::right_tag_end => Token::RightTagEnd,
