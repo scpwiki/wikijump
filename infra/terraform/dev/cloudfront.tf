@@ -34,14 +34,14 @@ resource "aws_cloudfront_distribution" "wikijump_cf_distro" {
     s3_origin_config {
       origin_access_identity = aws_cloudfront_origin_access_identity.s3_oai.cloudfront_access_identity_path
     }
-    custom_origin_config {
-      http_port                = 80
-      https_port               = 443
-      origin_protocol_policy   = "http-only"
-      origin_ssl_protocols     = ["TLSv1.2"]
-      origin_keepalive_timeout = 15
-      origin_read_timeout      = 30
-    }
+    # custom_origin_config {
+    #   http_port                = 80
+    #   https_port               = 443
+    #   origin_protocol_policy   = "http-only"
+    #   origin_ssl_protocols     = ["TLSv1.2"]
+    #   origin_keepalive_timeout = 15
+    #   origin_read_timeout      = 30
+    # }
   }
 
   restrictions {
