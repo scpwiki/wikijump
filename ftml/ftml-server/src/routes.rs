@@ -19,6 +19,8 @@
  */
 
 use crate::info;
+use ftml::ParseError;
+use serde::Serialize;
 use warp::{Filter, Rejection, Reply};
 
 const CONTENT_LENGTH_LIMIT: u64 = 12 * 1024 * 1024 * 1024; /* 12 MiB */
@@ -27,6 +29,12 @@ const CONTENT_LENGTH_LIMIT: u64 = 12 * 1024 * 1024 * 1024; /* 12 MiB */
 #[derive(Deserialize, Debug)]
 struct TextInput {
     text: String,
+}
+
+#[derive(Serialize, Debug)]
+struct RenderOutput<T: Serialize> {
+    result: T,
+    errors: Vec<ParseError>,
 }
 
 // Routes
@@ -104,6 +112,46 @@ fn parse(
         .map(factory(true));
 
     let no_tokens = warp::path!("parse" / "only")
+        .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
+        .and(warp::body::json())
+        .map(factory(false));
+
+    no_tokens.or(regular)
+}
+
+fn render(
+    log: &slog::Logger,
+) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
+    use ftml::Render;
+
+    let factory = |preprocess| {
+        let log = log.clone();
+
+        move |input| {
+            let TextInput { mut text } = input;
+
+            if preprocess {
+                ftml::preprocess(&log, &mut text);
+            }
+
+            let tokens = ftml::tokenize(&log, &text);
+            let result = ftml::parse(&log, &tokens);
+            let (tree, errors) = result.into();
+            let output = ftml::HtmlRender.render(&tree);
+
+            warp::reply::json(&RenderOutput {
+                result: output,
+                errors,
+            })
+        }
+    };
+
+    let regular = warp::path!("render" / "html")
+        .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
+        .and(warp::body::json())
+        .map(factory(true));
+
+    let no_tokens = warp::path!("render" / "html" / "only")
         .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
         .and(warp::body::json())
         .map(factory(false));
