@@ -1,2 +1,6 @@
+# What rust edition to use
+edition = "2018"
+
+# Formatting options
 max_width = 90
 reorder_imports = true
