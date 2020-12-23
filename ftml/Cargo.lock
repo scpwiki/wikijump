@@ -476,6 +476,7 @@ dependencies = [
  "strum",
  "strum_macros",
  "tinyvec",
+ "wikidot-normalize",
 ]
 
 [[package]]
@@ -1900,6 +1901,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "trim-in-place"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a1507bb8dfa0301ebe0a7f5a879a0ad65f12e338a675e93d7c5062e0ae8dfdb3"
+
+[[package]]
 name = "try-lock"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2092,6 +2099,18 @@ name = "wasi"
 version = "0.10.0+wasi-snapshot-preview1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1a143597ca7c7793eff794def352d41792a93c481eb1042423ff7ff72ba2c31f"
+
+[[package]]
+name = "wikidot-normalize"
+version = "0.6.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d71ff664f470edc0c37dca9d5069ca8407ee8d9904903b8ae15e0f35360201a1"
+dependencies = [
+ "lazy_static",
+ "maplit",
+ "regex",
+ "trim-in-place",
+]
 
 [[package]]
 name = "winapi"
