@@ -47,37 +47,8 @@ to use a different logger creation implementation. Or you can modify the test
 you're inspecting to use a different logger.
 
 ### Philosophy
-Wikitext is similar to Markdown and dissimilar to C in that the grammar is loose.
-Any invalid token combinations are rendered as-is, rather than producing a fatal parsing
-error which halts the process. This latter, C-like (or any programming language, really)
-philosophy was how the original version of ftml operated. However this presents obvious
-incomaptibilities with Wikidot, and the grammar had to be increasingly complicated to handle
-edge-case conditions.
 
-This rewrite of ftml performs preprocessing substitions and tokenization like the first version,
-but the parser is hand-written to allow for loose fallback rules.
-
-More specifically, for each encountered token, the parser will attempt to match the first rule
-which expects it. Incoming tokens will be handled, producing elements, or until an invalid token
-is received, at which point an "error" will be produced and this rule will abort.
-
-Following this, the parser will attempt to apply the second rule (if any), etc., until all rules are
-exhausted. At this point, if no match can be made, the default "fallback" rule is applied. This is
-the case where all the tokens are interpreted literally.
-
-For any tokens which are successfully consumed to produce elements, the pointer to the remaining tokens
-is bumped up (really, a later subslice is taken), and the element is appended to the final list.
-Note that this operation is applied recursively, so that any containers (elements which contain other
-elements) will perform this same operation to populate themselves.
-
-It is important to note that, in accordance to the Wikidot parsing strategy, all "errors" are non-fatal.
-In the worst-case scenario, all tokens fail all rules, and all are parsed with the fallback, rule, producing
-an error for each incident. In a more typical case, any invalid structures will produce errors, and will
-parsed as best it can.
-
-These errors are returned to the caller to provide information on where the process failed, while still
-producing the fallback render. This provides the both of best worlds: errors to assist with wikitext
-debugging, but also not hard-failing rendering in case of any error.
+See [`Philosophy.md`](Philosophy).
 
 ### Naming
 "Foundation Text Markup Language" (ftml) is named for the file extension representing in-universe
@@ -146,68 +117,8 @@ let (tree, errors) = result.into();
 ```
 
 ### JSON Serialization
-All exposed fields are serializable with [`serde`](https://crates.io/crates/serde). If you use [`serde_json`](https://crates.io/crates/serde_json) to store syntax trees (as is used in `src/test.rs` and the `/test` directory), it is helpful to understand the basics of how these data types will be serialized. These principles will apply to other formats as well, but this section will focus on JSON.
 
-The top level of a syntax tree contains two fields, `elements` and `styles`. The latter is simple, just a list of strings, each representing on CSS style within the wikitext. The first is of more interest, and more complex.
-
-The Rust declaration of `Element` is as an enum, with each variant representing a different kind of element one may encounter. Most of these are leaf elements, such as `text` or `link`. Serde has been configured to use discriminated tagging, so the object representation will look like:
-
-(Note that the serialized form for _all_ data structures uses `kebab-case`.
-For instance, `Token::LeftLink` is represented as `left-link`.)
-
-```json
-{
-    "element": "<type-of-element>",
-    "data": { ... <whatever> }
-}
-```
-
-Where `data` is adapted for each enum's value.
-
-`Element::Text` and `Element::Raw` for instance only have a single string as their data, so it would just be a string object:
-
-```json
-{
-    "element": "text",
-    "data": "Apple"
-}
-```
-
-Some elements have no associated data at all, such as `Element::LineBreak` or `Element::HorizontalRule`, and so would only have the element variant:
-
-```json
-{
-    "element": "line-break"
-}
-```
-
-Any element which contains other elements (e.g. bold, paragraph, divs) is called a "container", and are typically represented by the generic `Container` structure. These are similar to `Element` in that they are a discriminated enum, however their data fields are always the same (just `elements: Vec<Element<'t>>`).
-
-For instance:
-
-```json
-{
-    "element": "container",
-    "data": {
-        "type": "italics",
-        "elements": [
-            {
-                "element": "text",
-                "data": "Banana"
-            },
-            {
-                ... <some other element>
-            },
-            {
-                ... <yet another element>
-            }
-        ]
-    }
-}
-```
-
-This should hopefully help with understanding how these structures are represented, permitting library consumers not written in Rust to interpret the data.
-For a full list of the fields of all elements, see the rustdoc. Particular files of interest are [`src/tree/element.rs`](https://github.com/Nu-SCPTheme/ftml/blob/master/src/tree/element.rs) and [`src/tree/container.rs`](https://github.com/Nu-SCPTheme/ftml/blob/master/src/tree/container.rs).
+See [`Serialization.md`](Serialization).
 
 ### Server
 If you wish to build the `ftml-server` subcrate, use the following:
@@ -270,4 +181,3 @@ OPTIONS:
     -L, --log-level <LEVEL>    Log level to be use when running the server [default: debug]
     -p, --port <PORT>          The port to be used by the server [default: 3865]
 ```
-
