@@ -79,6 +79,38 @@ fn tokenize(
     no_tokens.or(regular)
 }
 
+fn parse(
+    log: &slog::Logger,
+) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
+    let factory = |preprocess| {
+        let log = log.clone();
+
+        move |input| {
+            let TextInput { mut text } = input;
+
+            if preprocess {
+                ftml::preprocess(&log, &mut text);
+            }
+
+            let tokens = ftml::tokenize(&log, &text);
+            let tree = ftml::parse(&log, &tokens);
+            warp::reply::json(&tree)
+        }
+    };
+
+    let regular = warp::path("parse")
+        .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
+        .and(warp::body::json())
+        .map(factory(true));
+
+    let no_tokens = warp::path!("parse" / "only")
+        .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
+        .and(warp::body::json())
+        .map(factory(false));
+
+    no_tokens.or(regular)
+}
+
 fn misc() -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     let ping = warp::path("ping").map(|| "Pong!");
     let version = warp::path("version").map(|| &**info::VERSION);
@@ -111,11 +143,10 @@ pub fn build(
 
     let preproc = preproc(log.clone());
     let tokenize = tokenize(&log);
+    let parse = parse(&log);
     let misc = misc();
 
-    let routes = preproc.or(tokenize).or(misc);
-
     warp::any()
-        .and(routes)
+        .and(preproc.or(tokenize).or(parse).or(misc))
         .with(log_middleware)
 }
