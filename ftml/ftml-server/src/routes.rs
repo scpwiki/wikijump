@@ -189,4 +189,5 @@ pub fn build(
     warp::any()
         .and(preproc.or(tokenize).or(parse).or(render_html).or(misc))
         .with(log_middleware)
+        .with(warp::filters::compression::brotli())
 }
