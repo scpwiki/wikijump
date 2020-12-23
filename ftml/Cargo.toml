@@ -1,6 +1,6 @@
 [package]
 name = "ftml"
-description = "Foundation Text Markup Language - a library to render Wikidot code as HTML"
+description = "Foundation Text Markup Language - a library to render Wikidot text as HTML"
 repository = "https://github.com/Nu-SCPTheme/ftml"
 readme = "README.md"
 license = "AGPL-3.0-or-later"

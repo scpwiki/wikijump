@@ -9,7 +9,7 @@
 
 ### Foundation Text Markup Language
 
-A Rust library to parse Wikidot code ("Wikitext") into an abstract syntax tree (AST).
+A Rust library to parse Wikidot text ("Wikitext") into an abstract syntax tree (AST).
 This aims to be a replacement for the aging [Text\_Wiki](https://github.com/gabrys/wikidot/tree/master/lib/Text_Wiki/Text) from Wikidot.
 This is version aims to have a nearly fully compatible parser for common Wikidot, including malformed constructs.
 The goal is to utilize a lexer generator, and consume the tokens in a custom parser to handle unusual cases with a lax approach.
