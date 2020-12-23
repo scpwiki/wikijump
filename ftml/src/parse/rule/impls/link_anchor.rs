@@ -26,6 +26,7 @@
 use super::prelude::*;
 use crate::enums::{AnchorTarget, LinkLabel};
 use std::borrow::Cow;
+use wikidot_normalize::normalize;
 
 pub const RULE_LINK_ANCHOR: Rule = Rule {
     name: "link-anchor",
@@ -58,7 +59,12 @@ fn try_consume_fn<'r, 't>(
     let url = if url.is_empty() {
         Cow::Borrowed("javascript:;")
     } else {
-        Cow::Owned(format!("#{}", url))
+        // Make URL "#name", where 'name' is normalized.
+        let mut url = str!(url);
+        normalize(&mut url);
+        url.insert(0, '#');
+
+        Cow::Owned(url)
     };
 
     // Gather label for link
