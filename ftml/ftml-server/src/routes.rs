@@ -79,12 +79,12 @@ fn tokenize(
         .and(warp::body::json())
         .map(factory(true));
 
-    let no_tokens = warp::path!("tokenize" / "only")
+    let only = warp::path!("tokenize" / "only")
         .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
         .and(warp::body::json())
         .map(factory(false));
 
-    no_tokens.or(regular)
+    only.or(regular)
 }
 
 fn parse(
@@ -111,15 +111,15 @@ fn parse(
         .and(warp::body::json())
         .map(factory(true));
 
-    let no_tokens = warp::path!("parse" / "only")
+    let only = warp::path!("parse" / "only")
         .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
         .and(warp::body::json())
         .map(factory(false));
 
-    no_tokens.or(regular)
+    only.or(regular)
 }
 
-fn render(
+fn render_html(
     log: &slog::Logger,
 ) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     use ftml::Render;
@@ -151,12 +151,12 @@ fn render(
         .and(warp::body::json())
         .map(factory(true));
 
-    let no_tokens = warp::path!("render" / "html" / "only")
+    let only = warp::path!("render" / "html" / "only")
         .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
         .and(warp::body::json())
         .map(factory(false));
 
-    no_tokens.or(regular)
+    only.or(regular)
 }
 
 fn misc() -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
@@ -192,9 +192,10 @@ pub fn build(
     let preproc = preproc(log.clone());
     let tokenize = tokenize(&log);
     let parse = parse(&log);
+    let render_html = render_html(&log);
     let misc = misc();
 
     warp::any()
-        .and(preproc.or(tokenize).or(parse).or(misc))
+        .and(preproc.or(tokenize).or(parse).or(render_html).or(misc))
         .with(log_middleware)
 }
