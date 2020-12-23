@@ -91,16 +91,16 @@ is reproduced below:
 ```
 ftml ftml-server v0.3.1 [8a42fccd]
 Wikijump Team
-REST server to parse and render Wikidot text
+REST server to parse and render Wikidot text.
 
 USAGE:
     ftml-server [FLAGS] [OPTIONS]
 
 FLAGS:
-    -h, --help         Prints help information
-        --info-only    Print information then exit
-    -4, --ipv4         Only host the server on IPv4
-    -V, --version      Prints version information
+    -h, --help         Prints help information.
+        --info-only    Print information then exit.
+    -4, --ipv4         Only host the server on IPv4.
+    -V, --version      Prints version information.
 
 OPTIONS:
     -l, --log-file <FILE>      The log file to write formatted entries to [default: ftml.log]

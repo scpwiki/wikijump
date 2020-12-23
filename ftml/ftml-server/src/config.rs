@@ -41,12 +41,12 @@ impl Config {
         let matches = App::new("ftml")
             .version(&**info::VERSION)
             .author("Wikijump Team")
-            .about("REST server to parse and render Wikidot text")
+            .about("REST server to parse and render Wikidot text.")
             .max_term_width(110)
             .arg(
                 Arg::with_name("info")
                     .long("info-only")
-                    .help("Print information then exit"),
+                    .help("Print information then exit."),
             )
             .arg(
                 Arg::with_name("port")
@@ -54,13 +54,13 @@ impl Config {
                     .long("port")
                     .value_name("PORT")
                     .default_value(DEFAULT_PORT)
-                    .help("The port to be used by the server"),
+                    .help("The port to be used by the server."),
             )
             .arg(
                 Arg::with_name("ipv4_only")
                     .short("4")
                     .long("ipv4")
-                    .help("Only host the server on IPv4"),
+                    .help("Only host the server on IPv4."),
             )
             .arg(
                 Arg::with_name("log_file")
@@ -68,7 +68,7 @@ impl Config {
                     .long("log-file")
                     .value_name("FILE")
                     .default_value("ftml.log")
-                    .help("The log file to write formatted entries to"),
+                    .help("The log file to write formatted entries to."),
             )
             .arg(
                 Arg::with_name("log_level")
@@ -76,7 +76,7 @@ impl Config {
                     .long("log-level")
                     .value_name("LEVEL")
                     .default_value(DEFAULT_LOG_LEVEL)
-                    .help("Log level to be use when running the server"),
+                    .help("Log level to be use when running the server."),
             )
             .get_matches();
 
