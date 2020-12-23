@@ -46,68 +46,6 @@ If you wish to see the logging output, you can change `crate::build_logger()`
 to use a different logger creation implementation. Or you can modify the test
 you're inspecting to use a different logger.
 
-### Server
-If you wish to build the `ftml-server` subcrate, use the following:
-Note that it was primarily designed for UNIX-like platforms, but with
-some minor changes could be modified to work on Windows.
-
-```sh
-$ cargo build -p ftml-server --release
-$ cargo run -p ftml-server
-```
-
-This will produce an HTTP server which a REST client can query to perform ftml operations.
-
-It currently has the following routes:
-
-Note that input text are really simple JSON objects in the following form:
-```json
-{
-    "text": "<your input string>"
-}
-```
-
-| Method | Route | Input | Output | Description |
-|--------|-------|-------|--------|-------------|
-| Any | `/ping` | None | `String` | See if you're able to connect to the server. |
-| Any | `/version` | None | `String` | Outputs what version of ftml is being run. |
-| `POST` | `/preprocess` | Text | `String` | Runs the preprocessor on the given input string. |
-| `POST` | `/tokenize` | Text | `Vec<ExtractedToken>` | Runs the tokenizer on the input string and returns the extracted tokens. |
-| `POST` | `/tokenize/only` | Text | `Vec<ExtractedToken>` | Same as above, but the preprocessor is not run first. |
-| `POST` | `/parse` | Text | `ParseResult<SyntaxTree>` | Runs the parser on the input string and returns the abstract syntax tree. |
-| `POST` | `/parse/only` | Text | `ParseResult<SyntaxTree>` | Same as above, but the preprocessor is not run first. |
-| `POST` | `/render/html` | Text | `ParseResult<HtmlOutput>` | Performs the full rendering process, from preprocessing, tokenization, parsing, and then rendering. |
-| `POST` | `/render/html/only` | Text | `ParseResult<HtmlOutput>` | Same as above, but the preprocessor is not run first. |
-| `POST` | `/render/debug` | Text | `ParseResult<String>` | Performs rendering, as above, but uses `ftml::DebugRender`. |
-| `POST` | `/render/debug/only` | Text | `ParseResult<String>` | Same as above, but the preprocessor is not run first. |
-
-For typical applications the only relevant route would be `POST /render/html`.
-The others are provided to expose library internals, such as extracted tokens,
-if they are desired.
-
-Its usage message (produced by adding `-- --help` to the above `cargo run` invocation)
-is reproduced below:
-
-```
-ftml ftml-server v0.3.1 [8a42fccd]
-Wikijump Team
-REST server to parse and render Wikidot text.
-
-USAGE:
-    ftml-server [FLAGS] [OPTIONS]
-
-FLAGS:
-    -h, --help         Prints help information.
-        --info-only    Print information then exit.
-    -4, --ipv4         Only host the server on IPv4.
-    -V, --version      Prints version information.
-
-OPTIONS:
-    -l, --log-file <FILE>      The log file to write formatted entries to [default: ftml.log]
-    -L, --log-level <LEVEL>    Log level to be use when running the server [default: debug]
-    -p, --port <PORT>          The port to be used by the server [default: 3865]
-```
-
 ### Philosophy
 Wikitext is similar to Markdown and dissimilar to C in that the grammar is loose.
 Any invalid token combinations are rendered as-is, rather than producing a fatal parsing
@@ -270,3 +208,66 @@ For instance:
 
 This should hopefully help with understanding how these structures are represented, permitting library consumers not written in Rust to interpret the data.
 For a full list of the fields of all elements, see the rustdoc. Particular files of interest are [`src/tree/element.rs`](https://github.com/Nu-SCPTheme/ftml/blob/master/src/tree/element.rs) and [`src/tree/container.rs`](https://github.com/Nu-SCPTheme/ftml/blob/master/src/tree/container.rs).
+
+### Server
+If you wish to build the `ftml-server` subcrate, use the following:
+Note that it was primarily designed for UNIX-like platforms, but with
+some minor changes could be modified to work on Windows.
+
+```sh
+$ cargo build -p ftml-server --release
+$ cargo run -p ftml-server
+```
+
+This will produce an HTTP server which a REST client can query to perform ftml operations.
+
+It currently has the following routes:
+
+Note that input text are really simple JSON objects in the following form:
+```json
+{
+    "text": "<your input string>"
+}
+```
+
+| Method | Route | Input | Output | Description |
+|--------|-------|-------|--------|-------------|
+| Any | `/ping` | None | `String` | See if you're able to connect to the server. |
+| Any | `/version` | None | `String` | Outputs what version of ftml is being run. |
+| `POST` | `/preprocess` | Text | `String` | Runs the preprocessor on the given input string. |
+| `POST` | `/tokenize` | Text | `Vec<ExtractedToken>` | Runs the tokenizer on the input string and returns the extracted tokens. |
+| `POST` | `/tokenize/only` | Text | `Vec<ExtractedToken>` | Same as above, but the preprocessor is not run first. |
+| `POST` | `/parse` | Text | `ParseResult<SyntaxTree>` | Runs the parser on the input string and returns the abstract syntax tree. |
+| `POST` | `/parse/only` | Text | `ParseResult<SyntaxTree>` | Same as above, but the preprocessor is not run first. |
+| `POST` | `/render/html` | Text | `ParseResult<HtmlOutput>` | Performs the full rendering process, from preprocessing, tokenization, parsing, and then rendering. |
+| `POST` | `/render/html/only` | Text | `ParseResult<HtmlOutput>` | Same as above, but the preprocessor is not run first. |
+| `POST` | `/render/debug` | Text | `ParseResult<String>` | Performs rendering, as above, but uses `ftml::DebugRender`. |
+| `POST` | `/render/debug/only` | Text | `ParseResult<String>` | Same as above, but the preprocessor is not run first. |
+
+For typical applications the only relevant route would be `POST /render/html`.
+The others are provided to expose library internals, such as extracted tokens,
+if they are desired.
+
+Its usage message (produced by adding `-- --help` to the above `cargo run` invocation)
+is reproduced below:
+
+```
+ftml ftml-server v0.3.1 [8a42fccd]
+Wikijump Team
+REST server to parse and render Wikidot text.
+
+USAGE:
+    ftml-server [FLAGS] [OPTIONS]
+
+FLAGS:
+    -h, --help         Prints help information.
+        --info-only    Print information then exit.
+    -4, --ipv4         Only host the server on IPv4.
+    -V, --version      Prints version information.
+
+OPTIONS:
+    -l, --log-file <FILE>      The log file to write formatted entries to [default: ftml.log]
+    -L, --log-level <LEVEL>    Log level to be use when running the server [default: debug]
+    -p, --port <PORT>          The port to be used by the server [default: 3865]
+```
+
