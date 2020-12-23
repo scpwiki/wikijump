@@ -76,7 +76,7 @@ fn tokenize(
         .and(warp::body::json())
         .map(factory(false));
 
-    regular.or(no_tokens)
+    no_tokens.or(regular)
 }
 
 fn misc() -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
