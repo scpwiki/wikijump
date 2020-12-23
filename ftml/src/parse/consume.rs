@@ -83,6 +83,13 @@ pub fn consume<'r, 't>(
 
     debug!(log, "All rules exhausted, using generic text fallback");
 
+    trace!(log, "Removing non-errors from exceptions list");
+
+    // We should only carry styles over from *successful* consumptions
+    all_exceptions.retain(|exception| matches!(exception, ParseException::Error(_)));
+
+    trace!(log, "Adding fallback error to exceptions list");
+
     all_exceptions.push(ParseException::Error(ParseError::new(
         ParseErrorKind::NoRulesMatch,
         RULE_FALLBACK,
