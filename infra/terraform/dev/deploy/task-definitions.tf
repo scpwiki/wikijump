@@ -11,7 +11,7 @@ module "cache" {
     logDriver = "awslogs"
     options = {
       "awslogs-group"         = "ecs/cache-${var.environment}"
-      "awslogs-region"        = "${var.region}"
+      "awslogs-region"        = var.region
       "awslogs-stream-prefix" = "ecs"
     }
   }
@@ -21,7 +21,7 @@ module "database" {
   source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.46.0"
 
   container_name   = "database"
-  container_image  = "${aws_ecr_repository.db_ecr.repository_url}:develop"
+  container_image  = "${data.aws_ssm_parameter.DB_ECR_URL.value}:develop"
   container_memory = var.ecs_db_memory
   container_cpu    = var.ecs_db_cpu
   essential        = true
@@ -30,7 +30,7 @@ module "database" {
     logDriver = "awslogs"
     options = {
       "awslogs-group"         = "ecs/database-${var.environment}"
-      "awslogs-region"        = "${var.region}"
+      "awslogs-region"        = var.region
       "awslogs-stream-prefix" = "ecs"
     }
   }
@@ -40,7 +40,7 @@ module "php-fpm" {
   source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.46.0"
 
   container_name   = "php-fpm"
-  container_image  = "${aws_ecr_repository.web_ecr.repository_url}:develop"
+  container_image  = "${data.aws_ssm_parameter.WEB_ECR_URL.value}:develop"
   container_memory = var.ecs_php_memory
   container_cpu    = var.ecs_php_cpu
   essential        = true
@@ -49,7 +49,7 @@ module "php-fpm" {
     logDriver = "awslogs"
     options = {
       "awslogs-group"         = "ecs/php-fpm-${var.environment}"
-      "awslogs-region"        = "${var.region}"
+      "awslogs-region"        = var.region
       "awslogs-stream-prefix" = "ecs"
     }
   }
@@ -64,6 +64,10 @@ module "php-fpm" {
     {
       name      = "URL_UPLOAD_DOMAIN"
       valueFrom = "wikijump-dev-URL_UPLOAD_DOMAIN"
+    },
+    {
+      name      = "DB_HOST"
+      valueFrom = "wikijump-dev-DB_HOST"
     }
   ]
 
@@ -96,7 +100,7 @@ module "reverse-proxy" {
     logDriver = "awslogs"
     options = {
       "awslogs-group"         = "ecs/traefik-${var.environment}"
-      "awslogs-region"        = "${var.region}"
+      "awslogs-region"        = var.region
       "awslogs-stream-prefix" = "ecs"
     }
   }
