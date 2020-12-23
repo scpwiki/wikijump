@@ -68,6 +68,7 @@ fn tokenize(
     };
 
     let regular = warp::path("tokenize")
+        .and(warp::path::end())
         .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
         .and(warp::body::json())
         .map(factory(true));
@@ -77,7 +78,7 @@ fn tokenize(
         .and(warp::body::json())
         .map(factory(false));
 
-    only.or(regular)
+    regular.or(only)
 }
 
 fn parse(
@@ -100,6 +101,7 @@ fn parse(
     };
 
     let regular = warp::path("parse")
+        .and(warp::path::end())
         .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
         .and(warp::body::json())
         .map(factory(true));
@@ -109,7 +111,7 @@ fn parse(
         .and(warp::body::json())
         .map(factory(false));
 
-    only.or(regular)
+    regular.or(only)
 }
 
 fn render_html(
@@ -138,6 +140,7 @@ fn render_html(
     };
 
     let regular = warp::path!("render" / "html")
+        .and(warp::path::end())
         .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
         .and(warp::body::json())
         .map(factory(true));
@@ -147,7 +150,7 @@ fn render_html(
         .and(warp::body::json())
         .map(factory(false));
 
-    only.or(regular)
+    regular.or(only)
 }
 
 fn misc() -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
