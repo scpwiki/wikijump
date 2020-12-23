@@ -40,6 +40,12 @@
     },
     "errors": [
         {
+            "token": "pipe",
+            "rule": "link-triple",
+            "span": [3, 4],
+            "kind": "rule-failed"
+        },
+        {
             "token": "left-link",
             "rule": "fallback",
             "span": [0, 3],

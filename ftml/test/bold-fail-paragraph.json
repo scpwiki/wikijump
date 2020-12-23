@@ -40,10 +40,22 @@
     },
     "errors": [
         {
+            "token": "paragraph-break",
+            "rule": "bold",
+            "span": [6, 8],
+            "kind": "rule-failed"
+        },
+        {
             "token": "bold",
             "rule": "fallback",
             "span": [0, 2],
             "kind": "no-rules-match"
+        },
+        {
+            "token": "input-end",
+            "rule": "bold",
+            "span": [14, 14],
+            "kind": "rule-failed"
         },
         {
             "token": "bold",

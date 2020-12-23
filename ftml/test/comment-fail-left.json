@@ -36,6 +36,12 @@
     },
     "errors": [
         {
+            "token": "input-end",
+            "rule": "comment",
+            "span": [17, 17],
+            "kind": "end-of-input"
+        },
+        {
             "token": "left-comment",
             "rule": "fallback",
             "span": [5, 9],

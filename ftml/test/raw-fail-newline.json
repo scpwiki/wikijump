@@ -35,10 +35,22 @@
     },
     "errors": [
         {
+            "token": "line-break",
+            "rule": "raw",
+            "span": [14, 15],
+            "kind": "rule-failed"
+        },
+        {
             "token": "raw",
             "rule": "fallback",
             "span": [12, 14],
             "kind": "no-rules-match"
+        },
+        {
+            "token": "raw",
+            "rule": "raw",
+            "span": [15, 17],
+            "kind": "end-of-input"
         },
         {
             "token": "raw",

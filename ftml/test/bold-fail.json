@@ -32,6 +32,12 @@
     },
     "errors": [
         {
+            "token": "input-end",
+            "rule": "bold",
+            "span": [11, 11],
+            "kind": "rule-failed"
+        },
+        {
             "token": "bold",
             "rule": "fallback",
             "span": [0, 2],

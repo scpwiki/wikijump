@@ -52,6 +52,12 @@
     },
     "errors": [
         {
+            "token": "whitespace",
+            "rule": "link-single-new-tab",
+            "span": [2, 3],
+            "kind": "invalid-url"
+        },
+        {
             "token": "left-bracket-special",
             "rule": "fallback",
             "span": [0, 2],

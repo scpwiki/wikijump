@@ -40,6 +40,12 @@
     },
     "errors": [
         {
+            "token": "paragraph-break",
+            "rule": "monospace",
+            "span": [6, 8],
+            "kind": "rule-failed"
+        },
+        {
             "token": "left-monospace",
             "rule": "fallback",
             "span": [0, 2],

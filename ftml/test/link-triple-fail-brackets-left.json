@@ -32,6 +32,12 @@
     },
     "errors": [
         {
+            "token": "input-end",
+            "rule": "link-triple",
+            "span": [12, 12],
+            "kind": "rule-failed"
+        },
+        {
             "token": "left-link",
             "rule": "fallback",
             "span": [0, 3],

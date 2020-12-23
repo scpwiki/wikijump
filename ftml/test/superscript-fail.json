@@ -32,6 +32,12 @@
     },
     "errors": [
         {
+            "token": "input-end",
+            "rule": "superscript",
+            "span": [18, 18],
+            "kind": "rule-failed"
+        },
+        {
             "token": "superscript",
             "rule": "fallback",
             "span": [0, 2],

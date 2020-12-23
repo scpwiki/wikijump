@@ -28,6 +28,12 @@
     },
     "errors": [
         {
+            "token": "input-end",
+            "rule": "link-anchor",
+            "span": [8, 8],
+            "kind": "rule-failed"
+        },
+        {
             "token": "left-bracket-anchor",
             "rule": "fallback",
             "span": [0, 2],
