@@ -4,39 +4,40 @@ on:
   push:
     branches:
       - develop
-      - terraform-do-the-thing
+    paths:
+      - 'web/**'
+      - 'install/php-fpm/**'
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Login to ECR
-        uses: docker/login-action@v1
-        with:
-          registry: ${{ secrets.ECR_REPOSITORY }}
-          username: ${{ secrets.DOCKER_PUSH_KEY }}
-          password: ${{ secrets.DOCKER_PUSH_SECRET }}
-      -
-        name: Checkout
-        uses: actions/checkout@v2
-      -
-        name: Build
-        run: |
-          cd $GITHUB_WORKSPACE
-          docker-compose -f install/docker-compose.aws-dev.yaml build
-      -
-        name: Push
-        run: |
-          export AWS_ACCESS_KEY_ID=${{ secrets.DOCKER_PUSH_KEY }}
-          export AWS_SECRET_ACCESS_KEY=${{ secrets.DOCKER_PUSH_SECRET }}
-          export AWS_DEFAULT_REGION=us-east-2
-          docker context create ecs githubactions --from-env
-          docker context use githubactions
-          docker-compose -f install/docker-compose.aws-dev.yaml push
-      -
-        name: Up
-        run: |
-          curl -L https://raw.githubusercontent.com/docker/compose-cli/main/scripts/install/install_linux.sh | sh
-          sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
-          docker compose -f install/docker-compose.aws-dev.yaml up
+        - name: Login to Amazon ECR
+          id: login-ecr
+          uses: aws-actions/amazon-ecr-login@v1
+        - name: Build, tag, and push image to Amazon ECR
+          id: build-image
+          env:
+            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+            ECR_REPOSITORY: wikijump-dev/php-fpm
+            IMAGE_TAG: ${{ github.sha }}
+          run: |
+            docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+        - name: Download task definition
+          run: |
+            aws ecs describe-task-definition --task-definition wikijump-dev-ec2 --query taskDefinition > task-definition.json
+        - name: Fill in the new image ID in the Amazon ECS task definition
+          id: task-def
+          uses: aws-actions/amazon-ecs-render-task-definition@v1
+          with:
+            task-definition: task-definition.json
+            container-name: php-fpm
+            image: ${{ steps.build-image.outputs.image }}
+        - name: Deploy Amazon ECS task definition
+          uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+          with:
+            task-definition: ${{ steps.task-def.outputs.task-definition }}
+            service: wikijump-dev-svc
+            cluster: wikijump-dev
+            wait-for-service-stability: true
