@@ -11,7 +11,7 @@
 
 A Rust library to parse Wikidot code ("Wikitext") into an abstract syntax tree (AST).
 This aims to be a replacement for the aging [Text\_Wiki](https://github.com/gabrys/wikidot/tree/master/lib/Text_Wiki/Text) from Wikidot.
-This is an experimental branch to try and have a nearly fully compatible parser for Wikidot, including malformed constructs.
+This is version aims to have a nearly fully compatible parser for common Wikidot, including malformed constructs.
 The goal is to utilize a lexer generator, and consume the tokens in a custom parser to handle unusual cases with a lax approach.
 
 In addition to providing the speed and safety benefits of Rust, this also improves maintainability, and allows exposing an AST to consumers
