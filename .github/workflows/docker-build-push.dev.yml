@@ -11,6 +11,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+        - name: Configure AWS credentials
+          uses: aws-actions/configure-aws-credentials@v1
+          with:
+            aws-access-key-id: ${{ secrets.DOCKER_PUSH_KEY }}
+            aws-secret-access-key: ${{ secrets.DOCKER_PUSH_SECRET }}
+            aws-region: us-east-2
         - name: Login to Amazon ECR
           id: login-ecr
           uses: aws-actions/amazon-ecr-login@v1
