@@ -31,7 +31,6 @@ use super::token::ExtractedToken;
 use super::{ParseError, ParseErrorKind, ParseException};
 use crate::text::FullText;
 use crate::tree::Element;
-use std::mem;
 
 /// Main function that consumes tokens to produce a single element, then returns.
 pub fn consume<'r, 't>(
@@ -51,6 +50,8 @@ pub fn consume<'r, 't>(
 
     debug!(log, "Looking for valid rules");
 
+    let mut all_exceptions = Vec::new();
+
     for rule in rules_for_token(extracted) {
         info!(log, "Trying rule consumption for tokens"; "rule" => rule);
 
@@ -61,19 +62,26 @@ pub fn consume<'r, 't>(
             return consumption;
         }
 
-        // Discard invalid consumption
-        mem::drop(consumption);
+        // Extract errors for appending
+        match consumption {
+            Consumption::Success { mut exceptions, .. } => {
+                all_exceptions.append(&mut exceptions);
+            }
+            Consumption::Failure { error } => {
+                all_exceptions.push(ParseException::Error(error));
+            }
+        }
     }
 
     debug!(log, "All rules exhausted, using generic text fallback");
 
-    let error = ParseException::Error(ParseError::new(
+    all_exceptions.push(ParseException::Error(ParseError::new(
         ParseErrorKind::NoRulesMatch,
         RULE_FALLBACK,
         extracted,
-    ));
+    )));
 
-    Consumption::warn(text!(slice), remaining, vec![error])
+    Consumption::warn(text!(slice), remaining, all_exceptions)
 }
 
 #[derive(Debug, Clone)]
