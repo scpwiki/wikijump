@@ -4,7 +4,7 @@ description = "Foundation Text Markup Language - a library to render Wikidot cod
 repository = "https://github.com/Nu-SCPTheme/ftml"
 readme = "README.md"
 license = "AGPL-3.0-or-later"
-keywords = ["wikidot", "ftml", "parsing", "rendering", "html"]
+keywords = ["wikidot", "wikijump", "ftml", "parsing", "html"]
 categories = []
 exclude = [".gitignore", ".github"]
 
