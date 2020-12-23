@@ -52,7 +52,7 @@ fn try_consume_fn<'r, 't>(
     );
 
     // Return if failure, and get last token for try_merge()
-    let (url, extracted, remaining, mut all_errors) =
+    let (url, extracted, remaining, mut all_exceptions) =
         try_consume_last!(remaining, consumption);
 
     // Determine if this is an anchor link or fake link
@@ -78,7 +78,7 @@ fn try_consume_fn<'r, 't>(
     );
 
     // Append errors, or return if failure
-    let (label, remaining, mut errors) = try_consume!(consumption);
+    let (label, remaining, mut exceptions) = try_consume!(consumption);
 
     debug!(
         log,
@@ -89,8 +89,8 @@ fn try_consume_fn<'r, 't>(
     // Trimming label
     let label = label.trim();
 
-    // Add on new errors
-    all_errors.append(&mut errors);
+    // Add on new exceptions
+    all_exceptions.append(&mut exceptions);
 
     // Build link element
     let element = Element::Link {
@@ -100,5 +100,5 @@ fn try_consume_fn<'r, 't>(
     };
 
     // Return result
-    Consumption::warn(element, remaining, all_errors)
+    Consumption::warn(element, remaining, all_exceptions)
 }

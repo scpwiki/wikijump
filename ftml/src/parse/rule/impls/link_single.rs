@@ -95,7 +95,7 @@ fn try_consume_link<'r, 't>(
     );
 
     // Return if failure, and get last token for try_merge()
-    let (url, extracted, remaining, mut all_errors) =
+    let (url, extracted, remaining, mut all_exceptions) =
         try_consume_last!(remaining, consumption);
 
     if !url_valid(url) {
@@ -123,7 +123,7 @@ fn try_consume_link<'r, 't>(
     );
 
     // Append errors, or return if failure
-    let (label, remaining, mut errors) = try_consume!(consumption);
+    let (label, remaining, mut exceptions) = try_consume!(consumption);
 
     debug!(
         log,
@@ -135,7 +135,7 @@ fn try_consume_link<'r, 't>(
     let label = label.trim();
 
     // Add on new errors
-    all_errors.append(&mut errors);
+    all_exceptions.append(&mut exceptions);
 
     // Build link element
     let element = Element::Link {
@@ -145,7 +145,7 @@ fn try_consume_link<'r, 't>(
     };
 
     // Return result
-    Consumption::warn(element, remaining, all_errors)
+    Consumption::warn(element, remaining, all_exceptions)
 }
 
 fn url_valid(url: &str) -> bool {

@@ -53,7 +53,7 @@ fn try_consume_fn<'r, 't>(
     );
 
     // Return if failure, and get last token for try_container()
-    let (color, extracted, remaining, mut all_errors) =
+    let (color, extracted, remaining, mut all_exceptions) =
         try_consume_last!(remaining, consumption);
 
     debug!(
@@ -74,10 +74,10 @@ fn try_consume_fn<'r, 't>(
     );
 
     // Append errors, or return if failure
-    let (elements, remaining, mut errors) = try_consume!(consumption);
+    let (elements, remaining, mut exceptions) = try_consume!(consumption);
 
     // Add on new errors
-    all_errors.append(&mut errors);
+    all_exceptions.append(&mut exceptions);
 
     // Return result
     let element = Element::Color {
@@ -85,5 +85,5 @@ fn try_consume_fn<'r, 't>(
         elements,
     };
 
-    Consumption::warn(element, remaining, all_errors)
+    Consumption::warn(element, remaining, all_exceptions)
 }
