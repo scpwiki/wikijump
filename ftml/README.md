@@ -7,7 +7,7 @@
   </a>
 </p>
 
-**Foundation Text Markup Language**
+### Foundation Text Markup Language
 
 A Rust library to parse Wikidot code ("Wikitext") into an abstract syntax tree (AST).
 This aims to be a replacement for the aging [Text\_Wiki](https://github.com/gabrys/wikidot/tree/master/lib/Text_Wiki/Text) from Wikidot.
