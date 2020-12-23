@@ -22,7 +22,7 @@ use super::{info, logger};
 use clap::{App, Arg};
 use sloggers::types::Severity;
 use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process;
 
 const DEFAULT_PORT: &str = "3865";
@@ -110,7 +110,8 @@ impl Config {
 
         // If info-only, then print and quit
         if matches.is_present("info") {
-            let log = logger::build(log_level);
+            let path = Path::new("/dev/null");
+            let log = logger::build(path, log_level);
             info::print(&log, address);
             process::exit(0);
         }

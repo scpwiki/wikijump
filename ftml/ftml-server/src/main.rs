@@ -52,7 +52,7 @@ use self::config::Config;
 
 fn main() {
     let config = Config::parse_args();
-    let log = logger::build(config.log_level);
+    let log = logger::build(&config.log_file, config.log_level);
 
     info::print(&log, config.address);
 

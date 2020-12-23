@@ -23,23 +23,27 @@ use slog::Drain;
 use sloggers::terminal::TerminalLoggerBuilder;
 use sloggers::types::Severity;
 use sloggers::Build;
-use std::io;
+use std::fs::File;
+use std::path::Path;
 use std::sync::Mutex;
 
-pub fn build(log_level: Severity) -> slog::Logger {
-    let console_drain = TerminalLoggerBuilder::new()
-        .level(log_level)
-        .build()
-        .expect("Unable to initialize logger");
+pub fn build(log_file: &Path, log_level: Severity) -> slog::Logger {
+    let json_file = File::create(log_file)
+        .expect("Unable to create log file");
 
-    let json_drain = slog_bunyan::with_name("ftml", io::stdout())
+    let json_drain = slog_bunyan::with_name("ftml", json_file)
         .add_default_keys()
         .set_newlines(true)
         .set_pretty(false)
         .set_flush(true)
         .build();
 
-    let drain = slog::Duplicate(console_drain, json_drain);
+    let console_drain = TerminalLoggerBuilder::new()
+        .level(log_level)
+        .build()
+        .expect("Unable to initialize logger");
+
+    let drain = slog::Duplicate(json_drain, console_drain);
     let env = match CI_PLATFORM {
         Some(_) => "ci",
         None => "server",
