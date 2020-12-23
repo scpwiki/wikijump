@@ -35,6 +35,20 @@ fn preproc(
         })
 }
 
+fn tokenize(
+    log: slog::Logger,
+) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
+    warp::post()
+        .and(warp::path("tokenize"))
+        .and(warp::path::param::<String>())
+        .map(move |mut text| {
+            ftml::preprocess(&log, &mut text);
+            let result = ftml::tokenize(&log, &text);
+            let tokens = result.tokens();
+            warp::reply::json(&tokens)
+        })
+}
+
 fn misc() -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     let ping = warp::path("ping").map(|| "Pong!");
     let version = warp::path("version").map(|| &**info::VERSION);

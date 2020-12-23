@@ -29,7 +29,7 @@ pub struct Tokenization<'t> {
 
 impl<'t> Tokenization<'t> {
     #[inline]
-    pub(crate) fn tokens<'r>(&'r self) -> &'r [ExtractedToken<'t>] {
+    pub fn tokens<'r>(&'r self) -> &'r [ExtractedToken<'t>] {
         &self.tokens
     }
 
