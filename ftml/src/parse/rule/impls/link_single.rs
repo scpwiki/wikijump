@@ -100,7 +100,7 @@ fn try_consume_link<'r, 't>(
 
     if !url_valid(url) {
         return Consumption::err(ParseError::new(
-            ParseErrorKind::RuleFailed,
+            ParseErrorKind::InvalidUrl,
             rule,
             extracted,
         ));

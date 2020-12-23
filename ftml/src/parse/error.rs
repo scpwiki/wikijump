@@ -98,9 +98,6 @@ pub enum ParseErrorKind {
     #[allow(dead_code)]
     RecursionDepthExceeded,
 
-    /// Attempting to match this rule failed, falling back to try an alternate.
-    RuleFailed,
-
     /// Attempting to process this rule failed because the end of input was reached.
     EndOfInput,
 
@@ -109,6 +106,12 @@ pub enum ParseErrorKind {
 
     /// No rules match for these tokens, returning as plain text.
     NoRulesMatch,
+
+    /// Attempting to match this rule failed, falling back to try an alternate.
+    RuleFailed,
+
+    /// The URL passed here was invalid.
+    InvalidUrl,
 }
 
 impl ParseErrorKind {
