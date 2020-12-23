@@ -27,7 +27,7 @@ fn preproc(
     log: slog::Logger,
 ) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     warp::post()
-        .and(warp::path("preproc"))
+        .and(warp::path("preprocess"))
         .and(warp::path::param::<String>())
         .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
         .map(move |mut text| {
