@@ -64,7 +64,7 @@ It currently has the following routes:
 Note that input text are really simple JSON objects in the following form:
 ```json
 {
-    "text": "<your input string"
+    "text": "<your input string>"
 }
 ```
 
