@@ -44,6 +44,7 @@ pub enum AnchorTarget {
 
     /// Open the link in the current frame.
     /// HTML attribute is `_self`.
+    /// This is the default setting, so the "anchor" field does not need to be included.
     Same,
 }
 
