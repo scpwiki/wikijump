@@ -19,8 +19,7 @@
  */
 
 use crate::info;
-use ftml::ParseError;
-use serde::Serialize;
+use ftml::ParseResult;
 use warp::{Filter, Rejection, Reply};
 
 const CONTENT_LENGTH_LIMIT: u64 = 12 * 1024 * 1024 * 1024; /* 12 MiB */
@@ -29,12 +28,6 @@ const CONTENT_LENGTH_LIMIT: u64 = 12 * 1024 * 1024 * 1024; /* 12 MiB */
 #[derive(Deserialize, Debug)]
 struct TextInput {
     text: String,
-}
-
-#[derive(Serialize, Debug)]
-struct RenderOutput<T: Serialize> {
-    result: T,
-    errors: Vec<ParseError>,
 }
 
 // Routes
@@ -135,14 +128,12 @@ fn render_html(
             }
 
             let tokens = ftml::tokenize(&log, &text);
-            let result = ftml::parse(&log, &tokens);
-            let (tree, errors) = result.into();
+            let parsed = ftml::parse(&log, &tokens);
+            let (tree, errors) = parsed.into();
             let output = ftml::HtmlRender.render(&tree);
+            let result = ParseResult::new(output, errors);
 
-            warp::reply::json(&RenderOutput {
-                result: output,
-                errors,
-            })
+            warp::reply::json(&result)
         }
     };
 
