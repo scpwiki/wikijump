@@ -1,5 +1,5 @@
 /*
- * log.rs
+ * logger.rs
  *
  * ftml - Library to parse Wikidot code
  * Copyright (C) 2019-2020 Ammon Smith
@@ -26,7 +26,7 @@ use sloggers::Build;
 use std::io;
 use std::sync::Mutex;
 
-pub fn build_logger() -> slog::Logger {
+pub fn build() -> slog::Logger {
     let console_drain = TerminalLoggerBuilder::new()
         .level(Severity::Trace)
         .build()

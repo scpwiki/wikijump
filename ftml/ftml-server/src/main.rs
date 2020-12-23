@@ -41,10 +41,8 @@ extern crate users;
 extern crate warp;
 
 mod info;
-mod log;
-
-use self::log::build_logger;
+mod logger;
 
 fn main() {
-    let log = build_logger();
+    let log = logger::build();
 }
