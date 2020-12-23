@@ -238,7 +238,7 @@ fn build_separate<'r, 't>(
 /// in *most* cases.
 fn normalize_slug(slug: &str) -> Cow<str> {
     lazy_static! {
-        static ref IS_NORMAL: Regex = Regex::new(r"_?[a-z0-9]+(-[a-z0-9]+)*").unwrap();
+        static ref IS_NORMAL: Regex = Regex::new(r"^_?[a-z0-9]+(-[a-z0-9]+)*$").unwrap();
     }
 
     // If it's simply verifiable as normalized, return as-is
