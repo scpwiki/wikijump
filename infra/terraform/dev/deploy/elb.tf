@@ -10,13 +10,13 @@ resource "aws_lb" "wikijump_elb" {
   }
   # ip_address_type = "dualstack"
   # Enable this once stable.
-  enable_deletion_protection = false
+  enable_deletion_protection = true
 
   access_logs {
     bucket = aws_s3_bucket.elb_logs.bucket
     prefix = var.environment
     # Logging is currently OFF
-    enabled = false
+    enabled = true
   }
 }
 

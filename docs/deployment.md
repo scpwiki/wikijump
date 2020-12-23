@@ -14,11 +14,12 @@ Deployment was designed to need a minimal amount of work done in advance, but th
 
 1. You will need [Terraform](https://www.terraform.io) as well as a place to store Terraform state files. We use Terraform Cloud which is free for teams of up to 5 users, but you can also do things like storing the state files in S3.
 2. You will need to make an IAM user for Terraform to use to create and update everything. A JSON file for the IAM Policy is forthcoming.
-3. You will need to make an IAM user for your CI/CD (GitHub Actions for us) to use to push Docker iamges. A JSON file for the IAM policy is forthcoming.
-4. You will need to create several Elastic Container Registry Repositories that your images will go in. This is to solve a chicken-and-egg problem where GitHub Actions needs to push updated images to a repository that doesn't exist yet. I would suggest enabling KMS Encryption and Scan On Push, and disabling Tag Immutability on all repositories. One registry is plenty, and it will be expected to have `wikijump/traefik`, `wikijump/memcached`, `wikijump/postgres`, and `wikijump/php-fpm` as repositories.
+3. You will need to make an IAM user for your CI/CD (GitHub Actions for us) to use to push Docker images. A JSON file for the IAM policy is forthcoming.
+
 
 ## Instructions
 
-A couple of things need to happen in order for things to build correctly.
-1. Run the terraform deployment. This will generate most of the infrastructure for you not counting the container piece.
-2. You need to export some ARNs to your CI/CD tool: 
+1. Check the provided tfvars file and replace items as necessary. You also need to check the locals in the `infra/terraform/(environment)/init/init.tf` file and make sure you're okay with the provided region and environment name.
+2. Run `terraform apply` on the `infra/terraform/(environment)/init` folder. This will create the ECR repositories and store their URLs in Parameter Store.
+3. Push your initial docker images to ECR.
+4. Run `terraform apply` on the `infra/terraform/(environment)/deploy` folder. This will do everything else to set up the environment.
