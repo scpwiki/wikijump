@@ -73,17 +73,6 @@ impl<'l, 't> ParagraphStack<'l, 't> {
     }
 
     #[inline]
-    pub fn push_style(&mut self, style: Cow<'t, str>) {
-        debug!(
-            self.log,
-            "Pushing style to stack";
-            "style" => style.as_ref(),
-        );
-
-        self.exceptions.push(ParseException::Style(style));
-    }
-
-    #[inline]
     pub fn push_error(&mut self, error: ParseError) {
         debug!(
             self.log,
