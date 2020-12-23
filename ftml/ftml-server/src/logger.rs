@@ -26,9 +26,9 @@ use sloggers::Build;
 use std::io;
 use std::sync::Mutex;
 
-pub fn build() -> slog::Logger {
+pub fn build(log_level: Severity) -> slog::Logger {
     let console_drain = TerminalLoggerBuilder::new()
-        .level(Severity::Trace)
+        .level(log_level)
         .build()
         .expect("Unable to initialize logger");
 

@@ -26,7 +26,9 @@
 //! This is a wrapper around the `ftml` crate to provide its Rust library API over
 //! a REST interface, usable by any programming language, or via network.
 
+extern crate clap;
 extern crate ftml;
+extern crate hostname;
 
 #[macro_use]
 extern crate lazy_static;
@@ -37,12 +39,18 @@ extern crate serde_json;
 
 #[macro_use]
 extern crate slog;
+extern crate slog_bunyan;
+extern crate sloggers;
 extern crate users;
 extern crate warp;
 
+mod config;
 mod info;
 mod logger;
 
+use self::config::Config;
+
 fn main() {
-    let log = logger::build();
+    let config = Config::parse_args();
+    let log = logger::build(config.log_level);
 }
