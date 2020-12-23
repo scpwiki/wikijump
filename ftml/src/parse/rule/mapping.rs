@@ -38,8 +38,8 @@ lazy_static! {
             Token::LeftBracketAnchor => vec![RULE_LINK_ANCHOR],
             Token::LeftBracketSpecial => vec![RULE_LINK_SINGLE_NEW_TAB],
             Token::RightBracket => vec![RULE_TEXT],
-            Token::LeftTag => vec![RULE_TODO], // TODO
-            Token::LeftTagSpecial => vec![RULE_TODO], // TODO
+            Token::LeftTag => vec![RULE_TAG],
+            Token::LeftTagSpecial => vec![RULE_TAG_SPECIAL],
             Token::RightTag => vec![],
             Token::RightTagEnd => vec![],
             Token::LeftAnchor => vec![RULE_TODO], // TODO
