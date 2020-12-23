@@ -48,3 +48,26 @@ resource "aws_route53_record" "files_wildcard" {
   records         = [var.files_domain]
   allow_overwrite = true
 }
+
+resource "aws_route53_record" "acm_validation" {
+  for_each = {
+    for row in aws_acm_certificate.cf_wildcard_cert.domain_validation_options : row.domain_name => {
+      name   = row.resource_record_name
+      record = row.resource_record_value
+      type   = row.resource_record_type
+    }
+  }
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = data.aws_route53_zone.files.zone_id
+}
+
+resource "aws_acm_certificate_validation" "acm_validation" {
+  certificate_arn         = aws_acm_certificate.cf_wildcard_cert.arn
+  validation_record_fqdns = [for record in aws_route53_record.acm_validation : record.fqdn]
+}
+
+
