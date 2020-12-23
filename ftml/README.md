@@ -160,3 +160,15 @@ OPTIONS:
     -L, --log-level <LEVEL>    Log level to be use when running the server [default: debug]
     -p, --port <PORT>          The port to be used by the server [default: 3865]
 ```
+
+An example invocation with with `curl` is provided:
+
+```
+$ curl \
+    -i \
+    -X POST \
+    -H 'Content-Type: application/json' \
+    --compressed \
+    --data '{"text": "<your input here>"}' \
+    http://localhost:3865/parse
+```
