@@ -35,4 +35,3 @@ tinyvec = "1"
 
 [dev-dependencies]
 sloggers = "1"
-slog-bunyan = "2"

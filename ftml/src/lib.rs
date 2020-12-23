@@ -57,7 +57,6 @@ extern crate strum_macros;
 
 cfg_if! {
     if #[cfg(test)] {
-        extern crate slog_bunyan;
         extern crate sloggers;
     }
 }
@@ -82,9 +81,7 @@ pub mod data;
 pub mod tree;
 
 #[cfg(test)]
-pub use self::log::{
-    build_console_logger, build_json_logger, build_logger, build_null_logger,
-};
+pub use self::log::{build_console_logger, build_logger, build_null_logger};
 
 pub use self::parse::{
     parse, ExtractedToken, ParseError, ParseErrorKind, ParseResult, Token,

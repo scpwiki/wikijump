@@ -61,24 +61,7 @@ mod loggers {
             .build()
             .expect("Unable to initialize logger")
     }
-
-    #[allow(dead_code)]
-    pub fn build_json_logger() -> slog::Logger {
-        use slog::Drain;
-        use std::io;
-        use std::sync::Mutex;
-
-        let drain = slog_bunyan::with_name("ftml", io::stdout())
-            .set_newlines(true)
-            .set_pretty(true)
-            .set_flush(true)
-            .build();
-
-        slog::Logger::root(Mutex::new(drain).fuse(), o!("env" => "test"))
-    }
 }
 
 #[cfg(test)]
-pub use self::loggers::{
-    build_console_logger, build_json_logger, build_logger, build_null_logger,
-};
+pub use self::loggers::{build_console_logger, build_logger, build_null_logger };

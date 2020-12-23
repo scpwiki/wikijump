@@ -403,7 +403,6 @@ dependencies = [
  "serde",
  "serde_json",
  "slog",
- "slog-bunyan",
  "sloggers",
  "str-macro",
  "strum",
