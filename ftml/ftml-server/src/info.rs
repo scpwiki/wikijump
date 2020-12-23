@@ -27,7 +27,7 @@ mod build {
 }
 
 pub use self::build::{
-    BUILT_TIME_UTC, CFG_ENV, CFG_OS, CFG_POINTER_WIDTH, CFG_TARGET_ARCH, CI_PLATFORM,
+    BUILT_TIME_UTC, CFG_ENV, CFG_OS, CFG_TARGET_ARCH, CI_PLATFORM,
     DEBUG, GIT_COMMIT_HASH, PKG_LICENSE, PKG_NAME, PKG_REPOSITORY, PKG_VERSION,
     RUSTC_VERSION,
 };
@@ -91,11 +91,10 @@ pub fn print(log: &slog::Logger, address: SocketAddr) {
     println!("{}", *VERSION);
     println!();
     println!("Compiled:");
-    println!("  {}", compile_env);
-    println!("  on {}", BUILT_TIME_UTC);
-    println!("  by {}", RUSTC_VERSION);
-    println!("  for {}", *TARGET_TRIPLET);
-    println!("  pointer width: {} bits", CFG_POINTER_WIDTH);
+    println!("  - {}", compile_env);
+    println!("  - on {}", BUILT_TIME_UTC);
+    println!("  - by {}", RUSTC_VERSION);
+    println!("  - for {}", *TARGET_TRIPLET);
     println!();
     println!("License: {}", PKG_LICENSE);
     println!("Repository: {}", PKG_REPOSITORY);
@@ -112,7 +111,6 @@ pub fn print(log: &slog::Logger, address: SocketAddr) {
         "compiled-on" => BUILT_TIME_UTC,
         "compiled-by" => RUSTC_VERSION,
         "compiled-for" => &*TARGET_TRIPLET,
-        "compiled-ptr-width" => CFG_POINTER_WIDTH,
         "running-as-username" => username,
         "running-as-groupname" => groupname,
         "running-as-uid" => uid,
