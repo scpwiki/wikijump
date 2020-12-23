@@ -22,14 +22,16 @@ use super::{info, logger};
 use clap::{App, Arg};
 use sloggers::types::Severity;
 use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr};
+use std::path::PathBuf;
 use std::process;
 
-const DEFAULT_PORT: u16 = 3865;
+const DEFAULT_PORT: &str = "3865";
 const DEFAULT_LOG_LEVEL: &str = "debug";
 
 #[derive(Debug, Clone)]
 pub struct Config {
     pub log_level: Severity,
+    pub log_file: PathBuf,
     pub address: SocketAddr,
 }
 
@@ -51,7 +53,7 @@ impl Config {
                     .short("p")
                     .long("port")
                     .value_name("PORT")
-                    .default_value(stringify!(DEFAULT_PORT))
+                    .default_value(DEFAULT_PORT)
                     .help("The port to be used by the server"),
             )
             .arg(
@@ -61,10 +63,18 @@ impl Config {
                     .help("Only host the server on IPv4"),
             )
             .arg(
-                Arg::with_name("log_level")
+                Arg::with_name("log_file")
                     .short("l")
+                    .long("log-file")
+                    .value_name("FILE")
+                    .default_value("ftml.log")
+                    .help("The log file to write formatted entries to"),
+            )
+            .arg(
+                Arg::with_name("log_level")
+                    .short("L")
                     .long("log-level")
-                    .value_name("LOG LEVEL")
+                    .value_name("LEVEL")
                     .default_value(DEFAULT_LOG_LEVEL)
                     .help("Log level to be use when running the server"),
             )
@@ -84,6 +94,12 @@ impl Config {
 
         let address = SocketAddr::new(host, port);
 
+        let log_file = matches
+            .value_of_os("log_file")
+            .expect("No log file argument set")
+            .to_os_string()
+            .into();
+
         let log_level = {
             let value = matches
                 .value_of("log_level")
@@ -99,7 +115,11 @@ impl Config {
             process::exit(0);
         }
 
-        Config { log_level, address }
+        Config {
+            log_file,
+            log_level,
+            address,
+        }
     }
 }
 

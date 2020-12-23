@@ -425,6 +425,7 @@ dependencies = [
  "slog",
  "slog-bunyan",
  "sloggers",
+ "str-macro",
  "users",
  "warp",
 ]
