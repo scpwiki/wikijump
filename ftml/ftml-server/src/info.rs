@@ -37,7 +37,7 @@ lazy_static! {
             "{} v{} [{}]",
             PKG_NAME,
             PKG_VERSION,
-            GIT_COMMIT_HASH.unwrap_or("nohash"),
+            GIT_COMMIT_HASH_SHORT.unwrap_or("nohash"),
         )
     };
 
@@ -48,6 +48,10 @@ lazy_static! {
             CFG_ENV,
             CFG_OS,
         )
+    };
+
+    pub static ref GIT_COMMIT_HASH_SHORT: Option<&'static str> = {
+        GIT_COMMIT_HASH.map(|s| &s[..8])
     };
 
     pub static ref HOSTNAME: String = {
