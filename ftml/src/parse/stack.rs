@@ -62,20 +62,14 @@ impl<'l, 't> ParagraphStack<'l, 't> {
     }
 
     #[inline]
-    pub fn push_exception(&mut self, exception: ParseException<'t>) {
-        let (exception_kind, exception_value) = match exception {
-            ParseException::Style(ref style) => ("style", style.as_ref()),
-            ParseException::Error(ref error) => ("error", error.kind().name()),
-        };
-
+    pub fn push_exceptions(&mut self, exceptions: &mut Vec<ParseException<'t>>) {
         debug!(
             self.log,
             "Pushing exception to stack";
-            "exception-kind" => exception_kind,
-            "exception-value" => exception_value,
+            "exceptions-len" => exceptions.len(),
         );
 
-        self.exceptions.push(exception);
+        self.exceptions.append(exceptions);
     }
 
     #[inline]

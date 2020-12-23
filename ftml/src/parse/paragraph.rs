@@ -127,7 +127,7 @@ where
             Consumption::Success {
                 item,
                 remaining,
-                exceptions,
+                mut exceptions,
             } => {
                 debug!(log, "Tokens successfully consumed to produce element");
 
@@ -142,12 +142,7 @@ where
                 stack.push_element(item);
 
                 // Process exceptions
-                for exception in exceptions {
-                    match exception {
-                        ParseException::Error(error) => stack.push_error(error),
-                        ParseException::Style(style) => stack.push_style(style),
-                    }
-                }
+                stack.push_exceptions(&mut exceptions);
             }
             Consumption::Failure { error } => {
                 info!(
