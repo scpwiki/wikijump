@@ -40,7 +40,6 @@ resource "aws_autoscaling_group" "ecs_nodes" {
   depends_on = [aws_launch_template.node]
 }
 
-
 resource "aws_ecs_capacity_provider" "asg" {
   name = aws_autoscaling_group.ecs_nodes.name
 
@@ -82,7 +81,6 @@ resource "aws_ecs_task_definition" "wikijump_task" {
   }
 }
 
-
 resource "aws_ecs_service" "wikijump" {
   name                 = "wikijump-${var.environment}-svc"
   cluster              = aws_ecs_cluster.wikijump-ecs.id
@@ -100,6 +98,3 @@ resource "aws_ecs_service" "wikijump" {
     container_port   = 80
   }
 }
-
-
-

@@ -13,7 +13,7 @@ container_subnet = "10.106.10.0/24"
 # Cloudfront/ELB
 # The cf_auth_token var isn't *sensitive* as such, but an attacker could add this header value to bypass Cloudfront and hit our load balancer directly.
 # So, you may as well store this as a secret, perhaps in Terraform Cloud's vars as a sensitive value so it doesn't show up in tf plans.
-# It can be anything, something vaguely random will work fine like a GUID.
+# It can be anything, something vaguely random like a GUID will work fine.
 # cf_auth_token       = "e421b736-aa0f-4fbf-9965-b6fce423c826"
 
 # Container Specs

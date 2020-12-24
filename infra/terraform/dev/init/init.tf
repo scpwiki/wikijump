@@ -16,7 +16,6 @@ provider "aws" {
   region = local.region
 }
 
-
 resource "aws_ssm_parameter" "WEB_ECR_URL" {
   name  = "wikijump-${local.environment}-WEB_ECR_URL"
   type  = "String"

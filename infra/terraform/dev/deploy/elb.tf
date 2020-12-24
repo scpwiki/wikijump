@@ -8,8 +8,8 @@ resource "aws_lb" "wikijump_elb" {
     subnet_id     = aws_subnet.elb_subnet.id
     allocation_id = aws_eip.elb_eip.id
   }
+  # TODO: IPv6 support for everything.
   # ip_address_type = "dualstack"
-  # Enable this once stable.
   enable_deletion_protection = true
 
   access_logs {
