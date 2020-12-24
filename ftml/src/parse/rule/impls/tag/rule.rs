@@ -1,5 +1,5 @@
 /*
- * parse/rule/impls/tag.rs
+ * parse/rule/impls/tag/rule.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2020 Ammon Smith
@@ -18,13 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Meta-rule for all tag constructs.
-//!
-//! This matches `[[` or `[[*` and runs the tag parsing
-//! against the upcoming tokens in accordance to how the
-//! various tags define themselves.
-
-use super::prelude::*;
+use super::super::prelude::*;
 
 pub const RULE_TAG: Rule = Rule {
     name: "tag",
