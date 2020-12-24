@@ -24,8 +24,10 @@
 //! against the upcoming tokens in accordance to how the
 //! various tags define themselves.
 
+use self::arguments::{TagArgumentRequirement, TagArguments};
 use std::fmt::{self, Debug};
 
+mod arguments;
 mod mapping;
 mod rule;
 
@@ -48,6 +50,15 @@ pub struct TagRule {
     /// For instance, user can be invoked as both
     /// `[[user aismallard]]` and `[[*user aismallard]]`.
     accepts_special: bool,
+
+    /// Whether this tag accepts arguments, and what kind.
+    arguments: TagArgumentRequirement,
+
+    /// Whether this tag looks for a body.
+    ///
+    /// For instance `[[code]]` wants internals, whereas `[[module Rate]]`
+    /// is standalone.
+    requires_body: bool,
 }
 
 impl TagRule {
