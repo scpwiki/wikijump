@@ -27,8 +27,10 @@ services:
       - traefik.enable=true
       - traefik.http.routers.php-fpm.tls=true
       - traefik.http.routers.php-fpm.rule=Method(`GET`,`POST`,`HEAD`,`PUT`,`PATCH`,`DELETE`)  # Poor man's default route
+    # If you wish to map the web files to a local working copy uncomment whichever makes sense below.
     # volumes:
-    #   - I:\Extra\wikijump:/var/www
+    #   - C:\wikijump:/var/www
+    #   - /var/www/wikijump:/var/www
   reverse-proxy:
     image: traefik:v2.3
     command:
