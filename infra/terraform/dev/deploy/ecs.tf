@@ -11,7 +11,7 @@ resource "aws_ecs_cluster" "wikijump-ecs" {
 resource "aws_autoscaling_group" "ecs_nodes" {
   name_prefix           = "CLUSTER_NODES_"
   desired_capacity      = 1
-  max_size              = 1
+  max_size              = 2
   min_size              = 1
   vpc_zone_identifier   = [aws_subnet.container_subnet.id]
   protect_from_scale_in = false
@@ -50,7 +50,7 @@ resource "aws_ecs_capacity_provider" "asg" {
     managed_scaling {
       maximum_scaling_step_size = 1
       minimum_scaling_step_size = 1
-      status                    = "ENABLED"
+      status                    = "DISABLED"
       target_capacity           = 1
     }
   }
@@ -82,11 +82,13 @@ resource "aws_ecs_task_definition" "wikijump_task" {
 }
 
 resource "aws_ecs_service" "wikijump" {
-  name                 = "wikijump-${var.environment}-svc"
-  cluster              = aws_ecs_cluster.wikijump-ecs.id
-  task_definition      = aws_ecs_task_definition.wikijump_task.arn
-  desired_count        = 1 # This will be a var as we grow
-  force_new_deployment = var.redeploy_ecs_on_tf_apply
+  name                               = "wikijump-${var.environment}-svc"
+  cluster                            = aws_ecs_cluster.wikijump-ecs.id
+  task_definition                    = aws_ecs_task_definition.wikijump_task.arn
+  deployment_minimum_healthy_percent = 50
+  deployment_maximum_percent         = 100
+  desired_count                      = 1 # This will be a var as we grow
+  force_new_deployment               = var.redeploy_ecs_on_tf_apply
   load_balancer {
     target_group_arn = aws_lb_target_group.elb_target_group_443.arn
     container_name   = "reverse-proxy"
