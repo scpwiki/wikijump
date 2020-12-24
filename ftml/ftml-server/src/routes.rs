@@ -22,7 +22,7 @@ use crate::info;
 use ftml::ParseResult;
 use warp::{Filter, Rejection, Reply};
 
-const CONTENT_LENGTH_LIMIT: u64 = 12 * 1024 * 1024 * 1024; /* 12 MiB */
+const CONTENT_LENGTH_LIMIT: u64 = 2 * 1024 * 1024 * 1024; /* 2 MiB */
 
 // Helper struct
 #[derive(Deserialize, Debug)]
