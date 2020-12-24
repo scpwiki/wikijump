@@ -7,7 +7,7 @@ data "template_cloudinit_config" "config" {
     content      = <<EOT
 #!/bin/bash
 set -eu
-echo ECS_CLUSTER='wikijump-${var.environment}' >> /etc/ecs/ecs.config
+echo ECS_CLUSTER="wikijump-${var.environment}" >> /etc/ecs/ecs.config
 echo ECS_ENABLE_CONTAINER_METADATA=true >> /etc/ecs/ecs.config
 echo ECS_ENABLE_SPOT_INSTANCE_DRAINING=true >> /etc/ecs/ecs.config
 EOT
