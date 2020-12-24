@@ -30,6 +30,7 @@ jobs:
             ECR_REPOSITORY: wikijump-dev/php-fpm
             IMAGE_TAG: ${{ github.sha }}
           run: |
+            set -ex
             docker build --build-arg MAIN_DOMAIN=wikijump.dev --build-arg FILES_DOMAIN=wjfiles.dev -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
             docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
             echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
