@@ -95,7 +95,7 @@ impl Debug for BlockRule {
             .field("accepts_special", &self.accepts_special)
             .field("arguments", &self.arguments)
             .field("body", &self.body)
-            .field("parse_fn", &"<fn pointer>")
+            .field("parse_fn", &(self.parse_fn as *const ()))
             .finish()
     }
 }
