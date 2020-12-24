@@ -62,6 +62,8 @@ resource "aws_lb_listener" "elb_listener_443" {
     }
 }
 
+# NOTE: Temporarily disabled until dev is deployed and we can work on deploying production.
+
 # resource "aws_lb_listener_rule" "cloudfront_forward_80" {
 #     listener_arn            = aws_lb_listener.elb_listener_80.arn
 #     priority                = 100

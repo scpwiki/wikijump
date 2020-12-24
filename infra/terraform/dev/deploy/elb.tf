@@ -9,7 +9,7 @@ resource "aws_lb" "wikijump_elb" {
     allocation_id = aws_eip.elb_eip.id
   }
   # ip_address_type = "dualstack"
-  # Enable this once stable.
+  # TODO: Enable this once stable.
   enable_deletion_protection = true
 
   access_logs {

@@ -73,5 +73,3 @@ resource "aws_acm_certificate_validation" "acm_validation" {
   # See: https://docs.aws.amazon.com/acm/latest/userguide/acm-regions.html
   provider = aws.us-east-1
 }
-
-
