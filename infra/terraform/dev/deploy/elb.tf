@@ -13,8 +13,8 @@ resource "aws_lb" "wikijump_elb" {
   enable_deletion_protection = true
 
   access_logs {
-    bucket = aws_s3_bucket.elb_logs.bucket
-    prefix = var.environment
+    bucket  = aws_s3_bucket.elb_logs.bucket
+    prefix  = var.environment
     enabled = false
   }
 }

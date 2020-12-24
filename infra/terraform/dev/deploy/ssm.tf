@@ -17,11 +17,11 @@ resource "aws_ssm_parameter" "URL_UPLOAD_DOMAIN" {
 }
 
 data "aws_ssm_parameter" "WEB_ECR_URL" {
-  name  = "wikijump-${var.environment}-WEB_ECR_URL"
+  name = "wikijump-${var.environment}-WEB_ECR_URL"
 }
 
 data "aws_ssm_parameter" "DB_ECR_URL" {
-  name  = "wikijump-${var.environment}-DB_ECR_URL"
+  name = "wikijump-${var.environment}-DB_ECR_URL"
 }
 
 data "aws_ssm_parameter" "ecs_ami" {
