@@ -23,7 +23,7 @@ use std::collections::HashMap;
 
 /// Specifying the manner that this block accepts arguments.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum BlockArgumentKind {
+pub enum BlockArgumentsKind {
     /// This block accepts any number of key, value pair arguments.
     ///
     /// Examples: `[[div]]`, `[[image]]`
@@ -40,7 +40,9 @@ pub enum BlockArgumentKind {
     None,
 }
 
-/// The values received when
+/// The result of parsing a block's arguments.
+///
+/// See also `BlockArgumentsKind`.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum BlockArguments<'t> {
     KeyValue(HashMap<&'t str, Cow<'t, str>>),

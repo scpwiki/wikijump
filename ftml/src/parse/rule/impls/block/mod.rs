@@ -24,10 +24,15 @@
 //! against the upcoming tokens in accordance to how the
 //! various blocks define themselves.
 
-use self::arguments::{BlockArgumentKind, BlockArguments};
+use self::arguments::{BlockArguments, BlockArgumentsKind};
+use self::body::{Body, BodyKind};
+use crate::parse::consume::Consumption;
+use crate::parse::token::ExtractedToken;
+use crate::text::FullText;
 use std::fmt::{self, Debug};
 
 mod arguments;
+mod body;
 mod mapping;
 mod rule;
 
@@ -45,20 +50,33 @@ pub struct BlockRule {
     /// Will panic if empty.
     accepts_names: &'static [&'static str],
 
+    /// Whether this block accepts a second name.
+    ///
+    /// For instance, `[[module]]` requires the name of the module
+    /// being used specified, where something like `[[code]]` is
+    /// just "code".
+    requires_sub_name: bool,
+
     /// Whether this block accepts `*` as a modifier.
     ///
     /// For instance, user can be invoked as both
     /// `[[user aismallard]]` and `[[*user aismallard]]`.
     accepts_special: bool,
 
-    /// Whether this block accepts arguments, and what kind.
-    arguments: BlockArgumentKind,
+    /// How this block accepts arguments.
+    arguments: BlockArgumentsKind,
 
-    /// Whether this block looks for a body.
+    /// How this block accepts a body.
     ///
     /// For instance `[[code]]` wants internals, whereas `[[module Rate]]`
     /// is standalone.
-    requires_body: bool,
+    body: BodyKind,
+
+    /// The parse function for this block.
+    ///
+    /// This is the specified function to process the block's token stream
+    /// and produce an element.
+    parse_fn: TryParseBlockFn,
 }
 
 impl BlockRule {
@@ -73,9 +91,11 @@ impl Debug for BlockRule {
         f.debug_struct("BlockRule")
             .field("name", &self.name)
             .field("accepts_names", &self.accepts_names)
+            .field("requires_sub_name", &self.requires_sub_name)
             .field("accepts_special", &self.accepts_special)
             .field("arguments", &self.arguments)
-            .field("requires_body", &self.requires_body)
+            .field("body", &self.body)
+            .field("parse_fn", &"<fn pointer>")
             .finish()
     }
 }
@@ -92,4 +112,11 @@ impl slog::Value for BlockRule {
 }
 
 /// The function type used for processing a rule
-pub type TryParseBlockFn = fn();
+pub type TryParseBlockFn = for<'r, 't> fn(
+    log: &slog::Logger,
+    name: &'t str,
+    sub_name: Option<&'t str>,
+    special: bool,
+    arguments: BlockArguments<'t>,
+    body: Option<&'r [ExtractedToken<'t>]>,
+) -> Consumption<'r, 't>;

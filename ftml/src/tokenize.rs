@@ -19,7 +19,7 @@
  */
 
 use crate::text::FullText;
-use crate::parse::token::{ExtractedToken, Token};
+use crate::{ExtractedToken, Token};
 
 #[derive(Debug, Clone)]
 pub struct Tokenization<'t> {
