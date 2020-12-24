@@ -119,4 +119,5 @@ pub type TryParseBlockFn = for<'r, 't> fn(
     special: bool,
     arguments: BlockArguments<'t>,
     body: Option<&'r [ExtractedToken<'t>]>,
+    full_text: FullText<'t>,
 ) -> Consumption<'r, 't>;
