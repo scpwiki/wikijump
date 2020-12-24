@@ -128,7 +128,7 @@ module "reverse-proxy" {
     "--entrypoints.web.http.redirections.entryPoint.scheme=https",
     "--entrypoints.web.http.redirections.entrypoint.permanent=true",
     "--entrypoints.web-secure.address=:443",
-    "--certificatesresolvers.mytlschallenge.acme.tlschallenge=true",
+    "--certificatesresolvers.mytlschallenge.acme.httpchallenge.entrypoint=web",
     "--certificatesresolvers.mytlschallenge.acme.email=${var.letsencrypt_email}",
     "--certificatesresolvers.mytlschallenge.acme.storage=/letsencrypt/acme.json",
     "--ping.entrypoint=ping",
