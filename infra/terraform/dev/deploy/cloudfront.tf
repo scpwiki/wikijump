@@ -28,7 +28,7 @@ resource "aws_cloudfront_distribution" "wikijump_cf_distro" {
     }
   }
 
-    origin {
+  origin {
     domain_name = aws_lb.wikijump_elb.dns_name
     origin_id   = "wikijump-acme-${var.environment}"
 

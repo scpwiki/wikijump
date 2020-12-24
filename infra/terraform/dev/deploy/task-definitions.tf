@@ -5,7 +5,7 @@ module "cache" {
   container_image              = var.ecs_cache_image
   container_memory_reservation = var.ecs_cache_memory / 4
   essential                    = true
-  environment = []
+  environment                  = []
 
   log_configuration = {
     logDriver = "awslogs"
@@ -24,7 +24,7 @@ module "database" {
   container_image              = "${data.aws_ssm_parameter.DB_ECR_URL.value}:develop"
   container_memory_reservation = var.ecs_db_memory / 4
   essential                    = true
-  environment = []
+  environment                  = []
 
   log_configuration = {
     logDriver = "awslogs"
@@ -43,7 +43,7 @@ module "php-fpm" {
   container_image              = "${data.aws_ssm_parameter.WEB_ECR_URL.value}:develop"
   container_memory_reservation = var.ecs_php_memory / 4
   essential                    = true
-  environment = []
+  environment                  = []
 
   log_configuration = {
     logDriver = "awslogs"
@@ -96,15 +96,15 @@ module "reverse-proxy" {
   essential                    = true
   environment = [
     {
-      name = AWS_ACCESS_KEY_ID
+      name  = "AWS_ACCESS_KEY_ID"
       value = var.route53_access_key
     },
     {
-      name = AWS_SECRET_ACCESS_KEY
+      name  = "AWS_SECRET_ACCESS_KEY"
       value = var.route53_secret_key
     },
     {
-      name = AWS_REGION
+      name  = "AWS_REGION"
       value = var.region
     }
   ]
