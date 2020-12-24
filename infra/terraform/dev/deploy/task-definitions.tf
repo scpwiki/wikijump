@@ -128,8 +128,11 @@ module "reverse-proxy" {
     "--entrypoints.web.http.redirections.entryPoint.scheme=https",
     "--entrypoints.web.http.redirections.entrypoint.permanent=true",
     "--entrypoints.web-secure.address=:443",
-    "--certificatesresolvers.mytlschallenge.acme.httpchallenge.entrypoint=web",
-    "--certificatesresolvers.mytlschallenge.acme.email=${var.letsencrypt_email}",
+    "--certificatesresolvers.mytlschallenge.acme.dnschallenge.provider=route53",
+    "--certificatesresolvers.mytlschallenge.acme.dnschallenge.delaybeforecheck=30",
+    "--certificatesresolvers.mytlschallenge.acme.dnschallenge.AWS_ACCESS_KEY_ID=${var.route53_access_key}",
+    "--certificatesresolvers.mytlschallenge.acme.dnschallenge.AWS_SECRET_ACCESS_KEY=${var.route53_secret_key}",
+    "--certificatesresolvers.mytlschallenge.acme.dnschallenge.AWS_REGION=${var.region}",
     "--certificatesresolvers.mytlschallenge.acme.storage=/letsencrypt/acme.json",
     "--ping.entrypoint=ping",
     "--entrypoints.ping.address=:8081"
