@@ -33,7 +33,12 @@ pub use self::mapping::{rules_for_token, RULE_MAP};
 /// Defines a rule that can possibly match tokens and return an `Element`.
 #[derive(Copy, Clone)]
 pub struct Rule {
+    /// The name for this rule, in kebab-case.
+    ///
+    /// It is globally unique.
     name: &'static str,
+
+    /// The consumption attempt function for this rule.
     try_consume_fn: TryConsumeFn,
 }
 
