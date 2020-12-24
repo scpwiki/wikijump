@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::ExtractedToken;
+use crate::parse::token::ExtractedToken;
 
 /// Wrapper for the input string that was tokenized.
 ///
