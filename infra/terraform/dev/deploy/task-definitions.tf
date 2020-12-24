@@ -5,6 +5,7 @@ module "cache" {
   container_image              = var.ecs_cache_image
   container_memory_reservation = var.ecs_cache_memory / 4
   essential                    = true
+  environment = []
 
   log_configuration = {
     logDriver = "awslogs"
@@ -23,6 +24,7 @@ module "database" {
   container_image              = "${data.aws_ssm_parameter.DB_ECR_URL.value}:develop"
   container_memory_reservation = var.ecs_db_memory / 4
   essential                    = true
+  environment = []
 
   log_configuration = {
     logDriver = "awslogs"
@@ -41,6 +43,7 @@ module "php-fpm" {
   container_image              = "${data.aws_ssm_parameter.WEB_ECR_URL.value}:develop"
   container_memory_reservation = var.ecs_php_memory / 4
   essential                    = true
+  environment = []
 
   log_configuration = {
     logDriver = "awslogs"
@@ -91,6 +94,20 @@ module "reverse-proxy" {
   container_image              = var.ecs_traefik_image
   container_memory_reservation = var.ecs_traefik_memory / 4
   essential                    = true
+  environment = [
+    {
+      name = AWS_ACCESS_KEY_ID
+      value = var.route53_access_key
+    },
+    {
+      name = AWS_SECRET_ACCESS_KEY
+      value = var.route53_secret_key
+    },
+    {
+      name = AWS_REGION
+      value = var.region
+    }
+  ]
 
   log_configuration = {
     logDriver = "awslogs"
@@ -130,9 +147,6 @@ module "reverse-proxy" {
     "--entrypoints.web-secure.address=:443",
     "--certificatesresolvers.mytlschallenge.acme.dnschallenge.provider=route53",
     "--certificatesresolvers.mytlschallenge.acme.dnschallenge.delaybeforecheck=30",
-    "--certificatesresolvers.mytlschallenge.acme.dnschallenge.AWS_ACCESS_KEY_ID=${var.route53_access_key}",
-    "--certificatesresolvers.mytlschallenge.acme.dnschallenge.AWS_SECRET_ACCESS_KEY=${var.route53_secret_key}",
-    "--certificatesresolvers.mytlschallenge.acme.dnschallenge.AWS_REGION=${var.region}",
     "--certificatesresolvers.mytlschallenge.acme.storage=/letsencrypt/acme.json",
     "--ping.entrypoint=ping",
     "--entrypoints.ping.address=:8081"
