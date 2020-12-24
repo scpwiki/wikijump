@@ -115,7 +115,7 @@ fn tokens() {
                 span: 0..2,
             },
             ExtractedToken {
-                token: Token::LeftTagSpecial,
+                token: Token::LeftBlockSpecial,
                 slice: "[[*",
                 span: 2..5,
             },
@@ -141,7 +141,7 @@ fn tokens() {
         r#"[[> unsure = "malformed \string"#,
         vec![
             ExtractedToken {
-                token: Token::LeftTag,
+                token: Token::LeftBlock,
                 slice: "[[",
                 span: 0..2,
             },
