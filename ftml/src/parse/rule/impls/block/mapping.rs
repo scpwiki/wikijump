@@ -1,5 +1,5 @@
 /*
- * parse/rule/impls/tag/mapping.rs
+ * parse/rule/impls/block/mapping.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2020 Ammon Smith
@@ -18,29 +18,29 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::{impls::*, TagRule};
+use super::{impls::*, BlockRule};
 use std::collections::HashMap;
 use unicase::UniCase;
 
-/// Listing of all `TagRule`s in no particular order.
-pub const TAG_RULES: [TagRule; 0] = [];
+/// Listing of all `BlockRule`s in no particular order.
+pub const BLOCK_RULES: [BlockRule; 0] = [];
 
 /// Type definition for the `TAG_RULE_MAP` constant.
-pub type TagRuleMap = HashMap<UniCase<&'static str>, &'static TagRule>;
+pub type BlockRuleMap = HashMap<UniCase<&'static str>, &'static BlockRule>;
 
 lazy_static! {
-    /// Mapping of tag names with their rule information.
-    pub static ref TAG_RULE_MAP: TagRuleMap = {
+    /// Mapping of block names with their rule information.
+    pub static ref BLOCK_RULE_MAP: BlockRuleMap = {
         let mut map = HashMap::new();
 
-        for tag in &TAG_RULES {
-            for name in tag.accepts_names {
+        for block in &BLOCK_RULES {
+            for name in block.accepts_names {
                 let name = UniCase::ascii(*name);
-                let previous = map.insert(name, tag);
+                let previous = map.insert(name, block);
 
                 assert!(
                     previous.is_none(),
-                    "Overwrote previous tag rule during rule population!",
+                    "Overwrote previous block rule during rule population!",
                 );
             }
         }
@@ -50,8 +50,8 @@ lazy_static! {
 }
 
 #[inline]
-pub fn tag_with_name(name: &str) -> Option<&'static TagRule> {
+pub fn block_with_name(name: &str) -> Option<&'static BlockRule> {
     let name = UniCase::ascii(name);
 
-    TAG_RULE_MAP.get(&name).map(|rule| *rule)
+    BLOCK_RULE_MAP.get(&name).map(|rule| *rule)
 }

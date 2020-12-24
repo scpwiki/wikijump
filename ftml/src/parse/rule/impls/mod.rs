@@ -28,6 +28,7 @@ mod prelude {
     pub use crate::tree::{Container, ContainerType, Element};
 }
 
+mod block;
 mod bold;
 mod color;
 mod comment;
@@ -46,12 +47,12 @@ mod raw;
 mod strikethrough;
 mod subscript;
 mod superscript;
-mod tag;
 mod text;
 mod todo;
 mod underline;
 mod url;
 
+pub use self::block::{RULE_BLOCK, RULE_BLOCK_SPECIAL};
 pub use self::bold::RULE_BOLD;
 pub use self::color::RULE_COLOR;
 pub use self::comment::RULE_COMMENT;
@@ -70,7 +71,6 @@ pub use self::raw::RULE_RAW;
 pub use self::strikethrough::RULE_STRIKETHROUGH;
 pub use self::subscript::RULE_SUBSCRIPT;
 pub use self::superscript::RULE_SUPERSCRIPT;
-pub use self::tag::{RULE_TAG, RULE_TAG_SPECIAL};
 pub use self::text::RULE_TEXT;
 pub use self::todo::RULE_TODO;
 pub use self::underline::RULE_UNDERLINE;

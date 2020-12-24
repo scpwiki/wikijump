@@ -1,5 +1,5 @@
 /*
- * parse/rule/impls/tag/impls/mod.rs
+ * parse/rule/impls/block/impls/code.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2020 Ammon Smith
@@ -18,11 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod prelude {}
+use super::prelude::*;
+
+pub const BLOCK_CODE: () = ();
 
 // TODO
-mod code;
-mod div;
-
-pub use self::code::TAG_CODE;
-pub use self::div::TAG_DIV;

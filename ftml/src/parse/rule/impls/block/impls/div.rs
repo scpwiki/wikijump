@@ -1,5 +1,5 @@
 /*
- * parse/rule/impls/tag/impls/div.rs
+ * parse/rule/impls/block/impls/div.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2020 Ammon Smith
@@ -20,6 +20,6 @@
 
 use super::prelude::*;
 
-pub const TAG_DIV: () = ();
+pub const BLOCK_DIV: () = ();
 
 // TODO

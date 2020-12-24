@@ -1,5 +1,5 @@
 /*
- * parse/rule/impls/tag/arguments.rs
+ * parse/rule/impls/block/arguments.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2020 Ammon Smith
@@ -21,20 +21,20 @@
 use std::borrow::Cow;
 use std::collections::HashMap;
 
-/// Specifying the manner that this tag accepts arguments.
+/// Specifying the manner that this block accepts arguments.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum TagArgumentRequirement {
-    /// This tag accepts any number of key, value pair arguments.
+pub enum BlockArgumentKind {
+    /// This block accepts any number of key, value pair arguments.
     ///
     /// Examples: `[[div]]`, `[[image]]`
     KeyValue,
 
-    /// This tag accepts the enter space after the tag name as the argument value.
+    /// This block accepts the enter space after the block name as the argument value.
     ///
     /// Examples: `[[user]]`
     SingleValue,
 
-    /// This tag accepts no arguments.
+    /// This block accepts no arguments.
     ///
     /// Examples: `[[footnote]]`
     None,
@@ -42,18 +42,18 @@ pub enum TagArgumentRequirement {
 
 /// The values received when
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum TagArguments<'t> {
+pub enum BlockArguments<'t> {
     KeyValue(HashMap<&'t str, Cow<'t, str>>),
     SingleValue(&'t str),
     None,
 }
 
-impl<'t> TagArguments<'t> {
+impl<'t> BlockArguments<'t> {
     pub fn unwrap_map(self) -> HashMap<&'t str, Cow<'t, str>> {
         match self {
-            TagArguments::KeyValue(map) => map,
+            BlockArguments::KeyValue(map) => map,
             _ => panic!(
-                "TagArguments wasn't the variant KeyValue(_) (was {:?})",
+                "BlockArguments wasn't the variant KeyValue(_) (was {:?})",
                 self,
             ),
         }
@@ -61,9 +61,9 @@ impl<'t> TagArguments<'t> {
 
     pub fn unwrap_value(self) -> &'t str {
         match self {
-            TagArguments::SingleValue(value) => value,
+            BlockArguments::SingleValue(value) => value,
             _ => panic!(
-                "TagArguments wasn't the variant SingleValue(_) (was {:?})",
+                "BlockArguments wasn't the variant SingleValue(_) (was {:?})",
                 self,
             ),
         }

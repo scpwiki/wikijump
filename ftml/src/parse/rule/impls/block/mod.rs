@@ -1,5 +1,5 @@
 /*
- * parse/rule/impls/tag/mod.rs
+ * parse/rule/impls/block/mod.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2020 Ammon Smith
@@ -18,13 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Meta-rule for all tag constructs.
+//! Meta-rule for all block constructs.
 //!
-//! This matches `[[` or `[[*` and runs the tag parsing
+//! This matches `[[` or `[[*` and runs the block parsing
 //! against the upcoming tokens in accordance to how the
-//! various tags define themselves.
+//! various blocks define themselves.
 
-use self::arguments::{TagArgumentRequirement, TagArguments};
+use self::arguments::{BlockArgumentKind, BlockArguments};
 use std::fmt::{self, Debug};
 
 mod arguments;
@@ -33,52 +33,54 @@ mod rule;
 
 pub mod impls;
 
-pub use self::rule::{RULE_TAG, RULE_TAG_SPECIAL};
+pub use self::rule::{RULE_BLOCK, RULE_BLOCK_SPECIAL};
 
-/// Define a rule for how to parse a tag.
+/// Define a rule for how to parse a block.
 #[derive(Clone)]
-pub struct TagRule {
-    /// The name of the tag. Must be kebab-case.
+pub struct BlockRule {
+    /// The name of the block. Must be kebab-case.
     name: &'static str,
 
-    /// Which names you can use this tag with. Case-insensitive.
+    /// Which names you can use this block with. Case-insensitive.
     /// Will panic if empty.
     accepts_names: &'static [&'static str],
 
-    /// Whether this tag accepts `*` as a modifier.
+    /// Whether this block accepts `*` as a modifier.
     ///
     /// For instance, user can be invoked as both
     /// `[[user aismallard]]` and `[[*user aismallard]]`.
     accepts_special: bool,
 
-    /// Whether this tag accepts arguments, and what kind.
-    arguments: TagArgumentRequirement,
+    /// Whether this block accepts arguments, and what kind.
+    arguments: BlockArgumentKind,
 
-    /// Whether this tag looks for a body.
+    /// Whether this block looks for a body.
     ///
     /// For instance `[[code]]` wants internals, whereas `[[module Rate]]`
     /// is standalone.
     requires_body: bool,
 }
 
-impl TagRule {
+impl BlockRule {
     #[inline]
     pub fn name(&self) -> &'static str {
         self.name
     }
 }
 
-impl Debug for TagRule {
+impl Debug for BlockRule {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("TagRule")
+        f.debug_struct("BlockRule")
             .field("name", &self.name)
             .field("accepts_names", &self.accepts_names)
             .field("accepts_special", &self.accepts_special)
+            .field("arguments", &self.arguments)
+            .field("requires_body", &self.requires_body)
             .finish()
     }
 }
 
-impl slog::Value for TagRule {
+impl slog::Value for BlockRule {
     fn serialize(
         &self,
         _: &slog::Record,
@@ -90,4 +92,4 @@ impl slog::Value for TagRule {
 }
 
 /// The function type used for processing a rule
-pub type TryParseTagFn = fn();
+pub type TryParseBlockFn = fn();

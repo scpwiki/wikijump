@@ -1,5 +1,5 @@
 /*
- * parse/rule/impls/tag/rule.rs
+ * parse/rule/impls/block/rule.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2020 Ammon Smith
@@ -20,39 +20,39 @@
 
 use super::super::prelude::*;
 
-pub const RULE_TAG: Rule = Rule {
-    name: "tag",
-    try_consume_fn: tag_regular,
+pub const RULE_BLOCK: Rule = Rule {
+    name: "block",
+    try_consume_fn: block_regular,
 };
 
-pub const RULE_TAG_SPECIAL: Rule = Rule {
-    name: "tag-special",
-    try_consume_fn: tag_special,
+pub const RULE_BLOCK_SPECIAL: Rule = Rule {
+    name: "block-special",
+    try_consume_fn: block_special,
 };
 
-fn tag_regular<'r, 't>(
+fn block_regular<'r, 't>(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
 ) -> Consumption<'r, 't> {
-    trace!(log, "Trying to process a tag");
+    trace!(log, "Trying to process a block");
 
-    tag(log, extracted, remaining, full_text, false)
+    block(log, extracted, remaining, full_text, false)
 }
 
-fn tag_special<'r, 't>(
+fn block_special<'r, 't>(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
 ) -> Consumption<'r, 't> {
-    trace!(log, "Trying to process a tag (with special)");
+    trace!(log, "Trying to process a block (with special)");
 
-    tag(log, extracted, remaining, full_text, true)
+    block(log, extracted, remaining, full_text, true)
 }
 
-fn tag<'r, 't>(
+fn block<'r, 't>(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
@@ -61,7 +61,7 @@ fn tag<'r, 't>(
 ) -> Consumption<'r, 't> {
     debug!(
         log,
-        "Trying to process a tag (special: {})",
+        "Trying to process a block (special: {})",
         special;
         "special" => special,
     );
