@@ -5,9 +5,9 @@ declare type YahooResponse = any;
 declare const fx: any;
 
 // Set in templates/modules/account/AccountModule.tpl
-declare const accountStartPage: keyof typeof mapping;
+declare const accountStartPage: keyof typeof modulesMapping;
 
-const mapping = {
+const modulesMapping = {
   'am-welcome': "account/AccountWelcomeModule",
   'am-messages': "account/AccountMessagesModule",
   'am-notifications': "account/AccountNotificationsModule",
@@ -31,9 +31,8 @@ const mapping = {
 
 export const AccountModule = {
   vars: {
-    currentId: null as null | keyof typeof mapping
+    currentId: null as null | keyof typeof modulesMapping
   },
-  mapping,
   listeners: {
     clickMenu: function (event: Event): void {
       let target = YAHOO.util.Event.getTarget(event);
@@ -68,9 +67,8 @@ export const AccountModule = {
     }
   },
   utils: {
-    loadModule: function (id: keyof typeof mapping): void {
-      const mm = AccountModule.mapping;
-      const module = mm[id];
+    loadModule: function (id: keyof typeof modulesMapping): void {
+      const module = modulesMapping[id];
       if (module) {
         // toggle current
         const currentId = AccountModule.vars.currentId;
@@ -103,7 +101,7 @@ export const AccountModule = {
         return;
       }
 
-      let startPage: keyof typeof mapping = "am-welcome";
+      let startPage: keyof typeof modulesMapping = "am-welcome";
       if (accountStartPage) {
         startPage = accountStartPage;
       }

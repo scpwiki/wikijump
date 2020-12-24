@@ -1,3 +1,40 @@
+import { ManageSiteEmailListsModule } from "./managesite/elists/ManageSiteEmailListsModule";
+import { ManageSiteCloneModule } from "./managesite/ManageSiteCloneModule";
+import { ManageSiteForumSettingsModule } from "./managesite/ManageSiteForumSettingsModule";
+import { ManageSiteDomainModule } from "./managesite/ManageSiteDomainModule";
+import { ManageSiteNotificationsModule } from "./managesite/ManageSiteNotificationsModule";
+import { ManageSiteMembersApplicationsModule } from "./managesite/ManageSiteMembersApplicationsModule";
+import { ManageSiteMembersModule } from "./managesite/ManageSiteMembersModule";
+import { ManageSiteBackupModule } from "./managesite/backup/ManageSiteBackupModule";
+import { ManageSiteAdminsModule } from "./managesite/ManageSiteAdminsModule";
+import { ManageSitePermissionsModule } from "./managesite/ManageSitePermissionsModule";
+import { ManageSiteMembersInviteModule } from "./managesite/ManageSiteMembersInviteModule";
+import { ManageSiteInvitationsHistoryModule } from "./managesite/ManageSiteInvitationsHistoryModule";
+import { ManageSiteForumPermissionsModule } from "./managesite/ManageSiteForumPermissionsModule";
+import { ManageSitePrivateSettingsModule } from "./managesite/ManageSitePrivateSettingsModule";
+import { ManageSiteMembersListModule } from "./managesite/ManageSiteMembersListModule";
+import { ManageSitePerPageDiscussionModule } from "./managesite/ManageSitePerPageDiscussionModule";
+import { ManageSiteEmailInvitationsModule } from "./managesite/ManageSiteEmailInvitationsModule";
+import { ManageSiteSecureAccessModule } from "./managesite/ManageSiteSecureAccessModule";
+import { ManageSiteLetUsersInviteModule } from "./managesite/ManageSiteLetUsersInviteModule";
+import { ManageSiteRenameModule } from "./managesite/ManageSiteRenameModule";
+import { ManageSiteDeleteModule } from "./managesite/ManageSiteDeleteModule";
+import { ManageSiteNavigationModule } from "./managesite/ManageSiteNavigationModule";
+import { ManageSiteCustomThemesModule } from "./managesite/ManageSiteCustomThemesModule";
+import { ManageSiteForumLayoutModule } from "./managesite/ManageSiteForumLayoutModule";
+import { ManageSitePageAbuseModule } from "./managesite/abuse/ManageSitePageAbuseModule";
+import { ManageSiteAnonymousAbuseModule } from "./managesite/abuse/ManageSiteAnonymousAbuseModule";
+import { ManageSiteUserAbuseModule } from "./managesite/abuse/ManageSiteUserAbuseModule";
+import { ManageSiteUserBlocksModule } from "./managesite/blocks/ManageSiteUserBlocksModule";
+import { ManageSiteIpBlocksModule } from "./managesite/blocks/ManageSiteIpBlocksModule";
+import { ManageSiteModeratorsModule } from "./managesite/ManageSiteModeratorsModule";
+import { ManageSiteAppearanceModule } from "./managesite/ManageSiteAppearanceModule";
+import { ManageSiteGeneralModule } from "./managesite/ManageSiteGeneralModule";
+import { ManageSiteTemplatesModule } from "./managesite/ManageSiteTemplatesModule";
+import { ManageSiteOpenIDModule } from "./managesite/ManageSiteOpenIDModule";
+import { ManageSitePageRateSettingsModule } from "./managesite/pagerate/ManageSitePageRateSettingsModule";
+import { ManageSiteLicenseModule } from "./managesite/ManageSiteLicenseModule";
+import { ManageSiteModule } from "./managesite/ManageSiteModule";
 import { ForumCommentsModule } from "./forum/ForumCommentsModule";
 import { ForumViewThreadModule } from "./forum/ForumViewThreadModule";
 import { ForumRecentPostsModule } from "./forum/ForumRecentPostsModule";
@@ -79,4 +116,43 @@ export const modules = {
   ForumDeletePostModule,
   ForumEditThreadMetaModule,
   ForumNewThreadModule,
+
+  /* Site Manager */
+  ManageSiteModule,
+  ManageSiteEmailListsModule,
+  ManageSiteCloneModule,
+  ManageSiteForumSettingsModule,
+  ManageSiteDomainModule,
+  ManageSiteNotificationsModule,
+  ManageSiteMembersApplicationsModule,
+  ManageSiteMembersModule,
+  ManageSiteBackupModule,
+  ManageSiteAdminsModule,
+  ManageSitePermissionsModule,
+  ManageSiteMembersInviteModule,
+  ManageSiteInvitationsHistoryModule,
+  ManageSiteForumPermissionsModule,
+  ManageSitePrivateSettingsModule,
+  ManageSiteMembersListModule,
+  ManageSitePerPageDiscussionModule,
+  ManageSiteEmailInvitationsModule,
+  ManageSiteSecureAccessModule,
+  ManageSiteLetUsersInviteModule,
+  ManageSiteRenameModule,
+  ManageSiteDeleteModule,
+  ManageSiteNavigationModule,
+  ManageSiteCustomThemesModule,
+  ManageSiteForumLayoutModule,
+  ManageSitePageAbuseModule,
+  ManageSiteAnonymousAbuseModule,
+  ManageSiteUserAbuseModule,
+  ManageSiteUserBlocksModule,
+  ManageSiteIpBlocksModule,
+  ManageSiteModeratorsModule,
+  ManageSiteAppearanceModule,
+  ManageSiteGeneralModule,
+  ManageSiteTemplatesModule,
+  ManageSiteOpenIDModule,
+  ManageSitePageRateSettingsModule,
+  ManageSiteLicenseModule,
 };

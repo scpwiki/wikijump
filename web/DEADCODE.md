@@ -156,8 +156,24 @@ If possible, add to this log in the same commit in which the code is removed.
 * Why it was removed: They were globally-defined, conflicting, but thankfully
   both empty methods.
 
-## JS: `Wikijump.modules.AccountWikiNewslettersModule.[lisenters/callbacks].saveDefault`
+## JS: `Wikijump.modules.AccountWikiNewslettersModule.[listeners/callbacks].saveDefault`
 * Relevant Issues: [WJ-250](https://scuttle.atlassian.net/browse/WJ-250)
 * Where it was: [account/membership/AccountWikiNewslettersModule.js](https://github.com/scpwiki/wikijump/blob/3f2efdaf889a03e797cc14e6cc875c08ab35d4f2/web/web/files--common/modules/js/account/membership/AccountWikiNewslettersModule.js)
 * What it did: Nothing. Clearly unfinished, had syntax errors.
 * Why it was removed: Unfinished and unused.
+
+## JS: `Wikijump.modules.ManageSiteAdminsInviteModule`
+* Relevant Issues: [WJ-250](https://scuttle.atlassian.net/browse/WJ-250)
+* Where it was: [managesite/ManageSiteAdminsInviteModule.js](https://github.com/scpwiki/wikijump/blob/3f2efdaf889a03e797cc14e6cc875c08ab35d4f2/web/web/files--common/modules/js/managesite/ManageSiteAdminsInviteModule.js)
+* What it did: Presumably invited admins to a site. Possibly missing from
+  `managesite/ManageSiteModule` template.
+* Why it was removed: None of its methods were used anywhere outside of the the
+  file, the elements it referred to did not exist in any templates, and it was
+  not registered as a wikitext module.
+
+## JS: `Wikijump.modules.ManageSiteModule.listeners.tabClick`
+* Relevant Issues: [WJ-250](https://scuttle.atlassian.net/browse/WJ-250)
+* Where it was: [managesite/ManageSiteAdminsInviteModule.js](https://github.com/scpwiki/wikijump/blob/3f2efdaf889a03e797cc14e6cc875c08ab35d4f2/web/web/files--common/modules/js/managesite/ManageSiteAdminsInviteModule.js)
+* What it did: Presumably would have done something when clicking on a tab in
+  the site manager. Likely superseded by `clickMenu`.
+* Why it was removed: Unused, and referenced a nonexistent callback.

@@ -8,13 +8,16 @@ set -e
 standardx --fix "$1" || true
 
 (
-	printf "import Wikijump from \"@/javascript/Wikijump\";\nimport OZONE from \"@/javascript/OZONE\";\nimport { RequestModuleParameters } from \"@/javascript/OZONE/ajax\";\ndeclare const YAHOO: any;\ndeclare type YahooResponse = any;\ndeclare const fx: any;\n";
+	printf "import Wikijump from \"@/javascript/Wikijump\";\nimport OZONE from \"@/javascript/OZONE\";\nimport { RequestModuleParameters } from \"@/javascript/OZONE/ajax\";\nimport { Wikirequest } from \"wikirequest\";\ndeclare const WIKIREQUEST: Wikirequest;\ndeclare const YAHOO: any;\ndeclare type YahooResponse = any;\ndeclare const fx: any;\n";
 	cat "$1"
 ) > "${1%.js}.ts"
 
 $EDITOR -s /dev/stdin <<<-"
 	:\" Expect an error until syntax issues are fixed
 	:/Wikijump\\.modules\\./s!!//@ts-expect-error\rexport const !
+
+	:\" Fix ManageSite modules naming
+	:%s/ManagerSite/ManageSite/g
 
 	:\" No need to absolute-reference the current module
 	:%s/Wikijump\\.modules\\.${1%.js}/${1%.js}/g
@@ -29,7 +32,9 @@ $EDITOR -s /dev/stdin <<<-"
 
 	:\" 'p' by itself is shorthand for module request params
 	:%s/\\<p\\>/params/g
+	:%s/\\<parms\\>/params/g
 	:%s/new Object()/{}/g
+	:%s/var params = \\[\\]/var params = {}/
 	:%s/var params =/var params: RequestModuleParameters =/
 	:%s/var params: RequestModuleParameters = null/var params: RequestModuleParameters = {}/
 

@@ -1,6 +1,6 @@
 {if $start}
 <script type="text/javascript">
-	smStartPage = "{$start}";
+	smStartPage = "sm-{$start}";
 </script>
 {/if}
 
