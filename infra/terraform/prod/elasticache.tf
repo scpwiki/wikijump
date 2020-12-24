@@ -3,20 +3,15 @@ resource "aws_elasticache_cluster" "wikijump_cache" {
   engine               = "memcached"
   node_type            = var.cache_ec2_size
   num_cache_nodes      = var.cache_num_nodes
-  parameter_group_name = "default.memcached1.5"
+  parameter_group_name = "default.memcached1.6"
   port                 = 11211
   subnet_group_name    = aws_elasticache_subnet_group.cache_subnet.name
-  security_group_names = [aws_security_group.elasticache_sg.name]
+  security_group_ids   = [aws_security_group.elasticache_sg.id]
 }
 
 resource "aws_elasticache_subnet_group" "cache_subnet" {
   name       = "wikijump-${var.environment}-cache-subnet"
   subnet_ids = [aws_subnet.cache_subnet.id]
-}
-
-resource "aws_elasticache_security_group" "elasticache_sg" {
-  name                 = "wikijump-elasticache-${var.environment}"
-  security_group_names = [aws_security_group.elasticache_sg.name]
 }
 
 resource "aws_security_group" "elasticache_sg" {
@@ -37,4 +32,5 @@ resource "aws_security_group" "elasticache_sg" {
         protocol    = "-1"
         cidr_blocks = ["0.0.0.0/0"]
     }
+    vpc_id = aws_vpc.wikijump_vpc.id
 }

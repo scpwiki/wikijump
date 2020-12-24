@@ -11,3 +11,9 @@ terraform {
 provider "aws" {
   region = var.region
 }
+
+# us-east-1 region, used to get ACM to attach correctly to CloudFront
+provider "aws" {
+  region = "us-east-1"
+  alias  = "us-east-1"
+}

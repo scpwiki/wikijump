@@ -22,7 +22,11 @@ variable "container_subnet" {
     type    = string
 }
 
-variable "database_subnet" {
+variable "database_subnet_a" {
+    type    = string
+}
+
+variable "database_subnet_b" {
     type    = string
 }
 
@@ -43,5 +47,9 @@ variable "cache_ec2_size" {
 }
 
 variable "rds_master_password" {
+    type    = string
+}
+
+variable "region" {
     type    = string
 }

@@ -12,7 +12,7 @@ resource "aws_subnet" "elb_subnet" {
     vpc_id          = aws_vpc.wikijump_vpc.id
     cidr_block              = var.elb_subnet
     map_public_ip_on_launch = true
-    
+
     depends_on = [aws_internet_gateway.wikijump_igw]
 }
 
@@ -21,9 +21,16 @@ resource "aws_subnet" "container_subnet" {
     cidr_block      = var.container_subnet
 }
 
-resource "aws_subnet" "database_subnet" {
+resource "aws_subnet" "database_subnet_a" {
     vpc_id  = aws_vpc.wikijump_vpc.id
-    cidr_block      = var.database_subnet
+    cidr_block      = var.database_subnet_a
+    availability_zone = "${var.region}a"
+}
+
+resource "aws_subnet" "database_subnet_b" {
+    vpc_id  = aws_vpc.wikijump_vpc.id
+    cidr_block      = var.database_subnet_b
+    availability_zone = "${var.region}b"
 }
 
 resource "aws_subnet" "cache_subnet" {
@@ -39,7 +46,7 @@ resource "aws_internet_gateway" "wikijump_igw" {
 
 # Routes
 
-# # TODO: Add as needed and as will improve security posture.
+
 
 # Elastic IPs
 
