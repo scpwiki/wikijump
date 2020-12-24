@@ -29,20 +29,6 @@ resource "aws_cloudfront_distribution" "wikijump_cf_distro" {
   }
 
   origin {
-    domain_name = aws_lb.wikijump_elb.dns_name
-    origin_id   = "wikijump-acme-${var.environment}"
-
-    custom_origin_config {
-      http_port                = 80
-      https_port               = 443
-      origin_protocol_policy   = "http-only"
-      origin_ssl_protocols     = ["TLSv1.2"]
-      origin_keepalive_timeout = 15
-      origin_read_timeout      = 30
-    }
-  }
-
-  origin {
     domain_name = aws_s3_bucket.wikijump_assets.bucket_domain_name
     origin_id   = aws_s3_bucket.wikijump_assets.bucket_domain_name
     s3_origin_config {
@@ -54,27 +40,6 @@ resource "aws_cloudfront_distribution" "wikijump_cf_distro" {
     geo_restriction {
       restriction_type = "none"
     }
-  }
-
-  ordered_cache_behavior {
-    path_pattern     = ".well-known/acme-challenge"
-    allowed_methods  = ["GET", "HEAD"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "wikijump-acme-${var.environment}"
-
-    forwarded_values {
-      query_string = true
-
-      cookies {
-        forward = "none"
-      }
-    }
-
-    min_ttl                = 0
-    default_ttl            = 86400
-    max_ttl                = 31536000
-    compress               = true
-    viewer_protocol_policy = "allow-all"
   }
 
   ordered_cache_behavior {
@@ -128,6 +93,7 @@ resource "aws_cloudfront_distribution" "wikijump_cf_distro" {
 
     forwarded_values {
       query_string = true
+      headers = ["Host"]
 
       cookies {
         forward = "all"
