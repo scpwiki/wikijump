@@ -1,11 +1,10 @@
 module "cache" {
   source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.46.0"
 
-  container_name   = "cache"
-  container_image  = var.ecs_cache_image
-  container_memory = var.ecs_cache_memory
-  # container_cpu    = var.ecs_cache_cpu
-  essential        = true
+  container_name               = "cache"
+  container_image              = var.ecs_cache_image
+  container_memory_reservation = var.ecs_cache_memory / 4
+  essential                    = true
 
   log_configuration = {
     logDriver = "awslogs"
@@ -20,11 +19,10 @@ module "cache" {
 module "database" {
   source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.46.0"
 
-  container_name   = "database"
-  container_image  = "${data.aws_ssm_parameter.DB_ECR_URL.value}:develop"
-  container_memory = var.ecs_db_memory
-  # container_cpu    = var.ecs_db_cpu
-  essential        = true
+  container_name               = "database"
+  container_image              = "${data.aws_ssm_parameter.DB_ECR_URL.value}:develop"
+  container_memory_reservation = var.ecs_db_memory / 4
+  essential                    = true
 
   log_configuration = {
     logDriver = "awslogs"
@@ -39,11 +37,10 @@ module "database" {
 module "php-fpm" {
   source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.46.0"
 
-  container_name   = "php-fpm"
-  container_image  = "${data.aws_ssm_parameter.WEB_ECR_URL.value}:develop"
-  container_memory = var.ecs_php_memory
-  # container_cpu    = var.ecs_php_cpu
-  essential        = true
+  container_name               = "php-fpm"
+  container_image              = "${data.aws_ssm_parameter.WEB_ECR_URL.value}:develop"
+  container_memory_reservation = var.ecs_php_memory / 4
+  essential                    = true
 
   log_configuration = {
     logDriver = "awslogs"
@@ -90,11 +87,10 @@ module "php-fpm" {
 module "reverse-proxy" {
   source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.46.0"
 
-  container_name   = "reverse-proxy"
-  container_image  = var.ecs_traefik_image
-  container_memory = var.ecs_traefik_memory
-  # container_cpu    = var.ecs_traefik_cpu
-  essential        = true
+  container_name               = "reverse-proxy"
+  container_image              = var.ecs_traefik_image
+  container_memory_reservation = var.ecs_traefik_memory / 4
+  essential                    = true
 
   log_configuration = {
     logDriver = "awslogs"
