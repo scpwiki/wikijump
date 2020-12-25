@@ -54,6 +54,7 @@ extern crate slog;
 extern crate str_macro;
 extern crate strum;
 extern crate strum_macros;
+extern crate unicase;
 extern crate wikidot_normalize;
 
 cfg_if! {

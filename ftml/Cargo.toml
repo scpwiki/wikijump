@@ -32,6 +32,7 @@ str-macro = "0.1"
 strum = "0.20"
 strum_macros = "0.20"
 tinyvec = "1"
+unicase = "2"
 wikidot-normalize = "0.6"
 
 [dev-dependencies]

@@ -26,7 +26,7 @@
 
 use self::arguments::{BlockArguments, BlockArgumentsKind};
 use self::body::{Body, BodyKind};
-use crate::parse::consume::GenericConsumption;
+use crate::parse::consume::Consumption;
 use crate::parse::rule::Rule;
 use crate::parse::token::{ExtractedToken, Token};
 use crate::parse::{ParseError, ParseErrorKind, UpcomingTokens};
@@ -75,10 +75,11 @@ impl<'l, 'r, 't> BlockParser<'l, 'r, 't> {
         }
     }
 
-    pub fn step(&mut self) -> Result<(), ParseError> {
-        trace!(self.log, "Stepping to the next token");
-
-        match self.remaining.split_first() {
+    fn update_pointer(
+        &mut self,
+        pointer: Option<(&'r ExtractedToken<'t>, &'r [ExtractedToken<'t>])>,
+    ) -> Result<(), ParseError> {
+        match pointer {
             Some((extracted, remaining)) => {
                 self.extracted = extracted;
                 self.remaining = remaining;
@@ -91,6 +92,32 @@ impl<'l, 'r, 't> BlockParser<'l, 'r, 't> {
                 self.extracted,
             )),
         }
+    }
+
+    pub fn step(&mut self) -> Result<(), ParseError> {
+        trace!(self.log, "Stepping to the next token");
+
+        self.update_pointer(self.remaining.split_first())
+    }
+
+    pub fn tokens_mut<F, T>(&mut self, f: F) -> Result<T, ParseError>
+    where
+        F: FnOnce(&mut UpcomingTokens<'r, 't>) -> T,
+    {
+        let BlockParser {
+            extracted,
+            remaining,
+            ..
+        } = self;
+
+        let mut tokens = UpcomingTokens::Split {
+            extracted,
+            remaining,
+        };
+        let result = f(&mut tokens);
+        self.update_pointer(tokens.split())?;
+
+        Ok(result)
     }
 
     pub fn optional_space(&mut self) -> Result<(), ParseError> {
@@ -111,6 +138,30 @@ impl<'l, 'r, 't> BlockParser<'l, 'r, 't> {
 /// Define a rule for how to parse a block.
 #[derive(Clone)]
 pub struct BlockRule {
+    /// The code name of the block. Must be kebab-case and globally unique.
+    name: &'static str,
+
+    /// Which names you can use this block with. Case-insensitive.
+    /// Will panic if empty.
+    accepts_names: &'static [&'static str],
+
+    /// Whether this block accepts `*` as a modifier.
+    ///
+    /// For instance, user can be invoked as both
+    /// `[[user aismallard]]` and `[[*user aismallard]]`.
+    accepts_special: bool,
+
+    /// Function which implements the processing for this rule.
+    parse_fn: BlockParseFn,
+}
+
+pub type BlockParseFn = for<'l, 'r, 't> fn(
+    &'l slog::Logger,
+    &mut BlockParser<'l, 'r, 't>,
+) -> Consumption<'r, 't>;
+
+#[derive(Clone)]
+pub struct BlockRuleOld {
     /// The name of the block. Must be kebab-case and globally unique.
     name: &'static str,
 
