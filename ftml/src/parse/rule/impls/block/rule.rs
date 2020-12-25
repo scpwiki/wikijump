@@ -19,6 +19,7 @@
  */
 
 use super::super::prelude::*;
+use super::BlockParser;
 
 pub const RULE_BLOCK: Rule = Rule {
     name: "block",
@@ -65,6 +66,8 @@ fn block<'r, 't>(
         special;
         "special" => special,
     );
+
+    let mut parser = BlockParser::new(extracted, remaining, full_text, special);
 
     todo!()
 }

@@ -476,7 +476,6 @@ dependencies = [
  "strum",
  "strum_macros",
  "tinyvec",
- "unicase",
  "wikidot-normalize",
 ]
 

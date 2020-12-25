@@ -26,20 +26,39 @@
 
 use self::arguments::{BlockArguments, BlockArgumentsKind};
 use self::body::{Body, BodyKind};
-use self::mapping::BlockRuleMap;
-use crate::parse::consume::Consumption;
+use crate::parse::consume::GenericConsumption;
 use crate::parse::token::ExtractedToken;
+use crate::parse::UpcomingTokens;
 use crate::text::FullText;
-use std::fmt::{self, Debug};
 
 mod arguments;
 mod body;
-mod mapping;
 mod rule;
 
 pub mod impls;
 
 pub use self::rule::{RULE_BLOCK, RULE_BLOCK_SPECIAL};
+
+#[derive(Debug)]
+pub struct BlockParser<'r, 't> {
+    tokens: UpcomingTokens<'r, 't>,
+    full_text: FullText<'t>,
+    special: bool,
+}
+
+impl<'r, 't> BlockParser<'r, 't> {
+    #[inline]
+    pub fn new(
+        extracted: &'r ExtractedToken<'t>,
+        remaining: &'r [ExtractedToken<'t>],
+        full_text: FullText<'t>,
+        special: bool,
+    ) -> Self {
+        let tokens = UpcomingTokens::Split { extracted, remaining };
+
+        BlockParser { tokens, full_text, special }
+    }
+}
 
 /// Define a rule for how to parse a block.
 #[derive(Clone)]
@@ -61,7 +80,7 @@ pub struct BlockRule {
     /// that particular block.
     ///
     /// If this value is `Some(_)`, it cannot be empty.
-    sub_names_mapping: Option<BlockRuleMap>,
+    sub_names_mapping: Option<()>,
 
     /// Whether this block accepts `*` as a modifier.
     ///
@@ -82,48 +101,5 @@ pub struct BlockRule {
     ///
     /// This is the specified function to process the block's token stream
     /// and produce an element.
-    parse_fn: TryParseBlockFn,
+    parse_fn: (),
 }
-
-impl BlockRule {
-    #[inline]
-    pub fn name(&self) -> &'static str {
-        self.name
-    }
-}
-
-impl Debug for BlockRule {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("BlockRule")
-            .field("name", &self.name)
-            .field("accepts_names", &self.accepts_names)
-            .field("requires_sub_name", &self.requires_sub_name)
-            .field("accepts_special", &self.accepts_special)
-            .field("arguments", &self.arguments)
-            .field("body", &self.body)
-            .field("parse_fn", &(self.parse_fn as *const ()))
-            .finish()
-    }
-}
-
-impl slog::Value for BlockRule {
-    fn serialize(
-        &self,
-        _: &slog::Record,
-        key: slog::Key,
-        serializer: &mut dyn slog::Serializer,
-    ) -> slog::Result {
-        serializer.emit_str(key, self.name())
-    }
-}
-
-/// The function type used for processing a rule
-pub type TryParseBlockFn = for<'r, 't> fn(
-    log: &slog::Logger,
-    name: &'t str,
-    sub_name: Option<&'t str>,
-    special: bool,
-    arguments: BlockArguments<'t>,
-    body: Option<&'r [ExtractedToken<'t>]>,
-    full_text: FullText<'t>,
-) -> Consumption<'r, 't>;
