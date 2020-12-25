@@ -21,6 +21,7 @@
 use super::super::prelude::*;
 use super::mapping::block_with_name;
 use super::BlockParser;
+use crate::parse::UpcomingTokens;
 
 pub const RULE_BLOCK: Rule = Rule {
     name: "block",
@@ -81,7 +82,32 @@ fn block<'r, 't>(
         None => return Err(parser.make_error(ParseErrorKind::NoSuchBlock)),
     };
 
+    // Check if this block allows special invocation (the '[[*' token)
+    if !block.accepts_special && special {
+        return Err(parser.make_error(ParseErrorKind::InvalidSpecialBlock));
+    }
+
+    // Prepare to run the block's parsing function
     parser.set_block(block);
+    parser.get_optional_space()?;
+
+    // Run the parse function until the end.
+    // This is responsible for parsing any arguments,
+    // then terminating the block (the ']]' token),
+    // then processing the body (if any) and close tag.
+
+    let (element, exceptions) = match (block.parse_fn)(log, &mut parser, name, special) {
+        Consumption::Failure { error } => return Err(error),
+        Consumption::Success {
+            item,
+            remaining,
+            exceptions,
+        } => {
+            parser.tokens_mut(|tokens| tokens.update(remaining))?;
+
+            (item, exceptions)
+        }
+    };
 
     todo!()
 }

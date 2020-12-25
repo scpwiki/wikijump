@@ -221,6 +221,8 @@ impl BlockRule {
 pub type BlockParseFn = for<'l, 'r, 't> fn(
     &'l slog::Logger,
     &mut BlockParser<'l, 'r, 't>,
+    &'t str,
+    bool,
 ) -> Consumption<'r, 't>;
 
 #[derive(Clone)]
