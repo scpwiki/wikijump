@@ -30,23 +30,7 @@ pub type BlockRuleMap = HashMap<UniCase<&'static str>, &'static BlockRule>;
 
 lazy_static! {
     /// Mapping of block names with their rule information.
-    pub static ref BLOCK_RULE_MAP: BlockRuleMap = {
-        let mut map = HashMap::new();
-
-        for block in &BLOCK_RULES {
-            for name in block.accepts_names {
-                let name = UniCase::ascii(*name);
-                let previous = map.insert(name, block);
-
-                assert!(
-                    previous.is_none(),
-                    "Overwrote previous block rule during rule population!",
-                );
-            }
-        }
-
-        map
-    };
+    pub static ref BLOCK_RULE_MAP: BlockRuleMap = build_block_rule_map(&BLOCK_RULES);
 }
 
 #[inline]
@@ -54,4 +38,22 @@ pub fn block_with_name(name: &str) -> Option<&'static BlockRule> {
     let name = UniCase::ascii(name);
 
     BLOCK_RULE_MAP.get(&name).map(|rule| *rule)
+}
+
+pub(crate) fn build_block_rule_map(block_rules: &'static [BlockRule]) -> BlockRuleMap {
+    let mut map = HashMap::new();
+
+    for block_rule in block_rules {
+        for name in block_rule.accepts_names {
+            let name = UniCase::ascii(*name);
+            let previous = map.insert(name, block_rule);
+
+            assert!(
+                previous.is_none(),
+                "Overwrote previous block rule during rule population!",
+            );
+        }
+    }
+
+    map
 }

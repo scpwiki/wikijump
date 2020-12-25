@@ -26,6 +26,7 @@
 
 use self::arguments::{BlockArguments, BlockArgumentsKind};
 use self::body::{Body, BodyKind};
+use self::mapping::BlockRuleMap;
 use crate::parse::consume::Consumption;
 use crate::parse::token::ExtractedToken;
 use crate::text::FullText;
@@ -43,19 +44,24 @@ pub use self::rule::{RULE_BLOCK, RULE_BLOCK_SPECIAL};
 /// Define a rule for how to parse a block.
 #[derive(Clone)]
 pub struct BlockRule {
-    /// The name of the block. Must be kebab-case.
+    /// The name of the block. Must be kebab-case and globally unique.
     name: &'static str,
 
     /// Which names you can use this block with. Case-insensitive.
     /// Will panic if empty.
     accepts_names: &'static [&'static str],
 
-    /// Whether this block accepts a second name.
+    /// Whether this block requires a sub name.
     ///
     /// For instance, `[[module]]` requires the name of the module
     /// being used specified, where something like `[[code]]` is
     /// just "code".
-    requires_sub_name: bool,
+    ///
+    /// This is a mapping of names to the block rules that implement
+    /// that particular block.
+    ///
+    /// If this value is `Some(_)`, it cannot be empty.
+    sub_names_mapping: Option<BlockRuleMap>,
 
     /// Whether this block accepts `*` as a modifier.
     ///
