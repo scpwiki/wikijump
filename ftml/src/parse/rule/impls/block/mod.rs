@@ -24,16 +24,14 @@
 //! against the upcoming tokens in accordance to how the
 //! various blocks define themselves.
 
-use self::arguments::{BlockArguments, BlockArgumentsKind};
-use self::body::{Body, BodyKind};
 use crate::parse::consume::Consumption;
 use crate::parse::rule::Rule;
 use crate::parse::token::{ExtractedToken, Token};
 use crate::parse::{ParseError, ParseErrorKind, UpcomingTokens};
 use crate::text::FullText;
+use std::borrow::Cow;
+use std::collections::HashMap;
 
-mod arguments;
-mod body;
 mod mapping;
 mod rule;
 
@@ -252,17 +250,65 @@ pub struct BlockRuleOld {
     accepts_special: bool,
 
     /// How this block accepts arguments.
-    arguments: BlockArgumentsKind,
+    arguments: (),
 
     /// How this block accepts a body.
     ///
     /// For instance `[[code]]` wants internals, whereas `[[module Rate]]`
     /// is standalone.
-    body: BodyKind,
+    body: (),
 
     /// The parse function for this block.
     ///
     /// This is the specified function to process the block's token stream
     /// and produce an element.
     parse_fn: (),
+}
+
+/// The result of parsing a block's arguments.
+///
+/// See also `BlockArgumentsKind`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum BlockArguments<'t> {
+    /// This block accepts any number of key, value pair arguments.
+    ///
+    /// Examples: `[[div]]`, `[[image]]`
+    KeyValue(HashMap<&'t str, Cow<'t, str>>),
+
+    /// This block accepts the enter space after the block name as the argument value.
+    ///
+    /// Examples: `[[user]]`
+    SingleValue(&'t str),
+
+    /// This block accepts no arguments.
+    ///
+    /// Examples: `[[footnote]]`
+    None,
+}
+
+/// The result of retrieving a block's body.
+///
+/// See also `BodyKind`.
+#[derive(Debug, Clone, PartialEq)]
+pub enum Body<'r, 't> {
+    /// This block contains a body composed of elements.
+    /// It specifies rather these internals are to be
+    /// parsed as paragraphs or solely inline elements.
+    ///
+    /// Examples: `[[div]]` (true), `[[span]]` (false)
+    Elements(&'r [ExtractedToken<'t>]),
+
+    /// This block contains a text body.
+    /// The contents do not want to be seen as tokens,
+    /// and it will simply consume all contents until
+    /// the ending is found.
+    ///
+    /// Examples: `[[module CSS]]`, `[[code]]`
+    Text(&'t str),
+
+    /// This block doesn't have a body.
+    /// It is simply a freestanding element.
+    ///
+    /// Examples: `[[module Rate]]`
+    None,
 }
