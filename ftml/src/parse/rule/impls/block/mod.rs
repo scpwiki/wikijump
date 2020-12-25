@@ -27,8 +27,9 @@
 use self::arguments::{BlockArguments, BlockArgumentsKind};
 use self::body::{Body, BodyKind};
 use crate::parse::consume::GenericConsumption;
-use crate::parse::token::ExtractedToken;
-use crate::parse::UpcomingTokens;
+use crate::parse::rule::Rule;
+use crate::parse::token::{ExtractedToken, Token};
+use crate::parse::{ParseError, ParseErrorKind, UpcomingTokens};
 use crate::text::FullText;
 
 mod arguments;
@@ -40,23 +41,70 @@ pub mod impls;
 pub use self::rule::{RULE_BLOCK, RULE_BLOCK_SPECIAL};
 
 #[derive(Debug)]
-pub struct BlockParser<'r, 't> {
-    tokens: UpcomingTokens<'r, 't>,
-    full_text: FullText<'t>,
+pub struct BlockParser<'l, 'r, 't> {
+    log: &'l slog::Logger,
     special: bool,
+    extracted: &'r ExtractedToken<'t>,
+    remaining: &'r [ExtractedToken<'t>],
+    full_text: FullText<'t>,
+    rule: Rule,
 }
 
-impl<'r, 't> BlockParser<'r, 't> {
+impl<'l, 'r, 't> BlockParser<'l, 'r, 't> {
     #[inline]
     pub fn new(
+        log: &'l slog::Logger,
+        special: bool,
         extracted: &'r ExtractedToken<'t>,
         remaining: &'r [ExtractedToken<'t>],
         full_text: FullText<'t>,
-        special: bool,
     ) -> Self {
-        let tokens = UpcomingTokens::Split { extracted, remaining };
+        let rule = if special {
+            RULE_BLOCK_SPECIAL
+        } else {
+            RULE_BLOCK
+        };
 
-        BlockParser { tokens, full_text, special }
+        BlockParser {
+            log,
+            special,
+            extracted,
+            remaining,
+            full_text,
+            rule,
+        }
+    }
+
+    pub fn step(&mut self) -> Result<(), ParseError> {
+        trace!(self.log, "Stepping to the next token");
+
+        match self.remaining.split_first() {
+            Some((extracted, remaining)) => {
+                self.extracted = extracted;
+                self.remaining = remaining;
+
+                Ok(())
+            }
+            None => Err(ParseError::new(
+                ParseErrorKind::EndOfInput,
+                self.rule,
+                self.extracted,
+            )),
+        }
+    }
+
+    pub fn optional_space(&mut self) -> Result<(), ParseError> {
+        trace!(
+            self.log,
+            "Looking for optional space";
+            "token" => self.extracted.token,
+        );
+
+        if self.extracted.token == Token::Whitespace {
+            self.step()?;
+        }
+
+        Ok(())
     }
 }
 

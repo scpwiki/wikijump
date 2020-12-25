@@ -67,7 +67,7 @@ fn block<'r, 't>(
         "special" => special,
     );
 
-    let mut parser = BlockParser::new(extracted, remaining, full_text, special);
+    let mut parser = BlockParser::new(log, special, extracted, remaining, full_text);
 
     todo!()
 }
