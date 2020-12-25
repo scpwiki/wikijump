@@ -120,6 +120,7 @@ impl<'l, 'r, 't> BlockParser<'l, 'r, 't> {
             extracted,
             remaining,
         };
+
         let result = f(&mut tokens);
         self.update_pointer(tokens.split())?;
 
