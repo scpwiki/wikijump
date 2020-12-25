@@ -110,6 +110,9 @@ pub enum ParseErrorKind {
     /// Attempting to match this rule failed, falling back to try an alternate.
     RuleFailed,
 
+    /// There is no rule for the block name specified.
+    NoSuchBlock,
+
     /// The URL passed here was invalid.
     InvalidUrl,
 }

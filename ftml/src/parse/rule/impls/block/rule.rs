@@ -19,6 +19,7 @@
  */
 
 use super::super::prelude::*;
+use super::mapping::block_with_name;
 use super::BlockParser;
 
 pub const RULE_BLOCK: Rule = Rule {
@@ -39,7 +40,7 @@ fn block_regular<'r, 't>(
 ) -> Consumption<'r, 't> {
     trace!(log, "Trying to process a block");
 
-    block(log, extracted, remaining, full_text, false)
+    into_consumption(block(log, extracted, remaining, full_text, false))
 }
 
 fn block_special<'r, 't>(
@@ -50,7 +51,7 @@ fn block_special<'r, 't>(
 ) -> Consumption<'r, 't> {
     trace!(log, "Trying to process a block (with special)");
 
-    block(log, extracted, remaining, full_text, true)
+    into_consumption(block(log, extracted, remaining, full_text, true))
 }
 
 fn block<'r, 't>(
@@ -59,7 +60,7 @@ fn block<'r, 't>(
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
     special: bool,
-) -> Consumption<'r, 't> {
+) -> Result<(), ParseError> {
     debug!(
         log,
         "Trying to process a block (special: {})",
@@ -69,5 +70,25 @@ fn block<'r, 't>(
 
     let mut parser = BlockParser::new(log, special, extracted, remaining, full_text);
 
+    // Get block name
+    parser.get_optional_space()?;
+
+    let name = parser.get_identifier()?;
+
+    // Get the block rule for this name
+    let block = match block_with_name(name) {
+        Some(block) => block,
+        None => return Err(parser.make_error(ParseErrorKind::NoSuchBlock)),
+    };
+
+    parser.set_block(block);
+
     todo!()
+}
+
+fn into_consumption<'r, 't>(result: Result<(), ParseError>) -> Consumption<'r, 't> {
+    match result {
+        Ok(_idk) => todo!(),
+        Err(error) => Consumption::err(error),
+    }
 }

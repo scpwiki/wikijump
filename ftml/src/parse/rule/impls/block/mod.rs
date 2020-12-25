@@ -34,6 +34,7 @@ use crate::text::FullText;
 
 mod arguments;
 mod body;
+mod mapping;
 mod rule;
 
 pub mod impls;
@@ -59,6 +60,12 @@ impl<'l, 'r, 't> BlockParser<'l, 'r, 't> {
         remaining: &'r [ExtractedToken<'t>],
         full_text: FullText<'t>,
     ) -> Self {
+        debug!(
+            log, "Creating block parser";
+            "special" => special,
+            "remaining-len" => remaining.len(),
+        );
+
         let rule = if special {
             RULE_BLOCK_SPECIAL
         } else {
@@ -75,6 +82,7 @@ impl<'l, 'r, 't> BlockParser<'l, 'r, 't> {
         }
     }
 
+    // Pointer manipulation
     fn update_pointer(
         &mut self,
         pointer: Option<(&'r ExtractedToken<'t>, &'r [ExtractedToken<'t>])>,
@@ -120,7 +128,18 @@ impl<'l, 'r, 't> BlockParser<'l, 'r, 't> {
         Ok(result)
     }
 
-    pub fn optional_space(&mut self) -> Result<(), ParseError> {
+    // Parsing methods
+    pub fn get_identifier(&mut self) -> Result<&'t str, ParseError> {
+        trace!(
+            self.log,
+            "Looking for identifier";
+            "token" => self.extracted.token,
+        );
+
+        todo!()
+    }
+
+    pub fn get_optional_space(&mut self) -> Result<(), ParseError> {
         trace!(
             self.log,
             "Looking for optional space";
@@ -133,12 +152,34 @@ impl<'l, 'r, 't> BlockParser<'l, 'r, 't> {
 
         Ok(())
     }
+
+    // Utilities
+    #[inline]
+    pub fn set_block(&mut self, block_rule: &BlockRule) {
+        info!(
+            self.log,
+            "Running block rule {} for these tokens",
+            block_rule.name;
+        );
+
+        self.rule = block_rule.rule();
+    }
+
+    #[inline]
+    pub fn make_error(&self, kind: ParseErrorKind) -> ParseError {
+        ParseError::new(kind, self.rule, self.extracted)
+    }
 }
 
 /// Define a rule for how to parse a block.
 #[derive(Clone)]
 pub struct BlockRule {
-    /// The code name of the block. Must be kebab-case and globally unique.
+    /// The code name of the block.
+    ///
+    /// As this is an internal structure, we can assert the following things:
+    /// * It is in kebab-case.
+    /// * It is globally unique.
+    /// * It is prefixed with `block-`.
     name: &'static str,
 
     /// Which names you can use this block with. Case-insensitive.
@@ -153,6 +194,29 @@ pub struct BlockRule {
 
     /// Function which implements the processing for this rule.
     parse_fn: BlockParseFn,
+}
+
+impl BlockRule {
+    /// Produces a pseudo parse `Rule` associated with this `BlockRule`.
+    ///
+    /// It should not be invoked, it is for error construction.
+    #[cold]
+    pub fn rule(&self) -> Rule {
+        // Stubbed try_consume_fn implementation for the Rule.
+        fn try_consume_fn<'r, 't>(
+            _: &slog::Logger,
+            _: &'r ExtractedToken<'t>,
+            _: &'r [ExtractedToken<'t>],
+            _: FullText<'t>,
+        ) -> Consumption<'r, 't> {
+            panic!("Pseudo rule for this block should not be executed directly!");
+        }
+
+        Rule {
+            name: self.name,
+            try_consume_fn,
+        }
+    }
 }
 
 pub type BlockParseFn = for<'l, 'r, 't> fn(
