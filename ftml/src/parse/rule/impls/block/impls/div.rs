@@ -20,6 +20,18 @@
 
 use super::prelude::*;
 
-pub const BLOCK_DIV: () = ();
+pub const BLOCK_DIV: BlockRule = BlockRule {
+    name: "block-div",
+    accepts_names: &["div", "div_"],
+    accepts_special: false,
+    parse_fn,
+};
 
-// TODO
+fn parse_fn<'l, 'r, 't>(
+    log: &'l slog::Logger,
+    parser: &mut BlockParser<'l, 'r, 't>,
+    name: &'t str,
+    special: bool,
+) -> Consumption<'r, 't> {
+    todo!()
+}

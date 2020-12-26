@@ -22,7 +22,7 @@ use super::{impls::*, BlockRule};
 use std::collections::HashMap;
 use unicase::UniCase;
 
-pub const BLOCK_RULES: [BlockRule; 0] = [];
+pub const BLOCK_RULES: [BlockRule; 2] = [BLOCK_CODE, BLOCK_DIV];
 
 pub type BlockRuleMap = HashMap<UniCase<&'static str>, &'static BlockRule>;
 
@@ -41,6 +41,11 @@ fn build_block_rule_map(block_rules: &'static [BlockRule]) -> BlockRuleMap {
     let mut map = HashMap::new();
 
     for block_rule in block_rules {
+        assert!(
+            block_rule.name.starts_with("block-"),
+            "Block name does not start with 'block-'.",
+        );
+
         assert_eq!(
             block_rule.accepts_names.is_empty(),
             false,

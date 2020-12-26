@@ -18,7 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod prelude {}
+mod prelude {
+    pub use super::super::{BlockParser, BlockRule};
+    pub use crate::parse::consume::Consumption;
+}
 
 // TODO
 mod code;
