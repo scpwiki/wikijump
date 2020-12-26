@@ -34,7 +34,7 @@ lazy_static! {
 pub fn block_with_name(name: &str) -> Option<&'static BlockRule> {
     let name = UniCase::ascii(name);
 
-    BLOCK_RULE_MAP.get(&name).map(|rule| *rule)
+    BLOCK_RULE_MAP.get(&name).copied()
 }
 
 fn build_block_rule_map(block_rules: &'static [BlockRule]) -> BlockRuleMap {
