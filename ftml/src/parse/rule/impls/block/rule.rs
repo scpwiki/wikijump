@@ -20,8 +20,8 @@
 
 use super::super::prelude::*;
 use super::mapping::block_with_name;
-use super::BlockParser;
-use crate::tree::Element;
+use super::{BlockParseOutcome, BlockParser};
+use crate::parse::ParseError;
 
 pub const RULE_BLOCK: Rule = Rule {
     name: "block",
@@ -116,48 +116,7 @@ where
 
     // Run the parse function until the end.
     // This is responsible for parsing any arguments,
-    // then terminating the block (the ']]' token),
+    // and terminating the block (the ']]' token),
     // then processing the body (if any) and close tag.
-
-    let (element, exceptions) = match (block.parse_fn)(log, &mut parser, name, special) {
-        Consumption::Failure { error } => return Err(error),
-        Consumption::Success {
-            item,
-            remaining,
-            exceptions,
-        } => {
-            parser.update(remaining)?;
-
-            (item, exceptions)
-        }
-    };
-
-    // Finished parsing, return outcome
-    let remaining = parser.into_remaining();
-
-    Ok(BlockParseOutcome {
-        element,
-        remaining,
-        exceptions,
-    })
-}
-
-#[derive(Debug)]
-struct BlockParseOutcome<'r, 't> {
-    element: Element<'t>,
-    remaining: &'r [ExtractedToken<'t>],
-    exceptions: Vec<ParseException<'t>>,
-}
-
-impl<'r, 't> Into<Consumption<'r, 't>> for BlockParseOutcome<'r, 't> {
-    #[inline]
-    fn into(self) -> Consumption<'r, 't> {
-        let BlockParseOutcome {
-            element,
-            remaining,
-            exceptions,
-        } = self;
-
-        Consumption::warn(element, remaining, exceptions)
-    }
+    (block.parse_fn)(log, &mut parser, name, special)
 }

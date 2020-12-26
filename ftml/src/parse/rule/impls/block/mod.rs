@@ -27,8 +27,9 @@
 use crate::parse::consume::Consumption;
 use crate::parse::rule::Rule;
 use crate::parse::token::{ExtractedToken, Token};
-use crate::parse::{ParseError, ParseErrorKind};
+use crate::parse::{ParseError, ParseErrorKind, ParseException};
 use crate::text::FullText;
+use crate::tree::Element;
 use std::borrow::Cow;
 use std::collections::HashMap;
 
@@ -105,13 +106,11 @@ impl<'l, 'r, 't> BlockParser<'l, 'r, 't> {
         self.step()
     }
 
-    #[inline]
-    pub fn into_remaining(self) -> &'r [ExtractedToken<'t>] {
-        self.remaining
-    }
-
     // Parsing methods
-    pub fn get_identifier(&mut self, kind: ParseErrorKind) -> Result<&'t str, ParseError> {
+    pub fn get_identifier(
+        &mut self,
+        kind: ParseErrorKind,
+    ) -> Result<&'t str, ParseError> {
         trace!(self.log, "Looking for identifier");
 
         if self.extracted.token == Token::Identifier {
@@ -220,9 +219,30 @@ impl BlockRule {
     }
 }
 
-pub type BlockParseFn = for<'l, 'r, 't> fn(
-    &'l slog::Logger,
-    &mut BlockParser<'l, 'r, 't>,
-    &'t str,
-    bool,
-) -> Consumption<'r, 't>;
+#[derive(Debug)]
+pub struct BlockParseOutcome<'r, 't> {
+    element: Element<'t>,
+    remaining: &'r [ExtractedToken<'t>],
+    exceptions: Vec<ParseException<'t>>,
+}
+
+impl<'r, 't> Into<Consumption<'r, 't>> for BlockParseOutcome<'r, 't> {
+    #[inline]
+    fn into(self) -> Consumption<'r, 't> {
+        let BlockParseOutcome {
+            element,
+            remaining,
+            exceptions,
+        } = self;
+
+        Consumption::warn(element, remaining, exceptions)
+    }
+}
+
+pub type BlockParseFn =
+    for<'l, 'r, 't> fn(
+        &'l slog::Logger,
+        &mut BlockParser<'l, 'r, 't>,
+        &'t str,
+        bool,
+    ) -> Result<BlockParseOutcome<'r, 't>, ParseError>;

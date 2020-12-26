@@ -19,8 +19,9 @@
  */
 
 mod prelude {
-    pub use super::super::{BlockParser, BlockRule};
+    pub use super::super::{BlockParseOutcome, BlockParser, BlockRule};
     pub use crate::parse::consume::Consumption;
+    pub use crate::parse::ParseError;
 }
 
 // TODO

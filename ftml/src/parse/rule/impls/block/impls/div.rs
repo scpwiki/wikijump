@@ -32,7 +32,7 @@ fn parse_fn<'l, 'r, 't>(
     parser: &mut BlockParser<'l, 'r, 't>,
     name: &'t str,
     special: bool,
-) -> Consumption<'r, 't> {
+) -> Result<BlockParseOutcome<'r, 't>, ParseError> {
     let arguments = parser.get_arguments_map()?;
 
     todo!()
