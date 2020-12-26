@@ -116,6 +116,9 @@ pub enum ParseErrorKind {
     /// This block does not allow special invocation.
     InvalidSpecialBlock,
 
+    /// This block does not have a name.
+    BlockMissingName,
+
     /// The URL passed here was invalid.
     InvalidUrl,
 }

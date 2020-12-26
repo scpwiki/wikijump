@@ -98,7 +98,7 @@ where
     // Get block name
     parser.get_optional_space()?;
 
-    let name = parser.get_identifier()?;
+    let name = parser.get_identifier(ParseErrorKind::BlockMissingName)?;
 
     // Get the block rule for this name
     let block = match block_with_name(name) {

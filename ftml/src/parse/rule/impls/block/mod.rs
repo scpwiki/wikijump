@@ -111,10 +111,16 @@ impl<'l, 'r, 't> BlockParser<'l, 'r, 't> {
     }
 
     // Parsing methods
-    pub fn get_identifier(&mut self) -> Result<&'t str, ParseError> {
+    pub fn get_identifier(&mut self, kind: ParseErrorKind) -> Result<&'t str, ParseError> {
         trace!(self.log, "Looking for identifier");
 
-        todo!()
+        if self.extracted.token == Token::Identifier {
+            let text = self.extracted.slice;
+            self.step()?;
+            Ok(text)
+        } else {
+            Err(self.make_error(kind))
+        }
     }
 
     pub fn get_optional_space(&mut self) -> Result<(), ParseError> {
