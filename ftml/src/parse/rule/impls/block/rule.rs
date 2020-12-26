@@ -66,7 +66,10 @@ fn parse_block<'r, 't>(
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
     special: bool,
-) -> Consumption<'r, 't> {
+) -> Consumption<'r, 't>
+where
+    'r: 't,
+{
     match parse_block_internal(log, extracted, remaining, full_text, special) {
         Ok(outcome) => outcome.into(),
         Err(error) => Consumption::err(error),
@@ -79,7 +82,10 @@ fn parse_block_internal<'r, 't>(
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
     special: bool,
-) -> Result<BlockParseOutcome<'r, 't>, ParseError> {
+) -> Result<BlockParseOutcome<'r, 't>, ParseError>
+where
+    'r: 't,
+{
     debug!(
         log,
         "Trying to process a block (special: {})",
