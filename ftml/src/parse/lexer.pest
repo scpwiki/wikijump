@@ -116,7 +116,7 @@ token = _{
 
 // Text {{{
 
-identifier = { (ASCII_ALPHANUMERIC | ASCII_DIGIT)+ }
+identifier = { (ASCII_ALPHANUMERIC | ASCII_DIGIT | "_")+ }
 
 email = {
     (ASCII_ALPHANUMERIC | "-" | ".")+ ~
