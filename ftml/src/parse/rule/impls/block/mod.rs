@@ -27,7 +27,7 @@
 use crate::parse::consume::Consumption;
 use crate::parse::rule::Rule;
 use crate::parse::token::{ExtractedToken, Token};
-use crate::parse::{ParseError, ParseErrorKind, UpcomingTokens};
+use crate::parse::{ParseError, ParseErrorKind};
 use crate::text::FullText;
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -80,70 +80,45 @@ impl<'l, 'r, 't> BlockParser<'l, 'r, 't> {
         }
     }
 
-    // Pointer manipulation
-    fn update_pointer(
-        &mut self,
-        pointer: Option<(&'r ExtractedToken<'t>, &'r [ExtractedToken<'t>])>,
-    ) -> Result<(), ParseError> {
-        match pointer {
-            Some((extracted, remaining)) => {
-                self.extracted = extracted;
-                self.remaining = remaining;
-
-                Ok(())
-            }
-            None => Err(ParseError::new(
-                ParseErrorKind::EndOfInput,
-                self.rule,
-                self.extracted,
-            )),
-        }
-    }
-
+    // Pointer state and manipulation
     pub fn step(&mut self) -> Result<(), ParseError> {
         trace!(self.log, "Stepping to the next token");
 
-        self.update_pointer(self.remaining.split_first())
+        match self.remaining.split_first() {
+            Some((extracted, remaining)) => {
+                self.extracted = extracted;
+                self.remaining = remaining;
+                Ok(())
+            }
+            None => Err(self.make_error(ParseErrorKind::EndOfInput)),
+        }
     }
 
-    pub fn tokens_mut<F, T>(&mut self, f: F) -> Result<T, ParseError>
-    where
-        F: FnOnce(&mut UpcomingTokens<'r, 't>) -> T,
-    {
-        let BlockParser {
-            extracted,
-            remaining,
-            ..
-        } = self;
+    #[inline]
+    pub fn update(
+        &mut self,
+        remaining: &'r [ExtractedToken<'t>],
+    ) -> Result<(), ParseError> {
+        trace!(self.log, "Updating token pointer to new value");
 
-        let mut tokens = UpcomingTokens::Split {
-            extracted,
-            remaining,
-        };
+        self.remaining = remaining;
+        self.step()
+    }
 
-        let result = f(&mut tokens);
-        self.update_pointer(tokens.split())?;
-
-        Ok(result)
+    #[inline]
+    pub fn into_remaining(self) -> &'r [ExtractedToken<'t>] {
+        self.remaining
     }
 
     // Parsing methods
     pub fn get_identifier(&mut self) -> Result<&'t str, ParseError> {
-        trace!(
-            self.log,
-            "Looking for identifier";
-            "token" => self.extracted.token,
-        );
+        trace!(self.log, "Looking for identifier");
 
         todo!()
     }
 
     pub fn get_optional_space(&mut self) -> Result<(), ParseError> {
-        trace!(
-            self.log,
-            "Looking for optional space";
-            "token" => self.extracted.token,
-        );
+        trace!(self.log, "Looking for optional space");
 
         if self.extracted.token == Token::Whitespace {
             self.step()?;
@@ -152,7 +127,9 @@ impl<'l, 'r, 't> BlockParser<'l, 'r, 't> {
         Ok(())
     }
 
-    pub fn get_arguments_map(&mut self) -> Result<HashMap<&'t str, Cow<'t str>>, ParseError> {
+    pub fn get_arguments_map(
+        &mut self,
+    ) -> Result<HashMap<&'t str, Cow<'t, str>>, ParseError> {
         trace!(self.log, "Looking for key value arguments, then ']]'");
 
         todo!()
@@ -182,6 +159,7 @@ impl<'l, 'r, 't> BlockParser<'l, 'r, 't> {
         self.rule = block_rule.rule();
     }
 
+    #[cold]
     #[inline]
     pub fn make_error(&self, kind: ParseErrorKind) -> ParseError {
         ParseError::new(kind, self.rule, self.extracted)

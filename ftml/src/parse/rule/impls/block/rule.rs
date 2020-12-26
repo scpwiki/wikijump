@@ -22,6 +22,7 @@ use super::super::prelude::*;
 use super::mapping::block_with_name;
 use super::BlockParser;
 use crate::parse::UpcomingTokens;
+use crate::tree::Element;
 
 pub const RULE_BLOCK: Rule = Rule {
     name: "block",
@@ -33,6 +34,8 @@ pub const RULE_BLOCK_SPECIAL: Rule = Rule {
     try_consume_fn: block_special,
 };
 
+// Rule implementations
+
 fn block_regular<'r, 't>(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
@@ -41,7 +44,7 @@ fn block_regular<'r, 't>(
 ) -> Consumption<'r, 't> {
     trace!(log, "Trying to process a block");
 
-    into_consumption(block(log, extracted, remaining, full_text, false))
+    parse_block(log, extracted, remaining, full_text, false)
 }
 
 fn block_special<'r, 't>(
@@ -52,16 +55,31 @@ fn block_special<'r, 't>(
 ) -> Consumption<'r, 't> {
     trace!(log, "Trying to process a block (with special)");
 
-    into_consumption(block(log, extracted, remaining, full_text, true))
+    parse_block(log, extracted, remaining, full_text, true)
 }
 
-fn block<'r, 't>(
+// Block parsing implementation
+
+fn parse_block<'r, 't>(
     log: &slog::Logger,
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
     special: bool,
-) -> Result<(), ParseError> {
+) -> Consumption<'r, 't> {
+    match parse_block_internal(log, extracted, remaining, full_text, special) {
+        Ok(outcome) => outcome.into(),
+        Err(error) => Consumption::err(error),
+    }
+}
+
+fn parse_block_internal<'r, 't>(
+    log: &slog::Logger,
+    extracted: &'r ExtractedToken<'t>,
+    remaining: &'r [ExtractedToken<'t>],
+    full_text: FullText<'t>,
+    special: bool,
+) -> Result<BlockParseOutcome<'r, 't>, ParseError> {
     debug!(
         log,
         "Trying to process a block (special: {})",
@@ -103,18 +121,38 @@ fn block<'r, 't>(
             remaining,
             exceptions,
         } => {
-            parser.tokens_mut(|tokens| tokens.update(remaining))?;
+            parser.update(remaining)?;
 
             (item, exceptions)
         }
     };
 
-    todo!()
+    // Finished parsing, return outcome
+    let remaining = parser.into_remaining();
+
+    Ok(BlockParseOutcome {
+        element,
+        remaining,
+        exceptions,
+    })
 }
 
-fn into_consumption<'r, 't>(result: Result<(), ParseError>) -> Consumption<'r, 't> {
-    match result {
-        Ok(_idk) => todo!(),
-        Err(error) => Consumption::err(error),
+#[derive(Debug)]
+struct BlockParseOutcome<'r, 't> {
+    element: Element<'t>,
+    remaining: &'r [ExtractedToken<'t>],
+    exceptions: Vec<ParseException<'t>>,
+}
+
+impl<'r, 't> Into<Consumption<'r, 't>> for BlockParseOutcome<'r, 't> {
+    #[inline]
+    fn into(self) -> Consumption<'r, 't> {
+        let BlockParseOutcome {
+            element,
+            remaining,
+            exceptions,
+        } = self;
+
+        Consumption::warn(element, remaining, exceptions)
     }
 }
