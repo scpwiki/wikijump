@@ -68,6 +68,12 @@ pub enum Element<'t> {
         elements: Vec<Element<'t>>,
     },
 
+    /// Element containing a code block
+    Code {
+        contents: Cow<'t, str>,
+        language: Option<Cow<'t, str>>,
+    },
+
     /// A newline or line break.
     ///
     /// This calls for a newline in the final output, such as `<br>` in HTML.
@@ -92,9 +98,21 @@ impl Element<'_> {
             Element::Email(_) => "Email",
             Element::Link { .. } => "Link",
             Element::Color { .. } => "Color",
+            Element::Code { .. } => "Code",
             Element::LineBreak => "LineBreak",
             Element::HorizontalRule => "HorizontalRule",
             Element::Null => "Null",
         }
+    }
+}
+
+impl slog::Value for Element<'_> {
+    fn serialize(
+        &self,
+        _: &slog::Record,
+        key: slog::Key,
+        serializer: &mut dyn slog::Serializer,
+    ) -> slog::Result {
+        serializer.emit_str(key, self.name())
     }
 }
