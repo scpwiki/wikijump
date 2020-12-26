@@ -152,6 +152,24 @@ impl<'l, 'r, 't> BlockParser<'l, 'r, 't> {
         Ok(())
     }
 
+    pub fn get_arguments_map(&mut self) -> Result<HashMap<&'t str, Cow<'t str>>, ParseError> {
+        trace!(self.log, "Looking for key value arguments, then ']]'");
+
+        todo!()
+    }
+
+    pub fn get_arguments_value(&mut self) -> Result<&'t str, ParseError> {
+        trace!(self.log, "Looking for a value argument, then ']]'");
+
+        todo!()
+    }
+
+    pub fn get_arguments_none(&mut self) -> Result<(), ParseError> {
+        trace!(self.log, "No arguments, looking for ']]'");
+
+        todo!()
+    }
+
     // Utilities
     #[inline]
     pub fn set_block(&mut self, block_rule: &BlockRule) {
@@ -266,52 +284,4 @@ pub struct BlockRuleOld {
     /// This is the specified function to process the block's token stream
     /// and produce an element.
     parse_fn: (),
-}
-
-/// The result of parsing a block's arguments.
-///
-/// See also `BlockArgumentsKind`.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum BlockArguments<'t> {
-    /// This block accepts any number of key, value pair arguments.
-    ///
-    /// Examples: `[[div]]`, `[[image]]`
-    KeyValue(HashMap<&'t str, Cow<'t, str>>),
-
-    /// This block accepts the enter space after the block name as the argument value.
-    ///
-    /// Examples: `[[user]]`
-    SingleValue(&'t str),
-
-    /// This block accepts no arguments.
-    ///
-    /// Examples: `[[footnote]]`
-    None,
-}
-
-/// The result of retrieving a block's body.
-///
-/// See also `BodyKind`.
-#[derive(Debug, Clone, PartialEq)]
-pub enum Body<'r, 't> {
-    /// This block contains a body composed of elements.
-    /// It specifies rather these internals are to be
-    /// parsed as paragraphs or solely inline elements.
-    ///
-    /// Examples: `[[div]]` (true), `[[span]]` (false)
-    Elements(&'r [ExtractedToken<'t>]),
-
-    /// This block contains a text body.
-    /// The contents do not want to be seen as tokens,
-    /// and it will simply consume all contents until
-    /// the ending is found.
-    ///
-    /// Examples: `[[module CSS]]`, `[[code]]`
-    Text(&'t str),
-
-    /// This block doesn't have a body.
-    /// It is simply a freestanding element.
-    ///
-    /// Examples: `[[module Rate]]`
-    None,
 }
