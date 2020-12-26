@@ -33,5 +33,7 @@ fn parse_fn<'l, 'r, 't>(
     name: &'t str,
     special: bool,
 ) -> Consumption<'r, 't> {
+    let arguments = parser.get_arguments_map()?;
+
     todo!()
 }
