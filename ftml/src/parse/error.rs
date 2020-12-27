@@ -122,6 +122,9 @@ pub enum ParseErrorKind {
     /// This block does not have close brackets when required.
     BlockMissingCloseBrackets,
 
+    /// Encountered malformed arguments when parsing block.
+    BlockMalformedArguments,
+
     /// The URL passed here was invalid.
     InvalidUrl,
 }

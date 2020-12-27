@@ -28,7 +28,7 @@ use crate::parse::consume::{Consumption, GenericConsumption};
 use crate::parse::rule::collect::try_merge;
 use crate::parse::rule::Rule;
 use crate::parse::token::{ExtractedToken, Token};
-use crate::parse::{ParseError, ParseErrorKind, ParseException};
+use crate::parse::{parse_string, ParseError, ParseErrorKind, ParseException};
 use crate::text::FullText;
 use crate::tree::Element;
 use std::borrow::Cow;
@@ -160,7 +160,32 @@ where
     ) -> Result<HashMap<&'t str, Cow<'t, str>>, ParseError> {
         trace!(self.log, "Looking for key value arguments, then ']]'");
 
-        todo!()
+        self.get_optional_space()?;
+
+        let mut map = HashMap::new();
+        loop {
+            // Try to get the argument key
+            // Determines if we stop or keep parsing
+            let key = match self.extracted.token {
+                Token::Identifier => self.extracted.slice,
+                Token::RightBlock => return Ok(map),
+                _ => return Err(self.make_error(ParseErrorKind::BlockMalformedArguments)),
+            };
+
+            // Equal sign
+            self.get_optional_space()?;
+            self.get_token(Token::Equals, ParseErrorKind::BlockMalformedArguments)?;
+
+            // Get the argument value
+            self.get_optional_space()?;
+            let value_raw = self.get_token(Token::String, ParseErrorKind::BlockMalformedArguments)?;
+
+            // Parse the string
+            let value = parse_string(value_raw);
+
+            // Add to argument map
+            map.insert(key, value);
+        }
     }
 
     pub fn get_argument_value(&mut self) -> Result<&'t str, ParseError> {
