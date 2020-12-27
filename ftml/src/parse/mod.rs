@@ -27,6 +27,7 @@ mod paragraph;
 mod result;
 mod rule;
 mod stack;
+mod string;
 mod token;
 mod upcoming;
 
@@ -40,6 +41,7 @@ use std::borrow::Cow;
 
 pub use self::error::{ParseError, ParseErrorKind, ParseException};
 pub use self::result::ParseResult;
+pub use self::string::parse_string;
 pub use self::token::{ExtractedToken, Token};
 
 /// Parse through the given tokens and produce an AST.
