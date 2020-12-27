@@ -68,12 +68,12 @@ token = _{
     left_link_special |
     left_link |
     left_block_special |
+    left_block_end |
     left_block |
     left_bracket_anchor |
     left_bracket_special |
     left_bracket |
     right_link |
-    right_block_end |
     right_block |
     right_bracket |
 
@@ -146,12 +146,12 @@ left_bracket = { "[" }
 left_bracket_anchor = { "[#" }
 left_bracket_special = { "[*" }
 left_block = { "[[" }
+left_block_end = { "[[/" }
 left_block_special = { "[[*" }
 left_link = { "[[[" }
 left_link_special = { "[[[*" }
 right_bracket = { "]" }
 right_block = { "]]" }
-right_block_end = { "/]]" }
 right_link = { "]]]" }
 
 clear_float = { "~"{4,} }
