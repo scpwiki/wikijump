@@ -36,36 +36,42 @@ use std::borrow::Cow;
 /// Assumes that the string is in the proper form.
 /// If it is not, this function may panic.
 pub fn parse_string(input: &str) -> Cow<str> {
-    let text = slice_middle(input);
-    let mut output = Cow::Borrowed(text);
+    // We could do an iteration thing, but tracking
+    // the index across replacements is complicated.
+    //
+    // So we check if there are any escapes, and if so,
+    // build a new string.
 
-    // Parse state
-    // Tracks if the previous character was '\\'
+    let input = slice_middle(input);
+    if !input.contains('\\') {
+        return Cow::Borrowed(input);
+    }
+
+    let mut output = String::new();
     let mut wants_escape = false;
 
-    // Iterate and replace
-    for (idx, ch) in text.chars().enumerate() {
+    for ch in input.chars() {
         if wants_escape {
             let replacement = match ch {
-                '\"' => "\"",
-                '\'' => "\'",
-                'r' => "\r",
-                'n' => "\n",
-                't' => "\t",
-                _ => panic!("Unknown escape character: {}", ch),
+                '\\' => '\\',
+                '\"' => '\"',
+                '\'' => '\'',
+                'r' => '\r',
+                'n' => '\n',
+                't' => '\t',
+                _ => panic!("Invalid escape sequence: '\\{}'", ch),
             };
 
-            // Replace escape sequence
-            output.to_mut().replace_range(idx-1..idx, replacement);
-
-            // Reset
+            output.push(replacement);
             wants_escape = false;
         } else if ch == '\\' {
             wants_escape = true;
+        } else {
+            output.push(ch);
         }
     }
 
-    output
+    Cow::Owned(output)
 }
 
 /// Slices the first and last characters off of the string.
@@ -86,13 +92,18 @@ fn test_parse_string() {
             assert_eq!(&actual, $expected, "Actual string (left) doesn't match expected (right)");
 
             assert!(
-                matches!(actual, Cow::$variant),
+                matches!(actual, Cow::$variant(_)),
                 "Outputted string of the incorrect variant",
             );
         }};
     }
 
-    // TODO
+    test!(r#""""#, "", Borrowed);
+    test!(r#""!""#, "!", Borrowed);
+    test!(r#""apple banana""#, "apple banana", Borrowed);
+    test!(r#""abc \\""#, "abc \\", Owned);
+    test!(r#""\n def""#, "\n def", Owned);
+    test!(r#""abc \t (\\\t) \r (\\\r) def""#, "abc \t (\\\t) \r (\\\r) def", Owned);
 }
 
 #[test]
@@ -105,8 +116,8 @@ fn test_slice_middle() {
         }};
     }
 
-    test!("\"\"", "");
-    test!("\"!\"", "!");
-    test!("\"abc\"", "abc");
-    test!("\"apple banana cherry\"", "apple banana cherry");
+    test!(r#""""#, "");
+    test!(r#""!""#, "!");
+    test!(r#""abc""#, "abc");
+    test!(r#""apple banana cherry""#, "apple banana cherry");
 }
