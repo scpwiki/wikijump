@@ -1,3 +1,5 @@
+import { LoginModule } from "./login/LoginModule";
+import { LoginModule3 } from "./login/LoginModule3";
 import { ManageSiteEmailListsModule } from "./managesite/elists/ManageSiteEmailListsModule";
 import { ManageSiteCloneModule } from "./managesite/ManageSiteCloneModule";
 import { ManageSiteForumSettingsModule } from "./managesite/ManageSiteForumSettingsModule";
@@ -13,6 +15,7 @@ import { ManageSiteInvitationsHistoryModule } from "./managesite/ManageSiteInvit
 import { ManageSiteForumPermissionsModule } from "./managesite/ManageSiteForumPermissionsModule";
 import { ManageSitePrivateSettingsModule } from "./managesite/ManageSitePrivateSettingsModule";
 import { ManageSiteMembersListModule } from "./managesite/ManageSiteMembersListModule";
+import { ManageSiteModule } from "./managesite/ManageSiteModule";
 import { ManageSitePerPageDiscussionModule } from "./managesite/ManageSitePerPageDiscussionModule";
 import { ManageSiteEmailInvitationsModule } from "./managesite/ManageSiteEmailInvitationsModule";
 import { ManageSiteSecureAccessModule } from "./managesite/ManageSiteSecureAccessModule";
@@ -34,7 +37,6 @@ import { ManageSiteTemplatesModule } from "./managesite/ManageSiteTemplatesModul
 import { ManageSiteOpenIDModule } from "./managesite/ManageSiteOpenIDModule";
 import { ManageSitePageRateSettingsModule } from "./managesite/pagerate/ManageSitePageRateSettingsModule";
 import { ManageSiteLicenseModule } from "./managesite/ManageSiteLicenseModule";
-import { ManageSiteModule } from "./managesite/ManageSiteModule";
 import { ForumCommentsModule } from "./forum/ForumCommentsModule";
 import { ForumViewThreadModule } from "./forum/ForumViewThreadModule";
 import { ForumRecentPostsModule } from "./forum/ForumRecentPostsModule";
@@ -118,7 +120,6 @@ export const modules = {
   ForumNewThreadModule,
 
   /* Site Manager */
-  ManageSiteModule,
   ManageSiteEmailListsModule,
   ManageSiteCloneModule,
   ManageSiteForumSettingsModule,
@@ -134,6 +135,7 @@ export const modules = {
   ManageSiteForumPermissionsModule,
   ManageSitePrivateSettingsModule,
   ManageSiteMembersListModule,
+  ManageSiteModule,
   ManageSitePerPageDiscussionModule,
   ManageSiteEmailInvitationsModule,
   ManageSiteSecureAccessModule,
@@ -155,4 +157,8 @@ export const modules = {
   ManageSiteOpenIDModule,
   ManageSitePageRateSettingsModule,
   ManageSiteLicenseModule,
+
+  /* Login */
+  LoginModule,
+  LoginModule3,
 };

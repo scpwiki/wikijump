@@ -15,8 +15,8 @@ const Wikijump = {
 
   // Stores login-related variables
   vars: {
-    rsakey: null as unknown,
-    loginSeed: null as unknown,
+    rsakey: null as null | string,
+    loginSeed: null as null | string,
 
     // https://github.com/scpwiki/wikijump/pull/78#issuecomment-736901677
     forumThreadId: null as null | number
