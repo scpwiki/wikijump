@@ -33,8 +33,30 @@ fn parse_fn<'l, 'r, 't>(
     name: &'t str,
     special: bool,
 ) -> Result<BlockParseOutcome<'r, 't>, ParseError> {
+    assert_eq!(special, false, "Code doesn't allow special variant");
+
     let arguments = parser.get_argument_map()?;
     parser.get_line_break()?;
 
-    todo!()
+    // "div" means we wrap in paragraphs, like normal
+    // "div_" means we don't wrap it
+    let wrap_paragraphs = !name.ends_with("_");
+
+    // Get styling arguments
+    let id = arguments.remove("id");
+    let class = arguments.remove("class");
+    let style = arguments.remove("style");
+
+    // Gather elements for div contents
+    let elements = {
+    };
+
+    // Build element and return
+    let element = Element::Div { elements, id, class, style };
+
+    Ok(BlockParseOutcome {
+        element,
+        remaining: parser.remaining(),
+        exceptions,
+    })
 }

@@ -33,6 +33,12 @@ fn parse_fn<'l, 'r, 't>(
     name: &'t str,
     special: bool,
 ) -> Result<BlockParseOutcome<'r, 't>, ParseError> {
+    assert_eq!(special, false, "Code doesn't allow special variant");
+    assert!(
+        name.eq_ignore_ascii_case("code"),
+        "Code doesn't have a valid name",
+    );
+
     let mut arguments = parser.get_argument_map()?;
     let language = arguments.remove("type");
     parser.get_line_break()?;
@@ -67,7 +73,7 @@ fn parse_fn<'l, 'r, 't>(
 
     Ok(BlockParseOutcome {
         element,
-        remaining: parser.remaining,
+        remaining: parser.remaining(),
         exceptions: vec![],
     })
 }

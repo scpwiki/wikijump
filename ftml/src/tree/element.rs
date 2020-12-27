@@ -68,6 +68,14 @@ pub enum Element<'t> {
         elements: Vec<Element<'t>>,
     },
 
+    /// Element containing an HTML div.
+    Div {
+        elements: Vec<Element<'t>>,
+        id: Option<Cow<'t, str>>,
+        class: Option<Cow<'t, str>>,
+        style: Option<Cow<'t, str>>,
+    },
+
     /// Element containing a code block
     Code {
         contents: Cow<'t, str>,
