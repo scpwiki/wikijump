@@ -184,28 +184,52 @@ where
     ///
     /// Returns immediately if the slice is empty.
     pub fn proceed_until(&mut self, tokens: &[Token]) -> Result<(), ParseError> {
-        let (first, tokens) = match tokens.split_first() {
+        let (&first, tokens) = match tokens.split_first() {
             Some(split) => split,
             None => return Ok(()),
         };
 
         loop {
-            while self.extracted.token != *first {
+            // Iterate until we hit a first token match
+            while self.extracted.token != first {
                 self.step()?;
             }
 
-            for token in tokens {
-                if self.extracted.token != *token {
-                    continue;
-                }
+            // Save current position, check if the rest match
+            let (extracted, remaining) = (self.extracted, self.remaining);
+            let result = self.proceed_until_internal(tokens)?;
 
-                self.step()?;
+            // We always restore pointer position.
+            //
+            // This reverts any forward changes during crawling,
+            // and also resets the pointer if this is a match.
+            self.extracted = extracted;
+            self.remaining = remaining;
+
+            // If it was a match, return
+            if result {
+                return Ok(());
             }
 
-            break;
+            // If it failed, step forward and try this again
+            self.step()?;
+        }
+    }
+
+    /// Internal helper function for `proceed_until`. Do not use directly.
+    ///
+    /// Sees if this particular pointer state matches the token list or not.
+    /// Returns `true` if so, `false` otherwise.
+    fn proceed_until_internal(&mut self, tokens: &[Token]) -> Result<bool, ParseError> {
+        for token in tokens.iter().copied() {
+            self.step()?;
+
+            if self.extracted.token != token {
+                return Ok(false);
+            }
         }
 
-        Ok(())
+        Ok(true)
     }
 
     /// Try the code in the closure, resetting state on failure.
