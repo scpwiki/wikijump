@@ -154,6 +154,7 @@ where
         Ok(())
     }
 
+    // Block argument parsing
     pub fn get_argument_map(
         &mut self,
     ) -> Result<HashMap<&'t str, Cow<'t, str>>, ParseError> {
