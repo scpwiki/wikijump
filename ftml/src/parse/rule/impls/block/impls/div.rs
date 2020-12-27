@@ -34,6 +34,7 @@ fn parse_fn<'l, 'r, 't>(
     special: bool,
 ) -> Result<BlockParseOutcome<'r, 't>, ParseError> {
     let arguments = parser.get_argument_map()?;
+    parser.get_line_break()?;
 
     todo!()
 }
