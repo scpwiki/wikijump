@@ -160,10 +160,10 @@ where
     ) -> Result<HashMap<&'t str, Cow<'t, str>>, ParseError> {
         trace!(self.log, "Looking for key value arguments, then ']]'");
 
-        self.get_optional_space()?;
-
         let mut map = HashMap::new();
         loop {
+            self.get_optional_space()?;
+
             // Try to get the argument key
             // Determines if we stop or keep parsing
             let key = match self.extracted.token {
