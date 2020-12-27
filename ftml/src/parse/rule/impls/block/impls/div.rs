@@ -33,7 +33,7 @@ fn parse_fn<'l, 'r, 't>(
     name: &'t str,
     special: bool,
 ) -> Result<BlockParseOutcome<'r, 't>, ParseError> {
-    let arguments = parser.get_arguments_map()?;
+    let arguments = parser.get_argument_map()?;
 
     todo!()
 }

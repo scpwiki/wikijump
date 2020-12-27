@@ -154,7 +154,7 @@ where
         Ok(())
     }
 
-    pub fn get_arguments_map(
+    pub fn get_argument_map(
         &mut self,
     ) -> Result<HashMap<&'t str, Cow<'t, str>>, ParseError> {
         trace!(self.log, "Looking for key value arguments, then ']]'");
@@ -162,7 +162,7 @@ where
         todo!()
     }
 
-    pub fn get_arguments_value(&mut self) -> Result<&'t str, ParseError> {
+    pub fn get_argument_value(&mut self) -> Result<&'t str, ParseError> {
         trace!(self.log, "Looking for a value argument, then ']]'");
 
         let consumption = try_merge(
@@ -189,7 +189,7 @@ where
         }
     }
 
-    pub fn get_arguments_none(&mut self) -> Result<(), ParseError> {
+    pub fn get_argument_none(&mut self) -> Result<(), ParseError> {
         trace!(self.log, "No arguments, looking for ']]'");
 
         self.get_optional_space()?;
