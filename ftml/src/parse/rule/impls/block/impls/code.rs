@@ -34,7 +34,11 @@ fn parse_fn<'l, 'r, 't>(
     special: bool,
 ) -> Result<BlockParseOutcome<'r, 't>, ParseError> {
     let arguments = parser.get_argument_map()?;
+    let language = arguments.get("type");
     parser.get_line_break()?;
+
+    // Proceed until we find "[[/code]]"
+
 
     todo!()
 }

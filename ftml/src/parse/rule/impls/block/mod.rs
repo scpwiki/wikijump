@@ -174,6 +174,40 @@ where
         Ok(name)
     }
 
+    /// Keep consuming tokens until they match a certain pattern.
+    ///
+    /// This function iterates until a contiguous slice of tokens
+    /// are found that match the kind specified in the slice.
+    ///
+    /// Following parse success, the token pointer remains at the
+    /// location of the first token that matches.
+    ///
+    /// Returns immediately if the slice is empty.
+    pub fn proceed_until(&mut self, tokens: &[Token]) -> Result<(), ParseError> {
+        let (first, tokens) = match tokens.split_first() {
+            Some(split) => split,
+            None => return Ok(()),
+        };
+
+        loop {
+            while self.extracted.token != *first {
+                self.step()?;
+            }
+
+            for token in tokens {
+                if self.extracted.token != *token {
+                    continue;
+                }
+
+                self.step()?;
+            }
+
+            break;
+        }
+
+        Ok(())
+    }
+
     /// Try the code in the closure, resetting state on failure.
     ///
     /// * If `Ok(_)` is returned, pointer status is preserved, and `Some(_)` is returned.
