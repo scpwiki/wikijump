@@ -173,6 +173,13 @@ where
         match f(self) {
             Ok(result) => Some(result),
             Err(error) => {
+                debug!(
+                    self.log,
+                    "Got error while attempting to parse in block: {:?}",
+                    error;
+                    "error-kind" => error.kind(),
+                );
+
                 self.extracted = extracted;
                 self.remaining = remaining;
 
