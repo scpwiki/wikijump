@@ -161,6 +161,26 @@ where
         Ok(())
     }
 
+    /// Try the code in the closure, resetting state on failure.
+    ///
+    /// * If `Ok(_)` is returned, pointer status is preserved.
+    /// * If `Err(_)` is returned, pointer status is reverted.
+    pub fn try_parse<F, T>(&mut self, f: F) -> Option<T>
+        where F: FnOnce(&mut Self) -> Result<T, ParseError>
+    {
+        let (extracted, remaining) = (self.extracted, self.remaining);
+
+        match f(self) {
+            Ok(result) => Some(result),
+            Err(error) => {
+                self.extracted = extracted;
+                self.remaining = remaining;
+
+                None
+            }
+        }
+    }
+
     // Block argument parsing
     pub fn get_argument_map(
         &mut self,
