@@ -131,6 +131,9 @@ pub enum ParseErrorKind {
     /// This block expected to end its body here.
     BlockExpectedEnd,
 
+    /// An end block was found, but of the incorrect type.
+    BlockEndMismatch,
+
     /// The URL passed here was invalid.
     InvalidUrl,
 }
