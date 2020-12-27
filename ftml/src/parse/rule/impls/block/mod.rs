@@ -95,6 +95,8 @@ where
                 self.remaining = remaining;
                 Ok(())
             }
+
+            #[cold]
             None => Err(self.make_error(ParseErrorKind::EndOfInput)),
         }
     }
