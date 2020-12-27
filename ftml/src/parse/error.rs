@@ -125,6 +125,9 @@ pub enum ParseErrorKind {
     /// Encountered malformed arguments when parsing block.
     BlockMalformedArguments,
 
+    /// This block expects a line break here.
+    BlockExpectedLineBreak,
+
     /// The URL passed here was invalid.
     InvalidUrl,
 }

@@ -144,6 +144,13 @@ where
         self.get_token(Token::Identifier, kind)
     }
 
+    pub fn get_line_break(&mut self) -> Result<(), ParseError> {
+        trace!(self.log, "Looking for line break");
+
+        self.get_token(Token::LineBreak, ParseErrorKind::BlockExpectedLineBreak)?;
+        Ok(())
+    }
+
     pub fn get_optional_space(&mut self) -> Result<(), ParseError> {
         trace!(self.log, "Looking for optional space");
 
