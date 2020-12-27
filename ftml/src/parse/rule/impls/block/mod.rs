@@ -161,10 +161,23 @@ where
         Ok(())
     }
 
+    pub fn get_end_block(&mut self) -> Result<&'t str, ParseError> {
+        trace!(self.log, "Looking for end block");
+
+        self.get_token(Token::LeftBlockEnd, ParseErrorKind::BlockExpectedEnd)?;
+        self.get_optional_space()?;
+
+        let name = self.get_identifier(ParseErrorKind::BlockMissingName)?;
+        self.get_optional_space()?;
+        self.get_token(Token::RightBlock, ParseErrorKind::BlockExpectedEnd)?;
+
+        Ok(name)
+    }
+
     /// Try the code in the closure, resetting state on failure.
     ///
-    /// * If `Ok(_)` is returned, pointer status is preserved.
-    /// * If `Err(_)` is returned, pointer status is reverted.
+    /// * If `Ok(_)` is returned, pointer status is preserved, and `Some(_)` is returned.
+    /// * If `Err(_)` is returned, pointer status is reverted, and `None` is returned.
     pub fn try_parse<F, T>(&mut self, f: F) -> Option<T>
         where F: FnOnce(&mut Self) -> Result<T, ParseError>
     {

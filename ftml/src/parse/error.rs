@@ -128,6 +128,9 @@ pub enum ParseErrorKind {
     /// This block expects a line break here.
     BlockExpectedLineBreak,
 
+    /// This block expected to end its body here.
+    BlockExpectedEnd,
+
     /// The URL passed here was invalid.
     InvalidUrl,
 }
