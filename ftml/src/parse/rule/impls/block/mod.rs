@@ -107,19 +107,37 @@ impl<'l, 'r, 't> BlockParser<'l, 'r, 't> {
     }
 
     // Parsing methods
-    pub fn get_identifier(
+    fn get_token(
         &mut self,
+        token: Token,
         kind: ParseErrorKind,
     ) -> Result<&'t str, ParseError> {
-        trace!(self.log, "Looking for identifier");
+        trace!(
+            self.log,
+            "Looking for token {:?} (error {:?})",
+            token,
+            kind;
+            "token" => token,
+            "error-kind" => kind,
+        );
 
-        if self.extracted.token == Token::Identifier {
+        if self.extracted.token == token {
             let text = self.extracted.slice;
             self.step()?;
             Ok(text)
         } else {
             Err(self.make_error(kind))
         }
+    }
+
+    #[inline]
+    pub fn get_identifier(
+        &mut self,
+        kind: ParseErrorKind,
+    ) -> Result<&'t str, ParseError> {
+        trace!(self.log, "Looking for identifier");
+
+        self.get_token(Token::Identifier, kind)
     }
 
     pub fn get_optional_space(&mut self) -> Result<(), ParseError> {
@@ -149,7 +167,9 @@ impl<'l, 'r, 't> BlockParser<'l, 'r, 't> {
     pub fn get_arguments_none(&mut self) -> Result<(), ParseError> {
         trace!(self.log, "No arguments, looking for ']]'");
 
-        todo!()
+        self.get_optional_space()?;
+        self.get_token(Token::RightBlock, ParseErrorKind::BlockMissingCloseBrackets)?;
+        Ok(())
     }
 
     // Utilities

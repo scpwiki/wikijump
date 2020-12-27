@@ -119,6 +119,9 @@ pub enum ParseErrorKind {
     /// This block does not have a name.
     BlockMissingName,
 
+    /// This block does not have close brackets when required.
+    BlockMissingCloseBrackets,
+
     /// The URL passed here was invalid.
     InvalidUrl,
 }
@@ -127,5 +130,16 @@ impl ParseErrorKind {
     #[inline]
     pub fn name(self) -> &'static str {
         self.into()
+    }
+}
+
+impl slog::Value for ParseErrorKind {
+    fn serialize(
+        &self,
+        _: &slog::Record,
+        key: slog::Key,
+        serializer: &mut dyn slog::Serializer,
+    ) -> slog::Result {
+        serializer.emit_str(key, self.name())
     }
 }
