@@ -24,7 +24,8 @@
 //! against the upcoming tokens in accordance to how the
 //! various blocks define themselves.
 
-use crate::parse::consume::Consumption;
+use crate::parse::consume::{Consumption, GenericConsumption};
+use crate::parse::rule::collect::try_merge;
 use crate::parse::rule::Rule;
 use crate::parse::token::{ExtractedToken, Token};
 use crate::parse::{ParseError, ParseErrorKind, ParseException};
@@ -50,7 +51,10 @@ pub struct BlockParser<'l, 'r, 't> {
     rule: Rule,
 }
 
-impl<'l, 'r, 't> BlockParser<'l, 'r, 't> {
+impl<'l, 'r, 't> BlockParser<'l, 'r, 't>
+where
+    'r: 't,
+{
     #[inline]
     pub fn new(
         log: &'l slog::Logger,
@@ -161,7 +165,28 @@ impl<'l, 'r, 't> BlockParser<'l, 'r, 't> {
     pub fn get_arguments_value(&mut self) -> Result<&'t str, ParseError> {
         trace!(self.log, "Looking for a value argument, then ']]'");
 
-        todo!()
+        let consumption = try_merge(
+            self.log,
+            (self.extracted, self.remaining, self.full_text),
+            self.rule,
+            &[Token::RightBlock],
+            &[Token::ParagraphBreak, Token::LineBreak],
+            &[],
+        );
+
+        // We ignore exceptions because try_merge() produces none.
+        match consumption {
+            GenericConsumption::Failure { error } => Err(error),
+            GenericConsumption::Success {
+                item: value,
+                remaining,
+                exceptions: _,
+            } => {
+                self.update(remaining)?;
+
+                Ok(value)
+            }
+        }
     }
 
     pub fn get_arguments_none(&mut self) -> Result<(), ParseError> {
@@ -240,7 +265,10 @@ impl BlockRule {
 }
 
 #[derive(Debug)]
-pub struct BlockParseOutcome<'r, 't> {
+pub struct BlockParseOutcome<'r, 't>
+where
+    'r: 't,
+{
     element: Element<'t>,
     remaining: &'r [ExtractedToken<'t>],
     exceptions: Vec<ParseException<'t>>,
