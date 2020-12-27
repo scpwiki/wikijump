@@ -33,12 +33,41 @@ fn parse_fn<'l, 'r, 't>(
     name: &'t str,
     special: bool,
 ) -> Result<BlockParseOutcome<'r, 't>, ParseError> {
-    let arguments = parser.get_argument_map()?;
-    let language = arguments.get("type");
+    let mut arguments = parser.get_argument_map()?;
+    let language = arguments.remove("type");
     parser.get_line_break()?;
 
-    // Proceed until we find "[[/code]]"
+    let first = parser.extracted();
+    let mut end;
 
+    // Keep iterating until we find "[[/code]]"
+    loop {
+        parser.proceed_until(&[Token::LineBreak, Token::LeftBlockEnd])?;
+        end = parser.extracted();
+        parser.step()?;
 
-    todo!()
+        // Check if it's an end block
+        // Ignore errors, might be just more code
+        let name = match parser.get_end_block() {
+            Ok(name) => name,
+            Err(_) => continue,
+        };
+
+        // Check if it's a closing block
+        if name.eq_ignore_ascii_case("code") {
+            break;
+        }
+    }
+
+    let code = parser.full_text().slice(log, first, end);
+    let element = Element::Code {
+        contents: cow!(code),
+        language,
+    };
+
+    Ok(BlockParseOutcome {
+        element,
+        remaining: parser.remaining,
+        exceptions: vec![],
+    })
 }

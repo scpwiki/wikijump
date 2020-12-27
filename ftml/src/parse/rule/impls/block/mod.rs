@@ -85,6 +85,22 @@ where
         }
     }
 
+    // Getters
+    #[inline]
+    pub fn extracted(&self) -> &'r ExtractedToken<'t> {
+        self.extracted
+    }
+
+    #[inline]
+    pub fn remaining(&self) -> &'r [ExtractedToken<'t>] {
+        self.remaining
+    }
+
+    #[inline]
+    pub fn full_text(&self) -> FullText<'t> {
+        self.full_text
+    }
+
     // Pointer state and manipulation
     pub fn step(&mut self) -> Result<(), ParseError> {
         trace!(self.log, "Stepping to the next token");
@@ -239,7 +255,8 @@ where
     /// * If `Ok(_)` is returned, pointer status is preserved, and `Some(_)` is returned.
     /// * If `Err(_)` is returned, pointer status is reverted, and `None` is returned.
     pub fn try_parse<F, T>(&mut self, f: F) -> Option<T>
-        where F: FnOnce(&mut Self) -> Result<T, ParseError>
+    where
+        F: FnOnce(&mut Self) -> Result<T, ParseError>,
     {
         let (extracted, remaining) = (self.extracted, self.remaining);
 
