@@ -185,7 +185,8 @@ where
 
             // Get the argument value
             self.get_optional_space()?;
-            let value_raw = self.get_token(Token::String, ParseErrorKind::BlockMalformedArguments)?;
+            let value_raw =
+                self.get_token(Token::String, ParseErrorKind::BlockMalformedArguments)?;
 
             // Parse the string
             let value = parse_string(value_raw);

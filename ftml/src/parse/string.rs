@@ -86,10 +86,16 @@ fn slice_middle(input: &str) -> &str {
 #[test]
 fn test_parse_string() {
     macro_rules! test {
+        ($input:expr, $expected:expr, $variant:tt,) => {
+            test!($input, $expected, $variant)
+        };
         ($input:expr, $expected:expr, $variant:tt) => {{
             let actual = parse_string($input);
 
-            assert_eq!(&actual, $expected, "Actual string (left) doesn't match expected (right)");
+            assert_eq!(
+                &actual, $expected,
+                "Actual string (left) doesn't match expected (right)"
+            );
 
             assert!(
                 matches!(actual, Cow::$variant(_)),
@@ -103,7 +109,11 @@ fn test_parse_string() {
     test!(r#""apple banana""#, "apple banana", Borrowed);
     test!(r#""abc \\""#, "abc \\", Owned);
     test!(r#""\n def""#, "\n def", Owned);
-    test!(r#""abc \t (\\\t) \r (\\\r) def""#, "abc \t (\\\t) \r (\\\r) def", Owned);
+    test!(
+        r#""abc \t (\\\t) \r (\\\r) def""#,
+        "abc \t (\\\t) \r (\\\r) def",
+        Owned,
+    );
 }
 
 #[test]
@@ -112,7 +122,10 @@ fn test_slice_middle() {
         ($input:expr, $expected:expr) => {{
             let actual = slice_middle($input);
 
-            assert_eq!(actual, $expected, "Actual (left) doesn't match expected (right)");
+            assert_eq!(
+                actual, $expected,
+                "Actual (left) doesn't match expected (right)",
+            );
         }};
     }
 
