@@ -106,6 +106,7 @@ impl Element<'_> {
             Element::Email(_) => "Email",
             Element::Link { .. } => "Link",
             Element::Color { .. } => "Color",
+            Element::Div { .. } => "Div",
             Element::Code { .. } => "Code",
             Element::LineBreak => "LineBreak",
             Element::HorizontalRule => "HorizontalRule",
