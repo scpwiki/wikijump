@@ -8,8 +8,11 @@ The top level of a syntax tree contains two fields, `elements` and `styles`. The
 
 The Rust declaration of `Element` is as an enum, with each variant representing a different kind of element one may encounter. Most of these are leaf elements, such as `text` or `link`. Serde has been configured to use discriminated tagging, so the object representation will look like:
 
-(Note that the serialized form for _all_ data structures uses `kebab-case`.
-For instance, `Token::LeftLink` is represented as `left-link`.)
+Note that the serialized form for _all_ data structures uses `kebab-case`.
+For instance, `Token::LeftLink` is represented as `left-link`.
+
+However you should also note that internal names for enums are, in typical Rust
+tradition, in `AdaCase`. These should not be exposed during serialization however.
 
 ```json
 {
