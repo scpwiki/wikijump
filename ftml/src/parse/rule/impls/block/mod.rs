@@ -63,7 +63,7 @@ where
         remaining: &'r [ExtractedToken<'t>],
         full_text: FullText<'t>,
     ) -> Self {
-        debug!(
+        info!(
             log, "Creating block parser";
             "special" => special,
             "remaining-len" => remaining.len(),
@@ -108,7 +108,7 @@ where
 
     // Pointer state and manipulation
     pub fn step(&mut self) -> Result<(), ParseError> {
-        trace!(self.log, "Stepping to the next token");
+        debug!(self.log, "Stepping to the next token");
 
         match self.remaining.split_first() {
             Some((extracted, remaining)) => {
@@ -139,7 +139,7 @@ where
         token: Token,
         kind: ParseErrorKind,
     ) -> Result<&'t str, ParseError> {
-        trace!(
+        debug!(
             self.log,
             "Looking for token {:?} (error {:?})",
             token,
@@ -162,20 +162,20 @@ where
         &mut self,
         kind: ParseErrorKind,
     ) -> Result<&'t str, ParseError> {
-        trace!(self.log, "Looking for identifier");
+        debug!(self.log, "Looking for identifier");
 
         self.get_token(Token::Identifier, kind)
     }
 
     pub fn get_line_break(&mut self) -> Result<(), ParseError> {
-        trace!(self.log, "Looking for line break");
+        debug!(self.log, "Looking for line break");
 
         self.get_token(Token::LineBreak, ParseErrorKind::BlockExpectedLineBreak)?;
         Ok(())
     }
 
     pub fn get_optional_space(&mut self) -> Result<(), ParseError> {
-        trace!(self.log, "Looking for optional space");
+        debug!(self.log, "Looking for optional space");
 
         if self.extracted.token == Token::Whitespace {
             self.step()?;
@@ -185,7 +185,7 @@ where
     }
 
     pub fn get_end_block(&mut self) -> Result<&'t str, ParseError> {
-        trace!(self.log, "Looking for end block");
+        debug!(self.log, "Looking for end block");
 
         self.get_token(Token::LeftBlockEnd, ParseErrorKind::BlockExpectedEnd)?;
         self.get_optional_space()?;
@@ -287,7 +287,7 @@ where
     pub fn get_argument_map(
         &mut self,
     ) -> Result<HashMap<&'t str, Cow<'t, str>>, ParseError> {
-        trace!(self.log, "Looking for key value arguments, then ']]'");
+        debug!(self.log, "Looking for key value arguments, then ']]'");
 
         let mut map = HashMap::new();
         loop {
@@ -319,7 +319,7 @@ where
     }
 
     pub fn get_argument_value(&mut self) -> Result<&'t str, ParseError> {
-        trace!(self.log, "Looking for a value argument, then ']]'");
+        debug!(self.log, "Looking for a value argument, then ']]'");
 
         let consumption = try_merge(
             self.log,
@@ -346,7 +346,7 @@ where
     }
 
     pub fn get_argument_none(&mut self) -> Result<(), ParseError> {
-        trace!(self.log, "No arguments, looking for ']]'");
+        debug!(self.log, "No arguments, looking for ']]'");
 
         self.get_optional_space()?;
         self.get_token(Token::RightBlock, ParseErrorKind::BlockMissingCloseBrackets)?;

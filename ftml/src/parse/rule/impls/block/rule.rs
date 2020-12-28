@@ -87,8 +87,7 @@ where
 {
     debug!(
         log,
-        "Trying to process a block (special: {})",
-        special;
+        "Trying to process a block";
         "special" => special,
     );
 
