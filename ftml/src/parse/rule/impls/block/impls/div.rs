@@ -65,7 +65,12 @@ fn parse_fn<'l, 'r, 't>(
     };
 
     // Build element and return
-    let element = Element::Div { elements, id, class, style };
+    let element = Element::Div {
+        elements,
+        id,
+        class,
+        style,
+    };
 
     Ok(BlockParseOutcome {
         element,

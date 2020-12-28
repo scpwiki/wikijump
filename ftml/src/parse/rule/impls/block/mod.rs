@@ -102,7 +102,13 @@ where
     }
 
     #[inline]
-    pub fn state(&self) -> (&'r ExtractedToken<'t>, &'r [ExtractedToken<'t>], FullText<'t>) {
+    pub fn state(
+        &self,
+    ) -> (
+        &'r ExtractedToken<'t>,
+        &'r [ExtractedToken<'t>],
+        FullText<'t>,
+    ) {
         (self.extracted, self.remaining, self.full_text)
     }
 
