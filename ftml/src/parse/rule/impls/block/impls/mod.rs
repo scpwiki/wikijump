@@ -23,6 +23,7 @@ mod prelude {
     pub use crate::parse::consume::Consumption;
     pub use crate::parse::{ParseError, Token};
     pub use crate::tree::Element;
+    pub use crate::parse::rule::collect::*;
 }
 
 // TODO

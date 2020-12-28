@@ -101,6 +101,11 @@ where
         self.full_text
     }
 
+    #[inline]
+    pub fn state(&self) -> (&'r ExtractedToken<'t>, &'r [ExtractedToken<'t>], FullText<'t>) {
+        (self.extracted, self.remaining, self.full_text)
+    }
+
     // Pointer state and manipulation
     pub fn step(&mut self) -> Result<(), ParseError> {
         trace!(self.log, "Stepping to the next token");

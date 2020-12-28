@@ -35,7 +35,7 @@ fn parse_fn<'l, 'r, 't>(
 ) -> Result<BlockParseOutcome<'r, 't>, ParseError> {
     assert_eq!(special, false, "Code doesn't allow special variant");
 
-    let arguments = parser.get_argument_map()?;
+    let mut arguments = parser.get_argument_map()?;
     parser.get_line_break()?;
 
     // "div" means we wrap in paragraphs, like normal
@@ -48,7 +48,20 @@ fn parse_fn<'l, 'r, 't>(
     let style = arguments.remove("style");
 
     // Gather elements for div contents
-    let elements = {
+    let (elements, exceptions) = {
+        if wrap_paragraphs {
+            let consumption = try_paragraphs(
+                log,
+                parser.state(),
+                BLOCK_DIV.rule(),
+                &[Token::LeftBlockEnd], // TODO this is insufficient ugh
+                &[],
+            );
+
+            todo!()
+        } else {
+            todo!()
+        }
     };
 
     // Build element and return
