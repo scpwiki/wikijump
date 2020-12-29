@@ -1,5 +1,5 @@
 /*
- * parse/result.rs
+ * parse/outcome.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2020 Ammon Smith
@@ -22,18 +22,18 @@ use super::ParseError;
 use std::borrow::{Borrow, BorrowMut};
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct ParseResult<T> {
+pub struct ParseOutcome<T> {
     value: T,
     errors: Vec<ParseError>,
 }
 
-impl<T> ParseResult<T> {
+impl<T> ParseOutcome<T> {
     #[inline]
     pub fn new<I>(value: T, errors: I) -> Self
     where
         I: Into<Vec<ParseError>>,
     {
-        ParseResult {
+        ParseOutcome {
             value,
             errors: errors.into(),
         }
@@ -51,57 +51,57 @@ impl<T> ParseResult<T> {
     }
 }
 
-impl<U> ParseResult<Vec<U>> {
+impl<U> ParseOutcome<Vec<U>> {
     #[inline]
     pub fn push(&mut self, item: U) {
         self.value.push(item);
     }
 }
 
-impl<T> Clone for ParseResult<T>
+impl<T> Clone for ParseOutcome<T>
 where
     T: Clone,
 {
     #[inline]
     fn clone(&self) -> Self {
-        ParseResult {
+        ParseOutcome {
             value: self.value.clone(),
             errors: self.errors.clone(),
         }
     }
 }
 
-impl<T> Default for ParseResult<T>
+impl<T> Default for ParseOutcome<T>
 where
     T: Default,
 {
     #[inline]
     fn default() -> Self {
-        ParseResult {
+        ParseOutcome {
             value: T::default(),
             errors: Vec::new(),
         }
     }
 }
 
-impl<T> Borrow<T> for ParseResult<T> {
+impl<T> Borrow<T> for ParseOutcome<T> {
     #[inline]
     fn borrow(&self) -> &T {
         &self.value
     }
 }
 
-impl<T> BorrowMut<T> for ParseResult<T> {
+impl<T> BorrowMut<T> for ParseOutcome<T> {
     #[inline]
     fn borrow_mut(&mut self) -> &mut T {
         &mut self.value
     }
 }
 
-impl<T> Into<(T, Vec<ParseError>)> for ParseResult<T> {
+impl<T> Into<(T, Vec<ParseError>)> for ParseOutcome<T> {
     #[inline]
     fn into(self) -> (T, Vec<ParseError>) {
-        let ParseResult { value, errors } = self;
+        let ParseOutcome { value, errors } = self;
 
         (value, errors)
     }
