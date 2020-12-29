@@ -62,6 +62,7 @@ pub enum Token {
     ClearFloatRight,
     Pipe,
     Equals,
+    Underscore,
     Quote,
     Heading,
 
@@ -207,6 +208,7 @@ impl Token {
             Rule::clear_float_left => Token::ClearFloatLeft,
             Rule::clear_float_right => Token::ClearFloatRight,
             Rule::pipe => Token::Pipe,
+            Rule::underscore => Token::Underscore,
             Rule::equals => Token::Equals,
             Rule::quote => Token::Quote,
             Rule::heading => Token::Heading,

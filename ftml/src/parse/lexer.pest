@@ -77,6 +77,16 @@ token = _{
     right_block |
     right_bracket |
 
+    // Formatting
+    bold |
+    italics |
+    underline |
+    superscript |
+    subscript |
+    color |
+    left_monospace |
+    right_monospace |
+
     // Singular symbols
     clear_float_center |
     clear_float_left |
@@ -89,16 +99,6 @@ token = _{
     underscore |
     quote |
     heading |
-
-    // Formatting
-    bold |
-    italics |
-    underline |
-    superscript |
-    subscript |
-    color |
-    left_monospace |
-    right_monospace |
 
     // Tables
     table_column_title |
