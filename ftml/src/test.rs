@@ -32,6 +32,7 @@ const SKIP_TESTS: &[&str] = &[
     "code-language-empty",
     "code-spaces",
     "code-uppercase",
+    // TODO add div tests
 ];
 
 lazy_static! {
