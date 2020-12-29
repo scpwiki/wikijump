@@ -21,7 +21,6 @@
 use super::super::prelude::*;
 use super::mapping::block_with_name;
 use super::BlockParser;
-use crate::parse::ParseError;
 
 pub const RULE_BLOCK: Rule = Rule {
     name: "block",

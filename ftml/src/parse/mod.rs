@@ -45,6 +45,7 @@ use self::paragraph::gather_paragraphs;
 use self::rule::impls::RULE_PAGE;
 use self::upcoming::UpcomingTokens;
 use crate::tokenize::Tokenization;
+use crate::text::FullText;
 use crate::tree::SyntaxTree;
 use std::borrow::Cow;
 
@@ -53,6 +54,36 @@ pub use self::outcome::ParseOutcome;
 pub use self::result::{ParseResult, ParseSuccess};
 pub use self::string::parse_string;
 pub use self::token::{ExtractedToken, Token};
+
+#[derive(Debug, Clone)]
+pub struct Parser<'l, 'r, 't> {
+    log: &'l slog::Logger,
+    tokens: UpcomingTokens<'r, 't>,
+    full_text: FullText<'t>,
+}
+
+impl<'l, 'r, 't> Parser<'l, 'r, 't> {
+    fn new(log: &'l slog::Logger, tokenization: &'r Tokenization<'t>) -> Self {
+        let tokens = UpcomingTokens::from(tokenization.tokens());
+        let full_text = tokenization.full_text();
+
+        Parser {
+            log,
+            tokens,
+            full_text,
+        }
+    }
+
+    #[inline]
+    pub fn tokens(&self) -> UpcomingTokens<'r, 't> {
+        self.tokens
+    }
+
+    #[inline]
+    pub fn full_text(&self) -> FullText<'t> {
+        self.full_text
+    }
+}
 
 /// Parse through the given tokens and produce an AST.
 ///
@@ -64,22 +95,19 @@ pub fn parse<'r, 't>(
 where
     'r: 't,
 {
-    // Set up variables
-    let tokens = tokenization.tokens();
-    let full_text = tokenization.full_text();
+    let mut parser = Parser::new(log, tokenization);
 
     // Logging setup
     let log = &log.new(slog_o!(
         "filename" => slog_filename!(),
         "lineno" => slog_lineno!(),
         "function" => "parse",
-        "tokens-len" => tokens.len(),
+        "tokens-len" => tokenization.tokens().len(),
     ));
 
     // At the top level, we gather elements into paragraphs
     info!(log, "Running parser on tokens");
-    let tokens = UpcomingTokens::from(tokens);
-    let result = gather_paragraphs(log, tokens, full_text, RULE_PAGE, &[], &[]);
+    let result = gather_paragraphs(log, parser.tokens(), parser.full_text(), RULE_PAGE, &[], &[]);
 
     debug!(log, "Finished paragraph gathering, matching on consumption");
     match result {
