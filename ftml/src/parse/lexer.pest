@@ -86,6 +86,7 @@ token = _{
     double_dash |
     pipe |
     equals |
+    underscore |
     quote |
     heading |
 
@@ -116,10 +117,7 @@ token = _{
 
 // Text {{{
 
-identifier = {
-    (ASCII_ALPHANUMERIC | ASCII_DIGIT)+ ~
-    (ASCII_ALPHANUMERIC | ASCII_DIGIT | "_")*
-}
+identifier = { (ASCII_ALPHANUMERIC | ASCII_DIGIT)+ }
 
 email = {
     (ASCII_ALPHANUMERIC | "-" | ".")+ ~
@@ -165,6 +163,7 @@ triple_dash = { "-"{3,} }
 double_dash = { "-"{2} }
 pipe = { "|" }
 equals = { "=" }
+underscore = { "_" }
 quote = { ">"+ ~ " "? }
 heading = { "+"{1,6} }
 
