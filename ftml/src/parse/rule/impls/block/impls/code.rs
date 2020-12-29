@@ -40,7 +40,7 @@ fn parse_fn<'l, 'r, 't>(
     );
 
     let mut arguments = parser.get_argument_map()?;
-    let language = arguments.remove("type");
+    let language = arguments.get("type");
     parser.get_line_break()?;
 
     let first = parser.extracted();

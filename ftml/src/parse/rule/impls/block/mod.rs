@@ -24,6 +24,7 @@
 //! against the upcoming tokens in accordance to how the
 //! various blocks define themselves.
 
+use self::arguments::Arguments;
 use crate::parse::consume::{Consumption, GenericConsumption};
 use crate::parse::rule::collect::try_merge;
 use crate::parse::rule::Rule;
@@ -31,9 +32,8 @@ use crate::parse::token::{ExtractedToken, Token};
 use crate::parse::{parse_string, ParseError, ParseErrorKind, ParseException};
 use crate::text::FullText;
 use crate::tree::Element;
-use std::borrow::Cow;
-use std::collections::HashMap;
 
+mod arguments;
 mod mapping;
 mod rule;
 
@@ -290,12 +290,10 @@ where
     }
 
     // Block argument parsing
-    pub fn get_argument_map(
-        &mut self,
-    ) -> Result<HashMap<&'t str, Cow<'t, str>>, ParseError> {
+    pub fn get_argument_map(&mut self) -> Result<Arguments<'t>, ParseError> {
         debug!(self.log, "Looking for key value arguments, then ']]'");
 
-        let mut map = HashMap::new();
+        let mut map = Arguments::new();
         loop {
             self.get_optional_space()?;
 

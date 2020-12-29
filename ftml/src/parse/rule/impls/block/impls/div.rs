@@ -43,9 +43,9 @@ fn parse_fn<'l, 'r, 't>(
     let wrap_paragraphs = !name.ends_with("_");
 
     // Get styling arguments
-    let id = arguments.remove("id");
-    let class = arguments.remove("class");
-    let style = arguments.remove("style");
+    let id = arguments.get("id");
+    let class = arguments.get("class");
+    let style = arguments.get("style");
 
     // Gather elements for div contents
     let (elements, exceptions) = {
