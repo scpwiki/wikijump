@@ -40,7 +40,7 @@ fn parse_fn<'l, 'r, 't>(
 
     // "div" means we wrap in paragraphs, like normal
     // "div_" means we don't wrap it
-    let wrap_paragraphs = !name.ends_with("_");
+    let wrap_paragraphs = !name.ends_with('_');
 
     // Get styling arguments
     let id = arguments.get("id");
