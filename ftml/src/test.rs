@@ -28,6 +28,15 @@ use std::path::{Path, PathBuf};
 const SKIP_TESTS: &[&str] = &[
     "bold-italics-underline",
     "bold-italics-underline-superscript-monospace-subscript",
+    "code",
+    "code-empty",
+    "code-language",
+    "code-language-empty",
+    "code-spaces",
+    "code-uppercase",
+    "underline",
+    "underline-fail",
+    "underline-fail-paragraph",
 ];
 
 lazy_static! {
