@@ -30,9 +30,9 @@ fn try_consume_fn<'r, 't>(
     _extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     _full_text: FullText<'t>,
-) -> Consumption<'r, 't> {
+) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Consuming token to create an em dash");
 
     // — - EM DASH
-    Consumption::ok(text!("\u{2014}"), remaining)
+    ok!(text!("\u{2014}"), remaining)
 }

@@ -30,7 +30,7 @@ fn try_consume_fn<'r, 't>(
     extracted: &'r ExtractedToken<'t>,
     mut remaining: &'r [ExtractedToken<'t>],
     _full_text: FullText<'t>,
-) -> Consumption<'r, 't> {
+) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Consuming tokens until end of comment");
 
     assert_eq!(
@@ -56,14 +56,14 @@ fn try_consume_fn<'r, 't>(
             Token::RightComment => {
                 trace!(log, "Reached end of comment, returning");
 
-                return Consumption::ok(Element::Null, new_remaining);
+                return ok!(Element::Null, new_remaining);
             }
 
             // Hit the end of the input, abort
             Token::InputEnd => {
                 trace!(log, "Reached end of input, aborting");
 
-                return Consumption::err(ParseError::new(
+                return Err(ParseError::new(
                     ParseErrorKind::EndOfInput,
                     RULE_COMMENT,
                     new_extracted,

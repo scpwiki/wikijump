@@ -46,7 +46,7 @@ fn link<'r, 't>(
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
-) -> Consumption<'r, 't> {
+) -> ParseResult<'r, 't, Element<'t>> {
     trace!(log, "Trying to create a triple-bracket link (regular)");
 
     try_consume_link(
@@ -64,7 +64,7 @@ fn link_new_tab<'r, 't>(
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
-) -> Consumption<'r, 't> {
+) -> ParseResult<'r, 't, Element<'t>> {
     trace!(log, "Trying to create a triple-bracket link (new tab)");
 
     try_consume_link(
@@ -85,7 +85,7 @@ fn try_consume_link<'r, 't>(
     full_text: FullText<'t>,
     rule: Rule,
     anchor: AnchorTarget,
-) -> Consumption<'r, 't> {
+) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Trying to create a triple-bracket link"; "anchor" => anchor.name());
 
     // Gather path for link
@@ -107,11 +107,7 @@ fn try_consume_link<'r, 't>(
 
     // If url is an empty string, parsing should fail, there's nothing here
     if url.is_empty() {
-        return Consumption::err(ParseError::new(
-            ParseErrorKind::RuleFailed,
-            rule,
-            extracted,
-        ));
+        return Err(ParseError::new(ParseErrorKind::RuleFailed, rule, extracted));
     }
 
     // Determine what token we ended on, i.e. which [[[ variant it is.
@@ -142,7 +138,7 @@ fn build_same<'r, 't>(
     errors: Vec<ParseException<'t>>,
     url: &'t str,
     anchor: AnchorTarget,
-) -> Consumption<'r, 't> {
+) -> ParseResult<'r, 't, Element<'t>> {
     debug!(
         log,
         "Building link with same URL and label";
@@ -155,7 +151,7 @@ fn build_same<'r, 't>(
         anchor,
     };
 
-    Consumption::warn(element, remaining, errors)
+    ok!(element, remaining, errors)
 }
 
 /// Helper to build link with separate URL and label.
@@ -171,7 +167,7 @@ fn build_separate<'r, 't>(
     rule: Rule,
     url: &'t str,
     anchor: AnchorTarget,
-) -> Consumption<'r, 't> {
+) -> ParseResult<'r, 't, Element<'t>> {
     debug!(
         log,
         "Building link with separate URL and label";
@@ -179,7 +175,7 @@ fn build_separate<'r, 't>(
     );
 
     // Gather label for link
-    let consumption = try_merge(
+    let result = try_merge(
         log,
         (extracted, remaining, full_text),
         rule,
@@ -189,7 +185,7 @@ fn build_separate<'r, 't>(
     );
 
     // Append errors, or return if failure
-    let (label, remaining, mut exceptions) = try_consume!(consumption);
+    let (label, remaining, mut exceptions) = result?.into();
 
     debug!(
         log,
@@ -219,5 +215,5 @@ fn build_separate<'r, 't>(
     };
 
     // Return result
-    Consumption::warn(element, remaining, all_exc)
+    ok!(element, remaining, all_exc)
 }

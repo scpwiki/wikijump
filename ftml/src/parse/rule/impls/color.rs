@@ -30,7 +30,7 @@ fn try_consume_fn<'r, 't>(
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
-) -> Consumption<'r, 't> {
+) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Trying to create color container");
 
     assert_eq!(
@@ -63,7 +63,7 @@ fn try_consume_fn<'r, 't>(
     );
 
     // Build color container
-    let consumption = try_collect(
+    let result = try_collect(
         log,
         (extracted, remaining, full_text),
         RULE_COLOR,
@@ -74,7 +74,7 @@ fn try_consume_fn<'r, 't>(
     );
 
     // Append errors, or return if failure
-    let (elements, remaining, mut exceptions) = try_consume!(consumption);
+    let (elements, remaining, mut exceptions) = result?.into();
 
     // Add on new errors
     all_exceptions.append(&mut exceptions);
@@ -85,5 +85,5 @@ fn try_consume_fn<'r, 't>(
         elements,
     };
 
-    Consumption::warn(element, remaining, all_exceptions)
+    ok!(element, remaining, all_exceptions)
 }

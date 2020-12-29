@@ -18,9 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::{ExtractedToken, ParseError, ParseException};
-use crate::parse::consume::GenericConsumption;
-use crate::tree::{Container, ContainerType, Element};
+use super::prelude::*;
+use crate::tree::{Container, ContainerType};
 use std::mem;
 
 #[derive(Debug)]
@@ -118,10 +117,10 @@ impl<'l, 't> ParagraphStack<'l, 't> {
         }
     }
 
-    pub fn into_consumption<'r>(
+    pub fn into_result<'r>(
         mut self,
         remaining: &'r [ExtractedToken<'t>],
-    ) -> GenericConsumption<'r, 't, Vec<Element<'t>>> {
+    ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
         debug!(
             self.log,
             "Converting paragraph parse stack into consumption",
@@ -136,6 +135,6 @@ impl<'l, 't> ParagraphStack<'l, 't> {
             exceptions,
         } = self;
 
-        GenericConsumption::warn(elements, remaining, exceptions)
+        ok!(elements, remaining, exceptions)
     }
 }

@@ -30,7 +30,7 @@ fn try_consume_fn<'r, 't>(
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
-) -> Consumption<'r, 't> {
+) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Trying to create superscript container");
 
     try_container(

@@ -36,7 +36,7 @@ pub fn try_merge<'r, 't>(
     close_tokens: &[Token],
     invalid_tokens: &[Token],
     invalid_token_pairs: &[(Token, Token)],
-) -> GenericConsumption<'r, 't, &'t str> {
+) -> ParseResult<'r, 't, &'t str> {
     // Log try_merge() call
     info!(
         log,
@@ -44,7 +44,7 @@ pub fn try_merge<'r, 't>(
     );
 
     // Iterate and collect the tokens to merge
-    let consumption = try_collect(
+    let result = try_collect(
         log,
         (extracted, remaining, full_text),
         rule,
@@ -54,12 +54,12 @@ pub fn try_merge<'r, 't>(
         |log, extracted, remaining, _full_text| {
             trace!(log, "Ingesting token in string merge");
 
-            GenericConsumption::ok(extracted, remaining)
+            ok!(extracted, remaining)
         },
-    );
+    )?;
 
     // Get the string slice associated with this list of tokens
-    consumption.map(|tokens| {
+    result.map_ok(|tokens| {
         match (tokens.first(), tokens.last()) {
             // Get first and last tokens for string slice
             (Some(first), Some(end)) => full_text.slice(log, first, end),

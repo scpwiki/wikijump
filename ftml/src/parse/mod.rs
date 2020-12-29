@@ -25,13 +25,22 @@ mod consume;
 mod error;
 mod outcome;
 mod paragraph;
+mod result;
 mod rule;
 mod stack;
 mod string;
 mod token;
 mod upcoming;
 
-use self::consume::GenericConsumption;
+mod prelude {
+    pub use super::{
+        ExtractedToken, ParseError, ParseErrorKind, ParseException, ParseResult,
+        ParseSuccess, Token,
+    };
+    pub use crate::text::FullText;
+    pub use crate::tree::Element;
+}
+
 use self::paragraph::gather_paragraphs;
 use self::rule::impls::RULE_PAGE;
 use self::upcoming::UpcomingTokens;
@@ -41,6 +50,7 @@ use std::borrow::Cow;
 
 pub use self::error::{ParseError, ParseErrorKind, ParseException};
 pub use self::outcome::ParseOutcome;
+pub use self::result::{ParseResult, ParseSuccess};
 pub use self::string::parse_string;
 pub use self::token::{ExtractedToken, Token};
 
@@ -69,15 +79,15 @@ where
     // At the top level, we gather elements into paragraphs
     info!(log, "Running parser on tokens");
     let tokens = UpcomingTokens::from(tokens);
-    let consumption = gather_paragraphs(log, tokens, full_text, RULE_PAGE, &[], &[]);
+    let result = gather_paragraphs(log, tokens, full_text, RULE_PAGE, &[], &[]);
 
     debug!(log, "Finished paragraph gathering, matching on consumption");
-    match consumption {
-        GenericConsumption::Success {
+    match result {
+        Ok(ParseSuccess {
             item: elements,
             remaining: _,
             exceptions,
-        } => {
+        }) => {
             let (errors, styles) = extract_exceptions(exceptions);
 
             info!(
@@ -89,7 +99,7 @@ where
 
             SyntaxTree::from_element_result(elements, errors, styles)
         }
-        GenericConsumption::Failure { error } => {
+        Err(error) => {
             // This path is only reachable if invalid_tokens is non-empty.
             // As this is the highest-level, we do not have any premature ending tokens,
             // but rather keep going until the end of the input.

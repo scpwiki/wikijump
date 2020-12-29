@@ -42,7 +42,7 @@ fn link<'r, 't>(
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
-) -> Consumption<'r, 't> {
+) -> ParseResult<'r, 't, Element<'t>> {
     trace!(log, "Trying to create a single-bracket link (regular)");
 
     try_consume_link(
@@ -60,7 +60,7 @@ fn link_new_tab<'r, 't>(
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
-) -> Consumption<'r, 't> {
+) -> ParseResult<'r, 't, Element<'t>> {
     trace!(log, "Trying to create a single-bracket link (new tab)");
 
     try_consume_link(
@@ -81,7 +81,7 @@ fn try_consume_link<'r, 't>(
     full_text: FullText<'t>,
     rule: Rule,
     anchor: AnchorTarget,
-) -> Consumption<'r, 't> {
+) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Trying to create a single-bracket link"; "anchor" => anchor.name());
 
     // Gather path for link
@@ -99,11 +99,7 @@ fn try_consume_link<'r, 't>(
         try_consume_last!(remaining, consumption);
 
     if !url_valid(url) {
-        return Consumption::err(ParseError::new(
-            ParseErrorKind::InvalidUrl,
-            rule,
-            extracted,
-        ));
+        return Err(ParseError::new(ParseErrorKind::InvalidUrl, rule, extracted));
     }
 
     debug!(
@@ -113,17 +109,18 @@ fn try_consume_link<'r, 't>(
     );
 
     // Gather label for link
-    let consumption = try_merge(
+    let ParseSuccess {
+        item: label,
+        remaining,
+        mut exceptions,
+    } = try_merge(
         log,
         (extracted, remaining, full_text),
         rule,
         &[Token::RightBracket],
         &[Token::ParagraphBreak, Token::LineBreak],
         &[],
-    );
-
-    // Append errors, or return if failure
-    let (label, remaining, mut exceptions) = try_consume!(consumption);
+    )?;
 
     debug!(
         log,
@@ -145,7 +142,7 @@ fn try_consume_link<'r, 't>(
     };
 
     // Return result
-    Consumption::warn(element, remaining, all_exceptions)
+    ok!(element, remaining, all_exceptions)
 }
 
 fn url_valid(url: &str) -> bool {

@@ -38,7 +38,7 @@ fn try_consume_fn<'r, 't>(
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
-) -> Consumption<'r, 't> {
+) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Trying to create a single-bracket anchor link");
 
     // Gather path for link
@@ -68,7 +68,7 @@ fn try_consume_fn<'r, 't>(
     };
 
     // Gather label for link
-    let consumption = try_merge(
+    let result = try_merge(
         log,
         (extracted, remaining, full_text),
         RULE_LINK_ANCHOR,
@@ -78,7 +78,7 @@ fn try_consume_fn<'r, 't>(
     );
 
     // Append errors, or return if failure
-    let (label, remaining, mut exceptions) = try_consume!(consumption);
+    let (label, remaining, mut exceptions) = result?.into();
 
     debug!(
         log,
@@ -100,5 +100,5 @@ fn try_consume_fn<'r, 't>(
     };
 
     // Return result
-    Consumption::warn(element, remaining, all_exceptions)
+    ok!(element, remaining, all_exceptions)
 }

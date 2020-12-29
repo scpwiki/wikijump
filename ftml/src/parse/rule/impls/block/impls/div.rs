@@ -32,7 +32,7 @@ fn parse_fn<'l, 'r, 't>(
     parser: &mut BlockParser<'l, 'r, 't>,
     name: &'t str,
     special: bool,
-) -> Result<BlockParseOutcome<'r, 't>, ParseError> {
+) -> ParseResult<'r, 't, Element<'t>> {
     assert_eq!(special, false, "Code doesn't allow special variant");
 
     let mut arguments = parser.get_argument_map()?;
@@ -72,9 +72,5 @@ fn parse_fn<'l, 'r, 't>(
         style,
     };
 
-    Ok(BlockParseOutcome {
-        element,
-        remaining: parser.remaining(),
-        exceptions,
-    })
+    ok!(element, parser.remaining(), exceptions)
 }

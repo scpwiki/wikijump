@@ -20,7 +20,7 @@
 
 use super::super::prelude::*;
 use super::mapping::block_with_name;
-use super::{BlockParseOutcome, BlockParser};
+use super::BlockParser;
 use crate::parse::ParseError;
 
 pub const RULE_BLOCK: Rule = Rule {
@@ -40,7 +40,7 @@ fn block_regular<'r, 't>(
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
-) -> Consumption<'r, 't> {
+) -> ParseResult<'r, 't, Element<'t>> {
     trace!(log, "Trying to process a block");
 
     parse_block(log, extracted, remaining, full_text, false)
@@ -51,7 +51,7 @@ fn block_special<'r, 't>(
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
-) -> Consumption<'r, 't> {
+) -> ParseResult<'r, 't, Element<'t>> {
     trace!(log, "Trying to process a block (with special)");
 
     parse_block(log, extracted, remaining, full_text, true)
@@ -65,23 +65,7 @@ fn parse_block<'r, 't>(
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
     special: bool,
-) -> Consumption<'r, 't>
-where
-    'r: 't,
-{
-    match parse_block_internal(log, extracted, remaining, full_text, special) {
-        Ok(outcome) => outcome.into(),
-        Err(error) => Consumption::err(error),
-    }
-}
-
-fn parse_block_internal<'r, 't>(
-    log: &slog::Logger,
-    extracted: &'r ExtractedToken<'t>,
-    remaining: &'r [ExtractedToken<'t>],
-    full_text: FullText<'t>,
-    special: bool,
-) -> Result<BlockParseOutcome<'r, 't>, ParseError>
+) -> ParseResult<'r, 't, Element<'t>>
 where
     'r: 't,
 {

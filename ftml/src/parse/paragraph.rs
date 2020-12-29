@@ -18,14 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::consume::{consume, Consumption, GenericConsumption};
+use super::consume::consume;
+use super::prelude::*;
 use super::rule::Rule;
 use super::stack::ParagraphStack;
 use super::token::Token;
 use super::upcoming::UpcomingTokens;
-use super::{ParseError, ParseErrorKind};
-use crate::text::FullText;
-use crate::tree::Element;
 
 /// Function to iterate over tokens to produce elements in paragraphs.
 ///
@@ -45,7 +43,7 @@ pub fn gather_paragraphs<'l, 'r, 't>(
     rule: Rule,
     close_tokens: &[Token],
     invalid_tokens: &[Token],
-) -> GenericConsumption<'r, 't, Vec<Element<'t>>>
+) -> ParseResult<'r, 't, Vec<Element<'t>>>
 where
     'r: 't,
 {
@@ -55,7 +53,7 @@ where
 
     while let Some((extracted, remaining)) = tokens.split() {
         // Consume tokens to produce the next element
-        let consumption = match extracted.token {
+        let result = match extracted.token {
             // Avoid an unnecessary Token::Null and just exit
             Token::InputEnd => {
                 if close_tokens.is_empty() {
@@ -65,7 +63,7 @@ where
                 } else {
                     debug!(log, "Hit the end of input, producing error");
 
-                    return GenericConsumption::err(ParseError::new(
+                    return Err(ParseError::new(
                         ParseErrorKind::EndOfInput,
                         rule,
                         extracted,
@@ -98,7 +96,7 @@ where
                     "token" => token,
                 );
 
-                return stack.into_consumption(tokens.slice());
+                return stack.into_result(tokens.slice());
             }
 
             // Ending the paragraph prematurely due to an error
@@ -109,11 +107,7 @@ where
                     "token" => token,
                 );
 
-                return GenericConsumption::err(ParseError::new(
-                    ParseErrorKind::RuleFailed,
-                    rule,
-                    extracted,
-                ));
+                return Err(ParseError::new(ParseErrorKind::RuleFailed, rule, extracted));
             }
 
             // Produce consumption from this token pointer
@@ -123,12 +117,12 @@ where
             }
         };
 
-        match consumption {
-            Consumption::Success {
+        match result {
+            Ok(ParseSuccess {
                 item,
                 remaining,
                 mut exceptions,
-            } => {
+            }) => {
                 debug!(log, "Tokens successfully consumed to produce element");
 
                 // Update remaining tokens
@@ -144,7 +138,7 @@ where
                 // Process exceptions
                 stack.push_exceptions(&mut exceptions);
             }
-            Consumption::Failure { error } => {
+            Err(error) => {
                 info!(
                     log,
                     "Token consumption failed, returned error";
@@ -161,5 +155,5 @@ where
         }
     }
 
-    stack.into_consumption(tokens.slice())
+    stack.into_result(tokens.slice())
 }

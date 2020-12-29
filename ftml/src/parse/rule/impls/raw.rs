@@ -36,7 +36,7 @@ fn try_consume_fn<'r, 't>(
     extracted: &'r ExtractedToken<'t>,
     mut remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
-) -> Consumption<'r, 't> {
+) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Consuming tokens until end of raw");
 
     // Are we in a @@..@@ type raw, or a @<..>@ type?
@@ -61,7 +61,7 @@ fn try_consume_fn<'r, 't>(
                 "Insufficient tokens remaining for raw parsing, aborting"
             );
 
-            return Consumption::err(ParseError::new(
+            return Err(ParseError::new(
                 ParseErrorKind::EndOfInput,
                 RULE_RAW,
                 extracted,
@@ -77,7 +77,7 @@ fn try_consume_fn<'r, 't>(
             (Token::Raw, Token::Raw) => {
                 debug!(log, "Found meta-raw (\"@@@@@@\"), returning");
 
-                return Consumption::ok(raw!("@@"), &remaining[2..]);
+                return ok!(raw!("@@"), &remaining[2..]);
             }
 
             // "@@@@@" -> Element::Raw("@")
@@ -86,10 +86,10 @@ fn try_consume_fn<'r, 't>(
             (Token::Raw, Token::Other) => {
                 if next_extracted_2.slice == "@" {
                     debug!(log, "Found single-raw (\"@@@@@\"), returning");
-                    return Consumption::ok(raw!("@"), &remaining[2..]);
+                    return ok!(raw!("@"), &remaining[2..]);
                 } else {
                     debug!(log, "Found empty raw (\"@@@@\"), followed by other text");
-                    return Consumption::ok(raw!(""), &remaining[1..]);
+                    return ok!(raw!(""), &remaining[1..]);
                 }
             }
 
@@ -98,14 +98,14 @@ fn try_consume_fn<'r, 't>(
             (Token::Raw, _) => {
                 debug!(log, "Found empty raw (\"@@@@\"), returning");
 
-                return Consumption::ok(raw!(""), &remaining[1..]);
+                return ok!(raw!(""), &remaining[1..]);
             }
 
             // "@@ \n @@" -> Abort
             (Token::LineBreak, Token::Raw) | (Token::ParagraphBreak, Token::Raw) => {
                 debug!(log, "Found interrupted raw, aborting");
 
-                return Consumption::err(ParseError::new(
+                return Err(ParseError::new(
                     ParseErrorKind::RuleFailed,
                     RULE_RAW,
                     next_extracted_1,
@@ -116,7 +116,7 @@ fn try_consume_fn<'r, 't>(
             (_, Token::Raw) => {
                 debug!(log, "Found single-element raw, returning");
 
-                return Consumption::ok(raw!(next_extracted_1.slice), &remaining[2..]);
+                return ok!(raw!(next_extracted_1.slice), &remaining[2..]);
             }
 
             // Other, proceed with rule logic
@@ -167,7 +167,7 @@ fn try_consume_fn<'r, 't>(
                     };
 
                     let element = Element::Raw(cow!(slice));
-                    return Consumption::ok(element, new_remaining);
+                    return ok!(element, new_remaining);
                 }
 
                 trace!(log, "Wasn't end of raw, continuing");
@@ -177,7 +177,7 @@ fn try_consume_fn<'r, 't>(
             Token::LineBreak | Token::ParagraphBreak => {
                 trace!(log, "Reached newline, aborting");
 
-                return Consumption::err(ParseError::new(
+                return Err(ParseError::new(
                     ParseErrorKind::RuleFailed,
                     RULE_RAW,
                     new_extracted,
@@ -188,7 +188,7 @@ fn try_consume_fn<'r, 't>(
             Token::InputEnd => {
                 trace!(log, "Reached end of input, aborting");
 
-                return Consumption::err(ParseError::new(
+                return Err(ParseError::new(
                     ParseErrorKind::EndOfInput,
                     RULE_RAW,
                     new_extracted,

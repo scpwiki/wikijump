@@ -30,8 +30,8 @@ fn try_consume_fn<'r, 't>(
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     _full_text: FullText<'t>,
-) -> Consumption<'r, 't> {
+) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Consuming token as an email");
 
-    Consumption::ok(Element::Email(cow!(extracted.slice)), remaining)
+    ok!(Element::Email(cow!(extracted.slice)), remaining)
 }

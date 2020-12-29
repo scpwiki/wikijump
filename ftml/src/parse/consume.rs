@@ -26,11 +26,8 @@
 //! The parser is not disambiguous because any string of tokens can be interpreted
 //! as raw text as a fallback, which is how Wikidot does it.
 
+use super::prelude::*;
 use super::rule::{impls::RULE_FALLBACK, rules_for_token};
-use super::token::ExtractedToken;
-use super::{ParseError, ParseErrorKind, ParseException};
-use crate::text::FullText;
-use crate::tree::Element;
 use std::mem;
 
 /// Main function that consumes tokens to produce a single element, then returns.
@@ -39,7 +36,7 @@ pub fn consume<'r, 't>(
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
-) -> Consumption<'r, 't> {
+) -> ParseResult<'r, 't, Element<'t>> {
     let ExtractedToken { token, slice, span } = extracted;
     let log = &log.new(slog_o!(
         "token" => str!(token.name()),
@@ -56,26 +53,20 @@ pub fn consume<'r, 't>(
     for rule in rules_for_token(extracted) {
         info!(log, "Trying rule consumption for tokens"; "rule" => rule);
 
-        let consumption = rule.try_consume(log, extracted, remaining, full_text);
-        if consumption.is_success() {
-            debug!(log, "Rule matched, returning generated result"; "rule" => rule);
+        match rule.try_consume(log, extracted, remaining, full_text) {
+            Ok(output) => {
+                debug!(log, "Rule matched, returning generated result"; "rule" => rule);
 
-            // Explicitly drop exceptions
-            //
-            // We're returning the successful consumption
-            // so these are going to be dropped as a previously
-            // unsuccessful attempts.
-            mem::drop(all_exceptions);
+                // Explicitly drop exceptions
+                //
+                // We're returning the successful consumption
+                // so these are going to be dropped as a previously
+                // unsuccessful attempts.
+                mem::drop(all_exceptions);
 
-            return consumption;
-        }
-
-        // Extract errors for appending
-        match consumption {
-            Consumption::Success { mut exceptions, .. } => {
-                all_exceptions.append(&mut exceptions);
+                return Ok(output);
             }
-            Consumption::Failure { error } => {
+            Err(error) => {
                 all_exceptions.push(ParseException::Error(error));
             }
         }
@@ -96,88 +87,5 @@ pub fn consume<'r, 't>(
         extracted,
     )));
 
-    Consumption::warn(text!(slice), remaining, all_exceptions)
+    ok!(text!(slice), remaining, all_exceptions)
 }
-
-#[derive(Debug, Clone)]
-pub enum GenericConsumption<'r, 't, T>
-where
-    T: 't,
-    'r: 't,
-{
-    Success {
-        item: T,
-        remaining: &'r [ExtractedToken<'t>],
-        exceptions: Vec<ParseException<'t>>,
-    },
-    Failure {
-        error: ParseError,
-    },
-}
-
-impl<'r, 't, T> GenericConsumption<'r, 't, T>
-where
-    T: 't,
-{
-    #[inline]
-    pub fn ok(item: T, remaining: &'r [ExtractedToken<'t>]) -> Self {
-        GenericConsumption::Success {
-            item,
-            remaining,
-            exceptions: Vec::new(),
-        }
-    }
-
-    #[inline]
-    pub fn warn(
-        item: T,
-        remaining: &'r [ExtractedToken<'t>],
-        exceptions: Vec<ParseException<'t>>,
-    ) -> Self {
-        GenericConsumption::Success {
-            item,
-            remaining,
-            exceptions,
-        }
-    }
-
-    #[inline]
-    pub fn err(error: ParseError) -> Self {
-        GenericConsumption::Failure { error }
-    }
-
-    #[inline]
-    pub fn is_success(&self) -> bool {
-        match self {
-            GenericConsumption::Success { .. } => true,
-            GenericConsumption::Failure { .. } => false,
-        }
-    }
-
-    #[inline]
-    pub fn map<F, U>(self, f: F) -> GenericConsumption<'r, 't, U>
-    where
-        F: FnOnce(T) -> U,
-    {
-        match self {
-            GenericConsumption::Failure { error } => {
-                GenericConsumption::Failure { error }
-            }
-            GenericConsumption::Success {
-                item,
-                remaining,
-                exceptions,
-            } => {
-                let item = f(item);
-
-                GenericConsumption::Success {
-                    item,
-                    remaining,
-                    exceptions,
-                }
-            }
-        }
-    }
-}
-
-pub type Consumption<'r, 't> = GenericConsumption<'r, 't, Element<'t>>;

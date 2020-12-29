@@ -33,7 +33,7 @@ pub fn try_paragraphs<'r, 't>(
     rule: Rule,
     close_tokens: &[Token],
     invalid_tokens: &[Token],
-) -> GenericConsumption<'r, 't, Vec<Element<'t>>> {
+) -> ParseResult<'r, 't, Vec<Element<'t>>> {
     // Log try_paragraph() call
     info!(
         log,

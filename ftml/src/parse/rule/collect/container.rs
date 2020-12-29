@@ -53,7 +53,7 @@ pub fn try_container<'r, 't>(
     (open_token, close_token): (Token, Token),
     invalid_tokens: &[Token],
     invalid_token_pairs: &[(Token, Token)],
-) -> Consumption<'r, 't> {
+) -> ParseResult<'r, 't, Element<'t>> {
     // Log try_container() call
     let log = &log.new(slog_o!(
         "container-type" => str!(container_type.name()),
@@ -72,7 +72,7 @@ pub fn try_container<'r, 't>(
     );
 
     // Iterate and consume all the tokens
-    let consumption = try_collect(
+    let result = try_collect(
         log,
         (extracted, remaining, full_text),
         rule,
@@ -80,9 +80,8 @@ pub fn try_container<'r, 't>(
         invalid_tokens,
         invalid_token_pairs,
         consume,
-    );
+    )?;
 
     // Package into a container
-    consumption
-        .map(|elements| Element::Container(Container::new(container_type, elements)))
+    result.map_ok(|elements| Element::Container(Container::new(container_type, elements)))
 }

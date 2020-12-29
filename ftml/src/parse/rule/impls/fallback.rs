@@ -38,6 +38,6 @@ fn try_consume_fn<'r, 't>(
     _: &'r ExtractedToken<'t>,
     _: &'r [ExtractedToken<'t>],
     _: FullText<'t>,
-) -> Consumption<'r, 't> {
+) -> ParseResult<'r, 't, Element<'t>> {
     panic!("Manual fallback rule should not be executed directly!")
 }

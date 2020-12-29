@@ -25,11 +25,11 @@
 //! various blocks define themselves.
 
 use self::arguments::Arguments;
-use crate::parse::consume::{Consumption, GenericConsumption};
+use crate::parse::result::ParseResult;
 use crate::parse::rule::collect::try_merge;
 use crate::parse::rule::Rule;
 use crate::parse::token::{ExtractedToken, Token};
-use crate::parse::{parse_string, ParseError, ParseErrorKind, ParseException};
+use crate::parse::{parse_string, ParseError, ParseErrorKind};
 use crate::text::FullText;
 use crate::tree::Element;
 
@@ -325,28 +325,19 @@ where
     pub fn get_argument_value(&mut self) -> Result<&'t str, ParseError> {
         debug!(self.log, "Looking for a value argument, then ']]'");
 
-        let consumption = try_merge(
+        let (value, remaining, _) = try_merge(
             self.log,
             (self.extracted, self.remaining, self.full_text),
             self.rule,
             &[Token::RightBlock],
             &[Token::ParagraphBreak, Token::LineBreak],
             &[],
-        );
+        )?
+        .into();
 
-        // We ignore exceptions because try_merge() produces none.
-        match consumption {
-            GenericConsumption::Failure { error } => Err(error),
-            GenericConsumption::Success {
-                item: value,
-                remaining,
-                exceptions: _,
-            } => {
-                self.update(remaining)?;
+        self.update(remaining)?;
 
-                Ok(value)
-            }
-        }
+        Ok(value)
     }
 
     pub fn get_argument_none(&mut self) -> Result<(), ParseError> {
@@ -413,7 +404,7 @@ impl BlockRule {
             _: &'r ExtractedToken<'t>,
             _: &'r [ExtractedToken<'t>],
             _: FullText<'t>,
-        ) -> Consumption<'r, 't> {
+        ) -> ParseResult<'r, 't, Element<'t>> {
             panic!("Pseudo rule for this block should not be executed directly!");
         }
 
@@ -424,33 +415,9 @@ impl BlockRule {
     }
 }
 
-#[derive(Debug)]
-pub struct BlockParseOutcome<'r, 't>
-where
-    'r: 't,
-{
-    element: Element<'t>,
-    remaining: &'r [ExtractedToken<'t>],
-    exceptions: Vec<ParseException<'t>>,
-}
-
-impl<'r, 't> Into<Consumption<'r, 't>> for BlockParseOutcome<'r, 't> {
-    #[inline]
-    fn into(self) -> Consumption<'r, 't> {
-        let BlockParseOutcome {
-            element,
-            remaining,
-            exceptions,
-        } = self;
-
-        Consumption::warn(element, remaining, exceptions)
-    }
-}
-
-pub type BlockParseFn =
-    for<'l, 'r, 't> fn(
-        &'l slog::Logger,
-        &mut BlockParser<'l, 'r, 't>,
-        &'t str,
-        bool,
-    ) -> Result<BlockParseOutcome<'r, 't>, ParseError>;
+pub type BlockParseFn = for<'l, 'r, 't> fn(
+    &'l slog::Logger,
+    &mut BlockParser<'l, 'r, 't>,
+    &'t str,
+    bool,
+) -> ParseResult<'r, 't, Element<'t>>;

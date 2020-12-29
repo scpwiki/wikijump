@@ -31,7 +31,7 @@ fn try_consume_fn<'r, 't>(
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     _full_text: FullText<'t>,
-) -> Consumption<'r, 't> {
+) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Consuming token as a URL");
 
     let element = Element::Link {
@@ -40,5 +40,5 @@ fn try_consume_fn<'r, 't>(
         anchor: AnchorTarget::Same,
     };
 
-    Consumption::ok(element, remaining)
+    ok!(element, remaining)
 }

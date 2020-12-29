@@ -31,10 +31,10 @@ fn try_consume_fn<'r, 't>(
     extracted: &'r ExtractedToken<'t>,
     _: &'r [ExtractedToken<'t>],
     _: FullText<'t>,
-) -> Consumption<'r, 't> {
+) -> ParseResult<'r, 't, Element<'t>> {
     error!(log, "Encountered unimplemented rule! Returning error");
 
-    Consumption::err(ParseError::new(
+    Err(ParseError::new(
         ParseErrorKind::NotImplemented,
         RULE_TODO,
         extracted,

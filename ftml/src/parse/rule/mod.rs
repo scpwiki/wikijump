@@ -18,9 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::parse::consume::Consumption;
-use crate::parse::token::ExtractedToken;
-use crate::text::FullText;
+use super::prelude::*;
 use std::fmt::{self, Debug};
 
 mod collect;
@@ -55,7 +53,7 @@ impl Rule {
         extract: &'r ExtractedToken<'t>,
         remaining: &'r [ExtractedToken<'t>],
         full_text: FullText<'t>,
-    ) -> Consumption<'r, 't> {
+    ) -> ParseResult<'r, 't, Element<'t>> {
         info!(log, "Trying to consume for parse rule"; "name" => self.name);
 
         (self.try_consume_fn)(log, extract, remaining, full_text)
@@ -88,4 +86,4 @@ pub type TryConsumeFn = for<'r, 't> fn(
     extracted: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
-) -> Consumption<'r, 't>;
+) -> ParseResult<'r, 't, Element<'t>>;

@@ -32,7 +32,7 @@ fn parse_fn<'l, 'r, 't>(
     parser: &mut BlockParser<'l, 'r, 't>,
     name: &'t str,
     special: bool,
-) -> Result<BlockParseOutcome<'r, 't>, ParseError> {
+) -> ParseResult<'r, 't, Element<'t>> {
     assert_eq!(special, false, "Code doesn't allow special variant");
     assert!(
         name.eq_ignore_ascii_case("code"),
@@ -71,9 +71,5 @@ fn parse_fn<'l, 'r, 't>(
         language,
     };
 
-    Ok(BlockParseOutcome {
-        element,
-        remaining: parser.remaining(),
-        exceptions: vec![],
-    })
+    ok!(element, parser.remaining())
 }

@@ -69,14 +69,14 @@ pub fn try_collect<'r, 't, F, T>(
     invalid_tokens: &[Token],
     invalid_token_pairs: &[(Token, Token)],
     mut process: F,
-) -> GenericConsumption<'r, 't, Vec<T>>
+) -> ParseResult<'r, 't, Vec<T>>
 where
     F: FnMut(
         &slog::Logger,
         &'r ExtractedToken<'t>,
         &'r [ExtractedToken<'t>],
         FullText<'t>,
-    ) -> GenericConsumption<'r, 't, T>,
+    ) -> ParseResult<'r, 't, T>,
     T: Debug,
 {
     /// Tokens are always considered invalid, and will fail the rule.
@@ -117,7 +117,7 @@ where
                 "current-token" => current_token,
             );
 
-            return GenericConsumption::err(ParseError::new(
+            return Err(ParseError::new(
                 ParseErrorKind::RuleFailed,
                 rule,
                 new_extracted,
@@ -151,7 +151,7 @@ where
                 "collected" => format!("{:?}", collected),
             );
 
-            return GenericConsumption::warn(collected, remaining, all_exc);
+            return ok!(collected, remaining, all_exc);
         }
 
         // See if the container should be aborted
@@ -165,7 +165,7 @@ where
                 "collected" => format!("{:?}", collected),
             );
 
-            return GenericConsumption::err(ParseError::new(
+            return Err(ParseError::new(
                 ParseErrorKind::RuleFailed,
                 rule,
                 new_extracted,
@@ -173,43 +173,29 @@ where
         }
 
         // Process token(s).
-        match process(log, new_extracted, new_remaining, full_text) {
-            GenericConsumption::Success {
-                item,
-                remaining: new_remaining,
-                mut exceptions,
-            } => {
-                debug!(
-                    log,
-                    "Adding newly produced item from token consumption";
-                    "item" => format!("{:?}", item),
-                    "remaining-len" => new_remaining.len(),
-                );
+        let (item, new_remaining, mut exceptions) =
+            process(log, new_extracted, new_remaining, full_text)?.into();
 
-                // Append new item
-                collected.push(item);
+        debug!(
+            log,
+            "Adding newly produced item from token consumption";
+            "item" => format!("{:?}", item),
+            "remaining-len" => new_remaining.len(),
+        );
 
-                // Update token pointer
-                remaining = new_remaining;
+        // Append new item
+        collected.push(item);
 
-                // Append new exceptions
-                all_exc.append(&mut exceptions);
-            }
+        // Update token pointer
+        remaining = new_remaining;
 
-            GenericConsumption::Failure { error } => {
-                debug!(
-                    log,
-                    "Failed to produce item from consumption, bubbling up error",
-                );
-
-                return GenericConsumption::err(error);
-            }
-        }
+        // Append new exceptions
+        all_exc.append(&mut exceptions);
     }
 
     // If we've exhausted tokens but didn't find an ending token, we must abort.
     //
     // I don't think this will be terribly common, given that Token::InputEnd exists
     // and terminates all token lists, but this logic needs to be here anyways.
-    GenericConsumption::err(ParseError::new(ParseErrorKind::EndOfInput, rule, extracted))
+    Err(ParseError::new(ParseErrorKind::EndOfInput, rule, extracted))
 }
