@@ -18,6 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// TODO while refactoring Parser
+#![allow(unused_variables)]
+
 use super::prelude::*;
 
 pub const BLOCK_DIV: BlockRule = BlockRule {
@@ -47,30 +50,32 @@ fn parse_fn<'l, 'r, 't>(
     let class = arguments.get("class");
     let style = arguments.get("style");
 
-    // Gather elements for div contents
-    let (elements, exceptions) = {
-        if wrap_paragraphs {
-            let consumption = try_paragraphs(
-                log,
-                parser.state(),
-                BLOCK_DIV.rule(),
-                &[Token::LeftBlockEnd], // TODO this is insufficient ugh
-                &[],
-            );
+    todo!()
 
-            todo!()
-        } else {
-            todo!()
-        }
-    };
-
-    // Build element and return
-    let element = Element::Div {
-        elements,
-        id,
-        class,
-        style,
-    };
-
-    ok!(element, parser.remaining(), exceptions)
+//    // Gather elements for div contents
+//    let (elements, exceptions) = {
+//        if wrap_paragraphs {
+//            let consumption = try_paragraphs(
+//                log,
+//                parser.state(),
+//                BLOCK_DIV.rule(),
+//                &[Token::LeftBlockEnd], // TODO this is insufficient ugh
+//                &[],
+//            );
+//
+//            todo!()
+//        } else {
+//            todo!()
+//        }
+//    };
+//
+//    // Build element and return
+//    let element = Element::Div {
+//        elements,
+//        id,
+//        class,
+//        style,
+//    };
+//
+//    ok!(element, parser.remaining(), exceptions)
 }

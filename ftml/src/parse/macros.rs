@@ -46,7 +46,6 @@ macro_rules! ok {
 ///
 /// This is necessary because the `try_collect` functions require the first token to be the opener,
 /// and the following to be its contents.
-#[deprecated]
 macro_rules! try_consume_last {
     ($remaining:expr, $result:expr,) => {
         try_consume_last!($remaining, $result)

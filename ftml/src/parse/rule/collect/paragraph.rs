@@ -23,6 +23,7 @@ use crate::parse::gather_paragraphs;
 use crate::parse::upcoming::UpcomingTokens;
 use crate::tree::Element;
 
+#[allow(dead_code)]
 pub fn try_paragraphs<'r, 't>(
     log: &slog::Logger,
     (extracted, remaining, full_text): (

@@ -18,6 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// TODO while refactoring Parser
+#![allow(dead_code)]
+
 //! Meta-rule for all block constructs.
 //!
 //! This matches `[[` or `[[*` and runs the block parsing
