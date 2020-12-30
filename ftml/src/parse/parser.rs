@@ -35,6 +35,10 @@ pub struct Parser<'l, 'r, 't> {
 }
 
 impl<'l, 'r, 't> Parser<'l, 'r, 't> {
+    /// Constructor. Should only be created by `parse()`.
+    ///
+    /// All other instances should be `.clone()` or `.clone_with_rule()`d from
+    /// the main instance used during parsing.
     pub(crate) fn new(log: &'l slog::Logger, tokenization: &'r Tokenization<'t>) -> Self {
         let full_text = tokenization.full_text();
         let (current, remaining) = tokenization
