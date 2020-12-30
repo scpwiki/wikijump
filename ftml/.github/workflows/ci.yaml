@@ -3,6 +3,7 @@ on:
     paths:
       - 'Cargo.toml'
       - 'Cargo.lock'
+      - 'ftml-server/**'
       - 'src/**'
       - 'test/*'
       - '.github/workflows/*'
