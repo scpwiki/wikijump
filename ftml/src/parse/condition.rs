@@ -18,34 +18,70 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::{Parser, Token};
+use super::error::ParseError;
+use super::parser::Parser;
+use super::token::Token;
 use std::fmt::{self, Debug};
 
-/// Represents a condition
+/// The function being evaluated for a custom parse condition.
+///
+/// This returns a copy of the parse state for the function to explore.
+///
+/// For convenience, it returns `ParseResult` instead of plain boolean for convenience.
+/// Any `Err(_)` case is interpreted as `false`.
+pub type ParseConditionFn =
+    for<'l, 'r, 't> fn(Parser<'l, 'r, 't>) -> Result<bool, ParseError>;
+
+/// Represents a condition on a parse state.
+///
+/// It takes a parser state and determines if it matches
+/// the condition described by this structure, returning
+/// a boolean as appropriate.
 #[derive(Copy, Clone)]
 pub enum ParseCondition {
     CurrentToken { token: Token },
-    TokenPair { previous: Token, current: Token },
+    TokenPair { current: Token, next: Token },
     Function { f: ParseConditionFn },
 }
 
-pub type ParseConditionFn = for<'l, 'r, 't> fn(Parser<'l, 'r, 't>) -> bool;
+impl ParseCondition {
+    pub fn evaluate(self, parser: &Parser) -> bool {
+        match self {
+            ParseCondition::CurrentToken { token } => parser.current().token == token,
+            ParseCondition::Function { f } => f(parser.clone()).unwrap_or(false),
+            ParseCondition::TokenPair { current, next } => {
+                // Create a temporary parse state to check the next token
+                let mut parser = parser.clone();
+
+                if parser.current().token != current {
+                    return false;
+                }
+
+                if let Err(_) = parser.step() {
+                    return false;
+                }
+
+                parser.current().token == next
+            }
+        }
+    }
+}
 
 impl Debug for ParseCondition {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
+        match *self {
             ParseCondition::CurrentToken { token } => f
                 .debug_struct("CurrentToken")
                 .field("token", &token)
                 .finish(),
-            ParseCondition::TokenPair { previous, current } => f
+            ParseCondition::TokenPair { current, next } => f
                 .debug_struct("TokenPair")
-                .field("previous", &previous)
                 .field("current", &current)
+                .field("next", &next)
                 .finish(),
             ParseCondition::Function { f: fn_pointer } => f
                 .debug_struct("Function")
-                .field("f", &(*fn_pointer as *const ()))
+                .field("f", &(fn_pointer as *const ()))
                 .finish(),
         }
     }

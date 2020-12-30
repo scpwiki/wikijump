@@ -35,7 +35,6 @@ mod token;
 mod upcoming;
 
 mod prelude {
-    pub use super::upcoming::UpcomingTokens;
     pub use super::{
         ExtractedToken, ParseError, ParseErrorKind, ParseException, ParseResult,
         ParseSuccess, Token,
@@ -81,7 +80,7 @@ where
     info!(log, "Running parser on tokens");
     let result = gather_paragraphs(
         log,
-        parser.tokens(),
+        parser.upcoming(),
         parser.full_text(),
         RULE_PAGE,
         &[],

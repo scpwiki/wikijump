@@ -19,40 +19,100 @@
  */
 
 use super::prelude::*;
+use super::rule::Rule;
+use super::upcoming::UpcomingTokens;
+use super::RULE_PAGE;
 use crate::tokenize::Tokenization;
 
 #[derive(Debug, Clone)]
 pub struct Parser<'l, 'r, 't> {
     log: &'l slog::Logger,
-    tokens: UpcomingTokens<'r, 't>,
+    current: &'r ExtractedToken<'t>,
+    remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
+    rule: Rule,
 }
 
 impl<'l, 'r, 't> Parser<'l, 'r, 't> {
     pub(crate) fn new(log: &'l slog::Logger, tokenization: &'r Tokenization<'t>) -> Self {
-        let tokens = UpcomingTokens::from(tokenization.tokens());
         let full_text = tokenization.full_text();
+        let (current, remaining) = tokenization
+            .tokens()
+            .split_first()
+            .expect("Parsed tokens list was empty (expected at least one element)");
 
         Parser {
             log,
-            tokens,
+            current,
+            remaining,
             full_text,
+            rule: RULE_PAGE,
         }
     }
 
     // Getters
     #[inline]
-    pub(crate) fn log(&self) -> &'l slog::Logger {
+    pub fn log(&self) -> &'l slog::Logger {
         self.log
     }
 
+    // XXX consider
     #[inline]
-    pub fn tokens(&self) -> UpcomingTokens<'r, 't> {
-        self.tokens
+    pub fn upcoming(&self) -> UpcomingTokens<'r, 't> {
+        UpcomingTokens::Split {
+            current: self.current,
+            remaining: self.remaining,
+        }
     }
 
     #[inline]
     pub fn full_text(&self) -> FullText<'t> {
         self.full_text
+    }
+
+    // Setters
+    pub fn set_rule(&mut self, rule: Rule) {
+        self.rule = rule;
+    }
+
+    pub fn clone_with_rule(&self, rule: Rule) -> Self {
+        let mut clone = self.clone();
+        clone.set_rule(rule);
+        clone
+    }
+
+    // Token pointer
+    #[inline]
+    pub fn current(&self) -> &'r ExtractedToken<'t> {
+        self.current
+    }
+
+    // XXX do we use this pattern?
+    #[inline]
+    pub fn remaining(&self) -> &'r [ExtractedToken<'t>] {
+        self.remaining
+    }
+
+    #[inline]
+    pub fn step(&mut self) -> Result<(), ParseError> {
+        debug!(self.log, "Stepping to the next token");
+
+        match self.remaining.split_first() {
+            Some((current, remaining)) => {
+                self.current = current;
+                self.remaining = remaining;
+                Ok(())
+            }
+
+            #[cold]
+            None => Err(self.make_error(ParseErrorKind::EndOfInput)),
+        }
+    }
+
+    // Utilities
+    #[cold]
+    #[inline]
+    pub fn make_error(&self, kind: ParseErrorKind) -> ParseError {
+        ParseError::new(kind, self.rule, self.current)
     }
 }

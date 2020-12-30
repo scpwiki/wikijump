@@ -30,7 +30,7 @@ pub enum UpcomingTokens<'r, 't> {
         tokens: TokenSlice<'r, 't>,
     },
     Split {
-        extracted: Token<'r, 't>,
+        current: Token<'r, 't>,
         remaining: TokenSlice<'r, 't>,
     },
 }
@@ -40,10 +40,7 @@ impl<'r, 't> UpcomingTokens<'r, 't> {
     pub fn split(&self) -> Option<(Token<'r, 't>, TokenSlice<'r, 't>)> {
         match self {
             UpcomingTokens::All { tokens } => tokens.split_first(),
-            UpcomingTokens::Split {
-                extracted,
-                remaining,
-            } => Some((extracted, remaining)),
+            UpcomingTokens::Split { current, remaining } => Some((current, remaining)),
         }
     }
 
@@ -52,7 +49,7 @@ impl<'r, 't> UpcomingTokens<'r, 't> {
         match self {
             UpcomingTokens::All { tokens } => tokens,
             UpcomingTokens::Split {
-                extracted: _,
+                current: _,
                 remaining,
             } => remaining,
         }
@@ -78,10 +75,7 @@ impl<'r, 't> From<TokenSlice<'r, 't>> for UpcomingTokens<'r, 't> {
 
 impl<'r, 't> From<(Token<'r, 't>, TokenSlice<'r, 't>)> for UpcomingTokens<'r, 't> {
     #[inline]
-    fn from((extracted, remaining): (Token<'r, 't>, TokenSlice<'r, 't>)) -> Self {
-        UpcomingTokens::Split {
-            extracted,
-            remaining,
-        }
+    fn from((current, remaining): (Token<'r, 't>, TokenSlice<'r, 't>)) -> Self {
+        UpcomingTokens::Split { current, remaining }
     }
 }
