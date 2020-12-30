@@ -18,8 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
 use super::condition::ParseCondition;
+use super::prelude::*;
 use super::rule::Rule;
 use super::upcoming::UpcomingTokens;
 use super::RULE_PAGE;
@@ -83,9 +83,20 @@ impl<'l, 'r, 't> Parser<'l, 'r, 't> {
     }
 
     // State evaluation
-    #[inline]
     pub fn evaluate(&self, condition: ParseCondition) -> bool {
-        condition.evaluate(self)
+        match condition {
+            ParseCondition::CurrentToken { token } => self.current.token == token,
+            ParseCondition::Function { f } => self.evaluate_fn(f),
+            ParseCondition::TokenPair { current, next } => {
+                self.evaluate_fn(|mut parser| {
+                    let first = parser.current().token;
+                    parser.step()?;
+                    let second = parser.current().token;
+
+                    Ok(first == current && second == next)
+                })
+            }
+        }
     }
 
     #[inline]

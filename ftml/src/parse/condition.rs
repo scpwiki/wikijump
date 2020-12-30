@@ -44,29 +44,6 @@ pub enum ParseCondition {
     Function { f: ParseConditionFn },
 }
 
-impl ParseCondition {
-    pub fn evaluate(self, parser: &Parser) -> bool {
-        match self {
-            ParseCondition::CurrentToken { token } => parser.current().token == token,
-            ParseCondition::Function { f } => f(parser.clone()).unwrap_or(false),
-            ParseCondition::TokenPair { current, next } => {
-                // Create a temporary parse state to check the next token
-                let mut parser = parser.clone();
-
-                if parser.current().token != current {
-                    return false;
-                }
-
-                if let Err(_) = parser.step() {
-                    return false;
-                }
-
-                parser.current().token == next
-            }
-        }
-    }
-}
-
 impl Debug for ParseCondition {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
