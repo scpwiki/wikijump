@@ -89,11 +89,19 @@ impl<'l, 'r, 't> Parser<'l, 'r, 't> {
             ParseCondition::Function { f } => self.evaluate_fn(f),
             ParseCondition::TokenPair { current, next } => {
                 self.evaluate_fn(|mut parser| {
-                    let first = parser.current().token;
-                    parser.step()?;
-                    let second = parser.current().token;
+                    macro_rules! check {
+                        ($expected:expr) => {
+                            if parser.current().token != $expected {
+                                return Ok(false);
+                            }
+                        };
+                    }
 
-                    Ok(first == current && second == next)
+                    check!(current);
+                    parser.step()?;
+                    check!(next);
+
+                    Ok(false)
                 })
             }
         }
