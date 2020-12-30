@@ -21,6 +21,7 @@
 #[macro_use]
 mod macros;
 
+mod condition;
 mod consume;
 mod error;
 mod outcome;

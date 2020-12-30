@@ -40,6 +40,12 @@ impl<'l, 'r, 't> Parser<'l, 'r, 't> {
         }
     }
 
+    // Getters
+    #[inline]
+    pub(crate) fn log(&self) -> &'l slog::Logger {
+        self.log
+    }
+
     #[inline]
     pub fn tokens(&self) -> UpcomingTokens<'r, 't> {
         self.tokens
