@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use super::condition::ParseCondition;
 use super::rule::Rule;
 use super::upcoming::UpcomingTokens;
 use super::RULE_PAGE;
@@ -79,6 +80,20 @@ impl<'l, 'r, 't> Parser<'l, 'r, 't> {
         let mut clone = self.clone();
         clone.set_rule(rule);
         clone
+    }
+
+    // State evaluation
+    #[inline]
+    pub fn evaluate(&self, condition: ParseCondition) -> bool {
+        condition.evaluate(self)
+    }
+
+    #[inline]
+    pub fn evaluate_fn<F>(&self, f: F) -> bool
+    where
+        F: FnOnce(Parser<'l, 'r, 't>) -> Result<bool, ParseError>,
+    {
+        f(self.clone()).unwrap_or(false)
     }
 
     // Token pointer
