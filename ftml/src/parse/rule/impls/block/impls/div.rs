@@ -52,30 +52,30 @@ fn parse_fn<'l, 'r, 't>(
 
     todo!()
 
-//    // Gather elements for div contents
-//    let (elements, exceptions) = {
-//        if wrap_paragraphs {
-//            let consumption = try_paragraphs(
-//                log,
-//                parser.state(),
-//                BLOCK_DIV.rule(),
-//                &[Token::LeftBlockEnd], // TODO this is insufficient ugh
-//                &[],
-//            );
-//
-//            todo!()
-//        } else {
-//            todo!()
-//        }
-//    };
-//
-//    // Build element and return
-//    let element = Element::Div {
-//        elements,
-//        id,
-//        class,
-//        style,
-//    };
-//
-//    ok!(element, parser.remaining(), exceptions)
+    //// Gather elements for div contents
+    //let (elements, exceptions) = {
+    //    if wrap_paragraphs {
+    //        let consumption = try_paragraphs(
+    //            log,
+    //            parser.state(),
+    //            BLOCK_DIV.rule(),
+    //            &[Token::LeftBlockEnd], // TODO this is insufficient ugh
+    //            &[],
+    //        );
+
+    //        todo!()
+    //    } else {
+    //        todo!()
+    //    }
+    //};
+
+    //// Build element and return
+    //let element = Element::Div {
+    //    elements,
+    //    id,
+    //    class,
+    //    style,
+    //};
+
+    //ok!(element, parser.remaining(), exceptions)
 }
