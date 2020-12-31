@@ -67,11 +67,7 @@ where
                 } else {
                     debug!(log, "Hit the end of input, producing error");
 
-                    return Err(ParseError::new(
-                        ParseErrorKind::EndOfInput,
-                        rule,
-                        parser.current(),
-                    ));
+                    return Err(parser.make_error(ParseErrorKind::EndOfInput));
                 }
             }
 
