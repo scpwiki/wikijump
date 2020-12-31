@@ -61,7 +61,6 @@ impl<'l, 'r, 't> Parser<'l, 'r, 't> {
         self.log
     }
 
-    // XXX consider
     #[inline]
     pub fn upcoming(&self) -> UpcomingTokens<'r, 't> {
         UpcomingTokens::Split {
@@ -119,13 +118,12 @@ impl<'l, 'r, 't> Parser<'l, 'r, 't> {
         f(self.clone()).unwrap_or(false)
     }
 
-    // Token pointer
+    // Token pointer state and manipulation
     #[inline]
     pub fn current(&self) -> &'r ExtractedToken<'t> {
         self.current
     }
 
-    // XXX do we use this pattern?
     #[inline]
     pub fn remaining(&self) -> &'r [ExtractedToken<'t>] {
         self.remaining
