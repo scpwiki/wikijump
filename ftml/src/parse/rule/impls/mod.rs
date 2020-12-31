@@ -21,9 +21,10 @@
 mod prelude {
     pub use crate::parse::consume::consume;
     pub use crate::parse::error::{ParseError, ParseErrorKind, ParseException};
+    pub use crate::parse::parser::Parser;
     pub use crate::parse::result::{ParseResult, ParseSuccess};
     pub use crate::parse::rule::collect::*;
-    pub use crate::parse::rule::{Rule, TryConsumeFn};
+    pub use crate::parse::rule::Rule;
     pub use crate::parse::token::{ExtractedToken, Token};
     pub use crate::text::FullText;
     pub use crate::tree::{Container, ContainerType, Element};
