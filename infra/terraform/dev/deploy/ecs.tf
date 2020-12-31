@@ -50,7 +50,7 @@ resource "aws_ecs_capacity_provider" "asg" {
     managed_scaling {
       maximum_scaling_step_size = 1
       minimum_scaling_step_size = 1
-      status                    = "ENABLED"
+      status                    = "DISABLED"
       target_capacity           = 1
     }
   }
@@ -85,7 +85,7 @@ resource "aws_ecs_service" "wikijump" {
   name                               = "wikijump-${var.environment}-svc"
   cluster                            = aws_ecs_cluster.wikijump-ecs.id
   task_definition                    = aws_ecs_task_definition.wikijump_task.arn
-  deployment_minimum_healthy_percent = 50
+  deployment_minimum_healthy_percent = 0
   deployment_maximum_percent         = 200
   desired_count                      = 1 # This will be a var as we grow
   force_new_deployment               = var.redeploy_ecs_on_tf_apply
