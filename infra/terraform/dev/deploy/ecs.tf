@@ -71,7 +71,7 @@ resource "aws_ecs_task_definition" "wikijump_task" {
     name = "letsencrypt"
 
     efs_volume_configuration {
-      file_system_id     = aws_efs_file_system.traefik_efs.id
+      file_system_id     = data.aws_ssm_parameter.TRAEFIK_EFS_ID.value
       transit_encryption = "ENABLED"
       root_directory     = "/letsencrypt"
       authorization_config {
@@ -86,7 +86,7 @@ resource "aws_ecs_service" "wikijump" {
   cluster                            = aws_ecs_cluster.wikijump-ecs.id
   task_definition                    = aws_ecs_task_definition.wikijump_task.arn
   deployment_minimum_healthy_percent = 50
-  deployment_maximum_percent         = 100
+  deployment_maximum_percent         = 200
   desired_count                      = 1 # This will be a var as we grow
   force_new_deployment               = var.redeploy_ecs_on_tf_apply
   load_balancer {

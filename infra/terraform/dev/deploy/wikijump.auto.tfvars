@@ -36,4 +36,4 @@ ecs_traefik_image  = "traefik:v2.3"
 letsencrypt_email = "info@wikijump.com"
 # If true, ECS will generate a new service with every tf apply, allowing it to perhaps pull in a new version of an image.
 # Otherwise, will only generate a new service when the service or a related piece is modified.
-redeploy_ecs_on_tf_apply = false
+redeploy_ecs_on_tf_apply = true
