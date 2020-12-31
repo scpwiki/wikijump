@@ -95,7 +95,7 @@ where
             _ if parser.evaluate_any(close_conditions) => {
                 debug!(
                     log,
-                    "Hit closing token, returning consumption success";
+                    "Hit closing condition, returning parsing success";
                     "token" => parser.current().token,
                 );
 
@@ -106,7 +106,7 @@ where
             _ if parser.evaluate_any(invalid_conditions) => {
                 debug!(
                     log,
-                    "Hit failure token, returning consumption failure";
+                    "Hit failure condition, returning parsing failure";
                     "token" => parser.current().token,
                 );
 
