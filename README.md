@@ -1,6 +1,6 @@
 <p align="center">
   <img width="500"
-       src="https://github.com/scpwiki/wikijump/blob/develop/assets/logo.min.svg"
+       src="https://github.com/scpwiki/wikijump/blob/develop/org/src/assets/logo.min.svg"
        alt="Wikijump">
 </p>
 <p align="center">
