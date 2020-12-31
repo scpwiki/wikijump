@@ -11,6 +11,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+        - name: Checkout
+          uses: actions/checkout@v2
         - name: Configure AWS credentials
           uses: aws-actions/configure-aws-credentials@v1
           with:
@@ -22,12 +24,14 @@ jobs:
           uses: aws-actions/amazon-ecr-login@v1
         - name: Build, tag, and push image to Amazon ECR
           id: build-image
+          working-directory: ./install/php-fpm
           env:
             ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
             ECR_REPOSITORY: wikijump-dev/php-fpm
             IMAGE_TAG: ${{ github.sha }}
           run: |
-            docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+            set -ex
+            docker build --build-arg MAIN_DOMAIN=wikijump.dev --build-arg FILES_DOMAIN=wjfiles.dev -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
             docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
             echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
         - name: Download task definition

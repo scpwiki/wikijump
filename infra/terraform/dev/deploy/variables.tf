@@ -100,3 +100,11 @@ variable "letsencrypt_email" {
 variable "redeploy_ecs_on_tf_apply" {
   type = bool
 }
+
+variable "route53_access_key" {
+  type = string
+}
+
+variable "route53_secret_key" {
+  type = string
+}

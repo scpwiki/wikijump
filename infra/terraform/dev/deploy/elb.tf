@@ -13,8 +13,8 @@ resource "aws_lb" "wikijump_elb" {
   enable_deletion_protection = true
 
   access_logs {
-    bucket = aws_s3_bucket.elb_logs.bucket
-    prefix = var.environment
+    bucket  = aws_s3_bucket.elb_logs.bucket
+    prefix  = var.environment
     enabled = false
   }
 }
@@ -25,6 +25,7 @@ resource "aws_lb_target_group" "elb_target_group_80" {
   protocol    = "TCP"
   vpc_id      = aws_vpc.wikijump_vpc.id
   target_type = "instance"
+  deregistration_delay = 3
   health_check {
     enabled = true
     port    = 8081
@@ -38,6 +39,7 @@ resource "aws_lb_target_group" "elb_target_group_443" {
   protocol    = "TCP"
   vpc_id      = aws_vpc.wikijump_vpc.id
   target_type = "instance"
+  deregistration_delay = 3
   health_check {
     enabled = true
     port    = 8081

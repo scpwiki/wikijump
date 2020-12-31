@@ -47,3 +47,14 @@ resource "aws_ecr_repository" "db_ecr" {
     scan_on_push = true
   }
 }
+
+resource "aws_efs_file_system" "traefik_efs" {
+  creation_token = "traefik-certstore-${local.environment}"
+  encrypted      = true
+}
+
+resource "aws_ssm_parameter" "TRAEFIK_EFS_ID" {
+  name  = "wikijump-${local.environment}-TRAEFIK_EFS_ID"
+  type  = "String"
+  value = aws_efs_file_system.traefik_efs.id
+}
