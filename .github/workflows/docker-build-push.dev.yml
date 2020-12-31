@@ -4,11 +4,9 @@ on:
   push:
     branches:
       - develop
-      - ghactions-build-php
     paths:
       - 'web/**'
       - 'install/php-fpm/**'
-      - '.github/**'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -52,4 +50,4 @@ jobs:
             task-definition: ${{ steps.task-def.outputs.task-definition }}
             service: wikijump-dev-svc
             cluster: wikijump-dev
-            wait-for-service-stability: false
+            wait-for-service-stability: true
