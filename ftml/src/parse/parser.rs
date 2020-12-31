@@ -21,7 +21,6 @@
 use super::condition::ParseCondition;
 use super::prelude::*;
 use super::rule::Rule;
-use super::upcoming::UpcomingTokens;
 use super::RULE_PAGE;
 use crate::tokenize::Tokenization;
 
@@ -59,14 +58,6 @@ impl<'l, 'r, 't> Parser<'l, 'r, 't> {
     #[inline]
     pub fn log(&self) -> &'l slog::Logger {
         self.log
-    }
-
-    #[inline]
-    pub fn upcoming(&self) -> UpcomingTokens<'r, 't> {
-        UpcomingTokens::Split {
-            current: self.current,
-            remaining: self.remaining,
-        }
     }
 
     #[inline]

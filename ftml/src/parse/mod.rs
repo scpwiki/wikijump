@@ -32,7 +32,6 @@ mod rule;
 mod stack;
 mod string;
 mod token;
-mod upcoming;
 
 mod prelude {
     pub use super::{
