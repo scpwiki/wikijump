@@ -111,6 +111,11 @@ impl<'l, 'r, 't> Parser<'l, 'r, 't> {
     }
 
     #[inline]
+    pub fn evaluate_any(&self, conditions: &[ParseCondition]) -> bool {
+        conditions.iter().any(|&condition| self.evaluate(condition))
+    }
+
+    #[inline]
     pub fn evaluate_fn<F>(&self, f: F) -> bool
     where
         F: FnOnce(Parser<'l, 'r, 't>) -> Result<bool, ParseError>,
@@ -143,6 +148,11 @@ impl<'l, 'r, 't> Parser<'l, 'r, 't> {
             #[cold]
             None => Err(self.make_error(ParseErrorKind::EndOfInput)),
         }
+    }
+
+    #[inline]
+    pub fn update_remaining(&mut self, remaining: &'r [ExtractedToken<'t>]) {
+        self.remaining = remaining;
     }
 
     // Utilities

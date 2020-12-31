@@ -37,10 +37,8 @@ mod container;
 mod generic;
 mod last;
 mod merge;
-mod paragraph;
 
 pub use self::container::try_container;
 pub use self::generic::try_collect;
 pub use self::last::last_before_slice;
 pub use self::merge::try_merge;
-pub use self::paragraph::try_paragraphs;

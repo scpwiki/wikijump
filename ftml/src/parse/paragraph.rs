@@ -18,12 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::condition::ParseCondition;
 use super::consume::consume;
+use super::parser::Parser;
 use super::prelude::*;
 use super::rule::Rule;
 use super::stack::ParagraphStack;
 use super::token::Token;
-use super::upcoming::UpcomingTokens;
 
 /// Function to iterate over tokens to produce elements in paragraphs.
 ///
@@ -38,25 +39,28 @@ use super::upcoming::UpcomingTokens;
 /// See the `UpcomingTokens` enum for more information.
 pub fn gather_paragraphs<'l, 'r, 't>(
     log: &'l slog::Logger,
-    mut tokens: UpcomingTokens<'r, 't>,
-    full_text: FullText<'t>,
+    parser: &mut Parser<'l, 'r, 't>,
     rule: Rule,
-    close_tokens: &[Token],
-    invalid_tokens: &[Token],
+    close_conditions: &[ParseCondition],
+    invalid_conditions: &[ParseCondition],
 ) -> ParseResult<'r, 't, Vec<Element<'t>>>
 where
     'r: 't,
 {
     info!(log, "Gathering paragraphs until ending");
 
+    // Update parser rule
+    parser.set_rule(rule);
+
+    // Build paragraph stack
     let mut stack = ParagraphStack::new(log);
 
-    while let Some((extracted, remaining)) = tokens.split() {
+    loop {
         // Consume tokens to produce the next element
-        let result = match extracted.token {
+        let result = match parser.current().token {
             // Avoid an unnecessary Token::Null and just exit
             Token::InputEnd => {
-                if close_tokens.is_empty() {
+                if close_conditions.is_empty() {
                     debug!(log, "Hit the end of input, terminating token iteration");
 
                     break;
@@ -66,7 +70,7 @@ where
                     return Err(ParseError::new(
                         ParseErrorKind::EndOfInput,
                         rule,
-                        extracted,
+                        parser.current(),
                     ));
                 }
             }
@@ -82,38 +86,42 @@ where
                 stack.end_paragraph();
 
                 // We must manually bump up this pointer because
-                // we 'continue' here, skipping the usual consumption check.
-                tokens.update(remaining);
-
+                // we 'continue' here, skipping the usual pointer update.
+                parser.step()?;
                 continue;
             }
 
             // Ending the paragraph prematurely due to the element ending
-            token if close_tokens.contains(&token) => {
+            _ if parser.evaluate_any(close_conditions) => {
                 debug!(
                     log,
                     "Hit closing token, returning consumption success";
-                    "token" => token,
+                    "token" => parser.current().token,
                 );
 
-                return stack.into_result(tokens.slice());
+                return stack.into_result(parser.remaining());
             }
 
             // Ending the paragraph prematurely due to an error
-            token if invalid_tokens.contains(&token) => {
+            _ if parser.evaluate_any(invalid_conditions) => {
                 debug!(
                     log,
                     "Hit failure token, returning consumption failure";
-                    "token" => token,
+                    "token" => parser.current().token,
                 );
 
-                return Err(ParseError::new(ParseErrorKind::RuleFailed, rule, extracted));
+                return Err(parser.make_error(ParseErrorKind::RuleFailed));
             }
 
             // Produce consumption from this token pointer
             _ => {
                 debug!(log, "Trying to consume tokens to produce element");
-                consume(log, &extracted, remaining, full_text)
+                consume(
+                    log,
+                    parser.current(),
+                    parser.remaining(),
+                    parser.full_text(),
+                )
             }
         };
 
@@ -130,7 +138,7 @@ where
                 // The new value is a subslice of tokens,
                 // equivalent to &tokens[offset..] but without
                 // needing to assert bounds.
-                tokens.update(remaining);
+                parser.update_remaining(remaining);
 
                 // Add the new element to the list
                 stack.push_element(item);
@@ -155,5 +163,5 @@ where
         }
     }
 
-    stack.into_result(tokens.slice())
+    stack.into_result(parser.remaining())
 }

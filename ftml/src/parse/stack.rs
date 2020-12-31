@@ -123,7 +123,7 @@ impl<'l, 't> ParagraphStack<'l, 't> {
     ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
         debug!(
             self.log,
-            "Converting paragraph parse stack into consumption",
+            "Converting paragraph parse stack into ParseResult",
         );
 
         self.end_paragraph();

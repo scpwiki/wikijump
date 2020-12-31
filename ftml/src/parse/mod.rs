@@ -78,14 +78,7 @@ where
 
     // At the top level, we gather elements into paragraphs
     info!(log, "Running parser on tokens");
-    let result = gather_paragraphs(
-        log,
-        parser.upcoming(),
-        parser.full_text(),
-        RULE_PAGE,
-        &[],
-        &[],
-    );
+    let result = gather_paragraphs(log, &mut parser, RULE_PAGE, &[], &[]);
 
     debug!(log, "Finished paragraph gathering, matching on consumption");
     match result {
