@@ -32,7 +32,10 @@ where
     'r: 't,
 {
     pub item: T,
+
+    #[deprecated]
     pub remaining: &'r [ExtractedToken<'t>],
+
     pub exceptions: Vec<ParseException<'t>>,
 }
 
