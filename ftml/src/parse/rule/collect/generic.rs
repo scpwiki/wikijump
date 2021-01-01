@@ -125,7 +125,7 @@ where
         }
 
         // Process token(s).
-        let (item, remaining, mut exceptions) = process(log, parser)?.into();
+        let (item, _, mut exceptions) = process(log, parser)?.into();
 
         debug!(
             log,
@@ -136,9 +136,6 @@ where
 
         // Append new item
         collected.push(item);
-
-        // Update token pointer
-        parser.update(remaining);
 
         // Append new exceptions
         all_exc.append(&mut exceptions);
