@@ -34,35 +34,29 @@ pub const RULE_BLOCK_SPECIAL: Rule = Rule {
 
 // Rule implementations
 
-fn block_regular<'r, 't>(
-    log: &slog::Logger,
-    extracted: &'r ExtractedToken<'t>,
-    remaining: &'r [ExtractedToken<'t>],
-    full_text: FullText<'t>,
+fn block_regular<'l, 'p, 'r, 't>(
+    log: &'l slog::Logger,
+    parser: &'p mut Parser<'l, 'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
     trace!(log, "Trying to process a block");
 
-    parse_block(log, extracted, remaining, full_text, false)
+    parse_block(log, parser, false)
 }
 
-fn block_special<'r, 't>(
-    log: &slog::Logger,
-    extracted: &'r ExtractedToken<'t>,
-    remaining: &'r [ExtractedToken<'t>],
-    full_text: FullText<'t>,
+fn block_special<'l, 'p, 'r, 't>(
+    log: &'l slog::Logger,
+    parser: &'p mut Parser<'l, 'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
     trace!(log, "Trying to process a block (with special)");
 
-    parse_block(log, extracted, remaining, full_text, true)
+    parse_block(log, parser, true)
 }
 
 // Block parsing implementation
 
-fn parse_block<'r, 't>(
-    log: &slog::Logger,
-    extracted: &'r ExtractedToken<'t>,
-    remaining: &'r [ExtractedToken<'t>],
-    full_text: FullText<'t>,
+fn parse_block<'l, 'p, 'r, 't>(
+    log: &'l slog::Logger,
+    parser: &'p mut Parser<'l, 'r, 't>,
     special: bool,
 ) -> ParseResult<'r, 't, Element<'t>>
 where
@@ -74,7 +68,7 @@ where
         "special" => special,
     );
 
-    let mut parser = BlockParser::new(log, special, extracted, remaining, full_text);
+    let mut parser = BlockParser::new(log, parser, special);
 
     // Get block name
     parser.get_optional_space()?;

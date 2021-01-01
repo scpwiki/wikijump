@@ -82,5 +82,5 @@ impl slog::Value for Rule {
 /// The function type for actually trying to consume tokens
 pub type TryConsumeFn = for<'p, 'l, 'r, 't> fn(
     log: &'l slog::Logger,
-    parser: &'lp mut Parser<'l, 'r, 't>,
+    parser: &'p mut Parser<'l, 'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>>;

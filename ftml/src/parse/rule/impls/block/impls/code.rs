@@ -27,9 +27,9 @@ pub const BLOCK_CODE: BlockRule = BlockRule {
     parse_fn,
 };
 
-fn parse_fn<'l, 'r, 't>(
+fn parse_fn<'l, 'p, 'r, 't>(
     log: &'l slog::Logger,
-    parser: &mut BlockParser<'l, 'r, 't>,
+    parser: &'p mut BlockParser<'l, 'p, 'r, 't>,
     name: &'t str,
     special: bool,
 ) -> ParseResult<'r, 't, Element<'t>> {
