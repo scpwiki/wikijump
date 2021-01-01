@@ -46,8 +46,8 @@ fn try_consume_fn<'p, 'l, 'r, 't>(
         &[ParseCondition::current(Token::Superscript)],
         &[
             ParseCondition::current(Token::ParagraphBreak),
-            ParseCondition::current(Token::Superscript, Token::Whitespace),
-            ParseCondition::current(Token::Whitespace, Token::Superscript),
+            ParseCondition::token_pair(Token::Superscript, Token::Whitespace),
+            ParseCondition::token_pair(Token::Whitespace, Token::Superscript),
         ],
     )
 }
