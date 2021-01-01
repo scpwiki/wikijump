@@ -68,10 +68,10 @@ where
     F: FnMut(&slog::Logger, &'p mut Parser<'l, 'r, 't>) -> ParseResult<'r, 't, T>,
     T: Debug,
 {
-    /// Tokens are always considered invalid, and will fail the rule.
+    /// Tokens that are always considered invalid, and will fail the rule.
     ///
     /// This behaves as if all of these tokens have associated
-    /// `ParseCondition::CurrentToken` rules.
+    /// `ParseCondition::CurrentToken` rules in `invalid_conditions`.
     const ALWAYS_INVALID: &[Token] = &[Token::InputEnd];
 
     // Log collect_until() call
