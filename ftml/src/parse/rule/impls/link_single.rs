@@ -37,18 +37,18 @@ pub const RULE_LINK_SINGLE_NEW_TAB: Rule = Rule {
     try_consume_fn: link_new_tab,
 };
 
-fn link<'p, 'l, 'r, 't>(
+fn link<'l, 'p, 'lp, 'r, 't>(
     log: &'l slog::Logger,
-    parser: &'p mut Parser<'l, 'r, 't>,
+    parser: &'p mut Parser<'lp, 'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
     trace!(log, "Trying to create a single-bracket link (regular)");
 
     try_consume_link(log, parser, RULE_LINK_SINGLE, AnchorTarget::Same)
 }
 
-fn link_new_tab<'p, 'l, 'r, 't>(
+fn link_new_tab<'l, 'p, 'lp, 'r, 't>(
     log: &'l slog::Logger,
-    parser: &'p mut Parser<'l, 'r, 't>,
+    parser: &'p mut Parser<'lp, 'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
     trace!(log, "Trying to create a single-bracket link (new tab)");
 
@@ -56,9 +56,9 @@ fn link_new_tab<'p, 'l, 'r, 't>(
 }
 
 /// Build a single-bracket link with the given anchor.
-fn try_consume_link<'p, 'l, 'r, 't>(
+fn try_consume_link<'l, 'p, 'lp, 'r, 't>(
     log: &'l slog::Logger,
-    parser: &'p mut Parser<'l, 'r, 't>,
+    parser: &'p mut Parser<'lp, 'r, 't>,
     rule: Rule,
     anchor: AnchorTarget,
 ) -> ParseResult<'r, 't, Element<'t>> {
