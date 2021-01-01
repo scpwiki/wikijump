@@ -62,7 +62,7 @@ pub fn try_collect<'p, 'l, 'r, 't, F, T>(
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
-    mut f: F,
+    mut process: F,
 ) -> ParseResult<'r, 't, Vec<T>>
 where
     F: FnMut(&slog::Logger, &'p mut Parser<'l, 'r, 't>) -> ParseResult<'r, 't, T>,
@@ -125,7 +125,7 @@ where
         }
 
         // Process token(s).
-        let (item, remaining, mut exceptions) = f(log, parser)?.into();
+        let (item, remaining, mut exceptions) = process(log, parser)?.into();
 
         debug!(
             log,
