@@ -37,10 +37,8 @@ mod prelude {
 
 mod container;
 mod generic;
-mod last;
 mod merge;
 
 pub use self::container::try_container;
 pub use self::generic::try_collect;
-pub use self::last::last_before_slice;
 pub use self::merge::try_merge;
