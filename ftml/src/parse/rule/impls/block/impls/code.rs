@@ -43,13 +43,13 @@ fn parse_fn<'l, 'p, 'r, 't>(
     let language = arguments.get("type");
     parser.get_line_break()?;
 
-    let first = parser.extracted();
+    let first = parser.current();
     let mut end;
 
     // Keep iterating until we find "[[/code]]"
     loop {
         parser.proceed_until(&[Token::LineBreak, Token::LeftBlockEnd])?;
-        end = parser.extracted();
+        end = parser.current();
         parser.step()?;
 
         // Check if it's an end block

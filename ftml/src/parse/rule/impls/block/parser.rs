@@ -26,6 +26,7 @@ use crate::parse::rule::collect::try_merge;
 use crate::parse::{
     parse_string, ExtractedToken, ParseError, ParseErrorKind, Parser, Token,
 };
+use crate::text::FullText;
 
 #[derive(Debug)]
 pub struct BlockParser<'p, 'l, 'r, 't> {
@@ -294,6 +295,11 @@ where
     #[inline]
     pub fn remaining(&self) -> &'r [ExtractedToken<'t>] {
         self.parser.remaining()
+    }
+
+    #[inline]
+    pub fn full_text(&self) -> FullText<'t> {
+        self.parser.full_text()
     }
 
     #[inline]
