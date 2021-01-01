@@ -123,7 +123,13 @@ where
         }
 
         // Process token(s).
+        let old_remaining = parser.remaining();
         let (item, _, mut exceptions) = process(log, parser)?.into();
+
+        // If the pointer hasn't moved, we step one token.
+        if parser.same_pointer(old_remaining) {
+            parser.step()?;
+        }
 
         debug!(
             log,
