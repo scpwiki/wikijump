@@ -23,9 +23,11 @@ use super::rule::{RULE_BLOCK, RULE_BLOCK_SPECIAL};
 use super::BlockRule;
 use crate::parse::condition::ParseCondition;
 use crate::parse::rule::collect::try_merge;
-use crate::parse::{parse_string, ParseError, ParseErrorKind, Parser, Token};
+use crate::parse::{
+    parse_string, ExtractedToken, ParseError, ParseErrorKind, Parser, Token,
+};
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct BlockParser<'p, 'l, 'r, 't> {
     log: &'l slog::Logger,
     parser: &'p mut Parser<'l, 'r, 't>,
@@ -59,17 +61,6 @@ where
             special,
             parser,
         }
-    }
-
-    // Getters
-    #[inline]
-    pub fn parser(&self) -> &'p Parser<'l, 'r, 't> {
-        self.parser
-    }
-
-    #[inline]
-    pub fn parser_mut(&mut self) -> &'p mut Parser<'l, 'r, 't> {
-        self.parser
     }
 
     // Parsing methods
@@ -137,6 +128,20 @@ where
         Ok(name)
     }
 
+    /// Run the closure with a temporary, "cloned" version of this structure.
+    ///
+    /// This permits free manipualation of the pointer state with no
+    /// effects on the actual parse state.
+    #[inline]
+    pub fn clone_run<F, T>(&self, f: F) -> T
+    where
+        F: FnOnce(Self) -> T,
+    {
+        let parser = self.parser.clone();
+        let clone = BlockParser::new(self.log, self.special, &mut parser);
+        f(clone)
+    }
+
     /// Keep consuming tokens until they match a certain pattern.
     ///
     /// This function iterates until a contiguous slice of tokens
@@ -159,7 +164,8 @@ where
             }
 
             // Duplicate parser state to allow look-ahead, check if the rest matches
-            let result = self.clone().proceed_until_internal(tokens)?;
+            let result =
+                self.clone_run(|bparser| bparser.proceed_until_internal(tokens))?;
 
             // If it was a match, return
             if result {
@@ -204,7 +210,7 @@ where
             );
         };
 
-        f(self.clone()).map_err(log_error).ok()
+        self.clone_run(f).map_err(log_error).ok()
     }
 
     // Block argument parsing
@@ -281,5 +287,26 @@ where
         );
 
         self.parser.set_rule(block_rule.rule());
+    }
+
+    // Mirrored methods from underlying Parser
+    #[inline]
+    pub fn current(&self) -> &'r ExtractedToken<'t> {
+        self.parser.current()
+    }
+
+    #[inline]
+    pub fn remaining(&self) -> &'r [ExtractedToken<'t>] {
+        self.parser.remaining()
+    }
+
+    #[inline]
+    pub fn step(&mut self) -> Result<&'r ExtractedToken<'t>, ParseError> {
+        self.parser.step()
+    }
+
+    #[inline]
+    pub fn make_error(&self, kind: ParseErrorKind) -> ParseError {
+        self.parser.make_error(kind)
     }
 }
