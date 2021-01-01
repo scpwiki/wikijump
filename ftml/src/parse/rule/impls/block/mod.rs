@@ -29,8 +29,7 @@
 
 use crate::parse::result::ParseResult;
 use crate::parse::rule::Rule;
-use crate::parse::token::ExtractedToken;
-use crate::text::FullText;
+use crate::parse::Parser;
 use crate::tree::Element;
 
 mod arguments;
@@ -75,11 +74,9 @@ impl BlockRule {
     #[cold]
     pub fn rule(&self) -> Rule {
         // Stubbed try_consume_fn implementation for the Rule.
-        fn try_consume_fn<'r, 't>(
-            _: &slog::Logger,
-            _: &'r ExtractedToken<'t>,
-            _: &'r [ExtractedToken<'t>],
-            _: FullText<'t>,
+        fn try_consume_fn<'p, 'l, 'r, 't>(
+            _: &'l slog::Logger,
+            _: &'p mut Parser<'l, 'r, 't>,
         ) -> ParseResult<'r, 't, Element<'t>> {
             panic!("Pseudo rule for this block should not be executed directly!");
         }
