@@ -78,13 +78,13 @@ where
             "error-kind" => kind,
         );
 
-        let current = self.parser.current();
+        let current = self.current();
         if current.token == token {
             let text = current.slice;
-            self.parser.step()?;
+            self.step()?;
             Ok(text)
         } else {
-            Err(self.parser.make_error(kind))
+            Err(self.make_error(kind))
         }
     }
 
@@ -108,8 +108,8 @@ where
     pub fn get_optional_space(&mut self) -> Result<(), ParseError> {
         debug!(self.log, "Looking for optional space");
 
-        if self.parser.current().token == Token::Whitespace {
-            self.parser.step()?;
+        if self.current().token == Token::Whitespace {
+            self.step()?;
         }
 
         Ok(())
@@ -159,8 +159,8 @@ where
 
         loop {
             // Iterate until we hit a first token match
-            while self.parser.current().token != first {
-                self.parser.step()?;
+            while self.current().token != first {
+                self.step()?;
             }
 
             // Duplicate parser state to allow look-ahead, check if the rest matches
@@ -173,7 +173,7 @@ where
             }
 
             // If it failed, step forward and try this again
-            self.parser.step()?;
+            self.step()?;
         }
     }
 
@@ -183,9 +183,9 @@ where
     /// Returns `true` if so, `false` otherwise.
     fn proceed_until_internal(&mut self, tokens: &[Token]) -> Result<bool, ParseError> {
         for token in tokens.iter().copied() {
-            self.parser.step()?;
+            self.step()?;
 
-            if self.parser.current().token != token {
+            if self.current().token != token {
                 return Ok(false);
             }
         }
@@ -223,15 +223,11 @@ where
 
             // Try to get the argument key
             // Determines if we stop or keep parsing
-            let current = self.parser.current();
+            let current = self.current();
             let key = match current.token {
                 Token::Identifier => current.slice,
                 Token::RightBlock => return Ok(map),
-                _ => {
-                    return Err(self
-                        .parser
-                        .make_error(ParseErrorKind::BlockMalformedArguments))
-                }
+                _ => return Err(self.make_error(ParseErrorKind::BlockMalformedArguments)),
             };
 
             // Equal sign
