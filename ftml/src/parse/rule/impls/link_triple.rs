@@ -47,7 +47,7 @@ fn link<'p, 'l, 'r, 't>(
 ) -> ParseResult<'r, 't, Element<'t>> {
     trace!(log, "Trying to create a triple-bracket link (regular)");
 
-    try_consume_link(parser, RULE_LINK_TRIPLE, AnchorTarget::Same)
+    try_consume_link(log, parser, RULE_LINK_TRIPLE, AnchorTarget::Same)
 }
 
 fn link_new_tab<'p, 'l, 'r, 't>(
@@ -56,7 +56,7 @@ fn link_new_tab<'p, 'l, 'r, 't>(
 ) -> ParseResult<'r, 't, Element<'t>> {
     trace!(log, "Trying to create a triple-bracket link (new tab)");
 
-    try_consume_link(parser, RULE_LINK_TRIPLE_NEW_TAB, AnchorTarget::NewTab)
+    try_consume_link(log, parser, RULE_LINK_TRIPLE_NEW_TAB, AnchorTarget::NewTab)
 }
 
 /// Build a triple-bracket link with the given anchor.

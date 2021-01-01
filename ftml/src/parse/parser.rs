@@ -177,7 +177,7 @@ impl<'l, 'r, 't> Parser<'l, 'r, 't> {
         offset: usize,
     ) -> Result<&'r ExtractedToken<'t>, ParseError> {
         self.look_ahead(offset)
-            .ok_or_else(|| self.make_error(ParseErrorKind::EndOfInput));
+            .ok_or_else(|| self.make_error(ParseErrorKind::EndOfInput))
     }
 
     #[inline]

@@ -112,12 +112,7 @@ where
             // Produce consumption from this token pointer
             _ => {
                 debug!(log, "Trying to consume tokens to produce element");
-                consume(
-                    log,
-                    parser.current(),
-                    parser.remaining(),
-                    parser.full_text(),
-                )
+                consume(log, parser)
             }
         };
 
