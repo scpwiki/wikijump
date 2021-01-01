@@ -25,23 +25,22 @@ pub const RULE_ITALICS: Rule = Rule {
     try_consume_fn,
 };
 
-fn try_consume_fn<'r, 't>(
-    log: &slog::Logger,
-    extracted: &'r ExtractedToken<'t>,
-    remaining: &'r [ExtractedToken<'t>],
-    full_text: FullText<'t>,
+fn try_consume_fn<'p, 'l, 'r, 't>(
+    log: &'l slog::Logger,
+    parser: &'p mut Parser<'l, 'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Trying to create italics container");
 
     try_container(
         log,
-        (extracted, remaining, full_text),
-        (RULE_ITALICS, ContainerType::Italics),
-        (Token::Italics, Token::Italics),
-        &[Token::ParagraphBreak],
+        parser,
+        RULE_ITALICS,
+        ContainerType::Italics,
+        &[ParseCondition::current(Token::Italics)],
         &[
-            (Token::Italics, Token::Whitespace),
-            (Token::Whitespace, Token::Italics),
+            ParseCondition::current(Token::ParagraphBreak),
+            ParseCondition::token_pair(Token::Italics, Token::Whitespace),
+            ParseCondition::token_pair(Token::Whitespace, Token::Italics),
         ],
     )
 }

@@ -33,27 +33,31 @@ pub const RULE_LINK_ANCHOR: Rule = Rule {
     try_consume_fn,
 };
 
-fn try_consume_fn<'r, 't>(
-    log: &slog::Logger,
-    extracted: &'r ExtractedToken<'t>,
-    remaining: &'r [ExtractedToken<'t>],
-    full_text: FullText<'t>,
+fn try_consume_fn<'p, 'l, 'r, 't>(
+    log: &'l slog::Logger,
+    parser: &'p mut Parser<'l, 'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Trying to create a single-bracket anchor link");
 
-    // Gather path for link
-    let consumption = try_merge(
-        log,
-        (extracted, remaining, full_text),
-        RULE_LINK_ANCHOR,
-        &[Token::Whitespace],
-        &[Token::RightBracket, Token::ParagraphBreak, Token::LineBreak],
-        &[],
+    assert_eq!(
+        parser.current().token,
+        Token::LeftAnchor,
+        "Current token isn't left anchor",
     );
 
-    // Return if failure, and get last token for try_merge()
-    let (url, extracted, remaining, mut all_exceptions) =
-        try_consume_last!(remaining, consumption);
+    // Gather path for link
+    let (url, _, mut exceptions) = try_merge(
+        log,
+        parser,
+        RULE_LINK_ANCHOR,
+        &[ParseCondition::current(Token::Whitespace)],
+        &[
+            ParseCondition::current(Token::RightBracket),
+            ParseCondition::current(Token::ParagraphBreak),
+            ParseCondition::current(Token::LineBreak),
+        ],
+    )?
+    .into();
 
     // Determine if this is an anchor link or fake link
     let url = if url.is_empty() {
@@ -68,17 +72,17 @@ fn try_consume_fn<'r, 't>(
     };
 
     // Gather label for link
-    let result = try_merge(
+    let label = try_merge(
         log,
-        (extracted, remaining, full_text),
+        parser,
         RULE_LINK_ANCHOR,
-        &[Token::RightBracket],
-        &[Token::ParagraphBreak, Token::LineBreak],
-        &[],
-    );
-
-    // Append errors, or return if failure
-    let (label, remaining, mut exceptions) = result?.into();
+        &[ParseCondition::current(Token::RightBracket)],
+        &[
+            ParseCondition::current(Token::ParagraphBreak),
+            ParseCondition::current(Token::LineBreak),
+        ],
+    )?
+    .chain(&mut exceptions);
 
     debug!(
         log,
@@ -86,11 +90,8 @@ fn try_consume_fn<'r, 't>(
         "label" => label,
     );
 
-    // Trimming label
+    // Trim label
     let label = label.trim();
-
-    // Add on new exceptions
-    all_exceptions.append(&mut exceptions);
 
     // Build link element
     let element = Element::Link {
@@ -100,5 +101,5 @@ fn try_consume_fn<'r, 't>(
     };
 
     // Return result
-    ok!(element, remaining, all_exceptions)
+    ok!(element, parser.remaining(), exceptions)
 }

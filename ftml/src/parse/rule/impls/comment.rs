@@ -25,22 +25,23 @@ pub const RULE_COMMENT: Rule = Rule {
     try_consume_fn,
 };
 
-fn try_consume_fn<'r, 't>(
-    log: &slog::Logger,
-    extracted: &'r ExtractedToken<'t>,
-    mut remaining: &'r [ExtractedToken<'t>],
-    _full_text: FullText<'t>,
+fn try_consume_fn<'p, 'l, 'r, 't>(
+    log: &'l slog::Logger,
+    parser: &'p mut Parser<'l, 'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Consuming tokens until end of comment");
 
     assert_eq!(
-        extracted.token,
+        parser.current().token,
         Token::LeftComment,
         "Current token isn't a LeftComment",
     );
 
-    while let Some((new_extracted, new_remaining)) = remaining.split_first() {
-        let ExtractedToken { token, span, slice } = new_extracted;
+    parser.step()?;
+
+    loop {
+        let ExtractedToken { token, span, slice } = parser.current();
+
         debug!(
             log,
             "Received token inside comment";
@@ -50,35 +51,26 @@ fn try_consume_fn<'r, 't>(
             "span-end" => span.end,
         );
 
-        // Check token
         match token {
             // Hit the end of the comment, return
             Token::RightComment => {
                 trace!(log, "Reached end of comment, returning");
 
-                return ok!(Element::Null, new_remaining);
+                return ok!(Element::Null, parser.remaining());
             }
 
             // Hit the end of the input, abort
             Token::InputEnd => {
                 trace!(log, "Reached end of input, aborting");
 
-                return Err(ParseError::new(
-                    ParseErrorKind::EndOfInput,
-                    RULE_COMMENT,
-                    new_extracted,
-                ));
+                return Err(parser.make_error(ParseErrorKind::EndOfInput));
             }
 
             // Consume any other token
             _ => {
                 trace!(log, "Token inside comment received. Discarding.");
-
-                // Update pointer
-                remaining = new_remaining;
+                parser.step()?;
             }
         }
     }
-
-    panic!("Reached end of input without encountering a Token::InputEnd");
 }

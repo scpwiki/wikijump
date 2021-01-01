@@ -19,6 +19,7 @@
  */
 
 mod prelude {
+    pub use crate::parse::condition::ParseCondition;
     pub use crate::parse::consume::consume;
     pub use crate::parse::error::{ParseError, ParseErrorKind, ParseException};
     pub use crate::parse::parser::Parser;

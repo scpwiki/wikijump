@@ -25,16 +25,14 @@ pub const RULE_COLOR: Rule = Rule {
     try_consume_fn,
 };
 
-fn try_consume_fn<'r, 't>(
-    log: &slog::Logger,
-    extracted: &'r ExtractedToken<'t>,
-    remaining: &'r [ExtractedToken<'t>],
-    full_text: FullText<'t>,
+fn try_consume_fn<'p, 'l, 'r, 't>(
+    log: &'l slog::Logger,
+    parser: &'p mut Parser<'l, 'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Trying to create color container");
 
     assert_eq!(
-        extracted.token,
+        parser.current().token,
         Token::Color,
         "Current token isn't color marker",
     );
@@ -43,18 +41,17 @@ fn try_consume_fn<'r, 't>(
     // ## [color-style] | [text to be colored] ##
 
     // Gather the color name until the separator
-    let consumption = try_merge(
+    let (color, _, mut exceptions) = try_merge(
         log,
-        (extracted, remaining, full_text),
+        parser,
         RULE_COLOR,
-        &[Token::Pipe],
-        &[Token::ParagraphBreak, Token::LineBreak],
-        &[],
-    );
-
-    // Return if failure, and get last token for try_container()
-    let (color, extracted, remaining, mut all_exceptions) =
-        try_consume_last!(remaining, consumption);
+        &[ParseCondition::current(Token::Pipe)],
+        &[
+            ParseCondition::current(Token::ParagraphBreak),
+            ParseCondition::current(Token::LineBreak),
+        ],
+    )?
+    .into();
 
     debug!(
         log,
@@ -63,21 +60,15 @@ fn try_consume_fn<'r, 't>(
     );
 
     // Build color container
-    let result = try_collect(
+    let elements = try_collect(
         log,
-        (extracted, remaining, full_text),
+        parser,
         RULE_COLOR,
-        &[Token::Color],
-        &[Token::ParagraphBreak],
-        &[],
+        &[ParseCondition::current(Token::Color)],
+        &[ParseCondition::current(Token::ParagraphBreak)],
         consume,
-    );
-
-    // Append errors, or return if failure
-    let (elements, remaining, mut exceptions) = result?.into();
-
-    // Add on new errors
-    all_exceptions.append(&mut exceptions);
+    )?
+    .chain(&mut exceptions);
 
     // Return result
     let element = Element::Color {
@@ -85,5 +76,5 @@ fn try_consume_fn<'r, 't>(
         elements,
     };
 
-    ok!(element, remaining, all_exceptions)
+    ok!(element, parser.remaining(), exceptions)
 }

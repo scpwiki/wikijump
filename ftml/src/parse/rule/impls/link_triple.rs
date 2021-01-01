@@ -41,89 +41,64 @@ pub const RULE_LINK_TRIPLE_NEW_TAB: Rule = Rule {
     try_consume_fn: link_new_tab,
 };
 
-fn link<'r, 't>(
-    log: &slog::Logger,
-    extracted: &'r ExtractedToken<'t>,
-    remaining: &'r [ExtractedToken<'t>],
-    full_text: FullText<'t>,
+fn link<'p, 'l, 'r, 't>(
+    log: &'l slog::Logger,
+    parser: &'p mut Parser<'l, 'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
     trace!(log, "Trying to create a triple-bracket link (regular)");
 
-    try_consume_link(
-        log,
-        extracted,
-        remaining,
-        full_text,
-        RULE_LINK_TRIPLE,
-        AnchorTarget::Same,
-    )
+    try_consume_link(parser, RULE_LINK_TRIPLE, AnchorTarget::Same)
 }
 
-fn link_new_tab<'r, 't>(
-    log: &slog::Logger,
-    extracted: &'r ExtractedToken<'t>,
-    remaining: &'r [ExtractedToken<'t>],
-    full_text: FullText<'t>,
+fn link_new_tab<'p, 'l, 'r, 't>(
+    log: &'l slog::Logger,
+    parser: &'p mut Parser<'l, 'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
     trace!(log, "Trying to create a triple-bracket link (new tab)");
 
-    try_consume_link(
-        log,
-        extracted,
-        remaining,
-        full_text,
-        RULE_LINK_TRIPLE_NEW_TAB,
-        AnchorTarget::NewTab,
-    )
+    try_consume_link(parser, RULE_LINK_TRIPLE_NEW_TAB, AnchorTarget::NewTab)
 }
 
 /// Build a triple-bracket link with the given anchor.
-fn try_consume_link<'r, 't>(
-    log: &slog::Logger,
-    extracted: &'r ExtractedToken<'t>,
-    remaining: &'r [ExtractedToken<'t>],
-    full_text: FullText<'t>,
+fn try_consume_link<'p, 'l, 'r, 't>(
+    log: &'l slog::Logger,
+    parser: &'p mut Parser<'l, 'r, 't>,
     rule: Rule,
     anchor: AnchorTarget,
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Trying to create a triple-bracket link"; "anchor" => anchor.name());
 
     // Gather path for link
-    let consumption = try_merge(
+    let (url, _, exceptions) = try_merge(
         log,
-        (extracted, remaining, full_text),
+        parser,
         rule,
-        &[Token::Pipe, Token::RightLink],
-        &[Token::ParagraphBreak, Token::LineBreak],
-        &[],
-    );
-
-    // Return if failure, get ready for second part
-    let (url, extracted, remaining, exceptions) =
-        try_consume_last!(remaining, consumption);
+        &[
+            ParseCondition::current(Token::Pipe),
+            ParseCondition::current(Token::RightLink),
+        ],
+        &[
+            ParseCondition::current(Token::ParagraphBreak),
+            ParseCondition::current(Token::LineBreak),
+        ],
+    )?
+    .into();
 
     // Trim text
     let url = url.trim();
 
     // If url is an empty string, parsing should fail, there's nothing here
     if url.is_empty() {
-        return Err(ParseError::new(ParseErrorKind::RuleFailed, rule, extracted));
+        return Err(parser.make_error(ParseErrorKind::RuleFailed));
     }
 
     // Determine what token we ended on, i.e. which [[[ variant it is.
-    match extracted.token {
+    match parser.current().token {
         // [[[name]]] type links
-        Token::RightLink => build_same(log, remaining, exceptions, url, anchor),
+        Token::RightLink => build_same(log, parser, exceptions, url, anchor),
 
         // [[[url|label]]] type links
-        Token::Pipe => build_separate(
-            log,
-            (extracted, remaining, full_text),
-            exceptions,
-            rule,
-            url,
-            anchor,
-        ),
+        Token::Pipe => build_separate(log, parser, exceptions, rule, url, anchor),
 
         // Token was already checked in try_merge(), impossible case
         _ => unreachable!(),
@@ -132,10 +107,10 @@ fn try_consume_link<'r, 't>(
 
 /// Helper to build link with the same URL and label.
 /// e.g. `[[[name]]]`
-fn build_same<'r, 't>(
-    log: &slog::Logger,
-    remaining: &'r [ExtractedToken<'t>],
-    errors: Vec<ParseException<'t>>,
+fn build_same<'p, 'l, 'r, 't>(
+    log: &'l slog::Logger,
+    parser: &'p mut Parser<'l, 'r, 't>,
+    exceptions: Vec<ParseException<'t>>,
     url: &'t str,
     anchor: AnchorTarget,
 ) -> ParseResult<'r, 't, Element<'t>> {
@@ -151,19 +126,15 @@ fn build_same<'r, 't>(
         anchor,
     };
 
-    ok!(element, remaining, errors)
+    ok!(element, parser.remaining(), exceptions)
 }
 
 /// Helper to build link with separate URL and label.
 /// e.g. `[[[page|label]]]`, or `[[[page|]]]`
-fn build_separate<'r, 't>(
+fn build_separate<'p, 'l, 'r, 't>(
     log: &slog::Logger,
-    (extracted, remaining, full_text): (
-        &'r ExtractedToken<'t>,
-        &'r [ExtractedToken<'t>],
-        FullText<'t>,
-    ),
-    mut all_exc: Vec<ParseException<'t>>,
+    parser: &'p mut Parser<'l, 'r, 't>,
+    mut exceptions: Vec<ParseException<'t>>,
     rule: Rule,
     url: &'t str,
     anchor: AnchorTarget,
@@ -175,17 +146,17 @@ fn build_separate<'r, 't>(
     );
 
     // Gather label for link
-    let result = try_merge(
+    let label = try_merge(
         log,
-        (extracted, remaining, full_text),
+        parser,
         rule,
-        &[Token::RightLink],
-        &[Token::ParagraphBreak, Token::LineBreak],
-        &[],
-    );
-
-    // Append errors, or return if failure
-    let (label, remaining, mut exceptions) = result?.into();
+        &[ParseCondition::current(Token::RightLink)],
+        &[
+            ParseCondition::current(Token::ParagraphBreak),
+            ParseCondition::current(Token::LineBreak),
+        ],
+    )?
+    .append(&mut exceptions);
 
     debug!(
         log,
@@ -193,7 +164,7 @@ fn build_separate<'r, 't>(
         "label" => label,
     );
 
-    // Trimming label
+    // Trim label
     let label = label.trim();
 
     // If label is empty, then it takes on the page's title
@@ -204,9 +175,6 @@ fn build_separate<'r, 't>(
         LinkLabel::Text(cow!(label))
     };
 
-    // Add on new exceptions
-    all_exc.append(&mut exceptions);
-
     // Build link element
     let element = Element::Link {
         url: cow!(url),
@@ -215,5 +183,5 @@ fn build_separate<'r, 't>(
     };
 
     // Return result
-    ok!(element, remaining, all_exc)
+    ok!(element, parser.remaining(), exceptions)
 }

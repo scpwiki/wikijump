@@ -37,69 +37,49 @@ pub const RULE_LINK_SINGLE_NEW_TAB: Rule = Rule {
     try_consume_fn: link_new_tab,
 };
 
-fn link<'r, 't>(
-    log: &slog::Logger,
-    extracted: &'r ExtractedToken<'t>,
-    remaining: &'r [ExtractedToken<'t>],
-    full_text: FullText<'t>,
+fn link<'p, 'l, 'r, 't>(
+    log: &'l slog::Logger,
+    parser: &'p mut Parser<'l, 'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
     trace!(log, "Trying to create a single-bracket link (regular)");
 
-    try_consume_link(
-        log,
-        extracted,
-        remaining,
-        full_text,
-        RULE_LINK_SINGLE,
-        AnchorTarget::Same,
-    )
+    try_consume_link(log, parser, RULE_LINK_SINGLE, AnchorTarget::Same)
 }
 
-fn link_new_tab<'r, 't>(
-    log: &slog::Logger,
-    extracted: &'r ExtractedToken<'t>,
-    remaining: &'r [ExtractedToken<'t>],
-    full_text: FullText<'t>,
+fn link_new_tab<'p, 'l, 'r, 't>(
+    log: &'l slog::Logger,
+    parser: &'p mut Parser<'l, 'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
     trace!(log, "Trying to create a single-bracket link (new tab)");
 
-    try_consume_link(
-        log,
-        extracted,
-        remaining,
-        full_text,
-        RULE_LINK_SINGLE_NEW_TAB,
-        AnchorTarget::NewTab,
-    )
+    try_consume_link(log, parser, RULE_LINK_SINGLE_NEW_TAB, AnchorTarget::NewTab)
 }
 
 /// Build a single-bracket link with the given anchor.
-fn try_consume_link<'r, 't>(
+fn try_consume_link<'p, 'l, 'r, 't>(
     log: &slog::Logger,
-    extracted: &'r ExtractedToken<'t>,
-    remaining: &'r [ExtractedToken<'t>],
-    full_text: FullText<'t>,
+    parser: &'p mut Parser<'l, 'r, 't>,
     rule: Rule,
     anchor: AnchorTarget,
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Trying to create a single-bracket link"; "anchor" => anchor.name());
 
     // Gather path for link
-    let consumption = try_merge(
+    let (url, _, mut exceptions) = try_merge(
         log,
-        (extracted, remaining, full_text),
+        parser,
         rule,
-        &[Token::Whitespace],
-        &[Token::RightBracket, Token::ParagraphBreak, Token::LineBreak],
-        &[],
-    );
-
-    // Return if failure, and get last token for try_merge()
-    let (url, extracted, remaining, mut all_exceptions) =
-        try_consume_last!(remaining, consumption);
+        &[ParseCondition::current(Token::Whitespace)],
+        &[
+            ParseCondition::current(Token::RightBracket),
+            ParseCondition::current(Token::ParagraphBreak),
+            ParseCondition::current(Token::LineBreak),
+        ],
+    )?
+    .into();
 
     if !url_valid(url) {
-        return Err(ParseError::new(ParseErrorKind::InvalidUrl, rule, extracted));
+        return Err(parser.make_error(ParseErrorKind::InvalidUrl));
     }
 
     debug!(
@@ -109,18 +89,17 @@ fn try_consume_link<'r, 't>(
     );
 
     // Gather label for link
-    let ParseSuccess {
-        item: label,
-        remaining,
-        mut exceptions,
-    } = try_merge(
+    let label = try_merge(
         log,
-        (extracted, remaining, full_text),
+        parser,
         rule,
-        &[Token::RightBracket],
-        &[Token::ParagraphBreak, Token::LineBreak],
-        &[],
-    )?;
+        &[ParseCondition::current(Token::RightBracket)],
+        &[
+            ParseCondition::current(Token::ParagraphBreak),
+            ParseCondition::current(Token::LineBreak),
+        ],
+    )?
+    .chain(&mut exceptions);
 
     debug!(
         log,
@@ -128,11 +107,8 @@ fn try_consume_link<'r, 't>(
         "label" => label,
     );
 
-    // Trimming label
+    // Trim label
     let label = label.trim();
-
-    // Add on new errors
-    all_exceptions.append(&mut exceptions);
 
     // Build link element
     let element = Element::Link {
@@ -142,7 +118,7 @@ fn try_consume_link<'r, 't>(
     };
 
     // Return result
-    ok!(element, remaining, all_exceptions)
+    ok!(element, parser.remaining(), exceptions)
 }
 
 fn url_valid(url: &str) -> bool {

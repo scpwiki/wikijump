@@ -25,13 +25,11 @@ pub const RULE_LINE_BREAK: Rule = Rule {
     try_consume_fn,
 };
 
-fn try_consume_fn<'r, 't>(
-    log: &slog::Logger,
-    _extracted: &'r ExtractedToken<'t>,
-    remaining: &'r [ExtractedToken<'t>],
-    _full_text: FullText<'t>,
+fn try_consume_fn<'p, 'l, 'r, 't>(
+    log: &'l slog::Logger,
+    parser: &'p mut Parser<'l, 'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Consuming token as line break");
 
-    ok!(Element::LineBreak, remaining)
+    ok!(Element::LineBreak, parser.remaining())
 }

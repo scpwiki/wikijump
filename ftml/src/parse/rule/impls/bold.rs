@@ -25,23 +25,22 @@ pub const RULE_BOLD: Rule = Rule {
     try_consume_fn,
 };
 
-fn try_consume_fn<'r, 't>(
-    log: &slog::Logger,
-    extracted: &'r ExtractedToken<'t>,
-    remaining: &'r [ExtractedToken<'t>],
-    full_text: FullText<'t>,
+fn try_consume_fn<'p, 'l, 'r, 't>(
+    log: &'l slog::Logger,
+    parser: &'p mut Parser<'l, 'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Trying to create bold container");
 
     try_container(
         log,
-        (extracted, remaining, full_text),
-        (RULE_BOLD, ContainerType::Bold),
-        (Token::Bold, Token::Bold),
-        &[Token::ParagraphBreak],
+        parser,
+        RULE_BOLD,
+        ContainerType::Bold,
+        &[ParseCondition::current(Token::Bold)],
         &[
-            (Token::Bold, Token::Whitespace),
-            (Token::Whitespace, Token::Bold),
+            ParseCondition::current(Token::ParagraphBreak),
+            ParseCondition::token_pair(Token::Bold, Token::Whitespace),
+            ParseCondition::token_pair(Token::Whitespace, Token::Bold),
         ],
     )
 }

@@ -36,6 +36,22 @@ where
     pub exceptions: Vec<ParseException<'t>>,
 }
 
+impl<'r, 't, T> ParseSuccess<'r, 't, T> {
+    pub fn chain(self, all_exceptions: &mut Vec<ParseException<'t>>) -> T {
+        let ParseSuccess {
+            item,
+            remaining: _,
+            mut exceptions,
+        } = self;
+
+        // Append previous exceptions
+        all_exceptions.append(&mut exceptions);
+
+        // Return extracted item
+        item
+    }
+}
+
 impl<'r, 't, T> ParseSuccess<'r, 't, T>
 where
     T: 't,

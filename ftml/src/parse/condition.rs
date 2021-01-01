@@ -44,6 +44,23 @@ pub enum ParseCondition {
     Function { f: ParseConditionFn },
 }
 
+impl ParseCondition {
+    #[inline]
+    pub fn current(token: Token) -> ParseCondition {
+        ParseCondition::CurrentToken { token }
+    }
+
+    #[inline]
+    pub fn token_pair(current: Token, next: Token) -> ParseCondition {
+        ParseCondition::TokenPair { current, next }
+    }
+
+    #[inline]
+    pub fn function(f: ParseConditionFn) -> ParseCondition {
+        ParseCondition::Function { f }
+    }
+}
+
 impl Debug for ParseCondition {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
