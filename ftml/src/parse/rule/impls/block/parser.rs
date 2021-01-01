@@ -21,10 +21,11 @@
 use super::arguments::Arguments;
 use super::rule::{RULE_BLOCK, RULE_BLOCK_SPECIAL};
 use super::BlockRule;
+use crate::parse::condition::ParseCondition;
 use crate::parse::rule::collect::try_merge;
 use crate::parse::{parse_string, ParseError, ParseErrorKind, Parser, Token};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct BlockParser<'p, 'l, 'r, 't> {
     log: &'l slog::Logger,
     parser: &'p mut Parser<'l, 'r, 't>,
@@ -86,12 +87,13 @@ where
             "error-kind" => kind,
         );
 
-        if self.extracted.token == token {
-            let text = self.extracted.slice;
-            self.step()?;
+        let current = self.parser.current();
+        if current.token == token {
+            let text = current.slice;
+            self.parser.step()?;
             Ok(text)
         } else {
-            Err(self.make_error(kind))
+            Err(self.parser.make_error(kind))
         }
     }
 
@@ -115,8 +117,8 @@ where
     pub fn get_optional_space(&mut self) -> Result<(), ParseError> {
         debug!(self.log, "Looking for optional space");
 
-        if self.extracted.token == Token::Whitespace {
-            self.step()?;
+        if self.parser.current().token == Token::Whitespace {
+            self.parser.step()?;
         }
 
         Ok(())
@@ -152,20 +154,12 @@ where
 
         loop {
             // Iterate until we hit a first token match
-            while self.extracted.token != first {
-                self.step()?;
+            while self.parser.current().token != first {
+                self.parser.step()?;
             }
 
-            // Save current position, check if the rest match
-            let (extracted, remaining) = (self.extracted, self.remaining);
-            let result = self.proceed_until_internal(tokens)?;
-
-            // We always restore pointer position.
-            //
-            // This reverts any forward changes during crawling,
-            // and also resets the pointer if this is a match.
-            self.extracted = extracted;
-            self.remaining = remaining;
+            // Duplicate parser state to allow look-ahead, check if the rest matches
+            let result = self.clone().proceed_until_internal(tokens)?;
 
             // If it was a match, return
             if result {
@@ -173,7 +167,7 @@ where
             }
 
             // If it failed, step forward and try this again
-            self.step()?;
+            self.parser.step()?;
         }
     }
 
@@ -183,9 +177,9 @@ where
     /// Returns `true` if so, `false` otherwise.
     fn proceed_until_internal(&mut self, tokens: &[Token]) -> Result<bool, ParseError> {
         for token in tokens.iter().copied() {
-            self.step()?;
+            self.parser.step()?;
 
-            if self.extracted.token != token {
+            if self.parser.current().token != token {
                 return Ok(false);
             }
         }
@@ -199,26 +193,18 @@ where
     /// * If `Err(_)` is returned, pointer status is reverted, and `None` is returned.
     pub fn try_parse<F, T>(&mut self, f: F) -> Option<T>
     where
-        F: FnOnce(&mut Self) -> Result<T, ParseError>,
+        F: FnOnce(Self) -> Result<T, ParseError>,
     {
-        let (extracted, remaining) = (self.extracted, self.remaining);
+        let log_error = |error: ParseError| {
+            debug!(
+                self.log,
+                "Got error while attempting to parse in block: {:?}",
+                error;
+                "error-kind" => error.kind(),
+            );
+        };
 
-        match f(self) {
-            Ok(result) => Some(result),
-            Err(error) => {
-                debug!(
-                    self.log,
-                    "Got error while attempting to parse in block: {:?}",
-                    error;
-                    "error-kind" => error.kind(),
-                );
-
-                self.extracted = extracted;
-                self.remaining = remaining;
-
-                None
-            }
-        }
+        f(self.clone()).map_err(log_error).ok()
     }
 
     // Block argument parsing
@@ -231,10 +217,15 @@ where
 
             // Try to get the argument key
             // Determines if we stop or keep parsing
-            let key = match self.extracted.token {
-                Token::Identifier => self.extracted.slice,
+            let current = self.parser.current();
+            let key = match current.token {
+                Token::Identifier => current.slice,
                 Token::RightBlock => return Ok(map),
-                _ => return Err(self.make_error(ParseErrorKind::BlockMalformedArguments)),
+                _ => {
+                    return Err(self
+                        .parser
+                        .make_error(ParseErrorKind::BlockMalformedArguments))
+                }
             };
 
             // Equal sign
@@ -257,17 +248,17 @@ where
     pub fn get_argument_value(&mut self) -> Result<&'t str, ParseError> {
         debug!(self.log, "Looking for a value argument, then ']]'");
 
-        let (value, remaining, _) = try_merge(
+        let (value, _, _) = try_merge(
             self.log,
-            (self.extracted, self.remaining, self.full_text),
-            self.rule,
-            &[Token::RightBlock],
-            &[Token::ParagraphBreak, Token::LineBreak],
-            &[],
+            self.parser,
+            self.parser.rule(),
+            &[ParseCondition::current(Token::RightBlock)],
+            &[
+                ParseCondition::current(Token::ParagraphBreak),
+                ParseCondition::current(Token::LineBreak),
+            ],
         )?
         .into();
-
-        self.update(remaining)?;
 
         Ok(value)
     }
@@ -289,12 +280,6 @@ where
             block_rule.name;
         );
 
-        self.rule = block_rule.rule();
-    }
-
-    #[cold]
-    #[inline]
-    pub fn make_error(&self, kind: ParseErrorKind) -> ParseError {
-        ParseError::new(kind, self.rule, self.extracted)
+        self.parser.set_rule(block_rule.rule());
     }
 }

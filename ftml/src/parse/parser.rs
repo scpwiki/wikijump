@@ -66,6 +66,11 @@ impl<'l, 'r, 't> Parser<'l, 'r, 't> {
         self.full_text
     }
 
+    #[inline]
+    pub fn rule(&self) -> Rule {
+        self.rule
+    }
+
     // Setters
     pub fn set_rule(&mut self, rule: Rule) {
         self.rule = rule;
