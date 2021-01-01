@@ -39,27 +39,3 @@ macro_rules! ok {
         })
     };
 }
-
-/// Unwraps a `ParseResult`, and then moving the pointer back for a `try_collect` call.
-///
-/// The macro will call `try_consume!`, then run `last_before_slice` to get the previous token.
-///
-/// This is necessary because the `try_collect` functions require the first token to be the opener,
-/// and the following to be its contents.
-macro_rules! try_consume_last {
-    ($remaining:expr, $result:expr,) => {
-        try_consume_last!($remaining, $result)
-    };
-
-    ($remaining:expr, $result:expr) => {{
-        let ParseSuccess {
-            item,
-            remaining: new_remaining,
-            exceptions,
-        } = $result?;
-
-        let extracted = last_before_slice($remaining, new_remaining);
-
-        (item, extracted, new_remaining, exceptions)
-    }};
-}
