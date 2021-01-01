@@ -68,7 +68,7 @@ where
         "special" => special,
     );
 
-    let mut parser = BlockParser::new(log, special, parser);
+    let mut parser = BlockParser::new(log, parser, special);
 
     // Get block name
     parser.get_optional_space()?;

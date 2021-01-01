@@ -42,8 +42,8 @@ where
     #[inline]
     pub fn new(
         log: &'l slog::Logger,
-        special: bool,
         parser: &'p mut Parser<'l, 'r, 't>,
+        special: bool,
     ) -> Self {
         info!(
             log, "Creating block parser";
@@ -139,7 +139,7 @@ where
         F: FnOnce(Self) -> T,
     {
         let parser = self.parser.clone();
-        let clone = BlockParser::new(self.log, self.special, &mut parser);
+        let clone = BlockParser::new(self.log, &mut parser, self.special);
         f(clone)
     }
 
