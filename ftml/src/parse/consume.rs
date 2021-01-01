@@ -49,7 +49,7 @@ pub fn consume<'p, 'l, 'r, 't>(
     let mut all_exceptions = Vec::new();
     let current = parser.current();
 
-    for rule in rules_for_token {
+    for &rule in rules_for_token(current) {
         info!(log, "Trying rule consumption for tokens"; "rule" => rule);
 
         parser.set_rule(rule);
