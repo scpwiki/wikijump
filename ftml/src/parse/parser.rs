@@ -148,7 +148,10 @@ impl<'l, 'r, 't> Parser<'l, 'r, 't> {
     }
 
     #[inline]
-    pub fn update(&mut self, remaining: &'r [ExtractedToken<'t>]) -> Result<(), ParseError> {
+    pub fn update(
+        &mut self,
+        remaining: &'r [ExtractedToken<'t>],
+    ) -> Result<(), ParseError> {
         self.remaining = remaining;
         self.step()
     }

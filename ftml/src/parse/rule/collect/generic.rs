@@ -56,6 +56,7 @@ use std::fmt::Debug;
 /// If the latter occurs, a `ParseError` is handed back and the parent will attempt the
 /// next rule in the list, or the text fallback.
 pub fn try_collect<'p, 'l, 'r, 't, F, T>(
+    log: &'l slog::Logger,
     parser: &'p mut Parser<'l, 'r, 't>,
     rule: Rule,
     close_conditions: &[ParseCondition],
@@ -63,7 +64,7 @@ pub fn try_collect<'p, 'l, 'r, 't, F, T>(
     mut process: F,
 ) -> ParseResult<'r, 't, Vec<T>>
 where
-    F: FnMut(&slog::Logger, &'p mut Parser<'l, 'r, 't>) -> ParseResult<'r, 't, T>,
+    F: FnMut(&'l slog::Logger, &'p mut Parser<'l, 'r, 't>) -> ParseResult<'r, 't, T>,
     T: Debug,
 {
     /// Tokens that are always considered invalid, and will fail the rule.
@@ -73,7 +74,7 @@ where
     const ALWAYS_INVALID: &[Token] = &[Token::InputEnd];
 
     // Log collect_until() call
-    let log = &parser.log().new(slog_o!(
+    let log = &log.new(slog_o!(
         "rule" => str!(rule.name()),
         "token" => str!(parser.current().token.name()),
         "slice" => str!(parser.current().slice),

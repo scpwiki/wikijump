@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::parse::Parser;
 use std::fmt::{self, Debug};
 
 mod collect;
@@ -47,16 +48,14 @@ impl Rule {
     }
 
     #[inline]
-    pub fn try_consume<'r, 't>(
+    pub fn try_consume<'p, 'l, 'r, 't>(
         self,
-        log: &slog::Logger,
-        extract: &'r ExtractedToken<'t>,
-        remaining: &'r [ExtractedToken<'t>],
-        full_text: FullText<'t>,
+        log: &'l slog::Logger,
+        parser: &'p mut Parser<'l, 'r, 't>,
     ) -> ParseResult<'r, 't, Element<'t>> {
         info!(log, "Trying to consume for parse rule"; "name" => self.name);
 
-        (self.try_consume_fn)(log, extract, remaining, full_text)
+        (self.try_consume_fn)(log, parser)
     }
 }
 
@@ -81,9 +80,7 @@ impl slog::Value for Rule {
 }
 
 /// The function type for actually trying to consume tokens
-pub type TryConsumeFn = for<'r, 't> fn(
-    log: &slog::Logger,
-    extracted: &'r ExtractedToken<'t>,
-    remaining: &'r [ExtractedToken<'t>],
-    full_text: FullText<'t>,
+pub type TryConsumeFn = for<'p, 'l, 'r, 't> fn(
+    log: &'l slog::Logger,
+    parser: &'lp mut Parser<'l, 'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>>;

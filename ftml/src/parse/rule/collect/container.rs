@@ -21,14 +21,13 @@
 //! Helper code to parse tokens out to generate recursive containers.
 
 use super::prelude::*;
-use crate::text::FullText;
+use crate::parse::consume::consume;
 use crate::tree::{Container, ContainerType, Element};
 
 /// Generic function to consume tokens into a container.
 ///
 /// This is a subset of the functionality provided by `try_collect`,
-/// as it builds `Container`s specifically rather, but still permits
-/// passing arguments to specify behavior and reduce boilerplate.
+/// as it builds `Container`s specifically.
 ///
 /// The arguments which differ from `collect_until` are listed:
 /// See that function for full documentation, as the call here
@@ -37,27 +36,17 @@ use crate::tree::{Container, ContainerType, Element};
 /// The kind of container we're building:
 /// Must match the parse rule.
 /// * `container_type`
-///
-/// The tokens we expect at the opening and ending of this container:
-/// This will perform an assertion that the current token matches the opening type.
-/// * `open_token`
-/// * `close_token`
-pub fn try_container<'r, 't>(
-    log: &slog::Logger,
-    (extracted, remaining, full_text): (
-        &'r ExtractedToken<'t>,
-        &'r [ExtractedToken<'t>],
-        FullText<'t>,
-    ),
-    (rule, container_type): (Rule, ContainerType),
-    (open_token, close_token): (Token, Token),
-    invalid_tokens: &[Token],
-    invalid_token_pairs: &[(Token, Token)],
+pub fn try_container<'p, 'l, 'r, 't>(
+    log: &'l slog::Logger,
+    parser: &'p mut Parser<'l, 'r, 't>,
+    rule: Rule,
+    container_type: ContainerType,
+    close_conditions: &[ParseCondition],
+    invalid_conditions: &[ParseCondition],
 ) -> ParseResult<'r, 't, Element<'t>> {
     // Log try_container() call
     let log = &log.new(slog_o!(
         "container-type" => str!(container_type.name()),
-        "open-token" => open_token,
     ));
 
     info!(
@@ -65,20 +54,13 @@ pub fn try_container<'r, 't>(
         "Trying to consume tokens to produce container for {:?}", rule,
     );
 
-    // Ensure that we're on the right opening token
-    assert_eq!(
-        extracted.token, open_token,
-        "Current token does not match opener",
-    );
-
     // Iterate and consume all the tokens
     let result = try_collect(
         log,
-        (extracted, remaining, full_text),
+        parser,
         rule,
-        &[close_token],
-        invalid_tokens,
-        invalid_token_pairs,
+        close_conditions,
+        invalid_conditions,
         consume,
     )?;
 

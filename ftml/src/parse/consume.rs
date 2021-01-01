@@ -28,32 +28,32 @@
 
 use super::prelude::*;
 use super::rule::{impls::RULE_FALLBACK, rules_for_token};
+use super::Parser;
 use std::mem;
 
 /// Main function that consumes tokens to produce a single element, then returns.
-pub fn consume<'r, 't>(
-    log: &slog::Logger,
-    extracted: &'r ExtractedToken<'t>,
-    remaining: &'r [ExtractedToken<'t>],
-    full_text: FullText<'t>,
+pub fn consume<'p, 'l, 'r, 't>(
+    log: &'l slog::Logger,
+    parser: &'p mut Parser<'l, 'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
-    let ExtractedToken { token, slice, span } = extracted;
-    let log = &log.new(slog_o!(
-        "token" => str!(token.name()),
-        "slice" => str!(slice),
-        "span-start" => span.start,
-        "span-end" => span.end,
-        "remaining-len" => remaining.len(),
+    let log = &parser.log().new(slog_o!(
+        "token" => parser.current().token,
+        "slice" => str!(parser.current().slice),
+        "span-start" => parser.current().span.start,
+        "span-end" => parser.current().span.end,
+        "remaining-len" => parser.remaining().len(),
     ));
 
     debug!(log, "Looking for valid rules");
 
     let mut all_exceptions = Vec::new();
+    let current = parser.current();
 
-    for rule in rules_for_token(extracted) {
+    for rule in rules_for_token {
         info!(log, "Trying rule consumption for tokens"; "rule" => rule);
 
-        match rule.try_consume(log, extracted, remaining, full_text) {
+        parser.set_rule(rule);
+        match rule.try_consume(log, parser) {
             Ok(output) => {
                 debug!(log, "Rule matched, returning generated result"; "rule" => rule);
 
@@ -74,18 +74,16 @@ pub fn consume<'r, 't>(
 
     debug!(log, "All rules exhausted, using generic text fallback");
 
-    trace!(log, "Removing non-errors from exceptions list");
-
     // We should only carry styles over from *successful* consumptions
+    trace!(log, "Removing non-errors from exceptions list");
     all_exceptions.retain(|exception| matches!(exception, ParseException::Error(_)));
 
     trace!(log, "Adding fallback error to exceptions list");
-
     all_exceptions.push(ParseException::Error(ParseError::new(
         ParseErrorKind::NoRulesMatch,
         RULE_FALLBACK,
-        extracted,
+        current,
     )));
 
-    ok!(text!(slice), remaining, all_exceptions)
+    ok!(text!(current.slice), parser.remaining(), all_exceptions)
 }

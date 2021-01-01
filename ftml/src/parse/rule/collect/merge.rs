@@ -25,17 +25,12 @@ use super::prelude::*;
 /// This is a subset of the functionality provided by `try_collect`,
 /// as it specifically gathers all the extracted tokens into a string slice,
 /// rather than considering them as special elements.
-pub fn try_merge<'r, 't>(
-    log: &slog::Logger,
-    (extracted, remaining, full_text): (
-        &'r ExtractedToken<'t>,
-        &'r [ExtractedToken<'t>],
-        FullText<'t>,
-    ),
+pub fn try_merge<'p, 'l, 'r, 't>(
+    log: &'l slog::Logger,
+    parser: &'p mut Parser<'l, 'r, 't>,
     rule: Rule,
-    close_tokens: &[Token],
-    invalid_tokens: &[Token],
-    invalid_token_pairs: &[(Token, Token)],
+    close_conditions: &[ParseCondition],
+    invalid_conditions: &[ParseCondition],
 ) -> ParseResult<'r, 't, &'t str> {
     // Log try_merge() call
     info!(
@@ -46,15 +41,14 @@ pub fn try_merge<'r, 't>(
     // Iterate and collect the tokens to merge
     let result = try_collect(
         log,
-        (extracted, remaining, full_text),
+        parser,
         rule,
-        close_tokens,
-        invalid_tokens,
-        invalid_token_pairs,
-        |log, extracted, remaining, _full_text| {
+        close_conditions,
+        invalid_conditions,
+        |log, parser| {
             trace!(log, "Ingesting token in string merge");
 
-            ok!(extracted, remaining)
+            ok!(parser.current(), parser.remaining())
         },
     )?;
 
@@ -62,7 +56,7 @@ pub fn try_merge<'r, 't>(
     result.map_ok(|tokens| {
         match (tokens.first(), tokens.last()) {
             // Get first and last tokens for string slice
-            (Some(first), Some(end)) => full_text.slice(log, first, end),
+            (Some(first), Some(end)) => parser.full_text().slice(log, first, end),
 
             // Empty list of tokens, resultant slice must be empty
             (None, None) => "",
