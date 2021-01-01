@@ -21,22 +21,18 @@
 use super::prelude::*;
 
 /// Temporary rule for syntactical constructions that are not yet implemented.
+///
+/// Will be removed when the first full version of ftml is released.
 pub const RULE_TODO: Rule = Rule {
     name: "todo",
     try_consume_fn,
 };
 
-fn try_consume_fn<'r, 't>(
-    log: &slog::Logger,
-    extracted: &'r ExtractedToken<'t>,
-    _: &'r [ExtractedToken<'t>],
-    _: FullText<'t>,
+fn try_consume_fn<'p, 'l, 'r, 't>(
+    log: &'l slog::Logger,
+    parser: &'p mut Parser<'l, 'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
     error!(log, "Encountered unimplemented rule! Returning error");
 
-    Err(ParseError::new(
-        ParseErrorKind::NotImplemented,
-        RULE_TODO,
-        extracted,
-    ))
+    Err(parser.make_error(ParseErrorKind::NotImplemented))
 }

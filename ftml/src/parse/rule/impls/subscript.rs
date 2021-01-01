@@ -25,23 +25,29 @@ pub const RULE_SUBSCRIPT: Rule = Rule {
     try_consume_fn,
 };
 
-fn try_consume_fn<'r, 't>(
-    log: &slog::Logger,
-    extracted: &'r ExtractedToken<'t>,
-    remaining: &'r [ExtractedToken<'t>],
-    full_text: FullText<'t>,
+fn try_consume_fn<'p, 'l, 'r, 't>(
+    log: &'l slog::Logger,
+    parser: &'p mut Parser<'l, 'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Trying to create subscript container");
 
+    assert_eq!(
+        parser.current().token,
+        Token::Subscript,
+        "Opening token isn't subscript",
+    );
+    parser.step()?;
+
     try_container(
         log,
-        (extracted, remaining, full_text),
-        (RULE_SUBSCRIPT, ContainerType::Subscript),
-        (Token::Subscript, Token::Subscript),
-        &[Token::ParagraphBreak],
+        parser,
+        RULE_SUBSCRIPT,
+        ContainerType::Subscript,
+        &[ParseCondition::current(Token::Subscript)],
         &[
-            (Token::Subscript, Token::Whitespace),
-            (Token::Whitespace, Token::Subscript),
+            ParseCondition::current(Token::ParagraphBreak),
+            ParseCondition::current(Token::Subscript, Token::Whitespace),
+            ParseCondition::current(Token::Whitespace, Token::Subscript),
         ],
     )
 }

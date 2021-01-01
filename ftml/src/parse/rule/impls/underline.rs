@@ -25,23 +25,29 @@ pub const RULE_UNDERLINE: Rule = Rule {
     try_consume_fn,
 };
 
-fn try_consume_fn<'r, 't>(
-    log: &slog::Logger,
-    extracted: &'r ExtractedToken<'t>,
-    remaining: &'r [ExtractedToken<'t>],
-    full_text: FullText<'t>,
+fn try_consume_fn<'p, 'l, 'r, 't>(
+    log: &'l slog::Logger,
+    parser: &'p mut Parser<'l, 'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Trying to create underline container");
 
+    assert_eq!(
+        parser.current().token,
+        Token::Underline,
+        "Opening token isn't underline",
+    );
+    parser.step()?;
+
     try_container(
         log,
-        (extracted, remaining, full_text),
-        (RULE_UNDERLINE, ContainerType::Underline),
-        (Token::Underline, Token::Underline),
-        &[Token::ParagraphBreak],
+        parser,
+        RULE_UNDERLINE,
+        ContainerType::Underline,
+        &[ParseCondition::current(Token::Underline)],
         &[
-            (Token::Underline, Token::Whitespace),
-            (Token::Whitespace, Token::Underline),
+            ParseCondition::current(Token::ParagraphBreak),
+            ParseCondition::token_pair(Token::Underline, Token::Whitespace),
+            ParseCondition::token_pair(Token::Whitespace, Token::Underline),
         ],
     )
 }
