@@ -23,6 +23,7 @@ use super::prelude::*;
 use super::rule::Rule;
 use super::RULE_PAGE;
 use crate::tokenize::Tokenization;
+use std::ptr;
 
 #[derive(Debug, Clone)]
 pub struct Parser<'l, 'r, 't> {
@@ -123,6 +124,11 @@ impl<'l, 'r, 't> Parser<'l, 'r, 't> {
     #[inline]
     pub fn remaining(&self) -> &'r [ExtractedToken<'t>] {
         self.remaining
+    }
+
+    #[inline]
+    pub fn same_pointer(&self, old_remaining: &'r [ExtractedToken<'t>]) -> bool {
+        ptr::eq(self.remaining, old_remaining)
     }
 
     #[inline]
