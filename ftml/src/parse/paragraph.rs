@@ -134,7 +134,7 @@ where
                 // The new value is a subslice of tokens,
                 // equivalent to &tokens[offset..] but without
                 // needing to assert bounds.
-                parser.update_remaining(remaining);
+                parser.update(remaining);
 
                 // Add the new element to the list
                 stack.push_element(item);

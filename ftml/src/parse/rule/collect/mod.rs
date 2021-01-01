@@ -25,8 +25,10 @@
 
 mod prelude {
     pub use super::try_collect;
+    pub use crate::parse::condition::ParseCondition;
     pub use crate::parse::consume::consume;
     pub use crate::parse::error::{ParseError, ParseErrorKind};
+    pub use crate::parse::parser::Parser;
     pub use crate::parse::prelude::*;
     pub use crate::parse::rule::Rule;
     pub use crate::parse::token::{ExtractedToken, Token};

@@ -57,145 +57,90 @@ use std::fmt::Debug;
 ///
 /// If the latter occurs, a `ParseError` is handed back and the parent will attempt the
 /// next rule in the list, or the text fallback.
-pub fn try_collect<'r, 't, F, T>(
-    log: &slog::Logger,
-    (extracted, mut remaining, full_text): (
-        &'r ExtractedToken<'t>,
-        &'r [ExtractedToken<'t>],
-        FullText<'t>,
-    ),
+pub fn try_collect<'p, 'l, 'r, 't, F, T>(
+    parser: &'p mut Parser<'l, 'r, 't>,
     rule: Rule,
-    close_tokens: &[Token],
-    invalid_tokens: &[Token],
-    invalid_token_pairs: &[(Token, Token)],
-    mut process: F,
+    close_conditions: &[ParseCondition],
+    invalid_conditions: &[ParseCondition],
+    mut f: F,
 ) -> ParseResult<'r, 't, Vec<T>>
 where
-    F: FnMut(
-        &slog::Logger,
-        &'r ExtractedToken<'t>,
-        &'r [ExtractedToken<'t>],
-        FullText<'t>,
-    ) -> ParseResult<'r, 't, T>,
+    F: FnMut(&slog::Logger, &'p mut Parser<'l, 'r, 't>) -> ParseResult<'r, 't, T>,
     T: Debug,
 {
     /// Tokens are always considered invalid, and will fail the rule.
     ///
-    /// This behaves as if all of these tokens are present in the
-    /// `invalid_tokens` parameter.
+    /// This behaves as if all of these tokens have associated
+    /// `ParseCondition::CurrentToken` rules.
     const ALWAYS_INVALID: &[Token] = &[Token::InputEnd];
 
     // Log collect_until() call
-    let log = &log.new(slog_o!(
+    let log = &parser.log().new(slog_o!(
         "rule" => str!(rule.name()),
-        "token" => str!(extracted.token.name()),
-        "slice" => str!(extracted.slice),
-        "span-start" => extracted.span.start,
-        "span-end" => extracted.span.end,
-        "remaining-len" => remaining.len(),
-        "close-tokens" => format!("{:?}", close_tokens),
-        "invalid-tokens-len" => format!("{:?}", invalid_tokens),
-        "invalid-token-pairs-len" => format!("{:?}", invalid_token_pairs),
+        "token" => str!(parser.current().token.name()),
+        "slice" => str!(parser.current().slice),
+        "span-start" => parser.current().span.start,
+        "span-end" => parser.current().span.end,
+        "remaining-len" => parser.remaining().len(),
+        "close-conditions" => format!("{:?}", close_conditions),
+        "invalid-conditions" => format!("{:?}", invalid_conditions),
     ));
 
     info!(log, "Trying to collect tokens for rule {:?}", rule);
 
     let mut collected = Vec::new();
     let mut all_exc = Vec::new();
-    let mut prev_token = extracted.token;
 
-    while let Some((new_extracted, new_remaining)) = remaining.split_first() {
-        let current_token = new_extracted.token;
-
-        // Check previous and current tokens
-        let pair = &(prev_token, current_token);
-        if invalid_token_pairs.contains(&pair) {
-            debug!(
-                log,
-                "Found invalid (previous, current) token combination, failing rule";
-                "prev-token" => prev_token,
-                "current-token" => current_token,
-            );
-
-            return Err(ParseError::new(
-                ParseErrorKind::RuleFailed,
-                rule,
-                new_extracted,
-            ));
-        }
-
-        // Update the state variables
-        //
-        // * "remaining" is updated in case we return
-        // * "prev_token" is updated as it's only checked above
-        remaining = new_remaining;
-        prev_token = current_token;
-
-        // "prev_token" should *not* be used underneath here.
-        // To enforce this, we shadow the variable name:
-        #[allow(unused_variables)]
-        let prev_token = ();
-
-        // Check current token to decide how to proceed.
+    loop {
+        // Check current token state to decide how to proceed.
         //
         // * End the container, return elements
         // * Fail the container, invalid token
         // * Continue the container, consume to make a new element
 
         // See if the container has ended
-        if close_tokens.contains(&current_token) {
+        if parser.evaluate_any(close_conditions) {
             debug!(
                 log,
-                "Found ending token, returning collected elements";
-                "token" => current_token,
+                "Found ending condition, returning collected elements";
+                "token" => parser.current().token,
                 "collected" => format!("{:?}", collected),
             );
 
-            return ok!(collected, remaining, all_exc);
+            return ok!(collected, parser.remaining(), all_exc);
         }
 
         // See if the container should be aborted
-        if invalid_tokens.contains(&current_token)
-            || ALWAYS_INVALID.contains(&current_token)
+        if parser.evaluate_any(invalid_conditions)
+            || ALWAYS_INVALID.contains(&parser.current().token)
         {
             debug!(
                 log,
                 "Found invalid token, aborting container attempt";
-                "token" => current_token,
+                "token" => parser.current().token,
                 "collected" => format!("{:?}", collected),
             );
 
-            return Err(ParseError::new(
-                ParseErrorKind::RuleFailed,
-                rule,
-                new_extracted,
-            ));
+            return Err(parser.make_error(ParseErrorKind::RuleFailed));
         }
 
         // Process token(s).
-        let (item, new_remaining, mut exceptions) =
-            process(log, new_extracted, new_remaining, full_text)?.into();
+        let (item, remaining, mut exceptions) = f(log, parser)?.into();
 
         debug!(
             log,
             "Adding newly produced item from token consumption";
             "item" => format!("{:?}", item),
-            "remaining-len" => new_remaining.len(),
+            "remaining-len" => parser.remaining().len(),
         );
 
         // Append new item
         collected.push(item);
 
         // Update token pointer
-        remaining = new_remaining;
+        parser.update(remaining);
 
         // Append new exceptions
         all_exc.append(&mut exceptions);
     }
-
-    // If we've exhausted tokens but didn't find an ending token, we must abort.
-    //
-    // I don't think this will be terribly common, given that Token::InputEnd exists
-    // and terminates all token lists, but this logic needs to be here anyways.
-    Err(ParseError::new(ParseErrorKind::EndOfInput, rule, extracted))
 }
