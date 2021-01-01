@@ -131,20 +131,53 @@ impl<'l, 'r, 't> Parser<'l, 'r, 't> {
         ptr::eq(self.remaining, old_remaining)
     }
 
+    /// Move the token pointer forward one step.
     #[inline]
-    pub fn step(&mut self) -> Result<(), ParseError> {
+    pub fn step(&mut self) -> Result<&'r ExtractedToken<'t>, ParseError> {
         debug!(self.log, "Stepping to the next token");
 
         match self.remaining.split_first() {
             Some((current, remaining)) => {
                 self.current = current;
                 self.remaining = remaining;
-                Ok(())
+                Ok(current)
             }
 
             #[cold]
             None => Err(self.make_error(ParseErrorKind::EndOfInput)),
         }
+    }
+
+    /// Move the token pointer forward `count` steps.
+    #[inline]
+    pub fn step_n(&mut self, count: usize) -> Result<(), ParseError> {
+        trace!(self.log, "Stepping n times"; "count" => count);
+
+        for _ in 0..count {
+            self.step()?;
+        }
+
+        Ok(())
+    }
+
+    /// Look for the token `offset + 1` beyond the current one.
+    ///
+    /// For instance, submitting `0` will yield the first item of `parser.remaining()`.
+    #[inline]
+    pub fn look_ahead(&self, offset: usize) -> Option<&'r ExtractedToken<'t>> {
+        debug!(self.log, "Looking ahead to a token"; "offset" => offset);
+
+        self.remaining.get(offset)
+    }
+
+    /// Like `look_ahead`, except returns an error if the token isn't found.
+    #[inline]
+    pub fn look_ahead_error(
+        &self,
+        offset: usize,
+    ) -> Result<&'r ExtractedToken<'t>, ParseError> {
+        self.look_ahead(offset)
+            .ok_or_else(|| self.make_error(ParseErrorKind::EndOfInput));
     }
 
     #[inline]
@@ -153,7 +186,8 @@ impl<'l, 'r, 't> Parser<'l, 'r, 't> {
         remaining: &'r [ExtractedToken<'t>],
     ) -> Result<(), ParseError> {
         self.remaining = remaining;
-        self.step()
+        self.step()?;
+        Ok(())
     }
 
     // Utilities

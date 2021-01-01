@@ -25,23 +25,29 @@ pub const RULE_MONOSPACE: Rule = Rule {
     try_consume_fn,
 };
 
-fn try_consume_fn<'r, 't>(
-    log: &slog::Logger,
-    extracted: &'r ExtractedToken<'t>,
-    remaining: &'r [ExtractedToken<'t>],
-    full_text: FullText<'t>,
+fn try_consume_fn<'p, 'l, 'r, 't>(
+    log: &'l slog::Logger,
+    parser: &'p mut Parser<'l, 'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Trying to create monospace container");
 
+    assert_eq!(
+        parser.current().token,
+        Token::LeftMonospace,
+        "Opening token isn't left monospace",
+    );
+    parser.step()?;
+
     try_container(
         log,
-        (extracted, remaining, full_text),
-        (RULE_MONOSPACE, ContainerType::Monospace),
-        (Token::LeftMonospace, Token::RightMonospace),
-        &[Token::ParagraphBreak],
+        parser,
+        RULE_MONOSPACE,
+        ContainerType::Monospace,
+        &[ParseCondition::current(Token::RightMonospace)],
         &[
-            (Token::LeftMonospace, Token::Whitespace),
-            (Token::Whitespace, Token::RightMonospace),
+            ParseCondition::current(Token::ParagraphBreak),
+            ParseCondition::token_pair(Token::LeftMonospace, Token::Whitespace),
+            ParseCondition::token_pair(Token::Whitespace, Token::RightMonospace),
         ],
     )
 }

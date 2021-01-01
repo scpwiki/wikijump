@@ -31,6 +31,13 @@ fn try_consume_fn<'p, 'l, 'r, 't>(
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Trying to create italics container");
 
+    assert_eq!(
+        parser.current().token,
+        Token::Italics,
+        "Opening token isn't italics",
+    );
+    parser.step()?;
+
     try_container(
         log,
         parser,

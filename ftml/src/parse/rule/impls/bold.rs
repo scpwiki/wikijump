@@ -31,6 +31,13 @@ fn try_consume_fn<'p, 'l, 'r, 't>(
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Trying to create bold container");
 
+    assert_eq!(
+        parser.current().token,
+        Token::Bold,
+        "Opening token isn't bold",
+    );
+    parser.step()?;
+
     try_container(
         log,
         parser,
