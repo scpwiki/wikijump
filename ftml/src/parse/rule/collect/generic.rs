@@ -29,30 +29,28 @@ use std::fmt::Debug;
 /// The conditions for how to consume tokens are passed as arguments,
 /// which are explained below.
 ///
-/// Normal arguments (from `try_consume_fn`):
-/// Obviously, the logger instance, and the current and upcoming tokens.
+/// Logger instance and mutable parser reference:
 /// * `log`
-/// * `extracted`
-/// * `remaining`
-/// * `full_text`
+/// * `parser`
 ///
 /// The rule we're parsing for:
 /// * `rule`
 ///
-/// The tokens we should end iteration on:
-/// If one of these is the current token, we will return a consumption success.
-/// * `close_tokens`
+/// The conditions we should end iteration on:
+/// If one of these is true, we will return success.
+/// * `close_conditions`
 ///
-/// The tokens we should abort on:
-/// If one of these is the current token, we will return a consumption failure.
-/// * `invalid_tokens`
+/// The conditions we should abort on:
+/// If one of these is true, we will return failure.
+/// * `invalid_conditions`
 ///
-/// The token pairs we should abort on:
-/// Each of these is a tuple in the form `(previous_token, current_token)`,
-/// if they ever are found adjacent during parsing, we will return a consumption failure.
-/// * `invalid_token_pairs`
+/// The closure we should execute each time a token extraction is reached:
+/// If the return value is `Err(_)` then collection is aborted and that error
+/// is bubbled up. Otherwise, the output is appended to the `Vec<_>` that
+/// will be returned upon successful exit.
+/// * `process`
 ///
-/// This will proceed until a closing token is found, at which point the completed
+/// This will proceed until a closing condition is found, at which point the completed
 /// list of items will be returned, or until an abort is found.
 ///
 /// If the latter occurs, a `ParseError` is handed back and the parent will attempt the
