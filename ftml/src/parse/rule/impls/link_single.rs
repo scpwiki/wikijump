@@ -57,7 +57,7 @@ fn link_new_tab<'p, 'l, 'r, 't>(
 
 /// Build a single-bracket link with the given anchor.
 fn try_consume_link<'p, 'l, 'r, 't>(
-    log: &slog::Logger,
+    log: &'l slog::Logger,
     parser: &'p mut Parser<'l, 'r, 't>,
     rule: Rule,
     anchor: AnchorTarget,

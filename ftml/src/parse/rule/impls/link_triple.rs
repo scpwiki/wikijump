@@ -132,7 +132,7 @@ fn build_same<'p, 'l, 'r, 't>(
 /// Helper to build link with separate URL and label.
 /// e.g. `[[[page|label]]]`, or `[[[page|]]]`
 fn build_separate<'p, 'l, 'r, 't>(
-    log: &slog::Logger,
+    log: &'l slog::Logger,
     parser: &'p mut Parser<'l, 'r, 't>,
     mut exceptions: Vec<ParseException<'t>>,
     rule: Rule,
@@ -156,7 +156,7 @@ fn build_separate<'p, 'l, 'r, 't>(
             ParseCondition::current(Token::LineBreak),
         ],
     )?
-    .append(&mut exceptions);
+    .chain(&mut exceptions);
 
     debug!(
         log,
