@@ -36,6 +36,7 @@ fn try_consume_fn<'p, 'r, 't>(
         Token::Color,
         "Current token isn't color marker",
     );
+    parser.step()?;
 
     // The pattern for color is:
     // ## [color-style] | [text to be colored] ##
