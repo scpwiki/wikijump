@@ -54,7 +54,16 @@ impl Rule {
     ) -> ParseResult<'r, 't, Element<'t>> {
         info!(log, "Trying to consume for parse rule"; "name" => self.name);
 
-        (self.try_consume_fn)(log, parser)
+        let mut sub_parser = parser.clone();
+        let result = (self.try_consume_fn)(log, &mut sub_parser);
+
+        // Run in a separate parser instance,
+        // only keeping the parser state if it succeeded
+        if result.is_ok() {
+            parser.update(&sub_parser);
+        }
+
+        result
     }
 }
 
