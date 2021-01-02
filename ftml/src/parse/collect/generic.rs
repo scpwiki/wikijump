@@ -65,12 +65,6 @@ pub fn collect<'p, 'r, 't, F>(
 where
     F: FnMut(&slog::Logger, &mut Parser<'r, 't>) -> ParseResult<'r, 't, ()>,
 {
-    /// Tokens that are always considered invalid, and will fail the rule.
-    ///
-    /// This behaves as if all of these tokens have associated
-    /// `ParseCondition::CurrentToken` rules in `invalid_conditions`.
-    const ALWAYS_INVALID: &[Token] = &[Token::InputEnd];
-
     // Log collect_until() call
     let log = {
         let ExtractedToken { token, slice, span } = parser.current();
@@ -96,6 +90,13 @@ where
         // * Fail the container, invalid token
         // * Continue the container, consume to make a new element
 
+        // See if we've hit the end
+        if parser.current().token == Token::InputEnd {
+            debug!(log, "Found end of input, aborting");
+
+            return Err(parser.make_error(ParseErrorKind::EndOfInput));
+        }
+
         // See if the container has ended
         if parser.evaluate_any(close_conditions) {
             debug!(
@@ -109,9 +110,7 @@ where
         }
 
         // See if the container should be aborted
-        if parser.evaluate_any(invalid_conditions)
-            || ALWAYS_INVALID.contains(&parser.current().token)
-        {
+        if parser.evaluate_any(invalid_conditions) {
             debug!(
                 log,
                 "Found invalid token, aborting container attempt";
