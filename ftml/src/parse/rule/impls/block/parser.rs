@@ -139,7 +139,7 @@ where
     #[inline]
     pub fn clone_run<F, T>(&self, f: F) -> T
     where
-        F: FnOnce(Self) -> T,
+        F: FnOnce(BlockParser<'_, 'r, 't>) -> T,
     {
         let mut parser = self.parser.clone();
         let clone = BlockParser::new(&self.log, &mut parser, self.special);
@@ -169,7 +169,7 @@ where
 
             // Duplicate parser state to allow look-ahead, check if the rest matches
             let result =
-                self.clone_run(|bparser| bparser.proceed_until_internal(tokens))?;
+                self.clone_run(|mut bparser| bparser.proceed_until_internal(tokens))?;
 
             // If it was a match, return
             if result {
@@ -203,7 +203,7 @@ where
     /// * If `Err(_)` is returned, pointer status is reverted, and `None` is returned.
     pub fn try_parse<F, T>(&mut self, f: F) -> Option<T>
     where
-        F: FnOnce(Self) -> Result<T, ParseError>,
+        F: FnOnce(BlockParser<'_, 'r, 't>) -> Result<T, ParseError>,
     {
         let log_error = |error: ParseError| {
             debug!(

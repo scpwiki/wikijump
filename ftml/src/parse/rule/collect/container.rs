@@ -55,13 +55,8 @@ pub fn try_container<'p, 'r, 't>(
     );
 
     // Iterate and consume all the tokens
-    let (elements, _, exceptions) = try_consume(
-        log,
-        parser,
-        rule,
-        close_conditions,
-        invalid_conditions,
-    )?.into();
+    let (elements, _, exceptions) =
+        try_consume(log, parser, rule, close_conditions, invalid_conditions)?.into();
 
     // Package into a container
     ok!(

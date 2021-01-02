@@ -62,7 +62,7 @@ pub fn try_collect<'p, 'r, 't, F>(
     mut process: F,
 ) -> ParseResult<'r, 't, ()>
 where
-    F: FnMut(&slog::Logger, &'p mut Parser<'r, 't>) -> ParseResult<'r, 't, ()>,
+    F: FnMut(&slog::Logger, &mut Parser<'r, 't>) -> ParseResult<'r, 't, ()>,
 {
     /// Tokens that are always considered invalid, and will fail the rule.
     ///
