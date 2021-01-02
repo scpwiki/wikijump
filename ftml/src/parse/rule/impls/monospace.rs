@@ -49,5 +49,6 @@ fn try_consume_fn<'p, 'r, 't>(
             ParseCondition::token_pair(Token::LeftMonospace, Token::Whitespace),
             ParseCondition::token_pair(Token::Whitespace, Token::RightMonospace),
         ],
+        false,
     )
 }
