@@ -43,7 +43,7 @@ lazy_static! {
             Token::LeftBlockSpecial => vec![RULE_BLOCK_SPECIAL],
             Token::RightBlock => vec![],
             Token::DoubleDash => vec![RULE_STRIKETHROUGH, RULE_DASH],
-            Token::TripleDash => vec![RULE_TODO], // TODO
+            Token::TripleDash => vec![RULE_HORIZONTAL_RULE],
             Token::ClearFloatNeutral => vec![RULE_TODO], // TODO
             Token::ClearFloatCenter => vec![RULE_TODO], // TODO
             Token::ClearFloatLeft => vec![RULE_TODO], // TODO
