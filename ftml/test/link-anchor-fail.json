@@ -31,7 +31,7 @@
             "token": "input-end",
             "rule": "link-anchor",
             "span": [8, 8],
-            "kind": "rule-failed"
+            "kind": "end-of-input"
         },
         {
             "token": "left-bracket-anchor",

@@ -35,7 +35,7 @@
             "token": "input-end",
             "rule": "color",
             "span": [11, 11],
-            "kind": "rule-failed"
+            "kind": "end-of-input"
         },
         {
             "token": "color",

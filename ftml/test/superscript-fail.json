@@ -35,7 +35,7 @@
             "token": "input-end",
             "rule": "superscript",
             "span": [18, 18],
-            "kind": "rule-failed"
+            "kind": "end-of-input"
         },
         {
             "token": "superscript",
