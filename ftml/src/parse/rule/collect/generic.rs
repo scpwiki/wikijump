@@ -88,7 +88,7 @@ where
     info!(log, "Trying to collect tokens for rule {:?}", rule);
 
     let mut collected = Vec::new();
-    let mut all_exc = Vec::new();
+    let mut exceptions = Vec::new();
 
     loop {
         // Check current token state to decide how to proceed.
@@ -106,7 +106,7 @@ where
                 "collected" => format!("{:?}", collected),
             );
 
-            return ok!(collected, parser.remaining(), all_exc);
+            return ok!(collected, parser.remaining(), exceptions);
         }
 
         // See if the container should be aborted
@@ -125,7 +125,7 @@ where
 
         // Process token(s).
         let old_remaining = parser.remaining();
-        let (item, _, mut exceptions) = process(log, parser)?.into();
+        let item = process(log, parser)?.chain(&mut exceptions);
 
         // If the pointer hasn't moved, we step one token.
         if parser.same_pointer(old_remaining) {
@@ -141,8 +141,5 @@ where
 
         // Append new item
         collected.push(item);
-
-        // Append new exceptions
-        all_exc.append(&mut exceptions);
     }
 }
