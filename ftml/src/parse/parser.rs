@@ -140,6 +140,12 @@ impl<'r, 't> Parser<'r, 't> {
     }
 
     #[inline]
+    pub fn update(&mut self, parser: &Parser<'r, 't>) {
+        self.current = parser.current;
+        self.remaining = parser.remaining;
+    }
+
+    #[inline]
     pub fn same_pointer(&self, old_remaining: &'r [ExtractedToken<'t>]) -> bool {
         ptr::eq(self.remaining, old_remaining)
     }
@@ -191,16 +197,6 @@ impl<'r, 't> Parser<'r, 't> {
     ) -> Result<&'r ExtractedToken<'t>, ParseError> {
         self.look_ahead(offset)
             .ok_or_else(|| self.make_error(ParseErrorKind::EndOfInput))
-    }
-
-    #[inline]
-    pub fn update(
-        &mut self,
-        remaining: &'r [ExtractedToken<'t>],
-    ) -> Result<(), ParseError> {
-        self.remaining = remaining;
-        self.step()?;
-        Ok(())
     }
 
     // Utilities
