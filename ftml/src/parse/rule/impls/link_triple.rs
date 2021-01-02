@@ -109,7 +109,7 @@ fn try_consume_link<'p, 'r, 't>(
 /// e.g. `[[[name]]]`
 fn build_same<'p, 'r, 't>(
     log: &slog::Logger,
-    parser: &'p mut Parser<'r, 't>,
+    _parser: &'p mut Parser<'r, 't>,
     exceptions: Vec<ParseException<'t>>,
     url: &'t str,
     anchor: AnchorTarget,

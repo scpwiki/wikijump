@@ -27,7 +27,7 @@ pub const RULE_NULL: Rule = Rule {
 
 fn try_consume_fn<'p, 'r, 't>(
     log: &slog::Logger,
-    parser: &'p mut Parser<'r, 't>,
+    _parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Consuming token and outputting null element");
 
