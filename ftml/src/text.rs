@@ -51,9 +51,38 @@ impl<'t> FullText<'t> {
         let start = start_token.span.start;
         let end = end_token.span.end;
 
-        debug!(
+        self.slice_impl(log, "", start, end)
+    }
+
+    /// Slices in between the given start and end tokens.
+    ///
+    /// # Panics
+    /// If the ending token does not come after the first, or if
+    /// the slices specified are out of range for the string (unlikely),
+    /// this function will panic.
+    pub fn slice_inner(
+        &self,
+        log: &slog::Logger,
+        start_token: &ExtractedToken,
+        end_token: &ExtractedToken,
+    ) -> &'t str {
+        let start = start_token.span.end;
+        let end = end_token.span.start;
+
+        self.slice_impl(log, "inner ", start, end)
+    }
+
+    fn slice_impl(
+        &self,
+        log: &slog::Logger,
+        slice_kind: &'static str,
+        start: usize,
+        end: usize,
+    ) -> &'t str {
+        info!(
             log,
-            "Extracting slice from full text";
+            "Extracting {}slice from full text",
+            slice_kind;
             "start" => start,
             "end" => end,
         );
