@@ -110,9 +110,6 @@ pub enum ParseErrorKind {
     /// Attempting to match this rule failed, falling back to try an alternate.
     RuleFailed,
 
-    /// Found a container which has no elements, when this is not permitted.
-    FoundEmptyContainer,
-
     /// There is no rule for the block name specified.
     NoSuchBlock,
 
