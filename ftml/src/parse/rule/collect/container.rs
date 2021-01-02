@@ -21,7 +21,7 @@
 //! Helper code to parse tokens out to generate recursive containers.
 
 use super::prelude::*;
-use crate::parse::consume::consume;
+use crate::parse::rule::collect::try_consume;
 use crate::tree::{Container, ContainerType, Element};
 
 /// Generic function to consume tokens into a container.
@@ -54,26 +54,19 @@ pub fn try_container<'p, 'r, 't>(
         "Trying to consume tokens to produce container for {:?}", rule,
     );
 
-    let mut elements = Vec::new();
-    let mut exceptions = Vec::new();
-
     // Iterate and consume all the tokens
-    try_collect(
+    let (elements, _, exceptions) = try_consume(
         log,
         parser,
         rule,
         close_conditions,
         invalid_conditions,
-        |log, parser| {
-            let element = consume(log, parser)?.chain(&mut exceptions);
-            elements.push(element);
-            ok!((), parser.remaining())
-        },
-    )?;
+    )?.into();
 
     // Package into a container
     ok!(
         Element::Container(Container::new(container_type, elements)),
         parser.remaining(),
+        exceptions,
     )
 }

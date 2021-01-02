@@ -60,13 +60,12 @@ fn try_consume_fn<'p, 'r, 't>(
     );
 
     // Build color container
-    let elements = try_collect(
+    let elements = try_consume(
         log,
         parser,
         RULE_COLOR,
         &[ParseCondition::current(Token::Color)],
         &[ParseCondition::current(Token::ParagraphBreak)],
-        consume,
     )?
     .chain(&mut exceptions);
 
