@@ -50,7 +50,6 @@ where
     let mut stack = ParagraphStack::new(log);
 
     loop {
-        // Consume tokens to produce the next element
         let result = match parser.current().token {
             // Avoid an unnecessary Token::Null and just exit
             Token::InputEnd => {

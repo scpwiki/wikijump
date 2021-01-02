@@ -85,7 +85,6 @@ where
     info!(log, "Trying to collect tokens for rule {:?}", rule);
 
     let mut exceptions = Vec::new();
-
     loop {
         // Check current token state to decide how to proceed.
         //

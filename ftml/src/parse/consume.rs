@@ -53,9 +53,16 @@ pub fn consume<'p, 'r, 't>(
         info!(log, "Trying rule consumption for tokens"; "rule" => rule);
 
         parser.set_rule(rule);
+
+        let old_remaining = parser.remaining();
         match rule.try_consume(log, parser) {
             Ok(output) => {
                 debug!(log, "Rule matched, returning generated result"; "rule" => rule);
+
+                // If the pointer hasn't moved, we step one token.
+                if parser.same_pointer(old_remaining) {
+                    parser.step()?;
+                }
 
                 // Explicitly drop exceptions
                 //
