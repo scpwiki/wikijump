@@ -76,6 +76,7 @@ mod enums;
 mod parse;
 mod preproc;
 mod render;
+mod span_wrap;
 mod text;
 mod tokenize;
 

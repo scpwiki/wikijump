@@ -1,5 +1,5 @@
 /*
- * parse/macros.rs
+ * span_wrap.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2020 Ammon Smith
@@ -18,27 +18,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// Creates a `ParseResult::Ok` with the given fields.
-///
-/// There are two variants, for if there are exceptions or if there are not.
-macro_rules! ok {
-    ($item:expr,) => {
-        ok!($item, Vec::new())
-    };
-    ($item:expr) => {
-        ok!($item, Vec::new())
-    };
-    ($item:expr, $exceptions:expr,) => {
-        ok!($item, $exceptions)
-    };
-    ($item:expr, $exceptions:expr) => {
-        Ok(ParseSuccess::new($item, $exceptions))
-    };
+//! Wrapper struct to allow formatting of `Range
+
+use std::ops::Range;
+
+#[derive(Debug, Clone)]
+pub struct SpanWrap<'a> {
+    inner: &'a Range<usize>,
 }
 
-/// Wraps a `Range<usize>` in a struct that permits serialization in `slog`.
-macro_rules! span {
-    ($range:expr) => {
-        crate::spawn_wrap::SpanWrap { inner: &$range }
-    };
+impl<'a> slog::Value for SpanWrap<'a> {
+    fn serialize(
+        &self,
+        _: &slog::Record,
+        key: slog::Key,
+        serializer: &mut dyn slog::Serializer,
+    ) -> slog::Result {
+        serializer.emit_str(key, "[")?;
+        serializer.emit_usize(key, self.inner.start)?;
+        serializer.emit_str(key, ", ")?;
+        serializer.emit_usize(key, self.inner.end)?;
+        serializer.emit_str(key, "]")?;
+        Ok(())
+    }
 }
