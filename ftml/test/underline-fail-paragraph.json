@@ -55,7 +55,7 @@
             "token": "input-end",
             "rule": "underline",
             "span": [19, 19],
-            "kind": "rule-failed"
+            "kind": "end-of-input"
         },
         {
             "token": "underline",
