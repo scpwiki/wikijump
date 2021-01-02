@@ -52,7 +52,6 @@ fn try_consume_fn<'p, 'r, 't>(
             ParseCondition::current(Token::ParagraphBreak),
             ParseCondition::current(Token::LineBreak),
         ],
-        true,
     )?;
 
     // Determine if this is an anchor link or fake link
@@ -77,7 +76,6 @@ fn try_consume_fn<'p, 'r, 't>(
             ParseCondition::current(Token::ParagraphBreak),
             ParseCondition::current(Token::LineBreak),
         ],
-        true,
     )?;
 
     debug!(

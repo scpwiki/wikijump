@@ -46,4 +46,4 @@ mod merge;
 pub use self::consume::collect_consume;
 pub use self::container::collect_container;
 pub use self::generic::collect;
-pub use self::merge::collect_merge;
+pub use self::merge::{collect_merge, collect_merge_keep};

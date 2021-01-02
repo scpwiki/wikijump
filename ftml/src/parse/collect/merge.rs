@@ -22,17 +22,35 @@ use super::prelude::*;
 
 /// Generic function to consume all tokens into a single string slice.
 ///
-/// This is a subset of the functionality provided by `collect`,
+/// This is a subset of the functionality provided by `collect()`,
 /// as it specifically gathers all the extracted tokens into a string slice,
 /// rather than considering them as special elements.
+#[inline]
 pub fn collect_merge<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
-    step_on_final: bool,
 ) -> Result<&'t str, ParseError>
+where
+    'r: 't,
+{
+    collect_merge_keep(log, parser, rule, close_conditions, invalid_conditions)
+        .map(|(slice, _)| slice)
+}
+
+/// Modified form of `collect_merge()` that also returns the last token.
+///
+/// The last token terminating the collection is kept, and returned
+/// to the caller alongside the string slice.
+pub fn collect_merge_keep<'p, 'r, 't>(
+    log: &slog::Logger,
+    parser: &'p mut Parser<'r, 't>,
+    rule: Rule,
+    close_conditions: &[ParseCondition],
+    invalid_conditions: &[ParseCondition],
+) -> Result<(&'t str, &'r ExtractedToken<'t>), ParseError>
 where
     'r: 't,
 {
@@ -45,13 +63,12 @@ where
     let (start, mut end) = (parser.current(), None);
 
     // Iterate and collect the tokens to merge
-    let exceptions = collect(
+    let (last, exceptions) = collect(
         log,
         parser,
         rule,
         close_conditions,
         invalid_conditions,
-        step_on_final,
         |log, parser| {
             trace!(log, "Ingesting token in string merge");
 
@@ -59,7 +76,7 @@ where
             ok!(())
         },
     )?
-    .into_exceptions();
+    .into();
 
     assert!(
         exceptions.is_empty(),
@@ -74,5 +91,5 @@ where
         (_, None) => "",
     };
 
-    Ok(slice)
+    Ok((slice, last))
 }

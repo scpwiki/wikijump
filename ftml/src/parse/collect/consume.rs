@@ -35,20 +35,19 @@ pub fn collect_consume<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
     let mut elements = Vec::new();
 
-    let exceptions = collect(
+    let (_, exceptions) = collect(
         log,
         parser,
         rule,
         close_conditions,
         invalid_conditions,
-        false,
         |log, parser| {
             consume(log, parser)?.map_ok(|element| {
                 elements.push(element);
             })
         },
     )?
-    .into_exceptions();
+    .into();
 
     ok!(elements, exceptions)
 }

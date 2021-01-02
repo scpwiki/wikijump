@@ -44,9 +44,6 @@ use crate::span_wrap::SpanWrap;
 /// If one of these is true, we will return failure.
 /// * `invalid_conditions`
 ///
-/// Whether to end on the close condition token, or to step:
-/// * `step_on_final`
-///
 /// The closure we should execute each time a token extraction is reached:
 /// If the return value is `Err(_)` then collection is aborted and that error
 /// is bubbled up.
@@ -57,15 +54,17 @@ use crate::span_wrap::SpanWrap;
 ///
 /// It is up to the caller to save whatever result they need while running
 /// in the closure.
+///
+/// The final token from the collection, one prior to the now-current token,
+/// is returned.
 pub fn collect<'p, 'r, 't, F>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
-    step_on_final: bool,
     mut process: F,
-) -> ParseResult<'r, 't, ()>
+) -> ParseResult<'r, 't, &'r ExtractedToken<'t>>
 where
     F: FnMut(&slog::Logger, &mut Parser<'r, 't>) -> ParseResult<'r, 't, ()>,
 {
@@ -109,11 +108,10 @@ where
                 "token" => parser.current().token,
             );
 
-            if step_on_final {
-                parser.step()?;
-            }
+            let last = parser.current();
+            parser.step()?;
 
-            return ok!((), exceptions);
+            return ok!(last, exceptions);
         }
 
         // See if the container should be aborted

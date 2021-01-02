@@ -69,7 +69,7 @@ fn try_consume_link<'p, 'r, 't>(
     debug!(log, "Trying to create a triple-bracket link"; "anchor" => anchor.name());
 
     // Gather path for link
-    let url = collect_merge(
+    let (url, last) = collect_merge_keep(
         log,
         parser,
         rule,
@@ -81,11 +81,7 @@ fn try_consume_link<'p, 'r, 't>(
             ParseCondition::current(Token::ParagraphBreak),
             ParseCondition::current(Token::LineBreak),
         ],
-        false,
     )?;
-
-    let separator_token = parser.current().token;
-    parser.step()?;
 
     debug!(
         log,
@@ -102,7 +98,7 @@ fn try_consume_link<'p, 'r, 't>(
     }
 
     // Determine what token we ended on, i.e. which [[[ variant it is.
-    match separator_token {
+    match last.token {
         // [[[name]]] type links
         Token::RightLink => build_same(log, parser, url, anchor),
 
@@ -162,7 +158,6 @@ fn build_separate<'p, 'r, 't>(
             ParseCondition::current(Token::ParagraphBreak),
             ParseCondition::current(Token::LineBreak),
         ],
-        true,
     )?;
 
     debug!(
