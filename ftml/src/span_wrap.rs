@@ -46,11 +46,8 @@ impl slog::Value for SpanWrap {
         key: slog::Key,
         serializer: &mut dyn slog::Serializer,
     ) -> slog::Result {
-        serializer.emit_str(key, "[")?;
-        serializer.emit_usize(key, self.0.start)?;
-        serializer.emit_str(key, ", ")?;
-        serializer.emit_usize(key, self.0.end)?;
-        serializer.emit_str(key, "]")?;
-        Ok(())
+        let value = format!("{}..{}", self.0.start, self.0.end);
+
+        serializer.emit_str(key, &value)
     }
 }
