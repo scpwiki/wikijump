@@ -121,7 +121,7 @@ impl Test<'_> {
 
         if errors != self.errors {
             panic!(
-                "Running test '{}' failed! Errors did not match:\nExpected: {:#?}\nActual: {:#?}\n{}\nTree: {:#?}",
+                "Running test '{}' failed! Errors did not match:\nExpected: {:#?}\nActual: {:#?}\n{}\nTree (correct): {:#?}",
                 self.name,
                 self.errors,
                 errors,
