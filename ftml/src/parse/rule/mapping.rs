@@ -108,6 +108,6 @@ lazy_static! {
 }
 
 #[inline]
-pub fn rules_for_token(extracted: &ExtractedToken) -> &'static [Rule] {
-    &RULE_MAP[extracted.token]
+pub fn rules_for_token(current: &ExtractedToken) -> &'static [Rule] {
+    &RULE_MAP[current.token]
 }

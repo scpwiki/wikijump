@@ -57,9 +57,9 @@ pub struct ParseError {
 
 impl ParseError {
     #[inline]
-    pub fn new(kind: ParseErrorKind, rule: Rule, extracted: &ExtractedToken) -> Self {
-        let token = extracted.token;
-        let span = Range::clone(&extracted.span);
+    pub fn new(kind: ParseErrorKind, rule: Rule, current: &ExtractedToken) -> Self {
+        let token = current.token;
+        let span = Range::clone(&current.span);
         let rule = cow!(rule.name());
 
         ParseError {

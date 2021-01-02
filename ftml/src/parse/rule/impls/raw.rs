@@ -114,9 +114,9 @@ fn try_consume_fn<'p, 'r, 't>(
     // The last will be updated with each step in the iterator.
 
     let (start, mut end) = {
-        let extracted = parser.step()?;
+        let current = parser.step()?;
 
-        (extracted, extracted)
+        (current, current)
     };
 
     loop {

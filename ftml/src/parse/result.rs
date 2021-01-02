@@ -59,7 +59,7 @@ impl<'r, 't, T> ParseSuccess<'r, 't, T> {
         // Append previous exceptions
         all_exceptions.append(&mut exceptions);
 
-        // Return extracted item
+        // Return resultant item
         item
     }
 }
