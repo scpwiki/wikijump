@@ -98,7 +98,7 @@ fn try_consume_link<'p, 'r, 't>(
     }
 
     // Determine what token we ended on, i.e. which [[[ variant it is.
-    match parser.current().token {
+    match parser.step()?.token {
         // [[[name]]] type links
         Token::RightLink => build_same(log, parser, url, anchor),
 
