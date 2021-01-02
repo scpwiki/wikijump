@@ -34,9 +34,9 @@ pub const RULE_PAGE: Rule = Rule {
 ///
 /// See the `parse()` function `parse/mod.rs` for the code inherently
 /// implementing this consumption action.
-fn try_consume_fn<'l, 'p, 'lp, 'r, 't>(
-    _: &'l slog::Logger,
-    _: &'p mut Parser<'p, 'r, 't>,
+fn try_consume_fn<'p, 'r, 't>(
+    _: &slog::Logger,
+    _: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
     panic!("Manual page rule should not be executed directly!")
 }

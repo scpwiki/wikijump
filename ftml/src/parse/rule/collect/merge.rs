@@ -25,9 +25,9 @@ use super::prelude::*;
 /// This is a subset of the functionality provided by `try_collect`,
 /// as it specifically gathers all the extracted tokens into a string slice,
 /// rather than considering them as special elements.
-pub fn try_merge<'p, 'l, 'r, 't>(
-    log: &'l slog::Logger,
-    parser: &'p mut Parser<'l, 'r, 't>,
+pub fn try_merge<'p, 'r, 't>(
+    log: &slog::Logger,
+    parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],

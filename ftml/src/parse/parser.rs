@@ -26,20 +26,21 @@ use crate::tokenize::Tokenization;
 use std::ptr;
 
 #[derive(Debug, Clone)]
-pub struct Parser<'l, 'r, 't> {
-    log: &'l slog::Logger,
+pub struct Parser<'r, 't> {
+    log: slog::Logger,
     current: &'r ExtractedToken<'t>,
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
     rule: Rule,
 }
 
-impl<'l, 'r, 't> Parser<'l, 'r, 't> {
+impl<'r, 't> Parser<'r, 't> {
     /// Constructor. Should only be created by `parse()`.
     ///
     /// All other instances should be `.clone()` or `.clone_with_rule()`d from
     /// the main instance used during parsing.
-    pub(crate) fn new(log: &'l slog::Logger, tokenization: &'r Tokenization<'t>) -> Self {
+    pub(crate) fn new(log: &slog::Logger, tokenization: &'r Tokenization<'t>) -> Self {
+        let log = slog::Logger::clone(log);
         let full_text = tokenization.full_text();
         let (current, remaining) = tokenization
             .tokens()
@@ -57,8 +58,8 @@ impl<'l, 'r, 't> Parser<'l, 'r, 't> {
 
     // Getters
     #[inline]
-    pub fn log(&self) -> &'l slog::Logger {
-        self.log
+    pub fn log(&self) -> &slog::Logger {
+        &self.log
     }
 
     #[inline]
@@ -115,7 +116,7 @@ impl<'l, 'r, 't> Parser<'l, 'r, 't> {
     #[inline]
     pub fn evaluate_fn<F>(&self, f: F) -> bool
     where
-        F: FnOnce(Parser<'l, 'r, 't>) -> Result<bool, ParseError>,
+        F: FnOnce(Parser<'r, 't>) -> Result<bool, ParseError>,
     {
         f(self.clone()).unwrap_or(false)
     }

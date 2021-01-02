@@ -41,18 +41,18 @@ pub const RULE_LINK_TRIPLE_NEW_TAB: Rule = Rule {
     try_consume_fn: link_new_tab,
 };
 
-fn link<'l, 'p, 'lp, 'r, 't>(
-    log: &'l slog::Logger,
-    parser: &'p mut Parser<'lp, 'r, 't>,
+fn link<'p, 'r, 't>(
+    log: &slog::Logger,
+    parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
     trace!(log, "Trying to create a triple-bracket link (regular)");
 
     try_consume_link(log, parser, RULE_LINK_TRIPLE, AnchorTarget::Same)
 }
 
-fn link_new_tab<'l, 'p, 'lp, 'r, 't>(
-    log: &'l slog::Logger,
-    parser: &'p mut Parser<'lp, 'r, 't>,
+fn link_new_tab<'p, 'r, 't>(
+    log: &slog::Logger,
+    parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
     trace!(log, "Trying to create a triple-bracket link (new tab)");
 
@@ -60,9 +60,9 @@ fn link_new_tab<'l, 'p, 'lp, 'r, 't>(
 }
 
 /// Build a triple-bracket link with the given anchor.
-fn try_consume_link<'l, 'p, 'lp, 'r, 't>(
-    log: &'l slog::Logger,
-    parser: &'p mut Parser<'lp, 'r, 't>,
+fn try_consume_link<'p, 'r, 't>(
+    log: &slog::Logger,
+    parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     anchor: AnchorTarget,
 ) -> ParseResult<'r, 't, Element<'t>> {
@@ -107,9 +107,9 @@ fn try_consume_link<'l, 'p, 'lp, 'r, 't>(
 
 /// Helper to build link with the same URL and label.
 /// e.g. `[[[name]]]`
-fn build_same<'p, 'l, 'r, 't>(
-    log: &'l slog::Logger,
-    parser: &'p mut Parser<'l, 'r, 't>,
+fn build_same<'p, 'r, 't>(
+    log: &slog::Logger,
+    parser: &'p mut Parser<'r, 't>,
     exceptions: Vec<ParseException<'t>>,
     url: &'t str,
     anchor: AnchorTarget,
@@ -131,9 +131,9 @@ fn build_same<'p, 'l, 'r, 't>(
 
 /// Helper to build link with separate URL and label.
 /// e.g. `[[[page|label]]]`, or `[[[page|]]]`
-fn build_separate<'p, 'l, 'r, 't>(
-    log: &'l slog::Logger,
-    parser: &'p mut Parser<'l, 'r, 't>,
+fn build_separate<'p, 'r, 't>(
+    log: &slog::Logger,
+    parser: &'p mut Parser<'r, 't>,
     mut exceptions: Vec<ParseException<'t>>,
     rule: Rule,
     url: &'t str,

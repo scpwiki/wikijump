@@ -32,11 +32,11 @@ use super::Parser;
 use std::mem;
 
 /// Main function that consumes tokens to produce a single element, then returns.
-pub fn consume<'p, 'l, 'r, 't>(
-    log: &'l slog::Logger,
-    parser: &'p mut Parser<'l, 'r, 't>,
+pub fn consume<'p, 'r, 't>(
+    log: &slog::Logger,
+    parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
-    let log = &parser.log().new(slog_o!(
+    let log = &log.new(slog_o!(
         "token" => parser.current().token,
         "slice" => str!(parser.current().slice),
         "span-start" => parser.current().span.start,

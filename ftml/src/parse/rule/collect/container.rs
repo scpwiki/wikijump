@@ -36,9 +36,9 @@ use crate::tree::{Container, ContainerType, Element};
 /// The kind of container we're building:
 /// Must match the parse rule.
 /// * `container_type`
-pub fn try_container<'p, 'l, 'r, 't>(
-    log: &'l slog::Logger,
-    parser: &'p mut Parser<'l, 'r, 't>,
+pub fn try_container<'p, 'r, 't>(
+    log: &slog::Logger,
+    parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     container_type: ContainerType,
     close_conditions: &[ParseCondition],

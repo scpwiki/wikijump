@@ -29,8 +29,7 @@ use std::fmt::{self, Debug};
 ///
 /// For convenience, it returns `ParseResult` instead of plain boolean for convenience.
 /// Any `Err(_)` case is interpreted as `false`.
-pub type ParseConditionFn =
-    for<'l, 'r, 't> fn(Parser<'l, 'r, 't>) -> Result<bool, ParseError>;
+pub type ParseConditionFn = for<'r, 't> fn(Parser<'r, 't>) -> Result<bool, ParseError>;
 
 /// Represents a condition on a parse state.
 ///

@@ -29,20 +29,20 @@ use crate::parse::{
 use crate::text::FullText;
 
 #[derive(Debug)]
-pub struct BlockParser<'p, 'l, 'r, 't> {
-    log: &'l slog::Logger,
-    parser: &'p mut Parser<'l, 'r, 't>,
+pub struct BlockParser<'p, 'r, 't> {
+    log: slog::Logger,
+    parser: &'p mut Parser<'r, 't>,
     special: bool,
 }
 
-impl<'p, 'l, 'r, 't> BlockParser<'p, 'l, 'r, 't>
+impl<'p, 'r, 't> BlockParser<'p, 'r, 't>
 where
     'r: 't,
 {
     #[inline]
     pub fn new(
-        log: &'l slog::Logger,
-        parser: &'p mut Parser<'l, 'r, 't>,
+        log: &slog::Logger,
+        parser: &'p mut Parser<'r, 't>,
         special: bool,
     ) -> Self {
         info!(
@@ -51,16 +51,19 @@ where
             "remaining-len" => parser.remaining().len(),
         );
 
-        parser.set_rule(if special {
+        let log = slog::Logger::clone(log);
+        let rule = if special {
             RULE_BLOCK_SPECIAL
         } else {
             RULE_BLOCK
-        });
+        };
+
+        parser.set_rule(rule);
 
         BlockParser {
             log,
-            special,
             parser,
+            special,
         }
     }
 
@@ -71,7 +74,7 @@ where
         kind: ParseErrorKind,
     ) -> Result<&'t str, ParseError> {
         debug!(
-            self.log,
+            &self.log,
             "Looking for token {:?} (error {:?})",
             token,
             kind;
@@ -138,8 +141,8 @@ where
     where
         F: FnOnce(Self) -> T,
     {
-        let parser = self.parser.clone();
-        let clone = BlockParser::new(self.log, &mut parser, self.special);
+        let mut parser = self.parser.clone();
+        let clone = BlockParser::new(&self.log, &mut parser, self.special);
         f(clone)
     }
 
@@ -252,7 +255,7 @@ where
         debug!(self.log, "Looking for a value argument, then ']]'");
 
         let (value, _, _) = try_merge(
-            self.log,
+            &self.log,
             self.parser,
             self.parser.rule(),
             &[ParseCondition::current(Token::RightBlock)],

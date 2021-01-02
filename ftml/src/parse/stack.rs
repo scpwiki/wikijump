@@ -23,9 +23,9 @@ use crate::tree::{Container, ContainerType};
 use std::mem;
 
 #[derive(Debug)]
-pub struct ParagraphStack<'l, 't> {
+pub struct ParagraphStack<'t> {
     /// The `slog::Logger` instance used for logging stack operations.
-    log: &'l slog::Logger,
+    log: slog::Logger,
 
     /// Elements being accumulated in the current paragraph.
     current: Vec<Element<'t>>,
@@ -37,11 +37,11 @@ pub struct ParagraphStack<'l, 't> {
     exceptions: Vec<ParseException<'t>>,
 }
 
-impl<'l, 't> ParagraphStack<'l, 't> {
+impl<'t> ParagraphStack<'t> {
     #[inline]
-    pub fn new(log: &'l slog::Logger) -> Self {
+    pub fn new(log: &slog::Logger) -> Self {
         ParagraphStack {
-            log,
+            log: slog::Logger::clone(log),
             current: Vec::new(),
             finished: Vec::new(),
             exceptions: Vec::new(),

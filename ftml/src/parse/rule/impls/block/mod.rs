@@ -74,9 +74,9 @@ impl BlockRule {
     #[cold]
     pub fn rule(&self) -> Rule {
         // Stubbed try_consume_fn implementation for the Rule.
-        fn try_consume_fn<'l, 'p, 'lp, 'r, 't>(
-            _: &'l slog::Logger,
-            _: &'p mut Parser<'lp, 'r, 't>,
+        fn try_consume_fn<'p, 'r, 't>(
+            _: &slog::Logger,
+            _: &'p mut Parser<'r, 't>,
         ) -> ParseResult<'r, 't, Element<'t>> {
             panic!("Pseudo rule for this block should not be executed directly!");
         }
@@ -88,9 +88,9 @@ impl BlockRule {
     }
 }
 
-pub type BlockParseFn = for<'l, 'p, 'lp, 'r, 't> fn(
-    &'l slog::Logger,
-    &'p mut BlockParser<'l, 'lp, 'r, 't>,
+pub type BlockParseFn = for<'p, 'r, 't> fn(
+    &slog::Logger,
+    &'p mut BlockParser<'p, 'r, 't>,
     &'t str,
     bool,
 ) -> ParseResult<'r, 't, Element<'t>>;

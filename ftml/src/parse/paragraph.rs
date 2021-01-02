@@ -37,9 +37,9 @@ use super::token::Token;
 /// (such as `try_consume()`, in the middle of parsing).
 ///
 /// See the `UpcomingTokens` enum for more information.
-pub fn gather_paragraphs<'l, 'r, 't>(
-    log: &'l slog::Logger,
-    parser: &mut Parser<'l, 'r, 't>,
+pub fn gather_paragraphs<'r, 't>(
+    log: &slog::Logger,
+    parser: &mut Parser<'r, 't>,
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],

@@ -25,9 +25,9 @@ pub const RULE_TEXT: Rule = Rule {
     try_consume_fn,
 };
 
-fn try_consume_fn<'l, 'p, 'lp, 'r, 't>(
-    log: &'l slog::Logger,
-    parser: &'p mut Parser<'lp, 'r, 't>,
+fn try_consume_fn<'p, 'r, 't>(
+    log: &slog::Logger,
+    parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Consuming token as plain text element");
 
