@@ -84,7 +84,6 @@ where
 
     info!(log, "Trying to collect tokens for rule {:?}", rule);
 
-    let mut collected = Vec::new();
     let mut exceptions = Vec::new();
 
     loop {
@@ -100,7 +99,6 @@ where
                 log,
                 "Found ending condition, returning collected elements";
                 "token" => parser.current().token,
-                "collected" => format!("{:?}", collected),
             );
 
             return ok!((), parser.remaining(), exceptions);
@@ -114,7 +112,6 @@ where
                 log,
                 "Found invalid token, aborting container attempt";
                 "token" => parser.current().token,
-                "collected" => format!("{:?}", collected),
             );
 
             return Err(parser.make_error(ParseErrorKind::RuleFailed));
@@ -122,21 +119,11 @@ where
 
         // Process token(s).
         let old_remaining = parser.remaining();
-        let item = process(log, parser)?.chain(&mut exceptions);
+        process(log, parser)?.chain(&mut exceptions);
 
         // If the pointer hasn't moved, we step one token.
         if parser.same_pointer(old_remaining) {
             parser.step()?;
         }
-
-        debug!(
-            log,
-            "Adding newly produced item from token consumption";
-            "item" => format!("{:?}", item),
-            "remaining-len" => parser.remaining().len(),
-        );
-
-        // Append new item
-        collected.push(item);
     }
 }

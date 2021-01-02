@@ -35,10 +35,12 @@ mod prelude {
     pub use crate::text::FullText;
 }
 
+mod consume;
 mod container;
 mod generic;
 mod merge;
 
+pub use self::consume::try_consume;
 pub use self::container::try_container;
 pub use self::generic::try_collect;
 pub use self::merge::try_merge;
