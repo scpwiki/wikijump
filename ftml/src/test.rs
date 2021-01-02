@@ -136,9 +136,9 @@ fn ast() {
 
     // Warn if any test are being skipped
     if !SKIP_TESTS.is_empty() {
-        println!("=======");
-        println!("WARNING");
-        println!("=======");
+        println!("=========");
+        println!(" WARNING ");
+        println!("=========");
         println!();
         println!("The following tests are being SKIPPED:");
 
