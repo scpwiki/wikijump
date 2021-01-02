@@ -70,17 +70,6 @@ impl<'t> ParagraphStack<'t> {
         self.exceptions.append(exceptions);
     }
 
-    #[inline]
-    pub fn push_error(&mut self, error: ParseError) {
-        debug!(
-            self.log,
-            "Pushing error to stack";
-            "error" => error.kind().name(),
-        );
-
-        self.exceptions.push(ParseException::Error(error));
-    }
-
     pub fn build_paragraph(&mut self) -> Option<Element<'t>> {
         debug!(
             self.log,

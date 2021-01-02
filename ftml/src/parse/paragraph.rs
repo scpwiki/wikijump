@@ -25,7 +25,6 @@ use super::prelude::*;
 use super::rule::Rule;
 use super::stack::ParagraphStack;
 use super::token::Token;
-use crate::span_wrap::SpanWrap;
 
 /// Function to iterate over tokens to produce elements in paragraphs.
 ///
@@ -51,7 +50,7 @@ where
     let mut stack = ParagraphStack::new(log);
 
     loop {
-        let result = match parser.current().token {
+        let (element, mut exceptions) = match parser.current().token {
             // Avoid an unnecessary Token::Null and just exit
             Token::InputEnd => {
                 if close_conditions.is_empty() {
@@ -108,36 +107,16 @@ where
                 debug!(log, "Trying to consume tokens to produce element");
                 consume(log, parser)
             }
-        };
+        }?
+        .into();
 
-        match result {
-            Ok(ParseSuccess {
-                item,
-                mut exceptions,
-                ..
-            }) => {
-                debug!(log, "Tokens successfully consumed to produce element");
+        debug!(log, "Tokens consumed to produce element");
 
-                // Add the new element to the list
-                stack.push_element(item);
+        // Add the new element to the list
+        stack.push_element(element);
 
-                // Process exceptions
-                stack.push_exceptions(&mut exceptions);
-            }
-            Err(error) => {
-                info!(
-                    log,
-                    "Token consumption failed, returned error";
-                    "error-token" => error.token(),
-                    "error-rule" => error.rule(),
-                    "error-span" => SpanWrap::from(error.span()),
-                    "error-kind" => error.kind().name(),
-                );
-
-                // Append the error
-                stack.push_error(error);
-            }
-        }
+        // Process exceptions
+        stack.push_exceptions(&mut exceptions);
     }
 
     stack.into_result()

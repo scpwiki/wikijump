@@ -33,6 +33,9 @@ use crate::span_wrap::SpanWrap;
 use std::mem;
 
 /// Main function that consumes tokens to produce a single element, then returns.
+///
+/// It will use the fallback if all rules, fail, so the only failure case is if
+/// the end of the input is reached.
 pub fn consume<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,

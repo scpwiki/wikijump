@@ -87,9 +87,7 @@ impl<'r, 't> Parser<'r, 't> {
     pub fn evaluate(&self, condition: ParseCondition) -> bool {
         debug!(
             &self.log,
-            "Evaluating parser condition: {:?} (current: {:?})",
-            condition,
-            self.current,
+            "Evaluating parser condition: {:?} (current: {:?})", condition, self.current,
         );
 
         match condition {
