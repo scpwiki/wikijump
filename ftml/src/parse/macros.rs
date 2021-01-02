@@ -35,10 +35,3 @@ macro_rules! ok {
         Ok(ParseSuccess::new($item, $exceptions))
     };
 }
-
-/// Wraps a `Range<usize>` in a struct that permits serialization in `slog`.
-macro_rules! span {
-    ($range:expr) => {
-        crate::spawn_wrap::SpanWrap { inner: &$range }
-    };
-}

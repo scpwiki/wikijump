@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::span_wrap::SpanWrap;
 
 pub const RULE_COMMENT: Rule = Rule {
     name: "comment",
@@ -47,8 +48,7 @@ fn try_consume_fn<'p, 'r, 't>(
             "Received token inside comment";
             "token" => token,
             "slice" => slice,
-            "span-start" => span.start,
-            "span-end" => span.end,
+            "span" => SpanWrap::from(span),
         );
 
         match token {

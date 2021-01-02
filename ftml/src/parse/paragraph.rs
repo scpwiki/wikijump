@@ -25,6 +25,7 @@ use super::prelude::*;
 use super::rule::Rule;
 use super::stack::ParagraphStack;
 use super::token::Token;
+use crate::span_wrap::SpanWrap;
 
 /// Function to iterate over tokens to produce elements in paragraphs.
 ///
@@ -129,8 +130,7 @@ where
                     "Token consumption failed, returned error";
                     "error-token" => error.token(),
                     "error-rule" => error.rule(),
-                    "error-span-start" => error.span().start,
-                    "error-span-end" => error.span().end,
+                    "error-span" => SpanWrap::from(error.span()),
                     "error-kind" => error.kind().name(),
                 );
 

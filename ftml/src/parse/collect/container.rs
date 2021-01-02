@@ -51,7 +51,8 @@ pub fn collect_container<'p, 'r, 't>(
 
     info!(
         log,
-        "Trying to consume tokens to produce container for {:?}", rule,
+        "Trying to consume tokens to produce container for {}",
+        rule.name(),
     );
 
     // Iterate and consume all the tokens

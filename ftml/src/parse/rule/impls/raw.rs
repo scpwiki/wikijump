@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::span_wrap::SpanWrap;
 
 macro_rules! raw {
     ($value:expr) => {
@@ -127,8 +128,7 @@ fn try_consume_fn<'p, 'r, 't>(
             "Received token inside raw";
             "token" => token,
             "slice" => slice,
-            "span-start" => span.start,
-            "span-end" => span.end,
+            "span" => SpanWrap::from(span),
         );
 
         // Check token

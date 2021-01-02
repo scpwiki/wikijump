@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::span_wrap::SpanWrap;
 
 /// Generic function to parse upcoming tokens until conditions are met.
 ///
@@ -71,16 +72,19 @@ where
     const ALWAYS_INVALID: &[Token] = &[Token::InputEnd];
 
     // Log collect_until() call
-    let log = &log.new(slog_o!(
-        "rule" => str!(rule.name()),
-        "token" => str!(parser.current().token.name()),
-        "slice" => str!(parser.current().slice),
-        "span-start" => parser.current().span.start,
-        "span-end" => parser.current().span.end,
-        "remaining-len" => parser.remaining().len(),
-        "close-conditions" => format!("{:?}", close_conditions),
-        "invalid-conditions" => format!("{:?}", invalid_conditions),
-    ));
+    let log = {
+        let ExtractedToken { token, slice, span } = parser.current();
+
+        &log.new(slog_o!(
+            "rule" => str!(rule.name()),
+            "token" => str!(token.name()),
+            "slice" => str!(slice),
+            "span" => SpanWrap::from(span),
+            "remaining-len" => parser.remaining().len(),
+            "close-conditions" => format!("{:?}", close_conditions),
+            "invalid-conditions" => format!("{:?}", invalid_conditions),
+        ))
+    };
 
     info!(log, "Trying to collect tokens for rule {:?}", rule);
 

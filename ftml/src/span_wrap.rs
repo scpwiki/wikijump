@@ -23,11 +23,23 @@
 use std::ops::Range;
 
 #[derive(Debug, Clone)]
-pub struct SpanWrap<'a> {
-    inner: &'a Range<usize>,
+pub struct SpanWrap(Range<usize>);
+
+impl From<Range<usize>> for SpanWrap {
+    #[inline]
+    fn from(range: Range<usize>) -> Self {
+        SpanWrap(range)
+    }
 }
 
-impl<'a> slog::Value for SpanWrap<'a> {
+impl From<&'_ Range<usize>> for SpanWrap {
+    #[inline]
+    fn from(range: &'_ Range<usize>) -> Self {
+        SpanWrap(Range::clone(range))
+    }
+}
+
+impl slog::Value for SpanWrap {
     fn serialize(
         &self,
         _: &slog::Record,
@@ -35,9 +47,9 @@ impl<'a> slog::Value for SpanWrap<'a> {
         serializer: &mut dyn slog::Serializer,
     ) -> slog::Result {
         serializer.emit_str(key, "[")?;
-        serializer.emit_usize(key, self.inner.start)?;
+        serializer.emit_usize(key, self.0.start)?;
         serializer.emit_str(key, ", ")?;
-        serializer.emit_usize(key, self.inner.end)?;
+        serializer.emit_usize(key, self.0.end)?;
         serializer.emit_str(key, "]")?;
         Ok(())
     }

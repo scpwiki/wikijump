@@ -29,6 +29,7 @@
 use super::prelude::*;
 use super::rule::{impls::RULE_FALLBACK, rules_for_token};
 use super::Parser;
+use crate::span_wrap::SpanWrap;
 use std::mem;
 
 /// Main function that consumes tokens to produce a single element, then returns.
@@ -39,8 +40,7 @@ pub fn consume<'p, 'r, 't>(
     let log = &log.new(slog_o!(
         "token" => parser.current().token,
         "slice" => str!(parser.current().slice),
-        "span-start" => parser.current().span.start,
-        "span-end" => parser.current().span.end,
+        "span" => SpanWrap::from(&parser.current().span),
         "remaining-len" => parser.remaining().len(),
     ));
 

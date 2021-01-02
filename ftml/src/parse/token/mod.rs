@@ -21,6 +21,7 @@
 #[cfg(test)]
 mod test;
 
+use crate::span_wrap::SpanWrap;
 use pest::iterators::Pair;
 use pest::Parser;
 use std::ops::Range;
@@ -169,6 +170,7 @@ impl Token {
         let slice = pair.as_str();
         let start = pair.as_span().start();
         let end = pair.as_span().end();
+        let span = start..end;
 
         // Get matching Token.
         let token = Token::get_from_rule(rule);
@@ -178,11 +180,9 @@ impl Token {
             "Converting pair '{:?}' into token", rule;
             "token" => token.name(),
             "slice" => pair.as_str(),
-            "span-start" => start,
-            "span-end" => end,
+            "span" => SpanWrap::from(&span),
         );
 
-        let span = start..end;
         ExtractedToken { token, slice, span }
     }
 
