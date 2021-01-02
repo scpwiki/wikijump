@@ -60,7 +60,7 @@ pub fn try_merge<'p, 'r, 't>(
         (start, Some(end)) => parser.full_text().slice(log, start, end),
 
         // Empty list of tokens, resultant slice must be empty
-        (start, None) => "",
+        (_, None) => "",
     };
 
     ok!(slice, parser.remaining())
