@@ -40,7 +40,7 @@ pub const RULE_LINK_SINGLE_NEW_TAB: Rule = Rule {
 fn link<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Element<'t>> {
+) -> ParseResult<'t, Element<'t>> {
     trace!(log, "Trying to create a single-bracket link (regular)");
 
     try_consume_link(log, parser, RULE_LINK_SINGLE, AnchorTarget::Same)
@@ -49,7 +49,7 @@ fn link<'p, 'r, 't>(
 fn link_new_tab<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Element<'t>> {
+) -> ParseResult<'t, Element<'t>> {
     trace!(log, "Trying to create a single-bracket link (new tab)");
 
     try_consume_link(log, parser, RULE_LINK_SINGLE_NEW_TAB, AnchorTarget::NewTab)
@@ -61,11 +61,11 @@ fn try_consume_link<'p, 'r, 't>(
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     anchor: AnchorTarget,
-) -> ParseResult<'r, 't, Element<'t>> {
+) -> ParseResult<'t, Element<'t>> {
     debug!(log, "Trying to create a single-bracket link"; "anchor" => anchor.name());
 
     // Gather path for link
-    let (url, _, mut exceptions) = collect_merge(
+    let url = collect_merge(
         log,
         parser,
         rule,
@@ -75,8 +75,7 @@ fn try_consume_link<'p, 'r, 't>(
             ParseCondition::current(Token::ParagraphBreak),
             ParseCondition::current(Token::LineBreak),
         ],
-    )?
-    .into();
+    )?;
 
     if !url_valid(url) {
         return Err(parser.make_error(ParseErrorKind::InvalidUrl));
@@ -98,8 +97,7 @@ fn try_consume_link<'p, 'r, 't>(
             ParseCondition::current(Token::ParagraphBreak),
             ParseCondition::current(Token::LineBreak),
         ],
-    )?
-    .chain(&mut exceptions);
+    )?;
 
     debug!(
         log,

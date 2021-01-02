@@ -52,7 +52,7 @@ impl Rule {
         self,
         log: &slog::Logger,
         parser: &'p mut Parser<'r, 't>,
-    ) -> ParseResult<'r, 't, Element<'t>> {
+    ) -> ParseResult<'t, Element<'t>> {
         info!(log, "Trying to consume for parse rule"; "name" => self.name);
 
         (self.try_consume_fn)(log, parser)
@@ -83,4 +83,4 @@ impl slog::Value for Rule {
 pub type TryConsumeFn = for<'p, 'r, 't> fn(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Element<'t>>;
+) -> ParseResult<'t, Element<'t>>;

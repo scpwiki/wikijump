@@ -117,7 +117,7 @@ impl<'t> ParagraphStack<'t> {
         }
     }
 
-    pub fn into_result<'r>(mut self) -> ParseResult<'r, 't, Vec<Element<'t>>> {
+    pub fn into_result<'r>(mut self) -> ParseResult<'t, Vec<Element<'t>>> {
         debug!(
             self.log,
             "Converting paragraph parse stack into ParseResult",

@@ -19,32 +19,24 @@
  */
 
 use crate::parse::error::{ParseError, ParseException};
-use crate::parse::token::ExtractedToken;
 
-pub type ParseResult<'r, 't, T> = Result<ParseSuccess<'r, 't, T>, ParseError>;
-pub type ParseSuccessTuple<'r, 't, T> =
-    (T, &'r [ExtractedToken<'t>], Vec<ParseException<'t>>);
+pub type ParseResult<'t, T> = Result<ParseSuccess<'t, T>, ParseError>;
+pub type ParseSuccessTuple<'t, T> = (T, Vec<ParseException<'t>>);
 
 #[must_use]
 #[derive(Debug, Clone)]
-pub struct ParseSuccess<'r, 't, T>
+pub struct ParseSuccess<'t, T>
 where
     T: 't,
-    'r: 't,
 {
     pub item: T,
-
-    #[deprecated]
-    pub remaining: &'r [ExtractedToken<'t>],
-
     pub exceptions: Vec<ParseException<'t>>,
 }
 
-impl<'r, 't, T> ParseSuccess<'r, 't, T> {
+impl<'t, T> ParseSuccess<'t, T> {
     pub fn chain(self, all_exceptions: &mut Vec<ParseException<'t>>) -> T {
         let ParseSuccess {
             item,
-            remaining: _,
             mut exceptions,
         } = self;
 
@@ -56,32 +48,26 @@ impl<'r, 't, T> ParseSuccess<'r, 't, T> {
     }
 }
 
-impl<'r, 't, T> ParseSuccess<'r, 't, T>
+impl<'t, T> ParseSuccess<'t, T>
 where
     T: 't,
-    'r: 't,
 {
-    pub fn map<F, U>(self, f: F) -> ParseSuccess<'r, 't, U>
+    pub fn map<F, U>(self, f: F) -> ParseSuccess<'t, U>
     where
         F: FnOnce(T) -> U,
     {
-        let ParseSuccess {
-            item,
-            remaining,
-            exceptions,
-        } = self;
+        let ParseSuccess { item, exceptions } = self;
 
         let new_item = f(item);
 
         ParseSuccess {
             item: new_item,
-            remaining,
             exceptions,
         }
     }
 
     #[inline]
-    pub fn map_ok<F, U>(self, f: F) -> ParseResult<'r, 't, U>
+    pub fn map_ok<F, U>(self, f: F) -> ParseResult<'t, U>
     where
         F: FnOnce(T) -> U,
     {
@@ -89,15 +75,11 @@ where
     }
 }
 
-impl<'r, 't> ParseSuccess<'r, 't, ()>
-where
-    'r: 't,
-{
+impl<'t> ParseSuccess<'t, ()> {
     #[inline]
     pub fn into_exceptions(self) -> Vec<ParseException<'t>> {
         let ParseSuccess {
             item: _,
-            remaining: _,
             exceptions,
         } = self;
 
@@ -105,15 +87,11 @@ where
     }
 }
 
-impl<'r, 't, T> Into<ParseSuccessTuple<'r, 't, T>> for ParseSuccess<'r, 't, T> {
+impl<'t, T> Into<ParseSuccessTuple<'t, T>> for ParseSuccess<'t, T> {
     #[inline]
-    fn into(self) -> ParseSuccessTuple<'r, 't, T> {
-        let ParseSuccess {
-            item,
-            remaining,
-            exceptions,
-        } = self;
+    fn into(self) -> ParseSuccessTuple<'t, T> {
+        let ParseSuccess { item, exceptions } = self;
 
-        (item, remaining, exceptions)
+        (item, exceptions)
     }
 }

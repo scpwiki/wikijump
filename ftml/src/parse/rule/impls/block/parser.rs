@@ -254,7 +254,7 @@ where
     pub fn get_argument_value(&mut self) -> Result<&'t str, ParseError> {
         debug!(self.log, "Looking for a value argument, then ']]'");
 
-        let (value, _, _) = collect_merge(
+        collect_merge(
             &self.log,
             self.parser,
             self.parser.rule(),
@@ -263,10 +263,7 @@ where
                 ParseCondition::current(Token::ParagraphBreak),
                 ParseCondition::current(Token::LineBreak),
             ],
-        )?
-        .into();
-
-        Ok(value)
+        )
     }
 
     pub fn get_argument_none(&mut self) -> Result<(), ParseError> {

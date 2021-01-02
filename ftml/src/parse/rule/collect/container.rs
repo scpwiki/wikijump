@@ -43,7 +43,7 @@ pub fn collect_container<'p, 'r, 't>(
     container_type: ContainerType,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
-) -> ParseResult<'r, 't, Element<'t>> {
+) -> ParseResult<'t, Element<'t>> {
     // Log collect_container() call
     let log = &log.new(slog_o!(
         "container-type" => str!(container_type.name()),
@@ -55,7 +55,7 @@ pub fn collect_container<'p, 'r, 't>(
     );
 
     // Iterate and consume all the tokens
-    let (elements, _, exceptions) =
+    let (elements, exceptions) =
         collect_consume(log, parser, rule, close_conditions, invalid_conditions)?.into();
 
     // Package into a container

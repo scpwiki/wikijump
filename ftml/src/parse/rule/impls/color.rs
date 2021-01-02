@@ -28,7 +28,7 @@ pub const RULE_COLOR: Rule = Rule {
 fn try_consume_fn<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Element<'t>> {
+) -> ParseResult<'t, Element<'t>> {
     debug!(log, "Trying to create color container");
 
     assert_eq!(
@@ -41,7 +41,7 @@ fn try_consume_fn<'p, 'r, 't>(
     // ## [color-style] | [text to be colored] ##
 
     // Gather the color name until the separator
-    let (color, _, mut exceptions) = collect_merge(
+    let color = collect_merge(
         log,
         parser,
         RULE_COLOR,
@@ -50,8 +50,7 @@ fn try_consume_fn<'p, 'r, 't>(
             ParseCondition::current(Token::ParagraphBreak),
             ParseCondition::current(Token::LineBreak),
         ],
-    )?
-    .into();
+    )?;
 
     debug!(
         log,
@@ -60,14 +59,14 @@ fn try_consume_fn<'p, 'r, 't>(
     );
 
     // Build color container
-    let elements = collect_consume(
+    let (elements, exceptions) = collect_consume(
         log,
         parser,
         RULE_COLOR,
         &[ParseCondition::current(Token::Color)],
         &[ParseCondition::current(Token::ParagraphBreak)],
     )?
-    .chain(&mut exceptions);
+    .into();
 
     // Return result
     let element = Element::Color {

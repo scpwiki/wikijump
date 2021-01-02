@@ -30,7 +30,7 @@ pub fn collect_consume<'p, 'r, 't>(
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
-) -> ParseResult<'r, 't, Vec<Element<'t>>> {
+) -> ParseResult<'t, Vec<Element<'t>>> {
     let mut elements = Vec::new();
 
     let exceptions = collect(

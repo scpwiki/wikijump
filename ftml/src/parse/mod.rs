@@ -83,7 +83,6 @@ where
     match result {
         Ok(ParseSuccess {
             item: elements,
-            remaining: _,
             exceptions,
         }) => {
             let (errors, styles) = extract_exceptions(exceptions);

@@ -60,9 +60,9 @@ pub fn collect<'p, 'r, 't, F>(
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
     mut process: F,
-) -> ParseResult<'r, 't, ()>
+) -> ParseResult<'t, ()>
 where
-    F: FnMut(&slog::Logger, &mut Parser<'r, 't>) -> ParseResult<'r, 't, ()>,
+    F: FnMut(&slog::Logger, &mut Parser<'r, 't>) -> ParseResult<'t, ()>,
 {
     /// Tokens that are always considered invalid, and will fail the rule.
     ///

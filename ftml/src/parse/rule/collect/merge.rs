@@ -31,7 +31,7 @@ pub fn collect_merge<'p, 'r, 't>(
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
-) -> ParseResult<'r, 't, &'t str> {
+) -> Result<&'t str, ParseError> {
     // Log collect_merge() call
     info!(
         log,
@@ -41,7 +41,7 @@ pub fn collect_merge<'p, 'r, 't>(
     let (start, mut end) = (parser.current(), None);
 
     // Iterate and collect the tokens to merge
-    let exceptions = collect(
+    collect(
         log,
         parser,
         rule,
@@ -53,8 +53,7 @@ pub fn collect_merge<'p, 'r, 't>(
             end = Some(parser.current());
             ok!(())
         },
-    )?
-    .into_exceptions();
+    )?;
 
     let slice = match (start, end) {
         // We have a token span, use to get string slice
@@ -64,5 +63,5 @@ pub fn collect_merge<'p, 'r, 't>(
         (_, None) => "",
     };
 
-    ok!(slice, exceptions)
+    Ok(slice)
 }

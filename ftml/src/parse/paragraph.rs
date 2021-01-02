@@ -37,7 +37,7 @@ pub fn gather_paragraphs<'r, 't>(
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
-) -> ParseResult<'r, 't, Vec<Element<'t>>>
+) -> ParseResult<'t, Vec<Element<'t>>>
 where
     'r: 't,
 {
@@ -113,17 +113,9 @@ where
         match result {
             Ok(ParseSuccess {
                 item,
-                remaining,
                 mut exceptions,
             }) => {
                 debug!(log, "Tokens successfully consumed to produce element");
-
-                // Update remaining tokens
-                //
-                // The new value is a subslice of tokens,
-                // equivalent to &tokens[offset..] but without
-                // needing to assert bounds.
-                parser.update(remaining)?;
 
                 // Add the new element to the list
                 stack.push_element(item);

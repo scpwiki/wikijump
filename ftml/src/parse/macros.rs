@@ -34,7 +34,6 @@ macro_rules! ok {
     ($item:expr, $exceptions:expr) => {
         Ok(ParseSuccess {
             item: $item,
-            remaining: &[],
             exceptions: $exceptions,
         })
     };

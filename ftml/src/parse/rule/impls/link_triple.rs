@@ -44,7 +44,7 @@ pub const RULE_LINK_TRIPLE_NEW_TAB: Rule = Rule {
 fn link<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Element<'t>> {
+) -> ParseResult<'t, Element<'t>> {
     trace!(log, "Trying to create a triple-bracket link (regular)");
 
     try_consume_link(log, parser, RULE_LINK_TRIPLE, AnchorTarget::Same)
@@ -53,7 +53,7 @@ fn link<'p, 'r, 't>(
 fn link_new_tab<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Element<'t>> {
+) -> ParseResult<'t, Element<'t>> {
     trace!(log, "Trying to create a triple-bracket link (new tab)");
 
     try_consume_link(log, parser, RULE_LINK_TRIPLE_NEW_TAB, AnchorTarget::NewTab)
@@ -65,11 +65,11 @@ fn try_consume_link<'p, 'r, 't>(
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     anchor: AnchorTarget,
-) -> ParseResult<'r, 't, Element<'t>> {
+) -> ParseResult<'t, Element<'t>> {
     debug!(log, "Trying to create a triple-bracket link"; "anchor" => anchor.name());
 
     // Gather path for link
-    let (url, _, exceptions) = collect_merge(
+    let url = collect_merge(
         log,
         parser,
         rule,
@@ -81,8 +81,13 @@ fn try_consume_link<'p, 'r, 't>(
             ParseCondition::current(Token::ParagraphBreak),
             ParseCondition::current(Token::LineBreak),
         ],
-    )?
-    .into();
+    )?;
+
+    debug!(
+        log,
+        "Retrieved url for link, now build element";
+        "url" => url,
+    );
 
     // Trim text
     let url = url.trim();
@@ -95,10 +100,10 @@ fn try_consume_link<'p, 'r, 't>(
     // Determine what token we ended on, i.e. which [[[ variant it is.
     match parser.current().token {
         // [[[name]]] type links
-        Token::RightLink => build_same(log, parser, exceptions, url, anchor),
+        Token::RightLink => build_same(log, parser, url, anchor),
 
         // [[[url|label]]] type links
-        Token::Pipe => build_separate(log, parser, exceptions, rule, url, anchor),
+        Token::Pipe => build_separate(log, parser, rule, url, anchor),
 
         // Token was already checked in collect_merge(), impossible case
         _ => unreachable!(),
@@ -110,10 +115,9 @@ fn try_consume_link<'p, 'r, 't>(
 fn build_same<'p, 'r, 't>(
     log: &slog::Logger,
     _parser: &'p mut Parser<'r, 't>,
-    exceptions: Vec<ParseException<'t>>,
     url: &'t str,
     anchor: AnchorTarget,
-) -> ParseResult<'r, 't, Element<'t>> {
+) -> ParseResult<'t, Element<'t>> {
     debug!(
         log,
         "Building link with same URL and label";
@@ -126,7 +130,7 @@ fn build_same<'p, 'r, 't>(
         anchor,
     };
 
-    ok!(element, exceptions)
+    ok!(element)
 }
 
 /// Helper to build link with separate URL and label.
@@ -134,11 +138,10 @@ fn build_same<'p, 'r, 't>(
 fn build_separate<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
-    mut exceptions: Vec<ParseException<'t>>,
     rule: Rule,
     url: &'t str,
     anchor: AnchorTarget,
-) -> ParseResult<'r, 't, Element<'t>> {
+) -> ParseResult<'t, Element<'t>> {
     debug!(
         log,
         "Building link with separate URL and label";
@@ -155,12 +158,11 @@ fn build_separate<'p, 'r, 't>(
             ParseCondition::current(Token::ParagraphBreak),
             ParseCondition::current(Token::LineBreak),
         ],
-    )?
-    .chain(&mut exceptions);
+    )?;
 
     debug!(
         log,
-        "Retrieved label for link, now build element";
+        "Retrieved label for link, now building element";
         "label" => label,
     );
 
@@ -183,5 +185,5 @@ fn build_separate<'p, 'r, 't>(
     };
 
     // Return result
-    ok!(element, exceptions)
+    ok!(element)
 }

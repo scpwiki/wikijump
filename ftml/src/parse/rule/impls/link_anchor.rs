@@ -36,7 +36,7 @@ pub const RULE_LINK_ANCHOR: Rule = Rule {
 fn try_consume_fn<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Element<'t>> {
+) -> ParseResult<'t, Element<'t>> {
     debug!(log, "Trying to create a single-bracket anchor link");
 
     assert_eq!(
@@ -46,7 +46,7 @@ fn try_consume_fn<'p, 'r, 't>(
     );
 
     // Gather path for link
-    let (url, _, mut exceptions) = collect_merge(
+    let url = collect_merge(
         log,
         parser,
         RULE_LINK_ANCHOR,
@@ -56,8 +56,7 @@ fn try_consume_fn<'p, 'r, 't>(
             ParseCondition::current(Token::ParagraphBreak),
             ParseCondition::current(Token::LineBreak),
         ],
-    )?
-    .into();
+    )?;
 
     // Determine if this is an anchor link or fake link
     let url = if url.is_empty() {
@@ -81,8 +80,7 @@ fn try_consume_fn<'p, 'r, 't>(
             ParseCondition::current(Token::ParagraphBreak),
             ParseCondition::current(Token::LineBreak),
         ],
-    )?
-    .chain(&mut exceptions);
+    )?;
 
     debug!(
         log,
@@ -101,5 +99,5 @@ fn try_consume_fn<'p, 'r, 't>(
     };
 
     // Return result
-    ok!(element, exceptions)
+    ok!(element)
 }
