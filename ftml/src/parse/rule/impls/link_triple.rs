@@ -47,6 +47,8 @@ fn link<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Element<'t>> {
     trace!(log, "Trying to create a triple-bracket link (regular)");
 
+    check_step(parser, Token::LeftLink)?;
+
     try_consume_link(log, parser, RULE_LINK_TRIPLE, AnchorTarget::Same)
 }
 
@@ -55,6 +57,8 @@ fn link_new_tab<'p, 'r, 't>(
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
     trace!(log, "Trying to create a triple-bracket link (new tab)");
+
+    check_step(parser, Token::LeftLinkSpecial)?;
 
     try_consume_link(log, parser, RULE_LINK_TRIPLE_NEW_TAB, AnchorTarget::NewTab)
 }
