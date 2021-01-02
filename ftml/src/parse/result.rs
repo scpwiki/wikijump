@@ -25,6 +25,7 @@ pub type ParseResult<'r, 't, T> = Result<ParseSuccess<'r, 't, T>, ParseError>;
 pub type ParseSuccessTuple<'r, 't, T> =
     (T, &'r [ExtractedToken<'t>], Vec<ParseException<'t>>);
 
+#[must_use]
 #[derive(Debug, Clone)]
 pub struct ParseSuccess<'r, 't, T>
 where
