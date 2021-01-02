@@ -85,6 +85,13 @@ impl<'r, 't> Parser<'r, 't> {
 
     // State evaluation
     pub fn evaluate(&self, condition: ParseCondition) -> bool {
+        debug!(
+            &self.log,
+            "Evaluating parser condition: {:?} (current: {:?})",
+            condition,
+            self.current,
+        );
+
         match condition {
             ParseCondition::CurrentToken { token } => self.current.token == token,
             ParseCondition::Function { f } => self.evaluate_fn(f),
