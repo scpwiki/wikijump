@@ -83,6 +83,8 @@ pub fn consume<'p, 'r, 't>(
     }
 
     debug!(log, "All rules exhausted, using generic text fallback");
+    let element = text!(current.slice);
+    parser.step()?;
 
     // We should only carry styles over from *successful* consumptions
     trace!(log, "Removing non-errors from exceptions list");
@@ -95,5 +97,5 @@ pub fn consume<'p, 'r, 't>(
         current,
     )));
 
-    ok!(text!(current.slice), all_exceptions)
+    ok!(element, all_exceptions)
 }
