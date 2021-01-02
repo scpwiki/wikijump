@@ -110,21 +110,23 @@ impl Test<'_> {
 
         if tree != self.tree {
             panic!(
-                "Running test '{}' failed! AST did not match:\nExpected: {:#?}\nActual: {:#?}\n{}",
+                "Running test '{}' failed! AST did not match:\nExpected: {:#?}\nActual: {:#?}\n{}\nErrors: {:#?}",
                 self.name,
                 self.tree,
                 tree,
                 json(&tree),
+                self.errors,
             );
         }
 
         if errors != self.errors {
             panic!(
-                "Running test '{}' failed! Errors did not match:\nExpected: {:#?}\nActual: {:#?}\n{}",
+                "Running test '{}' failed! Errors did not match:\nExpected: {:#?}\nActual: {:#?}\n{}\nTree: {:#?}",
                 self.name,
                 self.errors,
                 errors,
                 json(&errors),
+                self.tree,
             );
         }
     }
