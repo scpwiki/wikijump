@@ -84,6 +84,7 @@ where
         Ok(ParseSuccess {
             item: elements,
             exceptions,
+            ..
         }) => {
             let (errors, styles) = extract_exceptions(exceptions);
 

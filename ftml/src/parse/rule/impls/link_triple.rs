@@ -44,7 +44,7 @@ pub const RULE_LINK_TRIPLE_NEW_TAB: Rule = Rule {
 fn link<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'t, Element<'t>> {
+) -> ParseResult<'r, 't, Element<'t>> {
     trace!(log, "Trying to create a triple-bracket link (regular)");
 
     try_consume_link(log, parser, RULE_LINK_TRIPLE, AnchorTarget::Same)
@@ -53,7 +53,7 @@ fn link<'p, 'r, 't>(
 fn link_new_tab<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'t, Element<'t>> {
+) -> ParseResult<'r, 't, Element<'t>> {
     trace!(log, "Trying to create a triple-bracket link (new tab)");
 
     try_consume_link(log, parser, RULE_LINK_TRIPLE_NEW_TAB, AnchorTarget::NewTab)
@@ -65,7 +65,7 @@ fn try_consume_link<'p, 'r, 't>(
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     anchor: AnchorTarget,
-) -> ParseResult<'t, Element<'t>> {
+) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Trying to create a triple-bracket link"; "anchor" => anchor.name());
 
     // Gather path for link
@@ -117,7 +117,7 @@ fn build_same<'p, 'r, 't>(
     _parser: &'p mut Parser<'r, 't>,
     url: &'t str,
     anchor: AnchorTarget,
-) -> ParseResult<'t, Element<'t>> {
+) -> ParseResult<'r, 't, Element<'t>> {
     debug!(
         log,
         "Building link with same URL and label";
@@ -141,7 +141,7 @@ fn build_separate<'p, 'r, 't>(
     rule: Rule,
     url: &'t str,
     anchor: AnchorTarget,
-) -> ParseResult<'t, Element<'t>> {
+) -> ParseResult<'r, 't, Element<'t>> {
     debug!(
         log,
         "Building link with separate URL and label";

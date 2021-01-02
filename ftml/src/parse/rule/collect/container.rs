@@ -43,7 +43,7 @@ pub fn collect_container<'p, 'r, 't>(
     container_type: ContainerType,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
-) -> ParseResult<'t, Element<'t>> {
+) -> ParseResult<'r, 't, Element<'t>> {
     // Log collect_container() call
     let log = &log.new(slog_o!(
         "container-type" => str!(container_type.name()),

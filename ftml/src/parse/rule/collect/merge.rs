@@ -31,7 +31,10 @@ pub fn collect_merge<'p, 'r, 't>(
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
-) -> Result<&'t str, ParseError> {
+) -> Result<&'t str, ParseError>
+where
+    'r: 't,
+{
     // Log collect_merge() call
     info!(
         log,

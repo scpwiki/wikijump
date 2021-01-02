@@ -77,7 +77,7 @@ impl BlockRule {
         fn try_consume_fn<'p, 'r, 't>(
             _: &slog::Logger,
             _: &'p mut Parser<'r, 't>,
-        ) -> ParseResult<'t, Element<'t>> {
+        ) -> ParseResult<'r, 't, Element<'t>> {
             panic!("Pseudo rule for this block should not be executed directly!");
         }
 
@@ -93,4 +93,4 @@ pub type BlockParseFn = for<'p, 'r, 't> fn(
     &'p mut BlockParser<'p, 'r, 't>,
     &'t str,
     bool,
-) -> ParseResult<'t, Element<'t>>;
+) -> ParseResult<'r, 't, Element<'t>>;

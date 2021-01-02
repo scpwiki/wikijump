@@ -32,9 +32,6 @@ macro_rules! ok {
         ok!($item, $exceptions)
     };
     ($item:expr, $exceptions:expr) => {
-        Ok(ParseSuccess {
-            item: $item,
-            exceptions: $exceptions,
-        })
+        Ok(ParseSuccess::new($item, $exceptions))
     };
 }

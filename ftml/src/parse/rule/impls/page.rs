@@ -37,6 +37,6 @@ pub const RULE_PAGE: Rule = Rule {
 fn try_consume_fn<'p, 'r, 't>(
     _: &slog::Logger,
     _: &'p mut Parser<'r, 't>,
-) -> ParseResult<'t, Element<'t>> {
+) -> ParseResult<'r, 't, Element<'t>> {
     panic!("Manual page rule should not be executed directly!")
 }

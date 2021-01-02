@@ -37,7 +37,7 @@ pub fn gather_paragraphs<'r, 't>(
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
-) -> ParseResult<'t, Vec<Element<'t>>>
+) -> ParseResult<'r, 't, Vec<Element<'t>>>
 where
     'r: 't,
 {
@@ -114,6 +114,7 @@ where
             Ok(ParseSuccess {
                 item,
                 mut exceptions,
+                ..
             }) => {
                 debug!(log, "Tokens successfully consumed to produce element");
 

@@ -28,7 +28,7 @@ pub const RULE_UNDERLINE: Rule = Rule {
 fn try_consume_fn<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'t, Element<'t>> {
+) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Trying to create underline container");
 
     assert_eq!(
