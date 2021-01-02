@@ -56,7 +56,7 @@ fn try_consume_fn<'p, 'r, 't>(
             Token::RightComment => {
                 trace!(log, "Reached end of comment, returning");
 
-                return ok!(Element::Null, parser.remaining());
+                return ok!(Element::Null);
             }
 
             // Hit the end of the input, abort

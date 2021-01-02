@@ -31,8 +31,5 @@ fn try_consume_fn<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Consuming token as an email");
 
-    ok!(
-        Element::Email(cow!(parser.current().slice)),
-        parser.remaining(),
-    )
+    ok!(Element::Email(cow!(parser.current().slice)))
 }

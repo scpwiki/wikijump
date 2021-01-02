@@ -32,5 +32,5 @@ fn try_consume_fn<'p, 'r, 't>(
     debug!(log, "Consuming token to create an em dash");
 
     // — - EM DASH
-    ok!(text!("\u{2014}"), parser.remaining())
+    ok!(text!("\u{2014}"))
 }

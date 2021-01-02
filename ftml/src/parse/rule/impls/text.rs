@@ -31,5 +31,7 @@ fn try_consume_fn<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Consuming token as plain text element");
 
-    ok!(text!(parser.current().slice), parser.remaining())
+    let ExtractedToken { slice, .. } = parser.current();
+
+    ok!(text!(slice))
 }

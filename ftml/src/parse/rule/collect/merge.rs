@@ -51,10 +51,10 @@ pub fn try_merge<'p, 'r, 't>(
             trace!(log, "Ingesting token in string merge");
 
             end = Some(parser.current());
-            ok!((), parser.remaining())
+            ok!(())
         },
     )?
-    .into();
+    .into_exceptions();
 
     let slice = match (start, end) {
         // We have a token span, use to get string slice
@@ -64,5 +64,5 @@ pub fn try_merge<'p, 'r, 't>(
         (_, None) => "",
     };
 
-    ok!(slice, parser.remaining(), exceptions)
+    ok!(slice, exceptions)
 }

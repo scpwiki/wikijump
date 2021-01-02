@@ -62,7 +62,7 @@ fn try_consume_fn<'p, 'r, 't>(
             (Token::Raw, Token::Raw) => {
                 debug!(log, "Found meta-raw (\"@@@@@@\"), returning");
                 parser.step_n(2)?;
-                return ok!(raw!("@@"), parser.remaining());
+                return ok!(raw!("@@"));
             }
 
             // "@@@@@" -> Element::Raw("@")
@@ -72,11 +72,11 @@ fn try_consume_fn<'p, 'r, 't>(
                 if next_2.slice == "@" {
                     debug!(log, "Found single-raw (\"@@@@@\"), returning");
                     parser.step_n(2)?;
-                    return ok!(raw!("@"), parser.remaining());
+                    return ok!(raw!("@"));
                 } else {
                     debug!(log, "Found empty raw (\"@@@@\"), followed by other text");
                     parser.step_n(1)?;
-                    return ok!(raw!(""), parser.remaining());
+                    return ok!(raw!(""));
                 }
             }
 
@@ -85,7 +85,7 @@ fn try_consume_fn<'p, 'r, 't>(
             (Token::Raw, _) => {
                 debug!(log, "Found empty raw (\"@@@@\"), returning");
                 parser.step_n(1)?;
-                return ok!(raw!(""), parser.remaining());
+                return ok!(raw!(""));
             }
 
             // "@@ \n @@" -> Abort
@@ -98,7 +98,7 @@ fn try_consume_fn<'p, 'r, 't>(
             (_, Token::Raw) => {
                 debug!(log, "Found single-element raw, returning");
                 parser.step_n(2)?;
-                return ok!(raw!(next_1.slice), parser.remaining());
+                return ok!(raw!(next_1.slice));
             }
 
             // Other, proceed with rule logic
@@ -148,7 +148,7 @@ fn try_consume_fn<'p, 'r, 't>(
                     };
 
                     let element = Element::Raw(cow!(slice));
-                    return ok!(element, parser.remaining());
+                    return ok!(element);
                 }
 
                 trace!(log, "Wasn't end of raw, continuing");

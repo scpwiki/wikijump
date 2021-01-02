@@ -75,5 +75,5 @@ fn try_consume_fn<'p, 'r, 't>(
         elements,
     };
 
-    ok!(element, parser.remaining(), exceptions)
+    ok!(element)
 }

@@ -61,7 +61,6 @@ pub fn try_container<'p, 'r, 't>(
     // Package into a container
     ok!(
         Element::Container(Container::new(container_type, elements)),
-        parser.remaining(),
         exceptions,
     )
 }

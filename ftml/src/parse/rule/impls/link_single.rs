@@ -118,7 +118,7 @@ fn try_consume_link<'p, 'r, 't>(
     };
 
     // Return result
-    ok!(element, parser.remaining(), exceptions)
+    ok!(element)
 }
 
 fn url_valid(url: &str) -> bool {

@@ -31,5 +31,5 @@ fn try_consume_fn<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Consuming token as line break");
 
-    ok!(Element::LineBreak, parser.remaining())
+    ok!(Element::LineBreak)
 }

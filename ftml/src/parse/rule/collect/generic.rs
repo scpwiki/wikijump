@@ -101,7 +101,7 @@ where
                 "token" => parser.current().token,
             );
 
-            return ok!((), parser.remaining(), exceptions);
+            return ok!((), exceptions);
         }
 
         // See if the container should be aborted

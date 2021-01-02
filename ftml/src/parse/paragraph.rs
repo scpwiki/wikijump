@@ -95,7 +95,7 @@ where
                     "token" => parser.current().token,
                 );
 
-                return stack.into_result(parser.remaining());
+                return stack.into_result();
             }
 
             // Ending the paragraph prematurely due to an error
@@ -154,5 +154,5 @@ where
         }
     }
 
-    stack.into_result(parser.remaining())
+    stack.into_result()
 }

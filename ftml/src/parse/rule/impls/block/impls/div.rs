@@ -77,5 +77,5 @@ fn parse_fn<'p, 'r, 't>(
     //    style,
     //};
 
-    //ok!(element, parser.remaining(), exceptions)
+    //ok!(element, exceptions)
 }

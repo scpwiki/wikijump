@@ -45,7 +45,7 @@ pub fn try_consume<'p, 'r, 't>(
             })
         },
     )?
-    .into();
+    .into_exceptions();
 
-    ok!(elements, parser.remaining(), exceptions)
+    ok!(elements, exceptions)
 }

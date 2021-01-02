@@ -126,7 +126,7 @@ fn build_same<'p, 'r, 't>(
         anchor,
     };
 
-    ok!(element, parser.remaining(), exceptions)
+    ok!(element, exceptions)
 }
 
 /// Helper to build link with separate URL and label.
@@ -183,5 +183,5 @@ fn build_separate<'p, 'r, 't>(
     };
 
     // Return result
-    ok!(element, parser.remaining(), exceptions)
+    ok!(element, exceptions)
 }

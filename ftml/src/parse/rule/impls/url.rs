@@ -38,5 +38,5 @@ fn try_consume_fn<'p, 'r, 't>(
         anchor: AnchorTarget::Same,
     };
 
-    ok!(element, parser.remaining())
+    ok!(element)
 }

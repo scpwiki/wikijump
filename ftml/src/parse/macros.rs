@@ -22,19 +22,19 @@
 ///
 /// There are two variants, for if there are exceptions or if there are not.
 macro_rules! ok {
-    ($item:expr, $remaining:expr,) => {
-        ok!($item, $remaining, Vec::new())
+    ($item:expr,) => {
+        ok!($item, Vec::new())
     };
-    ($item:expr, $remaining:expr) => {
-        ok!($item, $remaining, Vec::new())
+    ($item:expr) => {
+        ok!($item, Vec::new())
     };
-    ($item:expr, $remaining:expr, $exceptions:expr,) => {
-        ok!($item, $remaining, $exceptions)
+    ($item:expr, $exceptions:expr,) => {
+        ok!($item, $exceptions)
     };
-    ($item:expr, $remaining:expr, $exceptions:expr) => {
+    ($item:expr, $exceptions:expr) => {
         Ok(ParseSuccess {
             item: $item,
-            remaining: $remaining,
+            remaining: &[],
             exceptions: $exceptions,
         })
     };

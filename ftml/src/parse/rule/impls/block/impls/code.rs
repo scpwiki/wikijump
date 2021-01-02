@@ -71,5 +71,5 @@ fn parse_fn<'p, 'r, 't>(
         language,
     };
 
-    ok!(element, parser.remaining())
+    ok!(element)
 }

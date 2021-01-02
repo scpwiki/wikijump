@@ -31,5 +31,5 @@ fn try_consume_fn<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Consuming token and outputting null element");
 
-    ok!(Element::Null, parser.remaining())
+    ok!(Element::Null)
 }

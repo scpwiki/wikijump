@@ -85,5 +85,5 @@ pub fn consume<'p, 'r, 't>(
         current,
     )));
 
-    ok!(text!(current.slice), parser.remaining(), all_exceptions)
+    ok!(text!(current.slice), all_exceptions)
 }
