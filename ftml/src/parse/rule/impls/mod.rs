@@ -19,6 +19,7 @@
  */
 
 mod prelude {
+    pub use crate::parse::check_step::check_step;
     pub use crate::parse::collect::*;
     pub use crate::parse::condition::ParseCondition;
     pub use crate::parse::consume::consume;

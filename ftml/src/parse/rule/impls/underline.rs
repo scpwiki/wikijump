@@ -31,12 +31,7 @@ fn try_consume_fn<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Trying to create underline container");
 
-    assert_eq!(
-        parser.current().token,
-        Token::Underline,
-        "Opening token isn't underline",
-    );
-    parser.step()?;
+    check_step(parser, Token::Underline)?;
 
     collect_container(
         log,

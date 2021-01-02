@@ -31,12 +31,7 @@ fn try_consume_fn<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Trying to create subscript container");
 
-    assert_eq!(
-        parser.current().token,
-        Token::Subscript,
-        "Opening token isn't subscript",
-    );
-    parser.step()?;
+    check_step(parser, Token::Subscript)?;
 
     collect_container(
         log,

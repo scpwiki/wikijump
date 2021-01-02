@@ -31,12 +31,7 @@ fn try_consume_fn<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Trying to create color container");
 
-    assert_eq!(
-        parser.current().token,
-        Token::Color,
-        "Current token isn't color marker",
-    );
-    parser.step()?;
+    check_step(parser, Token::Color)?;
 
     // The pattern for color is:
     // ## [color-style] | [text to be colored] ##

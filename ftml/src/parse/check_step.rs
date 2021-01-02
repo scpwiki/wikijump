@@ -1,5 +1,5 @@
 /*
- * parse/rule/impls/italics.rs
+ * parse/check_step.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2020 Ammon Smith
@@ -18,31 +18,23 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+use super::{ParseError, Parser, Token};
 
-pub const RULE_ITALICS: Rule = Rule {
-    name: "italics",
-    try_consume_fn,
-};
+/// Helper function to assert that the current token matches, then step.
+///
+/// # Panics
+/// Since an assert is used, this function will panic
+/// if the extracted token does not match the one specified.
+#[inline]
+pub fn check_step(parser: &mut Parser, token: Token) -> Result<(), ParseError> {
+    assert_eq!(
+        parser.current().token,
+        token,
+        "Opening token isn't {}",
+        token.name(),
+    );
 
-fn try_consume_fn<'p, 'r, 't>(
-    log: &slog::Logger,
-    parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Element<'t>> {
-    debug!(log, "Trying to create italics container");
+    parser.step()?;
 
-    check_step(parser, Token::Italics)?;
-
-    collect_container(
-        log,
-        parser,
-        RULE_ITALICS,
-        ContainerType::Italics,
-        &[ParseCondition::current(Token::Italics)],
-        &[
-            ParseCondition::current(Token::ParagraphBreak),
-            ParseCondition::token_pair(Token::Italics, Token::Whitespace),
-            ParseCondition::token_pair(Token::Whitespace, Token::Italics),
-        ],
-    )
+    Ok(())
 }

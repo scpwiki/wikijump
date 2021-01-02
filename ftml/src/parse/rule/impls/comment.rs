@@ -32,12 +32,7 @@ fn try_consume_fn<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Consuming tokens until end of comment");
 
-    assert_eq!(
-        parser.current().token,
-        Token::LeftComment,
-        "Current token isn't a LeftComment",
-    );
-    parser.step()?;
+    check_step(parser, Token::LeftComment)?;
 
     loop {
         let ExtractedToken { token, span, slice } = parser.current();

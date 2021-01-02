@@ -39,12 +39,7 @@ fn try_consume_fn<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Trying to create a single-bracket anchor link");
 
-    assert_eq!(
-        parser.current().token,
-        Token::LeftBracketAnchor,
-        "Current token isn't left anchor",
-    );
-    parser.step()?;
+    check_step(parser, Token::LeftBracketAnchor)?;
 
     // Gather path for link
     let url = collect_merge(

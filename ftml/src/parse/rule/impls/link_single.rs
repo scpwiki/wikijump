@@ -43,12 +43,7 @@ fn link<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Element<'t>> {
     trace!(log, "Trying to create a single-bracket link (regular)");
 
-    assert_eq!(
-        parser.current().token,
-        Token::LeftBracket,
-        "Current token isn't left bracket",
-    );
-    parser.step()?;
+    check_step(parser, Token::LeftBracket)?;
 
     try_consume_link(log, parser, RULE_LINK_SINGLE, AnchorTarget::Same)
 }
@@ -59,12 +54,7 @@ fn link_new_tab<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Element<'t>> {
     trace!(log, "Trying to create a single-bracket link (new tab)");
 
-    assert_eq!(
-        parser.current().token,
-        Token::LeftBracketSpecial,
-        "Current token isn't left bracket (special)",
-    );
-    parser.step()?;
+    check_step(parser, Token::LeftBracketSpecial)?;
 
     try_consume_link(log, parser, RULE_LINK_SINGLE_NEW_TAB, AnchorTarget::NewTab)
 }

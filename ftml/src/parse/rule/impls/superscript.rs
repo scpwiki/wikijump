@@ -31,12 +31,7 @@ fn try_consume_fn<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Trying to create superscript container");
 
-    assert_eq!(
-        parser.current().token,
-        Token::Superscript,
-        "Opening token isn't superscript",
-    );
-    parser.step()?;
+    check_step(parser, Token::Superscript)?;
 
     collect_container(
         log,
