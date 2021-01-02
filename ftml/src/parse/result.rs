@@ -86,6 +86,19 @@ where
     }
 }
 
+impl<'r, 't> Into<Vec<ParseException<'t>>> for ParseSuccess<'r, 't, ()> {
+    #[inline]
+    fn into(self) -> Vec<ParseException<'t>> {
+        let ParseSuccess {
+            item: _,
+            remaining: _,
+            exceptions,
+        } = self;
+
+        exceptions
+    }
+}
+
 impl<'r, 't, T> Into<ParseSuccessTuple<'r, 't, T>> for ParseSuccess<'r, 't, T> {
     #[inline]
     fn into(self) -> ParseSuccessTuple<'r, 't, T> {

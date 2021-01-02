@@ -33,7 +33,7 @@ pub fn try_consume<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
     let mut elements = Vec::new();
 
-    let (_, _, exceptions) = try_collect(
+    let exceptions = try_collect(
         log,
         parser,
         rule,

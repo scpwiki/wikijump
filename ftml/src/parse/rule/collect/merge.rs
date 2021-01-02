@@ -41,7 +41,7 @@ pub fn try_merge<'p, 'r, 't>(
     let (start, mut end) = (parser.current(), None);
 
     // Iterate and collect the tokens to merge
-    let (_, _, exceptions) = try_collect(
+    let exceptions = try_collect(
         log,
         parser,
         rule,
