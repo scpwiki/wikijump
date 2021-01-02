@@ -35,9 +35,9 @@
     },
     "errors": [
         {
-            "token": "line-break",
+            "token": "raw",
             "rule": "raw",
-            "span": [14, 15],
+            "span": [12, 14],
             "kind": "rule-failed"
         },
         {
