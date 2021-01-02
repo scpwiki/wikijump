@@ -31,12 +31,6 @@ use super::token::Token;
 /// Originally in `parse()`, but was moved out to allow paragraph
 /// extraction deeper in code, such as in the `try_paragraph`
 /// collection helper.
-///
-/// Allows the caller to either pass in a full token list
-/// (such as `parse()` starting at the beginning) or split
-/// (such as `try_consume()`, in the middle of parsing).
-///
-/// See the `UpcomingTokens` enum for more information.
 pub fn gather_paragraphs<'r, 't>(
     log: &slog::Logger,
     parser: &mut Parser<'r, 't>,

@@ -24,7 +24,7 @@
 //! some action over tokens, finishing or abortion when it reaches certain tokens.
 
 mod prelude {
-    pub use super::try_collect;
+    pub use super::collect;
     pub use crate::parse::condition::ParseCondition;
     pub use crate::parse::consume::consume;
     pub use crate::parse::error::{ParseError, ParseErrorKind};
@@ -40,7 +40,7 @@ mod container;
 mod generic;
 mod merge;
 
-pub use self::consume::try_consume;
-pub use self::container::try_container;
-pub use self::generic::try_collect;
-pub use self::merge::try_merge;
+pub use self::consume::collect_consume;
+pub use self::container::collect_container;
+pub use self::generic::collect;
+pub use self::merge::collect_merge;

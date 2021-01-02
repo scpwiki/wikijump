@@ -22,17 +22,17 @@ use super::prelude::*;
 
 /// Generic function to consume all tokens into a single string slice.
 ///
-/// This is a subset of the functionality provided by `try_collect`,
+/// This is a subset of the functionality provided by `collect`,
 /// as it specifically gathers all the extracted tokens into a string slice,
 /// rather than considering them as special elements.
-pub fn try_merge<'p, 'r, 't>(
+pub fn collect_merge<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
 ) -> ParseResult<'r, 't, &'t str> {
-    // Log try_merge() call
+    // Log collect_merge() call
     info!(
         log,
         "Trying to consume tokens to merge into a single string",
@@ -41,7 +41,7 @@ pub fn try_merge<'p, 'r, 't>(
     let (start, mut end) = (parser.current(), None);
 
     // Iterate and collect the tokens to merge
-    let exceptions = try_collect(
+    let exceptions = collect(
         log,
         parser,
         rule,

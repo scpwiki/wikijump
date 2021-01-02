@@ -41,7 +41,7 @@ fn try_consume_fn<'p, 'r, 't>(
     // ## [color-style] | [text to be colored] ##
 
     // Gather the color name until the separator
-    let (color, _, mut exceptions) = try_merge(
+    let (color, _, mut exceptions) = collect_merge(
         log,
         parser,
         RULE_COLOR,
@@ -60,7 +60,7 @@ fn try_consume_fn<'p, 'r, 't>(
     );
 
     // Build color container
-    let elements = try_consume(
+    let elements = collect_consume(
         log,
         parser,
         RULE_COLOR,

@@ -20,11 +20,11 @@
 
 use super::prelude::*;
 
-/// Convenience wrapper around `try_collect()` to consume each token iteration.
+/// Convenience wrapper around `collect()` to consume each token iteration.
 ///
 /// Since simply consuming to produce an `Element<'t>` is a typical pattern,
 /// this function implements it here to avoid code duplication.
-pub fn try_consume<'p, 'r, 't>(
+pub fn collect_consume<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
@@ -33,7 +33,7 @@ pub fn try_consume<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
     let mut elements = Vec::new();
 
-    let exceptions = try_collect(
+    let exceptions = collect(
         log,
         parser,
         rule,

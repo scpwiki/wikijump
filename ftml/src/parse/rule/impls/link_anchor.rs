@@ -46,7 +46,7 @@ fn try_consume_fn<'p, 'r, 't>(
     );
 
     // Gather path for link
-    let (url, _, mut exceptions) = try_merge(
+    let (url, _, mut exceptions) = collect_merge(
         log,
         parser,
         RULE_LINK_ANCHOR,
@@ -72,7 +72,7 @@ fn try_consume_fn<'p, 'r, 't>(
     };
 
     // Gather label for link
-    let label = try_merge(
+    let label = collect_merge(
         log,
         parser,
         RULE_LINK_ANCHOR,

@@ -53,7 +53,7 @@ use super::prelude::*;
 ///
 /// It is up to the caller to save whatever result they need while running
 /// in the closure.
-pub fn try_collect<'p, 'r, 't, F>(
+pub fn collect<'p, 'r, 't, F>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,

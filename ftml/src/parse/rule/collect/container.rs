@@ -21,22 +21,22 @@
 //! Helper code to parse tokens out to generate recursive containers.
 
 use super::prelude::*;
-use crate::parse::rule::collect::try_consume;
+use crate::parse::rule::collect::collect_consume;
 use crate::tree::{Container, ContainerType, Element};
 
 /// Generic function to consume tokens into a container.
 ///
-/// This is a subset of the functionality provided by `try_collect`,
+/// This is a subset of the functionality provided by `collect`,
 /// as it builds `Container`s specifically.
 ///
-/// The arguments which differ from `collect_until` are listed:
+/// The arguments which differ from `collect` are listed:
 /// See that function for full documentation, as the call here
 /// mostly wraps it.
 ///
 /// The kind of container we're building:
 /// Must match the parse rule.
 /// * `container_type`
-pub fn try_container<'p, 'r, 't>(
+pub fn collect_container<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
@@ -44,7 +44,7 @@ pub fn try_container<'p, 'r, 't>(
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
 ) -> ParseResult<'r, 't, Element<'t>> {
-    // Log try_container() call
+    // Log collect_container() call
     let log = &log.new(slog_o!(
         "container-type" => str!(container_type.name()),
     ));
@@ -56,7 +56,7 @@ pub fn try_container<'p, 'r, 't>(
 
     // Iterate and consume all the tokens
     let (elements, _, exceptions) =
-        try_consume(log, parser, rule, close_conditions, invalid_conditions)?.into();
+        collect_consume(log, parser, rule, close_conditions, invalid_conditions)?.into();
 
     // Package into a container
     ok!(

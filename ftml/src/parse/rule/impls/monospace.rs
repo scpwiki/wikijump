@@ -38,7 +38,7 @@ fn try_consume_fn<'p, 'r, 't>(
     );
     parser.step()?;
 
-    try_container(
+    collect_container(
         log,
         parser,
         RULE_MONOSPACE,
