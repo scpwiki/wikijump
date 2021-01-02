@@ -44,6 +44,7 @@ fn try_consume_fn<'p, 'r, 't>(
         Token::LeftBracketAnchor,
         "Current token isn't left anchor",
     );
+    parser.step()?;
 
     // Gather path for link
     let url = collect_merge(
