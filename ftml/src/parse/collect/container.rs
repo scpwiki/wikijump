@@ -1,5 +1,5 @@
 /*
- * parse/rule/collect/container.rs
+ * parse/collect/container.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2020 Ammon Smith
@@ -21,7 +21,7 @@
 //! Helper code to parse tokens out to generate recursive containers.
 
 use super::prelude::*;
-use crate::parse::rule::collect::collect_consume;
+use crate::parse::collect::collect_consume;
 use crate::tree::{Container, ContainerType, Element};
 
 /// Generic function to consume tokens into a container.

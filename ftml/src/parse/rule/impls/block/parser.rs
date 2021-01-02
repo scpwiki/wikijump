@@ -21,8 +21,8 @@
 use super::arguments::Arguments;
 use super::rule::{RULE_BLOCK, RULE_BLOCK_SPECIAL};
 use super::BlockRule;
+use crate::parse::collect::collect_merge;
 use crate::parse::condition::ParseCondition;
-use crate::parse::rule::collect::collect_merge;
 use crate::parse::{
     parse_string, ExtractedToken, ParseError, ParseErrorKind, Parser, Token,
 };

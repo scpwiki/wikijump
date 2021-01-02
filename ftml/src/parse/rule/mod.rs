@@ -22,7 +22,6 @@ use super::prelude::*;
 use crate::parse::Parser;
 use std::fmt::{self, Debug};
 
-mod collect;
 mod mapping;
 
 pub mod impls;

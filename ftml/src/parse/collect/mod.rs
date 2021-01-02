@@ -1,5 +1,5 @@
 /*
- * parse/rule/collect/mod.rs
+ * parse/collect/mod.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2020 Ammon Smith
@@ -20,8 +20,11 @@
 
 //! Module which contains functions to iterate through tokens and output according to rules.
 //!
-//! The main function here is `try_collect()`, which is a generic procedure to perform
+//! The main function here is `collect()`, which is a generic procedure to perform
 //! some action over tokens, finishing or abortion when it reaches certain tokens.
+//!
+//! The other functions are extensions of `collect()` which perform more specific functions,
+//! but still with the same customization.
 
 mod prelude {
     pub use super::collect;

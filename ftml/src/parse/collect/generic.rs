@@ -1,5 +1,5 @@
 /*
- * parse/rule/collect/generic.rs
+ * parse/collect/generic.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2020 Ammon Smith
