@@ -55,7 +55,7 @@
             "token": "input-end",
             "rule": "italics",
             "span": [17, 17],
-            "kind": "rule-failed"
+            "kind": "end-of-input"
         },
         {
             "token": "italics",
