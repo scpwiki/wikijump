@@ -37,7 +37,6 @@ fn try_consume_fn<'p, 'r, 't>(
         Token::LeftComment,
         "Current token isn't a LeftComment",
     );
-
     parser.step()?;
 
     loop {
@@ -55,7 +54,7 @@ fn try_consume_fn<'p, 'r, 't>(
             // Hit the end of the comment, return
             Token::RightComment => {
                 trace!(log, "Reached end of comment, returning");
-
+                parser.step()?;
                 return ok!(Element::Null);
             }
 
