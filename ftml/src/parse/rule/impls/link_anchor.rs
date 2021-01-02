@@ -41,7 +41,7 @@ fn try_consume_fn<'p, 'r, 't>(
 
     assert_eq!(
         parser.current().token,
-        Token::LeftAnchor,
+        Token::LeftBracketAnchor,
         "Current token isn't left anchor",
     );
 

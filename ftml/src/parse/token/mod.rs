@@ -54,7 +54,6 @@ pub enum Token {
     LeftBlockEnd,
     LeftBlockSpecial,
     RightBlock,
-    LeftAnchor,
     DoubleDash,
     TripleDash,
     ClearFloatNeutral,
