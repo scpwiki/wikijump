@@ -56,9 +56,13 @@ where
             end = Some(parser.current());
             ok!(())
         },
-    )?.into_exceptions();
+    )?
+    .into_exceptions();
 
-    assert!(exceptions.is_empty(), "Exceptions were returned merge collection");
+    assert!(
+        exceptions.is_empty(),
+        "Exceptions were returned merge collection",
+    );
 
     let slice = match (start, end) {
         // We have a token span, use to get string slice
