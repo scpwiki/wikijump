@@ -74,5 +74,5 @@ fn try_consume_fn<'p, 'r, 't>(
         elements,
     };
 
-    ok!(element)
+    ok!(element, exceptions)
 }
