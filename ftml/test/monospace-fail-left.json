@@ -35,7 +35,7 @@
             "token": "input-end",
             "rule": "monospace",
             "span": [16, 16],
-            "kind": "rule-failed"
+            "kind": "end-of-input"
         },
         {
             "token": "left-monospace",

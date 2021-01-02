@@ -35,7 +35,7 @@
             "token": "input-end",
             "rule": "link-triple",
             "span": [12, 12],
-            "kind": "rule-failed"
+            "kind": "end-of-input"
         },
         {
             "token": "left-link",
