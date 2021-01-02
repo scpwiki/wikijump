@@ -55,8 +55,6 @@ pub fn consume<'p, 'r, 't>(
     for &rule in rules_for_token(current) {
         info!(log, "Trying rule consumption for tokens"; "rule" => rule);
 
-        parser.set_rule(rule);
-
         let old_remaining = parser.remaining();
         match rule.try_consume(log, parser) {
             Ok(output) => {

@@ -73,6 +73,7 @@ impl<'r, 't> Parser<'r, 't> {
     }
 
     // Setters
+    #[inline]
     pub fn set_rule(&mut self, rule: Rule) {
         self.rule = rule;
     }
