@@ -115,7 +115,7 @@ impl Test<'_> {
                 self.tree,
                 tree,
                 json(&tree),
-                self.errors,
+                &errors,
             );
         }
 
@@ -126,7 +126,7 @@ impl Test<'_> {
                 self.errors,
                 errors,
                 json(&errors),
-                self.tree,
+                &tree,
             );
         }
     }
