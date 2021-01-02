@@ -105,7 +105,6 @@ where
                 "token" => parser.current().token,
             );
 
-            parser.step()?;
             return ok!((), exceptions);
         }
 
