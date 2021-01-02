@@ -38,8 +38,10 @@ pub fn try_merge<'p, 'r, 't>(
         "Trying to consume tokens to merge into a single string",
     );
 
+    let (start, mut end) = (parser.current(), None);
+
     // Iterate and collect the tokens to merge
-    let result = try_collect(
+    try_collect(
         log,
         parser,
         rule,
@@ -48,21 +50,18 @@ pub fn try_merge<'p, 'r, 't>(
         |log, parser| {
             trace!(log, "Ingesting token in string merge");
 
-            ok!(parser.current(), parser.remaining())
+            end = Some(parser.current());
+            ok!((), parser.remaining())
         },
     )?;
 
-    // Get the string slice associated with this list of tokens
-    result.map_ok(|tokens| {
-        match (tokens.first(), tokens.last()) {
-            // Get first and last tokens for string slice
-            (Some(first), Some(end)) => parser.full_text().slice(log, first, end),
+    let slice = match (start, end) {
+        // We have a token span, use to get string slice
+        (start, Some(end)) => parser.full_text().slice(log, start, end),
 
-            // Empty list of tokens, resultant slice must be empty
-            (None, None) => "",
+        // Empty list of tokens, resultant slice must be empty
+        (start, None) => "",
+    };
 
-            // Impossible case, they should both be None if empty, Some(_) otherwise
-            _ => unreachable!(),
-        }
-    })
+    ok!(slice, parser.remaining())
 }
