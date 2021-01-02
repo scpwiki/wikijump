@@ -62,7 +62,7 @@ fn try_consume_fn<'p, 'r, 't>(
             // "@@@@@@" -> Element::Raw("@@")
             (Token::Raw, Token::Raw) => {
                 debug!(log, "Found meta-raw (\"@@@@@@\"), returning");
-                parser.step_n(2)?;
+                parser.step_n(3)?;
                 return ok!(raw!("@@"));
             }
 
@@ -72,11 +72,11 @@ fn try_consume_fn<'p, 'r, 't>(
             (Token::Raw, Token::Other) => {
                 if next_2.slice == "@" {
                     debug!(log, "Found single-raw (\"@@@@@\"), returning");
-                    parser.step_n(2)?;
+                    parser.step_n(3)?;
                     return ok!(raw!("@"));
                 } else {
                     debug!(log, "Found empty raw (\"@@@@\"), followed by other text");
-                    parser.step_n(1)?;
+                    parser.step_n(2)?;
                     return ok!(raw!(""));
                 }
             }
@@ -85,7 +85,7 @@ fn try_consume_fn<'p, 'r, 't>(
             // Only consumes two tokens.
             (Token::Raw, _) => {
                 debug!(log, "Found empty raw (\"@@@@\"), returning");
-                parser.step_n(1)?;
+                parser.step_n(2)?;
                 return ok!(raw!(""));
             }
 
@@ -98,7 +98,7 @@ fn try_consume_fn<'p, 'r, 't>(
             // "@@ [something] @@" -> Element::Raw(token)
             (_, Token::Raw) => {
                 debug!(log, "Found single-element raw, returning");
-                parser.step_n(2)?;
+                parser.step_n(3)?;
                 return ok!(raw!(next_1.slice));
             }
 
