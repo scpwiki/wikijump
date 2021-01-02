@@ -19,7 +19,6 @@
  */
 
 use super::prelude::*;
-use std::fmt::Debug;
 
 /// Generic function to parse upcoming tokens until conditions are met.
 ///

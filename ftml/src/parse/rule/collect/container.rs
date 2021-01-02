@@ -54,16 +54,26 @@ pub fn try_container<'p, 'r, 't>(
         "Trying to consume tokens to produce container for {:?}", rule,
     );
 
+    let mut elements = Vec::new();
+    let mut exceptions = Vec::new();
+
     // Iterate and consume all the tokens
-    let result = try_collect(
+    try_collect(
         log,
         parser,
         rule,
         close_conditions,
         invalid_conditions,
-        consume,
+        |log, parser| {
+            let element = consume(log, parser)?.chain(&mut exceptions);
+            elements.push(element);
+            ok!((), parser.remaining())
+        },
     )?;
 
     // Package into a container
-    result.map_ok(|elements| Element::Container(Container::new(container_type, elements)))
+    ok!(
+        Element::Container(Container::new(container_type, elements)),
+        parser.remaining(),
+    )
 }
