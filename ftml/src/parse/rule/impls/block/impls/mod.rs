@@ -21,6 +21,7 @@
 mod prelude {
     pub use super::super::{BlockParser, BlockRule};
     pub use crate::parse::collect::*;
+    pub use crate::parse::condition::ParseCondition;
     pub use crate::parse::prelude::*;
     pub use crate::parse::{ParseError, Token};
     pub use crate::tree::Element;

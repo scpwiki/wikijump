@@ -48,7 +48,14 @@ fn parse_fn<'p, 'r, 't>(
 
     // Keep iterating until we find "[[/code]]"
     loop {
-        parser.proceed_until(&[Token::LineBreak, Token::LeftBlockEnd])?;
+        if !parser.borrow().evaluate(ParseCondition::token_pair(
+            Token::LineBreak,
+            Token::LeftBlockEnd,
+        )) {
+            parser.step()?;
+            continue;
+        }
+
         end = parser.current();
         parser.step()?;
 

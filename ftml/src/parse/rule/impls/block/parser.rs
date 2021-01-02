@@ -27,6 +27,7 @@ use crate::parse::{
     parse_string, ExtractedToken, ParseError, ParseErrorKind, Parser, Token,
 };
 use crate::text::FullText;
+use std::borrow::{Borrow, BorrowMut};
 
 #[derive(Debug)]
 pub struct BlockParser<'p, 'r, 't> {
@@ -225,5 +226,17 @@ where
     #[inline]
     pub fn make_error(&self, kind: ParseErrorKind) -> ParseError {
         self.parser.make_error(kind)
+    }
+}
+
+impl<'p, 'r, 't> Borrow<Parser<'r, 't>> for BlockParser<'p, 'r, 't> {
+    fn borrow(&self) -> &Parser<'r, 't> {
+        &self.parser
+    }
+}
+
+impl<'p, 'r, 't> BorrowMut<Parser<'r, 't>> for BlockParser<'p, 'r, 't> {
+    fn borrow_mut(&mut self) -> &mut Parser<'r, 't> {
+        &mut self.parser
     }
 }
