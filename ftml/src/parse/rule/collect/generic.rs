@@ -46,26 +46,24 @@ use std::fmt::Debug;
 ///
 /// The closure we should execute each time a token extraction is reached:
 /// If the return value is `Err(_)` then collection is aborted and that error
-/// is bubbled up. Otherwise, the output is appended to the `Vec<_>` that
-/// will be returned upon successful exit.
+/// is bubbled up.
 /// * `process`
 ///
-/// This will proceed until a closing condition is found, at which point the completed
-/// list of items will be returned, or until an abort is found.
+/// This will proceed until a closing condition is found, an abort is found,
+/// or the end of the input is reached.
 ///
-/// If the latter occurs, a `ParseError` is handed back and the parent will attempt the
-/// next rule in the list, or the text fallback.
-pub fn try_collect<'p, 'r, 't, F, T>(
+/// It is up to the caller to save whatever result they need while running
+/// in the closure.
+pub fn try_collect<'p, 'r, 't, F>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
     mut process: F,
-) -> ParseResult<'r, 't, Vec<T>>
+) -> ParseResult<'r, 't, ()>
 where
-    F: FnMut(&slog::Logger, &'p mut Parser<'r, 't>) -> ParseResult<'r, 't, T>,
-    T: Debug,
+    F: FnMut(&slog::Logger, &'p mut Parser<'r, 't>) -> ParseResult<'r, 't, ()>,
 {
     /// Tokens that are always considered invalid, and will fail the rule.
     ///
@@ -106,7 +104,7 @@ where
                 "collected" => format!("{:?}", collected),
             );
 
-            return ok!(collected, parser.remaining(), exceptions);
+            return ok!((), parser.remaining(), exceptions);
         }
 
         // See if the container should be aborted
