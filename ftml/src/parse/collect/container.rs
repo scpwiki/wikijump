@@ -33,6 +33,8 @@ use crate::tree::{Container, ContainerType, Element};
 /// See that function for full documentation, as the call here
 /// mostly wraps it.
 ///
+/// This call always sets `step_on_final` to `true`.
+///
 /// The kind of container we're building:
 /// Must match the parse rule.
 /// * `container_type`

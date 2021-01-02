@@ -24,6 +24,8 @@ use super::prelude::*;
 ///
 /// Since simply consuming to produce an `Element<'t>` is a typical pattern,
 /// this function implements it here to avoid code duplication.
+///
+/// This call always sets `step_on_final` to `true`.
 pub fn collect_consume<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
@@ -39,6 +41,7 @@ pub fn collect_consume<'p, 'r, 't>(
         rule,
         close_conditions,
         invalid_conditions,
+        false,
         |log, parser| {
             consume(log, parser)?.map_ok(|element| {
                 elements.push(element);

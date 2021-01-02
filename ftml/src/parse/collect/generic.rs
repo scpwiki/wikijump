@@ -44,6 +44,9 @@ use crate::span_wrap::SpanWrap;
 /// If one of these is true, we will return failure.
 /// * `invalid_conditions`
 ///
+/// Whether to end on the close condition token, or to step:
+/// * `step_on_final`
+///
 /// The closure we should execute each time a token extraction is reached:
 /// If the return value is `Err(_)` then collection is aborted and that error
 /// is bubbled up.
@@ -60,6 +63,7 @@ pub fn collect<'p, 'r, 't, F>(
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
+    step_on_final: bool,
     mut process: F,
 ) -> ParseResult<'r, 't, ()>
 where
@@ -104,6 +108,10 @@ where
                 "Found ending condition, returning collected elements";
                 "token" => parser.current().token,
             );
+
+            if step_on_final {
+                parser.step()?;
+            }
 
             return ok!((), exceptions);
         }

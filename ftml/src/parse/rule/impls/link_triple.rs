@@ -81,7 +81,11 @@ fn try_consume_link<'p, 'r, 't>(
             ParseCondition::current(Token::ParagraphBreak),
             ParseCondition::current(Token::LineBreak),
         ],
+        false,
     )?;
+
+    let separator_token = parser.current().token;
+    parser.step()?;
 
     debug!(
         log,
@@ -98,7 +102,7 @@ fn try_consume_link<'p, 'r, 't>(
     }
 
     // Determine what token we ended on, i.e. which [[[ variant it is.
-    match parser.step()?.token {
+    match separator_token {
         // [[[name]]] type links
         Token::RightLink => build_same(log, parser, url, anchor),
 
@@ -158,6 +162,7 @@ fn build_separate<'p, 'r, 't>(
             ParseCondition::current(Token::ParagraphBreak),
             ParseCondition::current(Token::LineBreak),
         ],
+        true,
     )?;
 
     debug!(

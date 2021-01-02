@@ -263,6 +263,7 @@ where
                 ParseCondition::current(Token::ParagraphBreak),
                 ParseCondition::current(Token::LineBreak),
             ],
+            true,
         )
     }
 

@@ -31,6 +31,7 @@ pub fn collect_merge<'p, 'r, 't>(
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
+    step_on_final: bool,
 ) -> Result<&'t str, ParseError>
 where
     'r: 't,
@@ -50,6 +51,7 @@ where
         rule,
         close_conditions,
         invalid_conditions,
+        step_on_final,
         |log, parser| {
             trace!(log, "Ingesting token in string merge");
 
