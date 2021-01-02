@@ -38,6 +38,9 @@ impl<'t> FullText<'t> {
 
     /// Slices from the given start to end token.
     ///
+    /// This is performed inclusively, capturing both tokens on each side,
+    /// and all the tokens which lie in the middle.
+    ///
     /// # Panics
     /// If the ending token does not come after the first, or if
     /// the slices specified are out of range for the string (unlikely),
@@ -51,25 +54,32 @@ impl<'t> FullText<'t> {
         let start = start_token.span.start;
         let end = end_token.span.end;
 
-        self.slice_impl(log, "", start, end)
+        self.slice_impl(log, "full", start, end)
     }
 
-    /// Slices in between the given start and end tokens.
+    /// Slices from the given start, but before the end token.
+    ///
+    /// This is performed exclusively, capturing the full starting token,
+    /// but terminating at the start of the end token (capturing none of it).
+    ///
+    /// This function is provided specifically because it easier to bump
+    /// the start token should you wish to exclude it, but doing so
+    /// for the end token is not trivial while observing lifetime safety rules.
     ///
     /// # Panics
     /// If the ending token does not come after the first, or if
     /// the slices specified are out of range for the string (unlikely),
     /// this function will panic.
-    pub fn slice_inner(
+    pub fn slice_partial(
         &self,
         log: &slog::Logger,
         start_token: &ExtractedToken,
         end_token: &ExtractedToken,
     ) -> &'t str {
-        let start = start_token.span.end;
+        let start = start_token.span.start;
         let end = end_token.span.start;
 
-        self.slice_impl(log, "inner ", start, end)
+        self.slice_impl(log, "partial", start, end)
     }
 
     fn slice_impl(
@@ -81,7 +91,7 @@ impl<'t> FullText<'t> {
     ) -> &'t str {
         info!(
             log,
-            "Extracting {}slice from full text",
+            "Extracting {} slice from full text",
             slice_kind;
             "start" => start,
             "end" => end,

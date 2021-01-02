@@ -139,13 +139,8 @@ fn try_consume_fn<'p, 'r, 't>(
                 if *token == ending_token {
                     trace!(log, "Reached end of raw, returning");
 
-                    let slice = if start == end {
-                        /* Empty raw */
-                        ""
-                    } else {
-                        /* Gather slice from spans */
-                        parser.full_text().slice(log, start, end)
-                    };
+                    let slice = parser.full_text().slice_partial(log, start, end);
+                    parser.step()?;
 
                     let element = Element::Raw(cow!(slice));
                     return ok!(element);
