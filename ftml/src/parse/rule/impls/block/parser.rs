@@ -37,7 +37,7 @@ pub struct BlockParser<'p, 'r, 't> {
 
 impl<'p, 'r, 't> BlockParser<'p, 'r, 't>
 where
-    'r: 't,
+    'r: 'p + 't,
 {
     #[inline]
     pub fn new(
@@ -82,14 +82,10 @@ where
     #[inline]
     pub fn evaluate_fn<F>(&self, f: F) -> bool
     where
-        F: FnOnce(BlockParser<'_, '_, '_>) -> Result<bool, ParseError>,
+        F: FnOnce(BlockParser<'_, 'r, 't>) -> Result<bool, ParseError>,
     {
         let mut parser = self.parser.clone();
-        let bparser = BlockParser::new(
-            &self.log,
-            &mut parser,
-            self.special,
-        );
+        let bparser = BlockParser::new(&self.log, &mut parser, self.special);
 
         f(bparser).unwrap_or(false)
     }

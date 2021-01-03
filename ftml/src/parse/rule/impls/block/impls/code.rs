@@ -48,7 +48,7 @@ fn parse_fn<'p, 'r, 't>(
 
     // Keep iterating until we find "[[/code]]"
     loop {
-        let at_end_block = parser.evaluate_fn(|parser| {
+        let at_end_block = parser.evaluate_fn(|mut parser| {
             // Check that "[[/code]]" is on a new line.
             parser.get_line_break()?;
 
