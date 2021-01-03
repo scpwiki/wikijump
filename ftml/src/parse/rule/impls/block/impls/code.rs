@@ -66,7 +66,7 @@ fn parse_fn<'p, 'r, 't>(
     // Keep iterating until we find the end.
     // Preserve parse progress if we've hit the end block.
     loop {
-        let at_end_block = parser.keep_evaluate_fn(|parser| {
+        let at_end_block = parser.save_evaluate_fn(|parser| {
             // Check that "[[/code]]" is on a new line.
             parser.get_line_break()?;
 

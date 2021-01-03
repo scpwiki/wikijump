@@ -94,13 +94,13 @@ where
         f(&mut bparser).unwrap_or(false)
     }
 
-    pub fn keep_evaluate_fn<F>(&mut self, f: F) -> Option<&'r ExtractedToken<'t>>
+    pub fn save_evaluate_fn<F>(&mut self, f: F) -> Option<&'r ExtractedToken<'t>>
     where
         F: FnOnce(&mut BlockParser<'_, 'r, 't>) -> Result<bool, ParseError>,
     {
         debug!(
             &self.log,
-            "Evaluating closure for parser condition, keeping success",
+            "Evaluating closure for parser condition, saving progress on success",
         );
 
         let mut parser = self.parser.clone();
