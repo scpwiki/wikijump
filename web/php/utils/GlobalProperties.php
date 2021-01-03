@@ -184,7 +184,7 @@ class GlobalProperties
         self::$DATABASE_PASSWORD        = $_ENV["DATABASE_PASSWORD"] ?? self::fromIni("db", "password", "postgres");        // no default!
         self::$DATABASE_NAME            = $_ENV["DATABASE_NAME"] ?? self::fromIni("db", "database", "postgres");        // no default!
         self::$DATABASE_SERVER          = $_ENV["DATABASE_SERVER"] ?? self::fromIni("db", "host", "127.0.0.1");
-        self::$DATABASE_PORT            = $_ENV["DATABASE_PORT"] ?? self::fromIni("db", "port", "5432");
+        self::$DATABASE_PORT            = $_ENV["DB_PORT"] ?? self::fromIni("db", "port", "5432");
 
         // search settings
         self::$SEARCH_LUCENE_INDEX      = $_ENV["SEARCH_LUCENE_INDEX"] ?? self::fromIni("search", "lucene_index", WIKIJUMP_ROOT . "/tmp/lucene_index");
