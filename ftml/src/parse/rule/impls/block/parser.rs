@@ -78,6 +78,22 @@ where
         &mut self.parser
     }
 
+    // State evaluation
+    #[inline]
+    pub fn evaluate_fn<F>(&self, f: F) -> bool
+    where
+        F: FnOnce(BlockParser<'_, '_, '_>) -> Result<bool, ParseError>,
+    {
+        let mut parser = self.parser.clone();
+        let bparser = BlockParser::new(
+            &self.log,
+            &mut parser,
+            self.special,
+        );
+
+        f(bparser).unwrap_or(false)
+    }
+
     // Parsing methods
     fn get_token(
         &mut self,
