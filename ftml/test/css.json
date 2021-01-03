@@ -1,0 +1,20 @@
+{
+    "input": "[[css]]\na { color: blue; }\n[[/css]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                    ]
+                }
+            }
+        ],
+        "styles": [
+            "a { color: blue; }"
+        ]
+    },
+    "errors": [
+    ]
+}
