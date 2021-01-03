@@ -229,9 +229,13 @@ where
             let current = self.current();
             let key = match current.token {
                 Token::Identifier => current.slice,
-                Token::RightBlock => return Ok(map),
+                Token::RightBlock => {
+                    self.step()?;
+                    return Ok(map);
+                }
                 _ => return Err(self.make_error(ParseErrorKind::BlockMalformedArguments)),
             };
+            self.step()?;
 
             // Equal sign
             self.get_optional_space()?;

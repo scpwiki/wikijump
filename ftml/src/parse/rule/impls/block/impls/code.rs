@@ -42,10 +42,7 @@ fn parse_fn<'p, 'r, 't>(
 
     let language = if in_block {
         let mut arguments = parser.get_argument_map()?;
-        let language = arguments.get("type");
-        parser.get_line_break()?;
-
-        language
+        arguments.get("type")
     } else {
         None
     };
