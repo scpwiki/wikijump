@@ -84,7 +84,7 @@ where
         token: Token,
         kind: ParseErrorKind,
     ) -> Result<&'t str, ParseError> {
-        debug!(
+        trace!(
             &self.log,
             "Looking for token {:?} (error {:?})",
             token,
@@ -101,6 +101,21 @@ where
         } else {
             Err(self.make_error(kind))
         }
+    }
+
+    fn get_optional_token(&mut self, token: Token) -> Result<(), ParseError> {
+        trace!(
+            &self.log,
+            "Looking for optional token {:?}",
+            token;
+            "token" => token,
+        );
+
+        if self.current().token == token {
+            self.step()?;
+        }
+
+        Ok(())
     }
 
     #[inline]
@@ -120,14 +135,10 @@ where
         Ok(())
     }
 
+    #[inline]
     pub fn get_optional_space(&mut self) -> Result<(), ParseError> {
         debug!(self.log, "Looking for optional space");
-
-        if self.current().token == Token::Whitespace {
-            self.step()?;
-        }
-
-        Ok(())
+        self.get_optional_token(Token::Whitespace)
     }
 
     pub fn get_end_block(&mut self) -> Result<&'t str, ParseError> {
