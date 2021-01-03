@@ -162,15 +162,15 @@ where
         )
         .map(|(name, last)| {
             let name = name.trim();
-            let ended = match last.token {
-                Token::Whitespace => false,
-                Token::RightBlock => true,
+            let in_block = match last.token {
+                Token::Whitespace => true,
+                Token::RightBlock => false,
 
                 // collect_merge_keep() already checked the token
                 _ => unreachable!(),
             };
 
-            (name, ended)
+            (name, in_block)
         })
     }
 
