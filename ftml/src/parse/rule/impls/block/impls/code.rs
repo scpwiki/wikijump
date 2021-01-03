@@ -66,31 +66,27 @@ fn parse_fn<'p, 'r, 't>(
     let start = parser.current();
     let end;
 
-    // Keep iterating until we find the end
+    // Keep iterating until we find the end.
+    // Preserve parse progress if we've hit the end block.
     loop {
-        let at_end_block = parser.evaluate_fn(
-            |parser| {
-                // Check that "[[/code]]" is on a new line.
-                parser.get_line_break()?;
-
-                // Check if it's an end block
-                //
-                // This will ignore any errors produced,
-                // since it's just more code
-                let name = parser.get_end_block()?;
-
-                // Check if it's the right kind
-                let is_code = name.eq_ignore_ascii_case("code");
-
-                Ok(is_code)
-            },
-            true,
-        );
-
-        if at_end_block {
-            end = parser.current();
+        let at_end_block = parser.keep_evaluate_fn(|parser| {
+            // Check that "[[/code]]" is on a new line.
             parser.get_line_break()?;
-            parser.get_end_block()?;
+
+            // Check if it's an end block
+            //
+            // This will ignore any errors produced,
+            // since it's just more code
+            let name = parser.get_end_block()?;
+
+            // Check if it's the right kind
+            let is_code = name.eq_ignore_ascii_case("code");
+
+            Ok(is_code)
+        });
+
+        if let Some(last_token) = at_end_block {
+            end = last_token;
             break;
         }
 
