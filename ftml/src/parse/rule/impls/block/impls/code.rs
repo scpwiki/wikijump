@@ -50,16 +50,7 @@ fn parse_fn<'p, 'r, 't>(
     // The block must be on its own line
     parser.get_line_break()?;
 
-    // Check if it's an empty block
-    if let Ok(name) = parser.get_end_block() {
-        if name.eq_ignore_ascii_case("code") {
-            return ok!(Element::Code {
-                contents: cow!(""),
-                language,
-            });
-        }
-    }
-
+    let mut first = true;
     let start = parser.current();
     let end;
 
@@ -68,7 +59,9 @@ fn parse_fn<'p, 'r, 't>(
     loop {
         let at_end_block = parser.save_evaluate_fn(|parser| {
             // Check that "[[/code]]" is on a new line.
-            parser.get_line_break()?;
+            if !first {
+                parser.get_line_break()?;
+            }
 
             // Check if it's an end block
             //
@@ -88,6 +81,7 @@ fn parse_fn<'p, 'r, 't>(
         }
 
         parser.step()?;
+        first = false;
     }
 
     let code = parser.full_text().slice_partial(log, start, end);
