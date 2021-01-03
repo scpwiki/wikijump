@@ -23,13 +23,13 @@ use super::parser::Parser;
 use super::token::Token;
 use std::fmt::{self, Debug};
 
-/// The function being evaluated for a custom parse condition.
+/// The closure being evaluated for a custom parse condition.
 ///
 /// This returns a copy of the parse state for the function to explore.
 ///
 /// For convenience, it returns `ParseResult` instead of plain boolean for convenience.
 /// Any `Err(_)` case is interpreted as `false`.
-pub type ParseConditionFn = for<'r, 't> fn(Parser<'r, 't>) -> Result<bool, ParseError>;
+pub type ParseConditionFn = dyn Fn(Parser<'_, '_>) -> Result<bool, ParseError>;
 
 /// Represents a condition on a parse state.
 ///
@@ -37,30 +37,30 @@ pub type ParseConditionFn = for<'r, 't> fn(Parser<'r, 't>) -> Result<bool, Parse
 /// the condition described by this structure, returning
 /// a boolean as appropriate.
 #[derive(Copy, Clone)]
-pub enum ParseCondition {
+pub enum ParseCondition<'f> {
     CurrentToken { token: Token },
     TokenPair { current: Token, next: Token },
-    Function { f: ParseConditionFn },
+    Function { f: &'f ParseConditionFn },
 }
 
-impl ParseCondition {
+impl<'f> ParseCondition<'f> {
     #[inline]
-    pub fn current(token: Token) -> ParseCondition {
+    pub fn current(token: Token) -> Self {
         ParseCondition::CurrentToken { token }
     }
 
     #[inline]
-    pub fn token_pair(current: Token, next: Token) -> ParseCondition {
+    pub fn token_pair(current: Token, next: Token) -> Self {
         ParseCondition::TokenPair { current, next }
     }
 
     #[inline]
-    pub fn function(f: ParseConditionFn) -> ParseCondition {
+    pub fn function(f: &'f ParseConditionFn) -> Self {
         ParseCondition::Function { f }
     }
 }
 
-impl Debug for ParseCondition {
+impl Debug for ParseCondition<'_> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             ParseCondition::CurrentToken { token } => f
@@ -74,7 +74,7 @@ impl Debug for ParseCondition {
                 .finish(),
             ParseCondition::Function { f: fn_pointer } => f
                 .debug_struct("Function")
-                .field("f", &(fn_pointer as *const _))
+                .field("f", &(fn_pointer as *const ParseConditionFn))
                 .finish(),
         }
     }

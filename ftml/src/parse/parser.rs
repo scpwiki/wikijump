@@ -122,7 +122,7 @@ impl<'r, 't> Parser<'r, 't> {
     #[inline]
     pub fn evaluate_fn<F>(&self, f: F) -> bool
     where
-        F: FnOnce(Parser<'r, 't>) -> Result<bool, ParseError>,
+        F: FnOnce(Parser<'_, '_>) -> Result<bool, ParseError>,
     {
         f(self.clone()).unwrap_or(false)
     }
