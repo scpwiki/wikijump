@@ -74,7 +74,7 @@ impl Debug for ParseCondition {
                 .finish(),
             ParseCondition::Function { f: fn_pointer } => f
                 .debug_struct("Function")
-                .field("f", &(fn_pointer as *const ()))
+                .field("f", &(fn_pointer as *const _))
                 .finish(),
         }
     }
