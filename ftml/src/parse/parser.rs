@@ -22,6 +22,7 @@ use super::condition::ParseCondition;
 use super::prelude::*;
 use super::rule::Rule;
 use super::RULE_PAGE;
+use crate::span_wrap::SpanWrap;
 use crate::tokenize::Tokenization;
 use std::ptr;
 
@@ -88,43 +89,71 @@ impl<'r, 't> Parser<'r, 't> {
     pub fn evaluate(&self, condition: ParseCondition) -> bool {
         debug!(
             &self.log,
-            "Evaluating parser condition: {:?} (current: {:?})", condition, self.current,
+            "Evaluating parser condition";
+            "condition" => format!("{:?}", condition),
+            "current-token" => self.current.token,
+            "current-slice" => self.current.slice,
+            "current-span" => SpanWrap::from(&self.current.span),
         );
 
         match condition {
             ParseCondition::CurrentToken { token } => self.current.token == token,
             ParseCondition::Function { f } => self.evaluate_fn(f),
-            ParseCondition::TokenPair { current, next } => {
-                self.evaluate_fn(|mut parser| {
-                    macro_rules! check {
-                        ($expected:expr) => {
-                            if parser.current().token != $expected {
-                                return Ok(false);
-                            }
-                        };
-                    }
+            ParseCondition::TokenPair { current, next } => self.evaluate_fn(|parser| {
+                macro_rules! check {
+                    ($expected:expr) => {
+                        if parser.current().token != $expected {
+                            return Ok(false);
+                        }
+                    };
+                }
 
-                    check!(current);
-                    parser.step()?;
-                    check!(next);
+                check!(current);
+                parser.step()?;
+                check!(next);
 
-                    Ok(false)
-                })
-            }
+                Ok(false)
+            }),
         }
     }
 
     #[inline]
     pub fn evaluate_any(&self, conditions: &[ParseCondition]) -> bool {
+        trace!(
+            &self.log,
+            "Evaluating to see if any parser condition is true";
+            "conditions-len" => conditions.len(),
+        );
+
         conditions.iter().any(|&condition| self.evaluate(condition))
     }
 
     #[inline]
     pub fn evaluate_fn<F>(&self, f: F) -> bool
     where
-        F: FnOnce(Parser<'r, 't>) -> Result<bool, ParseError>,
+        F: FnOnce(&mut Parser<'r, 't>) -> Result<bool, ParseError>,
     {
-        f(self.clone()).unwrap_or(false)
+        trace!(&self.log, "Evaluating closure for parser condition",);
+
+        f(&mut self.clone()).unwrap_or(false)
+    }
+
+    pub fn evaluate_fn_keep<F>(&mut self, f: F) -> bool
+    where
+        F: FnOnce(&mut Parser<'r, 't>) -> Result<bool, ParseError>,
+    {
+        trace!(
+            &self.log,
+            "Evaluating closure for parser condition (keep if success)",
+        );
+
+        let mut parser = self.clone();
+        let result = f(&mut parser).unwrap_or(false);
+        if result {
+            self.update(&parser);
+        }
+
+        result
     }
 
     // Token pointer state and manipulation
