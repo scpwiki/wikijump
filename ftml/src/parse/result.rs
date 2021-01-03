@@ -53,7 +53,7 @@ impl<'r, 't, T> ParseSuccess<'r, 't, T> {
         let ParseSuccess {
             item,
             mut exceptions,
-            _marker: PhantomData,
+            ..
         } = self;
 
         // Append previous exceptions
