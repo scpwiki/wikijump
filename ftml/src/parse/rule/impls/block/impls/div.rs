@@ -35,6 +35,7 @@ fn parse_fn<'p, 'r, 't>(
     parser: &'p mut BlockParser<'p, 'r, 't>,
     name: &'t str,
     special: bool,
+    ended: bool,
 ) -> ParseResult<'r, 't, Element<'t>> {
     assert_eq!(special, false, "Code doesn't allow special variant");
 

@@ -94,5 +94,5 @@ where
     // This is responsible for parsing any arguments,
     // and terminating the block (the ']]' token),
     // then processing the body (if any) and close tag.
-    (block.parse_fn)(log, &mut parser, name, special)
+    (block.parse_fn)(log, &mut parser, name, special, ended)
 }

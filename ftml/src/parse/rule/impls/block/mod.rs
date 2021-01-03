@@ -85,9 +85,18 @@ impl BlockRule {
     }
 }
 
+/// Function pointer type to implement block parsing.
+///
+/// The arguments are, in order:
+/// * `log` -- Logger instance
+/// * `parser` -- Parser instance
+/// * `name` -- The name of the block
+/// * `special` -- Whether this block is `[[*` (special) or `[[` (regular)
+/// * `ended` -- Whether we're still in the block head, or if it's finished
 pub type BlockParseFn = for<'p, 'r, 't> fn(
     &slog::Logger,
     &'p mut BlockParser<'p, 'r, 't>,
     &'t str,
+    bool,
     bool,
 ) -> ParseResult<'r, 't, Element<'t>>;
