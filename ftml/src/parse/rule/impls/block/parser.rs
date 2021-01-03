@@ -146,6 +146,12 @@ where
     pub fn get_block_name(&mut self) -> Result<(&'t str, bool), ParseError> {
         debug!(self.log, "Looking for identifier");
 
+        // Skip '[[' if we're on it
+        if self.current().token == Token::LeftBlock {
+            self.step()?;
+        }
+
+        // Collect block name and determine whether the head is done
         collect_merge_keep(
             &self.log,
             self.parser,
