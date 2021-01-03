@@ -50,7 +50,10 @@ fn parse_fn<'p, 'r, 't>(
         None
     };
 
+    parser.get_line_break()?;
+
     let start = parser.current();
+    let end;
 
     // Keep iterating until we find the end
     loop {
@@ -71,13 +74,15 @@ fn parse_fn<'p, 'r, 't>(
         });
 
         if at_end_block {
+            end = parser.current();
+            parser.get_line_break()?;
+            parser.get_end_block()?;
             break;
         }
 
         parser.step()?;
     }
 
-    let end = parser.current();
     let code = parser.full_text().slice_partial(log, start, end);
     let element = Element::Code {
         contents: cow!(code),

@@ -186,8 +186,8 @@ where
         self.get_token(Token::LeftBlockEnd, ParseErrorKind::BlockExpectedEnd)?;
         self.get_optional_space()?;
 
-        let (name, ended) = self.get_block_name()?;
-        if !ended {
+        let (name, in_block) = self.get_block_name()?;
+        if in_block {
             self.get_optional_space()?;
             self.get_token(Token::RightBlock, ParseErrorKind::BlockExpectedEnd)?;
         }
