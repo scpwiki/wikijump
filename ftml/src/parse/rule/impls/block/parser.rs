@@ -118,16 +118,6 @@ where
         Ok(())
     }
 
-    #[inline]
-    pub fn get_identifier(
-        &mut self,
-        kind: ParseErrorKind,
-    ) -> Result<&'t str, ParseError> {
-        debug!(self.log, "Looking for identifier");
-
-        self.get_token(Token::Identifier, kind)
-    }
-
     pub fn get_line_break(&mut self) -> Result<(), ParseError> {
         debug!(self.log, "Looking for line break");
 
@@ -141,15 +131,48 @@ where
         self.get_optional_token(Token::Whitespace)
     }
 
+    pub fn get_block_name(
+        &mut self,
+    ) -> Result<(&'t str, bool), ParseError> {
+        debug!(self.log, "Looking for identifier");
+
+        collect_merge_keep(
+            &self.log,
+            self.parser,
+            self.parser.rule(),
+            &[
+                ParseCondition::current(Token::Whitespace),
+                ParseCondition::current(Token::RightBlock),
+            ],
+            &[
+                ParseCondition::current(Token::ParagraphBreak),
+                ParseCondition::current(Token::LineBreak),
+            ],
+            Some(ParseErrorKind::BlockMissingName),
+        ).map(|(name, last)| {
+            let ended = match last.token {
+                Token::Whitespace => false,
+                Token::RightBlock => true,
+
+                // collect_merge_keep() already checked the token
+                _ => unreachable!(),
+            };
+
+            (name, ended)
+        })
+    }
+
     pub fn get_end_block(&mut self) -> Result<&'t str, ParseError> {
         debug!(self.log, "Looking for end block");
 
         self.get_token(Token::LeftBlockEnd, ParseErrorKind::BlockExpectedEnd)?;
         self.get_optional_space()?;
 
-        let name = self.get_identifier(ParseErrorKind::BlockMissingName)?;
-        self.get_optional_space()?;
-        self.get_token(Token::RightBlock, ParseErrorKind::BlockExpectedEnd)?;
+        let (name, ended) = self.get_block_name()?;
+        if !ended {
+            self.get_optional_space()?;
+            self.get_token(Token::RightBlock, ParseErrorKind::BlockExpectedEnd)?;
+        }
 
         Ok(name)
     }
