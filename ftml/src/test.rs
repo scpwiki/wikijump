@@ -25,15 +25,7 @@ use crate::tree::SyntaxTree;
 use std::fs::{self, File};
 use std::path::{Path, PathBuf};
 
-const SKIP_TESTS: &[&str] = &[
-    "code",
-    "code-empty",
-    "code-language",
-    "code-language-empty",
-    "code-spaces",
-    "code-uppercase",
-    // TODO add div tests
-];
+const SKIP_TESTS: &[&str] = &[];
 
 lazy_static! {
     static ref TEST_DIRECTORY: PathBuf = {
