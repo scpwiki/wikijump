@@ -31,7 +31,7 @@ lazy_static! {
 }
 
 #[inline]
-pub fn block_with_name(name: &str) -> Option<&'static BlockRule> {
+pub fn get_block_rule_with_name(name: &str) -> Option<&'static BlockRule> {
     let name = UniCase::ascii(name);
 
     BLOCK_RULE_MAP.get(&name).copied()

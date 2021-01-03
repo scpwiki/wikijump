@@ -79,6 +79,7 @@ fn try_consume_link<'p, 'r, 't>(
             ParseCondition::current(Token::ParagraphBreak),
             ParseCondition::current(Token::LineBreak),
         ],
+        None,
     )?;
 
     if !url_valid(url) {
@@ -101,6 +102,7 @@ fn try_consume_link<'p, 'r, 't>(
             ParseCondition::current(Token::ParagraphBreak),
             ParseCondition::current(Token::LineBreak),
         ],
+        None,
     )?;
 
     debug!(

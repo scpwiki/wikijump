@@ -46,6 +46,7 @@ fn try_consume_fn<'p, 'r, 't>(
             ParseCondition::current(Token::ParagraphBreak),
             ParseCondition::current(Token::LineBreak),
         ],
+        None,
     )?;
 
     debug!(
@@ -61,6 +62,7 @@ fn try_consume_fn<'p, 'r, 't>(
         RULE_COLOR,
         &[ParseCondition::current(Token::Color)],
         &[ParseCondition::current(Token::ParagraphBreak)],
+        None,
     )?
     .into();
 

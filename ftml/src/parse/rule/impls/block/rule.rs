@@ -19,7 +19,7 @@
  */
 
 use super::super::prelude::*;
-use super::mapping::block_with_name;
+use super::mapping::get_block_rule_with_name;
 use super::BlockParser;
 
 pub const RULE_BLOCK: Rule = Rule {
@@ -73,10 +73,10 @@ where
     // Get block name
     parser.get_optional_space()?;
 
-    let name = parser.get_identifier(ParseErrorKind::BlockMissingName)?;
+    let (name, ended) = parser.get_block_name()?;
 
     // Get the block rule for this name
-    let block = match block_with_name(name) {
+    let block = match get_block_rule_with_name(name) {
         Some(block) => block,
         None => return Err(parser.make_error(ParseErrorKind::NoSuchBlock)),
     };

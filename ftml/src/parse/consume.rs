@@ -27,7 +27,7 @@
 //! as raw text as a fallback, which is how Wikidot does it.
 
 use super::prelude::*;
-use super::rule::{impls::RULE_FALLBACK, rules_for_token};
+use super::rule::{impls::RULE_FALLBACK, get_rules_for_token};
 use super::Parser;
 use crate::span_wrap::SpanWrap;
 use std::mem;
@@ -52,7 +52,7 @@ pub fn consume<'p, 'r, 't>(
     let mut all_exceptions = Vec::new();
     let current = parser.current();
 
-    for &rule in rules_for_token(current) {
+    for &rule in get_rules_for_token(current) {
         info!(log, "Trying rule consumption for tokens"; "rule" => rule);
 
         let old_remaining = parser.remaining();

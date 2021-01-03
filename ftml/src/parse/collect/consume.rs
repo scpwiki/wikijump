@@ -32,6 +32,7 @@ pub fn collect_consume<'p, 'r, 't>(
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
+    error_kind: Option<ParseErrorKind>,
 ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
     let mut elements = Vec::new();
 
@@ -41,6 +42,7 @@ pub fn collect_consume<'p, 'r, 't>(
         rule,
         close_conditions,
         invalid_conditions,
+        error_kind,
         |log, parser| {
             consume(log, parser)?.map_ok(|element| {
                 elements.push(element);

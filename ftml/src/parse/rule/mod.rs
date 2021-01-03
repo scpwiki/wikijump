@@ -26,7 +26,7 @@ mod mapping;
 
 pub mod impls;
 
-pub use self::mapping::{rules_for_token, RULE_MAP};
+pub use self::mapping::{get_rules_for_token, RULE_MAP};
 
 /// Defines a rule that can possibly match tokens and return an `Element`.
 #[derive(Copy, Clone)]

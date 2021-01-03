@@ -32,11 +32,12 @@ pub fn collect_merge<'p, 'r, 't>(
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
+    error_kind: Option<ParseErrorKind>,
 ) -> Result<&'t str, ParseError>
 where
     'r: 't,
 {
-    collect_merge_keep(log, parser, rule, close_conditions, invalid_conditions)
+    collect_merge_keep(log, parser, rule, close_conditions, invalid_conditions, error_kind)
         .map(|(slice, _)| slice)
 }
 
@@ -50,6 +51,7 @@ pub fn collect_merge_keep<'p, 'r, 't>(
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
+    error_kind: Option<ParseErrorKind>,
 ) -> Result<(&'t str, &'r ExtractedToken<'t>), ParseError>
 where
     'r: 't,
@@ -69,6 +71,7 @@ where
         rule,
         close_conditions,
         invalid_conditions,
+        error_kind,
         |log, parser| {
             trace!(log, "Ingesting token in string merge");
 

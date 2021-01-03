@@ -44,6 +44,10 @@ use crate::span_wrap::SpanWrap;
 /// If one of these is true, we will return failure.
 /// * `invalid_conditions`
 ///
+/// If one of the failures is activated, then this `ParseErrorKind`
+/// will be returned. If `None` is provided, then `ParseErrorKind::RuleFailed` is used.
+/// * `error_kind`
+///
 /// The closure we should execute each time a token extraction is reached:
 /// If the return value is `Err(_)` then collection is aborted and that error
 /// is bubbled up.
@@ -63,6 +67,7 @@ pub fn collect<'p, 'r, 't, F>(
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
+    error_kind: Option<ParseErrorKind>,
     mut process: F,
 ) -> ParseResult<'r, 't, &'r ExtractedToken<'t>>
 where
@@ -122,7 +127,7 @@ where
                 "token" => parser.current().token,
             );
 
-            return Err(parser.make_error(ParseErrorKind::RuleFailed));
+            return Err(parser.make_error(error_kind.unwrap_or(ParseErrorKind::RuleFailed)));
         }
 
         // Process token(s).
