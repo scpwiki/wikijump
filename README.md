@@ -35,3 +35,11 @@ We don't have a lot of documentation here yet. See [development.md](docs/develop
 ## License
 
 Wikijump is available under the same license as Wikidot, the [GNU Affero General Public License 3.0](https://www.gnu.org/licenses/agpl-3.0.en.html) (AGPL 3.0).
+
+```
+Wikijump - FOSS Wiki Software for Writing Communities
+Copyright (c) 2020-2021, Wikijump Team
+
+Based on Wikidot - free wiki collaboration software
+Copyright (c) 2008, Wikidot Inc.
+```
