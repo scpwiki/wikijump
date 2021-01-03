@@ -59,8 +59,15 @@ pub fn collect_container<'p, 'r, 't>(
     );
 
     // Iterate and consume all the tokens
-    let (elements, exceptions) =
-        collect_consume(log, parser, rule, close_conditions, invalid_conditions, error_kind)?.into();
+    let (elements, exceptions) = collect_consume(
+        log,
+        parser,
+        rule,
+        close_conditions,
+        invalid_conditions,
+        error_kind,
+    )?
+    .into();
 
     // Package into a container
     ok!(

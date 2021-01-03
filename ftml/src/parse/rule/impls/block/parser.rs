@@ -131,9 +131,7 @@ where
         self.get_optional_token(Token::Whitespace)
     }
 
-    pub fn get_block_name(
-        &mut self,
-    ) -> Result<(&'t str, bool), ParseError> {
+    pub fn get_block_name(&mut self) -> Result<(&'t str, bool), ParseError> {
         debug!(self.log, "Looking for identifier");
 
         collect_merge_keep(
@@ -149,7 +147,8 @@ where
                 ParseCondition::current(Token::LineBreak),
             ],
             Some(ParseErrorKind::BlockMissingName),
-        ).map(|(name, last)| {
+        )
+        .map(|(name, last)| {
             let ended = match last.token {
                 Token::Whitespace => false,
                 Token::RightBlock => true,
@@ -211,7 +210,10 @@ where
         }
     }
 
-    pub fn get_argument_value(&mut self, error_kind: Option<ParseErrorKind>) -> Result<&'t str, ParseError> {
+    pub fn get_argument_value(
+        &mut self,
+        error_kind: Option<ParseErrorKind>,
+    ) -> Result<&'t str, ParseError> {
         debug!(self.log, "Looking for a value argument, then ']]'");
 
         collect_merge(

@@ -37,8 +37,15 @@ pub fn collect_merge<'p, 'r, 't>(
 where
     'r: 't,
 {
-    collect_merge_keep(log, parser, rule, close_conditions, invalid_conditions, error_kind)
-        .map(|(slice, _)| slice)
+    collect_merge_keep(
+        log,
+        parser,
+        rule,
+        close_conditions,
+        invalid_conditions,
+        error_kind,
+    )
+    .map(|(slice, _)| slice)
 }
 
 /// Modified form of `collect_merge()` that also returns the last token.

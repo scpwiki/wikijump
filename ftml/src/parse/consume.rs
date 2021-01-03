@@ -27,7 +27,7 @@
 //! as raw text as a fallback, which is how Wikidot does it.
 
 use super::prelude::*;
-use super::rule::{impls::RULE_FALLBACK, get_rules_for_token};
+use super::rule::{get_rules_for_token, impls::RULE_FALLBACK};
 use super::Parser;
 use crate::span_wrap::SpanWrap;
 use std::mem;

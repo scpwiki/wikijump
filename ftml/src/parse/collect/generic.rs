@@ -127,7 +127,9 @@ where
                 "token" => parser.current().token,
             );
 
-            return Err(parser.make_error(error_kind.unwrap_or(ParseErrorKind::RuleFailed)));
+            return Err(
+                parser.make_error(error_kind.unwrap_or(ParseErrorKind::RuleFailed))
+            );
         }
 
         // Process token(s).
