@@ -44,30 +44,35 @@ fn parse_fn<'p, 'r, 't>(
     let language = arguments.get("type");
     parser.get_line_break()?;
 
-    let first = parser.current();
-    let mut end;
+    let start = parser.current();
 
     // Keep iterating until we find "[[/code]]"
     loop {
-        // TODO check for end block
+        let at_end_block = parser.evaluate_fn(|parser| {
+            // Check that "[[/code]]" is on a new line.
+            parser.get_line_break()?;
 
-        end = parser.current();
-        parser.step()?;
+            // Check if it's an end block
+            //
+            // This will ignore any errors produced,
+            // since it's just more code
+            let name = parser.get_end_block()?;
 
-        // Check if it's an end block
-        // Ignore errors, might be just more code
-        let name = match parser.get_end_block() {
-            Ok(name) => name,
-            Err(_) => continue,
-        };
+            // Check if it's the right kind
+            let is_code = name.eq_ignore_ascii_case("code");
 
-        // Check if it's a closing block
-        if name.eq_ignore_ascii_case("code") {
+            Ok(is_code)
+        });
+
+        if at_end_block {
             break;
         }
+
+        parser.step()?;
     }
 
-    let code = parser.full_text().slice(log, first, end);
+    let end = parser.current();
+    let code = parser.full_text().slice_partial(log, start, end);
     let element = Element::Code {
         contents: cow!(code),
         language,

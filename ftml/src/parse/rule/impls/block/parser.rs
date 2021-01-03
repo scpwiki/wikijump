@@ -165,6 +165,7 @@ where
             Some(ParseErrorKind::BlockMissingName),
         )
         .map(|(name, last)| {
+            let name = name.trim();
             let ended = match last.token {
                 Token::Whitespace => false,
                 Token::RightBlock => true,
