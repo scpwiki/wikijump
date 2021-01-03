@@ -22,7 +22,7 @@ use super::{impls::*, BlockRule};
 use std::collections::HashMap;
 use unicase::UniCase;
 
-pub const BLOCK_RULES: [BlockRule; 2] = [BLOCK_CODE, BLOCK_DIV];
+pub const BLOCK_RULES: [BlockRule; 3] = [BLOCK_CODE, BLOCK_CSS, BLOCK_DIV];
 
 pub type BlockRuleMap = HashMap<UniCase<&'static str>, &'static BlockRule>;
 

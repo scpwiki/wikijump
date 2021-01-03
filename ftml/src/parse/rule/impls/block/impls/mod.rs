@@ -29,7 +29,9 @@ mod prelude {
 
 // TODO
 mod code;
+mod css;
 mod div;
 
 pub use self::code::BLOCK_CODE;
+pub use self::css::BLOCK_CSS;
 pub use self::div::BLOCK_DIV;
