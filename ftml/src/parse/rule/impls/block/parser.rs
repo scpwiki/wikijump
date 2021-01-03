@@ -18,6 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// TODO remove when more block rules added
+#![allow(dead_code)]
+
 use super::arguments::Arguments;
 use super::rule::{RULE_BLOCK, RULE_BLOCK_SPECIAL};
 use super::BlockRule;
