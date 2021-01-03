@@ -1,5 +1,5 @@
 {
-    "input": "[[ code  language = \"css\" ]]\napple banana\n[[/code]]",
+    "input": "[[ code  type = \"css\" ]]\napple banana\n[[/code]]",
     "tree": {
         "elements": [
             {
