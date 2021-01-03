@@ -50,7 +50,18 @@ fn parse_fn<'p, 'r, 't>(
         None
     };
 
+    // The block must be on its own line
     parser.get_line_break()?;
+
+    // Check if it's an empty block
+    if let Ok(name) = parser.get_end_block() {
+        if name.eq_ignore_ascii_case("code") {
+            return ok!(Element::Code {
+                contents: cow!(""),
+                language
+            });
+        }
+    }
 
     let start = parser.current();
     let end;
