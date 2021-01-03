@@ -80,14 +80,25 @@ where
 
     // State evaluation
     #[inline]
-    pub fn evaluate_fn<F>(&self, f: F) -> bool
+    pub fn evaluate_fn<F>(&mut self, f: F, keep_success: bool) -> bool
     where
-        F: FnOnce(BlockParser<'_, 'r, 't>) -> Result<bool, ParseError>,
+        F: FnOnce(&mut BlockParser<'_, 'r, 't>) -> Result<bool, ParseError>,
     {
-        let mut parser = self.parser.clone();
-        let bparser = BlockParser::new(&self.log, &mut parser, self.special);
+        debug!(
+            &self.log,
+            "Evaluating closure for parser condition";
+            "keep-success" => keep_success,
+        );
 
-        f(bparser).unwrap_or(false)
+        let mut parser = self.parser.clone();
+        let mut bparser = BlockParser::new(&self.log, &mut parser, self.special);
+        let result = f(&mut bparser).unwrap_or(false);
+
+        if result && keep_success {
+            self.parser.update(&parser);
+        }
+
+        result
     }
 
     // Parsing methods

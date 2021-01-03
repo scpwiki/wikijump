@@ -133,27 +133,9 @@ impl<'r, 't> Parser<'r, 't> {
     where
         F: FnOnce(&mut Parser<'r, 't>) -> Result<bool, ParseError>,
     {
-        trace!(&self.log, "Evaluating closure for parser condition",);
+        debug!(&self.log, "Evaluating closure for parser condition");
 
         f(&mut self.clone()).unwrap_or(false)
-    }
-
-    pub fn evaluate_fn_keep<F>(&mut self, f: F) -> bool
-    where
-        F: FnOnce(&mut Parser<'r, 't>) -> Result<bool, ParseError>,
-    {
-        trace!(
-            &self.log,
-            "Evaluating closure for parser condition (keep if success)",
-        );
-
-        let mut parser = self.clone();
-        let result = f(&mut parser).unwrap_or(false);
-        if result {
-            self.update(&parser);
-        }
-
-        result
     }
 
     // Token pointer state and manipulation

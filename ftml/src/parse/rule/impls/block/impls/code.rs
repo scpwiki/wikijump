@@ -68,21 +68,24 @@ fn parse_fn<'p, 'r, 't>(
 
     // Keep iterating until we find the end
     loop {
-        let at_end_block = parser.evaluate_fn(|mut parser| {
-            // Check that "[[/code]]" is on a new line.
-            parser.get_line_break()?;
+        let at_end_block = parser.evaluate_fn(
+            |parser| {
+                // Check that "[[/code]]" is on a new line.
+                parser.get_line_break()?;
 
-            // Check if it's an end block
-            //
-            // This will ignore any errors produced,
-            // since it's just more code
-            let name = parser.get_end_block()?;
+                // Check if it's an end block
+                //
+                // This will ignore any errors produced,
+                // since it's just more code
+                let name = parser.get_end_block()?;
 
-            // Check if it's the right kind
-            let is_code = name.eq_ignore_ascii_case("code");
+                // Check if it's the right kind
+                let is_code = name.eq_ignore_ascii_case("code");
 
-            Ok(is_code)
-        });
+                Ok(is_code)
+            },
+            true,
+        );
 
         if at_end_block {
             end = parser.current();
