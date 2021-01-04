@@ -199,6 +199,72 @@ where
         Ok(name)
     }
 
+    // Body parsing
+    pub fn get_body_text(
+        &mut self,
+        in_block: bool,
+        newline_separator: bool,
+        valid_end_block_names: &[&str],
+    ) -> Result<(&'t str, Arguments<'t>), ParseError> {
+        // Parse arguments and end the block
+        let arguments = if in_block {
+            self.get_argument_map()?
+        } else {
+            Arguments::new()
+        };
+
+        // If this flag is set, then the block must be on its own line
+        if newline_separator {
+            self.get_line_break()?;
+        }
+
+        // State variables for collecting span
+        let mut first = true;
+        let start = self.current();
+        let end;
+
+        // Keep iterating until we find the end.
+        // Preserve parse progress if we've hit the end block.
+        loop {
+            let at_end_block = self.save_evaluate_fn(|parser| {
+                // Check that "[[/code]]" is on a new line, if required
+                if newline_separator {
+                    // Only check after the first, to permit empty blocks
+                    if !first {
+                        parser.get_line_break()?;
+                    }
+                }
+
+                // Check if it's an end block
+                //
+                // This will ignore any errors produced,
+                // since it's just more code
+                let name = parser.get_end_block()?;
+
+                // Check if it's valid
+                for end_block_name in valid_end_block_names {
+                    if name.eq_ignore_ascii_case(end_block_name) {
+                        return Ok(true);
+                    }
+                }
+
+                Ok(false)
+            });
+
+            if let Some(last_token) = at_end_block {
+                end = last_token;
+                break;
+            }
+
+            self.step()?;
+            first = false;
+        }
+
+        let slice = self.full_text().slice_partial(&self.log, start, end);
+
+        Ok((slice, arguments))
+    }
+
     // Block argument parsing
     pub fn get_argument_map(&mut self) -> Result<Arguments<'t>, ParseError> {
         debug!(self.log, "Looking for key value arguments, then ']]'");
