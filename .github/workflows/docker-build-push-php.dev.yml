@@ -1,14 +1,13 @@
-name: docker-build-push
+name: docker-build-push-php
 
 on:
   push:
     branches:
       - develop
-      - db-port
     paths:
       - 'web/**'
       - 'install/php-fpm/**'
-      - '.github/**'
+      - '.github/workflows/docker-build-push-php.dev.yml'
 jobs:
   build:
     runs-on: ubuntu-latest
