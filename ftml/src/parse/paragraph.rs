@@ -59,14 +59,20 @@ where
 
     loop {
         let (element, mut exceptions) = match parser.current().token {
-            // Avoid an unnecessary Token::Null and just exit
-            // If there's no close condition, then this is not an error
             Token::InputEnd => {
                 if close_condition_fn.is_some() {
+                    // There was a close condition, but it was not satisfied
+                    // before the end of input.
+                    //
+                    // Pass an error up the chain
+
                     debug!(log, "Hit the end of input, producing error");
 
                     return Err(parser.make_error(ParseErrorKind::EndOfInput));
                 } else {
+                    // Avoid an unnecessary Token::Null and just exit
+                    // If there's no close condition, then this is not an error
+
                     debug!(log, "Hit the end of input, terminating token iteration");
 
                     break;
