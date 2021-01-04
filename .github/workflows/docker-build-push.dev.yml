@@ -8,6 +8,7 @@ on:
     paths:
       - 'web/**'
       - 'install/php-fpm/**'
+      - '.github/**'
 jobs:
   build:
     runs-on: ubuntu-latest
