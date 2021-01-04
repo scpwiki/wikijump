@@ -205,16 +205,14 @@ where
     /// Generic helper function that performs the primary block collection.
     ///
     /// Extended by the other, more specific functions.
-    fn get_body_generic<T, F1, F2>(
+    fn get_body_generic<F>(
         &mut self,
         valid_end_block_names: &[&str],
         newline_separator: bool,
-        mut process: F1,
-        finish: F2,
-    ) -> Result<T, ParseError>
+        mut process: F,
+    ) -> Result<&'r ExtractedToken<'t>, ParseError>
     where
-        F1: FnMut(&mut Self) -> Result<(), ParseError>,
-        F2: FnOnce(&'r ExtractedToken<'t>) -> Result<T, ParseError>,
+        F: FnMut(&mut Self) -> Result<(), ParseError>,
     {
         trace!(&self.log, "Running generic in block body parser");
 
@@ -261,7 +259,7 @@ where
 
             // If there's a match, return the last body token
             if let Some(last_token) = at_end_block {
-                return finish(last_token);
+                return Ok(last_token);
             }
 
             // Run the passed-in closure
@@ -299,7 +297,6 @@ where
             valid_end_block_names,
             newline_separator,
             |_| Ok(()),
-            |last| Ok(last),
         )?;
 
         Ok(self.full_text().slice_partial(&self.log, start, end))
@@ -319,11 +316,10 @@ where
             "as-paragraphs" => as_paragraphs,
         );
 
-        let x = self.get_body_generic(
+        let last = self.get_body_generic(
             valid_end_block_names,
             newline_separator,
             |parser| todo!(),
-            |last| todo!(),
         )?;
 
         todo!()
