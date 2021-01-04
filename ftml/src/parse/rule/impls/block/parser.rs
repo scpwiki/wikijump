@@ -29,6 +29,7 @@ use crate::parse::{
     parse_string, ExtractedToken, ParseError, ParseErrorKind, Parser, Token,
 };
 use crate::text::FullText;
+use crate::tree::Element;
 
 #[derive(Debug)]
 pub struct BlockParser<'p, 'r, 't> {
@@ -214,6 +215,13 @@ where
         valid_end_block_names: &[&str],
         newline_separator: bool,
     ) -> Result<&'t str, ParseError> {
+        debug!(
+            &self.log,
+            "Getting block body as text";
+            "valid-end-block-names" => format!("{:?}", valid_end_block_names),
+            "newline-separator" => newline_separator,
+        );
+
         debug_assert_eq!(
             valid_end_block_names.is_empty(),
             false,
@@ -268,6 +276,29 @@ where
         }
 
         Ok(self.full_text().slice_partial(&self.log, start, end))
+    }
+
+    pub fn get_body_elements(
+        &mut self,
+        valid_end_block_names: &[&str],
+        newline_separator: bool,
+        as_paragraphs: bool,
+    ) -> Result<Vec<Element<'t>>, ParseError> {
+        debug!(
+            &self.log,
+            "Getting block body as elements";
+            "valid-end-block_names" => format!("{:?}", valid_end_block_names),
+            "newline-separator" => newline_separator,
+            "as-paragraphs" => as_paragraphs,
+        );
+
+        debug_assert_eq!(
+            valid_end_block_names.is_empty(),
+            false,
+            "List of valid end block names is empty, no success is possible",
+        );
+
+        todo!()
     }
 
     // Block argument parsing
