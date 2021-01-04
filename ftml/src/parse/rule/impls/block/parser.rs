@@ -295,8 +295,8 @@ where
         let start = self.current();
         let end =
             self.get_body_generic(valid_end_block_names, newline_separator, |_| Ok(()))?;
-
-        Ok(self.full_text().slice_partial(&self.log, start, end))
+        let slice = self.full_text().slice_partial(&self.log, start, end);
+        Ok(slice)
     }
 
     pub fn get_body_elements(
