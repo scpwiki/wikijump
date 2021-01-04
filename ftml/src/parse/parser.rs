@@ -99,21 +99,44 @@ impl<'r, 't> Parser<'r, 't> {
         match condition {
             ParseCondition::CurrentToken { token } => self.current.token == token,
             ParseCondition::Function { f } => self.evaluate_fn(f),
-            ParseCondition::TokenPair { current, next } => self.evaluate_fn(|parser| {
-                macro_rules! check {
-                    ($expected:expr) => {
-                        if parser.current().token != $expected {
-                            return Ok(false);
-                        }
-                    };
+            ParseCondition::TokenPair { current, next } => {
+                if self.current().token != current {
+                    trace!(
+                        &self.log,
+                        "Current token in pair doesn't match, failing";
+                        "expected" => current,
+                        "actual" => self.current().token,
+                    );
+
+                    return false;
                 }
 
-                check!(current);
-                parser.step()?;
-                check!(next);
+                match self.look_ahead(0) {
+                    Some(actual) => {
+                        if actual.token != next {
+                            trace!(
+                                &self.log,
+                                "Second token in pair doesn't match, failing";
+                                "expected" => next,
+                                "actual" => actual.token,
+                            );
 
-                Ok(false)
-            }),
+                            return false;
+                        }
+                    }
+                    None => {
+                        trace!(
+                            &self.log,
+                            "Second token in pair doesn't exist, failing";
+                            "expected" => next,
+                        );
+
+                        return false;
+                    }
+                }
+
+                true
+            }
         }
     }
 
