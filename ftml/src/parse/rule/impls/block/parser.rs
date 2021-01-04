@@ -210,7 +210,7 @@ where
         valid_end_block_names: &[&str],
         newline_separator: bool,
         mut process: F1,
-        end: F2,
+        finish: F2,
     ) -> Result<T, ParseError>
     where
         F1: FnMut() -> Result<(), ParseError>,
@@ -261,7 +261,7 @@ where
 
             // If there's a match, return the last body token
             if let Some(last_token) = at_end_block {
-                return end(last_token);
+                return finish(last_token);
             }
 
             // Run the passed-in closure
