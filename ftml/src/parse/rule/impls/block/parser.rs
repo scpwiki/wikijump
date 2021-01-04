@@ -202,25 +202,21 @@ where
 
     // Body parsing
 
-    /// Collect a block's body to its end, as string slice.
+    /// Generic helper function that performs the primary block collection.
     ///
-    /// This requires that the has already been parsed using
-    /// one of the "get argument" methods.
-    ///
-    /// The `newline_separator` argument designates whether this
-    /// block assumes multiline construction (e.g. `[[div]]`, `[[code]]`)
-    /// or not (e.g. `[[span]]`).
-    pub fn get_body_text(
+    /// Extended by the other, more specific functions.
+    fn get_body_generic<T, F1, F2>(
         &mut self,
         valid_end_block_names: &[&str],
         newline_separator: bool,
-    ) -> Result<&'t str, ParseError> {
-        debug!(
-            &self.log,
-            "Getting block body as text";
-            "valid-end-block-names" => format!("{:?}", valid_end_block_names),
-            "newline-separator" => newline_separator,
-        );
+        mut process: F1,
+        end: F2,
+    ) -> Result<T, ParseError>
+    where
+        F1: FnMut(&'r ExtractedToken<'t>) -> Result<(), ParseError>,
+        F2: FnOnce(&'r ExtractedToken<'t>) -> Result<T, ParseError>,
+    {
+        trace!(&self.log, "Running generic in block body parser");
 
         debug_assert_eq!(
             valid_end_block_names.is_empty(),
@@ -233,13 +229,10 @@ where
             self.get_line_break()?;
         }
 
-        // State variables for collecting span
-        let mut first = true;
-        let start = self.current();
-        let end;
-
         // Keep iterating until we find the end.
         // Preserve parse progress if we've hit the end block.
+        let mut first = true;
+
         loop {
             let at_end_block = self.save_evaluate_fn(|parser| {
                 // Check that the end block is on a new line, if required
@@ -266,14 +259,48 @@ where
                 Ok(false)
             });
 
+            // If there's a match, return the last body token
             if let Some(last_token) = at_end_block {
-                end = last_token;
-                break;
+                return end(last_token);
             }
 
+            // Run the process step
+            process(self.current())?;
+
+            // Step and continue
             self.step()?;
             first = false;
         }
+    }
+
+    /// Collect a block's body to its end, as string slice.
+    ///
+    /// This requires that the has already been parsed using
+    /// one of the "get argument" methods.
+    ///
+    /// The `newline_separator` argument designates whether this
+    /// block assumes multiline construction (e.g. `[[div]]`, `[[code]]`)
+    /// or not (e.g. `[[span]]`).
+    pub fn get_body_text(
+        &mut self,
+        valid_end_block_names: &[&str],
+        newline_separator: bool,
+    ) -> Result<&'t str, ParseError> {
+        debug!(
+            &self.log,
+            "Getting block body as text";
+            "valid-end-block-names" => format!("{:?}", valid_end_block_names),
+            "newline-separator" => newline_separator,
+        );
+
+        // State variables for collecting span
+        let start = self.current();
+        let end = self.get_body_generic(
+            valid_end_block_names,
+            newline_separator,
+            |_| Ok(()),
+            |last| Ok(last),
+        )?;
 
         Ok(self.full_text().slice_partial(&self.log, start, end))
     }
@@ -292,11 +319,12 @@ where
             "as-paragraphs" => as_paragraphs,
         );
 
-        debug_assert_eq!(
-            valid_end_block_names.is_empty(),
-            false,
-            "List of valid end block names is empty, no success is possible",
-        );
+        let x = self.get_body_generic(
+            valid_end_block_names,
+            newline_separator,
+            |current| todo!(),
+            |last| todo!(),
+        )?;
 
         todo!()
     }
