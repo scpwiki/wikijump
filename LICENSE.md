@@ -1,5 +1,5 @@
 Wikijump - FOSS Wiki Software for Writing Communities
-Copyright (c) 2020, Wikijump Team
+Copyright (c) 2020-2021, Wikijump Team
 
 Based on Wikidot - free wiki collaboration software
 Copyright (c) 2008, Wikidot Inc.
