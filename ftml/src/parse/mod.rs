@@ -44,7 +44,7 @@ mod prelude {
     pub use crate::tree::Element;
 }
 
-use self::paragraph::gather_paragraphs;
+use self::paragraph::{gather_paragraphs, NO_CLOSE_CONDITION};
 use self::parser::Parser;
 use self::rule::impls::RULE_PAGE;
 use crate::tokenize::Tokenization;
@@ -79,7 +79,7 @@ where
 
     // At the top level, we gather elements into paragraphs
     info!(log, "Running parser on tokens");
-    let result = gather_paragraphs(log, &mut parser, RULE_PAGE, &[], &[]);
+    let result = gather_paragraphs(log, &mut parser, RULE_PAGE, NO_CLOSE_CONDITION);
 
     debug!(log, "Finished paragraph gathering, matching on consumption");
     match result {

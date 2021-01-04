@@ -18,7 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::condition::ParseCondition;
 use super::consume::consume;
 use super::parser::Parser;
 use super::prelude::*;
@@ -26,20 +25,29 @@ use super::rule::Rule;
 use super::stack::ParagraphStack;
 use super::token::Token;
 
+/// Wrapper type to satisfy the issue with generic closure types.
+///
+/// Because `None` does not specify the type for `F`, we need to
+/// tell the compiler it has a concrete type.
+///
+/// But since it's just `None`, it's not actually pointing to a function,
+/// it's just clarifying what the `_` in `Option<_>` is.
+pub const NO_CLOSE_CONDITION: Option<fn(&mut Parser) -> Result<bool, ParseError>> = None;
+
 /// Function to iterate over tokens to produce elements in paragraphs.
 ///
 /// Originally in `parse()`, but was moved out to allow paragraph
 /// extraction deeper in code, such as in the `try_paragraph`
 /// collection helper.
-pub fn gather_paragraphs<'r, 't>(
+pub fn gather_paragraphs<'r, 't, F>(
     log: &slog::Logger,
     parser: &mut Parser<'r, 't>,
     rule: Rule,
-    close_conditions: &[ParseCondition],
-    invalid_conditions: &[ParseCondition],
+    mut close_condition_fn: Option<F>,
 ) -> ParseResult<'r, 't, Vec<Element<'t>>>
 where
     'r: 't,
+    F: FnMut(&mut Parser<'r, 't>) -> Result<bool, ParseError>,
 {
     info!(log, "Gathering paragraphs until ending");
 
@@ -52,15 +60,16 @@ where
     loop {
         let (element, mut exceptions) = match parser.current().token {
             // Avoid an unnecessary Token::Null and just exit
+            // If there's no close condition, then this is not an error
             Token::InputEnd => {
-                if close_conditions.is_empty() {
-                    debug!(log, "Hit the end of input, terminating token iteration");
-
-                    break;
-                } else {
+                if close_condition_fn.is_some() {
                     debug!(log, "Hit the end of input, producing error");
 
                     return Err(parser.make_error(ParseErrorKind::EndOfInput));
+                } else {
+                    debug!(log, "Hit the end of input, terminating token iteration");
+
+                    break;
                 }
             }
 
@@ -80,30 +89,21 @@ where
                 continue;
             }
 
-            // Ending the paragraph prematurely due to the element ending
-            _ if parser.evaluate_any(close_conditions) => {
-                debug!(
-                    log,
-                    "Hit closing condition, returning parsing success";
-                    "token" => parser.current().token,
-                );
-
-                return stack.into_result();
-            }
-
-            // Ending the paragraph prematurely due to an error
-            _ if parser.evaluate_any(invalid_conditions) => {
-                debug!(
-                    log,
-                    "Hit failure condition, returning parsing failure";
-                    "token" => parser.current().token,
-                );
-
-                return Err(parser.make_error(ParseErrorKind::RuleFailed));
-            }
-
-            // Produce consumption from this token pointer
+            // Determine if we're ending the paragraph here,
+            // or continuing with another element
             _ => {
+                if let Some(ref mut close_condition_fn) = close_condition_fn {
+                    if close_condition_fn(parser).unwrap_or(false) {
+                        debug!(
+                            log,
+                            "Hit closing condition for paragraphs, terminating token iteration",
+                        );
+
+                        break;
+                    }
+                }
+
+                // Otherwise, produce consumption from this token pointer
                 debug!(log, "Trying to consume tokens to produce element");
                 consume(log, parser)
             }
