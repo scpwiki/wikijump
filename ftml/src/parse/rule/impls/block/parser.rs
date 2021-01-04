@@ -293,11 +293,8 @@ where
 
         // State variables for collecting span
         let start = self.current();
-        let end = self.get_body_generic(
-            valid_end_block_names,
-            newline_separator,
-            |_| Ok(()),
-        )?;
+        let end =
+            self.get_body_generic(valid_end_block_names, newline_separator, |_| Ok(()))?;
 
         Ok(self.full_text().slice_partial(&self.log, start, end))
     }
