@@ -40,51 +40,8 @@ fn parse_fn<'p, 'r, 't>(
         "Code doesn't have a valid name",
     );
 
-    let language = if in_block {
-        let mut arguments = parser.get_argument_map()?;
-        arguments.get("type")
-    } else {
-        None
-    };
-
-    // The block must be on its own line
-    parser.get_line_break()?;
-
-    let mut first = true;
-    let start = parser.current();
-    let end;
-
-    // Keep iterating until we find the end.
-    // Preserve parse progress if we've hit the end block.
-    loop {
-        let at_end_block = parser.save_evaluate_fn(|parser| {
-            // Check that "[[/code]]" is on a new line.
-            if !first {
-                parser.get_line_break()?;
-            }
-
-            // Check if it's an end block
-            //
-            // This will ignore any errors produced,
-            // since it's just more code
-            let name = parser.get_end_block()?;
-
-            // Check if it's the right kind
-            let is_code = name.eq_ignore_ascii_case("code");
-
-            Ok(is_code)
-        });
-
-        if let Some(last_token) = at_end_block {
-            end = last_token;
-            break;
-        }
-
-        parser.step()?;
-        first = false;
-    }
-
-    let code = parser.full_text().slice_partial(log, start, end);
+    let (code, mut arguments) = parser.get_body_text(in_block, true, &["code"])?;
+    let language = arguments.get("type");
     let element = Element::Code {
         contents: cow!(code),
         language,

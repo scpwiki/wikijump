@@ -233,7 +233,7 @@ where
         // Preserve parse progress if we've hit the end block.
         loop {
             let at_end_block = self.save_evaluate_fn(|parser| {
-                // Check that "[[/code]]" is on a new line, if required
+                // Check that the end block is on a new line, if required
                 if newline_separator {
                     // Only check after the first, to permit empty blocks
                     if !first {
@@ -244,7 +244,7 @@ where
                 // Check if it's an end block
                 //
                 // This will ignore any errors produced,
-                // since it's just more code
+                // since it's just more text
                 let name = parser.get_end_block()?;
 
                 // Check if it's valid
