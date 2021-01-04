@@ -206,6 +206,12 @@ where
         newline_separator: bool,
         valid_end_block_names: &[&str],
     ) -> Result<(&'t str, Arguments<'t>), ParseError> {
+        debug_assert_eq!(
+            valid_end_block_names.is_empty(),
+            false,
+            "List of valid end block names is empty, no success is possible",
+        );
+
         // Parse arguments and end the block
         let arguments = if in_block {
             self.get_argument_map()?
