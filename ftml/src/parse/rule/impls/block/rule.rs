@@ -68,7 +68,14 @@ where
         "special" => special,
     );
 
-    let mut parser = BlockParser::new(log, parser, special);
+    // Set general rule based on presence of special
+    parser.set_rule(if special {
+        RULE_BLOCK_SPECIAL
+    } else {
+        RULE_BLOCK
+    });
+
+    let mut parser = BlockParser::new(log, parser);
 
     // Get block name
     parser.get_optional_space()?;

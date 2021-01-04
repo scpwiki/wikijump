@@ -22,7 +22,6 @@
 #![allow(dead_code)]
 
 use super::arguments::Arguments;
-use super::rule::{RULE_BLOCK, RULE_BLOCK_SPECIAL};
 use super::BlockRule;
 use crate::parse::collect::{collect_merge, collect_merge_keep};
 use crate::parse::condition::ParseCondition;
@@ -35,7 +34,6 @@ use crate::text::FullText;
 pub struct BlockParser<'p, 'r, 't> {
     log: slog::Logger,
     parser: &'p mut Parser<'r, 't>,
-    special: bool,
 }
 
 impl<'p, 'r, 't> BlockParser<'p, 'r, 't>
@@ -43,31 +41,15 @@ where
     'r: 'p + 't,
 {
     #[inline]
-    pub fn new(
-        log: &slog::Logger,
-        parser: &'p mut Parser<'r, 't>,
-        special: bool,
-    ) -> Self {
+    pub fn new(log: &slog::Logger, parser: &'p mut Parser<'r, 't>) -> Self {
         info!(
             log, "Creating block parser";
-            "special" => special,
             "remaining-len" => parser.remaining().len(),
         );
 
         let log = slog::Logger::clone(log);
-        let rule = if special {
-            RULE_BLOCK_SPECIAL
-        } else {
-            RULE_BLOCK
-        };
 
-        parser.set_rule(rule);
-
-        BlockParser {
-            log,
-            parser,
-            special,
-        }
+        BlockParser { log, parser }
     }
 
     // Getters
@@ -90,7 +72,7 @@ where
         debug!(&self.log, "Evaluating closure for parser condition");
 
         let mut parser = self.parser.clone();
-        let mut bparser = BlockParser::new(&self.log, &mut parser, self.special);
+        let mut bparser = BlockParser::new(&self.log, &mut parser);
         f(&mut bparser).unwrap_or(false)
     }
 
@@ -104,7 +86,7 @@ where
         );
 
         let mut parser = self.parser.clone();
-        let mut bparser = BlockParser::new(&self.log, &mut parser, self.special);
+        let mut bparser = BlockParser::new(&self.log, &mut parser);
         if f(&mut bparser).unwrap_or(false) {
             let last = self.parser.current();
             self.parser.update(&parser);
