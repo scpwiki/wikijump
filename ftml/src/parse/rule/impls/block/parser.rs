@@ -213,7 +213,7 @@ where
         end: F2,
     ) -> Result<T, ParseError>
     where
-        F1: FnMut(&'r ExtractedToken<'t>) -> Result<(), ParseError>,
+        F1: FnMut() -> Result<(), ParseError>,
         F2: FnOnce(&'r ExtractedToken<'t>) -> Result<T, ParseError>,
     {
         trace!(&self.log, "Running generic in block body parser");
@@ -264,8 +264,8 @@ where
                 return end(last_token);
             }
 
-            // Run the process step
-            process(self.current())?;
+            // Run the passed-in closure
+            process()?;
 
             // Step and continue
             self.step()?;
@@ -298,7 +298,7 @@ where
         let end = self.get_body_generic(
             valid_end_block_names,
             newline_separator,
-            |_| Ok(()),
+            || Ok(()),
             |last| Ok(last),
         )?;
 
@@ -322,7 +322,7 @@ where
         let x = self.get_body_generic(
             valid_end_block_names,
             newline_separator,
-            |current| todo!(),
+            || todo!(),
             |last| todo!(),
         )?;
 
