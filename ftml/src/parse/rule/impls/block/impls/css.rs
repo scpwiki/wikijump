@@ -28,7 +28,7 @@ pub const BLOCK_CSS: BlockRule = BlockRule {
 };
 
 fn parse_fn<'p, 'r, 't>(
-    log: &slog::Logger,
+    _log: &slog::Logger,
     parser: &'p mut BlockParser<'p, 'r, 't>,
     name: &'t str,
     special: bool,
@@ -44,44 +44,7 @@ fn parse_fn<'p, 'r, 't>(
         parser.get_argument_none()?;
     }
 
-    // The block must be on its own line
-    parser.get_line_break()?;
-
-    let mut first = true;
-    let start = parser.current();
-    let end;
-
-    // Keep iterating until we find the end.
-    // Preserve parse progress if we've hit the end block.
-    loop {
-        let at_end_block = parser.save_evaluate_fn(|parser| {
-            // Check that "[[/css]]" is on a new line.
-            if !first {
-                parser.get_line_break()?;
-            }
-
-            // Check if it's an end block
-            //
-            // This will ignore any errors produced,
-            // since it's just more CSS
-            let name = parser.get_end_block()?;
-
-            // Check if it's the right kind
-            let is_css = name.eq_ignore_ascii_case("css");
-
-            Ok(is_css)
-        });
-
-        if let Some(last_token) = at_end_block {
-            end = last_token;
-            break;
-        }
-
-        parser.step()?;
-        first = false;
-    }
-
-    let css = parser.full_text().slice_partial(log, start, end);
+    let css = parser.get_body_text(&["css"], true)?;
     let exceptions = vec![ParseException::Style(cow!(css))];
     ok!(Element::Null, exceptions)
 }
