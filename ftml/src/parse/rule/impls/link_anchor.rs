@@ -42,7 +42,7 @@ fn try_consume_fn<'p, 'r, 't>(
     check_step(parser, Token::LeftBracketAnchor)?;
 
     // Gather path for link
-    let url = collect_merge(
+    let url = collect_text(
         log,
         parser,
         RULE_LINK_ANCHOR,
@@ -68,7 +68,7 @@ fn try_consume_fn<'p, 'r, 't>(
     };
 
     // Gather label for link
-    let label = collect_merge(
+    let label = collect_text(
         log,
         parser,
         RULE_LINK_ANCHOR,

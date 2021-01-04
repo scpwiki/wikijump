@@ -1,5 +1,5 @@
 /*
- * parse/collect/merge.rs
+ * parse/collect/text.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Ammon Smith
@@ -26,7 +26,7 @@ use super::prelude::*;
 /// as it specifically gathers all the extracted tokens into a string slice,
 /// rather than considering them as special elements.
 #[inline]
-pub fn collect_merge<'p, 'r, 't>(
+pub fn collect_text<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
@@ -37,7 +37,7 @@ pub fn collect_merge<'p, 'r, 't>(
 where
     'r: 't,
 {
-    collect_merge_keep(
+    collect_text_keep(
         log,
         parser,
         rule,
@@ -48,11 +48,11 @@ where
     .map(|(slice, _)| slice)
 }
 
-/// Modified form of `collect_merge()` that also returns the last token.
+/// Modified form of `collect_text()` that also returns the last token.
 ///
 /// The last token terminating the collection is kept, and returned
 /// to the caller alongside the string slice.
-pub fn collect_merge_keep<'p, 'r, 't>(
+pub fn collect_text_keep<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
@@ -63,7 +63,7 @@ pub fn collect_merge_keep<'p, 'r, 't>(
 where
     'r: 't,
 {
-    // Log collect_merge() call
+    // Log collect_text() call
     info!(
         log,
         "Trying to consume tokens to merge into a single string",
@@ -80,7 +80,7 @@ where
         invalid_conditions,
         error_kind,
         |log, parser| {
-            trace!(log, "Ingesting token in string merge");
+            trace!(log, "Ingesting token in string span");
 
             end = Some(parser.current());
             ok!(())
@@ -90,7 +90,7 @@ where
 
     assert!(
         exceptions.is_empty(),
-        "Exceptions were returned merge collection",
+        "Exceptions were returned during text token collection",
     );
 
     let slice = match (start, end) {

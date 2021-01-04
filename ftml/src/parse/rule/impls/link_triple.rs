@@ -73,7 +73,7 @@ fn try_consume_link<'p, 'r, 't>(
     debug!(log, "Trying to create a triple-bracket link"; "anchor" => anchor.name());
 
     // Gather path for link
-    let (url, last) = collect_merge_keep(
+    let (url, last) = collect_text_keep(
         log,
         parser,
         rule,
@@ -110,7 +110,7 @@ fn try_consume_link<'p, 'r, 't>(
         // [[[url|label]]] type links
         Token::Pipe => build_separate(log, parser, rule, url, anchor),
 
-        // Token was already checked in collect_merge(), impossible case
+        // Token was already checked in collect_text(), impossible case
         _ => unreachable!(),
     }
 }
@@ -154,7 +154,7 @@ fn build_separate<'p, 'r, 't>(
     );
 
     // Gather label for link
-    let label = collect_merge(
+    let label = collect_text(
         log,
         parser,
         rule,

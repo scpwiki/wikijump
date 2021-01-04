@@ -41,9 +41,9 @@ mod prelude {
 mod consume;
 mod container;
 mod generic;
-mod merge;
+mod text;
 
 pub use self::consume::collect_consume;
 pub use self::container::collect_container;
 pub use self::generic::collect;
-pub use self::merge::{collect_merge, collect_merge_keep};
+pub use self::text::{collect_text, collect_text_keep};

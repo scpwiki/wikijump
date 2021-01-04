@@ -23,7 +23,7 @@
 
 use super::arguments::Arguments;
 use super::BlockRule;
-use crate::parse::collect::{collect_merge, collect_merge_keep};
+use crate::parse::collect::{collect_text, collect_text_keep};
 use crate::parse::condition::ParseCondition;
 use crate::parse::{
     parse_string, ExtractedToken, ParseError, ParseErrorKind, Parser, Token,
@@ -156,7 +156,7 @@ where
         self.get_optional_space()?;
 
         // Collect block name and determine whether the head is done
-        collect_merge_keep(
+        collect_text_keep(
             &self.log,
             self.parser,
             self.parser.rule(),
@@ -176,7 +176,7 @@ where
                 Token::Whitespace => true,
                 Token::RightBlock => false,
 
-                // collect_merge_keep() already checked the token
+                // collect_text_keep() already checked the token
                 _ => unreachable!(),
             };
 
@@ -243,7 +243,7 @@ where
     ) -> Result<&'t str, ParseError> {
         debug!(self.log, "Looking for a value argument, then ']]'");
 
-        collect_merge(
+        collect_text(
             &self.log,
             self.parser,
             self.parser.rule(),

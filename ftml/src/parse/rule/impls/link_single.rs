@@ -69,7 +69,7 @@ fn try_consume_link<'p, 'r, 't>(
     debug!(log, "Trying to create a single-bracket link"; "anchor" => anchor.name());
 
     // Gather path for link
-    let url = collect_merge(
+    let url = collect_text(
         log,
         parser,
         rule,
@@ -93,7 +93,7 @@ fn try_consume_link<'p, 'r, 't>(
     );
 
     // Gather label for link
-    let label = collect_merge(
+    let label = collect_text(
         log,
         parser,
         rule,
