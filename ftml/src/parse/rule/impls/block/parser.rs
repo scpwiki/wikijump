@@ -210,7 +210,7 @@ where
         valid_end_block_names: &[&str],
         newline_separator: bool,
         mut process: F,
-    ) -> Result<&'r ExtractedToken<'t>, ParseError>
+    ) -> Result<(&'r ExtractedToken<'t>, &'r ExtractedToken<'t>), ParseError>
     where
         F: FnMut(&mut Self) -> Result<(), ParseError>,
     {
@@ -230,6 +230,7 @@ where
         // Keep iterating until we find the end.
         // Preserve parse progress if we've hit the end block.
         let mut first = true;
+        let start = self.current();
 
         loop {
             let at_end_block = self.save_evaluate_fn(|parser| {
@@ -258,8 +259,8 @@ where
             });
 
             // If there's a match, return the last body token
-            if let Some(last_token) = at_end_block {
-                return Ok(last_token);
+            if let Some(end) = at_end_block {
+                return Ok((start, end));
             }
 
             // Run the passed-in closure
@@ -292,8 +293,7 @@ where
         );
 
         // State variables for collecting span
-        let start = self.current();
-        let end =
+        let (start, end) =
             self.get_body_generic(valid_end_block_names, newline_separator, |_| Ok(()))?;
         let slice = self.full_text().slice_partial(&self.log, start, end);
         Ok(slice)
