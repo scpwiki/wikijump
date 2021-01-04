@@ -58,15 +58,15 @@ module "php-fpm" {
 
   secrets = [
     {
-      name      = "URL_DOMAIN"
+      name      = "WIKIJUMP_URL_DOMAIN"
       valueFrom = "wikijump-dev-URL_DOMAIN"
     },
     {
-      name      = "URL_UPLOAD_DOMAIN"
+      name      = "WIKIJUMP_URL_UPLOAD_DOMAIN"
       valueFrom = "wikijump-dev-URL_UPLOAD_DOMAIN"
     },
     {
-      name      = "DB_HOST"
+      name      = "WIKIJUMP_DB_HOST"
       valueFrom = "wikijump-dev-DB_HOST"
     }
   ]
