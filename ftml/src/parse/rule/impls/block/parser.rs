@@ -200,24 +200,25 @@ where
     }
 
     // Body parsing
+
+    /// Collect a block's body to its end, as string slice.
+    ///
+    /// This requires that the has already been parsed using
+    /// one of the "get argument" methods.
+    ///
+    /// The `newline_separator` argument designates whether this
+    /// block assumes multiline construction (e.g. `[[div]]`, `[[code]]`)
+    /// or not (e.g. `[[span]]`).
     pub fn get_body_text(
         &mut self,
-        in_block: bool,
-        newline_separator: bool,
         valid_end_block_names: &[&str],
-    ) -> Result<(&'t str, Arguments<'t>), ParseError> {
+        newline_separator: bool,
+    ) -> Result<&'t str, ParseError> {
         debug_assert_eq!(
             valid_end_block_names.is_empty(),
             false,
             "List of valid end block names is empty, no success is possible",
         );
-
-        // Parse arguments and end the block
-        let arguments = if in_block {
-            self.get_argument_map()?
-        } else {
-            Arguments::new()
-        };
 
         // If this flag is set, then the block must be on its own line
         if newline_separator {
@@ -266,9 +267,7 @@ where
             first = false;
         }
 
-        let slice = self.full_text().slice_partial(&self.log, start, end);
-
-        Ok((slice, arguments))
+        Ok(self.full_text().slice_partial(&self.log, start, end))
     }
 
     // Block argument parsing

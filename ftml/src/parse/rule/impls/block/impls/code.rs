@@ -28,7 +28,7 @@ pub const BLOCK_CODE: BlockRule = BlockRule {
 };
 
 fn parse_fn<'p, 'r, 't>(
-    log: &slog::Logger,
+    _log: &slog::Logger,
     parser: &'p mut BlockParser<'p, 'r, 't>,
     name: &'t str,
     special: bool,
@@ -40,8 +40,13 @@ fn parse_fn<'p, 'r, 't>(
         "Code doesn't have a valid name",
     );
 
-    let (code, mut arguments) = parser.get_body_text(in_block, true, &["code"])?;
-    let language = arguments.get("type");
+    let language = if in_block {
+        parser.get_argument_map()?.get("type")
+    } else {
+        None
+    };
+
+    let code = parser.get_body_text(&["code"], true)?;
     let element = Element::Code {
         contents: cow!(code),
         language,
