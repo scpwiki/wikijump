@@ -26,7 +26,8 @@ use super::BlockRule;
 use crate::parse::collect::{collect_text, collect_text_keep};
 use crate::parse::condition::ParseCondition;
 use crate::parse::{
-    parse_string, ExtractedToken, ParseError, ParseErrorKind, Parser, Token,
+    gather_paragraphs, parse_string, ExtractedToken, ParseError, ParseErrorKind, Parser,
+    Token,
 };
 use crate::text::FullText;
 use crate::tree::Element;
@@ -185,6 +186,7 @@ where
         })
     }
 
+    /// Matches an ending block, returning the name present.
     pub fn get_end_block(&mut self) -> Result<&'t str, ParseError> {
         debug!(self.log, "Looking for end block");
 
@@ -198,6 +200,41 @@ where
         }
 
         Ok(name)
+    }
+
+    /// Consumes an entire blocking, validating that the newline and names match.
+    ///
+    /// Used internally by the body parsing methods.
+    fn verify_end_block(
+        &mut self,
+        first_iteration: bool,
+        valid_end_block_names: &[&str],
+        newline_separator: bool,
+    ) -> Option<&'r ExtractedToken<'t>> {
+        self.save_evaluate_fn(|parser| {
+            // Check that the end block is on a new line, if required
+            if newline_separator {
+                // Only check after the first, to permit empty blocks
+                if !first_iteration {
+                    parser.get_line_break()?;
+                }
+            }
+
+            // Check if it's an end block
+            //
+            // This will ignore any errors produced,
+            // since it's just more text
+            let name = parser.get_end_block()?;
+
+            // Check if it's valid
+            for end_block_name in valid_end_block_names {
+                if name.eq_ignore_ascii_case(end_block_name) {
+                    return Ok(true);
+                }
+            }
+
+            Ok(false)
+        })
     }
 
     // Body parsing
@@ -233,30 +270,8 @@ where
         let start = self.current();
 
         loop {
-            let at_end_block = self.save_evaluate_fn(|parser| {
-                // Check that the end block is on a new line, if required
-                if newline_separator {
-                    // Only check after the first, to permit empty blocks
-                    if !first {
-                        parser.get_line_break()?;
-                    }
-                }
-
-                // Check if it's an end block
-                //
-                // This will ignore any errors produced,
-                // since it's just more text
-                let name = parser.get_end_block()?;
-
-                // Check if it's valid
-                for end_block_name in valid_end_block_names {
-                    if name.eq_ignore_ascii_case(end_block_name) {
-                        return Ok(true);
-                    }
-                }
-
-                Ok(false)
-            });
+            let at_end_block =
+                self.verify_end_block(first, valid_end_block_names, newline_separator);
 
             // If there's a match, return the last body token
             if let Some(end) = at_end_block {
@@ -313,11 +328,39 @@ where
             "as-paragraphs" => as_paragraphs,
         );
 
-        let last = self.get_body_generic(
-            valid_end_block_names,
-            newline_separator,
-            |parser| todo!(),
-        )?;
+        debug_assert!(as_paragraphs, "TODO: right now we only gather paragraphs");
+
+        /// Helper structure. Starts `true`, and is set to `false` every iteration after.
+        /// Represents the "`first`" variable, but making the code in the closure cleaner.
+        #[derive(Copy, Clone, Debug)]
+        struct Flag(bool);
+
+        impl Flag {
+            fn get(&mut self) -> bool {
+                let original = self.0;
+                self.0 = false;
+                original
+            }
+        }
+
+        // Gather paragraphs
+        let mut first = Flag(true);
+        let log = slog::Logger::clone(&self.log);
+        let (elements, exceptions) = gather_paragraphs(
+            &self.log,
+            self.parser,
+            self.parser.rule(),
+            Some(move |parser| {
+                let mut bparser = BlockParser::new(&log, parser);
+                let result = bparser.verify_end_block(
+                    first.get(),
+                    valid_end_block_names,
+                    newline_separator,
+                );
+                Ok(result.is_some())
+            }),
+        )?
+        .into();
 
         todo!()
     }
