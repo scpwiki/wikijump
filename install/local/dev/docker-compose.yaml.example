@@ -6,13 +6,13 @@ services:
     restart: always
   database:
     build:
-      context: ../../postgres
+      context: ./postgres
       args:
         FILES_DOMAIN: 'wjfiles.test'
     restart: always
   php-fpm:
     build:
-      context: ../../php-fpm
+      context: ./php-fpm
       args:
         MAIN_DOMAIN: 'wikijump.test'
         FILES_DOMAIN: 'wjfiles.test'
