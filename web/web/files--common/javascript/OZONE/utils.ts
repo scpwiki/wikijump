@@ -34,7 +34,7 @@ export const utils = {
 
     // process different form elements (traverse)
     const values: { [name: string]: string } = {};
-    Array.from(form.children).forEach(element => {
+    form.querySelectorAll("textarea, input").forEach(element => {
       if (isTextarea(element)) {
         values[element.name] = element.value;
       }
