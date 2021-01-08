@@ -25,9 +25,10 @@ use super::arguments::Arguments;
 use super::BlockRule;
 use crate::parse::collect::{collect_text, collect_text_keep};
 use crate::parse::condition::ParseCondition;
+use crate::parse::consume::consume;
 use crate::parse::{
-    gather_paragraphs, parse_string, ExtractedToken, ParseError, ParseErrorKind, Parser,
-    Token,
+    gather_paragraphs, parse_string, ExtractedToken, ParseError, ParseErrorKind,
+    ParseResult, ParseSuccess, Parser, Token,
 };
 use crate::text::FullText;
 use crate::tree::Element;
@@ -314,21 +315,65 @@ where
         Ok(slice)
     }
 
+    #[inline]
     pub fn get_body_elements(
         &mut self,
         valid_end_block_names: &[&str],
         newline_separator: bool,
         as_paragraphs: bool,
-    ) -> Result<Vec<Element<'t>>, ParseError> {
+    ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
         debug!(
             &self.log,
             "Getting block body as elements";
             "valid-end-block_names" => format!("{:?}", valid_end_block_names),
             "newline-separator" => newline_separator,
-            "as-paragraphs" => as_paragraphs,
+            "as_paragraphs" => as_paragraphs,
         );
 
-        debug_assert!(as_paragraphs, "TODO: right now we only gather paragraphs");
+        if as_paragraphs {
+            self.get_body_elements_paragraphs(valid_end_block_names, newline_separator)
+        } else {
+            self.get_body_elements_no_paragraphs(valid_end_block_names, newline_separator)
+        }
+    }
+
+    fn get_body_elements_no_paragraphs(
+        &mut self,
+        valid_end_block_names: &[&str],
+        newline_separator: bool,
+    ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
+        let mut elements = Vec::new();
+        let mut exceptions = Vec::new();
+
+        loop {
+            // Since an element is appended each iteration,
+            // we can use this as a replacement for "first".
+            let result = self.verify_end_block(
+                elements.is_empty(),
+                valid_end_block_names,
+                newline_separator,
+            );
+            if result.is_some() {
+                return ok!(elements, exceptions);
+            }
+
+            let element = consume(&self.log, self.parser)?.chain(&mut exceptions);
+            elements.push(element);
+
+            self.step()?;
+        }
+    }
+
+    fn get_body_elements_paragraphs(
+        &mut self,
+        valid_end_block_names: &[&str],
+        newline_separator: bool,
+    ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
+        /*
+         *
+         * TODO: figure out lifetime requirements or something
+         * so I can verify_end_block() when checking if paragraphs are done
+         *
 
         /// Helper structure. Starts `true`, and is set to `false` every iteration after.
         /// Represents the "`first`" variable, but making the code in the closure cleaner.
@@ -361,6 +406,7 @@ where
             }),
         )?
         .into();
+        */
 
         todo!()
     }
