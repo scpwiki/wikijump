@@ -357,10 +357,14 @@ where
                 return ok!(elements, exceptions);
             }
 
+            let old_remaining = self.remaining();
             let element = consume(&self.log, self.parser)?.chain(&mut exceptions);
             elements.push(element);
 
-            self.step()?;
+            // Step if the rule hasn't moved the pointer itself
+            if self.parser.same_pointer(old_remaining) {
+                self.step()?;
+            }
         }
     }
 
