@@ -51,32 +51,18 @@ fn parse_fn<'p, 'r, 't>(
     let class = arguments.get("class");
     let style = arguments.get("style");
 
-    todo!()
+    // Get body content, based on whether we want paragraphs or not
+    let (elements, exceptions) = parser
+        .get_body_elements(&["div"], true, wrap_paragraphs)?
+        .into();
 
-    //// Gather elements for div contents
-    //let (elements, exceptions) = {
-    //    if wrap_paragraphs {
-    //        let consumption = try_paragraphs(
-    //            log,
-    //            parser.state(),
-    //            BLOCK_DIV.rule(),
-    //            &[Token::LeftBlockEnd], // TODO this is insufficient ugh
-    //            &[],
-    //        );
+    // Build element and return
+    let element = Element::Div {
+        elements,
+        id,
+        class,
+        style,
+    };
 
-    //        todo!()
-    //    } else {
-    //        todo!()
-    //    }
-    //};
-
-    //// Build element and return
-    //let element = Element::Div {
-    //    elements,
-    //    id,
-    //    class,
-    //    style,
-    //};
-
-    //ok!(element, exceptions)
+    ok!(element, exceptions)
 }
