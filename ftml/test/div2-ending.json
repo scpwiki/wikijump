@@ -1,0 +1,33 @@
+{
+    "input": "[[div_]]\nBanana\n[[/div_]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "div",
+                            "data": {
+                                "id": null,
+                                "class": null,
+                                "style": null,
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Banana"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "errors": [
+    ]
+}
