@@ -373,27 +373,8 @@ where
         valid_end_block_names: &[&str],
         newline_separator: bool,
     ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
-        /*
-         *
-         * TODO: figure out lifetime requirements or something
-         * so I can verify_end_block() when checking if paragraphs are done
-         *
-
-        /// Helper structure. Starts `true`, and is set to `false` every iteration after.
-        /// Represents the "`first`" variable, but making the code in the closure cleaner.
-        #[derive(Copy, Clone, Debug)]
-        struct Flag(bool);
-
-        impl Flag {
-            fn get(&mut self) -> bool {
-                let original = self.0;
-                self.0 = false;
-                original
-            }
-        }
-
         // Gather paragraphs
-        let mut first = Flag(true);
+        let mut first = true;
         let log = slog::Logger::clone(&self.log);
         let (elements, exceptions) = gather_paragraphs(
             &self.log,
@@ -402,15 +383,16 @@ where
             Some(move |parser| {
                 let mut bparser = BlockParser::new(&log, parser);
                 let result = bparser.verify_end_block(
-                    first.get(),
+                    first,
                     valid_end_block_names,
                     newline_separator,
                 );
+                first = false;
+
                 Ok(result.is_some())
             }),
         )?
         .into();
-        */
 
         todo!()
     }
