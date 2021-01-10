@@ -27,7 +27,7 @@ pub const BLOCK_CSS: BlockRule = BlockRule {
     parse_fn,
 };
 
-fn parse_fn<'p, 'r, 't>(
+fn parse_fn<'r, 't>(
     log: &slog::Logger,
     parser: &mut Parser<'r, 't>,
     name: &'t str,

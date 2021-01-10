@@ -32,7 +32,9 @@ use super::token::Token;
 ///
 /// But since it's just `None`, it's not actually pointing to a function,
 /// it's just clarifying what the `_` in `Option<_>` is.
-pub const NO_CLOSE_CONDITION: Option<fn(&mut Parser) -> Result<bool, ParseError>> = None;
+pub const NO_CLOSE_CONDITION: Option<CloseConditionFn> = None;
+
+type CloseConditionFn = fn(&mut Parser) -> Result<bool, ParseError>;
 
 /// Function to iterate over tokens to produce elements in paragraphs.
 ///
