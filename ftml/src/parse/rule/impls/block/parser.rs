@@ -28,7 +28,7 @@ use crate::parse::condition::ParseCondition;
 use crate::parse::consume::consume;
 use crate::parse::{
     gather_paragraphs, parse_string, ExtractedToken, ParseError, ParseErrorKind,
-    ParseResult, ParseSuccess, Parser, Token,
+    ParseResult, ParseSuccess, Parser, ParserWrapper, Token,
 };
 use crate::text::FullText;
 use crate::tree::Element;
@@ -376,6 +376,7 @@ where
         // Gather paragraphs
         let mut first = true;
         let log = slog::Logger::clone(&self.log);
+        /*
         let (elements, exceptions) = gather_paragraphs(
             &self.log,
             self.parser,
@@ -393,6 +394,7 @@ where
             }),
         )?
         .into();
+        */
 
         todo!()
     }
@@ -498,5 +500,17 @@ where
     #[inline]
     pub fn make_error(&self, kind: ParseErrorKind) -> ParseError {
         self.parser.make_error(kind)
+    }
+}
+
+impl<'r, 't> ParserWrapper<'r, 't> for BlockParser<'_, 'r, 't> {
+    #[inline]
+    fn as_ref(&self) -> &Parser<'r, 't> {
+        self.parser
+    }
+
+    #[inline]
+    fn as_mut(&mut self) -> &mut Parser<'r, 't> {
+        self.parser
     }
 }

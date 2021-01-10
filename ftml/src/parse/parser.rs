@@ -238,3 +238,20 @@ impl<'r, 't> Parser<'r, 't> {
         ParseError::new(kind, self.rule, self.current)
     }
 }
+
+pub trait ParserWrapper<'r, 't> {
+    fn as_ref(&self) -> &Parser<'r, 't>;
+    fn as_mut(&mut self) -> &mut Parser<'r, 't>;
+}
+
+impl<'r, 't> ParserWrapper<'r, 't> for Parser<'r, 't> {
+    #[inline]
+    fn as_ref(&self) -> &Parser<'r, 't> {
+        self
+    }
+
+    #[inline]
+    fn as_mut(&mut self) -> &mut Parser<'r, 't> {
+        self
+    }
+}

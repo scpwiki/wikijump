@@ -45,7 +45,7 @@ mod prelude {
 }
 
 use self::paragraph::{gather_paragraphs, NO_CLOSE_CONDITION};
-use self::parser::Parser;
+use self::parser::{Parser, ParserWrapper};
 use self::rule::impls::RULE_PAGE;
 use crate::tokenize::Tokenization;
 use crate::tree::SyntaxTree;
