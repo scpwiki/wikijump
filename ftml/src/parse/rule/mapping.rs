@@ -53,7 +53,7 @@ lazy_static! {
             Token::Underscore => vec![RULE_TEXT],
             Token::Quote => vec![RULE_TODO, RULE_TEXT], // TODO
             Token::Heading => vec![RULE_TODO, RULE_TEXT], // TODO
-            Token::LineBreak => vec![RULE_LINE_BREAK],
+            Token::LineBreak => vec![RULE_BLOCK_SKIP, RULE_LINE_BREAK],
             Token::ParagraphBreak => vec![RULE_TODO], // TODO
             Token::Whitespace => vec![RULE_TEXT],
 
