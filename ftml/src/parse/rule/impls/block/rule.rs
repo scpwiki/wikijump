@@ -77,7 +77,7 @@ fn block_skip<'r, 't>(
     let result = parser.evaluate_fn(|parser| {
         // Make sure this is the start of a block
         if current.token != Token::LeftBlock && current.token != Token::LeftBlockSpecial {
-            return Err(parser.make_error(ParseErrorKind::RuleFailed));
+            return Ok(false);
         }
 
         // Get the block's name
@@ -86,7 +86,7 @@ fn block_skip<'r, 't>(
         // Get the associated block rule
         let block = match get_block_rule_with_name(name) {
             Some(block) => block,
-            None => return Err(parser.make_error(ParseErrorKind::NoSuchBlock)),
+            None => return Ok(false),
         };
 
         // Now, if it wants newlines, ignore this newline.
