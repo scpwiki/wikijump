@@ -1,0 +1,75 @@
+{
+    "input": "[[div_]]\nA\n[[div_]]\nB\n[[div_]]\nC\n[[div_]]\nD\n[[/div]]\n[[/div]]\n[[/div]]\n[[/div]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "div",
+                            "data": {
+                                "id": null,
+                                "class": null,
+                                "style": null,
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "A"
+                                    },
+                                    {
+                                        "element": "div",
+                                        "data": {
+                                            "id": null,
+                                            "class": null,
+                                            "style": null,
+                                            "elements": [
+                                                {
+                                                    "element": "text",
+                                                    "data": "B"
+                                                },
+                                                {
+                                                    "element": "div",
+                                                    "data": {
+                                                        "id": null,
+                                                        "class": null,
+                                                        "style": null,
+                                                        "elements": [
+                                                            {
+                                                                "element": "text",
+                                                                "data": "C"
+                                                            },
+                                                            {
+                                                                "element": "div",
+                                                                "data": {
+                                                                    "id": null,
+                                                                    "class": null,
+                                                                    "style": null,
+                                                                    "elements": [
+                                                                        {
+                                                                            "element": "text",
+                                                                            "data": "D"
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "errors": [
+    ]
+}
