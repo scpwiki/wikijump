@@ -24,6 +24,7 @@ pub const BLOCK_CSS: BlockRule = BlockRule {
     name: "block-css",
     accepts_names: &["css"],
     accepts_special: false,
+    newline_separator: true,
     parse_fn,
 };
 
@@ -46,7 +47,7 @@ fn parse_fn<'r, 't>(
         parser.get_argument_none()?;
     }
 
-    let css = parser.get_body_text(&["css"], true)?;
+    let css = parser.get_body_text(&BLOCK_CSS)?;
     let exceptions = vec![ParseException::Style(cow!(css))];
     ok!(Element::Null, exceptions)
 }

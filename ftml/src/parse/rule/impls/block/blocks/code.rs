@@ -24,6 +24,7 @@ pub const BLOCK_CODE: BlockRule = BlockRule {
     name: "block-code",
     accepts_names: &["code"],
     accepts_special: false,
+    newline_separator: true,
     parse_fn,
 };
 
@@ -48,7 +49,7 @@ fn parse_fn<'r, 't>(
         None
     };
 
-    let code = parser.get_body_text(&["code"], true)?;
+    let code = parser.get_body_text(&BLOCK_CODE)?;
     let element = Element::Code {
         contents: cow!(code),
         language,

@@ -143,12 +143,11 @@ where
     fn verify_end_block(
         &mut self,
         first_iteration: bool,
-        valid_end_block_names: &[&str],
-        newline_separator: bool,
+        block_rule: &BlockRule,
     ) -> Option<&'r ExtractedToken<'t>> {
         self.save_evaluate_fn(|parser| {
             // Check that the end block is on a new line, if required
-            if newline_separator {
+            if block_rule.newline_separator {
                 // Only check after the first, to permit empty blocks
                 if !first_iteration {
                     parser.get_line_break()?;
@@ -162,7 +161,7 @@ where
             let name = parser.get_end_block()?;
 
             // Check if it's valid
-            for end_block_name in valid_end_block_names {
+            for end_block_name in block_rule.accepts_names {
                 if name.eq_ignore_ascii_case(end_block_name) {
                     return Ok(true);
                 }
@@ -179,8 +178,7 @@ where
     /// Extended by the other, more specific functions.
     fn get_body_generic<F>(
         &mut self,
-        valid_end_block_names: &[&str],
-        newline_separator: bool,
+        block_rule: &BlockRule,
         mut process: F,
     ) -> Result<(&'r ExtractedToken<'t>, &'r ExtractedToken<'t>), ParseError>
     where
@@ -189,13 +187,13 @@ where
         trace!(&self.log(), "Running generic in block body parser");
 
         debug_assert_eq!(
-            valid_end_block_names.is_empty(),
+            block_rule.accepts_names.is_empty(),
             false,
             "List of valid end block names is empty, no success is possible",
         );
 
         // If this flag is set, then the block must be on its own line
-        if newline_separator {
+        if block_rule.newline_separator {
             self.get_line_break()?;
         }
 
@@ -205,8 +203,7 @@ where
         let start = self.current();
 
         loop {
-            let at_end_block =
-                self.verify_end_block(first, valid_end_block_names, newline_separator);
+            let at_end_block = self.verify_end_block(first, block_rule);
 
             // If there's a match, return the last body token
             if let Some(end) = at_end_block {
@@ -232,19 +229,16 @@ where
     /// or not (e.g. `[[span]]`).
     pub fn get_body_text(
         &mut self,
-        valid_end_block_names: &[&str],
-        newline_separator: bool,
+        block_rule: &BlockRule,
     ) -> Result<&'t str, ParseError> {
         debug!(
             &self.log(),
             "Getting block body as text";
-            "valid-end-block-names" => format!("{:?}", valid_end_block_names),
-            "newline-separator" => newline_separator,
+            "block-rule" => format!("{:#?}", block_rule),
         );
 
         // State variables for collecting span
-        let (start, end) =
-            self.get_body_generic(valid_end_block_names, newline_separator, |_| Ok(()))?;
+        let (start, end) = self.get_body_generic(block_rule, |_| Ok(()))?;
         let slice = self.full_text().slice_partial(&self.log(), start, end);
         Ok(slice)
     }
@@ -252,29 +246,26 @@ where
     #[inline]
     pub fn get_body_elements(
         &mut self,
-        valid_end_block_names: &[&str],
-        newline_separator: bool,
+        block_rule: &BlockRule,
         as_paragraphs: bool,
     ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
         debug!(
             &self.log(),
             "Getting block body as elements";
-            "valid-end-block_names" => format!("{:?}", valid_end_block_names),
-            "newline-separator" => newline_separator,
+            "block-rule" => format!("{:#?}", block_rule),
             "as_paragraphs" => as_paragraphs,
         );
 
         if as_paragraphs {
-            self.get_body_elements_paragraphs(valid_end_block_names, newline_separator)
+            self.get_body_elements_paragraphs(block_rule)
         } else {
-            self.get_body_elements_no_paragraphs(valid_end_block_names, newline_separator)
+            self.get_body_elements_no_paragraphs(block_rule)
         }
     }
 
     fn get_body_elements_no_paragraphs(
         &mut self,
-        valid_end_block_names: &[&str],
-        newline_separator: bool,
+        block_rule: &BlockRule,
     ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
         let mut elements = Vec::new();
         let mut exceptions = Vec::new();
@@ -282,11 +273,8 @@ where
         loop {
             // Since an element is appended each iteration,
             // we can use this as a replacement for "first".
-            let result = self.verify_end_block(
-                elements.is_empty(),
-                valid_end_block_names,
-                newline_separator,
-            );
+            let result = self.verify_end_block(elements.is_empty(), block_rule);
+
             if result.is_some() {
                 return ok!(elements, exceptions);
             }
@@ -304,8 +292,7 @@ where
 
     fn get_body_elements_paragraphs(
         &mut self,
-        valid_end_block_names: &[&str],
-        newline_separator: bool,
+        block_rule: &BlockRule,
     ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
         let mut first = true;
 
@@ -314,11 +301,7 @@ where
             self,
             self.rule(),
             Some(move |parser: &mut Parser<'r, 't>| {
-                let result = parser.verify_end_block(
-                    first,
-                    valid_end_block_names,
-                    newline_separator,
-                );
+                let result = parser.verify_end_block(first, block_rule);
                 first = false;
 
                 Ok(result.is_some())

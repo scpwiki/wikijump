@@ -24,6 +24,7 @@ pub const BLOCK_DIV: BlockRule = BlockRule {
     name: "block-div",
     accepts_names: &["div", "div_"],
     accepts_special: false,
+    newline_separator: true,
     parse_fn,
 };
 
@@ -62,7 +63,7 @@ fn parse_fn<'r, 't>(
 
     // Get body content, based on whether we want paragraphs or not
     let (elements, exceptions) = parser
-        .get_body_elements(&["div", "div_"], true, wrap_paragraphs)?
+        .get_body_elements(&BLOCK_DIV, wrap_paragraphs)?
         .into();
 
     // Build element and return
