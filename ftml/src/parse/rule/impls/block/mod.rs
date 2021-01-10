@@ -28,6 +28,7 @@ use crate::parse::result::ParseResult;
 use crate::parse::rule::Rule;
 use crate::parse::Parser;
 use crate::tree::Element;
+use std::fmt::{self, Debug};
 
 mod arguments;
 mod mapping;
@@ -83,6 +84,16 @@ impl BlockRule {
             name: self.name,
             try_consume_fn,
         }
+    }
+}
+
+impl Debug for BlockRule {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("BlockRule")
+            .field("name", &self.name)
+            .field("accepts_names", &self.accepts_names)
+            .field("parse_fn", &(self.parse_fn as *const ()))
+            .finish()
     }
 }
 
