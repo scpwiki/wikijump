@@ -18,9 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO use enums
-#![allow(dead_code)]
-
 use std::borrow::Cow;
 use std::convert::TryFrom;
 use strum_macros::IntoStaticStr;
