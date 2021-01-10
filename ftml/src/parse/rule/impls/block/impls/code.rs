@@ -29,7 +29,7 @@ pub const BLOCK_CODE: BlockRule = BlockRule {
 
 fn parse_fn<'p, 'r, 't>(
     log: &slog::Logger,
-    parser: &'p mut BlockParser<'p, 'r, 't>,
+    parser: &mut Parser<'r, 't>,
     name: &'t str,
     special: bool,
     in_block: bool,

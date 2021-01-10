@@ -34,7 +34,6 @@ mod rule;
 mod stack;
 mod string;
 mod token;
-mod wrapper;
 
 mod prelude {
     pub use super::{
@@ -47,8 +46,7 @@ mod prelude {
 
 use self::paragraph::{gather_paragraphs, NO_CLOSE_CONDITION};
 use self::parser::Parser;
-use self::rule::impls::{BlockParser, RULE_PAGE};
-use self::wrapper::ParserWrapper;
+use self::rule::impls::RULE_PAGE;
 use crate::tokenize::Tokenization;
 use crate::tree::SyntaxTree;
 use std::borrow::Cow;
@@ -81,8 +79,7 @@ where
 
     // At the top level, we gather elements into paragraphs
     info!(log, "Running parser on tokens");
-    let parser_wrap = ParserWrapper::from(&mut parser);
-    let result = gather_paragraphs(log, parser_wrap, RULE_PAGE, NO_CLOSE_CONDITION);
+    let result = gather_paragraphs(log, &mut parser, RULE_PAGE, NO_CLOSE_CONDITION);
 
     debug!(log, "Finished paragraph gathering, matching on consumption");
     match result {

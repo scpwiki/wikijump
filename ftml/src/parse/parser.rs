@@ -59,8 +59,8 @@ impl<'r, 't> Parser<'r, 't> {
 
     // Getters
     #[inline]
-    pub fn log(&self) -> &slog::Logger {
-        &self.log
+    pub fn log(&self) -> slog::Logger {
+        slog::Logger::clone(&self.log)
     }
 
     #[inline]
@@ -158,6 +158,25 @@ impl<'r, 't> Parser<'r, 't> {
         debug!(&self.log, "Evaluating closure for parser condition");
 
         f(&mut self.clone()).unwrap_or(false)
+    }
+
+    pub fn save_evaluate_fn<F>(&mut self, f: F) -> Option<&'r ExtractedToken<'t>>
+    where
+        F: FnOnce(&mut Parser<'r, 't>) -> Result<bool, ParseError>,
+    {
+        debug!(
+            &self.log,
+            "Evaluating closure for parser condition, saving progress on success",
+        );
+
+        let mut parser = self.clone();
+        if f(&mut parser).unwrap_or(false) {
+            let last = self.current;
+            self.update(&parser);
+            Some(last)
+        } else {
+            None
+        }
     }
 
     // Token pointer state and manipulation

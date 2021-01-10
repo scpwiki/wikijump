@@ -20,7 +20,6 @@
 
 use super::super::prelude::*;
 use super::mapping::get_block_rule_with_name;
-use super::BlockParser;
 
 pub const RULE_BLOCK: Rule = Rule {
     name: "block",
@@ -54,9 +53,9 @@ fn block_special<'p, 'r, 't>(
 
 // Block parsing implementation
 
-fn parse_block<'p, 'r, 't>(
+fn parse_block<'r, 't>(
     log: &slog::Logger,
-    parser: &'p mut Parser<'r, 't>,
+    parser: &mut Parser<'r, 't>,
     special: bool,
 ) -> ParseResult<'r, 't, Element<'t>>
 where
@@ -74,8 +73,6 @@ where
     } else {
         RULE_BLOCK
     });
-
-    let mut parser = BlockParser::new(log, parser);
 
     // Get block name
     parser.get_optional_space()?;
@@ -101,5 +98,5 @@ where
     // This is responsible for parsing any arguments,
     // and terminating the block (the ']]' token),
     // then processing the body (if any) and close tag.
-    (block.parse_fn)(log, &mut parser, name, special, in_block)
+    (block.parse_fn)(log, parser, name, special, in_block)
 }

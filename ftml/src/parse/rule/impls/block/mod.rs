@@ -38,7 +38,6 @@ mod rule;
 pub mod impls;
 
 pub use self::arguments::Arguments;
-pub use self::parser::BlockParser;
 pub use self::rule::{RULE_BLOCK, RULE_BLOCK_SPECIAL};
 
 /// Define a rule for how to parse a block.
@@ -105,9 +104,9 @@ impl Debug for BlockRule {
 /// * `name` -- The name of the block
 /// * `special` -- Whether this block is `[[*` (special) or `[[` (regular)
 /// * `in_block` -- Whether we're still in the block head, or if it's finished
-pub type BlockParseFn = for<'p, 'r, 't> fn(
+pub type BlockParseFn = for<'r, 't> fn(
     &slog::Logger,
-    &'p mut BlockParser<'p, 'r, 't>,
+    &mut Parser<'r, 't>,
     &'t str,
     bool,
     bool,

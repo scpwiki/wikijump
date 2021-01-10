@@ -28,77 +28,15 @@ use crate::parse::condition::ParseCondition;
 use crate::parse::consume::consume;
 use crate::parse::{
     gather_paragraphs, parse_string, ExtractedToken, ParseError, ParseErrorKind,
-    ParseResult, ParseSuccess, Parser, ParserWrapper, Token,
+    ParseResult, ParseSuccess, Parser, Token,
 };
 use crate::text::FullText;
 use crate::tree::Element;
 
-#[derive(Debug)]
-pub struct BlockParser<'p, 'r, 't> {
-    log: slog::Logger,
-    parser: &'p mut Parser<'r, 't>,
-}
-
-impl<'p, 'r, 't> BlockParser<'p, 'r, 't>
+impl<'r, 't> Parser<'r, 't>
 where
-    'r: 'p + 't,
+    'r: 't,
 {
-    #[inline]
-    pub fn new(log: &slog::Logger, parser: &'p mut Parser<'r, 't>) -> Self {
-        info!(
-            log, "Creating block parser";
-            "remaining-len" => parser.remaining().len(),
-        );
-
-        let log = slog::Logger::clone(log);
-
-        BlockParser { log, parser }
-    }
-
-    // Getters
-    #[inline]
-    pub fn get(&self) -> &Parser<'r, 't> {
-        &self.parser
-    }
-
-    #[inline]
-    pub fn get_mut(&mut self) -> &mut Parser<'r, 't> {
-        &mut self.parser
-    }
-
-    // State evaluation
-    #[inline]
-    pub fn evaluate_fn<F>(&self, f: F) -> bool
-    where
-        F: FnOnce(&mut BlockParser<'_, 'r, 't>) -> Result<bool, ParseError>,
-    {
-        debug!(&self.log, "Evaluating closure for parser condition");
-
-        let mut parser = self.parser.clone();
-        let mut bparser = BlockParser::new(&self.log, &mut parser);
-        f(&mut bparser).unwrap_or(false)
-    }
-
-    pub fn save_evaluate_fn<F>(&mut self, f: F) -> Option<&'r ExtractedToken<'t>>
-    where
-        F: FnOnce(&mut BlockParser<'_, 'r, 't>) -> Result<bool, ParseError>,
-    {
-        debug!(
-            &self.log,
-            "Evaluating closure for parser condition, saving progress on success",
-        );
-
-        let mut parser = self.parser.clone();
-        let mut bparser = BlockParser::new(&self.log, &mut parser);
-        if f(&mut bparser).unwrap_or(false) {
-            let last = self.parser.current();
-            self.parser.update(&parser);
-            Some(last)
-        } else {
-            None
-        }
-    }
-
     // Parsing methods
     fn get_token(
         &mut self,
@@ -106,7 +44,7 @@ where
         kind: ParseErrorKind,
     ) -> Result<&'t str, ParseError> {
         trace!(
-            &self.log,
+            &self.log(),
             "Looking for token {:?} (error {:?})",
             token,
             kind;
@@ -126,7 +64,7 @@ where
 
     fn get_optional_token(&mut self, token: Token) -> Result<(), ParseError> {
         trace!(
-            &self.log,
+            &self.log(),
             "Looking for optional token {:?}",
             token;
             "token" => token,
@@ -140,7 +78,7 @@ where
     }
 
     pub fn get_line_break(&mut self) -> Result<(), ParseError> {
-        debug!(self.log, "Looking for line break");
+        debug!(&self.log(), "Looking for line break");
 
         self.get_token(Token::LineBreak, ParseErrorKind::BlockExpectedLineBreak)?;
         Ok(())
@@ -148,21 +86,21 @@ where
 
     #[inline]
     pub fn get_optional_space(&mut self) -> Result<(), ParseError> {
-        debug!(self.log, "Looking for optional space");
+        debug!(&self.log(), "Looking for optional space");
         self.get_optional_token(Token::Whitespace)
     }
 
     pub fn get_block_name(&mut self) -> Result<(&'t str, bool), ParseError> {
-        debug!(self.log, "Looking for identifier");
+        debug!(&self.log(), "Looking for identifier");
 
         self.get_optional_token(Token::LeftBlock)?;
         self.get_optional_space()?;
 
         // Collect block name and determine whether the head is done
         collect_text_keep(
-            &self.log,
-            self.parser,
-            self.parser.rule(),
+            &self.log(),
+            self,
+            self.rule(),
             &[
                 ParseCondition::current(Token::Whitespace),
                 ParseCondition::current(Token::RightBlock),
@@ -189,7 +127,7 @@ where
 
     /// Matches an ending block, returning the name present.
     pub fn get_end_block(&mut self) -> Result<&'t str, ParseError> {
-        debug!(self.log, "Looking for end block");
+        debug!(&self.log(), "Looking for end block");
 
         self.get_token(Token::LeftBlockEnd, ParseErrorKind::BlockExpectedEnd)?;
         self.get_optional_space()?;
@@ -250,9 +188,9 @@ where
         mut process: F,
     ) -> Result<(&'r ExtractedToken<'t>, &'r ExtractedToken<'t>), ParseError>
     where
-        F: FnMut(&mut Self) -> Result<(), ParseError>,
+        F: FnMut(&mut Parser<'r, 't>) -> Result<(), ParseError>,
     {
-        trace!(&self.log, "Running generic in block body parser");
+        trace!(&self.log(), "Running generic in block body parser");
 
         debug_assert_eq!(
             valid_end_block_names.is_empty(),
@@ -302,7 +240,7 @@ where
         newline_separator: bool,
     ) -> Result<&'t str, ParseError> {
         debug!(
-            &self.log,
+            &self.log(),
             "Getting block body as text";
             "valid-end-block-names" => format!("{:?}", valid_end_block_names),
             "newline-separator" => newline_separator,
@@ -311,7 +249,7 @@ where
         // State variables for collecting span
         let (start, end) =
             self.get_body_generic(valid_end_block_names, newline_separator, |_| Ok(()))?;
-        let slice = self.full_text().slice_partial(&self.log, start, end);
+        let slice = self.full_text().slice_partial(&self.log(), start, end);
         Ok(slice)
     }
 
@@ -323,7 +261,7 @@ where
         as_paragraphs: bool,
     ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
         debug!(
-            &self.log,
+            &self.log(),
             "Getting block body as elements";
             "valid-end-block_names" => format!("{:?}", valid_end_block_names),
             "newline-separator" => newline_separator,
@@ -358,11 +296,11 @@ where
             }
 
             let old_remaining = self.remaining();
-            let element = consume(&self.log, self.parser)?.chain(&mut exceptions);
+            let element = consume(&self.log(), self)?.chain(&mut exceptions);
             elements.push(element);
 
             // Step if the rule hasn't moved the pointer itself
-            if self.parser.same_pointer(old_remaining) {
+            if self.same_pointer(old_remaining) {
                 self.step()?;
             }
         }
@@ -373,18 +311,14 @@ where
         valid_end_block_names: &[&str],
         newline_separator: bool,
     ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
-        // Get values ready
-        let log = slog::Logger::clone(&self.log);
-        let rule = self.parser.rule();
-
         // Gather paragraphs
         let mut first = true;
         let (elements, exceptions) = gather_paragraphs(
-            &log,
-            ParserWrapper::from(self),
-            rule,
-            Some(move |parser: &mut ParserWrapper<'_, 'p, 'r, 't>| {
-                let result = parser.as_block_parser().verify_end_block(
+            &self.log(),
+            self,
+            self.rule(),
+            Some(move |parser: &mut Parser<'r, 't>| {
+                let result = parser.verify_end_block(
                     first,
                     valid_end_block_names,
                     newline_separator,
@@ -401,7 +335,7 @@ where
 
     // Block argument parsing
     pub fn get_argument_map(&mut self) -> Result<Arguments<'t>, ParseError> {
-        debug!(self.log, "Looking for key value arguments, then ']]'");
+        debug!(&self.log(), "Looking for key value arguments, then ']]'");
 
         let mut map = Arguments::new();
         loop {
@@ -441,12 +375,12 @@ where
         &mut self,
         error_kind: Option<ParseErrorKind>,
     ) -> Result<&'t str, ParseError> {
-        debug!(self.log, "Looking for a value argument, then ']]'");
+        debug!(&self.log(), "Looking for a value argument, then ']]'");
 
         collect_text(
-            &self.log,
-            self.parser,
-            self.parser.rule(),
+            &self.log(),
+            self,
+            self.rule(),
             &[ParseCondition::current(Token::RightBlock)],
             &[
                 ParseCondition::current(Token::ParagraphBreak),
@@ -457,7 +391,7 @@ where
     }
 
     pub fn get_argument_none(&mut self) -> Result<(), ParseError> {
-        debug!(self.log, "No arguments, looking for ']]'");
+        debug!(&self.log(), "No arguments, looking for ']]'");
 
         self.get_optional_space()?;
         self.get_token(Token::RightBlock, ParseErrorKind::BlockMissingCloseBrackets)?;
@@ -468,37 +402,11 @@ where
     #[inline]
     pub fn set_block(&mut self, block_rule: &BlockRule) {
         info!(
-            self.log,
+            &self.log(),
             "Running block rule {} for these tokens",
             block_rule.name;
         );
 
-        self.parser.set_rule(block_rule.rule());
-    }
-
-    // Mirrored methods from underlying Parser
-    #[inline]
-    pub fn current(&self) -> &'r ExtractedToken<'t> {
-        self.parser.current()
-    }
-
-    #[inline]
-    pub fn remaining(&self) -> &'r [ExtractedToken<'t>] {
-        self.parser.remaining()
-    }
-
-    #[inline]
-    pub fn full_text(&self) -> FullText<'t> {
-        self.parser.full_text()
-    }
-
-    #[inline]
-    pub fn step(&mut self) -> Result<&'r ExtractedToken<'t>, ParseError> {
-        self.parser.step()
-    }
-
-    #[inline]
-    pub fn make_error(&self, kind: ParseErrorKind) -> ParseError {
-        self.parser.make_error(kind)
+        self.set_rule(block_rule.rule());
     }
 }

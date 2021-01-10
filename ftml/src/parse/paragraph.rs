@@ -24,9 +24,6 @@ use super::prelude::*;
 use super::rule::Rule;
 use super::stack::ParagraphStack;
 use super::token::Token;
-use super::wrapper::ParserWrapper;
-
-type CloseConditionFn = Option<fn(&mut ParserWrapper) -> Result<bool, ParseError>>;
 
 /// Wrapper type to satisfy the issue with generic closure types.
 ///
@@ -35,33 +32,33 @@ type CloseConditionFn = Option<fn(&mut ParserWrapper) -> Result<bool, ParseError
 ///
 /// But since it's just `None`, it's not actually pointing to a function,
 /// it's just clarifying what the `_` in `Option<_>` is.
-pub const NO_CLOSE_CONDITION: CloseConditionFn = None;
+pub const NO_CLOSE_CONDITION: Option<fn(&mut Parser) -> Result<bool, ParseError>> = None;
 
 /// Function to iterate over tokens to produce elements in paragraphs.
 ///
 /// Originally in `parse()`, but was moved out to allow paragraph
 /// extraction deeper in code, such as in the `try_paragraph`
 /// collection helper.
-pub fn gather_paragraphs<'o, 'p, 'r, 't, F>(
+pub fn gather_paragraphs<'r, 't, F>(
     log: &slog::Logger,
-    mut parser: ParserWrapper<'o, 'p, 'r, 't>,
+    parser: &mut Parser<'r, 't>,
     rule: Rule,
     mut close_condition_fn: Option<F>,
 ) -> ParseResult<'r, 't, Vec<Element<'t>>>
 where
     'r: 't,
-    F: FnMut(&mut ParserWrapper<'o, 'p, 'r, 't>) -> Result<bool, ParseError>,
+    F: FnMut(&mut Parser<'r, 't>) -> Result<bool, ParseError>,
 {
     info!(log, "Gathering paragraphs until ending");
 
     // Update parser rule
-    parser.as_mut().set_rule(rule);
+    parser.set_rule(rule);
 
     // Build paragraph stack
     let mut stack = ParagraphStack::new(log);
 
     loop {
-        let (element, mut exceptions) = match parser.as_ref().current().token {
+        let (element, mut exceptions) = match parser.current().token {
             Token::InputEnd => {
                 if close_condition_fn.is_some() {
                     // There was a close condition, but it was not satisfied
@@ -71,7 +68,7 @@ where
 
                     debug!(log, "Hit the end of input, producing error");
 
-                    return Err(parser.as_ref().make_error(ParseErrorKind::EndOfInput));
+                    return Err(parser.make_error(ParseErrorKind::EndOfInput));
                 } else {
                     // Avoid an unnecessary Token::Null and just exit
                     // If there's no close condition, then this is not an error
@@ -94,7 +91,7 @@ where
 
                 // We must manually bump up this pointer because
                 // we 'continue' here, skipping the usual pointer update.
-                parser.as_mut().step()?;
+                parser.step()?;
                 continue;
             }
 
@@ -102,7 +99,7 @@ where
             // or continuing with another element
             _ => {
                 if let Some(ref mut close_condition_fn) = close_condition_fn {
-                    if close_condition_fn(&mut parser).unwrap_or(false) {
+                    if close_condition_fn(parser).unwrap_or(false) {
                         debug!(
                             log,
                             "Hit closing condition for paragraphs, terminating token iteration",
@@ -114,7 +111,7 @@ where
 
                 // Otherwise, produce consumption from this token pointer
                 debug!(log, "Trying to consume tokens to produce element");
-                consume(log, parser.as_mut())
+                consume(log, parser)
             }
         }?
         .into();
