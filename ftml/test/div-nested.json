@@ -1,5 +1,5 @@
 {
-    "input": "[[div]]\n**Bold** Cherry\n^^Durian^^\n[[/div]]",
+    "input": "[[div]]\n**Bold** Cherry\n[[div]]\nDurian\n[[/div]]\n[[/div]]",
     "tree": {
         "elements": [
             {
@@ -43,13 +43,23 @@
                                                     "element": "line-break"
                                                 },
                                                 {
-                                                    "element": "container",
+                                                    "element": "div",
                                                     "data": {
-                                                        "type": "superscript",
+                                                        "id": null,
+                                                        "class": null,
+                                                        "style": null,
                                                         "elements": [
                                                             {
-                                                                "element": "text",
-                                                                "data": "Durian"
+                                                                "element": "container",
+                                                                "data": {
+                                                                    "type": "paragraph",
+                                                                    "elements": [
+                                                                        {
+                                                                            "element": "text",
+                                                                            "data": "Durian"
+                                                                        }
+                                                                    ]
+                                                                }
                                                             }
                                                         ]
                                                     }

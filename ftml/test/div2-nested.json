@@ -1,5 +1,5 @@
 {
-    "input": "[[div_]]\n**Bold** Cherry\n^^Durian^^\n[[/div]]",
+    "input": "[[div_]]\n**Bold** Cherry\n[[div_]]\nDurian\n[[/div]]\n[[/div]]",
     "tree": {
         "elements": [
             {
@@ -38,9 +38,11 @@
                                         "element": "line-break"
                                     },
                                     {
-                                        "element": "container",
+                                        "element": "div",
                                         "data": {
-                                            "type": "superscript",
+                                            "id": null,
+                                            "class": null,
+                                            "style": null,
                                             "elements": [
                                                 {
                                                     "element": "text",
