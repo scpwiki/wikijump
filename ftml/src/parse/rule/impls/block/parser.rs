@@ -373,17 +373,18 @@ where
         valid_end_block_names: &[&str],
         newline_separator: bool,
     ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
+        // Get values ready
+        let log = slog::Logger::clone(&self.log);
+        let rule = self.parser.rule();
+
         // Gather paragraphs
         let mut first = true;
-        let log = slog::Logger::clone(&self.log);
-        /*
         let (elements, exceptions) = gather_paragraphs(
-            &self.log,
-            self.parser,
-            self.parser.rule(),
-            Some(move |parser| {
-                let mut bparser = BlockParser::new(&log, parser);
-                let result = bparser.verify_end_block(
+            &log,
+            ParserWrapper::from(self),
+            rule,
+            Some(move |parser: &mut ParserWrapper<'_, 'p, 'r, 't>| {
+                let result = parser.as_block_parser().verify_end_block(
                     first,
                     valid_end_block_names,
                     newline_separator,
@@ -394,7 +395,6 @@ where
             }),
         )?
         .into();
-        */
 
         todo!()
     }

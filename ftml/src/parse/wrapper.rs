@@ -21,16 +21,18 @@
 use super::{BlockParser, Parser};
 
 #[derive(Debug)]
-pub enum ParserWrapper<'p, 'r, 't>
+pub enum ParserWrapper<'o, 'p, 'r, 't>
 where
+    'p: 'o,
     'r: 't,
 {
-    Parser(&'p mut Parser<'r, 't>),
-    BlockParser(&'p mut BlockParser<'p, 'r, 't>),
+    Parser(&'o mut Parser<'r, 't>),
+    BlockParser(&'o mut BlockParser<'p, 'r, 't>),
 }
 
-impl<'p, 'r, 't> ParserWrapper<'p, 'r, 't>
+impl<'o, 'p, 'r, 't> ParserWrapper<'o, 'p, 'r, 't>
 where
+    'p: 'o,
     'r: 't,
 {
     pub fn as_ref(&self) -> &Parser<'r, 't> {
@@ -57,22 +59,25 @@ where
     }
 }
 
-impl<'p, 'r, 't> From<&'p mut Parser<'r, 't>> for ParserWrapper<'p, 'r, 't>
+impl<'o, 'p, 'r, 't> From<&'o mut Parser<'r, 't>> for ParserWrapper<'o, 'p, 'r, 't>
 where
+    'p: 'o,
     'r: 't,
 {
     #[inline]
-    fn from(parser: &'p mut Parser<'r, 't>) -> Self {
+    fn from(parser: &'o mut Parser<'r, 't>) -> Self {
         ParserWrapper::Parser(parser)
     }
 }
 
-impl<'p, 'r, 't> From<&'p mut BlockParser<'p, 'r, 't>> for ParserWrapper<'p, 'r, 't>
+impl<'o, 'p, 'r, 't> From<&'o mut BlockParser<'p, 'r, 't>>
+    for ParserWrapper<'o, 'p, 'r, 't>
 where
+    'p: 'o,
     'r: 't,
 {
     #[inline]
-    fn from(bparser: &'p mut BlockParser<'p, 'r, 't>) -> Self {
+    fn from(bparser: &'o mut BlockParser<'p, 'r, 't>) -> Self {
         ParserWrapper::BlockParser(bparser)
     }
 }

@@ -42,15 +42,15 @@ pub const NO_CLOSE_CONDITION: CloseConditionFn = None;
 /// Originally in `parse()`, but was moved out to allow paragraph
 /// extraction deeper in code, such as in the `try_paragraph`
 /// collection helper.
-pub fn gather_paragraphs<'p, 'r, 't, F>(
+pub fn gather_paragraphs<'o, 'p, 'r, 't, F>(
     log: &slog::Logger,
-    mut parser: ParserWrapper<'p, 'r, 't>,
+    mut parser: ParserWrapper<'o, 'p, 'r, 't>,
     rule: Rule,
     mut close_condition_fn: Option<F>,
 ) -> ParseResult<'r, 't, Vec<Element<'t>>>
 where
     'r: 't,
-    F: FnMut(&mut ParserWrapper<'p, 'r, 't>) -> Result<bool, ParseError>,
+    F: FnMut(&mut ParserWrapper<'o, 'p, 'r, 't>) -> Result<bool, ParseError>,
 {
     info!(log, "Gathering paragraphs until ending");
 
