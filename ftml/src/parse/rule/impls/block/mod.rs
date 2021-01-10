@@ -36,6 +36,7 @@ mod rule;
 
 pub mod impls;
 
+pub use self::arguments::Arguments;
 pub use self::parser::BlockParser;
 pub use self::rule::{RULE_BLOCK, RULE_BLOCK_SPECIAL};
 

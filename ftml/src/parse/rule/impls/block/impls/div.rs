@@ -36,7 +36,12 @@ fn parse_fn<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Element<'t>> {
     assert_eq!(special, false, "Code doesn't allow special variant");
 
-    let mut arguments = parser.get_argument_map()?;
+    let mut arguments = if in_block {
+        parser.get_argument_map()?
+    } else {
+        Arguments::new()
+    };
+
     parser.get_line_break()?;
 
     // "div" means we wrap in paragraphs, like normal
