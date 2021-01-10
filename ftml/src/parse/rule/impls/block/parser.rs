@@ -502,15 +502,3 @@ where
         self.parser.make_error(kind)
     }
 }
-
-impl<'r, 't> ParserWrapper<'r, 't> for BlockParser<'_, 'r, 't> {
-    #[inline]
-    fn as_ref(&self) -> &Parser<'r, 't> {
-        self.parser
-    }
-
-    #[inline]
-    fn as_mut(&mut self) -> &mut Parser<'r, 't> {
-        self.parser
-    }
-}
