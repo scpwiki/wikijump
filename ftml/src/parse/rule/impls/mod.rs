@@ -57,7 +57,7 @@ mod todo;
 mod underline;
 mod url;
 
-pub use self::block::{RULE_BLOCK, RULE_BLOCK_SPECIAL};
+pub use self::block::{RULE_BLOCK, RULE_BLOCK_SKIP, RULE_BLOCK_SPECIAL};
 pub use self::bold::RULE_BOLD;
 pub use self::color::RULE_COLOR;
 pub use self::comment::RULE_COMMENT;

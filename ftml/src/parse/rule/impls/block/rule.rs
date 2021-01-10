@@ -31,6 +31,11 @@ pub const RULE_BLOCK_SPECIAL: Rule = Rule {
     try_consume_fn: block_special,
 };
 
+pub const RULE_BLOCK_SKIP: Rule = Rule {
+    name: "block-skip",
+    try_consume_fn: block_skip,
+};
+
 // Rule implementations
 
 fn block_regular<'r, 't>(
@@ -49,6 +54,53 @@ fn block_special<'r, 't>(
     trace!(log, "Trying to process a block (with special)");
 
     parse_block(log, parser, true)
+}
+
+fn block_skip<'r, 't>(
+    log: &slog::Logger,
+    parser: &mut Parser<'r, 't>,
+) -> ParseResult<'r, 't, Element<'t>> {
+    trace!(
+        log,
+        "Trying to see if we skip a newline due to upcoming block",
+    );
+
+    assert_eq!(
+        parser.current().token,
+        Token::LineBreak,
+        "Trying to skip because block, but current is not line break",
+    );
+
+    let current = parser.step()?;
+
+    // See if there's a block upcoming
+    let result = parser.evaluate_fn(|parser| {
+        // Make sure this is the start of a block
+        if current.token != Token::LeftBlock && current.token != Token::LeftBlockSpecial {
+            return Err(parser.make_error(ParseErrorKind::RuleFailed));
+        }
+
+        // Get the block's name
+        let (name, in_block) = parser.get_block_name()?;
+
+        // Get the associated block rule
+        let block = match get_block_rule_with_name(name) {
+            Some(block) => block,
+            None => return Err(parser.make_error(ParseErrorKind::NoSuchBlock)),
+        };
+
+        // Now, if it wants newlines, ignore this newline.
+        // The rule will succeed.
+        //
+        // If it doesn't, let the rule fail. Then it will pass on to a fallback.
+        Ok(true)
+    });
+
+    if !result {
+        return Err(parser.make_error(ParseErrorKind::RuleFailed));
+    }
+
+    ok!(Element::Null)
 }
 
 // Block parsing implementation
