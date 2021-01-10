@@ -30,7 +30,6 @@ use crate::parse::{
     gather_paragraphs, parse_string, ExtractedToken, ParseError, ParseErrorKind,
     ParseResult, ParseSuccess, Parser, Token,
 };
-use crate::text::FullText;
 use crate::tree::Element;
 
 impl<'r, 't> Parser<'r, 't>
@@ -311,9 +310,9 @@ where
         valid_end_block_names: &[&str],
         newline_separator: bool,
     ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
-        // Gather paragraphs
         let mut first = true;
-        let (elements, exceptions) = gather_paragraphs(
+
+        gather_paragraphs(
             &self.log(),
             self,
             self.rule(),
@@ -327,10 +326,7 @@ where
 
                 Ok(result.is_some())
             }),
-        )?
-        .into();
-
-        todo!()
+        )
     }
 
     // Block argument parsing
