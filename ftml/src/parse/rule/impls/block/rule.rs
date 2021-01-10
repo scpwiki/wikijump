@@ -96,11 +96,11 @@ fn block_skip<'r, 't>(
         Ok(block.newline_separator)
     });
 
-    if !result {
-        return Err(parser.make_error(ParseErrorKind::RuleFailed));
+    if result {
+        ok!(Element::Null)
+    } else {
+        Err(parser.make_error(ParseErrorKind::RuleFailed))
     }
-
-    ok!(Element::Null)
 }
 
 // Block parsing implementation
