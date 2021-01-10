@@ -20,6 +20,18 @@
 
 use super::{BlockParser, Parser};
 
+/// Structure for `Parser`-wrapping objects.
+///
+/// This allows both `Parser` and any superset objects to be passed in
+/// and utilized, with all
+///
+/// # Lifetimes
+/// `'r` and `'t` represent the typical lifetimes used throughout the code,
+/// for the original source text (`'t`) and the original list of extracted tokens (`'r`).
+///
+/// The `'p` lifetime represents how long the `Parser` object itself lasts.
+/// This is superseded by `'o`, which is the length of time the particular
+/// `Parser`-wrapping object lasts. For the base case of `&mut Parser`, `'o == 'p`.
 #[derive(Debug)]
 pub enum ParserWrapper<'o, 'p, 'r, 't>
 where
