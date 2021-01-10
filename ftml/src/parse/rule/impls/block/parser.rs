@@ -18,9 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO remove when more block rules added
-#![allow(dead_code)]
-
 use super::arguments::Arguments;
 use super::BlockRule;
 use crate::parse::collect::{collect_text, collect_text_keep};
