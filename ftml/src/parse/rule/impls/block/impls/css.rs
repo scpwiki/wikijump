@@ -28,12 +28,14 @@ pub const BLOCK_CSS: BlockRule = BlockRule {
 };
 
 fn parse_fn<'p, 'r, 't>(
-    _log: &slog::Logger,
+    log: &slog::Logger,
     parser: &'p mut BlockParser<'p, 'r, 't>,
     name: &'t str,
     special: bool,
     in_block: bool,
 ) -> ParseResult<'r, 't, Element<'t>> {
+    debug!(log, "Parsing CSS block"; "in-block" => in_block);
+
     assert_eq!(special, false, "Code doesn't allow special variant");
     assert!(
         name.eq_ignore_ascii_case("css"),

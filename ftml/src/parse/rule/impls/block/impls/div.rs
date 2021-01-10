@@ -34,6 +34,13 @@ fn parse_fn<'p, 'r, 't>(
     special: bool,
     in_block: bool,
 ) -> ParseResult<'r, 't, Element<'t>> {
+    debug!(
+        log,
+        "Parsing div block";
+        "in-block" => in_block,
+        "name" => name,
+    );
+
     assert_eq!(special, false, "Code doesn't allow special variant");
 
     let mut arguments = if in_block {
