@@ -1,0 +1,72 @@
+{
+    "input": "[[div]]\n**Bold** Cherry\n^^Durian^^\n[[/div]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "div",
+                            "data": {
+                                "id": null,
+                                "class": null,
+                                "style": null,
+                                "elements": [
+                                    {
+                                        "element": "container",
+                                        "data": {
+                                            "type": "paragraph",
+                                            "elements": [
+                                                {
+                                                    "element": "container",
+                                                    "data": {
+                                                        "type": "bold",
+                                                        "elements": [
+                                                            {
+                                                                "element": "text",
+                                                                "data": "Bold"
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "element": "text",
+                                                    "data": " "
+                                                },
+                                                {
+                                                    "element": "text",
+                                                    "data": "Cherry"
+                                                },
+                                                {
+                                                    "element": "line-break"
+                                                },
+                                                {
+                                                    "element": "container",
+                                                    "data": {
+                                                        "type": "superscript",
+                                                        "elements": [
+                                                            {
+                                                                "element": "text",
+                                                                "data": "Durian"
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "errors": [
+    ]
+}
