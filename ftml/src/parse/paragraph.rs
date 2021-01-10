@@ -54,10 +54,6 @@ where
 {
     info!(log, "Gathering paragraphs until ending");
 
-    let p: &mut Parser<'r, 't> = parser.as_mut();
-
-    todo!()
-    /*
     // Update parser rule
     parser.as_mut().set_rule(rule);
 
@@ -106,7 +102,7 @@ where
             // or continuing with another element
             _ => {
                 if let Some(ref mut close_condition_fn) = close_condition_fn {
-                    if close_condition_fn(parser).unwrap_or(false) {
+                    if close_condition_fn(&mut parser).unwrap_or(false) {
                         debug!(
                             log,
                             "Hit closing condition for paragraphs, terminating token iteration",
@@ -133,5 +129,4 @@ where
     }
 
     stack.into_result()
-        */
 }
