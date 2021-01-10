@@ -81,7 +81,7 @@ fn block_skip<'r, 't>(
         }
 
         // Get the block's name
-        let (name, in_block) = parser.get_block_name()?;
+        let (name, _) = parser.get_block_name()?;
 
         // Get the associated block rule
         let block = match get_block_rule_with_name(name) {
@@ -93,7 +93,7 @@ fn block_skip<'r, 't>(
         // The rule will succeed.
         //
         // If it doesn't, let the rule fail. Then it will pass on to a fallback.
-        Ok(true)
+        Ok(block.newline_separator)
     });
 
     if !result {
