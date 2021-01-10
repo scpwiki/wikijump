@@ -18,9 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO while refactoring Parser
-#![allow(unused_variables)]
-
 use super::prelude::*;
 
 pub const BLOCK_DIV: BlockRule = BlockRule {
