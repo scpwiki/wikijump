@@ -33,18 +33,18 @@ pub const RULE_BLOCK_SPECIAL: Rule = Rule {
 
 // Rule implementations
 
-fn block_regular<'p, 'r, 't>(
+fn block_regular<'r, 't>(
     log: &slog::Logger,
-    parser: &'p mut Parser<'r, 't>,
+    parser: &mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
     trace!(log, "Trying to process a block");
 
     parse_block(log, parser, false)
 }
 
-fn block_special<'p, 'r, 't>(
+fn block_special<'r, 't>(
     log: &slog::Logger,
-    parser: &'p mut Parser<'r, 't>,
+    parser: &mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
     trace!(log, "Trying to process a block (with special)");
 
