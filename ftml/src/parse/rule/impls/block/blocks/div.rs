@@ -1,5 +1,5 @@
 /*
- * parse/rule/impls/block/impls/div.rs
+ * parse/rule/impls/block/blocks/div.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Ammon Smith

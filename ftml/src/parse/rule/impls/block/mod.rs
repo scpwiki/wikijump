@@ -35,7 +35,7 @@ mod mapping;
 mod parser;
 mod rule;
 
-pub mod impls;
+pub mod blocks;
 
 pub use self::arguments::Arguments;
 pub use self::rule::{RULE_BLOCK, RULE_BLOCK_SPECIAL};

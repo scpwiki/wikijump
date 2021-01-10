@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::{impls::*, BlockRule};
+use super::{blocks::*, BlockRule};
 use std::collections::HashMap;
 use unicase::UniCase;
 
