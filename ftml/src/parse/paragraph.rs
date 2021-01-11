@@ -72,7 +72,7 @@ where
 
                     return Err(parser.make_error(ParseErrorKind::EndOfInput));
                 } else {
-                    // Avoid an unnecessary Token::Null and just exit
+                    // Avoid an unnecessary Element::Null and just exit
                     // If there's no close condition, then this is not an error
 
                     debug!(log, "Hit the end of input, terminating token iteration");
