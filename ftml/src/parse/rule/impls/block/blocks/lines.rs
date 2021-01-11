@@ -49,7 +49,6 @@ fn parse_fn<'r, 't>(
 
     let argument =
         parser.get_argument_value(Some(ParseWarningKind::BlockMalformedArguments))?;
-    parser.get_end_block()?;
 
     let count = match argument.trim().parse() {
         Ok(count) => count,
