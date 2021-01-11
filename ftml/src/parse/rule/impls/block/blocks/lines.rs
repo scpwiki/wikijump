@@ -22,7 +22,7 @@ use super::prelude::*;
 
 pub const BLOCK_LINES: BlockRule = BlockRule {
     name: "block-lines",
-    accepts_names: &["lines"],
+    accepts_names: &["lines", "newlines"],
     accepts_special: false,
     newline_separator: true,
     parse_fn,
@@ -39,7 +39,7 @@ fn parse_fn<'r, 't>(
 
     assert_eq!(special, false, "Code doesn't allow special variant");
     assert!(
-        name.eq_ignore_ascii_case("lines"),
+        name.eq_ignore_ascii_case("lines") || name.eq_ignore_ascii_case("newlines"),
         "Code doesn't have a valid name",
     );
 
