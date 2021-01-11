@@ -103,47 +103,32 @@ $ docker images        # List images
 $ docker rmi [ID]      # Remove the image with this ID
 ```
 
-### Installation via script
+## Entering the container
 
-You can install to your local system using `legacy/install.sh`. This pollutes your system with dependencies and will be difficult to undo. This method is not recommended. It may require tinkering depending on your exact platform and environment.
-
-When installed, you will need to build the components of Wikijump yourself.
-
-For PHP, you will need [composer](https://getcomposer.org/) to install the project's dependencies:
+If you want to enter the container to make temporary changes, you can do so by entering it with a CLI. From Docker Desktop, after running `docker-compose up`, find the Wikijump app and within it the `php-fpm` container, then click the 'CLI' button. Or from the command line:
 
 ```
-$ composer install
+$ docker exec -it [name of container] sh
 ```
 
-For the Javascript you will need NodeJS and npm, first to install dependencies, then transpile:
+...where `[name of container]` is the name of the PHP-FPM container from `docker container ls`.
 
-```
-$ npm install
-$ npm run build
-```
+One reason you may need to enter the container is to adjust the Wikijump config. For example, if you use a port other than 80 for your Docker container, you will need to edit `site.custom_domain` to add the port number (e.g. "`www.wikijump.test:8080`"). Alternatively, use curl to set the domain directly (e.g. "`-H 'www.wikijump.test'`")
 
-## Configuration
-
-If you installed Wikijump directly to your machine with `legacy/install.sh`, you can edit the Wikijump config at any point. If you installed Wikijump via Docker, you will need to enter the container to edit the config:
-
-```
-$ docker exec -it wj bash
-```
-
-You will likely want to set `allow_http` in `/var/www/conf/wikijump.ini` to `true`, since HTTPS locally is troublesome.
-
-If you use a port other than 80 for your Docker container, you will need to edit `site.custom_domain` to add the port number (e.g. "`www.wikijump.test:8080`"). Alternatively, use curl to set the domain directly (e.g. "`-H 'www.wikijump.test'`")
-
-After editing the Wikijump config, you may need to restart nginx.
-
-On Linux with systemd:
-
-```
-# systemctl restart nginx
-```
-
-On Linux with sysv-init, Windows via WSL2, or from within a Docker container:
+After editing the Wikijump config, you may need to restart nginx inside the container:
 
 ```
 # service nginx restart
 ```
+
+## Seeing local changes
+
+If you want changes made to your copy of Wikijump from outside Docker to be visible inside Docker, you can do so by creating a [bind mount](https://docs.docker.com/storage/bind-mounts/), which temporarily overwrites files inside the container with files from outside the container.
+
+There is a development-oriented Docker Compose config file created with this in mind, which should be used as a config override:
+
+```
+$ docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up
+```
+
+This will map the directories specified in `docker-compose.dev.yaml` into the container, so you can see your changes live. You should edit this file as you need, but avoid committing any personal changes to it.
