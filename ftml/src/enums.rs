@@ -84,6 +84,19 @@ pub enum HeadingLevel {
     Six = 6,
 }
 
+impl HeadingLevel {
+    pub fn value(self) -> u8 {
+        match self {
+            HeadingLevel::One => 1,
+            HeadingLevel::Two => 2,
+            HeadingLevel::Three => 3,
+            HeadingLevel::Four => 4,
+            HeadingLevel::Five => 5,
+            HeadingLevel::Six => 6,
+        }
+    }
+}
+
 impl TryFrom<usize> for HeadingLevel {
     type Error = ();
 
@@ -111,19 +124,6 @@ impl TryFrom<u8> for HeadingLevel {
             5 => Ok(HeadingLevel::Five),
             6 => Ok(HeadingLevel::Six),
             _ => Err(()),
-        }
-    }
-}
-
-impl Into<u8> for HeadingLevel {
-    fn into(self) -> u8 {
-        match self {
-            HeadingLevel::One => 1,
-            HeadingLevel::Two => 2,
-            HeadingLevel::Three => 3,
-            HeadingLevel::Four => 4,
-            HeadingLevel::Five => 5,
-            HeadingLevel::Six => 6,
         }
     }
 }
