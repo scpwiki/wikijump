@@ -61,6 +61,23 @@ pub enum Element<'t> {
         anchor: AnchorTarget,
     },
 
+    /// A collapsible, containing content hidden to be opened on click.
+    ///
+    /// This is an interactable element provided by Wikidot which allows hiding
+    /// all of the internal elements until it is opened by clicking, which can
+    /// then be re-hidden by clicking again.
+    Collapsible {
+        elements: Vec<Element<'t>>,
+        start_open: bool,
+        show_text: Option<Cow<'t, str>>,
+        hide_text: Option<Cow<'t, str>>,
+        show_top: bool,
+        show_bottom: bool,
+        id: Option<Cow<'t, str>>,
+        class: Option<Cow<'t, str>>,
+        style: Option<Cow<'t, str>>,
+    },
+
     /// Element containing colored text.
     ///
     /// The CSS designation of the color is specified, followed by the elements contained within.
