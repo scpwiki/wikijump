@@ -94,7 +94,15 @@ pub fn consume<'p, 'r, 't>(
     trace!(log, "Removing non-warnings from exceptions list");
     all_exceptions.retain(|exception| matches!(exception, ParseException::Warning(_)));
 
-    trace!(log, "Adding fallback warning to exceptions list");
+    // If we've hit the recursion limit, just bail
+    if let Some(ParseException::Warning(warning)) = all_exceptions.last() {
+        if warning.kind() == ParseWarningKind::RecursionDepthExceeded {
+            trace!(log, "Found recursion depth error, failing");
+            return Err(warning.clone());
+        }
+    }
+
+    // Add fallback warning to exceptions list
     all_exceptions.push(ParseException::Warning(ParseWarning::new(
         ParseWarningKind::NoRulesMatch,
         RULE_FALLBACK,
