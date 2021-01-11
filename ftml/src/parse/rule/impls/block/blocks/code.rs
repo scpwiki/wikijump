@@ -43,11 +43,8 @@ fn parse_fn<'r, 't>(
         "Code doesn't have a valid name",
     );
 
-    let language = if in_block {
-        parser.get_argument_map()?.get("type")
-    } else {
-        None
-    };
+    let mut arguments = parser.get_head_map(&BLOCK_CODE, in_block)?;
+    let language = arguments.get("type");
 
     let code = parser.get_body_text(&BLOCK_CODE)?;
     let element = Element::Code {

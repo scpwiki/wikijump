@@ -48,11 +48,7 @@ fn parse_fn<'r, 't>(
         "Collapsible doesn't have a valid name",
     );
 
-    let mut arguments = if in_block {
-        parser.get_argument_map()?
-    } else {
-        Arguments::new()
-    };
+    let mut arguments = parser.get_head_map(&BLOCK_COLLAPSIBLE, in_block)?;
 
     // Get styling arguments
     let id = arguments.get("id");

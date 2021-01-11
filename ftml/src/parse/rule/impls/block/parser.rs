@@ -293,16 +293,16 @@ where
     ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
         let mut elements = Vec::new();
         let mut exceptions = Vec::new();
+        let mut first = true;
 
         loop {
-            // Since an element is appended each iteration,
-            // we can use this as a replacement for "first".
-            let result = self.verify_end_block(elements.is_empty(), block_rule);
+            let result = self.verify_end_block(first, block_rule);
 
             if result.is_some() {
                 return ok!(elements, exceptions);
             }
 
+            first = false;
             let old_remaining = self.remaining();
             let element = consume(&self.log(), self)?.chain(&mut exceptions);
             if element != Element::Null {
@@ -316,53 +316,58 @@ where
         }
     }
 
-    // Block argument parsing
-    pub fn get_argument_map(&mut self) -> Result<Arguments<'t>, ParseWarning> {
+    // Block head / argument parsing
+    pub fn get_head_map(&mut self, block_rule: &BlockRule, in_block: bool) -> Result<Arguments<'t>, ParseWarning> {
         debug!(&self.log(), "Looking for key value arguments, then ']]'");
 
         let mut map = Arguments::new();
-        loop {
-            self.get_optional_space()?;
+        if !in_block {
+            // Only process if the block isn't done yet
+            loop {
+                self.get_optional_space()?;
 
-            // Try to get the argument key
-            // Determines if we stop or keep parsing
-            let current = self.current();
-            let key = match current.token {
-                Token::Identifier => current.slice,
-                Token::RightBlock => {
-                    self.step()?;
-                    return Ok(map);
-                }
-                _ => {
-                    return Err(self.make_warn(ParseWarningKind::BlockMalformedArguments))
-                }
-            };
-            self.step()?;
+                // Try to get the argument key
+                // Determines if we stop or keep parsing
+                let current = self.current();
+                let key = match current.token {
+                    Token::Identifier => current.slice,
+                    Token::RightBlock => break,
+                    _ => {
+                        return Err(self.make_warn(ParseWarningKind::BlockMalformedArguments))
+                    }
+                };
+                self.step()?;
 
-            // Equal sign
-            self.get_optional_space()?;
-            self.get_token(Token::Equals, ParseWarningKind::BlockMalformedArguments)?;
+                // Equal sign
+                self.get_optional_space()?;
+                self.get_token(Token::Equals, ParseWarningKind::BlockMalformedArguments)?;
 
-            // Get the argument value
-            self.get_optional_space()?;
-            let value_raw =
-                self.get_token(Token::String, ParseWarningKind::BlockMalformedArguments)?;
+                // Get the argument value
+                self.get_optional_space()?;
+                let value_raw =
+                    self.get_token(Token::String, ParseWarningKind::BlockMalformedArguments)?;
 
-            // Parse the string
-            let value = parse_string(value_raw);
+                // Parse the string
+                let value = parse_string(value_raw);
 
-            // Add to argument map
-            map.insert(key, value);
+                // Add to argument map
+                map.insert(key, value);
+            }
         }
+
+        self.get_head_block(block_rule, in_block)?;
+        Ok(map)
     }
 
-    pub fn get_argument_value(
+    pub fn get_head_value(
         &mut self,
+        block_rule: &BlockRule,
+        in_block: bool,
         warn_kind: Option<ParseWarningKind>,
     ) -> Result<&'t str, ParseWarning> {
         debug!(&self.log(), "Looking for a value argument, then ']]'");
 
-        collect_text(
+        let value = collect_text(
             &self.log(),
             self,
             self.rule(),
@@ -372,17 +377,35 @@ where
                 ParseCondition::current(Token::LineBreak),
             ],
             warn_kind,
-        )
+        )?;
+
+        self.get_head_block(block_rule, in_block)?;
+        Ok(value)
     }
 
-    pub fn get_argument_none(&mut self) -> Result<(), ParseWarning> {
-        debug!(&self.log(), "No arguments, looking for ']]'");
+    pub fn get_head_none(&mut self, block_rule: &BlockRule, in_block: bool) -> Result<(), ParseWarning> {
+        debug!(&self.log(), "No arguments, looking for end of head block");
 
         self.get_optional_space()?;
-        self.get_token(
-            Token::RightBlock,
-            ParseWarningKind::BlockMissingCloseBrackets,
-        )?;
+        self.get_head_block(block_rule, in_block)?;
+        Ok(())
+    }
+
+    // Finish up the head block, including the newline if it's that kind of block
+    fn get_head_block(&mut self, block_rule: &BlockRule, in_block: bool) -> Result<(), ParseWarning> {
+        trace!(&self.log(), "Getting end of the head block");
+
+        if in_block {
+            self.get_token(
+                Token::RightBlock,
+                ParseWarningKind::BlockMissingCloseBrackets,
+            )?;
+        }
+
+        if block_rule.newline_separator {
+            self.get_line_break()?;
+        }
+
         Ok(())
     }
 

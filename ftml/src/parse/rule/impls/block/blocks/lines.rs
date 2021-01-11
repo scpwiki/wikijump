@@ -43,12 +43,10 @@ fn parse_fn<'r, 't>(
         "Code doesn't have a valid name",
     );
 
-    if !in_block {
-        return Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments));
-    }
-
-    let argument =
-        parser.get_argument_value(Some(ParseWarningKind::BlockMalformedArguments))?;
+    let argument = parser.get_head_value(
+        &BLOCK_LINES, in_block,
+        Some(ParseWarningKind::BlockMalformedArguments),
+    )?;
 
     let count = match argument.trim().parse() {
         Ok(count) => count,

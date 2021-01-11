@@ -44,13 +44,7 @@ fn parse_fn<'r, 't>(
 
     assert_eq!(special, false, "Div doesn't allow special variant");
 
-    let mut arguments = if in_block {
-        parser.get_argument_map()?
-    } else {
-        Arguments::new()
-    };
-
-    parser.get_line_break()?;
+    let mut arguments = parser.get_head_map(&BLOCK_DIV, in_block)?;
 
     // "div" means we wrap in paragraphs, like normal
     // "div_" means we don't wrap it

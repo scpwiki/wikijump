@@ -43,9 +43,7 @@ fn parse_fn<'r, 't>(
         "Code doesn't have a valid name",
     );
 
-    if in_block {
-        parser.get_argument_none()?;
-    }
+    parser.get_head_none(&BLOCK_CSS, in_block)?;
 
     let css = parser.get_body_text(&BLOCK_CSS)?;
     let exceptions = vec![ParseException::Style(cow!(css))];
