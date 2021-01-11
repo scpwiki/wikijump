@@ -66,6 +66,7 @@ pub enum Element<'t> {
     /// This is an interactable element provided by Wikidot which allows hiding
     /// all of the internal elements until it is opened by clicking, which can
     /// then be re-hidden by clicking again.
+    #[serde(rename_all = "kebab-case")]
     Collapsible {
         elements: Vec<Element<'t>>,
         id: Option<Cow<'t, str>>,
