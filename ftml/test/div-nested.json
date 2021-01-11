@@ -40,9 +40,6 @@
                                                     "data": "Cherry"
                                                 },
                                                 {
-                                                    "element": "line-break"
-                                                },
-                                                {
                                                     "element": "div",
                                                     "data": {
                                                         "id": null,

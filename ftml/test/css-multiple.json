@@ -18,9 +18,6 @@
                             "element": "line-break"
                         },
                         {
-                            "element": "line-break"
-                        },
-                        {
                             "element": "text",
                             "data": "banana"
                         }
