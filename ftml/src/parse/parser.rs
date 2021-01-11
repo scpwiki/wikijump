@@ -26,6 +26,8 @@ use crate::span_wrap::SpanWrap;
 use crate::tokenize::Tokenization;
 use std::ptr;
 
+const MAX_RECURSION_DEPTH: usize = 250;
+
 #[derive(Debug, Clone)]
 pub struct Parser<'r, 't> {
     log: slog::Logger,
@@ -33,6 +35,7 @@ pub struct Parser<'r, 't> {
     remaining: &'r [ExtractedToken<'t>],
     full_text: FullText<'t>,
     rule: Rule,
+    depth: usize,
 }
 
 impl<'r, 't> Parser<'r, 't> {
@@ -54,6 +57,7 @@ impl<'r, 't> Parser<'r, 't> {
             remaining,
             full_text,
             rule: RULE_PAGE,
+            depth: 0,
         }
     }
 
@@ -83,6 +87,25 @@ impl<'r, 't> Parser<'r, 't> {
         let mut clone = self.clone();
         clone.set_rule(rule);
         clone
+    }
+
+    pub fn depth_increment(&mut self) -> Result<(), ParseWarning> {
+        debug!(self.log, "Incrementing recursion depth"; "depth" => self.depth);
+
+        self.depth += 1;
+
+        if self.depth > MAX_RECURSION_DEPTH {
+            return Err(self.make_warn(ParseWarningKind::RecursionDepthExceeded));
+        }
+
+        Ok(())
+    }
+
+    #[inline]
+    pub fn depth_decrement(&mut self) {
+        debug!(self.log, "Decrementing recursion depth"; "depth" => self.depth);
+
+        self.depth -= 1;
     }
 
     // State evaluation

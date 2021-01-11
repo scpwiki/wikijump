@@ -47,8 +47,11 @@ pub fn consume<'p, 'r, 't>(
         "remaining-len" => parser.remaining().len(),
     ));
 
-    debug!(log, "Looking for valid rules");
+    // Incrementing recursion depth
+    // Will fail if we're too many layers in
+    parser.depth_increment()?;
 
+    debug!(log, "Looking for valid rules");
     let mut all_exceptions = Vec::new();
     let current = parser.current();
 
@@ -72,6 +75,9 @@ pub fn consume<'p, 'r, 't>(
                 // unsuccessful attempts.
                 mem::drop(all_exceptions);
 
+                // Decrement recursion depth
+                parser.depth_decrement();
+
                 return Ok(output);
             }
             Err(warning) => {
@@ -94,6 +100,9 @@ pub fn consume<'p, 'r, 't>(
         RULE_FALLBACK,
         current,
     )));
+
+    // Decrement recursion depth
+    parser.depth_decrement();
 
     ok!(element, all_exceptions)
 }

@@ -95,7 +95,6 @@ impl ParseWarning {
 #[serde(rename_all = "kebab-case")]
 pub enum ParseWarningKind {
     /// The self-enforced recursion limit has been passed, giving up.
-    #[allow(dead_code)]
     RecursionDepthExceeded,
 
     /// Attempting to process this rule failed because the end of input was reached.
