@@ -103,25 +103,6 @@ $ docker images        # List images
 $ docker rmi [ID]      # Remove the image with this ID
 ```
 
-### Installation via script
-
-You can install to your local system using `legacy/install.sh`. This pollutes your system with dependencies and will be difficult to undo. This method is not recommended. It may require tinkering depending on your exact platform and environment.
-
-When installed, you will need to build the components of Wikijump yourself.
-
-For PHP, you will need [composer](https://getcomposer.org/) to install the project's dependencies:
-
-```
-$ composer install
-```
-
-For the Javascript you will need NodeJS and npm, first to install dependencies, then transpile:
-
-```
-$ npm install
-$ npm run build
-```
-
 ## Configuration
 
 If you installed Wikijump directly to your machine with `legacy/install.sh`, you can edit the Wikijump config at any point. If you installed Wikijump via Docker, you will need to enter the container to edit the config:
