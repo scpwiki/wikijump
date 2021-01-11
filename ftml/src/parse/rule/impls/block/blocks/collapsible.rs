@@ -43,6 +43,10 @@ fn parse_fn<'r, 't>(
     );
 
     assert_eq!(special, false, "Collapsible doesn't allow special variant");
+    assert!(
+        name.eq_ignore_ascii_case("collapsible"),
+        "Collapsible doesn't have a valid name",
+    );
 
     let mut arguments = if in_block {
         parser.get_argument_map()?
