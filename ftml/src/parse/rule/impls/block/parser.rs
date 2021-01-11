@@ -269,6 +269,11 @@ where
     ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
         let mut first = true;
 
+        // Check that the end block is on a new line, if required
+        if block_rule.newline_separator {
+            self.get_line_break()?;
+        }
+
         gather_paragraphs(
             &self.log(),
             self,
