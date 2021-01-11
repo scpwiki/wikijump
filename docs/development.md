@@ -103,27 +103,19 @@ $ docker images        # List images
 $ docker rmi [ID]      # Remove the image with this ID
 ```
 
-## Configuration
+## Entering the container
 
-If you installed Wikijump directly to your machine with `legacy/install.sh`, you can edit the Wikijump config at any point. If you installed Wikijump via Docker, you will need to enter the container to edit the config:
-
-```
-$ docker exec -it wj bash
-```
-
-You will likely want to set `allow_http` in `/var/www/conf/wikijump.ini` to `true`, since HTTPS locally is troublesome.
-
-If you use a port other than 80 for your Docker container, you will need to edit `site.custom_domain` to add the port number (e.g. "`www.wikijump.test:8080`"). Alternatively, use curl to set the domain directly (e.g. "`-H 'www.wikijump.test'`")
-
-After editing the Wikijump config, you may need to restart nginx.
-
-On Linux with systemd:
+If you want to enter the container to make temporary changes, you can do so by entering it with a CLI. From Docker Desktop, after running `docker-compose up`, find the Wikijump app and within it the `php-fpm` container, then click the 'CLI' button. Or from the command line:
 
 ```
-# systemctl restart nginx
+$ docker exec -it [name of container] sh
 ```
 
-On Linux with sysv-init, Windows via WSL2, or from within a Docker container:
+...where `[name of container]` is the name of the PHP-FPM container from `docker container ls`.
+
+One reason you may need to enter the container is to adjust the Wikijump config. For example, if you use a port other than 80 for your Docker container, you will need to edit `site.custom_domain` to add the port number (e.g. "`www.wikijump.test:8080`"). Alternatively, use curl to set the domain directly (e.g. "`-H 'www.wikijump.test'`")
+
+After editing the Wikijump config, you may need to restart nginx inside the container:
 
 ```
 # service nginx restart
