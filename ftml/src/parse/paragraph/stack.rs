@@ -1,5 +1,5 @@
 /*
- * parse/stack.rs
+ * parse/paragraph/stack.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Ammon Smith
@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
+use crate::parse::prelude::*;
 use crate::tree::{Container, ContainerType};
 use std::mem;
 

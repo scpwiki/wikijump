@@ -31,7 +31,6 @@ mod paragraph;
 mod parser;
 mod result;
 mod rule;
-mod stack;
 mod string;
 mod token;
 

@@ -1,5 +1,5 @@
 /*
- * parse/paragraph.rs
+ * parse/paragraph/mod.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Ammon Smith
@@ -18,11 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod stack;
+
+use self::stack::ParagraphStack;
 use super::consume::consume;
 use super::parser::Parser;
 use super::prelude::*;
 use super::rule::Rule;
-use super::stack::ParagraphStack;
 use super::token::Token;
 
 /// Wrapper type to satisfy the issue with generic closure types.
