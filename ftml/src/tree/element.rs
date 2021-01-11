@@ -126,6 +126,7 @@ impl Element<'_> {
             Element::Raw(_) => "Raw",
             Element::Email(_) => "Email",
             Element::Link { .. } => "Link",
+            Element::Collapsible { .. } => "Collapsible",
             Element::Color { .. } => "Color",
             Element::Div { .. } => "Div",
             Element::Code { .. } => "Code",
