@@ -68,14 +68,14 @@ pub enum Element<'t> {
     /// then be re-hidden by clicking again.
     Collapsible {
         elements: Vec<Element<'t>>,
+        id: Option<Cow<'t, str>>,
+        class: Option<Cow<'t, str>>,
+        style: Option<Cow<'t, str>>,
         start_open: bool,
         show_text: Option<Cow<'t, str>>,
         hide_text: Option<Cow<'t, str>>,
         show_top: bool,
         show_bottom: bool,
-        id: Option<Cow<'t, str>>,
-        class: Option<Cow<'t, str>>,
-        style: Option<Cow<'t, str>>,
     },
 
     /// Element containing colored text.
