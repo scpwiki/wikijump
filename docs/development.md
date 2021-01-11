@@ -120,3 +120,15 @@ After editing the Wikijump config, you may need to restart nginx inside the cont
 ```
 # service nginx restart
 ```
+
+## Seeing local changes
+
+If you want changes made to your copy of Wikijump from outside Docker to be visible inside Docker, you can do so by creating a [bind mount](https://docs.docker.com/storage/bind-mounts/), which temporarily overwrites files inside the container with files from outside the container.
+
+There is a development-oriented Docker Compose config file created with this in mind, which should be used as a config override:
+
+```
+$ docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up
+```
+
+This will map the directories specified in `docker-compose.dev.yaml` into the container, so you can see your changes live. You should edit this file as you need, but avoid committing any personal changes to it.
