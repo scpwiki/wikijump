@@ -21,6 +21,7 @@
 #[macro_use]
 mod macros;
 
+mod boolean;
 mod check_step;
 mod collect;
 mod condition;
@@ -50,6 +51,7 @@ use crate::tokenize::Tokenization;
 use crate::tree::SyntaxTree;
 use std::borrow::Cow;
 
+pub use self::boolean::parse_boolean;
 pub use self::exception::{ParseException, ParseWarning, ParseWarningKind};
 pub use self::outcome::ParseOutcome;
 pub use self::result::{ParseResult, ParseSuccess};

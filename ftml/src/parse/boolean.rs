@@ -1,5 +1,5 @@
 /*
- * parse/rule/impls/block/blocks/collapsible.rs
+ * parse/boolean.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Ammon Smith
@@ -18,23 +18,26 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
-use crate::parse::parse_boolean;
+/// Parse a boolean string into its corresponding value.
+pub fn parse_boolean<S: AsRef<str>>(s: S) -> Result<bool, ()> {
+    const NAMES: [(&str, bool); 8] = [
+        ("true", true),
+        ("false", false),
+        ("t", true),
+        ("f", false),
+        ("1", true),
+        ("0", false),
+        ("yes", true),
+        ("no", false),
+    ];
 
-pub const BLOCK_COLLAPSIBLE: BlockRule = BlockRule {
-    name: "block-collapsible",
-    accepts_names: &["collapsible"],
-    accepts_special: false,
-    newline_separator: true,
-    parse_fn,
-};
+    let s = s.as_ref().trim();
 
-fn parse_fn<'r, 't>(
-    log: &slog::Logger,
-    parser: &mut Parser<'r, 't>,
-    name: &'t str,
-    special: bool,
-    in_block: bool,
-) -> ParseResult<'r, 't, Element<'t>> {
-    todo!()
+    for &(name, value) in &NAMES {
+        if name.eq_ignore_ascii_case(s) {
+            return Ok(value);
+        }
+    }
+
+    Err(())
 }
