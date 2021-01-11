@@ -100,16 +100,22 @@ where
             SyntaxTree::from_element_result(elements, warnings, styles)
         }
         Err(warning) => {
-            // This path is only reachable if invalid_tokens is non-empty.
-            // As this is the highest-level, we do not have any premature ending tokens,
-            // but rather keep going until the end of the input.
+            // This path is only reachable if a very bad error occurs.
             //
-            // Thus this path should not be reached.
+            // If this happens, then just return the input source as the output
+            // and the warning.
 
-            panic!(
-                "Got parse warning from highest-level paragraph gather: {:#?}",
+            warn!(
+                log,
+                "Fatal error occurred at highest-level parsing: {:#?}",
                 warning,
             );
+
+            let elements = vec![text!(tokenization.full_text().inner())];
+            let warnings = vec![warning];
+            let styles = vec![];
+
+            SyntaxTree::from_element_result(elements, warnings, styles)
         }
     }
 }

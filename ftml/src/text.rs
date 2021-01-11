@@ -36,6 +36,17 @@ impl<'t> FullText<'t> {
         FullText { text }
     }
 
+    /// Returns the entire inner string. This should not be used.
+    ///
+    /// If you wish to slice between tokens, use the other methods instead.
+    /// This is for very unusual cases where you need the entire input string
+    /// as-is, with no tokenization.
+    #[inline]
+    #[doc(hidden)]
+    pub(crate) fn inner(&self) -> &'t str {
+        self.text
+    }
+
     /// Slices from the given start to end token.
     ///
     /// This is performed inclusively, capturing both tokens on each side,
