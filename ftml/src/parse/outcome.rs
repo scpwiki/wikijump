@@ -98,10 +98,10 @@ impl<T> BorrowMut<T> for ParseOutcome<T> {
     }
 }
 
-impl<T> Into<(T, Vec<ParseError>)> for ParseOutcome<T> {
+impl<T> From<ParseOutcome<T>> for (T, Vec<ParseError>) {
     #[inline]
-    fn into(self) -> (T, Vec<ParseError>) {
-        let ParseOutcome { value, errors } = self;
+    fn from(outcome: ParseOutcome<T>) -> (T, Vec<ParseError>) {
+        let ParseOutcome { value, errors } = outcome;
 
         (value, errors)
     }

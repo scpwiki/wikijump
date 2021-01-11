@@ -54,10 +54,10 @@ impl<'t> Container<'t> {
     }
 }
 
-impl<'t> Into<Vec<Element<'t>>> for Container<'t> {
+impl<'t> From<Container<'t>> for Vec<Element<'t>> {
     #[inline]
-    fn into(self) -> Vec<Element<'t>> {
-        let Container { elements, .. } = self;
+    fn from(container: Container<'t>) -> Vec<Element<'t>> {
+        let Container { elements, .. } = container;
 
         elements
     }

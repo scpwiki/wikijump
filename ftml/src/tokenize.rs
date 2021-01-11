@@ -39,10 +39,10 @@ impl<'t> Tokenization<'t> {
     }
 }
 
-impl<'t> Into<Vec<ExtractedToken<'t>>> for Tokenization<'t> {
+impl<'t> From<Tokenization<'t>> for Vec<ExtractedToken<'t>> {
     #[inline]
-    fn into(self) -> Vec<ExtractedToken<'t>> {
-        self.tokens
+    fn from(tokenization: Tokenization<'t>) -> Vec<ExtractedToken<'t>> {
+        tokenization.tokens
     }
 }
 

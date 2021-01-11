@@ -101,12 +101,12 @@ impl<'r, 't> ParseSuccess<'r, 't, ()> {
     }
 }
 
-impl<'r, 't, T> Into<ParseSuccessTuple<'t, T>> for ParseSuccess<'r, 't, T> {
+impl<'r, 't, T> From<ParseSuccess<'r, 't, T>> for ParseSuccessTuple<'t, T> {
     #[inline]
-    fn into(self) -> ParseSuccessTuple<'t, T> {
+    fn from(success: ParseSuccess<'r, 't, T>) -> ParseSuccessTuple<'t, T> {
         let ParseSuccess {
             item, exceptions, ..
-        } = self;
+        } = success;
 
         (item, exceptions)
     }
