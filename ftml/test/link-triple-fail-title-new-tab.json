@@ -38,7 +38,7 @@
         "styles": [
         ]
     },
-    "errors": [
+    "warnings": [
         {
             "token": "identifier",
             "rule": "link-triple-new-tab",

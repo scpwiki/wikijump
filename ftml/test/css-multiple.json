@@ -30,6 +30,6 @@
             "b { display: none; }"
         ]
     },
-    "errors": [
+    "warnings": [
     ]
 }

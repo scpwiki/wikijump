@@ -49,7 +49,7 @@
         "styles": [
         ]
     },
-    "errors": [
+    "warnings": [
         {
             "token": "input-end",
             "rule": "block-code",

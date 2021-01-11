@@ -33,7 +33,7 @@
         "styles": [
         ]
     },
-    "errors": [
+    "warnings": [
         {
             "token": "line-break",
             "rule": "raw",

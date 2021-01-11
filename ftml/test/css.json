@@ -7,6 +7,6 @@
             "a { color: blue; }"
         ]
     },
-    "errors": [
+    "warnings": [
     ]
 }

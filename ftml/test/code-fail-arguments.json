@@ -46,7 +46,7 @@
         "styles": [
         ]
     },
-    "errors": [
+    "warnings": [
         {
             "token": "identifier",
             "rule": "block-code",

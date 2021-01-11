@@ -74,7 +74,7 @@
         "styles": [
         ]
     },
-    "errors": [
+    "warnings": [
         {
             "token": "left-block-end",
             "rule": "fallback",

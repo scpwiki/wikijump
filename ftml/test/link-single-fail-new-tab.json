@@ -50,7 +50,7 @@
         "styles": [
         ]
     },
-    "errors": [
+    "warnings": [
         {
             "token": "identifier",
             "rule": "link-single-new-tab",

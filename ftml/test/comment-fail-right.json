@@ -34,7 +34,7 @@
         "styles": [
         ]
     },
-    "errors": [
+    "warnings": [
         {
             "token": "right-comment",
             "rule": "fallback",

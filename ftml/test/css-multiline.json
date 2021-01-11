@@ -7,6 +7,6 @@
             "h1 {\n    margin-top: .7em\n    padding: 0;\n    font-weight: bold;\n}"
         ]
     },
-    "errors": [
+    "warnings": [
     ]
 }

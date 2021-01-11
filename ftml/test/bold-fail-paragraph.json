@@ -38,7 +38,7 @@
         "styles": [
         ]
     },
-    "errors": [
+    "warnings": [
         {
             "token": "paragraph-break",
             "rule": "bold",
