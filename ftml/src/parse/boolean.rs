@@ -32,7 +32,6 @@ pub fn parse_boolean<S: AsRef<str>>(s: S) -> Result<bool, ()> {
     ];
 
     let s = s.as_ref().trim();
-
     for &(name, value) in &NAMES {
         if name.eq_ignore_ascii_case(s) {
             return Ok(value);

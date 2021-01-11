@@ -42,7 +42,7 @@ fn parse_fn<'r, 't>(
         "name" => name,
     );
 
-    assert_eq!(special, false, "Code doesn't allow special variant");
+    assert_eq!(special, false, "Div doesn't allow special variant");
 
     let mut arguments = if in_block {
         parser.get_argument_map()?
