@@ -106,14 +106,14 @@ let tokens = ftml::tokenize(&log, &text);
 // Parse the token list to produce an AST.
 //
 // Note that this produces a `ParseResult<SyntaxTree>`, which records the
-// parsing errors in addition to the final result.
+// parsing warnings in addition to the final result.
 let result = ftml::parse(&log, &tokens);
 
-// Here we extract the tree separately from the error list.
+// Here we extract the tree separately from the warning list.
 //
 // Now we have the final AST, as well as all the issues that
 // occurred during the parsing process.
-let (tree, errors) = result.into();
+let (tree, warnings) = result.into();
 ```
 
 ### JSON Serialization

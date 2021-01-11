@@ -14,7 +14,7 @@ but the parser is hand-written to allow for loose fallback rules.
 
 More specifically, for each encountered token, the parser will attempt to match the first rule
 which expects it. Incoming tokens will be handled, producing elements, or until an invalid token
-is received, at which point an "error" will be produced and this rule will abort.
+is received, at which point a "warning" will be produced and this rule will abort.
 
 Following this, the parser will attempt to apply the second rule (if any), etc., until all rules are
 exhausted. At this point, if no match can be made, the default "fallback" rule is applied. This is
@@ -25,11 +25,12 @@ is bumped up (really, a later subslice is taken), and the element is appended to
 Note that this operation is applied recursively, so that any containers (elements which contain other
 elements) will perform this same operation to populate themselves.
 
-It is important to note that, in accordance to the Wikidot parsing strategy, all "errors" are non-fatal.
+In accordance to the Wikidot parsing strategy, all "warnings" are non-fatal. (These were previously named
+"errors" but were renamed in [#103](https://github.com/Nu-SCPTheme/ftml/pull/103) for clarity).
 In the worst-case scenario, all tokens fail all rules, and all are parsed with the fallback, rule, producing
-an error for each incident. In a more typical case, any invalid structures will produce errors, and will
+a warning for each incident. In a more typical case, any invalid structures will produce warning, and will
 parsed as best it can.
 
-These errors are returned to the caller to provide information on where the process failed, while still
-producing the fallback render. This provides the both of best worlds: errors to assist with wikitext
-debugging, but also not hard-failing rendering in case of any error.
+These warnings are returned to the caller to provide information on where the process failed, while still
+producing the fallback render. This provides the both of best worlds: warnings to assist with wikitext
+debugging, but also not hard-failing rendering in case of one.
