@@ -263,6 +263,25 @@ where
         }
     }
 
+    fn get_body_elements_paragraphs(
+        &mut self,
+        block_rule: &BlockRule,
+    ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
+        let mut first = true;
+
+        gather_paragraphs(
+            &self.log(),
+            self,
+            self.rule(),
+            Some(move |parser: &mut Parser<'r, 't>| {
+                let result = parser.verify_end_block(first, block_rule);
+                first = false;
+
+                Ok(result.is_some())
+            }),
+        )
+    }
+
     fn get_body_elements_no_paragraphs(
         &mut self,
         block_rule: &BlockRule,
@@ -290,25 +309,6 @@ where
                 self.step()?;
             }
         }
-    }
-
-    fn get_body_elements_paragraphs(
-        &mut self,
-        block_rule: &BlockRule,
-    ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
-        let mut first = true;
-
-        gather_paragraphs(
-            &self.log(),
-            self,
-            self.rule(),
-            Some(move |parser: &mut Parser<'r, 't>| {
-                let result = parser.verify_end_block(first, block_rule);
-                first = false;
-
-                Ok(result.is_some())
-            }),
-        )
     }
 
     // Block argument parsing
