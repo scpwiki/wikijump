@@ -26,7 +26,7 @@ use crate::span_wrap::SpanWrap;
 use crate::tokenize::Tokenization;
 use std::ptr;
 
-const MAX_RECURSION_DEPTH: usize = 250;
+const MAX_RECURSION_DEPTH: usize = 100;
 
 #[derive(Debug, Clone)]
 pub struct Parser<'r, 't> {
