@@ -107,8 +107,7 @@ where
 
             warn!(
                 log,
-                "Fatal error occurred at highest-level parsing: {:#?}",
-                warning,
+                "Fatal error occurred at highest-level parsing: {:#?}", warning,
             );
 
             let elements = vec![text!(tokenization.full_text().inner())];
