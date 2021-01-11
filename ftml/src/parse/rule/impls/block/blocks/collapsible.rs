@@ -82,7 +82,21 @@ fn parse_fn<'r, 't>(
         None => (true, false),
     };
 
-    todo!()
+    todo!();
+
+    let element = Element::Collapsible {
+        elements,
+        start_open,
+        show_text,
+        hide_text,
+        show_top,
+        show_bottom,
+        id,
+        class,
+        style,
+    };
+
+    ok!(element, exceptions)
 }
 
 fn parse_hide_location(s: &str, parser: &Parser) -> Result<(bool, bool), ParseWarning> {
