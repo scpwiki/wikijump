@@ -49,6 +49,11 @@ impl<'t> ParagraphStack<'t> {
     }
 
     #[inline]
+    pub fn current_empty(&self) -> bool {
+        self.current.is_empty()
+    }
+
+    #[inline]
     pub fn push_element(&mut self, element: Element<'t>) {
         debug!(
             self.log,

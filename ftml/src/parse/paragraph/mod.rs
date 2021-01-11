@@ -122,14 +122,26 @@ where
 
         debug!(log, "Tokens consumed to produce element");
 
-        if element != Element::Null {
-            // Add the new element to the list
-            stack.push_element(element);
-        }
+        // Add the new element to the list
+        push_element(&mut stack, element);
 
         // Process exceptions
         stack.push_exceptions(&mut exceptions);
     }
 
     stack.into_result()
+}
+
+fn push_element<'t>(stack: &mut ParagraphStack<'t>, element: Element<'t>) {
+    // Don't add null elements
+    if element == Element::Null {
+        return;
+    }
+
+    // Don't add line break if the element is otherwise empty
+    if stack.current_empty() && element == Element::LineBreak {
+        return;
+    }
+
+    stack.push_element(element);
 }
