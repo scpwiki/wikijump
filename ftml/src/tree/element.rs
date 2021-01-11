@@ -21,6 +21,7 @@
 use super::Container;
 use crate::enums::{AnchorTarget, LinkLabel};
 use std::borrow::Cow;
+use std::num::NonZeroU32;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case", tag = "element", content = "data")]
@@ -88,7 +89,7 @@ pub enum Element<'t> {
     LineBreak,
 
     /// A collection of line breaks adjacent to each other.
-    LineBreaks { count: u32 },
+    LineBreaks { count: NonZeroU32 },
 
     /// A horizontal rule.
     HorizontalRule,
