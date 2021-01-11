@@ -30,7 +30,7 @@ mod prelude {
     pub use super::collect;
     pub use crate::parse::condition::ParseCondition;
     pub use crate::parse::consume::consume;
-    pub use crate::parse::error::{ParseError, ParseErrorKind};
+    pub use crate::parse::exception::{ParseWarning, ParseWarningKind};
     pub use crate::parse::parser::Parser;
     pub use crate::parse::prelude::*;
     pub use crate::parse::rule::Rule;

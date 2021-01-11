@@ -30,7 +30,7 @@ lazy_static! {
     ///
     /// An empty list means that this is a special token that shouldn't be used
     /// in this manner. It will of course fall back to interpreting this token
-    /// as text, but will also produce an error for the user.
+    /// as text, but will also produce a warning for the user.
     pub static ref RULE_MAP: EnumMap<Token, Vec<Rule>> = {
         enum_map! {
             // Symbols

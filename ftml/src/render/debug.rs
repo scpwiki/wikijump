@@ -67,10 +67,10 @@ fn debug() {
         text!(" "),
         Element::Container(Container::new(ContainerType::Bold, vec![text!("banana")])),
     ];
-    let errors = vec![];
+    let warnings = vec![];
     let styles = vec![cow!("span.hidden-text { display: none; }")];
 
-    let result = SyntaxTree::from_element_result(elements, errors, styles);
+    let result = SyntaxTree::from_element_result(elements, warnings, styles);
     let (tree, _) = result.into();
 
     // Perform rendering

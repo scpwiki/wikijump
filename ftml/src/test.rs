@@ -20,7 +20,7 @@
 
 //! Retrieves tests from JSON in the root `/test` directory, and runs them.
 
-use crate::parse::ParseError;
+use crate::parse::ParseWarning;
 use crate::tree::SyntaxTree;
 use std::fs::{self, File};
 use std::path::{Path, PathBuf};
@@ -47,7 +47,7 @@ struct Test<'a> {
     name: String,
     input: String,
     tree: SyntaxTree<'a>,
-    errors: Vec<ParseError>,
+    warnings: Vec<ParseWarning>,
 }
 
 impl Test<'_> {
@@ -87,7 +87,7 @@ impl Test<'_> {
 
         let tokens = crate::tokenize(log, &self.input);
         let result = crate::parse(log, &tokens);
-        let (tree, errors) = result.into();
+        let (tree, warnings) = result.into();
 
         fn json<T>(object: &T) -> String
         where
@@ -107,17 +107,17 @@ impl Test<'_> {
                 self.tree,
                 tree,
                 json(&tree),
-                &errors,
+                &warnings,
             );
         }
 
-        if errors != self.errors {
+        if warnings != self.warnings {
             panic!(
                 "Running test '{}' failed! Errors did not match:\nExpected: {:#?}\nActual: {:#?}\n{}\nTree (correct): {:#?}",
                 self.name,
-                self.errors,
-                errors,
-                json(&errors),
+                self.warnings,
+                warnings,
+                json(&warnings),
                 &tree,
             );
         }

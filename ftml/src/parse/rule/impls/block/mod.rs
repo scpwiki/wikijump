@@ -71,7 +71,7 @@ pub struct BlockRule {
 impl BlockRule {
     /// Produces a pseudo parse `Rule` associated with this `BlockRule`.
     ///
-    /// It should not be invoked, it is for error construction.
+    /// It should not be invoked, it is for warning construction.
     #[cold]
     pub fn rule(&self) -> Rule {
         // Stubbed try_consume_fn implementation for the Rule.

@@ -1,5 +1,5 @@
 /*
- * parse/error.rs
+ * parse/exception.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Ammon Smith
@@ -25,44 +25,44 @@ use strum_macros::IntoStaticStr;
 
 /// Exceptions that occurred during parsing
 ///
-/// This is distinct from `ParseError` in that it is
+/// This is distinct from `ParseWarning` in that it is
 /// an internal structure meant to catch exceptional
 /// outputs.
 ///
-/// These are primarily errors, but are not necessarily such.
+/// These are primarily parser warnings, but are not necessarily such.
 /// For instance, CSS styles are not present in the syntax tree
 /// like regular elements, and instead must be bubbled up
 /// to the top level.
 #[derive(Debug, Clone, PartialEq)]
 pub enum ParseException<'t> {
-    Error(ParseError),
+    Warning(ParseWarning),
     Style(Cow<'t, str>),
 }
 
-/// An error that occurred during parsing.
+/// An issue that occurred during parsing.
 ///
 /// These refer to circumstances where a rule was attempted, but did not
 /// succeed due to an issue with the syntax.
 ///
-/// However, as outlined by the crate's philosophy, no parsing error is fatal.
+/// However, as outlined by the crate's philosophy, no parsing issue is fatal.
 /// Instead a fallback rules is applied and parsing continues.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 #[serde(rename_all = "kebab-case")]
-pub struct ParseError {
+pub struct ParseWarning {
     token: Token,
     rule: Cow<'static, str>,
     span: Range<usize>,
-    kind: ParseErrorKind,
+    kind: ParseWarningKind,
 }
 
-impl ParseError {
+impl ParseWarning {
     #[inline]
-    pub fn new(kind: ParseErrorKind, rule: Rule, current: &ExtractedToken) -> Self {
+    pub fn new(kind: ParseWarningKind, rule: Rule, current: &ExtractedToken) -> Self {
         let token = current.token;
         let span = Range::clone(&current.span);
         let rule = cow!(rule.name());
 
-        ParseError {
+        ParseWarning {
             token,
             rule,
             span,
@@ -86,14 +86,14 @@ impl ParseError {
     }
 
     #[inline]
-    pub fn kind(&self) -> ParseErrorKind {
+    pub fn kind(&self) -> ParseWarningKind {
         self.kind
     }
 }
 
 #[derive(Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-pub enum ParseErrorKind {
+pub enum ParseWarningKind {
     /// The self-enforced recursion limit has been passed, giving up.
     #[allow(dead_code)]
     RecursionDepthExceeded,
@@ -138,14 +138,14 @@ pub enum ParseErrorKind {
     InvalidUrl,
 }
 
-impl ParseErrorKind {
+impl ParseWarningKind {
     #[inline]
     pub fn name(self) -> &'static str {
         self.into()
     }
 }
 
-impl slog::Value for ParseErrorKind {
+impl slog::Value for ParseWarningKind {
     fn serialize(
         &self,
         _: &slog::Record,

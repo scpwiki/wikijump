@@ -24,7 +24,7 @@ mod element;
 pub use self::container::*;
 pub use self::element::*;
 
-use crate::parse::{ParseError, ParseOutcome};
+use crate::parse::{ParseOutcome, ParseWarning};
 use std::borrow::Cow;
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone, PartialEq, Eq)]
@@ -48,10 +48,10 @@ pub struct SyntaxTree<'t> {
 impl<'t> SyntaxTree<'t> {
     pub(crate) fn from_element_result(
         elements: Vec<Element<'t>>,
-        errors: Vec<ParseError>,
+        warnings: Vec<ParseWarning>,
         styles: Vec<Cow<'t, str>>,
     ) -> ParseOutcome<Self> {
         let tree = SyntaxTree { elements, styles };
-        ParseOutcome::new(tree, errors)
+        ParseOutcome::new(tree, warnings)
     }
 }

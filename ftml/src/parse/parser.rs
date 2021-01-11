@@ -153,7 +153,7 @@ impl<'r, 't> Parser<'r, 't> {
     #[inline]
     pub fn evaluate_fn<F>(&self, f: F) -> bool
     where
-        F: FnOnce(&mut Parser<'r, 't>) -> Result<bool, ParseError>,
+        F: FnOnce(&mut Parser<'r, 't>) -> Result<bool, ParseWarning>,
     {
         debug!(&self.log, "Evaluating closure for parser condition");
 
@@ -162,7 +162,7 @@ impl<'r, 't> Parser<'r, 't> {
 
     pub fn save_evaluate_fn<F>(&mut self, f: F) -> Option<&'r ExtractedToken<'t>>
     where
-        F: FnOnce(&mut Parser<'r, 't>) -> Result<bool, ParseError>,
+        F: FnOnce(&mut Parser<'r, 't>) -> Result<bool, ParseWarning>,
     {
         debug!(
             &self.log,
@@ -203,7 +203,7 @@ impl<'r, 't> Parser<'r, 't> {
 
     /// Move the token pointer forward one step.
     #[inline]
-    pub fn step(&mut self) -> Result<&'r ExtractedToken<'t>, ParseError> {
+    pub fn step(&mut self) -> Result<&'r ExtractedToken<'t>, ParseWarning> {
         debug!(self.log, "Stepping to the next token");
 
         match self.remaining.split_first() {
@@ -214,13 +214,13 @@ impl<'r, 't> Parser<'r, 't> {
             }
 
             #[cold]
-            None => Err(self.make_error(ParseErrorKind::EndOfInput)),
+            None => Err(self.make_warn(ParseWarningKind::EndOfInput)),
         }
     }
 
     /// Move the token pointer forward `count` steps.
     #[inline]
-    pub fn step_n(&mut self, count: usize) -> Result<(), ParseError> {
+    pub fn step_n(&mut self, count: usize) -> Result<(), ParseWarning> {
         trace!(self.log, "Stepping n times"; "count" => count);
 
         for _ in 0..count {
@@ -240,20 +240,20 @@ impl<'r, 't> Parser<'r, 't> {
         self.remaining.get(offset)
     }
 
-    /// Like `look_ahead`, except returns an error if the token isn't found.
+    /// Like `look_ahead`, except returns a warning if the token isn't found.
     #[inline]
-    pub fn look_ahead_error(
+    pub fn look_ahead_warn(
         &self,
         offset: usize,
-    ) -> Result<&'r ExtractedToken<'t>, ParseError> {
+    ) -> Result<&'r ExtractedToken<'t>, ParseWarning> {
         self.look_ahead(offset)
-            .ok_or_else(|| self.make_error(ParseErrorKind::EndOfInput))
+            .ok_or_else(|| self.make_warn(ParseWarningKind::EndOfInput))
     }
 
     // Utilities
     #[cold]
     #[inline]
-    pub fn make_error(&self, kind: ParseErrorKind) -> ParseError {
-        ParseError::new(kind, self.rule, self.current)
+    pub fn make_warn(&self, kind: ParseWarningKind) -> ParseWarning {
+        ParseWarning::new(kind, self.rule, self.current)
     }
 }

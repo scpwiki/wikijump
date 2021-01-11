@@ -32,8 +32,8 @@ pub fn collect_text<'p, 'r, 't>(
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
-    error_kind: Option<ParseErrorKind>,
-) -> Result<&'t str, ParseError>
+    warn_kind: Option<ParseWarningKind>,
+) -> Result<&'t str, ParseWarning>
 where
     'r: 't,
 {
@@ -43,7 +43,7 @@ where
         rule,
         close_conditions,
         invalid_conditions,
-        error_kind,
+        warn_kind,
     )
     .map(|(slice, _)| slice)
 }
@@ -58,8 +58,8 @@ pub fn collect_text_keep<'p, 'r, 't>(
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
-    error_kind: Option<ParseErrorKind>,
-) -> Result<(&'t str, &'r ExtractedToken<'t>), ParseError>
+    warn_kind: Option<ParseWarningKind>,
+) -> Result<(&'t str, &'r ExtractedToken<'t>), ParseWarning>
 where
     'r: 't,
 {
@@ -78,7 +78,7 @@ where
         rule,
         close_conditions,
         invalid_conditions,
-        error_kind,
+        warn_kind,
         |log, parser| {
             trace!(log, "Ingesting token in string span");
 

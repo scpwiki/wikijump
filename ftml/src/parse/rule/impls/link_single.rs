@@ -83,7 +83,7 @@ fn try_consume_link<'p, 'r, 't>(
     )?;
 
     if !url_valid(url) {
-        return Err(parser.make_error(ParseErrorKind::InvalidUrl));
+        return Err(parser.make_warn(ParseWarningKind::InvalidUrl));
     }
 
     debug!(

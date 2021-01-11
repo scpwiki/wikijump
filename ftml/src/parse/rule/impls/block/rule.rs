@@ -99,7 +99,7 @@ fn block_skip<'r, 't>(
     if result {
         ok!(Element::Null)
     } else {
-        Err(parser.make_error(ParseErrorKind::RuleFailed))
+        Err(parser.make_warn(ParseWarningKind::RuleFailed))
     }
 }
 
@@ -134,12 +134,12 @@ where
     // Get the block rule for this name
     let block = match get_block_rule_with_name(name) {
         Some(block) => block,
-        None => return Err(parser.make_error(ParseErrorKind::NoSuchBlock)),
+        None => return Err(parser.make_warn(ParseWarningKind::NoSuchBlock)),
     };
 
     // Check if this block allows special invocation (the '[[*' token)
     if !block.accepts_special && special {
-        return Err(parser.make_error(ParseErrorKind::InvalidSpecialBlock));
+        return Err(parser.make_warn(ParseWarningKind::InvalidSpecialBlock));
     }
 
     // Prepare to run the block's parsing function

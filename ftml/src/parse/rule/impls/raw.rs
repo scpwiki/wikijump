@@ -54,8 +54,8 @@ fn try_consume_fn<'p, 'r, 't>(
         trace!(log, "First token is '@@', checking for special cases");
 
         // Get next two tokens. If they don't exist, exit early
-        let next_1 = parser.look_ahead_error(0)?;
-        let next_2 = parser.look_ahead_error(1)?;
+        let next_1 = parser.look_ahead_warn(0)?;
+        let next_2 = parser.look_ahead_warn(1)?;
 
         // Determine which case they fall under
         match (next_1.token, next_2.token) {
@@ -92,7 +92,7 @@ fn try_consume_fn<'p, 'r, 't>(
             // "@@ \n @@" -> Abort
             (Token::LineBreak, Token::Raw) | (Token::ParagraphBreak, Token::Raw) => {
                 debug!(log, "Found interrupted raw, aborting");
-                return Err(parser.make_error(ParseErrorKind::RuleFailed));
+                return Err(parser.make_warn(ParseWarningKind::RuleFailed));
             }
 
             // "@@ [something] @@" -> Element::Raw(token)
@@ -153,14 +153,14 @@ fn try_consume_fn<'p, 'r, 't>(
             Token::LineBreak | Token::ParagraphBreak => {
                 trace!(log, "Reached newline, aborting");
 
-                return Err(parser.make_error(ParseErrorKind::RuleFailed));
+                return Err(parser.make_warn(ParseWarningKind::RuleFailed));
             }
 
             // Hit the end of the input, abort
             Token::InputEnd => {
                 trace!(log, "Reached end of input, aborting");
 
-                return Err(parser.make_error(ParseErrorKind::EndOfInput));
+                return Err(parser.make_warn(ParseWarningKind::EndOfInput));
             }
 
             // No special handling, append to slices like normal

@@ -99,7 +99,7 @@ fn try_consume_link<'p, 'r, 't>(
 
     // If url is an empty string, parsing should fail, there's nothing here
     if url.is_empty() {
-        return Err(parser.make_error(ParseErrorKind::RuleFailed));
+        return Err(parser.make_warn(ParseWarningKind::RuleFailed));
     }
 
     // Determine what token we ended on, i.e. which [[[ variant it is.

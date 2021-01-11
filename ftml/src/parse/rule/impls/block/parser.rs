@@ -24,8 +24,8 @@ use crate::parse::collect::{collect_text, collect_text_keep};
 use crate::parse::condition::ParseCondition;
 use crate::parse::consume::consume;
 use crate::parse::{
-    gather_paragraphs, parse_string, ExtractedToken, ParseError, ParseErrorKind,
-    ParseResult, ParseSuccess, Parser, Token,
+    gather_paragraphs, parse_string, ExtractedToken, ParseResult, ParseSuccess,
+    ParseWarning, ParseWarningKind, Parser, Token,
 };
 use crate::tree::Element;
 
@@ -37,15 +37,15 @@ where
     fn get_token(
         &mut self,
         token: Token,
-        kind: ParseErrorKind,
-    ) -> Result<&'t str, ParseError> {
+        kind: ParseWarningKind,
+    ) -> Result<&'t str, ParseWarning> {
         trace!(
             &self.log(),
-            "Looking for token {:?} (error {:?})",
+            "Looking for token {:?} (warning {:?})",
             token,
             kind;
             "token" => token,
-            "error-kind" => kind,
+            "warning-kind" => kind,
         );
 
         let current = self.current();
@@ -54,11 +54,11 @@ where
             self.step()?;
             Ok(text)
         } else {
-            Err(self.make_error(kind))
+            Err(self.make_warn(kind))
         }
     }
 
-    fn get_optional_token(&mut self, token: Token) -> Result<(), ParseError> {
+    fn get_optional_token(&mut self, token: Token) -> Result<(), ParseWarning> {
         trace!(
             &self.log(),
             "Looking for optional token {:?}",
@@ -73,20 +73,20 @@ where
         Ok(())
     }
 
-    pub fn get_line_break(&mut self) -> Result<(), ParseError> {
+    pub fn get_line_break(&mut self) -> Result<(), ParseWarning> {
         debug!(&self.log(), "Looking for line break");
 
-        self.get_token(Token::LineBreak, ParseErrorKind::BlockExpectedLineBreak)?;
+        self.get_token(Token::LineBreak, ParseWarningKind::BlockExpectedLineBreak)?;
         Ok(())
     }
 
     #[inline]
-    pub fn get_optional_space(&mut self) -> Result<(), ParseError> {
+    pub fn get_optional_space(&mut self) -> Result<(), ParseWarning> {
         debug!(&self.log(), "Looking for optional space");
         self.get_optional_token(Token::Whitespace)
     }
 
-    pub fn get_block_name(&mut self) -> Result<(&'t str, bool), ParseError> {
+    pub fn get_block_name(&mut self) -> Result<(&'t str, bool), ParseWarning> {
         debug!(&self.log(), "Looking for identifier");
 
         self.get_optional_token(Token::LeftBlock)?;
@@ -105,7 +105,7 @@ where
                 ParseCondition::current(Token::ParagraphBreak),
                 ParseCondition::current(Token::LineBreak),
             ],
-            Some(ParseErrorKind::BlockMissingName),
+            Some(ParseWarningKind::BlockMissingName),
         )
         .map(|(name, last)| {
             let name = name.trim();
@@ -122,16 +122,16 @@ where
     }
 
     /// Matches an ending block, returning the name present.
-    pub fn get_end_block(&mut self) -> Result<&'t str, ParseError> {
+    pub fn get_end_block(&mut self) -> Result<&'t str, ParseWarning> {
         debug!(&self.log(), "Looking for end block");
 
-        self.get_token(Token::LeftBlockEnd, ParseErrorKind::BlockExpectedEnd)?;
+        self.get_token(Token::LeftBlockEnd, ParseWarningKind::BlockExpectedEnd)?;
         self.get_optional_space()?;
 
         let (name, in_block) = self.get_block_name()?;
         if in_block {
             self.get_optional_space()?;
-            self.get_token(Token::RightBlock, ParseErrorKind::BlockExpectedEnd)?;
+            self.get_token(Token::RightBlock, ParseWarningKind::BlockExpectedEnd)?;
         }
 
         Ok(name)
@@ -156,7 +156,7 @@ where
 
             // Check if it's an end block
             //
-            // This will ignore any errors produced,
+            // This will ignore any warnings produced,
             // since it's just more text
             let name = parser.get_end_block()?;
 
@@ -180,9 +180,9 @@ where
         &mut self,
         block_rule: &BlockRule,
         mut process: F,
-    ) -> Result<(&'r ExtractedToken<'t>, &'r ExtractedToken<'t>), ParseError>
+    ) -> Result<(&'r ExtractedToken<'t>, &'r ExtractedToken<'t>), ParseWarning>
     where
-        F: FnMut(&mut Parser<'r, 't>) -> Result<(), ParseError>,
+        F: FnMut(&mut Parser<'r, 't>) -> Result<(), ParseWarning>,
     {
         trace!(&self.log(), "Running generic in block body parser");
 
@@ -230,7 +230,7 @@ where
     pub fn get_body_text(
         &mut self,
         block_rule: &BlockRule,
-    ) -> Result<&'t str, ParseError> {
+    ) -> Result<&'t str, ParseWarning> {
         debug!(
             &self.log(),
             "Getting block body as text";
@@ -312,7 +312,7 @@ where
     }
 
     // Block argument parsing
-    pub fn get_argument_map(&mut self) -> Result<Arguments<'t>, ParseError> {
+    pub fn get_argument_map(&mut self) -> Result<Arguments<'t>, ParseWarning> {
         debug!(&self.log(), "Looking for key value arguments, then ']]'");
 
         let mut map = Arguments::new();
@@ -328,18 +328,20 @@ where
                     self.step()?;
                     return Ok(map);
                 }
-                _ => return Err(self.make_error(ParseErrorKind::BlockMalformedArguments)),
+                _ => {
+                    return Err(self.make_warn(ParseWarningKind::BlockMalformedArguments))
+                }
             };
             self.step()?;
 
             // Equal sign
             self.get_optional_space()?;
-            self.get_token(Token::Equals, ParseErrorKind::BlockMalformedArguments)?;
+            self.get_token(Token::Equals, ParseWarningKind::BlockMalformedArguments)?;
 
             // Get the argument value
             self.get_optional_space()?;
             let value_raw =
-                self.get_token(Token::String, ParseErrorKind::BlockMalformedArguments)?;
+                self.get_token(Token::String, ParseWarningKind::BlockMalformedArguments)?;
 
             // Parse the string
             let value = parse_string(value_raw);
@@ -351,8 +353,8 @@ where
 
     pub fn get_argument_value(
         &mut self,
-        error_kind: Option<ParseErrorKind>,
-    ) -> Result<&'t str, ParseError> {
+        warn_kind: Option<ParseWarningKind>,
+    ) -> Result<&'t str, ParseWarning> {
         debug!(&self.log(), "Looking for a value argument, then ']]'");
 
         collect_text(
@@ -364,15 +366,18 @@ where
                 ParseCondition::current(Token::ParagraphBreak),
                 ParseCondition::current(Token::LineBreak),
             ],
-            error_kind,
+            warn_kind,
         )
     }
 
-    pub fn get_argument_none(&mut self) -> Result<(), ParseError> {
+    pub fn get_argument_none(&mut self) -> Result<(), ParseWarning> {
         debug!(&self.log(), "No arguments, looking for ']]'");
 
         self.get_optional_space()?;
-        self.get_token(Token::RightBlock, ParseErrorKind::BlockMissingCloseBrackets)?;
+        self.get_token(
+            Token::RightBlock,
+            ParseWarningKind::BlockMissingCloseBrackets,
+        )?;
         Ok(())
     }
 

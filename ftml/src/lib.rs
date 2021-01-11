@@ -87,7 +87,7 @@ pub mod tree;
 pub use self::log::{build_console_logger, build_logger, build_null_logger};
 
 pub use self::parse::{
-    parse, ExtractedToken, ParseError, ParseErrorKind, ParseOutcome, Token,
+    parse, ExtractedToken, ParseOutcome, ParseWarning, ParseWarningKind, Token,
 };
 pub use self::preproc::preprocess;
 pub use self::render::*;

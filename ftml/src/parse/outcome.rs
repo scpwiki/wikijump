@@ -18,24 +18,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::ParseError;
+use super::ParseWarning;
 use std::borrow::{Borrow, BorrowMut};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ParseOutcome<T> {
     value: T,
-    errors: Vec<ParseError>,
+    warnings: Vec<ParseWarning>,
 }
 
 impl<T> ParseOutcome<T> {
     #[inline]
-    pub fn new<I>(value: T, errors: I) -> Self
+    pub fn new<I>(value: T, warnings: I) -> Self
     where
-        I: Into<Vec<ParseError>>,
+        I: Into<Vec<ParseWarning>>,
     {
         ParseOutcome {
             value,
-            errors: errors.into(),
+            warnings: warnings.into(),
         }
     }
 
@@ -46,8 +46,8 @@ impl<T> ParseOutcome<T> {
     }
 
     #[inline]
-    pub fn errors(&self) -> &[ParseError] {
-        &self.errors
+    pub fn warnings(&self) -> &[ParseWarning] {
+        &self.warnings
     }
 }
 
@@ -66,7 +66,7 @@ where
     fn clone(&self) -> Self {
         ParseOutcome {
             value: self.value.clone(),
-            errors: self.errors.clone(),
+            warnings: self.warnings.clone(),
         }
     }
 }
@@ -79,7 +79,7 @@ where
     fn default() -> Self {
         ParseOutcome {
             value: T::default(),
-            errors: Vec::new(),
+            warnings: Vec::new(),
         }
     }
 }
@@ -98,11 +98,11 @@ impl<T> BorrowMut<T> for ParseOutcome<T> {
     }
 }
 
-impl<T> From<ParseOutcome<T>> for (T, Vec<ParseError>) {
+impl<T> From<ParseOutcome<T>> for (T, Vec<ParseWarning>) {
     #[inline]
-    fn from(outcome: ParseOutcome<T>) -> (T, Vec<ParseError>) {
-        let ParseOutcome { value, errors } = outcome;
+    fn from(outcome: ParseOutcome<T>) -> (T, Vec<ParseWarning>) {
+        let ParseOutcome { value, warnings } = outcome;
 
-        (value, errors)
+        (value, warnings)
     }
 }

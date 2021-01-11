@@ -18,10 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::parse::error::{ParseError, ParseException};
+use crate::parse::exception::{ParseException, ParseWarning};
 use std::marker::PhantomData;
 
-pub type ParseResult<'r, 't, T> = Result<ParseSuccess<'r, 't, T>, ParseError>;
+pub type ParseResult<'r, 't, T> = Result<ParseSuccess<'r, 't, T>, ParseWarning>;
 pub type ParseSuccessTuple<'t, T> = (T, Vec<ParseException<'t>>);
 
 #[must_use]

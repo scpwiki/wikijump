@@ -74,8 +74,8 @@ pub fn consume<'p, 'r, 't>(
 
                 return Ok(output);
             }
-            Err(error) => {
-                all_exceptions.push(ParseException::Error(error));
+            Err(warning) => {
+                all_exceptions.push(ParseException::Warning(warning));
             }
         }
     }
@@ -85,12 +85,12 @@ pub fn consume<'p, 'r, 't>(
     parser.step()?;
 
     // We should only carry styles over from *successful* consumptions
-    trace!(log, "Removing non-errors from exceptions list");
-    all_exceptions.retain(|exception| matches!(exception, ParseException::Error(_)));
+    trace!(log, "Removing non-warnings from exceptions list");
+    all_exceptions.retain(|exception| matches!(exception, ParseException::Warning(_)));
 
-    trace!(log, "Adding fallback error to exceptions list");
-    all_exceptions.push(ParseException::Error(ParseError::new(
-        ParseErrorKind::NoRulesMatch,
+    trace!(log, "Adding fallback warning to exceptions list");
+    all_exceptions.push(ParseException::Warning(ParseWarning::new(
+        ParseWarningKind::NoRulesMatch,
         RULE_FALLBACK,
         current,
     )));

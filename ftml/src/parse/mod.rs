@@ -25,7 +25,7 @@ mod check_step;
 mod collect;
 mod condition;
 mod consume;
-mod error;
+mod exception;
 mod outcome;
 mod paragraph;
 mod parser;
@@ -37,8 +37,8 @@ mod token;
 
 mod prelude {
     pub use super::{
-        ExtractedToken, ParseError, ParseErrorKind, ParseException, ParseResult,
-        ParseSuccess, Token,
+        ExtractedToken, ParseException, ParseResult, ParseSuccess, ParseWarning,
+        ParseWarningKind, Token,
     };
     pub use crate::text::FullText;
     pub use crate::tree::Element;
@@ -51,7 +51,7 @@ use crate::tokenize::Tokenization;
 use crate::tree::SyntaxTree;
 use std::borrow::Cow;
 
-pub use self::error::{ParseError, ParseErrorKind, ParseException};
+pub use self::exception::{ParseException, ParseWarning, ParseWarningKind};
 pub use self::outcome::ParseOutcome;
 pub use self::result::{ParseResult, ParseSuccess};
 pub use self::string::parse_string;
@@ -88,18 +88,18 @@ where
             exceptions,
             ..
         }) => {
-            let (errors, styles) = extract_exceptions(exceptions);
+            let (warnings, styles) = extract_exceptions(exceptions);
 
             info!(
                 log,
                 "Finished parsing, producing final syntax tree";
-                "errors-len" => errors.len(),
+                "warnings-len" => warnings.len(),
                 "styles-len" => styles.len(),
             );
 
-            SyntaxTree::from_element_result(elements, errors, styles)
+            SyntaxTree::from_element_result(elements, warnings, styles)
         }
-        Err(error) => {
+        Err(warning) => {
             // This path is only reachable if invalid_tokens is non-empty.
             // As this is the highest-level, we do not have any premature ending tokens,
             // but rather keep going until the end of the input.
@@ -107,8 +107,8 @@ where
             // Thus this path should not be reached.
 
             panic!(
-                "Got parse error from highest-level paragraph gather: {:#?}",
-                error,
+                "Got parse warning from highest-level paragraph gather: {:#?}",
+                warning,
             );
         }
     }
@@ -116,16 +116,16 @@ where
 
 fn extract_exceptions(
     exceptions: Vec<ParseException>,
-) -> (Vec<ParseError>, Vec<Cow<str>>) {
-    let mut errors = Vec::new();
+) -> (Vec<ParseWarning>, Vec<Cow<str>>) {
+    let mut warnings = Vec::new();
     let mut styles = Vec::new();
 
     for exception in exceptions {
         match exception {
-            ParseException::Error(error) => errors.push(error),
+            ParseException::Warning(warning) => warnings.push(warning),
             ParseException::Style(style) => styles.push(style),
         }
     }
 
-    (errors, styles)
+    (warnings, styles)
 }

@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::{ParseError, Parser, Token};
+use super::{ParseWarning, Parser, Token};
 
 /// Helper function to assert that the current token matches, then step.
 ///
@@ -26,7 +26,7 @@ use super::{ParseError, Parser, Token};
 /// Since an assert is used, this function will panic
 /// if the extracted token does not match the one specified.
 #[inline]
-pub fn check_step(parser: &mut Parser, token: Token) -> Result<(), ParseError> {
+pub fn check_step(parser: &mut Parser, token: Token) -> Result<(), ParseWarning> {
     assert_eq!(
         parser.current().token,
         token,

@@ -24,7 +24,7 @@ mod prelude {
     pub use crate::parse::condition::ParseCondition;
     pub use crate::parse::parser::Parser;
     pub use crate::parse::prelude::*;
-    pub use crate::parse::{ParseError, Token};
+    pub use crate::parse::{ParseWarning, Token};
     pub use crate::tree::Element;
 }
 

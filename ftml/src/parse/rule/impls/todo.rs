@@ -32,7 +32,7 @@ fn try_consume_fn<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
-    error!(log, "Encountered unimplemented rule! Returning error");
+    error!(log, "Encountered unimplemented rule! Returning warning");
 
-    Err(parser.make_error(ParseErrorKind::NotImplemented))
+    Err(parser.make_warn(ParseWarningKind::NotImplemented))
 }

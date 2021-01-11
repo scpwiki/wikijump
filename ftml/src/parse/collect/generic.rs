@@ -44,12 +44,12 @@ use crate::span_wrap::SpanWrap;
 /// If one of these is true, we will return failure.
 /// * `invalid_conditions`
 ///
-/// If one of the failures is activated, then this `ParseErrorKind`
-/// will be returned. If `None` is provided, then `ParseErrorKind::RuleFailed` is used.
-/// * `error_kind`
+/// If one of the failures is activated, then this `ParseWarningKind`
+/// will be returned. If `None` is provided, then `ParseWarningKind::RuleFailed` is used.
+/// * `warn_kind`
 ///
 /// The closure we should execute each time a token extraction is reached:
-/// If the return value is `Err(_)` then collection is aborted and that error
+/// If the return value is `Err(_)` then collection is aborted and that warning
 /// is bubbled up.
 /// * `process`
 ///
@@ -67,7 +67,7 @@ pub fn collect<'p, 'r, 't, F>(
     rule: Rule,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
-    error_kind: Option<ParseErrorKind>,
+    warn_kind: Option<ParseWarningKind>,
     mut process: F,
 ) -> ParseResult<'r, 't, &'r ExtractedToken<'t>>
 where
@@ -102,7 +102,7 @@ where
         if parser.current().token == Token::InputEnd {
             debug!(log, "Found end of input, aborting");
 
-            return Err(parser.make_error(ParseErrorKind::EndOfInput));
+            return Err(parser.make_warn(ParseWarningKind::EndOfInput));
         }
 
         // See if the container has ended
@@ -128,7 +128,7 @@ where
             );
 
             return Err(
-                parser.make_error(error_kind.unwrap_or(ParseErrorKind::RuleFailed))
+                parser.make_warn(warn_kind.unwrap_or(ParseWarningKind::RuleFailed))
             );
         }
 
