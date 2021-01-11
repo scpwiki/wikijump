@@ -94,6 +94,8 @@ impl Debug for BlockRule {
         f.debug_struct("BlockRule")
             .field("name", &self.name)
             .field("accepts_names", &self.accepts_names)
+            .field("accepts_special", &self.accepts_special)
+            .field("newline_separator", &self.newline_separator)
             .field("parse_fn", &(self.parse_fn as *const ()))
             .finish()
     }
