@@ -87,6 +87,9 @@ pub enum Element<'t> {
     /// This calls for a newline in the final output, such as `<br>` in HTML.
     LineBreak,
 
+    /// A collection of line breaks adjacent to each other.
+    LineBreaks { count: u32 },
+
     /// A horizontal rule.
     HorizontalRule,
 
@@ -109,6 +112,7 @@ impl Element<'_> {
             Element::Div { .. } => "Div",
             Element::Code { .. } => "Code",
             Element::LineBreak => "LineBreak",
+            Element::LineBreaks { .. } => "LineBreaks",
             Element::HorizontalRule => "HorizontalRule",
             Element::Null => "Null",
         }

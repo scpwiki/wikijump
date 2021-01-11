@@ -32,7 +32,9 @@ mod prelude {
 mod code;
 mod css;
 mod div;
+mod lines;
 
 pub use self::code::BLOCK_CODE;
 pub use self::css::BLOCK_CSS;
 pub use self::div::BLOCK_DIV;
+pub use self::lines::BLOCK_LINES;
