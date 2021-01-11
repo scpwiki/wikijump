@@ -45,7 +45,9 @@ pub fn collect_consume<'p, 'r, 't>(
         error_kind,
         |log, parser| {
             consume(log, parser)?.map_ok(|element| {
-                elements.push(element);
+                if element != Element::Null {
+                    elements.push(element);
+                }
             })
         },
     )?

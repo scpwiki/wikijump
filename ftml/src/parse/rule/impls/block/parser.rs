@@ -281,7 +281,9 @@ where
 
             let old_remaining = self.remaining();
             let element = consume(&self.log(), self)?.chain(&mut exceptions);
-            elements.push(element);
+            if element != Element::Null {
+                elements.push(element);
+            }
 
             // Step if the rule hasn't moved the pointer itself
             if self.same_pointer(old_remaining) {

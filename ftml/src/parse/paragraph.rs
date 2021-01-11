@@ -120,8 +120,10 @@ where
 
         debug!(log, "Tokens consumed to produce element");
 
-        // Add the new element to the list
-        stack.push_element(element);
+        if element != Element::Null {
+            // Add the new element to the list
+            stack.push_element(element);
+        }
 
         // Process exceptions
         stack.push_exceptions(&mut exceptions);
