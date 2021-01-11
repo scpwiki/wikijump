@@ -66,7 +66,7 @@ fn parse_fn<'r, 't>(
             //
             // Also invert the result, "folded=yes" means "start_open=no".
             match parse_boolean(value) {
-                Ok(value) => Some(!value),
+                Ok(value) => !value,
                 Err(_) => {
                     return Err(
                         parser.make_warn(ParseWarningKind::BlockMalformedArguments)
@@ -74,7 +74,7 @@ fn parse_fn<'r, 't>(
                 }
             }
         }
-        None => None,
+        None => false,
     };
 
     let (show_top, show_bottom) = match arguments.get("hideLocation") {
