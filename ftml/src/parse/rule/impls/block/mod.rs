@@ -61,7 +61,7 @@ pub struct BlockRule {
     /// `[[user aismallard]]` and `[[*user aismallard]]`.
     accepts_special: bool,
 
-    /// Whether this block wants a fresh newline before parsing.
+    /// Whether this block wants its head and tail to be separated by newlines.
     newline_separator: bool,
 
     /// Function which implements the processing for this rule.
