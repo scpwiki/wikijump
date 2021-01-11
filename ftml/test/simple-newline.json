@@ -2,17 +2,6 @@
     "input": "\n",
     "tree": {
         "elements": [
-            {
-                "element": "container",
-                "data": {
-                    "type": "paragraph",
-                    "elements": [
-                        {
-                            "element": "line-break"
-                        }
-                    ]
-                }
-            }
         ],
         "styles": [
         ]
