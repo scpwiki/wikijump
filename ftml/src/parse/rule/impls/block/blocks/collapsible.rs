@@ -82,8 +82,12 @@ fn parse_fn<'r, 't>(
         None => (true, false),
     };
 
-    todo!();
+    // Get body content, with paragraphs
+    let (elements, exceptions) = parser
+        .get_body_elements(&BLOCK_COLLAPSIBLE, true)?
+        .into();
 
+    // Build element and return
     let element = Element::Collapsible {
         elements,
         start_open,
