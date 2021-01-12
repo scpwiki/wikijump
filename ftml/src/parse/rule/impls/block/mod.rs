@@ -104,8 +104,8 @@ impl Debug for BlockRule {
 /// Function pointer type to implement block parsing.
 ///
 /// The arguments are, in order:
-/// * `log` -- Logger instance
-/// * `parser` -- Parser instance
+/// * `log` -- `slog::Logger` instance
+/// * `parser` -- `Parser` instance
 /// * `name` -- The name of the block
 /// * `special` -- Whether this block is `[[*` (special) or `[[` (regular)
 /// * `in_head` -- Whether we're still in the block head, or if it's finished

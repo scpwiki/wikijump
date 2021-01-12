@@ -357,6 +357,43 @@ where
         Ok(map)
     }
 
+    pub fn get_head_name_map(
+        &mut self,
+        block_rule: &BlockRule,
+        in_head: bool,
+    ) -> Result<(&'t str, Arguments<'t>), ParseWarning> {
+        debug!(
+            &self.log(),
+            "Looking for a name, then key value arguments, then ']]'"
+        );
+
+        if !in_head {
+            debug!(
+                &self.log(),
+                "Block is already over, there is no name or arguments",
+            );
+
+            return Err(self.make_warn(ParseWarningKind::BlockMissingArguments));
+        }
+
+        let subname = collect_text(
+            &self.log(),
+            self,
+            self.rule(),
+            &[ParseCondition::current(Token::Whitespace)],
+            &[
+                ParseCondition::current(Token::RightBlock),
+                ParseCondition::current(Token::ParagraphBreak),
+                ParseCondition::current(Token::LineBreak),
+            ],
+            Some(ParseWarningKind::BlockMalformedArguments),
+        )?;
+
+        let arguments = self.get_head_map(block_rule, in_head)?;
+
+        Ok((subname, arguments))
+    }
+
     pub fn get_head_value<F, T>(
         &mut self,
         block_rule: &BlockRule,
