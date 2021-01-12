@@ -71,7 +71,7 @@ impl Test<'_> {
         test
     }
 
-    pub fn run(&self, log: &slog::Logger) {
+    pub fn run(&mut self, log: &slog::Logger) {
         info!(
             &log,
             "Running syntax tree test case";
@@ -86,6 +86,7 @@ impl Test<'_> {
 
         println!("+ {}", self.name);
 
+        crate::preprocess(log, &mut self.input);
         let tokens = crate::tokenize(log, &self.input);
         let result = crate::parse(log, &tokens);
         let (tree, warnings) = result.into();
@@ -177,7 +178,7 @@ fn ast() {
 
     // Run tests
     println!("Running tests:");
-    for test in tests {
+    for mut test in tests {
         test.run(&log);
     }
 }
