@@ -147,8 +147,9 @@ where
     parser.get_optional_space()?;
 
     // Run the parse function until the end.
+    //
     // This is responsible for parsing any arguments,
     // and terminating the block (the ']]' token),
-    // then processing the body (if any) and close tag.
+    // then processing the body (if any) and tail block.
     (block.parse_fn)(log, parser, name, special, in_block)
 }

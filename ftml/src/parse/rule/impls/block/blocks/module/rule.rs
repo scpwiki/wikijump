@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::mapping::get_module_rule_with_name;
 use super::prelude::*;
 
 pub const BLOCK_MODULE: BlockRule = BlockRule {
@@ -43,7 +44,22 @@ fn parse_fn<'r, 't>(
         "Module doesn't have valid name",
     );
 
+    // Get module name and arguments
     let (subname, arguments) = parser.get_head_name_map(&BLOCK_MODULE, in_head)?;
 
-    todo!()
+    // Get the module rule for this name
+    let module = match get_module_rule_with_name(subname) {
+        Some(module) => module,
+        None => return Err(parser.make_warn(ParseWarningKind::NoSuchModule)),
+    };
+
+    // Prepare to run the module's parsing function
+    parser.set_module(module);
+
+    // Run the parse function until the end.
+    // This starts after the head and its newline.
+    //
+    // If the module accepts a body, it should consume it,
+    // then the tail. Otherwise it shouldn't move the token pointer.
+    (module.parse_fn)(log, parser, subname, arguments)
 }

@@ -68,4 +68,5 @@ pub type ModuleParseFn = for<'r, 't> fn(
     &slog::Logger,
     &mut Parser<'r, 't>,
     &'t str,
+    Arguments<'t>,
 ) -> ParseResult<'r, 't, Element<'t>>;
