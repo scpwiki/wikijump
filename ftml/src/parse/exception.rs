@@ -115,7 +115,7 @@ pub enum ParseWarningKind {
     /// This block does not allow special invocation.
     InvalidSpecialBlock,
 
-    /// This block does not have a name.
+    /// This block does not specify a name.
     BlockMissingName,
 
     /// This block does not have close brackets when required.
@@ -138,6 +138,9 @@ pub enum ParseWarningKind {
 
     /// This no rule for the module name specified.
     NoSuchModule,
+
+    /// This module does not specify a name.
+    ModuleMissingName,
 
     /// The URL passed here was invalid.
     InvalidUrl,
