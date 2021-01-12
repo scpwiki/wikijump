@@ -1,0 +1,100 @@
+{
+    "input": "[[collapsible]]\nApple\n[[collapsible]]\nBanana\n[[collapsible]]\nCherry\n[[/collapsible]]\n[[/collapsible]]\n[[/collapsible]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "collapsible",
+                            "data": {
+                                "id": null,
+                                "class": null,
+                                "style": null,
+                                "start-open": false,
+                                "show-text": null,
+                                "hide-text": null,
+                                "show-top": true,
+                                "show-bottom": false,
+                                "elements": [
+                                    {
+                                        "element": "container",
+                                        "data": {
+                                            "type": "paragraph",
+                                            "elements": [
+                                                {
+                                                    "element": "text",
+                                                    "data": "Apple"
+                                                },
+                                                {
+                                                    "element": "collapsible",
+                                                    "data": {
+                                                        "id": null,
+                                                        "class": null,
+                                                        "style": null,
+                                                        "start-open": false,
+                                                        "show-text": null,
+                                                        "hide-text": null,
+                                                        "show-top": true,
+                                                        "show-bottom": false,
+                                                        "elements": [
+                                                            {
+                                                                "element": "container",
+                                                                "data": {
+                                                                    "type": "paragraph",
+                                                                    "elements": [
+                                                                        {
+                                                                            "element": "text",
+                                                                            "data": "Banana"
+                                                                        },
+                                                                        {
+                                                                            "element": "collapsible",
+                                                                            "data": {
+                                                                                "id": null,
+                                                                                "class": null,
+                                                                                "style": null,
+                                                                                "start-open": false,
+                                                                                "show-text": null,
+                                                                                "hide-text": null,
+                                                                                "show-top": true,
+                                                                                "show-bottom": false,
+                                                                                "elements": [
+                                                                                    {
+                                                                                        "element": "container",
+                                                                                        "data": {
+                                                                                            "type": "paragraph",
+                                                                                            "elements": [
+                                                                                                {
+                                                                                                    "element": "text",
+                                                                                                    "data": "Cherry"
+                                                                                                }
+                                                                                            ]
+                                                                                        }
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}
