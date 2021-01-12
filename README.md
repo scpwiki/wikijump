@@ -17,7 +17,7 @@
 Wikijump is the [SCP Wiki](http://www.scpwiki.com)'s fork of the unmaintained [Wikidot](https://github.com/gabrys/wikidot).
 It aims to significantly refactor legacy code, remove misfeatures and dead code, and implement new useful features and bugfixes that current users of Wikidot need today.
 
-This project is being developed by the English SCP Wiki's [Technical Team](http://05command.wikidot.com/technical-staff-main) as part of [Project Foundation](http://www.scpwiki.com/forum/c-3335628/general-information).
+This project is being primarily developed by the English SCP Wiki's [Technical Team](http://05command.wikidot.com/technical-staff-main) as part of [Project Foundation](http://www.scpwiki.com/forum/c-3335628/general-information), however other contributors are welcome.
 Issues are tracked on our [JIRA](https://scuttle.atlassian.net/browse/WJ).
 
 Questions and comments can be posted in our [General Information forum](http://scp-wiki.wikidot.com/forum/c-3335628/general-information), or in [`#site11` on SkipIRC](http://www.scpwiki.com/chat-guide).
