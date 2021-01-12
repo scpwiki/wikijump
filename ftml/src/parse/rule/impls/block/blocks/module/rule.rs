@@ -23,7 +23,7 @@ use super::prelude::*;
 
 pub const BLOCK_MODULE: BlockRule = BlockRule {
     name: "block-module",
-    accepts_names: &["module"],
+    accepts_names: &["module", "module654"],
     accepts_special: false,
     newline_separator: true,
     parse_fn,
