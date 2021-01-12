@@ -136,6 +136,9 @@ pub enum ParseWarningKind {
     /// An end block was found, but of the incorrect type.
     BlockEndMismatch,
 
+    /// This no rule for the module name specified.
+    NoSuchModule,
+
     /// The URL passed here was invalid.
     InvalidUrl,
 }

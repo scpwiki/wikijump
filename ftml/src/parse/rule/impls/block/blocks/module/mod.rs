@@ -20,9 +20,12 @@
 
 mod mapping;
 mod modules;
+mod parser;
 mod rule;
 
 use super::prelude;
+use crate::parse::rule::impls::block::Arguments;
+use crate::parse::rule::Rule;
 use crate::parse::{ParseResult, Parser};
 use crate::tree::Element;
 use std::fmt::{self, Debug};
@@ -46,6 +49,27 @@ pub struct ModuleRule {
 
     /// Function which implements the processing for this rule.
     parse_fn: ModuleParseFn,
+}
+
+impl ModuleRule {
+    /// Produces a pseudo parse `Rule` associated with this `BlockRule`.
+    ///
+    /// It should not be invoked, it is for warning construction.
+    #[cold]
+    pub fn rule(&self) -> Rule {
+        // Stubbed try_consume_fn implementation for the Rule.
+        fn try_consume_fn<'p, 'r, 't>(
+            _: &slog::Logger,
+            _: &'p mut Parser<'r, 't>,
+        ) -> ParseResult<'r, 't, Element<'t>> {
+            panic!("Pseudo rule for this module should not be executed directly!");
+        }
+
+        Rule {
+            name: self.name,
+            try_consume_fn,
+        }
+    }
 }
 
 impl Debug for ModuleRule {
