@@ -34,12 +34,12 @@ fn parse_fn<'r, 't>(
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     special: bool,
-    in_block: bool,
+    in_head: bool,
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(
         log,
         "Parsing collapsible block";
-        "in-block" => in_block,
+        "in-head" => in_head,
     );
 
     assert_eq!(special, false, "Collapsible doesn't allow special variant");
@@ -48,7 +48,7 @@ fn parse_fn<'r, 't>(
         "Collapsible doesn't have a valid name",
     );
 
-    let mut arguments = parser.get_head_map(&BLOCK_COLLAPSIBLE, in_block)?;
+    let mut arguments = parser.get_head_map(&BLOCK_COLLAPSIBLE, in_head)?;
 
     // Get styling arguments
     let id = arguments.get("id");

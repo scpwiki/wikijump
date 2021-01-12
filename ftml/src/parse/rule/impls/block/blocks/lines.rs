@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use std::num::NonZeroU32;
 
 pub const BLOCK_LINES: BlockRule = BlockRule {
     name: "block-lines",
@@ -33,9 +34,9 @@ fn parse_fn<'r, 't>(
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     special: bool,
-    in_block: bool,
+    in_head: bool,
 ) -> ParseResult<'r, 't, Element<'t>> {
-    debug!(log, "Parsing newlines block"; "in-block" => in_block);
+    debug!(log, "Parsing newlines block"; "in-head" => in_head);
 
     assert_eq!(special, false, "Code doesn't allow special variant");
     assert!(
@@ -43,19 +44,23 @@ fn parse_fn<'r, 't>(
         "Code doesn't have a valid name",
     );
 
-    let argument = parser.get_head_value(
-        &BLOCK_LINES, in_block,
-        Some(ParseWarningKind::BlockMalformedArguments),
-    )?;
-
-    let count = match argument.trim().parse() {
-        Ok(count) => count,
-        Err(error) => {
-            debug!(log, "Invalid numeric expression: {}", error);
-
-            return Err(parser.make_warn(ParseWarningKind::BlockMalformedArguments));
-        }
-    };
+    let count = parser.get_head_value(&BLOCK_LINES, in_head, parse_count)?;
 
     ok!(Element::LineBreaks { count })
+}
+
+fn parse_count<'r, 't>(
+    parser: &Parser<'r, 't>,
+    argument: Option<&'t str>,
+) -> Result<NonZeroU32, ParseWarning> {
+    let argument = match argument {
+        Some(arg) => arg.trim(),
+        None => return Err(parser.make_warn(ParseWarningKind::BlockMissingArguments)),
+    };
+
+    argument.parse().map_err(|error| {
+        debug!(&parser.log(), "Invalid numeric expression: {}", error);
+
+        parser.make_warn(ParseWarningKind::BlockMalformedArguments)
+    })
 }

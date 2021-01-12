@@ -109,7 +109,7 @@ where
         )
         .map(|(name, last)| {
             let name = name.trim();
-            let in_block = match last.token {
+            let in_head = match last.token {
                 Token::Whitespace => true,
                 Token::RightBlock => false,
 
@@ -117,7 +117,7 @@ where
                 _ => unreachable!(),
             };
 
-            (name, in_block)
+            (name, in_head)
         })
     }
 
@@ -128,8 +128,8 @@ where
         self.get_token(Token::LeftBlockEnd, ParseWarningKind::BlockExpectedEnd)?;
         self.get_optional_space()?;
 
-        let (name, in_block) = self.get_block_name()?;
-        if in_block {
+        let (name, in_head) = self.get_block_name()?;
+        if in_head {
             self.get_optional_space()?;
             self.get_token(Token::RightBlock, ParseWarningKind::BlockExpectedEnd)?;
         }
@@ -191,11 +191,6 @@ where
             false,
             "List of valid end block names is empty, no success is possible",
         );
-
-        // If this flag is set, then the block must be on its own line
-        if block_rule.newline_separator {
-            self.get_line_break()?;
-        }
 
         // Keep iterating until we find the end.
         // Preserve parse progress if we've hit the end block.
@@ -269,11 +264,6 @@ where
     ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
         let mut first = true;
 
-        // Check that the end block is on a new line, if required
-        if block_rule.newline_separator {
-            self.get_line_break()?;
-        }
-
         gather_paragraphs(
             &self.log(),
             self,
@@ -317,11 +307,15 @@ where
     }
 
     // Block head / argument parsing
-    pub fn get_head_map(&mut self, block_rule: &BlockRule, in_block: bool) -> Result<Arguments<'t>, ParseWarning> {
+    pub fn get_head_map(
+        &mut self,
+        block_rule: &BlockRule,
+        in_head: bool,
+    ) -> Result<Arguments<'t>, ParseWarning> {
         debug!(&self.log(), "Looking for key value arguments, then ']]'");
 
         let mut map = Arguments::new();
-        if !in_block {
+        if in_head {
             // Only process if the block isn't done yet
             loop {
                 self.get_optional_space()?;
@@ -333,7 +327,9 @@ where
                     Token::Identifier => current.slice,
                     Token::RightBlock => break,
                     _ => {
-                        return Err(self.make_warn(ParseWarningKind::BlockMalformedArguments))
+                        return Err(
+                            self.make_warn(ParseWarningKind::BlockMalformedArguments)
+                        )
                     }
                 };
                 self.step()?;
@@ -344,8 +340,10 @@ where
 
                 // Get the argument value
                 self.get_optional_space()?;
-                let value_raw =
-                    self.get_token(Token::String, ParseWarningKind::BlockMalformedArguments)?;
+                let value_raw = self.get_token(
+                    Token::String,
+                    ParseWarningKind::BlockMalformedArguments,
+                )?;
 
                 // Parse the string
                 let value = parse_string(value_raw);
@@ -355,55 +353,88 @@ where
             }
         }
 
-        self.get_head_block(block_rule, in_block)?;
+        self.get_head_block(block_rule, in_head)?;
         Ok(map)
     }
 
-    pub fn get_head_value(
+    pub fn get_head_value<F, T>(
         &mut self,
         block_rule: &BlockRule,
-        in_block: bool,
-        warn_kind: Option<ParseWarningKind>,
-    ) -> Result<&'t str, ParseWarning> {
-        debug!(&self.log(), "Looking for a value argument, then ']]'");
-
-        let value = collect_text(
+        in_head: bool,
+        convert: F,
+    ) -> Result<T, ParseWarning>
+    where
+        F: FnOnce(&Self, Option<&'t str>) -> Result<T, ParseWarning>,
+    {
+        debug!(
             &self.log(),
-            self,
-            self.rule(),
-            &[ParseCondition::current(Token::RightBlock)],
-            &[
-                ParseCondition::current(Token::ParagraphBreak),
-                ParseCondition::current(Token::LineBreak),
-            ],
-            warn_kind,
-        )?;
+            "Looking for a value argument, then ']]'";
+            "in-head" => in_head,
+        );
 
-        self.get_head_block(block_rule, in_block)?;
+        let argument = if in_head {
+            // Gather slice of tokens in value
+            let slice = collect_text(
+                &self.log(),
+                self,
+                self.rule(),
+                &[ParseCondition::current(Token::RightBlock)],
+                &[
+                    ParseCondition::current(Token::ParagraphBreak),
+                    ParseCondition::current(Token::LineBreak),
+                ],
+                Some(ParseWarningKind::BlockMalformedArguments),
+            )?;
+
+            Some(slice)
+        } else {
+            None
+        };
+
+        // Convert the value into a type of the caller's choosing
+        let value = convert(self, argument)?;
+
+        // Set to false because the collection will always end the block
+        self.get_head_block(block_rule, false)?;
         Ok(value)
     }
 
-    pub fn get_head_none(&mut self, block_rule: &BlockRule, in_block: bool) -> Result<(), ParseWarning> {
+    pub fn get_head_none(
+        &mut self,
+        block_rule: &BlockRule,
+        in_head: bool,
+    ) -> Result<(), ParseWarning> {
         debug!(&self.log(), "No arguments, looking for end of head block");
 
         self.get_optional_space()?;
-        self.get_head_block(block_rule, in_block)?;
+        self.get_head_block(block_rule, in_head)?;
         Ok(())
     }
 
-    // Finish up the head block, including the newline if it's that kind of block
-    fn get_head_block(&mut self, block_rule: &BlockRule, in_block: bool) -> Result<(), ParseWarning> {
+    // Helper function to finish up the head block
+    fn get_head_block(
+        &mut self,
+        block_rule: &BlockRule,
+        in_head: bool,
+    ) -> Result<(), ParseWarning> {
         trace!(&self.log(), "Getting end of the head block");
 
-        if in_block {
+        // If we're still in the head, finish
+        if in_head {
             self.get_token(
                 Token::RightBlock,
                 ParseWarningKind::BlockMissingCloseBrackets,
             )?;
         }
 
-        if block_rule.newline_separator {
-            self.get_line_break()?;
+        // If the block wants a newline after, take it
+        //
+        // It's fine if we're at the end of the input,
+        // it could be an empty block type.
+        if self.current().token != Token::InputEnd {
+            if block_rule.newline_separator {
+                self.get_line_break()?;
+            }
         }
 
         Ok(())

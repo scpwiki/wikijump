@@ -33,9 +33,9 @@ fn parse_fn<'r, 't>(
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     special: bool,
-    in_block: bool,
+    in_head: bool,
 ) -> ParseResult<'r, 't, Element<'t>> {
-    debug!(log, "Parsing code block"; "in-block" => in_block);
+    debug!(log, "Parsing code block"; "in-head" => in_head);
 
     assert_eq!(special, false, "Code doesn't allow special variant");
     assert!(
@@ -43,7 +43,7 @@ fn parse_fn<'r, 't>(
         "Code doesn't have a valid name",
     );
 
-    let mut arguments = parser.get_head_map(&BLOCK_CODE, in_block)?;
+    let mut arguments = parser.get_head_map(&BLOCK_CODE, in_head)?;
     let language = arguments.get("type");
 
     let code = parser.get_body_text(&BLOCK_CODE)?;

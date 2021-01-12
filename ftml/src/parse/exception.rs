@@ -121,8 +121,11 @@ pub enum ParseWarningKind {
     /// This block does not have close brackets when required.
     BlockMissingCloseBrackets,
 
-    /// Encountered malformed arguments when parsing block.
+    /// Encountered malformed arguments when parsing the block.
     BlockMalformedArguments,
+
+    /// Some required arguments where missing when parsing the block.
+    BlockMissingArguments,
 
     /// This block expects a line break here.
     BlockExpectedLineBreak,

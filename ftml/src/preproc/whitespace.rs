@@ -58,7 +58,8 @@ pub fn substitute(log: &slog::Logger, text: &mut String) {
     // Tabs to spaces
     str_replace(log, text, "\t", "    ");
 
-    // Remove leading and trailing newlines
+    // Remove leading and trailing newlines,
+    // save one at the end
     regex_replace(log, text, &*LEADING_NEWLINES, "");
     regex_replace(log, text, &*TRAILING_NEWLINES, "");
 }

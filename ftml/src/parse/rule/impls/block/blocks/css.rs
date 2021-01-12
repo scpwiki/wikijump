@@ -33,9 +33,9 @@ fn parse_fn<'r, 't>(
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     special: bool,
-    in_block: bool,
+    in_head: bool,
 ) -> ParseResult<'r, 't, Element<'t>> {
-    debug!(log, "Parsing CSS block"; "in-block" => in_block);
+    debug!(log, "Parsing CSS block"; "in-head" => in_head);
 
     assert_eq!(special, false, "Code doesn't allow special variant");
     assert!(
@@ -43,7 +43,7 @@ fn parse_fn<'r, 't>(
         "Code doesn't have a valid name",
     );
 
-    parser.get_head_none(&BLOCK_CSS, in_block)?;
+    parser.get_head_none(&BLOCK_CSS, in_head)?;
 
     let css = parser.get_body_text(&BLOCK_CSS)?;
     let exceptions = vec![ParseException::Style(cow!(css))];
