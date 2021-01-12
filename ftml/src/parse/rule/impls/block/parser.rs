@@ -431,10 +431,8 @@ where
         //
         // It's fine if we're at the end of the input,
         // it could be an empty block type.
-        if self.current().token != Token::InputEnd {
-            if block_rule.newline_separator {
-                self.get_line_break()?;
-            }
+        if self.current().token != Token::InputEnd && block_rule.newline_separator {
+            self.get_line_break()?;
         }
 
         Ok(())
