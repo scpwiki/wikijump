@@ -27,7 +27,7 @@ mod prelude {
     pub use crate::parse::{ParseWarning, Token};
     pub use crate::tree::Element;
 
-    #[doc(hidden)]
+    #[cfg(debug)]
     pub fn assert_generic_name(expected_names: &[&str], actual_name: &str, name_type: &str) {
         for name in expected_names {
             if name.eq_ignore_ascii_case(actual_name) {
@@ -42,6 +42,9 @@ mod prelude {
             actual_name,
         );
     }
+
+    #[cfg(not(debug))]
+    pub fn assert_generic_name(_: &[&str], _: &str, _: &str) {}
 
     #[inline]
     pub fn assert_block_name(block_rule: &BlockRule, actual_name: &str) {
