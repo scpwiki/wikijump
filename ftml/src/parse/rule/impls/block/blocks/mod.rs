@@ -26,6 +26,26 @@ mod prelude {
     pub use crate::parse::prelude::*;
     pub use crate::parse::{ParseWarning, Token};
     pub use crate::tree::Element;
+
+    pub fn check_generic_name(expected_names: &[&str], actual_name: &str, name_type: &str) {
+        for name in expected_names {
+            if name.eq_ignore_ascii_case(actual_name) {
+                return;
+            }
+        }
+
+        panic!(
+            "Actual {} name doesn't match any expected: {:?} (was {})",
+            name_type,
+            expected_names,
+            actual_name,
+        );
+    }
+
+    #[inline]
+    pub fn check_block_name(expected_names: &[&str], actual_name: &str) {
+        check_generic_name(expected_names, actual_name, "block")
+    }
 }
 
 mod code;
