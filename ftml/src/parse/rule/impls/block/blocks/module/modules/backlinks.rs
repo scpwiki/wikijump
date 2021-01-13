@@ -28,7 +28,7 @@ pub const MODULE_BACKLINKS: ModuleRule = ModuleRule {
 
 fn parse_fn<'r, 't>(
     log: &slog::Logger,
-    parser: &mut Parser<'r, 't>,
+    _parser: &mut Parser<'r, 't>,
     name: &'t str,
     mut arguments: Arguments<'t>,
 ) -> ParseResult<'r, 't, Module<'t>> {

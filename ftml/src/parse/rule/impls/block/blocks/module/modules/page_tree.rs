@@ -36,11 +36,10 @@ fn parse_fn<'r, 't>(
     assert_module_name(&MODULE_PAGE_TREE, name);
 
     let root = arguments.get("root");
-
+    let depth = arguments.get_value(parser, "depth")?;
     let show_root = arguments
         .get_bool(parser, "includeHidden")?
         .unwrap_or(false);
-    let depth = arguments.get_value(parser, "depth")?;
 
     ok!(Module::PageTree {
         root,
