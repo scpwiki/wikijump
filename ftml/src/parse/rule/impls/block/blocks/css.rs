@@ -38,10 +38,7 @@ fn parse_fn<'r, 't>(
     debug!(log, "Parsing CSS block"; "in-head" => in_head);
 
     assert_eq!(special, false, "Code doesn't allow special variant");
-    assert!(
-        name.eq_ignore_ascii_case("css"),
-        "Code doesn't have a valid name",
-    );
+    assert_block_name(&BLOCK_CSS, name);
 
     parser.get_head_none(&BLOCK_CSS, in_head)?;
 

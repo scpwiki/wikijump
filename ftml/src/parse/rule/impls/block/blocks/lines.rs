@@ -39,10 +39,7 @@ fn parse_fn<'r, 't>(
     debug!(log, "Parsing newlines block"; "in-head" => in_head);
 
     assert_eq!(special, false, "Code doesn't allow special variant");
-    assert!(
-        name.eq_ignore_ascii_case("lines") || name.eq_ignore_ascii_case("newlines"),
-        "Code doesn't have a valid name",
-    );
+    assert_block_name(&BLOCK_LINES, name);
 
     let count = parser.get_head_value(&BLOCK_LINES, in_head, parse_count)?;
 

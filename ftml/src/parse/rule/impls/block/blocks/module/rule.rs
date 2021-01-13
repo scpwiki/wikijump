@@ -40,10 +40,7 @@ fn parse_fn<'r, 't>(
     debug!(log, "Parsing module block"; "in-head" => in_head);
 
     assert_eq!(special, false, "Module doesn't allow special variant");
-    assert!(
-        name.eq_ignore_ascii_case("module"),
-        "Module doesn't have valid name",
-    );
+    assert_block_name(&BLOCK_MODULE, name);
 
     // Get module name and arguments
     let (subname, arguments) = parser.get_head_name_map(&BLOCK_MODULE, in_head)?;

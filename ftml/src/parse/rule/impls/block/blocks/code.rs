@@ -38,10 +38,7 @@ fn parse_fn<'r, 't>(
     debug!(log, "Parsing code block"; "in-head" => in_head);
 
     assert_eq!(special, false, "Code doesn't allow special variant");
-    assert!(
-        name.eq_ignore_ascii_case("code"),
-        "Code doesn't have a valid name",
-    );
+    assert_block_name(&BLOCK_CODE, name);
 
     let mut arguments = parser.get_head_map(&BLOCK_CODE, in_head)?;
     let language = arguments.get("type");
