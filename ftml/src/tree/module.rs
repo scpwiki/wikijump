@@ -33,6 +33,7 @@ pub enum Module<'t> {
     Backlinks { page: Option<Cow<'t, str>> },
 
     /// Lists all categories on the site, along with the pages they contain.
+    #[serde(rename_all = "kebab-case")]
     Categories { include_hidden: bool },
 
     /// Allows a user to join a site.
@@ -50,6 +51,7 @@ pub enum Module<'t> {
     ///
     /// Shows the hierarchy of parent relationships present on the given page.
     /// If no root page is listed, the tree returned is for the current page.
+    #[serde(rename_all = "kebab-case")]
     PageTree {
         root: Option<Cow<'t, str>>,
         show_root: bool,
