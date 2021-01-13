@@ -1,5 +1,5 @@
 /*
- * parse/rule/impls/block/blocks/module/modules/css.rs
+ * parse/rule/impls/block/blocks/module/modules/rate.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Ammon Smith
@@ -20,9 +20,9 @@
 
 use super::prelude::*;
 
-pub const MODULE_CSS: ModuleRule = ModuleRule {
-    name: "module-css",
-    accepts_names: &["CSS"],
+pub const MODULE_RATE: ModuleRule = ModuleRule {
+    name: "module-rate",
+    accepts_names: &["Rate"],
     parse_fn,
 };
 
@@ -35,12 +35,9 @@ fn parse_fn<'r, 't>(
     debug!(log, "Parsing categories module");
 
     assert!(
-        name.eq_ignore_ascii_case("CSS"),
+        name.eq_ignore_ascii_case("Rate"),
         "Module doesn't have a valid name",
     );
 
-    let css = parser.get_body_text(&BLOCK_MODULE)?;
-    let exceptions = vec![ParseException::Style(cow!(css))];
-
-    ok!(Module::Null, exceptions)
+    ok!(Module::Rate)
 }
