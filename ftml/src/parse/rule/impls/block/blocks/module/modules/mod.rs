@@ -26,4 +26,5 @@ mod prelude {
 mod backlinks;
 mod categories;
 mod css;
+mod join;
 mod rate;
