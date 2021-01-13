@@ -24,3 +24,4 @@ mod prelude {
 }
 
 mod backlinks;
+mod categories;
