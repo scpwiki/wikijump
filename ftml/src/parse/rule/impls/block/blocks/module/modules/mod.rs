@@ -27,4 +27,5 @@ mod backlinks;
 mod categories;
 mod css;
 mod join;
+mod page_tree;
 mod rate;
