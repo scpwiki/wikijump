@@ -46,7 +46,7 @@ fn parse_fn<'r, 't>(
 
     let count = parser.get_head_value(&BLOCK_LINES, in_head, parse_count)?;
 
-    ok!(Element::LineBreaks { count })
+    ok!(Element::LineBreaks(count))
 }
 
 fn parse_count<'r, 't>(

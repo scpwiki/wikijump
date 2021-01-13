@@ -114,7 +114,7 @@ pub enum Element<'t> {
     LineBreak,
 
     /// A collection of line breaks adjacent to each other.
-    LineBreaks { count: NonZeroU32 },
+    LineBreaks(NonZeroU32),
 
     /// A horizontal rule.
     HorizontalRule,
