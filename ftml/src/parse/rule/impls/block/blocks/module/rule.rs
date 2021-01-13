@@ -20,6 +20,7 @@
 
 use super::mapping::get_module_rule_with_name;
 use super::prelude::*;
+use crate::tree::Module;
 
 pub const BLOCK_MODULE: BlockRule = BlockRule {
     name: "block-module",
@@ -64,6 +65,13 @@ fn parse_fn<'r, 't>(
     let (module, exceptions) =
         (module_rule.parse_fn)(log, parser, subname, arguments)?.into();
 
-    // Build the element
-    ok!(Element::Module(module), exceptions)
+    ok!(build_element(module), exceptions)
+}
+
+fn build_element(module: Module) -> Element {
+    if module == Module::Null {
+        Element::Null
+    } else {
+        Element::Module(module)
+    }
 }
