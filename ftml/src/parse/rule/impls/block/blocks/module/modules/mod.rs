@@ -21,6 +21,11 @@
 mod prelude {
     pub use super::super::{prelude::*, ModuleRule, BLOCK_MODULE};
     pub use crate::tree::Module;
+
+    #[inline]
+    pub fn check_module_name(expected_names: &[&str], actual_name: &str) {
+        check_generic_name(expected_names, actual_name, "module")
+    }
 }
 
 mod backlinks;

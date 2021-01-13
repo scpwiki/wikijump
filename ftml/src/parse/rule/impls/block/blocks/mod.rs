@@ -27,6 +27,7 @@ mod prelude {
     pub use crate::parse::{ParseWarning, Token};
     pub use crate::tree::Element;
 
+    #[doc(hidden)]
     pub fn check_generic_name(expected_names: &[&str], actual_name: &str, name_type: &str) {
         for name in expected_names {
             if name.eq_ignore_ascii_case(actual_name) {
