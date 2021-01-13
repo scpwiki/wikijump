@@ -19,6 +19,9 @@
  */
 
 //! Retrieves tests from JSON in the root `/test` directory, and runs them.
+//!
+//! Additionally performs some other tests from the parser which are better
+//! in a dedicated test file.
 
 use crate::parse::{ParseWarning, ParseWarningKind, Token};
 use crate::tree::{Element, SyntaxTree};
@@ -204,6 +207,7 @@ fn recursion_depth() {
     }
 
     // Run parser steps
+    crate::preprocess(&log, &mut input);
     let tokens = crate::tokenize(&log, &input);
     let (tree, warnings) = crate::parse(&log, &tokens).into();
 
@@ -224,4 +228,41 @@ fn recursion_depth() {
     let element = elements.get(0).expect("No elements produced");
     let input_cow = Cow::Borrowed(input.as_ref());
     assert_eq!(element, &Element::Text(input_cow));
+}
+
+/// Test the parser's ability to process very large bodies
+#[test]
+fn giant_payload() {
+    const ITERATIONS: usize = 200;
+
+    let log = crate::build_logger();
+
+    // Build wikitext input
+    let mut input = String::new();
+
+    for _ in 0..ITERATIONS {
+        // Lines intentionally broken in weird places
+        input.push_str("
+[[div]]
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Maecenas sed risus sed ex suscipit ultricies ac quis metus.
+Mauris facilisis dui quam, in mollis velit ultrices vitae. Nam pretium accumsan arcu eu ultricies. Sed viverra eleifend elit at blandit. Aenean tempor vitae ipsum vitae lacinia.
+Proin eu maximus nulla, id imperdiet libero. Duis convallis posuere arcu vitae sodales. Cras porta ac ligula non porttitor.
+Proin et sodales arcu. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Mauris eget ante maximus, tincidunt enim nec, dignissim mi.
+Quisque tincidunt convallis faucibus. Praesent vel semper dolor, vel tincidunt mi.
+
+In hac habitasse platea dictumst. Vestibulum fermentum libero nec erat porttitor fermentum. Etiam at convallis odio, gravida commodo ipsum. Phasellus consequat nisl vitae ultricies pulvinar. Integer scelerisque eget nisl id fermentum. Pellentesque pretium, enim non molestie rhoncus, dolor diam porta mauris, eu cursus dolor est condimentum nisi. Phasellus tellus est, euismod non accumsan at, congue eget erat.
+
+% ]] ! $ * -- @< _
+[[/div]]
+        ");
+    }
+
+    // Run parser steps
+    crate::preprocess(&log, &mut input);
+    let tokens = crate::tokenize(&log, &input);
+    let (_tree, warnings) = crate::parse(&log, &tokens).into();
+
+    // Check output
+    assert_eq!(warnings.len(), ITERATIONS * 3);
 }
