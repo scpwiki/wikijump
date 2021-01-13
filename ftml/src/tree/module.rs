@@ -43,6 +43,9 @@ pub enum Module<'t> {
         style: Option<Cow<'t, str>>,
     },
 
+    /// Meta-element for modules which perform no action.
+    Null,
+
     /// Lists the structure of pages as connected by parenthood.
     ///
     /// Shows the hierarchy of parent relationships present on the given page.

@@ -1,5 +1,5 @@
 /*
- * parse/rule/impls/block/blocks/module/modules/mod.rs
+ * parse/rule/impls/block/blocks/module/modules/css.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Ammon Smith
@@ -18,11 +18,29 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-mod prelude {
-    pub use super::super::{prelude::*, ModuleRule, BLOCK_MODULE};
-    pub use crate::tree::Module;
-}
+use super::prelude::*;
 
-mod backlinks;
-mod categories;
-mod css;
+pub const MODULE_CSS: ModuleRule = ModuleRule {
+    name: "module-css",
+    accepts_names: &["CSS"],
+    parse_fn,
+};
+
+fn parse_fn<'r, 't>(
+    log: &slog::Logger,
+    parser: &mut Parser<'r, 't>,
+    name: &'t str,
+    arguments: Arguments<'t>,
+) -> ParseResult<'r, 't, Module<'t>> {
+    debug!(log, "Parsing categories module");
+
+    assert!(
+        name.eq_ignore_ascii_case("Categories"),
+        "Module doesn't have a valid name",
+    );
+
+    let css = parser.get_body_text(&BLOCK_MODULE)?;
+    let exceptions = vec![ParseException::Style(cow!(css))];
+
+    ok!(Module::Null, exceptions)
+}
