@@ -29,3 +29,10 @@ mod css;
 mod join;
 mod page_tree;
 mod rate;
+
+pub use self::backlinks::MODULE_BACKLINKS;
+pub use self::categories::MODULE_CATEGORIES;
+pub use self::css::MODULE_CSS;
+pub use self::join::MODULE_JOIN;
+pub use self::page_tree::MODULE_PAGE_TREE;
+pub use self::rate::MODULE_RATE;
