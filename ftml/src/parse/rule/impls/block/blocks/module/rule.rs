@@ -48,21 +48,21 @@ fn parse_fn<'r, 't>(
     let (subname, arguments) = parser.get_head_name_map(&BLOCK_MODULE, in_head)?;
 
     // Get the module rule for this name
-    let module = match get_module_rule_with_name(subname) {
-        Some(module) => module,
+    let module_rule = match get_module_rule_with_name(subname) {
+        Some(rule) => rule,
         None => return Err(parser.make_warn(ParseWarningKind::NoSuchModule)),
     };
 
     // Prepare to run the module's parsing function
-    parser.set_module(module);
+    parser.set_module(module_rule);
 
     // Run the parse function until the end.
     // This starts after the head and its newline.
     //
     // If the module accepts a body, it should consume it,
     // then the tail. Otherwise it shouldn't move the token pointer.
-    let (module_ast, exceptions) = (module.parse_fn)(log, parser, subname, arguments)?.into();
+    let (module, exceptions) = (module_rule.parse_fn)(log, parser, subname, arguments)?.into();
 
     // Build the element
-    ok!(Element::Module(module_ast), exceptions)
+    ok!(Element::Module(module), exceptions)
 }
