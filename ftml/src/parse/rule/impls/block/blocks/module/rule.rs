@@ -61,5 +61,8 @@ fn parse_fn<'r, 't>(
     //
     // If the module accepts a body, it should consume it,
     // then the tail. Otherwise it shouldn't move the token pointer.
-    (module.parse_fn)(log, parser, subname, arguments)
+    let (module_ast, exceptions) = (module.parse_fn)(log, parser, subname, arguments)?.into();
+
+    // Build the element
+    ok!(Element::Module(module_ast), exceptions)
 }

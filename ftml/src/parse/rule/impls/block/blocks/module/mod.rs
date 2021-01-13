@@ -27,7 +27,7 @@ use super::prelude;
 use crate::parse::rule::impls::block::Arguments;
 use crate::parse::rule::Rule;
 use crate::parse::{ParseResult, Parser};
-use crate::tree::Element;
+use crate::tree::{Element, Module};
 use std::fmt::{self, Debug};
 
 pub use self::rule::BLOCK_MODULE;
@@ -88,9 +88,10 @@ impl Debug for ModuleRule {
 /// * `log` -- `slog::Logger` instance
 /// * `parser` -- `Parser` instance
 /// * `name` -- The name of this module
+/// * `arguments` -- The arguments passed into the module
 pub type ModuleParseFn = for<'r, 't> fn(
     &slog::Logger,
     &mut Parser<'r, 't>,
     &'t str,
     Arguments<'t>,
-) -> ParseResult<'r, 't, Element<'t>>;
+) -> ParseResult<'r, 't, Module<'t>>;
