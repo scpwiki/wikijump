@@ -34,11 +34,7 @@ fn parse_fn<'r, 't>(
     mut arguments: Arguments<'t>,
 ) -> ParseResult<'r, 't, Module<'t>> {
     debug!(log, "Parsing categories module");
-
-    assert!(
-        name.eq_ignore_ascii_case("Categories"),
-        "Module doesn't have a valid name",
-    );
+    assert_module_name(&MODULE_CATEGORIES, name);
 
     let include_hidden = match arguments.get("includeHidden") {
         Some(value) => parse_boolean(value)

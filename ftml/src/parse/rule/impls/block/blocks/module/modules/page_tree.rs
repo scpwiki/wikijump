@@ -34,11 +34,7 @@ fn parse_fn<'r, 't>(
     mut arguments: Arguments<'t>,
 ) -> ParseResult<'r, 't, Module<'t>> {
     debug!(log, "Parsing PageTree module");
-
-    assert!(
-        name.eq_ignore_ascii_case("PageTree"),
-        "Module doesn't have a valid name",
-    );
+    assert_module_name(&MODULE_PAGE_TREE, name);
 
     let root = arguments.get("root");
 

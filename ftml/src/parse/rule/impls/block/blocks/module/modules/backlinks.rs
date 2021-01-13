@@ -33,11 +33,7 @@ fn parse_fn<'r, 't>(
     mut arguments: Arguments<'t>,
 ) -> ParseResult<'r, 't, Module<'t>> {
     debug!(log, "Parsing backlinks module");
-
-    assert!(
-        name.eq_ignore_ascii_case("Backlinks"),
-        "Module doesn't have a valid name",
-    );
+    assert_module_name(&MODULE_BACKLINKS, name);
 
     let page = arguments.get("page");
 

@@ -34,11 +34,7 @@ fn parse_fn<'r, 't>(
     mut arguments: Arguments<'t>,
 ) -> ParseResult<'r, 't, Module<'t>> {
     debug!(log, "Parsing join module");
-
-    assert!(
-        name.eq_ignore_ascii_case("Join"),
-        "Module doesn't have a valid name",
-    );
+    assert_module_name(&MODULE_JOIN, name);
 
     let button_text = arguments.get("button");
     let id = arguments.get("id");

@@ -33,11 +33,7 @@ fn parse_fn<'r, 't>(
     _arguments: Arguments<'t>,
 ) -> ParseResult<'r, 't, Module<'t>> {
     debug!(log, "Parsing categories module");
-
-    assert!(
-        name.eq_ignore_ascii_case("Rate"),
-        "Module doesn't have a valid name",
-    );
+    assert_module_name(&MODULE_RATE, name);
 
     ok!(Module::Rate)
 }
