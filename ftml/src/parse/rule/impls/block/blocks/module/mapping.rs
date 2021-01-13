@@ -22,7 +22,14 @@ use super::{modules::*, ModuleRule};
 use std::collections::HashMap;
 use unicase::UniCase;
 
-pub const MODULE_RULES: [ModuleRule; 0] = [];
+pub const MODULE_RULES: [ModuleRule; 6] = [
+    MODULE_BACKLINKS,
+    MODULE_CATEGORIES,
+    MODULE_CSS,
+    MODULE_JOIN,
+    MODULE_PAGE_TREE,
+    MODULE_RATE,
+];
 
 pub type ModuleRuleMap = HashMap<UniCase<&'static str>, &'static ModuleRule>;
 
