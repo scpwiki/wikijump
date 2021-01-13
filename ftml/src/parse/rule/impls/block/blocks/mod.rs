@@ -44,8 +44,8 @@ mod prelude {
     }
 
     #[inline]
-    pub fn assert_block_name(expected_names: &[&str], actual_name: &str) {
-        assert_generic_name(expected_names, actual_name, "block")
+    pub fn assert_block_name(block_rule: &BlockRule, actual_name: &str) {
+        assert_generic_name(block_rule.accepts_names, actual_name, "block")
     }
 }
 
