@@ -23,8 +23,8 @@ mod prelude {
     pub use crate::tree::Module;
 
     #[inline]
-    pub fn check_module_name(expected_names: &[&str], actual_name: &str) {
-        check_generic_name(expected_names, actual_name, "module")
+    pub fn assert_module_name(expected_names: &[&str], actual_name: &str) {
+        assert_generic_name(expected_names, actual_name, "module")
     }
 }
 

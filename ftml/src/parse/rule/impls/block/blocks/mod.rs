@@ -28,7 +28,7 @@ mod prelude {
     pub use crate::tree::Element;
 
     #[doc(hidden)]
-    pub fn check_generic_name(expected_names: &[&str], actual_name: &str, name_type: &str) {
+    pub fn assert_generic_name(expected_names: &[&str], actual_name: &str, name_type: &str) {
         for name in expected_names {
             if name.eq_ignore_ascii_case(actual_name) {
                 return;
@@ -44,8 +44,8 @@ mod prelude {
     }
 
     #[inline]
-    pub fn check_block_name(expected_names: &[&str], actual_name: &str) {
-        check_generic_name(expected_names, actual_name, "block")
+    pub fn assert_block_name(expected_names: &[&str], actual_name: &str) {
+        assert_generic_name(expected_names, actual_name, "block")
     }
 }
 
