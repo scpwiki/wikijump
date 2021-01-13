@@ -20,9 +20,11 @@
 
 mod container;
 mod element;
+mod module;
 
 pub use self::container::*;
 pub use self::element::*;
+pub use self::module::*;
 
 use crate::parse::{ParseOutcome, ParseWarning};
 use std::borrow::Cow;

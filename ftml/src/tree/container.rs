@@ -18,11 +18,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+//! Representation of syntax elements which wrap other elements.
+
 use crate::enums::HeadingLevel;
 use crate::tree::Element;
 use strum_macros::IntoStaticStr;
-
-/// Representation of syntax elements which wrap other elements.
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]

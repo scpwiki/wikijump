@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::Container;
+use super::{Container, Module};
 use crate::enums::{AnchorTarget, LinkLabel};
 use std::borrow::Cow;
 use std::num::NonZeroU32;
@@ -30,6 +30,13 @@ pub enum Element<'t> {
     ///
     /// Examples would include italics, paragraphs, divs, etc.
     Container(Container<'t>),
+
+    /// A Wikidot module being invoked, along with its arguments.
+    ///
+    /// These modules require some kind of processing by backend software,
+    /// so are represented in module forum rather than as elements to be
+    /// directly rendered.
+    Module(Module<'t>),
 
     /// An element only containing text.
     ///
@@ -123,6 +130,7 @@ impl Element<'_> {
     pub fn name(&self) -> &'static str {
         match self {
             Element::Container(container) => container.ctype().name(),
+            Element::Module(module) => module.name(),
             Element::Text(_) => "Text",
             Element::Raw(_) => "Raw",
             Element::Email(_) => "Email",
