@@ -19,7 +19,6 @@
  */
 
 use super::prelude::*;
-use crate::parse::parse_boolean;
 
 pub const MODULE_JOIN: ModuleRule = ModuleRule {
     name: "module-join",

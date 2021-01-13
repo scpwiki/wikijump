@@ -55,8 +55,8 @@ impl<'t> Arguments<'t> {
 
     pub fn get_bool(
         &mut self,
-        key: &'t str,
         parser: &Parser<'_, 't>,
+        key: &'t str,
     ) -> Result<Option<bool>, ParseWarning> {
         match self.get(key) {
             Some(argument) => match parse_boolean(argument) {
@@ -69,8 +69,8 @@ impl<'t> Arguments<'t> {
 
     pub fn get_value<T: FromStr>(
         &mut self,
-        key: &'t str,
         parser: &Parser<'_, 't>,
+        key: &'t str,
     ) -> Result<Option<T>, ParseWarning> {
         match self.get(key) {
             Some(argument) => match argument.parse() {

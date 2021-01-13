@@ -19,7 +19,6 @@
  */
 
 use super::prelude::*;
-use crate::parse::parse_boolean;
 
 pub const MODULE_CATEGORIES: ModuleRule = ModuleRule {
     name: "module-categories",
@@ -36,11 +35,9 @@ fn parse_fn<'r, 't>(
     debug!(log, "Parsing categories module");
     assert_module_name(&MODULE_CATEGORIES, name);
 
-    let include_hidden = match arguments.get("includeHidden") {
-        Some(value) => parse_boolean(value)
-            .map_err(|_| parser.make_warn(ParseWarningKind::BlockMalformedArguments))?,
-        None => false,
-    };
+    let include_hidden = arguments
+        .get_bool(parser, "includeHidden")?
+        .unwrap_or(false);
 
     ok!(Module::Categories { include_hidden })
 }

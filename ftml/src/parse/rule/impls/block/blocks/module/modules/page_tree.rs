@@ -19,7 +19,6 @@
  */
 
 use super::prelude::*;
-use crate::parse::parse_boolean;
 
 pub const MODULE_PAGE_TREE: ModuleRule = ModuleRule {
     name: "module-page-tree",
@@ -38,22 +37,10 @@ fn parse_fn<'r, 't>(
 
     let root = arguments.get("root");
 
-    let show_root = match arguments.get("includeHidden") {
-        Some(value) => parse_boolean(value)
-            .map_err(|_| parser.make_warn(ParseWarningKind::BlockMalformedArguments))?,
-        None => false,
-    };
-
-    let depth = match arguments.get("depth") {
-        Some(value) => {
-            let depth = value.as_ref().parse().map_err(|_| {
-                parser.make_warn(ParseWarningKind::BlockMalformedArguments)
-            })?;
-
-            Some(depth)
-        }
-        None => None,
-    };
+    let show_root = arguments
+        .get_bool(parser, "includeHidden")?
+        .unwrap_or(false);
+    let depth = arguments.get_value(parser, "depth")?;
 
     ok!(Module::PageTree {
         root,
