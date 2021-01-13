@@ -28,7 +28,11 @@ mod prelude {
     pub use crate::tree::Element;
 
     #[cfg(debug)]
-    pub fn assert_generic_name(expected_names: &[&str], actual_name: &str, name_type: &str) {
+    pub fn assert_generic_name(
+        expected_names: &[&str],
+        actual_name: &str,
+        name_type: &str,
+    ) {
         for name in expected_names {
             if name.eq_ignore_ascii_case(actual_name) {
                 return;
@@ -37,9 +41,7 @@ mod prelude {
 
         panic!(
             "Actual {} name doesn't match any expected: {:?} (was {})",
-            name_type,
-            expected_names,
-            actual_name,
+            name_type, expected_names, actual_name,
         );
     }
 

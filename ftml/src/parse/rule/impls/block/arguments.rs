@@ -18,9 +18,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::parse::{parse_boolean, ParseWarning, ParseWarningKind, Parser};
 use std::borrow::Cow;
 use std::collections::HashMap;
+use std::str::FromStr;
 use unicase::UniCase;
+
+macro_rules! make_warn {
+    ($parser:expr) => {
+        $parser.make_warn(ParseWarningKind::BlockMalformedArguments)
+    };
+}
 
 #[derive(Debug, Clone, Default)]
 pub struct Arguments<'t> {
@@ -43,5 +51,33 @@ impl<'t> Arguments<'t> {
         let key = UniCase::ascii(key);
 
         self.inner.remove(&key)
+    }
+
+    pub fn get_bool(
+        &mut self,
+        key: &'t str,
+        parser: &Parser<'_, 't>,
+    ) -> Result<Option<bool>, ParseWarning> {
+        match self.get(key) {
+            Some(argument) => match parse_boolean(argument) {
+                Ok(value) => Ok(Some(value)),
+                Err(_) => Err(make_warn!(parser)),
+            },
+            None => Ok(None),
+        }
+    }
+
+    pub fn get_value<T: FromStr>(
+        &mut self,
+        key: &'t str,
+        parser: &Parser<'_, 't>,
+    ) -> Result<Option<T>, ParseWarning> {
+        match self.get(key) {
+            Some(argument) => match argument.parse() {
+                Ok(value) => Ok(Some(value)),
+                Err(_) => Err(make_warn!(parser)),
+            },
+            None => Ok(None),
+        }
     }
 }
