@@ -25,7 +25,7 @@ use std::num::NonZeroU32;
 use strum_macros::IntoStaticStr;
 
 #[derive(Serialize, Deserialize, IntoStaticStr, Debug, Clone, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
+#[serde(rename_all = "kebab-case", tag = "module", content = "data")]
 pub enum Module<'t> {
     /// Lists all the backlinks on the given page.
     ///
