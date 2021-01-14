@@ -57,7 +57,9 @@ fn parse_fn<'r, 't>(
     let hide_text = arguments.get("hide");
 
     // Get folding arguments
-    let start_open = arguments.get_bool(parser, "folded")?.unwrap_or(false);
+    //
+    // We invert this first argument since "folded=no" means "start_open=yes"
+    let start_open = !arguments.get_bool(parser, "folded")?.unwrap_or(true);
     let (show_top, show_bottom) = match arguments.get("hideLocation") {
         Some(value) => parse_hide_location(&value, parser)?,
         None => (true, false),

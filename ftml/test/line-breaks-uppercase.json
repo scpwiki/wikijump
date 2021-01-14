@@ -13,9 +13,7 @@
                         },
                         {
                             "element": "line-breaks",
-                            "data": {
-                                "count": 12
-                            }
+                            "data": 12
                         },
                         {
                             "element": "text",
