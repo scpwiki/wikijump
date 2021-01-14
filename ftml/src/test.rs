@@ -230,10 +230,10 @@ fn recursion_depth() {
     assert_eq!(element, &Element::Text(input_cow));
 }
 
-/// Test the parser's ability to process very large bodies
+/// Test the parser's ability to process large bodies
 #[test]
-fn giant_payload() {
-    const ITERATIONS: usize = 200;
+fn large_payload() {
+    const ITERATIONS: usize = 50;
 
     let log = crate::build_logger();
 
