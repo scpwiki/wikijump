@@ -38,7 +38,7 @@ fn parse_fn<'r, 't>(
     let root = arguments.get("root");
     let depth = arguments.get_value(parser, "depth")?;
     let show_root = arguments
-        .get_bool(parser, "includeHidden")?
+        .get_bool(parser, "showRoot")?
         .unwrap_or(false);
 
     ok!(Module::PageTree {
