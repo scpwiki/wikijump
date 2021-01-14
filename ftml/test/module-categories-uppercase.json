@@ -1,0 +1,32 @@
+{
+    "input": "[[ MODULE CATEGORIES  ]]\nApple",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "module",
+                            "data": {
+                                "module": "categories",
+                                "data": {
+                                    "include-hidden": false
+                                }
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": "Apple"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

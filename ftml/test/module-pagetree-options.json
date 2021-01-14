@@ -1,0 +1,34 @@
+{
+    "input": "[[module PageTree root=\"scp-001\" showRoot = \"yes\"  depth =\"12\"]]\nApple",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "module",
+                            "data": {
+                                "module": "page-tree",
+                                "data": {
+                                    "root": "scp-001",
+                                    "show-root": true,
+                                    "depth": 12
+                                }
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": "Apple"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}
