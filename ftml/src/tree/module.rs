@@ -37,6 +37,7 @@ pub enum Module<'t> {
     Categories { include_hidden: bool },
 
     /// Allows a user to join a site.
+    #[serde(rename_all = "kebab-case")]
     Join {
         button_text: Option<Cow<'t, str>>,
         id: Option<Cow<'t, str>>,
