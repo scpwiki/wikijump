@@ -22,14 +22,42 @@ use super::prelude::*;
 
 pub const RULE_LINE_BREAK: Rule = Rule {
     name: "line-break",
-    try_consume_fn,
+    try_consume_fn: line_break,
 };
 
-fn try_consume_fn<'p, 'r, 't>(
+pub const RULE_LINE_BREAK_PARAGRAPH: Rule = Rule {
+    name: "line-break-paragraph",
+    try_consume_fn: line_break_paragraph,
+};
+
+fn line_break<'p, 'r, 't>(
     log: &slog::Logger,
     _parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
-    debug!(log, "Consuming token as line break");
+    debug!(log, "Consuming newline token as line break");
+
+    ok!(Element::LineBreak)
+}
+
+fn line_break_paragraph<'p, 'r, 't>(
+    log: &slog::Logger,
+    _parser: &'p mut Parser<'r, 't>,
+) -> ParseResult<'r, 't, Element<'t>> {
+    debug!(log, "Consuming paragraph break as line break");
+
+    // This rule is kind of special. It's the same as RULE_LINE_BREAK,
+    // except it accepts a *ParagraphBreak* instead, which is normally supposed to split
+    // paragraphs.
+    //
+    // So what's going on?
+    //
+    // In "normal" contexts, you extract paragraphs (see gather_paragraphs()), so any
+    // Token::ParagraphBreak tokens are used to affected the ParagraphStack and create
+    // a new paragraph container.
+    //
+    // However other contexts do not allow new paragraphs to form, such as [[span]].
+    // In these cases, if we encounter two or more newlines, we must pretend it's simply
+    // one regular newline, or a line break.
 
     ok!(Element::LineBreak)
 }
