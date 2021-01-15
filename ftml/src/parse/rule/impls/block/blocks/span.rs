@@ -59,13 +59,24 @@ fn parse_fn<'r, 't>(
     // Get body content, without paragraphs
     let (mut elements, exceptions) = parser.get_body_elements(&BLOCK_SPAN, false)?.into();
 
-    // Remove line breaks if "span_" is used.
     if strip_line_breaks {
-        elements.retain(|element| match element {
-            Element::LineBreak => false,
-            Element::LineBreaks(_) => false,
-            _ => true,
-        });
+        // Remove leading line breaks
+        while let Some(element) = elements.first() {
+            if !matches!(element, Element::LineBreak | Element::LineBreaks(_)) {
+                break;
+            }
+
+            elements.remove(0);
+        }
+
+        // Remove trailing line breaks
+        while let Some(element) = elements.last() {
+            if !matches!(element, Element::LineBreak | Element::LineBreaks(_)) {
+                break;
+            }
+
+            elements.pop();
+        }
     }
 
     let element = Element::Span {
