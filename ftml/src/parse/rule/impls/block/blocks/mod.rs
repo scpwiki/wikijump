@@ -60,6 +60,7 @@ mod css;
 mod div;
 mod lines;
 mod module;
+mod span;
 
 pub use self::code::BLOCK_CODE;
 pub use self::collapsible::BLOCK_COLLAPSIBLE;
@@ -67,3 +68,4 @@ pub use self::css::BLOCK_CSS;
 pub use self::div::BLOCK_DIV;
 pub use self::lines::BLOCK_LINES;
 pub use self::module::BLOCK_MODULE;
+pub use self::span::BLOCK_SPAN;
