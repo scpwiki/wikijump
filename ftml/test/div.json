@@ -1,5 +1,5 @@
 {
-    "input": "[[div_]]\nApple\n[[/div]]",
+    "input": "[[div]]\nApple\n[[/div]]",
     "tree": {
         "elements": [
             {
@@ -15,8 +15,16 @@
                                 "style": null,
                                 "elements": [
                                     {
-                                        "element": "text",
-                                        "data": "Apple"
+                                        "element": "container",
+                                        "data": {
+                                            "type": "paragraph",
+                                            "elements": [
+                                                {
+                                                    "element": "text",
+                                                    "data": "Apple"
+                                                }
+                                            ]
+                                        }
                                     }
                                 ]
                             }
