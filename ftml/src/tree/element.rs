@@ -110,6 +110,33 @@ pub enum Element<'t> {
         style: Option<Cow<'t, str>>,
     },
 
+    /// Element representing marked or highlighted text.
+    /// HTML tag `<mark>`
+    Mark {
+        elements: Vec<Element<'t>>,
+        id: Option<Cow<'t, str>>,
+        class: Option<Cow<'t, str>>,
+        style: Option<Cow<'t, str>>,
+    },
+
+    /// Element representing added text.
+    /// HTML tag `<ins>`
+    Insertion {
+        elements: Vec<Element<'t>>,
+        id: Option<Cow<'t, str>>,
+        class: Option<Cow<'t, str>>,
+        style: Option<Cow<'t, str>>,
+    },
+
+    /// Element representing removed text.
+    /// HTML tag `<del>`
+    Deletion {
+        elements: Vec<Element<'t>>,
+        id: Option<Cow<'t, str>>,
+        class: Option<Cow<'t, str>>,
+        style: Option<Cow<'t, str>>,
+    },
+
     /// Element containing a code block
     Code {
         contents: Cow<'t, str>,
@@ -147,6 +174,9 @@ impl Element<'_> {
             Element::Color { .. } => "Color",
             Element::Span { .. } => "Span",
             Element::Div { .. } => "Div",
+            Element::Mark { .. } => "Mark",
+            Element::Insertion { .. } => "Insertion",
+            Element::Deletion { .. } => "Deletion",
             Element::Code { .. } => "Code",
             Element::LineBreak => "LineBreak",
             Element::LineBreaks { .. } => "LineBreaks",
