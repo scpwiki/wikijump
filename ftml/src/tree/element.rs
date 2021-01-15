@@ -94,6 +94,14 @@ pub enum Element<'t> {
         elements: Vec<Element<'t>>,
     },
 
+    /// Element containing an HTML span.
+    Span {
+        elements: Vec<Element<'t>>,
+        id: Option<Cow<'t, str>>,
+        class: Option<Cow<'t, str>>,
+        style: Option<Cow<'t, str>>,
+    },
+
     /// Element containing an HTML div.
     Div {
         elements: Vec<Element<'t>>,
@@ -137,6 +145,7 @@ impl Element<'_> {
             Element::Link { .. } => "Link",
             Element::Collapsible { .. } => "Collapsible",
             Element::Color { .. } => "Color",
+            Element::Span { .. } => "Span",
             Element::Div { .. } => "Div",
             Element::Code { .. } => "Code",
             Element::LineBreak => "LineBreak",
