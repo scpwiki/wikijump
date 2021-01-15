@@ -1,0 +1,46 @@
+{
+    "input": "[[span]]\nBanana\nCherry\n[[/span]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "span",
+                            "data": {
+                                "id": null,
+                                "class": null,
+                                "style": null,
+                                "elements": [
+                                    {
+                                        "element": "line-break"
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": "Banana"
+                                    },
+                                    {
+                                        "element": "line-break"
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": "Cherry"
+                                    },
+                                    {
+                                        "element": "line-break"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

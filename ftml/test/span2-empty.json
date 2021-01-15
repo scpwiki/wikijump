@@ -1,0 +1,29 @@
+{
+    "input": "[[span_]][[/span]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "span",
+                            "data": {
+                                "id": null,
+                                "class": null,
+                                "style": null,
+                                "elements": [
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}
