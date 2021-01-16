@@ -1,0 +1,33 @@
+{
+    "input": "[[ins id=\"banana\" class=\"fruit\" style=\"color: yellow;\"]]Banana[[/ins]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "insertion",
+                            "data": {
+                                "id": "banana",
+                                "class": "fruit",
+                                "style": "color: yellow;",
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Banana"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}
