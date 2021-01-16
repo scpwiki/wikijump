@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::{Container, Module};
+use super::{Container, StyledContainer, Module};
 use crate::enums::{AnchorTarget, LinkLabel};
 use std::borrow::Cow;
 use std::num::NonZeroU32;
@@ -28,8 +28,13 @@ use std::num::NonZeroU32;
 pub enum Element<'t> {
     /// Generic element that contains other elements within it.
     ///
-    /// Examples would include italics, paragraphs, divs, etc.
+    /// Examples would include italics, paragraphs, etc.
     Container(Container<'t>),
+
+    /// Generic element that contains other elements, with added styling.
+    ///
+    /// Examples would include divs, spans, etc.
+    StyledContainer(StyledContainer<'t>),
 
     /// A Wikidot module being invoked, along with its arguments.
     ///
@@ -94,49 +99,6 @@ pub enum Element<'t> {
         elements: Vec<Element<'t>>,
     },
 
-    /// Element containing an HTML span.
-    Span {
-        elements: Vec<Element<'t>>,
-        id: Option<Cow<'t, str>>,
-        class: Option<Cow<'t, str>>,
-        style: Option<Cow<'t, str>>,
-    },
-
-    /// Element containing an HTML div.
-    Div {
-        elements: Vec<Element<'t>>,
-        id: Option<Cow<'t, str>>,
-        class: Option<Cow<'t, str>>,
-        style: Option<Cow<'t, str>>,
-    },
-
-    /// Element representing marked or highlighted text.
-    /// HTML tag `<mark>`
-    Mark {
-        elements: Vec<Element<'t>>,
-        id: Option<Cow<'t, str>>,
-        class: Option<Cow<'t, str>>,
-        style: Option<Cow<'t, str>>,
-    },
-
-    /// Element representing added text.
-    /// HTML tag `<ins>`
-    Insertion {
-        elements: Vec<Element<'t>>,
-        id: Option<Cow<'t, str>>,
-        class: Option<Cow<'t, str>>,
-        style: Option<Cow<'t, str>>,
-    },
-
-    /// Element representing removed text.
-    /// HTML tag `<del>`
-    Deletion {
-        elements: Vec<Element<'t>>,
-        id: Option<Cow<'t, str>>,
-        class: Option<Cow<'t, str>>,
-        style: Option<Cow<'t, str>>,
-    },
-
     /// Element containing a code block
     Code {
         contents: Cow<'t, str>,
@@ -165,6 +127,7 @@ impl Element<'_> {
     pub fn name(&self) -> &'static str {
         match self {
             Element::Container(container) => container.ctype().name(),
+            Element::StyledContainer(container) => container.ctype().name(),
             Element::Module(module) => module.name(),
             Element::Text(_) => "Text",
             Element::Raw(_) => "Raw",
@@ -172,11 +135,6 @@ impl Element<'_> {
             Element::Link { .. } => "Link",
             Element::Collapsible { .. } => "Collapsible",
             Element::Color { .. } => "Color",
-            Element::Span { .. } => "Span",
-            Element::Div { .. } => "Div",
-            Element::Mark { .. } => "Mark",
-            Element::Insertion { .. } => "Insertion",
-            Element::Deletion { .. } => "Deletion",
             Element::Code { .. } => "Code",
             Element::LineBreak => "LineBreak",
             Element::LineBreaks { .. } => "LineBreaks",
