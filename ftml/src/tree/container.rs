@@ -123,14 +123,31 @@ impl<'t> From<StyledContainer<'t>> for Vec<Element<'t>> {
 )]
 #[serde(rename_all = "kebab-case")]
 pub enum ContainerType {
+    /// Paragraphs. HTML tag `<p>`.
     Paragraph,
+
+    /// Bolded text. HTML tag `<strong>`.
     Bold,
+
+    /// Italicized text. HTML tag `<em>`.
     Italics,
+
+    /// Underlined text. HTML tag `<u>`
     Underline,
+
+    /// Superscript text. HTML tag `<sup>`.
     Superscript,
+
+    /// Subscript text. HTML tag `<sub>`.
     Subscript,
+
+    /// Strikethrough. HTML tag `<s>`.
     Strikethrough,
+
+    /// Monospace or teletype text. HTML tag `<tt>`.
     Monospace,
+
+    /// Header. HTML tags `<h1>` through `<h6>`.
     Header(HeadingLevel),
 }
 
