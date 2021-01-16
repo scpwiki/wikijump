@@ -1,0 +1,33 @@
+{
+    "input": "[[MARk ID =  \"apple\" clASS =\"fruit\" stylE=\"color: red;\"      ]]Apple[[/ MARK  ]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "mark",
+                            "data": {
+                                "id": "apple",
+                                "class": "fruit",
+                                "style": "color: red;",
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Apple"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}
