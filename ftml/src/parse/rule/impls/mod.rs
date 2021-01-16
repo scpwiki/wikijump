@@ -33,14 +33,13 @@ mod prelude {
 }
 
 mod block;
-mod bold;
 mod color;
 mod comment;
 mod dash;
 mod email;
+mod emphasis;
 mod fallback;
 mod horizontal_rule;
-mod italics;
 mod line_break;
 mod link_anchor;
 mod link_single;
@@ -50,6 +49,7 @@ mod null;
 mod page;
 mod raw;
 mod strikethrough;
+mod strong;
 mod subscript;
 mod superscript;
 mod text;
@@ -58,14 +58,13 @@ mod underline;
 mod url;
 
 pub use self::block::{RULE_BLOCK, RULE_BLOCK_SKIP, RULE_BLOCK_SPECIAL};
-pub use self::bold::RULE_BOLD;
 pub use self::color::RULE_COLOR;
 pub use self::comment::RULE_COMMENT;
 pub use self::dash::RULE_DASH;
 pub use self::email::RULE_EMAIL;
+pub use self::emphasis::RULE_EMPHASIS;
 pub use self::fallback::RULE_FALLBACK;
 pub use self::horizontal_rule::RULE_HORIZONTAL_RULE;
-pub use self::italics::RULE_ITALICS;
 pub use self::line_break::{RULE_LINE_BREAK, RULE_LINE_BREAK_PARAGRAPH};
 pub use self::link_anchor::RULE_LINK_ANCHOR;
 pub use self::link_single::{RULE_LINK_SINGLE, RULE_LINK_SINGLE_NEW_TAB};
@@ -75,6 +74,7 @@ pub use self::null::RULE_NULL;
 pub use self::page::RULE_PAGE;
 pub use self::raw::RULE_RAW;
 pub use self::strikethrough::RULE_STRIKETHROUGH;
+pub use self::strong::RULE_STRONG;
 pub use self::subscript::RULE_SUBSCRIPT;
 pub use self::superscript::RULE_SUPERSCRIPT;
 pub use self::text::RULE_TEXT;

@@ -1,5 +1,5 @@
 /*
- * parse/rule/impls/italics.rs
+ * parse/rule/impls/emphasis.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Ammon Smith
@@ -20,8 +20,8 @@
 
 use super::prelude::*;
 
-pub const RULE_ITALICS: Rule = Rule {
-    name: "italics",
+pub const RULE_EMPHASIS: Rule = Rule {
+    name: "emphasis",
     try_consume_fn,
 };
 
@@ -29,20 +29,20 @@ fn try_consume_fn<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
-    debug!(log, "Trying to create italics container");
+    debug!(log, "Trying to create emphasis (italics) container");
 
-    check_step(parser, Token::Italics)?;
+    check_step(parser, Token::Emphasis)?;
 
     collect_container(
         log,
         parser,
-        RULE_ITALICS,
-        ContainerType::Italics,
-        &[ParseCondition::current(Token::Italics)],
+        RULE_EMPHASIS,
+        ContainerType::Emphasis,
+        &[ParseCondition::current(Token::Emphasis)],
         &[
             ParseCondition::current(Token::ParagraphBreak),
-            ParseCondition::token_pair(Token::Italics, Token::Whitespace),
-            ParseCondition::token_pair(Token::Whitespace, Token::Italics),
+            ParseCondition::token_pair(Token::Emphasis, Token::Whitespace),
+            ParseCondition::token_pair(Token::Whitespace, Token::Emphasis),
         ],
         None,
     )

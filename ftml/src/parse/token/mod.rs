@@ -76,8 +76,8 @@ pub enum Token {
     //
     // Formatting
     //
-    Bold,
-    Italics,
+    Strong,
+    Emphasis,
     Underline,
     Superscript,
     Subscript,
@@ -218,8 +218,8 @@ impl Token {
             Rule::space => Token::Whitespace,
 
             // Formatting
-            Rule::bold => Token::Bold,
-            Rule::italics => Token::Italics,
+            Rule::strong => Token::Strong,
+            Rule::emphasis => Token::Emphasis,
             Rule::underline => Token::Underline,
             Rule::superscript => Token::Superscript,
             Rule::subscript => Token::Subscript,

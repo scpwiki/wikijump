@@ -130,8 +130,8 @@ impl<'t> From<StyledContainer<'t>> for Vec<Element<'t>> {
 #[serde(rename_all = "kebab-case")]
 pub enum ContainerType {
     Paragraph,
-    Bold,
-    Italics,
+    Strong,
+    Emphasis,
     Underline,
     Superscript,
     Subscript,
@@ -150,8 +150,8 @@ impl ContainerType {
     pub fn html_tag(self) -> &'static str {
         match self {
             ContainerType::Paragraph => "p",
-            ContainerType::Bold => "strong",
-            ContainerType::Italics => "italics",
+            ContainerType::Strong => "strong",
+            ContainerType::Emphasis => "italics",
             ContainerType::Underline => "u",
             ContainerType::Superscript => "sup",
             ContainerType::Subscript => "sub",
