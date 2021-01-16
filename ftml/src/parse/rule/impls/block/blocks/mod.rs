@@ -57,6 +57,7 @@ mod prelude {
 mod code;
 mod collapsible;
 mod css;
+mod del;
 mod div;
 mod ins;
 mod lines;
@@ -66,6 +67,7 @@ mod span;
 pub use self::code::BLOCK_CODE;
 pub use self::collapsible::BLOCK_COLLAPSIBLE;
 pub use self::css::BLOCK_CSS;
+pub use self::del::BLOCK_DEL;
 pub use self::div::BLOCK_DIV;
 pub use self::ins::BLOCK_INS;
 pub use self::lines::BLOCK_LINES;

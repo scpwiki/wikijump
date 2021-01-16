@@ -1,5 +1,5 @@
 /*
- * parse/rule/impls/block/blocks/ins.rs
+ * parse/rule/impls/block/blocks/del.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Ammon Smith
@@ -20,9 +20,9 @@
 
 use super::prelude::*;
 
-pub const BLOCK_INS: BlockRule = BlockRule {
-    name: "block-ins",
-    accepts_names: &["ins", "insertion"],
+pub const BLOCK_DEL: BlockRule = BlockRule {
+    name: "block-del",
+    accepts_names: &["del", "deletion"],
     accepts_special: false,
     newline_separator: false,
     parse_fn,
@@ -37,15 +37,15 @@ fn parse_fn<'r, 't>(
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(
         log,
-        "Parsing insertion block";
+        "Parsing deletion block";
         "in-head" => in_head,
         "name" => name,
     );
 
-    assert_eq!(special, false, "Ins doesn't allow special variant");
-    assert_block_name(&BLOCK_INS, name);
+    assert_eq!(special, false, "Deletion doesn't allow special variant");
+    assert_block_name(&BLOCK_DEL, name);
 
-    let mut arguments = parser.get_head_map(&BLOCK_INS, in_head)?;
+    let mut arguments = parser.get_head_map(&BLOCK_DEL, in_head)?;
 
     // Get styling arguments
     let id = arguments.get("id");
@@ -53,10 +53,10 @@ fn parse_fn<'r, 't>(
     let style = arguments.get("style");
 
     // Get body content, without paragraphs
-    let (elements, exceptions) = parser.get_body_elements(&BLOCK_INS, false)?.into();
+    let (elements, exceptions) = parser.get_body_elements(&BLOCK_DEL, false)?.into();
 
     // Build and return element
-    let element = Element::Insertion {
+    let element = Element::Deletion {
         elements,
         id,
         class,
