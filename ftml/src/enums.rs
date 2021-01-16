@@ -95,6 +95,18 @@ impl HeadingLevel {
             HeadingLevel::Six => 6,
         }
     }
+
+    #[inline]
+    pub fn html_tag(self) -> &'static str {
+        match self {
+            HeadingLevel::One => "h1",
+            HeadingLevel::Two => "h2",
+            HeadingLevel::Three => "h3",
+            HeadingLevel::Four => "h4",
+            HeadingLevel::Five => "h5",
+            HeadingLevel::Six => "h6",
+        }
+    }
 }
 
 impl TryFrom<usize> for HeadingLevel {
@@ -112,6 +124,7 @@ impl TryFrom<usize> for HeadingLevel {
         }
     }
 }
+
 impl TryFrom<u8> for HeadingLevel {
     type Error = ();
 
