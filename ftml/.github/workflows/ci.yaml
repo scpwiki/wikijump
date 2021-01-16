@@ -3,7 +3,7 @@ on:
     paths:
       - 'Cargo.toml'
       - 'Cargo.lock'
-      - 'ftml-server/**'
+      - 'ftml-http/**'
       - 'src/**'
       - 'test/*'
       - '.github/workflows/*'
@@ -31,7 +31,7 @@ jobs:
         with:
           command: test
           args: --all-features -- --nocapture --test-threads 1
-  server_build:
+  http_build:
     name: Server
     runs-on: ubuntu-latest
     steps:
@@ -42,7 +42,7 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: build
-          args: -p ftml-server --all-features --release
+          args: -p ftml-http --all-features --release
   clippy_lint:
     name: Lint
     runs-on: ubuntu-latest

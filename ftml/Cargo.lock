@@ -452,7 +452,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "ftml-server"
+name = "ftml-http"
 version = "0.3.2"
 dependencies = [
  "built",

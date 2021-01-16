@@ -1,5 +1,5 @@
 [package]
-name = "ftml-server"
+name = "ftml-http"
 description = "Foundation Text Markup Language - server to render Wikidot text as HTML"
 repository = "https://github.com/Nu-SCPTheme/ftml"
 readme = "README.md"
