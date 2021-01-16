@@ -129,31 +129,14 @@ impl<'t> From<StyledContainer<'t>> for Vec<Element<'t>> {
 )]
 #[serde(rename_all = "kebab-case")]
 pub enum ContainerType {
-    /// Paragraphs. HTML tag `<p>`.
     Paragraph,
-
-    /// Bolded text. HTML tag `<strong>`.
     Bold,
-
-    /// Italicized text. HTML tag `<em>`.
     Italics,
-
-    /// Underlined text. HTML tag `<u>`
     Underline,
-
-    /// Superscript text. HTML tag `<sup>`.
     Superscript,
-
-    /// Subscript text. HTML tag `<sub>`.
     Subscript,
-
-    /// Strikethrough. HTML tag `<s>`.
     Strikethrough,
-
-    /// Monospace or teletype text. HTML tag `<tt>`.
     Monospace,
-
-    /// Header. HTML tags `<h1>` through `<h6>`.
     Header(HeadingLevel),
 }
 
@@ -161,6 +144,21 @@ impl ContainerType {
     #[inline]
     pub fn name(self) -> &'static str {
         self.into()
+    }
+
+    #[inline]
+    pub fn html_tag(self) -> &'static str {
+        match self {
+            ContainerType::Paragraph => "p",
+            ContainerType::Bold => "strong",
+            ContainerType::Italics => "italics",
+            ContainerType::Underline => "u",
+            ContainerType::Superscript => "sup",
+            ContainerType::Subscript => "sub",
+            ContainerType::Strikethrough => "s",
+            ContainerType::Monospace => "tt",
+            ContainerType::Header(level) => level.html_tag(),
+        }
     }
 }
 
@@ -180,19 +178,10 @@ impl slog::Value for ContainerType {
 )]
 #[serde(rename_all = "kebab-case")]
 pub enum StyledContainerType {
-    /// Span of text. HTML tag `<span>`.
     Span,
-
-    /// Division of text. HTML tag `<div>`.
     Div,
-
-    /// Marked or highlighted text. HTML tag `<mark>`.
     Mark,
-
-    /// Inserted text. HTML tag `<ins>`.
     Insertion,
-
-    /// Deleted text. HTML tag `<del>`.
     Deletion,
 }
 
@@ -200,6 +189,17 @@ impl StyledContainerType {
     #[inline]
     pub fn name(self) -> &'static str {
         self.into()
+    }
+
+    #[inline]
+    pub fn html_tag(self) -> &'static str {
+        match self {
+            StyledContainerType::Span => "span",
+            StyledContainerType::Div => "div",
+            StyledContainerType::Mark => "mark",
+            StyledContainerType::Insertion => "ins",
+            StyledContainerType::Deletion => "del",
+        }
     }
 }
 
