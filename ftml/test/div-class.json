@@ -8,8 +8,9 @@
                     "type": "paragraph",
                     "elements": [
                         {
-                            "element": "div",
+                            "element": "styled-container",
                             "data": {
+                                "type": "div",
                                 "id": null,
                                 "class": "blockquote",
                                 "style": null,

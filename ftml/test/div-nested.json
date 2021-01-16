@@ -8,8 +8,9 @@
                     "type": "paragraph",
                     "elements": [
                         {
-                            "element": "div",
+                            "element": "styled-container",
                             "data": {
+                                "type": "div",
                                 "id": null,
                                 "class": null,
                                 "style": null,
@@ -22,7 +23,7 @@
                                                 {
                                                     "element": "container",
                                                     "data": {
-                                                        "type": "bold",
+                                                        "type": "strong",
                                                         "elements": [
                                                             {
                                                                 "element": "text",
@@ -40,8 +41,9 @@
                                                     "data": "Cherry"
                                                 },
                                                 {
-                                                    "element": "div",
+                                                    "element": "styled-container",
                                                     "data": {
+                                                        "type": "div",
                                                         "id": null,
                                                         "class": null,
                                                         "style": null,

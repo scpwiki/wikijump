@@ -15,8 +15,9 @@
                             "element": "line-break"
                         },
                         {
-                            "element": "insertion",
+                            "element": "styled-container",
                             "data": {
+                                "type": "insertion",
                                 "id": null,
                                 "class": null,
                                 "style": null,

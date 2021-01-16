@@ -8,8 +8,9 @@
                     "type": "paragraph",
                     "elements": [
                         {
-                            "element": "insertion",
+                            "element": "styled-container",
                             "data": {
+                                "type": "insertion",
                                 "id": "apple",
                                 "class": "fruit",
                                 "style": "color: red;",

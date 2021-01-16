@@ -10,7 +10,7 @@
                         {
                             "element": "container",
                             "data": {
-                                "type": "bold",
+                                "type": "strong",
                                 "elements": [
                                     {
                                         "element": "text",

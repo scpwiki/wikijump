@@ -8,8 +8,9 @@
                     "type": "paragraph",
                     "elements": [
                         {
-                            "element": "deletion",
+                            "element": "styled-container",
                             "data": {
+                                "type": "deletion",
                                 "id": "apple",
                                 "class": "fruit",
                                 "style": "color: red;",

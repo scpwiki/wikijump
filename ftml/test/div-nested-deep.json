@@ -8,8 +8,9 @@
                     "type": "paragraph",
                     "elements": [
                         {
-                            "element": "div",
+                            "element": "styled-container",
                             "data": {
+                                "type": "div",
                                 "id": null,
                                 "class": null,
                                 "style": null,
@@ -24,8 +25,9 @@
                                                     "data": "A"
                                                 },
                                                 {
-                                                    "element": "div",
+                                                    "element": "styled-container",
                                                     "data": {
+                                                        "type": "div",
                                                         "id": null,
                                                         "class": null,
                                                         "style": null,
@@ -40,8 +42,9 @@
                                                                             "data": "B"
                                                                         },
                                                                         {
-                                                                            "element": "div",
+                                                                            "element": "styled-container",
                                                                             "data": {
+                                                                                "type": "div",
                                                                                 "id": null,
                                                                                 "class": null,
                                                                                 "style": null,
@@ -56,8 +59,9 @@
                                                                                                     "data": "C"
                                                                                                 },
                                                                                                 {
-                                                                                                    "element": "div",
+                                                                                                    "element": "styled-container",
                                                                                                     "data": {
+                                                                                                        "type": "div",
                                                                                                         "id": null,
                                                                                                         "class": null,
                                                                                                         "style": null,

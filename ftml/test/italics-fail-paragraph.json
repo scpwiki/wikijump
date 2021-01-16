@@ -41,24 +41,24 @@
     "warnings": [
         {
             "token": "paragraph-break",
-            "rule": "italics",
+            "rule": "emphasis",
             "span": [6, 8],
             "kind": "rule-failed"
         },
         {
-            "token": "italics",
+            "token": "emphasis",
             "rule": "fallback",
             "span": [0, 2],
             "kind": "no-rules-match"
         },
         {
             "token": "input-end",
-            "rule": "italics",
+            "rule": "emphasis",
             "span": [17, 17],
             "kind": "end-of-input"
         },
         {
-            "token": "italics",
+            "token": "emphasis",
             "rule": "fallback",
             "span": [15, 17],
             "kind": "no-rules-match"

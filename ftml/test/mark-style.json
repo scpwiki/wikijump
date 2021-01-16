@@ -8,8 +8,9 @@
                     "type": "paragraph",
                     "elements": [
                         {
-                            "element": "mark",
+                            "element": "styled-container",
                             "data": {
+                                "type": "mark",
                                 "id": "banana",
                                 "class": "fruit",
                                 "style": "color: yellow;",

@@ -10,7 +10,7 @@
                         {
                             "element": "container",
                             "data": {
-                                "type": "bold",
+                                "type": "strong",
                                 "elements": [
                                     {
                                         "element": "text",
@@ -23,7 +23,7 @@
                                     {
                                         "element": "container",
                                         "data": {
-                                            "type": "italics",
+                                            "type": "emphasis",
                                             "elements": [
                                                 {
                                                     "element": "text",

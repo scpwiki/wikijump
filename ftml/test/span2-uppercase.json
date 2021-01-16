@@ -8,8 +8,9 @@
                     "type": "paragraph",
                     "elements": [
                         {
-                            "element": "span",
+                            "element": "styled-container",
                             "data": {
+                                "type": "span",
                                 "id": "apple",
                                 "class": "fruit",
                                 "style": "color: red;",

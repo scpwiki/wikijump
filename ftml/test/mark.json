@@ -16,8 +16,9 @@
                             "data": " "
                         },
                         {
-                            "element": "mark",
+                            "element": "styled-container",
                             "data": {
+                                "type": "mark",
                                 "id": null,
                                 "class": null,
                                 "style": null,
