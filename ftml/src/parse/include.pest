@@ -26,7 +26,7 @@
 // [[include]]s can have leading *and* trailing pipe separators,
 // for instance [[include page | a = 1 ]] or [[include page a = 1 | ]] (or both)
 //
-// Additionally, each argument must separated from each other with a pipe.
+// Additionally, each argument must be separated from each other with a pipe.
 // We encapsulate this logic by essentially doing "(parameter ~ pipe)* ~ (parameter ~ pipe?)?
 // That is, all internal parameters need pipes inside, but the last does not,
 // and is optional should the sequence end in a pipe.
