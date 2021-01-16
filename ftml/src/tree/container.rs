@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Representation of syntax elements which wrap other elements.
+//! Representation of generic syntax elements which wrap other elements.
 
 use crate::enums::HeadingLevel;
 use crate::tree::Element;
@@ -35,11 +35,7 @@ pub struct Container<'t> {
 
 impl<'t> Container<'t> {
     #[inline]
-    pub fn new(ctype: ContainerType, mut elements: Vec<Element<'t>>) -> Self {
-        // Prune out null elements
-        elements.retain(|element| element != &Element::Null);
-
-        // Build object
+    pub fn new(ctype: ContainerType, elements: Vec<Element<'t>>) -> Self {
         Container { ctype, elements }
     }
 
