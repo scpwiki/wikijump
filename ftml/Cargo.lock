@@ -437,6 +437,7 @@ dependencies = [
  "lazy_static",
  "pest",
  "pest_derive",
+ "ref-map",
  "regex",
  "serde",
  "serde_json",
@@ -1265,6 +1266,12 @@ dependencies = [
  "redox_syscall 0.1.57",
  "rust-argon2",
 ]
+
+[[package]]
+name = "ref-map"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "703281d31f29412a41ce63af76576f2f9db5628731414ca4c06b4c454b93ea5d"
 
 [[package]]
 name = "regex"

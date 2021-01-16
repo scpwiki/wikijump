@@ -22,6 +22,8 @@
 
 use crate::enums::HeadingLevel;
 use crate::tree::Element;
+use ref_map::*;
+use std::borrow::Cow;
 use strum_macros::IntoStaticStr;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -29,7 +31,6 @@ use strum_macros::IntoStaticStr;
 pub struct Container<'t> {
     #[serde(rename = "type")]
     ctype: ContainerType,
-
     elements: Vec<Element<'t>>,
 }
 
@@ -83,6 +84,90 @@ impl ContainerType {
 }
 
 impl slog::Value for ContainerType {
+    fn serialize(
+        &self,
+        _: &slog::Record,
+        key: slog::Key,
+        serializer: &mut dyn slog::Serializer,
+    ) -> slog::Result {
+        serializer.emit_str(key, self.name())
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
+pub struct StyledContainer<'t> {
+    #[serde(rename = "type")]
+    ctype: StyledContainerType,
+    elements: Vec<Element<'t>>,
+    id: Option<Cow<'t, str>>,
+    class: Option<Cow<'t, str>>,
+    style: Option<Cow<'t, str>>,
+}
+
+impl<'t> StyledContainer<'t> {
+    #[inline]
+    pub fn new(
+        ctype: StyledContainerType,
+        elements: Vec<Element<'t>>,
+        id: Option<Cow<'t, str>>,
+        class: Option<Cow<'t, str>>,
+        style: Option<Cow<'t, str>>,
+    ) -> Self {
+        StyledContainer { ctype, elements, id, class, style }
+    }
+
+    #[inline]
+    pub fn ctype(&self) -> StyledContainerType {
+        self.ctype
+    }
+
+    #[inline]
+    pub fn elements(&self) -> &[Element<'t>] {
+        &self.elements
+    }
+
+    #[inline]
+    pub fn id(&self) -> Option<&str> {
+        self.id.ref_map(|s| s.as_ref())
+    }
+
+    #[inline]
+    pub fn class(&self) -> Option<&str> {
+        self.class.ref_map(|s| s.as_ref())
+    }
+
+    #[inline]
+    pub fn style(&self) -> Option<&str> {
+        self.style.ref_map(|s| s.as_ref())
+    }
+}
+
+impl<'t> From<StyledContainer<'t>> for Vec<Element<'t>> {
+    #[inline]
+    fn from(container: StyledContainer<'t>) -> Vec<Element<'t>> {
+        let StyledContainer { elements, .. } = container;
+
+        elements
+    }
+}
+
+
+#[derive(
+    Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq,
+)]
+#[serde(rename_all = "kebab-case")]
+pub enum StyledContainerType {
+}
+
+impl StyledContainerType {
+    #[inline]
+    pub fn name(self) -> &'static str {
+        self.into()
+    }
+}
+
+impl slog::Value for StyledContainerType {
     fn serialize(
         &self,
         _: &slog::Record,
