@@ -60,40 +60,6 @@ impl<'t> From<Container<'t>> for Vec<Element<'t>> {
     }
 }
 
-#[derive(
-    Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq,
-)]
-#[serde(rename_all = "kebab-case")]
-pub enum ContainerType {
-    Paragraph,
-    Bold,
-    Italics,
-    Underline,
-    Superscript,
-    Subscript,
-    Strikethrough,
-    Monospace,
-    Header(HeadingLevel),
-}
-
-impl ContainerType {
-    #[inline]
-    pub fn name(self) -> &'static str {
-        self.into()
-    }
-}
-
-impl slog::Value for ContainerType {
-    fn serialize(
-        &self,
-        _: &slog::Record,
-        key: slog::Key,
-        serializer: &mut dyn slog::Serializer,
-    ) -> slog::Result {
-        serializer.emit_str(key, self.name())
-    }
-}
-
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub struct StyledContainer<'t> {
@@ -152,6 +118,39 @@ impl<'t> From<StyledContainer<'t>> for Vec<Element<'t>> {
     }
 }
 
+#[derive(
+    Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq,
+)]
+#[serde(rename_all = "kebab-case")]
+pub enum ContainerType {
+    Paragraph,
+    Bold,
+    Italics,
+    Underline,
+    Superscript,
+    Subscript,
+    Strikethrough,
+    Monospace,
+    Header(HeadingLevel),
+}
+
+impl ContainerType {
+    #[inline]
+    pub fn name(self) -> &'static str {
+        self.into()
+    }
+}
+
+impl slog::Value for ContainerType {
+    fn serialize(
+        &self,
+        _: &slog::Record,
+        key: slog::Key,
+        serializer: &mut dyn slog::Serializer,
+    ) -> slog::Result {
+        serializer.emit_str(key, self.name())
+    }
+}
 
 #[derive(
     Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq,
