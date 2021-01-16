@@ -50,6 +50,26 @@ impl AnchorTarget {
     pub fn name(self) -> &'static str {
         self.into()
     }
+
+    #[inline]
+    pub fn html_attr(self) -> &'static str {
+        match self {
+            AnchorTarget::NewTab => "_blank",
+            AnchorTarget::Parent => "_parent",
+            AnchorTarget::Top => "_top",
+            AnchorTarget::Same => "_same",
+        }
+    }
+
+    #[inline]
+    pub fn html_attr_needed(self) -> Option<&'static str> {
+        match self {
+            AnchorTarget::NewTab => Some("_blank"),
+            AnchorTarget::Parent => Some("_parent"),
+            AnchorTarget::Top => Some("_top"),
+            AnchorTarget::Same => None,
+        }
+    }
 }
 
 impl<'a> TryFrom<&'a str> for AnchorTarget {
