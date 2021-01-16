@@ -174,6 +174,20 @@ impl slog::Value for ContainerType {
 )]
 #[serde(rename_all = "kebab-case")]
 pub enum StyledContainerType {
+    /// Span of text. HTML tag `<span>`.
+    Span,
+
+    /// Division of text. HTML tag `<div>`.
+    Div,
+
+    /// Marked or highlighted text. HTML tag `<mark>`.
+    Mark,
+
+    /// Inserted text. HTML tag `<ins>`.
+    Insertion,
+
+    /// Deleted text. HTML tag `<del>`.
+    Deletion,
 }
 
 impl StyledContainerType {
