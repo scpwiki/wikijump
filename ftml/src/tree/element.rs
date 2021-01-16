@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::{Container, StyledContainer, Module};
+use super::{Container, Module, StyledContainer};
 use crate::enums::{AnchorTarget, LinkLabel};
 use std::borrow::Cow;
 use std::num::NonZeroU32;

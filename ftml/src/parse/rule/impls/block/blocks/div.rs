@@ -62,12 +62,13 @@ fn parse_fn<'r, 't>(
         .into();
 
     // Build element and return
-    let element = Element::Div {
+    let element = Element::StyledContainer(StyledContainer::new(
+        StyledContainerType::Div,
         elements,
         id,
         class,
         style,
-    };
+    ));
 
     ok!(element, exceptions)
 }

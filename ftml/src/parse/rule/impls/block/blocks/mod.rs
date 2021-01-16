@@ -25,7 +25,9 @@ mod prelude {
     pub use crate::parse::parser::Parser;
     pub use crate::parse::prelude::*;
     pub use crate::parse::{ParseWarning, Token};
-    pub use crate::tree::Element;
+    pub use crate::tree::{
+        Container, ContainerType, Element, StyledContainer, StyledContainerType,
+    };
 
     #[cfg(debug)]
     pub fn assert_generic_name(

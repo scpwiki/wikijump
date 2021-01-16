@@ -79,12 +79,13 @@ fn parse_fn<'r, 't>(
         }
     }
 
-    let element = Element::Span {
+    let element = Element::StyledContainer(StyledContainer::new(
+        StyledContainerType::Span,
         elements,
         id,
         class,
         style,
-    };
+    ));
 
     ok!(element, exceptions)
 }

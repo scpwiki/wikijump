@@ -80,7 +80,13 @@ impl<'t> StyledContainer<'t> {
         class: Option<Cow<'t, str>>,
         style: Option<Cow<'t, str>>,
     ) -> Self {
-        StyledContainer { ctype, elements, id, class, style }
+        StyledContainer {
+            ctype,
+            elements,
+            id,
+            class,
+            style,
+        }
     }
 
     #[inline]

@@ -56,12 +56,13 @@ fn parse_fn<'r, 't>(
     let (elements, exceptions) = parser.get_body_elements(&BLOCK_MARK, false)?.into();
 
     // Build and return element
-    let element = Element::Mark {
+    let element = Element::StyledContainer(StyledContainer::new(
+        StyledContainerType::Mark,
         elements,
         id,
         class,
         style,
-    };
+    ));
 
     ok!(element, exceptions)
 }
