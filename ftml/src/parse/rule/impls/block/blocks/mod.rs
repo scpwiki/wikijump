@@ -61,6 +61,7 @@ mod del;
 mod div;
 mod ins;
 mod lines;
+mod mark;
 mod module;
 mod span;
 
@@ -71,5 +72,6 @@ pub use self::del::BLOCK_DEL;
 pub use self::div::BLOCK_DIV;
 pub use self::ins::BLOCK_INS;
 pub use self::lines::BLOCK_LINES;
+pub use self::mark::BLOCK_MARK;
 pub use self::module::BLOCK_MODULE;
 pub use self::span::BLOCK_SPAN;
