@@ -88,6 +88,7 @@ pub mod tree;
 #[cfg(test)]
 pub use self::log::{build_console_logger, build_logger, build_null_logger};
 
+pub use self::include::{include, IncludeRef, Includer, PageRef};
 pub use self::parse::{
     parse, ExtractedToken, ParseOutcome, ParseWarning, ParseWarningKind, Token,
 };
