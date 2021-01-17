@@ -74,6 +74,7 @@ mod log;
 mod macros;
 
 mod enums;
+mod include;
 mod parse;
 mod preproc;
 mod render;
