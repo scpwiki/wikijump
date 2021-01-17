@@ -50,7 +50,7 @@ pub fn include<'t>(
     log: &slog::Logger,
     text: &'t mut String,
     includer: &mut dyn Includer<'t>,
-) {
+) -> Vec<PageRef<'t>> {
     let log = &log.new(slog_o!(
         "filename" => slog_filename!(),
         "lineno" => slog_lineno!(),
