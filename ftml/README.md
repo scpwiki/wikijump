@@ -66,6 +66,8 @@ Second is `tokenize`, which takes the input string and returns a wrapper type. T
 Then, borrowing a slice of said tokens, `parse` consumes them and produces a `SyntaxTree` representing the full structure of the parsed wikitext.
 
 ```rust
+fn include(...) -- TODO!
+
 fn preprocess(
     log: &slog::Logger,
     text: &mut String,
@@ -96,8 +98,20 @@ store the results in a `struct`.
 // journalled messages are outputted to.
 let log = slog::Logger::root(/* drain */);
 
-// Perform preprocess substitions
+// Get an `Includer`.
+//
+// See trait documentation for what this requires, but
+// essentially it is some abstract handle that gets the
+// contents of a page to be included.
+let includer = MyIncluderImpl::new();
+
+// Get our source text
 let mut text = str!("**some** test <<string?>>");
+
+// Substitute page inclusions
+let included = ftml::include(&log, &mut text, includer);
+
+// Perform preprocess substitions
 ftml::preprocess(&log, &mut text);
 
 // Generate token from input text
