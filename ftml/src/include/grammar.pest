@@ -33,7 +33,7 @@
 
 include = {
     "[[" ~ space ~ ^"include" ~ space ~
-    page_name ~ space ~
+    page_ref ~ space ~
     "|"? ~ space ~
     (argument ~ space ~ "|" ~ space)* ~
     (argument ~ space ~ ("|" ~ space)?)? ~
@@ -56,10 +56,17 @@ value = {
     )+
 }
 
+// Reference to a page, possibly not on this wiki
+
+page_ref = {
+    (":" ~ identifier ~ ":")? ~ page_name
+}
+site_name = _{ identifier }
+page_name = { (ASCII_ALPHANUMERIC | "-" | "_" | ":")+ }
+
 // Helpers
 
 identifier = { (ASCII_ALPHANUMERIC | "-" | "_")+ }
-page_name = { (ASCII_ALPHANUMERIC | "-" | "_" | ":")+ }
 space = _{ (" " | "\n" | "\t")* }
 
 // vim: set fdm=marker foldlevel=0:
