@@ -51,6 +51,9 @@ impl<'t> Includer<'t> for HttpIncluder<'_> {
         &mut self,
         includes: &[IncludeRef<'t>],
     ) -> Result<FetchedPages<'t>, Self::Error> {
+        let body = reqwest::blocking::get(self.callback_url)?
+            .json()?;
+
         todo!()
     }
 

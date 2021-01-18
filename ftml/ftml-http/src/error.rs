@@ -18,11 +18,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use reqwest::Error as ReqwestError;
 use tera::Error as TeraError;
 use thiserror::Error as ThisError;
 
 #[derive(ThisError, Debug)]
 pub enum Error {
+    #[error("fetching from network: {0}")]
+    Request(#[from] ReqwestError),
+
     #[error("building or rendering template failed: {0}")]
     Template(#[from] TeraError),
 }

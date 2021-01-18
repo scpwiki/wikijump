@@ -621,8 +621,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cad5e82786df758d407932aded1235e24d8e2eb438b6adafd37930c2462fb5d1"
 dependencies = [
  "futures-core",
+ "futures-io",
  "futures-sink",
  "futures-task",
+ "memchr",
  "pin-project-lite 0.2.4",
  "pin-utils",
  "slab",
@@ -1256,6 +1258,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "num_cpus"
+version = "1.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "05499f3756671c15885fee9034446956fff3f243d6077b91e5767df161f766b3"
+dependencies = [
+ "hermit-abi",
+ "libc",
+]
+
+[[package]]
 name = "once_cell"
 version = "1.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1622,6 +1634,7 @@ dependencies = [
  "percent-encoding",
  "pin-project-lite 0.2.4",
  "serde",
+ "serde_json",
  "serde_urlencoded 0.7.0",
  "tokio 1.0.2",
  "tokio-native-tls",
@@ -2124,6 +2137,7 @@ dependencies = [
  "libc",
  "memchr",
  "mio 0.7.7",
+ "num_cpus",
  "pin-project-lite 0.2.4",
 ]
 
