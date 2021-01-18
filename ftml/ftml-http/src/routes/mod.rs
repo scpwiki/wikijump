@@ -31,11 +31,13 @@ mod prelude {
 mod include;
 mod object;
 mod preproc;
+mod tokenize;
 
 use self::include::route_include;
 use self::object::*;
 use self::prelude::CONTENT_LENGTH_LIMIT;
 use self::preproc::route_preproc;
+use self::tokenize::route_tokenize;
 use crate::info;
 use ftml::ParseOutcome;
 use warp::{Filter, Rejection, Reply};
@@ -43,39 +45,6 @@ use warp::{Filter, Rejection, Reply};
 // TODO: add include to other routes
 
 // Routes
-
-pub fn route_tokenize(
-    log: &slog::Logger,
-) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
-    let factory = |preprocess| {
-        let log = log.clone();
-
-        move |input| {
-            let TextInput { mut text } = input;
-
-            if preprocess {
-                ftml::preprocess(&log, &mut text);
-            }
-
-            let result = ftml::tokenize(&log, &text);
-            let tokens = result.tokens();
-            warp::reply::json(&tokens)
-        }
-    };
-
-    let regular = warp::path("tokenize")
-        .and(warp::path::end())
-        .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
-        .and(warp::body::json())
-        .map(factory(true));
-
-    let only = warp::path!("tokenize" / "only")
-        .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
-        .and(warp::body::json())
-        .map(factory(false));
-
-    regular.or(only)
-}
 
 pub fn route_parse(
     log: &slog::Logger,
