@@ -33,6 +33,23 @@ struct TextInput {
     text: String,
 }
 
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "kebab-case")]
+enum Response<T> {
+    Result(T),
+    Error(String),
+}
+
+impl<T> From<Result<T, Error>> for Response<T> {
+    #[inline]
+    fn from(result: Result<T, Error>) -> Response<T> {
+        match result {
+            Ok(item) => Response::Result(item),
+            Err(error) => Response::Error(str!(error)),
+        }
+    }
+}
+
 // Routes
 
 fn include(
@@ -96,8 +113,8 @@ fn include(
         .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
         .and(warp::body::json())
         .map(move |input| {
-            let result = process(&log, input).map_err(|error| str!(error));
-            warp::reply::json(&result)
+            let resp: Response<_> = process(&log, input).into();
+            warp::reply::json(&resp)
         })
 }
 
