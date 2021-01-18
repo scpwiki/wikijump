@@ -108,6 +108,18 @@ impl<'t> PageRef<'t> {
 
         Some(result)
     }
+
+    pub fn to_owned(&self) -> PageRef<'static> {
+        #[inline]
+        fn owned(value: &Cow<'_, str>) -> Cow<'static, str> {
+            Cow::Owned(value.as_ref().to_owned())
+        }
+
+        let site = self.site.ref_map(owned);
+        let page = owned(&self.page);
+
+        PageRef { site, page }
+    }
 }
 
 impl Display for PageRef<'_> {

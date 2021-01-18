@@ -45,17 +45,21 @@ extern crate sloggers;
 
 #[macro_use]
 extern crate str_macro;
+extern crate tera;
+extern crate thiserror;
 extern crate tokio;
 extern crate users;
 extern crate warp;
 
 mod config;
+mod error;
 mod includer;
 mod info;
 mod logger;
 mod routes;
 
 use self::config::Config;
+use self::error::Error;
 use self::includer::HttpIncluder;
 
 #[tokio::main]

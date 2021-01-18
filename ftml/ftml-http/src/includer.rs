@@ -18,26 +18,34 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::Error;
 use ftml::{FetchedPages, IncludeRef, Includer, PageRef};
 use std::borrow::Cow;
+use tera::{Context, Tera};
 
 #[derive(Debug)]
 pub struct HttpIncluder<'a> {
     callback_url: &'a str,
-    missing_include_template: &'a str,
+    templates: Tera,
 }
 
 impl<'a> HttpIncluder<'a> {
-    pub fn new(callback_url: &'a str, missing_include_template: &'a str) -> Self {
-        HttpIncluder {
+    pub fn new(
+        callback_url: &'a str,
+        missing_include_template: &'a str,
+    ) -> Result<Self, Error> {
+        let mut templates = Tera::default();
+        templates.add_raw_template("missing.ftml", missing_include_template)?;
+
+        Ok(HttpIncluder {
             callback_url,
-            missing_include_template,
-        }
+            templates,
+        })
     }
 }
 
 impl<'t> Includer<'t> for HttpIncluder<'_> {
-    type Error = ();
+    type Error = Error;
 
     fn include_pages(
         &mut self,
@@ -46,7 +54,23 @@ impl<'t> Includer<'t> for HttpIncluder<'_> {
         todo!()
     }
 
-    fn no_such_include(&mut self, page_ref: &PageRef<'t>) -> Cow<'t, str> {
-        todo!()
+    fn no_such_include(
+        &mut self,
+        page_ref: &PageRef<'t>,
+    ) -> Result<Cow<'t, str>, Self::Error> {
+        let context = {
+            let mut context = Context::new();
+
+            if let Some(site) = page_ref.site() {
+                context.insert("site", site);
+            }
+
+            context.insert("page", page_ref.page());
+            context.insert("path", page_ref);
+            context
+        };
+
+        let message = self.templates.render("missing.ftml", &context)?;
+        Ok(Cow::Owned(message))
     }
 }

@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::{info, HttpIncluder};
+use crate::{info, Error, HttpIncluder};
 use ftml::{Includer, PageRef, ParseOutcome};
 use warp::{Filter, Rejection, Reply};
 
@@ -48,8 +48,43 @@ fn include(
 
     #[derive(Serialize, Debug)]
     struct IncludeOutput<'a> {
-        text: &'a str,
-        pages: &'a [PageRef<'a>],
+        text: String,
+        pages: Vec<PageRef<'a>>,
+    }
+
+    fn process(
+        log: &slog::Logger,
+        input: IncludeInput,
+    ) -> Result<IncludeOutput<'_>, Error> {
+        let IncludeInput {
+            text,
+            callback_url,
+            missing_include_template,
+        } = input;
+
+        let includer = HttpIncluder::new(&callback_url, &missing_include_template)?;
+
+        match ftml::include(log, &text, includer) {
+            Ok((output, pages)) => {
+                info!(
+                    log,
+                    "Got successful return for page inclusions";
+                    "output" => &output,
+                    "pages" => pages.len(),
+                );
+
+                // Clone page references to avoid lifetime issues
+                Ok(IncludeOutput {
+                    text: output,
+                    pages: pages.iter().map(PageRef::to_owned).collect(),
+                })
+            }
+            Err(error) => {
+                warn!(log, "Error fetching included pages or data: {}", error);
+
+                Err(error)
+            }
+        }
     }
 
     warp::post()
@@ -57,36 +92,8 @@ fn include(
         .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
         .and(warp::body::json())
         .map(move |input| {
-            let IncludeInput {
-                text,
-                callback_url,
-                missing_include_template,
-            } = input;
-
-            let includer = HttpIncluder::new(&callback_url, &missing_include_template);
-
-            match ftml::include(&log, &text, includer) {
-                Ok((output, pages)) => {
-                    info!(
-                        &log,
-                        "Got successful return for page inclusions";
-                        "output" => output,
-                        "pages" => pages.len(),
-                    );
-
-                    let result = IncludeOutput {
-                        text: &output,
-                        pages: &pages,
-                    };
-
-                    warp::reply::json(&Ok(result))
-                }
-                Err(error) => {
-                    warn!(&log, "Error fetching included pages or data: {}", error);
-
-                    warp::reply::json(&Err(str!(error)))
-                }
-            }
+            let result = process(&log, input).map_err(|error| str!(error));
+            warp::reply::json(&result)
         })
 }
 

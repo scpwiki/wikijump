@@ -24,6 +24,8 @@ slog = "2.7"
 slog-bunyan = "2"
 sloggers = "1"
 str-macro = "0.1"
+tera = "1.6"
+thiserror = "1"
 tokio = { version = "0.2", features = ["macros"] }
 users = "0.11"
 warp = { version = "0.2", features = ["compression"] }
