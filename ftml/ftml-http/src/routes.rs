@@ -80,7 +80,11 @@ fn include(
                 })
             }
             Err(error) => {
-                warn!(log, "Error fetching included pages or data: {}", error);
+                warn!(
+                    log,
+                    "Error fetching included pages or data";
+                    "error" => str!(error),
+                );
 
                 Err(error)
             }
