@@ -18,6 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#[cfg(test)]
+mod test;
+
 mod includer;
 mod object;
 mod parse;
@@ -119,53 +122,4 @@ where
 
     // Return
     Ok((output, pages))
-}
-
-#[test]
-fn test_include() {
-    let log = crate::build_logger();
-
-    macro_rules! test {
-        ($text:expr, $expected:expr) => {{
-            let mut text = str!($text);
-            let result = include(&log, &mut text, NullIncluder);
-            let (output, actual) = result.expect("Fetching pages failed");
-            let expected = $expected;
-
-            println!("Input: {:?}", $text);
-            println!("Output: {:?}", output);
-            println!("Pages (actual): {:?}", actual);
-            println!("Pages (expected): {:?}", expected);
-            println!();
-
-            assert_eq!(
-                &actual, &expected,
-                "Actual pages to include doesn't match expected"
-            );
-        }};
-    }
-
-    // Valid cases
-    //test!("", vec![]);
-    //test!("[[include page]]", vec![PageRef::page_only("page")]);
-    //test!("[[include page a=1]]", vec![]);
-    //test!("[[include page a=1|]]", vec![]);
-    //test!("[[include page a=1 |]]", vec![]);
-    //test!("[[include page |a=1]]", vec![]);
-    //test!("[[include page | a=1]]", vec![]);
-    //test!("[[include page |a=1|]]", vec![]);
-    //test!("[[include page | a=1|]]", vec![]);
-    //test!("[[include page |a=1 |]]", vec![]);
-    //test!("[[include page | a=1 |]]", vec![]);
-    test!("[[include page a=1 | b=2]]", vec![]);
-
-    test!(
-        "abc\n[[include page]]\ndef\n[[include page2\narg=1]]\nghi",
-        vec![]
-    );
-
-    // Invalid cases
-    test!("other text", vec![]);
-    test!("[[include", vec![]);
-    test!("include]]", vec![]);
 }
