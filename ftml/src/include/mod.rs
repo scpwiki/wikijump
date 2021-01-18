@@ -34,7 +34,7 @@ use regex::{Regex, RegexBuilder};
 
 lazy_static! {
     static ref INCLUDE_REGEX: Regex = {
-        RegexBuilder::new(r"\[\[\s*include\s+.+\]\]")
+        RegexBuilder::new(r"\[\[\s*include\s+.+?\]\]")
             .case_insensitive(true)
             .dot_matches_new_line(true)
             .build()
