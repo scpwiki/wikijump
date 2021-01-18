@@ -30,10 +30,12 @@ mod prelude {
 
 mod include;
 mod object;
+mod preproc;
 
 use self::include::route_include;
 use self::object::*;
 use self::prelude::CONTENT_LENGTH_LIMIT;
+use self::preproc::route_preproc;
 use crate::info;
 use ftml::ParseOutcome;
 use warp::{Filter, Rejection, Reply};
@@ -41,22 +43,6 @@ use warp::{Filter, Rejection, Reply};
 // TODO: add include to other routes
 
 // Routes
-
-pub fn route_preproc(
-    log: slog::Logger,
-) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
-    warp::post()
-        .and(warp::path("preprocess"))
-        .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
-        .and(warp::body::json())
-        .map(move |input| {
-            let TextInput { mut text } = input;
-
-            ftml::preprocess(&log, &mut text);
-
-            text
-        })
-}
 
 pub fn route_tokenize(
     log: &slog::Logger,
