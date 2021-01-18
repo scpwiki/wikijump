@@ -61,6 +61,7 @@ pub fn include<'t>(
 
     let mut includes = Vec::new();
 
+    // Get include references
     for mtch in INCLUDE_REGEX.find_iter(text) {
         let start = mtch.start();
         let end = mtch.end();
@@ -94,6 +95,13 @@ pub fn include<'t>(
         }
     }
 
+    // Retrieve included pages
+    todo!();
+
+    // Substitute inclusions
+    todo!();
+
+    // Return
     todo!()
 }
 
