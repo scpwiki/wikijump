@@ -53,11 +53,11 @@
                         },
                         {
                             "element": "text",
-                            "data": ":"
+                            "data": " "
                         },
                         {
                             "element": "text",
-                            "data": " "
+                            "data": "> "
                         },
                         {
                             "element": "text",
@@ -77,11 +77,11 @@
                         },
                         {
                             "element": "text",
-                            "data": ":"
+                            "data": " "
                         },
                         {
                             "element": "text",
-                            "data": " "
+                            "data": "> "
                         },
                         {
                             "element": "text",
