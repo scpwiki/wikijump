@@ -47,14 +47,6 @@ impl<T> From<Result<T, Error>> for Response<T> {
 
 // Include structs
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "kebab-case")]
-pub struct IncludeInput {
-    pub text: String,
-    pub callback_url: String,
-    pub missing_include_template: String,
-}
-
 #[derive(Serialize, Debug)]
 pub struct IncludeOutput<'a> {
     pub text: String,

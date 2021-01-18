@@ -45,8 +45,6 @@ use self::render::route_render_html;
 use self::tokenize::route_tokenize;
 use warp::{Filter, Rejection, Reply};
 
-// TODO: add include to other routes
-
 // Collected routes into a server
 pub fn build(
     log: slog::Logger,
