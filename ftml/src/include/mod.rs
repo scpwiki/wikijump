@@ -18,9 +18,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod includer;
+mod object;
+
+pub use self::includer::{Includer, NullIncluder};
+pub use self::object::{IncludeRef, PageRef};
+
+use crate::span_wrap::SpanWrap;
+use pest::Parser;
 use regex::{Regex, RegexBuilder};
-use std::borrow::Cow;
-use std::collections::HashMap;
 
 lazy_static! {
     static ref INCLUDE_REGEX: Regex = {
@@ -34,28 +40,7 @@ lazy_static! {
 
 #[derive(Parser, Debug)]
 #[grammar = "include/grammar.pest"]
-struct Parser;
-
-#[derive(Serialize, Deserialize, Debug, Clone, Hash)]
-pub struct PageRef<'t> {
-    site: Option<Cow<'t, str>>,
-    page: Cow<'t, str>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct IncludeRef<'t> {
-    page: PageRef<'t>,
-    variables: HashMap<Cow<'t, str>, Cow<'t, str>>,
-}
-
-pub trait Includer<'t> {
-    fn include_pages(
-        &mut self,
-        includes: &[IncludeRef<'t>],
-    ) -> HashMap<PageRef<'t>, Cow<'t, str>>;
-
-    fn no_such_include(&mut self) -> Cow<'t, str>;
-}
+struct IncludeParser;
 
 pub fn include<'t>(
     log: &slog::Logger,
@@ -74,5 +59,71 @@ pub fn include<'t>(
         "Finding and replacing all instances of include blocks in text"
     );
 
+    let mut includes = Vec::new();
+
+    for mtch in INCLUDE_REGEX.find_iter(text) {
+        let start = mtch.start();
+        let end = mtch.end();
+        let slice = &text[start..end];
+
+        match IncludeParser::parse(Rule::include, slice) {
+            Ok(pairs) => {
+                debug!(
+                    log,
+                    "Parsed include block";
+                    "span" => SpanWrap::from(start..end),
+                    "slice" => slice,
+                );
+
+                for pair in pairs {
+                    // TODO
+                    println!("rule: {:?}, slice: {:?}", pair.as_rule(), pair.as_str());
+                }
+
+                includes.push((start..end, ()));
+            }
+            Err(error) => {
+                debug!(
+                    log,
+                    "Found invalid include block";
+                    "error" => str!(error),
+                    "span" => SpanWrap::from(start..end),
+                    "slice" => slice,
+                );
+            }
+        }
+    }
+
     todo!()
+}
+
+#[test]
+fn test_include() {
+    let log = crate::build_logger();
+
+    macro_rules! test {
+        ($text:expr, $expected:expr) => {{
+            let mut text = str!($text);
+            let actual = include(&log, &mut text, &mut NullIncluder);
+            let expected = $expected;
+
+            println!("Input: {:?}", $text);
+            println!("Pages (actual): {:?}", actual);
+            println!("Pages (expected): {:?}", expected);
+            println!();
+
+            assert_eq!(
+                &actual, &expected,
+                "Actual pages to include doesn't match expected"
+            );
+        }};
+    }
+
+    test!("", vec![]);
+    test!("[[include page]]", vec![PageRef::page_only("page")]);
+
+    test!(
+        "abc\n[[include page]]\ndef\n[[include page2\narg=1]]\nghi",
+        vec![]
+    );
 }
