@@ -1,0 +1,65 @@
+{
+    "input": "[[*include my-page]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "[[*"
+                        },
+                        {
+                            "element": "text",
+                            "data": "include"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "my"
+                        },
+                        {
+                            "element": "text",
+                            "data": "-"
+                        },
+                        {
+                            "element": "text",
+                            "data": "page"
+                        },
+                        {
+                            "element": "text",
+                            "data": "]]"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+        {
+            "token": "identifier",
+            "rule": "block-include",
+            "span": [11, 13],
+            "kind": "invalid-special-block"
+        },
+        {
+            "token": "left-block-special",
+            "rule": "fallback",
+            "span": [0, 3],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "right-block",
+            "rule": "fallback",
+            "span": [18, 20],
+            "kind": "no-rules-match"
+        }
+    ]
+}
