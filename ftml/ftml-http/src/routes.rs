@@ -19,7 +19,7 @@
  */
 
 use crate::{info, Error, HttpIncluder};
-use ftml::{Includer, PageRef, ParseOutcome};
+use ftml::{PageRef, ParseOutcome};
 use warp::{Filter, Rejection, Reply};
 
 // TODO: add include to other routes
