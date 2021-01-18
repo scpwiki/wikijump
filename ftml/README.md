@@ -103,13 +103,16 @@ let log = slog::Logger::root(/* drain */);
 // See trait documentation for what this requires, but
 // essentially it is some abstract handle that gets the
 // contents of a page to be included.
+//
+// Two sample includers you could try are `NullIncluder`
+// and `DebugIncluder`.
 let includer = MyIncluderImpl::new();
 
 // Get our source text
-let mut text = str!("**some** test <<string?>>");
+let mut input = "**some** test <<string?>>";
 
 // Substitute page inclusions
-let included = ftml::include(&log, &mut text, includer);
+let (mut text, included_pages) = ftml::include(&log, input, includer);
 
 // Perform preprocess substitions
 ftml::preprocess(&log, &mut text);
