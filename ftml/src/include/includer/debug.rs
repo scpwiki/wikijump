@@ -19,6 +19,8 @@
  */
 
 use super::prelude::*;
+use crate::include::IncludeVariables;
+use std::fmt::{self, Display};
 use void::Void;
 
 #[derive(Debug)]
@@ -50,7 +52,7 @@ impl<'t> Includer<'t> for DebugIncluder {
             let content = format!(
                 "<INCLUDED-PAGE {} {:?}>",
                 include.page(),
-                include.variables(),
+                MapWrap(include.variables()),
             );
 
             pages.insert(include.page().clone(), Cow::Owned(content));
@@ -63,4 +65,53 @@ impl<'t> Includer<'t> for DebugIncluder {
     fn no_such_include(&mut self, page_ref: &PageRef<'t>) -> Cow<'t, str> {
         Cow::Owned(format!("<MISSING-PAGE {}>", page_ref))
     }
+}
+
+/// Rendering a `HashMap` as a string, sorted alphabetically.
+///
+/// Avoids the uncertain key-value pair ordering inherent in the `Debug`
+/// implementation, which could cause tests to be flakey or system-dependent.
+#[derive(Debug)]
+struct MapWrap<'m, 't>(&'m IncludeVariables<'t>);
+
+impl<'t> Display for MapWrap<'_, 't> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        // Get all entries and sort by key
+        let mut entries: Vec<(&Cow<'t, str>, &Cow<'t, str>)> = self.0.iter().collect();
+        entries.sort_by(|(key1, _), (key2, _)| key1.cmp(key2));
+
+        // Write all entries
+        write!(f, "{{")?;
+
+        for (i, (key, value)) in entries.iter().enumerate() {
+            write!(f, "{:?} => {:?}", key, value)?;
+
+            if i < entries.len() - 1 {
+                write!(f, ", ")?;
+            }
+        }
+
+        write!(f, "}}")?;
+
+        // Return
+        Ok(())
+    }
+}
+
+#[test]
+fn map_wrap() {
+    macro_rules! test {
+        ($input:expr, $expected:expr) => {{
+            let input = $input;
+            let actual = MapWrap(&input).to_string();
+
+            println!("Input:    {:?}", input);
+            println!("Actual:   {}", actual);
+            println!("Expected: {}", $expected);
+
+            assert_eq!(&actual, $expected, "Actual format string didn't match expected");
+        }};
+    }
+
+    test!(hashmap! {}, "{}");
 }

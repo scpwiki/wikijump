@@ -38,4 +38,5 @@ void = "1"
 wikidot-normalize = "0.6"
 
 [dev-dependencies]
+maplit = "1"
 sloggers = "1"

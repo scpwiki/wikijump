@@ -435,6 +435,7 @@ dependencies = [
  "cfg-if 1.0.0",
  "enum-map",
  "lazy_static",
+ "maplit",
  "pest",
  "pest_derive",
  "ref-map",

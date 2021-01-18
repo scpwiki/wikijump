@@ -61,6 +61,8 @@ extern crate wikidot_normalize;
 
 cfg_if! {
     if #[cfg(test)] {
+        #[macro_use]
+        extern crate maplit;
         extern crate sloggers;
     }
 }
