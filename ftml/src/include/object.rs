@@ -23,6 +23,16 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::fmt::{self, Display};
 
+/// Represents a reference to a page on the wiki, as used by includes.
+///
+/// It tracks whether it refers to a page on this wiki, or some other,
+/// and what the names of these are.
+///
+/// The Wikidot syntax here allows for two cases:
+/// * `:wiki-name:page` (off-site)
+/// * `page` (on-site)
+///
+/// Additionally "`page`" here may also contain colons, such as `component:some-thing`.
 #[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq)]
 pub struct PageRef<'t> {
     site: Option<Cow<'t, str>>,
