@@ -86,12 +86,6 @@ fn process_pairs<'t>(
     let mut arguments = HashMap::new();
 
     while let Some(pair) = pairs.next() {
-        // Finished iteration
-        if pair.as_rule() == Rule::EOI {
-            break;
-        }
-
-        // Process an argument
         debug_assert_eq!(pair.as_rule(), Rule::argument);
 
         let (key, value) = {

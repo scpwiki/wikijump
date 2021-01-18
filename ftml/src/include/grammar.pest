@@ -38,8 +38,7 @@ include = {
     "|"? ~ space ~
     (argument ~ space ~ "|" ~ space)* ~
     (argument ~ space ~ ("|" ~ space)?)? ~
-    "]]" ~
-    EOI
+    "]]"
 }
 
 argument = {
