@@ -130,6 +130,7 @@ where
     parser.get_optional_space()?;
 
     let (name, in_head) = parser.get_block_name()?;
+    trace!(log, "Got block name"; "name" => name, "in-head" => in_head);
 
     // Get the block rule for this name
     let block = match get_block_rule_with_name(name) {
