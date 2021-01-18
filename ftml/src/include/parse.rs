@@ -83,7 +83,10 @@ fn process_pairs<'t>(
     };
 
     trace!(
-        log, "Got page for include"; "site" => page_ref.site(), "page" => page_ref.page(),
+        log,
+        "Got page for include";
+        "site" => page_ref.site(),
+        "page" => page_ref.page(),
     );
 
     let mut arguments = HashMap::new();
