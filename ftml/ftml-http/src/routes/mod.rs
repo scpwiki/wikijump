@@ -36,14 +36,11 @@ mod render;
 mod tokenize;
 
 use self::include::route_include;
-use self::object::*;
 use self::parse::route_parse;
-use self::prelude::CONTENT_LENGTH_LIMIT;
 use self::preproc::route_preproc;
 use self::render::route_render_html;
 use self::tokenize::route_tokenize;
 use crate::info;
-use ftml::ParseOutcome;
 use warp::{Filter, Rejection, Reply};
 
 // TODO: add include to other routes
