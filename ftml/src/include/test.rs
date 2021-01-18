@@ -45,19 +45,20 @@ fn includes() {
     }
 
     // Valid cases
-    //test!("", vec![]);
-    //test!("[[include page]]", vec![PageRef::page_only("page")]);
-    //test!("[[include page a=1]]", vec![]);
-    //test!("[[include page a=1|]]", vec![]);
-    //test!("[[include page a=1 |]]", vec![]);
-    //test!("[[include page |a=1]]", vec![]);
-    //test!("[[include page | a=1]]", vec![]);
-    //test!("[[include page |a=1|]]", vec![]);
-    //test!("[[include page | a=1|]]", vec![]);
-    //test!("[[include page |a=1 |]]", vec![]);
-    //test!("[[include page | a=1 |]]", vec![]);
+    test!("", vec![]);
+    test!("[[include page]]", vec![PageRef::page_only("page")]);
+    test!("[[include page a=1]]", vec![]);
+    test!("[[include page a=1|]]", vec![]);
+    test!("[[include page a=1 |]]", vec![]);
+    test!("[[include page |a=1]]", vec![]);
+    test!("[[include page | a=1]]", vec![]);
+    test!("[[include page |a=1|]]", vec![]);
+    test!("[[include page | a=1|]]", vec![]);
+    test!("[[include page |a=1 |]]", vec![]);
+    test!("[[include page | a=1 |]]", vec![]);
     test!("[[include page a=1 | b=2]]", vec![]);
 
+    // TODO
     test!(
         "abc\n[[include page]]\ndef\n[[include page2\narg=1]]\nghi",
         vec![]
