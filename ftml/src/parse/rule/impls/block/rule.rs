@@ -81,7 +81,7 @@ fn block_skip<'r, 't>(
         }
 
         // Get the block's name
-        let (name, _) = parser.get_block_name()?;
+        let (name, _) = parser.get_block_name(false)?;
 
         // Get the associated block rule
         let block = match get_block_rule_with_name(name) {
@@ -129,7 +129,7 @@ where
     // Get block name
     parser.get_optional_space()?;
 
-    let (name, in_head) = parser.get_block_name()?;
+    let (name, in_head) = parser.get_block_name(special)?;
     trace!(log, "Got block name"; "name" => name, "in-head" => in_head);
 
     // Get the block rule for this name

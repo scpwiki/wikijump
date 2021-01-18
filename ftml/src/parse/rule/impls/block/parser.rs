@@ -86,10 +86,15 @@ where
         self.get_optional_token(Token::Whitespace)
     }
 
-    pub fn get_block_name(&mut self) -> Result<(&'t str, bool), ParseWarning> {
+    pub fn get_block_name(&mut self, special: bool) -> Result<(&'t str, bool), ParseWarning> {
         debug!(&self.log(), "Looking for identifier");
 
-        self.get_optional_token(Token::LeftBlock)?;
+        if special {
+            self.get_optional_token(Token::LeftBlockSpecial)?;
+        } else {
+            self.get_optional_token(Token::LeftBlock)?;
+        }
+
         self.get_optional_space()?;
 
         // Collect block name and determine whether the head is done
@@ -135,7 +140,7 @@ where
         self.get_token(Token::LeftBlockEnd, ParseWarningKind::BlockExpectedEnd)?;
         self.get_optional_space()?;
 
-        let (name, in_head) = self.get_block_name()?;
+        let (name, in_head) = self.get_block_name(false)?;
         if in_head {
             self.get_optional_space()?;
             self.get_token(Token::RightBlock, ParseWarningKind::BlockExpectedEnd)?;
