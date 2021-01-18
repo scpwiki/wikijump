@@ -78,6 +78,10 @@ impl<'t> PageRef<'t> {
     }
 
     pub fn parse(s: &'t str) -> Result<PageRef<'t>, ()> {
+        if s.is_empty() {
+            return Err(());
+        }
+
         let result = match s.find(':') {
             // Off-site page, e.g. ":scp-wiki:something"
             Some(0) => {
