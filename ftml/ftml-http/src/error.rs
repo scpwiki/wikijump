@@ -19,11 +19,15 @@
  */
 
 use reqwest::Error as ReqwestError;
+use serde_json::Error as JsonError;
 use tera::Error as TeraError;
 use thiserror::Error as ThisError;
 
 #[derive(ThisError, Debug)]
 pub enum Error {
+    #[error("serializing or desezerializing from JSON: {0}")]
+    Json(#[from] JsonError),
+
     #[error("fetching from network: {0}")]
     Request(#[from] ReqwestError),
 

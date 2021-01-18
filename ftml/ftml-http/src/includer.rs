@@ -20,6 +20,7 @@
 
 use crate::Error;
 use ftml::{FetchedPages, IncludeRef, Includer, PageRef};
+use reqwest::blocking::Client;
 use std::borrow::Cow;
 use tera::{Context, Tera};
 
@@ -51,10 +52,15 @@ impl<'t> Includer<'t> for HttpIncluder<'_> {
         &mut self,
         includes: &[IncludeRef<'t>],
     ) -> Result<FetchedPages<'t>, Self::Error> {
-        let body = reqwest::blocking::get(self.callback_url)?
+        let client = Client::new();
+        let body = IncludeRequest::from(includes).json()?;
+        let pages = client
+            .post(self.callback_url) //
+            .body(body)
+            .send()?
             .json()?;
 
-        todo!()
+        Ok(pages)
     }
 
     fn no_such_include(
@@ -75,5 +81,25 @@ impl<'t> Includer<'t> for HttpIncluder<'_> {
 
         let message = self.templates.render("missing.ftml", &context)?;
         Ok(Cow::Owned(message))
+    }
+}
+
+#[derive(Serialize, Debug)]
+struct IncludeRequest<'a> {
+    includes: &'a [IncludeRef<'a>],
+}
+
+impl IncludeRequest<'_> {
+    #[inline]
+    fn json(&self) -> Result<String, Error> {
+        let buffer = serde_json::to_string(self)?;
+        Ok(buffer)
+    }
+}
+
+impl<'a> From<&'a [IncludeRef<'a>]> for IncludeRequest<'a> {
+    #[inline]
+    fn from(includes: &'a [IncludeRef<'a>]) -> IncludeRequest<'a> {
+        IncludeRequest { includes }
     }
 }
