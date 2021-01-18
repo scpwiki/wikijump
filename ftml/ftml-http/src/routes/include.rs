@@ -23,51 +23,49 @@ use super::prelude::*;
 pub fn route_include(
     log: slog::Logger,
 ) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
-    fn process(
-        log: &slog::Logger,
-        input: IncludeInput,
-    ) -> Result<IncludeOutput<'_>, Error> {
-        let IncludeInput {
-            text,
-            callback_url,
-            missing_include_template,
-        } = input;
-
-        let includer = HttpIncluder::new(&callback_url, &missing_include_template)?;
-
-        match ftml::include(log, &text, includer) {
-            Ok((output, pages)) => {
-                info!(
-                    log,
-                    "Got successful return for page inclusions";
-                    "output" => &output,
-                    "pages" => pages.len(),
-                );
-
-                // Clone page references to avoid lifetime issues
-                Ok(IncludeOutput {
-                    text: output,
-                    pages: pages.iter().map(PageRef::to_owned).collect(),
-                })
-            }
-            Err(error) => {
-                warn!(
-                    log,
-                    "Error fetching included pages or data";
-                    "error" => str!(error),
-                );
-
-                Err(error)
-            }
-        }
-    }
-
     warp::post()
         .and(warp::path("include"))
         .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
         .and(warp::body::json())
         .map(move |input| {
-            let resp: Response<_> = process(&log, input).into();
+            let resp: Response<_> = process_include(&log, input).into();
             warp::reply::json(&resp)
         })
+}
+
+pub fn process_include(
+    log: &slog::Logger,
+    IncludeInput {
+        text,
+        callback_url,
+        missing_include_template,
+    }: IncludeInput,
+) -> Result<IncludeOutput<'_>, Error> {
+    let includer = HttpIncluder::new(&callback_url, &missing_include_template)?;
+
+    match ftml::include(log, &text, includer) {
+        Ok((output, pages)) => {
+            info!(
+                log,
+                "Got successful return for page inclusions";
+                "output" => &output,
+                "pages" => pages.len(),
+            );
+
+            // Clone page references to avoid lifetime issues
+            Ok(IncludeOutput {
+                text: output,
+                pages: pages.iter().map(PageRef::to_owned).collect(),
+            })
+        }
+        Err(error) => {
+            warn!(
+                log,
+                "Error fetching included pages or data";
+                "error" => str!(error),
+            );
+
+            Err(error)
+        }
+    }
 }
