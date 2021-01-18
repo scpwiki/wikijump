@@ -51,12 +51,12 @@ impl<'t> Includer<'t> for DebugIncluder {
 
             let content = format!(
                 "<INCLUDED-PAGE {} {}>",
-                include.page(),
+                include.page_ref(),
                 MapWrap(include.variables()),
             );
 
             pages.push(FetchedPage {
-                page: include.page().clone(),
+                page: include.page_ref().clone(),
                 content: Cow::Owned(content),
             });
         }

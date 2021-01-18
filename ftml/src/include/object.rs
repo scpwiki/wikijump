@@ -140,24 +140,27 @@ pub type IncludeVariables<'t> = HashMap<Cow<'t, str>, Cow<'t, str>>;
 /// to be passed to it when doing the substitution.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct IncludeRef<'t> {
-    page: PageRef<'t>,
+    page_ref: PageRef<'t>,
     variables: IncludeVariables<'t>,
 }
 
 impl<'t> IncludeRef<'t> {
     #[inline]
-    pub fn new(page: PageRef<'t>, variables: IncludeVariables<'t>) -> Self {
-        IncludeRef { page, variables }
+    pub fn new(page_ref: PageRef<'t>, variables: IncludeVariables<'t>) -> Self {
+        IncludeRef {
+            page_ref,
+            variables,
+        }
     }
 
     #[inline]
-    pub fn page_only(page: PageRef<'t>) -> Self {
-        IncludeRef::new(page, HashMap::new())
+    pub fn page_only(page_ref: PageRef<'t>) -> Self {
+        IncludeRef::new(page_ref, HashMap::new())
     }
 
     #[inline]
-    pub fn page(&self) -> &PageRef<'t> {
-        &self.page
+    pub fn page_ref(&self) -> &PageRef<'t> {
+        &self.page_ref
     }
 
     #[inline]
@@ -169,9 +172,12 @@ impl<'t> IncludeRef<'t> {
 impl<'t> From<IncludeRef<'t>> for (PageRef<'t>, IncludeVariables<'t>) {
     #[inline]
     fn from(include: IncludeRef<'t>) -> (PageRef<'t>, IncludeVariables<'t>) {
-        let IncludeRef { page, variables } = include;
+        let IncludeRef {
+            page_ref,
+            variables,
+        } = include;
 
-        (page, variables)
+        (page_ref, variables)
     }
 }
 
