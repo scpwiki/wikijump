@@ -18,15 +18,35 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use ftml::Includer;
+use ftml::{FetchedPages, IncludeRef, Includer, PageRef};
+use std::borrow::Cow;
 
 #[derive(Debug)]
 pub struct HttpIncluder<'a> {
     callback_url: &'a str,
+    missing_include_template: &'a str,
 }
 
 impl<'a> HttpIncluder<'a> {
-    pub fn new(callback_url: &'a str) -> Self {
-        HttpIncluder { callback_url }
+    pub fn new(callback_url: &'a str, missing_include_template: &'a str) -> Self {
+        HttpIncluder {
+            callback_url,
+            missing_include_template,
+        }
+    }
+}
+
+impl<'t> Includer<'t> for HttpIncluder<'_> {
+    type Error = ();
+
+    fn include_pages(
+        &mut self,
+        includes: &[IncludeRef<'t>],
+    ) -> Result<FetchedPages<'t>, Self::Error> {
+        todo!()
+    }
+
+    fn no_such_include(&mut self, page_ref: &PageRef<'t>) -> Cow<'t, str> {
+        todo!()
     }
 }

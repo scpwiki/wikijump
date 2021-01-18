@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::{info, HttpIncluder};;
+use crate::{info, HttpIncluder};
 use ftml::{Includer, PageRef, ParseOutcome};
 use warp::{Filter, Rejection, Reply};
 
@@ -39,9 +39,11 @@ fn include(
     log: slog::Logger,
 ) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     #[derive(Deserialize, Debug)]
+    #[serde(rename_all = "kebab-case")]
     struct IncludeInput {
         text: String,
         callback_url: String,
+        missing_include_template: String,
     }
 
     #[derive(Serialize, Debug)]
@@ -55,8 +57,13 @@ fn include(
         .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
         .and(warp::body::json())
         .map(move |input| {
-            let IncludeInput { text, callback_url } = input;
-            let includer = HttpIncluder::new(&callback_url);
+            let IncludeInput {
+                text,
+                callback_url,
+                missing_include_template,
+            } = input;
+
+            let includer = HttpIncluder::new(&callback_url, &missing_include_template);
 
             match ftml::include(&log, &text, includer) {
                 Ok((output, pages)) => {
@@ -242,7 +249,14 @@ pub fn build(
     let misc = misc();
 
     warp::any()
-        .and(include.or(preproc).or(tokenize).or(parse).or(render_html).or(misc))
+        .and(
+            include
+                .or(preproc)
+                .or(tokenize)
+                .or(parse)
+                .or(render_html)
+                .or(misc),
+        )
         .with(log_middleware)
         .with(warp::filters::compression::gzip())
 }
