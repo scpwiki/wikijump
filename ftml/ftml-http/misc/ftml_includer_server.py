@@ -114,6 +114,11 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     print(f"Starting HTTP server on port {PORT}")
+    print()
+    print("This server listens for requests for included pages,")
+    print("and provides dummy information so ftml-http can return a result.")
+    print()
+
     httpd = HTTPServer(("", PORT), RequestHandler)
 
     try:
