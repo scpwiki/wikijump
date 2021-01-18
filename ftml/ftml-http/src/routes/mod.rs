@@ -29,6 +29,7 @@ mod prelude {
 }
 
 mod include;
+mod misc;
 mod object;
 mod parse;
 mod preproc;
@@ -36,27 +37,16 @@ mod render;
 mod tokenize;
 
 use self::include::route_include;
+use self::misc::route_misc;
 use self::parse::route_parse;
 use self::preproc::route_preproc;
 use self::render::route_render_html;
 use self::tokenize::route_tokenize;
-use crate::info;
 use warp::{Filter, Rejection, Reply};
 
 // TODO: add include to other routes
 
-// Routes
-
-pub fn route_misc() -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
-    let ping = warp::path("ping").map(|| "Pong!");
-    let version = warp::path("version").map(|| &**info::VERSION);
-    let wikidot = warp::path("wikidot").map(|| ";-)");
-
-    ping.or(version).or(wikidot)
-}
-
-// Collect the routes
-
+// Collected routes into a server
 pub fn build(
     log: slog::Logger,
 ) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
