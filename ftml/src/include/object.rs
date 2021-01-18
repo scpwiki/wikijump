@@ -107,6 +107,10 @@ impl Display for PageRef<'_> {
     }
 }
 
+/// Represents an include block.
+///
+/// It contains the page being included, as well as the arguments
+/// to be passed to it when doing the substitution.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct IncludeRef<'t> {
     page: PageRef<'t>,
