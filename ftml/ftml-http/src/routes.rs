@@ -231,6 +231,7 @@ pub fn build(
         })
     };
 
+    let include = include(log.clone());
     let preproc = preproc(log.clone());
     let tokenize = tokenize(&log);
     let parse = parse(&log);
@@ -238,7 +239,7 @@ pub fn build(
     let misc = misc();
 
     warp::any()
-        .and(preproc.or(tokenize).or(parse).or(render_html).or(misc))
+        .and(include.or(preproc).or(tokenize).or(parse).or(render_html).or(misc))
         .with(log_middleware)
         .with(warp::filters::compression::gzip())
 }
