@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::{include, NullIncluder, PageRef};
+use super::{include, DebugIncluder, PageRef};
 
 #[test]
 fn includes() {
@@ -27,7 +27,7 @@ fn includes() {
     macro_rules! test {
         ($text:expr, $expected:expr) => {{
             let mut text = str!($text);
-            let result = include(&log, &mut text, NullIncluder);
+            let result = include(&log, &mut text, DebugIncluder);
             let (output, actual) = result.expect("Fetching pages failed");
             let expected = $expected;
 
