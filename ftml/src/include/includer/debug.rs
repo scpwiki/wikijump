@@ -62,8 +62,8 @@ impl<'t> Includer<'t> for DebugIncluder {
     }
 
     #[inline]
-    fn no_such_include(&mut self, page_ref: &PageRef<'t>) -> Cow<'t, str> {
-        Cow::Owned(format!("<MISSING-PAGE {}>", page_ref))
+    fn no_such_include(&mut self, page_ref: &PageRef<'t>) -> Result<Cow<'t, str>, Void> {
+        Ok(Cow::Owned(format!("<MISSING-PAGE {}>", page_ref)))
     }
 }
 

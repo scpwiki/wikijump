@@ -44,5 +44,8 @@ pub trait Includer<'t> {
         includes: &[IncludeRef<'t>],
     ) -> Result<FetchedPages<'t>, Self::Error>;
 
-    fn no_such_include(&mut self, page_ref: &PageRef<'t>) -> Cow<'t, str>;
+    fn no_such_include(
+        &mut self,
+        page_ref: &PageRef<'t>,
+    ) -> Result<Cow<'t, str>, Self::Error>;
 }

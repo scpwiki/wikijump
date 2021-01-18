@@ -36,7 +36,7 @@ impl<'t> Includer<'t> for NullIncluder {
     }
 
     #[inline]
-    fn no_such_include(&mut self, _page_ref: &PageRef<'t>) -> Cow<'t, str> {
-        Cow::Borrowed("")
+    fn no_such_include(&mut self, _page_ref: &PageRef<'t>) -> Result<Cow<'t, str>, Void> {
+        Ok(Cow::Borrowed(""))
     }
 }
