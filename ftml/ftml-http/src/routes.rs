@@ -1,5 +1,5 @@
 /*
- * routes/mod.rs
+ * routes.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Ammon Smith
@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::info;
+use crate::{info, HttpIncluder};;
 use ftml::{Includer, PageRef, ParseOutcome};
 use warp::{Filter, Rejection, Reply};
 
@@ -56,8 +56,9 @@ fn include(
         .and(warp::body::json())
         .map(move |input| {
             let IncludeInput { text, callback_url } = input;
+            let includer = HttpIncluder::new(&callback_url);
 
-            match ftml::include(&log, &text, ()) {
+            match ftml::include(&log, &text, includer) {
                 Ok((output, pages)) => {
                     info!(
                         &log,

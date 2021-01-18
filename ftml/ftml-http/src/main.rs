@@ -49,11 +49,13 @@ extern crate users;
 extern crate warp;
 
 mod config;
+mod includer;
 mod info;
 mod logger;
 mod routes;
 
 use self::config::Config;
+use self::includer::HttpIncluder;
 
 #[tokio::main]
 async fn main() {
