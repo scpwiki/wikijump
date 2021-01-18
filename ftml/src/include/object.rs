@@ -58,10 +58,36 @@ impl<'t> PageRef<'t> {
     pub fn page(&self) -> &str {
         self.page.as_ref()
     }
-}
-// TODO add parse method
 
-impl<'t> Display for PageRef<'t> {
+    pub fn parse(s: &'t str) -> Result<PageRef<'t>, ()> {
+        let result = match s.find(':') {
+            // Off-site page, e.g. ":scp-wiki:something"
+            Some(0) => {
+                // Find the second colon
+                let idx = match s[1..].find(':') {
+                    Some(idx) => idx + 1,
+                    None => return Err(()),
+                };
+
+                // Get site and page slices
+                let site = &s[1..idx];
+                let page = &s[idx + 1..];
+
+                PageRef::page_and_site(Some(site), page)
+            }
+
+            // On-site page, e.g. "component:thing"
+            Some(_) => PageRef::page_only(s),
+
+            // On-site page, with no category, e.g. "page"
+            None => PageRef::page_only(s),
+        };
+
+        Ok(result)
+    }
+}
+
+impl Display for PageRef<'_> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if let Some(site) = self.site() {
             write!(f, ":{}:", &site)?;
