@@ -86,9 +86,9 @@ pub fn include<'t, I, E>(
                     println!("rule: {:?}, slice: {:?}", pair.as_rule(), pair.as_str());
                 }
 
-                //pages.push(());
                 ranges.push(start..end);
-                //includes.push(());
+                pages.push(page_ref);
+                includes.push(include_ref);
             }
             Err(error) => {
                 debug!(
@@ -103,10 +103,33 @@ pub fn include<'t, I, E>(
     }
 
     // Retrieve included pages
-    let fetched_pages = includer.include_pages(&includes);
+    let fetched_pages = includer.include_pages(&includes)?;
 
     // Substitute inclusions
-    todo!();
+    //
+    // We must iterate backwards for all the indices to be valid
+
+    let ranges_iter = ranges.iter();
+    let pages_iter = pages.iter();
+
+    for (range, page_ref) in ranges_iter.zip(pages_iter).rev() {
+        debug!(
+            log,
+            "Replacing range for included page";
+            "span" => SpanWrap::from(range),
+            "site" => page_ref.site(),
+            "page" => page_ref.page(),
+        );
+
+        // Get replaced content, or error message
+        let replace_with = match fetched_pages.get(page_ref) {
+            Some(text) => text,
+            None => includer.no_such_include(page_ref),
+        };
+
+        // Perform the substitution
+        text.replace_range(range, replace_with);
+    }
 
     // Return
     Ok(pages)
