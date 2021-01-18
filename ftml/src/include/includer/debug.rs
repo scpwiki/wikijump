@@ -84,7 +84,7 @@ impl<'t> Display for MapWrap<'_, 't> {
         write!(f, "{{")?;
 
         for (i, (key, value)) in entries.iter().enumerate() {
-            write!(f, "{:?} > {:?}", key, value)?;
+            write!(f, "{:?} => {:?}", key, value)?;
 
             if i < entries.len() - 1 {
                 write!(f, ", ")?;
@@ -140,29 +140,29 @@ fn map_wrap() {
     }
 
     test!(hashmap! {}, "{}");
-    test!(hashmap! { "apple" => "1" }, "{'apple' => '1'}");
+    test!(hashmap! { "apple" => "1" }, r#"{"apple" => "1"}"#);
     test!(
         hashmap! { "apple" => "1", "banana" => "2" },
-        "{'apple' => '1', 'banana' => '2'}",
+        r#"{"apple" => "1", "banana" => "2"}"#,
     );
     test!(
         hashmap! { "banana" => "2", "apple" => "1" },
-        "{'apple' => '1', 'banana' => '2'}",
+        r#"{"apple" => "1", "banana" => "2"}"#,
     );
     test!(
         hashmap! { "apple" => "1", "banana" => "2", "cherry" => "3" },
-        "{'apple' => '1', 'banana' => '2', 'cherry' => '3'}",
+        r#"{"apple" => "1", "banana" => "2", "cherry" => "3"}"#,
     );
     test!(
         hashmap! { "banana" => "2", "apple" => "1", "cherry" => "3" },
-        "{'apple' => '1', 'banana' => '2', 'cherry' => '3'}",
+        r#"{"apple" => "1", "banana" => "2", "cherry" => "3"}"#,
     );
     test!(
         hashmap! { "cherry" => "3", "banana" => "2", "apple" => "1" },
-        "{'apple' => '1', 'banana' => '2', 'cherry' => '3'}",
+        r#"{"apple" => "1", "banana" => "2", "cherry" => "3"}"#,
     );
     test!(
         hashmap! { "apple" => "1", "cherry" => "3", "banana" => "2" },
-        "{'apple' => '1', 'banana' => '2', 'cherry' => '3'}",
+        r#"{"apple" => "1", "banana" => "2", "cherry" => "3"}"#,
     );
 }
