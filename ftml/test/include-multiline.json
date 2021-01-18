@@ -49,6 +49,10 @@
                         },
                         {
                             "element": "text",
+                            "data": "="
+                        },
+                        {
+                            "element": "text",
                             "data": "> "
                         },
                         {
@@ -70,6 +74,10 @@
                         {
                             "element": "text",
                             "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "="
                         },
                         {
                             "element": "text",
