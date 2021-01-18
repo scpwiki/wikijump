@@ -144,3 +144,43 @@ impl<'t> IncludeRef<'t> {
         Self::page_with_args(page, HashMap::new())
     }
 }
+
+// Tests
+
+#[test]
+fn page_ref() {
+    macro_rules! test {
+        ($input:expr) => {
+            test!($input => Err(()))
+        };
+
+        ($input:expr,) => {
+            test!($input => Err(()))
+        };
+
+        ($input:expr, $expected:expr) => {
+            test!($input => Ok($expected))
+        };
+
+        ($input:expr, $expected:expr,) => {
+            test!($input => Ok($expected))
+        };
+
+        ($input:expr => $expected:expr) => {{
+            let actual = PageRef::parse($input);
+            println!("Input: {:?}", $input);
+            println!("Output: {:?}", actual);
+            println!();
+
+            assert_eq!(actual, $expected, "Actual parse results don't match expected");
+        }};
+    }
+
+    test!("");
+    test!("page", PageRef::page_only("page"));
+    test!("component:page", PageRef::page_only("component:page"));
+    test!("deleted:secret:fragment:page", PageRef::page_only("deleted:secret:fragment:page"));
+    test!(":scp-wiki:page", PageRef::page_and_site("scp-wiki", "page"));
+    test!(":scp-wiki:component:page", PageRef::page_and_site("scp-wiki", "component:page"));
+    test!(":scp-wiki:deleted:secret:fragment:page", PageRef::page_and_site("scp-wiki", "deleted:secret:fragment:page"));
+}
