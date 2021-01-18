@@ -32,12 +32,14 @@
 // and is optional should the sequence end in a pipe.
 
 include = {
+    SOI ~
     "[[" ~ space ~ ^"include" ~ space ~
     page_ref ~ space ~
     "|"? ~ space ~
     (argument ~ space ~ "|" ~ space)* ~
     (argument ~ space ~ ("|" ~ space)?)? ~
-    "]]"
+    "]]" ~
+    EOI
 }
 
 argument = {
