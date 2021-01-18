@@ -19,14 +19,15 @@
  */
 
 mod includer;
+mod parse;
 mod object;
 
 pub use self::includer::{Includer, NullIncluder};
-pub use self::object::{IncludeRef, PageRef};
+pub use self::object::{IncludeRef, IncludeVariables, PageRef};
 
 use crate::span_wrap::SpanWrap;
-use pest::Parser;
 use regex::{Regex, RegexBuilder};
+use self::parse::parse_include_block;
 
 lazy_static! {
     static ref INCLUDE_REGEX: Regex = {
@@ -37,10 +38,6 @@ lazy_static! {
             .unwrap()
     };
 }
-
-#[derive(Parser, Debug)]
-#[grammar = "include/grammar.pest"]
-struct IncludeParser;
 
 pub fn include<'t, I, E>(
     log: &slog::Logger,
@@ -63,42 +60,16 @@ pub fn include<'t, I, E>(
     );
 
     let mut ranges = Vec::new();
-    let mut pages = Vec::new();
     let mut includes = Vec::new();
 
     // Get include references
     for mtch in INCLUDE_REGEX.find_iter(text) {
         let start = mtch.start();
         let end = mtch.end();
-        let slice = &text[start..end];
 
-        match IncludeParser::parse(Rule::include, slice) {
-            Ok(pairs) => {
-                debug!(
-                    log,
-                    "Parsed include block";
-                    "span" => SpanWrap::from(start..end),
-                    "slice" => slice,
-                );
-
-                for pair in pairs {
-                    // TODO
-                    println!("rule: {:?}, slice: {:?}", pair.as_rule(), pair.as_str());
-                }
-
-                ranges.push(start..end);
-                pages.push(page_ref);
-                includes.push(include_ref);
-            }
-            Err(error) => {
-                debug!(
-                    log,
-                    "Found invalid include block";
-                    "error" => str!(error),
-                    "span" => SpanWrap::from(start..end),
-                    "slice" => slice,
-                );
-            }
+        if let Ok(include) = parse_include_block(log, &text[start..end], start..end) {
+            ranges.push(start..end);
+            includes.push(include);
         }
     }
 
@@ -109,22 +80,29 @@ pub fn include<'t, I, E>(
     //
     // We must iterate backwards for all the indices to be valid
 
-    let ranges_iter = ranges.iter();
-    let pages_iter = pages.iter();
+    let ranges_iter = ranges.into_iter();
+    let includes_iter = includes.into_iter();
 
-    for (range, page_ref) in ranges_iter.zip(pages_iter).rev() {
+    let mut pages = Vec::new();
+    for (range, include) in ranges_iter.zip(includes_iter).rev() {
+        let (page_ref, _) = include.into();
+
         debug!(
             log,
             "Replacing range for included page";
-            "span" => SpanWrap::from(range),
+            "span" => SpanWrap::from(&range),
             "site" => page_ref.site(),
             "page" => page_ref.page(),
         );
 
         // Get replaced content, or error message
-        let replace_with = match fetched_pages.get(page_ref) {
+        let message;
+        let replace_with = match fetched_pages.get(&page_ref) {
             Some(text) => text,
-            None => includer.no_such_include(page_ref),
+            None => {
+                message = includer.no_such_include(&page_ref);
+                &message
+            }
         };
 
         // Perform the substitution

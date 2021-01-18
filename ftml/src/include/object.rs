@@ -120,6 +120,8 @@ impl Display for PageRef<'_> {
     }
 }
 
+pub type IncludeVariables<'t> = HashMap<Cow<'t, str>, Cow<'t, str>>;
+
 /// Represents an include block.
 ///
 /// It contains the page being included, as well as the arguments
@@ -127,14 +129,14 @@ impl Display for PageRef<'_> {
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct IncludeRef<'t> {
     page: PageRef<'t>,
-    variables: HashMap<Cow<'t, str>, Cow<'t, str>>,
+    variables: IncludeVariables<'t>,
 }
 
 impl<'t> IncludeRef<'t> {
     #[inline]
     pub fn page_with_args(
         page: PageRef<'t>,
-        variables: HashMap<Cow<'t, str>, Cow<'t, str>>,
+        variables: IncludeVariables<'t>,
     ) -> Self {
         IncludeRef { page, variables }
     }
@@ -142,6 +144,25 @@ impl<'t> IncludeRef<'t> {
     #[inline]
     pub fn page_only(page: PageRef<'t>) -> Self {
         Self::page_with_args(page, HashMap::new())
+    }
+
+    #[inline]
+    pub fn page(&self) -> &PageRef<'t> {
+        &self.page
+    }
+
+    #[inline]
+    pub fn variables(&self) -> &IncludeVariables<'t> {
+        &self.variables
+    }
+}
+
+impl<'t> From<IncludeRef<'t>> for (PageRef<'t>, IncludeVariables<'t>) {
+    #[inline]
+    fn from(include: IncludeRef<'t>) -> (PageRef<'t>, IncludeVariables<'t>) {
+        let IncludeRef { page, variables } = include;
+
+        (page, variables)
     }
 }
 
