@@ -18,86 +18,31 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod prelude {
+    pub use super::object::*;
+    pub use crate::error::Error;
+    pub use crate::includer::HttpIncluder;
+    pub use ftml::PageRef;
+    pub use warp::{Filter, Rejection, Reply};
+
+    pub const CONTENT_LENGTH_LIMIT: u64 = 4 * 1024 * 1024 * 1024; /* 2 MiB */
+}
+
+mod include;
 mod object;
 
+use self::include::route_include;
 use self::object::*;
-use crate::{info, Error, HttpIncluder};
-use ftml::{PageRef, ParseOutcome};
+use self::prelude::CONTENT_LENGTH_LIMIT;
+use crate::info;
+use ftml::ParseOutcome;
 use warp::{Filter, Rejection, Reply};
 
 // TODO: add include to other routes
 
-const CONTENT_LENGTH_LIMIT: u64 = 4 * 1024 * 1024 * 1024; /* 2 MiB */
-
 // Routes
 
-fn include(
-    log: slog::Logger,
-) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
-    #[derive(Deserialize, Debug)]
-    #[serde(rename_all = "kebab-case")]
-    struct IncludeInput {
-        text: String,
-        callback_url: String,
-        missing_include_template: String,
-    }
-
-    #[derive(Serialize, Debug)]
-    struct IncludeOutput<'a> {
-        text: String,
-        pages: Vec<PageRef<'a>>,
-    }
-
-    fn process(
-        log: &slog::Logger,
-        input: IncludeInput,
-    ) -> Result<IncludeOutput<'_>, Error> {
-        let IncludeInput {
-            text,
-            callback_url,
-            missing_include_template,
-        } = input;
-
-        let includer = HttpIncluder::new(&callback_url, &missing_include_template)?;
-
-        match ftml::include(log, &text, includer) {
-            Ok((output, pages)) => {
-                info!(
-                    log,
-                    "Got successful return for page inclusions";
-                    "output" => &output,
-                    "pages" => pages.len(),
-                );
-
-                // Clone page references to avoid lifetime issues
-                Ok(IncludeOutput {
-                    text: output,
-                    pages: pages.iter().map(PageRef::to_owned).collect(),
-                })
-            }
-            Err(error) => {
-                warn!(
-                    log,
-                    "Error fetching included pages or data";
-                    "error" => str!(error),
-                );
-
-                Err(error)
-            }
-        }
-    }
-
-    warp::post()
-        .and(warp::path("include"))
-        .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
-        .and(warp::body::json())
-        .map(move |input| {
-            let resp: Response<_> = process(&log, input).into();
-            warp::reply::json(&resp)
-        })
-}
-
-fn preproc(
+pub fn route_preproc(
     log: slog::Logger,
 ) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     warp::post()
@@ -113,7 +58,7 @@ fn preproc(
         })
 }
 
-fn tokenize(
+pub fn route_tokenize(
     log: &slog::Logger,
 ) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     let factory = |preprocess| {
@@ -146,7 +91,7 @@ fn tokenize(
     regular.or(only)
 }
 
-fn parse(
+pub fn route_parse(
     log: &slog::Logger,
 ) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     let factory = |preprocess| {
@@ -179,7 +124,7 @@ fn parse(
     regular.or(only)
 }
 
-fn render_html(
+pub fn route_render_html(
     log: &slog::Logger,
 ) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     use ftml::Render;
@@ -218,7 +163,7 @@ fn render_html(
     regular.or(only)
 }
 
-fn misc() -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
+pub fn route_misc() -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     let ping = warp::path("ping").map(|| "Pong!");
     let version = warp::path("version").map(|| &**info::VERSION);
     let wikidot = warp::path("wikidot").map(|| ";-)");
@@ -248,12 +193,12 @@ pub fn build(
         })
     };
 
-    let include = include(log.clone());
-    let preproc = preproc(log.clone());
-    let tokenize = tokenize(&log);
-    let parse = parse(&log);
-    let render_html = render_html(&log);
-    let misc = misc();
+    let include = route_include(log.clone());
+    let preproc = route_preproc(log.clone());
+    let tokenize = route_tokenize(&log);
+    let parse = route_parse(&log);
+    let render_html = route_render_html(&log);
+    let misc = route_misc();
 
     warp::any()
         .and(

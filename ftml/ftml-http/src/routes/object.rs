@@ -19,6 +19,9 @@
  */
 
 use crate::Error;
+use ftml::PageRef;
+
+// General structs
 
 #[derive(Deserialize, Debug)]
 pub struct TextInput {
@@ -40,4 +43,20 @@ impl<T> From<Result<T, Error>> for Response<T> {
             Err(error) => Response::Error(str!(error)),
         }
     }
+}
+
+// Include structs
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "kebab-case")]
+pub struct IncludeInput {
+    pub text: String,
+    pub callback_url: String,
+    pub missing_include_template: String,
+}
+
+#[derive(Serialize, Debug)]
+pub struct IncludeOutput<'a> {
+    pub text: String,
+    pub pages: Vec<PageRef<'a>>,
 }

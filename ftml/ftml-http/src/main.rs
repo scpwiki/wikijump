@@ -60,7 +60,6 @@ mod routes;
 
 use self::config::Config;
 use self::error::Error;
-use self::includer::HttpIncluder;
 
 #[tokio::main]
 async fn main() {
