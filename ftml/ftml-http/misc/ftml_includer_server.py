@@ -59,7 +59,7 @@ BHL_PAGE = """\
 [[/module]]
 """
 
-def generate_page(site, page):
+def generate_page(site, page, variables):
     if page == "component:theme":
         return SIGMA_PAGE
     elif page == "theme:black-highlighter-theme":
@@ -67,20 +67,23 @@ def generate_page(site, page):
     elif "missing" in page:
         return None
     elif "echo" in page:
-        return f"Site: {site}, Page: {page}"
+        return f"Site: {site}, Page: {page}, Variables: {variables}"
     else:
         return "Some page content here!"
 
 
-def generate_pages(page_refs):
-    print(f"Requested pages: {page_refs}")
+def generate_pages(request):
+    print(f"Requested pages: {request}")
 
     page_data = []
-    for page_ref in page_refs:
+    for wanted_page in request["includes"]:
+        page_ref = wanted_page["page_ref"]
         site = page_ref["site"]
         page = page_ref["page"]
+        variables = wanted_page["variables"]
 
-        content = generate_page(site, page)
+        content = generate_page(site, page, variables)
+
         if content is not None:
             page_data.append({
                 "page": page_ref,
@@ -93,10 +96,10 @@ class RequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         # Read and process request
         length = int(self.headers.get('Content-Length'))
-        request = self.rfile.read(length)
+        raw_request = self.rfile.read(length)
 
-        page_refs = json.loads(request)
-        page_data = generate_pages(page_refs)
+        request = json.loads(raw_request)
+        page_data = generate_pages(request)
         print(f"Sending response: {page_data}")
 
         # Write headers
