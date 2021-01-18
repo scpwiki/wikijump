@@ -57,7 +57,7 @@ pub fn parse_include_block<'t>(
         Err(error) => {
             debug!(
                 log,
-                "Found invalid include block";
+                "Include block was invalid";
                 "error" => str!(error),
                 "span" => SpanWrap::from(range),
                 "slice" => text,
