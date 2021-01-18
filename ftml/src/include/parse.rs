@@ -38,10 +38,7 @@ pub fn parse_include_block<'t>(
         Ok(mut pairs) => {
             // Extract inner pairs
             // These actually make up the include block's tokens
-            let first = pairs
-                .next()
-                .expect("No pairs returned on successful parse");
-
+            let first = pairs.next().expect("No pairs returned on successful parse");
             let span = first.as_span();
 
             debug!(
