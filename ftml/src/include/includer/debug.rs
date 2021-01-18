@@ -47,7 +47,7 @@ impl<'t> Includer<'t> for DebugIncluder {
                 continue;
             }
 
-            let content = format!("<INCLUDED-PAGE {:?}>", include.variables());
+            let content = format!("<INCLUDED-PAGE {} {:?}>", include.page(), include.variables());
 
             pages.insert(include.page().clone(), Cow::Owned(content));
         }
