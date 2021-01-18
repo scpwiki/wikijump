@@ -124,6 +124,9 @@ where
         output.replace_range(range, replace_with);
     }
 
+    // Since we iterate in reverse order, the pages are reversed.
+    pages.reverse();
+
     // Return
     Ok((output, pages))
 }
