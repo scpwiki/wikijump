@@ -19,7 +19,7 @@
  */
 
 use crate::Error;
-use ftml::{FetchedPages, IncludeRef, Includer, PageRef};
+use ftml::{FetchedPage, IncludeRef, Includer, PageRef};
 use reqwest::blocking::Client;
 use std::borrow::Cow;
 use tera::{Context, Tera};
@@ -51,7 +51,7 @@ impl<'t> Includer<'t> for HttpIncluder<'_> {
     fn include_pages(
         &mut self,
         includes: &[IncludeRef<'t>],
-    ) -> Result<FetchedPages<'t>, Self::Error> {
+    ) -> Result<Vec<FetchedPage<'t>>, Self::Error> {
         let client = Client::new();
         let body = IncludeRequest::from(includes).json()?;
         let pages = client

@@ -25,12 +25,13 @@ mod includer;
 mod object;
 mod parse;
 
-pub use self::includer::{DebugIncluder, FetchedPages, Includer, NullIncluder};
+pub use self::includer::{DebugIncluder, FetchedPage, Includer, NullIncluder};
 pub use self::object::{IncludeRef, IncludeVariables, PageRef};
 
 use self::parse::parse_include_block;
 use crate::span_wrap::SpanWrap;
 use regex::{Regex, RegexBuilder};
+use std::collections::HashMap;
 
 lazy_static! {
     static ref INCLUDE_REGEX: Regex = {
@@ -87,7 +88,15 @@ where
     }
 
     // Retrieve included pages
-    let fetched_pages = includer.include_pages(&includes)?;
+    let fetched_pages = {
+        let pages = includer.include_pages(&includes)?;
+
+        let mut fetched = HashMap::new();
+        for FetchedPage { page, content } in pages {
+            fetched.insert(page, content);
+        }
+        fetched
+    };
 
     // Substitute inclusions
     //

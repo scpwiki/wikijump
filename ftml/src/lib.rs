@@ -92,7 +92,7 @@ pub mod tree;
 pub use self::log::{build_console_logger, build_logger, build_null_logger};
 
 pub use self::include::{
-    include, DebugIncluder, FetchedPages, IncludeRef, IncludeVariables, Includer,
+    include, DebugIncluder, FetchedPage, IncludeRef, IncludeVariables, Includer,
     NullIncluder, PageRef,
 };
 pub use self::parse::{

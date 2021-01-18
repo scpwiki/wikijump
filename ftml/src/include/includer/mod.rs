@@ -22,19 +22,22 @@ mod debug;
 mod null;
 
 mod prelude {
-    pub use crate::include::{FetchedPages, IncludeRef, Includer, PageRef};
+    pub use crate::include::{FetchedPage, IncludeRef, Includer, PageRef};
     pub use std::borrow::Cow;
     pub use std::collections::HashMap;
 }
 
 use crate::include::{IncludeRef, PageRef};
 use std::borrow::Cow;
-use std::collections::HashMap;
 
 pub use self::debug::DebugIncluder;
 pub use self::null::NullIncluder;
 
-pub type FetchedPages<'t> = HashMap<PageRef<'t>, Cow<'t, str>>;
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct FetchedPage<'t> {
+    pub page: PageRef<'t>,
+    pub content: Cow<'t, str>,
+}
 
 pub trait Includer<'t> {
     type Error;
@@ -42,7 +45,7 @@ pub trait Includer<'t> {
     fn include_pages(
         &mut self,
         includes: &[IncludeRef<'t>],
-    ) -> Result<FetchedPages<'t>, Self::Error>;
+    ) -> Result<Vec<FetchedPage<'t>>, Self::Error>;
 
     fn no_such_include(
         &mut self,

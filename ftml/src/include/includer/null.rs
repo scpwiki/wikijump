@@ -31,8 +31,8 @@ impl<'t> Includer<'t> for NullIncluder {
     fn include_pages(
         &mut self,
         _includes: &[IncludeRef<'t>],
-    ) -> Result<FetchedPages<'t>, Void> {
-        Ok(HashMap::new())
+    ) -> Result<Vec<FetchedPage<'t>>, Void> {
+        Ok(Vec::new())
     }
 
     #[inline]

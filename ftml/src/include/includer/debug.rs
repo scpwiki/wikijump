@@ -33,9 +33,9 @@ impl<'t> Includer<'t> for DebugIncluder {
     fn include_pages(
         &mut self,
         includes: &[IncludeRef<'t>],
-    ) -> Result<FetchedPages<'t>, Void> {
+    ) -> Result<Vec<FetchedPage<'t>>, Void> {
         let mut first = true;
-        let mut pages = HashMap::new();
+        let mut pages = Vec::new();
 
         for include in includes {
             if first && includes.len() > 1 {
@@ -55,7 +55,10 @@ impl<'t> Includer<'t> for DebugIncluder {
                 MapWrap(include.variables()),
             );
 
-            pages.insert(include.page().clone(), Cow::Owned(content));
+            pages.push(FetchedPage {
+                page: include.page().clone(),
+                content: Cow::Owned(content),
+            });
         }
 
         Ok(pages)
