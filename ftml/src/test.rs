@@ -188,7 +188,7 @@ fn ast() {
 
 /// Test the parser's recursion limit.
 ///
-/// Manually-implemented test, since this test would be
+/// Manually implemented test, since this test would be
 /// tremendously huge on disk as a JSON file, and
 /// also goes past serde_json's recursion limit, lol.
 #[test]
