@@ -101,17 +101,68 @@ impl<'t> Display for MapWrap<'_, 't> {
 #[test]
 fn map_wrap() {
     macro_rules! test {
+        ($input:expr, $expected:expr,) => {
+            test!($input, $expected)
+        };
+
         ($input:expr, $expected:expr) => {{
-            let input = $input;
+            // Get what was actually specified as the input,
+            // stripping out the "hashmap!".
+            let raw_input = &stringify!($input)[9..];
+
+            // Convert string literals into Cows
+            let input = {
+                let original = $input;
+                let mut map = HashMap::new();
+
+                for (key, value) in original {
+                    let key = Cow::Borrowed(key);
+                    let value = Cow::Borrowed(value);
+
+                    map.insert(key, value);
+                }
+
+                map
+            };
+
             let actual = MapWrap(&input).to_string();
 
-            println!("Input:    {:?}", input);
+            println!("Input:    {}", raw_input);
             println!("Actual:   {}", actual);
             println!("Expected: {}", $expected);
+            println!();
 
-            assert_eq!(&actual, $expected, "Actual format string didn't match expected");
+            assert_eq!(
+                &actual, $expected,
+                "Actual format string didn't match expected"
+            );
         }};
     }
 
     test!(hashmap! {}, "{}");
+    test!(hashmap! { "apple" => "1" }, "{'apple' => '1'}");
+    test!(
+        hashmap! { "apple" => "1", "banana" => "2" },
+        "{'apple' => '1', 'banana' => '2'}",
+    );
+    test!(
+        hashmap! { "banana" => "2", "apple" => "1" },
+        "{'apple' => '1', 'banana' => '2'}",
+    );
+    test!(
+        hashmap! { "apple" => "1", "banana" => "2", "cherry" => "3" },
+        "{'apple' => '1', 'banana' => '2', 'cherry' => '3'}",
+    );
+    test!(
+        hashmap! { "banana" => "2", "apple" => "1", "cherry" => "3" },
+        "{'apple' => '1', 'banana' => '2', 'cherry' => '3'}",
+    );
+    test!(
+        hashmap! { "cherry" => "3", "banana" => "2", "apple" => "1" },
+        "{'apple' => '1', 'banana' => '2', 'cherry' => '3'}",
+    );
+    test!(
+        hashmap! { "apple" => "1", "cherry" => "3", "banana" => "2" },
+        "{'apple' => '1', 'banana' => '2', 'cherry' => '3'}",
+    );
 }
