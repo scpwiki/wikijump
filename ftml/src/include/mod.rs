@@ -110,6 +110,9 @@ where
             }
         };
 
+        // Append page to final list
+        pages.push(page_ref);
+
         // Perform the substitution
         output.replace_range(range, replace_with);
     }
