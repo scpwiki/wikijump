@@ -1,5 +1,5 @@
 /*
- * routes.rs
+ * routes/mod.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Ammon Smith
@@ -18,6 +18,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod object;
+
+use self::object::*;
 use crate::{info, Error, HttpIncluder};
 use ftml::{PageRef, ParseOutcome};
 use warp::{Filter, Rejection, Reply};
@@ -25,30 +28,6 @@ use warp::{Filter, Rejection, Reply};
 // TODO: add include to other routes
 
 const CONTENT_LENGTH_LIMIT: u64 = 4 * 1024 * 1024 * 1024; /* 2 MiB */
-
-// Helper structs
-
-#[derive(Deserialize, Debug)]
-struct TextInput {
-    text: String,
-}
-
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "kebab-case")]
-enum Response<T> {
-    Result(T),
-    Error(String),
-}
-
-impl<T> From<Result<T, Error>> for Response<T> {
-    #[inline]
-    fn from(result: Result<T, Error>) -> Response<T> {
-        match result {
-            Ok(item) => Response::Result(item),
-            Err(error) => Response::Error(str!(error)),
-        }
-    }
-}
 
 // Routes
 
