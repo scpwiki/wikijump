@@ -75,7 +75,7 @@ impl<'t> Includer<'t> for HttpIncluder<'_> {
             }
 
             context.insert("page", page_ref.page());
-            context.insert("path", page_ref);
+            context.insert("path", &page_ref.to_string());
             context
         };
 
