@@ -30,11 +30,13 @@ mod prelude {
 
 mod include;
 mod object;
+mod parse;
 mod preproc;
 mod tokenize;
 
 use self::include::route_include;
 use self::object::*;
+use self::parse::route_parse;
 use self::prelude::CONTENT_LENGTH_LIMIT;
 use self::preproc::route_preproc;
 use self::tokenize::route_tokenize;
@@ -45,39 +47,6 @@ use warp::{Filter, Rejection, Reply};
 // TODO: add include to other routes
 
 // Routes
-
-pub fn route_parse(
-    log: &slog::Logger,
-) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
-    let factory = |preprocess| {
-        let log = log.clone();
-
-        move |input| {
-            let TextInput { mut text } = input;
-
-            if preprocess {
-                ftml::preprocess(&log, &mut text);
-            }
-
-            let tokens = ftml::tokenize(&log, &text);
-            let tree = ftml::parse(&log, &tokens);
-            warp::reply::json(&tree)
-        }
-    };
-
-    let regular = warp::path("parse")
-        .and(warp::path::end())
-        .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
-        .and(warp::body::json())
-        .map(factory(true));
-
-    let only = warp::path!("parse" / "only")
-        .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
-        .and(warp::body::json())
-        .map(factory(false));
-
-    regular.or(only)
-}
 
 pub fn route_render_html(
     log: &slog::Logger,
