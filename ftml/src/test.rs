@@ -23,11 +23,13 @@
 //! Additionally performs some other tests from the parser which are better
 //! in a dedicated test file.
 
+use crate::include::DebugIncluder;
 use crate::parse::{ParseWarning, ParseWarningKind, Token};
 use crate::tree::{Element, SyntaxTree};
 use std::borrow::Cow;
 use std::fs::{self, File};
 use std::path::{Path, PathBuf};
+use void::ResultVoidExt;
 
 const SKIP_TESTS: &[&str] = &[];
 
@@ -74,7 +76,7 @@ impl Test<'_> {
         test
     }
 
-    pub fn run(&mut self, log: &slog::Logger) {
+    pub fn run(&self, log: &slog::Logger) {
         info!(
             &log,
             "Running syntax tree test case";
@@ -89,8 +91,9 @@ impl Test<'_> {
 
         println!("+ {}", self.name);
 
-        crate::preprocess(log, &mut self.input);
-        let tokens = crate::tokenize(log, &self.input);
+        let (mut text, _pages) = crate::include(log, &self.input, DebugIncluder).void_unwrap();
+        crate::preprocess(log, &mut text);
+        let tokens = crate::tokenize(log, &text);
         let result = crate::parse(log, &tokens);
         let (tree, warnings) = result.into();
 
@@ -181,7 +184,7 @@ fn ast() {
 
     // Run tests
     println!("Running tests:");
-    for mut test in tests {
+    for test in tests {
         test.run(&log);
     }
 }
