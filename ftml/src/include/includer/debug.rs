@@ -50,7 +50,7 @@ impl<'t> Includer<'t> for DebugIncluder {
             }
 
             let content = format!(
-                "<INCLUDED-PAGE {} {:?}>",
+                "<INCLUDED-PAGE {} {}>",
                 include.page(),
                 MapWrap(include.variables()),
             );
