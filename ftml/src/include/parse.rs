@@ -22,6 +22,8 @@ use super::{IncludeRef, PageRef};
 use crate::span_wrap::SpanWrap;
 use pest::iterators::Pairs;
 use pest::Parser;
+use std::borrow::Cow;
+use std::collections::HashMap;
 use std::ops::Range;
 
 #[derive(Parser, Debug)]
@@ -42,7 +44,15 @@ pub fn parse_include_block<'t>(
                 "slice" => text,
             );
 
-            process_pairs(pairs)
+            // Extract inner pairs
+            // These actually make up the include block's tokens
+            let inner_pairs = pairs
+                .next()
+                .expect("No pairs returned on successful parse")
+                .into_inner();
+
+            // Convert into an IncludeRef
+            process_pairs(log, inner_pairs)
         }
         Err(error) => {
             debug!(
@@ -58,16 +68,57 @@ pub fn parse_include_block<'t>(
     }
 }
 
-fn process_pairs<'t>(mut pairs: Pairs<'t, Rule>) -> Result<IncludeRef<'t>, ()> {
+fn process_pairs<'t>(
+    log: &slog::Logger,
+    mut pairs: Pairs<'t, Rule>,
+) -> Result<IncludeRef<'t>, ()> {
     let page_raw = match pairs.next() {
         Some(pair) => pair.as_str(),
         None => return Err(()),
     };
 
-    for pair in pairs {
-        // TODO
-        println!("rule: {:?}, slice: {:?}", pair.as_rule(), pair.as_str());
+    let page_ref = PageRef::parse(page_raw)?;
+
+    trace!(
+        log, "Got page for include"; "site" => page_ref.site(), "page" => page_ref.page(),
+    );
+
+    let mut arguments = HashMap::new();
+
+    while let Some(pair) = pairs.next() {
+        // Finished iteration
+        if pair.as_rule() == Rule::EOI {
+            break;
+        }
+
+        // Process an argument
+        debug_assert_eq!(pair.as_rule(), Rule::argument);
+
+        let (key, value) = {
+            let mut argument_pairs = pair.into_inner();
+
+            let key = argument_pairs
+                .next()
+                .expect("Argument pairs terminated early")
+                .as_str();
+
+            let value = argument_pairs
+                .next()
+                .expect("Argument pairs terminated early")
+                .as_str();
+
+            (key, value)
+        };
+
+        trace!(
+            log,
+            "Adding argument for include";
+            "key" => key,
+            "value" => value,
+        );
+
+        arguments.insert(Cow::Borrowed(key), Cow::Borrowed(value));
     }
 
-    todo!()
+    Ok(IncludeRef::new(page_ref, arguments))
 }

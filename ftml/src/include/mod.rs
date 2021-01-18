@@ -145,11 +145,27 @@ fn test_include() {
         }};
     }
 
-    test!("", vec![]);
-    test!("[[include page]]", vec![PageRef::page_only("page")]);
+    // Valid cases
+    //test!("", vec![]);
+    //test!("[[include page]]", vec![PageRef::page_only("page")]);
+    //test!("[[include page a=1]]", vec![]);
+    //test!("[[include page a=1|]]", vec![]);
+    //test!("[[include page a=1 |]]", vec![]);
+    //test!("[[include page |a=1]]", vec![]);
+    //test!("[[include page | a=1]]", vec![]);
+    //test!("[[include page |a=1|]]", vec![]);
+    //test!("[[include page | a=1|]]", vec![]);
+    //test!("[[include page |a=1 |]]", vec![]);
+    //test!("[[include page | a=1 |]]", vec![]);
+    test!("[[include page a=1 | b=2]]", vec![]);
 
     test!(
         "abc\n[[include page]]\ndef\n[[include page2\narg=1]]\nghi",
         vec![]
     );
+
+    // Invalid cases
+    test!("other text", vec![]);
+    test!("[[include", vec![]);
+    test!("include]]", vec![]);
 }
