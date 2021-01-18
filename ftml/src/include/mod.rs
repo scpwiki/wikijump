@@ -22,7 +22,7 @@ mod includer;
 mod object;
 mod parse;
 
-pub use self::includer::{Includer, NullIncluder};
+pub use self::includer::*;
 pub use self::object::{IncludeRef, IncludeVariables, PageRef};
 
 use self::parse::parse_include_block;

@@ -1,0 +1,42 @@
+/*
+ * include/includer/null.rs
+ *
+ * ftml - Library to parse Wikidot text
+ * Copyright (C) 2019-2021 Ammon Smith
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+use super::prelude::*;
+use void::Void;
+
+#[derive(Debug)]
+pub struct NullIncluder;
+
+impl<'t> Includer<'t> for NullIncluder {
+    type Error = Void;
+
+    #[inline]
+    fn include_pages(
+        &mut self,
+        _includes: &[IncludeRef<'t>],
+    ) -> Result<FetchedPages<'t>, Void> {
+        Ok(HashMap::new())
+    }
+
+    #[inline]
+    fn no_such_include(&mut self, page_ref: &PageRef<'t>) -> Cow<'t, str> {
+        Cow::Owned(format!("No such page: {}", str!(page_ref)))
+    }
+}

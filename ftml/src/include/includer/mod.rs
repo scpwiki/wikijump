@@ -1,5 +1,5 @@
 /*
- * include/includer.rs
+ * include/includer/mod.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Ammon Smith
@@ -18,10 +18,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::{IncludeRef, PageRef};
+mod null;
+
+mod prelude {
+    pub use crate::include::{FetchedPages, IncludeRef, Includer, PageRef};
+    pub use std::borrow::Cow;
+    pub use std::collections::HashMap;
+}
+
+use crate::include::{IncludeRef, PageRef};
 use std::borrow::Cow;
 use std::collections::HashMap;
-use void::Void;
+
+pub use self::null::NullIncluder;
 
 pub type FetchedPages<'t> = HashMap<PageRef<'t>, Cow<'t, str>>;
 
@@ -34,24 +43,4 @@ pub trait Includer<'t> {
     ) -> Result<FetchedPages<'t>, Self::Error>;
 
     fn no_such_include(&mut self, page_ref: &PageRef<'t>) -> Cow<'t, str>;
-}
-
-#[derive(Debug)]
-pub struct NullIncluder;
-
-impl<'t> Includer<'t> for NullIncluder {
-    type Error = Void;
-
-    #[inline]
-    fn include_pages(
-        &mut self,
-        _includes: &[IncludeRef<'t>],
-    ) -> Result<FetchedPages<'t>, Void> {
-        Ok(HashMap::new())
-    }
-
-    #[inline]
-    fn no_such_include(&mut self, page_ref: &PageRef<'t>) -> Cow<'t, str> {
-        Cow::Owned(format!("No such page: {}", str!(page_ref)))
-    }
 }
