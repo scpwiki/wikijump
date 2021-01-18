@@ -19,18 +19,66 @@
  */
 
 use crate::info;
-use ftml::ParseOutcome;
+use ftml::{Includer, PageRef, ParseOutcome};
 use warp::{Filter, Rejection, Reply};
 
 const CONTENT_LENGTH_LIMIT: u64 = 2 * 1024 * 1024 * 1024; /* 2 MiB */
 
-// Helper struct
+// Helper structs
+
 #[derive(Deserialize, Debug)]
 struct TextInput {
     text: String,
 }
 
 // Routes
+
+fn include(
+    log: slog::Logger,
+) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
+    #[derive(Deserialize, Debug)]
+    struct IncludeInput {
+        text: String,
+        callback_url: String,
+    }
+
+    #[derive(Serialize, Debug)]
+    struct IncludeOutput<'a> {
+        text: &'a str,
+        pages: &'a [PageRef<'a>],
+    }
+
+    warp::post()
+        .and(warp::path("include"))
+        .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
+        .and(warp::body::json())
+        .map(move |input| {
+            let IncludeInput { text, callback_url } = input;
+
+            match ftml::include(&log, &text, ()) {
+                Ok((output, pages)) => {
+                    info!(
+                        &log,
+                        "Got successful return for page inclusions";
+                        "output" => output,
+                        "pages" => pages.len(),
+                    );
+
+                    let result = IncludeOutput {
+                        text: &output,
+                        pages: &pages,
+                    };
+
+                    warp::reply::json(&Ok(result))
+                }
+                Err(error) => {
+                    warn!(&log, "Error fetching included pages or data: {}", error);
+
+                    warp::reply::json(&Err(str!(error)))
+                }
+            }
+        })
+}
 
 fn preproc(
     log: slog::Logger,
