@@ -32,6 +32,7 @@ mod include;
 mod object;
 mod parse;
 mod preproc;
+mod render;
 mod tokenize;
 
 use self::include::route_include;
@@ -39,6 +40,7 @@ use self::object::*;
 use self::parse::route_parse;
 use self::prelude::CONTENT_LENGTH_LIMIT;
 use self::preproc::route_preproc;
+use self::render::route_render_html;
 use self::tokenize::route_tokenize;
 use crate::info;
 use ftml::ParseOutcome;
@@ -47,45 +49,6 @@ use warp::{Filter, Rejection, Reply};
 // TODO: add include to other routes
 
 // Routes
-
-pub fn route_render_html(
-    log: &slog::Logger,
-) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
-    use ftml::Render;
-
-    let factory = |preprocess| {
-        let log = log.clone();
-
-        move |input| {
-            let TextInput { mut text } = input;
-
-            if preprocess {
-                ftml::preprocess(&log, &mut text);
-            }
-
-            let tokens = ftml::tokenize(&log, &text);
-            let parsed = ftml::parse(&log, &tokens);
-            let (tree, errors) = parsed.into();
-            let output = ftml::HtmlRender.render(&tree);
-            let result = ParseOutcome::new(output, errors);
-
-            warp::reply::json(&result)
-        }
-    };
-
-    let regular = warp::path!("render" / "html")
-        .and(warp::path::end())
-        .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
-        .and(warp::body::json())
-        .map(factory(true));
-
-    let only = warp::path!("render" / "html" / "only")
-        .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
-        .and(warp::body::json())
-        .map(factory(false));
-
-    regular.or(only)
-}
 
 pub fn route_misc() -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     let ping = warp::path("ping").map(|| "Pong!");
