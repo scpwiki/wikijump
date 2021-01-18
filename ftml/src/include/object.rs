@@ -177,6 +177,7 @@ fn page_ref() {
     }
 
     test!("");
+    test!(":page");
     test!("page", PageRef::page_only("page"));
     test!("component:page", PageRef::page_only("component:page"));
     test!(
