@@ -74,9 +74,12 @@ where
             "slice" => mtch.as_str(),
         );
 
-        if let Ok(include) = parse_include_block(log, &input[mtch.range()], mtch.range()) {
-            ranges.push(mtch.range());
-            includes.push(include);
+        match parse_include_block(log, &input[mtch.range()], mtch.range()) {
+            Err(_) => debug!(log, "Unable to parse include regex match"),
+            Ok(include) => {
+                ranges.push(mtch.range());
+                includes.push(include);
+            }
         }
     }
 
