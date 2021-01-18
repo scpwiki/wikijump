@@ -55,6 +55,10 @@ fn includes() {
     test!("[[include page ]]", vec![PageRef::page_only("page")]);
     test!("[[include page ]]", vec![PageRef::page_only("page")]);
     test!("[[ include page ]]", vec![PageRef::page_only("page")]);
+    test!("[[include PAGE]]", vec![PageRef::page_only("PAGE")]);
+    test!("[[include PAGE ]]", vec![PageRef::page_only("PAGE")]);
+    test!("[[include PAGE ]]", vec![PageRef::page_only("PAGE")]);
+    test!("[[ include PAGE ]]", vec![PageRef::page_only("PAGE")]);
 
     // Arguments
     test!("[[include apple a =1]]", vec![PageRef::page_only("apple")]);
