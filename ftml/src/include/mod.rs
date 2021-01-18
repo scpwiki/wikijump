@@ -68,17 +68,19 @@ where
 
     // Get include references
     for mtch in INCLUDE_REGEX.find_iter(input) {
+        let start = mtch.start();
+
         debug!(
             log,
             "Found include regex match";
-            "span" => SpanWrap::from(mtch.range()),
+            "start" => start,
             "slice" => mtch.as_str(),
         );
 
-        match parse_include_block(log, &input[mtch.range()], mtch.range()) {
+        match parse_include_block(log, &input[start..], start) {
             None => debug!(log, "Unable to parse include regex match"),
-            Some(include) => {
-                ranges.push(mtch.range());
+            Some((include, end)) => {
+                ranges.push(start..end);
                 includes.push(include);
             }
         }

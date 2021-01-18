@@ -24,7 +24,6 @@ use pest::iterators::Pairs;
 use pest::Parser;
 use std::borrow::Cow;
 use std::collections::HashMap;
-use std::ops::Range;
 
 #[derive(Parser, Debug)]
 #[grammar = "include/grammar.pest"]
@@ -33,33 +32,40 @@ struct IncludeParser;
 pub fn parse_include_block<'t>(
     log: &slog::Logger,
     text: &'t str,
-    range: Range<usize>,
-) -> Option<IncludeRef<'t>> {
+    start: usize,
+) -> Option<(IncludeRef<'t>, usize)> {
     match IncludeParser::parse(Rule::include, text) {
         Ok(mut pairs) => {
+            // Extract inner pairs
+            // These actually make up the include block's tokens
+            let first = pairs
+                .next()
+                .expect("No pairs returned on successful parse");
+
+            let span = first.as_span();
+
             debug!(
                 log,
                 "Parsed include block";
-                "span" => SpanWrap::from(range),
+                "span" => SpanWrap::from(span.start()..span.end()),
                 "slice" => text,
             );
 
-            // Extract inner pairs
-            // These actually make up the include block's tokens
-            let inner_pairs = pairs
-                .next()
-                .expect("No pairs returned on successful parse")
-                .into_inner();
-
             // Convert into an IncludeRef
-            process_pairs(log, inner_pairs)
+            let include = match process_pairs(log, first.into_inner()) {
+                Some(include) => include,
+                None => return None,
+            };
+
+            // Adjust offset and return
+            Some((include, start + span.end()))
         }
         Err(error) => {
             debug!(
                 log,
                 "Include block was invalid";
                 "error" => str!(error),
-                "span" => SpanWrap::from(range),
+                "start" => start,
                 "slice" => text,
             );
 
