@@ -1,6 +1,6 @@
 [<< Return to the README](README.md)
 
-## ftml-server Routes
+## ftml-http Routes
 
 Note that input text are really simple JSON objects in the following form:
 ```json

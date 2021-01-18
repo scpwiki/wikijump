@@ -138,13 +138,13 @@ let (tree, warnings) = result.into();
 See [`Serialization.md`](Serialization.md).
 
 ### Server
-If you wish to build the `ftml-server` subcrate, use the following:
+If you wish to build the `ftml-http` subcrate, use the following:
 Note that it was primarily designed for UNIX-like platforms, but with
 some minor changes could be modified to work on Windows.
 
 ```sh
-$ cargo build -p ftml-server --release
-$ cargo run -p ftml-server
+$ cargo build -p ftml-http --release
+$ cargo run -p ftml-http
 ```
 
 This will produce an HTTP server which a REST client can query to perform ftml operations.
@@ -159,12 +159,12 @@ Its usage message (produced by adding `-- --help` to the above `cargo run` invoc
 is reproduced below:
 
 ```
-ftml ftml-server v0.3.1 [8a42fccd]
+ftml ftml-http v0.3.1 [8a42fccd]
 Wikijump Team
 REST server to parse and render Wikidot text.
 
 USAGE:
-    ftml-server [FLAGS] [OPTIONS]
+    ftml-http [FLAGS] [OPTIONS]
 
 FLAGS:
     -h, --help         Prints help information.

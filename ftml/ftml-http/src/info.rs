@@ -109,7 +109,7 @@ pub fn print(log: &slog::Logger, address: SocketAddr) {
     // Log all of this
     info!(
         log,
-        "Starting ftml-server...";
+        "Starting ftml-http...";
         "version" => &*VERSION,
         "compiled-debug" => DEBUG,
         "compiled-on" => BUILT_TIME_UTC,
