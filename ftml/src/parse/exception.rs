@@ -109,6 +109,9 @@ pub enum ParseWarningKind {
     /// Attempting to match this rule failed, falling back to try an alternate.
     RuleFailed,
 
+    /// This include block was malformed, and thus not substituted.
+    InvalidInclude,
+
     /// There is no rule for the block name specified.
     NoSuchBlock,
 
