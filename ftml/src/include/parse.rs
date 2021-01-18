@@ -84,8 +84,7 @@ fn process_pairs<'t>(
     );
 
     let mut arguments = HashMap::new();
-
-    while let Some(pair) = pairs.next() {
+    for pair in pairs {
         debug_assert_eq!(pair.as_rule(), Rule::argument);
 
         let (key, value) = {
