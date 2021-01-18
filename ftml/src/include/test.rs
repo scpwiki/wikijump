@@ -236,9 +236,7 @@ fn includes() {
     );
     test!(
         "My other wonderful page!\n\n[[include component:info-ayers\n\t|lang=en\n\t|page=scp-xxxx\n\t|authorPage=http://scpwiki.com/main\n\t|comments=\n**SCP-XXXX:** My amazing skip \n**Author:** [[*user Username]] \n]]",
-        vec![
-            PageRef::page_only("component:info-ayers"),
-        ],
+        vec![PageRef::page_only("component:info-ayers")],
     );
 
     // Invalid cases
@@ -252,10 +250,6 @@ fn includes() {
 
     test!(
         "[[include component:multi-line | contents= \nSome content here \nMore stuff",
-        vec![],
-    );
-    test!(
-        "[[include component:multi-line | contents= \nSome content here \nMore stuff\n]]",
         vec![],
     );
     test!(
