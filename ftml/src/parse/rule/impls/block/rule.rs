@@ -138,13 +138,14 @@ where
         None => return Err(parser.make_warn(ParseWarningKind::NoSuchBlock)),
     };
 
+    // Set block rule for better warnings
+    parser.set_block(block);
+
     // Check if this block allows special invocation (the '[[*' token)
     if !block.accepts_special && special {
         return Err(parser.make_warn(ParseWarningKind::InvalidSpecialBlock));
     }
 
-    // Prepare to run the block's parsing function
-    parser.set_block(block);
     parser.get_optional_space()?;
 
     // Run the parse function until the end.
