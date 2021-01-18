@@ -42,11 +42,14 @@ lazy_static! {
 #[grammar = "include/grammar.pest"]
 struct IncludeParser;
 
-pub fn include<'t>(
+pub fn include<'t, I, E>(
     log: &slog::Logger,
     text: &'t mut String,
-    includer: &mut dyn Includer<'t>,
-) -> Vec<PageRef<'t>> {
+    mut includer: I,
+) -> Result<Vec<PageRef<'t>>, E>
+    where
+        I: Includer<'t, Error = E>,
+{
     let log = &log.new(slog_o!(
         "filename" => slog_filename!(),
         "lineno" => slog_lineno!(),
@@ -59,6 +62,8 @@ pub fn include<'t>(
         "Finding and replacing all instances of include blocks in text"
     );
 
+    let mut ranges = Vec::new();
+    let mut pages = Vec::new();
     let mut includes = Vec::new();
 
     // Get include references
@@ -81,7 +86,9 @@ pub fn include<'t>(
                     println!("rule: {:?}, slice: {:?}", pair.as_rule(), pair.as_str());
                 }
 
-                includes.push((start..end, ()));
+                //pages.push(());
+                ranges.push(start..end);
+                //includes.push(());
             }
             Err(error) => {
                 debug!(
@@ -96,13 +103,13 @@ pub fn include<'t>(
     }
 
     // Retrieve included pages
-    todo!();
+    let fetched_pages = includer.include_pages(&includes);
 
     // Substitute inclusions
     todo!();
 
     // Return
-    todo!()
+    Ok(pages)
 }
 
 #[test]
@@ -112,7 +119,8 @@ fn test_include() {
     macro_rules! test {
         ($text:expr, $expected:expr) => {{
             let mut text = str!($text);
-            let actual = include(&log, &mut text, &mut NullIncluder);
+            let result = include(&log, &mut text, NullIncluder);
+            let actual = result.expect("Fetching pages failed");
             let expected = $expected;
 
             println!("Input: {:?}", $text);

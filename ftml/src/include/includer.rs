@@ -21,12 +21,17 @@
 use super::{IncludeRef, PageRef};
 use std::borrow::Cow;
 use std::collections::HashMap;
+use void::Void;
+
+pub type FetchedPages<'t> = HashMap<PageRef<'t>, Cow<'t, str>>;
 
 pub trait Includer<'t> {
+    type Error;
+
     fn include_pages(
         &mut self,
         includes: &[IncludeRef<'t>],
-    ) -> HashMap<PageRef<'t>, Cow<'t, str>>;
+    ) -> Result<FetchedPages<'t>, Self::Error>;
 
     fn no_such_include(&mut self, page_ref: &PageRef<'t>) -> Cow<'t, str>;
 }
@@ -35,12 +40,14 @@ pub trait Includer<'t> {
 pub struct NullIncluder;
 
 impl<'t> Includer<'t> for NullIncluder {
+    type Error = Void;
+
     #[inline]
     fn include_pages(
         &mut self,
         _includes: &[IncludeRef<'t>],
-    ) -> HashMap<PageRef<'t>, Cow<'t, str>> {
-        HashMap::new()
+    ) -> Result<FetchedPages<'t>, Void> {
+        Ok(HashMap::new())
     }
 
     #[inline]

@@ -34,6 +34,7 @@ strum = "0.20"
 strum_macros = "0.20"
 tinyvec = "1"
 unicase = "2"
+void = "1"
 wikidot-normalize = "0.6"
 
 [dev-dependencies]
