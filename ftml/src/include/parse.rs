@@ -18,11 +18,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::span_wrap::SpanWrap;
-use pest::Parser;
-use pest::iterators::Pairs;
-use std::ops::Range;
 use super::{IncludeRef, PageRef};
+use crate::span_wrap::SpanWrap;
+use pest::iterators::Pairs;
+use pest::Parser;
+use std::ops::Range;
 
 #[derive(Parser, Debug)]
 #[grammar = "include/grammar.pest"]

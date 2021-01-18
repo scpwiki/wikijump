@@ -19,15 +19,15 @@
  */
 
 mod includer;
-mod parse;
 mod object;
+mod parse;
 
 pub use self::includer::{Includer, NullIncluder};
 pub use self::object::{IncludeRef, IncludeVariables, PageRef};
 
+use self::parse::parse_include_block;
 use crate::span_wrap::SpanWrap;
 use regex::{Regex, RegexBuilder};
-use self::parse::parse_include_block;
 
 lazy_static! {
     static ref INCLUDE_REGEX: Regex = {
@@ -41,17 +41,17 @@ lazy_static! {
 
 pub fn include<'t, I, E>(
     log: &slog::Logger,
-    text: &'t mut String,
+    input: &'t str,
     mut includer: I,
-) -> Result<Vec<PageRef<'t>>, E>
-    where
-        I: Includer<'t, Error = E>,
+) -> Result<(String, Vec<PageRef<'t>>), E>
+where
+    I: Includer<'t, Error = E>,
 {
     let log = &log.new(slog_o!(
         "filename" => slog_filename!(),
         "lineno" => slog_lineno!(),
         "function" => "include",
-        "text" => str!(text),
+        "text" => str!(input),
     ));
 
     info!(
@@ -63,11 +63,11 @@ pub fn include<'t, I, E>(
     let mut includes = Vec::new();
 
     // Get include references
-    for mtch in INCLUDE_REGEX.find_iter(text) {
+    for mtch in INCLUDE_REGEX.find_iter(input) {
         let start = mtch.start();
         let end = mtch.end();
 
-        if let Ok(include) = parse_include_block(log, &text[start..end], start..end) {
+        if let Ok(include) = parse_include_block(log, &input[start..end], start..end) {
             ranges.push(start..end);
             includes.push(include);
         }
@@ -83,7 +83,12 @@ pub fn include<'t, I, E>(
     let ranges_iter = ranges.into_iter();
     let includes_iter = includes.into_iter();
 
+    // Borrowing from the original text and doing in-place insertions
+    // will not work here. We are trying to both return the page names
+    // (slices from the input string), and replace it with new content.
+    let mut output = String::from(input);
     let mut pages = Vec::new();
+
     for (range, include) in ranges_iter.zip(includes_iter).rev() {
         let (page_ref, _) = include.into();
 
@@ -98,7 +103,7 @@ pub fn include<'t, I, E>(
         // Get replaced content, or error message
         let message;
         let replace_with = match fetched_pages.get(&page_ref) {
-            Some(text) => text,
+            Some(content) => content,
             None => {
                 message = includer.no_such_include(&page_ref);
                 &message
@@ -106,11 +111,11 @@ pub fn include<'t, I, E>(
         };
 
         // Perform the substitution
-        text.replace_range(range, replace_with);
+        output.replace_range(range, replace_with);
     }
 
     // Return
-    Ok(pages)
+    Ok((output, pages))
 }
 
 #[test]
@@ -121,10 +126,11 @@ fn test_include() {
         ($text:expr, $expected:expr) => {{
             let mut text = str!($text);
             let result = include(&log, &mut text, NullIncluder);
-            let actual = result.expect("Fetching pages failed");
+            let (output, actual) = result.expect("Fetching pages failed");
             let expected = $expected;
 
             println!("Input: {:?}", $text);
+            println!("Output: {:?}", output);
             println!("Pages (actual): {:?}", actual);
             println!("Pages (expected): {:?}", expected);
             println!();
