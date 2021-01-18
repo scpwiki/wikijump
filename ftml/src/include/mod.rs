@@ -118,7 +118,7 @@ where
         let replace_with = match fetched_pages.get(&page_ref) {
             Some(content) => content,
             None => {
-                message = includer.no_such_include(&page_ref);
+                message = includer.no_such_include(&page_ref)?;
                 &message
             }
         };
