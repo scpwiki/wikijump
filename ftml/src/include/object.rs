@@ -134,13 +134,13 @@ pub struct IncludeRef<'t> {
 
 impl<'t> IncludeRef<'t> {
     #[inline]
-    pub fn page_with_args(page: PageRef<'t>, variables: IncludeVariables<'t>) -> Self {
+    pub fn new(page: PageRef<'t>, variables: IncludeVariables<'t>) -> Self {
         IncludeRef { page, variables }
     }
 
     #[inline]
     pub fn page_only(page: PageRef<'t>) -> Self {
-        Self::page_with_args(page, HashMap::new())
+        IncludeRef::new(page, HashMap::new())
     }
 
     #[inline]
