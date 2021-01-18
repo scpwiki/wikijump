@@ -22,7 +22,7 @@ use crate::info;
 use ftml::{Includer, PageRef, ParseOutcome};
 use warp::{Filter, Rejection, Reply};
 
-const CONTENT_LENGTH_LIMIT: u64 = 2 * 1024 * 1024 * 1024; /* 2 MiB */
+const CONTENT_LENGTH_LIMIT: u64 = 4 * 1024 * 1024 * 1024; /* 2 MiB */
 
 // Helper structs
 
