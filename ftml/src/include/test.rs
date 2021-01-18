@@ -55,6 +55,7 @@ fn includes() {
     test!("[[include page ]]", vec![PageRef::page_only("page")]);
     test!("[[include page ]]", vec![PageRef::page_only("page")]);
     test!("[[ include page ]]", vec![PageRef::page_only("page")]);
+
     test!("[[include PAGE]]", vec![PageRef::page_only("PAGE")]);
     test!("[[include PAGE ]]", vec![PageRef::page_only("PAGE")]);
     test!("[[include PAGE ]]", vec![PageRef::page_only("PAGE")]);
