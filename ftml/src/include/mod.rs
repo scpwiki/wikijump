@@ -75,8 +75,8 @@ where
         );
 
         match parse_include_block(log, &input[mtch.range()], mtch.range()) {
-            Err(_) => debug!(log, "Unable to parse include regex match"),
-            Ok(include) => {
+            None => debug!(log, "Unable to parse include regex match"),
+            Some(include) => {
                 ranges.push(mtch.range());
                 includes.push(include);
             }

@@ -34,7 +34,7 @@ pub fn parse_include_block<'t>(
     log: &slog::Logger,
     text: &'t str,
     range: Range<usize>,
-) -> Result<IncludeRef<'t>, ()> {
+) -> Option<IncludeRef<'t>> {
     match IncludeParser::parse(Rule::include, text) {
         Ok(mut pairs) => {
             debug!(
@@ -63,7 +63,7 @@ pub fn parse_include_block<'t>(
                 "slice" => text,
             );
 
-            Err(())
+            None
         }
     }
 }
@@ -71,13 +71,16 @@ pub fn parse_include_block<'t>(
 fn process_pairs<'t>(
     log: &slog::Logger,
     mut pairs: Pairs<'t, Rule>,
-) -> Result<IncludeRef<'t>, ()> {
+) -> Option<IncludeRef<'t>> {
     let page_raw = match pairs.next() {
         Some(pair) => pair.as_str(),
-        None => return Err(()),
+        None => return None,
     };
 
-    let page_ref = PageRef::parse(page_raw)?;
+    let page_ref = match PageRef::parse(page_raw) {
+        Some(page_ref) => page_ref,
+        None => return None,
+    };
 
     trace!(
         log, "Got page for include"; "site" => page_ref.site(), "page" => page_ref.page(),
@@ -113,5 +116,5 @@ fn process_pairs<'t>(
         arguments.insert(Cow::Borrowed(key), Cow::Borrowed(value));
     }
 
-    Ok(IncludeRef::new(page_ref, arguments))
+    Some(IncludeRef::new(page_ref, arguments))
 }

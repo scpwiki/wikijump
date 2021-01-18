@@ -77,10 +77,10 @@ impl<'t> PageRef<'t> {
         self.page.as_ref()
     }
 
-    pub fn parse(s: &'t str) -> Result<PageRef<'t>, ()> {
+    pub fn parse(s: &'t str) -> Option<PageRef<'t>> {
         let s = s.trim();
         if s.is_empty() {
-            return Err(());
+            return None;
         }
 
         let result = match s.find(':') {
@@ -89,7 +89,7 @@ impl<'t> PageRef<'t> {
                 // Find the second colon
                 let idx = match s[1..].find(':') {
                     Some(idx) => idx + 1,
-                    None => return Err(()),
+                    None => return None,
                 };
 
                 // Get site and page slices
@@ -106,7 +106,7 @@ impl<'t> PageRef<'t> {
             None => PageRef::page_only(s),
         };
 
-        Ok(result)
+        Some(result)
     }
 }
 
@@ -169,19 +169,19 @@ impl<'t> From<IncludeRef<'t>> for (PageRef<'t>, IncludeVariables<'t>) {
 fn page_ref() {
     macro_rules! test {
         ($input:expr) => {
-            test!($input => Err(()))
+            test!($input => None)
         };
 
         ($input:expr,) => {
-            test!($input => Err(()))
+            test!($input => None)
         };
 
         ($input:expr, $expected:expr) => {
-            test!($input => Ok($expected))
+            test!($input => Some($expected))
         };
 
         ($input:expr, $expected:expr,) => {
-            test!($input => Ok($expected))
+            test!($input => Some($expected))
         };
 
         ($input:expr => $expected:expr) => {{
