@@ -86,7 +86,10 @@ where
         self.get_optional_token(Token::Whitespace)
     }
 
-    pub fn get_block_name(&mut self, special: bool) -> Result<(&'t str, bool), ParseWarning> {
+    pub fn get_block_name(
+        &mut self,
+        special: bool,
+    ) -> Result<(&'t str, bool), ParseWarning> {
         debug!(&self.log(), "Looking for identifier");
 
         if special {
