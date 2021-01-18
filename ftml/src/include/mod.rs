@@ -18,8 +18,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use regex::{Regex, RegexBuilder};
 use std::borrow::Cow;
 use std::collections::HashMap;
+
+lazy_static! {
+    static ref INCLUDE_REGEX: Regex = {
+        RegexBuilder::new(r"\[\[\s*include\s*.+\]\]")
+            .case_insensitive(true)
+            .dot_matches_new_line(true)
+            .build()
+            .unwrap()
+    };
+}
 
 #[derive(Parser, Debug)]
 #[grammar = "include/grammar.pest"]
