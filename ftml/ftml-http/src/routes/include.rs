@@ -28,12 +28,12 @@ pub fn route_include(
         .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
         .and(warp::body::json())
         .map(move |input| {
-            let resp: Response<_> = process_include(&log, input).into();
+            let resp: Response<_> = run_include(&log, input).into();
             warp::reply::json(&resp)
         })
 }
 
-pub fn process_include(
+pub fn run_include(
     log: &slog::Logger,
     IncludeInput {
         text,

@@ -19,7 +19,7 @@
  */
 
 mod prelude {
-    pub use super::include::process_include;
+    pub use super::include::run_include;
     pub use super::object::*;
     pub use crate::error::Error;
     pub use crate::includer::HttpIncluder;
