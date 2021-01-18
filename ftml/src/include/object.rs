@@ -78,6 +78,7 @@ impl<'t> PageRef<'t> {
     }
 
     pub fn parse(s: &'t str) -> Result<PageRef<'t>, ()> {
+        let s = s.trim();
         if s.is_empty() {
             return Err(());
         }
