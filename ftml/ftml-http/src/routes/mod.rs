@@ -52,6 +52,7 @@ pub fn build(
 ) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     let log_middleware = {
         let log = log.clone();
+
         warp::log::custom(move |info| {
             debug!(
                 &log,
