@@ -1,5 +1,5 @@
 /*
- * include/includer/null.rs
+ * include/includer/debug.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Ammon Smith
@@ -22,21 +22,41 @@ use super::prelude::*;
 use void::Void;
 
 #[derive(Debug)]
-pub struct NullIncluder;
+pub struct DebugIncluder;
 
-impl<'t> Includer<'t> for NullIncluder {
+impl<'t> Includer<'t> for DebugIncluder {
     type Error = Void;
 
     #[inline]
     fn include_pages(
         &mut self,
-        _includes: &[IncludeRef<'t>],
+        includes: &[IncludeRef<'t>],
     ) -> Result<FetchedPages<'t>, Void> {
-        Ok(HashMap::new())
+        let mut first = true;
+        let mut pages = HashMap::new();
+
+        for include in includes {
+            if first && includes.len() > 1 {
+                // If the requested inclusions are greater than one,
+                // then have the list be a missing page.
+                //
+                // This lets us test the no_such_include() method,
+                // without it affecting typical single-include test cases.
+
+                first = false;
+                continue;
+            }
+
+            let content = format!("<INCLUDED-PAGE {:?}>", include.arguments());
+
+            pages.insert(include.page().clone(), Cow::Owned(content));
+        }
+
+        Ok(pages)
     }
 
     #[inline]
-    fn no_such_include(&mut self, _page_ref: &PageRef<'t>) -> Cow<'t, str> {
-        Cow::Borrowed("")
+    fn no_such_include(&mut self, page_ref: &PageRef<'t>) -> Cow<'t, str> {
+        Cow::Owned(format!("<MISSING-PAGE {}>", page_ref))
     }
 }

@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod debug;
 mod null;
 
 mod prelude {
@@ -30,6 +31,7 @@ use crate::include::{IncludeRef, PageRef};
 use std::borrow::Cow;
 use std::collections::HashMap;
 
+pub use self::debug::DebugIncluder;
 pub use self::null::NullIncluder;
 
 pub type FetchedPages<'t> = HashMap<PageRef<'t>, Cow<'t, str>>;
