@@ -41,14 +41,20 @@ pub struct PageRef<'t> {
 
 impl<'t> PageRef<'t> {
     #[inline]
-    pub fn page_and_site<S>(site: Option<S>, page: S) -> Self
+    pub fn new(site: Option<Cow<'t, str>>, page: Cow<'t, str>) -> Self {
+        PageRef { site, page }
+    }
+
+    #[inline]
+    pub fn page_and_site<S1, S2>(site: S1, page: S2) -> Self
     where
-        S: Into<Cow<'t, str>>,
+        S1: Into<Cow<'t, str>>,
+        S2: Into<Cow<'t, str>>,
     {
-        let site = site.map(Into::into);
+        let site = site.into();
         let page = page.into();
 
-        PageRef { site, page }
+        PageRef::new(Some(site), page)
     }
 
     #[inline]
@@ -56,7 +62,9 @@ impl<'t> PageRef<'t> {
     where
         S: Into<Cow<'t, str>>,
     {
-        Self::page_and_site(None, page)
+        let page = page.into();
+
+        PageRef::new(None, page)
     }
 
     #[inline]
@@ -83,7 +91,7 @@ impl<'t> PageRef<'t> {
                 let site = &s[1..idx];
                 let page = &s[idx + 1..];
 
-                PageRef::page_and_site(Some(site), page)
+                PageRef::page_and_site(site, page)
             }
 
             // On-site page, e.g. "component:thing"
