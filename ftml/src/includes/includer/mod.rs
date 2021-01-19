@@ -34,6 +34,7 @@ pub use self::debug::DebugIncluder;
 pub use self::null::NullIncluder;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[serde(rename_all = "kebab-case")]
 pub struct FetchedPage<'t> {
     pub page_ref: PageRef<'t>,
     pub content: Option<Cow<'t, str>>,
