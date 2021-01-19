@@ -24,7 +24,7 @@ use ftml::ExtractedToken;
 #[derive(Serialize, Debug)]
 struct TokenizeOutput<'a> {
     tokens: Vec<ExtractedToken<'a>>,
-    text: String,
+    text: &'a str,
     pages_included: Vec<PageRef<'a>>,
 }
 
@@ -36,25 +36,18 @@ pub fn route_tokenize(
         .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
         .and(warp::body::json())
         .map(move |input| {
-            let resp: Response<TokenizeOutput> = run_tokenize(&log, input).into();
+            let (mut text, pages_included) =
+                try_response!(run_include(&log, input)).into();
+
+            ftml::preprocess(&log, &mut text);
+
+            let tokens = ftml::tokenize(&log, &text).into_tokens();
+            let resp = Response::ok(TokenizeOutput {
+                tokens,
+                text: &text,
+                pages_included,
+            });
 
             warp::reply::json(&resp)
         })
-}
-
-fn run_tokenize(
-    log: &slog::Logger,
-    input: IncludeInput,
-) -> Result<TokenizeOutput, Error> {
-    let (mut text, pages_included) = run_include(log, input)?.into();
-
-    ftml::preprocess(&log, &mut text);
-
-    let tokens = ftml::tokenize(&log, &text).into_tokens();
-
-    Ok(TokenizeOutput {
-        tokens,
-        text,
-        pages_included,
-    })
 }
