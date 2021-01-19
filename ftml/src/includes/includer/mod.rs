@@ -35,8 +35,8 @@ pub use self::null::NullIncluder;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct FetchedPage<'t> {
-    pub page: PageRef<'t>,
-    pub content: Cow<'t, str>,
+    pub page_ref: PageRef<'t>,
+    pub content: Option<Cow<'t, str>>,
 }
 
 pub trait Includer<'t> {

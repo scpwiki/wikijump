@@ -31,7 +31,6 @@ pub use self::object::{IncludeRef, IncludeVariables, PageRef};
 use self::parse::parse_include_block;
 use crate::span_wrap::SpanWrap;
 use regex::{Regex, RegexBuilder};
-use std::collections::HashMap;
 
 lazy_static! {
     static ref INCLUDE_REGEX: Regex = {
@@ -44,13 +43,15 @@ lazy_static! {
     };
 }
 
-pub fn include<'t, I, E>(
+pub fn include<'t, I, E, F>(
     log: &slog::Logger,
     input: &'t str,
     mut includer: I,
+    invalid_return: F,
 ) -> Result<(String, Vec<PageRef<'t>>), E>
 where
     I: Includer<'t, Error = E>,
+    F: FnOnce() -> E,
 {
     let log = &log.new(slog_o!(
         "filename" => slog_filename!(),
@@ -88,15 +89,12 @@ where
     }
 
     // Retrieve included pages
-    let fetched_pages = {
-        let pages = includer.include_pages(&includes)?;
+    let fetched_pages = includer.include_pages(&includes)?;
 
-        let mut fetched = HashMap::new();
-        for FetchedPage { page, content } in pages {
-            fetched.insert(page, content);
-        }
-        fetched
-    };
+    // Ensure it matches up with the request
+    if includes.len() != fetched_pages.len() {
+        return Err(invalid_return());
+    }
 
     // Substitute inclusions
     //
@@ -104,6 +102,7 @@ where
 
     let ranges_iter = ranges.into_iter();
     let includes_iter = includes.into_iter();
+    let fetched_iter = fetched_pages.into_iter();
 
     // Borrowing from the original text and doing in-place insertions
     // will not work here. We are trying to both return the page names
@@ -111,7 +110,9 @@ where
     let mut output = String::from(input);
     let mut pages = Vec::new();
 
-    for (range, include) in ranges_iter.zip(includes_iter).rev() {
+    for ((range, include), fetched) in
+        ranges_iter.zip(includes_iter).zip(fetched_iter).rev()
+    {
         let (page_ref, _) = include.into();
 
         debug!(
@@ -122,10 +123,15 @@ where
             "page" => page_ref.page(),
         );
 
+        // Ensure the returned page reference matches
+        if page_ref != fetched.page_ref {
+            return Err(invalid_return());
+        }
+
         // Get replaced content, or error message
         let message;
-        let replace_with = match fetched_pages.get(&page_ref) {
-            Some(content) => content,
+        let replace_with = match fetched.content {
+            Some(ref content) => content,
             None => {
                 message = includer.no_such_include(&page_ref)?;
                 &message

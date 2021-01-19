@@ -38,7 +38,7 @@ impl<'t> Includer<'t> for DebugIncluder {
         let mut pages = Vec::new();
 
         for include in includes {
-            if first && includes.len() > 1 {
+            let content = if first && includes.len() > 1 {
                 // If the requested inclusions are greater than one,
                 // then have the list be a missing page.
                 //
@@ -46,19 +46,20 @@ impl<'t> Includer<'t> for DebugIncluder {
                 // without it affecting typical single-include test cases.
 
                 first = false;
-                continue;
-            }
+                None
+            } else {
+                let content = format!(
+                    "<INCLUDED-PAGE {} {}>",
+                    include.page_ref(),
+                    MapWrap(include.variables()),
+                );
 
-            let content = format!(
-                "<INCLUDED-PAGE {} {}>",
-                include.page_ref(),
-                MapWrap(include.variables()),
-            );
+                Some(Cow::Owned(content))
+            };
 
-            pages.push(FetchedPage {
-                page: include.page_ref().clone(),
-                content: Cow::Owned(content),
-            });
+            let page_ref = include.page_ref().clone();
+
+            pages.push(FetchedPage { page_ref, content });
         }
 
         Ok(pages)
