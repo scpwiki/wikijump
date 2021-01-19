@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use ftml::render::debug::DebugRender;
 use ftml::render::html::{HtmlMeta, HtmlOutput, HtmlRender};
 use ftml::render::Render;
 use ftml::tree::SyntaxTree;
@@ -53,7 +54,7 @@ pub fn route_render_html(
             let (syntax_tree, warnings) = ftml::parse(&log, &tokenization).into();
             let HtmlOutput { html, style, meta } = HtmlRender.render(&syntax_tree);
 
-            let resp = Response::ok(RenderOutput {
+            let resp = Response::ok(HtmlRenderOutput {
                 pages_included,
                 text: &text,
                 tokens: tokenization.tokens(),
@@ -62,6 +63,47 @@ pub fn route_render_html(
                 html: &html,
                 style: &style,
                 meta: &meta,
+            });
+
+            warp::reply::json(&resp)
+        })
+}
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "kebab-case")]
+struct DebugRenderOutput<'a> {
+    pages_included: Vec<PageRef<'a>>,
+    text: &'a str,
+    tokens: &'a [ExtractedToken<'a>],
+    syntax_tree: SyntaxTree<'a>,
+    warnings: Vec<ParseWarning>,
+    output: &'a str,
+}
+
+pub fn route_render_debug(
+    log: slog::Logger,
+) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
+    warp::post()
+        .and(warp::path!("render" / "debug"))
+        .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
+        .and(warp::body::json())
+        .map(move |input| {
+            let (mut text, pages_included) =
+                try_response!(run_include(&log, input)).into();
+
+            ftml::preprocess(&log, &mut text);
+
+            let tokenization = tokenize(&log, &text);
+            let (syntax_tree, warnings) = ftml::parse(&log, &tokenization).into();
+            let output = DebugRender.render(&syntax_tree);
+
+            let resp = Response::ok(DebugRenderOutput {
+                pages_included,
+                text: &text,
+                tokens: tokenization.tokens(),
+                syntax_tree,
+                warnings,
+                output: &output,
             });
 
             warp::reply::json(&resp)
