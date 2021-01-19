@@ -35,29 +35,52 @@ pub enum Response<T> {
     Error(String),
 }
 
+impl<T> Response<T> {
+    #[inline]
+    pub fn ok(item: T) -> Response<T> {
+        Response::Result(item)
+    }
+
+    #[inline]
+    pub fn err(error: Error) -> Response<T> {
+        Response::Error(str!(error))
+    }
+}
+
 impl<T> From<Result<T, Error>> for Response<T> {
     #[inline]
     fn from(result: Result<T, Error>) -> Response<T> {
         match result {
-            Ok(item) => Response::Result(item),
-            Err(error) => Response::Error(str!(error)),
+            Ok(item) => Response::ok(item),
+            Err(error) => Response::err(error),
         }
     }
 }
 
 // Include structs
 
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "kebab-case")]
+pub struct IncludeInput {
+    pub text: String,
+    pub callback_url: String,
+    pub missing_include_template: String,
+}
+
 #[derive(Serialize, Debug)]
 pub struct IncludeOutput<'a> {
-    pub text: String,
-    pub pages: Vec<PageRef<'a>>,
+    text: String,
+    pages_included: Vec<PageRef<'a>>,
 }
 
 impl<'a> From<IncludeOutput<'a>> for (String, Vec<PageRef<'a>>) {
     #[inline]
     fn from(output: IncludeOutput<'a>) -> (String, Vec<PageRef<'a>>) {
-        let IncludeOutput { text, pages } = output;
+        let IncludeOutput {
+            text,
+            pages_included,
+        } = output;
 
-        (text, pages)
+        (text, pages_included)
     }
 }

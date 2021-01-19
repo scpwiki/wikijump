@@ -19,36 +19,42 @@
  */
 
 use super::prelude::*;
+use ftml::ExtractedToken;
+
+#[derive(Serialize, Debug)]
+struct TokenizeOutput<'a> {
+    tokens: Vec<ExtractedToken<'a>>,
+    text: String,
+    pages_included: Vec<PageRef<'a>>,
+}
 
 pub fn route_tokenize(
-    log: &slog::Logger,
+    log: slog::Logger,
 ) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
-    let factory = |preprocess| {
-        let log = log.clone();
-
-        move |input| {
-            let TextInput { mut text } = input;
-
-            if preprocess {
-                ftml::preprocess(&log, &mut text);
-            }
-
-            let result = ftml::tokenize(&log, &text);
-            let tokens = result.tokens();
-            warp::reply::json(&tokens)
-        }
-    };
-
-    let regular = warp::path("tokenize")
-        .and(warp::path::end())
+    warp::post()
+        .and(warp::path("tokenize"))
         .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
         .and(warp::body::json())
-        .map(factory(true));
+        .map(move |input| {
+            let resp: Response<TokenizeOutput> = run_tokenize(&log, input).into();
 
-    let only = warp::path!("tokenize" / "only")
-        .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
-        .and(warp::body::json())
-        .map(factory(false));
+            warp::reply::json(&resp)
+        })
+}
 
-    regular.or(only)
+fn run_tokenize(
+    log: &slog::Logger,
+    input: IncludeInput,
+) -> Result<TokenizeOutput, Error> {
+    let (mut text, pages_included) = run_include(log, input)?.into();
+
+    ftml::preprocess(&log, &mut text);
+
+    let tokens = ftml::tokenize(&log, &text).into_tokens();
+
+    Ok(TokenizeOutput {
+        tokens,
+        text,
+        pages_included,
+    })
 }

@@ -29,6 +29,9 @@ mod prelude {
     pub const CONTENT_LENGTH_LIMIT: u64 = 4 * 1024 * 1024 * 1024; /* 2 MiB */
 }
 
+#[macro_use]
+mod macros;
+
 mod include;
 mod misc;
 mod object;
@@ -69,7 +72,7 @@ pub fn build(
 
     let include = route_include(log.clone());
     let preproc = route_preproc(log.clone());
-    let tokenize = route_tokenize(&log);
+    let tokenize = route_tokenize(log.clone());
     let parse = route_parse(&log);
     let render_html = route_render_html(&log);
     let misc = route_misc();

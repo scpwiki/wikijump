@@ -20,14 +20,6 @@
 
 use super::prelude::*;
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "kebab-case")]
-struct IncludeInput {
-    text: String,
-    callback_url: String,
-    missing_include_template: String,
-}
-
 pub fn route_include(
     log: slog::Logger,
 ) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
@@ -36,14 +28,8 @@ pub fn route_include(
         .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
         .and(warp::body::json())
         .map(move |input| {
-            let IncludeInput {
-                text,
-                callback_url,
-                missing_include_template,
-            } = input;
-
-            let resp: Response<IncludeOutput> =
-                run_include(&log, &text, &callback_url, &missing_include_template).into();
+            let result = try_response!(run_include(&log, input));
+            let resp = Response::ok(result);
 
             warp::reply::json(&resp)
         })
@@ -51,9 +37,11 @@ pub fn route_include(
 
 pub fn run_include(
     log: &slog::Logger,
-    text: &str,
-    callback_url: &str,
-    missing_include_template: &str,
+    IncludeInput {
+        text,
+        callback_url,
+        missing_include_template,
+    }: IncludeInput,
 ) -> Result<IncludeOutput<'static>, Error> {
     let includer = HttpIncluder::new(&callback_url, &missing_include_template)?;
 
@@ -67,9 +55,11 @@ pub fn run_include(
             );
 
             // Clone page references to avoid lifetime issues
+            let pages_included = pages.iter().map(PageRef::to_owned).collect();
+
             Ok(IncludeOutput {
                 text: output,
-                pages: pages.iter().map(PageRef::to_owned).collect(),
+                pages_included,
             })
         }
         Err(error) => {
