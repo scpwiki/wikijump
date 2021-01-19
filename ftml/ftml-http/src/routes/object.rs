@@ -19,7 +19,7 @@
  */
 
 use crate::Error;
-use ftml::includer::PageRef;
+use ftml::includes::PageRef;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "kebab-case")]

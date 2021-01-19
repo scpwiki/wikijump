@@ -19,7 +19,7 @@
  */
 
 use crate::Error;
-use ftml::includer::{FetchedPage, IncludeRef, Includer, PageRef};
+use ftml::includes::{FetchedPage, IncludeRef, Includer, PageRef};
 use reqwest::blocking::Client;
 use std::borrow::Cow;
 use tera::{Context, Tera};

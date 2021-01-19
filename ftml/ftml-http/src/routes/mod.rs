@@ -23,8 +23,8 @@ mod prelude {
     pub use super::object::*;
     pub use crate::error::Error;
     pub use crate::includer::HttpIncluder;
-    pub use ftml::includer::PageRef;
-    pub use ftml::parser::ExtractedToken;
+    pub use ftml::includes::PageRef;
+    pub use ftml::parsing::ExtractedToken;
     pub use ftml::prelude::*;
     pub use warp::{Filter, Rejection, Reply};
 

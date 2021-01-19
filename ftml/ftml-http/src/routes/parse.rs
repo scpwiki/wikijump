@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use ftml::parser::ParseWarning;
+use ftml::parsing::ParseWarning;
 use ftml::tree::SyntaxTree;
 
 #[derive(Serialize, Debug)]
