@@ -25,7 +25,7 @@ use ftml::ParseWarning;
 #[derive(Serialize, Debug)]
 struct ParseOutput<'a> {
     text: &'a str,
-    tokens: Vec<ExtractedToken<'a>>,
+    tokens: &'a [ExtractedToken<'a>],
     syntax_tree: SyntaxTree<'a>,
     warnings: Vec<ParseWarning>,
     pages_included: Vec<PageRef<'a>>,
@@ -44,12 +44,12 @@ pub fn route_parse(
 
             ftml::preprocess(&log, &mut text);
 
-            let tokens = ftml::tokenize(&log, &text);
-            let (syntax_tree, warnings) = ftml::parse(&log, &tokens).into();
+            let tokenization = ftml::tokenize(&log, &text);
+            let (syntax_tree, warnings) = ftml::parse(&log, &tokenization).into();
 
             let resp = Response::ok(ParseOutput {
                 text: &text,
-                tokens: tokens.into_tokens(),
+                tokens: tokenization.tokens(),
                 syntax_tree,
                 warnings,
                 pages_included,

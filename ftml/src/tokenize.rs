@@ -37,11 +37,6 @@ impl<'t> Tokenization<'t> {
     pub(crate) fn full_text(&self) -> FullText<'t> {
         self.full_text
     }
-
-    #[inline]
-    pub fn into_tokens(self) -> Vec<ExtractedToken<'t>> {
-        self.into()
-    }
 }
 
 impl<'t> From<Tokenization<'t>> for Vec<ExtractedToken<'t>> {

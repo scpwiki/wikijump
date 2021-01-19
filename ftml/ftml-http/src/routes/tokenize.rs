@@ -23,7 +23,7 @@ use super::prelude::*;
 #[derive(Serialize, Debug)]
 struct TokenizeOutput<'a> {
     text: &'a str,
-    tokens: Vec<ExtractedToken<'a>>,
+    tokens: &'a [ExtractedToken<'a>],
     pages_included: Vec<PageRef<'a>>,
 }
 
@@ -40,10 +40,10 @@ pub fn route_tokenize(
 
             ftml::preprocess(&log, &mut text);
 
-            let tokens = ftml::tokenize(&log, &text).into_tokens();
+            let tokenization = ftml::tokenize(&log, &text);
             let resp = Response::ok(TokenizeOutput {
                 text: &text,
-                tokens,
+                tokens: tokenization.tokens(),
                 pages_included,
             });
 
