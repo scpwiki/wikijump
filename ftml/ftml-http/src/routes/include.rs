@@ -37,11 +37,11 @@ pub fn route_include(
 
 pub fn run_include(
     log: &slog::Logger,
-    IncludeInput {
+    TextInput {
         text,
         callback_url,
         missing_include_template,
-    }: IncludeInput,
+    }: TextInput,
 ) -> Result<IncludeOutput<'static>, Error> {
     let includer = HttpIncluder::new(&callback_url, &missing_include_template)?;
 
