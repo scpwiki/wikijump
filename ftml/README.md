@@ -57,16 +57,26 @@ While the expanded form of the initialism is never explicitly stated, it is clea
 name similarity to HTML.
 
 ### Usage
-There are three exported functions, which correspond to each of the main steps in the wikitext process.
+There are a couple main exported functions, which correspond to each of the main steps in the wikitext process.
 
-First is `preprocess`, which will perform Wikidot's various minor text substitutions.
+First is `include`, which substitutes all `[[include]]` blocks for their replaced page content. This returns the substituted wikitext as a new string, as long as the names of all the pages that were used. It requires an object that implement `Includer`, which handles the process of retrieving pages and generating missing page messages.
 
-Second is `tokenize`, which takes the input string and returns a wrapper type. This can be `.into()`-ed into a `Vec<ExtractedToken<'t>>` should you want the token extractions it produced. This is used as the input for `parse`.
+Second is `preprocess`, which will perform Wikidot's various minor text substitutions.
+
+Third is `tokenize`, which takes the input string and returns a wrapper type. This can be `.into()`-ed into a `Vec<ExtractedToken<'t>>` should you want the token extractions it produced. This is used as the input for `parse`.
 
 Then, borrowing a slice of said tokens, `parse` consumes them and produces a `SyntaxTree` representing the full structure of the parsed wikitext.
 
+Finally, with the syntax tree you `render` it with whatever `Render` instance you need at the time. Most likely you want `HtmlRender`.
+
 ```rust
-fn include(...) -- TODO!
+fn include<'t, I, E>(
+    log: &slog::Logger,
+    input: &'t str,
+    includer: I,
+) -> Result<(String, Vec<PageRef<'t>>), E>
+where
+    I: Includer<'t, Error = E>;
 
 fn preprocess(
     log: &slog::Logger,
@@ -186,6 +196,11 @@ $ curl \
     -X POST \
     -H 'Content-Type: application/json' \
     --compressed \
-    --data '{"text": "<your input here>"}' \
-    http://localhost:3865/parse
+    --data '
+{
+    "text": "<your input here>",
+    "callback-url": "http://localhost:8000/included-pages",
+    "missing-include-template": "No page {{ page }} {% if site %}on site {{ site }} {% endif %}exists!"
+}' \
+        http://localhost:3865/parse
 ```
