@@ -40,7 +40,7 @@ pub use self::output::HtmlOutput;
 #[cfg(test)]
 use super::prelude;
 
-use super::super::Render;
+use crate::render::Render;
 use crate::tree::SyntaxTree;
 
 #[derive(Debug)]

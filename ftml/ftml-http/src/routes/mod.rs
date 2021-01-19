@@ -74,7 +74,7 @@ pub fn build(
     let preproc = route_preproc(log.clone());
     let tokenize = route_tokenize(log.clone());
     let parse = route_parse(log.clone());
-    let render_html = route_render_html(&log);
+    let render_html = route_render_html(log.clone());
     let misc = route_misc();
 
     warp::any()

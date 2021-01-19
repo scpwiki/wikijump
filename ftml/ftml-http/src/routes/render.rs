@@ -19,9 +19,10 @@
  */
 
 use super::prelude::*;
-use ftml::render::html::{HtmlMeta, HtmlOutput};
+use ftml::render::html::{HtmlMeta, HtmlOutput, HtmlRender};
+use ftml::render::Render;
 use ftml::tree::SyntaxTree;
-use ftml::{ParseWarning, Render};
+use ftml::ParseWarning;
 
 #[derive(Serialize, Debug)]
 struct RenderOutput<'a> {
@@ -32,11 +33,11 @@ struct RenderOutput<'a> {
     warnings: Vec<ParseWarning>,
     html: &'a str,
     style: &'a str,
-    meta: &'a [HtmlMeta<'a>],
+    meta: &'a [HtmlMeta],
 }
 
 pub fn route_render_html(
-    log: &slog::Logger,
+    log: slog::Logger,
 ) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     warp::post()
         .and(warp::path!("render" / "html"))
@@ -50,7 +51,7 @@ pub fn route_render_html(
 
             let tokenization = ftml::tokenize(&log, &text);
             let (syntax_tree, warnings) = ftml::parse(&log, &tokenization).into();
-            let HtmlOutput { html, style, meta } = ftml::HtmlRender.render(&syntax_tree);
+            let HtmlOutput { html, style, meta } = HtmlRender.render(&syntax_tree);
 
             let resp = Response::ok(RenderOutput {
                 pages_included,
@@ -58,9 +59,9 @@ pub fn route_render_html(
                 tokens: tokenization.tokens(),
                 syntax_tree,
                 warnings,
-                html,
-                style,
-                meta,
+                html: &html,
+                style: &style,
+                meta: &meta,
             });
 
             warp::reply::json(&resp)

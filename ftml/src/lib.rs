@@ -80,12 +80,12 @@ mod enums;
 mod include;
 mod parse;
 mod preproc;
-mod render;
 mod span_wrap;
 mod text;
 mod tokenize;
 
 pub mod data;
+pub mod render;
 pub mod tree;
 
 #[cfg(test)]
@@ -99,7 +99,6 @@ pub use self::parse::{
     parse, ExtractedToken, ParseOutcome, ParseWarning, ParseWarningKind, Token,
 };
 pub use self::preproc::preprocess;
-pub use self::render::*;
 pub use self::tokenize::{tokenize, Tokenization};
 
 pub mod prelude {
