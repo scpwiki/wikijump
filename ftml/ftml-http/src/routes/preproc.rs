@@ -22,8 +22,8 @@ use super::prelude::*;
 
 #[derive(Serialize, Debug)]
 struct PreprocessOutput<'a> {
-    text: String,
     pages_included: Vec<PageRef<'a>>,
+    text: String,
 }
 
 pub fn route_preproc(
@@ -40,8 +40,8 @@ pub fn route_preproc(
             ftml::preprocess(&log, &mut text);
 
             let resp = Response::ok(PreprocessOutput {
-                text,
                 pages_included,
+                text,
             });
 
             warp::reply::json(&resp)

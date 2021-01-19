@@ -22,9 +22,9 @@ use super::prelude::*;
 
 #[derive(Serialize, Debug)]
 struct TokenizeOutput<'a> {
+    pages_included: Vec<PageRef<'a>>,
     text: &'a str,
     tokens: &'a [ExtractedToken<'a>],
-    pages_included: Vec<PageRef<'a>>,
 }
 
 pub fn route_tokenize(
@@ -42,9 +42,9 @@ pub fn route_tokenize(
 
             let tokenization = ftml::tokenize(&log, &text);
             let resp = Response::ok(TokenizeOutput {
+                pages_included,
                 text: &text,
                 tokens: tokenization.tokens(),
-                pages_included,
             });
 
             warp::reply::json(&resp)

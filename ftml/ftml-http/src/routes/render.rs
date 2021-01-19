@@ -19,43 +19,50 @@
  */
 
 use super::prelude::*;
-use ftml::ParseOutcome;
+use ftml::render::html::{HtmlMeta, HtmlOutput};
+use ftml::tree::SyntaxTree;
+use ftml::{ParseWarning, Render};
+
+#[derive(Serialize, Debug)]
+struct RenderOutput<'a> {
+    pages_included: Vec<PageRef<'a>>,
+    text: &'a str,
+    tokens: &'a [ExtractedToken<'a>],
+    syntax_tree: SyntaxTree<'a>,
+    warnings: Vec<ParseWarning>,
+    html: &'a str,
+    style: &'a str,
+    meta: &'a [HtmlMeta<'a>],
+}
 
 pub fn route_render_html(
     log: &slog::Logger,
 ) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
-    use ftml::Render;
-
-    let factory = |preprocess| {
-        let log = log.clone();
-
-        move |input| {
-            let TextInput { mut text } = input;
-
-            if preprocess {
-                ftml::preprocess(&log, &mut text);
-            }
-
-            let tokens = ftml::tokenize(&log, &text);
-            let parsed = ftml::parse(&log, &tokens);
-            let (tree, errors) = parsed.into();
-            let output = ftml::HtmlRender.render(&tree);
-            let result = ParseOutcome::new(output, errors);
-
-            warp::reply::json(&result)
-        }
-    };
-
-    let regular = warp::path!("render" / "html")
-        .and(warp::path::end())
+    warp::post()
+        .and(warp::path!("render" / "html"))
         .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
         .and(warp::body::json())
-        .map(factory(true));
+        .map(move |input| {
+            let (mut text, pages_included) =
+                try_response!(run_include(&log, input)).into();
 
-    let only = warp::path!("render" / "html" / "only")
-        .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
-        .and(warp::body::json())
-        .map(factory(false));
+            ftml::preprocess(&log, &mut text);
 
-    regular.or(only)
+            let tokenization = ftml::tokenize(&log, &text);
+            let (syntax_tree, warnings) = ftml::parse(&log, &tokenization).into();
+            let HtmlOutput { html, style, meta } = ftml::HtmlRender.render(&syntax_tree);
+
+            let resp = Response::ok(RenderOutput {
+                pages_included,
+                text: &text,
+                tokens: tokenization.tokens(),
+                syntax_tree,
+                warnings,
+                html,
+                style,
+                meta,
+            });
+
+            warp::reply::json(&resp)
+        })
 }

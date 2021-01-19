@@ -24,11 +24,11 @@ use ftml::ParseWarning;
 
 #[derive(Serialize, Debug)]
 struct ParseOutput<'a> {
+    pages_included: Vec<PageRef<'a>>,
     text: &'a str,
     tokens: &'a [ExtractedToken<'a>],
     syntax_tree: SyntaxTree<'a>,
     warnings: Vec<ParseWarning>,
-    pages_included: Vec<PageRef<'a>>,
 }
 
 pub fn route_parse(
@@ -48,11 +48,11 @@ pub fn route_parse(
             let (syntax_tree, warnings) = ftml::parse(&log, &tokenization).into();
 
             let resp = Response::ok(ParseOutput {
+                pages_included,
                 text: &text,
                 tokens: tokenization.tokens(),
                 syntax_tree,
                 warnings,
-                pages_included,
             });
 
             warp::reply::json(&resp)
