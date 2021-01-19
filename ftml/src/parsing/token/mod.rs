@@ -119,6 +119,7 @@ pub enum Token {
     Identifier,
     Email,
     Url,
+    Variable,
     String,
 
     //
@@ -252,6 +253,7 @@ impl Token {
             Rule::identifier => Token::Identifier,
             Rule::email => Token::Email,
             Rule::url => Token::Url,
+            Rule::variable => Token::Variable,
             Rule::string => Token::String,
 
             // Other

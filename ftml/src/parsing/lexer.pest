@@ -205,6 +205,12 @@ close_justify_align = { "[[/==]]" }
 
 // }}}
 
+// Variable {{{
+
+variable = { "{$" ~ identifier ~ "}" }
+
+// }}}
+
 // String {{{
 
 char = _{
