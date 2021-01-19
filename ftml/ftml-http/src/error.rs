@@ -25,6 +25,9 @@ use thiserror::Error as ThisError;
 
 #[derive(ThisError, Debug)]
 pub enum Error {
+    #[error("remote server returned invalid page response")]
+    InvalidResponse,
+
     #[error("serializing or desezerializing from JSON: {0}")]
     Json(#[from] JsonError),
 

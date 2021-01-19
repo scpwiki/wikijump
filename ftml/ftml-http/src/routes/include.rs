@@ -44,8 +44,9 @@ pub fn run_include(
     }: TextInput,
 ) -> Result<IncludeOutput<'static>, Error> {
     let includer = HttpIncluder::new(&callback_url, &missing_include_template)?;
+    let make_err = || Error::InvalidResponse;
 
-    match ftml::include(log, &text, includer) {
+    match ftml::include(log, &text, includer, make_err) {
         Ok((output, pages)) => {
             info!(
                 log,
