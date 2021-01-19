@@ -34,6 +34,7 @@ use std::fmt::{self, Display};
 ///
 /// Additionally "`page`" here may also contain colons, such as `component:some-thing`.
 #[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
 pub struct PageRef<'t> {
     site: Option<Cow<'t, str>>,
     page: Cow<'t, str>,
