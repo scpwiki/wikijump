@@ -23,11 +23,6 @@ use ftml::includer::PageRef;
 
 // General structs
 
-#[derive(Deserialize, Debug)]
-pub struct TextInput {
-    pub text: String,
-}
-
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "kebab-case")]
 pub enum Response<T> {
