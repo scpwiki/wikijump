@@ -69,8 +69,8 @@ pub struct IncludeInput {
 
 #[derive(Serialize, Debug)]
 pub struct IncludeOutput<'a> {
-    text: String,
-    pages_included: Vec<PageRef<'a>>,
+    pub text: String,
+    pub pages_included: Vec<PageRef<'a>>,
 }
 
 impl<'a> From<IncludeOutput<'a>> for (String, Vec<PageRef<'a>>) {
