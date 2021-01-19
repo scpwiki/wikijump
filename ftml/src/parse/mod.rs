@@ -44,18 +44,18 @@ mod prelude {
     pub use crate::tree::Element;
 }
 
+use self::boolean::parse_boolean;
 use self::paragraph::{gather_paragraphs, NO_CLOSE_CONDITION};
 use self::parser::Parser;
 use self::rule::impls::RULE_PAGE;
+use self::string::parse_string;
 use crate::tokenize::Tokenization;
 use crate::tree::SyntaxTree;
 use std::borrow::Cow;
 
-pub use self::boolean::parse_boolean;
 pub use self::exception::{ParseException, ParseWarning, ParseWarningKind};
 pub use self::outcome::ParseOutcome;
 pub use self::result::{ParseResult, ParseSuccess};
-pub use self::string::parse_string;
 pub use self::token::{ExtractedToken, Token};
 
 /// Parse through the given tokens and produce an AST.

@@ -18,8 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::parse::{ExtractedToken, Token};
 use crate::text::FullText;
-use crate::{ExtractedToken, Token};
 
 #[derive(Debug, Clone)]
 pub struct Tokenization<'t> {

@@ -77,31 +77,27 @@ mod log;
 mod macros;
 
 mod enums;
-mod include;
-mod parse;
 mod preproc;
 mod span_wrap;
 mod text;
-mod tokenize;
 
 pub mod data;
+pub mod include;
+pub mod parse;
 pub mod render;
+pub mod tokenize;
 pub mod tree;
 
 #[cfg(test)]
 pub use self::log::{build_console_logger, build_logger, build_null_logger};
 
-pub use self::include::{
-    include, DebugIncluder, FetchedPage, IncludeRef, IncludeVariables, Includer,
-    NullIncluder, PageRef,
-};
-pub use self::parse::{
-    parse, ExtractedToken, ParseOutcome, ParseWarning, ParseWarningKind, Token,
-};
 pub use self::preproc::preprocess;
 pub use self::tokenize::{tokenize, Tokenization};
 
 pub mod prelude {
+    pub use super::parse::{parse, ParseResult, ParseWarning};
+    pub use super::render::Render;
+    pub use super::tokenize::{tokenize, Tokenization};
     pub use super::tree::{Element, SyntaxTree};
-    pub use super::{data, parse, preprocess, tokenize};
+    pub use super::{data, preprocess};
 }
