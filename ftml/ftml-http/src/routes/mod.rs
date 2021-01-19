@@ -46,7 +46,7 @@ use self::include::route_include;
 use self::misc::route_misc;
 use self::parse::route_parse;
 use self::preproc::route_preproc;
-use self::render::route_render_html;
+use self::render::{route_render_debug, route_render_html};
 use self::tokenize::route_tokenize;
 use warp::{Filter, Rejection, Reply};
 
@@ -76,6 +76,7 @@ pub fn build(
     let preproc = route_preproc(log.clone());
     let tokenize = route_tokenize(log.clone());
     let parse = route_parse(log.clone());
+    let render_debug = route_render_debug(log.clone());
     let render_html = route_render_html(log.clone());
     let misc = route_misc();
 
@@ -85,6 +86,7 @@ pub fn build(
                 .or(preproc)
                 .or(tokenize)
                 .or(parse)
+                .or(render_debug)
                 .or(render_html)
                 .or(misc),
         )
