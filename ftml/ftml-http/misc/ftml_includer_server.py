@@ -73,10 +73,12 @@ def generate_page(site, page, variables):
 
 
 def generate_pages(request):
-    print(f"Requested pages: {request}")
+    wanted_pages = request["includes"]
+    print(f"Requested pages count: {len(wanted_pages)}")
 
     page_data = []
-    for wanted_page in request["includes"]:
+    for wanted_page in wanted_pages:
+        print(f"Fetching page: {wanted_page}")
         page_ref = wanted_page["page_ref"]
         site = page_ref["site"]
         page = page_ref["page"]
@@ -97,6 +99,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         # Read and process request
         length = int(self.headers.get('Content-Length'))
         raw_request = self.rfile.read(length)
+        print(f"Raw request: {raw_request}")
 
         request = json.loads(raw_request)
         page_data = generate_pages(request)
