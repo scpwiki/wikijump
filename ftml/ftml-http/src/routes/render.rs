@@ -24,7 +24,7 @@ use ftml::render::Render;
 use ftml::tree::SyntaxTree;
 
 #[derive(Serialize, Debug)]
-struct RenderOutput<'a> {
+struct HtmlRenderOutput<'a> {
     pages_included: Vec<PageRef<'a>>,
     text: &'a str,
     tokens: &'a [ExtractedToken<'a>],
