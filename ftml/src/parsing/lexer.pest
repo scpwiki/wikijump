@@ -118,9 +118,9 @@ token = _{
 
 // Text {{{
 
-identifier = { (ASCII_ALPHANUMERIC | ASCII_DIGIT)+ }
+identifier = @{ (ASCII_ALPHANUMERIC | ASCII_DIGIT)+ }
 
-email = {
+email = @{
     (ASCII_ALPHANUMERIC | "-" | ".")+ ~
     "@" ~
     (ASCII_ALPHANUMERIC | "-")+ ~
@@ -128,7 +128,7 @@ email = {
     (ASCII_ALPHANUMERIC | ".")+
 }
 
-url = {
+url = @{
     (("http" ~ "s"?) | "ftp") ~ "://" ~
     (!(NEWLINE | " " | "|" | "[" | "]") ~ ANY)+
 }
@@ -137,78 +137,78 @@ url = {
 
 // Symbols {{{
 
-raw = { "@@" }
-left_raw = { "@<" }
-right_raw = { ">@" }
+raw = @{ "@@" }
+left_raw = @{ "@<" }
+right_raw = @{ ">@" }
 
-left_comment = { "[!--" }
-right_comment = { "--]" }
+left_comment = @{ "[!--" }
+right_comment = @{ "--]" }
 
-left_bracket = { "[" }
-left_bracket_anchor = { "[#" }
-left_bracket_special = { "[*" }
-left_block = { "[[" }
-left_block_end = { "[[/" }
-left_block_special = { "[[*" }
-left_link = { "[[[" }
-left_link_special = { "[[[*" }
-right_bracket = { "]" }
-right_block = { "]]" }
-right_link = { "]]]" }
+left_bracket = @{ "[" }
+left_bracket_anchor = @{ "[#" }
+left_bracket_special = @{ "[*" }
+left_block = @{ "[[" }
+left_block_end = @{ "[[/" }
+left_block_special = @{ "[[*" }
+left_link = @{ "[[[" }
+left_link_special = @{ "[[[*" }
+right_bracket = @{ "]" }
+right_block = @{ "]]" }
+right_link = @{ "]]]" }
 
-clear_float = { "~"{4,} }
-clear_float_center = { "~"{4,} ~ "=" }
-clear_float_left = { "~"{4,} ~ "<" }
-clear_float_right = { "~"{4,} ~ ">" }
-triple_dash = { "-"{3,} }
-double_dash = { "-"{2} }
-pipe = { "|" }
-equals = { "=" }
-underscore = { "_" }
-quote = { ">"+ ~ " "? }
-heading = { "+"{1,6} }
+clear_float = @{ "~"{4,} }
+clear_float_center = @{ "~"{4,} ~ "=" }
+clear_float_left = @{ "~"{4,} ~ "<" }
+clear_float_right = @{ "~"{4,} ~ ">" }
+triple_dash = @{ "-"{3,} }
+double_dash = @{ "-"{2} }
+pipe = @{ "|" }
+equals = @{ "=" }
+underscore = @{ "_" }
+quote = @{ ">"+ ~ " "? }
+heading = @{ "+"{1,6} }
 
 // }}}
 
 // Formatting {{{
 
-strong = { "**" }
-emphasis = { "//" }
-underline = { "__" }
-superscript = { "^^" }
-subscript = { ",," }
-color = { "##" }
-left_monospace = { "{{" }
-right_monospace = { "}}" }
+strong = @{ "**" }
+emphasis = @{ "//" }
+underline = @{ "__" }
+superscript = @{ "^^" }
+subscript = @{ ",," }
+color = @{ "##" }
+left_monospace = @{ "{{" }
+right_monospace = @{ "}}" }
 
 // }}}
 
 // Tables {{{
 
-table_column = { "||" }
-table_column_title = { "||~" }
+table_column = @{ "||" }
+table_column_title = @{ "||~" }
 
 // }}}
 
 // Alignment {{{
 
-open_right_align = { "[[>]]" }
-close_right_align = { "[[/>]]" }
+open_right_align = @{ "[[>]]" }
+close_right_align = @{ "[[/>]]" }
 
-open_left_align = { "[[<]]" }
-close_left_align = { "[[/<]]" }
+open_left_align = @{ "[[<]]" }
+close_left_align = @{ "[[/<]]" }
 
-open_center_align = { "[[=]]" }
-close_center_align = { "[[/=]]" }
+open_center_align = @{ "[[=]]" }
+close_center_align = @{ "[[/=]]" }
 
-open_justify_align = { "[[==]]" }
-close_justify_align = { "[[/==]]" }
+open_justify_align = @{ "[[==]]" }
+close_justify_align = @{ "[[/==]]" }
 
 // }}}
 
 // Variable {{{
 
-variable = { "{$" ~ identifier ~ "}" }
+variable = @{ "{$" ~ identifier ~ "}" }
 
 // }}}
 
@@ -219,22 +219,22 @@ char = _{
     "\\" ~ ("\"" | "\\" | "r" | "n" | "t" | "'")
 }
 
-string = { "\"" ~ char* ~ "\"" }
+string = @{ "\"" ~ char* ~ "\"" }
 
 // }}}
 
 // Misc {{{
 
-line_break = { NEWLINE }
-paragraph_break = { NEWLINE{2,} }
-space = { (" " | "\t")+ }
+line_break = @{ NEWLINE }
+paragraph_break = @{ NEWLINE{2,} }
+space = @{ (" " | "\t")+ }
 
 // To be consolidated in code
 //
 // this way pest matches ANY lazily, permitting other rules,
 // as opposed to greedily, where the first unusual token will
 // turn the rest of the input into a big "other"
-other = { ANY }
+other = @{ ANY }
 
 // }}}
 
