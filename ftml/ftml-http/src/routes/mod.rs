@@ -23,7 +23,7 @@ mod prelude {
     pub use super::object::*;
     pub use crate::error::Error;
     pub use crate::includer::HttpIncluder;
-    pub use ftml::PageRef;
+    pub use ftml::{ExtractedToken, PageRef};
     pub use warp::{Filter, Rejection, Reply};
 
     pub const CONTENT_LENGTH_LIMIT: u64 = 4 * 1024 * 1024 * 1024; /* 2 MiB */
@@ -73,7 +73,7 @@ pub fn build(
     let include = route_include(log.clone());
     let preproc = route_preproc(log.clone());
     let tokenize = route_tokenize(log.clone());
-    let parse = route_parse(&log);
+    let parse = route_parse(log.clone());
     let render_html = route_render_html(&log);
     let misc = route_misc();
 

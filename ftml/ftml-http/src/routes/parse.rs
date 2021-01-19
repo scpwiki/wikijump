@@ -19,36 +19,42 @@
  */
 
 use super::prelude::*;
+use ftml::tree::SyntaxTree;
+use ftml::ParseWarning;
+
+#[derive(Serialize, Debug)]
+struct ParseOutput<'a> {
+    text: &'a str,
+    tokens: Vec<ExtractedToken<'a>>,
+    syntax_tree: SyntaxTree<'a>,
+    warnings: Vec<ParseWarning>,
+    pages_included: Vec<PageRef<'a>>,
+}
 
 pub fn route_parse(
-    log: &slog::Logger,
+    log: slog::Logger,
 ) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
-    let factory = |preprocess| {
-        let log = log.clone();
+    warp::post()
+        .and(warp::path("parse"))
+        .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
+        .and(warp::body::json())
+        .map(move |input| {
+            let (mut text, pages_included) =
+                try_response!(run_include(&log, input)).into();
 
-        move |input| {
-            let TextInput { mut text } = input;
-
-            if preprocess {
-                ftml::preprocess(&log, &mut text);
-            }
+            ftml::preprocess(&log, &mut text);
 
             let tokens = ftml::tokenize(&log, &text);
-            let tree = ftml::parse(&log, &tokens);
-            warp::reply::json(&tree)
-        }
-    };
+            let (syntax_tree, warnings) = ftml::parse(&log, &tokens).into();
 
-    let regular = warp::path("parse")
-        .and(warp::path::end())
-        .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
-        .and(warp::body::json())
-        .map(factory(true));
+            let resp = Response::ok(ParseOutput {
+                text: &text,
+                tokens: tokens.into_tokens(),
+                syntax_tree,
+                warnings,
+                pages_included,
+            });
 
-    let only = warp::path!("parse" / "only")
-        .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
-        .and(warp::body::json())
-        .map(factory(false));
-
-    regular.or(only)
+            warp::reply::json(&resp)
+        })
 }
