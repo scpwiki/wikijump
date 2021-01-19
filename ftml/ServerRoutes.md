@@ -52,9 +52,9 @@ Page references are composed of an optional site, then the page name. For instan
 
 **`IncludeResponse`** is the object expected from the foreign server returning contents of the fetched pages. It is a list of `FetchedPage` objects.
 
-**`FetchedPage`** is the object describing one retrieved page. The first field, `page-ref`, describes which page it has content for. The second, `content`, has the data to be replaced.
+**`FetchedPage`** is the object describing one retrieved page. The first field, `page-ref`, describes which page it has content for. The second, `content`, has the data to be replaced, or null, if the page was not found.
 
-TODO! missing and page mismatches
+The number of returned pages should exactly match the order and count of the requested pages. Each index between the request and the response must share the same `PageRef` in the same order.
 
 ```json
 {
