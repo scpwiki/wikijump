@@ -21,6 +21,7 @@
 use super::prelude::*;
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "kebab-case")]
 struct TokenizeOutput<'a> {
     pages_included: Vec<PageRef<'a>>,
     text: &'a str,

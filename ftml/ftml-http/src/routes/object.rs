@@ -59,6 +59,7 @@ impl<T> From<Result<T, Error>> for Response<T> {
 }
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "kebab-case")]
 pub struct IncludeOutput<'a> {
     pub text: String,
     pub pages_included: Vec<PageRef<'a>>,

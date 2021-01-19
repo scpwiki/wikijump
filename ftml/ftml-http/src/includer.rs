@@ -85,6 +85,7 @@ impl<'t> Includer<'t> for HttpIncluder<'_> {
 }
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "kebab-case")]
 struct IncludeRequest<'a> {
     includes: &'a [IncludeRef<'a>],
 }

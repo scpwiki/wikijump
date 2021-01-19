@@ -24,6 +24,7 @@ use ftml::render::Render;
 use ftml::tree::SyntaxTree;
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "kebab-case")]
 struct HtmlRenderOutput<'a> {
     pages_included: Vec<PageRef<'a>>,
     text: &'a str,

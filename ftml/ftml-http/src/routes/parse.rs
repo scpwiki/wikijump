@@ -23,6 +23,7 @@ use ftml::parser::ParseWarning;
 use ftml::tree::SyntaxTree;
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "kebab-case")]
 struct ParseOutput<'a> {
     pages_included: Vec<PageRef<'a>>,
     text: &'a str,
