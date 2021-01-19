@@ -52,3 +52,12 @@ pub struct IncludeOutput<'a> {
     pub text: String,
     pub pages: Vec<PageRef<'a>>,
 }
+
+impl<'a> From<IncludeOutput<'a>> for (String, Vec<PageRef<'a>>) {
+    #[inline]
+    fn from(output: IncludeOutput<'a>) -> (String, Vec<PageRef<'a>>) {
+        let IncludeOutput { text, pages } = output;
+
+        (text, pages)
+    }
+}

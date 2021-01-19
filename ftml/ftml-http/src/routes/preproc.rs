@@ -20,6 +20,20 @@
 
 use super::prelude::*;
 
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "kebab-case")]
+struct PreprocessInput {
+    text: String,
+    callback_url: String,
+    missing_include_template: String,
+}
+
+#[derive(Serialize, Debug)]
+struct PreprocessOutput<'a> {
+    text: String,
+    pages: Vec<PageRef<'a>>,
+}
+
 pub fn route_preproc(
     log: slog::Logger,
 ) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
@@ -28,10 +42,24 @@ pub fn route_preproc(
         .and(warp::body::content_length_limit(CONTENT_LENGTH_LIMIT))
         .and(warp::body::json())
         .map(move |input| {
-            let TextInput { mut text } = input;
+            let resp: Response<PreprocessOutput> = run_preproc(&log, input).into();
 
-            ftml::preprocess(&log, &mut text);
-
-            text
+            warp::reply::json(&resp)
         })
+}
+
+fn run_preproc(
+    log: &slog::Logger,
+    PreprocessInput {
+        text,
+        callback_url,
+        missing_include_template,
+    }: PreprocessInput,
+) -> Result<PreprocessOutput, Error> {
+    let (mut text, pages) =
+        run_include(log, &text, &callback_url, &missing_include_template)?.into();
+
+    ftml::preprocess(log, &mut text);
+
+    Ok(PreprocessOutput { text, pages })
 }

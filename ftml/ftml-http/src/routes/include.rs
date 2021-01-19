@@ -49,12 +49,12 @@ pub fn route_include(
         })
 }
 
-pub fn run_include<'t>(
+pub fn run_include(
     log: &slog::Logger,
-    text: &'t str,
+    text: &str,
     callback_url: &str,
     missing_include_template: &str,
-) -> Result<IncludeOutput<'t>, Error> {
+) -> Result<IncludeOutput<'static>, Error> {
     let includer = HttpIncluder::new(&callback_url, &missing_include_template)?;
 
     match ftml::include(log, &text, includer) {
