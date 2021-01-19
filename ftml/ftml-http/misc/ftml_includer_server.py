@@ -84,13 +84,10 @@ def generate_pages(request):
         page = page_ref["page"]
         variables = wanted_page["variables"]
 
-        content = generate_page(site, page, variables)
-
-        if content is not None:
-            page_data.append({
-                "page": page_ref,
-                "content": content,
-            })
+        page_data.append({
+            "page": page_ref,
+            "content": generate_page(site, page, variables),
+        })
 
     return page_data
 
