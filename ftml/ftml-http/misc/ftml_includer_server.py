@@ -79,13 +79,13 @@ def generate_pages(request):
     page_data = []
     for wanted_page in wanted_pages:
         print(f"Fetching page: {wanted_page}")
-        page_ref = wanted_page["page_ref"]
+        page_ref = wanted_page["page-ref"]
         site = page_ref["site"]
         page = page_ref["page"]
         variables = wanted_page["variables"]
 
         page_data.append({
-            "page": page_ref,
+            "page-ref": page_ref,
             "content": generate_page(site, page, variables),
         })
 
