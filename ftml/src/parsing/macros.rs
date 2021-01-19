@@ -2,7 +2,7 @@
  * parsing/macros.rs
  *
  * ftml - Library to parse Wikidot text
- * Copyright (C) 2019-2021 Ammon Smith
+ * Copyright (C) 2019-2021 Wikijump Team
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
