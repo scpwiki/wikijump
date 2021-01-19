@@ -110,13 +110,14 @@ impl<'t> PageRef<'t> {
     }
 
     pub fn to_owned(&self) -> PageRef<'static> {
-        #[inline]
-        fn owned(value: &Cow<'_, str>) -> Cow<'static, str> {
-            Cow::Owned(value.as_ref().to_owned())
+        macro_rules! owned {
+            ($value:expr) => {
+                Cow::Owned($value.as_ref().to_owned())
+            };
         }
 
-        let site = self.site.ref_map(owned);
-        let page = owned(&self.page);
+        let site = self.site.ref_map(|value| owned!(value));
+        let page = owned!(&self.page);
 
         PageRef { site, page }
     }
