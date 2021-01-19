@@ -141,6 +141,7 @@ pub type IncludeVariables<'t> = HashMap<Cow<'t, str>, Cow<'t, str>>;
 /// It contains the page being included, as well as the arguments
 /// to be passed to it when doing the substitution.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
 pub struct IncludeRef<'t> {
     page_ref: PageRef<'t>,
     variables: IncludeVariables<'t>,
