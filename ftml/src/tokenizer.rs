@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::parser::{ExtractedToken, Token};
+use crate::parsing::{ExtractedToken, Token};
 use crate::text::FullText;
 
 #[derive(Debug, Clone)]

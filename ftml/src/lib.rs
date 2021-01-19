@@ -82,8 +82,8 @@ mod span_wrap;
 mod text;
 
 pub mod data;
-pub mod includer;
-pub mod parser;
+pub mod includes;
+pub mod parsing;
 pub mod render;
 pub mod tokenizer;
 pub mod tree;
@@ -91,14 +91,14 @@ pub mod tree;
 #[cfg(test)]
 pub use self::log::{build_console_logger, build_logger, build_null_logger};
 
-pub use self::includer::include;
-pub use self::parser::parse;
+pub use self::includes::include;
+pub use self::parsing::parse;
 pub use self::preproc::preprocess;
 pub use self::tokenizer::{tokenize, Tokenization};
 
 pub mod prelude {
-    pub use super::includer::{include, Includer};
-    pub use super::parser::{parse, ParseResult, ParseWarning};
+    pub use super::includes::{include, Includer};
+    pub use super::parsing::{parse, ParseResult, ParseWarning};
     pub use super::render::Render;
     pub use super::tokenizer::{tokenize, Tokenization};
     pub use super::tree::{Element, SyntaxTree};

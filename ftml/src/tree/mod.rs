@@ -26,7 +26,7 @@ pub use self::container::*;
 pub use self::element::*;
 pub use self::module::*;
 
-use crate::parser::{ParseOutcome, ParseWarning};
+use crate::parsing::{ParseOutcome, ParseWarning};
 use std::borrow::Cow;
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone, PartialEq, Eq)]

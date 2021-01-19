@@ -24,7 +24,7 @@
 //! in a dedicated test file.
 
 use crate::includer::DebugIncluder;
-use crate::parser::{ParseWarning, ParseWarningKind, Token};
+use crate::parsing::{ParseWarning, ParseWarningKind, Token};
 use crate::tree::{Element, SyntaxTree};
 use std::borrow::Cow;
 use std::fs::{self, File};
