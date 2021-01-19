@@ -79,42 +79,11 @@ const PREFILTER_TEST_CASES: [(&str, &str); 11] = [
     ),
 ];
 
-const INCLUDE_TEST_CASES: [(&str, &str); 7] = [
-    ("", ""),
-    ("[[include page]]", "<PAGE 'page' {}>"),
-    (
-        "[[include theme:sigma-9]]\nPage content",
-        "<PAGE 'theme:sigma-9' {}>",
-    ),
-    (
-        "apple\n[[include info:start]]\nbanana\n[[include info:end]]\ncherry",
-        "apple\n<PAGE 'info:start'>\nbanana\n<PAGE 'info:end'>\ncherry",
-    ),
-    (
-        "[[include component:image-block\n|name=filename.jpeg\n|caption=SCP-XXXX\n|width=30%\n]]",
-        "<PAGE 'component:image-block' {..}",
-    ),
-    ("[[include xyz | a = 1 | b = 2 ]]", "<PAGE 'xyz' {..}>"),
-    ("[[include xyz a = 1 | b = 2 | ]]", "<PAGE 'xyz' {..}>"),
-];
-
 #[test]
 fn prefilter() {
     test_substitution(
         "prefilter",
         |log, text| preprocess(log, text),
         &PREFILTER_TEST_CASES,
-    );
-}
-
-#[test]
-#[ignore]
-fn include() {
-    // TODO: re-enable or move when [[include]] is implemented
-
-    test_substitution(
-        "include",
-        |log, text| preprocess(log, text),
-        &INCLUDE_TEST_CASES,
     );
 }
