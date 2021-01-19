@@ -126,7 +126,28 @@ fn try_consume_link<'p, 'r, 't>(
 }
 
 fn url_valid(url: &str) -> bool {
-    const PROTOCOLS: &[&str] = &["http://", "https://", "ftp://"];
+    const SCHEMES: [&str; 20] = [
+        "blob:",
+        "chrome-extension://",
+        "chrome://",
+        "content://",
+        "data:",
+        "dns:",
+        "feed:",
+        "file://",
+        "ftp://",
+        "git://",
+        "gopher://",
+        "http://",
+        "https://",
+        "irc6://",
+        "irc://",
+        "ircs://",
+        "mailto:",
+        "resource://",
+        "rtmp://",
+        "sftp://",
+    ];
 
     // If url is an empty string
     if url.is_empty() {
@@ -139,8 +160,8 @@ fn url_valid(url: &str) -> bool {
     }
 
     // If it's a URL
-    for protocol in PROTOCOLS {
-        if url.starts_with(protocol) {
+    for scheme in &SCHEMES {
+        if url.starts_with(scheme) {
             return true;
         }
     }
