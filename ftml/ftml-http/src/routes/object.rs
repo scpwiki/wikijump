@@ -19,7 +19,7 @@
  */
 
 use crate::Error;
-use ftml::PageRef;
+use ftml::includer::PageRef;
 
 // General structs
 

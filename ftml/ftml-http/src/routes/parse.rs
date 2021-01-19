@@ -19,8 +19,8 @@
  */
 
 use super::prelude::*;
+use ftml::parser::ParseWarning;
 use ftml::tree::SyntaxTree;
-use ftml::ParseWarning;
 
 #[derive(Serialize, Debug)]
 struct ParseOutput<'a> {

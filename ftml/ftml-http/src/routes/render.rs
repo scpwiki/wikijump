@@ -22,7 +22,6 @@ use super::prelude::*;
 use ftml::render::html::{HtmlMeta, HtmlOutput, HtmlRender};
 use ftml::render::Render;
 use ftml::tree::SyntaxTree;
-use ftml::ParseWarning;
 
 #[derive(Serialize, Debug)]
 struct RenderOutput<'a> {
@@ -49,7 +48,7 @@ pub fn route_render_html(
 
             ftml::preprocess(&log, &mut text);
 
-            let tokenization = ftml::tokenize(&log, &text);
+            let tokenization = tokenize(&log, &text);
             let (syntax_tree, warnings) = ftml::parse(&log, &tokenization).into();
             let HtmlOutput { html, style, meta } = HtmlRender.render(&syntax_tree);
 

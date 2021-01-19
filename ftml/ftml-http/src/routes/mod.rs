@@ -23,10 +23,12 @@ mod prelude {
     pub use super::object::*;
     pub use crate::error::Error;
     pub use crate::includer::HttpIncluder;
-    pub use ftml::{ExtractedToken, PageRef};
+    pub use ftml::includer::PageRef;
+    pub use ftml::parser::ExtractedToken;
+    pub use ftml::prelude::*;
     pub use warp::{Filter, Rejection, Reply};
 
-    pub const CONTENT_LENGTH_LIMIT: u64 = 4 * 1024 * 1024 * 1024; /* 2 MiB */
+    pub const CONTENT_LENGTH_LIMIT: u64 = 4 * 1024 * 1024 * 1024; /* 4 MiB */
 }
 
 #[macro_use]
