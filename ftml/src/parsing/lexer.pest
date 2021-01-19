@@ -45,6 +45,7 @@ token = _{
     url |
     identifier |
     email |
+    variable |
     string |
 
     // Alignment
