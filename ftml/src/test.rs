@@ -92,7 +92,7 @@ impl Test<'_> {
         println!("+ {}", self.name);
 
         let (mut text, _pages) =
-            crate::include(log, &self.input, DebugIncluder).void_unwrap();
+            crate::include(log, &self.input, DebugIncluder, || unreachable!()).void_unwrap();
         crate::preprocess(log, &mut text);
         let tokens = crate::tokenize(log, &text);
         let result = crate::parse(log, &tokens);

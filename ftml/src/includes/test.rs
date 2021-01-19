@@ -31,7 +31,7 @@ fn includes() {
 
         ($text:expr, $expected:expr) => {{
             let mut text = str!($text);
-            let result = include(&log, &mut text, DebugIncluder);
+            let result = include(&log, &mut text, DebugIncluder, || panic!());
             let (output, actual) = result.expect("Fetching pages failed");
             let expected = $expected;
 
