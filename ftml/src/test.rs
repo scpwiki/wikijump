@@ -23,8 +23,8 @@
 //! Additionally performs some other tests from the parser which are better
 //! in a dedicated test file.
 
-use crate::include::DebugIncluder;
-use crate::parse::{ParseWarning, ParseWarningKind, Token};
+use crate::includer::DebugIncluder;
+use crate::parser::{ParseWarning, ParseWarningKind, Token};
 use crate::tree::{Element, SyntaxTree};
 use std::borrow::Cow;
 use std::fs::{self, File};
