@@ -36,8 +36,6 @@ You can use this as a dependency by adding the following to your `Cargo.toml`:
 ftml = "0.4"
 ```
 
-The normal package on crates.io is, currently, not being regularly updated.
-
 ### Testing
 ```sh
 $ cargo test
