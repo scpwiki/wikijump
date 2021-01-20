@@ -1,4 +1,4 @@
-name: '[frontend] Javascript Tests'
+name: '[frontend] Javascript'
 
 on:
   # Run this on push to master
@@ -15,6 +15,7 @@ on:
       - '.github/workflows/test-js.yaml'
 jobs:
   test:
+    name: Tests
     runs-on: ubuntu-latest
     env:
       working-directory: ./web
