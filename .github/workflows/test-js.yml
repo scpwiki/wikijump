@@ -1,4 +1,4 @@
-name: JS tests
+name: '[Javascript] tests'
 on:
   # Run this on push to master
   push:

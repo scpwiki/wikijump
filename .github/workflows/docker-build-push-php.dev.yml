@@ -1,4 +1,4 @@
-name: docker-build-push-php
+name: '[PHP] Docker build and push'
 
 on:
   push:
