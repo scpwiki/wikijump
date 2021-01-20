@@ -9,8 +9,9 @@ philosophy was how the original version of ftml operated. However this presents 
 incomaptibilities with Wikidot, and the grammar had to be increasingly complicated to handle
 edge-case conditions.
 
-This rewrite of ftml performs preprocessing substitions and tokenization like the first version,
-but the parser is hand-written to allow for loose fallback rules.
+ftml as it exists now performs preprocessing substitions and tokenization like the first version,
+but has a hand-written parser which explicitly permits loose fallback rules. Thus, any invalid
+token formations are interpreted as the raw text itself, rather than being forced to fail parsing completely.
 
 More specifically, for each encountered token, the parser will attempt to match the first rule
 which expects it. Incoming tokens will be handled, producing elements, or until an invalid token
