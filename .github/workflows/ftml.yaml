@@ -17,6 +17,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
       - run: cd ftml && cargo build --all-features --release
       - run: cd ftml && cargo test --all-features -- --nocapture --test-threads 1
   http_build:
@@ -25,6 +27,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
       - run: cd ftml && cargo build -p ftml-http --all-features --release
       - run: cd ftml && cargo test -p ftml-http -- --nocapture --test-threads 1
   clippy_lint:
