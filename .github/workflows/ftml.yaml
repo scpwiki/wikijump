@@ -1,14 +1,14 @@
 on:
   push:
     paths:
-      - 'Cargo.toml'
-      - 'Cargo.lock'
-      - 'ftml-http/**'
-      - 'src/**'
-      - 'test/*'
-      - '.github/workflows/*'
+      - 'ftml/Cargo.toml'
+      - 'ftml/Cargo.lock'
+      - 'ftml/ftml-http/**'
+      - 'ftml/src/**'
+      - 'ftml/test/*'
+      - '.github/workflows/ftml.yaml'
 
-name: Rust CI
+name: '[ftml] Rust CI'
 
 jobs:
   library_build_and_test:
