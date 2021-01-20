@@ -1,3 +1,5 @@
+name: '[ftml] Rust'
+
 on:
   push:
     paths:
@@ -7,8 +9,6 @@ on:
       - 'ftml/src/**'
       - 'ftml/test/*'
       - '.github/workflows/ftml.yaml'
-
-name: '[ftml] Rust CI'
 
 jobs:
   library_build_and_test:
