@@ -19,7 +19,7 @@ for more advanced analysis and transformation.
 
 The lint `#![forbid(unsafe_code)]` is set, and therefore this crate has only safe code. However dependencies may have `unsafe` internals.
 
-Available under the terms of the GNU Affero General Public License. See [LICENSE.md](LICENSE).
+Available under the terms of the GNU Affero General Public License. See [LICENSE.md](LICENSE.md).
 
 ### Compilation
 This library targets the latest stable Rust. At time of writing, that is 1.49.0
@@ -48,7 +48,7 @@ you're inspecting to use a different logger.
 
 ### Philosophy
 
-See [`Philosophy.md`](Philosophy.md).
+See [`Philosophy.md`](docs/Philosophy.md).
 
 ### Naming
 "Foundation Text Markup Language" (ftml) is named for the file extension representing in-universe
@@ -145,7 +145,7 @@ let (tree, warnings) = result.into();
 
 ### JSON Serialization
 
-See [`Serialization.md`](Serialization.md).
+See [`Serialization.md`](docs/Serialization.md).
 
 ### Server
 If you wish to build the `ftml-http` subcrate, use the following:
@@ -163,7 +163,7 @@ For typical applications the only relevant route would be `POST /render/html`.
 The others are provided to expose library internals, such as extracted tokens,
 if they are desired.
 
-You can see a full list of REST methods in [`ServerRoutes.md`](ServerRoutes.md).
+You can see a full list of REST methods in [`ServerRoutes.md`](docs/ServerRoutes.md).
 
 Its usage message (produced by adding `-- --help` to the above `cargo run` invocation)
 is reproduced below:

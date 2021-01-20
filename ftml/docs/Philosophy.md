@@ -1,4 +1,4 @@
-[<< Return to the README](README.md)
+[<< Return to the README](../README.md)
 
 ## Philosophy
 
