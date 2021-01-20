@@ -90,7 +90,7 @@ The `text` fields represents the replaced wikitext. The `pages-included` is a li
 
 ```json
 {
-    "text": "Wikidot text following replacement"
+    "text": "Wikidot text following replacement",
     "pages-included": [
         {
             "site": null,
@@ -106,7 +106,7 @@ It is functionally the same as `IncludeOutput`, except also describes the prepro
 
 ```json
 {
-    "text": "My //wikitext// here!"
+    "text": "My //wikitext// here!",
     "pages-included": []
 }
 ```
@@ -120,7 +120,7 @@ It extends `PreprocessOutput`, with two added fields.
 
 ```json
 {
-    "text": "My //wikitext// here!"
+    "text": "My //wikitext// here!",
     "pages-included": [],
     "syntax-tree": {
         "elements": [],
@@ -140,7 +140,7 @@ It extends `ParseOutput`, with three new fields.
 
 ```json
 {
-    "text": "My //wikitext// here!"
+    "text": "My //wikitext// here!",
     "pages-included": [],
     "syntax-tree": {
         "elements": [],
@@ -161,7 +161,7 @@ It extends `ParseOutput`, with one new fields.
 
 ```json
 {
-    "text": "My //wikitext// here!"
+    "text": "My //wikitext// here!",
     "pages-included": [],
     "syntax-tree": {
         "elements": [],
