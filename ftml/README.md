@@ -1,9 +1,9 @@
 ## ftml
 
 <p>
-  <a href="https://github.com/Nu-SCPTheme/ftml/actions?query=workflow%3A%22Rust+CI%22">
-    <img src="https://github.com/Nu-SCPTheme/ftml/workflows/Rust%20CI/badge.svg"
-         alt="Rust CI badge">
+  <a href="https://github.com/scpwiki/wikijump/actions?query=workflow%3A%22%5Bftml%5D+Rust%22">
+    <img src="https://github.com/scpwiki/wikijump/workflows/%5Bftml%5D+Rust/badge.svg"
+         alt="Build status">
   </a>
 </p>
 
