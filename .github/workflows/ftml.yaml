@@ -17,32 +17,16 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --all-features --release
-      - uses: actions-rs/cargo@v1
-        with:
-          command: doc
-          args: --all-features --release --no-deps
-      - uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --all-features -- --nocapture --test-threads 1
+      - run: cd ftml && cargo build --all-features --release
+      - run: cd ftml && cargo test --all-features -- --nocapture --test-threads 1
   http_build:
     name: Server
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: -p ftml-http --all-features --release
+      - run: cd ftml && cargo build -p ftml-http --all-features --release
+      - run: cd ftml && cargo test -p ftml-http -- --nocapture --test-threads 1
   clippy_lint:
     name: Lint
     runs-on: ubuntu-latest
@@ -54,11 +38,5 @@ jobs:
           toolchain: nightly
           override: true
           components: rustfmt, clippy
-      - uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --all -- --check
-      - uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: -- -D warnings
+      - run: cd ftml && cargo fmt --all -- --check
+      - run: cd ftml && cargo clippy -- -D warnings
