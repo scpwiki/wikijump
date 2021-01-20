@@ -5,6 +5,8 @@
     <img src="https://github.com/scpwiki/wikijump/workflows/%5Bftml%5D+Rust/badge.svg"
          alt="Build status">
   </a>
+
+  <!-- TODO: put crates.io badge here -->
 </p>
 
 ### Foundation Text Markup Language
@@ -31,7 +33,7 @@ $ cargo build --release
 You can use this as a dependency by adding the following to your `Cargo.toml`:
 
 ```toml
-ftml = { git = "https://github.com/NuSCP-Theme/ftml", branch = "master" }
+ftml = "0.4"
 ```
 
 The normal package on crates.io is, currently, not being regularly updated.
