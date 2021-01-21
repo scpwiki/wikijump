@@ -73,17 +73,16 @@ where
         Ok(())
     }
 
-    pub fn get_line_break(&mut self) -> Result<(), ParseWarning> {
-        debug!(&self.log(), "Looking for line break");
-
-        self.get_token(Token::LineBreak, ParseWarningKind::BlockExpectedLineBreak)?;
-        Ok(())
-    }
-
     #[inline]
     pub fn get_optional_space(&mut self) -> Result<(), ParseWarning> {
         debug!(&self.log(), "Looking for optional space");
         self.get_optional_token(Token::Whitespace)
+    }
+
+    #[inline]
+    pub fn get_optional_line_break(&mut self) -> Result<(), ParseWarning> {
+        debug!(&self.log(), "Looking for optional line break");
+        self.get_optional_token(Token::LineBreak)
     }
 
     pub fn get_block_name(
@@ -161,12 +160,10 @@ where
         block_rule: &BlockRule,
     ) -> Option<&'r ExtractedToken<'t>> {
         self.save_evaluate_fn(|parser| {
-            // Check that the end block is on a new line, if required
-            if block_rule.newline_separator {
-                // Only check after the first, to permit empty blocks
-                if !first_iteration {
-                    parser.get_line_break()?;
-                }
+            // Check that the end block is on a new line
+            // Only check after the first, to permit empty blocks
+            if !first_iteration {
+                parser.get_optional_line_break()?;
             }
 
             // Check if it's an end block
@@ -471,13 +468,8 @@ where
             )?;
         }
 
-        // If the block wants a newline after, take it
-        //
-        // It's fine if we're at the end of the input,
-        // it could be an empty block type.
-        if self.current().token != Token::InputEnd && block_rule.newline_separator {
-            self.get_line_break()?;
-        }
+        // Allow a line break to terminate the block
+        self.get_optional_line_break()?;
 
         Ok(())
     }
