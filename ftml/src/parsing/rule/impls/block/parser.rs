@@ -468,6 +468,9 @@ where
             )?;
         }
 
+        // Allow the block to have trailing whitespace
+        self.get_optional_space()?;
+
         // Allow a line break to terminate the block
         self.get_optional_line_break()?;
 
