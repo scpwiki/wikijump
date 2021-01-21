@@ -39,7 +39,7 @@ fn parse_fn<'r, 't>(
     assert_eq!(special, false, "Code doesn't allow special variant");
     assert_block_name(&BLOCK_CSS, name);
 
-    parser.get_head_none(&BLOCK_CSS, in_head)?;
+    parser.get_head_none(in_head)?;
 
     let css = parser.get_body_text(&BLOCK_CSS)?;
     let exceptions = vec![ParseException::Style(cow!(css))];

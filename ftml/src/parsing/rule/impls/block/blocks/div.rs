@@ -44,7 +44,7 @@ fn parse_fn<'r, 't>(
     assert_eq!(special, false, "Div doesn't allow special variant");
     assert_block_name(&BLOCK_DIV, name);
 
-    let mut arguments = parser.get_head_map(&BLOCK_DIV, in_head)?;
+    let mut arguments = parser.get_head_map(in_head)?;
 
     // "div" means we wrap in paragraphs, like normal
     // "div_" means we don't wrap it

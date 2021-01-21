@@ -39,7 +39,7 @@ fn parse_fn<'r, 't>(
     assert_eq!(special, false, "Code doesn't allow special variant");
     assert_block_name(&BLOCK_CODE, name);
 
-    let mut arguments = parser.get_head_map(&BLOCK_CODE, in_head)?;
+    let mut arguments = parser.get_head_map(in_head)?;
     let language = arguments.get("type");
 
     let code = parser.get_body_text(&BLOCK_CODE)?;
