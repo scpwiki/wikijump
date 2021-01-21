@@ -25,7 +25,6 @@ pub const BLOCK_COLLAPSIBLE: BlockRule = BlockRule {
     name: "block-collapsible",
     accepts_names: &["collapsible"],
     accepts_special: false,
-    newline_separator: true,
     parse_fn,
 };
 

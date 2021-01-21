@@ -33,7 +33,6 @@ pub const BLOCK_INCLUDE: BlockRule = BlockRule {
     name: "block-include",
     accepts_names: &["include"],
     accepts_special: false,
-    newline_separator: true,
     parse_fn,
 };
 

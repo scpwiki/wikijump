@@ -25,7 +25,6 @@ pub const BLOCK_LINES: BlockRule = BlockRule {
     name: "block-lines",
     accepts_names: &["lines", "newlines"],
     accepts_special: false,
-    newline_separator: true,
     parse_fn,
 };
 

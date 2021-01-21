@@ -24,7 +24,6 @@ pub const BLOCK_INS: BlockRule = BlockRule {
     name: "block-ins",
     accepts_names: &["ins", "insertion"],
     accepts_special: false,
-    newline_separator: false,
     parse_fn,
 };
 

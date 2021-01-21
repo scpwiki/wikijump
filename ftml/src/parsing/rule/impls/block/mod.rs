@@ -61,9 +61,6 @@ pub struct BlockRule {
     /// `[[user aismallard]]` and `[[*user aismallard]]`.
     accepts_special: bool,
 
-    /// Whether this block wants its head and tail to be separated by newlines.
-    newline_separator: bool,
-
     /// Function which implements the processing for this rule.
     parse_fn: BlockParseFn,
 }
@@ -95,7 +92,6 @@ impl Debug for BlockRule {
             .field("name", &self.name)
             .field("accepts_names", &self.accepts_names)
             .field("accepts_special", &self.accepts_special)
-            .field("newline_separator", &self.newline_separator)
             .field("parse_fn", &(self.parse_fn as *const ()))
             .finish()
     }

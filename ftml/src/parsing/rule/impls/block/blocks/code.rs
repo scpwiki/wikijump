@@ -24,7 +24,6 @@ pub const BLOCK_CODE: BlockRule = BlockRule {
     name: "block-code",
     accepts_names: &["code"],
     accepts_special: false,
-    newline_separator: true,
     parse_fn,
 };
 
