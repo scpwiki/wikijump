@@ -84,16 +84,7 @@ fn block_skip<'r, 't>(
         let (name, _) = parser.get_block_name(false)?;
 
         // Get the associated block rule
-        let block = match get_block_rule_with_name(name) {
-            Some(block) => block,
-            None => return Ok(false),
-        };
-
-        // Now, if it wants newlines, ignore this newline.
-        // The rule will succeed.
-        //
-        // If it doesn't, let the rule fail. Then it will pass on to a fallback.
-        Ok(block.newline_separator)
+        Ok(get_block_rule_with_name(name).is_some())
     });
 
     if result {
