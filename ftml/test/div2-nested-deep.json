@@ -1,0 +1,79 @@
+{
+    "input": "[[div_]]\nA\n[[div_]]\nB\n[[div_]]\nC\n[[div_]]\nD\n[[/div]]\n[[/div]]\n[[/div]]\n[[/div]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "styled-container",
+                            "data": {
+                                "type": "div",
+                                "id": null,
+                                "class": null,
+                                "style": null,
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "A"
+                                    },
+                                    {
+                                        "element": "styled-container",
+                                        "data": {
+                                            "type": "div",
+                                            "id": null,
+                                            "class": null,
+                                            "style": null,
+                                            "elements": [
+                                                {
+                                                    "element": "text",
+                                                    "data": "B"
+                                                },
+                                                {
+                                                    "element": "styled-container",
+                                                    "data": {
+                                                        "type": "div",
+                                                        "id": null,
+                                                        "class": null,
+                                                        "style": null,
+                                                        "elements": [
+                                                            {
+                                                                "element": "text",
+                                                                "data": "C"
+                                                            },
+                                                            {
+                                                                "element": "styled-container",
+                                                                "data": {
+                                                                    "type": "div",
+                                                                    "id": null,
+                                                                    "class": null,
+                                                                    "style": null,
+                                                                    "elements": [
+                                                                        {
+                                                                            "element": "text",
+                                                                            "data": "D"
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

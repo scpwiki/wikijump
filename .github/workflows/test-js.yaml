@@ -1,17 +1,21 @@
-name: JS tests
+name: '[frontend] Javascript'
+
 on:
   # Run this on push to master
   push:
     branches:
       - master
     paths:
-      - "web/**"
+      - 'web/**'
+      - '.github/workflows/test-js.yaml'
   # Run this on push to PRs, regardless of branch
   pull_request:
     paths:
-      - "web/**"
+      - 'web/**'
+      - '.github/workflows/test-js.yaml'
 jobs:
   test:
+    name: Tests
     runs-on: ubuntu-latest
     env:
       working-directory: ./web

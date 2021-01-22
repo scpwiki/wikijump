@@ -1,0 +1,35 @@
+{
+    "input": "[[ MODule  jOIN ]]\nApple",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "module",
+                            "data": {
+                                "module": "join",
+                                "data": {
+                                    "button-text": null,
+                                    "id": null,
+                                    "class": null,
+                                    "style": null
+                                }
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": "Apple"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

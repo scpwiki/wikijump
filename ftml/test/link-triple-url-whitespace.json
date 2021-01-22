@@ -1,0 +1,29 @@
+{
+    "input": "[[[ https://example.com/ | Example ]]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "link",
+                            "data": {
+                                "url": "https://example.com/",
+                                "label": {
+                                    "text": "Example"
+                                },
+                                "anchor": "same"
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

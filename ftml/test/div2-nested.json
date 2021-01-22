@@ -1,0 +1,65 @@
+{
+    "input": "[[div_]]\n**Bold** Cherry\n[[div_]]\nDurian\n[[/div]]\n[[/div]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "styled-container",
+                            "data": {
+                                "type": "div",
+                                "id": null,
+                                "class": null,
+                                "style": null,
+                                "elements": [
+                                    {
+                                        "element": "container",
+                                        "data": {
+                                            "type": "strong",
+                                            "elements": [
+                                                {
+                                                    "element": "text",
+                                                    "data": "Bold"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": " "
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": "Cherry"
+                                    },
+                                    {
+                                        "element": "styled-container",
+                                        "data": {
+                                            "type": "div",
+                                            "id": null,
+                                            "class": null,
+                                            "style": null,
+                                            "elements": [
+                                                {
+                                                    "element": "text",
+                                                    "data": "Durian"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

@@ -1,0 +1,51 @@
+{
+    "input": "Fail [!-- Comment",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "Fail"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "[!--"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Comment"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+        {
+            "token": "input-end",
+            "rule": "comment",
+            "span": [17, 17],
+            "kind": "end-of-input"
+        },
+        {
+            "token": "left-comment",
+            "rule": "fallback",
+            "span": [5, 9],
+            "kind": "no-rules-match"
+        }
+    ]
+}

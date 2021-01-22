@@ -5,7 +5,7 @@ files/modulus.pem
 
 # Editor files
 .idea/
-.*.swp
+.*.sw?
 
 # Miscellaneous
 *.bak

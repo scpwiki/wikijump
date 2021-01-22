@@ -1,0 +1,135 @@
+{
+    "input": "**Apple //Banana __Cherry__ Durian ^^Peach {{Melon ,,Blackberry,,}}^^// Mango** Pineapple",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "strong",
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Apple"
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": " "
+                                    },
+                                    {
+                                        "element": "container",
+                                        "data": {
+                                            "type": "emphasis",
+                                            "elements": [
+                                                {
+                                                    "element": "text",
+                                                    "data": "Banana"
+                                                },
+                                                {
+                                                    "element": "text",
+                                                    "data": " "
+                                                },
+                                                {
+                                                    "element": "container",
+                                                    "data": {
+                                                        "type": "underline",
+                                                        "elements": [
+                                                            {
+                                                                "element": "text",
+                                                                "data": "Cherry"
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "element": "text",
+                                                    "data": " "
+                                                },
+                                                {
+                                                    "element": "text",
+                                                    "data": "Durian"
+                                                },
+                                                {
+                                                    "element": "text",
+                                                    "data": " "
+                                                },
+                                                {
+                                                    "element": "container",
+                                                    "data": {
+                                                        "type": "superscript",
+                                                        "elements": [
+                                                            {
+                                                                "element": "text",
+                                                                "data": "Peach"
+                                                            },
+                                                            {
+                                                                "element": "text",
+                                                                "data": " "
+                                                            },
+                                                            {
+                                                                "element": "container",
+                                                                "data": {
+                                                                    "type": "monospace",
+                                                                    "elements": [
+                                                                        {
+                                                                            "element": "text",
+                                                                            "data": "Melon"
+                                                                        },
+                                                                        {
+                                                                            "element": "text",
+                                                                            "data": " "
+                                                                        },
+                                                                        {
+                                                                            "element": "container",
+                                                                            "data": {
+                                                                                "type": "subscript",
+                                                                                "elements": [
+                                                                                    {
+                                                                                        "element": "text",
+                                                                                        "data": "Blackberry"
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": " "
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": "Mango"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Pineapple"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

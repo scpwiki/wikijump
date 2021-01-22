@@ -1,0 +1,29 @@
+{
+    "input": "[*http://scp-sandbox-3.wikidot.com/system:recent-changes Sandbox: Recent Changes ]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "link",
+                            "data": {
+                                "url": "http://scp-sandbox-3.wikidot.com/system:recent-changes",
+                                "label": {
+                                    "text": "Sandbox: Recent Changes"
+                                },
+                                "anchor": "new-tab"
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

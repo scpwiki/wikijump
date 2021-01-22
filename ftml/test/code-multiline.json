@@ -1,0 +1,26 @@
+{
+    "input": "[[code]]\nmultiple\n**lines**\nof\ncode\n[[/code]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "code",
+                            "data": {
+                                "contents": "multiple\n**lines**\nof\ncode",
+                                "language": null
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

@@ -1,0 +1,39 @@
+{
+    "input": ",,Subscript,, Text",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "subscript",
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Subscript"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Text"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

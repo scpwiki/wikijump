@@ -1,0 +1,46 @@
+{
+    "input": "[[ COLLapsiBLe  ID=\"id\" CLASS = \"class\"  ]]\nCherry\n[[/collapsible]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "collapsible",
+                            "data": {
+                                "id": "id",
+                                "class": "class",
+                                "style": null,
+                                "start-open": false,
+                                "show-text": null,
+                                "hide-text": null,
+                                "show-top": true,
+                                "show-bottom": false,
+                                "elements": [
+                                    {
+                                        "element": "container",
+                                        "data": {
+                                            "type": "paragraph",
+                                            "elements": [
+                                                {
+                                                    "element": "text",
+                                                    "data": "Cherry"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

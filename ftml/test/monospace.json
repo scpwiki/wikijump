@@ -1,0 +1,39 @@
+{
+    "input": "{{Monospace}} Text",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "monospace",
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Monospace"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Text"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

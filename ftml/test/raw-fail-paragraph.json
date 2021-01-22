@@ -1,0 +1,67 @@
+{
+    "input": "@@Fail\n\nRaw@@",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "@@"
+                        },
+                        {
+                            "element": "text",
+                            "data": "Fail"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "Raw"
+                        },
+                        {
+                            "element": "text",
+                            "data": "@@"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+        {
+            "token": "paragraph-break",
+            "rule": "raw",
+            "span": [6, 8],
+            "kind": "rule-failed"
+        },
+        {
+            "token": "raw",
+            "rule": "fallback",
+            "span": [0, 2],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "raw",
+            "rule": "raw",
+            "span": [11, 13],
+            "kind": "end-of-input"
+        },
+        {
+            "token": "raw",
+            "rule": "fallback",
+            "span": [11, 13],
+            "kind": "no-rules-match"
+        }
+    ]
+}

@@ -1,0 +1,12 @@
+{
+    "input": "[[css]]\na { color: blue; }\n[[/css]]",
+    "tree": {
+        "elements": [
+        ],
+        "styles": [
+            "a { color: blue; }"
+        ]
+    },
+    "warnings": [
+    ]
+}

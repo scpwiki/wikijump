@@ -1,0 +1,47 @@
+{
+    "input": "[[[some-page",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "[[["
+                        },
+                        {
+                            "element": "text",
+                            "data": "some"
+                        },
+                        {
+                            "element": "text",
+                            "data": "-"
+                        },
+                        {
+                            "element": "text",
+                            "data": "page"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+        {
+            "token": "input-end",
+            "rule": "link-triple",
+            "span": [12, 12],
+            "kind": "end-of-input"
+        },
+        {
+            "token": "left-link",
+            "rule": "fallback",
+            "span": [0, 3],
+            "kind": "no-rules-match"
+        }
+    ]
+}

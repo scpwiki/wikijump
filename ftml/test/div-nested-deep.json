@@ -1,0 +1,111 @@
+{
+    "input": "[[div]]\nA\n[[div]]\nB\n[[div]]\nC\n[[div]]\nD\n[[/div]]\n[[/div]]\n[[/div]]\n[[/div]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "styled-container",
+                            "data": {
+                                "type": "div",
+                                "id": null,
+                                "class": null,
+                                "style": null,
+                                "elements": [
+                                    {
+                                        "element": "container",
+                                        "data": {
+                                            "type": "paragraph",
+                                            "elements": [
+                                                {
+                                                    "element": "text",
+                                                    "data": "A"
+                                                },
+                                                {
+                                                    "element": "styled-container",
+                                                    "data": {
+                                                        "type": "div",
+                                                        "id": null,
+                                                        "class": null,
+                                                        "style": null,
+                                                        "elements": [
+                                                            {
+                                                                "element": "container",
+                                                                "data": {
+                                                                    "type": "paragraph",
+                                                                    "elements": [
+                                                                        {
+                                                                            "element": "text",
+                                                                            "data": "B"
+                                                                        },
+                                                                        {
+                                                                            "element": "styled-container",
+                                                                            "data": {
+                                                                                "type": "div",
+                                                                                "id": null,
+                                                                                "class": null,
+                                                                                "style": null,
+                                                                                "elements": [
+                                                                                    {
+                                                                                        "element": "container",
+                                                                                        "data": {
+                                                                                            "type": "paragraph",
+                                                                                            "elements": [
+                                                                                                {
+                                                                                                    "element": "text",
+                                                                                                    "data": "C"
+                                                                                                },
+                                                                                                {
+                                                                                                    "element": "styled-container",
+                                                                                                    "data": {
+                                                                                                        "type": "div",
+                                                                                                        "id": null,
+                                                                                                        "class": null,
+                                                                                                        "style": null,
+                                                                                                        "elements": [
+                                                                                                            {
+                                                                                                                "element": "container",
+                                                                                                                "data": {
+                                                                                                                    "type": "paragraph",
+                                                                                                                    "elements": [
+                                                                                                                        {
+                                                                                                                            "element": "text",
+                                                                                                                            "data": "D"
+                                                                                                                        }
+                                                                                                                    ]
+                                                                                                                }
+                                                                                                            }
+                                                                                                        ]
+                                                                                                    }
+                                                                                                }
+                                                                                            ]
+                                                                                        }
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

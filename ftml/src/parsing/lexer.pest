@@ -1,0 +1,241 @@
+//
+// parse/lexer.pest
+//
+// ftml - Library to parse Wikidot text
+// Copyright (C) 2019-2021 Wikijump Team
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <http://www.gnu.org/licenses/>.
+//
+
+// Despite being a parser generator, we're using pest here only to produce tokens,
+// using this as a lexer.
+//
+// The original pest grammar was exhaustive, but because this is a formal grammar,
+// it would error as opposed to performing fallback logic.
+
+// Meta {{{
+
+// Complete input from start to finish
+document = _{ SOI ~ token* ~ EOI }
+
+// An individual token
+// Order determines priority (earlier = higher)
+token = _{
+    // Raw should have the highest priority
+    raw |
+    left_raw |
+    right_raw |
+
+    // Comments
+    left_comment |
+    right_comment |
+
+    // Text-like
+    url |
+    identifier |
+    email |
+    variable |
+    string |
+
+    // Alignment
+    //
+    // Ahead of the more generic bracket rules
+    open_right_align |
+    open_left_align |
+    open_center_align |
+    open_justify_align |
+    close_right_align |
+    close_left_align |
+    close_center_align |
+    close_justify_align |
+
+    // Special case to handle those pesky "[[[[" and "]]]]"s
+    // These are [[[ triple links surrounded by constant [ brackets.
+    (left_bracket ~ left_link) |
+    (right_link ~ right_bracket) |
+
+    // Brackets
+    left_link_special |
+    left_link |
+    left_block_special |
+    left_block_end |
+    left_block |
+    left_bracket_anchor |
+    left_bracket_special |
+    left_bracket |
+    right_link |
+    right_block |
+    right_bracket |
+
+    // Formatting
+    strong |
+    emphasis |
+    underline |
+    superscript |
+    subscript |
+    color |
+    left_monospace |
+    right_monospace |
+
+    // Singular symbols
+    clear_float_center |
+    clear_float_left |
+    clear_float_right |
+    clear_float |
+    triple_dash |
+    double_dash |
+    pipe |
+    equals |
+    underscore |
+    quote |
+    heading |
+
+    // Tables
+    table_column_title |
+    table_column |
+
+    // Whitespace
+    paragraph_break |
+    line_break |
+    space |
+
+    // Generic fallback after all other rules have been tried
+    other
+}
+
+// }}}
+
+// Text {{{
+
+identifier = @{ (ASCII_ALPHANUMERIC | ASCII_DIGIT)+ }
+
+email = @{
+    (ASCII_ALPHANUMERIC | "-" | ".")+ ~
+    "@" ~
+    (ASCII_ALPHANUMERIC | "-")+ ~
+    "." ~
+    (ASCII_ALPHANUMERIC | ".")+
+}
+
+url = @{
+    (("http" ~ "s"?) | "ftp") ~ "://" ~
+    (!(NEWLINE | " " | "|" | "[" | "]") ~ ANY)+
+}
+
+// }}}
+
+// Symbols {{{
+
+raw = @{ "@@" }
+left_raw = @{ "@<" }
+right_raw = @{ ">@" }
+
+left_comment = @{ "[!--" }
+right_comment = @{ "--]" }
+
+left_bracket = @{ "[" }
+left_bracket_anchor = @{ "[#" }
+left_bracket_special = @{ "[*" }
+left_block = @{ "[[" }
+left_block_end = @{ "[[/" }
+left_block_special = @{ "[[*" }
+left_link = @{ "[[[" }
+left_link_special = @{ "[[[*" }
+right_bracket = @{ "]" }
+right_block = @{ "]]" }
+right_link = @{ "]]]" }
+
+clear_float = @{ "~"{4,} }
+clear_float_center = @{ "~"{4,} ~ "=" }
+clear_float_left = @{ "~"{4,} ~ "<" }
+clear_float_right = @{ "~"{4,} ~ ">" }
+triple_dash = @{ "-"{3,} }
+double_dash = @{ "-"{2} }
+pipe = @{ "|" }
+equals = @{ "=" }
+underscore = @{ "_" }
+quote = @{ ">"+ ~ " "? }
+heading = @{ "+"{1,6} }
+
+// }}}
+
+// Formatting {{{
+
+strong = @{ "**" }
+emphasis = @{ "//" }
+underline = @{ "__" }
+superscript = @{ "^^" }
+subscript = @{ ",," }
+color = @{ "##" }
+left_monospace = @{ "{{" }
+right_monospace = @{ "}}" }
+
+// }}}
+
+// Tables {{{
+
+table_column = @{ "||" }
+table_column_title = @{ "||~" }
+
+// }}}
+
+// Alignment {{{
+
+open_right_align = @{ "[[>]]" }
+close_right_align = @{ "[[/>]]" }
+
+open_left_align = @{ "[[<]]" }
+close_left_align = @{ "[[/<]]" }
+
+open_center_align = @{ "[[=]]" }
+close_center_align = @{ "[[/=]]" }
+
+open_justify_align = @{ "[[==]]" }
+close_justify_align = @{ "[[/==]]" }
+
+// }}}
+
+// Variable {{{
+
+variable = @{ "{$" ~ identifier ~ "}" }
+
+// }}}
+
+// String {{{
+
+char = _{
+    (!(NEWLINE | "\"" | "\\") ~ ANY) |
+    "\\" ~ ("\"" | "\\" | "r" | "n" | "t" | "'")
+}
+
+string = @{ "\"" ~ char* ~ "\"" }
+
+// }}}
+
+// Misc {{{
+
+line_break = @{ NEWLINE }
+paragraph_break = @{ NEWLINE{2,} }
+space = @{ (" " | "\t")+ }
+
+// To be consolidated in code
+//
+// this way pest matches ANY lazily, permitting other rules,
+// as opposed to greedily, where the first unusual token will
+// turn the rest of the input into a big "other"
+other = @{ ANY }
+
+// }}}
+
+// vim: set fdm=marker foldlevel=0:

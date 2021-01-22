@@ -1,0 +1,39 @@
+{
+    "input": "//Italics// Text",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "container",
+                            "data": {
+                                "type": "emphasis",
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Italics"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Text"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

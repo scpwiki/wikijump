@@ -1,0 +1,34 @@
+{
+    "input": "[[mark id=\"banana\" class=\"fruit\" style=\"color: yellow;\"]]Banana[[/mark]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "styled-container",
+                            "data": {
+                                "type": "mark",
+                                "id": "banana",
+                                "class": "fruit",
+                                "style": "color: yellow;",
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Banana"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

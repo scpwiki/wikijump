@@ -1,0 +1,67 @@
+{
+    "input": "//Fail\n\nItalics//",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "//"
+                        },
+                        {
+                            "element": "text",
+                            "data": "Fail"
+                        }
+                    ]
+                }
+            },
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "Italics"
+                        },
+                        {
+                            "element": "text",
+                            "data": "//"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+        {
+            "token": "paragraph-break",
+            "rule": "emphasis",
+            "span": [6, 8],
+            "kind": "rule-failed"
+        },
+        {
+            "token": "emphasis",
+            "rule": "fallback",
+            "span": [0, 2],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "input-end",
+            "rule": "emphasis",
+            "span": [17, 17],
+            "kind": "end-of-input"
+        },
+        {
+            "token": "emphasis",
+            "rule": "fallback",
+            "span": [15, 17],
+            "kind": "no-rules-match"
+        }
+    ]
+}

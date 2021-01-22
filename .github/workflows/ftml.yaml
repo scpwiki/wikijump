@@ -1,0 +1,46 @@
+name: '[ftml] Rust'
+
+on:
+  push:
+    paths:
+      - 'ftml/Cargo.toml'
+      - 'ftml/Cargo.lock'
+      - 'ftml/ftml-http/**'
+      - 'ftml/src/**'
+      - 'ftml/test/*'
+      - '.github/workflows/ftml.yaml'
+
+jobs:
+  library_build_and_test:
+    name: Library
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - run: cd ftml && cargo build --all-features --release
+      - run: cd ftml && cargo test --all-features -- --nocapture --test-threads 1
+  http_build:
+    name: Server
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - run: cd ftml && cargo build -p ftml-http --all-features --release
+      - run: cd ftml && cargo test -p ftml-http -- --nocapture --test-threads 1
+  clippy_lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          override: true
+          components: rustfmt, clippy
+      - run: cd ftml && cargo fmt --all -- --check
+      - run: cd ftml && cargo clippy -- -D warnings

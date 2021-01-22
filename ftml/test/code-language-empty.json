@@ -1,0 +1,26 @@
+{
+    "input": "[[code type=\"css\"]]\n[[/code]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "code",
+                            "data": {
+                                "contents": "",
+                                "language": "css"
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

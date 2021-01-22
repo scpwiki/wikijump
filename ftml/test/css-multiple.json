@@ -1,0 +1,32 @@
+{
+    "input": "[[css]]\na { display: none; }\n[[/css]]\napple\n[[css]]\nb { display: none; }\n[[/css]]\nbanana",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "apple"
+                        },
+                        {
+                            "element": "line-break"
+                        },
+                        {
+                            "element": "text",
+                            "data": "banana"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+            "a { display: none; }",
+            "b { display: none; }"
+        ]
+    },
+    "warnings": [
+    ]
+}

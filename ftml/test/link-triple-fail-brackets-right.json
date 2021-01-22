@@ -1,0 +1,41 @@
+{
+    "input": "]]]some-page",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "]]]"
+                        },
+                        {
+                            "element": "text",
+                            "data": "some"
+                        },
+                        {
+                            "element": "text",
+                            "data": "-"
+                        },
+                        {
+                            "element": "text",
+                            "data": "page"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+        {
+            "token": "right-link",
+            "rule": "fallback",
+            "span": [0, 3],
+            "kind": "no-rules-match"
+        }
+    ]
+}
