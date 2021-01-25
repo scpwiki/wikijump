@@ -20,7 +20,7 @@
 
 use crate::parsing::{parse_boolean, ParseWarning, ParseWarningKind, Parser};
 use crate::tree::AttributeMap;
-use std::borrow::Cow;
+use std::borrow::{Borrow, Cow};
 use std::collections::HashMap;
 use std::str::FromStr;
 use unicase::UniCase;
@@ -93,5 +93,12 @@ impl<'t> Arguments<'t> {
             .iter()
             .map(|(key, value)| (cow!(key.into_inner()), Cow::clone(value)))
             .collect()
+    }
+}
+
+impl<'t> Borrow<HashMap<UniCase<&'t str>, Cow<'t, str>>> for Arguments<'t> {
+    #[inline]
+    fn borrow(&self) -> &HashMap<UniCase<&'t str>, Cow<'t, str>> {
+        &self.inner
     }
 }
