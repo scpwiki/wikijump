@@ -106,9 +106,7 @@ pub enum Element<'t> {
     },
 
     /// Element containing a sandboxed HTML block.
-    Html {
-        contents: Cow<'t, str>,
-    },
+    Html { contents: Cow<'t, str> },
 
     /// Element containing an iframe component.
     Iframe {
