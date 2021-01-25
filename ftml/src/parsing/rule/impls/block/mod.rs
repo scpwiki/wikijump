@@ -61,8 +61,21 @@ pub struct BlockRule {
     /// `[[user aismallard]]` and `[[*user aismallard]]`.
     accepts_special: bool,
 
-    /// Whether this block allows its head and tail to be separated by newlines.
+    /// Whether this block optionally allows its head and tail to be separated by newlines.
     /// These newlines will be consumed and not be interpreted as line breaks.
+    ///
+    /// For instance, `[[div]]`, which can be declared on separate lines, or inline, without
+    /// those newlines becoming part of the resultant element:
+    ///
+    /// ```text
+    /// [[div]]
+    /// My fancy div!
+    /// [[/div]]
+    /// ```
+    ///
+    /// ```text
+    /// [[div]]My fancy inline div![[/div]]
+    /// ```
     accepts_newlines: bool,
 
     /// Function which implements the processing for this rule.
