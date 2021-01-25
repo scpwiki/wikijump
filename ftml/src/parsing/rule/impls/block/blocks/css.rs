@@ -24,7 +24,7 @@ pub const BLOCK_CSS: BlockRule = BlockRule {
     name: "block-css",
     accepts_names: &["css"],
     accepts_special: false,
-    newline_separator: true,
+    accepts_newlines: true,
     parse_fn,
 };
 

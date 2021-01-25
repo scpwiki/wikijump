@@ -24,7 +24,7 @@ pub const BLOCK_DIV: BlockRule = BlockRule {
     name: "block-div",
     accepts_names: &["div", "div_"],
     accepts_special: false,
-    newline_separator: true,
+    accepts_newlines: true,
     parse_fn,
 };
 
