@@ -73,11 +73,9 @@ where
         Ok(())
     }
 
-    pub fn get_line_break(&mut self) -> Result<(), ParseWarning> {
-        debug!(&self.log(), "Looking for line break");
-
-        self.get_token(Token::LineBreak, ParseWarningKind::BlockExpectedLineBreak)?;
-        Ok(())
+    pub fn get_optional_line_break(&mut self) -> Result<(), ParseWarning> {
+        debug!(&self.log(), "Looking for optional line break");
+        self.get_optional_token(Token::LineBreak)
     }
 
     #[inline]
@@ -162,10 +160,10 @@ where
     ) -> Option<&'r ExtractedToken<'t>> {
         self.save_evaluate_fn(|parser| {
             // Check that the end block is on a new line, if required
-            if block_rule.newline_separator {
+            if block_rule.accepts_newlines {
                 // Only check after the first, to permit empty blocks
                 if !first_iteration {
-                    parser.get_line_break()?;
+                    parser.get_optional_line_break()?;
                 }
             }
 
@@ -234,7 +232,7 @@ where
     /// This requires that the has already been parsed using
     /// one of the "get argument" methods.
     ///
-    /// The `newline_separator` argument designates whether this
+    /// The `accepts_newlines` argument designates whether this
     /// block assumes multiline construction (e.g. `[[div]]`, `[[code]]`)
     /// or not (e.g. `[[span]]`).
     pub fn get_body_text(
@@ -475,8 +473,8 @@ where
         //
         // It's fine if we're at the end of the input,
         // it could be an empty block type.
-        if self.current().token != Token::InputEnd && block_rule.newline_separator {
-            self.get_line_break()?;
+        if self.current().token != Token::InputEnd && block_rule.accepts_newlines {
+            self.get_optional_line_break()?;
         }
 
         Ok(())
