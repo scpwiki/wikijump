@@ -24,6 +24,7 @@ pub const BLOCK_MARK: BlockRule = BlockRule {
     name: "block-mark",
     accepts_names: &["mark", "highlight"],
     accepts_special: false,
+    newline_separator: false,
     parse_fn,
 };
 
@@ -44,7 +45,7 @@ fn parse_fn<'r, 't>(
     assert_eq!(special, false, "Mark doesn't allow special variant");
     assert_block_name(&BLOCK_MARK, name);
 
-    let mut arguments = parser.get_head_map(in_head)?;
+    let mut arguments = parser.get_head_map(&BLOCK_MARK, in_head)?;
 
     // Get styling arguments
     let id = arguments.get("id");

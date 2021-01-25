@@ -26,6 +26,7 @@ pub const BLOCK_MODULE: BlockRule = BlockRule {
     name: "block-module",
     accepts_names: &["module", "module654"],
     accepts_special: false,
+    newline_separator: true,
     parse_fn,
 };
 
@@ -42,7 +43,7 @@ fn parse_fn<'r, 't>(
     assert_block_name(&BLOCK_MODULE, name);
 
     // Get module name and arguments
-    let (subname, arguments) = parser.get_head_name_map(in_head)?;
+    let (subname, arguments) = parser.get_head_name_map(&BLOCK_MODULE, in_head)?;
 
     // Get the module rule for this name
     let module_rule = match get_module_rule_with_name(subname) {

@@ -25,6 +25,7 @@ pub const BLOCK_LINES: BlockRule = BlockRule {
     name: "block-lines",
     accepts_names: &["lines", "newlines"],
     accepts_special: false,
+    newline_separator: true,
     parse_fn,
 };
 
@@ -40,7 +41,7 @@ fn parse_fn<'r, 't>(
     assert_eq!(special, false, "Code doesn't allow special variant");
     assert_block_name(&BLOCK_LINES, name);
 
-    let count = parser.get_head_value(in_head, parse_count)?;
+    let count = parser.get_head_value(&BLOCK_LINES, in_head, parse_count)?;
 
     ok!(Element::LineBreaks(count))
 }

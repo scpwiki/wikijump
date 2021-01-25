@@ -73,16 +73,17 @@ where
         Ok(())
     }
 
+    pub fn get_line_break(&mut self) -> Result<(), ParseWarning> {
+        debug!(&self.log(), "Looking for line break");
+
+        self.get_token(Token::LineBreak, ParseWarningKind::BlockExpectedLineBreak)?;
+        Ok(())
+    }
+
     #[inline]
     pub fn get_optional_space(&mut self) -> Result<(), ParseWarning> {
         debug!(&self.log(), "Looking for optional space");
         self.get_optional_token(Token::Whitespace)
-    }
-
-    #[inline]
-    pub fn get_optional_line_break(&mut self) -> Result<(), ParseWarning> {
-        debug!(&self.log(), "Looking for optional line break");
-        self.get_optional_token(Token::LineBreak)
     }
 
     pub fn get_block_name(
@@ -160,10 +161,12 @@ where
         block_rule: &BlockRule,
     ) -> Option<&'r ExtractedToken<'t>> {
         self.save_evaluate_fn(|parser| {
-            // Check that the end block is on a new line
-            // Only check after the first, to permit empty blocks
-            if !first_iteration {
-                parser.get_optional_line_break()?;
+            // Check that the end block is on a new line, if required
+            if block_rule.newline_separator {
+                // Only check after the first, to permit empty blocks
+                if !first_iteration {
+                    parser.get_line_break()?;
+                }
             }
 
             // Check if it's an end block
@@ -321,6 +324,7 @@ where
     // Block head / argument parsing
     pub fn get_head_map(
         &mut self,
+        block_rule: &BlockRule,
         in_head: bool,
     ) -> Result<Arguments<'t>, ParseWarning> {
         debug!(&self.log(), "Looking for key value arguments, then ']]'");
@@ -364,12 +368,13 @@ where
             }
         }
 
-        self.get_head_block(in_head)?;
+        self.get_head_block(block_rule, in_head)?;
         Ok(map)
     }
 
     pub fn get_head_name_map(
         &mut self,
+        block_rule: &BlockRule,
         in_head: bool,
     ) -> Result<(&'t str, Arguments<'t>), ParseWarning> {
         debug!(
@@ -391,13 +396,14 @@ where
             self.get_block_name_internal(ParseWarningKind::ModuleMissingName)?;
 
         // Get arguments and end of block
-        let arguments = self.get_head_map(in_head)?;
+        let arguments = self.get_head_map(block_rule, in_head)?;
 
         Ok((subname, arguments))
     }
 
     pub fn get_head_value<F, T>(
         &mut self,
+        block_rule: &BlockRule,
         in_head: bool,
         convert: F,
     ) -> Result<T, ParseWarning>
@@ -433,24 +439,26 @@ where
         let value = convert(self, argument)?;
 
         // Set to false because the collection will always end the block
-        self.get_head_block(false)?;
+        self.get_head_block(block_rule, false)?;
         Ok(value)
     }
 
     pub fn get_head_none(
         &mut self,
+        block_rule: &BlockRule,
         in_head: bool,
     ) -> Result<(), ParseWarning> {
         debug!(&self.log(), "No arguments, looking for end of head block");
 
         self.get_optional_space()?;
-        self.get_head_block(in_head)?;
+        self.get_head_block(block_rule, in_head)?;
         Ok(())
     }
 
     // Helper function to finish up the head block
     fn get_head_block(
         &mut self,
+        block_rule: &BlockRule,
         in_head: bool,
     ) -> Result<(), ParseWarning> {
         trace!(&self.log(), "Getting end of the head block");
@@ -463,11 +471,13 @@ where
             )?;
         }
 
-        // Allow the block to have trailing whitespace
-        self.get_optional_space()?;
-
-        // Allow a line break to terminate the block
-        self.get_optional_line_break()?;
+        // If the block wants a newline after, take it
+        //
+        // It's fine if we're at the end of the input,
+        // it could be an empty block type.
+        if self.current().token != Token::InputEnd && block_rule.newline_separator {
+            self.get_line_break()?;
+        }
 
         Ok(())
     }

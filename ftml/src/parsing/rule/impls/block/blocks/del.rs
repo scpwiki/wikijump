@@ -24,6 +24,7 @@ pub const BLOCK_DEL: BlockRule = BlockRule {
     name: "block-del",
     accepts_names: &["del", "deletion"],
     accepts_special: false,
+    newline_separator: false,
     parse_fn,
 };
 
@@ -44,7 +45,7 @@ fn parse_fn<'r, 't>(
     assert_eq!(special, false, "Deletion doesn't allow special variant");
     assert_block_name(&BLOCK_DEL, name);
 
-    let mut arguments = parser.get_head_map(in_head)?;
+    let mut arguments = parser.get_head_map(&BLOCK_DEL, in_head)?;
 
     // Get styling arguments
     let id = arguments.get("id");

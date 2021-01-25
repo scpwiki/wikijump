@@ -24,6 +24,7 @@ pub const BLOCK_SPAN: BlockRule = BlockRule {
     name: "block-span",
     accepts_names: &["span", "span_"],
     accepts_special: false,
+    newline_separator: false,
     parse_fn,
 };
 
@@ -44,7 +45,7 @@ fn parse_fn<'r, 't>(
     assert_eq!(special, false, "Span doesn't allow special variant");
     assert_block_name(&BLOCK_SPAN, name);
 
-    let mut arguments = parser.get_head_map(in_head)?;
+    let mut arguments = parser.get_head_map(&BLOCK_SPAN, in_head)?;
 
     // "span" means we wrap interpret as-is
     // "span_" means we strip out any newlines or paragraph breaks

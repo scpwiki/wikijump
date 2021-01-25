@@ -130,6 +130,9 @@ pub enum ParseWarningKind {
     /// Some required arguments where missing when parsing the block.
     BlockMissingArguments,
 
+    /// This block expects a line break here.
+    BlockExpectedLineBreak,
+
     /// This block expected to end its body here.
     BlockExpectedEnd,
 

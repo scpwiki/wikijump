@@ -25,6 +25,7 @@ pub const BLOCK_COLLAPSIBLE: BlockRule = BlockRule {
     name: "block-collapsible",
     accepts_names: &["collapsible"],
     accepts_special: false,
+    newline_separator: true,
     parse_fn,
 };
 
@@ -44,7 +45,7 @@ fn parse_fn<'r, 't>(
     assert_eq!(special, false, "Collapsible doesn't allow special variant");
     assert_block_name(&BLOCK_COLLAPSIBLE, name);
 
-    let mut arguments = parser.get_head_map(in_head)?;
+    let mut arguments = parser.get_head_map(&BLOCK_COLLAPSIBLE, in_head)?;
 
     // Get styling arguments
     let id = arguments.get("id");
