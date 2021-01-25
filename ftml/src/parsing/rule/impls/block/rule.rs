@@ -89,11 +89,7 @@ fn block_skip<'r, 't>(
             None => return Ok(false),
         };
 
-        // Now, if it wants newlines, ignore this newline.
-        // The rule will succeed.
-        //
-        // If it doesn't, let the rule fail. Then it will pass on to a fallback.
-        Ok(block.newline_separator)
+        Ok(true)
     });
 
     if result {
