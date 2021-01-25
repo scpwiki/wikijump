@@ -16,6 +16,9 @@
                                 "style": null,
                                 "elements": [
                                     {
+                                        "element": "line-break"
+                                    },
+                                    {
                                         "element": "text",
                                         "data": "Apple"
                                     },
@@ -25,6 +28,9 @@
                                     {
                                         "element": "text",
                                         "data": "Banana"
+                                    },
+                                    {
+                                        "element": "line-break"
                                     }
                                 ]
                             }
