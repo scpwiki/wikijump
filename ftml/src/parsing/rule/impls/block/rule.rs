@@ -83,8 +83,11 @@ fn block_skip<'r, 't>(
         // Get the block's name
         let (name, _) = parser.get_block_name(false)?;
 
-        // If there's a block rule, then it's valid
-        Ok(get_block_rule_with_name(name).is_some())
+        // Get the block rule: if it accepts newlines, then we consume here
+        match get_block_rule_with_name(name) {
+            Some(block_rule) => Ok(block_rule.accepts_newlines),
+            None => Ok(false),
+        }
     });
 
     if result {
