@@ -83,13 +83,11 @@ fn block_skip<'r, 't>(
         // Get the block's name
         let (name, _) = parser.get_block_name(false)?;
 
-        // Get the associated block rule
-        let block = match get_block_rule_with_name(name) {
-            Some(block) => block,
-            None => return Ok(false),
-        };
-
-        Ok(true)
+        // If there's a block rule, then it's valid
+        match get_block_rule_with_name(name) {
+            Some(_) => Ok(true),
+            None => Ok(false),
+        }
     });
 
     if result {
