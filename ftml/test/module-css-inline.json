@@ -1,0 +1,12 @@
+{
+    "input": "[[module css]]a { color: blue; }[[/module]]",
+    "tree": {
+        "elements": [
+        ],
+        "styles": [
+            "a { color: blue; }"
+        ]
+    },
+    "warnings": [
+    ]
+}

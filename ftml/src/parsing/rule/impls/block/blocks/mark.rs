@@ -24,7 +24,7 @@ pub const BLOCK_MARK: BlockRule = BlockRule {
     name: "block-mark",
     accepts_names: &["mark", "highlight"],
     accepts_special: false,
-    newline_separator: false,
+    accepts_newlines: false,
     parse_fn,
 };
 

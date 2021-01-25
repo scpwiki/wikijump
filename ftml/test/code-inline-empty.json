@@ -1,0 +1,26 @@
+{
+    "input": "[[code]][[/code]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "code",
+                            "data": {
+                                "contents": "",
+                                "language": null
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

@@ -1,0 +1,34 @@
+{
+    "input": "[[div_]]Apple[[/div]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "styled-container",
+                            "data": {
+                                "type": "div",
+                                "id": null,
+                                "class": null,
+                                "style": null,
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "Apple"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

@@ -24,7 +24,7 @@ pub const BLOCK_DEL: BlockRule = BlockRule {
     name: "block-del",
     accepts_names: &["del", "deletion"],
     accepts_special: false,
-    newline_separator: false,
+    accepts_newlines: false,
     parse_fn,
 };
 

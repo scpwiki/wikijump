@@ -24,7 +24,7 @@ pub const BLOCK_SPAN: BlockRule = BlockRule {
     name: "block-span",
     accepts_names: &["span", "span_"],
     accepts_special: false,
-    newline_separator: false,
+    accepts_newlines: false,
     parse_fn,
 };
 
