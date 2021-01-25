@@ -22,6 +22,7 @@ use super::AttributeMap;
 use super::{Container, Module, StyledContainer};
 use crate::enums::{AnchorTarget, LinkLabel};
 use std::borrow::Cow;
+use std::collections::HashMap;
 use std::num::NonZeroU32;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -109,6 +110,12 @@ pub enum Element<'t> {
         contents: Cow<'t, str>,
     },
 
+    /// Element containing an iframe component.
+    Iframe {
+        url: Cow<'t, str>,
+        attributes: HashMap<Cow<'t, str>, Cow<'t, str>>,
+    },
+
     /// A newline or line break.
     ///
     /// This calls for a newline in the final output, such as `<br>` in HTML.
@@ -141,6 +148,7 @@ impl Element<'_> {
             Element::Color { .. } => "Color",
             Element::Code { .. } => "Code",
             Element::Html { .. } => "HTML",
+            Element::Iframe { .. } => "Iframe",
             Element::LineBreak => "LineBreak",
             Element::LineBreaks { .. } => "LineBreaks",
             Element::HorizontalRule => "HorizontalRule",
