@@ -20,10 +20,10 @@
 
 //! Representation of generic syntax elements which wrap other elements.
 
+use super::AttributeMap;
 use crate::enums::HeadingLevel;
 use crate::tree::Element;
 use strum_macros::IntoStaticStr;
-use super::element::AttributeMap;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]

@@ -18,13 +18,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::AttributeMap;
 use super::{Container, Module, StyledContainer};
 use crate::enums::{AnchorTarget, LinkLabel};
 use std::borrow::Cow;
-use std::collections::HashMap;
 use std::num::NonZeroU32;
-
-pub type AttributeMap<'t> = HashMap<Cow<'t, str>, Cow<'t, str>>;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case", tag = "element", content = "data")]
