@@ -12,9 +12,9 @@
                             "data": {
                                 "type": "insertion",
                                 "attributes": {
-                                    "id": "apple",
-                                    "class": "fruit",
-                                    "style": "color: red;"
+                                    "ID": "apple",
+                                    "clASS": "fruit",
+                                    "stylE": "color: red;"
                                 },
                                 "elements": [
                                     {
