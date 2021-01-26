@@ -335,17 +335,26 @@ where
 
                 // Try to get the argument key
                 // Determines if we stop or keep parsing
-                let current = self.current();
-                let key = match current.token {
-                    Token::Identifier => current.slice,
-                    Token::RightBlock => break,
-                    _ => {
-                        return Err(
-                            self.make_warn(ParseWarningKind::BlockMalformedArguments)
-                        )
-                    }
-                };
-                self.step()?;
+
+                let (key, last) = collect_text_keep(
+                    &self.log(),
+                    self,
+                    self.rule(),
+                    &[
+                        ParseCondition::current(Token::Whitespace),
+                        ParseCondition::current(Token::RightBlock),
+                    ],
+                    &[
+                        ParseCondition::current(Token::LineBreak),
+                        ParseCondition::current(Token::ParagraphBreak),
+                    ],
+                    Some(ParseWarningKind::BlockMalformedArguments),
+                )?;
+
+                if last.token == Token::RightBlock {
+                    // Finished parsing arguments
+                    break;
+                }
 
                 // Equal sign
                 self.get_optional_space()?;
