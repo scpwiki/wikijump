@@ -19,6 +19,7 @@
  */
 
 use crate::parsing::{parse_boolean, ParseWarning, ParseWarningKind, Parser};
+use crate::tree::AttributeMap;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::str::FromStr;
@@ -81,7 +82,13 @@ impl<'t> Arguments<'t> {
         }
     }
 
-    pub fn to_hash_map(&self) -> HashMap<Cow<'t, str>, Cow<'t, str>> {
+    /// Removes the `UniCase` wrappers to produce a separate hash map of keys to values.
+    ///
+    /// This returns a new `HashMap` suitable for inclusion in final `Element`s.
+    /// It does not clone any string allocations, as they are all borrowed
+    /// (or already owned, per `Cow`).
+    /// It only makes a new allocation for the new `HashMap`.
+    pub fn to_hash_map(&self) -> AttributeMap<'t> {
         self.inner
             .iter()
             .map(|(key, value)| (cow!(key.into_inner()), Cow::clone(value)))
