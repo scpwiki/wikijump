@@ -11,9 +11,9 @@
                             "element": "styled-container",
                             "data": {
                                 "type": "div",
-                                "id": null,
-                                "class": null,
-                                "style": "display: flex",
+                                "attributes": {
+                                    "style": "display: flex"
+                                },
                                 "elements": [
                                     {
                                         "element": "text",

@@ -10,9 +10,10 @@
                         {
                             "element": "collapsible",
                             "data": {
-                                "id": "id",
-                                "class": "class",
-                                "style": null,
+                                "attributes": {
+                                    "id": "id",
+                                    "class": "class"
+                                },
                                 "start-open": false,
                                 "show-text": null,
                                 "hide-text": null,

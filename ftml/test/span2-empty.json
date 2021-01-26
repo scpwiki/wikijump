@@ -11,9 +11,7 @@
                             "element": "styled-container",
                             "data": {
                                 "type": "span",
-                                "id": null,
-                                "class": null,
-                                "style": null,
+                                "attributes": {},
                                 "elements": [
                                 ]
                             }

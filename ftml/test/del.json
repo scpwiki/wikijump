@@ -18,9 +18,7 @@
                             "element": "styled-container",
                             "data": {
                                 "type": "deletion",
-                                "id": null,
-                                "class": null,
-                                "style": null,
+                                "attributes": {},
                                 "elements": [
                                     {
                                         "element": "text",
