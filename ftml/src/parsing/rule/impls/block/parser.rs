@@ -358,7 +358,7 @@ where
                             // End parsing block head
                             Token::RightBlock => {
                                 args_finished = true;
-                                break
+                                break;
                             }
 
                             // End parsing argument key
@@ -371,9 +371,9 @@ where
 
                             // Invalid token
                             _ => {
-                                return Err(
-                                    self.make_warn(ParseWarningKind::BlockMalformedArguments)
-                                )
+                                return Err(self.make_warn(
+                                    ParseWarningKind::BlockMalformedArguments,
+                                ))
                             }
                         }
                     }

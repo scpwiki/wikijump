@@ -80,4 +80,8 @@ impl<'t> Arguments<'t> {
             None => Ok(None),
         }
     }
+
+    pub fn to_hash_map(&self) -> HashMap<Cow<'t, str>, Cow<'t, str>> {
+        self.inner.iter().map(|(key, value)| (cow!(key.into_inner()), Cow::clone(value))).collect()
+    }
 }
