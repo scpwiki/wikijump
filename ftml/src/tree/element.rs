@@ -21,7 +21,10 @@
 use super::{Container, Module, StyledContainer};
 use crate::enums::{AnchorTarget, LinkLabel};
 use std::borrow::Cow;
+use std::collections::HashMap;
 use std::num::NonZeroU32;
+
+pub type AttributeMap<'t> = HashMap<Cow<'t, str>, Cow<'t, str>>;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case", tag = "element", content = "data")]
@@ -81,9 +84,7 @@ pub enum Element<'t> {
     #[serde(rename_all = "kebab-case")]
     Collapsible {
         elements: Vec<Element<'t>>,
-        id: Option<Cow<'t, str>>,
-        class: Option<Cow<'t, str>>,
-        style: Option<Cow<'t, str>>,
+        attributes: AttributeMap<'t>,
         start_open: bool,
         show_text: Option<Cow<'t, str>>,
         hide_text: Option<Cow<'t, str>>,

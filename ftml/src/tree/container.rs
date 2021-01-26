@@ -22,9 +22,8 @@
 
 use crate::enums::HeadingLevel;
 use crate::tree::Element;
-use std::borrow::Cow;
-use std::collections::HashMap;
 use strum_macros::IntoStaticStr;
+use super::element::AttributeMap;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
@@ -66,7 +65,7 @@ pub struct StyledContainer<'t> {
     #[serde(rename = "type")]
     ctype: StyledContainerType,
     elements: Vec<Element<'t>>,
-    attributes: HashMap<Cow<'t, str>, Cow<'t, str>>,
+    attributes: AttributeMap<'t>,
 }
 
 impl<'t> StyledContainer<'t> {
@@ -74,7 +73,7 @@ impl<'t> StyledContainer<'t> {
     pub fn new(
         ctype: StyledContainerType,
         elements: Vec<Element<'t>>,
-        attributes: HashMap<Cow<'t, str>, Cow<'t, str>>,
+        attributes: AttributeMap<'t>,
     ) -> Self {
         StyledContainer {
             ctype,
@@ -94,7 +93,7 @@ impl<'t> StyledContainer<'t> {
     }
 
     #[inline]
-    pub fn attributes(&self) -> &HashMap<Cow<'t, str>, Cow<'t, str>> {
+    pub fn attributes(&self) -> &AttributeMap<'t> {
         &self.attributes
     }
 }
