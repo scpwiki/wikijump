@@ -1,5 +1,5 @@
 {
-    "input": "[[span_ id=\"banana\" class=\"fruit\" style=\"color: yellow;\"]]Banana[[/span]]",
+    "input": "[[span_ id=\"banana\" class=\"fruit\" style=\"color: yellow;\" data-fruit=\"!red\"]]Banana[[/span]]",
     "tree": {
         "elements": [
             {
@@ -14,7 +14,8 @@
                                 "attributes": {
                                     "id": "banana",
                                     "class": "fruit",
-                                    "style": "color: yellow;"
+                                    "style": "color: yellow;",
+                                    "data-fruit": "!red"
                                 },
                                 "elements": [
                                     {

@@ -1,5 +1,5 @@
 {
-    "input": "[[div_ style=\"display: flex\"]]\nApple\n[[/div]]",
+    "input": "[[div_ style=\"display: flex\" data-fruit=\"red\"]]\nApple\n[[/div]]",
     "tree": {
         "elements": [
             {
@@ -12,7 +12,8 @@
                             "data": {
                                 "type": "div",
                                 "attributes": {
-                                    "style": "display: flex"
+                                    "style": "display: flex",
+                                    "data-fruit": "red"
                                 },
                                 "elements": [
                                     {
