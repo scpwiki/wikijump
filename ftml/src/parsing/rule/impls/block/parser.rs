@@ -385,7 +385,7 @@ where
 
                     // Gather argument key string slice
                     let end = self.current();
-                    self.full_text().slice(&self.log(), start, end)
+                    self.full_text().slice_partial(&self.log(), start, end)
                 };
 
                 // Equal sign
