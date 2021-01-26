@@ -13,9 +13,7 @@
                                 "module": "join",
                                 "data": {
                                     "button-text": "Join our site!! ;-)",
-                                    "id": null,
-                                    "class": null,
-                                    "style": null
+                                    "attributes": {}
                                 }
                             }
                         },

@@ -13,9 +13,11 @@
                                 "module": "join",
                                 "data": {
                                     "button-text": null,
-                                    "id": "join-btn",
-                                    "class": "join-module",
-                                    "style": "display: inline-block;"
+                                    "attributes": {
+                                        "id": "join-btn",
+                                        "class": "join-module",
+                                        "style": "display: inline-block;"
+                                    }
                                 }
                             }
                         },
