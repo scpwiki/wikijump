@@ -28,6 +28,11 @@ use crate::parsing::{
     ParseWarningKind, Parser, Token,
 };
 use crate::tree::Element;
+use regex::Regex;
+
+lazy_static! {
+    static ref ARGUMENT_KEY: Regex = Regex::new(r"[A-Za-z0-9_\-]+").unwrap();
+}
 
 impl<'r, 't> Parser<'r, 't>
 where
@@ -334,27 +339,54 @@ where
                 self.get_optional_space()?;
 
                 // Try to get the argument key
-                // Determines if we stop or keep parsing
+                // Allows any token that matches the regular expression
+                // i.e., alphanumeric, dash, or underscore
+                //
+                // This logic determines if we stop or keep getting arguments
+                //
+                // We could use collect_text_keep() here, but it messes with
+                // get_head_block() so we just have it inline. Also it's a bit
+                // strange since one of the outcomes is to break out of the loop.
 
-                let (key, last) = collect_text_keep(
-                    &self.log(),
-                    self,
-                    self.rule(),
-                    &[
-                        ParseCondition::current(Token::Whitespace),
-                        ParseCondition::current(Token::RightBlock),
-                    ],
-                    &[
-                        ParseCondition::current(Token::LineBreak),
-                        ParseCondition::current(Token::ParagraphBreak),
-                    ],
-                    Some(ParseWarningKind::BlockMalformedArguments),
-                )?;
+                let key = {
+                    let start = self.current();
+                    let mut args_finished = false;
 
-                if last.token == Token::RightBlock {
-                    // Finished parsing arguments
-                    break;
-                }
+                    loop {
+                        let current = self.current();
+                        match current.token {
+                            // End parsing block head
+                            Token::RightBlock => {
+                                args_finished = true;
+                                break
+                            }
+
+                            // End parsing argument key
+                            Token::Whitespace | Token::Equals => break,
+
+                            // Continue iterating to gather key
+                            _ if ARGUMENT_KEY.is_match(current.slice) => {
+                                self.step()?;
+                            }
+
+                            // Invalid token
+                            _ => {
+                                return Err(
+                                    self.make_warn(ParseWarningKind::BlockMalformedArguments)
+                                )
+                            }
+                        }
+                    }
+
+                    // Stop iterating for more argument key-value pairs
+                    if args_finished {
+                        break;
+                    }
+
+                    // Gather argument key string slice
+                    let end = self.current();
+                    self.full_text().slice(&self.log(), start, end)
+                };
 
                 // Equal sign
                 self.get_optional_space()?;
