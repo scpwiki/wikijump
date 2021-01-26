@@ -22,8 +22,8 @@
 
 use crate::enums::HeadingLevel;
 use crate::tree::Element;
-use ref_map::*;
 use std::borrow::Cow;
+use std::collections::HashMap;
 use strum_macros::IntoStaticStr;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -66,9 +66,7 @@ pub struct StyledContainer<'t> {
     #[serde(rename = "type")]
     ctype: StyledContainerType,
     elements: Vec<Element<'t>>,
-    id: Option<Cow<'t, str>>,
-    class: Option<Cow<'t, str>>,
-    style: Option<Cow<'t, str>>,
+    attributes: HashMap<Cow<'t, str>, Cow<'t, str>>,
 }
 
 impl<'t> StyledContainer<'t> {
@@ -76,16 +74,12 @@ impl<'t> StyledContainer<'t> {
     pub fn new(
         ctype: StyledContainerType,
         elements: Vec<Element<'t>>,
-        id: Option<Cow<'t, str>>,
-        class: Option<Cow<'t, str>>,
-        style: Option<Cow<'t, str>>,
+        attributes: HashMap<Cow<'t, str>, Cow<'t, str>>,
     ) -> Self {
         StyledContainer {
             ctype,
             elements,
-            id,
-            class,
-            style,
+            attributes,
         }
     }
 
@@ -100,18 +94,8 @@ impl<'t> StyledContainer<'t> {
     }
 
     #[inline]
-    pub fn id(&self) -> Option<&str> {
-        self.id.ref_map(|s| s.as_ref())
-    }
-
-    #[inline]
-    pub fn class(&self) -> Option<&str> {
-        self.class.ref_map(|s| s.as_ref())
-    }
-
-    #[inline]
-    pub fn style(&self) -> Option<&str> {
-        self.style.ref_map(|s| s.as_ref())
+    pub fn attributes(&self) -> &HashMap<Cow<'t, str>, Cow<'t, str>> {
+        &self.attributes
     }
 }
 
