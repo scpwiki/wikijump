@@ -45,16 +45,11 @@ fn parse_fn<'r, 't>(
     assert_eq!(special, false, "Span doesn't allow special variant");
     assert_block_name(&BLOCK_SPAN, name);
 
-    let mut arguments = parser.get_head_map(&BLOCK_SPAN, in_head)?;
+    let arguments = parser.get_head_map(&BLOCK_SPAN, in_head)?;
 
     // "span" means we wrap interpret as-is
     // "span_" means we strip out any newlines or paragraph breaks
     let strip_line_breaks = name.ends_with('_');
-
-    // Get styling arguments
-    let id = arguments.get("id");
-    let class = arguments.get("class");
-    let style = arguments.get("style");
 
     // Get body content, without paragraphs
     let (mut elements, exceptions) = parser.get_body_elements(&BLOCK_SPAN, false)?.into();
@@ -82,9 +77,7 @@ fn parse_fn<'r, 't>(
     let element = Element::StyledContainer(StyledContainer::new(
         StyledContainerType::Span,
         elements,
-        id,
-        class,
-        style,
+        arguments.to_hash_map(),
     ));
 
     ok!(element, exceptions)
