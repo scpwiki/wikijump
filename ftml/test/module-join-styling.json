@@ -1,5 +1,5 @@
 {
-    "input": "[[module Join id=\"join-btn\" CLASS =\"join-module\" stYLe= \"display: inline-block;\"]]\nApple",
+    "input": "[[module Join id=\"join-btn\" CLASS =\"join-module\" stYLe= \"display: inline-block;\" data-join=\"\"]]\nApple",
     "tree": {
         "elements": [
             {
@@ -16,7 +16,8 @@
                                     "attributes": {
                                         "id": "join-btn",
                                         "class": "join-module",
-                                        "style": "display: inline-block;"
+                                        "style": "display: inline-block;",
+                                        "data-join": ""
                                     }
                                 }
                             }
