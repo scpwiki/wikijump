@@ -45,16 +45,11 @@ fn parse_fn<'r, 't>(
     assert_eq!(special, false, "Div doesn't allow special variant");
     assert_block_name(&BLOCK_DIV, name);
 
-    let mut arguments = parser.get_head_map(&BLOCK_DIV, in_head)?;
+    let arguments = parser.get_head_map(&BLOCK_DIV, in_head)?;
 
     // "div" means we wrap in paragraphs, like normal
     // "div_" means we don't wrap it
     let wrap_paragraphs = !name.ends_with('_');
-
-    // Get styling arguments
-    let id = arguments.get("id");
-    let class = arguments.get("class");
-    let style = arguments.get("style");
 
     // Get body content, based on whether we want paragraphs or not
     let (elements, exceptions) = parser
@@ -65,9 +60,7 @@ fn parse_fn<'r, 't>(
     let element = Element::StyledContainer(StyledContainer::new(
         StyledContainerType::Div,
         elements,
-        id,
-        class,
-        style,
+        arguments.to_hash_map(),
     ));
 
     ok!(element, exceptions)

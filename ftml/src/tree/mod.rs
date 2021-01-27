@@ -28,6 +28,9 @@ pub use self::module::*;
 
 use crate::parsing::{ParseOutcome, ParseWarning};
 use std::borrow::Cow;
+use std::collections::HashMap;
+
+pub type AttributeMap<'t> = HashMap<Cow<'t, str>, Cow<'t, str>>;
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]

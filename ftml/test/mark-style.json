@@ -1,5 +1,5 @@
 {
-    "input": "[[mark id=\"banana\" class=\"fruit\" style=\"color: yellow;\"]]Banana[[/mark]]",
+    "input": "[[mark id=\"banana\" class=\"fruit\" style=\"color: yellow;\" onclick=\"javascript:thing()\"]]Banana[[/mark]]",
     "tree": {
         "elements": [
             {
@@ -11,9 +11,12 @@
                             "element": "styled-container",
                             "data": {
                                 "type": "mark",
-                                "id": "banana",
-                                "class": "fruit",
-                                "style": "color: yellow;",
+                                "attributes": {
+                                    "id": "banana",
+                                    "class": "fruit",
+                                    "style": "color: yellow;",
+                                    "onclick": "javascript:thing()"
+                                },
                                 "elements": [
                                     {
                                         "element": "text",

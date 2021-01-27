@@ -1,5 +1,5 @@
 {
-    "input": "[[ COLLapsiBLe  ID=\"id\" CLASS = \"class\"  ]]\nCherry\n[[/collapsible]]",
+    "input": "[[ COLLapsiBLe  ID=\"my-id\" CLASS = \"my-class\"  ]]\nCherry\n[[/collapsible]]",
     "tree": {
         "elements": [
             {
@@ -10,9 +10,10 @@
                         {
                             "element": "collapsible",
                             "data": {
-                                "id": "id",
-                                "class": "class",
-                                "style": null,
+                                "attributes": {
+                                    "ID": "my-id",
+                                    "CLASS": "my-class"
+                                },
                                 "start-open": false,
                                 "show-text": null,
                                 "hide-text": null,

@@ -11,9 +11,11 @@
                             "element": "styled-container",
                             "data": {
                                 "type": "deletion",
-                                "id": "apple",
-                                "class": "fruit",
-                                "style": "color: red;",
+                                "attributes": {
+                                    "ID": "apple",
+                                    "clASS": "fruit",
+                                    "stylE": "color: red;"
+                                },
                                 "elements": [
                                     {
                                         "element": "text",

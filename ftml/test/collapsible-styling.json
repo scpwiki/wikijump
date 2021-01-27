@@ -10,9 +10,11 @@
                         {
                             "element": "collapsible",
                             "data": {
-                                "id": "fruit",
-                                "class": "collapse-list",
-                                "style": "display: inline-block",
+                                "attributes": {
+                                    "id": "fruit",
+                                    "class": "collapse-list",
+                                    "style": "display: inline-block"
+                                },
                                 "start-open": false,
                                 "show-text": null,
                                 "hide-text": null,

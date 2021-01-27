@@ -1,5 +1,5 @@
 {
-    "input": "[[span id=\"banana\" class=\"fruit\" style=\"color: yellow;\"]]Banana[[/span]]",
+    "input": "[[span id=\"banana\" class=\"fruit\" style=\"color: yellow;\" data-fruit=\"!red\"]]Banana[[/span]]",
     "tree": {
         "elements": [
             {
@@ -11,9 +11,12 @@
                             "element": "styled-container",
                             "data": {
                                 "type": "span",
-                                "id": "banana",
-                                "class": "fruit",
-                                "style": "color: yellow;",
+                                "attributes": {
+                                    "id": "banana",
+                                    "class": "fruit",
+                                    "style": "color: yellow;",
+                                    "data-fruit": "!red"
+                                },
                                 "elements": [
                                     {
                                         "element": "text",

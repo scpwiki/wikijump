@@ -1,5 +1,5 @@
 {
-    "input": "[[div_ style=\"display: flex\"]]\nApple\n[[/div]]",
+    "input": "[[div_ style=\"display: flex\" data-fruit=\"red\"]]\nApple\n[[/div]]",
     "tree": {
         "elements": [
             {
@@ -11,9 +11,10 @@
                             "element": "styled-container",
                             "data": {
                                 "type": "div",
-                                "id": null,
-                                "class": null,
-                                "style": "display: flex",
+                                "attributes": {
+                                    "style": "display: flex",
+                                    "data-fruit": "red"
+                                },
                                 "elements": [
                                     {
                                         "element": "text",

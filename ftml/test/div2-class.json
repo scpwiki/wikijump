@@ -11,9 +11,9 @@
                             "element": "styled-container",
                             "data": {
                                 "type": "div",
-                                "id": null,
-                                "class": "blockquote",
-                                "style": null,
+                                "attributes": {
+                                    "class": "blockquote"
+                                },
                                 "elements": [
                                     {
                                         "element": "text",

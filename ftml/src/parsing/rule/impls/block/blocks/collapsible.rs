@@ -47,11 +47,6 @@ fn parse_fn<'r, 't>(
 
     let mut arguments = parser.get_head_map(&BLOCK_COLLAPSIBLE, in_head)?;
 
-    // Get styling arguments
-    let id = arguments.get("id");
-    let class = arguments.get("class");
-    let style = arguments.get("style");
-
     // Get display arguments
     let show_text = arguments.get("show");
     let hide_text = arguments.get("hide");
@@ -72,14 +67,12 @@ fn parse_fn<'r, 't>(
     // Build element and return
     let element = Element::Collapsible {
         elements,
+        attributes: arguments.to_hash_map(),
         start_open,
         show_text,
         hide_text,
         show_top,
         show_bottom,
-        id,
-        class,
-        style,
     };
 
     ok!(element, exceptions)

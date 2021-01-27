@@ -13,9 +13,7 @@
                                 "module": "join",
                                 "data": {
                                     "button-text": null,
-                                    "id": null,
-                                    "class": null,
-                                    "style": null
+                                    "attributes": {}
                                 }
                             }
                         },

@@ -11,9 +11,7 @@
                             "element": "styled-container",
                             "data": {
                                 "type": "div",
-                                "id": null,
-                                "class": null,
-                                "style": null,
+                                "attributes": {},
                                 "elements": [
                                     {
                                         "element": "container",

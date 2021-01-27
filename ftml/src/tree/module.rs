@@ -20,6 +20,7 @@
 
 //! Representation of Wikidot modules, along with their context.
 
+use super::AttributeMap;
 use std::borrow::Cow;
 use std::num::NonZeroU32;
 use strum_macros::IntoStaticStr;
@@ -40,9 +41,7 @@ pub enum Module<'t> {
     #[serde(rename_all = "kebab-case")]
     Join {
         button_text: Option<Cow<'t, str>>,
-        id: Option<Cow<'t, str>>,
-        class: Option<Cow<'t, str>>,
-        style: Option<Cow<'t, str>>,
+        attributes: AttributeMap<'t>,
     },
 
     /// Meta-element for modules which perform no action.
