@@ -27,6 +27,7 @@ use crate::includes::DebugIncluder;
 use crate::parsing::{ParseWarning, ParseWarningKind, Token};
 use crate::tree::{Element, SyntaxTree};
 use std::borrow::Cow;
+use std::ffi::OsStr;
 use std::fs::{self, File};
 use std::path::{Path, PathBuf};
 use void::ResultVoidExt;
@@ -171,8 +172,7 @@ fn ast() {
             .expect("Unable to get file stem")
             .to_string_lossy();
 
-        let ext = path.extension().expect("Unable to get file extension");
-        if ext != "json" {
+        if path.extension() != Some(OsStr::new("json")) {
             println!("Skipping non-JSON file {}", file_name!(entry));
             return None;
         }
