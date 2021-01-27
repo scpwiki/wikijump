@@ -1,0 +1,29 @@
+{
+    "input": "[[iframe  https://example.com  WIDTH =  \"100%\" id= \"iframe\" ]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "iframe",
+                            "data": {
+                                "url": "https://example.com",
+                                "attributes": {
+                                    "WIDTH": "100%",
+                                    "id": "iframe"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}
