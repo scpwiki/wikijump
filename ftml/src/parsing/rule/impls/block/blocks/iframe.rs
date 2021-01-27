@@ -22,7 +22,7 @@ use super::prelude::*;
 
 pub const BLOCK_IFRAME: BlockRule = BlockRule {
     name: "block-iframe",
-    accepts_names: &["html"],
+    accepts_names: &["iframe"],
     accepts_special: false,
     accepts_newlines: true,
     parse_fn,
@@ -35,9 +35,9 @@ fn parse_fn<'r, 't>(
     special: bool,
     in_head: bool,
 ) -> ParseResult<'r, 't, Element<'t>> {
-    debug!(log, "Parsing HTML block"; "in-head" => in_head);
+    debug!(log, "Parsing iframe block"; "in-head" => in_head);
 
-    assert_eq!(special, false, "HTML doesn't allow special variant");
+    assert_eq!(special, false, "iframe doesn't allow special variant");
     assert_block_name(&BLOCK_IFRAME, name);
 
     let (url, arguments) = parser.get_head_name_map(&BLOCK_IFRAME, in_head)?;
