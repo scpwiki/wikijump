@@ -76,6 +76,7 @@ pub use self::css::BLOCK_CSS;
 pub use self::del::BLOCK_DEL;
 pub use self::div::BLOCK_DIV;
 pub use self::html::BLOCK_HTML;
+pub use self::iframe::BLOCK_IFRAME;
 pub use self::include::BLOCK_INCLUDE;
 pub use self::ins::BLOCK_INS;
 pub use self::lines::BLOCK_LINES;
