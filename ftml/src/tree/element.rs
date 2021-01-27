@@ -81,7 +81,7 @@ pub enum Element<'t> {
     Link {
         url: Cow<'t, str>,
         label: LinkLabel<'t>,
-        anchor: AnchorTarget,
+        target: AnchorTarget,
     },
 
     /// A collapsible, containing content hidden to be opened on click.

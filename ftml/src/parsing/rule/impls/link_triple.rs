@@ -63,14 +63,14 @@ fn link_new_tab<'p, 'r, 't>(
     try_consume_link(log, parser, RULE_LINK_TRIPLE_NEW_TAB, AnchorTarget::NewTab)
 }
 
-/// Build a triple-bracket link with the given anchor.
+/// Build a triple-bracket link with the given target.
 fn try_consume_link<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
-    anchor: AnchorTarget,
+    target: AnchorTarget,
 ) -> ParseResult<'r, 't, Element<'t>> {
-    debug!(log, "Trying to create a triple-bracket link"; "anchor" => anchor.name());
+    debug!(log, "Trying to create a triple-bracket link"; "target" => target.name());
 
     // Gather path for link
     let (url, last) = collect_text_keep(
@@ -105,10 +105,10 @@ fn try_consume_link<'p, 'r, 't>(
     // Determine what token we ended on, i.e. which [[[ variant it is.
     match last.token {
         // [[[name]]] type links
-        Token::RightLink => build_same(log, parser, url, anchor),
+        Token::RightLink => build_same(log, parser, url, target),
 
         // [[[url|label]]] type links
-        Token::Pipe => build_separate(log, parser, rule, url, anchor),
+        Token::Pipe => build_separate(log, parser, rule, url, target),
 
         // Token was already checked in collect_text(), impossible case
         _ => unreachable!(),
@@ -121,7 +121,7 @@ fn build_same<'p, 'r, 't>(
     log: &slog::Logger,
     _parser: &'p mut Parser<'r, 't>,
     url: &'t str,
-    anchor: AnchorTarget,
+    target: AnchorTarget,
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(
         log,
@@ -132,7 +132,7 @@ fn build_same<'p, 'r, 't>(
     let element = Element::Link {
         url: cow!(url),
         label: LinkLabel::Url,
-        anchor,
+        target,
     };
 
     ok!(element)
@@ -145,7 +145,7 @@ fn build_separate<'p, 'r, 't>(
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     url: &'t str,
-    anchor: AnchorTarget,
+    target: AnchorTarget,
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(
         log,
@@ -187,7 +187,7 @@ fn build_separate<'p, 'r, 't>(
     let element = Element::Link {
         url: cow!(url),
         label,
-        anchor,
+        target,
     };
 
     // Return result

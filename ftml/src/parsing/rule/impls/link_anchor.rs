@@ -93,7 +93,7 @@ fn try_consume_fn<'p, 'r, 't>(
     let element = Element::Link {
         url,
         label: LinkLabel::Text(cow!(label)),
-        anchor: AnchorTarget::Same,
+        target: AnchorTarget::Same,
     };
 
     // Return result

@@ -59,14 +59,14 @@ fn link_new_tab<'p, 'r, 't>(
     try_consume_link(log, parser, RULE_LINK_SINGLE_NEW_TAB, AnchorTarget::NewTab)
 }
 
-/// Build a single-bracket link with the given anchor.
+/// Build a single-bracket link with the given target.
 fn try_consume_link<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
-    anchor: AnchorTarget,
+    target: AnchorTarget,
 ) -> ParseResult<'r, 't, Element<'t>> {
-    debug!(log, "Trying to create a single-bracket link"; "anchor" => anchor.name());
+    debug!(log, "Trying to create a single-bracket link"; "target" => target.name());
 
     // Gather path for link
     let url = collect_text(
@@ -118,7 +118,7 @@ fn try_consume_link<'p, 'r, 't>(
     let element = Element::Link {
         url: cow!(url),
         label: LinkLabel::Text(cow!(label)),
-        anchor,
+        target,
     };
 
     // Return result

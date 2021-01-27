@@ -12,7 +12,7 @@
                             "data": {
                                 "url": "https://example.com/directory",
                                 "label": "url",
-                                "anchor": "same"
+                                "target": "same"
                             }
                         },
                         {

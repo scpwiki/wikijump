@@ -14,7 +14,7 @@
                                 "label": {
                                     "text": "Label"
                                 },
-                                "anchor": "new-tab"
+                                "target": "new-tab"
                             }
                         }
                     ]

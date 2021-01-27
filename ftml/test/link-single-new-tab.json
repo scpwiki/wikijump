@@ -14,7 +14,7 @@
                                 "label": {
                                     "text": "Sandbox: Recent Changes"
                                 },
-                                "anchor": "new-tab"
+                                "target": "new-tab"
                             }
                         }
                     ]
