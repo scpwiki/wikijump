@@ -84,6 +84,19 @@ pub enum Element<'t> {
         target: AnchorTarget,
     },
 
+    /// A radio button.
+    ///
+    /// The "name" field translates to HTML, but is standard for grouping them.
+    RadioButton {
+        name: Option<Cow<'t, str>>,
+        attributes: AttributeMap<'t>,
+    },
+
+    /// A checkbox.
+    CheckBox {
+        attributes: AttributeMap<'t>,
+    },
+
     /// A collapsible, containing content hidden to be opened on click.
     ///
     /// This is an interactable element provided by Wikidot which allows hiding
@@ -152,6 +165,8 @@ impl Element<'_> {
             Element::Email(_) => "Email",
             Element::Anchor { .. } => "Anchor",
             Element::Link { .. } => "Link",
+            Element::RadioButton { .. } => "RadioButton",
+            Element::CheckBox { .. } => "CheckBox",
             Element::Collapsible { .. } => "Collapsible",
             Element::Color { .. } => "Color",
             Element::Code { .. } => "Code",
