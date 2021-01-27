@@ -14,7 +14,7 @@
                                 "label": {
                                     "text": "Fake link"
                                 },
-                                "anchor": "same"
+                                "target": "same"
                             }
                         }
                     ]

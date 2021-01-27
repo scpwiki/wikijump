@@ -12,7 +12,7 @@
                             "data": {
                                 "url": "some-page",
                                 "label": "page",
-                                "anchor": "new-tab"
+                                "target": "new-tab"
                             }
                         }
                     ]

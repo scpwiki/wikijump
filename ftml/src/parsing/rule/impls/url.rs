@@ -35,7 +35,7 @@ fn try_consume_fn<'p, 'r, 't>(
     let element = Element::Link {
         url: cow!(parser.current().slice),
         label: LinkLabel::Url,
-        anchor: AnchorTarget::Same,
+        target: AnchorTarget::Same,
     };
 
     ok!(element)

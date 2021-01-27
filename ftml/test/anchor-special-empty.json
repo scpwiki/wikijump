@@ -1,5 +1,5 @@
 {
-    "input": "[[[* some-page  |  My label  ]]]",
+    "input": "[[*a]][[/a]]",
     "tree": {
         "elements": [
             {
@@ -8,13 +8,12 @@
                     "type": "paragraph",
                     "elements": [
                         {
-                            "element": "link",
+                            "element": "anchor",
                             "data": {
-                                "url": "some-page",
-                                "label": {
-                                    "text": "My label"
-                                },
-                                "target": "new-tab"
+                                "attributes": {},
+                                "target": "new-tab",
+                                "elements": [
+                                ]
                             }
                         }
                     ]

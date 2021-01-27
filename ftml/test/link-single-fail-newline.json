@@ -16,7 +16,7 @@
                             "data": {
                                 "url": "https://example.com/",
                                 "label": "url",
-                                "anchor": "same"
+                                "target": "same"
                             }
                         },
                         {

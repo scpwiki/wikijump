@@ -56,6 +56,7 @@ mod prelude {
     }
 }
 
+mod anchor;
 mod code;
 mod collapsible;
 mod css;
@@ -70,6 +71,7 @@ mod mark;
 mod module;
 mod span;
 
+pub use self::anchor::BLOCK_ANCHOR;
 pub use self::code::BLOCK_CODE;
 pub use self::collapsible::BLOCK_COLLAPSIBLE;
 pub use self::css::BLOCK_CSS;

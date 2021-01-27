@@ -14,7 +14,7 @@
                                 "label": {
                                     "text": "My label"
                                 },
-                                "anchor": "same"
+                                "target": "same"
                             }
                         }
                     ]

@@ -62,6 +62,16 @@ pub enum Element<'t> {
     /// is up to the render implementation.
     Email(Cow<'t, str>),
 
+    /// An element representing an arbitrary anchor.
+    ///
+    /// This is distinct from link in that it maps to HTML `<a>`,
+    /// and does not necessarily mean a link to some other URL.
+    Anchor {
+        elements: Vec<Element<'t>>,
+        attributes: AttributeMap<'t>,
+        target: AnchorTarget,
+    },
+
     /// An element linking to a different page.
     ///
     /// The "label" field is an optional field denoting what the link should
@@ -71,7 +81,7 @@ pub enum Element<'t> {
     Link {
         url: Cow<'t, str>,
         label: LinkLabel<'t>,
-        anchor: AnchorTarget,
+        target: AnchorTarget,
     },
 
     /// A collapsible, containing content hidden to be opened on click.
@@ -140,6 +150,7 @@ impl Element<'_> {
             Element::Text(_) => "Text",
             Element::Raw(_) => "Raw",
             Element::Email(_) => "Email",
+            Element::Anchor { .. } => "Anchor",
             Element::Link { .. } => "Link",
             Element::Collapsible { .. } => "Collapsible",
             Element::Color { .. } => "Color",

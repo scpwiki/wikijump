@@ -12,7 +12,7 @@
                             "data": {
                                 "url": "SCP-001",
                                 "label": "url",
-                                "anchor": "new-tab"
+                                "target": "new-tab"
                             }
                         }
                     ]
