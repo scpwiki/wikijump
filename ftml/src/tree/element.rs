@@ -98,10 +98,19 @@ pub enum Element<'t> {
         elements: Vec<Element<'t>>,
     },
 
-    /// Element containing a code block
+    /// Element containing a code block.
     Code {
         contents: Cow<'t, str>,
         language: Option<Cow<'t, str>>,
+    },
+
+    /// Element containing a sandboxed HTML block.
+    Html { contents: Cow<'t, str> },
+
+    /// Element containing an iframe component.
+    Iframe {
+        url: Cow<'t, str>,
+        attributes: AttributeMap<'t>,
     },
 
     /// A newline or line break.
@@ -135,6 +144,8 @@ impl Element<'_> {
             Element::Collapsible { .. } => "Collapsible",
             Element::Color { .. } => "Color",
             Element::Code { .. } => "Code",
+            Element::Html { .. } => "HTML",
+            Element::Iframe { .. } => "Iframe",
             Element::LineBreak => "LineBreak",
             Element::LineBreaks { .. } => "LineBreaks",
             Element::HorizontalRule => "HorizontalRule",
