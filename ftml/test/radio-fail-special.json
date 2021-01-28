@@ -1,0 +1,57 @@
+{
+    "input": "[[*radio]] Special",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "[[*"
+                        },
+                        {
+                            "element": "text",
+                            "data": "radio"
+                        },
+                        {
+                            "element": "text",
+                            "data": "]]"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Special"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+        {
+            "token": "whitespace",
+            "rule": "block-radio",
+            "span": [10, 11],
+            "kind": "invalid-special-block"
+        },
+        {
+            "token": "left-block-special",
+            "rule": "fallback",
+            "span": [0, 3],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "right-block",
+            "rule": "fallback",
+            "span": [8, 10],
+            "kind": "no-rules-match"
+        }
+    ]
+}
