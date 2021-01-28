@@ -23,7 +23,7 @@ use super::prelude::*;
 pub const BLOCK_RADIO: BlockRule = BlockRule {
     name: "block-radio",
     accepts_names: &["radio", "radio-button"],
-    accepts_special: false,
+    accepts_special: true,
     accepts_newlines: false,
     parse_fn,
 };
@@ -40,6 +40,7 @@ fn parse_fn<'r, 't>(
         "Parsing radio button block";
         "in-head" => in_head,
         "name" => name,
+        "special" => special,
     );
 
     assert_eq!(special, false, "Radio buttons don't allow special variant");
@@ -50,6 +51,7 @@ fn parse_fn<'r, 't>(
 
     let element = Element::RadioButton {
         name: cow!(name),
+        checked: special,
         attributes: arguments.to_hash_map(),
     };
 

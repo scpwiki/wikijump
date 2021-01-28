@@ -49,8 +49,8 @@ fn parse_fn<'r, 't>(
     parser.get_optional_space()?;
 
     let element = Element::CheckBox {
-        attributes: arguments.to_hash_map(),
         checked: special,
+        attributes: arguments.to_hash_map(),
     };
 
     ok!(element)
