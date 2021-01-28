@@ -10,7 +10,7 @@
                         {
                             "element": "check-box",
                             "data": {
-                                "name": "fruit",
+                                "checked": false,
                                 "attributes": {
                                     "id": "apple",
                                     "style": "color: red;"
@@ -27,7 +27,7 @@
                         {
                             "element": "check-box",
                             "data": {
-                                "name": "fruit",
+                                "checked": false,
                                 "attributes": {
                                     "id": "banana",
                                     "style": "color: yellow;"

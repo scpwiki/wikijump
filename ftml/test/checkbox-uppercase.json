@@ -10,6 +10,7 @@
                         {
                             "element": "check-box",
                             "data": {
+                                "checked": false,
                                 "attributes": {}
                             }
                         },
@@ -23,6 +24,7 @@
                         {
                             "element": "check-box",
                             "data": {
+                                "checked": false,
                                 "attributes": {}
                             }
                         },
@@ -36,6 +38,7 @@
                         {
                             "element": "check-box",
                             "data": {
+                                "checked": false,
                                 "attributes": {}
                             }
                         },
