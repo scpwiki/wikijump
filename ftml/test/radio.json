@@ -16,10 +16,6 @@
                         },
                         {
                             "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
                             "data": "Apple"
                         },
                         {
@@ -31,10 +27,6 @@
                                 "name": "fruit",
                                 "attributes": {}
                             }
-                        },
-                        {
-                            "element": "text",
-                            "data": " "
                         },
                         {
                             "element": "text",
@@ -52,10 +44,6 @@
                         },
                         {
                             "element": "text",
-                            "data": " "
-                        },
-                        {
-                            "element": "text",
                             "data": "Celery"
                         },
                         {
@@ -67,10 +55,6 @@
                                 "name": "vegetable",
                                 "attributes": {}
                             }
-                        },
-                        {
-                            "element": "text",
-                            "data": " "
                         },
                         {
                             "element": "text",

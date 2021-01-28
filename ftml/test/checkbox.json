@@ -1,5 +1,5 @@
 {
-    "input": "[[radio fruit id=\"apple\" style=\"color: red;\"]] Apple\n[[radio fruit id=\"banana\" style=\"color: yellow;\"]] Banana",
+    "input": "[[checkbox]] Apple\n[[checkbox]] Banana\n[[checkbox]] Cherry",
     "tree": {
         "elements": [
             {
@@ -8,13 +8,9 @@
                     "type": "paragraph",
                     "elements": [
                         {
-                            "element": "radio-button",
+                            "element": "check-box",
                             "data": {
-                                "name": "fruit",
-                                "attributes": {
-                                    "id": "apple",
-                                    "style": "color: red;"
-                                }
+                                "attributes": {}
                             }
                         },
                         {
@@ -25,18 +21,27 @@
                             "element": "line-break"
                         },
                         {
-                            "element": "radio-button",
+                            "element": "check-box",
                             "data": {
-                                "name": "fruit",
-                                "attributes": {
-                                    "id": "banana",
-                                    "style": "color: yellow;"
-                                }
+                                "attributes": {}
                             }
                         },
                         {
                             "element": "text",
                             "data": "Banana"
+                        },
+                        {
+                            "element": "line-break"
+                        },
+                        {
+                            "element": "check-box",
+                            "data": {
+                                "attributes": {}
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": "Cherry"
                         }
                     ]
                 }

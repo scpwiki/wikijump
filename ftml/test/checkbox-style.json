@@ -1,5 +1,5 @@
 {
-    "input": "[[radio fruit id=\"apple\" style=\"color: red;\"]] Apple\n[[radio fruit id=\"banana\" style=\"color: yellow;\"]] Banana",
+    "input": "[[checkbox id=\"apple\" style=\"color: red;\"]] Apple\n[[checkbox id=\"banana\" style=\"color: yellow;\"]] Banana",
     "tree": {
         "elements": [
             {
@@ -8,7 +8,7 @@
                     "type": "paragraph",
                     "elements": [
                         {
-                            "element": "radio-button",
+                            "element": "check-box",
                             "data": {
                                 "name": "fruit",
                                 "attributes": {
@@ -25,7 +25,7 @@
                             "element": "line-break"
                         },
                         {
-                            "element": "radio-button",
+                            "element": "check-box",
                             "data": {
                                 "name": "fruit",
                                 "attributes": {
