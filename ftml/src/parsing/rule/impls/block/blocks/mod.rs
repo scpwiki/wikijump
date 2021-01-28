@@ -69,6 +69,7 @@ mod ins;
 mod lines;
 mod mark;
 mod module;
+mod radio;
 mod span;
 
 pub use self::anchor::BLOCK_ANCHOR;
@@ -84,4 +85,5 @@ pub use self::ins::BLOCK_INS;
 pub use self::lines::BLOCK_LINES;
 pub use self::mark::BLOCK_MARK;
 pub use self::module::BLOCK_MODULE;
+pub use self::radio::BLOCK_RADIO;
 pub use self::span::BLOCK_SPAN;
