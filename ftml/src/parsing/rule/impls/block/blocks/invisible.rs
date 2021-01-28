@@ -24,7 +24,7 @@ pub const BLOCK_INVISIBLE: BlockRule = BlockRule {
     name: "block-invisible",
     accepts_names: &["invisible"],
     accepts_special: false,
-    accepts_newlines: false,
+    accepts_newlines: true,
     parse_fn,
 };
 

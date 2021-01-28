@@ -24,7 +24,7 @@ pub const BLOCK_HIDDEN: BlockRule = BlockRule {
     name: "block-hidden",
     accepts_names: &["hidden"],
     accepts_special: false,
-    accepts_newlines: false,
+    accepts_newlines: true,
     parse_fn,
 };
 
