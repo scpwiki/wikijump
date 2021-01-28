@@ -93,7 +93,10 @@ pub enum Element<'t> {
     },
 
     /// A checkbox.
-    CheckBox { attributes: AttributeMap<'t> },
+    CheckBox {
+        checked: bool,
+        attributes: AttributeMap<'t>,
+    },
 
     /// A collapsible, containing content hidden to be opened on click.
     ///
