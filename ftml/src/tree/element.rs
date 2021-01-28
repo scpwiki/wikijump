@@ -87,6 +87,7 @@ pub enum Element<'t> {
     /// A radio button.
     ///
     /// The "name" field translates to HTML, but is standard for grouping them.
+    /// The "checked" field determines if the radio button starts checked or not.
     RadioButton {
         name: Cow<'t, str>,
         checked: bool,
@@ -94,6 +95,8 @@ pub enum Element<'t> {
     },
 
     /// A checkbox.
+    ///
+    /// The "checked" field determines if the radio button starts checked or not.
     CheckBox {
         checked: bool,
         attributes: AttributeMap<'t>,
