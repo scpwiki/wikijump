@@ -1,0 +1,88 @@
+{
+    "input": "[[radio fruit]] Apple\n[[radio fruit]] Banana\n[[radio vegetable]] Celery\n[[radio vegetable]] Zucchini",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "radio-button",
+                            "data": {
+                                "name": "fruit",
+                                "attributes": {}
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Apple"
+                        },
+                        {
+                            "element": "line-break"
+                        },
+                        {
+                            "element": "radio-button",
+                            "data": {
+                                "name": "fruit",
+                                "attributes": {}
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Banana"
+                        },
+                        {
+                            "element": "line-break"
+                        },
+                        {
+                            "element": "radio-button",
+                            "data": {
+                                "name": "vegetable",
+                                "attributes": {}
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Celery"
+                        },
+                        {
+                            "element": "line-break"
+                        },
+                        {
+                            "element": "radio-button",
+                            "data": {
+                                "name": "vegetable",
+                                "attributes": {}
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Zucchini"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}
