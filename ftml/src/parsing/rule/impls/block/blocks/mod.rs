@@ -57,6 +57,7 @@ mod prelude {
 }
 
 mod anchor;
+mod checkbox;
 mod code;
 mod collapsible;
 mod css;
@@ -73,6 +74,7 @@ mod radio;
 mod span;
 
 pub use self::anchor::BLOCK_ANCHOR;
+pub use self::checkbox::BLOCK_CHECKBOX;
 pub use self::code::BLOCK_CODE;
 pub use self::collapsible::BLOCK_COLLAPSIBLE;
 pub use self::css::BLOCK_CSS;
