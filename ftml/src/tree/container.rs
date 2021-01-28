@@ -166,6 +166,8 @@ pub enum StyledContainerType {
     Mark,
     Insertion,
     Deletion,
+    Hidden,
+    Invisible,
 }
 
 impl StyledContainerType {
@@ -175,13 +177,15 @@ impl StyledContainerType {
     }
 
     #[inline]
-    pub fn html_tag(self) -> &'static str {
+    pub fn html_tag_and_class(self) -> (&'static str, Option<&'static str>) {
         match self {
-            StyledContainerType::Span => "span",
-            StyledContainerType::Div => "div",
-            StyledContainerType::Mark => "mark",
-            StyledContainerType::Insertion => "ins",
-            StyledContainerType::Deletion => "del",
+            StyledContainerType::Span => ("span", None),
+            StyledContainerType::Div => ("div", None),
+            StyledContainerType::Mark => ("mark", None),
+            StyledContainerType::Insertion => ("ins", None),
+            StyledContainerType::Deletion => ("del", None),
+            StyledContainerType::Hidden => ("span", Some("hidden")),
+            StyledContainerType::Invisible => ("span", Some("invisible")),
         }
     }
 }

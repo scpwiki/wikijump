@@ -57,31 +57,39 @@ mod prelude {
 }
 
 mod anchor;
+mod checkbox;
 mod code;
 mod collapsible;
 mod css;
 mod del;
 mod div;
+mod hidden;
 mod html;
 mod iframe;
 mod include;
 mod ins;
+mod invisible;
 mod lines;
 mod mark;
 mod module;
+mod radio;
 mod span;
 
 pub use self::anchor::BLOCK_ANCHOR;
+pub use self::checkbox::BLOCK_CHECKBOX;
 pub use self::code::BLOCK_CODE;
 pub use self::collapsible::BLOCK_COLLAPSIBLE;
 pub use self::css::BLOCK_CSS;
 pub use self::del::BLOCK_DEL;
 pub use self::div::BLOCK_DIV;
+pub use self::hidden::BLOCK_HIDDEN;
 pub use self::html::BLOCK_HTML;
 pub use self::iframe::BLOCK_IFRAME;
 pub use self::include::BLOCK_INCLUDE;
 pub use self::ins::BLOCK_INS;
+pub use self::invisible::BLOCK_INVISIBLE;
 pub use self::lines::BLOCK_LINES;
 pub use self::mark::BLOCK_MARK;
 pub use self::module::BLOCK_MODULE;
+pub use self::radio::BLOCK_RADIO;
 pub use self::span::BLOCK_SPAN;

@@ -1,0 +1,58 @@
+{
+    "input": "[[*checkbox]] Apple\n[[checkbox]] Banana\n[[*checkbox]] Cherry",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "check-box",
+                            "data": {
+                                "checked": true,
+                                "attributes": {}
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": "Apple"
+                        },
+                        {
+                            "element": "line-break"
+                        },
+                        {
+                            "element": "check-box",
+                            "data": {
+                                "checked": false,
+                                "attributes": {}
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": "Banana"
+                        },
+                        {
+                            "element": "line-break"
+                        },
+                        {
+                            "element": "check-box",
+                            "data": {
+                                "checked": true,
+                                "attributes": {}
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": "Cherry"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

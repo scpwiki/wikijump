@@ -1,0 +1,50 @@
+{
+    "input": "[[checkbox id=\"apple\" style=\"color: red;\"]] Apple\n[[checkbox id=\"banana\" style=\"color: yellow;\"]] Banana",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "check-box",
+                            "data": {
+                                "checked": false,
+                                "attributes": {
+                                    "id": "apple",
+                                    "style": "color: red;"
+                                }
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": "Apple"
+                        },
+                        {
+                            "element": "line-break"
+                        },
+                        {
+                            "element": "check-box",
+                            "data": {
+                                "checked": false,
+                                "attributes": {
+                                    "id": "banana",
+                                    "style": "color: yellow;"
+                                }
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": "Banana"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}
