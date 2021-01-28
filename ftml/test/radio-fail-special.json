@@ -1,5 +1,5 @@
 {
-    "input": "[[*radio]] Special",
+    "input": "[[*radio]] Nameless",
     "tree": {
         "elements": [
             {
@@ -25,7 +25,7 @@
                         },
                         {
                             "element": "text",
-                            "data": "Special"
+                            "data": "Nameless"
                         }
                     ]
                 }
@@ -36,10 +36,10 @@
     },
     "warnings": [
         {
-            "token": "whitespace",
+            "token": "identifier",
             "rule": "block-radio",
-            "span": [10, 11],
-            "kind": "invalid-special-block"
+            "span": [11, 19],
+            "kind": "block-missing-name"
         },
         {
             "token": "left-block-special",

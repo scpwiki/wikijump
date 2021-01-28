@@ -1,5 +1,5 @@
 {
-    "input": "[[radio fruit]] Apple\n[[radio fruit]] Banana\n[[radio vegetable]] Celery\n[[radio vegetable]] Zucchini",
+    "input": "[[*radio fruit]] Apple\n[[radio fruit]] Banana\n[[radio vegetable]] Celery\n[[*radio vegetable]] Zucchini",
     "tree": {
         "elements": [
             {
@@ -11,7 +11,7 @@
                             "element": "radio-button",
                             "data": {
                                 "name": "fruit",
-                                "checked": false,
+                                "checked": true,
                                 "attributes": {}
                             }
                         },
@@ -56,7 +56,7 @@
                             "element": "radio-button",
                             "data": {
                                 "name": "vegetable",
-                                "checked": false,
+                                "checked": true,
                                 "attributes": {}
                             }
                         },

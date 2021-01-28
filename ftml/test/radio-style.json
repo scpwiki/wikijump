@@ -11,6 +11,7 @@
                             "element": "radio-button",
                             "data": {
                                 "name": "fruit",
+                                "checked": false,
                                 "attributes": {
                                     "id": "apple",
                                     "style": "color: red;"
@@ -28,6 +29,7 @@
                             "element": "radio-button",
                             "data": {
                                 "name": "fruit",
+                                "checked": false,
                                 "attributes": {
                                     "id": "banana",
                                     "style": "color: yellow;"
