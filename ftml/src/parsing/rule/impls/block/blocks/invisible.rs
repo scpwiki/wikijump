@@ -48,7 +48,7 @@ fn parse_fn<'r, 't>(
     let arguments = parser.get_head_map(&BLOCK_INVISIBLE, in_head)?;
 
     // Get body content, without paragraphs
-    let (mut elements, exceptions) =
+    let (elements, exceptions) =
         parser.get_body_elements(&BLOCK_INVISIBLE, false)?.into();
 
     let element = Element::StyledContainer(StyledContainer::new(
