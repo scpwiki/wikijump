@@ -23,7 +23,7 @@ use super::prelude::*;
 pub const BLOCK_CHECKBOX: BlockRule = BlockRule {
     name: "block-checkbox",
     accepts_names: &["checkbox"],
-    accepts_special: false,
+    accepts_special: true,
     accepts_newlines: false,
     parse_fn,
 };
@@ -40,9 +40,9 @@ fn parse_fn<'r, 't>(
         "Parsing checkbox block";
         "in-head" => in_head,
         "name" => name,
+        "special" => special,
     );
 
-    assert_eq!(special, false, "Checkboxes don't allow special variant");
     assert_block_name(&BLOCK_CHECKBOX, name);
 
     let arguments = parser.get_head_map(&BLOCK_CHECKBOX, in_head)?;
@@ -50,6 +50,7 @@ fn parse_fn<'r, 't>(
 
     let element = Element::CheckBox {
         attributes: arguments.to_hash_map(),
+        checked: special,
     };
 
     ok!(element)
