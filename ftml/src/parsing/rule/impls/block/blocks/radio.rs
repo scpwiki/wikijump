@@ -43,7 +43,6 @@ fn parse_fn<'r, 't>(
         "special" => special,
     );
 
-    assert_eq!(special, false, "Radio buttons don't allow special variant");
     assert_block_name(&BLOCK_RADIO, name);
 
     let (name, arguments) = parser.get_head_name_map(&BLOCK_RADIO, in_head)?;
