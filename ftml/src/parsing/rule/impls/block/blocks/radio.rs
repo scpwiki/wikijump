@@ -46,6 +46,8 @@ fn parse_fn<'r, 't>(
     assert_block_name(&BLOCK_RADIO, name);
 
     let (name, arguments) = parser.get_head_name_map(&BLOCK_RADIO, in_head)?;
+    parser.get_optional_space()?;
+
     let element = Element::RadioButton {
         name: cow!(name),
         attributes: arguments.to_hash_map(),

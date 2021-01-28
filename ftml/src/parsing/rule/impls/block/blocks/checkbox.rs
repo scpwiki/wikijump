@@ -46,6 +46,8 @@ fn parse_fn<'r, 't>(
     assert_block_name(&BLOCK_CHECKBOX, name);
 
     let arguments = parser.get_head_map(&BLOCK_CHECKBOX, in_head)?;
+    parser.get_optional_space()?;
+
     let element = Element::CheckBox {
         attributes: arguments.to_hash_map(),
     };
