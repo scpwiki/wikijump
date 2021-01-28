@@ -22,7 +22,7 @@ use super::{blocks::*, BlockRule};
 use std::collections::HashMap;
 use unicase::UniCase;
 
-pub const BLOCK_RULES: [BlockRule; 16] = [
+pub const BLOCK_RULES: [BlockRule; 18] = [
     BLOCK_ANCHOR,
     BLOCK_CHECKBOX,
     BLOCK_CODE,
@@ -30,10 +30,12 @@ pub const BLOCK_RULES: [BlockRule; 16] = [
     BLOCK_CSS,
     BLOCK_DEL,
     BLOCK_DIV,
+    BLOCK_HIDDEN,
     BLOCK_HTML,
     BLOCK_IFRAME,
     BLOCK_INCLUDE,
     BLOCK_INS,
+    BLOCK_INVISIBLE,
     BLOCK_LINES,
     BLOCK_MARK,
     BLOCK_MODULE,
