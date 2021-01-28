@@ -88,7 +88,7 @@ pub enum Element<'t> {
     ///
     /// The "name" field translates to HTML, but is standard for grouping them.
     RadioButton {
-        name: Option<Cow<'t, str>>,
+        name: Cow<'t, str>,
         attributes: AttributeMap<'t>,
     },
 

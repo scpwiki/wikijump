@@ -45,11 +45,9 @@ fn parse_fn<'r, 't>(
     assert_eq!(special, false, "Radio buttons don't allow special variant");
     assert_block_name(&BLOCK_RADIO, name);
 
-    let mut arguments = parser.get_head_map(&BLOCK_RADIO, in_head)?;
-    let name = arguments.get("name");
-
+    let (name, arguments) = parser.get_head_name_map(&BLOCK_RADIO, in_head)?;
     let element = Element::RadioButton {
-        name,
+        name: cow!(name),
         attributes: arguments.to_hash_map(),
     };
 
