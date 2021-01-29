@@ -22,6 +22,7 @@ apk add \
 		cyrus-sasl-dev
 
 # Install igbinary (memcached's deps)
+pecl channel-update pecl.php.net
 pecl install igbinary
 
 # Install memcached
