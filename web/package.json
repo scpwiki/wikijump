@@ -1,5 +1,7 @@
 {
     "name": "wikijump",
+    "description": "SCP Wiki's fork of the unmaintained Wikidot",
+    "license": "agpl-3.0-or-later",
     "main": "web/common--files/index.js",
     "directories": {
         "test": "tests"
