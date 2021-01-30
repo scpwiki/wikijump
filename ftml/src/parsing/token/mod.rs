@@ -89,6 +89,12 @@ pub enum Token {
     RightRaw,
 
     //
+    // Lists
+    //
+    BulletItem,
+    NumberedItem,
+
+    //
     // Links
     //
     LeftLink,
@@ -229,6 +235,10 @@ impl Token {
             Rule::raw => Token::Raw,
             Rule::left_raw => Token::LeftRaw,
             Rule::right_raw => Token::RightRaw,
+
+            // Lists
+            Rule::bullet_item => Token::BulletItem,
+            Rule::numbered_item => Token::NumberedItem,
 
             // Links
             Rule::left_link => Token::LeftLink,
