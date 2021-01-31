@@ -53,7 +53,7 @@ lazy_static! {
             Token::Underscore => vec![RULE_TEXT],
             Token::Quote => vec![RULE_TODO, RULE_TEXT], // TODO
             Token::Heading => vec![RULE_TODO, RULE_TEXT], // TODO
-            Token::LineBreak => vec![RULE_BLOCK_SKIP, RULE_LINE_BREAK],
+            Token::LineBreak => vec![RULE_BULLET_LIST, RULE_NUMBERED_LIST, RULE_BLOCK_SKIP, RULE_LINE_BREAK],
             Token::ParagraphBreak => vec![RULE_LINE_BREAK_PARAGRAPH],
             Token::Whitespace => vec![RULE_TEXT],
 
@@ -71,8 +71,8 @@ lazy_static! {
             Token::RightRaw => vec![],
 
             // Lists
-            Token::BulletItem => vec![], // TODO
-            Token::NumberedItem => vec![], // TODO
+            Token::BulletItem => vec![RULE_TEXT],
+            Token::NumberedItem => vec![RULE_TEXT],
 
             // Links
             Token::LeftLink => vec![RULE_LINK_TRIPLE],
