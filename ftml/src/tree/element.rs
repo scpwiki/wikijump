@@ -75,7 +75,7 @@ pub enum Element<'t> {
     /// An element linking to a different page.
     ///
     /// The "label" field is an optional field denoting what the link should
-    /// display. If `None`, use the link's value itself, that is, `label.unwrap_or(url)`.
+    /// display.
     ///
     /// The "url" field is either a page name (relative URL) or full URL.
     Link {
