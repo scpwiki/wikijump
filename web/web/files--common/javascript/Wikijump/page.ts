@@ -21,6 +21,11 @@ type EditLock = {
   rangeEnd?: unknown;
 };
 
+/**
+ * Used in module edit/PageEditModule.
+ */
+export let editMode: null | "page" | "section" | "append" = null;
+
 export const page = {
   vars: {
     forceLockFlag: false,
@@ -396,8 +401,7 @@ export const page = {
       }
 
       // init
-      //@ts-expect-error Shouldn't need to attach to window
-      window.editMode = response.mode;
+      editMode = response.mode;
 
       if (response.locked) {
         // the page has a lock!

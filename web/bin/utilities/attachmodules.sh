@@ -20,5 +20,5 @@ done
 $EDITOR -s /dev/stdin <<<"
 qqqqqgg?###
 ddggPf.;hvbyF#viwp:s/\\.ts//
-@qq@q:%s;!!!.*/\\([A-z]*\\)\\.ts;  \\1,;
+@qq@q:%s;!!!.*/\\([A-z0-9]*\\)\\.ts;  \\1,;
 " $INDEX

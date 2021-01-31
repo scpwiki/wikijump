@@ -5,12 +5,12 @@
 
 set -e
 
-standardx --fix "$1" || true
-
 (
 	printf "import Wikijump from \"@/javascript/Wikijump\";\nimport OZONE from \"@/javascript/OZONE\";\nimport { RequestModuleParameters } from \"@/javascript/OZONE/ajax\";\nimport { Wikirequest } from \"wikirequest\";\ndeclare const WIKIREQUEST: Wikirequest;\ndeclare const YAHOO: any;\ndeclare type YahooResponse = any;\ndeclare const fx: any;\n";
 	cat "$1"
 ) > "${1%.js}.ts"
+
+standardx --fix "${1%.js}.ts" || true
 
 $EDITOR -s /dev/stdin <<<-"
 	:\" Expect an error until syntax issues are fixed
@@ -34,9 +34,9 @@ $EDITOR -s /dev/stdin <<<-"
 	:%s/\\<p\\>/params/g
 	:%s/\\<parms\\>/params/g
 	:%s/new Object()/{}/g
-	:%s/var params = \\[\\]/var params = {}/
-	:%s/var params =/var params: RequestModuleParameters =/
-	:%s/var params: RequestModuleParameters = null/var params: RequestModuleParameters = {}/
+	:%s/\(var\\|let\\|const\\) params = \\[\\]/\\1 params = {}/
+	:%s/\(var\\|let\\|const\\) params =/\\1 params: RequestModuleParameters =/
+	:%s/\(var\\|let\\|const\\) params: RequestModuleParameters = null/\\1 params: RequestModuleParameters = {}/
 
 	:\" Recursively move individual parameters into a single object definition
 	:%s/^\\(\\s*\\)params\\.\\(\\S\\+\\) = \\(.*\\);/\\1  \\2: \\3,/

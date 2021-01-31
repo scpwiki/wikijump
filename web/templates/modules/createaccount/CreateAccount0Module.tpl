@@ -11,7 +11,7 @@
 
 		<div class="error-block" id="ca-reg0-errors" style="display: none"></div>
 
-		<form name="caform" action="dummy.html" method="get" onkeypress="return OZONE.utils.disableEnterKey(event)" id="createaccount-form0" onsubmit="return false">
+		<form id="caform" name="caform" action="dummy.html" method="get" onkeypress="return OZONE.utils.disableEnterKey(event)" id="createaccount-form0" onsubmit="return false">
 			<table class="form">
 				<tr>
 					<td>

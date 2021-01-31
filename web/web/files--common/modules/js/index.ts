@@ -1,3 +1,9 @@
+import { CreateAccountModule } from "./createaccount2/CreateAccountModule";
+import { CreateAccount2Module } from "./createaccount2/CreateAccount2Module";
+import { CreateAccount0Module } from "./createaccount/CreateAccount0Module";
+import { AcceptTOSModule } from "./createaccount/AcceptTOSModule";
+import { CreateAccount1Module } from "./createaccount/CreateAccount1Module";
+import { SiteChangesModule } from "./changes/SiteChangesModule";
 import { LoginModule } from "./login/LoginModule";
 import { LoginModule3 } from "./login/LoginModule3";
 import { ManageSiteEmailListsModule } from "./managesite/elists/ManageSiteEmailListsModule";
@@ -161,4 +167,14 @@ export const modules = {
   /* Login */
   LoginModule,
   LoginModule3,
+
+  /* Changes */
+  SiteChangesModule,
+
+  /* Account creation */
+  AcceptTOSModule,
+  CreateAccountModule,
+  CreateAccount0Module,
+  CreateAccount1Module,
+  CreateAccount2Module,
 };

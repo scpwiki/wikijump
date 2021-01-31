@@ -18,6 +18,9 @@
             "@Modules/*": ["web/files--common/modules/js/*"]
         }
     },
-    "include": [ "web/files--common/**/*.ts", "tests/js/**/*.ts" ],
-    "exclude": [ "node_modules" ]
+    "include": [
+        "./web/files--common/**/*.ts",
+        "./web/files--common/**/*.js",
+        "./tests/js/**/*.ts"
+    ]
 }

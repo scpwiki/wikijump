@@ -9,7 +9,7 @@ declare type YahooCallback = (response: any, arg?: unknown) => void;
 // AjaxModuleWikiFlowController, and remaining parameters will go directly to
 // the module, where there is no parameter standardisation
 export type RequestModuleParameters = {
-  [key: string]: string | number | boolean | null | undefined;
+  [key: string]: any
 };
 
 type RequestModuleOptions = {
