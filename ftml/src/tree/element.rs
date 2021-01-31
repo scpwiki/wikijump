@@ -20,7 +20,7 @@
 
 use super::AttributeMap;
 use super::{Container, Module, StyledContainer};
-use crate::enums::{AnchorTarget, LinkLabel};
+use crate::enums::{AnchorTarget, LinkLabel, ListStyle};
 use std::borrow::Cow;
 use std::num::NonZeroU32;
 
@@ -70,6 +70,13 @@ pub enum Element<'t> {
         elements: Vec<Element<'t>>,
         attributes: AttributeMap<'t>,
         target: AnchorTarget,
+    },
+
+    /// An ordered or unordered list.
+    List {
+        #[serde(rename = "type")]
+        ltype: ListStyle,
+        elements: Vec<Element<'t>>,
     },
 
     /// An element linking to a different page.
@@ -169,6 +176,7 @@ impl Element<'_> {
             Element::Raw(_) => "Raw",
             Element::Email(_) => "Email",
             Element::Anchor { .. } => "Anchor",
+            Element::List { .. } => "List",
             Element::Link { .. } => "Link",
             Element::RadioButton { .. } => "RadioButton",
             Element::CheckBox { .. } => "CheckBox",
