@@ -20,7 +20,7 @@
 
 //! A `Vec<T>` which always has at least one element.
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Hash, Default, PartialEq, Eq)]
 pub struct NonEmptyVec<T> {
     first: T,
     others: Vec<T>,
@@ -54,6 +54,11 @@ impl<T> NonEmptyVec<T> {
     }
 
     #[inline]
+    pub fn others(&self) -> &[T] {
+        &self.others
+    }
+
+    #[inline]
     pub fn push(&mut self, item: T) {
         self.others.push(item);
     }
@@ -71,4 +76,26 @@ impl<T> From<NonEmptyVec<T>> for (T, Vec<T>) {
 
         (first, others)
     }
+}
+
+#[test]
+fn non_empty_vec() {
+    macro_rules! check {
+        ($vec:expr, $values:expr) => {{
+            assert_eq!($vec.first(), &$values[0], "First value doesn't match expected");
+            assert_eq!($vec.others(), &$values[1..], "Remaining values don't match expected");
+        }};
+    }
+
+    let mut vec = NonEmptyVec::new(0);
+    check!(vec, [0]);
+
+    vec.push(1);
+    check!(vec, [0, 1]);
+
+    vec.push(2);
+    check!(vec, [0, 1, 2]);
+
+    assert_eq!(vec.pop(), Some(2));
+    check!(vec, [0, 1]);
 }
