@@ -97,3 +97,8 @@ where
 
     stack.into_tree()
 }
+
+#[test]
+fn depth() {
+    todo!()
+}
