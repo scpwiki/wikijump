@@ -23,13 +23,13 @@ use std::mem;
 
 pub type DepthList<E> = Vec<DepthItem<E>>;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DepthItem<E> {
     Element(E),
     List(DepthList<E>),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 struct DepthStack<E> {
     stack: NonEmptyVec<Vec<DepthItem<E>>>,
 }
@@ -113,5 +113,17 @@ where
 
 #[test]
 fn depth() {
-    todo!()
+    macro_rules! check {
+        ($depths:expr, $list:expr) => {{
+            let expected: Vec<DepthItem<&str>> = $list;
+            let actual = process_depths($depths);
+
+            assert_eq!(
+                actual, expected,
+                "Actual produced depth list doesn't match expected",
+            );
+        }};
+    }
+
+    check!(vec![], vec![]);
 }
