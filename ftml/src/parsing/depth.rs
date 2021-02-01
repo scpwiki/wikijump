@@ -114,8 +114,8 @@ where
 #[test]
 fn depth() {
     macro_rules! check {
-        ($depths:expr, $list:expr) => {{
-            let expected: Vec<DepthItem<&str>> = $list;
+        ($depths:expr, $list:expr $(,)?) => {{
+            let expected: Vec<DepthItem<char>> = $list;
             let actual = process_depths($depths);
 
             assert_eq!(
@@ -125,5 +125,32 @@ fn depth() {
         }};
     }
 
+    macro_rules! element {
+        ($item:expr) => {
+            DepthItem::Element($item)
+        };
+    }
+
+    macro_rules! list {
+        () => {
+            DepthItem::List(vec![])
+        };
+        ($($x:expr),+ $(,)?) => {
+            DepthItem::List(vec![$($x),+])
+        };
+    }
+
     check!(vec![], vec![]);
+    check!(
+        vec![(0, 'a')], //
+        vec![element!('a')],
+    );
+    check!(
+        vec![(0, 'a'), (0, 'b')], //
+        vec![element!('a'), element!('b')],
+    );
+    check!(
+        vec![(0, 'a'), (0, 'b'), (1, 'c')],
+        vec![element!('a'), element!('b'), list![element!('c')]]
+    );
 }
