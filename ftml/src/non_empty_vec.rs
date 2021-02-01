@@ -43,6 +43,7 @@ impl<T> NonEmptyVec<T> {
         }
     }
 
+    // Read-only getters
     #[inline]
     pub fn first(&self) -> &T {
         &self.first
@@ -58,6 +59,28 @@ impl<T> NonEmptyVec<T> {
         &self.others
     }
 
+    #[inline]
+    pub fn len(&self) -> usize {
+        self.others.len() + 1
+    }
+
+    // Mutable getters
+    #[inline]
+    pub fn first_mut(&mut self) -> &mut T {
+        &mut self.first
+    }
+
+    #[inline]
+    pub fn last_mut(&mut self) -> &mut T {
+        self.others.last_mut().unwrap_or(&mut self.first)
+    }
+
+    #[inline]
+    pub fn others_mut(&mut self) -> &mut Vec<T> {
+        &mut self.others
+    }
+
+    // Mutation methods
     #[inline]
     pub fn push(&mut self, item: T) {
         self.others.push(item);
@@ -82,8 +105,16 @@ impl<T> From<NonEmptyVec<T>> for (T, Vec<T>) {
 fn non_empty_vec() {
     macro_rules! check {
         ($vec:expr, $values:expr) => {{
-            assert_eq!($vec.first(), &$values[0], "First value doesn't match expected");
-            assert_eq!($vec.others(), &$values[1..], "Remaining values don't match expected");
+            assert_eq!(
+                $vec.first(),
+                &$values[0],
+                "First value doesn't match expected",
+            );
+            assert_eq!(
+                $vec.others(),
+                &$values[1..],
+                "Remaining values don't match expected",
+            );
         }};
     }
 

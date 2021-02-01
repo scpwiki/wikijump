@@ -18,48 +18,59 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-type DepthList<E> = Vec<DepthItem<E>>;
+use crate::non_empty_vec::NonEmptyVec;
+use std::mem;
+
+pub type DepthList<E> = Vec<DepthItem<E>>;
 
 #[derive(Debug, Clone)]
-enum DepthItem<E> {
+pub enum DepthItem<E> {
     Element(E),
-    Level(DepthList<E>),
+    List(DepthList<E>),
 }
 
 #[derive(Debug, Clone)]
 struct DepthStack<E> {
-    tree: DepthList<E>,
-    stack: Vec<Vec<E>>,
+    stack: NonEmptyVec<Vec<DepthItem<E>>>,
 }
 
 impl<E> DepthStack<E> {
     #[inline]
     fn new() -> Self {
         DepthStack {
-            tree: vec![],
-            stack: vec![vec![]],
+            stack: NonEmptyVec::new(Vec::new()),
         }
     }
 
-    fn step_in(&mut self) {
+    fn increase_depth(&mut self) {
         self.stack.push(Vec::new());
     }
 
-    fn step_out(&mut self) {
-        if let Some(level) = self.stack.pop() {
-            self.tree.push(DepthItem::Level(level))
+    fn decrease_depth(&mut self) {
+        if let Some(list) = self.stack.pop() {
+            self.push(DepthItem::List(list));
         }
     }
 
-    fn push_element(&mut self, element: E) {
-        self.stack
-            .last()
-            .expect("No current frame in stack")
-            .push(element);
+    fn push(&mut self, item: DepthItem<E>) {
+        self.stack.last_mut().push(item);
     }
 
-    fn into_tree(self) -> Self {
-        todo!()
+    fn push_element(&mut self, element: E) {
+        self.push(DepthItem::Element(element));
+    }
+
+    fn into_tree(mut self) -> DepthList<E> {
+        // Wrap all opened layers
+        // Start at 1 since it's a non-empty vec
+        for _ in 1..self.stack.len() {
+            self.decrease_depth();
+        }
+
+        debug_assert_eq!(self.stack.len(), 1, "Open layers remain after collapsing");
+
+        // Return top-level layer
+        mem::replace(self.stack.first_mut(), Vec::new())
     }
 }
 
@@ -84,15 +95,17 @@ where
 
         // Open new levels
         for _ in previous..depth {
-            stack.step_in();
+            stack.increase_depth();
         }
 
         // Close existing levels
         for _ in depth..previous {
-            stack.step_out();
+            stack.decrease_depth();
         }
 
+        // Push element and update state
         stack.push_element(element);
+        previous = depth;
     }
 
     stack.into_tree()
