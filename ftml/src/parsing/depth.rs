@@ -36,17 +36,17 @@ struct DepthStack<E> {
 
 impl<E> DepthStack<E> {
     #[inline]
-    fn new() -> Self {
+    pub fn new() -> Self {
         DepthStack {
             stack: NonEmptyVec::new(Vec::new()),
         }
     }
 
-    fn increase_depth(&mut self) {
+    pub fn increase_depth(&mut self) {
         self.stack.push(Vec::new());
     }
 
-    fn decrease_depth(&mut self) {
+    pub fn decrease_depth(&mut self) {
         if let Some(list) = self.stack.pop() {
             self.push(DepthItem::List(list));
         }
@@ -56,11 +56,12 @@ impl<E> DepthStack<E> {
         self.stack.last_mut().push(item);
     }
 
-    fn push_element(&mut self, element: E) {
+    #[inline]
+    pub fn push_element(&mut self, element: E) {
         self.push(DepthItem::Element(element));
     }
 
-    fn into_tree(mut self) -> DepthList<E> {
+    pub fn into_tree(mut self) -> DepthList<E> {
         // Wrap all opened layers
         // Start at 1 since it's a non-empty vec
         for _ in 1..self.stack.len() {
