@@ -26,6 +26,7 @@ mod check_step;
 mod collect;
 mod condition;
 mod consume;
+mod depth;
 mod exception;
 mod outcome;
 mod paragraph;
@@ -45,6 +46,7 @@ mod prelude {
 }
 
 use self::boolean::parse_boolean;
+use self::depth::process_depths;
 use self::paragraph::{gather_paragraphs, NO_CLOSE_CONDITION};
 use self::parser::Parser;
 use self::rule::impls::RULE_PAGE;
