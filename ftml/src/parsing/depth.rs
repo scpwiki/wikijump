@@ -153,4 +153,36 @@ fn depth() {
         vec![(0, 'a'), (0, 'b'), (1, 'c')],
         vec![element!('a'), element!('b'), list![element!('c')]]
     );
+    check!(
+        vec![(0, 'a'), (0, 'b'), (2, 'c')],
+        vec![element!('a'), element!('b'), list![list![element!('c')]]],
+    );
+    check!(
+        vec![(1, 'a'), (1, 'b')],
+        vec![list![element!('a'), element!('b')]],
+    );
+    check!(
+        vec![(2, 'a'), (2, 'b')],
+        vec![list![list![element!('a'), element!('b')]]],
+    );
+    check!(
+        vec![(2, 'a'), (1, 'b')],
+        vec![list![list![element!('a')], element!('b')]],
+    );
+    check!(
+        vec![(5, 'a')],
+        vec![list![list![list![list![list![element!('a')]]]]]],
+    );
+    check!(
+        vec![(2, 'a'), (3, 'b'), (1, 'c'), (1, 'd'), (2, 'e'), (0, 'f')],
+        vec![
+            list![
+                list![element!('a'), list![element!('b')]],
+                element!('c'),
+                element!('d'),
+                list![element!('e')],
+            ],
+            element!('f'),
+        ],
+    );
 }
