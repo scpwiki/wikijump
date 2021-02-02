@@ -38,7 +38,13 @@ fn bullet<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Consuming tokens to build a bullet list");
 
-    parse_list(log, parser, RULE_BULLET_LIST, Token::BulletItem, ListStyle::Bullet)
+    parse_list(
+        log,
+        parser,
+        RULE_BULLET_LIST,
+        Token::BulletItem,
+        ListStyle::Bullet,
+    )
 }
 
 fn number<'p, 'r, 't>(
@@ -47,7 +53,13 @@ fn number<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Consuming tokens to build a numbered list");
 
-    parse_list(log, parser, RULE_NUMBERED_LIST, Token::NumberedItem, ListStyle::Numbered)
+    parse_list(
+        log,
+        parser,
+        RULE_NUMBERED_LIST,
+        Token::NumberedItem,
+        ListStyle::Numbered,
+    )
 }
 
 fn parse_list<'p, 'r, 't>(
@@ -66,8 +78,8 @@ fn parse_list<'p, 'r, 't>(
     );
 
     assert!(
-        parser.current().token == Token::InputStart ||
-        parser.current().token == Token::LineBreak,
+        parser.current().token == Token::InputStart
+            || parser.current().token == Token::LineBreak,
         "Starting token for list is not start of input or newline",
     );
     parser.step()?;
@@ -85,7 +97,7 @@ fn parse_list<'p, 'r, 't>(
 
                 // Since these are only ASCII spaces a byte count is fine
                 spaces.len()
-            },
+            }
 
             // No depth, just the bullet
             token if token == bullet_token => 0,
@@ -111,7 +123,10 @@ fn parse_list<'p, 'r, 't>(
             log,
             parser,
             rule,
-            &[ParseCondition::current(Token::LineBreak), ParseCondition::current(Token::InputEnd)],
+            &[
+                ParseCondition::current(Token::LineBreak),
+                ParseCondition::current(Token::InputEnd),
+            ],
             &[ParseCondition::current(Token::ParagraphBreak)],
             None,
         )?
@@ -143,8 +158,5 @@ fn build_list_element(list: DepthList<Vec<Element>>, ltype: ListStyle) -> Elemen
     }
 
     // Return the Element::List object
-    Element::List {
-        ltype,
-        elements,
-    }
+    Element::List { ltype, elements }
 }
