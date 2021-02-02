@@ -98,13 +98,6 @@ where
         // * Fail the collection, invalid token
         // * Continue the collection, consume to make a new element
 
-        // See if we've hit the end
-        if parser.current().token == Token::InputEnd {
-            debug!(log, "Found end of input, aborting");
-
-            return Err(parser.make_warn(ParseWarningKind::EndOfInput));
-        }
-
         // See if the container has ended
         if parser.evaluate_any(close_conditions) {
             debug!(
@@ -114,7 +107,9 @@ where
             );
 
             let last = parser.current();
-            parser.step()?;
+            if parser.current().token != Token::InputEnd {
+                parser.step()?;
+            }
 
             return ok!(last, exceptions);
         }
@@ -130,6 +125,13 @@ where
             return Err(
                 parser.make_warn(warn_kind.unwrap_or(ParseWarningKind::RuleFailed))
             );
+        }
+
+        // See if we've hit the end
+        if parser.current().token == Token::InputEnd {
+            debug!(log, "Found end of input, aborting");
+
+            return Err(parser.make_warn(ParseWarningKind::EndOfInput));
         }
 
         // Process token(s).
