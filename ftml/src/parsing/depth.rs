@@ -24,17 +24,17 @@ use std::mem;
 pub type DepthList<E> = Vec<DepthItem<E>>;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum DepthItem<E> {
-    Element(E),
-    List(DepthList<E>),
+pub enum DepthItem<T> {
+    Item(T),
+    List(DepthList<T>),
 }
 
 #[derive(Debug)]
-struct DepthStack<E> {
-    stack: NonEmptyVec<Vec<DepthItem<E>>>,
+struct DepthStack<T> {
+    stack: NonEmptyVec<Vec<DepthItem<T>>>,
 }
 
-impl<E> DepthStack<E> {
+impl<T> DepthStack<T> {
     #[inline]
     pub fn new() -> Self {
         DepthStack {
@@ -52,16 +52,16 @@ impl<E> DepthStack<E> {
         }
     }
 
-    fn push(&mut self, item: DepthItem<E>) {
+    fn push(&mut self, item: DepthItem<T>) {
         self.stack.last_mut().push(item);
     }
 
     #[inline]
-    pub fn push_element(&mut self, element: E) {
-        self.push(DepthItem::Element(element));
+    pub fn push_item(&mut self, item: T) {
+        self.push(DepthItem::Item(item));
     }
 
-    pub fn into_tree(mut self) -> DepthList<E> {
+    pub fn into_tree(mut self) -> DepthList<T> {
         // Wrap all opened layers
         // Start at 1 since it's a non-empty vec
         for _ in 1..self.stack.len() {
@@ -75,9 +75,9 @@ impl<E> DepthStack<E> {
     }
 }
 
-pub fn process_depths<I, E>(items: I) -> DepthList<E>
+pub fn process_depths<I, T>(items: I) -> DepthList<T>
 where
-    I: IntoIterator<Item = (usize, E)>,
+    I: IntoIterator<Item = (usize, T)>,
 {
     let mut stack = DepthStack::new();
 
@@ -85,7 +85,7 @@ where
     let mut previous = 0;
 
     // Iterate through each of the items
-    for (depth, element) in items {
+    for (depth, item) in items {
         // Add or remove new depth levels as appropriate,
         // based on what our new depth value is compared
         // to the value in the previous iteration.
@@ -105,7 +105,7 @@ where
         }
 
         // Push element and update state
-        stack.push_element(element);
+        stack.push_item(item);
         previous = depth;
     }
 
@@ -126,9 +126,9 @@ fn depth() {
         }};
     }
 
-    macro_rules! element {
+    macro_rules! item {
         ($item:expr) => {
-            DepthItem::Element($item)
+            DepthItem::Item($item)
         };
     }
 
@@ -144,46 +144,46 @@ fn depth() {
     check!(vec![], vec![]);
     check!(
         vec![(0, 'a')], //
-        vec![element!('a')],
+        vec![item!('a')],
     );
     check!(
         vec![(0, 'a'), (0, 'b')], //
-        vec![element!('a'), element!('b')],
+        vec![item!('a'), item!('b')],
     );
     check!(
         vec![(0, 'a'), (0, 'b'), (1, 'c')],
-        vec![element!('a'), element!('b'), list![element!('c')]]
+        vec![item!('a'), item!('b'), list![item!('c')]]
     );
     check!(
         vec![(0, 'a'), (0, 'b'), (2, 'c')],
-        vec![element!('a'), element!('b'), list![list![element!('c')]]],
+        vec![item!('a'), item!('b'), list![list![item!('c')]]],
     );
     check!(
         vec![(1, 'a'), (1, 'b')],
-        vec![list![element!('a'), element!('b')]],
+        vec![list![item!('a'), item!('b')]],
     );
     check!(
         vec![(2, 'a'), (2, 'b')],
-        vec![list![list![element!('a'), element!('b')]]],
+        vec![list![list![item!('a'), item!('b')]]],
     );
     check!(
         vec![(2, 'a'), (1, 'b')],
-        vec![list![list![element!('a')], element!('b')]],
+        vec![list![list![item!('a')], item!('b')]],
     );
     check!(
         vec![(5, 'a')],
-        vec![list![list![list![list![list![element!('a')]]]]]],
+        vec![list![list![list![list![list![item!('a')]]]]]],
     );
     check!(
         vec![(2, 'a'), (3, 'b'), (1, 'c'), (1, 'd'), (2, 'e'), (0, 'f')],
         vec![
             list![
-                list![element!('a'), list![element!('b')]],
-                element!('c'),
-                element!('d'),
-                list![element!('e')],
+                list![item!('a'), list![item!('b')]],
+                item!('c'),
+                item!('d'),
+                list![item!('e')],
             ],
-            element!('f'),
+            item!('f'),
         ],
     );
 }
