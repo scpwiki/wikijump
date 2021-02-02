@@ -123,16 +123,24 @@ impl<'r, 't> Parser<'r, 't> {
     }
 
     // Flags
+    #[inline]
+    pub fn get_flags(&self) -> FlagSet<ParserFlags> {
+        self.flags
+    }
+
+    #[inline]
     pub fn has_flag(&self, flag: ParserFlags) -> bool {
         self.flags.contains(flag)
     }
 
+    #[inline]
     pub fn set_flag(&mut self, flag: ParserFlags) {
         self.flags |= flag;
 
         debug_assert_eq!(self.has_flag(flag), true, "Flag isn't present after being set!");
     }
 
+    #[inline]
     pub fn unset_flag(&mut self, flag: ParserFlags) {
         self.flags -= flag;
 
