@@ -110,7 +110,7 @@ fn parse_list<'p, 'r, 't>(
             log,
             parser,
             rule,
-            &[ParseCondition::current(Token::LineBreak)],
+            &[ParseCondition::current(Token::LineBreak), ParseCondition::current(Token::InputEnd)],
             &[ParseCondition::current(Token::ParagraphBreak)],
             None,
         )?
