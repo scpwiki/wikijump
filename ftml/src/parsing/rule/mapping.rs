@@ -103,6 +103,7 @@ lazy_static! {
             // Miscellaneous
             Token::LeftComment => vec![RULE_COMMENT],
             Token::RightComment => vec![],
+            Token::InputStart => vec![],
             Token::InputEnd => vec![RULE_NULL],
 
             // Fallback

@@ -133,6 +133,7 @@ pub enum Token {
     //
     LeftComment,
     RightComment,
+    InputStart,
     InputEnd,
 
     //
