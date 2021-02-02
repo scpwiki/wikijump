@@ -153,7 +153,17 @@ impl Token {
             Ok(pairs) => {
                 info!(log, "Lexer produced pairs for processing");
 
-                pairs.map(|pair| Token::convert_pair(log, pair)).collect()
+                // Map pairs to tokens, and add a Token::InputStart at the beginning
+                // Pest already adds a Token::InputEnd at the end
+                let start = ExtractedToken {
+                    token: Token::InputStart,
+                    slice: "",
+                    span: 0..0,
+                };
+
+                let mut tokens = vec![start];
+                tokens.extend(pairs.map(|pair| Token::convert_pair(log, pair)));
+                tokens
             }
             Err(error) => {
                 // Return all of the input as one big raw text
