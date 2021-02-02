@@ -37,7 +37,7 @@ fn bullet<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Consuming tokens to build a bullet list");
 
-    parse_list(log, parser, Token::BulletItem, ListStyle::Bullet)
+    parse_list(log, parser, RULE_BULLET_LIST, Token::BulletItem, ListStyle::Bullet)
 }
 
 fn number<'p, 'r, 't>(
@@ -46,22 +46,79 @@ fn number<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Consuming tokens to build a numbered list");
 
-    parse_list(log, parser, Token::NumberedItem, ListStyle::Numbered)
+    parse_list(log, parser, RULE_NUMBERED_LIST, Token::NumberedItem, ListStyle::Numbered)
 }
 
 fn parse_list<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
+    rule: Rule,
     bullet_token: Token,
     list_style: ListStyle,
 ) -> ParseResult<'r, 't, Element<'t>> {
     trace!(
         log,
         "Parsing a list";
+        "rule" => rule.name(),
         "bullet-token" => bullet_token,
         "list-style" => list_style.name(),
     );
 
-    // TODO
+println!("{:#?}", parser.remaining());
+    parser.step()?;
+
+    // Produce a depth list with elements
+    let mut depths = Vec::new();
+    let mut exceptions = Vec::new();
+
+    loop {
+        let depth = match parser.current().token {
+            // Count the number of spaces for its depth
+            Token::Whitespace => {
+                let spaces = parser.current().slice;
+                parser.step()?;
+
+                // Since these are only ASCII spaces a byte count is fine
+                spaces.len()
+            },
+
+            // No depth, just the bullet
+            token if token == bullet_token => 0,
+
+            // Invalid token, bail
+            _ => break,
+        };
+
+        // Check that we're processing the right bullet
+        if parser.current().token != bullet_token {
+            break;
+        }
+
+        // For now, always expect whitespace after the bullet
+        if parser.step()?.token != Token::Whitespace {
+            break;
+        }
+
+        // Parse elements until we hit the end of the line
+        let elements = collect_consume(
+            log,
+            parser,
+            rule,
+            &[ParseCondition::current(Token::LineBreak)],
+            &[ParseCondition::current(Token::ParagraphBreak)],
+            None,
+        )?
+        .chain(&mut exceptions);
+
+        // Append bullet line
+        depths.push((depth, elements));
+    }
+
+    // Our rule is in another castle
+    if depths.is_empty() {
+        return Err(parser.make_warn(ParseWarningKind::RuleFailed));
+    }
+println!("depths: {:#?}", depths);
+
     todo!()
 }
