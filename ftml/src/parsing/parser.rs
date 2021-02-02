@@ -24,21 +24,9 @@ use super::rule::Rule;
 use super::RULE_PAGE;
 use crate::span_wrap::SpanWrap;
 use crate::tokenizer::Tokenization;
-use flagset::FlagSet;
 use std::ptr;
 
 const MAX_RECURSION_DEPTH: usize = 100;
-
-flags! {
-    pub enum ParserFlags: u8 {
-        /// Whether the parser is currently stepping through a list.
-        /// For instance, a bullet list or numbered list.
-        ///
-        /// This flag is needed because these elements cannot be nested like this,
-        /// and we should not run these rules recursively.
-        InList,
-    }
-}
 
 #[derive(Debug, Clone)]
 pub struct Parser<'r, 't> {
@@ -48,7 +36,6 @@ pub struct Parser<'r, 't> {
     full_text: FullText<'t>,
     rule: Rule,
     depth: usize,
-    flags: FlagSet<ParserFlags>,
 }
 
 impl<'r, 't> Parser<'r, 't> {
@@ -71,7 +58,6 @@ impl<'r, 't> Parser<'r, 't> {
             full_text,
             rule: RULE_PAGE,
             depth: 0,
-            flags: FlagSet::default(),
         }
     }
 
@@ -120,31 +106,6 @@ impl<'r, 't> Parser<'r, 't> {
         debug!(self.log, "Decrementing recursion depth"; "depth" => self.depth);
 
         self.depth -= 1;
-    }
-
-    // Flags
-    #[inline]
-    pub fn get_flags(&self) -> FlagSet<ParserFlags> {
-        self.flags
-    }
-
-    #[inline]
-    pub fn has_flag(&self, flag: ParserFlags) -> bool {
-        self.flags.contains(flag)
-    }
-
-    #[inline]
-    pub fn set_flag(&mut self, flag: ParserFlags) {
-        self.flags |= flag;
-
-        debug_assert_eq!(self.has_flag(flag), true, "Flag isn't present after being set!");
-    }
-
-    #[inline]
-    pub fn unset_flag(&mut self, flag: ParserFlags) {
-        self.flags -= flag;
-
-        debug_assert_eq!(self.has_flag(flag), false, "Flag is still present after being unset!");
     }
 
     // State evaluation

@@ -20,7 +20,6 @@
 
 use super::prelude::*;
 use crate::enums::ListStyle;
-use crate::parsing::parser::ParserFlags;
 
 pub const RULE_BULLET_LIST: Rule = Rule {
     name: "bullet-list",
@@ -65,12 +64,7 @@ fn parse_list<'p, 'r, 't>(
         "list-style" => list_style.name(),
     );
 
-    if parser.has_flag(ParserFlags::InList) {
-        trace!(log, "Hit recursive parse list rule, skipping");
-        return Err(parser.make_warn(ParseWarningKind::RuleFailed));
-    }
-
-    parser.set_flag(ParserFlags::InList);
+    // Step over beginning token or newline
     parser.step()?;
 
     // Produce a depth list with elements
@@ -123,10 +117,8 @@ println!("depths: {:#?}", depths);
 
     // Our rule is in another castle
     if depths.is_empty() {
-        parser.unset_flag(ParserFlags::InList);
         return Err(parser.make_warn(ParseWarningKind::RuleFailed));
     }
 
-    parser.unset_flag(ParserFlags::InList);
     todo!()
 }

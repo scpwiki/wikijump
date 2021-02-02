@@ -36,9 +36,6 @@ extern crate cfg_if;
 extern crate enum_map;
 
 #[macro_use]
-extern crate flagset;
-
-#[macro_use]
 extern crate lazy_static;
 extern crate pest;
 
