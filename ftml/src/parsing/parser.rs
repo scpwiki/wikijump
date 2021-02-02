@@ -129,10 +129,14 @@ impl<'r, 't> Parser<'r, 't> {
 
     pub fn set_flag(&mut self, flag: ParserFlags) {
         self.flags |= flag;
+
+        debug_assert_eq!(self.has_flag(flag), true, "Flag isn't present after being set!");
     }
 
     pub fn unset_flag(&mut self, flag: ParserFlags) {
         self.flags -= flag;
+
+        debug_assert_eq!(self.has_flag(flag), false, "Flag is still present after being unset!");
     }
 
     // State evaluation
