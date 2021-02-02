@@ -94,9 +94,9 @@ where
     loop {
         // Check current token state to decide how to proceed.
         //
-        // * End the container, return elements
-        // * Fail the container, invalid token
-        // * Continue the container, consume to make a new element
+        // * End the collection, return elements
+        // * Fail the collection, invalid token
+        // * Continue the collection, consume to make a new element
 
         // See if we've hit the end
         if parser.current().token == Token::InputEnd {
