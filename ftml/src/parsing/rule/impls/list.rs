@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::enums::ListStyle;
+use crate::parsing::{process_depths, DepthItem, DepthList};
 
 pub const RULE_BULLET_LIST: Rule = Rule {
     name: "bullet-list",
@@ -117,12 +118,31 @@ fn parse_list<'p, 'r, 't>(
         // Append bullet line
         depths.push((depth, elements));
     }
-println!("depths: {:#?}", depths);
 
     // Our rule is in another castle
     if depths.is_empty() {
         return Err(parser.make_warn(ParseWarningKind::RuleFailed));
     }
 
-    todo!()
+    // Build a tree structure from our depths list
+    let depth_list = process_depths(depths);
+    let element = build_list_element(depth_list, list_style);
+
+    ok!(element, exceptions)
+}
+
+fn build_list_element(list: DepthList<Vec<Element>>, ltype: ListStyle) -> Element {
+    let mut elements = Vec::new();
+    for item in list {
+        match item {
+            DepthItem::Item(mut new_elements) => elements.append(&mut new_elements),
+            DepthItem::List(list) => elements.push(build_list_element(list, ltype)),
+        }
+    }
+
+    // Return the Element::List object
+    Element::List {
+        ltype,
+        elements,
+    }
 }

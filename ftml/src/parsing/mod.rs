@@ -46,7 +46,7 @@ mod prelude {
 }
 
 use self::boolean::parse_boolean;
-use self::depth::process_depths;
+use self::depth::{process_depths, DepthItem, DepthList};
 use self::paragraph::{gather_paragraphs, NO_CLOSE_CONDITION};
 use self::parser::Parser;
 use self::rule::impls::RULE_PAGE;
