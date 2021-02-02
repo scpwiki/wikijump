@@ -98,11 +98,13 @@ fn parse_list<'p, 'r, 't>(
         if parser.current().token != bullet_token {
             break;
         }
+        parser.step()?;
 
         // For now, always expect whitespace after the bullet
-        if parser.step()?.token != Token::Whitespace {
+        if parser.current().token != Token::Whitespace {
             break;
         }
+        parser.step()?;
 
         // Parse elements until we hit the end of the line
         let elements = collect_consume(
