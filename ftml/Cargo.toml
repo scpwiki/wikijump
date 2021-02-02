@@ -21,6 +21,7 @@ name = "ftml"
 [dependencies]
 cfg-if = "1"
 enum-map = "0.6"
+flagset = "0.3"
 lazy_static = "1"
 pest = "2"
 pest_derive = "2"

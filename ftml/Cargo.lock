@@ -457,6 +457,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e88a8acf291dafb59c2d96e8f59828f3838bb1a70398823ade51a84de6a6deed"
 
 [[package]]
+name = "flagset"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "890349692c0d0f8e030f84549bdc7257d7cbc8d9bcfcc93b77e17b3b6e05a6d1"
+
+[[package]]
 name = "flate2"
 version = "1.0.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -505,6 +511,7 @@ version = "0.4.0"
 dependencies = [
  "cfg-if 1.0.0",
  "enum-map",
+ "flagset",
  "lazy_static",
  "maplit",
  "pest",
