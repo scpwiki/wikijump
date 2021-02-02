@@ -64,7 +64,11 @@ fn parse_list<'p, 'r, 't>(
         "list-style" => list_style.name(),
     );
 
-    // Step over beginning token or newline
+    assert!(
+        parser.current().token == Token::InputStart ||
+        parser.current().token == Token::LineBreak,
+        "Starting token for list is not start of input or newline",
+    );
     parser.step()?;
 
     // Produce a depth list with elements
