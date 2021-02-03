@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::parsing::{process_depths, DepthItem, DepthList};
+use crate::span_wrap::SpanWrap;
 use crate::tree::{ListItem, ListType};
 
 pub const RULE_BULLET_LIST: Rule = Rule {
@@ -86,7 +87,8 @@ fn parse_list<'p, 'r, 't>(
     let mut exceptions = Vec::new();
 
     loop {
-        let depth = match parser.current().token {
+        let current = parser.current();
+        let depth = match current.token {
             // Count the number of spaces for its depth
             Token::Whitespace => {
                 let spaces = parser.current().slice;
@@ -100,18 +102,42 @@ fn parse_list<'p, 'r, 't>(
             Token::BulletItem | Token::NumberedItem => 0,
 
             // Invalid token, bail
-            _ => break,
+            _ => {
+                debug!(
+                    log,
+                    "Couldn't determine list depth, ending list iteration";
+                    "token" => current.token,
+                    "slice" => current.slice,
+                    "span" => SpanWrap::from(&current.span),
+                );
+
+                break;
+            }
         };
 
         // Check that we're processing a bullet, and get the type
-        let bullet_token = parser.current().token;
-        let (list_type, _) = match get_list_type(bullet_token) {
-            Some(result) => result,
-            None => break,
+        let (list_type, _) = {
+            let current = parser.current();
+            let bullet_token = parser.current().token;
+
+            match get_list_type(bullet_token) {
+                Some(result) => result,
+                None => {
+                    debug!(
+                        log,
+                        "Didn't find bullet token, couldn't determine list type, ending list iteration";
+                        "token" => current.token,
+                        "slice" => current.slice,
+                        "span" => SpanWrap::from(&current.span),
+                    );
+
+                    break;
+                }
+            }
         };
         parser.step()?;
 
-        trace!(
+        debug!(
             log,
             "Parsing listen item";
             "bullet-token" => bullet_token,
@@ -119,7 +145,16 @@ fn parse_list<'p, 'r, 't>(
         );
 
         // For now, always expect whitespace after the bullet
-        if bullet_token != Token::Whitespace {
+        let current = parser.current();
+        if current.token != Token::Whitespace {
+            debug!(
+                log,
+                "Didn't find whitespace after bullet token, ending list iteration";
+                "token" => current.token,
+                "slice" => current.slice,
+                "span" => SpanWrap::from(&current.span),
+            );
+
             break;
         }
         parser.step()?;
