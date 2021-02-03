@@ -50,10 +50,10 @@ fn number<'p, 'r, 't>(
     parse_list(log, parser, Token::NumberedItem)
 }
 
-const fn get_list_type(token: Token) -> Option<(Rule, ListType)> {
+const fn get_list_type(token: Token) -> Option<(ListType, Rule)> {
     match token {
-        Token::BulletItem => Some((RULE_BULLET_LIST, ListType::Bullet)),
-        Token::NumberedItem => Some((RULE_NUMBERED_LIST, ListType::Numbered)),
+        Token::BulletItem => Some((ListType::Bullet, RULE_BULLET_LIST)),
+        Token::NumberedItem => Some((ListType::Numbered, RULE_NUMBERED_LIST)),
         _ => None,
     }
 }
@@ -63,15 +63,15 @@ fn parse_list<'p, 'r, 't>(
     parser: &'p mut Parser<'r, 't>,
     bullet_token: Token,
 ) -> ParseResult<'r, 't, Element<'t>> {
-    let (rule, list_type) =
+    let (top_list_type, rule) =
         get_list_type(bullet_token).expect("Passed constant token was not a list item");
 
-    trace!(
+    debug!(
         log,
         "Parsing a list";
         "rule" => rule.name(),
         "bullet-token" => bullet_token,
-        "list-type" => list_type.name(),
+        "top-list-type" => top_list_type.name(),
     );
 
     assert!(
@@ -104,15 +104,22 @@ fn parse_list<'p, 'r, 't>(
         };
 
         // Check that we're processing a bullet, and get the type
-        let (list_type, _) = match get_list_type(parser.current().token) {
+        let bullet_token = parser.current().token;
+        let (list_type, _) = match get_list_type(bullet_token) {
             Some(result) => result,
             None => break,
         };
-
         parser.step()?;
 
+        trace!(
+            log,
+            "Parsing listen item";
+            "bullet-token" => bullet_token,
+            "list-type" => list_type.name(),
+        );
+
         // For now, always expect whitespace after the bullet
-        if parser.current().token != Token::Whitespace {
+        if bullet_token != Token::Whitespace {
             break;
         }
         parser.step()?;
@@ -142,7 +149,7 @@ fn parse_list<'p, 'r, 't>(
 
     // Build a tree structure from our depths list
     let depth_list = process_depths(depths);
-    let element = build_list_element(depth_list, list_type);
+    let element = build_list_element(depth_list, top_list_type);
 
     ok!(element, exceptions)
 }
