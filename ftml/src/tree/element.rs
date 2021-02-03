@@ -19,7 +19,7 @@
  */
 
 use super::AttributeMap;
-use super::{Container, Module, StyledContainer};
+use super::{Container, ListItem, Module, StyledContainer};
 use crate::enums::{AnchorTarget, LinkLabel, ListStyle};
 use std::borrow::Cow;
 use std::num::NonZeroU32;
@@ -76,7 +76,7 @@ pub enum Element<'t> {
     List {
         #[serde(rename = "type")]
         ltype: ListStyle,
-        elements: Vec<Element<'t>>,
+        items: Vec<ListItem<'t>>,
     },
 
     /// An element linking to a different page.

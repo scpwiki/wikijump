@@ -149,14 +149,14 @@ fn parse_list<'p, 'r, 't>(
 }
 
 fn build_list_element(list: DepthList<Vec<Element>>, ltype: ListStyle) -> Element {
-    let mut elements = Vec::new();
+    let mut items = Vec::new();
     for item in list {
         match item {
-            DepthItem::Item(mut new_elements) => elements.append(&mut new_elements),
-            DepthItem::List(list) => elements.push(build_list_element(list, ltype)),
+            DepthItem::Item(elements) => items.push(elements),
+            DepthItem::List(list) => items.push(vec![build_list_element(list, ltype)]),
         }
     }
 
     // Return the Element::List object
-    Element::List { ltype, elements }
+    Element::List { ltype, items }
 }
