@@ -86,29 +86,29 @@ fn try_consume_fn<'p, 'r, 't>(
         };
 
         // Check that we're processing a bullet, and get the type
-        let (list_type, rule) = {
-            let current = parser.current();
-            let bullet_token = parser.current().token;
-
-            match get_list_type(bullet_token) {
-                Some((list_type, rule)) => (list_type, rule),
-                None => {
-                    debug!(
-                        log,
-                        "Didn't find bullet token, couldn't determine list type, ending list iteration";
-                        "token" => current.token,
-                        "slice" => current.slice,
-                        "span" => SpanWrap::from(&current.span),
-                    );
-
-                    break;
+        let current = parser.current();
+        let list_type = match get_list_type(current.token) {
+            Some(list_type) => {
+                if top_list_type.is_none() {
+                    // TODO: for now, until we generate lists based on item type
+                    top_list_type = Some(list_type);
                 }
+
+                list_type
+            }
+            None => {
+                debug!(
+                    log,
+                    "Didn't find bullet token, couldn't determine list type, ending list iteration";
+                    "token" => current.token,
+                    "slice" => current.slice,
+                    "span" => SpanWrap::from(&current.span),
+                );
+
+                break;
             }
         };
         parser.step()?;
-
-        // TODO: for now, until we generate lists based on item type
-        top_list_type = Some(list_type);
 
         debug!(
             log,
