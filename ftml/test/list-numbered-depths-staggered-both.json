@@ -1,0 +1,69 @@
+{
+    "input": " # A\n# B\n  # C",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "list",
+                            "data": {
+                                "type": "numbered",
+                                "items": [
+                                    {
+                                        "element": "list",
+                                        "data": {
+                                            "type": "numbered",
+                                            "items": [
+                                                [
+                                                    {
+                                                        "element": "text",
+                                                        "data": "A"
+                                                    }
+                                                ]
+                                            ]
+                                        }
+                                    },
+                                    [
+                                        {
+                                            "element": "text",
+                                            "data": "B"
+                                        }
+                                    ],
+                                    {
+                                        "element": "list",
+                                        "data": {
+                                            "type": "numbered",
+                                            "items": [
+                                                {
+                                                    "element": "list",
+                                                    "data": {
+                                                        "type": "numbered",
+                                                        "items": [
+                                                            [
+                                                                {
+                                                                    "element": "text",
+                                                                    "data": "C"
+                                                                }
+                                                            ]
+                                                        ]
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

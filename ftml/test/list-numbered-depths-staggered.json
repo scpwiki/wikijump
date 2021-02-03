@@ -1,0 +1,77 @@
+{
+    "input": "[\n # A\n# B\n  # C\n]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "["
+                        },
+                        {
+                            "element": "list",
+                            "data": {
+                                "type": "numbered",
+                                "items": [
+                                    {
+                                        "element": "list",
+                                        "data": {
+                                            "type": "numbered",
+                                            "items": [
+                                                [
+                                                    {
+                                                        "element": "text",
+                                                        "data": "A"
+                                                    }
+                                                ]
+                                            ]
+                                        }
+                                    },
+                                    [
+                                        {
+                                            "element": "text",
+                                            "data": "B"
+                                        }
+                                    ],
+                                    {
+                                        "element": "list",
+                                        "data": {
+                                            "type": "numbered",
+                                            "items": [
+                                                {
+                                                    "element": "list",
+                                                    "data": {
+                                                        "type": "numbered",
+                                                        "items": [
+                                                            [
+                                                                {
+                                                                    "element": "text",
+                                                                    "data": "C"
+                                                                }
+                                                            ]
+                                                        ]
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": "]"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}
