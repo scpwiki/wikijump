@@ -38,11 +38,7 @@ fn bullet<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Consuming tokens to build a bullet list");
 
-    parse_list(
-        log,
-        parser,
-        Token::BulletItem,
-    )
+    parse_list(log, parser, Token::BulletItem)
 }
 
 fn number<'p, 'r, 't>(
@@ -51,11 +47,7 @@ fn number<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Element<'t>> {
     debug!(log, "Consuming tokens to build a numbered list");
 
-    parse_list(
-        log,
-        parser,
-        Token::NumberedItem,
-    )
+    parse_list(log, parser, Token::NumberedItem)
 }
 
 const fn get_list_type(token: Token) -> Option<(Rule, ListType)> {
@@ -71,7 +63,8 @@ fn parse_list<'p, 'r, 't>(
     parser: &'p mut Parser<'r, 't>,
     bullet_token: Token,
 ) -> ParseResult<'r, 't, Element<'t>> {
-    let (rule, list_type) = get_list_type(bullet_token).expect("Constant token was not a list item");
+    let (rule, list_type) =
+        get_list_type(bullet_token).expect("Passed constant token was not a list item");
 
     trace!(
         log,
