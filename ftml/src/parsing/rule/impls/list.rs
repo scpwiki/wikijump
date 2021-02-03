@@ -23,13 +23,16 @@ use crate::parsing::{process_depths, DepthItem, DepthList};
 use crate::span_wrap::SpanWrap;
 use crate::tree::{ListItem, ListType};
 
-pub const RULE_BULLET_LIST: Rule = Rule {
-    name: "bullet-list",
-    try_consume_fn,
-};
+const fn get_list_type(token: Token) -> Option<ListType> {
+    match token {
+        Token::BulletItem => Some(ListType::Bullet),
+        Token::NumberedItem => Some(ListType::Numbered),
+        _ => None,
+    }
+}
 
-pub const RULE_NUMBERED_LIST: Rule = Rule {
-    name: "numbered-list",
+pub const RULE_LIST: Rule = Rule {
+    name: "list",
     try_consume_fn,
 };
 
@@ -110,7 +113,6 @@ fn try_consume_fn<'p, 'r, 't>(
         debug!(
             log,
             "Parsing listen item";
-            "rule" => rule,
             "list-type" => list_type.name(),
         );
 
@@ -133,7 +135,7 @@ fn try_consume_fn<'p, 'r, 't>(
         let elements = collect_consume(
             log,
             parser,
-            rule,
+            RULE_LIST,
             &[
                 ParseCondition::current(Token::LineBreak),
                 ParseCondition::current(Token::InputEnd),
@@ -170,12 +172,4 @@ fn build_list_element(list: DepthList<Vec<Element>>, ltype: ListType) -> Element
 
     // Return the Element::List object
     Element::List { ltype, items }
-}
-
-const fn get_list_type(token: Token) -> Option<(ListType, Rule)> {
-    match token {
-        Token::BulletItem => Some((ListType::Bullet, RULE_BULLET_LIST)),
-        Token::NumberedItem => Some((ListType::Numbered, RULE_NUMBERED_LIST)),
-        _ => None,
-    }
 }

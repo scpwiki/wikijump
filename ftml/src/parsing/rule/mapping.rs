@@ -53,7 +53,7 @@ lazy_static! {
             Token::Underscore => vec![RULE_TEXT],
             Token::Quote => vec![RULE_TODO, RULE_TEXT], // TODO
             Token::Heading => vec![RULE_TODO, RULE_TEXT], // TODO
-            Token::LineBreak => vec![RULE_BULLET_LIST, RULE_NUMBERED_LIST, RULE_BLOCK_SKIP, RULE_LINE_BREAK],
+            Token::LineBreak => vec![RULE_LIST, RULE_BLOCK_SKIP, RULE_LINE_BREAK],
             Token::ParagraphBreak => vec![RULE_LINE_BREAK_PARAGRAPH],
             Token::Whitespace => vec![RULE_TEXT],
 
@@ -103,7 +103,7 @@ lazy_static! {
             // Miscellaneous
             Token::LeftComment => vec![RULE_COMMENT],
             Token::RightComment => vec![],
-            Token::InputStart => vec![RULE_BULLET_LIST, RULE_NUMBERED_LIST, RULE_NULL],
+            Token::InputStart => vec![RULE_LIST, RULE_NULL],
             Token::InputEnd => vec![RULE_NULL],
 
             // Fallback

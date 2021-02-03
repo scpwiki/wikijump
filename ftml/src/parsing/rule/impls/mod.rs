@@ -70,7 +70,7 @@ pub use self::line_break::{RULE_LINE_BREAK, RULE_LINE_BREAK_PARAGRAPH};
 pub use self::link_anchor::RULE_LINK_ANCHOR;
 pub use self::link_single::{RULE_LINK_SINGLE, RULE_LINK_SINGLE_NEW_TAB};
 pub use self::link_triple::{RULE_LINK_TRIPLE, RULE_LINK_TRIPLE_NEW_TAB};
-pub use self::list::{RULE_BULLET_LIST, RULE_NUMBERED_LIST};
+pub use self::list::RULE_LIST;
 pub use self::monospace::RULE_MONOSPACE;
 pub use self::null::RULE_NULL;
 pub use self::page::RULE_PAGE;
