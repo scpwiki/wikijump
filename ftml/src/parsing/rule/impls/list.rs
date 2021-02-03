@@ -97,16 +97,18 @@ fn parse_list<'p, 'r, 't>(
             }
 
             // No depth, just the bullet
-            token if token == bullet_token => 0,
+            Token::BulletItem | Token::NumberedItem => 0,
 
             // Invalid token, bail
             _ => break,
         };
 
-        // Check that we're processing the right bullet
-        if parser.current().token != bullet_token {
-            break;
-        }
+        // Check that we're processing a bullet, and get the type
+        let (list_type, _) = match get_list_type(parser.current().token) {
+            Some(result) => result,
+            None => break,
+        };
+
         parser.step()?;
 
         // For now, always expect whitespace after the bullet
