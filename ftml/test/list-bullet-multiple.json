@@ -1,5 +1,5 @@
 {
-    "input": "[\n* A\n]",
+    "input": "[\n* A\n* B\n* C\n]",
     "tree": {
         "elements": [
             {
@@ -20,6 +20,18 @@
                                         {
                                             "element": "text",
                                             "data": "A"
+                                        }
+                                    ],
+                                    [
+                                        {
+                                            "element": "text",
+                                            "data": "B"
+                                        }
+                                    ],
+                                    [
+                                        {
+                                            "element": "text",
+                                            "data": "C"
                                         }
                                     ]
                                 ]
