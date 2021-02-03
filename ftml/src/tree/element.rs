@@ -19,8 +19,8 @@
  */
 
 use super::AttributeMap;
-use super::{Container, ListItem, Module, StyledContainer};
-use crate::enums::{AnchorTarget, LinkLabel, ListStyle};
+use super::{Container, ListItem, ListType, Module, StyledContainer};
+use crate::enums::{AnchorTarget, LinkLabel};
 use std::borrow::Cow;
 use std::num::NonZeroU32;
 
@@ -75,7 +75,7 @@ pub enum Element<'t> {
     /// An ordered or unordered list.
     List {
         #[serde(rename = "type")]
-        ltype: ListStyle,
+        ltype: ListType,
         items: Vec<ListItem<'t>>,
     },
 

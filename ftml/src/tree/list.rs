@@ -19,6 +19,7 @@
  */
 
 use super::Element;
+use strum_macros::IntoStaticStr;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub enum ListItem<'t> {
@@ -32,4 +33,20 @@ pub enum ListItem<'t> {
     ///
     /// That is, it's another, or deeper list within the list.
     SubList(Element<'t>),
+}
+
+#[derive(
+    Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq,
+)]
+#[serde(rename_all = "kebab-case")]
+pub enum ListType {
+    Bullet,
+    Numbered,
+}
+
+impl ListType {
+    #[inline]
+    pub fn name(self) -> &'static str {
+        self.into()
+    }
 }

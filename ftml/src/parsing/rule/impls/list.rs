@@ -19,8 +19,8 @@
  */
 
 use super::prelude::*;
-use crate::enums::ListStyle;
 use crate::parsing::{process_depths, DepthItem, DepthList};
+use crate::tree::{ListItem, ListType};
 
 pub const RULE_BULLET_LIST: Rule = Rule {
     name: "bullet-list",
@@ -43,7 +43,7 @@ fn bullet<'p, 'r, 't>(
         parser,
         RULE_BULLET_LIST,
         Token::BulletItem,
-        ListStyle::Bullet,
+        ListType::Bullet,
     )
 }
 
@@ -58,7 +58,7 @@ fn number<'p, 'r, 't>(
         parser,
         RULE_NUMBERED_LIST,
         Token::NumberedItem,
-        ListStyle::Numbered,
+        ListType::Numbered,
     )
 }
 
@@ -67,14 +67,14 @@ fn parse_list<'p, 'r, 't>(
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     bullet_token: Token,
-    list_style: ListStyle,
+    list_type: ListType,
 ) -> ParseResult<'r, 't, Element<'t>> {
     trace!(
         log,
         "Parsing a list";
         "rule" => rule.name(),
         "bullet-token" => bullet_token,
-        "list-style" => list_style.name(),
+        "list-type" => list_type.name(),
     );
 
     assert!(
@@ -143,12 +143,12 @@ fn parse_list<'p, 'r, 't>(
 
     // Build a tree structure from our depths list
     let depth_list = process_depths(depths);
-    let element = build_list_element(depth_list, list_style);
+    let element = build_list_element(depth_list, list_type);
 
     ok!(element, exceptions)
 }
 
-fn build_list_element(list: DepthList<Vec<Element>>, ltype: ListStyle) -> Element {
+fn build_list_element(list: DepthList<Vec<Element>>, ltype: ListType) -> Element {
     let mut items = Vec::new();
     for item in list {
         match item {
