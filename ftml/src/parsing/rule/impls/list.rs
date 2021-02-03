@@ -25,55 +25,20 @@ use crate::tree::{ListItem, ListType};
 
 pub const RULE_BULLET_LIST: Rule = Rule {
     name: "bullet-list",
-    try_consume_fn: bullet,
+    try_consume_fn,
 };
 
 pub const RULE_NUMBERED_LIST: Rule = Rule {
     name: "numbered-list",
-    try_consume_fn: number,
+    try_consume_fn,
 };
 
-fn bullet<'p, 'r, 't>(
+fn try_consume_fn<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Element<'t>> {
-    debug!(log, "Consuming tokens to build a bullet list");
-
-    parse_list(log, parser, Token::BulletItem)
-}
-
-fn number<'p, 'r, 't>(
-    log: &slog::Logger,
-    parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Element<'t>> {
-    debug!(log, "Consuming tokens to build a numbered list");
-
-    parse_list(log, parser, Token::NumberedItem)
-}
-
-const fn get_list_type(token: Token) -> Option<(ListType, Rule)> {
-    match token {
-        Token::BulletItem => Some((ListType::Bullet, RULE_BULLET_LIST)),
-        Token::NumberedItem => Some((ListType::Numbered, RULE_NUMBERED_LIST)),
-        _ => None,
-    }
-}
-
-fn parse_list<'p, 'r, 't>(
-    log: &slog::Logger,
-    parser: &'p mut Parser<'r, 't>,
-    bullet_token: Token,
-) -> ParseResult<'r, 't, Element<'t>> {
-    let (top_list_type, rule) =
-        get_list_type(bullet_token).expect("Passed constant token was not a list item");
-
-    debug!(
-        log,
-        "Parsing a list";
-        "rule" => rule.name(),
-        "bullet-token" => bullet_token,
-        "top-list-type" => top_list_type.name(),
-    );
+    // We don't know the list type(s) yet, so just log that we're starting
+    debug!(log, "Parsing a list");
 
     assert!(
         parser.current().token == Token::InputStart
@@ -81,6 +46,8 @@ fn parse_list<'p, 'r, 't>(
         "Starting token for list is not start of input or newline",
     );
     parser.step()?;
+
+    let mut top_list_type = None;
 
     // Produce a depth list with elements
     let mut depths = Vec::new();
@@ -105,7 +72,7 @@ fn parse_list<'p, 'r, 't>(
             _ => {
                 debug!(
                     log,
-                    "Couldn't determine list depth, ending list iteration";
+                    "Didn't find correct bullet token or couldn't determine list depth, ending list iteration";
                     "token" => current.token,
                     "slice" => current.slice,
                     "span" => SpanWrap::from(&current.span),
@@ -116,12 +83,12 @@ fn parse_list<'p, 'r, 't>(
         };
 
         // Check that we're processing a bullet, and get the type
-        let (list_type, _) = {
+        let (list_type, rule) = {
             let current = parser.current();
             let bullet_token = parser.current().token;
 
             match get_list_type(bullet_token) {
-                Some(result) => result,
+                Some((list_type, rule)) => (list_type, rule),
                 None => {
                     debug!(
                         log,
@@ -137,10 +104,13 @@ fn parse_list<'p, 'r, 't>(
         };
         parser.step()?;
 
+        // TODO: for now, until we generate lists based on item type
+        top_list_type = Some(list_type);
+
         debug!(
             log,
             "Parsing listen item";
-            "bullet-token" => bullet_token,
+            "rule" => rule,
             "list-type" => list_type.name(),
         );
 
@@ -184,7 +154,8 @@ fn parse_list<'p, 'r, 't>(
 
     // Build a tree structure from our depths list
     let depth_list = process_depths(depths);
-    let element = build_list_element(depth_list, top_list_type);
+    // NOTE unwrap is safe since we check depths.is_empty(), which means at least one iteration
+    let element = build_list_element(depth_list, top_list_type.unwrap());
 
     ok!(element, exceptions)
 }
@@ -199,4 +170,12 @@ fn build_list_element(list: DepthList<Vec<Element>>, ltype: ListType) -> Element
 
     // Return the Element::List object
     Element::List { ltype, items }
+}
+
+const fn get_list_type(token: Token) -> Option<(ListType, Rule)> {
+    match token {
+        Token::BulletItem => Some((ListType::Bullet, RULE_BULLET_LIST)),
+        Token::NumberedItem => Some((ListType::Numbered, RULE_NUMBERED_LIST)),
+        _ => None,
+    }
 }
