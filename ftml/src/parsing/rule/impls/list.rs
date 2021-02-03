@@ -41,9 +41,7 @@ fn bullet<'p, 'r, 't>(
     parse_list(
         log,
         parser,
-        RULE_BULLET_LIST,
         Token::BulletItem,
-        ListType::Bullet,
     )
 }
 
@@ -56,19 +54,25 @@ fn number<'p, 'r, 't>(
     parse_list(
         log,
         parser,
-        RULE_NUMBERED_LIST,
         Token::NumberedItem,
-        ListType::Numbered,
     )
+}
+
+const fn get_list_type(token: Token) -> Option<(Rule, ListType)> {
+    match token {
+        Token::BulletItem => Some((RULE_BULLET_LIST, ListType::Bullet)),
+        Token::NumberedItem => Some((RULE_NUMBERED_LIST, ListType::Numbered)),
+        _ => None,
+    }
 }
 
 fn parse_list<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
-    rule: Rule,
     bullet_token: Token,
-    list_type: ListType,
 ) -> ParseResult<'r, 't, Element<'t>> {
+    let (rule, list_type) = get_list_type(bullet_token).expect("Constant token was not a list item");
+
     trace!(
         log,
         "Parsing a list";
