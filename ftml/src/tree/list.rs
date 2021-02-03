@@ -22,6 +22,7 @@ use super::Element;
 use strum_macros::IntoStaticStr;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case", untagged)]
 pub enum ListItem<'t> {
     /// This item is a series of elements.
     ///
