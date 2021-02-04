@@ -154,22 +154,30 @@ fn try_consume_fn<'p, 'r, 't>(
         return Err(parser.make_warn(ParseWarningKind::RuleFailed));
     }
 
-    // Build a tree structure from our depths list
-    let depth_list = process_depths(depths);
     // NOTE unwrap is safe since we check depths.is_empty(), which means at least one iteration
+    // Build a tree structure from our depths list
+    let depth_list = process_depths(top_list_type.unwrap(), depths);
     let element = build_list_element(depth_list, top_list_type.unwrap());
 
     ok!(element, exceptions)
 }
 
-fn build_list_element(list: DepthList<Vec<Element>>, ltype: ListType) -> Element {
+fn build_list_element(
+    list: DepthList<ListType, Vec<Element>>,
+    top_ltype: ListType,
+) -> Element {
     let build_item = |item| match item {
         DepthItem::Item(elements) => ListItem::Elements(elements),
-        DepthItem::List(list) => ListItem::SubList(build_list_element(list, ltype)),
+        DepthItem::List(ltype, list) => {
+            ListItem::SubList(build_list_element(list, ltype))
+        }
     };
 
     let items = list.into_iter().map(build_item).collect();
 
     // Return the Element::List object
-    Element::List { ltype, items }
+    Element::List {
+        ltype: top_ltype,
+        items,
+    }
 }

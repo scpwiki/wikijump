@@ -21,39 +21,39 @@
 use crate::non_empty_vec::NonEmptyVec;
 use std::mem;
 
-pub type DepthList<E> = Vec<DepthItem<E>>;
+pub type DepthList<L, T> = Vec<DepthItem<L, T>>;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum DepthItem<T> {
+pub enum DepthItem<L, T> {
     Item(T),
-    List(DepthList<T>),
+    List(L, DepthList<L, T>),
 }
 
 #[derive(Debug)]
-struct DepthStack<T> {
-    stack: NonEmptyVec<Vec<DepthItem<T>>>,
+struct DepthStack<L, T> {
+    stack: NonEmptyVec<(L, Vec<DepthItem<L, T>>)>,
 }
 
-impl<T> DepthStack<T> {
+impl<L, T> DepthStack<L, T> {
     #[inline]
-    pub fn new() -> Self {
+    pub fn new(ltype: L) -> Self {
         DepthStack {
-            stack: NonEmptyVec::new(Vec::new()),
+            stack: NonEmptyVec::new((ltype, Vec::new())),
         }
     }
 
-    pub fn increase_depth(&mut self) {
-        self.stack.push(Vec::new());
+    pub fn increase_depth(&mut self, ltype: L) {
+        self.stack.push((ltype, Vec::new()));
     }
 
     pub fn decrease_depth(&mut self) {
-        if let Some(list) = self.stack.pop() {
-            self.push(DepthItem::List(list));
+        if let Some((ltype, list)) = self.stack.pop() {
+            self.push(DepthItem::List(ltype, list));
         }
     }
 
-    fn push(&mut self, item: DepthItem<T>) {
-        self.stack.last_mut().push(item);
+    fn push(&mut self, item: DepthItem<L, T>) {
+        self.stack.last_mut().1.push(item);
     }
 
     #[inline]
@@ -61,7 +61,7 @@ impl<T> DepthStack<T> {
         self.push(DepthItem::Item(item));
     }
 
-    pub fn into_tree(mut self) -> DepthList<T> {
+    pub fn into_tree(mut self) -> DepthList<L, T> {
         // Wrap all opened layers
         // Start at 1 since it's a non-empty vec
         for _ in 1..self.stack.len() {
@@ -71,16 +71,16 @@ impl<T> DepthStack<T> {
         debug_assert_eq!(self.stack.len(), 1, "Open layers remain after collapsing");
 
         // Return top-level layer
-        mem::replace(self.stack.first_mut(), Vec::new())
+        mem::replace(&mut self.stack.first_mut().1, Vec::new())
     }
 }
 
-pub fn process_depths<I, L, T>(items: I) -> DepthList<T>
+pub fn process_depths<I, L, T>(top_ltype: L, items: I) -> DepthList<L, T>
 where
     I: IntoIterator<Item = (usize, L, T)>,
     L: Copy + PartialEq,
 {
-    let mut stack = DepthStack::new();
+    let mut stack = DepthStack::new(top_ltype);
 
     // The depth value for the previous item
     let mut previous = 0;
@@ -97,7 +97,7 @@ where
 
         // Open new levels
         for _ in previous..depth {
-            stack.increase_depth();
+            stack.increase_depth(ltype);
         }
 
         // Close existing levels
