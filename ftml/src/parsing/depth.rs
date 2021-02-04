@@ -75,9 +75,10 @@ impl<T> DepthStack<T> {
     }
 }
 
-pub fn process_depths<I, T>(items: I) -> DepthList<T>
+pub fn process_depths<I, L, T>(items: I) -> DepthList<T>
 where
-    I: IntoIterator<Item = (usize, T)>,
+    I: IntoIterator<Item = (usize, L, T)>,
+    L: Copy + PartialEq,
 {
     let mut stack = DepthStack::new();
 
@@ -85,7 +86,7 @@ where
     let mut previous = 0;
 
     // Iterate through each of the items
-    for (depth, item) in items {
+    for (depth, ltype, item) in items {
         // Add or remove new depth levels as appropriate,
         // based on what our new depth value is compared
         // to the value in the previous iteration.

@@ -146,7 +146,7 @@ fn try_consume_fn<'p, 'r, 't>(
         .chain(&mut exceptions);
 
         // Append bullet line
-        depths.push((depth, elements));
+        depths.push((depth, (), elements));
     }
 
     // Our rule is in another castle
