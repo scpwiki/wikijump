@@ -117,6 +117,16 @@ impl<T> From<NonEmptyVec<T>> for (T, Vec<T>) {
     }
 }
 
+impl<T> From<NonEmptyVec<T>> for Vec<T> {
+    #[inline]
+    fn from(vec: NonEmptyVec<T>) -> Vec<T> {
+        let NonEmptyVec { first, mut others } = vec;
+
+        others.push(first);
+        others
+    }
+}
+
 #[test]
 fn non_empty_vec() {
     macro_rules! check {
