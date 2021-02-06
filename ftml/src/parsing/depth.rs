@@ -138,8 +138,8 @@ where
 fn depth() {
     macro_rules! check {
         ($depths:expr, $list:expr $(,)?) => {{
-            let expected: Vec<DepthItem<char>> = $list;
-            let actual = process_depths($depths);
+            let expected: Vec<DepthItem<(), char>> = $list;
+            let actual = process_depths((), $depths);
 
             assert_eq!(
                 actual, expected,
@@ -156,48 +156,55 @@ fn depth() {
 
     macro_rules! list {
         () => {
-            DepthItem::List(vec![])
+            DepthItem::List((), vec![])
         };
         ($($x:expr),+ $(,)?) => {
-            DepthItem::List(vec![$($x),+])
+            DepthItem::List((), vec![$($x),+])
         };
     }
 
     check!(vec![], vec![]);
     check!(
-        vec![(0, 'a')], //
+        vec![(0, (), 'a')], //
         vec![item!('a')],
     );
     check!(
-        vec![(0, 'a'), (0, 'b')], //
+        vec![(0, (), 'a'), (0, (), 'b')], //
         vec![item!('a'), item!('b')],
     );
     check!(
-        vec![(0, 'a'), (0, 'b'), (1, 'c')],
+        vec![(0, (), 'a'), (0, (), 'b'), (1, (), 'c')],
         vec![item!('a'), item!('b'), list![item!('c')]]
     );
     check!(
-        vec![(0, 'a'), (0, 'b'), (2, 'c')],
+        vec![(0, (), 'a'), (0, (), 'b'), (2, (), 'c')],
         vec![item!('a'), item!('b'), list![list![item!('c')]]],
     );
     check!(
-        vec![(1, 'a'), (1, 'b')],
+        vec![(1, (), 'a'), (1, (), 'b')],
         vec![list![item!('a'), item!('b')]],
     );
     check!(
-        vec![(2, 'a'), (2, 'b')],
+        vec![(2, (), 'a'), (2, (), 'b')],
         vec![list![list![item!('a'), item!('b')]]],
     );
     check!(
-        vec![(2, 'a'), (1, 'b')],
+        vec![(2, (), 'a'), (1, (), 'b')],
         vec![list![list![item!('a')], item!('b')]],
     );
     check!(
-        vec![(5, 'a')],
+        vec![(5, (), 'a')],
         vec![list![list![list![list![list![item!('a')]]]]]],
     );
     check!(
-        vec![(2, 'a'), (3, 'b'), (1, 'c'), (1, 'd'), (2, 'e'), (0, 'f')],
+        vec![
+            (2, (), 'a'),
+            (3, (), 'b'),
+            (1, (), 'c'),
+            (1, (), 'd'),
+            (2, (), 'e'),
+            (0, (), 'f'),
+        ],
         vec![
             list![
                 list![item!('a'), list![item!('b')]],
