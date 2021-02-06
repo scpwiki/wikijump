@@ -71,7 +71,7 @@ impl<T> NonEmptyVec<T> {
     ///
     /// Compare to `Vec::is_empty()`.
     #[inline]
-    pub fn is_solo(&self) -> bool {
+    pub fn is_single(&self) -> bool {
         self.others.is_empty()
     }
 
