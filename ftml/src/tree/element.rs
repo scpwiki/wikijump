@@ -24,7 +24,12 @@ use crate::enums::{AnchorTarget, LinkLabel};
 use std::borrow::Cow;
 use std::num::NonZeroU32;
 
-pub type Elements<'t> = Vec<Element<'t>>;
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+pub enum Elements<'t> {
+    Multiple(Vec<Element<'t>>),
+    Single(Element<'t>),
+    None,
+}
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case", tag = "element", content = "data")]
