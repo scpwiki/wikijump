@@ -156,10 +156,14 @@ fn try_consume_fn<'p, 'r, 't>(
 
     // NOTE unwrap is safe since we check depths.is_empty(), which means at least one iteration
     // Build a tree structure from our depths list
-    let depth_list = process_depths(top_list_type.unwrap(), depths);
-    let element = build_list_element(depth_list, top_list_type.unwrap());
+    let depth_lists = process_depths(top_list_type.unwrap(), depths);
+    let elements: Vec<Element> = depth_lists
+        .into_iter()
+        .map(|depth_list| build_list_element(depth_list, top_list_type.unwrap()))
+        .collect();
 
-    ok!(element, exceptions)
+    todo!()
+    //ok!(element, exceptions)
 }
 
 fn build_list_element(

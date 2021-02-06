@@ -170,16 +170,15 @@ fn depth() {
 
             // Get results
             let expected: Vec<DepthItem<(), char>> = $list;
-            let results = process_depths((), depths);
+            let actual = process_depths((), depths);
             assert_eq!(
-                results.len(),
+                actual.len(),
                 1,
                 "Actual produced finished list doesn't have exactly one element",
             );
 
-            let actual = results[0];
             assert_eq!(
-                actual, expected,
+                &actual[0], &expected,
                 "Actual produced depth list doesn't match expected",
             );
         }};
