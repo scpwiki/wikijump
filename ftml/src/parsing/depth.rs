@@ -34,7 +34,10 @@ struct DepthStack<L, T> {
     stack: NonEmptyVec<(L, Vec<DepthItem<L, T>>)>,
 }
 
-impl<L, T> DepthStack<L, T> {
+impl<L, T> DepthStack<L, T>
+where
+    L: Copy,
+{
     #[inline]
     pub fn new(ltype: L) -> Self {
         DepthStack {
@@ -59,6 +62,11 @@ impl<L, T> DepthStack<L, T> {
     #[inline]
     pub fn push_item(&mut self, item: T) {
         self.push(DepthItem::Item(item));
+    }
+
+    #[inline]
+    pub fn last_type(&self) -> L {
+        self.stack.last().0
     }
 
     pub fn into_tree(mut self) -> DepthList<L, T> {
