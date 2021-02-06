@@ -31,6 +31,7 @@ pub enum DepthItem<L, T> {
 
 #[derive(Debug)]
 struct DepthStack<L, T> {
+    finished: Vec<DepthList<L, T>>,
     stack: NonEmptyVec<(L, Vec<DepthItem<L, T>>)>,
 }
 
@@ -41,6 +42,7 @@ where
     #[inline]
     pub fn new(ltype: L) -> Self {
         DepthStack {
+            finished: Vec::new(),
             stack: NonEmptyVec::new((ltype, Vec::new())),
         }
     }
@@ -60,8 +62,7 @@ where
             //
             // Instead, output this entire thing as a finished list tree,
             // then create a new one for the process to continue.
-            let list = self.stack.consume((ltype, Vec::new()));
-            self.finished.push(list);
+            self.finish_depth_list();
         } else {
             // We can just decrease and increase to make a new list
             self.decrease_depth();
@@ -83,17 +84,26 @@ where
         self.stack.last().0
     }
 
-    pub fn into_tree(mut self) -> DepthList<L, T> {
+    fn finish_depth_list(&mut self) {
         // Wrap all opened layers
         // Start at 1 since it's a non-empty vec
         for _ in 1..self.stack.len() {
             self.decrease_depth();
         }
 
-        debug_assert!(self.stack.is_single(), "Open layers remain after collapsing");
+        debug_assert!(
+            self.stack.is_single(),
+            "Open layers remain after collapsing",
+        );
 
         // Return top-level layer
-        mem::replace(&mut self.stack.first_mut().1, Vec::new())
+        let list = mem::replace(&mut self.stack.first_mut().1, Vec::new());
+        self.finished.push(list);
+    }
+
+    pub fn into_trees(mut self) -> Vec<DepthList<L, T>> {
+        self.finish_depth_list();
+        self.finished
     }
 }
 

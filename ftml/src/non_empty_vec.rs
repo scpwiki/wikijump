@@ -20,8 +20,6 @@
 
 //! A `Vec<T>` which always has at least one element.
 
-use std::mem;
-
 #[derive(Debug, Clone, Hash, Default, PartialEq, Eq)]
 pub struct NonEmptyVec<T> {
     first: T,
@@ -100,20 +98,6 @@ impl<T> NonEmptyVec<T> {
     #[inline]
     pub fn pop(&mut self) -> Option<T> {
         self.others.pop()
-    }
-
-    /// Consumes this `NonEmptyVec`, converting it into a regular `Vec`.
-    ///
-    /// The object is empty following this consumption,
-    /// minus the new starting element of course.
-    pub fn consume(&mut self, mut first: T) -> Vec<T> {
-        // Swap out first element.
-        mem::swap(&mut self.first, &mut first);
-
-        // Get remaining elements, then append the old first element.
-        let mut result = mem::replace(&mut self.others, Vec::new());
-        result.insert(0, first);
-        result
     }
 }
 
