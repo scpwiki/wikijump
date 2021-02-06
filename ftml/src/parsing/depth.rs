@@ -50,8 +50,22 @@ where
     }
 
     pub fn decrease_depth(&mut self) {
-        if let Some((ltype, list)) = self.stack.pop() {
-            self.push(DepthItem::List(ltype, list));
+        let (ltype, list) = self.stack.pop().expect("No depth to pop off!");
+        self.push(DepthItem::List(ltype, list));
+    }
+
+    pub fn new_list(&mut self, ltype: L) {
+        if self.stack.is_single() {
+            // This is the last layer, so the pop/push trick doesn't work.
+            //
+            // Instead, output this entire thing as a finished list tree,
+            // then create a new one for the process to continue.
+            let list = self.stack.consume((ltype, Vec::new()));
+            self.finished.push(list);
+        } else {
+            // We can just decrease and increase to make a new list
+            self.decrease_depth();
+            self.increase_depth(ltype);
         }
     }
 
