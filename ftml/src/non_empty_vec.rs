@@ -61,9 +61,18 @@ impl<T> NonEmptyVec<T> {
         &self.others
     }
 
+    /// Returns the total number of elements, including the one required element.
     #[inline]
     pub fn len(&self) -> usize {
         self.others.len() + 1
+    }
+
+    /// Returns if this list has only one element, or has more.
+    ///
+    /// Compare to `Vec::is_empty()`.
+    #[inline]
+    pub fn is_solo(&self) -> bool {
+        self.others.is_empty()
     }
 
     // Mutable getters
