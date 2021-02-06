@@ -76,7 +76,7 @@ where
             self.decrease_depth();
         }
 
-        debug_assert_eq!(self.stack.len(), 1, "Open layers remain after collapsing");
+        debug_assert!(self.stack.is_solo(), "Open layers remain after collapsing");
 
         // Return top-level layer
         mem::replace(&mut self.stack.first_mut().1, Vec::new())
