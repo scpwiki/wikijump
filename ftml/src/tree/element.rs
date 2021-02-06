@@ -25,13 +25,6 @@ use std::borrow::Cow;
 use std::num::NonZeroU32;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
-pub enum Elements<'t> {
-    Multiple(Vec<Element<'t>>),
-    Single(Element<'t>),
-    None,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case", tag = "element", content = "data")]
 pub enum Element<'t> {
     /// Generic element that contains other elements within it.
@@ -208,5 +201,50 @@ impl slog::Value for Element<'_> {
         serializer: &mut dyn slog::Serializer,
     ) -> slog::Result {
         serializer.emit_str(key, self.name())
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+pub enum Elements<'t> {
+    Multiple(Vec<Element<'t>>),
+    Single(Element<'t>),
+    None,
+}
+
+impl<'t> IntoIterator for Elements<'t> {
+    type Item = Element<'t>;
+    type IntoIter = ElementsIterator<'t>;
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        match self {
+            Elements::None => ElementsIterator::None,
+            Elements::Single(element) => ElementsIterator::Single(Some(element)),
+            Elements::Multiple(mut elements) => {
+                // So we can just pop for each step
+                elements.reverse();
+                ElementsIterator::Multiple(elements)
+            }
+        }
+    }
+}
+
+#[derive(Debug)]
+pub enum ElementsIterator<'t> {
+    Multiple(Vec<Element<'t>>),
+    Single(Option<Element<'t>>),
+    None,
+}
+
+impl<'t> Iterator for ElementsIterator<'t> {
+    type Item = Element<'t>;
+
+    #[inline]
+    fn next(&mut self) -> Option<Element<'t>>{
+        match self {
+            ElementsIterator::Multiple(ref mut elements) => elements.pop(),
+            ElementsIterator::Single(ref mut element) => element.take(),
+            ElementsIterator::None => None,
+        }
     }
 }
