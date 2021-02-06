@@ -113,6 +113,19 @@ where
             stack.decrease_depth();
         }
 
+        // Create new level if the type doesn't match
+        //
+        // Here we decrease and increase the depth to close
+        // the current layer, then make a new one with the
+        // type this item has.
+        //
+        // We'll keep appending to this remade layer until
+        // we hit a different depth or a different type.
+        if stack.last_type() != ltype {
+            stack.decrease_depth();
+            stack.increase_depth(ltype);
+        }
+
         // Push element and update state
         stack.push_item(item);
         previous = depth;
