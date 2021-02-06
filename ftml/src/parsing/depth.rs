@@ -107,7 +107,7 @@ where
     }
 }
 
-pub fn process_depths<I, L, T>(top_ltype: L, items: I) -> DepthList<L, T>
+pub fn process_depths<I, L, T>(top_ltype: L, items: I) -> Vec<DepthList<L, T>>
 where
     I: IntoIterator<Item = (usize, L, T)>,
     L: Copy + PartialEq,
@@ -155,7 +155,7 @@ where
         previous = depth;
     }
 
-    stack.into_tree()
+    stack.into_trees()
 }
 
 #[test]
@@ -170,8 +170,14 @@ fn depth() {
 
             // Get results
             let expected: Vec<DepthItem<(), char>> = $list;
-            let actual = process_depths((), depths);
+            let results = process_depths((), depths);
+            assert_eq!(
+                results.len(),
+                1,
+                "Actual produced finished list doesn't have exactly one element",
+            );
 
+            let actual = results[0];
             assert_eq!(
                 actual, expected,
                 "Actual produced depth list doesn't match expected",
