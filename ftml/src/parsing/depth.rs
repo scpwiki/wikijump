@@ -98,8 +98,8 @@ where
 
         // Return top-level layer
         let (ltype, list) = {
-            let (ltype, mut stack_list) = self.stack.first_mut();
-            let new_list = mem::replace(&mut stack_list, Vec::new());
+            let (ltype, stack_list) = self.stack.first_mut();
+            let new_list = mem::replace(stack_list, Vec::new());
 
             (*ltype, new_list)
         };
@@ -177,7 +177,8 @@ fn depth() {
                 .collect();
 
             // Get results
-            let expected: Vec<DepthItem<(), char>> = $list;
+            let list: Vec<DepthItem<(), char>> = $list;
+            let expected = ((), list);
             let actual = process_depths((), depths);
             assert_eq!(
                 actual.len(),
@@ -257,7 +258,7 @@ fn depth() {
 fn depth_types() {
     macro_rules! check {
         ($depths:expr, $list:expr $(,)?) => {{
-            let expected: Vec<Vec<DepthItem<char, char>>> = $list;
+            let expected: Vec<(char, Vec<DepthItem<char, char>>)> = $list;
             let actual = process_depths(' ', $depths);
 
             assert_eq!(
@@ -285,14 +286,14 @@ fn depth_types() {
     check!(vec![], vec![]);
     check!(
         vec![(0, '*', 'a')], //
-        vec![vec![item!('a')]],
+        vec![('*', vec![item!('a')])],
     );
     check!(
         vec![(0, '*', 'a'), (0, '*', 'b')], //
-        vec![vec![item!('a'), item!('b')]],
+        vec![('*', vec![item!('a'), item!('b')])],
     );
     check!(
         vec![(0, '*', 'a'), (0, '#', 'b')], //
-        vec![vec![item!('a')], vec![item!('b')]],
+        vec![('*', vec![item!('a')]), ('#', vec![item!('b')])],
     );
 }

@@ -159,20 +159,20 @@ fn try_consume_fn<'p, 'r, 't>(
     let depth_lists = process_depths(top_list_type.unwrap(), depths);
     let elements: Vec<Element> = depth_lists
         .into_iter()
-        .map(|depth_list| build_list_element(depth_list, top_list_type.unwrap()))
+        .map(|(ltype, depth_list)| build_list_element(ltype, depth_list))
         .collect();
 
     ok!(elements, exceptions)
 }
 
 fn build_list_element(
-    list: DepthList<ListType, Vec<Element>>,
     top_ltype: ListType,
+    list: DepthList<ListType, Vec<Element>>,
 ) -> Element {
     let build_item = |item| match item {
         DepthItem::Item(elements) => ListItem::Elements(elements),
         DepthItem::List(ltype, list) => {
-            ListItem::SubList(build_list_element(list, ltype))
+            ListItem::SubList(build_list_element(ltype, list))
         }
     };
 
