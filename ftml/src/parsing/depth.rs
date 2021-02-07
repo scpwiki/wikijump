@@ -269,8 +269,8 @@ fn depth_types() {
         () => {
             DepthItem::List((), vec![])
         };
-        ($($x:expr),+ $(,)?) => {
-            DepthItem::List((), vec![$($x),+])
+        ($ltype:expr, $($x:expr),+ $(,)?) => {
+            DepthItem::List($ltype, vec![$($x),+])
         };
     }
 
