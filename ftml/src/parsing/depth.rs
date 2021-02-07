@@ -31,7 +31,7 @@ pub enum DepthItem<L, T> {
 
 #[derive(Debug)]
 struct DepthStack<L, T> {
-    finished: Vec<DepthList<L, T>>,
+    finished: Vec<(L, DepthList<L, T>)>,
     stack: NonEmptyVec<(L, Vec<DepthItem<L, T>>)>,
 }
 
@@ -97,21 +97,26 @@ where
         );
 
         // Return top-level layer
-        let list = mem::replace(&mut self.stack.first_mut().1, Vec::new());
+        let (ltype, list) = {
+            let (ltype, mut stack_list) = self.stack.first_mut();
+            let new_list = mem::replace(&mut stack_list, Vec::new());
+
+            (*ltype, new_list)
+        };
 
         // Only push if the list has elements
         if !list.is_empty() {
-            self.finished.push(list);
+            self.finished.push((ltype, list));
         }
     }
 
-    pub fn into_trees(mut self) -> Vec<DepthList<L, T>> {
+    pub fn into_trees(mut self) -> Vec<(L, DepthList<L, T>)> {
         self.finish_depth_list();
         self.finished
     }
 }
 
-pub fn process_depths<I, L, T>(top_ltype: L, items: I) -> Vec<DepthList<L, T>>
+pub fn process_depths<I, L, T>(top_ltype: L, items: I) -> Vec<(L, DepthList<L, T>)>
 where
     I: IntoIterator<Item = (usize, L, T)>,
     L: Copy + PartialEq,
@@ -281,5 +286,13 @@ fn depth_types() {
     check!(
         vec![(0, '*', 'a')], //
         vec![vec![item!('a')]],
+    );
+    check!(
+        vec![(0, '*', 'a'), (0, '*', 'b')], //
+        vec![vec![item!('a'), item!('b')]],
+    );
+    check!(
+        vec![(0, '*', 'a'), (0, '#', 'b')], //
+        vec![vec![item!('a')], vec![item!('b')]],
     );
 }
