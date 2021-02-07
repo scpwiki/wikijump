@@ -34,7 +34,7 @@ pub fn collect_consume<'p, 'r, 't>(
     invalid_conditions: &[ParseCondition],
     warn_kind: Option<ParseWarningKind>,
 ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
-    let mut elements = Vec::new();
+    let mut all_elements = Vec::new();
 
     let (_, exceptions) = collect(
         log,
@@ -44,14 +44,10 @@ pub fn collect_consume<'p, 'r, 't>(
         invalid_conditions,
         warn_kind,
         |log, parser| {
-            consume(log, parser)?.map_ok(|element| {
-                if element != Element::Null {
-                    elements.push(element);
-                }
-            })
+            consume(log, parser)?.map_ok(|elements| all_elements.extend(elements))
         },
     )?
     .into();
 
-    ok!(elements, exceptions)
+    ok!(all_elements, exceptions)
 }

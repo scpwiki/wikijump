@@ -39,7 +39,7 @@ pub const RULE_LIST: Rule = Rule {
 fn try_consume_fn<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Element<'t>> {
+) -> ParseResult<'r, 't, Elements<'t>> {
     // We don't know the list type(s) yet, so just log that we're starting
     debug!(log, "Parsing a list");
 

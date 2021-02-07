@@ -33,7 +33,7 @@ pub const RULE_LINE_BREAK_PARAGRAPH: Rule = Rule {
 fn line_break<'p, 'r, 't>(
     log: &slog::Logger,
     _parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Element<'t>> {
+) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Consuming newline token as line break");
 
     ok!(Element::LineBreak)
@@ -42,7 +42,7 @@ fn line_break<'p, 'r, 't>(
 fn line_break_paragraph<'p, 'r, 't>(
     log: &slog::Logger,
     _parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Element<'t>> {
+) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Consuming paragraph break as line break");
 
     // This rule is kind of special. It's the same as RULE_LINE_BREAK,

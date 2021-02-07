@@ -35,7 +35,7 @@ fn parse_fn<'r, 't>(
     name: &'t str,
     special: bool,
     in_head: bool,
-) -> ParseResult<'r, 't, Element<'t>> {
+) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(
         log,
         "Parsing collapsible block";

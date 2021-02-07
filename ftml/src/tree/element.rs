@@ -158,12 +158,6 @@ pub enum Element<'t> {
 
     /// A horizontal rule.
     HorizontalRule,
-
-    /// A null element.
-    ///
-    /// The element equivalent of a no-op instruction. No action should be taken,
-    /// and it should be skipped over.
-    Null,
 }
 
 impl Element<'_> {
@@ -188,7 +182,6 @@ impl Element<'_> {
             Element::LineBreak => "LineBreak",
             Element::LineBreaks { .. } => "LineBreaks",
             Element::HorizontalRule => "HorizontalRule",
-            Element::Null => "Null",
         }
     }
 }
@@ -209,6 +202,50 @@ pub enum Elements<'t> {
     Multiple(Vec<Element<'t>>),
     Single(Element<'t>),
     None,
+}
+
+impl Elements<'_> {
+    #[inline]
+    pub fn is_empty(&self) -> bool {
+        match self {
+            Elements::Multiple(elements) => elements.is_empty(),
+            Elements::Single(_) => false,
+            Elements::None => true,
+        }
+    }
+
+    #[inline]
+    pub fn len(&self) -> usize {
+        match self {
+            Elements::Multiple(elements) => elements.len(),
+            Elements::Single(_) => 1,
+            Elements::None => 0,
+        }
+    }
+}
+
+impl<'t> From<Element<'t>> for Elements<'t> {
+    #[inline]
+    fn from(element: Element<'t>) -> Elements<'t> {
+        Elements::Single(element)
+    }
+}
+
+impl<'t> From<Option<Element<'t>>> for Elements<'t> {
+    #[inline]
+    fn from(element: Option<Element<'t>>) -> Elements<'t> {
+        match element {
+            Some(element) => Elements::Single(element),
+            None => Elements::None,
+        }
+    }
+}
+
+impl<'t> From<Vec<Element<'t>>> for Elements<'t> {
+    #[inline]
+    fn from(elements: Vec<Element<'t>>) -> Elements<'t> {
+        Elements::Multiple(elements)
+    }
 }
 
 impl<'t> IntoIterator for Elements<'t> {

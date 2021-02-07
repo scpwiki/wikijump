@@ -299,23 +299,21 @@ where
         &mut self,
         block_rule: &BlockRule,
     ) -> ParseResult<'r, 't, Vec<Element<'t>>> {
-        let mut elements = Vec::new();
-        let mut exceptions = Vec::new();
+        let mut all_elements = Vec::new();
+        let mut all_exceptions = Vec::new();
         let mut first = true;
 
         loop {
             let result = self.verify_end_block(first, block_rule);
 
             if result.is_some() {
-                return ok!(elements, exceptions);
+                return ok!(all_elements, all_exceptions);
             }
 
             first = false;
             let old_remaining = self.remaining();
-            let element = consume(&self.log(), self)?.chain(&mut exceptions);
-            if element != Element::Null {
-                elements.push(element);
-            }
+            let elements = consume(&self.log(), self)?.chain(&mut all_exceptions);
+            all_elements.extend(elements);
 
             // Step if the rule hasn't moved the pointer itself
             if self.same_pointer(old_remaining) {

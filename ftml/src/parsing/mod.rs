@@ -42,7 +42,7 @@ mod prelude {
         ParseWarningKind, Token,
     };
     pub use crate::text::FullText;
-    pub use crate::tree::{Element, Elements};
+    pub use crate::tree::{Element, Elements, ElementsIterator};
 }
 
 use self::boolean::parse_boolean;

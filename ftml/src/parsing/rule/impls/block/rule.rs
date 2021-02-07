@@ -41,7 +41,7 @@ pub const RULE_BLOCK_SKIP: Rule = Rule {
 fn block_regular<'r, 't>(
     log: &slog::Logger,
     parser: &mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Element<'t>> {
+) -> ParseResult<'r, 't, Elements<'t>> {
     trace!(log, "Trying to process a block");
 
     parse_block(log, parser, false)
@@ -50,7 +50,7 @@ fn block_regular<'r, 't>(
 fn block_special<'r, 't>(
     log: &slog::Logger,
     parser: &mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Element<'t>> {
+) -> ParseResult<'r, 't, Elements<'t>> {
     trace!(log, "Trying to process a block (with special)");
 
     parse_block(log, parser, true)
@@ -59,7 +59,7 @@ fn block_special<'r, 't>(
 fn block_skip<'r, 't>(
     log: &slog::Logger,
     parser: &mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Element<'t>> {
+) -> ParseResult<'r, 't, Elements<'t>> {
     trace!(
         log,
         "Trying to see if we skip a newline due to upcoming block",
@@ -91,7 +91,7 @@ fn block_skip<'r, 't>(
     });
 
     if result {
-        ok!(Element::Null)
+        ok!(Elements::None)
     } else {
         Err(parser.make_warn(ParseWarningKind::RuleFailed))
     }
@@ -103,7 +103,7 @@ fn parse_block<'r, 't>(
     log: &slog::Logger,
     parser: &mut Parser<'r, 't>,
     special: bool,
-) -> ParseResult<'r, 't, Element<'t>>
+) -> ParseResult<'r, 't, Elements<'t>>
 where
     'r: 't,
 {
