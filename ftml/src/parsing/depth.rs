@@ -62,7 +62,7 @@ where
             //
             // Instead, output this entire thing as a finished list tree,
             // then create a new one for the process to continue.
-            self.finish_depth_list();
+            self.finish_depth_list(Some(ltype));
         } else {
             // We can just decrease and increase to make a new list
             self.decrease_depth();
@@ -84,7 +84,7 @@ where
         self.stack.last().0
     }
 
-    fn finish_depth_list(&mut self) {
+    fn finish_depth_list(&mut self, new_ltype: Option<L>) {
         // Wrap all opened layers
         // Start at 1 since it's a non-empty vec
         for _ in 1..self.stack.len() {
@@ -98,10 +98,13 @@ where
 
         // Return top-level layer
         let (ltype, list) = {
-            let (ltype, stack_list) = self.stack.first_mut();
-            let new_list = mem::replace(stack_list, Vec::new());
+            // For into_trees(), we don't care what the new ltype is,
+            // so we just reuse the last one.
+            //
+            // But for new_list() we do, we want a new list layer.
+            let new_ltype = new_ltype.unwrap_or(self.stack.first().0);
 
-            (*ltype, new_list)
+            mem::replace(self.stack.first_mut(), (new_ltype, Vec::new()))
         };
 
         // Only push if the list has elements
@@ -111,7 +114,7 @@ where
     }
 
     pub fn into_trees(mut self) -> Vec<(L, DepthList<L, T>)> {
-        self.finish_depth_list();
+        self.finish_depth_list(None);
         self.finished
     }
 }
