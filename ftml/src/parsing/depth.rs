@@ -146,8 +146,7 @@ where
         // We'll keep appending to this remade layer until
         // we hit a different depth or a different type.
         if stack.last_type() != ltype {
-            stack.decrease_depth();
-            stack.increase_depth(ltype);
+            stack.new_list(ltype);
         }
 
         // Push element and update state
