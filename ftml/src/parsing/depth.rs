@@ -245,3 +245,40 @@ fn depth() {
         ],
     );
 }
+
+#[test]
+fn depth_types() {
+    macro_rules! check {
+        ($ltype:expr, $depths:expr, $list:expr $(,)?) => {{
+            let expected: Vec<Vec<DepthItem<char, char>>> = $list;
+            let actual = process_depths($ltype, $depths);
+
+            assert_eq!(
+                actual, expected,
+                "Actual produced depth list doesn't match expected",
+            );
+        }};
+    }
+
+    macro_rules! item {
+        ($item:expr) => {
+            DepthItem::Item($item)
+        };
+    }
+
+    macro_rules! list {
+        () => {
+            DepthItem::List((), vec![])
+        };
+        ($($x:expr),+ $(,)?) => {
+            DepthItem::List((), vec![$($x),+])
+        };
+    }
+
+    check!('*', vec![], vec![vec![]]);
+    check!(
+        '*',
+        vec![(0, '*', 'a')], //
+        vec![vec![item!('a')]],
+    );
+}
