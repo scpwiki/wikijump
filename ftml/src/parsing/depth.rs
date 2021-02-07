@@ -40,10 +40,10 @@ where
     L: Copy,
 {
     #[inline]
-    pub fn new(ltype: L) -> Self {
+    pub fn new(top_ltype: L) -> Self {
         DepthStack {
             finished: Vec::new(),
-            stack: NonEmptyVec::new((ltype, Vec::new())),
+            stack: NonEmptyVec::new((top_ltype, Vec::new())),
         }
     }
 
@@ -98,7 +98,11 @@ where
 
         // Return top-level layer
         let list = mem::replace(&mut self.stack.first_mut().1, Vec::new());
-        self.finished.push(list);
+
+        // Only push if the list has elements
+        if !list.is_empty() {
+            self.finished.push(list);
+        }
     }
 
     pub fn into_trees(mut self) -> Vec<DepthList<L, T>> {
@@ -198,7 +202,6 @@ fn depth() {
         };
     }
 
-    check!(vec![], vec![]);
     check!(
         vec![(0, 'a')], //
         vec![item!('a')],
@@ -248,9 +251,9 @@ fn depth() {
 #[test]
 fn depth_types() {
     macro_rules! check {
-        ($ltype:expr, $depths:expr, $list:expr $(,)?) => {{
+        ($depths:expr, $list:expr $(,)?) => {{
             let expected: Vec<Vec<DepthItem<char, char>>> = $list;
-            let actual = process_depths($ltype, $depths);
+            let actual = process_depths(' ', $depths);
 
             assert_eq!(
                 actual, expected,
@@ -274,9 +277,8 @@ fn depth_types() {
         };
     }
 
-    check!('*', vec![], vec![vec![]]);
+    check!(vec![], vec![]);
     check!(
-        '*',
         vec![(0, '*', 'a')], //
         vec![vec![item!('a')]],
     );
