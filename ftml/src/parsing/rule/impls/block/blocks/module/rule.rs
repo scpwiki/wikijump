@@ -65,10 +65,9 @@ fn parse_fn<'r, 't>(
     ok!(build_element(module), exceptions)
 }
 
-fn build_element(module: Module) -> Element {
-    if module == Module::Null {
-        Element::Null
-    } else {
-        Element::Module(module)
+fn build_element(module: Option<Module>) -> Elements {
+    match module {
+        Some(module) => Elements::Single(Element::Module(module)),
+        None => Elements::None,
     }
 }

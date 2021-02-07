@@ -94,4 +94,4 @@ pub type ModuleParseFn = for<'r, 't> fn(
     &mut Parser<'r, 't>,
     &'t str,
     Arguments<'t>,
-) -> ParseResult<'r, 't, Module<'t>>;
+) -> ParseResult<'r, 't, Option<Module<'t>>>;

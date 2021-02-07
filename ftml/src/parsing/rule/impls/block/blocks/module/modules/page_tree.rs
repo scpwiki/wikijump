@@ -31,7 +31,7 @@ fn parse_fn<'r, 't>(
     parser: &mut Parser<'r, 't>,
     name: &'t str,
     mut arguments: Arguments<'t>,
-) -> ParseResult<'r, 't, Module<'t>> {
+) -> ParseResult<'r, 't, Option<Module<'t>>> {
     debug!(log, "Parsing PageTree module");
     assert_module_name(&MODULE_PAGE_TREE, name);
 
@@ -39,9 +39,9 @@ fn parse_fn<'r, 't>(
     let depth = arguments.get_value(parser, "depth")?;
     let show_root = arguments.get_bool(parser, "showRoot")?.unwrap_or(false);
 
-    ok!(Module::PageTree {
+    ok!(Some(Module::PageTree {
         root,
         show_root,
         depth
-    })
+    }))
 }

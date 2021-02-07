@@ -31,9 +31,9 @@ fn parse_fn<'r, 't>(
     _parser: &mut Parser<'r, 't>,
     name: &'t str,
     _arguments: Arguments<'t>,
-) -> ParseResult<'r, 't, Module<'t>> {
+) -> ParseResult<'r, 't, Option<Module<'t>>> {
     debug!(log, "Parsing categories module");
     assert_module_name(&MODULE_RATE, name);
 
-    ok!(Module::Rate)
+    ok!(Some(Module::Rate))
 }

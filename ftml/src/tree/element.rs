@@ -240,7 +240,7 @@ impl<'t> Iterator for ElementsIterator<'t> {
     type Item = Element<'t>;
 
     #[inline]
-    fn next(&mut self) -> Option<Element<'t>>{
+    fn next(&mut self) -> Option<Element<'t>> {
         match self {
             ElementsIterator::Multiple(ref mut elements) => elements.pop(),
             ElementsIterator::Single(ref mut element) => element.take(),
