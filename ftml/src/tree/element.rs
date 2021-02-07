@@ -285,3 +285,37 @@ impl<'t> Iterator for ElementsIterator<'t> {
         }
     }
 }
+
+#[test]
+fn elements_iter() {
+    macro_rules! check {
+        ($elements:expr, $expected:expr $(,)?) => {{
+            let actual: Vec<Element> = $elements.into_iter().collect();
+            let expected = $expected;
+
+            assert_eq!(
+                actual, expected,
+                "Actual element iteration doesn't match expected"
+            );
+        }};
+    }
+
+    check!(Elements::None, vec![]);
+    check!(Elements::Single(text!("a")), vec![text!("a")]);
+    check!(
+        Elements::Multiple(vec![]), //
+        vec![],
+    );
+    check!(
+        Elements::Multiple(vec![text!("a")]), //
+        vec![text!("a")],
+    );
+    check!(
+        Elements::Multiple(vec![text!("a"), text!("b")]),
+        vec![text!("a"), text!("b")],
+    );
+    check!(
+        Elements::Multiple(vec![text!("a"), text!("b"), text!("c")]),
+        vec![text!("a"), text!("b"), text!("c")],
+    );
+}
