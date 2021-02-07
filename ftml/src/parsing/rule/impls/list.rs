@@ -162,8 +162,7 @@ fn try_consume_fn<'p, 'r, 't>(
         .map(|depth_list| build_list_element(depth_list, top_list_type.unwrap()))
         .collect();
 
-    todo!()
-    //ok!(element, exceptions)
+    ok!(elements, exceptions)
 }
 
 fn build_list_element(
