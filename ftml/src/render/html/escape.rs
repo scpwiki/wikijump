@@ -45,7 +45,7 @@ fn test() {
             let mut buffer = String::new();
             escape(&mut buffer, $input);
 
-            assert_eq!(&buffer, $expected, "Escaped HTML doesn't match expected",);
+            assert_eq!(&buffer, $expected, "Escaped HTML doesn't match expected");
         }};
     }
 
