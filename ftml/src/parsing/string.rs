@@ -86,10 +86,7 @@ fn slice_middle(input: &str) -> &str {
 #[test]
 fn test_parse_string() {
     macro_rules! test {
-        ($input:expr, $expected:expr, $variant:tt,) => {
-            test!($input, $expected, $variant)
-        };
-        ($input:expr, $expected:expr, $variant:tt) => {{
+        ($input:expr, $expected:expr, $variant:tt $(,)?) => {{
             let actual = parse_string($input);
 
             assert_eq!(
@@ -119,7 +116,7 @@ fn test_parse_string() {
 #[test]
 fn test_slice_middle() {
     macro_rules! test {
-        ($input:expr, $expected:expr) => {{
+        ($input:expr, $expected:expr $(,)?) => {{
             let actual = slice_middle($input);
 
             assert_eq!(

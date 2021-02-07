@@ -189,19 +189,11 @@ impl<'t> From<IncludeRef<'t>> for (PageRef<'t>, IncludeVariables<'t>) {
 #[test]
 fn page_ref() {
     macro_rules! test {
-        ($input:expr) => {
+        ($input:expr $(,)?) => {
             test!($input => None)
         };
 
-        ($input:expr,) => {
-            test!($input => None)
-        };
-
-        ($input:expr, $expected:expr) => {
-            test!($input => Some($expected))
-        };
-
-        ($input:expr, $expected:expr,) => {
+        ($input:expr, $expected:expr $(,)?) => {
             test!($input => Some($expected))
         };
 

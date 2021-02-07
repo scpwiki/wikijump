@@ -105,11 +105,7 @@ impl<'t> Display for MapWrap<'_, 't> {
 #[test]
 fn map_wrap() {
     macro_rules! test {
-        ($input:expr, $expected:expr,) => {
-            test!($input, $expected)
-        };
-
-        ($input:expr, $expected:expr) => {{
+        ($input:expr, $expected:expr $(,)?) => {{
             // Get what was actually specified as the input,
             // stripping out the "hashmap!".
             let raw_input = &stringify!($input)[9..];

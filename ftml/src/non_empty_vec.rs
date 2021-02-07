@@ -123,7 +123,7 @@ impl<T> From<NonEmptyVec<T>> for Vec<T> {
 #[test]
 fn non_empty_vec() {
     macro_rules! check {
-        ($vec:expr, $values:expr) => {{
+        ($vec:expr, $values:expr $(,)?) => {{
             assert_eq!(
                 $vec.first(),
                 &$values[0],

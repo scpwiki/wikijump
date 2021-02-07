@@ -25,11 +25,7 @@ fn includes() {
     let log = crate::build_logger();
 
     macro_rules! test {
-        ($text:expr, $expected:expr,) => {
-            test!($text, $expected)
-        };
-
-        ($text:expr, $expected:expr) => {{
+        ($text:expr, $expected:expr $(,)?) => {{
             let mut text = str!($text);
             let result = include(&log, &mut text, DebugIncluder, || panic!());
             let (output, actual) = result.expect("Fetching pages failed");
