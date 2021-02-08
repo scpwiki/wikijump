@@ -31,16 +31,6 @@ const fn get_list_type(token: Token) -> Option<ListType> {
     }
 }
 
-/// The wrapper list type, for lists that only contain sub-lists.
-///
-/// We have to choose `<ul>` or `<ol>`, so we are arbitrarily choosing
-/// the former to wrap sub-lists.
-///
-/// In an "ideal" world we could output some generic list type
-/// in the HTML, but given there are no regular items in it,
-/// it doesn't matter too much.
-const TOP_LIST_TYPE: ListType = ListType::Bullet;
-
 pub const RULE_LIST: Rule = Rule {
     name: "list",
     try_consume_fn,
@@ -155,7 +145,7 @@ fn try_consume_fn<'p, 'r, 't>(
         return Err(parser.make_warn(ParseWarningKind::RuleFailed));
     }
 
-    let depth_lists = process_depths(TOP_LIST_TYPE, depths);
+    let depth_lists = process_depths(ListType::Generic, depths);
     let elements: Vec<Element> = depth_lists
         .into_iter()
         .map(|(ltype, depth_list)| build_list_element(ltype, depth_list))
