@@ -112,6 +112,9 @@ pub enum ParseWarningKind {
     /// This include block was malformed, and thus not substituted.
     InvalidInclude,
 
+    /// This list tries to nest too deeply.
+    ListDepthExceeded,
+
     /// There is no rule for the block name specified.
     NoSuchBlock,
 

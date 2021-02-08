@@ -23,6 +23,8 @@ use crate::parsing::{process_depths, DepthItem, DepthList};
 use crate::span_wrap::SpanWrap;
 use crate::tree::{ListItem, ListType};
 
+const MAX_LIST_DEPTH: usize = 20;
+
 const fn get_list_type(token: Token) -> Option<ListType> {
     match token {
         Token::BulletItem => Some(ListType::Bullet),
@@ -82,6 +84,18 @@ fn try_consume_fn<'p, 'r, 't>(
                 break;
             }
         };
+
+        // Check that the depth isn't obscenely deep, to avoid DOS attacks via stack overflow.
+        if depth > MAX_LIST_DEPTH {
+            info!(
+                log,
+                "List item has a deep greater than the maximum! Failing";
+                "depth" => depth,
+                "max-depth" => MAX_LIST_DEPTH,
+            );
+
+            return Err(parser.make_warn(ParseWarningKind::ListDepthExceeded));
+        }
 
         // Check that we're processing a bullet, and get the type
         let current = parser.current();
