@@ -299,4 +299,39 @@ fn depth_types() {
         vec![(0, '*', 'a'), (0, '#', 'b')], //
         vec![('*', vec![item!('a')]), ('#', vec![item!('b')])],
     );
+    check!(
+        vec![(1, '*', 'a'), (1, '#', 'b')],
+        vec![(' ', vec![list!['*', item!('a')], list!['#', item!('b')]])],
+    );
+    check!(
+        vec![(1, '*', 'a'), (1, '#', 'b'), (0, '*', 'c')],
+        vec![
+            (' ', vec![list!['*', item!('a')], list!['#', item!('b')]]),
+            ('*', vec![item!('c')]),
+        ],
+    );
+    check!(
+        vec![(2, '*', 'a'), (2, '#', 'b')],
+        vec![(
+            ' ',
+            vec![list!['*', list!['*', item!('a')], list!['#', item!('b')]]]
+        )],
+    );
+    check!(
+        vec![(0, '#', 'a'), (2, '*', 'b'), (2, '*', 'c'), (1, '*', 'd')],
+        vec![(
+            '#',
+            vec![
+                item!('a'),
+                list!['*', list!['*', item!('b'), item!('c')], item!('d')],
+            ],
+        )],
+    );
+    check!(
+        vec![(0, '#', 'a'), (0, '#', 'b'), (0, '*', 'c'), (1, '#', 'd')],
+        vec![
+            ('#', vec![item!('a'), item!('b')]),
+            ('*', vec![item!('c'), list!['#', item!('d')]]),
+        ],
+    );
 }
