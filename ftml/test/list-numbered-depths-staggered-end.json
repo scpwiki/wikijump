@@ -14,7 +14,7 @@
                         {
                             "element": "list",
                             "data": {
-                                "type": "bullet",
+                                "type": "generic",
                                 "items": [
                                     {
                                         "element": "list",

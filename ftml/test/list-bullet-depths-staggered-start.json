@@ -10,7 +10,7 @@
                         {
                             "element": "list",
                             "data": {
-                                "type": "bullet",
+                                "type": "generic",
                                 "items": [
                                     {
                                         "element": "list",
@@ -25,7 +25,15 @@
                                                 ]
                                             ]
                                         }
-                                    },
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "element": "list",
+                            "data": {
+                                "type": "bullet",
+                                "items": [
                                     [
                                         {
                                             "element": "text",
@@ -61,7 +69,7 @@
                             "element": "text",
                             "data": "]"
                         }
-                    ]
+        ]
                 }
             }
         ],
