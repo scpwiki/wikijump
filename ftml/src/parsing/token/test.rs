@@ -25,10 +25,7 @@ fn tokens() {
     let log = crate::build_logger();
 
     macro_rules! test {
-        ($input:expr, $expected:expr,) => {
-            test!($input, $expected)
-        };
-        ($input:expr, $expected:expr) => {{
+        ($input:expr, $expected:expr $(,)?) => {{
             info!(&log, "Testing tokens!"; "input" => $input);
 
             let expected: Vec<ExtractedToken> = $expected;
@@ -36,7 +33,11 @@ fn tokens() {
                 let tokenization = crate::tokenize(&log, $input);
                 let mut tokens: Vec<ExtractedToken> = tokenization.into();
 
+                let first = tokens.remove(0);
                 let last = tokens.pop().expect("No final element in resultant tokens");
+
+                assert_eq!(first.token, Token::InputStart, "First token wasn't Token::InputStart");
+                assert_eq!(first.slice, "", "First slice wasn't an empty string");
 
                 assert_eq!(last.token, Token::InputEnd, "Final token wasn't Token::InputEnd");
                 assert_eq!(last.slice, "", "Final slice wasn't an empty string");

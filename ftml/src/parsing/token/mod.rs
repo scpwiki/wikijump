@@ -89,6 +89,12 @@ pub enum Token {
     RightRaw,
 
     //
+    // Lists
+    //
+    BulletItem,
+    NumberedItem,
+
+    //
     // Links
     //
     LeftLink,
@@ -127,6 +133,7 @@ pub enum Token {
     //
     LeftComment,
     RightComment,
+    InputStart,
     InputEnd,
 
     //
@@ -146,7 +153,17 @@ impl Token {
             Ok(pairs) => {
                 info!(log, "Lexer produced pairs for processing");
 
-                pairs.map(|pair| Token::convert_pair(log, pair)).collect()
+                // Map pairs to tokens, and add a Token::InputStart at the beginning
+                // Pest already adds a Token::InputEnd at the end
+                let start = ExtractedToken {
+                    token: Token::InputStart,
+                    slice: "",
+                    span: 0..0,
+                };
+
+                let mut tokens = vec![start];
+                tokens.extend(pairs.map(|pair| Token::convert_pair(log, pair)));
+                tokens
             }
             Err(error) => {
                 // Return all of the input as one big raw text
@@ -229,6 +246,10 @@ impl Token {
             Rule::raw => Token::Raw,
             Rule::left_raw => Token::LeftRaw,
             Rule::right_raw => Token::RightRaw,
+
+            // Lists
+            Rule::bullet_item => Token::BulletItem,
+            Rule::numbered_item => Token::NumberedItem,
 
             // Links
             Rule::left_link => Token::LeftLink,

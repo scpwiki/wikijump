@@ -41,11 +41,11 @@ pub fn escape(buffer: &mut String, s: &str) {
 #[test]
 fn test() {
     macro_rules! test {
-        ($input:expr, $expected:expr) => {{
+        ($input:expr, $expected:expr $(,)?) => {{
             let mut buffer = String::new();
             escape(&mut buffer, $input);
 
-            assert_eq!(&buffer, $expected, "Escaped HTML doesn't match expected",);
+            assert_eq!(&buffer, $expected, "Escaped HTML doesn't match expected");
         }};
     }
 
@@ -54,10 +54,10 @@ fn test() {
     test!("x + 3 > 19, solve for x", "x + 3 &gt; 19, solve for x");
     test!(
         "<script>alert('test');</script>",
-        "&lt;script&gt;alert(&#39;test&#39;);&lt;/script&gt;"
+        "&lt;script&gt;alert(&#39;test&#39;);&lt;/script&gt;",
     );
     test!(
         "S & C Plastic's location",
-        "S &amp; C Plastic&#39;s location"
+        "S &amp; C Plastic&#39;s location",
     );
 }

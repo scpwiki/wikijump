@@ -36,6 +36,6 @@ pub const RULE_FALLBACK: Rule = Rule {
 fn try_consume_fn<'p, 'r, 't>(
     _: &slog::Logger,
     _: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Element<'t>> {
+) -> ParseResult<'r, 't, Elements<'t>> {
     panic!("Manual fallback rule should not be executed directly!")
 }

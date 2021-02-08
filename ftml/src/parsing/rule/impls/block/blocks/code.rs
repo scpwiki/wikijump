@@ -34,7 +34,7 @@ fn parse_fn<'r, 't>(
     name: &'t str,
     special: bool,
     in_head: bool,
-) -> ParseResult<'r, 't, Element<'t>> {
+) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing code block"; "in-head" => in_head);
 
     assert_eq!(special, false, "Code doesn't allow special variant");

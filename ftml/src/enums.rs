@@ -184,22 +184,6 @@ pub enum LinkLabel<'a> {
     Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq,
 )]
 #[serde(rename_all = "kebab-case")]
-pub enum ListStyle {
-    Bullet,
-    Numbered,
-}
-
-impl ListStyle {
-    #[inline]
-    pub fn name(self) -> &'static str {
-        self.into()
-    }
-}
-
-#[derive(
-    Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq,
-)]
-#[serde(rename_all = "kebab-case")]
 pub enum InfoField {
     Title,
     Header,

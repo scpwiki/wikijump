@@ -31,11 +31,11 @@ fn parse_fn<'r, 't>(
     _parser: &mut Parser<'r, 't>,
     name: &'t str,
     mut arguments: Arguments<'t>,
-) -> ParseResult<'r, 't, Module<'t>> {
+) -> ParseResult<'r, 't, Option<Module<'t>>> {
     debug!(log, "Parsing backlinks module");
     assert_module_name(&MODULE_BACKLINKS, name);
 
     let page = arguments.get("page");
 
-    ok!(Module::Backlinks { page })
+    ok!(Some(Module::Backlinks { page }))
 }

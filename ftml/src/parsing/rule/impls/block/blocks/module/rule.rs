@@ -20,7 +20,6 @@
 
 use super::mapping::get_module_rule_with_name;
 use super::prelude::*;
-use crate::tree::Module;
 
 pub const BLOCK_MODULE: BlockRule = BlockRule {
     name: "block-module",
@@ -36,7 +35,7 @@ fn parse_fn<'r, 't>(
     name: &'t str,
     special: bool,
     in_head: bool,
-) -> ParseResult<'r, 't, Element<'t>> {
+) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Parsing module block"; "in-head" => in_head);
 
     assert_eq!(special, false, "Module doesn't allow special variant");
@@ -62,13 +61,5 @@ fn parse_fn<'r, 't>(
     let (module, exceptions) =
         (module_rule.parse_fn)(log, parser, subname, arguments)?.into();
 
-    ok!(build_element(module), exceptions)
-}
-
-fn build_element(module: Module) -> Element {
-    if module == Module::Null {
-        Element::Null
-    } else {
-        Element::Module(module)
-    }
+    ok!(module.map(Element::Module), exceptions)
 }

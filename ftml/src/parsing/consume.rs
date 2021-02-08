@@ -39,7 +39,7 @@ use std::mem;
 pub fn consume<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Element<'t>> {
+) -> ParseResult<'r, 't, Elements<'t>> {
     let log = &log.new(slog_o!(
         "token" => parser.current().token,
         "slice" => str!(parser.current().slice),

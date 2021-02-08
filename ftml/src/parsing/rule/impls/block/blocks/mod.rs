@@ -48,6 +48,7 @@ mod prelude {
     }
 
     #[cfg(not(debug))]
+    #[inline]
     pub fn assert_generic_name(_: &[&str], _: &str, _: &str) {}
 
     #[inline]

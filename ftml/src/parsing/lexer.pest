@@ -101,6 +101,10 @@ token = _{
     quote |
     heading |
 
+    // Lists
+    ((SOI | line_break) ~ space? ~ bullet_item) |
+    ((SOI | line_break) ~ space? ~ numbered_item) |
+
     // Tables
     table_column_title |
     table_column |
@@ -180,6 +184,13 @@ subscript = @{ ",," }
 color = @{ "##" }
 left_monospace = @{ "{{" }
 right_monospace = @{ "}}" }
+
+// }}}
+
+// Lists {{{
+
+bullet_item = @{ "*" ~ !"*" }
+numbered_item = @{ "#" ~ !"#" }
 
 // }}}
 

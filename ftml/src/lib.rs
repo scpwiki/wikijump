@@ -77,6 +77,7 @@ mod log;
 mod macros;
 
 mod enums;
+mod non_empty_vec;
 mod preproc;
 mod span_wrap;
 mod text;

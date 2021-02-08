@@ -54,6 +54,11 @@ impl<'t> ParagraphStack<'t> {
     }
 
     #[inline]
+    pub fn reserve_elements(&mut self, additional: usize) {
+        self.current.reserve(additional);
+    }
+
+    #[inline]
     pub fn push_element(&mut self, element: Element<'t>) {
         debug!(
             self.log,

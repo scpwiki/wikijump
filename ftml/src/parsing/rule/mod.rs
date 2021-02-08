@@ -51,7 +51,7 @@ impl Rule {
         self,
         log: &slog::Logger,
         parser: &'p mut Parser<'r, 't>,
-    ) -> ParseResult<'r, 't, Element<'t>> {
+    ) -> ParseResult<'r, 't, Elements<'t>> {
         info!(log, "Trying to consume for parse rule"; "name" => self.name);
 
         let mut sub_parser = parser.clone_with_rule(self);
@@ -91,4 +91,4 @@ impl slog::Value for Rule {
 pub type TryConsumeFn = for<'p, 'r, 't> fn(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Element<'t>>;
+) -> ParseResult<'r, 't, Elements<'t>>;

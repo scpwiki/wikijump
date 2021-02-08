@@ -22,18 +22,12 @@
 ///
 /// There are two variants, for if there are exceptions or if there are not.
 macro_rules! ok {
-    ($item:expr,) => {
+    ($item:expr $(,)?) => {
         ok!($item, Vec::new())
     };
-    ($item:expr) => {
-        ok!($item, Vec::new())
-    };
-    ($item:expr, $exceptions:expr,) => {
-        ok!($item, $exceptions)
-    };
-    ($item:expr, $exceptions:expr) => {{
+    ($item:expr, $exceptions:expr $(,)?) => {{
         use crate::parsing::ParseSuccess;
 
-        Ok(ParseSuccess::new($item, $exceptions))
+        Ok(ParseSuccess::new($item.into(), $exceptions))
     }};
 }

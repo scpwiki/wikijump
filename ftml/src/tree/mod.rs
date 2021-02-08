@@ -20,10 +20,12 @@
 
 mod container;
 mod element;
+mod list;
 mod module;
 
 pub use self::container::*;
 pub use self::element::*;
+pub use self::list::*;
 pub use self::module::*;
 
 use crate::parsing::{ParseOutcome, ParseWarning};

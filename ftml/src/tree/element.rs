@@ -19,7 +19,7 @@
  */
 
 use super::AttributeMap;
-use super::{Container, Module, StyledContainer};
+use super::{Container, ListItem, ListType, Module, StyledContainer};
 use crate::enums::{AnchorTarget, LinkLabel};
 use std::borrow::Cow;
 use std::num::NonZeroU32;
@@ -72,10 +72,17 @@ pub enum Element<'t> {
         target: AnchorTarget,
     },
 
+    /// An ordered or unordered list.
+    List {
+        #[serde(rename = "type")]
+        ltype: ListType,
+        items: Vec<ListItem<'t>>,
+    },
+
     /// An element linking to a different page.
     ///
     /// The "label" field is an optional field denoting what the link should
-    /// display. If `None`, use the link's value itself, that is, `label.unwrap_or(url)`.
+    /// display.
     ///
     /// The "url" field is either a page name (relative URL) or full URL.
     Link {
@@ -151,12 +158,6 @@ pub enum Element<'t> {
 
     /// A horizontal rule.
     HorizontalRule,
-
-    /// A null element.
-    ///
-    /// The element equivalent of a no-op instruction. No action should be taken,
-    /// and it should be skipped over.
-    Null,
 }
 
 impl Element<'_> {
@@ -169,6 +170,7 @@ impl Element<'_> {
             Element::Raw(_) => "Raw",
             Element::Email(_) => "Email",
             Element::Anchor { .. } => "Anchor",
+            Element::List { .. } => "List",
             Element::Link { .. } => "Link",
             Element::RadioButton { .. } => "RadioButton",
             Element::CheckBox { .. } => "CheckBox",
@@ -180,7 +182,6 @@ impl Element<'_> {
             Element::LineBreak => "LineBreak",
             Element::LineBreaks { .. } => "LineBreaks",
             Element::HorizontalRule => "HorizontalRule",
-            Element::Null => "Null",
         }
     }
 }
@@ -194,4 +195,127 @@ impl slog::Value for Element<'_> {
     ) -> slog::Result {
         serializer.emit_str(key, self.name())
     }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+pub enum Elements<'t> {
+    Multiple(Vec<Element<'t>>),
+    Single(Element<'t>),
+    None,
+}
+
+impl Elements<'_> {
+    #[inline]
+    pub fn is_empty(&self) -> bool {
+        match self {
+            Elements::Multiple(elements) => elements.is_empty(),
+            Elements::Single(_) => false,
+            Elements::None => true,
+        }
+    }
+
+    #[inline]
+    pub fn len(&self) -> usize {
+        match self {
+            Elements::Multiple(elements) => elements.len(),
+            Elements::Single(_) => 1,
+            Elements::None => 0,
+        }
+    }
+}
+
+impl<'t> From<Element<'t>> for Elements<'t> {
+    #[inline]
+    fn from(element: Element<'t>) -> Elements<'t> {
+        Elements::Single(element)
+    }
+}
+
+impl<'t> From<Option<Element<'t>>> for Elements<'t> {
+    #[inline]
+    fn from(element: Option<Element<'t>>) -> Elements<'t> {
+        match element {
+            Some(element) => Elements::Single(element),
+            None => Elements::None,
+        }
+    }
+}
+
+impl<'t> From<Vec<Element<'t>>> for Elements<'t> {
+    #[inline]
+    fn from(elements: Vec<Element<'t>>) -> Elements<'t> {
+        Elements::Multiple(elements)
+    }
+}
+
+impl<'t> IntoIterator for Elements<'t> {
+    type Item = Element<'t>;
+    type IntoIter = ElementsIterator<'t>;
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        match self {
+            Elements::None => ElementsIterator::None,
+            Elements::Single(element) => ElementsIterator::Single(Some(element)),
+            Elements::Multiple(mut elements) => {
+                // So we can just pop for each step
+                elements.reverse();
+                ElementsIterator::Multiple(elements)
+            }
+        }
+    }
+}
+
+#[derive(Debug)]
+pub enum ElementsIterator<'t> {
+    Multiple(Vec<Element<'t>>),
+    Single(Option<Element<'t>>),
+    None,
+}
+
+impl<'t> Iterator for ElementsIterator<'t> {
+    type Item = Element<'t>;
+
+    #[inline]
+    fn next(&mut self) -> Option<Element<'t>> {
+        match self {
+            ElementsIterator::Multiple(ref mut elements) => elements.pop(),
+            ElementsIterator::Single(ref mut element) => element.take(),
+            ElementsIterator::None => None,
+        }
+    }
+}
+
+#[test]
+fn elements_iter() {
+    macro_rules! check {
+        ($elements:expr, $expected:expr $(,)?) => {{
+            let actual: Vec<Element> = $elements.into_iter().collect();
+            let expected = $expected;
+
+            assert_eq!(
+                actual, expected,
+                "Actual element iteration doesn't match expected"
+            );
+        }};
+    }
+
+    check!(Elements::None, vec![]);
+    check!(Elements::Single(text!("a")), vec![text!("a")]);
+    check!(
+        Elements::Multiple(vec![]), //
+        vec![],
+    );
+    check!(
+        Elements::Multiple(vec![text!("a")]), //
+        vec![text!("a")],
+    );
+    check!(
+        Elements::Multiple(vec![text!("a"), text!("b")]),
+        vec![text!("a"), text!("b")],
+    );
+    check!(
+        Elements::Multiple(vec![text!("a"), text!("b"), text!("c")]),
+        vec![text!("a"), text!("b"), text!("c")],
+    );
 }
