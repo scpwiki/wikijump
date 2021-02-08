@@ -41,8 +41,22 @@ pub enum ListItem<'t> {
 )]
 #[serde(rename_all = "kebab-case")]
 pub enum ListType {
+    /// Bullet lists, or "unordered lists" in HTML.
+    ///
+    /// Corresponds to the tag `<ul>`.
     Bullet,
+
+    /// Numbered lists, or "ordered lists" in HTML.
+    ///
+    /// Corresponds to the tag `<ol>`.
     Numbered,
+
+    /// Generic list, which does not have a preferred
+    ///
+    /// This can be implemented in HTML with either
+    /// `<ul>` or `<ol>`, as these should not have any
+    /// list items that are not sub-lists.
+    Generic,
 }
 
 impl ListType {
