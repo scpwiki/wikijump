@@ -33,6 +33,7 @@ mod prelude {
 }
 
 mod block;
+mod blockquote;
 mod color;
 mod comment;
 mod dash;
@@ -59,6 +60,7 @@ mod underline;
 mod url;
 
 pub use self::block::{RULE_BLOCK, RULE_BLOCK_SKIP, RULE_BLOCK_SPECIAL};
+pub use self::blockquote::RULE_BLOCKQUOTE;
 pub use self::color::RULE_COLOR;
 pub use self::comment::RULE_COMMENT;
 pub use self::dash::RULE_DASH;
