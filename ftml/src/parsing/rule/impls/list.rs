@@ -89,7 +89,7 @@ fn try_consume_fn<'p, 'r, 't>(
         if depth > MAX_LIST_DEPTH {
             info!(
                 log,
-                "List item has a deep greater than the maximum! Failing";
+                "List item has a depth greater than the maximum! Failing";
                 "depth" => depth,
                 "max-depth" => MAX_LIST_DEPTH,
             );
