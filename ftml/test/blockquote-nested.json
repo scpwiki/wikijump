@@ -1,0 +1,77 @@
+{
+    "input": "[[blockquote]]\n**Bold** Cherry\n[[blockquote]]\nDurian\n[[/blockquote]]\n[[/blockquote]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "styled-container",
+                            "data": {
+                                "type": "blockquote",
+                                "attributes": {},
+                                "elements": [
+                                    {
+                                        "element": "container",
+                                        "data": {
+                                            "type": "paragraph",
+                                            "elements": [
+                                                {
+                                                    "element": "container",
+                                                    "data": {
+                                                        "type": "strong",
+                                                        "elements": [
+                                                            {
+                                                                "element": "text",
+                                                                "data": "Bold"
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "element": "text",
+                                                    "data": " "
+                                                },
+                                                {
+                                                    "element": "text",
+                                                    "data": "Cherry"
+                                                },
+                                                {
+                                                    "element": "styled-container",
+                                                    "data": {
+                                                        "type": "blockquote",
+                                                        "attributes": {},
+                                                        "elements": [
+                                                            {
+                                                                "element": "container",
+                                                                "data": {
+                                                                    "type": "paragraph",
+                                                                    "elements": [
+                                                                        {
+                                                                            "element": "text",
+                                                                            "data": "Durian"
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}
