@@ -1,0 +1,59 @@
+{
+    "input": "                              * Very deep list item",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "                              "
+                        },
+                        {
+                            "element": "text",
+                            "data": "*"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Very"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "deep"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "list"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "item"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}
