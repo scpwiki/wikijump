@@ -60,8 +60,6 @@ fn try_consume_fn<'p, 'r, 't>(
     );
     parser.step()?;
 
-    let mut top_list_type = None;
-
     // Produce a depth list with elements
     let mut depths = Vec::new();
     let mut exceptions = Vec::new();
@@ -98,14 +96,7 @@ fn try_consume_fn<'p, 'r, 't>(
         // Check that we're processing a bullet, and get the type
         let current = parser.current();
         let list_type = match get_list_type(current.token) {
-            Some(list_type) => {
-                if top_list_type.is_none() {
-                    // TODO: for now, until we generate lists based on item type
-                    top_list_type = Some(list_type);
-                }
-
-                list_type
-            }
+            Some(ltype) => ltype,
             None => {
                 debug!(
                     log,
@@ -159,14 +150,12 @@ fn try_consume_fn<'p, 'r, 't>(
         depths.push((depth, list_type, elements));
     }
 
-    // Our rule is in another castle
+    // This list has no rows, so the rule fails
     if depths.is_empty() {
         return Err(parser.make_warn(ParseWarningKind::RuleFailed));
     }
 
-    // NOTE unwrap is safe since we check depths.is_empty(), which means at least one iteration
-    // Build a tree structure from our depths list
-    let depth_lists = process_depths(top_list_type.unwrap(), depths);
+    let depth_lists = process_depths(TOP_LIST_TYPE, depths);
     let elements: Vec<Element> = depth_lists
         .into_iter()
         .map(|(ltype, depth_list)| build_list_element(ltype, depth_list))
