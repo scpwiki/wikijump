@@ -10,7 +10,7 @@
                         {
                             "element": "list",
                             "data": {
-                                "type": "numbered",
+                                "type": "bullet",
                                 "items": [
                                     {
                                         "element": "list",
@@ -25,7 +25,15 @@
                                                 ]
                                             ]
                                         }
-                                    },
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "element": "list",
+                            "data": {
+                                "type": "numbered",
+                                "items": [
                                     [
                                         {
                                             "element": "text",
