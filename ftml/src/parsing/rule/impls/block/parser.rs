@@ -305,7 +305,6 @@ where
 
         loop {
             let result = self.verify_end_block(first, block_rule);
-
             if result.is_some() {
                 return ok!(all_elements, all_exceptions);
             }
