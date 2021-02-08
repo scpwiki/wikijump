@@ -31,6 +31,16 @@ const fn get_list_type(token: Token) -> Option<ListType> {
     }
 }
 
+/// The wrapper list type, for lists that only contain sub-lists.
+///
+/// We have to choose `<ul>` or `<ol>`, so we are arbitrarily choosing
+/// the former to wrap sub-lists.
+///
+/// In an "ideal" world we could output some generic list type
+/// in the HTML, but given there are no regular items in it,
+/// it doesn't matter too much.
+const TOP_LIST_TYPE: ListType = ListType::Bullet;
+
 pub const RULE_LIST: Rule = Rule {
     name: "list",
     try_consume_fn,
