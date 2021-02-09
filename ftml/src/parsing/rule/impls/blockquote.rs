@@ -50,14 +50,11 @@ fn try_consume_fn<'p, 'r, 't>(
     loop {
         let current = parser.current();
         let depth = match current.token {
-            Token::Quote => {
-                parser.step()?;
+            // 1 or more ">"s in one token. Return ASCII length.
+            Token::Quote => current.slice.len(),
 
-                (current.slice) //
-                    .chars()
-                    .filter(|&c| c == '>')
-                    .count()
-            }
+            // Exactly ">>", for potential "»" replacement.
+            Token::RightDoubleAngle => 2,
 
             // Invalid token, bail
             _ => {
@@ -72,6 +69,8 @@ fn try_consume_fn<'p, 'r, 't>(
                 break;
             }
         };
+        parser.step()?;
+        parser.get_optional_space()?; // allow whitespace after ">"
 
         // Check that the depth isn't obscenely deep, to avoid DOS attacks via stack overflow.
         if depth > MAX_BLOCKQUOTE_DEPTH {
