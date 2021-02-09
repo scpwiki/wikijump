@@ -169,7 +169,6 @@ clear_float_right = @{ "~"{4,} ~ ">" }
 triple_dash = @{ "-"{3,} }
 double_dash = @{ "-"{2} }
 left_double_angle = @{ "<<" }
-right_double_angle = @{ ">>" }
 pipe = @{ "|" }
 equals = @{ "=" }
 underscore = @{ "_" }
