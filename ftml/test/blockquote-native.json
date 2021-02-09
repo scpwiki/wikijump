@@ -1,0 +1,48 @@
+{
+    "input": "[\n> Apple\n]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "text",
+                            "data": "["
+                        },
+                        {
+                            "element": "styled-container",
+                            "data": {
+                                "type": "blockquote",
+                                "attributes": {},
+                                "elements": [
+                                    {
+                                        "element": "container",
+                                        "data": {
+                                            "type": "paragraph",
+                                            "elements": [
+                                                {
+                                                    "element": "text",
+                                                    "data": "Apple"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "element": "text",
+                            "data": "]"
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}
