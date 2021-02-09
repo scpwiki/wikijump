@@ -19,6 +19,7 @@
  */
 
 use std::borrow::Cow;
+use strum_macros::IntoStaticStr;
 
 /// Metadata information on the article being rendered.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -57,4 +58,21 @@ pub struct PageInfo<'a> {
 
     /// The current set of tags this page has.
     pub tags: Vec<Cow<'a, str>>,
+}
+
+#[derive(
+    Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq,
+)]
+#[serde(rename_all = "kebab-case")]
+pub enum InfoField {
+    Title,
+    Header,
+    SubHeader,
+}
+
+impl InfoField {
+    #[inline]
+    pub fn name(self) -> &'static str {
+        self.into()
+    }
 }

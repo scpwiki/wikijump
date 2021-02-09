@@ -1,5 +1,5 @@
 /*
- * parsing/rule/impls/url.rs
+ * tree/link.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -18,25 +18,23 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::prelude::*;
-use crate::tree::{AnchorTarget, LinkLabel};
+use std::borrow::Cow;
 
-pub const RULE_URL: Rule = Rule {
-    name: "url",
-    try_consume_fn,
-};
+#[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
+pub enum LinkLabel<'a> {
+    /// Custom text link label.
+    ///
+    /// Can be set to any arbitrary value of the input text's choosing.
+    Text(Cow<'a, str>),
 
-fn try_consume_fn<'p, 'r, 't>(
-    log: &slog::Logger,
-    parser: &'p mut Parser<'r, 't>,
-) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(log, "Consuming token as a URL");
+    /// URL-mirroring link label.
+    ///
+    /// The label for this link is the same as the URL it targets.
+    Url,
 
-    let element = Element::Link {
-        url: cow!(parser.current().slice),
-        label: LinkLabel::Url,
-        target: AnchorTarget::Same,
-    };
-
-    ok!(element)
+    /// Article title-based link label.
+    ///
+    /// The label for this link is whatever the page's title is.
+    Page,
 }

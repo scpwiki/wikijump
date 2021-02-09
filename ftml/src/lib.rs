@@ -76,7 +76,6 @@ mod log;
 #[macro_use]
 mod macros;
 
-mod enums;
 mod non_empty_vec;
 mod preproc;
 mod span_wrap;

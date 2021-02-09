@@ -21,8 +21,7 @@
 //! Representation of generic syntax elements which wrap other elements.
 
 use super::AttributeMap;
-use crate::enums::HeadingLevel;
-use crate::tree::Element;
+use crate::tree::{Element, HeadingLevel};
 use strum_macros::IntoStaticStr;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]

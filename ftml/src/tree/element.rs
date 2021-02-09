@@ -18,9 +18,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::AttributeMap;
-use super::{Container, ListItem, ListType, Module, StyledContainer};
-use crate::enums::{AnchorTarget, LinkLabel};
+use super::{
+    AnchorTarget, AttributeMap, Container, LinkLabel, ListItem, ListType, Module,
+    StyledContainer,
+};
 use std::borrow::Cow;
 use std::num::NonZeroU32;
 
