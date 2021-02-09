@@ -115,6 +115,9 @@ pub enum ParseWarningKind {
     /// This list tries to nest too deeply.
     ListDepthExceeded,
 
+    /// This native blockquote tries to nest too deeply.
+    BlockquoteDepthExceeded,
+
     /// There is no rule for the block name specified.
     NoSuchBlock,
 
