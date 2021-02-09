@@ -50,7 +50,14 @@ fn try_consume_fn<'p, 'r, 't>(
     loop {
         let current = parser.current();
         let depth = match current.token {
-            Token::Quote => current.slice.chars().filter(|&c| c == '>').count(),
+            Token::Quote => {
+                parser.step()?;
+
+                current.slice //
+                    .chars()
+                    .filter(|&c| c == '>')
+                    .count()
+            }
 
             // Invalid token, bail
             _ => {
@@ -93,7 +100,12 @@ fn try_consume_fn<'p, 'r, 't>(
         .chain(&mut exceptions);
 
         // Append blockquote line
-        depths.push((depth, (), elements))
+        //
+        // Depth lists expect zero-based list depths, but tokens are one-based.
+        // So, we subtract one.
+        //
+        // This will not overflow becaus Token::Quote requires at least one ">".
+        depths.push((depth - 1, (), elements))
     }
 
     // This blockquote has no rows, so the rule fails
