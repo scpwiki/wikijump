@@ -95,6 +95,8 @@ token = _{
     clear_float |
     triple_dash |
     double_dash |
+    left_double_angle |
+    right_double_angle |
     pipe |
     equals |
     underscore |
@@ -166,10 +168,12 @@ clear_float_left = @{ "~"{4,} ~ "<" }
 clear_float_right = @{ "~"{4,} ~ ">" }
 triple_dash = @{ "-"{3,} }
 double_dash = @{ "-"{2} }
+left_double_angle = @{ "<<" }
+right_double_angle = @{ ">>" }
 pipe = @{ "|" }
 equals = @{ "=" }
 underscore = @{ "_" }
-quote = @{ ">"+ ~ " "? }
+quote = @{ ">"+ }
 heading = @{ "+"{1,6} }
 
 // }}}
