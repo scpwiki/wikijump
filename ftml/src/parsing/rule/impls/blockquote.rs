@@ -85,7 +85,7 @@ fn try_consume_fn<'p, 'r, 't>(
         }
 
         // Parse elements until we hit the end of the line
-        let elements = collect_consume(
+        let mut elements = collect_consume(
             log,
             parser,
             RULE_BLOCKQUOTE,
@@ -97,6 +97,9 @@ fn try_consume_fn<'p, 'r, 't>(
             None,
         )?
         .chain(&mut exceptions);
+
+        // Add a line break for the end of the line
+        elements.push(Element::LineBreak);
 
         // Append blockquote line
         //
@@ -124,6 +127,7 @@ fn try_consume_fn<'p, 'r, 't>(
 fn build_blockquote_element(list: DepthList<(), Vec<Element>>) -> Element {
     let mut all_elements = Vec::new();
 
+    // Convert depth list into a list of elements
     for item in list {
         match item {
             DepthItem::Item(mut elements) => all_elements.append(&mut elements),
@@ -132,6 +136,12 @@ fn build_blockquote_element(list: DepthList<(), Vec<Element>>) -> Element {
                 all_elements.push(element);
             }
         }
+    }
+
+    // Remove the trailing linew break, these should
+    // only be between lines in the blockquote.
+    if let Some(Element::LineBreak) = all_elements.last() {
+        all_elements.pop();
     }
 
     // Wrap blockquote internals in a paragraph, like [[blockquote]] does.
