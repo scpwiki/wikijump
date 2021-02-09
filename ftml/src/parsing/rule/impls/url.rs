@@ -19,7 +19,8 @@
  */
 
 use super::prelude::*;
-use crate::enums::{AnchorTarget, LinkLabel};
+use crate::enums::LinkLabel;
+use crate::tree::AnchorTarget;
 
 pub const RULE_URL: Rule = Rule {
     name: "url",

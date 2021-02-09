@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::enums::AnchorTarget;
+use crate::tree::AnchorTarget;
 
 pub const BLOCK_ANCHOR: BlockRule = BlockRule {
     name: "block-anchor",

@@ -18,11 +18,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+mod anchor;
 mod container;
 mod element;
 mod list;
 mod module;
 
+pub use self::anchor::*;
 pub use self::container::*;
 pub use self::element::*;
 pub use self::list::*;
