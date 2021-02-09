@@ -26,7 +26,6 @@
 //! * `` .. '' to fancy double quotes
 //! * ` .. ' to fancy single quotes
 //! * ,, .. '' to fancy lowered double quotes
-//! * << and >> to fancy French angle quotation marks
 //! * ... to an ellipsis
 
 use regex::Regex;
@@ -65,12 +64,6 @@ lazy_static! {
 /// Helper struct to easily perform string replacements.
 #[derive(Debug)]
 pub enum Replacer {
-    /// Replaces one static string for another static string.
-    StrReplace {
-        pattern: &'static str,
-        replacement: &'static str,
-    },
-
     /// Replaces any text matching the regular expression with the static string.
     /// The entire match is used, any capture groups are ignored.
     RegexReplace {
@@ -101,23 +94,6 @@ impl Replacer {
         use self::Replacer::*;
 
         match *self {
-            StrReplace {
-                pattern,
-                replacement,
-            } => {
-                debug!(
-                    log,
-                    "Running static string replacement";
-                    "type" => "string",
-                    "pattern" => pattern,
-                    "replacement" => replacement,
-                );
-
-                while let Some(idx) = text.find(pattern) {
-                    let range = idx..idx + pattern.len();
-                    text.replace_range(range, replacement);
-                }
-            }
             RegexReplace {
                 ref regex,
                 replacement,
