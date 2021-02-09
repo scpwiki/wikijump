@@ -140,11 +140,10 @@ fn build_blockquote_element(list: DepthList<(), Vec<Element>>) -> Element {
     // Convert depth list into a list of elements
     for item in list {
         match item {
-            DepthItem::Item(mut elements) => {
-                all_elements.append(&mut elements);
-                remove_trailing_line_break!();
-            }
+            DepthItem::Item(mut elements) => all_elements.append(&mut elements),
             DepthItem::List(_, list) => {
+                remove_trailing_line_break!();
+
                 let element = build_blockquote_element(list);
                 all_elements.push(element);
             }
