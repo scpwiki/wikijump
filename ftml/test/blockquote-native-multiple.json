@@ -1,0 +1,54 @@
+{
+    "input": "> Apple\n> Banana\n> Cherry",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "styled-container",
+                            "data": {
+                                "type": "blockquote",
+                                "attributes": {},
+                                "elements": [
+                                    {
+                                        "element": "container",
+                                        "data": {
+                                            "type": "paragraph",
+                                            "elements": [
+                                                {
+                                                    "element": "text",
+                                                    "data": "Apple"
+                                                },
+                                                {
+                                                    "element": "line-break"
+                                                },
+                                                {
+                                                    "element": "text",
+                                                    "data": "Banana"
+                                                },
+                                                {
+                                                    "element": "line-break"
+                                                },
+                                                {
+                                                    "element": "text",
+                                                    "data": "Cherry"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}
