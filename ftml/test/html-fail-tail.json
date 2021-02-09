@@ -33,7 +33,11 @@
                         },
                         {
                             "element": "text",
-                            "data": "> "
+                            "data": ">"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
                         },
                         {
                             "element": "text",
