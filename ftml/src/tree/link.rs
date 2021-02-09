@@ -19,7 +19,6 @@
  */
 
 use std::borrow::Cow;
-use strum_macros::IntoStaticStr;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
@@ -38,21 +37,4 @@ pub enum LinkLabel<'a> {
     ///
     /// The label for this link is whatever the page's title is.
     Page,
-}
-
-#[derive(
-    Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq,
-)]
-#[serde(rename_all = "kebab-case")]
-pub enum InfoField {
-    Title,
-    Header,
-    SubHeader,
-}
-
-impl InfoField {
-    #[inline]
-    pub fn name(self) -> &'static str {
-        self.into()
-    }
 }
