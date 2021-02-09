@@ -93,15 +93,15 @@ token = _{
     clear_float_left |
     clear_float_right |
     clear_float |
-    triple_dash |
-    double_dash |
-    left_double_angle |
-    right_double_angle |
     pipe |
     equals |
     underscore |
     quote |
     heading |
+    triple_dash |
+    double_dash |
+    left_double_angle |
+    right_double_angle |
 
     // Lists
     ((SOI | line_break) ~ space? ~ bullet_item) |
