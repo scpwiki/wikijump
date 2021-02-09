@@ -53,9 +53,6 @@ fn try_consume_fn<'p, 'r, 't>(
             // 1 or more ">"s in one token. Return ASCII length.
             Token::Quote => current.slice.len(),
 
-            // Exactly ">>", for potential "»" replacement.
-            Token::RightDoubleAngle => 2,
-
             // Invalid token, bail
             _ => {
                 debug!(

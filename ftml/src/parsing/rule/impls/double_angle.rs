@@ -29,20 +29,23 @@ fn try_consume_fn<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    let token = parser.current().token;
+    let current = parser.current();
 
     debug!(
         log,
         "Consuming token to create a left/right double angle quote";
-        "token" => token,
+        "token" => current.token,
     );
 
-    match token {
+    match current.token {
         // « - LEFT-POINTING DOUBLE ANGLE QUOTATION MARK
         Token::LeftDoubleAngle => ok!(text!("\u{0ab}")),
 
         // » - RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK
-        Token::RightDoubleAngle => ok!(text!("\u{0bb}")),
+        Token::Quote if current.slice == ">>" => ok!(text!("\u{0bb}")),
+
+        // Some other series of ">"s in a line
+        Token::Quote => Err(parser.make_warn(ParseWarningKind::RuleFailed)),
 
         // Invalid token for this rule
         _ => unreachable!(),
