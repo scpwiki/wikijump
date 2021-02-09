@@ -53,7 +53,7 @@ fn try_consume_fn<'p, 'r, 't>(
             Token::Quote => {
                 parser.step()?;
 
-                current.slice //
+                (current.slice) //
                     .chars()
                     .filter(|&c| c == '>')
                     .count()
