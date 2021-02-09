@@ -25,8 +25,7 @@
 //! Its syntax is `[https://example.com/ Label text]`.
 
 use super::prelude::*;
-use crate::enums::LinkLabel;
-use crate::tree::AnchorTarget;
+use crate::tree::{AnchorTarget, LinkLabel};
 
 pub const RULE_LINK_SINGLE: Rule = Rule {
     name: "link-single",

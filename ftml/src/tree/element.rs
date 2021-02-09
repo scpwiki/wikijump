@@ -19,9 +19,9 @@
  */
 
 use super::{
-    AnchorTarget, AttributeMap, Container, ListItem, ListType, Module, StyledContainer,
+    AnchorTarget, AttributeMap, Container, LinkLabel, ListItem, ListType, Module,
+    StyledContainer,
 };
-use crate::enums::LinkLabel;
 use std::borrow::Cow;
 use std::num::NonZeroU32;
 

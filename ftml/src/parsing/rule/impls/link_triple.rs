@@ -29,8 +29,7 @@
 //! Its syntax is `[[[page-name | Label text]`.
 
 use super::prelude::*;
-use crate::enums::LinkLabel;
-use crate::tree::AnchorTarget;
+use crate::tree::{AnchorTarget, LinkLabel};
 
 pub const RULE_LINK_TRIPLE: Rule = Rule {
     name: "link-triple",

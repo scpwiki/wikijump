@@ -24,8 +24,7 @@
 //! or is a fake link.
 
 use super::prelude::*;
-use crate::enums::LinkLabel;
-use crate::tree::AnchorTarget;
+use crate::tree::{AnchorTarget, LinkLabel};
 use std::borrow::Cow;
 use wikidot_normalize::normalize;
 
