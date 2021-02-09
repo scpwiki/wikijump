@@ -127,10 +127,23 @@ fn try_consume_fn<'p, 'r, 't>(
 fn build_blockquote_element(list: DepthList<(), Vec<Element>>) -> Element {
     let mut all_elements = Vec::new();
 
+    // Remove this trailing line break, these should
+    // only be between lines in the blockquote.
+    macro_rules! remove_trailing_line_break {
+        () => {
+            if let Some(Element::LineBreak) = all_elements.last() {
+                all_elements.pop();
+            }
+        };
+    }
+
     // Convert depth list into a list of elements
     for item in list {
         match item {
-            DepthItem::Item(mut elements) => all_elements.append(&mut elements),
+            DepthItem::Item(mut elements) => {
+                all_elements.append(&mut elements);
+                remove_trailing_line_break!();
+            }
             DepthItem::List(_, list) => {
                 let element = build_blockquote_element(list);
                 all_elements.push(element);
@@ -138,11 +151,7 @@ fn build_blockquote_element(list: DepthList<(), Vec<Element>>) -> Element {
         }
     }
 
-    // Remove the trailing linew break, these should
-    // only be between lines in the blockquote.
-    if let Some(Element::LineBreak) = all_elements.last() {
-        all_elements.pop();
-    }
+    remove_trailing_line_break!();
 
     // Wrap blockquote internals in a paragraph, like [[blockquote]] does.
     let paragraph = Container::new(ContainerType::Paragraph, all_elements);
