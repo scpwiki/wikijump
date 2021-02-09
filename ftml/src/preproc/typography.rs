@@ -55,18 +55,6 @@ lazy_static! {
         end: "\u{201d}",
     };
 
-    // « - LEFT-POINTING DOUBLE ANGLE QUOTATION MARK
-    static ref LEFT_DOUBLE_ANGLE: Replacer = Replacer::StrReplace {
-        pattern: "<<",
-        replacement: "\u{0ab}",
-    };
-
-    // » - RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK
-    static ref RIGHT_DOUBLE_ANGLE: Replacer = Replacer::StrReplace {
-        pattern: ">>",
-        replacement: "\u{0bb}",
-    };
-
     // … - HORIZONTAL ELLIPSIS
     static ref ELLIPSIS: Replacer = Replacer::RegexReplace {
         regex: Regex::new(r"(?:\.\.\.|\. \. \.)").unwrap(),
@@ -209,16 +197,12 @@ pub fn substitute(log: &slog::Logger, text: &mut String) {
     replace!(LOW_DOUBLE_QUOTES);
     replace!(SINGLE_QUOTES);
 
-    // French quotes
-    replace!(LEFT_DOUBLE_ANGLE);
-    replace!(RIGHT_DOUBLE_ANGLE);
-
     // Miscellaneous
     replace!(ELLIPSIS);
 }
 
 #[cfg(test)]
-const TEST_CASES: [(&str, &str); 4] = [
+const TEST_CASES: [(&str, &str); 3] = [
     (
         "John laughed. ``You'll never defeat me!''\n``That's where you're wrong...''",
         "John laughed. “You'll never defeat me!”\n“That's where you're wrong…”",
@@ -226,10 +210,6 @@ const TEST_CASES: [(&str, &str); 4] = [
     (
         ",,あんたはばかです！''\n``Ehh?''\n,,ほんと！''\n[[footnoteblock]]",
         "„あんたはばかです！”\n“Ehh?”\n„ほんと！”\n[[footnoteblock]]",
-    ),
-    (
-        "<< [[[SCP-4338]]] | SCP-4339 | [[[SCP-4340]]] >>",
-        "« [[[SCP-4338]]] | SCP-4339 | [[[SCP-4340]]] »",
     ),
     (
         "**ENTITY MAKES DRAMATIC MOTION** . . . ",
@@ -242,8 +222,6 @@ fn regexes() {
     let _ = &*SINGLE_QUOTES;
     let _ = &*DOUBLE_QUOTES;
     let _ = &*LOW_DOUBLE_QUOTES;
-    let _ = &*LEFT_DOUBLE_ANGLE;
-    let _ = &*RIGHT_DOUBLE_ANGLE;
     let _ = &*ELLIPSIS;
 }
 
