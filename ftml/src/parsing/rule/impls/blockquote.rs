@@ -123,9 +123,14 @@ fn build_blockquote_element(list: DepthList<(), Vec<Element>>) -> Element {
         }
     }
 
+    // Wrap blockquote internals in a paragraph, like [[blockquote]] does.
+    let paragraph =
+        Element::Container(Container::new(ContainerType::Paragraph, all_elements));
+
+    // Place paragraph in the blockquote container
     Element::StyledContainer(StyledContainer::new(
         StyledContainerType::Blockquote,
-        all_elements,
+        vec![paragraph],
         AttributeMap::new(),
     ))
 }
