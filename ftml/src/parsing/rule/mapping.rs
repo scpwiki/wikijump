@@ -44,6 +44,7 @@ lazy_static! {
             Token::RightBlock => vec![],
             Token::DoubleDash => vec![RULE_STRIKETHROUGH, RULE_DASH],
             Token::TripleDash => vec![RULE_HORIZONTAL_RULE],
+            Token::LeftDoubleAngle => vec![RULE_DOUBLE_ANGLE],
             Token::ClearFloatNeutral => vec![RULE_TODO], // TODO
             Token::ClearFloatCenter => vec![RULE_TODO], // TODO
             Token::ClearFloatLeft => vec![RULE_TODO], // TODO
@@ -51,9 +52,9 @@ lazy_static! {
             Token::Pipe => vec![RULE_TEXT],
             Token::Equals => vec![RULE_TODO, RULE_TEXT], // TODO
             Token::Underscore => vec![RULE_TEXT],
-            Token::Quote => vec![RULE_TODO, RULE_TEXT], // TODO
+            Token::Quote => vec![RULE_DOUBLE_ANGLE, RULE_TEXT],
             Token::Heading => vec![RULE_TODO, RULE_TEXT], // TODO
-            Token::LineBreak => vec![RULE_LIST, RULE_BLOCK_SKIP, RULE_LINE_BREAK],
+            Token::LineBreak => vec![RULE_BLOCKQUOTE, RULE_LIST, RULE_BLOCK_SKIP, RULE_LINE_BREAK],
             Token::ParagraphBreak => vec![RULE_LINE_BREAK_PARAGRAPH],
             Token::Whitespace => vec![RULE_TEXT],
 
@@ -103,7 +104,7 @@ lazy_static! {
             // Miscellaneous
             Token::LeftComment => vec![RULE_COMMENT],
             Token::RightComment => vec![],
-            Token::InputStart => vec![RULE_LIST, RULE_NULL],
+            Token::InputStart => vec![RULE_BLOCKQUOTE, RULE_LIST, RULE_NULL],
             Token::InputEnd => vec![RULE_NULL],
 
             // Fallback

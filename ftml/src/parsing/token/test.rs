@@ -148,8 +148,13 @@ fn tokens() {
             },
             ExtractedToken {
                 token: Token::Quote,
-                slice: "> ",
-                span: 2..4,
+                slice: ">",
+                span: 2..3,
+            },
+            ExtractedToken {
+                token: Token::Whitespace,
+                slice: " ",
+                span: 3..4,
             },
             ExtractedToken {
                 token: Token::Identifier,

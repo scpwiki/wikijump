@@ -1,0 +1,103 @@
+{
+    "input": "[[blockquote]]\nA\n[[blockquote]]\nB\n[[blockquote]]\nC\n[[blockquote]]\nD\n[[/blockquote]]\n[[/blockquote]]\n[[/blockquote]]\n[[/blockquote]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "styled-container",
+                            "data": {
+                                "type": "blockquote",
+                                "attributes": {},
+                                "elements": [
+                                    {
+                                        "element": "container",
+                                        "data": {
+                                            "type": "paragraph",
+                                            "elements": [
+                                                {
+                                                    "element": "text",
+                                                    "data": "A"
+                                                },
+                                                {
+                                                    "element": "styled-container",
+                                                    "data": {
+                                                        "type": "blockquote",
+                                                        "attributes": {},
+                                                        "elements": [
+                                                            {
+                                                                "element": "container",
+                                                                "data": {
+                                                                    "type": "paragraph",
+                                                                    "elements": [
+                                                                        {
+                                                                            "element": "text",
+                                                                            "data": "B"
+                                                                        },
+                                                                        {
+                                                                            "element": "styled-container",
+                                                                            "data": {
+                                                                                "type": "blockquote",
+                                                                                "attributes": {},
+                                                                                "elements": [
+                                                                                    {
+                                                                                        "element": "container",
+                                                                                        "data": {
+                                                                                            "type": "paragraph",
+                                                                                            "elements": [
+                                                                                                {
+                                                                                                    "element": "text",
+                                                                                                    "data": "C"
+                                                                                                },
+                                                                                                {
+                                                                                                    "element": "styled-container",
+                                                                                                    "data": {
+                                                                                                        "type": "blockquote",
+                                                                                                        "attributes": {},
+                                                                                                        "elements": [
+                                                                                                            {
+                                                                                                                "element": "container",
+                                                                                                                "data": {
+                                                                                                                    "type": "paragraph",
+                                                                                                                    "elements": [
+                                                                                                                        {
+                                                                                                                            "element": "text",
+                                                                                                                            "data": "D"
+                                                                                                                        }
+                                                                                                                    ]
+                                                                                                                }
+                                                                                                            }
+                                                                                                        ]
+                                                                                                    }
+                                                                                                }
+                                                                                            ]
+                                                                                        }
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

@@ -1,0 +1,42 @@
+{
+    "input": "[[blockquote class=\"jelly\"]]\nApple\n[[/blockquote]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "styled-container",
+                            "data": {
+                                "type": "blockquote",
+                                "attributes": {
+                                    "class": "jelly"
+                                },
+                                "elements": [
+                                    {
+                                        "element": "container",
+                                        "data": {
+                                            "type": "paragraph",
+                                            "elements": [
+                                                {
+                                                    "element": "text",
+                                                    "data": "Apple"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

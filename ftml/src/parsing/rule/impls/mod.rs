@@ -33,9 +33,11 @@ mod prelude {
 }
 
 mod block;
+mod blockquote;
 mod color;
 mod comment;
 mod dash;
+mod double_angle;
 mod email;
 mod emphasis;
 mod fallback;
@@ -59,9 +61,11 @@ mod underline;
 mod url;
 
 pub use self::block::{RULE_BLOCK, RULE_BLOCK_SKIP, RULE_BLOCK_SPECIAL};
+pub use self::blockquote::RULE_BLOCKQUOTE;
 pub use self::color::RULE_COLOR;
 pub use self::comment::RULE_COMMENT;
 pub use self::dash::RULE_DASH;
+pub use self::double_angle::RULE_DOUBLE_ANGLE;
 pub use self::email::RULE_EMAIL;
 pub use self::emphasis::RULE_EMPHASIS;
 pub use self::fallback::RULE_FALLBACK;

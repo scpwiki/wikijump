@@ -1,5 +1,5 @@
 {
-    "input": "<div></div> [[/html]]",
+    "input": "Double << Angles << Everywhere",
     "tree": {
         "elements": [
             {
@@ -9,31 +9,7 @@
                     "elements": [
                         {
                             "element": "text",
-                            "data": "<"
-                        },
-                        {
-                            "element": "text",
-                            "data": "div"
-                        },
-                        {
-                            "element": "text",
-                            "data": ">"
-                        },
-                        {
-                            "element": "text",
-                            "data": "<"
-                        },
-                        {
-                            "element": "text",
-                            "data": "/"
-                        },
-                        {
-                            "element": "text",
-                            "data": "div"
-                        },
-                        {
-                            "element": "text",
-                            "data": ">"
+                            "data": "Double"
                         },
                         {
                             "element": "text",
@@ -41,15 +17,31 @@
                         },
                         {
                             "element": "text",
-                            "data": "[[/"
+                            "data": "\u00ab"
                         },
                         {
                             "element": "text",
-                            "data": "html"
+                            "data": " "
                         },
                         {
                             "element": "text",
-                            "data": "]]"
+                            "data": "Angles"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "\u00ab"
+                        },
+                        {
+                            "element": "text",
+                            "data": " "
+                        },
+                        {
+                            "element": "text",
+                            "data": "Everywhere"
                         }
                     ]
                 }
@@ -59,17 +51,5 @@
         ]
     },
     "warnings": [
-        {
-            "token": "left-block-end",
-            "rule": "fallback",
-            "span": [12, 15],
-            "kind": "no-rules-match"
-        },
-        {
-            "token": "right-block",
-            "rule": "fallback",
-            "span": [19, 21],
-            "kind": "no-rules-match"
-        }
     ]
 }

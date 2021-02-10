@@ -150,7 +150,7 @@ fn try_consume_fn<'p, 'r, 't>(
         )?
         .chain(&mut exceptions);
 
-        // Append bullet line
+        // Append list line
         depths.push((depth, list_type, elements));
     }
 

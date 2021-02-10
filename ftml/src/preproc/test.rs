@@ -43,7 +43,7 @@ where
     }
 }
 
-const PREFILTER_TEST_CASES: [(&str, &str); 11] = [
+const PREFILTER_TEST_CASES: [(&str, &str); 10] = [
     ("", ""),
     ("tab\ttest", "tab    test"),
     (
@@ -70,12 +70,8 @@ const PREFILTER_TEST_CASES: [(&str, &str); 11] = [
         "„あんたはばかです！”\n“Ehh?”\n„ほんと！”",
     ),
     (
-        "<< [[[SCP-999]]] | SCP-1000 | [[[SCP-1001]]] >>",
-        "« [[[SCP-999]]] | SCP-1000 | [[[SCP-1001]]] »",
-    ),
-    (
-        " . . . <<I'm not sure about this,>>",
-        " … «I'm not sure about this,»",
+        " . . . I'm not sure about this,",
+        " … I'm not sure about this,",
     ),
 ];
 
