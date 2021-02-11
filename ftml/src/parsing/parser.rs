@@ -235,8 +235,6 @@ impl<'r, 't> Parser<'r, 't> {
                 self.remaining = remaining;
                 Ok(current)
             }
-
-            #[cold]
             None => Err(self.make_warn(ParseWarningKind::EndOfInput)),
         }
     }
