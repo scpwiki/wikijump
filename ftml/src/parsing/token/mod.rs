@@ -21,15 +21,22 @@
 #[cfg(test)]
 mod test;
 
+mod lexer {
+    // Since pest makes enums automatically that clippy doesn't like
+    #![allow(clippy::upper_case_acronyms)]
+
+    // The actual parser definition, which we will re-export
+    #[derive(Parser, Debug)]
+    #[grammar = "parsing/lexer.pest"]
+    pub struct TokenLexer;
+}
+
+use self::lexer::*;
 use crate::span_wrap::SpanWrap;
 use pest::iterators::Pair;
 use pest::Parser;
 use std::ops::Range;
 use strum_macros::IntoStaticStr;
-
-#[derive(Parser, Debug)]
-#[grammar = "parsing/lexer.pest"]
-struct TokenLexer;
 
 #[derive(Serialize, Debug, Clone, PartialEq)]
 pub struct ExtractedToken<'a> {

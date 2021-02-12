@@ -168,6 +168,7 @@ pub enum StyledContainerType {
     Deletion,
     Hidden,
     Invisible,
+    Size,
 }
 
 impl StyledContainerType {
@@ -187,6 +188,7 @@ impl StyledContainerType {
             StyledContainerType::Deletion => ("del", None),
             StyledContainerType::Hidden => ("span", Some("hidden")),
             StyledContainerType::Invisible => ("span", Some("invisible")),
+            StyledContainerType::Size => ("span", None),
         }
     }
 }
