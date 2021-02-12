@@ -1,0 +1,12 @@
+# This is a CODEOWNERS file, describing who is responsible for
+# maintenance of, or has experience with various parts of this
+# repository.
+
+# The ftml (Foundation Text Markup Language) service provides
+# parsing and rendering of wikitext.
+ftml                                @ammongit
+
+# Frontend files related to browser scripting or styling.
+web/web/files--common/dialogs       @rossjrw
+web/web/files--common/javascript    @rossjrw
+web/web/files--common/modules       @rossjrw
