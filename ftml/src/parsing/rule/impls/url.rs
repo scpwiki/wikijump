@@ -32,9 +32,10 @@ fn try_consume_fn<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(log, "Consuming token as a URL");
 
+    let url = parser.current().slice;
     let element = Element::Link {
-        url: cow!(parser.current().slice),
-        label: LinkLabel::Url,
+        url: cow!(url),
+        label: LinkLabel::Url(cow!(url)),
         target: AnchorTarget::Same,
     };
 
