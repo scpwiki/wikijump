@@ -213,7 +213,7 @@ fn strip_category(url: &str) -> Option<&str> {
 #[test]
 fn test_strip_category() {
     macro_rules! check {
-        ($input:expr, $expected:expr) => {{
+        ($input:expr, $expected:expr $(,)?) => {{
             let actual = strip_category($input);
 
             assert_eq!(
@@ -234,10 +234,10 @@ fn test_strip_category() {
     check!("component: Fancy Sidebar", Some("Fancy Sidebar"));
     check!(
         "multiple:categories:here:test",
-        Some("categories:here:test")
+        Some("categories:here:test"),
     );
     check!(
         "multiple: categories: here: test",
-        Some("categories: here: test")
+        Some("categories: here: test"),
     );
 }
