@@ -23,7 +23,9 @@
                             "element": "link",
                             "data": {
                                 "url": "https://example.com",
-                                "label": "url",
+                                "label": {
+                                    "url": null
+                                },
                                 "target": "same"
                             }
                         }
