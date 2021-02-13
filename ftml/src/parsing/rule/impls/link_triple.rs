@@ -218,7 +218,7 @@ fn test_strip_category() {
 
             assert_eq!(
                 actual, $expected,
-                "Actual stripped URL label doesn't match expected"
+                "Actual stripped URL label doesn't match expected",
             );
         }};
     }
