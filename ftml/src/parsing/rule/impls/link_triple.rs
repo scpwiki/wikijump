@@ -129,9 +129,10 @@ fn build_same<'p, 'r, 't>(
         "url" => url,
     );
 
+    let label = cow!(strip_category(url));
     let element = Element::Link {
         url: cow!(url),
-        label: LinkLabel::Url,
+        label: LinkLabel::Url(label),
         target,
     };
 
@@ -192,4 +193,20 @@ fn build_separate<'p, 'r, 't>(
 
     // Return result
     ok!(element)
+}
+
+/// Strip off the category for use in URL triple-bracket links.
+///
+/// The label for a URL link is its URL, but without its category.
+/// For instance, `theme: Sigma-9` becomes just `Sigma-9`.
+fn strip_category(url: &str) -> &str {
+    match url.find(':') {
+        Some(idx) => &url[idx..].trim_start(),
+        None => url,
+    }
+}
+
+#[test]
+fn test_strip_category() {
+    todo!();
 }
