@@ -30,6 +30,7 @@
 
 use super::prelude::*;
 use crate::tree::{AnchorTarget, LinkLabel};
+use std::borrow::Cow;
 
 pub const RULE_LINK_TRIPLE: Rule = Rule {
     name: "link-triple",
@@ -129,7 +130,10 @@ fn build_same<'p, 'r, 't>(
         "url" => url,
     );
 
-    let label = cow!(strip_category(url));
+    // Remove category, if present
+    let label = strip_category(url).map(Cow::Borrowed);
+
+    // Build and return element
     let element = Element::Link {
         url: cow!(url),
         label: LinkLabel::Url(label),
@@ -199,11 +203,11 @@ fn build_separate<'p, 'r, 't>(
 ///
 /// The label for a URL link is its URL, but without its category.
 /// For instance, `theme: Sigma-9` becomes just `Sigma-9`.
-fn strip_category(url: &str) -> &str {
-    match url.find(':') {
-        Some(idx) => &url[idx+1..].trim_start(),
-        None => url,
-    }
+///
+/// It returns `Some(_)` if a slice was performed, and `None` if
+/// the string would have been returned as-is.
+fn strip_category(url: &str) -> Option<&str> {
+    url.find(':').map(|idx| url[idx + 1..].trim_start())
 }
 
 #[test]
@@ -212,19 +216,28 @@ fn test_strip_category() {
         ($input:expr, $expected:expr) => {{
             let actual = strip_category($input);
 
-            assert_eq!(actual, $expected, "Actual stripped URL label doesn't match expected");
+            assert_eq!(
+                actual, $expected,
+                "Actual stripped URL label doesn't match expected"
+            );
         }};
     }
 
-    check!("", "");
-    check!("scp-001", "scp-001");
-    check!("Guide Hub", "Guide Hub");
-    check!("theme:just-girly-things", "just-girly-things");
-    check!("theme: just-girly-things", "just-girly-things");
-    check!("theme: Just Girly Things", "Just Girly Things");
-    check!("component:fancy-sidebar", "fancy-sidebar");
-    check!("component:Fancy Sidebar", "Fancy Sidebar");
-    check!("component: Fancy Sidebar", "Fancy Sidebar");
-    check!("multiple:categories:here:test", "categories:here:test");
-    check!("multiple: categories: here: test", "categories: here: test");
+    check!("", None);
+    check!("scp-001", None);
+    check!("Guide Hub", None);
+    check!("theme:just-girly-things", Some("just-girly-things"));
+    check!("theme: just-girly-things", Some("just-girly-things"));
+    check!("theme: Just Girly Things", Some("Just Girly Things"));
+    check!("component:fancy-sidebar", Some("fancy-sidebar"));
+    check!("component:Fancy Sidebar", Some("Fancy Sidebar"));
+    check!("component: Fancy Sidebar", Some("Fancy Sidebar"));
+    check!(
+        "multiple:categories:here:test",
+        Some("categories:here:test")
+    );
+    check!(
+        "multiple: categories: here: test",
+        Some("categories: here: test")
+    );
 }
