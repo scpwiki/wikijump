@@ -201,12 +201,30 @@ fn build_separate<'p, 'r, 't>(
 /// For instance, `theme: Sigma-9` becomes just `Sigma-9`.
 fn strip_category(url: &str) -> &str {
     match url.find(':') {
-        Some(idx) => &url[idx..].trim_start(),
+        Some(idx) => &url[idx+1..].trim_start(),
         None => url,
     }
 }
 
 #[test]
 fn test_strip_category() {
-    todo!();
+    macro_rules! check {
+        ($input:expr, $expected:expr) => {{
+            let actual = strip_category($input);
+
+            assert_eq!(actual, $expected, "Actual stripped URL label doesn't match expected");
+        }};
+    }
+
+    check!("", "");
+    check!("scp-001", "scp-001");
+    check!("Guide Hub", "Guide Hub");
+    check!("theme:just-girly-things", "just-girly-things");
+    check!("theme: just-girly-things", "just-girly-things");
+    check!("theme: Just Girly Things", "Just Girly Things");
+    check!("component:fancy-sidebar", "fancy-sidebar");
+    check!("component:Fancy Sidebar", "Fancy Sidebar");
+    check!("component: Fancy Sidebar", "Fancy Sidebar");
+    check!("multiple:categories:here:test", "categories:here:test");
+    check!("multiple: categories: here: test", "categories: here: test");
 }
