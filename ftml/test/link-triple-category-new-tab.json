@@ -1,0 +1,29 @@
+{
+    "input": "[[[*system:Recent Pages]]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "link",
+                            "data": {
+                                "url": "system:Recent Pages",
+                                "label": {
+                                    "url": "Recent Pages"
+                                },
+                                "target": "new-tab"
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}
