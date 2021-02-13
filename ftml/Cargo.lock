@@ -1953,9 +1953,9 @@ dependencies = [
 
 [[package]]
 name = "str-macro"
-version = "0.1.4"
+version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0914339d16fabe5ae7c5abd3a55d9697801cc224154543f3a7e1396dba3426dd"
+checksum = "9b7514866270741c7b03dd36e2c68f71cf064b230e8217c81bbd4d619d564864"
 
 [[package]]
 name = "strsim"
