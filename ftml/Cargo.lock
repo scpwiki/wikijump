@@ -2573,9 +2573,9 @@ dependencies = [
 
 [[package]]
 name = "wikidot-normalize"
-version = "0.6.3"
+version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "64ec784e8ea29da3e480dff738ed978c1b2743bf003dd320e89fd4630f36cbdf"
+checksum = "c32564042a55c5b6a234997e6de85f293c29fec326f26b82669abb7fa029ff57"
 dependencies = [
  "lazy_static",
  "maplit",
