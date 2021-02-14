@@ -5,15 +5,14 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/scpwiki/wikijump/actions?query=workflow%3A%22JS+tests%22">
-  <a href="https://github.com/scpwiki/wikijump/actions?query=workflow%3A%22%5Bfrontend%5D+Javascript+Tests%22">
-    <img src="https://github.com/scpwiki/wikijump/workflows/JS%20tests/badge.svg"
-         alt="JS tests status">
-  </a>
-
   <a href="https://codecov.io/gh/scpwiki/wikijump">
     <img src="https://codecov.io/gh/scpwiki/wikijump/branch/develop/graph/badge.svg?token=RDH6943FHE"
          alt="Codecov report">
+  </a>
+  
+  <a href="https://github.com/scpwiki/wikijump/actions?query=workflow%3A%22%5Bfrontend%5D+Javascript+Tests%22">
+    <img src="https://github.com/scpwiki/wikijump/workflows/JS%20tests/badge.svg"
+         alt="JS tests status">
   </a>
 
   <a href="https://github.com/scpwiki/wikijump/actions?query=workflow%3A%22%5Bftml%5D+Rust%22">
