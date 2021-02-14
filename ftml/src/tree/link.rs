@@ -30,8 +30,9 @@ pub enum LinkLabel<'a> {
 
     /// URL-mirroring link label.
     ///
-    /// The label for this link is the same as the URL it targets.
-    Url,
+    /// If `None`, then the label for this link is the same as the URL.
+    /// If `Some(_)`, then the label is a subslice of the URL it targets.
+    Url(Option<Cow<'a, str>>),
 
     /// Article title-based link label.
     ///

@@ -1,5 +1,5 @@
 {
-    "input": "[[[SCP-001]]]",
+    "input": "[[[system:Recent Pages]]]",
     "tree": {
         "elements": [
             {
@@ -10,9 +10,9 @@
                         {
                             "element": "link",
                             "data": {
-                                "url": "SCP-001",
+                                "url": "system:Recent Pages",
                                 "label": {
-                                    "url": null
+                                    "url": "Recent Pages"
                                 },
                                 "target": "same"
                             }
