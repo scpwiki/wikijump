@@ -71,23 +71,18 @@ class SecurityManager {
 
         if (strpos($username, '@') !== false) {
             $user = $this->getUserByEmail($username);
-            if ($user == null) {
-                return null;
-            }
-
-            if (password_verify($password, $user->getPassword())) {
-                return $user;
-            }
-        } else { // No @, so it's a username.
+        } else {
             $user = $this->getUserByNickname($username);
-            if ($user == null) {
-                return null;
-            }
-
-            if (password_verify($password, $user->getPassword())) {
-                return $user;
-            }
         }
+
+        if ($user == null) {
+            return null;
+        }
+
+        if (password_verify($password, $user->getPassword())) {
+            return $user;
+        }
+
         return null;
     }
 
