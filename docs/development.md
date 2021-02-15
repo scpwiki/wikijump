@@ -132,3 +132,10 @@ $ docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml u
 ```
 
 This will map the directories specified in `docker-compose.dev.yaml` into the container, so you can see your changes live. You should edit this file as you need, but do not commit any personal changes to it.
+
+Be sure that you have produced the javascript bundle before attempting to visit your local instance in a web browser:
+```
+$ cd web
+$ npm install
+$ npm run build
+```
