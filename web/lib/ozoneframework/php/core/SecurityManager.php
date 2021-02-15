@@ -61,8 +61,8 @@ class SecurityManager {
 		return $peer->selectOneByExplicitQuery($query);
 	}
 
-	public function authenticateUser($username, $password){
-	    // A slight digression here on dumb conventions.
+    public function authenticateUser($username, $password) {
+        // A slight digression here on dumb conventions.
         // The getUserByName method actually checks the *email* of the user.
         // Theoretically 'name' and 'email' are two different fields in the DB.
         // But if there's a way to have 'name' be something other than an email, I don't know how.
