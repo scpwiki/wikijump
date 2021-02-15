@@ -61,27 +61,30 @@ class SecurityManager {
 		return $peer->selectOneByExplicitQuery($query);
 	}
 
-	public function authenticateUser($username, $password){
-	    // A slight digression here on dumb conventions.
+    public function authenticateUser($username, $password) {
+        // A slight digression here on dumb conventions.
         // The getUserByName method actually checks the *email* of the user.
         // Theoretically 'name' and 'email' are two different fields in the DB.
         // But if there's a way to have 'name' be something other than an email, I don't know how.
         // So if you want to look up by their friendly name/username, use the `nick_name` column.
         // TODO: Clean up this behavior everywhere.
-	    if(strpos($username, '@') !== false) { // Email provided
+
+        if (strpos($username, '@') !== false) {
             $user = $this->getUserByEmail($username);
-            if(password_verify($password, $user->getPassword())) {
-                return $user;
-            }
-        }
-	    else { // No @, so it's a username.
+        } else {
             $user = $this->getUserByNickname($username);
-            if(password_verify($password, $user->getPassword())) {
-                return $user;
-            }
-	    }
-		return null;
-	}
+        }
+
+        if ($user == null) {
+            return null;
+        }
+
+        if (password_verify($password, $user->getPassword())) {
+            return $user;
+        }
+
+        return null;
+    }
 
 	public function setUserPassword($user, $password){
 		if(gettype($user) == "string"){

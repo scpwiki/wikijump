@@ -128,7 +128,19 @@ If you want changes made to your copy of Wikijump from outside Docker to be visi
 There is a development-oriented Docker Compose config file created with this in mind, which should be used as a config override:
 
 ```
-$ docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up
+$ docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml up
 ```
 
-This will map the directories specified in `docker-compose.dev.yaml` into the container, so you can see your changes live. You should edit this file as you need, but avoid committing any personal changes to it.
+This will map the directories specified in `docker-compose.dev.yaml` into the container, so you can see your changes live. You should edit this file as you need, but do not commit any personal changes to it.
+
+Be sure that you have produced the javascript bundle before attempting to visit your local instance in a web browser:
+```
+$ cd web
+$ npm install
+$ npm run build
+```
+
+Some changes (e.g. to `lib/`) require that the container be rebuilt:
+```
+$ docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml build
+```

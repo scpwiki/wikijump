@@ -39,17 +39,18 @@ class Login2Action extends SmartyAction
                 throw new ProcessException(_("The login and password do not match."), "login_invalid");
             }
         }
-            $originalUrl = $runData->sessionGet('loginOriginalUrl');
 
-            $runData->resetSession();
-            $session = $runData->getSession();
-            $session->setUserId($user->getUserId());
-            // set other parameters
-            $session->setStarted(new ODate());
-            $session->setLastAccessed(new ODate());
+        $originalUrl = $runData->sessionGet('loginOriginalUrl');
 
-            $user->setLastLogin(new ODate());
-            $user->save();
+        $runData->resetSession();
+        $session = $runData->getSession();
+        $session->setUserId($user->getUserId());
+        // set other parameters
+        $session->setStarted(new ODate());
+        $session->setLastAccessed(new ODate());
+
+        $user->setLastLogin(new ODate());
+        $user->save();
 
         if ($keepLogged) {
             $session->setInfinite(true);
