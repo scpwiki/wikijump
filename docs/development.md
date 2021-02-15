@@ -140,7 +140,7 @@ $ npm install
 $ npm run build
 ```
 
-Some changes may required that the container be rebuilt before they are reflected in your local instance:
+Some changes (e.g. to `lib/`) require that the container be rebuilt:
 ```
 $ docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml build
 ```

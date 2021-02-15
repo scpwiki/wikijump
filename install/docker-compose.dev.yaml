@@ -2,10 +2,6 @@ services:
   php-fpm:
     volumes:
       - type: bind
-        source: ../web/lib
-        target: /var/www/wikijump/web/lib
-        read_only: true
-      - type: bind
         source: ../web/php
         target: /var/www/wikijump/web/php
         read_only: true
