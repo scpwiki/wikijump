@@ -20,7 +20,7 @@ class Login2Action extends SmartyAction
         $keepLogged = $pl->getParameterValue("keepLogged");
         $bindIP = $pl->getParameterValue("bindIP");
 
-        // Auth via username.
+        // Auth via username or email.
         $sm = new SecurityManager();
         $user = $sm->authenticateUser($uname, $upass);
         if (!$user) {
