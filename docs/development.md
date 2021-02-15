@@ -131,4 +131,4 @@ There is a development-oriented Docker Compose config file created with this in 
 $ docker-compose -p wikijump -f docker-compose.yaml -f docker-compose.dev.yaml up
 ```
 
-This will map the directories specified in `docker-compose.dev.yaml` into the container, so you can see your changes live. You should edit this file as you need, but avoid committing any personal changes to it.
+This will map the directories specified in `docker-compose.dev.yaml` into the container, so you can see your changes live. You should edit this file as you need, but do not commit any personal changes to it.
