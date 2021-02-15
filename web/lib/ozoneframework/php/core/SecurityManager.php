@@ -68,28 +68,28 @@ class SecurityManager {
         // But if there's a way to have 'name' be something other than an email, I don't know how.
         // So if you want to look up by their friendly name/username, use the `nick_name` column.
         // TODO: Clean up this behavior everywhere.
-	    if(strpos($username, '@') !== false) { // Email provided
+
+        if (strpos($username, '@') !== false) {
             $user = $this->getUserByEmail($username);
             if ($user == null) {
                 return null;
             }
 
-            if(password_verify($password, $user->getPassword())) {
+            if (password_verify($password, $user->getPassword())) {
                 return $user;
             }
-        }
-	    else { // No @, so it's a username.
+        } else { // No @, so it's a username.
             $user = $this->getUserByNickname($username);
             if ($user == null) {
                 return null;
             }
 
-            if(password_verify($password, $user->getPassword())) {
+            if (password_verify($password, $user->getPassword())) {
                 return $user;
             }
-	    }
-		return null;
-	}
+        }
+        return null;
+    }
 
 	public function setUserPassword($user, $password){
 		if(gettype($user) == "string"){
