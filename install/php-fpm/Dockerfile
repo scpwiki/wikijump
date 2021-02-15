@@ -2,8 +2,6 @@ FROM php:7.4-fpm-alpine
 
 EXPOSE 80
 
-# TODO: copy from bluesoul's container Dockerfile
-
 # Build variables
 ARG WIKIJUMP_REPO="https://github.com/scpwiki/wikijump.git"
 ARG WIKIJUMP_REPO_DIR="wikijump"
