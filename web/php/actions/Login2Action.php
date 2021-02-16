@@ -20,24 +20,12 @@ class Login2Action extends SmartyAction
         $keepLogged = $pl->getParameterValue("keepLogged");
         $bindIP = $pl->getParameterValue("bindIP");
 
-        // decrypt! woooohhooooo!!!!!!!!
-
-
-        if ($userId && is_numeric($userId) && $userId >0) {
-            $user = OzoneUserPeer::instance()->selectByPrimaryKey($userId);
-            if ($user == null or password_verify($upass, $user->getPassword()) == false) {
-                $user = null;
-                EventLogger::instance()->logFailedLogin($uname);
-                throw new ProcessException(_("The login and password do not match."), "login_invalid");
-            }
-        } else {
-            // Auth via username.
-            $sm = new SecurityManager();
-            $user = $sm->authenticateUser($uname, $upass);
-            if (!$user) {
-                EventLogger::instance()->logFailedLogin($uname);
-                throw new ProcessException(_("The login and password do not match."), "login_invalid");
-            }
+        // Auth via username or email.
+        $sm = new SecurityManager();
+        $user = $sm->authenticateUser($uname, $upass);
+        if (!$user) {
+            EventLogger::instance()->logFailedLogin($uname);
+            throw new ProcessException(_("The login and password do not match."), "login_invalid");
         }
 
         $originalUrl = $runData->sessionGet('loginOriginalUrl');
