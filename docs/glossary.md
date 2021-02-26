@@ -14,7 +14,8 @@ Definitions are not intended to be exhaustive, but rather quickly summarize what
 | Page category  |              |             | A particular namespace a page may exist in. Denoted by the part of a slug before the `:`. If a colon is absent, then the page is in category `_default`. |
 | Wikitext       | Source       | Wikidot code, ftml | The textual representation of the contents of a page. |
 | Vote           |              |             | An individual vote cast on a page, along with its timestamp and user information. |
-| Score          | Rating       |             | The calculated result of all the votes presently active on a page. This is **not** necessarily the same as `ups - downs`. |
+| Score          | Rating       |             | The calculated result of all the votes presently active on a page, per the site's chosen scoring algorithm. |
+| Rating         | Rating       |             | Wikidot's simple scoring algorithm, equivalent to the sum of `upvotes - downvotes`. |
 | File           |              | Attachment, upload | A blob attached to a page, with an associated filename and MIME type. |
 | Revision       |              | Edit        | A particular set of changes on a page at a point in time. It has an associated timestamp, user, and revision message attached. |
 | User           |              | Account     | A user account on Wikijump, with its own username, avatar, and credentials. |
