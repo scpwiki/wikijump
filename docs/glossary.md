@@ -3,7 +3,7 @@
 There are a number of concepts within Wikidot, which can take on a number of different names in casual usage.
 To standardize their usage during development and within the API, this document will describe the standard API name, Wikidot's name (if different), and any other aliases.
 
-Please use the Wikijump API term when writing technical documentation, writing code, or utilizing the API. The aim is clarity and disambiguity.
+Please use the Wikijump API term when writing technical documentation, writing code, or utilizing the API. The aim is clarity and avoiding ambiguity.
 
 Definitions are not intended to be exhaustive, but rather quickly summarize what it is for recognition. If further details are needed, add a link to a more detailed resource.
 
