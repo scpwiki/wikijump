@@ -7,7 +7,7 @@ Please use the Wikijump API term when writing technical documentation or writing
 
 Definitions are not intended to be exhaustive, but rather quickly summarize what it is for recognition. If further details are needed, add a link to a more detailed resource.
 
-| API Term       | Wikidot Term | Other Terms | Definition |
+| Wikijump Term  | Wikidot Term | Other Terms | Definition |
 |----------------|--------------|-------------|------------|
 | Site           |              | Wiki        | A subdomain of Wikijump which has an independent wiki, with its own pages, staff, and settings. |
 | Page           |              | Article     | The main data unit of Wikidot, containing wikitext and metadata, and existing at exactly one particular URL at a time. |
