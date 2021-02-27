@@ -1,11 +1,13 @@
 ## Wikijump Glossary
 
 There are a number of concepts within Wikidot, which can take on a number of different names in casual usage.
-To standardize their usage during development and within the API, this document will describe the standard name, Wikidot's name (if different), and any other aliases.
+To standardize their usage during development and within the API, this document will describe the standard API name, Wikidot's name (if different), and any other aliases.
+
+Please use the Wikijump API term when writing technical documentation or writing code either for Wikijump or in projects that consume the API. The aim is clarity and avoiding ambiguity.
 
 Definitions are not intended to be exhaustive, but rather quickly summarize what it is for recognition. If further details are needed, add a link to a more detailed resource.
 
-| Official Term  | Wikidot Term | Other Terms | Definition |
+| Wikijump Term  | Wikidot Term | Other Terms | Definition |
 |----------------|--------------|-------------|------------|
 | Site           |              | Wiki        | A subdomain of Wikijump which has an independent wiki, with its own pages, staff, and settings. |
 | Page           |              | Article     | The main data unit of Wikidot, containing wikitext and metadata, and existing at exactly one particular URL at a time. |

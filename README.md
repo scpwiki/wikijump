@@ -9,7 +9,7 @@
     <img src="https://codecov.io/gh/scpwiki/wikijump/branch/develop/graph/badge.svg?token=RDH6943FHE"
          alt="Codecov report">
   </a>
-  
+
   <a href="https://github.com/scpwiki/wikijump/actions?query=workflow%3A%22%5Bfrontend%5D+Javascript+Tests%22">
     <img src="https://github.com/scpwiki/wikijump/workflows/JS%20tests/badge.svg"
          alt="JS tests status">
@@ -37,7 +37,7 @@ If you would like to offer to volunteer some of your time to Wikijump developmen
 
 ### Development
 
-We don't have a lot of documentation here yet. See [development.md](docs/development.md) and [install.md](docs/install.md) for information on running a local instance of Wikijump.
+We don't have a lot of documentation here yet. See [development.md](docs/development.md) and [install.md](docs/install.md) for information on running a local instance of Wikijump. See the [Wikijump Glossary](docs/glossary.md) for the terminology used by developers and API consumers.
 
 ## License
 
