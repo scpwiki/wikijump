@@ -37,7 +37,7 @@ If you would like to offer to volunteer some of your time to Wikijump developmen
 
 ### Development
 
-We don't have a lot of documentation here yet. See [development.md](docs/development.md) and [install.md](docs/install.md) for information on running a local instance of Wikijump. See the [Wikijump Glossary](docs/glossary.md) for the terminology utilized by developers and API consumers.
+We don't have a lot of documentation here yet. See [development.md](docs/development.md) and [install.md](docs/install.md) for information on running a local instance of Wikijump. See the [Wikijump Glossary](docs/glossary.md) for the terminology used by developers and API consumers.
 
 ## License
 
