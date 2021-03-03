@@ -14,6 +14,7 @@ Definitions are not intended to be exhaustive, but rather quickly summarize what
 | Slug           | UNIX name    | Fullname    | The "file" portion of a page's URL, always in [Wikidot normal form](https://scuttle.atlassian.net/wiki/spaces/WD/pages/541655041/Wikidot+Normal+Form). |
 | Normalization  | `toUnixName`, `unixify` |  | The process of converting a string into Wikidot normal form. |
 | Page category  |              |             | A particular namespace a page may exist in. Denoted by the part of a slug before the `:`. If a colon is absent, then the page is in category `_default`. |
+| Page tags      | Tags         | Tags        | A set of strings associated with a page, which can be used to query or organize pages, such as in the `ListPages` module. |
 | Wikitext       | Source       | Wikidot code, ftml | The textual representation of the contents of a page. |
 | Vote           |              |             | An individual vote cast on a page, along with its timestamp and user information. |
 | Score          | Rating       |             | The calculated result of all the votes presently active on a page, per the site's chosen scoring algorithm. |
