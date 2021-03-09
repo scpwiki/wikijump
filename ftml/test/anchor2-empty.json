@@ -1,0 +1,28 @@
+{
+    "input": "[[a_]][[/a]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "anchor",
+                            "data": {
+                                "attributes": {},
+                                "target": "same",
+                                "elements": [
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}

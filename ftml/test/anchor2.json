@@ -1,0 +1,42 @@
+{
+    "input": "[[a_ href=\"/some-page\"]]My link[[/a]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "anchor",
+                            "data": {
+                                "attributes": {
+                                    "href": "/some-page"
+                                },
+                                "target": "same",
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "My"
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": " "
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": "link"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}
