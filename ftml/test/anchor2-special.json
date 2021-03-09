@@ -1,0 +1,43 @@
+{
+    "input": "[[*a_ href=\"https://example.com\" style=\"color: red;\"]]My link[[/a]]",
+    "tree": {
+        "elements": [
+            {
+                "element": "container",
+                "data": {
+                    "type": "paragraph",
+                    "elements": [
+                        {
+                            "element": "anchor",
+                            "data": {
+                                "attributes": {
+                                    "href": "https://example.com",
+                                    "style": "color: red;"
+                                },
+                                "target": "new-tab",
+                                "elements": [
+                                    {
+                                        "element": "text",
+                                        "data": "My"
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": " "
+                                    },
+                                    {
+                                        "element": "text",
+                                        "data": "link"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "styles": [
+        ]
+    },
+    "warnings": [
+    ]
+}
