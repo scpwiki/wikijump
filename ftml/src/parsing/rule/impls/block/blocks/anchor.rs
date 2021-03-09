@@ -23,7 +23,7 @@ use crate::tree::AnchorTarget;
 
 pub const BLOCK_ANCHOR: BlockRule = BlockRule {
     name: "block-anchor",
-    accepts_names: &["a", "anchor"],
+    accepts_names: &["a", "a_", "anchor", "anchor_"],
     accepts_special: true,
     accepts_newlines: false,
     parse_fn,
@@ -49,6 +49,10 @@ fn parse_fn<'r, 't>(
     let arguments = parser.get_head_map(&BLOCK_ANCHOR, in_head)?;
     let attributes = arguments.to_hash_map();
 
+    // "a" means we wrap interpret as-is
+    // "a_" means we strip out any newlines or paragraph breaks
+    let strip_line_breaks = name.ends_with('_');
+
     // Get anchor target depending on special
     let target = if special {
         AnchorTarget::NewTab
@@ -57,7 +61,28 @@ fn parse_fn<'r, 't>(
     };
 
     // Get body content, without paragraphs
-    let (elements, exceptions) = parser.get_body_elements(&BLOCK_ANCHOR, false)?.into();
+    let (mut elements, exceptions) =
+        parser.get_body_elements(&BLOCK_ANCHOR, false)?.into();
+
+    if strip_line_breaks {
+        // Remove leading line breaks
+        while let Some(element) = elements.first() {
+            if !matches!(element, Element::LineBreak | Element::LineBreaks(_)) {
+                break;
+            }
+
+            elements.remove(0);
+        }
+
+        // Remove trailing line breaks
+        while let Some(element) = elements.last() {
+            if !matches!(element, Element::LineBreak | Element::LineBreaks(_)) {
+                break;
+            }
+
+            elements.pop();
+        }
+    }
 
     let element = Element::Anchor {
         elements,
