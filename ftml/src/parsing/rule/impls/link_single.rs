@@ -45,7 +45,7 @@ fn link<'p, 'r, 't>(
 
     check_step(parser, Token::LeftBracket)?;
 
-    try_consume_link(log, parser, RULE_LINK_SINGLE, AnchorTarget::Same)
+    try_consume_link(log, parser, RULE_LINK_SINGLE, None)
 }
 
 fn link_new_tab<'p, 'r, 't>(
@@ -56,7 +56,12 @@ fn link_new_tab<'p, 'r, 't>(
 
     check_step(parser, Token::LeftBracketSpecial)?;
 
-    try_consume_link(log, parser, RULE_LINK_SINGLE_NEW_TAB, AnchorTarget::NewTab)
+    try_consume_link(
+        log,
+        parser,
+        RULE_LINK_SINGLE_NEW_TAB,
+        Some(AnchorTarget::NewTab),
+    )
 }
 
 /// Build a single-bracket link with the given target.
@@ -64,9 +69,13 @@ fn try_consume_link<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
-    target: AnchorTarget,
+    target: Option<AnchorTarget>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(log, "Trying to create a single-bracket link"; "target" => target.name());
+    debug!(
+        log,
+        "Trying to create a single-bracket link";
+        "target" => target.map(|t| t.name()),
+    );
 
     // Gather path for link
     let url = collect_text(

@@ -50,7 +50,7 @@ fn link<'p, 'r, 't>(
 
     check_step(parser, Token::LeftLink)?;
 
-    try_consume_link(log, parser, RULE_LINK_TRIPLE, AnchorTarget::Same)
+    try_consume_link(log, parser, RULE_LINK_TRIPLE, None)
 }
 
 fn link_new_tab<'p, 'r, 't>(
@@ -61,7 +61,12 @@ fn link_new_tab<'p, 'r, 't>(
 
     check_step(parser, Token::LeftLinkSpecial)?;
 
-    try_consume_link(log, parser, RULE_LINK_TRIPLE_NEW_TAB, AnchorTarget::NewTab)
+    try_consume_link(
+        log,
+        parser,
+        RULE_LINK_TRIPLE_NEW_TAB,
+        Some(AnchorTarget::NewTab),
+    )
 }
 
 /// Build a triple-bracket link with the given target.
@@ -69,9 +74,13 @@ fn try_consume_link<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
-    target: AnchorTarget,
+    target: Option<AnchorTarget>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(log, "Trying to create a triple-bracket link"; "target" => target.name());
+    debug!(
+        log,
+        "Trying to create a triple-bracket link";
+        "target" => target.map(|t| t.name()),
+    );
 
     // Gather path for link
     let (url, last) = collect_text_keep(
@@ -122,7 +131,7 @@ fn build_same<'p, 'r, 't>(
     log: &slog::Logger,
     _parser: &'p mut Parser<'r, 't>,
     url: &'t str,
-    target: AnchorTarget,
+    target: Option<AnchorTarget>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(
         log,
@@ -150,7 +159,7 @@ fn build_separate<'p, 'r, 't>(
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     url: &'t str,
-    target: AnchorTarget,
+    target: Option<AnchorTarget>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(
         log,
