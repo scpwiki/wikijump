@@ -14,7 +14,7 @@
                                 "label": {
                                     "text": "Fake link"
                                 },
-                                "target": "same"
+                                "target": null
                             }
                         }
                     ]

@@ -14,7 +14,7 @@
                                 "label": {
                                     "text": "Some link"
                                 },
-                                "target": "same"
+                                "target": null
                             }
                         },
                         {

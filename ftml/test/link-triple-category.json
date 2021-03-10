@@ -14,7 +14,7 @@
                                 "label": {
                                     "url": "Recent Pages"
                                 },
-                                "target": "same"
+                                "target": null
                             }
                         }
                     ]

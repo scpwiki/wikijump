@@ -11,7 +11,7 @@
                             "element": "anchor",
                             "data": {
                                 "attributes": {},
-                                "target": "same",
+                                "target": null,
                                 "elements": [
                                 ]
                             }
