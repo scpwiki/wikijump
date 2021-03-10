@@ -70,7 +70,7 @@ pub enum Element<'t> {
     Anchor {
         elements: Vec<Element<'t>>,
         attributes: AttributeMap<'t>,
-        target: AnchorTarget,
+        target: Option<AnchorTarget>,
     },
 
     /// An element linking to a different page.
@@ -82,7 +82,7 @@ pub enum Element<'t> {
     Link {
         url: Cow<'t, str>,
         label: LinkLabel<'t>,
-        target: AnchorTarget,
+        target: Option<AnchorTarget>,
     },
 
     /// An ordered or unordered list.
