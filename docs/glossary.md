@@ -24,6 +24,7 @@ Definitions are not intended to be exhaustive, but rather quickly summarize what
 | User           |              | Account     | A user account on Wikijump, with its own username, avatar, and credentials. |
 | Member         |              |             | A user, specifically in the context of its membership on a particular Wikijump site. |
 | Guest          |              |             | A user (or an anonymous individual who is not logged in) who is accessing a Wikijump site. This is the inverse of a member. |
+| Role           |              | Rank        | The position a user has in a site. For Wikidot, this is one of: guest, member, moderator, administrator. |
 | Forum category |              | Forum       | A namespace that a collection of forum threads may exist in. They may be visible or not, and have an associated name. |
 | Forum thread   |              | Thread      | A thread of conversation within a particular category, containing zero or more posts. They are either created by a user or by Wikijump. |
 | Forum post     |              | Post        | An individual message sent within a thread. It can be a child or reply to another post, or top-level. These are only created by users. |
