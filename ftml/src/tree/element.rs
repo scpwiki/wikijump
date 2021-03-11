@@ -70,14 +70,7 @@ pub enum Element<'t> {
     Anchor {
         elements: Vec<Element<'t>>,
         attributes: AttributeMap<'t>,
-        target: AnchorTarget,
-    },
-
-    /// An ordered or unordered list.
-    List {
-        #[serde(rename = "type")]
-        ltype: ListType,
-        items: Vec<ListItem<'t>>,
+        target: Option<AnchorTarget>,
     },
 
     /// An element linking to a different page.
@@ -89,7 +82,14 @@ pub enum Element<'t> {
     Link {
         url: Cow<'t, str>,
         label: LinkLabel<'t>,
-        target: AnchorTarget,
+        target: Option<AnchorTarget>,
+    },
+
+    /// An ordered or unordered list.
+    List {
+        #[serde(rename = "type")]
+        ltype: ListType,
+        items: Vec<ListItem<'t>>,
     },
 
     /// A radio button.
@@ -171,8 +171,8 @@ impl Element<'_> {
             Element::Raw(_) => "Raw",
             Element::Email(_) => "Email",
             Element::Anchor { .. } => "Anchor",
-            Element::List { .. } => "List",
             Element::Link { .. } => "Link",
+            Element::List { .. } => "List",
             Element::RadioButton { .. } => "RadioButton",
             Element::CheckBox { .. } => "CheckBox",
             Element::Collapsible { .. } => "Collapsible",

@@ -24,7 +24,7 @@
 //! or is a fake link.
 
 use super::prelude::*;
-use crate::tree::{AnchorTarget, LinkLabel};
+use crate::tree::LinkLabel;
 use std::borrow::Cow;
 use wikidot_normalize::normalize;
 
@@ -93,7 +93,7 @@ fn try_consume_fn<'p, 'r, 't>(
     let element = Element::Link {
         url,
         label: LinkLabel::Text(cow!(label)),
-        target: AnchorTarget::Same,
+        target: None,
     };
 
     // Return result

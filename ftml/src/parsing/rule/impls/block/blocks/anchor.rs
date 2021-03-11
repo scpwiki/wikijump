@@ -55,9 +55,9 @@ fn parse_fn<'r, 't>(
 
     // Get anchor target depending on special
     let target = if special {
-        AnchorTarget::NewTab
+        Some(AnchorTarget::NewTab)
     } else {
-        AnchorTarget::Same
+        None
     };
 
     // Get body content, without paragraphs

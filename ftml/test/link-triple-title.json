@@ -12,7 +12,7 @@
                             "data": {
                                 "url": "some-page",
                                 "label": "page",
-                                "target": "same"
+                                "target": null
                             }
                         }
                     ]

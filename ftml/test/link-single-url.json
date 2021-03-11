@@ -14,7 +14,7 @@
                                 "label": {
                                     "text": "Some page"
                                 },
-                                "target": "same"
+                                "target": null
                             }
                         }
                     ]

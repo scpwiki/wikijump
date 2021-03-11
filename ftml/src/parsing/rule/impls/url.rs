@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::tree::{AnchorTarget, LinkLabel};
+use crate::tree::LinkLabel;
 
 pub const RULE_URL: Rule = Rule {
     name: "url",
@@ -35,7 +35,7 @@ fn try_consume_fn<'p, 'r, 't>(
     let element = Element::Link {
         url: cow!(parser.current().slice),
         label: LinkLabel::Url(None),
-        target: AnchorTarget::Same,
+        target: None,
     };
 
     ok!(element)

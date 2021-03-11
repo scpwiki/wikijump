@@ -14,7 +14,7 @@
                                 "label": {
                                     "text": "Example"
                                 },
-                                "target": "same"
+                                "target": null
                             }
                         }
                     ]
