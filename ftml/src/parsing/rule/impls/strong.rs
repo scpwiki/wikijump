@@ -37,7 +37,8 @@ fn try_consume_fn<'p, 'r, 't>(
         log,
         parser,
         RULE_STRONG,
-        ContainerType::Strong,
+        StyledContainerType::Strong,
+        AttributeMap::new(),
         &[ParseCondition::current(Token::Strong)],
         &[
             ParseCondition::current(Token::ParagraphBreak),

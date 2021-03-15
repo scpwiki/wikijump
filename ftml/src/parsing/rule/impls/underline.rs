@@ -37,7 +37,8 @@ fn try_consume_fn<'p, 'r, 't>(
         log,
         parser,
         RULE_UNDERLINE,
-        ContainerType::Underline,
+        StyledContainerType::Underline,
+        AttributeMap::new(),
         &[ParseCondition::current(Token::Underline)],
         &[
             ParseCondition::current(Token::ParagraphBreak),

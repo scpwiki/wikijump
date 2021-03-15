@@ -37,7 +37,8 @@ fn try_consume_fn<'p, 'r, 't>(
         log,
         parser,
         RULE_EMPHASIS,
-        ContainerType::Emphasis,
+        StyledContainerType::Emphasis,
+        AttributeMap::new(),
         &[ParseCondition::current(Token::Emphasis)],
         &[
             ParseCondition::current(Token::ParagraphBreak),

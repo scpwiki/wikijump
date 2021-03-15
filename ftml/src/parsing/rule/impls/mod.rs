@@ -29,7 +29,10 @@ mod prelude {
     pub use crate::parsing::rule::Rule;
     pub use crate::parsing::token::{ExtractedToken, Token};
     pub use crate::text::FullText;
-    pub use crate::tree::{Container, ContainerType, Element, Elements};
+    pub use crate::tree::{
+        AttributeMap, Container, ContainerType, Element, Elements, StyledContainer,
+        StyledContainerType,
+    };
 }
 
 mod block;

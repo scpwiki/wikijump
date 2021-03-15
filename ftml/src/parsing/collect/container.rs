@@ -72,7 +72,11 @@ pub fn collect_container<'p, 'r, 't>(
 
     // Package into a container
     ok!(
-        Element::StyledContainer(StyledContainer::new(styled_container_type, elements, attributes)),
+        Element::StyledContainer(StyledContainer::new(
+            styled_container_type,
+            elements,
+            attributes,
+        )),
         exceptions,
     )
 }
