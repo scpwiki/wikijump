@@ -112,13 +112,6 @@ impl<'t> From<StyledContainer<'t>> for Vec<Element<'t>> {
 #[serde(rename_all = "kebab-case")]
 pub enum ContainerType {
     Paragraph,
-    Strong,
-    Emphasis,
-    Underline,
-    Superscript,
-    Subscript,
-    Strikethrough,
-    Monospace,
     Header(HeadingLevel),
 }
 
@@ -132,13 +125,6 @@ impl ContainerType {
     pub fn html_tag(self) -> &'static str {
         match self {
             ContainerType::Paragraph => "p",
-            ContainerType::Strong => "strong",
-            ContainerType::Emphasis => "italics",
-            ContainerType::Underline => "u",
-            ContainerType::Superscript => "sup",
-            ContainerType::Subscript => "sub",
-            ContainerType::Strikethrough => "s",
-            ContainerType::Monospace => "tt",
             ContainerType::Header(level) => level.html_tag(),
         }
     }
@@ -160,6 +146,13 @@ impl slog::Value for ContainerType {
 )]
 #[serde(rename_all = "kebab-case")]
 pub enum StyledContainerType {
+    Strong,
+    Emphasis,
+    Underline,
+    Superscript,
+    Subscript,
+    Strikethrough,
+    Monospace,
     Span,
     Div,
     Mark,
@@ -180,6 +173,13 @@ impl StyledContainerType {
     #[inline]
     pub fn html_tag_and_class(self) -> (&'static str, Option<&'static str>) {
         match self {
+            StyledContainerType::Strong => ("strong", None),
+            StyledContainerType::Emphasis => ("italics", None),
+            StyledContainerType::Underline => ("u", None),
+            StyledContainerType::Superscript => ("sup", None),
+            StyledContainerType::Subscript => ("sub", None),
+            StyledContainerType::Strikethrough => ("s", None),
+            StyledContainerType::Monospace => ("tt", None),
             StyledContainerType::Span => ("span", None),
             StyledContainerType::Div => ("div", None),
             StyledContainerType::Mark => ("mark", None),
