@@ -22,7 +22,7 @@
 
 use super::prelude::*;
 use crate::parsing::collect::collect_consume;
-use crate::tree::{Container, ContainerType, Element};
+use crate::tree::{AttributeMap, Element, StyledContainer, StyledContainerType};
 
 /// Generic function to consume tokens into a container.
 ///
@@ -42,14 +42,15 @@ pub fn collect_container<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
-    container_type: ContainerType,
+    styled_container_type: StyledContainerType,
+    attributes: AttributeMap<'t>,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
     warn_kind: Option<ParseWarningKind>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
     // Log collect_container() call
     let log = &log.new(slog_o!(
-        "container-type" => str!(container_type.name()),
+        "container-type" => str!(styled_container_type.name()),
     ));
 
     info!(
@@ -71,7 +72,7 @@ pub fn collect_container<'p, 'r, 't>(
 
     // Package into a container
     ok!(
-        Element::Container(Container::new(container_type, elements)),
+        Element::StyledContainer(StyledContainer::new(styled_container_type, elements, attributes)),
         exceptions,
     )
 }
