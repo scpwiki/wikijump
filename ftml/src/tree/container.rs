@@ -146,8 +146,8 @@ impl slog::Value for ContainerType {
 )]
 #[serde(rename_all = "kebab-case")]
 pub enum StyledContainerType {
-    Strong,
-    Emphasis,
+    Bold,
+    Italics,
     Underline,
     Superscript,
     Subscript,
@@ -173,8 +173,8 @@ impl StyledContainerType {
     #[inline]
     pub fn html_tag_and_class(self) -> (&'static str, Option<&'static str>) {
         match self {
-            StyledContainerType::Strong => ("strong", None),
-            StyledContainerType::Emphasis => ("italics", None),
+            StyledContainerType::Bold => ("strong", None),
+            StyledContainerType::Italics => ("italics", None),
             StyledContainerType::Underline => ("u", None),
             StyledContainerType::Superscript => ("sup", None),
             StyledContainerType::Subscript => ("sub", None),
