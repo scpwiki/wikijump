@@ -45,14 +45,15 @@ fn debug() {
         Text(
             " ",
         ),
-        Container(
-            Container {
+        StyledContainer(
+            StyledContainer {
                 ctype: Bold,
                 elements: [
                     Text(
                         "banana",
                     ),
                 ],
+                attributes: {},
             },
         ),
     ],
