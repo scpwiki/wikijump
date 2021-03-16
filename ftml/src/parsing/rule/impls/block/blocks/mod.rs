@@ -59,6 +59,7 @@ mod prelude {
 
 mod anchor;
 mod blockquote;
+mod bold;
 mod checkbox;
 mod code;
 mod collapsible;
