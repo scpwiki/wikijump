@@ -94,7 +94,7 @@ fn json() {
     let elements = vec![
         text!("apple"),
         text!(" "),
-        Element::Container(Container::new(ContainerType::Strong, vec![text!("banana")])),
+        Element::StyledContainer(StyledContainer::new(StyledContainerType::Bold, vec![text!("banana")], AttributeMap::new())),
     ];
     let warnings = vec![];
     let styles = vec![cow!("span.hidden-text { display: none; }")];
