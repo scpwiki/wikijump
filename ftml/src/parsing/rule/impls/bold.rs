@@ -1,5 +1,5 @@
 /*
- * parsing/rule/impls/emphasis.rs
+ * parsing/rule/impls/bold.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -20,8 +20,8 @@
 
 use super::prelude::*;
 
-pub const RULE_EMPHASIS: Rule = Rule {
-    name: "emphasis",
+pub const RULE_BOLD: Rule = Rule {
+    name: "bold",
     try_consume_fn,
 };
 
@@ -29,21 +29,21 @@ fn try_consume_fn<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(log, "Trying to create emphasis (italics) container");
+    debug!(log, "Trying to create bold (strong) container");
 
-    check_step(parser, Token::Emphasis)?;
+    check_step(parser, Token::Bold)?;
 
     collect_container(
         log,
         parser,
-        RULE_EMPHASIS,
-        StyledContainerType::Emphasis,
+        RULE_BOLD,
+        StyledContainerType::Bold,
         AttributeMap::new(),
-        &[ParseCondition::current(Token::Emphasis)],
+        &[ParseCondition::current(Token::Bold)],
         &[
             ParseCondition::current(Token::ParagraphBreak),
-            ParseCondition::token_pair(Token::Emphasis, Token::Whitespace),
-            ParseCondition::token_pair(Token::Whitespace, Token::Emphasis),
+            ParseCondition::token_pair(Token::Bold, Token::Whitespace),
+            ParseCondition::token_pair(Token::Whitespace, Token::Bold),
         ],
         None,
     )
