@@ -29,4 +29,4 @@ Definitions are not intended to be exhaustive, but rather quickly summarize what
 | Forum thread   |              | Thread      | A thread of conversation within a particular category, containing zero or more posts. They are either created by a user or by Wikijump. |
 | Forum post     |              | Post        | An individual message sent within a thread. It can be a child or reply to another post, or top-level. These are only created by users. |
 | Component      | Cross-site include (CSI) package | | A page intended to be included on other pages to provide a custom element. |
-| Theme          | Cross-site include (CSI) package | | A page intended to be included on other pages to provide custom styling to change the page's look and feel. |
+| Theme          | Cross-site include (CSI) package | | A page intended to be included on other pages to provide custom styling that changes the page's look and feel. |
