@@ -1,5 +1,5 @@
 /*
- * parsing/rule/impls/block/blocks/bold.rs
+ * parsing/rule/impls/block/blocks/underline.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -20,9 +20,9 @@
 
 use super::prelude::*;
 
-pub const BLOCK_BOLD: BlockRule = BlockRule {
-    name: "block-bold",
-    accepts_names: &["b", "bold", "strong"],
+pub const BLOCK_UNDERLINE: BlockRule = BlockRule {
+    name: "block-underline",
+    accepts_names: &["u", "underline"],
     accepts_special: false,
     accepts_newlines: false,
     parse_fn,
@@ -37,21 +37,21 @@ fn parse_fn<'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(
         log,
-        "Parsing bold block";
+        "Parsing underline block";
         "in-head" => in_head,
         "name" => name,
     );
 
-    assert_eq!(special, false, "Bold doesn't allow special variant");
-    assert_block_name(&BLOCK_BOLD, name);
+    assert_eq!(special, false, "Underline doesn't allow special variant");
+    assert_block_name(&BLOCK_UNDERLINE, name);
 
-    let arguments = parser.get_head_map(&BLOCK_BOLD, in_head)?;
+    let arguments = parser.get_head_map(&BLOCK_UNDERLINE, in_head)?;
 
     // Get body content, without paragraphs
-    let (elements, exceptions) = parser.get_body_elements(&BLOCK_BOLD, false)?.into();
+    let (elements, exceptions) = parser.get_body_elements(&BLOCK_UNDERLINE, false)?.into();
 
     let element = Element::StyledContainer(StyledContainer::new(
-        StyledContainerType::Bold,
+        StyledContainerType::Underline,
         elements,
         arguments.to_hash_map(),
     ));

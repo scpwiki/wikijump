@@ -79,6 +79,7 @@ mod module;
 mod radio;
 mod size;
 mod span;
+mod underline;
 
 pub use self::anchor::BLOCK_ANCHOR;
 pub use self::blockquote::BLOCK_BLOCKQUOTE;
@@ -102,3 +103,4 @@ pub use self::module::BLOCK_MODULE;
 pub use self::radio::BLOCK_RADIO;
 pub use self::size::BLOCK_SIZE;
 pub use self::span::BLOCK_SPAN;
+pub use self::underline::BLOCK_UNDERLINE;
