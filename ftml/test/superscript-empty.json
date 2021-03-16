@@ -16,9 +16,10 @@
                             "data": " "
                         },
                         {
-                            "element": "container",
+                            "element": "styled-container",
                             "data": {
                                 "type": "superscript",
+                                "attributes": {},
                                 "elements": [
                                 ]
                             }

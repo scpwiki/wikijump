@@ -8,9 +8,10 @@
                     "type": "paragraph",
                     "elements": [
                         {
-                            "element": "container",
+                            "element": "styled-container",
                             "data": {
                                 "type": "superscript",
+                                "attributes": {},
                                 "elements": [
                                     {
                                         "element": "text",

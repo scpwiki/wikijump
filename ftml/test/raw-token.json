@@ -1,5 +1,5 @@
 {
-    "input": "not @@**@@ strong",
+    "input": "not @@**@@ bold",
     "tree": {
         "elements": [
             {
@@ -25,7 +25,7 @@
                         },
                         {
                             "element": "text",
-                            "data": "strong"
+                            "data": "bold"
                         }
                     ]
                 }

@@ -33,12 +33,12 @@
     "warnings": [
         {
             "token": "input-end",
-            "rule": "emphasis",
+            "rule": "italics",
             "span": [14, 14],
             "kind": "end-of-input"
         },
         {
-            "token": "emphasis",
+            "token": "italics",
             "rule": "fallback",
             "span": [0, 2],
             "kind": "no-rules-match"

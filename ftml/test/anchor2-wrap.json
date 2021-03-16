@@ -22,9 +22,10 @@
                                         "data": " "
                                     },
                                     {
-                                        "element": "container",
+                                        "element": "styled-container",
                                         "data": {
-                                            "type": "strong",
+                                            "type": "bold",
+                                            "attributes": {},
                                             "elements": [
                                                 {
                                                     "element": "text",

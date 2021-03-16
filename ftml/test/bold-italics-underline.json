@@ -4,13 +4,16 @@
         "elements": [
             {
                 "element": "container",
+                "attributes": {},
                 "data": {
                     "type": "paragraph",
                     "elements": [
                         {
-                            "element": "container",
+                            "element": "styled-container",
+                            "attributes": {},
                             "data": {
-                                "type": "strong",
+                                "type": "bold",
+                                "attributes": {},
                                 "elements": [
                                     {
                                         "element": "text",
@@ -21,9 +24,11 @@
                                         "data": " "
                                     },
                                     {
-                                        "element": "container",
+                                        "element": "styled-container",
+                                        "attributes": {},
                                         "data": {
-                                            "type": "emphasis",
+                                            "type": "italics",
+                                            "attributes": {},
                                             "elements": [
                                                 {
                                                     "element": "text",
@@ -34,9 +39,10 @@
                                                     "data": " "
                                                 },
                                                 {
-                                                    "element": "container",
+                                                    "element": "styled-container",
                                                     "data": {
                                                         "type": "underline",
+                                                        "attributes": {},
                                                         "elements": [
                                                             {
                                                                 "element": "text",

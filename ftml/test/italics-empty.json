@@ -16,9 +16,10 @@
                             "data": " "
                         },
                         {
-                            "element": "container",
+                            "element": "styled-container",
                             "data": {
-                                "type": "emphasis",
+                                "type": "italics",
+                                "attributes": {},
                                 "elements": [
                                 ]
                             }

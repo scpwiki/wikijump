@@ -6,6 +6,7 @@
                 "element": "container",
                 "data": {
                     "type": "paragraph",
+                    "attributes": {},
                     "elements": [
                         {
                             "element": "text",
@@ -33,12 +34,12 @@
     "warnings": [
         {
             "token": "input-end",
-            "rule": "strong",
+            "rule": "bold",
             "span": [11, 11],
             "kind": "end-of-input"
         },
         {
-            "token": "strong",
+            "token": "bold",
             "rule": "fallback",
             "span": [0, 2],
             "kind": "no-rules-match"
