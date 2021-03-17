@@ -42,7 +42,7 @@ pub fn collect_container<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
-    styled_container_type: ContainerType,
+    container_type: ContainerType,
     attributes: AttributeMap<'t>,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
@@ -50,7 +50,7 @@ pub fn collect_container<'p, 'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     // Log collect_container() call
     let log = &log.new(slog_o!(
-        "container-type" => str!(styled_container_type.name()),
+        "container-type" => str!(container_type.name()),
     ));
 
     info!(
@@ -72,7 +72,7 @@ pub fn collect_container<'p, 'r, 't>(
 
     // Package into a container
     ok!(
-        Element::Container(Container::new(styled_container_type, elements, attributes)),
+        Element::Container(Container::new(container_type, elements, attributes)),
         exceptions,
     )
 }
