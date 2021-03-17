@@ -48,7 +48,8 @@ fn parse_fn<'r, 't>(
     let arguments = parser.get_head_map(&BLOCK_UNDERLINE, in_head)?;
 
     // Get body content, without paragraphs
-    let (elements, exceptions) = parser.get_body_elements(&BLOCK_UNDERLINE, false)?.into();
+    let (elements, exceptions) =
+        parser.get_body_elements(&BLOCK_UNDERLINE, false)?.into();
 
     let element = Element::StyledContainer(StyledContainer::new(
         StyledContainerType::Underline,

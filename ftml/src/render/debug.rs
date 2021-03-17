@@ -66,7 +66,11 @@ fn debug() {
     let elements = vec![
         text!("apple"),
         text!(" "),
-        Element::StyledContainer(StyledContainer::new(StyledContainerType::Bold, vec![text!("banana")], AttributeMap::new())),
+        Element::StyledContainer(StyledContainer::new(
+            StyledContainerType::Bold,
+            vec![text!("banana")],
+            AttributeMap::new(),
+        )),
     ];
     let warnings = vec![];
     let styles = vec![cow!("span.hidden-text { display: none; }")];

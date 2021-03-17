@@ -42,13 +42,18 @@ fn parse_fn<'r, 't>(
         "name" => name,
     );
 
-    assert_eq!(special, false, "Strikethrough doesn't allow special variant");
+    assert_eq!(
+        special, false,
+        "Strikethrough doesn't allow special variant",
+    );
     assert_block_name(&BLOCK_STRIKETHROUGH, name);
 
     let arguments = parser.get_head_map(&BLOCK_STRIKETHROUGH, in_head)?;
 
     // Get body content, without paragraphs
-    let (elements, exceptions) = parser.get_body_elements(&BLOCK_STRIKETHROUGH, false)?.into();
+    let (elements, exceptions) = parser
+        .get_body_elements(&BLOCK_STRIKETHROUGH, false)?
+        .into();
 
     let element = Element::StyledContainer(StyledContainer::new(
         StyledContainerType::Strikethrough,
