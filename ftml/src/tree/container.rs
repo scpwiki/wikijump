@@ -26,40 +26,6 @@ use strum_macros::IntoStaticStr;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-pub struct Container<'t> {
-    #[serde(rename = "type")]
-    ctype: ContainerType,
-    elements: Vec<Element<'t>>,
-}
-
-impl<'t> Container<'t> {
-    #[inline]
-    pub fn new(ctype: ContainerType, elements: Vec<Element<'t>>) -> Self {
-        Container { ctype, elements }
-    }
-
-    #[inline]
-    pub fn ctype(&self) -> ContainerType {
-        self.ctype
-    }
-
-    #[inline]
-    pub fn elements(&self) -> &[Element<'t>] {
-        &self.elements
-    }
-}
-
-impl<'t> From<Container<'t>> for Vec<Element<'t>> {
-    #[inline]
-    fn from(container: Container<'t>) -> Vec<Element<'t>> {
-        let Container { elements, .. } = container;
-
-        elements
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
 pub struct StyledContainer<'t> {
     #[serde(rename = "type")]
     ctype: StyledContainerType,
@@ -110,41 +76,6 @@ impl<'t> From<StyledContainer<'t>> for Vec<Element<'t>> {
     Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq,
 )]
 #[serde(rename_all = "kebab-case")]
-pub enum ContainerType {
-    Paragraph,
-    Header(HeadingLevel),
-}
-
-impl ContainerType {
-    #[inline]
-    pub fn name(self) -> &'static str {
-        self.into()
-    }
-
-    #[inline]
-    pub fn html_tag(self) -> &'static str {
-        match self {
-            ContainerType::Paragraph => "p",
-            ContainerType::Header(level) => level.html_tag(),
-        }
-    }
-}
-
-impl slog::Value for ContainerType {
-    fn serialize(
-        &self,
-        _: &slog::Record,
-        key: slog::Key,
-        serializer: &mut dyn slog::Serializer,
-    ) -> slog::Result {
-        serializer.emit_str(key, self.name())
-    }
-}
-
-#[derive(
-    Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq,
-)]
-#[serde(rename_all = "kebab-case")]
 pub enum StyledContainerType {
     Bold,
     Italics,
@@ -162,6 +93,8 @@ pub enum StyledContainerType {
     Hidden,
     Invisible,
     Size,
+    Paragraph,
+    Header(HeadingLevel),
 }
 
 impl StyledContainerType {
@@ -189,6 +122,8 @@ impl StyledContainerType {
             StyledContainerType::Hidden => ("span", Some("hidden")),
             StyledContainerType::Invisible => ("span", Some("invisible")),
             StyledContainerType::Size => ("span", None),
+            StyledContainerType::Paragraph => ("p", None),
+            StyledContainerType::Header(level) => (level.html_tag(), None),
         }
     }
 }
