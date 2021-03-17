@@ -38,7 +38,6 @@ fn try_consume_fn<'p, 'r, 't>(
         parser,
         RULE_SUBSCRIPT,
         ContainerType::Subscript,
-        AttributeMap::new(),
         &[ParseCondition::current(Token::Subscript)],
         &[
             ParseCondition::current(Token::ParagraphBreak),

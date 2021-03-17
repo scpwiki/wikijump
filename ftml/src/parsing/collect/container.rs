@@ -43,7 +43,6 @@ pub fn collect_container<'p, 'r, 't>(
     parser: &'p mut Parser<'r, 't>,
     rule: Rule,
     container_type: ContainerType,
-    attributes: AttributeMap<'t>,
     close_conditions: &[ParseCondition],
     invalid_conditions: &[ParseCondition],
     warn_kind: Option<ParseWarningKind>,
@@ -72,7 +71,11 @@ pub fn collect_container<'p, 'r, 't>(
 
     // Package into a container
     ok!(
-        Element::Container(Container::new(container_type, elements, attributes)),
+        Element::Container(Container::new(
+            container_type,
+            elements,
+            AttributeMap::new(),
+        )),
         exceptions,
     )
 }

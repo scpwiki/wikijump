@@ -38,7 +38,6 @@ fn try_consume_fn<'p, 'r, 't>(
         parser,
         RULE_ITALICS,
         ContainerType::Italics,
-        AttributeMap::new(),
         &[ParseCondition::current(Token::Italics)],
         &[
             ParseCondition::current(Token::ParagraphBreak),

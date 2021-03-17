@@ -38,7 +38,6 @@ fn try_consume_fn<'p, 'r, 't>(
         parser,
         RULE_BOLD,
         ContainerType::Bold,
-        AttributeMap::new(),
         &[ParseCondition::current(Token::Bold)],
         &[
             ParseCondition::current(Token::ParagraphBreak),
