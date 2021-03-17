@@ -20,8 +20,7 @@
 
 //! Representation of generic syntax elements which wrap other elements.
 
-use super::AttributeMap;
-use crate::tree::{Element, HeadingLevel};
+use super::{AttributeMap, Element, HeadingLevel, HtmlTag};
 use strum_macros::IntoStaticStr;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -104,26 +103,26 @@ impl ContainerType {
     }
 
     #[inline]
-    pub fn html_tag_and_class(self) -> (&'static str, Option<&'static str>) {
+    pub fn html_tag(self) -> HtmlTag {
         match self {
-            ContainerType::Bold => ("strong", None),
-            ContainerType::Italics => ("italics", None),
-            ContainerType::Underline => ("u", None),
-            ContainerType::Superscript => ("sup", None),
-            ContainerType::Subscript => ("sub", None),
-            ContainerType::Strikethrough => ("s", None),
-            ContainerType::Monospace => ("tt", None),
-            ContainerType::Span => ("span", None),
-            ContainerType::Div => ("div", None),
-            ContainerType::Mark => ("mark", None),
-            ContainerType::Blockquote => ("blockquote", None),
-            ContainerType::Insertion => ("ins", None),
-            ContainerType::Deletion => ("del", None),
-            ContainerType::Hidden => ("span", Some("hidden")),
-            ContainerType::Invisible => ("span", Some("invisible")),
-            ContainerType::Size => ("span", None),
-            ContainerType::Paragraph => ("p", None),
-            ContainerType::Header(level) => (level.html_tag(), None),
+            ContainerType::Bold => HtmlTag::new("strong"),
+            ContainerType::Italics => HtmlTag::new("italics"),
+            ContainerType::Underline => HtmlTag::new("u"),
+            ContainerType::Superscript => HtmlTag::new("sup"),
+            ContainerType::Subscript => HtmlTag::new("sub"),
+            ContainerType::Strikethrough => HtmlTag::new("s"),
+            ContainerType::Monospace => HtmlTag::new("tt"),
+            ContainerType::Span => HtmlTag::new("span"),
+            ContainerType::Div => HtmlTag::new("div"),
+            ContainerType::Mark => HtmlTag::new("mark"),
+            ContainerType::Blockquote => HtmlTag::new("blockquote"),
+            ContainerType::Insertion => HtmlTag::new("ins"),
+            ContainerType::Deletion => HtmlTag::new("del"),
+            ContainerType::Hidden => HtmlTag::with_class("span", "hidden"),
+            ContainerType::Invisible => HtmlTag::with_class("span", "invisible"),
+            ContainerType::Size => HtmlTag::new("span"),
+            ContainerType::Paragraph => HtmlTag::new("p"),
+            ContainerType::Header(level) => HtmlTag::new(level.html_tag()),
         }
     }
 }
