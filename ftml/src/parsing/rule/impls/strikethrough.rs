@@ -37,7 +37,7 @@ fn try_consume_fn<'p, 'r, 't>(
         log,
         parser,
         RULE_STRIKETHROUGH,
-        StyledContainerType::Strikethrough,
+        ContainerType::Strikethrough,
         AttributeMap::new(),
         &[ParseCondition::current(Token::DoubleDash)],
         &[

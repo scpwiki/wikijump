@@ -45,8 +45,8 @@ fn debug() {
         Text(
             " ",
         ),
-        StyledContainer(
-            StyledContainer {
+        Container(
+            Container {
                 ctype: Bold,
                 elements: [
                     Text(
@@ -66,8 +66,8 @@ fn debug() {
     let elements = vec![
         text!("apple"),
         text!(" "),
-        Element::StyledContainer(StyledContainer::new(
-            StyledContainerType::Bold,
+        Element::Container(Container::new(
+            ContainerType::Bold,
             vec![text!("banana")],
             AttributeMap::new(),
         )),

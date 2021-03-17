@@ -37,7 +37,7 @@ fn try_consume_fn<'p, 'r, 't>(
         log,
         parser,
         RULE_BOLD,
-        StyledContainerType::Bold,
+        ContainerType::Bold,
         AttributeMap::new(),
         &[ParseCondition::current(Token::Bold)],
         &[

@@ -37,7 +37,7 @@ fn try_consume_fn<'p, 'r, 't>(
         log,
         parser,
         RULE_ITALICS,
-        StyledContainerType::Italics,
+        ContainerType::Italics,
         AttributeMap::new(),
         &[ParseCondition::current(Token::Italics)],
         &[

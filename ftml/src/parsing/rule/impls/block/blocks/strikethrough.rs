@@ -55,8 +55,8 @@ fn parse_fn<'r, 't>(
         .get_body_elements(&BLOCK_STRIKETHROUGH, false)?
         .into();
 
-    let element = Element::StyledContainer(StyledContainer::new(
-        StyledContainerType::Strikethrough,
+    let element = Element::Container(Container::new(
+        ContainerType::Strikethrough,
         elements,
         arguments.to_hash_map(),
     ));

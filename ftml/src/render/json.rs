@@ -95,8 +95,8 @@ fn json() {
     let elements = vec![
         text!("apple"),
         text!(" "),
-        Element::StyledContainer(StyledContainer::new(
-            StyledContainerType::Bold,
+        Element::Container(Container::new(
+            ContainerType::Bold,
             vec![text!("banana")],
             AttributeMap::new(),
         )),

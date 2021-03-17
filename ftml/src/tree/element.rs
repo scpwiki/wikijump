@@ -20,7 +20,6 @@
 
 use super::{
     AnchorTarget, AttributeMap, Container, LinkLabel, ListItem, ListType, Module,
-    StyledContainer,
 };
 use std::borrow::Cow;
 use std::num::NonZeroU32;
@@ -30,13 +29,8 @@ use std::num::NonZeroU32;
 pub enum Element<'t> {
     /// Generic element that contains other elements within it.
     ///
-    /// Examples would include italics, paragraphs, etc.
+    /// Examples would include divs, italics, paragraphs, etc.
     Container(Container<'t>),
-
-    /// Generic element that contains other elements, with added styling.
-    ///
-    /// Examples would include divs, spans, etc.
-    StyledContainer(StyledContainer<'t>),
 
     /// A Wikidot module being invoked, along with its arguments.
     ///
@@ -165,7 +159,6 @@ impl Element<'_> {
     pub fn name(&self) -> &'static str {
         match self {
             Element::Container(container) => container.ctype().name(),
-            Element::StyledContainer(container) => container.ctype().name(),
             Element::Module(module) => module.name(),
             Element::Text(_) => "Text",
             Element::Raw(_) => "Raw",

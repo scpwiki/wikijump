@@ -51,8 +51,8 @@ fn parse_fn<'r, 't>(
     let (elements, exceptions) =
         parser.get_body_elements(&BLOCK_MONOSPACE, false)?.into();
 
-    let element = Element::StyledContainer(StyledContainer::new(
-        StyledContainerType::Monospace,
+    let element = Element::Container(Container::new(
+        ContainerType::Monospace,
         elements,
         arguments.to_hash_map(),
     ));

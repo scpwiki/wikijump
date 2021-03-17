@@ -37,7 +37,7 @@ fn try_consume_fn<'p, 'r, 't>(
         log,
         parser,
         RULE_SUBSCRIPT,
-        StyledContainerType::Subscript,
+        ContainerType::Subscript,
         AttributeMap::new(),
         &[ParseCondition::current(Token::Subscript)],
         &[

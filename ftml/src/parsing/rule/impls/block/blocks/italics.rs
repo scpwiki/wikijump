@@ -50,8 +50,8 @@ fn parse_fn<'r, 't>(
     // Get body content, without paragraphs
     let (elements, exceptions) = parser.get_body_elements(&BLOCK_ITALICS, false)?.into();
 
-    let element = Element::StyledContainer(StyledContainer::new(
-        StyledContainerType::Italics,
+    let element = Element::Container(Container::new(
+        ContainerType::Italics,
         elements,
         arguments.to_hash_map(),
     ));

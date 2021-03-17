@@ -57,8 +57,8 @@ fn parse_fn<'r, 't>(
         .into();
 
     // Build element and return
-    let element = Element::StyledContainer(StyledContainer::new(
-        StyledContainerType::Div,
+    let element = Element::Container(Container::new(
+        ContainerType::Div,
         elements,
         arguments.to_hash_map(),
     ));

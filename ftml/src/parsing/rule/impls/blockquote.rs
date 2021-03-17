@@ -21,7 +21,7 @@
 use super::prelude::*;
 use crate::parsing::{process_depths, DepthItem, DepthList};
 use crate::span_wrap::SpanWrap;
-use crate::tree::{AttributeMap, StyledContainer, StyledContainerType};
+use crate::tree::{AttributeMap, Container, ContainerType};
 
 const MAX_BLOCKQUOTE_DEPTH: usize = 30;
 
@@ -150,11 +150,12 @@ fn build_blockquote_element(list: DepthList<(), Vec<Element>>) -> Element {
     remove_trailing_line_break!();
 
     // Wrap blockquote internals in a paragraph, like [[blockquote]] does.
-    let paragraph = Container::new(ContainerType::Paragraph, all_elements);
+    let paragraph =
+        Container::new(ContainerType::Paragraph, all_elements, AttributeMap::new());
 
     // Place paragraph in the blockquote container
-    Element::StyledContainer(StyledContainer::new(
-        StyledContainerType::Blockquote,
+    Element::Container(Container::new(
+        ContainerType::Blockquote,
         vec![Element::Container(paragraph)],
         AttributeMap::new(),
     ))

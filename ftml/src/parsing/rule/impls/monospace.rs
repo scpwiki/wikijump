@@ -37,7 +37,7 @@ fn try_consume_fn<'p, 'r, 't>(
         log,
         parser,
         RULE_MONOSPACE,
-        StyledContainerType::Monospace,
+        ContainerType::Monospace,
         AttributeMap::new(),
         &[ParseCondition::current(Token::RightMonospace)],
         &[

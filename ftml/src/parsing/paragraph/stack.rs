@@ -19,7 +19,7 @@
  */
 
 use crate::parsing::prelude::*;
-use crate::tree::{Container, ContainerType};
+use crate::tree::{AttributeMap, Container, ContainerType};
 use std::mem;
 
 #[derive(Debug)]
@@ -99,7 +99,8 @@ impl<'t> ParagraphStack<'t> {
 
         // Pull out gathered elements, then make a new paragraph container
         let elements = mem::replace(&mut self.current, Vec::new());
-        let container = Container::new(ContainerType::Paragraph, elements);
+        let container =
+            Container::new(ContainerType::Paragraph, elements, AttributeMap::new());
         let element = Element::Container(container);
 
         Some(element)

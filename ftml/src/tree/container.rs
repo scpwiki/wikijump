@@ -26,21 +26,21 @@ use strum_macros::IntoStaticStr;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-pub struct StyledContainer<'t> {
+pub struct Container<'t> {
     #[serde(rename = "type")]
-    ctype: StyledContainerType,
+    ctype: ContainerType,
     elements: Vec<Element<'t>>,
     attributes: AttributeMap<'t>,
 }
 
-impl<'t> StyledContainer<'t> {
+impl<'t> Container<'t> {
     #[inline]
     pub fn new(
-        ctype: StyledContainerType,
+        ctype: ContainerType,
         elements: Vec<Element<'t>>,
         attributes: AttributeMap<'t>,
     ) -> Self {
-        StyledContainer {
+        Container {
             ctype,
             elements,
             attributes,
@@ -48,7 +48,7 @@ impl<'t> StyledContainer<'t> {
     }
 
     #[inline]
-    pub fn ctype(&self) -> StyledContainerType {
+    pub fn ctype(&self) -> ContainerType {
         self.ctype
     }
 
@@ -63,10 +63,10 @@ impl<'t> StyledContainer<'t> {
     }
 }
 
-impl<'t> From<StyledContainer<'t>> for Vec<Element<'t>> {
+impl<'t> From<Container<'t>> for Vec<Element<'t>> {
     #[inline]
-    fn from(container: StyledContainer<'t>) -> Vec<Element<'t>> {
-        let StyledContainer { elements, .. } = container;
+    fn from(container: Container<'t>) -> Vec<Element<'t>> {
+        let Container { elements, .. } = container;
 
         elements
     }
@@ -76,7 +76,7 @@ impl<'t> From<StyledContainer<'t>> for Vec<Element<'t>> {
     Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq,
 )]
 #[serde(rename_all = "kebab-case")]
-pub enum StyledContainerType {
+pub enum ContainerType {
     Bold,
     Italics,
     Underline,
@@ -97,7 +97,7 @@ pub enum StyledContainerType {
     Header(HeadingLevel),
 }
 
-impl StyledContainerType {
+impl ContainerType {
     #[inline]
     pub fn name(self) -> &'static str {
         self.into()
@@ -106,29 +106,29 @@ impl StyledContainerType {
     #[inline]
     pub fn html_tag_and_class(self) -> (&'static str, Option<&'static str>) {
         match self {
-            StyledContainerType::Bold => ("strong", None),
-            StyledContainerType::Italics => ("italics", None),
-            StyledContainerType::Underline => ("u", None),
-            StyledContainerType::Superscript => ("sup", None),
-            StyledContainerType::Subscript => ("sub", None),
-            StyledContainerType::Strikethrough => ("s", None),
-            StyledContainerType::Monospace => ("tt", None),
-            StyledContainerType::Span => ("span", None),
-            StyledContainerType::Div => ("div", None),
-            StyledContainerType::Mark => ("mark", None),
-            StyledContainerType::Blockquote => ("blockquote", None),
-            StyledContainerType::Insertion => ("ins", None),
-            StyledContainerType::Deletion => ("del", None),
-            StyledContainerType::Hidden => ("span", Some("hidden")),
-            StyledContainerType::Invisible => ("span", Some("invisible")),
-            StyledContainerType::Size => ("span", None),
-            StyledContainerType::Paragraph => ("p", None),
-            StyledContainerType::Header(level) => (level.html_tag(), None),
+            ContainerType::Bold => ("strong", None),
+            ContainerType::Italics => ("italics", None),
+            ContainerType::Underline => ("u", None),
+            ContainerType::Superscript => ("sup", None),
+            ContainerType::Subscript => ("sub", None),
+            ContainerType::Strikethrough => ("s", None),
+            ContainerType::Monospace => ("tt", None),
+            ContainerType::Span => ("span", None),
+            ContainerType::Div => ("div", None),
+            ContainerType::Mark => ("mark", None),
+            ContainerType::Blockquote => ("blockquote", None),
+            ContainerType::Insertion => ("ins", None),
+            ContainerType::Deletion => ("del", None),
+            ContainerType::Hidden => ("span", Some("hidden")),
+            ContainerType::Invisible => ("span", Some("invisible")),
+            ContainerType::Size => ("span", None),
+            ContainerType::Paragraph => ("p", None),
+            ContainerType::Header(level) => (level.html_tag(), None),
         }
     }
 }
 
-impl slog::Value for StyledContainerType {
+impl slog::Value for ContainerType {
     fn serialize(
         &self,
         _: &slog::Record,
