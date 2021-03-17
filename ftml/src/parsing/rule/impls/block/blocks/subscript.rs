@@ -1,5 +1,5 @@
 /*
- * parsing/rule/impls/block/blocks/superscript.rs
+ * parsing/rule/impls/block/blocks/subscript.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -20,9 +20,9 @@
 
 use super::prelude::*;
 
-pub const BLOCK_SUPERSCRIPT: BlockRule = BlockRule {
-    name: "block-superscript",
-    accepts_names: &["sup", "super", "superscript"],
+pub const BLOCK_SUBSCRIPT: BlockRule = BlockRule {
+    name: "block-subscript",
+    accepts_names: &["sub", "subscript"],
     accepts_special: false,
     accepts_newlines: false,
     parse_fn,
@@ -37,21 +37,21 @@ fn parse_fn<'r, 't>(
 ) -> ParseResult<'r, 't, Elements<'t>> {
     debug!(
         log,
-        "Parsing superscript block";
+        "Parsing subscript block";
         "in-head" => in_head,
         "name" => name,
     );
 
-    assert_eq!(special, false, "Superscript doesn't allow special variant");
-    assert_block_name(&BLOCK_SUPERSCRIPT, name);
+    assert_eq!(special, false, "Subscript doesn't allow special variant");
+    assert_block_name(&BLOCK_SUBSCRIPT, name);
 
-    let arguments = parser.get_head_map(&BLOCK_SUPERSCRIPT, in_head)?;
+    let arguments = parser.get_head_map(&BLOCK_SUBSCRIPT, in_head)?;
 
     // Get body content, without paragraphs
-    let (elements, exceptions) = parser.get_body_elements(&BLOCK_SUPERSCRIPT, false)?.into();
+    let (elements, exceptions) = parser.get_body_elements(&BLOCK_SUBSCRIPT, false)?.into();
 
     let element = Element::StyledContainer(StyledContainer::new(
-        StyledContainerType::Superscript,
+        StyledContainerType::Subscript,
         elements,
         arguments.to_hash_map(),
     ));

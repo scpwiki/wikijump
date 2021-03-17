@@ -42,7 +42,7 @@ fn parse_fn<'r, 't>(
         "name" => name,
     );
 
-    assert_eq!(special, false, "Underline doesn't allow special variant");
+    assert_eq!(special, false, "Strikethrough doesn't allow special variant");
     assert_block_name(&BLOCK_STRIKETHROUGH, name);
 
     let arguments = parser.get_head_map(&BLOCK_STRIKETHROUGH, in_head)?;

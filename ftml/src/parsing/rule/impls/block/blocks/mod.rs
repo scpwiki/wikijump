@@ -80,6 +80,7 @@ mod radio;
 mod size;
 mod span;
 mod strikethrough;
+mod subscript;
 mod superscript;
 mod underline;
 
@@ -106,5 +107,6 @@ pub use self::radio::BLOCK_RADIO;
 pub use self::size::BLOCK_SIZE;
 pub use self::span::BLOCK_SPAN;
 pub use self::strikethrough::BLOCK_STRIKETHROUGH;
+pub use self::subscript::BLOCK_SUBSCRIPT;
 pub use self::superscript::BLOCK_SUPERSCRIPT;
 pub use self::underline::BLOCK_UNDERLINE;
