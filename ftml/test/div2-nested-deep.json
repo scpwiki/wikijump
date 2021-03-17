@@ -6,9 +6,10 @@
                 "element": "container",
                 "data": {
                     "type": "paragraph",
+                    "attributes": {},
                     "elements": [
                         {
-                            "element": "styled-container",
+                            "element": "container",
                             "data": {
                                 "type": "div",
                                 "attributes": {},
@@ -18,7 +19,7 @@
                                         "data": "A"
                                     },
                                     {
-                                        "element": "styled-container",
+                                        "element": "container",
                                         "data": {
                                             "type": "div",
                                             "attributes": {},
@@ -28,7 +29,7 @@
                                                     "data": "B"
                                                 },
                                                 {
-                                                    "element": "styled-container",
+                                                    "element": "container",
                                                     "data": {
                                                         "type": "div",
                                                         "attributes": {},
@@ -38,7 +39,7 @@
                                                                 "data": "C"
                                                             },
                                                             {
-                                                                "element": "styled-container",
+                                                                "element": "container",
                                                                 "data": {
                                                                     "type": "div",
                                                                     "attributes": {},

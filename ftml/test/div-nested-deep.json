@@ -6,9 +6,10 @@
                 "element": "container",
                 "data": {
                     "type": "paragraph",
+                    "attributes": {},
                     "elements": [
                         {
-                            "element": "styled-container",
+                            "element": "container",
                             "data": {
                                 "type": "div",
                                 "attributes": {},
@@ -17,13 +18,14 @@
                                         "element": "container",
                                         "data": {
                                             "type": "paragraph",
+                                            "attributes": {},
                                             "elements": [
                                                 {
                                                     "element": "text",
                                                     "data": "A"
                                                 },
                                                 {
-                                                    "element": "styled-container",
+                                                    "element": "container",
                                                     "data": {
                                                         "type": "div",
                                                         "attributes": {},
@@ -32,13 +34,14 @@
                                                                 "element": "container",
                                                                 "data": {
                                                                     "type": "paragraph",
+                                                                    "attributes": {},
                                                                     "elements": [
                                                                         {
                                                                             "element": "text",
                                                                             "data": "B"
                                                                         },
                                                                         {
-                                                                            "element": "styled-container",
+                                                                            "element": "container",
                                                                             "data": {
                                                                                 "type": "div",
                                                                                 "attributes": {},
@@ -47,13 +50,14 @@
                                                                                         "element": "container",
                                                                                         "data": {
                                                                                             "type": "paragraph",
+                                                                                            "attributes": {},
                                                                                             "elements": [
                                                                                                 {
                                                                                                     "element": "text",
                                                                                                     "data": "C"
                                                                                                 },
                                                                                                 {
-                                                                                                    "element": "styled-container",
+                                                                                                    "element": "container",
                                                                                                     "data": {
                                                                                                         "type": "div",
                                                                                                         "attributes": {},
@@ -62,6 +66,7 @@
                                                                                                                 "element": "container",
                                                                                                                 "data": {
                                                                                                                     "type": "paragraph",
+                                                                                                                    "attributes": {},
                                                                                                                     "elements": [
                                                                                                                         {
                                                                                                                             "element": "text",

@@ -4,12 +4,12 @@
         "elements": [
             {
                 "element": "container",
-                "attributes": {},
                 "data": {
                     "type": "paragraph",
+                    "attributes": {},
                     "elements": [
                         {
-                            "element": "styled-container",
+                            "element": "container",
                             "attributes": {},
                             "data": {
                                 "type": "bold",
@@ -24,7 +24,7 @@
                                         "data": " "
                                     },
                                     {
-                                        "element": "styled-container",
+                                        "element": "container",
                                         "attributes": {},
                                         "data": {
                                             "type": "italics",
@@ -39,7 +39,7 @@
                                                     "data": " "
                                                 },
                                                 {
-                                                    "element": "styled-container",
+                                                    "element": "container",
                                                     "data": {
                                                         "type": "underline",
                                                         "attributes": {},

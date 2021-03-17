@@ -6,13 +6,14 @@
                 "element": "container",
                 "data": {
                     "type": "paragraph",
+                    "attributes": {},
                     "elements": [
                         {
                             "element": "text",
                             "data": "A"
                         },
                         {
-                            "element": "styled-container",
+                            "element": "container",
                             "data": {
                                 "type": "div",
                                 "attributes": {},

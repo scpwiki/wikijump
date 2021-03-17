@@ -6,6 +6,7 @@
                 "element": "container",
                 "data": {
                     "type": "paragraph",
+                    "attributes": {},
                     "elements": [
                         {
                             "element": "anchor",
@@ -22,7 +23,7 @@
                                         "data": " "
                                     },
                                     {
-                                        "element": "styled-container",
+                                        "element": "container",
                                         "data": {
                                             "type": "bold",
                                             "attributes": {},

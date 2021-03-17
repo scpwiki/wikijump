@@ -6,9 +6,10 @@
                 "element": "container",
                 "data": {
                     "type": "paragraph",
+                    "attributes": {},
                     "elements": [
                         {
-                            "element": "styled-container",
+                            "element": "container",
                             "data": {
                                 "type": "blockquote",
                                 "attributes": {},
@@ -17,9 +18,10 @@
                                         "element": "container",
                                         "data": {
                                             "type": "paragraph",
+                                            "attributes": {},
                                             "elements": [
                                                 {
-                                                    "element": "styled-container",
+                                                    "element": "container",
                                                     "data": {
                                                         "type": "bold",
                                                         "attributes": {},
@@ -40,7 +42,7 @@
                                                     "data": "Cherry"
                                                 },
                                                 {
-                                                    "element": "styled-container",
+                                                    "element": "container",
                                                     "data": {
                                                         "type": "blockquote",
                                                         "attributes": {},
@@ -49,6 +51,7 @@
                                                                 "element": "container",
                                                                 "data": {
                                                                     "type": "paragraph",
+                                                                    "attributes": {},
                                                                     "elements": [
                                                                         {
                                                                             "element": "text",

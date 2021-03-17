@@ -9,7 +9,7 @@
                     "attributes": {},
                     "elements": [
                         {
-                            "element": "styled-container",
+                            "element": "container",
                             "data": {
                                 "type": "bold",
                                 "attributes": {},
@@ -23,7 +23,7 @@
                                         "data": " "
                                     },
                                     {
-                                        "element": "styled-container",
+                                        "element": "container",
                                         "data": {
                                             "type": "italics",
                                             "attributes": {},
@@ -37,7 +37,7 @@
                                                     "data": " "
                                                 },
                                                 {
-                                                    "element": "styled-container",
+                                                    "element": "container",
                                                     "data": {
                                                         "type": "underline",
                                                         "attributes": {},
@@ -62,7 +62,7 @@
                                                     "data": " "
                                                 },
                                                 {
-                                                    "element": "styled-container",
+                                                    "element": "container",
                                                     "data": {
                                                         "type": "superscript",
                                                         "attributes": {},
@@ -76,7 +76,7 @@
                                                                 "data": " "
                                                             },
                                                             {
-                                                                "element": "styled-container",
+                                                                "element": "container",
                                                                 "data": {
                                                                     "type": "monospace",
                                                                     "attributes": {},
@@ -90,7 +90,7 @@
                                                                             "data": " "
                                                                         },
                                                                         {
-                                                                            "element": "styled-container",
+                                                                            "element": "container",
                                                                             "data": {
                                                                                 "type": "subscript",
                                                                                 "attributes": {},

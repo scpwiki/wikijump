@@ -6,6 +6,7 @@
                 "element": "container",
                 "data": {
                     "type": "paragraph",
+                    "attributes": {},
                     "elements": [
                         {
                             "element": "text",
@@ -16,7 +17,7 @@
                             "data": " "
                         },
                         {
-                            "element": "styled-container",
+                            "element": "container",
                             "data": {
                                 "type": "italics",
                                 "attributes": {},

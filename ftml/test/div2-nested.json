@@ -6,15 +6,16 @@
                 "element": "container",
                 "data": {
                     "type": "paragraph",
+                    "attributes": {},
                     "elements": [
                         {
-                            "element": "styled-container",
+                            "element": "container",
                             "data": {
                                 "type": "div",
                                 "attributes": {},
                                 "elements": [
                                     {
-                                        "element": "styled-container",
+                                        "element": "container",
                                         "data": {
                                             "type": "bold",
                                             "attributes": {},
@@ -35,7 +36,7 @@
                                         "data": "Cherry"
                                     },
                                     {
-                                        "element": "styled-container",
+                                        "element": "container",
                                         "data": {
                                             "type": "div",
                                             "attributes": {},

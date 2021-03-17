@@ -71,7 +71,7 @@ fn json() {
       "data": " "
     },
     {
-      "element": "styled-container",
+      "element": "container",
       "data": {
         "type": "bold",
         "elements": [
@@ -89,7 +89,7 @@ fn json() {
   ]
 }"#;
 
-    const COMPACT_OUTPUT: &str = "{\"elements\":[{\"element\":\"text\",\"data\":\"apple\"},{\"element\":\"text\",\"data\":\" \"},{\"element\":\"styled-container\",\"data\":{\"type\":\"bold\",\"elements\":[{\"element\":\"text\",\"data\":\"banana\"}],\"attributes\":{}}}],\"styles\":[\"span.hidden-text { display: none; }\"]}";
+    const COMPACT_OUTPUT: &str = "{\"elements\":[{\"element\":\"text\",\"data\":\"apple\"},{\"element\":\"text\",\"data\":\" \"},{\"element\":\"container\",\"data\":{\"type\":\"bold\",\"elements\":[{\"element\":\"text\",\"data\":\"banana\"}],\"attributes\":{}}}],\"styles\":[\"span.hidden-text { display: none; }\"]}";
 
     // Syntax tree construction
     let elements = vec![

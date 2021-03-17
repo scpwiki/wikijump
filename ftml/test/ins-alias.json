@@ -6,6 +6,7 @@
                 "element": "container",
                 "data": {
                     "type": "paragraph",
+                    "attributes": {},
                     "elements": [
                         {
                             "element": "text",
@@ -15,7 +16,7 @@
                             "element": "line-break"
                         },
                         {
-                            "element": "styled-container",
+                            "element": "container",
                             "data": {
                                 "type": "insertion",
                                 "attributes": {},

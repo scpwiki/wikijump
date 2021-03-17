@@ -6,44 +6,51 @@
                 "element": "container",
                 "data": {
                     "type": "paragraph",
+                    "attributes": {},
                     "elements": [
                         {
-                            "element": "styled-container",
+                            "element": "container",
                             "data": {
                                 "type": "blockquote",
+                                "attributes": {},
                                 "elements": [
                                     {
                                         "element": "container",
                                         "data": {
                                             "type": "paragraph",
+                                            "attributes": {},
                                             "elements": [
                                                 {
                                                     "element": "text",
                                                     "data": "Apple"
                                                 },
                                                 {
-                                                    "element": "styled-container",
+                                                    "element": "container",
                                                     "data": {
                                                         "type": "blockquote",
+                                                        "attributes": {},
                                                         "elements": [
                                                             {
                                                                 "element": "container",
                                                                 "data": {
                                                                     "type": "paragraph",
+                                                                    "attributes": {},
                                                                     "elements": [
                                                                         {
                                                                             "element": "text",
                                                                             "data": "Banana"
                                                                         },
                                                                         {
-                                                                            "element": "styled-container",
+                                                                            "element": "container",
                                                                             "data": {
                                                                                 "type": "blockquote",
+                                                                                "attributes": {},
                                                                                 "elements": [
                                                                                     {
                                                                                         "element": "container",
                                                                                         "data": {
                                                                                             "type": "paragraph",
+                                                                                            "attributes": {},
                                                                                             "elements": [
                                                                                                 {
                                                                                                     "element": "text",
@@ -52,22 +59,19 @@
                                                                                             ]
                                                                                         }
                                                                                     }
-                                                                                ],
-                                                                                "attributes": {}
+                                                                                ]
                                                                             }
                                                                         }
                                                                     ]
                                                                 }
                                                             }
-                                                        ],
-                                                        "attributes": {}
+                                                        ]
                                                     }
                                                 }
                                             ]
                                         }
                                     }
-                                ],
-                                "attributes": {}
+                                ]
                             }
                         }
                     ]
