@@ -6,11 +6,13 @@
                 "element": "container",
                 "data": {
                     "type": "paragraph",
+                    "attributes": {},
                     "elements": [
                         {
                             "element": "container",
                             "data": {
-                                "type": "strong",
+                                "type": "bold",
+                                "attributes": {},
                                 "elements": [
                                     {
                                         "element": "text",
@@ -23,7 +25,8 @@
                                     {
                                         "element": "container",
                                         "data": {
-                                            "type": "emphasis",
+                                            "type": "italics",
+                                            "attributes": {},
                                             "elements": [
                                                 {
                                                     "element": "text",
@@ -37,6 +40,7 @@
                                                     "element": "container",
                                                     "data": {
                                                         "type": "underline",
+                                                        "attributes": {},
                                                         "elements": [
                                                             {
                                                                 "element": "text",
@@ -61,6 +65,7 @@
                                                     "element": "container",
                                                     "data": {
                                                         "type": "superscript",
+                                                        "attributes": {},
                                                         "elements": [
                                                             {
                                                                 "element": "text",
@@ -74,6 +79,7 @@
                                                                 "element": "container",
                                                                 "data": {
                                                                     "type": "monospace",
+                                                                    "attributes": {},
                                                                     "elements": [
                                                                         {
                                                                             "element": "text",
@@ -87,6 +93,7 @@
                                                                             "element": "container",
                                                                             "data": {
                                                                                 "type": "subscript",
+                                                                                "attributes": {},
                                                                                 "elements": [
                                                                                     {
                                                                                         "element": "text",

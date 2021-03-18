@@ -25,6 +25,7 @@ mod heading;
 mod link;
 mod list;
 mod module;
+mod tag;
 
 pub use self::anchor::*;
 pub use self::container::*;
@@ -33,6 +34,7 @@ pub use self::heading::*;
 pub use self::link::*;
 pub use self::list::*;
 pub use self::module::*;
+pub use self::tag::*;
 
 use crate::parsing::{ParseOutcome, ParseWarning};
 use std::borrow::Cow;

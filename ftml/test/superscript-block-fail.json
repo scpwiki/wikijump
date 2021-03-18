@@ -1,15 +1,24 @@
 {
-    "input": "**Fail Bold",
+    "input": "[[sup]]Fail Superscript",
     "tree": {
         "elements": [
             {
                 "element": "container",
                 "data": {
                     "type": "paragraph",
+                    "attributes": {},
                     "elements": [
                         {
                             "element": "text",
-                            "data": "**"
+                            "data": "[["
+                        },
+                        {
+                            "element": "text",
+                            "data": "sup"
+                        },
+                        {
+                            "element": "text",
+                            "data": "]]"
                         },
                         {
                             "element": "text",
@@ -21,7 +30,7 @@
                         },
                         {
                             "element": "text",
-                            "data": "Bold"
+                            "data": "Superscript"
                         }
                     ]
                 }
@@ -33,14 +42,20 @@
     "warnings": [
         {
             "token": "input-end",
-            "rule": "strong",
-            "span": [11, 11],
+            "rule": "block-superscript",
+            "span": [23, 23],
             "kind": "end-of-input"
         },
         {
-            "token": "strong",
+            "token": "left-block",
             "rule": "fallback",
             "span": [0, 2],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "right-block",
+            "rule": "fallback",
+            "span": [5, 7],
             "kind": "no-rules-match"
         }
     ]

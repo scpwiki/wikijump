@@ -79,8 +79,8 @@ token = _{
     right_bracket |
 
     // Formatting
-    strong |
-    emphasis |
+    bold |
+    italics |
     underline |
     superscript |
     subscript |
@@ -178,8 +178,8 @@ heading = @{ "+"{1,6} }
 
 // Formatting {{{
 
-strong = @{ "**" }
-emphasis = @{ "//" }
+bold = @{ "**" }
+italics = @{ "//" }
 underline = @{ "__" }
 superscript = @{ "^^" }
 subscript = @{ ",," }

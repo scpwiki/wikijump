@@ -74,8 +74,8 @@ fn parse_fn<'r, 't>(
         }
     }
 
-    let element = Element::StyledContainer(StyledContainer::new(
-        StyledContainerType::Span,
+    let element = Element::Container(Container::new(
+        ContainerType::Span,
         elements,
         arguments.to_hash_map(),
     ));

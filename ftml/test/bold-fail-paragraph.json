@@ -6,6 +6,7 @@
                 "element": "container",
                 "data": {
                     "type": "paragraph",
+                    "attributes": {},
                     "elements": [
                         {
                             "element": "text",
@@ -22,6 +23,7 @@
                 "element": "container",
                 "data": {
                     "type": "paragraph",
+                    "attributes": {},
                     "elements": [
                         {
                             "element": "text",
@@ -41,24 +43,24 @@
     "warnings": [
         {
             "token": "paragraph-break",
-            "rule": "strong",
+            "rule": "bold",
             "span": [6, 8],
             "kind": "rule-failed"
         },
         {
-            "token": "strong",
+            "token": "bold",
             "rule": "fallback",
             "span": [0, 2],
             "kind": "no-rules-match"
         },
         {
             "token": "input-end",
-            "rule": "strong",
+            "rule": "bold",
             "span": [14, 14],
             "kind": "end-of-input"
         },
         {
-            "token": "strong",
+            "token": "bold",
             "rule": "fallback",
             "span": [12, 14],
             "kind": "no-rules-match"

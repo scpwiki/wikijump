@@ -6,6 +6,7 @@
                 "element": "container",
                 "data": {
                     "type": "paragraph",
+                    "attributes": {},
                     "elements": [
                         {
                             "element": "text",
@@ -26,6 +27,7 @@
                 "element": "container",
                 "data": {
                     "type": "paragraph",
+                    "attributes": {},
                     "elements": [
                         {
                             "element": "text",

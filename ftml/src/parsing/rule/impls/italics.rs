@@ -1,5 +1,5 @@
 /*
- * parsing/rule/impls/strong.rs
+ * parsing/rule/impls/italics.rs
  *
  * ftml - Library to parse Wikidot text
  * Copyright (C) 2019-2021 Wikijump Team
@@ -20,8 +20,8 @@
 
 use super::prelude::*;
 
-pub const RULE_STRONG: Rule = Rule {
-    name: "strong",
+pub const RULE_ITALICS: Rule = Rule {
+    name: "italics",
     try_consume_fn,
 };
 
@@ -29,20 +29,20 @@ fn try_consume_fn<'p, 'r, 't>(
     log: &slog::Logger,
     parser: &'p mut Parser<'r, 't>,
 ) -> ParseResult<'r, 't, Elements<'t>> {
-    debug!(log, "Trying to create strong (bold) container");
+    debug!(log, "Trying to create italics (emphasis) container");
 
-    check_step(parser, Token::Strong)?;
+    check_step(parser, Token::Italics)?;
 
     collect_container(
         log,
         parser,
-        RULE_STRONG,
-        ContainerType::Strong,
-        &[ParseCondition::current(Token::Strong)],
+        RULE_ITALICS,
+        ContainerType::Italics,
+        &[ParseCondition::current(Token::Italics)],
         &[
             ParseCondition::current(Token::ParagraphBreak),
-            ParseCondition::token_pair(Token::Strong, Token::Whitespace),
-            ParseCondition::token_pair(Token::Whitespace, Token::Strong),
+            ParseCondition::token_pair(Token::Italics, Token::Whitespace),
+            ParseCondition::token_pair(Token::Whitespace, Token::Italics),
         ],
         None,
     )

@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use super::HtmlTag;
 use std::convert::TryFrom;
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -53,6 +54,13 @@ impl HeadingLevel {
             HeadingLevel::Five => "h5",
             HeadingLevel::Six => "h6",
         }
+    }
+}
+
+impl From<HeadingLevel> for HtmlTag {
+    #[inline]
+    fn from(level: HeadingLevel) -> HtmlTag {
+        HtmlTag::new(level.html_tag())
     }
 }
 

@@ -6,11 +6,13 @@
                 "element": "container",
                 "data": {
                     "type": "paragraph",
+                    "attributes": {},
                     "elements": [
                         {
                             "element": "container",
                             "data": {
-                                "type": "emphasis",
+                                "type": "italics",
+                                "attributes": {},
                                 "elements": [
                                     {
                                         "element": "text",

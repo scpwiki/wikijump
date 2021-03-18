@@ -25,9 +25,7 @@ mod prelude {
     pub use crate::parsing::parser::Parser;
     pub use crate::parsing::prelude::*;
     pub use crate::parsing::{ParseWarning, Token};
-    pub use crate::tree::{
-        Container, ContainerType, Element, StyledContainer, StyledContainerType,
-    };
+    pub use crate::tree::{Container, ContainerType, Element};
 
     #[cfg(debug)]
     pub fn assert_generic_name(
@@ -59,6 +57,7 @@ mod prelude {
 
 mod anchor;
 mod blockquote;
+mod bold;
 mod checkbox;
 mod code;
 mod collapsible;
@@ -71,15 +70,22 @@ mod iframe;
 mod include;
 mod ins;
 mod invisible;
+mod italics;
 mod lines;
 mod mark;
 mod module;
+mod monospace;
 mod radio;
 mod size;
 mod span;
+mod strikethrough;
+mod subscript;
+mod superscript;
+mod underline;
 
 pub use self::anchor::BLOCK_ANCHOR;
 pub use self::blockquote::BLOCK_BLOCKQUOTE;
+pub use self::bold::BLOCK_BOLD;
 pub use self::checkbox::BLOCK_CHECKBOX;
 pub use self::code::BLOCK_CODE;
 pub use self::collapsible::BLOCK_COLLAPSIBLE;
@@ -92,9 +98,15 @@ pub use self::iframe::BLOCK_IFRAME;
 pub use self::include::BLOCK_INCLUDE;
 pub use self::ins::BLOCK_INS;
 pub use self::invisible::BLOCK_INVISIBLE;
+pub use self::italics::BLOCK_ITALICS;
 pub use self::lines::BLOCK_LINES;
 pub use self::mark::BLOCK_MARK;
 pub use self::module::BLOCK_MODULE;
+pub use self::monospace::BLOCK_MONOSPACE;
 pub use self::radio::BLOCK_RADIO;
 pub use self::size::BLOCK_SIZE;
 pub use self::span::BLOCK_SPAN;
+pub use self::strikethrough::BLOCK_STRIKETHROUGH;
+pub use self::subscript::BLOCK_SUBSCRIPT;
+pub use self::superscript::BLOCK_SUPERSCRIPT;
+pub use self::underline::BLOCK_UNDERLINE;

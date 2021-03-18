@@ -6,9 +6,10 @@
                 "element": "container",
                 "data": {
                     "type": "paragraph",
+                    "attributes": {},
                     "elements": [
                         {
-                            "element": "styled-container",
+                            "element": "container",
                             "data": {
                                 "type": "blockquote",
                                 "elements": [
@@ -16,6 +17,7 @@
                                         "element": "container",
                                         "data": {
                                             "type": "paragraph",
+                                            "attributes": {},
                                             "elements": [
                                                 {
                                                     "element": "text",

@@ -22,7 +22,7 @@
 
 use super::prelude::*;
 use crate::parsing::collect::collect_consume;
-use crate::tree::{Container, ContainerType, Element};
+use crate::tree::{AttributeMap, Container, ContainerType, Element};
 
 /// Generic function to consume tokens into a container.
 ///
@@ -71,7 +71,11 @@ pub fn collect_container<'p, 'r, 't>(
 
     // Package into a container
     ok!(
-        Element::Container(Container::new(container_type, elements)),
+        Element::Container(Container::new(
+            container_type,
+            elements,
+            AttributeMap::new(),
+        )),
         exceptions,
     )
 }

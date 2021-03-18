@@ -6,11 +6,13 @@
                 "element": "container",
                 "data": {
                     "type": "paragraph",
+                    "attributes": {},
                     "elements": [
                         {
                             "element": "container",
                             "data": {
                                 "type": "superscript",
+                                "attributes": {},
                                 "elements": [
                                     {
                                         "element": "text",

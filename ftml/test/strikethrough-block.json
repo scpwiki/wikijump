@@ -1,20 +1,22 @@
 {
-    "input": "**Bold** Text",
+    "input": "[[s]]Strikethrough[[/s]] Text",
     "tree": {
         "elements": [
             {
                 "element": "container",
                 "data": {
                     "type": "paragraph",
+                    "attributes": {},
                     "elements": [
                         {
                             "element": "container",
                             "data": {
-                                "type": "strong",
+                                "type": "strikethrough",
+                                "attributes": {},
                                 "elements": [
                                     {
                                         "element": "text",
-                                        "data": "Bold"
+                                        "data": "Strikethrough"
                                     }
                                 ]
                             }

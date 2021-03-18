@@ -1,16 +1,17 @@
 {
-    "input": "[[html]]My <strong>text</strong>![[/html]]",
+    "input": "[[html]]My <bold>text</bold>![[/html]]",
     "tree": {
         "elements": [
             {
                 "element": "container",
                 "data": {
                     "type": "paragraph",
+                    "attributes": {},
                     "elements": [
                         {
                             "element": "html",
                             "data": {
-                                "contents": "My <strong>text</strong>!"
+                                "contents": "My <bold>text</bold>!"
                             }
                         }
                     ]

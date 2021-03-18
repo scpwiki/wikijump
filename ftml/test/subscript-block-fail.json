@@ -1,15 +1,24 @@
 {
-    "input": "//Fail Italics",
+    "input": "[[sub]]Fail Subscript",
     "tree": {
         "elements": [
             {
                 "element": "container",
                 "data": {
                     "type": "paragraph",
+                    "attributes": {},
                     "elements": [
                         {
                             "element": "text",
-                            "data": "//"
+                            "data": "[["
+                        },
+                        {
+                            "element": "text",
+                            "data": "sub"
+                        },
+                        {
+                            "element": "text",
+                            "data": "]]"
                         },
                         {
                             "element": "text",
@@ -21,7 +30,7 @@
                         },
                         {
                             "element": "text",
-                            "data": "Italics"
+                            "data": "Subscript"
                         }
                     ]
                 }
@@ -33,14 +42,20 @@
     "warnings": [
         {
             "token": "input-end",
-            "rule": "emphasis",
-            "span": [14, 14],
+            "rule": "block-subscript",
+            "span": [21, 21],
             "kind": "end-of-input"
         },
         {
-            "token": "emphasis",
+            "token": "left-block",
             "rule": "fallback",
             "span": [0, 2],
+            "kind": "no-rules-match"
+        },
+        {
+            "token": "right-block",
+            "rule": "fallback",
+            "span": [5, 7],
             "kind": "no-rules-match"
         }
     ]

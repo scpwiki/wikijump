@@ -20,7 +20,7 @@
 
 mod prelude {
     pub use super::Render;
-    pub use crate::tree::{Container, ContainerType, Element, SyntaxTree};
+    pub use crate::tree::{AttributeMap, Container, ContainerType, Element, SyntaxTree};
 }
 
 pub mod debug;

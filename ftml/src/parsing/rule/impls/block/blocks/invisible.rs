@@ -51,8 +51,8 @@ fn parse_fn<'r, 't>(
     let (elements, exceptions) =
         parser.get_body_elements(&BLOCK_INVISIBLE, false)?.into();
 
-    let element = Element::StyledContainer(StyledContainer::new(
-        StyledContainerType::Invisible,
+    let element = Element::Container(Container::new(
+        ContainerType::Invisible,
         elements,
         arguments.to_hash_map(),
     ));

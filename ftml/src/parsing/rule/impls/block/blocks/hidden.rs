@@ -50,8 +50,8 @@ fn parse_fn<'r, 't>(
     // Get body content, without paragraphs
     let (elements, exceptions) = parser.get_body_elements(&BLOCK_HIDDEN, false)?.into();
 
-    let element = Element::StyledContainer(StyledContainer::new(
-        StyledContainerType::Hidden,
+    let element = Element::Container(Container::new(
+        ContainerType::Hidden,
         elements,
         arguments.to_hash_map(),
     ));

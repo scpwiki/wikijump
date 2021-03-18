@@ -20,8 +20,7 @@
 
 //! Representation of generic syntax elements which wrap other elements.
 
-use super::AttributeMap;
-use crate::tree::{Element, HeadingLevel};
+use super::{AttributeMap, Element, HeadingLevel, HtmlTag};
 use strum_macros::IntoStaticStr;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -30,51 +29,17 @@ pub struct Container<'t> {
     #[serde(rename = "type")]
     ctype: ContainerType,
     elements: Vec<Element<'t>>,
+    attributes: AttributeMap<'t>,
 }
 
 impl<'t> Container<'t> {
     #[inline]
-    pub fn new(ctype: ContainerType, elements: Vec<Element<'t>>) -> Self {
-        Container { ctype, elements }
-    }
-
-    #[inline]
-    pub fn ctype(&self) -> ContainerType {
-        self.ctype
-    }
-
-    #[inline]
-    pub fn elements(&self) -> &[Element<'t>] {
-        &self.elements
-    }
-}
-
-impl<'t> From<Container<'t>> for Vec<Element<'t>> {
-    #[inline]
-    fn from(container: Container<'t>) -> Vec<Element<'t>> {
-        let Container { elements, .. } = container;
-
-        elements
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
-pub struct StyledContainer<'t> {
-    #[serde(rename = "type")]
-    ctype: StyledContainerType,
-    elements: Vec<Element<'t>>,
-    attributes: AttributeMap<'t>,
-}
-
-impl<'t> StyledContainer<'t> {
-    #[inline]
     pub fn new(
-        ctype: StyledContainerType,
+        ctype: ContainerType,
         elements: Vec<Element<'t>>,
         attributes: AttributeMap<'t>,
     ) -> Self {
-        StyledContainer {
+        Container {
             ctype,
             elements,
             attributes,
@@ -82,7 +47,7 @@ impl<'t> StyledContainer<'t> {
     }
 
     #[inline]
-    pub fn ctype(&self) -> StyledContainerType {
+    pub fn ctype(&self) -> ContainerType {
         self.ctype
     }
 
@@ -97,10 +62,10 @@ impl<'t> StyledContainer<'t> {
     }
 }
 
-impl<'t> From<StyledContainer<'t>> for Vec<Element<'t>> {
+impl<'t> From<Container<'t>> for Vec<Element<'t>> {
     #[inline]
-    fn from(container: StyledContainer<'t>) -> Vec<Element<'t>> {
-        let StyledContainer { elements, .. } = container;
+    fn from(container: Container<'t>) -> Vec<Element<'t>> {
+        let Container { elements, .. } = container;
 
         elements
     }
@@ -111,14 +76,23 @@ impl<'t> From<StyledContainer<'t>> for Vec<Element<'t>> {
 )]
 #[serde(rename_all = "kebab-case")]
 pub enum ContainerType {
-    Paragraph,
-    Strong,
-    Emphasis,
+    Bold,
+    Italics,
     Underline,
     Superscript,
     Subscript,
     Strikethrough,
     Monospace,
+    Span,
+    Div,
+    Mark,
+    Blockquote,
+    Insertion,
+    Deletion,
+    Hidden,
+    Invisible,
+    Size,
+    Paragraph,
     Header(HeadingLevel),
 }
 
@@ -129,71 +103,31 @@ impl ContainerType {
     }
 
     #[inline]
-    pub fn html_tag(self) -> &'static str {
+    pub fn html_tag(self) -> HtmlTag {
         match self {
-            ContainerType::Paragraph => "p",
-            ContainerType::Strong => "strong",
-            ContainerType::Emphasis => "italics",
-            ContainerType::Underline => "u",
-            ContainerType::Superscript => "sup",
-            ContainerType::Subscript => "sub",
-            ContainerType::Strikethrough => "s",
-            ContainerType::Monospace => "tt",
-            ContainerType::Header(level) => level.html_tag(),
+            ContainerType::Bold => HtmlTag::new("strong"),
+            ContainerType::Italics => HtmlTag::new("italics"),
+            ContainerType::Underline => HtmlTag::new("u"),
+            ContainerType::Superscript => HtmlTag::new("sup"),
+            ContainerType::Subscript => HtmlTag::new("sub"),
+            ContainerType::Strikethrough => HtmlTag::new("s"),
+            ContainerType::Monospace => HtmlTag::new("tt"),
+            ContainerType::Span => HtmlTag::new("span"),
+            ContainerType::Div => HtmlTag::new("div"),
+            ContainerType::Mark => HtmlTag::new("mark"),
+            ContainerType::Blockquote => HtmlTag::new("blockquote"),
+            ContainerType::Insertion => HtmlTag::new("ins"),
+            ContainerType::Deletion => HtmlTag::new("del"),
+            ContainerType::Hidden => HtmlTag::with_class("span", "hidden"),
+            ContainerType::Invisible => HtmlTag::with_class("span", "invisible"),
+            ContainerType::Size => HtmlTag::new("span"),
+            ContainerType::Paragraph => HtmlTag::new("p"),
+            ContainerType::Header(level) => HtmlTag::new(level.html_tag()),
         }
     }
 }
 
 impl slog::Value for ContainerType {
-    fn serialize(
-        &self,
-        _: &slog::Record,
-        key: slog::Key,
-        serializer: &mut dyn slog::Serializer,
-    ) -> slog::Result {
-        serializer.emit_str(key, self.name())
-    }
-}
-
-#[derive(
-    Serialize, Deserialize, IntoStaticStr, Debug, Copy, Clone, Hash, PartialEq, Eq,
-)]
-#[serde(rename_all = "kebab-case")]
-pub enum StyledContainerType {
-    Span,
-    Div,
-    Mark,
-    Blockquote,
-    Insertion,
-    Deletion,
-    Hidden,
-    Invisible,
-    Size,
-}
-
-impl StyledContainerType {
-    #[inline]
-    pub fn name(self) -> &'static str {
-        self.into()
-    }
-
-    #[inline]
-    pub fn html_tag_and_class(self) -> (&'static str, Option<&'static str>) {
-        match self {
-            StyledContainerType::Span => ("span", None),
-            StyledContainerType::Div => ("div", None),
-            StyledContainerType::Mark => ("mark", None),
-            StyledContainerType::Blockquote => ("blockquote", None),
-            StyledContainerType::Insertion => ("ins", None),
-            StyledContainerType::Deletion => ("del", None),
-            StyledContainerType::Hidden => ("span", Some("hidden")),
-            StyledContainerType::Invisible => ("span", Some("invisible")),
-            StyledContainerType::Size => ("span", None),
-        }
-    }
-}
-
-impl slog::Value for StyledContainerType {
     fn serialize(
         &self,
         _: &slog::Record,

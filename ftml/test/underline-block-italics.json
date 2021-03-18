@@ -1,16 +1,18 @@
 {
-    "input": "**Apple //Banana//** Cherry",
+    "input": "[[u]]Apple [[b]]Banana[[/b]][[/u]] Cherry",
     "tree": {
         "elements": [
             {
                 "element": "container",
                 "data": {
                     "type": "paragraph",
+                    "attributes": {},
                     "elements": [
                         {
                             "element": "container",
                             "data": {
-                                "type": "strong",
+                                "type": "underline",
+                                "attributes": {},
                                 "elements": [
                                     {
                                         "element": "text",
@@ -23,7 +25,8 @@
                                     {
                                         "element": "container",
                                         "data": {
-                                            "type": "emphasis",
+                                            "type": "bold",
+                                            "attributes": {},
                                             "elements": [
                                                 {
                                                     "element": "text",

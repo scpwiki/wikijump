@@ -47,12 +47,13 @@ fn debug() {
         ),
         Container(
             Container {
-                ctype: Strong,
+                ctype: Bold,
                 elements: [
                     Text(
                         "banana",
                     ),
                 ],
+                attributes: {},
             },
         ),
     ],
@@ -65,7 +66,11 @@ fn debug() {
     let elements = vec![
         text!("apple"),
         text!(" "),
-        Element::Container(Container::new(ContainerType::Strong, vec![text!("banana")])),
+        Element::Container(Container::new(
+            ContainerType::Bold,
+            vec![text!("banana")],
+            AttributeMap::new(),
+        )),
     ];
     let warnings = vec![];
     let styles = vec![cow!("span.hidden-text { display: none; }")];

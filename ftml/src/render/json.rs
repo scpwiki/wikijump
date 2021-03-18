@@ -73,13 +73,14 @@ fn json() {
     {
       "element": "container",
       "data": {
-        "type": "strong",
+        "type": "bold",
         "elements": [
           {
             "element": "text",
             "data": "banana"
           }
-        ]
+        ],
+        "attributes": {}
       }
     }
   ],
@@ -88,13 +89,17 @@ fn json() {
   ]
 }"#;
 
-    const COMPACT_OUTPUT: &str = "{\"elements\":[{\"element\":\"text\",\"data\":\"apple\"},{\"element\":\"text\",\"data\":\" \"},{\"element\":\"container\",\"data\":{\"type\":\"strong\",\"elements\":[{\"element\":\"text\",\"data\":\"banana\"}]}}],\"styles\":[\"span.hidden-text { display: none; }\"]}";
+    const COMPACT_OUTPUT: &str = "{\"elements\":[{\"element\":\"text\",\"data\":\"apple\"},{\"element\":\"text\",\"data\":\" \"},{\"element\":\"container\",\"data\":{\"type\":\"bold\",\"elements\":[{\"element\":\"text\",\"data\":\"banana\"}],\"attributes\":{}}}],\"styles\":[\"span.hidden-text { display: none; }\"]}";
 
     // Syntax tree construction
     let elements = vec![
         text!("apple"),
         text!(" "),
-        Element::Container(Container::new(ContainerType::Strong, vec![text!("banana")])),
+        Element::Container(Container::new(
+            ContainerType::Bold,
+            vec![text!("banana")],
+            AttributeMap::new(),
+        )),
     ];
     let warnings = vec![];
     let styles = vec![cow!("span.hidden-text { display: none; }")];
