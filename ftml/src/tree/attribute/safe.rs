@@ -36,6 +36,9 @@ macro_rules! hashset_unicase {
 }
 
 lazy_static! {
+    /// List of safe attributes. All others will be filtered out.
+    ///
+    /// See https://scuttle.atlassian.net/wiki/spaces/WD/pages/1030782977/Allowed+Attributes+in+Wikitext
     pub static ref SAFE_ATTRIBUTES: HashSet<UniCase<&'static str>> = {
         hashset_unicase![
             "accept",
