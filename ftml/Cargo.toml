@@ -22,7 +22,6 @@ name = "ftml"
 cfg-if = "1"
 enum-map = "0.6"
 lazy_static = "1"
-maplit = "1"
 pest = "2"
 pest_derive = "2"
 ref-map = "0.1"
@@ -39,4 +38,5 @@ void = "1"
 wikidot-normalize = "0.7"
 
 [dev-dependencies]
+maplit = "1"
 sloggers = "1"
