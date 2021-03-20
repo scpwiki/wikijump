@@ -39,6 +39,7 @@ pub use self::module::*;
 pub use self::tag::*;
 
 use crate::parsing::{ParseOutcome, ParseWarning};
+use std::borrow::Cow;
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]

@@ -19,6 +19,7 @@
  */
 
 use super::prelude::*;
+use crate::tree::AttributeMap;
 use std::borrow::Cow;
 
 pub const BLOCK_SIZE: BlockRule = BlockRule {
@@ -55,13 +56,14 @@ fn parse_fn<'r, 't>(
     // Get body content, without paragraphs
     let (elements, exceptions) = parser.get_body_elements(&BLOCK_SIZE, false)?.into();
 
-    let element = Element::Container(Container::new(
-        ContainerType::Size,
-        elements,
-        hashmap! {
-            Cow::Borrowed("style") => Cow::Owned(size),
-        },
-    ));
+    let attributes = {
+        let mut map = AttributeMap::new();
+        map.insert("style", Cow::Owned(size));
+        map
+    };
+
+    let element =
+        Element::Container(Container::new(ContainerType::Size, elements, attributes));
 
     ok!(element, exceptions)
 }

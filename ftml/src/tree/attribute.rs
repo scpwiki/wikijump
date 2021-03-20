@@ -19,6 +19,152 @@
  */
 
 use std::borrow::Cow;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
+use unicase::UniCase;
 
-pub type AttributeMap<'t> = HashMap<Cow<'t, str>, Cow<'t, str>>;
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+pub struct AttributeMap<'t> {
+    inner: HashMap<Cow<'t, str>, Cow<'t, str>>,
+}
+
+impl<'t> AttributeMap<'t> {
+    #[inline]
+    pub fn new() -> Self {
+        AttributeMap {
+            inner: HashMap::new(),
+        }
+    }
+
+    pub fn from_arguments(arguments: &HashMap<UniCase<&'t str>, Cow<'t, str>>) -> Self {
+        let inner = arguments
+            .iter()
+            .filter(|(&key, _)| is_safe_attribute(key))
+            .map(|(key, value)| (cow!(key.into_inner()), Cow::clone(value)))
+            .collect();
+
+        AttributeMap { inner }
+    }
+
+    pub fn insert(&mut self, attribute: &'t str, value: Cow<'t, str>) -> bool {
+        let will_insert = is_safe_attribute(UniCase::ascii(attribute));
+        if will_insert {
+            self.inner.insert(cow!(attribute), value);
+        }
+
+        will_insert
+    }
+}
+
+// Attribute filtering
+
+const SAFE_ATTRIBUTE_LIST: [&str; 84] = [
+    "accept",
+    "align",
+    "alt",
+    "autocapitalize",
+    "autoplay",
+    "background",
+    "bgcolor",
+    "border",
+    "buffered",
+    "checked",
+    "cite",
+    "class",
+    "cols",
+    "colspan",
+    "contenteditable",
+    "controls",
+    "coords",
+    "datetime",
+    "decoding",
+    "default",
+    "dir",
+    "dirname",
+    "disabled",
+    "download",
+    "draggable",
+    "for",
+    "form",
+    "headers",
+    "height",
+    "hidden",
+    "high",
+    "href",
+    "hreflang",
+    "id",
+    "inputmode",
+    "ismap",
+    "itemprop",
+    "kind",
+    "label",
+    "lang",
+    "list",
+    "loop",
+    "low",
+    "max",
+    "maxlength",
+    "min",
+    "minlength",
+    "multiple",
+    "muted",
+    "name",
+    "optimum",
+    "pattern",
+    "placeholder",
+    "poster",
+    "preload",
+    "readonly",
+    "rel",
+    "required",
+    "reversed",
+    "rows",
+    "rowspan",
+    "sandbox",
+    "scope",
+    "selected",
+    "shape",
+    "size",
+    "sizes",
+    "span",
+    "spellcheck",
+    "src",
+    "srclang",
+    "srcset",
+    "start",
+    "step",
+    "style",
+    "tabindex",
+    "target",
+    "title",
+    "translate",
+    "type",
+    "usemap",
+    "value",
+    "width",
+    "wrap",
+];
+
+const SAFE_ATTRIBUTE_PREFIXES: [&str; 1] = ["data-"];
+
+lazy_static! {
+    static ref SAFE_ATTRIBUTES: HashSet<UniCase<&'static str>> = {
+        SAFE_ATTRIBUTE_LIST
+            .iter()
+            .map(|&attribute| UniCase::ascii(attribute))
+            .collect()
+    };
+}
+
+fn is_safe_attribute(attribute: UniCase<&str>) -> bool {
+    if SAFE_ATTRIBUTES.contains(&attribute) {
+        return true;
+    }
+
+    for prefix in &SAFE_ATTRIBUTE_PREFIXES {
+        if attribute.starts_with(prefix) {
+            return true;
+        }
+    }
+
+    false
+}
