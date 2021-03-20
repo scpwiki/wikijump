@@ -20,9 +20,10 @@
 
 use std::borrow::Cow;
 use std::collections::{HashMap, HashSet};
+use std::fmt::{self, Debug};
 use unicase::UniCase;
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct AttributeMap<'t> {
     inner: HashMap<Cow<'t, str>, Cow<'t, str>>,
 }
@@ -52,6 +53,13 @@ impl<'t> AttributeMap<'t> {
         }
 
         will_insert
+    }
+}
+
+impl<'t> Debug for AttributeMap<'t> {
+    #[inline]
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.inner.fmt(f)
     }
 }
 
