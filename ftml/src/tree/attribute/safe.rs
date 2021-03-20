@@ -18,8 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use unicase::UniCase;
 use std::collections::HashSet;
+use unicase::UniCase;
 
 macro_rules! hashset_unicase {
     () => {
@@ -27,7 +27,7 @@ macro_rules! hashset_unicase {
     };
 
     ($($x:expr),+ $(,)?) => {
-        hashset! [
+        hashset![
             $(
                 UniCase::ascii($x)
             ),+
@@ -37,7 +37,7 @@ macro_rules! hashset_unicase {
 
 lazy_static! {
     pub static ref SAFE_ATTRIBUTES: HashSet<UniCase<&'static str>> = {
-        hashset_unicase! [
+        hashset_unicase![
             "accept",
             "align",
             "alt",
