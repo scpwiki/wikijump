@@ -25,6 +25,7 @@ use unicase::UniCase;
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct AttributeMap<'t> {
+    #[serde(flatten)]
     inner: HashMap<Cow<'t, str>, Cow<'t, str>>,
 }
 
