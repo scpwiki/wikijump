@@ -1,5 +1,5 @@
 {
-    "input": "[[del id=\"banana\" class=\"fruit\" style=\"color: yellow;\" my-special-attr=\"yes\"]]Banana[[/del]]",
+    "input": "[[del id=\"banana\" class=\"fruit\" style=\"color: yellow;\" disallowed-attr=\"blocked\"]]Banana[[/del]]",
     "tree": {
         "elements": [
             {
@@ -15,8 +15,7 @@
                                 "attributes": {
                                     "id": "banana",
                                     "class": "fruit",
-                                    "style": "color: yellow;",
-                                    "my-special-attr": "yes"
+                                    "style": "color: yellow;"
                                 },
                                 "elements": [
                                     {
