@@ -23,7 +23,7 @@ use std::collections::{HashMap, HashSet};
 use std::fmt::{self, Debug};
 use unicase::UniCase;
 
-#[derive(Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Default, Clone, PartialEq, Eq)]
 pub struct AttributeMap<'t> {
     #[serde(flatten)]
     inner: HashMap<Cow<'t, str>, Cow<'t, str>>,
@@ -32,9 +32,7 @@ pub struct AttributeMap<'t> {
 impl<'t> AttributeMap<'t> {
     #[inline]
     pub fn new() -> Self {
-        AttributeMap {
-            inner: HashMap::new(),
-        }
+        AttributeMap::default()
     }
 
     pub fn from_arguments(arguments: &HashMap<UniCase<&'t str>, Cow<'t, str>>) -> Self {
