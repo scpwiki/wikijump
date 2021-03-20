@@ -21,9 +21,23 @@
 use unicase::UniCase;
 use std::collections::HashSet;
 
-lazy_static! {
-    pub static ref SAFE_ATTRIBUTES: HashSet<&'static str> = {
+macro_rules! hashset_unicase {
+    () => {
+        hashset![]
+    };
+
+    ($($x:expr),+ $(,)?) => {
         hashset! [
+            $(
+                UniCase::ascii($x)
+            ),+
+        ]
+    };
+}
+
+lazy_static! {
+    pub static ref SAFE_ATTRIBUTES: HashSet<UniCase<&'static str>> = {
+        hashset_unicase! [
             "accept",
             "align",
             "alt",
