@@ -15,6 +15,34 @@ How the bodies of a block are interpreted depend on its type. They fall into one
 
 Of note that while `[[module]]` is its own block, it requires specifying a module name, and this behaves similarly to other blocks in that their attributes are determined by the module name.
 
+Blocks may also have a variant, which means that terminating the name in `_` produces modified behavior. Only the presence of the trailing `_` in the head is used to determine the block's behavior.
+
+Finally, blocks may accept deliminated newlines. While these blocks can be used inline, separating them on their own lines will not produce line breaks. For instance:
+
+The `[[div]]` block accepts separate newlines. These two constructions are the same:
+
+```
+[[div]]Apple[[/div]]
+```
+
+```
+[[div]]
+Apple
+[[/div]]
+```
+
+The `[[span]]` block does not accept separate newlines. These two constructions are different, as the latter will add line breaks for each newline in the source:
+
+```
+[[span]]Banana[[/span]]
+```
+
+```
+[[span]]
+Banana
+[[/span]]
+```
+
 ### Blocks
 
 (TODO)
