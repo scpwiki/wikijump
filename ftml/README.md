@@ -56,6 +56,13 @@ SCP Foundation formatting as mentioned in [Kate McTiriss's Proposal](http://www.
 While the expanded form of the initialism is never explicitly stated, it is clearly implied given the
 name similarity to HTML.
 
+### Syntax
+ftml is intended to be compatible with a subset of Wikidot text deemed to be "well-formed". Wikidot's general syntax documentation will be relevant here, but weird constructions or strange features may not be. During the development process, they are analyzed and either explicitly unimplemented, or implemented through more sensible syntax.
+
+As ftml develops into its own branch of wikitext, pages here will document the syntax separately from Wikidot, with the goal of deprecating Wikidot's documentation entirely.
+
+* [`Blocks.md`](docs/Blocks.md) -- Which blocks (e.g. `[[div]]`) are available in ftml and what options they take.
+
 ### Usage
 There are a couple main exported functions, which correspond to each of the main steps in the wikitext process.
 
