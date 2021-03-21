@@ -71,7 +71,7 @@ Then install [Docker Compose](https://docs.docker.com/compose/).
 Once those are configured, you can use the provided `docker-compose.yaml` file to get the containers started. The following will build all the images, and then run new containers with the prefix `wikijump`:
 
 ```
-$ cd install
+$ cd install/local/dev
 $ docker-compose -p wikijump up
 ```
 
