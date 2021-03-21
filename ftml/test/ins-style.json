@@ -1,5 +1,5 @@
 {
-    "input": "[[ins id=\"banana\" class=\"fruit\" style=\"color: yellow;\" _myAttr=\"hi\"]]Banana[[/ins]]",
+    "input": "[[ins id=\"banana\" class=\"fruit\" style=\"color: yellow;\" cite=\"some source\"]]Banana[[/ins]]",
     "tree": {
         "elements": [
             {
@@ -16,7 +16,7 @@
                                     "id": "banana",
                                     "class": "fruit",
                                     "style": "color: yellow;",
-                                    "_myAttr": "hi"
+                                    "cite": "some source"
                                 },
                                 "elements": [
                                     {

@@ -1,5 +1,5 @@
 {
-    "input": "[[mark id=\"banana\" class=\"fruit\" style=\"color: yellow;\" onclick=\"javascript:thing()\"]]Banana[[/mark]]",
+    "input": "[[mark id=\"banana\" class=\"fruit\" style=\"color: yellow;\" onclick=\"javascript is blocked\" autocapitalize=\"yes\"]]Banana[[/mark]]",
     "tree": {
         "elements": [
             {
@@ -16,7 +16,7 @@
                                     "id": "banana",
                                     "class": "fruit",
                                     "style": "color: yellow;",
-                                    "onclick": "javascript:thing()"
+                                    "autocapitalize": "yes"
                                 },
                                 "elements": [
                                     {

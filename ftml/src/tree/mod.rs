@@ -19,6 +19,7 @@
  */
 
 mod anchor;
+mod attribute;
 mod container;
 mod element;
 mod heading;
@@ -28,6 +29,7 @@ mod module;
 mod tag;
 
 pub use self::anchor::*;
+pub use self::attribute::AttributeMap;
 pub use self::container::*;
 pub use self::element::*;
 pub use self::heading::*;
@@ -38,9 +40,6 @@ pub use self::tag::*;
 
 use crate::parsing::{ParseOutcome, ParseWarning};
 use std::borrow::Cow;
-use std::collections::HashMap;
-
-pub type AttributeMap<'t> = HashMap<Cow<'t, str>, Cow<'t, str>>;
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
