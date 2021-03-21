@@ -68,6 +68,8 @@ You will need Docker installed and running:
 
 Then install [Docker Compose](https://docs.docker.com/compose/).
 
+You will need to provide a `docker-compose.yaml` file to run Wikijump. The domains to be used, TLS certificates, and volumes will be set here. See `docker-compose.yaml.example` for what this file may look like. Additionally you will need to generate TLS certificates.
+
 Once those are configured, you can use the provided `docker-compose.yaml` file to get the containers started. The following will build all the images, and then run new containers with the prefix `wikijump`:
 
 ```
