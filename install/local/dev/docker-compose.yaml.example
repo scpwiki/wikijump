@@ -26,7 +26,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.php-fpm.tls=true
-      - traefik.http.routers.php-fpm.rule=Method(`GET`,`POST`,`HEAD`,`PUT`,`PATCH`,`DELETE`)  # Poor man's default route
+      - traefik.http.routers.php-fpm.rule=Method(`GET`,`POST`,`HEAD`,`PUT`,`PATCH`,`DELETE`) # Poor man's default route
     # If you wish to map the web files to a local working copy uncomment whichever makes sense below.
     # volumes:
     #   - C:\wikijump:/var/www/wikijump
