@@ -45,7 +45,25 @@ Banana
 
 ### Blocks
 
-(TODO)
+| Block Name  | Accepted Names        | Special? | Variant? | Newlines? | AST Output | HTML Output | Notes |
+|-------------|-----------------------|----------|----------|-----------|------------|-------------|-------|
+| Anchor      | `a`, `anchor`         | No       | Yes      | No        | `Element::Anchor` | `<a>` | Variant strips trailing and leading newlines from output. |
+| Blockquote  | `blockquote`, `quote` | No       | No       | Yes       | `Element::Container(Blockquote)` | `<blockquote>` | |
+| Bold        | `b`, `bold`, `strong` | No       | No       | No        | `Element::Container(Bold)` | `<strong>` | |
+| Checkbox    | `checkbox`            | Yes      | No       | No        | `Element::CheckBox` | `<input type="checkbox">` | If special is set, the checkbox begins checked. |
+| Code        | `code`                | No       | No       | Yes       | `Element::Code` | `<div class="code">` | |
+| Collapsible | `collapsible`         | No       | No       | Yes       | `Element::Collapsible` | `<div class="collapsible-block">` | |
+| CSS         | `css`                 | No       | No       | Yes       | - | `<style>` | Outputs contents as CSS. Alias for `[[module CSS]]`. |
+| Deletion    | `del`, `deletion`     | No       | No       | No        | `Element::Container(Deletion)` | `<del>` | |
+| Div         | `div`                 | No       | Yes      | Yes       | `Element::Container(Div)` | `<div>` | Variant strips trailing and leading newlines from output. |
+| Hidden      | `hidden`              | No       | No       | Yes       | `Element::Container(Hidden)` | `<span class="hidden">` | |
+| HTML        | `html`                | No       | No       | Yes       | `Element::Html` | `<iframe>` | Embeds this as an HTML snippet on `wjfiles.com`, hosted in an iframe. |
+| Iframe      | `iframe`              | No       | No       | Yes       | `Element::Iframe` | `<iframe>` |
+| Include     | `include`             | No       | No       | Yes       | - | - | Handled in the preprocessor. Includes the contents from the target page here, as if pasted in. |
+| Insertion   | `ins`, `insertion`    | No       | No       | No        | `Element::Container(Insertion)` | `<ins>` | |
+| Invisible   | `invisible`           | No       | No       | Yes       | `Element::Container(Invisible)` | `<span class="invisible">` |
+| Italics     | `i`, `italics`, `em`, `emphasis` | No | No | No         | `Element::Container(Italics)` | `<em>` | |
+| Lines       | `lines`, `newlines`   | No       | No       | Yes       | `Element::LineBreaks` | `<br>` | |
 
 ### Modules
 
