@@ -18,12 +18,12 @@ Whether particular blocks accept these variables is noted in the table below. If
 
 Blocks may have one of the following approaches when parsing arguments:
 
-| Name             | Example block       | Description |
-|------------------|---------------------|-------------|
-| None             | `[[CSS]]`           | Accepts no arguments. Tokens which are not `]]` will result in parsing failure. |
-| Value            | `[[size 50%]]`      | All of the text until `]]` is interpreted as a single text value. |
-| Map              | `[[span id="abc"]]` | Accepts an arbitrary mapping of `key="value"` arguments. Values must be double-quoted, and may contain escapes (e.g. `\"`, `\n`). |
-| Name Map         | `[[iframe https://example.com/ style="width: 100%;"]]` | Accepts a single text value terminated by a space, then an arbitrary mapping as described above. |
+| Name             | Example block       | Method | Description |
+|------------------|---------------------|--------|-------------|
+| None             | `[[CSS]]`           | `BlockParser::get_head_none()` | Accepts no arguments. Tokens which are not `]]` will result in parsing failure. |
+| Value            | `[[size 50%]]`      | `BlockParser::get_head_value()` | All of the text until `]]` is interpreted as a single text value. |
+| Map              | `[[span id="abc"]]` | `BlockParser::get_head_map()` | Accepts an arbitrary mapping of `key="value"` arguments. Values must be double-quoted, and may contain escapes (e.g. `\"`, `\n`). |
+| Name Map         | `[[iframe https://example.com/ style="width: 100%;"]]` | `BlockParser::get_head_name_map()` | Accepts a single text value terminated by a space, then an arbitrary mapping as described above. |
 
 ### Newlines
 
