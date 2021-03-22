@@ -64,6 +64,16 @@ Banana
 | Invisible   | `invisible`           | No       | No       | Yes       | `Element::Container(Invisible)` | `<span class="invisible">` |
 | Italics     | `i`, `italics`, `em`, `emphasis` | No | No | No         | `Element::Container(Italics)` | `<em>` | |
 | Lines       | `lines`, `newlines`   | No       | No       | Yes       | `Element::LineBreaks` | `<br>` | |
+| Mark        | `mark`, `highlight`   | No       | No       | No        | `Element::Container(Mark)` | `<mark>` | |
+| Module      | `module`              | No       | No       | -         | - | - | See section below on modules. |
+| Monospace   | `tt`, `mono`, `monospace` | No   | No       | No        | `Element::Container(Monospace)` | `<tt>` | |
+| Radio       | `radio`, `radio-button` | Yes    | No       | No        | `Element::RadioButton` | `<input type="radio">` | If special is set, the radio button begins selected. |
+| Size        | `size`                | No       | No       | No        | `Element::Container(Size)` | `<span style="font-size: XXX;">` | |
+| Span        | `span`                | No       | Yes      | No        | `Element::Container(Span)` | `<span>` | Variant strips trailing and leading newlines from output. |
+| Strikethrough | `s`, `strikethrough` | No      | No       | No        | `Element::Container(Strikethrough)` | `<s>` | |
+| Subscript   | `sub`, `subscript`    | No       | No       | No        | `Element::Container(Subscript)` | `<sub>` | |
+| Superscript | `sup`, `super`, `superscript` | No | No     | No        | `Element::Container(Superscript)` | `<sup>` | |
+| Underline   | `u`, `underline`      | No       | No       | No        | `Element::Container(Underline)` | `<u>` | |
 
 ### Modules
 
