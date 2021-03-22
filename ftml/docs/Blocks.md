@@ -23,7 +23,7 @@ Blocks may have one of the following approaches when parsing arguments:
 | None             | `[[CSS]]`           | `BlockParser::get_head_none()` | Accepts no arguments. Tokens which are not `]]` will result in parsing failure. |
 | Value            | `[[size 50%]]`      | `BlockParser::get_head_value()` | All of the text until `]]` is interpreted as a single text value. |
 | Map              | `[[span id="abc"]]` | `BlockParser::get_head_map()` | Accepts an arbitrary mapping of `key="value"` arguments. Values must be double-quoted, and may contain escapes (e.g. `\"`, `\n`). |
-| Name Map         | `[[iframe https://example.com/ style="width: 100%;"]]` | `BlockParser::get_head_name_map()` | Accepts a single text value terminated by a space, then an arbitrary mapping as described above. |
+| Name + Map       | `[[iframe https://example.com/ style="width: 100%;"]]` | `BlockParser::get_head_name_map()` | Accepts a single text value terminated by a space, then an arbitrary mapping as described above. |
 
 ### Newlines
 
@@ -64,7 +64,7 @@ How the bodies of a block are interpreted depend on its type. They fall into one
 | Nested elements | `[[div]]`     | Interprets block contents as elements in a certain context. These are then nested in the block. |
 | Other           | N/A           | Uses some other means of interpreting its body. Some Wikidot blocks allow passing YAML for instance. |
 
-### Module
+### Module Block
 
 Of note that while `[[module]]` is its own block, it requires specifying a module name, and this behaves similarly to other blocks in that their attributes are determined by the module name.
 
@@ -72,35 +72,75 @@ Of note that while `[[module]]` is its own block, it requires specifying a modul
 
 Here is a table showing the options each block has with regards to its construction:
 
-| Block Name  | Accepted Names        | Special? | Modifier? | Newlines? | AST Output | HTML Output | Notes |
-|-------------|-----------------------|----------|-----------|-----------|------------|-------------|-------|
-| Anchor      | `a`, `anchor`         | No       | Yes       | No        | `Element::Anchor` | `<a>` | Modifier strips trailing and leading newlines from output. |
-| Blockquote  | `blockquote`, `quote` | No       | No        | Yes       | `Element::Container(Blockquote)` | `<blockquote>` | |
-| Bold        | `b`, `bold`, `strong` | No       | No        | No        | `Element::Container(Bold)` | `<strong>` | |
-| Checkbox    | `checkbox`            | Yes      | No        | No        | `Element::CheckBox` | `<input type="checkbox">` | If special is set, the checkbox begins checked. |
-| Code        | `code`                | No       | No        | Yes       | `Element::Code` | `<div class="code">` | |
-| Collapsible | `collapsible`         | No       | No        | Yes       | `Element::Collapsible` | `<div class="collapsible-block">` | |
-| CSS         | `css`                 | No       | No        | Yes       | N/A | `<style>` | Outputs contents as CSS. Alias for `[[module CSS]]`. |
-| Deletion    | `del`, `deletion`     | No       | No        | No        | `Element::Container(Deletion)` | `<del>` | |
-| Div         | `div`                 | No       | Yes       | Yes       | `Element::Container(Div)` | `<div>` | Modifier strips trailing and leading newlines from output. |
-| Hidden      | `hidden`              | No       | No        | Yes       | `Element::Container(Hidden)` | `<span class="hidden">` | |
-| HTML        | `html`                | No       | No        | Yes       | `Element::Html` | `<iframe>` | Embeds this as an HTML snippet on `wjfiles.com`, hosted in an iframe. |
-| Iframe      | `iframe`              | No       | No        | Yes       | `Element::Iframe` | `<iframe>` |
-| Include     | `include`             | No       | No        | Yes       | N/A | N/A | Handled in the preprocessor. Includes the contents from the target page here, as if pasted in. |
-| Insertion   | `ins`, `insertion`    | No       | No        | No        | `Element::Container(Insertion)` | `<ins>` | |
-| Invisible   | `invisible`           | No       | No        | Yes       | `Element::Container(Invisible)` | `<span class="invisible">` |
-| Italics     | `i`, `italics`, `em`, `emphasis` | No | No |  No         | `Element::Container(Italics)` | `<em>` | |
-| Lines       | `lines`, `newlines`   | No       | No        | Yes       | `Element::LineBreaks` | `<br>` | |
-| Mark        | `mark`, `highlight`   | No       | No        | No        | `Element::Container(Mark)` | `<mark>` | |
-| Module      | `module`              | No       | No        | Yes       | N/A | N/A | See [section below](#modules) on modules. |
-| Monospace   | `tt`, `mono`, `monospace` | No   | No        | No        | `Element::Container(Monospace)` | `<tt>` | |
-| Radio       | `radio`, `radio-button` | Yes    | No        | No        | `Element::RadioButton` | `<input type="radio">` | If special is set, the radio button begins selected. |
-| Size        | `size`                | No       | No        | No        | `Element::Container(Size)` | `<span style="font-size: XXX;">` | |
-| Span        | `span`                | No       | Yes       | No        | `Element::Container(Span)` | `<span>` | Modifier strips trailing and leading newlines from output. |
-| Strikethrough | `s`, `strikethrough` | No      | No        | No        | `Element::Container(Strikethrough)` | `<s>` | |
-| Subscript   | `sub`, `subscript`    | No       | No        | No        | `Element::Container(Subscript)` | `<sub>` | |
-| Superscript | `sup`, `super`, `superscript` | No | No      | No        | `Element::Container(Superscript)` | `<sup>` | |
-| Underline   | `u`, `underline`      | No       | No        | No        | `Element::Container(Underline)` | `<u>` | |
+| Block Name  | Accepted Names                   | Special? | Modifier? | Newlines? | Argument Type | Body Type |
+|-------------|----------------------------------|----------|-----------|-----------|---------------|-----------|
+| Anchor      | `a`, `anchor`                    | No       | Yes       | No        | Map           | Elements  |
+| Blockquote  | `blockquote`, `quote`            | No       | No        | Yes       | Map           | Elements  |
+| Bold        | `b`, `bold`, `strong`            | No       | No        | No        | Map           | Elements  |
+| Checkbox    | `checkbox`                       | Yes      | No        | No        | Map           | None      |
+| Code        | `code`                           | No       | No        | Yes       | Map           | Raw       |
+| Collapsible | `collapsible`                    | No       | No        | Yes       | Map           | Elements  |
+| CSS         | `css`                            | No       | No        | Yes       | None          | Raw       |
+| Deletion    | `del`, `deletion`                | No       | No        | No        | Map           | Elements  |
+| Div         | `div`                            | No       | Yes       | Yes       | Map           | Elements  |
+| Hidden      | `hidden`                         | No       | No        | Yes       | Map           | Elements  |
+| HTML        | `html`                           | No       | No        | Yes       | Map           | Raw       |
+| Iframe      | `iframe`                         | No       | No        | Yes       | None          | None      |
+| Include     | `include`                        | No       | No        | Yes       | Name + Map    | None      |
+| Insertion   | `ins`, `insertion`               | No       | No        | No        | Map           | Elements  |
+| Invisible   | `invisible`                      | No       | No        | Yes       | Map           | Elements  |
+| Italics     | `i`, `italics`, `em`, `emphasis` | No       | No        | No        | Map           | Elements  |
+| Lines       | `lines`, `newlines`              | No       | No        | Yes       | Value         | None      |
+| Mark        | `mark`, `highlight`              | No       | No        | No        | Map           | Elements  |
+| Module      | `module`                         | No       | No        | Yes       | (See below)   | (See below) |
+| Monospace   | `tt`, `mono`, `monospace`        | No       | No        | No        | Map           | Elements  |
+| Radio       | `radio`, `radio-button`          | Yes      | No        | No        | Name + Map    | None      |
+| Size        | `size`                           | No       | No        | No        | Map           | Elements  |
+| Span        | `span`                           | No       | Yes       | No        | Map           | Elements  |
+| Strikethrough | `s`, `strikethrough`           | No       | No        | No        | Map           | Elements  |
+| Subscript   | `sub`, `subscript`               | No       | No        | No        | Map           | Elements  |
+| Superscript | `sup`, `super`, `superscript`    | No       | No        | No        | Map           | Elements  |
+| Underline   | `u`, `underline`                 | No       | No        | No        | Map           | Elements  |
+
+Each of the blocks will be described in more detail below:
+
+### Anchor
+
+**Accepts:**
+* Modifier &emdash; Strips leading and trailing newlines.
+
+**Abstract Syntax Tree Output:** `Element::Anchor`
+
+**HTML Output:** `<a>`
+
+**Arguments:**
+* TODO
+
+**Example:**
+
+```
+[[a href="/scp-4000/noredirect/true" target="_blank" class="dual-link"]]Fae[[/a]]
+```
+
+### Blockquote
+
+**Accepts:**
+* Newlines
+
+**Abstract Syntax Tree Output:** `Element::Container(ContainerType::Blockqote)`
+
+**HTML Output:** `<blockquote>`
+
+**Arguments:**
+* TODO
+
+**Example:**
+
+```
+[[blockquote]]
+Some text here.
+[[/blockquote]]
+```
 
 ## Modules
 
