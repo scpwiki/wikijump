@@ -10,7 +10,7 @@ Blocks have five variable properties worth noting:
 2. Their name may end in `_`. This is referred to as the "modifier" flag. This underscore is ignored if found in the tail.
 3. The block may have a number of arguments before ending in `]]`.
 4. The block may accept delimited newlines. This is explained in more detail below.
-5. The block may have a body. It has contents that is terminated by `[[/name]]` (where `name` is the block name).
+5. The block may have a body. It has contents that is terminated by `[[/name]]` (where `name` is the block name), referred to as the tail.
 
 Whether particular blocks accept these variables is noted in the table below. If a block does not permit that variance, then it will not parse. For instance, if a block does not permit special variance but a `*` is added anyways.
 
