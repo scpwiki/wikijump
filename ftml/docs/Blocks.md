@@ -65,7 +65,7 @@ Banana
 | Italics     | `i`, `italics`, `em`, `emphasis` | No | No | No         | `Element::Container(Italics)` | `<em>` | |
 | Lines       | `lines`, `newlines`   | No       | No       | Yes       | `Element::LineBreaks` | `<br>` | |
 | Mark        | `mark`, `highlight`   | No       | No       | No        | `Element::Container(Mark)` | `<mark>` | |
-| Module      | `module`              | No       | No       | Yes       | - | - | See section below on modules. |
+| Module      | `module`              | No       | No       | Yes       | - | - | See [section below](#modules) on modules. |
 | Monospace   | `tt`, `mono`, `monospace` | No   | No       | No        | `Element::Container(Monospace)` | `<tt>` | |
 | Radio       | `radio`, `radio-button` | Yes    | No       | No        | `Element::RadioButton` | `<input type="radio">` | If special is set, the radio button begins selected. |
 | Size        | `size`                | No       | No       | No        | `Element::Container(Size)` | `<span style="font-size: XXX;">` | |
@@ -77,7 +77,7 @@ Banana
 
 ### Modules
 
-The table below follows essentially the same schema as for blocks in general, with a few changes. As noted above, all modules accept separate newlines and do not accept special or variant flags. Additionally, the list of accepted names is the same as the module name (but case-insensitive).
+The table below follows essentially the same schema as for blocks in general, with a few changes. [As noted above](#blocks), all modules accept separate newlines and do not accept special or variant flags. Additionally, the list of accepted names is the same as the module name (but case-insensitive).
 
 | Module Name  | AST Output           | HTML Output                               | Notes |
 |--------------|----------------------|-------------------------------------------|-------|
