@@ -11,7 +11,7 @@ How the bodies of a block are interpreted depend on its type. They fall into one
 | None            | `[[include]]` | Has no body. This block terminates at its head. |
 | Raw text        | `[[code]]`    | Interprets the entire block body as raw text. Syntax is not parsed. |
 | Nested elements | `[[div]]`     | Interprets block contents as elements in a certain context. These are then nested in the block. |
-| Other           |               | Uses some other means of interpreting its body. Some Wikidot blocks allow passing YAML, for instance. |
+| Other           | N/A           | Uses some other means of interpreting its body. Some Wikidot blocks allow passing YAML, for instance. |
 
 Of note that while `[[module]]` is its own block, it requires specifying a module name, and this behaves similarly to other blocks in that their attributes are determined by the module name.
 
