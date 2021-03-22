@@ -70,6 +70,8 @@ Of note that while `[[module]]` is its own block, it requires specifying a modul
 
 ## Blocks
 
+Here is a table showing the options each block has with regards to its construction:
+
 | Block Name  | Accepted Names        | Special? | Modifier? | Newlines? | AST Output | HTML Output | Notes |
 |-------------|-----------------------|----------|-----------|-----------|------------|-------------|-------|
 | Anchor      | `a`, `anchor`         | No       | Yes       | No        | `Element::Anchor` | `<a>` | Modifier strips trailing and leading newlines from output. |
